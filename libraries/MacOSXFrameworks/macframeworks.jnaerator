@@ -1,0 +1,28 @@
+-framework CoreFoundation 
+-framework CoreGraphics
+-framework Foundation 
+-framework AppKit 
+-framework AE
+-framework ATS
+-framework CarbonCore
+-framework CFNetwork
+-framework ColorSync
+-framework CoreData
+-framework CoreText
+-framework CoreVideo
+-framework DictionaryServices
+-framework HIServices
+-framework ImageIO
+-framework IOKit
+-framework LangAnalysis
+-framework LaunchServices
+-framework OpenGL
+-framework OSServices
+-framework QD
+-framework QuartzCore
+-framework SearchKit
+-framework Security
+-framework SpeechSynthesis
+
+// Life would be dull without hacks :
+-DCSSM_TRUE=1
