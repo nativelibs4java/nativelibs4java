@@ -1,3 +1,5 @@
+-root org.rococoa
+
 -framework CoreFoundation 
 -framework CoreGraphics
 -framework Foundation 
@@ -23,6 +25,8 @@
 -framework SearchKit
 -framework Security
 -framework SpeechSynthesis
+
+//-o macframeworks
 
 // Life would be dull without hacks :
 -DCSSM_TRUE=1
