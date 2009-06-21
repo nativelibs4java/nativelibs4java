@@ -1,0 +1,24 @@
+-I      cv/include
+-I      cvaux/include
+-I      cxcore/include
+-I      ml/include
+-I      otherlibs/highgui/include
+
+-library cxcore 
+        cxcore/include/*.h
+        
+-library cv 
+        cv/include/*.h
+        
+-library cvaux 
+        cvaux/include/*.h
+        
+-library ml 
+        ml/include/*.h
+        
+-library highgui 
+        otherlibs/highgui/*.h
+
+-entry OpenCV
+
+-jar OpenCV.jar
