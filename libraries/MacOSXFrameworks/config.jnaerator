@@ -1,7 +1,12 @@
 -root org.rococoa
 
+-framework AddressBook
+-framework Automator
+-framework CalendarStore
+-framework Collaboration
 -framework CoreFoundation 
 -framework CoreGraphics
+-framework CoreServices
 -framework Foundation 
 -framework AppKit 
 -framework AE
@@ -13,18 +18,31 @@
 -framework CoreText
 -framework CoreVideo
 -framework DictionaryServices
+-framework ExceptionHandling
 -framework HIServices
 -framework ImageIO
+-framework InstantMessage
 -framework IOKit
 -framework LangAnalysis
 -framework LaunchServices
+-framework Message
 -framework OpenGL
 -framework OSServices
+-framework PreferencePanes
 -framework QD
+-framework QTKit
 -framework QuartzCore
+-framework QuickLook
+-framework ScreenSaver
+//-framework ScriptingBridge
 -framework SearchKit
 -framework Security
+-framework SecurityFoundation
+-framework SecurityInterface
 -framework SpeechSynthesis
+-framework SyncServices
+-framework WebKit
+//-framework WebServicesCore
 
 //-o macframeworks
 
