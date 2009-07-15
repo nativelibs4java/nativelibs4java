@@ -30,7 +30,7 @@
 -framework OpenGL
 -framework OSServices
 -framework PreferencePanes
-//-framework QD
+-framework QD
 -framework QTKit
 -framework QuartzCore
 -framework QuickLook
