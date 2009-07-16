@@ -1,34 +1,36 @@
 //-v
 
--I	$(DIR)/cv/include
--I	$(DIR)/cvaux/include
--I	$(DIR)/cxcore/include
--I	$(DIR)/ml/include
--I	$(DIR)/otherlibs/highgui/include
+-I	"$(DIR)/cv/include"
+-I	"$(DIR)/cvaux/include"
+-I	"$(DIR)/cxcore/include"
+-I	"$(DIR)/ml/include"
+-I	"$(DIR)/otherlibs/highgui/include"
 
 -library cxcore 
-	$(DIR)/cxcore/include/*.h
+	"$(DIR)/cxcore/include/*.h"
 	
 -library cv 
-	$(DIR)/cv/include/*.h
+	"$(DIR)/cv/include/*.h"
 	
 -library cvaux 
-	$(DIR)/cvaux/include/*.h
+	"$(DIR)/cvaux/include/*.h"
 	
 -library ml 
-	$(DIR)/ml/include/*.h
+	"$(DIR)/ml/include/*.h"
 	
 -library highgui 
-	$(DIR)/otherlibs/highgui/*.h
+	"$(DIR)/otherlibs/highgui/*.h"
 
 -arch darwin-fat 
-	$(DIR)/lib*.dylib?
+	"$(DIR)/lib*.dylib?"
 	
 -arch win32 
-	$(DIR)/bin/*110.dll?
-	$(DIR)/bin/*110.pdb?
+	"$(DIR)/bin/*110.dll?"
+	"$(DIR)/bin/*110.pdb?"
 
 -entry OpenCV
 
+-o jnaeration
+
 -preferJavac
--jar $(DIR)/bin/OpenCV.jar
+-jar "$(DIR)/bin/OpenCV.jar"
