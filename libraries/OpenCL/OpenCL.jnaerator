@@ -1,5 +1,5 @@
 -library OpenCL
 -jar "$(DIR)/OpenCL.jar"
-"-I$(DIR)/include"
-"$(DIR)/include/*.h"
+"-I$(DIR)"
+"$(DIR)/GL/*.h"
 

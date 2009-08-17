@@ -21,15 +21,16 @@
  * MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
  **********************************************************************************/
 
+/* $Revision: 8407 $ on $Date: 2009-06-12 10:56:38 -0700 (Fri, 12 Jun 2009) $ */
+
 #ifndef __OPENCL_CL_GL_H
 #define __OPENCL_CL_GL_H
 
 //#ifdef __APPLE__
 //#include <OpenCL/cl_platform.h>
 //#else
-//#include <CL/cl_platform.h>
+#include <CL/cl_platform.h>
 //#endif	
-#include "cl_platform.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,17 +40,17 @@ extern "C" {
 
 typedef cl_uint     cl_gl_object_type;
 typedef cl_uint     cl_gl_texture_info;
+typedef cl_uint     cl_gl_platform_info;
 
 // cl_gl_object_type
 #define CL_GL_OBJECT_BUFFER             0x2000
 #define CL_GL_OBJECT_TEXTURE2D          0x2001
-#define CL_GL_OBJECT_TEXTURE_RECTANGLE  0x2002
-#define CL_GL_OBJECT_TEXTURE3D          0x2003
-#define CL_GL_OBJECT_RENDERBUFFER       0x2004
+#define CL_GL_OBJECT_TEXTURE3D          0x2002
+#define CL_GL_OBJECT_RENDERBUFFER       0x2003
 
 // cl_gl_texture_info
-#define CL_GL_TEXTURE_TARGET            0x2005
-#define CL_GL_MIPMAP_LEVEL              0x2006
+#define CL_GL_TEXTURE_TARGET            0x2004
+#define CL_GL_MIPMAP_LEVEL              0x2005
 
 extern CL_API_ENTRY cl_mem CL_API_CALL
 clCreateFromGLBuffer(cl_context     /* context */,
@@ -63,7 +64,7 @@ clCreateFromGLTexture2D(cl_context      /* context */,
                         GLenum          /* target */,
                         GLint           /* miplevel */,
                         GLuint          /* texture */,
-                        cl_int *           /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
+                        cl_int *        /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 
 extern CL_API_ENTRY cl_mem CL_API_CALL
 clCreateFromGLTexture3D(cl_context      /* context */,
@@ -71,13 +72,13 @@ clCreateFromGLTexture3D(cl_context      /* context */,
                         GLenum          /* target */,
                         GLint           /* miplevel */,
                         GLuint          /* texture */,
-                        cl_int *           /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
+                        cl_int *        /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 
 extern CL_API_ENTRY cl_mem CL_API_CALL
 clCreateFromGLRenderbuffer(cl_context   /* context */,
                            cl_mem_flags /* flags */,
                            GLuint       /* renderbuffer */,
-                           cl_int *        /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
+                           cl_int *     /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 
 extern CL_API_ENTRY cl_int CL_API_CALL
 clGetGLObjectInfo(cl_mem                /* memobj */,
