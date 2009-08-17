@@ -1,5 +1,9 @@
 -library OpenCL
 -jar "$(DIR)/OpenCL.jar"
+//-noComp
+//-o "$(DIR)/out"
 "-I$(DIR)"
-"$(DIR)/GL/*.h"
+//-Dcl_uint=int
+"$(DIR)/GL/cl_platform.h"
+"$(DIR)/GL/cl.h"
 
