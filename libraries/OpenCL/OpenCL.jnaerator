@@ -4,6 +4,7 @@
 //-o "$(DIR)/out"
 "-I$(DIR)"
 //-Dcl_uint=int
-"$(DIR)/GL/cl_platform.h"
-"$(DIR)/GL/cl.h"
+-Dcl_bitfield=int
+"$(DIR)/CL/cl_platform.h"
+"$(DIR)/CL/cl.h"
 
