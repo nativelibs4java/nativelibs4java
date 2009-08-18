@@ -1,0 +1,7 @@
+-library BeaEngine
+"$(DIR)/HEADERS/BeaEngine.h"
+
+-arch win32 "$(DIR)/DLL/BeaEngine.dll"
+-arch win64 "$(DIR)/DLL/BeaEngine64.dll"
+
+-o JNA
