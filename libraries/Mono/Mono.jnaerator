@@ -1,0 +1,15 @@
+-library mono
+-o "$(DIR)/Java"
+//-noComp
+//-nocpp
+-Dguint32=int
+-jar Mono.jar
+
+"-IC:\Program Files\Mono-1.2.6\include\mono-1.0"
+"-IC:\Program Files\Mono-1.2.6\include\glib-2.0"
+
+"C:\Program Files\Mono-1.2.6\include\mono-1.0\mono\metadata\metadata.h"
+"C:\Program Files\Mono-1.2.6\include\mono-1.0\mono\metadata\*.h"
+"C:\Program Files\Mono-1.2.6\include\mono-1.0\mono\jit\*.h"
+"C:\Program Files\Mono-1.2.6\include\mono-1.0\mono\interpreter\embed.h"
+
