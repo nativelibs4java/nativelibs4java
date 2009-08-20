@@ -1,17 +1,10 @@
--library 
-	OpenCL
-	
-	"-I$(DIR)"
-
-	"$(DIR)/CL/cl_platform.h"
-	"$(DIR)/CL/cl.h"
-
--jar 
-	"$(DIR)/OpenCL.jar"
-
--Dcl_bitfield=int
-
+-library OpenCL
+-jar "$(DIR)/OpenCL.jar"
 //-noComp
-//-o "$(DIR)/out"
-//-Dcl_uint=int
+//-o out
+//-v
+"-I$(DIR)"
+"$(DIR)/GL/cl.h"
+"$(DIR)/GL/cl_platform.h"
 
+"-Dcl_bitfield=unsigned long"
