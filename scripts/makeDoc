@@ -1,0 +1,31 @@
+#!/bin/sh
+
+PROJECT=$1
+
+if [[ ! -f $PROJECT.jar ]] ; then 
+	if [[ -d libraries ]] ; then
+		cd libraries ;
+	fi
+	
+	if [[ -d $PROJECT ]] ; then
+		cd $PROJECT ;
+	fi ;
+	
+fi
+
+if [[ ! -f $PROJECT.jar ]] ; then
+	echo "Could not find $PROJECT.jar !"
+	exit ;
+fi
+
+#rm -fR doc
+
+rm -fR .temp.doc.src
+mkdir .temp.doc.src
+cd .temp.doc.src
+jar xf ../$PROJECT.jar
+cd ..
+	
+javadoc -d doc -classpath .temp.doc.src `find .temp.doc.src -name "*.java"` -link http://jnaerator.googlecode.com/svn/trunk/doc -link https://jna.dev.java.net/javadoc 
+
+rm -fR .temp.doc.src
