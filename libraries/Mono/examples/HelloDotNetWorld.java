@@ -68,12 +68,12 @@ public class HelloDotNetWorld {
 
 		PointerByReference pargs = new PointerByReference();
 		pargs.setPointer(mem.share(0));
-		return m.mono_runtime_invoke(m.mono_class_get_method_from_name(cl, methodName, args.length), ob == null ? null : ob.getPointer(), pargs, null);
+		return m.mono_runtime_invoke(m.mono_class_get_method_from_name(cl, methodName, args.length), ob == null ? null : ob.getPointer(), pargs, (PointerByReference)null);
 	}
 
 	private static MonoObject getProperty(MonoLibrary m, MonoDomain domain,
 			MonoObject ob, String propertyName) {
-		return m.mono_runtime_invoke(m.mono_property_get_get_method(m.mono_class_get_property_from_name(m.mono_object_get_class(ob), propertyName)), ob.getPointer(), null, null);
+		return m.mono_runtime_invoke(m.mono_property_get_get_method(m.mono_class_get_property_from_name(m.mono_object_get_class(ob), propertyName)), ob.getPointer(), null, (PointerByReference)null);
 				
 	}
 
@@ -103,7 +103,6 @@ public class HelloDotNetWorld {
 		
 		PointerByReference pargs = new PointerByReference();
 		pargs.setPointer(mem.share(0));
-		m.mono_runtime_invoke(m.mono_property_get_set_method(m.mono_class_get_property_from_name(cl, propertyName)), ob.getPointer(), pargs, null);
+		m.mono_runtime_invoke(m.mono_property_get_set_method(m.mono_class_get_property_from_name(cl, propertyName)), ob.getPointer(), pargs, (PointerByReference)null);
 	}
 }
-
