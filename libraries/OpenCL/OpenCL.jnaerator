@@ -4,7 +4,7 @@
 //-o out
 //-v
 "-I$(DIR)"
-"$(DIR)/GL/cl.h"
-"$(DIR)/GL/cl_platform.h"
+"$(DIR)/CL/cl.h"
+"$(DIR)/CL/cl_platform.h"
 
 "-Dcl_bitfield=unsigned long"
