@@ -67,7 +67,7 @@ public class OpenCL4Java {
 	}
 	
 	static abstract class CLEntity<T extends PointerType> {
-		protected T entity;
+		private T entity;
 
     	public CLEntity(T entity) {
     		if (entity == null)
@@ -82,10 +82,10 @@ public class OpenCL4Java {
     	}
 		@Override
 		protected void finalize() throws Throwable {
-			clear(entity);
+			clear();
 			entity = null;
 		}
-		protected abstract void clear(T entity);
+		protected abstract void clear();
 	}
 	/**
 	 * OpenCL command queue.
@@ -100,7 +100,7 @@ public class OpenCL4Java {
 		}
 
 		@Override
-		protected void clear(cl_command_queue entity) {
+		protected void clear() {
 		    error(CL.clReleaseCommandQueue(get()));
 		}
 		/// Wait for the queue to be fully executed. Costly. 
@@ -202,8 +202,8 @@ public class OpenCL4Java {
 		}
 		
 		@Override
-		protected void clear(cl_program entity) {
-			CL.clReleaseProgram(entity);
+		protected void clear() {
+			CL.clReleaseProgram(get());
 		}
 		
 		public CLKernel createKernel(String name, Object... args) {
@@ -212,26 +212,7 @@ public class OpenCL4Java {
 		    error(errBuff.get(0));
 		    
 		    CLKernel kn = new CLKernel(this, name, kernel);
-		    for (int i = 0; i < args.length; i++) {
-		    	Object arg = args[i];
-		    	if (arg instanceof NativeLong)
-		    		kn.setArg(i, (NativeLong)arg);
-		    	else if (arg instanceof CLMem)
-		    		kn.setArg(i, (CLMem)arg);
-		    	else if (arg instanceof Integer)
-		    		kn.setArg(i, (Integer)arg);
-		    	else if (arg instanceof Long)
-		    		kn.setArg(i, (Long)arg);
-		    	else if (arg instanceof Short)
-		    		kn.setArg(i, (Short)arg);
-		    	else if (arg instanceof Byte)
-		    		kn.setArg(i, (Byte)arg);
-		    	else if (arg instanceof Float)
-		    		kn.setArg(i, (Float)arg);
-		    	else if (arg instanceof Double)
-		    		kn.setArg(i, (Double)arg);
-		    	else throw new IllegalArgumentException("Cannot handle kernel arguments of type " + arg.getClass().getName() +". Use CLKernel.get() and OpenCL4Java directly.");
-		    }
+		    kn.setArgs(args);
 		    return kn;
 		}
 		
@@ -246,6 +227,32 @@ public class OpenCL4Java {
 			this.name = name;
 		}
 		
+		public void setArgs(Object... args) {
+		    for (int i = 0; i < args.length; i++)
+		    	setObjectArg(i, args[i]);
+		}
+
+		public void setObjectArg(int i, Object arg) {
+
+	    	if (arg instanceof NativeLong)
+	    		setArg(i, (NativeLong)arg);
+	    	else if (arg instanceof CLMem)
+	    		setArg(i, (CLMem)arg);
+	    	else if (arg instanceof Integer)
+	    		setArg(i, (Integer)arg);
+	    	else if (arg instanceof Long)
+	    		setArg(i, (Long)arg);
+	    	else if (arg instanceof Short)
+	    		setArg(i, (Short)arg);
+	    	else if (arg instanceof Byte)
+	    		setArg(i, (Byte)arg);
+	    	else if (arg instanceof Float)
+	    		setArg(i, (Float)arg);
+	    	else if (arg instanceof Double)
+	    		setArg(i, (Double)arg);
+	    	else throw new IllegalArgumentException("Cannot handle kernel arguments of type " + arg.getClass().getName() +". Use CLKernel.get() and OpenCL4Java directly.");
+		}
+
 		public void setArg(int i, NativeLong arg) {
 			error(CL.clSetKernelArg(get(), i, toNL(Native.LONG_SIZE), new NativeLongByReference(arg).getPointer()));
 //			error(CL.clSetKernelArg(get(), i, OpenCL4Java.toNL(Native.LONG_SIZE), new IntByReference(128).getPointer()));
@@ -276,8 +283,8 @@ public class OpenCL4Java {
 		}
 
 		@Override
-		protected void clear(cl_kernel entity) {
-			CL.clReleaseKernel(entity);
+		protected void clear() {
+			CL.clReleaseKernel(get());
 		}
 
 		/// TODO: Get the maximum work-group size with CL.clGetKernelWorkGroupInfo(CL_KERNEL_WORK_GROUP_SIZE)
@@ -342,8 +349,8 @@ public class OpenCL4Java {
     	
     	//cl_queue queue;
     	@Override
-		protected void clear(cl_context entity) {
-    		CL.clReleaseContext(entity);
+		protected void clear() {
+    		CL.clReleaseContext(get());
 		}
     	public CLMem createInput(Buffer buffer, boolean copy) {
     		return createMem(buffer, -1, CL_MEM_READ_ONLY | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), true);
@@ -376,7 +383,7 @@ public class OpenCL4Java {
     		IntByReference errRef = new IntByReference();
 			//IntBuffer errBuff = IntBuffer.wrap(new int[1]);
     		cl_mem mem = CL.clCreateBuffer(
-				this.entity,  
+				get(),  
 				clMemFlags,  
 				toNL(byteCount), 
 				buffer == null ? null : Native.getDirectBufferPointer(buffer), 
@@ -403,8 +410,8 @@ public class OpenCL4Java {
     		this.context = context;
     	}
     	@Override
-		protected void clear(cl_mem entity) {
-    		CL.clReleaseMemObject(entity);
+		protected void clear() {
+    		CL.clReleaseMemObject(get());
 		}
     	@SuppressWarnings("deprecation")
 		public void read(Buffer out, CLQueue queue, boolean blocking) {
