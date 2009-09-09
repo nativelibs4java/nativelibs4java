@@ -42,20 +42,10 @@ case class DoublesVar(size: Int) extends Var[DoubleBuffer](TypeDesc(1, Parallel,
 abstract class Program {
 	var root: Expr
 
-	//var t = root inferLocalType;
-	/*if (t == "void") {
-		var out = Out[]("__out__")
-		variables += out
-		doc = BinOp("=", out, doc)
-	}*/
-	//var source = "void __main__(" + implode(variables, ", ") + ") {" + doc + "}"
-
-	def size() : Int = 1 // TODO
-	
-	var prog: String = "";
+	private var source: String = "";
  
 	def !() {
-		if (prog == "") {
+		if (source == "") {
 			val variables = root variables;
    
 			(variables zipWithIndex) foreach { case (v, i) => 
@@ -105,9 +95,9 @@ abstract class Program {
 	        doc ++ root.toString
 	        doc ++ "\n}\n"
 	        
-	        prog = doc.toString
+	        source = doc.toString
          }
-		println(prog)
+		println(source)
 		// bind In variables
 		// exec
 		// read Out variables
