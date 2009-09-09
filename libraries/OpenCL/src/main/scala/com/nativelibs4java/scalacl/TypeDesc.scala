@@ -1,4 +1,4 @@
-package scalacl
+package com.nativelibs4java.scalacl
 
 case class TypeDesc(channels: Int, valueType: ValueType, primType: PrimType) {
   def combineWith(o: TypeDesc): TypeDesc = {

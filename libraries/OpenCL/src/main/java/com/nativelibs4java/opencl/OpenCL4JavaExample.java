@@ -1,7 +1,7 @@
-package opencl;
+package com.nativelibs4java.opencl;
 
 import java.nio.*;
-import static opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
 /// @see http://ati.amd.com/technology/streamcomputing/intro_opencl.html#simple
 public class OpenCL4JavaExample {

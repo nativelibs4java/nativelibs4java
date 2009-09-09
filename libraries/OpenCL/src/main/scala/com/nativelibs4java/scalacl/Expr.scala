@@ -1,4 +1,4 @@
-package scalacl
+package com.nativelibs4java.scalacl
 import java.nio._
 
 trait CLValue 

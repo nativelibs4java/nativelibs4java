@@ -1,4 +1,4 @@
-package scalacl
+package com.nativelibs4java.scalacl
 
 abstract sealed class Operator(op: String)
 case class UnaryOperator(op: String) extends Operator(op)

@@ -1,5 +1,8 @@
-package opencl;
-import static opencl.OpenCLLibrary.*;
+package com.nativelibs4java.opencl;
+
+import com.nativelibs4java.opencl.OpenCLLibrary;
+import static com.nativelibs4java.opencl.OpenCLLibrary.*;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.Buffer;
@@ -15,14 +18,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-
-import opencl.OpenCLLibrary;
-import opencl.OpenCLLibrary.cl_command_queue;
-import opencl.OpenCLLibrary.cl_context;
-import opencl.OpenCLLibrary.cl_device_id;
-import opencl.OpenCLLibrary.cl_kernel;
-import opencl.OpenCLLibrary.cl_mem;
-import opencl.OpenCLLibrary.cl_program;
 
 import com.ochafik.util.string.StringUtils;
 import com.sun.jna.Memory;

@@ -1,4 +1,4 @@
-package scalacl;
+package com.nativelibs4java.scalacl;
 import Expr._
 object ScalaCLTest extends Application with ScalaCL with NIOUtils {
     class MyProg(n: Int) extends Program {

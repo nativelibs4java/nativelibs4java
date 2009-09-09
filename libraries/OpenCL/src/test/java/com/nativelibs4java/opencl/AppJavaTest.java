@@ -1,14 +1,16 @@
 package com.nativelibs4java.opencl;
 
+/*
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+*/
 
 /**
  * Unit test for simple App.
  */
 public class AppJavaTest 
-    extends TestCase
+//    extends TestCase
 {
     /**
      * Create the test case
@@ -17,22 +19,22 @@ public class AppJavaTest
      */
     public AppJavaTest( String testName )
     {
-        super( testName );
+        //super( testName );
     }
 
     /**
      * @return the suite of tests being tested
      */
-    public static Test suite()
+    /*public static Test suite()
     {
         return new TestSuite( AppJavaTest.class );
-    }
+    }*/
 
     /**
      * Rigourous Test :-)
      */
-    public void testApp()
+    /*public void testApp()
     {
         assertTrue( true );
-    }
+    }*/
 }

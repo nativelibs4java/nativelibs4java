@@ -1,4 +1,4 @@
-package scalacl
+package com.nativelibs4java.scalacl
 
 case object Scalar extends ValueType
 case object Parallel extends ValueType
