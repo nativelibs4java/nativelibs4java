@@ -1,0 +1,21 @@
+#!/bin/bash
+
+JDOC_ROOT=target/site/apidocs
+
+find $JDOC_ROOT/ -iname "*.html" -exec svn add '{}' ';' 2> /dev/null
+	
+# See http://stuffthathappens.com/blog/2007/11/09/howto-publish-javadoc-on-google-code/
+if [[ ! -z "$RETAG" ]] ; then
+	find $JDOC_ROOT/ -iname "*.html" -exec svn propset svn:mime-type text/html '{}' ';'
+	find $JDOC_ROOT/ -iname "*.css" -exec svn propset svn:mime-type text/css '{}' ';'
+	find $JDOC_ROOT/ -iname "*.txt" -exec svn propset svn:mime-type text/plain '{}' ';'
+	find $JDOC_ROOT/ -iname "*.png" -exec svn propset svn:mime-type image/png '{}' ';'
+	find $JDOC_ROOT/ -iname "*.jpg" -exec svn propset svn:mime-type image/jpeg '{}' ';'
+	find $JDOC_ROOT/ -iname "*.jpeg" -exec svn propset svn:mime-type image/jpeg '{}' ';' ;
+fi
+
+if [[ ! -z "$COMMIT" ]] ; then
+	svn commit $JDOC_ROOT -m "Javadoc propset update" ;
+fi
+
+
