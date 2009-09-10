@@ -7,9 +7,38 @@
     <packaging>pom</packaging>
     <inceptionYear>2009</inceptionYear>
     <name>NativeLibs4Java "Abstract" Parent Project</name>
-    <repositories>
-		<project>
+    
+	<reporting>
+		<plugins>
+		  <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-javadoc-plugin</artifactId>
+			<version>2.5</version>
+			
+			
+			<configuration>
+				<aggregate>true</aggregate>
+				<minmemory>128m</minmemory>
+				<maxmemory>512</maxmemory>
+				<breakiterator>true</breakiterator>
+				<quiet>true</quiet>
+				<source>1.6</source>
+				<verbose>false</verbose>
+				<linksource>true</linksource>
+				<links>
+					<link>http://java.sun.com/javase/6/docs/api/</link>
+					<link>https://jna.dev.java.net/javadoc</link>
+				</links>
+			</configuration>
+		  </plugin>
+	
+		</plugins>
 		
+	</reporting>
+	<repositories>
+	
+	<!-- TODO JNLP: http://mojo.codehaus.org/webstart/webstart-maven-plugin/jnlp-mojos-overview.html -->
+	
 		<repository>
 		  <id>nativelibs4java</id>
 		  <url>http://nativelibs4java.googlecode.com/svn/trunk/maven-repo</url>
@@ -20,7 +49,45 @@
             <name>Scala-tools Maven2 Repository</name>
             <url>http://scala-tools.org/repo-releases</url>
         </repository>
+		
+		<repository>
+		  <id>maven2-repository.dev.java.net</id>
+		  <name>Java.net Repository for Maven</name>
+		  <url>http://download.java.net/maven/2/</url>
+		</repository>
+		
     </repositories>
+	
+	<build>
+		<extensions>
+		  <extension>
+			<groupId>org.jvnet.wagon-svn</groupId>
+			<artifactId>wagon-svn</artifactId>
+			<version>1.8</version>
+		  </extension>
+		</extensions>
+		
+		<plugins>
+		  <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>2.0.2</version>
+			<configuration>
+			  <source>1.6</source>
+			  <target>1.6</target>
+			</configuration>
+		  </plugin>
+		</plugins>
+	</build>
+	
+	<distributionManagement>
+		<repository>
+			<uniqueVersion>false</uniqueVersion>
+			<id>nativelibs4java-repo</id>
+			<url>svn:https://nativelibs4java.googlecode.com/svn/trunk/maven-repo</url>
+		</repository>
+	</distributionManagement>
+  
     <pluginRepositories>
         <pluginRepository>
             <id>scala-tools.org</id>
@@ -37,17 +104,21 @@
                 </file>
             </activation>
             <dependencies>
-                <dependency>
+                
+				<dependency>
                     <groupId>org.scala-lang</groupId>
                     <artifactId>scala-library</artifactId>
                     <version>2.7.5</version>
                 </dependency>
+				
 				<dependency>
 				  <groupId>junit</groupId>
 				  <artifactId>junit</artifactId>
 				  <version>3.8.1</version>
 				  <scope>test</scope>
 				</dependency>
+				
+				
             </dependencies>
             <build>
                 <plugins>

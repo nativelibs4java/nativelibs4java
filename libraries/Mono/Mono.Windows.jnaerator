@@ -1,0 +1,11 @@
+Mono.base.jnaerator
+
+"-IC:\Program Files\Mono-2.4.2.3\include\mono-1.0"
+"-IC:\Program Files\Mono-2.4.2.3\include\glib-2.0"
+
+"C:\Program Files\Mono-2.4.2.3\include\mono-1.0\mono\metadata\metadata.h"
+"C:\Program Files\Mono-2.4.2.3\include\mono-1.0\mono\metadata\*.h"
+"C:\Program Files\Mono-2.4.2.3\include\mono-1.0\mono\jit\*.h"
+"C:\Program Files\Mono-2.4.2.3\include\mono-1.0\mono\interpreter\embed.h"
+
+

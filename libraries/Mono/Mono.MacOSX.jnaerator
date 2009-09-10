@@ -1,0 +1,7 @@
+Mono.base.jnaerator
+
+"-I/Library/Frameworks/Mono.framework/Headers/mono-1.0"
+"-I/Library/Frameworks/Mono.framework/Headers/glib-2.0"
+
+"/Library/Frameworks/Mono.framework/Headers/mono-1.0/mono"
+

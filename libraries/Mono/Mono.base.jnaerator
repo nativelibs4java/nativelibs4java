@@ -1,0 +1,24 @@
+-library mono
+-root com.nativelibs4java
+//-o "$(DIR)/Java"
+//-o "C:\Prog\SymbioJ\src"
+//-noComp
+//-noRuntime
+
+	"-Dguint64=long long"
+	"-Dgint64=long long"
+	-Dguint32=int
+	-Dgint32=int
+	-Dguint16=short
+	-Dgint16=short
+	-Dguint8=char
+	-Dgint8=char
+	-Dgboolean=bool
+	-Dgsize=size_t
+	-Dgpointer=void*
+	-Dgfloat=float
+	-Dgchar=char
+	-Dgdouble=double
+	
+-jar "$(DIR)/Mono.jar"
+
