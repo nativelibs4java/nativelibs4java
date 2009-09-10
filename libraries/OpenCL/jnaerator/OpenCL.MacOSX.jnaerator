@@ -2,6 +2,6 @@
 -D__APPLE__=
 
 -framework OpenCL
--framework OpenGL
+//-framework OpenGL
 
 "$(DIR)/OpenCL.base.jnaerator"
