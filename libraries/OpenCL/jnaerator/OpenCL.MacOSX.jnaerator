@@ -1,18 +1,7 @@
-///Developer/SDKs/MacOSX10.4u.sdk/usr/include/AvailabilityMacros.h
 -DAVAILABLE_MAC_OS_X_VERSION_10_6_AND_LATER=
 -D__APPLE__=
 
 -framework OpenCL
 -framework OpenGL
 
--root com.nativelibs4java
-
-//-jar "$(DIR)/OpenCL.MacOSX.jar"
--o "$(DIR)/../src/main/java" -noComp
-
--scalaOut "$(DIR)/../src/main/scala"
-
-//-nocpp
-//-I/Developer/SDKs/MacOSX10.4u.sdk/usr/include
-//-v
-//"-Dcl_bitfield=unsigned long"
+"$(DIR)/OpenCL.base.jnaerator"

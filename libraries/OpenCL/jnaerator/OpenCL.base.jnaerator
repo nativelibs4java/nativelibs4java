@@ -1,0 +1,5 @@
+-root com.nativelibs4java
+
+-o "$(DIR)/../src/main/java" -noComp
+
+-scalaOut "$(DIR)/../src/main/scala"
