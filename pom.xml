@@ -8,13 +8,22 @@
     <inceptionYear>2009</inceptionYear>
     <name>NativeLibs4Java "Abstract" Parent Project</name>
     
+	<!-- TODO: deploy with wagon-http-googlecode (http://code.google.com/p/maven-googlecode/source/browse/#svn/trunk/wagon-http-googlecode) -->
+	
+	<developers>
+		<developer>
+			<id>olivier.chafik</id>
+			<name>Olivier Chafik</name>
+			<email>olivier.chafik@gmail.com</email>
+		</developer>
+	</developers>
+
 	<reporting>
 		<plugins>
 		  <plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-javadoc-plugin</artifactId>
 			<version>2.5</version>
-			
 			
 			<configuration>
 				<aggregate>true</aggregate>
@@ -65,9 +74,18 @@
 			<artifactId>wagon-svn</artifactId>
 			<version>1.8</version>
 		  </extension>
+		  <!--
+		  <extension>
+			 <groupId>org.apache.maven.wagon</groupId>
+			  <artifactId>wagon-http-googlecode</artifactId>
+			  <version>1.0-beta-3</version>
+		  </extension>
+		  -->
+		  
 		</extensions>
 		
 		<plugins>
+		
 		  <plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-compiler-plugin</artifactId>
@@ -77,15 +95,43 @@
 			  <target>1.6</target>
 			</configuration>
 		  </plugin>
+		  
+		  <!--Put this in each project's pom.xml :
+		  <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
+			<version>1.2.1</version>
+			<executions>
+			  <execution>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+			  </execution>
+			</executions>
+		  </plugin>
+		  -->
+		  
 		</plugins>
 	</build>
 	
+	<issueManagement>
+		<system>googlecode</system>
+		<url>http://code.google.com/p/nativelibs4java/issues/list</url>
+	  </issueManagement>
+
 	<distributionManagement>
 		<repository>
 			<uniqueVersion>false</uniqueVersion>
-			<id>nativelibs4java-repo</id>
+			<name>NativeLibs4Java GoogleCode SVN Repo</name>
+			<id>nativelibs4java-svn-repo</id>
 			<url>svn:https://nativelibs4java.googlecode.com/svn/trunk/maven-repo</url>
 		</repository>
+		<!--<repository>
+		  <id>nativelibs4java-downloads-repo</id>
+		  <name>NativeLibs4Java GoogleCode Downloads Repo</name>
+		  <url>gcode:https://nativelibs4java.googlecode.com/files</url>
+		</repository>-->
 	</distributionManagement>
   
     <pluginRepositories>
