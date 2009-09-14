@@ -204,13 +204,15 @@ public class OpenCL4Java {
 
     public static class CLProgram extends CLEntity<cl_program> {
 
-        final CLContext context;
+        protected final CLContext context;
 
         CLProgram(CLContext context, cl_program entity) {
             super(entity);
             this.context = context;
         }
-
+        public CLContext getContext() {
+            return context;
+        }
         public CLProgram build() throws CLBuildException {
 
             int err = CL.clBuildProgram(get(), 0, null/*context.getDeviceIds()*/, (String) null, null, null);
@@ -248,13 +250,19 @@ public class OpenCL4Java {
 
     public static class CLKernel extends CLEntity<cl_kernel> {
 
-        final CLProgram program;
-        final String name;
+        protected final CLProgram program;
+        protected final String name;
 
         CLKernel(CLProgram program, String name, cl_kernel entity) {
             super(entity);
             this.program = program;
             this.name = name;
+        }
+        public CLProgram getProgram() {
+            return program;
+        }
+        public String getName() {
+            return name;
         }
 
         public void setArgs(Object... args) {
@@ -351,7 +359,7 @@ public class OpenCL4Java {
 
     public static class CLContext extends CLEntity<cl_context> {
 
-        final cl_device_id[] deviceIds;
+        protected final cl_device_id[] deviceIds;
 
         protected CLContext(cl_device_id[] deviceIds, cl_context context) {
             super(context);
@@ -366,6 +374,11 @@ public class OpenCL4Java {
             return deviceIds;
         }
 
+        /**
+         * Create a program with all the C source code content provided as argument.
+         * @param srcs list of the content of source code for the program
+         * @return a program that needs to be built
+         */
         public CLProgram createProgram(String... srcs) {
 
             String[] source = new String[srcs.length];
@@ -426,7 +439,7 @@ public class OpenCL4Java {
         @SuppressWarnings("deprecation")
         protected CLMem createMem(final Buffer buffer, int byteCount, final int clMemFlags, final boolean retainBufferReference) {
             if (buffer != null) {
-                byteCount = getByteCount(buffer);
+                byteCount = getSizeInBytes(buffer);
             } else if (retainBufferReference) {
                 throw new IllegalArgumentException("Cannot retain reference to null pointer !");
             }
@@ -452,7 +465,7 @@ public class OpenCL4Java {
 
                 @Override
                 public String toString() {
-                    return "CLMem(flags = " + clMemFlags + (b == null ? "" : ", " + getByteCount(b) + " bytes") + ")";
+                    return "CLMem(flags = " + clMemFlags + (b == null ? "" : ", " + getSizeInBytes(b) + " bytes") + ")";
                 }
             };
         }
@@ -460,40 +473,40 @@ public class OpenCL4Java {
 
     public static class CLMem extends CLEntity<cl_mem> {
 
-        final CLContext context;
-        final int byteCount;
+        protected final CLContext context;
+        protected final int byteCount;
 
         public CLMem(CLContext context, int byteCount, cl_mem entity) {
             super(entity);
             this.byteCount = byteCount;
             this.context = context;
         }
-        /*
-         *
-         * Pointer clEnqueueMapBuffer(com.nativelibs4java.opencl.OpenCLLibrary.cl_command_queue cl_command_queue1,
-         com.nativelibs4java.opencl.OpenCLLibrary.cl_mem cl_mem1,
-         int cl_bool1,
-         long cl_map_flags1, NativeLong size_t1, NativeLong size_t2, int cl_uint1,
-         ptr.PointerByReference cl_eventPtr1, ptr.PointerByReference cl_eventPtr2, ptr.IntByReference cl_intPtr1);
-	Pointer clEnqueueMapBuffer(com.nativelibs4java.opencl.OpenCLLibrary.cl_command_queue cl_command_queue1, 
-         com.nativelibs4java.opencl.OpenCLLibrary.cl_mem cl_mem1,
-         int cl_bool1, long cl_map_flags1, NativeLong size_t1, NativeLong size_t2, int cl_uint1, com.nativelibs4java.opencl.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.OpenCLLibrary.cl_event cl_eventPtr2[], java.nio.IntBuffer cl_intPtr1);
-	*/
+        public CLContext getContext() {
+            return context;
+        }
+        public int getByteCount() {
+            return byteCount;
+        }
+
         public ByteBuffer mapReadWrite(CLQueue queue) {
             return map(queue, CL_MAP_READ | CL_MAP_WRITE);
         }
+
         public ByteBuffer mapWrite(CLQueue queue) {
             return map(queue, CL_MAP_WRITE);
         }
+
         public ByteBuffer mapRead(CLQueue queue) {
             return map(queue, CL_MAP_READ);
         }
+
         private ByteBuffer map(CLQueue queue, int flags) {
-            Pointer p = CL.clEnqueueMapBuffer(queue.get(), get(), CL_TRUE, flags, toNL(0), toNL(byteCount), 0, (PointerByReference)null, null, (IntByReference)null);
+            Pointer p = CL.clEnqueueMapBuffer(queue.get(), get(), CL_TRUE, flags, toNL(0), toNL(byteCount), 0, (PointerByReference) null, null, (IntByReference) null);
             return p.getByteBuffer(0, byteCount);
         }
+
         public void unmap(CLQueue queue, Buffer buffer) {
-            error(CL.clEnqueueUnmapMemObject(queue.get(), get(), Native.getDirectBufferPointer(buffer), 0, (PointerByReference)null, null));
+            error(CL.clEnqueueUnmapMemObject(queue.get(), get(), Native.getDirectBufferPointer(buffer), 0, (PointerByReference) null, null));
         }
 
         @Override
@@ -509,7 +522,23 @@ public class OpenCL4Java {
                     get(),
                     blocking ? CL_TRUE : 0,
                     toNL(0),
-                    toNL(getByteCount(out)),
+                    toNL(getSizeInBytes(out)),
+                    pres,
+                    0,
+                    null,
+                    (PointerByReference) null//pevt
+                    ));
+        }
+
+        @SuppressWarnings("deprecation")
+        public void write(Buffer out, CLQueue queue, boolean blocking) {
+            Pointer pres = Native.getDirectBufferPointer(out);
+            error(CL.clEnqueueWriteBuffer(
+                    queue.get(),
+                    get(),
+                    blocking ? CL_TRUE : 0,
+                    toNL(0),
+                    toNL(getSizeInBytes(out)),
                     pres,
                     0,
                     null,
@@ -518,7 +547,7 @@ public class OpenCL4Java {
         }
     }
 
-    public static int getByteCount(Buffer b) {
+    public static int getSizeInBytes(Buffer b) {
         int c = b.capacity();
         if (b instanceof IntBuffer || b instanceof FloatBuffer) {
             return c * 4;
@@ -546,9 +575,9 @@ public class OpenCL4Java {
     }
 
     static String errorString(int err) {
-        if (err == CL_SUCCESS) {
+        if (err == CL_SUCCESS)
             return null;
-        }
+        
         List<String> candidates = new ArrayList<String>();
         for (Field f : OpenCLLibrary.class.getDeclaredFields()) {
             if (!Modifier.isStatic(f.getModifiers())) {
@@ -570,9 +599,9 @@ public class OpenCL4Java {
 
     static void error(int err) {
         String str = errorString(err);
-        if (str == null) {
+        if (str == null)
             return;
-        }
+        
         throw new RuntimeException("OpenCL Error : " + str + " (code " + err + ")");
     }
 }
