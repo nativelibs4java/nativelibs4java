@@ -2,12 +2,24 @@ package com.nativelibs4java.opencl;
 import java.nio.*;
 
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.OpenCLLibrary.*;
 /**
  * @author ochafik
  */
 public class TestUtils {
     public enum Target {
-        CPU, GPU, CPU_GPU
+        CPU, GPU, CPU_GPU;
+        
+        public static boolean hasGPU() {
+            try {
+                return CLDevice.listGPUDevices().length > 0;
+            } catch (CLException ex) {
+                if (ex.getCode() == CL_DEVICE_NOT_FOUND)
+                    return false;
+                throw new RuntimeException("Unexpected OpenCL error", ex);
+            }
+        }
+
     }
     public static interface Action1<X> {
         void call(X x);

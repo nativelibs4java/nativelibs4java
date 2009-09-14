@@ -65,7 +65,7 @@ public class OpenCL4JavaBenchmark {
     }
     static ExecResult<FloatBuffer> testOpenCL_float_aSinB(Target target, int loops, int dataSize, boolean hostInOpenCL) throws CLBuildException {
 
-        ExecResult<ByteBuffer> er = testOpenCL_aSinB(target, "float", 4, loops, dataSize, hostInOpenCL, new Action2<ByteBuffer, ByteBuffer>() {
+        ExecResult<ByteBuffer> er = testOpenCL_aSinB(target, Prim.Float, loops, dataSize, hostInOpenCL, new Action2<ByteBuffer, ByteBuffer>() {
             public void call(ByteBuffer a, ByteBuffer b) {
                 fillBuffersWithSomeData(a.asFloatBuffer(), b.asFloatBuffer());
             }
@@ -74,7 +74,7 @@ public class OpenCL4JavaBenchmark {
     }
     static ExecResult<DoubleBuffer> testOpenCL_double_aSinB(Target target, int loops, int dataSize, boolean hostInOpenCL) throws CLBuildException {
 
-        ExecResult<ByteBuffer> er = testOpenCL_aSinB(target, "double", 8, loops, dataSize, hostInOpenCL, new Action2<ByteBuffer, ByteBuffer>() {
+        ExecResult<ByteBuffer> er = testOpenCL_aSinB(target, Prim.Double, loops, dataSize, hostInOpenCL, new Action2<ByteBuffer, ByteBuffer>() {
             public void call(ByteBuffer a, ByteBuffer b) {
                 fillBuffersWithSomeData(a.asDoubleBuffer(), b.asDoubleBuffer());
             }
@@ -83,21 +83,21 @@ public class OpenCL4JavaBenchmark {
     }
 
     
-    static ExecResult<ByteBuffer> testOpenCL_aSinB(Target target, String nativeType, int sizeofNativeType, int loops, int dataSize, boolean hostInOpenCL, Action2<ByteBuffer, ByteBuffer> fillBuffersWithSomeData) throws CLBuildException {
+    static ExecResult<ByteBuffer> testOpenCL_aSinB(Target target, Prim nativePrim, int loops, int dataSize, boolean hostInOpenCL, Action2<ByteBuffer, ByteBuffer> fillBuffersWithSomeData) throws CLBuildException {
 
-        CLKernel kernel = setupASinB(nativeType, target);
+        CLKernel kernel = setupASinB(nativePrim, target);
         CLQueue queue = kernel.program.context.createDefaultQueue();
 
         ByteBuffer input1 = null, input2 = null, output = null;
         CLMem memIn1, memIn2, memOut;
         if (hostInOpenCL) {
-            memIn1 = kernel.program.context.createInput(dataSize * sizeofNativeType);
-            memIn2 = kernel.program.context.createInput(dataSize * sizeofNativeType);
-            memOut = kernel.program.context.createOutput(dataSize * sizeofNativeType);
+            memIn1 = kernel.program.context.createInput(dataSize * nativePrim.sizeof());
+            memIn2 = kernel.program.context.createInput(dataSize * nativePrim.sizeof());
+            memOut = kernel.program.context.createOutput(dataSize * nativePrim.sizeof());
         } else {
-            input1 = OpenCL4Java.directBytes(dataSize * sizeofNativeType);
-            input2 = OpenCL4Java.directBytes(dataSize * sizeofNativeType);
-            output = OpenCL4Java.directBytes(dataSize * sizeofNativeType);
+            input1 = OpenCL4Java.directBytes(dataSize * nativePrim.sizeof());
+            input2 = OpenCL4Java.directBytes(dataSize * nativePrim.sizeof());
+            output = OpenCL4Java.directBytes(dataSize * nativePrim.sizeof());
 
             memIn1 = kernel.program.context.createInput(input1, false);
             memIn2 = kernel.program.context.createInput(input2, false);
@@ -135,7 +135,7 @@ public class OpenCL4JavaBenchmark {
             // Copy the OpenCL-hosted array back to RAM
             output = memOut.mapRead(queue);
             //queue.finish();
-            ByteBuffer b = OpenCL4Java.directBytes(dataSize * sizeofNativeType);
+            ByteBuffer b = OpenCL4Java.directBytes(dataSize * nativePrim.sizeof());
             b.put(output);
             output.rewind();
             b.rewind();
@@ -153,7 +153,7 @@ public class OpenCL4JavaBenchmark {
             Thread.sleep(200);
         } catch (InterruptedException ex) {}
     }
-    static CLKernel setupASinB(String nativeType, Target target) throws CLBuildException {
+    static CLKernel setupASinB(Prim nativeType, Target target) throws CLBuildException {
         String src = "\n" +
                 "__kernel aSinB(                                                  \n" +
                 "   __global const " + nativeType + "* a,                                       \n" +
@@ -164,7 +164,10 @@ public class OpenCL4JavaBenchmark {
                 "   output[i] = a[i] * sin(b[i]);                                       \n" +
                 "}                                                                 \n";
 
-        CLProgram program = CLContext.createContext(getDevices(target)).createProgram(src).build();
+        CLDevice[] devices = getDevices(target);
+        for (CLDevice device : devices)
+            System.out.println("OpenCL device: " + device);
+        CLProgram program = CLContext.createContext(devices).createProgram(src).build();
         CLKernel kernel = program.createKernel("aSinB");
 
         return kernel;
@@ -208,7 +211,7 @@ public class OpenCL4JavaBenchmark {
         try {
             int loops = 10;
             int dataSize = 1000000;
-            Target target = Target.CPU;
+            Target target = Target.hasGPU() ? Target.GPU : Target.CPU;
 
             if (true) {
                 System.out.println("[Float Operations]");
@@ -262,62 +265,8 @@ public class OpenCL4JavaBenchmark {
                 System.out.println("    times slower than Java = " + (nsByNativeHostedCLOp.unitTimeNano / nsByJavaOp.unitTimeNano));
                 System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByNativeHostedCLOp.unitTimeNano));
             }
-
-            if (false)
-                example();
         } catch (CLBuildException e) {
             e.printStackTrace();
-        }
-    }
-    static void example() throws CLBuildException {
-        //ScalaCLTest.
-        int dataSize = 100000;
-
-        FloatBuffer data = directFloats(dataSize);
-        FloatBuffer resultsf = directFloats(dataSize);
-        IntBuffer resultsi = directInts(dataSize);
-
-        for (int i = 0; i < dataSize; i++) {
-            data.put(i, i);
-        }
-
-        CLDevice[] devices = CLDevice.listAllDevices();
-        for (CLDevice device : devices) {
-            System.out.println("[OpenCL] Found device \"" + device.getName() + "\"");
-            System.out.println(device.getExecutionCapabilities());
-        }
-        CLContext context = CLContext.createContext(devices);
-
-        String src = "\n" +
-                "__kernel square(                                                       \n" +
-                "   __global const float* input,                                              \n" +
-                "   __global float* outputf,                                             \n" +
-                "   __global int* outputi,                                             \n" +
-                "   const unsigned int count)                                           \n" +
-                "{                                                                      \n" +
-                "   int i = get_global_id(0);                                           \n" +
-                "   if(i < count)                                                       \n" +
-                "       outputf[i] = input[i] * input[i];                                \n" +
-                "       outputi[i] = i;// + input[i] * input[i];                                \n" +
-                "}                                                                      \n" +
-                "\n";
-
-        CLProgram program = context.createProgram(src).build();
-        CLKernel kernel = program.createKernel(
-                "square",
-                context.createInput(data, false),
-                context.createOutput(resultsf),
-                context.createOutput(resultsi),
-                dataSize);
-
-        CLQueue queue = context.createDefaultQueue();
-        kernel.enqueueNDRange(queue, new int[]{dataSize}, new int[]{1});
-        queue.finish();
-
-        for (int iRes = 0; iRes < dataSize; iRes++) {
-            float d = data.get(iRes), rf = resultsf.get(iRes);
-            int ri = resultsi.get(iRes);
-            System.out.println(d + "\t->\tfloat: " + rf + ", int: " + ri);
         }
     }
 }

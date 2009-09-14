@@ -596,12 +596,21 @@ public class OpenCL4Java {
         }
         return StringUtils.implode(candidates, " or ");
     }
-
+    public static class CLException extends RuntimeException {
+        final int code;
+        public CLException(String message, int code) {
+            super(message);
+            this.code = code;
+        }
+        public int getCode() {
+            return code;
+        }
+    }
     static void error(int err) {
         String str = errorString(err);
         if (str == null)
             return;
         
-        throw new RuntimeException("OpenCL Error : " + str + " (code " + err + ")");
+        throw new CLException("OpenCL Error : " + str, err);
     }
 }
