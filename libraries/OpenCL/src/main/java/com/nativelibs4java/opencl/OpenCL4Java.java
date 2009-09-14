@@ -43,27 +43,27 @@ public class OpenCL4Java {
 
     public static final OpenCLLibrary CL = OpenCLLibrary.INSTANCE;
 
-    public static IntBuffer intBuffer(int size) {
+    public static IntBuffer directInts(int size) {
         return ByteBuffer.allocateDirect(size * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
     }
 
-    public static LongBuffer longBuffer(int size) {
+    public static LongBuffer directLongs(int size) {
         return ByteBuffer.allocateDirect(size * 8).order(ByteOrder.nativeOrder()).asLongBuffer();
     }
 
-    public static ShortBuffer shortBuffer(int size) {
+    public static ShortBuffer directShorts(int size) {
         return ByteBuffer.allocateDirect(size * 2).order(ByteOrder.nativeOrder()).asShortBuffer();
     }
 
-    public static ByteBuffer byteBuffer(int size) {
+    public static ByteBuffer directBytes(int size) {
         return ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());
     }
 
-    public static FloatBuffer floatBuffer(int size) {
+    public static FloatBuffer directFloats(int size) {
         return ByteBuffer.allocateDirect(size * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
     }
 
-    public static DoubleBuffer doubleBuffer(int size) {
+    public static DoubleBuffer directDoubles(int size) {
         return ByteBuffer.allocateDirect(size * 8).order(ByteOrder.nativeOrder()).asDoubleBuffer();
     }
 
@@ -467,6 +467,33 @@ public class OpenCL4Java {
             super(entity);
             this.byteCount = byteCount;
             this.context = context;
+        }
+        /*
+         *
+         * Pointer clEnqueueMapBuffer(com.nativelibs4java.opencl.OpenCLLibrary.cl_command_queue cl_command_queue1,
+         com.nativelibs4java.opencl.OpenCLLibrary.cl_mem cl_mem1,
+         int cl_bool1,
+         long cl_map_flags1, NativeLong size_t1, NativeLong size_t2, int cl_uint1,
+         ptr.PointerByReference cl_eventPtr1, ptr.PointerByReference cl_eventPtr2, ptr.IntByReference cl_intPtr1);
+	Pointer clEnqueueMapBuffer(com.nativelibs4java.opencl.OpenCLLibrary.cl_command_queue cl_command_queue1, 
+         com.nativelibs4java.opencl.OpenCLLibrary.cl_mem cl_mem1,
+         int cl_bool1, long cl_map_flags1, NativeLong size_t1, NativeLong size_t2, int cl_uint1, com.nativelibs4java.opencl.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.OpenCLLibrary.cl_event cl_eventPtr2[], java.nio.IntBuffer cl_intPtr1);
+	*/
+        public ByteBuffer mapReadWrite(CLQueue queue) {
+            return map(queue, CL_MAP_READ | CL_MAP_WRITE);
+        }
+        public ByteBuffer mapWrite(CLQueue queue) {
+            return map(queue, CL_MAP_WRITE);
+        }
+        public ByteBuffer mapRead(CLQueue queue) {
+            return map(queue, CL_MAP_READ);
+        }
+        private ByteBuffer map(CLQueue queue, int flags) {
+            Pointer p = CL.clEnqueueMapBuffer(queue.get(), get(), CL_TRUE, flags, toNL(0), toNL(byteCount), 0, (PointerByReference)null, null, (IntByReference)null);
+            return p.getByteBuffer(0, byteCount);
+        }
+        public void unmap(CLQueue queue, Buffer buffer) {
+            error(CL.clEnqueueUnmapMemObject(queue.get(), get(), Native.getDirectBufferPointer(buffer), 0, (PointerByReference)null, null));
         }
 
         @Override

@@ -46,27 +46,27 @@
 <FONT color="green">043</FONT>    <a name="line.43"></a>
 <FONT color="green">044</FONT>        public static final OpenCLLibrary CL = OpenCLLibrary.INSTANCE;<a name="line.44"></a>
 <FONT color="green">045</FONT>    <a name="line.45"></a>
-<FONT color="green">046</FONT>        public static IntBuffer intBuffer(int size) {<a name="line.46"></a>
+<FONT color="green">046</FONT>        public static IntBuffer directInts(int size) {<a name="line.46"></a>
 <FONT color="green">047</FONT>            return ByteBuffer.allocateDirect(size * 4).order(ByteOrder.nativeOrder()).asIntBuffer();<a name="line.47"></a>
 <FONT color="green">048</FONT>        }<a name="line.48"></a>
 <FONT color="green">049</FONT>    <a name="line.49"></a>
-<FONT color="green">050</FONT>        public static LongBuffer longBuffer(int size) {<a name="line.50"></a>
+<FONT color="green">050</FONT>        public static LongBuffer directLongs(int size) {<a name="line.50"></a>
 <FONT color="green">051</FONT>            return ByteBuffer.allocateDirect(size * 8).order(ByteOrder.nativeOrder()).asLongBuffer();<a name="line.51"></a>
 <FONT color="green">052</FONT>        }<a name="line.52"></a>
 <FONT color="green">053</FONT>    <a name="line.53"></a>
-<FONT color="green">054</FONT>        public static ShortBuffer shortBuffer(int size) {<a name="line.54"></a>
+<FONT color="green">054</FONT>        public static ShortBuffer directShorts(int size) {<a name="line.54"></a>
 <FONT color="green">055</FONT>            return ByteBuffer.allocateDirect(size * 2).order(ByteOrder.nativeOrder()).asShortBuffer();<a name="line.55"></a>
 <FONT color="green">056</FONT>        }<a name="line.56"></a>
 <FONT color="green">057</FONT>    <a name="line.57"></a>
-<FONT color="green">058</FONT>        public static ByteBuffer byteBuffer(int size) {<a name="line.58"></a>
+<FONT color="green">058</FONT>        public static ByteBuffer directBytes(int size) {<a name="line.58"></a>
 <FONT color="green">059</FONT>            return ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());<a name="line.59"></a>
 <FONT color="green">060</FONT>        }<a name="line.60"></a>
 <FONT color="green">061</FONT>    <a name="line.61"></a>
-<FONT color="green">062</FONT>        public static FloatBuffer floatBuffer(int size) {<a name="line.62"></a>
+<FONT color="green">062</FONT>        public static FloatBuffer directFloats(int size) {<a name="line.62"></a>
 <FONT color="green">063</FONT>            return ByteBuffer.allocateDirect(size * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();<a name="line.63"></a>
 <FONT color="green">064</FONT>        }<a name="line.64"></a>
 <FONT color="green">065</FONT>    <a name="line.65"></a>
-<FONT color="green">066</FONT>        public static DoubleBuffer doubleBuffer(int size) {<a name="line.66"></a>
+<FONT color="green">066</FONT>        public static DoubleBuffer directDoubles(int size) {<a name="line.66"></a>
 <FONT color="green">067</FONT>            return ByteBuffer.allocateDirect(size * 8).order(ByteOrder.nativeOrder()).asDoubleBuffer();<a name="line.67"></a>
 <FONT color="green">068</FONT>        }<a name="line.68"></a>
 <FONT color="green">069</FONT>    <a name="line.69"></a>
@@ -471,87 +471,114 @@
 <FONT color="green">468</FONT>                this.byteCount = byteCount;<a name="line.468"></a>
 <FONT color="green">469</FONT>                this.context = context;<a name="line.469"></a>
 <FONT color="green">470</FONT>            }<a name="line.470"></a>
-<FONT color="green">471</FONT>    <a name="line.471"></a>
-<FONT color="green">472</FONT>            @Override<a name="line.472"></a>
-<FONT color="green">473</FONT>            protected void clear() {<a name="line.473"></a>
-<FONT color="green">474</FONT>                CL.clReleaseMemObject(get());<a name="line.474"></a>
-<FONT color="green">475</FONT>            }<a name="line.475"></a>
-<FONT color="green">476</FONT>    <a name="line.476"></a>
-<FONT color="green">477</FONT>            @SuppressWarnings("deprecation")<a name="line.477"></a>
-<FONT color="green">478</FONT>            public void read(Buffer out, CLQueue queue, boolean blocking) {<a name="line.478"></a>
-<FONT color="green">479</FONT>                Pointer pres = Native.getDirectBufferPointer(out);<a name="line.479"></a>
-<FONT color="green">480</FONT>                error(CL.clEnqueueReadBuffer(<a name="line.480"></a>
-<FONT color="green">481</FONT>                        queue.get(),<a name="line.481"></a>
-<FONT color="green">482</FONT>                        get(),<a name="line.482"></a>
-<FONT color="green">483</FONT>                        blocking ? CL_TRUE : 0,<a name="line.483"></a>
-<FONT color="green">484</FONT>                        toNL(0),<a name="line.484"></a>
-<FONT color="green">485</FONT>                        toNL(getByteCount(out)),<a name="line.485"></a>
-<FONT color="green">486</FONT>                        pres,<a name="line.486"></a>
-<FONT color="green">487</FONT>                        0,<a name="line.487"></a>
-<FONT color="green">488</FONT>                        null,<a name="line.488"></a>
-<FONT color="green">489</FONT>                        (PointerByReference) null//pevt<a name="line.489"></a>
-<FONT color="green">490</FONT>                        ));<a name="line.490"></a>
-<FONT color="green">491</FONT>            }<a name="line.491"></a>
-<FONT color="green">492</FONT>        }<a name="line.492"></a>
-<FONT color="green">493</FONT>    <a name="line.493"></a>
-<FONT color="green">494</FONT>        public static int getByteCount(Buffer b) {<a name="line.494"></a>
-<FONT color="green">495</FONT>            int c = b.capacity();<a name="line.495"></a>
-<FONT color="green">496</FONT>            if (b instanceof IntBuffer || b instanceof FloatBuffer) {<a name="line.496"></a>
-<FONT color="green">497</FONT>                return c * 4;<a name="line.497"></a>
-<FONT color="green">498</FONT>            }<a name="line.498"></a>
-<FONT color="green">499</FONT>            if (b instanceof LongBuffer || b instanceof DoubleBuffer) {<a name="line.499"></a>
-<FONT color="green">500</FONT>                return c * 8;<a name="line.500"></a>
-<FONT color="green">501</FONT>            }<a name="line.501"></a>
-<FONT color="green">502</FONT>            if (b instanceof ShortBuffer || b instanceof CharBuffer) {<a name="line.502"></a>
-<FONT color="green">503</FONT>                return c * 2;<a name="line.503"></a>
-<FONT color="green">504</FONT>            }<a name="line.504"></a>
-<FONT color="green">505</FONT>            if (b instanceof ByteBuffer) {<a name="line.505"></a>
-<FONT color="green">506</FONT>                return c;<a name="line.506"></a>
-<FONT color="green">507</FONT>            }<a name="line.507"></a>
-<FONT color="green">508</FONT>            throw new UnsupportedOperationException("Cannot guess byte size of buffers of type " + b.getClass().getName());<a name="line.508"></a>
-<FONT color="green">509</FONT>        }<a name="line.509"></a>
-<FONT color="green">510</FONT>    <a name="line.510"></a>
-<FONT color="green">511</FONT>        public static NativeLongByReference toNL(IntByReference local) {<a name="line.511"></a>
-<FONT color="green">512</FONT>            NativeLongByReference nl = new NativeLongByReference();<a name="line.512"></a>
-<FONT color="green">513</FONT>            nl.setPointer(local.getPointer());<a name="line.513"></a>
-<FONT color="green">514</FONT>            return nl;<a name="line.514"></a>
-<FONT color="green">515</FONT>        }<a name="line.515"></a>
-<FONT color="green">516</FONT>    <a name="line.516"></a>
-<FONT color="green">517</FONT>        public static NativeLong toNL(int i) {<a name="line.517"></a>
-<FONT color="green">518</FONT>            return new NativeLong(i);<a name="line.518"></a>
+<FONT color="green">471</FONT>            /*<a name="line.471"></a>
+<FONT color="green">472</FONT>             *<a name="line.472"></a>
+<FONT color="green">473</FONT>             * Pointer clEnqueueMapBuffer(com.nativelibs4java.opencl.OpenCLLibrary.cl_command_queue cl_command_queue1,<a name="line.473"></a>
+<FONT color="green">474</FONT>             com.nativelibs4java.opencl.OpenCLLibrary.cl_mem cl_mem1,<a name="line.474"></a>
+<FONT color="green">475</FONT>             int cl_bool1,<a name="line.475"></a>
+<FONT color="green">476</FONT>             long cl_map_flags1, NativeLong size_t1, NativeLong size_t2, int cl_uint1,<a name="line.476"></a>
+<FONT color="green">477</FONT>             ptr.PointerByReference cl_eventPtr1, ptr.PointerByReference cl_eventPtr2, ptr.IntByReference cl_intPtr1);<a name="line.477"></a>
+<FONT color="green">478</FONT>            Pointer clEnqueueMapBuffer(com.nativelibs4java.opencl.OpenCLLibrary.cl_command_queue cl_command_queue1, <a name="line.478"></a>
+<FONT color="green">479</FONT>             com.nativelibs4java.opencl.OpenCLLibrary.cl_mem cl_mem1,<a name="line.479"></a>
+<FONT color="green">480</FONT>             int cl_bool1, long cl_map_flags1, NativeLong size_t1, NativeLong size_t2, int cl_uint1, com.nativelibs4java.opencl.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.OpenCLLibrary.cl_event cl_eventPtr2[], java.nio.IntBuffer cl_intPtr1);<a name="line.480"></a>
+<FONT color="green">481</FONT>            */<a name="line.481"></a>
+<FONT color="green">482</FONT>            public ByteBuffer mapReadWrite(CLQueue queue) {<a name="line.482"></a>
+<FONT color="green">483</FONT>                return map(queue, CL_MAP_READ | CL_MAP_WRITE);<a name="line.483"></a>
+<FONT color="green">484</FONT>            }<a name="line.484"></a>
+<FONT color="green">485</FONT>            public ByteBuffer mapWrite(CLQueue queue) {<a name="line.485"></a>
+<FONT color="green">486</FONT>                return map(queue, CL_MAP_WRITE);<a name="line.486"></a>
+<FONT color="green">487</FONT>            }<a name="line.487"></a>
+<FONT color="green">488</FONT>            public ByteBuffer mapRead(CLQueue queue) {<a name="line.488"></a>
+<FONT color="green">489</FONT>                return map(queue, CL_MAP_READ);<a name="line.489"></a>
+<FONT color="green">490</FONT>            }<a name="line.490"></a>
+<FONT color="green">491</FONT>            private ByteBuffer map(CLQueue queue, int flags) {<a name="line.491"></a>
+<FONT color="green">492</FONT>                Pointer p = CL.clEnqueueMapBuffer(queue.get(), get(), CL_TRUE, flags, toNL(0), toNL(byteCount), 0, (PointerByReference)null, null, (IntByReference)null);<a name="line.492"></a>
+<FONT color="green">493</FONT>                return p.getByteBuffer(0, byteCount);<a name="line.493"></a>
+<FONT color="green">494</FONT>            }<a name="line.494"></a>
+<FONT color="green">495</FONT>            public void unmap(CLQueue queue, Buffer buffer) {<a name="line.495"></a>
+<FONT color="green">496</FONT>                error(CL.clEnqueueUnmapMemObject(queue.get(), get(), Native.getDirectBufferPointer(buffer), 0, (PointerByReference)null, null));<a name="line.496"></a>
+<FONT color="green">497</FONT>            }<a name="line.497"></a>
+<FONT color="green">498</FONT>    <a name="line.498"></a>
+<FONT color="green">499</FONT>            @Override<a name="line.499"></a>
+<FONT color="green">500</FONT>            protected void clear() {<a name="line.500"></a>
+<FONT color="green">501</FONT>                CL.clReleaseMemObject(get());<a name="line.501"></a>
+<FONT color="green">502</FONT>            }<a name="line.502"></a>
+<FONT color="green">503</FONT>    <a name="line.503"></a>
+<FONT color="green">504</FONT>            @SuppressWarnings("deprecation")<a name="line.504"></a>
+<FONT color="green">505</FONT>            public void read(Buffer out, CLQueue queue, boolean blocking) {<a name="line.505"></a>
+<FONT color="green">506</FONT>                Pointer pres = Native.getDirectBufferPointer(out);<a name="line.506"></a>
+<FONT color="green">507</FONT>                error(CL.clEnqueueReadBuffer(<a name="line.507"></a>
+<FONT color="green">508</FONT>                        queue.get(),<a name="line.508"></a>
+<FONT color="green">509</FONT>                        get(),<a name="line.509"></a>
+<FONT color="green">510</FONT>                        blocking ? CL_TRUE : 0,<a name="line.510"></a>
+<FONT color="green">511</FONT>                        toNL(0),<a name="line.511"></a>
+<FONT color="green">512</FONT>                        toNL(getByteCount(out)),<a name="line.512"></a>
+<FONT color="green">513</FONT>                        pres,<a name="line.513"></a>
+<FONT color="green">514</FONT>                        0,<a name="line.514"></a>
+<FONT color="green">515</FONT>                        null,<a name="line.515"></a>
+<FONT color="green">516</FONT>                        (PointerByReference) null//pevt<a name="line.516"></a>
+<FONT color="green">517</FONT>                        ));<a name="line.517"></a>
+<FONT color="green">518</FONT>            }<a name="line.518"></a>
 <FONT color="green">519</FONT>        }<a name="line.519"></a>
 <FONT color="green">520</FONT>    <a name="line.520"></a>
-<FONT color="green">521</FONT>        static String errorString(int err) {<a name="line.521"></a>
-<FONT color="green">522</FONT>            if (err == CL_SUCCESS) {<a name="line.522"></a>
-<FONT color="green">523</FONT>                return null;<a name="line.523"></a>
-<FONT color="green">524</FONT>            }<a name="line.524"></a>
-<FONT color="green">525</FONT>            List&lt;String&gt; candidates = new ArrayList&lt;String&gt;();<a name="line.525"></a>
-<FONT color="green">526</FONT>            for (Field f : OpenCLLibrary.class.getDeclaredFields()) {<a name="line.526"></a>
-<FONT color="green">527</FONT>                if (!Modifier.isStatic(f.getModifiers())) {<a name="line.527"></a>
-<FONT color="green">528</FONT>                    continue;<a name="line.528"></a>
-<FONT color="green">529</FONT>                }<a name="line.529"></a>
-<FONT color="green">530</FONT>                if (f.getType().equals(Integer.TYPE)) {<a name="line.530"></a>
-<FONT color="green">531</FONT>                    try {<a name="line.531"></a>
-<FONT color="green">532</FONT>                        int i = (Integer) f.get(null);<a name="line.532"></a>
-<FONT color="green">533</FONT>                        if (i == err) {<a name="line.533"></a>
-<FONT color="green">534</FONT>                            candidates.add(f.getName());<a name="line.534"></a>
-<FONT color="green">535</FONT>                        }<a name="line.535"></a>
-<FONT color="green">536</FONT>                    } catch (Exception e) {<a name="line.536"></a>
-<FONT color="green">537</FONT>                        e.printStackTrace();<a name="line.537"></a>
-<FONT color="green">538</FONT>                    }<a name="line.538"></a>
-<FONT color="green">539</FONT>                }<a name="line.539"></a>
-<FONT color="green">540</FONT>            }<a name="line.540"></a>
-<FONT color="green">541</FONT>            return StringUtils.implode(candidates, " or ");<a name="line.541"></a>
+<FONT color="green">521</FONT>        public static int getByteCount(Buffer b) {<a name="line.521"></a>
+<FONT color="green">522</FONT>            int c = b.capacity();<a name="line.522"></a>
+<FONT color="green">523</FONT>            if (b instanceof IntBuffer || b instanceof FloatBuffer) {<a name="line.523"></a>
+<FONT color="green">524</FONT>                return c * 4;<a name="line.524"></a>
+<FONT color="green">525</FONT>            }<a name="line.525"></a>
+<FONT color="green">526</FONT>            if (b instanceof LongBuffer || b instanceof DoubleBuffer) {<a name="line.526"></a>
+<FONT color="green">527</FONT>                return c * 8;<a name="line.527"></a>
+<FONT color="green">528</FONT>            }<a name="line.528"></a>
+<FONT color="green">529</FONT>            if (b instanceof ShortBuffer || b instanceof CharBuffer) {<a name="line.529"></a>
+<FONT color="green">530</FONT>                return c * 2;<a name="line.530"></a>
+<FONT color="green">531</FONT>            }<a name="line.531"></a>
+<FONT color="green">532</FONT>            if (b instanceof ByteBuffer) {<a name="line.532"></a>
+<FONT color="green">533</FONT>                return c;<a name="line.533"></a>
+<FONT color="green">534</FONT>            }<a name="line.534"></a>
+<FONT color="green">535</FONT>            throw new UnsupportedOperationException("Cannot guess byte size of buffers of type " + b.getClass().getName());<a name="line.535"></a>
+<FONT color="green">536</FONT>        }<a name="line.536"></a>
+<FONT color="green">537</FONT>    <a name="line.537"></a>
+<FONT color="green">538</FONT>        public static NativeLongByReference toNL(IntByReference local) {<a name="line.538"></a>
+<FONT color="green">539</FONT>            NativeLongByReference nl = new NativeLongByReference();<a name="line.539"></a>
+<FONT color="green">540</FONT>            nl.setPointer(local.getPointer());<a name="line.540"></a>
+<FONT color="green">541</FONT>            return nl;<a name="line.541"></a>
 <FONT color="green">542</FONT>        }<a name="line.542"></a>
 <FONT color="green">543</FONT>    <a name="line.543"></a>
-<FONT color="green">544</FONT>        static void error(int err) {<a name="line.544"></a>
-<FONT color="green">545</FONT>            String str = errorString(err);<a name="line.545"></a>
-<FONT color="green">546</FONT>            if (str == null) {<a name="line.546"></a>
-<FONT color="green">547</FONT>                return;<a name="line.547"></a>
-<FONT color="green">548</FONT>            }<a name="line.548"></a>
-<FONT color="green">549</FONT>            throw new RuntimeException("OpenCL Error : " + str + " (code " + err + ")");<a name="line.549"></a>
-<FONT color="green">550</FONT>        }<a name="line.550"></a>
-<FONT color="green">551</FONT>    }<a name="line.551"></a>
+<FONT color="green">544</FONT>        public static NativeLong toNL(int i) {<a name="line.544"></a>
+<FONT color="green">545</FONT>            return new NativeLong(i);<a name="line.545"></a>
+<FONT color="green">546</FONT>        }<a name="line.546"></a>
+<FONT color="green">547</FONT>    <a name="line.547"></a>
+<FONT color="green">548</FONT>        static String errorString(int err) {<a name="line.548"></a>
+<FONT color="green">549</FONT>            if (err == CL_SUCCESS) {<a name="line.549"></a>
+<FONT color="green">550</FONT>                return null;<a name="line.550"></a>
+<FONT color="green">551</FONT>            }<a name="line.551"></a>
+<FONT color="green">552</FONT>            List&lt;String&gt; candidates = new ArrayList&lt;String&gt;();<a name="line.552"></a>
+<FONT color="green">553</FONT>            for (Field f : OpenCLLibrary.class.getDeclaredFields()) {<a name="line.553"></a>
+<FONT color="green">554</FONT>                if (!Modifier.isStatic(f.getModifiers())) {<a name="line.554"></a>
+<FONT color="green">555</FONT>                    continue;<a name="line.555"></a>
+<FONT color="green">556</FONT>                }<a name="line.556"></a>
+<FONT color="green">557</FONT>                if (f.getType().equals(Integer.TYPE)) {<a name="line.557"></a>
+<FONT color="green">558</FONT>                    try {<a name="line.558"></a>
+<FONT color="green">559</FONT>                        int i = (Integer) f.get(null);<a name="line.559"></a>
+<FONT color="green">560</FONT>                        if (i == err) {<a name="line.560"></a>
+<FONT color="green">561</FONT>                            candidates.add(f.getName());<a name="line.561"></a>
+<FONT color="green">562</FONT>                        }<a name="line.562"></a>
+<FONT color="green">563</FONT>                    } catch (Exception e) {<a name="line.563"></a>
+<FONT color="green">564</FONT>                        e.printStackTrace();<a name="line.564"></a>
+<FONT color="green">565</FONT>                    }<a name="line.565"></a>
+<FONT color="green">566</FONT>                }<a name="line.566"></a>
+<FONT color="green">567</FONT>            }<a name="line.567"></a>
+<FONT color="green">568</FONT>            return StringUtils.implode(candidates, " or ");<a name="line.568"></a>
+<FONT color="green">569</FONT>        }<a name="line.569"></a>
+<FONT color="green">570</FONT>    <a name="line.570"></a>
+<FONT color="green">571</FONT>        static void error(int err) {<a name="line.571"></a>
+<FONT color="green">572</FONT>            String str = errorString(err);<a name="line.572"></a>
+<FONT color="green">573</FONT>            if (str == null) {<a name="line.573"></a>
+<FONT color="green">574</FONT>                return;<a name="line.574"></a>
+<FONT color="green">575</FONT>            }<a name="line.575"></a>
+<FONT color="green">576</FONT>            throw new RuntimeException("OpenCL Error : " + str + " (code " + err + ")");<a name="line.576"></a>
+<FONT color="green">577</FONT>        }<a name="line.577"></a>
+<FONT color="green">578</FONT>    }<a name="line.578"></a>
 
 
 
