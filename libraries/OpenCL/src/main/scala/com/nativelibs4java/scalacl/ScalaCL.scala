@@ -4,7 +4,7 @@ import java.nio._
 
 import scala.List
 import scala.Nil
-import scalacl._
+//import scalacl._
 
 
 trait ScalaCL {
