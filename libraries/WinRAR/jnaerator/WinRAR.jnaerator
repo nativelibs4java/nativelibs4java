@@ -1,0 +1,11 @@
+-library WinRAR 
+unrar.h 
+
+-DCALLBACK=__cdecl 
+-DPASCAL=__stdcall 
+"-DHANDLE=void*" 
+"-DUINT=unsigned int" 
+-DLPARAM=long 
+
+//-noComp -noJar
+-jar "$(DIR)/WinRAR.jar"
