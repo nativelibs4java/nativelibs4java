@@ -211,7 +211,7 @@ public class OpenCL4JavaBenchmark {
         try {
             int loops = 10;
             int dataSize = 1000000;
-            Target target = Target.hasGPU() ? Target.GPU : Target.CPU;
+            Target target = CLDevice.listGPUDevices().length == 0 ? Target.GPU : Target.CPU;
 
             if (true) {
                 System.out.println("[Float Operations]");

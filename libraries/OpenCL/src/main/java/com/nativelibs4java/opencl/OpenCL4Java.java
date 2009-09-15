@@ -141,7 +141,7 @@ public class OpenCL4Java {
         public String getExecutionCapabilities() {
             return getInfoString(CL_DEVICE_EXECUTION_CAPABILITIES);
         }
-
+        
         private String getInfoString(int infoName) {
             NativeLongByReference pLen = new NativeLongByReference();
             error(CL.clGetDeviceInfo(get(), infoName, toNL(0), null, pLen));
@@ -171,15 +171,27 @@ public class OpenCL4Java {
         }
 
         public static CLDevice[] listAllDevices() {
-            return listDevices(true, true);
+    		return listDevices(true, true);
         }
 
         public static CLDevice[] listGPUDevices() {
-            return listDevices(true, false);
+        	try {
+        		return listDevices(true, false);
+        	} catch (CLException ex) {
+                if (ex.getCode() == CL_DEVICE_NOT_FOUND)
+                    return new CLDevice[0];
+                throw new RuntimeException("Unexpected OpenCL error", ex);
+            }
         }
 
         public static CLDevice[] listCPUDevices() {
-            return listDevices(false, true);
+            try {
+            	return listDevices(false, true);
+            } catch (CLException ex) {
+                if (ex.getCode() == CL_DEVICE_NOT_FOUND)
+                    return new CLDevice[0];
+                throw new RuntimeException("Unexpected OpenCL error", ex);
+            }
         }
 
         @SuppressWarnings("deprecation")
