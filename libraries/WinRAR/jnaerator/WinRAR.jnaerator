@@ -1,5 +1,5 @@
 -library WinRAR 
-unrar.h 
+"$(DIR)/unrar.h" 
 
 -DCALLBACK=__cdecl 
 -DPASCAL=__stdcall 
