@@ -1,12 +1,15 @@
 package com.nativelibs4java.scalacl
 import java.nio._
+import scala.collection.immutable._
+import com.nativelibs4java.opencl.OpenCL4Java._
 
 trait CLValue 
 
 abstract class Expr {
 	def typeDesc: TypeDesc;
 
-	def accept(visitor: Expr => Unit);
+	def accept(visitor: (Expr, Stack[Expr]) => Unit, stack: Stack[Expr]) : Unit;
+	def accept(visitor: (Expr, Stack[Expr]) => Unit) : Unit = accept(visitor, new Stack[Expr]);
 
 	def ~(other: Expr) = BinOp("=", this, other)
 	def +~(other: Expr) = BinOp("+=", this, other)
@@ -39,24 +42,25 @@ abstract class Expr {
 			case _ => Nil
 			}
 	}
-	def variables: List[Var[_]] = {
+	def variables: List[AbstractVar] = {
 			this match {
 			case Fun(name, outType, vars, include) => vars(0).variables//TODO (vars map (x => x variables)) collapse
 			case BinOp(op, first, second) => first.variables ++ second.variables
 			case UnOp(op, isPrefix, operand) => operand.variables
-			case v: Var[_] => List(v)
+			case v: AbstractVar => List(v)
 			case _ => Nil
 			}
 	}
 }
 abstract class TypedExpr(td: TypeDesc) extends Expr {
 	override def typeDesc = td
-	override def accept(visitor: Expr => Unit) = {
-	  visitor(this)
+	override def accept(visitor: (Expr, Stack[Expr]) => Unit, stack: Stack[Expr]) : Unit = {
+	  visitor(this, stack)
 	}
 }
 
-abstract class Var[G](typeDesc: TypeDesc) extends TypedExpr(typeDesc) 
+/*
+abstract class VarOld[G](var context: Context, typeDesc: TypeDesc) extends TypedExpr(typeDesc)
 {
 	var value: G
 	var name: String = ""
@@ -64,27 +68,47 @@ abstract class Var[G](typeDesc: TypeDesc) extends TypedExpr(typeDesc)
  	var isRead = false
  	var isWritten = false
  	var isAggregated = false
+ 	var clKernel: CLKernel = null;
+ 	var clMem: CLMem = null;
 	var argumentIndex = -1;
+	def setup : Unit;
 	override def toString = name + (if (parallelIndexName == "") "" else "[" + parallelIndexName + "]")
 	//override def accept(visitor: Expr => Unit) = visitor(this)
 	//override def inferLocalType = localClass
 }
 
-abstract class ArrayVar[G <: Buffer, L <: Number](typeDesc: TypeDesc) extends Var(typeDesc) 
+abstract class ArrayVarOld[G <: Buffer, L <: Number](context: Context, typeDesc: TypeDesc) extends VarOld(context, typeDesc)
 {
+	override def setup: Unit = {
+		var mem: CLMem = null;
+		var byteCount = getSizeInBytes(value);
+		if (isRead && isWritten)
+			mem = context.clContext.createInputOutput(byteCount);
+		else if (isRead)
+			mem = context.clContext.createInput(byteCount);
+		else if (isWritten)
+			mem = context.clContext.createOutput(byteCount);
+		if (mem != null) {
+			clKernel.setArg(argumentIndex, mem);
+			clMem = mem;
+		}
+	}
 	def set(values: Array[L]) {
 		//value.set(values);
 		//value.reset()
 	}
 }
-
+*/
 case class BinOp(var op: String, var first: Expr, var second: Expr) extends Expr {
 	override def toString() = first + " " + op + " " + second
 	override def typeDesc = first.typeDesc combineWith second.typeDesc
-	override def accept(visitor: Expr => Unit) = {
-	  first.accept(visitor)
-	  second.accept(visitor)
-	  visitor(this)
+	override def accept(visitor: (Expr, Stack[Expr]) => Unit, stack: Stack[Expr]): Unit = {
+	  stack push this;
+	  first.accept(visitor, stack)
+	  second.accept(visitor, stack)
+	  stack pop;
+	  visitor(this, stack);
+	  
 	}
 
 }
@@ -95,9 +119,11 @@ case class UnOp(var op: String, var isPrefix: Boolean, var value: Expr) extends 
 		else value.toString() + " " + op
 	}
 	override def typeDesc = value.typeDesc
-	override def accept(visitor: Expr => Unit) = {
-	  value.accept(visitor)
-	  visitor(this)
+	override def accept(visitor: (Expr, Stack[Expr]) => Unit, stack: Stack[Expr]): Unit = {
+	  stack push this
+	  value.accept(visitor, stack)
+	  stack pop;
+	  visitor(this, stack);
 	}
 
 }
@@ -115,27 +141,13 @@ case class Fun(name: String, outType: PrimType, args: List[Expr], include: Strin
 		var argType = args map (a => a.typeDesc) reduceLeft {(a, b) => a combineWith b};
 		TypeDesc(argType.channels, argType.valueType, outType)
 	}
-	override def accept(visitor: Expr => Unit) = {
-	  args foreach { _.accept(visitor) }
-	  visitor(this)
+	override def accept(visitor: (Expr, Stack[Expr]) => Unit, stack: Stack[Expr]) : Unit = {
+	  stack push this
+	  args foreach { _.accept(visitor, stack) }
+	  stack pop;
+	  visitor(this, stack);
 	}
-
 }
-object Expr {
-	def cos	(x: Expr) = Fun("cos", DoubleType, List(x), "math.h")
-	def sin	(x: Expr) = Fun("sin", DoubleType, List(x), "math.h")
-	def tan	(x: Expr) = Fun("tan", DoubleType, List(x), "math.h")
-	def atan(x: Expr) = Fun("atan", DoubleType, List(x), "math.h")
-	def acos(x: Expr) = Fun("acos", DoubleType, List(x), "math.h")
-	def asin(x: Expr) = Fun("asin", DoubleType, List(x), "math.h")
-	def cosh(x: Expr) = Fun("cosh", DoubleType, List(x), "math.h")
-	def sinh(x: Expr) = Fun("sinh", DoubleType, List(x), "math.h")
-	def tanh(x: Expr) = Fun("tanh", DoubleType, List(x), "math.h")
-	def atan2(x: Expr, y: Expr) = Fun("atan2", DoubleType, List(x, y), "math.h");
-	
-	//def implode[T](elts: List[T], sep: String) = elts map (x => x.toString()) reduceLeft ((a, b) => a + sep + b)
-}
-
 //case class If(test: Expr, thenExpr: Expr, elseExpr: Expr) extends Expr {
 //	override def toString() = "if (" + test + ") { " + thenExpr + "}" + (if (elseExpr == None) "" else " else { " + elseExpr + "}")  
 //	override def typeDesc = {

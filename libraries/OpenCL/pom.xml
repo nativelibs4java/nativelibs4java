@@ -13,7 +13,7 @@
 	<dependency>
 	  <groupId>com.jnaerator</groupId>
 	  <artifactId>jnaerator-runtime</artifactId>
-	  <version>0.9.630</version>
+	  <version>0.9-SNAPSHOT</version>
 	  <scope>compile</scope>
 	</dependency>
   </dependencies>
