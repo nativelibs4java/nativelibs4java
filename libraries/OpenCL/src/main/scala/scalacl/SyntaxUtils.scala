@@ -10,12 +10,13 @@ import java.nio._
 
 object SyntaxUtils {
 
-
-  def implode(elts: List[String], sep: String) = {
-    if (elts == Nil) ""
-    else elts reduceLeft { _ + sep + _ } //map { _.toString }
-
+  case class SeqUtils[T](seq: Seq[T]) {
+    def implode(sep: String) = {
+      if (seq == Nil) ""
+      else seq.map(_.toString) reduceLeft { _ + sep + _ }
+    }
   }
+  implicit def Seq2SeqUtils[T](seq: Seq[T]) = SeqUtils[T](seq)
 
   implicit def array2Buffer(a: Array[Int   ]) = IntBuffer.wrap(a)
   implicit def array2Buffer(a: Array[Short ]) = ShortBuffer.wrap(a)

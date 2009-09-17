@@ -27,22 +27,36 @@ abstract class Program(context: Context) {
 
   var source: String = null;
 
+  import scala.collection.mutable.ListBuffer
+  
   private def generateSources(variables: List[AbstractVar]) : String = {
 
       var doc = new StringBuilder;
 
-      doc ++ implode(root.includes.map { "#include <" + _ + ">" }, "\n")
-      doc ++ "\n"
-      var argDefs = variables.map { v =>
-        "__global " +
-        (if (v.mode == WriteMode || v.mode == AggregatedMode) "" else "const ") +
-        v.typeDesc.globalCType + " " + v.name
-      }
+      //val includes = new ListBuffer[String]()
+      //root accept { (x, stack) => x match { case v: Fun => includes + v.include case _ => } }
 
-      doc ++ ("void function(" + implode(argDefs, ", ") + ")\n");
+      val includes = root.find[Fun] map (_.include)
+      var dims = root.find[Dim].zipWithIndex.map { case (d, i) => d.name = "dim" + (i + 1); d }
+      
+      variables.zipWithIndex.foreach { case (v, i) => {
+          v.argIndex = i;
+          v.name = "var" + (i + 1);
+      } }
+
+      doc ++ includes.map("#include <" + _ + ">").implode("\n")
+      doc ++ "\n"
+
+      var argDefs = variables.map(v =>
+        "__global " +
+        (if (v.mode == WriteMode || v.mode == ReadWriteMode || v.mode == AggregatedMode) "" else "const ") +
+        v.typeDesc.globalCType + " " + v.name
+      )
+
+      doc ++ ("void function(" + argDefs.implode(", ") + ")\n");
       doc ++ "{\n\t"
       //doc ++ "int gid = get_global_id(0);\n\t"
-      doc ++ root.toString
+      doc ++ (root.toString + ";")
       doc ++ "\n}\n"
 
       doc.toString
@@ -52,28 +66,32 @@ abstract class Program(context: Context) {
   }
   def setup = {
     if (source == null) {
-      val variables = root.variables;
+      val variables = root.find[AbstractVar]
 
-      (variables zipWithIndex) foreach { case (v, i) => {
-          v.argIndex = i;
-          v.name = "var" + i;
-          //if (v.variable.typeDesc.valueType == Parallel)
-          //  v.parallelIndexName = "gid"
-      } }
+      root accept { (x, stack) => {
+          x match {
+            case v: AbstractVar => {
+//                if (stack.size > 1) {
+//                  stack(stack.size - 2).match {
+//                    case BinOp("=", v: AbstractVar, _)
+//                  }
+//                }
+                v.mode = v.mode union ReadMode
+            }
+            // case BinOp(""".*~""", v: Var[_], _) => v.isWritten = true
+            case BinOp("=", v: AbstractVar, _) => v.mode = v.mode union WriteMode
+            case _ =>
+          }
+        }
+      }
 
-      root accept { (x, stack) => x match {
-          case v: AbstractVar => v.mode = v.mode union ReadMode
-            //			  case BinOp(""".*~""", v: Var[_], _) => v.isWritten = true
-          case BinOp("=", v: AbstractVar, _) => v.mode = v.mode union WriteMode
-          case _ =>
-        } }
-
-      variables filter { _.mode == AggregatedMode } foreach {
-          throw new UnsupportedOperationException("Reductions not implemented yet !")
+      variables filter { _.mode == AggregatedMode } foreach {x =>
+          throw new UnsupportedOperationException("Reductions not implemented yet !\n" + x.toString())
       }
 
       source = generateSources(variables)
-
+      println(source)
+      
       var kernel = context.clContext.createProgram(source).build().createKernel("function");
 
       variables foreach { v => {
@@ -81,7 +99,6 @@ abstract class Program(context: Context) {
           v.setup
       } }
     }
-    println(source)
   }
 }
 

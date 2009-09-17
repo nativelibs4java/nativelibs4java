@@ -20,6 +20,12 @@ abstract class Expr {
 	def accept(visitor: (Expr, Stack[Expr]) => Unit, stack: Stack[Expr]) : Unit;
 	def accept(visitor: (Expr, Stack[Expr]) => Unit) : Unit = accept(visitor, new Stack[Expr]);
 
+        def find[C](implicit c: Manifest[C]) : List[C] = {
+          val list = new scala.collection.mutable.ListBuffer[C]()
+          accept { (x, stack) => if (x != null && c.erasure.isInstance(x)) list + x.asInstanceOf[C] }
+          return list.toList
+        }
+        
 	def ~(other: Expr) = BinOp("=", this, other)
 	def +~(other: Expr) = BinOp("+=", this, other)
 	def -~(other: Expr) = BinOp("-=", this, other)
@@ -43,23 +49,25 @@ abstract class Expr {
 	def >>(other: Expr) = BinOp(">>", this, other)
 	def <<(other: Expr) = BinOp("<<", this, other)
 
-	def includes : List[String] = {
-			this match {
-			case Fun(name, outType, vars, include) => List(include);
-			case BinOp(op, first, second) => first.includes ++ second.includes;
-			case UnOp(op, isPrefix, operand) => operand.includes
-			case _ => Nil
-			}
+  /*
+	def includes : List[String] = this match {
+          case Fun(name, outType, vars, include) => List(include);
+          case BinOp(op, first, second) => first.includes ++ second.includes;
+          case UnOp(op, isPrefix, operand) => operand.includes
+          case (ae: ArrayElement[_]) => ae.array.includes ++ ae.index.includes
+          case _ => Nil
 	}
-	def variables: List[AbstractVar] = {
-			this match {
-			case Fun(name, outType, vars, include) => vars(0).variables//TODO (vars map (x => x variables)) collapse
-			case BinOp(op, first, second) => first.variables ++ second.variables
-			case UnOp(op, isPrefix, operand) => operand.variables
-			case v: AbstractVar => List(v)
-			case _ => Nil
-			}
-	}
+	def variables: List[AbstractVar] = this match {
+          case Fun(name, outType, vars, include) => vars(0).variables//TODO (vars map (x => x variables)) collapse
+          case BinOp(op, first, second) => first.variables ++ second.variables
+          case UnOp(op, isPrefix, operand) => operand.variables
+          case (ae: ArrayElement[_]) => ae.array.variables ++ ae.index.variables
+          case v: AbstractVar => List(v)
+          case _ => {
+              println("Unhandled case in Expr.variable : " + this + ": " + getClass.getName)
+              Nil
+          }
+	}*/
 }
 abstract class TypedExpr(td: TypeDesc) extends Expr {
 	override def typeDesc = td
@@ -72,7 +80,10 @@ abstract case class PrimScal(v: Number, t: PrimType) extends TypedExpr(TypeDesc(
   override def toString = v.toString
 }
 
-case class Dim(size: Int) extends PrimScal(size, IntType) with Val1
+class Dim(size: Int) extends PrimScal(size, IntType) with Val1 {
+  var name: String = null
+  override def toString = if (name == null) "unnamedDim(" + size + ")" else name
+}
 
 
 case class BinOp(var op: String, var first: Expr, var second: Expr) extends Expr {
@@ -106,13 +117,7 @@ case class UnOp(var op: String, var isPrefix: Boolean, var value: Expr) extends 
 
 case class Fun(name: String, outType: PrimType, args: List[Expr], include: String) extends Expr {
 
-			def implode(elts: List[String], sep: String) = {
-			  if (elts == Nil) ""
-			  else elts reduceLeft { _ + sep + _ } //map { _.toString }
-
-			}
-
-	override def toString() = name + "(" + implode(args map {_.toString}, ", ") + ")"
+	override def toString() = name + "(" + args.map(_.toString).implode(", ") + ")"
 	override def typeDesc = {
 		var argType = args map (a => a.typeDesc) reduceLeft {(a, b) => a combineWith b};
 		TypeDesc(argType.channels, argType.valueType, outType)
@@ -176,17 +181,18 @@ abstract class AbstractVar extends Expr {
   }
 
   def getTypeDesc[T](implicit t: Manifest[T], valueType: ValueType) = {
-    var ch = {
-      if (valueType.isInstanceOf[Val1]) 1
-      else if (valueType.isInstanceOf[Val2]) 2
-      else if (valueType.isInstanceOf[Val4]) 4
-      else throw new IllegalArgumentException("Unable to guess channels for valueType " + valueType)
-    }
     var c = t.erasure
+    var ch = {
+      if (c.isPrimitive || c.isAnyOf(classOf[java.lang.Number], classOf[Number])) 1
+      else if (classOf[Val1].isAssignableFrom(c)) 1
+      else if (classOf[Val2].isAssignableFrom(c)) 2
+      else if (classOf[Val4].isAssignableFrom(c)) 4
+      else throw new IllegalArgumentException("Unable to guess channels for valueType " + valueType + " and manifest " + t)
+    }
     var pt = {
-      if (c.isAnyOf(classOf[Int1], classOf[Int2], classOf[Int4])) IntType
-      else if (c.isAnyOf(classOf[Double1], classOf[Double2], classOf[Double4])) DoubleType
-      else throw new IllegalArgumentException("Unable to guess primType for class " + c.getName)
+      if (c.isAnyOf(classOf[Int], classOf[Int1], classOf[Int2], classOf[Int4])) IntType
+      else if (c.isAnyOf(classOf[Double], classOf[Double1], classOf[Double2], classOf[Double4])) DoubleType
+      else throw new IllegalArgumentException("Unable to guess primType for class " + c.getName + " and manifest " + t)
     }
     TypeDesc(ch, valueType, pt)
   }
@@ -227,7 +233,7 @@ class Var[T](implicit t: Manifest[T]) extends AbstractVar {
 
 class ArrayVar[T](implicit t: Manifest[T]) extends AbstractVar {
   var dim: Option[Dim] = None
-
+  
   override def setup = {
 
   }
@@ -248,7 +254,7 @@ class ArrayElement[T](/*implicit t: Manifest[T], */var array: ArrayVar[T], var i
     var td = array.typeDesc
     TypeDesc(td.channels, Scalar, td.primType)
   }
-  override def toString() = array + "[" + index + "]"
+  override def toString() = array.toString + "[" + index.toString + "]"
   override def accept(visitor: (Expr, Stack[Expr]) => Unit, stack: Stack[Expr]) : Unit = {
     stack push this
     visitor(array, stack)

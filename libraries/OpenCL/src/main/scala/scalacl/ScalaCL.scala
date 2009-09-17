@@ -19,8 +19,8 @@ object ScalaCL {
   implicit def Double12Double(v: Double1) = v.value
 
   def cos(x: Expr) = Fun("cos", DoubleType, List(x), "math.h")
-  def sin	(x: Expr) = Fun("sin", DoubleType, List(x), "math.h")
-  def tan	(x: Expr) = Fun("tan", DoubleType, List(x), "math.h")
+  def sin(x: Expr) = Fun("sin", DoubleType, List(x), "math.h")
+  def tan(x: Expr) = Fun("tan", DoubleType, List(x), "math.h")
   def atan(x: Expr) = Fun("atan", DoubleType, List(x), "math.h")
   def acos(x: Expr) = Fun("acos", DoubleType, List(x), "math.h")
   def asin(x: Expr) = Fun("asin", DoubleType, List(x), "math.h")

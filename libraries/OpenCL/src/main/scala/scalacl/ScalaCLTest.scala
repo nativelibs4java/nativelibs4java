@@ -4,7 +4,7 @@ import java.nio._
 import scala.reflect.Manifest
 import SyntaxUtils._
 
-object ScalaCLTest extends Application {
+object ScalaCLTestRun extends Application {
     import ScalaCL._
     class MyProg(i: Dim) extends Program(Context.BEST) {
       
@@ -26,13 +26,13 @@ object ScalaCLTest extends Application {
             //)
     }
     
-    //override def main(args: Array[String]) = {
+    override def main(args: Array[String]) = {
         var prog = new MyProg(Dim(10000))
 	    //prog.a.value.set(1, 0)
 	    prog !;
 	    prog.source
     	
-    //}
+    }
 }
 
 
