@@ -5,7 +5,7 @@
  * and open the template in the editor.
  */
 
-package com.nativelibs4java.scalacl
+package scalacl
 import com.nativelibs4java.opencl.OpenCL4Java._
 
 //case class Dim(size: Int) extends Int1(size)

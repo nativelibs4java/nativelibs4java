@@ -211,7 +211,30 @@ public class OpenCL4JavaBenchmark {
         try {
             int loops = 10;
             int dataSize = 1000000;
-            Target target = CLDevice.listGPUDevices().length == 0 ? Target.GPU : Target.CPU;
+            Target target = CLDevice.listGPUDevices().length == 0 ? Target.CPU : Target.GPU;
+            if (true) {
+                System.out.println("[Double Operations]");
+                ExecResult<DoubleBuffer> nsByJavaOp = testJava_double_aSinB(loops, dataSize);
+                ExecResult<DoubleBuffer> nsByCLHostedOp = testOpenCL_double_aSinB(target, loops, dataSize, true);
+                ExecResult<DoubleBuffer> nsByNativeHostedCLOp = testOpenCL_double_aSinB(target, loops, dataSize, false);
+                double errCLHosted = avgError(nsByJavaOp.buffer, nsByCLHostedOp.buffer, dataSize);
+                double errNativeHosted = avgError(nsByJavaOp.buffer, nsByNativeHostedCLOp.buffer, dataSize);
+
+                System.out.println(" Avg relative error (hosted in CL) = " + errCLHosted);
+                System.out.println("Avg relative error (hosted in RAM) = " + errNativeHosted);
+                System.out.println();
+
+                System.out.println("                  java op\t= " + nsByJavaOp.unitTimeNano + " ns");
+                System.out.println();
+                System.out.println(" opencl (hosted in CL) op\t= " + nsByCLHostedOp.unitTimeNano + " ns");
+                System.out.println("    times slower than Java = " + (nsByCLHostedOp.unitTimeNano / nsByJavaOp.unitTimeNano));
+                System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByCLHostedOp.unitTimeNano));
+                System.out.println();
+                System.out.println("opencl (hosted in RAM) op\t= " + nsByNativeHostedCLOp.unitTimeNano + " ns");
+                System.out.println("    times slower than Java = " + (nsByNativeHostedCLOp.unitTimeNano / nsByJavaOp.unitTimeNano));
+                System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByNativeHostedCLOp.unitTimeNano));
+            }
+
 
             if (true) {
                 System.out.println("[Float Operations]");
@@ -243,28 +266,7 @@ public class OpenCL4JavaBenchmark {
                 System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByNativeHostedCLOp.unitTimeNano));
             }
 
-            if (true) {
-                System.out.println("[Double Operations]");
-                ExecResult<DoubleBuffer> nsByJavaOp = testJava_double_aSinB(loops, dataSize);
-                ExecResult<DoubleBuffer> nsByCLHostedOp = testOpenCL_double_aSinB(target, loops, dataSize, true);
-                ExecResult<DoubleBuffer> nsByNativeHostedCLOp = testOpenCL_double_aSinB(target, loops, dataSize, false);
-                double errCLHosted = avgError(nsByJavaOp.buffer, nsByCLHostedOp.buffer, dataSize);
-                double errNativeHosted = avgError(nsByJavaOp.buffer, nsByNativeHostedCLOp.buffer, dataSize);
-
-                System.out.println(" Avg relative error (hosted in CL) = " + errCLHosted);
-                System.out.println("Avg relative error (hosted in RAM) = " + errNativeHosted);
-                System.out.println();
-
-                System.out.println("                  java op\t= " + nsByJavaOp.unitTimeNano + " ns");
-                System.out.println();
-                System.out.println(" opencl (hosted in CL) op\t= " + nsByCLHostedOp.unitTimeNano + " ns");
-                System.out.println("    times slower than Java = " + (nsByCLHostedOp.unitTimeNano / nsByJavaOp.unitTimeNano));
-                System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByCLHostedOp.unitTimeNano));
-                System.out.println();
-                System.out.println("opencl (hosted in RAM) op\t= " + nsByNativeHostedCLOp.unitTimeNano + " ns");
-                System.out.println("    times slower than Java = " + (nsByNativeHostedCLOp.unitTimeNano / nsByJavaOp.unitTimeNano));
-                System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByNativeHostedCLOp.unitTimeNano));
-            }
+            
         } catch (CLBuildException e) {
             e.printStackTrace();
         }

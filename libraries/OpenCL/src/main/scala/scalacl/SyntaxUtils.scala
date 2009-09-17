@@ -5,7 +5,7 @@
  * and open the template in the editor.
  */
 
-package com.nativelibs4java.scalacl
+package scalacl
 import java.nio._
 
 object SyntaxUtils {

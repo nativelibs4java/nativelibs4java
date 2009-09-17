@@ -202,6 +202,9 @@ public class OpenCL4Java {
             error(CL.clGetDeviceIDs(null, flags, 0, (PointerByReference) null, pCount));
 
             int nDevs = pCount.getValue();
+            if (nDevs == 0)
+                return new CLDevice[0];
+            
             cl_device_id[] ids = new cl_device_id[nDevs];
 
             error(CL.clGetDeviceIDs(null, flags, nDevs, ids, pCount));

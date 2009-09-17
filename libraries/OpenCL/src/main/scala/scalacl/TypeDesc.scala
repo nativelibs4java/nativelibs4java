@@ -1,4 +1,4 @@
-package com.nativelibs4java.scalacl
+package scalacl
 
 import java.nio._
 import scala.reflect.Manifest

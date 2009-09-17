@@ -1,4 +1,4 @@
-package com.nativelibs4java.scalacl
+package scalacl
 
 
 import scala.collection.mutable.Stack
@@ -204,13 +204,17 @@ class Var[T](implicit t: Manifest[T]) extends AbstractVar {
     var c = k.erasure;
     (
       if (c == classOf[Int])
-        0
+        new java.lang.Integer(0)
       else if (c == classOf[Double])
-        0.0
+        new java.lang.Double(0.0)
       else if (c == classOf[Float])
-        0.0f
+        new java.lang.Float(0.0f)
       else if (c == classOf[Long])
-        0l
+        new java.lang.Long(0l)
+      else if (c == classOf[Short])
+        new java.lang.Short(0.asInstanceOf[Short])
+      else if (c == classOf[Byte])
+        new java.lang.Byte(0.asInstanceOf[Byte])
       else
         c.newInstance()
     ).asInstanceOf[K]
