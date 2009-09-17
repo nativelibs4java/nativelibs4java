@@ -20,6 +20,8 @@ abstract class Expr {
 	def accept(visitor: (Expr, Stack[Expr]) => Unit, stack: Stack[Expr]) : Unit;
 	def accept(visitor: (Expr, Stack[Expr]) => Unit) : Unit = accept(visitor, new Stack[Expr]);
 
+        def findUnique[C](implicit c: Manifest[C]) : List[C] = (new scala.collection.mutable.ListBuffer[C]() ++ (new scala.collection.immutable.HashSet[C]() ++ find[C](c))).toList
+        
         def find[C](implicit c: Manifest[C]) : List[C] = {
           val list = new scala.collection.mutable.ListBuffer[C]()
           accept { (x, stack) => if (x != null && c.erasure.isInstance(x)) list + x.asInstanceOf[C] }
@@ -82,6 +84,7 @@ abstract case class PrimScal(v: Number, t: PrimType) extends TypedExpr(TypeDesc(
 
 class Dim(size: Int) extends PrimScal(size, IntType) with Val1 {
   var name: String = null
+  var dimIndex = -1
   override def toString = if (name == null) "unnamedDim(" + size + ")" else name
 }
 

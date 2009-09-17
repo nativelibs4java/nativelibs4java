@@ -29,23 +29,27 @@ abstract class Program(context: Context) {
 
   import scala.collection.mutable.ListBuffer
   
-  private def generateSources(variables: List[AbstractVar]) : String = {
-
+  private def generateSources : String = {
+      markVarUsage
+      
       var doc = new StringBuilder;
 
-      //val includes = new ListBuffer[String]()
-      //root accept { (x, stack) => x match { case v: Fun => includes + v.include case _ => } }
-
-      val includes = root.find[Fun] map (_.include)
-      var dims = root.find[Dim].zipWithIndex.map { case (d, i) => d.name = "dim" + (i + 1); d }
-      
+      var dims = root.findUnique[Dim].zipWithIndex.map { case (d, i) =>
+          d.name = "dim" + (i + 1);
+          d.dimIndex = i;
+          d
+      }
+      val variables = root.findUnique[AbstractVar]
       variables.zipWithIndex.foreach { case (v, i) => {
           v.argIndex = i;
           v.name = "var" + (i + 1);
       } }
+      variables filter { _.mode == AggregatedMode } foreach {x =>
+          throw new UnsupportedOperationException("Reductions not implemented yet !\n" + x.toString())
+      }
 
-      doc ++ includes.map("#include <" + _ + ">").implode("\n")
-      doc ++ "\n"
+      val includes = root.findUnique[Fun] map (_.include)
+      doc ++ includes.map("#include <" + _ + ">\n").implode("")
 
       var argDefs = variables.map(v =>
         "__global " +
@@ -53,48 +57,40 @@ abstract class Program(context: Context) {
         v.typeDesc.globalCType + " " + v.name
       )
 
-      doc ++ ("void function(" + argDefs.implode(", ") + ")\n");
-      doc ++ "{\n\t"
-      //doc ++ "int gid = get_global_id(0);\n\t"
-      doc ++ (root.toString + ";")
-      doc ++ "\n}\n"
+      doc ++ ("void function(" + argDefs.implode(", ") + ") {\n");
+      doc ++ dims.map(dim => "\tint " + dim.name + " = get_global_id(" + dim.dimIndex + ");\n").implode("")
+      doc ++ ("\t" + root.toString + ";\n")
+      doc ++ "}\n"
 
       doc.toString
   }
-  def ! = {
-	  setup
-  }
-  def setup = {
-    if (source == null) {
-      val variables = root.find[AbstractVar]
-
-      root accept { (x, stack) => {
-          x match {
-            case v: AbstractVar => {
+  def markVarUsage = root accept { (x, stack) => {
+    x match {
+      case v: AbstractVar => {
 //                if (stack.size > 1) {
 //                  stack(stack.size - 2).match {
 //                    case BinOp("=", v: AbstractVar, _)
 //                  }
 //                }
-                v.mode = v.mode union ReadMode
-            }
-            // case BinOp(""".*~""", v: Var[_], _) => v.isWritten = true
-            case BinOp("=", v: AbstractVar, _) => v.mode = v.mode union WriteMode
-            case _ =>
-          }
-        }
+          v.mode = v.mode union ReadMode
       }
+      // case BinOp(""".*~""", v: Var[_], _) => v.isWritten = true
+      case BinOp("=", v: AbstractVar, _) => v.mode = v.mode union WriteMode
+      case _ =>
+    }
+  } }
 
-      variables filter { _.mode == AggregatedMode } foreach {x =>
-          throw new UnsupportedOperationException("Reductions not implemented yet !\n" + x.toString())
-      }
-
-      source = generateSources(variables)
+  def ! = {
+	  setup
+  }
+  def setup = {
+    if (source == null) {
+      source = generateSources
       println(source)
       
       var kernel = context.clContext.createProgram(source).build().createKernel("function");
 
-      variables foreach { v => {
+      root.find[AbstractVar] foreach { v => {
           v.kernel = kernel
           v.setup
       } }
