@@ -9,12 +9,23 @@ package com.nativelibs4java.scalacl
 
 import com.nativelibs4java.opencl.OpenCL4Java._
 import SyntaxUtils._
-import NIOUtils._
+
+class Context(var clContext: CLContext)
+object Context {
+  def GPU = new Context(CLContext.createContext(CLDevice.listGPUDevices()));
+  def CPU = new Context(CLContext.createContext(CLDevice.listCPUDevices()));
+  def BEST =
+  try {
+    GPU
+  } catch {
+    case _ => CPU
+  }
+}
 
 abstract class Program(context: Context) {
   var root: Expr
 
-  private var source: String = "";
+  var source: String = null;
 
   private def generateSources(variables: List[AbstractVar]) : String = {
 
@@ -27,7 +38,7 @@ abstract class Program(context: Context) {
         (if (v.mode == WriteMode || v.mode == AggregatedMode) "" else "const ") +
         v.typeDesc.globalCType + " " + v.name
       }
-      
+
       doc ++ ("void function(" + implode(argDefs, ", ") + ")\n");
       doc ++ "{\n\t"
       //doc ++ "int gid = get_global_id(0);\n\t"
@@ -36,9 +47,11 @@ abstract class Program(context: Context) {
 
       doc.toString
   }
-  def ! = setup
+  def ! = {
+	  setup
+  }
   def setup = {
-    if (source == "") {
+    if (source == null) {
       val variables = root.variables;
 
       (variables zipWithIndex) foreach { case (v, i) => {
@@ -63,11 +76,12 @@ abstract class Program(context: Context) {
 
       var kernel = context.clContext.createProgram(source).build().createKernel("function");
 
-      variables foreach { v =>
+      variables foreach { v => {
           v.kernel = kernel
           v.setup
-      }
+      } }
     }
     println(source)
   }
 }
+

@@ -63,15 +63,9 @@ case class TypeDesc(channels: Int, valueType: ValueType, primType: PrimType) {
       throw new RuntimeException("Mismatching channels : " + channels +" vs. " + o.channels)
     } else
     cn = channels;
-      
+
     return TypeDesc(cn, valueType combineWith o.valueType, primType combineWith o.primType)
   }
-  
+
   def globalCType = primType.toString + (if (valueType != Scalar) "*" else "")
 }
-
-trait Val1
-trait Val2
-trait Val4
-
-

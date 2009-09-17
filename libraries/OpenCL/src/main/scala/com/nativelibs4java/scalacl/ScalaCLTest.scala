@@ -1,10 +1,12 @@
 package com.nativelibs4java.scalacl;
+import com.nativelibs4java.opencl.OpenCL4Java._
 import java.nio._
-import Functions._
+import scala.reflect.Manifest
+import SyntaxUtils._
 
 object ScalaCLTest extends Application {
     import ScalaCL._
-    class MyProg(i: Int1) extends Program(Context.BEST) {
+    class MyProg(i: Dim) extends Program(Context.BEST) {
       
       val a = new ArrayVar[Double]
       val b = new ArrayVar[Double]
@@ -23,12 +25,14 @@ object ScalaCLTest extends Application {
                     //globalTot +~ localTot
             //)
     }
-    var context = Context.BEST;
     
-    var prog = new MyProg(10000)
-    //prog.a.value.set(1, 0)
-    prog !;
-    
+    //override def main(args: Array[String]) = {
+        var prog = new MyProg(Dim(10000))
+	    //prog.a.value.set(1, 0)
+	    prog !;
+	    prog.source
+    	
+    //}
 }
 
 
