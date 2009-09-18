@@ -88,21 +88,21 @@ object Dim {
 }
 
 case class BinOp(var op: String, var first: Expr, var second: Expr) extends Expr {
-  override def toString() = first + " " + op + " " + second
+  override def toString() = "(" + first + ") " + op + " (" + second + ")"
   override def typeDesc = first.typeDesc combineWith second.typeDesc
   override def accept(info: VisitInfo): Unit = visit(info, first, second)
 }
 
 case class UnOp(var op: String, var isPrefix: Boolean, var value: Expr) extends Expr {
   override def toString() = {
-    if (isPrefix) op + " " + value
-    else value.toString() + " " + op
+    if (isPrefix) "(" + op + " " + value + ")"
+    else "(" + value.toString() + " " + op + ")"
   }
   override def typeDesc = value.typeDesc
   override def accept(info: VisitInfo): Unit = visit(info, value)
 }
 
-case class Fun(name: String, outType: PrimType, args: List[Expr]) extends Expr {
+case class Fun(name: String, outType: PrimType, args: Expr*) extends Expr {
 
   override def toString() = name + "(" + args.map(_.toString).implode(", ") + ")"
   override def typeDesc = {
@@ -117,7 +117,6 @@ case class Fun(name: String, outType: PrimType, args: List[Expr]) extends Expr {
   }
 }
 
-
 case class Int1(value: Int) extends PrimScal(value, IntType) with Val1
 case class Int2(x: Int, y: Int) extends TypedExpr(TypeDesc(2, Scalar, IntType)) with CLValue with Val2
 case class Int4(x: Int, y: Int, z: Int, w: Int) extends TypedExpr(TypeDesc(4, Scalar, IntType)) with CLValue with Val4 {
@@ -129,10 +128,37 @@ case class Int4(x: Int, y: Int, z: Int, w: Int) extends TypedExpr(TypeDesc(4, Sc
 case class Double1(value: Double) extends PrimScal(value, DoubleType) with Val1
 case class Double2(x: Double, y: Double) extends TypedExpr(TypeDesc(2, Scalar, DoubleType)) with CLValue with Val2
 case class Double4(x: Double, y: Double, z: Double, w: Double) extends TypedExpr(TypeDesc(4, Scalar, DoubleType)) with CLValue  with Val4 {
-  def this(xy: Int2, zw: Int2) = {
+  def this(xy: Double2, zw: Double2) = {
     this(xy.x, xy.y, zw.x, zw.y)
   }
 }
+
+case class Float1(value: Float) extends PrimScal(value, FloatType) with Val1
+case class Float2(x: Float, y: Float) extends TypedExpr(TypeDesc(2, Scalar, FloatType)) with CLValue with Val2
+case class Float4(x: Float, y: Float, z: Float, w: Float) extends TypedExpr(TypeDesc(4, Scalar, FloatType)) with CLValue  with Val4 {
+  def this(xy: Float2, zw: Float2) = {
+    this(xy.x, xy.y, zw.x, zw.y)
+  }
+}
+
+
+case class Short1(value: Short) extends PrimScal(value, ShortType) with Val1
+case class Short2(x: Short, y: Short) extends TypedExpr(TypeDesc(2, Scalar, ShortType)) with CLValue with Val2
+case class Short4(x: Short, y: Short, z: Short, w: Short) extends TypedExpr(TypeDesc(4, Scalar, ShortType)) with CLValue  with Val4 {
+  def this(xy: Short2, zw: Short2) = {
+    this(xy.x, xy.y, zw.x, zw.y)
+  }
+}
+
+
+case class Byte1(value: Byte) extends PrimScal(value, ByteType) with Val1
+case class Byte2(x: Byte, y: Byte) extends TypedExpr(TypeDesc(2, Scalar, ByteType)) with CLValue with Val2
+case class Byte4(x: Byte, y: Byte, z: Byte, w: Byte) extends TypedExpr(TypeDesc(4, Scalar, ByteType)) with CLValue  with Val4 {
+  def this(xy: Byte2, zw: Byte2) = {
+    this(xy.x, xy.y, zw.x, zw.y)
+  }
+}
+
 
 
 sealed class VarMode
@@ -222,11 +248,17 @@ class Var[T](implicit t: Manifest[T]) extends AbstractVar {
   }
 }
 
-class DoublesVar(size: Int) extends ArrayVar[Double, DoubleBuffer](classOf[Double], classOf[DoubleBuffer], size) {
+class BytesVar(size: Int) extends ArrayVar[Byte, ByteBuffer](classOf[Byte], classOf[ByteBuffer], size) {
   def this() = this(-1)
   def this(dim: Dim) = this(dim.size)
   def get(index: Int) = this().get(index)
-  def set(index: Int, v: Double) = this().put(index, v)
+  def set(index: Int, v: Byte) = this().put(index, v)
+}
+class ShortsVar(size: Int) extends ArrayVar[Short, ShortBuffer](classOf[Short], classOf[ShortBuffer], size) {
+  def this() = this(-1)
+  def this(dim: Dim) = this(dim.size)
+  def get(index: Int) = this().get(index)
+  def set(index: Int, v: Short) = this().put(index, v)
 }
 class IntsVar(size: Int) extends ArrayVar[Int, IntBuffer](classOf[Int], classOf[IntBuffer], size) {
   def this() = this(-1)
@@ -234,14 +266,24 @@ class IntsVar(size: Int) extends ArrayVar[Int, IntBuffer](classOf[Int], classOf[
   def get(index: Int) = this().get(index)
   def set(index: Int, v: Int) = this().put(index, v)
 }
+class LongsVar(size: Int) extends ArrayVar[Long, LongBuffer](classOf[Long], classOf[LongBuffer], size) {
+  def this() = this(-1)
+  def this(dim: Dim) = this(dim.size)
+  def get(index: Int) = this().get(index)
+  def set(index: Int, v: Long) = this().put(index, v)
+}
 class FloatsVar(size: Int) extends ArrayVar[Float, FloatBuffer](classOf[Float], classOf[FloatBuffer], size) {
   def this() = this(-1)
   def this(dim: Dim) = this(dim.size)
   def get(index: Int) = this().get(index)
   def set(index: Int, v: Float) = this().put(index, v)
 }
-
-
+class DoublesVar(size: Int) extends ArrayVar[Double, DoubleBuffer](classOf[Double], classOf[DoubleBuffer], size) {
+  def this() = this(-1)
+  def this(dim: Dim) = this(dim.size)
+  def get(index: Int) = this().get(index)
+  def set(index: Int, v: Double) = this().put(index, v)
+}
 
 class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int) extends AbstractVar {
   private var buffer: Option[B] = None
@@ -258,8 +300,6 @@ class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int) extends 
 
   def read(out: B) : Unit = mem.read(out, queue, true)
   def write(in: B) : Unit = mem.write(in, queue, true)
-
-//class ArrayVar[T](implicit t: Manifest[T]) extends AbstractVar {
 
   def alloc(size: Int) = {
     this.size = size
