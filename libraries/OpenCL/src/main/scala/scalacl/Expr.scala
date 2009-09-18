@@ -28,7 +28,6 @@ abstract class Node {
       info.stack pop;
     }
   }
-  def findUnique[C](implicit c: Manifest[C]) : List[C] = (new scala.collection.mutable.ListBuffer[C]() ++ (new scala.collection.immutable.HashSet[C]() ++ find[C](c))).toList
   def find[C](implicit c: Manifest[C]) : List[C] = {
     val list = new scala.collection.mutable.ListBuffer[C]()
     accept { (x, stack) => if (x != null && c.erasure.isInstance(x)) list + x.asInstanceOf[C] }
@@ -236,7 +235,11 @@ class ArrayVar[T](implicit t: Manifest[T]) extends AbstractVar {
   }
   override def setup = {
     val td = getTypeDesc[T](t, Parallel)
-    val bytes = td.channels * td.primType.bytes
+    if (size < 0) implicitDim match {
+      case Some(d) => size = d.size
+      case _ => throw new RuntimeException("Array variable was not allocated, and no implicit dimension can be safely inferred to help.")
+    }
+    val bytes = td.channels * td.primType.bytes * size
     mem = mode match {
       case ReadMode => kernel.getProgram.getContext.createInput(bytes)
       case WriteMode => kernel.getProgram.getContext.createOutput(bytes)

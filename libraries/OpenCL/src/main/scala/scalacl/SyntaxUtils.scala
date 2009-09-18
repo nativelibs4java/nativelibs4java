@@ -9,6 +9,7 @@ package scalacl
 import java.nio._
 
 object SyntaxUtils {
+  def unique[C](list: List[C]) = (new scala.collection.mutable.ListBuffer[C]() ++ (new scala.collection.immutable.HashSet[C]() ++ list)).toList
 
   case class SeqUtils[T](seq: Seq[T]) {
     def implode(sep: String) = {

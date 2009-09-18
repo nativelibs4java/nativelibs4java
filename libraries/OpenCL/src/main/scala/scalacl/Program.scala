@@ -32,13 +32,13 @@ abstract class Program(context: Context, var dimensions: Dim*) {
   private def generateSources : String = {
     var doc = new StringBuilder;
 
-    var dims = statements.findUnique[Dim].zipWithIndex.map { case (d, i) =>
+    var dims = unique[Dim](statements.find[Dim] ++ dimensions).zipWithIndex.map { case (d, i) =>
         d.name = "dim" + (i + 1);
         d.dimIndex = i;
         d
     }
 
-    var variables = statements.findUnique[AbstractVar]
+    var variables = unique[AbstractVar](statements.find[AbstractVar])
     /*variables = (_ ++ _)(variables.partition (_ match {
         case ReadMode => true
         case ReadWrite
@@ -66,7 +66,7 @@ abstract class Program(context: Context, var dimensions: Dim*) {
       throw new UnsupportedOperationException("Reductions not implemented yet !\n" + x.toString())
     }
 
-    val includes = statements.findUnique[Fun] map (_.include)
+    val includes = unique[Fun](statements.find[Fun]) map (_.include)
     doc ++ includes.map("#include <" + _ + ">\n").implode("")
 
     var argDefs = variables.map(v =>
