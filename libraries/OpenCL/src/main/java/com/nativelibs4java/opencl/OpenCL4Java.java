@@ -531,18 +531,42 @@ public class OpenCL4Java {
 
         @SuppressWarnings("deprecation")
         public void read(Buffer out, CLQueue queue, boolean blocking) {
-            Pointer pres = Native.getDirectBufferPointer(out);
-            error(CL.clEnqueueReadBuffer(
-                    queue.get(),
-                    get(),
-                    blocking ? CL_TRUE : 0,
-                    toNL(0),
-                    toNL(getSizeInBytes(out)),
-                    pres,
-                    0,
-                    null,
-                    (PointerByReference) null//pevt
-                    ));
+            if (out.isDirect()) {
+                Pointer pres = Native.getDirectBufferPointer(out);
+                error(CL.clEnqueueReadBuffer(
+                        queue.get(),
+                        get(),
+                        blocking ? CL_TRUE : 0,
+                        toNL(0),
+                        toNL(getSizeInBytes(out)),
+                        pres,
+                        0,
+                        null,
+                        (PointerByReference) null//pevt
+                        ));
+            } else {
+                ByteBuffer b = mapRead(queue);
+                try {
+                    //out.mark();
+                    if (out instanceof IntBuffer)
+                        ((IntBuffer)out).put(b.asIntBuffer());
+                    else if (out instanceof LongBuffer)
+                        ((LongBuffer)out).put(b.asLongBuffer());
+                    else if (out instanceof ShortBuffer)
+                        ((ShortBuffer)out).put(b.asShortBuffer());
+                    else if (out instanceof CharBuffer)
+                        ((CharBuffer)out).put(b.asCharBuffer());
+                    else if (out instanceof DoubleBuffer)
+                        ((DoubleBuffer)out).put(b.asDoubleBuffer());
+                    else if (out instanceof FloatBuffer)
+                        ((FloatBuffer)out).put(b.asFloatBuffer());
+                    else
+                        throw new UnsupportedOperationException("Unhandled buffer type : " + out.getClass().getName());
+                } finally {
+                    //out.reset();
+                    unmap(queue, b);
+                }
+            }
         }
 
         @SuppressWarnings("deprecation")

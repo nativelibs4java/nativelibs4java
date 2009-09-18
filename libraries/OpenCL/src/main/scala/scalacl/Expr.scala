@@ -45,6 +45,11 @@ case class ExprStat(expr: Expr) extends Stat {
   override def accept(info: VisitInfo): Unit = visit(info, expr)
 }
 
+/*object Expr {
+  protected def wrapparen(expr: Expr) = {
+
+  }
+}*/
 abstract class Expr extends Node {
   def typeDesc: TypeDesc;
 
