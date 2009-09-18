@@ -40,7 +40,7 @@ abstract class Program(context: Context, var dimensions: Dim*) {
   private def generateSources : String = {
     var doc = new StringBuilder;
 
-    var dims = unique[Dim](content.find[Dim] ++ dimensions).zipWithIndex.map { case (d, i) =>
+    var dims = unique(content.find[Dim] ++ dimensions).zipWithIndex.map { case (d, i) =>
         d.name = "dim" + (i + 1);
         d.dimIndex = i;
         d
@@ -56,7 +56,7 @@ abstract class Program(context: Context, var dimensions: Dim*) {
     import scala.collection.mutable.HashMap
     var namesPerHint = new HashMap[String, Int]
     
-    filteredVariables.zipWithIndex.foreach { case (v, i) => {
+    filteredVariables.zipWithIndex.foreach { case (v, i) =>
       v.argIndex = i;
 
       namesPerHint.put(v.mode.hintName, namesPerHint.getOrElse(v.mode.hintName, 0) + 1)
@@ -69,7 +69,7 @@ abstract class Program(context: Context, var dimensions: Dim*) {
         }
         case _ =>
       }
-    } }
+    }
     
     filteredVariables.reverse.foreach { v =>
       val hint = v.mode.hintName
@@ -133,11 +133,13 @@ abstract class Program(context: Context, var dimensions: Dim*) {
       
       kernel = context.context.createProgram(source).build().createKernel("function");
 
-      content.find[AbstractVar] foreach { v => {
-          v.kernel = kernel;
-          v.setup;
+      println("filteredVariables = " + filteredVariables)
+      filteredVariables foreach { v =>
+          println("setting up variable " + v.name)
+          v.kernel = kernel
           v.queue = context.queue
-        } }
+          v.setup
+      }
     }
   }
   def exec(dims: Int*) = {

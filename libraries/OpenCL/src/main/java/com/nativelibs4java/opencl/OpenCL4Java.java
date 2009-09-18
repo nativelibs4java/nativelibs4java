@@ -570,19 +570,43 @@ public class OpenCL4Java {
         }
 
         @SuppressWarnings("deprecation")
-        public void write(Buffer out, CLQueue queue, boolean blocking) {
-            Pointer pres = Native.getDirectBufferPointer(out);
-            error(CL.clEnqueueWriteBuffer(
-                    queue.get(),
-                    get(),
-                    blocking ? CL_TRUE : 0,
-                    toNL(0),
-                    toNL(getSizeInBytes(out)),
-                    pres,
-                    0,
-                    null,
-                    (PointerByReference) null//pevt
-                    ));
+        public void write(Buffer in, CLQueue queue, boolean blocking) {
+            if (in.isDirect()) {
+                Pointer pres = Native.getDirectBufferPointer(in);
+                error(CL.clEnqueueWriteBuffer(
+                        queue.get(),
+                        get(),
+                        blocking ? CL_TRUE : 0,
+                        toNL(0),
+                        toNL(getSizeInBytes(in)),
+                        pres,
+                        0,
+                        null,
+                        (PointerByReference) null//pevt
+                        ));
+            } else {
+                ByteBuffer b = mapRead(queue);
+                try {
+                    //out.mark();
+                    if (in instanceof IntBuffer)
+                        b.asIntBuffer().put((IntBuffer)in);
+                    else if (in instanceof LongBuffer)
+                        b.asLongBuffer().put((LongBuffer)in);
+                    else if (in instanceof ShortBuffer)
+                        b.asShortBuffer().put((ShortBuffer)in);
+                    else if (in instanceof CharBuffer)
+                        b.asCharBuffer().put((CharBuffer)in);
+                    else if (in instanceof DoubleBuffer)
+                        b.asDoubleBuffer().put((DoubleBuffer)in);
+                    else if (in instanceof FloatBuffer)
+                        b.asFloatBuffer().put((FloatBuffer)in);
+                    else
+                        throw new UnsupportedOperationException("Unhandled buffer type : " + in.getClass().getName());
+                } finally {
+                    //out.reset();
+                    unmap(queue, b);
+                }
+            }
         }
     }
 

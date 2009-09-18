@@ -304,7 +304,9 @@ class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int) extends 
   var implicitDim: Option[Dim] = None
 
   def read(out: B) : Unit = mem.read(out, queue, true)
-  def write(in: B) : Unit = mem.write(in, queue, true)
+  def write(in: B) : Unit = {
+    mem.write(in, queue, true)
+  }
 
   def alloc(size: Int) = {
     this.size = size

@@ -37,15 +37,15 @@ object SyntaxUtils {
   implicit def array2Buffer(a: Array[Double]) = DoubleBuffer.wrap(a)
   implicit def array2Buffer(a: Array[Float ]) = FloatBuffer.wrap(a)
 
-  def directInts(n: Int) = ByteBuffer.allocateDirect(n * 4).asIntBuffer()
-  def directShorts(n: Int) = ByteBuffer.allocateDirect(n * 2).asShortBuffer()
-  def directLongs(n: Int) = ByteBuffer.allocateDirect(n * 8).asLongBuffer()
-  def directBytes(n: Int) = ByteBuffer.allocateDirect(n)
-  def directChars(n: Int) = ByteBuffer.allocateDirect(n * 2).asCharBuffer()
-  def directDoubles(n: Int) = ByteBuffer.allocateDirect(n * 8).asDoubleBuffer()
-  def directFloats(n: Int) = ByteBuffer.allocateDirect(n * 4).asFloatBuffer()
+  def directInts(n: Int) = directBytes(n * 4).asIntBuffer()
+  def directShorts(n: Int) = directBytes(n * 2).asShortBuffer()
+  def directLongs(n: Int) = directBytes(n * 8).asLongBuffer()
+  def directBytes(n: Int) = ByteBuffer.allocateDirect(n).order(ByteOrder.nativeOrder())
+  def directChars(n: Int) = directBytes(n * 2).asCharBuffer()
+  def directDoubles(n: Int) = directBytes(n * 8).asDoubleBuffer()
+  def directFloats(n: Int) = directBytes(n * 4).asFloatBuffer()
 
-  def newBuffer[B <: Buffer](b: Class[B]) : Int => B = b.toString match {
+  def newBuffer[B <: Buffer](b: Class[B]) : Int => B = b.getName match {
     case "java.nio.IntBuffer"     => directInts(_).asInstanceOf[B]
     case "java.nio.ShortBuffer"   => directShorts(_).asInstanceOf[B]
     case "java.nio.LongBuffer"    => directLongs(_).asInstanceOf[B]
