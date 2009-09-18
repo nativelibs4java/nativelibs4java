@@ -4,14 +4,14 @@ import java.nio._
 import scala.reflect.Manifest
 import SyntaxUtils._
 
-case object IntType 	extends PrimType("int")
-case object LongType 	extends PrimType("long long")
-case object ShortType 	extends PrimType("short")
-case object ByteType 	extends PrimType("byte")
-case object FloatType 	extends PrimType("float")
-case object DoubleType 	extends PrimType("double")
+case object IntType 	extends PrimType("int", 4)
+case object LongType 	extends PrimType("long long", 8)
+case object ShortType 	extends PrimType("short", 2)
+case object ByteType 	extends PrimType("byte", 1)
+case object FloatType 	extends PrimType("float", 4)
+case object DoubleType 	extends PrimType("double", 8)
 
-abstract sealed class PrimType(str: String) {
+abstract sealed class PrimType(str: String, var bytes: Int) {
   override def toString = str
   implicit def class2ClassUtils(target: Class[_]) = ClassUtils(target)
 

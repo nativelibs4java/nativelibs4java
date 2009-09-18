@@ -12,7 +12,8 @@ import com.nativelibs4java.opencl.OpenCL4Java._
 
 
 object ScalaCL {
-//  implicit def Int2Dim(v: Int1) = Dim(v)
+  //implicit def Dim2Int(v: Dim) = v.size
+
   implicit def Int2Int1(v: Int) = Int1(v)
   implicit def Int12Int(v: Int1) = v.value
   implicit def Double2Double1(v: Double) = Double1(v)
@@ -29,4 +30,5 @@ object ScalaCL {
   def tanh(x: Expr) = Fun("tanh", DoubleType, List(x), "math.h")
   def atan2(x: Expr, y: Expr) = Fun("atan2", DoubleType, List(x, y), "math.h");
 
+  implicit def Expr2Stat(expr: Expr) = ExprStat(expr)
 }

@@ -22,67 +22,82 @@ object Context {
   }
 }
 
-abstract class Program(context: Context) {
-  var root: Expr
+abstract class Program(context: Context, var dimensions: Dim*) {
+  var statements: Stat
 
   var source: String = null;
 
   import scala.collection.mutable.ListBuffer
   
   private def generateSources : String = {
-      markVarUsage
-      
-      var doc = new StringBuilder;
+    var doc = new StringBuilder;
 
-      var dims = root.findUnique[Dim].zipWithIndex.map { case (d, i) =>
-          d.name = "dim" + (i + 1);
-          d.dimIndex = i;
-          d
-      }
-      val variables = root.findUnique[AbstractVar]
-      variables.zipWithIndex.foreach { case (v, i) => {
+    var dims = statements.findUnique[Dim].zipWithIndex.map { case (d, i) =>
+        d.name = "dim" + (i + 1);
+        d.dimIndex = i;
+        d
+    }
+
+    var variables = statements.findUnique[AbstractVar]
+    /*variables = (_ ++ _)(variables.partition (_ match {
+        case ReadMode => true
+        case ReadWrite
+    }
+    }))*/
+    markVarUsage
+    variables.zipWithIndex.foreach { case (v, i) => {
           v.argIndex = i;
-          v.name = "var" + (i + 1);
-      } }
-      variables filter { _.mode == AggregatedMode } foreach {x =>
-          throw new UnsupportedOperationException("Reductions not implemented yet !\n" + x.toString())
-      }
+          v.name = v.mode.hintName + (i + 1);
+          val d = dimensions.size
+          v match {
+            case a: ArrayVar[_] => if (d == 1) a.implicitDim = Some(dimensions(0))
+            case im: ImageVar[_] => if (d == 2) {
+                im.implicitDimX = Some(dimensions(0))
+                im.implicitDimY = Some(dimensions(1))
+            }
+            case _ =>
+          }
+    } }
 
-      val includes = root.findUnique[Fun] map (_.include)
-      doc ++ includes.map("#include <" + _ + ">\n").implode("")
+    
 
-      var argDefs = variables.map(v =>
-        "__global " +
-        (if (v.mode == WriteMode || v.mode == ReadWriteMode || v.mode == AggregatedMode) "" else "const ") +
-        v.typeDesc.globalCType + " " + v.name
-      )
+    
+    variables filter { _.mode == AggregatedMode } foreach {x =>
+      throw new UnsupportedOperationException("Reductions not implemented yet !\n" + x.toString())
+    }
 
-      doc ++ ("void function(" + argDefs.implode(", ") + ") {\n");
-      doc ++ dims.map(dim => "\tint " + dim.name + " = get_global_id(" + dim.dimIndex + ");\n").implode("")
-      doc ++ ("\t" + root.toString + ";\n")
-      doc ++ "}\n"
+    val includes = statements.findUnique[Fun] map (_.include)
+    doc ++ includes.map("#include <" + _ + ">\n").implode("")
 
-      doc.toString
+    var argDefs = variables.map(v =>
+      "__global " +
+      (if (v.mode == WriteMode || v.mode == ReadWriteMode || v.mode == AggregatedMode) "" else "const ") +
+      v.typeDesc.globalCType + " " + v.name
+    )
+
+    //doc ++ variables.map(v => "\t//"+ v.name + ": " + v.mode + "\n").implode("")
+    doc ++ ("void function(" + argDefs.implode(", ") + ") {\n");
+    doc ++ dims.map(dim => "\tint " + dim.name + " = get_global_id(" + dim.dimIndex + ");\n").implode("")
+    doc ++ ("\t" + statements.toString + "\n")
+    doc ++ "}\n"
+
+    doc.toString
   }
-  def markVarUsage = root accept { (x, stack) => {
+  def markVarUsage = statements accept { (x, stack) =>
     x match {
-      case v: AbstractVar => {
-//                if (stack.size > 1) {
-//                  stack(stack.size - 2).match {
-//                    case BinOp("=", v: AbstractVar, _)
-//                  }
-//                }
-          v.mode = v.mode union ReadMode
+      case v: AbstractVar => if (stack.size <= 1 || !stack(stack.size - 2).isInstanceOf[Assignment])
+        v.mode = v.mode union ReadMode
+      case Assignment(_, t, _) => t match {
+          case v: AbstractVar => v.mode = v.mode union WriteMode
+          case e: ArrayElement[_] => e.array.mode = e.array.mode union WriteMode
+          case _ => 
       }
-      // case BinOp(""".*~""", v: Var[_], _) => v.isWritten = true
-      case BinOp("=", v: AbstractVar, _) => v.mode = v.mode union WriteMode
       case _ =>
     }
-  } }
-
-  def ! = {
-	  setup
   }
+
+  def ! = exec
+  
   def setup = {
     if (source == null) {
       source = generateSources
@@ -90,11 +105,16 @@ abstract class Program(context: Context) {
       
       var kernel = context.clContext.createProgram(source).build().createKernel("function");
 
-      root.find[AbstractVar] foreach { v => {
+      statements.find[AbstractVar] foreach { v => {
           v.kernel = kernel
           v.setup
-      } }
+        } }
     }
+  }
+  def exec = {
+    setup
+
+    //dims
   }
 }
 
