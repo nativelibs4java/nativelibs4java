@@ -9,20 +9,20 @@ object ScalaCLTestRun extends Application {
     
   class Prog1(i: Dim) extends Program(Context.BEST, i)
   {
-    val a = new ArrayVar[Double]
-    val b = new ArrayVar[Double]
-    val o = new ArrayVar[Double]
+    val a = new DoublesVar
+    val b = new DoublesVar
+    val o = new DoublesVar
 
-    override var statements: Stat = o ~ (a * sin(b) + 1)
+    override var content: Stat = o ~ (a * sin(b) + 1)
   }
   class Prog2(i: Dim) extends Program(Context.BEST, i)
   {
-    val a = new ArrayVar[Double] alloc 2 * i.size
-    val b = new ArrayVar[Double]
-    val o = new ArrayVar[Double]
+    val a = new DoublesVar(2 * i.size)
+    val b = new DoublesVar
+    val o = new DoublesVar
 
     //override var statements: Stat = o(i) ~ ((a(2 * i) + a(2 * i + 1)) / 2 * sin(b(i)) + 1)
-    override var statements: Stat =
+    override var content: Stat =
       o ~ (
         (
           a(2 * i) + a(2 * i + 1)

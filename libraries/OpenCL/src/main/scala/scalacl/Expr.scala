@@ -102,7 +102,7 @@ case class UnOp(var op: String, var isPrefix: Boolean, var value: Expr) extends 
   override def accept(info: VisitInfo): Unit = visit(info, value)
 }
 
-case class Fun(name: String, outType: PrimType, args: List[Expr], include: String) extends Expr {
+case class Fun(name: String, outType: PrimType, args: List[Expr]) extends Expr {
 
   override def toString() = name + "(" + args.map(_.toString).implode(", ") + ")"
   override def typeDesc = {
@@ -135,55 +135,55 @@ case class Double4(x: Double, y: Double, z: Double, w: Double) extends TypedExpr
 }
 
 
-abstract sealed class VarMode {
-  def union(mode: VarMode): VarMode
-  def hintName: String
-}
-case object UnknownMode extends VarMode {
-  override def union(mode: VarMode) = mode
-  override def hintName: String = "var"
+sealed class VarMode
+{
+  var read = false
+  var write = false
+  var reduction = false
+  
+  def hintName = {
+    if (read && write)
+      "inOut"
+    else if (read)
+      "in"
+    else if (write)
+      "out"
+    else
+      "var"
+  }
 }
 
-case object ReadMode extends VarMode {
-  override def union(mode: VarMode) = if (mode == AggregatedMode) AggregatedMode else if (mode == WriteMode) ReadWriteMode else this
-  override def hintName: String = "in"
-}
-case object WriteMode extends VarMode {
-  override def union(mode: VarMode) = if (mode == AggregatedMode) AggregatedMode else if (mode == WriteMode) ReadWriteMode else this
-  override def hintName: String = "out"
-}
-case object ReadWriteMode extends VarMode {
-  override def union(mode: VarMode) = if (mode == AggregatedMode) AggregatedMode else this
-  override def hintName: String = "inOut"
-}
-case object AggregatedMode extends VarMode {
-  override def union(mode: VarMode) = this
-  override def hintName: String = "reduc"
-}
+abstract sealed class VarScope
+case object LocalScope extends VarScope
+case object GlobalScope extends VarScope
+case object PrivateScope extends VarScope
 
 abstract class AbstractVar extends Expr {
+  var stale = false
   var kernel: CLKernel = null
+  var queue: CLQueue = null
   var argIndex = -2
+  var scope: VarScope = GlobalScope
   var name: String = null
-  var mode: VarMode = UnknownMode
+  var mode = new VarMode
 
   def setup
   override def toString() = name
   override def accept(info: VisitInfo) : Unit = visit(info)
 
-  def getTypeDesc[T](implicit t: Manifest[T], valueType: ValueType) = {
-    var c = t.erasure
+  def getTypeDesc[T](implicit t: Manifest[T], valueType: ValueType) : TypeDesc = getTypeDesc[T](t.erasure.asInstanceOf[Class[T]], valueType)
+  def getTypeDesc[T](c: Class[T], valueType: ValueType) : TypeDesc = {
     var ch = {
       if (c.isPrimitive || c.isAnyOf(classOf[java.lang.Number], classOf[Number])) 1
       else if (classOf[Val1].isAssignableFrom(c)) 1
       else if (classOf[Val2].isAssignableFrom(c)) 2
       else if (classOf[Val4].isAssignableFrom(c)) 4
-      else throw new IllegalArgumentException("Unable to guess channels for valueType " + valueType + " and manifest " + t)
+      else throw new IllegalArgumentException("Unable to guess channels for valueType " + valueType + " and class " + c)
     }
     var pt = {
       if (c.isAnyOf(classOf[Int], classOf[Int1], classOf[Int2], classOf[Int4])) IntType
       else if (c.isAnyOf(classOf[Double], classOf[Double1], classOf[Double2], classOf[Double4])) DoubleType
-      else throw new IllegalArgumentException("Unable to guess primType for class " + c.getName + " and manifest " + t)
+      else throw new IllegalArgumentException("Unable to guess primType for class " + c.getName + " and class " + c)
     }
     TypeDesc(ch, valueType, pt)
   }
@@ -222,9 +222,45 @@ class Var[T](implicit t: Manifest[T]) extends AbstractVar {
   }
 }
 
-class ArrayVar[T](implicit t: Manifest[T]) extends AbstractVar {
+class DoublesVar(size: Int) extends ArrayVar[Double, DoubleBuffer](classOf[Double], classOf[DoubleBuffer], size) {
+  def this() = this(-1)
+  def this(dim: Dim) = this(dim.size)
+  def get(index: Int) = this().get(index)
+  def set(index: Int, v: Double) = this().put(index, v)
+}
+class IntsVar(size: Int) extends ArrayVar[Int, IntBuffer](classOf[Int], classOf[IntBuffer], size) {
+  def this() = this(-1)
+  def this(dim: Dim) = this(dim.size)
+  def get(index: Int) = this().get(index)
+  def set(index: Int, v: Int) = this().put(index, v)
+}
+class FloatsVar(size: Int) extends ArrayVar[Float, FloatBuffer](classOf[Float], classOf[FloatBuffer], size) {
+  def this() = this(-1)
+  def this(dim: Dim) = this(dim.size)
+  def get(index: Int) = this().get(index)
+  def set(index: Int, v: Float) = this().put(index, v)
+}
+
+
+
+class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int) extends AbstractVar {
+  private var buffer: Option[B] = None
+  def apply() : B = {
+    if (buffer == None)
+      buffer = Some(newBuffer[B](b)(size))
+    if (stale)
+      read(buffer.get)
+
+    buffer.get
+  }
+  private var mem: CLMem = null
   var implicitDim: Option[Dim] = None
-  var size = -1
+
+  def read(out: B) : Unit = mem.read(out, queue, true)
+  def write(in: B) : Unit = mem.write(in, queue, true)
+
+//class ArrayVar[T](implicit t: Manifest[T]) extends AbstractVar {
+
   def alloc(size: Int) = {
     this.size = size
     this
@@ -234,33 +270,36 @@ class ArrayVar[T](implicit t: Manifest[T]) extends AbstractVar {
     case None => name
   }
   override def setup = {
-    val td = getTypeDesc[T](t, Parallel)
+    val td = typeDesc
     if (size < 0) implicitDim match {
       case Some(d) => size = d.size
       case _ => throw new RuntimeException("Array variable was not allocated, and no implicit dimension can be safely inferred to help.")
     }
     val bytes = td.channels * td.primType.bytes * size
-    mem = mode match {
-      case ReadMode => kernel.getProgram.getContext.createInput(bytes)
-      case WriteMode => kernel.getProgram.getContext.createOutput(bytes)
-      case ReadWriteMode => kernel.getProgram.getContext.createInputOutput(bytes)
-      case _ => throw new UnsupportedOperationException("Unsupported variable mode : " + mode)
-    }
+    val cx = kernel.getProgram.getContext
+    mem = 
+      if (mode.read && mode.write)
+        cx.createInputOutput(bytes)
+      else if (mode.read)
+        cx.createInput(bytes)
+      else if (mode.write)
+        cx.createOutput(bytes)
+      else
+        throw new UnsupportedOperationException("Unsupported variable mode : " + this)
+
     kernel.setArg(argIndex, mem)
   }
-  override def typeDesc = getTypeDesc[T](t, Parallel)
-  private var mem: CLMem = null;
-  private var value: Option[T] = None;
+  override def typeDesc = getTypeDesc[V](v, Parallel)
+  
+  def apply(index: Expr) : Expr = new ArrayElement[V, B](this, index)
 
-  def apply(index: Expr) : Expr = new ArrayElement[T](this, index)
-
-  def apply(index: Int) : T = {
+  /*def apply(index: Int) : V = {
     var value = this.value getOrElse { throw new RuntimeException("Cannot get variable value before setting things up !")}
     return value.asInstanceOf[DoubleBuffer].get(index).asInstanceOf[T];
-  }
+  }*/
 }
 
-class ArrayElement[T](/*implicit t: Manifest[T], */var array: ArrayVar[T], var index: Expr) extends Expr {
+class ArrayElement[T, B <: Buffer](/*implicit t: Manifest[T], */var array: ArrayVar[T, B], var index: Expr) extends Expr {
   override def typeDesc = {
     var td = array.typeDesc
     TypeDesc(td.channels, Scalar, td.primType)

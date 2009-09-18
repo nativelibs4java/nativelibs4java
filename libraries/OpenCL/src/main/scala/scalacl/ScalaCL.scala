@@ -19,16 +19,20 @@ object ScalaCL {
   implicit def Double2Double1(v: Double) = Double1(v)
   implicit def Double12Double(v: Double1) = v.value
 
-  def cos(x: Expr) = Fun("cos", DoubleType, List(x), "math.h")
-  def sin(x: Expr) = Fun("sin", DoubleType, List(x), "math.h")
-  def tan(x: Expr) = Fun("tan", DoubleType, List(x), "math.h")
-  def atan(x: Expr) = Fun("atan", DoubleType, List(x), "math.h")
-  def acos(x: Expr) = Fun("acos", DoubleType, List(x), "math.h")
-  def asin(x: Expr) = Fun("asin", DoubleType, List(x), "math.h")
-  def cosh(x: Expr) = Fun("cosh", DoubleType, List(x), "math.h")
-  def sinh(x: Expr) = Fun("sinh", DoubleType, List(x), "math.h")
-  def tanh(x: Expr) = Fun("tanh", DoubleType, List(x), "math.h")
-  def atan2(x: Expr, y: Expr) = Fun("atan2", DoubleType, List(x, y), "math.h");
+  def local[V <: AbstractVar](v: V): V = { v.scope = LocalScope; v }
+  def global[V <: AbstractVar](v: V): V = { v.scope = GlobalScope; v }
+  def priv[V <: AbstractVar](v: V): V = { v.scope = PrivateScope; v }
+
+  def cos(x: Expr) = Fun("cos", DoubleType, List(x))
+  def sin(x: Expr) = Fun("sin", DoubleType, List(x))
+  def tan(x: Expr) = Fun("tan", DoubleType, List(x))
+  def atan(x: Expr) = Fun("atan", DoubleType, List(x))
+  def acos(x: Expr) = Fun("acos", DoubleType, List(x))
+  def asin(x: Expr) = Fun("asin", DoubleType, List(x))
+  def cosh(x: Expr) = Fun("cosh", DoubleType, List(x))
+  def sinh(x: Expr) = Fun("sinh", DoubleType, List(x))
+  def tanh(x: Expr) = Fun("tanh", DoubleType, List(x))
+  def atan2(x: Expr, y: Expr) = Fun("atan2", DoubleType, List(x, y));
 
   implicit def Expr2Stat(expr: Expr) = ExprStat(expr)
 }
