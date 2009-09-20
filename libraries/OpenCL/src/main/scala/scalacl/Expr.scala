@@ -58,8 +58,7 @@ case class ExprStat(expr: Expr) extends Stat {
 abstract class Expr extends Node {
   def typeDesc: TypeDesc;
 
-  private def op(name: String) = (x: Expr) => BinOp(name, this, x)
-
+  private def dieMinMax2(op: String): (Double, Double) => Double = throw new RuntimeException("Binary operator " + op + " does not define a minMax function")
 
   def :=(other: Expr) = Assignment("=", this, other)
   def +=(other: Expr) = Assignment("+=", this, other)
@@ -67,58 +66,104 @@ abstract class Expr extends Node {
   def *=(other: Expr) = Assignment("*=", this, other)
   def /=(other: Expr) = Assignment("/=", this, other)
 
+
   def !=(other: Expr) = Assignment("!=", this, other)
-  def ==(other: Expr) = BinOp("==", this, other)
-  def <=(other: Expr) = BinOp("<=", this, other)
-  def >=(other: Expr) = BinOp(">=", this, other)
-  def <(other: Expr) = BinOp("<", this, other)
-  def >(other: Expr) = BinOp(">", this, other)
+  def ==(other: Expr) = BinOp("==", this, other, dieMinMax2("=="))
+  def <=(other: Expr) = BinOp("<=", this, other, dieMinMax2("<="))
+  def >=(other: Expr) = BinOp(">=", this, other, dieMinMax2(">="))
+  def <(other: Expr) = BinOp("<", this, other, dieMinMax2("<"))
+  def >(other: Expr) = BinOp(">", this, other, dieMinMax2(">"))
 
-  def !() = UnOp("!", true, this)
+  def !() = UnOp("!", true, this, (x: Double) => if (x == 0) 1 else 0)
 
-  def +(other: Expr) = BinOp("+", this, other)
-  def -(other: Expr) = BinOp("-", this, other)
-  def *(other: Expr) = BinOp("*", this, other)
-  def /(other: Expr) = BinOp("/", this, other)
-  def %(other: Expr) = BinOp("%", this, other)
-  def >>(other: Expr) = BinOp(">>", this, other)
-  def <<(other: Expr) = BinOp("<<", this, other)
+  def +(other: Expr) = BinOp("+", this, other, _ + _)
+  def -(other: Expr) = BinOp("-", this, other, _ - _)
+  def *(other: Expr) = BinOp("*", this, other, _ * _)
+  def /(other: Expr) = BinOp("/", this, other, _ / _)
+  def %(other: Expr) = BinOp("%", this, other, _ % _)
+  def >>(other: Expr) = BinOp(">>", this, other, _.asInstanceOf[Int] >> _.asInstanceOf[Int])
+  def <<(other: Expr) = BinOp("<<", this, other, _.asInstanceOf[Int] << _.asInstanceOf[Int])
+
+  def computeMinMax: MinMax
 }
+object Expr {
+  def computeMinMax(mm1: MinMax, mm2: MinMax, f: (Double, Double) => Double): MinMax = {
+    var res = new scala.collection.jcl.TreeSet[Double]
+    res + f(mm1.min, mm2.min)
+    res + f(mm1.min, mm2.max)
+    res + f(mm1.max, mm2.min)
+    res + f(mm1.max, mm2.max)
+    var arr = res.toArray
+    MinMax(arr(0), arr(arr.length - 1))
+  }
+  def computeMinMax(mm: MinMax, f: (Double) => Double): MinMax = {
+    val v1 = f(mm.min)
+    val v2 = f(mm.max)
+    if (v1 < v2)
+      MinMax(v1, v2)
+    else
+      MinMax(v2, v1)
+  }
+}
+case class MinMax(min: Double, max: Double) {
+  def union(mm: MinMax) = MinMax(Math.min(min, mm.min), Math.max(max, mm.max))
+}
+
 abstract class TypedExpr(td: TypeDesc) extends Expr {
   override def typeDesc = td
   override def accept(info: VisitInfo) : Unit = visit(info);
+  override def computeMinMax: MinMax = throw new UnsupportedOperationException("Can't infer min max values from typed expression")
+
 }
 
 abstract case class PrimScal(v: Number, t: PrimType) extends TypedExpr(TypeDesc(1, Scalar, t)) with CLValue {
   override def toString = v.toString
+  override def computeMinMax: MinMax = {
+    val x = v.doubleValue
+    MinMax(x, x)
+  }
+
 }
 
 class Dim(var size: Int) extends PrimScal(size, IntType) with Val1 {
   var name: String = null
   var dimIndex = -1
   override def toString = if (name == null) "unnamedDim(" + size + ")" else name
+  override def computeMinMax: MinMax = {
+    if (size < 0)
+      throw new RuntimeException("Unable to compute minmax with a dim size < 0")
+    MinMax(0, size - 1)
+  }
 }
 object Dim {
   def apply(size: Int) = new Dim(size)
 }
 
-case class BinOp(var op: String, var first: Expr, var second: Expr) extends Expr {
+case class BinOp(op: String, first: Expr, second: Expr, minMaxFunction: (Double, Double) => Double) extends Expr {
   override def toString() = "(" + first + ") " + op + " (" + second + ")"
   override def typeDesc = first.typeDesc combineWith second.typeDesc
   override def accept(info: VisitInfo): Unit = visit(info, first, second)
+  override def computeMinMax: MinMax = Expr.computeMinMax(first.computeMinMax, second.computeMinMax, minMaxFunction)
 }
-
-case class UnOp(var op: String, var isPrefix: Boolean, var value: Expr) extends Expr {
+case class UnOp(op: String, isPrefix: Boolean, value: Expr, minMaxFunction: (Double) => Double) extends Expr {
   override def toString() = {
     if (isPrefix) "(" + op + " " + value + ")"
     else "(" + value.toString() + " " + op + ")"
   }
   override def typeDesc = value.typeDesc
   override def accept(info: VisitInfo): Unit = visit(info, value)
+  override def computeMinMax: MinMax = {
+    val mm = value.computeMinMax
+    val v1 = minMaxFunction(mm.min)
+    val v2 = minMaxFunction(mm.max)
+    if (v1 < v2)
+      MinMax(v1, v2)
+    else
+      MinMax(v2, v1)
+  }
 }
 
-case class Fun(name: String, outType: PrimType, args: Expr*) extends Expr {
-
+abstract case class Fun(name: String, outType: PrimType, args: Expr*) extends Expr {
   override def toString() = name + "(" + args.map(_.toString).implode(", ") + ")"
   override def typeDesc = {
     var argType = args map (a => a.typeDesc) reduceLeft {(a, b) => a combineWith b};
@@ -130,6 +175,16 @@ case class Fun(name: String, outType: PrimType, args: Expr*) extends Expr {
     args foreach { _.accept(info) }
     info.stack pop;
   }
+}
+
+case class Fun1(nam: String, outTyp: PrimType, arg1: Expr, f: (Double) => Double) extends Fun(nam, outTyp, arg1) {
+  override def computeMinMax: MinMax = Expr.computeMinMax(arg1.computeMinMax, f)
+}
+case class Fun2(nam: String, outTyp: PrimType, arg1: Expr, arg2: Expr, f: (Double, Double) => Double) extends Fun(nam, outTyp, arg1, arg2) {
+  override def computeMinMax: MinMax = Expr.computeMinMax(arg1.computeMinMax, arg2.computeMinMax, f)
+}
+case class Fun3(nam: String, outTyp: PrimType, arg1: Expr, arg2: Expr, arg3: Expr, f: (Double, Double, Double) => Double) extends Fun(nam, outTyp, arg1, arg2, arg3) {
+  override def computeMinMax: MinMax = throw new RuntimeException("Not implemented")
 }
 
 case class Int1(value: Int) extends PrimScal(value, IntType) with Val1
@@ -223,6 +278,7 @@ abstract class AbstractVar extends Expr {
   override def toString() = name
   override def accept(info: VisitInfo) : Unit = visit(info)
 
+  override def computeMinMax: MinMax = throw new UnsupportedOperationException("Can't infer min max values from variables")
   def local = {
     scope = LocalScope
     this
@@ -327,6 +383,7 @@ class DoublesVar(size: Int) extends ArrayVar[Double, DoubleBuffer](classOf[Doubl
 
 class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int) extends AbstractVar {
   private var buffer: Option[B] = None
+  var indexUsages = new scala.collection.mutable.ListBuffer[Expr]
   def apply() : B = {
     if (buffer == None)
       buffer = Some(newBuffer[B](b)(size))
@@ -361,13 +418,30 @@ class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int) extends 
     mem = null
     alloc
   }
+  def inferSize = {
+    val usagesMinMax = indexUsages.map { iu => try { Some(iu.computeMinMax) } catch { case x => None } }.filter (_ != None).map(_.get)
+    println("usagesMinMax for " + name + " : " + usagesMinMax)
+    if (usagesMinMax.length > 0) {
+      val mm = usagesMinMax.reduceLeft(_ union _);
+      if (mm.min < 0)
+        println("Warning: Inferred weird min max array usage for array variable " + name + " : " + mm)
+      else {
+        size = (Math.ceil(mm.max) + 1).asInstanceOf[Int];
+        println("Warning: Inferred min max array usage for array variable " + name + " : " + mm)
+      }
+    }
+    if (size < 0)
+      implicitDim match {
+        case Some(d) => size = d.size
+        case _ => throw new RuntimeException("Array variable was not allocated, and no implicit dimension can be safely inferred to help.")
+      }
+  }
   override def alloc = if (mem == null)
   {
     val td = typeDesc
-    if (size < 0) implicitDim match {
-      case Some(d) => size = d.size
-      case _ => throw new RuntimeException("Array variable was not allocated, and no implicit dimension can be safely inferred to help.")
-    }
+    if (size < 0)
+      inferSize
+
     val bytes = td.channels * td.primType.bytes * size
     val cx = kernel.getProgram.getContext
     mem = 
@@ -399,6 +473,7 @@ class ArrayElement[T, B <: Buffer](/*implicit t: Manifest[T], */var array: Array
     var td = array.typeDesc
     TypeDesc(td.channels, Scalar, td.primType)
   }
+  override def computeMinMax: MinMax = throw new UnsupportedOperationException("Can't infer min max values from array elements")
   override def toString() = array.name + "[" + index.toString + "]"
   override def accept(info: VisitInfo) : Unit = visit(info, array, index)
 }
@@ -419,6 +494,7 @@ class Pixel[T](/*implicit t: Manifest[T], */var image: ImageVar[T], var x: Expr,
     var td = image.typeDesc
     TypeDesc(td.channels, Scalar, td.primType)
   }
+  override def computeMinMax: MinMax = throw new UnsupportedOperationException("Can't infer min max values from pixel accesses")
   override def toString() = image + "[" + x + ", " + y + "]"
   override def accept(info: VisitInfo) : Unit = visit(info, image, x, y)
 }

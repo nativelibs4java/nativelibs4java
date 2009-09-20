@@ -131,6 +131,7 @@ abstract class Program(context: Context, var dimensions: Dim*)
           case e: ArrayElement[_, _] => e.array.mode.write = true
           case _ => 
       }
+      case e: ArrayElement[_,_] => e.array.indexUsages + e.index
       case _ => 
     }
   }
