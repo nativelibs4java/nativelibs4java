@@ -13,7 +13,7 @@ import SyntaxUtils._
 class Context(var context: CLContext, var queue: CLQueue)
 object Context {
   def newContext(devices: Array[CLDevice]) : Option[Context] = {
-    var ctx = CLContext.createContext(devices);
+    var ctx = CLContext.createContext(devices: _*);
     Some(new Context(ctx, ctx.createDefaultQueue))
   }
   private var gpu: Option[Context] = None
@@ -25,11 +25,24 @@ object Context {
   def BEST = best.getOrElse { best = Some(try { GPU } catch { case _ => CPU }); best.get }
 }
 
-abstract class Program(context: Context, var dimensions: Dim*) {
+class UndefinedContent extends Stat {
+  def die = throw new UnsupportedOperationException("Content of the program was not defined.")
+  def accept(info: VisitInfo) = die
+  
+}
+abstract class Program(context: Context, var dimensions: Dim*)
+{
+  def this(dimensions: Dim*) = this(Context.BEST, dimensions: _*)
 
-  //def this(dimensions: Dim*) = this(Context.BEST, dimensions)
-
-  var content: Stat
+  private var contentStat: Stat = new UndefinedContent
+  def content = contentStat
+  def content_=(stat: Stat): Stat = {
+    this.contentStat = stat
+    //build
+    //println("using content_=")
+    alloc
+    stat
+  }
   private var source: String = null;
 
   import scala.collection.mutable.ListBuffer
@@ -122,32 +135,53 @@ abstract class Program(context: Context, var dimensions: Dim*) {
     }
   }
 
-  def ! = exec()
+  def ! = exec
   
   private var kernel : CLKernel = null;
   
-  def setup = {
+  def build: Program = {
     if (kernel == null) {
       source = generateSources
       println(source)
       
       kernel = context.context.createProgram(source).build().createKernel("function");
 
-      println("filteredVariables = " + filteredVariables)
       filteredVariables foreach { v =>
-          println("setting up variable " + v.name)
           v.kernel = kernel
           v.queue = context.queue
-          v.setup
+          //v.alloc
       }
     }
+    this
   }
-  def exec(dims: Int*) = {
-    setup
-    val globs = if (dims.length == 0) dimensions.map(_.size) else dims;
+  def alloc: Program = alloc()
+  def alloc(dims: Int*): Program = {
+    build
+    var changed = false
+    if (dims.length != 0) {
+      if (dims.length != dimensions.length)
+        throw new IllegalArgumentException("Mismatching number of dimensions : program expects " + dimensions.length +", exec method received " + dims.length)
+      for (i <- 0 until dims.length) {
+        if (dimensions(i).size != dims(i)) {
+          dimensions(i).size = dims(i)
+          changed = true
+        }
+      }
+    }
+    filteredVariables foreach (v => if (changed) v.realloc else v.alloc)
+    this
+  }
+  def exec: Program = {
+    //build
+    alloc()
+    filteredVariables.foreach(_.bind)
+
+    val globs = dimensions.map(_.size);
     kernel.enqueueNDRange(context.queue, globs.toArray, Array(1));
-    
-    getVariables.filter(_.mode.write).foreach(_.stale = true)
+
+    filteredVariables.filter(_.mode.write).foreach(_.stale = true)
+
+    this
   }
 }
 

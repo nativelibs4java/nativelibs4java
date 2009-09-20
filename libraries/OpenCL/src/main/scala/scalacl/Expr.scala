@@ -20,7 +20,7 @@ abstract class Node {
   def accept(info: VisitInfo) : Unit;
   def accept(visitor: (Node, Stack[Node]) => Unit) : Unit = accept(VisitInfo(visitor, new Stack[Node]));
   
-  def visit(info: VisitInfo, children: Node*) = {
+  def visit[T <: Node](info: VisitInfo, children: T*) = {
     info.visitor(this, info.stack)
     if (children != Nil) {
       info.stack push this;
@@ -36,6 +36,11 @@ abstract class Node {
 }
 
 abstract class Stat extends Node
+
+case class Statements(stats: Seq[Stat]) extends Stat {
+  override def toString = stats.implode("\n\t")
+  override def accept(info: VisitInfo): Unit = visit(info, stats: _*)
+}
 case class Assignment(op: String, target: Expr, value: Expr) extends Stat {
   override def toString = target + " " + op + " " + value + ";"
   override def accept(info: VisitInfo): Unit = visit(info, target, value);
@@ -53,11 +58,16 @@ case class ExprStat(expr: Expr) extends Stat {
 abstract class Expr extends Node {
   def typeDesc: TypeDesc;
 
-  def ~(other: Expr) = Assignment("=", this, other)
-  def +~(other: Expr) = Assignment("+=", this, other)
-  def -~(other: Expr) = Assignment("-=", this, other)
-  def *~(other: Expr) = Assignment("*=", this, other)
-  def /~(other: Expr) = Assignment("/=", this, other)
+  private def op(name: String) = (x: Expr) => BinOp(name, this, x)
+
+
+  def :=(other: Expr) = Assignment("=", this, other)
+  def +=(other: Expr) = Assignment("+=", this, other)
+  def -=(other: Expr) = Assignment("-=", this, other)
+  def *=(other: Expr) = Assignment("*=", this, other)
+  def /=(other: Expr) = Assignment("/=", this, other)
+
+  def !=(other: Expr) = Assignment("!=", this, other)
   def ==(other: Expr) = BinOp("==", this, other)
   def <=(other: Expr) = BinOp("<=", this, other)
   def >=(other: Expr) = BinOp(">=", this, other)
@@ -164,6 +174,14 @@ case class Byte4(x: Byte, y: Byte, z: Byte, w: Byte) extends TypedExpr(TypeDesc(
   }
 }
 
+case class Long1(value: Long) extends PrimScal(value, LongType) with Val1
+case class Long2(x: Long, y: Long) extends TypedExpr(TypeDesc(2, Scalar, LongType)) with CLValue with Val2
+case class Long4(x: Long, y: Long, z: Long, w: Long) extends TypedExpr(TypeDesc(4, Scalar, LongType)) with CLValue  with Val4 {
+  def this(xy: Long2, zw: Long2) = {
+    this(xy.x, xy.y, zw.x, zw.y)
+  }
+}
+
 
 
 sealed class VarMode
@@ -198,10 +216,21 @@ abstract class AbstractVar extends Expr {
   var name: String = null
   var mode = new VarMode
 
-  def setup
+  //def setup
+  def realloc
+  def alloc
+  def bind
   override def toString() = name
   override def accept(info: VisitInfo) : Unit = visit(info)
 
+  def local = {
+    scope = LocalScope
+    this
+  }
+  def priv = {
+    scope = LocalScope
+    this
+  }
   def getTypeDesc[T](implicit t: Manifest[T], valueType: ValueType) : TypeDesc = getTypeDesc[T](t.erasure.asInstanceOf[Class[T]], valueType)
   def getTypeDesc[T](c: Class[T], valueType: ValueType) : TypeDesc = {
     var ch = {
@@ -214,6 +243,10 @@ abstract class AbstractVar extends Expr {
     var pt = {
       if (c.isAnyOf(classOf[Int], classOf[Int1], classOf[Int2], classOf[Int4])) IntType
       else if (c.isAnyOf(classOf[Double], classOf[Double1], classOf[Double2], classOf[Double4])) DoubleType
+      else if (c.isAnyOf(classOf[Float], classOf[Float1], classOf[Float2], classOf[Float4])) FloatType
+      else if (c.isAnyOf(classOf[Long], classOf[Long1], classOf[Long2], classOf[Long4])) LongType
+      else if (c.isAnyOf(classOf[Short], classOf[Short1], classOf[Short2], classOf[Short4])) ShortType
+      else if (c.isAnyOf(classOf[Byte], classOf[Byte1], classOf[Byte2], classOf[Byte4])) ByteType
       else throw new IllegalArgumentException("Unable to guess primType for class " + c.getName + " and class " + c)
     }
     TypeDesc(ch, valueType, pt)
@@ -247,10 +280,12 @@ class Var[T](implicit t: Manifest[T]) extends AbstractVar {
       c.newInstance()
     ).asInstanceOf[K]
   }
-  override def setup = {
+  override def bind = {
     var value = if (this.value == None) defaultValue[T] else this.value
     kernel.setObjectArg(argIndex, value)
   }
+  override def realloc = {}
+  override def alloc = {}
 }
 
 class BytesVar(size: Int) extends ArrayVar[Byte, ByteBuffer](classOf[Byte], classOf[ByteBuffer], size) {
@@ -303,20 +338,31 @@ class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int) extends 
   private var mem: CLMem = null
   var implicitDim: Option[Dim] = None
 
-  def read(out: B) : Unit = mem.read(out, queue, true)
+  private def checkAlloc = if (mem == null) {
+    if (size > 0)
+      alloc
+    else
+      throw new IllegalThreadStateException("Array variable was not allocated. Please call alloc on it or on its program before writing to or reading from it")
+  }
+  def read(out: B) : Unit = {
+    checkAlloc
+    mem.read(out, queue, true)
+  }
   def write(in: B) : Unit = {
+    checkAlloc
     mem.write(in, queue, true)
   }
 
-  def alloc(size: Int) = {
-    this.size = size
-    this
-  }
   override def toString = implicitDim match {
     case Some(x) => name + "[" + x + "]"
     case None => name
   }
-  override def setup = {
+  override def realloc = {
+    mem = null
+    alloc
+  }
+  override def alloc = if (mem == null)
+  {
     val td = typeDesc
     if (size < 0) implicitDim match {
       case Some(d) => size = d.size
@@ -333,7 +379,9 @@ class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int) extends 
         cx.createOutput(bytes)
       else
         throw new UnsupportedOperationException("Unsupported variable mode : " + this)
-
+  }
+  override def bind = {
+    alloc
     kernel.setArg(argIndex, mem)
   }
   override def typeDesc = getTypeDesc[V](v, Parallel)
@@ -358,7 +406,11 @@ class ArrayElement[T, B <: Buffer](/*implicit t: Manifest[T], */var array: Array
 class ImageVar[T](var width: Int, var height: Int) extends AbstractVar {
   var implicitDimX: Option[Dim] = None
   var implicitDimY: Option[Dim] = None
-  override def setup = throw new UnsupportedOperationException("IMPLEMENT ME: ImageVar.setup")
+  def die = throw new UnsupportedOperationException("IMPLEMENT ME: ImageVar.setup")
+
+  override def alloc = die
+  override def realloc = die
+  override def bind = die
   override def typeDesc : TypeDesc = throw new UnsupportedOperationException("IMPLEMENT ME: ImageVar.typeDesc")
   def apply(x: Expr, y: Expr) = new Pixel[T](this, x, y)
 }

@@ -21,6 +21,9 @@ object SyntaxUtils {
   }
   implicit def Seq2SeqUtils[T](seq: Seq[T]) = SeqUtils[T](seq)
 
+
+
+  //implicit def range2Buffer(r: Range): IntBuffer =
   implicit def seq2Buffer(s: Seq[Int   ]): IntBuffer = array2Buffer(s.toArray)
   implicit def seq2Buffer(s: Seq[Short ]): ShortBuffer = array2Buffer(s.toArray)
   implicit def seq2Buffer(s: Seq[Long  ]): LongBuffer = array2Buffer(s.toArray)
@@ -28,6 +31,14 @@ object SyntaxUtils {
   implicit def seq2Buffer(s: Seq[Char  ]): CharBuffer = array2Buffer(s.toArray)
   implicit def seq2Buffer(s: Seq[Double]): DoubleBuffer = array2Buffer(s.toArray)
   implicit def seq2Buffer(s: Seq[Float ]): FloatBuffer = array2Buffer(s.toArray)
+
+  implicit def seq2Buffer(s: List[Int   ]): IntBuffer = array2Buffer(s.toArray)
+  implicit def seq2Buffer(s: List[Short ]): ShortBuffer = array2Buffer(s.toArray)
+  implicit def seq2Buffer(s: List[Long  ]): LongBuffer = array2Buffer(s.toArray)
+  implicit def seq2Buffer(s: List[Byte  ]): ByteBuffer = array2Buffer(s.toArray)
+  implicit def seq2Buffer(s: List[Char  ]): CharBuffer = array2Buffer(s.toArray)
+  implicit def seq2Buffer(s: List[Double]): DoubleBuffer = array2Buffer(s.toArray)
+  implicit def seq2Buffer(s: List[Float ]): FloatBuffer = array2Buffer(s.toArray)
 
   implicit def array2Buffer(a: Array[Int   ]) = IntBuffer.wrap(a)
   implicit def array2Buffer(a: Array[Short ]) = ShortBuffer.wrap(a)
@@ -52,6 +63,7 @@ object SyntaxUtils {
     case "java.nio.ByteBuffer"    => directBytes(_).asInstanceOf[B]
     case "java.nio.CharBuffer"    => directChars(_).asInstanceOf[B]
     case "java.nio.DoubleBuffer"  => directDoubles(_).asInstanceOf[B]
+    case "java.nio.FloatBuffer"  => directFloats(_).asInstanceOf[B]
     case _ => throw new IllegalArgumentException("Unknown buffer type : " + b.getName)
   }
   
