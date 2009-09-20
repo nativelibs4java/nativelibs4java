@@ -420,14 +420,13 @@ class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int) extends 
   }
   def inferSize = {
     val usagesMinMax = indexUsages.map { iu => try { Some(iu.computeMinMax) } catch { case x => None } }.filter (_ != None).map(_.get)
-    println("usagesMinMax for " + name + " : " + usagesMinMax)
     if (usagesMinMax.length > 0) {
       val mm = usagesMinMax.reduceLeft(_ union _);
       if (mm.min < 0)
-        println("Warning: Inferred weird min max array usage for array variable " + name + " : " + mm)
+        println("Warning: Inferred weird min max array usage for array variable '" + name + "' : " + mm)
       else {
         size = (Math.ceil(mm.max) + 1).asInstanceOf[Int];
-        println("Warning: Inferred min max array usage for array variable " + name + " : " + mm)
+        println("Info: Inferred size of array '" + name + "' : " + size)
       }
     }
     if (size < 0)
