@@ -33,12 +33,19 @@ object ScalaCL extends Functions {
   def LongsVar = new LongsVar
   def FloatsVar = new FloatsVar
   def DoublesVar = new DoublesVar
-  
-  def ByteVar = new Var[Byte]
-  def ShortVar = new Var[Short]
-  def IntVar = new Var[Int]
-  def LongVar = new Var[Long]
-  def FloatVar = new Var[Float]
-  def DoubleVar = new Var[Double]
+
+  def BytesVar(sizeExpr: Expr) = new BytesVar(sizeExpr)
+  def ShortsVar(sizeExpr: Expr) = new ShortsVar(sizeExpr)
+  def IntsVar(sizeExpr: Expr) = new IntsVar(sizeExpr)
+  def LongsVar(sizeExpr: Expr) = new LongsVar(sizeExpr)
+  def FloatsVar(sizeExpr: Expr) = new FloatsVar(sizeExpr)
+  def DoublesVar(sizeExpr: Expr) = new DoublesVar(sizeExpr)
+
+  def ByteVar = new ByteVar
+  def ShortVar = new ShortVar
+  def IntVar = new IntVar
+  def LongVar = new LongVar
+  def FloatVar = new FloatVar
+  def DoubleVar = new DoubleVar
 
 }

@@ -1,6 +1,6 @@
 package com.nativelibs4java.opencl;
 
-import com.nativelibs4java.opencl.OpenCLLibrary;
+//import com.nativelibs4java.opencl.OpenCLLibrary;
 import static com.nativelibs4java.opencl.OpenCLLibrary.*;
 
 import java.lang.reflect.Field;

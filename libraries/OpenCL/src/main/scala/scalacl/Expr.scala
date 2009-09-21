@@ -310,15 +310,23 @@ abstract class AbstractVar extends Expr {
 }
 
 
-class Var[T](implicit t: Manifest[T]) extends AbstractVar {
+class FloatVar extends Var[Float](classOf[Float])
+class ByteVar extends Var[Byte  ](classOf[Byte  ])
+class ShortVar extends Var[Short ](classOf[Short ])
+class IntVar extends Var[Int   ](classOf[Int   ])
+class LongVar extends Var[Long  ](classOf[Long  ])
+class DoubleVar extends Var[Double](classOf[Double])
+
+class Var[T](t: Class[T]) extends AbstractVar {
   private var value: Option[T] = None
   def apply() : T = {
     value getOrElse { throw new RuntimeException("Cannot get variable value before setting things up !")}
   }
   override def typeDesc = getTypeDesc[T](t, Scalar)
 
-  def defaultValue[K](implicit k: Manifest[K]): K = {
-    var c = k.erasure;
+  def defaultValue[K](implicit k: Manifest[K]): K = defaultValue[K](k.erasure.asInstanceOf[Class[K]])
+
+  def defaultValue[K](c: Class[K]): K = {
     (
       if (c == classOf[Int])
       new java.lang.Integer(0)
@@ -337,7 +345,7 @@ class Var[T](implicit t: Manifest[T]) extends AbstractVar {
     ).asInstanceOf[K]
   }
   override def bind = {
-    var value = if (this.value == None) defaultValue[T] else this.value
+    var value = if (this.value == None) defaultValue(t) else this.value
     kernel.setObjectArg(argIndex, value)
   }
   override def realloc = {}
@@ -346,42 +354,65 @@ class Var[T](implicit t: Manifest[T]) extends AbstractVar {
 
 class BytesVar(size: Int) extends ArrayVar[Byte, ByteBuffer](classOf[Byte], classOf[ByteBuffer], size) {
   def this() = this(-1)
-  def this(dim: Dim) = this(dim.size)
+  def this(sizeExpr: Expr) = {
+    this(-1)
+    this.sizeExpr = Some(sizeExpr)
+  }
   def get(index: Int) = this().get(index)
   def set(index: Int, v: Byte) = this().put(index, v)
 }
 class ShortsVar(size: Int) extends ArrayVar[Short, ShortBuffer](classOf[Short], classOf[ShortBuffer], size) {
   def this() = this(-1)
-  def this(dim: Dim) = this(dim.size)
+  def this(sizeExpr: Expr) = {
+    this(-1)
+    this.sizeExpr = Some(sizeExpr)
+  }
   def get(index: Int) = this().get(index)
   def set(index: Int, v: Short) = this().put(index, v)
 }
 class IntsVar(size: Int) extends ArrayVar[Int, IntBuffer](classOf[Int], classOf[IntBuffer], size) {
   def this() = this(-1)
-  def this(dim: Dim) = this(dim.size)
+  def this(sizeExpr: Expr) = {
+    this(-1)
+    this.sizeExpr = Some(sizeExpr)
+  }
   def get(index: Int) = this().get(index)
   def set(index: Int, v: Int) = this().put(index, v)
 }
 class LongsVar(size: Int) extends ArrayVar[Long, LongBuffer](classOf[Long], classOf[LongBuffer], size) {
   def this() = this(-1)
-  def this(dim: Dim) = this(dim.size)
+  def this(sizeExpr: Expr) = {
+    this(-1)
+    this.sizeExpr = Some(sizeExpr)
+  }
   def get(index: Int) = this().get(index)
   def set(index: Int, v: Long) = this().put(index, v)
 }
 class FloatsVar(size: Int) extends ArrayVar[Float, FloatBuffer](classOf[Float], classOf[FloatBuffer], size) {
   def this() = this(-1)
-  def this(dim: Dim) = this(dim.size)
+  def this(sizeExpr: Expr) = {
+    this(-1)
+    this.sizeExpr = Some(sizeExpr)
+  }
   def get(index: Int) = this().get(index)
   def set(index: Int, v: Float) = this().put(index, v)
 }
 class DoublesVar(size: Int) extends ArrayVar[Double, DoubleBuffer](classOf[Double], classOf[DoubleBuffer], size) {
   def this() = this(-1)
-  def this(dim: Dim) = this(dim.size)
+  def this(sizeExpr: Expr) = {
+    this(-1)
+    this.sizeExpr = Some(sizeExpr)
+  }
   def get(index: Int) = this().get(index)
   def set(index: Int, v: Double) = this().put(index, v)
 }
 
 class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int) extends AbstractVar {
+  def this(v: Class[V], b: Class[B], sizeExpr: Expr) = {
+    this(v, b, -1)
+    this.sizeExpr = Some(sizeExpr)
+  }
+  var sizeExpr: Option[Expr] = None
   private var buffer: Option[B] = None
   var indexUsages = new scala.collection.mutable.ListBuffer[Expr]
   def apply() : B = {
@@ -419,11 +450,15 @@ class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int) extends 
     alloc
   }
   def inferSize = {
-    val usagesMinMax = indexUsages.map { iu => try { Some(iu.computeMinMax) } catch { case x => None } }.filter (_ != None).map(_.get)
+    var exprs = sizeExpr match {
+      case Some(x) => List(x)
+      case None => indexUsages
+    }
+    val usagesMinMax = exprs.map { iu => try { Some(iu.computeMinMax) } catch { case x => None } }.filter (_ != None).map(_.get)
     if (usagesMinMax.length > 0) {
       val mm = usagesMinMax.reduceLeft(_ union _);
       if (mm.min < 0)
-        println("Warning: Inferred weird min max array usage for array variable '" + name + "' : " + mm)
+        throw new RuntimeException("Inferred weird array usage for array variable '" + name + "' (" + mm + "). Please allocate it explicitely in its constructor.")
       else {
         size = (Math.ceil(mm.max) + 1).asInstanceOf[Int];
         println("Info: Inferred size of array '" + name + "' : " + size)
