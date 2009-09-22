@@ -8,8 +8,6 @@
     <inceptionYear>2009</inceptionYear>
     <name>NativeLibs4Java "Abstract" Parent Project</name>
     
-	<!-- TODO: deploy with wagon-http-googlecode (http://code.google.com/p/maven-googlecode/source/browse/#svn/trunk/wagon-http-googlecode) -->
-	
 	<developers>
 		<developer>
 			<id>olivier.chafik</id>
@@ -20,6 +18,13 @@
 
 	<reporting>
 		<plugins>
+		
+		  <plugin>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>findbugs-maven-plugin</artifactId>
+			<version>2.0.1</version>
+		  </plugin>
+		  
 		  <plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-javadoc-plugin</artifactId>
@@ -68,9 +73,9 @@
   
 		<repository>
 		  <id>jnaerator</id>
-		  <url>http://jnaerator.googlecode.com/svn/trunk/maven-repo</url>
+		  <url>http://jnaerator.sourceforge.net/maven</url>
 		</repository>
-  
+		
     </repositories>
 	
 	<build>
@@ -96,6 +101,19 @@
 		</extensions>
 		
 		<plugins>
+		  
+			<plugin>  
+			  <groupId>org.apache.maven.plugins</groupId>  
+			  <artifactId>maven-source-plugin</artifactId>  
+			  <executions>  
+				<execution>  
+				  <id>attach-sources</id>  
+				  <goals>  
+					 <goal>jar</goal>  
+				  </goals>  
+				</execution>  
+			  </executions>  
+			</plugin>  
 		
 		  <plugin>
 			<groupId>org.apache.maven.plugins</groupId>
@@ -106,6 +124,28 @@
 			  <target>1.6</target>
 			</configuration>
 		  </plugin>
+		  
+		  <!--
+		  <plugin>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>exec-maven-plugin</artifactId>
+			<version>1.1.1</version>
+			<configuration>
+				<executable>javaws</executable>
+				<arguments>
+					<argument>-Djnaerator.args=${staging.dir}/jnaerator/*.jnaerator</argument>
+					<argument>http://ochafik.free.fr/Java/JNAeratorStudio.jnlp</argument>
+				</arguments>
+			</configuration>
+			<executions>
+				<execution>
+					<goals>
+						<goal>jnaerate</goal>
+					</goals>
+				</execution>
+			</executions>
+		  </plugin>
+		  -->
 		  
 		  <!--Put this in each project's pom.xml :
 		  <plugin>
@@ -122,7 +162,6 @@
 			</executions>
 		  </plugin>
 		  -->
-		  
 		</plugins>
 	</build>
 	
@@ -171,7 +210,7 @@
 				<dependency>
 				  <groupId>junit</groupId>
 				  <artifactId>junit</artifactId>
-				  <version>3.8.1</version>
+				  <version>4.7</version>
 				  <scope>test</scope>
 				</dependency>
 				

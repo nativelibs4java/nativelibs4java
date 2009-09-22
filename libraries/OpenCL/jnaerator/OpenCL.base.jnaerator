@@ -1,4 +1,5 @@
--root com.nativelibs4java
+//-root com.nativelibs4java
+-package com.nativelibs4java.opencl.library
 
 -o "$(DIR)/../src/main/java" -noComp
 

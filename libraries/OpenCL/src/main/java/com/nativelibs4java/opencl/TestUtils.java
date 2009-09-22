@@ -2,7 +2,7 @@ package com.nativelibs4java.opencl;
 import java.nio.*;
 
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
-import static com.nativelibs4java.opencl.OpenCLLibrary.*;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 /**
  * @author ochafik
  */
