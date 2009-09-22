@@ -53,6 +53,11 @@
 		  <url>http://nativelibs4java.googlecode.com/svn/trunk/maven-repo</url>
 		</repository>
   
+		<repository>
+		  <id>jnaerator</id>
+		  <url>http://jnaerator.googlecode.com/svn/trunk/maven-repo</url>
+		</repository>
+  
         <repository>
             <id>scala-tools.org</id>
             <name>Scala-tools Maven2 Repository</name>
