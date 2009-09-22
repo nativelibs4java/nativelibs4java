@@ -15,11 +15,16 @@ object ScalaCLTestRun extends Application {
   }
   class VectSinCos(i: Dim) extends Program(i) {
     val x = FloatsVar
-    val sincosx = FloatsVar
+    val scx = FloatsVar
     content = List(
-      sincosx(i * 2) := sin(x),
-      sincosx(i * 2 + 1) := cos(x)
+      scx(i * 2) := sin(x),
+      scx(i * 2 + 1) := cos(x)
     )
+  }
+  class VectSinCos_better(i: Dim) extends Program(i) {
+    val x = FloatsVar
+    val scx = FloatsVar
+    content = scx(i * 2) := sincos(x, scx(i * 2 + 1))
   }
   class VectATan(i: Dim) extends Program(i) {
     val x = FloatsVar
@@ -46,6 +51,12 @@ object ScalaCLTestRun extends Application {
     //prog2.alloc
     prog2.x.write(List(0.0f, 0.1f, 0.2f))
     prog2 !
+
+
+    var prog3 = new VectSinCos_better(Dim(10000))
+    //prog2.alloc
+    prog3.x.write(List(0.0f, 0.1f, 0.2f))
+    prog3 !
   }
 }
 

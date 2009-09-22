@@ -10,8 +10,8 @@ package scalacl
 
 trait Functions {
   
-  case class Fun2WithPtrAsSecond(nam: String, outTyp: PrimType, arg1: Expr, arg2: Expr, f: (Double, Double) => Double)
-    extends Fun2(nam, outTyp, arg1, arg2, f)
+  case class Fun2WithPtrAsSecond(na: String, outTy: PrimType, ar1: Expr, ar2: Expr, ff: (Double, Double) => Double)
+    extends Fun2(na, outTy, ar1, ar2, ff)
   {
     override def toString = name + "(" + arg1 + ", &" + arg2 + ")"
   }
