@@ -1,6 +1,7 @@
 package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.opencl.*;
+import java.io.File;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.TestUtils.*;
@@ -208,6 +209,9 @@ public class OpenCL4JavaBenchmark {
         }
     }
     public static void main(String[] args) {
+        File f = new File("C:\\Program Files\\ATI Stream\\bin\\x86\\OpenCL.dll");
+        if (f.exists())
+            System.setProperty("OpenCL.library", f.toString());
         try {
             int loops = 10;
             int dataSize = 1000000;
