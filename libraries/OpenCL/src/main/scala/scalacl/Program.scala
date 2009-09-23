@@ -8,6 +8,7 @@
 package scalacl
 
 import com.nativelibs4java.opencl.OpenCL4Java._
+import com.nativelibs4java.opencl._
 import SyntaxUtils._
 
 class Context(var context: CLContext, var queue: CLQueue)

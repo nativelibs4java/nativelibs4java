@@ -7,6 +7,7 @@ import scala.reflect.Manifest
 import java.nio._
 
 import com.nativelibs4java.opencl.OpenCL4Java._
+import com.nativelibs4java.opencl._
 import SyntaxUtils._
 
 trait CLValue

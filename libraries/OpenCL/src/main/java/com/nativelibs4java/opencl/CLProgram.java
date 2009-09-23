@@ -8,6 +8,7 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
+import java.util.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
