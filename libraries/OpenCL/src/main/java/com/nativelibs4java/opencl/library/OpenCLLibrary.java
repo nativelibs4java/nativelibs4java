@@ -652,7 +652,7 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 		 * @param size_t1 pfn_notify<br>
 		 * @param voidPtr2 pfn_notify
 		 */
-		void invoke(com.ochafik.lang.jnaerator.parser.TypeRef.Pointer charPtr1, com.sun.jna.Pointer voidPtr1, com.sun.jna.NativeLong size_t1, com.sun.jna.Pointer voidPtr2);
+		void invoke(com.sun.jna.Pointer charPtr1, com.sun.jna.Pointer voidPtr1, com.sun.jna.NativeLong size_t1, com.sun.jna.Pointer voidPtr2);
 	}
 	/// <i>native declaration : cl.h:484</i>
 	public interface pfn_notify2 extends com.sun.jna.Callback {
@@ -662,7 +662,7 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 		 * @param size_t1 pfn_notify<br>
 		 * @param voidPtr2 pfn_notify
 		 */
-		void invoke(com.ochafik.lang.jnaerator.parser.TypeRef.Pointer charPtr1, com.sun.jna.Pointer voidPtr1, com.sun.jna.NativeLong size_t1, com.sun.jna.Pointer voidPtr2);
+		void invoke(com.sun.jna.Pointer charPtr1, com.sun.jna.Pointer voidPtr1, com.sun.jna.NativeLong size_t1, com.sun.jna.Pointer voidPtr2);
 	}
 	/// <i>native declaration : cl.h:634</i>
 	public interface pfn_notify3 extends com.sun.jna.Callback {
@@ -958,10 +958,10 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	/**
 	 * Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code><br>
 	 * <i>native declaration : cl.h:629</i><br>
-	 * @deprecated use the safer methods {@link #clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], java.lang.String, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer)} and {@link #clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.ochafik.lang.jnaerator.parser.TypeRef.Pointer, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer methods {@link #clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], java.lang.String, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer)} and {@link #clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.sun.jna.Pointer, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer)} instead
 	 */
 	@java.lang.Deprecated
-	int clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, com.ochafik.lang.jnaerator.parser.TypeRef.Pointer charPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1);
+	int clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, com.sun.jna.Pointer charPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1);
 	/**
 	 * Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code><br>
 	 * <i>native declaration : cl.h:629</i>
@@ -971,7 +971,7 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 * Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code><br>
 	 * <i>native declaration : cl.h:629</i>
 	 */
-	int clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.ochafik.lang.jnaerator.parser.TypeRef.Pointer charPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1);
+	int clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.sun.jna.Pointer charPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1);
 	/**
 	 * Original signature : <code>cl_int clUnloadCompiler()</code><br>
 	 * <i>native declaration : cl.h:637</i>
@@ -991,10 +991,10 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 * Kernel Object APIs<br>
 	 * Original signature : <code>cl_kernel clCreateKernel(cl_program, const char*, cl_int*)</code><br>
 	 * <i>native declaration : cl.h:656</i><br>
-	 * @deprecated use the safer methods {@link #clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, java.lang.String, java.nio.IntBuffer)} and {@link #clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, com.ochafik.lang.jnaerator.parser.TypeRef.Pointer, com.sun.jna.ptr.IntByReference)} instead
+	 * @deprecated use the safer methods {@link #clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, java.lang.String, java.nio.IntBuffer)} and {@link #clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
-	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, com.ochafik.lang.jnaerator.parser.TypeRef.Pointer charPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
+	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, com.sun.jna.Pointer charPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Kernel Object APIs<br>
 	 * Original signature : <code>cl_kernel clCreateKernel(cl_program, const char*, cl_int*)</code><br>
@@ -1330,10 +1330,10 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 * Original signature : <code>void* clGetExtensionFunctionAddress(const char*)</code><br>
 	 * func_name<br>
 	 * <i>native declaration : cl.h:903</i><br>
-	 * @deprecated use the safer methods {@link #clGetExtensionFunctionAddress(java.lang.String)} and {@link #clGetExtensionFunctionAddress(com.ochafik.lang.jnaerator.parser.TypeRef.Pointer)} instead
+	 * @deprecated use the safer methods {@link #clGetExtensionFunctionAddress(java.lang.String)} and {@link #clGetExtensionFunctionAddress(com.sun.jna.Pointer)} instead
 	 */
 	@java.lang.Deprecated
-	com.sun.jna.Pointer clGetExtensionFunctionAddress(com.ochafik.lang.jnaerator.parser.TypeRef.Pointer charPtr1);
+	com.sun.jna.Pointer clGetExtensionFunctionAddress(com.sun.jna.Pointer charPtr1);
 	/**
 	 * Original signature : <code>void* clGetExtensionFunctionAddress(const char*)</code><br>
 	 * func_name<br>
@@ -1358,10 +1358,10 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 * Original signature : <code>void clLogMessagesToSystemLogAPPLE(const char*, const void*, size_t, void*)</code><br>
 	 * errstr<br>
 	 * <i>native declaration : cl_ext.h:42</i><br>
-	 * @deprecated use the safer methods {@link #clLogMessagesToSystemLogAPPLE(java.lang.String, com.sun.jna.Pointer, com.sun.jna.NativeLong, com.sun.jna.Pointer)} and {@link #clLogMessagesToSystemLogAPPLE(com.ochafik.lang.jnaerator.parser.TypeRef.Pointer, com.sun.jna.Pointer, com.sun.jna.NativeLong, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer methods {@link #clLogMessagesToSystemLogAPPLE(java.lang.String, com.sun.jna.Pointer, com.sun.jna.NativeLong, com.sun.jna.Pointer)} and {@link #clLogMessagesToSystemLogAPPLE(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.NativeLong, com.sun.jna.Pointer)} instead
 	 */
 	@java.lang.Deprecated
-	void clLogMessagesToSystemLogAPPLE(com.ochafik.lang.jnaerator.parser.TypeRef.Pointer charPtr1, com.sun.jna.Pointer voidPtr1, com.sun.jna.NativeLong size_t1, com.sun.jna.Pointer voidPtr2);
+	void clLogMessagesToSystemLogAPPLE(com.sun.jna.Pointer charPtr1, com.sun.jna.Pointer voidPtr1, com.sun.jna.NativeLong size_t1, com.sun.jna.Pointer voidPtr2);
 	/**
 	 * clLogMessagesToSystemLog fowards on all log messages to the Apple System Logger<br>
 	 * Original signature : <code>void clLogMessagesToSystemLogAPPLE(const char*, const void*, size_t, void*)</code><br>
@@ -1374,10 +1374,10 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 * Original signature : <code>void clLogMessagesToStdoutAPPLE(const char*, const void*, size_t, void*)</code><br>
 	 * errstr<br>
 	 * <i>native declaration : cl_ext.h:48</i><br>
-	 * @deprecated use the safer methods {@link #clLogMessagesToStdoutAPPLE(java.lang.String, com.sun.jna.Pointer, com.sun.jna.NativeLong, com.sun.jna.Pointer)} and {@link #clLogMessagesToStdoutAPPLE(com.ochafik.lang.jnaerator.parser.TypeRef.Pointer, com.sun.jna.Pointer, com.sun.jna.NativeLong, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer methods {@link #clLogMessagesToStdoutAPPLE(java.lang.String, com.sun.jna.Pointer, com.sun.jna.NativeLong, com.sun.jna.Pointer)} and {@link #clLogMessagesToStdoutAPPLE(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.NativeLong, com.sun.jna.Pointer)} instead
 	 */
 	@java.lang.Deprecated
-	void clLogMessagesToStdoutAPPLE(com.ochafik.lang.jnaerator.parser.TypeRef.Pointer charPtr1, com.sun.jna.Pointer voidPtr1, com.sun.jna.NativeLong size_t1, com.sun.jna.Pointer voidPtr2);
+	void clLogMessagesToStdoutAPPLE(com.sun.jna.Pointer charPtr1, com.sun.jna.Pointer voidPtr1, com.sun.jna.NativeLong size_t1, com.sun.jna.Pointer voidPtr2);
 	/**
 	 * clLogMessagesToStdout sends all log messages to the file descriptor stdout<br>
 	 * Original signature : <code>void clLogMessagesToStdoutAPPLE(const char*, const void*, size_t, void*)</code><br>
@@ -1390,10 +1390,10 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 * Original signature : <code>void clLogMessagesToStderrAPPLE(const char*, const void*, size_t, void*)</code><br>
 	 * errstr<br>
 	 * <i>native declaration : cl_ext.h:54</i><br>
-	 * @deprecated use the safer methods {@link #clLogMessagesToStderrAPPLE(java.lang.String, com.sun.jna.Pointer, com.sun.jna.NativeLong, com.sun.jna.Pointer)} and {@link #clLogMessagesToStderrAPPLE(com.ochafik.lang.jnaerator.parser.TypeRef.Pointer, com.sun.jna.Pointer, com.sun.jna.NativeLong, com.sun.jna.Pointer)} instead
+	 * @deprecated use the safer methods {@link #clLogMessagesToStderrAPPLE(java.lang.String, com.sun.jna.Pointer, com.sun.jna.NativeLong, com.sun.jna.Pointer)} and {@link #clLogMessagesToStderrAPPLE(com.sun.jna.Pointer, com.sun.jna.Pointer, com.sun.jna.NativeLong, com.sun.jna.Pointer)} instead
 	 */
 	@java.lang.Deprecated
-	void clLogMessagesToStderrAPPLE(com.ochafik.lang.jnaerator.parser.TypeRef.Pointer charPtr1, com.sun.jna.Pointer voidPtr1, com.sun.jna.NativeLong size_t1, com.sun.jna.Pointer voidPtr2);
+	void clLogMessagesToStderrAPPLE(com.sun.jna.Pointer charPtr1, com.sun.jna.Pointer voidPtr1, com.sun.jna.NativeLong size_t1, com.sun.jna.Pointer voidPtr2);
 	/**
 	 * clLogMessagesToStderr sends all log messages to the file descriptor stderr<br>
 	 * Original signature : <code>void clLogMessagesToStderrAPPLE(const char*, const void*, size_t, void*)</code><br>
