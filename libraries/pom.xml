@@ -174,7 +174,7 @@
 		<site>
            <id>nativelibs4java-sites</id>
            <name>NativeLibs4Java Sourceforge Sites</name>
-		   <url>scp://shell.sourceforge.net/home/groups/n/na/nativelibs4java/htdocs/${project.name}/site</url>
+		   <url>scp://shell.sourceforge.net/home/groups/n/na/nativelibs4java/htdocs/sites</url>
 	    </site>
 		<repository>
            <uniqueVersion>true</uniqueVersion>
