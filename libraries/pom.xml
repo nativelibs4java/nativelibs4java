@@ -253,11 +253,11 @@
             <build>
                 <plugins>
 					
-					<plugin>
+					<!--plugin>
 						<groupId>com.jnaerator</groupId>
 						<artifactId>maven-jnaerator-plugin</artifactId>
 						<version>0.9.1-SNAPSHOT</version>
-					</plugin>
+					</plugin-->
 
                     <plugin>
                         <groupId>org.scala-tools</groupId>
