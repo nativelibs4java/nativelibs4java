@@ -15,7 +15,7 @@ trait Val1 extends CLValue
 trait Val2 extends CLValue
 trait Val4 extends CLValue
 
-case class VisitInfo(visitor: (Node, Stack[Node]) => Unit, stack: Stack[Node])
+protected case class VisitInfo(visitor: (Node, Stack[Node]) => Unit, stack: Stack[Node])
   
 abstract class Node {
   def accept(info: VisitInfo) : Unit;
@@ -240,7 +240,7 @@ case class Long4(x: Long, y: Long, z: Long, w: Long) extends TypedExpr(TypeDesc(
 
 
 
-sealed class VarMode
+protected sealed class VarMode
 {
   var read = false
   var write = false
@@ -258,12 +258,12 @@ sealed class VarMode
   }
 }
 
-abstract sealed class VarScope
+protected abstract sealed class VarScope
 case object LocalScope extends VarScope
 case object GlobalScope extends VarScope
 case object PrivateScope extends VarScope
 
-abstract class AbstractVar extends Expr {
+protected abstract class AbstractVar extends Expr {
   var stale = false
   var kernel: CLKernel = null
   var queue: CLQueue = null
