@@ -20,9 +20,32 @@
 		<plugins>
 		
 		  <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-checkstyle-plugin</artifactId>
+			<version>2.3</version>
+		  </plugin>
+		  
+		  <plugin>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>taglist-maven-plugin</artifactId>
+			<version>2.4</version>
+		  </plugin>
+		  
+		  <plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-jxr-plugin</artifactId>
+			<version>2.1</version>
+		  </plugin>
+		
+		  <plugin>
 			<groupId>org.codehaus.mojo</groupId>
 			<artifactId>findbugs-maven-plugin</artifactId>
-			<version>2.0.1</version>
+			<!--<version>2.0.1</version>-->
+			<version>RELEASE</version>
+			<configuration>
+			 <effort>Max</effort>
+			 <onlyAnalyze>~com\.ochafik\..*</onlyAnalyze>
+			</configuration>
 		  </plugin>
 		  
 		  <plugin>
@@ -51,6 +74,7 @@
 		</plugins>
 		
 	</reporting>
+	
 	<repositories>
 	
 		
@@ -70,7 +94,7 @@
 	
 		<repository>
 		  <id>nativelibs4java</id>
-		  <url>http://nativelibs4java.sourceforge.net/maven</url>
+          <url>http://nativelibs4java.sourceforge.net/maven</url>
 		</repository>
   
 		<repository>
@@ -82,16 +106,19 @@
 	
 	<build>
 		<extensions>
+		
 		  <extension>
                <groupId>org.apache.maven.wagon</groupId>
                <artifactId>wagon-ssh</artifactId>
                <version>1.0-beta-5</version>
            </extension>
+		  <!--
 		  <extension>
 			<groupId>org.jvnet.wagon-svn</groupId>
 			<artifactId>wagon-svn</artifactId>
 			<version>1.8</version>
 		  </extension>
+		  -->
 		  <!--
 		  <extension>
 			 <groupId>org.apache.maven.wagon</groupId>
@@ -179,9 +206,9 @@
 		   <url>scp://shell.sourceforge.net/home/groups/n/na/nativelibs4java/htdocs/sites</url>
 	    </site>
 		<repository>
-           <uniqueVersion>true</uniqueVersion>
-		   <id>nativelibs4java-repo</id>
-           <name>NativeLibs4Java Sourceforge Maven Repository</name>
+           <id>nativelibs4java-repo</id>
+           <uniqueVersion>false</uniqueVersion>
+		   <name>NativeLibs4Java Sourceforge Maven Repository</name>
 		   <url>scp://shell.sourceforge.net/home/groups/n/na/nativelibs4java/htdocs/maven</url>
 	    </repository>
 	</distributionManagement>
