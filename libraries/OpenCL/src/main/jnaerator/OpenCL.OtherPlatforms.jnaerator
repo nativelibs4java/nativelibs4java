@@ -1,0 +1,7 @@
+"-Dcl_bitfield=unsigned long"
+-library OpenCL
+	"-I$(DIR)"
+	"$(DIR)/CL/cl.h"
+	"$(DIR)/CL/cl_platform.h"
+
+OpenCL.base.jnaerator

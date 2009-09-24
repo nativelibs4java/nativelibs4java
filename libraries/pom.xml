@@ -219,6 +219,11 @@
             <name>Scala-tools Maven2 Repository</name>
             <url>http://scala-tools.org/repo-releases</url>
         </pluginRepository>
+		
+        <pluginRepository>
+		  <id>jnaerator</id>
+		  <url>http://jnaerator.sourceforge.net/maven</url>
+        </pluginRepository>
     </pluginRepositories>
     <profiles>
         <profile>
