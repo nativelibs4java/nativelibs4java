@@ -42,6 +42,7 @@
 				<links>
 					<link>http://java.sun.com/javase/6/docs/api/</link>
 					<link>https://jna.dev.java.net/javadoc</link>
+					<link>http://jnaerator.sourceforge.net/jnaerator/apidocs</link>
 				</links>
 			</configuration>
 		  </plugin>
