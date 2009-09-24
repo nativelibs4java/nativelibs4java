@@ -252,6 +252,13 @@
             </dependencies>
             <build>
                 <plugins>
+					
+					<plugin>
+						<groupId>com.jnaerator</groupId>
+						<artifactId>maven-jnaerator-plugin</artifactId>
+						<version>0.9.1-SNAPSHOT</version>
+					</plugin>
+
                     <plugin>
                         <groupId>org.scala-tools</groupId>
                         <artifactId>maven-scala-plugin</artifactId>

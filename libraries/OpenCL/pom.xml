@@ -36,20 +36,6 @@
   
   <build>
   	<plugins>
-	
-	  <plugin>
-        <groupId>com.jnaerator</groupId>
-        <artifactId>maven-jnaerator</artifactId>
-        <version>0.9.1-SNAPSHOT</version>
-		<executions>
-		  <execution>
-			<phase>generate-sources</phase>
-			<goals>
-			  <goal>jnaerate</goal>
-			</goals>
-		  </execution>
-		</executions>
-      </plugin>
 	  
 	  <plugin>
         <groupId>org.apache.maven.plugins</groupId>
