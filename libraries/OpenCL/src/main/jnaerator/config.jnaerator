@@ -1,1 +1,6 @@
-"$(DIR)/OpenCL.MacOSX.jnaerator"
+-ifRegexMatch
+	os.name
+	"Mac OS X"
+	"$(DIR)/OpenCL.MacOSX.jnaerator"
+	"$(DIR)/OpenCL.OtherPlatforms.jnaerator"
+

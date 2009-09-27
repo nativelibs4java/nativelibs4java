@@ -4,5 +4,6 @@
 -library OpenCL
 	"-I$(DIR)"
 	"$(DIR)/CL/cl.h"
+	"$(DIR)/CL/cl_gl.h"
 	"$(DIR)/CL/cl_platform.h"
 
