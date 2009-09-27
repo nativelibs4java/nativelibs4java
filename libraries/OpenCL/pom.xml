@@ -17,11 +17,11 @@
 	  <scope>compile</scope>
 	</dependency>
 	
-	<dependency>
+	<!--dependency>
 		<groupId>com.projectdarkstar.ext.net.java.dev.jogl</groupId>
 		<artifactId>jogl</artifactId>
 		<version>1.1.1</version>
-	</dependency>
+	</dependency-->
   </dependencies>
   
   <reporting>

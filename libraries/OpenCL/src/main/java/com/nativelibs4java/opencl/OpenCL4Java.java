@@ -58,18 +58,17 @@ public class OpenCL4Java {
     
     public static int getSizeInBytes(Buffer b) {
         int c = b.capacity();
-        if (b instanceof IntBuffer || b instanceof FloatBuffer) {
-            return c * 4;
-        }
-        if (b instanceof LongBuffer || b instanceof DoubleBuffer) {
-            return c * 8;
-        }
-        if (b instanceof ShortBuffer || b instanceof CharBuffer) {
-            return c * 2;
-        }
-        if (b instanceof ByteBuffer) {
-            return c;
-        }
+		return getComponentSizeInBytes(b) * c;
+    }
+	public static int getComponentSizeInBytes(Buffer b) {
+        if (b instanceof IntBuffer || b instanceof FloatBuffer)
+            return 4;
+        if (b instanceof LongBuffer || b instanceof DoubleBuffer)
+            return 8;
+        if (b instanceof ShortBuffer || b instanceof CharBuffer)
+            return 2;
+        if (b instanceof ByteBuffer)
+            return 1;
         throw new UnsupportedOperationException("Cannot guess byte size of buffers of type " + b.getClass().getName());
     }
 

@@ -32,11 +32,23 @@ object ScalaCLTestRun extends Application {
     val result = FloatsVar
     content = result := atan2(x, y)
   }
+  class Greyer(x: Dim, y: Dim) extends Program(x, y) {
+	  val im = new ImageVar[Int4](classOf[Int4], x, y, 0)
+	  val result = new ImageVar[Int4](classOf[Int4], x, y, 0)
+	  content = List(
+		result.xyz := (im.x + im.y + im.z) / 3,
+	    result.w := im.w
+	  )
+  }
   override def main(args: Array[String]) = {
     var prog1 = new VectAdd(Dim(1000))
     //prog1.alloc
-    prog1.a.write(List(1, 2, 3, 4))
-    prog1.b.write(List(1, 2, 3, 4))
+	prog1.a.write(1 to 10) // slow + unoptimized
+    prog1.b.write(1000 to 1011) // slow + unoptimized
+	
+	var list = List(1f, 2f, 3f, 4f);
+    prog1.a.write(list)
+    prog1.b.write(list)
     //prog1.a.write(ints)
     //prog1.b.write(ints)
     //prog.a.value.set(1, 0)
@@ -44,8 +56,8 @@ object ScalaCLTestRun extends Application {
     for (i <- 0 to 10)
       println(prog1.result.get(i))
 
-    var inc = 1 to 10
-    println(inc.getClass.getName)
+    //var inc = 1 to 10
+    //println(inc.getClass.getName)
     
     var prog2 = new VectSinCos(Dim(10000))
     //prog2.alloc
@@ -57,6 +69,8 @@ object ScalaCLTestRun extends Application {
     //prog2.alloc
     prog3.x.write(List(0.0f, 0.1f, 0.2f))
     prog3 !
+
+	new Greyer(Dim(100), Dim(100)) !
   }
 }
 

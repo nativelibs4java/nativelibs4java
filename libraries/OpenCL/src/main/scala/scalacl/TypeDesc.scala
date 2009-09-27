@@ -10,6 +10,8 @@ case object ShortType 	extends PrimType("short", 2)
 case object ByteType 	extends PrimType("byte", 1)
 case object FloatType 	extends PrimType("float", 4)
 case object DoubleType 	extends PrimType("double", 8)
+case object ImageType 	extends PrimType("image2d_t", -1)
+//case object ARGBImage2DType 	extends PrimType("image2d_t", 4)
 
 abstract sealed class PrimType(str: String, var bytes: Int) {
   override def toString = str
@@ -67,5 +69,5 @@ case class TypeDesc(channels: Int, valueType: ValueType, primType: PrimType) {
     return TypeDesc(cn, valueType combineWith o.valueType, primType combineWith o.primType)
   }
 
-  def globalCType = primType.toString + (if (valueType != Scalar) "*" else "")
+  def globalCType = primType.toString + (if (valueType != Scalar && primType != ImageType) "*" else "")
 }

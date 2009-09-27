@@ -106,14 +106,22 @@ abstract class Program(context: Context, var dimensions: Dim*)
 
     //doc ++ unique[Fun](content.find[Fun]) map (_.include).map("#include <" + _ + ">\n").implode("")
 
-    var argDefs = filteredVariables.map(v =>
-      "__global " +
-      (if (v.mode.write) "" else "const ") +
+    var argDefs = filteredVariables.map(v => 
+      (v match {
+		  case iv: ImageVar[_] =>
+			  if (v.mode.read && v.mode.write)
+				throw new IllegalArgumentException("A same ImageVar cannot be read and written in the same program. Must either be used as an output-only or as an input-only");
+			  if (v.mode.read)
+				"read_only "
+			  else
+				"write_only "
+		  case _ => "__global " + (if (v.mode.write) "" else "const ")
+	  }) +
       v.typeDesc.globalCType + " " + v.name
     )
 
     //doc ++ variables.map(v => "\t//"+ v.name + ": " + v.mode + "\n").implode("")
-    doc ++ ("__kernel function(" + argDefs.implode(", ") + ") {\n");
+    doc ++ ("__kernel void function(" + argDefs.implode(", ") + ") {\n");
     doc ++ dims.map(dim => "\tint " + dim.name + " = get_global_id(" + dim.dimIndex + ");\n").implode("")
     doc ++ ("\t" + content.toString + "\n")
     doc ++ "}\n"

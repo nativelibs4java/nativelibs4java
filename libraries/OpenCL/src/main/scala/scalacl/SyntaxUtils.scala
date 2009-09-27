@@ -9,9 +9,20 @@ package scalacl
 import java.nio._
 
 //class BufferIO[V <: Number, T <: { def get(a: Int): V; def put(a: Int, v: V): Int }]
+import scala.collection.jcl.MutableIterator._
 
 object SyntaxUtils {
-  def unique[C](list: List[C]) = (new scala.collection.mutable.ListBuffer[C]() ++ (new scala.collection.immutable.HashSet[C]() ++ list)).toList
+  implicit def javaIteratorToScalaIterator[A](it : java.util.Iterator[A]) = new Wrapper(it)
+
+  implicit def javaCollectionToScalaIterator[A](set: java.util.Collection[A]) = new Wrapper(set.iterator)
+
+	def unique[C](list: List[C]) = {
+	  var hs = new java.util.IdentityHashMap[C, Int]();
+	  list.foreach(hs.put(_, 0))
+	  //hs.keySet.foreach(println(_))
+	  var lb = new scala.collection.mutable.ListBuffer[C]() ++ hs.keySet;
+	  lb.toList
+  }
 
   case class SeqUtils[T](seq: Seq[T]) {
     def implode(sep: String) = {
