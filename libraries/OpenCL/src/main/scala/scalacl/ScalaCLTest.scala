@@ -35,9 +35,10 @@ object ScalaCLTestRun extends Application {
   class Greyer(x: Dim, y: Dim) extends Program(x, y) {
 	  val im = new ImageVar[Int4](classOf[Int4], x, y, 0)
 	  val result = new ImageVar[Int4](classOf[Int4], x, y, 0)
+	  val v = IntVar local;
 	  content = List(
-		result.xyz := (im.x + im.y + im.z) / 3,
-	    result.w := im.w
+		v := (im.x + im.y + im.z) / 3,
+		result := (v, v, v, im.w),
 	  )
   }
   override def main(args: Array[String]) = {

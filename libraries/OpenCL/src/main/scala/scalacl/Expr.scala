@@ -43,7 +43,11 @@ case class Statements(stats: Seq[Stat]) extends Stat {
   override def accept(info: VisitInfo): Unit = visit(info, stats: _*)
 }
 case class Assignment(op: String, target: Expr, value: Expr) extends Stat {
-  override def toString: String = target + " " + op + " " + value + ";"
+  override def toString: String = op match {
+	case "=" => target.toWriteString(value) + ";"
+	case _ => target + " " + op + " " + value + ";"
+  }
+  
   override def accept(info: VisitInfo): Unit = visit(info, target, value);
 }
 case class ExprStat(expr: Expr) extends Stat {
@@ -59,12 +63,12 @@ case class ExprStat(expr: Expr) extends Stat {
 abstract class Expr extends Node {
   def typeDesc: TypeDesc
   def toReadString: String
-  def computeMinMax: MinMax
+  def computeMinMax: MinMax = throw new RuntimeException(this.getClass.getName + " does not define a minMax function")
 
   def toWriteString(value: Expr): String = throw new RuntimeException("Expression cannot be written to : '" + toString + "'")
-  override def toString = toReadString
+  override final def toString = toReadString
 
-  private def dieMinMax2(op: String): (Double, Double) => Double = throw new RuntimeException("Binary operator " + op + " does not define a minMax function")
+  protected def dieMinMax2(op: String): (Double, Double) => Double = throw new RuntimeException("Binary operator '" + op + "' does not define a minMax function")
 
   def :=(other: Expr) = Assignment("=", this, other)
   def +=(other: Expr) = Assignment("+=", this, other)
@@ -118,6 +122,30 @@ object Expr {
     else
       MinMax(v2, v1)
   }
+}
+class Duo(a: Expr, b: Expr) extends Expr {
+  override def typeDesc: TypeDesc = {
+	  val td = a.typeDesc
+	  TypeDesc(2, td.valueType, td.primType)
+  }
+  override def accept(info: VisitInfo): Unit = visit(info, a, b)
+  override def toReadString: String = "(" + a.toReadString + ", " + b.toReadString + ")"
+}
+class Trio(a: Expr, b: Expr, c: Expr) extends Expr {
+  override def typeDesc: TypeDesc = {
+	  val td = a.typeDesc
+	  TypeDesc(3, td.valueType, td.primType)
+  }
+  override def accept(info: VisitInfo): Unit = visit(info, a, b, c)
+  override def toReadString: String = "(" + a.toReadString + ", " + b.toReadString + ", " + c.toReadString + ")"
+}
+class Quad(a: Expr, b: Expr, c: Expr, d: Expr) extends Expr {
+  override def typeDesc: TypeDesc = {
+	  val td = a.typeDesc
+	  TypeDesc(4, td.valueType, td.primType)
+  }
+  override def accept(info: VisitInfo): Unit = visit(info, a, b, c, d)
+  override def toReadString: String = "(" + a.toReadString + ", " + b.toReadString + ", " + c.toReadString + ", " + d.toReadString + ")"
 }
 class FieldExpr(expr: Expr, field: String) extends Expr {
   override def accept(info: VisitInfo) : Unit = visit(info, expr);
@@ -359,6 +387,8 @@ class FloatVar extends Var[Float](classOf[Float])
 class ByteVar extends Var[Byte  ](classOf[Byte  ])
 class ShortVar extends Var[Short ](classOf[Short ])
 class IntVar extends Var[Int   ](classOf[Int   ])
+class Int2Var extends Var[Int2   ](classOf[Int2   ])
+class Int4Var extends Var[Int4   ](classOf[Int4   ])
 class LongVar extends Var[Long  ](classOf[Long  ])
 class DoubleVar extends Var[Double](classOf[Double])
 
@@ -577,6 +607,7 @@ class ArrayElement[T, B <: Buffer](/*implicit t: Manifest[T], */var array: Array
   }
   override def computeMinMax: MinMax = throw new UnsupportedOperationException("Can't infer min max values from array elements")
   override def toReadString: String = array.name + "[" + index.toString + "]"
+  override def toWriteString(value: Expr): String = toReadString + " = " + value.toReadString
   override def accept(info: VisitInfo) : Unit = visit(info, array, index)
 }
 

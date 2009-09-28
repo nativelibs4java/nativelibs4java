@@ -20,6 +20,10 @@ object ScalaCL extends Functions {
   implicit def Double2Double1(v: Double) = Double1(v)
   implicit def Double12Double(v: Double1) = v.value
 
+  implicit def quad2expr(v: (Expr, Expr, Expr, Expr)) = new Quad(v._1, v._2, v._3, v._4)
+  implicit def duo2expr(v: (Expr, Expr)) = new Duo(v._1, v._2)
+  implicit def trio2expr(v: (Expr, Expr, Expr)) = new Trio(v._1, v._2, v._3)
+
   def local[V <: AbstractVar](v: V): V = { v.scope = LocalScope; v }
   def global[V <: AbstractVar](v: V): V = { v.scope = GlobalScope; v }
   def priv[V <: AbstractVar](v: V): V = { v.scope = PrivateScope; v }
