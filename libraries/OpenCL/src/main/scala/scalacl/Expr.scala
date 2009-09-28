@@ -351,6 +351,7 @@ protected abstract class AbstractVar extends Expr {
   override def toWriteString(value: Expr): String = toReadString + " = " + value
   override def accept(info: VisitInfo) : Unit = visit(info)
 
+  def hintName = if (scope == LocalScope) "loc" else mode.hintName
   override def computeMinMax: MinMax = throw new UnsupportedOperationException("Can't infer min max values from variables")
   def local = {
     scope = LocalScope
@@ -633,14 +634,19 @@ class ImageVar[P](p: Class[P], var width: Int, var height: Int, var clImageType:
 	case (Some(x), Some(y)) => toWriteString(x, y, v)
     case _ => name
   }
-  private def firstArgs(x: Expr, y: Expr) =
-	name + ", " +
-	"(sampler_t)(" + sampler + "), " +
+  private def coords(x: Expr, y: Expr) =
 	"(int2)(" + x.toReadString + ", " + y.toReadString + ")"
 
-  def toReadString(x: Expr, y: Expr): String = "read_imagei(" + firstArgs(x, y) + ")"
+  def toReadString(x: Expr, y: Expr): String = {
+	"read_imagei(" +
+		name + ", " +
+		"(sampler_t)(" + sampler + "), " +
+		coords(x, y) + 
+	")"
+  }
+
   def toWriteString(x: Expr, y: Expr, color: Expr): String =
-    "write_imagei(" + firstArgs(x, y) + ", (int4)(" + color.toReadString + "))"
+    "write_imagei(" + name + ", " + coords(x, y) + ", (int4)(" + color.toReadString + "))"
 
   //import com.nativelibs4java.opencl.library.OpenCLLibrary._
 

@@ -73,7 +73,7 @@ abstract class Program(context: Context, var dimensions: Dim*)
     filteredVariables.zipWithIndex.foreach { case (v, i) =>
       v.argIndex = i;
 
-      namesPerHint.put(v.mode.hintName, namesPerHint.getOrElse(v.mode.hintName, 0) + 1)
+      namesPerHint.put(v.hintName, namesPerHint.getOrElse(v.hintName, 0) + 1)
       val d = dimensions.size
       v match {
         case a: ArrayVar[_, _] => if (d == 1) a.implicitDim = Some(dimensions(0))
@@ -86,7 +86,7 @@ abstract class Program(context: Context, var dimensions: Dim*)
     }
     
     filteredVariables.reverse.foreach { v =>
-      val hint = v.mode.hintName
+      val hint = v.hintName
       var count = namesPerHint(hint)
       if (count == 1)
         v.name = hint
@@ -106,7 +106,7 @@ abstract class Program(context: Context, var dimensions: Dim*)
 
     //doc ++ unique[Fun](content.find[Fun]) map (_.include).map("#include <" + _ + ">\n").implode("")
 
-    var argDefs = filteredVariables.map(v => 
+    var argDefs = filteredVariables.filter(_.scope != LocalScope).map(v =>
       (v match {
 		  case iv: ImageVar[_] =>
 			  if (v.mode.read && v.mode.write)
@@ -123,6 +123,9 @@ abstract class Program(context: Context, var dimensions: Dim*)
     //doc ++ variables.map(v => "\t//"+ v.name + ": " + v.mode + "\n").implode("")
     doc ++ ("__kernel void function(" + argDefs.implode(", ") + ") {\n");
     doc ++ dims.map(dim => "\tint " + dim.name + " = get_global_id(" + dim.dimIndex + ");\n").implode("")
+	filteredVariables.filter(_.scope == LocalScope).foreach { v =>
+		doc ++ ("\t" + v.typeDesc.globalCType + " " + v.name + ";\n")
+	}
     doc ++ ("\t" + content.toString + "\n")
     doc ++ "}\n"
 
