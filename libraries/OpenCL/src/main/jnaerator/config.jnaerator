@@ -2,5 +2,7 @@
 	os.name
 	"Mac OS X"
 	"$(DIR)/OpenCL.MacOSX.jnaerator"
-	"$(DIR)/OpenCL.OtherPlatforms.jnaerator"
+	
+	"$(DIR)/OpenCL.Win32ATIStream.jnaerator"
+	//"$(DIR)/OpenCL.OtherPlatforms.jnaerator"
 

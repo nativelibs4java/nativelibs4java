@@ -213,9 +213,12 @@ public class OpenCL4JavaBenchmark {
         if (f.exists())
             System.setProperty("OpenCL.library", f.toString());
         try {
+            System.out.println("Found platforms : " + CLPlatform.listPlatforms().length);
             int loops = 10;
             int dataSize = 1000000;
-            Target target = CLDevice.listGPUDevices().length == 0 ? Target.CPU : Target.GPU;
+            CLPlatform platform = CLPlatform.listPlatforms()[0];
+
+            Target target = platform.listGPUDevices().length == 0 ? Target.CPU : Target.GPU;
             if (true) {
                 System.out.println("[Double Operations]");
                 ExecResult<DoubleBuffer> nsByJavaOp = testJava_double_aSinB(loops, dataSize);

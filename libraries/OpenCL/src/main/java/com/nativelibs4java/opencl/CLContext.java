@@ -106,7 +106,7 @@ public class CLContext extends CLEntity<cl_context> {
         //IntBuffer errBuff = IntBuffer.wrap(new int[1]);
         cl_mem mem = CL.clCreateBuffer(
                 get(),
-                clMemFlags,
+                toNL(clMemFlags),
                 toNL(byteCount),
                 buffer == null ? null : Native.getDirectBufferPointer(buffer),
                 errRef);

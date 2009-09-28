@@ -20,9 +20,10 @@ object Context {
   private var gpu: Option[Context] = None
   private var cpu: Option[Context] = None
   private var best: Option[Context] = None
-  
-  def GPU : Context = gpu.getOrElse { gpu = newContext(CLDevice.listGPUDevices); gpu.get }
-  def CPU : Context = cpu.getOrElse { cpu = newContext(CLDevice.listCPUDevices); cpu.get }
+
+  def platform = CLPlatform.listPlatforms()(0)
+  def GPU : Context = gpu.getOrElse { gpu = newContext(platform.listGPUDevices); gpu.get }
+  def CPU : Context = cpu.getOrElse { cpu = newContext(platform.listCPUDevices); cpu.get }
   def BEST = best.getOrElse { best = Some(try { GPU } catch { case _ => CPU }); best.get }
 }
 

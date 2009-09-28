@@ -7,7 +7,10 @@ public class OpenCL4JavaExample {
 
     public static void main(String[] args) {
         try {
-            CLDevice[] devices = CLDevice.listAllDevices();
+            CLPlatform[] platforms = CLPlatform.listPlatforms();
+            CLPlatform platform = platforms[0];
+            System.out.println("Using platform " + platform);
+            CLDevice[] devices = platform.listAllDevices();
             //CLDevice[] devices = CLDevice.listCPUDevices();
             //CLDevice[] devices = CLDevice.listGPUDevices();
             CLContext context = CLContext.createContext(devices);

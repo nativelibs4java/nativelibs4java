@@ -51,7 +51,11 @@ public class CLDevice {
     @SuppressWarnings("deprecation")
     public CLQueue createQueue(CLContext context) {
         IntByReference errRef = new IntByReference();
-        cl_command_queue queue = CL.clCreateCommandQueue(context.get(), device, 0, errRef);
+        cl_command_queue queue = CL.clCreateCommandQueue(
+                context.get(),
+                device,
+                toNL(0),
+                errRef);
         error(errRef.getValue());
 
         return new CLQueue(context, queue);
@@ -61,49 +65,4 @@ public class CLDevice {
         return device;
     }
 
-    public static CLDevice[] listAllDevices() {
-            return listDevices(true, true);
-    }
-
-    public static CLDevice[] listGPUDevices() {
-            try {
-                    return listDevices(true, false);
-            } catch (CLException ex) {
-            if (ex.getCode() == CL_DEVICE_NOT_FOUND)
-                return new CLDevice[0];
-            throw new RuntimeException("Unexpected OpenCL error", ex);
-        }
-    }
-
-    public static CLDevice[] listCPUDevices() {
-        try {
-            return listDevices(false, true);
-        } catch (CLException ex) {
-            if (ex.getCode() == CL_DEVICE_NOT_FOUND)
-                return new CLDevice[0];
-            throw new RuntimeException("Unexpected OpenCL error", ex);
-        }
-    }
-
-    @SuppressWarnings("deprecation")
-    protected static CLDevice[] listDevices(boolean gpu, boolean cpu) {
-        int flags = (gpu ? CL_DEVICE_TYPE_GPU : 0) | (cpu ? CL_DEVICE_TYPE_CPU : 0);
-
-        IntByReference pCount = new IntByReference();
-        error(CL.clGetDeviceIDs(null, flags, 0, (PointerByReference) null, pCount));
-
-        int nDevs = pCount.getValue();
-        if (nDevs == 0)
-            return new CLDevice[0];
-
-        cl_device_id[] ids = new cl_device_id[nDevs];
-
-        error(CL.clGetDeviceIDs(null, flags, nDevs, ids, pCount));
-        CLDevice[] devices = new CLDevice[nDevs];
-
-        for (int i = 0; i < nDevs; i++) {
-            devices[i] = new CLDevice(ids[i]);
-        }
-        return devices;
-    }
 }

@@ -10,6 +10,14 @@
   <packaging>jar</packaging>
   
   <dependencies>
+  	
+  	<dependency>
+	  <groupId>net.java.dev.jna</groupId>
+	  <artifactId>jna</artifactId>
+	  <version>3.2.2</version>
+	  <scope>compile</scope>
+	</dependency>
+	
 	<dependency>
 	  <groupId>com.jnaerator</groupId>
 	  <artifactId>jnaerator-runtime</artifactId>
@@ -79,6 +87,7 @@
 				<artifactSet>
 					<excludes>
 					  <exclude>org.scala-lang:scala-library</exclude>
+					  <exclude>net.java.dev.jna:jna</exclude>
 					</excludes>
 				  </artifactSet>
 			<!--

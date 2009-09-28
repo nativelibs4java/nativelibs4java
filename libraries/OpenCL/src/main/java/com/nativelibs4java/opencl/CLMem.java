@@ -41,7 +41,7 @@ public class CLMem extends CLEntity<cl_mem> {
     }
 
     private ByteBuffer map(CLQueue queue, int flags) {
-        Pointer p = CL.clEnqueueMapBuffer(queue.get(), get(), CL_TRUE, flags, toNL(0), toNL(byteCount), 0, (PointerByReference) null, null, (IntByReference) null);
+        Pointer p = CL.clEnqueueMapBuffer(queue.get(), get(), CL_TRUE, toNL(flags), toNL(0), toNL(byteCount), 0, (PointerByReference) null, null, (IntByReference) null);
         return p.getByteBuffer(0, byteCount);
     }
 
