@@ -57,9 +57,7 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
     }
     public static CLPlatform[] listPlatforms() {
         IntByReference pCount = new IntByReference();
-        IntBuffer bCount = IntBuffer.wrap(new int[1]);
-        error(CL.clGetPlatformIDs(new IntByReference(0), (Pointer)null, pCount.getPointer()));
-        //error(CL.clGetPlatformIDs(1, (PointerByReference)null, bCount));
+        error(CL.clGetPlatformIDs(0, (cl_platform_id[])null, pCount));
 
         int nPlats = pCount.getValue();
         if (nPlats == 0)
