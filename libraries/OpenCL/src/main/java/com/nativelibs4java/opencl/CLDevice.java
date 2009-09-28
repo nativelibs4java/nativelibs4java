@@ -54,7 +54,7 @@ public class CLDevice {
         cl_command_queue queue = CL.clCreateCommandQueue(
                 context.get(),
                 device,
-                toNL(0),
+                0,
                 errRef);
         error(errRef.getValue());
 

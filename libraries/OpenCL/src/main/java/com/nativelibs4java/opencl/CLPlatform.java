@@ -106,7 +106,7 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
         IntByReference pCount = new IntByReference();
         error(CL.clGetDeviceIDs(
             get(),
-            toNL(flags),
+            flags,
             0,
             (PointerByReference) null,
             pCount
@@ -118,7 +118,7 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
 
         cl_device_id[] ids = new cl_device_id[nDevs];
 
-        error(CL.clGetDeviceIDs(get(), toNL(flags), nDevs, ids, pCount));
+        error(CL.clGetDeviceIDs(get(), flags, nDevs, ids, pCount));
         CLDevice[] devices = new CLDevice[nDevs];
 
         for (int i = 0; i < nDevs; i++) {
