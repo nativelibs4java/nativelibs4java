@@ -29,6 +29,7 @@ public class CLDevice {
         this.device = device;
     }
 
+	/** Bit values for CL_DEVICE_EXECUTION_CAPABILITIES */
 	public enum CLExecutionCapability {
 		@EnumValue(CL_EXEC_KERNEL        ) Kernel,
 		@EnumValue(CL_EXEC_NATIVE_KERNEL ) NativeKernel;
@@ -46,6 +47,7 @@ public class CLDevice {
         return CLExecutionCapability.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_EXECUTION_CAPABILITIES));
     }
 
+	/** Bit values for CL_DEVICE_TYPE */
 	public enum CLDeviceType {    
 		@EnumValue(CL_DEVICE_TYPE_CPU         ) CPU,
 		@EnumValue(CL_DEVICE_TYPE_GPU         ) GPU,
@@ -255,9 +257,7 @@ public class CLDevice {
 		return infos.getInt(get(), CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE);
 	}
 
-	/**
-	 * Describes single precision floating- point capability of the device
-	 */
+	/** Bit values for CL_DEVICE_SINGLE_FP_CONFIG */
 	public enum CLDeviceSingleFP {
 		/** denorms are supported                                  */ @EnumValue(CL_FP_DENORM			) Denorm			,
 		/** INF and quiet NaNs are supported.                      */ @EnumValue(CL_FP_INF_NAN			) InfNaN			,
@@ -280,6 +280,7 @@ public class CLDevice {
 		return CLDeviceSingleFP.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_SINGLE_FP_CONFIG));
 	}
 
+	/** Values for CL_DEVICE_GLOBAL_MEM_CACHE_TYPE */
 	public enum CLCacheType {
 		@EnumValue(CL_NONE             ) None          ,
 		@EnumValue(CL_READ_ONLY_CACHE  ) ReadOnlyCache ,
@@ -339,7 +340,7 @@ public class CLDevice {
 		return infos.getInt(get(), CL_DEVICE_MAX_CONSTANT_ARGS);
 	}
 
-
+	/** Values for CL_DEVICE_LOCAL_MEM_TYPE */
 	public enum CLMemType {
 		/** implying dedicated local memory storage such as SRAM */
 		@EnumValue(CL_LOCAL  ) Local ,
@@ -472,6 +473,7 @@ public class CLDevice {
 		return infos.getString(get(), CL_DEVICE_EXTENSIONS);
 	}
 
+	/** Bit values for CL_DEVICE_QUEUE_PROPERTIES */
 	public enum CLQueueProperty {
 		@EnumValue(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE) OutOfOrderExecModeEnable,
 		@EnumValue(CL_QUEUE_PROFILING_ENABLE             ) ProfilingEnable		   ;
