@@ -61,7 +61,7 @@ public class CLDevice {
 	 * The OpenCL device type.
 	 */
 	public EnumSet<CLDeviceType> getType() {
-        return CLDeviceType.getEnumSet(infos.getInt(get(), CL_DEVICE_TYPE));
+        return CLDeviceType.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_TYPE));
     }
 
 	/**
@@ -344,8 +344,8 @@ public class CLDevice {
 	 * Type of local memory supported. <br/>
 	 * This can be set to CL_LOCAL implying dedicated local memory storage such as SRAM, or CL_GLOBAL.
 	 */
-	public int getLocalMemType() {
-		return infos.getInt(get(), CL_DEVICE_LOCAL_MEM_TYPE);
+	public long getLocalMemType() {
+		return infos.getNativeLong(get(), CL_DEVICE_LOCAL_MEM_TYPE);
 	}
 
 	/**
