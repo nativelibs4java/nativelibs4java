@@ -12,14 +12,17 @@ import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
 /**
- * Program execution unit ("function")
- * @author ochafik
+ * OpenCL kernel.<br/>
+ * A kernel is a function declared in a program. <br/>
+ * A kernel is identified by the __kernel qualifier applied to any function in a program. <br/>
+ * A kernel object encapsulates the specific __kernel function declared in a program and the argument values to be used when executing this __kernel function.
+ * @author Olivier Chafik
  */
 public class CLKernel extends CLEntity<cl_kernel> {
 
     protected final CLProgram program;
     protected String name;
-	static CLInfoGetter<cl_kernel> kernelInfos = new CLInfoGetter<cl_kernel>() {
+	static CLInfoGetter<cl_kernel> infos = new CLInfoGetter<cl_kernel>() {
 		@Override
 		protected int getInfo(cl_kernel entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
 			return CL.clGetKernelInfo(entity, infoTypeEnum, size, out, sizeOut);
@@ -34,28 +37,11 @@ public class CLKernel extends CLEntity<cl_kernel> {
     public CLProgram getProgram() {
         return program;
     }
-	public int getNumArgs() {
-		return kernelInfos.getInfoInt(get(), CL_KERNEL_NUM_ARGS);
-    }
-	/*public long getWorkGroupSize() {
-		return getInfoNativeLong(CL_KERNEL_WORK_GROUP_SIZE).longValue();
-    }
-	public int getLocalMemSize() {
-		return getInfoInt(CL_KERNEL_LOCAL_MEM_SIZE);
-    }*/
-
-    public String getName() {
-		if (name == null) {
-			name = kernelInfos.getInfoString(get(), CL_KERNEL_FUNCTION_NAME);
-		}
-        return name;
-    }
 
 	public String toString() {
-		return getName() + " {" + getNumArgs() + " args}";//, workGroupSize = " + getWorkGroupSize() + ", localMemSize = " + getLocalMemSize() + "}";
+		return getFunctionName() + " {args: " + getNumArgs() + "}";//, workGroupSize = " + getWorkGroupSize() + ", localMemSize = " + getLocalMemSize() + "}";
 	}
 
-	
     public void setArgs(Object... args) {
         for (int i = 0; i < args.length; i++) {
             setObjectArg(i, args[i]);
@@ -139,4 +125,21 @@ public class CLKernel extends CLEntity<cl_kernel> {
         error(CL.clEnqueueNDRangeKernel(queue.get(), get(), 1, null, globalSizesNL, localSizesNL, 0, null, null));
     }
 
+	/**
+	 * CL_KERNEL_NUM_ARGS<br/>
+	 * Return the number of arguments to kernel.
+	 */
+	public int getNumArgs() {
+		return infos.getInt(get(), CL_KERNEL_NUM_ARGS);
+    }
+
+	/**
+	 * CL_KERNEL_FUNCTION_NAME<br/>
+	 * Return the kernel function name.
+	 */
+    public String getFunctionName() {
+		return infos.getString(get(), CL_KERNEL_FUNCTION_NAME);
+    }
+
+	
 }

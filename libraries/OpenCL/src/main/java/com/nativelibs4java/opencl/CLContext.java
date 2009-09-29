@@ -12,8 +12,10 @@ import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
 /**
- * OpenCL context : gathers one or more devices which will share all their buffers and textures
- * @author ochafik
+ * OpenCL context.<br/>
+ * An OpenCL context is created with one or more devices.<br/>
+ * Contexts are used by the OpenCL runtime for managing objects such as command-queues, memory, program and kernel objects and for executing kernels on one or more devices specified in the context.
+ * @author Olivier Chafik
  */
 public class CLContext extends CLEntity<cl_context> {
 

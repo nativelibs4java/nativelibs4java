@@ -13,10 +13,21 @@ import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
 /**
- * An OpenCL program is a collection of kernels ("functions").
+ * OpenCL program.<br/>
+ * An OpenCL program consists of a set of kernels that are identified as functions declared with the __kernel qualifier in the program source. OpenCL programs may also contain auxiliary functions and constant data that can be used by __kernel functions. The program executable can be generated online or offline by the OpenCL compiler for the appropriate target device(s).<br/>
+ * A program object encapsulates the following information:
+ * <ul>
+ * <li>An associated context.</li>
+ * <li>A program source or binary.</li>
+ * <li>The latest successfully built program executable</li>
+ * <li>The list of devices for which the program executable is built</li>
+ * <li>The build options used and a build log. </li>
+ * <li>The number of kernel objects currently attached.</li>
+ * </ul>
+ *
  * A program can be compiled on the fly (costly) but its binaries can be stored and
  * loaded back in subsequent executions to avoid recompilation.
- * @author ochafik
+ * @author Olivier Chafik
  */
 public class CLProgram extends CLEntity<cl_program> {
 
@@ -35,10 +46,10 @@ public class CLProgram extends CLEntity<cl_program> {
     }
 
 	public String getSource() {
-		return progInfos.getInfoString(get(), CL_PROGRAM_SOURCE);
+		return progInfos.getString(get(), CL_PROGRAM_SOURCE);
 	}
     public byte[][] getBinaries() {
-		Memory s = progInfos.getInfoBytes(get(), CL_PROGRAM_BINARY_SIZES);
+		Memory s = progInfos.getBytes(get(), CL_PROGRAM_BINARY_SIZES);
 		int n = (int)s.getSize() / Native.LONG_SIZE;
 		int[] sizes = new int[n];
 		for (int i = 0; i < n; i++) {

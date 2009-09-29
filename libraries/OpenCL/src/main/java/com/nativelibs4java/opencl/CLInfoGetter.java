@@ -18,7 +18,7 @@ abstract class CLInfoGetter<T extends PointerType> {
 
 	protected abstract int getInfo(T entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut);
 
-    public String getInfoString(T entity, int infoName) {
+    public String getString(T entity, int infoName) {
         NativeLongByReference pLen = new NativeLongByReference();
         error(getInfo(entity, infoName, toNL(0), null, pLen));
 
@@ -31,7 +31,7 @@ abstract class CLInfoGetter<T extends PointerType> {
         return buffer.getString(0);
     }
 
-	public Memory getInfoBytes(T entity, int infoName) {
+	public Memory getBytes(T entity, int infoName) {
         NativeLongByReference pLen = new NativeLongByReference();
         error(getInfo(entity, infoName, toNL(0), null, pLen));
 
@@ -42,7 +42,7 @@ abstract class CLInfoGetter<T extends PointerType> {
     }
 
 
-	public int getInfoInt(T entity, int infoName) {
+	public int getInt(T entity, int infoName) {
         NativeLongByReference pLen = new NativeLongByReference();
         IntByReference pValue = new IntByReference();
 		error(getInfo(entity, infoName, toNL(4), pValue.getPointer(), pLen));
@@ -51,7 +51,16 @@ abstract class CLInfoGetter<T extends PointerType> {
 			throw new RuntimeException("Not an int : len = " + pLen.getValue());
 		return pValue.getValue();
     }
-	public NativeLong getInfoNativeLong(T entity, int infoName) {
+	public boolean getBool(T entity, int infoName) {
+        NativeLongByReference pLen = new NativeLongByReference();
+        ByteByReference pValue = new ByteByReference();
+		error(getInfo(entity, infoName, toNL(1), pValue.getPointer(), pLen));
+
+		if (pLen.getValue().longValue() != 1)
+			throw new RuntimeException("Not a BOOL : len = " + pLen.getValue());
+		return pValue.getValue() != 0;
+    }
+	public NativeLong getNativeLong(T entity, int infoName) {
         NativeLongByReference pLen = new NativeLongByReference();
         NativeLongByReference pValue = new NativeLongByReference();
 		error(getInfo(entity, infoName, toNL(Native.LONG_SIZE), pValue.getPointer(), pLen));

@@ -12,8 +12,17 @@ import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
 /**
- * Buffer used as a kernel argument / return value.
- * @author ochafik
+ * OpenCL memory object.<br/>
+ * Memory objects are categorized into two types: buffer objects, and image objects. A buffer object stores a one-dimensional collection of elements whereas an image object is used to store a two- or three- dimensional texture, frame-buffer or image.<br/>
+ * Elements of a buffer object can be a scalar data type (such as an int, float), vector data type, or a user-defined structure. An image object is used to represent a buffer that can be used as a texture or a frame-buffer. The elements of an image object are selected from a list of predefined image formats. The minimum number of elements in a memory object is one.<br/>
+ * The fundamental differences between a buffer and an image object are:
+ * <ul>
+ * <li>Elements in a buffer are stored in sequential fashion and can be accessed using a pointer by a kernel executing on a device. Elements of an image are stored in a format that is opaque to the user and cannot be directly accessed using a pointer. Built-in functions are provided by the OpenCL C programming language to allow a kernel to read from or write to an image.</li>
+ * <li>For a buffer object, the data is stored in the same format as it is accessed by the kernel, but in the case of an image object the data format used to store the image elements may not be the same as the data format used inside the kernel. Image elements are always a 4- component vector (each component can be a float or signed/unsigned integer) in a kernel. The built-in function to read from an image converts image element from the format it is stored into a 4-component vector. Similarly, the built-in function to write to an image converts the image element from a 4-component vector to the appropriate image format specified such as 4 8-bit elements, for example.</li>
+ * </ul>
+ *
+ * Kernels take memory objects as input, and output to one or more memory objects.
+ * @author Olivier Chafik
  */
 public class CLMem extends CLEntity<cl_mem> {
 
