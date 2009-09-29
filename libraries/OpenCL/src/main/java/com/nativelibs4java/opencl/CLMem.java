@@ -11,6 +11,10 @@ import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
+/**
+ * Buffer used as a kernel argument / return value.
+ * @author ochafik
+ */
 public class CLMem extends CLEntity<cl_mem> {
 
     protected final CLContext context;

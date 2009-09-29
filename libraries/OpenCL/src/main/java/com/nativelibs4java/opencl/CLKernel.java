@@ -11,6 +11,10 @@ import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
+/**
+ * Program execution unit ("function")
+ * @author ochafik
+ */
 public class CLKernel extends CLEntity<cl_kernel> {
 
     protected final CLProgram program;

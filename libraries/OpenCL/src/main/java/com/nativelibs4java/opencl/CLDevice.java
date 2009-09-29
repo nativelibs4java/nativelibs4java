@@ -11,7 +11,9 @@ import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
-/// OpenCL device (CPU core, GPU...)
+/**
+ * OpenCL device (CPU, GPU...)
+ */
 public class CLDevice {
 
     final cl_device_id device;

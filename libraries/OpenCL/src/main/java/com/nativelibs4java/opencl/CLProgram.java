@@ -12,6 +12,12 @@ import java.util.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
+/**
+ * An OpenCL program is a collection of kernels ("functions").
+ * A program can be compiled on the fly (costly) but its binaries can be stored and
+ * loaded back in subsequent executions to avoid recompilation.
+ * @author ochafik
+ */
 public class CLProgram extends CLEntity<cl_program> {
 
     protected final CLContext context;

@@ -11,6 +11,10 @@ import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
+/**
+ * OpenCL context : gathers one or more devices which will share all their buffers and textures
+ * @author ochafik
+ */
 public class CLContext extends CLEntity<cl_context> {
 
     protected final cl_device_id[] deviceIds;

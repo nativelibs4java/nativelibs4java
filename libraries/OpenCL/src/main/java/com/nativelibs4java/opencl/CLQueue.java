@@ -12,6 +12,7 @@ import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
 /**
  * OpenCL command queue.
+ * A queue is bound to a single device.
  * @author ochafik
  *
  */

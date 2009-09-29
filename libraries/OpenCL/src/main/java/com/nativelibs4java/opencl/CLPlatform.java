@@ -11,7 +11,7 @@ import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
 /**
- *
+ * Entry point of OpenCL4Java : gives access to OpenCL implementations available on the system.
  * @author Olivier Chafik
  */
 public class CLPlatform extends CLEntity<cl_platform_id> {
