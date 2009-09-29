@@ -17,29 +17,35 @@ import static org.junit.Assert.*;
  *
  * @author ochafik
  */
-public class TestUtils {
+public class MiscTestUtils {
 	
 	public static void testGetters(Object instance) {
+		Logger log = Logger.getLogger(instance.getClass().getName());
 		for (Method m : instance.getClass().getDeclaredMethods()) {
-			if (m.getParameterTypes().length > 0)
-				continue;
 			if (Modifier.isStatic(m.getModifiers()))
 				continue;
+			if (!Modifier.isPublic(m.getModifiers()))
+				continue;
+			if (m.getParameterTypes().length != 0)
+				continue;
+
 			String name = m.getName();
+			boolean isToString = name.equals("toString");
 			if (name.startsWith("get") && name.length() > 3 ||
 					name.startsWith("has") && name.length() > 3 ||
 					name.startsWith("is") && name.length() > 2 ||
-					name.equals("toString"))
+					isToString && !Modifier.isPublic(m.getDeclaringClass().getModifiers()))
 			{
+				String msg = "Failed to call " + m;
 				try {
 					m.invoke(instance);
 				} catch (IllegalAccessException ex) {
-					Logger.getLogger(InfoGettersTest.class.getName()).log(Level.SEVERE, null, ex);
+					if (!isToString)
+						log.log(Level.WARNING, msg, ex);
 				} catch (IllegalArgumentException ex) {
-					Logger.getLogger(InfoGettersTest.class.getName()).log(Level.SEVERE, null, ex);
+					log.log(Level.SEVERE, msg, ex);
 				} catch (InvocationTargetException ex) {
-					String msg = "Failed to call " + m;
-					Logger.getLogger(instance.getClass().getName()).log(Level.SEVERE, msg, ex.getCause());
+					log.log(Level.SEVERE, msg, ex.getCause());
 					assertFalse(msg, true);
 				}
 			}

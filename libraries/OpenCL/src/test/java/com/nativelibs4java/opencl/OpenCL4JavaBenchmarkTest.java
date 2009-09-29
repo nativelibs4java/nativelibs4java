@@ -4,6 +4,7 @@ import com.nativelibs4java.opencl.*;
 import java.io.File;
 import java.util.*;
 import java.nio.*;
+import org.junit.Test;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.CLTestUtils.*;
 import static com.nativelibs4java.nio.NIOUtils.*;
@@ -203,7 +204,8 @@ public class OpenCL4JavaBenchmarkTest {
             return name().toLowerCase();
         }
     }
-    public static void main(String[] args) {
+	@Test
+    public void testBenchmark() {
         File f = new File("C:\\Program Files\\ATI Stream\\bin\\x86\\OpenCL.dll");
         if (f.exists())
             System.setProperty("OpenCL.library", f.toString());

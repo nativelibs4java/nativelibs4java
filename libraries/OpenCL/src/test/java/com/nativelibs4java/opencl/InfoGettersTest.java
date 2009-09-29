@@ -11,7 +11,7 @@ import java.util.EnumSet;
 import java.util.logging.*;
 import org.junit.*;
 import static org.junit.Assert.*;
-import static com.nativelibs4java.test.TestUtils.*;
+import static com.nativelibs4java.test.MiscTestUtils.*;
 
 /**
  *
