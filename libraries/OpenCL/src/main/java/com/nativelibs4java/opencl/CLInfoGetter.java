@@ -60,13 +60,13 @@ abstract class CLInfoGetter<T extends PointerType> {
 			throw new RuntimeException("Not a BOOL : len = " + pLen.getValue());
 		return pValue.getValue() != 0;
     }
-	public NativeLong getNativeLong(T entity, int infoName) {
+	public long getNativeLong(T entity, int infoName) {
         NativeLongByReference pLen = new NativeLongByReference();
         NativeLongByReference pValue = new NativeLongByReference();
 		error(getInfo(entity, infoName, toNL(Native.LONG_SIZE), pValue.getPointer(), pLen));
 
 		if (pLen.getValue().longValue() != Native.LONG_SIZE)
 			throw new RuntimeException("Not an int : len = " + pLen.getValue());
-		return pValue.getValue();
+		return pValue.getValue().longValue();
     }
 }

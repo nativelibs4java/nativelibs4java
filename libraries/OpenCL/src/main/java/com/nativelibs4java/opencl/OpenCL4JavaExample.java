@@ -1,6 +1,7 @@
 package com.nativelibs4java.opencl;
 
 import java.nio.*;
+import java.util.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
 public class OpenCL4JavaExample {
@@ -11,6 +12,7 @@ public class OpenCL4JavaExample {
             CLPlatform platform = platforms[0];
             System.out.println("Using platform " + platform);
             CLDevice[] devices = platform.listAllDevices();
+            System.out.println("Using devices " + Arrays.asList(devices));
             //CLDevice[] devices = CLDevice.listCPUDevices();
             //CLDevice[] devices = CLDevice.listGPUDevices();
             CLContext context = CLContext.createContext(devices);

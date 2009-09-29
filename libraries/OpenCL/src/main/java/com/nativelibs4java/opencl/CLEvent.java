@@ -33,45 +33,61 @@ public class CLEvent extends CLEntity<cl_event> {
 		CL.clReleaseEvent(get());
 	}
 
+	public enum CLCommandExecutionStatus {
+		/** command has been enqueued in the command-queue                                             */ 
+		@EnumValue(CL_QUEUED	) Queued	,
+		/** enqueued command has been submitted by the host to the device associated with the command-queue */ 
+		@EnumValue(CL_SUBMITTED ) Submitted ,
+		/** device is currently executing this command */ 
+		@EnumValue(CL_RUNNING	) Running	,
+		/** the command has completed) */ 
+		@EnumValue(CL_COMPLETE	) Complete	;
+		
+		public long getValue() { return EnumValues.getValue(this); }
+		public static CLCommandExecutionStatus getEnum(long v) { return EnumValues.getEnum(v, CLCommandExecutionStatus.class); }
+	}
 	/**
 	 * Return the execution status of the command identified by event.  <br/>
-	 * Valid values are:
-	 * <ul>
-	 * <li>CL_QUEUED (command has been enqueued in the command-queue),</li>
-	 * <li>CL_SUBMITTED (enqueued command has been submitted by the host to the device associated with the command-queue),</li>
-	 * <li>CL_RUNNING (device is currently executing this command),</li>
-	 * <li>CL_COMPLETE (the command has completed), or</li>
-	 * <li>Error code given by a negative integer value. (command was abnormally terminated Ð this may be caused by a bad memory access etc.).</li>
-	 * </ul>
+	 * @throws CLException is the execution status denotes an error
 	 */
-	public int getCommandExecutionStatus() {
-		return infos.getInt(get(), CL_EVENT_COMMAND_EXECUTION_STATUS);
+	public CLCommandExecutionStatus getCommandExecutionStatus() {
+		int v = infos.getInt(get(), CL_EVENT_COMMAND_EXECUTION_STATUS);
+		CLCommandExecutionStatus status =  CLCommandExecutionStatus.getEnum(v);
+		if (status == null)
+			error(v);
+		return status;
 	}
 
-	/**
-	 * Return the command associated with event. <br/>
-	 * Can be one of the following values:
-	 * <ul>
-	 * <li>CL_COMMAND_NDRANGE_KERNEL</li>
-	 * <li>CL_COMMAND_TASK</li>
-	 * <li>CL_COMMAND_NATIVE_KERNEL</li>
-	 * <li>CL_COMMAND_READ_BUFFER</li>
-	 * <li>CL_COMMAND_WRITE_BUFFER</li>
-	 * <li>CL_COMMAND_COPY_BUFFER</li>
-	 * <li>CL_COMMAND_READ_IMAGE</li>
-	 * <li>CL_COMMAND_WRITE_IMAGE</li>
-	 * <li>CL_COMMAND_COPY_IMAGE</li>
-	 * <li>CL_COMMAND_COPY_BUFFER_TO_IMAGE</li>
-	 * <li>CL_COMMAND_COPY_IMAGE_TO_BUFFER           </li>
-	 * <li>CL_COMMAND_MAP_BUFFER CL_COMMAND_MAP_IMAGE</li>
-	 * <li>CL_COMMAND_UNMAP_MEM_OBJECT               </li>
-	 * <li>CL_COMMAND_MARKER                         </li>
-	 * <li>CL_COMMAND_ACQUIRE_GL_OBJECTS             </li>
-	 * <li>CL_COMMAND_RELEASE_GL_OBJECTS             </li>
-	 * </ul>
-	 */
-	public int getCommandType() {
-		return infos.getInt(get(), CL_EVENT_COMMAND_TYPE);
+	public enum CLCommand {
+		@EnumValue(CL_COMMAND_NDRANGE_KERNEL		) NDRangeKernel,
+		@EnumValue(CL_COMMAND_TASK					) Task,
+		@EnumValue(CL_COMMAND_NATIVE_KERNEL			) NativeKernel,
+		@EnumValue(CL_COMMAND_READ_BUFFER			) ReadBuffer,
+		@EnumValue(CL_COMMAND_WRITE_BUFFER			) WriteBuffer,
+		@EnumValue(CL_COMMAND_COPY_BUFFER			) CopyBuffer,
+		@EnumValue(CL_COMMAND_READ_IMAGE 			) ReadImage,
+		@EnumValue(CL_COMMAND_WRITE_IMAGE			) WriteImage,
+		@EnumValue(CL_COMMAND_COPY_IMAGE			) CopyImage,
+		@EnumValue(CL_COMMAND_COPY_BUFFER_TO_IMAGE	) CopyBufferToImage,
+		@EnumValue(CL_COMMAND_COPY_IMAGE_TO_BUFFER  ) CopyImageToBuffer,
+		@EnumValue(CL_COMMAND_MAP_BUFFER 			) MapBuffer,
+		@EnumValue(CL_COMMAND_MAP_IMAGE             ) CommandMapImage,
+		@EnumValue(CL_COMMAND_UNMAP_MEM_OBJECT		) UnmapMemObject,             
+		@EnumValue(CL_COMMAND_MARKER             	) Marker,             
+		@EnumValue(CL_COMMAND_ACQUIRE_GL_OBJECTS    ) AcquireGLObjects,             
+		@EnumValue(CL_COMMAND_RELEASE_GL_OBJECTS	) ReleaseGLObjects;
+
+		public long getValue() { return EnumValues.getValue(this); }
+		public static CLCommand getEnum(long v) { return EnumValues.getEnum(v, CLCommand.class); }
 	}
-	
+	/**
+	 * Return the command associated with event.
+	 */
+	public CLCommand getCommandType() {
+		return CLCommand.getEnum(infos.getNativeLong(get(), CL_EVENT_COMMAND_TYPE));
+	}
+
+	public String toString() {
+		return "Event {commandType: " + getCommandType() + "}";
+	}
 }

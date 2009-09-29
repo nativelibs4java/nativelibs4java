@@ -9,6 +9,7 @@ import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import java.util.*;
 
 /**
  * OpenCL device (CPU, GPU...).<br/>
@@ -28,31 +29,45 @@ public class CLDevice {
         this.device = device;
     }
 
+	public enum CLExecutionCapability {
+		@EnumValue(CL_EXEC_KERNEL        ) Kernel,
+		@EnumValue(CL_EXEC_NATIVE_KERNEL ) NativeKernel;
+
+		public long getValue() { return EnumValues.getValue(this); }
+		public static long getValue(EnumSet<CLExecutionCapability> set) { return EnumValues.getValue(set); }
+		public static EnumSet<CLExecutionCapability> getEnumSet(long v) { return EnumValues.getEnumSet(v, CLExecutionCapability.class); }
+	}
 	/**
 	 * CL_DEVICE_EXECUTION_CAPABILITIES<br/>
-	 * Describes the execution capabilities of the device. This is a bit-field that describes one or more of the following values:
-	 * <ul>
-	 * <li>CL_EXEC_KERNEL The OpenCL device can execute OpenCL kernels.</li>
-	 * <li>CL_EXEC_NATIVE_KERNEL The OpenCL device can execute native kernels.</li>
-	 * </ul>
-	 * The mandated minimum capability is: CL_EXEC_KERNEL.
+	 * Describes the execution capabilities of the device.<br/>
+	 * The mandated minimum capability is: Kernel.
 	 */
-    public int getExecutionCapabilities() {
-        return infos.getInt(get(), CL_DEVICE_EXECUTION_CAPABILITIES);
+    public EnumSet<CLExecutionCapability> getExecutionCapabilities() {
+        return CLExecutionCapability.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_EXECUTION_CAPABILITIES));
     }
+
+	public enum CLDeviceType {    
+		@EnumValue(CL_DEVICE_TYPE_CPU         ) CPU,
+		@EnumValue(CL_DEVICE_TYPE_GPU         ) GPU,
+		@EnumValue(CL_DEVICE_TYPE_ACCELERATOR ) Accelerator,
+		@EnumValue(CL_DEVICE_TYPE_DEFAULT     ) Default;
+
+		public long getValue() { return EnumValues.getValue(this); }
+		public static long getValue(EnumSet<CLDeviceType> set) { return EnumValues.getValue(set); }
+		public static EnumSet<CLDeviceType> getEnumSet(long v) { return EnumValues.getEnumSet(v, CLDeviceType.class); }
+	}
 	/**
 	 * CL_DEVICE_TYPE<br/>
 	 * The OpenCL device type.
-	 * @return CL_DEVICE_TYPE_CPU, CL_DEVICE_TYPE_GPU, CL_DEVICE_TYPE_ACCELERATOR, CL_DEVICE_TYPE_DEFAULT or a
-combination of the above.
 	 */
-	public int getType() {
-        return infos.getInt(get(), CL_DEVICE_TYPE);
+	public EnumSet<CLDeviceType> getType() {
+        return CLDeviceType.getEnumSet(infos.getInt(get(), CL_DEVICE_TYPE));
     }
 
 	/**
 	 * CL_DEVICE_VENDOR_ID<br/>
-	 * A unique device vendor identifier. An example of a unique device identifier could be the PCIe ID.
+	 * A unique device vendor identifier. <br/>
+	 * An example of a unique device identifier could be the PCIe ID.
 	 */
 	public int getVendorId() {
 		return infos.getInt(get(), CL_DEVICE_VENDOR_ID);
@@ -60,7 +75,8 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_MAX_COMPUTE_UNITS<br/>
-	 * The number of parallel compute cores on the OpenCL device. The minimum value is 1.
+	 * The number of parallel compute cores on the OpenCL device. <br/>
+	 * The minimum value is 1.
 	 */
 	public int getMaxComputeUnits() {
 		return infos.getInt(get(), CL_DEVICE_MAX_COMPUTE_UNITS);
@@ -68,7 +84,9 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS<br/>
-	 * Maximum dimensions that specify the global and local work-item IDs used by the data parallel execution model. (Refer to clEnqueueNDRangeKernel). The minimum value is 3.
+	 * Maximum dimensions that specify the global and local work-item IDs used by the data parallel execution model. <br/>
+	 * (Refer to clEnqueueNDRangeKernel).
+	 * <br/>The minimum value is 3.
 	 */
 	public int getMaxWorkItemDimensions() {
 		return infos.getInt(get(), CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
@@ -77,10 +95,11 @@ combination of the above.
 	/**
 	 * CL_DEVICE_MAX_WORK_GROUP_SIZE<br/>
 	 * Maximum number of work-items in a work-group executing a kernel using the data parallel execution model.
-	 * (Refer to clEnqueueNDRangeKernel). The minimum value is 1.
+	 * (Refer to clEnqueueNDRangeKernel). <br/>
+	 * The minimum value is 1.
 	 */
 	public long getMaxWorkGroupSize() {
-		return infos.getNativeLong(get(), CL_DEVICE_MAX_WORK_GROUP_SIZE).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_MAX_WORK_GROUP_SIZE);
 	}
 
 	/**
@@ -104,7 +123,7 @@ combination of the above.
 	 * Max size of memory object allocation in bytes. The minimum value is max (1/4th of CL_DEVICE_GLOBAL_MEM_SIZE , 128*1024*1024)
 	 */
 	public long getMaxMemAllocSize() {
-		return infos.getNativeLong(get(), CL_DEVICE_MAX_MEM_ALLOC_SIZE).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_MAX_MEM_ALLOC_SIZE);
 	}
 
 	/**
@@ -117,7 +136,8 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_MAX_READ_IMAGE_ARGS<br/>
-	 * Max number of simultaneous image objects that can be read by a kernel. The minimum value is 128 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE (@see hasImageSupport()).
+	 * Max number of simultaneous image objects that can be read by a kernel. <br/>
+	 * The minimum value is 128 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE (@see hasImageSupport()).
 	 */
 	public int getMaxReadImageArgs() {
 		return infos.getInt(get(), CL_DEVICE_MAX_READ_IMAGE_ARGS);
@@ -125,7 +145,8 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_MAX_WRITE_IMAGE_ARGS<br/>
-	 * Max number of simultaneous image objects that can be written to by a kernel. The minimum value is 8 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE (@see hasImageSupport()).
+	 * Max number of simultaneous image objects that can be written to by a kernel. <br/>
+	 * The minimum value is 8 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE (@see hasImageSupport()).
 	 */
 	public int getMaxWriteImageArgs() {
 		return infos.getInt(get(), CL_DEVICE_MAX_WRITE_IMAGE_ARGS);
@@ -134,7 +155,7 @@ combination of the above.
 
     @Override
     public String toString() {
-        return getName();
+        return getName() + "{capabilities: " + getExecutionCapabilities() + ", singleFPConfig: " + getSingleFPConfig() + "}";
     }
 
     @SuppressWarnings("deprecation")
@@ -150,56 +171,60 @@ combination of the above.
         return new CLQueue(context, queue);
     }
 
-    public cl_device_id get() {
+    cl_device_id get() {
         return device;
     }
 
-
 	/**
 	 * CL_DEVICE_IMAGE2D_MAX_WIDTH<br/>
-	Max width of 2D image in pixels. The minimum value is 8192 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
+	 * Max width of 2D image in pixels. <br/>
+	 * The minimum value is 8192 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
 	 */
 	public long getImage2DMaxWidth() {
-		return infos.getNativeLong(get(), CL_DEVICE_IMAGE2D_MAX_WIDTH).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_IMAGE2D_MAX_WIDTH);
 	}
 
 	/**
 	 * CL_DEVICE_IMAGE2D_MAX_HEIGHT<br/>
-	Max height of 2D image in pixels. The
-	Last Revision Date: 5/16/09	Page 34
-	minimum value is 8192 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
+	 * Max height of 2D image in pixels. <br/>
+	 * The minimum value is 8192 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
 	 */
 	public long getImage2DMaxHeight() {
-		return infos.getNativeLong(get(), CL_DEVICE_IMAGE2D_MAX_HEIGHT).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_IMAGE2D_MAX_HEIGHT);
 	}
 
 	/**
 	 * CL_DEVICE_IMAGE3D_MAX_WIDTH<br/>
-	Max width of 3D image in pixels. The minimum value is 2048 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
+	 * Max width of 3D image in pixels. <br/>
+	 * The minimum value is 2048 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
 	 */
 	public long getImage3DMaxWidth() {
-		return infos.getNativeLong(get(), CL_DEVICE_IMAGE3D_MAX_WIDTH).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_IMAGE3D_MAX_WIDTH);
 	}
 
 	/**
 	 * CL_DEVICE_IMAGE3D_MAX_HEIGHT<br/>
-	Max height of 3D image in pixels. The minimum value is 2048 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
+	 * Max height of 3D image in pixels. <br/>
+	 * The minimum value is 2048 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
 	 */
 	public long getImage3DMaxHeight() {
-		return infos.getNativeLong(get(), CL_DEVICE_IMAGE3D_MAX_HEIGHT).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_IMAGE3D_MAX_HEIGHT);
 	}
 
 	/**
 	 * CL_DEVICE_IMAGE3D_MAX_DEPTH<br/>
-	Max depth of 3D image in pixels. The minimum value is 2048 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
+	 * Max depth of 3D image in pixels. <br/>
+	 * The minimum value is 2048 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
 	 */
 	public long getImage3DMaxDepth() {
-		return infos.getNativeLong(get(), CL_DEVICE_IMAGE3D_MAX_DEPTH).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_IMAGE3D_MAX_DEPTH);
 	}
 
 	/**
 	 * CL_DEVICE_MAX_SAMPLERS<br/>
-	Maximum number of samplers that can be used in a kernel. Refer to section 6.11.8 for a detailed description on samplers. The minimum value is 16 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
+	 * Maximum number of samplers that can be used in a kernel. <br/>
+	 * Refer to section 6.11.8 for a detailed description on samplers. <br/>
+	 * The minimum value is 16 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
 	 */
 	public int getMaxSamplers() {
 		return infos.getInt(get(), CL_DEVICE_MAX_SAMPLERS);
@@ -207,15 +232,16 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_MAX_PARAMETER_SIZE<br/>
-	Max size in bytes of the arguments that can be passed to a kernel. The minimum value is 256.
+	 * Max size in bytes of the arguments that can be passed to a kernel. <br/>
+	 * The minimum value is 256.
 	 */
 	public long getMaxParameterSize() {
-		return infos.getNativeLong(get(), CL_DEVICE_MAX_PARAMETER_SIZE).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_MAX_PARAMETER_SIZE);
 	}
 
 	/**
 	 * CL_DEVICE_MEM_BASE_ADDR_ALIGN<br/>
-	Describes the alignment in bits of the base address of any allocated memory object.
+	 * Describes the alignment in bits of the base address of any allocated memory object.
 	 */
 	public int getMemBaseAddrAlign() {
 		return infos.getInt(get(), CL_DEVICE_MEM_BASE_ADDR_ALIGN);
@@ -223,42 +249,57 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE<br/>
-	The smallest alignment in bytes which can be used for any data type.
+	 * The smallest alignment in bytes which can be used for any data type.
 	 */
 	public int getMinDataTypeAlign() {
 		return infos.getInt(get(), CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE);
 	}
 
 	/**
-	 * CL_DEVICE_SINGLE_FP_CONFIG<br/>
-	 * Describes single precision floating- point capability of the device. This is a bit-field that describes one or more of the following values:
-	 * <ul>
-	 * <li>CL_FP_DENORM denorms are supported</li>
-	 * <li>CL_FP_INF_NAN INF and quiet NaNs are supported.</li>
-	 * <li>CL_FP_ROUND_TO_NEAREST round to nearest even rounding mode supported</li>
-	 * <li>CL_FP_ROUND_TO_ZERO round to zero rounding mode supported</li>
-	 * <li>CL_FP_ROUND_TO_INF round to +ve and -ve infinity rounding modes supported</li>
-	 * <li>CL_FP_FMA IEEE754-2008 fused multiply-add is supported.</li>
-	 * </ul>
-	 * The mandated minimum floating-point capability is: CL_FP_ROUND_TO_NEAREST | CL_FP_INF_NAN.
+	 * Describes single precision floating- point capability of the device
 	 */
-	public int getSingleFPConfig() {
-		return infos.getInt(get(), CL_DEVICE_SINGLE_FP_CONFIG);
+	public enum CLDeviceSingleFP {
+		/** denorms are supported                                  */ @EnumValue(CL_FP_DENORM			) Denorm			,
+		/** INF and quiet NaNs are supported.                      */ @EnumValue(CL_FP_INF_NAN			) InfNaN			,
+		/** round to nearest even rounding mode supported          */ @EnumValue(CL_FP_ROUND_TO_NEAREST	) RoundToNearest	,
+		/** round to zero rounding mode supported                  */ @EnumValue(CL_FP_ROUND_TO_ZERO	) RoundToZero		,
+		/** round to +ve and -ve infinity rounding modes supported */ @EnumValue(CL_FP_ROUND_TO_INF		) RoundToInf		,
+		/** IEEE754-2008 fused multiply-add is supported.          */ @EnumValue(CL_FP_FMA				) FMA				;
+
+		public long getValue() { return EnumValues.getValue(this); }
+		public static long getValue(EnumSet<CLDeviceSingleFP> set) { return EnumValues.getValue(set); }
+		public static EnumSet<CLDeviceSingleFP> getEnumSet(long v) { return EnumValues.getEnumSet(v, CLDeviceSingleFP.class); }
 	}
 
 	/**
-	 * CL_DEVICE_GLOBAL_MEM_CACHE_TYPE<br/>
-	Type of global memory cache
-	supported. Valid values are: CL_NONE, CL_READ_ONLY_CACHE and CL_READ_WRITE_CACHE.
+	 * CL_DEVICE_SINGLE_FP_CONFIG<br/>
+	 * Describes single precision floating- point capability of the device.<br/>
+	 * The mandated minimum floating-point capability is: RoundToNearest and InfNaN.
 	 */
-	public int getGlobalMemCacheType() {
-		return infos.getInt(get(), CL_DEVICE_GLOBAL_MEM_CACHE_TYPE);
+	public EnumSet<CLDeviceSingleFP> getSingleFPConfig() {
+		return CLDeviceSingleFP.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_SINGLE_FP_CONFIG));
+	}
+
+	public enum CLCacheType {
+		@EnumValue(CL_NONE             ) None          ,
+		@EnumValue(CL_READ_ONLY_CACHE  ) ReadOnlyCache ,
+		@EnumValue(CL_READ_WRITE_CACHE ) ReadWriteCache;
+		
+		public long getValue() { return EnumValues.getValue(this); }
+		public static CLCacheType getEnum(long v) { return EnumValues.getEnum(v, CLCacheType.class); }
+	}
+	/**
+	 * CL_DEVICE_GLOBAL_MEM_CACHE_TYPE<br/>
+	 * Type of global memory cache supported.
+	 */
+	public CLCacheType getGlobalMemCacheType() {
+		return CLCacheType.getEnum(infos.getNativeLong(get(), CL_DEVICE_GLOBAL_MEM_CACHE_TYPE));
 	}
 
 
 	/**
 	 * CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE<br/>
-	Size of global memory cache line in bytes.
+	 * Size of global memory cache line in bytes.
 	 */
 	public int getGlobalMemCachelineSize() {
 		return infos.getInt(get(), CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE);
@@ -266,31 +307,33 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_GLOBAL_MEM_CACHE_SIZE<br/>
-	Size of global memory cache in bytes.
+	 * Size of global memory cache in bytes.
 	 */
 	public long getGlobalMemCacheSize() {
-		return infos.getNativeLong(get(), CL_DEVICE_GLOBAL_MEM_CACHE_SIZE).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_GLOBAL_MEM_CACHE_SIZE);
 	}
 
 	/**
 	 * CL_DEVICE_GLOBAL_MEM_SIZE<br/>
-	Size of global device memory in bytes.
+	 * Size of global device memory in bytes.
 	 */
 	public long getDEVICE_GLOBAL_MEM_SIZE() {
-		return infos.getNativeLong(get(), CL_DEVICE_GLOBAL_MEM_SIZE).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_GLOBAL_MEM_SIZE);
 	}
 
 	/**
 	 * CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE<br/>
-	Max size in bytes of a constant buffer allocation. The minimum value is 64 KB.
+	 * Max size in bytes of a constant buffer allocation. <br/>
+	 * The minimum value is 64 KB.
 	 */
 	public long getDEVICE_MAX_CONSTANT_BUFFER_SIZE() {
-		return infos.getNativeLong(get(), CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE);
 	}
 
 	/**
 	 * CL_DEVICE_MAX_CONSTANT_ARGS<br/>
-	Max number of arguments declared with the __constant qualifier in a kernel. The minimum value is 8.
+	 * Max number of arguments declared with the __constant qualifier in a kernel. <br/>
+	 * The minimum value is 8.
 	 */
 	public int getMaxConstantArgs() {
 		return infos.getInt(get(), CL_DEVICE_MAX_CONSTANT_ARGS);
@@ -298,7 +341,8 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_LOCAL_MEM_TYPE<br/>
-	Type of local memory supported. This can be set to CL_LOCAL implying dedicated local memory storage such as SRAM, or CL_GLOBAL.
+	 * Type of local memory supported. <br/>
+	 * This can be set to CL_LOCAL implying dedicated local memory storage such as SRAM, or CL_GLOBAL.
 	 */
 	public int getLocalMemType() {
 		return infos.getInt(get(), CL_DEVICE_LOCAL_MEM_TYPE);
@@ -306,15 +350,18 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_LOCAL_MEM_SIZE<br/>
-	Size of local memory arena in bytes. The minimum value is 16 KB.
+	 * Size of local memory arena in bytes. <br/>
+	 * The minimum value is 16 KB.
 	 */
 	public long getLocalMemSize() {
-		return infos.getNativeLong(get(), CL_DEVICE_LOCAL_MEM_SIZE).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_LOCAL_MEM_SIZE);
 	}
 
 	/**
 	 * CL_DEVICE_ERROR_CORRECTION_SUPPORT<br/>
-	Is CL_TRUE if the device implements error correction for the memories, caches, registers etc. in the device. Is CL_FALSE if the device does not implement error correction. This can be a requirement for certain clients of OpenCL.
+	 * Is CL_TRUE if the device implements error correction for the memories, caches, registers etc. in the device. <br/>
+	 * Is CL_FALSE if the device does not implement error correction. <br/>
+	 * This can be a requirement for certain clients of OpenCL.
 	 */
 	public boolean hasErrorCorrectionSupport() {
 		return infos.getBool(get(), CL_DEVICE_ERROR_CORRECTION_SUPPORT);
@@ -322,17 +369,17 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_PROFILING_TIMER_RESOLUTION<br/>
-	Describes the resolution of device timer. This is measured in nanoseconds.	Refer to section 5.9 for
-	Last Revision Date: 5/16/09	Page 36
-	details.
+	 * Describes the resolution of device timer. <br/>
+	 * This is measured in nanoseconds.	<br/>
+	 * Refer to section 5.9 for details.
 	 */
 	public long getProfilingTimerResolution() {
-		return infos.getNativeLong(get(), CL_DEVICE_PROFILING_TIMER_RESOLUTION).longValue();
+		return infos.getNativeLong(get(), CL_DEVICE_PROFILING_TIMER_RESOLUTION);
 	}
 
 	/**
 	 * CL_DEVICE_ENDIAN_LITTLE<br/>
-	Is CL_TRUE if the OpenCL device is a little endian device and CL_FALSE otherwise.
+	 * Is CL_TRUE if the OpenCL device is a little endian device and CL_FALSE otherwise.
 	 */
 	public boolean isEndianLittle() {
 		return infos.getBool(get(), CL_DEVICE_ENDIAN_LITTLE);
@@ -340,7 +387,7 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_AVAILABLE<br/>
-	Is CL_TRUE if the device is available and CL_FALSE if the device is not available.
+	 * Is CL_TRUE if the device is available and CL_FALSE if the device is not available.
 	 */
 	public boolean isAvailable() {
 		return infos.getBool(get(), CL_DEVICE_AVAILABLE);
@@ -348,8 +395,9 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_COMPILER_AVAILABLE<br/>
-	Is CL_FALSE if the implementation does not have a compiler available to compile the program source. Is CL_TRUE if the compiler is available.
-	This can be CL_FALSE for the embededed platform profile only.
+	 * Is CL_FALSE if the implementation does not have a compiler available to compile the program source. <br/>
+	 * Is CL_TRUE if the compiler is available.<br/>
+	 * This can be CL_FALSE for the embededed platform profile only.
 	 */
 	public boolean isCompilerAvailable() {
 		return infos.getBool(get(), CL_DEVICE_COMPILER_AVAILABLE);
@@ -381,7 +429,9 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_PROFILE<br/>
-	 * OpenCL profile string. Returns the profile name supported by the device. The profile name returned can be one of the following strings:
+	 * OpenCL profile string. <br/>
+	 * Returns the profile name supported by the device. <br/>
+	 * The profile name returned can be one of the following strings:
 	 * <ul>
 	 * <li>FULL_PROFILE if the device supports the OpenCL specification (functionality defined as part of the core specification and does not require any extensions to be supported).</li>
 	 * <li>EMBEDDED_PROFILE if the device supports the OpenCL embedded profile.</li>
@@ -393,9 +443,13 @@ combination of the above.
 
 	/**
 	 * CL_DEVICE_VERSION<br/>
-	OpenCL version string. Returns the OpenCL version supported by the device. This version string has the following format:
-	OpenCL<space><major_version.min or_version><space><vendor-specific information>
-	The major_version.minor_version value returned will be 1.0.
+	 * OpenCL version string. <br/>
+	 * Returns the OpenCL version supported by the device.<br/>
+	 * This version string has the following format:
+	 * <code>
+	 * OpenCL&lt;space&gt;&lt;major_version.min or_version&gt;&lt;space&gt;&lt;vendor-specific information>
+	 * </code>
+	 * The major_version.minor_version value returned will be 1.0.
 	 */
 	public String getVersion() {
 		return infos.getString(get(), CL_DEVICE_VERSION);
@@ -409,18 +463,23 @@ combination of the above.
 		return infos.getString(get(), CL_DEVICE_EXTENSIONS);
 	}
 
+	public enum CLQueueProperty {
+		@EnumValue(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE) OutOfOrderExecModeEnable,
+		@EnumValue(CL_QUEUE_PROFILING_ENABLE             ) ProfilingEnable		   ;
+		
+		public long getValue() { return EnumValues.getValue(this); }
+		public static long getValue(EnumSet<CLQueueProperty> set) { return EnumValues.getValue(set); }
+		public static EnumSet<CLQueueProperty> getEnumSet(long v) { return EnumValues.getEnumSet(v, CLQueueProperty.class); }
+	}
 
 	/**
 	 * CL_DEVICE_QUEUE_PROPERTIES<br/>
-	Describes the command-queue properties supported by the device. This is a bit-field that describes one or more of the following values:
-	CL_QUEUE_OUT_OF_ORDER_EXEC_ MODE_ENABLE
-	CL_QUEUE_PROFILING_ENABLE
-	These properties are described in table 5.1.
-	Last Revision Date: 5/16/09	Page 37
-	The mandated minimum capability is: CL_QUEUE_PROFILING_ENABLE.
+	 * Describes the command-queue properties supported by the device.<br/>
+	 * These properties are described in table 5.1.<br/>
+	 * The mandated minimum capability is: ProfilingEnable.
 	 */
-	public int getQueueProperties() {
-		return infos.getInt(get(), CL_DEVICE_QUEUE_PROPERTIES);
+	public EnumSet<CLQueueProperty> getQueueProperties() {
+		return CLQueueProperty.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_QUEUE_PROPERTIES));
 	}
 
 }
