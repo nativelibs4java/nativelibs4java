@@ -16,10 +16,43 @@ public class CLProgram extends CLEntity<cl_program> {
 
     protected final CLContext context;
 
+	static CLInfoGetter<cl_program> progInfos = new CLInfoGetter<cl_program>() {
+		@Override
+		protected int getInfo(cl_program entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
+			return CL.clGetProgramInfo(entity, infoTypeEnum, size, out, sizeOut);
+		}
+	};
+
     CLProgram(CLContext context, cl_program entity) {
         super(entity);
         this.context = context;
     }
+
+	public String getSource() {
+		return progInfos.getInfoString(get(), CL_PROGRAM_SOURCE);
+	}
+    public byte[][] getBinaries() {
+		Memory s = progInfos.getInfoBytes(get(), CL_PROGRAM_BINARY_SIZES);
+		int n = (int)s.getSize() / Native.LONG_SIZE;
+		int[] sizes = new int[n];
+		for (int i = 0; i < n; i++) {
+			sizes[i] = s.getNativeLong(i * Native.LONG_SIZE).intValue();
+		}
+
+		Memory[] binMems = new Memory[n];
+		Memory ptrs = new Memory(n * Native.POINTER_SIZE);
+		for (int i = 0; i < n; i++) {
+			ptrs.setPointer(i * Native.POINTER_SIZE, binMems[i] = new Memory(sizes[i]));
+		}
+		error(progInfos.getInfo(get(), CL_PROGRAM_BINARIES, toNL(ptrs.getSize()), ptrs, null));
+
+		byte[][] ret = new byte[n][];
+		for (int i = 0; i < n; i++) {
+			Memory bytes = binMems[i];
+			ret[i] = bytes.getByteArray(0, sizes[i]);
+		}
+		return ret;
+	}
     public CLContext getContext() {
         return context;
     }
@@ -47,6 +80,20 @@ public class CLProgram extends CLEntity<cl_program> {
         CL.clReleaseProgram(get());
     }
 
+	public CLKernel[] createKernels() {
+		IntByReference pCount = new IntByReference();
+        error(CL.clCreateKernelsInProgram(get(), 0, (cl_kernel[])null, pCount));
+
+		int count = pCount.getValue();
+		cl_kernel[] kerns = new cl_kernel[count];
+		error(CL.clCreateKernelsInProgram(get(), count, kerns, pCount));
+
+		CLKernel[] kernels = new CLKernel[count];
+		for (int i = 0; i < count; i++)
+			kernels[i] = new CLKernel(this, null, kerns[i]);
+
+		return kernels;
+	}
     public CLKernel createKernel(String name, Object... args) {
         IntBuffer errBuff = IntBuffer.wrap(new int[1]);
         cl_kernel kernel = CL.clCreateKernel(get(), name, errBuff);
@@ -56,4 +103,5 @@ public class CLProgram extends CLEntity<cl_program> {
         kn.setArgs(args);
         return kn;
     }
+
 }

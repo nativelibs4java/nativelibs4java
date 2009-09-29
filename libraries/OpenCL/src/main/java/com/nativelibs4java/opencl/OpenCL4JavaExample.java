@@ -33,7 +33,7 @@ public class OpenCL4JavaExample {
                     "}                                                                 \n";
 
             CLProgram program = context.createProgram(src).build();
-            CLKernel kernel = program.createKernel("aSinB");
+			CLKernel kernel = program.createKernel("aSinB");
             CLQueue queue = context.createDefaultQueue();
 
             // Allocate OpenCL-hosted memory for inputs and output

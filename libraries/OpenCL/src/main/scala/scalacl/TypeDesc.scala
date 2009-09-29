@@ -69,5 +69,5 @@ case class TypeDesc(channels: Int, valueType: ValueType, primType: PrimType) {
     return TypeDesc(cn, valueType combineWith o.valueType, primType combineWith o.primType)
   }
 
-  def globalCType = primType.toString + (if (valueType != Scalar && primType != ImageType) "*" else "")
+  def cType = primType.toString + (if (valueType != Scalar && primType != ImageType) "*" else "")
 }

@@ -2,6 +2,7 @@ package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.opencl.*;
 import java.io.File;
+import java.util.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.TestUtils.*;
@@ -213,7 +214,7 @@ public class OpenCL4JavaBenchmark {
         if (f.exists())
             System.setProperty("OpenCL.library", f.toString());
         try {
-            System.out.println("Found platforms : " + CLPlatform.listPlatforms().length);
+            System.out.println("Found platforms : " + Arrays.asList(CLPlatform.listPlatforms()));
             int loops = 10;
             int dataSize = 1000000;
             CLPlatform platform = CLPlatform.listPlatforms()[0];

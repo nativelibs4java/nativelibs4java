@@ -14,7 +14,13 @@ import static com.nativelibs4java.opencl.OpenCL4Java.*;
 public class CLKernel extends CLEntity<cl_kernel> {
 
     protected final CLProgram program;
-    protected final String name;
+    protected String name;
+	static CLInfoGetter<cl_kernel> kernelInfos = new CLInfoGetter<cl_kernel>() {
+		@Override
+		protected int getInfo(cl_kernel entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
+			return CL.clGetKernelInfo(entity, infoTypeEnum, size, out, sizeOut);
+		}
+	};
 
     CLKernel(CLProgram program, String name, cl_kernel entity) {
         super(entity);
@@ -24,10 +30,28 @@ public class CLKernel extends CLEntity<cl_kernel> {
     public CLProgram getProgram() {
         return program;
     }
+	public int getNumArgs() {
+		return kernelInfos.getInfoInt(get(), CL_KERNEL_NUM_ARGS);
+    }
+	/*public long getWorkGroupSize() {
+		return getInfoNativeLong(CL_KERNEL_WORK_GROUP_SIZE).longValue();
+    }
+	public int getLocalMemSize() {
+		return getInfoInt(CL_KERNEL_LOCAL_MEM_SIZE);
+    }*/
+
     public String getName() {
+		if (name == null) {
+			name = kernelInfos.getInfoString(get(), CL_KERNEL_FUNCTION_NAME);
+		}
         return name;
     }
 
+	public String toString() {
+		return getName() + " {" + getNumArgs() + " args}";//, workGroupSize = " + getWorkGroupSize() + ", localMemSize = " + getLocalMemSize() + "}";
+	}
+
+	
     public void setArgs(Object... args) {
         for (int i = 0; i < args.length; i++) {
             setObjectArg(i, args[i]);
@@ -110,4 +134,5 @@ public class CLKernel extends CLEntity<cl_kernel> {
         }
         error(CL.clEnqueueNDRangeKernel(queue.get(), get(), 1, null, globalSizesNL, localSizesNL, 0, null, null));
     }
+
 }

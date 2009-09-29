@@ -73,7 +73,7 @@
         <version>2.0.1</version>
       </plugin>
 	  
-	  <plugin>
+	  <!--plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-shade-plugin</artifactId>
 		<version>1.2.1</version>
@@ -90,15 +90,12 @@
 					  <exclude>net.java.dev.jna:jna</exclude>
 					</excludes>
 				  </artifactSet>
-			<!--
-              <shadedArtifactAttached>true</shadedArtifactAttached>
-              <shadedClassifierName>OpenCL4Java-with-deps</shadedClassifierName>
-			  -->
+			
             </configuration>
 			
 		  </execution>
 		</executions>
-	  </plugin>
+	  </plugin-->
 	</plugins>
   </build>
 </project>

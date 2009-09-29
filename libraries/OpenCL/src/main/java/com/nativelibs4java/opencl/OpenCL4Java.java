@@ -81,6 +81,9 @@ public class OpenCL4Java {
     public static NativeLong toNL(int i) {
         return new NativeLong(i);
     }
+	public static NativeLong toNL(long i) {
+        return new NativeLong(i);
+    }
 
     static String errorString(int err) {
         if (err == CL_SUCCESS)

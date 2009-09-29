@@ -55,7 +55,8 @@ abstract class Program(context: Context, var dimensions: Dim*)
   private def generateSources : String = {
     var doc = new StringBuilder;
 
-    var dims = unique(content.find[Dim] ++ dimensions).zipWithIndex.map { case (d, i) =>
+    //var dims = unique(content.find[Dim] ++ dimensions).zipWithIndex.map { case (d, i) =>
+	var dims = dimensions.toList.zipWithIndex.map { case (d, i) =>
         d.name = "dim" + (i + 1);
         d.dimIndex = i;
         d
@@ -118,14 +119,14 @@ abstract class Program(context: Context, var dimensions: Dim*)
 				"write_only "
 		  case _ => "__global " + (if (v.mode.write) "" else "const ")
 	  }) +
-      v.typeDesc.globalCType + " " + v.name
+      v.typeDesc.cType + " " + v.name
     )
 
     //doc ++ variables.map(v => "\t//"+ v.name + ": " + v.mode + "\n").implode("")
     doc ++ ("__kernel void function(" + argDefs.implode(", ") + ") {\n");
     doc ++ dims.map(dim => "\tint " + dim.name + " = get_global_id(" + dim.dimIndex + ");\n").implode("")
 	filteredVariables.filter(_.scope == LocalScope).foreach { v =>
-		doc ++ ("\t" + v.typeDesc.globalCType + " " + v.name + ";\n")
+		doc ++ ("\t" + v.typeDesc.cType + " " + v.name + ";\n")
 	}
     doc ++ ("\t" + content.toString + "\n")
     doc ++ "}\n"
