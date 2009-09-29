@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.nativelibs4java.opencl;
+package com.nativelibs4java.util;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -71,9 +71,17 @@ public class CLProgram extends CLEntity<cl_program> {
 		}
 		return ret;
 	}
+
+	/**
+	 * Returns the context of this program
+	 */
     public CLContext getContext() {
         return context;
     }
+
+	/**
+	 * Returns the context of this program
+	 */
     public CLProgram build() throws CLBuildException {
 
         int err = CL.clBuildProgram(get(), 0, null/*context.getDeviceIds()*/, (String) null, null, null);

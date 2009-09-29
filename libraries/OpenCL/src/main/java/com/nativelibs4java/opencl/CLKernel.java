@@ -57,6 +57,8 @@ public class CLKernel extends CLEntity<cl_kernel> {
             setArg(i, (NativeLong) arg);
         } else if (arg instanceof CLMem) {
             setArg(i, (CLMem) arg);
+        } else if (arg instanceof CLSampler) {
+            setArg(i, (CLSampler) arg);
         } else if (arg instanceof Integer) {
             setArg(i, (Integer) arg);
         } else if (arg instanceof Long) {
@@ -105,8 +107,11 @@ public class CLKernel extends CLEntity<cl_kernel> {
     }
 
     public void setArg(int index, CLMem mem) {
-//			new PointerByReference(input.getPointer()).getPointer())
         error(CL.clSetKernelArg(get(), index, toNL(Pointer.SIZE), new PointerByReference(mem.get().getPointer()).getPointer()));
+    }
+
+    public void setArg(int index, CLSampler sampler) {
+        error(CL.clSetKernelArg(get(), index, toNL(Pointer.SIZE), new PointerByReference(sampler.get().getPointer()).getPointer()));
     }
 
     @Override
@@ -114,13 +119,15 @@ public class CLKernel extends CLEntity<cl_kernel> {
         error(CL.clReleaseKernel(get()));
     }
 
+	private static final NativeLong[] oneNL = new NativeLong[] {new NativeLong(1)};
 	public CLEvent enqueueTask(CLQueue queue, CLEvent... eventsToWaitFor) {
-		int[] one = new int[] {1};
-		return enqueueNDRange(queue, one, one, eventsToWaitFor);
+		cl_event[] eventOut = new cl_event[1];
+        error(CL.clEnqueueNDRangeKernel(queue.get(), get(), 1, null, oneNL, oneNL, eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
+		return CLEvent.createEvent(eventOut[0]);
 	}
 
     /// TODO: Get the maximum work-group size with CL.clGetKernelWorkGroupInfo(CL_KERNEL_WORK_GROUP_SIZE)
-    protected CLEvent enqueueNDRange(CLQueue queue, int[] globalSizes, int[] localSizes, CLEvent... eventsToWaitFor) {
+    public CLEvent enqueueNDRange(CLQueue queue, int[] globalSizes, int[] localSizes, CLEvent... eventsToWaitFor) {
         int nDims = globalSizes.length;
         if (localSizes.length != nDims) {
             throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalSizes.length + " vs. " + localSizes.length);
@@ -131,7 +138,7 @@ public class CLKernel extends CLEntity<cl_kernel> {
             localSizesNL[i] = toNL(localSizes[i]);
         }
 		cl_event[] eventOut = new cl_event[1];
-        error(CL.clEnqueueNDRangeKernel(queue.get(), get(), 1, null, globalSizesNL, localSizesNL, eventsToWaitFor.length, eventsToWaitFor.length == 0 ? null : CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
+        error(CL.clEnqueueNDRangeKernel(queue.get(), get(), 1, null, globalSizesNL, localSizesNL, eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
 		return CLEvent.createEvent(eventOut[0]);
     }
 	
@@ -148,7 +155,9 @@ public class CLKernel extends CLEntity<cl_kernel> {
 	 * Return the kernel function name.
 	 */
     public String getFunctionName() {
-		return infos.getString(get(), CL_KERNEL_FUNCTION_NAME);
+		if (name == null)
+			name = infos.getString(get(), CL_KERNEL_FUNCTION_NAME);
+		return name;
     }
 
 	

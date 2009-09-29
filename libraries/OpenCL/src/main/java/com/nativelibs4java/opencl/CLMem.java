@@ -102,24 +102,24 @@ public class CLMem extends CLEntity<cl_mem> {
     }
 
     private Pair<ByteBuffer, CLEvent> map(CLQueue queue, int flags, long offset, long length, boolean waitFor, CLEvent... eventsToWaitFor) {
-		cl_event[] eventOut = waitFor ? new cl_event[1] : null;
+		cl_event[] eventOut = waitFor ? null : new cl_event[1];
 		IntByReference pErr = new IntByReference();
         Pointer p = CL.clEnqueueMapBuffer(queue.get(), get(), waitFor ? CL_TRUE : CL_FALSE, 
 			flags, toNL(offset), toNL(length),
-			eventsToWaitFor.length, eventsToWaitFor.length == 0 ? null : CLEvent.to_cl_event_array(eventsToWaitFor),
-			waitFor ? null : eventOut,
+			eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
+			eventOut,
 			pErr
 		);
 		error(pErr.getValue());
         return new Pair<ByteBuffer, CLEvent>(
 			p.getByteBuffer(0, byteCount),
-			CLEvent.createEvent(eventOut[0])
+			eventOut == null ? null : CLEvent.createEvent(eventOut[0])
 		);
     }
 
     public CLEvent unmap(CLQueue queue, Buffer buffer, CLEvent... eventsToWaitFor) {
         cl_event[] eventOut = new cl_event[1];
-        error(CL.clEnqueueUnmapMemObject(queue.get(), get(), Native.getDirectBufferPointer(buffer), eventsToWaitFor.length, eventsToWaitFor.length == 0 ? null : CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
+        error(CL.clEnqueueUnmapMemObject(queue.get(), get(), Native.getDirectBufferPointer(buffer), eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
 		return CLEvent.createEvent(eventOut[0]);
     }
 

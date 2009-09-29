@@ -5,12 +5,14 @@ import java.io.File;
 import java.util.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
-import static com.nativelibs4java.opencl.TestUtils.*;
+import static com.nativelibs4java.opencl.CLTestUtils.*;
+import static com.nativelibs4java.nio.NIOUtils.*;
+import static com.nativelibs4java.test.BenchmarkUtils.*;
 
 //import com.nativelibs4java.scalacl.*;
 
 /// @see http://ati.amd.com/technology/streamcomputing/intro_opencl.html#simple
-public class OpenCL4JavaBenchmark {
+public class OpenCL4JavaBenchmarkTest {
 
     static final boolean warmup = true;
 
@@ -97,9 +99,9 @@ public class OpenCL4JavaBenchmark {
             memIn2 = kernel.program.context.createInput(dataSize * nativePrim.sizeof());
             memOut = kernel.program.context.createOutput(dataSize * nativePrim.sizeof());
         } else {
-            input1 = OpenCL4Java.directBytes(dataSize * nativePrim.sizeof());
-            input2 = OpenCL4Java.directBytes(dataSize * nativePrim.sizeof());
-            output = OpenCL4Java.directBytes(dataSize * nativePrim.sizeof());
+            input1 = directBytes(dataSize * nativePrim.sizeof());
+            input2 = directBytes(dataSize * nativePrim.sizeof());
+            output = directBytes(dataSize * nativePrim.sizeof());
 
             memIn1 = kernel.program.context.createInput(input1, false);
             memIn2 = kernel.program.context.createInput(input2, false);
@@ -137,7 +139,7 @@ public class OpenCL4JavaBenchmark {
             // Copy the OpenCL-hosted array back to RAM
             output = memOut.blockingMapRead(queue);
             //queue.finish();
-            ByteBuffer b = OpenCL4Java.directBytes(dataSize * nativePrim.sizeof());
+            ByteBuffer b = directBytes(dataSize * nativePrim.sizeof());
             b.put(output);
             output.rewind();
             b.rewind();
@@ -147,14 +149,6 @@ public class OpenCL4JavaBenchmark {
         return new ExecResult(output, time / (loops * (double)dataSize));
     }
 
-    static void gc() {
-        try {
-            System.gc();
-            Thread.sleep(200);
-            System.gc();
-            Thread.sleep(200);
-        } catch (InterruptedException ex) {}
-    }
     static CLKernel setupASinB(Prim nativeType, Target target) throws CLBuildException {
         String src = "\n" +
                 "__kernel aSinB(                                                  \n" +

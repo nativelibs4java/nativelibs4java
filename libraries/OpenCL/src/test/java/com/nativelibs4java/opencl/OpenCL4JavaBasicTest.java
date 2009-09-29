@@ -1,12 +1,25 @@
 package com.nativelibs4java.opencl;
 
+import com.nativelibs4java.opencl.*;
+
+import java.lang.reflect.*;
+import java.util.EnumSet;
+import java.util.logging.*;
+import org.junit.*;
+import static org.junit.Assert.*;
+import static com.nativelibs4java.test.TestUtils.*;
 import java.nio.*;
 import java.util.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.nio.NIOUtils.*;
 
-public class OpenCL4JavaExample {
+public class OpenCL4JavaBasicTest {
 
-    public static void main(String[] args) {
+	public static final double ABSOLUTE_FLOAT_ERROR_TOLERANCE = 1e-4;
+	public static final double RELATIVE_FLOAT_ERROR_TOLERANCE = 1e-8;
+
+	@Test
+    public void simpleTest() {
         try {
             CLPlatform[] platforms = listPlatforms();
             CLPlatform platform = platforms[0];
@@ -68,7 +81,7 @@ public class OpenCL4JavaExample {
             queue.finish();
 
             // Copy the OpenCL-hosted array back to RAM
-            FloatBuffer output = OpenCL4Java.directFloats(dataSize);
+            FloatBuffer output = directFloats(dataSize);
             memOut.read(output, queue, true);
 
             // Compute absolute and relative average errors wrt Java implem
@@ -88,6 +101,9 @@ public class OpenCL4JavaExample {
             double avgRelativeError = totalRelativeError / dataSize;
             System.out.println("Average absolute error = " + avgAbsoluteError);
             System.out.println("Average relative error = " + avgRelativeError);
+
+			assertEquals("Bad relative error", 0, avgRelativeError, RELATIVE_FLOAT_ERROR_TOLERANCE);
+			assertEquals("Bad absolute error", 0, avgAbsoluteError, ABSOLUTE_FLOAT_ERROR_TOLERANCE);
 
         } catch (Exception ex) {
             ex.printStackTrace();

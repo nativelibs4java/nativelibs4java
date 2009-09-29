@@ -21,9 +21,9 @@ object Context {
   private var cpu: Option[Context] = None
   private var best: Option[Context] = None
 
-  def platform = CLPlatform.listPlatforms()(0)
-  def GPU : Context = gpu.getOrElse { gpu = newContext(platform.listGPUDevices); gpu.get }
-  def CPU : Context = cpu.getOrElse { cpu = newContext(platform.listCPUDevices); cpu.get }
+  def platform = OpenCL4Java.listPlatforms()(0)
+  def GPU : Context = gpu.getOrElse { gpu = newContext(platform.listGPUDevices(true)); gpu.get }
+  def CPU : Context = cpu.getOrElse { cpu = newContext(platform.listCPUDevices(true)); cpu.get }
   def BEST = best.getOrElse { best = Some(try { GPU } catch { case _ => CPU }); best.get }
 }
 

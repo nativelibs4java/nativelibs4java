@@ -4,6 +4,8 @@
  */
 
 package com.nativelibs4java.opencl;
+import com.nativelibs4java.opencl.CLSampler.CLAddressingMode;
+import com.nativelibs4java.opencl.CLSampler.CLFilterMode;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
@@ -36,6 +38,14 @@ public class CLContext extends CLEntity<cl_context> {
     public CLQueue createDefaultQueue() {
         return new CLDevice(deviceIds[0]).createQueue(this);
     }
+
+
+	public CLSampler createSampler(boolean normalized_coords, CLAddressingMode addressing_mode, CLFilterMode filter_mode) {
+		IntByReference pErr = new IntByReference();
+		cl_sampler sampler = CL.clCreateSampler(get(), normalized_coords ? CL_TRUE : CL_FALSE, (int)addressing_mode.getValue(), (int)filter_mode.getValue(), pErr);
+		error(pErr.getValue());
+		return new CLSampler(sampler);
+	}
 
 	/**
 	 * Lists the devices of this context

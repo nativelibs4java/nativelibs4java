@@ -3,6 +3,8 @@
 */
 
 package com.nativelibs4java.opencl;
+import com.nativelibs4java.util.EnumValue;
+import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;

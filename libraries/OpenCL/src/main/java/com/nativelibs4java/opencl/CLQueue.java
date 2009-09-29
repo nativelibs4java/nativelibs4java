@@ -39,12 +39,26 @@ public class CLQueue extends CLEntity<cl_command_queue> {
     }
 
     /**
-	 * Wait for the queue to be fully executed. Costly.
+	 * Blocks until all previously queued OpenCL commands in this queue are issued to the associated device and have completed. <br/>
+	 * finish() does not return until all queued commands in this queue have been processed and completed. <br/>
+	 * finish() is also a synchronization point.
 	 */
     public void finish() {
         error(CL.clFinish(get()));
     }
 
+    /**
+	 * Issues all previously queued OpenCL commands in this queue to the device associated with this queue. <br/>
+	 * flush() only guarantees that all queued commands in this queue get issued to the appropriate device. <br/>
+	 * There is no guarantee that they will be complete after flush() returns.
+	 */
+    public void flush() {
+        error(CL.clFlush(get()));
+    }
+
+	/**
+	 * Enqueues a wait for a specific event or a list of events to complete before any future commands queued in the this queue are executed.
+	 */
 	public void enqueueWaitForEvents(CLEvent... events) {
         error(CL.clEnqueueWaitForEvents(get(), events.length, CLEvent.to_cl_event_array(events)));
 	}

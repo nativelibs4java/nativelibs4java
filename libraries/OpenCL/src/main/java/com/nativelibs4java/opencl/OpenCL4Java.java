@@ -46,29 +46,14 @@ public class OpenCL4Java {
         return platforms;
     }
 
-    public static IntBuffer directInts(int size) {
-        return ByteBuffer.allocateDirect(size * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
-    }
-
-    public static LongBuffer directLongs(int size) {
-        return ByteBuffer.allocateDirect(size * 8).order(ByteOrder.nativeOrder()).asLongBuffer();
-    }
-
-    public static ShortBuffer directShorts(int size) {
-        return ByteBuffer.allocateDirect(size * 2).order(ByteOrder.nativeOrder()).asShortBuffer();
-    }
-
-    public static ByteBuffer directBytes(int size) {
-        return ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());
-    }
-
-    public static FloatBuffer directFloats(int size) {
-        return ByteBuffer.allocateDirect(size * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-    }
-
-    public static DoubleBuffer directDoubles(int size) {
-        return ByteBuffer.allocateDirect(size * 8).order(ByteOrder.nativeOrder()).asDoubleBuffer();
-    }
+	/**
+	 * Allows the implementation to release the resources allocated by the OpenCL compiler. <br/>
+	 * This is a hint from the application and does not guarantee that the compiler will not be used in the future or that the compiler will actually be unloaded by the implementation. <br/>
+	 * Calls to Program.build() after unloadCompiler() will reload the compiler, if necessary, to build the appropriate program executable.
+	 */
+	public static void unloadCompiler() {
+		error(CL.clUnloadCompiler());
+	}
 
     @SuppressWarnings("serial")
     public static class CLBuildException extends Exception {

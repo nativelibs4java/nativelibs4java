@@ -6,17 +6,12 @@ package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.opencl.CLDevice.CLCacheType;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.EnumSet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import java.util.logging.*;
+import org.junit.*;
 import static org.junit.Assert.*;
-import static com.nativelibs4java.opencl.CLTestUtils.*;
+import static com.nativelibs4java.test.TestUtils.*;
 
 /**
  *
@@ -35,11 +30,11 @@ public class InfoGettersTest {
 	}
 
 	CLPlatform createPlatform() {
-		return CLPlatform.listPlatforms()[0];
+		return OpenCL4Java.listPlatforms()[0];
 	}
 
 	CLDevice createDevice() {
-		return createPlatform().listAllDevices()[0];
+		return createPlatform().listAllDevices(true)[0];
 	}
 
 	CLContext createContext() {
@@ -50,6 +45,14 @@ public class InfoGettersTest {
 		return createProgram().createKernels()[0];
 	}
 
+	CLEvent createEvent() {
+		CLContext c = createContext();
+		return c.createInput(10).enqueueMapRead(c.createDefaultQueue()).getSecond();
+	}
+	CLSampler createSampler() {
+		return createContext().createSampler(true, CLSampler.CLAddressingMode.ClampToEdge, CLSampler.CLFilterMode.Linear);
+	}
+	
 	CLQueue createQueue() {
 		CLContext c = createContext();
 		CLDevice d = c.getDevices()[0];
@@ -79,21 +82,27 @@ public class InfoGettersTest {
 
 	@org.junit.Test
 	public void CLDeviceGetters() {
-		testGetters(CLPlatform.listPlatforms()[0].listAllDevices()[0]);
+		testGetters(createDevice());
 	}
 
 	@org.junit.Test
 	public void CLPlatformGetters() {
-		testGetters(CLPlatform.listPlatforms()[0]);
+		testGetters(createPlatform());
 	}
 
 	@org.junit.Test
 	public void CLContextGetters() {
-		testGetters(CLContext.createContext(CLPlatform.listPlatforms()[0].listAllDevices()));
+		testGetters(createContext());
 	}
 
 	@org.junit.Test
 	public void CLEventGetters() {
-		//testGetters(CLEvent.listPlatforms()[0].listAllDevices()[0]);
+		testGetters(createEvent());
+	}
+
+
+	@org.junit.Test
+	public void CLSamplerGetters() {
+		testGetters(createSampler());
 	}
 }
