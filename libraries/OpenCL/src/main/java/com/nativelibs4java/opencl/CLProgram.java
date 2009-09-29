@@ -11,6 +11,7 @@ import com.sun.jna.ptr.*;
 import java.util.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.CLException.*;
 
 /**
  * OpenCL program.<br/>
@@ -94,7 +95,7 @@ public class CLProgram extends CLEntity<cl_program> {
 
     @Override
     protected void clear() {
-        CL.clReleaseProgram(get());
+        error(CL.clReleaseProgram(get()));
     }
 
 	public CLKernel[] createKernels() {

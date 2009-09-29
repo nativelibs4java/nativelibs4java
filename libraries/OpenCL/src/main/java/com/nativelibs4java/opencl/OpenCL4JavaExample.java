@@ -8,10 +8,10 @@ public class OpenCL4JavaExample {
 
     public static void main(String[] args) {
         try {
-            CLPlatform[] platforms = CLPlatform.listPlatforms();
+            CLPlatform[] platforms = listPlatforms();
             CLPlatform platform = platforms[0];
             System.out.println("Using platform " + platform);
-            CLDevice[] devices = platform.listAllDevices();
+            CLDevice[] devices = platform.listAllDevices(true);
             System.out.println("Using devices " + Arrays.asList(devices));
             //CLDevice[] devices = CLDevice.listCPUDevices();
             //CLDevice[] devices = CLDevice.listGPUDevices();
@@ -47,8 +47,8 @@ public class OpenCL4JavaExample {
             kernel.setArgs(memIn1, memIn2, memOut);
 
             /// Map input buffers to populate them with some data
-            FloatBuffer a = memIn1.mapWrite(queue).asFloatBuffer();
-            FloatBuffer b = memIn2.mapWrite(queue).asFloatBuffer();
+            FloatBuffer a = memIn1.blockingMapWrite(queue).asFloatBuffer();
+            FloatBuffer b = memIn2.blockingMapWrite(queue).asFloatBuffer();
 
             // Fill the mapped input buffers with data
             for (int i = 0; i < dataSize; i++) {

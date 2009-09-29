@@ -9,6 +9,7 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.CLException.*;
 
 /**
  * OpenCL command queue.<br/>
@@ -43,4 +44,10 @@ public class CLQueue extends CLEntity<cl_command_queue> {
     public void finish() {
         error(CL.clFinish(get()));
     }
+
+	public void enqueueWaitForEvents(CLEvent... events) {
+        error(CL.clEnqueueWaitForEvents(get(), events.length, CLEvent.to_cl_event_array(events)));
+	}
+
+	
 }

@@ -5,11 +5,13 @@
 
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.CLException.*;
 
 /**
  * OpenCL memory object.<br/>
@@ -41,30 +43,89 @@ public class CLMem extends CLEntity<cl_mem> {
         return byteCount;
     }
 
-    public ByteBuffer mapReadWrite(CLQueue queue) {
-        return map(queue, CL_MAP_READ | CL_MAP_WRITE);
+	private void checkBounds(long offset, long length) {
+		if (offset + length > byteCount)
+			throw new IndexOutOfBoundsException("Trying to map a region of memory object outside allocated range");
+	}
+	public ByteBuffer blockingMapReadWrite(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
+		checkBounds(offset, length);
+		return map(queue, CL_MAP_READ | CL_MAP_WRITE, offset, length, true, eventsToWaitFor).getFirst();
     }
 
-    public ByteBuffer mapWrite(CLQueue queue) {
-        return map(queue, CL_MAP_WRITE);
+    public ByteBuffer blockingMapWrite(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
+        checkBounds(offset, length);
+		return map(queue, CL_MAP_WRITE, offset, length, true, eventsToWaitFor).getFirst();
     }
 
-    public ByteBuffer mapRead(CLQueue queue) {
-        return map(queue, CL_MAP_READ);
+    public ByteBuffer blockingMapRead(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
+        checkBounds(offset, length);
+		return map(queue, CL_MAP_READ, offset, length, true, eventsToWaitFor).getFirst();
     }
 
-    private ByteBuffer map(CLQueue queue, int flags) {
-        Pointer p = CL.clEnqueueMapBuffer(queue.get(), get(), CL_TRUE, flags, toNL(0), toNL(byteCount), 0, (PointerByReference) null, null, (IntByReference) null);
-        return p.getByteBuffer(0, byteCount);
+	public Pair<ByteBuffer, CLEvent> enqueueMapReadWrite(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
+        checkBounds(offset, length);
+		return map(queue, CL_MAP_READ | CL_MAP_WRITE, offset, length, false, eventsToWaitFor);
     }
 
-    public void unmap(CLQueue queue, Buffer buffer) {
-        error(CL.clEnqueueUnmapMemObject(queue.get(), get(), Native.getDirectBufferPointer(buffer), 0, (PointerByReference) null, null));
+    public Pair<ByteBuffer, CLEvent> enqueueMapWrite(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
+        checkBounds(offset, length);
+		return map(queue, CL_MAP_WRITE, offset, length, false, eventsToWaitFor);
+    }
+
+    public Pair<ByteBuffer, CLEvent> enqueueMapRead(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
+        checkBounds(offset, length);
+		return map(queue, CL_MAP_READ, offset, length, false, eventsToWaitFor);
+    }
+
+    public ByteBuffer blockingMapReadWrite(CLQueue queue, CLEvent... eventsToWaitFor) {
+		return blockingMapReadWrite(queue, 0, byteCount, eventsToWaitFor);
+    }
+
+    public ByteBuffer blockingMapWrite(CLQueue queue, CLEvent... eventsToWaitFor) {
+		return blockingMapWrite(queue, 0, byteCount, eventsToWaitFor);
+    }
+
+    public ByteBuffer blockingMapRead(CLQueue queue, CLEvent... eventsToWaitFor) {
+		return blockingMapRead(queue, 0, byteCount, eventsToWaitFor);
+    }
+
+	public Pair<ByteBuffer, CLEvent> enqueueMapReadWrite(CLQueue queue, CLEvent... eventsToWaitFor) {
+		return enqueueMapReadWrite(queue, 0, byteCount, eventsToWaitFor);
+    }
+
+    public Pair<ByteBuffer, CLEvent> enqueueMapWrite(CLQueue queue, CLEvent... eventsToWaitFor) {
+        return enqueueMapWrite(queue, 0, byteCount, eventsToWaitFor);
+    }
+
+    public Pair<ByteBuffer, CLEvent> enqueueMapRead(CLQueue queue, CLEvent... eventsToWaitFor) {
+        return enqueueMapRead(queue, 0, byteCount, eventsToWaitFor);
+    }
+
+    private Pair<ByteBuffer, CLEvent> map(CLQueue queue, int flags, long offset, long length, boolean waitFor, CLEvent... eventsToWaitFor) {
+		cl_event[] eventOut = waitFor ? new cl_event[1] : null;
+		IntByReference pErr = new IntByReference();
+        Pointer p = CL.clEnqueueMapBuffer(queue.get(), get(), waitFor ? CL_TRUE : CL_FALSE, 
+			flags, toNL(offset), toNL(length),
+			eventsToWaitFor.length, eventsToWaitFor.length == 0 ? null : CLEvent.to_cl_event_array(eventsToWaitFor),
+			waitFor ? null : eventOut,
+			pErr
+		);
+		error(pErr.getValue());
+        return new Pair<ByteBuffer, CLEvent>(
+			p.getByteBuffer(0, byteCount),
+			CLEvent.createEvent(eventOut[0])
+		);
+    }
+
+    public CLEvent unmap(CLQueue queue, Buffer buffer, CLEvent... eventsToWaitFor) {
+        cl_event[] eventOut = new cl_event[1];
+        error(CL.clEnqueueUnmapMemObject(queue.get(), get(), Native.getDirectBufferPointer(buffer), eventsToWaitFor.length, eventsToWaitFor.length == 0 ? null : CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
+		return CLEvent.createEvent(eventOut[0]);
     }
 
     @Override
     protected void clear() {
-        CL.clReleaseMemObject(get());
+        error(CL.clReleaseMemObject(get()));
     }
 
     @SuppressWarnings("deprecation")
@@ -83,7 +144,7 @@ public class CLMem extends CLEntity<cl_mem> {
                     (PointerByReference) null//pevt
                     ));
         } else {
-            ByteBuffer b = mapRead(queue);
+            ByteBuffer b = blockingMapRead(queue);
             try {
                 //out.mark();
                 if (out instanceof IntBuffer)
@@ -123,7 +184,7 @@ public class CLMem extends CLEntity<cl_mem> {
                     (PointerByReference) null//pevt
                     ));
         } else {
-            ByteBuffer b = mapRead(queue);
+            ByteBuffer b = blockingMapRead(queue);
             try {
                 //out.mark();
                 if (in instanceof IntBuffer)

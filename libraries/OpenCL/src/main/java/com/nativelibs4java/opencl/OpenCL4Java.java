@@ -14,15 +14,37 @@ import com.sun.jna.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import com.sun.jna.ptr.*;
+import static com.nativelibs4java.opencl.CLException.*;
 
 /**
- * Object-oriented wrappers around most common OpenCL structures and operations
- * @see https://developer.apple.com/mac/library/documentation/Performance/Conceptual/OpenCL_MacProgGuide/TheOpenCLWorkflow/TheOpenCLWorkflow.html
+ * Entry point class for the OpenCL4Java Object-oriented wrappers around the OpenCL API.<br/>
  * @author Olivier Chafik
  */
 public class OpenCL4Java {
 
-    public static final OpenCLLibrary CL = OpenCLLibrary.INSTANCE;
+    static final OpenCLLibrary CL = OpenCLLibrary.INSTANCE;
+
+	/**
+	 * Lists all available OpenCL implementations.
+	 */
+    public static CLPlatform[] listPlatforms() {
+        IntByReference pCount = new IntByReference();
+        error(CL.clGetPlatformIDs(0, (cl_platform_id[])null, pCount));
+
+        int nPlats = pCount.getValue();
+        if (nPlats == 0)
+            return new CLPlatform[0];
+
+        cl_platform_id[] ids = new cl_platform_id[nPlats];
+
+        error(CL.clGetPlatformIDs(nPlats, ids, null));
+        CLPlatform[] platforms = new CLPlatform[nPlats];
+
+        for (int i = 0; i < nPlats; i++) {
+            platforms[i] = new CLPlatform(ids[i]);
+        }
+        return platforms;
+    }
 
     public static IntBuffer directInts(int size) {
         return ByteBuffer.allocateDirect(size * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
@@ -83,36 +105,5 @@ public class OpenCL4Java {
     }
 	public static NativeLong toNL(long i) {
         return new NativeLong(i);
-    }
-
-    static String errorString(int err) {
-        if (err == CL_SUCCESS)
-            return null;
-        
-        List<String> candidates = new ArrayList<String>();
-        for (Field f : OpenCLLibrary.class.getDeclaredFields()) {
-            if (!Modifier.isStatic(f.getModifiers())) {
-                continue;
-            }
-            if (f.getType().equals(Integer.TYPE)) {
-                try {
-                    int i = (Integer) f.get(null);
-                    if (i == err) {
-                        candidates.add(f.getName());
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return StringUtils.implode(candidates, " or ");
-    }
-    
-    static void error(int err) {
-        String str = errorString(err);
-        if (str == null)
-            return;
-        
-        throw new CLException("OpenCL Error : " + str, err);
     }
 }

@@ -8,7 +8,10 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
+import java.util.ArrayList;
+import java.util.List;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.CLException.*;
 
 /**
  * OpenCL implementation entry point.
@@ -20,7 +23,7 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
         super(platform);
     }
 
-	static CLInfoGetter<cl_platform_id> infos = new CLInfoGetter<cl_platform_id>() {
+	private static CLInfoGetter<cl_platform_id> infos = new CLInfoGetter<cl_platform_id>() {
 		@Override
 		protected int getInfo(cl_platform_id entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
 			return CL.clGetPlatformInfo(entity, infoTypeEnum, size, out, sizeOut);
@@ -47,33 +50,23 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
 
         return buffer.getString(0);
     }
-    public static CLPlatform[] listPlatforms() {
-        IntByReference pCount = new IntByReference();
-        error(CL.clGetPlatformIDs(0, (cl_platform_id[])null, pCount));
 
-        int nPlats = pCount.getValue();
-        if (nPlats == 0)
-            return new CLPlatform[0];
 
-        cl_platform_id[] ids = new cl_platform_id[nPlats];
-
-        error(CL.clGetPlatformIDs(nPlats, ids, null));
-        CLPlatform[] platforms = new CLPlatform[nPlats];
-
-        for (int i = 0; i < nPlats; i++) {
-            platforms[i] = new CLPlatform(ids[i]);
-        }
-        return platforms;
+	/**
+	 * Lists all the devices of the platform
+	 * @param onlyAvailable if true, only returns devices that are available
+	 */
+    public CLDevice[] listAllDevices(boolean onlyAvailable) {
+            return listDevices(true, true, onlyAvailable);
     }
 
-
-    public CLDevice[] listAllDevices() {
-            return listDevices(true, true);
-    }
-
-    public CLDevice[] listGPUDevices() {
+    /**
+	 * Lists all the GPU devices of the platform
+	 * @param onlyAvailable if true, only returns GPU devices that are available
+	 */
+    public CLDevice[] listGPUDevices(boolean onlyAvailable) {
             try {
-                    return listDevices(true, false);
+                    return listDevices(true, false, onlyAvailable);
             } catch (CLException ex) {
             if (ex.getCode() == CL_DEVICE_NOT_FOUND)
                 return new CLDevice[0];
@@ -81,9 +74,13 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
         }
     }
 
-    public CLDevice[] listCPUDevices() {
+    /**
+	 * Lists all the CPU devices of the platform
+	 * @param onlyAvailable if true, only returns CPU devices that are available
+	 */
+    public CLDevice[] listCPUDevices(boolean onlyAvailable) {
         try {
-            return listDevices(false, true);
+            return listDevices(false, true, onlyAvailable);
         } catch (CLException ex) {
             if (ex.getCode() == CL_DEVICE_NOT_FOUND)
                 return new CLDevice[0];
@@ -92,17 +89,11 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
     }
 
     @SuppressWarnings("deprecation")
-    protected CLDevice[] listDevices(boolean gpu, boolean cpu) {
+    private CLDevice[] listDevices(boolean gpu, boolean cpu, boolean onlyAvailable) {
         int flags = (gpu ? CL_DEVICE_TYPE_GPU : 0) | (cpu ? CL_DEVICE_TYPE_CPU : 0);
 
         IntByReference pCount = new IntByReference();
-        error(CL.clGetDeviceIDs(
-            get(),
-            flags,
-            0,
-            (PointerByReference) null,
-            pCount
-        ));
+        error(CL.clGetDeviceIDs(get(), flags, 0, (PointerByReference) null, pCount ));
 
         int nDevs = pCount.getValue();
         if (nDevs == 0)
@@ -111,11 +102,20 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
         cl_device_id[] ids = new cl_device_id[nDevs];
 
         error(CL.clGetDeviceIDs(get(), flags, nDevs, ids, pCount));
-        CLDevice[] devices = new CLDevice[nDevs];
-
-        for (int i = 0; i < nDevs; i++) {
-            devices[i] = new CLDevice(ids[i]);
-        }
+		CLDevice[] devices;
+		if (onlyAvailable) {
+			List<CLDevice> list = new ArrayList<CLDevice>(nDevs);
+			for (int i = 0; i < nDevs; i++) {
+				CLDevice device = new CLDevice(ids[i]);
+				if (device.isAvailable())
+					list.add(device);
+			}
+			devices = list.toArray(new CLDevice[list.size()]);
+		} else {
+			devices = new CLDevice[nDevs];
+			for (int i = 0; i < nDevs; i++)
+				devices[i] = new CLDevice(ids[i]);
+		}
         return devices;
     }
 

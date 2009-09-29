@@ -15,19 +15,15 @@ abstract class CLEntity<T extends PointerType> {
 
     private T entity;
 
-    public CLEntity(T entity) {
+    CLEntity(T entity) {
         if (entity == null) {
             throw new IllegalArgumentException("Null OpenCL " + getClass().getSimpleName() + " !");
         }
         this.entity = entity;
     }
 
-    public T get() {
+    T get() {
         return entity;
-    }
-
-    public Pointer getPointer() {
-        return entity.getPointer();
     }
 
     @Override

@@ -72,14 +72,14 @@ public class TestUtils {
     }
     
     public static CLDevice[] getDevices(Target target) {
-        CLPlatform platform = CLPlatform.listPlatforms()[0];
+        CLPlatform platform = listPlatforms()[0];
         switch (target) {
             case CPU:
-                return platform.listCPUDevices();
+                return platform.listCPUDevices(true);
             case GPU:
-                return platform.listGPUDevices();
+                return platform.listGPUDevices(true);
             case CPU_GPU:
-                return platform.listAllDevices();
+                return platform.listAllDevices(true);
             default:
                 throw new IllegalArgumentException("Unknown target : " + target);
         }

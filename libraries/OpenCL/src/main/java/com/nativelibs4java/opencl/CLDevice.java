@@ -10,14 +10,14 @@ import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import java.util.*;
+import static com.nativelibs4java.opencl.CLException.*;
 
 /**
  * OpenCL device (CPU, GPU...).<br/>
  * Devices are retrieved from a CLPlatform (@see CLPlatform.listAllDevices())
  */
-public class CLDevice {
+public class CLDevice extends CLEntity<cl_device_id> {
 
-    final cl_device_id device;
 	static CLInfoGetter<cl_device_id> infos = new CLInfoGetter<cl_device_id>() {
 		@Override
 		protected int getInfo(cl_device_id entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
@@ -26,8 +26,11 @@ public class CLDevice {
 	};
 
     CLDevice(cl_device_id device) {
-        this.device = device;
+		super(device);
     }
+
+	@Override
+	protected void clear() {}
 
 	/** Bit values for CL_DEVICE_EXECUTION_CAPABILITIES */
 	public enum CLExecutionCapability {
@@ -38,6 +41,7 @@ public class CLDevice {
 		public static long getValue(EnumSet<CLExecutionCapability> set) { return EnumValues.getValue(set); }
 		public static EnumSet<CLExecutionCapability> getEnumSet(long v) { return EnumValues.getEnumSet(v, CLExecutionCapability.class); }
 	}
+
 	/**
 	 * CL_DEVICE_EXECUTION_CAPABILITIES<br/>
 	 * Describes the execution capabilities of the device.<br/>
@@ -58,6 +62,7 @@ public class CLDevice {
 		public static long getValue(EnumSet<CLDeviceType> set) { return EnumValues.getValue(set); }
 		public static EnumSet<CLDeviceType> getEnumSet(long v) { return EnumValues.getEnumSet(v, CLDeviceType.class); }
 	}
+
 	/**
 	 * CL_DEVICE_TYPE<br/>
 	 * The OpenCL device type.
@@ -160,21 +165,18 @@ public class CLDevice {
         return getName() + "{capabilities: " + getExecutionCapabilities() + ", singleFPConfig: " + getSingleFPConfig() + "}";
     }
 
+	/**
+	 * Create an OpenCL execution queue on this device for the specified context.
+	 * @param context context of the queue to create
+	 * @return new OpenCL queue object
+	 */
     @SuppressWarnings("deprecation")
     public CLQueue createQueue(CLContext context) {
-        IntByReference errRef = new IntByReference();
-        cl_command_queue queue = CL.clCreateCommandQueue(
-                context.get(),
-                device,
-                0,
-                errRef);
-        error(errRef.getValue());
+        IntByReference pErr = new IntByReference();
+        cl_command_queue queue = CL.clCreateCommandQueue(context.get(), get(), 0, pErr);
+        error(pErr.getValue());
 
         return new CLQueue(context, queue);
-    }
-
-    cl_device_id get() {
-        return device;
     }
 
 	/**

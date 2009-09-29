@@ -7,6 +7,7 @@ package com.nativelibs4java.opencl;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.junit.Assert.*;
@@ -19,6 +20,8 @@ public class CLTestUtils {
 	public static void testGetters(Object instance) {
 		for (Method m : instance.getClass().getDeclaredMethods()) {
 			if (m.getParameterTypes().length > 0)
+				continue;
+			if (Modifier.isStatic(m.getModifiers()))
 				continue;
 			String name = m.getName();
 			if (name.startsWith("get") && name.length() > 3 ||

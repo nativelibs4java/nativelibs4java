@@ -114,8 +114,8 @@ public class OpenCL4JavaBenchmark {
         }
 
         if (hostInOpenCL) {
-            input1 = memIn1.mapWrite(queue);
-            input2 = memIn2.mapWrite(queue);
+            input1 = memIn1.blockingMapWrite(queue);
+            input2 = memIn2.blockingMapWrite(queue);
         }
         fillBuffersWithSomeData.call(input1, input2);
         if (hostInOpenCL) {
@@ -135,7 +135,7 @@ public class OpenCL4JavaBenchmark {
         //System.out.println("OpenCL operations(" + target + ") : " + time + "ns");
         if (hostInOpenCL) {
             // Copy the OpenCL-hosted array back to RAM
-            output = memOut.mapRead(queue);
+            output = memOut.blockingMapRead(queue);
             //queue.finish();
             ByteBuffer b = OpenCL4Java.directBytes(dataSize * nativePrim.sizeof());
             b.put(output);
@@ -214,12 +214,12 @@ public class OpenCL4JavaBenchmark {
         if (f.exists())
             System.setProperty("OpenCL.library", f.toString());
         try {
-            System.out.println("Found platforms : " + Arrays.asList(CLPlatform.listPlatforms()));
+            System.out.println("Found platforms : " + Arrays.asList(OpenCL4Java.listPlatforms()));
             int loops = 10;
             int dataSize = 1000000;
-            CLPlatform platform = CLPlatform.listPlatforms()[0];
+            CLPlatform platform = OpenCL4Java.listPlatforms()[0];
 
-            Target target = platform.listGPUDevices().length == 0 ? Target.CPU : Target.GPU;
+            Target target = platform.listGPUDevices(false).length == 0 ? Target.CPU : Target.GPU;
             if (true) {
                 System.out.println("[Double Operations]");
                 ExecResult<DoubleBuffer> nsByJavaOp = testJava_double_aSinB(loops, dataSize);

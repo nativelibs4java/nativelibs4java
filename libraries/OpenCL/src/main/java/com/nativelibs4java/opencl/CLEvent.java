@@ -4,7 +4,9 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
+import java.util.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.CLException.*;
 
 /**
  * OpenCL event object.<br/>
@@ -30,13 +32,63 @@ public class CLEvent extends CLEntity<cl_event> {
 		}
 	};
 	
-	CLEvent(cl_event evt) {
+	private CLEvent(cl_event evt) {
 		super(evt);
 	}
-	
+
+	static CLEvent createEvent(cl_event evt) {
+		if (evt == null)
+			return null;
+		return new CLEvent(evt);
+	}
+
+
+	/**
+	 * Wait for events, blocking the caller thread independently of any queue until all of the events completed.
+	 * @param eventsToWaitFor List of events which completion is to be waited for
+	 */
+	public void waitFor(CLEvent... eventsToWaitFor) {
+		if (eventsToWaitFor.length == 0)
+			return;
+		
+		try {
+			error(CL.clWaitForEvents(eventsToWaitFor.length, to_cl_event_array(eventsToWaitFor)));
+		} catch (Exception ex) {
+			throw new RuntimeException("Exception while waiting for events " + Arrays.asList(eventsToWaitFor), ex);
+		}
+	}
+
+	/**
+	 * Invoke an action in a separate thread only after completion of all of the commands of the specified events.<br/>
+	 * Returns immediately.
+	 * @param action an action to be ran
+	 * @param eventsToWaitFor list of events which commands's completion should be waited for before the action is ran
+	 * @throws IllegalArgumentException if action is null
+	 */
+	public void invokeLater(final Runnable action, final CLEvent... eventsToWaitFor) {
+		if (action == null)
+			throw new IllegalArgumentException("Null action !");
+
+		new Thread() {
+			public void run() {
+				waitFor(eventsToWaitFor);
+				action.run();
+			}
+		}.start();
+	}
+
+	static cl_event[] to_cl_event_array(CLEvent... events) {
+		if (events.length == 0)
+			return null;
+		cl_event[] event_wait_list = new cl_event[events.length];
+		for (int i = events.length; i-- != 0;)
+			event_wait_list[i] = events[i] == null ? null : events[i].get();
+		return event_wait_list;
+		
+	}
 	@Override
 	protected void clear() {
-		CL.clReleaseEvent(get());
+		error(CL.clReleaseEvent(get()));
 	}
 
 	/** Values for CL_EVENT_COMMAND_EXECUTION_STATUS */
@@ -53,6 +105,7 @@ public class CLEvent extends CLEntity<cl_event> {
 		public long getValue() { return EnumValues.getValue(this); }
 		public static CLCommandExecutionStatus getEnum(long v) { return EnumValues.getEnum(v, CLCommandExecutionStatus.class); }
 	}
+	
 	/**
 	 * Return the execution status of the command identified by event.  <br/>
 	 * @throws CLException is the execution status denotes an error
@@ -88,6 +141,7 @@ public class CLEvent extends CLEntity<cl_event> {
 		public long getValue() { return EnumValues.getValue(this); }
 		public static CLCommand getEnum(long v) { return EnumValues.getEnum(v, CLCommand.class); }
 	}
+
 	/**
 	 * Return the command associated with event.
 	 */
@@ -95,6 +149,7 @@ public class CLEvent extends CLEntity<cl_event> {
 		return CLCommand.getEnum(infos.getNativeLong(get(), CL_EVENT_COMMAND_TYPE));
 	}
 
+	@Override
 	public String toString() {
 		return "Event {commandType: " + getCommandType() + "}";
 	}

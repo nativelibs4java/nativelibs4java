@@ -10,6 +10,8 @@ import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.CLException.*;
+
 
 /**
  * OpenCL context.<br/>
@@ -21,15 +23,24 @@ public class CLContext extends CLEntity<cl_context> {
 
     protected final cl_device_id[] deviceIds;
 
-    protected CLContext(cl_device_id[] deviceIds, cl_context context) {
+    CLContext(cl_device_id[] deviceIds, cl_context context) {
         super(context);
         this.deviceIds = deviceIds;
     }
 
+	/**
+	 * Create an OpenCL queue on the first device of this context.<br/>
+	 * Equivalent to calling <code>getDevices()[0].createQueue(context)</code>
+	 * @return new OpenCL queue
+	 */
     public CLQueue createDefaultQueue() {
         return new CLDevice(deviceIds[0]).createQueue(this);
     }
 
+	/**
+	 * Lists the devices of this context
+	 * @return array of the devices that form this context
+	 */
 	public CLDevice[] getDevices() {
 		CLDevice[] devices = new CLDevice[deviceIds.length];
 		for (int i = devices.length; i-- != 0;)
@@ -56,6 +67,13 @@ public class CLContext extends CLEntity<cl_context> {
         return new CLProgram(this, program);
     }
 
+	/**
+	 * Creates an OpenCL context formed of the provided devices.<br/>
+	 * It is generally not a good idea to create a context with more than one device,
+	 * because much data is shared between all the devices in the same context.
+	 * @param devices devices that are to form the new context
+	 * @return new OpenCL context
+	 */
     public static CLContext createContext(CLDevice... devices) {
         int nDevs = devices.length;
         cl_device_id[] ids = new cl_device_id[nDevs];
@@ -72,35 +90,77 @@ public class CLContext extends CLEntity<cl_context> {
     //cl_queue queue;
     @Override
     protected void clear() {
-        CL.clReleaseContext(get());
+        error(CL.clReleaseContext(get()));
     }
 
+	/**
+	 * Create an input memory buffer based on existing data.<br/>
+	 * If copy is true, the memory buffer created is a copy of the provided buffer. <br/>
+	 * If copy is false, the memory buffer uses directly the provided buffer.<br/>
+	 * Note that in the latter case, it is still necessary to enqueue map operations (due to cache mechanisms).
+	 * @param buffer
+	 * @param copy if true, the memory buffer created is a copy of the provided buffer. if false, the memory buffer uses directly the provided buffer.
+	 * @return
+	 */
     public CLMem createInput(Buffer buffer, boolean copy) {
         return createMem(buffer, -1, CL_MEM_READ_ONLY | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), true);
     }
 
+    /**
+	 * Create an output memory buffer based on existing data.<br/>
+	 * If copy is true, the memory buffer created is a copy of the provided buffer. <br/>
+	 * If copy is false, the memory buffer uses directly the provided buffer.<br/>
+	 * Note that in the latter case, it is still necessary to enqueue map operations (due to cache mechanisms).
+	 * @param buffer
+	 * @param copy if true, the memory buffer created is a copy of the provided buffer. if false, the memory buffer uses directly the provided buffer.
+	 * @return new memory buffer object
+	 */
     public CLMem createOutput(Buffer buffer) {
         return createMem(buffer, -1, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR, true);
     }
 
+    /**
+	 * Create a memory buffer that can be used both as input and as output, based on existing data.<br/>
+	 * If copy is true, the memory buffer created is a copy of the provided buffer. <br/>
+	 * If copy is false, the memory buffer uses directly the provided buffer.<br/>
+	 * Note that in the latter case, it is still necessary to enqueue map operations (due to cache mechanisms).
+	 * @param buffer
+	 * @param copy if true, the memory buffer created is a copy of the provided buffer. if false, the memory buffer uses directly the provided buffer.
+	 * @return new memory buffer object
+	 */
     public CLMem createInputOutput(Buffer buffer) {
         return createMem(buffer, -1, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
     }
 
+    /**
+	 * Create an input memory buffer of the specified size.
+	 * @param byteCount size in bytes of the memory buffer to create
+	 * @return new memory buffer object
+	 */
     public CLMem createInput(int byteCount) {
         return createMem(null, byteCount, CL_MEM_READ_ONLY, false);
     }
 
+    /**
+	 * Create an output memory buffer of the specified size.
+	 * @param byteCount size in bytes of the memory buffer to create
+	 * @return new memory buffer object
+	 */
     public CLMem createOutput(int byteCount) {
         return createMem(null, byteCount, CL_MEM_WRITE_ONLY, false);
     }
 
+    /**
+	 * Create a memory buffer that can be used both as input and as output of the specified size.
+	 * @param byteCount size in bytes of the memory buffer to create
+	 * @return new memory buffer object
+	 */
     public CLMem createInputOutput(int byteCount) {
         return createMem(null, byteCount, CL_MEM_READ_WRITE, false);
     }
 
     @SuppressWarnings("deprecation")
-    protected CLMem createMem(final Buffer buffer, int byteCount, final int clMemFlags, final boolean retainBufferReference) {
+    private CLMem createMem(final Buffer buffer, int byteCount, final int clMemFlags, final boolean retainBufferReference) {
         if (buffer != null) {
             byteCount = getSizeInBytes(buffer);
         } else if (retainBufferReference) {
@@ -111,15 +171,15 @@ public class CLContext extends CLEntity<cl_context> {
             throw new IllegalArgumentException("Buffer size must be greater than zero (asked for size " + byteCount + ")");
         }
 
-        IntByReference errRef = new IntByReference();
+        IntByReference pErr = new IntByReference();
         //IntBuffer errBuff = IntBuffer.wrap(new int[1]);
         cl_mem mem = CL.clCreateBuffer(
                 get(),
                 clMemFlags,
                 toNL(byteCount),
                 buffer == null ? null : Native.getDirectBufferPointer(buffer),
-                errRef);
-        error(errRef.getValue());
+                pErr);
+        error(pErr.getValue());
 
         return new CLMem(this, byteCount, mem) {
             /// keep a hard reference to the buffer
