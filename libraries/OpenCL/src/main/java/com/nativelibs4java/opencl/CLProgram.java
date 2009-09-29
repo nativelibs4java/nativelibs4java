@@ -82,7 +82,7 @@ public class CLProgram extends CLEntity<cl_program> {
             Memory buffer = new Memory(bufLen);
 
             HashSet<String> errs = new HashSet<String>();
-            for (cl_device_id device_id : context.getDeviceIds()) {
+            for (cl_device_id device_id : context.deviceIds) {
                 error(CL.clGetProgramBuildInfo(get(), device_id, CL_PROGRAM_BUILD_LOG, toNL(bufLen), buffer, len));
                 String s = buffer.getString(0);
                 errs.add(s);

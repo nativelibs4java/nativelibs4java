@@ -53,10 +53,10 @@ abstract class CLInfoGetter<T extends PointerType> {
     }
 	public boolean getBool(T entity, int infoName) {
         NativeLongByReference pLen = new NativeLongByReference();
-        ByteByReference pValue = new ByteByReference();
-		error(getInfo(entity, infoName, toNL(1), pValue.getPointer(), pLen));
+        IntByReference pValue = new IntByReference();
+		error(getInfo(entity, infoName, toNL(4), pValue.getPointer(), pLen));
 
-		if (pLen.getValue().longValue() != 1)
+		if (pLen.getValue().longValue() != 4)
 			throw new RuntimeException("Not a BOOL : len = " + pLen.getValue());
 		return pValue.getValue() != 0;
     }
@@ -66,7 +66,7 @@ abstract class CLInfoGetter<T extends PointerType> {
 		error(getInfo(entity, infoName, toNL(Native.LONG_SIZE), pValue.getPointer(), pLen));
 
 		if (pLen.getValue().longValue() != Native.LONG_SIZE)
-			throw new RuntimeException("Not an int : len = " + pLen.getValue());
+			throw new RuntimeException("Not a native long : len = " + pLen.getValue());
 		return pValue.getValue().longValue();
     }
 }

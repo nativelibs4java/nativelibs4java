@@ -30,9 +30,12 @@ public class CLContext extends CLEntity<cl_context> {
         return new CLDevice(deviceIds[0]).createQueue(this);
     }
 
-    public cl_device_id[] getDeviceIds() {
-        return deviceIds;
-    }
+	public CLDevice[] getDevices() {
+		CLDevice[] devices = new CLDevice[deviceIds.length];
+		for (int i = devices.length; i-- != 0;)
+			devices[i] = new CLDevice(deviceIds[i]);
+		return devices;
+	}
 
     /**
      * Create a program with all the C source code content provided as argument.

@@ -293,7 +293,7 @@ public class CLDevice {
 	 * Type of global memory cache supported.
 	 */
 	public CLCacheType getGlobalMemCacheType() {
-		return CLCacheType.getEnum(infos.getNativeLong(get(), CL_DEVICE_GLOBAL_MEM_CACHE_TYPE));
+		return CLCacheType.getEnum(infos.getInt(get(), CL_DEVICE_GLOBAL_MEM_CACHE_TYPE));
 	}
 
 
@@ -317,7 +317,7 @@ public class CLDevice {
 	 * CL_DEVICE_GLOBAL_MEM_SIZE<br/>
 	 * Size of global device memory in bytes.
 	 */
-	public long getDEVICE_GLOBAL_MEM_SIZE() {
+	public long getGlobalMemSize() {
 		return infos.getNativeLong(get(), CL_DEVICE_GLOBAL_MEM_SIZE);
 	}
 
@@ -326,7 +326,7 @@ public class CLDevice {
 	 * Max size in bytes of a constant buffer allocation. <br/>
 	 * The minimum value is 64 KB.
 	 */
-	public long getDEVICE_MAX_CONSTANT_BUFFER_SIZE() {
+	public long getMaxConstantBufferSize() {
 		return infos.getNativeLong(get(), CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE);
 	}
 
@@ -339,15 +339,24 @@ public class CLDevice {
 		return infos.getInt(get(), CL_DEVICE_MAX_CONSTANT_ARGS);
 	}
 
+
+	public enum CLMemType {
+		/** implying dedicated local memory storage such as SRAM */
+		@EnumValue(CL_LOCAL  ) Local ,
+		@EnumValue(CL_GLOBAL ) Global;
+
+		public long getValue() { return EnumValues.getValue(this); }
+		public static CLMemType getEnum(long v) { return EnumValues.getEnum(v, CLMemType.class); }
+	}
+
 	/**
 	 * CL_DEVICE_LOCAL_MEM_TYPE<br/>
 	 * Type of local memory supported. <br/>
-	 * This can be set to CL_LOCAL implying dedicated local memory storage such as SRAM, or CL_GLOBAL.
 	 */
-	public long getLocalMemType() {
-		return infos.getNativeLong(get(), CL_DEVICE_LOCAL_MEM_TYPE);
+	public CLMemType getLocalMemType() {
+		return CLMemType.getEnum(infos.getInt(get(), CL_DEVICE_LOCAL_MEM_TYPE));
 	}
-
+	
 	/**
 	 * CL_DEVICE_LOCAL_MEM_SIZE<br/>
 	 * Size of local memory arena in bytes. <br/>
