@@ -29,9 +29,9 @@ public class CLTestUtils {
 				try {
 					m.invoke(instance);
 				} catch (IllegalAccessException ex) {
-					Logger.getLogger(CLDeviceTest.class.getName()).log(Level.SEVERE, null, ex);
+					Logger.getLogger(InfoGettersTest.class.getName()).log(Level.SEVERE, null, ex);
 				} catch (IllegalArgumentException ex) {
-					Logger.getLogger(CLDeviceTest.class.getName()).log(Level.SEVERE, null, ex);
+					Logger.getLogger(InfoGettersTest.class.getName()).log(Level.SEVERE, null, ex);
 				} catch (InvocationTargetException ex) {
 					String msg = "Failed to call " + m;
 					Logger.getLogger(instance.getClass().getName()).log(Level.SEVERE, msg, ex.getCause());

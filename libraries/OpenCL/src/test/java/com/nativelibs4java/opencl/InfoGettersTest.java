@@ -22,27 +22,7 @@ import static com.nativelibs4java.opencl.CLTestUtils.*;
  *
  * @author ochafik
  */
-public class CLDeviceTest {
-
-	@org.junit.Test
-	public void CLDeviceGetters() {
-		testGetters(CLPlatform.listPlatforms()[0].listAllDevices()[0]);
-	}
-
-	@org.junit.Test
-	public void CLPlatformGetters() {
-		testGetters(CLPlatform.listPlatforms()[0]);
-	}
-
-	@org.junit.Test
-	public void CLContextGetters() {
-		testGetters(CLContext.createContext(CLPlatform.listPlatforms()[0].listAllDevices()));
-	}
-
-	@org.junit.Test
-	public void CLEventGetters() {
-		//testGetters(CLEvent.listPlatforms()[0].listAllDevices()[0]);
-	}
+public class InfoGettersTest {
 
 	CLProgram createProgram() {
 		CLProgram pg = createContext().createProgram("__kernel void f(__global int a) {}");
@@ -95,5 +75,25 @@ public class CLDeviceTest {
 	@org.junit.Test
 	public void CLQueueGetters() {
 		testGetters(createQueue());
+	}
+
+	@org.junit.Test
+	public void CLDeviceGetters() {
+		testGetters(CLPlatform.listPlatforms()[0].listAllDevices()[0]);
+	}
+
+	@org.junit.Test
+	public void CLPlatformGetters() {
+		testGetters(CLPlatform.listPlatforms()[0]);
+	}
+
+	@org.junit.Test
+	public void CLContextGetters() {
+		testGetters(CLContext.createContext(CLPlatform.listPlatforms()[0].listAllDevices()));
+	}
+
+	@org.junit.Test
+	public void CLEventGetters() {
+		//testGetters(CLEvent.listPlatforms()[0].listAllDevices()[0]);
 	}
 }
