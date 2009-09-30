@@ -16,9 +16,9 @@ trait Functions {
     override def toReadString = name + "(" + arg1 + ", &" + arg2 + ")"
   }
 
-  def die1 = (_: Double) => throw new RuntimeException("Not implemented")
-  def die2 = (_: Double, _: Double) => throw new RuntimeException("Not implemented")
-  def die3 = (_: Double, _: Double, _: Double) => throw new RuntimeException("Not implemented")
+  private def die1 = (_: Double) => throw new RuntimeException("Not implemented")
+  private def die2 = (_: Double, _: Double) => throw new RuntimeException("Not implemented")
+  private def die3 = (_: Double, _: Double, _: Double) => throw new RuntimeException("Not implemented")
 
   private def f1d(name: String, f: Double => Double) =
     (x: Expr) => Fun1(name, DoubleType, x, f)
