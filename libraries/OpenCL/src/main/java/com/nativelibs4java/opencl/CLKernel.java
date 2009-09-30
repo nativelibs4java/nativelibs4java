@@ -129,7 +129,7 @@ public class CLKernel extends CLEntity<cl_kernel> {
 
     public CLEvent enqueueNDRange(CLQueue queue /*, int[] globalOffsets*/, int[] globalSizes, int[] localSizes, CLEvent... eventsToWaitFor) {
         int nDims = globalSizes.length;
-        if (localSizes.length != nDims) {
+        if (localSizes != null && localSizes.length != nDims) {
             throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalSizes.length + " vs. " + localSizes.length);
         }
 		cl_event[] eventOut = new cl_event[1];
