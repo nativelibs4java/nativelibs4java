@@ -11,6 +11,7 @@ import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.util.NIOUtils.*;
 import java.util.*;
 import static com.nativelibs4java.opencl.CLException.*;
 
@@ -99,6 +100,14 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 */
 	public int getMaxWorkItemDimensions() {
 		return infos.getInt(get(), CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
+	}
+
+	/**
+	 * CL_DEVICE_MAX_WORK_ITEM_SIZES<br/>
+	 * Maximum number of work-items that can be specified in each dimension of the work-group to clEnqueueNDRangeKernel.
+	 */
+	public long[] getMaxWorkItemSizes() {
+		return infos.getNativeLongs(get(), CL_DEVICE_MAX_WORK_ITEM_SIZES, getMaxWorkItemDimensions());
 	}
 
 	/**

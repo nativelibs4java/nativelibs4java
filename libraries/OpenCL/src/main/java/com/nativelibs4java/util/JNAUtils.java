@@ -36,6 +36,20 @@ public class JNAUtils {
 	/**
 	 * Return a new NativeLong with the provided int value
 	 */
+	public static NativeLong[] toNL(int[] ints) {
+		if (ints == null)
+			return null;
+		int n = ints.length;
+		NativeLong[] nls = new NativeLong[n];
+        for (int i = 0; i < n; i++)
+            nls[i] = toNL(ints[i]);
+
+        return nls;
+    }
+
+	/**
+	 * Return a new NativeLong with the provided int value
+	 */
 	public static NativeLong toNL(int i) {
         return new NativeLong(i);
     }

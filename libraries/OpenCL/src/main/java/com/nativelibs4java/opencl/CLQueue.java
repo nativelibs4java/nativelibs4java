@@ -7,6 +7,7 @@ package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
+import com.sun.jna.ptr.PointerByReference;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.CLException.*;
@@ -63,5 +64,22 @@ public class CLQueue extends CLEntity<cl_command_queue> {
         error(CL.clEnqueueWaitForEvents(get(), events.length, CLEvent.to_cl_event_array(events)));
 	}
 
-	
+	/**
+	 * Enqueue a barrier operation.<br/>
+	 * The enqueueBarrier() command ensures that all queued commands in command_queue have finished execution before the next batch of commands can begin execution. <br/>
+	 * enqueueBarrier() is a synchronization point.
+	 */
+	public void enqueueBarrier() {
+		error(CL.clEnqueueBarrier(get()));
+	}
+
+	/**
+	 * Enqueue a marker command to command_queue. <br/>
+	 * The marker command returns an event which can be used by to queue a wait on this marker event i.e. wait for all commands queued before the marker command to complete.
+	 */
+	public CLEvent enqueueMarker() {
+		cl_event[] eventOut = new cl_event[1];
+		error(CL.clEnqueueMarker(get(), eventOut));
+		return CLEvent.createEvent(eventOut[0]);
+	}
 }

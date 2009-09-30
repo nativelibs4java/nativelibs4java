@@ -127,19 +127,13 @@ public class CLKernel extends CLEntity<cl_kernel> {
 		return CLEvent.createEvent(eventOut[0]);
 	}
 
-    /// TODO: Get the maximum work-group size with CL.clGetKernelWorkGroupInfo(CL_KERNEL_WORK_GROUP_SIZE)
-    public CLEvent enqueueNDRange(CLQueue queue, int[] globalSizes, int[] localSizes, CLEvent... eventsToWaitFor) {
+    public CLEvent enqueueNDRange(CLQueue queue /*, int[] globalOffsets*/, int[] globalSizes, int[] localSizes, CLEvent... eventsToWaitFor) {
         int nDims = globalSizes.length;
         if (localSizes.length != nDims) {
             throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalSizes.length + " vs. " + localSizes.length);
         }
-        NativeLong[] globalSizesNL = new NativeLong[nDims], localSizesNL = new NativeLong[nDims];
-        for (int i = 0; i < nDims; i++) {
-            globalSizesNL[i] = toNL(globalSizes[i]);
-            localSizesNL[i] = toNL(localSizes[i]);
-        }
 		cl_event[] eventOut = new cl_event[1];
-        error(CL.clEnqueueNDRangeKernel(queue.get(), get(), 1, null, globalSizesNL, localSizesNL, eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
+        error(CL.clEnqueueNDRangeKernel(queue.get(), get(), nDims, null/*toNL(globalOffsets)*/, toNL(globalSizes), toNL(localSizes), eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
 		return CLEvent.createEvent(eventOut[0]);
     }
 	

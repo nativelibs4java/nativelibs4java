@@ -25,7 +25,9 @@ public class OpenCL4JavaBasicTest {
             CLPlatform platform = platforms[0];
             System.out.println("Using platform " + platform);
             CLDevice[] devices = platform.listAllDevices(true);
-            System.out.println("Using devices " + Arrays.asList(devices));
+            for (CLDevice device : devices) {
+				System.out.println("Using device " + device + "\n\tmaxWorkItemSizes = " + Arrays.toString(device.getMaxWorkItemSizes()));
+			}
             //CLDevice[] devices = CLDevice.listCPUDevices();
             //CLDevice[] devices = CLDevice.listGPUDevices();
             CLContext context = CLContext.createContext(devices);

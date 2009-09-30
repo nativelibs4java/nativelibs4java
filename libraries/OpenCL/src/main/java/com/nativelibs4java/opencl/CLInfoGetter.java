@@ -44,7 +44,20 @@ abstract class CLInfoGetter<T extends PointerType> {
         return buffer;
     }
 
+	public long[] getNativeLongs(T entity, int infoName, int n) {
+		int nBytes = Native.LONG_SIZE * n;
+        NativeLongByReference pLen = new NativeLongByReference(toNL(nBytes));
+		Memory mem = new Memory(nBytes);
+		error(getInfo(entity, infoName, toNL(nBytes), mem, null));
 
+		if (pLen.getValue().longValue() != nBytes)
+			throw new RuntimeException("Not a NativeLong[" + n + "] : len = " + pLen.getValue());
+		long[] longs = new long[n];
+		for (int i = 0; i < n; i++) {
+			longs[i] = mem.getNativeLong(i * Native.LONG_SIZE).longValue();
+		}
+		return longs;
+    }
 	public int getInt(T entity, int infoName) {
         NativeLongByReference pLen = new NativeLongByReference();
         IntByReference pValue = new IntByReference();
