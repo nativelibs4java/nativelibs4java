@@ -1,7 +1,0 @@
--DAVAILABLE_MAC_OS_X_VERSION_10_6_AND_LATER=
--D__APPLE__=
-
--framework OpenCL
-//-framework OpenGL
-
-"$(DIR)/OpenCL.base.jnaerator"
