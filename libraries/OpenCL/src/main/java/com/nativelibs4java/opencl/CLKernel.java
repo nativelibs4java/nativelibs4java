@@ -11,6 +11,7 @@ import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.CLException.*;
+import static com.nativelibs4java.util.JNAUtils.*;
 
 /**
  * OpenCL kernel.<br/>
@@ -25,7 +26,7 @@ public class CLKernel extends CLEntity<cl_kernel> {
 
     protected final CLProgram program;
     protected String name;
-	static CLInfoGetter<cl_kernel> infos = new CLInfoGetter<cl_kernel>() {
+	private static CLInfoGetter<cl_kernel> infos = new CLInfoGetter<cl_kernel>() {
 		@Override
 		protected int getInfo(cl_kernel entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
 			return CL.clGetKernelInfo(entity, infoTypeEnum, size, out, sizeOut);

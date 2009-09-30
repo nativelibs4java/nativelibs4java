@@ -11,11 +11,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
+ * Annotation that defines the integer value for a Java enum item
  * @author ochafik
  */
 @Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface EnumValue {
+	/**
+	 * Integral representation of the enum item
+	 */
 	long value();
 }

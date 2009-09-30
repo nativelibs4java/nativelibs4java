@@ -27,7 +27,7 @@ import static com.nativelibs4java.opencl.CLException.*;
  */
 public class CLEvent extends CLEntity<cl_event> {
 
-	static CLInfoGetter<cl_event> infos = new CLInfoGetter<cl_event>() {
+	private static CLInfoGetter<cl_event> infos = new CLInfoGetter<cl_event>() {
 		@Override
 		protected int getInfo(cl_event entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
 			return CL.clGetEventInfo(entity, infoTypeEnum, size, out, sizeOut);
@@ -44,12 +44,18 @@ public class CLEvent extends CLEntity<cl_event> {
 		return new CLEvent(evt);
 	}
 
+	/**
+	 * Wait for this event, blocking the caller thread independently of any queue until all of the command associated with this events completes.
+	 */
+	public void waitFor() {
+		waitFor(this);
+	}
 
 	/**
-	 * Wait for events, blocking the caller thread independently of any queue until all of the events completed.
+	 * Wait for events, blocking the caller thread independently of any queue until all of the commands associated with the events completed.
 	 * @param eventsToWaitFor List of events which completion is to be waited for
 	 */
-	public void waitFor(CLEvent... eventsToWaitFor) {
+	public static void waitFor(CLEvent... eventsToWaitFor) {
 		if (eventsToWaitFor.length == 0)
 			return;
 		
@@ -61,13 +67,23 @@ public class CLEvent extends CLEntity<cl_event> {
 	}
 
 	/**
-	 * Invoke an action in a separate thread only after completion of all of the commands of the specified events.<br/>
+	 * Invoke an action in a separate thread only after completion of the command associated with this event.<br/>
+	 * Returns immediately.
+	 * @param action an action to be ran
+	 * @throws IllegalArgumentException if action is null
+	 */
+	public void invokeUponCompletion(final Runnable action) {
+		invokeUponCompletion(action, this);
+	}
+
+	/**
+	 * Invoke an action in a separate thread only after completion of all of the commands associated with the specified events.<br/>
 	 * Returns immediately.
 	 * @param action an action to be ran
 	 * @param eventsToWaitFor list of events which commands's completion should be waited for before the action is ran
 	 * @throws IllegalArgumentException if action is null
 	 */
-	public void invokeLater(final Runnable action, final CLEvent... eventsToWaitFor) {
+	public static void invokeUponCompletion(final Runnable action, final CLEvent... eventsToWaitFor) {
 		if (action == null)
 			throw new IllegalArgumentException("Null action !");
 

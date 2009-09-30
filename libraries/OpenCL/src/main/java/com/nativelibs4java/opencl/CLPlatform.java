@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.CLException.*;
+import static com.nativelibs4java.util.JNAUtils.*;
 
 /**
  * OpenCL implementation entry point.
@@ -36,21 +37,7 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
     }
 
     @Override
-    protected void clear() {
-        //CL.clReleasePlatform(get());
-    }
-
-
-    private String getInfoString(int infoName) {
-        NativeLongByReference pLen = new NativeLongByReference();
-        error(CL.clGetPlatformInfo(get(), infoName, toNL(0), null, pLen));
-
-        Memory buffer = new Memory(pLen.getValue().intValue() + 1);
-        error(CL.clGetPlatformInfo(get(), infoName, pLen.getValue(), buffer, null));
-
-        return buffer.getString(0);
-    }
-
+    protected void clear() {}
 
 	/**
 	 * Lists all the devices of the platform

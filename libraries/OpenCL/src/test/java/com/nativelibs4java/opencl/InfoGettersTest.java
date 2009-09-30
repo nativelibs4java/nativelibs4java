@@ -4,8 +4,8 @@
  */
 package com.nativelibs4java.opencl;
 
-import com.nativelibs4java.opencl.CLDevice.CLCacheType;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
+import com.nativelibs4java.opencl.CLDevice.*;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import java.lang.reflect.*;
 import java.util.EnumSet;
 import java.util.logging.*;
@@ -23,7 +23,7 @@ public class InfoGettersTest {
 		CLProgram pg = createContext().createProgram("__kernel void f(__global int a) {}");
 		try {
 			pg.build();
-		} catch (OpenCL4Java.CLBuildException ex) {
+		} catch (CLBuildException ex) {
 			assertFalse(ex.toString(), true);
 		}
 		return pg;

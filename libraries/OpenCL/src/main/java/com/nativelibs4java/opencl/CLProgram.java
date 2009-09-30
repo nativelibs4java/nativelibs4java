@@ -12,6 +12,8 @@ import java.util.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.CLException.*;
+import static com.nativelibs4java.util.JNAUtils.*;
+import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
  * OpenCL program.<br/>
@@ -34,7 +36,7 @@ public class CLProgram extends CLEntity<cl_program> {
 
     protected final CLContext context;
 
-	static CLInfoGetter<cl_program> progInfos = new CLInfoGetter<cl_program>() {
+	private static CLInfoGetter<cl_program> infos = new CLInfoGetter<cl_program>() {
 		@Override
 		protected int getInfo(cl_program entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
 			return CL.clGetProgramInfo(entity, infoTypeEnum, size, out, sizeOut);
@@ -46,11 +48,19 @@ public class CLProgram extends CLEntity<cl_program> {
         this.context = context;
     }
 
+	/**
+	 * Get the source code of this program
+	 */
 	public String getSource() {
-		return progInfos.getString(get(), CL_PROGRAM_SOURCE);
+		return infos.getString(get(), CL_PROGRAM_SOURCE);
 	}
+
+	/**
+	 * Get the binaries of the program (one for each device, in order)
+	 * @return
+	 */
     public byte[][] getBinaries() {
-		Memory s = progInfos.getBytes(get(), CL_PROGRAM_BINARY_SIZES);
+		Memory s = infos.getBytes(get(), CL_PROGRAM_BINARY_SIZES);
 		int n = (int)s.getSize() / Native.LONG_SIZE;
 		int[] sizes = new int[n];
 		for (int i = 0; i < n; i++) {
@@ -62,7 +72,7 @@ public class CLProgram extends CLEntity<cl_program> {
 		for (int i = 0; i < n; i++) {
 			ptrs.setPointer(i * Native.POINTER_SIZE, binMems[i] = new Memory(sizes[i]));
 		}
-		error(progInfos.getInfo(get(), CL_PROGRAM_BINARIES, toNL(ptrs.getSize()), ptrs, null));
+		error(infos.getInfo(get(), CL_PROGRAM_BINARIES, toNL(ptrs.getSize()), ptrs, null));
 
 		byte[][] ret = new byte[n][];
 		for (int i = 0; i < n; i++) {
@@ -96,7 +106,7 @@ public class CLProgram extends CLEntity<cl_program> {
                 String s = buffer.getString(0);
                 errs.add(s);
             }
-            throw new CLBuildException(errorString(err), errs);
+            throw new CLBuildException(this, errorString(err), errs);
         }
         return this;
     }
@@ -106,6 +116,9 @@ public class CLProgram extends CLEntity<cl_program> {
         error(CL.clReleaseProgram(get()));
     }
 
+	/**
+	 * Return all the kernels found in the program.
+	 */
 	public CLKernel[] createKernels() {
 		IntByReference pCount = new IntByReference();
         error(CL.clCreateKernelsInProgram(get(), 0, (cl_kernel[])null, pCount));
@@ -120,7 +133,11 @@ public class CLProgram extends CLEntity<cl_program> {
 
 		return kernels;
 	}
-    public CLKernel createKernel(String name, Object... args) {
+
+	/**
+	 * Find a kernel by its functionName, and optionally bind some arguments to it.
+	 */
+	public CLKernel createKernel(String name, Object... args) {
         IntBuffer errBuff = IntBuffer.wrap(new int[1]);
         cl_kernel kernel = CL.clCreateKernel(get(), name, errBuff);
         error(errBuff.get(0));

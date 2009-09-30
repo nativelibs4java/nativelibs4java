@@ -55,40 +55,5 @@ public class OpenCL4Java {
 		error(CL.clUnloadCompiler());
 	}
 
-    @SuppressWarnings("serial")
-    public static class CLBuildException extends Exception {
-
-        public CLBuildException(String string, Collection<String> errors) {
-            super(string + "\n" + StringUtils.implode(errors, "\n"));
-        }
-    }
     
-    public static int getSizeInBytes(Buffer b) {
-        int c = b.capacity();
-		return getComponentSizeInBytes(b) * c;
-    }
-	public static int getComponentSizeInBytes(Buffer b) {
-        if (b instanceof IntBuffer || b instanceof FloatBuffer)
-            return 4;
-        if (b instanceof LongBuffer || b instanceof DoubleBuffer)
-            return 8;
-        if (b instanceof ShortBuffer || b instanceof CharBuffer)
-            return 2;
-        if (b instanceof ByteBuffer)
-            return 1;
-        throw new UnsupportedOperationException("Cannot guess byte size of buffers of type " + b.getClass().getName());
-    }
-
-    public static NativeLongByReference toNL(IntByReference local) {
-        NativeLongByReference nl = new NativeLongByReference();
-        nl.setPointer(local.getPointer());
-        return nl;
-    }
-
-    public static NativeLong toNL(int i) {
-        return new NativeLong(i);
-    }
-	public static NativeLong toNL(long i) {
-        return new NativeLong(i);
-    }
 }

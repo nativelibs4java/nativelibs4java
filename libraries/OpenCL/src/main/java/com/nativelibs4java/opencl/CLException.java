@@ -21,7 +21,7 @@ public class CLException extends RuntimeException {
 
 
 
-    static String errorString(int err) {
+    public static String errorString(int err) {
         if (err == CL_SUCCESS)
             return null;
 
@@ -44,7 +44,7 @@ public class CLException extends RuntimeException {
         return StringUtils.implode(candidates, " or ");
     }
 
-    static void error(int err) {
+    public static void error(int err) {
         String str = errorString(err);
         if (str == null)
             return;

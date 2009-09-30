@@ -7,7 +7,7 @@ import java.nio.*;
 import org.junit.Test;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.CLTestUtils.*;
-import static com.nativelibs4java.nio.NIOUtils.*;
+import static com.nativelibs4java.util.NIOUtils.*;
 import static com.nativelibs4java.test.BenchmarkUtils.*;
 
 //import com.nativelibs4java.scalacl.*;

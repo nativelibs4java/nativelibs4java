@@ -13,6 +13,8 @@ import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.CLException.*;
+import static com.nativelibs4java.util.JNAUtils.*;
+import static com.nativelibs4java.util.NIOUtils.*;
 
 
 /**
