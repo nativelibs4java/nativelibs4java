@@ -77,6 +77,10 @@ public class CLKernel extends CLEntity<cl_kernel> {
         }
     }
 
+	public void setLocalArg(int argIndex, long localArgByteLength) {
+		error(CL.clSetKernelArg(get(), argIndex, toNL(localArgByteLength), null));
+	}
+	
     public void setArg(int i, NativeLong arg) {
         error(CL.clSetKernelArg(get(), i, toNL(Native.LONG_SIZE), new NativeLongByReference(arg).getPointer()));
 //			error(CL.clSetKernelArg(get(), i, OpenCL4Java.toNL(Native.LONG_SIZE), new IntByReference(128).getPointer()));
