@@ -34,13 +34,13 @@ public class OpenCL4JavaBasicTest {
 
             int dataSize = 10000;
 //			String src = //"#include <math.h>\n" + 
-//					"__kernel function2(__global const double* in1, __global double* out2, __global const double* in3) {\n" + 
+//					"__kernel void function2(__global const double* in1, __global double* out2, __global const double* in3) {\n" +
 //					"	int dim1 = get_global_id(0);\n" + 
 //					"	out2[dim1] = in1[dim1] * sin(in3[dim1]) + 1;\n" + 
 //					"}\n" + 
 //					"";
             String src = "\n" +
-                    "__kernel aSinB(                                                   \n" +
+                    "__kernel void aSinB(                                                   \n" +
                     "   __global const float* a,                                       \n" +
                     "   __global const float* b,                                       \n" +
                     "   __global float* output)                                        \n" +

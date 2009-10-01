@@ -152,7 +152,7 @@ public class OpenCL4JavaBenchmarkTest {
 
     static CLKernel setupASinB(Prim nativeType, Target target) throws CLBuildException {
         String src = "\n" +
-                "__kernel aSinB(                                                  \n" +
+                "__kernel void aSinB(                                                  \n" +
                 "   __global const " + nativeType + "* a,                                       \n" +
                 "   __global const " + nativeType + "* b,                                       \n" +
                 "   __global " + nativeType + "* output)                                        \n" +
