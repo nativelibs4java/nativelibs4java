@@ -1,3 +1,4 @@
+- Added CLKernel.setLocalArg(argIndex, localArgByteLength)
 - Allow localWorkSizes to be null in enqueueNDRange
 - Added support for barriers and markers in CLQueue
 - Fixed issue #2 : enqueueNDRange does not work for nDim > 1
