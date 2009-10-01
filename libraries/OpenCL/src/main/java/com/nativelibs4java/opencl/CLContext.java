@@ -80,23 +80,11 @@ public class CLContext extends CLEntity<cl_context> {
     }
 
 	/**
-	 * Creates an OpenCL context formed of the provided devices.<br/>
-	 * It is generally not a good idea to create a context with more than one device,
-	 * because much data is shared between all the devices in the same context.
-	 * @param devices devices that are to form the new context
-	 * @return new OpenCL context
+	 * @see OpenCL4Java#createContext(com.nativelibs4java.opencl.CLDevice[])
+	 * @deprecated Use same method in OpenCL4Java instead
 	 */
     public static CLContext createContext(CLDevice... devices) {
-        int nDevs = devices.length;
-        cl_device_id[] ids = new cl_device_id[nDevs];
-        for (int i = 0; i < nDevs; i++) {
-            ids[i] = devices[i].get();
-        }
-
-        IntByReference errRef = new IntByReference();
-        cl_context context = CL.clCreateContext(null, 1, ids, null, null, errRef);
-        error(errRef.getValue());
-        return new CLContext(ids, context);
+		return OpenCL4Java.createContext(devices);
     }
 
     //cl_queue queue;

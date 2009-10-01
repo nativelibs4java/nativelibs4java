@@ -30,7 +30,7 @@ public class OpenCL4JavaBasicTest {
 			}
             //CLDevice[] devices = CLDevice.listCPUDevices();
             //CLDevice[] devices = CLDevice.listGPUDevices();
-            CLContext context = CLContext.createContext(devices);
+            CLContext context = createContext(devices);
 
             int dataSize = 10000;
 //			String src = //"#include <math.h>\n" + 

@@ -164,7 +164,7 @@ public class OpenCL4JavaBenchmarkTest {
         CLDevice[] devices = getDevices(target);
         for (CLDevice device : devices)
             System.out.println("OpenCL device: " + device);
-        CLProgram program = CLContext.createContext(devices).createProgram(src).build();
+        CLProgram program = createContext(devices).createProgram(src).build();
         CLKernel kernel = program.createKernel("aSinB");
 
         return kernel;

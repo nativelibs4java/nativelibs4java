@@ -47,6 +47,26 @@ public class OpenCL4Java {
     }
 
 	/**
+	 * Creates an OpenCL context formed of the provided devices.<br/>
+	 * It is generally not a good idea to create a context with more than one device,
+	 * because much data is shared between all the devices in the same context.
+	 * @param devices devices that are to form the new context
+	 * @return new OpenCL context
+	 */
+    public static CLContext createContext(CLDevice... devices) {
+        int nDevs = devices.length;
+        cl_device_id[] ids = new cl_device_id[nDevs];
+        for (int i = 0; i < nDevs; i++) {
+            ids[i] = devices[i].get();
+        }
+
+        IntByReference errRef = new IntByReference();
+        cl_context context = CL.clCreateContext(null, 1, ids, null, null, errRef);
+        error(errRef.getValue());
+        return new CLContext(ids, context);
+    }
+
+	/**
 	 * Allows the implementation to release the resources allocated by the OpenCL compiler. <br/>
 	 * This is a hint from the application and does not guarantee that the compiler will not be used in the future or that the compiler will actually be unloaded by the implementation. <br/>
 	 * Calls to Program.build() after unloadCompiler() will reload the compiler, if necessary, to build the appropriate program executable.
