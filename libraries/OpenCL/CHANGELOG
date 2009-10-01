@@ -5,6 +5,7 @@ Current development version (1.0-SNAPSHOT)
 - Added support for barriers and markers in CLQueue
 - Fixed issue #2 : enqueueNDRange does not work for nDim > 1
 - Added CLDevice.getMaxWorkItemSizes()
+- CLDevice.toString() now only prints the name
 
 Version 1.0-beta-1
 

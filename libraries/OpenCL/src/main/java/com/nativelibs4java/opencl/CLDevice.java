@@ -173,7 +173,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 
     @Override
     public String toString() {
-        return getName() + "{capabilities: " + getExecutionCapabilities() + ", singleFPConfig: " + getSingleFPConfig() + "}";
+        return getName();// + "{singleFPConfig: " + getSingleFPConfig() + "}";
     }
 
 	/**
