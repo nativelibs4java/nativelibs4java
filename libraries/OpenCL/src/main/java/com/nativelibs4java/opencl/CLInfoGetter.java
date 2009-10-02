@@ -34,7 +34,7 @@ abstract class CLInfoGetter<T extends PointerType> {
         return buffer.getString(0);
     }
 
-	public Memory getBytes(T entity, int infoName) {
+	public Memory getMemory(T entity, int infoName) {
         NativeLongByReference pLen = new NativeLongByReference();
         error(getInfo(entity, infoName, toNL(0), null, pLen));
 

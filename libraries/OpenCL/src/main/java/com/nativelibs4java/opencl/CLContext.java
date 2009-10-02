@@ -25,10 +25,20 @@ import static com.nativelibs4java.util.NIOUtils.*;
  */
 public class CLContext extends CLEntity<cl_context> {
 
-    protected final cl_device_id[] deviceIds;
+    private static CLInfoGetter<cl_context> infos = new CLInfoGetter<cl_context>() {
+		@Override
+		protected int getInfo(cl_context entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
+			return CL.clGetContextInfo(entity, infoTypeEnum, size, out, sizeOut);
+		}
+	};
 
-    CLContext(cl_device_id[] deviceIds, cl_context context) {
+	CLPlatform platform;
+
+    protected cl_device_id[] deviceIds;
+
+    CLContext(CLPlatform platform, cl_device_id[] deviceIds, cl_context context) {
         super(context);
+		this.platform = platform;
         this.deviceIds = deviceIds;
     }
 
@@ -38,7 +48,7 @@ public class CLContext extends CLEntity<cl_context> {
 	 * @return new OpenCL queue
 	 */
     public CLQueue createDefaultQueue() {
-        return new CLDevice(deviceIds[0]).createQueue(this);
+        return new CLDevice(platform, deviceIds[0]).createQueue(this);
     }
 
 
@@ -53,10 +63,17 @@ public class CLContext extends CLEntity<cl_context> {
 	 * Lists the devices of this context
 	 * @return array of the devices that form this context
 	 */
-	public CLDevice[] getDevices() {
+	public synchronized CLDevice[] getDevices() {
+		if (deviceIds == null) {
+			Memory ptrs = infos.getMemory(get(), CL_CONTEXT_DEVICES);
+			int n = (int)(ptrs.getSize() / Native.POINTER_SIZE);
+			deviceIds = new cl_device_id[n];
+			for (int i = 0; i < n; i++)
+				deviceIds[i] = new cl_device_id(ptrs.getPointer(i * Native.POINTER_SIZE));
+		}
 		CLDevice[] devices = new CLDevice[deviceIds.length];
 		for (int i = devices.length; i-- != 0;)
-			devices[i] = new CLDevice(deviceIds[i]);
+			devices[i] = new CLDevice(platform, deviceIds[i]);
 		return devices;
 	}
 
@@ -81,10 +98,10 @@ public class CLContext extends CLEntity<cl_context> {
 
 	/**
 	 * @see OpenCL4Java#createContext(com.nativelibs4java.opencl.CLDevice[])
-	 * @deprecated Use same method in OpenCL4Java instead
+	 * @deprecated Use same method in CLPlatform instead
 	 */
     public static CLContext createContext(CLDevice... devices) {
-		return OpenCL4Java.createContext(devices);
+		return OpenCL4Java.listPlatforms()[0].createContext(devices);
     }
 
     //cl_queue queue;

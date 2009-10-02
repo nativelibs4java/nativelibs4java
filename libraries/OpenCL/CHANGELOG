@@ -6,7 +6,10 @@ Current development version (1.0-SNAPSHOT)
 - Fixed issue #2 : enqueueNDRange does not work for nDim > 1
 - Added CLDevice.getMaxWorkItemSizes()
 - CLDevice.toString() now only prints the name
-- Moved method createContext from CLContext to OpenCL4Java
+- Moved method createContext from CLContext to CLPlatform
+- Added all the CL_DEVICE_PREFERRED_VECTOR_WIDTH_XXX infos to CLDevice as getPreferredVectorWithXXX()
+- Changed return type of getExtensions() method of both CLPlatform and CLDevice from String to String[]
+- Added com.nativelibs4java.opencl.HardwareReport (with main method) : outputs html report with devices stats
 
 Version 1.0-beta-1
 

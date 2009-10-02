@@ -60,7 +60,7 @@ public class CLProgram extends CLEntity<cl_program> {
 	 * @return
 	 */
     public byte[][] getBinaries() {
-		Memory s = infos.getBytes(get(), CL_PROGRAM_BINARY_SIZES);
+		Memory s = infos.getMemory(get(), CL_PROGRAM_BINARY_SIZES);
 		int n = (int)s.getSize() / Native.LONG_SIZE;
 		int[] sizes = new int[n];
 		for (int i = 0; i < n; i++) {

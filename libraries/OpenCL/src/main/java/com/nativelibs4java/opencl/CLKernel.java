@@ -142,17 +142,17 @@ public class CLKernel extends CLEntity<cl_kernel> {
     }
 	
 	/**
-	 * CL_KERNEL_NUM_ARGS<br/>
 	 * Return the number of arguments to kernel.
 	 */
+	@CLInfoName("CL_KERNEL_NUM_ARGS")
 	public int getNumArgs() {
 		return infos.getInt(get(), CL_KERNEL_NUM_ARGS);
     }
 
 	/**
-	 * CL_KERNEL_FUNCTION_NAME<br/>
 	 * Return the kernel function name.
 	 */
+	@CLInfoName("CL_KERNEL_FUNCTION_NAME")
     public String getFunctionName() {
 		if (name == null)
 			name = infos.getString(get(), CL_KERNEL_FUNCTION_NAME);

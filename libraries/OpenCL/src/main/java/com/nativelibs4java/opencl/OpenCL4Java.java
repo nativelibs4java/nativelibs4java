@@ -54,16 +54,10 @@ public class OpenCL4Java {
 	 * @return new OpenCL context
 	 */
     public static CLContext createContext(CLDevice... devices) {
-        int nDevs = devices.length;
-        cl_device_id[] ids = new cl_device_id[nDevs];
-        for (int i = 0; i < nDevs; i++) {
-            ids[i] = devices[i].get();
-        }
+		if (devices.length == 0)
+			return null;
 
-        IntByReference errRef = new IntByReference();
-        cl_context context = CL.clCreateContext(null, 1, ids, null, null, errRef);
-        error(errRef.getValue());
-        return new CLContext(ids, context);
+		return devices[0].getPlatform().createContext(devices);
     }
 
 	/**

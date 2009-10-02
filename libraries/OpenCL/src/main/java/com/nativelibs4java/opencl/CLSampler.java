@@ -54,9 +54,9 @@ public class CLSampler extends CLEntity<cl_sampler> {
 	}
 
 	/**
-	 * CL_SAMPLER_ADDRESSING_MODE<br/>
 	 * Return the value specified by addressing_mode argument to CLContext.createSampler.
 	 */
+	@CLInfoName("CL_SAMPLER_ADDRESSING_MODE")
 	public CLAddressingMode getAddressingMode() {
 		return CLAddressingMode.getEnum(infos.getInt(get(), CL_SAMPLER_ADDRESSING_MODE));
 	}
@@ -73,17 +73,17 @@ public class CLSampler extends CLEntity<cl_sampler> {
 		public static CLFilterMode getEnum(int v) { return EnumValues.getEnum(v, CLFilterMode.class); }
 	}
 	/**
-	 * CL_SAMPLER_FILTER_MODE<br/>
 	 * Return the value specified by filter_mode argument to CLContext.createSampler.
 	 */
+	@CLInfoName("CL_SAMPLER_FILTER_MODE")
 	public CLFilterMode getFilterMode() {
 		return CLFilterMode.getEnum(infos.getInt(get(), CL_SAMPLER_FILTER_MODE));
 	}
 
 	/**
-	 * CL_SAMPLER_NORMALIZED_COORDS<br/>
 	 * Return the value specified by normalized_coords argument to CLContext.createSampler.
 	 */
+	@CLInfoName("CL_SAMPLER_NORMALIZED_COORDS")
 	public String getNormalizedCoords() {
 		return infos.getString(get(), CL_SAMPLER_NORMALIZED_COORDS);
 	}

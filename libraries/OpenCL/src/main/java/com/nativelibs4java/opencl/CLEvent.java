@@ -128,6 +128,7 @@ public class CLEvent extends CLEntity<cl_event> {
 	 * Return the execution status of the command identified by event.  <br/>
 	 * @throws CLException is the execution status denotes an error
 	 */
+	@CLInfoName("CL_EVENT_COMMAND_EXECUTION_STATUS")
 	public CLCommandExecutionStatus getCommandExecutionStatus() {
 		int v = infos.getInt(get(), CL_EVENT_COMMAND_EXECUTION_STATUS);
 		CLCommandExecutionStatus status =  CLCommandExecutionStatus.getEnum(v);
@@ -163,6 +164,7 @@ public class CLEvent extends CLEntity<cl_event> {
 	/**
 	 * Return the command associated with event.
 	 */
+	@CLInfoName("CL_EVENT_COMMAND_TYPE")
 	public CLCommand getCommandType() {
 		return CLCommand.getEnum(infos.getInt(get(), CL_EVENT_COMMAND_TYPE));
 	}

@@ -75,6 +75,32 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
         }
     }
 
+	/**
+	 * Creates an OpenCL context formed of the provided devices.<br/>
+	 * It is generally not a good idea to create a context with more than one device,
+	 * because much data is shared between all the devices in the same context.
+	 * @param devices devices that are to form the new context
+	 * @return new OpenCL context
+	 */
+    public CLContext createContext(CLDevice... devices) {
+        int nDevs = devices.length;
+        cl_device_id[] ids = new cl_device_id[nDevs];
+        for (int i = 0; i < nDevs; i++) {
+            ids[i] = devices[i].get();
+        }
+
+        IntByReference errRef = new IntByReference();
+		/*Memory properties = new Memory(3 * Native.POINTER_SIZE);
+		IntByReference pPlatKey = new IntByReference(CL_CONTEXT_PLATFORM);
+		PointerByReference pPlatVal = new PointerByReference(get().getPointer());
+		properties.setPointer(0, pPlatKey.getPointer());
+		properties.setPointer(Native.POINTER_SIZE, pPlatVal.getPointer());
+        properties.setPointer(2 * Native.POINTER_SIZE, Pointer.NULL);*/
+        cl_context context = CL.clCreateContext(null, 1, ids, null, null, errRef);
+        error(errRef.getValue());
+        return new CLContext(this, ids, context);
+    }
+
     @SuppressWarnings("deprecation")
     private CLDevice[] listDevices(boolean gpu, boolean cpu, boolean onlyAvailable) {
         int flags = (gpu ? CL_DEVICE_TYPE_GPU : 0) | (cpu ? CL_DEVICE_TYPE_CPU : 0);
@@ -93,7 +119,7 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
 		if (onlyAvailable) {
 			List<CLDevice> list = new ArrayList<CLDevice>(nDevs);
 			for (int i = 0; i < nDevs; i++) {
-				CLDevice device = new CLDevice(ids[i]);
+				CLDevice device = new CLDevice(this, ids[i]);
 				if (device.isAvailable())
 					list.add(device);
 			}
@@ -101,57 +127,58 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
 		} else {
 			devices = new CLDevice[nDevs];
 			for (int i = 0; i < nDevs; i++)
-				devices[i] = new CLDevice(ids[i]);
+				devices[i] = new CLDevice(this, ids[i]);
 		}
         return devices;
     }
 
 
 	/**
-	 * CL_PLATFORM_PROFILE<br/>
-	OpenCL profile string. Returns the profile name supported by the implementation. The profile name returned can be one of the following strings:
+	 * OpenCL profile string. Returns the profile name supported by the implementation. The profile name returned can be one of the following strings:
 	 * <ul>
 	 * <li>FULL_PROFILE if the implementation supports the OpenCL specification (functionality defined as part of the core specification and does not require any extensions to be supported).</li>
 	 * <li>EMBEDDED_PROFILE if the implementation supports the OpenCL embedded profile. The embedded profile is defined to be a subset for each version of OpenCL. The embedded profile for OpenCL 1.0 is described in section 10.</li>
 	 * </ul>
 	 */
+	@CLInfoName("CL_PLATFORM_PROFILE")
 	public String getProfile() {
 		return infos.getString(get(), CL_PLATFORM_PROFILE);
 	}
 
 	/**
-	 * CL_PLATFORM_VERSION<br/>
 	OpenCL version string. Returns the OpenCL version supported by the implementation. This version string has the following format:
 	OpenCL<space><major_version.min or_version><space><platform- specific information>
 	Last Revision Date: 5/16/09	Page 30
 	The major_version.minor_version value returned will be 1.0.
 	 */
+	@CLInfoName("CL_PLATFORM_VERSION")
 	public String getVersion() {
 		return infos.getString(get(), CL_PLATFORM_VERSION);
 	}
 
 	/**
-	 * CL_PLATFORM_NAME<br/>
-	Platform name string.
+	 * Platform name string.
 	 */
+	@CLInfoName("CL_PLATFORM_NAME")
 	public String getName() {
 		return infos.getString(get(), CL_PLATFORM_NAME);
 	}
 
 	/**
-	 * CL_PLATFORM_VENDOR<br/>
-	Platform vendor string.
+	 * Platform vendor string.
 	 */
+	@CLInfoName("CL_PLATFORM_VENDOR")
 	public String getVendor() {
 		return infos.getString(get(), CL_PLATFORM_VENDOR);
 	}
 
 	/**
-	 * CL_PLATFORM_EXTENSIONS<br/>
-	Returns a space separated list of extension names (the extension names themselves do not contain any spaces) supported by the platform. Extensions defined here must be supported by all devices associated with this platform.
+	 * Returns a list of extension names <br/>
+	 * Extensions defined here must be supported by all devices associated with this platform.
 	 */
-	public String getExtensions() {
-		return infos.getString(get(), CL_PLATFORM_EXTENSIONS);
+	@CLInfoName("CL_PLATFORM_EXTENSIONS")
+	public String[] getExtensions() {
+		return infos.getString(get(), CL_PLATFORM_EXTENSIONS).split("\\s+");
 	}
 
 }
