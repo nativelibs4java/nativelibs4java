@@ -13,10 +13,10 @@ Current development version (1.0-SNAPSHOT)
 - JAR is now self-sufficient (includes JNA + JNAerator's runtime classes)
 - Rationalized naming of all enums : CL_ENTITY_ATTRIBUTE_SOME_VALUE = CLEntity.Attribute.SomeValue (enum item SomeValue in enum Attribute in class CLEntity)
 - Added image format support query
-- Updated CLMem : deprecated many methods, now should only use (blocking|enqueue)(Write|Read|Map) + unmap + MapFlags enum
 - Added CLContext.getSupportedImageFormats + CLImageFormat and associated enums
 - Added CLImage2D, CLImage3D and corresponding creation methods in CLContext + all image info getters
-- Added CLMem.copyTo that wraps clEnqueueCopyBuffer
+- Added CLBuffer.copyTo that wraps clEnqueueCopyBuffer
+- CLMem changed a lot : now buffers are created as subclass CLBuffer, deprecated many methods, now should only use CLBuffer.(blocking|enqueue)(Write|Read|Map) + unmap + MapFlags enum
 
 Version 1.0-beta-1
 

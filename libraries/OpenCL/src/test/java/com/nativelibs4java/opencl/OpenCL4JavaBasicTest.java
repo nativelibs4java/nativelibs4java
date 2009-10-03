@@ -57,9 +57,9 @@ public class OpenCL4JavaBasicTest {
             CLQueue queue = context.createDefaultQueue();
 
             // Allocate OpenCL-hosted memory for inputs and output
-            CLMem memIn1 = context.createInput(dataSize * 4);
-            CLMem memIn2 = context.createInput(dataSize * 4);
-            CLMem memOut = context.createOutput(dataSize * 4);
+            CLBuffer memIn1 = context.createInput(dataSize * 4);
+            CLBuffer memIn2 = context.createInput(dataSize * 4);
+            CLBuffer memOut = context.createOutput(dataSize * 4);
 
             // Bind these memory objects to the arguments of the kernel
             kernel.setArgs(memIn1, memIn2, memOut);

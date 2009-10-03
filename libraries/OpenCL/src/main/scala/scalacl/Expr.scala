@@ -509,7 +509,7 @@ abstract class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int)
 
     buffer.get
   }
-  private var mem: CLMem = null
+  private var mem: CLBuffer = null
   var implicitDim: Option[Dim] = None
 
   private def checkAlloc = if (mem == null) {

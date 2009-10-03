@@ -23,12 +23,14 @@ public class ImageTest {
 
 	CLPlatform platform;
 	CLContext context;
+	CLQueue queue;
 	CLImageFormat[] formatsRead2D, formatsRead3D, formatsWrite2D, formatsWrite3D;
 
     @Before
     public void setUp() {
 		platform = OpenCL4Java.listPlatforms()[0];
 		context = platform.createContext(platform.listAllDevices(true));
+		queue = context.createDefaultQueue();
 		formatsRead2D = context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image2D);
 		formatsWrite2D = context.getSupportedImageFormats(CLMem.Flags.WriteOnly, CLMem.ObjectType.Image2D);
 		formatsRead3D = context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image3D);
@@ -57,6 +59,7 @@ public class ImageTest {
 		assertEquals(height, im.getHeight());
 		assertEquals(depth, im.getDepth());
 		assertEquals(format, im.getFormat());
+		//im.blockingMap(queue, CLMem.MapFlags.Read);
 	}
 
 }

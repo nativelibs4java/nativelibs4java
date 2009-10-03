@@ -94,7 +94,7 @@ public class OpenCL4JavaBenchmarkTest {
         CLQueue queue = kernel.program.context.createDefaultQueue();
 
         ByteBuffer input1 = null, input2 = null, output = null;
-        CLMem memIn1, memIn2, memOut;
+        CLBuffer memIn1, memIn2, memOut;
         if (hostInOpenCL) {
             memIn1 = kernel.program.context.createInput(dataSize * nativePrim.sizeof());
             memIn2 = kernel.program.context.createInput(dataSize * nativePrim.sizeof());
