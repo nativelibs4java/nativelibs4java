@@ -53,23 +53,23 @@ public class CLMem extends CLEntity<cl_mem> {
 		/**
 		 * This flag specifies that the memory object will be read and written by a kernel. This is the default.
 		 */
-		@EnumValue(CL_MEM_READ_WRITE)		MEM_READ_WRITE,
+		@EnumValue(CL_MEM_READ_WRITE)		ReadWrite,
 		/**
 		 * This flags specifies that the memory object will be written but not read by a kernel.<br/>
 		 * Reading from a buffer or image object created with CL_MEM_WRITE_ONLY inside a kernel is undefined.
 		 */
-		@EnumValue(CL_MEM_WRITE_ONLY)		MEM_WRITE_ONLY,
+		@EnumValue(CL_MEM_WRITE_ONLY)		WriteOnly,
 		/**
 		 * This flag specifies that the memory object is a read-only memory object when used inside a kernel. <br/>
 		 * Writing to a buffer or image object created with CL_MEM_READ_ONLY inside a kernel is undefined.
 		 */
-		@EnumValue(CL_MEM_READ_ONLY)		MEM_READ_ONLY,
+		@EnumValue(CL_MEM_READ_ONLY)		ReadOnly,
 		/**
 		 * This flag is valid only if host_ptr is not NULL. If specified, it indicates that the application wants the OpenCL implementation to use memory referenced by host_ptr as the storage bits for the memory object. <br/>
 		 * OpenCL implementations are allowed to cache the buffer contents pointed to by host_ptr in device memory. This cached copy can be used when kernels are executed on a device. <br/>
 		 * The result of OpenCL commands that operate on multiple buffer objects created with the same host_ptr or overlapping host regions is considered to be undefined.
 		 */
-		@EnumValue(CL_MEM_USE_HOST_PTR)		MEM_USE_HOST_PTR,
+		@EnumValue(CL_MEM_USE_HOST_PTR)		UseHostPtr,
 		/**
 		 * This flag specifies that the application wants the OpenCL implementation to allocate memory from host accessible memory. <br/>
 		 * CL_MEM_ALLOC_HOST_PTR and CL_MEM_USE_HOST_PTR are mutually exclusive.<br/>
@@ -77,7 +77,7 @@ public class CLMem extends CLEntity<cl_mem> {
 		 * CL_MEM_COPY_HOST_PTR and CL_MEM_USE_HOST_PTR are mutually exclusive.<br/>
 		 * CL_MEM_COPY_HOST_PTR can be used with CL_MEM_ALLOC_HOST_PTR to initialize the contents of the cl_mem object allocated using host-accessible (e.g. PCIe) memory.
 		 */
-		@EnumValue(CL_MEM_ALLOC_HOST_PTR)		MEM_ALLOC_HOST_PTR;
+		@EnumValue(CL_MEM_ALLOC_HOST_PTR)		AllocHostPtr;
 
 		public long getValue() { return EnumValues.getValue(this); }
 		public static Flags getEnum(long v) { return EnumValues.getEnum(v, Flags.class); }

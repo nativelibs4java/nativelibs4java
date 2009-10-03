@@ -58,20 +58,23 @@ public class CLContext extends CLEntity<cl_context> {
         return new CLDevice(platform, deviceIds[0]).createQueue(this);
     }
 
-	public CLImageFormat[] getSupportedImageFormats(CLMem.ObjectType imageType) {
+	public CLImageFormat[] getSupportedImageFormats(CLMem.Flags flags, CLMem.ObjectType imageType) {
 		IntByReference pCount = new IntByReference();
-		int memFlags = CL_MEM_READ_WRITE;
+		int memFlags = (int)flags.getValue();
 		int imTyp = (int)imageType.getValue();
 		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, 0, null, pCount);
 		int n = pCount.getValue();
 		if (n == 0)
-			return new CLImageFormat[0];
+			n = 1; // There HAS to be at least one format. the spec even says even more, but in fact on Mac OS X / CPU there's only one...
 		cl_image_format[] formats = new cl_image_format().toArray(n);
 		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, n, formats[0], (IntByReference)null);
 		CLImageFormat[] ret = new CLImageFormat[n];
 		int i = 0;
 		for (cl_image_format format : formats)
-			ret[i] = new CLImageFormat(CLImageFormat.ChannelOrder.getEnum(format.image_channel_order), CLImageFormat.ChannelDataType.getEnum(format.image_channel_data_type));
+			if (format != null)
+				ret[i] = new CLImageFormat(CLImageFormat.ChannelOrder.getEnum(format.image_channel_order), CLImageFormat.ChannelDataType.getEnum(format.image_channel_data_type));
+		if (ret.length == 1 && ret[0] == null)
+			return new CLImageFormat[0];
 		return ret;
 	}
 	

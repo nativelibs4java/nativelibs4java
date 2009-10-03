@@ -870,6 +870,7 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 */
 	@java.lang.Deprecated
 	int clGetSupportedImageFormats(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_mem_object_type1, int cl_uint1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, com.sun.jna.ptr.IntByReference cl_uintPtr1);
+	int clGetSupportedImageFormats(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_mem_object_type1, int cl_uint1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, com.sun.jna.ptr.NativeLongByReference cl_uintPtr1);
 	/**
 	 * Original signature : <code>cl_int clGetSupportedImageFormats(cl_context, cl_mem_flags, cl_mem_object_type, cl_uint, cl_image_format*, cl_uint*)</code><br>
 	 * <i>native declaration : cl.h:563</i>
