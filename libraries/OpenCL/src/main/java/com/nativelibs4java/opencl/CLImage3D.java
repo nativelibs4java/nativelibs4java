@@ -20,8 +20,8 @@ import static com.nativelibs4java.util.NIOUtils.*;
  * @author ochafik
  */
 public class CLImage3D extends CLImage {
-	public CLImage3D(CLContext context, cl_mem entity) {
-        super(context, entity);
+	public CLImage3D(CLContext context, cl_mem entity, CLImageFormat format) {
+        super(context, entity, format);
 	}
 
 	/**
@@ -29,7 +29,7 @@ public class CLImage3D extends CLImage {
 	 * For a 2D image object this value will be 0.
 	 */
 	@InfoName("CL_IMAGE_SLICE_PITCH")
-	public long getImageSlicePitch() {
+	public long getSlicePitch() {
 		return infos.getNativeLong(get(), CL_IMAGE_SLICE_PITCH);
 	}
 
@@ -37,7 +37,7 @@ public class CLImage3D extends CLImage {
 	 * Return depth of the image in pixels. For a 2D image, depth = 0.
 	 */
 	@InfoName("CL_IMAGE_DEPTH")
-	public long getImageDepth() {
+	public long getDepth() {
 		return infos.getNativeLong(get(), CL_IMAGE_DEPTH);
 	}
 }

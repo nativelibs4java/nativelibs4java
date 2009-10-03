@@ -148,7 +148,7 @@ public class CLContext extends CLEntity<cl_context> {
 	 * Create an input image2D from a TYPE_INT_ARGB buffered image
 	 * @throws java.lang.IllegalArgumentException if the image is not of type BufferedImage.TYPE_INT_ARGB
 	 */
-	private CLImage2D createInput2D(BufferedImage image) {
+	public CLImage2D createInput2D(BufferedImage image) {
 		if (image.getType() != BufferedImage.TYPE_INT_ARGB)
 			throw new IllegalArgumentException("The only image type supported is TYPE_INT_ARGB");
 		
@@ -167,7 +167,7 @@ public class CLContext extends CLEntity<cl_context> {
 			true
 		);
 	}
-	private CLImage2D createInput2D(CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
+	public CLImage2D createInput2D(CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
 		if (buffer == null)
 			throw new IllegalArgumentException("Null buffer given as image input !");
 		return createImage2D(
@@ -177,7 +177,7 @@ public class CLContext extends CLEntity<cl_context> {
 		);
 	}
 
-	private CLImage2D createInput2D(CLImageFormat format, long width, long height) {
+	public CLImage2D createInput2D(CLImageFormat format, long width, long height) {
 		return createImage2D(
 			null,
 			EnumSet.of(CLMem.Flags.ReadOnly),
@@ -185,7 +185,7 @@ public class CLContext extends CLEntity<cl_context> {
 		);
 	}
 
-	private CLImage2D createInputOutput2D(CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
+	public CLImage2D createInputOutput2D(CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
 		if (buffer == null)
 			throw new IllegalArgumentException("Null buffer given as image input !");
 		return createImage2D(
@@ -195,7 +195,7 @@ public class CLContext extends CLEntity<cl_context> {
 		);
 	}
 
-	private CLImage2D createInputOutput2D(CLImageFormat format, long width, long height) {
+	public CLImage2D createInputOutput2D(CLImageFormat format, long width, long height) {
 		return createImage2D(
 			null,
 			EnumSet.of(CLMem.Flags.ReadWrite),
@@ -203,7 +203,7 @@ public class CLContext extends CLEntity<cl_context> {
 		);
 	}
 
-	private CLImage2D createOutput2D(CLImageFormat format, long width, long height) {
+	public CLImage2D createOutput2D(CLImageFormat format, long width, long height) {
 		return createImage2D(
 			null,
 			EnumSet.of(CLMem.Flags.WriteOnly),
@@ -224,10 +224,10 @@ public class CLContext extends CLEntity<cl_context> {
 			pErr
 		);
 		error(pErr.getValue());
-		return new CLImage2D(this, mem);
+		return new CLImage2D(this, mem, format);
 	}
 
-	private CLImage3D createInput3D(CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
+	public CLImage3D createInput3D(CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
 		if (buffer == null)
 			throw new IllegalArgumentException("Null buffer given as image input !");
 		return createImage3D(
@@ -237,7 +237,7 @@ public class CLContext extends CLEntity<cl_context> {
 		);
 	}
 
-	private CLImage3D createInput3D(CLImageFormat format, long width, long height, long depth) {
+	public CLImage3D createInput3D(CLImageFormat format, long width, long height, long depth) {
 		return createImage3D(
 			null,
 			EnumSet.of(CLMem.Flags.ReadOnly),
@@ -245,7 +245,7 @@ public class CLContext extends CLEntity<cl_context> {
 		);
 	}
 
-	private CLImage3D createInputOutput3D(CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
+	public CLImage3D createInputOutput3D(CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
 		if (buffer == null)
 			throw new IllegalArgumentException("Null buffer given as image input !");
 		return createImage3D(
@@ -255,7 +255,7 @@ public class CLContext extends CLEntity<cl_context> {
 		);
 	}
 
-	private CLImage3D createInputOutput3D(CLImageFormat format, long width, long height, long depth) {
+	public CLImage3D createInputOutput3D(CLImageFormat format, long width, long height, long depth) {
 		return createImage3D(
 			null,
 			EnumSet.of(CLMem.Flags.ReadWrite),
@@ -263,7 +263,7 @@ public class CLContext extends CLEntity<cl_context> {
 		);
 	}
 
-	private CLImage3D createOutput3D(CLImageFormat format, long width, long height, long depth) {
+	public CLImage3D createOutput3D(CLImageFormat format, long width, long height, long depth) {
 		return createImage3D(
 			null,
 			EnumSet.of(CLMem.Flags.WriteOnly),
@@ -279,14 +279,14 @@ public class CLContext extends CLEntity<cl_context> {
 			new cl_image_format((int)format.channelOrder.getValue(), (int)format.channelDataType.getValue()),
 			toNL(width),
 			toNL(height),
+			toNL(depth),
 			toNL(rowPitch),
 			toNL(slicePitch),
-			toNL(depth),
 			buffer == null ? null : Native.getDirectBufferPointer(buffer),
 			pErr
 		);
 		error(pErr.getValue());
-		return new CLImage3D(this, mem);
+		return new CLImage3D(this, mem, format);
 	}
 
 	/**

@@ -28,6 +28,34 @@ public class CLImageFormat {
 		this.channelDataType = channelDataType;
 		this.channelOrder = channelOrder;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null || !(obj instanceof CLImageFormat))
+			return false;
+		CLImageFormat f = (CLImageFormat)obj;
+		if (channelOrder == null) {
+			if (f.channelOrder != null)
+				return false;
+		} else if (!channelOrder.equals(f.channelOrder))
+			return false;
+
+
+		if (channelDataType == null) {
+			return f.channelDataType == null;
+		} else return channelDataType.equals(f.channelDataType);
+	}
+
+	@Override
+	public int hashCode() {
+		int h = super.hashCode();
+		if (channelOrder != null)
+			h ^= channelOrder.hashCode();
+		if (channelDataType != null)
+			h ^= channelDataType.hashCode();
+		return h;
+	}
+	
 	public final ChannelOrder getChannelOrder() {
 		return channelOrder;
 	}

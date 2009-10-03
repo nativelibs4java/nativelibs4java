@@ -88,6 +88,8 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
 	 */
     public CLContext createContext(CLDevice... devices) {
         int nDevs = devices.length;
+		if (nDevs == 0)
+			throw new IllegalArgumentException("Cannot create a context with no associated device !");
         cl_device_id[] ids = new cl_device_id[nDevs];
         for (int i = 0; i < nDevs; i++) {
             ids[i] = devices[i].get();

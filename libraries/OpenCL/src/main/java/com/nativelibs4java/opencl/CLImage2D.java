@@ -20,7 +20,7 @@ import static com.nativelibs4java.util.NIOUtils.*;
  * @author ochafik
  */
 public class CLImage2D extends CLImage {
-	public CLImage2D(CLContext context, cl_mem entity) {
-        super(context, entity);
+	public CLImage2D(CLContext context, cl_mem entity, CLImageFormat format) {
+        super(context, entity, format);
 	}
 }
