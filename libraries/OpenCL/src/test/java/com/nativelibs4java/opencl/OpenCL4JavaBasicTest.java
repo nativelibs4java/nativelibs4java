@@ -32,6 +32,9 @@ public class OpenCL4JavaBasicTest {
             //CLDevice[] devices = CLDevice.listGPUDevices();
             CLContext context = createContext(devices);
 
+			System.out.println("Supported images 2d: " + Arrays.asList(context.getSupportedImageFormats(CLMem.ObjectType.Image2D)));
+            System.out.println("Supported images 3d: " + Arrays.asList(context.getSupportedImageFormats(CLMem.ObjectType.Image3D)));
+
             int dataSize = 10000;
 //			String src = //"#include <math.h>\n" + 
 //					"__kernel void function2(__global const double* in1, __global double* out2, __global const double* in3) {\n" +

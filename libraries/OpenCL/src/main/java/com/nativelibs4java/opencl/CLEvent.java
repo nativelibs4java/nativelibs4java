@@ -110,7 +110,7 @@ public class CLEvent extends CLEntity<cl_event> {
 	}
 
 	/** Values for CL_EVENT_COMMAND_EXECUTION_STATUS */
-	public enum CLCommandExecutionStatus {
+	public enum CommandExecutionStatus {
 		/** command has been enqueued in the command-queue                                             */ 
 		@EnumValue(CL_QUEUED	) Queued	,
 		/** enqueued command has been submitted by the host to the device associated with the command-queue */ 
@@ -121,24 +121,24 @@ public class CLEvent extends CLEntity<cl_event> {
 		@EnumValue(CL_COMPLETE	) Complete	;
 		
 		public long getValue() { return EnumValues.getValue(this); }
-		public static CLCommandExecutionStatus getEnum(long v) { return EnumValues.getEnum(v, CLCommandExecutionStatus.class); }
+		public static CommandExecutionStatus getEnum(long v) { return EnumValues.getEnum(v, CommandExecutionStatus.class); }
 	}
 	
 	/**
 	 * Return the execution status of the command identified by event.  <br/>
 	 * @throws CLException is the execution status denotes an error
 	 */
-	@CLInfoName("CL_EVENT_COMMAND_EXECUTION_STATUS")
-	public CLCommandExecutionStatus getCommandExecutionStatus() {
+	@InfoName("CL_EVENT_COMMAND_EXECUTION_STATUS")
+	public CommandExecutionStatus getCommandExecutionStatus() {
 		int v = infos.getInt(get(), CL_EVENT_COMMAND_EXECUTION_STATUS);
-		CLCommandExecutionStatus status =  CLCommandExecutionStatus.getEnum(v);
+		CommandExecutionStatus status =  CommandExecutionStatus.getEnum(v);
 		if (status == null)
 			error(v);
 		return status;
 	}
 
 	/** Values for CL_EVENT_COMMAND_TYPE */
-	public enum CLCommand {
+	public enum CommandType {
 		@EnumValue(CL_COMMAND_NDRANGE_KERNEL		) NDRangeKernel,
 		@EnumValue(CL_COMMAND_TASK					) Task,
 		@EnumValue(CL_COMMAND_NATIVE_KERNEL			) NativeKernel,
@@ -158,15 +158,15 @@ public class CLEvent extends CLEntity<cl_event> {
 		@EnumValue(CL_COMMAND_RELEASE_GL_OBJECTS	) ReleaseGLObjects;
 
 		public long getValue() { return EnumValues.getValue(this); }
-		public static CLCommand getEnum(long v) { return EnumValues.getEnum(v, CLCommand.class); }
+		public static CommandType getEnum(long v) { return EnumValues.getEnum(v, CommandType.class); }
 	}
 
 	/**
 	 * Return the command associated with event.
 	 */
-	@CLInfoName("CL_EVENT_COMMAND_TYPE")
-	public CLCommand getCommandType() {
-		return CLCommand.getEnum(infos.getInt(get(), CL_EVENT_COMMAND_TYPE));
+	@InfoName("CL_EVENT_COMMAND_TYPE")
+	public CommandType getCommandType() {
+		return CommandType.getEnum(infos.getInt(get(), CL_EVENT_COMMAND_TYPE));
 	}
 
 	@Override

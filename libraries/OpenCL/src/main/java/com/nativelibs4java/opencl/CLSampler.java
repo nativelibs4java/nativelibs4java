@@ -43,47 +43,47 @@ public class CLSampler extends CLEntity<cl_sampler> {
 	 * Values for CL_SAMPLER_ADDRESSING_MODE<br/>
 	 * How out-of-range image coordinates are handled when reading from an image
 	 */
-	public enum CLAddressingMode {
+	public enum AddressingMode {
 		@EnumValue(CL_ADDRESS_REPEAT        ) Repeat        ,
 		@EnumValue(CL_ADDRESS_CLAMP_TO_EDGE ) ClampToEdge 	,
 		@EnumValue(CL_ADDRESS_CLAMP         ) Clamp         ,
 		@EnumValue(CL_ADDRESS_NONE          ) None          ;
 		
 		public long getValue() { return (int)EnumValues.getValue(this); }
-		public static CLAddressingMode getEnum(long v) { return EnumValues.getEnum(v, CLAddressingMode.class); }
+		public static AddressingMode getEnum(long v) { return EnumValues.getEnum(v, AddressingMode.class); }
 	}
 
 	/**
 	 * Return the value specified by addressing_mode argument to CLContext.createSampler.
 	 */
-	@CLInfoName("CL_SAMPLER_ADDRESSING_MODE")
-	public CLAddressingMode getAddressingMode() {
-		return CLAddressingMode.getEnum(infos.getInt(get(), CL_SAMPLER_ADDRESSING_MODE));
+	@InfoName("CL_SAMPLER_ADDRESSING_MODE")
+	public AddressingMode getAddressingMode() {
+		return AddressingMode.getEnum(infos.getInt(get(), CL_SAMPLER_ADDRESSING_MODE));
 	}
 
 	/**
 	 * Values for CL_SAMPLER_FILTER_MODE<br/>
 	 * Type of filter that must be applied when reading an image
 	 */
-	public enum CLFilterMode {
+	public enum FilterMode {
 		@EnumValue(CL_FILTER_NEAREST ) Nearest,
 		@EnumValue(CL_FILTER_LINEAR  ) Linear ;
 		
 		public int getValue() { return (int)EnumValues.getValue(this); }
-		public static CLFilterMode getEnum(int v) { return EnumValues.getEnum(v, CLFilterMode.class); }
+		public static FilterMode getEnum(int v) { return EnumValues.getEnum(v, FilterMode.class); }
 	}
 	/**
 	 * Return the value specified by filter_mode argument to CLContext.createSampler.
 	 */
-	@CLInfoName("CL_SAMPLER_FILTER_MODE")
-	public CLFilterMode getFilterMode() {
-		return CLFilterMode.getEnum(infos.getInt(get(), CL_SAMPLER_FILTER_MODE));
+	@InfoName("CL_SAMPLER_FILTER_MODE")
+	public FilterMode getFilterMode() {
+		return FilterMode.getEnum(infos.getInt(get(), CL_SAMPLER_FILTER_MODE));
 	}
 
 	/**
 	 * Return the value specified by normalized_coords argument to CLContext.createSampler.
 	 */
-	@CLInfoName("CL_SAMPLER_NORMALIZED_COORDS")
+	@InfoName("CL_SAMPLER_NORMALIZED_COORDS")
 	public String getNormalizedCoords() {
 		return infos.getString(get(), CL_SAMPLER_NORMALIZED_COORDS);
 	}

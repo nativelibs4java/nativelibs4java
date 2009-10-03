@@ -10,6 +10,9 @@ Current development version (1.0-SNAPSHOT)
 - Added all the CL_DEVICE_PREFERRED_VECTOR_WIDTH_XXX infos to CLDevice as getPreferredVectorWithXXX()
 - Changed return type of getExtensions() method of both CLPlatform and CLDevice from String to String[]
 - Added com.nativelibs4java.opencl.HardwareReport (with main method) : outputs html report with devices stats
+- JAR is now self-sufficient (includes JNA + JNAerator's runtime classes)
+- Rationalized naming of all enums : CL_ENTITY_ATTRIBUTE_SOME_VALUE = CLEntity.Attribute.SomeValue (enum item SomeValue in enum Attribute in class CLEntity)
+- Added image format support query
 
 Version 1.0-beta-1
 

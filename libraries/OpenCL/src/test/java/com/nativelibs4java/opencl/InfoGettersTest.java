@@ -50,7 +50,7 @@ public class InfoGettersTest {
 		return c.createInput(10).enqueueMapRead(c.createDefaultQueue()).getSecond();
 	}
 	CLSampler createSampler() {
-		return createContext().createSampler(true, CLSampler.CLAddressingMode.ClampToEdge, CLSampler.CLFilterMode.Linear);
+		return createContext().createSampler(true, CLSampler.AddressingMode.ClampToEdge, CLSampler.FilterMode.Linear);
 	}
 	
 	CLQueue createQueue() {

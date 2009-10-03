@@ -43,49 +43,49 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	protected void clear() {}
 
 	/** Bit values for CL_DEVICE_EXECUTION_CAPABILITIES */
-	public enum CLExecutionCapability {
+	public enum ExecutionCapability {
 		@EnumValue(CL_EXEC_KERNEL        ) Kernel,
 		@EnumValue(CL_EXEC_NATIVE_KERNEL ) NativeKernel;
 
 		public long getValue() { return EnumValues.getValue(this); }
-		public static long getValue(EnumSet<CLExecutionCapability> set) { return EnumValues.getValue(set); }
-		public static EnumSet<CLExecutionCapability> getEnumSet(long v) { return EnumValues.getEnumSet(v, CLExecutionCapability.class); }
+		public static long getValue(EnumSet<ExecutionCapability> set) { return EnumValues.getValue(set); }
+		public static EnumSet<ExecutionCapability> getEnumSet(long v) { return EnumValues.getEnumSet(v, ExecutionCapability.class); }
 	}
 
 	/**
 	 * Describes the execution capabilities of the device.<br/>
 	 * The mandated minimum capability is: Kernel.
 	 */
-	@CLInfoName("CL_DEVICE_EXECUTION_CAPABILITIES")
-    public EnumSet<CLExecutionCapability> getExecutionCapabilities() {
-        return CLExecutionCapability.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_EXECUTION_CAPABILITIES));
+	@InfoName("CL_DEVICE_EXECUTION_CAPABILITIES")
+    public EnumSet<ExecutionCapability> getExecutionCapabilities() {
+        return ExecutionCapability.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_EXECUTION_CAPABILITIES));
     }
 
 	/** Bit values for CL_DEVICE_TYPE */
-	public enum CLDeviceType {    
+	public enum Type {
 		@EnumValue(CL_DEVICE_TYPE_CPU         ) CPU,
 		@EnumValue(CL_DEVICE_TYPE_GPU         ) GPU,
 		@EnumValue(CL_DEVICE_TYPE_ACCELERATOR ) Accelerator,
 		@EnumValue(CL_DEVICE_TYPE_DEFAULT     ) Default;
 
 		public long getValue() { return EnumValues.getValue(this); }
-		public static long getValue(EnumSet<CLDeviceType> set) { return EnumValues.getValue(set); }
-		public static EnumSet<CLDeviceType> getEnumSet(long v) { return EnumValues.getEnumSet(v, CLDeviceType.class); }
+		public static long getValue(EnumSet<Type> set) { return EnumValues.getValue(set); }
+		public static EnumSet<Type> getEnumSet(long v) { return EnumValues.getEnumSet(v, Type.class); }
 	}
 
 	/**
 	 * The OpenCL device type.
 	 */
-	@CLInfoName("CL_DEVICE_TYPE")
-	public EnumSet<CLDeviceType> getType() {
-        return CLDeviceType.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_TYPE));
+	@InfoName("CL_DEVICE_TYPE")
+	public EnumSet<Type> getType() {
+        return Type.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_TYPE));
     }
 
 	/**
 	 * A unique device vendor identifier. <br/>
 	 * An example of a unique device identifier could be the PCIe ID.
 	 */
-	@CLInfoName("CL_DEVICE_VENDOR_ID")
+	@InfoName("CL_DEVICE_VENDOR_ID")
 	public int getVendorId() {
 		return infos.getInt(get(), CL_DEVICE_VENDOR_ID);
 	}
@@ -94,7 +94,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * The number of parallel compute cores on the OpenCL device. <br/>
 	 * The minimum value is 1.
 	 */
-	@CLInfoName("CL_DEVICE_MAX_COMPUTE_UNITS")
+	@InfoName("CL_DEVICE_MAX_COMPUTE_UNITS")
 	public int getMaxComputeUnits() {
 		return infos.getInt(get(), CL_DEVICE_MAX_COMPUTE_UNITS);
 	}
@@ -104,7 +104,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * (Refer to clEnqueueNDRangeKernel).
 	 * <br/>The minimum value is 3.
 	 */
-	@CLInfoName("CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS")
+	@InfoName("CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS")
 	public int getMaxWorkItemDimensions() {
 		return infos.getInt(get(), CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS);
 	}
@@ -112,7 +112,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	 * Maximum number of work-items that can be specified in each dimension of the work-group to clEnqueueNDRangeKernel.
 	 */
-	@CLInfoName("CL_DEVICE_MAX_WORK_ITEM_SIZES")
+	@InfoName("CL_DEVICE_MAX_WORK_ITEM_SIZES")
 	public long[] getMaxWorkItemSizes() {
 		return infos.getNativeLongs(get(), CL_DEVICE_MAX_WORK_ITEM_SIZES, getMaxWorkItemDimensions());
 	}
@@ -122,7 +122,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * (Refer to clEnqueueNDRangeKernel). <br/>
 	 * The minimum value is 1.
 	 */
-	@CLInfoName("CL_DEVICE_MAX_WORK_GROUP_SIZE")
+	@InfoName("CL_DEVICE_MAX_WORK_GROUP_SIZE")
 	public long getMaxWorkGroupSize() {
 		return infos.getNativeLong(get(), CL_DEVICE_MAX_WORK_GROUP_SIZE);
 	}
@@ -130,7 +130,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	 * Maximum configured clock frequency of the device in MHz.
 	 */
-	@CLInfoName("CL_DEVICE_MAX_CLOCK_FREQUENCY")
+	@InfoName("CL_DEVICE_MAX_CLOCK_FREQUENCY")
 	public int getMaxClockFrequency() {
 		return infos.getInt(get(), CL_DEVICE_MAX_CLOCK_FREQUENCY);
 	}
@@ -138,7 +138,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	 * The default compute device address space size specified as an unsigned integer value in bits. Currently supported values are 32 or 64 bits.
 	 */
-	@CLInfoName("CL_DEVICE_ADDRESS_BITS")
+	@InfoName("CL_DEVICE_ADDRESS_BITS")
 	public int getAddressBits() {
 		return infos.getInt(get(), CL_DEVICE_ADDRESS_BITS);
 	}
@@ -146,7 +146,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	 * Max size of memory object allocation in bytes. The minimum value is max (1/4th of CL_DEVICE_GLOBAL_MEM_SIZE , 128*1024*1024)
 	 */
-	@CLInfoName("CL_DEVICE_MAX_MEM_ALLOC_SIZE")
+	@InfoName("CL_DEVICE_MAX_MEM_ALLOC_SIZE")
 	public long getMaxMemAllocSize() {
 		return infos.getNativeLong(get(), CL_DEVICE_MAX_MEM_ALLOC_SIZE);
 	}
@@ -154,7 +154,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	 * Is CL_TRUE if images are supported by the OpenCL device and CL_FALSE otherwise.
 	 */
-	@CLInfoName("CL_DEVICE_IMAGE_SUPPORT")
+	@InfoName("CL_DEVICE_IMAGE_SUPPORT")
 	public boolean hasImageSupport() {
 		return infos.getBool(get(), CL_DEVICE_IMAGE_SUPPORT);
 	}
@@ -163,7 +163,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Max number of simultaneous image objects that can be read by a kernel. <br/>
 	 * The minimum value is 128 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE (@see hasImageSupport()).
 	 */
-	@CLInfoName("CL_DEVICE_MAX_READ_IMAGE_ARGS")
+	@InfoName("CL_DEVICE_MAX_READ_IMAGE_ARGS")
 	public int getMaxReadImageArgs() {
 		return infos.getInt(get(), CL_DEVICE_MAX_READ_IMAGE_ARGS);
 	}
@@ -172,7 +172,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Max number of simultaneous image objects that can be written to by a kernel. <br/>
 	 * The minimum value is 8 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE (@see hasImageSupport()).
 	 */
-	@CLInfoName("CL_DEVICE_MAX_WRITE_IMAGE_ARGS")
+	@InfoName("CL_DEVICE_MAX_WRITE_IMAGE_ARGS")
 	public int getMaxWriteImageArgs() {
 		return infos.getInt(get(), CL_DEVICE_MAX_WRITE_IMAGE_ARGS);
 	}
@@ -201,7 +201,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Max width of 2D image in pixels. <br/>
 	 * The minimum value is 8192 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
 	 */
-	@CLInfoName("CL_DEVICE_IMAGE2D_MAX_WIDTH")
+	@InfoName("CL_DEVICE_IMAGE2D_MAX_WIDTH")
 	public long getImage2DMaxWidth() {
 		return infos.getNativeLong(get(), CL_DEVICE_IMAGE2D_MAX_WIDTH);
 	}
@@ -210,7 +210,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Max height of 2D image in pixels. <br/>
 	 * The minimum value is 8192 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
 	 */
-	@CLInfoName("CL_DEVICE_IMAGE2D_MAX_HEIGHT")
+	@InfoName("CL_DEVICE_IMAGE2D_MAX_HEIGHT")
 	public long getImage2DMaxHeight() {
 		return infos.getNativeLong(get(), CL_DEVICE_IMAGE2D_MAX_HEIGHT);
 	}
@@ -219,7 +219,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Max width of 3D image in pixels. <br/>
 	 * The minimum value is 2048 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
 	 */
-	@CLInfoName("CL_DEVICE_IMAGE3D_MAX_WIDTH")
+	@InfoName("CL_DEVICE_IMAGE3D_MAX_WIDTH")
 	public long getImage3DMaxWidth() {
 		return infos.getNativeLong(get(), CL_DEVICE_IMAGE3D_MAX_WIDTH);
 	}
@@ -228,7 +228,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Max height of 3D image in pixels. <br/>
 	 * The minimum value is 2048 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
 	 */
-	@CLInfoName("CL_DEVICE_IMAGE3D_MAX_HEIGHT")
+	@InfoName("CL_DEVICE_IMAGE3D_MAX_HEIGHT")
 	public long getImage3DMaxHeight() {
 		return infos.getNativeLong(get(), CL_DEVICE_IMAGE3D_MAX_HEIGHT);
 	}
@@ -237,7 +237,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Max depth of 3D image in pixels. <br/>
 	 * The minimum value is 2048 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
 	 */
-	@CLInfoName("CL_DEVICE_IMAGE3D_MAX_DEPTH")
+	@InfoName("CL_DEVICE_IMAGE3D_MAX_DEPTH")
 	public long getImage3DMaxDepth() {
 		return infos.getNativeLong(get(), CL_DEVICE_IMAGE3D_MAX_DEPTH);
 	}
@@ -247,7 +247,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Refer to section 6.11.8 for a detailed description on samplers. <br/>
 	 * The minimum value is 16 if CL_DEVICE_IMAGE_SUPPORT is CL_TRUE.
 	 */
-	@CLInfoName("CL_DEVICE_MAX_SAMPLERS")
+	@InfoName("CL_DEVICE_MAX_SAMPLERS")
 	public int getMaxSamplers() {
 		return infos.getInt(get(), CL_DEVICE_MAX_SAMPLERS);
 	}
@@ -256,7 +256,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Max size in bytes of the arguments that can be passed to a kernel. <br/>
 	 * The minimum value is 256.
 	 */
-	@CLInfoName("CL_DEVICE_MAX_PARAMETER_SIZE")
+	@InfoName("CL_DEVICE_MAX_PARAMETER_SIZE")
 	public long getMaxParameterSize() {
 		return infos.getNativeLong(get(), CL_DEVICE_MAX_PARAMETER_SIZE);
 	}
@@ -264,7 +264,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	 * Describes the alignment in bits of the base address of any allocated memory object.
 	 */
-	@CLInfoName("CL_DEVICE_MEM_BASE_ADDR_ALIGN")
+	@InfoName("CL_DEVICE_MEM_BASE_ADDR_ALIGN")
 	public int getMemBaseAddrAlign() {
 		return infos.getInt(get(), CL_DEVICE_MEM_BASE_ADDR_ALIGN);
 	}
@@ -272,13 +272,13 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	 * The smallest alignment in bytes which can be used for any data type.
 	 */
-	@CLInfoName("CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE")
+	@InfoName("CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE")
 	public int getMinDataTypeAlign() {
 		return infos.getInt(get(), CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE);
 	}
 
 	/** Bit values for CL_DEVICE_SINGLE_FP_CONFIG */
-	public enum CLDeviceSingleFP {
+	public enum SingleFPConfig {
 		/** denorms are supported                                  */ @EnumValue(CL_FP_DENORM			) Denorm			,
 		/** INF and quiet NaNs are supported.                      */ @EnumValue(CL_FP_INF_NAN			) InfNaN			,
 		/** round to nearest even rounding mode supported          */ @EnumValue(CL_FP_ROUND_TO_NEAREST	) RoundToNearest	,
@@ -287,41 +287,41 @@ public class CLDevice extends CLEntity<cl_device_id> {
 		/** IEEE754-2008 fused multiply-add is supported.          */ @EnumValue(CL_FP_FMA				) FMA				;
 
 		public long getValue() { return EnumValues.getValue(this); }
-		public static long getValue(EnumSet<CLDeviceSingleFP> set) { return EnumValues.getValue(set); }
-		public static EnumSet<CLDeviceSingleFP> getEnumSet(long v) { return EnumValues.getEnumSet(v, CLDeviceSingleFP.class); }
+		public static long getValue(EnumSet<SingleFPConfig> set) { return EnumValues.getValue(set); }
+		public static EnumSet<SingleFPConfig> getEnumSet(long v) { return EnumValues.getEnumSet(v, SingleFPConfig.class); }
 	}
 
 	/**
 	 * Describes single precision floating- point capability of the device.<br/>
 	 * The mandated minimum floating-point capability is: RoundToNearest and InfNaN.
 	 */
-	@CLInfoName("CL_DEVICE_SINGLE_FP_CONFIG")
-	public EnumSet<CLDeviceSingleFP> getSingleFPConfig() {
-		return CLDeviceSingleFP.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_SINGLE_FP_CONFIG));
+	@InfoName("CL_DEVICE_SINGLE_FP_CONFIG")
+	public EnumSet<SingleFPConfig> getSingleFPConfig() {
+		return SingleFPConfig.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_SINGLE_FP_CONFIG));
 	}
 
 	/** Values for CL_DEVICE_GLOBAL_MEM_CACHE_TYPE */
-	public enum CLCacheType {
+	public enum GlobalMemCacheType {
 		@EnumValue(CL_NONE             ) None          ,
 		@EnumValue(CL_READ_ONLY_CACHE  ) ReadOnlyCache ,
 		@EnumValue(CL_READ_WRITE_CACHE ) ReadWriteCache;
 		
 		public long getValue() { return EnumValues.getValue(this); }
-		public static CLCacheType getEnum(long v) { return EnumValues.getEnum(v, CLCacheType.class); }
+		public static GlobalMemCacheType getEnum(long v) { return EnumValues.getEnum(v, GlobalMemCacheType.class); }
 	}
 	/**
 	 * Type of global memory cache supported.
 	 */
-	@CLInfoName("CL_DEVICE_GLOBAL_MEM_CACHE_TYPE")
-	public CLCacheType getGlobalMemCacheType() {
-		return CLCacheType.getEnum(infos.getInt(get(), CL_DEVICE_GLOBAL_MEM_CACHE_TYPE));
+	@InfoName("CL_DEVICE_GLOBAL_MEM_CACHE_TYPE")
+	public GlobalMemCacheType getGlobalMemCacheType() {
+		return GlobalMemCacheType.getEnum(infos.getInt(get(), CL_DEVICE_GLOBAL_MEM_CACHE_TYPE));
 	}
 
 
 	/**
 	 * Size of global memory cache line in bytes.
 	 */
-	@CLInfoName("CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE")
+	@InfoName("CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE")
 	public int getGlobalMemCachelineSize() {
 		return infos.getInt(get(), CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE);
 	}
@@ -329,7 +329,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	 * Size of global memory cache in bytes.
 	 */
-	@CLInfoName("CL_DEVICE_GLOBAL_MEM_CACHE_SIZE")
+	@InfoName("CL_DEVICE_GLOBAL_MEM_CACHE_SIZE")
 	public long getGlobalMemCacheSize() {
 		return infos.getNativeLong(get(), CL_DEVICE_GLOBAL_MEM_CACHE_SIZE);
 	}
@@ -337,7 +337,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	 * Size of global device memory in bytes.
 	 */
-	@CLInfoName("CL_DEVICE_GLOBAL_MEM_SIZE")
+	@InfoName("CL_DEVICE_GLOBAL_MEM_SIZE")
 	public long getGlobalMemSize() {
 		return infos.getNativeLong(get(), CL_DEVICE_GLOBAL_MEM_SIZE);
 	}
@@ -346,7 +346,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Max size in bytes of a constant buffer allocation. <br/>
 	 * The minimum value is 64 KB.
 	 */
-	@CLInfoName("CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE")
+	@InfoName("CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE")
 	public long getMaxConstantBufferSize() {
 		return infos.getNativeLong(get(), CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE);
 	}
@@ -355,34 +355,34 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Max number of arguments declared with the __constant qualifier in a kernel. <br/>
 	 * The minimum value is 8.
 	 */
-	@CLInfoName("CL_DEVICE_MAX_CONSTANT_ARGS")
+	@InfoName("CL_DEVICE_MAX_CONSTANT_ARGS")
 	public int getMaxConstantArgs() {
 		return infos.getInt(get(), CL_DEVICE_MAX_CONSTANT_ARGS);
 	}
 
 	/** Values for CL_DEVICE_LOCAL_MEM_TYPE */
-	public enum CLMemType {
+	public enum LocalMemType {
 		/** implying dedicated local memory storage such as SRAM */
 		@EnumValue(CL_LOCAL  ) Local ,
 		@EnumValue(CL_GLOBAL ) Global;
 
 		public long getValue() { return EnumValues.getValue(this); }
-		public static CLMemType getEnum(long v) { return EnumValues.getEnum(v, CLMemType.class); }
+		public static LocalMemType getEnum(long v) { return EnumValues.getEnum(v, LocalMemType.class); }
 	}
 
 	/**
 	 * Type of local memory supported. <br/>
 	 */
-	@CLInfoName("CL_DEVICE_LOCAL_MEM_TYPE")
-	public CLMemType getLocalMemType() {
-		return CLMemType.getEnum(infos.getInt(get(), CL_DEVICE_LOCAL_MEM_TYPE));
+	@InfoName("CL_DEVICE_LOCAL_MEM_TYPE")
+	public LocalMemType getLocalMemType() {
+		return LocalMemType.getEnum(infos.getInt(get(), CL_DEVICE_LOCAL_MEM_TYPE));
 	}
 	
 	/**
 	 * Size of local memory arena in bytes. <br/>
 	 * The minimum value is 16 KB.
 	 */
-	@CLInfoName("CL_DEVICE_LOCAL_MEM_SIZE")
+	@InfoName("CL_DEVICE_LOCAL_MEM_SIZE")
 	public long getLocalMemSize() {
 		return infos.getNativeLong(get(), CL_DEVICE_LOCAL_MEM_SIZE);
 	}
@@ -392,7 +392,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Is CL_FALSE if the device does not implement error correction. <br/>
 	 * This can be a requirement for certain clients of OpenCL.
 	 */
-	@CLInfoName("CL_DEVICE_ERROR_CORRECTION_SUPPORT")
+	@InfoName("CL_DEVICE_ERROR_CORRECTION_SUPPORT")
 	public boolean hasErrorCorrectionSupport() {
 		return infos.getBool(get(), CL_DEVICE_ERROR_CORRECTION_SUPPORT);
 	}
@@ -402,7 +402,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * This is measured in nanoseconds.	<br/>
 	 * Refer to section 5.9 for details.
 	 */
-	@CLInfoName("CL_DEVICE_PROFILING_TIMER_RESOLUTION")
+	@InfoName("CL_DEVICE_PROFILING_TIMER_RESOLUTION")
 	public long getProfilingTimerResolution() {
 		return infos.getNativeLong(get(), CL_DEVICE_PROFILING_TIMER_RESOLUTION);
 	}
@@ -410,7 +410,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	 * Is CL_TRUE if the OpenCL device is a little endian device and CL_FALSE otherwise.
 	 */
-	@CLInfoName("CL_DEVICE_ENDIAN_LITTLE")
+	@InfoName("CL_DEVICE_ENDIAN_LITTLE")
 	public boolean isEndianLittle() {
 		return infos.getBool(get(), CL_DEVICE_ENDIAN_LITTLE);
 	}
@@ -418,7 +418,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	 * Is CL_TRUE if the device is available and CL_FALSE if the device is not available.
 	 */
-	@CLInfoName("CL_DEVICE_AVAILABLE")
+	@InfoName("CL_DEVICE_AVAILABLE")
 	public boolean isAvailable() {
 		return infos.getBool(get(), CL_DEVICE_AVAILABLE);
 	}
@@ -428,7 +428,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * Is CL_TRUE if the compiler is available.<br/>
 	 * This can be CL_FALSE for the embededed platform profile only.
 	 */
-	@CLInfoName("CL_DEVICE_COMPILER_AVAILABLE")
+	@InfoName("CL_DEVICE_COMPILER_AVAILABLE")
 	public boolean isCompilerAvailable() {
 		return infos.getBool(get(), CL_DEVICE_COMPILER_AVAILABLE);
 	}
@@ -436,7 +436,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	Device name string.
 	 */
-	@CLInfoName("CL_DEVICE_NAME")
+	@InfoName("CL_DEVICE_NAME")
 	public String getName() {
 		return infos.getString(get(), CL_DEVICE_NAME);
 	}
@@ -444,7 +444,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	Vendor name string.
 	 */
-	@CLInfoName("CL_DEVICE_VENDOR")
+	@InfoName("CL_DEVICE_VENDOR")
 	public String getVendor() {
 		return infos.getString(get(), CL_DEVICE_VENDOR);
 	}
@@ -452,7 +452,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	OpenCL software driver version string in the form major_number.minor_number.
 	 */
-	@CLInfoName("CL_DRIVER_VERSION")
+	@InfoName("CL_DRIVER_VERSION")
 	public String getDriverVersion() {
 		return infos.getString(get(), CL_DRIVER_VERSION);
 	}
@@ -466,7 +466,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * <li>EMBEDDED_PROFILE if the device supports the OpenCL embedded profile.</li>
 	 * </ul>
 	 */
-	@CLInfoName("CL_DEVICE_PROFILE")
+	@InfoName("CL_DEVICE_PROFILE")
 	public String getProfile() {
 		return infos.getString(get(), CL_DEVICE_PROFILE);
 	}
@@ -477,7 +477,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
 	 * If the cl_khr_fp64 extension is not supported, CL_DEVICE_PREFERRED_VECTOR_WID TH_DOUBLE must return 0.
 	 */
-	@CLInfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR")
+	@InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR")
 	public int getPreferredVectorWidthChar() {
 		return infos.getInt(get(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR);
 	}
@@ -487,7 +487,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
 	 * If the cl_khr_fp64 extension is not supported, CL_DEVICE_PREFERRED_VECTOR_WID TH_DOUBLE must return 0.
 	 */
-	@CLInfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT")
+	@InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT")
 	public int getPreferredVectorWidthShort() {
 		return infos.getInt(get(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT);
 	}
@@ -497,7 +497,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
 	 * If the cl_khr_fp64 extension is not supported, CL_DEVICE_PREFERRED_VECTOR_WID TH_DOUBLE must return 0.
 	 */
-	@CLInfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT")
+	@InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT")
 	public int getPreferredVectorWidthInt() {
 		return infos.getInt(get(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT);
 	}
@@ -507,7 +507,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
 	 * If the cl_khr_fp64 extension is not supported, CL_DEVICE_PREFERRED_VECTOR_WID TH_DOUBLE must return 0.
 	 */
-	@CLInfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG")
+	@InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG")
 	public int getPreferredVectorWidthLong() {
 		return infos.getInt(get(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG);
 	}
@@ -517,7 +517,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
 	 * If the cl_khr_fp64 extension is not supported, CL_DEVICE_PREFERRED_VECTOR_WID TH_DOUBLE must return 0.
 	 */
-	@CLInfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT")
+	@InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT")
 	public int getPreferredVectorWidthFloat() {
 		return infos.getInt(get(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT);
 	}
@@ -527,7 +527,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
 	 * If the cl_khr_fp64 extension is not supported, CL_DEVICE_PREFERRED_VECTOR_WID TH_DOUBLE must return 0.
 	 */
-	@CLInfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE")
+	@InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE")
 	public int getPreferredVectorWidthDouble() {
 		return infos.getInt(get(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE);
 	}
@@ -541,7 +541,7 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * </code>
 	 * The major_version.minor_version value returned will be 1.0.
 	 */
-	@CLInfoName("CL_DEVICE_VERSION")
+	@InfoName("CL_DEVICE_VERSION")
 	public String getVersion() {
 		return infos.getString(get(), CL_DEVICE_VERSION);
 	}
@@ -549,19 +549,19 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	/**
 	Returns a space separated list of extension names (the extension names themselves do not contain any spaces). The list of extension names returned currently can include one or more of
 	 */
-	@CLInfoName("CL_DEVICE_EXTENSIONS")
+	@InfoName("CL_DEVICE_EXTENSIONS")
 	public String[] getExtensions() {
 		return infos.getString(get(), CL_DEVICE_EXTENSIONS).split("\\s+");
 	}
 
 	/** Bit values for CL_DEVICE_QUEUE_PROPERTIES */
-	public enum CLQueueProperty {
+	public enum QueueProperties {
 		@EnumValue(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE) OutOfOrderExecModeEnable,
 		@EnumValue(CL_QUEUE_PROFILING_ENABLE             ) ProfilingEnable		   ;
 		
 		public long getValue() { return EnumValues.getValue(this); }
-		public static long getValue(EnumSet<CLQueueProperty> set) { return EnumValues.getValue(set); }
-		public static EnumSet<CLQueueProperty> getEnumSet(long v) { return EnumValues.getEnumSet(v, CLQueueProperty.class); }
+		public static long getValue(EnumSet<QueueProperties> set) { return EnumValues.getValue(set); }
+		public static EnumSet<QueueProperties> getEnumSet(long v) { return EnumValues.getEnumSet(v, QueueProperties.class); }
 	}
 
 	/**
@@ -569,9 +569,9 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	 * These properties are described in table 5.1.<br/>
 	 * The mandated minimum capability is: ProfilingEnable.
 	 */
-	@CLInfoName("CL_DEVICE_QUEUE_PROPERTIES")
-	public EnumSet<CLQueueProperty> getQueueProperties() {
-		return CLQueueProperty.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_QUEUE_PROPERTIES));
+	@InfoName("CL_DEVICE_QUEUE_PROPERTIES")
+	public EnumSet<QueueProperties> getQueueProperties() {
+		return QueueProperties.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_QUEUE_PROPERTIES));
 	}
 
 }

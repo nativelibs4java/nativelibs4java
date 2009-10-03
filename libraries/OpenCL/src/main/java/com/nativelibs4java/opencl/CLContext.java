@@ -4,13 +4,20 @@
  */
 
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.CLSampler.CLAddressingMode;
-import com.nativelibs4java.opencl.CLSampler.CLFilterMode;
+import com.nativelibs4java.opencl.CLSampler.AddressingMode;
+import com.nativelibs4java.opencl.CLSampler.FilterMode;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import com.nativelibs4java.opencl.library.cl_image_format;
+import com.nativelibs4java.util.EnumValue;
+import com.nativelibs4java.util.EnumValues;
+import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.CLException.*;
 import static com.nativelibs4java.util.JNAUtils.*;
@@ -51,8 +58,27 @@ public class CLContext extends CLEntity<cl_context> {
         return new CLDevice(platform, deviceIds[0]).createQueue(this);
     }
 
+	public CLImageFormat[] getSupportedImageFormats(CLMem.ObjectType imageType) {
+		IntByReference pCount = new IntByReference();
+		int memFlags = CL_MEM_READ_WRITE;
+		int imTyp = (int)imageType.getValue();
+		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, 0, null, pCount);
+		int n = pCount.getValue();
+		if (n == 0)
+			return new CLImageFormat[0];
+		cl_image_format[] formats = new cl_image_format().toArray(n);
+		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, n, formats[0], (IntByReference)null);
+		CLImageFormat[] ret = new CLImageFormat[n];
+		int i = 0;
+		for (cl_image_format format : formats)
+			ret[i] = new CLImageFormat(CLImageFormat.ChannelOrder.getEnum(format.image_channel_order), CLImageFormat.ChannelDataType.getEnum(format.image_channel_data_type));
+		return ret;
+	}
+	
 
-	public CLSampler createSampler(boolean normalized_coords, CLAddressingMode addressing_mode, CLFilterMode filter_mode) {
+			
+
+	public CLSampler createSampler(boolean normalized_coords, AddressingMode addressing_mode, FilterMode filter_mode) {
 		IntByReference pErr = new IntByReference();
 		cl_sampler sampler = CL.clCreateSampler(get(), normalized_coords ? CL_TRUE : CL_FALSE, (int)addressing_mode.getValue(), (int)filter_mode.getValue(), pErr);
 		error(pErr.getValue());

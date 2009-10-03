@@ -9,6 +9,7 @@ import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.CLException.*;
@@ -42,18 +43,20 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
 	/**
 	 * Lists all the devices of the platform
 	 * @param onlyAvailable if true, only returns devices that are available
+	 * @see CLPlatform#listDevices(java.util.EnumSet, boolean)
 	 */
     public CLDevice[] listAllDevices(boolean onlyAvailable) {
-            return listDevices(true, true, onlyAvailable);
+            return listDevices(EnumSet.allOf(CLDevice.Type.class), onlyAvailable);
     }
 
     /**
 	 * Lists all the GPU devices of the platform
 	 * @param onlyAvailable if true, only returns GPU devices that are available
+	 * @see CLPlatform#listDevices(java.util.EnumSet, boolean)
 	 */
     public CLDevice[] listGPUDevices(boolean onlyAvailable) {
             try {
-                    return listDevices(true, false, onlyAvailable);
+                    return listDevices(EnumSet.of(CLDevice.Type.GPU), onlyAvailable);
             } catch (CLException ex) {
             if (ex.getCode() == CL_DEVICE_NOT_FOUND)
                 return new CLDevice[0];
@@ -64,10 +67,11 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
     /**
 	 * Lists all the CPU devices of the platform
 	 * @param onlyAvailable if true, only returns CPU devices that are available
+	 * @see CLPlatform#listDevices(java.util.EnumSet, boolean)
 	 */
     public CLDevice[] listCPUDevices(boolean onlyAvailable) {
         try {
-            return listDevices(false, true, onlyAvailable);
+            return listDevices(EnumSet.of(CLDevice.Type.CPU), onlyAvailable);
         } catch (CLException ex) {
             if (ex.getCode() == CL_DEVICE_NOT_FOUND)
                 return new CLDevice[0];
@@ -101,9 +105,12 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
         return new CLContext(this, ids, context);
     }
 
+	/**
+	 * List all the devices of the specified types, with only the ones declared as available if onlyAvailable is true.
+	 */
     @SuppressWarnings("deprecation")
-    private CLDevice[] listDevices(boolean gpu, boolean cpu, boolean onlyAvailable) {
-        int flags = (gpu ? CL_DEVICE_TYPE_GPU : 0) | (cpu ? CL_DEVICE_TYPE_CPU : 0);
+    public CLDevice[] listDevices(EnumSet<CLDevice.Type> types, boolean onlyAvailable) {
+        int flags = (int)CLDevice.Type.getValue(types);
 
         IntByReference pCount = new IntByReference();
         error(CL.clGetDeviceIDs(get(), flags, 0, (PointerByReference) null, pCount ));
@@ -140,7 +147,7 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
 	 * <li>EMBEDDED_PROFILE if the implementation supports the OpenCL embedded profile. The embedded profile is defined to be a subset for each version of OpenCL. The embedded profile for OpenCL 1.0 is described in section 10.</li>
 	 * </ul>
 	 */
-	@CLInfoName("CL_PLATFORM_PROFILE")
+	@InfoName("CL_PLATFORM_PROFILE")
 	public String getProfile() {
 		return infos.getString(get(), CL_PLATFORM_PROFILE);
 	}
@@ -151,7 +158,7 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
 	Last Revision Date: 5/16/09	Page 30
 	The major_version.minor_version value returned will be 1.0.
 	 */
-	@CLInfoName("CL_PLATFORM_VERSION")
+	@InfoName("CL_PLATFORM_VERSION")
 	public String getVersion() {
 		return infos.getString(get(), CL_PLATFORM_VERSION);
 	}
@@ -159,7 +166,7 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
 	/**
 	 * Platform name string.
 	 */
-	@CLInfoName("CL_PLATFORM_NAME")
+	@InfoName("CL_PLATFORM_NAME")
 	public String getName() {
 		return infos.getString(get(), CL_PLATFORM_NAME);
 	}
@@ -167,7 +174,7 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
 	/**
 	 * Platform vendor string.
 	 */
-	@CLInfoName("CL_PLATFORM_VENDOR")
+	@InfoName("CL_PLATFORM_VENDOR")
 	public String getVendor() {
 		return infos.getString(get(), CL_PLATFORM_VENDOR);
 	}
@@ -176,7 +183,7 @@ public class CLPlatform extends CLEntity<cl_platform_id> {
 	 * Returns a list of extension names <br/>
 	 * Extensions defined here must be supported by all devices associated with this platform.
 	 */
-	@CLInfoName("CL_PLATFORM_EXTENSIONS")
+	@InfoName("CL_PLATFORM_EXTENSIONS")
 	public String[] getExtensions() {
 		return infos.getString(get(), CL_PLATFORM_EXTENSIONS).split("\\s+");
 	}

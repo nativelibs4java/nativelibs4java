@@ -13,6 +13,33 @@ import java.util.*;
  */
 public class EnumValues {
 
+	static class Cache<E extends Enum> {
+		final Map<Long, E> enumsByValue = new LinkedHashMap<Long, E>();
+		final Map<E, Long> valuesByEnum = new LinkedHashMap<E, Long>();
+		public Cache(Class<E> enumClass) {
+			for (E e : enumClass.getEnumConstants()) {
+				EnumValue ev = null;
+				try {
+					ev = enumClass.getField(e.name()).getAnnotation(EnumValue.class);
+				} catch (Exception ex) {
+					throw new RuntimeException(ex);
+				}
+				if (ev == null)
+					throw new IllegalArgumentException("Enum value is not annotated with the " + EnumValue.class.getName() + " annotation : " + e);
+				long value = ev.value();
+				enumsByValue.put(value, e);
+				valuesByEnum.put(e, value);
+			}
+		}
+	}
+	static final Map<Class<? extends Enum>, Cache<?>> caches = new HashMap<Class<? extends Enum>, Cache<?>>();
+	static synchronized <E extends Enum> Cache<E> getCache(Class<E> enumClass) {
+		Cache<E> cache = (Cache<E>)caches.get(enumClass);
+		if (cache == null) {
+			caches.put(enumClass, cache = new Cache(enumClass));
+		}
+		return cache;
+	}
 	/**
 	 * Get the first enum item in enum class E which EnumValue value is equal to value
 	 * @param <E> type of the enum
@@ -21,10 +48,7 @@ public class EnumValues {
 	 * @return first enum item with matching value, null if there is no matching enum item
 	 */
 	public static <E extends Enum<E>> E getEnum(long value, Class<E> enumClass) {
-		for (E e : enumClass.getEnumConstants())
-			if (getValue(e) == value)
-				return e;
-		return null;
+		return getCache(enumClass).enumsByValue.get(value);
 	}
 
 	/**
@@ -36,8 +60,9 @@ public class EnumValues {
 	 */
 	public static <E extends Enum<E>> EnumSet<E> getEnumSet(long value, Class<E> enumClass) {
 		EnumSet<E> set = EnumSet.noneOf(enumClass);
-		for (E e : enumClass.getEnumConstants()) {
-			long ev = getValue(e);
+		for (Map.Entry<Long, E> pair : getCache(enumClass).enumsByValue.entrySet()) {
+			E e  = pair.getValue();
+			long ev = pair.getKey();
 			if ((ev & value) == ev)
 				set.add(e);
 		}
@@ -50,15 +75,8 @@ public class EnumValues {
 	 * @param enumItem
 	 * @return
 	 */
-	public static long getValue(Enum enumItem) {
-		EnumValue v = null;
-		try {
-			v = enumItem.getClass().getField(enumItem.name()).getAnnotation(EnumValue.class);
-		} catch (Exception ex) {
-		}
-		if (v == null)
-			throw new IllegalArgumentException("Enum value is not annotated with the " + EnumValue.class.getName() + " annotation : " + enumItem);
-		return v.value();
+	public static <E extends Enum> long getValue(E enumItem) {
+		return getCache((Class<E>)enumItem.getDeclaringClass()).valuesByEnum.get(enumItem);
 	}
 
 	/**
