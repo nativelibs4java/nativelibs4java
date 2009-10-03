@@ -65,8 +65,8 @@ public class OpenCL4JavaBasicTest {
             kernel.setArgs(memIn1, memIn2, memOut);
 
             /// Map input buffers to populate them with some data
-            FloatBuffer a = memIn1.blockingMapWrite(queue).asFloatBuffer();
-            FloatBuffer b = memIn2.blockingMapWrite(queue).asFloatBuffer();
+            FloatBuffer a = memIn1.blockingMap(queue, CLMem.MapFlags.Write).asFloatBuffer();
+            FloatBuffer b = memIn2.blockingMap(queue, CLMem.MapFlags.Write).asFloatBuffer();
 
             // Fill the mapped input buffers with data
             for (int i = 0; i < dataSize; i++) {

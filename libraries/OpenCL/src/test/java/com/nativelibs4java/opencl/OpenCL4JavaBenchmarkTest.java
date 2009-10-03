@@ -117,8 +117,8 @@ public class OpenCL4JavaBenchmarkTest {
         }
 
         if (hostInOpenCL) {
-            input1 = memIn1.blockingMapWrite(queue);
-            input2 = memIn2.blockingMapWrite(queue);
+            input1 = memIn1.blockingMap(queue, CLMem.MapFlags.Write);
+            input2 = memIn2.blockingMap(queue, CLMem.MapFlags.Write);
         }
         fillBuffersWithSomeData.call(input1, input2);
         if (hostInOpenCL) {
@@ -138,7 +138,7 @@ public class OpenCL4JavaBenchmarkTest {
         //System.out.println("OpenCL operations(" + target + ") : " + time + "ns");
         if (hostInOpenCL) {
             // Copy the OpenCL-hosted array back to RAM
-            output = memOut.blockingMapRead(queue);
+            output = memOut.blockingMap(queue, CLMem.MapFlags.Read);
             //queue.finish();
             ByteBuffer b = directBytes(dataSize * nativePrim.sizeof());
             b.put(output);
