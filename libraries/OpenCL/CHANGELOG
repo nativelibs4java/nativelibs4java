@@ -1,5 +1,6 @@
 Current development version (1.0-SNAPSHOT)
 
+- JAR is now self-sufficient (includes JNA + JNAerator's runtime classes)
 - Added CLKernel.setLocalArg(argIndex, localArgByteLength)
 - Allow localWorkSizes to be null in enqueueNDRange
 - Added support for barriers and markers in CLQueue
@@ -10,13 +11,15 @@ Current development version (1.0-SNAPSHOT)
 - Added all the CL_DEVICE_PREFERRED_VECTOR_WIDTH_XXX infos to CLDevice as getPreferredVectorWithXXX()
 - Changed return type of getExtensions() method of both CLPlatform and CLDevice from String to String[]
 - Added com.nativelibs4java.opencl.HardwareReport (with main method) : outputs html report with devices stats
-- JAR is now self-sufficient (includes JNA + JNAerator's runtime classes)
 - Rationalized naming of all enums : CL_ENTITY_ATTRIBUTE_SOME_VALUE = CLEntity.Attribute.SomeValue (enum item SomeValue in enum Attribute in class CLEntity)
-- Added image format support query
-- Added CLContext.getSupportedImageFormats + CLImageFormat and associated enums
-- Added CLImage2D, CLImage3D and corresponding creation methods in CLContext + all image info getters
-- Added CLBuffer.copyTo that wraps clEnqueueCopyBuffer
-- CLMem changed a lot : now buffers are created as subclass CLBuffer, deprecated many methods, now should only use CLBuffer.(blocking|enqueue)(Write|Read|Map) + unmap + MapFlags enum
+- Added full support of images :
+	- CLContext.getSupportedImageFormats + CLImageFormat and associated enums
+	- CLImage2D, CLImage3D and corresponding creation methods in CLContext + all image info getters
+- CLMem is now an abstract base class 
+	- CLBuffer with typed subclasses (CLByteBuffer, CLIntBuffer..)
+	- To create a CLBuffer : context.createIntBuffer(Input, size)
+	- Added CLBuffer.copyTo (clEnqueueCopyBuffer)
+	- Each typed CLBuffer subclass has map, mapLater, read methods that return typed NIO buffers
 - Added full typing of OpenCL Exceptions (now possible to selectively catch a CLException.OutOfHostMemory, for instance)
 - Added hashCode and equals method to most classes
 

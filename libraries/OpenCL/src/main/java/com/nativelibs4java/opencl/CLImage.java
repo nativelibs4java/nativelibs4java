@@ -61,4 +61,54 @@ public abstract class CLImage extends CLMem {
 	public long getElementSize() {
 		return infos.getNativeLong(get(), CL_IMAGE_ELEMENT_SIZE);
 	}
+
+
+	protected CLEvent read(CLQueue queue, long[] origin, long[] region, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
+		/*if (!out.isDirect()) {
+
+		}*/
+		cl_event[] eventOut = blocking ? null : new cl_event[1];
+		error(CL.clEnqueueReadImage(queue.get(), get(),
+			blocking ? CL_TRUE : CL_FALSE,
+			toNL(origin),
+			toNL(region),
+			toNL(rowPitch),
+			toNL(slicePitch),
+			Native.getDirectBufferPointer(out),
+			eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
+			eventOut
+		));
+		return blocking ? null : CLEvent.createEvent(eventOut[0]);
+	}
+
+	protected CLEvent write(CLQueue queue, long[] origin, long[] region, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
+		boolean indirect = !in.isDirect();
+		if (indirect)
+			in = directCopy(in);
+
+		cl_event[] eventOut = blocking ? null : new cl_event[1];
+		error(CL.clEnqueueReadImage(queue.get(), get(),
+			blocking ? CL_TRUE : CL_FALSE,
+			toNL(origin),
+			toNL(region),
+			toNL(rowPitch),
+			toNL(slicePitch),
+			Native.getDirectBufferPointer(in),
+			eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
+			eventOut
+		));
+		CLEvent evt = blocking ? null : CLEvent.createEvent(eventOut[0]);
+
+		if (indirect && !blocking) {
+			final Buffer toHold = in;
+			evt.invokeUponCompletion(new Runnable() {
+				public void run() {
+					// Make sure the GC held a reference to directData until the write was completed !
+					toHold.rewind();
+				}
+			});
+		}
+
+		return evt;
+	}
 }

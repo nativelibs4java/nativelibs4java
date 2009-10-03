@@ -5,6 +5,8 @@
 
 package com.nativelibs4java.opencl;
 
+import com.nativelibs4java.util.ImageUtils;
+import java.awt.image.BufferedImage;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -16,32 +18,7 @@ import static org.junit.Assert.*;
  *
  * @author ochafik
  */
-public class ImageTest {
-
-    public ImageTest() {
-    }
-
-	CLPlatform platform;
-	CLContext context;
-	CLQueue queue;
-	CLDevice device;
-	CLImageFormat[] formatsRead2D, formatsRead3D, formatsWrite2D, formatsWrite3D;
-
-    @Before
-    public void setUp() {
-		platform = OpenCL4Java.listPlatforms()[0];
-		context = platform.createContext(platform.listAllDevices(true));
-		queue = context.createDefaultQueue();
-		device = context.getDevices()[0];
-		formatsRead2D = context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image2D);
-		formatsWrite2D = context.getSupportedImageFormats(CLMem.Flags.WriteOnly, CLMem.ObjectType.Image2D);
-		formatsRead3D = context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image3D);
-		formatsWrite3D = context.getSupportedImageFormats(CLMem.Flags.WriteOnly, CLMem.ObjectType.Image3D);
-    }
-
-    @After
-    public void tearDown() {
-    }
+public class ImageTest extends AbstractCommon {
 
     @Test
     public void simpleImage2d() {
@@ -52,7 +29,23 @@ public class ImageTest {
 		assertEquals(height, im.getHeight());
 		assertEquals(format, im.getFormat());
 	}
- 
+
+	@Test
+	public void testReadWrite() {
+		CLImage2D clim = context.createInputOutput2D(formatsReadWrite2D[0], 3, 3);
+		BufferedImage im = clim.read(queue);
+		int valPix = 0xff123456;
+		int x = 1, y = 1;
+		im.setRGB(x, y, valPix);
+		clim.write(queue, im, false, true);//.waitFor();
+		queue.finish();
+		im = clim.read(queue);
+		int[] pixs = ImageUtils.getImageIntPixels(im, false);
+		int retrievedPix = im.getRGB(x, y);
+		assertEquals(valPix, retrievedPix);
+	}
+
+
 	@Test
 	public void testMaxWidth() {
 		context.createInput2D(formatsRead2D[0], device.getImage2DMaxWidth(), 1);

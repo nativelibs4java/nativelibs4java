@@ -50,6 +50,27 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
         return byteCount;
     }
 
+	/**
+	 * Memory Object Usage enum
+	 */
+	public enum Usage {
+		Input(CL_MEM_READ_ONLY, Flags.ReadOnly),
+		Output(CL_MEM_READ_WRITE, Flags.WriteOnly),
+		InputOutput(CL_MEM_WRITE_ONLY, Flags.ReadWrite);
+
+		private int intFlags;
+		private Flags flags;
+		Usage(int intFlags, Flags flags) {
+			this.intFlags = intFlags;
+			this.flags = flags;
+		}
+		public int getIntFlags() {
+			return intFlags;
+		}
+		public Flags getFlags() {
+			return flags;
+		}
+	}
 
 	public enum Flags {
 		/**

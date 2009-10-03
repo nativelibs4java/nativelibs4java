@@ -149,14 +149,15 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * Create an ARGB input 2D image with the content provided
 	 * @param allowUnoptimizingDirectRead Some images expose their internal data for direct read, leading to performance increase during the creation of the OpenCL image. However, direct access to the image data disables some Java2D optimizations for this image, leading to degraded performance in subsequent uses with AWT/Swing.
 	 */
-	public CLImage2D createInput2D(Image image, boolean allowUnoptimizingDirectRead) {
+	public CLImage2D createImage2D(CLMem.Usage usage, Image image, boolean allowUnoptimizingDirectRead) {
 		int width = image.getWidth(null), height = image.getHeight(null);
 		int[] data = getImageIntPixels(image, 0, 0, width, height, allowUnoptimizingDirectRead);
 		IntBuffer directData = NIOUtils.directInts(data.length);
 		directData.put(IntBuffer.wrap(data));
 		directData.rewind();
 
-		return createInput2D(
+		return createImage2D(
+			usage,
 			new CLImageFormat(CLImageFormat.ChannelOrder.ARGB, CLImageFormat.ChannelDataType.UNormInt8),
 			width, height,
 			0,
@@ -164,55 +165,15 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			true
 		);
 	}
-	public CLImage2D createInput2D(CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
-		if (buffer == null)
-			throw new IllegalArgumentException("Null buffer given as image input !");
-		return createImage2D(
-			buffer,
-			EnumSet.of(CLBuffer.Flags.ReadOnly, copy ? CLBuffer.Flags.CopyHostPtr : CLBuffer.Flags.UseHostPtr),
-			format, width, height, rowPitch
-		);
-	}
+	public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
+		long memFlags = usage.getIntFlags();
+		if (buffer != null)
+			memFlags |= copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR;
 
-	public CLImage2D createInput2D(CLImageFormat format, long width, long height) {
-		return createImage2D(
-			null,
-			EnumSet.of(CLBuffer.Flags.ReadOnly),
-			format, width, height, 0
-		);
-	}
-
-	public CLImage2D createInputOutput2D(CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
-		if (buffer == null)
-			throw new IllegalArgumentException("Null buffer given as image input !");
-		return createImage2D(
-			buffer,
-			EnumSet.of(CLBuffer.Flags.ReadWrite, copy ? CLBuffer.Flags.CopyHostPtr : CLBuffer.Flags.UseHostPtr),
-			format, width, height, rowPitch
-		);
-	}
-
-	public CLImage2D createInputOutput2D(CLImageFormat format, long width, long height) {
-		return createImage2D(
-			null,
-			EnumSet.of(CLBuffer.Flags.ReadWrite),
-			format, width, height, 0
-		);
-	}
-
-	public CLImage2D createOutput2D(CLImageFormat format, long width, long height) {
-		return createImage2D(
-			null,
-			EnumSet.of(CLBuffer.Flags.WriteOnly),
-			format, width, height, 0
-		);
-	}
-
-	private CLImage2D createImage2D(Buffer buffer, EnumSet<CLBuffer.Flags> memFlags, CLImageFormat format, long width, long height, long rowPitch) {
 		IntByReference pErr = new IntByReference();
 		cl_mem mem = CL.clCreateImage2D(
 			get(),
-			CLBuffer.Flags.getValue(memFlags),
+			memFlags,
 			format.to_cl_image_format(),
 			toNL(width),
 			toNL(height),
@@ -223,57 +184,22 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		error(pErr.getValue());
 		return new CLImage2D(this, mem, format);
 	}
-
-	public CLImage3D createInput3D(CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
-		if (buffer == null)
-			throw new IllegalArgumentException("Null buffer given as image input !");
-		return createImage3D(
-			buffer,
-			EnumSet.of(CLBuffer.Flags.ReadOnly, copy ? CLBuffer.Flags.CopyHostPtr : CLBuffer.Flags.UseHostPtr),
-			format, width, height, depth, rowPitch, slicePitch
-		);
+	public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height, long rowPitch, long slicePitch) {
+		return createImage2D(usage, format, width, height, rowPitch, null, false);
 	}
 
-	public CLImage3D createInput3D(CLImageFormat format, long width, long height, long depth) {
-		return createImage3D(
-			null,
-			EnumSet.of(CLBuffer.Flags.ReadOnly),
-			format, width, height, depth, 0, 0
-		);
-	}
 
-	public CLImage3D createInputOutput3D(CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
-		if (buffer == null)
-			throw new IllegalArgumentException("Null buffer given as image input !");
-		return createImage3D(
-			buffer,
-			EnumSet.of(CLBuffer.Flags.ReadWrite, copy ? CLBuffer.Flags.CopyHostPtr : CLBuffer.Flags.UseHostPtr),
-			format, width, height, depth, rowPitch, slicePitch
-		);
-	}
 
-	public CLImage3D createInputOutput3D(CLImageFormat format, long width, long height, long depth) {
-		return createImage3D(
-			null,
-			EnumSet.of(CLBuffer.Flags.ReadWrite),
-			format, width, height, depth, 0, 0
-		);
-	}
+	public CLImage3D createImage3D(CLMem.Usage usage, CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
+		long memFlags = usage.getIntFlags();
+		if (buffer != null)
+			memFlags |= copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR;
 
-	public CLImage3D createOutput3D(CLImageFormat format, long width, long height, long depth) {
-		return createImage3D(
-			null,
-			EnumSet.of(CLBuffer.Flags.WriteOnly),
-			format, width, height, depth, 0, 0
-		);
-	}
-
-	private CLImage3D createImage3D(Buffer buffer, EnumSet<CLBuffer.Flags> memFlags, CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch) {
 		IntByReference pErr = new IntByReference();
 		cl_mem mem = CL.clCreateImage3D(
 			get(),
-			CLBuffer.Flags.getValue(memFlags),
-			new cl_image_format((int)format.channelOrder.getValue(), (int)format.channelDataType.getValue()),
+			memFlags,
+			format.to_cl_image_format(),
 			toNL(width),
 			toNL(height),
 			toNL(depth),
@@ -285,6 +211,9 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		error(pErr.getValue());
 		return new CLImage3D(this, mem, format);
 	}
+	public CLImage3D createImage3D(CLMem.Usage usage, CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch) {
+		return createImage3D(usage, format, width, height, depth, rowPitch, slicePitch, null, false);
+	}
 
 	/**
 	 * Create an input memory buffer based on existing data.<br/>
@@ -294,9 +223,11 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @param buffer
 	 * @param copy if true, the memory buffer created is a copy of the provided buffer. if false, the memory buffer uses directly the provided buffer.
 	 * @return
+	 * @deprecated Use createXXXBuffer instead
 	 */
-    public CLBuffer createInput(Buffer buffer, boolean copy) {
-        return createMem(buffer, -1, CL_MEM_READ_ONLY | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), true);
+    @Deprecated
+    public CLByteBuffer createInput(Buffer buffer, boolean copy) {
+		return createByteBuffer(CLMem.Usage.Input, buffer, copy);
     }
 
     /**
@@ -307,9 +238,11 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @param buffer
 	 * @param copy if true, the memory buffer created is a copy of the provided buffer. if false, the memory buffer uses directly the provided buffer.
 	 * @return new memory buffer object
+	 * @deprecated Use createXXXBuffer instead
 	 */
-    public CLBuffer createOutput(Buffer buffer) {
-        return createMem(buffer, -1, CL_MEM_WRITE_ONLY | CL_MEM_USE_HOST_PTR, true);
+	@Deprecated
+    public CLByteBuffer createOutput(Buffer buffer) {
+		return createByteBuffer(CLMem.Usage.Output, buffer, true);
     }
 
     /**
@@ -320,40 +253,98 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @param buffer
 	 * @param copy if true, the memory buffer created is a copy of the provided buffer. if false, the memory buffer uses directly the provided buffer.
 	 * @return new memory buffer object
+	 * @deprecated Use createXXXBuffer instead
 	 */
-    public CLBuffer createInputOutput(Buffer buffer) {
-        return createMem(buffer, -1, CL_MEM_READ_WRITE | CL_MEM_USE_HOST_PTR, true);
+	@Deprecated
+    public CLByteBuffer createInputOutput(Buffer buffer) {
+		return createByteBuffer(CLMem.Usage.InputOutput, buffer, true);
     }
 
+	
     /**
 	 * Create an input memory buffer of the specified size.
 	 * @param byteCount size in bytes of the memory buffer to create
 	 * @return new memory buffer object
+	 * @deprecated Use createXXXBuffer instead
 	 */
-    public CLBuffer createInput(long byteCount) {
-        return createMem(null, byteCount, CL_MEM_READ_ONLY, false);
+	@Deprecated
+    public CLByteBuffer createInput(long byteCount) {
+		return createByteBuffer(CLMem.Usage.Input, byteCount);
     }
 
     /**
 	 * Create an output memory buffer of the specified size.
 	 * @param byteCount size in bytes of the memory buffer to create
 	 * @return new memory buffer object
+	 * @deprecated Use createXXXBuffer instead
 	 */
-    public CLBuffer createOutput(long byteCount) {
-        return createMem(null, byteCount, CL_MEM_WRITE_ONLY, false);
+	@Deprecated
+    public CLByteBuffer createOutput(long byteCount) {
+		return createByteBuffer(CLMem.Usage.Output, byteCount);
     }
 
     /**
 	 * Create a memory buffer that can be used both as input and as output of the specified size.
 	 * @param byteCount size in bytes of the memory buffer to create
 	 * @return new memory buffer object
+	 * @deprecated Use createXXXBuffer instead
 	 */
-    public CLBuffer createInputOutput(int byteCount) {
-        return createMem(null, byteCount, CL_MEM_READ_WRITE, false);
+	@Deprecated
+    public CLByteBuffer createInputOutput(int byteCount) {
+		return createByteBuffer(CLMem.Usage.InputOutput, byteCount);
     }
 
-    @SuppressWarnings("deprecation")
-    private CLBuffer createMem(final Buffer buffer, long byteCount, final int CLBufferFlags, final boolean retainBufferReference) {
+	public CLIntBuffer createIntBuffer(CLMem.Usage kind, IntBuffer buffer, boolean copy) {
+		return createByteBuffer(kind, buffer, copy).asCLIntBuffer();
+	}
+	public CLIntBuffer createIntBuffer(CLMem.Usage kind, long count) {
+		return createByteBuffer(kind, count * 4).asCLIntBuffer();
+	}
+
+	public CLLongBuffer createLongBuffer(CLMem.Usage kind, LongBuffer buffer, boolean copy) {
+		return createByteBuffer(kind, buffer, copy).asCLLongBuffer();
+	}
+	public CLLongBuffer createLongBuffer(CLMem.Usage kind, long count) {
+		return createByteBuffer(kind, count * 8).asCLLongBuffer();
+	}
+
+	public CLShortBuffer createShortBuffer(CLMem.Usage kind, ShortBuffer buffer, boolean copy) {
+		return createByteBuffer(kind, buffer, copy).asCLShortBuffer();
+	}
+	public CLShortBuffer createShortBuffer(CLMem.Usage kind, long count) {
+		return createByteBuffer(kind, count * 2).asCLShortBuffer();
+	}
+
+	public CLCharBuffer createCharBuffer(CLMem.Usage kind, CharBuffer buffer, boolean copy) {
+		return createByteBuffer(kind, buffer, copy).asCLCharBuffer();
+	}
+	public CLCharBuffer createCharBuffer(CLMem.Usage kind, long count) {
+		return createByteBuffer(kind, count * 2).asCLCharBuffer();
+	}
+
+	public CLFloatBuffer createFloatBuffer(CLMem.Usage kind, FloatBuffer buffer, boolean copy) {
+		return createByteBuffer(kind, buffer, copy).asCLFloatBuffer();
+	}
+	public CLFloatBuffer createFloatBuffer(CLMem.Usage kind, long count) {
+		return createByteBuffer(kind, count * 4).asCLFloatBuffer();
+	}
+
+	public CLDoubleBuffer createDoubleBuffer(CLMem.Usage kind, DoubleBuffer buffer, boolean copy) {
+		return createByteBuffer(kind, buffer, copy).asCLDoubleBuffer();
+	}
+	public CLDoubleBuffer createDoubleBuffer(CLMem.Usage kind, long count) {
+		return createByteBuffer(kind, count * 8).asCLDoubleBuffer();
+	}
+
+	public CLByteBuffer createByteBuffer(CLMem.Usage kind, long count) {
+		return createBuffer(null, count, kind.getIntFlags(), false);
+	}
+	public CLByteBuffer createByteBuffer(CLMem.Usage kind, Buffer buffer, boolean copy) {
+		return createBuffer(buffer, -1, kind.getIntFlags() | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), copy);
+	}
+	
+	@SuppressWarnings("deprecation")
+    private CLByteBuffer createBuffer(final Buffer buffer, long byteCount, final int CLBufferFlags, final boolean retainBufferReference) {
         if (buffer != null) {
             byteCount = getSizeInBytes(buffer);
         } else if (retainBufferReference) {
@@ -374,15 +365,6 @@ public class CLContext extends CLAbstractEntity<cl_context> {
                 pErr);
         error(pErr.getValue());
 
-        return new CLBuffer(this, byteCount, mem) {
-            /// keep a hard reference to the buffer
-
-            public Buffer b = retainBufferReference ? buffer : null;
-
-            @Override
-            public String toString() {
-                return "CLBuffer(flags = " + CLBufferFlags + (b == null ? "" : ", " + getSizeInBytes(b) + " bytes") + ")";
-            }
-        };
+        return new CLByteBuffer(this, byteCount, mem, buffer);
     }
 }

@@ -56,65 +56,34 @@ public class CLImage2D extends CLImage {
 	}
 
 	public CLEvent read(CLQueue queue, long minX, long minY, long width, long height, long rowPitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
-		return read(queue, new long[] {minX, minY, 0}, new long[] {width, height, 0}, rowPitch, 0, out, blocking, eventsToWaitFor);
+		return read(queue, new long[] {minX, minY, 0}, new long[] {width, height, 1}, rowPitch, 0, out, blocking, eventsToWaitFor);
 	}
 	public CLEvent write(CLQueue queue, long minX, long minY, long width, long height, long rowPitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
-		return write(queue, new long[] {minX, minY, 0}, new long[] {width, height, 0}, rowPitch, 0, in, blocking, eventsToWaitFor);
+		return write(queue, new long[] {minX, minY, 0}, new long[] {width, height, 1}, rowPitch, 0, in, blocking, eventsToWaitFor);
 	}
 
-	public CLEvent write(CLQueue queue, Image image, int destX, int destY, int width, int height, boolean allowUnoptimizingDirectRead) {
-		return write(queue, image, 0, 0, image.getWidth(null), image.getHeight(null), allowUnoptimizingDirectRead);
+	public BufferedImage read(CLQueue queue) {
+		BufferedImage im = new BufferedImage((int)getWidth(), (int)getHeight(), BufferedImage.TYPE_INT_ARGB);
+		read(queue, im, false);
+		return im;
 	}
-	public CLEvent write(CLQueue queue, Image image, int destX, int destY, int width, int height, boolean allowUnoptimizingDirectRead, boolean blocking, CLEvent... eventsToWaitFor) {
-		//int imWidth = image.getWidth(null), height = image.getHeight(null);
-		return write(queue, 0, 0, width, height, width * 4, IntBuffer.wrap(getImageIntPixels(image, allowUnoptimizingDirectRead)), blocking, eventsToWaitFor);
-	}
-	protected CLEvent read(CLQueue queue, long[] origin, long[] region, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
-		/*if (!out.isDirect()) {
-
-		}*/
-		cl_event[] eventOut = blocking ? null : new cl_event[1];
-		error(CL.clEnqueueReadImage(queue.get(), get(),
-			blocking ? CL_TRUE : CL_FALSE,
-			toNL(origin),
-			toNL(region),
-			toNL(rowPitch),
-			toNL(slicePitch),
-			Native.getDirectBufferPointer(out),
-			eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
-			eventOut
-		));
-		return blocking ? null : CLEvent.createEvent(eventOut[0]);
-	}
-
-	protected CLEvent write(CLQueue queue, long[] origin, long[] region, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
-		boolean indirect = !in.isDirect();
-		if (indirect)
-			in = directCopy(in);
-
-		cl_event[] eventOut = blocking ? null : new cl_event[1];
-		error(CL.clEnqueueReadImage(queue.get(), get(),
-			blocking ? CL_TRUE : CL_FALSE,
-			toNL(origin),
-			toNL(region),
-			toNL(rowPitch),
-			toNL(slicePitch),
-			Native.getDirectBufferPointer(in),
-			eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
-			eventOut
-		));
-		CLEvent evt = blocking ? null : CLEvent.createEvent(eventOut[0]);
+	public void read(CLQueue queue, BufferedImage imageOut, boolean allowDeoptimizingDirectWrite, CLEvent... eventsToWaitFor) {
+		if (!getFormat().isIntBased())
+			throw new IllegalArgumentException("Image read only supports int-based RGBA images");
 		
-		if (indirect && !blocking) {
-			final Buffer toHold = in;
-			evt.invokeUponCompletion(new Runnable() {
-				public void run() {
-					// Make sure the GC held a reference to directData until the write was completed !
-					toHold.rewind();
-				}
-			});
-		}
-
-		return evt;
+		int width = imageOut.getWidth(null), height = imageOut.getHeight(null);
+		IntBuffer dataOut = directInts(width * height);
+		read(queue, 0, 0, width, height, 0, dataOut, true, eventsToWaitFor);
+		setImageIntPixels(imageOut, allowDeoptimizingDirectWrite, dataOut);
+	}
+	public CLEvent write(CLQueue queue, Image image, CLEvent... eventsToWaitFor) {
+		return write(queue, image, 0, 0, image.getWidth(null), image.getHeight(null), false, false, eventsToWaitFor);
+	}
+	public CLEvent write(CLQueue queue, Image image, boolean allowDeoptimizingDirectRead, boolean blocking, CLEvent... eventsToWaitFor) {
+		return write(queue, image, 0, 0, image.getWidth(null), image.getHeight(null), allowDeoptimizingDirectRead, blocking, eventsToWaitFor);
+	}
+	public CLEvent write(CLQueue queue, Image image, int destX, int destY, int width, int height, boolean allowDeoptimizingDirectRead, boolean blocking, CLEvent... eventsToWaitFor) {
+		//int imWidth = image.getWidth(null), height = image.getHeight(null);
+		return write(queue, 0, 0, width, height, width * 4, IntBuffer.wrap(getImageIntPixels(image, allowDeoptimizingDirectRead)), blocking, eventsToWaitFor);
 	}
 }

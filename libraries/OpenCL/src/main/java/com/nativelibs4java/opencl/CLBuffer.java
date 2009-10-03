@@ -23,30 +23,18 @@ import static com.nativelibs4java.util.NIOUtils.*;
  * @see CLContext#createOutput(long)
  * @author Olivier Chafik
  */
-public class CLBuffer extends CLMem {
-	CLBuffer(CLContext context, long byteCount, cl_mem entity) {
+public abstract class CLBuffer extends CLMem {
+	Buffer buffer;
+	CLBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity);
+		this.buffer = buffer;
 	}
 
 
-	private void checkBounds(long offset, long length) {
+	protected void checkBounds(long offset, long length) {
 		if (offset + length > byteCount)
 			throw new IndexOutOfBoundsException("Trying to map a region of memory object outside allocated range");
 	}
-
-	public ByteBuffer blockingMap(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, 0, getByteCount(), true, eventsToWaitFor).getFirst();
-    }
-	public ByteBuffer blockingMap(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, offset, length, true, eventsToWaitFor).getFirst();
-    }
-
-	public Pair<ByteBuffer, CLEvent> enqueueMap(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, 0, getByteCount(), false, eventsToWaitFor);
-    }
-	public Pair<ByteBuffer, CLEvent> enqueueMap(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, offset, length, false, eventsToWaitFor);
-    }
 
 	/**
 	 * @deprecated Please use blockingMap instead
@@ -175,7 +163,7 @@ public class CLBuffer extends CLMem {
 		return CLEvent.createEvent(eventOut[0]);
 	}
 
-	private Pair<ByteBuffer, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
+	protected Pair<ByteBuffer, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
 		checkBounds(offset, length);
 		cl_event[] eventOut = blocking ? null : new cl_event[1];
 		IntByReference pErr = new IntByReference();
@@ -232,7 +220,7 @@ public class CLBuffer extends CLMem {
 			return blocking ? null : CLEvent.createEvent(eventOut[0]);
         } else {
 			try {
-				ByteBuffer b = blockingMap(queue, MapFlags.Read, offset, length);
+				ByteBuffer b = map(queue, MapFlags.Read, offset, length, true).getFirst();
 				CLEvent.waitFor(eventsToWaitFor);
 				try {
 					//out.mark();
@@ -296,7 +284,7 @@ public class CLBuffer extends CLMem {
 			));
 			return blocking ? null : CLEvent.createEvent(eventOut[0]);
         } else {
-            ByteBuffer b = blockingMap(queue, MapFlags.Read, offset, length);
+            ByteBuffer b = map(queue, MapFlags.Read, offset, length, true).getFirst();
 			CLEvent.waitFor(eventsToWaitFor);
             try {
                 //out.mark();
@@ -310,4 +298,36 @@ public class CLBuffer extends CLMem {
             }
         }
     }
+	public ByteBuffer readBytes(CLQueue queue, CLEvent... eventsToWaitFor) {
+		return readBytes(queue, 0, getByteCount(), eventsToWaitFor);
+	}
+
+	public ByteBuffer readBytes(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
+		ByteBuffer out = directBytes((int)getByteCount());
+		int capa = out.capacity();
+		read(queue, offset, length, out, true, eventsToWaitFor);
+		return out;
+	}
+
+	public CLIntBuffer asCLIntBuffer() {
+		return new CLIntBuffer(context, byteCount, get(), buffer);
+	}
+	public CLShortBuffer asCLShortBuffer() {
+		return new CLShortBuffer(context, byteCount, get(), buffer);
+	}
+	public CLLongBuffer asCLLongBuffer() {
+		return new CLLongBuffer(context, byteCount, get(), buffer);
+	}
+	public CLByteBuffer asCLByteBuffer() {
+		return new CLByteBuffer(context, byteCount, get(), buffer);
+	}
+	public CLFloatBuffer asCLFloatBuffer() {
+		return new CLFloatBuffer(context, byteCount, get(), buffer);
+	}
+	public CLDoubleBuffer asCLDoubleBuffer() {
+		return new CLDoubleBuffer(context, byteCount, get(), buffer);
+	}
+	public CLCharBuffer asCLCharBuffer() {
+		return new CLCharBuffer(context, byteCount, get(), buffer);
+	}
 }
