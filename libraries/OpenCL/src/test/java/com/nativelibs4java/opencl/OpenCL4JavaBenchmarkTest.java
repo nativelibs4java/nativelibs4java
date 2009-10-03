@@ -96,17 +96,17 @@ public class OpenCL4JavaBenchmarkTest {
         ByteBuffer input1 = null, input2 = null, output = null;
         CLByteBuffer memIn1, memIn2, memOut;
         if (hostInOpenCL) {
-            memIn1 = kernel.program.context.createInput(dataSize * nativePrim.sizeof());
-            memIn2 = kernel.program.context.createInput(dataSize * nativePrim.sizeof());
-            memOut = kernel.program.context.createOutput(dataSize * nativePrim.sizeof());
+            memIn1 = kernel.program.context.createByteBuffer(CLMem.Usage.Input, dataSize * nativePrim.sizeof());
+            memIn2 = kernel.program.context.createByteBuffer(CLMem.Usage.Input, dataSize * nativePrim.sizeof());
+            memOut = kernel.program.context.createByteBuffer(CLMem.Usage.Output, dataSize * nativePrim.sizeof());
         } else {
             input1 = directBytes(dataSize * nativePrim.sizeof());
             input2 = directBytes(dataSize * nativePrim.sizeof());
             output = directBytes(dataSize * nativePrim.sizeof());
 
-            memIn1 = kernel.program.context.createInput(input1, false);
-            memIn2 = kernel.program.context.createInput(input2, false);
-            memOut = kernel.program.context.createOutput(output);
+            memIn1 = kernel.program.context.createByteBuffer(CLMem.Usage.Input, input1, false);
+            memIn2 = kernel.program.context.createByteBuffer(CLMem.Usage.Input, input2, false);
+            memOut = kernel.program.context.createByteBuffer(CLMem.Usage.Output, output, false);
         }
         kernel.setArgs(memIn1, memIn2, memOut);
 

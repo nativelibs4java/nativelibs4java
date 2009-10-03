@@ -57,9 +57,9 @@ public class OpenCL4JavaBasicTest {
             CLQueue queue = context.createDefaultQueue();
 
             // Allocate OpenCL-hosted memory for inputs and output
-            CLFloatBuffer memIn1 = context.createFloatBuffer(CLContext.BufferUsage.Read, dataSize);
-            CLFloatBuffer memIn2 = context.createFloatBuffer(CLContext.BufferUsage.Read, dataSize);
-            CLFloatBuffer memOut = context.createFloatBuffer(CLContext.BufferUsage.Write, dataSize);
+            CLFloatBuffer memIn1 = context.createFloatBuffer(CLMem.Usage.Input, dataSize);
+            CLFloatBuffer memIn2 = context.createFloatBuffer(CLMem.Usage.Input, dataSize);
+            CLFloatBuffer memOut = context.createFloatBuffer(CLMem.Usage.Output, dataSize);
 
             // Bind these memory objects to the arguments of the kernel
             kernel.setArgs(memIn1, memIn2, memOut);

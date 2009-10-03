@@ -25,7 +25,7 @@ public class BufferTest extends AbstractCommon {
 	@Test
 	public void testReadWrite() {
 		int n = 10;
-		CLIntBuffer buf = context.createIntBuffer(CLContext.BufferUsage.ReadWrite, n);
+		CLIntBuffer buf = context.createIntBuffer(CLMem.Usage.InputOutput, n);
 		IntBuffer initial = directInts(n);
 		for (int i = 0; i < n; i++)
 			initial.put(i, i + 1);
