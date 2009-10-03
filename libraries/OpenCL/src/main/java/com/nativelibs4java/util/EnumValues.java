@@ -13,7 +13,7 @@ import java.util.*;
  */
 public class EnumValues {
 
-	static class Cache<E extends Enum> {
+	private static class Cache<E extends Enum> {
 		final Map<Long, E> enumsByValue = new LinkedHashMap<Long, E>();
 		final Map<E, Long> valuesByEnum = new LinkedHashMap<E, Long>();
 		public Cache(Class<E> enumClass) {
@@ -32,8 +32,8 @@ public class EnumValues {
 			}
 		}
 	}
-	static final Map<Class<? extends Enum>, Cache<?>> caches = new HashMap<Class<? extends Enum>, Cache<?>>();
-	static synchronized <E extends Enum> Cache<E> getCache(Class<E> enumClass) {
+	private static final Map<Class<? extends Enum>, Cache<?>> caches = new HashMap<Class<? extends Enum>, Cache<?>>();
+	private static synchronized <E extends Enum> Cache<E> getCache(Class<E> enumClass) {
 		Cache<E> cache = (Cache<E>)caches.get(enumClass);
 		if (cache == null) {
 			caches.put(enumClass, cache = new Cache(enumClass));
@@ -61,10 +61,9 @@ public class EnumValues {
 	public static <E extends Enum<E>> EnumSet<E> getEnumSet(long value, Class<E> enumClass) {
 		EnumSet<E> set = EnumSet.noneOf(enumClass);
 		for (Map.Entry<Long, E> pair : getCache(enumClass).enumsByValue.entrySet()) {
-			E e  = pair.getValue();
 			long ev = pair.getKey();
 			if ((ev & value) == ev)
-				set.add(e);
+				set.add(pair.getValue());
 		}
 		return set;
 	}

@@ -13,6 +13,7 @@ Current development version (1.0-SNAPSHOT)
 - JAR is now self-sufficient (includes JNA + JNAerator's runtime classes)
 - Rationalized naming of all enums : CL_ENTITY_ATTRIBUTE_SOME_VALUE = CLEntity.Attribute.SomeValue (enum item SomeValue in enum Attribute in class CLEntity)
 - Added image format support query
+- Updated CLMem : deprecated many methods, now should only use (blocking|enqueue)(Write|Read|Map) + unmap + MapFlags enum
 
 Version 1.0-beta-1
 
