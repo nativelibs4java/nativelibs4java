@@ -25,7 +25,7 @@ import static com.nativelibs4java.opencl.CLException.*;
  * 
  * @author ochafik
  */
-public class CLEvent extends CLEntity<cl_event> {
+public class CLEvent extends CLAbstractEntity<cl_event> {
 
 	private static CLInfoGetter<cl_event> infos = new CLInfoGetter<cl_event>() {
 		@Override

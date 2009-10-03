@@ -26,7 +26,7 @@ import static com.nativelibs4java.opencl.CLException.*;
  * @author Olivier Chafik
  *
  */
-public class CLQueue extends CLEntity<cl_command_queue> {
+public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
     final CLContext context;
 

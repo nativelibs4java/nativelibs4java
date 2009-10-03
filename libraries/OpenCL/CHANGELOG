@@ -17,6 +17,8 @@ Current development version (1.0-SNAPSHOT)
 - Added CLImage2D, CLImage3D and corresponding creation methods in CLContext + all image info getters
 - Added CLBuffer.copyTo that wraps clEnqueueCopyBuffer
 - CLMem changed a lot : now buffers are created as subclass CLBuffer, deprecated many methods, now should only use CLBuffer.(blocking|enqueue)(Write|Read|Map) + unmap + MapFlags enum
+- Added full typing of OpenCL Exceptions (now possible to selectively catch a CLException.OutOfHostMemory, for instance)
+- Added hashCode and equals method to most classes
 
 Version 1.0-beta-1
 

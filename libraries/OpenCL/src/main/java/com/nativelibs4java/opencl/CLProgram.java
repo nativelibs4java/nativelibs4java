@@ -33,7 +33,7 @@ import static com.nativelibs4java.util.NIOUtils.*;
  * @see CLContext#createProgram(java.lang.String[]) 
  * @author Olivier Chafik
  */
-public class CLProgram extends CLEntity<cl_program> {
+public class CLProgram extends CLAbstractEntity<cl_program> {
 
     protected final CLContext context;
 
@@ -96,7 +96,7 @@ public class CLProgram extends CLEntity<cl_program> {
     public CLProgram build() throws CLBuildException {
 
         int err = CL.clBuildProgram(get(), 0, null/*context.getDeviceIds()*/, (String) null, null, null);
-        if (err != CL_SUCCESS) {
+        if (err == CL_BUILD_PROGRAM_FAILURE) {
             NativeLongByReference len = new NativeLongByReference();
             int bufLen = 2048;
             Memory buffer = new Memory(bufLen);
@@ -108,7 +108,9 @@ public class CLProgram extends CLEntity<cl_program> {
                 errs.add(s);
             }
             throw new CLBuildException(this, errorString(err), errs);
-        }
+        } else
+			error(err);
+		
         return this;
     }
 

@@ -33,7 +33,7 @@ import static com.nativelibs4java.util.NIOUtils.*;
  * Kernels take memory objects as input, and output to one or more memory objects.
  * @author Olivier Chafik
  */
-public abstract class CLMem extends CLEntity<cl_mem> {
+public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 
     protected final CLContext context;
     protected final long byteCount;

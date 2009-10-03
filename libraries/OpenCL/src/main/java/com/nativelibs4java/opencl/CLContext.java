@@ -36,7 +36,7 @@ import static com.nativelibs4java.util.ImageUtils.*;
  * Contexts are used by the OpenCL runtime for managing objects such as command-queues, memory, program and kernel objects and for executing kernels on one or more devices specified in the context.
  * @author Olivier Chafik
  */
-public class CLContext extends CLEntity<cl_context> {
+public class CLContext extends CLAbstractEntity<cl_context> {
 
     private static CLInfoGetter<cl_context> infos = new CLInfoGetter<cl_context>() {
 		@Override

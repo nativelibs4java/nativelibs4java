@@ -11,11 +11,11 @@ import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
-abstract class CLEntity<T extends PointerType> {
+abstract class CLAbstractEntity<T extends PointerType> {
 
     private T entity;
 
-    CLEntity(T entity) {
+    CLAbstractEntity(T entity) {
         if (entity == null) {
             throw new IllegalArgumentException("Null OpenCL " + getClass().getSimpleName() + " !");
         }
@@ -33,4 +33,24 @@ abstract class CLEntity<T extends PointerType> {
     }
 
     protected abstract void clear();
+
+	/**
+	 * Underyling implementation pointer-based hashCode computation
+	 */
+	@Override
+	public int hashCode() {
+		return get().getPointer().hashCode();
+	}
+
+	/**
+	 * Underyling implementation pointer-based equality test
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null || !getClass().isInstance(obj))
+			return false;
+		CLAbstractEntity e = (CLAbstractEntity)obj;
+		return get().getPointer().equals(e.get().getPointer());
+	}
+
 }

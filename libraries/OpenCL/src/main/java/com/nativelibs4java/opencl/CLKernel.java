@@ -24,7 +24,7 @@ import static com.nativelibs4java.util.JNAUtils.*;
  * @see CLProgram#createKernels() 
  * @author Olivier Chafik
  */
-public class CLKernel extends CLEntity<cl_kernel> {
+public class CLKernel extends CLAbstractEntity<cl_kernel> {
 
     protected final CLProgram program;
     protected String name;

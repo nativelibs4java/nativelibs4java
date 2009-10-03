@@ -43,6 +43,8 @@ public class CLException extends RuntimeException {
 		}
 	}
 
+	@ErrorCode(CL_COMPILER_NOT_AVAILABLE)
+	public static class CompilerNotAvailable extends CLTypedException {}
 	@ErrorCode(CL_MAP_FAILURE)
 	public static class MapFailure extends CLTypedException {}
 	@ErrorCode(CL_MEM_OBJECT_ALLOCATION_FAILURE)

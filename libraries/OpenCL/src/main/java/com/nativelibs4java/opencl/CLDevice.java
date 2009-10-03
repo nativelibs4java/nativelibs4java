@@ -20,7 +20,7 @@ import static com.nativelibs4java.opencl.CLException.*;
  * Devices are retrieved from a CLPlatform
  * @see CLPlatform#listDevices(java.util.EnumSet, boolean) 
  */
-public class CLDevice extends CLEntity<cl_device_id> {
+public class CLDevice extends CLAbstractEntity<cl_device_id> {
 
 	private static CLInfoGetter<cl_device_id> infos = new CLInfoGetter<cl_device_id>() {
 		@Override
@@ -574,5 +574,4 @@ public class CLDevice extends CLEntity<cl_device_id> {
 	public EnumSet<QueueProperties> getQueueProperties() {
 		return QueueProperties.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_QUEUE_PROPERTIES));
 	}
-
 }

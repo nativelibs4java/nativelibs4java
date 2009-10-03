@@ -24,7 +24,7 @@ import static com.nativelibs4java.opencl.CLException.*;
  * @see CLContext#createSampler(boolean, com.nativelibs4java.opencl.CLSampler.AddressingMode, com.nativelibs4java.opencl.CLSampler.FilterMode) 
  * @author Olivier Chafik
  */
-public class CLSampler extends CLEntity<cl_sampler> {
+public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	private static CLInfoGetter<cl_sampler> infos = new CLInfoGetter<cl_sampler>() {
 		@Override
 		protected int getInfo(cl_sampler entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {

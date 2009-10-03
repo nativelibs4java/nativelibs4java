@@ -20,7 +20,7 @@ import static com.nativelibs4java.util.JNAUtils.*;
  * @see OpenCL4Java#listPlatforms() 
  * @author Olivier Chafik
  */
-public class CLPlatform extends CLEntity<cl_platform_id> {
+public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 
     CLPlatform(cl_platform_id platform) {
         super(platform);
