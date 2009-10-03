@@ -11,6 +11,62 @@ import java.nio.*;
  */
 public class NIOUtils
 {
+
+	/**
+	 * Bulk-copy all of the input buffer into output byte buffer
+	 * @param inputBytes
+	 * @param output
+	 */
+	public static void put(Buffer input, ByteBuffer outputBytes) {
+
+		if (input instanceof IntBuffer)
+			outputBytes.asIntBuffer().put((IntBuffer)input);
+		else if (input instanceof LongBuffer)
+			outputBytes.asLongBuffer().put((LongBuffer)input);
+		else if (input instanceof ShortBuffer)
+			outputBytes.asShortBuffer().put((ShortBuffer)input);
+		else if (input instanceof CharBuffer)
+			outputBytes.asCharBuffer().put((CharBuffer)input);
+		else if (input instanceof DoubleBuffer)
+			outputBytes.asDoubleBuffer().put((DoubleBuffer)input);
+		else if (input instanceof FloatBuffer)
+			outputBytes.asFloatBuffer().put((FloatBuffer)input);
+		else
+			throw new UnsupportedOperationException("Unhandled buffer type : " + input.getClass().getName());
+
+		outputBytes.rewind();
+	}
+	
+	/**
+	 * Bulk-copy all input bytes into output buffer
+	 * @param inputBytes
+	 * @param output
+	 */
+	public static void put(ByteBuffer inputBytes, Buffer output) {
+
+		if (output instanceof IntBuffer)
+			((IntBuffer)output).put(inputBytes.asIntBuffer());
+		else if (output instanceof LongBuffer)
+			((LongBuffer)output).put(inputBytes.asLongBuffer());
+		else if (output instanceof ShortBuffer)
+			((ShortBuffer)output).put(inputBytes.asShortBuffer());
+		else if (output instanceof CharBuffer)
+			((CharBuffer)output).put(inputBytes.asCharBuffer());
+		else if (output instanceof DoubleBuffer)
+			((DoubleBuffer)output).put(inputBytes.asDoubleBuffer());
+		else if (output instanceof FloatBuffer)
+			((FloatBuffer)output).put(inputBytes.asFloatBuffer());
+		else
+			throw new UnsupportedOperationException("Unhandled buffer type : " + output.getClass().getName());
+
+		output.rewind();
+	}
+
+	public static ByteBuffer directCopy(Buffer b) {
+		ByteBuffer copy = ByteBuffer.allocateDirect((int)getSizeInBytes(b)).order(ByteOrder.nativeOrder());
+		put(b, copy);
+		return copy;
+	}
 	/**
 	 * Creates a direct int buffer of the specified size (in elements) and a native byte order
 	 * @param size size of the buffer in elements
@@ -68,7 +124,7 @@ public class NIOUtils
 	/**
 	 * Get the size in bytes of a buffer
 	 */
-	public static int getSizeInBytes(Buffer b) {
+	public static long getSizeInBytes(Buffer b) {
         int c = b.capacity();
 		return getComponentSizeInBytes(b) * c;
     }

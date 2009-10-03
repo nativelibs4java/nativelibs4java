@@ -17,7 +17,8 @@ import static com.nativelibs4java.opencl.CLException.*;
 
 /**
  * OpenCL device (CPU, GPU...).<br/>
- * Devices are retrieved from a CLPlatform (@see CLPlatform.listAllDevices())
+ * Devices are retrieved from a CLPlatform
+ * @see CLPlatform#listDevices(java.util.EnumSet, boolean) 
  */
 public class CLDevice extends CLEntity<cl_device_id> {
 

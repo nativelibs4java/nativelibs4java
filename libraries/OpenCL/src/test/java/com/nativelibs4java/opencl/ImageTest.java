@@ -24,6 +24,7 @@ public class ImageTest {
 	CLPlatform platform;
 	CLContext context;
 	CLQueue queue;
+	CLDevice device;
 	CLImageFormat[] formatsRead2D, formatsRead3D, formatsWrite2D, formatsWrite3D;
 
     @Before
@@ -31,6 +32,7 @@ public class ImageTest {
 		platform = OpenCL4Java.listPlatforms()[0];
 		context = platform.createContext(platform.listAllDevices(true));
 		queue = context.createDefaultQueue();
+		device = context.getDevices()[0];
 		formatsRead2D = context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image2D);
 		formatsWrite2D = context.getSupportedImageFormats(CLMem.Flags.WriteOnly, CLMem.ObjectType.Image2D);
 		formatsRead3D = context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image3D);
@@ -50,9 +52,30 @@ public class ImageTest {
 		assertEquals(height, im.getHeight());
 		assertEquals(format, im.getFormat());
 	}
-@Test
-    public void simpleImage3d() {
-		long width = 100, height = 200, depth = 50;//context.getDevices()[0].getImage3DMaxDepth();
+ 
+	@Test
+	public void testMaxWidth() {
+		context.createInput2D(formatsRead2D[0], device.getImage2DMaxWidth(), 1);
+		long d = device.getImage3DMaxDepth();
+		//TODO FAILING !!! context.createInput3D(formatsRead3D[0], device.getImage3DMaxWidth() - 1, 1, 1);
+	}
+	@Test
+	public void testMaxHeight() {
+		context.createInput2D(formatsRead2D[0], 1, device.getImage2DMaxHeight());
+		long d = device.getImage3DMaxDepth();
+		//TODO FAILING !!! context.createInput3D(formatsRead3D[0], 1, device.getImage3DMaxHeight(), 1);
+	}
+	@Test
+	public void testMaxDepth() {
+		context.createInput3D(formatsRead3D[0], 1, 1, device.getImage3DMaxDepth());
+	}
+
+	@Test(expected=CLException.InvalidImageSize.class)
+	public void testInvalidImageSize() {
+		CLImage2D im = context.createInput2D(formatsRead2D[0], device.getImage2DMaxWidth() + 1, 1);
+	}
+	public void simpleImage3d() {
+		long width = 100, height = 200, depth = 50;//device.getImage3DMaxDepth();
 		CLImageFormat format = formatsRead3D[0];
 		CLImage3D im = context.createInput3D(format, width, height, depth);
 		assertEquals(width, im.getWidth());

@@ -30,6 +30,7 @@ import static com.nativelibs4java.util.NIOUtils.*;
  *
  * A program can be compiled on the fly (costly) but its binaries can be stored and
  * loaded back in subsequent executions to avoid recompilation.
+ * @see CLContext#createProgram(java.lang.String[]) 
  * @author Olivier Chafik
  */
 public class CLProgram extends CLEntity<cl_program> {

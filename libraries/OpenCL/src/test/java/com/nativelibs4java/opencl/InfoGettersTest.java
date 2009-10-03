@@ -38,7 +38,7 @@ public class InfoGettersTest {
 	}
 
 	CLContext createContext() {
-		return CLContext.createContext(createDevice());
+		return createPlatform().createContext(createDevice());
 	}
 
 	CLKernel createKernel() {
@@ -47,7 +47,7 @@ public class InfoGettersTest {
 
 	CLEvent createEvent() {
 		CLContext c = createContext();
-		return c.createInput(10).enqueueMapRead(c.createDefaultQueue()).getSecond();
+		return c.createInput(10).enqueueMap(c.createDefaultQueue(), CLMem.MapFlags.Read).getSecond();
 	}
 	CLSampler createSampler() {
 		return createContext().createSampler(true, CLSampler.AddressingMode.ClampToEdge, CLSampler.FilterMode.Linear);

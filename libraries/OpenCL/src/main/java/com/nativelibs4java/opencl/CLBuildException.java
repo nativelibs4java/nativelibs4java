@@ -15,7 +15,7 @@ import java.util.Collection;
 @SuppressWarnings("serial")
 public class CLBuildException extends Exception {
 	final CLProgram program;
-	public CLBuildException(CLProgram program, String string, Collection<String> errors) {
+	CLBuildException(CLProgram program, String string, Collection<String> errors) {
 		super(string + "\n" + StringUtils.implode(errors, "\n"));
 		this.program = program;
 	}

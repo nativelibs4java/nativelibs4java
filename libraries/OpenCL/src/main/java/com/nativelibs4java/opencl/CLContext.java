@@ -27,6 +27,7 @@ import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.CLException.*;
 import static com.nativelibs4java.util.JNAUtils.*;
 import static com.nativelibs4java.util.NIOUtils.*;
+import static com.nativelibs4java.util.ImageUtils.*;
 
 
 /**
@@ -145,23 +146,19 @@ public class CLContext extends CLEntity<cl_context> {
     }
 
 	/**
-	 * Create an input image2D from a TYPE_INT_ARGB buffered image
-	 * @throws java.lang.IllegalArgumentException if the image is not of type BufferedImage.TYPE_INT_ARGB
+	 * Create an ARGB input 2D image with the content provided
+	 * @param allowUnoptimizingDirectRead Some images expose their internal data for direct read, leading to performance increase during the creation of the OpenCL image. However, direct access to the image data disables some Java2D optimizations for this image, leading to degraded performance in subsequent uses with AWT/Swing.
 	 */
-	public CLImage2D createInput2D(BufferedImage image) {
-		if (image.getType() != BufferedImage.TYPE_INT_ARGB)
-			throw new IllegalArgumentException("The only image type supported is TYPE_INT_ARGB");
-		
-		DataBufferInt b = (DataBufferInt) image.getRaster().getDataBuffer();
-		int[] data = b.getData();
+	public CLImage2D createInput2D(Image image, boolean allowUnoptimizingDirectRead) {
+		int width = image.getWidth(null), height = image.getHeight(null);
+		int[] data = getImageIntPixels(image, 0, 0, width, height, allowUnoptimizingDirectRead);
 		IntBuffer directData = NIOUtils.directInts(data.length);
 		directData.put(IntBuffer.wrap(data));
 		directData.rewind();
 
 		return createInput2D(
 			new CLImageFormat(CLImageFormat.ChannelOrder.ARGB, CLImageFormat.ChannelDataType.UNormInt8),
-			image.getWidth(),
-			image.getHeight(),
+			width, height,
 			0,
 			directData,
 			true
@@ -333,7 +330,7 @@ public class CLContext extends CLEntity<cl_context> {
 	 * @param byteCount size in bytes of the memory buffer to create
 	 * @return new memory buffer object
 	 */
-    public CLBuffer createInput(int byteCount) {
+    public CLBuffer createInput(long byteCount) {
         return createMem(null, byteCount, CL_MEM_READ_ONLY, false);
     }
 
@@ -342,7 +339,7 @@ public class CLContext extends CLEntity<cl_context> {
 	 * @param byteCount size in bytes of the memory buffer to create
 	 * @return new memory buffer object
 	 */
-    public CLBuffer createOutput(int byteCount) {
+    public CLBuffer createOutput(long byteCount) {
         return createMem(null, byteCount, CL_MEM_WRITE_ONLY, false);
     }
 
@@ -356,7 +353,7 @@ public class CLContext extends CLEntity<cl_context> {
     }
 
     @SuppressWarnings("deprecation")
-    private CLBuffer createMem(final Buffer buffer, int byteCount, final int CLBufferFlags, final boolean retainBufferReference) {
+    private CLBuffer createMem(final Buffer buffer, long byteCount, final int CLBufferFlags, final boolean retainBufferReference) {
         if (buffer != null) {
             byteCount = getSizeInBytes(buffer);
         } else if (retainBufferReference) {

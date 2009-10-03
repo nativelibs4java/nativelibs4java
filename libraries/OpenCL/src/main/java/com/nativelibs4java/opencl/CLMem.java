@@ -20,8 +20,10 @@ import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
  * OpenCL memory object.<br/>
- * Memory objects are categorized into two types: buffer objects, and image objects. A buffer object stores a one-dimensional collection of elements whereas an image object is used to store a two- or three- dimensional texture, frame-buffer or image.<br/>
- * Elements of a buffer object can be a scalar data type (such as an int, float), vector data type, or a user-defined structure. An image object is used to represent a buffer that can be used as a texture or a frame-buffer. The elements of an image object are selected from a list of predefined image formats. The minimum number of elements in a memory object is one.<br/>
+ * Memory objects are categorized into two types: buffer objects, and image objects. <br/>
+ * A buffer object stores a one-dimensional collection of elements whereas an image object is used to store a two- or three- dimensional texture, frame-buffer or image.<br/>
+ * Elements of a buffer object can be a scalar data type (such as an int, float), vector data type, or a user-defined structure. An image object is used to represent a buffer that can be used as a texture or a frame-buffer. The elements of an image object are selected from a list of predefined image formats. <br/>
+ * The minimum number of elements in a memory object is one.<br/>
  * The fundamental differences between a buffer and an image object are:
  * <ul>
  * <li>Elements in a buffer are stored in sequential fashion and can be accessed using a pointer by a kernel executing on a device. Elements of an image are stored in a format that is opaque to the user and cannot be directly accessed using a pointer. Built-in functions are provided by the OpenCL C programming language to allow a kernel to read from or write to an image.</li>
@@ -31,12 +33,12 @@ import static com.nativelibs4java.util.NIOUtils.*;
  * Kernels take memory objects as input, and output to one or more memory objects.
  * @author Olivier Chafik
  */
-public class CLMem extends CLEntity<cl_mem> {
+public abstract class CLMem extends CLEntity<cl_mem> {
 
     protected final CLContext context;
-    protected final int byteCount;
+    protected final long byteCount;
 
-    public CLMem(CLContext context, int byteCount, cl_mem entity) {
+    CLMem(CLContext context, long byteCount, cl_mem entity) {
         super(entity);
         this.byteCount = byteCount;
         this.context = context;
@@ -44,7 +46,7 @@ public class CLMem extends CLEntity<cl_mem> {
     public CLContext getContext() {
         return context;
     }
-    public int getByteCount() {
+    public long getByteCount() {
         return byteCount;
     }
 

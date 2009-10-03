@@ -42,11 +42,11 @@ public class MiscTestUtils {
 				} catch (IllegalAccessException ex) {
 					if (!isToString)
 						log.log(Level.WARNING, msg, ex);
-				} catch (IllegalArgumentException ex) {
-					log.log(Level.SEVERE, msg, ex);
 				} catch (InvocationTargetException ex) {
 					log.log(Level.SEVERE, msg, ex.getCause());
 					assertFalse(msg, true);
+				} catch (Exception ex) {
+					log.log(Level.SEVERE, msg, ex);
 				}
 			}
 		}

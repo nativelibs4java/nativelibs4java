@@ -20,6 +20,8 @@ import static com.nativelibs4java.util.JNAUtils.*;
  * A kernel object encapsulates the specific __kernel function declared in a program and the argument values to be used when executing this __kernel function.</br>
  * </br>
  * Kernels can be queued for execution in a CLQueue (see enqueueTask and enqueueNDRange)
+ * @see CLProgram#createKernel(java.lang.String, java.lang.Object[])
+ * @see CLProgram#createKernels() 
  * @author Olivier Chafik
  */
 public class CLKernel extends CLEntity<cl_kernel> {

@@ -16,17 +16,18 @@ import static com.nativelibs4java.util.JNAUtils.*;
 import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
- *
- * @author ochafik
+ * OpenCL 3D Image Memory Object<br/>
+ * @see CLContext#createInput3D(com.nativelibs4java.opencl.CLImageFormat, long, long, long)
+ * @see CLContext#createOutput3D(com.nativelibs4java.opencl.CLImageFormat, long, long, long) 
+ * @author Olivier Chafik
  */
-public class CLImage3D extends CLImage {
-	public CLImage3D(CLContext context, cl_mem entity, CLImageFormat format) {
+public class CLImage3D extends CLImage2D {
+	CLImage3D(CLContext context, cl_mem entity, CLImageFormat format) {
         super(context, entity, format);
 	}
 
 	/**
-	 * Return size in bytes of a 2D slice for the 3D image object given by image. <br/>
-	 * For a 2D image object this value will be 0.
+	 * Return size in bytes of a 2D slice for this 3D image object. <br/>
 	 */
 	@InfoName("CL_IMAGE_SLICE_PITCH")
 	public long getSlicePitch() {
@@ -34,10 +35,19 @@ public class CLImage3D extends CLImage {
 	}
 
 	/**
-	 * Return depth of the image in pixels. For a 2D image, depth = 0.
+	 * Return depth of the image in pixels.
 	 */
 	@InfoName("CL_IMAGE_DEPTH")
 	public long getDepth() {
 		return infos.getNativeLong(get(), CL_IMAGE_DEPTH);
 	}
+
+	public CLEvent read(CLQueue queue, long minX, long minY, long minZ, long width, long height, long depth, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
+		return read(queue, new long[] {minX, minY, minZ}, new long[] {width, height, depth}, rowPitch, slicePitch, out, blocking, eventsToWaitFor);
+	}
+
+	public CLEvent write(CLQueue queue, long minX, long minY, long minZ, long width, long height, long depth, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
+		return write(queue, new long[] {minX, minY, minZ}, new long[] {width, height, depth}, rowPitch, slicePitch, in, blocking, eventsToWaitFor);
+	}
+
 }

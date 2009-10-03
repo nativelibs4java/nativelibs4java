@@ -17,6 +17,7 @@ import static com.nativelibs4java.util.JNAUtils.*;
 
 /**
  * OpenCL implementation entry point.
+ * @see OpenCL4Java#listPlatforms() 
  * @author Olivier Chafik
  */
 public class CLPlatform extends CLEntity<cl_platform_id> {

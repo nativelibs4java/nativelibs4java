@@ -18,10 +18,12 @@ import static com.nativelibs4java.util.NIOUtils.*;
 
 
 /**
- *
- * @author ochafik
+ * OpenCL Image Memory Object.<br/>
+ * An image object is used to store a two- or three- dimensional texture, frame-buffer or image<br/>
+ * An image object is used to represent a buffer that can be used as a texture or a frame-buffer. The elements of an image object are selected from a list of predefined image formats.
+ * @author Oliveir Chafik
  */
-public class CLImage extends CLMem {
+public abstract class CLImage extends CLMem {
 	protected static CLInfoGetter<cl_mem> infos = new CLInfoGetter<cl_mem>() {
 		@Override
 		protected int getInfo(cl_mem entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
@@ -59,30 +61,4 @@ public class CLImage extends CLMem {
 	public long getElementSize() {
 		return infos.getNativeLong(get(), CL_IMAGE_ELEMENT_SIZE);
 	}
-
-	/**
-	 * Return size in bytes of a row of elements of the image object given by image.
-	 */
-	@InfoName("CL_IMAGE_ROW_PITCH")
-	public long getRowPitch() {
-		return infos.getNativeLong(get(), CL_IMAGE_ROW_PITCH);
-	}
-
-	/**
-	 * Return width of the image in pixels
-	 */
-	@InfoName("CL_IMAGE_WIDTH")
-	public long getWidth() {
-		return infos.getNativeLong(get(), CL_IMAGE_WIDTH);
-	}
-
-	/**
-	 * Return height of the image in pixels
-	 */
-	@InfoName("CL_IMAGE_HEIGHT")
-	public long getHeight() {
-		return infos.getNativeLong(get(), CL_IMAGE_HEIGHT);
-	}
-
-
 }

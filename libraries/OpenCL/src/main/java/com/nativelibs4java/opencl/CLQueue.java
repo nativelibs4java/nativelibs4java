@@ -22,6 +22,7 @@ import static com.nativelibs4java.opencl.CLException.*;
  * Sharing of objects across multiple command-queues will require the application to perform appropriate synchronization.<br/>
  * <br/>
  * A queue is bound to a single device.
+ * @see CLDevice#createQueue(com.nativelibs4java.opencl.CLContext) 
  * @author Olivier Chafik
  *
  */

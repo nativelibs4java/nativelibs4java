@@ -12,6 +12,11 @@ import static com.nativelibs4java.util.NIOUtils.*;
 import java.util.*;
 import static com.nativelibs4java.opencl.CLException.*;
 
+/**
+ * OpenCL Image Format
+ * @see CLContext#getSupportedImageFormats(com.nativelibs4java.opencl.CLMem.Flags, com.nativelibs4java.opencl.CLMem.ObjectType) 
+ * @author Olivier Chafik
+ */
 public class CLImageFormat {
 
 	final ChannelOrder channelOrder;
