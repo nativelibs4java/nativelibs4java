@@ -17,6 +17,8 @@ import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
  * OpenCL Memory Buffer Object with Int values.<br/>
+ * @see CLContext#createIntBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
+ * @see CLContext#createIntBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.IntBuffer, boolean)
  * @author Olivier Chafik
  */
 public class CLIntBuffer extends CLBuffer {

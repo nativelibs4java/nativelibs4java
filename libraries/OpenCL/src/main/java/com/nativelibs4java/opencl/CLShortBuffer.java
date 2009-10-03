@@ -17,6 +17,8 @@ import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
  * OpenCL Memory Buffer Object with Short values.<br/>
+ * @see CLContext#createShortBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
+ * @see CLContext#createShortBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.ShortBuffer, boolean)
  * @author Olivier Chafik
  */
 public class CLShortBuffer extends CLBuffer {

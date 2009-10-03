@@ -17,6 +17,8 @@ import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
  * OpenCL Memory Buffer Object with Double values.<br/>
+ * @see CLContext#createDoubleBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
+ * @see CLContext#createDoubleBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.DoubleBuffer, boolean)
  * @author Olivier Chafik
  */
 public class CLDoubleBuffer extends CLBuffer {

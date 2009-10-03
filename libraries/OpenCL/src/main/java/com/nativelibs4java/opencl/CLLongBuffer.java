@@ -17,6 +17,8 @@ import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
  * OpenCL Memory Buffer Object with Long values.<br/>
+ * @see CLContext#createLongBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
+ * @see CLContext#createLongBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.LongBuffer, boolean)
  * @author Olivier Chafik
  */
 public class CLLongBuffer extends CLBuffer {
