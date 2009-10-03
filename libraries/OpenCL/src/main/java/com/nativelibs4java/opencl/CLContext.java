@@ -10,10 +10,15 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.cl_image_format;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
+import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
+import java.awt.image.PixelGrabber;
 import java.nio.*;
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -72,7 +77,7 @@ public class CLContext extends CLEntity<cl_context> {
 		int i = 0;
 		for (cl_image_format format : formats)
 			if (format != null)
-				ret[i] = new CLImageFormat(CLImageFormat.ChannelOrder.getEnum(format.image_channel_order), CLImageFormat.ChannelDataType.getEnum(format.image_channel_data_type));
+				ret[i] = new CLImageFormat(format);
 		if (ret.length == 1 && ret[0] == null)
 			return new CLImageFormat[0];
 		return ret;
@@ -138,6 +143,151 @@ public class CLContext extends CLEntity<cl_context> {
     protected void clear() {
         error(CL.clReleaseContext(get()));
     }
+
+	/**
+	 * Create an input image2D from a TYPE_INT_ARGB buffered image
+	 * @throws java.lang.IllegalArgumentException if the image is not of type BufferedImage.TYPE_INT_ARGB
+	 */
+	private CLImage2D createInput2D(BufferedImage image) {
+		if (image.getType() != BufferedImage.TYPE_INT_ARGB)
+			throw new IllegalArgumentException("The only image type supported is TYPE_INT_ARGB");
+		
+		DataBufferInt b = (DataBufferInt) image.getRaster().getDataBuffer();
+		int[] data = b.getData();
+		IntBuffer directData = NIOUtils.directInts(data.length);
+		directData.put(IntBuffer.wrap(data));
+		directData.rewind();
+
+		return createInput2D(
+			new CLImageFormat(CLImageFormat.ChannelOrder.ARGB, CLImageFormat.ChannelDataType.UNormInt8),
+			image.getWidth(),
+			image.getHeight(),
+			0,
+			directData,
+			true
+		);
+	}
+	private CLImage2D createInput2D(CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
+		if (buffer == null)
+			throw new IllegalArgumentException("Null buffer given as image input !");
+		return createImage2D(
+			buffer,
+			EnumSet.of(CLMem.Flags.ReadOnly, copy ? CLMem.Flags.CopyHostPtr : CLMem.Flags.UseHostPtr),
+			format, width, height, rowPitch
+		);
+	}
+
+	private CLImage2D createInput2D(CLImageFormat format, long width, long height) {
+		return createImage2D(
+			null,
+			EnumSet.of(CLMem.Flags.ReadOnly),
+			format, width, height, 0
+		);
+	}
+
+	private CLImage2D createInputOutput2D(CLImageFormat format, long width, long height, long rowPitch, Buffer buffer, boolean copy) {
+		if (buffer == null)
+			throw new IllegalArgumentException("Null buffer given as image input !");
+		return createImage2D(
+			buffer,
+			EnumSet.of(CLMem.Flags.ReadWrite, copy ? CLMem.Flags.CopyHostPtr : CLMem.Flags.UseHostPtr),
+			format, width, height, rowPitch
+		);
+	}
+
+	private CLImage2D createInputOutput2D(CLImageFormat format, long width, long height) {
+		return createImage2D(
+			null,
+			EnumSet.of(CLMem.Flags.ReadWrite),
+			format, width, height, 0
+		);
+	}
+
+	private CLImage2D createOutput2D(CLImageFormat format, long width, long height) {
+		return createImage2D(
+			null,
+			EnumSet.of(CLMem.Flags.WriteOnly),
+			format, width, height, 0
+		);
+	}
+
+	private CLImage2D createImage2D(Buffer buffer, EnumSet<CLMem.Flags> memFlags, CLImageFormat format, long width, long height, long rowPitch) {
+		IntByReference pErr = new IntByReference();
+		cl_mem mem = CL.clCreateImage2D(
+			get(),
+			CLMem.Flags.getValue(memFlags),
+			format.to_cl_image_format(),
+			toNL(width),
+			toNL(height),
+			toNL(rowPitch),
+			buffer == null ? null : Native.getDirectBufferPointer(buffer),
+			pErr
+		);
+		error(pErr.getValue());
+		return new CLImage2D(this, mem);
+	}
+
+	private CLImage3D createInput3D(CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
+		if (buffer == null)
+			throw new IllegalArgumentException("Null buffer given as image input !");
+		return createImage3D(
+			buffer,
+			EnumSet.of(CLMem.Flags.ReadOnly, copy ? CLMem.Flags.CopyHostPtr : CLMem.Flags.UseHostPtr),
+			format, width, height, depth, rowPitch, slicePitch
+		);
+	}
+
+	private CLImage3D createInput3D(CLImageFormat format, long width, long height, long depth) {
+		return createImage3D(
+			null,
+			EnumSet.of(CLMem.Flags.ReadOnly),
+			format, width, height, depth, 0, 0
+		);
+	}
+
+	private CLImage3D createInputOutput3D(CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch, Buffer buffer, boolean copy) {
+		if (buffer == null)
+			throw new IllegalArgumentException("Null buffer given as image input !");
+		return createImage3D(
+			buffer,
+			EnumSet.of(CLMem.Flags.ReadWrite, copy ? CLMem.Flags.CopyHostPtr : CLMem.Flags.UseHostPtr),
+			format, width, height, depth, rowPitch, slicePitch
+		);
+	}
+
+	private CLImage3D createInputOutput3D(CLImageFormat format, long width, long height, long depth) {
+		return createImage3D(
+			null,
+			EnumSet.of(CLMem.Flags.ReadWrite),
+			format, width, height, depth, 0, 0
+		);
+	}
+
+	private CLImage3D createOutput3D(CLImageFormat format, long width, long height, long depth) {
+		return createImage3D(
+			null,
+			EnumSet.of(CLMem.Flags.WriteOnly),
+			format, width, height, depth, 0, 0
+		);
+	}
+
+	private CLImage3D createImage3D(Buffer buffer, EnumSet<CLMem.Flags> memFlags, CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch) {
+		IntByReference pErr = new IntByReference();
+		cl_mem mem = CL.clCreateImage3D(
+			get(),
+			CLMem.Flags.getValue(memFlags),
+			new cl_image_format((int)format.channelOrder.getValue(), (int)format.channelDataType.getValue()),
+			toNL(width),
+			toNL(height),
+			toNL(rowPitch),
+			toNL(slicePitch),
+			toNL(depth),
+			buffer == null ? null : Native.getDirectBufferPointer(buffer),
+			pErr
+		);
+		error(pErr.getValue());
+		return new CLImage3D(this, mem);
+	}
 
 	/**
 	 * Create an input memory buffer based on existing data.<br/>

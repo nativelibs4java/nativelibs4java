@@ -2,6 +2,7 @@ package com.nativelibs4java.opencl;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import com.nativelibs4java.opencl.library.cl_image_format;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
@@ -16,6 +17,12 @@ public class CLImageFormat {
 	final ChannelOrder channelOrder;
 	final ChannelDataType channelDataType;
 
+	CLImageFormat(cl_image_format fmt) {
+		this(ChannelOrder.getEnum(fmt.image_channel_order), ChannelDataType.getEnum(fmt.image_channel_data_type));
+	}
+	cl_image_format to_cl_image_format() {
+		return new cl_image_format((int)channelOrder.getValue(), (int)channelDataType.getValue());
+	}
 	public CLImageFormat(ChannelOrder channelOrder, ChannelDataType channelDataType) {
 		super();
 		this.channelDataType = channelDataType;

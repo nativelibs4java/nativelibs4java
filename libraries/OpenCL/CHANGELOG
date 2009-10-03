@@ -15,6 +15,8 @@ Current development version (1.0-SNAPSHOT)
 - Added image format support query
 - Updated CLMem : deprecated many methods, now should only use (blocking|enqueue)(Write|Read|Map) + unmap + MapFlags enum
 - Added CLContext.getSupportedImageFormats + CLImageFormat and associated enums
+- Added CLImage2D, CLImage3D and corresponding creation methods in CLContext + all image info getters
+- Added CLMem.copyTo that wraps clEnqueueCopyBuffer
 
 Version 1.0-beta-1
 

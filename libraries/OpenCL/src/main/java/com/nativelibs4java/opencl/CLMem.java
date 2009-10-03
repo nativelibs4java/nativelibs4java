@@ -77,10 +77,12 @@ public class CLMem extends CLEntity<cl_mem> {
 		 * CL_MEM_COPY_HOST_PTR and CL_MEM_USE_HOST_PTR are mutually exclusive.<br/>
 		 * CL_MEM_COPY_HOST_PTR can be used with CL_MEM_ALLOC_HOST_PTR to initialize the contents of the cl_mem object allocated using host-accessible (e.g. PCIe) memory.
 		 */
-		@EnumValue(CL_MEM_ALLOC_HOST_PTR)		AllocHostPtr;
+		@EnumValue(CL_MEM_ALLOC_HOST_PTR)		AllocHostPtr,
+		@EnumValue(CL_MEM_COPY_HOST_PTR)		CopyHostPtr;
 
 		public long getValue() { return EnumValues.getValue(this); }
-		public static Flags getEnum(long v) { return EnumValues.getEnum(v, Flags.class); }
+		public static long getValue(EnumSet<Flags> set) { return EnumValues.getValue(set); }
+		public static EnumSet<Flags> getEnumSet(long v) { return EnumValues.getEnumSet(v, Flags.class); }
 	}
 	public enum ObjectType {
 		@EnumValue(CL_MEM_OBJECT_BUFFER) Buffer,
@@ -220,6 +222,21 @@ public class CLMem extends CLEntity<cl_mem> {
     public Pair<ByteBuffer, CLEvent> enqueueMapRead(CLQueue queue, CLEvent... eventsToWaitFor) {
         return enqueueMapRead(queue, 0, byteCount, eventsToWaitFor);
     }
+
+	public CLEvent copyTo(CLQueue queue, long srcOffset, long length, CLMem destination, long destOffset, CLEvent... eventsToWaitFor) {
+		cl_event[] eventOut = new cl_event[1];
+		error(CL.clEnqueueCopyBuffer(
+			queue.get(),
+			get(),
+			destination.get(),
+			toNL(srcOffset),
+			toNL(destOffset),
+			toNL(length),
+			eventsToWaitFor.length, eventsToWaitFor.length == 0 ? null : CLEvent.to_cl_event_array(eventsToWaitFor),
+			eventOut
+		));
+		return CLEvent.createEvent(eventOut[0]);
+	}
 
 	private Pair<ByteBuffer, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
 		checkBounds(offset, length);
