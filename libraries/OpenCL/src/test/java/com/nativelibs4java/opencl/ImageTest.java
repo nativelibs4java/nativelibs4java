@@ -24,7 +24,7 @@ public class ImageTest extends AbstractCommon {
     public void simpleImage2d() {
 		long width = 100, height = 200;
 		CLImageFormat format = formatsRead2D[0];
-		CLImage2D im = context.createInput2D(format, width, height);
+		CLImage2D im = context.createImage2D(CLMem.Usage.InputOutput, format, width, height);
 		assertEquals(width, im.getWidth());
 		assertEquals(height, im.getHeight());
 		assertEquals(format, im.getFormat());
@@ -32,7 +32,7 @@ public class ImageTest extends AbstractCommon {
 
 	@Test
 	public void testReadWrite() {
-		CLImage2D clim = context.createInputOutput2D(formatsReadWrite2D[0], 3, 3);
+		CLImage2D clim = context.createImage2D(CLMem.Usage.InputOutput, formatsReadWrite2D[0], 3, 3);
 		BufferedImage im = clim.read(queue);
 		int valPix = 0xff123456;
 		int x = 1, y = 1;
@@ -48,29 +48,29 @@ public class ImageTest extends AbstractCommon {
 
 	@Test
 	public void testMaxWidth() {
-		context.createInput2D(formatsRead2D[0], device.getImage2DMaxWidth(), 1);
+		context.createImage2D(CLMem.Usage.Input, formatsRead2D[0], device.getImage2DMaxWidth(), 1);
 		long d = device.getImage3DMaxDepth();
 		//TODO FAILING !!! context.createInput3D(formatsRead3D[0], device.getImage3DMaxWidth() - 1, 1, 1);
 	}
 	@Test
 	public void testMaxHeight() {
-		context.createInput2D(formatsRead2D[0], 1, device.getImage2DMaxHeight());
+		context.createImage2D(CLMem.Usage.Input, formatsRead2D[0], 1, device.getImage2DMaxHeight());
 		long d = device.getImage3DMaxDepth();
 		//TODO FAILING !!! context.createInput3D(formatsRead3D[0], 1, device.getImage3DMaxHeight(), 1);
 	}
 	@Test
 	public void testMaxDepth() {
-		context.createInput3D(formatsRead3D[0], 1, 1, device.getImage3DMaxDepth());
+		context.createImage3D(CLMem.Usage.Input, formatsRead3D[0], 1, 1, device.getImage3DMaxDepth());
 	}
 
 	@Test(expected=CLException.InvalidImageSize.class)
 	public void testInvalidImageSize() {
-		CLImage2D im = context.createInput2D(formatsRead2D[0], device.getImage2DMaxWidth() + 1, 1);
+		CLImage2D im = context.createImage2D(CLMem.Usage.Input, formatsRead2D[0], device.getImage2DMaxWidth() + 1, 1);
 	}
 	public void simpleImage3d() {
 		long width = 100, height = 200, depth = 50;//device.getImage3DMaxDepth();
 		CLImageFormat format = formatsRead3D[0];
-		CLImage3D im = context.createInput3D(format, width, height, depth);
+		CLImage3D im = context.createImage3D(CLMem.Usage.Input, format, width, height, depth);
 		assertEquals(width, im.getWidth());
 		assertEquals(height, im.getHeight());
 		assertEquals(depth, im.getDepth());

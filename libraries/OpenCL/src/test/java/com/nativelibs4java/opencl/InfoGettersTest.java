@@ -47,7 +47,7 @@ public class InfoGettersTest {
 
 	CLEvent createEvent() {
 		CLContext c = createContext();
-		return c.createInput(10).enqueueMap(c.createDefaultQueue(), CLMem.MapFlags.Read).getSecond();
+		return c.createIntBuffer(CLMem.Usage.Input, 10).mapLater(createQueue(), CLMem.MapFlags.Read).getSecond();
 	}
 	CLSampler createSampler() {
 		return createContext().createSampler(true, CLSampler.AddressingMode.ClampToEdge, CLSampler.FilterMode.Linear);

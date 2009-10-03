@@ -184,8 +184,11 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		error(pErr.getValue());
 		return new CLImage2D(this, mem, format);
 	}
-	public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height, long rowPitch, long slicePitch) {
+	public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height, long rowPitch) {
 		return createImage2D(usage, format, width, height, rowPitch, null, false);
+	}
+	public CLImage2D createImage2D(CLMem.Usage usage, CLImageFormat format, long width, long height) {
+		return createImage2D(usage, format, width, height, 0, null, false);
 	}
 
 
@@ -213,6 +216,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 	public CLImage3D createImage3D(CLMem.Usage usage, CLImageFormat format, long width, long height, long depth, long rowPitch, long slicePitch) {
 		return createImage3D(usage, format, width, height, depth, rowPitch, slicePitch, null, false);
+	}
+
+	public CLImage3D createImage3D(CLMem.Usage usage, CLImageFormat format, long width, long height, long depth) {
+		return createImage3D(usage, format, width, height, depth, 0, 0, null, false);
 	}
 
 	/**

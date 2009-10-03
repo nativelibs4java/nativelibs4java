@@ -26,6 +26,7 @@ public class BufferTest extends AbstractCommon {
 	public void testReadWrite() {
 		int n = 10;
 		CLIntBuffer buf = context.createIntBuffer(CLMem.Usage.InputOutput, n);
+
 		IntBuffer initial = directInts(n);
 		for (int i = 0; i < n; i++)
 			initial.put(i, i + 1);
@@ -38,12 +39,9 @@ public class BufferTest extends AbstractCommon {
 		retrieved.rewind();
 		initial.rewind();
 
-		System.err.println("Ini cap = " + initial.capacity() + ", ret cap = " + retrieved.capacity());
-		//int[] retrievedArray = arrayCopy(retrieved);
 		for (int i = 0; i < n; i++) {
 			int ini = initial.get(i);
 			int ret = retrieved.get(i);
-			System.err.println("Position " + i + ": ini = " + ini + ", ret = " + ret);
 			assertEquals(initial.get(i), retrieved.get(i));
 		}
 	}
