@@ -28,7 +28,7 @@
 	"$(DIR)/bin/*110.dll?"
 	"$(DIR)/bin/*110.pdb?"
 
--entry OpenCV
+-entryClass OpenCV
 
 -o jnaeration
 
