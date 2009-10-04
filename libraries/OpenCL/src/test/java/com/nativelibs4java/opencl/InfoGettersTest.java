@@ -20,7 +20,7 @@ import static com.nativelibs4java.test.MiscTestUtils.*;
 public class InfoGettersTest {
 
 	CLProgram createProgram() {
-		CLProgram pg = createContext().createProgram("__kernel void f(__global int a) {}");
+		CLProgram pg = createContext().createProgram("__kernel void f(__global int* a) {}");
 		try {
 			pg.build();
 		} catch (CLBuildException ex) {

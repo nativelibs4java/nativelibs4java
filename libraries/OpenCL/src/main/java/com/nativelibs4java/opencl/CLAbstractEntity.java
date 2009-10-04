@@ -56,7 +56,7 @@ abstract class CLAbstractEntity<T extends PointerType> {
 	 */
 	@Override
 	public int hashCode() {
-		return get().getPointer().hashCode();
+		return get() == null ? 0 : get().getPointer().hashCode();
 	}
 
 	/**
