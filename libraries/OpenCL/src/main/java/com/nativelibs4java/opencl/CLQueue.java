@@ -20,8 +20,12 @@ package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.PointerByReference;
 import java.nio.*;
+import java.util.EnumSet;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import static com.nativelibs4java.opencl.CLException.*;
 
@@ -41,12 +45,29 @@ import static com.nativelibs4java.opencl.CLException.*;
  */
 public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
-    final CLContext context;
+    private CLInfoGetter<cl_command_queue> infos = new CLInfoGetter<cl_command_queue>() {
+		@Override
+		protected int getInfo(cl_command_queue entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
+			return CL.clGetCommandQueueInfo(get(), infoTypeEnum, size, out, sizeOut);
+		}
+	};
+
+	final CLContext context;
 
     CLQueue(CLContext context, cl_command_queue entity) {
         super(entity);
         this.context = context;
     }
+
+	@InfoName("CL_QUEUE_PROPERTIES")
+	public EnumSet<CLDevice.QueueProperties> getProperties() {
+		return CLDevice.QueueProperties.getEnumSet(infos.getNativeLong(get(), CL_QUEUE_PROPERTIES));
+	}
+
+	public void setProperty(CLDevice.QueueProperties property, boolean enabled) {
+		error(CL.clSetCommandQueueProperty(get(), property.getValue(), enabled ? CL_TRUE : CL_FALSE, (LongByReference)null));
+	}
+	
 
     @Override
     protected void clear() {

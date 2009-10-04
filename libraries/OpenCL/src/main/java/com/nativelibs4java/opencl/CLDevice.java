@@ -204,13 +204,19 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 * @return new OpenCL queue object
 	 */
     @SuppressWarnings("deprecation")
-    public CLQueue createQueue(CLContext context) {
+    public CLQueue createQueue(EnumSet<QueueProperties> queueProperties, CLContext context) {
         IntByReference pErr = new IntByReference();
-        cl_command_queue queue = CL.clCreateCommandQueue(context.get(), get(), 0, pErr);
+        cl_command_queue queue = CL.clCreateCommandQueue(context.get(), get(), QueueProperties.getValue(queueProperties), pErr);
         error(pErr.getValue());
 
         return new CLQueue(context, queue);
     }
+	public CLQueue createQueue(CLContext context) {
+		return createQueue(EnumSet.noneOf(QueueProperties.class), context);
+	}
+	public CLQueue createOutOfOrderQueue(CLContext context) {
+		return createQueue(EnumSet.of(QueueProperties.OutOfOrderExecModeEnable), context);
+	}
 
 	/**
 	 * Max width of 2D image in pixels. <br/>

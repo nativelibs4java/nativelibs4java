@@ -75,6 +75,14 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	public CLQueue createDefaultQueue() {
 		return new CLDevice(platform, deviceIds[0]).createQueue(this);
 	}
+	/**
+	 * Create an out-of-order OpenCL queue on the first device of this context.<br/>
+	 * Equivalent to calling <code>getDevices()[0].createQueue(context)</code>
+	 * @return new OpenCL queue
+	 */
+	public CLQueue createDefaultOutOfOrderQueue() {
+		return new CLDevice(platform, deviceIds[0]).createOutOfOrderQueue(this);
+	}
 
 	public CLImageFormat[] getSupportedImageFormats(CLBuffer.Flags flags, CLBuffer.ObjectType imageType) {
 		NativeLongByReference pCount = new NativeLongByReference();
