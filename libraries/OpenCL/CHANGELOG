@@ -1,5 +1,9 @@
 Current development version (1.0-SNAPSHOT)
 
+...
+
+Version 1.0-beta-1
+
 - JAR is now self-sufficient (includes JNA + JNAerator's runtime classes)
 - Added CLKernel.setLocalArg(argIndex, localArgByteLength)
 - Allow localWorkSizes to be null in enqueueNDRange
@@ -22,6 +26,7 @@ Current development version (1.0-SNAPSHOT)
 	- Each typed CLBuffer subclass has map, mapLater, read methods that return typed NIO buffers
 - Added full typing of OpenCL Exceptions (now possible to selectively catch a CLException.OutOfHostMemory, for instance)
 - Added hashCode and equals method to most classes
+- Added ability to create out of order queues and change queue properties after creation
 
 Version 1.0-beta-1
 
