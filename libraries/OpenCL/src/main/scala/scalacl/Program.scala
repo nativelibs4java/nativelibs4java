@@ -122,6 +122,12 @@ abstract class Program(context: Context, var dimensions: Dim*)
       v.typeDesc.cType + " " + v.name
     )
 
+	doc ++ (
+		"#pragma OPENCL EXTENSION cl_khr_fp16 : enable\n" + // half
+		"#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n" +	// double
+		"#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n"
+	)
+	
     //doc ++ variables.map(v => "\t//"+ v.name + ": " + v.mode + "\n").implode("")
     doc ++ ("__kernel void function(" + argDefs.implode(", ") + ") {\n");
     doc ++ dims.map(dim => "\tint " + dim.name + " = get_global_id(" + dim.dimIndex + ");\n").implode("")
