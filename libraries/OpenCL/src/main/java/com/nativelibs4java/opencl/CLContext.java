@@ -78,20 +78,32 @@ public class CLContext extends CLAbstractEntity<cl_context> {
     }
 
 	public CLImageFormat[] getSupportedImageFormats(CLBuffer.Flags flags, CLBuffer.ObjectType imageType) {
-		IntByReference pCount = new IntByReference();
+		NativeLongByReference pCount = new NativeLongByReference();
 		int memFlags = (int)flags.getValue();
 		int imTyp = (int)imageType.getValue();
 		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, 0, null, pCount);
-		int n = pCount.getValue();
-		if (n == 0)
+                cl_image_format ft = new cl_image_format();
+                int sz = ft.size();
+		int n = pCount.getValue().intValue();
+                if (n == 0)
 			n = 1; // There HAS to be at least one format. the spec even says even more, but in fact on Mac OS X / CPU there's only one...
-		cl_image_format[] formats = new cl_image_format().toArray(n);
-		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, n, formats[0], (IntByReference)null);
+                Memory mem = new Memory(n * sz);
+                ft.use(mem);
+		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, n, ft, (IntByReference)null);
 		CLImageFormat[] ret = new CLImageFormat[n];
-		int i = 0;
-		for (cl_image_format format : formats)
-			if (format != null)
+		for (int i = 0; i < n; i++) {
+                    ft.use(mem, i * sz);
+                    ft.read();
+                    ret[i] = new CLImageFormat(ft);
+                }
+                /*
+                for (cl_image_format format : ft..toArray(n))
+			if (format != null) {
+
 				ret[i] = new CLImageFormat(format);
+                        }
+                 * 
+                 */
 		if (ret.length == 1 && ret[0] == null)
 			return new CLImageFormat[0];
 		return ret;

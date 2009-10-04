@@ -152,6 +152,9 @@ public class OpenCL4JavaBenchmarkTest {
 
     static CLKernel setupASinB(Prim nativeType, Target target) throws CLBuildException {
         String src = "\n" +
+                "#pragma OPENCL EXTENSION cl_khr_fp16 : enable\n" +
+                "#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n" +
+                "#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n" +
                 "__kernel void aSinB(                                                  \n" +
                 "   __global const " + nativeType + "* a,                                       \n" +
                 "   __global const " + nativeType + "* b,                                       \n" +
@@ -211,33 +214,12 @@ public class OpenCL4JavaBenchmarkTest {
             System.setProperty("OpenCL.library", f.toString());
         try {
             System.out.println("Found platforms : " + Arrays.asList(OpenCL4Java.listPlatforms()));
-            int loops = 10;
-            int dataSize = 1000000;
             CLPlatform platform = OpenCL4Java.listPlatforms()[0];
-
+            String v = platform.getVendor();
+            boolean isAMD = v.equals("Advanced Micro Devices, Inc.");
+            int loops = 10;
+            int dataSize = isAMD ? 100000 : 1000000;
             Target target = platform.listGPUDevices(false).length == 0 ? Target.CPU : Target.GPU;
-            if (true) {
-                System.out.println("[Double Operations]");
-                ExecResult<DoubleBuffer> nsByJavaOp = testJava_double_aSinB(loops, dataSize);
-                ExecResult<DoubleBuffer> nsByCLHostedOp = testOpenCL_double_aSinB(target, loops, dataSize, true);
-                ExecResult<DoubleBuffer> nsByNativeHostedCLOp = testOpenCL_double_aSinB(target, loops, dataSize, false);
-                double errCLHosted = avgError(nsByJavaOp.buffer, nsByCLHostedOp.buffer, dataSize);
-                double errNativeHosted = avgError(nsByJavaOp.buffer, nsByNativeHostedCLOp.buffer, dataSize);
-
-                System.out.println(" Avg relative error (hosted in CL) = " + errCLHosted);
-                System.out.println("Avg relative error (hosted in RAM) = " + errNativeHosted);
-                System.out.println();
-
-                System.out.println("                  java op\t= " + nsByJavaOp.unitTimeNano + " ns");
-                System.out.println();
-                System.out.println(" opencl (hosted in CL) op\t= " + nsByCLHostedOp.unitTimeNano + " ns");
-                System.out.println("    times slower than Java = " + (nsByCLHostedOp.unitTimeNano / nsByJavaOp.unitTimeNano));
-                System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByCLHostedOp.unitTimeNano));
-                System.out.println();
-                System.out.println("opencl (hosted in RAM) op\t= " + nsByNativeHostedCLOp.unitTimeNano + " ns");
-                System.out.println("    times slower than Java = " + (nsByNativeHostedCLOp.unitTimeNano / nsByJavaOp.unitTimeNano));
-                System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByNativeHostedCLOp.unitTimeNano));
-            }
 
 
             if (true) {
@@ -269,6 +251,30 @@ public class OpenCL4JavaBenchmarkTest {
                 System.out.println("    times slower than Java = " + (nsByNativeHostedCLOp.unitTimeNano / nsByJavaOp.unitTimeNano));
                 System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByNativeHostedCLOp.unitTimeNano));
             }
+
+            if (!isAMD) {
+                System.out.println("[Double Operations]");
+                ExecResult<DoubleBuffer> nsByJavaOp = testJava_double_aSinB(loops, dataSize);
+                ExecResult<DoubleBuffer> nsByCLHostedOp = testOpenCL_double_aSinB(target, loops, dataSize, true);
+                ExecResult<DoubleBuffer> nsByNativeHostedCLOp = testOpenCL_double_aSinB(target, loops, dataSize, false);
+                double errCLHosted = avgError(nsByJavaOp.buffer, nsByCLHostedOp.buffer, dataSize);
+                double errNativeHosted = avgError(nsByJavaOp.buffer, nsByNativeHostedCLOp.buffer, dataSize);
+
+                System.out.println(" Avg relative error (hosted in CL) = " + errCLHosted);
+                System.out.println("Avg relative error (hosted in RAM) = " + errNativeHosted);
+                System.out.println();
+
+                System.out.println("                  java op\t= " + nsByJavaOp.unitTimeNano + " ns");
+                System.out.println();
+                System.out.println(" opencl (hosted in CL) op\t= " + nsByCLHostedOp.unitTimeNano + " ns");
+                System.out.println("    times slower than Java = " + (nsByCLHostedOp.unitTimeNano / nsByJavaOp.unitTimeNano));
+                System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByCLHostedOp.unitTimeNano));
+                System.out.println();
+                System.out.println("opencl (hosted in RAM) op\t= " + nsByNativeHostedCLOp.unitTimeNano + " ns");
+                System.out.println("    times slower than Java = " + (nsByNativeHostedCLOp.unitTimeNano / nsByJavaOp.unitTimeNano));
+                System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByNativeHostedCLOp.unitTimeNano));
+            }
+
 
             
         } catch (CLBuildException e) {
