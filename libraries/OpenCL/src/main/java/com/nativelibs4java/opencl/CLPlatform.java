@@ -203,5 +203,4 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 	public String[] getExtensions() {
 		return infos.getString(get(), CL_PLATFORM_EXTENSIONS).split("\\s+");
 	}
-
 }

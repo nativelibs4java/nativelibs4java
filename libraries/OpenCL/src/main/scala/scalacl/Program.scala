@@ -122,11 +122,14 @@ abstract class Program(context: Context, var dimensions: Dim*)
       v.typeDesc.cType + " " + v.name
     )
 
-	doc ++ (
-		"#pragma OPENCL EXTENSION cl_khr_fp16 : enable\n" + // half
-		"#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n" +	// double
-		"#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n"
-	)
+	if (context.context.isHalfSupported())
+		doc ++ "#pragma OPENCL EXTENSION cl_khr_fp16 : require\n";
+
+	if (context.context.isDoubleSupported())
+		doc ++ "#pragma OPENCL EXTENSION cl_khr_fp64 : require\n";
+
+	if (context.context.isByteAddressableStoreSupported())
+		doc ++ "#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : require\n";
 	
     //doc ++ variables.map(v => "\t//"+ v.name + ": " + v.mode + "\n").implode("")
     doc ++ ("__kernel void function(" + argDefs.implode(", ") + ") {\n");

@@ -408,4 +408,25 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 		return new CLByteBuffer(this, byteCount, mem, buffer);
 	}
+
+	public boolean isDoubleSupported() {
+		for (CLDevice device : getDevices())
+			if (!device.isDoubleSupported())
+				return false;
+		return true;
+	}
+	public boolean isHalfSupported() {
+		for (CLDevice device : getDevices())
+			if (!device.isHalfSupported())
+				return false;
+		return true;
+	}
+	public boolean isByteAddressableStoreSupported() {
+		for (CLDevice device : getDevices())
+			if (!device.isByteAddressableStoreSupported())
+				return false;
+		return true;
+	}
+
+
 }

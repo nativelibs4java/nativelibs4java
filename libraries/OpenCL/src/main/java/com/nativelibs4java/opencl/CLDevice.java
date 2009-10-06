@@ -572,7 +572,32 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_EXTENSIONS")
 	public String[] getExtensions() {
-		return infos.getString(get(), CL_DEVICE_EXTENSIONS).split("\\s+");
+		if (extensions == null)
+			extensions = infos.getString(get(), CL_DEVICE_EXTENSIONS).split("\\s+");
+		return extensions;
+	}
+	private String[] extensions;
+
+
+	boolean hasExtension(String name) {
+		name = name.trim();
+		for (String x : getExtensions())
+			if (name.equals(x.trim()))
+				return true;
+		return false;
+	}
+
+	@InfoName("cl_khr_fp64")
+	public boolean isDoubleSupported() {
+		return hasExtension("cl_khr_fp16");
+	}
+	@InfoName("cl_khr_fp16")
+	public boolean isHalfSupported() {
+		return hasExtension("cl_khr_fp64");
+	}
+	@InfoName("cl_khr_byte_addressable_store")
+	public boolean isByteAddressableStoreSupported() {
+		return hasExtension("cl_khr_byte_addressable_store");
 	}
 
 	/** Bit values for CL_DEVICE_QUEUE_PROPERTIES */
