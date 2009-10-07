@@ -1,8 +1,9 @@
 Current development version (1.0-SNAPSHOT)
 
-...
+- Added CLContext/CLDevice.isDoubleSupported, isHalfSupported,
+isByteAddressableStoreSupported
 
-Version 1.0-beta-1
+Version 1.0-beta-2
 
 - JAR is now self-sufficient (includes JNA + JNAerator's runtime classes)
 - Added CLKernel.setLocalArg(argIndex, localArgByteLength)

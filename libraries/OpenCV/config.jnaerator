@@ -34,3 +34,7 @@
 
 -preferJavac
 -jar "$(DIR)/bin/OpenCV.jar"
+-nocpp
+
+//-studio
+

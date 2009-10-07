@@ -14,8 +14,8 @@ object ScalaCLTestRun extends Application {
     content = result := a + b
   }
   class VectSinCos(i: Dim) extends Program(i) {
-    val x = FloatsVar
-    val scx = FloatsVar
+    val x = FloatsVar(i)
+    val scx = FloatsVar(j)
     content = List(
       scx(i * 2) := sin(x),
       scx(i * 2 + 1) := cos(x)
