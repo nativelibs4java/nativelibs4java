@@ -116,7 +116,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 		properties.setPointer(0, pPlatKey.getPointer());
 		properties.setPointer(Native.POINTER_SIZE, pPlatVal.getPointer());
         properties.setPointer(2 * Native.POINTER_SIZE, Pointer.NULL);*/
-        cl_context context = CL.clCreateContext(null, 1, ids, null, null, errRef);
+        cl_context context = CL.clCreateContext(null, ids.length, ids, null, null, errRef);
         error(errRef.getValue());
         return new CLContext(this, ids, context);
     }
