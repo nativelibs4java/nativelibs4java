@@ -123,30 +123,34 @@ abstract class Program(context: Context, var dimensions: Dim*)
     )
 
 	if (context.context.isHalfSupported())
-		doc ++ "#pragma OPENCL EXTENSION cl_khr_fp16 : require\n";
+		doc.append("#pragma OPENCL EXTENSION cl_khr_fp16 : require\n");
 
 	if (context.context.isDoubleSupported())
-		doc ++ "#pragma OPENCL EXTENSION cl_khr_fp64 : require\n";
+		doc.append("#pragma OPENCL EXTENSION cl_khr_fp64 : require\n");
 
 	if (context.context.isByteAddressableStoreSupported())
-		doc ++ "#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : require\n";
+		doc.append("#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : require\n");
 	
-    //doc ++ variables.map(v => "\t//"+ v.name + ": " + v.mode + "\n").implode("")
-    doc ++ ("__kernel void function(" + argDefs.implode(", ") + ") {\n");
-    doc ++ dims.map(dim => "\tint " + dim.name + " = get_global_id(" + dim.dimIndex + ");\n").implode("")
+    //doc.append(variables.map(v => "\t//"+ v.name + ": " + v.mode + "\n").implode(""))
+    doc.append("__kernel void function(" + argDefs.implode(", ") + ") {\n");
+    doc.append(dims.map(dim => "\tint " + dim.name + " = get_global_id(" + dim.dimIndex + ");\n").implode(""))
 	filteredVariables.filter(_.scope == LocalScope).foreach { v =>
-		doc ++ ("\t" + v.typeDesc.cType + " " + v.name + ";\n")
+		doc.append("\t" + v.typeDesc.cType + " " + v.name + ";\n")
 	}
-    doc ++ ("\t" + content.toString + "\n")
-    doc ++ "}\n"
+    doc.append("\t" + content.toString + "\n")
+    doc.append("}\n");
 
     doc.toString
   }
   def markVarUsage = content accept { (x, stack) =>
+  	//val stackList = stack.toList // scala 2.8.0
+	val stackList = stack.toList.reverse // scala 2.7.6
+	//if (stackList != Nil)
+	//println(stackList(stackList.size - 1) == x)
     x match {
-      case v: AbstractVar => stack.toList.reverse match {
-          case (_: Assignment) :: xs =>
-          case (_: ArrayElement[_, _]) :: (_: Assignment) :: xs =>
+      case v: AbstractVar => stackList match {
+          case (_: Assignment) :: xs => 
+          case (_: ArrayElement[_, _]) :: (_: Assignment) :: xs => 
           case _ => v.mode.read = true
       }
       case Assignment(_, t, _) => t match {

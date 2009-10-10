@@ -9,18 +9,22 @@ package scalacl
 import java.nio._
 
 //class BufferIO[V <: Number, T <: { def get(a: Int): V; def put(a: Int, v: V): Int }]
-import scala.collection.jcl.MutableIterator._
+//import scala.collection.jcl.MutableIterator._
 
 object SyntaxUtils {
-  implicit def javaIteratorToScalaIterator[A](it : java.util.Iterator[A]) = new Wrapper(it)
+  //implicit def javaIteratorToScalaIterator[A](it : java.util.Iterator[A]) = new Wrapper(it)
 
-  implicit def javaCollectionToScalaIterator[A](set: java.util.Collection[A]) = new Wrapper(set.iterator)
-
+  //implicit def javaCollectionToScalaIterator[A](set: java.util.Collection[A]) = new Wrapper(set.iterator)
+  
 	def unique[C](list: List[C]) = {
 	  var hs = new java.util.IdentityHashMap[C, Int]();
 	  list.foreach(hs.put(_, 0))
 	  //hs.keySet.foreach(println(_))
-	  var lb = new scala.collection.mutable.ListBuffer[C]() ++ hs.keySet;
+	  var lb = new scala.collection.mutable.ListBuffer[C]();
+	  var it = hs.keySet.iterator;
+	  while (it.hasNext)
+	  	lb + it.next;
+		
 	  lb.toList
   }
 

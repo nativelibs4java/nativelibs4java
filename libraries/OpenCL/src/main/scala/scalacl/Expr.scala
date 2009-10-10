@@ -15,11 +15,11 @@ trait Val1 extends CLValue
 trait Val2 extends CLValue
 trait Val4 extends CLValue
 
-protected case class VisitInfo(visitor: (Node, Stack[Node]) => Unit, stack: Stack[Node])
+protected case class VisitInfo(visitor: (Node, scala.collection.mutable.Stack[Node]) => Unit, stack: scala.collection.mutable.Stack[Node])
   
 abstract class Node {
   def accept(info: VisitInfo) : Unit;
-  def accept(visitor: (Node, Stack[Node]) => Unit) : Unit = accept(VisitInfo(visitor, new Stack[Node]));
+  def accept(visitor: (Node, scala.collection.mutable.Stack[Node]) => Unit) : Unit = accept(VisitInfo(visitor, new scala.collection.mutable.Stack[Node]));
   
   def visit[T <: Node](info: VisitInfo, children: T*) = {
     info.visitor(this, info.stack)
@@ -68,7 +68,8 @@ abstract class Expr extends Node {
   def toWriteString(value: Expr): String = throw new RuntimeException("Expression cannot be written to : '" + toString + "'")
   override final def toString = toReadString
 
-  protected def dieMinMax2(op: String): (Double, Double) => Double = throw new RuntimeException("Binary operator '" + op + "' does not define a minMax function")
+  protected def dieMinMax2(op: String): (Double, Double) => Double = (x, y) => -1//
+  // throw new RuntimeException("Binary operator '" + op + "' does not define a minMax function")
 
   def :=(other: Expr) = Assignment("=", this, other)
   def +=(other: Expr) = Assignment("+=", this, other)
@@ -111,7 +112,7 @@ abstract class Expr extends Node {
 }
 object Expr {
   def computeMinMax(mm1: MinMax, mm2: MinMax, f: (Double, Double) => Double): MinMax = {
-    var res = new scala.collection.jcl.TreeSet[Double]
+    var res = new scala.collection.mutable.HashSet[Double]
     res + f(mm1.min, mm2.min)
     res + f(mm1.min, mm2.max)
     res + f(mm1.max, mm2.min)
@@ -455,48 +456,23 @@ class Var[T](t: Class[T]) extends AbstractVar {
   override def alloc = {}
 }
 
-class BytesVar(size: Int) extends ArrayVar[Byte, ByteBuffer](classOf[Byte], classOf[ByteBuffer], size) {
-  def this() = this(-1)
-  def this(sizeExpr: Expr) = {
-    this(-1)
-    this.sizeExpr = Some(sizeExpr)
-  }
+class BytesVar(sizeExpr: Option[Expr]) extends ArrayVar[Byte, ByteBuffer](classOf[Byte], classOf[ByteBuffer], sizeExpr) {
   override def get(index: Int): Byte = this().get(index)
   protected override def set(index: Int, v: Byte): Unit = this().put(index, v)
 }
-class ShortsVar(size: Int) extends ArrayVar[Short, ShortBuffer](classOf[Short], classOf[ShortBuffer], size) {
-  def this() = this(-1)
-  def this(sizeExpr: Expr) = {
-    this(-1)
-    this.sizeExpr = Some(sizeExpr)
-  }
+class ShortsVar(sizeExpr: Option[Expr]) extends ArrayVar[Short, ShortBuffer](classOf[Short], classOf[ShortBuffer], sizeExpr) {
   override def get(index: Int): Short = this().get(index)
   protected override def set(index: Int, v: Short): Unit = this().put(index, v)
 }
-class IntsVar(size: Int) extends ArrayVar[Int, IntBuffer](classOf[Int], classOf[IntBuffer], size) {
-  def this() = this(-1)
-  def this(sizeExpr: Expr) = {
-    this(-1)
-    this.sizeExpr = Some(sizeExpr)
-  }
+class IntsVar(sizeExpr: Option[Expr]) extends ArrayVar[Int, IntBuffer](classOf[Int], classOf[IntBuffer], sizeExpr) {
   override def get(index: Int): Int = this().get(index)
   protected override def set(index: Int, v: Int): Unit = this().put(index, v)
 }
-class LongsVar(size: Int) extends ArrayVar[Long, LongBuffer](classOf[Long], classOf[LongBuffer], size) {
-  def this() = this(-1)
-  def this(sizeExpr: Expr) = {
-    this(-1)
-    this.sizeExpr = Some(sizeExpr)
-  }
+class LongsVar(sizeExpr: Option[Expr]) extends ArrayVar[Long, LongBuffer](classOf[Long], classOf[LongBuffer], sizeExpr) {
   override def get(index: Int): Long = this().get(index)
   protected override def set(index: Int, v: Long): Unit = this().put(index, v)
 }
-class FloatsVar(size: Int) extends ArrayVar[Float, FloatBuffer](classOf[Float], classOf[FloatBuffer], size) {
-  def this() = this(-1)
-  def this(sizeExpr: Expr) = {
-    this(-1)
-    this.sizeExpr = Some(sizeExpr)
-  }
+class FloatsVar(sizeExpr: Option[Expr]) extends ArrayVar[Float, FloatBuffer](classOf[Float], classOf[FloatBuffer], sizeExpr) {
   override def get(index: Int): Float = this().get(index)
   protected override def set(index: Int, v: Float): Unit = this().put(index, v)
   def write(rg: Range): Unit = {
@@ -508,23 +484,14 @@ class FloatsVar(size: Int) extends ArrayVar[Float, FloatBuffer](classOf[Float], 
 	write(this())
   }
 }
-class DoublesVar(size: Int) extends ArrayVar[Double, DoubleBuffer](classOf[Double], classOf[DoubleBuffer], size) {
-  def this() = this(-1)
-  def this(sizeExpr: Expr) = {
-    this(-1)
-    this.sizeExpr = Some(sizeExpr)
-  }
+class DoublesVar(sizeExpr: Option[Expr]) extends ArrayVar[Double, DoubleBuffer](classOf[Double], classOf[DoubleBuffer], sizeExpr) {
   override def get(index: Int): Double = this().get(index)
   protected override def set(index: Int, v: Double): Unit = this().put(index, v)
 }
 
-abstract class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int) extends AbstractVar {
-  def this(v: Class[V], b: Class[B], sizeExpr: Expr) = {
-    this(v, b, -1)
-    this.sizeExpr = Some(sizeExpr)
-  }
-  var sizeExpr: Option[Expr] = None
+abstract class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], val sizeExpr: Option[Expr]) extends AbstractVar {
   private var buffer: Option[B] = None
+  var size = -1
   var indexUsages = new scala.collection.mutable.ListBuffer[Expr]
   def apply() : B = {
     if (buffer == None)
@@ -576,9 +543,10 @@ abstract class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], var size: Int)
     alloc
   }
   def inferSize = {
-    var exprs = sizeExpr match {
+	println("inferSize with sizeExpr = " + sizeExpr)
+	var exprs = this.sizeExpr match {
       case Some(x) => List(x)
-      case None => indexUsages
+      case None => indexUsages.toList
     }
     val usagesMinMax = exprs.map { iu => try { Some(iu.computeMinMax) } catch { case x => None } }.filter (_ != None).map(_.get)
     if (usagesMinMax.length > 0) {

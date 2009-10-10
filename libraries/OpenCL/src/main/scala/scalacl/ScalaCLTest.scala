@@ -38,7 +38,7 @@ object ScalaCLTestRun extends Application {
 	  val v = IntVar local;
 	  content = List(
 		v := (im.x + im.y + im.z) / 3,
-		result := (v, v, v, im.w),
+		result := (v, v, v, im.w)
 	  )
   }
 

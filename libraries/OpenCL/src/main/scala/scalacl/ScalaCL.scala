@@ -32,19 +32,19 @@ object ScalaCL extends Functions {
 
   implicit def Stats2Statements(stats: Seq[Stat]) = Statements(stats)
   
-  def BytesVar = new BytesVar
-  def ShortsVar = new ShortsVar
-  def IntsVar = new IntsVar
-  def LongsVar = new LongsVar
-  def FloatsVar = new FloatsVar
-  def DoublesVar = new DoublesVar
+  def BytesVar = new BytesVar(None)
+  def ShortsVar = new ShortsVar(None)
+  def IntsVar = new IntsVar(None)
+  def LongsVar = new LongsVar(None)
+  def FloatsVar = new FloatsVar(None)
+  def DoublesVar = new DoublesVar(None)
 
-  def BytesVar(sizeExpr: Expr) = new BytesVar(sizeExpr)
-  def ShortsVar(sizeExpr: Expr) = new ShortsVar(sizeExpr)
-  def IntsVar(sizeExpr: Expr) = new IntsVar(sizeExpr)
-  def LongsVar(sizeExpr: Expr) = new LongsVar(sizeExpr)
-  def FloatsVar(sizeExpr: Expr) = new FloatsVar(sizeExpr)
-  def DoublesVar(sizeExpr: Expr) = new DoublesVar(sizeExpr)
+  def BytesVar(sizeExpr: Expr) = new BytesVar(Some(sizeExpr))
+  def ShortsVar(sizeExpr: Expr) = new ShortsVar(Some(sizeExpr))
+  def IntsVar(sizeExpr: Expr) = new IntsVar(Some(sizeExpr))
+  def LongsVar(sizeExpr: Expr) = new LongsVar(Some(sizeExpr))
+  def FloatsVar(sizeExpr: Expr) = new FloatsVar(Some(sizeExpr))
+  def DoublesVar(sizeExpr: Expr) = new DoublesVar(Some(sizeExpr))
 
   def ByteVar = new ByteVar
   def ShortVar = new ShortVar
