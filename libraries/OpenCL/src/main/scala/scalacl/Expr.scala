@@ -83,7 +83,12 @@ abstract class Expr extends Node {
   def >=(other: Expr) = BinOp(">=", this, other, dieMinMax2(">="))
   def <(other: Expr) = BinOp("<", this, other, dieMinMax2("<"))
   def >(other: Expr) = BinOp(">", this, other, dieMinMax2(">"))
-
+  def ||(other: Expr) = BinOp("||", this, other, _ % _)
+  def &&(other: Expr) = BinOp("&&", this, other, _ % _)
+  def |(other: Expr) = BinOp("|", this, other, _ % _)
+  def &(other: Expr) = BinOp("&", this, other, _ % _)
+  def ^(other: Expr) = BinOp("^", this, other, _ % _)
+  
   def !() = UnOp("!", true, this, (x: Double) => if (x == 0) 1 else 0)
 
   def +(other: Expr) = BinOp("+", this, other, _ + _)
@@ -123,6 +128,28 @@ object Expr {
       MinMax(v2, v1)
   }
 }
+
+class IfExpr(var condition: Expr, var thenExpr: Expr, var elseExpr: Expr) extends Expr {
+  override def typeDesc: TypeDesc = thenExpr.typeDesc
+  override def accept(info: VisitInfo): Unit = visit(info, condition, thenExpr, elseExpr)
+  override def toReadString: String =
+    "(" + condition.toReadString + ") ? (" + thenExpr.toReadString + ") : (" + elseExpr.toReadString + ")"
+}
+class IfStat(var condition: Expr, var thenStat: Stat, var elseStat: Option[Stat]) extends Stat {
+  override def accept(info: VisitInfo): Unit = 
+    if (elseStat == None)
+        visit(info, condition, thenStat)
+    else
+        visit(info, condition, thenStat, elseStat.get)
+
+  override def toString(): String =
+    "if (" + condition.toReadString + ") {\n" +
+        thenStat +
+    "\n}" + (if (elseStat == None) "" else " else {\n" +
+        elseStat.get +
+    "\n}")
+}
+
 class Duo(a: Expr, b: Expr) extends Expr {
   override def typeDesc: TypeDesc = {
 	  val td = a.typeDesc

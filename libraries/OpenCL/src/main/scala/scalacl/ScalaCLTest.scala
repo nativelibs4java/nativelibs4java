@@ -41,6 +41,18 @@ object ScalaCLTestRun extends Application {
 		result := (v, v, v, im.w),
 	  )
   }
+
+    class SimpleAvg(i: Dim) extends Program(i) {
+       val input = IntsVar(i)
+       var output = IntsVar(i)
+       content = output(i) :=
+            (
+                input(If(i == 0, i, i - 1)) +
+                input(i) +
+                input(If(i == (i.size - 1), i, i + 1))
+            ) / 3
+    }
+
   override def main(args: Array[String]) = {
     var prog1 = new VectAdd(Dim(1000))
     //prog1.alloc
@@ -64,6 +76,13 @@ object ScalaCLTestRun extends Application {
     //prog2.alloc
     prog2.x.write(List(0.0f, 0.1f, 0.2f))
     prog2 !
+
+    var av = new SimpleAvg(Dim(10));
+    av.input.write(Array(10, 2, 1, 5, 6, 33, 7, 9, 20));
+    av !
+
+    for (i <- 0 until 10)
+      println(av.output.get(i))
 
 
     var prog3 = new VectSinCos_better(Dim(10000))

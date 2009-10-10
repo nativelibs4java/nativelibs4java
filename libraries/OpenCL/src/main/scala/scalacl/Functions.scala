@@ -191,4 +191,8 @@ trait Functions {
   var fast_length = f2d("fast_length", die2)
   var fast_normalize = f2d("fast_normalize", die2)
 
+  def If(condition: Expr, thenExpr: Expr, elseExpr: Expr) = new IfExpr(condition, thenExpr, elseExpr)
+  def If(condition: Expr, thenStat: Stat) = new IfStat(condition, thenStat, None)
+  def If(condition: Expr, thenStat: Stat, elseStat: Stat) = new IfStat(condition, thenStat, Some(elseStat))
+
 }
