@@ -1,7 +1,9 @@
 Current development version (1.0-SNAPSHOT)
 
-- Added CLContext/CLDevice.isDoubleSupported, isHalfSupported,
-isByteAddressableStoreSupported
+- Added CLContext/CLDevice.isDoubleSupported, isHalfSupported, isByteAddressableStoreSupported
+- Added If function to ScalaCL (operates on statements or on expressions)
+- Added CLAbstractEntity.release()
+- Fixed Issue #4  : CLContext.createContext(CLDevice... devices) created context on only one device
 
 Version 1.0-beta-2
 
