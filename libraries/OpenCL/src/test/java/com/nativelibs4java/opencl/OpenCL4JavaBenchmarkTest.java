@@ -111,8 +111,9 @@ public class OpenCL4JavaBenchmarkTest {
         kernel.setArgs(memIn1, memIn2, memOut);
 
         if (warmup) {
+			long[] maxWorkItemSizes = queue.getDevice().getMaxWorkItemSizes();
             for (int i = 0; i < 3000; i++)
-                kernel.enqueueNDRange(queue, new int[]{10}, new int[]{1});
+                kernel.enqueueNDRange(queue, new int[]{10}, new int[]{(int)maxWorkItemSizes[0]});
             queue.finish();
         }
 

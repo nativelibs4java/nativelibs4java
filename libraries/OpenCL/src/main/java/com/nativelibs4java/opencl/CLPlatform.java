@@ -22,6 +22,7 @@ import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
@@ -48,7 +49,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 	
     @Override
     public String toString() {
-        return getName() + " {vendor: " + getVendor() + ", version: " + getVersion() + ", profile: " + getProfile() + ", extensions: " + getExtensions() +"}";
+        return getName() + " {vendor: " + getVendor() + ", version: " + getVersion() + ", profile: " + getProfile() + ", extensions: " + Arrays.toString(getExtensions()) +"}";
     }
 
     @Override

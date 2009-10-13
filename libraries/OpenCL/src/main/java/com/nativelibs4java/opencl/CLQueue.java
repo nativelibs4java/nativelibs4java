@@ -53,11 +53,17 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	};
 
 	final CLContext context;
+	final CLDevice device;
 
-    CLQueue(CLContext context, cl_command_queue entity) {
+    CLQueue(CLContext context, cl_command_queue entity, CLDevice device) {
         super(entity);
         this.context = context;
+		this.device = device;
     }
+
+	public CLDevice getDevice() {
+		return device;
+	}
 
 	@InfoName("CL_QUEUE_PROPERTIES")
 	public EnumSet<CLDevice.QueueProperties> getProperties() {

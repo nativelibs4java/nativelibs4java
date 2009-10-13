@@ -209,7 +209,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
         cl_command_queue queue = CL.clCreateCommandQueue(context.get(), get(), QueueProperties.getValue(queueProperties), pErr);
         error(pErr.getValue());
 
-        return new CLQueue(context, queue);
+        return new CLQueue(context, queue, this);
     }
 	public CLQueue createQueue(CLContext context) {
 		return createQueue(EnumSet.noneOf(QueueProperties.class), context);
