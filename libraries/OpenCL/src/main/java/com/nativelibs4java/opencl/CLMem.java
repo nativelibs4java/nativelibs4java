@@ -68,8 +68,8 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 	 */
 	public enum Usage {
 		Input(CL_MEM_READ_ONLY, Flags.ReadOnly),
-		Output(CL_MEM_READ_WRITE, Flags.WriteOnly),
-		InputOutput(CL_MEM_WRITE_ONLY, Flags.ReadWrite);
+		Output(CL_MEM_WRITE_ONLY, Flags.WriteOnly),
+		InputOutput(CL_MEM_READ_WRITE, Flags.ReadWrite);
 
 		private int intFlags;
 		private Flags flags;
