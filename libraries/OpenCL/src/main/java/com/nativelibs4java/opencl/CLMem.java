@@ -52,13 +52,11 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
     protected final long byteCount;
 
     CLMem(CLContext context, long byteCount, cl_mem entity) {
-        this(context, byteCount, new Holder(entity));
-    }
-    CLMem(CLContext context, long byteCount, Holder<cl_mem> entity) {
         super(entity);
         this.byteCount = byteCount;
         this.context = context;
     }
+	
     public CLContext getContext() {
         return context;
     }

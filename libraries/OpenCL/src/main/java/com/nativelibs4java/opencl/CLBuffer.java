@@ -39,13 +39,9 @@ import static com.nativelibs4java.util.NIOUtils.*;
 public abstract class CLBuffer extends CLMem {
 	Buffer buffer;
 	CLBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        this(context, byteCount, new Holder(entity), buffer);
-	}
-	CLBuffer(CLContext context, long byteCount, Holder<cl_mem> entity, Buffer buffer) {
         super(context, byteCount, entity);
 		this.buffer = buffer;
 	}
-
 
 	protected void checkBounds(long offset, long length) {
 		if (offset + length > byteCount)
@@ -326,24 +322,38 @@ public abstract class CLBuffer extends CLMem {
 	}
 
 	public CLIntBuffer asCLIntBuffer() {
-		return new CLIntBuffer(context, byteCount, getHolder(), buffer);
+		cl_mem mem = get();
+		CL.clRetainMemObject(get());
+		return new CLIntBuffer(context, byteCount, mem, buffer);
 	}
 	public CLShortBuffer asCLShortBuffer() {
-		return new CLShortBuffer(context, byteCount, getHolder(), buffer);
+		cl_mem mem = get();
+		CL.clRetainMemObject(mem);
+		return new CLShortBuffer(context, byteCount, mem, buffer);
 	}
 	public CLLongBuffer asCLLongBuffer() {
-		return new CLLongBuffer(context, byteCount, getHolder(), buffer);
+		cl_mem mem = get();
+		CL.clRetainMemObject(mem);
+		return new CLLongBuffer(context, byteCount, mem, buffer);
 	}
 	public CLByteBuffer asCLByteBuffer() {
-		return new CLByteBuffer(context, byteCount, getHolder(), buffer);
+		cl_mem mem = get();
+		CL.clRetainMemObject(mem);
+		return new CLByteBuffer(context, byteCount, mem, buffer);
 	}
 	public CLFloatBuffer asCLFloatBuffer() {
-		return new CLFloatBuffer(context, byteCount, getHolder(), buffer);
+		cl_mem mem = get();
+		CL.clRetainMemObject(mem);
+		return new CLFloatBuffer(context, byteCount, mem, buffer);
 	}
 	public CLDoubleBuffer asCLDoubleBuffer() {
-		return new CLDoubleBuffer(context, byteCount, getHolder(), buffer);
+		cl_mem mem = get();
+		CL.clRetainMemObject(mem);
+		return new CLDoubleBuffer(context, byteCount, mem, buffer);
 	}
 	public CLCharBuffer asCLCharBuffer() {
-		return new CLCharBuffer(context, byteCount, getHolder(), buffer);
+		cl_mem mem = get();
+		CL.clRetainMemObject(mem);
+		return new CLCharBuffer(context, byteCount, mem, buffer);
 	}
 }

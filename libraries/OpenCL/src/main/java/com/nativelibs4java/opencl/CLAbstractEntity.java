@@ -25,30 +25,18 @@ import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
 abstract class CLAbstractEntity<T extends PointerType> {
-	static class Holder<T extends PointerType> {
-		T entity;
-		public Holder(T entity) {
-			this.entity = entity;
-		}
-	}
-    private final Holder<T> holder;
+    private T entity;
 	private final boolean nullable;
 
 	CLAbstractEntity(T entity) {
-		this(new Holder(entity));
-	}
-	CLAbstractEntity(Holder<T> holder) {
-		this(holder, false);
+		this(entity, false);
 	}
     CLAbstractEntity(T entity, boolean nullable) {
-		this(new Holder(entity), nullable);
-    }
-	CLAbstractEntity(Holder<T> holder, boolean nullable) {
-        if (!nullable && (holder == null || holder.entity == null)) {
+		if (!nullable && entity == null) {
             throw new IllegalArgumentException("Null OpenCL " + getClass().getSimpleName() + " !");
         }
 		this.nullable = nullable;
-        this.holder = holder;
+        this.entity = entity;
     }
 
 	/**
@@ -58,38 +46,30 @@ abstract class CLAbstractEntity<T extends PointerType> {
 	 * Note that release() does not necessarily free the object immediately : OpenCL maintains a reference count for all its objects, and an object released on the Java side might still be pointed to by running kernels or queued operations.
 	 */
 	public synchronized void release() {
-		if (holder.entity == null && !nullable)
+		if (entity == null && !nullable)
 			throw new RuntimeException("This " + getClass().getSimpleName() + " has already been released ! Besides, keep in mind that manual release is not necessary, as it will automatically be done by the garbage collector.");
 
 		doRelease();
 	}
 
     synchronized T get() {
-		if (holder.entity == null && !nullable)
+		if (entity == null && !nullable)
 			throw new RuntimeException("This " + getClass().getSimpleName() + " has been manually released and can't be used anymore !");
 
-        return holder.entity;
+        return entity;
     }
 
-	void doRelease() {
-		if (holder.entity != null) {
-			synchronized (holder) {
-				if (holder.entity != null) {
-					clear();
-					holder.entity = null;
-				}
-			}
+	synchronized void doRelease() {
+		if (entity != null) {
+			clear();
+			entity = null;
 		}
 	}
     @Override
     protected void finalize() throws Throwable {
 		doRelease();
     }
-
-	Holder<T> getHolder() {
-		return holder;
-	}
-
+	
     protected abstract void clear();
 
 	/**

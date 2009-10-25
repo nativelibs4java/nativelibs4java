@@ -40,9 +40,6 @@ public class CLByteBuffer extends CLBuffer {
 	CLByteBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer);
 	}
-	CLByteBuffer(CLContext context, long byteCount, Holder<cl_mem> entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer);
-	}
 	public ByteBuffer map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
 		return map(queue, flags, 0, getByteCount(), true, eventsToWaitFor).getFirst();
     }
