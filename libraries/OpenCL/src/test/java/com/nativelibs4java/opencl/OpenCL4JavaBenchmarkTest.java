@@ -166,9 +166,17 @@ public class OpenCL4JavaBenchmarkTest {
                 "}                                                                 \n";
 
         CLDevice[] devices = getDevices(target);
-        for (CLDevice device : devices)
-            System.out.println("OpenCL device: " + device);
-        CLProgram program = createContext(devices).createProgram(src).build();
+		CLDevice bestDevice = null;;
+        for (CLDevice device : devices) {
+			System.out.println("OpenCL device: " + device);
+			if (bestDevice == null || bestDevice.getMaxComputeUnits() < device.getMaxComputeUnits())
+				bestDevice = device;
+		}
+
+		if (devices.length > 1)
+			System.out.println("Chose 'best' device: " + bestDevice);
+           
+        CLProgram program = createContext(bestDevice).createProgram(src).build();
         CLKernel kernel = program.createKernel("aSinB");
 
         return kernel;
@@ -253,7 +261,15 @@ public class OpenCL4JavaBenchmarkTest {
                 System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByNativeHostedCLOp.unitTimeNano));
             }
 
-            if (!isAMD) {
+			boolean hasDoubleSupport = true;
+			CLDevice[] devices = getDevices(target);
+			for (CLDevice device : devices)
+				if (!device.isDoubleSupported())
+					hasDoubleSupport = false;
+
+			if (!hasDoubleSupport)
+				System.out.println("Not all devices support double precision computations : skipping second part of the	test");
+			else {
                 System.out.println("[Double Operations]");
                 ExecResult<DoubleBuffer> nsByJavaOp = testJava_double_aSinB(loops, dataSize);
                 ExecResult<DoubleBuffer> nsByCLHostedOp = testOpenCL_double_aSinB(target, loops, dataSize, true);
