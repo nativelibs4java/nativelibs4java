@@ -38,6 +38,9 @@ public class CLLongBuffer extends CLBuffer {
 	CLLongBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer);
 	}
+	CLLongBuffer(CLContext context, long byteCount, Holder<cl_mem> entity, Buffer buffer) {
+        super(context, byteCount, entity, buffer);
+	}
 	static final int ELEMENT_SIZE = 8;
 	protected static Pair<LongBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
 		return new Pair<LongBuffer, CLEvent>(p.getFirst().asLongBuffer(), p.getSecond());

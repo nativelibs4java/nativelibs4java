@@ -38,6 +38,9 @@ public class CLDoubleBuffer extends CLBuffer {
 	CLDoubleBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer);
 	}
+	CLDoubleBuffer(CLContext context, long byteCount, Holder<cl_mem> entity, Buffer buffer) {
+        super(context, byteCount, entity, buffer);
+	}
 	static final int ELEMENT_SIZE = 8;
 	protected static Pair<DoubleBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
 		return new Pair<DoubleBuffer, CLEvent>(p.getFirst().asDoubleBuffer(), p.getSecond());

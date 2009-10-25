@@ -38,6 +38,9 @@ public class CLIntBuffer extends CLBuffer {
 	CLIntBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer);
 	}
+	CLIntBuffer(CLContext context, long byteCount, Holder<cl_mem> entity, Buffer buffer) {
+        super(context, byteCount, entity, buffer);
+	}
 	static final int ELEMENT_SIZE = 4;
 	protected static Pair<IntBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
 		return new Pair<IntBuffer, CLEvent>(p.getFirst().asIntBuffer(), p.getSecond());

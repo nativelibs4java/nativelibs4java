@@ -38,6 +38,9 @@ public class CLShortBuffer extends CLBuffer {
 	CLShortBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer);
 	}
+	CLShortBuffer(CLContext context, long byteCount, Holder<cl_mem> entity, Buffer buffer) {
+        super(context, byteCount, entity, buffer);
+	}
 	static final int ELEMENT_SIZE = 2;
 	protected static Pair<ShortBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
 		return new Pair<ShortBuffer, CLEvent>(p.getFirst().asShortBuffer(), p.getSecond());

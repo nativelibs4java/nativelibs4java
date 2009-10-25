@@ -38,6 +38,9 @@ public class CLFloatBuffer extends CLBuffer {
 	CLFloatBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer);
 	}
+	CLFloatBuffer(CLContext context, long byteCount, Holder<cl_mem> entity, Buffer buffer) {
+        super(context, byteCount, entity, buffer);
+	}
 	static final int ELEMENT_SIZE = 4;
 	protected static Pair<FloatBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
 		return new Pair<FloatBuffer, CLEvent>(p.getFirst().asFloatBuffer(), p.getSecond());

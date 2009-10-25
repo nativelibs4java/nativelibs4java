@@ -38,6 +38,9 @@ public class CLCharBuffer extends CLBuffer {
 	CLCharBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer);
 	}
+	CLCharBuffer(CLContext context, long byteCount, Holder<cl_mem> entity, Buffer buffer) {
+        super(context, byteCount, entity, buffer);
+	}
 	static final int ELEMENT_SIZE = 8;
 	protected static Pair<CharBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
 		return new Pair<CharBuffer, CLEvent>(p.getFirst().asCharBuffer(), p.getSecond());

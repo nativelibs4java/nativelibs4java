@@ -39,6 +39,9 @@ import static com.nativelibs4java.util.NIOUtils.*;
 public abstract class CLBuffer extends CLMem {
 	Buffer buffer;
 	CLBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
+        this(context, byteCount, new Holder(entity), buffer);
+	}
+	CLBuffer(CLContext context, long byteCount, Holder<cl_mem> entity, Buffer buffer) {
         super(context, byteCount, entity);
 		this.buffer = buffer;
 	}
@@ -323,24 +326,24 @@ public abstract class CLBuffer extends CLMem {
 	}
 
 	public CLIntBuffer asCLIntBuffer() {
-		return new CLIntBuffer(context, byteCount, get(), buffer);
+		return new CLIntBuffer(context, byteCount, getHolder(), buffer);
 	}
 	public CLShortBuffer asCLShortBuffer() {
-		return new CLShortBuffer(context, byteCount, get(), buffer);
+		return new CLShortBuffer(context, byteCount, getHolder(), buffer);
 	}
 	public CLLongBuffer asCLLongBuffer() {
-		return new CLLongBuffer(context, byteCount, get(), buffer);
+		return new CLLongBuffer(context, byteCount, getHolder(), buffer);
 	}
 	public CLByteBuffer asCLByteBuffer() {
-		return new CLByteBuffer(context, byteCount, get(), buffer);
+		return new CLByteBuffer(context, byteCount, getHolder(), buffer);
 	}
 	public CLFloatBuffer asCLFloatBuffer() {
-		return new CLFloatBuffer(context, byteCount, get(), buffer);
+		return new CLFloatBuffer(context, byteCount, getHolder(), buffer);
 	}
 	public CLDoubleBuffer asCLDoubleBuffer() {
-		return new CLDoubleBuffer(context, byteCount, get(), buffer);
+		return new CLDoubleBuffer(context, byteCount, getHolder(), buffer);
 	}
 	public CLCharBuffer asCLCharBuffer() {
-		return new CLCharBuffer(context, byteCount, get(), buffer);
+		return new CLCharBuffer(context, byteCount, getHolder(), buffer);
 	}
 }
