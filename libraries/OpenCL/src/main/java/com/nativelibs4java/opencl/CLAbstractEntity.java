@@ -25,7 +25,7 @@ import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 
 abstract class CLAbstractEntity<T extends PointerType> {
-    private T entity;
+    private volatile T entity;
 	private final boolean nullable;
 
 	CLAbstractEntity(T entity) {
