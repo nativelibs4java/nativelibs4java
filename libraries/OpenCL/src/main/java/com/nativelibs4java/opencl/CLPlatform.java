@@ -17,6 +17,8 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
+import com.ochafik.lang.jnaerator.runtime.Size;
+import com.ochafik.lang.jnaerator.runtime.SizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
@@ -42,7 +44,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 
 	private static CLInfoGetter<cl_platform_id> infos = new CLInfoGetter<cl_platform_id>() {
 		@Override
-		protected int getInfo(cl_platform_id entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
+		protected int getInfo(cl_platform_id entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut) {
 			return CL.clGetPlatformInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};

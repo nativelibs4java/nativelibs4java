@@ -42,16 +42,16 @@ object ScalaCLTestRun extends Application {
 	  )
   }
 
-    class SimpleAvg(i: Dim) extends Program(i) {
-       val input = IntsVar(i)
-       var output = IntsVar(i)
-       content = output(i) :=
-            (
-                input(If(i == 0, i, i - 1)) +
-                input(i) +
-                input(If(i == (i.size - 1), i, i + 1))
-            ) / 3
-    }
+  class SimpleAvg(i: Dim) extends Program(i) {
+	 val input = IntsVar(i)
+	 var output = IntsVar(i)
+	 content = output(i) :=
+		  (
+			  input(If(i == 0, i, i - 1)) +
+			  input(i) +
+			  input(If(i == (i.size - 1), i, i + 1))
+		  ) / 3
+  }
 
   override def main(args: Array[String]) = {
     var prog1 = new VectAdd(Dim(1000))

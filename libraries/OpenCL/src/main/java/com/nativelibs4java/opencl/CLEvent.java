@@ -20,6 +20,8 @@ package com.nativelibs4java.opencl;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import com.ochafik.lang.jnaerator.runtime.Size;
+import com.ochafik.lang.jnaerator.runtime.SizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
@@ -47,7 +49,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 
 	private static CLInfoGetter<cl_event> infos = new CLInfoGetter<cl_event>() {
 		@Override
-		protected int getInfo(cl_event entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
+		protected int getInfo(cl_event entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut) {
 			return CL.clGetEventInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};

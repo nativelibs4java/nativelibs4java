@@ -18,11 +18,12 @@
 */
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import com.ochafik.lang.jnaerator.runtime.Size;
+import com.ochafik.lang.jnaerator.runtime.SizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
-import com.sun.jna.ptr.NativeLongByReference;
 import com.sun.jna.ptr.PointerByReference;
 import java.nio.*;
 import java.util.EnumSet;
@@ -47,7 +48,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
     private CLInfoGetter<cl_command_queue> infos = new CLInfoGetter<cl_command_queue>() {
 		@Override
-		protected int getInfo(cl_command_queue entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
+		protected int getInfo(cl_command_queue entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut) {
 			return CL.clGetCommandQueueInfo(get(), infoTypeEnum, size, out, sizeOut);
 		}
 	};
@@ -67,7 +68,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
 	@InfoName("CL_QUEUE_PROPERTIES")
 	public EnumSet<CLDevice.QueueProperties> getProperties() {
-		return CLDevice.QueueProperties.getEnumSet(infos.getNativeLong(get(), CL_QUEUE_PROPERTIES));
+		return CLDevice.QueueProperties.getEnumSet(infos.getIntOrLong(get(), CL_QUEUE_PROPERTIES));
 	}
 
 	public void setProperty(CLDevice.QueueProperties property, boolean enabled) {

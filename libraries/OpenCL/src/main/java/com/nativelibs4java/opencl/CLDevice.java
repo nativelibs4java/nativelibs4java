@@ -20,6 +20,8 @@ package com.nativelibs4java.opencl;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import com.ochafik.lang.jnaerator.runtime.Size;
+import com.ochafik.lang.jnaerator.runtime.SizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
@@ -38,7 +40,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 
 	private static CLInfoGetter<cl_device_id> infos = new CLInfoGetter<cl_device_id>() {
 		@Override
-		protected int getInfo(cl_device_id entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
+		protected int getInfo(cl_device_id entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut) {
 			return CL.clGetDeviceInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};
@@ -73,7 +75,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_EXECUTION_CAPABILITIES")
     public EnumSet<ExecutionCapability> getExecutionCapabilities() {
-        return ExecutionCapability.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_EXECUTION_CAPABILITIES));
+        return ExecutionCapability.getEnumSet(infos.getIntOrLong(get(), CL_DEVICE_EXECUTION_CAPABILITIES));
     }
 
 	/** Bit values for CL_DEVICE_TYPE */
@@ -93,7 +95,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_TYPE")
 	public EnumSet<Type> getType() {
-        return Type.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_TYPE));
+        return Type.getEnumSet(infos.getIntOrLong(get(), CL_DEVICE_TYPE));
     }
 
 	/**
@@ -129,7 +131,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_MAX_WORK_ITEM_SIZES")
 	public long[] getMaxWorkItemSizes() {
-		return infos.getNativeLongs(get(), CL_DEVICE_MAX_WORK_ITEM_SIZES, getMaxWorkItemDimensions());
+		return infos.getSizes(get(), CL_DEVICE_MAX_WORK_ITEM_SIZES, getMaxWorkItemDimensions());
 	}
 
 	/**
@@ -139,7 +141,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_MAX_WORK_GROUP_SIZE")
 	public long getMaxWorkGroupSize() {
-		return infos.getNativeLong(get(), CL_DEVICE_MAX_WORK_GROUP_SIZE);
+		return infos.getIntOrLong(get(), CL_DEVICE_MAX_WORK_GROUP_SIZE);
 	}
 
 	/**
@@ -163,7 +165,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_MAX_MEM_ALLOC_SIZE")
 	public long getMaxMemAllocSize() {
-		return infos.getNativeLong(get(), CL_DEVICE_MAX_MEM_ALLOC_SIZE);
+		return infos.getIntOrLong(get(), CL_DEVICE_MAX_MEM_ALLOC_SIZE);
 	}
 
 	/**
@@ -224,7 +226,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_IMAGE2D_MAX_WIDTH")
 	public long getImage2DMaxWidth() {
-		return infos.getNativeLong(get(), CL_DEVICE_IMAGE2D_MAX_WIDTH);
+		return infos.getIntOrLong(get(), CL_DEVICE_IMAGE2D_MAX_WIDTH);
 	}
 
 	/**
@@ -233,7 +235,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_IMAGE2D_MAX_HEIGHT")
 	public long getImage2DMaxHeight() {
-		return infos.getNativeLong(get(), CL_DEVICE_IMAGE2D_MAX_HEIGHT);
+		return infos.getIntOrLong(get(), CL_DEVICE_IMAGE2D_MAX_HEIGHT);
 	}
 
 	/**
@@ -242,7 +244,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_IMAGE3D_MAX_WIDTH")
 	public long getImage3DMaxWidth() {
-		return infos.getNativeLong(get(), CL_DEVICE_IMAGE3D_MAX_WIDTH);
+		return infos.getIntOrLong(get(), CL_DEVICE_IMAGE3D_MAX_WIDTH);
 	}
 
 	/**
@@ -251,7 +253,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_IMAGE3D_MAX_HEIGHT")
 	public long getImage3DMaxHeight() {
-		return infos.getNativeLong(get(), CL_DEVICE_IMAGE3D_MAX_HEIGHT);
+		return infos.getIntOrLong(get(), CL_DEVICE_IMAGE3D_MAX_HEIGHT);
 	}
 
 	/**
@@ -260,7 +262,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_IMAGE3D_MAX_DEPTH")
 	public long getImage3DMaxDepth() {
-		return infos.getNativeLong(get(), CL_DEVICE_IMAGE3D_MAX_DEPTH);
+		return infos.getIntOrLong(get(), CL_DEVICE_IMAGE3D_MAX_DEPTH);
 	}
 
 	/**
@@ -279,7 +281,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_MAX_PARAMETER_SIZE")
 	public long getMaxParameterSize() {
-		return infos.getNativeLong(get(), CL_DEVICE_MAX_PARAMETER_SIZE);
+		return infos.getIntOrLong(get(), CL_DEVICE_MAX_PARAMETER_SIZE);
 	}
 
 	/**
@@ -318,7 +320,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_SINGLE_FP_CONFIG")
 	public EnumSet<SingleFPConfig> getSingleFPConfig() {
-		return SingleFPConfig.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_SINGLE_FP_CONFIG));
+		return SingleFPConfig.getEnumSet(infos.getIntOrLong(get(), CL_DEVICE_SINGLE_FP_CONFIG));
 	}
 
 	/** Values for CL_DEVICE_GLOBAL_MEM_CACHE_TYPE */
@@ -352,7 +354,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_GLOBAL_MEM_CACHE_SIZE")
 	public long getGlobalMemCacheSize() {
-		return infos.getNativeLong(get(), CL_DEVICE_GLOBAL_MEM_CACHE_SIZE);
+		return infos.getIntOrLong(get(), CL_DEVICE_GLOBAL_MEM_CACHE_SIZE);
 	}
 
 	/**
@@ -360,7 +362,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_GLOBAL_MEM_SIZE")
 	public long getGlobalMemSize() {
-		return infos.getNativeLong(get(), CL_DEVICE_GLOBAL_MEM_SIZE);
+		return infos.getIntOrLong(get(), CL_DEVICE_GLOBAL_MEM_SIZE);
 	}
 
 	/**
@@ -369,7 +371,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE")
 	public long getMaxConstantBufferSize() {
-		return infos.getNativeLong(get(), CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE);
+		return infos.getIntOrLong(get(), CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE);
 	}
 
 	/**
@@ -405,7 +407,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_LOCAL_MEM_SIZE")
 	public long getLocalMemSize() {
-		return infos.getNativeLong(get(), CL_DEVICE_LOCAL_MEM_SIZE);
+		return infos.getIntOrLong(get(), CL_DEVICE_LOCAL_MEM_SIZE);
 	}
 
 	/**
@@ -425,7 +427,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_PROFILING_TIMER_RESOLUTION")
 	public long getProfilingTimerResolution() {
-		return infos.getNativeLong(get(), CL_DEVICE_PROFILING_TIMER_RESOLUTION);
+		return infos.getIntOrLong(get(), CL_DEVICE_PROFILING_TIMER_RESOLUTION);
 	}
 
 	/**
@@ -617,6 +619,6 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_QUEUE_PROPERTIES")
 	public EnumSet<QueueProperties> getQueueProperties() {
-		return QueueProperties.getEnumSet(infos.getNativeLong(get(), CL_DEVICE_QUEUE_PROPERTIES));
+		return QueueProperties.getEnumSet(infos.getIntOrLong(get(), CL_DEVICE_QUEUE_PROPERTIES));
 	}
 }

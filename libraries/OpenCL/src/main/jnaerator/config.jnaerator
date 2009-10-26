@@ -6,6 +6,6 @@
 	//"$(DIR)/OpenCL.Win32ATIStream.jnaerator"
 	
 	-noJar -noComp
-	-o "$(DIR)/../../../target/generated-sources/java"
+	//-o "$(DIR)/../../../target/generated-sources/java"
 	
 -choicesOut "$(DIR)/OpenCL.choices"

@@ -26,7 +26,7 @@ public class cl_image_format extends com.ochafik.lang.jnaerator.runtime.Structur
 	protected ByValue newByValue() { return new ByValue(); }
 	protected cl_image_format newInstance() { return new cl_image_format(); }
 	public static cl_image_format[] newArray(int arrayLength) {
-		return newArray(cl_image_format.class, arrayLength);
+		return com.ochafik.lang.jnaerator.runtime.Structure.newArray(cl_image_format.class, arrayLength);
 	}
 	public static class ByReference extends cl_image_format implements com.sun.jna.Structure.ByReference {}
 	public static class ByValue extends cl_image_format implements com.sun.jna.Structure.ByValue {}

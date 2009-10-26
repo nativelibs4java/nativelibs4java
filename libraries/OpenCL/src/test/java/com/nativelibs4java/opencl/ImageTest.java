@@ -65,10 +65,10 @@ public class ImageTest extends AbstractCommon {
 		context.createImage3D(CLMem.Usage.Input, formatsRead3D[0], 1, 1, device.getImage3DMaxDepth());
 	}
 
-	//@Test(expected=CLException.InvalidImageSize.class)
-	//public void testInvalidImageSize() {
-	//	CLImage2D im = context.createImage2D(CLMem.Usage.Input, formatsRead2D[0], device.getImage2DMaxWidth() + 10, 1);
-	//}
+	/*@Test(expected=CLException.InvalidImageSize.class)
+	public void testInvalidImageSize() {
+		CLImage2D im = context.createImage2D(CLMem.Usage.Input, formatsRead2D[0], device.getImage2DMaxWidth() + 10, 1);
+	}*/
 	public void simpleImage3d() {
 		long width = 100, height = 200, depth = 50;//device.getImage3DMaxDepth();
 		CLImageFormat format = formatsRead3D[0];

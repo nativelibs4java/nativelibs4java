@@ -19,6 +19,9 @@ along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import com.nativelibs4java.util.JNAUtils;
+import com.ochafik.lang.jnaerator.runtime.Size;
+import com.ochafik.lang.jnaerator.runtime.SizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
@@ -33,11 +36,11 @@ import static com.nativelibs4java.util.JNAUtils.*;
  */
 abstract class CLInfoGetter<T extends PointerType> {
 
-    protected abstract int getInfo(T entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut);
+    protected abstract int getInfo(T entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut);
 
     public String getString(T entity, int infoName) {
-        NativeLongByReference pLen = new NativeLongByReference();
-        error(getInfo(entity, infoName, toNL(0), null, pLen));
+        SizeByReference pLen = new SizeByReference();
+        error(getInfo(entity, infoName, toSize(0), null, pLen));
 
         int len = pLen.getValue().intValue();
         if (len == 0) {
@@ -50,8 +53,8 @@ abstract class CLInfoGetter<T extends PointerType> {
     }
 
     public Memory getMemory(T entity, int infoName) {
-        NativeLongByReference pLen = new NativeLongByReference();
-        error(getInfo(entity, infoName, toNL(0), null, pLen));
+        SizeByReference pLen = new SizeByReference();
+        error(getInfo(entity, infoName, toSize(0), null, pLen));
 
         Memory buffer = new Memory(pLen.getValue().intValue());
         error(getInfo(entity, infoName, pLen.getValue(), buffer, null));
@@ -59,38 +62,30 @@ abstract class CLInfoGetter<T extends PointerType> {
         return buffer;
     }
 
-    public long[] getNativeLongs(T entity, int infoName, int n) {
-        int nBytes = Native.LONG_SIZE * n;
-        NativeLongByReference pLen = new NativeLongByReference(toNL(nBytes));
+    public long[] getSizes(T entity, int infoName, int n) {
+        int nBytes = Size.SIZE * n;
+        SizeByReference pLen = new SizeByReference(toSize(nBytes));
         Memory mem = new Memory(nBytes);
-        error(getInfo(entity, infoName, toNL(nBytes), mem, null));
+        error(getInfo(entity, infoName, toSize(nBytes), mem, null));
 
         if (pLen.getValue().longValue() != nBytes) {
-            throw new RuntimeException("Not a NativeLong[" + n + "] : len = " + pLen.getValue());
+            throw new RuntimeException("Not a Size[" + n + "] : len = " + pLen.getValue());
         }
         long[] longs = new long[n];
         for (int i = 0; i < n; i++) {
-            longs[i] = mem.getNativeLong(i * Native.LONG_SIZE).longValue();
+            longs[i] = readSize(mem, i * Size.SIZE).longValue();
         }
         return longs;
     }
 
     public int getInt(T entity, int infoName) {
-        return (int)getNativeLong(entity, infoName);
-        /*NativeLongByReference pLen = new NativeLongByReference();
-        IntByReference pValue = new IntByReference();
-        error(getInfo(entity, infoName, toNL(4), pValue.getPointer(), pLen));
-
-        if (pLen.getValue().longValue() != 4) {
-            throw new RuntimeException("Not an int : len = " + pLen.getValue());
-        }
-        return pValue.getValue();*/
+        return (int)getIntOrLong(entity, infoName);
     }
 
     public boolean getBool(T entity, int infoName) {
-        NativeLongByReference pLen = new NativeLongByReference();
+        SizeByReference pLen = new SizeByReference();
         IntByReference pValue = new IntByReference();
-        error(getInfo(entity, infoName, toNL(4), pValue.getPointer(), pLen));
+        error(getInfo(entity, infoName, toSize(4), pValue.getPointer(), pLen));
 
         if (pLen.getValue().longValue() != 4) {
             throw new RuntimeException("Not a BOOL : len = " + pLen.getValue());
@@ -98,10 +93,10 @@ abstract class CLInfoGetter<T extends PointerType> {
         return pValue.getValue() != 0;
     }
 
-    public long getNativeLong(T entity, int infoName) {
-        NativeLongByReference pLen = new NativeLongByReference();
+    public long getIntOrLong(T entity, int infoName) {
+        SizeByReference pLen = new SizeByReference();
         Memory mem = new Memory(8);
-        error(getInfo(entity, infoName, toNL(8), mem, pLen));
+        error(getInfo(entity, infoName, toSize(8), mem, pLen));
 
         switch (pLen.getValue().intValue()) {
             case 4:

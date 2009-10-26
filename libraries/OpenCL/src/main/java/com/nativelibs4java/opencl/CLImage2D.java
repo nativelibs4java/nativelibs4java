@@ -49,7 +49,7 @@ public class CLImage2D extends CLImage {
 	 */
 	@InfoName("CL_IMAGE_ROW_PITCH")
 	public long getRowPitch() {
-		return infos.getNativeLong(get(), CL_IMAGE_ROW_PITCH);
+		return infos.getIntOrLong(get(), CL_IMAGE_ROW_PITCH);
 	}
 
 	/**
@@ -57,7 +57,7 @@ public class CLImage2D extends CLImage {
 	 */
 	@InfoName("CL_IMAGE_WIDTH")
 	public long getWidth() {
-		return infos.getNativeLong(get(), CL_IMAGE_WIDTH);
+		return infos.getIntOrLong(get(), CL_IMAGE_WIDTH);
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class CLImage2D extends CLImage {
 	 */
 	@InfoName("CL_IMAGE_HEIGHT")
 	public long getHeight() {
-		return infos.getNativeLong(get(), CL_IMAGE_HEIGHT);
+		return infos.getIntOrLong(get(), CL_IMAGE_HEIGHT);
 	}
 
 	public CLEvent read(CLQueue queue, long minX, long minY, long width, long height, long rowPitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {

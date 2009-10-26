@@ -19,6 +19,8 @@
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.cl_image_format;
+import com.ochafik.lang.jnaerator.runtime.Size;
+import com.ochafik.lang.jnaerator.runtime.SizeByReference;
 import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
@@ -39,7 +41,7 @@ import static com.nativelibs4java.util.NIOUtils.*;
 public abstract class CLImage extends CLMem {
 	protected static CLInfoGetter<cl_mem> infos = new CLInfoGetter<cl_mem>() {
 		@Override
-		protected int getInfo(cl_mem entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
+		protected int getInfo(cl_mem entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut) {
 			return CL.clGetImageInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};
@@ -72,7 +74,7 @@ public abstract class CLImage extends CLMem {
 	 */
 	@InfoName("CL_IMAGE_ELEMENT_SIZE")
 	public long getElementSize() {
-		return infos.getNativeLong(get(), CL_IMAGE_ELEMENT_SIZE);
+		return infos.getIntOrLong(get(), CL_IMAGE_ELEMENT_SIZE);
 	}
 
 
@@ -83,10 +85,10 @@ public abstract class CLImage extends CLMem {
 		cl_event[] eventOut = blocking ? null : new cl_event[1];
 		error(CL.clEnqueueReadImage(queue.get(), get(),
 			blocking ? CL_TRUE : CL_FALSE,
-			toNL(origin),
-			toNL(region),
-			toNL(rowPitch),
-			toNL(slicePitch),
+			toSize(origin),
+			toSize(region),
+			toSize(rowPitch),
+			toSize(slicePitch),
 			Native.getDirectBufferPointer(out),
 			eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
 			eventOut
@@ -102,10 +104,10 @@ public abstract class CLImage extends CLMem {
 		cl_event[] eventOut = blocking ? null : new cl_event[1];
 		error(CL.clEnqueueReadImage(queue.get(), get(),
 			blocking ? CL_TRUE : CL_FALSE,
-			toNL(origin),
-			toNL(region),
-			toNL(rowPitch),
-			toNL(slicePitch),
+			toSize(origin),
+			toSize(region),
+			toSize(rowPitch),
+			toSize(slicePitch),
 			Native.getDirectBufferPointer(in),
 			eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
 			eventOut

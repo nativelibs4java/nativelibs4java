@@ -18,6 +18,8 @@
 */
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import com.ochafik.lang.jnaerator.runtime.Size;
+import com.ochafik.lang.jnaerator.runtime.SizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
@@ -52,7 +54,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
 	private static CLInfoGetter<cl_program> infos = new CLInfoGetter<cl_program>() {
 		@Override
-		protected int getInfo(cl_program entity, int infoTypeEnum, NativeLong size, Pointer out, NativeLongByReference sizeOut) {
+		protected int getInfo(cl_program entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut) {
 			return CL.clGetProgramInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};
@@ -76,22 +78,23 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     public byte[][] getBinaries() {
 		Memory s = infos.getMemory(get(), CL_PROGRAM_BINARY_SIZES);
 		int n = (int)s.getSize() / Native.LONG_SIZE;
-		int[] sizes = new int[n];
-		for (int i = 0; i < n; i++) {
-			sizes[i] = s.getNativeLong(i * Native.LONG_SIZE).intValue();
-		}
+		Size[] sizes = readSizes(s, n);
+		//int[] sizes = new int[n];
+		//for (int i = 0; i < n; i++) {
+		//	sizes[i] = s.getNativeLong(i * Native.LONG_SIZE).intValue();
+		//}
 
 		Memory[] binMems = new Memory[n];
 		Memory ptrs = new Memory(n * Native.POINTER_SIZE);
 		for (int i = 0; i < n; i++) {
-			ptrs.setPointer(i * Native.POINTER_SIZE, binMems[i] = new Memory(sizes[i]));
+			ptrs.setPointer(i * Native.POINTER_SIZE, binMems[i] = new Memory(sizes[i].intValue()));
 		}
-		error(infos.getInfo(get(), CL_PROGRAM_BINARIES, toNL(ptrs.getSize()), ptrs, null));
+		error(infos.getInfo(get(), CL_PROGRAM_BINARIES, toSize(ptrs.getSize()), ptrs, null));
 
 		byte[][] ret = new byte[n][];
 		for (int i = 0; i < n; i++) {
 			Memory bytes = binMems[i];
-			ret[i] = bytes.getByteArray(0, sizes[i]);
+			ret[i] = bytes.getByteArray(0, sizes[i].intValue());
 		}
 		return ret;
 	}
@@ -110,13 +113,13 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
         int err = CL.clBuildProgram(get(), 0, null/*context.getDeviceIds()*/, (String) null, null, null);
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
-            NativeLongByReference len = new NativeLongByReference();
+            SizeByReference len = new SizeByReference();
             int bufLen = 2048;
             Memory buffer = new Memory(bufLen);
 
             HashSet<String> errs = new HashSet<String>();
             for (cl_device_id device_id : context.deviceIds) {
-                error(CL.clGetProgramBuildInfo(get(), device_id, CL_PROGRAM_BUILD_LOG, toNL(bufLen), buffer, len));
+                error(CL.clGetProgramBuildInfo(get(), device_id, CL_PROGRAM_BUILD_LOG, toSize(bufLen), buffer, len));
                 String s = buffer.getString(0);
                 errs.add(s);
             }
