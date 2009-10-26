@@ -4,6 +4,7 @@ Current development version (1.0-SNAPSHOT)
 - Added If function to ScalaCL (operates on statements or on expressions)
 - Added CLAbstractEntity.release()
 - Fixed Issue #4  : CLContext.createContext(CLDevice... devices) created context on only one device
+- Regenerated the low level bindings with latest JNAerator : now using Size class instead of NativeLong for size_t (fixes Issue #8)
 
 Version 1.0-beta-2
 
