@@ -25,8 +25,8 @@ import com.nativelibs4java.opencl.library.cl_image_format;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.util.NIOUtils;
-import com.ochafik.lang.jnaerator.runtime.Size;
-import com.ochafik.lang.jnaerator.runtime.SizeByReference;
+import com.ochafik.lang.jnaerator.runtime.NativeSize;
+import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
@@ -56,7 +56,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	private static CLInfoGetter<cl_context> infos = new CLInfoGetter<cl_context>() {
 
 		@Override
-		protected int getInfo(cl_context entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut) {
+		protected int getInfo(cl_context entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
 			return CL.clGetContextInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};
@@ -87,7 +87,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 
 	public CLImageFormat[] getSupportedImageFormats(CLBuffer.Flags flags, CLBuffer.ObjectType imageType) {
-		SizeByReference pCount = new SizeByReference();
+		NativeSizeByReference pCount = new NativeSizeByReference();
 		int memFlags = (int) flags.getValue();
 		int imTyp = (int) imageType.getValue();
 		Memory memCount = new Memory(16);
@@ -149,10 +149,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	public CLProgram createProgram(String... srcs) {
 
 		String[] source = new String[srcs.length];
-		Size[] lengths = new Size[srcs.length];
+		NativeSize[] lengths = new NativeSize[srcs.length];
 		for (int i = 0; i < srcs.length; i++) {
 			source[i] = srcs[i];
-			lengths[i] = toSize(srcs[i].length());
+			lengths[i] = toNS(srcs[i].length());
 		}
 		IntBuffer errBuff = IntBuffer.wrap(new int[1]);
 		cl_program program = CL.clCreateProgramWithSource(get(), srcs.length, source, lengths, errBuff);
@@ -205,9 +205,9 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 				get(),
 				memFlags,
 				format.to_cl_image_format(),
-				toSize(width),
-				toSize(height),
-				toSize(rowPitch),
+				toNS(width),
+				toNS(height),
+				toNS(rowPitch),
 				buffer == null ? null : Native.getDirectBufferPointer(buffer),
 				pErr);
 		error(pErr.getValue());
@@ -233,11 +233,11 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 				get(),
 				memFlags,
 				format.to_cl_image_format(),
-				toSize(width),
-				toSize(height),
-				toSize(depth),
-				toSize(rowPitch),
-				toSize(slicePitch),
+				toNS(width),
+				toNS(height),
+				toNS(depth),
+				toNS(rowPitch),
+				toNS(slicePitch),
 				buffer == null ? null : Native.getDirectBufferPointer(buffer),
 				pErr);
 		error(pErr.getValue());
@@ -403,7 +403,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		cl_mem mem = CL.clCreateBuffer(
 				get(),
 				CLBufferFlags,
-				toSize(byteCount),
+				toNS(byteCount),
 				buffer == null ? null : Native.getDirectBufferPointer(buffer),
 				pErr);
 		error(pErr.getValue());

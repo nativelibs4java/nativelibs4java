@@ -18,8 +18,8 @@
 */
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.ochafik.lang.jnaerator.runtime.Size;
-import com.ochafik.lang.jnaerator.runtime.SizeByReference;
+import com.ochafik.lang.jnaerator.runtime.NativeSize;
+import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.IntByReference;
@@ -48,7 +48,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
     private CLInfoGetter<cl_command_queue> infos = new CLInfoGetter<cl_command_queue>() {
 		@Override
-		protected int getInfo(cl_command_queue entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut) {
+		protected int getInfo(cl_command_queue entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
 			return CL.clGetCommandQueueInfo(get(), infoTypeEnum, size, out, sizeOut);
 		}
 	};

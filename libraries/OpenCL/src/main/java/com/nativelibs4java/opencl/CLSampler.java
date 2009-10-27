@@ -20,8 +20,8 @@ package com.nativelibs4java.opencl;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.ochafik.lang.jnaerator.runtime.Size;
-import com.ochafik.lang.jnaerator.runtime.SizeByReference;
+import com.ochafik.lang.jnaerator.runtime.NativeSize;
+import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
@@ -42,7 +42,7 @@ import static com.nativelibs4java.opencl.CLException.*;
 public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	private static CLInfoGetter<cl_sampler> infos = new CLInfoGetter<cl_sampler>() {
 		@Override
-		protected int getInfo(cl_sampler entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut) {
+		protected int getInfo(cl_sampler entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
 			return CL.clGetSamplerInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};

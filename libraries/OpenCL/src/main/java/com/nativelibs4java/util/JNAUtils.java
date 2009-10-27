@@ -5,8 +5,8 @@
 
 package com.nativelibs4java.util;
 
-import com.ochafik.lang.jnaerator.runtime.Size;
-import com.ochafik.lang.jnaerator.runtime.SizeByReference;
+import com.ochafik.lang.jnaerator.runtime.NativeSize;
+import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 
@@ -19,77 +19,77 @@ public class JNAUtils {
 	/**
 	 * Casts an IntByReference to a NativeLongByReference
 	 */
-    public static SizeByReference castToSize(IntByReference local) {
-        SizeByReference nl = new SizeByReference();
+    public static NativeSizeByReference castToNS(IntByReference local) {
+        NativeSizeByReference nl = new NativeSizeByReference();
         nl.setPointer(local.getPointer());
         return nl;
     }
 
 	/**
-	 * Casts a LongByReference to a SizeByReference
+	 * Casts a LongByReference to a NativeSizeByReference
 	 */
-    public static SizeByReference castToSize(LongByReference local) {
-        SizeByReference nl = new SizeByReference();
+    public static NativeSizeByReference castToNS(LongByReference local) {
+        NativeSizeByReference nl = new NativeSizeByReference();
         nl.setPointer(local.getPointer());
         return nl;
     }
 
-	public static Size readSize(Pointer p, long offset) {
-		if (Size.SIZE == 4)
-			return new Size(p.getInt(offset));
-		else if (Size.SIZE == 8)
-			return new Size(p.getLong(offset));
+	public static NativeSize readNS(Pointer p, long offset) {
+		if (NativeSize.SIZE == 4)
+			return new NativeSize(p.getInt(offset));
+		else if (NativeSize.SIZE == 8)
+			return new NativeSize(p.getLong(offset));
 		else
 			throw new RuntimeException("sizeof(size_t) must be either 4 or 8");
 	}
 
-	public static Size[] readSizes(Pointer p, int n) {
-		Size[] sizes = new Size[n];
-		int sz = Size.SIZE;
+	public static NativeSize[] readNSArray(Pointer p, int n) {
+		NativeSize[] sizes = new NativeSize[n];
+		int sz = NativeSize.SIZE;
 		for (int i = 0; i < n; i++)
-			sizes[i] = readSize(p, i * sz);
+			sizes[i] = readNS(p, i * sz);
 		return sizes;
 	}
 
 	/**
 	 * Return a new Size with the provided int value
 	 */
-	public static Size[] toSize(int[] ints) {
+	public static NativeSize[] toNS(int[] ints) {
 		if (ints == null)
 			return null;
 		int n = ints.length;
-		Size[] nls = new Size[n];
+		NativeSize[] nls = new NativeSize[n];
         for (int i = 0; i < n; i++)
-            nls[i] = toSize(ints[i]);
+            nls[i] = toNS(ints[i]);
 
         return nls;
     }
 
 	/**
-	 * Return a new Size with the provided long value
+	 * Return a new NativeSize array with the provided long values
 	 */
-	public static Size[] toSize(long[] ints) {
+	public static NativeSize[] toNS(long[] ints) {
 		if (ints == null)
 			return null;
 		int n = ints.length;
-		Size[] nls = new Size[n];
+		NativeSize[] nls = new NativeSize[n];
         for (int i = 0; i < n; i++)
-            nls[i] = toSize(ints[i]);
+            nls[i] = toNS(ints[i]);
 
         return nls;
     }
 
 	/**
-	 * Return a new Size with the provided int value
+	 * Return a new NativeSize with the provided int value
 	 */
-	public static Size toSize(int i) {
-        return new Size(i);
+	public static NativeSize toNS(int i) {
+        return new NativeSize(i);
     }
 
 	/**
-	 * Return a new Size with the provided long value
+	 * Return a new NativeSize with the provided long value
 	 */
-	public static Size toSize(long i) {
-        return new Size(i);
+	public static NativeSize toNS(long i) {
+        return new NativeSize(i);
     }
 }

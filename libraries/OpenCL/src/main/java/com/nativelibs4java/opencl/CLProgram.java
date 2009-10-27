@@ -18,8 +18,8 @@
 */
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.ochafik.lang.jnaerator.runtime.Size;
-import com.ochafik.lang.jnaerator.runtime.SizeByReference;
+import com.ochafik.lang.jnaerator.runtime.NativeSize;
+import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
@@ -54,7 +54,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
 	private static CLInfoGetter<cl_program> infos = new CLInfoGetter<cl_program>() {
 		@Override
-		protected int getInfo(cl_program entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut) {
+		protected int getInfo(cl_program entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
 			return CL.clGetProgramInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};
@@ -78,7 +78,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     public byte[][] getBinaries() {
 		Memory s = infos.getMemory(get(), CL_PROGRAM_BINARY_SIZES);
 		int n = (int)s.getSize() / Native.LONG_SIZE;
-		Size[] sizes = readSizes(s, n);
+		NativeSize[] sizes = readNSArray(s, n);
 		//int[] sizes = new int[n];
 		//for (int i = 0; i < n; i++) {
 		//	sizes[i] = s.getNativeLong(i * Native.LONG_SIZE).intValue();
@@ -89,7 +89,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		for (int i = 0; i < n; i++) {
 			ptrs.setPointer(i * Native.POINTER_SIZE, binMems[i] = new Memory(sizes[i].intValue()));
 		}
-		error(infos.getInfo(get(), CL_PROGRAM_BINARIES, toSize(ptrs.getSize()), ptrs, null));
+		error(infos.getInfo(get(), CL_PROGRAM_BINARIES, toNS(ptrs.getSize()), ptrs, null));
 
 		byte[][] ret = new byte[n][];
 		for (int i = 0; i < n; i++) {
@@ -113,13 +113,13 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
         int err = CL.clBuildProgram(get(), 0, null/*context.getDeviceIds()*/, (String) null, null, null);
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
-            SizeByReference len = new SizeByReference();
+            NativeSizeByReference len = new NativeSizeByReference();
             int bufLen = 2048;
             Memory buffer = new Memory(bufLen);
 
             HashSet<String> errs = new HashSet<String>();
             for (cl_device_id device_id : context.deviceIds) {
-                error(CL.clGetProgramBuildInfo(get(), device_id, CL_PROGRAM_BUILD_LOG, toSize(bufLen), buffer, len));
+                error(CL.clGetProgramBuildInfo(get(), device_id, CL_PROGRAM_BUILD_LOG, toNS(bufLen), buffer, len));
                 String s = buffer.getString(0);
                 errs.add(s);
             }

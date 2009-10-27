@@ -20,8 +20,8 @@ package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.util.JNAUtils;
-import com.ochafik.lang.jnaerator.runtime.Size;
-import com.ochafik.lang.jnaerator.runtime.SizeByReference;
+import com.ochafik.lang.jnaerator.runtime.NativeSize;
+import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
@@ -36,11 +36,11 @@ import static com.nativelibs4java.util.JNAUtils.*;
  */
 abstract class CLInfoGetter<T extends PointerType> {
 
-    protected abstract int getInfo(T entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut);
+    protected abstract int getInfo(T entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut);
 
     public String getString(T entity, int infoName) {
-        SizeByReference pLen = new SizeByReference();
-        error(getInfo(entity, infoName, toSize(0), null, pLen));
+        NativeSizeByReference pLen = new NativeSizeByReference();
+        error(getInfo(entity, infoName, toNS(0), null, pLen));
 
         int len = pLen.getValue().intValue();
         if (len == 0) {
@@ -53,8 +53,8 @@ abstract class CLInfoGetter<T extends PointerType> {
     }
 
     public Memory getMemory(T entity, int infoName) {
-        SizeByReference pLen = new SizeByReference();
-        error(getInfo(entity, infoName, toSize(0), null, pLen));
+        NativeSizeByReference pLen = new NativeSizeByReference();
+        error(getInfo(entity, infoName, toNS(0), null, pLen));
 
         Memory buffer = new Memory(pLen.getValue().intValue());
         error(getInfo(entity, infoName, pLen.getValue(), buffer, null));
@@ -62,18 +62,18 @@ abstract class CLInfoGetter<T extends PointerType> {
         return buffer;
     }
 
-    public long[] getSizes(T entity, int infoName, int n) {
-        int nBytes = Size.SIZE * n;
-        SizeByReference pLen = new SizeByReference(toSize(nBytes));
+    public long[] getNativeSizes(T entity, int infoName, int n) {
+        int nBytes = NativeSize.SIZE * n;
+        NativeSizeByReference pLen = new NativeSizeByReference(toNS(nBytes));
         Memory mem = new Memory(nBytes);
-        error(getInfo(entity, infoName, toSize(nBytes), mem, null));
+        error(getInfo(entity, infoName, toNS(nBytes), mem, null));
 
         if (pLen.getValue().longValue() != nBytes) {
             throw new RuntimeException("Not a Size[" + n + "] : len = " + pLen.getValue());
         }
         long[] longs = new long[n];
         for (int i = 0; i < n; i++) {
-            longs[i] = readSize(mem, i * Size.SIZE).longValue();
+            longs[i] = readNS(mem, i * NativeSize.SIZE).longValue();
         }
         return longs;
     }
@@ -83,9 +83,9 @@ abstract class CLInfoGetter<T extends PointerType> {
     }
 
     public boolean getBool(T entity, int infoName) {
-        SizeByReference pLen = new SizeByReference();
+        NativeSizeByReference pLen = new NativeSizeByReference();
         IntByReference pValue = new IntByReference();
-        error(getInfo(entity, infoName, toSize(4), pValue.getPointer(), pLen));
+        error(getInfo(entity, infoName, toNS(4), pValue.getPointer(), pLen));
 
         if (pLen.getValue().longValue() != 4) {
             throw new RuntimeException("Not a BOOL : len = " + pLen.getValue());
@@ -94,9 +94,9 @@ abstract class CLInfoGetter<T extends PointerType> {
     }
 
     public long getIntOrLong(T entity, int infoName) {
-        SizeByReference pLen = new SizeByReference();
+        NativeSizeByReference pLen = new NativeSizeByReference();
         Memory mem = new Memory(8);
-        error(getInfo(entity, infoName, toSize(8), mem, pLen));
+        error(getInfo(entity, infoName, toNS(8), mem, pLen));
 
         switch (pLen.getValue().intValue()) {
             case 4:

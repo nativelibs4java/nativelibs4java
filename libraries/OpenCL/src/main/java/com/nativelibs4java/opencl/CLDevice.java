@@ -20,8 +20,8 @@ package com.nativelibs4java.opencl;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.ochafik.lang.jnaerator.runtime.Size;
-import com.ochafik.lang.jnaerator.runtime.SizeByReference;
+import com.ochafik.lang.jnaerator.runtime.NativeSize;
+import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
@@ -40,7 +40,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 
 	private static CLInfoGetter<cl_device_id> infos = new CLInfoGetter<cl_device_id>() {
 		@Override
-		protected int getInfo(cl_device_id entity, int infoTypeEnum, Size size, Pointer out, SizeByReference sizeOut) {
+		protected int getInfo(cl_device_id entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
 			return CL.clGetDeviceInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};
@@ -131,7 +131,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	 */
 	@InfoName("CL_DEVICE_MAX_WORK_ITEM_SIZES")
 	public long[] getMaxWorkItemSizes() {
-		return infos.getSizes(get(), CL_DEVICE_MAX_WORK_ITEM_SIZES, getMaxWorkItemDimensions());
+		return infos.getNativeSizes(get(), CL_DEVICE_MAX_WORK_ITEM_SIZES, getMaxWorkItemDimensions());
 	}
 
 	/**

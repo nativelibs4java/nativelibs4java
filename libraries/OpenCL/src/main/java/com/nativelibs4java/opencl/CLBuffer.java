@@ -166,9 +166,9 @@ public abstract class CLBuffer extends CLMem {
 			queue.get(),
 			get(),
 			destination.get(),
-			toSize(srcOffset),
-			toSize(destOffset),
-			toSize(length),
+			toNS(srcOffset),
+			toNS(destOffset),
+			toNS(length),
 			eventsToWaitFor.length, eventsToWaitFor.length == 0 ? null : CLEvent.to_cl_event_array(eventsToWaitFor),
 			eventOut
 		));
@@ -181,7 +181,7 @@ public abstract class CLBuffer extends CLMem {
 		IntByReference pErr = new IntByReference();
         Pointer p = CL.clEnqueueMapBuffer(queue.get(), get(), blocking ? CL_TRUE : CL_FALSE,
 			(int)flags.getValue(),
-			toSize(offset), toSize(length),
+			toNS(offset), toNS(length),
 			eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
 			eventOut,
 			pErr
@@ -223,8 +223,8 @@ public abstract class CLBuffer extends CLMem {
 				queue.get(),
 				get(),
 				blocking ? CL_TRUE : 0,
-				toSize(offset),
-				toSize(length),
+				toNS(offset),
+				toNS(length),
 				Native.getDirectBufferPointer(out),
 				eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
 				eventOut
@@ -288,8 +288,8 @@ public abstract class CLBuffer extends CLMem {
 				queue.get(),
 				get(),
 				blocking ? CL_TRUE : 0,
-				toSize(offset),
-				toSize(length),
+				toNS(offset),
+				toNS(length),
 				Native.getDirectBufferPointer(in),
 				eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
 				eventOut
