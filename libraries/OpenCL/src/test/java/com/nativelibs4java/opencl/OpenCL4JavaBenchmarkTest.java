@@ -109,14 +109,15 @@ public class OpenCL4JavaBenchmarkTest {
             memOut = kernel.program.context.createByteBuffer(CLMem.Usage.Output, output, false);
         }
         kernel.setArgs(memIn1, memIn2, memOut);
+		
+		long[] maxWorkItemSizes = queue.getDevice().getMaxWorkItemSizes();
+		int workItemSize = (int)maxWorkItemSizes[0];
 
         if (warmup) {
-			long[] maxWorkItemSizes = queue.getDevice().getMaxWorkItemSizes();
-			int workItemSize = (int)maxWorkItemSizes[0];
-			if (workItemSize > 1)
-				workItemSize /= 2;
+			//if (workItemSize > 1)
+			//	workItemSize /= 2;
             for (int i = 0; i < 3000; i++)
-                kernel.enqueueNDRange(queue, new int[]{10}, new int[]{workItemSize});
+                kernel.enqueueNDRange(queue, new int[]{workItemSize}, new int[]{workItemSize});
             queue.finish();
         }
 
@@ -132,9 +133,14 @@ public class OpenCL4JavaBenchmarkTest {
         queue.finish();
         gc();
 
+		if (dataSize < workItemSize) {
+			System.err.println("dataSize = " + dataSize + " is lower than max workItemSize for first dim = " + workItemSize + " !!!");
+			workItemSize = 1;
+		}
+
         long start = System.nanoTime();
         for (int i = 0; i < loops; i++) {
-            kernel.enqueueNDRange(queue, new int[]{dataSize}, new int[]{1});
+            kernel.enqueueNDRange(queue, new int[]{dataSize}, new int[]{workItemSize});
         }
         queue.finish();
         long time = System.nanoTime() - start;
