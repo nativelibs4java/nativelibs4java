@@ -10,162 +10,49 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	public static final com.sun.jna.NativeLibrary JNA_NATIVE_LIB = com.sun.jna.NativeLibrary.getInstance(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_LIBRARY_NAME, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
 	public static final com.nativelibs4java.opencl.library.OpenCLLibrary INSTANCE = (com.nativelibs4java.opencl.library.OpenCLLibrary)com.sun.jna.Native.loadLibrary(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_LIBRARY_NAME, com.nativelibs4java.opencl.library.OpenCLLibrary.class, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
 	/// <i>native declaration : cl.h</i>
+	public static final int CL_CHAR_BIT = 8;
+	/// <i>native declaration : cl.h</i>
 	public static final int CL_SCHAR_MAX = 127;
 	/// <i>native declaration : cl.h</i>
-	public static final int CL_GLOBAL = 2;
+	public static final int CL_SCHAR_MIN = (-127 - 1);
 	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_GLOBAL_MEM_SIZE = 4127;
+	public static final int CL_UCHAR_MAX = 255;
 	/// <i>native declaration : cl.h</i>
-	public static final int CL_KERNEL_LOCAL_MEM_SIZE = 4530;
+	public static final int CL_SHRT_MAX = 32767;
 	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_VENDOR_ID = 4097;
+	public static final int CL_SHRT_MIN = (-32767 - 1);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_USHRT_MAX = 65535;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INT_MAX = 2147483647;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INT_MIN = (-2147483647 - 1);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_UINT_MAX = -1;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FLT_DIG = 6;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FLT_MANT_DIG = 24;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FLT_MIN_10_EXP = -37;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FLT_MIN_EXP = -125;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FLT_RADIX = 2;
+	/**
+	 * define<br>
+	 * Conversion Error : 0x1.fffffep127f<br>
+	 * SKIPPED:<br>
+	 * <i>native declaration : cl.h</i><br>
+	 * 0x1.fffffep127f
+	 */
 	/**
 	 * define<br>
 	 * Conversion Error : 0x1.p<br>
 	 * SKIPPED:<br>
 	 * <i>native declaration : cl.h</i><br>
-	 * 0x1.p - 52
+	 * 0x1.p - 126.0F
 	 */
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PLATFORM_EXTENSIONS = 2308;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_IMAGE_FORMAT_MISMATCH = -9;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_OUT_OF_RESOURCES = -5;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_IMAGE_SIZE = -40;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_EVENT_WAIT_LIST = -57;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_NDRANGE_KERNEL = 4592;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MAX_CONSTANT_ARGS = 4129;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_TYPE_ALL = -1;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_MIP_LEVEL = -62;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_WORK_GROUP_SIZE = -54;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_MAP_COUNT = 4356;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_ACQUIRE_GL_OBJECTS = 4607;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_COPY_IMAGE_TO_BUFFER = 4601;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_QUEUE_CONTEXT = 4240;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SUCCESS = 0;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROGRAM_SOURCE = 4452;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_COMPILER_AVAILABLE = 4136;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_READ_BUFFER = 4595;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_KERNEL_WORK_GROUP_SIZE = 4528;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_UNMAP_MEM_OBJECT = 4605;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_COMMAND_QUEUE = -36;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_WRITE_IMAGE = 4599;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_ADDRESS_REPEAT = 4403;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_SIZE = 4354;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROGRAM_BINARIES = 4454;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MAX_WORK_GROUP_SIZE = 4100;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SAMPLER_NORMALIZED_COORDS = 4434;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_OBJECT_ALLOCATION_FAILURE = -4;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMPLETE = 0;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_WRITE_ONLY = (1 << 1);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SAMPLER_ADDRESSING_MODE = 4435;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_IMAGE3D_MAX_HEIGHT = 4116;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MAX_READ_IMAGE_ARGS = 4110;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_NOT_FOUND = -1;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MAX_PARAMETER_SIZE = 4119;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_IMAGE3D_MAX_DEPTH = 4117;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_USE_HOST_PTR = (1 << 3);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SIGNED_INT8 = 4311;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_ADDRESS_BITS = 4109;
-	/// <i>native declaration : cl_gl.h</i>
-	public static final int CL_GL_OBJECT_BUFFER = 8192;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PLATFORM_VERSION = 2305;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_LOCAL_MEM_TYPE = 4130;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROGRAM_BUILD_STATUS = 4481;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_GLOBAL_MEM_CACHE_TYPE = 4124;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SUBMITTED = 2;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMPILER_NOT_AVAILABLE = -3;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SNORM_INT8 = 4304;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_IMAGE_ELEMENT_SIZE = 4369;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE = 4107;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SHRT_MAX = 32767;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_UNORM_INT8 = 4306;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INT_MIN = (-2147483647 - 1);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT = 4103;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FILTER_NEAREST = 4416;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_KERNEL_FUNCTION_NAME = 4496;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_RGB = 4276;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_OBJECT_BUFFER = 4336;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SCHAR_MIN = (-127 - 1);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FLT_DIG = 6;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_IMAGE_FORMAT = 4368;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_IMAGE_DEPTH = 4374;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_KERNEL_PROGRAM = 4500;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_AVAILABLE = 4135;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_UCHAR_MAX = 255;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROGRAM_NUM_DEVICES = 4450;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_IMAGE_FORMAT_DESCRIPTOR = -39;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SAMPLER_FILTER_MODE = 4436;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INT_MAX = 2147483647;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_TASK = 4593;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_IMAGE3D_MAX_WIDTH = 4115;
 	/**
 	 * define<br>
 	 * Conversion Error : 0x1.p<br>
@@ -174,128 +61,15 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 * 0x1.p - 23.0F
 	 */
 	/// <i>native declaration : cl.h</i>
-	public static final int CL_FLT_MIN_EXP = -125;
+	public static final int CL_DBL_DIG = 15;
 	/// <i>native declaration : cl.h</i>
-	public static final int CL_NONE = 0;
+	public static final int CL_DBL_MANT_DIG = 53;
 	/// <i>native declaration : cl.h</i>
-	public static final int CL_BGRA = 4278;
+	public static final int CL_DBL_MIN_10_EXP = -307;
 	/// <i>native declaration : cl.h</i>
-	public static final int CL_UNSIGNED_INT32 = 4316;
+	public static final int CL_DBL_MIN_EXP = -1021;
 	/// <i>native declaration : cl.h</i>
-	public static final int CL_UNSIGNED_INT16 = 4315;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT = 4106;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_CONTEXT_DEVICES = 4225;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_LOCAL_MEM_SIZE = 4131;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_RELEASE_GL_OBJECTS = 4608;
-	/// <i>native declaration : /System/Library/Frameworks/OpenCL.framework/Headers/cl_gl_ext.h</i>
-	public static final int CL_INVALID_GL_CONTEXT_APPLE = -1000;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_CONTEXT_PLATFORM = 4228;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG = 4105;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_DEVICE_TYPE = -31;
-	/// <i>native declaration : cl_gl.h</i>
-	public static final int CL_GL_TEXTURE_TARGET = 8196;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_SINGLE_FP_CONFIG = 4123;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SNORM_INT16 = 4305;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_ARGB = 4279;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_BUFFER_SIZE = -61;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_ARG_SIZE = -51;
-	/**
-	 * define<br>
-	 * Conversion Error : 0x1.fffffep127f<br>
-	 * SKIPPED:<br>
-	 * <i>native declaration : cl.h</i><br>
-	 * 0x1.fffffep127f
-	 */
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR = 4102;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE = 4125;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_IMAGE_ROW_PITCH = 4370;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_ARG_INDEX = -49;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_ENDIAN_LITTLE = 4134;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_UNORM_INT_101010 = 4310;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_EVENT = -58;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_RG = 4274;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_RA = 4275;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROGRAM_BUILD_OPTIONS = 4482;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_UNORM_INT16 = 4307;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_IMAGE2D_MAX_HEIGHT = 4114;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_BUILD_OPTIONS = -43;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_HOST_PTR = 4355;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_PROGRAM_EXECUTABLE = -45;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROGRAM_CONTEXT = 4449;
-	/// <i>native declaration : /System/Library/Frameworks/OpenCL.framework/Headers/cl_gl_ext.h</i>
-	public static final int CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE = 268435456;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_PROFILE = 4142;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_OPERATION = -59;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_PROFILING_TIMER_RESOLUTION = 4133;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROFILING_COMMAND_START = 4738;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_COPY_IMAGE = 4600;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MAX_WORK_ITEM_SIZES = 4101;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_CONTEXT = -34;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_EXTENSIONS = 4144;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_EVENT_COMMAND_EXECUTION_STATUS = 4563;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MAX_WRITE_IMAGE_ARGS = 4111;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_BUILD_SUCCESS = 0;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FP_DENORM = (1 << 0);
-	/// <i>native declaration : cl_gl.h</i>
-	public static final int CL_GL_MIPMAP_LEVEL = 8197;
-	/// <i>native declaration : /System/Library/Frameworks/OpenCL.framework/Headers/cl_gl_ext.h</i>
-	public static final int CL_CGL_DEVICE_FOR_CURRENT_VIRTUAL_SCREEN_APPLE = 268435458;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_GLOBAL_MEM_CACHE_SIZE = 4126;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_WRITE_BUFFER = 4596;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_BUILD_IN_PROGRESS = -3;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_CONTEXT_PROPERTIES = 4226;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_OBJECT_IMAGE2D = 4337;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FILTER_LINEAR = 4417;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_OBJECT_IMAGE3D = 4338;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_QUEUE_REFERENCE_COUNT = 4242;
+	public static final int CL_DBL_RADIX = 2;
 	/**
 	 * define<br>
 	 * Conversion Error : 0x1.fffffffffffffp1023<br>
@@ -303,179 +77,6 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 * <i>native declaration : cl.h</i><br>
 	 * 0x1.fffffffffffffp1023
 	 */
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DBL_MIN_10_EXP = -307;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_READ_IMAGE = 4598;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_UNSIGNED_INT8 = 4314;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DBL_DIG = 15;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROGRAM_DEVICES = 4451;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_READ_WRITE = (1 << 0);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_REFERENCE_COUNT = 4357;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE = 4128;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_COPY_HOST_PTR = (1 << 5);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_TYPE_CPU = (1 << 1);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FP_INF_NAN = (1 << 1);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_TYPE_GPU = (1 << 2);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_CHAR_BIT = 8;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_WORK_ITEM_SIZE = -55;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_ERROR_CORRECTION_SUPPORT = 4132;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DBL_RADIX = 2;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DBL_MIN_EXP = -1021;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_UINT_MAX = -1;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_CONTEXT_REFERENCE_COUNT = 4224;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_EVENT_COMMAND_QUEUE = 4560;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_QUEUE_PROFILING_ENABLE = (1 << 1);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_KERNEL_REFERENCE_COUNT = 4498;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_COPY_BUFFER = 4597;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_KERNEL_NUM_ARGS = 4497;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_UNORM_SHORT_555 = 4309;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT = 4104;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_HALF_FLOAT = 4317;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_BINARY = -42;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_ADDRESS_CLAMP = 4402;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_UNORM_SHORT_565 = 4308;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FALSE = 0;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_GLOBAL_OFFSET = -56;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_PROGRAM = -44;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_KERNEL = -48;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_VALUE = -30;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE = (1 << 0);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_EVENT_REFERENCE_COUNT = 4562;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_MEM_OBJECT = -38;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INTENSITY = 4280;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_CONTEXT = 4358;
-	/// <i>native declaration : /System/Library/Frameworks/OpenCL.framework/Headers/cl_gl_ext.h</i>
-	public static final int CL_CGL_DEVICES_FOR_SUPPORTED_VIRTUAL_SCREENS_APPLE = 268435459;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SAMPLER_CONTEXT = 4433;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SIGNED_INT32 = 4313;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_READ_WRITE_CACHE = 2;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PLATFORM_PROFILE = 2304;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROFILING_COMMAND_END = 4739;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MAX_CLOCK_FREQUENCY = 4108;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FP_FMA = (1 << 5);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_MARKER = 4606;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_EXEC_NATIVE_KERNEL = (1 << 1);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_USHRT_MAX = 65535;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_MAP_IMAGE = 4604;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_EXEC_KERNEL = (1 << 0);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_GL_OBJECT = -60;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_QUEUE_DEVICE = 4241;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_HOST_PTR = -37;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_VERSION_1_0 = 1;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_QUEUE_PROPERTIES = 4138;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SIGNED_INT16 = 4312;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_OUT_OF_HOST_MEMORY = -6;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS = 4099;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_A = 4273;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_DEVICE = -33;
-	/**
-	 * define<br>
-	 * Conversion Error : 0x1.p<br>
-	 * SKIPPED:<br>
-	 * <i>native declaration : cl.h</i><br>
-	 * 0x1.p - 126.0F
-	 */
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_R = 4272;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_TRUE = 1;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PLATFORM_VENDOR = 2307;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROFILING_COMMAND_QUEUED = 4736;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_TYPE_ACCELERATOR = (1 << 3);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_IMAGE_SUPPORT = 4118;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROGRAM_BUILD_LOG = 4483;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FLT_MANT_DIG = 24;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_IMAGE_FORMAT_NOT_SUPPORTED = -10;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MAP_READ = (1 << 0);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DBL_MANT_DIG = 53;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_COPY_BUFFER_TO_IMAGE = 4602;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_EXECUTION_CAPABILITIES = 4137;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_NAME = 4139;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MAP_FAILURE = -12;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_LUMINANCE = 4281;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_ADDRESS_CLAMP_TO_EDGE = 4401;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_QUEUE_PROPERTIES = -35;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FLT_MIN_10_EXP = -37;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FP_ROUND_TO_ZERO = (1 << 3);
 	/**
 	 * define<br>
 	 * Conversion Error : 0x1.p<br>
@@ -483,124 +84,523 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 * <i>native declaration : cl.h</i><br>
 	 * 0x1.p - 1022
 	 */
+	/**
+	 * define<br>
+	 * Conversion Error : 0x1.p<br>
+	 * SKIPPED:<br>
+	 * <i>native declaration : cl.h</i><br>
+	 * 0x1.p - 52
+	 */
 	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_READ_ONLY = (1 << 2);
+	public static final int CL_SUCCESS = 0;
 	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROGRAM_REFERENCE_COUNT = 4448;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FLOAT = 4318;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MAX_COMPUTE_UNITS = 4098;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_READ_ONLY_CACHE = 1;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_QUEUED = 3;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_ADDRESS_NONE = 4400;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_RGBA = 4277;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_KERNEL_ARGS = -52;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROFILING_COMMAND_SUBMIT = 4737;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_NATIVE_KERNEL = 4594;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_IMAGE_WIDTH = 4372;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_QUEUE_PROPERTIES = 4243;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_ARG_VALUE = -50;
-	/// <i>native declaration : opencl.h</i>
-	public static final int CL_DEVICE_COMPILER_NOT_AVAILABLE = -3;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_TYPE = 4096;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROFILING_INFO_NOT_AVAILABLE = -7;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_ALLOC_HOST_PTR = (1 << 4);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_IMAGE2D_MAX_WIDTH = 4113;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_BUILD_PROGRAM_FAILURE = -11;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FP_ROUND_TO_INF = (1 << 4);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_PLATFORM = -32;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FLT_RADIX = 2;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SHRT_MIN = (-32767 - 1);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_FP_ROUND_TO_NEAREST = (1 << 2);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_KERNEL_DEFINITION = -47;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_TYPE_DEFAULT = (1 << 0);
+	public static final int CL_DEVICE_NOT_FOUND = -1;
 	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_NOT_AVAILABLE = -2;
 	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMPILER_NOT_AVAILABLE = -3;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_OBJECT_ALLOCATION_FAILURE = -4;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_OUT_OF_RESOURCES = -5;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_OUT_OF_HOST_MEMORY = -6;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROFILING_INFO_NOT_AVAILABLE = -7;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_COPY_OVERLAP = -8;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_IMAGE_FORMAT_MISMATCH = -9;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_IMAGE_FORMAT_NOT_SUPPORTED = -10;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_BUILD_PROGRAM_FAILURE = -11;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MAP_FAILURE = -12;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_VALUE = -30;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_DEVICE_TYPE = -31;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_PLATFORM = -32;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_DEVICE = -33;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_CONTEXT = -34;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_QUEUE_PROPERTIES = -35;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_COMMAND_QUEUE = -36;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_HOST_PTR = -37;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_MEM_OBJECT = -38;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_IMAGE_FORMAT_DESCRIPTOR = -39;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_IMAGE_SIZE = -40;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_SAMPLER = -41;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_BINARY = -42;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_BUILD_OPTIONS = -43;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_PROGRAM = -44;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_PROGRAM_EXECUTABLE = -45;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_KERNEL_NAME = -46;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_KERNEL_DEFINITION = -47;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_KERNEL = -48;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_ARG_INDEX = -49;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_ARG_VALUE = -50;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_ARG_SIZE = -51;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_KERNEL_ARGS = -52;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_WORK_DIMENSION = -53;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_WORK_GROUP_SIZE = -54;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_WORK_ITEM_SIZE = -55;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_GLOBAL_OFFSET = -56;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_EVENT_WAIT_LIST = -57;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_EVENT = -58;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_OPERATION = -59;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_GL_OBJECT = -60;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_BUFFER_SIZE = -61;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INVALID_MIP_LEVEL = -62;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_VERSION_1_0 = 1;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FALSE = 0;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_TRUE = 1;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PLATFORM_PROFILE = 2304;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PLATFORM_VERSION = 2305;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PLATFORM_NAME = 2306;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PLATFORM_VENDOR = 2307;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PLATFORM_EXTENSIONS = 2308;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_TYPE_DEFAULT = (1 << 0);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_TYPE_CPU = (1 << 1);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_TYPE_GPU = (1 << 2);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_TYPE_ACCELERATOR = (1 << 3);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_TYPE_ALL = -1;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_TYPE = 4096;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_VENDOR_ID = 4097;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MAX_COMPUTE_UNITS = 4098;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS = 4099;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MAX_WORK_GROUP_SIZE = 4100;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MAX_WORK_ITEM_SIZES = 4101;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR = 4102;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT = 4103;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT = 4104;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG = 4105;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT = 4106;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE = 4107;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MAX_CLOCK_FREQUENCY = 4108;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_ADDRESS_BITS = 4109;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MAX_READ_IMAGE_ARGS = 4110;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MAX_WRITE_IMAGE_ARGS = 4111;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MAX_MEM_ALLOC_SIZE = 4112;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_IMAGE2D_MAX_WIDTH = 4113;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_IMAGE2D_MAX_HEIGHT = 4114;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_IMAGE3D_MAX_WIDTH = 4115;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_IMAGE3D_MAX_HEIGHT = 4116;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_IMAGE3D_MAX_DEPTH = 4117;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_IMAGE_SUPPORT = 4118;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MAX_PARAMETER_SIZE = 4119;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MAX_SAMPLERS = 4120;
+	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MEM_BASE_ADDR_ALIGN = 4121;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE = 4122;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_SINGLE_FP_CONFIG = 4123;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_GLOBAL_MEM_CACHE_TYPE = 4124;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE = 4125;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_GLOBAL_MEM_CACHE_SIZE = 4126;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_GLOBAL_MEM_SIZE = 4127;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE = 4128;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_MAX_CONSTANT_ARGS = 4129;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_LOCAL_MEM_TYPE = 4130;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_LOCAL_MEM_SIZE = 4131;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_ERROR_CORRECTION_SUPPORT = 4132;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_PROFILING_TIMER_RESOLUTION = 4133;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_ENDIAN_LITTLE = 4134;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_AVAILABLE = 4135;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_COMPILER_AVAILABLE = 4136;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_EXECUTION_CAPABILITIES = 4137;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_QUEUE_PROPERTIES = 4138;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_NAME = 4139;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_VENDOR = 4140;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DRIVER_VERSION = 4141;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_PROFILE = 4142;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_VERSION = 4143;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_EXTENSIONS = 4144;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_DEVICE_PLATFORM = 4145;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FP_DENORM = (1 << 0);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FP_INF_NAN = (1 << 1);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FP_ROUND_TO_NEAREST = (1 << 2);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FP_ROUND_TO_ZERO = (1 << 3);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FP_ROUND_TO_INF = (1 << 4);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FP_FMA = (1 << 5);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_NONE = 0;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_READ_ONLY_CACHE = 1;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_READ_WRITE_CACHE = 2;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_LOCAL = 1;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_GLOBAL = 2;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_EXEC_KERNEL = (1 << 0);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_EXEC_NATIVE_KERNEL = (1 << 1);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE = (1 << 0);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_QUEUE_PROFILING_ENABLE = (1 << 1);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_CONTEXT_REFERENCE_COUNT = 4224;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_CONTEXT_DEVICES = 4225;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_CONTEXT_PROPERTIES = 4226;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_CONTEXT_PLATFORM = 4228;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_QUEUE_CONTEXT = 4240;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_QUEUE_DEVICE = 4241;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_QUEUE_REFERENCE_COUNT = 4242;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_QUEUE_PROPERTIES = 4243;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_READ_WRITE = (1 << 0);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_WRITE_ONLY = (1 << 1);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_READ_ONLY = (1 << 2);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_USE_HOST_PTR = (1 << 3);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_ALLOC_HOST_PTR = (1 << 4);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_COPY_HOST_PTR = (1 << 5);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_R = 4272;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_A = 4273;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_RG = 4274;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_RA = 4275;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_RGB = 4276;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_RGBA = 4277;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_BGRA = 4278;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_ARGB = 4279;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_INTENSITY = 4280;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_LUMINANCE = 4281;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_SNORM_INT8 = 4304;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_SNORM_INT16 = 4305;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_UNORM_INT8 = 4306;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_UNORM_INT16 = 4307;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_UNORM_SHORT_565 = 4308;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_UNORM_SHORT_555 = 4309;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_UNORM_INT_101010 = 4310;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_SIGNED_INT8 = 4311;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_SIGNED_INT16 = 4312;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_SIGNED_INT32 = 4313;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_UNSIGNED_INT8 = 4314;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_UNSIGNED_INT16 = 4315;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_UNSIGNED_INT32 = 4316;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_HALF_FLOAT = 4317;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FLOAT = 4318;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_OBJECT_BUFFER = 4336;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_OBJECT_IMAGE2D = 4337;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_OBJECT_IMAGE3D = 4338;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_TYPE = 4352;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_FLAGS = 4353;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_SIZE = 4354;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_HOST_PTR = 4355;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_MAP_COUNT = 4356;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_REFERENCE_COUNT = 4357;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MEM_CONTEXT = 4358;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_IMAGE_FORMAT = 4368;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_IMAGE_ELEMENT_SIZE = 4369;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_IMAGE_ROW_PITCH = 4370;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_IMAGE_SLICE_PITCH = 4371;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_IMAGE_WIDTH = 4372;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_IMAGE_HEIGHT = 4373;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_IMAGE_DEPTH = 4374;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_ADDRESS_NONE = 4400;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_ADDRESS_CLAMP_TO_EDGE = 4401;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_ADDRESS_CLAMP = 4402;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_ADDRESS_REPEAT = 4403;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FILTER_NEAREST = 4416;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_FILTER_LINEAR = 4417;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_SAMPLER_REFERENCE_COUNT = 4432;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_SAMPLER_CONTEXT = 4433;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_SAMPLER_NORMALIZED_COORDS = 4434;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_SAMPLER_ADDRESSING_MODE = 4435;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_SAMPLER_FILTER_MODE = 4436;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MAP_READ = (1 << 0);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_MAP_WRITE = (1 << 1);
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROGRAM_REFERENCE_COUNT = 4448;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROGRAM_CONTEXT = 4449;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROGRAM_NUM_DEVICES = 4450;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROGRAM_DEVICES = 4451;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROGRAM_SOURCE = 4452;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROGRAM_BINARY_SIZES = 4453;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROGRAM_BINARIES = 4454;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROGRAM_BUILD_STATUS = 4481;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROGRAM_BUILD_OPTIONS = 4482;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROGRAM_BUILD_LOG = 4483;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_BUILD_SUCCESS = 0;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_BUILD_NONE = -1;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_BUILD_ERROR = -2;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_BUILD_IN_PROGRESS = -3;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_KERNEL_FUNCTION_NAME = 4496;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_KERNEL_NUM_ARGS = 4497;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_KERNEL_REFERENCE_COUNT = 4498;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_KERNEL_CONTEXT = 4499;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_KERNEL_PROGRAM = 4500;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_KERNEL_WORK_GROUP_SIZE = 4528;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_KERNEL_COMPILE_WORK_GROUP_SIZE = 4529;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_KERNEL_LOCAL_MEM_SIZE = 4530;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_EVENT_COMMAND_QUEUE = 4560;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_EVENT_COMMAND_TYPE = 4561;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_EVENT_REFERENCE_COUNT = 4562;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_EVENT_COMMAND_EXECUTION_STATUS = 4563;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_NDRANGE_KERNEL = 4592;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_TASK = 4593;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_NATIVE_KERNEL = 4594;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_READ_BUFFER = 4595;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_WRITE_BUFFER = 4596;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_COPY_BUFFER = 4597;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_READ_IMAGE = 4598;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_WRITE_IMAGE = 4599;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_COPY_IMAGE = 4600;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_COPY_IMAGE_TO_BUFFER = 4601;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_COPY_BUFFER_TO_IMAGE = 4602;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_MAP_BUFFER = 4603;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_MAP_IMAGE = 4604;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_UNMAP_MEM_OBJECT = 4605;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_MARKER = 4606;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_ACQUIRE_GL_OBJECTS = 4607;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMMAND_RELEASE_GL_OBJECTS = 4608;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_COMPLETE = 0;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_RUNNING = 1;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_SUBMITTED = 2;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_QUEUED = 3;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROFILING_COMMAND_QUEUED = 4736;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROFILING_COMMAND_SUBMIT = 4737;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROFILING_COMMAND_START = 4738;
+	/// <i>native declaration : cl.h</i>
+	public static final int CL_PROFILING_COMMAND_END = 4739;
+	/// <i>native declaration : /System/Library/Frameworks/OpenCL.framework/Headers/cl_gl_ext.h</i>
+	public static final int CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE = 268435456;
+	/// <i>native declaration : /System/Library/Frameworks/OpenCL.framework/Headers/cl_gl_ext.h</i>
+	public static final int CL_CGL_DEVICE_FOR_CURRENT_VIRTUAL_SCREEN_APPLE = 268435458;
+	/// <i>native declaration : /System/Library/Frameworks/OpenCL.framework/Headers/cl_gl_ext.h</i>
+	public static final int CL_CGL_DEVICES_FOR_SUPPORTED_VIRTUAL_SCREENS_APPLE = 268435459;
+	/// <i>native declaration : /System/Library/Frameworks/OpenCL.framework/Headers/cl_gl_ext.h</i>
+	public static final int CL_INVALID_GL_CONTEXT_APPLE = -1000;
+	/// <i>native declaration : cl_gl.h</i>
+	public static final int CL_GL_OBJECT_BUFFER = 8192;
 	/// <i>native declaration : cl_gl.h</i>
 	public static final int CL_GL_OBJECT_TEXTURE2D = 8193;
 	/// <i>native declaration : cl_gl.h</i>
 	public static final int CL_GL_OBJECT_TEXTURE3D = 8194;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DRIVER_VERSION = 4141;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE = 4122;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_VERSION = 4143;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_KERNEL_COMPILE_WORK_GROUP_SIZE = 4529;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_TYPE = 4352;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_KERNEL_CONTEXT = 4499;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PLATFORM_NAME = 2306;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_IMAGE_HEIGHT = 4373;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_COMMAND_MAP_BUFFER = 4603;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MAP_WRITE = (1 << 1);
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_BUILD_ERROR = -2;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_EVENT_COMMAND_TYPE = 4561;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_PROGRAM_BINARY_SIZES = 4453;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_VENDOR = 4140;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_BUILD_NONE = -1;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MAX_MEM_ALLOC_SIZE = 4112;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_LOCAL = 1;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_MAX_SAMPLERS = 4120;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_COPY_OVERLAP = -8;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_SAMPLER_REFERENCE_COUNT = 4432;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_KERNEL_NAME = -46;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_IMAGE_SLICE_PITCH = 4371;
 	/// <i>native declaration : cl_gl.h</i>
 	public static final int CL_GL_OBJECT_RENDERBUFFER = 8195;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_MEM_FLAGS = 4353;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_RUNNING = 1;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_WORK_DIMENSION = -53;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_DEVICE_PLATFORM = 4145;
-	/// <i>native declaration : cl.h</i>
-	public static final int CL_INVALID_SAMPLER = -41;
+	/// <i>native declaration : cl_gl.h</i>
+	public static final int CL_GL_TEXTURE_TARGET = 8196;
+	/// <i>native declaration : cl_gl.h</i>
+	public static final int CL_GL_MIPMAP_LEVEL = 8197;
+	/// <i>native declaration : opencl.h</i>
+	public static final int CL_DEVICE_COMPILER_NOT_AVAILABLE = -3;
 	/// <i>native declaration : cl.h</i>
 	public static final int CL_CHAR_MIN = -127 - 1;
 	/// <i>native declaration : cl.h</i>

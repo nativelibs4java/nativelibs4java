@@ -114,8 +114,8 @@ public class OpenCL4JavaBenchmarkTest {
 		int workItemSize = (int)maxWorkItemSizes[0];
 
         if (warmup) {
-			//if (workItemSize > 1)
-			//	workItemSize /= 2;
+			if (workItemSize > 32)
+				workItemSize = 32;
             for (int i = 0; i < 3000; i++)
                 kernel.enqueueNDRange(queue, new int[]{workItemSize}, new int[]{workItemSize});
             queue.finish();
