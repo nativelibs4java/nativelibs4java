@@ -1,10 +1,18 @@
 Current development version (1.0-SNAPSHOT)
 
+Version 1.0-beta-3 (r , 20091030)
+
+- Fixed Issue #8 : NativeLong's can not represent size_t on windows x64 system (all user code that uses the low-level bindings needs to be updated : NativeLong -&gt; NativeSize)
 - Added CLContext/CLDevice.isDoubleSupported, isHalfSupported, isByteAddressableStoreSupported
 - Added If function to ScalaCL (operates on statements or on expressions)
 - Added CLAbstractEntity.release()
 - Fixed Issue #4  : CLContext.createContext(CLDevice... devices) created context on only one device
 - Regenerated the low level bindings with latest JNAerator : now using NativeSize class instead of NativeLong for size_t (fixes Issue #8)
+- Fixed Issue #5  : fixed formatting of CLPlatform.toString()
+- Fixed Issue #6  : use max X workgroup dimension for better benchmark speed
+- Fixed Issue #7  : CLMem class bug in Usage.WriteOnly and Usage.ReadWrite
+- Fixed Issue #11 : call clRetainMemObject when sharing a cl_mem between CLBuffer instances.
+- Choose 'best' device in benchmark test
 
 Version 1.0-beta-2
 
