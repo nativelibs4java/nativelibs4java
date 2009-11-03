@@ -164,7 +164,7 @@ public class OpenCL4JavaBenchmarkTest {
         String src = "\n" +
                 "#pragma OPENCL EXTENSION cl_khr_fp16 : enable\n" +
                 "#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n" +
-                "#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n" +
+                //"#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n" +
                 "__kernel void aSinB(                                                  \n" +
                 "   __global const " + nativeType + "* a,                                       \n" +
                 "   __global const " + nativeType + "* b,                                       \n" +
@@ -227,9 +227,18 @@ public class OpenCL4JavaBenchmarkTest {
     }
 	@Test
     public void testBenchmark() {
-        File f = new File("C:\\Program Files\\ATI Stream\\bin\\x86\\OpenCL.dll");
+        File f = null;
+        /*for (String s : new String[] {
+            "C:\\Program Files (x86)\\ATI Stream\\bin\\x86_64\\OpenCL.dll",
+            "C:\\Program Files (x86)\\ATI Stream\\bin\\x86\\OpenCL.dll",
+            "C:\\Program Files\\ATI Stream\\bin\\x86\\OpenCL.dll"
+        })
+            if ((f = new File(s)).exists())
+                break;
+
         if (f.exists())
             System.setProperty("OpenCL.library", f.toString());
+        */
         try {
             System.out.println("Found platforms : " + Arrays.asList(OpenCL4Java.listPlatforms()));
             CLPlatform platform = OpenCL4Java.listPlatforms()[0];

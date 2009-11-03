@@ -77,7 +77,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 	 */
     public byte[][] getBinaries() {
 		Memory s = infos.getMemory(get(), CL_PROGRAM_BINARY_SIZES);
-		int n = (int)s.getSize() / Native.LONG_SIZE;
+		int n = (int)s.getSize() / Native.SIZE_T_SIZE;
 		NativeSize[] sizes = readNSArray(s, n);
 		//int[] sizes = new int[n];
 		//for (int i = 0; i < n; i++) {
