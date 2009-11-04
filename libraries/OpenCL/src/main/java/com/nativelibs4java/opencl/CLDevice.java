@@ -219,6 +219,9 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 	public CLQueue createOutOfOrderQueue(CLContext context) {
 		return createQueue(EnumSet.of(QueueProperties.OutOfOrderExecModeEnable), context);
 	}
+	public CLQueue createProfilingQueue(CLContext context) {
+		return createQueue(EnumSet.of(QueueProperties.ProfilingEnable), context);
+	}
 
 	/**
 	 * Max width of 2D image in pixels. <br/>

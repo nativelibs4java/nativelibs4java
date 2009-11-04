@@ -86,6 +86,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		return new CLDevice(platform, deviceIds[0]).createOutOfOrderQueue(this);
 	}
 
+	public CLQueue createDefaultProfilingQueue() {
+		return new CLDevice(platform, deviceIds[0]).createProfilingQueue(this);
+	}
+
 	public CLImageFormat[] getSupportedImageFormats(CLBuffer.Flags flags, CLBuffer.ObjectType imageType) {
 		NativeSizeByReference pCount = new NativeSizeByReference();
 		int memFlags = (int) flags.getValue();

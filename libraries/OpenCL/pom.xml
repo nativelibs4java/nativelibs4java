@@ -6,7 +6,7 @@
   <artifactId>OpenCL4Java</artifactId>
   <name>OpenCL4Java</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
-  <version>1.0-beta-3</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   <dependencies>
@@ -25,11 +25,12 @@
 	  <scope>compile</scope>
 	</dependency>
 	
-	<!--dependency>
-		<groupId>com.projectdarkstar.ext.net.java.dev.jogl</groupId>
+	<dependency>
+		<groupId>net.java.jogl.nl4j</groupId>
 		<artifactId>jogl</artifactId>
-		<version>1.1.1</version>
-	</dependency-->
+		<version>2.x-SNAPSHOT</version>
+	  <scope>provided</scope>
+	</dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -50,7 +51,7 @@
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nativelibs4java-parent</artifactId>
-	  <version>1.0-SNAPSHOT</version>
+	  <version>1.0</version>
 	  <relativePath>../nativelibs4java-parent</relativePath>
   </parent>
 

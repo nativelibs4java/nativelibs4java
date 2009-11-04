@@ -53,6 +53,13 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 			return CL.clGetEventInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};
+
+	private static CLInfoGetter<cl_event> profilingInfos = new CLInfoGetter<cl_event>() {
+		@Override
+		protected int getInfo(cl_event entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+			return CL.clGetEventProfilingInfo(entity, infoTypeEnum, size, out, sizeOut);
+		}
+	};
 	
 	private CLEvent(cl_event evt) {
 		super(evt);
@@ -63,6 +70,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 			return null;
 		return new CLEvent(evt);
 	}
+
 
 	/**
 	 * Wait for this event, blocking the caller thread independently of any queue until all of the command associated with this events completes.
@@ -188,6 +196,40 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	public CommandType getCommandType() {
 		return CommandType.getEnum(infos.getInt(get(), CL_EVENT_COMMAND_TYPE));
 	}
+
+
+	/**
+	 * A 64-bit value that describes the current device time counter in nanoseconds when the command identified by event is enqueued in a command-queue by the host.
+	 */
+	@InfoName("CL_CL_PROFILING_COMMAND_QUEUED")
+	public long getProfilingCommandQueued() {
+		return profilingInfos.getIntOrLong(get(), CL_PROFILING_COMMAND_QUEUED);
+	}
+
+	/**
+	 * A 64-bit value that describes the current device time counter in nanoseconds when the command identified by event that has been enqueued is submitted by the host to the device associated with the command- queue.
+	 */
+	@InfoName("CL_CL_PROFILING_COMMAND_SUBMIT")
+	public long getProfilingCommandSubmit() {
+		return profilingInfos.getIntOrLong(get(), CL_PROFILING_COMMAND_SUBMIT);
+	}
+
+	/**
+	 * A 64-bit value that describes the current device time counter in nanoseconds when the command identified by event starts execution on the device.
+	 */
+	@InfoName("CL_CL_PROFILING_COMMAND_START")
+	public long getProfilingCommandStart() {
+		return profilingInfos.getIntOrLong(get(), CL_PROFILING_COMMAND_START);
+	}
+
+	/**
+	 * A 64-bit value that describes the current device time counter in nanoseconds when the command identified by event has finished execution on the device.
+	 */
+	@InfoName("CL_CL_PROFILING_COMMAND_END")
+	public long getProfilingCommandEnd() {
+		return profilingInfos.getIntOrLong(get(), CL_PROFILING_COMMAND_END);
+	}
+
 
 	@Override
 	public String toString() {

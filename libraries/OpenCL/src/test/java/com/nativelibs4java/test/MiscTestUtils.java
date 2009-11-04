@@ -30,6 +30,7 @@ public class MiscTestUtils {
 				continue;
 
 			String name = m.getName();
+			//if (name.contains("Profili"))
 			boolean isToString = name.equals("toString");
 			if (name.startsWith("get") && name.length() > 3 ||
 					name.startsWith("has") && name.length() > 3 ||
