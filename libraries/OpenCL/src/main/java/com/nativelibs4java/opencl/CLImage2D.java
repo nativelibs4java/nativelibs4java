@@ -82,7 +82,7 @@ public class CLImage2D extends CLImage {
 	}
 	public void read(CLQueue queue, BufferedImage imageOut, boolean allowDeoptimizingDirectWrite, CLEvent... eventsToWaitFor) {
 		if (!getFormat().isIntBased())
-			throw new IllegalArgumentException("Image read only supports int-based RGBA images");
+			throw new IllegalArgumentException("Image-read only supports int-based RGBA images");
 
 		int width = imageOut.getWidth(null), height = imageOut.getHeight(null);
 		IntBuffer dataOut = directInts(width * height);
