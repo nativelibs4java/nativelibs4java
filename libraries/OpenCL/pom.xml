@@ -102,6 +102,19 @@
         <version>2.0.1</version>
       </plugin>
 
+   	   <plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-jar-plugin</artifactId>
+		  <configuration>
+			<archive>
+			  <manifest>
+				<mainClass>com.nativelibs4java.opencl.HardwareReport</mainClass>
+				<packageName>com.nativelibs4java.opencl</packageName>
+			  </manifest>
+			</archive>
+		  </configuration>
+	  </plugin>
+	  
 	  <plugin>
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-shade-plugin</artifactId>
