@@ -32,7 +32,7 @@ public class ImageTest extends AbstractCommon {
 
 	@Test
 	public void testReadWrite() {
-		if (true) {
+		if (false) {
                 CLImageFormat fmt = new CLImageFormat(CLImageFormat.ChannelOrder.RGBA, CLImageFormat.ChannelDataType.UnsignedInt8);
 		CLImage2D clim = context.createImage2D(CLMem.Usage.InputOutput, fmt, 128, 128);
 		BufferedImage im = clim.read(queue);
