@@ -157,7 +157,13 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
      */
     @InfoName("CL_DEVICE_MAX_WORK_ITEM_SIZES")
     public long[] getMaxWorkItemSizes() {
-        return infos.getNativeSizes(get(), CL_DEVICE_MAX_WORK_ITEM_SIZES, getMaxWorkItemDimensions());
+        long sizes[] = infos.getNativeSizes(get(), CL_DEVICE_MAX_WORK_ITEM_SIZES, getMaxWorkItemDimensions());
+        for (int i = 0, n = sizes.length; i < n; i++) {
+            long size = sizes[i];
+            if ((size & 0xcccccccc00000000L) == 0xcccccccc00000000L)
+                sizes[i] = size & 0xffffffffL;
+        }
+        return sizes;
     }
 
     /**
