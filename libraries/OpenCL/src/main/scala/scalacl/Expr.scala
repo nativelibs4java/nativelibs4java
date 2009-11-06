@@ -111,6 +111,33 @@ abstract class Expr extends Node {
 
 }
 object Expr {
+
+  def inferSize(sizeExpr: Option[Expr], indexUsages: Seq[Expr], implicitDim: Option[Dim], name: String): Int = {
+    var size = 0
+
+      println("inferSize with sizeExpr = " + sizeExpr)
+      var exprs = sizeExpr match {
+          case Some(x) => List(x)
+          case None => indexUsages.toList
+        }
+    val usagesMinMax = exprs.map { iu => try { Some(iu.computeMinMax) } catch { case x => None } }.filter (_ != None).map(_.get)
+    if (usagesMinMax.length > 0) {
+      val mm = usagesMinMax.reduceLeft(_ union _);
+      if (mm.min < 0)
+        throw new RuntimeException("Inferred weird array usage for array variable '" + name + "' (" + mm + "). Please allocate it explicitely in its constructor.")
+      else {
+        size = (Math.ceil(mm.max) + 1).asInstanceOf[Int];
+        println("Info: Inferred size of array '" + name + "' : " + size)
+      }
+    }
+    if (size < 0)
+      implicitDim match {
+        case Some(d) => size = d.size
+        case _ => throw new RuntimeException("Array variable was not allocated, and no implicit dimension can be safely inferred to help.")
+      }
+    return size;
+  }
+
   def computeMinMax(mm1: MinMax, mm2: MinMax, f: (Double, Double) => Double): MinMax = {
     var res = new scala.collection.mutable.HashSet[Double]
     res + f(mm1.min, mm2.min)
@@ -493,6 +520,9 @@ abstract class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], val sizeExpr: 
   private var buffer: Option[B] = None
   var size = -1
   var indexUsages = new scala.collection.mutable.ListBuffer[Expr]
+  private var mem: CLBuffer = null
+  var implicitDim: Option[Dim] = None
+
   def apply() : B = {
     if (buffer == None)
       buffer = Some(newBuffer[B](b)(size))
@@ -503,9 +533,7 @@ abstract class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], val sizeExpr: 
 
     buffer.get
   }
-  private var mem: CLBuffer = null
-  var implicitDim: Option[Dim] = None
-
+  
   private def checkAlloc = if (mem == null) {
     if (size > 0)
       alloc
@@ -538,47 +566,26 @@ abstract class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], val sizeExpr: 
     case Some(x) => name + "[" + x + "]"
     case None => name
   }
+
   override def realloc = {
     mem = null
     alloc
-  }
-  def inferSize = {
-	println("inferSize with sizeExpr = " + sizeExpr)
-	var exprs = this.sizeExpr match {
-      case Some(x) => List(x)
-      case None => indexUsages.toList
-    }
-    val usagesMinMax = exprs.map { iu => try { Some(iu.computeMinMax) } catch { case x => None } }.filter (_ != None).map(_.get)
-    if (usagesMinMax.length > 0) {
-      val mm = usagesMinMax.reduceLeft(_ union _);
-      if (mm.min < 0)
-        throw new RuntimeException("Inferred weird array usage for array variable '" + name + "' (" + mm + "). Please allocate it explicitely in its constructor.")
-      else {
-        size = (Math.ceil(mm.max) + 1).asInstanceOf[Int];
-        println("Info: Inferred size of array '" + name + "' : " + size)
-      }
-    }
-    if (size < 0)
-      implicitDim match {
-        case Some(d) => size = d.size
-        case _ => throw new RuntimeException("Array variable was not allocated, and no implicit dimension can be safely inferred to help.")
-      }
   }
   override def alloc = if (mem == null)
   {
     val td = typeDesc
     if (size < 0)
-      inferSize
+      size = Expr.inferSize(sizeExpr, indexUsages, implicitDim, name)
 
     val bytes = td.channels * td.primType.bytes * size
     val cx = kernel.getProgram.getContext
     mem = 
       if (mode.read && mode.write)
-        cx.createInputOutput(bytes)
+        cx.createByteBuffer(CLMem.Usage.InputOutput, bytes)
       else if (mode.read)
-        cx.createInput(bytes)
+        cx.createByteBuffer(CLMem.Usage.Input, bytes)
       else if (mode.write)
-        cx.createOutput(bytes)
+        cx.createByteBuffer(CLMem.Usage.Output, bytes)
       else
         throw new UnsupportedOperationException("Unsupported variable mode : " + this)
   }
@@ -607,20 +614,36 @@ class ArrayElement[T, B <: Buffer](/*implicit t: Manifest[T], */var array: Array
   override def accept(info: VisitInfo) : Unit = visit(info, array, index)
 }
 
-class ImageVar[P](p: Class[P], var width: Int, var height: Int, var clImageType: Int) extends AbstractVar {
-  var widthExpr: Option[Expr] = None
-  var heightExpr: Option[Expr] = None
-
+class ImageVar[P](p: Class[P], var widthExpr: Option[Expr], var heightExpr: Option[Expr]) extends AbstractVar {
+  //var widthExpr: Option[Expr] = None
+  //var heightExpr: Option[Expr] = None
+  def this(_p: Class[P]) = {
+    this(_p, None, None);
+  }
+  def this(_p: Class[P], w: Dim, h: Dim) = {
+    this(_p, Some(w), Some(h));
+  }
   var implicitDimX: Option[Dim] = None
   var implicitDimY: Option[Dim] = None
 
-  def this(p: Class[P], widthExpr: Expr, heightExpr: Expr, clImageType: Int) = {
-    this(p, -1, -1, clImageType)
-    this.widthExpr = Some(widthExpr)
-    this.heightExpr = Some(heightExpr)
+  var widthIndexUsages = new scala.collection.mutable.ListBuffer[Expr]
+  var heightIndexUsages = new scala.collection.mutable.ListBuffer[Expr]
+
+  var width = -1
+  var height = -1
+
+  var image: CLImage2D = null;
+
+  import java.awt.image._
+
+  def write(rgbaImage: BufferedImage) = {
+    checkAlloc
+    image.write(queue, rgbaImage);
   }
-
-
+  def read(): BufferedImage = {
+    checkAlloc
+    return image.read(queue);
+  }
   override def toReadString: String = (implicitDimX, implicitDimY) match {
 	case (Some(x), Some(y)) => toReadString(x, y)
     case _ => name
@@ -647,13 +670,47 @@ class ImageVar[P](p: Class[P], var width: Int, var height: Int, var clImageType:
 
   var sampler = "CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP | CLK_FILTER_NEAREST"
   def die = throw new UnsupportedOperationException("IMPLEMENT ME: ImageVar.setup")
-  
-  override def alloc = die
-  override def realloc = die
-  override def bind = die
+
+  private def checkAlloc = if (image == null) {
+    if (width > 0 && height > 0)
+      alloc
+    else
+      throw new IllegalThreadStateException("Image variable was not allocated. Please call alloc on it or on its program before writing to or reading from it")
+  }
+  override def realloc = {
+    image = null
+    alloc
+  }
+
+  override def alloc = if (image == null)
+  {
+    val td = typeDesc
+    if (width < 0)
+      width = Expr.inferSize(widthExpr, widthIndexUsages, implicitDimX, name)
+    if (height < 0)
+      height = Expr.inferSize(heightExpr, heightIndexUsages, implicitDimY, name)
+
+    val cx = kernel.getProgram.getContext
+    image =
+      if (mode.read && mode.write)
+        cx.createImage2D(CLMem.Usage.InputOutput, format, width, height)
+      else if (mode.read)
+        cx.createImage2D(CLMem.Usage.Input, format, width, height)
+      else if (mode.write)
+        cx.createImage2D(CLMem.Usage.Output, format, width, height)
+      else
+        throw new UnsupportedOperationException("Unsupported variable mode : " + this)
+  }
+  var format: CLImageFormat = new CLImageFormat(CLImageFormat.ChannelOrder.RGBA, CLImageFormat.ChannelDataType.UnsignedInt8)
+
+  override def bind = {
+    alloc
+    kernel.setArg(argIndex, image)
+  }
   override def typeDesc : TypeDesc = TypeDesc(4, Parallel, ImageType)//throw new UnsupportedOperationException("IMPLEMENT ME: ImageVar.typeDesc")
   def apply(x: Expr, y: Expr) = new Pixel[P](this, x, y)
 }
+
 class Pixel[P](/*implicit t: Manifest[T], */var image: ImageVar[P], var xv: Expr, var yv: Expr) extends Expr {
   override def typeDesc = {
     var td = image.typeDesc

@@ -33,8 +33,8 @@ object ScalaCLTestRun extends Application {
     content = result := atan2(x, y)
   }
   class Greyer(x: Dim, y: Dim) extends Program(x, y) {
-	  val im = new ImageVar[Int4](classOf[Int4], x, y, 0)
-	  val result = new ImageVar[Int4](classOf[Int4], x, y, 0)
+	  val im = new ImageVar[Int4](classOf[Int4], x, y)
+	  val result = new ImageVar[Int4](classOf[Int4], x, y)
 	  val v = IntVar local;
 	  content = List(
 		v := (im.x + im.y + im.z) / 3,
