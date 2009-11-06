@@ -11,13 +11,11 @@ import static com.nativelibs4java.util.NIOUtils.*;
 import static com.nativelibs4java.test.BenchmarkUtils.*;
 
 //import com.nativelibs4java.scalacl.*;
-
 /// @see http://ati.amd.com/technology/streamcomputing/intro_opencl.html#simple
 public class OpenCL4JavaBenchmarkTest {
 
     static final boolean warmup = true;
 
-    
     static ExecResult<FloatBuffer> testJava_float_aSinB(int loops, int dataSize) throws CLBuildException {
 
         FloatBuffer aBuffer = FloatBuffer.allocate(dataSize);
@@ -27,8 +25,9 @@ public class OpenCL4JavaBenchmarkTest {
 
         if (warmup) {
             System.out.print("Warming up Java operations...");
-            for (int i = 0; i < 3000; i++)
+            for (int i = 0; i < 3000; i++) {
                 java_aSinB(a, b, output, 100);
+            }
             System.out.println();
         }
 
@@ -41,8 +40,9 @@ public class OpenCL4JavaBenchmarkTest {
         }
         long time = System.nanoTime() - start;
         System.out.println("Java operations : " + time + "ns");
-        return new ExecResult(outputBuffer, time / (loops * (double)dataSize));
+        return new ExecResult(outputBuffer, time / (loops * (double) dataSize));
     }
+
     static ExecResult<DoubleBuffer> testJava_double_aSinB(int loops, int dataSize) throws CLBuildException {
 
         DoubleBuffer aBuffer = DoubleBuffer.allocate(dataSize);
@@ -52,8 +52,9 @@ public class OpenCL4JavaBenchmarkTest {
 
         if (warmup) {
             System.out.print("Warming up Java operations...");
-            for (int i = 0; i < 3000; i++)
+            for (int i = 0; i < 3000; i++) {
                 java_aSinB(a, b, output, 100);
+            }
             System.out.println();
         }
 
@@ -66,20 +67,24 @@ public class OpenCL4JavaBenchmarkTest {
         }
         long time = System.nanoTime() - start;
         System.out.println("Java operations : " + time + "ns");
-        return new ExecResult(outputBuffer, time / (loops * (double)dataSize));
+        return new ExecResult(outputBuffer, time / (loops * (double) dataSize));
     }
+
     static ExecResult<FloatBuffer> testOpenCL_float_aSinB(Target target, int loops, int dataSize, boolean hostInOpenCL) throws CLBuildException {
 
         ExecResult<ByteBuffer> er = testOpenCL_aSinB(target, Prim.Float, loops, dataSize, hostInOpenCL, new Action2<ByteBuffer, ByteBuffer>() {
+
             public void call(ByteBuffer a, ByteBuffer b) {
                 fillBuffersWithSomeData(a.asFloatBuffer(), b.asFloatBuffer());
             }
         });
         return new ExecResult(er.buffer.asFloatBuffer(), er.unitTimeNano);
     }
+
     static ExecResult<DoubleBuffer> testOpenCL_double_aSinB(Target target, int loops, int dataSize, boolean hostInOpenCL) throws CLBuildException {
 
         ExecResult<ByteBuffer> er = testOpenCL_aSinB(target, Prim.Double, loops, dataSize, hostInOpenCL, new Action2<ByteBuffer, ByteBuffer>() {
+
             public void call(ByteBuffer a, ByteBuffer b) {
                 fillBuffersWithSomeData(a.asDoubleBuffer(), b.asDoubleBuffer());
             }
@@ -87,7 +92,6 @@ public class OpenCL4JavaBenchmarkTest {
         return new ExecResult(er.buffer.asDoubleBuffer(), er.unitTimeNano);
     }
 
-    
     static ExecResult<ByteBuffer> testOpenCL_aSinB(Target target, Prim nativePrim, int loops, int dataSize, boolean hostInOpenCL, Action2<ByteBuffer, ByteBuffer> fillBuffersWithSomeData) throws CLBuildException {
 
         CLKernel kernel = setupASinB(nativePrim, target);
@@ -109,15 +113,17 @@ public class OpenCL4JavaBenchmarkTest {
             memOut = kernel.program.context.createByteBuffer(CLMem.Usage.Output, output, false);
         }
         kernel.setArgs(memIn1, memIn2, memOut);
-		
-		long[] maxWorkItemSizes = queue.getDevice().getMaxWorkItemSizes();
-		int workItemSize = (int)maxWorkItemSizes[0];
+
+        long[] maxWorkItemSizes = queue.getDevice().getMaxWorkItemSizes();
+        int workItemSize = (int) maxWorkItemSizes[0];
 
         if (warmup) {
-			if (workItemSize > 32)
-				workItemSize = 32;
-            for (int i = 0; i < 3000; i++)
+            if (workItemSize > 32) {
+                workItemSize = 32;
+            }
+            for (int i = 0; i < 3000; i++) {
                 kernel.enqueueNDRange(queue, new int[]{workItemSize}, new int[]{workItemSize});
+            }
             queue.finish();
         }
 
@@ -133,10 +139,10 @@ public class OpenCL4JavaBenchmarkTest {
         queue.finish();
         gc();
 
-		if (dataSize < workItemSize) {
-			System.err.println("dataSize = " + dataSize + " is lower than max workItemSize for first dim = " + workItemSize + " !!!");
-			workItemSize = 1;
-		}
+        if (dataSize < workItemSize) {
+            System.err.println("dataSize = " + dataSize + " is lower than max workItemSize for first dim = " + workItemSize + " !!!");
+            workItemSize = 1;
+        }
 
         long start = System.nanoTime();
         for (int i = 0; i < loops; i++) {
@@ -157,54 +163,59 @@ public class OpenCL4JavaBenchmarkTest {
             memOut.unmap(queue, output);
             output = b;
         }
-        return new ExecResult(output, time / (loops * (double)dataSize));
+        return new ExecResult(output, time / (loops * (double) dataSize));
     }
 
     static CLKernel setupASinB(Prim nativeType, Target target) throws CLBuildException {
-        String src = "\n" +
-                "#pragma OPENCL EXTENSION cl_khr_fp16 : enable\n" +
-                "#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n" +
-                (nativeType == Prim.Double ? "#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n" : "") +
-                "__kernel void aSinB(                                                  \n" +
-                "   __global const " + nativeType + "* a,                                       \n" +
-                "   __global const " + nativeType + "* b,                                       \n" +
-                "   __global " + nativeType + "* output)                                        \n" +
-                "{                                                                 \n" +
-                "   int i = get_global_id(0);                                      \n" +
-                "   output[i] = a[i] * sin(b[i]);                                       \n" +
-                "}                                                                 \n";
+        String src = "\n"
+                + "#pragma OPENCL EXTENSION cl_khr_fp16 : enable\n"
+                + "#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n"
+                + (nativeType == Prim.Double ? "#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n" : "")
+                + "__kernel void aSinB(                                                  \n"
+                + "   __global const " + nativeType + "* a,                                       \n"
+                + "   __global const " + nativeType + "* b,                                       \n"
+                + "   __global " + nativeType + "* output)                                        \n"
+                + "{                                                                 \n"
+                + "   int i = get_global_id(0);                                      \n"
+                + "   output[i] = a[i] * sin(b[i]);                                       \n"
+                + "}                                                                 \n";
 
         CLDevice[] devices = getDevices(target);
-		CLDevice bestDevice = null;;
+        CLDevice bestDevice = null;
+        ;
         for (CLDevice device : devices) {
-			System.out.println("OpenCL device: " + device);
-			if (bestDevice == null || bestDevice.getMaxComputeUnits() < device.getMaxComputeUnits())
-				bestDevice = device;
-		}
+            System.out.println("OpenCL device: " + device);
+            if (bestDevice == null || bestDevice.getMaxComputeUnits() < device.getMaxComputeUnits()) {
+                bestDevice = device;
+            }
+        }
 
-		if (devices.length > 1)
-			System.out.println("Chose 'best' device: " + bestDevice);
-           
+        if (devices.length > 1) {
+            System.out.println("Chose 'best' device: " + bestDevice);
+        }
+
         CLProgram program = createContext(bestDevice).createProgram(src).build();
         CLKernel kernel = program.createKernel("aSinB");
 
         return kernel;
     }
-    
+
     private static void openCL_aSinB(/*FloatBuffer input1, FloatBuffer input2, FloatBuffer output, */int dataSize, CLKernel kernel, CLQueue queue) throws CLBuildException {
         /*kernel.setArgs(
-            context.createInput(input1, false),
-            context.createInput(input2, false),
-            context.createOutput(output)
+        context.createInput(input1, false),
+        context.createInput(input2, false),
+        context.createOutput(output)
         );
-*/
+         */
         kernel.enqueueNDRange(queue, new int[]{dataSize}, new int[]{1});
     }
+
     public static void java_aSinB(float[] a, float[] b, float[] output, int dataSize) throws CLBuildException {
         for (int i = 0; i < dataSize; i++) {
-            output[i] = a[i] * (float)Math.sin(b[i]);
+            output[i] = a[i] * (float) Math.sin(b[i]);
         }
     }
+
     public static void java_aSinB(double[] a, double[] b, double[] output, int dataSize) throws CLBuildException {
         for (int i = 0; i < dataSize; i++) {
             output[i] = a[i] * Math.sin(b[i]);
@@ -212,34 +223,41 @@ public class OpenCL4JavaBenchmarkTest {
     }
 
     enum Prim {
-        Float(4), Double(8), Int(4), Short(2), Half(2);
 
+        Float(4), Double(8), Int(4), Short(2), Half(2);
         final int sizeof;
+
         Prim(int sizeof) {
             this.sizeof = sizeof;
         }
+
         public int sizeof() {
             return sizeof;
         }
+
         public String toString() {
             return name().toLowerCase();
         }
     }
-	@Test
+
+    @Test
     public void testBenchmark() {
         File f = null;
         /*for (String s : new String[] {
-            "C:\\Program Files (x86)\\ATI Stream\\bin\\x86_64\\OpenCL.dll",
-            "C:\\Program Files (x86)\\ATI Stream\\bin\\x86\\OpenCL.dll",
-            "C:\\Program Files\\ATI Stream\\bin\\x86\\OpenCL.dll"
+        "C:\\Program Files (x86)\\ATI Stream\\bin\\x86_64\\OpenCL.dll",
+        "C:\\Program Files (x86)\\ATI Stream\\bin\\x86\\OpenCL.dll",
+        "C:\\Program Files\\ATI Stream\\bin\\x86\\OpenCL.dll"
         })
-            if ((f = new File(s)).exists())
-                break;
+        if ((f = new File(s)).exists())
+        break;
 
         if (f.exists())
-            System.setProperty("OpenCL.library", f.toString());
-        */
+        System.setProperty("OpenCL.library", f.toString());
+         */
         try {
+            System.out.println("#\n# " + OpenCL4JavaBenchmarkTest.class.getName() + "\n#");
+            System.out.println("java.vm.name = " + System.getProperty("java.vm.name"));
+            System.out.println("java.vm.version = " + System.getProperty("java.runtime.version"));
             System.out.println("Found platforms : " + Arrays.asList(OpenCL4Java.listPlatforms()));
             CLPlatform platform = OpenCL4Java.listPlatforms()[0];
             String v = platform.getVendor();
@@ -258,11 +276,11 @@ public class OpenCL4JavaBenchmarkTest {
                 double errNativeHosted = avgError(nsByJavaOp.buffer, nsByNativeHostedCLOp.buffer, dataSize);
 
                 /*for (int i = 0; i < 10; i++) {
-                    System.out.print("i\t = " + i + ",\t");
-                    System.out.print("buf \t=" + nsByJavaOp.buffer.get(i) +",\t");
-                    System.out.print("nat \t=" + nsByNativeHostedCLOp.buffer.get(i) +",\t");
-                    System.out.print("ocl \t=" + nsByCLHostedOp.buffer.get(i) +",\t");
-                    System.out.println();
+                System.out.print("i\t = " + i + ",\t");
+                System.out.print("buf \t=" + nsByJavaOp.buffer.get(i) +",\t");
+                System.out.print("nat \t=" + nsByNativeHostedCLOp.buffer.get(i) +",\t");
+                System.out.print("ocl \t=" + nsByCLHostedOp.buffer.get(i) +",\t");
+                System.out.println();
                 }*/
                 System.out.println(" Avg relative error (hosted in CL) = " + errCLHosted);
                 System.out.println("Avg relative error (hosted in RAM) = " + errNativeHosted);
@@ -281,13 +299,15 @@ public class OpenCL4JavaBenchmarkTest {
 
             boolean hasDoubleSupport = true;
             CLDevice[] devices = getDevices(target);
-            for (CLDevice device : devices)
-                    if (!device.isDoubleSupported())
-                            hasDoubleSupport = false;
+            for (CLDevice device : devices) {
+                if (!device.isDoubleSupported()) {
+                    hasDoubleSupport = false;
+                }
+            }
 
-            if (!hasDoubleSupport)
-                    System.out.println("Not all devices support double precision computations : skipping second part of the	test");
-            else {
+            if (!hasDoubleSupport) {
+                System.out.println("Not all devices support double precision computations : skipping second part of the	test");
+            } else {
                 System.out.println("[Double Operations]");
                 ExecResult<DoubleBuffer> nsByJavaOp = testJava_double_aSinB(loops, dataSize);
                 ExecResult<DoubleBuffer> nsByCLHostedOp = testOpenCL_double_aSinB(target, loops, dataSize, true);
@@ -311,7 +331,7 @@ public class OpenCL4JavaBenchmarkTest {
             }
 
 
-            
+
         } catch (CLBuildException e) {
             e.printStackTrace();
         }
