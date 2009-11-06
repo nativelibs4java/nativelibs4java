@@ -21,7 +21,7 @@
  * MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
  **********************************************************************************/
 
-/* $Revision: 8407 $ on $Date: 2009-06-12 10:56:38 -0700 (Fri, 12 Jun 2009) $ */
+/* $Revision: 9283 $ on $Date: 2009-10-14 10:18:57 -0700 (Wed, 14 Oct 2009) $ */
 
 #ifndef __CL_PLATFORM_H
 #define __CL_PLATFORM_H
@@ -124,6 +124,45 @@ typedef double          cl_double8[8];
 typedef double          cl_double16[16];
 /* There are no vector types for half */
 
+#define CL_CHAR_BIT         8
+#define CL_SCHAR_MAX        127
+#define CL_SCHAR_MIN        (-127-1)
+#define CL_CHAR_MAX         CL_SCHAR_MAX
+#define CL_CHAR_MIN         CL_SCHAR_MIN
+#define CL_UCHAR_MAX        255
+#define CL_SHRT_MAX         32767
+#define CL_SHRT_MIN         (-32767-1)
+#define CL_USHRT_MAX        65535
+#define CL_INT_MAX          2147483647
+#define CL_INT_MIN          (-2147483647-1)
+#define CL_UINT_MAX         0xffffffffU
+#define CL_LONG_MAX         ((cl_long) 0x7FFFFFFFFFFFFFFFLL)
+#define CL_LONG_MIN         ((cl_long) -0x7FFFFFFFFFFFFFFFLL - 1LL)
+#define CL_ULONG_MAX        ((cl_ulong) 0xFFFFFFFFFFFFFFFFULL)
+
+#define CL_FLT_DIG          6
+#define CL_FLT_MANT_DIG     24
+#define CL_FLT_MAX_10_EXP   +38
+#define CL_FLT_MAX_EXP      +128
+#define CL_FLT_MIN_10_EXP   -37
+#define CL_FLT_MIN_EXP      -125
+#define CL_FLT_RADIX        2
+#define CL_FLT_MAX          340282346638528859811704183484516925440.0f
+#define CL_FLT_MIN          1.175494350822287507969e-38f
+#define CL_FLT_EPSILON      0x1.0p-23f
+
+#define CL_DBL_DIG          15
+#define CL_DBL_MANT_DIG     53
+#define CL_DBL_MAX_10_EXP   +308
+#define CL_DBL_MAX_EXP      +1024
+#define CL_DBL_MIN_10_EXP   -307
+#define CL_DBL_MIN_EXP      -1021
+#define CL_DBL_RADIX        2
+#define CL_DBL_MAX          179769313486231570814527423731704356798070567525844996598917476803157260780028538760589558632766878171540458953514382464234321326889464182768467546703537516986049910576551282076245490090389328944075868508455133942304583236903222948165808559332123348274797826204144723168738177180919299881250404026184124858368.0
+#define CL_DBL_MIN          2.225073858507201383090e-308
+#define CL_DBL_EPSILON      2.220446049250313080847e-16
+
+
 #else
 
 #include <stdint.h>
@@ -204,6 +243,49 @@ typedef double          cl_double8[8]   __attribute__((aligned(64)));
 typedef double          cl_double16[16] __attribute__((aligned(128)));
 
 /* There are no vector types for half */
+
+/******************************************************************************/
+
+// Macro names and corresponding values defined by OpenCL
+
+#define CL_CHAR_BIT         8
+#define CL_SCHAR_MAX        127
+#define CL_SCHAR_MIN        (-127-1)
+#define CL_CHAR_MAX         CL_SCHAR_MAX
+#define CL_CHAR_MIN         CL_SCHAR_MIN
+#define CL_UCHAR_MAX        255
+#define CL_SHRT_MAX         32767
+#define CL_SHRT_MIN         (-32767-1)
+#define CL_USHRT_MAX        65535
+#define CL_INT_MAX          2147483647
+#define CL_INT_MIN          (-2147483647-1)
+#define CL_UINT_MAX         0xffffffffU
+#define CL_LONG_MAX         ((cl_long) 0x7FFFFFFFFFFFFFFFLL)
+#define CL_LONG_MIN         ((cl_long) -0x7FFFFFFFFFFFFFFFLL - 1LL)
+#define CL_ULONG_MAX        ((cl_ulong) 0xFFFFFFFFFFFFFFFFULL)
+
+#define CL_FLT_DIG          6
+#define CL_FLT_MANT_DIG     24
+#define CL_FLT_MAX_10_EXP   +38
+#define CL_FLT_MAX_EXP      +128
+#define CL_FLT_MIN_10_EXP   -37
+#define CL_FLT_MIN_EXP      -125
+#define CL_FLT_RADIX        2
+#define CL_FLT_MAX          0x1.fffffep127f
+#define CL_FLT_MIN          0x1.0p-126f
+#define CL_FLT_EPSILON      0x1.0p-23f
+
+#define CL_DBL_DIG          15
+#define CL_DBL_MANT_DIG     53
+#define CL_DBL_MAX_10_EXP   +308
+#define CL_DBL_MAX_EXP      +1024
+#define CL_DBL_MIN_10_EXP   -307
+#define CL_DBL_MIN_EXP      -1021
+#define CL_DBL_RADIX        2
+#define CL_DBL_MAX          0x1.fffffffffffffp1023
+#define CL_DBL_MIN          0x1.0p-1022
+#define CL_DBL_EPSILON      0x1.0p-52
+
 #endif
 
 #include <stddef.h>

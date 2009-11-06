@@ -2,8 +2,8 @@
 
 "-Dcl_bitfield=unsigned long"
 -library OpenCL
-	"-I$(DIR)"
-	"$(DIR)/CL/cl.h"
-	"$(DIR)/CL/cl_gl.h"
-	"$(DIR)/CL/cl_platform.h"
+	"-I$(DIR)/../headers"
+	"$(DIR)/../headers/CL/cl.h"
+	"$(DIR)/../headers/CL/cl_gl.h"
+	"$(DIR)/../headers/CL/cl_platform.h"
 

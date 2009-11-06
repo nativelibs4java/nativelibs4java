@@ -21,15 +21,17 @@
  * MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
  **********************************************************************************/
 
-/* $Revision: 8407 $ on $Date: 2009-06-12 10:56:38 -0700 (Fri, 12 Jun 2009) $ */
+/* $Revision: 8748 $ on $Date: 2009-08-27 04:24:36 -0700 (Thu, 27 Aug 2009) $ */
 
 #ifndef __OPENCL_CL_GL_H
 #define __OPENCL_CL_GL_H
 
 //#ifdef __APPLE__
 //#include <OpenCL/cl_platform.h>
+//#include <OpenGL/gl.h>
 //#else
 #include <CL/cl_platform.h>
+//#include <GL/gl.h>
 //#endif	
 
 #ifdef __cplusplus
