@@ -164,7 +164,7 @@ public class OpenCL4JavaBenchmarkTest {
         String src = "\n" +
                 "#pragma OPENCL EXTENSION cl_khr_fp16 : enable\n" +
                 "#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n" +
-                //"#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n" +
+                (nativeType == Prim.Double ? "#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n" : "") +
                 "__kernel void aSinB(                                                  \n" +
                 "   __global const " + nativeType + "* a,                                       \n" +
                 "   __global const " + nativeType + "* b,                                       \n" +
@@ -279,15 +279,15 @@ public class OpenCL4JavaBenchmarkTest {
                 System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByNativeHostedCLOp.unitTimeNano));
             }
 
-			boolean hasDoubleSupport = true;
-			CLDevice[] devices = getDevices(target);
-			for (CLDevice device : devices)
-				if (!device.isDoubleSupported())
-					hasDoubleSupport = false;
+            boolean hasDoubleSupport = true;
+            CLDevice[] devices = getDevices(target);
+            for (CLDevice device : devices)
+                    if (!device.isDoubleSupported())
+                            hasDoubleSupport = false;
 
-			if (!hasDoubleSupport)
-				System.out.println("Not all devices support double precision computations : skipping second part of the	test");
-			else {
+            if (!hasDoubleSupport)
+                    System.out.println("Not all devices support double precision computations : skipping second part of the	test");
+            else {
                 System.out.println("[Double Operations]");
                 ExecResult<DoubleBuffer> nsByJavaOp = testJava_double_aSinB(loops, dataSize);
                 ExecResult<DoubleBuffer> nsByCLHostedOp = testOpenCL_double_aSinB(target, loops, dataSize, true);

@@ -594,11 +594,11 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 
 	@InfoName("cl_khr_fp64")
 	public boolean isDoubleSupported() {
-		return hasExtension("cl_khr_fp16");
+		return hasExtension("cl_khr_fp64");
 	}
 	@InfoName("cl_khr_fp16")
 	public boolean isHalfSupported() {
-		return hasExtension("cl_khr_fp64");
+		return hasExtension("cl_khr_fp16");
 	}
 	@InfoName("cl_khr_byte_addressable_store")
 	public boolean isByteAddressableStoreSupported() {
