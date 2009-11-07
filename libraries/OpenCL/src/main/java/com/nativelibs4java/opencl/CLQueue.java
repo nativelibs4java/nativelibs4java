@@ -120,6 +120,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	/**
 	 * Enqueue a marker command to command_queue. <br/>
 	 * The marker command returns an event which can be used by to queue a wait on this marker event i.e. wait for all commands queued before the marker command to complete.
+	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
 	 */
 	public CLEvent enqueueMarker() {
 		cl_event[] eventOut = new cl_event[1];
@@ -127,6 +128,14 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 		return CLEvent.createEvent(eventOut[0]);
 	}
 
+	/**
+	 * Used to acquire OpenCL memory objects that have been created from OpenGL objects. <br>
+	 * These objects need to be acquired before they can be used by any OpenCL commands queued to a command-queue. <br>
+	 * The OpenGL objects are acquired by the OpenCL context associated with this queue and can therefore be used by all command-queues associated with the OpenCL context.
+	 * @param objects CL memory objects that correspond to GL objects.
+	 * @param events Events that need to complete before this particular command can be executed.
+	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
+	 */
 	public CLEvent enqueueAcquireGLObjects(CLMem[] objects, CLEvent... events) {
         cl_event[] eventOut = new cl_event[1];
 		cl_mem[] mems = new cl_mem[objects.length];
@@ -136,6 +145,14 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 		return CLEvent.createEvent(eventOut[0]);
 	}
 
+	/**
+	 * Used to release OpenCL memory objects that have been created from OpenGL objects. <br>
+	 * These objects need to be released before they can be used by OpenGL. <br>
+	 * The OpenGL objects are released by the OpenCL context associated with this queue.
+	 * @param objects CL memory objects that correpond to GL objects.
+	 * @param events Events that need to complete before this particular command can be executed.
+	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
+	 */
 	public CLEvent enqueueReleaseGLObjects(CLMem[] objects, CLEvent... events) {
         cl_event[] eventOut = new cl_event[1];
 		cl_mem[] mems = new cl_mem[objects.length];

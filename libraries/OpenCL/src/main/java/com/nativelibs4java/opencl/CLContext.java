@@ -339,7 +339,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * Note that in the latter case, it is still necessary to enqueue map operations (due to cache mechanisms).
 	 * @param buffer
 	 * @param copy if true, the memory buffer created is a copy of the provided buffer. if false, the memory buffer uses directly the provided buffer.
-	 * @return
+	 * @return new memory buffer object
 	 * @deprecated Use createXXXBuffer instead
 	 */
 	@Deprecated

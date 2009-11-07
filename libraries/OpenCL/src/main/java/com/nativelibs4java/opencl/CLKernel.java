@@ -148,19 +148,34 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     }
 
 	private static final NativeSize[] oneNL = new NativeSize[] {new NativeSize(1)};
+	/**
+	 * Enqueues a command to execute a kernel on a device. <br>
+	 * The kernel is executed using a single work-item.
+	 * @param queue
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed.
+	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
+	 */
 	public CLEvent enqueueTask(CLQueue queue, CLEvent... eventsToWaitFor) {
 		cl_event[] eventOut = new cl_event[1];
         error(CL.clEnqueueNDRangeKernel(queue.get(), get(), 1, null, oneNL, oneNL, eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
 		return CLEvent.createEvent(eventOut[0]);
 	}
 
-    public CLEvent enqueueNDRange(CLQueue queue /*, int[] globalOffsets*/, int[] globalSizes, int[] localSizes, CLEvent... eventsToWaitFor) {
-        int nDims = globalSizes.length;
-        if (localSizes != null && localSizes.length != nDims) {
-            throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalSizes.length + " vs. " + localSizes.length);
+    /**
+	 * Enqueues a command to execute a kernel on a device.
+	 * @param globalWorkSizes Each element describes the number of global work-items in a dimension that will execute the kernel function. The total number of global work-items is computed as globalWorkSizes[0] * ... * globalWorkSizes[globalWorkSizes.length Ð 1].
+	 * @param localWorkSizes Each element describes the number of work-items that make up a work-group (also referred to as the size of the work-group) that will execute the kernel specified by kernel. The total number of work-items in a work-group is computed as localWorkSizes[0] * ... * localWorkSizes[localWorkSizes.length Ð 1]. The total number of work-items in the work-group must be less than or equal to the CL_DEVICE_MAX_WORK_GROUP_SIZE value specified in table 4.3 and the number of work- items specified in localWorkSizes[0], ... localWorkSizes[localWorkSizes.length Ð 1] must be less than or equal to the corresponding values specified by CLDevice.getMaxWorkItemSizes()[dimensionIndex].	The explicitly specified localWorkSize will be used to determine how to break the global work-items specified by global_work_size into appropriate work-group instances. If localWorkSize is specified, the values specified in globalWorkSize[dimensionIndex] must be evenly divisible by the corresponding values specified in localWorkSize[dimensionIndex].
+	 * @param queue This kernel will be queued for execution on the device associated with that queue.
+	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed.
+	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
+	 */
+	public CLEvent enqueueNDRange(CLQueue queue /*, int[] globalOffsets*/, int[] globalWorkSizes, int[] localWorkSizes, CLEvent... eventsToWaitFor) {
+        int nDims = globalWorkSizes.length;
+        if (localWorkSizes != null && localWorkSizes.length != nDims) {
+            throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalWorkSizes.length + " vs. " + localWorkSizes.length);
         }
 		cl_event[] eventOut = new cl_event[1];
-        error(CL.clEnqueueNDRangeKernel(queue.get(), get(), nDims, null/*toNL(globalOffsets)*/, toNS(globalSizes), toNS(localSizes), eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
+        error(CL.clEnqueueNDRangeKernel(queue.get(), get(), nDims, null/*toNL(globalOffsets)*/, toNS(globalWorkSizes), toNS(localWorkSizes), eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
 		return CLEvent.createEvent(eventOut[0]);
     }
 	
