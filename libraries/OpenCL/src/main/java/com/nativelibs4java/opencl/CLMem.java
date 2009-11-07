@@ -70,18 +70,14 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
         return context;
     }
 
-	/**
-	 * Return actual size of the memory object in bytes
-	 * @return
-	 */
-	public long getSize() {
-		if (byteCount < 0)
-			byteCount = infos.getIntOrLong(get(), CL_MEM_SIZE);
-		return byteCount;
-	}
-
+    /**
+     * Return actual size of the memory object in bytes
+     * @return
+     */
     public long getByteCount() {
-		return getSize();
+        if (byteCount < 0)
+                byteCount = infos.getIntOrLong(get(), CL_MEM_SIZE);
+        return byteCount;
     }
 
 	/**

@@ -463,7 +463,12 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 
 	public CLByteBuffer createByteBuffer(CLMem.Usage kind, Buffer buffer, boolean copy) {
-		return createBuffer(buffer, -1, kind.getIntFlags() | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), copy);
+            if (!buffer.isDirect()) {
+                if (!copy)
+                    throw new UnsupportedOperationException("Cannot create an OpenCL buffer object out of a non-direct NIO buffer without copy.");
+                buffer = NIOUtils.directCopy(buffer);
+            }
+            return createBuffer(buffer, -1, kind.getIntFlags() | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), copy);
 	}
 
 	@SuppressWarnings("deprecation")

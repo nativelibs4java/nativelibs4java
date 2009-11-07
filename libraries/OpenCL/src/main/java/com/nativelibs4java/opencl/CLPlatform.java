@@ -96,6 +96,24 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         }
     }
 
+    public enum DeviceEvaluationStrategy {
+        BiggestMaxComputeUnits
+    }
+    public CLContext createContextWithBestGPUDevice(DeviceEvaluationStrategy eval) {
+        CLDevice bestDevice = null;
+        for (CLDevice device : listGPUDevices(true)) {
+            if (bestDevice == null)
+                bestDevice = device;
+            else
+                switch (eval) {
+                    case BiggestMaxComputeUnits:
+                        if (bestDevice.getMaxComputeUnits() < device.getMaxComputeUnits())
+                            bestDevice = device;
+                        break;
+                }
+        }
+        return bestDevice == null ? null : createContext(bestDevice);
+    }
 	/**
 	 * Creates an OpenCL context formed of the provided devices.<br/>
 	 * It is generally not a good idea to create a context with more than one device,

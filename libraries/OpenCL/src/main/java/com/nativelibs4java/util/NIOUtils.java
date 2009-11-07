@@ -62,6 +62,24 @@ public class NIOUtils
 		output.rewind();
 	}
 
+        public static IntBuffer directCopy(IntBuffer b) {
+            return directCopy((Buffer)b).asIntBuffer();
+        }
+	public static LongBuffer directCopy(LongBuffer b) {
+            return directCopy((Buffer)b).asLongBuffer();
+        }
+	public static ShortBuffer directCopy(ShortBuffer b) {
+            return directCopy((Buffer)b).asShortBuffer();
+        }
+	public static CharBuffer directCopy(CharBuffer b) {
+            return directCopy((Buffer)b).asCharBuffer();
+        }
+	public static DoubleBuffer directCopy(DoubleBuffer b) {
+            return directCopy((Buffer)b).asDoubleBuffer();
+        }
+	public static FloatBuffer directCopy(FloatBuffer b) {
+            return directCopy((Buffer)b).asFloatBuffer();
+        }
 	public static ByteBuffer directCopy(Buffer b) {
 		ByteBuffer copy = ByteBuffer.allocateDirect((int)getSizeInBytes(b)).order(ByteOrder.nativeOrder());
 		put(b, copy);

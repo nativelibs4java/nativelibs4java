@@ -39,6 +39,9 @@ public class CLIntBuffer extends CLBuffer {
         super(context, byteCount, entity, buffer);
 	}
 	static final int ELEMENT_SIZE = 4;
+	public long getElementCount() {
+            return getByteCount() / ELEMENT_SIZE;
+        }
 	protected static Pair<IntBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
 		return new Pair<IntBuffer, CLEvent>(p.getFirst().asIntBuffer(), p.getSecond());
 	}

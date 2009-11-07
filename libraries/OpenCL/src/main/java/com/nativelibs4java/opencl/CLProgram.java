@@ -105,13 +105,29 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     public CLContext getContext() {
         return context;
     }
+    Map<String, String> macros;
+    public void defineMacro(String name, String value) {
+        if (macros == null)
+            macros = new LinkedHashMap<String, String>();
+        macros.put(name, value);
+    }
+    protected String getOptionsString() {
+        if (macros == null)
+            return null;
 
+        StringBuilder b = new StringBuilder();
+        if (macros != null)
+            for (Map.Entry<String, String> m : macros.entrySet())
+                b.append("-D" + m.getKey() + "=" + m.getValue());
+
+        return b.toString();
+    }
 	/**
 	 * Returns the context of this program
 	 */
     public CLProgram build() throws CLBuildException {
 
-        int err = CL.clBuildProgram(get(), 0, null/*context.getDeviceIds()*/, (String) null, null, null);
+        int err = CL.clBuildProgram(get(), 0, null/*context.getDeviceIds()*/, getOptionsString(), null, null);
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
             NativeSizeByReference len = new NativeSizeByReference();
             int bufLen = 2048;
@@ -153,10 +169,10 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		return kernels;
 	}
 
-	/**
-	 * Find a kernel by its functionName, and optionally bind some arguments to it.
-	 */
-	public CLKernel createKernel(String name, Object... args) {
+    /**
+     * Find a kernel by its functionName, and optionally bind some arguments to it.
+     */
+    public CLKernel createKernel(String name, Object... args) {
         IntBuffer errBuff = IntBuffer.wrap(new int[1]);
         cl_kernel kernel = CL.clCreateKernel(get(), name, errBuff);
         error(errBuff.get(0));

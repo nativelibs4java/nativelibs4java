@@ -42,6 +42,15 @@ public class OpenCL4Java {
 
     static final OpenCLLibrary CL = OpenCLLibrary.INSTANCE;
 
+    public static CLPlatform[] listGPUPoweredPlatforms() {
+        CLPlatform[] platforms = listPlatforms();
+        List<CLPlatform> out = new ArrayList<CLPlatform>(platforms.length);
+        for (CLPlatform platform : platforms) {
+            if (platform.listGPUDevices(true).length > 0)
+                out.add(platform);
+        }
+        return out.toArray(new CLPlatform[out.size()]);
+    }
 	/**
 	 * Lists all available OpenCL implementations.
 	 */

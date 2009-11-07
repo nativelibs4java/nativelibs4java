@@ -39,6 +39,9 @@ public class CLDoubleBuffer extends CLBuffer {
         super(context, byteCount, entity, buffer);
 	}
 	static final int ELEMENT_SIZE = 8;
+        public long getElementCount() {
+            return getByteCount() / ELEMENT_SIZE;
+        }
 	protected static Pair<DoubleBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
 		return new Pair<DoubleBuffer, CLEvent>(p.getFirst().asDoubleBuffer(), p.getSecond());
 	}

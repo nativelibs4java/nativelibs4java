@@ -39,6 +39,9 @@ public class CLShortBuffer extends CLBuffer {
         super(context, byteCount, entity, buffer);
 	}
 	static final int ELEMENT_SIZE = 2;
+	public long getElementCount() {
+            return getByteCount() / ELEMENT_SIZE;
+        }
 	protected static Pair<ShortBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
 		return new Pair<ShortBuffer, CLEvent>(p.getFirst().asShortBuffer(), p.getSecond());
 	}

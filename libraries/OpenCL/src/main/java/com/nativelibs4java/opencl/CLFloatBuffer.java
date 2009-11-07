@@ -39,6 +39,9 @@ public class CLFloatBuffer extends CLBuffer {
         super(context, byteCount, entity, buffer);
 	}
 	static final int ELEMENT_SIZE = 4;
+	public long getElementCount() {
+            return getByteCount() / ELEMENT_SIZE;
+        }
 	protected static Pair<FloatBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
 		return new Pair<FloatBuffer, CLEvent>(p.getFirst().asFloatBuffer(), p.getSecond());
 	}

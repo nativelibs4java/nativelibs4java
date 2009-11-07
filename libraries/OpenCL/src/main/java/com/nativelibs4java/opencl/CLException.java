@@ -61,7 +61,10 @@ public class CLException extends RuntimeException {
 		}
 	}
 
-	@ErrorCode(CL_COMPILER_NOT_AVAILABLE)
+
+	@ErrorCode(CL_OUT_OF_RESOURCES)
+	public static class OutOfResources extends CLTypedException {}
+    @ErrorCode(CL_COMPILER_NOT_AVAILABLE)
 	public static class CompilerNotAvailable extends CLTypedException {}
     @ErrorCode(CL_INVALID_GLOBAL_WORK_SIZE)
     public static class InvalidGlobalWorkSize extends CLTypedException {}
@@ -163,25 +166,27 @@ public class CLException extends RuntimeException {
     public static void error(int err) {
         if (err == CL_SUCCESS)
             return;
+        //if (err == CL_OUT_OF_RESOURCES)
+        //    return;
 
-		if (typedErrorClassesByCode == null) {
-			typedErrorClassesByCode = new HashMap<Integer, Class<? extends CLTypedException>>();
-			for (Class<?> c : CLException.class.getDeclaredClasses()) {
-				if (c == CLTypedException.class || !CLTypedException.class.isAssignableFrom(c))
-					continue;
-				typedErrorClassesByCode.put(c.getAnnotation(ErrorCode.class).value(), (Class<? extends CLTypedException>)c);
-			}
-		}
-		Class<? extends CLTypedException> c = typedErrorClassesByCode.get(err);
-		if (c != null) {
-			try {
-				throw c.newInstance();
-			} catch (InstantiationException ex) {
-				Logger.getLogger(CLException.class.getName()).log(Level.SEVERE, null, ex);
-			} catch (IllegalAccessException ex) {
-				Logger.getLogger(CLException.class.getName()).log(Level.SEVERE, null, ex);
-			}
-		}
+        if (typedErrorClassesByCode == null) {
+                typedErrorClassesByCode = new HashMap<Integer, Class<? extends CLTypedException>>();
+                for (Class<?> c : CLException.class.getDeclaredClasses()) {
+                        if (c == CLTypedException.class || !CLTypedException.class.isAssignableFrom(c))
+                                continue;
+                        typedErrorClassesByCode.put(c.getAnnotation(ErrorCode.class).value(), (Class<? extends CLTypedException>)c);
+                }
+        }
+        Class<? extends CLTypedException> c = typedErrorClassesByCode.get(err);
+        if (c != null) {
+                try {
+                        throw c.newInstance();
+                } catch (InstantiationException ex) {
+                        Logger.getLogger(CLException.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IllegalAccessException ex) {
+                        Logger.getLogger(CLException.class.getName()).log(Level.SEVERE, null, ex);
+                }
+        }
 
         throw new CLException("OpenCL Error : " + errorString(err), err);
     }
