@@ -132,7 +132,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         int flags = (int)CLDevice.Type.getValue(types);
 
         IntByReference pCount = new IntByReference();
-        error(CL.clGetDeviceIDs(get(), toNS(flags), 0, (PointerByReference) null, pCount ));
+        error(CL.clGetDeviceIDs(get(), flags, 0, (PointerByReference) null, pCount ));
 
         int nDevs = pCount.getValue();
         if (nDevs == 0)
@@ -140,7 +140,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 
         cl_device_id[] ids = new cl_device_id[nDevs];
 
-        error(CL.clGetDeviceIDs(get(), toNS(flags), nDevs, ids, pCount));
+        error(CL.clGetDeviceIDs(get(), flags, nDevs, ids, pCount));
 		CLDevice[] devices;
 		if (onlyAvailable) {
 			List<CLDevice> list = new ArrayList<CLDevice>(nDevs);

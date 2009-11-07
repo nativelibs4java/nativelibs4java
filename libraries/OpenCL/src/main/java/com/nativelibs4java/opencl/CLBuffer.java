@@ -180,7 +180,7 @@ public abstract class CLBuffer extends CLMem {
 		cl_event[] eventOut = blocking ? null : new cl_event[1];
 		IntByReference pErr = new IntByReference();
         Pointer p = CL.clEnqueueMapBuffer(queue.get(), get(), blocking ? CL_TRUE : CL_FALSE,
-			toNS(flags.getValue()),
+			flags.getValue(),
 			toNS(offset), toNS(length),
 			eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
 			eventOut,

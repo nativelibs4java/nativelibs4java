@@ -240,7 +240,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     @SuppressWarnings("deprecation")
     public CLQueue createQueue(EnumSet<QueueProperties> queueProperties, CLContext context) {
         IntByReference pErr = new IntByReference();
-        cl_command_queue queue = CL.clCreateCommandQueue(context.get(), get(), toNS(QueueProperties.getValue(queueProperties)), pErr);
+        cl_command_queue queue = CL.clCreateCommandQueue(context.get(), get(), QueueProperties.getValue(queueProperties), pErr);
         error(pErr.getValue());
 
         return new CLQueue(context, queue, this);

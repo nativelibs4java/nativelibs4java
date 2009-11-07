@@ -96,7 +96,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		int imTyp = (int) imageType.getValue();
 		Memory memCount = new Memory(16);
 		pCount.setPointer(memCount);
-		CL.clGetSupportedImageFormats(get(), toNS(memFlags), imTyp, 0, null, pCount);
+		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, 0, null, pCount);
 		cl_image_format ft = new cl_image_format();
 		int sz = ft.size();
 		int n = pCount.getValue();
@@ -105,7 +105,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		}
 		Memory mem = new Memory(n * sz);
 		ft.use(mem);
-		CL.clGetSupportedImageFormats(get(), toNS(memFlags), imTyp, n, ft, (IntByReference) null);
+		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, n, ft, (IntByReference) null);
 		List<CLImageFormat> ret = new ArrayList<CLImageFormat>(n);
 		for (int i = 0; i < n; i++) {
 			ft.use(mem, i * sz);
@@ -283,7 +283,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		IntByReference pErr = new IntByReference();
 		cl_mem mem = CL.clCreateImage2D(
 				get(),
-				toNS(memFlags),
+				memFlags,
 				format.to_cl_image_format(),
 				toNS(width),
 				toNS(height),
@@ -311,7 +311,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		IntByReference pErr = new IntByReference();
 		cl_mem mem = CL.clCreateImage3D(
 				get(),
-				toNS(memFlags),
+				memFlags,
 				format.to_cl_image_format(),
 				toNS(width),
 				toNS(height),
@@ -482,7 +482,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		//IntBuffer errBuff = IntBuffer.wrap(new int[1]);
 		cl_mem mem = CL.clCreateBuffer(
 				get(),
-				toNS(CLBufferFlags),
+				CLBufferFlags,
 				toNS(byteCount),
 				buffer == null ? null : Native.getDirectBufferPointer(buffer),
 				pErr);
