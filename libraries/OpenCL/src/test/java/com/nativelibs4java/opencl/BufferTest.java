@@ -46,13 +46,4 @@ public class BufferTest extends AbstractCommon {
 		}
 	}
 
-
-	@Test
-	public void testMaxWidth() {
-		//try {
-			context.createInput(device.getMaxMemAllocSize());
-		//} catch (CLException ex) {
-
-		//}
-	}
 }
