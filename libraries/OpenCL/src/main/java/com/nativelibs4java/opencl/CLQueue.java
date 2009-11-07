@@ -74,7 +74,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	}
 
 	public void setProperty(CLDevice.QueueProperties property, boolean enabled) {
-		error(CL.clSetCommandQueueProperty(get(), property.getValue(), enabled ? CL_TRUE : CL_FALSE, (NativeSizeByReference)null));
+		error(CL.clSetCommandQueueProperty(get(), property.getValue(), enabled ? CL_TRUE : CL_FALSE, (LongByReference)null));
 	}
 	
 

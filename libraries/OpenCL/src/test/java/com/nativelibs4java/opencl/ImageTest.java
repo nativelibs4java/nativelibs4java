@@ -20,8 +20,16 @@ import static org.junit.Assert.*;
  */
 public class ImageTest extends AbstractCommon {
 
+    public boolean supportsImages() {
+        for (CLDevice device : context.getDevices())
+            if (device.hasImageSupport())
+                return true;
+        return false;
+    }
     @Test
     public void simpleImage2d() {
+        if (!supportsImages())
+            return;
 		long width = 100, height = 200;
 		CLImageFormat format = formatsRead2D[0];
 		CLImage2D im = context.createImage2D(CLMem.Usage.InputOutput, format, width, height);
@@ -52,19 +60,25 @@ public class ImageTest extends AbstractCommon {
 
 	@Test
 	public void testMaxWidth() {
-		context.createImage2D(CLMem.Usage.Input, formatsRead2D[0], device.getImage2DMaxWidth(), 1);
+		if (!supportsImages())
+                    return;
+                context.createImage2D(CLMem.Usage.Input, formatsRead2D[0], device.getImage2DMaxWidth() - 1, 1);
 		long d = device.getImage3DMaxDepth();
 		//TODO FAILING !!! context.createInput3D(formatsRead3D[0], device.getImage3DMaxWidth() - 1, 1, 1);
 	}
 	@Test
 	public void testMaxHeight() {
-		context.createImage2D(CLMem.Usage.Input, formatsRead2D[0], 1, device.getImage2DMaxHeight());
+		if (!supportsImages())
+                    return;
+                context.createImage2D(CLMem.Usage.Input, formatsRead2D[0], 1, device.getImage2DMaxHeight() - 1);
 		long d = device.getImage3DMaxDepth();
 		//TODO FAILING !!! context.createInput3D(formatsRead3D[0], 1, device.getImage3DMaxHeight(), 1);
 	}
 	@Test
 	public void testMaxDepth() {
-		context.createImage3D(CLMem.Usage.Input, formatsRead3D[0], 1, 1, device.getImage3DMaxDepth());
+		if (!supportsImages())
+                    return;
+                context.createImage3D(CLMem.Usage.Input, formatsRead3D[0], 1, 1, device.getImage3DMaxDepth() - 1);
 	}
 
 	/*@Test(expected=CLException.InvalidImageSize.class)
