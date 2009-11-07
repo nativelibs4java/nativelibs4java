@@ -28,6 +28,7 @@ import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.util.JNAUtils.*;
 import static com.nativelibs4java.util.NIOUtils.*;
 import java.util.*;
 import static com.nativelibs4java.opencl.CLException.*;
@@ -239,7 +240,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     @SuppressWarnings("deprecation")
     public CLQueue createQueue(EnumSet<QueueProperties> queueProperties, CLContext context) {
         IntByReference pErr = new IntByReference();
-        cl_command_queue queue = CL.clCreateCommandQueue(context.get(), get(), QueueProperties.getValue(queueProperties), pErr);
+        cl_command_queue queue = CL.clCreateCommandQueue(context.get(), get(), toNS(QueueProperties.getValue(queueProperties)), pErr);
         error(pErr.getValue());
 
         return new CLQueue(context, queue, this);

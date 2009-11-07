@@ -1,5 +1,9 @@
 Current development version (1.0-SNAPSHOT)
 
+- Added OpenGL interoperability methods to CLContext and CLQueue (can create a CLByteBuffer from an OpenGL buffer object, a CLImage2D/3D from an OpenGL 2D/3D texture or a renderbuffer).
+- Finished migration from NativeLong to NativeSize (breaks low-level bindings but fixes the OO bindings)
+- Added profiling methods to CLEvent (+ facility CLDevice.createProfilingQueue())
+
 Version 1.0-beta-3 (r , 20091030)
 
 - Fixed Issue #8 : NativeLong's can not represent size_t on windows x64 system (all user code that uses the low-level bindings needs to be updated : NativeLong -&gt; NativeSize)

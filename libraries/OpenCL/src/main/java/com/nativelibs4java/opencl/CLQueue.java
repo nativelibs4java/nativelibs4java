@@ -28,6 +28,8 @@ import com.sun.jna.ptr.PointerByReference;
 import java.nio.*;
 import java.util.EnumSet;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.util.JNAUtils.*;
+import static com.nativelibs4java.util.NIOUtils.*;
 import static com.nativelibs4java.opencl.CLException.*;
 
 /**
@@ -72,7 +74,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	}
 
 	public void setProperty(CLDevice.QueueProperties property, boolean enabled) {
-		error(CL.clSetCommandQueueProperty(get(), property.getValue(), enabled ? CL_TRUE : CL_FALSE, (LongByReference)null));
+		error(CL.clSetCommandQueueProperty(get(), toNS(property.getValue()), enabled ? CL_TRUE : CL_FALSE, (NativeSizeByReference)null));
 	}
 	
 
@@ -124,4 +126,23 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 		error(CL.clEnqueueMarker(get(), eventOut));
 		return CLEvent.createEvent(eventOut[0]);
 	}
+
+	public CLEvent enqueueAcquireGLObjects(CLMem[] objects, CLEvent... events) {
+        cl_event[] eventOut = new cl_event[1];
+		cl_mem[] mems = new cl_mem[objects.length];
+		for (int i = 0; i < objects.length; i++)
+			mems[i] = objects[i].get();
+		error(CL.clEnqueueAcquireGLObjects(mems.length, mems, events.length, CLEvent.to_cl_event_array(events), eventOut));
+		return CLEvent.createEvent(eventOut[0]);
+	}
+
+	public CLEvent enqueueReleaseGLObjects(CLMem[] objects, CLEvent... events) {
+        cl_event[] eventOut = new cl_event[1];
+		cl_mem[] mems = new cl_mem[objects.length];
+		for (int i = 0; i < objects.length; i++)
+			mems[i] = objects[i].get();
+		error(CL.clEnqueueReleaseGLObjects(mems.length, mems, events.length, CLEvent.to_cl_event_array(events), eventOut));
+		return CLEvent.createEvent(eventOut[0]);
+	}
+
 }

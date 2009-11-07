@@ -91,21 +91,21 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 
 	public CLImageFormat[] getSupportedImageFormats(CLBuffer.Flags flags, CLBuffer.ObjectType imageType) {
-		NativeSizeByReference pCount = new NativeSizeByReference();
+		IntByReference pCount = new IntByReference();
 		int memFlags = (int) flags.getValue();
 		int imTyp = (int) imageType.getValue();
 		Memory memCount = new Memory(16);
 		pCount.setPointer(memCount);
-		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, 0, null, pCount);
+		CL.clGetSupportedImageFormats(get(), toNS(memFlags), imTyp, 0, null, pCount);
 		cl_image_format ft = new cl_image_format();
 		int sz = ft.size();
-		int n = pCount.getValue().intValue();
+		int n = pCount.getValue();
 		if (n == 0) {
 			n = 30; // There HAS to be at least one format. the spec even says even more, but in fact on Mac OS X / CPU there's only one...
 		}
 		Memory mem = new Memory(n * sz);
 		ft.use(mem);
-		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, n, ft, (IntByReference) null);
+		CL.clGetSupportedImageFormats(get(), toNS(memFlags), imTyp, n, ft, (IntByReference) null);
 		List<CLImageFormat> ret = new ArrayList<CLImageFormat>(n);
 		for (int i = 0; i < n; i++) {
 			ft.use(mem, i * sz);
@@ -178,6 +178,82 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		error(CL.clReleaseContext(get()));
 	}
 
+	public CLByteBuffer createBufferFromGLBuffer(CLMem.Usage usage, int openGLBufferObject) {
+		IntByReference pErr = new IntByReference();
+		cl_mem mem = CL.clCreateFromGLBuffer(openGLBufferObject, pErr);
+		error(pErr.getValue());
+		return new CLByteBuffer(this, -1, mem, null);
+	}
+	public CLImage2D createImage2DFromGLRenderBuffer(CLMem.Usage usage, int openGLRenderBuffer) {
+		IntByReference pErr = new IntByReference();
+		cl_mem mem = CL.clCreateFromGLRenderbuffer(openGLRenderBuffer, pErr);
+		error(pErr.getValue());
+		return new CLImage2D(this, mem, null);
+	}
+	
+	/**
+	 * Creates an OpenCL 2D image object from an OpenGL 2D texture object, or a single face of an OpenGL cubemap texture object.
+	 * @param usage
+	 * @param textureTarget Must be one of GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, or GL_TEXTURE_RECTANGLE47. texture_target is used only to define the image type of texture. No reference to a bound GL texture object is made or implied by this parameter.
+	 * @param mipLevel Mipmap level to be used (Implementations may return CL_INVALID_OPERATION for miplevel values > 0)
+	 * @param texture Name of a GL 2D, cubemap or rectangle texture object. The texture object must be a complete texture as per OpenGL rules on texture completeness. The texture format and dimensions defined by OpenGL for the specified miplevel of the texture will be used to create the 2D image object. Only GL texture objects with an internal format that maps to appropriate image channel order and data type specified in tables 5.4 and 5.5 may be used to create a 2D image object.
+	 * @return valid OpenCL image object if the image object is created successfully
+	 * @throws CLException.InvalidMipLevel if miplevel is less than the value of levelbase (for OpenGL implementations) or zero (for OpenGL ES implementations); or greater than the value of q (for both OpenGL and OpenGL ES). levelbase and q are defined for the texture in section 3.8.10 (Texture Completeness) of the OpenGL 2.1 specification and section 3.7.10 of the OpenGL ES 2.0, or if miplevel is greather than zero and the OpenGL implementation does not support creating from non-zero mipmap levels.
+	 * @throws CLException.InvalidGLObject if texture is not a GL texture object whose type matches texture_target, if the specified miplevel of texture is not defined, or if the width or height of the specified miplevel is zero.
+	 * @throws CLException.InvalidImageFormatDescriptor if the OpenGL texture internal format does not map to a supported OpenCL image format.
+	 */
+	public CLImage2D createImage2DFromGLTexture2D(CLMem.Usage usage, GLTextureTarget textureTarget, int texture, int mipLevel) {
+		IntByReference pErr = new IntByReference();
+		cl_mem mem = CL.clCreateFromGLTexture2D(textureTarget.getValue(), mipLevel, texture, pErr);
+		error(pErr.getValue());
+		return new CLImage2D(this, mem, null);
+	}
+
+	private static final int 
+		GL_TEXTURE_2D = 0x0DE1,
+		GL_TEXTURE_3D = 0x806F,
+		GL_TEXTURE_CUBE_MAP_POSITIVE_X = 0x8515,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_X = 0x8516,
+		GL_TEXTURE_CUBE_MAP_POSITIVE_Y = 0x8517,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_Y = 0x8518,
+		GL_TEXTURE_CUBE_MAP_POSITIVE_Z = 0x8519,
+		GL_TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A,
+		GL_TEXTURE_RECTANGLE = 0x84F5;
+		
+
+	public enum GLTextureTarget {
+		
+		@EnumValue(GL_TEXTURE_2D)						Texture2D,
+		//@EnumValue(GL_TEXTURE_3D)						Texture3D,
+		@EnumValue(GL_TEXTURE_CUBE_MAP_POSITIVE_X)		CubeMapPositiveX,
+		@EnumValue(GL_TEXTURE_CUBE_MAP_NEGATIVE_X)		CubeMapNegativeX,
+		@EnumValue(GL_TEXTURE_CUBE_MAP_POSITIVE_Y)		CubeMapPositiveY,
+		@EnumValue(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y)		CubeMapNegativeY,
+		@EnumValue(GL_TEXTURE_CUBE_MAP_POSITIVE_Z)		CubeMapPositiveZ,
+		@EnumValue(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z)		CubeMapNegativeZ,
+		@EnumValue(GL_TEXTURE_RECTANGLE)				Rectangle;
+
+		public int getValue() { return (int)EnumValues.getValue(this); }
+		public static GLTextureTarget getEnum(int v) { return EnumValues.getEnum(v, GLTextureTarget.class); }
+	}
+	
+	/**
+	 * Creates an OpenCL 3D image object from an OpenGL 3D texture object
+	 * @param usage
+	 * @param mipLevel Mipmap level to be used (Implementations may return CL_INVALID_OPERATION for miplevel values > 0)
+	 * @param texture Name of a GL 3D texture object. The texture object must be a complete texture as per OpenGL rules on texture completeness. The texture format and dimensions defined by OpenGL for the specified miplevel of the texture will be used to create the 3D image object. Only GL texture objects with an internal format that maps to appropriate image channel order and data type specified in tables 5.4 and 5.5 can be used to create the 3D image object.
+	 * @return valid OpenCL image object if the image object is created successfully
+	 * @throws CLException.InvalidMipLevel if miplevel is less than the value of levelbase (for OpenGL implementations) or zero (for OpenGL ES implementations); or greater than the value of q (for both OpenGL and OpenGL ES). levelbase and q are defined for the texture in section 3.8.10 (Texture Completeness) of the OpenGL 2.1 specification and section 3.7.10 of the OpenGL ES 2.0, or if miplevel is greather than zero and the OpenGL implementation does not support creating from non-zero mipmap levels.
+	 * @throws CLException.InvalidGLObject if texture is not a GL texture object whose type matches texture_target, if the specified miplevel of texture is not defined, or if the width or height of the specified miplevel is zero.
+	 * @throws CLException.InvalidImageFormatDescriptor if the OpenGL texture internal format does not map to a supported OpenCL image format.
+	 */
+	public CLImage3D createImage3DFromGLTexture3D(CLMem.Usage usage, int texture, int mipLevel) {
+		IntByReference pErr = new IntByReference();
+		cl_mem mem = CL.clCreateFromGLTexture3D(GL_TEXTURE_3D, mipLevel, texture, pErr);
+		error(pErr.getValue());
+		return new CLImage3D(this, mem, null);
+	}
+	
 	/**
 	 * Create an ARGB input 2D image with the content provided
 	 * @param allowUnoptimizingDirectRead Some images expose their internal data for direct read, leading to performance increase during the creation of the OpenCL image. However, direct access to the image data disables some Java2D optimizations for this image, leading to degraded performance in subsequent uses with AWT/Swing.
@@ -207,7 +283,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		IntByReference pErr = new IntByReference();
 		cl_mem mem = CL.clCreateImage2D(
 				get(),
-				memFlags,
+				toNS(memFlags),
 				format.to_cl_image_format(),
 				toNS(width),
 				toNS(height),
@@ -235,7 +311,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		IntByReference pErr = new IntByReference();
 		cl_mem mem = CL.clCreateImage3D(
 				get(),
-				memFlags,
+				toNS(memFlags),
 				format.to_cl_image_format(),
 				toNS(width),
 				toNS(height),
@@ -406,7 +482,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		//IntBuffer errBuff = IntBuffer.wrap(new int[1]);
 		cl_mem mem = CL.clCreateBuffer(
 				get(),
-				CLBufferFlags,
+				toNS(CLBufferFlags),
 				toNS(byteCount),
 				buffer == null ? null : Native.getDirectBufferPointer(buffer),
 				pErr);

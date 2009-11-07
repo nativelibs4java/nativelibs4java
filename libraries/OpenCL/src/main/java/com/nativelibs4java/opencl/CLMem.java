@@ -20,6 +20,8 @@ package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
+import com.ochafik.lang.jnaerator.runtime.NativeSize;
+import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
@@ -49,7 +51,14 @@ import static com.nativelibs4java.util.NIOUtils.*;
 public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 
     protected final CLContext context;
-    protected final long byteCount;
+    protected long byteCount;
+
+	protected static CLInfoGetter<cl_mem> infos = new CLInfoGetter<cl_mem>() {
+		@Override
+		protected int getInfo(cl_mem entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+			return CL.clGetImageInfo(entity, infoTypeEnum, size, out, sizeOut);
+		}
+	};
 
     CLMem(CLContext context, long byteCount, cl_mem entity) {
         super(entity);
@@ -60,8 +69,19 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
     public CLContext getContext() {
         return context;
     }
+
+	/**
+	 * Return actual size of the memory object in bytes
+	 * @return
+	 */
+	public long getSize() {
+		if (byteCount < 0)
+			byteCount = infos.getIntOrLong(get(), CL_MEM_SIZE);
+		return byteCount;
+	}
+
     public long getByteCount() {
-        return byteCount;
+		return getSize();
     }
 
 	/**

@@ -9,577 +9,270 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	public static final java.lang.String JNA_LIBRARY_NAME = com.ochafik.lang.jnaerator.runtime.LibraryExtractor.getLibraryPath("OpenCL", true, com.nativelibs4java.opencl.library.OpenCLLibrary.class);
 	public static final com.sun.jna.NativeLibrary JNA_NATIVE_LIB = com.sun.jna.NativeLibrary.getInstance(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_LIBRARY_NAME, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
 	public static final com.nativelibs4java.opencl.library.OpenCLLibrary INSTANCE = (com.nativelibs4java.opencl.library.OpenCLLibrary)com.sun.jna.Native.loadLibrary(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_LIBRARY_NAME, com.nativelibs4java.opencl.library.OpenCLLibrary.class, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_CHAR_BIT = 8;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_SCHAR_MAX = 127;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_SCHAR_MIN = (-127 - 1);
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_UCHAR_MAX = 255;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_SHRT_MAX = 32767;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_SHRT_MIN = (-32767 - 1);
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_USHRT_MAX = 65535;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_INT_MAX = 2147483647;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_INT_MIN = (-2147483647 - 1);
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_UINT_MAX = -1;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_FLT_DIG = 6;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_FLT_MANT_DIG = 24;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_FLT_MIN_10_EXP = -37;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_FLT_MIN_EXP = -125;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_FLT_RADIX = 2;
-	/**
-	 * define<br>
-	 * Conversion Error : 0x1.fffffep127f<br>
-	 * SKIPPED:<br>
-	 * <i>native declaration : cl_platform.h</i><br>
-	 * 0x1.fffffep127f
-	 */
-	/**
-	 * define<br>
-	 * Conversion Error : 0x1.p<br>
-	 * SKIPPED:<br>
-	 * <i>native declaration : cl_platform.h</i><br>
-	 * 0x1.p - 126.0F
-	 */
-	/**
-	 * define<br>
-	 * Conversion Error : 0x1.p<br>
-	 * SKIPPED:<br>
-	 * <i>native declaration : cl_platform.h</i><br>
-	 * 0x1.p - 23.0F
-	 */
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_DBL_DIG = 15;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_DBL_MANT_DIG = 53;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_DBL_MIN_10_EXP = -307;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_DBL_MIN_EXP = -1021;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_DBL_RADIX = 2;
-	/**
-	 * define<br>
-	 * Conversion Error : 0x1.fffffffffffffp1023<br>
-	 * SKIPPED:<br>
-	 * <i>native declaration : cl_platform.h</i><br>
-	 * 0x1.fffffffffffffp1023
-	 */
-	/**
-	 * define<br>
-	 * Conversion Error : 0x1.p<br>
-	 * SKIPPED:<br>
-	 * <i>native declaration : cl_platform.h</i><br>
-	 * 0x1.p - 1022
-	 */
-	/**
-	 * define<br>
-	 * Conversion Error : 0x1.p<br>
-	 * SKIPPED:<br>
-	 * <i>native declaration : cl_platform.h</i><br>
-	 * 0x1.p - 52
-	 */
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_SUCCESS = 0;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_NOT_FOUND = -1;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_NOT_AVAILABLE = -2;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMPILER_NOT_AVAILABLE = -3;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_OBJECT_ALLOCATION_FAILURE = -4;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_OUT_OF_RESOURCES = -5;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_OUT_OF_HOST_MEMORY = -6;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROFILING_INFO_NOT_AVAILABLE = -7;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_COPY_OVERLAP = -8;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_IMAGE_FORMAT_MISMATCH = -9;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_IMAGE_FORMAT_NOT_SUPPORTED = -10;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_BUILD_PROGRAM_FAILURE = -11;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MAP_FAILURE = -12;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_VALUE = -30;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_DEVICE_TYPE = -31;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_PLATFORM = -32;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_DEVICE = -33;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_CONTEXT = -34;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_QUEUE_PROPERTIES = -35;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_COMMAND_QUEUE = -36;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_HOST_PTR = -37;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_MEM_OBJECT = -38;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_IMAGE_FORMAT_DESCRIPTOR = -39;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_IMAGE_SIZE = -40;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_SAMPLER = -41;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_BINARY = -42;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_BUILD_OPTIONS = -43;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_PROGRAM = -44;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_PROGRAM_EXECUTABLE = -45;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_KERNEL_NAME = -46;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_KERNEL_DEFINITION = -47;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_KERNEL = -48;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_ARG_INDEX = -49;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_ARG_VALUE = -50;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_ARG_SIZE = -51;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_KERNEL_ARGS = -52;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_WORK_DIMENSION = -53;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_WORK_GROUP_SIZE = -54;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_WORK_ITEM_SIZE = -55;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_GLOBAL_OFFSET = -56;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_EVENT_WAIT_LIST = -57;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_EVENT = -58;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_OPERATION = -59;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_GL_OBJECT = -60;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_BUFFER_SIZE = -61;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_MIP_LEVEL = -62;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INVALID_GLOBAL_WORK_SIZE = -63;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_VERSION_1_0 = 1;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_FALSE = 0;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_TRUE = 1;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PLATFORM_PROFILE = 2304;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PLATFORM_VERSION = 2305;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PLATFORM_NAME = 2306;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PLATFORM_VENDOR = 2307;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PLATFORM_EXTENSIONS = 2308;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_TYPE_DEFAULT = (1 << 0);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_TYPE_CPU = (1 << 1);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_TYPE_GPU = (1 << 2);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_TYPE_ACCELERATOR = (1 << 3);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_TYPE_ALL = -1;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_TYPE = 4096;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_VENDOR_ID = 4097;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MAX_COMPUTE_UNITS = 4098;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS = 4099;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MAX_WORK_GROUP_SIZE = 4100;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MAX_WORK_ITEM_SIZES = 4101;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_CHAR = 4102;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_SHORT = 4103;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_INT = 4104;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_LONG = 4105;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_FLOAT = 4106;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE = 4107;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MAX_CLOCK_FREQUENCY = 4108;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_ADDRESS_BITS = 4109;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MAX_READ_IMAGE_ARGS = 4110;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MAX_WRITE_IMAGE_ARGS = 4111;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MAX_MEM_ALLOC_SIZE = 4112;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_IMAGE2D_MAX_WIDTH = 4113;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_IMAGE2D_MAX_HEIGHT = 4114;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_IMAGE3D_MAX_WIDTH = 4115;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_IMAGE3D_MAX_HEIGHT = 4116;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_IMAGE3D_MAX_DEPTH = 4117;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_IMAGE_SUPPORT = 4118;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MAX_PARAMETER_SIZE = 4119;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MAX_SAMPLERS = 4120;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MEM_BASE_ADDR_ALIGN = 4121;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE = 4122;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_SINGLE_FP_CONFIG = 4123;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_GLOBAL_MEM_CACHE_TYPE = 4124;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE = 4125;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_GLOBAL_MEM_CACHE_SIZE = 4126;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_GLOBAL_MEM_SIZE = 4127;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE = 4128;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_MAX_CONSTANT_ARGS = 4129;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_LOCAL_MEM_TYPE = 4130;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_LOCAL_MEM_SIZE = 4131;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_ERROR_CORRECTION_SUPPORT = 4132;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_PROFILING_TIMER_RESOLUTION = 4133;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_ENDIAN_LITTLE = 4134;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_AVAILABLE = 4135;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_COMPILER_AVAILABLE = 4136;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_EXECUTION_CAPABILITIES = 4137;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_QUEUE_PROPERTIES = 4138;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_NAME = 4139;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_VENDOR = 4140;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DRIVER_VERSION = 4141;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_PROFILE = 4142;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_VERSION = 4143;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_EXTENSIONS = 4144;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_DEVICE_PLATFORM = 4145;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_FP_DENORM = (1 << 0);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_FP_INF_NAN = (1 << 1);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_FP_ROUND_TO_NEAREST = (1 << 2);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_FP_ROUND_TO_ZERO = (1 << 3);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_FP_ROUND_TO_INF = (1 << 4);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_FP_FMA = (1 << 5);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_NONE = 0;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_READ_ONLY_CACHE = 1;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_READ_WRITE_CACHE = 2;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_LOCAL = 1;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_GLOBAL = 2;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_EXEC_KERNEL = (1 << 0);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_EXEC_NATIVE_KERNEL = (1 << 1);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE = (1 << 0);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_QUEUE_PROFILING_ENABLE = (1 << 1);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_CONTEXT_REFERENCE_COUNT = 4224;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_CONTEXT_DEVICES = 4225;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_CONTEXT_PROPERTIES = 4226;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_CONTEXT_PLATFORM = 4228;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_QUEUE_CONTEXT = 4240;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_QUEUE_DEVICE = 4241;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_QUEUE_REFERENCE_COUNT = 4242;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_QUEUE_PROPERTIES = 4243;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_READ_WRITE = (1 << 0);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_WRITE_ONLY = (1 << 1);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_READ_ONLY = (1 << 2);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_USE_HOST_PTR = (1 << 3);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_ALLOC_HOST_PTR = (1 << 4);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_COPY_HOST_PTR = (1 << 5);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_R = 4272;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_A = 4273;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_RG = 4274;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_RA = 4275;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_RGB = 4276;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_RGBA = 4277;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_BGRA = 4278;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_ARGB = 4279;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_INTENSITY = 4280;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_LUMINANCE = 4281;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_SNORM_INT8 = 4304;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_SNORM_INT16 = 4305;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_UNORM_INT8 = 4306;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_UNORM_INT16 = 4307;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_UNORM_SHORT_565 = 4308;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_UNORM_SHORT_555 = 4309;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_UNORM_INT_101010 = 4310;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_SIGNED_INT8 = 4311;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_SIGNED_INT16 = 4312;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_SIGNED_INT32 = 4313;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_UNSIGNED_INT8 = 4314;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_UNSIGNED_INT16 = 4315;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_UNSIGNED_INT32 = 4316;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_HALF_FLOAT = 4317;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_FLOAT = 4318;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_OBJECT_BUFFER = 4336;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_OBJECT_IMAGE2D = 4337;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_OBJECT_IMAGE3D = 4338;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_TYPE = 4352;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_FLAGS = 4353;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_SIZE = 4354;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_HOST_PTR = 4355;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_MAP_COUNT = 4356;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_REFERENCE_COUNT = 4357;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MEM_CONTEXT = 4358;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_IMAGE_FORMAT = 4368;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_IMAGE_ELEMENT_SIZE = 4369;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_IMAGE_ROW_PITCH = 4370;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_IMAGE_SLICE_PITCH = 4371;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_IMAGE_WIDTH = 4372;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_IMAGE_HEIGHT = 4373;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_IMAGE_DEPTH = 4374;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_ADDRESS_NONE = 4400;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_ADDRESS_CLAMP_TO_EDGE = 4401;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_ADDRESS_CLAMP = 4402;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_ADDRESS_REPEAT = 4403;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_FILTER_NEAREST = 4416;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_FILTER_LINEAR = 4417;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_SAMPLER_REFERENCE_COUNT = 4432;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_SAMPLER_CONTEXT = 4433;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_SAMPLER_NORMALIZED_COORDS = 4434;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_SAMPLER_ADDRESSING_MODE = 4435;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_SAMPLER_FILTER_MODE = 4436;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MAP_READ = (1 << 0);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_MAP_WRITE = (1 << 1);
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROGRAM_REFERENCE_COUNT = 4448;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROGRAM_CONTEXT = 4449;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROGRAM_NUM_DEVICES = 4450;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROGRAM_DEVICES = 4451;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROGRAM_SOURCE = 4452;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROGRAM_BINARY_SIZES = 4453;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROGRAM_BINARIES = 4454;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROGRAM_BUILD_STATUS = 4481;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROGRAM_BUILD_OPTIONS = 4482;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROGRAM_BUILD_LOG = 4483;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_BUILD_SUCCESS = 0;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_BUILD_NONE = -1;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_BUILD_ERROR = -2;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_BUILD_IN_PROGRESS = -3;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_KERNEL_FUNCTION_NAME = 4496;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_KERNEL_NUM_ARGS = 4497;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_KERNEL_REFERENCE_COUNT = 4498;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_KERNEL_CONTEXT = 4499;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_KERNEL_PROGRAM = 4500;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_KERNEL_WORK_GROUP_SIZE = 4528;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_KERNEL_COMPILE_WORK_GROUP_SIZE = 4529;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_KERNEL_LOCAL_MEM_SIZE = 4530;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_EVENT_COMMAND_QUEUE = 4560;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_EVENT_COMMAND_TYPE = 4561;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_EVENT_REFERENCE_COUNT = 4562;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_EVENT_COMMAND_EXECUTION_STATUS = 4563;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_NDRANGE_KERNEL = 4592;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_TASK = 4593;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_NATIVE_KERNEL = 4594;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_READ_BUFFER = 4595;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_WRITE_BUFFER = 4596;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_COPY_BUFFER = 4597;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_READ_IMAGE = 4598;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_WRITE_IMAGE = 4599;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_COPY_IMAGE = 4600;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_COPY_IMAGE_TO_BUFFER = 4601;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_COPY_BUFFER_TO_IMAGE = 4602;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_MAP_BUFFER = 4603;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_MAP_IMAGE = 4604;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_UNMAP_MEM_OBJECT = 4605;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_MARKER = 4606;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_ACQUIRE_GL_OBJECTS = 4607;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMMAND_RELEASE_GL_OBJECTS = 4608;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_COMPLETE = 0;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_RUNNING = 1;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_SUBMITTED = 2;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_QUEUED = 3;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROFILING_COMMAND_QUEUED = 4736;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROFILING_COMMAND_SUBMIT = 4737;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROFILING_COMMAND_START = 4738;
-	/// <i>native declaration : cl.h</i>
 	public static final int CL_PROFILING_COMMAND_END = 4739;
 	/// <i>native declaration : /System/Library/Frameworks/OpenCL.framework/Headers/cl_gl_ext.h</i>
 	public static final int CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE = 268435456;
@@ -591,38 +284,28 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	public static final int CL_INVALID_GL_CONTEXT_APPLE = -1000;
 	/// <i>native declaration : cl_gl.h</i>
 	public static final int CL_GL_OBJECT_BUFFER = 8192;
-	/// <i>native declaration : cl_gl.h</i>
 	public static final int CL_GL_OBJECT_TEXTURE2D = 8193;
-	/// <i>native declaration : cl_gl.h</i>
 	public static final int CL_GL_OBJECT_TEXTURE3D = 8194;
-	/// <i>native declaration : cl_gl.h</i>
 	public static final int CL_GL_OBJECT_RENDERBUFFER = 8195;
-	/// <i>native declaration : cl_gl.h</i>
 	public static final int CL_GL_TEXTURE_TARGET = 8196;
-	/// <i>native declaration : cl_gl.h</i>
 	public static final int CL_GL_MIPMAP_LEVEL = 8197;
 	/// <i>native declaration : opencl.h</i>
 	public static final int CL_DEVICE_COMPILER_NOT_AVAILABLE = -3;
 	/// <i>native declaration : cl.h</i>
 	public static final int CL_CHAR_MIN = -127 - 1;
-	/// <i>native declaration : cl_platform.h</i>
 	public static final int CL_CHAR_MAX = com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SCHAR_MAX;
-	/// <i>native declaration : cl.h:437</i>
 	public interface pfn_notify extends com.sun.jna.Callback {
 		/// @param voidPtr2 pfn_notify
 		void invoke(com.sun.jna.Pointer charPtr1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr2);
 	}
-	/// <i>native declaration : cl.h:444</i>
 	public interface pfn_notify2 extends com.sun.jna.Callback {
 		/// @param voidPtr2 pfn_notify
 		void invoke(com.sun.jna.Pointer charPtr1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr2);
 	}
-	/// <i>native declaration : cl.h:594</i>
 	public interface pfn_notify3 extends com.sun.jna.Callback {
 		/// @param cl_program1 user_data
 		void invoke(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, com.sun.jna.Pointer voidPtr1);
 	}
-	/// <i>native declaration : cl.h:834</i>
 	public interface user_func extends com.sun.jna.Callback {
 		void invoke(com.sun.jna.Pointer voidPtr1);
 	}
@@ -633,657 +316,416 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	/**
 	 * Platform API<br>
 	 * Original signature : <code>cl_int clGetPlatformIDs(cl_uint, cl_platform_id*, cl_uint*)</code><br>
-	 * <i>native declaration : cl.h:405</i><br>
 	 * @deprecated use the safer methods {@link #clGetPlatformIDs(int, com.sun.jna.ptr.PointerByReference, java.nio.IntBuffer)} and {@link #clGetPlatformIDs(int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id[], com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	int clGetPlatformIDs(int cl_uint1, com.sun.jna.ptr.PointerByReference cl_platform_idPtr1, com.sun.jna.ptr.IntByReference cl_uintPtr1);
 	/**
 	 * Platform API<br>
-	 * Original signature : <code>cl_int clGetPlatformIDs(cl_uint, cl_platform_id*, cl_uint*)</code><br>
-	 * <i>native declaration : cl.h:405</i>
+	 * Original signature : <code>cl_int clGetPlatformIDs(cl_uint, cl_platform_id*, cl_uint*)</code>
 	 */
 	int clGetPlatformIDs(int cl_uint1, com.sun.jna.ptr.PointerByReference cl_platform_idPtr1, java.nio.IntBuffer cl_uintPtr1);
 	/**
 	 * Platform API<br>
-	 * Original signature : <code>cl_int clGetPlatformIDs(cl_uint, cl_platform_id*, cl_uint*)</code><br>
-	 * <i>native declaration : cl.h:405</i>
+	 * Original signature : <code>cl_int clGetPlatformIDs(cl_uint, cl_platform_id*, cl_uint*)</code>
 	 */
 	int clGetPlatformIDs(int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id cl_platform_idPtr1[], com.sun.jna.ptr.IntByReference cl_uintPtr1);
-	/**
-	 * Original signature : <code>cl_int clGetPlatformInfo(cl_platform_id, cl_platform_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:410</i>
-	 */
+	/// Original signature : <code>cl_int clGetPlatformInfo(cl_platform_id, cl_platform_info, size_t, void*, size_t*)</code>
 	int clGetPlatformInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id cl_platform_id1, int cl_platform_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Device APIs<br>
 	 * Original signature : <code>cl_int clGetDeviceIDs(cl_platform_id, cl_device_type, cl_uint, cl_device_id*, cl_uint*)</code><br>
-	 * <i>native declaration : cl.h:418</i><br>
 	 * @deprecated use the safer methods {@link #clGetDeviceIDs(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id, com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.sun.jna.ptr.PointerByReference, java.nio.IntBuffer)} and {@link #clGetDeviceIDs(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id, com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	int clGetDeviceIDs(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id cl_platform_id1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_device_type1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, com.sun.jna.ptr.IntByReference cl_uintPtr1);
 	/**
 	 * Device APIs<br>
-	 * Original signature : <code>cl_int clGetDeviceIDs(cl_platform_id, cl_device_type, cl_uint, cl_device_id*, cl_uint*)</code><br>
-	 * <i>native declaration : cl.h:418</i>
+	 * Original signature : <code>cl_int clGetDeviceIDs(cl_platform_id, cl_device_type, cl_uint, cl_device_id*, cl_uint*)</code>
 	 */
 	int clGetDeviceIDs(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id cl_platform_id1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_device_type1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, java.nio.IntBuffer cl_uintPtr1);
 	/**
 	 * Device APIs<br>
-	 * Original signature : <code>cl_int clGetDeviceIDs(cl_platform_id, cl_device_type, cl_uint, cl_device_id*, cl_uint*)</code><br>
-	 * <i>native declaration : cl.h:418</i>
+	 * Original signature : <code>cl_int clGetDeviceIDs(cl_platform_id, cl_device_type, cl_uint, cl_device_id*, cl_uint*)</code>
 	 */
 	int clGetDeviceIDs(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id cl_platform_id1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_device_type1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.sun.jna.ptr.IntByReference cl_uintPtr1);
-	/**
-	 * Original signature : <code>cl_int clGetDeviceInfo(cl_device_id, cl_device_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:425</i>
-	 */
+	/// Original signature : <code>cl_int clGetDeviceInfo(cl_device_id, cl_device_info, size_t, void*, size_t*)</code>
 	int clGetDeviceInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_id1, int cl_device_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Context APIs<br>
 	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:433</i><br>
 	 * @deprecated use the safer methods {@link #clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer, java.nio.IntBuffer)} and {@link #clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Context APIs<br>
-	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:433</i>
+	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Context APIs<br>
-	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:433</i>
+	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_context clCreateContextFromType(const cl_context_properties*, cl_device_type, pfn_notify, void*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:441</i><br>
 	 * @deprecated use the safer methods {@link #clCreateContextFromType(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSize, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer, java.nio.IntBuffer)} and {@link #clCreateContextFromType(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSize, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContextFromType(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_device_type1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/**
-	 * Original signature : <code>cl_context clCreateContextFromType(const cl_context_properties*, cl_device_type, pfn_notify, void*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:441</i>
-	 */
+	/// Original signature : <code>cl_context clCreateContextFromType(const cl_context_properties*, cl_device_type, pfn_notify, void*, cl_int*)</code>
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContextFromType(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_device_type1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, java.nio.IntBuffer cl_intPtr1);
-	/**
-	 * Original signature : <code>cl_int clRetainContext(cl_context)</code><br>
-	 * <i>native declaration : cl.h:448</i>
-	 */
+	/// Original signature : <code>cl_int clRetainContext(cl_context)</code>
 	int clRetainContext(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1);
-	/**
-	 * Original signature : <code>cl_int clReleaseContext(cl_context)</code><br>
-	 * <i>native declaration : cl.h:451</i>
-	 */
+	/// Original signature : <code>cl_int clReleaseContext(cl_context)</code>
 	int clReleaseContext(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1);
-	/**
-	 * Original signature : <code>cl_int clGetContextInfo(cl_context, cl_context_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:454</i>
-	 */
+	/// Original signature : <code>cl_int clGetContextInfo(cl_context, cl_context_info, size_t, void*, size_t*)</code>
 	int clGetContextInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_context_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Command Queue APIs<br>
 	 * Original signature : <code>cl_command_queue clCreateCommandQueue(cl_context, cl_device_id, cl_command_queue_properties, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:462</i><br>
 	 * @deprecated use the safer methods {@link #clCreateCommandQueue(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id, com.ochafik.lang.jnaerator.runtime.NativeSize, java.nio.IntBuffer)} and {@link #clCreateCommandQueue(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue clCreateCommandQueue(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_id1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_command_queue_properties1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Command Queue APIs<br>
-	 * Original signature : <code>cl_command_queue clCreateCommandQueue(cl_context, cl_device_id, cl_command_queue_properties, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:462</i>
+	 * Original signature : <code>cl_command_queue clCreateCommandQueue(cl_context, cl_device_id, cl_command_queue_properties, cl_int*)</code>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue clCreateCommandQueue(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_id1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_command_queue_properties1, java.nio.IntBuffer cl_intPtr1);
-	/**
-	 * Original signature : <code>cl_int clRetainCommandQueue(cl_command_queue)</code><br>
-	 * <i>native declaration : cl.h:468</i>
-	 */
+	/// Original signature : <code>cl_int clRetainCommandQueue(cl_command_queue)</code>
 	int clRetainCommandQueue(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1);
-	/**
-	 * Original signature : <code>cl_int clReleaseCommandQueue(cl_command_queue)</code><br>
-	 * <i>native declaration : cl.h:471</i>
-	 */
+	/// Original signature : <code>cl_int clReleaseCommandQueue(cl_command_queue)</code>
 	int clReleaseCommandQueue(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1);
-	/**
-	 * Original signature : <code>cl_int clGetCommandQueueInfo(cl_command_queue, cl_command_queue_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:474</i>
-	 */
+	/// Original signature : <code>cl_int clGetCommandQueueInfo(cl_command_queue, cl_command_queue_info, size_t, void*, size_t*)</code>
 	int clGetCommandQueueInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_command_queue_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
-	/**
-	 * Original signature : <code>cl_int clSetCommandQueueProperty(cl_command_queue, cl_command_queue_properties, cl_bool, cl_command_queue_properties*)</code><br>
-	 * <i>native declaration : cl.h:481</i>
-	 */
+	/// Original signature : <code>cl_int clSetCommandQueueProperty(cl_command_queue, cl_command_queue_properties, cl_bool, cl_command_queue_properties*)</code>
 	int clSetCommandQueueProperty(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_command_queue_properties1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_command_queue_propertiesPtr1);
 	/**
 	 * Memory Object APIs<br>
 	 * Original signature : <code>cl_mem clCreateBuffer(cl_context, cl_mem_flags, size_t, void*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:488</i><br>
 	 * @deprecated use the safer methods {@link #clCreateBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, java.nio.IntBuffer)} and {@link #clCreateBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_mem_flags1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Memory Object APIs<br>
-	 * Original signature : <code>cl_mem clCreateBuffer(cl_context, cl_mem_flags, size_t, void*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:488</i>
+	 * Original signature : <code>cl_mem clCreateBuffer(cl_context, cl_mem_flags, size_t, void*, cl_int*)</code>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_mem_flags1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_mem clCreateImage2D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, void*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:495</i><br>
 	 * @deprecated use the safer methods {@link #clCreateImage2D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, com.ochafik.lang.jnaerator.runtime.NativeSize, com.nativelibs4java.opencl.library.cl_image_format, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, java.nio.IntBuffer)} and {@link #clCreateImage2D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, com.ochafik.lang.jnaerator.runtime.NativeSize, com.nativelibs4java.opencl.library.cl_image_format, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateImage2D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_mem_flags1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t3, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/**
-	 * Original signature : <code>cl_mem clCreateImage2D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, void*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:495</i>
-	 */
+	/// Original signature : <code>cl_mem clCreateImage2D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, void*, cl_int*)</code>
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateImage2D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_mem_flags1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t3, com.sun.jna.Pointer voidPtr1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_mem clCreateImage3D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, size_t, size_t, void*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:505</i><br>
 	 * @deprecated use the safer methods {@link #clCreateImage3D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, com.ochafik.lang.jnaerator.runtime.NativeSize, com.nativelibs4java.opencl.library.cl_image_format, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, java.nio.IntBuffer)} and {@link #clCreateImage3D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, com.ochafik.lang.jnaerator.runtime.NativeSize, com.nativelibs4java.opencl.library.cl_image_format, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateImage3D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_mem_flags1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t3, com.ochafik.lang.jnaerator.runtime.NativeSize size_t4, com.ochafik.lang.jnaerator.runtime.NativeSize size_t5, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/**
-	 * Original signature : <code>cl_mem clCreateImage3D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, size_t, size_t, void*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:505</i>
-	 */
+	/// Original signature : <code>cl_mem clCreateImage3D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, size_t, size_t, void*, cl_int*)</code>
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateImage3D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_mem_flags1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t3, com.ochafik.lang.jnaerator.runtime.NativeSize size_t4, com.ochafik.lang.jnaerator.runtime.NativeSize size_t5, com.sun.jna.Pointer voidPtr1, java.nio.IntBuffer cl_intPtr1);
-	/**
-	 * Original signature : <code>cl_int clRetainMemObject(cl_mem)</code><br>
-	 * <i>native declaration : cl.h:517</i>
-	 */
+	/// Original signature : <code>cl_int clRetainMemObject(cl_mem)</code>
 	int clRetainMemObject(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1);
-	/**
-	 * Original signature : <code>cl_int clReleaseMemObject(cl_mem)</code><br>
-	 * <i>native declaration : cl.h:520</i>
-	 */
+	/// Original signature : <code>cl_int clReleaseMemObject(cl_mem)</code>
 	int clReleaseMemObject(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1);
 	/**
 	 * Original signature : <code>cl_int clGetSupportedImageFormats(cl_context, cl_mem_flags, cl_mem_object_type, cl_uint, cl_image_format*, cl_uint*)</code><br>
-	 * <i>native declaration : cl.h:523</i><br>
 	 * @deprecated use the safer methods {@link #clGetSupportedImageFormats(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, com.ochafik.lang.jnaerator.runtime.NativeSize, int, int, com.nativelibs4java.opencl.library.cl_image_format, java.nio.IntBuffer)} and {@link #clGetSupportedImageFormats(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, com.ochafik.lang.jnaerator.runtime.NativeSize, int, int, com.nativelibs4java.opencl.library.cl_image_format, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	int clGetSupportedImageFormats(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_mem_flags1, int cl_mem_object_type1, int cl_uint1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, com.sun.jna.ptr.IntByReference cl_uintPtr1);
-	/**
-	 * Original signature : <code>cl_int clGetSupportedImageFormats(cl_context, cl_mem_flags, cl_mem_object_type, cl_uint, cl_image_format*, cl_uint*)</code><br>
-	 * <i>native declaration : cl.h:523</i>
-	 */
+	/// Original signature : <code>cl_int clGetSupportedImageFormats(cl_context, cl_mem_flags, cl_mem_object_type, cl_uint, cl_image_format*, cl_uint*)</code>
 	int clGetSupportedImageFormats(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_mem_flags1, int cl_mem_object_type1, int cl_uint1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, java.nio.IntBuffer cl_uintPtr1);
-	/**
-	 * Original signature : <code>cl_int clGetMemObjectInfo(cl_mem, cl_mem_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:531</i>
-	 */
+	/// Original signature : <code>cl_int clGetMemObjectInfo(cl_mem, cl_mem_info, size_t, void*, size_t*)</code>
 	int clGetMemObjectInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_mem_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
-	/**
-	 * Original signature : <code>cl_int clGetImageInfo(cl_mem, cl_image_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:538</i>
-	 */
+	/// Original signature : <code>cl_int clGetImageInfo(cl_mem, cl_image_info, size_t, void*, size_t*)</code>
 	int clGetImageInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_image_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Sampler APIs<br>
 	 * Original signature : <code>cl_sampler clCreateSampler(cl_context, cl_bool, cl_addressing_mode, cl_filter_mode, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:546</i><br>
 	 * @deprecated use the safer methods {@link #clCreateSampler(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, int, int, int, java.nio.IntBuffer)} and {@link #clCreateSampler(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, int, int, int, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler clCreateSampler(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_bool1, int cl_addressing_mode1, int cl_filter_mode1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Sampler APIs<br>
-	 * Original signature : <code>cl_sampler clCreateSampler(cl_context, cl_bool, cl_addressing_mode, cl_filter_mode, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:546</i>
+	 * Original signature : <code>cl_sampler clCreateSampler(cl_context, cl_bool, cl_addressing_mode, cl_filter_mode, cl_int*)</code>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler clCreateSampler(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_bool1, int cl_addressing_mode1, int cl_filter_mode1, java.nio.IntBuffer cl_intPtr1);
-	/**
-	 * Original signature : <code>cl_int clRetainSampler(cl_sampler)</code><br>
-	 * <i>native declaration : cl.h:553</i>
-	 */
+	/// Original signature : <code>cl_int clRetainSampler(cl_sampler)</code>
 	int clRetainSampler(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler cl_sampler1);
-	/**
-	 * Original signature : <code>cl_int clReleaseSampler(cl_sampler)</code><br>
-	 * <i>native declaration : cl.h:556</i>
-	 */
+	/// Original signature : <code>cl_int clReleaseSampler(cl_sampler)</code>
 	int clReleaseSampler(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler cl_sampler1);
-	/**
-	 * Original signature : <code>cl_int clGetSamplerInfo(cl_sampler, cl_sampler_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:559</i>
-	 */
+	/// Original signature : <code>cl_int clGetSamplerInfo(cl_sampler, cl_sampler_info, size_t, void*, size_t*)</code>
 	int clGetSamplerInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler cl_sampler1, int cl_sampler_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Program Object APIs<br>
 	 * Original signature : <code>cl_program clCreateProgramWithSource(cl_context, cl_uint, const char**, const size_t*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:567</i><br>
 	 * @deprecated use the safer methods {@link #clCreateProgramWithSource(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, int, java.lang.String[], com.ochafik.lang.jnaerator.runtime.NativeSize[], java.nio.IntBuffer)} and {@link #clCreateProgramWithSource(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, int, com.sun.jna.ptr.PointerByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program clCreateProgramWithSource(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_uint1, com.sun.jna.ptr.PointerByReference charPtrPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Program Object APIs<br>
-	 * Original signature : <code>cl_program clCreateProgramWithSource(cl_context, cl_uint, const char**, const size_t*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:567</i>
+	 * Original signature : <code>cl_program clCreateProgramWithSource(cl_context, cl_uint, const char**, const size_t*, cl_int*)</code>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program clCreateProgramWithSource(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_uint1, java.lang.String charPtrPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:574</i><br>
 	 * @deprecated use the safer methods {@link #clCreateProgramWithBinary(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.sun.jna.ptr.PointerByReference, java.nio.IntBuffer, java.nio.IntBuffer)} and {@link #clCreateProgramWithBinary(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.sun.jna.ptr.PointerByReference, com.sun.jna.ptr.IntByReference, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program clCreateProgramWithBinary(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.sun.jna.ptr.PointerByReference charPtrPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1, com.sun.jna.ptr.IntByReference cl_intPtr2);
-	/**
-	 * Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:574</i>
-	 */
+	/// Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code>
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program clCreateProgramWithBinary(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.sun.jna.ptr.PointerByReference charPtrPtr1, java.nio.IntBuffer cl_intPtr1, java.nio.IntBuffer cl_intPtr2);
-	/**
-	 * Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:574</i>
-	 */
+	/// Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code>
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program clCreateProgramWithBinary(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.sun.jna.ptr.PointerByReference charPtrPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1, com.sun.jna.ptr.IntByReference cl_intPtr2);
-	/**
-	 * Original signature : <code>cl_int clRetainProgram(cl_program)</code><br>
-	 * <i>native declaration : cl.h:583</i>
-	 */
+	/// Original signature : <code>cl_int clRetainProgram(cl_program)</code>
 	int clRetainProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1);
-	/**
-	 * Original signature : <code>cl_int clReleaseProgram(cl_program)</code><br>
-	 * <i>native declaration : cl.h:586</i>
-	 */
+	/// Original signature : <code>cl_int clReleaseProgram(cl_program)</code>
 	int clReleaseProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1);
 	/**
 	 * Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code><br>
-	 * <i>native declaration : cl.h:589</i><br>
 	 * @deprecated use the safer methods {@link #clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], java.lang.String, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer)} and {@link #clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.sun.jna.Pointer, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer)} instead
 	 */
 	@java.lang.Deprecated
 	int clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, com.sun.jna.Pointer charPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1);
-	/**
-	 * Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code><br>
-	 * <i>native declaration : cl.h:589</i>
-	 */
+	/// Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code>
 	int clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], java.lang.String charPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1);
-	/**
-	 * Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code><br>
-	 * <i>native declaration : cl.h:589</i>
-	 */
+	/// Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code>
 	int clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.sun.jna.Pointer charPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1);
-	/**
-	 * Original signature : <code>cl_int clUnloadCompiler()</code><br>
-	 * <i>native declaration : cl.h:597</i>
-	 */
+	/// Original signature : <code>cl_int clUnloadCompiler()</code>
 	int clUnloadCompiler();
-	/**
-	 * Original signature : <code>cl_int clGetProgramInfo(cl_program, cl_program_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:600</i>
-	 */
+	/// Original signature : <code>cl_int clGetProgramInfo(cl_program, cl_program_info, size_t, void*, size_t*)</code>
 	int clGetProgramInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_program_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
-	/**
-	 * Original signature : <code>cl_int clGetProgramBuildInfo(cl_program, cl_device_id, cl_program_build_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:607</i>
-	 */
+	/// Original signature : <code>cl_int clGetProgramBuildInfo(cl_program, cl_device_id, cl_program_build_info, size_t, void*, size_t*)</code>
 	int clGetProgramBuildInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_id1, int cl_program_build_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Kernel Object APIs<br>
 	 * Original signature : <code>cl_kernel clCreateKernel(cl_program, const char*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:616</i><br>
 	 * @deprecated use the safer methods {@link #clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, java.lang.String, java.nio.IntBuffer)} and {@link #clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, com.sun.jna.Pointer charPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Kernel Object APIs<br>
-	 * Original signature : <code>cl_kernel clCreateKernel(cl_program, const char*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:616</i>
+	 * Original signature : <code>cl_kernel clCreateKernel(cl_program, const char*, cl_int*)</code>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, java.lang.String charPtr1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_int clCreateKernelsInProgram(cl_program, cl_uint, cl_kernel*, cl_uint*)</code><br>
-	 * <i>native declaration : cl.h:621</i><br>
 	 * @deprecated use the safer methods {@link #clCreateKernelsInProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel[], java.nio.IntBuffer)} and {@link #clCreateKernelsInProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel[], com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	int clCreateKernelsInProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_kernelPtr1, com.sun.jna.ptr.IntByReference cl_uintPtr1);
-	/**
-	 * Original signature : <code>cl_int clCreateKernelsInProgram(cl_program, cl_uint, cl_kernel*, cl_uint*)</code><br>
-	 * <i>native declaration : cl.h:621</i>
-	 */
+	/// Original signature : <code>cl_int clCreateKernelsInProgram(cl_program, cl_uint, cl_kernel*, cl_uint*)</code>
 	int clCreateKernelsInProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernelPtr1[], java.nio.IntBuffer cl_uintPtr1);
-	/**
-	 * Original signature : <code>cl_int clCreateKernelsInProgram(cl_program, cl_uint, cl_kernel*, cl_uint*)</code><br>
-	 * <i>native declaration : cl.h:621</i>
-	 */
+	/// Original signature : <code>cl_int clCreateKernelsInProgram(cl_program, cl_uint, cl_kernel*, cl_uint*)</code>
 	int clCreateKernelsInProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernelPtr1[], com.sun.jna.ptr.IntByReference cl_uintPtr1);
-	/**
-	 * Original signature : <code>cl_int clRetainKernel(cl_kernel)</code><br>
-	 * <i>native declaration : cl.h:627</i>
-	 */
+	/// Original signature : <code>cl_int clRetainKernel(cl_kernel)</code>
 	int clRetainKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1);
-	/**
-	 * Original signature : <code>cl_int clReleaseKernel(cl_kernel)</code><br>
-	 * <i>native declaration : cl.h:630</i>
-	 */
+	/// Original signature : <code>cl_int clReleaseKernel(cl_kernel)</code>
 	int clReleaseKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1);
-	/**
-	 * Original signature : <code>cl_int clSetKernelArg(cl_kernel, cl_uint, size_t, const void*)</code><br>
-	 * <i>native declaration : cl.h:633</i>
-	 */
+	/// Original signature : <code>cl_int clSetKernelArg(cl_kernel, cl_uint, size_t, const void*)</code>
 	int clSetKernelArg(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1);
-	/**
-	 * Original signature : <code>cl_int clGetKernelInfo(cl_kernel, cl_kernel_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:639</i>
-	 */
+	/// Original signature : <code>cl_int clGetKernelInfo(cl_kernel, cl_kernel_info, size_t, void*, size_t*)</code>
 	int clGetKernelInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_kernel_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
-	/**
-	 * Original signature : <code>cl_int clGetKernelWorkGroupInfo(cl_kernel, cl_device_id, cl_kernel_work_group_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:646</i>
-	 */
+	/// Original signature : <code>cl_int clGetKernelWorkGroupInfo(cl_kernel, cl_device_id, cl_kernel_work_group_info, size_t, void*, size_t*)</code>
 	int clGetKernelWorkGroupInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_id1, int cl_kernel_work_group_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Event Object APIs<br>
-	 * Original signature : <code>cl_int clWaitForEvents(cl_uint, const cl_event*)</code><br>
-	 * <i>native declaration : cl.h:655</i>
+	 * Original signature : <code>cl_int clWaitForEvents(cl_uint, const cl_event*)</code>
 	 */
 	int clWaitForEvents(int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1);
 	/**
 	 * Event Object APIs<br>
-	 * Original signature : <code>cl_int clWaitForEvents(cl_uint, const cl_event*)</code><br>
-	 * <i>native declaration : cl.h:655</i>
+	 * Original signature : <code>cl_int clWaitForEvents(cl_uint, const cl_event*)</code>
 	 */
 	int clWaitForEvents(int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[]);
-	/**
-	 * Original signature : <code>cl_int clGetEventInfo(cl_event, cl_event_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:659</i>
-	 */
+	/// Original signature : <code>cl_int clGetEventInfo(cl_event, cl_event_info, size_t, void*, size_t*)</code>
 	int clGetEventInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_event1, int cl_event_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
-	/**
-	 * Original signature : <code>cl_int clRetainEvent(cl_event)</code><br>
-	 * <i>native declaration : cl.h:666</i>
-	 */
+	/// Original signature : <code>cl_int clRetainEvent(cl_event)</code>
 	int clRetainEvent(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_event1);
-	/**
-	 * Original signature : <code>cl_int clReleaseEvent(cl_event)</code><br>
-	 * <i>native declaration : cl.h:669</i>
-	 */
+	/// Original signature : <code>cl_int clReleaseEvent(cl_event)</code>
 	int clReleaseEvent(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_event1);
 	/**
 	 * Profiling APIs<br>
-	 * Original signature : <code>cl_int clGetEventProfilingInfo(cl_event, cl_profiling_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl.h:673</i>
+	 * Original signature : <code>cl_int clGetEventProfilingInfo(cl_event, cl_profiling_info, size_t, void*, size_t*)</code>
 	 */
 	int clGetEventProfilingInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_event1, int cl_profiling_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Flush and Finish APIs<br>
-	 * Original signature : <code>cl_int clFlush(cl_command_queue)</code><br>
-	 * <i>native declaration : cl.h:681</i>
+	 * Original signature : <code>cl_int clFlush(cl_command_queue)</code>
 	 */
 	int clFlush(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1);
-	/**
-	 * Original signature : <code>cl_int clFinish(cl_command_queue)</code><br>
-	 * <i>native declaration : cl.h:684</i>
-	 */
+	/// Original signature : <code>cl_int clFinish(cl_command_queue)</code>
 	int clFinish(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1);
 	/**
 	 * Enqueued Commands APIs<br>
 	 * Original signature : <code>cl_int clEnqueueReadBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:688</i><br>
 	 * @deprecated use the safer method {@link #clEnqueueReadBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueReadBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
 	/**
 	 * Enqueued Commands APIs<br>
-	 * Original signature : <code>cl_int clEnqueueReadBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:688</i>
+	 * Original signature : <code>cl_int clEnqueueReadBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code>
 	 */
 	int clEnqueueReadBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:699</i><br>
 	 * @deprecated use the safer method {@link #clEnqueueWriteBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueWriteBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:699</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueWriteBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:710</i><br>
 	 * @deprecated use the safer method {@link #clEnqueueCopyBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueCopyBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t3, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:710</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueCopyBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t3, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:721</i><br>
 	 * @deprecated use the safer methods {@link #clEnqueueReadImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} and {@link #clEnqueueReadImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueReadImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:721</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueReadImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
-	/**
-	 * Original signature : <code>cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:721</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueReadImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:734</i><br>
 	 * @deprecated use the safer methods {@link #clEnqueueWriteImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} and {@link #clEnqueueWriteImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueWriteImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:734</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueWriteImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
-	/**
-	 * Original signature : <code>cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:734</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueWriteImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:747</i><br>
 	 * @deprecated use the safer methods {@link #clEnqueueCopyImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} and {@link #clEnqueueCopyImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueCopyImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:747</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueCopyImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr3[], int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
-	/**
-	 * Original signature : <code>cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:747</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueCopyImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, size_t, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:758</i><br>
 	 * @deprecated use the safer methods {@link #clEnqueueCopyImageToBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} and {@link #clEnqueueCopyImageToBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueCopyImageToBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, size_t, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:758</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, size_t, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueCopyImageToBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
-	/**
-	 * Original signature : <code>cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, size_t, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:758</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, size_t, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueCopyImageToBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:769</i><br>
 	 * @deprecated use the safer methods {@link #clEnqueueCopyBufferToImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} and {@link #clEnqueueCopyBufferToImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueCopyBufferToImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:769</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueCopyBufferToImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
-	/**
-	 * Original signature : <code>cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:769</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueCopyBufferToImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>void* clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, const cl_event*, cl_event*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:780</i><br>
 	 * @deprecated use the safer methods {@link #clEnqueueMapBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], java.nio.IntBuffer)} and {@link #clEnqueueMapBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.sun.jna.Pointer clEnqueueMapBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_map_flags1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/**
-	 * Original signature : <code>void* clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, const cl_event*, cl_event*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:780</i>
-	 */
+	/// Original signature : <code>void* clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, const cl_event*, cl_event*, cl_int*)</code>
 	com.sun.jna.Pointer clEnqueueMapBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_map_flags1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[], java.nio.IntBuffer cl_intPtr1);
-	/**
-	 * Original signature : <code>void* clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, const cl_event*, cl_event*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:780</i>
-	 */
+	/// Original signature : <code>void* clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, const cl_event*, cl_event*, cl_int*)</code>
 	com.sun.jna.Pointer clEnqueueMapBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_map_flags1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[], com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Original signature : <code>void* clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, const size_t*, const size_t*, size_t*, size_t*, cl_uint, const cl_event*, cl_event*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:792</i><br>
 	 * @deprecated use the safer methods {@link #clEnqueueMapImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], java.nio.IntBuffer)} and {@link #clEnqueueMapImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.sun.jna.Pointer clEnqueueMapImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_map_flags1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr4, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/**
-	 * Original signature : <code>void* clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, const size_t*, const size_t*, size_t*, size_t*, cl_uint, const cl_event*, cl_event*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:792</i>
-	 */
+	/// Original signature : <code>void* clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, const size_t*, const size_t*, size_t*, size_t*, cl_uint, const cl_event*, cl_event*, cl_int*)</code>
 	com.sun.jna.Pointer clEnqueueMapImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_map_flags1, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr4, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[], java.nio.IntBuffer cl_intPtr1);
-	/**
-	 * Original signature : <code>void* clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, const size_t*, const size_t*, size_t*, size_t*, cl_uint, const cl_event*, cl_event*, cl_int*)</code><br>
-	 * <i>native declaration : cl.h:792</i>
-	 */
+	/// Original signature : <code>void* clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, const size_t*, const size_t*, size_t*, size_t*, cl_uint, const cl_event*, cl_event*, cl_int*)</code>
 	com.sun.jna.Pointer clEnqueueMapImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize cl_map_flags1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr4, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[], com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_int clEnqueueUnmapMemObject(cl_command_queue, cl_mem, void*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:806</i><br>
 	 * @deprecated use the safer method {@link #clEnqueueUnmapMemObject(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueUnmapMemObject(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueUnmapMemObject(cl_command_queue, cl_mem, void*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:806</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueUnmapMemObject(cl_command_queue, cl_mem, void*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueUnmapMemObject(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:814</i><br>
 	 * @deprecated use the safer methods {@link #clEnqueueNDRangeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel, int, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} and {@link #clEnqueueNDRangeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel, int, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueNDRangeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:814</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueNDRangeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr3[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
-	/**
-	 * Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:814</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueNDRangeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueTask(cl_command_queue, cl_kernel, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:825</i><br>
 	 * @deprecated use the safer method {@link #clEnqueueTask(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueTask(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueTask(cl_command_queue, cl_kernel, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:825</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueTask(cl_command_queue, cl_kernel, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueTask(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueNativeKernel(cl_command_queue, user_func, void*, size_t, cl_uint, const cl_mem*, const void**, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:832</i><br>
 	 * @deprecated use the safer method {@link #clEnqueueNativeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.user_func, com.sun.jna.Pointer, com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem[], com.sun.jna.ptr.PointerByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueNativeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.user_func arg1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_memPtr1, com.sun.jna.ptr.PointerByReference voidPtrPtr1, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueNativeKernel(cl_command_queue, user_func, void*, size_t, cl_uint, const cl_mem*, const void**, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:832</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueNativeKernel(cl_command_queue, user_func, void*, size_t, cl_uint, const cl_mem*, const void**, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueNativeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.user_func arg1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], com.sun.jna.ptr.PointerByReference voidPtrPtr1, int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueMarker(cl_command_queue, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:844</i><br>
 	 * @deprecated use the safer method {@link #clEnqueueMarker(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueMarker(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.sun.jna.ptr.PointerByReference cl_eventPtr1);
-	/**
-	 * Original signature : <code>cl_int clEnqueueMarker(cl_command_queue, cl_event*)</code><br>
-	 * <i>native declaration : cl.h:844</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueMarker(cl_command_queue, cl_event*)</code>
 	int clEnqueueMarker(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueWaitForEvents(cl_command_queue, cl_uint, const cl_event*)</code><br>
-	 * <i>native declaration : cl.h:848</i><br>
 	 * @deprecated use the safer method {@link #clEnqueueWaitForEvents(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueWaitForEvents(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1);
-	/**
-	 * Original signature : <code>cl_int clEnqueueWaitForEvents(cl_command_queue, cl_uint, const cl_event*)</code><br>
-	 * <i>native declaration : cl.h:848</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueWaitForEvents(cl_command_queue, cl_uint, const cl_event*)</code>
 	int clEnqueueWaitForEvents(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[]);
-	/**
-	 * Original signature : <code>cl_int clEnqueueBarrier(cl_command_queue)</code><br>
-	 * <i>native declaration : cl.h:853</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueBarrier(cl_command_queue)</code>
 	int clEnqueueBarrier(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1);
 	/**
 	 * func_name<br>
 	 * Original signature : <code>void* clGetExtensionFunctionAddress(const char*)</code><br>
-	 * <i>native declaration : cl.h:863</i><br>
 	 * @deprecated use the safer methods {@link #clGetExtensionFunctionAddress(java.lang.String)} and {@link #clGetExtensionFunctionAddress(com.sun.jna.Pointer)} instead
 	 */
 	@java.lang.Deprecated
 	com.sun.jna.Pointer clGetExtensionFunctionAddress(com.sun.jna.Pointer charPtr1);
 	/**
 	 * func_name<br>
-	 * Original signature : <code>void* clGetExtensionFunctionAddress(const char*)</code><br>
-	 * <i>native declaration : cl.h:863</i>
+	 * Original signature : <code>void* clGetExtensionFunctionAddress(const char*)</code>
 	 */
 	com.sun.jna.Pointer clGetExtensionFunctionAddress(java.lang.String charPtr1);
 	/**
@@ -1349,92 +791,61 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	void clLogMessagesToStderrAPPLE(java.lang.String charPtr1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr2);
 	/**
 	 * Original signature : <code>cl_mem clCreateFromGLBuffer(GLuint, int*)</code><br>
-	 * <i>native declaration : cl_gl.h:52</i><br>
 	 * @deprecated use the safer methods {@link #clCreateFromGLBuffer(int, java.nio.IntBuffer)} and {@link #clCreateFromGLBuffer(int, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLBuffer(int GLuint1, com.sun.jna.ptr.IntByReference intPtr1);
-	/**
-	 * Original signature : <code>cl_mem clCreateFromGLBuffer(GLuint, int*)</code><br>
-	 * <i>native declaration : cl_gl.h:52</i>
-	 */
+	/// Original signature : <code>cl_mem clCreateFromGLBuffer(GLuint, int*)</code>
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLBuffer(int GLuint1, java.nio.IntBuffer intPtr1);
 	/**
 	 * Original signature : <code>cl_mem clCreateFromGLTexture2D(GLenum, GLint, GLuint, cl_int*)</code><br>
-	 * <i>native declaration : cl_gl.h:58</i><br>
 	 * @deprecated use the safer methods {@link #clCreateFromGLTexture2D(int, int, int, java.nio.IntBuffer)} and {@link #clCreateFromGLTexture2D(int, int, int, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLTexture2D(int GLenum1, int GLint1, int GLuint1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/**
-	 * Original signature : <code>cl_mem clCreateFromGLTexture2D(GLenum, GLint, GLuint, cl_int*)</code><br>
-	 * <i>native declaration : cl_gl.h:58</i>
-	 */
+	/// Original signature : <code>cl_mem clCreateFromGLTexture2D(GLenum, GLint, GLuint, cl_int*)</code>
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLTexture2D(int GLenum1, int GLint1, int GLuint1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_mem clCreateFromGLTexture3D(GLenum, GLint, GLuint, cl_int*)</code><br>
-	 * <i>native declaration : cl_gl.h:66</i><br>
 	 * @deprecated use the safer methods {@link #clCreateFromGLTexture3D(int, int, int, java.nio.IntBuffer)} and {@link #clCreateFromGLTexture3D(int, int, int, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLTexture3D(int GLenum1, int GLint1, int GLuint1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/**
-	 * Original signature : <code>cl_mem clCreateFromGLTexture3D(GLenum, GLint, GLuint, cl_int*)</code><br>
-	 * <i>native declaration : cl_gl.h:66</i>
-	 */
+	/// Original signature : <code>cl_mem clCreateFromGLTexture3D(GLenum, GLint, GLuint, cl_int*)</code>
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLTexture3D(int GLenum1, int GLint1, int GLuint1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_mem clCreateFromGLRenderbuffer(GLuint, cl_int*)</code><br>
-	 * <i>native declaration : cl_gl.h:74</i><br>
 	 * @deprecated use the safer methods {@link #clCreateFromGLRenderbuffer(int, java.nio.IntBuffer)} and {@link #clCreateFromGLRenderbuffer(int, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLRenderbuffer(int GLuint1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/**
-	 * Original signature : <code>cl_mem clCreateFromGLRenderbuffer(GLuint, cl_int*)</code><br>
-	 * <i>native declaration : cl_gl.h:74</i>
-	 */
+	/// Original signature : <code>cl_mem clCreateFromGLRenderbuffer(GLuint, cl_int*)</code>
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLRenderbuffer(int GLuint1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_int clGetGLObjectInfo(cl_gl_object_type*, GLuint*)</code><br>
-	 * <i>native declaration : cl_gl.h:80</i><br>
 	 * @deprecated use the safer methods {@link #clGetGLObjectInfo(java.nio.IntBuffer, java.nio.IntBuffer)} and {@link #clGetGLObjectInfo(com.sun.jna.ptr.IntByReference, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	int clGetGLObjectInfo(com.sun.jna.ptr.IntByReference cl_gl_object_typePtr1, com.sun.jna.ptr.IntByReference GLuintPtr1);
-	/**
-	 * Original signature : <code>cl_int clGetGLObjectInfo(cl_gl_object_type*, GLuint*)</code><br>
-	 * <i>native declaration : cl_gl.h:80</i>
-	 */
+	/// Original signature : <code>cl_int clGetGLObjectInfo(cl_gl_object_type*, GLuint*)</code>
 	int clGetGLObjectInfo(java.nio.IntBuffer cl_gl_object_typePtr1, java.nio.IntBuffer GLuintPtr1);
-	/**
-	 * Original signature : <code>cl_int clGetGLTextureInfo(cl_gl_texture_info, size_t, void*, size_t*)</code><br>
-	 * <i>native declaration : cl_gl.h:85</i>
-	 */
+	/// Original signature : <code>cl_int clGetGLTextureInfo(cl_gl_texture_info, size_t, void*, size_t*)</code>
 	int clGetGLTextureInfo(int cl_gl_texture_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Original signature : <code>cl_int clEnqueueAcquireGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl_gl.h:92</i><br>
 	 * @deprecated use the safer method {@link #clEnqueueAcquireGLObjects(int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem[], int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueAcquireGLObjects(int cl_uint1, com.sun.jna.ptr.PointerByReference cl_memPtr1, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueAcquireGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl_gl.h:92</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueAcquireGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueAcquireGLObjects(int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueReleaseGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl_gl.h:100</i><br>
 	 * @deprecated use the safer method {@link #clEnqueueReleaseGLObjects(int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem[], int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueReleaseGLObjects(int cl_uint1, com.sun.jna.ptr.PointerByReference cl_memPtr1, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/**
-	 * Original signature : <code>cl_int clEnqueueReleaseGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code><br>
-	 * <i>native declaration : cl_gl.h:100</i>
-	 */
+	/// Original signature : <code>cl_int clEnqueueReleaseGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueReleaseGLObjects(int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/// Pointer to unknown (opaque) type
 	public static class cl_device_id extends com.sun.jna.PointerType {

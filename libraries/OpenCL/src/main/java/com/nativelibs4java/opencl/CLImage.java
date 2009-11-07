@@ -39,12 +39,6 @@ import static com.nativelibs4java.util.NIOUtils.*;
  * @author Oliveir Chafik
  */
 public abstract class CLImage extends CLMem {
-	protected static CLInfoGetter<cl_mem> infos = new CLInfoGetter<cl_mem>() {
-		@Override
-		protected int getInfo(cl_mem entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
-			return CL.clGetImageInfo(entity, infoTypeEnum, size, out, sizeOut);
-		}
-	};
 
 	CLImageFormat format;
 	CLImage(CLContext context, cl_mem entity, CLImageFormat format) {
