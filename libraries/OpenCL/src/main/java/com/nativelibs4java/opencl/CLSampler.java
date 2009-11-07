@@ -101,8 +101,8 @@ public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	 * Return the value specified by normalized_coords argument to CLContext.createSampler.
 	 */
 	@InfoName("CL_SAMPLER_NORMALIZED_COORDS")
-	public String getNormalizedCoords() {
-		return infos.getString(get(), CL_SAMPLER_NORMALIZED_COORDS);
+	public boolean getNormalizedCoords() {
+		return infos.getBool(get(), CL_SAMPLER_NORMALIZED_COORDS);
 	}
 
 
