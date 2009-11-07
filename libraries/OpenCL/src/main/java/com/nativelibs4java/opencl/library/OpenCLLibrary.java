@@ -9,7 +9,7 @@ import com.sun.jna.ptr.LongByReference;
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a>, <a href="http://rococoa.dev.java.net/">Rococoa</a>, or <a href="http://jna.dev.java.net/">JNA</a>.
  */
 public interface OpenCLLibrary extends com.sun.jna.Library {
-	public static final java.lang.String JNA_LIBRARY_NAME = "C:\\Program Files\\ATI Stream\\bin\\x86\\OpenCL.dll";//com.ochafik.lang.jnaerator.runtime.LibraryExtractor.getLibraryPath("OpenCL", true, com.nativelibs4java.opencl.library.OpenCLLibrary.class);
+	public static final java.lang.String JNA_LIBRARY_NAME = com.ochafik.lang.jnaerator.runtime.LibraryExtractor.getLibraryPath("OpenCL", true, com.nativelibs4java.opencl.library.OpenCLLibrary.class);
 	public static final com.sun.jna.NativeLibrary JNA_NATIVE_LIB = com.sun.jna.NativeLibrary.getInstance(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_LIBRARY_NAME, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
 	public static final com.nativelibs4java.opencl.library.OpenCLLibrary INSTANCE = (com.nativelibs4java.opencl.library.OpenCLLibrary)com.sun.jna.Native.loadLibrary(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_LIBRARY_NAME, com.nativelibs4java.opencl.library.OpenCLLibrary.class, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
 	public static final int CL_CHAR_BIT = 8;

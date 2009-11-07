@@ -243,7 +243,7 @@ public class OpenCL4JavaBenchmarkTest {
     @Test
     public void testBenchmark() {
         File f = null;
-        for (String s : new String[] {
+        /*for (String s : new String[] {
         "C:\\Program Files (x86)\\ATI Stream\\bin\\x86_64\\OpenCL.dll",
         "C:\\Program Files (x86)\\ATI Stream\\bin\\x86\\OpenCL.dll",
         "C:\\Program Files\\ATI Stream\\bin\\x86\\OpenCL.dll"
