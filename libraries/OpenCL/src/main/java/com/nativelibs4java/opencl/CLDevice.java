@@ -681,6 +681,11 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
         return hasExtension("cl_khr_byte_addressable_store");
     }
 
+    @InfoName("cl_khr_gl_sharing")
+    public boolean isGLSharingSupported() {
+        return hasExtension("cl_khr_gl_sharing");
+    }
+
     /** Bit values for CL_DEVICE_QUEUE_PROPERTIES */
     public enum QueueProperties {
 

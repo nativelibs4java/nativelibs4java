@@ -178,7 +178,7 @@ public class OpenCL4JavaBenchmarkTest {
                 + "{                                                                 \n"
                 + "   int i = get_global_id(0);                                      \n"
                 + "   float ai = a[i], bi = b[i];                                    \n"
-                + "   output[i] = ai * sin(bi) + atan2(ai, bi);                     \n"
+                + "   output[i] = ai * bi;//sin(bi) + atan2(ai, bi);                     \n"
                 + "}                                                                 \n";
 
         CLDevice[] devices = getDevices(target);
@@ -214,14 +214,14 @@ public class OpenCL4JavaBenchmarkTest {
     public static void java_aSinB(float[] a, float[] b, float[] output, int dataSize) throws CLBuildException {
         for (int i = 0; i < dataSize; i++) {
             float ai = a[i], bi = b[i];
-            output[i] = ai * (float) Math.sin(bi) + (float)Math.atan2(ai, bi);
+            output[i] = ai * bi;//(float) Math.sin(bi) + (float)Math.atan2(ai, bi);
         }
     }
 
     public static void java_aSinB(double[] a, double[] b, double[] output, int dataSize) throws CLBuildException {
         for (int i = 0; i < dataSize; i++) {
             double ai = a[i], bi = b[i];
-            output[i] = ai * Math.sin(bi) + Math.atan2(ai, bi);
+            output[i] = ai * bi;//Math.sin(bi) + Math.atan2(ai, bi);
         }
     }
 
@@ -270,21 +270,24 @@ public class OpenCL4JavaBenchmarkTest {
             Target target = platform.listGPUDevices(false).length == 0 ? Target.CPU : Target.GPU;
 
 
-            if (true) {
-                System.out.println("[Float Operations]");
-                ExecResult<FloatBuffer> nsByJavaOp = testJava_float_aSinB(loops, dataSize);
-                ExecResult<FloatBuffer> nsByCLHostedOp = testOpenCL_float_aSinB(target, loops, dataSize, true);
-                ExecResult<FloatBuffer> nsByNativeHostedCLOp = testOpenCL_float_aSinB(target, loops, dataSize, false);
+            boolean hasDoubleSupport = true;
+            CLDevice[] devices = getDevices(target);
+            for (CLDevice device : devices) {
+                if (!device.isDoubleSupported()) {
+                    hasDoubleSupport = false;
+                }
+            }
+
+            if (!hasDoubleSupport) {
+                System.out.println("Not all devices support double precision computations : skipping second part of the	test");
+            } else {
+                System.out.println("#\n# [Double Operations]\n#");
+                ExecResult<DoubleBuffer> nsByJavaOp = testJava_double_aSinB(loops, dataSize);
+                ExecResult<DoubleBuffer> nsByCLHostedOp = testOpenCL_double_aSinB(target, loops, dataSize, true);
+                ExecResult<DoubleBuffer> nsByNativeHostedCLOp = testOpenCL_double_aSinB(target, loops, dataSize, false);
                 double errCLHosted = avgError(nsByJavaOp.buffer, nsByCLHostedOp.buffer, dataSize);
                 double errNativeHosted = avgError(nsByJavaOp.buffer, nsByNativeHostedCLOp.buffer, dataSize);
 
-                /*for (int i = 0; i < 10; i++) {
-                System.out.print("i\t = " + i + ",\t");
-                System.out.print("buf \t=" + nsByJavaOp.buffer.get(i) +",\t");
-                System.out.print("nat \t=" + nsByNativeHostedCLOp.buffer.get(i) +",\t");
-                System.out.print("ocl \t=" + nsByCLHostedOp.buffer.get(i) +",\t");
-                System.out.println();
-                }*/
                 System.out.println(" Avg relative error (hosted in CL) = " + errCLHosted);
                 System.out.println("Avg relative error (hosted in RAM) = " + errNativeHosted);
                 System.out.println();
@@ -300,24 +303,21 @@ public class OpenCL4JavaBenchmarkTest {
                 System.out.println("    times faster than Java = " + (nsByJavaOp.unitTimeNano / nsByNativeHostedCLOp.unitTimeNano));
             }
 
-            boolean hasDoubleSupport = true;
-            CLDevice[] devices = getDevices(target);
-            for (CLDevice device : devices) {
-                if (!device.isDoubleSupported()) {
-                    hasDoubleSupport = false;
-                }
-            }
-
-            if (!hasDoubleSupport) {
-                System.out.println("Not all devices support double precision computations : skipping second part of the	test");
-            } else {
-                System.out.println("[Double Operations]");
-                ExecResult<DoubleBuffer> nsByJavaOp = testJava_double_aSinB(loops, dataSize);
-                ExecResult<DoubleBuffer> nsByCLHostedOp = testOpenCL_double_aSinB(target, loops, dataSize, true);
-                ExecResult<DoubleBuffer> nsByNativeHostedCLOp = testOpenCL_double_aSinB(target, loops, dataSize, false);
+            if (true) {
+                System.out.println("#\n# [Float Operations]\n#");
+                ExecResult<FloatBuffer> nsByJavaOp = testJava_float_aSinB(loops, dataSize);
+                ExecResult<FloatBuffer> nsByCLHostedOp = testOpenCL_float_aSinB(target, loops, dataSize, true);
+                ExecResult<FloatBuffer> nsByNativeHostedCLOp = testOpenCL_float_aSinB(target, loops, dataSize, false);
                 double errCLHosted = avgError(nsByJavaOp.buffer, nsByCLHostedOp.buffer, dataSize);
                 double errNativeHosted = avgError(nsByJavaOp.buffer, nsByNativeHostedCLOp.buffer, dataSize);
 
+                /*for (int i = 0; i < 10; i++) {
+                System.out.print("i\t = " + i + ",\t");
+                System.out.print("buf \t=" + nsByJavaOp.buffer.get(i) +",\t");
+                System.out.print("nat \t=" + nsByNativeHostedCLOp.buffer.get(i) +",\t");
+                System.out.print("ocl \t=" + nsByCLHostedOp.buffer.get(i) +",\t");
+                System.out.println();
+                }*/
                 System.out.println(" Avg relative error (hosted in CL) = " + errCLHosted);
                 System.out.println("Avg relative error (hosted in RAM) = " + errNativeHosted);
                 System.out.println();
