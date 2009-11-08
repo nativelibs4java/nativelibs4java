@@ -9,7 +9,7 @@ package com.nativelibs4java.opencl;
  * @author ochafik
  */
 public class JOGLInteropExample {
-	public static void main(String[] args) {
-		
-	}
+    public static void main(String[] args) {
+
+    }
 }

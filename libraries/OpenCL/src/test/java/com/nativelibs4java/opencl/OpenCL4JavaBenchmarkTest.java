@@ -177,7 +177,8 @@ public class OpenCL4JavaBenchmarkTest {
                 + "   __global " + nativeType + "* output)                                        \n"
                 + "{                                                                 \n"
                 + "   int i = get_global_id(0);                                      \n"
-                + "   output[i] = a[i] * sin(b[i]);                                       \n"
+                + "   float ai = a[i], bi = b[i];                                    \n"
+                + "   output[i] = ai * sin(bi) + atan2(ai, bi);                     \n"
                 + "}                                                                 \n";
 
         CLDevice[] devices = getDevices(target);
@@ -212,13 +213,15 @@ public class OpenCL4JavaBenchmarkTest {
 
     public static void java_aSinB(float[] a, float[] b, float[] output, int dataSize) throws CLBuildException {
         for (int i = 0; i < dataSize; i++) {
-            output[i] = a[i] * (float) Math.sin(b[i]);
+            float ai = a[i], bi = b[i];
+            output[i] = ai * (float) Math.sin(bi) + (float)Math.atan2(ai, bi);
         }
     }
 
     public static void java_aSinB(double[] a, double[] b, double[] output, int dataSize) throws CLBuildException {
         for (int i = 0; i < dataSize; i++) {
-            output[i] = a[i] * Math.sin(b[i]);
+            double ai = a[i], bi = b[i];
+            output[i] = ai * Math.sin(bi) + Math.atan2(ai, bi);
         }
     }
 

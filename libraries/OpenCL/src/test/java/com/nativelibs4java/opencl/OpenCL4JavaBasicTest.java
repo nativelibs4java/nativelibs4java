@@ -16,10 +16,10 @@ import static com.nativelibs4java.util.NIOUtils.*;
 
 public class OpenCL4JavaBasicTest {
 
-	public static final double ABSOLUTE_FLOAT_ERROR_TOLERANCE = 1e-4;
-	public static final double RELATIVE_FLOAT_ERROR_TOLERANCE = 1e-8;
+    public static final double ABSOLUTE_FLOAT_ERROR_TOLERANCE = 1e-4;
+    public static final double RELATIVE_FLOAT_ERROR_TOLERANCE = 1e-8;
 
-	@Test
+    @Test
     public void simpleTest() {
         try {
             CLPlatform[] platforms = listPlatforms();
@@ -108,8 +108,8 @@ public class OpenCL4JavaBasicTest {
             System.out.println("Average absolute error = " + avgAbsoluteError);
             System.out.println("Average relative error = " + avgRelativeError);
 
-			assertEquals("Bad relative error", 0, avgRelativeError, RELATIVE_FLOAT_ERROR_TOLERANCE);
-			assertEquals("Bad absolute error", 0, avgAbsoluteError, ABSOLUTE_FLOAT_ERROR_TOLERANCE);
+            assertEquals("Bad relative error", 0, avgRelativeError, RELATIVE_FLOAT_ERROR_TOLERANCE);
+            assertEquals("Bad absolute error", 0, avgAbsoluteError, ABSOLUTE_FLOAT_ERROR_TOLERANCE);
 
         } catch (Exception ex) {
             ex.printStackTrace();

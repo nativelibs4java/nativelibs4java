@@ -22,28 +22,28 @@ import static org.junit.Assert.*;
  */
 public class BufferTest extends AbstractCommon {
 
-	@Test
-	public void testReadWrite() {
-		int n = 10;
-		CLIntBuffer buf = context.createIntBuffer(CLMem.Usage.InputOutput, n);
+    @Test
+    public void testReadWrite() {
+        int n = 10;
+        CLIntBuffer buf = context.createIntBuffer(CLMem.Usage.InputOutput, n);
 
-		IntBuffer initial = directInts(n);
-		for (int i = 0; i < n; i++)
-			initial.put(i, i + 1);
-		
-		buf.write(queue, initial, true);
-		
-		IntBuffer retrieved = buf.read(queue);
-		assertEquals(buf.getByteCount() / 4, retrieved.capacity());
+        IntBuffer initial = directInts(n);
+        for (int i = 0; i < n; i++)
+            initial.put(i, i + 1);
 
-		retrieved.rewind();
-		initial.rewind();
+        buf.write(queue, initial, true);
 
-		for (int i = 0; i < n; i++) {
-			int ini = initial.get(i);
-			int ret = retrieved.get(i);
-			assertEquals(initial.get(i), retrieved.get(i));
-		}
-	}
+        IntBuffer retrieved = buf.read(queue);
+        assertEquals(buf.getByteCount() / 4, retrieved.capacity());
+
+        retrieved.rewind();
+        initial.rewind();
+
+        for (int i = 0; i < n; i++) {
+            int ini = initial.get(i);
+            int ret = retrieved.get(i);
+            assertEquals(initial.get(i), retrieved.get(i));
+        }
+    }
 
 }

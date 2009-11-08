@@ -43,12 +43,12 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
 
     protected final CLProgram program;
     protected String name;
-	private static CLInfoGetter<cl_kernel> infos = new CLInfoGetter<cl_kernel>() {
-		@Override
-		protected int getInfo(cl_kernel entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
-			return CL.clGetKernelInfo(entity, infoTypeEnum, size, out, sizeOut);
-		}
-	};
+    private static CLInfoGetter<cl_kernel> infos = new CLInfoGetter<cl_kernel>() {
+        @Override
+        protected int getInfo(cl_kernel entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+            return CL.clGetKernelInfo(entity, infoTypeEnum, size, out, sizeOut);
+        }
+    };
 
     CLKernel(CLProgram program, String name, cl_kernel entity) {
         super(entity);
@@ -59,9 +59,9 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         return program;
     }
 
-	public String toString() {
-		return getFunctionName() + " {args: " + getNumArgs() + "}";//, workGroupSize = " + getWorkGroupSize() + ", localMemSize = " + getLocalMemSize() + "}";
-	}
+    public String toString() {
+        return getFunctionName() + " {args: " + getNumArgs() + "}";//, workGroupSize = " + getWorkGroupSize() + ", localMemSize = " + getLocalMemSize() + "}";
+    }
 
     public void setArgs(Object... args) {
         for (int i = 0; i < args.length; i++) {
@@ -73,7 +73,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
 
         if (arg instanceof NativeLong) {
             setArg(i, (NativeLong) arg);
-		} else if (arg instanceof NativeSize) {
+        } else if (arg instanceof NativeSize) {
             setArg(i, (NativeSize) arg);
         } else if (arg instanceof CLMem) {
             setArg(i, (CLMem) arg);
@@ -96,9 +96,9 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         }
     }
 
-	public void setLocalArg(int argIndex, long localArgByteLength) {
-		error(CL.clSetKernelArg(get(), argIndex, toNS(localArgByteLength), null));
-	}
+    public void setLocalArg(int argIndex, long localArgByteLength) {
+        error(CL.clSetKernelArg(get(), argIndex, toNS(localArgByteLength), null));
+    }
 	
     public void setArg(int i, NativeLong arg) {
         error(CL.clSetKernelArg(get(), i, toNS(NativeLong.SIZE), new NativeLongByReference(arg).getPointer()));
@@ -147,54 +147,72 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         error(CL.clReleaseKernel(get()));
     }
 
-	private static final NativeSize[] oneNL = new NativeSize[] {new NativeSize(1)};
-	/**
-	 * Enqueues a command to execute a kernel on a device. <br>
-	 * The kernel is executed using a single work-item.
-	 * @param queue
-	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed.
-	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
-	 */
-	public CLEvent enqueueTask(CLQueue queue, CLEvent... eventsToWaitFor) {
-		cl_event[] eventOut = new cl_event[1];
+    private static final NativeSize[] oneNL = new NativeSize[] {new NativeSize(1)};
+    /**
+     * Enqueues a command to execute a kernel on a device. <br>
+     * The kernel is executed using a single work-item.
+     * @param queue
+     * @param eventsToWaitFor Events that need to complete before this particular command can be executed.
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
+     */
+    public CLEvent enqueueTask(CLQueue queue, CLEvent... eventsToWaitFor) {
+        cl_event[] eventOut = new cl_event[1];
         error(CL.clEnqueueNDRangeKernel(queue.get(), get(), 1, null, oneNL, oneNL, eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
-		return CLEvent.createEvent(eventOut[0]);
-	}
+        return CLEvent.createEvent(eventOut[0]);
+    }
 
     /**
-	 * Enqueues a command to execute a kernel on a device.
-	 * @param globalWorkSizes Each element describes the number of global work-items in a dimension that will execute the kernel function. The total number of global work-items is computed as globalWorkSizes[0] * ... * globalWorkSizes[globalWorkSizes.length - 1].
-	 * @param localWorkSizes Each element describes the number of work-items that make up a work-group (also referred to as the size of the work-group) that will execute the kernel specified by kernel. The total number of work-items in a work-group is computed as localWorkSizes[0] * ... * localWorkSizes[localWorkSizes.length - 1]. The total number of work-items in the work-group must be less than or equal to the CL_DEVICE_MAX_WORK_GROUP_SIZE value specified in table 4.3 and the number of work- items specified in localWorkSizes[0], ... localWorkSizes[localWorkSizes.length - 1] must be less than or equal to the corresponding values specified by CLDevice.getMaxWorkItemSizes()[dimensionIndex].	The explicitly specified localWorkSize will be used to determine how to break the global work-items specified by global_work_size into appropriate work-group instances. If localWorkSize is specified, the values specified in globalWorkSize[dimensionIndex] must be evenly divisible by the corresponding values specified in localWorkSize[dimensionIndex].
-	 * @param queue This kernel will be queued for execution on the device associated with that queue.
-	 * @param eventsToWaitFor Events that need to complete before this particular command can be executed.
-	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
-	 */
-	public CLEvent enqueueNDRange(CLQueue queue /*, int[] globalOffsets*/, int[] globalWorkSizes, int[] localWorkSizes, CLEvent... eventsToWaitFor) {
+     * Enqueues a command to execute a kernel on a device.
+     * @param globalWorkSizes Each element describes the number of global work-items in a dimension that will execute the kernel function. The total number of global work-items is computed as globalWorkSizes[0] * ... * globalWorkSizes[globalWorkSizes.length - 1].
+     * @param localWorkSizes Each element describes the number of work-items that make up a work-group (also referred to as the size of the work-group) that will execute the kernel specified by kernel. The total number of work-items in a work-group is computed as localWorkSizes[0] * ... * localWorkSizes[localWorkSizes.length - 1]. The total number of work-items in the work-group must be less than or equal to the CL_DEVICE_MAX_WORK_GROUP_SIZE value specified in table 4.3 and the number of work- items specified in localWorkSizes[0], ... localWorkSizes[localWorkSizes.length - 1] must be less than or equal to the corresponding values specified by CLDevice.getMaxWorkItemSizes()[dimensionIndex].	The explicitly specified localWorkSize will be used to determine how to break the global work-items specified by global_work_size into appropriate work-group instances. If localWorkSize is specified, the values specified in globalWorkSize[dimensionIndex] must be evenly divisible by the corresponding values specified in localWorkSize[dimensionIndex].
+     * @param queue This kernel will be queued for execution on the device associated with that queue.
+     * @param eventsToWaitFor Events that need to complete before this particular command can be executed.
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
+     */
+    public CLEvent enqueueNDRange(CLQueue queue /*, int[] globalOffsets*/, int[] globalWorkSizes, int[] localWorkSizes, CLEvent... eventsToWaitFor) {
         int nDims = globalWorkSizes.length;
         if (localWorkSizes != null && localWorkSizes.length != nDims) {
             throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalWorkSizes.length + " vs. " + localWorkSizes.length);
         }
-		cl_event[] eventOut = new cl_event[1];
+        cl_event[] eventOut = new cl_event[1];
+        /*int sizeTSize = queue.getDevice().getAddressBits() / 8;
+        NativeSizeByReference glo = new NativeSizeByReference(), loc = new NativeSizeByReference();
+        int ms = nDims * sizeTSize;
+        Memory mglo = new Memory(ms), mloc = new Memory(ms);
+        glo.setPointer(mglo);
+        loc.setPointer(mloc);
+        boolean is64 = sizeTSize == 8;
+        for (int i = 0; i < nDims; i++) {
+            int off = i * sizeTSize;
+            if (is64) {
+                mglo.setLong(off, globalWorkSizes[i]);
+                mloc.setLong(off, localWorkSizes[i]);
+            } else {
+                mglo.setInt(off, globalWorkSizes[i]);
+                mloc.setInt(off, localWorkSizes[i]);
+            }
+        }*/
         error(CL.clEnqueueNDRangeKernel(queue.get(), get(), nDims, null/*toNL(globalOffsets)*/, toNS(globalWorkSizes), toNS(localWorkSizes), eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
-		return CLEvent.createEvent(eventOut[0]);
+        //error(CL.clEnqueueNDRangeKernel(queue.get(), get(), nDims, null, glo, loc, eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
+        return CLEvent.createEvent(eventOut[0]);
     }
 	
 	/**
 	 * Return the number of arguments to kernel.
 	 */
-	@InfoName("CL_KERNEL_NUM_ARGS")
-	public int getNumArgs() {
-		return infos.getInt(get(), CL_KERNEL_NUM_ARGS);
+    @InfoName("CL_KERNEL_NUM_ARGS")
+    public int getNumArgs() {
+        return infos.getInt(get(), CL_KERNEL_NUM_ARGS);
     }
 
-	/**
-	 * Return the kernel function name.
-	 */
-	@InfoName("CL_KERNEL_FUNCTION_NAME")
+    /**
+     * Return the kernel function name.
+     */
+    @InfoName("CL_KERNEL_FUNCTION_NAME")
     public String getFunctionName() {
-		if (name == null)
-			name = infos.getString(get(), CL_KERNEL_FUNCTION_NAME);
-		return name;
+        if (name == null)
+            name = infos.getString(get(), CL_KERNEL_FUNCTION_NAME);
+        return name;
     }
 
 	
