@@ -32,6 +32,7 @@ import com.sun.jna.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import com.sun.jna.ptr.*;
+import java.util.Arrays;
 import static com.nativelibs4java.opencl.CLException.*;
 
 /**
@@ -81,9 +82,6 @@ public class OpenCL4Java {
 	 * @return new OpenCL context
 	 */
     public static CLContext createContext(CLDevice... devices) {
-		if (devices.length == 0)
-			return null;
-
 		return devices[0].getPlatform().createContext(devices);
     }
 
@@ -94,6 +92,13 @@ public class OpenCL4Java {
 	 */
 	public static void unloadCompiler() {
 		error(CL.clUnloadCompiler());
+	}
+
+	public static CLContext createBestContext() {
+		List<CLDevice> devices = new ArrayList<CLDevice>();
+		for (CLPlatform platform : listPlatforms())
+			devices.addAll(Arrays.asList(platform.listAllDevices(true)));
+		return CLPlatform.createContextWithBestDevice(CLPlatform.DeviceEvaluationStrategy.BiggestMaxComputeUnits, devices);
 	}
 
     

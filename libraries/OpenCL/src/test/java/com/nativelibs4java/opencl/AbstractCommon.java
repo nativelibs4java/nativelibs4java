@@ -28,8 +28,8 @@ public abstract class AbstractCommon {
 
     @Before
     public void setUp() {
-		platform = OpenCL4Java.listPlatforms()[0];
-		context = platform.createContext(platform.listAllDevices(true));
+		context = OpenCL4Java.createBestContext();
+		platform = context.getPlatform();
 		queue = context.createDefaultQueue();
 		device = context.getDevices()[0];
 		formatsRead2D = context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image2D);

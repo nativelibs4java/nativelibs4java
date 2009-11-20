@@ -219,6 +219,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		GL_TEXTURE_CUBE_MAP_POSITIVE_Z = 0x8519,
 		GL_TEXTURE_CUBE_MAP_NEGATIVE_Z = 0x851A,
 		GL_TEXTURE_RECTANGLE = 0x84F5;
+
+	public CLPlatform getPlatform() {
+		return platform;
+	}
 		
 
 	public enum GLTextureTarget {
@@ -267,7 +271,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 		return createImage2D(
 				usage,
-				new CLImageFormat(CLImageFormat.ChannelOrder.ARGB, CLImageFormat.ChannelDataType.UNormInt8),
+				new CLImageFormat(CLImageFormat.ChannelOrder.RGBA, CLImageFormat.ChannelDataType.UnsignedInt8),
 				width, height,
 				0,
 				directData,

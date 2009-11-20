@@ -6,9 +6,14 @@
 package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.util.ImageUtils;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.nio.IntBuffer;
+import java.util.Arrays;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -96,4 +101,49 @@ public class ImageTest extends AbstractCommon {
         //im.blockingMap(queue, CLMem.MapFlags.Read);
     }
 
+	@Test
+	public void testImageSource() {
+		try {
+			CLContext context = OpenCL4Java.createBestContext();
+            CLQueue queue = context.createDefaultQueue();
+			String src = "\n" +
+					"const sampler_t sampler =										\n" +
+					"		CLK_NORMALIZED_COORDS_FALSE |							\n" +
+					"		CLK_FILTER_NEAREST |									\n" +
+					"		CLK_ADDRESS_CLAMP_TO_EDGE;								\n" +
+					"																\n" +
+                    "__kernel void test(                                            \n" +
+                    "   __read_only image2d_t src_image,                            \n" +
+                    "   __global int* output)                                       \n" +
+                    "{                                                              \n" +
+                    "   int i = get_global_id(0);                                   \n" +
+					"   int2 coord = (0, i);	                                    \n" +
+					"   int4 pixel = read_imagei(src_image, sampler, coord);        \n" +
+					"	output[i] = pixel.x;// + pixel.y + pixel.z + pixel.w;		\n" +
+                    "}                                                              \n";
+
+			int width = 100, height = 1;
+			BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			for (int i = 0; i < width; i++)
+				image.setRGB(i, height - 1, i);
+			
+            CLProgram program = context.createProgram(src).build();
+			CLIntBuffer cloutput = context.createIntBuffer(CLMem.Usage.Output, width);
+			CLKernel kernel = program.createKernel(
+				"test",
+				context.createImage2D(CLMem.Usage.Input, image, true),
+				cloutput
+			);
+            
+            kernel.enqueueNDRange(queue, new int[] {width}, new int[]{1}).waitFor();
+
+			IntBuffer output = cloutput.read(queue);
+			for (int i = 0; i < width; i++) {
+				int value = output.get(i);
+				Assert.assertEquals(value, i);
+			}
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+	}
 }

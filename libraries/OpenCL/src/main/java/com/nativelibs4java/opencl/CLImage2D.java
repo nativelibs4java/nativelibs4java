@@ -99,15 +99,15 @@ public class CLImage2D extends CLImage {
 		//int imWidth = image.getWidth(null), height = image.getHeight(null);
 		return write(queue, 0, 0, width, height, width * 4, IntBuffer.wrap(getImageIntPixels(image, allowDeoptimizingDirectRead)), blocking, eventsToWaitFor);
 	}
-        public void write(CLQueue queue, BufferedImage imageIn, boolean allowDeoptimizingDirectRead, CLEvent... eventsToWaitFor) {
+	public void write(CLQueue queue, BufferedImage imageIn, boolean allowDeoptimizingDirectRead, CLEvent... eventsToWaitFor) {
 		if (!getFormat().isIntBased())
 			throw new IllegalArgumentException("Image read only supports int-based RGBA images");
 
 		int width = imageIn.getWidth(null), height = imageIn.getHeight(null);
 		int[] pixels = getImageIntPixels(imageIn, allowDeoptimizingDirectRead);
-                write(queue, 0, 0, width, height, 0, IntBuffer.wrap(pixels), true, eventsToWaitFor);
+		write(queue, 0, 0, width, height, 0, IntBuffer.wrap(pixels), true, eventsToWaitFor);
 	}
-        public void write(CLQueue queue, BufferedImage im) {
+	public void write(CLQueue queue, BufferedImage im) {
 		write(queue, im, false);
 	}
 

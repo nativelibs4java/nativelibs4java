@@ -22,16 +22,12 @@ public class OpenCL4JavaBasicTest {
     @Test
     public void simpleTest() {
         try {
-            CLPlatform[] platforms = listPlatforms();
-            CLPlatform platform = platforms[0];
-            System.out.println("Using platform " + platform);
+			CLContext context = createBestContext();
+			CLPlatform platform = context.getPlatform();
             CLDevice[] devices = platform.listAllDevices(true);
-            for (CLDevice device : devices) {
+            for (CLDevice device : context.getDevices()) {
 				System.out.println("Using device " + device + "\n\tmaxWorkItemSizes = " + Arrays.toString(device.getMaxWorkItemSizes()));
 			}
-            //CLDevice[] devices = CLDevice.listCPUDevices();
-            //CLDevice[] devices = CLDevice.listGPUDevices();
-            CLContext context = createContext(devices);
 
 			System.out.println("Supported images 2d: " + Arrays.asList(context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image2D)));
             System.out.println("Supported images 3d: " + Arrays.asList(context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image3D)));

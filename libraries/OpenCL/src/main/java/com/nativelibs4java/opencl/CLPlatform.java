@@ -106,8 +106,12 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     }
 
     public CLContext createContextWithBestGPUDevice(DeviceEvaluationStrategy eval) {
+		return createContextWithBestDevice(eval, Arrays.asList(listGPUDevices(true)));
+	}
+	static CLContext createContextWithBestDevice(DeviceEvaluationStrategy eval, Iterable<CLDevice> devices) {
+
         CLDevice bestDevice = null;
-        for (CLDevice device : listGPUDevices(true)) {
+        for (CLDevice device : devices) {
             if (bestDevice == null) {
                 bestDevice = device;
             } else {
@@ -120,7 +124,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
                 }
             }
         }
-        return bestDevice == null ? null : createContext(bestDevice);
+        return bestDevice == null ? null : bestDevice.getPlatform().createContext(bestDevice);
     }
 
     /**
