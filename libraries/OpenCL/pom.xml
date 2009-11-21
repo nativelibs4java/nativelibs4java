@@ -61,7 +61,7 @@
 		<plugin>
 			<groupId>com.jnaerator</groupId>
 			<artifactId>maven-jnaerator-plugin</artifactId>
-			<version>0.9.2</version>
+			<version>0.9.3-SNAPSHOT</version>
 			<configuration>
 				<javaOutputDirectory>src/main/java</javaOutputDirectory>
 				<scalaOutputDirectory>src/main/scala</scalaOutputDirectory>
@@ -130,6 +130,7 @@
 					<excludes>
 					  <exclude>org.scala-lang:scala-library</exclude>
 					  <exclude>net.java.dev.jna:jna</exclude>
+					  <exclude>net.java.jogl.nl4j:jogl</exclude>
 					</excludes>
 				  </artifactSet>
 
