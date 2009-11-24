@@ -59,108 +59,6 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	}
 
 	/**
-	 * @deprecated Please use blockingMap instead
-	 */
-    @Deprecated
-	public ByteBuffer blockingMapReadWrite(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		checkBounds(offset, length);
-		return map(queue, MapFlags.getEnum(CL_MAP_READ | CL_MAP_WRITE), offset, length, true, eventsToWaitFor).getFirst();
-    }
-
-    /**
-	 * @deprecated Please use blockingMap instead
-	 */
-    @Deprecated
-    public ByteBuffer blockingMapWrite(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-        checkBounds(offset, length);
-		return map(queue, MapFlags.getEnum(CL_MAP_WRITE), offset, length, true, eventsToWaitFor).getFirst();
-    }
-
-    /**
-	 * @deprecated Please use map instead
-	 */
-    @Deprecated
-    public ByteBuffer blockingMapRead(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-        checkBounds(offset, length);
-		return map(queue, MapFlags.getEnum(CL_MAP_READ), offset, length, true, eventsToWaitFor).getFirst();
-    }
-
-	/**
-	 * @deprecated Please use enqueueMap instead
-	 */
-    @Deprecated
-    public Pair<ByteBuffer, CLEvent> enqueueMapReadWrite(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-        checkBounds(offset, length);
-		return map(queue, MapFlags.getEnum(CL_MAP_READ | CL_MAP_WRITE), offset, length, false, eventsToWaitFor);
-    }
-
-    /**
-	 * @deprecated Please use enqueueMap instead
-	 */
-    @Deprecated
-    public Pair<ByteBuffer, CLEvent> enqueueMapWrite(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-        checkBounds(offset, length);
-		return map(queue, MapFlags.getEnum(CL_MAP_WRITE), offset, length, false, eventsToWaitFor);
-    }
-
-    /**
-	 * @deprecated Please use map instead
-	 */
-    @Deprecated
-    public Pair<ByteBuffer, CLEvent> enqueueMapRead(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-        checkBounds(offset, length);
-		return map(queue, MapFlags.getEnum(CL_MAP_READ), offset, length, false, eventsToWaitFor);
-    }
-
-	/**
-	 * @deprecated Please use blockingMap instead
-	 */
-    @Deprecated
-    public ByteBuffer blockingMapReadWrite(CLQueue queue, CLEvent... eventsToWaitFor) {
-		return blockingMapReadWrite(queue, 0, byteCount, eventsToWaitFor);
-    }
-
-    /**
-	 * @deprecated Please use blockingMap instead
-	 */
-    @Deprecated
-    public ByteBuffer blockingMapWrite(CLQueue queue, CLEvent... eventsToWaitFor) {
-		return blockingMapWrite(queue, 0, byteCount, eventsToWaitFor);
-    }
-
-    /**
-	 * @deprecated Please use blockingMap instead
-	 */
-    @Deprecated
-    public ByteBuffer blockingMapRead(CLQueue queue, CLEvent... eventsToWaitFor) {
-		return blockingMapRead(queue, 0, byteCount, eventsToWaitFor);
-    }
-
-	/**
-	 * @deprecated Please use enqueueMap instead
-	 */
-    @Deprecated
-    public Pair<ByteBuffer, CLEvent> enqueueMapReadWrite(CLQueue queue, CLEvent... eventsToWaitFor) {
-		return enqueueMapReadWrite(queue, 0, byteCount, eventsToWaitFor);
-    }
-
-    /**
-	 * @deprecated Please use enqueueMap instead
-	 */
-    @Deprecated
-    public Pair<ByteBuffer, CLEvent> enqueueMapWrite(CLQueue queue, CLEvent... eventsToWaitFor) {
-        return enqueueMapWrite(queue, 0, byteCount, eventsToWaitFor);
-    }
-
-	/**
-	 * @deprecated Please use enqueueMap instead
-	 */
-    @Deprecated
-    public Pair<ByteBuffer, CLEvent> enqueueMapRead(CLQueue queue, CLEvent... eventsToWaitFor) {
-        return enqueueMapRead(queue, 0, byteCount, eventsToWaitFor);
-    }
-
-	/**
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
 	 * @param queue
 	 * @param srcOffset
@@ -208,14 +106,6 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
         error(CL.clEnqueueUnmapMemObject(queue.get(), get(), Native.getDirectBufferPointer(buffer), eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
 		return CLEvent.createEvent(eventOut[0]);
     }
-
-	/**
-	 * @deprecated Please use read(Queue, Buffer, ...) instead
-	 */
-	@Deprecated
-	public CLEvent read(Buffer out, CLQueue queue, boolean blocking, CLEvent... eventsToWaitFor) {
-		return read(queue, out, blocking, eventsToWaitFor);
-	}
 
 	public CLEvent read(CLQueue queue, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
 		long length = getByteCount();
@@ -272,14 +162,6 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 			}
         }
     }
-
-    /**
-	 * @deprecated Please use read(Queue, Buffer, ...) instead
-	 */
-	@Deprecated
-	public CLEvent write(Buffer in, CLQueue queue, boolean blocking, CLEvent... eventsToWaitFor) {
-		return write(queue, in, blocking, eventsToWaitFor);
-	}
 
 	public CLEvent write(CLQueue queue, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
 		long length = getByteCount();

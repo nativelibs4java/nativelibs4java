@@ -542,11 +542,11 @@ abstract class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], val sizeExpr: 
   }
   def read(out: B) : Unit = {
     checkAlloc
-    mem.read(out, queue, true)
+    mem.read(queue, out, true)
   }
   def write(in: B) : Unit = {
     checkAlloc
-    mem.write(in, queue, true)
+    mem.write(queue, in, true)
   }
 
 
@@ -557,7 +557,7 @@ abstract class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], val sizeExpr: 
 		set(i, v)
 		i = i + 1;
 	}
-	mem.write(this(), queue, true)
+	mem.write(queue, this(), true)
   }
   def get(index: Int): V
   protected def set(index: Int, v: V): Unit
@@ -581,11 +581,11 @@ abstract class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], val sizeExpr: 
     val cx = kernel.getProgram.getContext
     mem = 
       if (mode.read && mode.write)
-        cx.createBuffer(CLMem.Usage.InputOutput, bytes, b)
+        cx.createBuffer[B](CLMem.Usage.InputOutput, bytes, b)
       else if (mode.read)
-        cx.createBuffer(CLMem.Usage.Input, bytes, b)
+        cx.createBuffer[B](CLMem.Usage.Input, bytes, b)
       else if (mode.write)
-        cx.createBuffer(CLMem.Usage.Output, bytes, b)
+        cx.createBuffer[B](CLMem.Usage.Output, bytes, b)
       else
         throw new UnsupportedOperationException("Unsupported variable mode : " + this)
   }
