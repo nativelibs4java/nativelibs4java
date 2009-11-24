@@ -91,7 +91,7 @@ public class ReductionUtils {
                         seed = Long.MAX_VALUE + "LL";
                         break;
                     case Short:
-                        seed = Short.MAX_VALUE + "LL";
+                        seed = Short.MAX_VALUE;
                         break;
                     case Float:
                         seed = "MAXFLOAT";
@@ -114,13 +114,13 @@ public class ReductionUtils {
                         seed = Long.MIN_VALUE + "LL";
                         break;
                     case Short:
-                        seed = Short.MIN_VALUE + "LL";
+                        seed = Short.MIN_VALUE;
                         break;
                     case Float:
-                        seed = "MINFLOAT";
+                        seed = "-MAXFLOAT";
                         break;
                     case Double:
-                        seed = "MINDOUBLE";
+                        seed = "-MAXDOUBLE";
                         break;
                     default:
                         throw new IllegalArgumentException("Unhandled seed type: " + valueType);
