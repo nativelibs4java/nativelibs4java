@@ -70,7 +70,7 @@ public class ReductionUtils {
     public static Pair<String, Map<String, String>> getReductionCodeAndMacros(Operation op, Type valueType, int channels) throws IOException {
         Map<String, String> macros = new LinkedHashMap<String, String>();
         String cType = valueType.toCType() + (channels == 1 ? "" : channels);
-        //macros.put("OPERAND_TYPE", cType);
+        macros.put("OPERAND_TYPE", cType);
         String operation, seed;
         switch (op) {
             case Add:

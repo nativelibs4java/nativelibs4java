@@ -520,7 +520,7 @@ abstract class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], val sizeExpr: 
   private var buffer: Option[B] = None
   var size = -1
   var indexUsages = new scala.collection.mutable.ListBuffer[Expr]
-  private var mem: CLBuffer = null
+  private var mem: CLBuffer[B] = null
   var implicitDim: Option[Dim] = None
 
   def apply() : B = {
@@ -581,11 +581,11 @@ abstract class ArrayVar[V, B <: Buffer](v: Class[V], b: Class[B], val sizeExpr: 
     val cx = kernel.getProgram.getContext
     mem = 
       if (mode.read && mode.write)
-        cx.createByteBuffer(CLMem.Usage.InputOutput, bytes)
+        cx.createBuffer(CLMem.Usage.InputOutput, bytes, b)
       else if (mode.read)
-        cx.createByteBuffer(CLMem.Usage.Input, bytes)
+        cx.createBuffer(CLMem.Usage.Input, bytes, b)
       else if (mode.write)
-        cx.createByteBuffer(CLMem.Usage.Output, bytes)
+        cx.createBuffer(CLMem.Usage.Output, bytes, b)
       else
         throw new UnsupportedOperationException("Unsupported variable mode : " + this)
   }
