@@ -22,12 +22,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Method;
 import java.util.*;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 
 /**
@@ -161,8 +163,10 @@ public class HardwareReport {
                     + "Thanks to send it to the NativeLibs4Java group :\n"
                     + "\thttp://groups.google.fr/group/nativelibs4java/");
 
-        } catch (Exception ex) {
-            ex.printStackTrace();
+        } catch (Throwable ex) {
+			StringWriter sout = new StringWriter();
+			ex.printStackTrace(new PrintWriter(sout));
+			JOptionPane.showMessageDialog(null, sout.toString(), "[Error] OpenCL4Java HardwareReport", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
