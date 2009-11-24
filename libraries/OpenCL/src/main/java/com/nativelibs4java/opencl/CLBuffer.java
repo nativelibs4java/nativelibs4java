@@ -36,12 +36,22 @@ import static com.nativelibs4java.util.NIOUtils.*;
  * @see CLContext#createOutput(long)
  * @author Olivier Chafik
  */
-public abstract class CLBuffer extends CLMem {
+public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	Buffer buffer;
 	CLBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity);
 		this.buffer = buffer;
 	}
+	public abstract int getElementSize();
+	public abstract long getElementCount();
+
+    public abstract B read(CLQueue queue, CLEvent... eventsToWaitFor);
+	public abstract B read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor);
+
+	public abstract B map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor);
+	public abstract B map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor);
+	public abstract Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor);
+	public abstract Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor);
 
 	protected void checkBounds(long offset, long length) {
 		if (offset + length > byteCount)

@@ -36,26 +36,41 @@ import static com.nativelibs4java.util.NIOUtils.*;
  * @see CLContext#createByteBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.ByteBuffer, boolean)
  * @author Olivier Chafik
  */
-public class CLByteBuffer extends CLBuffer {
+public class CLByteBuffer extends CLBuffer<ByteBuffer> {
 	CLByteBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer);
 	}
+    public final int ELEMENT_SIZE = 1;
+	@Override
+	public int getElementSize() {
+        return ELEMENT_SIZE;
+    }
+	@Override
+    public long getElementCount() {
+        return getByteCount();
+    }
+	@Override
 	public ByteBuffer map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
 		return map(queue, flags, 0, getByteCount(), true, eventsToWaitFor).getFirst();
     }
+	@Override
 	public ByteBuffer map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
 		return map(queue, flags, offset, length, true, eventsToWaitFor).getFirst();
     }
 
+	@Override
 	public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
 		return map(queue, flags, 0, getByteCount(), false, eventsToWaitFor);
     }
+	@Override
 	public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
 		return map(queue, flags, offset, length, false, eventsToWaitFor);
     }
+	@Override
 	public ByteBuffer read(CLQueue queue, CLEvent... eventsToWaitFor) {
 		return readBytes(queue, eventsToWaitFor);
 	}
+	@Override
 	public ByteBuffer read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
 		return readBytes(queue, offset, length, eventsToWaitFor);
 	}

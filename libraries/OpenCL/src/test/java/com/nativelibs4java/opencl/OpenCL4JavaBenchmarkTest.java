@@ -116,11 +116,11 @@ public class OpenCL4JavaBenchmarkTest {
 
         long[] maxWorkItemSizes = queue.getDevice().getMaxWorkItemSizes();
         int workItemSize = (int) maxWorkItemSizes[0];
+        if (workItemSize > 32) {
+            workItemSize = 32;
+        }
 
         if (warmup) {
-            if (workItemSize > 32) {
-                workItemSize = 32;
-            }
             for (int i = 0; i < 3000; i++) {
                 kernel.enqueueNDRange(queue, new int[]{workItemSize}, new int[]{workItemSize});
             }
@@ -178,7 +178,7 @@ public class OpenCL4JavaBenchmarkTest {
                 + "{                                                                 \n"
                 + "   int i = get_global_id(0);                                      \n"
                 + "   float ai = a[i], bi = b[i];                                    \n"
-                + "   output[i] = ai * bi;//sin(bi) + atan2(ai, bi);                     \n"
+                + "   output[i] = ai * sin(bi);// + atan2(ai, bi);                     \n"
                 + "}                                                                 \n";
 
         CLDevice[] devices = getDevices(target);
@@ -214,14 +214,14 @@ public class OpenCL4JavaBenchmarkTest {
     public static void java_aSinB(float[] a, float[] b, float[] output, int dataSize) throws CLBuildException {
         for (int i = 0; i < dataSize; i++) {
             float ai = a[i], bi = b[i];
-            output[i] = ai * bi;//(float) Math.sin(bi) + (float)Math.atan2(ai, bi);
+            output[i] = ai * (float) Math.sin(bi);// + (float)Math.atan2(ai, bi);
         }
     }
 
     public static void java_aSinB(double[] a, double[] b, double[] output, int dataSize) throws CLBuildException {
         for (int i = 0; i < dataSize; i++) {
             double ai = a[i], bi = b[i];
-            output[i] = ai * bi;//Math.sin(bi) + Math.atan2(ai, bi);
+            output[i] = ai * Math.sin(bi);// + Math.atan2(ai, bi);
         }
     }
 

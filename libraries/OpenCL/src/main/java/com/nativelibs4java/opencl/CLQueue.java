@@ -64,6 +64,9 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 		this.device = device;
     }
 
+    public CLContext getContext() {
+        return context;
+    }
 	public CLDevice getDevice() {
 		return device;
 	}
@@ -161,5 +164,4 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 		error(CL.clEnqueueReleaseGLObjects(mems.length, mems, events.length, CLEvent.to_cl_event_array(events), eventOut));
 		return CLEvent.createEvent(eventOut[0]);
 	}
-
 }

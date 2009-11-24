@@ -21,6 +21,7 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import com.ochafik.util.listenable.Pair;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.util.*;
@@ -107,10 +108,19 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     }
     Map<String, String> macros;
     public void defineMacro(String name, String value) {
-        if (macros == null)
-            macros = new LinkedHashMap<String, String>();
+        createMacros();
         macros.put(name, value);
     }
+
+    private void createMacros() {
+        if (macros == null)
+            macros = new LinkedHashMap<String, String>();
+    }
+    public void defineMacros(Map<String, String> macros) {
+        createMacros();
+        this.macros.putAll(macros);
+    }
+    
     protected String getOptionsString() {
         if (macros == null)
             return null;
@@ -118,7 +128,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         StringBuilder b = new StringBuilder();
         if (macros != null)
             for (Map.Entry<String, String> m : macros.entrySet())
-                b.append("-D" + m.getKey() + "=" + m.getValue());
+                b.append("-D" + m.getKey() + "=" + m.getValue() + " ");
 
         return b.toString();
     }
@@ -181,5 +191,6 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         kn.setArgs(args);
         return kn;
     }
+
 
 }
