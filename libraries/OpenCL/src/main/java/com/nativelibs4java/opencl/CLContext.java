@@ -79,13 +79,18 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 	/**
 	 * Create an out-of-order OpenCL queue on the first device of this context.<br/>
-	 * Equivalent to calling <code>getDevices()[0].createQueue(context)</code>
-	 * @return new OpenCL queue
+	 * Equivalent to calling <code>getDevices()[0].createOutOfOrderQueue(context)</code>
+	 * @return new out-of-order OpenCL queue
 	 */
 	public CLQueue createDefaultOutOfOrderQueue() {
 		return new CLDevice(platform, deviceIds[0]).createOutOfOrderQueue(this);
 	}
 
+	/**
+	 * Create an profiling-enabled OpenCL queue on the first device of this context.<br/>
+	 * Equivalent to calling <code>getDevices()[0].createProfilingQueue(context)</code>
+	 * @return new profiling-enabled OpenCL queue
+	 */
 	public CLQueue createDefaultProfilingQueue() {
 		return new CLDevice(platform, deviceIds[0]).createProfilingQueue(this);
 	}
@@ -464,6 +469,25 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 	public CLByteBuffer createByteBuffer(CLMem.Usage kind, long count) {
 		return createBuffer(null, count, kind.getIntFlags(), false);
+	}
+
+    public <B extends Buffer> CLBuffer<B> createBuffer(CLMem.Usage kind, long count, Class<B> bufferClass) {
+        if (IntBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createIntBuffer(kind, count);
+		if (LongBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createLongBuffer(kind, count);
+		if (ShortBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createShortBuffer(kind, count);
+		if (ByteBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createByteBuffer(kind, count);
+		if (CharBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createCharBuffer(kind, count);
+		if (DoubleBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createDoubleBuffer(kind, count);
+		if (FloatBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createFloatBuffer(kind, count);
+
+        throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java type " + bufferClass.getName());
 	}
 
 	public CLByteBuffer createByteBuffer(CLMem.Usage kind, Buffer buffer, boolean copy) {
