@@ -72,8 +72,8 @@ public class InfoGettersTest {
 
     @org.junit.Test
     public void CLMemGetters() {
-        testGetters(createContext().createInput(10));
-        testGetters(createContext().createOutput(10));
+        testGetters(createContext().createByteBuffer(CLMem.Usage.Input, 10));
+        testGetters(createContext().createByteBuffer(CLMem.Usage.Output, 10));
     }
 
     @org.junit.Test

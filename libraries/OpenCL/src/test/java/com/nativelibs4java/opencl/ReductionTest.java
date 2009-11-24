@@ -25,7 +25,7 @@ public class ReductionTest {
     public void testAdd() {
         try {
 			CLContext context = createBestContext();
-            CLQueue queue = context.createDefaultOutOfOrderQueue();
+            CLQueue queue = context.createDefaultQueue();
 			int dataSize = 12345;
             int channels = 1;
             int maxReductionSize = 64;
