@@ -91,7 +91,7 @@ public class ReductionUtils {
                         seed = Long.MAX_VALUE + "LL";
                         break;
                     case Short:
-                        seed = Short.MAX_VALUE;
+                        seed = Short.MAX_VALUE + "";
                         break;
                     case Float:
                         seed = "MAXFLOAT";
@@ -114,7 +114,7 @@ public class ReductionUtils {
                         seed = Long.MIN_VALUE + "LL";
                         break;
                     case Short:
-                        seed = Short.MIN_VALUE;
+                        seed = Short.MIN_VALUE + "";
                         break;
                     case Float:
                         seed = "-MAXFLOAT";
