@@ -37,8 +37,11 @@ public class InfoGettersTest {
         return createPlatform().listAllDevices(true)[0];
     }
 
+    CLContext ctx;
     CLContext createContext() {
-        return createPlatform().createContext(createDevice());
+        if (ctx == null)
+            ctx = createPlatform().createContext(createDevice());
+        return ctx;
     }
 
     CLKernel createKernel() {
