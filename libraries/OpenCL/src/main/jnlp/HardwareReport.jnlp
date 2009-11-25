@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL4Java/"
+  href="HardwareReport.jnlp"
+>
+	<information>
+	  <title>OpenCL4Java HardwareReport</title>
+	  <vendor>Olivier Chafik</vendor>
+	  <homepage href="http://code.google.com/p/nativelibs4java/wiki/OpenCL" />
+	  <description>OpenCL HardwareReport</description>
+	  <description kind='tooltip'>OpenCL4Java HardwareReport</description>
+	  <offline-allowed/>
+	  <shortcut online="false">
+		  <desktop/>
+		  <menu submenu="OpenCL4Java"/>
+	  </shortcut>
+	</information>
+	<security>
+	  <all-permissions/>
+	</security>
+	<resources>
+		<!--
+		<jar href="http://somewhere/yourjar.jar" /> 
+		-->
+		<extension name="OpenCL4Java" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL4Java/OpenCL4Java.jnlp"/>
+		<j2se version="1.5+"/>
+	</resources>
+	<application-desc 
+		main-class="com.nativelibs4java.opencl.HardwareReport"
+	/>
+</jnlp>
