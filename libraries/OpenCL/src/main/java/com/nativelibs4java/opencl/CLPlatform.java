@@ -238,6 +238,42 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
      */
     @InfoName("CL_PLATFORM_EXTENSIONS")
     public String[] getExtensions() {
-        return infos.getString(get(), CL_PLATFORM_EXTENSIONS).split("\\s+");
+        if (extensions == null) {
+            extensions = infos.getString(get(), CL_PLATFORM_EXTENSIONS).split("\\s+");
+        }
+        return extensions;
     }
+
+    private String[] extensions;
+
+    boolean hasExtension(String name) {
+        name = name.trim();
+        for (String x : getExtensions()) {
+            if (name.equals(x.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @InfoName("cl_nv_device_attribute_query")
+    public boolean isNVDeviceAttributeQuerySupported() {
+        return hasExtension("cl_nv_device_attribute_query");
+    }
+
+    @InfoName("cl_nv_compiler_options")
+    public boolean isNVCompilerOptionsSupported() {
+        return hasExtension("cl_nv_compiler_options");
+    }
+
+    @InfoName("cl_khr_byte_addressable_store")
+    public boolean isByteAddressableStoreSupported() {
+        return hasExtension("cl_khr_byte_addressable_store");
+    }
+
+    @InfoName("cl_khr_gl_sharing")
+    public boolean isGLSharingSupported() {
+        return hasExtension("cl_khr_gl_sharing");
+    }
+
 }

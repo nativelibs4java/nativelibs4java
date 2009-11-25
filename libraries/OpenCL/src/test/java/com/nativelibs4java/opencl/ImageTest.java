@@ -122,10 +122,13 @@ public class ImageTest extends AbstractCommon {
 					"	output[i] = pixel.x;// + pixel.y + pixel.z + pixel.w;		\n" +
                     "}                                                              \n";
 
-			int width = 100, height = 1;
+			int width = 20, height = 2;
 			BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 			for (int i = 0; i < width; i++)
-				image.setRGB(i, height - 1, i);
+                //for (int j = 0; j < height; j++)
+                //    image.setRGB(i, j, i);
+				//image.setRGB(i, 0, i);
+                image.setRGB(i, height - 1, i);
 			
             CLProgram program = context.createProgram(src).build();
 			CLIntBuffer cloutput = context.createIntBuffer(CLMem.Usage.Output, width);
@@ -140,7 +143,8 @@ public class ImageTest extends AbstractCommon {
 			IntBuffer output = cloutput.read(queue);
 			for (int i = 0; i < width; i++) {
 				int value = output.get(i);
-				Assert.assertEquals(value, i);
+                //System.out.println(value);
+				Assert.assertEquals(i, value);
 			}
         } catch (Exception ex) {
             ex.printStackTrace();
