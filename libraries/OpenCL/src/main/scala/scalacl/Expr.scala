@@ -84,11 +84,11 @@ abstract class Expr extends Node {
   def >=(other: Expr) = BinOp(">=", this, other, dieMinMax2(">="))
   def <(other: Expr) = BinOp("<", this, other, dieMinMax2("<"))
   def >(other: Expr) = BinOp(">", this, other, dieMinMax2(">"))
-  def ||(other: Expr) = BinOp("||", this, other, _ % _)
-  def &&(other: Expr) = BinOp("&&", this, other, _ % _)
-  def |(other: Expr) = BinOp("|", this, other, _ % _)
-  def &(other: Expr) = BinOp("&", this, other, _ % _)
-  def ^(other: Expr) = BinOp("^", this, other, _ % _)
+  def ||(other: Expr) = BinOp("||", this, other, _ || _)
+  def &&(other: Expr) = BinOp("&&", this, other, _ && _)
+  def |(other: Expr) = BinOp("|", this, other, _ | _)
+  def &(other: Expr) = BinOp("&", this, other, _ & _)
+  def ^(other: Expr) = BinOp("^", this, other, _ ^ _)
   
   def !() = UnOp("!", true, this, (x: Double) => if (x == 0) 1 else 0)
 
@@ -104,22 +104,36 @@ abstract class Expr extends Node {
   def y = new FieldExpr(this, "y")
   def z = new FieldExpr(this, "z")
   def xyz = new FieldExpr(this, "xyz")
+  def yzw = new FieldExpr(this, "yzw")
+  def zwx = new FieldExpr(this, "zwx")
+  def wxy = new FieldExpr(this, "wxy")
   def w = new FieldExpr(this, "w")
   def xy = new FieldExpr(this, "xy")
-  def zw = new FieldExpr(this, "zw")
   def yx = new FieldExpr(this, "yx")
+  def yz = new FieldExpr(this, "yz")
+  def zy = new FieldExpr(this, "zy")
+
+  def zx = new FieldExpr(this, "zx")
+  def xz = new FieldExpr(this, "xz")
+
+  def zw = new FieldExpr(this, "zw")
+  def wz = new FieldExpr(this, "wz")
 
 }
+trait Expr2 //TODO
+trait Expr3 //TODO
+trait Expr4 //TODO
+
 object Expr {
 
   def inferSize(sizeExpr: Option[Expr], indexUsages: Seq[Expr], implicitDim: Option[Dim], name: String): Int = {
-    var size = 0
+    var size = -1
 
-      println("inferSize with sizeExpr = " + sizeExpr)
-      var exprs = sizeExpr match {
-          case Some(x) => List(x)
-          case None => indexUsages.toList
-        }
+    //println("inferSize with sizeExpr = " + sizeExpr + " and indexUsages = " + indexUsages)
+    var exprs = sizeExpr match {
+        case Some(x) => List(x)
+        case None => indexUsages.toList
+      }
     val usagesMinMax = exprs.map { iu => try { Some(iu.computeMinMax) } catch { case x => None } }.filter (_ != None).map(_.get)
     if (usagesMinMax.length > 0) {
       val mm = usagesMinMax.reduceLeft(_ union _);
@@ -127,7 +141,7 @@ object Expr {
         throw new RuntimeException("Inferred weird array usage for array variable '" + name + "' (" + mm + "). Please allocate it explicitely in its constructor.")
       else {
         size = (Math.ceil(mm.max) + 1).asInstanceOf[Int];
-        println("Info: Inferred size of array '" + name + "' : " + size)
+        //println("Info: Inferred size of '" + name + "' : " + size)
       }
     }
     if (size < 0)
