@@ -12,8 +12,9 @@ import SyntaxUtils._
 
 trait CLValue
 trait Val1 extends CLValue
-trait Val2 extends CLValue
-trait Val4 extends CLValue
+trait Val2 extends CLValue with Expr2
+trait Val3 extends CLValue with Expr3
+trait Val4 extends CLValue with Expr4
 
 protected case class VisitInfo(visitor: (Node, scala.collection.mutable.Stack[Node]) => Unit, stack: scala.collection.mutable.Stack[Node])
   
@@ -84,11 +85,11 @@ abstract class Expr extends Node {
   def >=(other: Expr) = BinOp(">=", this, other, dieMinMax2(">="))
   def <(other: Expr) = BinOp("<", this, other, dieMinMax2("<"))
   def >(other: Expr) = BinOp(">", this, other, dieMinMax2(">"))
-  def ||(other: Expr) = BinOp("||", this, other, _ || _)
-  def &&(other: Expr) = BinOp("&&", this, other, _ && _)
-  def |(other: Expr) = BinOp("|", this, other, _ | _)
-  def &(other: Expr) = BinOp("&", this, other, _ & _)
-  def ^(other: Expr) = BinOp("^", this, other, _ ^ _)
+  def ||(other: Expr) = BinOp("||", this, other, dieMinMax2("||"))
+  def &&(other: Expr) = BinOp("&&", this, other, dieMinMax2("&&"))
+  def |(other: Expr) = BinOp("|", this, other, dieMinMax2("|"))
+  def &(other: Expr) = BinOp("&", this, other, dieMinMax2("&"))
+  def ^(other: Expr) = BinOp("^", this, other, dieMinMax2("^"))
   
   def !() = UnOp("!", true, this, (x: Double) => if (x == 0) 1 else 0)
 
@@ -192,7 +193,7 @@ class IfStat(var condition: Expr, var thenStat: Stat, var elseStat: Option[Stat]
     "\n}")
 }
 
-class Duo(a: Expr, b: Expr) extends Expr {
+class Duo(a: Expr, b: Expr) extends Expr with Expr2 {
   override def typeDesc: TypeDesc = {
 	  val td = a.typeDesc
 	  TypeDesc(2, td.valueType, td.primType)
@@ -200,7 +201,7 @@ class Duo(a: Expr, b: Expr) extends Expr {
   override def accept(info: VisitInfo): Unit = visit(info, a, b)
   override def toReadString: String = "(" + a.toReadString + ", " + b.toReadString + ")"
 }
-class Trio(a: Expr, b: Expr, c: Expr) extends Expr {
+class Trio(a: Expr, b: Expr, c: Expr) extends Expr with Expr3 {
   override def typeDesc: TypeDesc = {
 	  val td = a.typeDesc
 	  TypeDesc(3, td.valueType, td.primType)
@@ -208,7 +209,7 @@ class Trio(a: Expr, b: Expr, c: Expr) extends Expr {
   override def accept(info: VisitInfo): Unit = visit(info, a, b, c)
   override def toReadString: String = "(" + a.toReadString + ", " + b.toReadString + ", " + c.toReadString + ")"
 }
-class Quad(a: Expr, b: Expr, c: Expr, d: Expr) extends Expr {
+class Quad(a: Expr, b: Expr, c: Expr, d: Expr) extends Expr with Expr4 {
   override def typeDesc: TypeDesc = {
 	  val td = a.typeDesc
 	  TypeDesc(4, td.valueType, td.primType)
@@ -309,6 +310,9 @@ case class Fun3(nam: String, outTyp: PrimType, arg1: Expr, arg2: Expr, arg3: Exp
 case class Int1(value: Int) extends PrimScal(value, IntType) with Val1
 case class Int2(xv: Int, yv: Int) extends TypedExpr(TypeDesc(2, Scalar, IntType)) with CLValue with Val2 {
   override def toReadString: String = "(" + xv + ", " + yv + ")"
+}
+case class Int3(xv: Int, yv: Int, zv: Int) extends TypedExpr(TypeDesc(3, Scalar, IntType)) with CLValue with Val3 {
+  override def toReadString: String = "(" + xv + ", " + yv + ", " + zv + ")"
 }
 case class Int4(xv: Int, yv: Int, zv: Int, wv: Int) extends TypedExpr(TypeDesc(4, Scalar, IntType)) with CLValue with Val4 {
   def this(xyv: Int2, zwv: Int2) = {
@@ -457,8 +461,9 @@ class FloatVar extends Var[Float](classOf[Float])
 class ByteVar extends Var[Byte  ](classOf[Byte  ])
 class ShortVar extends Var[Short ](classOf[Short ])
 class IntVar extends Var[Int   ](classOf[Int   ])
-class Int2Var extends Var[Int2   ](classOf[Int2   ])
-class Int4Var extends Var[Int4   ](classOf[Int4   ])
+class Int2Var extends Var[Int2   ](classOf[Int2   ]) with Expr2
+class Int3Var extends Var[Int3   ](classOf[Int3   ]) with Expr3
+class Int4Var extends Var[Int4   ](classOf[Int4   ]) with Expr4
 class LongVar extends Var[Long  ](classOf[Long  ])
 class DoubleVar extends Var[Double](classOf[Double])
 
