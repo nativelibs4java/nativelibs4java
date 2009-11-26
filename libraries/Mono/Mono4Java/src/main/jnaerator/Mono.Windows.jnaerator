@@ -1,4 +1,4 @@
-Mono.base.jnaerator
+"$(DIR)/Mono.base.jnaerator"
 
 "-IC:\Program Files\Mono-2.4.2.3\include\mono-1.0"
 "-IC:\Program Files\Mono-2.4.2.3\include\glib-2.0"

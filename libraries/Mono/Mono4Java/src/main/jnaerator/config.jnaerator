@@ -1,0 +1,10 @@
+-ifRegexMatch
+	os.name
+	"Mac OS X"
+	"$(DIR)/Mono.MacOSX.jnaerator"
+	"$(DIR)/Mono.Windows.jnaerator"
+	
+	-noJar -noComp
+	//-o "$(DIR)/../../../target/generated-sources/java"
+	
+-choicesOut "$(DIR)/Mono.choices"
