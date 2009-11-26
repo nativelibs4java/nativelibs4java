@@ -6,7 +6,7 @@
   <artifactId>javacl</artifactId>
   <name>JavaCL</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>${parent.version}</version>
+  <version>${opencl4java.version}</version>
   <packaging>jar</packaging>
   
   <parent>
@@ -21,7 +21,7 @@
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>opencl4java</artifactId>
-	  <version>${parent.version}</version>
+	  <version>${opencl4java.version}</version>
 	  <scope>compile</scope>
 	</dependency>
 	

@@ -6,7 +6,7 @@
   <artifactId>opencl4java</artifactId>
   <name>OpenCL4Java</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
-  <version>${parent.version}</version>
+  <version>${opencl4java.version}</version>
   <packaging>jar</packaging>
   
   <parent>
@@ -33,7 +33,7 @@
 		<plugin>
 			<groupId>com.jnaerator</groupId>
 			<artifactId>maven-jnaerator-plugin</artifactId>
-			<version>0.9.3-SNAPSHOT</version>
+			<version>${jnaerator.version}</version>
 			<configuration>
 				<javaOutputDirectory>src/main/java</javaOutputDirectory>
 				<scalaOutputDirectory>src/main/scala</scalaOutputDirectory>

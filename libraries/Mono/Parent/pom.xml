@@ -3,12 +3,18 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
     <artifactId>mono4java-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${mono4java.version}</version>
 	<packaging>pom</packaging>
 	<name>Mono4Java Common Configuration</name>
 	<inceptionYear>2009</inceptionYear>
     <url>http://code.google.com/p/nativelibs4java/wiki/Mono</url>
   
+  
+  <properties>
+	<maven.jar.sign.skip>true</maven.jar.sign.skip>
+	<mono4java.version>1.0-SNAPSHOT</mono4java.version>
+  </properties>
+
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nativelibs4java-parent</artifactId>
@@ -16,10 +22,6 @@
 	  <relativePath>../../Parent</relativePath>
   </parent>
   
-  <properties>
-	<maven.jar.sign.skip>true</maven.jar.sign.skip>
-  </properties>
-
   <dependencies>
   	
 	<dependency>

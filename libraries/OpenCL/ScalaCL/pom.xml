@@ -6,7 +6,7 @@
   <artifactId>scalacl</artifactId>
   <name>ScalaCL</name>
   <url>http://code.google.com/p/scalacl/</url>
-  <version>${parent.version}</version>
+  <version>${opencl4java.version}</version>
   <packaging>jar</packaging>
   
   <parent>
@@ -21,7 +21,7 @@
   	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl</artifactId>
-	  <version>${parent.version}</version>
+	  <version>${opencl4java.version}</version>
 	  <scope>compile</scope>
 	</dependency>
 	

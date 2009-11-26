@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
     <artifactId>opencl4java-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>${opencl4java.version}</version>
 	<packaging>pom</packaging>
 	<name>OpenCL4Java Common Configuration</name>
 	<inceptionYear>2009</inceptionYear>
@@ -16,7 +16,9 @@
 	  <relativePath>../../Parent</relativePath>
   </parent>
   
+  
   <properties>
+  	<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
 	<maven.jar.sign.skip>true</maven.jar.sign.skip>
 	<skip.plugin.maven-shade-plugin>true</skip.plugin.maven-shade-plugin>
 	
