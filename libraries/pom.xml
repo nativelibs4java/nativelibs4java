@@ -18,6 +18,8 @@
 	<module>OpenCL</module>
 	<module>Mono</module>
     <module>Parent</module>
+    
+    <module>TestLibraries</module>
   </modules>
   
 </project>
