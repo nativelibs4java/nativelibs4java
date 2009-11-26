@@ -15,7 +15,8 @@
   </parent>
 
   <modules>
-    <module>OpenCL</module>
+	<module>OpenCL</module>
+	<module>Mono</module>
     <module>Parent</module>
   </modules>
   
