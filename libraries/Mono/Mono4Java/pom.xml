@@ -36,7 +36,6 @@
 			<version>0.9.3-SNAPSHOT</version>
 			<configuration>
 				<javaOutputDirectory>src/main/java</javaOutputDirectory>
-				<scalaOutputDirectory>src/main/scala</scalaOutputDirectory>
 			</configuration>
 		</plugin>
 		
