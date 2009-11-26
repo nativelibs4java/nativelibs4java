@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.nativelibs4java</groupId>
+    <artifactId>mono4java-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>Mono4Java Common Configuration</name>
+	<inceptionYear>2009</inceptionYear>
+    <url>http://code.google.com/p/nativelibs4java/wiki/Mono</url>
+  
+  <parent>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>nativelibs4java-parent</artifactId>
+	  <version>1.0</version>
+	  <relativePath>../../Parent</relativePath>
+  </parent>
+  
+  <properties>
+	<maven.jar.sign.skip>true</maven.jar.sign.skip>
+  </properties>
+
+  <dependencies>
+  	
+	<dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.7</version>
+      <scope>test</scope>
+    </dependency>
+	
+  </dependencies>
+
+  <build>
+  	<plugins>
+	  
+	  <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-jar-plugin</artifactId>
+		<executions>
+		  <execution>
+			<phase>verify</phase>
+			<goals>
+			  <goal>sign</goal>
+			</goals>
+		  </execution>
+		</executions>
+		
+		<configuration>
+		  <keystore>/Users/ochafik/security/ochafik.keystore</keystore>
+		  <!--keystore>/Users/Olivier/security/ochafik.keystore</keystore-->
+		  <alias>ochafik2009</alias>
+		  <!--   
+			  mvn -Dmaven.jar.sign.skip=false -Dstorepass= deploy
+		  -->
+		  <verify>true</verify>
+		</configuration>
+	  </plugin>
+	  
+	</plugins>
+  </build>
+</project>
+
