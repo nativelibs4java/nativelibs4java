@@ -37,30 +37,31 @@
 
   <build>
   	<plugins>
-	  
-	  <plugin>
-		<groupId>org.apache.maven.plugins</groupId>
-		<artifactId>maven-jar-plugin</artifactId>
-		<executions>
-		  <execution>
-			<phase>verify</phase>
-			<goals>
-			  <goal>sign</goal>
-			</goals>
-		  </execution>
-		</executions>
-		
-		<configuration>
-		  <keystore>/Users/ochafik/security/ochafik.keystore</keystore>
-		  <!--keystore>/Users/Olivier/security/ochafik.keystore</keystore-->
-		  <alias>ochafik2009</alias>
-		  <!--   
-			  mvn -Dmaven.jar.sign.skip=false -Dstorepass= deploy
-		  -->
-		  <verify>true</verify>
-		</configuration>
-	  </plugin>
-	  
+	 		 <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jarsigner-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+				  <execution>
+					<id>sign</id>
+					<goals>
+					  <goal>sign</goal>
+					</goals>
+				  </execution>
+				</executions>
+				<configuration>
+				<skip>${maven.jar.sign.skip}</skip>
+				<removeExistingSignatures>true</removeExistingSignatures>
+				  <keystore>/Users/ochafik/security/ochafik.keystore</keystore>
+			  <!--keystore>/Users/Olivier/security/ochafik.keystore</keystore-->
+			  <alias>ochafik2009</alias>
+			  <!--   
+				  mvn "-Dstorepass=$KEYSTORE_PASS" -Dmaven.test.skip=true package  
+				  <storepass>yourstorepassword</storepass>
+			  -->
+			    <storepass>${storepass}</storepass>
+				</configuration>
+			  </plugin>
 	</plugins>
   </build>
 </project>
