@@ -15,50 +15,10 @@
 	</security>
 	<resources>
 		<j2se version="1.5+"/>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/OpenCL4Java/1.0-SNAPSHOT/OpenCL4Java-1.0-SNAPSHOT.jar"/>
-	</resources>
-	
-	<resources os="Windows" arch="x86">
-		<property name="jna.library.path" value="C:\Windows\System32"/>
-    <nativelib href="http://nativelibs4java.sourceforge.net/webstart/jna/3.2.4/win32-x86.jar"/>
-	</resources>
-	<resources os="Windows" arch="amd64">
-		<property name="jna.library.path" value="C:\Windows\SysWOW64"/>
-    <nativelib href="http://nativelibs4java.sourceforge.net/webstart/jna/3.2.4/win32-amd64.jar"/>
-	</resources>
-	
-	<resources os="FreeBSD" arch="i386">
-		<nativelib href="http://nativelibs4java.sourceforge.net/webstart/jna/3.2.4/freebsd-i386.jar"/>
-	</resources>
-	<resources os="FreeBSD" arch="amd64">
-		<nativelib href="http://nativelibs4java.sourceforge.net/webstart/jna/3.2.4/freebsd-amd64.jar"/>
-	</resources>
-	
-	<resources os="Linux" arch="i386">
-		<nativelib href="http://nativelibs4java.sourceforge.net/webstart/jna/3.2.4/linux-i386.jar"/>
-	</resources>
-	<resources os="Linux" arch="amd64">
-		<nativelib href="http://nativelibs4java.sourceforge.net/webstart/jna/3.2.4/linux-amd64.jar"/>
-	</resources>
-	<resources os="Linux" arch="ia64">
-		<nativelib href="http://nativelibs4java.sourceforge.net/webstart/jna/3.2.4/linux-ia64.jar"/>
-	</resources>
-	
-	<resources os="SunOS" arch="x86">
-		<nativelib href="http://nativelibs4java.sourceforge.net/webstart/jna/3.2.4/sunos-x86.jar"/>
-	</resources>
-	<resources os="SunOS" arch="amd64">
-		<nativelib href="http://nativelibs4java.sourceforge.net/webstart/jna/3.2.4/sunos-amd64.jar"/>
-	</resources>
-	<resources os="SunOS" arch="sparc">
-		<nativelib href="http://nativelibs4java.sourceforge.net/webstart/jna/3.2.4/sunos-sparc.jar"/>
-	</resources>
-	<resources os="SunOS" arch="sparcv9">
-		<nativelib href="http://nativelibs4java.sourceforge.net/webstart/jna/3.2.4/sunos-sparcv9.jar"/>
-	</resources>
-	
-	<resources os="Mac">
-		<nativelib href="http://nativelibs4java.sourceforge.net/webstart/jna/3.2.4/darwin.jar"/>
+		<extension name="JNAeratorRuntime" href="http://jnaerator.sourceforge.net/webstart/JNAerator/JNAeratorRuntime.jnlp"/>
+		<!--jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/scalacl/1.0-SNAPSHOT/scalacl-1.0-SNAPSHOT.jar"/-->
+		<!--jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl/1.0-SNAPSHOT/javacl-1.0-SNAPSHOT.jar"/-->
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/opencl4java/1.0-SNAPSHOT/opencl4java-1.0-SNAPSHOT.jar"/>
 	</resources>
 	
 	<component-desc/>

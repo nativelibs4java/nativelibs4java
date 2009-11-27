@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL/"
+  href="ScalaCL.jnlp"
+>
+	<information>
+	  <title>ScalaCL</title>
+	  <vendor>Olivier Chafik</vendor>
+	  <homepage href="http://code.google.com/p/scalacl" />
+	  <description>OpenCL for Scala: natural DSL and Object-Oriented API</description>
+	</information>
+	<security>
+	  <all-permissions/>
+	</security>
+	<resources>
+		<j2se version="1.5+"/>
+		<extension name="JavaCL" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL4Java/JavaCL.jnlp"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/scalacl/1.0-SNAPSHOT/scalacl-1.0-SNAPSHOT.jar"/>
+	</resources>
+	
+	<component-desc/>
+</jnlp>
