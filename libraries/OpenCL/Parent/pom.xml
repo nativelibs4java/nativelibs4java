@@ -21,19 +21,11 @@
   	<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
 	<jnaerator.version>0.9.3-SNAPSHOT</jnaerator.version>
 	<maven.jar.sign.skip>true</maven.jar.sign.skip>
-	<skip.plugin.maven-shade-plugin>true</skip.plugin.maven-shade-plugin>
 	
   </properties>
 
   <dependencies>
   	
-  	<!--dependency>
-	  <groupId>net.java.dev.jna</groupId>
-	  <artifactId>jna</artifactId>
-	  <version>3.2.2</version>
-	  <scope>compile</scope>
-	</dependency-->
-	
 	<dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

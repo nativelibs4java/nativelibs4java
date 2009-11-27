@@ -1,6 +1,7 @@
 package com.nativelibs4java.opencl.library;
 
 import com.sun.jna.Pointer;
+import com.sun.jna.Platform;
 
 /**
  * JNA Wrapper for library <b>OpenCL</b><br>

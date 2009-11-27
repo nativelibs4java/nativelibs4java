@@ -666,24 +666,34 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
         return false;
     }
 
-    @InfoName("cl_khr_fp64")
     public boolean isDoubleSupported() {
         return hasExtension("cl_khr_fp64");
     }
 
-    @InfoName("cl_khr_fp16")
     public boolean isHalfSupported() {
         return hasExtension("cl_khr_fp16");
     }
 
-    @InfoName("cl_khr_byte_addressable_store")
     public boolean isByteAddressableStoreSupported() {
         return hasExtension("cl_khr_byte_addressable_store");
     }
 
-    @InfoName("cl_khr_gl_sharing")
     public boolean isGLSharingSupported() {
-        return hasExtension("cl_khr_gl_sharing");
+        return hasExtension("cl_khr_gl_sharing") || hasExtension("cl_APPLE_gl_sharing");
+    }
+	
+	
+    public boolean isGlobalInt32BaseAtomicsSupported() {
+        return hasExtension("cl_khr_global_int32_base_atomics");
+    }
+    public boolean isGlobalInt32ExtendedAtomicsSupported() {
+        return hasExtension("cl_khr_global_int32_extended_atomics");
+    }
+    public boolean isLocalInt32BaseAtomicsSupported() {
+        return hasExtension("cl_khr_local_int32_base_atomics");
+    }
+    public boolean isLocalInt32ExtendedAtomicsSupported() {
+        return hasExtension("cl_khr_local_int32_extended_atomics");
     }
 
     /** Bit values for CL_DEVICE_QUEUE_PROPERTIES */
