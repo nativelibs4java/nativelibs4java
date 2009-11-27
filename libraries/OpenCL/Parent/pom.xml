@@ -20,7 +20,7 @@
   <properties>
   	<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
 	<jnaerator.version>0.9.3-SNAPSHOT</jnaerator.version>
-	<maven.jar.sign.skip>true</maven.jar.sign.skip>
+	<jarsigner.skip>true</jarsigner.skip>
 	
   </properties>
 
@@ -50,7 +50,6 @@
 				  </execution>
 				</executions>
 				<configuration>
-				<skip>${maven.jar.sign.skip}</skip>
 				<removeExistingSignatures>true</removeExistingSignatures>
 				  <keystore>/Users/ochafik/security/ochafik.keystore</keystore>
 			  <!--keystore>/Users/Olivier/security/ochafik.keystore</keystore-->
