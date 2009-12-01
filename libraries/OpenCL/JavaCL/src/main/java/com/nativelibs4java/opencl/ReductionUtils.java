@@ -152,6 +152,8 @@ public class ReductionUtils {
             i = next;
         }
     }
+    private static final int[] UNIT_INT_ARRAY = new int[] { 1 };
+
     public static <B extends Buffer> Reductor<B> createReductor(final CLContext context, Operation op, Type valueType, final int valueChannels) throws CLBuildException {
         try {
             Pair<String, Map<String, String>> codeAndMacros = getReductionCodeAndMacros(op, valueType, valueChannels);
@@ -163,43 +165,31 @@ public class ReductionUtils {
                 throw new RuntimeException("Expected 1 kernel, found : " + kernels.length);
             final CLKernel kernel = kernels[0];
             return new Reductor<B>() {
-                @Override
+				@Override
                 public CLEvent reduce(CLQueue queue, CLBuffer<B> input, int inputStart, int inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor) {
-                    /*if (inputLength <= maxReductionSize) {
-                        CLBuffer out = context.createByteBuffer(CLMem.Usage.InputOutput, NIOUtils.getSizeInBytes(output));
-                        kernel.setArgs(input, inputStart, inputLength, out);
-                        CLEvent evt = kernel.enqueueNDRange(queue, new int[] { inputLength }, new int[] { 1 }, eventsToWaitFor);
-                        return out.read(queue, output, false);
-                    }*/
-
                     CLByteBuffer[] tempBuffers = new CLByteBuffer[2];
                     int depth = 0;
+					int tempOutputSize = maxReductionSize * valueChannels * input.getElementSize();
                     CLBuffer currentOutput = null;
+					CLEvent[] eventsArr = new CLEvent[1];
+					int[] inputLengthArr = new int[1];
+					
                     while (inputLength > 1) {
-                        int mod = inputLength % maxReductionSize;
-                        int nInCurrentDepth = inputLength / maxReductionSize + (mod == 0 ? 0 : 1);
-                        //CLEvent[] events = new CLEvent[nInCurrentDepth];
-                        int iOutput = depth % tempBuffers.length;
-                        CLBuffer currentInput = depth == 0 ? input : tempBuffers[((depth - 1 + tempBuffers.length) % tempBuffers.length)];
+                        int nInCurrentDepth = inputLength / maxReductionSize;
+						if (inputLength > nInCurrentDepth * maxReductionSize)
+							nInCurrentDepth++;
+                        
+						int iOutput = depth & 1;
+                        CLBuffer currentInput = depth == 0 ? input : tempBuffers[iOutput ^ 1];
                         currentOutput = tempBuffers[iOutput];
-                        if (currentOutput == null) {
-                            int tempBufferSize = maxReductionSize * valueChannels * input.getElementSize();
-                            currentOutput = tempBuffers[iOutput] = context.createByteBuffer(CLMem.Usage.InputOutput, tempBufferSize);
-                        }
+                        if (currentOutput == null)
+                            currentOutput = tempBuffers[iOutput] = context.createByteBuffer(CLMem.Usage.InputOutput, tempOutputSize);
+						
                         kernel.setArgs(currentInput, inputLength, inputLength, currentOutput);
-                        int globalSize = inputLength;//getNextPowerOfTwo(inputLength);
-                        eventsToWaitFor = new CLEvent[] {
-                            kernel.enqueueNDRange(queue, new int[] { globalSize }, new int[] { 1 }, eventsToWaitFor)
-                        };
-                        /*
-                        for (int iRed = 0; iRed < nInCurrentDepth; iRed++) {
-                            int start = iRed * maxReductionSize, len = (iRed == nInCurrentDepth - 1 && mod != 0) ? mod : maxReductionSize;
-
-                            kernel.setArgs(currentInput, start, start + len, currentOutput);
-                            events[iRed] = kernel.enqueueTask(queue, eventsToWaitFor);//NDRange(queue, new int[] { inputLength }, new int[] { 1 }, eventsToWaitFor);
-                        }
-                        eventsToWaitFor = events;*/
-                        inputLength = nInCurrentDepth;
+						inputLengthArr[0] = inputLength;
+						eventsArr[0] = kernel.enqueueNDRange(queue, inputLengthArr, UNIT_INT_ARRAY, eventsToWaitFor);
+						eventsToWaitFor = eventsArr;
+						inputLength = nInCurrentDepth;
                         depth++;
                     }
                     return currentOutput.read(queue, output, false, eventsToWaitFor);

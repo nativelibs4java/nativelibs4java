@@ -21,18 +21,18 @@
  * MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
  **********************************************************************************/
 
-/* $Revision: 8748 $ on $Date: 2009-08-27 04:24:36 -0700 (Thu, 27 Aug 2009) $ */
+/* $Revision: 8407 $ on $Date: 2009-06-12 10:56:38 -0700 (Fri, 12 Jun 2009) $ */
 
 #ifndef __OPENCL_CL_GL_H
 #define __OPENCL_CL_GL_H
 
-//#ifdef __APPLE__
-//#include <OpenCL/cl_platform.h>
-//#include <OpenGL/gl.h>
-//#else
+#ifdef __APPLE__
+#include <OpenCL/cl_platform.h>
+#include <OpenGL/gl.h>
+#else
 #include <CL/cl_platform.h>
-//#include <GL/gl.h>
-//#endif	
+#include <GL/gl.h>
+#endif	
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,6 +53,13 @@ typedef cl_uint     cl_gl_platform_info;
 // cl_gl_texture_info
 #define CL_GL_TEXTURE_TARGET            0x2004
 #define CL_GL_MIPMAP_LEVEL              0x2005
+
+// CL_KHR_gl_sharing
+#define CL_GL_CONTEXT_KHR               0x2008
+#define CL_EGL_DISPLAY_KHR              0x2009
+#define CL_GLX_DISPLAY_KHR              0x200A
+#define CL_WGL_HDC_KHR                  0x200B
+#define CL_CGL_SHAREGROUP_KHR           0x200C
 
 extern CL_API_ENTRY cl_mem CL_API_CALL
 clCreateFromGLBuffer(cl_context     /* context */,

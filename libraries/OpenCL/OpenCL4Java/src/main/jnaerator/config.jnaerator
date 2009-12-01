@@ -5,6 +5,7 @@
 	"$(DIR)/OpenCL.OtherPlatforms.jnaerator"
 	//"$(DIR)/OpenCL.Win32ATIStream.jnaerator"
 	
+	-noMangling
 	-noJar -noComp
 	//-o "$(DIR)/../../../target/generated-sources/java"
 	
