@@ -264,7 +264,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         return getDevices(ids, onlyAvailable);
     }
 
-    public CLDevice getCurrentGLDevice() {
+    public CLDevice currentGLDevice() {
         IntByReference errRef = new IntByReference();
         NativeSizeByReference propsRef = null;//getContextPropsRef(contextProperties);
 
@@ -273,8 +273,8 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         Memory mem = new Memory(Pointer.SIZE);
         error(CL.clGetGLContextInfoKHR(propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, toNS(Pointer.SIZE), mem, pCount));
 
-        if (pCount.getValue() != Pointer.SIZE)
-            throw new RuntimeException("Not a device : len = " + pCount.getValue());
+        if (pCount.getValue().intValue() != Pointer.SIZE)
+            throw new RuntimeException("Not a device : len = " + pCount.getValue().intValue());
 
         Pointer p = mem.getPointer(0);
         if (p.equals(Pointer.NULL))
@@ -292,8 +292,11 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         int nDevs = pCount.getValue().intValue();
         if (nDevs == 0)
             return new CLDevice[0];
+        Memory idsMem = new Memory(nDevs * Pointer.SIZE);
+        error(CL.clGetGLContextInfoKHR(propsRef, CL_DEVICES_FOR_GL_CONTEXT_KHR, toNS(nDevs), idsMem, pCount));
         cl_device_id[] ids = new cl_device_id[nDevs];
-        error(CL.clGetGLContextInfoKHR(propsRef, CL_DEVICES_FOR_GL_CONTEXT_KHR, toNS(nDevs), ids, pCount));
+        for (int i = 0; i < nDevs; i++)
+            ids[i] = new cl_device_id(idsMem.getPointer(i * Pointer.SIZE));
         return getDevices(ids, onlyAvailable);
     }
 

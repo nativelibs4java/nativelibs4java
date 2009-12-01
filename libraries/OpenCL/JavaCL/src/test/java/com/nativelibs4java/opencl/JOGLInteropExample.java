@@ -16,44 +16,26 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 
 import com.sun.opengl.util.BufferUtil;
+import com.sun.opengl.util.FPSAnimator;
 import com.sun.opengl.util.texture.TextureIO;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import javax.media.opengl.GLCapabilities;
+import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLCanvas;
 import org.junit.Test;
 
 public class JOGLInteropExample {
-    public static class Renderer implements GLEventListener {
-
-        @Override
-        public void init(GLAutoDrawable drawable) {
-            
-            
-        }
-
-        @Override
-        public void dispose(GLAutoDrawable gdrawablelad) {}
-
-        @Override
-        public void display(GLAutoDrawable drawable) {
-            GL gl = drawable.getGL();
-
-        }
-
-        @Override
-        public void reshape(GLAutoDrawable drawable, int i, int i1, int i2, int i3) {
-            GL gl = drawable.getGL();
-
-        }
-        
-    }
-
+    
     GLCanvas createGLCanvas(int width, int height) {
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        GLCanvas glCanvas = new GLCanvas(new GLCapabilities());
+        GLCanvas glCanvas = new GLCanvas(new GLCapabilities(GLProfile.getDefault()));
         glCanvas.setSize( width, height );
         glCanvas.setIgnoreRepaint( true );
 
         FPSAnimator animator = new FPSAnimator( glCanvas, 60 );
         animator.setRunAsFastAsPossible(false);
+        return glCanvas;
     }
 
     @Test
@@ -78,7 +60,7 @@ public class JOGLInteropExample {
                 gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]);			// Bind The Buffer
                 gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * BufferUtil.SIZEOF_FLOAT, buffer, GL.GL_STATIC_DRAW);
 
-                CLContext context = JavaCL.createGLCompatibleContext(gl.getContext().CONTEXT_CURRENT, JavaCL.getBestDevice());
+                CLContext context = JavaCL.createBestGLCompatibleContext(gl.getContext().CONTEXT_CURRENT, JavaCL.getBestDevice());
             }
 
             @Override
