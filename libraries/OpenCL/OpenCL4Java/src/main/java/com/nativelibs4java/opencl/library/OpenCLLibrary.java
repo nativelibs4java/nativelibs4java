@@ -84,6 +84,7 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	public static final int CL_INVALID_EVENT = -58;
 	public static final int CL_INVALID_OPERATION = -59;
 	public static final int CL_INVALID_GL_OBJECT = -60;
+    public static final int CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR = -1000;
 	public static final int CL_INVALID_BUFFER_SIZE = -61;
 	public static final int CL_INVALID_MIP_LEVEL = -62;
 	public static final int CL_INVALID_GLOBAL_WORK_SIZE = -63;

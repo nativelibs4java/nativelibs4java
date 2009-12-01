@@ -112,6 +112,8 @@ public class CLException extends RuntimeException {
 	public static class InvalidKernel extends CLTypedException {}
 	@ErrorCode(CL_INVALID_GL_CONTEXT_APPLE)
 	public static class InvalidGLContextApple extends CLTypedException {}
+    @ErrorCode(CL_INVALID_GL_SHAREGROUP_REFERENCE_KHR)
+	public static class InvalidGLShareGroupReference extends CLTypedException {}
 	@ErrorCode(CL_INVALID_GL_OBJECT)
 	public static class InvalidGLObject extends CLTypedException {}
 	@ErrorCode(CL_INVALID_KERNEL_ARGS)

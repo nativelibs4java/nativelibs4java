@@ -18,16 +18,15 @@ along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.nativelibs4java.opencl;
 
+
+import com.nativelibs4java.util.EnumValue;
+import com.nativelibs4java.util.EnumValues;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
-import java.nio.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLException.*;
 import static com.nativelibs4java.util.JNAUtils.*;
@@ -127,6 +126,51 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         return bestDevice == null ? null : bestDevice.getPlatform().createContext(bestDevice);
     }
 
+    /** Bit values for CL_CONTEXT_PROPERTIES */
+    public enum ContextProperties {
+
+        @EnumValue(CL_GL_CONTEXT_KHR        ) GLContext 	   ,
+		@EnumValue(CL_EGL_DISPLAY_KHR       ) EGLDisplay	   ,
+		@EnumValue(CL_GLX_DISPLAY_KHR       ) GLXDisplay	   ,
+		@EnumValue(CL_WGL_HDC_KHR           ) WGLHDC		   ,
+		@EnumValue(CL_CGL_SHAREGROUP_KHR	) CGLShareGroup    ;
+
+        public long getValue() {
+            return EnumValues.getValue(this);
+        }
+
+        public static long getValue(EnumSet<ContextProperties> set) {
+            return EnumValues.getValue(set);
+        }
+
+        public static EnumSet<ContextProperties> getEnumSet(long v) {
+            return EnumValues.getEnumSet(v, ContextProperties.class);
+        }
+    }
+    
+    @Deprecated
+    public CLContext createContext(CLDevice... devices) {
+    	return createContext(null, devices);
+    }
+
+    @Deprecated
+    public CLContext createGLCompatibleContext(long glContextId, CLDevice... devices) {
+        for (CLDevice device : devices)
+            if (!device.isGLSharingSupported())
+                throw new UnsupportedOperationException("Device " + device + " does not support CL/GL sharing.");
+        
+        ContextProperties prop;
+        if (Platform.isMac())
+            prop = ContextProperties.CGLShareGroup;
+        else if (Platform.isWindows())
+            prop = ContextProperties.WGLHDC;
+        else if (Platform.isX11())
+            prop = ContextProperties.GLXDisplay;
+        else
+            prop = ContextProperties.EGLDisplay;
+    	return createContext(Collections.singletonMap(prop, (Number)glContextId), devices);
+    }
+
     /**
      * Creates an OpenCL context formed of the provided devices.<br/>
      * It is generally not a good idea to create a context with more than one device,
@@ -134,7 +178,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
      * @param devices devices that are to form the new context
      * @return new OpenCL context
      */
-    public CLContext createContext(CLDevice... devices) {
+    public CLContext createContext(Map<ContextProperties, Number> contextProperties, CLDevice... devices) {
         int nDevs = devices.length;
         if (nDevs == 0) {
             throw new IllegalArgumentException("Cannot create a context with no associated device !");
@@ -144,14 +188,26 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             ids[i] = devices[i].get();
         }
 
+        long[] properties = null;
+        if (contextProperties != null) {
+            properties = new long[contextProperties.size() + 1];
+            int iProp = 0;
+            for (Map.Entry<ContextProperties, Number> e : contextProperties.entrySet()) {
+                //if (!(v instanceof Number)) throw new IllegalArgumentException("Invalid context property value for '" + e.getKey() + ": " + v);
+                properties[iProp++] = e.getKey().getValue();
+                properties[iProp++] = e.getValue().longValue();
+            }
+            properties[iProp] = 0;
+        }
         IntByReference errRef = new IntByReference();
-        /*Memory properties = new Memory(3 * Native.POINTER_SIZE);
-        IntByReference pPlatKey = new IntByReference(CL_CONTEXT_PLATFORM);
-        PointerByReference pPlatVal = new PointerByReference(get().getPointer());
-        properties.setPointer(0, pPlatKey.getPointer());
-        properties.setPointer(Native.POINTER_SIZE, pPlatVal.getPointer());
-        properties.setPointer(2 * Native.POINTER_SIZE, Pointer.NULL);*/
-        cl_context context = CL.clCreateContext(null, ids.length, ids, null, null, errRef);
+        NativeSizeByReference propsRef = null;
+        Memory propsMem = null;
+        if (properties != null) {
+            propsMem = toNSArray(properties);
+            propsRef = new NativeSizeByReference();
+            propsRef.setPointer(propsMem);
+        }
+        cl_context context = CL.clCreateContext(propsRef, ids.length, ids, null, null, errRef);
         error(errRef.getValue());
         return new CLContext(this, ids, context);
     }

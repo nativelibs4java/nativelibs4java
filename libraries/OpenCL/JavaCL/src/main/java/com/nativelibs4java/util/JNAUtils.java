@@ -42,13 +42,39 @@ public class JNAUtils {
         else
             throw new RuntimeException("sizeof(size_t) must be either 4 or 8");
     }
+    public static void writeNS(Pointer p, long offset, long value) {
+        if (NativeSize.SIZE == 4)
+            p.setInt(offset, (int)value);
+        else if (NativeSize.SIZE == 8)
+            p.setLong(offset, value);
+        else
+            throw new RuntimeException("sizeof(size_t) must be either 4 or 8");
+    }
 
     public static NativeSize[] readNSArray(Pointer p, int n) {
         NativeSize[] sizes = new NativeSize[n];
-        int sz = NativeSize.SIZE;
         for (int i = 0; i < n; i++)
-            sizes[i] = readNS(p, i * sz);
+            sizes[i] = readNS(p, i * NativeSize.SIZE);
         return sizes;
+    }
+
+    public static void writeNSArray(Pointer p, long[] values) {
+        if (values == null)
+            return;
+        for (int i = 0, n = values.length; i < n; i++)
+            writeNS(p, i * NativeSize.SIZE, values[i]);
+    }
+
+    /**
+     * Converts int/long values array to a Memory object containing contiguous size_t values
+     * @see NativeSize#SIZE
+     */
+    public static Memory toNSArray(long[] values) {
+        if (values == null)
+            return null;
+        Memory mem = new Memory(values.length * NativeSize.SIZE);
+        writeNSArray(mem, values);
+        return mem;
     }
 
     /**
