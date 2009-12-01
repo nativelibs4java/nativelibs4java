@@ -18,6 +18,7 @@
     <module>OpenCL4Java</module>
     <module>JavaCL</module>
     <module>ScalaCL</module>
+    <module>Blas</module>
     <module>Parent</module>
   </modules>
   
