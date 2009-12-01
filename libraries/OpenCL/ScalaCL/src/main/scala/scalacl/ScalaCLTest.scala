@@ -1,5 +1,5 @@
 package scalacl;
-//import com.nativelibs4java.opencl.OpenCL4Java._
+//import com.nativelibs4java.opencl.JavaCL._
 import java.nio._
 import scala.reflect.Manifest
 import SyntaxUtils._

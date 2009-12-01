@@ -28,7 +28,7 @@ public abstract class AbstractCommon {
 
     @Before
     public void setUp() {
-		context = OpenCL4Java.createBestContext();
+		context = JavaCL.createBestContext();
 		platform = context.getPlatform();
 		queue = context.createDefaultQueue();
 		device = context.getDevices()[0];

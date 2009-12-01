@@ -27,7 +27,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.nio.*;
 import java.util.concurrent.BlockingDeque;
-import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLException.*;
 import static com.nativelibs4java.util.JNAUtils.*;
 import static com.nativelibs4java.util.ImageUtils.*;

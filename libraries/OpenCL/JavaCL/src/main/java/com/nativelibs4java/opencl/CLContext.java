@@ -39,7 +39,7 @@ import java.nio.*;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLException.*;
 import static com.nativelibs4java.util.JNAUtils.*;
 import static com.nativelibs4java.util.NIOUtils.*;
@@ -174,7 +174,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @deprecated Use same method in CLPlatform instead
 	 */
 	public static CLContext createContext(CLDevice... devices) {
-		return OpenCL4Java.listPlatforms()[0].createContext(devices);
+		return JavaCL.listPlatforms()[0].createContext(devices);
 	}
 
 	//cl_queue queue;

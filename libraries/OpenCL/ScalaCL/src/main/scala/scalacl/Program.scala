@@ -7,7 +7,7 @@
 
 package scalacl
 
-import com.nativelibs4java.opencl.OpenCL4Java._
+import com.nativelibs4java.opencl.JavaCL._
 import com.nativelibs4java.opencl._
 import SyntaxUtils._
 
@@ -21,7 +21,7 @@ object Context {
   private var cpu: Option[Context] = None
   private var best: Option[Context] = None
 
-  def platform = OpenCL4Java.listPlatforms()(0)
+  def platform = JavaCL.listPlatforms()(0)
   def GPU : Context = gpu.getOrElse { gpu = newContext(platform.listGPUDevices(true)); gpu.get }
   def CPU : Context = cpu.getOrElse { cpu = newContext(platform.listCPUDevices(true)); cpu.get }
   def BEST = best.getOrElse { best = Some(try { GPU } catch { case _ => CPU }); best.get }

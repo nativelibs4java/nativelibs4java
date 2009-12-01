@@ -13,7 +13,7 @@ import static org.junit.Assert.*;
 import static com.nativelibs4java.test.MiscTestUtils.*;
 import java.nio.*;
 import java.util.*;
-import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.util.NIOUtils.*;
 
 public class ReductionTest {

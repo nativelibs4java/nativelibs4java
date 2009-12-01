@@ -27,7 +27,7 @@ import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 import java.nio.*;
 import java.util.EnumSet;
-import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.util.JNAUtils.*;
 import static com.nativelibs4java.util.NIOUtils.*;
 import static com.nativelibs4java.opencl.CLException.*;

@@ -104,7 +104,7 @@ public class ImageTest extends AbstractCommon {
 	@Test
 	public void testImageSource() {
 		try {
-			CLContext context = OpenCL4Java.createBestContext();
+			CLContext context = JavaCL.createBestContext();
             CLQueue queue = context.createDefaultQueue();
 			String src = "\n" +
 					"const sampler_t sampler =										\n" +

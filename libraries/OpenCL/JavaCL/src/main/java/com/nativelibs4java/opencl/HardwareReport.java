@@ -55,7 +55,7 @@ public class HardwareReport {
             List<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
             Map<String, Method> platMets = infoMethods(CLPlatform.class);
             Map<String, Method> devMets = infoMethods(CLDevice.class);
-            for (CLPlatform platform : OpenCL4Java.listPlatforms()) {
+            for (CLPlatform platform : JavaCL.listPlatforms()) {
                 Map<String, Object> platInfos = new TreeMap<String, Object>();
                 for (Map.Entry<String, Method> platMet : platMets.entrySet()) {
                     platInfos.put(platMet.getKey(), platMet.getValue().invoke(platform));

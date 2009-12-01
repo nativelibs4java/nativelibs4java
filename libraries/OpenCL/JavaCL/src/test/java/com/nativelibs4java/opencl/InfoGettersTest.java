@@ -30,7 +30,7 @@ public class InfoGettersTest {
     }
 
     CLPlatform createPlatform() {
-        return OpenCL4Java.listPlatforms()[0];
+        return JavaCL.listPlatforms()[0];
     }
 
     CLDevice createDevice() {

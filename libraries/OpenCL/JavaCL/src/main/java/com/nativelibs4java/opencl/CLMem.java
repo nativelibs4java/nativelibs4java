@@ -28,7 +28,7 @@ import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
 import java.util.EnumSet;
-import static com.nativelibs4java.opencl.OpenCL4Java.*;
+import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLException.*;
 import static com.nativelibs4java.util.JNAUtils.*;
 import static com.nativelibs4java.util.NIOUtils.*;

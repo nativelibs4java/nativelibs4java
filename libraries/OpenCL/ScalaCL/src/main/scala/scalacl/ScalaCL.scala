@@ -6,7 +6,7 @@
  */
 
 package scalacl
-import com.nativelibs4java.opencl.OpenCL4Java._
+import com.nativelibs4java.opencl.JavaCL._
 import com.nativelibs4java.opencl._
 
 //case class Dim(size: Int) extends Int1(size)
