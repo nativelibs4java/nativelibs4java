@@ -303,6 +303,8 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	public static final int CL_GLX_DISPLAY_KHR = 8202;
 	public static final int CL_WGL_HDC_KHR = 8203;
 	public static final int CL_CGL_SHAREGROUP_KHR = 8204;
+	public static final int CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR = 0x2006;
+	public static final int CL_DEVICES_FOR_GL_CONTEXT_KHR = 0x2007;
 	public static final int CL_CHAR_MIN = -127 - 1;
 	public static final int CL_CHAR_MAX = com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SCHAR_MAX;
 	public interface pfn_notify extends com.sun.jna.Callback {
@@ -855,6 +857,8 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	int clEnqueueReleaseGLObjects(int cl_uint1, com.sun.jna.ptr.PointerByReference cl_memPtr1, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueReleaseGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueReleaseGLObjects(int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
+	/// Original signature : <code>cl_int clGetGLContextInfoKHR(const cl_context_properties*, cl_gl_context_info, size_t, void*, size_t*)</code>
+	int clGetGLContextInfoKHR(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference properties, int param_name, com.ochafik.lang.jnaerator.runtime.NativeSize param_value_size, com.sun.jna.Pointer param_value, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference param_value_size_ret);
 	/// Pointer to unknown (opaque) type
 	public static class cl_device_id extends com.sun.jna.PointerType {
 		public cl_device_id(com.sun.jna.Pointer pointer) {

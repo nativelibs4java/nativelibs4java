@@ -40,7 +40,7 @@ public class InfoGettersTest {
     CLContext ctx;
     CLContext createContext() {
         if (ctx == null)
-            ctx = createPlatform().createContext(createDevice());
+            ctx = createPlatform().createContext(null, createDevice());
         return ctx;
     }
 

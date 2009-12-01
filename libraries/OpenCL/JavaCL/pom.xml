@@ -25,6 +25,13 @@
 	  <scope>compile</scope>
 	</dependency>
 	
+	<dependency>
+		<groupId>net.java.jogl.nl4j</groupId>
+		<artifactId>jogl</artifactId>
+		<version>2.x-SNAPSHOT</version>
+	  <scope>provided</scope>
+	</dependency>
+	
   </dependencies>
 
   <build>

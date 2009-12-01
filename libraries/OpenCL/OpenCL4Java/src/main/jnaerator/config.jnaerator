@@ -10,3 +10,4 @@
 	//-o "$(DIR)/../../../target/generated-sources/java"
 	
 -choicesOut "$(DIR)/OpenCL.choices"
+-v

@@ -99,15 +99,54 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         }
     }
 
+    private CLDevice[] getDevices(cl_device_id[] ids, boolean onlyAvailable) {
+        int nDevs = ids.length;
+        CLDevice[] devices;
+        if (onlyAvailable) {
+            List<CLDevice> list = new ArrayList<CLDevice>(nDevs);
+            for (int i = 0; i < nDevs; i++) {
+                CLDevice device = new CLDevice(this, ids[i]);
+                if (device.isAvailable()) {
+                    list.add(device);
+                }
+            }
+            devices = list.toArray(new CLDevice[list.size()]);
+        } else {
+            devices = new CLDevice[nDevs];
+            for (int i = 0; i < nDevs; i++) {
+                devices[i] = new CLDevice(this, ids[i]);
+            }
+        }
+        return devices;
+    }
+
+    private NativeSizeByReference getContextPropsRef(Map<ContextProperties, Number> contextProperties) {
+        if (contextProperties == null)
+            return null;
+        final long[] properties = new long[contextProperties.size() + 1];
+        int iProp = 0;
+        for (Map.Entry<ContextProperties, Number> e : contextProperties.entrySet()) {
+            //if (!(v instanceof Number)) throw new IllegalArgumentException("Invalid context property value for '" + e.getKey() + ": " + v);
+            properties[iProp++] = e.getKey().getValue();
+            properties[iProp++] = e.getValue().longValue();
+        }
+        properties[iProp] = 0;
+        
+        return new NativeSizeByReference() {
+            Memory propsMem;
+            {
+                propsMem = toNSArray(properties);
+                setPointer(propsMem);
+            }
+        };
+    }
+
     public enum DeviceEvaluationStrategy {
 
         BiggestMaxComputeUnits
     }
 
-    public CLContext createContextWithBestGPUDevice(DeviceEvaluationStrategy eval) {
-		return createContextWithBestDevice(eval, Arrays.asList(listGPUDevices(true)));
-	}
-	static CLContext createContextWithBestDevice(DeviceEvaluationStrategy eval, Iterable<CLDevice> devices) {
+	static CLDevice getBestDevice(DeviceEvaluationStrategy eval, Iterable<CLDevice> devices) {
 
         CLDevice bestDevice = null;
         for (CLDevice device : devices) {
@@ -123,7 +162,11 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
                 }
             }
         }
-        return bestDevice == null ? null : bestDevice.getPlatform().createContext(bestDevice);
+        return bestDevice;
+    }
+
+    public CLDevice getBestDevice() {
+        return getBestDevice(DeviceEvaluationStrategy.BiggestMaxComputeUnits, Arrays.asList(listGPUDevices(true)));
     }
 
     /** Bit values for CL_CONTEXT_PROPERTIES */
@@ -147,28 +190,34 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             return EnumValues.getEnumSet(v, ContextProperties.class);
         }
     }
-    
-    @Deprecated
-    public CLContext createContext(CLDevice... devices) {
-    	return createContext(null, devices);
-    }
 
+    public static ContextProperties getGLContextPropertyKey() {
+        if (Platform.isMac())
+            return ContextProperties.CGLShareGroup;
+        else if (Platform.isWindows())
+            return ContextProperties.WGLHDC;
+        else if (Platform.isX11())
+            return ContextProperties.GLXDisplay;
+        else
+            return ContextProperties.EGLDisplay;
+    }
+    static Map<ContextProperties, Number> getGLContextProperty(long glContextId, Map<ContextProperties, Number> out) {
+        ContextProperties key = getGLContextPropertyKey();
+        if (out == null)
+            return Collections.singletonMap(key, (Number)glContextId);
+        else
+        {
+            out.put(key, glContextId);
+            return out;
+        }
+    }
     @Deprecated
     public CLContext createGLCompatibleContext(long glContextId, CLDevice... devices) {
         for (CLDevice device : devices)
             if (!device.isGLSharingSupported())
                 throw new UnsupportedOperationException("Device " + device + " does not support CL/GL sharing.");
         
-        ContextProperties prop;
-        if (Platform.isMac())
-            prop = ContextProperties.CGLShareGroup;
-        else if (Platform.isWindows())
-            prop = ContextProperties.WGLHDC;
-        else if (Platform.isX11())
-            prop = ContextProperties.GLXDisplay;
-        else
-            prop = ContextProperties.EGLDisplay;
-    	return createContext(Collections.singletonMap(prop, (Number)glContextId), devices);
+    	return createContext(getGLContextProperty(glContextId, null), devices);
     }
 
     /**
@@ -188,26 +237,8 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             ids[i] = devices[i].get();
         }
 
-        long[] properties = null;
-        if (contextProperties != null) {
-            properties = new long[contextProperties.size() + 1];
-            int iProp = 0;
-            for (Map.Entry<ContextProperties, Number> e : contextProperties.entrySet()) {
-                //if (!(v instanceof Number)) throw new IllegalArgumentException("Invalid context property value for '" + e.getKey() + ": " + v);
-                properties[iProp++] = e.getKey().getValue();
-                properties[iProp++] = e.getValue().longValue();
-            }
-            properties[iProp] = 0;
-        }
         IntByReference errRef = new IntByReference();
-        NativeSizeByReference propsRef = null;
-        Memory propsMem = null;
-        if (properties != null) {
-            propsMem = toNSArray(properties);
-            propsRef = new NativeSizeByReference();
-            propsRef.setPointer(propsMem);
-        }
-        cl_context context = CL.clCreateContext(propsRef, ids.length, ids, null, null, errRef);
+        cl_context context = CL.clCreateContext(getContextPropsRef(contextProperties), ids.length, ids, null, null, errRef);
         error(errRef.getValue());
         return new CLContext(this, ids, context);
     }
@@ -230,23 +261,40 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         cl_device_id[] ids = new cl_device_id[nDevs];
 
         error(CL.clGetDeviceIDs(get(), flags, nDevs, ids, pCount));
-        CLDevice[] devices;
-        if (onlyAvailable) {
-            List<CLDevice> list = new ArrayList<CLDevice>(nDevs);
-            for (int i = 0; i < nDevs; i++) {
-                CLDevice device = new CLDevice(this, ids[i]);
-                if (device.isAvailable()) {
-                    list.add(device);
-                }
-            }
-            devices = list.toArray(new CLDevice[list.size()]);
-        } else {
-            devices = new CLDevice[nDevs];
-            for (int i = 0; i < nDevs; i++) {
-                devices[i] = new CLDevice(this, ids[i]);
-            }
-        }
-        return devices;
+        return getDevices(ids, onlyAvailable);
+    }
+
+    public CLDevice getCurrentGLDevice() {
+        IntByReference errRef = new IntByReference();
+        NativeSizeByReference propsRef = null;//getContextPropsRef(contextProperties);
+
+        NativeSizeByReference pCount = new NativeSizeByReference();
+        NativeSizeByReference pLen = new NativeSizeByReference();
+        Memory mem = new Memory(Pointer.SIZE);
+        error(CL.clGetGLContextInfoKHR(propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, toNS(Pointer.SIZE), mem, pCount));
+
+        if (pCount.getValue() != Pointer.SIZE)
+            throw new RuntimeException("Not a device : len = " + pCount.getValue());
+
+        Pointer p = mem.getPointer(0);
+        if (p.equals(Pointer.NULL))
+            return null;
+        return new CLDevice(this, new cl_device_id(p));
+    }
+    public CLDevice[] listGLDevices(long openglContextId, boolean onlyAvailable) {
+        
+        IntByReference errRef = new IntByReference();
+        NativeSizeByReference propsRef = getContextPropsRef(getGLContextProperty(openglContextId, null));
+        
+        NativeSizeByReference pCount = new NativeSizeByReference();
+        error(CL.clGetGLContextInfoKHR(propsRef, CL_DEVICES_FOR_GL_CONTEXT_KHR, toNS(0), (Pointer) null, pCount));
+
+        int nDevs = pCount.getValue().intValue();
+        if (nDevs == 0)
+            return new CLDevice[0];
+        cl_device_id[] ids = new cl_device_id[nDevs];
+        error(CL.clGetGLContextInfoKHR(propsRef, CL_DEVICES_FOR_GL_CONTEXT_KHR, toNS(nDevs), ids, pCount));
+        return getDevices(ids, onlyAvailable);
     }
 
     /**
