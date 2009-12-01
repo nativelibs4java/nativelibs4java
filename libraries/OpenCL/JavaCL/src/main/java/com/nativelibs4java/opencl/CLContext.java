@@ -169,14 +169,6 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		return new CLProgram(this, program);
 	}
 
-	/**
-	 * @see OpenCL4Java#createContext(com.nativelibs4java.opencl.CLDevice[])
-	 * @deprecated Use same method in CLPlatform instead
-	 */
-	public static CLContext createContext(CLDevice... devices) {
-		return JavaCL.listPlatforms()[0].createContext(devices);
-	}
-
 	//cl_queue queue;
 	@Override
 	protected void clear() {
