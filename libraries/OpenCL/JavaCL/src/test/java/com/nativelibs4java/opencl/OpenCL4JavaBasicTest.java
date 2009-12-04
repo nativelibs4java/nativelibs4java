@@ -29,8 +29,8 @@ public class OpenCL4JavaBasicTest {
 				System.out.println("Using device " + device + "\n\tmaxWorkItemSizes = " + Arrays.toString(device.getMaxWorkItemSizes()));
 			}
 
-			System.out.println("Supported images 2d: " + Arrays.asList(context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image2D)));
-            System.out.println("Supported images 3d: " + Arrays.asList(context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image3D)));
+			//System.out.println("Supported images 2d: " + Arrays.asList(context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image2D)));
+            //System.out.println("Supported images 3d: " + Arrays.asList(context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image3D)));
 
             int dataSize = 10000;
 //			String src = //"#include <math.h>\n" + 
