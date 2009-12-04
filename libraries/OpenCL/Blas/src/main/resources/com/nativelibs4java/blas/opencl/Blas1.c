@@ -7,14 +7,14 @@ __kernel void mulMat(
 ) {
     size_t globalId = get_global_id(0);
     size_t i = globalId / bColumns;
-    size_t j = globalId - j * bColumns;
+    size_t j = globalId - i * bColumns;
 
     double total = 0;
     size_t iOff = i * aColumns;
     for (size_t k = 0; k < aColumns; k++) {
         total += a[iOff + k] * b[k * bColumns + j];
     }
-    c[globalId] = a[globalId];//total;
+    c[globalId] = total;
 }
 
 __kernel void mulVec(
