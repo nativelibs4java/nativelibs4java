@@ -67,7 +67,17 @@ public class CLMatrix extends Matrix {
 
     @Override
     public void detach() {
-        buffer.unmap(al.queue, mappedBuffer);
+        buffer.unmap(al.queue, mappedBuffer).waitFor();
+    }
+
+    @Override
+    public void set(DoubleBuffer data) {
+        buffer.write(al.queue, data, true);
+    }
+
+    @Override
+    public void get(DoubleBuffer data) {
+        buffer.read(al.queue, data, true);
     }
 
 }

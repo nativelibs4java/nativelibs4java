@@ -33,18 +33,35 @@ public class BlasTest {
 		Matrix m = la.newMatrix(2, 2);
 		Matrix mout = la.newMatrix(2, 2);
 		Vector v = la.newVector(2);
-        m.attach(Usage.Write);
-		m.set(0, 0, 0);
+        m.set(DoubleBuffer.wrap(new double[] { 0, 1, 1, 0 }));
+		/*m.attach(Usage.Write);
+        m.set(0, 0, 0);
 		m.set(1, 1, 0);
 		m.set(0, 1, 1);
 		m.set(1, 0, 1);
-		m.detach();
+		m.detach();*/
 
         v.attach(Usage.Write);
 		v.set(0, 1);
 		v.detach();
 
-		Vector vout = la.newVector(2);
+		la.multiplyNow(m, m, mout);
+
+        mout.attach(Usage.Read);
+        for (int i = 0; i < mout.getRows(); i++) {
+            for (int j = 0; j < mout.getColumns(); j++) {
+                System.out.print(mout.get(i, j) + "\t");
+            }
+            System.out.println();
+        }
+
+		assertEquals(0, mout.get(0, 1), 0);
+		assertEquals(0, mout.get(1, 0), 0);
+        assertEquals(1, mout.get(0, 0), 0);
+		assertEquals(1, mout.get(1, 1), 0);
+		mout.detach();
+
+        Vector vout = la.newVector(2);
 		la.multiplyNow(m, v, vout);
 
         vout.attach(Usage.Read);
@@ -52,13 +69,6 @@ public class BlasTest {
 		assertEquals(1, vout.get(1), 0);
 		vout.detach();
 
-		la.multiplyNow(m, m, mout);
-
-        mout.attach(Usage.Read);
-		assertEquals(0, mout.get(0, 1), 0);
-		assertEquals(0, mout.get(1, 0), 0);
-        assertEquals(1, mout.get(0, 0), 0);
-		assertEquals(1, mout.get(1, 1), 0);
-		mout.detach();
+		
 	}
 }

@@ -91,4 +91,7 @@ public abstract class Matrix implements Data {
 
     public abstract double get(int row, int column);
     public abstract void set(int row, int column, double value);
+
+    public abstract void set(DoubleBuffer data);
+    public abstract void get(DoubleBuffer data);
 }

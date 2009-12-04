@@ -48,7 +48,7 @@ public class CLVector extends Vector {
 
     @Override
     public void detach() {
-        buffer.unmap(al.queue, mappedBuffer);
+        buffer.unmap(al.queue, mappedBuffer).waitFor();
     }
 
 }

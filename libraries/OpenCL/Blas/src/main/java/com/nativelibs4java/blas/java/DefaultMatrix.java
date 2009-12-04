@@ -36,4 +36,18 @@ public class DefaultMatrix extends Matrix {
 
     @Override
     public void detach() {}
+
+    @Override
+    public void set(DoubleBuffer data) {
+        this.data.put(data);
+        this.data.rewind();
+        data.rewind();
+    }
+
+    @Override
+    public void get(DoubleBuffer data) {
+        data.put(this.data);
+        data.rewind();
+        this.data.rewind();
+    }
 }

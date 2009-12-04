@@ -14,7 +14,8 @@ __kernel void mulMat(
     for (size_t k = 0; k < aColumns; k++) {
         total += a[iOff + k] * b[k * bColumns + j];
     }
-    c[globalId] = total;
+    c[globalId] = //a[i] / 10.0 + b[i] + i / 100.0 + j / 1000.0;//
+    		total;
 }
 
 __kernel void mulVec(
