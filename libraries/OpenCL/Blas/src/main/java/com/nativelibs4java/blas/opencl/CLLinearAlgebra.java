@@ -58,6 +58,7 @@ public class CLLinearAlgebra extends AbstractLinearAlgebra<CLMatrix, CLVector, C
     }
 
     private static final int[] unitIntArr = new int[] { 1 };
+    private static final int[] unitInt2Arr = new int[] { 1, 1 };
     @Override
     public synchronized CLComputationEvent multiply(CLMatrix a, CLMatrix b, CLMatrix out, CLComputationEvent... eventsToWaitFor) {
         mulMatKernel.setArgs(
@@ -65,7 +66,7 @@ public class CLLinearAlgebra extends AbstractLinearAlgebra<CLMatrix, CLVector, C
             b.buffer, b.getRows(), b.getColumns(),
             out.buffer
         );
-        return new CLComputationEvent(mulMatKernel.enqueueNDRange(queue, new int[] { out.getColumns() * out.getRows()}, unitIntArr, events(eventsToWaitFor)));
+        return new CLComputationEvent(mulMatKernel.enqueueNDRange(queue, new int[] { out.getRows(), out.getColumns() }, unitInt2Arr, events(eventsToWaitFor)));
     }
 
     @Override

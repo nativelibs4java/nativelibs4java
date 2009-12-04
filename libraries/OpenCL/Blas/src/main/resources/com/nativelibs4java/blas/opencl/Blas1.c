@@ -5,16 +5,15 @@ __kernel void mulMat(
    __global const double* b, size_t bRows, size_t bColumns,
    __global double* c
 ) {
-    size_t globalId = get_global_id(0);
-    size_t i = globalId / bColumns;
-    size_t j = globalId - i * bColumns;
-
+    size_t i = get_global_id(0);
+    size_t j = get_global_id(1);
+    
     double total = 0;
     size_t iOff = i * aColumns;
     for (size_t k = 0; k < aColumns; k++) {
         total += a[iOff + k] * b[k * bColumns + j];
     }
-    c[globalId] = //a[i] / 10.0 + b[i] + i / 100.0 + j / 1000.0;//
+    c[i * bColumns + j] = //a[i] / 10.0 + b[i] + i / 100.0 + j / 1000.0;//
     		total;
 }
 
