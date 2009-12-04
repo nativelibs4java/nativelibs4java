@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.nativelibs4java.opencl.blas;
+package com.nativelibs4java.blas;
 
 /**
  *

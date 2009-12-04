@@ -1,4 +1,4 @@
-package com.nativelibs4java.opencl.blas;
+package com.nativelibs4java.blas.java;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.util.*;
 import static com.nativelibs4java.opencl.JavaCL.*;

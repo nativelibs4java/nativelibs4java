@@ -1,4 +1,4 @@
-package com.nativelibs4java.opencl.blas;
+package com.nativelibs4java.blas;
 
 interface ComputationEvent {
 

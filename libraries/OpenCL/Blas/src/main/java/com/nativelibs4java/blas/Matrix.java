@@ -1,4 +1,4 @@
-package com.nativelibs4java.opencl.blas;
+package com.nativelibs4java.blas;
 
 import com.nativelibs4java.util.NIOUtils;
 import java.nio.DoubleBuffer;
