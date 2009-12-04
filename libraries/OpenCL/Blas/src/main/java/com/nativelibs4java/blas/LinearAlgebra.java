@@ -9,13 +9,13 @@ package com.nativelibs4java.blas;
  *
  * @author Olivier
  */
-public interface LinearAlgebra {
-    Matrix newMatrix(int rows, int columns);
-    Vector newVector(int size);
+public interface LinearAlgebra<M extends Matrix, V extends Vector, E extends ComputationEvent> {
+    M newMatrix(int rows, int columns);
+    V newVector(int size);
 
-    ComputationEvent multiply(Matrix a, Matrix b, Matrix out, ComputationEvent... eventsToWaitFor);
-	ComputationEvent multiply(Matrix a, Vector b, Vector out, ComputationEvent... eventsToWaitFor);
+    E multiply(M a, M b, M out, E... eventsToWaitFor);
+	E multiply(M a, V b, V out, E... eventsToWaitFor);
 
-    void multiplyNow(Matrix a, Matrix b, Matrix out);
-	void multiplyNow(Matrix a, Vector b, Vector out);
+    void multiplyNow(M a, M b, M out);
+	void multiplyNow(M a, V b, V out);
 }

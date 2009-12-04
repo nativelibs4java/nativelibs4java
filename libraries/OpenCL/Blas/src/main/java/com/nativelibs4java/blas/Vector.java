@@ -3,24 +3,18 @@ package com.nativelibs4java.blas;
 import com.nativelibs4java.util.NIOUtils;
 import java.nio.DoubleBuffer;
 
-public class Vector {
+public abstract class Vector implements Data {
 
-    DoubleBuffer buffer;
-    int size;
+    protected final int size;
 
     public Vector(int size) {
         super();
         this.size = size;
-        buffer = NIOUtils.directDoubles(size);
     }
 
-    public double get(int i) {
-        return buffer.get(i);
-    }
+    public abstract double get(int i);
 
-    public void set(int i, double value) {
-        buffer.put(i, value);
-    }
+    public abstract void set(int i, double value);
 
     public int size() {
         return size;

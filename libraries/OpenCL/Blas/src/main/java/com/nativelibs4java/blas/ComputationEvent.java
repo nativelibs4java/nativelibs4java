@@ -1,6 +1,6 @@
 package com.nativelibs4java.blas;
 
-interface ComputationEvent {
+public interface ComputationEvent {
 
     void waitFor();
 }

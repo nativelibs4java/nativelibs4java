@@ -1,16 +1,16 @@
 package com.nativelibs4java.blas.java;
+import com.nativelibs4java.blas.AbstractLinearAlgebra;
+import com.nativelibs4java.blas.DummyComputationEvent;
+import com.nativelibs4java.blas.Matrix;
+import com.nativelibs4java.blas.Vector;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.util.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
-import java.util.*;
-import java.util.concurrent.*;
-import java.nio.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-public class JavaLinearAlgebra extends AbstractLinearAlgebra {
+
+public class JavaLinearAlgebra extends AbstractLinearAlgebra<DefaultMatrix, DefaultVector, DummyComputationEvent> {
 
     @Override
-	public void multiplyNow(Matrix a, Matrix b, Matrix out) {
+	public void multiplyNow(DefaultMatrix a, DefaultMatrix b, DefaultMatrix out) {
 		assert out.getRows() == a.getRows();
 		assert out.getColumns() == b.getColumns();
 		assert a.getColumns() == b.getRows();
@@ -28,7 +28,7 @@ public class JavaLinearAlgebra extends AbstractLinearAlgebra {
 	}
 	
 	@Override
-	public void multiplyNow(Matrix a, Vector b, Vector out) {
+	public void multiplyNow(DefaultMatrix a, DefaultVector b, DefaultVector out) {
 		assert out.size() == a.getRows();
 		assert a.getColumns() == b.size();
 		for (int i = 0; i < a.getRows(); i++) {
@@ -39,4 +39,14 @@ public class JavaLinearAlgebra extends AbstractLinearAlgebra {
 			out.set(i, sum);
 		}
 	}
+
+    @Override
+    public DefaultMatrix newMatrix(int rows, int columns) {
+        return new DefaultMatrix(rows, columns);
+    }
+
+    @Override
+    public DefaultVector newVector(int size) {
+        return new DefaultVector(size);
+    }
 }

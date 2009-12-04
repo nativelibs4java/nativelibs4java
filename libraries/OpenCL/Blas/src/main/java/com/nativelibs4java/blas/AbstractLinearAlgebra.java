@@ -9,45 +9,29 @@ package com.nativelibs4java.blas;
  *
  * @author Olivier
  */
-public abstract class AbstractLinearAlgebra implements LinearAlgebra {
+public abstract class AbstractLinearAlgebra<M extends Matrix, V extends Vector, E extends ComputationEvent> implements LinearAlgebra<M, V, E> {
 
-    public static void waitFor(ComputationEvent... eventsToWaitFor) {
+    protected void waitFor(E... eventsToWaitFor) {
 		if (eventsToWaitFor == null || eventsToWaitFor.length == 0)
 			return;
-		for (ComputationEvent event : eventsToWaitFor) {
+		for (E event : eventsToWaitFor) {
 			if (event != null)
 				event.waitFor();
 		}
 	}
 	
     @Override
-    public Matrix newMatrix(int rows, int columns) {
-        return new Matrix(rows, columns);
-    }
-
-    @Override
-    public Vector newVector(int size) {
-        return new Vector(size);
-    }
-
-    @Override
-    public ComputationEvent multiply(Matrix a, Matrix b, Matrix out, ComputationEvent... eventsToWaitFor) {
+    public E multiply(M a, M b, M out, E... eventsToWaitFor) {
         waitFor(eventsToWaitFor);
         multiplyNow(a, b, out);
         return null;
     }
 
     @Override
-    public ComputationEvent multiply(Matrix a, Vector b, Vector out, ComputationEvent... eventsToWaitFor) {
+    public E multiply(M a, V b, V out, E... eventsToWaitFor) {
         waitFor(eventsToWaitFor);
         multiplyNow(a, b, out);
         return null;
     }
-
-    @Override
-    public abstract void multiplyNow(Matrix a, Matrix b, Matrix out);
-
-    @Override
-    public abstract void multiplyNow(Matrix a, Vector b, Vector out);
 
 }

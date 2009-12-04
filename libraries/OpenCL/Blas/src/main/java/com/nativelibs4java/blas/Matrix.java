@@ -5,7 +5,7 @@ import java.nio.DoubleBuffer;
 import java.util.Arrays;
 import java.util.EnumSet;
 
-public class Matrix {
+public abstract class Matrix implements Data {
 
     public enum Qualifier {
 
@@ -68,18 +68,6 @@ public class Matrix {
         }
     }
 
-    public double get(int row, int column) {
-        return data.get(getIndex(row, column));
-    }
-
-    protected int getIndex(int row, int column) {
-        return rowsFirst ? row * columns + column : column * rows + row;
-    }
-
-    public void set(int row, int column, double value) {
-        data.put(getIndex(row, column), value);
-    }
-
     public int getRows() {
         return rows;
     }
@@ -88,14 +76,19 @@ public class Matrix {
         return columns;
     }
 
+    protected int getIndex(int row, int column) {
+        return rowsFirst ? row * columns + column : column * rows + row;
+    }
+
     public Matrix(int rows, int columns) {
         super();
         this.rows = rows;
         this.columns = columns;
-        data = NIOUtils.directDoubles(rows * columns);
     }
-    int rows;
-    int columns;
-    boolean rowsFirst = true;
-    DoubleBuffer data;
+    protected final int rows;
+    protected final int columns;
+    protected boolean rowsFirst = true;
+
+    public abstract double get(int row, int column);
+    public abstract void set(int row, int column, double value);
 }
