@@ -1,10 +1,8 @@
 package com.nativelibs4java.opencl.blas;
 import com.nativelibs4java.blas.LinearAlgebra;
 import com.nativelibs4java.blas.Matrix;
-import com.nativelibs4java.blas.Vector;
 import com.nativelibs4java.blas.java.DefaultLinearAlgebra;
 import com.nativelibs4java.blas.java.DefaultMatrix;
-import com.nativelibs4java.blas.java.DefaultVector;
 import com.nativelibs4java.blas.opencl.CLLinearAlgebra;
 import com.nativelibs4java.opencl.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
@@ -33,7 +31,7 @@ public class BlasTest {
     public void testMult(LinearAlgebra la) {
 		Matrix m = la.newMatrix(2, 2);
 		Matrix mout = la.newMatrix(2, 2);
-		Vector v = la.newVector(2);
+		Matrix v = la.newMatrix(2, 1);
         m.write(DoubleBuffer.wrap(new double[] { 0, 1, 1, 0 }));
 		m.multiply(m, mout);
 
@@ -52,15 +50,15 @@ public class BlasTest {
 		assertEquals(1, dmout.get(1, 1), 0);
 
 		v.write(DoubleBuffer.wrap(new double[] { 1, 0 }));
-		Vector vout = la.newVector(2);
+		Matrix vout = la.newMatrix(2, 1);
 		m.multiply(v, vout);
 		//System.out.println(v);
 		//System.out.println(vout);
 
-        DefaultVector dvout = new DefaultVector(vout.size());
+        DefaultMatrix dvout = new DefaultMatrix(vout.getRows(), vout.getColumns());
 		dvout.write((DoubleBuffer)vout.read());
 
-		assertEquals(0, dvout.get(0), 0);
-		assertEquals(1, dvout.get(1), 0);
+		assertEquals(0, dvout.get(0, 0), 0);
+		assertEquals(1, dvout.get(1, 0), 0);
 	}
 }

@@ -11,4 +11,6 @@ package com.nativelibs4java.blas;
  */
 public interface LinearAlgebra<M extends Matrix> {
     M newMatrix(int rows, int columns);
+
+	M newMatrix(Matrix m);
 }

@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.blas.opencl;
 
+import com.nativelibs4java.blas.AbstractLinearAlgebra;
 import com.nativelibs4java.blas.LinearAlgebra;
 import com.nativelibs4java.blas.Matrix;
 import com.nativelibs4java.opencl.CLBuildException;
@@ -30,7 +31,7 @@ import java.util.logging.Logger;
  *
  * @author Olivier
  */
-public class CLLinearAlgebra<FM extends Matrix<FM, DoubleBuffer>> implements LinearAlgebra<CLMatrix> {
+public class CLLinearAlgebra<FM extends Matrix<FM, DoubleBuffer>> extends AbstractLinearAlgebra<CLMatrix> {
 
     public CLContext context;
     public CLQueue queue;

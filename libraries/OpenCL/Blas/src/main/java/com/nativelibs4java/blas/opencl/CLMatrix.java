@@ -11,6 +11,7 @@ import com.nativelibs4java.blas.LU;
 import com.nativelibs4java.blas.Matrix;
 import com.nativelibs4java.blas.QR;
 import com.nativelibs4java.blas.SVD;
+import com.nativelibs4java.blas.java.DefaultLinearAlgebra;
 import com.nativelibs4java.blas.java.DefaultMatrix;
 import com.nativelibs4java.opencl.CLDoubleBuffer;
 import com.nativelibs4java.opencl.CLEvent;
@@ -65,12 +66,6 @@ public class CLMatrix extends CLDoubleData implements Matrix<CLMatrix, DoubleBuf
 		return out;
 	}
 
-	public DefaultMatrix toDefaultMatrix() {
-		DefaultMatrix m = new DefaultMatrix(rows, columns);
-		m.write(read());
-		return m;
-	}
-
 	@Override
 	public SVD<CLMatrix, DoubleBuffer> svd() {
 		throw new UnsupportedOperationException("Not supported yet.");
@@ -98,7 +93,7 @@ public class CLMatrix extends CLDoubleData implements Matrix<CLMatrix, DoubleBuf
 
 	@Override
 	public String toString() {
-		return toDefaultMatrix().toString();
+		return DefaultLinearAlgebra.getInstance().newMatrix(this).toString();
 	}
 
 
