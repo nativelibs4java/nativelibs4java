@@ -18,6 +18,7 @@
 */
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
@@ -91,19 +92,40 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
             setArg(i, (Float) arg);
         } else if (arg instanceof Double) {
             setArg(i, (Double) arg);
+		} else if (arg instanceof Buffer) {
+            setArg(i, (Buffer) arg);
+		} else if (arg instanceof int[]) {
+			setArg(i, IntBuffer.wrap((int[])arg));
+        } else if (arg instanceof long[]) {
+			setArg(i, LongBuffer.wrap((long[])arg));
+        } else if (arg instanceof short[]) {
+			setArg(i, ShortBuffer.wrap((short[])arg));
+        } else if (arg instanceof double[]) {
+			setArg(i, DoubleBuffer.wrap((double[])arg));
+        } else if (arg instanceof float[]) {
+			setArg(i, FloatBuffer.wrap((float[])arg));
+        } else if (arg instanceof byte[]) {
+			setArg(i, ByteBuffer.wrap((byte[])arg));
         } else {
-            throw new IllegalArgumentException("Cannot handle kernel arguments of type " + arg.getClass().getName() + ". Use CLKernel.get() and OpenCL4Java directly.");
+			throw new IllegalArgumentException("Cannot handle kernel arguments of type " + arg.getClass().getName() + ". Use CLKernel.get() and OpenCL4Java directly.");
         }
     }
 
     public void setLocalArg(int argIndex, long localArgByteLength) {
         error(CL.clSetKernelArg(get(), argIndex, toNS(localArgByteLength), null));
     }
-	
+
     public void setArg(int i, NativeLong arg) {
         error(CL.clSetKernelArg(get(), i, toNS(NativeLong.SIZE), new NativeLongByReference(arg).getPointer()));
 //			error(CL.clSetKernelArg(get(), i, OpenCL4Java.toNL(Native.LONG_SIZE), new IntByReference(128).getPointer()));
 //			error(CL.clSetKernelArg(get(), i, toNL(Native.LONG_SIZE), new IntByReference(arg.intValue()).getPointer()));
+    }
+
+    public void setArg(int i, Buffer arg) {
+		if (!arg.isDirect())
+			arg = NIOUtils.directCopy(arg);
+		long size = NIOUtils.getSizeInBytes(arg);
+        error(CL.clSetKernelArg(get(), i, toNS(size), Native.getDirectBufferPointer(arg)));
     }
 
     public void setArg(int i, NativeSize arg) {
