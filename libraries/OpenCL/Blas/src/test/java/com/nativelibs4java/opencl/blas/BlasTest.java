@@ -16,12 +16,12 @@ import org.junit.*;
 public class BlasTest {
 	@Test
 	public void testMultJava() {
-        testMult(new DefaultLinearAlgebra());
+        testMult(DefaultLinearAlgebra.getInstance());
     }
     @Test
 	public void testMultCL() {
         try {
-            testMult(new CLLinearAlgebra(new DefaultLinearAlgebra()));
+            testMult(new CLLinearAlgebra(DefaultLinearAlgebra.getInstance()));
         } catch (Exception ex) {
             Logger.getLogger(BlasTest.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace();
