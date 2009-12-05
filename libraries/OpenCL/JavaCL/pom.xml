@@ -25,12 +25,13 @@
 	  <scope>compile</scope>
 	</dependency>
 	
-	<dependency>
+	<!-- http://download.java.net/media/jogl/builds/archive/jsr-231-2.0-beta10/ -->
+	<!--dependency>
 		<groupId>net.java.jogl.nl4j</groupId>
 		<artifactId>jogl</artifactId>
 		<version>2.x-SNAPSHOT</version>
 	  <scope>test</scope>
-	</dependency>
+	</dependency-->
 	
 	<!--dependency>
 		<groupId>net.java.jogl</groupId>
@@ -39,6 +40,41 @@
 	  <scope>compile</scope>
 	</dependency-->
 	    
+	<!--dependency>
+	  <groupId>com.projectdarkstar.ext.net.java.dev.jogl</groupId>
+	  <artifactId>jogl</artifactId>
+	  <version>1.1.1</version>
+		<scope>test</scope>
+	</dependency>
+	
+	<dependency>
+		<groupId>net.java.dev.gluegen</groupId>
+		<artifactId>gluegen-rt</artifactId>
+		<version>1.0b05</version>
+		<scope>test</scope>
+	</dependency>
+
+	<dependency>
+		<groupId>net.java.dev.gluegen</groupId>
+		<artifactId>gluegen-rt-macosx-universal</artifactId>
+		<version>1.0b05</version>
+		<scope>test</scope>
+	</dependency-->
+
+	<!--dependency>
+		<groupId>net.java.dev.gluegen</groupId>
+		<artifactId>gluegen-rt-windows-i586</artifactId>
+		<version>1.0b05</version>
+		<scope>test</scope>
+	</dependency>
+
+	<dependency>
+		<groupId>net.java.dev.gluegen</groupId>
+		<artifactId>gluegen-rt-linux-i586</artifactId>
+		<version>1.0b05</version>
+		<scope>test</scope>
+	</dependency-->
+
 	<dependency>
 		<groupId>lwjgl</groupId>
 		<artifactId>lwjgl</artifactId>

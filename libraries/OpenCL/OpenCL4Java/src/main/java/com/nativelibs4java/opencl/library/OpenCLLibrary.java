@@ -366,28 +366,28 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	int clGetDeviceInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_id1, int cl_device_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Context APIs<br>
-	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code><br>
+	 * Original signature : <code>cl_context clCreateContext(cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code><br>
 	 * @deprecated use the safer methods {@link #clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer, java.nio.IntBuffer)} and {@link #clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Context APIs<br>
-	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code>
+	 * Original signature : <code>cl_context clCreateContext(cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Context APIs<br>
-	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code>
+	 * Original signature : <code>cl_context clCreateContext(cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
-	 * Original signature : <code>cl_context clCreateContextFromType(const cl_context_properties*, cl_device_type, pfn_notify, void*, cl_int*)</code><br>
+	 * Original signature : <code>cl_context clCreateContextFromType(cl_context_properties*, cl_device_type, pfn_notify, void*, cl_int*)</code><br>
 	 * @deprecated use the safer methods {@link #clCreateContextFromType(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, long, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer, java.nio.IntBuffer)} and {@link #clCreateContextFromType(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, long, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContextFromType(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, long cl_device_type1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/// Original signature : <code>cl_context clCreateContextFromType(const cl_context_properties*, cl_device_type, pfn_notify, void*, cl_int*)</code>
+	/// Original signature : <code>cl_context clCreateContextFromType(cl_context_properties*, cl_device_type, pfn_notify, void*, cl_int*)</code>
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContextFromType(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, long cl_device_type1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, java.nio.IntBuffer cl_intPtr1);
 	/// Original signature : <code>cl_int clRetainContext(cl_context)</code>
 	int clRetainContext(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1);
@@ -859,8 +859,7 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	/// Original signature : <code>cl_int clEnqueueReleaseGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code>
 	int clEnqueueReleaseGLObjects(int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/// Original signature : <code>cl_int clGetGLContextInfoKHR(const cl_context_properties*, cl_gl_context_info, size_t, void*, size_t*)</code>
-	@Mangling("clGetGLContextInfoAPPLE")
-    int clGetGLContextInfoKHR(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference properties, int param_name, com.ochafik.lang.jnaerator.runtime.NativeSize param_value_size, com.sun.jna.Pointer param_value, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference param_value_size_ret);
+	int clGetGLContextInfoKHR(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference properties, int param_name, com.ochafik.lang.jnaerator.runtime.NativeSize param_value_size, com.sun.jna.Pointer param_value, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference param_value_size_ret);
 	/// Pointer to unknown (opaque) type
 	public static class cl_device_id extends com.sun.jna.PointerType {
 		public cl_device_id(com.sun.jna.Pointer pointer) {

@@ -19,6 +19,7 @@ along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 package com.nativelibs4java.opencl;
 
 
+import com.nativelibs4java.opencl.library.OpenGLApple;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
@@ -120,10 +121,10 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         return devices;
     }
 
-    private NativeSizeByReference getContextPropsRef(Map<ContextProperties, Number> contextProperties) {
+    private long[] getContextProps(Map<ContextProperties, Number> contextProperties) {
         if (contextProperties == null)
             return null;
-        final long[] properties = new long[contextProperties.size() + 1];
+        final long[] properties = new long[contextProperties.size() * 2 + 1];
         int iProp = 0;
         for (Map.Entry<ContextProperties, Number> e : contextProperties.entrySet()) {
             //if (!(v instanceof Number)) throw new IllegalArgumentException("Invalid context property value for '" + e.getKey() + ": " + v);
@@ -131,14 +132,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             properties[iProp++] = e.getValue().longValue();
         }
         properties[iProp] = 0;
-        
-        return new NativeSizeByReference() {
-            Memory propsMem;
-            {
-                propsMem = toNSArray(properties);
-                setPointer(propsMem);
-            }
-        };
+        return properties;
     }
 
     public enum DeviceEvaluationStrategy {
@@ -193,7 +187,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 
     public static ContextProperties getGLContextPropertyKey() {
         if (Platform.isMac())
-            return ContextProperties.CGLShareGroup;
+            return ContextProperties.GLContext;//.CGLShareGroup;
         else if (Platform.isWindows())
             return ContextProperties.WGLHDC;
         else if (Platform.isX11())
@@ -238,7 +232,12 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         }
 
         IntByReference errRef = new IntByReference();
-        cl_context context = CL.clCreateContext(getContextPropsRef(contextProperties), ids.length, ids, null, null, errRef);
+
+        long[] props = getContextProps(contextProperties);
+        Memory propsMem = toNSArray(props);
+        NativeSizeByReference propsRef = new NativeSizeByReference();
+        propsRef.setPointer(propsMem);
+        cl_context context = CL.clCreateContext(propsRef, ids.length, ids, null, null, errRef);
         error(errRef.getValue());
         return new CLContext(this, ids, context);
     }
@@ -264,14 +263,32 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         return getDevices(ids, onlyAvailable);
     }
 
+    public long getCurrentGLContext() {
+        if (Platform.isMac()) {
+            return OpenGLApple.INSTANCE.CGLGetShareGroup(OpenGLApple.INSTANCE.CGLGetCurrentContext()).longValue();
+        }
+        throw new UnsupportedOperationException("Current GL context retrieval not implemented on this platform !");
+    }
+    public CLContext createContextFromCurrentGL() {
+        return createBestGLCompatibleContext(getCurrentGLContext(), listAllDevices(true));
+    }
+
+    @Deprecated
     public CLDevice currentGLDevice() {
         IntByReference errRef = new IntByReference();
-        NativeSizeByReference propsRef = null;//getContextPropsRef(contextProperties);
-
+        int openglContextId = 0;
+        long[] props = getContextProps(getGLContextProperty(openglContextId, null));
+        Memory propsMem = toNSArray(props);
+        NativeSizeByReference propsRef = new NativeSizeByReference();
+        propsRef.setPointer(propsMem);
+        
         NativeSizeByReference pCount = new NativeSizeByReference();
         NativeSizeByReference pLen = new NativeSizeByReference();
         Memory mem = new Memory(Pointer.SIZE);
-        error(CL.clGetGLContextInfoKHR(propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, toNS(Pointer.SIZE), mem, pCount));
+        if (Platform.isMac())
+            error(CL.clGetGLContextInfoAPPLE(Pointer.createConstant(CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR), toNS(Pointer.SIZE), mem, pCount));
+        else
+            error(CL.clGetGLContextInfoKHR(propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, toNS(Pointer.SIZE), mem, pCount));
 
         if (pCount.getValue().intValue() != Pointer.SIZE)
             throw new RuntimeException("Not a device : len = " + pCount.getValue().intValue());
@@ -284,7 +301,10 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     public CLDevice[] listGLDevices(long openglContextId, boolean onlyAvailable) {
         
         IntByReference errRef = new IntByReference();
-        NativeSizeByReference propsRef = getContextPropsRef(getGLContextProperty(openglContextId, null));
+        long[] props = getContextProps(getGLContextProperty(openglContextId, null));
+        Memory propsMem = toNSArray(props);
+        NativeSizeByReference propsRef = new NativeSizeByReference();
+        propsRef.setPointer(propsMem);
         
         NativeSizeByReference pCount = new NativeSizeByReference();
         error(CL.clGetGLContextInfoKHR(propsRef, CL_DEVICES_FOR_GL_CONTEXT_KHR, toNS(0), (Pointer) null, pCount));

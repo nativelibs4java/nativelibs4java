@@ -4,5 +4,8 @@
 -D__APPLE__=
 
 -framework OpenCL
+
+-framework OpenGL
 //-package com.nativelibs4java.opengl.library -framework OpenGL
 
+-v
