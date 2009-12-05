@@ -13,29 +13,33 @@ import java.nio.DoubleBuffer;
  *
  * @author Olivier
  */
-public class DefaultVector extends Vector {
-
-    protected DoubleBuffer buffer;
+public class DefaultVector extends DoubleData implements Vector<DefaultMatrix, DefaultVector, DoubleBuffer> {
 
     public DefaultVector(int size) {
         super(size);
-        buffer = NIOUtils.directDoubles(size);
     }
 
-    @Override
     public double get(int i) {
-        return buffer.get(i);
+        return data.get(i);
     }
 
-    @Override
     public void set(int i, double value) {
-        buffer.put(i, value);
+        data.put(i, value);
     }
 
-    @Override
-    public void attach(Usage usage) {}
+	@Override
+	public DefaultVector dot(DefaultVector other, DefaultVector out) {
+		if (out == null)
+			out = new DefaultVector(1);
+		else if (out.size() != 1)
+			throw new IllegalArgumentException("Size of output vector for dot operation must be 1");
 
-    @Override
-    public void detach() {}
+		double total = 0;
+		for (int i = size; i-- != 0;)
+			total += get(i) * other.get(i);
+		out.data.put(0, total);
+		//out.write(DoubleBuffer.wrap(new double[] { total }));
+		return out;
+	}
 
 }

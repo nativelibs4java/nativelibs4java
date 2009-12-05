@@ -5,7 +5,13 @@
 
 package com.nativelibs4java.blas.opencl;
 
+import com.nativelibs4java.blas.Cholesky;
+import com.nativelibs4java.blas.Eigen;
+import com.nativelibs4java.blas.LU;
 import com.nativelibs4java.blas.Matrix;
+import com.nativelibs4java.blas.QR;
+import com.nativelibs4java.blas.SVD;
+import com.nativelibs4java.blas.Vector;
 import com.nativelibs4java.opencl.CLDoubleBuffer;
 import com.nativelibs4java.opencl.CLMem;
 import com.nativelibs4java.opencl.CLMem.MapFlags;
@@ -16,68 +22,59 @@ import java.nio.DoubleBuffer;
  *
  * @author Olivier
  */
-public class CLMatrix extends Matrix {
+public class CLMatrix extends CLDoubleData implements Matrix<CLMatrix, CLVector, DoubleBuffer> {
 
-    CLDoubleBuffer buffer;
-    DoubleBuffer mappedBuffer;
-    CLLinearAlgebra al;
-
+	protected final int rows, columns;
     public CLMatrix(CLLinearAlgebra al, int rows, int columns) {
-        super(rows, columns);
-        this.al = al;
-        buffer = al.context.createDoubleBuffer(CLMem.Usage.InputOutput, rows * columns);
+        super(al, rows * columns);
+		this.rows = rows;
+		this.columns = columns;
     }
 
-    @Override
-    public double get(int row, int column) {
-        attach(Usage.Read);
-        //if (mappedBuffer == null)
-        //    throw new IllegalThreadStateException("Matrix buffer was not attached !");
 
-        return mappedBuffer.get(getIndex(row, column));
-    }
+	@Override
+	public int getRows() {
+		return rows;
+	}
 
-    @Override
-    public void set(int row, int column, double value) {
-        attach(Usage.Write);
-        mappedBuffer.put(getIndex(row, column), value);
-    }
+	@Override
+	public int getColumns() {
+		return columns;
+	}
 
-    static MapFlags getMapFlags(Usage usage) {
-        MapFlags flags;
-        switch (usage) {
-            case Read:
-                flags = MapFlags.Read;
-                break;
-            case Write:
-                flags = MapFlags.Write;
-                break;
-            case ReadWrite:
-                flags = MapFlags.ReadWrite;
-                break;
-            default:
-                throw new UnsupportedOperationException();
-        }
-        return flags;
-    }
-    @Override
-    public void attach(Usage usage) {
-        mappedBuffer = buffer.map(al.queue, getMapFlags(usage));
-    }
+	@Override
+	public CLMatrix multiply(CLMatrix m, CLMatrix out) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    @Override
-    public void detach() {
-        buffer.unmap(al.queue, mappedBuffer).waitFor();
-    }
+	@Override
+	public CLVector multiply(CLVector v, CLVector out) {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    @Override
-    public void set(DoubleBuffer data) {
-        buffer.write(al.queue, data, true);
-    }
+	@Override
+	public SVD<CLMatrix, CLVector, DoubleBuffer> svd() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
-    @Override
-    public void get(DoubleBuffer data) {
-        buffer.read(al.queue, data, true);
-    }
+	@Override
+	public LU<CLMatrix, CLVector, DoubleBuffer> lu() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public Cholesky<CLMatrix, CLVector, DoubleBuffer> cholesky() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public Eigen<CLMatrix, CLVector, DoubleBuffer> eigen() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+	@Override
+	public QR<CLMatrix, CLVector, DoubleBuffer> qr() {
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
 
 }

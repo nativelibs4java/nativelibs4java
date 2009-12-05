@@ -7,13 +7,9 @@ package com.nativelibs4java.blas;
 
 import java.nio.Buffer;
 
-/**
- *
- * @author Olivier
- */
-public interface Data<B extends Buffer> {
-	int size();
-	void read(B in);
-	void write(B out);
-	B read();
+
+public interface AsynchronousData<B extends Buffer> extends Data<B> {
+	void waitForRead();
+	void waitForWrite();
 }
+

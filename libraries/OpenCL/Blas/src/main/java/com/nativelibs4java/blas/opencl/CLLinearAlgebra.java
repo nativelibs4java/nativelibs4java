@@ -5,7 +5,7 @@
 
 package com.nativelibs4java.blas.opencl;
 
-import com.nativelibs4java.blas.AbstractLinearAlgebra;
+import com.nativelibs4java.blas.LinearAlgebra;
 import com.nativelibs4java.blas.Matrix;
 import com.nativelibs4java.blas.Vector;
 import com.nativelibs4java.opencl.CLBuildException;
@@ -15,16 +15,23 @@ import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLProgram;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.JavaCL;
+import com.nativelibs4java.opencl.ReductionUtils;
+import com.nativelibs4java.opencl.ReductionUtils.Reductor;
 import com.nativelibs4java.util.IOUtils;
+import com.nativelibs4java.util.NIOUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.Buffer;
+import java.nio.DoubleBuffer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Olivier
  */
-public class CLLinearAlgebra extends AbstractLinearAlgebra<CLMatrix, CLVector, CLComputationEvent> {
+public class CLLinearAlgebra<FM extends Matrix<FM, FV, DoubleBuffer>, FV extends Vector<FM, FV, DoubleBuffer>> implements LinearAlgebra<CLMatrix, CLVector> {
 
     CLContext context;
     CLQueue queue;
@@ -32,9 +39,14 @@ public class CLLinearAlgebra extends AbstractLinearAlgebra<CLMatrix, CLVector, C
     CLKernel mulMatKernel, mulVecKernel;
 
     static final String blas1Source = "Blas1.c";
-    public CLLinearAlgebra() throws IOException, CLBuildException {
+
+
+	LinearAlgebra<FM, FV> fallBackLibrary;
+	
+    public CLLinearAlgebra(LinearAlgebra<FM, FV> fallBackLibrary) throws IOException, CLBuildException {
         context = JavaCL.createBestContext();
         queue = context.createDefaultQueue();
+		this.fallBackLibrary = fallBackLibrary;
 
         InputStream in = CLLinearAlgebra.class.getResourceAsStream(blas1Source);
         if (in == null)
@@ -46,48 +58,68 @@ public class CLLinearAlgebra extends AbstractLinearAlgebra<CLMatrix, CLVector, C
         mulVecKernel = multiplyProg.createKernel("mulVec");
     }
 
-    private static final CLEvent[] emptyEvents = new CLEvent[0];
-    CLEvent[] events(CLComputationEvent... eventsToWaitFor) {
-        if (eventsToWaitFor == null || eventsToWaitFor.length == 0)
-            return emptyEvents;
-        
-        CLEvent[] events = new CLEvent[eventsToWaitFor.length];
-        for (int i = events.length; i-- != 0;)
-            events[i] = eventsToWaitFor[i].event;
-        return events;
-    }
+	public static <MM extends Matrix<MM, VV, DoubleBuffer>, VV extends Vector<MM, VV, DoubleBuffer>>
+			MM newMatrix(LinearAlgebra<MM, VV> other, CLMatrix m) {
+		DoubleBuffer b = NIOUtils.directDoubles(m.size());
+		m.read(b);
+		MM mm = other.newMatrix(m.getRows(), m.getColumns());
+		mm.write(b);
+		return mm;
+	}
+
+	public static <MM extends Matrix<MM, VV, DoubleBuffer>, VV extends Vector<MM, VV, DoubleBuffer>>
+			VV newVector(LinearAlgebra<MM, VV> other, CLVector m) {
+		DoubleBuffer b = NIOUtils.directDoubles(m.size());
+		m.read(b);
+		VV mm = other.newVector(m.size());
+		mm.write(b);
+		return mm;
+	}
 
     private static final int[] unitIntArr = new int[] { 1 };
     private static final int[] unitInt2Arr = new int[] { 1, 1 };
-    @Override
-    public synchronized CLComputationEvent multiply(CLMatrix a, CLMatrix b, CLMatrix out, CLComputationEvent... eventsToWaitFor) {
+
+	synchronized CLEvent multiply(CLMatrix a, CLMatrix b, CLMatrix out, CLEvent... eventsToWaitFor) {
         mulMatKernel.setArgs(
-            a.buffer, a.getRows(), a.getColumns(),
-            b.buffer, b.getRows(), b.getColumns(),
-            out.buffer
+            a.data, a.getRows(), a.getColumns(),
+            b.data, b.getRows(), b.getColumns(),
+            out.data
         );
-        return new CLComputationEvent(mulMatKernel.enqueueNDRange(queue, new int[] { out.getRows(), out.getColumns() }, unitInt2Arr, events(eventsToWaitFor)));
+        return mulMatKernel.enqueueNDRange(queue, new int[] { out.getRows(), out.getColumns() }, unitInt2Arr, eventsToWaitFor);
     }
 
-    @Override
-    public synchronized CLComputationEvent multiply(CLMatrix a, CLVector b, CLVector out, CLComputationEvent... eventsToWaitFor) {
+    synchronized CLEvent multiply(CLMatrix a, CLVector b, CLVector out, CLEvent... eventsToWaitFor) {
         mulVecKernel.setArgs(
-            a.buffer, a.getRows(), a.getColumns(),
-            b.buffer, b.size(),
-            out.buffer
+            a.data, a.getRows(), a.getColumns(),
+            b.data, b.size(),
+            out.data
         );
-        return new CLComputationEvent(mulVecKernel.enqueueNDRange(queue, new int[] { out.size() }, unitIntArr, events(eventsToWaitFor)));
+        return mulVecKernel.enqueueNDRange(queue, new int[] { out.size() }, unitIntArr, eventsToWaitFor);
     }
 
-    @Override
-    public void multiplyNow(CLMatrix a, CLMatrix b, CLMatrix out) {
-        multiply(a, b, out).waitFor();
+    synchronized CLEvent dot(CLVector a, CLVector b, CLVector out, CLEvent... eventsToWaitFor) {
+		CLEvent.waitFor(eventsToWaitFor);
+		a.waitForRead();
+		b.waitForRead();
+		out.waitForWrite();
+		FV aa  = newVector(fallBackLibrary, a);
+		FV bb  = newVector(fallBackLibrary, b);
+		out.write(aa.dot(bb, null).read());
+		return null;
     }
 
-    @Override
-    public void multiplyNow(CLMatrix a, CLVector b, CLVector out) {
-        multiply(a, b, out).waitFor();
-    }
+	Reductor<DoubleBuffer> addReductor;
+	synchronized Reductor<DoubleBuffer> getAddReductor() {
+		if (addReductor == null) {
+			try {
+				addReductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, ReductionUtils.Type.Double, 1);
+			} catch (CLBuildException ex) {
+				Logger.getLogger(CLLinearAlgebra.class.getName()).log(Level.SEVERE, null, ex);
+				throw new RuntimeException("Failed to create an addition reductor !", ex);
+			}
+		}
+		return addReductor;
+	}
 
     @Override
     public CLMatrix newMatrix(int rows, int columns) {

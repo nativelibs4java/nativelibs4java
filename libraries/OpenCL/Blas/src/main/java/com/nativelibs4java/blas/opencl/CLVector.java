@@ -17,38 +17,23 @@ import java.nio.DoubleBuffer;
  *
  * @author Olivier
  */
-public class CLVector extends Vector {
-
-    CLDoubleBuffer buffer;
-    DoubleBuffer mappedBuffer;
-    CLLinearAlgebra al;
+public class CLVector extends CLDoubleData implements Vector<CLMatrix, CLVector, DoubleBuffer> {
 
     public CLVector(CLLinearAlgebra al, int size) {
-        super(size);
-        this.al = al;
-        buffer = al.context.createDoubleBuffer(CLMem.Usage.InputOutput, size);
+        super(al, size);
     }
 
-    @Override
-    public double get(int index) {
-        attach(Usage.Read);
-        return mappedBuffer.get(index);
-    }
+	@Override
+	public CLVector dot(CLVector other, CLVector out) {
+		if (out == null)
+			out = al.newVector(1);
+		else if (out.size() != 1)
+			throw new IllegalArgumentException("Size of output vector for dot operation must be 1");
+		//else
+		//	out.waitForWrite();
 
-    @Override
-    public void set(int index, double value) {
-        attach(Usage.Write);
-        mappedBuffer.put(index, value);
-    }
-
-    @Override
-    public void attach(Usage usage) {
-        mappedBuffer = buffer.map(al.queue, CLMatrix.getMapFlags(usage));
-    }
-
-    @Override
-    public void detach() {
-        buffer.unmap(al.queue, mappedBuffer).waitFor();
-    }
+		al.dot(this, other, out);
+		return out;
+	}
 
 }

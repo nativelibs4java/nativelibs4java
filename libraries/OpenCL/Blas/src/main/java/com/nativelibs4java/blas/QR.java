@@ -9,11 +9,8 @@ import java.nio.Buffer;
 
 /**
  *
- * @author Olivier
+ * @author ochafik
  */
-public interface Data<B extends Buffer> {
-	int size();
-	void read(B in);
-	void write(B out);
-	B read();
+public interface QR<M extends Matrix<M, V, B>, V extends Vector<M, V, B>, B extends Buffer> {
+
 }
