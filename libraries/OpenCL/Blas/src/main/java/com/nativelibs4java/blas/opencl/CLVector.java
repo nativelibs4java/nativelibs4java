@@ -7,6 +7,7 @@ package com.nativelibs4java.blas.opencl;
 
 import com.nativelibs4java.blas.Matrix;
 import com.nativelibs4java.blas.Vector;
+import com.nativelibs4java.blas.java.DefaultVector;
 import com.nativelibs4java.opencl.CLDoubleBuffer;
 import com.nativelibs4java.opencl.CLMem;
 import com.nativelibs4java.opencl.CLMem.MapFlags;
@@ -35,5 +36,18 @@ public class CLVector extends CLDoubleData implements Vector<CLMatrix, CLVector,
 		al.dot(this, other, out);
 		return out;
 	}
+
+
+	public DefaultVector toDefaultVector() {
+		DefaultVector m = new DefaultVector(size);
+		m.write(read());
+		return m;
+	}
+
+	@Override
+	public String toString() {
+		return toDefaultVector().toString();
+	}
+
 
 }

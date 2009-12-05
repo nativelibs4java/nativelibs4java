@@ -1,9 +1,10 @@
 package com.nativelibs4java.opencl.blas;
-import com.nativelibs4java.blas.Data.Usage;
 import com.nativelibs4java.blas.LinearAlgebra;
 import com.nativelibs4java.blas.Matrix;
 import com.nativelibs4java.blas.Vector;
 import com.nativelibs4java.blas.java.DefaultLinearAlgebra;
+import com.nativelibs4java.blas.java.DefaultMatrix;
+import com.nativelibs4java.blas.java.DefaultVector;
 import com.nativelibs4java.blas.opencl.CLLinearAlgebra;
 import com.nativelibs4java.opencl.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
@@ -22,7 +23,7 @@ public class BlasTest {
     @Test
 	public void testMultCL() {
         try {
-            testMult(new CLLinearAlgebra());
+            testMult(new CLLinearAlgebra(new DefaultLinearAlgebra()));
         } catch (Exception ex) {
             Logger.getLogger(BlasTest.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace();
@@ -33,42 +34,33 @@ public class BlasTest {
 		Matrix m = la.newMatrix(2, 2);
 		Matrix mout = la.newMatrix(2, 2);
 		Vector v = la.newVector(2);
-        m.set(DoubleBuffer.wrap(new double[] { 0, 1, 1, 0 }));
-		/*m.attach(Usage.Write);
-        m.set(0, 0, 0);
-		m.set(1, 1, 0);
-		m.set(0, 1, 1);
-		m.set(1, 0, 1);
-		m.detach();*/
+        m.write(DoubleBuffer.wrap(new double[] { 0, 1, 1, 0 }));
+		m.multiply(m, mout);
 
-        v.attach(Usage.Write);
-		v.set(0, 1);
-		v.detach();
+        //System.out.println(m);
+		//System.out.println(mout);
 
-		la.multiplyNow(m, m, mout);
+		DefaultMatrix dmout = new DefaultMatrix(mout.getRows(), mout.getColumns());
+		dmout.write((DoubleBuffer)mout.read());
+		//if (la instanceof CLLinearAlgebra)
+		//	((CLLinearAlgebra)la).queue.finish();
+		//dmout.write((DoubleBuffer)mout.read());
 
-        mout.attach(Usage.Read);
-        for (int i = 0; i < mout.getRows(); i++) {
-            for (int j = 0; j < mout.getColumns(); j++) {
-                System.out.print(mout.get(i, j) + "\t");
-            }
-            System.out.println();
-        }
+		assertEquals(0, dmout.get(0, 1), 0);
+		assertEquals(0, dmout.get(1, 0), 0);
+        assertEquals(1, dmout.get(0, 0), 0);
+		assertEquals(1, dmout.get(1, 1), 0);
 
-		assertEquals(0, mout.get(0, 1), 0);
-		assertEquals(0, mout.get(1, 0), 0);
-        assertEquals(1, mout.get(0, 0), 0);
-		assertEquals(1, mout.get(1, 1), 0);
-		mout.detach();
+		v.write(DoubleBuffer.wrap(new double[] { 1, 0 }));
+		Vector vout = la.newVector(2);
+		m.multiply(v, vout);
+		//System.out.println(v);
+		//System.out.println(vout);
 
-        Vector vout = la.newVector(2);
-		la.multiplyNow(m, v, vout);
+        DefaultVector dvout = new DefaultVector(vout.size());
+		dvout.write((DoubleBuffer)vout.read());
 
-        vout.attach(Usage.Read);
-		assertEquals(0, vout.get(0), 0);
-		assertEquals(1, vout.get(1), 0);
-		vout.detach();
-
-		
+		assertEquals(0, dvout.get(0), 0);
+		assertEquals(1, dvout.get(1), 0);
 	}
 }

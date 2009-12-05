@@ -12,11 +12,15 @@ import com.nativelibs4java.blas.Matrix;
 import com.nativelibs4java.blas.QR;
 import com.nativelibs4java.blas.SVD;
 import com.nativelibs4java.blas.Vector;
+import com.nativelibs4java.blas.java.DefaultMatrix;
 import com.nativelibs4java.opencl.CLDoubleBuffer;
+import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLMem;
 import com.nativelibs4java.opencl.CLMem.MapFlags;
 import com.nativelibs4java.opencl.CLMem.Usage;
 import java.nio.DoubleBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -43,13 +47,49 @@ public class CLMatrix extends CLDoubleData implements Matrix<CLMatrix, CLVector,
 	}
 
 	@Override
-	public CLMatrix multiply(CLMatrix m, CLMatrix out) {
-		throw new UnsupportedOperationException("Not supported yet.");
+	public CLMatrix multiply(CLMatrix other, CLMatrix out) {
+		if (getColumns() != other.getRows())
+			throw new IllegalArgumentException("These two matrices cannot be multiplied (incompatible dimensions)");
+
+		List<CLEvent> evtsList = new ArrayList<CLEvent>();
+
+		if (out == null)
+			out = al.newMatrix(getRows(), other.getColumns());
+		else if (out.getRows() != getRows() || out.getColumns() != other.getColumns())
+			throw new IllegalArgumentException("The output matrix does not have the expected size");
+		else
+			out.eventsBeforeWriting(evtsList);
+
+		eventsBeforeReading(evtsList);
+		other.eventsBeforeReading(evtsList);
+		al.multiply(this, other, out, evtsList.toArray(new CLEvent[evtsList.size()]));
+		return out;
 	}
 
 	@Override
 	public CLVector multiply(CLVector v, CLVector out) {
-		throw new UnsupportedOperationException("Not supported yet.");
+		if (getColumns() != v.size())
+			throw new IllegalArgumentException("This vector cannot be multiplied by this matrix  (incompatible dimensions)");
+
+		List<CLEvent> evtsList = new ArrayList<CLEvent>();
+
+		if (out == null)
+			out = al.newVector(getRows());
+		else if (out.size() != getRows())
+			throw new IllegalArgumentException("The output vector does not have the expected size");
+		else
+			out.eventsBeforeWriting(evtsList);
+
+		eventsBeforeReading(evtsList);
+		v.eventsBeforeReading(evtsList);
+		al.multiply(this, v, out, evtsList.toArray(new CLEvent[evtsList.size()]));
+		return out;
+	}
+
+	public DefaultMatrix toDefaultMatrix() {
+		DefaultMatrix m = new DefaultMatrix(rows, columns);
+		m.write(read());
+		return m;
 	}
 
 	@Override
@@ -76,5 +116,11 @@ public class CLMatrix extends CLDoubleData implements Matrix<CLMatrix, CLVector,
 	public QR<CLMatrix, CLVector, DoubleBuffer> qr() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
+
+	@Override
+	public String toString() {
+		return toDefaultMatrix().toString();
+	}
+
 
 }

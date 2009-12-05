@@ -129,9 +129,9 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		cl_event[] event_wait_list = new cl_event[events.length];
 		for (int i = events.length; i-- != 0;)
 			event_wait_list[i] = events[i] == null ? null : events[i].get();
-		return event_wait_list;
-		
+		return event_wait_list;	
 	}
+
 	@Override
 	protected void clear() {
 		error(CL.clReleaseEvent(get()));

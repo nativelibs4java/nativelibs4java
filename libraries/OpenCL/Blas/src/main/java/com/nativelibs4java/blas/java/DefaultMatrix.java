@@ -116,4 +116,20 @@ public class DefaultMatrix extends DoubleData implements Matrix<DefaultMatrix, D
 	public QR<DefaultMatrix, DefaultVector, DoubleBuffer> qr() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder("{\n");
+		for (int i = 0; i < rows; i++) {
+			b.append("\t{");
+			for (int j = 0; j < columns; j++) {
+				if (j != 0)
+					b.append(", ");
+				b.append(get(i, j));
+			}
+			b.append("}\n");
+		}
+		b.append("}");
+		return b.toString();
+	}
 }

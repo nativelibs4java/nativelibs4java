@@ -33,10 +33,10 @@ import java.util.logging.Logger;
  */
 public class CLLinearAlgebra<FM extends Matrix<FM, FV, DoubleBuffer>, FV extends Vector<FM, FV, DoubleBuffer>> implements LinearAlgebra<CLMatrix, CLVector> {
 
-    CLContext context;
-    CLQueue queue;
-    CLProgram multiplyProg;
-    CLKernel mulMatKernel, mulVecKernel;
+    public CLContext context;
+    public CLQueue queue;
+    public CLProgram multiplyProg;
+    public CLKernel mulMatKernel, mulVecKernel;
 
     static final String blas1Source = "Blas1.c";
 

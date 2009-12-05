@@ -29,20 +29,20 @@ public class DoubleData implements Data<DoubleBuffer> {
 	}
 
 	@Override
-	public void read(DoubleBuffer in) {
-		int pos = in.position();
-		data.put(in);//getDoubleBuffer(in));
-		data.rewind();
-		in.position(pos);
-	}
-
-	@Override
-	public void write(DoubleBuffer out) {
+	public void read(DoubleBuffer out) {
 		int pos = out.position();
-		//getDoubleBuffer(out)
 		out.put(data);
 		data.rewind();
 		out.position(pos);
+	}
+
+	@Override
+	public void write(DoubleBuffer in) {
+		int pos = in.position();
+		//getDoubleBuffer(out)
+		data.put(in);//getDoubleBuffer(in));
+		data.rewind();
+		in.position(pos);
 	}
 
 	private DoubleBuffer getDoubleBuffer(Buffer out) {

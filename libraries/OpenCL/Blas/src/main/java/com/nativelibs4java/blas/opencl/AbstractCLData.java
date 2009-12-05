@@ -11,6 +11,7 @@ import com.nativelibs4java.blas.Data;
 import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLDoubleBuffer;
 import com.nativelibs4java.opencl.CLMem;
+import com.nativelibs4java.opencl.CLEvent;
 import java.nio.Buffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +56,12 @@ public abstract class AbstractCLData<B extends Buffer> implements AsynchronousDa
 	public CLEvent[] eventsBeforeWriting() {
 		return eventsBefore(true);
 	}
+	public void eventsBeforeReading(List<CLEvent> out) {
+		eventsBefore(false, out);
+	}
+	public void eventsBeforeWriting(List<CLEvent> out) {
+		eventsBefore(true, out);
+	}
 	protected synchronized CLEvent[] eventsBefore(boolean includeReads) {
 		int nr = !includeReads || readEvents == null ? 0 : readEvents.size();
 		int nw = writeEvents == null ? 0 : writeEvents.size();
@@ -70,12 +77,22 @@ public abstract class AbstractCLData<B extends Buffer> implements AsynchronousDa
 
 		return ret;
 	}
+	protected synchronized void eventsBefore(boolean includeReads, List<CLEvent> out) {
+		if (includeReads && readEvents != null)
+			out.addAll(readEvents);
+		if (writeEvents != null)
+			out.addAll(writeEvents);
+	}
 	protected synchronized void addWriteEvent(CLEvent evt) {
+		if (evt == null)
+			return;
 		if (readEvents == null)
 			 readEvents = new ArrayList<CLEvent>();
 		readEvents.add(evt);
 	}
 	protected synchronized void addReadEvent(CLEvent evt) {
+		if (evt == null)
+			return;
 		if (writeEvents == null)
 			 writeEvents = new ArrayList<CLEvent>();
 		writeEvents.add(evt);

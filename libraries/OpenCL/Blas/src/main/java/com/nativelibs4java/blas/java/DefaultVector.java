@@ -7,6 +7,7 @@ package com.nativelibs4java.blas.java;
 
 import com.nativelibs4java.blas.Vector;
 import com.nativelibs4java.util.NIOUtils;
+import com.ochafik.util.string.StringUtils;
 import java.nio.DoubleBuffer;
 
 /**
@@ -41,5 +42,19 @@ public class DefaultVector extends DoubleData implements Vector<DefaultMatrix, D
 		//out.write(DoubleBuffer.wrap(new double[] { total }));
 		return out;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder b = new StringBuilder("{");
+		for (int i = 0; i < size; i++) {
+			if (i != 0)
+				b.append(", ");
+			b.append(get(i));
+		}
+		b.append("}");
+		return b.toString();
+	}
+
+
 
 }
