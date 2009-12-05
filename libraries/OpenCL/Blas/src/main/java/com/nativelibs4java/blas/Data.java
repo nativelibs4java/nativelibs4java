@@ -13,7 +13,7 @@ import java.nio.Buffer;
  */
 public interface Data<B extends Buffer> {
 	int size();
-	void read(B in);
-	void write(B out);
+	void read(B out);
+	void write(B in);
 	B read();
 }

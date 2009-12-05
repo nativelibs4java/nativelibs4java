@@ -11,7 +11,6 @@ import com.nativelibs4java.blas.LU;
 import com.nativelibs4java.blas.Matrix;
 import com.nativelibs4java.blas.QR;
 import com.nativelibs4java.blas.SVD;
-import com.nativelibs4java.blas.Vector;
 import com.nativelibs4java.util.NIOUtils;
 import java.nio.DoubleBuffer;
 
@@ -19,7 +18,7 @@ import java.nio.DoubleBuffer;
  *
  * @author Olivier
  */
-public class DefaultMatrix extends DoubleData implements Matrix<DefaultMatrix, DefaultVector, DoubleBuffer> {
+public class DefaultMatrix extends DoubleData implements Matrix<DefaultMatrix, DoubleBuffer> {
 
 	protected final int rows, columns;
 
@@ -71,49 +70,27 @@ public class DefaultMatrix extends DoubleData implements Matrix<DefaultMatrix, D
 	}
 
 	@Override
-	public DefaultVector multiply(DefaultVector v, DefaultVector out) {
-		
-		if (getColumns() != v.size())
-			throw new IllegalArgumentException("This vector cannot be multiplied by this matrix  (incompatible dimensions)");
-
-		if (out == null)
-			out = new DefaultVector(getRows());
-		else if (out.size() != getRows())
-			throw new IllegalArgumentException("The output vector does not have the expected size");
-
-		for (int i = 0, rows = getRows(), columns = getColumns(); i < rows; i++) {
-			double sum = 0;
-			for (int k = 0; k < columns; k++) {
-				sum += get(i, k) * v.get(k);
-			}
-			out.set(i, sum);
-		}
-		return out;
-		
-	}
-
-	@Override
-	public SVD<DefaultMatrix, DefaultVector, DoubleBuffer> svd() {
+	public SVD<DefaultMatrix, DoubleBuffer> svd() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public LU<DefaultMatrix, DefaultVector, DoubleBuffer> lu() {
+	public LU<DefaultMatrix, DoubleBuffer> lu() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public Cholesky<DefaultMatrix, DefaultVector, DoubleBuffer> cholesky() {
+	public Cholesky<DefaultMatrix, DoubleBuffer> cholesky() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public Eigen<DefaultMatrix, DefaultVector, DoubleBuffer> eigen() {
+	public Eigen<DefaultMatrix, DoubleBuffer> eigen() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public QR<DefaultMatrix, DefaultVector, DoubleBuffer> qr() {
+	public QR<DefaultMatrix, DoubleBuffer> qr() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
@@ -131,5 +108,19 @@ public class DefaultMatrix extends DoubleData implements Matrix<DefaultMatrix, D
 		}
 		b.append("}");
 		return b.toString();
+	}
+
+	public DefaultMatrix dot(DefaultMatrix other, DefaultMatrix out) {
+		if (out == null)
+			out = new DefaultMatrix(1, 1);
+		else if (out.size() != 1)
+			throw new IllegalArgumentException("Size of output for dot operation must be 1x1");
+
+		double total = 0;
+		for (int i = size; i-- != 0;)
+			total += data.get(i) * other.data.get(i);
+		out.data.put(0, total);
+		//out.write(DoubleBuffer.wrap(new double[] { total }));
+		return out;
 	}
 }

@@ -9,7 +9,6 @@ package com.nativelibs4java.blas;
  *
  * @author Olivier
  */
-public interface LinearAlgebra<M extends Matrix, V extends Vector> {
+public interface LinearAlgebra<M extends Matrix> {
     M newMatrix(int rows, int columns);
-    V newVector(int size);
 }

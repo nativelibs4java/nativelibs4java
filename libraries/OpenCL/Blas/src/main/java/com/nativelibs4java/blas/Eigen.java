@@ -11,6 +11,8 @@ import java.nio.Buffer;
  *
  * @author ochafik
  */
-public interface Eigen<M extends Matrix<M, V, B>, V extends Vector<M, V, B>, B extends Buffer> {
-
+public interface Eigen<M extends Matrix<M, B>, B extends Buffer> {
+	M getD();
+	M getV();
+	Data<B> getComplexEigenValues();
 }

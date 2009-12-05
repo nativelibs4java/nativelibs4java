@@ -11,7 +11,6 @@ import com.nativelibs4java.blas.LU;
 import com.nativelibs4java.blas.Matrix;
 import com.nativelibs4java.blas.QR;
 import com.nativelibs4java.blas.SVD;
-import com.nativelibs4java.blas.Vector;
 import com.nativelibs4java.blas.java.DefaultMatrix;
 import com.nativelibs4java.opencl.CLDoubleBuffer;
 import com.nativelibs4java.opencl.CLEvent;
@@ -26,7 +25,7 @@ import java.util.List;
  *
  * @author Olivier
  */
-public class CLMatrix extends CLDoubleData implements Matrix<CLMatrix, CLVector, DoubleBuffer> {
+public class CLMatrix extends CLDoubleData implements Matrix<CLMatrix, DoubleBuffer> {
 
 	protected final int rows, columns;
     public CLMatrix(CLLinearAlgebra al, int rows, int columns) {
@@ -66,26 +65,6 @@ public class CLMatrix extends CLDoubleData implements Matrix<CLMatrix, CLVector,
 		return out;
 	}
 
-	@Override
-	public CLVector multiply(CLVector v, CLVector out) {
-		if (getColumns() != v.size())
-			throw new IllegalArgumentException("This vector cannot be multiplied by this matrix  (incompatible dimensions)");
-
-		List<CLEvent> evtsList = new ArrayList<CLEvent>();
-
-		if (out == null)
-			out = al.newVector(getRows());
-		else if (out.size() != getRows())
-			throw new IllegalArgumentException("The output vector does not have the expected size");
-		else
-			out.eventsBeforeWriting(evtsList);
-
-		eventsBeforeReading(evtsList);
-		v.eventsBeforeReading(evtsList);
-		al.multiply(this, v, out, evtsList.toArray(new CLEvent[evtsList.size()]));
-		return out;
-	}
-
 	public DefaultMatrix toDefaultMatrix() {
 		DefaultMatrix m = new DefaultMatrix(rows, columns);
 		m.write(read());
@@ -93,27 +72,27 @@ public class CLMatrix extends CLDoubleData implements Matrix<CLMatrix, CLVector,
 	}
 
 	@Override
-	public SVD<CLMatrix, CLVector, DoubleBuffer> svd() {
+	public SVD<CLMatrix, DoubleBuffer> svd() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public LU<CLMatrix, CLVector, DoubleBuffer> lu() {
+	public LU<CLMatrix, DoubleBuffer> lu() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public Cholesky<CLMatrix, CLVector, DoubleBuffer> cholesky() {
+	public Cholesky<CLMatrix, DoubleBuffer> cholesky() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public Eigen<CLMatrix, CLVector, DoubleBuffer> eigen() {
+	public Eigen<CLMatrix, DoubleBuffer> eigen() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
 	@Override
-	public QR<CLMatrix, CLVector, DoubleBuffer> qr() {
+	public QR<CLMatrix, DoubleBuffer> qr() {
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 

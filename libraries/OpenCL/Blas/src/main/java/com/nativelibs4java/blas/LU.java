@@ -11,6 +11,11 @@ import java.nio.Buffer;
  *
  * @author ochafik
  */
-public interface LU<M extends Matrix<M, V, B>, V extends Vector<M, V, B>, B extends Buffer> {
-
+public interface LU<M extends Matrix<M, B>, B extends Buffer> {
+	M getPivot();
+	M getL();
+	M getU();
+	M solve(M m);
+	M det();
+	boolean isNonSingular();
 }

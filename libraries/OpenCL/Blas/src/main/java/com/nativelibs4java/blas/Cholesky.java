@@ -11,6 +11,8 @@ import java.nio.Buffer;
  *
  * @author ochafik
  */
-public interface Cholesky<M extends Matrix<M, V, B>, V extends Vector<M, V, B>, B extends Buffer> {
-
+public interface Cholesky<M extends Matrix<M, B>, B extends Buffer> {
+	M getL();
+	boolean isSPD();
+	M solve(M m);
 }

@@ -22,6 +22,10 @@ public class DoubleData implements Data<DoubleBuffer> {
 		data = NIOUtils.directDoubles(size);
 		this.size = size;
 	}
+	public DoubleData(DoubleBuffer data) {
+		this.data = data;
+		this.size = data.capacity();
+	}
 
 	@Override
 	public int size() {

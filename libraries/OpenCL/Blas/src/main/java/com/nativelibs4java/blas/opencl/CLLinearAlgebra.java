@@ -7,7 +7,6 @@ package com.nativelibs4java.blas.opencl;
 
 import com.nativelibs4java.blas.LinearAlgebra;
 import com.nativelibs4java.blas.Matrix;
-import com.nativelibs4java.blas.Vector;
 import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.CLContext;
 import com.nativelibs4java.opencl.CLKernel;
@@ -31,7 +30,7 @@ import java.util.logging.Logger;
  *
  * @author Olivier
  */
-public class CLLinearAlgebra<FM extends Matrix<FM, FV, DoubleBuffer>, FV extends Vector<FM, FV, DoubleBuffer>> implements LinearAlgebra<CLMatrix, CLVector> {
+public class CLLinearAlgebra<FM extends Matrix<FM, DoubleBuffer>> implements LinearAlgebra<CLMatrix> {
 
     public CLContext context;
     public CLQueue queue;
@@ -41,9 +40,9 @@ public class CLLinearAlgebra<FM extends Matrix<FM, FV, DoubleBuffer>, FV extends
     static final String blas1Source = "Blas1.c";
 
 
-	LinearAlgebra<FM, FV> fallBackLibrary;
+	LinearAlgebra<FM> fallBackLibrary;
 	
-    public CLLinearAlgebra(LinearAlgebra<FM, FV> fallBackLibrary) throws IOException, CLBuildException {
+    public CLLinearAlgebra(LinearAlgebra<FM> fallBackLibrary) throws IOException, CLBuildException {
         context = JavaCL.createBestContext();
         queue = context.createDefaultQueue();
 		this.fallBackLibrary = fallBackLibrary;
@@ -58,20 +57,11 @@ public class CLLinearAlgebra<FM extends Matrix<FM, FV, DoubleBuffer>, FV extends
         mulVecKernel = multiplyProg.createKernel("mulVec");
     }
 
-	public static <MM extends Matrix<MM, VV, DoubleBuffer>, VV extends Vector<MM, VV, DoubleBuffer>>
-			MM newMatrix(LinearAlgebra<MM, VV> other, CLMatrix m) {
+	public static <MM extends Matrix<MM, DoubleBuffer>>
+			MM newMatrix(LinearAlgebra<MM> other, CLMatrix m) {
 		DoubleBuffer b = NIOUtils.directDoubles(m.size());
 		m.read(b);
 		MM mm = other.newMatrix(m.getRows(), m.getColumns());
-		mm.write(b);
-		return mm;
-	}
-
-	public static <MM extends Matrix<MM, VV, DoubleBuffer>, VV extends Vector<MM, VV, DoubleBuffer>>
-			VV newVector(LinearAlgebra<MM, VV> other, CLVector m) {
-		DoubleBuffer b = NIOUtils.directDoubles(m.size());
-		m.read(b);
-		VV mm = other.newVector(m.size());
 		mm.write(b);
 		return mm;
 	}
@@ -88,16 +78,7 @@ public class CLLinearAlgebra<FM extends Matrix<FM, FV, DoubleBuffer>, FV extends
         return mulMatKernel.enqueueNDRange(queue, new int[] { out.getRows(), out.getColumns() }, unitInt2Arr, eventsToWaitFor);
     }
 
-    synchronized CLEvent multiply(CLMatrix a, CLVector b, CLVector out, CLEvent... eventsToWaitFor) {
-        mulVecKernel.setArgs(
-            a.data, a.getRows(), a.getColumns(),
-            b.data, b.size(),
-            out.data
-        );
-        return mulVecKernel.enqueueNDRange(queue, new int[] { out.size() }, unitIntArr, eventsToWaitFor);
-    }
-
-    synchronized CLEvent dot(CLVector a, CLVector b, CLVector out, CLEvent... eventsToWaitFor) {
+    /*synchronized CLEvent dot(CLVector a b out, CLEvent... eventsToWaitFor) {
 		CLEvent.waitFor(eventsToWaitFor);
 		a.waitForRead();
 		b.waitForRead();
@@ -106,7 +87,7 @@ public class CLLinearAlgebra<FM extends Matrix<FM, FV, DoubleBuffer>, FV extends
 		FV bb  = newVector(fallBackLibrary, b);
 		out.write(aa.dot(bb, null).read());
 		return null;
-    }
+    }*/
 
 	Reductor<DoubleBuffer> addReductor;
 	synchronized Reductor<DoubleBuffer> getAddReductor() {
@@ -124,11 +105,6 @@ public class CLLinearAlgebra<FM extends Matrix<FM, FV, DoubleBuffer>, FV extends
     @Override
     public CLMatrix newMatrix(int rows, int columns) {
         return new CLMatrix(this, rows, columns);
-    }
-
-    @Override
-    public CLVector newVector(int size) {
-        return new CLVector(this, size);
     }
 
 }

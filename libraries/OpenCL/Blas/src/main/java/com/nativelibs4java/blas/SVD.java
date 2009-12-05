@@ -11,6 +11,12 @@ import java.nio.Buffer;
  *
  * @author ochafik
  */
-public interface SVD<M extends Matrix<M, V, B>, V extends Vector<M, V, B>, B extends Buffer> {
-
+public interface SVD<M extends Matrix<M, B>, B extends Buffer> {
+	M getS();
+	M getV();
+	M getU();
+	M getCond();
+	M getSingularValues();
+	M getRank();
+	M getNorm2();
 }
