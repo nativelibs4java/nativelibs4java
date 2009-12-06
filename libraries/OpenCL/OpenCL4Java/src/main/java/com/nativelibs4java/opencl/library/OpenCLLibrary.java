@@ -329,422 +329,664 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	/**
 	 * Platform API<br>
 	 * Original signature : <code>cl_int clGetPlatformIDs(cl_uint, cl_platform_id*, cl_uint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetPlatformIDs.html">Khronos Documentation for clGetPlatformIDs</a><br>
 	 * @deprecated use the safer methods {@link #clGetPlatformIDs(int, com.sun.jna.ptr.PointerByReference, java.nio.IntBuffer)} and {@link #clGetPlatformIDs(int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id[], com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	int clGetPlatformIDs(int cl_uint1, com.sun.jna.ptr.PointerByReference cl_platform_idPtr1, com.sun.jna.ptr.IntByReference cl_uintPtr1);
 	/**
 	 * Platform API<br>
-	 * Original signature : <code>cl_int clGetPlatformIDs(cl_uint, cl_platform_id*, cl_uint*)</code>
+	 * Original signature : <code>cl_int clGetPlatformIDs(cl_uint, cl_platform_id*, cl_uint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetPlatformIDs.html">Khronos Documentation for clGetPlatformIDs</a>
 	 */
 	int clGetPlatformIDs(int cl_uint1, com.sun.jna.ptr.PointerByReference cl_platform_idPtr1, java.nio.IntBuffer cl_uintPtr1);
 	/**
 	 * Platform API<br>
-	 * Original signature : <code>cl_int clGetPlatformIDs(cl_uint, cl_platform_id*, cl_uint*)</code>
+	 * Original signature : <code>cl_int clGetPlatformIDs(cl_uint, cl_platform_id*, cl_uint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetPlatformIDs.html">Khronos Documentation for clGetPlatformIDs</a>
 	 */
 	int clGetPlatformIDs(int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id cl_platform_idPtr1[], com.sun.jna.ptr.IntByReference cl_uintPtr1);
-	/// Original signature : <code>cl_int clGetPlatformInfo(cl_platform_id, cl_platform_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetPlatformInfo(cl_platform_id, cl_platform_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetPlatformInfo.html">Khronos Documentation for clGetPlatformInfo</a>
+	 */
 	int clGetPlatformInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id cl_platform_id1, int cl_platform_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Device APIs<br>
 	 * Original signature : <code>cl_int clGetDeviceIDs(cl_platform_id, cl_device_type, cl_uint, cl_device_id*, cl_uint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetDeviceIDs.html">Khronos Documentation for clGetDeviceIDs</a><br>
 	 * @deprecated use the safer methods {@link #clGetDeviceIDs(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id, long, int, com.sun.jna.ptr.PointerByReference, java.nio.IntBuffer)} and {@link #clGetDeviceIDs(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id, long, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	int clGetDeviceIDs(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id cl_platform_id1, long cl_device_type1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, com.sun.jna.ptr.IntByReference cl_uintPtr1);
 	/**
 	 * Device APIs<br>
-	 * Original signature : <code>cl_int clGetDeviceIDs(cl_platform_id, cl_device_type, cl_uint, cl_device_id*, cl_uint*)</code>
+	 * Original signature : <code>cl_int clGetDeviceIDs(cl_platform_id, cl_device_type, cl_uint, cl_device_id*, cl_uint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetDeviceIDs.html">Khronos Documentation for clGetDeviceIDs</a>
 	 */
 	int clGetDeviceIDs(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id cl_platform_id1, long cl_device_type1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, java.nio.IntBuffer cl_uintPtr1);
 	/**
 	 * Device APIs<br>
-	 * Original signature : <code>cl_int clGetDeviceIDs(cl_platform_id, cl_device_type, cl_uint, cl_device_id*, cl_uint*)</code>
+	 * Original signature : <code>cl_int clGetDeviceIDs(cl_platform_id, cl_device_type, cl_uint, cl_device_id*, cl_uint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetDeviceIDs.html">Khronos Documentation for clGetDeviceIDs</a>
 	 */
 	int clGetDeviceIDs(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id cl_platform_id1, long cl_device_type1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.sun.jna.ptr.IntByReference cl_uintPtr1);
-	/// Original signature : <code>cl_int clGetDeviceInfo(cl_device_id, cl_device_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetDeviceInfo(cl_device_id, cl_device_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.html">Khronos Documentation for clGetDeviceInfo</a>
+	 */
 	int clGetDeviceInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_id1, int cl_device_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Context APIs<br>
-	 * Original signature : <code>cl_context clCreateContext(cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code><br>
+	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateContext.html">Khronos Documentation for clCreateContext</a><br>
 	 * @deprecated use the safer methods {@link #clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer, java.nio.IntBuffer)} and {@link #clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Context APIs<br>
-	 * Original signature : <code>cl_context clCreateContext(cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code>
+	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateContext.html">Khronos Documentation for clCreateContext</a>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Context APIs<br>
-	 * Original signature : <code>cl_context clCreateContext(cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code>
+	 * Original signature : <code>cl_context clCreateContext(const cl_context_properties*, cl_uint, const cl_device_id*, pfn_notify, void*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateContext.html">Khronos Documentation for clCreateContext</a>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContext(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
-	 * Original signature : <code>cl_context clCreateContextFromType(cl_context_properties*, cl_device_type, pfn_notify, void*, cl_int*)</code><br>
+	 * Original signature : <code>cl_context clCreateContextFromType(const cl_context_properties*, cl_device_type, pfn_notify, void*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateContextFromType.html">Khronos Documentation for clCreateContextFromType</a><br>
 	 * @deprecated use the safer methods {@link #clCreateContextFromType(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, long, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer, java.nio.IntBuffer)} and {@link #clCreateContextFromType(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, long, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContextFromType(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, long cl_device_type1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/// Original signature : <code>cl_context clCreateContextFromType(cl_context_properties*, cl_device_type, pfn_notify, void*, cl_int*)</code>
+	/**
+	 * Original signature : <code>cl_context clCreateContextFromType(const cl_context_properties*, cl_device_type, pfn_notify, void*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateContextFromType.html">Khronos Documentation for clCreateContextFromType</a>
+	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context clCreateContextFromType(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference cl_context_propertiesPtr1, long cl_device_type1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1, java.nio.IntBuffer cl_intPtr1);
-	/// Original signature : <code>cl_int clRetainContext(cl_context)</code>
+	/**
+	 * Original signature : <code>cl_int clRetainContext(cl_context)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clRetainContext.html">Khronos Documentation for clRetainContext</a>
+	 */
 	int clRetainContext(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1);
-	/// Original signature : <code>cl_int clReleaseContext(cl_context)</code>
+	/**
+	 * Original signature : <code>cl_int clReleaseContext(cl_context)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clReleaseContext.html">Khronos Documentation for clReleaseContext</a>
+	 */
 	int clReleaseContext(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1);
-	/// Original signature : <code>cl_int clGetContextInfo(cl_context, cl_context_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetContextInfo(cl_context, cl_context_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetContextInfo.html">Khronos Documentation for clGetContextInfo</a>
+	 */
 	int clGetContextInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_context_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Command Queue APIs<br>
 	 * Original signature : <code>cl_command_queue clCreateCommandQueue(cl_context, cl_device_id, cl_command_queue_properties, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateCommandQueue.html">Khronos Documentation for clCreateCommandQueue</a><br>
 	 * @deprecated use the safer methods {@link #clCreateCommandQueue(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id, long, java.nio.IntBuffer)} and {@link #clCreateCommandQueue(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id, long, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue clCreateCommandQueue(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_id1, long cl_command_queue_properties1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Command Queue APIs<br>
-	 * Original signature : <code>cl_command_queue clCreateCommandQueue(cl_context, cl_device_id, cl_command_queue_properties, cl_int*)</code>
+	 * Original signature : <code>cl_command_queue clCreateCommandQueue(cl_context, cl_device_id, cl_command_queue_properties, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateCommandQueue.html">Khronos Documentation for clCreateCommandQueue</a>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue clCreateCommandQueue(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_id1, long cl_command_queue_properties1, java.nio.IntBuffer cl_intPtr1);
-	/// Original signature : <code>cl_int clRetainCommandQueue(cl_command_queue)</code>
+	/**
+	 * Original signature : <code>cl_int clRetainCommandQueue(cl_command_queue)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clRetainCommandQueue.html">Khronos Documentation for clRetainCommandQueue</a>
+	 */
 	int clRetainCommandQueue(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1);
-	/// Original signature : <code>cl_int clReleaseCommandQueue(cl_command_queue)</code>
+	/**
+	 * Original signature : <code>cl_int clReleaseCommandQueue(cl_command_queue)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clReleaseCommandQueue.html">Khronos Documentation for clReleaseCommandQueue</a>
+	 */
 	int clReleaseCommandQueue(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1);
-	/// Original signature : <code>cl_int clGetCommandQueueInfo(cl_command_queue, cl_command_queue_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetCommandQueueInfo(cl_command_queue, cl_command_queue_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetCommandQueueInfo.html">Khronos Documentation for clGetCommandQueueInfo</a>
+	 */
 	int clGetCommandQueueInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_command_queue_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Original signature : <code>cl_int clSetCommandQueueProperty(cl_command_queue, cl_command_queue_properties, cl_bool, cl_command_queue_properties*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clSetCommandQueueProperty.html">Khronos Documentation for clSetCommandQueueProperty</a><br>
 	 * @deprecated use the safer methods {@link #clSetCommandQueueProperty(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, long, int, java.nio.LongBuffer)} and {@link #clSetCommandQueueProperty(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, long, int, com.sun.jna.ptr.LongByReference)} instead
 	 */
 	@java.lang.Deprecated
 	int clSetCommandQueueProperty(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, long cl_command_queue_properties1, int cl_bool1, com.sun.jna.ptr.LongByReference cl_command_queue_propertiesPtr1);
-	/// Original signature : <code>cl_int clSetCommandQueueProperty(cl_command_queue, cl_command_queue_properties, cl_bool, cl_command_queue_properties*)</code>
+	/**
+	 * Original signature : <code>cl_int clSetCommandQueueProperty(cl_command_queue, cl_command_queue_properties, cl_bool, cl_command_queue_properties*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clSetCommandQueueProperty.html">Khronos Documentation for clSetCommandQueueProperty</a>
+	 */
 	int clSetCommandQueueProperty(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, long cl_command_queue_properties1, int cl_bool1, java.nio.LongBuffer cl_command_queue_propertiesPtr1);
 	/**
 	 * Memory Object APIs<br>
 	 * Original signature : <code>cl_mem clCreateBuffer(cl_context, cl_mem_flags, size_t, void*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">Khronos Documentation for clCreateBuffer</a><br>
 	 * @deprecated use the safer methods {@link #clCreateBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, long, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, java.nio.IntBuffer)} and {@link #clCreateBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, long, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Memory Object APIs<br>
-	 * Original signature : <code>cl_mem clCreateBuffer(cl_context, cl_mem_flags, size_t, void*, cl_int*)</code>
+	 * Original signature : <code>cl_mem clCreateBuffer(cl_context, cl_mem_flags, size_t, void*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">Khronos Documentation for clCreateBuffer</a>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_mem clCreateImage2D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, void*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateImage2D.html">Khronos Documentation for clCreateImage2D</a><br>
 	 * @deprecated use the safer methods {@link #clCreateImage2D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, long, com.nativelibs4java.opencl.library.cl_image_format, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, java.nio.IntBuffer)} and {@link #clCreateImage2D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, long, com.nativelibs4java.opencl.library.cl_image_format, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateImage2D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t3, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/// Original signature : <code>cl_mem clCreateImage2D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, void*, cl_int*)</code>
+	/**
+	 * Original signature : <code>cl_mem clCreateImage2D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, void*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateImage2D.html">Khronos Documentation for clCreateImage2D</a>
+	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateImage2D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t3, com.sun.jna.Pointer voidPtr1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_mem clCreateImage3D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, size_t, size_t, void*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateImage3D.html">Khronos Documentation for clCreateImage3D</a><br>
 	 * @deprecated use the safer methods {@link #clCreateImage3D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, long, com.nativelibs4java.opencl.library.cl_image_format, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, java.nio.IntBuffer)} and {@link #clCreateImage3D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, long, com.nativelibs4java.opencl.library.cl_image_format, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateImage3D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t3, com.ochafik.lang.jnaerator.runtime.NativeSize size_t4, com.ochafik.lang.jnaerator.runtime.NativeSize size_t5, com.sun.jna.Pointer voidPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/// Original signature : <code>cl_mem clCreateImage3D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, size_t, size_t, void*, cl_int*)</code>
+	/**
+	 * Original signature : <code>cl_mem clCreateImage3D(cl_context, cl_mem_flags, const cl_image_format*, size_t, size_t, size_t, size_t, size_t, void*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateImage3D.html">Khronos Documentation for clCreateImage3D</a>
+	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateImage3D(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t3, com.ochafik.lang.jnaerator.runtime.NativeSize size_t4, com.ochafik.lang.jnaerator.runtime.NativeSize size_t5, com.sun.jna.Pointer voidPtr1, java.nio.IntBuffer cl_intPtr1);
-	/// Original signature : <code>cl_int clRetainMemObject(cl_mem)</code>
+	/**
+	 * Original signature : <code>cl_int clRetainMemObject(cl_mem)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clRetainMemObject.html">Khronos Documentation for clRetainMemObject</a>
+	 */
 	int clRetainMemObject(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1);
-	/// Original signature : <code>cl_int clReleaseMemObject(cl_mem)</code>
+	/**
+	 * Original signature : <code>cl_int clReleaseMemObject(cl_mem)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clReleaseMemObject.html">Khronos Documentation for clReleaseMemObject</a>
+	 */
 	int clReleaseMemObject(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1);
 	/**
 	 * Original signature : <code>cl_int clGetSupportedImageFormats(cl_context, cl_mem_flags, cl_mem_object_type, cl_uint, cl_image_format*, cl_uint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetSupportedImageFormats.html">Khronos Documentation for clGetSupportedImageFormats</a><br>
 	 * @deprecated use the safer methods {@link #clGetSupportedImageFormats(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, long, int, int, com.nativelibs4java.opencl.library.cl_image_format, java.nio.IntBuffer)} and {@link #clGetSupportedImageFormats(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, long, int, int, com.nativelibs4java.opencl.library.cl_image_format, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	int clGetSupportedImageFormats(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_mem_object_type1, int cl_uint1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, com.sun.jna.ptr.IntByReference cl_uintPtr1);
-	/// Original signature : <code>cl_int clGetSupportedImageFormats(cl_context, cl_mem_flags, cl_mem_object_type, cl_uint, cl_image_format*, cl_uint*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetSupportedImageFormats(cl_context, cl_mem_flags, cl_mem_object_type, cl_uint, cl_image_format*, cl_uint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetSupportedImageFormats.html">Khronos Documentation for clGetSupportedImageFormats</a>
+	 */
 	int clGetSupportedImageFormats(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_mem_object_type1, int cl_uint1, com.nativelibs4java.opencl.library.cl_image_format cl_image_formatPtr1, java.nio.IntBuffer cl_uintPtr1);
-	/// Original signature : <code>cl_int clGetMemObjectInfo(cl_mem, cl_mem_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetMemObjectInfo(cl_mem, cl_mem_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetMemObjectInfo.html">Khronos Documentation for clGetMemObjectInfo</a>
+	 */
 	int clGetMemObjectInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_mem_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
-	/// Original signature : <code>cl_int clGetImageInfo(cl_mem, cl_image_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetImageInfo(cl_mem, cl_image_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetImageInfo.html">Khronos Documentation for clGetImageInfo</a>
+	 */
 	int clGetImageInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_image_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Sampler APIs<br>
 	 * Original signature : <code>cl_sampler clCreateSampler(cl_context, cl_bool, cl_addressing_mode, cl_filter_mode, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateSampler.html">Khronos Documentation for clCreateSampler</a><br>
 	 * @deprecated use the safer methods {@link #clCreateSampler(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, int, int, int, java.nio.IntBuffer)} and {@link #clCreateSampler(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, int, int, int, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler clCreateSampler(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_bool1, int cl_addressing_mode1, int cl_filter_mode1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Sampler APIs<br>
-	 * Original signature : <code>cl_sampler clCreateSampler(cl_context, cl_bool, cl_addressing_mode, cl_filter_mode, cl_int*)</code>
+	 * Original signature : <code>cl_sampler clCreateSampler(cl_context, cl_bool, cl_addressing_mode, cl_filter_mode, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateSampler.html">Khronos Documentation for clCreateSampler</a>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler clCreateSampler(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_bool1, int cl_addressing_mode1, int cl_filter_mode1, java.nio.IntBuffer cl_intPtr1);
-	/// Original signature : <code>cl_int clRetainSampler(cl_sampler)</code>
+	/**
+	 * Original signature : <code>cl_int clRetainSampler(cl_sampler)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clRetainSampler.html">Khronos Documentation for clRetainSampler</a>
+	 */
 	int clRetainSampler(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler cl_sampler1);
-	/// Original signature : <code>cl_int clReleaseSampler(cl_sampler)</code>
+	/**
+	 * Original signature : <code>cl_int clReleaseSampler(cl_sampler)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clReleaseSampler.html">Khronos Documentation for clReleaseSampler</a>
+	 */
 	int clReleaseSampler(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler cl_sampler1);
-	/// Original signature : <code>cl_int clGetSamplerInfo(cl_sampler, cl_sampler_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetSamplerInfo(cl_sampler, cl_sampler_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetSamplerInfo.html">Khronos Documentation for clGetSamplerInfo</a>
+	 */
 	int clGetSamplerInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler cl_sampler1, int cl_sampler_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Program Object APIs<br>
 	 * Original signature : <code>cl_program clCreateProgramWithSource(cl_context, cl_uint, const char**, const size_t*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateProgramWithSource.html">Khronos Documentation for clCreateProgramWithSource</a><br>
 	 * @deprecated use the safer methods {@link #clCreateProgramWithSource(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, int, java.lang.String[], com.ochafik.lang.jnaerator.runtime.NativeSize[], java.nio.IntBuffer)} and {@link #clCreateProgramWithSource(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, int, com.sun.jna.ptr.PointerByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program clCreateProgramWithSource(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_uint1, com.sun.jna.ptr.PointerByReference charPtrPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Program Object APIs<br>
-	 * Original signature : <code>cl_program clCreateProgramWithSource(cl_context, cl_uint, const char**, const size_t*, cl_int*)</code>
+	 * Original signature : <code>cl_program clCreateProgramWithSource(cl_context, cl_uint, const char**, const size_t*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateProgramWithSource.html">Khronos Documentation for clCreateProgramWithSource</a>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program clCreateProgramWithSource(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_uint1, java.lang.String charPtrPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateProgramWithBinary.html">Khronos Documentation for clCreateProgramWithBinary</a><br>
 	 * @deprecated use the safer methods {@link #clCreateProgramWithBinary(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.sun.jna.ptr.PointerByReference, java.nio.IntBuffer, java.nio.IntBuffer)} and {@link #clCreateProgramWithBinary(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.sun.jna.ptr.PointerByReference, com.sun.jna.ptr.IntByReference, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program clCreateProgramWithBinary(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.sun.jna.ptr.PointerByReference charPtrPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1, com.sun.jna.ptr.IntByReference cl_intPtr2);
-	/// Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code>
+	/**
+	 * Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateProgramWithBinary.html">Khronos Documentation for clCreateProgramWithBinary</a>
+	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program clCreateProgramWithBinary(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.sun.jna.ptr.PointerByReference charPtrPtr1, java.nio.IntBuffer cl_intPtr1, java.nio.IntBuffer cl_intPtr2);
-	/// Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code>
+	/**
+	 * Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateProgramWithBinary.html">Khronos Documentation for clCreateProgramWithBinary</a>
+	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program clCreateProgramWithBinary(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context cl_context1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.sun.jna.ptr.PointerByReference charPtrPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1, com.sun.jna.ptr.IntByReference cl_intPtr2);
-	/// Original signature : <code>cl_int clRetainProgram(cl_program)</code>
+	/**
+	 * Original signature : <code>cl_int clRetainProgram(cl_program)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clRetainProgram.html">Khronos Documentation for clRetainProgram</a>
+	 */
 	int clRetainProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1);
-	/// Original signature : <code>cl_int clReleaseProgram(cl_program)</code>
+	/**
+	 * Original signature : <code>cl_int clReleaseProgram(cl_program)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clReleaseProgram.html">Khronos Documentation for clReleaseProgram</a>
+	 */
 	int clReleaseProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1);
 	/**
 	 * Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">Khronos Documentation for clBuildProgram</a><br>
 	 * @deprecated use the safer methods {@link #clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], java.lang.String, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer)} and {@link #clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id[], com.sun.jna.Pointer, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify, com.sun.jna.Pointer)} instead
 	 */
 	@java.lang.Deprecated
 	int clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_device_idPtr1, com.sun.jna.Pointer charPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1);
-	/// Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code>
+	/**
+	 * Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">Khronos Documentation for clBuildProgram</a>
+	 */
 	int clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], java.lang.String charPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1);
-	/// Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code>
+	/**
+	 * Original signature : <code>cl_int clBuildProgram(cl_program, cl_uint, const cl_device_id*, const char*, pfn_notify, void*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">Khronos Documentation for clBuildProgram</a>
+	 */
 	int clBuildProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_idPtr1[], com.sun.jna.Pointer charPtr1, com.nativelibs4java.opencl.library.OpenCLLibrary.pfn_notify arg1, com.sun.jna.Pointer voidPtr1);
-	/// Original signature : <code>cl_int clUnloadCompiler()</code>
+	/**
+	 * Original signature : <code>cl_int clUnloadCompiler()</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clUnloadCompiler.html">Khronos Documentation for clUnloadCompiler</a>
+	 */
 	int clUnloadCompiler();
-	/// Original signature : <code>cl_int clGetProgramInfo(cl_program, cl_program_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetProgramInfo(cl_program, cl_program_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetProgramInfo.html">Khronos Documentation for clGetProgramInfo</a>
+	 */
 	int clGetProgramInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_program_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
-	/// Original signature : <code>cl_int clGetProgramBuildInfo(cl_program, cl_device_id, cl_program_build_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetProgramBuildInfo(cl_program, cl_device_id, cl_program_build_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetProgramBuildInfo.html">Khronos Documentation for clGetProgramBuildInfo</a>
+	 */
 	int clGetProgramBuildInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_id1, int cl_program_build_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Kernel Object APIs<br>
 	 * Original signature : <code>cl_kernel clCreateKernel(cl_program, const char*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateKernel.html">Khronos Documentation for clCreateKernel</a><br>
 	 * @deprecated use the safer methods {@link #clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, java.lang.String, java.nio.IntBuffer)} and {@link #clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, com.sun.jna.Pointer, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, com.sun.jna.Pointer charPtr1, com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Kernel Object APIs<br>
-	 * Original signature : <code>cl_kernel clCreateKernel(cl_program, const char*, cl_int*)</code>
+	 * Original signature : <code>cl_kernel clCreateKernel(cl_program, const char*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateKernel.html">Khronos Documentation for clCreateKernel</a>
 	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel clCreateKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, java.lang.String charPtr1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_int clCreateKernelsInProgram(cl_program, cl_uint, cl_kernel*, cl_uint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateKernelsInProgram.html">Khronos Documentation for clCreateKernelsInProgram</a><br>
 	 * @deprecated use the safer methods {@link #clCreateKernelsInProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel[], java.nio.IntBuffer)} and {@link #clCreateKernelsInProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel[], com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	int clCreateKernelsInProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_kernelPtr1, com.sun.jna.ptr.IntByReference cl_uintPtr1);
-	/// Original signature : <code>cl_int clCreateKernelsInProgram(cl_program, cl_uint, cl_kernel*, cl_uint*)</code>
+	/**
+	 * Original signature : <code>cl_int clCreateKernelsInProgram(cl_program, cl_uint, cl_kernel*, cl_uint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateKernelsInProgram.html">Khronos Documentation for clCreateKernelsInProgram</a>
+	 */
 	int clCreateKernelsInProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernelPtr1[], java.nio.IntBuffer cl_uintPtr1);
-	/// Original signature : <code>cl_int clCreateKernelsInProgram(cl_program, cl_uint, cl_kernel*, cl_uint*)</code>
+	/**
+	 * Original signature : <code>cl_int clCreateKernelsInProgram(cl_program, cl_uint, cl_kernel*, cl_uint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateKernelsInProgram.html">Khronos Documentation for clCreateKernelsInProgram</a>
+	 */
 	int clCreateKernelsInProgram(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program cl_program1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernelPtr1[], com.sun.jna.ptr.IntByReference cl_uintPtr1);
-	/// Original signature : <code>cl_int clRetainKernel(cl_kernel)</code>
+	/**
+	 * Original signature : <code>cl_int clRetainKernel(cl_kernel)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clRetainKernel.html">Khronos Documentation for clRetainKernel</a>
+	 */
 	int clRetainKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1);
-	/// Original signature : <code>cl_int clReleaseKernel(cl_kernel)</code>
+	/**
+	 * Original signature : <code>cl_int clReleaseKernel(cl_kernel)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clReleaseKernel.html">Khronos Documentation for clReleaseKernel</a>
+	 */
 	int clReleaseKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1);
-	/// Original signature : <code>cl_int clSetKernelArg(cl_kernel, cl_uint, size_t, const void*)</code>
+	/**
+	 * Original signature : <code>cl_int clSetKernelArg(cl_kernel, cl_uint, size_t, const void*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clSetKernelArg.html">Khronos Documentation for clSetKernelArg</a>
+	 */
 	int clSetKernelArg(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1);
-	/// Original signature : <code>cl_int clGetKernelInfo(cl_kernel, cl_kernel_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetKernelInfo(cl_kernel, cl_kernel_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetKernelInfo.html">Khronos Documentation for clGetKernelInfo</a>
+	 */
 	int clGetKernelInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_kernel_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
-	/// Original signature : <code>cl_int clGetKernelWorkGroupInfo(cl_kernel, cl_device_id, cl_kernel_work_group_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetKernelWorkGroupInfo(cl_kernel, cl_device_id, cl_kernel_work_group_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetKernelWorkGroupInfo.html">Khronos Documentation for clGetKernelWorkGroupInfo</a>
+	 */
 	int clGetKernelWorkGroupInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id cl_device_id1, int cl_kernel_work_group_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Event Object APIs<br>
-	 * Original signature : <code>cl_int clWaitForEvents(cl_uint, const cl_event*)</code>
+	 * Original signature : <code>cl_int clWaitForEvents(cl_uint, const cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clWaitForEvents.html">Khronos Documentation for clWaitForEvents</a>
 	 */
 	int clWaitForEvents(int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1);
 	/**
 	 * Event Object APIs<br>
-	 * Original signature : <code>cl_int clWaitForEvents(cl_uint, const cl_event*)</code>
+	 * Original signature : <code>cl_int clWaitForEvents(cl_uint, const cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clWaitForEvents.html">Khronos Documentation for clWaitForEvents</a>
 	 */
 	int clWaitForEvents(int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[]);
-	/// Original signature : <code>cl_int clGetEventInfo(cl_event, cl_event_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetEventInfo(cl_event, cl_event_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetEventInfo.html">Khronos Documentation for clGetEventInfo</a>
+	 */
 	int clGetEventInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_event1, int cl_event_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
-	/// Original signature : <code>cl_int clRetainEvent(cl_event)</code>
+	/**
+	 * Original signature : <code>cl_int clRetainEvent(cl_event)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clRetainEvent.html">Khronos Documentation for clRetainEvent</a>
+	 */
 	int clRetainEvent(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_event1);
-	/// Original signature : <code>cl_int clReleaseEvent(cl_event)</code>
+	/**
+	 * Original signature : <code>cl_int clReleaseEvent(cl_event)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clReleaseEvent.html">Khronos Documentation for clReleaseEvent</a>
+	 */
 	int clReleaseEvent(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_event1);
 	/**
 	 * Profiling APIs<br>
-	 * Original signature : <code>cl_int clGetEventProfilingInfo(cl_event, cl_profiling_info, size_t, void*, size_t*)</code>
+	 * Original signature : <code>cl_int clGetEventProfilingInfo(cl_event, cl_profiling_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetEventProfilingInfo.html">Khronos Documentation for clGetEventProfilingInfo</a>
 	 */
 	int clGetEventProfilingInfo(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_event1, int cl_profiling_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Flush and Finish APIs<br>
-	 * Original signature : <code>cl_int clFlush(cl_command_queue)</code>
+	 * Original signature : <code>cl_int clFlush(cl_command_queue)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clFlush.html">Khronos Documentation for clFlush</a>
 	 */
 	int clFlush(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1);
-	/// Original signature : <code>cl_int clFinish(cl_command_queue)</code>
+	/**
+	 * Original signature : <code>cl_int clFinish(cl_command_queue)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clFinish.html">Khronos Documentation for clFinish</a>
+	 */
 	int clFinish(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1);
 	/**
 	 * Enqueued Commands APIs<br>
 	 * Original signature : <code>cl_int clEnqueueReadBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueReadBuffer.html">Khronos Documentation for clEnqueueReadBuffer</a><br>
 	 * @deprecated use the safer method {@link #clEnqueueReadBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueReadBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
 	/**
 	 * Enqueued Commands APIs<br>
-	 * Original signature : <code>cl_int clEnqueueReadBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code>
+	 * Original signature : <code>cl_int clEnqueueReadBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueReadBuffer.html">Khronos Documentation for clEnqueueReadBuffer</a>
 	 */
 	int clEnqueueReadBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueWriteBuffer.html">Khronos Documentation for clEnqueueWriteBuffer</a><br>
 	 * @deprecated use the safer method {@link #clEnqueueWriteBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueWriteBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueWriteBuffer(cl_command_queue, cl_mem, cl_bool, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueWriteBuffer.html">Khronos Documentation for clEnqueueWriteBuffer</a>
+	 */
 	int clEnqueueWriteBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueCopyBuffer.html">Khronos Documentation for clEnqueueCopyBuffer</a><br>
 	 * @deprecated use the safer method {@link #clEnqueueCopyBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueCopyBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t3, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueCopyBuffer(cl_command_queue, cl_mem, cl_mem, size_t, size_t, size_t, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueCopyBuffer.html">Khronos Documentation for clEnqueueCopyBuffer</a>
+	 */
 	int clEnqueueCopyBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t3, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueReadImage.html">Khronos Documentation for clEnqueueReadImage</a><br>
 	 * @deprecated use the safer methods {@link #clEnqueueReadImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} and {@link #clEnqueueReadImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueReadImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueReadImage.html">Khronos Documentation for clEnqueueReadImage</a>
+	 */
 	int clEnqueueReadImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
-	/// Original signature : <code>cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueReadImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, void*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueReadImage.html">Khronos Documentation for clEnqueueReadImage</a>
+	 */
 	int clEnqueueReadImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueWriteImage.html">Khronos Documentation for clEnqueueWriteImage</a><br>
 	 * @deprecated use the safer methods {@link #clEnqueueWriteImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} and {@link #clEnqueueWriteImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueWriteImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueWriteImage.html">Khronos Documentation for clEnqueueWriteImage</a>
+	 */
 	int clEnqueueWriteImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
-	/// Original signature : <code>cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueWriteImage(cl_command_queue, cl_mem, cl_bool, const size_t*, const size_t*, size_t, size_t, const void*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueWriteImage.html">Khronos Documentation for clEnqueueWriteImage</a>
+	 */
 	int clEnqueueWriteImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueCopyImage.html">Khronos Documentation for clEnqueueCopyImage</a><br>
 	 * @deprecated use the safer methods {@link #clEnqueueCopyImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} and {@link #clEnqueueCopyImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueCopyImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueCopyImage.html">Khronos Documentation for clEnqueueCopyImage</a>
+	 */
 	int clEnqueueCopyImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr3[], int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
-	/// Original signature : <code>cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueCopyImage(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueCopyImage.html">Khronos Documentation for clEnqueueCopyImage</a>
+	 */
 	int clEnqueueCopyImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, size_t, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueCopyImageToBuffer.html">Khronos Documentation for clEnqueueCopyImageToBuffer</a><br>
 	 * @deprecated use the safer methods {@link #clEnqueueCopyImageToBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} and {@link #clEnqueueCopyImageToBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueCopyImageToBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, size_t, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, size_t, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueCopyImageToBuffer.html">Khronos Documentation for clEnqueueCopyImageToBuffer</a>
+	 */
 	int clEnqueueCopyImageToBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
-	/// Original signature : <code>cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, size_t, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueCopyImageToBuffer(cl_command_queue, cl_mem, cl_mem, const size_t*, const size_t*, size_t, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueCopyImageToBuffer.html">Khronos Documentation for clEnqueueCopyImageToBuffer</a>
+	 */
 	int clEnqueueCopyImageToBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueCopyBufferToImage.html">Khronos Documentation for clEnqueueCopyBufferToImage</a><br>
 	 * @deprecated use the safer methods {@link #clEnqueueCopyBufferToImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} and {@link #clEnqueueCopyBufferToImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueCopyBufferToImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueCopyBufferToImage.html">Khronos Documentation for clEnqueueCopyBufferToImage</a>
+	 */
 	int clEnqueueCopyBufferToImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
-	/// Original signature : <code>cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueCopyBufferToImage(cl_command_queue, cl_mem, cl_mem, size_t, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueCopyBufferToImage.html">Khronos Documentation for clEnqueueCopyBufferToImage</a>
+	 */
 	int clEnqueueCopyBufferToImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem2, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>void* clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, const cl_event*, cl_event*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueMapBuffer.html">Khronos Documentation for clEnqueueMapBuffer</a><br>
 	 * @deprecated use the safer methods {@link #clEnqueueMapBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, long, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], java.nio.IntBuffer)} and {@link #clEnqueueMapBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, long, com.ochafik.lang.jnaerator.runtime.NativeSize, com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.sun.jna.Pointer clEnqueueMapBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, long cl_map_flags1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/// Original signature : <code>void* clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, const cl_event*, cl_event*, cl_int*)</code>
+	/**
+	 * Original signature : <code>void* clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, const cl_event*, cl_event*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueMapBuffer.html">Khronos Documentation for clEnqueueMapBuffer</a>
+	 */
 	com.sun.jna.Pointer clEnqueueMapBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, long cl_map_flags1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[], java.nio.IntBuffer cl_intPtr1);
-	/// Original signature : <code>void* clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, const cl_event*, cl_event*, cl_int*)</code>
+	/**
+	 * Original signature : <code>void* clEnqueueMapBuffer(cl_command_queue, cl_mem, cl_bool, cl_map_flags, size_t, size_t, cl_uint, const cl_event*, cl_event*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueMapBuffer.html">Khronos Documentation for clEnqueueMapBuffer</a>
+	 */
 	com.sun.jna.Pointer clEnqueueMapBuffer(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, long cl_map_flags1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t2, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[], com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Original signature : <code>void* clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, const size_t*, const size_t*, size_t*, size_t*, cl_uint, const cl_event*, cl_event*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueMapImage.html">Khronos Documentation for clEnqueueMapImage</a><br>
 	 * @deprecated use the safer methods {@link #clEnqueueMapImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, long, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], java.nio.IntBuffer)} and {@link #clEnqueueMapImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, int, long, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.sun.jna.Pointer clEnqueueMapImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, long cl_map_flags1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr4, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/// Original signature : <code>void* clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, const size_t*, const size_t*, size_t*, size_t*, cl_uint, const cl_event*, cl_event*, cl_int*)</code>
+	/**
+	 * Original signature : <code>void* clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, const size_t*, const size_t*, size_t*, size_t*, cl_uint, const cl_event*, cl_event*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueMapImage.html">Khronos Documentation for clEnqueueMapImage</a>
+	 */
 	com.sun.jna.Pointer clEnqueueMapImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, long cl_map_flags1, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr4, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[], java.nio.IntBuffer cl_intPtr1);
-	/// Original signature : <code>void* clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, const size_t*, const size_t*, size_t*, size_t*, cl_uint, const cl_event*, cl_event*, cl_int*)</code>
+	/**
+	 * Original signature : <code>void* clEnqueueMapImage(cl_command_queue, cl_mem, cl_bool, cl_map_flags, const size_t*, const size_t*, size_t*, size_t*, cl_uint, const cl_event*, cl_event*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueMapImage.html">Khronos Documentation for clEnqueueMapImage</a>
+	 */
 	com.sun.jna.Pointer clEnqueueMapImage(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, long cl_map_flags1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr4, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[], com.sun.jna.ptr.IntByReference cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_int clEnqueueUnmapMemObject(cl_command_queue, cl_mem, void*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueUnmapMemObject.html">Khronos Documentation for clEnqueueUnmapMemObject</a><br>
 	 * @deprecated use the safer method {@link #clEnqueueUnmapMemObject(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem, com.sun.jna.Pointer, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueUnmapMemObject(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueUnmapMemObject(cl_command_queue, cl_mem, void*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueUnmapMemObject(cl_command_queue, cl_mem, void*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueUnmapMemObject.html">Khronos Documentation for clEnqueueUnmapMemObject</a>
+	 */
 	int clEnqueueUnmapMemObject(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_mem1, com.sun.jna.Pointer voidPtr1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueNDRangeKernel.html">Khronos Documentation for clEnqueueNDRangeKernel</a><br>
 	 * @deprecated use the safer methods {@link #clEnqueueNDRangeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel, int, com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], com.ochafik.lang.jnaerator.runtime.NativeSize[], int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} and {@link #clEnqueueNDRangeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel, int, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueNDRangeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueNDRangeKernel.html">Khronos Documentation for clEnqueueNDRangeKernel</a>
+	 */
 	int clEnqueueNDRangeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr1[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr2[], com.ochafik.lang.jnaerator.runtime.NativeSize size_tPtr3[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
-	/// Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueNDRangeKernel(cl_command_queue, cl_kernel, cl_uint, const size_t*, const size_t*, const size_t*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueNDRangeKernel.html">Khronos Documentation for clEnqueueNDRangeKernel</a>
+	 */
 	int clEnqueueNDRangeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr3, int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueTask(cl_command_queue, cl_kernel, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueTask.html">Khronos Documentation for clEnqueueTask</a><br>
 	 * @deprecated use the safer method {@link #clEnqueueTask(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueTask(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueTask(cl_command_queue, cl_kernel, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueTask(cl_command_queue, cl_kernel, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueTask.html">Khronos Documentation for clEnqueueTask</a>
+	 */
 	int clEnqueueTask(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueNativeKernel(cl_command_queue, user_func, void*, size_t, cl_uint, const cl_mem*, const void**, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueNativeKernel.html">Khronos Documentation for clEnqueueNativeKernel</a><br>
 	 * @deprecated use the safer method {@link #clEnqueueNativeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.user_func, com.sun.jna.Pointer, com.ochafik.lang.jnaerator.runtime.NativeSize, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem[], com.sun.jna.ptr.PointerByReference, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueNativeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.user_func arg1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_memPtr1, com.sun.jna.ptr.PointerByReference voidPtrPtr1, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueNativeKernel(cl_command_queue, user_func, void*, size_t, cl_uint, const cl_mem*, const void**, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueNativeKernel(cl_command_queue, user_func, void*, size_t, cl_uint, const cl_mem*, const void**, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueNativeKernel.html">Khronos Documentation for clEnqueueNativeKernel</a>
+	 */
 	int clEnqueueNativeKernel(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.user_func arg1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], com.sun.jna.ptr.PointerByReference voidPtrPtr1, int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueMarker(cl_command_queue, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueMarker.html">Khronos Documentation for clEnqueueMarker</a><br>
 	 * @deprecated use the safer method {@link #clEnqueueMarker(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueMarker(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.sun.jna.ptr.PointerByReference cl_eventPtr1);
-	/// Original signature : <code>cl_int clEnqueueMarker(cl_command_queue, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueMarker(cl_command_queue, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueMarker.html">Khronos Documentation for clEnqueueMarker</a>
+	 */
 	int clEnqueueMarker(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueWaitForEvents(cl_command_queue, cl_uint, const cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueWaitForEvents.html">Khronos Documentation for clEnqueueWaitForEvents</a><br>
 	 * @deprecated use the safer method {@link #clEnqueueWaitForEvents(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue, int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueWaitForEvents(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_eventPtr1);
-	/// Original signature : <code>cl_int clEnqueueWaitForEvents(cl_command_queue, cl_uint, const cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueWaitForEvents(cl_command_queue, cl_uint, const cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueWaitForEvents.html">Khronos Documentation for clEnqueueWaitForEvents</a>
+	 */
 	int clEnqueueWaitForEvents(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[]);
-	/// Original signature : <code>cl_int clEnqueueBarrier(cl_command_queue)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueBarrier(cl_command_queue)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueBarrier.html">Khronos Documentation for clEnqueueBarrier</a>
+	 */
 	int clEnqueueBarrier(com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue cl_command_queue1);
 	/**
 	 * func_name<br>
 	 * Original signature : <code>void* clGetExtensionFunctionAddress(const char*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetExtensionFunctionAddress.html">Khronos Documentation for clGetExtensionFunctionAddress</a><br>
 	 * @deprecated use the safer methods {@link #clGetExtensionFunctionAddress(java.lang.String)} and {@link #clGetExtensionFunctionAddress(com.sun.jna.Pointer)} instead
 	 */
 	@java.lang.Deprecated
 	com.sun.jna.Pointer clGetExtensionFunctionAddress(com.sun.jna.Pointer charPtr1);
 	/**
 	 * func_name<br>
-	 * Original signature : <code>void* clGetExtensionFunctionAddress(const char*)</code>
+	 * Original signature : <code>void* clGetExtensionFunctionAddress(const char*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetExtensionFunctionAddress.html">Khronos Documentation for clGetExtensionFunctionAddress</a>
 	 */
 	com.sun.jna.Pointer clGetExtensionFunctionAddress(java.lang.String charPtr1);
 	/**
@@ -802,61 +1044,92 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	void clLogMessagesToStderrAPPLE(java.lang.String charPtr1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr2);
 	/**
 	 * Original signature : <code>cl_mem clCreateFromGLBuffer(GLuint, int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateFromGLBuffer.html">Khronos Documentation for clCreateFromGLBuffer</a><br>
 	 * @deprecated use the safer methods {@link #clCreateFromGLBuffer(int, java.nio.IntBuffer)} and {@link #clCreateFromGLBuffer(int, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLBuffer(cl_context context, long memFlags, int GLuint1, com.sun.jna.ptr.IntByReference intPtr1);
-	/// Original signature : <code>cl_mem clCreateFromGLBuffer(GLuint, int*)</code>
+	/**
+	 * Original signature : <code>cl_mem clCreateFromGLBuffer(GLuint, int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateFromGLBuffer.html">Khronos Documentation for clCreateFromGLBuffer</a>
+	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLBuffer(cl_context context, long memFlags, int GLuint1, java.nio.IntBuffer intPtr1);
 	/**
 	 * Original signature : <code>cl_mem clCreateFromGLTexture2D(GLenum, GLint, GLuint, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateFromGLTexture2D.html">Khronos Documentation for clCreateFromGLTexture2D</a><br>
 	 * @deprecated use the safer methods {@link #clCreateFromGLTexture2D(int, int, int, java.nio.IntBuffer)} and {@link #clCreateFromGLTexture2D(int, int, int, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLTexture2D(int GLenum1, int GLint1, int GLuint1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/// Original signature : <code>cl_mem clCreateFromGLTexture2D(GLenum, GLint, GLuint, cl_int*)</code>
+	/**
+	 * Original signature : <code>cl_mem clCreateFromGLTexture2D(GLenum, GLint, GLuint, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateFromGLTexture2D.html">Khronos Documentation for clCreateFromGLTexture2D</a>
+	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLTexture2D(int GLenum1, int GLint1, int GLuint1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_mem clCreateFromGLTexture3D(GLenum, GLint, GLuint, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateFromGLTexture3D.html">Khronos Documentation for clCreateFromGLTexture3D</a><br>
 	 * @deprecated use the safer methods {@link #clCreateFromGLTexture3D(int, int, int, java.nio.IntBuffer)} and {@link #clCreateFromGLTexture3D(int, int, int, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLTexture3D(int GLenum1, int GLint1, int GLuint1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/// Original signature : <code>cl_mem clCreateFromGLTexture3D(GLenum, GLint, GLuint, cl_int*)</code>
+	/**
+	 * Original signature : <code>cl_mem clCreateFromGLTexture3D(GLenum, GLint, GLuint, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateFromGLTexture3D.html">Khronos Documentation for clCreateFromGLTexture3D</a>
+	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLTexture3D(int GLenum1, int GLint1, int GLuint1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_mem clCreateFromGLRenderbuffer(GLuint, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateFromGLRenderbuffer.html">Khronos Documentation for clCreateFromGLRenderbuffer</a><br>
 	 * @deprecated use the safer methods {@link #clCreateFromGLRenderbuffer(int, java.nio.IntBuffer)} and {@link #clCreateFromGLRenderbuffer(int, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLRenderbuffer(int GLuint1, com.sun.jna.ptr.IntByReference cl_intPtr1);
-	/// Original signature : <code>cl_mem clCreateFromGLRenderbuffer(GLuint, cl_int*)</code>
+	/**
+	 * Original signature : <code>cl_mem clCreateFromGLRenderbuffer(GLuint, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateFromGLRenderbuffer.html">Khronos Documentation for clCreateFromGLRenderbuffer</a>
+	 */
 	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLRenderbuffer(int GLuint1, java.nio.IntBuffer cl_intPtr1);
 	/**
 	 * Original signature : <code>cl_int clGetGLObjectInfo(cl_gl_object_type*, GLuint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetGLObjectInfo.html">Khronos Documentation for clGetGLObjectInfo</a><br>
 	 * @deprecated use the safer methods {@link #clGetGLObjectInfo(java.nio.IntBuffer, java.nio.IntBuffer)} and {@link #clGetGLObjectInfo(com.sun.jna.ptr.IntByReference, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
 	int clGetGLObjectInfo(cl_mem mem, com.sun.jna.ptr.IntByReference cl_gl_object_typePtr1, com.sun.jna.ptr.IntByReference GLuintPtr1);
-	/// Original signature : <code>cl_int clGetGLObjectInfo(cl_gl_object_type*, GLuint*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetGLObjectInfo(cl_gl_object_type*, GLuint*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetGLObjectInfo.html">Khronos Documentation for clGetGLObjectInfo</a>
+	 */
 	int clGetGLObjectInfo(cl_mem mem, java.nio.IntBuffer cl_gl_object_typePtr1, java.nio.IntBuffer GLuintPtr1);
-	/// Original signature : <code>cl_int clGetGLTextureInfo(cl_gl_texture_info, size_t, void*, size_t*)</code>
+	/**
+	 * Original signature : <code>cl_int clGetGLTextureInfo(cl_gl_texture_info, size_t, void*, size_t*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clGetGLTextureInfo.html">Khronos Documentation for clGetGLTextureInfo</a>
+	 */
 	int clGetGLTextureInfo(int cl_gl_texture_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**
 	 * Original signature : <code>cl_int clEnqueueAcquireGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueAcquireGLObjects.html">Khronos Documentation for clEnqueueAcquireGLObjects</a><br>
 	 * @deprecated use the safer method {@link #clEnqueueAcquireGLObjects(int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem[], int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueAcquireGLObjects(cl_command_queue queue, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_memPtr1, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueAcquireGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code>
-	int clEnqueueAcquireGLObjects(cl_command_queue queue,int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
+	/**
+	 * Original signature : <code>cl_int clEnqueueAcquireGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueAcquireGLObjects.html">Khronos Documentation for clEnqueueAcquireGLObjects</a>
+	 */
+	int clEnqueueAcquireGLObjects(cl_command_queue queue, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueReleaseGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueReleaseGLObjects.html">Khronos Documentation for clEnqueueReleaseGLObjects</a><br>
 	 * @deprecated use the safer method {@link #clEnqueueReleaseGLObjects(int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem[], int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
 	int clEnqueueReleaseGLObjects(cl_command_queue queue, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_memPtr1, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
-	/// Original signature : <code>cl_int clEnqueueReleaseGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code>
+	/**
+	 * Original signature : <code>cl_int clEnqueueReleaseGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clEnqueueReleaseGLObjects.html">Khronos Documentation for clEnqueueReleaseGLObjects</a>
+	 */
 	int clEnqueueReleaseGLObjects(cl_command_queue queue, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/// Original signature : <code>cl_int clGetGLContextInfoKHR(const cl_context_properties*, cl_gl_context_info, size_t, void*, size_t*)</code>
 	int clGetGLContextInfoKHR(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference properties, int param_name, com.ochafik.lang.jnaerator.runtime.NativeSize param_value_size, com.sun.jna.Pointer param_value, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference param_value_size_ret);

@@ -11,3 +11,5 @@
 	
 //-choicesOut "$(DIR)/OpenCL.choices"
 -v
+
+-onlineDoc "Khronos Documentation for {0}" "http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/{0}.html"
