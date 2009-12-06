@@ -124,11 +124,22 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	}
 
 	static cl_event[] to_cl_event_array(CLEvent... events) {
-		if (events.length == 0)
+        int n = events.length;
+		if (n == 0)
 			return null;
-		cl_event[] event_wait_list = new cl_event[events.length];
-		for (int i = events.length; i-- != 0;)
-			event_wait_list[i] = events[i] == null ? null : events[i].getEntity();
+        int nonNulls = 0;
+        for (int i = 0; i < n; i++)
+            if (events[i] != null)
+                nonNulls++;
+        
+        cl_event[] event_wait_list = new cl_event[nonNulls];
+        int iDest = 0;
+		for (int i = 0; i < n; i++) {
+            CLEvent event = events[i];
+            if (event == null)
+                continue;
+            event_wait_list[iDest] = event.getEntity();
+        }
 		return event_wait_list;	
 	}
 
