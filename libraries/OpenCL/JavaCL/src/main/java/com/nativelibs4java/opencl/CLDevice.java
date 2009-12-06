@@ -36,7 +36,10 @@ import static com.nativelibs4java.opencl.CLException.*;
 /**
  * OpenCL device (CPU, GPU...).<br/>
  * Devices are retrieved from a CLPlatform
- * @see CLPlatform#listDevices(java.util.EnumSet, boolean) 
+ * @see CLPlatform#listDevices(java.util.EnumSet, boolean)
+ * @see CLPlatform#listAllDevices(boolean)
+ * @see CLPlatform#listCPUDevices(boolean)
+ * @see CLPlatform#listGPUDevices(boolean)
  */
 public class CLDevice extends CLAbstractEntity<cl_device_id> {
 
@@ -242,16 +245,24 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
      * @return new OpenCL queue object
      */
     @SuppressWarnings("deprecation")
+    public CLQueue createQueue(CLContext context, QueueProperties... queueProperties) {
+        IntByReference pErr = new IntByReference();
+        long flags = 0;
+        for (QueueProperties prop : queueProperties)
+            flags |= prop.getValue();
+        cl_command_queue queue = CL.clCreateCommandQueue(context.getEntity(), getEntity(), flags, pErr);
+        error(pErr.getValue());
+
+        return new CLQueue(context, queue, this);
+    }
+
+    @Deprecated
     public CLQueue createQueue(EnumSet<QueueProperties> queueProperties, CLContext context) {
         IntByReference pErr = new IntByReference();
         cl_command_queue queue = CL.clCreateCommandQueue(context.getEntity(), getEntity(), QueueProperties.getValue(queueProperties), pErr);
         error(pErr.getValue());
 
         return new CLQueue(context, queue, this);
-    }
-
-    public CLQueue createQueue(CLContext context) {
-        return createQueue(EnumSet.noneOf(QueueProperties.class), context);
     }
 
     public CLQueue createOutOfOrderQueue(CLContext context) {

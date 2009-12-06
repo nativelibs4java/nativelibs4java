@@ -18,6 +18,7 @@ along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.nativelibs4java.opencl;
 
+import com.nativelibs4java.opencl.CLDevice.QueueProperties;
 import com.nativelibs4java.opencl.CLSampler.AddressingMode;
 import com.nativelibs4java.opencl.CLSampler.FilterMode;
 import com.nativelibs4java.opencl.library.OpenGLContextUtils;
@@ -69,8 +70,8 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * Equivalent to calling <code>getDevices()[0].createQueue(context)</code>
 	 * @return new OpenCL queue
 	 */
-	public CLQueue createDefaultQueue() {
-		return new CLDevice(platform, deviceIds[0]).createQueue(this);
+	public CLQueue createDefaultQueue(QueueProperties... queueProperties) {
+		return new CLDevice(platform, deviceIds[0]).createQueue(this, queueProperties);
 	}
 
 	/**

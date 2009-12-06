@@ -111,7 +111,7 @@ public class JOGLTest {
                             //inbuf.put(0, expected);
                             //clbuf.write(queue, 0, 4 * bufferSize, inbuf, true).waitFor();
 
-                            queue.enqueueReleaseGLObjects(new CLMem[] { clbuf }).waitFor();
+                            queue.enqueueReleaseGLObjects(new CLMem[] { clbuf });
                             queue.finish();
 
                             gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]); // Bind The Buffer

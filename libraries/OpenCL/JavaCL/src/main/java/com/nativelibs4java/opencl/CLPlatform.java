@@ -34,7 +34,7 @@ import static com.nativelibs4java.util.JNAUtils.*;
 
 /**
  * OpenCL implementation entry point.
- * @see OpenCL4Java#listPlatforms() 
+ * @see JavaCL#listPlatforms() 
  * @author Olivier Chafik
  */
 public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
@@ -270,6 +270,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         return getDevices(ids, onlyAvailable);
     }
 
+    /*
     public CLDevice[] listGLDevices(long openglContextId, boolean onlyAvailable) {
         
         IntByReference errRef = new IntByReference();
@@ -290,7 +291,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         for (int i = 0; i < nDevs; i++)
             ids[i] = new cl_device_id(idsMem.getPointer(i * Pointer.SIZE));
         return getDevices(ids, onlyAvailable);
-    }
+    }*/
 
     /**
      * OpenCL profile string. Returns the profile name supported by the implementation. The profile name returned can be one of the following strings:

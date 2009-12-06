@@ -32,8 +32,7 @@ import static com.nativelibs4java.util.NIOUtils.*;
  * OpenCL Memory Buffer Object.<br/>
  * A buffer object stores a one-dimensional collection of elements.<br/>
  * Elements of a buffer object can be a scalar data type (such as an int, float), vector data type, or a user-defined structure.<br/>
- * @see CLContext#createInput(long)
- * @see CLContext#createOutput(long)
+ * @see CLContext
  * @author Olivier Chafik
  */
 public abstract class CLBuffer<B extends Buffer> extends CLMem {
