@@ -154,7 +154,13 @@ public class CLException extends RuntimeException {
                 try {
                     int i = (Integer) f.get(null);
                     if (i == err) {
-                        candidates.add(f.getName());
+                        String name = f.getName(), lname = name.toLowerCase();
+                        if (lname.contains("invalid") || lname.contains("bad") || lname.contains("illegal") || lname.contains("wrong")) {
+                            candidates.clear();
+                            candidates.add(name);
+                            break;
+                        } else
+                            candidates.add(name);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

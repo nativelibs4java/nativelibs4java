@@ -23,6 +23,7 @@ import com.sun.opengl.util.FPSAnimator;
 import com.sun.opengl.util.texture.TextureIO;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.nio.ByteBuffer;
 import java.util.concurrent.Semaphore;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLCapabilities;
@@ -84,21 +85,27 @@ public class JOGLTest {
                             CLQueue queue = context.createDefaultQueue();
 
                             CLFloatBuffer clbuf = context.createBufferFromGLBuffer(CLMem.Usage.Input, VBO[0]).asCLFloatBuffer();
+
                             queue.enqueueAcquireGLObjects(new CLMem[] { clbuf });
+                            queue.finish();
+
+                            //Throws an InvalidMemObject exception : System.out.println(clbuf.getByteCount());
+                            //assertEquals(bufferSize, clbuf.asCLFloatBuffer().getElementCount());
+
                             GLObjectInfo info = clbuf.getGLObjectInfo();
-                            System.out.println(info.getType());
                             assertEquals(CLMem.GLObjectType.Buffer, info.getType());
                             assertEquals(VBO[0], info.getName());
                             assertNotNull(clbuf);
+
                             FloatBuffer inbuf = NIOUtils.directFloats(bufferSize);
                             float expected = 10;
                             try {
-                                //clbuf = context.createFloatBuffer(CLMem.Usage.Input, bufferSize);
                                 CLKernel kernel = context.createProgram("__kernel void fill(__global float* out) { out[get_global_id(0)] = (float)" + expected + ";}").build().createKernel("fill", clbuf);
                                 kernel.enqueueNDRange(queue, new int[]{bufferSize}, new int[]{1}).waitFor();
-                            } catch (Exception ex) {
-                                Logger.getLogger(JOGLTest.class.getName()).log(Level.SEVERE, null, ex);
-                                assertTrue(ex.toString(), false);
+                            } catch (CLException.InvalidKernelArgs ex) {
+                                assertTrue("GL-converted buffer was refused as kernel argument", false);
+                            } catch (Throwable ex) {
+                                assertTrue("Unexpected error : " + ex, false);
                             }
 
                             //inbuf.put(0, expected);
@@ -108,11 +115,12 @@ public class JOGLTest {
                             queue.finish();
 
                             gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]); // Bind The Buffer
-                            buffer = gl.glMapBuffer(GL.GL_ARRAY_BUFFER, GL2.GL_READ_ONLY).asFloatBuffer();
-                            float val = buffer.get(0);
-                            assertEquals(expected, val, 0);
-                            //System.out.println(clbuf.getByteCount());
-                            //assertEquals(bufferSize, clbuf.asCLFloatBuffer().getElementCount());
+                            ByteBuffer mb = gl.glMapBuffer(GL.GL_ARRAY_BUFFER, GL2.GL_READ_ONLY);
+                            if (mb != null) {
+                                buffer = mb.asFloatBuffer();
+                                float val = buffer.get(0);
+                                assertEquals(expected, val, 0);
+                            }
                         }
 
                     } catch (AssertionError ex) {
