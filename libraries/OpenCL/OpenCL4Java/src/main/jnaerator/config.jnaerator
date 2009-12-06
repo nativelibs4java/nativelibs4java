@@ -9,5 +9,5 @@
 	-noJar -noComp
 	//-o "$(DIR)/../../../target/generated-sources/java"
 	
--choicesOut "$(DIR)/OpenCL.choices"
+//-choicesOut "$(DIR)/OpenCL.choices"
 -v

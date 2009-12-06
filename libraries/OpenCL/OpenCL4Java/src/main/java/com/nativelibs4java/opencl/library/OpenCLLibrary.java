@@ -749,9 +749,9 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	com.sun.jna.Pointer clGetExtensionFunctionAddress(java.lang.String charPtr1);
 	/**
 	 * context<br>
-	 * Original signature : <code>cl_int clGetGLContextInfoAPPLE(void*, size_t, void*, size_t*)</code>
+	 * Original signature : <code>cl_int	clGetGLContextInfoAPPLE(cl_context context, void *platform_gl_ctx, cl_gl_platform_info param_name, size_t param_value_size, void *param_value, size_t *param_value_size_ret)</code>
 	 */
-	int clGetGLContextInfoAPPLE(com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr2, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
+	int clGetGLContextInfoAPPLE(cl_context context, com.ochafik.lang.jnaerator.runtime.NativeSize platform_gl_ctx, int param_name, com.ochafik.lang.jnaerator.runtime.NativeSize param_value_size, com.sun.jna.Pointer param_value, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference param_value_size_ret);
 	/**
 	 * before using.<br>
 	 * memobj<br>

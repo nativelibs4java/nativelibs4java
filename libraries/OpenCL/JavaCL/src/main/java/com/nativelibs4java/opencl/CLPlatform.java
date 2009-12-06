@@ -121,7 +121,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         return devices;
     }
 
-    private static long[] getContextProps(Map<ContextProperties, Number> contextProperties) {
+    static long[] getContextProps(Map<ContextProperties, Number> contextProperties) {
         if (contextProperties == null)
             return null;
         final long[] properties = new long[contextProperties.size() * 2 + 1];
@@ -186,15 +186,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     }
 
     public CLContext createContextFromCurrentGL() {
-
-        CLDevice[] devices = null;
-        try {
-            devices = new CLDevice[] { getCurrentGLDevice() };
-        } catch (Throwable ex) {
-            System.err.println(ex);
-            devices = listAllDevices(true);
-        }
-        return createGLCompatibleContext(devices);
+        return createGLCompatibleContext(listAllDevices(true));
     }
 
     static Map<ContextProperties, Number> getGLContextProperties() {
@@ -278,32 +270,6 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         return getDevices(ids, onlyAvailable);
     }
 
-    
-
-    @Deprecated
-    public static CLDevice getCurrentGLDevice() {
-        IntByReference errRef = new IntByReference();
-        long[] props = getContextProps(getGLContextProperties());
-        Memory propsMem = toNSArray(props);
-        NativeSizeByReference propsRef = new NativeSizeByReference();
-        propsRef.setPointer(propsMem);
-        
-        NativeSizeByReference pCount = new NativeSizeByReference();
-        NativeSizeByReference pLen = new NativeSizeByReference();
-        Memory mem = new Memory(Pointer.SIZE);
-        if (Platform.isMac())
-            error(CL.clGetGLContextInfoAPPLE(Pointer.createConstant(CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR), toNS(Pointer.SIZE), mem, pCount));
-        else
-            error(CL.clGetGLContextInfoKHR(propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, toNS(Pointer.SIZE), mem, pCount));
-
-        if (pCount.getValue().intValue() != Pointer.SIZE)
-            throw new RuntimeException("Not a device : len = " + pCount.getValue().intValue());
-
-        Pointer p = mem.getPointer(0);
-        if (p.equals(Pointer.NULL))
-            return null;
-        return new CLDevice(null, new cl_device_id(p));
-    }
     public CLDevice[] listGLDevices(long openglContextId, boolean onlyAvailable) {
         
         IntByReference errRef = new IntByReference();

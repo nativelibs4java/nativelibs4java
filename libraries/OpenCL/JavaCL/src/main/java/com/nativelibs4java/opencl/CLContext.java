@@ -20,6 +20,7 @@ package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.opencl.CLSampler.AddressingMode;
 import com.nativelibs4java.opencl.CLSampler.FilterMode;
+import com.nativelibs4java.opencl.library.OpenGLContextUtils;
 import com.nativelibs4java.opencl.library.cl_image_format;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
@@ -169,6 +170,33 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	protected void clear() {
 		error(CL.clReleaseContext(getEntity()));
 	}
+
+
+
+    @Deprecated
+    public CLDevice getCurrentGLDevice() {
+        IntByReference errRef = new IntByReference();
+        long[] props = CLPlatform.getContextProps(CLPlatform.getGLContextProperties());
+        Memory propsMem = toNSArray(props);
+        NativeSizeByReference propsRef = new NativeSizeByReference();
+        propsRef.setPointer(propsMem);
+
+        NativeSizeByReference pCount = new NativeSizeByReference();
+        NativeSizeByReference pLen = new NativeSizeByReference();
+        Memory mem = new Memory(Pointer.SIZE);
+        if (Platform.isMac())
+            error(CL.clGetGLContextInfoAPPLE(getEntity(), OpenGLContextUtils.INSTANCE.CGLGetCurrentContext(), CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, toNS(Pointer.SIZE), mem, pCount));
+        else
+            error(CL.clGetGLContextInfoKHR(propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, toNS(Pointer.SIZE), mem, pCount));
+
+        if (pCount.getValue().intValue() != Pointer.SIZE)
+            throw new RuntimeException("Not a device : len = " + pCount.getValue().intValue());
+
+        Pointer p = mem.getPointer(0);
+        if (p.equals(Pointer.NULL))
+            return null;
+        return new CLDevice(null, new cl_device_id(p));
+    }
 
 	public CLByteBuffer createBufferFromGLBuffer(CLMem.Usage usage, int openGLBufferObject) {
 		IntByReference pErr = new IntByReference();
