@@ -108,7 +108,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * Enqueues a wait for a specific event or a list of events to complete before any future commands queued in the this queue are executed.
 	 */
 	public void enqueueWaitForEvents(CLEvent... events) {
-        error(CL.clEnqueueWaitForEvents(getEntity(), events.length, CLEvent.to_cl_event_array(events)));
+        cl_event[] evts = CLEvent.to_cl_event_array(events);
+        error(CL.clEnqueueWaitForEvents(getEntity(), evts == null ? 0 : evts.length, evts));
 	}
 
 	/**
@@ -144,7 +145,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 		cl_mem[] mems = new cl_mem[objects.length];
 		for (int i = 0; i < objects.length; i++)
 			mems[i] = objects[i].getEntity();
-		error(CL.clEnqueueAcquireGLObjects(getEntity(), mems.length, mems, events.length, CLEvent.to_cl_event_array(events), eventOut));
+		cl_event[] evts = CLEvent.to_cl_event_array(events);
+        error(CL.clEnqueueAcquireGLObjects(getEntity(), mems.length, mems, evts == null ? 0 : evts.length, evts, eventOut));
 		return CLEvent.createEvent(eventOut[0]);
 	}
 
@@ -161,7 +163,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 		cl_mem[] mems = new cl_mem[objects.length];
 		for (int i = 0; i < objects.length; i++)
 			mems[i] = objects[i].getEntity();
-		error(CL.clEnqueueReleaseGLObjects(getEntity(), mems.length, mems, events.length, CLEvent.to_cl_event_array(events), eventOut));
+		cl_event[] evts = CLEvent.to_cl_event_array(events);
+        error(CL.clEnqueueReleaseGLObjects(getEntity(), mems.length, mems, evts == null ? 0 : evts.length, evts, eventOut));
 		return CLEvent.createEvent(eventOut[0]);
 	}
 }

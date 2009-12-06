@@ -88,7 +88,8 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 			return;
 		
 		try {
-			error(CL.clWaitForEvents(eventsToWaitFor.length, to_cl_event_array(eventsToWaitFor)));
+			cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+            error(CL.clWaitForEvents(evts == null ? 0 : evts.length, evts));
 		} catch (Exception ex) {
 			throw new RuntimeException("Exception while waiting for events " + Arrays.asList(eventsToWaitFor), ex);
 		}
@@ -131,7 +132,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
         for (int i = 0; i < n; i++)
             if (events[i] != null)
                 nonNulls++;
-        
+
         cl_event[] event_wait_list = new cl_event[nonNulls];
         int iDest = 0;
 		for (int i = 0; i < n; i++) {

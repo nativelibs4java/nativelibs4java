@@ -77,14 +77,15 @@ public abstract class CLImage extends CLMem {
 
 		}*/
 		cl_event[] eventOut = blocking ? null : new cl_event[1];
-		error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
+		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
 			toNS(origin),
 			toNS(region),
 			toNS(rowPitch),
 			toNS(slicePitch),
 			Native.getDirectBufferPointer(out),
-			eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
+			evts == null ? 0 : evts.length, evts,
 			eventOut
 		));
 		return blocking ? null : CLEvent.createEvent(eventOut[0]);
@@ -96,14 +97,15 @@ public abstract class CLImage extends CLMem {
 			in = directCopy(in);
 
 		cl_event[] eventOut = blocking ? null : new cl_event[1];
-		error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
+		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
 			toNS(origin),
 			toNS(region),
 			toNS(rowPitch),
 			toNS(slicePitch),
 			Native.getDirectBufferPointer(in),
-			eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor),
+			evts == null ? 0 : evts.length, evts,
 			eventOut
 		));
 		CLEvent evt = blocking ? null : CLEvent.createEvent(eventOut[0]);
