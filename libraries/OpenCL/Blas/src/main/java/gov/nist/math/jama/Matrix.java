@@ -463,14 +463,18 @@ public class Matrix implements Cloneable, java.io.Serializable {
    */
 
    public Matrix transpose () {
-      Matrix X = new Matrix(n,m);
-      double[][] C = X.getArray();
+      return transpose(new Matrix(n,m));
+   }
+   public Matrix transpose (Matrix out) {
+       if (out == null)
+           out = new Matrix(n,m);
+      double[][] C = out.getArray();
       for (int i = 0; i < m; i++) {
          for (int j = 0; j < n; j++) {
             C[j][i] = A[i][j];
          }
       }
-      return X;
+      return out;
    }
 
    /** One norm

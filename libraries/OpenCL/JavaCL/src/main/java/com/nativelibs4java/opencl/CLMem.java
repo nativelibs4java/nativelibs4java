@@ -146,6 +146,36 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 		public static ObjectType getEnum(long v) { return EnumValues.getEnum(v, ObjectType.class); }
 	}
 
+    public enum GLObjectType {
+		@EnumValue(CL_GL_OBJECT_BUFFER) Buffer,
+		@EnumValue(CL_GL_OBJECT_RENDERBUFFER) RenderBuffer,
+		@EnumValue(CL_GL_OBJECT_TEXTURE2D) Texture2D,
+		@EnumValue(CL_GL_OBJECT_TEXTURE3D) Texture3D;
+
+		public long getValue() { return EnumValues.getValue(this); }
+		public static GLObjectType getEnum(long v) { return EnumValues.getEnum(v, GLObjectType.class); }
+	}
+
+    public static class GLObjectInfo {
+        final GLObjectType type;
+        final int name;
+        public GLObjectInfo(GLObjectType type, int name) {
+            this.type = type;
+            this.name = name;
+        }
+        public GLObjectType getType() {
+            return type;
+        }
+        public int getName() {
+            return name;
+        }
+    }
+    public GLObjectInfo getGLObjectInfo() {
+        IntByReference typeRef = new IntByReference();
+        IntByReference nameRef = new IntByReference();
+        CL.clGetGLObjectInfo(get(), typeRef, nameRef);
+        return new GLObjectInfo(GLObjectType.getEnum(typeRef.getValue()), nameRef.getValue());
+    }
 	public enum MapFlags {
 		@EnumValue(CL_MAP_READ) Read,
 		@EnumValue(CL_MAP_WRITE) Write,

@@ -805,9 +805,9 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 * @deprecated use the safer methods {@link #clCreateFromGLBuffer(int, java.nio.IntBuffer)} and {@link #clCreateFromGLBuffer(int, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
-	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLBuffer(int GLuint1, com.sun.jna.ptr.IntByReference intPtr1);
+	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLBuffer(cl_context context, long memFlags, int GLuint1, com.sun.jna.ptr.IntByReference intPtr1);
 	/// Original signature : <code>cl_mem clCreateFromGLBuffer(GLuint, int*)</code>
-	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLBuffer(int GLuint1, java.nio.IntBuffer intPtr1);
+	com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem clCreateFromGLBuffer(cl_context context, long memFlags, int GLuint1, java.nio.IntBuffer intPtr1);
 	/**
 	 * Original signature : <code>cl_mem clCreateFromGLTexture2D(GLenum, GLint, GLuint, cl_int*)</code><br>
 	 * @deprecated use the safer methods {@link #clCreateFromGLTexture2D(int, int, int, java.nio.IntBuffer)} and {@link #clCreateFromGLTexture2D(int, int, int, com.sun.jna.ptr.IntByReference)} instead
@@ -837,9 +837,9 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 * @deprecated use the safer methods {@link #clGetGLObjectInfo(java.nio.IntBuffer, java.nio.IntBuffer)} and {@link #clGetGLObjectInfo(com.sun.jna.ptr.IntByReference, com.sun.jna.ptr.IntByReference)} instead
 	 */
 	@java.lang.Deprecated
-	int clGetGLObjectInfo(com.sun.jna.ptr.IntByReference cl_gl_object_typePtr1, com.sun.jna.ptr.IntByReference GLuintPtr1);
+	int clGetGLObjectInfo(cl_mem mem, com.sun.jna.ptr.IntByReference cl_gl_object_typePtr1, com.sun.jna.ptr.IntByReference GLuintPtr1);
 	/// Original signature : <code>cl_int clGetGLObjectInfo(cl_gl_object_type*, GLuint*)</code>
-	int clGetGLObjectInfo(java.nio.IntBuffer cl_gl_object_typePtr1, java.nio.IntBuffer GLuintPtr1);
+	int clGetGLObjectInfo(cl_mem mem, java.nio.IntBuffer cl_gl_object_typePtr1, java.nio.IntBuffer GLuintPtr1);
 	/// Original signature : <code>cl_int clGetGLTextureInfo(cl_gl_texture_info, size_t, void*, size_t*)</code>
 	int clGetGLTextureInfo(int cl_gl_texture_info1, com.ochafik.lang.jnaerator.runtime.NativeSize size_t1, com.sun.jna.Pointer voidPtr1, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference size_tPtr1);
 	/**

@@ -123,4 +123,9 @@ public class DefaultMatrix extends DoubleData implements Matrix<DefaultMatrix, D
 		//out.write(DoubleBuffer.wrap(new double[] { total }));
 		return out;
 	}
+
+    @Override
+    public DefaultMatrix transpose(DefaultMatrix out) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

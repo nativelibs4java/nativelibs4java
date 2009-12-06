@@ -8,6 +8,8 @@ import java.util.EnumSet;
 
 public interface Matrix<M extends Matrix<M, B>, B extends Buffer> extends Data<B> {
 	M multiply(M m, M out);
+	M transpose(M out);
+
 	//M dot(M other, M out);
 	
 	SVD<M, B> svd();
@@ -16,6 +18,6 @@ public interface Matrix<M extends Matrix<M, B>, B extends Buffer> extends Data<B
 	Eigen<M, B> eigen();
 	QR<M, B> qr();
 
-	int getRows();
+    int getRows();
 	int getColumns();
 }

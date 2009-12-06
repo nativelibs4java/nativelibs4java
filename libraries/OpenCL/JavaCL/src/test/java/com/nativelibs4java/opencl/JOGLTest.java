@@ -4,6 +4,8 @@
  */
 package com.nativelibs4java.opencl;
 
+import com.nativelibs4java.opencl.CLMem.GLObjectInfo;
+import com.nativelibs4java.util.NIOUtils;
 import com.sun.jna.Platform;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,21 +63,42 @@ public class JOGLTest {
                 public void init(GLAutoDrawable drawable) {
                     try {
                         System.err.println("Initializing...");
-                        int bufferSize = 10;
+                        int bufferSize = 1024;
                         FloatBuffer buffer;
                         int[] VBO = new int[1];
                         GL gl = drawable.getGL();
-                        buffer = BufferUtil.newFloatBuffer(bufferSize);
-                        gl.glGenBuffers(1, VBO, 0); // Get A Valid Name
-                        gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]); // Bind The Buffer
-                        gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * BufferUtil.SIZEOF_FLOAT, buffer, GL.GL_STATIC_DRAW);
-                        //int glcontext = gl.glGet.getContext().CONTEXT_CURRENT;
-
+						buffer = BufferUtil.newFloatBuffer(bufferSize);
+						gl.glGenBuffers(1, VBO, 0); // Get A Valid Name
+						gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]); // Bind The Buffer
+						gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * BufferUtil.SIZEOF_FLOAT, buffer, GL.GL_DYNAMIC_DRAW);
+                        
                         CLContext context = JavaCL.createContextFromCurrentGL();
                         if (context != null) {
-                            CLByteBuffer clbuf = context.createBufferFromGLBuffer(CLMem.Usage.Input, VBO[0]);
+                            //int glcontext = gl.glGet.getContext().CONTEXT_CURRENT;
+                            CLQueue queue = context.createDefaultQueue();
+
+                            CLFloatBuffer clbuf = context.createBufferFromGLBuffer(CLMem.Usage.Input, VBO[0]).asCLFloatBuffer();
+                            GLObjectInfo info = clbuf.getGLObjectInfo();
+                            System.out.println(info.getType());
+                            assertEquals(CLMem.GLObjectType.Buffer, info.getType());
+                            assertEquals(VBO[0], info.getName());
                             assertNotNull(clbuf);
-                            assertEquals(bufferSize, clbuf.asCLFloatBuffer().getElementCount());
+                            FloatBuffer inbuf = NIOUtils.directFloats(bufferSize);
+                            float expected = 10;
+                            try {
+                                CLKernel kernel = context.createProgram("__kernel void fill(__global float* out) { out[get_global_id(0)] = (float)" + expected + ";}").build().createKernel("fill", clbuf);
+                                kernel.enqueueNDRange(queue, new int[]{bufferSize}, new int[]{1}).waitFor();
+                            } catch (CLBuildException ex) {
+                                Logger.getLogger(JOGLTest.class.getName()).log(Level.SEVERE, null, ex);
+                                assertTrue(ex.toString(), false);
+                            }
+
+                            //inbuf.put(0, expected);
+                            //clbuf.write(queue, 0, 4 * bufferSize, inbuf, true);
+                            float val = buffer.get(0);
+                            assertEquals(expected, val, 0);
+                            //System.out.println(clbuf.getByteCount());
+                            //assertEquals(bufferSize, clbuf.asCLFloatBuffer().getElementCount());
                         }
                         sem.release();
 

@@ -77,6 +77,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	public CLQueue createDefaultQueue() {
 		return new CLDevice(platform, deviceIds[0]).createQueue(this);
 	}
+
 	/**
 	 * Create an out-of-order OpenCL queue on the first device of this context.<br/>
 	 * Equivalent to calling <code>getDevices()[0].createOutOfOrderQueue(context)</code>
@@ -177,7 +178,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 	public CLByteBuffer createBufferFromGLBuffer(CLMem.Usage usage, int openGLBufferObject) {
 		IntByReference pErr = new IntByReference();
-		cl_mem mem = CL.clCreateFromGLBuffer(openGLBufferObject, pErr);
+		cl_mem mem = CL.clCreateFromGLBuffer(get(), usage.getIntFlags(), openGLBufferObject, pErr);
 		error(pErr.getValue());
 		return new CLByteBuffer(this, -1, mem, null);
 	}

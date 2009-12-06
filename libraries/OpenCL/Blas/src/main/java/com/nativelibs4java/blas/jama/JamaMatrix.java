@@ -261,4 +261,9 @@ public class JamaMatrix implements Matrix<JamaMatrix, DoubleBuffer> {
 		return b;
 	}
 
+    @Override
+    public JamaMatrix transpose(JamaMatrix out) {
+        return mat(matrix.transpose(out.matrix));
+    }
+
 }
