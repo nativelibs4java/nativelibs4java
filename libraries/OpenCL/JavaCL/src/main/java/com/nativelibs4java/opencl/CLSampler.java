@@ -53,7 +53,7 @@ public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	
 	@Override
 	protected void clear() {
-		error(CL.clReleaseSampler(get()));
+		error(CL.clReleaseSampler(getEntity()));
 	}
 
 	/**
@@ -75,7 +75,7 @@ public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	 */
 	@InfoName("CL_SAMPLER_ADDRESSING_MODE")
 	public AddressingMode getAddressingMode() {
-		return AddressingMode.getEnum(infos.getInt(get(), CL_SAMPLER_ADDRESSING_MODE));
+		return AddressingMode.getEnum(infos.getInt(getEntity(), CL_SAMPLER_ADDRESSING_MODE));
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	 */
 	@InfoName("CL_SAMPLER_FILTER_MODE")
 	public FilterMode getFilterMode() {
-		return FilterMode.getEnum(infos.getInt(get(), CL_SAMPLER_FILTER_MODE));
+		return FilterMode.getEnum(infos.getInt(getEntity(), CL_SAMPLER_FILTER_MODE));
 	}
 
 	/**
@@ -102,7 +102,7 @@ public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	 */
 	@InfoName("CL_SAMPLER_NORMALIZED_COORDS")
 	public boolean getNormalizedCoords() {
-		return infos.getBool(get(), CL_SAMPLER_NORMALIZED_COORDS);
+		return infos.getBool(getEntity(), CL_SAMPLER_NORMALIZED_COORDS);
 	}
 
 

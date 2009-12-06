@@ -51,7 +51,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
     private CLInfoGetter<cl_command_queue> infos = new CLInfoGetter<cl_command_queue>() {
 		@Override
 		protected int getInfo(cl_command_queue entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
-			return CL.clGetCommandQueueInfo(get(), infoTypeEnum, size, out, sizeOut);
+			return CL.clGetCommandQueueInfo(getEntity(), infoTypeEnum, size, out, sizeOut);
 		}
 	};
 
@@ -73,17 +73,17 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
 	@InfoName("CL_QUEUE_PROPERTIES")
 	public EnumSet<CLDevice.QueueProperties> getProperties() {
-		return CLDevice.QueueProperties.getEnumSet(infos.getIntOrLong(get(), CL_QUEUE_PROPERTIES));
+		return CLDevice.QueueProperties.getEnumSet(infos.getIntOrLong(getEntity(), CL_QUEUE_PROPERTIES));
 	}
 
 	public void setProperty(CLDevice.QueueProperties property, boolean enabled) {
-		error(CL.clSetCommandQueueProperty(get(), property.getValue(), enabled ? CL_TRUE : CL_FALSE, (LongByReference)null));
+		error(CL.clSetCommandQueueProperty(getEntity(), property.getValue(), enabled ? CL_TRUE : CL_FALSE, (LongByReference)null));
 	}
 	
 
     @Override
     protected void clear() {
-        error(CL.clReleaseCommandQueue(get()));
+        error(CL.clReleaseCommandQueue(getEntity()));
     }
 
     /**
@@ -92,7 +92,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * finish() is also a synchronization point.
 	 */
     public void finish() {
-        error(CL.clFinish(get()));
+        error(CL.clFinish(getEntity()));
     }
 
     /**
@@ -101,14 +101,14 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * There is no guarantee that they will be complete after flush() returns.
 	 */
     public void flush() {
-        error(CL.clFlush(get()));
+        error(CL.clFlush(getEntity()));
     }
 
 	/**
 	 * Enqueues a wait for a specific event or a list of events to complete before any future commands queued in the this queue are executed.
 	 */
 	public void enqueueWaitForEvents(CLEvent... events) {
-        error(CL.clEnqueueWaitForEvents(get(), events.length, CLEvent.to_cl_event_array(events)));
+        error(CL.clEnqueueWaitForEvents(getEntity(), events.length, CLEvent.to_cl_event_array(events)));
 	}
 
 	/**
@@ -117,7 +117,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * enqueueBarrier() is a synchronization point.
 	 */
 	public void enqueueBarrier() {
-		error(CL.clEnqueueBarrier(get()));
+		error(CL.clEnqueueBarrier(getEntity()));
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 */
 	public CLEvent enqueueMarker() {
 		cl_event[] eventOut = new cl_event[1];
-		error(CL.clEnqueueMarker(get(), eventOut));
+		error(CL.clEnqueueMarker(getEntity(), eventOut));
 		return CLEvent.createEvent(eventOut[0]);
 	}
 
@@ -143,8 +143,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
         cl_event[] eventOut = new cl_event[1];
 		cl_mem[] mems = new cl_mem[objects.length];
 		for (int i = 0; i < objects.length; i++)
-			mems[i] = objects[i].get();
-		error(CL.clEnqueueAcquireGLObjects(mems.length, mems, events.length, CLEvent.to_cl_event_array(events), eventOut));
+			mems[i] = objects[i].getEntity();
+		error(CL.clEnqueueAcquireGLObjects(getEntity(), mems.length, mems, events.length, CLEvent.to_cl_event_array(events), eventOut));
 		return CLEvent.createEvent(eventOut[0]);
 	}
 
@@ -160,8 +160,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
         cl_event[] eventOut = new cl_event[1];
 		cl_mem[] mems = new cl_mem[objects.length];
 		for (int i = 0; i < objects.length; i++)
-			mems[i] = objects[i].get();
-		error(CL.clEnqueueReleaseGLObjects(mems.length, mems, events.length, CLEvent.to_cl_event_array(events), eventOut));
+			mems[i] = objects[i].getEntity();
+		error(CL.clEnqueueReleaseGLObjects(getEntity(), mems.length, mems, events.length, CLEvent.to_cl_event_array(events), eventOut));
 		return CLEvent.createEvent(eventOut[0]);
 	}
 }

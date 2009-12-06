@@ -17,16 +17,8 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
 import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
  * OpenCL Memory Buffer Object with Double values.<br/>
@@ -36,44 +28,18 @@ import static com.nativelibs4java.util.NIOUtils.*;
  */
 public class CLDoubleBuffer extends CLBuffer<DoubleBuffer> {
 	CLDoubleBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer);
-	}
-	static final int ELEMENT_SIZE = 8;
-    @Override
-	public int getElementSize() {
-        return ELEMENT_SIZE;
-    }
-	@Override
-	public long getElementCount() {
-        return getByteCount() / ELEMENT_SIZE;
-    }
-	protected static Pair<DoubleBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
-		return new Pair<DoubleBuffer, CLEvent>(p.getFirst().asDoubleBuffer(), p.getSecond());
+        super(context, byteCount, entity, buffer, 8);
 	}
 
-	@Override
-	public DoubleBuffer map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, 0, getByteCount(), true, eventsToWaitFor).getFirst().asDoubleBuffer();
+    @Override
+    protected DoubleBuffer typedBuffer(ByteBuffer b) {
+        return b.asDoubleBuffer();
     }
-	@Override
-	public DoubleBuffer map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, offset * ELEMENT_SIZE, length * ELEMENT_SIZE, true, eventsToWaitFor).getFirst().asDoubleBuffer();
+
+    @Override
+    protected void put(DoubleBuffer out, DoubleBuffer in) {
+        out.put(in);
     }
-	@Override
-	public Pair<DoubleBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return as(map(queue, flags, 0, getByteCount(), false, eventsToWaitFor));
-    }
-	@Override
-	public Pair<DoubleBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
-		Pair<ByteBuffer, CLEvent> p = map(queue, flags, offset * ELEMENT_SIZE, length * ELEMENT_SIZE, false, eventsToWaitFor);
-		return new Pair<DoubleBuffer, CLEvent>(p.getFirst().asDoubleBuffer(), p.getSecond());
-    }
-	@Override
-	public DoubleBuffer read(CLQueue queue, CLEvent... eventsToWaitFor) {
-		return readBytes(queue, eventsToWaitFor).asDoubleBuffer();
-	}
-	@Override
-	public DoubleBuffer read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		return readBytes(queue, offset * ELEMENT_SIZE, length * ELEMENT_SIZE, eventsToWaitFor).asDoubleBuffer();
-	}
+
+
 }

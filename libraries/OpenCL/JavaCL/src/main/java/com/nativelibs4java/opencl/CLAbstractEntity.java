@@ -52,7 +52,7 @@ abstract class CLAbstractEntity<T extends PointerType> {
 		doRelease();
 	}
 
-    synchronized T get() {
+    synchronized T getEntity() {
 		if (entity == null && !nullable)
 			throw new RuntimeException("This " + getClass().getSimpleName() + " has been manually released and can't be used anymore !");
 
@@ -77,7 +77,7 @@ abstract class CLAbstractEntity<T extends PointerType> {
 	 */
 	@Override
 	public int hashCode() {
-		return get() == null ? 0 : get().getPointer().hashCode();
+		return getEntity() == null ? 0 : getEntity().getPointer().hashCode();
 	}
 
 	/**
@@ -88,7 +88,7 @@ abstract class CLAbstractEntity<T extends PointerType> {
 		if (obj == null || !getClass().isInstance(obj))
 			return false;
 		CLAbstractEntity e = (CLAbstractEntity)obj;
-		return get().getPointer().equals(e.get().getPointer());
+		return getEntity().getPointer().equals(e.getEntity().getPointer());
 	}
 
 }

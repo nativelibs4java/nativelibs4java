@@ -20,24 +20,18 @@ package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.opencl.CLSampler.AddressingMode;
 import com.nativelibs4java.opencl.CLSampler.FilterMode;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.cl_image_format;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.awt.image.PixelGrabber;
 import java.nio.*;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLException.*;
@@ -102,7 +96,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		int imTyp = (int) imageType.getValue();
 		Memory memCount = new Memory(16);
 		pCount.setPointer(memCount);
-		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, 0, null, pCount);
+		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, 0, null, pCount);
 		cl_image_format ft = new cl_image_format();
 		int sz = ft.size();
 		int n = pCount.getValue();
@@ -111,7 +105,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		}
 		Memory mem = new Memory(n * sz);
 		ft.use(mem);
-		CL.clGetSupportedImageFormats(get(), memFlags, imTyp, n, ft, (IntByReference) null);
+		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, n, ft, (IntByReference) null);
 		List<CLImageFormat> ret = new ArrayList<CLImageFormat>(n);
 		for (int i = 0; i < n; i++) {
 			ft.use(mem, i * sz);
@@ -126,7 +120,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 	public CLSampler createSampler(boolean normalized_coords, AddressingMode addressing_mode, FilterMode filter_mode) {
 		IntByReference pErr = new IntByReference();
-		cl_sampler sampler = CL.clCreateSampler(get(), normalized_coords ? CL_TRUE : CL_FALSE, (int) addressing_mode.getValue(), (int) filter_mode.getValue(), pErr);
+		cl_sampler sampler = CL.clCreateSampler(getEntity(), normalized_coords ? CL_TRUE : CL_FALSE, (int) addressing_mode.getValue(), (int) filter_mode.getValue(), pErr);
 		error(pErr.getValue());
 		return new CLSampler(sampler);
 	}
@@ -137,7 +131,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	public synchronized CLDevice[] getDevices() {
 		if (deviceIds == null) {
-			Memory ptrs = infos.getMemory(get(), CL_CONTEXT_DEVICES);
+			Memory ptrs = infos.getMemory(getEntity(), CL_CONTEXT_DEVICES);
 			int n = (int) (ptrs.getSize() / Native.POINTER_SIZE);
 			deviceIds = new cl_device_id[n];
 			for (int i = 0; i < n; i++) {
@@ -165,7 +159,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			lengths[i] = toNS(srcs[i].length());
 		}
 		IntBuffer errBuff = IntBuffer.wrap(new int[1]);
-		cl_program program = CL.clCreateProgramWithSource(get(), srcs.length, source, lengths, errBuff);
+		cl_program program = CL.clCreateProgramWithSource(getEntity(), srcs.length, source, lengths, errBuff);
 		error(errBuff.get(0));
 		return new CLProgram(this, program);
 	}
@@ -173,14 +167,14 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	//cl_queue queue;
 	@Override
 	protected void clear() {
-		error(CL.clReleaseContext(get()));
+		error(CL.clReleaseContext(getEntity()));
 	}
 
 	public CLByteBuffer createBufferFromGLBuffer(CLMem.Usage usage, int openGLBufferObject) {
 		IntByReference pErr = new IntByReference();
-		cl_mem mem = CL.clCreateFromGLBuffer(get(), usage.getIntFlags(), openGLBufferObject, pErr);
+		cl_mem mem = CL.clCreateFromGLBuffer(getEntity(), usage.getIntFlags(), openGLBufferObject, pErr);
 		error(pErr.getValue());
-		return new CLByteBuffer(this, -1, mem, null);
+        return new CLByteBuffer(this, -1, mem, null);
 	}
 	public CLImage2D createImage2DFromGLRenderBuffer(CLMem.Usage usage, int openGLRenderBuffer) {
 		IntByReference pErr = new IntByReference();
@@ -284,7 +278,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 		IntByReference pErr = new IntByReference();
 		cl_mem mem = CL.clCreateImage2D(
-				get(),
+				getEntity(),
 				memFlags,
 				format.to_cl_image_format(),
 				toNS(width),
@@ -312,7 +306,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 		IntByReference pErr = new IntByReference();
 		cl_mem mem = CL.clCreateImage3D(
-				get(),
+				getEntity(),
 				memFlags,
 				format.to_cl_image_format(),
 				toNS(width),
@@ -429,7 +423,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		IntByReference pErr = new IntByReference();
 		//IntBuffer errBuff = IntBuffer.wrap(new int[1]);
 		cl_mem mem = CL.clCreateBuffer(
-				get(),
+				getEntity(),
 				CLBufferFlags,
 				toNS(byteCount),
 				buffer == null ? null : Native.getDirectBufferPointer(buffer),

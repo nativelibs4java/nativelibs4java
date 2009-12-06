@@ -52,6 +52,16 @@ abstract class CLInfoGetter<T extends PointerType> {
         return buffer.getString(0);
     }
 
+    public Pointer getPointer(T entity, int infoName) {
+        NativeSizeByReference pLen = new NativeSizeByReference();
+        Memory mem = new Memory(Pointer.SIZE);
+        error(getInfo(entity, infoName, toNS(Pointer.SIZE), mem, pLen));
+        if (pLen.getValue().intValue() != Pointer.SIZE) {
+            throw new RuntimeException("Not a pointer : len = " + pLen.getValue());
+        }
+        return mem.getPointer(0);
+    }
+
     public Memory getMemory(T entity, int infoName) {
         NativeSizeByReference pLen = new NativeSizeByReference();
         error(getInfo(entity, infoName, toNS(0), null, pLen));

@@ -17,16 +17,8 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
 import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
  * OpenCL Memory Buffer Object with Long values.<br/>
@@ -36,44 +28,17 @@ import static com.nativelibs4java.util.NIOUtils.*;
  */
 public class CLLongBuffer extends CLBuffer<LongBuffer> {
 	CLLongBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer);
-	}
-	static final int ELEMENT_SIZE = 8;
-	@Override
-	public int getElementSize() {
-        return ELEMENT_SIZE;
-    }
-	@Override
-	public long getElementCount() {
-        return getByteCount() / ELEMENT_SIZE;
-    }
-	protected static Pair<LongBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
-		return new Pair<LongBuffer, CLEvent>(p.getFirst().asLongBuffer(), p.getSecond());
+        super(context, byteCount, entity, buffer, 8);
 	}
 
-	@Override
-	public LongBuffer map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, 0, getByteCount(), true, eventsToWaitFor).getFirst().asLongBuffer();
+    @Override
+    protected LongBuffer typedBuffer(ByteBuffer b) {
+        return b.asLongBuffer();
     }
-	@Override
-	public LongBuffer map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, offset * ELEMENT_SIZE, length * ELEMENT_SIZE, true, eventsToWaitFor).getFirst().asLongBuffer();
+
+    @Override
+    protected void put(LongBuffer out, LongBuffer in) {
+        out.put(in);
     }
-	@Override
-	public Pair<LongBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return as(map(queue, flags, 0, getByteCount(), false, eventsToWaitFor));
-    }
-	@Override
-	public Pair<LongBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
-		Pair<ByteBuffer, CLEvent> p = map(queue, flags, offset * ELEMENT_SIZE, length * ELEMENT_SIZE, false, eventsToWaitFor);
-		return new Pair<LongBuffer, CLEvent>(p.getFirst().asLongBuffer(), p.getSecond());
-    }
-	@Override
-	public LongBuffer read(CLQueue queue, CLEvent... eventsToWaitFor) {
-		return readBytes(queue, eventsToWaitFor).asLongBuffer();
-	}
-	@Override
-	public LongBuffer read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		return readBytes(queue, offset * ELEMENT_SIZE, length * ELEMENT_SIZE, eventsToWaitFor).asLongBuffer();
-	}
+
 }

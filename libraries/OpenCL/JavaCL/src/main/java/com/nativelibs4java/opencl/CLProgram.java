@@ -69,7 +69,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 	 * Get the source code of this program
 	 */
 	public String getSource() {
-		return infos.getString(get(), CL_PROGRAM_SOURCE);
+		return infos.getString(getEntity(), CL_PROGRAM_SOURCE);
 	}
 
 	/**
@@ -77,7 +77,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 	 * @return
 	 */
     public byte[][] getBinaries() {
-		Memory s = infos.getMemory(get(), CL_PROGRAM_BINARY_SIZES);
+		Memory s = infos.getMemory(getEntity(), CL_PROGRAM_BINARY_SIZES);
 		int n = (int)s.getSize() / Native.SIZE_T_SIZE;
 		NativeSize[] sizes = readNSArray(s, n);
 		//int[] sizes = new int[n];
@@ -90,7 +90,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		for (int i = 0; i < n; i++) {
 			ptrs.setPointer(i * Native.POINTER_SIZE, binMems[i] = new Memory(sizes[i].intValue()));
 		}
-		error(infos.getInfo(get(), CL_PROGRAM_BINARIES, toNS(ptrs.getSize()), ptrs, null));
+		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, toNS(ptrs.getSize()), ptrs, null));
 
 		byte[][] ret = new byte[n][];
 		for (int i = 0; i < n; i++) {
@@ -137,7 +137,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 	 */
     public CLProgram build() throws CLBuildException {
 
-        int err = CL.clBuildProgram(get(), 0, null/*context.getDeviceIds()*/, getOptionsString(), null, null);
+        int err = CL.clBuildProgram(getEntity(), 0, null/*context.getDeviceIds()*/, getOptionsString(), null, null);
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
             NativeSizeByReference len = new NativeSizeByReference();
             int bufLen = 2048;
@@ -145,7 +145,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
             HashSet<String> errs = new HashSet<String>();
             for (cl_device_id device_id : context.deviceIds) {
-                error(CL.clGetProgramBuildInfo(get(), device_id, CL_PROGRAM_BUILD_LOG, toNS(bufLen), buffer, len));
+                error(CL.clGetProgramBuildInfo(getEntity(), device_id, CL_PROGRAM_BUILD_LOG, toNS(bufLen), buffer, len));
                 String s = buffer.getString(0);
                 errs.add(s);
             }
@@ -158,7 +158,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
     @Override
     protected void clear() {
-        error(CL.clReleaseProgram(get()));
+        error(CL.clReleaseProgram(getEntity()));
     }
 
 	/**
@@ -166,11 +166,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 	 */
 	public CLKernel[] createKernels() {
 		IntByReference pCount = new IntByReference();
-        error(CL.clCreateKernelsInProgram(get(), 0, (cl_kernel[])null, pCount));
+        error(CL.clCreateKernelsInProgram(getEntity(), 0, (cl_kernel[])null, pCount));
 
 		int count = pCount.getValue();
 		cl_kernel[] kerns = new cl_kernel[count];
-		error(CL.clCreateKernelsInProgram(get(), count, kerns, pCount));
+		error(CL.clCreateKernelsInProgram(getEntity(), count, kerns, pCount));
 
 		CLKernel[] kernels = new CLKernel[count];
 		for (int i = 0; i < count; i++)
@@ -184,7 +184,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
      */
     public CLKernel createKernel(String name, Object... args) {
         IntBuffer errBuff = IntBuffer.wrap(new int[1]);
-        cl_kernel kernel = CL.clCreateKernel(get(), name, errBuff);
+        cl_kernel kernel = CL.clCreateKernel(getEntity(), name, errBuff);
         error(errBuff.get(0));
 
         CLKernel kn = new CLKernel(this, name, kernel);

@@ -17,16 +17,9 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
  * OpenCL Memory Buffer Object with Float values.<br/>
@@ -36,44 +29,17 @@ import static com.nativelibs4java.util.NIOUtils.*;
  */
 public class CLFloatBuffer extends CLBuffer<FloatBuffer> {
 	CLFloatBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer);
-	}
-	static final int ELEMENT_SIZE = 4;
-	@Override
-	public int getElementSize() {
-        return ELEMENT_SIZE;
-    }
-	@Override
-	public long getElementCount() {
-        return getByteCount() / ELEMENT_SIZE;
-    }
-	protected static Pair<FloatBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
-		return new Pair<FloatBuffer, CLEvent>(p.getFirst().asFloatBuffer(), p.getSecond());
+        super(context, byteCount, entity, buffer, 4);
 	}
 
-	@Override
-	public FloatBuffer map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, 0, getByteCount(), true, eventsToWaitFor).getFirst().asFloatBuffer();
+    @Override
+    protected FloatBuffer typedBuffer(ByteBuffer b) {
+        return b.asFloatBuffer();
     }
-	@Override
-	public FloatBuffer map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, offset * ELEMENT_SIZE, length * ELEMENT_SIZE, true, eventsToWaitFor).getFirst().asFloatBuffer();
+
+    @Override
+    protected void put(FloatBuffer out, FloatBuffer in) {
+        out.put(in);
     }
-	@Override
-	public Pair<FloatBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return as(map(queue, flags, 0, getByteCount(), false, eventsToWaitFor));
-    }
-	@Override
-	public Pair<FloatBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
-		Pair<ByteBuffer, CLEvent> p = map(queue, flags, offset * ELEMENT_SIZE, length * ELEMENT_SIZE, false, eventsToWaitFor);
-		return new Pair<FloatBuffer, CLEvent>(p.getFirst().asFloatBuffer(), p.getSecond());
-    }
-	@Override
-	public FloatBuffer read(CLQueue queue, CLEvent... eventsToWaitFor) {
-		return readBytes(queue, eventsToWaitFor).asFloatBuffer();
-	}
-	@Override
-	public FloatBuffer read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		return readBytes(queue, offset * ELEMENT_SIZE, length * ELEMENT_SIZE, eventsToWaitFor).asFloatBuffer();
-	}
+
 }

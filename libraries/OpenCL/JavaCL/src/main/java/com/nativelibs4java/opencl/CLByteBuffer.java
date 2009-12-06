@@ -17,16 +17,8 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
 import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
  * OpenCL Memory Buffer Object.<br/>
@@ -38,40 +30,21 @@ import static com.nativelibs4java.util.NIOUtils.*;
  */
 public class CLByteBuffer extends CLBuffer<ByteBuffer> {
 	CLByteBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer);
+        super(context, byteCount, entity, buffer, 1);
 	}
-    public final int ELEMENT_SIZE = 1;
-	@Override
-	public int getElementSize() {
-        return ELEMENT_SIZE;
-    }
-	@Override
+
+    @Override 
     public long getElementCount() {
         return getByteCount();
     }
-	@Override
-	public ByteBuffer map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, 0, getByteCount(), true, eventsToWaitFor).getFirst();
-    }
-	@Override
-	public ByteBuffer map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, offset, length, true, eventsToWaitFor).getFirst();
+
+    @Override
+    protected ByteBuffer typedBuffer(ByteBuffer b) {
+        return b;
     }
 
-	@Override
-	public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, 0, getByteCount(), false, eventsToWaitFor);
+    @Override
+    protected void put(ByteBuffer out, ByteBuffer in) {
+        out.put(in);
     }
-	@Override
-	public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, offset, length, false, eventsToWaitFor);
-    }
-	@Override
-	public ByteBuffer read(CLQueue queue, CLEvent... eventsToWaitFor) {
-		return readBytes(queue, eventsToWaitFor);
-	}
-	@Override
-	public ByteBuffer read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		return readBytes(queue, offset, length, eventsToWaitFor);
-	}
 }

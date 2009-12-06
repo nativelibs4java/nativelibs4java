@@ -76,7 +76,7 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
      */
     public long getByteCount() {
         if (byteCount < 0)
-                byteCount = infos.getIntOrLong(get(), CL_MEM_SIZE);
+                byteCount = infos.getIntOrLong(getEntity(), CL_MEM_SIZE);
         return byteCount;
     }
 
@@ -173,7 +173,7 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
     public GLObjectInfo getGLObjectInfo() {
         IntByReference typeRef = new IntByReference();
         IntByReference nameRef = new IntByReference();
-        CL.clGetGLObjectInfo(get(), typeRef, nameRef);
+        CL.clGetGLObjectInfo(getEntity(), typeRef, nameRef);
         return new GLObjectInfo(GLObjectType.getEnum(typeRef.getValue()), nameRef.getValue());
     }
 	public enum MapFlags {
@@ -187,6 +187,6 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 
     @Override
     protected void clear() {
-        error(CL.clReleaseMemObject(get()));
+        error(CL.clReleaseMemObject(getEntity()));
     }
 }

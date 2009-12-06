@@ -44,7 +44,7 @@ public class CLImage3D extends CLImage2D {
 	 */
 	@InfoName("CL_IMAGE_SLICE_PITCH")
 	public long getSlicePitch() {
-		return infos.getIntOrLong(get(), CL_IMAGE_SLICE_PITCH);
+		return infos.getIntOrLong(getEntity(), CL_IMAGE_SLICE_PITCH);
 	}
 
 	/**
@@ -52,7 +52,7 @@ public class CLImage3D extends CLImage2D {
 	 */
 	@InfoName("CL_IMAGE_DEPTH")
 	public long getDepth() {
-		return infos.getIntOrLong(get(), CL_IMAGE_DEPTH);
+		return infos.getIntOrLong(getEntity(), CL_IMAGE_DEPTH);
 	}
 
 	public CLEvent read(CLQueue queue, long minX, long minY, long minZ, long width, long height, long depth, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {

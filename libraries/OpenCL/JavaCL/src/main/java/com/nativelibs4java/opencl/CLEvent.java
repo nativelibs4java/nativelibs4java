@@ -128,13 +128,13 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 			return null;
 		cl_event[] event_wait_list = new cl_event[events.length];
 		for (int i = events.length; i-- != 0;)
-			event_wait_list[i] = events[i] == null ? null : events[i].get();
+			event_wait_list[i] = events[i] == null ? null : events[i].getEntity();
 		return event_wait_list;	
 	}
 
 	@Override
 	protected void clear() {
-		error(CL.clReleaseEvent(get()));
+		error(CL.clReleaseEvent(getEntity()));
 	}
 
 	/** Values for CL_EVENT_COMMAND_EXECUTION_STATUS */
@@ -158,7 +158,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	 */
 	@InfoName("CL_EVENT_COMMAND_EXECUTION_STATUS")
 	public CommandExecutionStatus getCommandExecutionStatus() {
-		int v = infos.getInt(get(), CL_EVENT_COMMAND_EXECUTION_STATUS);
+		int v = infos.getInt(getEntity(), CL_EVENT_COMMAND_EXECUTION_STATUS);
 		CommandExecutionStatus status =  CommandExecutionStatus.getEnum(v);
 		if (status == null)
 			error(v);
@@ -194,7 +194,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	 */
 	@InfoName("CL_EVENT_COMMAND_TYPE")
 	public CommandType getCommandType() {
-		return CommandType.getEnum(infos.getInt(get(), CL_EVENT_COMMAND_TYPE));
+		return CommandType.getEnum(infos.getInt(getEntity(), CL_EVENT_COMMAND_TYPE));
 	}
 
 
@@ -203,7 +203,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	 */
 	@InfoName("CL_CL_PROFILING_COMMAND_QUEUED")
 	public long getProfilingCommandQueued() {
-		return profilingInfos.getIntOrLong(get(), CL_PROFILING_COMMAND_QUEUED);
+		return profilingInfos.getIntOrLong(getEntity(), CL_PROFILING_COMMAND_QUEUED);
 	}
 
 	/**
@@ -211,7 +211,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	 */
 	@InfoName("CL_CL_PROFILING_COMMAND_SUBMIT")
 	public long getProfilingCommandSubmit() {
-		return profilingInfos.getIntOrLong(get(), CL_PROFILING_COMMAND_SUBMIT);
+		return profilingInfos.getIntOrLong(getEntity(), CL_PROFILING_COMMAND_SUBMIT);
 	}
 
 	/**
@@ -219,7 +219,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	 */
 	@InfoName("CL_CL_PROFILING_COMMAND_START")
 	public long getProfilingCommandStart() {
-		return profilingInfos.getIntOrLong(get(), CL_PROFILING_COMMAND_START);
+		return profilingInfos.getIntOrLong(getEntity(), CL_PROFILING_COMMAND_START);
 	}
 
 	/**
@@ -227,7 +227,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	 */
 	@InfoName("CL_CL_PROFILING_COMMAND_END")
 	public long getProfilingCommandEnd() {
-		return profilingInfos.getIntOrLong(get(), CL_PROFILING_COMMAND_END);
+		return profilingInfos.getIntOrLong(getEntity(), CL_PROFILING_COMMAND_END);
 	}
 
 

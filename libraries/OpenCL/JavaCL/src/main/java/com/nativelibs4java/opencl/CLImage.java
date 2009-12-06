@@ -56,7 +56,7 @@ public abstract class CLImage extends CLMem {
 		if (format == null) {
 			/// TODO: DOES NOT SEEM TO WORK ON MAC OS X 10.6.1 / CPU
 			cl_image_format fmt = new cl_image_format();
-			fmt.use(infos.getMemory(get(), CL_IMAGE_FORMAT));
+			fmt.use(infos.getMemory(getEntity(), CL_IMAGE_FORMAT));
 			format = new CLImageFormat(fmt);
 		}
 		return format;
@@ -68,7 +68,7 @@ public abstract class CLImage extends CLMem {
 	 */
 	@InfoName("CL_IMAGE_ELEMENT_SIZE")
 	public long getElementSize() {
-		return infos.getIntOrLong(get(), CL_IMAGE_ELEMENT_SIZE);
+		return infos.getIntOrLong(getEntity(), CL_IMAGE_ELEMENT_SIZE);
 	}
 
 
@@ -77,7 +77,7 @@ public abstract class CLImage extends CLMem {
 
 		}*/
 		cl_event[] eventOut = blocking ? null : new cl_event[1];
-		error(CL.clEnqueueReadImage(queue.get(), get(),
+		error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
 			toNS(origin),
 			toNS(region),
@@ -96,7 +96,7 @@ public abstract class CLImage extends CLMem {
 			in = directCopy(in);
 
 		cl_event[] eventOut = blocking ? null : new cl_event[1];
-		error(CL.clEnqueueReadImage(queue.get(), get(),
+		error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
 			toNS(origin),
 			toNS(region),

@@ -847,17 +847,17 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 	 * @deprecated use the safer method {@link #clEnqueueAcquireGLObjects(int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem[], int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
-	int clEnqueueAcquireGLObjects(int cl_uint1, com.sun.jna.ptr.PointerByReference cl_memPtr1, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
+	int clEnqueueAcquireGLObjects(cl_command_queue queue, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_memPtr1, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueAcquireGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code>
-	int clEnqueueAcquireGLObjects(int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
+	int clEnqueueAcquireGLObjects(cl_command_queue queue,int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/**
 	 * Original signature : <code>cl_int clEnqueueReleaseGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code><br>
 	 * @deprecated use the safer method {@link #clEnqueueReleaseGLObjects(int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem[], int, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event[])} instead
 	 */
 	@java.lang.Deprecated
-	int clEnqueueReleaseGLObjects(int cl_uint1, com.sun.jna.ptr.PointerByReference cl_memPtr1, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
+	int clEnqueueReleaseGLObjects(cl_command_queue queue, int cl_uint1, com.sun.jna.ptr.PointerByReference cl_memPtr1, int cl_uint2, com.sun.jna.ptr.PointerByReference cl_eventPtr1, com.sun.jna.ptr.PointerByReference cl_eventPtr2);
 	/// Original signature : <code>cl_int clEnqueueReleaseGLObjects(cl_uint, const cl_mem*, cl_uint, const cl_event*, cl_event*)</code>
-	int clEnqueueReleaseGLObjects(int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
+	int clEnqueueReleaseGLObjects(cl_command_queue queue, int cl_uint1, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem cl_memPtr1[], int cl_uint2, com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr1[], com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event cl_eventPtr2[]);
 	/// Original signature : <code>cl_int clGetGLContextInfoKHR(const cl_context_properties*, cl_gl_context_info, size_t, void*, size_t*)</code>
 	int clGetGLContextInfoKHR(com.ochafik.lang.jnaerator.runtime.NativeSizeByReference properties, int param_name, com.ochafik.lang.jnaerator.runtime.NativeSize param_value_size, com.sun.jna.Pointer param_value, com.ochafik.lang.jnaerator.runtime.NativeSizeByReference param_value_size_ret);
 	/// Pointer to unknown (opaque) type

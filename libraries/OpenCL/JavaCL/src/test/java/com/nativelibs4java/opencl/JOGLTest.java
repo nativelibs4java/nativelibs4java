@@ -78,6 +78,7 @@ public class JOGLTest {
                             CLQueue queue = context.createDefaultQueue();
 
                             CLFloatBuffer clbuf = context.createBufferFromGLBuffer(CLMem.Usage.Input, VBO[0]).asCLFloatBuffer();
+                            queue.enqueueAcquireGLObjects(new CLMem[] { clbuf });
                             GLObjectInfo info = clbuf.getGLObjectInfo();
                             System.out.println(info.getType());
                             assertEquals(CLMem.GLObjectType.Buffer, info.getType());
@@ -86,24 +87,31 @@ public class JOGLTest {
                             FloatBuffer inbuf = NIOUtils.directFloats(bufferSize);
                             float expected = 10;
                             try {
+                                //clbuf = context.createFloatBuffer(CLMem.Usage.Input, bufferSize);
                                 CLKernel kernel = context.createProgram("__kernel void fill(__global float* out) { out[get_global_id(0)] = (float)" + expected + ";}").build().createKernel("fill", clbuf);
-                                kernel.enqueueNDRange(queue, new int[]{bufferSize}, new int[]{1}).waitFor();
-                            } catch (CLBuildException ex) {
+                                kernel.enqueueNDRange(queue, new int[]{bufferSize}, new int[]{1});
+                            } catch (Exception ex) {
                                 Logger.getLogger(JOGLTest.class.getName()).log(Level.SEVERE, null, ex);
                                 assertTrue(ex.toString(), false);
                             }
 
-                            //inbuf.put(0, expected);
-                            //clbuf.write(queue, 0, 4 * bufferSize, inbuf, true);
+                            inbuf.put(0, expected);
+                            clbuf.write(queue, 0, 4 * bufferSize, inbuf, true);
+
+                            queue.enqueueReleaseGLObjects(new CLMem[] { clbuf });
+                            queue.finish();
+
+                            //FloatBuffer out = gl.glMapBuffer(0, bufferSize * 4).asFloatBuffer();
                             float val = buffer.get(0);
                             assertEquals(expected, val, 0);
                             //System.out.println(clbuf.getByteCount());
                             //assertEquals(bufferSize, clbuf.asCLFloatBuffer().getElementCount());
                         }
-                        sem.release();
 
                     } catch (AssertionError ex) {
                         err[0] = ex;
+                    } finally {
+                        sem.release();
                     }
                 }
 

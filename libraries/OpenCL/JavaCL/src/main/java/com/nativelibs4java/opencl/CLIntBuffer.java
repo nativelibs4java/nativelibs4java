@@ -17,16 +17,8 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
 import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
  * OpenCL Memory Buffer Object with Int values.<br/>
@@ -36,44 +28,16 @@ import static com.nativelibs4java.util.NIOUtils.*;
  */
 public class CLIntBuffer extends CLBuffer<IntBuffer> {
 	CLIntBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer);
+        super(context, byteCount, entity, buffer, 4);
 	}
-	static final int ELEMENT_SIZE = 4;
-	@Override
-	public int getElementSize() {
-        return ELEMENT_SIZE;
+	
+    @Override
+    protected IntBuffer typedBuffer(ByteBuffer b) {
+        return b.asIntBuffer();
     }
-	@Override
-	public long getElementCount() {
-        return getByteCount() / ELEMENT_SIZE;
-    }
-	protected static Pair<IntBuffer, CLEvent> as(Pair<ByteBuffer, CLEvent> p) {
-		return new Pair<IntBuffer, CLEvent>(p.getFirst().asIntBuffer(), p.getSecond());
-	}
 
-	@Override
-	public IntBuffer map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, 0, getByteCount(), true, eventsToWaitFor).getFirst().asIntBuffer();
+    @Override
+    protected void put(IntBuffer out, IntBuffer in) {
+        out.put(in);
     }
-	@Override
-	public IntBuffer map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, offset * ELEMENT_SIZE, length * ELEMENT_SIZE, true, eventsToWaitFor).getFirst().asIntBuffer();
-    }
-	@Override
-	public Pair<IntBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return as(map(queue, flags, 0, getByteCount(), false, eventsToWaitFor));
-    }
-	@Override
-	public Pair<IntBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
-		Pair<ByteBuffer, CLEvent> p = map(queue, flags, offset * ELEMENT_SIZE, length * ELEMENT_SIZE, false, eventsToWaitFor);
-		return new Pair<IntBuffer, CLEvent>(p.getFirst().asIntBuffer(), p.getSecond());
-    }
-	@Override
-	public IntBuffer read(CLQueue queue, CLEvent... eventsToWaitFor) {
-		return readBytes(queue, eventsToWaitFor).asIntBuffer();
-	}
-	@Override
-	public IntBuffer read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		return readBytes(queue, offset * ELEMENT_SIZE, length * ELEMENT_SIZE, eventsToWaitFor).asIntBuffer();
-	}
 }

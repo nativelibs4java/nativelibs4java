@@ -16,6 +16,7 @@
 
   <modules>
     <module>OpenCL4Java</module>
+    <module>Demos</module>
     <module>JavaCL</module>
     <module>ScalaCL</module>
     <module>Blas</module>

@@ -121,7 +121,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         return devices;
     }
 
-    private long[] getContextProps(Map<ContextProperties, Number> contextProperties) {
+    private static long[] getContextProps(Map<ContextProperties, Number> contextProperties) {
         if (contextProperties == null)
             return null;
         final long[] properties = new long[contextProperties.size() * 2 + 1];
@@ -186,7 +186,15 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     }
 
     public CLContext createContextFromCurrentGL() {
-        return createGLCompatibleContext(listAllDevices(true));
+
+        CLDevice[] devices = null;
+        try {
+            devices = new CLDevice[] { getCurrentGLDevice() };
+        } catch (Throwable ex) {
+            System.err.println(ex);
+            devices = listAllDevices(true);
+        }
+        return createGLCompatibleContext(devices);
     }
 
     static Map<ContextProperties, Number> getGLContextProperties() {
@@ -235,7 +243,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         }
         cl_device_id[] ids = new cl_device_id[nDevs];
         for (int i = 0; i < nDevs; i++) {
-            ids[i] = devices[i].get();
+            ids[i] = devices[i].getEntity();
         }
 
         IntByReference errRef = new IntByReference();
@@ -257,7 +265,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         int flags = (int) CLDevice.Type.getValue(types);
 
         IntByReference pCount = new IntByReference();
-        error(CL.clGetDeviceIDs(get(), flags, 0, (PointerByReference) null, pCount));
+        error(CL.clGetDeviceIDs(getEntity(), flags, 0, (PointerByReference) null, pCount));
 
         int nDevs = pCount.getValue();
         if (nDevs == 0) {
@@ -266,14 +274,14 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 
         cl_device_id[] ids = new cl_device_id[nDevs];
 
-        error(CL.clGetDeviceIDs(get(), flags, nDevs, ids, pCount));
+        error(CL.clGetDeviceIDs(getEntity(), flags, nDevs, ids, pCount));
         return getDevices(ids, onlyAvailable);
     }
 
     
 
     @Deprecated
-    public CLDevice currentGLDevice() {
+    public static CLDevice getCurrentGLDevice() {
         IntByReference errRef = new IntByReference();
         long[] props = getContextProps(getGLContextProperties());
         Memory propsMem = toNSArray(props);
@@ -294,7 +302,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         Pointer p = mem.getPointer(0);
         if (p.equals(Pointer.NULL))
             return null;
-        return new CLDevice(this, new cl_device_id(p));
+        return new CLDevice(null, new cl_device_id(p));
     }
     public CLDevice[] listGLDevices(long openglContextId, boolean onlyAvailable) {
         
@@ -327,7 +335,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
      */
     @InfoName("CL_PLATFORM_PROFILE")
     public String getProfile() {
-        return infos.getString(get(), CL_PLATFORM_PROFILE);
+        return infos.getString(getEntity(), CL_PLATFORM_PROFILE);
     }
 
     /**
@@ -338,7 +346,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
      */
     @InfoName("CL_PLATFORM_VERSION")
     public String getVersion() {
-        return infos.getString(get(), CL_PLATFORM_VERSION);
+        return infos.getString(getEntity(), CL_PLATFORM_VERSION);
     }
 
     /**
@@ -346,7 +354,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
      */
     @InfoName("CL_PLATFORM_NAME")
     public String getName() {
-        return infos.getString(get(), CL_PLATFORM_NAME);
+        return infos.getString(getEntity(), CL_PLATFORM_NAME);
     }
 
     /**
@@ -354,7 +362,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
      */
     @InfoName("CL_PLATFORM_VENDOR")
     public String getVendor() {
-        return infos.getString(get(), CL_PLATFORM_VENDOR);
+        return infos.getString(getEntity(), CL_PLATFORM_VENDOR);
     }
 
     /**
@@ -364,7 +372,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     @InfoName("CL_PLATFORM_EXTENSIONS")
     public String[] getExtensions() {
         if (extensions == null) {
-            extensions = infos.getString(get(), CL_PLATFORM_EXTENSIONS).split("\\s+");
+            extensions = infos.getString(getEntity(), CL_PLATFORM_EXTENSIONS).split("\\s+");
         }
         return extensions;
     }
