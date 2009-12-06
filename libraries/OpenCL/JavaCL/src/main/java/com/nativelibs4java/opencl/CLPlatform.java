@@ -185,33 +185,40 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         }
     }
 
-    public static ContextProperties getGLContextPropertyKey() {
-        if (Platform.isMac())
-            return ContextProperties.GLContext;//.CGLShareGroup;
-        else if (Platform.isWindows())
-            return ContextProperties.WGLHDC;
-        else if (Platform.isX11())
-            return ContextProperties.GLXDisplay;
-        else
-            return ContextProperties.EGLDisplay;
+    public CLContext createContextFromCurrentGL() {
+        return createGLCompatibleContext(listAllDevices(true));
     }
-    static Map<ContextProperties, Number> getGLContextProperty(long glContextId, Map<ContextProperties, Number> out) {
-        ContextProperties key = getGLContextPropertyKey();
-        if (out == null)
-            return Collections.singletonMap(key, (Number)glContextId);
-        else
-        {
-            out.put(key, glContextId);
-            return out;
-        }
+
+    static Map<ContextProperties, Number> getGLContextProperties() {
+        Map<ContextProperties, Number> out = new LinkedHashMap<ContextProperties, Number>();
+
+        if (Platform.isMac()) {
+            NativeSize context = OpenGLApple.INSTANCE.CGLGetCurrentContext();
+            NativeSize shareGroup = OpenGLApple.INSTANCE.CGLGetShareGroup(context);
+            out.put(ContextProperties.GLContext, context.longValue());
+            out.put(ContextProperties.CGLShareGroup, shareGroup.longValue());
+        } else if (Platform.isWindows()) {
+            NativeSize context = OpenGLApple.INSTANCE.wglGetCurrentContext();
+            NativeSize dc = OpenGLApple.INSTANCE.wglGetCurrentDC();
+            out.put(ContextProperties.GLContext, context.longValue());
+            out.put(ContextProperties.WGLHDC, dc.longValue());
+        } else if (Platform.isX11()) {
+            NativeSize context = OpenGLApple.INSTANCE.glXGetCurrentContext();
+            NativeSize dc = OpenGLApple.INSTANCE.glXGetCurrentDisplay();
+            out.put(ContextProperties.GLContext, context.longValue());
+            out.put(ContextProperties.GLXDisplay, dc.longValue());
+        } else
+            throw new UnsupportedOperationException("Current GL context retrieval not implemented on this platform !");
+        
+        return out;
     }
     @Deprecated
-    public CLContext createGLCompatibleContext(long glContextId, CLDevice... devices) {
+    public CLContext createGLCompatibleContext(CLDevice... devices) {
         for (CLDevice device : devices)
             if (!device.isGLSharingSupported())
                 throw new UnsupportedOperationException("Device " + device + " does not support CL/GL sharing.");
         
-    	return createContext(getGLContextProperty(glContextId, null), devices);
+    	return createContext(getGLContextProperties(), devices);
     }
 
     /**
@@ -263,21 +270,12 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         return getDevices(ids, onlyAvailable);
     }
 
-    public long getCurrentGLContext() {
-        if (Platform.isMac()) {
-            return OpenGLApple.INSTANCE.CGLGetShareGroup(OpenGLApple.INSTANCE.CGLGetCurrentContext()).longValue();
-        }
-        throw new UnsupportedOperationException("Current GL context retrieval not implemented on this platform !");
-    }
-    public CLContext createContextFromCurrentGL() {
-        return createBestGLCompatibleContext(getCurrentGLContext(), listAllDevices(true));
-    }
+    
 
     @Deprecated
     public CLDevice currentGLDevice() {
         IntByReference errRef = new IntByReference();
-        int openglContextId = 0;
-        long[] props = getContextProps(getGLContextProperty(openglContextId, null));
+        long[] props = getContextProps(getGLContextProperties());
         Memory propsMem = toNSArray(props);
         NativeSizeByReference propsRef = new NativeSizeByReference();
         propsRef.setPointer(propsMem);
@@ -301,7 +299,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     public CLDevice[] listGLDevices(long openglContextId, boolean onlyAvailable) {
         
         IntByReference errRef = new IntByReference();
-        long[] props = getContextProps(getGLContextProperty(openglContextId, null));
+        long[] props = getContextProps(getGLContextProperties());
         Memory propsMem = toNSArray(props);
         NativeSizeByReference propsRef = new NativeSizeByReference();
         propsRef.setPointer(propsMem);

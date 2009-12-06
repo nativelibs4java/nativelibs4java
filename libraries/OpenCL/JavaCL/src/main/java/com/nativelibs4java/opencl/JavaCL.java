@@ -110,9 +110,19 @@ public class JavaCL {
 		return device.getPlatform().createContext(null, device);
 	}
 
-    public static CLContext createBestGLCompatibleContext(long glContextId, CLDevice... devices) {
-		return devices[0].getPlatform().createGLCompatibleContext(glContextId, devices);
+    public static CLContext createContextFromCurrentGL() {
+        RuntimeException first = null;
+        for (CLPlatform platform : listPlatforms()) {
+            try {
+                CLContext ctx = platform.createContextFromCurrentGL();
+                if (ctx != null)
+                    return ctx;
+            } catch (RuntimeException ex) {
+                if (first == null)
+                    first = ex;
+                
+            }
+        }
+        throw new RuntimeException("Failed to create an OpenCL context based on the current OpenGL context", first);
     }
-
-
 }

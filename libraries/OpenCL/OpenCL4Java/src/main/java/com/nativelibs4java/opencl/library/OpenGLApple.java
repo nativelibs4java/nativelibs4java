@@ -11,14 +11,14 @@ public interface OpenGLApple extends com.sun.jna.Library {
 	public static final OpenGLApple INSTANCE = (OpenGLApple)com.sun.jna.Native.loadLibrary("OpenGL", OpenGLApple.class);//OpenGLApple.JNA_LIBRARY_NAME, OpenGLApple.class, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
 	
 	/// Original signature : <code>CGLShareGroupObj CGLGetShareGroup(CGLContextObj)</code>
-	com.ochafik.lang.jnaerator.runtime.NativeSize CGLGetShareGroup(com.sun.jna.Pointer ctx);
+	com.ochafik.lang.jnaerator.runtime.NativeSize CGLGetShareGroup(com.ochafik.lang.jnaerator.runtime.NativeSize ctx);
 	/**
 	 * * Current context functions<br>
 	 * Original signature : <code>CGLError CGLSetCurrentContext(CGLContextObj)</code>
 	 */
 	int CGLSetCurrentContext(com.sun.jna.Pointer ctx);
 	/// Original signature : <code>CGLContextObj CGLGetCurrentContext()</code>
-	com.sun.jna.Pointer CGLGetCurrentContext();
+	com.ochafik.lang.jnaerator.runtime.NativeSize CGLGetCurrentContext();
 	
 	/**
 	 * * Version numbers<br>
@@ -31,4 +31,9 @@ public interface OpenGLApple extends com.sun.jna.Library {
 	 * @param error @see CGLError
 	 */
 	java.lang.String CGLErrorString(int error);
+
+    com.ochafik.lang.jnaerator.runtime.NativeSize wglGetCurrentDC();
+    com.ochafik.lang.jnaerator.runtime.NativeSize wglGetCurrentContext();
+    com.ochafik.lang.jnaerator.runtime.NativeSize glXGetCurrentDisplay();
+    com.ochafik.lang.jnaerator.runtime.NativeSize glXGetCurrentContext();
 }

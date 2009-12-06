@@ -71,15 +71,7 @@ public class JOGLTest {
                         gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * BufferUtil.SIZEOF_FLOAT, buffer, GL.GL_STATIC_DRAW);
                         //int glcontext = gl.glGet.getContext().CONTEXT_CURRENT;
 
-                        CLPlatform[] platforms = JavaCL.listPlatforms();
-                        CLContext context = null;
-                        for (CLPlatform platform : platforms) {
-                            try {
-                                context = platform.createContextFromCurrentGL();
-                            } catch (Exception ex) {
-                                ex.printStackTrace();
-                            }
-                        }
+                        CLContext context = JavaCL.createContextFromCurrentGL();
                         if (context != null) {
                             CLByteBuffer clbuf = context.createBufferFromGLBuffer(CLMem.Usage.Input, VBO[0]);
                             assertNotNull(clbuf);
