@@ -52,6 +52,11 @@ public class JOGLTest {
 
     @Test
     public void testBuffer() {
+        if (JavaCL.listGPUPoweredPlatforms().length == 0) {
+            System.out.println("#\n# Warning: There is no GPU-powered OpenCL platform available. Skipping test.\n#");
+            return;
+        }
+
         try {
             final Semaphore sem = new Semaphore(0);
             JFrame f = new JFrame();

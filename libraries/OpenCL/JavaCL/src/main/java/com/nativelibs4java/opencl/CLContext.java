@@ -174,7 +174,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 
     @Deprecated
-    public CLDevice getCurrentGLDevice() {
+    public CLDevice guessCurrentGLDevice() {
         IntByReference errRef = new IntByReference();
         long[] props = CLPlatform.getContextProps(CLPlatform.getGLContextProperties());
         Memory propsMem = toNSArray(props);
