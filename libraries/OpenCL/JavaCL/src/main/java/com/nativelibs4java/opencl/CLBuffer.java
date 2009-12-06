@@ -110,7 +110,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 		cl_event[] eventOut = blocking ? null : new cl_event[1];
 		IntByReference pErr = new IntByReference();
         
-        cl_event[] evts = CLEvent.to_cl_event_array(events);
+        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         Pointer p = CL.clEnqueueMapBuffer(queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
 			flags.getValue(),
 			toNS(offset * getElementSize()),
@@ -208,7 +208,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
         if (in.isDirect()) {
             
             cl_event[] eventOut = blocking ? null : new cl_event[1];
-			cl_event[] evts = CLEvent.to_cl_event_array(events);
+			cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
             error(CL.clEnqueueWriteBuffer(
 				queue.getEntity(),
 				getEntity(),

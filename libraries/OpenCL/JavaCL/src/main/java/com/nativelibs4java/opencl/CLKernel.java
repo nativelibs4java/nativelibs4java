@@ -179,7 +179,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
      */
     public CLEvent enqueueTask(CLQueue queue, CLEvent... eventsToWaitFor) {
         cl_event[] eventOut = new cl_event[1];
-        cl_event[] evts = CLEvent.to_cl_event_array(events);
+        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueNDRangeKernel(queue.getEntity(), getEntity(), 1, null, oneNL, oneNL, evts == null ? 0 : evts.length, evts, eventOut));
         return CLEvent.createEvent(eventOut[0]);
     }
@@ -215,7 +215,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
                 mloc.setInt(off, localWorkSizes[i]);
             }
         }*/
-        cl_event[] evts = CLEvent.to_cl_event_array(events);
+        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueNDRangeKernel(queue.getEntity(), getEntity(), nDims, null/*toNL(globalOffsets)*/, toNS(globalWorkSizes), toNS(localWorkSizes), evts == null ? 0 : evts.length, evts, eventOut));
         //error(CL.clEnqueueNDRangeKernel(queue.get(), get(), nDims, null, glo, loc, eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
         return CLEvent.createEvent(eventOut[0]);
