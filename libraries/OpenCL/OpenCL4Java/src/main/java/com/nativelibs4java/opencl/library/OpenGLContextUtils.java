@@ -5,10 +5,10 @@ package com.nativelibs4java.opencl.library;
  * a tool written by <a href="http://ochafik.free.fr/">Olivier Chafik</a> that <a href="http://code.google.com/p/jnaerator/wiki/CreditsAndLicense">uses a few opensource projects.</a>.<br>
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a>, <a href="http://rococoa.dev.java.net/">Rococoa</a>, or <a href="http://jna.dev.java.net/">JNA</a>.
  */
-public interface OpenGLApple extends com.sun.jna.Library {
+public interface OpenGLContextUtils extends com.sun.jna.Library {
 	//public static final java.lang.String JNA_LIBRARY_NAME = com.ochafik.lang.jnaerator.runtime.LibraryExtractor.getLibraryPath("OpenGL", true, OpenGLApple.class);
 	//public static final com.sun.jna.NativeLibrary JNA_NATIVE_LIB = com.sun.jna.NativeLibrary.getInstance(OpenGLApple.JNA_LIBRARY_NAME, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
-	public static final OpenGLApple INSTANCE = (OpenGLApple)com.sun.jna.Native.loadLibrary("OpenGL", OpenGLApple.class);//OpenGLApple.JNA_LIBRARY_NAME, OpenGLApple.class, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
+	public static final OpenGLContextUtils INSTANCE = (OpenGLContextUtils)com.sun.jna.Native.loadLibrary("OpenGL", OpenGLContextUtils.class);//OpenGLApple.JNA_LIBRARY_NAME, OpenGLApple.class, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
 	
 	/// Original signature : <code>CGLShareGroupObj CGLGetShareGroup(CGLContextObj)</code>
 	com.ochafik.lang.jnaerator.runtime.NativeSize CGLGetShareGroup(com.ochafik.lang.jnaerator.runtime.NativeSize ctx);
