@@ -70,6 +70,14 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
         return context;
     }
 
+    public CLEvent acquireGLObject(CLQueue queue, CLEvent... eventsToWaitFor) {
+        return queue.enqueueAcquireGLObjects(new CLMem[] { this }, eventsToWaitFor);
+    }
+
+    public CLEvent releaseGLObject(CLQueue queue, CLEvent... eventsToWaitFor) {
+        return queue.enqueueReleaseGLObjects(new CLMem[] { this }, eventsToWaitFor);
+    }
+
     /**
      * Return actual size of the memory object in bytes
      * @return
