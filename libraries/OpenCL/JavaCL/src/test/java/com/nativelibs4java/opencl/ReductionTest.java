@@ -22,7 +22,7 @@ public class ReductionTest {
     public static final double RELATIVE_FLOAT_ERROR_TOLERANCE = 1e-8;
 
     @Test
-    public void testAdd() {
+    public void testAddReduction() {
         try {
 			CLContext context = createBestContext();
             CLQueue queue = context.createDefaultQueue();
@@ -38,6 +38,11 @@ public class ReductionTest {
             
             CLIntBuffer in = context.createIntBuffer(CLMem.Usage.Input, channels * dataSize);
             in.write(queue, inBuf, true);
+
+            IntBuffer check = in.read(queue);
+            for (int i = 0; i < dataSize; i++)
+                assertEquals(inBuf.get(i), check.get(i));
+            
             IntBuffer out = NIOUtils.directInts(channels);
             
             Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, ReductionUtils.Type.Int, channels);

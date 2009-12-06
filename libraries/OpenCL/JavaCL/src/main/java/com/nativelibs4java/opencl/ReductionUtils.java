@@ -185,14 +185,14 @@ public class ReductionUtils {
                         if (currentOutput == null)
                             currentOutput = tempBuffers[iOutput] = context.createByteBuffer(CLMem.Usage.InputOutput, tempOutputSize);
 						
-                        kernel.setArgs(currentInput, inputLength, inputLength, currentOutput);
+                        kernel.setArgs(currentInput, inputLength, maxReductionSize, currentOutput);
 						inputLengthArr[0] = inputLength;
 						eventsArr[0] = kernel.enqueueNDRange(queue, inputLengthArr, UNIT_INT_ARRAY, eventsToWaitFor);
 						eventsToWaitFor = eventsArr;
 						inputLength = nInCurrentDepth;
                         depth++;
                     }
-                    return currentOutput.read(queue, output, false, eventsToWaitFor);
+                    return currentOutput.read(queue, 0, valueChannels, output, false, eventsToWaitFor);
                 }
 
             };

@@ -51,13 +51,13 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
         return getByteCount() / getElementSize();
     }
 	public B map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, 0, getByteCount(), true, eventsToWaitFor).getFirst();
+		return map(queue, flags, 0, getElementCount(), true, eventsToWaitFor).getFirst();
     }
 	public B map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
 		return map(queue, flags, offset, length, true, eventsToWaitFor).getFirst();
     }
 	public Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, 0, getByteCount(), false, eventsToWaitFor);
+		return map(queue, flags, 0, getElementCount(), false, eventsToWaitFor);
     }
 	public Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
 		return map(queue, flags, offset, length, false, eventsToWaitFor);
@@ -74,7 +74,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	}
 
 	protected void checkBounds(long offset, long length) {
-		if (offset + length > byteCount)
+		if (offset + length * getElementSize() > byteCount)
 			throw new IndexOutOfBoundsException("Trying to map a region of memory object outside allocated range");
 	}
 
@@ -237,8 +237,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	public ByteBuffer readBytes(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
 		ByteBuffer out = directBytes((int)getByteCount());
         B tout = typedBuffer(out);
-		int capa = out.capacity();
-		read(queue, offset, length, tout, true, eventsToWaitFor);
+		read(queue, offset, tout.capacity(), tout, true, eventsToWaitFor);
 		return out;
 	}
 
