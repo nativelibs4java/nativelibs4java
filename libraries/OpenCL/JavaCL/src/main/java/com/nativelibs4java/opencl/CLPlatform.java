@@ -19,7 +19,7 @@ along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 package com.nativelibs4java.opencl;
 
 
-import com.nativelibs4java.opencl.library.OpenGLApple;
+import com.nativelibs4java.opencl.library.OpenGLContextUtils;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
@@ -193,18 +193,18 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         Map<ContextProperties, Number> out = new LinkedHashMap<ContextProperties, Number>();
 
         if (Platform.isMac()) {
-            NativeSize context = OpenGLApple.INSTANCE.CGLGetCurrentContext();
-            NativeSize shareGroup = OpenGLApple.INSTANCE.CGLGetShareGroup(context);
+            NativeSize context = OpenGLContextUtils.INSTANCE.CGLGetCurrentContext();
+            NativeSize shareGroup = OpenGLContextUtils.INSTANCE.CGLGetShareGroup(context);
             out.put(ContextProperties.GLContext, context.longValue());
             out.put(ContextProperties.CGLShareGroup, shareGroup.longValue());
         } else if (Platform.isWindows()) {
-            NativeSize context = OpenGLApple.INSTANCE.wglGetCurrentContext();
-            NativeSize dc = OpenGLApple.INSTANCE.wglGetCurrentDC();
+            NativeSize context = OpenGLContextUtils.INSTANCE.wglGetCurrentContext();
+            NativeSize dc = OpenGLContextUtils.INSTANCE.wglGetCurrentDC();
             out.put(ContextProperties.GLContext, context.longValue());
             out.put(ContextProperties.WGLHDC, dc.longValue());
         } else if (Platform.isX11()) {
-            NativeSize context = OpenGLApple.INSTANCE.glXGetCurrentContext();
-            NativeSize dc = OpenGLApple.INSTANCE.glXGetCurrentDisplay();
+            NativeSize context = OpenGLContextUtils.INSTANCE.glXGetCurrentContext();
+            NativeSize dc = OpenGLContextUtils.INSTANCE.glXGetCurrentDisplay();
             out.put(ContextProperties.GLContext, context.longValue());
             out.put(ContextProperties.GLXDisplay, dc.longValue());
         } else
