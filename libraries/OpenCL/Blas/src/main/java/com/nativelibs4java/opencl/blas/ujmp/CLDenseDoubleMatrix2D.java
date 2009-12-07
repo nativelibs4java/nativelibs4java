@@ -112,14 +112,13 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
                 return super.mtimes(matrix);
 
             CLDenseDoubleMatrix2D out = new CLDenseDoubleMatrix2D(getRowCount(), matrix.getColumnCount(), kernels);
-            CLEvent evt = kernels.multiply(
-                    buffer, getRowCount(), getColumnCount(), arg, matrix.getRowCount(), matrix.getColumnCount(), out.buffer, events(eventsToWaitFor));
+            CLEvent evt = kernels.multiply(buffer, getRowCount(), getColumnCount(), arg, matrix.getRowCount(), matrix.getColumnCount(), out.buffer, events(eventsToWaitFor));
             addReadEvent(evt);
             if (cm != null)
                 cm.addReadEvent(evt);
             out.addWriteEvent(evt);
 
-            return super.mtimes(matrix);
+            return out;
         }
     }
 

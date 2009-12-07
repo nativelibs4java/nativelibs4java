@@ -49,7 +49,11 @@ public class UJMPOpenCLTest {
         DenseDoubleMatrix2D m = (DenseDoubleMatrix2D)MatrixFactory.dense(2, 2);
         DenseDoubleMatrix2D v = (DenseDoubleMatrix2D)MatrixFactory.dense(2, 1);
 
-        write(new double[] { 0, 1, 1, 0 }, m);
+        double[] min = new double[] { 0, 1, 1, 0 };
+        write(min, m);
+        DoubleBuffer back = read(m);
+        for (int i = 0, cap = back.capacity(); i < cap; i++)
+            assertEquals(min[i], back.get(i), 0);
         DenseDoubleMatrix2D mout = (DenseDoubleMatrix2D) m.mtimes(m);
 
         //System.out.println(m);
@@ -58,6 +62,10 @@ public class UJMPOpenCLTest {
 		//if (la instanceof CLLinearAlgebra)
 		//	((CLLinearAlgebra)la).queue.finish();
 		//dmout.write((DoubleBuffer)mout.read());
+
+        back = read(mout);
+        for (int i = 0, cap = back.capacity(); i < cap; i++)
+            System.out.println(back.get(i));
 
 		assertEquals(0, mout.getDouble(0, 1), 0);
 		assertEquals(0, mout.getDouble(1, 0), 0);
