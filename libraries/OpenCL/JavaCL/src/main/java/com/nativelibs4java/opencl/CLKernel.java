@@ -121,6 +121,27 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
 //			error(CL.clSetKernelArg(get(), i, toNL(Native.LONG_SIZE), new IntByReference(arg.intValue()).getPointer()));
     }
 
+    public void setArg(int i, float[] arg) {
+        setArg(i, FloatBuffer.wrap(arg));
+    }
+    public void setArg(int i, int[] arg) {
+        setArg(i, IntBuffer.wrap(arg));
+    }
+    public void setArg(int i, double[] arg) {
+        setArg(i, DoubleBuffer.wrap(arg));
+    }
+    public void setArg(int i, long[] arg) {
+        setArg(i, LongBuffer.wrap(arg));
+    }
+    public void setArg(int i, short[] arg) {
+        setArg(i, ShortBuffer.wrap(arg));
+    }
+    public void setArg(int i, byte[] arg) {
+        setArg(i, ByteBuffer.wrap(arg));
+    }
+    public void setArg(int i, char[] arg) {
+        setArg(i, CharBuffer.wrap(arg));
+    }
     public void setArg(int i, Buffer arg) {
 		if (!arg.isDirect())
 			arg = NIOUtils.directCopy(arg);

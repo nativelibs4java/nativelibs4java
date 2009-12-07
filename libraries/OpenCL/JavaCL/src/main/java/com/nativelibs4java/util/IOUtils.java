@@ -6,6 +6,8 @@
 package com.nativelibs4java.util;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,6 +18,14 @@ import java.io.Reader;
  * @author Olivier
  */
 public class IOUtils {
+    public static String readText(File f) throws IOException {
+        Reader in = new FileReader(f);
+        try {
+            return readText(in);
+        } finally {
+            in.close();
+        }
+    }
     public static String readText(InputStream in) throws IOException {
         return readText(new InputStreamReader(in));
     }

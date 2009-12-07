@@ -96,5 +96,10 @@ public class CLMatrix extends CLDoubleData implements Matrix<CLMatrix, DoubleBuf
 		return DefaultLinearAlgebra.getInstance().newMatrix(this).toString();
 	}
 
+    @Override
+    public CLMatrix transpose(CLMatrix out) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 
 }

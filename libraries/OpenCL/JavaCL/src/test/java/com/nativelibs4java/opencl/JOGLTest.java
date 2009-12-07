@@ -6,7 +6,6 @@ package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.opencl.CLMem.GLObjectInfo;
 import com.nativelibs4java.util.NIOUtils;
-import com.sun.jna.Platform;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.media.opengl.GL;
@@ -38,7 +37,7 @@ public class JOGLTest {
 
     @BeforeClass
     public static void initialise() {
-        if (Platform.isWindows())
+        //if (Platform.isWindows())
             System.setProperty("sun.java2d.noddraw","true");
     }
     
