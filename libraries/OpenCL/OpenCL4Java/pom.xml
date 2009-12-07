@@ -21,6 +21,7 @@
 	<dependency>
 	  <groupId>com.jnaerator</groupId>
 	  <artifactId>jnaerator-runtime</artifactId>
+	  <!--classifier>shaded</classifier-->
 	  <version>${jnaerator.version}</version>
 	  <scope>compile</scope>
 	</dependency>

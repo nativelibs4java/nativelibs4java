@@ -18,9 +18,6 @@ import static com.nativelibs4java.util.NIOUtils.*;
 
 public class ReductionTest {
 
-    public static final double ABSOLUTE_FLOAT_ERROR_TOLERANCE = 1e-4;
-    public static final double RELATIVE_FLOAT_ERROR_TOLERANCE = 1e-8;
-
     @Test
     public void testAddReduction() {
         try {
@@ -47,7 +44,7 @@ public class ReductionTest {
             
             Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, ReductionUtils.Type.Int, channels);
 
-            CLEvent evt = reductor.reduce(queue, in, 0, dataSize, out, maxReductionSize);
+            CLEvent evt = reductor.reduce(queue, in, dataSize, out, maxReductionSize);
             //if (evt != null)
                 evt.waitFor();
             //CLEvent[] evts = reductor.reduce(queue, in, 0, dataSize, out, maxReductionSize);

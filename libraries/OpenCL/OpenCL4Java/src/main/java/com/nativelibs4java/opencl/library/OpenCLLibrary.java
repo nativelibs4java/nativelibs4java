@@ -1,5 +1,6 @@
 package com.nativelibs4java.opencl.library;
 
+import com.ochafik.lang.jnaerator.runtime.LibraryExtractor;
 import com.ochafik.lang.jnaerator.runtime.Mangling;
 import com.sun.jna.Pointer;
 import com.sun.jna.Platform;
@@ -19,8 +20,9 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 			//System.setProperty("javawebstart.version", null); // prevent OpenCL from being looked up in webstart native libs
 		}
 	}
-	public static final com.sun.jna.NativeLibrary JNA_NATIVE_LIB = com.sun.jna.NativeLibrary.getInstance(com.nativelibs4java.opencl.library.OpenCLLibrary.Inner.JNA_LIBRARY_NAME, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
-	public static final com.nativelibs4java.opencl.library.OpenCLLibrary INSTANCE = (com.nativelibs4java.opencl.library.OpenCLLibrary)com.sun.jna.Native.loadLibrary(com.nativelibs4java.opencl.library.OpenCLLibrary.Inner.JNA_LIBRARY_NAME, com.nativelibs4java.opencl.library.OpenCLLibrary.class, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
+	public static final com.sun.jna.NativeLibrary JNA_NATIVE_LIB = com.sun.jna.NativeLibrary.getInstance(Inner.JNA_LIBRARY_NAME, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
+    public static OpenCLLibrary INSTANCE = (OpenCLLibrary)LibraryExtractor.getLibrary("OpenCL", Inner.JNA_LIBRARY_NAME, OpenCLLibrary.class);
+
 	public static final int CL_CHAR_BIT = 8;
 	public static final int CL_SCHAR_MAX = 127;
 	public static final int CL_SCHAR_MIN = (-127 - 1);

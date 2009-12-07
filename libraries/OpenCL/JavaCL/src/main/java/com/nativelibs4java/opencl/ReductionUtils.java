@@ -12,6 +12,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -134,7 +136,7 @@ public class ReductionUtils {
         return new Pair<String, Map<String, String>>(getSource(), macros);
     }
     public interface Reductor<B extends Buffer> {
-        public CLEvent reduce(CLQueue queue, CLBuffer<B> input, int inputStart, int inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor);
+        public CLEvent reduce(CLQueue queue, CLBuffer<B> input, int inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor);
     }
     static int getNextPowerOfTwo(int i) {
         int shifted = 0;
@@ -166,11 +168,10 @@ public class ReductionUtils {
             final CLKernel kernel = kernels[0];
             return new Reductor<B>() {
 				@Override
-                public CLEvent reduce(CLQueue queue, CLBuffer<B> input, int inputStart, int inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor) {
-                    CLByteBuffer[] tempBuffers = new CLByteBuffer[2];
+                public CLEvent reduce(CLQueue queue, CLBuffer<B> input, int inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor) {
+                    CLBuffer<?>[] tempBuffers = new CLBuffer<?>[2];
                     int depth = 0;
-					int tempOutputSize = maxReductionSize * valueChannels * input.getElementSize();
-                    CLBuffer currentOutput = null;
+					CLBuffer<B> currentOutput = null;
 					CLEvent[] eventsArr = new CLEvent[1];
 					int[] inputLengthArr = new int[1];
 					
@@ -181,9 +182,9 @@ public class ReductionUtils {
                         
 						int iOutput = depth & 1;
                         CLBuffer currentInput = depth == 0 ? input : tempBuffers[iOutput ^ 1];
-                        currentOutput = tempBuffers[iOutput];
+                        currentOutput = (CLBuffer<B>)tempBuffers[iOutput];
                         if (currentOutput == null)
-                            currentOutput = tempBuffers[iOutput] = context.createByteBuffer(CLMem.Usage.InputOutput, tempOutputSize);
+                            currentOutput = (CLBuffer<B>)(tempBuffers[iOutput] = context.createBuffer(CLMem.Usage.InputOutput, maxReductionSize * valueChannels, output.getClass()));
 						
                         kernel.setArgs(currentInput, inputLength, maxReductionSize, currentOutput);
 						inputLengthArr[0] = inputLength;
