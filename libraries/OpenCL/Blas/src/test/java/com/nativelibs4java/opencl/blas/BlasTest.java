@@ -3,7 +3,6 @@ import com.nativelibs4java.blas.LinearAlgebra;
 import com.nativelibs4java.blas.Matrix;
 import com.nativelibs4java.blas.java.DefaultLinearAlgebra;
 import com.nativelibs4java.blas.java.DefaultMatrix;
-import com.nativelibs4java.blas.opencl.CLLinearAlgebra;
 import com.nativelibs4java.opencl.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
 //import java.util.*;
@@ -18,16 +17,7 @@ public class BlasTest {
 	public void testMultJava() {
         testMult(DefaultLinearAlgebra.getInstance());
     }
-    @Test
-	public void testMultCL() {
-        try {
-            testMult(new CLLinearAlgebra(DefaultLinearAlgebra.getInstance()));
-        } catch (Exception ex) {
-            Logger.getLogger(BlasTest.class.getName()).log(Level.SEVERE, null, ex);
-            ex.printStackTrace();
-            assertTrue(ex.toString(), false);
-        }
-    }
+    
     public void testMult(LinearAlgebra la) {
 		Matrix m = la.newMatrix(2, 2);
 		Matrix mout = la.newMatrix(2, 2);

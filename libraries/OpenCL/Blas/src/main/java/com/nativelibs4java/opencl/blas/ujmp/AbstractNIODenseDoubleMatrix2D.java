@@ -1,0 +1,58 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package com.nativelibs4java.opencl.blas.ujmp;
+
+import com.nativelibs4java.util.NIOUtils;
+import java.nio.DoubleBuffer;
+import org.ujmp.core.doublematrix.stub.AbstractDenseDoubleMatrix2D;
+import org.ujmp.core.interfaces.Wrapper;
+
+/**
+ *
+ * @author ochafik
+ */
+public abstract class AbstractNIODenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
+
+    final long rows, columns;
+
+    public AbstractNIODenseDoubleMatrix2D(long rows, long columns) {
+        this.rows = rows;
+        this.columns = columns;
+    }
+
+    public abstract DoubleBuffer getReadableData();
+    public abstract DoubleBuffer getWritableData();
+
+    @Override
+    public long[] getSize() {
+        return new long[] { rows, columns };
+    }
+
+    protected long getStorageIndex(long row, long column) {
+        return row * columns + column;
+    }
+
+    @Override
+    public double getDouble(long row, long column) {
+        return getReadableData().get((int)getStorageIndex(row, column));
+    }
+
+    @Override
+    public void setDouble(double value, long row, long column) {
+        getWritableData().get((int)getStorageIndex(row, column));
+    }
+
+    @Override
+    public double getDouble(int row, int column) {
+        return getDouble(row, (long)column);
+    }
+
+    @Override
+    public void setDouble(double value, int row, int column) {
+        setDouble(value, row, (long)column);
+    }
+
+}
