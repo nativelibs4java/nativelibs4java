@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.ujmp.core.Matrix;
+import org.ujmp.core.doublematrix.DoubleMatrix2D;
 import org.ujmp.core.exceptions.MatrixException;
 
 /**
@@ -94,6 +95,35 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
         buffer.write(kernels.getQueue(), offset, 1, rwb, true);
     }
 
+    @Override
+    public synchronized Matrix mtimes(Matrix matrix) throws MatrixException {
+        synchronized (matrix) {
+            CLDoubleBuffer arg;
+            List<CLEvent> eventsToWaitFor = new ArrayList<CLEvent>();
+            eventsBeforeReading(eventsToWaitFor);
+            CLDenseDoubleMatrix2D cm = null;
+            if (matrix instanceof CLDenseDoubleMatrix2D) {
+                cm = (CLDenseDoubleMatrix2D)matrix;
+                cm.eventsBeforeReading(eventsToWaitFor);
+                arg = cm.buffer;
+            } else if (matrix instanceof DoubleMatrix2D) {
+                arg = kernels.getContext().createDoubleBuffer(Usage.Input, MatrixUtils.read((DoubleMatrix2D)matrix), true);
+            } else
+                return super.mtimes(matrix);
+
+            CLDenseDoubleMatrix2D out = new CLDenseDoubleMatrix2D(getRowCount(), matrix.getColumnCount(), kernels);
+            CLEvent evt = kernels.multiply(
+                    buffer, getRowCount(), getColumnCount(), arg, matrix.getRowCount(), matrix.getColumnCount(), out.buffer, events(eventsToWaitFor));
+            addReadEvent(evt);
+            if (cm != null)
+                cm.addReadEvent(evt);
+            out.addWriteEvent(evt);
+
+            return super.mtimes(matrix);
+        }
+    }
+
+
 
     @Override
     public synchronized Matrix copy() throws MatrixException {
@@ -130,6 +160,11 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
 	public void eventsBeforeWriting(List<CLEvent> out) {
 		eventsBefore(true, out);
 	}
+    protected CLEvent[] events(List<CLEvent> events) {
+        if (events.isEmpty())
+            return EMPTY_EVENTS;
+        return events.toArray(new CLEvent[events.size()]);
+    }
 	protected synchronized CLEvent[] eventsBefore(boolean includeReads) {
 		int nr = !includeReads || readEvents == null ? 0 : readEvents.size();
 		int nw = writeEvents == null ? 0 : writeEvents.size();
@@ -166,8 +201,20 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
 		writeEvents.add(evt);
 	}
 
+    static final boolean DUMMY_WAIT = true;
+	protected synchronized void dummyWait() {
+        kernels.getQueue().finish();
+        if (readEvents != null)
+            readEvents.clear();
+        if (writeEvents != null)
+            writeEvents.clear();
+    }
 	protected void waitForRead() {
-		CLEvent[] evts = eventsBeforeReading();
+		if (DUMMY_WAIT) {
+            dummyWait();
+            return;
+        }
+        CLEvent[] evts = eventsBeforeReading();
 		CLEvent.waitFor(evts);
 		synchronized (this) {
 			List<CLEvent> evtsList = Arrays.asList(evts);
@@ -179,6 +226,10 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
 	}
 
 	protected void waitForWrite() {
+        if (DUMMY_WAIT) {
+            dummyWait();
+            return;
+        }
 		CLEvent[] evts = eventsBeforeWriting();
 		CLEvent.waitFor(evts);
 		synchronized (this) {

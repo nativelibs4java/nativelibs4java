@@ -70,20 +70,22 @@ public class LinearAlgebraKernels {
 	private static final int[] unitIntArr = new int[] { 1 };
     private static final int[] unitInt2Arr = new int[] { 1, 1 };
 
-	synchronized CLEvent multiply(
+	public synchronized CLEvent multiply(
             CLDoubleBuffer a, long aRows, long aColumns, 
             CLDoubleBuffer b, long bRows, long bColumns, 
-            CLDoubleBuffer out, long outRows, long outColumns, 
+            CLDoubleBuffer out, //long outRows, long outColumns,
             CLEvent... eventsToWaitFor)
     {
+        long outRows = aRows;
         if (bColumns == 1) {
             mulVecKernel.setArgs(
                 a, /*aRows,*/ aColumns,
                 b, bRows,
                 out
             );
-            return mulMatKernel.enqueueNDRange(queue, new int[] { (int)outRows, (int)outColumns }, unitInt2Arr, eventsToWaitFor);
+            return mulMatKernel.enqueueNDRange(queue, new int[] { (int)outRows }, unitIntArr, eventsToWaitFor);
         }
+        long outColumns = bColumns;
         mulMatKernel.setArgs(
             a, /*aRows,*/ aColumns,
             b, /*bRows,*/ bColumns,

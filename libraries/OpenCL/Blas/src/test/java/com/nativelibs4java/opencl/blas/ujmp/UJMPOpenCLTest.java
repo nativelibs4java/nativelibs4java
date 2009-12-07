@@ -33,14 +33,15 @@ public class UJMPOpenCLTest {
         try {
             MatrixMapper.getInstance().setDenseDoubleMatrix2DClass(CLDenseDoubleMatrix2D.class);
         } catch (Exception ex) {
-            Logger.getLogger(UJMPOpenCLTest.class.getName()).log(Level.SEVERE, null, ex);
+            ex.printStackTrace();
             throw new RuntimeException(ex);
         }
     }
 
     @Test
     public void testInstalledUJMPCL() {
-        assertTrue(MatrixFactory.dense(1, 1) instanceof CLDenseDoubleMatrix2DFactory);
+        Matrix m = MatrixFactory.dense(1, 1);
+        assertTrue(m instanceof CLDenseDoubleMatrix2D);
     }
     @Test
 	public void testMult() {
