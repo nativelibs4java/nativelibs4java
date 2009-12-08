@@ -70,9 +70,16 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         }
     }
 
+    private static final NativeSize zeroNS = toNS(0);
+    public static final Object NULL_POINTER_KERNEL_ARGUMENT = new Object() {};
     public void setObjectArg(int i, Object arg) {
 
-        if (arg instanceof NativeLong) {
+        if (arg == null)
+            throw new IllegalArgumentException("Null arguments are not accepted. Please use CLKernel.NULL_POINTER_KERNEL_ARGUMENT instead.");
+
+        if (arg == NULL_POINTER_KERNEL_ARGUMENT) {
+            setArg(i, (NativeSize)zeroNS);
+        } else if (arg instanceof NativeLong) {
             setArg(i, (NativeLong) arg);
         } else if (arg instanceof NativeSize) {
             setArg(i, (NativeSize) arg);
@@ -92,6 +99,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
             setArg(i, (Float) arg);
         } else if (arg instanceof Double) {
             setArg(i, (Double) arg);
+		} else if (arg instanceof Boolean) {
+            setArg(i, (byte)(Boolean.TRUE.equals(arg) ? 1 : 0));
 		} else if (arg instanceof Buffer) {
             setArg(i, (Buffer) arg);
 		} else if (arg instanceof int[]) {
