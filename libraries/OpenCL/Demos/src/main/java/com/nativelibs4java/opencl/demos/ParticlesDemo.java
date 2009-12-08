@@ -197,7 +197,8 @@ public class ParticlesDemo implements GLEventListener {
                 positionsMem.releaseGLObject(queue);
 
             //String src = IOUtils.readText(ParticlesDemo.class.getClassLoader().getResourceAsStream(ParticlesDemo.class.getPackage().getName().replace('.', '/') + "/ParticlesDemo.cl"));
-            String src = IOUtils.readText(new File("C:/Users/Olivier/Prog/nativelibs4java/OpenCL/Demos/src/main/resources/com/nativelibs4java/opencl/demos/ParticlesDemo.c"));
+            String src = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("ParticlesDemo.c"));
+            //String src = IOUtils.readText(new File("C:/Users/Olivier/Prog/nativelibs4java/OpenCL/Demos/src/main/resources/com/nativelibs4java/opencl/demos/ParticlesDemo.c"));
             updateParticleKernel = context.createProgram(src).build().createKernel("updateParticle");
             
             updateKernelArgs();
@@ -269,7 +270,11 @@ public class ParticlesDemo implements GLEventListener {
         );
 
         try {
-            updateParticleKernel.enqueueNDRange(queue, new int[] { particlesCount }, new int[] { 32 });
+            long maxwgs = queue.getDevice().getMaxWorkGroupSize();
+            long wgs = 32;
+            if (wgs > maxwgs)
+                wgs = maxwgs;
+            updateParticleKernel.enqueueNDRange(queue, new int[] { particlesCount }, new int[] { (int)wgs });
         } catch (CLException.InvalidKernelArgs ex) {
             ex.printStackTrace();
         }
