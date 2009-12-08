@@ -46,11 +46,15 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.FileReader;
+import java.nio.ByteBuffer;
 import java.util.Random;
 import javax.media.opengl.*;
 import static javax.media.opengl.GL2.*;
 import javax.media.opengl.awt.*;
 import javax.media.opengl.glu.GLU;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.plaf.basic.BasicMenuUI.ChangeHandler;
 
 /**
  *
@@ -74,7 +78,20 @@ public class ParticlesDemo implements GLEventListener {
         final GLCanvas canvas = createGLCanvas(800, 600);
         f.getContentPane().add("Center", canvas);
         final AssertionError[] err = new AssertionError[1];
-        final ParticlesDemo demo = new ParticlesDemo(100000);
+        final ParticlesDemo demo = new ParticlesDemo(1000000);
+        final int nSpeeds = 21;
+        final JSlider slider = new JSlider(0, nSpeeds - 1);
+        slider.setValue(nSpeeds / 2);
+        f.getContentPane().add("South", slider);
+        slider.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int d = slider.getValue() - nSpeeds / 2;
+                demo.speedFactor = d == 0 ? 1 : d > 0 ? d : -1f/d;
+            }
+
+        });
         canvas.addGLEventListener(demo);
         canvas.addMouseMotionListener(new MouseMotionAdapter() {
 
@@ -100,15 +117,17 @@ public class ParticlesDemo implements GLEventListener {
     CLContext context;
     CLQueue queue;
 
-    boolean useOpenGLContext = true;
+    boolean useOpenGLContext = false;
     int particlesCount;
     int[] vbo = new int[1];
 
-    float mouseX, mouseY, width, height;
+    float mouseX, mouseY, width, height, speedFactor = 1;
 
     CLKernel updateParticleKernel;
     CLFloatBuffer positionsMem, massesMem, velocitiesMem;
     FloatBuffer positionsTemp;
+    CLByteBuffer pointsRgbMem;
+    ByteBuffer pointsRgbTemp;
 
     public ParticlesDemo(int particlesCount) {
         this.particlesCount = particlesCount;
@@ -119,7 +138,7 @@ public class ParticlesDemo implements GLEventListener {
             GL2 gl = (GL2)glad.getGL();
             gl.glClearColor(0, 0, 0, 1);
             gl.glClear(GL_COLOR_BUFFER_BIT);
-            gl.glViewport(0, 0, 600, 400);
+            //gl.glViewport(0, 0, (int)width, (int)height);
 
             try {
                 if (useOpenGLContext) {
@@ -135,6 +154,7 @@ public class ParticlesDemo implements GLEventListener {
             queue = context.createDefaultQueue();
             
             positionsTemp = NIOUtils.directFloats(particlesCount * 2);
+            pointsRgbTemp = NIOUtils.directBytes(particlesCount * 3);
             Random random = new Random(System.nanoTime());
 
             FloatBuffer velocities = NIOUtils.directFloats(2 * particlesCount);
@@ -146,13 +166,19 @@ public class ParticlesDemo implements GLEventListener {
                 positionsTemp.put((random.nextFloat() - 0.5f) * 200);
                 positionsTemp.put((random.nextFloat() - 0.5f) * 200);
 
+                pointsRgbTemp.put((byte)128);
+                pointsRgbTemp.put((byte)128);
+                pointsRgbTemp.put((byte)128);
+
                 velocities.put((random.nextFloat() - 0.5f) * 0.2f);
                 velocities.put((random.nextFloat() - 0.5f) * 0.2f);
             }
             masses.rewind();
             positionsTemp.rewind();
+            pointsRgbTemp.rewind();
             
             velocitiesMem = context.createFloatBuffer(Usage.InputOutput, velocities, false);
+            //pointsRgbMem = context.createByteBuffer(Usage.InputOutput, pointsRgbTemp, false);
             massesMem = context.createFloatBuffer(Usage.Input, masses, true);
 
             gl.glGenBuffers(1, vbo, 0);
@@ -201,9 +227,6 @@ public class ParticlesDemo implements GLEventListener {
         //new GLU().gluPerspective(45.0f, ((float) 600) / ((float) 400), 0.1f, 100.0f);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
 
-        gl.glClear(GL_COLOR_BUFFER_BIT);
-        
-        gl.glColor3f(1.0f, 1.0f, 1.0f);
         gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
 
         if (useOpenGLContext) {
@@ -214,20 +237,13 @@ public class ParticlesDemo implements GLEventListener {
             gl.glBufferSubData(GL_ARRAY_BUFFER, 0, (int)NIOUtils.getSizeInBytes(positionsTemp), positionsTemp);
         }
 
+        gl.glClear(GL_COLOR_BUFFER_BIT);
+
+        gl.glColor3f(1.0f, 1.0f, 1.0f);
         gl.glEnableClientState(GL_VERTEX_ARRAY);
         gl.glVertexPointer(2, GL_FLOAT, 0, 0);
         gl.glDrawArrays(GL_POINTS, 0, particlesCount);
         gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-        gl.glBegin(GL.GL_POINTS);
-        gl.glVertex2f(0, 0);
-        gl.glVertex2f(0, 10);
-        gl.glVertex2f(0, 20);
-        gl.glEnd();
-
-        //gl.glColor3f(1, 1, 1);
-        //String info = "fps: " + ofToString(ofGetFrameRate()) + "\nnumber of particles: " + ofToString(NUM_PARTICLES);
-        //ofDrawBitmapString(info, 20, 20);
 
         updateKernelArgs();
     }
@@ -248,7 +264,8 @@ public class ParticlesDemo implements GLEventListener {
             velocitiesMem,
             positionsMem,
             new float[] {mouseX, mouseY},
-            new float[] {width, height}
+            new float[] {width, height},
+            speedFactor
         );
 
         try {

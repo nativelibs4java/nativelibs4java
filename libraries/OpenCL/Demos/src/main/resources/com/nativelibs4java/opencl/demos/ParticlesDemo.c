@@ -43,7 +43,8 @@ __kernel void updateParticle(
 		__global float2* velocities,
 		__global float2* positions, 
 		const float2 mousePos, 
-		const float2 dimensions
+		const float2 dimensions,
+                float speedFactor
 ) {
 	int id = get_global_id(0);
 #if 1
@@ -52,7 +53,7 @@ __kernel void updateParticle(
 	diff *= 100.0f * invDistSQ;
  
 	velocities[id] -= positions[id] * CENTER_FORCE2 - diff * masses[id] + diff * masses[id] * invDistSQ;
-	positions[id] += velocities[id];
+	positions[id] += speedFactor * velocities[id];
 	velocities[id] *= BRAKE;
  
 #else
