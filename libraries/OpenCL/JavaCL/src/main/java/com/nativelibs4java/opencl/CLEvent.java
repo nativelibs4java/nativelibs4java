@@ -77,6 +77,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	 */
 	public void waitFor() {
 		waitFor(this);
+        release();
 	}
 
 	/**

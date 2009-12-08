@@ -52,6 +52,7 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 
     protected final CLContext context;
     protected long byteCount;
+    boolean isGL;
 
 	protected static CLInfoGetter<cl_mem> infos = new CLInfoGetter<cl_mem>() {
 		@Override
@@ -83,8 +84,16 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
      * @return
      */
     public long getByteCount() {
-        if (byteCount < 0)
+        if (byteCount < 0) {
+            try {
                 byteCount = infos.getIntOrLong(getEntity(), CL_MEM_SIZE);
+            } catch (CLException.InvalidMemObject ex) {
+                if (isGL)
+                    return -1; // GL objects are not (always?) considered as valid mem objects
+                else
+                    throw ex;
+            }
+        }
         return byteCount;
     }
 

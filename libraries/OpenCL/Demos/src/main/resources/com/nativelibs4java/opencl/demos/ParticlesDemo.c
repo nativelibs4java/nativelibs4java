@@ -31,34 +31,32 @@
 
 // Ported to JavaCL/OpenCL4Java by Olivier Chafik
 
-#define DAMP 0.8f
-#define DAMP2 0.8f
-#define MIN_DIST 50
-#define MIN_DIST_SQ MIN_DIST*MIN_DIST
+#define BRAKE 0.7f
 
 #define REPULSION_FORCE 4.0f
-#define CENTER_FORCE2 8.0f
+#define CENTER_FORCE2 0.0005f
 
 #define MIN_SPEED2 100
 
 __kernel void updateParticle(
 		__global float* masses, 
 		__global float2* velocities,
-		__global float2* pOut, 
+		__global float2* positions, 
 		const float2 mousePos, 
 		const float2 dimensions
 ) {
 	int id = get_global_id(0);
- 
-	float2 diff = mousePos - pOut[id];
+#if 1
+	float2 diff = mousePos - positions[id];
 	float invDistSQ = 1.0f / dot(diff, diff);
-	diff *= 300.0f * invDistSQ;
+	diff *= 100.0f * invDistSQ;
  
-	velocities[id] += (dimensions*0.5 - pOut[id]) * CENTER_FORCE2 - diff* masses[id];
-	pOut[id] += velocities[id];
-	velocities[id] *= DAMP2;
+	velocities[id] -= positions[id] * CENTER_FORCE2 - diff * masses[id] + diff * masses[id] * invDistSQ;
+	positions[id] += velocities[id];
+	velocities[id] *= BRAKE;
  
-	float speed2 = dot(velocities[id], velocities[id]);
-	if (speed2 < MIN_SPEED2) 
-		pOut[id] = mousePos + diff * (1 + masses[id]);
+#else
+	positions[id] += //(float2)(0.1, 0.1) * 
+		velocities[id];
+#endif
 }

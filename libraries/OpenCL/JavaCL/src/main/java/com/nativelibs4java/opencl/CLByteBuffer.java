@@ -47,4 +47,5 @@ public class CLByteBuffer extends CLBuffer<ByteBuffer> {
     protected void put(ByteBuffer out, ByteBuffer in) {
         out.put(in);
     }
+
 }

@@ -199,17 +199,22 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         return new CLDevice(null, new cl_device_id(p));
     }
 
+    private static <T extends CLMem> T markAsGL(T mem) {
+        mem.isGL = true;
+        return mem;
+    }
+    
 	public CLByteBuffer createBufferFromGLBuffer(CLMem.Usage usage, int openGLBufferObject) {
 		IntByReference pErr = new IntByReference();
 		cl_mem mem = CL.clCreateFromGLBuffer(getEntity(), usage.getIntFlags(), openGLBufferObject, pErr);
 		error(pErr.getValue());
-        return new CLByteBuffer(this, -1, mem, null);
+        return markAsGL(new CLByteBuffer(this, -1, mem, null));
 	}
 	public CLImage2D createImage2DFromGLRenderBuffer(CLMem.Usage usage, int openGLRenderBuffer) {
 		IntByReference pErr = new IntByReference();
 		cl_mem mem = CL.clCreateFromGLRenderbuffer(openGLRenderBuffer, pErr);
 		error(pErr.getValue());
-		return new CLImage2D(this, mem, null);
+		return markAsGL(new CLImage2D(this, mem, null));
 	}
 	
 	/**
@@ -227,7 +232,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		IntByReference pErr = new IntByReference();
 		cl_mem mem = CL.clCreateFromGLTexture2D(textureTarget.getValue(), mipLevel, texture, pErr);
 		error(pErr.getValue());
-		return new CLImage2D(this, mem, null);
+		return markAsGL(new CLImage2D(this, mem, null));
 	}
 
 	private static final int 
@@ -276,7 +281,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		IntByReference pErr = new IntByReference();
 		cl_mem mem = CL.clCreateFromGLTexture3D(GL_TEXTURE_3D, mipLevel, texture, pErr);
 		error(pErr.getValue());
-		return new CLImage3D(this, mem, null);
+		return markAsGL(new CLImage3D(this, mem, null));
 	}
 	
 	/**
