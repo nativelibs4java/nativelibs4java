@@ -13,18 +13,19 @@ import SyntaxUtils._
 
 class Context(var context: CLContext, var queue: CLQueue)
 object Context {
-  def newContext(devices: Array[CLDevice]) : Option[Context] = {
-    var ctx = CLContext.createContext(devices: _*);
+  def newContext(ctx: CLContext) = new Context(ctx, ctx.createDefaultQueue())
+  /*def newContext(devices: Array[CLDevice]) : Option[Context] = {
+    var ctx = CLContext.createContext(null, devices: _*);
     Some(new Context(ctx, ctx.createDefaultQueue))
   }
   private var gpu: Option[Context] = None
   private var cpu: Option[Context] = None
   private var best: Option[Context] = None
-
-  def platform = JavaCL.listPlatforms()(0)
-  def GPU : Context = gpu.getOrElse { gpu = newContext(platform.listGPUDevices(true)); gpu.get }
-  def CPU : Context = cpu.getOrElse { cpu = newContext(platform.listCPUDevices(true)); cpu.get }
-  def BEST = best.getOrElse { best = Some(try { GPU } catch { case _ => CPU }); best.get }
+  */
+  //def platform = JavaCL.listPlatforms()(0)
+  //def GPU : Context = gpu.getOrElse { gpu = newContext(platform, platform.listGPUDevices(true)); gpu.get }
+  //def CPU : Context = cpu.getOrElse { cpu = newContext(platform, platform.listCPUDevices(true)); cpu.get }
+  def BEST = newContext(JavaCL.createBestContext());//best.getOrElse { best = Some(try { GPU } catch { case _ => CPU }); best.get }
 }
 
 class UndefinedContent extends Stat {

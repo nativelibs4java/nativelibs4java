@@ -16,6 +16,10 @@
 	  <relativePath>../../Parent</relativePath>
   </parent>
   
+	  <description>
+OpenCL4Java, JavaCL and ScalaCL are OpenCL binding libraries for the Java platform.
+	</description>
+  
   
   <properties>
   	<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
@@ -35,6 +39,13 @@
 	
   </dependencies>
 
+  <distributionManagement>
+		<site>
+           <id>nativelibs4java-sites</id>
+           <name>NativeLibs4Java Sourceforge Sites</name>
+		   <url>scp://shell.sourceforge.net/home/groups/n/na/nativelibs4java/htdocs/sites</url>
+	    </site>
+		</distributionManagement>
   <build>
   	<plugins>
 	 		 <plugin>

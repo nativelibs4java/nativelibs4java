@@ -9,6 +9,13 @@
   <version>${opencl4java.version}</version>
   <packaging>jar</packaging>
   
+  
+	  <description>
+ScalaCL is a Domain Specific Language (DSL) that makes it trivial to write parallel expressions that evaluate on the GPU in Scala.
+It is based on JavaCL for the Java/OpenCL interop.
+For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL.
+	</description>
+	
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>opencl4java-parent</artifactId>

@@ -93,10 +93,10 @@ Most of these wrappers are created automatically by JNAerator.
 					<link>http://jnaerator.sourceforge.net/sites/jna-jnaerator/apidocs</link>
 					<link>http://jnaerator.sourceforge.net/sites/jnaerator-runtime/apidocs</link>
 					
-					<link>http://nativelibs4java.sourceforge.net/sites/opencl4java/apidocs/</link>
-					<link>http://nativelibs4java.sourceforge.net/sites/javacl/apidocs/</link>
-					<link>http://nativelibs4java.sourceforge.net/sites/javacl-blas/apidocs/</link>
-					<link>http://nativelibs4java.sourceforge.net/sites/javacl-demos/apidocs/</link>
+					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/opencl4java/apidocs/</link>
+					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl/apidocs/</link>
+					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-blas/apidocs/</link>
+					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-demos/apidocs/</link>
 					
 				</links>
 			</configuration>
