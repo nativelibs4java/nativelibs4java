@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
-  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL/"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL4Java/"
   href="ScalaCL.jnlp"
 >
 	<information>

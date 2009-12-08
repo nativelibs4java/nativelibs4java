@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
-  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL/"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL4Java/"
   href="JavaCLDemos.jnlp"
 >
 	<information>
@@ -18,6 +18,6 @@
 		<j2se version="1.5+"/>
 	</resources>
 	<application-desc 
-		main-class="com.nativelibs4java.opencl.HardwareReport"
+		main-class="com.nativelibs4java.opencl.demos.ParticlesDemo"
 	/>
 </jnlp>
