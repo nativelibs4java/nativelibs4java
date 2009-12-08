@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL/"
+  href="JavaCLDemos.jnlp"
+>
+	<information>
+	  <title>JavaCL Demos</title>
+	  <vendor>Olivier Chafik</vendor>
+	  <homepage href="http://code.google.com/p/javacl/" />
+	  <description>Demos for JavaCL (Object-Oriented OpenCL Library for Java)</description>
+	</information>
+	<security>
+	  <all-permissions/>
+	</security>
+	<resources>
+		<extension name="JavaCL" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL4Java/JavaCL.jnlp"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT.jar"/>
+		<j2se version="1.5+"/>
+	</resources>
+	<application-desc 
+		main-class="com.nativelibs4java.opencl.HardwareReport"
+	/>
+</jnlp>
