@@ -11,7 +11,7 @@ uchar4 HSVAtoRGBA(float4 hsva)
 	if (s == 0) {
 		// achromatic (grey)
 		r = g = b = v;
-		return;
+		return (uchar4)(r * 255, g * 255, b * 255, a * 255);
 	}
 	h /= 60;			// sector 0 to 5
 	i = floor( h );

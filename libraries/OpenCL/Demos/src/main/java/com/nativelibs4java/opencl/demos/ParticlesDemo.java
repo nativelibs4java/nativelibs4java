@@ -48,6 +48,8 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Random;
@@ -75,6 +77,7 @@ public class ParticlesDemo implements GLEventListener {
         return glCanvas;
     }
 
+    static File lastFile;
     volatile boolean paused;
     final static float DEFAULT_MOUSE_WEIGHT = 0.7f;
     volatile float mouseWeight = DEFAULT_MOUSE_WEIGHT;
@@ -133,11 +136,14 @@ public class ParticlesDemo implements GLEventListener {
                 canvas.paint(g);
                 g.dispose();
 
-                JFileChooser fc = new JFileChooser();
-                if (fc.showSaveDialog(canvas) == JFileChooser.APPROVE_OPTION) {
+                FileDialog fc = new FileDialog((Frame)null);
+                fc.setMode(FileDialog.SAVE);
+                fc.show();
+                if (fc.getFile() != null) {
                     try {
-                        ImageIO.write(im, "jpeg", fc.getSelectedFile());
+                        ImageIO.write(im, "jpeg", lastFile = new File(fc.getFile()));
                     } catch (IOException ex) {
+                        demo.exception(ex);
                         Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
@@ -154,12 +160,15 @@ public class ParticlesDemo implements GLEventListener {
                 boolean paused = demo.paused;
                 demo.paused = true;
 
-                JFileChooser fc = new JFileChooser();
-                if (fc.showOpenDialog(canvas) == JFileChooser.APPROVE_OPTION) {
+                FileDialog fc = new FileDialog((Frame)null);
+                fc.setMode(FileDialog.SAVE);
+                fc.show();
+                if (fc.getFile() != null) {
                     try {
-                        BufferedImage im = ImageIO.read(fc.getSelectedFile());
+                        BufferedImage im = ImageIO.read(lastFile = new File(fc.getFile()));
                         demo.setImage(im);
                     } catch (IOException ex) {
+                        demo.exception(ex);
                         Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
@@ -343,7 +352,12 @@ public class ParticlesDemo implements GLEventListener {
         GL_DST_COLOR,
     };
     volatile int iBlend = 0;
-    
+
+    public void exception(Throwable ex) {
+        StringWriter sout = new StringWriter();
+        ex.printStackTrace(new PrintWriter(sout));
+        JOptionPane.showMessageDialog(null, sout.toString(), "[Error] " + getClass().getSimpleName() + " JavaCL Demo", JOptionPane.ERROR_MESSAGE);
+    }
     @Override
     public void init(GLAutoDrawable glad) {
         try {
@@ -414,7 +428,10 @@ public class ParticlesDemo implements GLEventListener {
                 
             String hsv2rgbSrc = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("HSVtoRGB.c"));
             String src = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("ParticlesDemo.c"));
-            updateParticleKernel = context.createProgram(hsv2rgbSrc, src).build().createKernel("updateParticle");
+            CLProgram program = context.createProgram(hsv2rgbSrc, src);
+            if ("true".equals(System.getProperty("updateColors")))// && context.isByteAddressableStoreSupported())
+                program.defineMacro("UPDATE_COLORS", "1");
+            updateParticleKernel = program.build().createKernel("updateParticle");
 
             updateKernelArgs();
 
@@ -423,6 +440,7 @@ public class ParticlesDemo implements GLEventListener {
         } catch (Exception ex) {
             Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace();
+            exception(ex);
             System.exit(1);
         }
     }

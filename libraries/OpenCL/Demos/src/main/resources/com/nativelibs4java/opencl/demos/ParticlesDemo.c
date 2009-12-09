@@ -36,6 +36,12 @@
 
 #define PI 3.141f
 
+#ifdef UPDATE_COLORS
+
+#pragma OpenCL cl_khr_byte_addressable_store : enable
+
+#endif
+
 __kernel void updateParticle(
         __global float* masses,
         __global float2* velocities,
@@ -53,7 +59,10 @@ __kernel void updateParticle(
 	int id = get_global_id(0);
 
         float4 particle = particles[id];
+
+#ifdef UPDATE_COLORS
         uchar4 color = *(uchar4*)&particle.x;
+#endif
 
         float2 position = particle.yz;
 	float2 diff = mousePos - position;
@@ -68,7 +77,7 @@ __kernel void updateParticle(
         position += speedFactor * velocities[id];
         
         if (limitToScreen) {
-            float2 halfDims = dimensions / 2;
+            float2 halfDims = dimensions / 2.0f;
             position = clamp(position, -halfDims, halfDims);
             //float2 clamped = clamp(position, -halfDims, halfDims);
             //if (position.x != clamped.x || position.y != clamped.y)
@@ -81,20 +90,7 @@ __kernel void updateParticle(
 
         //float angle = (atan2(velocity.y, velocity.x) + PI) / (2 * PI);
         
-/*
-        float adirDot = dirDot < 0 ? -dirDot : dirDot;
-        if (adirDot > 1)
-            adirDot = 1;
-        
-        float dev = adirDot * 0.3f;
-        float fx = 0.5f + dev;
-        float fy = 0.2f + angle * 0.6f;
-        float fz = 0.5f - dev;
-
-        color.x = (uchar)(fx * 255);
-        color.y = (uchar)(fy * 255);
-        color.z = (uchar)(fz * 255);
-*/
+#ifdef UPDATE_COLORS
         float speed = length(velocity);
 
         float f = speed / 4 / mass;
@@ -114,11 +110,12 @@ __kernel void updateParticle(
             (uchar)(targetColor.z * colorSpeedFactor + color.z * otherColorSpeedFactor),
             (uchar)(targetColor.w * colorSpeedFactor + color.w * otherColorSpeedFactor)
         );
-        
-        particle.yz = position;
-        *(uchar4*)&particle.x = color;
 
-	particles[id] = particle;
+        *(uchar4*)&particle.x = color;
+#endif
+        particle.yz = position;
+
+    	particles[id] = particle;
 
         velocity *= slowDownFactor;
         velocities[id] = velocity;
