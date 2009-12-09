@@ -23,8 +23,8 @@ public class MatrixUtils {
             throw new IllegalArgumentException("Not enough data in input buffer to write into " + rows + "x" + columns + " matrix (only has " + b.remaining() + ")");
         b = b.duplicate();
         if (out instanceof CLDenseDoubleMatrix2D) {
-            CLDenseDoubleMatrix2D m = (CLDenseDoubleMatrix2D)out;
-            m.write(b);
+            CLDenseDoubleMatrix2D mout = (CLDenseDoubleMatrix2D)out;
+            mout.write(b);
         } else {
             for (long i = 0; i < rows; i++)
                 for (long j = 0; j < columns; j++)

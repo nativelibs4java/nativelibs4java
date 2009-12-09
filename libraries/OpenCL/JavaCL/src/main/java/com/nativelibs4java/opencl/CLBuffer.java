@@ -149,53 +149,28 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	}
 
 	@SuppressWarnings("deprecation")
-    public CLEvent read(CLQueue queue, long offset, long length, final B out, boolean blocking, CLEvent... eventsToWaitFor) {
-        if (out.isDirect()) {
-            
-            cl_event[] eventOut = blocking ? null : new cl_event[1];
-			cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-            error(CL.clEnqueueReadBuffer(
-				queue.getEntity(),
-				getEntity(),
-				blocking ? CL_TRUE : 0,
-				toNS(offset * getElementSize()),
-				toNS(length * getElementSize()),
-				Native.getDirectBufferPointer(out),
-				evts == null ? 0 : evts.length, evts,
-				eventOut
-            ));
-			return blocking ? null : CLEvent.createEvent(eventOut[0]);
-        } else {
-			try {
-				B b = map(queue, MapFlags.Read, offset, length, true).getFirst();
-				CLEvent.waitFor(eventsToWaitFor);
-				try {
-					//out.mark();
-                    put(b, out);
-				} finally {
-					//out.reset();
-					CLEvent evt = unmap(queue, b);
-					if (blocking)
-						evt.waitFor();
-					return blocking ? null : evt;
-				}
-			} catch (CLException.MapFailure ex) {
-				final B directOut = typedBuffer(directBytes((int)getSizeInBytes(out)));
-				// force blocking for now :
-				blocking = true;
-				CLEvent evt = read(queue, offset, length, directOut, blocking, eventsToWaitFor);
-				if (blocking) {
-					put(directOut, out);
-				} else {
-					evt.invokeUponCompletion(new Runnable() {
-						public void run() {
-							put(directOut, out);
-						}
-					});
-				}
-				return evt;
-			}
+    public CLEvent read(CLQueue queue, long offset, long length, B out, boolean blocking, CLEvent... eventsToWaitFor) {
+        B originalOut = null;
+        if (!out.isDirect()) {
+            originalOut = out;
+            out = typedBuffer(directBytes((int)(length * getElementSize())));
+            blocking = true;
         }
+        cl_event[] eventOut = blocking ? null : new cl_event[1];
+        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        error(CL.clEnqueueReadBuffer(
+            queue.getEntity(),
+            getEntity(),
+            blocking ? CL_TRUE : 0,
+            toNS(offset * getElementSize()),
+            toNS(length * getElementSize()),
+            Native.getDirectBufferPointer(out),
+            evts == null ? 0 : evts.length, evts,
+            eventOut
+        ));
+        if (originalOut != null)
+            put(out, originalOut);
+        return blocking ? null : CLEvent.createEvent(eventOut[0]);
     }
 
 	public CLEvent write(CLQueue queue, B in, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -214,35 +189,24 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 
 	@SuppressWarnings("deprecation")
     public CLEvent write(CLQueue queue, long offset, long length, B in, boolean blocking, CLEvent... eventsToWaitFor) {
-        if (in.isDirect()) {
-            
-            cl_event[] eventOut = blocking ? null : new cl_event[1];
-			cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-            error(CL.clEnqueueWriteBuffer(
-				queue.getEntity(),
-				getEntity(),
-				blocking ? CL_TRUE : 0,
-				toNS(offset * getElementSize()),
-				toNS(length * getElementSize()),
-				Native.getDirectBufferPointer(in),
-				evts == null ? 0 : evts.length, evts,
-				eventOut
-			));
-			return blocking ? null : CLEvent.createEvent(eventOut[0]);
-        } else {
-            B b = map(queue, MapFlags.Read, offset, length, true).getFirst();
-			CLEvent.waitFor(eventsToWaitFor);
-            try {
-                //out.mark();
-				put(in, b);
-            } finally {
-                //out.reset();
-                CLEvent evt = unmap(queue, b);
-				if (blocking)
-					evt.waitFor();
-				return blocking ? null : evt;
-            }
+        if (!in.isDirect()) {
+            blocking = true;
+            in = typedBuffer(directCopy(in));
         }
+            
+        cl_event[] eventOut = blocking ? null : new cl_event[1];
+        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        error(CL.clEnqueueWriteBuffer(
+            queue.getEntity(),
+            getEntity(),
+            blocking ? CL_TRUE : 0,
+            toNS(offset * getElementSize()),
+            toNS(length * getElementSize()),
+            Native.getDirectBufferPointer(in),
+            evts == null ? 0 : evts.length, evts,
+            eventOut
+        ));
+        return blocking ? null : CLEvent.createEvent(eventOut[0]);
     }
 	public ByteBuffer readBytes(CLQueue queue, CLEvent... eventsToWaitFor) {
 		return readBytes(queue, 0, getByteCount(), eventsToWaitFor);

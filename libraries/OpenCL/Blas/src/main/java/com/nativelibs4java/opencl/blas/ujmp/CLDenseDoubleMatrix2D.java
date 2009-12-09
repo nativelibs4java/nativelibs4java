@@ -98,13 +98,18 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
     @Override
     public synchronized Matrix mtimes(Matrix matrix) throws MatrixException {
         synchronized (matrix) {
+            if (getColumnCount() != matrix.getRowCount())
+                throw new MatrixException("Incompatible dimensions");
+            
             CLDoubleBuffer arg;
             List<CLEvent> eventsToWaitFor = new ArrayList<CLEvent>();
-            eventsBeforeReading(eventsToWaitFor);
+            waitForRead();
+            //TODO eventsBeforeReading(eventsToWaitFor);
             CLDenseDoubleMatrix2D cm = null;
             if (matrix instanceof CLDenseDoubleMatrix2D) {
                 cm = (CLDenseDoubleMatrix2D)matrix;
-                cm.eventsBeforeReading(eventsToWaitFor);
+                cm.waitForRead();
+                //TODO cm.eventsBeforeReading(eventsToWaitFor);
                 arg = cm.buffer;
             } else if (matrix instanceof DoubleMatrix2D) {
                 arg = kernels.getContext().createDoubleBuffer(Usage.Input, MatrixUtils.read((DoubleMatrix2D)matrix), true);

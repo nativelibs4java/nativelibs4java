@@ -16,6 +16,8 @@ import com.nativelibs4java.opencl.JavaCL;
 import com.nativelibs4java.opencl.ReductionUtils;
 import com.nativelibs4java.opencl.ReductionUtils.Reductor;
 import com.nativelibs4java.util.IOUtils;
+import static com.nativelibs4java.util.NIOUtils.*;
+import static com.nativelibs4java.util.JNAUtils.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,18 +79,20 @@ public class LinearAlgebraKernels {
             CLEvent... eventsToWaitFor)
     {
         long outRows = aRows;
-        if (bColumns == 1) {
+        /*
+            if (bColumns == 1) {
             mulVecKernel.setArgs(
-                a, /*aRows,*/ aColumns,
-                b, bRows,
+                a, (int)aColumns,
+                b, (int)bRows,
                 out
             );
             return mulMatKernel.enqueueNDRange(queue, new int[] { (int)outRows }, unitIntArr, eventsToWaitFor);
         }
+        */
         long outColumns = bColumns;
         mulMatKernel.setArgs(
-            a, /*aRows,*/ aColumns,
-            b, /*bRows,*/ bColumns,
+            a, (int)aColumns,
+            b, (int)bColumns,
             out
         );
         return mulMatKernel.enqueueNDRange(queue, new int[] { (int)outRows, (int)outColumns }, unitInt2Arr, eventsToWaitFor);
