@@ -35,6 +35,7 @@ package com.nativelibs4java.opencl.demos;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.util.*;
+import java.io.IOException;
 import java.util.logging.*;
 import javax.media.opengl.*;
 
@@ -44,10 +45,13 @@ import java.nio.FloatBuffer;
 import com.sun.opengl.util.FPSAnimator;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileReader;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.Random;
+import javax.imageio.ImageIO;
 import javax.media.opengl.*;
 import static javax.media.opengl.GL2.*;
 import javax.media.opengl.awt.*;
@@ -71,34 +75,166 @@ public class ParticlesDemo implements GLEventListener {
         return glCanvas;
     }
 
+    volatile boolean paused;
+    final static float DEFAULT_MOUSE_WEIGHT = 0.7f;
+    volatile float mouseWeight = DEFAULT_MOUSE_WEIGHT;
+    
     public static void main(String[] args) {
         System.setProperty("sun.java2d.noddraw","true");
         
         JFrame f = new JFrame();
-        final GLCanvas canvas = createGLCanvas(800, 600);
+        Box tb = Box.createHorizontalBox();
+        final JButton openImage = new JButton("Import"), saveImage = new JButton("Export"), changeBlend = new JButton("Change Blend");
+        tb.add(openImage);
+        //tb.add(saveImage);
+        tb.add(changeBlend);
+        //final JCheckBox limi
+        final GLCanvas canvas = createGLCanvas(1000, 800);
         f.getContentPane().add("Center", canvas);
         final AssertionError[] err = new AssertionError[1];
-        final ParticlesDemo demo = new ParticlesDemo(1000000);
+        final ParticlesDemo demo = new ParticlesDemo(1024 * 100);
         final int nSpeeds = 21;
-        final JSlider slider = new JSlider(0, nSpeeds - 1);
-        slider.setValue(nSpeeds / 2);
-        f.getContentPane().add("South", slider);
-        slider.addChangeListener(new ChangeListener() {
+
+
+        final JSlider speedSlider = new JSlider(0, nSpeeds - 1);
+        speedSlider.setValue(nSpeeds / 2);
+        //f.getContentPane().add("West", slider);
+
+        tb.add(speedSlider);
+        //slider.setOrientation(JSlider.VERTICAL);
+        speedSlider.addChangeListener(new ChangeListener() {
 
             @Override
             public void stateChanged(ChangeEvent e) {
-                int d = slider.getValue() - nSpeeds / 2;
-                demo.speedFactor = d == 0 ? 1 : d > 0 ? d : -1f/d;
+                int d = speedSlider.getValue() - nSpeeds / 2;
+                demo.speedFactor = (d == 0 ? 1 : d > 0 ? d : -1f/d) * DEFAULT_SPEED_FACTOR;
             }
 
         });
+
+        changeBlend.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                demo.iBlend = (demo.iBlend + 1) % demo.blends.length;
+            }
+
+        });
+
+        saveImage.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                boolean paused = demo.paused;
+                demo.paused = true;
+
+                BufferedImage im = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                Graphics g = im.createGraphics();
+                canvas.paint(g);
+                g.dispose();
+
+                JFileChooser fc = new JFileChooser();
+                if (fc.showSaveDialog(canvas) == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        ImageIO.write(im, "jpeg", fc.getSelectedFile());
+                    } catch (IOException ex) {
+                        Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
+                demo.paused = paused;
+            }
+
+        });
+
+        openImage.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                boolean paused = demo.paused;
+                demo.paused = true;
+
+                JFileChooser fc = new JFileChooser();
+                if (fc.showOpenDialog(canvas) == JFileChooser.APPROVE_OPTION) {
+                    try {
+                        BufferedImage im = ImageIO.read(fc.getSelectedFile());
+                        demo.setImage(im);
+                    } catch (IOException ex) {
+                        Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
+                demo.paused = paused;
+            }
+
+        });
+
+        canvas.addMouseWheelListener(new MouseWheelListener() {
+
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                if (e.getUnitsToScroll() > 0)
+                    for (int i = e.getUnitsToScroll(); i-- != 0;)
+                        demo.mouseWeight *= 1.1f;
+                else
+                    for (int i = -e.getUnitsToScroll(); i-- != 0;)
+                        demo.mouseWeight /= 1.1f;
+            }
+        });
+        canvas.addKeyListener(new KeyAdapter() {
+
+            @Override
+            public void keyPressed(KeyEvent ke) {
+                switch (ke.getKeyCode()) {
+                    case KeyEvent.VK_SPACE:
+                        demo.paused = !demo.paused;
+                        break;
+                    case KeyEvent.VK_DELETE:
+                    case KeyEvent.VK_BACK_SPACE:
+                        demo.mouseWeight = 1;
+                        break;
+                }
+            }
+
+
+
+        });
+        final JSlider sliderMass = new JSlider(0, nSpeeds - 1);
+        sliderMass.setValue(nSpeeds / 2);
+        //f.getContentPane().add("East", sliderMass);
+        //sliderMass.setOrientation(JSlider.VERTICAL);
+        sliderMass.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int d = sliderMass.getValue() - nSpeeds / 2;
+                demo.massFactor = (d == 0 ? 1 : d > 0 ? d : -1f/d) * DEFAULT_MASS_FACTOR;
+            }
+
+        });
+        tb.add(sliderMass);
+
+        f.getContentPane().add("North", tb);
+
         canvas.addGLEventListener(demo);
+        canvas.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent me) {
+                if (me.getButton() != MouseEvent.BUTTON1 || me.isMetaDown() || me.isControlDown())
+                    demo.mouseWeight = 1;
+                else
+                    demo.paused = !demo.paused;
+            }
+
+        });
         canvas.addMouseMotionListener(new MouseMotionAdapter() {
 
             @Override
             public void mouseMoved(MouseEvent e) {
-                demo.mouseX = e.getX() - canvas.getWidth() / 2f;
-                demo.mouseY = canvas.getHeight() / 2f - e.getY();
+                demo.mouseX = e.getX();
+                demo.mouseY = e.getY();
+                demo.lastMouseMove = System.currentTimeMillis();
             }
 
         });
@@ -114,6 +250,58 @@ public class ParticlesDemo implements GLEventListener {
 
     }
 
+    public void setImage(BufferedImage image) {
+        mouseWeight = DEFAULT_MOUSE_WEIGHT;
+
+        int iWidth = image.getWidth(), iHeight = image.getHeight();
+        int[] pixels = image.getRGB(0, 0, iWidth, iHeight, null, 0, iWidth);
+        int nPixels = iWidth * iHeight;
+        float[] nonEmptyPixelsX = new float[nPixels], nonEmptyPixelsY = new float[nPixels];
+        int[] nonEmptyPixels = new int[nPixels];
+
+        int nNonEmptyPixels = 0;
+        int hw = iWidth / 2, hh = iHeight / 2;
+        for (int iPixel = 0; iPixel < nPixels; iPixel++) {
+            int pixel = pixels[iPixel];
+            if ((pixel & 0xff000000) != 0)
+            {
+                int y = iPixel / iWidth, x = iPixel - y * iWidth;
+                nonEmptyPixels[nNonEmptyPixels] = pixel;
+                nonEmptyPixelsX[nNonEmptyPixels] = x - hw;
+                nonEmptyPixelsY[nNonEmptyPixels] = hh - y;
+                nNonEmptyPixels++;
+            }
+        }
+
+        queue.finish();
+        
+        FloatBuffer positionsView = interleavedColorAndPositionsTemp.asFloatBuffer();
+        IntBuffer colorView = interleavedColorAndPositionsTemp.asIntBuffer();
+        for (int iPoint = 0; iPoint < particlesCount; iPoint++) {
+            int iPixel = (int)(random.nextFloat() * (nNonEmptyPixels - 1));
+
+            velocities.put(iPixel, 0);
+            velocities.put(iPixel + 1, 0);
+
+            int colorOffset = iPoint * (elementSize / 4);
+            int posOffset = iPoint * (elementSize / 4) + 1;
+
+            colorView.put(colorOffset, nonEmptyPixels[iPixel]);
+            positionsView.put(posOffset, nonEmptyPixelsX[iPixel]);
+            positionsView.put(posOffset + 1, nonEmptyPixelsY[iPixel]);
+        }
+        velocities.rewind();
+        velocitiesMem.write(queue, velocities, false);
+
+        if (useOpenGLContext)
+            interleavedColorAndPositionsMem.acquireGLObject(queue);
+        interleavedColorAndPositionsMem.write(queue, interleavedColorAndPositionsTemp, false);
+        if (useOpenGLContext)
+            interleavedColorAndPositionsMem.releaseGLObject(queue);
+
+        queue.finish();
+    }
+
     CLContext context;
     CLQueue queue;
 
@@ -121,17 +309,41 @@ public class ParticlesDemo implements GLEventListener {
     int particlesCount;
     int[] vbo = new int[1];
 
-    float mouseX, mouseY, width, height, speedFactor = 1;
+    static final float DEFAULT_SLOWDOWN_FACTOR = 0.7f;
+    static final float DEFAULT_SPEED_FACTOR = 2f, DEFAULT_MASS_FACTOR = 1;
+    float mouseX, mouseY, width, height, massFactor = DEFAULT_MASS_FACTOR, speedFactor = DEFAULT_SPEED_FACTOR, slowDownFactor = DEFAULT_SLOWDOWN_FACTOR;
+    boolean limitToScreen = false;
 
+    long lastMouseMove;
+    FloatBuffer velocities;
     CLKernel updateParticleKernel;
-    CLFloatBuffer positionsMem, massesMem, velocitiesMem;
-    FloatBuffer positionsTemp;
-    CLByteBuffer pointsRgbMem;
-    ByteBuffer pointsRgbTemp;
+    CLFloatBuffer massesMem, velocitiesMem;
+    CLByteBuffer interleavedColorAndPositionsMem;
+    ByteBuffer interleavedColorAndPositionsTemp;
+
+    int elementSize = 4 * 4;//4 + 2 * 4 + 4; // 4 color bytes and 2 position floats, 1 dummy alignment float
+
+    CLByteBuffer colorsMem;
+
+    Random random = new Random(System.nanoTime());
 
     public ParticlesDemo(int particlesCount) {
         this.particlesCount = particlesCount;
     }
+
+    int[] blends = new int[] {
+        GL_ONE_MINUS_SRC_ALPHA,
+        GL_ONE,
+        GL_ONE_MINUS_DST_ALPHA,
+        GL_ONE_MINUS_DST_COLOR,
+        GL_ONE_MINUS_SRC_COLOR,
+        GL_SRC_ALPHA,
+        GL_DST_ALPHA,
+        GL_SRC_COLOR,
+        GL_DST_COLOR,
+    };
+    volatile int iBlend = 0;
+    
     @Override
     public void init(GLAutoDrawable glad) {
         try {
@@ -139,6 +351,8 @@ public class ParticlesDemo implements GLEventListener {
             gl.glClearColor(0, 0, 0, 1);
             gl.glClear(GL_COLOR_BUFFER_BIT);
             //gl.glViewport(0, 0, (int)width, (int)height);
+            gl.glEnable(GL_BLEND);
+            gl.glEnable(GL_POINT_SMOOTH);
 
             try {
                 if (useOpenGLContext) {
@@ -153,57 +367,58 @@ public class ParticlesDemo implements GLEventListener {
             }
             queue = context.createDefaultQueue();
             
-            positionsTemp = NIOUtils.directFloats(particlesCount * 2);
-            pointsRgbTemp = NIOUtils.directBytes(particlesCount * 3);
-            Random random = new Random(System.nanoTime());
-
-            FloatBuffer velocities = NIOUtils.directFloats(2 * particlesCount);
             FloatBuffer masses = NIOUtils.directFloats(particlesCount);
+            velocities = NIOUtils.directFloats(2 * particlesCount);
+            interleavedColorAndPositionsTemp = NIOUtils.directBytes(elementSize * particlesCount);
+            
+            FloatBuffer positionsView = interleavedColorAndPositionsTemp.asFloatBuffer();
             for (int i = 0; i < particlesCount; i++) {
-                //Particle &p = particles[i];
-                //p.vel.set(0, 0);
                 masses.put(0.5f + 0.5f * random.nextFloat());
-                positionsTemp.put((random.nextFloat() - 0.5f) * 200);
-                positionsTemp.put((random.nextFloat() - 0.5f) * 200);
-
-                pointsRgbTemp.put((byte)128);
-                pointsRgbTemp.put((byte)128);
-                pointsRgbTemp.put((byte)128);
-
+                
+			    velocities.put((random.nextFloat() - 0.5f) * 0.2f);
                 velocities.put((random.nextFloat() - 0.5f) * 0.2f);
-                velocities.put((random.nextFloat() - 0.5f) * 0.2f);
+
+                int colorOffset = i * elementSize;
+                int posOffset = i * (elementSize / 4) + 1;
+
+                byte r = (byte)128, g = r, b = r, a = r;
+                interleavedColorAndPositionsTemp.put(colorOffset++, r);
+                interleavedColorAndPositionsTemp.put(colorOffset++, g);
+                interleavedColorAndPositionsTemp.put(colorOffset++, b);
+                interleavedColorAndPositionsTemp.put(colorOffset, a);
+                
+                float x = (random.nextFloat() - 0.5f) * 200,
+                        y = (random.nextFloat() - 0.5f) * 200;
+
+                positionsView.put(posOffset, x);
+                positionsView.put(posOffset + 1, y);
+
             }
+            velocities.rewind();
             masses.rewind();
-            positionsTemp.rewind();
-            pointsRgbTemp.rewind();
+            interleavedColorAndPositionsTemp.rewind();
             
             velocitiesMem = context.createFloatBuffer(Usage.InputOutput, velocities, false);
-            //pointsRgbMem = context.createByteBuffer(Usage.InputOutput, pointsRgbTemp, false);
             massesMem = context.createFloatBuffer(Usage.Input, masses, true);
 
             gl.glGenBuffers(1, vbo, 0);
             gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-            gl.glBufferData(GL_ARRAY_BUFFER, (int) NIOUtils.getSizeInBytes(positionsTemp), positionsTemp, GL_DYNAMIC_COPY);
+            gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+            gl.glBufferData(GL_ARRAY_BUFFER, (int) NIOUtils.getSizeInBytes(interleavedColorAndPositionsTemp), interleavedColorAndPositionsTemp, GL_DYNAMIC_COPY);
             gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             if (useOpenGLContext) {
-                positionsMem = context.createBufferFromGLBuffer(Usage.InputOutput, vbo[0]).asCLFloatBuffer();
-                positionsMem.acquireGLObject(queue);
+                interleavedColorAndPositionsMem = context.createBufferFromGLBuffer(Usage.InputOutput, vbo[0]);
             } else
-                positionsMem = context.createFloatBuffer(Usage.InputOutput, 2 * particlesCount);
-
-            positionsMem.write(queue, positionsTemp, true);
-            if (useOpenGLContext)
-                positionsMem.releaseGLObject(queue);
-
-            //String src = IOUtils.readText(ParticlesDemo.class.getClassLoader().getResourceAsStream(ParticlesDemo.class.getPackage().getName().replace('.', '/') + "/ParticlesDemo.cl"));
+                interleavedColorAndPositionsMem = context.createByteBuffer(Usage.InputOutput, interleavedColorAndPositionsTemp, false);
+                
+            String hsv2rgbSrc = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("HSVtoRGB.c"));
             String src = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("ParticlesDemo.c"));
-            //String src = IOUtils.readText(new File("C:/Users/Olivier/Prog/nativelibs4java/OpenCL/Demos/src/main/resources/com/nativelibs4java/opencl/demos/ParticlesDemo.c"));
-            updateParticleKernel = context.createProgram(src).build().createKernel("updateParticle");
-            
+            updateParticleKernel = context.createProgram(hsv2rgbSrc, src).build().createKernel("updateParticle");
+
             updateKernelArgs();
 
-            gl.glPointSize(1);
+            gl.glPointSize(2f);
 
         } catch (Exception ex) {
             Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
@@ -222,10 +437,11 @@ public class ParticlesDemo implements GLEventListener {
 
         GL2 gl = (GL2)glad.getGL();
         
+        gl.glBlendFunc(GL_SRC_ALPHA, blends[iBlend]);
+
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
-        new GLU().gluOrtho2D(-width / 2, width / 2, -height/2, height/2);
-        //new GLU().gluPerspective(45.0f, ((float) 600) / ((float) 400), 0.1f, 100.0f);
+        new GLU().gluOrtho2D(-width / 2 - 1, width / 2 + 1, -height/2 - 1, height/2 + 1);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
 
         gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
@@ -233,20 +449,26 @@ public class ParticlesDemo implements GLEventListener {
         if (useOpenGLContext) {
             queue.finish();
         } else {
-            positionsTemp.rewind();
-            positionsMem.read(queue, positionsTemp, true);
-            gl.glBufferSubData(GL_ARRAY_BUFFER, 0, (int)NIOUtils.getSizeInBytes(positionsTemp), positionsTemp);
+            //interleavedColorAndPositionsMem.map(queue, CLMem.MapFlags.Read);
+            interleavedColorAndPositionsMem.read(queue, interleavedColorAndPositionsTemp, true);
+            gl.glBufferSubData(GL_ARRAY_BUFFER, 0, (int)NIOUtils.getSizeInBytes(interleavedColorAndPositionsTemp), interleavedColorAndPositionsTemp);
+            //interleavedColorAndPositionsMem.unmap(queue, interleavedColorAndPositionsTemp);
         }
 
         gl.glClear(GL_COLOR_BUFFER_BIT);
 
         gl.glColor3f(1.0f, 1.0f, 1.0f);
-        gl.glEnableClientState(GL_VERTEX_ARRAY);
-        gl.glVertexPointer(2, GL_FLOAT, 0, 0);
+        //gl.glEnableClientState(GL_VERTEX_ARRAY);
+        //gl.glEnableClientState(GL_COLOR_ARRAY);
+
+        //gl.glColorPointer(4, GL_UNSIGNED_BYTE, elementSize,
+        gl.glInterleavedArrays(GL_C4UB_V2F, elementSize, 0);
+        
         gl.glDrawArrays(GL_POINTS, 0, particlesCount);
         gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-        updateKernelArgs();
+        if (!paused)
+            updateKernelArgs();
     }
 
     @Override
@@ -258,15 +480,19 @@ public class ParticlesDemo implements GLEventListener {
 
     private synchronized void updateKernelArgs() {
         if (useOpenGLContext)
-            positionsMem.acquireGLObject(queue);
+            interleavedColorAndPositionsMem.acquireGLObject(queue);
 
         updateParticleKernel.setArgs(
             massesMem,
             velocitiesMem,
-            positionsMem,
-            new float[] {mouseX, mouseY},
+            interleavedColorAndPositionsMem,
+            new float[] {mouseX - width / 2f, height / 2f - mouseY},
             new float[] {width, height},
-            speedFactor
+            massFactor,
+            speedFactor,
+            slowDownFactor,
+            mouseWeight,
+            limitToScreen
         );
 
         try {
@@ -280,6 +506,6 @@ public class ParticlesDemo implements GLEventListener {
         }
 
         if (useOpenGLContext)
-            positionsMem.releaseGLObject(queue);
+            interleavedColorAndPositionsMem.releaseGLObject(queue);
     }
 }
