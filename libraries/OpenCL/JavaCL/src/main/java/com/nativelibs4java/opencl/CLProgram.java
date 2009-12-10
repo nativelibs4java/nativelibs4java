@@ -60,11 +60,45 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		}
 	};
 
-    CLProgram(CLContext context, cl_program entity) {
-        super(entity);
+    CLDevice[] devices;
+    CLProgram(CLContext context, CLDevice... devices) {
+        super(null, true);
         this.context = context;
+        this.devices = devices == null || devices.length == 0 ? context.getDevices() : devices;
     }
 
+	List<String> sources = new ArrayList<String>();
+    Map<CLDevice, cl_program> programByDevice = new HashMap<CLDevice, cl_program>();
+
+    public synchronized void allocate() {
+        if (entity != null)
+            throw new IllegalThreadStateException("Program was already allocated !");
+
+        String[] sources = this.sources.toArray(new String[this.sources.size()]);
+        NativeSize[] lengths = new NativeSize[sources.length];
+        for (int i = 0; i < sources.length; i++) {
+            lengths[i] = toNS(sources[i].length());
+        }
+        IntBuffer errBuff = IntBuffer.wrap(new int[1]);
+        cl_program program = CL.clCreateProgramWithSource(context.getEntity(), sources.length, sources, lengths, errBuff);
+        error(errBuff.get(0));
+        entity = program;
+    }
+    
+    @Override
+    protected synchronized cl_program getEntity() {
+        if (entity == null)
+            allocate();
+
+        return entity;
+    }
+	
+	public synchronized void addSource(String src) {
+        if (entity != null)
+            throw new IllegalThreadStateException("Program was already allocated : cannot add sources anymore.");
+        sources.add(src);
+	}
+	
 	/**
 	 * Get the source code of this program
 	 */
@@ -76,7 +110,12 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 	 * Get the binaries of the program (one for each device, in order)
 	 * @return
 	 */
-    public byte[][] getBinaries() {
+    public Map<CLDevice, byte[]> getBinaries() throws CLBuildException {
+        synchronized (this) {
+            if (!built)
+                build();
+        }
+        
 		Memory s = infos.getMemory(getEntity(), CL_PROGRAM_BINARY_SIZES);
 		int n = (int)s.getSize() / Native.SIZE_T_SIZE;
 		NativeSize[] sizes = readNSArray(s, n);
@@ -92,12 +131,14 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		}
 		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, toNS(ptrs.getSize()), ptrs, null));
 
-		byte[][] ret = new byte[n][];
-		for (int i = 0; i < n; i++) {
+		Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>(devices.length);
+        for (int i = 0; i < n; i++) {
+            CLDevice device = devices[i];
 			Memory bytes = binMems[i];
-			ret[i] = bytes.getByteArray(0, sizes[i].intValue());
+            ret.put(device, bytes.getByteArray(0, sizes[i].intValue()));
 		}
-		return ret;
+
+        return ret;
 	}
 
 	/**
@@ -110,6 +151,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     public void defineMacro(String name, String value) {
         createMacros();
         macros.put(name, value);
+    }
+    public void undefineMacro(String name) {
+        if (macros == null)
+            return;
+        macros.remove(name);
     }
 
     private void createMacros() {
@@ -132,10 +178,14 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
         return b.toString();
     }
+
+    boolean built;
 	/**
 	 * Returns the context of this program
 	 */
-    public CLProgram build() throws CLBuildException {
+    public synchronized CLProgram build() throws CLBuildException {
+        if (built)
+            throw new IllegalThreadStateException("Program was already built !");
 
         int err = CL.clBuildProgram(getEntity(), 0, null/*context.getDeviceIds()*/, getOptionsString(), null, null);
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
@@ -144,15 +194,14 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             Memory buffer = new Memory(bufLen);
 
             HashSet<String> errs = new HashSet<String>();
-            for (cl_device_id device_id : context.deviceIds) {
-                error(CL.clGetProgramBuildInfo(getEntity(), device_id, CL_PROGRAM_BUILD_LOG, toNS(bufLen), buffer, len));
+            for (CLDevice device : devices) {
+                error(CL.clGetProgramBuildInfo(getEntity(), device.getEntity(), CL_PROGRAM_BUILD_LOG, toNS(bufLen), buffer, len));
                 String s = buffer.getString(0);
                 errs.add(s);
             }
             throw new CLBuildException(this, errorString(err), errs);
-        } //else
-	//		error(err);
-		
+        }
+        built = true;
         return this;
     }
 
@@ -164,7 +213,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 	/**
 	 * Return all the kernels found in the program.
 	 */
-	public CLKernel[] createKernels() {
+	public CLKernel[] createKernels() throws CLBuildException {
+        synchronized (this) {
+            if (!built)
+                build();
+        }
 		IntByReference pCount = new IntByReference();
         error(CL.clCreateKernelsInProgram(getEntity(), 0, (cl_kernel[])null, pCount));
 
@@ -182,7 +235,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     /**
      * Find a kernel by its functionName, and optionally bind some arguments to it.
      */
-    public CLKernel createKernel(String name, Object... args) {
+    public CLKernel createKernel(String name, Object... args) throws CLBuildException {
+        synchronized (this) {
+            if (!built)
+                build();
+        }
         IntBuffer errBuff = IntBuffer.wrap(new int[1]);
         cl_kernel kernel = CL.clCreateKernel(getEntity(), name, errBuff);
         error(errBuff.get(0));

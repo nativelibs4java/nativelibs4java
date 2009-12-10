@@ -153,18 +153,15 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @return a program that needs to be built
 	 */
 	public CLProgram createProgram(String... srcs) {
-
-		String[] source = new String[srcs.length];
-		NativeSize[] lengths = new NativeSize[srcs.length];
-		for (int i = 0; i < srcs.length; i++) {
-			source[i] = srcs[i];
-			lengths[i] = toNS(srcs[i].length());
-		}
-		IntBuffer errBuff = IntBuffer.wrap(new int[1]);
-		cl_program program = CL.clCreateProgramWithSource(getEntity(), srcs.length, source, lengths, errBuff);
-		error(errBuff.get(0));
-		return new CLProgram(this, program);
+        return createProgram(null, srcs);
 	}
+
+    public CLProgram createProgram(CLDevice[] devices, String... srcs) {
+        CLProgram program = new CLProgram(this, devices);
+        for (String src : srcs)
+            program.addSource(src);
+        return program;
+    }
 
 	//cl_queue queue;
 	@Override

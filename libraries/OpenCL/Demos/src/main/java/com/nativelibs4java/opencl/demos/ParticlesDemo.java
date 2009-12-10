@@ -429,7 +429,10 @@ public class ParticlesDemo implements GLEventListener {
             String hsv2rgbSrc = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("HSVtoRGB.c"));
             String src = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("ParticlesDemo.c"));
             CLProgram program = context.createProgram(hsv2rgbSrc, src);
-            if ("true".equals(System.getProperty("updateColors")))// && context.isByteAddressableStoreSupported())
+            String updateColorsProp = System.getProperty("updateColors");
+            if ("true".equals(updateColorsProp) ||
+                    !"false".equals(updateColorsProp) && context.getDevices()[0].getVendor().toLowerCase().contains("nvidia")
+                    )// && context.isByteAddressableStoreSupported())
                 program.defineMacro("UPDATE_COLORS", "1");
             updateParticleKernel = program.build().createKernel("updateParticle");
 

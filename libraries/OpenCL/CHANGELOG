@@ -1,8 +1,14 @@
 Current development version (1.0-SNAPSHOT)
 
+- Changed semantics of offset & length arguments in typed CLxxxBuffer.read / write / map methods : now expressed in elements, not in bytes (e.g. 4 bytes per element for CLIntBuffer)
 - Added OpenGL interoperability methods to CLContext and CLQueue (can create a CLByteBuffer from an OpenGL buffer object, a CLImage2D/3D from an OpenGL 2D/3D texture or a renderbuffer).
-- Finished migration from NativeLong to NativeSize (breaks low-level bindings but fixes the OO bindings)
+- Added OpenGL-compatible context creation methods to JavaCL & CLPlatform classes
+- Created javacl-demos package..
+- Finished migration from NativeLong to NativeSize (changes only the low-level bindings)
 - Added profiling methods to CLEvent (+ facility CLDevice.createProfilingQueue())
+- Better JavaDoc for low-level bindings (links to Khronos online manual pages)
+- Added deferred program allocation : CLProgram.addSource(String), CLProgram.allocate() (called automatically)...
+- Added very simple OpenCL backend for UJMP (Universal Java Matrix Package), which does matrix multiplications in OpenCL.
 
 Version 1.0-beta-3 (r , 20091030)
 

@@ -45,7 +45,11 @@ public class InfoGettersTest {
     }
 
     CLKernel createKernel() {
-        return createProgram().createKernels()[0];
+        try {
+            return createProgram().createKernels()[0];
+        } catch (CLBuildException ex) {
+            throw new RuntimeException("Failed to create kernel", ex);
+        }
     }
 
     CLEvent createEvent() {
