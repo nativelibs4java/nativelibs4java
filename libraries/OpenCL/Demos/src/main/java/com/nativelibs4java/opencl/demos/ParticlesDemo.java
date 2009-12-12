@@ -236,6 +236,19 @@ public class ParticlesDemo implements GLEventListener {
                     demo.paused = !demo.paused;
             }
 
+            @Override
+            public void mouseExited(MouseEvent e) {
+                demo.hasMouse = false;
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                demo.hasMouse = true;
+            }
+
+
+
+
         });
         canvas.addMouseMotionListener(new MouseMotionAdapter() {
 
@@ -321,6 +334,7 @@ public class ParticlesDemo implements GLEventListener {
     static final float DEFAULT_SLOWDOWN_FACTOR = 0.7f;
     static final float DEFAULT_SPEED_FACTOR = 2f, DEFAULT_MASS_FACTOR = 1;
     float mouseX, mouseY, width, height, massFactor = DEFAULT_MASS_FACTOR, speedFactor = DEFAULT_SPEED_FACTOR, slowDownFactor = DEFAULT_SLOWDOWN_FACTOR;
+    boolean hasMouse = false;
     boolean limitToScreen = false;
 
     long lastMouseMove;
@@ -429,11 +443,6 @@ public class ParticlesDemo implements GLEventListener {
             String hsv2rgbSrc = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("HSVtoRGB.c"));
             String src = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("ParticlesDemo.c"));
             CLProgram program = context.createProgram(hsv2rgbSrc, src);
-            String updateColorsProp = System.getProperty("updateColors");
-            if ("true".equals(updateColorsProp) ||
-                    !"false".equals(updateColorsProp) && context.getDevices()[0].getVendor().toLowerCase().contains("nvidia")
-                    )// && context.isByteAddressableStoreSupported())
-                program.defineMacro("UPDATE_COLORS", "1");
             updateParticleKernel = program.build().createKernel("updateParticle");
 
             updateKernelArgs();
@@ -512,7 +521,7 @@ public class ParticlesDemo implements GLEventListener {
             massFactor,
             speedFactor,
             slowDownFactor,
-            mouseWeight,
+            hasMouse ? mouseWeight : 0,
             limitToScreen
         );
 
