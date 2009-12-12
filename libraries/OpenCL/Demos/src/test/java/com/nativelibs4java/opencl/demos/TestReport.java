@@ -5,7 +5,7 @@
 package com.nativelibs4java.opencl.demos;
 import com.nativelibs4java.opencl.*;
 
-import com.nativelibs4java.opencl.HardwareReport;
+import com.nativelibs4java.opencl.demos.HardwareReport;
 import java.util.List;
 import java.util.Map;
 import org.junit.Test;
