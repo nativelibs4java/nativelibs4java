@@ -101,7 +101,28 @@ public class ParticlesDemo implements GLEventListener {
         final GLCanvas canvas = createGLCanvas(1000, 800);
         f.getContentPane().add("Center", canvas);
         final AssertionError[] err = new AssertionError[1];
-        final ParticlesDemo demo = new ParticlesDemo(1024 * 100);
+
+        int[] sizes = new int[] {
+            1024,
+            1024 * 10,
+            1024 * 100,
+            1024 * 1000,
+            1024 * 10000,
+        };
+        String[] descs = new String[] {
+            "1K",
+            "10K",
+            "100K",
+            "1M",
+            "10M"
+        };
+        int defaultChoice = 2;
+        int choice = JOptionPane.showOptionDialog(null, "Number of particles ?", "JavaCL Particles Demo", JOptionPane.OK_OPTION, JOptionPane.QUESTION_MESSAGE, null, descs, descs[defaultChoice]);
+        if (choice < 0)
+            System.exit(0);
+
+        int nParticles = sizes[choice];
+        final ParticlesDemo demo = new ParticlesDemo(nParticles);
         final int nSpeeds = 21;
 
 
@@ -270,7 +291,7 @@ public class ParticlesDemo implements GLEventListener {
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         f.pack();
 
-        FPSAnimator animator = new FPSAnimator(canvas, 60);
+        FPSAnimator animator = new FPSAnimator(canvas, 30);
         animator.setRunAsFastAsPossible(true);
         animator.start();
         

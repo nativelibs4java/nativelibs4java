@@ -168,10 +168,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     }
     
     protected String getOptionsString() {
-        if (macros == null)
-            return null;
-
-        StringBuilder b = new StringBuilder();
+        StringBuilder b = new StringBuilder("-DJAVACL=1 ");
         if (macros != null)
             for (Map.Entry<String, String> m : macros.entrySet())
                 b.append("-D" + m.getKey() + "=" + m.getValue() + " ");
@@ -186,8 +183,18 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     public synchronized CLProgram build() throws CLBuildException {
         if (built)
             throw new IllegalThreadStateException("Program was already built !");
+        if (entity == null)
+            allocate();
 
-        int err = CL.clBuildProgram(getEntity(), 0, null/*context.getDeviceIds()*/, getOptionsString(), null, null);
+        int nDevices = devices.length;
+        cl_device_id[] deviceIds = null;
+        if (nDevices != 0) {
+            deviceIds = new cl_device_id[nDevices];
+            for (int i = 0; i < nDevices; i++)
+                deviceIds[i] = devices[i].getEntity();
+        }
+        int err = CL.clBuildProgram(getEntity(), nDevices, deviceIds, getOptionsString(), null, null);
+        //int err = CL.clBuildProgram(getEntity(), 0, null, getOptionsString(), null, null);
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
             NativeSizeByReference len = new NativeSizeByReference();
             int bufLen = 2048;
