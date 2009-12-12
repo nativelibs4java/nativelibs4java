@@ -2,7 +2,8 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.nativelibs4java.opencl;
+package com.nativelibs4java.opencl.demos;
+import com.nativelibs4java.opencl.*;
 
 import com.nativelibs4java.opencl.HardwareReport;
 import java.util.List;

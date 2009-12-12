@@ -4,11 +4,11 @@
   href="HardwareReport.jnlp"
 >
 	<information>
-	  <title>OpenCL4Java HardwareReport</title>
+	  <title>JavaCL HardwareReport</title>
 	  <vendor>Olivier Chafik</vendor>
 	  <homepage href="http://code.google.com/p/nativelibs4java/wiki/OpenCL" />
-	  <description>OpenCL HardwareReport</description>
-	  <description kind='tooltip'>OpenCL4Java HardwareReport</description>
+	  <description>JavaCL HardwareReport</description>
+	  <description kind='tooltip'>JavaCL HardwareReport</description>
 	  <offline-allowed/>
 	  <shortcut online="false">
 		  <desktop/>
@@ -19,13 +19,11 @@
 	  <all-permissions/>
 	</security>
 	<resources>
-		<!--
-		<jar href="http://somewhere/yourjar.jar" /> 
-		-->
 		<extension name="JavaCL" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL4Java/JavaCL.jnlp"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT.jar"/>
 		<j2se version="1.5+"/>
 	</resources>
 	<application-desc 
-		main-class="com.nativelibs4java.opencl.HardwareReport"
+		main-class="com.nativelibs4java.opencl.demos.HardwareReport"
 	/>
 </jnlp>

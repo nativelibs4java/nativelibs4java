@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
   codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL4Java/"
-  href="JavaCLDemos.jnlp"
+  href="ParticlesDemo.jnlp"
 >
 	<information>
-	  <title>JavaCL Demos</title>
+	  <title>JavaCL Particles Demos</title>
 	  <vendor>Olivier Chafik</vendor>
 	  <homepage href="http://code.google.com/p/javacl/" />
 	  <description>Demos for JavaCL (Object-Oriented OpenCL Library for Java)</description>
+	  <offline-allowed/>
+	  <shortcut online="false">
+		  <desktop/>
+		  <menu submenu="JavaCL (OpenCL for Java)"/>
+	  </shortcut>
 	</information>
 	<security>
 	  <all-permissions/>

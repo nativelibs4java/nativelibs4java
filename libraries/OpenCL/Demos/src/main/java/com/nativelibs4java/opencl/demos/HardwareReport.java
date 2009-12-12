@@ -16,7 +16,8 @@ GNU Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public License
 along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.nativelibs4java.opencl;
+package com.nativelibs4java.opencl.demos;
+import com.nativelibs4java.opencl.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
