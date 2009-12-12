@@ -32,6 +32,7 @@ import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.UIManager;
 
 /**
  * Small program that outputs html reports about the information returned by OpenCL for each device.
@@ -139,6 +140,7 @@ public class HardwareReport {
     }
 
     public static void main(String[] args) {
+        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch(Exception ex) {}
         SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
 
         try {

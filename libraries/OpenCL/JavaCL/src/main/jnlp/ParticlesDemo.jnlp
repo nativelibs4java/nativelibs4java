@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
-  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL4Java/"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL/"
   href="ParticlesDemo.jnlp"
 >
 	<information>
@@ -18,7 +18,7 @@
 	  <all-permissions/>
 	</security>
 	<resources>
-		<extension name="JavaCL" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL4Java/JavaCL.jnlp"/>
+		<extension name="JavaCL" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL/JavaCL.jnlp"/>
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT.jar"/>
 		
 		<property name="sun.java2d.noddraw" value="true"/>

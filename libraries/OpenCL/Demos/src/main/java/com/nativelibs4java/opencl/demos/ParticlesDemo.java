@@ -88,6 +88,7 @@ public class ParticlesDemo implements GLEventListener {
     public static void main(String[] args) {
         System.setProperty("sun.java2d.noddraw","true");
 
+        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch(Exception ex) {}
         SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
         
         JFrame f = new JFrame();

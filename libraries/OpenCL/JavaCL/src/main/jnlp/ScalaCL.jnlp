@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
-  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL4Java/"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL/"
   href="ScalaCL.jnlp"
 >
 	<information>
@@ -14,7 +14,7 @@
 	</security>
 	<resources>
 		<j2se version="1.5+"/>
-		<extension name="JavaCL" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL4Java/JavaCL.jnlp"/>
+		<extension name="JavaCL" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL/JavaCL.jnlp"/>
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/scalacl/1.0-SNAPSHOT/scalacl-1.0-SNAPSHOT.jar"/>
 	</resources>
 	
