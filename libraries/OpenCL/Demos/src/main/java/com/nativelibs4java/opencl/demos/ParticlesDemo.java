@@ -35,6 +35,8 @@ package com.nativelibs4java.opencl.demos;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.util.*;
+import com.ochafik.util.SystemUtils;
+import com.sun.jna.Platform;
 import java.io.IOException;
 import java.util.logging.*;
 import javax.media.opengl.*;
@@ -50,6 +52,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.Random;
@@ -84,6 +87,8 @@ public class ParticlesDemo implements GLEventListener {
     
     public static void main(String[] args) {
         System.setProperty("sun.java2d.noddraw","true");
+
+        SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
         
         JFrame f = new JFrame();
         Box tb = Box.createHorizontalBox();
@@ -367,10 +372,10 @@ public class ParticlesDemo implements GLEventListener {
     };
     volatile int iBlend = 0;
 
-    public void exception(Throwable ex) {
+    public static void exception(Throwable ex) {
         StringWriter sout = new StringWriter();
         ex.printStackTrace(new PrintWriter(sout));
-        JOptionPane.showMessageDialog(null, sout.toString(), "[Error] " + getClass().getSimpleName() + " JavaCL Demo", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, sout.toString(), "[Error] " + ParticlesDemo.class.getSimpleName() + " JavaCL Demo", JOptionPane.ERROR_MESSAGE);
     }
     @Override
     public void init(GLAutoDrawable glad) {
