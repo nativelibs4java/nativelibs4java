@@ -139,6 +139,8 @@ public class HardwareReport {
     }
 
     public static void main(String[] args) {
+        SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
+
         try {
             File file = new File(args.length == 0 ? "HardwareReport.html" : args[0]);
 
