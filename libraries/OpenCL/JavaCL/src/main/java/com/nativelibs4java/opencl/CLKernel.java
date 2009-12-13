@@ -85,6 +85,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
             setArg(i, (NativeSize) arg);
         } else if (arg instanceof CLMem) {
             setArg(i, (CLMem) arg);
+        } else if (arg instanceof CLEvent) {
+            setArg(i, (CLEvent) arg);
         } else if (arg instanceof CLSampler) {
             setArg(i, (CLSampler) arg);
         } else if (arg instanceof Integer) {
@@ -188,6 +190,10 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
 
     public void setArg(int index, CLMem mem) {
         error(CL.clSetKernelArg(getEntity(), index, toNS(Pointer.SIZE), new PointerByReference(mem.getEntity().getPointer()).getPointer()));
+    }
+
+    public void setArg(int index, CLEvent event) {
+        error(CL.clSetKernelArg(getEntity(), index, toNS(Pointer.SIZE), new PointerByReference(event.getEntity().getPointer()).getPointer()));
     }
 
     public void setArg(int index, CLSampler sampler) {
