@@ -32,12 +32,20 @@ import com.ochafik.lang.jnaerator.parser.TypeRef;
 import com.ochafik.lang.jnaerator.parser.VariablesDeclaration;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.util.listenable.Adapter;
+import com.ochafik.util.listenable.Pair;
 import com.ochafik.util.string.RegexUtils;
 import com.ochafik.util.string.StringUtils;
 import com.sun.jna.NativeLong;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -87,7 +95,7 @@ public class JavaCLGenerator extends JNAerator {
     Map<String, Set<String>> macrosByFile = new HashMap<String, Set<String>>();
     public SourceFiles parseSources(Feedback feedback, TypeConversion typeConverter) throws IOException, LexerException {
 		feedback.setStatus("Parsing native headers...");
-		return JNAeratorParser.parse(config, typeConverter, new MacroUseCallback() {
+		return JNAeratorParser.parse(config, typeConverter, null/*new MacroUseCallback() {
 
             @Override
             public void macroUsed(String path, String macroName) {
@@ -96,7 +104,7 @@ public class JavaCLGenerator extends JNAerator {
                     macrosByFile.put(path, macros = new HashSet<String>());
                 macros.add(macroName);
             }
-        });
+        }*/);
 	}
 
     static Set<String> openclPrimitives = new HashSet<String>();
@@ -156,6 +164,8 @@ public class JavaCLGenerator extends JNAerator {
                         String queueName = "commandQueue";
                         convArgs.add(new Arg(queueName, typeRef(CLQueue.class)));
                         List<Expression> convArgExpr = new ArrayList<Expression>(args.size());
+                        List<Statement> extraStatements = new ArrayList<Statement>();
+
                         int iArg = 1;
                         for (Arg arg : args) {
                             TypeRef tr = arg.createMutatedType();
@@ -163,16 +173,30 @@ public class JavaCLGenerator extends JNAerator {
                                 return;
 
                             try {
-                                TypeRef convTr = convertTypeToJavaCL(result, tr, TypeConversion.TypeConversionMode.PrimitiveOrBufferParameter, null);
-                                String convTrStr = convTr.toString();
-                                Expression argExpr;
-                                String argName = arg.getName() == null ? "arg" + iArg : arg.getName();
-                                if (convTrStr.equals(NativeSize.class.getName()) || convTrStr.equals(NativeLong.class.getName()))
-                                    argExpr = new Expression.New(tr, varRef(argName));
-                                else
-                                    argExpr = varRef(ident(argName));
+                                tr = result.typeConverter.resolveTypeDef(tr, libraryClassName, true);
+                                List<Modifier> mods = tr.getModifiers();
 
-                                convArgs.add(new Arg(argName, tr));
+                                TypeRef convTr;
+                                String argName = arg.getName() == null ? "arg" + iArg : arg.getName();
+                                Expression argExpr;
+                                    
+                                if (Modifier.__local.isContainedBy(mods)) {
+                                    argName += "ByteSize";
+                                    convTr = typeRef(Long.TYPE);
+                                    argExpr = new Expression.New(typeRef(CLKernel.LocalSize.class), varRef(argName));
+                                } else {
+                                    Conversion conv = convertTypeToJavaCL(result, argName, tr, TypeConversion.TypeConversionMode.PrimitiveOrBufferParameter, null);
+                                    convTr = conv.outerJavaTypeRef;
+                                    argExpr = conv.convertedExpr;
+                                    extraStatements.addAll(conv.extraStatements);
+                                    String convTrStr = convTr.toString();
+                                    if (convTrStr.equals(NativeSize.class.getName()) || convTrStr.equals(NativeLong.class.getName()))
+                                        argExpr = new Expression.New(tr, varRef(conv.argName));
+                                    else
+                                        argExpr = varRef(ident(argName));
+                                }
+
+                                convArgs.add(new Arg(argName, convTr));
 
                                 convArgExpr.add(varRef(argName));
 
@@ -185,8 +209,7 @@ public class JavaCLGenerator extends JNAerator {
                         String globalWSName = "globalWorkSizes", localWSName = "localWorkSizes", eventsName = "eventsToWaitFor";
                         convArgs.add(new Arg(globalWSName, typeRef(int[].class)));
                         convArgs.add(new Arg(localWSName, typeRef(int[].class)));
-                        convArgs.add(new Arg(eventsName, typeRef(CLEvent.class)));
-                        convArgs.add(Arg.createVarArgs());
+                        convArgs.add(new Arg(eventsName, typeRef(CLEvent.class)).setVarArg(true));
 
                         String functionName = function.getName().toString();
                         String kernelVarName = functionName + "_kernel";
@@ -194,7 +217,8 @@ public class JavaCLGenerator extends JNAerator {
                         Function method = new Function(Function.Type.JavaMethod, ident(functionName), typeRef(CLEvent.class));
                         method.addModifiers(Modifier.Public, Modifier.Synchronized);
                         method.setArgs(convArgs);
-                        method.setBody(block(
+                        List<Statement> statements = new ArrayList<Statement>();
+                        statements.add(
                             new Statement.If(
                                 expr(varRef(kernelVarName), Expression.BinaryOperator.IsEqual, new Expression.NullExpression()),
                                 stat(
@@ -207,13 +231,18 @@ public class JavaCLGenerator extends JNAerator {
                                     )
                                 ),
                                 null
-                            ),
+                            )
+                        );
+                        statements.addAll(extraStatements);
+                        statements.add(
                             stat(methodCall(
                                 varRef(kernelVarName),
                                 Expression.MemberRefStyle.Dot,
                                 "setArgs",
                                 convArgExpr.toArray(new Expression[convArgExpr.size()])
-                            )),
+                            ))
+                        );
+                        statements.add(
                             new Statement.Return(methodCall(
                                 varRef(kernelVarName),
                                 Expression.MemberRefStyle.Dot,
@@ -223,7 +252,8 @@ public class JavaCLGenerator extends JNAerator {
                                 varRef(localWSName),
                                 varRef(eventsName)
                             ))
-                        ));
+                        );
+                        method.setBody(block(statements.toArray(new Statement[statements.size()])));
                         out.addDeclaration(method);
                     }
                 };
@@ -270,11 +300,87 @@ public class JavaCLGenerator extends JNAerator {
         }
     }
 
-    private TypeRef convertTypeToJavaCL(Result result, TypeRef valueType, TypeConversionMode typeConversionMode, Identifier libraryClassName) throws UnsupportedConversionException {
-        TypeRef original = valueType;
-		valueType = result.typeConverter.resolveTypeDef(valueType, libraryClassName, true);
+    static class Conversion {
+        TypeRef outerJavaTypeRef;
+        Expression convertedExpr;
+        String argName;
+        List<Statement> extraStatements = new ArrayList<Statement>();
+    }
+    static Map<String, Pair<Integer, Class<?>>> buffersAndArityByType = new HashMap<String, Pair<Integer, Class<?>>>();
+    static Map<String, Pair<Integer, Class<?>>> arraysAndArityByType = new HashMap<String, Pair<Integer, Class<?>>>();
+    static {
+        Object[] data = new Object[] {
+            "char", Byte.TYPE, byte[].class, CLByteBuffer.class,
+            "long", Long.TYPE, long[].class, CLLongBuffer.class,
+            "int", Integer.TYPE, int[].class, CLIntBuffer.class,
+            "short", Short.TYPE, short[].class, CLShortBuffer.class,
+            "wchar_t", Character.TYPE, char[].class, CLShortBuffer.class,
+            "double", Double.TYPE, double[].class, CLDoubleBuffer.class,
+            "float", Float.TYPE, float[].class, CLFloatBuffer.class,
+            "bool", Boolean.TYPE, boolean[].class, null
+        };
+        for (int arity : new int[] { 1, 2, 4, 8, 16 }) {
+            String suffix = arity == 1 ? "" : arity +"";
+            for (int i = 0; i < data.length; i += 4) {
+                String rawType = (String)data[i];
+                Class<?> scalClass = (Class<?>)data[i + 1];
+                Class<?> arrClass = (Class<?>)data[i + 2];
+                Class<?> buffClass = (Class<?>)data[i + 3];
 
-        return valueType;
+                Pair<Integer, Class<?>>
+                    buffPair = new Pair<Integer, Class<?>>(arity, buffClass),
+                    arrPair = new Pair<Integer, Class<?>>(arity, arity == 1 ? scalClass : arrClass);
+                
+                for (String type : new String[] { rawType + suffix, "u" + rawType + suffix}) {
+                    buffersAndArityByType.put(type, buffPair);
+                    arraysAndArityByType.put(type, arrPair);
+                }
+            }
+        }
+    }
+    private Conversion convertTypeToJavaCL(Result result, String argName, TypeRef valueType, TypeConversionMode typeConversionMode, Identifier libraryClassName) throws UnsupportedConversionException {
+        Conversion ret = new Conversion();
+        ret.argName = argName;
+        ret.convertedExpr = varRef(argName);
+
+        if (valueType instanceof TypeRef.Pointer) {
+            TypeRef target = ((TypeRef.Pointer)valueType).getTarget();
+            if (target instanceof TypeRef.SimpleTypeRef) {
+                TypeRef.SimpleTypeRef starget = (TypeRef.SimpleTypeRef)target;
+
+                Pair<Integer, Class<?>> pair = buffersAndArityByType.get(starget.getName().toString());
+                if (pair != null) {
+                    ret.outerJavaTypeRef = typeRef(pair.getSecond());
+                    return ret;
+                }
+            }
+        } else if (valueType instanceof TypeRef.SimpleTypeRef) {
+            TypeRef.SimpleTypeRef sr = (TypeRef.SimpleTypeRef)valueType;
+            Pair<Integer, Class<?>> pair = arraysAndArityByType.get(sr.getName().toString());
+            if (pair != null) {
+                ret.outerJavaTypeRef = typeRef(pair.getSecond());
+                if (pair.getFirst().intValue() != 1) {
+                    ret.extraStatements.add(
+                        stat(
+                            methodCall(
+                                "checkArrayLength",
+                                varRef(ret.argName),
+                                expr(
+                                    Expression.Constant.Type.Int,
+                                    pair.getFirst()
+                                ),
+                                expr(
+                                    Expression.Constant.Type.String,
+                                    ret.argName
+                                )
+                            )
+                        )
+                    );
+                }
+                return ret;
+            }
+        }
+        throw new UnsupportedConversionException(valueType, "Unhandled type : " + valueType);
     }
 
     @Override
@@ -292,14 +398,15 @@ public class JavaCLGenerator extends JNAerator {
             if (!ext.equals("c") && !ext.equals("cl"))
                 continue;
 
-            String className = (srcParent == null || srcParent.length() == 0 ? "" : srcParent.replace('/', '.').replace('\\', '.') + ".") + name;
+            String packageName = srcParent == null || srcParent.length() == 0 ? null : srcParent.replace('/', '.').replace('\\', '.');
+            String className = (packageName == null ? "" : packageName + ".") + name;
 
 
             Struct interf = new Struct();
 			interf.addToCommentBefore("Wrapper around the OpenCL program " + name);
 			interf.addModifiers(Modifier.Public);
 			interf.setTag(ident(name));
-			Identifier libSuperInter = ident(CLAbstractUserProgram.class);
+			interf.addParent(ident(CLAbstractUserProgram.class));
 			interf.setType(Struct.Type.JavaClass);
 
             //result.declarationsConverter.convertStructs(null, null, interf, null)
@@ -323,6 +430,12 @@ public class JavaCLGenerator extends JNAerator {
 
             for (Set<String> set : macrosByFile.values()) {
                 for (String macroName : set) {
+                    if (macroName.equals("__LINE__") ||
+                            macroName.equals("__FILE__") ||
+                            macroName.equals("__COUNTER__") ||
+                            config.preprocessorConfig.macros.containsKey(macroName))
+                        continue;
+                    
                     String[] parts = macroName.split("_+");
                     List<String> newParts = new ArrayList<String>(parts.length);
                     for (String part : parts) {
@@ -340,6 +453,8 @@ public class JavaCLGenerator extends JNAerator {
             }
 
             PrintWriter out = result.classOutputter.getClassSourceWriter(className);
+            if (packageName != null)
+                out.println("package " + packageName + ";");
             out.println(interf);
             out.close();
         }

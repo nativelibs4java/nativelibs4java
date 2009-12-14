@@ -70,58 +70,75 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         }
     }
 
+    public static class LocalSize {
+        long size;
+        public LocalSize(long size) {
+            this.size = size;
+        }
+    }
     private static final NativeSize zeroNS = toNS(0);
     public static final Object NULL_POINTER_KERNEL_ARGUMENT = new Object() {};
-    public void setObjectArg(int i, Object arg) {
+    public void setObjectArg(int iArg, Object arg) {
 
         if (arg == null)
             throw new IllegalArgumentException("Null arguments are not accepted. Please use CLKernel.NULL_POINTER_KERNEL_ARGUMENT instead.");
 
         if (arg == NULL_POINTER_KERNEL_ARGUMENT) {
-            setArg(i, (NativeSize)zeroNS);
+            setArg(iArg, (NativeSize)zeroNS);
         } else if (arg instanceof NativeLong) {
-            setArg(i, (NativeLong) arg);
+            setArg(iArg, (NativeLong) arg);
         } else if (arg instanceof NativeSize) {
-            setArg(i, (NativeSize) arg);
+            setArg(iArg, (NativeSize) arg);
         } else if (arg instanceof CLMem) {
-            setArg(i, (CLMem) arg);
+            setArg(iArg, (CLMem) arg);
         } else if (arg instanceof CLEvent) {
-            setArg(i, (CLEvent) arg);
+            setArg(iArg, (CLEvent) arg);
         } else if (arg instanceof CLSampler) {
-            setArg(i, (CLSampler) arg);
+            setArg(iArg, (CLSampler) arg);
         } else if (arg instanceof Integer) {
-            setArg(i, (Integer) arg);
+            setArg(iArg, (Integer) arg);
+        } else if (arg instanceof LocalSize) {
+            setArg(iArg, (LocalSize)arg);
         } else if (arg instanceof Long) {
-            setArg(i, (Long) arg);
+            setArg(iArg, (Long) arg);
         } else if (arg instanceof Short) {
-            setArg(i, (Short) arg);
+            setArg(iArg, (Short) arg);
         } else if (arg instanceof Byte) {
-            setArg(i, (Byte) arg);
+            setArg(iArg, (Byte) arg);
         } else if (arg instanceof Float) {
-            setArg(i, (Float) arg);
+            setArg(iArg, (Float) arg);
         } else if (arg instanceof Double) {
-            setArg(i, (Double) arg);
+            setArg(iArg, (Double) arg);
 		} else if (arg instanceof Boolean) {
-            setArg(i, (byte)(Boolean.TRUE.equals(arg) ? 1 : 0));
+            setArg(iArg, (byte)(Boolean.TRUE.equals(arg) ? 1 : 0));
 		} else if (arg instanceof Buffer) {
-            setArg(i, (Buffer) arg);
+            setArg(iArg, (Buffer) arg);
 		} else if (arg instanceof int[]) {
-			setArg(i, IntBuffer.wrap((int[])arg));
+			setArg(iArg, IntBuffer.wrap((int[])arg));
         } else if (arg instanceof long[]) {
-			setArg(i, LongBuffer.wrap((long[])arg));
+			setArg(iArg, LongBuffer.wrap((long[])arg));
         } else if (arg instanceof short[]) {
-			setArg(i, ShortBuffer.wrap((short[])arg));
+			setArg(iArg, ShortBuffer.wrap((short[])arg));
         } else if (arg instanceof double[]) {
-			setArg(i, DoubleBuffer.wrap((double[])arg));
+			setArg(iArg, DoubleBuffer.wrap((double[])arg));
         } else if (arg instanceof float[]) {
-			setArg(i, FloatBuffer.wrap((float[])arg));
+			setArg(iArg, FloatBuffer.wrap((float[])arg));
         } else if (arg instanceof byte[]) {
-			setArg(i, ByteBuffer.wrap((byte[])arg));
+			setArg(iArg, ByteBuffer.wrap((byte[])arg));
+        } else if (arg instanceof boolean[]) {
+            boolean[] bools = (boolean[])arg;
+            byte[] bytes = new byte[bools.length];
+            for (int iValue = 0, n = bools.length; iValue < n; iValue++)
+                bytes[iValue] = (byte)(bools[iValue] ? 1 : 0);
+			setArg(iArg, ByteBuffer.wrap(bytes));
         } else {
 			throw new IllegalArgumentException("Cannot handle kernel arguments of type " + arg.getClass().getName() + ". Use CLKernel.get() and OpenCL4Java directly.");
         }
     }
 
+    public void setArg(int i, LocalSize arg) {
+        setLocalArg(i, arg.size);
+    }
     public void setLocalArg(int argIndex, long localArgByteLength) {
         error(CL.clSetKernelArg(getEntity(), argIndex, toNS(localArgByteLength), null));
     }

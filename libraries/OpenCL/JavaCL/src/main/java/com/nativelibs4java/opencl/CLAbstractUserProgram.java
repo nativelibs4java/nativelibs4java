@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.lang.reflect.Array;
 
 /*
  * To change this template, choose Tools | Templates
@@ -30,7 +31,15 @@ public abstract class CLAbstractUserProgram {
 	public CLProgram getProgram() {
 		return program;
 	}
-    
+
+    protected void checkArrayLength(Object[] arr, int length, String argName) {
+        if (arr == null)
+            throw new IllegalArgumentException("Argument " + argName + " cannot be null. Expected array of size " + length);
+
+        int len = Array.getLength(arr);
+        if (len != length)
+            throw new IllegalArgumentException("Argument " + argName + " must be an array of size " + length + ", but given array of size " + len);
+    }
     protected static String readRawSourceForClass(Class<?> c) throws IOException {
         String simpleName = c.getSimpleName();
 

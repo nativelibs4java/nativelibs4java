@@ -102,7 +102,7 @@ public class JavaCLGeneratorMojo
 
     public void generateAll(File root, File javaOutDir, File openCLOutDir) throws IOException, MojoExecutionException {
         List<File> sources = new ArrayList<File>();
-        listOpenCLFiles(root, sources);
+        listOpenCLFiles(root.getCanonicalFile(), sources);
 
         System.out.println("Found " + sources.size() + " files in " + root);
         String rootPath = root.getCanonicalPath();
