@@ -71,13 +71,25 @@ import javax.swing.plaf.basic.BasicMenuUI.ChangeHandler;
  */
 public class ParticlesDemo implements GLEventListener {
 
-    public static GLCanvas createGLCanvas(int width, int height) {
+    public static Component createGLCanvas(int width, int height) {
+        boolean useSwing = false;
+        if (Platform.isWindows() && !Platform.is64Bit()) {
+            int conf = JOptionPane.showConfirmDialog(null, 
+                "A bug in the OpenGL library (JOGL 2.x) might prevent the demo from working unless some amount of performance is sacrificed.\n" +
+                "This should be fixed in the future.\n" +
+                "Degrade performance for better stability ? (advised)", "JavaCL Demo : Performance Warning", JOptionPane.YES_NO_OPTION);
+            if (conf == JOptionPane.YES_OPTION)
+                useSwing = true;
+        }
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        GLCanvas glCanvas = new GLCanvas(new GLCapabilities(GLProfile.getDefault()));
-        glCanvas.setSize(width, height);
-        glCanvas.setIgnoreRepaint(true);
+        GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
+        Component canvas = useSwing ? new GLJPanel(caps) : new GLCanvas(caps);
+        canvas.setSize(width, height);
+        canvas.setIgnoreRepaint(true);
+        canvas.setPreferredSize(new Dimension(width, height));
+        canvas.setSize(new Dimension(width, height));
 
-        return glCanvas;
+        return canvas;
     }
 
     static File lastFile;
@@ -86,20 +98,19 @@ public class ParticlesDemo implements GLEventListener {
     volatile float mouseWeight = DEFAULT_MOUSE_WEIGHT;
     
     public static void main(String[] args) {
+
         System.setProperty("sun.java2d.noddraw","true");
 
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch(Exception ex) {}
         SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
         
-        JFrame f = new JFrame();
+        JFrame f = new JFrame("JavaCL Particles Demo");
         Box tb = Box.createHorizontalBox();
         final JButton openImage = new JButton("Import"), saveImage = new JButton("Export"), changeBlend = new JButton("Change Blend");
         tb.add(openImage);
         //tb.add(saveImage);
         tb.add(changeBlend);
         //final JCheckBox limi
-        final GLCanvas canvas = createGLCanvas(1000, 800);
-        f.getContentPane().add("Center", canvas);
         final AssertionError[] err = new AssertionError[1];
 
         int[] sizes = new int[] {
@@ -125,6 +136,19 @@ public class ParticlesDemo implements GLEventListener {
         final ParticlesDemo demo = new ParticlesDemo(nParticles);
         final int nSpeeds = 21;
 
+        boolean hasSharing = false;
+        for (CLPlatform platform : JavaCL.listPlatforms())
+            if (platform.isGLSharingSupported())
+                hasSharing = true;
+        
+        if (hasSharing) {
+            int conf = JOptionPane.showConfirmDialog(null,
+                "Do you want to enable the OpenCL/OpenGL context sharing ?\n" +
+                "(this is typically very unstable with most drivers, but shouldn't crash anything else than this demo)",
+                "JavaCL Demo : Stability Warning", JOptionPane.YES_NO_OPTION);
+            if (conf == JOptionPane.YES_OPTION)
+                demo.useOpenGLContext = true;
+        }
 
         final JSlider speedSlider = new JSlider(0, nSpeeds - 1);
         speedSlider.setValue(nSpeeds / 2);
@@ -150,6 +174,10 @@ public class ParticlesDemo implements GLEventListener {
             }
 
         });
+
+        final Component canvas = createGLCanvas(1000, 800);
+        f.setLayout(new BorderLayout());
+        f.add("Center", canvas);
 
         saveImage.addActionListener(new ActionListener() {
 
@@ -250,9 +278,8 @@ public class ParticlesDemo implements GLEventListener {
         });
         tb.add(sliderMass);
 
-        f.getContentPane().add("North", tb);
+        f.add("North", tb);
 
-        canvas.addGLEventListener(demo);
         canvas.addMouseListener(new MouseAdapter() {
 
             @Override
@@ -288,14 +315,31 @@ public class ParticlesDemo implements GLEventListener {
 
         });
 
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+            }
+        });
         f.pack();
 
-        FPSAnimator animator = new FPSAnimator(canvas, 30);
+        f.setVisible(true);
+
+        FPSAnimator animator;
+        if (canvas instanceof GLCanvas) {
+            ((GLCanvas)canvas).addGLEventListener(demo);
+            animator = new FPSAnimator(((GLCanvas)canvas), 30);
+        } else {
+            ((GLJPanel)canvas).addGLEventListener(demo);
+            animator = new FPSAnimator(((GLJPanel)canvas), 30);
+        }
+
         animator.setRunAsFastAsPossible(true);
         animator.start();
-        
-        f.setVisible(true);
+
+
 
     }
 
@@ -359,7 +403,7 @@ public class ParticlesDemo implements GLEventListener {
     int[] vbo = new int[1];
 
     static final float DEFAULT_SLOWDOWN_FACTOR = 0.7f;
-    static final float DEFAULT_SPEED_FACTOR = 2f, DEFAULT_MASS_FACTOR = 1;
+    static final float DEFAULT_SPEED_FACTOR = 2f, DEFAULT_MASS_FACTOR = 2;
     float mouseX, mouseY, width, height, massFactor = DEFAULT_MASS_FACTOR, speedFactor = DEFAULT_SPEED_FACTOR, slowDownFactor = DEFAULT_SLOWDOWN_FACTOR;
     boolean hasMouse = false;
     boolean limitToScreen = false;
@@ -416,6 +460,8 @@ public class ParticlesDemo implements GLEventListener {
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Sharing of context between OpenCL and OpenGL failed.\n" +
+                        "The demo should run fine without anyway", "JavaCL Demo", JOptionPane.OK_OPTION);
             }
             if (context == null) {
                 useOpenGLContext = false;
@@ -557,14 +603,13 @@ public class ParticlesDemo implements GLEventListener {
                 massFactor,
                 speedFactor,
                 slowDownFactor,
-                mouseWeight,
-                limitToScreen,
+                hasMouse ? mouseWeight : 0,
+                (byte)(limitToScreen ? 1 : 0),
                 new int[] { particlesCount }, new int[] { (int)wgs }
             );
-        } catch (CLException.InvalidKernelArgs ex) {
-            ex.printStackTrace();
-        } catch (CLBuildException ex) {
-            ex.printStackTrace();
+        } catch (Throwable ex) {
+            exception(ex);
+            System.exit(1);
         }
 
         if (useOpenGLContext)

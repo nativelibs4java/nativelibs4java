@@ -50,7 +50,7 @@ __kernel void updateParticle(
         float speedFactor,
         float slowDownFactor,
         float mouseWeight,
-        bool limitToScreen
+        char limitToScreen
 ) {
 	int id = get_global_id(0);
 

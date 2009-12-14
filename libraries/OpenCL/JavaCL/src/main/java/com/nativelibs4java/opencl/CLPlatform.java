@@ -373,7 +373,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 
     @InfoName("cl_khr_gl_sharing")
     public boolean isGLSharingSupported() {
-        return hasExtension("cl_khr_gl_sharing");
+        return hasExtension("cl_khr_gl_sharing") || hasExtension("cl_APPLE_gl_sharing");
     }
 
 }

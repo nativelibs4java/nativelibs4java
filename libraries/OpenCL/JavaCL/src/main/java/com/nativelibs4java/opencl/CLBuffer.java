@@ -208,9 +208,27 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
         ));
         return blocking ? null : CLEvent.createEvent(eventOut[0]);
     }
-	public ByteBuffer readBytes(CLQueue queue, CLEvent... eventsToWaitFor) {
-		return readBytes(queue, 0, getByteCount(), eventsToWaitFor);
-	}
+
+    public CLEvent writeBytes(CLQueue queue, long offset, long length, ByteBuffer in, boolean blocking, CLEvent... eventsToWaitFor) {
+        if (!in.isDirect()) {
+            blocking = true;
+            in = directCopy(in);
+        }
+
+        cl_event[] eventOut = blocking ? null : new cl_event[1];
+        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        error(CL.clEnqueueWriteBuffer(
+            queue.getEntity(),
+            getEntity(),
+            blocking ? CL_TRUE : 0,
+            toNS(offset),
+            toNS(length),
+            Native.getDirectBufferPointer(in),
+            evts == null ? 0 : evts.length, evts,
+            eventOut
+        ));
+        return blocking ? null : CLEvent.createEvent(eventOut[0]);
+    }
 
 	public ByteBuffer readBytes(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
 		ByteBuffer out = directBytes((int)getByteCount());
