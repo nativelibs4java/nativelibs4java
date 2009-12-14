@@ -10,6 +10,7 @@ import com.ochafik.lang.jnaerator.JNAerator.Feedback;
 import com.ochafik.lang.jnaerator.JNAeratorConfig;
 import com.ochafik.lang.jnaerator.SourceFiles;
 import org.apache.maven.plugin.AbstractMojo;
+import org.apache.maven.project.MavenProject;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
@@ -18,6 +19,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.ArrayList;
+import org.apache.maven.model.Resource;
 
 /**
  * Launch JNAerator to wrap native libraries in Java for use with JNA.
@@ -65,17 +67,26 @@ public class JavaCLGeneratorMojo
 
     /**
      * Output directory for OpenCL sources.
-     * @parameter expression="${project.build.directory}/generated-sources/main/resources"
+     * @parameter expression="${project.build.directory}/generated-resources/"
      * @optional
      */
     private File openCLOutputDirectory;
 
     /**
      * Output directory for OpenCL test sources.
-     * @parameter expression="${project.build.directory}/generated-sources/test/resources"
+     * @parameter expression="${project.build.directory}/generated-test-resources/"
      * @optional
      */
     private File testOpenCLOutputDirectory;
+
+    /**
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
+     * @since 1.0
+     */
+    private MavenProject project;
+
 
     static File canonizeDir(File f) throws IOException {
         if (!f.exists())
@@ -102,7 +113,8 @@ public class JavaCLGeneratorMojo
 
     public void generateAll(File root, File javaOutDir, File openCLOutDir) throws IOException, MojoExecutionException {
         List<File> sources = new ArrayList<File>();
-        listOpenCLFiles(root.getCanonicalFile(), sources);
+        root = root.getCanonicalFile();
+        listOpenCLFiles(root, sources);
 
         System.out.println("Found " + sources.size() + " files in " + root);
         String rootPath = root.getCanonicalPath();
@@ -117,7 +129,8 @@ public class JavaCLGeneratorMojo
                 javaOutDir.mkdirs();
             config.outputDir = javaOutDir;
             config.addSourceFile(file, null, false);
-
+            config.addRootDir(root);
+            
             final String fileName = file.getName();
             String filePath = file.getCanonicalPath();
             File openCLOutFile = new File(openCLOutPath + filePath.substring(rootPath.length()));
@@ -181,6 +194,17 @@ public class JavaCLGeneratorMojo
     {
         try
         {
+            project.addCompileSourceRoot(javaOutputDirectory.getAbsolutePath());
+            project.addTestCompileSourceRoot(testJavaOutputDirectory.getAbsolutePath());
+
+            Resource res = new Resource();
+            res.setDirectory(openCLOutputDirectory.getAbsolutePath());
+            project.addResource(res);
+
+            res = new Resource();
+            res.setDirectory(testOpenCLOutputDirectory.getAbsolutePath());
+            project.addTestResource(res);
+
             generateAll(sourcesDirectory, javaOutputDirectory, openCLOutputDirectory);
             generateAll(testSourcesDirectory, testJavaOutputDirectory, testOpenCLOutputDirectory);
         }

@@ -216,6 +216,8 @@ public class JavaCLGenerator extends JNAerator {
                         out.addDeclaration(new VariablesDeclaration(typeRef(CLKernel.class), new Declarator.DirectDeclarator(kernelVarName)));
                         Function method = new Function(Function.Type.JavaMethod, ident(functionName), typeRef(CLEvent.class));
                         method.addModifiers(Modifier.Public, Modifier.Synchronized);
+                        method.addThrown(typeRef(CLBuildException.class));
+
                         method.setArgs(convArgs);
                         List<Statement> statements = new ArrayList<Statement>();
                         statements.add(
@@ -387,7 +389,8 @@ public class JavaCLGenerator extends JNAerator {
     protected void generateLibraryFiles(SourceFiles sourceFiles, Result result) throws IOException {
         //super.generateLibraryFiles(sourceFiles, result);
         for (SourceFile sourceFile : sourceFiles.getSourceFiles()) {
-            String srcFilePath = result.config.relativizeFileForSourceComments(sourceFile.getElementFile());
+            String rawSrcFilePath = new File(sourceFile.getElementFile()).getCanonicalPath();
+            String srcFilePath = result.config.relativizeFileForSourceComments(rawSrcFilePath);
             File srcFile = new File(srcFilePath);
             String srcParent = srcFile.getParent();
             String srcFileName = srcFile.getName();
@@ -409,6 +412,31 @@ public class JavaCLGenerator extends JNAerator {
 			interf.addParent(ident(CLAbstractUserProgram.class));
 			interf.setType(Struct.Type.JavaClass);
 
+            String[] constrArgNames = new String[] { "context", "program" };
+            Class<?>[] constrArgTypes = new Class<?>[] { CLContext.class, CLProgram.class };
+            for (int i = 0; i < constrArgNames.length; i++) {
+                String argName = constrArgNames[i];
+
+                Function constr = new Function(Function.Type.JavaMethod, ident(name), null, new Arg(argName, typeRef(constrArgTypes[i])));
+                constr.addModifiers(Modifier.Public);
+                constr.addThrown(typeRef(IOException.class));
+                constr.setBody(
+                    block(
+                        stat(
+                            methodCall(
+                                "super",
+                                varRef(argName),
+                                methodCall(
+                                    "readRawSourceForClass",
+                                    classLiteral(typeRef(name))
+                                )
+                            )
+                        )
+                    )
+                );
+                interf.addDeclaration(constr);
+            }
+            
             //result.declarationsConverter.convertStructs(null, null, interf, null)
             Signatures signatures = new Signatures();//result.getSignaturesForOutputClass(fullLibraryClassName);
 			result.typeConverter.allowFakePointers = true;
@@ -483,7 +511,7 @@ public class JavaCLGenerator extends JNAerator {
                 "-noComp",
                 "-v",
                 "-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl",
-                "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl/com/nativelibs4java/opencl/demos/ParticlesDemo.c"
+                "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl/com/nativelibs4java/opencl/demos/ParticlesDemoProgram.c"
             }
         );
 	}

@@ -32,7 +32,7 @@ public abstract class CLAbstractUserProgram {
 		return program;
 	}
 
-    protected void checkArrayLength(Object[] arr, int length, String argName) {
+    protected void checkArrayLength(Object arr, int length, String argName) {
         if (arr == null)
             throw new IllegalArgumentException("Argument " + argName + " cannot be null. Expected array of size " + length);
 

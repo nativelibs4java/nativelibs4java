@@ -366,7 +366,8 @@ public class ParticlesDemo implements GLEventListener {
 
     long lastMouseMove;
     FloatBuffer velocities;
-    CLKernel updateParticleKernel;
+    //CLKernel updateParticleKernel;
+    ParticlesDemoProgram particlesProgram;
     CLFloatBuffer massesMem, velocitiesMem;
     CLByteBuffer interleavedColorAndPositionsMem;
     ByteBuffer interleavedColorAndPositionsTemp;
@@ -468,9 +469,10 @@ public class ParticlesDemo implements GLEventListener {
                 interleavedColorAndPositionsMem = context.createByteBuffer(Usage.InputOutput, interleavedColorAndPositionsTemp, false);
                 
             String hsv2rgbSrc = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("HSVtoRGB.c"));
-            String src = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("ParticlesDemo.c"));
-            CLProgram program = context.createProgram(hsv2rgbSrc, src);
-            updateParticleKernel = program.build().createKernel("updateParticle");
+            //String src = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("ParticlesDemo.c"));
+            CLProgram program = context.createProgram(hsv2rgbSrc);
+            particlesProgram = new ParticlesDemoProgram(program);
+            //updateParticleKernel = program.build().createKernel("updateParticle");
 
             updateKernelArgs();
 
@@ -539,26 +541,29 @@ public class ParticlesDemo implements GLEventListener {
         if (useOpenGLContext)
             interleavedColorAndPositionsMem.acquireGLObject(queue);
 
-        updateParticleKernel.setArgs(
-            massesMem,
-            velocitiesMem,
-            interleavedColorAndPositionsMem,
-            new float[] {mouseX - width / 2f, height / 2f - mouseY},
-            new float[] {width, height},
-            massFactor,
-            speedFactor,
-            slowDownFactor,
-            hasMouse ? mouseWeight : 0,
-            limitToScreen
-        );
-
         try {
             long maxwgs = queue.getDevice().getMaxWorkGroupSize();
             long wgs = 32;
             if (wgs > maxwgs)
                 wgs = maxwgs;
-            updateParticleKernel.enqueueNDRange(queue, new int[] { particlesCount }, new int[] { (int)wgs });
+
+            particlesProgram.updateParticle(
+                queue,
+                massesMem,
+                velocitiesMem,
+                interleavedColorAndPositionsMem.asCLFloatBuffer(),
+                new float[] {mouseX - width / 2f, height / 2f - mouseY},
+                new float[] {width, height},
+                massFactor,
+                speedFactor,
+                slowDownFactor,
+                mouseWeight,
+                limitToScreen,
+                new int[] { particlesCount }, new int[] { (int)wgs }
+            );
         } catch (CLException.InvalidKernelArgs ex) {
+            ex.printStackTrace();
+        } catch (CLBuildException ex) {
             ex.printStackTrace();
         }
 
