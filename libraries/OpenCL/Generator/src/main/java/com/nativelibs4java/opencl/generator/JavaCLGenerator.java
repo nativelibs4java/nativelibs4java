@@ -453,7 +453,7 @@ public class JavaCLGenerator extends JNAerator {
             int declCount = interf.getDeclarations().size();
 			result.declarationsConverter.convertFunctions(result.functionsByLibrary.get(library), signatures, interf, fullLibraryClassName);
             
-            boolean hasKernels = declCount > interf.getDeclarations().size();
+            boolean hasKernels = interf.getDeclarations().size() > declCount;
             if (!hasKernels)
                 continue;
 
