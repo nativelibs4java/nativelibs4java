@@ -46,10 +46,10 @@ public class UJMPOpenCLTest {
     @Test
 	public void testMult() {
 
-        DenseDoubleMatrix2D m = (DenseDoubleMatrix2D)MatrixFactory.dense(2, 2);
-        DenseDoubleMatrix2D v = (DenseDoubleMatrix2D)MatrixFactory.dense(2, 1);
+        DenseDoubleMatrix2D m = (DenseDoubleMatrix2D)MatrixFactory.dense(3, 3);
+        DenseDoubleMatrix2D v = (DenseDoubleMatrix2D)MatrixFactory.dense(3, 1);
 
-        double[] min = new double[] { 0, 1, 1, 0 };
+        double[] min = new double[] { 0, 0, 1, 0, 1, 0, 1, 0, 0 };
         write(min, m);
         DoubleBuffer back = read(m);
         for (int i = 0, cap = back.capacity(); i < cap; i++) {
@@ -71,8 +71,10 @@ public class UJMPOpenCLTest {
 
 		assertEquals(0, mout.getDouble(0, 1), 0);
 		assertEquals(0, mout.getDouble(1, 0), 0);
-        assertEquals(1, mout.getDouble(0, 0), 0);
+
+        assertEquals(0, mout.getDouble(0, 0), 0);
 		assertEquals(1, mout.getDouble(1, 1), 0);
+        assertEquals(0, mout.getDouble(2, 2), 0);
 
 		write(new double[] { 1, 0 }, v);
 		DenseDoubleMatrix2D vout = (DenseDoubleMatrix2D)m.mtimes(v);

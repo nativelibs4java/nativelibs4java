@@ -29,11 +29,12 @@
  *
  * ***********************************************************************/ 
 
-package com.nativelibs4java.opencl.demos;
+package com.nativelibs4java.opencl.demos.particles;
 
 
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.CLMem.Usage;
+import com.nativelibs4java.opencl.demos.SetupUtils;
 import com.nativelibs4java.util.*;
 import com.ochafik.util.SystemUtils;
 import com.sun.jna.Platform;

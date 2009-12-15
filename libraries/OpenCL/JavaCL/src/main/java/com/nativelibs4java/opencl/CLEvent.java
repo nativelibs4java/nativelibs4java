@@ -71,6 +71,12 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		return new CLEvent(evt);
 	}
 
+    static CLEvent createEvent(cl_event[] evt1) {
+		if (evt1 == null || evt1[0] == null)
+			return null;
+		return new CLEvent(evt1[0]);
+	}
+
 
 	/**
 	 * Wait for this event, blocking the caller thread independently of any queue until all of the command associated with this events completes.

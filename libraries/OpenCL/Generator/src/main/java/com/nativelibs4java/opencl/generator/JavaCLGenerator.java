@@ -159,6 +159,9 @@ public class JavaCLGenerator extends JNAerator {
                         if (isCallback)
                             return;
 
+                        if (!result.config.functionsAccepter.adapt(function))
+                            return;
+
                         List<Arg> args = function.getArgs();
                         List<Arg> convArgs = new ArrayList<Arg>(args.size());
                         String queueName = "commandQueue";
@@ -446,7 +449,13 @@ public class JavaCLGenerator extends JNAerator {
 			result.declarationsConverter.convertConstants(library, result.definesByLibrary.get(library), sourceFiles, signatures, interf, fullLibraryClassName);
 			result.declarationsConverter.convertStructs(result.structsByLibrary.get(library), signatures, interf, fullLibraryClassName);
 			//result.declarationsConverter.convertCallbacks(result.callbacksByLibrary.get(library), signatures, interf, fullLibraryClassName);
+
+            int declCount = interf.getDeclarations().size();
 			result.declarationsConverter.convertFunctions(result.functionsByLibrary.get(library), signatures, interf, fullLibraryClassName);
+            
+            boolean hasKernels = declCount > interf.getDeclarations().size();
+            if (!hasKernels)
+                continue;
 
             //for ()
 
@@ -511,7 +520,7 @@ public class JavaCLGenerator extends JNAerator {
                 "-noComp",
                 "-v",
                 "-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl",
-                "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl/com/nativelibs4java/opencl/demos/ParticlesDemoProgram.c"
+                "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl/com/nativelibs4java/opencl/demos/particles/ParticlesDemoProgram.c"
             }
         );
 	}

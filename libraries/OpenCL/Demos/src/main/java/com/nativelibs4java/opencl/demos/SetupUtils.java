@@ -74,7 +74,7 @@ public class SetupUtils {
     public static void exception(Throwable ex) {
         StringWriter sout = new StringWriter();
         ex.printStackTrace(new PrintWriter(sout));
-        JOptionPane.showMessageDialog(null, sout.toString(), "[Error] " + ParticlesDemo.class.getSimpleName() + " JavaCL Demo", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(null, sout.toString(), "Error in JavaCL Demo", JOptionPane.ERROR_MESSAGE);
     }
     
 }

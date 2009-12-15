@@ -29,6 +29,16 @@ public class IOUtils {
     public static String readText(InputStream in) throws IOException {
         return readText(new InputStreamReader(in));
     }
+    public static String readTextClose(InputStream in) throws IOException {
+        return readTextClose(new InputStreamReader(in));
+    }
+    public static String readTextClose(Reader in) throws IOException {
+        try {
+            return readText(in);
+        } finally {
+            in.close();
+        }
+    }
     public static String readText(Reader in) throws IOException {
         StringBuffer b = new StringBuffer();
         BufferedReader bin = new BufferedReader(in);

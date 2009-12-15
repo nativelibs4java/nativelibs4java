@@ -430,10 +430,18 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java type " + bufferClass.getName());
 	}
 
+    /**
+     * @param kind
+     * @param buffer input/output buffer
+     * @param copy If false, the buffer must be direct and might be used directly as the primary storage of the buffer data by OpenCL, or might be cached. Calling map/unmap is then necessary to make sure the cache is consistent with the buffer value.
+     * @return
+     */
 	public CLByteBuffer createByteBuffer(CLMem.Usage kind, Buffer buffer, boolean copy) {
             if (!buffer.isDirect()) {
                 if (!copy)
-                    throw new UnsupportedOperationException("Cannot create an OpenCL buffer object out of a non-direct NIO buffer without copy.");
+                    throw new IllegalArgumentException("Cannot create an OpenCL buffer object out of a non-direct NIO buffer without copy.");
+                if (kind == CLMem.Usage.Output)
+                    throw new IllegalArgumentException("Output NIO buffers must be direct.");
                 buffer = NIOUtils.directCopy(buffer);
             }
             return createBuffer(buffer, -1, kind.getIntFlags() | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), copy);

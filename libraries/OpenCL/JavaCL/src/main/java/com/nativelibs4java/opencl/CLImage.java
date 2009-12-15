@@ -76,7 +76,7 @@ public abstract class CLImage extends CLMem {
 		/*if (!out.isDirect()) {
 
 		}*/
-		cl_event[] eventOut = blocking ? null : new cl_event[1];
+		cl_event[] eventOut = blocking ? null : eventsToWaitFor == null ? null : new cl_event[1];
 		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
@@ -88,7 +88,7 @@ public abstract class CLImage extends CLMem {
 			evts == null ? 0 : evts.length, evts,
 			eventOut
 		));
-		return blocking ? null : CLEvent.createEvent(eventOut[0]);
+		return CLEvent.createEvent(eventOut);
 	}
 
 	protected CLEvent write(CLQueue queue, long[] origin, long[] region, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -96,7 +96,7 @@ public abstract class CLImage extends CLMem {
 		if (indirect)
 			in = directCopy(in);
 
-		cl_event[] eventOut = blocking ? null : new cl_event[1];
+		cl_event[] eventOut = blocking ? null : eventsToWaitFor == null ? null : new cl_event[1];
 		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
@@ -108,7 +108,7 @@ public abstract class CLImage extends CLMem {
 			evts == null ? 0 : evts.length, evts,
 			eventOut
 		));
-		CLEvent evt = blocking ? null : CLEvent.createEvent(eventOut[0]);
+		CLEvent evt = CLEvent.createEvent(eventOut);
 
 		if (indirect && !blocking) {
 			final Buffer toHold = in;
