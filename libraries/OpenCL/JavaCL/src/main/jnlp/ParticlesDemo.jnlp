@@ -23,7 +23,7 @@
 		
 		<property name="sun.java2d.noddraw" value="true"/>
       		<extension name="jogl-all-awt" href="http://download.java.net/media/jogl/jsr-231-2.x-webstart/jogl-all-awt.jnlp" />
-      		<j2se version="1.5+"/>
+      		<j2se version="1.6+"/>
 	</resources>
 	<application-desc 
 		main-class="com.nativelibs4java.opencl.demos.ParticlesDemo"
