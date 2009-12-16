@@ -42,6 +42,9 @@
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>javacl-generator</artifactId>
 			<version>${opencl4java.version}</version>
+			<!--configuration>
+				<javaOutputDirectory>${project.build.directory}/../src/main/java</javaOutputDirectory>
+			</configuration-->
 			<executions>
 			  <execution>
 				<phase>generate-sources</phase>
