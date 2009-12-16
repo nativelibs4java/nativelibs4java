@@ -18,11 +18,43 @@ import static com.nativelibs4java.util.NIOUtils.*;
 
 public class ReductionTest {
 
+    CLContext context;
+    CLQueue queue;
+
+    @Before
+    public void init() {
+        context = createBestContext();
+        queue = context.createDefaultQueue();
+    }
+    
+    @Test
+    public void testMinMax() {
+        try {
+			CLIntBuffer input = context.createIntBuffer(CLMem.Usage.Input, IntBuffer.wrap(new int[] {
+                1110, 22, 35535, 3, 1
+            }), true);
+
+            int maxReductionSize = 2;
+            IntBuffer result = NIOUtils.directInts(1);
+            
+            Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.SimpleOperation.Min, ReductionUtils.Type.Int, 1);
+            reductor.reduce(queue, input, input.getElementCount(), result, maxReductionSize);
+            queue.finish();
+            assertEquals(1, result.get(0));
+
+            reductor = ReductionUtils.createReductor(context, ReductionUtils.SimpleOperation.Max, ReductionUtils.Type.Int, 1);
+            reductor.reduce(queue, input, input.getElementCount(), result, maxReductionSize);
+            queue.finish();
+            assertEquals(35535, result.get(0));
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            assertTrue(ex.toString(), false);
+        }
+    }
     @Test
     public void testAddReduction() {
         try {
-			CLContext context = createBestContext();
-            CLQueue queue = context.createDefaultQueue();
 			int dataSize = 12345;
             int channels = 1;
             int maxReductionSize = 64;
@@ -42,7 +74,7 @@ public class ReductionTest {
             
             IntBuffer out = NIOUtils.directInts(channels);
             
-            Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, ReductionUtils.Type.Int, channels);
+            Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.SimpleOperation.Add, ReductionUtils.Type.Int, channels);
 
             CLEvent evt = reductor.reduce(queue, in, dataSize, out, maxReductionSize);
             //if (evt != null)
@@ -59,6 +91,7 @@ public class ReductionTest {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            assertTrue(ex.toString(), false);
         }
     }
 }

@@ -78,7 +78,8 @@ public class SobelFilterDemo {
         CLEvent evtGradMax = floatMinReductor.reduce(queue, gradients, dataSize, gradientMax, 32, evt);
         CLEvent evtDirMax = floatMinReductor.reduce(queue, directions, dataSize, dirMax, 32, evt);
 
-        CLEvent.waitFor(evtGradMax, evtDirMax);
+        queue.finish();
+        //CLEvent.waitFor(evtGradMax, evtDirMax);
 
         CLIntBuffer gradientPixels = context.createIntBuffer(CLMem.Usage.Output, dataSize);
         CLIntBuffer directionPixels = context.createIntBuffer(CLMem.Usage.Output, dataSize);
@@ -103,6 +104,7 @@ public class SobelFilterDemo {
             SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
 
             BufferedImage image = ImageIO.read(SobelFilterDemo.class.getResourceAsStream("test.jpg"));
+            image = image.getSubimage(0, 0, 128, 128);
 
             JFrame f = new JFrame("JavaCL Sobel Filter Demo");
             f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -38,9 +38,6 @@ public class ReductionUtils {
         Multiply,
         Min,
         Max;
-        //MinMax,
-        //Average,
-        //AverageMinMax
     }
     public enum Type {
         Int, Long, Short, Byte, Double, Float, Half;
@@ -136,9 +133,14 @@ public class ReductionUtils {
         return new Pair<String, Map<String, String>>(getSource(), macros);
     }
     public interface Reductor<B extends Buffer> {
-        public CLEvent reduce(CLQueue queue, CLBuffer<B> input, int inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor);
-        public CLEvent reduce(CLQueue queue, CLBuffer<B> input, int inputLength, CLBuffer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor);
+        public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor);
+        public B reduce(CLQueue queue, CLBuffer<B> input, long inputLength, int maxReductionSize, CLEvent... eventsToWaitFor);
+        public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, CLBuffer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor);
     }
+    /*public interface WeightedReductor<B extends Buffer, W extends Buffer> {
+        public CLEvent reduce(CLQueue queue, CLBuffer<B> input, CLBuffer<W> weights, long inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor);
+        public CLEvent reduce(CLQueue queue, CLBuffer<B> input, CLBuffer<W> weights, long inputLength, CLBuffer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor);
+    }*/
     static int getNextPowerOfTwo(int i) {
         int shifted = 0;
         boolean lost = false;
@@ -159,6 +161,8 @@ public class ReductionUtils {
 
     public static <B extends Buffer> Reductor<B> createReductor(final CLContext context, Operation op, Type valueType, final int valueChannels) throws CLBuildException {
         try {
+
+
             Pair<String, Map<String, String>> codeAndMacros = getReductionCodeAndMacros(op, valueType, valueChannels);
             CLProgram program = context.createProgram(codeAndMacros.getFirst());
             program.defineMacros(codeAndMacros.getValue());
@@ -169,13 +173,18 @@ public class ReductionUtils {
             final CLKernel kernel = kernels[0];
             return new Reductor<B>() {
 				@Override
-                public CLEvent reduce(CLQueue queue, CLBuffer<B> input, int inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor) {
-                    Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, inputLength, (Class<B>)output.getClass(), maxReductionSize, eventsToWaitFor);
+                public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor) {
+                    Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, (int)inputLength, (Class<B>)output.getClass(), maxReductionSize, eventsToWaitFor);
                     return outAndEvts.getFirst().read(queue, 0, valueChannels, output, false, outAndEvts.getSecond());
                 }
                 @Override
-                public CLEvent reduce(CLQueue queue, CLBuffer<B> input, int inputLength, CLBuffer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor) {
-                    Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, inputLength, output.typedBufferClass(), maxReductionSize, eventsToWaitFor);
+                public B reduce(CLQueue queue, CLBuffer<B> input, long inputLength, int maxReductionSize, CLEvent... eventsToWaitFor) {
+                    //B output = NIOUtils.directBuffer(input.typedBufferClass(), inputLength);
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
+                @Override
+                public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, CLBuffer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor) {
+                    Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, (int)inputLength, output.typedBufferClass(), maxReductionSize, eventsToWaitFor);
                     return outAndEvts.getFirst().copyTo(queue, 0, valueChannels, output, 0, outAndEvts.getSecond());
                 }
                 public Pair<CLBuffer<B>, CLEvent[]> reduceHelper(CLQueue queue, CLBuffer<B> input, int inputLength, Class<B> outputClass, int maxReductionSize, CLEvent... eventsToWaitFor) {
@@ -184,7 +193,9 @@ public class ReductionUtils {
 					CLBuffer<B> currentOutput = null;
 					CLEvent[] eventsArr = new CLEvent[1];
 					int[] inputLengthArr = new int[1];
-					
+
+                    int maxWIS = (int)queue.getDevice().getMaxWorkItemSizes()[0];
+
                     while (inputLength > 1) {
                         int nInCurrentDepth = inputLength / maxReductionSize;
 						if (inputLength > nInCurrentDepth * maxReductionSize)
@@ -196,9 +207,12 @@ public class ReductionUtils {
                         if (currentOutput == null)
                             currentOutput = (CLBuffer<B>)(tempBuffers[iOutput] = context.createBuffer(CLMem.Usage.InputOutput, maxReductionSize * valueChannels, outputClass));
 						
-                        kernel.setArgs(currentInput, inputLength, maxReductionSize, currentOutput);
-						inputLengthArr[0] = inputLength;
-						eventsArr[0] = kernel.enqueueNDRange(queue, inputLengthArr, UNIT_INT_ARRAY, eventsToWaitFor);
+                        synchronized (kernel) {
+                            kernel.setArgs(currentInput, inputLength, maxReductionSize, currentOutput);
+                            inputLengthArr[0] = inputLength;
+                            int wis = (inputLength & 1) == 0 && maxWIS > 1 ? 2 : 1;
+                            eventsArr[0] = kernel.enqueueNDRange(queue, inputLengthArr, new int[] { wis }, eventsToWaitFor);
+                        }
 						eventsToWaitFor = eventsArr;
 						inputLength = nInCurrentDepth;
                         depth++;

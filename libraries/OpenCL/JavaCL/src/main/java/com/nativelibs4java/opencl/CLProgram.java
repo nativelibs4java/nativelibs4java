@@ -18,6 +18,7 @@
 */
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
@@ -79,7 +80,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         for (int i = 0; i < sources.length; i++) {
             lengths[i] = toNS(sources[i].length());
         }
-        IntBuffer errBuff = IntBuffer.wrap(new int[1]);
+        IntBuffer errBuff = NIOUtils.directInts(1);
         cl_program program = CL.clCreateProgramWithSource(context.getEntity(), sources.length, sources, lengths, errBuff);
         error(errBuff.get(0));
         entity = program;
@@ -197,16 +198,22 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         //int err = CL.clBuildProgram(getEntity(), 0, null, getOptionsString(), null, null);
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
             NativeSizeByReference len = new NativeSizeByReference();
-            int bufLen = 2048;
+            int bufLen = 2048 * 32; //TODO find proper size
             Memory buffer = new Memory(bufLen);
 
             HashSet<String> errs = new HashSet<String>();
-            for (CLDevice device : devices) {
-                error(CL.clGetProgramBuildInfo(getEntity(), device.getEntity(), CL_PROGRAM_BUILD_LOG, toNS(bufLen), buffer, len));
+            if (deviceIds == null) {
+                error(CL.clGetProgramBuildInfo(getEntity(), null, CL_PROGRAM_BUILD_LOG, toNS(bufLen), buffer, len));
                 String s = buffer.getString(0);
                 errs.add(s);
-            }
-            throw new CLBuildException(this, errorString(err), errs);
+            } else
+                for (cl_device_id device : deviceIds) {
+                    error(CL.clGetProgramBuildInfo(getEntity(), device, CL_PROGRAM_BUILD_LOG, toNS(bufLen), buffer, len));
+                    String s = buffer.getString(0);
+                    errs.add(s);
+                }
+                
+            throw new CLBuildException(this, "Compilation failure ! (code = " + err + ")"/*errorString(err)*/, errs);
         }
         built = true;
         return this;
@@ -247,7 +254,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             if (!built)
                 build();
         }
-        IntBuffer errBuff = IntBuffer.wrap(new int[1]);
+        IntBuffer errBuff = NIOUtils.directInts(1);
         cl_kernel kernel = CL.clCreateKernel(getEntity(), name, errBuff);
         error(errBuff.get(0));
 
