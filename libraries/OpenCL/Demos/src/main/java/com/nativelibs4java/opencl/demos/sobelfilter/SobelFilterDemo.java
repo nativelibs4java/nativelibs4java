@@ -39,6 +39,33 @@ import javax.swing.JSplitPane;
 
 public class SobelFilterDemo {
 
+     public static void main(String[] args) {
+        try {
+            SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
+
+            BufferedImage image = ImageIO.read(SobelFilterDemo.class.getResourceAsStream("test.jpg"));
+            image = image.getSubimage(0, 0, 256, 256);
+
+            JFrame f = new JFrame("JavaCL Sobel Filter Demo");
+            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+            SobelFilterDemo demo = new SobelFilterDemo();
+			Pair<BufferedImage, BufferedImage> imgs = demo.computeSobel(image);
+			f.getContentPane().add("Center",
+				new JSplitPane(JSplitPane.VERTICAL_SPLIT,
+					new JScrollPane(new JLabel(new ImageIcon(imgs.getFirst()))),
+					new JScrollPane(new JLabel(new ImageIcon(imgs.getSecond())))
+				)
+			);
+
+            f.pack();
+            f.setVisible(true);
+        } catch (Throwable th) {
+            th.printStackTrace();
+            SetupUtils.exception(th);
+        }
+    }
+     
     CLContext context;
     CLQueue queue;
     SimpleSobel sobel;
@@ -93,37 +120,12 @@ public class SobelFilterDemo {
         return new Pair<BufferedImage, BufferedImage>(gradientsImage, directionsImage);
     }
     static BufferedImage getRowsOrderImage(CLQueue queue, CLIntBuffer buffer, int width, int height, int[] pixelsTemp, CLEvent... eventsToWaitFor) {
+        queue.finish();
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         int[] pixels = pixelsTemp == null ? new int[width * height] : pixelsTemp;
         buffer.read(queue, eventsToWaitFor).get(pixels);
         img.setRGB(0, 0, width,height, pixels, 0, width);
         return img;
-    }
-     public static void main(String[] args) {
-        try {
-            SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
-
-            BufferedImage image = ImageIO.read(SobelFilterDemo.class.getResourceAsStream("test.jpg"));
-            image = image.getSubimage(0, 0, 128, 128);
-
-            JFrame f = new JFrame("JavaCL Sobel Filter Demo");
-            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-            SobelFilterDemo demo = new SobelFilterDemo();
-			Pair<BufferedImage, BufferedImage> imgs = demo.computeSobel(image);
-			f.getContentPane().add("Center",
-				new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-					new JScrollPane(new JLabel(new ImageIcon(imgs.getFirst()))),
-					new JScrollPane(new JLabel(new ImageIcon(imgs.getSecond())))
-				)
-			);
-			
-            f.pack();
-            f.setVisible(true);
-        } catch (Throwable th) {
-            th.printStackTrace();
-            SetupUtils.exception(th);
-        }
     }
 }
 
