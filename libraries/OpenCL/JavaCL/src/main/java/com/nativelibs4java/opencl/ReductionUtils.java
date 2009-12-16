@@ -171,12 +171,12 @@ public class ReductionUtils {
 				@Override
                 public CLEvent reduce(CLQueue queue, CLBuffer<B> input, int inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor) {
                     Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, inputLength, (Class<B>)output.getClass(), maxReductionSize, eventsToWaitFor);
-                    return outAndEvts.getFirst().read(queue, 0, inputLength * valueChannels, output, false, outAndEvts.getSecond());
+                    return outAndEvts.getFirst().read(queue, 0, valueChannels, output, false, outAndEvts.getSecond());
                 }
                 @Override
                 public CLEvent reduce(CLQueue queue, CLBuffer<B> input, int inputLength, CLBuffer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor) {
                     Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, inputLength, output.typedBufferClass(), maxReductionSize, eventsToWaitFor);
-                    return outAndEvts.getFirst().copyTo(queue, 0, inputLength * valueChannels, output, 0, outAndEvts.getSecond());
+                    return outAndEvts.getFirst().copyTo(queue, 0, valueChannels, output, 0, outAndEvts.getSecond());
                 }
                 public Pair<CLBuffer<B>, CLEvent[]> reduceHelper(CLQueue queue, CLBuffer<B> input, int inputLength, Class<B> outputClass, int maxReductionSize, CLEvent... eventsToWaitFor) {
                     CLBuffer<?>[] tempBuffers = new CLBuffer<?>[2];
