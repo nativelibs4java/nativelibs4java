@@ -40,4 +40,9 @@ public class CLCharBuffer extends CLBuffer<CharBuffer> {
     protected void put(CharBuffer out, CharBuffer in) {
         out.put(in);
     }
+
+    @Override
+    protected Class<CharBuffer> typedBufferClass() {
+        return CharBuffer.class;
+    }
 }

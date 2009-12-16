@@ -41,4 +41,9 @@ public class CLLongBuffer extends CLBuffer<LongBuffer> {
         out.put(in);
     }
 
+    @Override
+    protected Class<LongBuffer> typedBufferClass() {
+        return LongBuffer.class;
+    }
+
 }

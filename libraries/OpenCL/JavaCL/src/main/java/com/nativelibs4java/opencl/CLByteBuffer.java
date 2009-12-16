@@ -48,4 +48,9 @@ public class CLByteBuffer extends CLBuffer<ByteBuffer> {
         out.put(in);
     }
 
+    @Override
+    protected Class<ByteBuffer> typedBufferClass() {
+        return ByteBuffer.class;
+    }
+
 }

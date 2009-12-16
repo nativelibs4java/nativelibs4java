@@ -41,5 +41,10 @@ public class CLShortBuffer extends CLBuffer<ShortBuffer> {
         out.put(in);
     }
 
+    @Override
+    protected Class<ShortBuffer> typedBufferClass() {
+        return ShortBuffer.class;
+    }
+
 
 }

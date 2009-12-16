@@ -40,4 +40,9 @@ public class CLIntBuffer extends CLBuffer<IntBuffer> {
     protected void put(IntBuffer out, IntBuffer in) {
         out.put(in);
     }
+
+    @Override
+    protected Class<IntBuffer> typedBufferClass() {
+        return IntBuffer.class;
+    }
 }

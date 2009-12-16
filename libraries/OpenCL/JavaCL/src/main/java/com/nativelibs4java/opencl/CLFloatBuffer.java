@@ -42,4 +42,9 @@ public class CLFloatBuffer extends CLBuffer<FloatBuffer> {
         out.put(in);
     }
 
+    @Override
+    protected Class<FloatBuffer> typedBufferClass() {
+        return FloatBuffer.class;
+    }
+
 }
