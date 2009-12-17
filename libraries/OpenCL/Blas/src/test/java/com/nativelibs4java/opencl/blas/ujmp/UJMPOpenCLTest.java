@@ -72,9 +72,9 @@ public class UJMPOpenCLTest {
 		assertEquals(0, mout.getDouble(0, 1), 0);
 		assertEquals(0, mout.getDouble(1, 0), 0);
 
-        assertEquals(0, mout.getDouble(0, 0), 0);
+        assertEquals(1, mout.getDouble(0, 0), 0);
 		assertEquals(1, mout.getDouble(1, 1), 0);
-        assertEquals(0, mout.getDouble(2, 2), 0);
+        assertEquals(1, mout.getDouble(2, 2), 0);
 
 		write(new double[] { 1, 0 }, v);
 		DenseDoubleMatrix2D vout = (DenseDoubleMatrix2D)m.mtimes(v);
