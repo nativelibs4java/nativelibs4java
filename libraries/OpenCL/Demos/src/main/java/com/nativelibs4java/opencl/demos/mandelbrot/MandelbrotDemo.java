@@ -2,6 +2,7 @@ package com.nativelibs4java.opencl.demos.mandelbrot;
 
 //package bbbob.gparallel.mandelbrot;
 import com.nativelibs4java.opencl.*;
+import com.nativelibs4java.opencl.demos.SetupUtils;
 import com.nativelibs4java.util.IOUtils;
 import static com.nativelibs4java.opencl.OpenCL4Java.*;
 import com.nativelibs4java.util.NIOUtils;
@@ -20,6 +21,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
+import javax.swing.UIManager;
 
 
 /**
@@ -30,6 +32,9 @@ public class MandelbrotDemo {
     //boundary of view on mandelbrot set
 
     public static void main(String[] args) throws IOException, CLBuildException {
+
+        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch(Exception ex) {}
+        SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
 
         //Setup variables for parameters
 
