@@ -106,7 +106,7 @@ public class JavaCLGeneratorMojo
             for (File ff : f.listFiles())
                 listOpenCLFiles(ff, out);
         } else {
-            if (n.endsWith(".c") || n.endsWith(".cl"))
+            if (n.endsWith(".c") || n.endsWith(".cl") || n.endsWith(".opencl"))
                 out.add(f);
         }
     }

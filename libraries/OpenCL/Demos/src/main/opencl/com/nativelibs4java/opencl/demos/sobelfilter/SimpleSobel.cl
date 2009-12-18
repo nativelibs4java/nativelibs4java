@@ -31,13 +31,17 @@ __kernel void simpleSobel(
 		__global float* directionOutput
 ) {
     int x = get_global_id(0), y = get_global_id(1);
-    //int i = get_global_id(0);
-    int i = y * width + i;
+	if (x >= width || y >= height)
+		return;
+		
+    int i = y * width + x;
     
-    int in = i - width, is = i + width;
     uint2 total = (uint2)0;
     
-    bool allowEast = x < width - 1, allowSouth = x < height - 1, allowNorth = y, allowWest = x;
+	//total += PIXEL_TO_INTENSITIES(input[i], 1, 1);
+	
+    int in = i - width, is = i + width;
+    bool allowEast = x < width - 1, allowSouth = y < height - 1, allowNorth = y, allowWest = x;
     if (allowNorth) {
     		if (allowWest)
     			total += PIXEL_TO_INTENSITIES(input[in - 1], MX_NW, MY_NW);
@@ -57,7 +61,7 @@ __kernel void simpleSobel(
     			total += PIXEL_TO_INTENSITIES(input[is - 1], MX_SW, MY_SW);
     		total += PIXEL_TO_INTENSITIES(input[is], MX_S, MY_S);
     		if (allowEast)
-    			total += PIXEL_TO_INTENSITIES(input[is + 1], MX_NE, MY_NE);
+    			total += PIXEL_TO_INTENSITIES(input[is + 1], MX_SE, MY_SE);
     }
     
     uint2 square = total * total;
@@ -67,5 +71,6 @@ __kernel void simpleSobel(
 
 __kernel void normalizeImage(__global const float* input, float maxValue, __global uchar4* output) {
 	int i = get_global_id(0);
-	output[i] = (uchar4)(uchar)(input[i] / maxValue * 255);
+	uchar v = input[i] / maxValue * 255;
+	output[i] = (uchar4)(v, v, v, 255);
 }

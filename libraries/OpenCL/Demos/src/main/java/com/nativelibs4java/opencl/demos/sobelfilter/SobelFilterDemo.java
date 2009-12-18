@@ -43,8 +43,11 @@ public class SobelFilterDemo {
         try {
             SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
 
-            BufferedImage image = ImageIO.read(SobelFilterDemo.class.getResourceAsStream("test.jpg"));
-            image = image.getSubimage(0, 0, 256, 256);
+            BufferedImage image = ImageIO.read(SobelFilterDemo.class.getResourceAsStream("test3.jpg"));
+            int width = image.getWidth(), height = image.getHeight();
+            int step = 32;
+            image = image.getSubimage(0, 0, (width / step) * step, (height / step) * step);
+            
 
             JFrame f = new JFrame("JavaCL Sobel Filter Demo");
             f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -52,10 +55,15 @@ public class SobelFilterDemo {
             SobelFilterDemo demo = new SobelFilterDemo();
 			Pair<BufferedImage, BufferedImage> imgs = demo.computeSobel(image);
 			f.getContentPane().add("Center",
-				new JSplitPane(JSplitPane.VERTICAL_SPLIT,
-					new JScrollPane(new JLabel(new ImageIcon(imgs.getFirst()))),
-					new JScrollPane(new JLabel(new ImageIcon(imgs.getSecond())))
-				)
+				//new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+				//	new JScrollPane(new JLabel(new ImageIcon(image))),
+                    new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                        new JScrollPane(new JLabel(new ImageIcon(imgs.getFirst()))),
+                        new JScrollPane(new JLabel(new ImageIcon(imgs.getSecond())))
+                    ) {{
+                        setResizeWeight(0.5);
+                    }}
+                //)
 			);
 
             f.pack();
@@ -80,6 +88,11 @@ public class SobelFilterDemo {
 
     }
 
+    public static int roundUp(int group_size, int global_size)
+    {
+        int r = global_size % group_size;
+        return r == 0 ? global_size : global_size + group_size - r;
+    }
     public Pair<BufferedImage, BufferedImage> computeSobel(BufferedImage img) throws IOException, CLBuildException {
         int width = img.getWidth(), height = img.getHeight();
 
@@ -100,22 +113,28 @@ public class SobelFilterDemo {
             new int[] { 1, 1 }
         );
 
-        FloatBuffer gradientMax = NIOUtils.directFloats(1),
-                dirMax = NIOUtils.directFloats(1);
-        CLEvent evtGradMax = floatMinReductor.reduce(queue, gradients, dataSize, gradientMax, 32, evt);
-        CLEvent evtDirMax = floatMinReductor.reduce(queue, directions, dataSize, dirMax, 32, evt);
+        //queue.finish();
+        
+        //float[] test = new float[1000];
+        //gradients.read(queue).get(test);
 
-        queue.finish();
+        float gradientMax = floatMinReductor.reduce(queue, gradients, dataSize, 32, evt).get();
+        float dirMax = floatMinReductor.reduce(queue, directions, dataSize, 32, evt).get();
+
         //CLEvent.waitFor(evtGradMax, evtDirMax);
 
         CLIntBuffer gradientPixels = context.createIntBuffer(CLMem.Usage.Output, dataSize);
         CLIntBuffer directionPixels = context.createIntBuffer(CLMem.Usage.Output, dataSize);
 
-        CLEvent evtGrad = sobel.normalizeImage(queue, gradients, gradientMax.get(0), gradientPixels.asCLByteBuffer(), new int[] { dataSize }, null);
-        CLEvent evtDir = sobel.normalizeImage(queue, directions, dirMax.get(0), directionPixels.asCLByteBuffer(), new int[] { dataSize }, null);
+        //CLEvent evtGrad =
+        sobel.normalizeImage(queue, gradients, gradientMax, gradientPixels.asCLByteBuffer(), new int[] { dataSize }, null);
+        //CLEvent evtDir =
+        sobel.normalizeImage(queue, directions, dirMax, directionPixels.asCLByteBuffer(), new int[] { dataSize }, null);
 
-        BufferedImage gradientsImage = getRowsOrderImage(queue, gradientPixels, width, height, pixels, evtGrad);
-        BufferedImage directionsImage = getRowsOrderImage(queue, directionPixels, width, height, pixels, evtDir);
+        queue.finish();
+        
+        BufferedImage gradientsImage = getRowsOrderImage(queue, gradientPixels, width, height, pixels);//, evtGrad);
+        BufferedImage directionsImage = getRowsOrderImage(queue, directionPixels, width, height, pixels);//, evtDir);
 
         return new Pair<BufferedImage, BufferedImage>(gradientsImage, directionsImage);
     }

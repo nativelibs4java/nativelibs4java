@@ -139,6 +139,22 @@ public class NIOUtils
         return ByteBuffer.allocateDirect(size * 8).order(ByteOrder.nativeOrder()).asDoubleBuffer();
     }
 
+    public static <B extends Buffer> B directBuffer(int size, Class<B> bufferClass) {
+        if (IntBuffer.class.isAssignableFrom(bufferClass))
+            return (B)directInts(size);
+		if (LongBuffer.class.isAssignableFrom(bufferClass))
+            return (B)directLongs(size);
+		if (ShortBuffer.class.isAssignableFrom(bufferClass))
+            return (B)directShorts(size);
+		if (ByteBuffer.class.isAssignableFrom(bufferClass))
+            return (B)directBytes(size);
+		if (DoubleBuffer.class.isAssignableFrom(bufferClass))
+            return (B)directDoubles(size);
+		if (FloatBuffer.class.isAssignableFrom(bufferClass))
+            return (B)directFloats(size);
+
+        throw new UnsupportedOperationException("Cannot create direct buffers of type " + bufferClass.getName());
+	}
 	/**
 	 * Get the size in bytes of a buffer
 	 */

@@ -7,6 +7,7 @@ package com.nativelibs4java.opencl;
 
 
 import com.nativelibs4java.util.IOUtils;
+import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.util.listenable.Pair;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -179,8 +180,11 @@ public class ReductionUtils {
                 }
                 @Override
                 public B reduce(CLQueue queue, CLBuffer<B> input, long inputLength, int maxReductionSize, CLEvent... eventsToWaitFor) {
-                    //B output = NIOUtils.directBuffer(input.typedBufferClass(), inputLength);
-                    throw new UnsupportedOperationException("Not supported yet.");
+                    B output = NIOUtils.directBuffer((int)inputLength, input.typedBufferClass());
+                    CLEvent evt = reduce(queue, input, inputLength, output, maxReductionSize, eventsToWaitFor);
+                    //queue.finish();
+                    evt.waitFor();
+                    return output;
                 }
                 @Override
                 public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, CLBuffer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor) {
