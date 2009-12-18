@@ -43,10 +43,11 @@ public class SobelFilterDemo {
         try {
             SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
 
-            BufferedImage image = ImageIO.read(SobelFilterDemo.class.getResourceAsStream("test3.jpg"));
+            BufferedImage image = ImageIO.read(SobelFilterDemo.class.getResourceAsStream("test4.jpg"));
             int width = image.getWidth(), height = image.getHeight();
-            int step = 32;
-            image = image.getSubimage(0, 0, (width / step) * step, (height / step) * step);
+            //int step = 32;
+           // image = image.getSubimage(0, 0, (width / step) * step, (height / step) * step);
+            image = image.getSubimage(0, 0, 512, 512);//(width / step) * step, (height / step) * step);
             
 
             JFrame f = new JFrame("JavaCL Sobel Filter Demo");
