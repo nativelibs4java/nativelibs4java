@@ -46,8 +46,12 @@ abstract class CLAbstractEntity<T extends PointerType> {
 	 * Note that release() does not necessarily free the object immediately : OpenCL maintains a reference count for all its objects, and an object released on the Java side might still be pointed to by running kernels or queued operations.
 	 */
 	public synchronized void release() {
-		if (entity == null && !nullable)
-			throw new RuntimeException("This " + getClass().getSimpleName() + " has already been released ! Besides, keep in mind that manual release is not necessary, as it will automatically be done by the garbage collector.");
+		if (entity == null) {
+            if (!nullable)
+                throw new RuntimeException("This " + getClass().getSimpleName() + " has already been released ! Besides, keep in mind that manual release is not necessary, as it will automatically be done by the garbage collector.");
+            else
+                return;
+        }
 
 		doRelease();
 	}

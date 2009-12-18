@@ -182,8 +182,9 @@ public class ReductionUtils {
                 public B reduce(CLQueue queue, CLBuffer<B> input, long inputLength, int maxReductionSize, CLEvent... eventsToWaitFor) {
                     B output = NIOUtils.directBuffer((int)inputLength, input.typedBufferClass());
                     CLEvent evt = reduce(queue, input, inputLength, output, maxReductionSize, eventsToWaitFor);
-                    //queue.finish();
-                    evt.waitFor();
+                    queue.finish();
+                    //TODO
+                    //evt.waitFor();
                     return output;
                 }
                 @Override
