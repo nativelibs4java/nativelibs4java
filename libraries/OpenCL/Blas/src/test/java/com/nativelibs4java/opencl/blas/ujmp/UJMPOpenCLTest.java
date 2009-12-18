@@ -54,7 +54,7 @@ public class UJMPOpenCLTest {
         DoubleBuffer back = read(m);
         for (int i = 0, cap = back.capacity(); i < cap; i++) {
             assertEquals(min[i], back.get(i), 0);
-            System.out.println(back.get(i));
+            //System.out.println(back.get(i));
         }
         DenseDoubleMatrix2D mout = (DenseDoubleMatrix2D) m.mtimes(m);
 
@@ -76,12 +76,13 @@ public class UJMPOpenCLTest {
 		assertEquals(1, mout.getDouble(1, 1), 0);
         assertEquals(1, mout.getDouble(2, 2), 0);
 
-		write(new double[] { 1, 0 }, v);
+		write(new double[] { 1, 0, 0}, v);
 		DenseDoubleMatrix2D vout = (DenseDoubleMatrix2D)m.mtimes(v);
 		//System.out.println(v);
 		//System.out.println(vout);
 
 		assertEquals(0, vout.getDouble(0, 0), 0);
-		assertEquals(1, vout.getDouble(1, 0), 0);
+        assertEquals(0, vout.getDouble(1, 0), 0);
+		assertEquals(1, vout.getDouble(2, 0), 0);
 	}
 }
