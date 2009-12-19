@@ -16,6 +16,7 @@
 
   <modules>
     <module>Structs</module>
+    <module>JDyncall</module>
     <module>Parent</module>
   </modules>
   
