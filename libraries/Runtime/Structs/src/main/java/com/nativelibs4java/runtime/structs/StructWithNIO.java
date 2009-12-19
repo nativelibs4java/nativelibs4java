@@ -15,7 +15,6 @@ import java.nio.ByteBuffer;
  */
 public class StructWithNIO<S extends Struct<S>> extends Struct<S> {
 
-	// Technical overhead per struct = 3 + 1 pointers
 	protected ByteBuffer buffer;
 
     public StructWithNIO(StructIOWithNIO io) {
@@ -30,9 +29,10 @@ public class StructWithNIO<S extends Struct<S>> extends Struct<S> {
     }
 
     @Override
-    public synchronized void setPointer(com.sun.jna.Pointer pointer) {
+    public synchronized S setPointer(com.sun.jna.Pointer pointer) {
         super.setPointer(pointer);
         this.buffer = null;
+        return (S)this;
     }
 
     public synchronized void setBuffer(ByteBuffer buffer) {
