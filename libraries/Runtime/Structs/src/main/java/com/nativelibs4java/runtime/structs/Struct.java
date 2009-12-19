@@ -2,11 +2,11 @@ package com.nativelibs4java.runtime.structs;
 import com.nativelibs4java.runtime.structs.StructIO.FieldIO.Refreshable;
 import com.sun.jna.*;
 import java.nio.*;
-public class Struct<S extends Struct<S>> implements Refreshable, NativeMapped {
+public class Struct<S extends Struct<S>> implements Refreshable<S>, NativeMapped {
     
     private final StructIO<S> io;
 	protected volatile Pointer pointer;
-	Refreshable[] refreshableFields;
+	Object[] refreshableFields;
 
 	protected Struct(StructIO<S> io) {
 		this.io = io;
@@ -25,17 +25,13 @@ public class Struct<S extends Struct<S>> implements Refreshable, NativeMapped {
         return pointer;
     }
 
+    @Override
     public synchronized S setPointer(Pointer pointer) {
         if (pointer == null || pointer.equals(Pointer.NULL))
             throw new NullPointerException("Cannot set null pointer as struct address !");
         
         this.pointer = pointer;
         return (S)this;
-    }
-
-    @Override
-    public void setPointer(Pointer p, long offset) {
-        setPointer(p.share(offset));
     }
 
     public void write() {

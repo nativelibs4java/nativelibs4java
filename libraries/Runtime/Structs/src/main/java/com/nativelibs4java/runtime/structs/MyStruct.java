@@ -7,6 +7,8 @@ package com.nativelibs4java.runtime.structs;
 
 import com.nativelibs4java.runtime.ann.Field;
 import com.sun.jna.Pointer;
+import java.nio.IntBuffer;
+import java.util.Arrays;
 
 /**
  *
@@ -26,6 +28,19 @@ public class MyStruct extends Struct<MyStruct> {
         return io.getIntField(0, this);
     }
 
+    @Field(index=1, bits=1)
+    public int isOk() {
+        return io.getIntField(1, this);
+    }
+
+    @Field(index=2, arraySize=10)
+    public IntBuffer values() {
+        return io.getIntArrayField(2, this);
+    }
+    public void values(IntBuffer buf) {
+        io.setIntArrayField(2, this, buf);
+    }
+
     public MyStruct toto(int toto) {
         io.setIntField(0, this, toto);
         return this;
@@ -34,6 +49,10 @@ public class MyStruct extends Struct<MyStruct> {
     public static void main(String[] args) {
         MyStruct s = new MyStruct();
         s.toto(10);
+        s.values(IntBuffer.wrap(new int[] { 1, 2, 3}));
+        int[] out = new int[3];
+        s.values().get(out);
+        System.out.println(Arrays.toString(out));
         System.out.println(s.toto());
         System.out.println(s);
     }

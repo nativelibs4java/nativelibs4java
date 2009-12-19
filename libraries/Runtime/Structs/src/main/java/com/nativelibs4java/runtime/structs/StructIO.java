@@ -3,15 +3,23 @@ import com.nativelibs4java.runtime.ann.Alignment;
 import com.nativelibs4java.runtime.ann.Field;
 import com.nativelibs4java.runtime.ann.ByValue;
 import com.nativelibs4java.runtime.structs.StructIO.FieldIO.Refreshable;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.PointerType;
 import java.lang.reflect.*;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 public class StructIO<S extends Struct<S>> {
 
     static Map<Class<?>, StructIO<?>> structIOs = new HashMap<Class<?>, StructIO<?>>();
@@ -28,15 +36,15 @@ public class StructIO<S extends Struct<S>> {
     }
 
     public static class FieldIO {
-        public interface Refreshable {
-            public void setPointer(Pointer p, long offset);
+        public interface Refreshable<T> {
+            public T setPointer(Pointer p);
             public Pointer getPointer();
         }
         String name;
 		int index = -1;
 		int byteOffset, byteLength;
 		int bitOffset, bitLength = -1;
-        int arraySize = -1;
+        int arraySize = 1;
         boolean isBitField, isByValue, isNativeSize, isCLong;
         int refreshableFieldIndex = -1;
 		Type valueType;
@@ -45,7 +53,7 @@ public class StructIO<S extends Struct<S>> {
 	protected final Class<S> structClass;
 	protected volatile FieldIO[] fields;
 	private int structSize = -1;
-    private int structAlignment = 1; //TODO get platform default alignment
+    private int structAlignment = -1;
 	
 	public StructIO(Class<S> structClass) {
 		this.structClass = structClass;
@@ -56,7 +64,7 @@ public class StructIO<S extends Struct<S>> {
         if (alignment != 1) {
             int r = size % alignment;
             if (r != 0)
-                size += structAlignment - r;
+                size += alignment - r;
         }
         return size;
     }
@@ -73,8 +81,8 @@ public class StructIO<S extends Struct<S>> {
 	}
     
     /// TODO only create array for fields that need an object representation. Can even return null if none qualify.
-	Refreshable[] createRefreshableFieldsArray() {
-        return new Refreshable[fields.length];
+	Object[] createRefreshableFieldsArray() {
+        return new Object[fields.length];
     }
 	
 	public int getStructSize() {
@@ -91,7 +99,14 @@ public class StructIO<S extends Struct<S>> {
      * Orders the fields to match the actual structure layout
      */
 	protected void orderFields(List<FieldIO> fields) {
-		
+		Collections.sort(fields, new Comparator<FieldIO>() {
+
+            @Override
+            public int compare(FieldIO o1, FieldIO o2) {
+                return o1.index - o2.index;
+            }
+
+        });
 	}
 
     protected boolean acceptFieldGetter(Method method) {
@@ -139,16 +154,12 @@ public class StructIO<S extends Struct<S>> {
 		orderFields(list);
 
         Alignment alignment = structClass.getAnnotation(Alignment.class);
-        if (alignment != null)
-            structAlignment = alignment.value();
+        structAlignment = alignment != null ? alignment.value() : 1; //TODO get platform default alignment
 
         int refreshableFieldCount = 0;
         structSize = 0;
         int cumulativeBitOffset = 0;
         for (FieldIO field : list) {
-            if (!field.valueClass.isPrimitive())
-                field.refreshableFieldIndex = refreshableFieldCount++;
-
             field.byteOffset = structSize;
             if (field.valueClass.isPrimitive()) {
                 if (field.valueClass == Integer.TYPE)
@@ -173,11 +184,34 @@ public class StructIO<S extends Struct<S>> {
                     StructIO<?> io = StructIO.getInstance((Class<? extends Struct>)field.valueClass);
                     field.byteLength = io.getStructSize();
                 }
+                field.refreshableFieldIndex = refreshableFieldCount++;
+            } else if (Pointer.class.equals(field.valueClass)) {
+                field.byteLength = Pointer.SIZE;
+            } else if (PointerType.class.isAssignableFrom(field.valueClass)) {
+                field.byteLength = Pointer.SIZE;
+                field.refreshableFieldIndex = refreshableFieldCount++;
+            } else if (Buffer.class.isAssignableFrom(field.valueClass)) {
+                if (field.valueClass == IntBuffer.class)
+                    field.byteLength = 4;
+                else if (field.valueClass == LongBuffer.class)
+                    field.byteLength = 8;
+                else if (field.valueClass == ShortBuffer.class)
+                    field.byteLength = 2;
+                else if (field.valueClass == ByteBuffer.class)
+                    field.byteLength = 1;
+                else if (field.valueClass == FloatBuffer.class)
+                    field.byteLength = 4;
+                else if (field.valueClass == DoubleBuffer.class)
+                    field.byteLength = 8;
+                else
+                    throw new UnsupportedOperationException("Field array type " + field.valueClass.getName() + " not supported yet");
+                
+                field.refreshableFieldIndex = refreshableFieldCount++;
             } else
                 throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
 
 
-            if (field.bitOffset >= 0) {
+            if (field.bitLength < 0) {
 				// Align fields as appropriate
 				if (cumulativeBitOffset != 0) {
 					cumulativeBitOffset = 0;
@@ -196,7 +230,7 @@ public class StructIO<S extends Struct<S>> {
 				structSize += cumulativeBitOffset >>> 3;
 				cumulativeBitOffset &= 7;
 			} else {
-                structSize += field.arraySize < 0 ? field.byteLength : field.arraySize * field.byteLength;
+                structSize += field.arraySize * field.byteLength;
 			}
         }
         if (cumulativeBitOffset > 0)
@@ -218,29 +252,46 @@ public class StructIO<S extends Struct<S>> {
         
     }
     
-    public Object getObjectField(int fieldIndex, S struct) {
+    public Pointer getPointerField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
         assert !field.isBitField;
-        if (field.valueClass == Pointer.class)
-            return struct.getPointer().getPointer(field.byteOffset);
+        assert Pointer.class.isAssignableFrom(field.valueClass);
 
-        Refreshable ref = struct.refreshableFields[field.refreshableFieldIndex];
-        if (ref == null) {
-            if (Struct.class.isAssignableFrom(field.valueClass)) {
-                try {
-                    Struct<?> s = (Struct<?>)field.valueClass.newInstance();
-                    s.setPointer(struct.getPointer().share(field.byteOffset));
-                    return s;
-                } catch (Exception ex) {
-                    throw new RuntimeException("Failed to create struct " + field.valueClass.getName(), ex);
-                }
-            } else
-                throw new UnsupportedOperationException("TODO");
-        } else {
-            ref.setPointer(struct.getPointer(), field.byteOffset);
-            return ref;
-        }
+        return struct.getPointer().getPointer(field.byteOffset);
     }
+    public void setPointerField(int fieldIndex, S struct, Pointer p) {
+        FieldIO field = fields[fieldIndex];
+        assert !field.isBitField;
+        assert Pointer.class.isAssignableFrom(field.valueClass);
+
+        struct.getPointer().setPointer(field.byteOffset, p);
+    }
+    public <P extends PointerType> P getPointerTypeField(int fieldIndex, S struct) {
+        FieldIO field = fields[fieldIndex];
+        assert !field.isBitField;
+        assert PointerType.class.isAssignableFrom(field.valueClass);
+
+        P p = (P)struct.refreshableFields[field.refreshableFieldIndex];
+        Pointer ptr = struct.getPointer().getPointer(field.byteOffset);
+        try {
+            if (p == null)
+                struct.refreshableFields[field.refreshableFieldIndex] = p = (P)field.valueClass.getConstructor(Pointer.class).newInstance(ptr);
+            else
+                p.setPointer(ptr);
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to instantiate pointer of type " + field.valueClass.getName(), ex);
+        }
+        return p;
+    }
+    public <P extends PointerType> void setPointerTypeField(int fieldIndex, S struct, P p) {
+        FieldIO field = fields[fieldIndex];
+        assert !field.isBitField;
+        assert PointerType.class.isAssignableFrom(field.valueClass);
+
+        struct.refreshableFields[field.refreshableFieldIndex] = p;
+        struct.getPointer().setPointer(field.byteOffset, p.getPointer());
+    }
+
     public void setObjectField(int fieldIndex, S struct, Object value) {
         FieldIO field = fields[fieldIndex];
         assert !field.isBitField;
@@ -253,7 +304,7 @@ public class StructIO<S extends Struct<S>> {
         struct.getPointer().setPointer(field.byteOffset, ref.getPointer());
     }
 
-    public <F extends Struct<F>> F getStructField(int fieldIndex, S struct, Class<F> fieldClass) {
+    public <F extends Refreshable> F getRefreshableField(int fieldIndex, S struct, Class<F> fieldClass) {
         FieldIO field = fields[fieldIndex];
         assert fieldClass.equals(field.valueClass);
         try {
@@ -264,7 +315,7 @@ public class StructIO<S extends Struct<S>> {
             sf.setPointer(field.isByValue ? struct.getPointer().share(field.byteOffset) : struct.getPointer().getPointer(field.byteOffset));
             return sf;
         } catch (Exception ex) {
-            throw new RuntimeException("Failed to instantiate struct of type " + fieldClass.getName());
+            throw new RuntimeException("Failed to instantiate struct of type " + fieldClass.getName(), ex);
         }
 	}
     public <F extends Struct<F>> void setStructField(int fieldIndex, S struct, Class<F> fieldClass, F fieldValue) {
@@ -301,5 +352,33 @@ public class StructIO<S extends Struct<S>> {
         else
             struct.getPointer().setInt(field.byteOffset, value);
     }
-    
+
+    public IntBuffer getIntArrayField(int fieldIndex, S struct) {
+        FieldIO field = fields[fieldIndex];
+        IntBuffer b = (IntBuffer)struct.refreshableFields[field.refreshableFieldIndex];
+        if (b == null || !b.isDirect() || !struct.getPointer().share(field.byteOffset).equals(Native.getDirectBufferPointer(b))) {
+            int len = field.arraySize * field.byteLength;
+            struct.refreshableFields[field.refreshableFieldIndex] = b = 
+                //(field.isByValue ?
+                    struct.getPointer().getByteBuffer(field.byteOffset, len).asIntBuffer()// :
+                //    struct.getPointer().getPointer(field.byteOffset).getByteBuffer(0, len).asIntBuffer()
+                //)
+            ;
+        }
+        return b;
+    }
+    public void setIntArrayField(int fieldIndex, S struct, IntBuffer fieldValue) {
+        FieldIO field = fields[fieldIndex];
+        if (fieldValue == null)
+            throw new IllegalArgumentException("By-value struct fields cannot be set to null");
+            
+        struct.refreshableFields[field.refreshableFieldIndex] = fieldValue;
+        int len = field.arraySize * field.byteLength;
+        //if (field.isByValue)
+            struct.getPointer().getByteBuffer(field.byteOffset, len).asIntBuffer().put(fieldValue.duplicate());
+        //else
+        //    struct.getPointer().setPointer(field.byteOffset, Native.getDirectBufferPointer(fieldValue));
+    }
+
+
 }

@@ -20,7 +20,7 @@ public @interface Field {
      */
     int index();
 
-    int arraySize() default -1;
+    int arraySize() default 1;
     
     /**
      * Zero forces alignment reset or something... (seen in the wild)
