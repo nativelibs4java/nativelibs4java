@@ -2,25 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
-    <artifactId>nativelibs4java-root</artifactId>
-    <version>${parent-version}</version>
+    <artifactId>nl4j-runtime-root</artifactId>
+    <version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>NativeLibs4Java Root Project</name>
-
+	<name>NativeLibs4Java Runtime Root Project</name>
+   
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>nativelibs4java-parent</artifactId>
-	  <version>1.0</version>
+	  <artifactId>nl4j-runtime-parent</artifactId>
+	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>Parent</relativePath>
   </parent>
 
   <modules>
-	<module>OpenCL</module>
-	<module>Mono</module>
-	<module>Runtime</module>
+    <module>Structs</module>
     <module>Parent</module>
-    
-    <module>TestLibraries</module>
   </modules>
   
 </project>
