@@ -31,8 +31,9 @@ public class StructIO<S extends Struct<S>> {
         return (StructIO<E>)io;
     }
 
-    public static synchronized <E extends Struct<E>> void registerStructIO(Class<E> structClass, StructIO<E> io) {
+    public static synchronized <E extends Struct<E>> StructIO<E> registerStructIO(Class<E> structClass, StructIO<E> io) {
         structIOs.put(structClass, io);
+        return io;
     }
 
     public static class FieldIO {
@@ -116,8 +117,12 @@ public class StructIO<S extends Struct<S>> {
         int modifiers = method.getModifiers();
         return Modifier.isPublic(modifiers) && !Modifier.isStatic(modifiers);
     }
+
+    protected FieldIO newFieldIO() {
+        return new FieldIO();
+    }
     protected FieldIO createFieldIO(Method getter) {
-        FieldIO field = new FieldIO();
+        FieldIO field = newFieldIO();
         field.valueType = getter.getGenericReturnType();
         field.valueClass = getter.getReturnType();
 
@@ -143,8 +148,11 @@ public class StructIO<S extends Struct<S>> {
 	protected List<FieldIO> listFields() {
 		List<FieldIO> list = new ArrayList<FieldIO>();
 		for (Method method : structClass.getDeclaredMethods()) {
-            if (acceptFieldGetter(method))
-                list.add(createFieldIO(method));
+            if (acceptFieldGetter(method)) {
+                FieldIO io = createFieldIO(method);
+                if (io != null)
+                    list.add(io);
+            }
 		}
 		return list;
 	}
