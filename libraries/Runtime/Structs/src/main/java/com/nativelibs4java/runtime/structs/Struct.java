@@ -2,6 +2,8 @@ package com.nativelibs4java.runtime.structs;
 import com.nativelibs4java.runtime.structs.StructIO.FieldIO.Refreshable;
 import com.sun.jna.*;
 import java.nio.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 public class Struct<S extends Struct<S>> implements Refreshable<S>, NativeMapped {
     
     private final StructIO<S> io;
@@ -17,6 +19,17 @@ public class Struct<S extends Struct<S>> implements Refreshable<S>, NativeMapped
     public int size() {
 		return io.getStructSize();
 	}
+
+    public S clone() {
+        try {
+            S clone = (S) getClass().newInstance();
+            int sz = io.getStructSize();
+            clone.getPointer().getByteBuffer(0, sz).put(getPointer().getByteBuffer(0, sz));
+            return clone;
+        } catch (Exception ex) {
+            throw new RuntimeException("Failed to clone struct of type " + getClass().getName(), ex);
+        }
+    }
 
     @Override
     public synchronized Pointer getPointer() {

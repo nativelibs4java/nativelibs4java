@@ -53,6 +53,11 @@ public class MyStruct extends Struct<MyStruct> {
         int[] out = new int[3];
         s.values().get(out);
         System.out.println(Arrays.toString(out));
+
+        MyStruct ns = s.clone();
+        ns.values().get(out);
+        System.out.println(Arrays.toString(out));
+
         System.out.println(s.toto());
         System.out.println(s);
     }

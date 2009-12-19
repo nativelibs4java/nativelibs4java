@@ -13,7 +13,7 @@ import java.nio.ByteBuffer;
  *
  * @author ochafik
  */
-public class StructWithNIO<S extends Struct<S>> extends Struct<S> {
+public class StructWithNIO<S extends StructWithNIO<S>> extends Struct<S> {
 
 	protected ByteBuffer buffer;
 
@@ -52,4 +52,14 @@ public class StructWithNIO<S extends Struct<S>> extends Struct<S> {
     public synchronized boolean hasBuffer() {
         return buffer != null;
     }
+
+    @Override
+    public S clone() {
+        if (!isDirect())
+            throw new UnsupportedOperationException("NIO clone not implemented yet");
+
+        return super.clone();
+    }
+
+
 }
