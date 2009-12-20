@@ -197,7 +197,7 @@ public class ParticlesDemo implements GLEventListener {
                 fc.show();
                 if (fc.getFile() != null) {
                     try {
-                        ImageIO.write(im, "jpeg", lastFile = new File(fc.getFile()));
+                        ImageIO.write(im, "jpeg", lastFile = new File(new File(fc.getDirectory()), fc.getFile()));
                     } catch (IOException ex) {
                         demo.exception(ex);
                         Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
@@ -217,11 +217,11 @@ public class ParticlesDemo implements GLEventListener {
                 demo.paused = true;
 
                 FileDialog fc = new FileDialog((Frame)null);
-                fc.setMode(FileDialog.SAVE);
+                fc.setMode(FileDialog.LOAD);
                 fc.show();
                 if (fc.getFile() != null) {
                     try {
-                        BufferedImage im = ImageIO.read(lastFile = new File(fc.getFile()));
+                        BufferedImage im = ImageIO.read(lastFile = new File(new File(fc.getDirectory()), fc.getFile()));
                         demo.setImage(im);
                     } catch (IOException ex) {
                         demo.exception(ex);
