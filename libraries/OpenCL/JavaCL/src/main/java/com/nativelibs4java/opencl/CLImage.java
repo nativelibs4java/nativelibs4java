@@ -19,6 +19,7 @@
 package com.nativelibs4java.opencl;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.cl_image_format;
+import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.ochafik.util.listenable.Pair;
@@ -72,7 +73,7 @@ public abstract class CLImage extends CLMem {
 	}
 
 
-	protected CLEvent read(CLQueue queue, long[] origin, long[] region, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
+	protected CLEvent read(CLQueue queue, NativeSize[] origin, NativeSize[] region, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
 		/*if (!out.isDirect()) {
 
 		}*/
@@ -80,8 +81,8 @@ public abstract class CLImage extends CLMem {
 		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
-			toNS(origin),
-			toNS(region),
+			origin,
+			region,
 			toNS(rowPitch),
 			toNS(slicePitch),
 			Native.getDirectBufferPointer(out),
@@ -91,7 +92,7 @@ public abstract class CLImage extends CLMem {
 		return CLEvent.createEvent(eventOut);
 	}
 
-	protected CLEvent write(CLQueue queue, long[] origin, long[] region, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
+	protected CLEvent write(CLQueue queue, NativeSize[] origin, NativeSize[] region, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
 		boolean indirect = !in.isDirect();
 		if (indirect)
 			in = directCopy(in);
@@ -100,8 +101,8 @@ public abstract class CLImage extends CLMem {
 		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
-			toNS(origin),
-			toNS(region),
+			origin,
+			region,
 			toNS(rowPitch),
 			toNS(slicePitch),
 			Native.getDirectBufferPointer(in),
@@ -122,4 +123,48 @@ public abstract class CLImage extends CLMem {
 
 		return evt;
 	}
+
+    protected Pair<ByteBuffer, CLEvent> map(CLQueue queue, MapFlags flags,
+            NativeSize[] offset3, NativeSize[] length3,
+            Long imageRowPitch,
+            Long imageSlicePitch,
+            boolean blocking, CLEvent... eventsToWaitFor)
+    {
+		//checkBounds(offset, length);
+		cl_event[] eventOut = blocking ? null : eventsToWaitFor == null ? null : new cl_event[1];
+		IntBuffer pErr = NIOUtils.directInts(1);
+
+        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        Pointer p = CL.clEnqueueMapImage(
+            queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
+            flags.getValue(),
+			offset3,
+            length3,
+            imageRowPitch == null ? null : new NativeSizeByReference(toNS(imageRowPitch)),
+            imageSlicePitch == null ? null : new NativeSizeByReference(toNS(imageSlicePitch)),
+			evts == null ? 0 : evts.length, evts,
+			eventOut,
+			pErr
+		);
+		error(pErr.get());
+        return new Pair<ByteBuffer, CLEvent>(
+			p.getByteBuffer(0, getByteCount()),
+			CLEvent.createEvent(eventOut)
+		);
+    }
+
+    /**
+     * @see CLImage2D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[])
+     * @see CLImage3D#map(com.nativelibs4java.opencl.CLQueue, com.nativelibs4java.opencl.CLMem.MapFlags, com.nativelibs4java.opencl.CLEvent[])
+     * @param queue
+     * @param buffer
+     * @param eventsToWaitFor
+     * @return
+     */
+    public CLEvent unmap(CLQueue queue, ByteBuffer buffer, CLEvent... eventsToWaitFor) {
+        cl_event[] eventOut = eventsToWaitFor == null ? null : new cl_event[1];
+        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), Native.getDirectBufferPointer(buffer), evts == null ? 0 : evts.length, evts, eventOut));
+		return CLEvent.createEvent(eventOut);
+    }
 }

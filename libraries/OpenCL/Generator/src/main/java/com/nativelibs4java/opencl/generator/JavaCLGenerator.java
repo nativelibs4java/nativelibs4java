@@ -69,6 +69,7 @@ public class JavaCLGenerator extends JNAerator {
         config.noMangling = true;
         config.noCPlusPlus = true;
         config.genCPlusPlus = false;
+        config.gccLong = true;
         config.fileToLibrary = new Adapter<File, String>() {
 
             @Override
@@ -361,28 +362,35 @@ public class JavaCLGenerator extends JNAerator {
             }
         } else if (valueType instanceof TypeRef.SimpleTypeRef) {
             TypeRef.SimpleTypeRef sr = (TypeRef.SimpleTypeRef)valueType;
-            Pair<Integer, Class<?>> pair = arraysAndArityByType.get(sr.getName().toString());
-            if (pair != null) {
-                ret.outerJavaTypeRef = typeRef(pair.getSecond());
-                if (pair.getFirst().intValue() != 1) {
-                    ret.extraStatements.add(
-                        stat(
-                            methodCall(
-                                "checkArrayLength",
-                                varRef(ret.argName),
-                                expr(
-                                    Expression.Constant.Type.Int,
-                                    pair.getFirst()
-                                ),
-                                expr(
-                                    Expression.Constant.Type.String,
-                                    ret.argName
+            String name = sr.getName().toString();
+            if (name.equals("size_t")) {
+                ret.outerJavaTypeRef = typeRef(Long.TYPE);
+                ret.convertedExpr = new Expression.New(typeRef(NativeSize.class), ret.convertedExpr);
+                return ret;
+            } else {
+                Pair<Integer, Class<?>> pair = arraysAndArityByType.get(name);
+                if (pair != null) {
+                    ret.outerJavaTypeRef = typeRef(pair.getSecond());
+                    if (pair.getFirst().intValue() != 1) {
+                        ret.extraStatements.add(
+                            stat(
+                                methodCall(
+                                    "checkArrayLength",
+                                    varRef(ret.argName),
+                                    expr(
+                                        Expression.Constant.Type.Int,
+                                        pair.getFirst()
+                                    ),
+                                    expr(
+                                        Expression.Constant.Type.String,
+                                        ret.argName
+                                    )
                                 )
                             )
-                        )
-                    );
+                        );
+                    }
+                    return ret;
                 }
-                return ret;
             }
         }
         throw new UnsupportedConversionException(valueType, "Unhandled type : " + valueType);
@@ -519,8 +527,10 @@ public class JavaCLGenerator extends JNAerator {
                 "-noJar",
                 "-noComp",
                 "-v",
-                "-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl",
-                "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl/com/nativelibs4java/opencl/demos/sobelfilter/SimpleSobel.cl"
+                "-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Blas/target/../src/main/opencl",
+                "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Blas/src/main/opencl/com/nativelibs4java/opencl/blas/LinearAlgebraKernels.c"
+                //"-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl",
+                //"/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl/com/nativelibs4java/opencl/demos/sobelfilter/SimpleSobel.cl"
             }
         );
 	}

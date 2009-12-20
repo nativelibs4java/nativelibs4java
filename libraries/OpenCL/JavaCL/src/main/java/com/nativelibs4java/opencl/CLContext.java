@@ -430,6 +430,26 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java type " + bufferClass.getName());
 	}
 
+    public <B extends Buffer> CLBuffer<B> createBuffer(CLMem.Usage kind, B buffer, boolean copy) {
+        Class<?> bufferClass = buffer.getClass();
+        if (IntBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createIntBuffer(kind, (IntBuffer)buffer, copy);
+		if (LongBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createLongBuffer(kind, (LongBuffer)buffer, copy);
+		if (ShortBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createShortBuffer(kind, (ShortBuffer)buffer, copy);
+		if (ByteBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createByteBuffer(kind, (ByteBuffer)buffer, copy);
+		if (CharBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createCharBuffer(kind, (CharBuffer)buffer, copy);
+		if (DoubleBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createDoubleBuffer(kind, (DoubleBuffer)buffer, copy);
+		if (FloatBuffer.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)createFloatBuffer(kind, (FloatBuffer)buffer, copy);
+
+        throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java type " + bufferClass.getName());
+	}
+
     /**
      * @param kind
      * @param buffer input/output buffer

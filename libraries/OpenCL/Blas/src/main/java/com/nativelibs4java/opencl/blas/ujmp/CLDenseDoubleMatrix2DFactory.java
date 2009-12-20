@@ -5,7 +5,7 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import com.nativelibs4java.opencl.blas.LinearAlgebraKernels;
+import com.nativelibs4java.opencl.blas.LinearAlgebraUtils;
 import org.ujmp.core.doublematrix.DenseDoubleMatrix2D;
 import org.ujmp.core.doublematrix.factory.AbstractDoubleMatrix2DFactory;
 import org.ujmp.core.exceptions.MatrixException;
@@ -17,12 +17,12 @@ import org.ujmp.core.exceptions.MatrixException;
 public class CLDenseDoubleMatrix2DFactory extends
 		AbstractDoubleMatrix2DFactory {
 
-    public static volatile LinearAlgebraKernels LINEAR_ALGEBRA_KERNELS;
+    public static volatile LinearAlgebraUtils LINEAR_ALGEBRA_KERNELS;
 
-    static synchronized LinearAlgebraKernels getLinearAlgebraKernels() {
+    static synchronized LinearAlgebraUtils getLinearAlgebraKernels() {
         if (LINEAR_ALGEBRA_KERNELS == null) {
             try {
-                LINEAR_ALGEBRA_KERNELS = new LinearAlgebraKernels();
+                LINEAR_ALGEBRA_KERNELS = new LinearAlgebraUtils();
             } catch (Throwable ex) {
                 throw new RuntimeException(ex);
             }

@@ -73,10 +73,10 @@ public class CLImage2D extends CLImage {
 	}
 
 	public CLEvent read(CLQueue queue, long minX, long minY, long width, long height, long rowPitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
-		return read(queue, new long[] {minX, minY, 0}, new long[] {width, height, 1}, rowPitch, 0, out, blocking, eventsToWaitFor);
+		return read(queue, toNS(minX, minY, 0), toNS(width, height, 1), rowPitch, 0, out, blocking, eventsToWaitFor);
 	}
 	public CLEvent write(CLQueue queue, long minX, long minY, long width, long height, long rowPitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
-		return write(queue, new long[] {minX, minY, 0}, new long[] {width, height, 1}, rowPitch, 0, in, blocking, eventsToWaitFor);
+		return write(queue, toNS(minX, minY, 0), toNS(width, height, 1), rowPitch, 0, in, blocking, eventsToWaitFor);
 	}
 
 	public BufferedImage read(CLQueue queue) {
@@ -115,4 +115,16 @@ public class CLImage2D extends CLImage {
 		write(queue, im, false);
 	}
 
+    public ByteBuffer map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
+        return map(queue, flags, toNS(0, 0), toNS(getWidth(), getHeight()), getWidth(), null, true, eventsToWaitFor).getFirst();
+    }
+	public ByteBuffer map(CLQueue queue, MapFlags flags, long offsetX, long offsetY, long lengthX, long lengthY, long rowPitch, CLEvent... eventsToWaitFor) {
+		return map(queue, flags, toNS(offsetX, offsetY), toNS(lengthX, lengthY), rowPitch, null, true, eventsToWaitFor).getFirst();
+    }
+	public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, boolean blocking, CLEvent... eventsToWaitFor) {
+		return map(queue, flags, toNS(0, 0), toNS(getWidth(), getHeight()), getWidth(), null, blocking, eventsToWaitFor);
+    }
+    public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offsetX, long offsetY, long lengthX, long lengthY, long rowPitch, boolean blocking, CLEvent... eventsToWaitFor) {
+		return map(queue, flags, toNS(offsetX, offsetY), toNS(lengthX, lengthY), rowPitch, null, blocking, eventsToWaitFor);
+    }
 }

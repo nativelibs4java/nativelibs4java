@@ -38,6 +38,26 @@
   <build>
   	<plugins>
 
+	
+		<plugin>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>javacl-generator</artifactId>
+			<version>${opencl4java.version}</version>
+			<!--configuration>
+				<javaOutputDirectory>${project.build.directory}/../src/main/java</javaOutputDirectory>
+			</configuration-->
+			<executions>
+			  <execution>
+				<phase>generate-sources</phase>
+				<goals>
+				  <goal>compile</goal>
+				  <!--goal>test-compile</goal-->
+				</goals>
+				
+			  </execution>
+			</executions>
+		</plugin>
+
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-shade-plugin</artifactId>

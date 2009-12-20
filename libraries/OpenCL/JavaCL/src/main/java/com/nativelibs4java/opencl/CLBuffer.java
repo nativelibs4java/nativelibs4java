@@ -73,7 +73,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	}
 
 	protected void checkBounds(long offset, long length) {
-		if (offset + length * getElementSize() > byteCount)
+		if (offset + length * getElementSize() > getByteCount())
 			throw new IndexOutOfBoundsException("Trying to map a region of memory object outside allocated range");
 	}
 
@@ -120,7 +120,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 		);
 		error(pErr.getValue());
         return new Pair<B, CLEvent>(
-			typedBuffer(p.getByteBuffer(0, byteCount)),
+			typedBuffer(p.getByteBuffer(0, getByteCount())),
 			CLEvent.createEvent(eventOut)
 		);
     }
@@ -200,7 +200,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
         error(CL.clEnqueueWriteBuffer(
             queue.getEntity(),
             getEntity(),
-            blocking ? CL_TRUE : 0,
+            blocking ? CL_TRUE : CL_FALSE,
             toNS(offset * getElementSize()),
             toNS(length * getElementSize()),
             Native.getDirectBufferPointer(in),
@@ -246,36 +246,36 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	public CLIntBuffer asCLIntBuffer() {
 		cl_mem mem = getEntity();
 		CL.clRetainMemObject(getEntity());
-		return copyGLMark(new CLIntBuffer(context, byteCount, mem, buffer));
+		return copyGLMark(new CLIntBuffer(context, getByteCount(), mem, buffer));
 	}
 	public CLShortBuffer asCLShortBuffer() {
 		cl_mem mem = getEntity();
 		CL.clRetainMemObject(mem);
-		return copyGLMark(new CLShortBuffer(context, byteCount, mem, buffer));
+		return copyGLMark(new CLShortBuffer(context, getByteCount(), mem, buffer));
 	}
 	public CLLongBuffer asCLLongBuffer() {
 		cl_mem mem = getEntity();
 		CL.clRetainMemObject(mem);
-		return copyGLMark(new CLLongBuffer(context, byteCount, mem, buffer));
+		return copyGLMark(new CLLongBuffer(context, getByteCount(), mem, buffer));
 	}
 	public CLByteBuffer asCLByteBuffer() {
 		cl_mem mem = getEntity();
 		CL.clRetainMemObject(mem);
-		return copyGLMark(new CLByteBuffer(context, byteCount, mem, buffer));
+		return copyGLMark(new CLByteBuffer(context, getByteCount(), mem, buffer));
 	}
 	public CLFloatBuffer asCLFloatBuffer() {
 		cl_mem mem = getEntity();
 		CL.clRetainMemObject(mem);
-		return copyGLMark(new CLFloatBuffer(context, byteCount, mem, buffer));
+		return copyGLMark(new CLFloatBuffer(context, getByteCount(), mem, buffer));
 	}
 	public CLDoubleBuffer asCLDoubleBuffer() {
 		cl_mem mem = getEntity();
 		CL.clRetainMemObject(mem);
-		return copyGLMark(new CLDoubleBuffer(context, byteCount, mem, buffer));
+		return copyGLMark(new CLDoubleBuffer(context, getByteCount(), mem, buffer));
 	}
 	public CLCharBuffer asCLCharBuffer() {
 		cl_mem mem = getEntity();
 		CL.clRetainMemObject(mem);
-		return copyGLMark(new CLCharBuffer(context, byteCount, mem, buffer));
+		return copyGLMark(new CLCharBuffer(context, getByteCount(), mem, buffer));
 	}
 }

@@ -58,7 +58,7 @@ public class JNAUtils {
         return sizes;
     }
 
-    public static void writeNSArray(Pointer p, long[] values) {
+    public static void writeNSArray(Pointer p, long... values) {
         if (values == null)
             return;
         for (int i = 0, n = values.length; i < n; i++)
@@ -69,7 +69,7 @@ public class JNAUtils {
      * Converts int/long values array to a Memory object containing contiguous size_t values
      * @see NativeSize#SIZE
      */
-    public static Memory toNSArray(long[] values) {
+    public static Memory toNSArray(long... values) {
         if (values == null)
             return null;
         Memory mem = new Memory(values.length * NativeSize.SIZE);
@@ -94,7 +94,7 @@ public class JNAUtils {
     /**
      * Return a new NativeSize array with the provided long values
      */
-    public static NativeSize[] toNS(long[] ints) {
+    public static NativeSize[] toNS(long... ints) {
         if (ints == null)
             return null;
         int n = ints.length;

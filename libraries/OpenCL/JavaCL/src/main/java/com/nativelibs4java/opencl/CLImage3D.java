@@ -58,11 +58,25 @@ public class CLImage3D extends CLImage2D {
 	}
 
 	public CLEvent read(CLQueue queue, long minX, long minY, long minZ, long width, long height, long depth, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
-		return read(queue, new long[] {minX, minY, minZ}, new long[] {width, height, depth}, rowPitch, slicePitch, out, blocking, eventsToWaitFor);
+		return read(queue, toNS(minX, minY, minZ), toNS(width, height, depth), rowPitch, slicePitch, out, blocking, eventsToWaitFor);
 	}
 
 	public CLEvent write(CLQueue queue, long minX, long minY, long minZ, long width, long height, long depth, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
-		return write(queue, new long[] {minX, minY, minZ}, new long[] {width, height, depth}, rowPitch, slicePitch, in, blocking, eventsToWaitFor);
+		return write(queue, toNS(minX, minY, minZ), toNS(width, height, depth), rowPitch, slicePitch, in, blocking, eventsToWaitFor);
 	}
+
+    public ByteBuffer map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
+		return map(queue, flags, 0, 0, 0, getWidth(), getHeight(), getDepth(), getWidth(), getHeight(), true, eventsToWaitFor);
+    }
+	public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
+		return map(queue, flags, toNS(0, 0, 0), toNS(getWidth(), getHeight(), getDepth()), getWidth(), getHeight(), true, eventsToWaitFor);
+    }
+
+    public ByteBuffer map(CLQueue queue, MapFlags flags, long offsetX, long offsetY, long offsetZ, long lengthX, long lengthY, long lengthZ, long rowPitch, long slicePitch, boolean blocking, CLEvent... eventsToWaitFor) {
+        return map(queue, flags, toNS(offsetX, offsetY, offsetZ), toNS(lengthX, lengthY, lengthZ), rowPitch, slicePitch, true, eventsToWaitFor).getFirst();
+    }
+    public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offsetX, long offsetY, long offsetZ, long lengthX, long lengthY, long lengthZ, long rowPitch, long slicePitch, CLEvent... eventsToWaitFor) {
+        return map(queue, flags, toNS(offsetX, offsetY, offsetZ), toNS(lengthX, lengthY, lengthZ), rowPitch, slicePitch, true, eventsToWaitFor);
+    }
 
 }

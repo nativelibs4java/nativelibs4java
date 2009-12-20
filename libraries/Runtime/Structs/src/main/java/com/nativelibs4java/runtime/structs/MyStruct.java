@@ -6,9 +6,11 @@
 package com.nativelibs4java.runtime.structs;
 
 import com.nativelibs4java.runtime.ann.Field;
+import com.nativelibs4java.runtime.structs.StructIO.FieldIO;
 import com.sun.jna.Pointer;
 import java.nio.IntBuffer;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -16,6 +18,14 @@ import java.util.Arrays;
  */ 
 public class MyStruct extends Struct<MyStruct> {
     private static StructIO<MyStruct> io = StructIO.getInstance(MyStruct.class);
+    /*private static StructIO<MyStruct> io2 = StructIO.registerStructIO(MyStruct.class, new StructIO<MyStruct>(MyStruct.class) {
+
+        @Override
+        protected void orderFields(List<FieldIO> fields) {
+            super.orderFields(fields); //...
+        }
+
+    });*/
     public MyStruct() {
         super(io);
     }

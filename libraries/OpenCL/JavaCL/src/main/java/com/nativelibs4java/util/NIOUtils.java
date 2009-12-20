@@ -177,4 +177,38 @@ public class NIOUtils
             return 1;
         throw new UnsupportedOperationException("Cannot guess byte size of buffers of type " + b.getClass().getName());
     }
+
+    public static <B extends Buffer, V> void put(B buffer, int position, V value) {
+        if (buffer instanceof IntBuffer)
+            ((IntBuffer)buffer).put(position, ((Number)value).intValue());
+        else if (buffer instanceof LongBuffer)
+            ((LongBuffer)buffer).put(position, ((Number)value).longValue());
+        else if (buffer instanceof ShortBuffer)
+            ((ShortBuffer)buffer).put(position, ((Number)value).shortValue());
+        else if (buffer instanceof ByteBuffer)
+            ((ByteBuffer)buffer).put(position, ((Number)value).byteValue());
+        else if (buffer instanceof DoubleBuffer)
+            ((DoubleBuffer)buffer).put(position, ((Number)value).doubleValue());
+        else if (buffer instanceof FloatBuffer)
+            ((FloatBuffer)buffer).put(position, ((Number)value).floatValue());
+        else
+            throw new UnsupportedOperationException();
+    }
+
+    public static <B extends Buffer, V> V get(B buffer, int position) {
+        if (buffer instanceof IntBuffer)
+            return (V)(Integer)((IntBuffer)buffer).get(position);
+        else if (buffer instanceof LongBuffer)
+            return (V)(Long)((LongBuffer)buffer).get(position);
+        else if (buffer instanceof ShortBuffer)
+            return (V)(Short)((ShortBuffer)buffer).get(position);
+        else if (buffer instanceof ByteBuffer)
+            return (V)(Byte)((ByteBuffer)buffer).get(position);
+        else if (buffer instanceof DoubleBuffer)
+            return (V)(Double)((DoubleBuffer)buffer).get(position);
+        else if (buffer instanceof FloatBuffer)
+            return (V)(Float)((FloatBuffer)buffer).get(position);
+        else
+            throw new UnsupportedOperationException();
+    }
 }
