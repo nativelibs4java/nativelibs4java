@@ -122,31 +122,49 @@ public class MandelbrotDemo {
 
     private static long buildAndExecuteKernel(float realMin, float imaginaryMin, int realResolution,
                                               int imaginaryResolution, int maxIter, int magicNumber, float deltaReal,
-                                              float deltaImaginary, IntBuffer results, String src) throws CLBuildException {
+                                              float deltaImaginary, IntBuffer results, String src) throws CLBuildException, IOException {
 
-		//Create a context and program using the devices discovered.
+        //Create a context and program using the devices discovered.
         CLContext context = createBestContext();
-        CLProgram program = context.createProgram(src).build();
+        CLQueue queue = context.createDefaultQueue();
 
-        //Create a kernel instance from the mandelbrot kernel, passing in parameters.
-        CLKernel kernel = program.createKernel(
-                "mandelbrot",
+        long startTime = System.nanoTime();
+        if (true) {
+            Mandelbrot mandelbrot = new Mandelbrot(context);
+            mandelbrot.mandelbrot(
+                queue,
                 new float[] { deltaReal, deltaImaginary },
                 new float[] { realMin, imaginaryMin },
-				
+
                 maxIter,
                 magicNumber,
                 realResolution,
-                context.createIntBuffer(CLMem.Usage.Output, results, false)
-        );
+                context.createIntBuffer(CLMem.Usage.Output, results, false),
 
-        //Enqueue and complete work using a 2D range of work groups corrsponding to individual pizels in the set.
-        //The work groups are 1x1 in size and their range is defined by the desired resolution. This corresponds
-        //to one device thread per pixel.
-        CLQueue queue = context.createDefaultQueue();
+                new int[]{realResolution, imaginaryResolution},
+                new int[]{1,1}
+            );
+        } else {
+            CLProgram program = context.createProgram(src).build();
 
-		long startTime = System.nanoTime();
-        kernel.enqueueNDRange(queue, new int[]{realResolution, imaginaryResolution}, new int[]{1,1});
+            //Create a kernel instance from the mandelbrot kernel, passing in parameters.
+            CLKernel kernel = program.createKernel(
+                    "mandelbrot",
+                    new float[] { deltaReal, deltaImaginary },
+                    new float[] { realMin, imaginaryMin },
+
+                    maxIter,
+                    magicNumber,
+                    realResolution,
+                    context.createIntBuffer(CLMem.Usage.Output, results, false)
+            );
+
+            //Enqueue and complete work using a 2D range of work groups corrsponding to individual pizels in the set.
+            //The work groups are 1x1 in size and their range is defined by the desired resolution. This corresponds
+            //to one device thread per pixel.
+
+            kernel.enqueueNDRange(queue, new int[]{realResolution, imaginaryResolution}, new int[]{1,1});
+        }
         queue.finish();
 		long time = System.nanoTime() - startTime;
 		return time;
