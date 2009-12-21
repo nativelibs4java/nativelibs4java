@@ -96,6 +96,7 @@ Most of these wrappers are created automatically by JNAerator.
 					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/opencl4java/apidocs/</link>
 					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl/apidocs/</link>
 					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-blas/apidocs/</link>
+					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-utils/apidocs/</link>
 					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-demos/apidocs/</link>
 					
 				</links>
