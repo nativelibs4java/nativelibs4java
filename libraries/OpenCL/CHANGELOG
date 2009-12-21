@@ -4,12 +4,13 @@ Current development version (1.0-SNAPSHOT)
 - Added OpenGL interoperability methods to CLContext and CLQueue (can create a CLByteBuffer from an OpenGL buffer object, a CLImage2D/3D from an OpenGL 2D/3D texture or a renderbuffer).
 - Added OpenGL-compatible context creation methods to JavaCL & CLPlatform classes
 - Added basic reduction support in ReductionUtils (cumulative additions, multiplications, min, max...)
-- Created javacl-demos package..
+- Created javacl-demos package, with Particles, Hardware Report and Mandelbrot demos...
 - Finished migration from NativeLong to NativeSize (changes only the low-level bindings)
 - Added profiling methods to CLEvent (+ facility CLDevice.createProfilingQueue())
 - Better JavaDoc for low-level bindings (links to Khronos online manual pages)
 - Added deferred program allocation : CLProgram.addSource(String), CLProgram.allocate() (called automatically)...
 - Added very simple OpenCL backend for UJMP (Universal Java Matrix Package), which does matrix multiplications in OpenCL.
+- Created a kernel wrapper autogenerator (Maven plugin based on JNAerator) : translates all constants on the Java side and presents kernels as methods with the correct Java argument types. It assumes OpenCL kernels (*.c, *.cl) are in src/main/opencl
 
 Version 1.0-beta-3 (r , 20091030)
 
