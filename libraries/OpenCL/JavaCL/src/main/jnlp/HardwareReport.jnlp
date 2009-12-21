@@ -24,6 +24,6 @@
 		<j2se version="1.6+"/>
 	</resources>
 	<application-desc 
-		main-class="com.nativelibs4java.opencl.demos.particles.HardwareReport"
+		main-class="com.nativelibs4java.opencl.demos.hardware.HardwareReport"
 	/>
 </jnlp>

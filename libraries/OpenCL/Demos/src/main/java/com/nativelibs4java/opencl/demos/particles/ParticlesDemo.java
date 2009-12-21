@@ -83,7 +83,7 @@ public class ParticlesDemo implements GLEventListener {
                 useSwing = true;
         }
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        GLCapabilities caps = new GLCapabilities(GLProfile.getDefault());
+        GLCapabilities caps = new GLCapabilities(GLProfile.get(GLProfile.GL2));
         Component canvas = useSwing ? new GLJPanel(caps) : new GLCanvas(caps);
         canvas.setSize(width, height);
         canvas.setIgnoreRepaint(true);

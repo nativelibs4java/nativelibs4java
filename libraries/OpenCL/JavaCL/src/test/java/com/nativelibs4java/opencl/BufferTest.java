@@ -12,6 +12,7 @@ import static com.nativelibs4java.util.NIOUtils.*;
 import java.awt.image.BufferedImage;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -74,6 +75,7 @@ public class BufferTest extends AbstractCommon {
         ShortBuffer.class,
         ByteBuffer.class,
         DoubleBuffer.class,
+        //CharBuffer.class,
         FloatBuffer.class
     };
     @Test
