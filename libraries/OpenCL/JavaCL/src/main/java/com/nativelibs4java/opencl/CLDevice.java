@@ -50,7 +50,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
             return CL.clGetDeviceInfo(entity, infoTypeEnum, size, out, sizeOut);
         }
     };
-    CLPlatform platform;
+    volatile CLPlatform platform;
 
     CLDevice(CLPlatform platform, cl_device_id device) {
         super(device);
