@@ -1,12 +1,16 @@
 package com.nativelibs4java.runtime.structs;
 import com.nativelibs4java.runtime.ann.Alignment;
+import com.nativelibs4java.runtime.ann.Array;
+import com.nativelibs4java.runtime.ann.Bits;
 import com.nativelibs4java.runtime.ann.Field;
 import com.nativelibs4java.runtime.ann.ByValue;
 import com.nativelibs4java.runtime.structs.StructIO.FieldIO.Refreshable;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.PointerType;
-import java.lang.reflect.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
@@ -132,12 +136,16 @@ public class StructIO<S extends Struct<S>> {
 
         field.name = name;
 
-        Field ann = getter.getAnnotation(Field.class);
-        if (ann != null) {
-            field.bitLength = ann.bits();
-            field.index = ann.index();
-            field.arraySize = ann.arraySize();
-        }
+        Field fil = getter.getAnnotation(Field.class);
+        Bits bits = getter.getAnnotation(Bits.class);
+        Array arr = getter.getAnnotation(Array.class);
+        if (fil != null)
+            field.index = fil.value();
+        if (bits != null)
+            field.bitLength = bits.value();
+        if (arr != null)
+            field.arraySize = arr.value();
+        
         field.isByValue = getter.getAnnotation(ByValue.class) != null;
         return field;
     }

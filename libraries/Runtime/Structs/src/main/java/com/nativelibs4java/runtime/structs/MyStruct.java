@@ -5,6 +5,8 @@
 
 package com.nativelibs4java.runtime.structs;
 
+import com.nativelibs4java.runtime.ann.Array;
+import com.nativelibs4java.runtime.ann.Bits;
 import com.nativelibs4java.runtime.ann.Field;
 import com.nativelibs4java.runtime.structs.StructIO.FieldIO;
 import com.sun.jna.Pointer;
@@ -33,17 +35,17 @@ public class MyStruct extends Struct<MyStruct> {
         return new MyStruct().setPointer(p);
     }
 
-    @Field(index=0)
+    @Field(0)
     public int toto() {
         return io.getIntField(0, this);
     }
 
-    @Field(index=1, bits=1)
+    @Field(1) @Bits(1)
     public int isOk() {
         return io.getIntField(1, this);
     }
 
-    @Field(index=2, arraySize=10)
+    @Field(2) @Array(10)
     public IntBuffer values() {
         return io.getIntArrayField(2, this);
     }

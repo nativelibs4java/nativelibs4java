@@ -18,14 +18,6 @@ public @interface Field {
      * If more than one field are given the same index, this will produce an union at that index.
      * @return
      */
-    int index();
-
-    int arraySize() default 1;
-    
-    /**
-     * Zero forces alignment reset or something... (seen in the wild)
-     * @return
-     */
-    int bits() default -1;
+    int value();
 
 }
