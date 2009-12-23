@@ -5,7 +5,7 @@
 
 package com.nativelibs4java.runtime.structs;
 
-import com.nativelibs4java.runtime.ann.Array;
+import com.nativelibs4java.runtime.ann.Length;
 import com.nativelibs4java.runtime.ann.Bits;
 import com.nativelibs4java.runtime.ann.Field;
 import com.nativelibs4java.runtime.structs.StructIO.FieldIO;
@@ -45,7 +45,7 @@ public class MyStruct extends Struct<MyStruct> {
         return io.getIntField(1, this);
     }
 
-    @Field(2) @Array(10)
+    @Field(2) @Length(10)
     public IntBuffer values() {
         return io.getIntArrayField(2, this);
     }
