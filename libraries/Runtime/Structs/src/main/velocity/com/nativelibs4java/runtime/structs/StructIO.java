@@ -347,9 +347,9 @@ public class StructIO<S extends Struct<S>> {
         }
 	}
 
-#set ($prims = [ "int", "long", "short", "byte", "float", "double", "bool" ])
-#set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double", "Bool" ])
-#set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double", "Boolean" ])
+#set ($prims = [ "int", "long", "short", "byte", "float", "double" ])
+#set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double" ])
+#set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double" ])
 #foreach ($prim in $prims)
         
     #set ($i = $velocityCount - 1)
@@ -357,24 +357,24 @@ public class StructIO<S extends Struct<S>> {
     #set ($primWrap = $primWraps.get($i))
 
     /** $prim field getter */
-    public int get${primCap}Field(int fieldIndex, S struct) {
+    public ${prim} get${primCap}Field(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
         assert field.byteLength == (${primWrap}.SIZE / 8);
         assert ${primWrap}.TYPE.equals(field.valueClass) || ${primWrap}.class.equals(field.valueClass);
 
         if (field.isBitField)
-            return BitFields.getPrimitiveValue(struct.getPointer(), field.byteOffset, field.bitOffset, field.bitLength, $primWrap.TYPE);
+            return BitFields.getPrimitiveValue(struct.getPointer(), field.byteOffset, field.bitOffset, field.bitLength, ${primWrap}.TYPE);
 
         return struct.getPointer().get$primCap(field.byteOffset);
 	}
 
-    public void setIntField(int fieldIndex, S struct, int value) {
+    public void setIntField(int fieldIndex, S struct, ${prim} value) {
         FieldIO field = fields[fieldIndex];
         assert field.byteLength == (${primWrap}.SIZE / 8);
         assert ${primWrap}.TYPE.equals(field.valueClass) || ${primWrap}.class.equals(field.valueClass);
 
         if (field.isBitField)
-            BitFields.setPrimitiveValue(struct.getPointer(), field.byteOffset, field.bitOffset, field.bitLength, value, $primWrap.TYPE);
+            BitFields.setPrimitiveValue(struct.getPointer(), field.byteOffset, field.bitOffset, field.bitLength, value, ${primWrap}.TYPE);
         else
             struct.getPointer().set$primCap(field.byteOffset, value);
     }
