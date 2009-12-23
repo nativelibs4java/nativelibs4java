@@ -349,12 +349,14 @@ public class StructIO<S extends Struct<S>> {
 
 #set ($prims = [ "int", "long", "short", "byte", "float", "double" ])
 #set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double" ])
+#set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer" ])
 #set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double" ])
 #foreach ($prim in $prims)
         
     #set ($i = $velocityCount - 1)
     #set ($primCap = $primCaps.get($i))
     #set ($primWrap = $primWraps.get($i))
+    #set ($primBuf = $primBufs.get($i))
 
     /** $prim field getter */
     public ${prim} get${primCap}Field(int fieldIndex, S struct) {
@@ -379,34 +381,41 @@ public class StructIO<S extends Struct<S>> {
             struct.getPointer().set$primCap(field.byteOffset, value);
     }
 
-#end
-
-	public IntBuffer getIntArrayField(int fieldIndex, S struct) {
+	public ${primBuf} get${primCap}ArrayField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
-        IntBuffer b = (IntBuffer)struct.refreshableFields[field.refreshableFieldIndex];
+        ${primBuf} b = (${primBuf})struct.refreshableFields[field.refreshableFieldIndex];
         if (b == null || !b.isDirect() || !struct.getPointer().share(field.byteOffset).equals(Native.getDirectBufferPointer(b))) {
             int len = field.arraySize * field.byteLength;
             struct.refreshableFields[field.refreshableFieldIndex] = b = 
                 //(field.isByValue ?
-                    struct.getPointer().getByteBuffer(field.byteOffset, len).asIntBuffer()// :
+                    struct.getPointer().getByteBuffer(field.byteOffset, len)
+                    #if (!$prim.equals("byte"))
+                        .as${primBuf}()
+                    #end
                 //    struct.getPointer().getPointer(field.byteOffset).getByteBuffer(0, len).asIntBuffer()
                 //)
             ;
         }
         return b;
     }
-    public void setIntArrayField(int fieldIndex, S struct, IntBuffer fieldValue) {
+    public void set${primCap}ArrayField(int fieldIndex, S struct, ${primBuf} fieldValue) {
         FieldIO field = fields[fieldIndex];
         if (fieldValue == null)
             throw new IllegalArgumentException("By-value struct fields cannot be set to null");
-            
+
+        assert fieldValue.capacity() >= field.arraySize;
         struct.refreshableFields[field.refreshableFieldIndex] = fieldValue;
         int len = field.arraySize * field.byteLength;
         //if (field.isByValue)
-            struct.getPointer().getByteBuffer(field.byteOffset, len).asIntBuffer().put(fieldValue.duplicate());
+            struct.getPointer().getByteBuffer(field.byteOffset, len)
+            #if (!$prim.equals("byte"))
+                .as${primBuf}()
+            #end
+                .put(fieldValue.duplicate());
         //else
         //    struct.getPointer().setPointer(field.byteOffset, Native.getDirectBufferPointer(fieldValue));
     }
 
+#end
 
 }
