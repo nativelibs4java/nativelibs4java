@@ -36,6 +36,25 @@
 	
   </dependencies>
 
+  <build>
+    <plugins>
+	
+		<plugin>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>maven-velocity-plugin</artifactId>
+			<version>${nl4j-runtime.version}</version>
+			<executions>
+			  <execution>
+				<phase>generate-sources</phase>
+				<goals>
+				  <goal>compile</goal>
+				</goals>
+			  </execution>
+			</executions>
+		</plugin>
+	
+	</plugins>
+  </build>
 </project>
 
 

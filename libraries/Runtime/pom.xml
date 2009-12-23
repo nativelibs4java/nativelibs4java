@@ -17,6 +17,7 @@
   <modules>
     <module>Structs</module>
     <module>JDyncall</module>
+    <module>Velocity</module>
     <module>Parent</module>
   </modules>
   

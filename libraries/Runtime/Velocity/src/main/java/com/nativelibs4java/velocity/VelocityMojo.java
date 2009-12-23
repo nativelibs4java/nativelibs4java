@@ -16,10 +16,12 @@ package com.jnaerator.velocity;
  * limitations under the License.
  */
 
+import com.sun.tools.corba.se.idl.som.cff.FileLocator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.maven.project.MavenProject;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -31,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.velocity.*;
 import org.apache.velocity.app.Velocity;
+import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;
 
@@ -64,6 +67,14 @@ public class VelocityMojo
      */
     private File outputDirectory;
 
+    /**
+     * @parameter expression="${project}"
+     * @required
+     * @readonly
+     * @since 1.0
+     */
+    private MavenProject project;
+
 	public File getVelocitySources() {
 		return velocitySources;
 	}
@@ -71,19 +82,20 @@ public class VelocityMojo
 		return outputDirectory;
 	}
 
-	static void listVeloFiles(File f, Collection<File> out) {
+	static void listVeloFiles(File f, Collection<File> out) throws IOException {
         if (f.isHidden())
             return;
 
         String n = f.getName().toLowerCase();
         if (f.isDirectory()) {
-            if (n.equals(".svn"))
+            if (n.equals(".svn") || n.equals("CVS"))
                 return;
 
             for (File ff : f.listFiles())
-                listVeloFiles(ff, out);
-        } else {
-            if (n.endsWith(".velo") || n.endsWith(".vm") || n.endsWith(".velocity"))
+                listVeloFiles(ff.getAbsoluteFile(), out);
+        } else {//if (f.isFile()) {
+			//if (n.endsWith(".velo") || n.endsWith(".vm") || n.endsWith(".velocity"))
+			if (!n.startsWith("."))//endsWith(".velo") || n.endsWith(".vm") || n.endsWith(".velocity"))
                 out.add(f);
         }
     }
@@ -101,7 +113,7 @@ public class VelocityMojo
         }
         int i = rel.lastIndexOf('.');
         File out = getOutputDirectory();
-        if (i < 0) {
+        if (i >= 0) {
             String ext = rel.substring(i + 1);
             out = new File(out, ext);
         }
@@ -112,27 +124,45 @@ public class VelocityMojo
         throws MojoExecutionException
     {
         List<File> files = new ArrayList<File>();
-        listVeloFiles(velocitySources, files);
+		File velocitySources = this.velocitySources;
+		try {
+			velocitySources = velocitySources.getCanonicalFile();
+			listVeloFiles(velocitySources, files);
+		
+		} catch (Exception ex) {
+			throw new MojoExecutionException("Failed to list files from '" + velocitySources + "'", ex);
+		}
+
+        getLog().info("Found " + files.size() + " files in '" + velocitySources + "'...");
 
         for (File file : files) {
             try {
+				file = file.getCanonicalFile();
+				
                 File outFile = getOutputFile(file);
                 if (outFile.exists() && outFile.lastModified() > file.lastModified()) {
                     getLog().info("Up-to-date: '" + file + "'");
                     continue;
                 }
                 getLog().info("Executing template '" + file + "'...");
-                org.apache.velocity.Template template = Velocity.getTemplate(file.toString());
 
+                Velocity.setProperty("file.resource.loader.path", file.getParent());
+                Velocity.init();
+                //context = new VelocityContext();
+                org.apache.velocity.Template template = Velocity.getTemplate(file.getName());
+                
                 VelocityContext context = new VelocityContext();//execution.getParameters());
                 StringWriter out = new StringWriter();
                 template.merge(context, out);
                 out.close();
 
                 outFile.getParentFile().mkdirs();
+
+
                 FileWriter f = new FileWriter(outFile);
                 f.write(out.toString());
                 f.close();
+                project.addCompileSourceRoot(outFile.getParent());
                 getLog().info("\tGenerated '" + outFile + "'");
 
             } catch (Exception ex) {

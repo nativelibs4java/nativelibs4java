@@ -347,29 +347,41 @@ public class StructIO<S extends Struct<S>> {
         }
 	}
 
-	public int getIntField(int fieldIndex, S struct) {
+#set ($prims = [ "int", "long", "short", "byte", "float", "double", "bool" ])
+#set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double", "Bool" ])
+#set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double", "Boolean" ])
+#foreach ($prim in $prims)
+        
+    #set ($i = $velocityCount - 1)
+    #set ($primCap = $primCaps.get($i))
+    #set ($primWrap = $primWraps.get($i))
+
+    /** $prim field getter */
+    public int get${primCap}Field(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
-        assert field.byteLength == 4;
-        assert Integer.TYPE.equals(field.valueClass) || Integer.class.equals(field.valueClass);
+        assert field.byteLength == (${primWrap}.SIZE / 8);
+        assert ${primWrap}.TYPE.equals(field.valueClass) || ${primWrap}.class.equals(field.valueClass);
 
         if (field.isBitField)
-            return BitFields.getPrimitiveValue(struct.getPointer(), field.byteOffset, field.bitOffset, field.bitLength, Integer.TYPE);
+            return BitFields.getPrimitiveValue(struct.getPointer(), field.byteOffset, field.bitOffset, field.bitLength, $primWrap.TYPE);
 
-        return struct.getPointer().getInt(field.byteOffset);
+        return struct.getPointer().get$primCap(field.byteOffset);
 	}
 
     public void setIntField(int fieldIndex, S struct, int value) {
         FieldIO field = fields[fieldIndex];
-        assert field.byteLength == 4;
-        assert Integer.TYPE.equals(field.valueClass) || Integer.class.equals(field.valueClass);
+        assert field.byteLength == (${primWrap}.SIZE / 8);
+        assert ${primWrap}.TYPE.equals(field.valueClass) || ${primWrap}.class.equals(field.valueClass);
 
         if (field.isBitField)
-            BitFields.setPrimitiveValue(struct.getPointer(), field.byteOffset, field.bitOffset, field.bitLength, value, Integer.TYPE);
+            BitFields.setPrimitiveValue(struct.getPointer(), field.byteOffset, field.bitOffset, field.bitLength, value, $primWrap.TYPE);
         else
-            struct.getPointer().setInt(field.byteOffset, value);
+            struct.getPointer().set$primCap(field.byteOffset, value);
     }
 
-    public IntBuffer getIntArrayField(int fieldIndex, S struct) {
+#end
+
+	public IntBuffer getIntArrayField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
         IntBuffer b = (IntBuffer)struct.refreshableFields[field.refreshableFieldIndex];
         if (b == null || !b.isDirect() || !struct.getPointer().share(field.byteOffset).equals(Native.getDirectBufferPointer(b))) {
