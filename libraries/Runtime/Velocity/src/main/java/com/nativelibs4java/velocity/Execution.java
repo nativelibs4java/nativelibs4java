@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.jnaerator.velocity;
+package com.nativelibs4java.velocity;
 
 import java.util.Map;
 

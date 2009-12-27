@@ -1,4 +1,4 @@
-package com.jnaerator.velocity;
+package com.nativelibs4java.velocity;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;

@@ -1,6 +1,6 @@
 package com.nativelibs4java.runtime.structs;
 import com.nativelibs4java.runtime.ann.Alignment;
-import com.nativelibs4java.runtime.ann.Array;
+import com.nativelibs4java.runtime.ann.Length;
 import com.nativelibs4java.runtime.ann.Bits;
 import com.nativelibs4java.runtime.ann.Field;
 import com.nativelibs4java.runtime.ann.ByValue;
@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 public class StructIO<S extends Struct<S>> {
 
     static Map<Class<?>, StructIO<?>> structIOs = new HashMap<Class<?>, StructIO<?>>();
@@ -54,11 +55,15 @@ public class StructIO<S extends Struct<S>> {
         int refreshableFieldIndex = -1;
 		Type valueType;
         Class<?> valueClass;
+        Class<?> declaringClass;
 	}
 	protected final Class<S> structClass;
 	protected volatile FieldIO[] fields;
 	private int structSize = -1;
     private int structAlignment = -1;
+
+    protected java.lang.reflect.Field[] javaFields;
+    protected java.lang.reflect.Methods[] javaIOGetters, javaIOSetters;
 	
 	public StructIO(Class<S> structClass) {
 		this.structClass = structClass;
@@ -108,6 +113,12 @@ public class StructIO<S extends Struct<S>> {
 
             @Override
             public int compare(FieldIO o1, FieldIO o2) {
+                if (o1.declaringClass.isAssignableFrom(o2.declaringClass))
+                    return -1;
+                if (o2.declaringClass.isAssignableFrom(o1.declaringClass))
+                    return -1;
+                
+                assert o1.declaringClass.equals(o2.declaringClass);
                 return o1.index - o2.index;
             }
 
@@ -117,6 +128,8 @@ public class StructIO<S extends Struct<S>> {
     protected boolean acceptFieldGetter(Method method) {
         if (method.getParameterTypes().length != 0)
             return false;
+        //if (!Struct.class.isAssignableFrom(method.getDeclaringClass()))
+        //    return false;
 
         int modifiers = method.getModifiers();
         return Modifier.isPublic(modifiers) && !Modifier.isStatic(modifiers);
@@ -129,6 +142,7 @@ public class StructIO<S extends Struct<S>> {
         FieldIO field = newFieldIO();
         field.valueType = getter.getGenericReturnType();
         field.valueClass = getter.getReturnType();
+        field.declaringClass = getter.getDeclaringClass();
 
         String name = getter.getName();
         if (name.matches("get[A-Z].*"))
@@ -138,7 +152,7 @@ public class StructIO<S extends Struct<S>> {
 
         Field fil = getter.getAnnotation(Field.class);
         Bits bits = getter.getAnnotation(Bits.class);
-        Array arr = getter.getAnnotation(Array.class);
+        Length arr = getter.getAnnotation(Length.class);
         if (fil != null)
             field.index = fil.value();
         if (bits != null)
@@ -155,13 +169,27 @@ public class StructIO<S extends Struct<S>> {
      */
 	protected List<FieldIO> listFields() {
 		List<FieldIO> list = new ArrayList<FieldIO>();
-		for (Method method : structClass.getDeclaredMethods()) {
+
+        for (Method method : structClass.getMethods()) {
             if (acceptFieldGetter(method)) {
                 FieldIO io = createFieldIO(method);
                 if (io != null)
                     list.add(io);
             }
-		}
+        }
+
+
+        List<Class<?>> classes = new ArrayList<Class<?>>();
+        Class<?> c = structClass;
+        do {
+            classes.add(c = c.getSuperclass());
+        } while (Struct.class.isAssignableFrom(c));
+        Collections.reverse(classes);
+        for (Class<?> cl : classes) {
+            for (Field field : structClass.getDeclaredFields()) {
+
+            }
+        }
 		return list;
 	}
 	
@@ -172,6 +200,7 @@ public class StructIO<S extends Struct<S>> {
         Alignment alignment = structClass.getAnnotation(Alignment.class);
         structAlignment = alignment != null ? alignment.value() : 1; //TODO get platform default alignment
 
+        //int fieldCount = 0;
         int refreshableFieldCount = 0;
         structSize = 0;
         int cumulativeBitOffset = 0;
@@ -226,7 +255,6 @@ public class StructIO<S extends Struct<S>> {
             } else
                 throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
 
-
             if (field.bitLength < 0) {
 				// Align fields as appropriate
 				if (cumulativeBitOffset != 0) {
@@ -239,6 +267,7 @@ public class StructIO<S extends Struct<S>> {
 			}
 			field.byteOffset = structSize;
             field.bitOffset = cumulativeBitOffset;
+            //field.index = fieldCount++;
 
 			if (field.bitLength >= 0) {
 				field.byteLength = (field.bitLength >>> 3) + ((field.bitLength & 7) != 0 ? 1 : 0);
@@ -254,7 +283,12 @@ public class StructIO<S extends Struct<S>> {
         else if (structSize > 0)
             structSize = alignSize(structSize, structAlignment);
 
-		return list.toArray(new FieldIO[list.size()]);
+        List<FieldIO> filtered = new ArrayList<FieldIO>();
+        for (FieldIO fio : list)
+            if (fio.declaringClass.equals(structClass))
+                filtered.add(fio);
+        
+		return filtered.toArray(new FieldIO[filtered.size()]);
 	}
 	
 	public Type getFieldType(int fieldIndex) {

@@ -1,4 +1,4 @@
-package com.jnaerator.velocity;
+package com.nativelibs4java.velocity;
 
 /*
  * Copyright 2001-2005 The Apache Software Foundation.
@@ -60,12 +60,26 @@ public class VelocityMojo
      */
     private File velocitySources;
 
+	/**
+     * Source folder for velocity test templates
+     * @parameter expression="${project.build.directory}/../src/test/velocity/"
+     * @required
+     */
+    private File velocityTestSources;
+
     /**
      * Output directory for generated sources.
-     * @parameter expression="${project.build.directory}/generated-sources"
+     * @parameter expression="${project.build.directory}/generated-sources/main/velocity"
      * @optional
      */
     private File outputDirectory;
+
+    /**
+     * Output directory for generated test sources.
+     * @parameter expression="${project.build.directory}/generated-sources/test/velocity"
+     * @optional
+     */
+    private File testOutputDirectory;
 
     /**
      * @parameter expression="${project}"
@@ -93,15 +107,15 @@ public class VelocityMojo
 
             for (File ff : f.listFiles())
                 listVeloFiles(ff.getAbsoluteFile(), out);
-        } else {//if (f.isFile()) {
+        } else if (f.isFile()) {
 			//if (n.endsWith(".velo") || n.endsWith(".vm") || n.endsWith(".velocity"))
 			if (!n.startsWith("."))//endsWith(".velo") || n.endsWith(".vm") || n.endsWith(".velocity"))
                 out.add(f);
         }
     }
 
-    public File getOutputFile(File vmFile) throws IOException {
-        String canoRoot = getVelocitySources().getCanonicalPath();
+    public File getOutputFile(File vmFile, File velocitySources, File outputDirectory) throws IOException {
+        String canoRoot = velocitySources.getCanonicalPath();
         String abs = vmFile.getCanonicalPath();
         String rel = abs.substring(canoRoot.length());
         String relLow = rel.toLowerCase();
@@ -112,7 +126,7 @@ public class VelocityMojo
             }
         }
         int i = rel.lastIndexOf('.');
-        File out = getOutputDirectory();
+        File out = outputDirectory;
         if (i >= 0) {
             String ext = rel.substring(i + 1);
             out = new File(out, ext);
@@ -123,23 +137,41 @@ public class VelocityMojo
     public void execute()
         throws MojoExecutionException
     {
+        if (executeAll(velocitySources, outputDirectory))
+            project.addCompileSourceRoot(outputDirectory.toString());
+        
+        if (executeAll(velocityTestSources, testOutputDirectory))
+            project.addTestCompileSourceRoot(testOutputDirectory.toString());
+        
+		/*if (templates == null)
+			getLog().error("Did not find <templates> !");
+		else {
+			getLog().info("Found " + templates.size() + " templates");
+			for (Template conf : templates)
+				conf.execute(this);
+		}*/
+    }
+
+    private boolean executeAll(File velocitySources, File outputDirectory) throws MojoExecutionException {
         List<File> files = new ArrayList<File>();
-		File velocitySources = this.velocitySources;
 		try {
 			velocitySources = velocitySources.getCanonicalFile();
 			listVeloFiles(velocitySources, files);
-		
+
 		} catch (Exception ex) {
 			throw new MojoExecutionException("Failed to list files from '" + velocitySources + "'", ex);
 		}
 
         getLog().info("Found " + files.size() + " files in '" + velocitySources + "'...");
 
+        if (files.isEmpty())
+            return false;
+
         for (File file : files) {
             try {
 				file = file.getCanonicalFile();
-				
-                File outFile = getOutputFile(file);
+
+                File outFile = getOutputFile(file, velocitySources, outputDirectory);
                 if (outFile.exists() && outFile.lastModified() > file.lastModified()) {
                     getLog().info("Up-to-date: '" + file + "'");
                     continue;
@@ -150,7 +182,7 @@ public class VelocityMojo
                 Velocity.init();
                 //context = new VelocityContext();
                 org.apache.velocity.Template template = Velocity.getTemplate(file.getName());
-                
+
                 VelocityContext context = new VelocityContext();//execution.getParameters());
                 StringWriter out = new StringWriter();
                 template.merge(context, out);
@@ -162,20 +194,13 @@ public class VelocityMojo
                 FileWriter f = new FileWriter(outFile);
                 f.write(out.toString());
                 f.close();
-                project.addCompileSourceRoot(outFile.getParent());
                 getLog().info("\tGenerated '" + outFile + "'");
 
             } catch (Exception ex) {
                 throw new MojoExecutionException("Failed to execute template '" + file + "'", ex);
             }
         }
-		/*if (templates == null)
-			getLog().error("Did not find <templates> !");
-		else {
-			getLog().info("Found " + templates.size() + " templates");
-			for (Template conf : templates)
-				conf.execute(this);
-		}*/
+        return true;
     }
 
 }

@@ -1,9 +1,7 @@
 package com.nativelibs4java.runtime.structs;
 import com.nativelibs4java.runtime.structs.StructIO.FieldIO.Refreshable;
 import com.sun.jna.*;
-import java.nio.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 public class Struct<S extends Struct<S>> implements Refreshable<S>, NativeMapped {
     
     private final StructIO<S> io;
