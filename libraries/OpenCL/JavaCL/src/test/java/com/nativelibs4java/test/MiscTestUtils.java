@@ -6,6 +6,7 @@
 package com.nativelibs4java.test;
 
 import com.nativelibs4java.opencl.*;
+import com.sun.jna.Native;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -18,7 +19,9 @@ import static org.junit.Assert.*;
  * @author ochafik
  */
 public class MiscTestUtils {
-	
+	public static void protectJNI() {
+            Native.setProtected(true);
+        }
 	public static void testGetters(Object instance) {
 		Logger log = Logger.getLogger(instance.getClass().getName());
 		for (Method m : instance.getClass().getDeclaredMethods()) {

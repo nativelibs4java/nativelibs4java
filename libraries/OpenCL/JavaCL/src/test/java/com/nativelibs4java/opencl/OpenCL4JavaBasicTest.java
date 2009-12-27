@@ -2,6 +2,7 @@
 package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.opencl.*;
+import com.nativelibs4java.test.MiscTestUtils;
 
 import java.lang.reflect.*;
 import java.util.EnumSet;
@@ -18,6 +19,11 @@ public class OpenCL4JavaBasicTest {
 
     public static final double ABSOLUTE_FLOAT_ERROR_TOLERANCE = 1e-4;
     public static final double RELATIVE_FLOAT_ERROR_TOLERANCE = 1e-8;
+
+    @BeforeClass
+    public static void setup() {
+        MiscTestUtils.protectJNI();
+    }
 
     @Test
     public void simpleTest() {

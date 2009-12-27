@@ -185,24 +185,26 @@ public class JavaCLGenerator extends JNAerator {
                                 Expression argExpr;
                                     
                                 if (Modifier.__local.isContainedBy(mods)) {
-                                    argName += "ByteSize";
-                                    convTr = typeRef(Long.TYPE);
-                                    argExpr = new Expression.New(typeRef(CLKernel.LocalSize.class), varRef(argName));
+                                    argName += "LocalByteSize";
+                                    //convTr = typeRef(Long.TYPE);
+                                    //argExpr = new Expression.New(typeRef(CLKernel.LocalSize.class), varRef(argName));
+                                    convTr = typeRef(CLKernel.LocalSize.class);
+                                    argExpr = varRef(argName);//new Expression.New(typeRef(CLKernel.LocalSize.class), varRef(argName));
                                 } else {
                                     Conversion conv = convertTypeToJavaCL(result, argName, tr, TypeConversion.TypeConversionMode.PrimitiveOrBufferParameter, null);
                                     convTr = conv.outerJavaTypeRef;
                                     argExpr = conv.convertedExpr;
                                     extraStatements.addAll(conv.extraStatements);
-                                    String convTrStr = convTr.toString();
-                                    if (convTrStr.equals(NativeSize.class.getName()) || convTrStr.equals(NativeLong.class.getName()))
+                                    //String convTrStr = convTr.toString();
+                                    /*if (convTrStr.equals(NativeSize.class.getName()) || convTrStr.equals(NativeLong.class.getName()))
                                         argExpr = new Expression.New(tr, varRef(conv.argName));
                                     else
-                                        argExpr = varRef(ident(argName));
+                                        argExpr = varRef(ident(argName));*/
                                 }
 
-                                convArgs.add(new Arg(argName, convTr));
+                                    convArgs.add(new Arg(argName, convTr));
 
-                                convArgExpr.add(varRef(argName));
+                                convArgExpr.add(argExpr);//varRef(argName));
 
                             } catch (UnsupportedConversionException ex) {
                                 out.addDeclaration(skipDeclaration(function, ex.toString()));
@@ -523,12 +525,15 @@ public class JavaCLGenerator extends JNAerator {
     public static void main(String[] args) {
         JNAerator.main(new JavaCLGenerator(new JNAeratorConfig()),
             new String[] {
-                "-o", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/generated-sources/main/java",
+                "-o", "C:/Prog/nativelibs4java/trunk/libraries/OpenCL/Blas/target/generated-sources/main/java",
+                //"-o", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/generated-sources/main/java",
                 "-noJar",
                 "-noComp",
                 "-v",
-                "-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Blas/target/../src/main/opencl",
-                "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Blas/src/main/opencl/com/nativelibs4java/opencl/blas/LinearAlgebraKernels.c"
+                "-addRootDir", "C:/Prog/nativelibs4java/trunk/libraries/OpenCL/Blas/src/main/opencl",
+                "C:/Prog/nativelibs4java/trunk/libraries/OpenCL/Blas/src/main/opencl/com/nativelibs4java/opencl/blas/LinearAlgebraKernels.c",
+                //"-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Blas/target/../src/main/opencl",
+                //"/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Blas/src/main/opencl/com/nativelibs4java/opencl/blas/LinearAlgebraKernels.c"
                 //"-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl",
                 //"/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl/com/nativelibs4java/opencl/demos/sobelfilter/SimpleSobel.cl"
             }

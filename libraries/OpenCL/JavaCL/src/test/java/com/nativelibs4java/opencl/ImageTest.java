@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl;
 
+import com.nativelibs4java.test.MiscTestUtils;
 import com.nativelibs4java.util.ImageUtils;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -24,6 +25,11 @@ import static org.junit.Assert.*;
  * @author ochafik
  */
 public class ImageTest extends AbstractCommon {
+
+    @BeforeClass
+    public static void setup() {
+        MiscTestUtils.protectJNI();
+    }
 
     public boolean supportsImages() {
         for (CLDevice device : context.getDevices())
@@ -103,7 +109,9 @@ public class ImageTest extends AbstractCommon {
 
 	@Test
 	public void testImageSource() {
-		try {
+            if (!supportsImages())
+                return;
+            try {
 			CLContext context = JavaCL.createBestContext();
             CLQueue queue = context.createDefaultQueue();
 			String src = "\n" +

@@ -5,6 +5,7 @@ import com.nativelibs4java.opencl.*;
 
 import com.nativelibs4java.util.NIOUtils;
 import com.nativelibs4java.opencl.ReductionUtils.Reductor;
+import com.nativelibs4java.test.MiscTestUtils;
 import java.lang.reflect.*;
 import java.util.EnumSet;
 import java.util.logging.*;
@@ -17,6 +18,11 @@ import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.util.NIOUtils.*;
 
 public class ReductionTest {
+
+    @BeforeClass
+    public static void setup() {
+        MiscTestUtils.protectJNI();
+    }
 
     CLContext context;
     CLQueue queue;
@@ -78,9 +84,10 @@ public class ReductionTest {
 
             CLEvent evt = reductor.reduce(queue, in, dataSize, out, maxReductionSize);
             //if (evt != null)
-                evt.waitFor();
+            queue.finish();
+            //    evt.waitFor();
             //CLEvent[] evts = reductor.reduce(queue, in, 0, dataSize, out, maxReductionSize);
-            //queue.enqueueWaitForEvents(evts);
+                //queue.enqueueWaitForEvents(evts);
 
             int expected = dataSize * (dataSize - 1) / 2;
             System.out.println("Expecting " + expected);

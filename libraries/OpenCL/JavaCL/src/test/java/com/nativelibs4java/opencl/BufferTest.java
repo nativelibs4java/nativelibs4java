@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl;
 
+import com.nativelibs4java.test.MiscTestUtils;
 import com.nativelibs4java.util.ImageUtils;
 import com.nativelibs4java.util.NIOUtils;
 import com.sun.jna.Native;
@@ -30,6 +31,11 @@ import static org.junit.Assert.*;
  * @author ochafik
  */
 public class BufferTest extends AbstractCommon {
+
+    @BeforeClass
+    public static void setup() {
+        MiscTestUtils.protectJNI();
+    }
 
     @Test
     public void testReadWrite() {

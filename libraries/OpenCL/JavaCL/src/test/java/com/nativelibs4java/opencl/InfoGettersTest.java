@@ -6,6 +6,7 @@ package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.opencl.CLDevice.*;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import com.nativelibs4java.test.MiscTestUtils;
 import java.lang.reflect.*;
 import java.util.EnumSet;
 import java.util.logging.*;
@@ -18,6 +19,11 @@ import static com.nativelibs4java.test.MiscTestUtils.*;
  * @author ochafik
  */
 public class InfoGettersTest {
+
+    @BeforeClass
+    public static void setup() {
+        MiscTestUtils.protectJNI();
+    }
 
     CLProgram createProgram() {
         CLProgram pg = createContext().createProgram("__kernel void f(__global int* a) {}");

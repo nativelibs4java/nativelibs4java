@@ -1,9 +1,11 @@
 package com.nativelibs4java.opencl;
 
 import com.nativelibs4java.opencl.*;
+import com.nativelibs4java.test.MiscTestUtils;
 import java.io.File;
 import java.util.*;
 import java.nio.*;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLTestUtils.*;
@@ -13,6 +15,11 @@ import static com.nativelibs4java.test.BenchmarkUtils.*;
 //import com.nativelibs4java.scalacl.*;
 /// @see http://ati.amd.com/technology/streamcomputing/intro_opencl.html#simple
 public class OpenCL4JavaBenchmarkTest {
+
+    @BeforeClass
+    public static void setup() {
+        MiscTestUtils.protectJNI();
+    }
 
     static final boolean warmup = true;
 
