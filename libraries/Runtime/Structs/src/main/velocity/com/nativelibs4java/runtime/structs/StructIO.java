@@ -63,7 +63,7 @@ public class StructIO<S extends Struct<S>> {
     private int structAlignment = -1;
 
     protected java.lang.reflect.Field[] javaFields;
-    protected java.lang.reflect.Methods[] javaIOGetters, javaIOSetters;
+    protected java.lang.reflect.Method[] javaIOGetters, javaIOSetters;
 	
 	public StructIO(Class<S> structClass) {
 		this.structClass = structClass;
@@ -186,7 +186,7 @@ public class StructIO<S extends Struct<S>> {
         } while (Struct.class.isAssignableFrom(c));
         Collections.reverse(classes);
         for (Class<?> cl : classes) {
-            for (Field field : structClass.getDeclaredFields()) {
+            for (java.lang.reflect.Field field : structClass.getDeclaredFields()) {
 
             }
         }

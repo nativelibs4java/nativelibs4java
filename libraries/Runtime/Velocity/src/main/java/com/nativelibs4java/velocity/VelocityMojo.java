@@ -16,9 +16,6 @@ package com.nativelibs4java.velocity;
  * limitations under the License.
  */
 
-import com.sun.tools.corba.se.idl.som.cff.FileLocator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
@@ -30,12 +27,8 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import org.apache.velocity.*;
 import org.apache.velocity.app.Velocity;
-import org.apache.velocity.app.VelocityEngine;
-import org.apache.velocity.exception.ParseErrorException;
-import org.apache.velocity.exception.ResourceNotFoundException;
 
 /**
  * Generates source code with velocity templates

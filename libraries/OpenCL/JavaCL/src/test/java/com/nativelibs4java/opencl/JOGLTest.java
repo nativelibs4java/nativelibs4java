@@ -43,7 +43,7 @@ public class JOGLTest {
     
     public GLCanvas createGLCanvas(int width, int height) {
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        GLCanvas glCanvas = new GLCanvas(new GLCapabilities(GLProfile.getDefault()));
+        GLCanvas glCanvas = new GLCanvas(new GLCapabilities(GLProfile.get(GLProfile.GL2)));
         glCanvas.setSize( width, height );
         glCanvas.setIgnoreRepaint( true );
 
