@@ -11,6 +11,7 @@ Current development version (1.0-SNAPSHOT)
 - Added deferred program allocation : CLProgram.addSource(String), CLProgram.allocate() (called automatically)...
 - Added very simple OpenCL backend for UJMP (Universal Java Matrix Package), which does matrix multiplications in OpenCL.
 - Created a kernel wrapper autogenerator (Maven plugin based on JNAerator) : translates all constants on the Java side and presents kernels as methods with the correct Java argument types. It assumes OpenCL kernels (*.c, *.cl) are in src/main/opencl
+- Added wrappers around clGetKernelWorkGroupInfo
 
 Version 1.0-beta-3 (r , 20091030)
 

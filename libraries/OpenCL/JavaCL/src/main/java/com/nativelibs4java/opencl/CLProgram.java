@@ -71,6 +71,10 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 	List<String> sources = new ArrayList<String>();
     Map<CLDevice, cl_program> programByDevice = new HashMap<CLDevice, cl_program>();
 
+    public CLDevice[] getDevices() {
+        return devices.clone();
+    }
+    
     public synchronized void allocate() {
         if (entity != null)
             throw new IllegalThreadStateException("Program was already allocated !");

@@ -25,6 +25,7 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
 import java.nio.*;
+import java.util.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLException.*;
 import static com.nativelibs4java.util.JNAUtils.*;
@@ -51,6 +52,19 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         }
     };
 
+    private volatile CLInfoGetter<cl_device_id> kernelInfos;
+    protected synchronized CLInfoGetter<cl_device_id> getKernelInfos() {
+        if (kernelInfos == null)
+            kernelInfos = new CLInfoGetter<cl_device_id>() {
+
+                @Override
+                protected int getInfo(cl_device_id entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+                    return CL.clGetKernelWorkGroupInfo(getEntity(), entity, infoTypeEnum, size, out, sizeOut);
+                }
+            };
+        return kernelInfos;
+    }
+
     CLKernel(CLProgram program, String name, cl_kernel entity) {
         super(entity);
         this.program = program;
@@ -64,6 +78,48 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         return getFunctionName() + " {args: " + getNumArgs() + "}";//, workGroupSize = " + getWorkGroupSize() + ", localMemSize = " + getLocalMemSize() + "}";
     }
 
+    /**
+     * This provides a mechanism for the application to query the maximum work-group size that can be used to execute a kernel on a specific device given by device. <br/>
+     * The OpenCL implementation uses the resource requirements of the kernel (register usage etc.) to determine what this work- group size should be.
+     * @see CL_KERNEL_WORK_GROUP_SIZE
+     */
+    public Map<CLDevice, Long> getWorkGroupSize() {
+        CLDevice[] devices = program.getDevices();
+        Map<CLDevice, Long> ret = new HashMap<CLDevice, Long>(devices.length);
+        for (CLDevice device : devices)
+            ret.put(device, getKernelInfos().getIntOrLong(device.getEntity(), CL_KERNEL_WORK_GROUP_SIZE));
+        return ret;
+    }
+
+    /**
+     * Returns the work-group size specified by the __attribute__((reqd_work_gr oup_size(X, Y, Z))) qualifier.<br/>
+     * Refer to section 6.7.2.<br/>
+     * If the work-group size is not specified using the above attribute qualifier (0, 0, 0) is returned.
+     * @see CL_KERNEL_COMPILE_WORK_GROUP_SIZE
+     * @return for each CLDevice, array of 3 longs
+     */
+    public Map<CLDevice, long[]> getCompileWorkGroupSize() {
+        CLDevice[] devices = program.getDevices();
+        Map<CLDevice, long[]> ret = new HashMap<CLDevice, long[]>(devices.length);
+        for (CLDevice device : devices)
+            ret.put(device, getKernelInfos().getNativeSizes(device.getEntity(), CL_KERNEL_COMPILE_WORK_GROUP_SIZE, 3));
+        return ret;
+    }
+    
+    /**
+     * Returns the amount of local memory in bytes being used by a kernel. <br/>
+     * This includes local memory that may be needed by an implementation to execute the kernel, variables declared inside the kernel with the __local address qualifier and local memory to be allocated for arguments to the kernel declared as pointers with the __local address qualifier and whose size is specified with clSetKernelArg.<br/>
+     * If the local memory size, for any pointer argument to the kernel declared with the __local address qualifier, is not specified, its size is assumed to be 0.
+     * @see CL_KERNEL_LOCAL_MEM_SIZE
+     */
+    public Map<CLDevice, Long> getLocalMemSize() {
+        CLDevice[] devices = program.getDevices();
+        Map<CLDevice, Long> ret = new HashMap<CLDevice, Long>(devices.length);
+        for (CLDevice device : devices)
+            ret.put(device, getKernelInfos().getIntOrLong(device.getEntity(), CL_KERNEL_LOCAL_MEM_SIZE));
+        return ret;
+    }
+    
     public void setArgs(Object... args) {
         for (int i = 0; i < args.length; i++) {
             setObjectArg(i, args[i]);
