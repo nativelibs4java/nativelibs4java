@@ -99,249 +99,250 @@ public class ParticlesDemo implements GLEventListener {
     volatile float mouseWeight = DEFAULT_MOUSE_WEIGHT;
     
     public static void main(String[] args) {
+        try {
+            System.setProperty("sun.java2d.noddraw","true");
 
-        System.setProperty("sun.java2d.noddraw","true");
+            try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch(Exception ex) {}
+            SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
 
-        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch(Exception ex) {}
-        SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
-        
-        JFrame f = new JFrame("JavaCL Particles Demo");
-        Box tb = Box.createHorizontalBox();
-        final JButton openImage = new JButton("Import"), saveImage = new JButton("Export"), changeBlend = new JButton("Change Blend");
-        tb.add(openImage);
-        //tb.add(saveImage);
-        tb.add(changeBlend);
-        //final JCheckBox limi
-        final AssertionError[] err = new AssertionError[1];
+            JFrame f = new JFrame("JavaCL Particles Demo");
+            Box tb = Box.createHorizontalBox();
+            final JButton openImage = new JButton("Import"), saveImage = new JButton("Export"), changeBlend = new JButton("Change Blend");
+            tb.add(openImage);
+            //tb.add(saveImage);
+            tb.add(changeBlend);
+            //final JCheckBox limi
+            final AssertionError[] err = new AssertionError[1];
 
-        int[] sizes = new int[] {
-            1024,
-            1024 * 10,
-            1024 * 100,
-            1024 * 1000,
-            1024 * 10000,
-        };
-        String[] descs = new String[] {
-            "1K",
-            "10K",
-            "100K",
-            "1M",
-            "10M"
-        };
-        int defaultChoice = 2;
-        int choice = JOptionPane.showOptionDialog(null, "Number of particles ?", "JavaCL Particles Demo", JOptionPane.OK_OPTION, JOptionPane.QUESTION_MESSAGE, null, descs, descs[defaultChoice]);
-        if (choice < 0)
-            System.exit(0);
-
-        int nParticles = sizes[choice];
-        final ParticlesDemo demo = new ParticlesDemo(nParticles);
-        final int nSpeeds = 21;
-
-        boolean hasSharing = false;
-        for (CLPlatform platform : JavaCL.listPlatforms())
-            if (platform.isGLSharingSupported())
-                hasSharing = true;
-        
-        if (hasSharing) {
-            int conf = JOptionPane.showConfirmDialog(null,
-                "Do you want to enable the OpenCL/OpenGL context sharing ?\n" +
-                "(this is typically very unstable with most drivers, but shouldn't crash anything else than this demo)",
-                "JavaCL Demo : Stability Warning", JOptionPane.YES_NO_OPTION);
-            if (conf == JOptionPane.YES_OPTION)
-                demo.useOpenGLContext = true;
-        }
-
-        final JSlider speedSlider = new JSlider(0, nSpeeds - 1);
-        speedSlider.setValue(nSpeeds / 2);
-        //f.getContentPane().add("West", slider);
-
-        tb.add(speedSlider);
-        //slider.setOrientation(JSlider.VERTICAL);
-        speedSlider.addChangeListener(new ChangeListener() {
-
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                int d = speedSlider.getValue() - nSpeeds / 2;
-                demo.speedFactor = (d == 0 ? 1 : d > 0 ? d : -1f/d) * DEFAULT_SPEED_FACTOR;
-            }
-
-        });
-
-        changeBlend.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                demo.iBlend = (demo.iBlend + 1) % demo.blends.length;
-            }
-
-        });
-
-        final Component canvas = createGLCanvas(1000, 800);
-        f.setLayout(new BorderLayout());
-        f.add("Center", canvas);
-
-        saveImage.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                boolean paused = demo.paused;
-                demo.paused = true;
-
-                BufferedImage im = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
-                Graphics g = im.createGraphics();
-                canvas.paint(g);
-                g.dispose();
-
-                FileDialog fc = new FileDialog((Frame)null);
-                fc.setMode(FileDialog.SAVE);
-                fc.show();
-                if (fc.getFile() != null) {
-                    try {
-                        ImageIO.write(im, "jpeg", lastFile = new File(new File(fc.getDirectory()), fc.getFile()));
-                    } catch (IOException ex) {
-                        demo.exception(ex);
-                        Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-
-                demo.paused = paused;
-            }
-
-        });
-
-        openImage.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                boolean paused = demo.paused;
-                demo.paused = true;
-
-                FileDialog fc = new FileDialog((Frame)null);
-                fc.setMode(FileDialog.LOAD);
-                fc.show();
-                if (fc.getFile() != null) {
-                    try {
-                        BufferedImage im = ImageIO.read(lastFile = new File(new File(fc.getDirectory()), fc.getFile()));
-                        demo.setImage(im);
-                    } catch (IOException ex) {
-                        demo.exception(ex);
-                        Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-
-                demo.paused = paused;
-            }
-
-        });
-
-        canvas.addMouseWheelListener(new MouseWheelListener() {
-
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                if (e.getUnitsToScroll() > 0)
-                    for (int i = e.getUnitsToScroll(); i-- != 0;)
-                        demo.mouseWeight *= 1.1f;
-                else
-                    for (int i = -e.getUnitsToScroll(); i-- != 0;)
-                        demo.mouseWeight /= 1.1f;
-            }
-        });
-        canvas.addKeyListener(new KeyAdapter() {
-
-            @Override
-            public void keyPressed(KeyEvent ke) {
-                switch (ke.getKeyCode()) {
-                    case KeyEvent.VK_SPACE:
-                        demo.paused = !demo.paused;
-                        break;
-                    case KeyEvent.VK_DELETE:
-                    case KeyEvent.VK_BACK_SPACE:
-                        demo.mouseWeight = 1;
-                        break;
-                }
-            }
-
-
-
-        });
-        final JSlider sliderMass = new JSlider(0, nSpeeds - 1);
-        sliderMass.setValue(nSpeeds / 2);
-        //f.getContentPane().add("East", sliderMass);
-        //sliderMass.setOrientation(JSlider.VERTICAL);
-        sliderMass.addChangeListener(new ChangeListener() {
-
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                int d = sliderMass.getValue() - nSpeeds / 2;
-                demo.massFactor = (d == 0 ? 1 : d > 0 ? d : -1f/d) * DEFAULT_MASS_FACTOR;
-            }
-
-        });
-        tb.add(sliderMass);
-
-        f.add("North", tb);
-
-        canvas.addMouseListener(new MouseAdapter() {
-
-            @Override
-            public void mouseClicked(MouseEvent me) {
-                if (me.getButton() != MouseEvent.BUTTON1 || me.isMetaDown() || me.isControlDown())
-                    demo.mouseWeight = 1;
-                else
-                    demo.paused = !demo.paused;
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                demo.hasMouse = false;
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                demo.hasMouse = true;
-            }
-
-
-
-
-        });
-        canvas.addMouseMotionListener(new MouseMotionAdapter() {
-
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                demo.mouseX = e.getX();
-                demo.mouseY = e.getY();
-                demo.lastMouseMove = System.currentTimeMillis();
-            }
-
-        });
-
-        //f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.addWindowListener(new WindowAdapter() {
-
-            @Override
-            public void windowClosing(WindowEvent e) {
+            int[] sizes = new int[] {
+                1024,
+                1024 * 10,
+                1024 * 100,
+                1024 * 1000,
+                1024 * 10000,
+            };
+            String[] descs = new String[] {
+                "1K",
+                "10K",
+                "100K",
+                "1M",
+                "10M"
+            };
+            int defaultChoice = 2;
+            int choice = JOptionPane.showOptionDialog(null, "Number of particles ?", "JavaCL Particles Demo", JOptionPane.OK_OPTION, JOptionPane.QUESTION_MESSAGE, null, descs, descs[defaultChoice]);
+            if (choice < 0)
                 System.exit(0);
+
+            int nParticles = sizes[choice];
+            final ParticlesDemo demo = new ParticlesDemo(nParticles);
+            final int nSpeeds = 21;
+
+            boolean hasSharing = false;
+            for (CLPlatform platform : JavaCL.listPlatforms())
+                if (platform.isGLSharingSupported())
+                    hasSharing = true;
+
+            if (hasSharing) {
+                int conf = JOptionPane.showConfirmDialog(null,
+                    "Do you want to enable the OpenCL/OpenGL context sharing ?\n" +
+                    "(this is typically very unstable with most drivers, but shouldn't crash anything else than this demo)",
+                    "JavaCL Demo : Stability Warning", JOptionPane.YES_NO_OPTION);
+                if (conf == JOptionPane.YES_OPTION)
+                    demo.useOpenGLContext = true;
             }
-        });
-        f.pack();
 
-        f.setVisible(true);
+            final JSlider speedSlider = new JSlider(0, nSpeeds - 1);
+            speedSlider.setValue(nSpeeds / 2);
+            //f.getContentPane().add("West", slider);
 
-        FPSAnimator animator;
-        if (canvas instanceof GLCanvas) {
-            ((GLCanvas)canvas).addGLEventListener(demo);
-            animator = new FPSAnimator(((GLCanvas)canvas), 30);
-        } else {
-            ((GLJPanel)canvas).addGLEventListener(demo);
-            animator = new FPSAnimator(((GLJPanel)canvas), 30);
+            tb.add(speedSlider);
+            //slider.setOrientation(JSlider.VERTICAL);
+            speedSlider.addChangeListener(new ChangeListener() {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    int d = speedSlider.getValue() - nSpeeds / 2;
+                    demo.speedFactor = (d == 0 ? 1 : d > 0 ? d : -1f/d) * DEFAULT_SPEED_FACTOR;
+                }
+
+            });
+
+            changeBlend.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    demo.iBlend = (demo.iBlend + 1) % demo.blends.length;
+                }
+
+            });
+
+            final Component canvas = createGLCanvas(1000, 800);
+            f.setLayout(new BorderLayout());
+            f.add("Center", canvas);
+
+            saveImage.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    boolean paused = demo.paused;
+                    demo.paused = true;
+
+                    BufferedImage im = new BufferedImage(canvas.getWidth(), canvas.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                    Graphics g = im.createGraphics();
+                    canvas.paint(g);
+                    g.dispose();
+
+                    FileDialog fc = new FileDialog((Frame)null);
+                    fc.setMode(FileDialog.SAVE);
+                    fc.show();
+                    if (fc.getFile() != null) {
+                        try {
+                            ImageIO.write(im, "jpeg", lastFile = new File(new File(fc.getDirectory()), fc.getFile()));
+                        } catch (Exception ex) {
+                            demo.exception(ex);
+                            Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+
+                    demo.paused = paused;
+                }
+
+            });
+
+            openImage.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    boolean paused = demo.paused;
+                    demo.paused = true;
+
+                    FileDialog fc = new FileDialog((Frame)null);
+                    fc.setMode(FileDialog.LOAD);
+                    fc.show();
+                    if (fc.getFile() != null) {
+                        try {
+                            BufferedImage im = ImageIO.read(lastFile = new File(new File(fc.getDirectory()), fc.getFile()));
+                            demo.setImage(im);
+                        } catch (Exception ex) {
+                            demo.exception(ex);
+                            Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+
+                    demo.paused = paused;
+                }
+
+            });
+
+            canvas.addMouseWheelListener(new MouseWheelListener() {
+
+                @Override
+                public void mouseWheelMoved(MouseWheelEvent e) {
+                    if (e.getUnitsToScroll() > 0)
+                        for (int i = e.getUnitsToScroll(); i-- != 0;)
+                            demo.mouseWeight *= 1.1f;
+                    else
+                        for (int i = -e.getUnitsToScroll(); i-- != 0;)
+                            demo.mouseWeight /= 1.1f;
+                }
+            });
+            canvas.addKeyListener(new KeyAdapter() {
+
+                @Override
+                public void keyPressed(KeyEvent ke) {
+                    switch (ke.getKeyCode()) {
+                        case KeyEvent.VK_SPACE:
+                            demo.paused = !demo.paused;
+                            break;
+                        case KeyEvent.VK_DELETE:
+                        case KeyEvent.VK_BACK_SPACE:
+                            demo.mouseWeight = 1;
+                            break;
+                    }
+                }
+
+
+
+            });
+            final JSlider sliderMass = new JSlider(0, nSpeeds - 1);
+            sliderMass.setValue(nSpeeds / 2);
+            //f.getContentPane().add("East", sliderMass);
+            //sliderMass.setOrientation(JSlider.VERTICAL);
+            sliderMass.addChangeListener(new ChangeListener() {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    int d = sliderMass.getValue() - nSpeeds / 2;
+                    demo.massFactor = (d == 0 ? 1 : d > 0 ? d : -1f/d) * DEFAULT_MASS_FACTOR;
+                }
+
+            });
+            tb.add(sliderMass);
+
+            f.add("North", tb);
+
+            canvas.addMouseListener(new MouseAdapter() {
+
+                @Override
+                public void mouseClicked(MouseEvent me) {
+                    if (me.getButton() != MouseEvent.BUTTON1 || me.isMetaDown() || me.isControlDown())
+                        demo.mouseWeight = 1;
+                    else
+                        demo.paused = !demo.paused;
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    demo.hasMouse = false;
+                }
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    demo.hasMouse = true;
+                }
+
+
+
+
+            });
+            canvas.addMouseMotionListener(new MouseMotionAdapter() {
+
+                @Override
+                public void mouseMoved(MouseEvent e) {
+                    demo.mouseX = e.getX();
+                    demo.mouseY = e.getY();
+                    demo.lastMouseMove = System.currentTimeMillis();
+                }
+
+            });
+
+            //f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            f.addWindowListener(new WindowAdapter() {
+
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    System.exit(0);
+                }
+            });
+            f.pack();
+
+            f.setVisible(true);
+
+            FPSAnimator animator;
+            if (canvas instanceof GLCanvas) {
+                ((GLCanvas)canvas).addGLEventListener(demo);
+                animator = new FPSAnimator(((GLCanvas)canvas), 30);
+            } else {
+                ((GLJPanel)canvas).addGLEventListener(demo);
+                animator = new FPSAnimator(((GLJPanel)canvas), 30);
+            }
+
+            animator.setRunAsFastAsPossible(true);
+            animator.start();
+        } catch (Exception ex) {
+            exception(ex);
+            Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        animator.setRunAsFastAsPossible(true);
-        animator.start();
-
-
-
     }
 
     public void setImage(BufferedImage image) {
