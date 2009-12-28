@@ -4,7 +4,7 @@ import com.sun.jna.*;
 
 public class Struct<S extends Struct<S>> implements Refreshable<S>, NativeMapped {
     
-    private final StructIO<S> io;
+    protected final StructIO<S> io;
 	protected volatile Pointer pointer;
 	Object[] refreshableFields;
 

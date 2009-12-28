@@ -70,16 +70,17 @@ public class JavaCLGenerator extends JNAerator {
         config.noCPlusPlus = true;
         config.genCPlusPlus = false;
         config.gccLong = true;
+        config.putTopStructsInSeparateFiles = false;
+        config.fastStructs = true;
         config.fileToLibrary = new Adapter<File, String>() {
-
             @Override
             public String adapt(File value) {
                 String[] m = RegexUtils.match(value.getName(), nameExtPatt);
                 return m == null ? null : m[1];
             }
         };
-        config.functionsAccepter = new Adapter<Function, Boolean>() {
 
+        config.functionsAccepter = new Adapter<Function, Boolean>() {
             @Override
             public Boolean adapt(Function value) {
                 List<Modifier> mods = value.getModifiers();
@@ -455,14 +456,14 @@ public class JavaCLGenerator extends JNAerator {
 			result.typeConverter.allowFakePointers = true;
             String library = name;
             Identifier fullLibraryClassName = ident(className);
-			result.declarationsConverter.convertEnums(result.enumsByLibrary.get(library), signatures, interf, fullLibraryClassName);
-			result.declarationsConverter.convertConstants(library, result.definesByLibrary.get(library), sourceFiles, signatures, interf, fullLibraryClassName);
 			result.declarationsConverter.convertStructs(result.structsByLibrary.get(library), signatures, interf, fullLibraryClassName);
 			//result.declarationsConverter.convertCallbacks(result.callbacksByLibrary.get(library), signatures, interf, fullLibraryClassName);
 
             int declCount = interf.getDeclarations().size();
 			result.declarationsConverter.convertFunctions(result.functionsByLibrary.get(library), signatures, interf, fullLibraryClassName);
-            
+            result.declarationsConverter.convertEnums(result.enumsByLibrary.get(library), signatures, interf, fullLibraryClassName);
+			result.declarationsConverter.convertConstants(library, result.definesByLibrary.get(library), sourceFiles, signatures, interf, fullLibraryClassName);
+
             boolean hasKernels = interf.getDeclarations().size() > declCount;
             if (!hasKernels)
                 continue;
