@@ -381,6 +381,38 @@ public class StructIO<S extends Struct<S>> {
         }
 	}
 
+    public <F extends Struct<F>> F getStructField(int fieldIndex, S struct, Class<F> fieldClass) {
+        FieldIO field = fields[fieldIndex];
+        assert fieldClass.equals(field.valueClass);
+        F fieldValue = (F)struct.refreshableFields[field.refreshableFieldIndex];
+        if (fieldValue == null) {
+            try {
+                struct.refreshableFields[field.refreshableFieldIndex] = fieldValue = fieldClass.newInstance();
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to instantiate struct of type " + fieldClass.getName(), ex);
+            }
+        }
+        
+        fieldValue.setPointer(struct.getPointer().share(field.byteOffset));
+        return fieldValue;
+	}
+
+    public <F extends Struct<F>> Array<F> getStructArrayField(int fieldIndex, S struct, Class<F> fieldClass) {
+        FieldIO field = fields[fieldIndex];
+        assert fieldClass.equals(field.valueClass);
+
+        Pointer ptr = struct.getPointer().share(field.byteOffset);
+        Array<F> fieldValue = (Array<F>)struct.refreshableFields[field.refreshableFieldIndex];
+        if (fieldValue == null)
+            struct.refreshableFields[field.refreshableFieldIndex] = fieldValue = new Array<F>(fieldClass, field.arraySize, ptr);
+        else
+            fieldValue.setPointer(ptr);
+        
+        return fieldValue;
+	}
+
+
+
 #set ($prims = [ "int", "long", "short", "byte", "float", "double" ])
 #set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double" ])
 #set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer" ])
@@ -404,7 +436,7 @@ public class StructIO<S extends Struct<S>> {
         return struct.getPointer().get$primCap(field.byteOffset);
 	}
 
-    public void setIntField(int fieldIndex, S struct, ${prim} value) {
+    public void set${primCap}Field(int fieldIndex, S struct, ${prim} value) {
         FieldIO field = fields[fieldIndex];
         assert field.byteLength == (${primWrap}.SIZE / 8);
         assert ${primWrap}.TYPE.equals(field.valueClass) || ${primWrap}.class.equals(field.valueClass);

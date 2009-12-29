@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  */
 public class Array<S extends Struct<S>> implements Iterable<S> {
     protected final Class<S> structClass;
-    protected final Pointer pointer;
+    protected volatile Pointer pointer;
     protected final int size, structSize;
 
     protected volatile S[] cachedInstances;
@@ -41,6 +41,12 @@ public class Array<S extends Struct<S>> implements Iterable<S> {
         }
     }
 
+	public synchronized void setPointer(Pointer pointer) {
+		this.pointer = pointer;
+	}
+	public synchronized Pointer getPointer() {
+		return pointer;
+	}
     public synchronized S get(int index) {
         if (cachedInstances == null)
             cachedInstances = (S[])java.lang.reflect.Array.newInstance(structClass, size);
