@@ -411,6 +411,14 @@ public class StructIO<S extends Struct<S>> {
         return fieldValue;
 	}
 
+	public boolean getBoolField(int fieldIndex, S struct) {
+		return getByteField(fieldIndex, struct) != 0;
+	}
+	
+	
+	public void setBoolField(int fieldIndex, S struct, boolean fieldValue) {
+		setByteField(fieldIndex, struct, fieldValue ? 1 : 0);
+	}
 
 
 #set ($prims = [ "int", "long", "short", "byte", "float", "double" ])
