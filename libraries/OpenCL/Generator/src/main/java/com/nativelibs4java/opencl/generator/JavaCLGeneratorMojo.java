@@ -116,7 +116,7 @@ public class JavaCLGeneratorMojo
         root = root.getCanonicalFile();
         listOpenCLFiles(root, sources);
 
-        System.out.println("Found " + sources.size() + " files in " + root);
+        getLog().info("Found " + sources.size() + " files in " + root);
         String rootPath = root.getCanonicalPath();
         String openCLOutPath = openCLOutDir.getCanonicalPath();
         String javaOutPath = javaOutDir.getCanonicalPath();
@@ -138,7 +138,7 @@ public class JavaCLGeneratorMojo
             int i = filePath.lastIndexOf(".");
             File javaOutFile = new File(javaOutPath + filePath.substring(rootPath.length(), i) + ".java");
             if (javaOutFile.exists() && javaOutFile.lastModified() > file.lastModified()) {
-                System.out.println("File " + fileName + " is up-to-date. Skipping generation.");
+                getLog().info("File " + fileName + " is up-to-date. Skipping generation.");
                 continue;
             }
 
@@ -146,7 +146,7 @@ public class JavaCLGeneratorMojo
             if (!openCLOutParent.exists())
                 openCLOutParent.mkdirs();
 
-            System.out.println("Copying " + file + " to " + openCLOutFile);
+            getLog().info("Copying " + file + " to " + openCLOutFile);
             FileWriter out = new FileWriter(openCLOutFile);
             FileReader in = new FileReader(file);
             IOUtils.readWrite(in, out);
@@ -160,19 +160,19 @@ public class JavaCLGeneratorMojo
                 @Override
                 public void setStatus(String string) {
                     if (config.verbose)
-                        System.out.println(string);
+                        getLog().info(string);
                 }
 
                 @Override
                 public void setFinished(Throwable e) {
-                    System.out.println("JNAeration failed !");
+                    getLog().info("JNAeration failed !");
                     e.printStackTrace();
                     ex[0] = e;
                 }
 
                 @Override
                 public void setFinished(File toOpen) {
-                    System.out.println("JNAeration of " + fileName + " completed in " + toOpen.getAbsolutePath());
+                    getLog().info("JNAeration of " + fileName + " completed in " + toOpen.getAbsolutePath());
                 }
 
                 @Override
