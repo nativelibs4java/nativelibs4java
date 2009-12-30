@@ -1,0 +1,38 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package jdyncall;
+
+import com.nativelibs4java.runtime.JNI;
+import com.nativelibs4java.runtime.DynCall;
+import com.nativelibs4java.runtime.ann.Library;
+import java.io.FileNotFoundException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ *
+ * @author Olivier
+ */
+@Library("test")
+public class PerfTest {
+    static {
+        try {
+            String f = DynCall.getLibFile(PerfTest.class).toString();
+            System.load(f);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(PerfTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    public static class DynCallTest {
+        static {
+            JNI.registerClass(PerfTest.DynCallTest.class);
+        }
+        public static native int testAddDyncall(int a, int b);
+        public static native int testASinB(int a, int b);
+    }
+    public static native int testAddJNI(int a, int b);
+    public static native int testASinB(int a, int b);
+}
