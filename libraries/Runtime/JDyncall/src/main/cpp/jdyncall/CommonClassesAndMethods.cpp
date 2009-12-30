@@ -98,7 +98,7 @@ void DefineCommonClassesAndMethods(JNIEnv *env)
 	DEFINE_ANN(Index);
 	DEFINE_METHOD(Index, value, "()I");
 	DEFINE_ANN(Const);
-	DEFINE_ANN(SizeT);
+	DEFINE_ANN(NativeSize);
 	DEFINE_ANN(CLong);
 	DEFINE_ANN(Virtual);
 	DEFINE_ANN(ByValue);

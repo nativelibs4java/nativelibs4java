@@ -18,7 +18,13 @@
 
   <dependencies>
   	
-	
+	<dependency>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>nl4j-runtime-structs</artifactId>
+	  <version>${nl4j-runtime.version}</version>
+	  <scope>compile</scope>
+    </dependency>
+
   	<dependency>
 	  <groupId>net.java.dev.jna</groupId>
 	  <artifactId>jna</artifactId>
@@ -36,6 +42,37 @@
 	
   </dependencies>
 
+  <build>
+  	<plugins>
+
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
+			<version>1.2.2</version>
+			<executions>
+			  <execution>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+				<configuration>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<!--shadedArtifactId>${project.artifactId}-standalone</shadedArtifactId-->
+					<!--finalName>${project.artifactId}-standalone-${project.version}</finalName-->
+					<artifactSet>
+						<excludes>
+						  <exclude>org.scala-lang:scala-library</exclude>
+						  <exclude>org.slf4j:slf4j-jdk14</exclude>
+						  <exclude>junit:junit</exclude>
+						</excludes>
+					  </artifactSet>
+				</configuration>
+			  </execution>
+			</executions>
+		</plugin>
+		
+	</plugins>
+  </build>
 </project>
 
 

@@ -2,12 +2,17 @@ package com.nativelibs4java.runtime.structs;
 import com.nativelibs4java.runtime.structs.StructIO.FieldIO.Refreshable;
 import com.sun.jna.*;
 
-public class Struct<S extends Struct<S>> implements Refreshable<S>, NativeMapped {
+public abstract class Struct<S extends Struct<S>> implements Refreshable<S>, NativeMapped {
     
     protected final StructIO<S> io;
 	protected volatile Pointer pointer;
 	Object[] refreshableFields;
 
+    protected Struct() {
+        this.io = StructIO.getInstance(getClass());
+		io.build();
+		refreshableFields = io.createRefreshableFieldsArray();
+    }
 	protected Struct(StructIO<S> io) {
 		this.io = io;
 		io.build();

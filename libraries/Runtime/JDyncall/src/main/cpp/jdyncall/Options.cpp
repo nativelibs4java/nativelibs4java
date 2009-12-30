@@ -32,7 +32,7 @@ void GetOptions(JNIEnv *env, Options &out, jobject annotatedElement, jobjectArra
 	SET_BOOL_ANNOTATION_OPTION(ByValue, bIsByValue);
 	SET_BOOL_ANNOTATION_OPTION(Virtual, bIsVirtual);
 	SET_BOOL_ANNOTATION_OPTION(Const, bIsConst);
-	SET_BOOL_ANNOTATION_OPTION(SizeT, bIsSizeT);
+	SET_BOOL_ANNOTATION_OPTION(NativeSize, bIsSizeT);
 	SET_BOOL_ANNOTATION_OPTION(CLong, bIsCLong);
 	
 	SET_INT_ANNOTATION_OPTION(Index, Index_value, index);
