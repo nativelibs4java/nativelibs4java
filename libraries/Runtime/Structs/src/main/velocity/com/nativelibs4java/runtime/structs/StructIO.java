@@ -417,7 +417,7 @@ public class StructIO<S extends Struct<S>> {
 	
 	
 	public void setBoolField(int fieldIndex, S struct, boolean fieldValue) {
-		setByteField(fieldIndex, struct, fieldValue ? 1 : 0);
+		setByteField(fieldIndex, struct, (byte)(fieldValue ? 1 : 0));
 	}
 
 
