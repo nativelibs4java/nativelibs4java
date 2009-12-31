@@ -396,10 +396,6 @@
 				RelativePath="..\..\..\jdyncall\Signatures.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\..\..\jdyncall\ValueTypes.cpp"
-				>
-			</File>
 			<Filter
 				Name="jni"
 				>

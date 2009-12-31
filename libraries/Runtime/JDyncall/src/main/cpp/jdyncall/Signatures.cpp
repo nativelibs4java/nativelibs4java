@@ -3,6 +3,9 @@
 using namespace std;
 
 ValueType GetJavaTypeSignature(JNIEnv *env, jobject type, ostringstream* javasig, ostringstream* dcsig, const Options& options, bool& bIsAdaptableAsRaw) {
+	//return eVoidValue;
+	///*
+
 	if (!type || env->IsSameObject(type, Void_TYPE)) {
 		if (dcsig)
 			(*dcsig) << (char)DC_SIGCHAR_VOID;
@@ -178,5 +181,5 @@ ValueType GetJavaTypeSignature(JNIEnv *env, jobject type, ostringstream* javasig
 			(*javasig) << ';';
 		typeOut = eAddressableValue;
 	}
-	return typeOut;
+	return typeOut;//*/
 }

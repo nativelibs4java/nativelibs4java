@@ -7,7 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Pointer<T> implements Addressable, Comparable<Addressable> {
+public class Pointer<T> implements Addressable, Comparable<Addressable>, com.sun.jna.Pointer<Pointer<T>> {
 
     static {
         JNI.initLibrary();
@@ -40,6 +40,8 @@ public class Pointer<T> implements Addressable, Comparable<Addressable> {
         long d = peer - o.getAddress();
         return d < 0 ? -1 : d == 0 ? 0 : 1;
     }
+
+    public static final Pointer NULL = null;
 
     @Override
     public boolean equals(Object obj) {

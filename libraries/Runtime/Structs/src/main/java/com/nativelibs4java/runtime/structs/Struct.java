@@ -1,5 +1,6 @@
 package com.nativelibs4java.runtime.structs;
 import com.nativelibs4java.runtime.structs.StructIO.FieldIO.Refreshable;
+import java.nio.ByteBuffer;
 import com.sun.jna.*;
 
 public abstract class Struct<S extends Struct<S>> implements Refreshable<S>, NativeMapped {

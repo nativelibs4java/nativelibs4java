@@ -16,6 +16,7 @@ using namespace std;
 
 void DefineCommonClassesAndMethods(JNIEnv *env)
 {	
+	///*
 	DEFINE_CLASS("java/lang", String);
 	DEFINE_METHOD(String, toString, "()Ljava/lang/String;");
 
@@ -107,4 +108,5 @@ void DefineCommonClassesAndMethods(JNIEnv *env)
 	DEFINE_ANN(CallingConvention);
 	DEFINE_ANN(Mangling);
 	DEFINE_ANN(Library);
+	//*/
 }
