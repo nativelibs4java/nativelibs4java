@@ -38,7 +38,7 @@ char __cdecl JavaToNativeCallHandler(DCCallback*, DCArgs* args, DCValue* result,
 		arraysTempElementsReleaseModes = new vector<jint>();
 		arraysReleaseFuncs = new vector<ArrayTempElementsReleaseFunc>();
 	} else {
-		dcReset(vm);
+		// reset is done by dcMode anyway ! dcReset(vm);
 	}
 
 	dcMode(vm, info->fDCMode);

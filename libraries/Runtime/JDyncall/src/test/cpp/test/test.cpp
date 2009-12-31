@@ -28,7 +28,7 @@ TEST_API double _cdecl testSum(const double *values, size_t n)
 TEST_API double _cdecl testSumi(const double *values, int n)
 {
 	double total = 0;
-	for (size_t i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++) {
 		total += values[i];
 	}
 	return total;
@@ -69,15 +69,15 @@ TEST_API int _cdecl testAddJNA(int a, int b)
 	otherFunc();
 	return a + b;
 }
-JNIEXPORT jdouble JNICALL Java_jdyncall_PerfTest_testASinB(JNIEnv *, jclass, jdouble a, jdouble b)
+JNIEXPORT jdouble JNICALL Java_jdyncall_PerfTest_testASinB(JNIEnv *, jclass, jint a, jint b)
 {
 	otherFunc();
-	return a * sin(b);
+	return a * sin((double)b);
 }
-TEST_API double _cdecl testASinB(double a, double b)
+TEST_API double _cdecl testASinB(int a, int b)
 {
 	otherFunc();
-	return a * sin(b);
+	return a * sin((double)b);
 }
 
 }

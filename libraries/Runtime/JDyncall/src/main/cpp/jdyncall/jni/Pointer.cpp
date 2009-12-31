@@ -27,7 +27,20 @@ POINTER_GETSET(jbyte, Byte)
 //POINTER_GETSET(char, Char)
 POINTER_GETSET(jfloat, Float)
 POINTER_GETSET(jdouble, Double)
-POINTER_GETSET(ptrdiff_t, Pointer_)
+//POINTER_GETSET(ptrdiff_t, Pointer_)
+POINTER_GETSET(jlong, PointerAddress)
+
+jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getByteBuffer(JNIEnv *env, jobject jthis, jlong offset, jlong length) {
+	char* peer = GetPeer(env, jthis);
+	return env->NewDirectByteBuffer(peer + offset, length);
+}
+jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
+	return (jlong)env->GetDirectBufferAddress(buffer);
+}
+jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
+	return env->GetDirectBufferCapacity(buffer);
+}
+
 
 jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_doAllocate(JNIEnv *, jclass, jint size)
 {

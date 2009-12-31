@@ -57,6 +57,14 @@ JNIEXPORT jfloat JNICALL Java_com_nativelibs4java_runtime_Pointer_getFloat
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
+ * Method:    getByteBuffer
+ * Signature: (JJ)Ljava/nio/ByteBuffer;
+ */
+JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getByteBuffer
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_Pointer
  * Method:    getPointerAddress
  * Signature: (J)J
  */
@@ -70,6 +78,22 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getPointerAddre
  */
 JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_setPointerAddress
   (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_Pointer
+ * Method:    getDirectBufferAddress
+ * Signature: (Ljava/nio/Buffer;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferAddress
+  (JNIEnv *, jclass, jobject);
+
+/*
+ * Class:     com_nativelibs4java_runtime_Pointer
+ * Method:    getDirectBufferCapacity
+ * Signature: (Ljava/nio/Buffer;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferCapacity
+  (JNIEnv *, jclass, jobject);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer

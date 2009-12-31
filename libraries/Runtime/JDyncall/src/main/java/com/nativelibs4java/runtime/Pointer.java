@@ -2,6 +2,8 @@ package com.nativelibs4java.runtime;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,6 +18,10 @@ public class Pointer<T> implements Addressable, Comparable<Addressable> {
     public Pointer(Type type, long peer) {
         this.type = type;
         this.peer = peer;
+    }
+
+    public Pointer<T> share(long offset) {
+        return new Pointer(type, peer + offset);
     }
 
     @Override
@@ -50,13 +56,15 @@ public class Pointer<T> implements Addressable, Comparable<Addressable> {
     }
 
     public static Pointer<?> allocate(int size) {
+        return new Memory(size);
+        /*
         long ptr = doAllocate(size);
         return ptr == 0 ? null : new Pointer(null, ptr) {
 
             public void finalize() {
                 doFree(peer);
             }
-        };
+        };*/
     }
 
     T cachedTarget;
@@ -86,17 +94,14 @@ public class Pointer<T> implements Addressable, Comparable<Addressable> {
         return cachedTarget;
     }
     public native int getInt(long offset);
-
     public native short getShort(long offset);
-
     public native long getLong(long offset);
-
     public native byte getByte(long offset);
-
     public native double getDouble(long offset);
-
     public native float getFloat(long offset);
 
+    public native ByteBuffer getByteBuffer(long offset, long length);
+    
     //protected native long 	getWChar_(long offset);
     //protected native long 	getChar_(long offset);
     protected native long getPointerAddress(long offset);
@@ -109,6 +114,9 @@ public class Pointer<T> implements Addressable, Comparable<Addressable> {
     public <U> Pointer<U> getPointer(Class<U> t, long offset) {
         return new Pointer<U>(t, getPointerAddress(offset));
     }
+
+    public static native long getDirectBufferAddress(Buffer b);
+    public static native long getDirectBufferCapacity(Buffer b);
 
     public void setPointer(long offset, Pointer value) {
         setPointerAddress(offset, value.peer);
