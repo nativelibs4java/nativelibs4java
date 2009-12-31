@@ -21,6 +21,9 @@
 
 #include "CommonClassesAndMethods.h"
 
+#ifndef _WIN32
+#define __cdecl
+#endif
 
 #ifdef _MSC_VER
 #	define THREAD_STATIC __declspec(thread) static

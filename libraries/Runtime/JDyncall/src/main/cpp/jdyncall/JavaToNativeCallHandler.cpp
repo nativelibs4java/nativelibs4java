@@ -24,6 +24,7 @@ char __cdecl JavaToNativeCallHandler(DCCallback*, DCArgs* args, DCValue* result,
 
 	size_t nArgs = info->fArgTypes.size();
 
+	THREAD_STATIC char* s;
 	THREAD_STATIC DCCallVM* vm = NULL;
 	THREAD_STATIC vector<jobject> *arrays = NULL;
 	THREAD_STATIC vector<void*> *arraysTempElements = NULL;
