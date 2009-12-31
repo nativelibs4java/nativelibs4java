@@ -49,17 +49,18 @@ frame_CTX         =  -4
 frame_DCArgs      = -24
 frame_DCValue     = -32
 
-dcRawCallAdapterSkipTwoArgs32 PROC EXPORT
+_dcRawCallAdapterSkipTwoArgs32_cdecl PROC EXPORT
 
     OPTION PROLOGUE:NONE, EPILOGUE:NONE
 
-    add  esp, 8                    ; remove JNIEnv *env and jobject *this
+	add  esp, 8                    ; remove JNIEnv *env and jobject *this
+    lea  esp, dword ptr[esp - 8]         ; copy return address
     call dword ptr[eax+CTX_phandler] ; call function
-
 	sub  esp, 8
-	
+	lea  esp, dword ptr[esp + 8]			   ; copy return address
+    
     ret
-
-dcRawCallAdapterSkipTwoArgs32 ENDP
+    
+_dcRawCallAdapterSkipTwoArgs32_cdecl ENDP
 
 END

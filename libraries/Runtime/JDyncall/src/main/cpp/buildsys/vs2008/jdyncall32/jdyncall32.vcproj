@@ -71,6 +71,7 @@
 				RegisterOutput="false"
 				UseLibraryDependencyInputs="true"
 				AdditionalDependencies="jvm.lib dyncall32.lib dyncallback32.lib dynload.lib"
+				OutputFile="$(OutDir)\jdyncall.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME32)\lib;..\Debug"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
@@ -153,6 +154,7 @@
 				RegisterOutput="false"
 				UseLibraryDependencyInputs="false"
 				AdditionalDependencies="jvm.lib dyncall64.lib dyncallback64.lib dynload.lib"
+				OutputFile="$(OutDir)\jdyncall.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME64)\lib;..\x64\Debug"
 				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
@@ -232,6 +234,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib dyncall32.lib dyncallback32.lib dynload.lib"
+				OutputFile="$(OutDir)\jdyncall.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME)\lib;..\Release"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
@@ -311,6 +314,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib dyncall64.lib dyncallback64.lib dynload.lib"
+				OutputFile="$(OutDir)\jdyncall.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME)\lib;..\x64\Release"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"

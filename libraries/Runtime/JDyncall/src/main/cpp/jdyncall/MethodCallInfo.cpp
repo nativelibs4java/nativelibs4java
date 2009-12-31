@@ -31,7 +31,11 @@ MethodCallInfo::MethodCallInfo(JNIEnv *env, jclass declaringClass, jobject metho
 	fArgTypes.resize(nParams);
 	fArgOptions.resize(nParams);
 
+#ifdef _WIN64
 	fIsAdaptableAsRaw = nParams <= 4;
+#else	
+	fIsAdaptableAsRaw = true;
+#endif
 	fIsCPlusPlus = env->IsAssignableFrom(declaringClass, CPPObject_class) != 0;
 
 	GetOptions(env, fMethodOptions, method);
@@ -91,13 +95,11 @@ void* MethodCallInfo::GetCallback()
 	//test();
 	if (!fCallback) {
 		void* userdata = this;
-#ifdef _WIN64
 		static bool allowRawAdapters = true;//!getenv("NO_RAW_FWD");
 		if (allowRawAdapters && fIsAdaptableAsRaw) {
 			fCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())fForwardedSymbol);
 		} 
 		else
-#endif
 		if (!fCallback)
 		{
 			fCallback = dcNewCallback(GetDCSignature().c_str(), JavaToNativeCallHandler, userdata);

@@ -67,7 +67,7 @@ public class Main {
             int arg = 10;
             double res = Test.sinInt(arg);
             int nWarmUp = 16000;
-            int nCalls = 100000;
+            int nCalls = 1000000;
             int nTests = 10;
             boolean warmup = true;
 

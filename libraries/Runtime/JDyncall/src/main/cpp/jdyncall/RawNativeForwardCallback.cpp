@@ -8,7 +8,7 @@
 
 extern "C" {
 extern void dcRawCallAdapterSkipTwoArgs64();
-extern void dcRawCallAdapterSkipTwoArgs32();
+extern void dcRawCallAdapterSkipTwoArgs32_cdecl();
 }
 
 struct DCAdapterCallback
@@ -37,7 +37,7 @@ DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)())
 	if (err != 0) 
 		return 0;
 
-	dcThunkInit(&pcb->thunk, dcRawCallAdapterSkipTwoArgs32);
+	dcThunkInit(&pcb->thunk, dcRawCallAdapterSkipTwoArgs32_cdecl);
 	pcb->handler = handler;
 	return pcb;
 #else
