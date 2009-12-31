@@ -95,15 +95,15 @@ void DefineCommonClassesAndMethods(JNIEnv *env)
 	DEFINE_CLASS("com/nativelibs4java/runtime", CPPObject);
 
 	DEFINE_ANN(Wide);
-	DEFINE_ANN(Index);
-	DEFINE_METHOD(Index, value, "()I");
+	DEFINE_ANN(Field);
+	DEFINE_METHOD(Field, value, "()I");
 	DEFINE_ANN(Const);
 	DEFINE_ANN(NativeSize);
 	DEFINE_ANN(CLong);
 	DEFINE_ANN(Virtual);
 	DEFINE_ANN(ByValue);
-	DEFINE_ANN(Array);
-	DEFINE_METHOD(Array, value, "()I");
+	DEFINE_ANN(Length);
+	DEFINE_METHOD(Length, value, "()I");
 	DEFINE_ANN(CallingConvention);
 	DEFINE_ANN(Mangling);
 	DEFINE_ANN(Library);

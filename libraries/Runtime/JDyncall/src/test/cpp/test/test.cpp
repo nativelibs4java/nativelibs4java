@@ -64,6 +64,11 @@ TEST_API int _cdecl testAddDyncall(int a, int b)
 	otherFunc();
 	return a + b;
 }
+TEST_API int _cdecl testAddJNA(int a, int b)
+{
+	otherFunc();
+	return a + b;
+}
 JNIEXPORT jdouble JNICALL Java_jdyncall_PerfTest_testASinB(JNIEnv *, jclass, jdouble a, jdouble b)
 {
 	otherFunc();

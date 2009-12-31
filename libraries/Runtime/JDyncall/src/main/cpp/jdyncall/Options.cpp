@@ -35,10 +35,10 @@ void GetOptions(JNIEnv *env, Options &out, jobject annotatedElement, jobjectArra
 	SET_BOOL_ANNOTATION_OPTION(NativeSize, bIsSizeT);
 	SET_BOOL_ANNOTATION_OPTION(CLong, bIsCLong);
 	
-	SET_INT_ANNOTATION_OPTION(Index, Index_value, index);
+	SET_INT_ANNOTATION_OPTION(Field, Field_value, index);
 }
 
 void GetFieldOptions(JNIEnv *env, FieldOptions &out, jobject annotatedElement, jobjectArray extraAnnotations = NULL) {
 	GetOptions(env, out, annotatedElement, extraAnnotations);
-	SET_INT_ANNOTATION_OPTION(Array, Array_value, arraySize);
+	SET_INT_ANNOTATION_OPTION(Length, Length_value, arraySize);
 }

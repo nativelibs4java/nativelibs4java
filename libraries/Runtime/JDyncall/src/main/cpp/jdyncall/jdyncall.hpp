@@ -81,7 +81,7 @@ struct Options {
 
 	Options() {
 		memset(this, 0, sizeof(Options));
-		index= -1;
+		index = -1;
 	}
 };
 

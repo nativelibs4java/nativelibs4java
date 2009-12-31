@@ -106,9 +106,11 @@ public class Main {
                         tot = PerfTest.testAddJNI(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
                         tot = PerfTest.DynCallTest.testAddDyncall(tot, seed);
+                    for (int i = 0; i < nWarmUp; i++)
+                        tot = PerfTest.JNATest.testAddJNA(tot, seed);
                 }
 
-                double totalSlower = 0;
+                double totalSlower = 0, totalSlowerJNA = 0;
                 for (int iTest = 0; iTest < nTests; iTest++) {
                     long startJNI = System.nanoTime();
                     for (int i = 0; i < nCalls; i++)
@@ -120,12 +122,20 @@ public class Main {
                         tot = PerfTest.DynCallTest.testAddDyncall(tot, seed);
                     long timeDyncall = System.nanoTime() - startDyncall;
 
+                    long startJNA = System.nanoTime();
+                    for (int i = 0; i < nCalls; i++)
+                        tot = PerfTest.JNATest.testAddJNA(tot, seed);
+                    long timeJNA = System.nanoTime() - startJNA;
+
                     //System.out.println("timeNat = " + timeNat);
                     //System.out.println("timePrim = " + timePrim);
                     double slower = (timeDyncall / (double)timeJNI);
                     totalSlower += slower;
+                    double slowerJNA = (timeJNA / (double)timeJNI);
+                    totalSlowerJNA += slowerJNA;
                 }
                 System.out.println("# Dyncall's simple int add is " + (totalSlower / nTests) + " times slower than pure JNI in average");
+                System.out.println("# JNA's simple int add is " + (totalSlowerJNA / nTests) + " times slower than pure JNI in average");
 
             }
 
@@ -138,9 +148,11 @@ public class Main {
                         tot = PerfTest.testASinB(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
                         tot = PerfTest.DynCallTest.testASinB(tot, seed);
+                    for (int i = 0; i < nWarmUp; i++)
+                        tot = PerfTest.JNATest.testASinB(tot, seed);
                 }
 
-                double totalSlower = 0;
+                double totalSlower = 0, totalSlowerJNA = 0;
                 for (int iTest = 0; iTest < nTests; iTest++) {
                     long startJNI = System.nanoTime();
                     for (int i = 0; i < nCalls; i++)
@@ -152,12 +164,20 @@ public class Main {
                         tot = PerfTest.DynCallTest.testASinB(tot, seed);
                     long timeDyncall = System.nanoTime() - startDyncall;
 
+                    long startJNA = System.nanoTime();
+                    for (int i = 0; i < nCalls; i++)
+                        tot = PerfTest.JNATest.testASinB(tot, seed);
+                    long timeJNA = System.nanoTime() - startJNA;
+
                     //System.out.println("timeNat = " + timeNat);
                     //System.out.println("timePrim = " + timePrim);
                     double slower = (timeDyncall / (double)timeJNI);
                     totalSlower += slower;
+                    double slowerJNA = (timeJNA / (double)timeJNI);
+                    totalSlowerJNA += slowerJNA;
                 }
                 System.out.println("# Dyncall's 'a * sin(b)' is " + (totalSlower / nTests) + " times slower than pure JNI in average");
+                System.out.println("# JNA's 'a * sin(b)' is " + (totalSlowerJNA / nTests) + " times slower than pure JNI in average");
 
             }
             System.out.println("res = " + res + ", sin(" + arg + ") = " + Math.sin(arg));
