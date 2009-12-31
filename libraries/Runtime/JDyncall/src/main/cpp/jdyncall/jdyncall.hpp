@@ -28,7 +28,9 @@
 #ifdef _MSC_VER
 #	define THREAD_STATIC __declspec(thread) static
 #else 
-#	define THREAD_STATIC static __thread
+#	define THREAD_STATIC 
+//TODO http://www.opengroup.org/onlinepubs/009695399/functions/pthread_key_create.html
+//static __thread
 #endif
 
 #define MAX(x, y) (x < y ? y : x)
