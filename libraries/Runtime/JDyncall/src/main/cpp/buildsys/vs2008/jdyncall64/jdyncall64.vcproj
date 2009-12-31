@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="jdyncall"
+	Name="jdyncall64"
 	ProjectGUID="{07387AE1-67E7-48C7-89E8-BBAE28200196}"
 	RootNamespace="jdyncall"
 	TargetFrameworkVersion="196613"
@@ -71,88 +71,11 @@
 				RegisterOutput="false"
 				UseLibraryDependencyInputs="true"
 				AdditionalDependencies="jvm.lib dyncall32.lib dyncallback32.lib dynload.lib"
+				OutputFile="$(OutDir)\jdyncall.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME32)\lib;..\Debug"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
 				ResourceOnlyDLL="true"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			CharacterSet="2"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="MASM64"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;jni;.;..;$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				WarningLevel="3"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="jvm.lib dyncall32.lib dyncallback32.lib dynload.lib"
-				AdditionalLibraryDirectories="$(JAVA_HOME)\lib;..\Release"
-				GenerateDebugInformation="true"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -231,12 +154,92 @@
 				RegisterOutput="false"
 				UseLibraryDependencyInputs="false"
 				AdditionalDependencies="jvm.lib dyncall64.lib dyncallback64.lib dynload.lib"
+				OutputFile="$(OutDir)\jdyncall.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME64)\lib;..\x64\Debug"
 				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
 				GenerateDebugInformation="true"
 				ResourceOnlyDLL="true"
 				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			CharacterSet="2"
+			WholeProgramOptimization="1"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="MASM64"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
+				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;jni;.;..;$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				WarningLevel="3"
+				DebugInformationFormat="3"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="jvm.lib dyncall32.lib dyncallback32.lib dynload.lib"
+				OutputFile="$(OutDir)\jdyncall.dll"
+				AdditionalLibraryDirectories="$(JAVA_HOME)\lib;..\Release"
+				GenerateDebugInformation="true"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -311,6 +314,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib dyncall64.lib dyncallback64.lib dynload.lib"
+				OutputFile="$(OutDir)\jdyncall.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME)\lib;..\x64\Release"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
