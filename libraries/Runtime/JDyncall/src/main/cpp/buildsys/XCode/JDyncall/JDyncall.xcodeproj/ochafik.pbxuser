@@ -1,0 +1,409 @@
+// !$*UTF8*$!
+{
+	08FB7793FE84155DC02AAC07 /* Project object */ = {
+		activeArchitecturePreference = i386;
+		activeBuildConfigurationName = Debug;
+		activeExecutable = 9007DFC210EE318300928CAE /* Java Maven Shaded Jar */;
+		activeTarget = D28A88AD04BDD90700651E21 /* JDyncall */;
+		addToTargets = (
+			D28A88AD04BDD90700651E21 /* JDyncall */,
+		);
+		codeSenseManager = 9007DF0E10EE299F00928CAE /* Code sense */;
+		executables = (
+			9007DFC210EE318300928CAE /* Java Maven Shaded Jar */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					22,
+					300,
+					229,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXExecutablesDataSource_ActiveFlagID,
+					PBXExecutablesDataSource_NameID,
+					PBXExecutablesDataSource_CommentsID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					341,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					301,
+					60,
+					20,
+					48.16259765625,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 284043649;
+			PBXWorkspaceStateSaveDate = 284043649;
+		};
+		perUserProjectItems = {
+			9007DF5B10EE2B5900928CAE /* PBXTextBookmark */ = 9007DF5B10EE2B5900928CAE /* PBXTextBookmark */;
+			9007DF5C10EE2B5900928CAE /* PBXBookmark */ = 9007DF5C10EE2B5900928CAE /* PBXBookmark */;
+			9007DF5D10EE2B5900928CAE /* PBXTextBookmark */ = 9007DF5D10EE2B5900928CAE /* PBXTextBookmark */;
+			9007DF6310EE2B5900928CAE /* PBXTargetBookmark */ = 9007DF6310EE2B5900928CAE /* PBXTargetBookmark */;
+			9007DF6410EE2B5900928CAE /* PBXTargetBookmark */ = 9007DF6410EE2B5900928CAE /* PBXTargetBookmark */;
+			9007DF6510EE2B7D00928CAE /* PBXTextBookmark */ = 9007DF6510EE2B7D00928CAE /* PBXTextBookmark */;
+			9007DF6610EE2B7D00928CAE /* PBXTargetBookmark */ = 9007DF6610EE2B7D00928CAE /* PBXTargetBookmark */;
+			9007DF6F10EE2D2900928CAE /* PBXTextBookmark */ = 9007DF6F10EE2D2900928CAE /* PBXTextBookmark */;
+			9007DF7210EE2D2900928CAE /* PBXTargetBookmark */ = 9007DF7210EE2D2900928CAE /* PBXTargetBookmark */;
+			9007DF7310EE2D2900928CAE /* PBXTargetBookmark */ = 9007DF7310EE2D2900928CAE /* PBXTargetBookmark */;
+			9007DF8A10EE2E8A00928CAE /* PBXTextBookmark */ = 9007DF8A10EE2E8A00928CAE /* PBXTextBookmark */;
+			9007DF8B10EE2E8A00928CAE /* PBXTargetBookmark */ = 9007DF8B10EE2E8A00928CAE /* PBXTargetBookmark */;
+			9007DF9810EE2FE500928CAE /* PBXTextBookmark */ = 9007DF9810EE2FE500928CAE /* PBXTextBookmark */;
+			9007DF9910EE2FE500928CAE /* PBXTargetBookmark */ = 9007DF9910EE2FE500928CAE /* PBXTargetBookmark */;
+			9007DFAC10EE30FE00928CAE /* PBXTextBookmark */ = 9007DFAC10EE30FE00928CAE /* PBXTextBookmark */;
+			9007DFAD10EE30FE00928CAE /* PBXTargetBookmark */ = 9007DFAD10EE30FE00928CAE /* PBXTargetBookmark */;
+			9007DFAE10EE310D00928CAE /* PBXTextBookmark */ = 9007DFAE10EE310D00928CAE /* PBXTextBookmark */;
+			9007DFAF10EE310D00928CAE /* PBXTargetBookmark */ = 9007DFAF10EE310D00928CAE /* PBXTargetBookmark */;
+			9007DFB010EE311300928CAE /* PBXTextBookmark */ = 9007DFB010EE311300928CAE /* PBXTextBookmark */;
+			9007DFB110EE311300928CAE /* PBXTargetBookmark */ = 9007DFB110EE311300928CAE /* PBXTargetBookmark */;
+			9007DFB610EE312700928CAE /* PBXTextBookmark */ = 9007DFB610EE312700928CAE /* PBXTextBookmark */;
+			9007DFB710EE312700928CAE /* PBXTargetBookmark */ = 9007DFB710EE312700928CAE /* PBXTargetBookmark */;
+			9007DFC410EE318C00928CAE /* PBXTextBookmark */ = 9007DFC410EE318C00928CAE /* PBXTextBookmark */;
+		};
+		sourceControlManager = 9007DF0D10EE299F00928CAE /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	9007DF0D10EE299F00928CAE /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+			repositoryNamesForRoots = {
+				"" = "";
+				../../../jdyncall = svn;
+			};
+		};
+	};
+	9007DF0E10EE299F00928CAE /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {519, 245}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 332}";
+		};
+	};
+	9007DF4610EE2AED00928CAE /* com_nativelibs4java_runtime_DynCall.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {519, 245}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 326}";
+		};
+	};
+	9007DF5B10EE2B5900928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007DF4610EE2AED00928CAE /* com_nativelibs4java_runtime_DynCall.h */;
+		name = "com_nativelibs4java_runtime_DynCall.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 326;
+		vrLoc = 0;
+	};
+	9007DF5C10EE2B5900928CAE /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = 9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */;
+	};
+	9007DF5D10EE2B5900928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */;
+		name = "com_nativelibs4java_runtime_JNI_CallingConvention.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 332;
+		vrLoc = 0;
+	};
+	9007DF6310EE2B5900928CAE /* PBXTargetBookmark */ = {
+		isa = PBXTargetBookmark;
+		trg = D28A88AD04BDD90700651E21 /* JDyncall */;
+	};
+	9007DF6410EE2B5900928CAE /* PBXTargetBookmark */ = {
+		isa = PBXTargetBookmark;
+		trg = D28A88AD04BDD90700651E21 /* JDyncall */;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 52}, {593, 524}}";
+			TOCViewExpandedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+			TOCViewMasterVisibleRect = "{{0, 0}, {237, 524}}";
+			TOCViewSelectedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+		};
+	};
+	9007DF6510EE2B7D00928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */;
+		name = "com_nativelibs4java_runtime_JNI_CallingConvention.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 332;
+		vrLoc = 0;
+	};
+	9007DF6610EE2B7D00928CAE /* PBXTargetBookmark */ = {
+		isa = PBXTargetBookmark;
+		trg = D28A88AD04BDD90700651E21 /* JDyncall */;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 52}, {593, 524}}";
+			TOCViewExpandedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+			TOCViewMasterVisibleRect = "{{0, 0}, {237, 524}}";
+			TOCViewSelectedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+		};
+	};
+	9007DF6F10EE2D2900928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */;
+		name = "com_nativelibs4java_runtime_JNI_CallingConvention.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 332;
+		vrLoc = 0;
+	};
+	9007DF7210EE2D2900928CAE /* PBXTargetBookmark */ = {
+		isa = PBXTargetBookmark;
+		trg = D28A88AD04BDD90700651E21 /* JDyncall */;
+	};
+	9007DF7310EE2D2900928CAE /* PBXTargetBookmark */ = {
+		isa = PBXTargetBookmark;
+		trg = D28A88AD04BDD90700651E21 /* JDyncall */;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 0}, {593, 524}}";
+			TOCViewMasterVisibleRect = "{{0, 0}, {237, 524}}";
+			TOCViewSelectedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+		};
+	};
+	9007DF8A10EE2E8A00928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */;
+		name = "com_nativelibs4java_runtime_JNI_CallingConvention.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 332;
+		vrLoc = 0;
+	};
+	9007DF8B10EE2E8A00928CAE /* PBXTargetBookmark */ = {
+		isa = PBXTargetBookmark;
+		trg = D28A88AD04BDD90700651E21 /* JDyncall */;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 0}, {593, 524}}";
+			TOCViewMasterVisibleRect = "{{0, 0}, {237, 524}}";
+			TOCViewSelectedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+		};
+	};
+	9007DF9810EE2FE500928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */;
+		name = "com_nativelibs4java_runtime_JNI_CallingConvention.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 332;
+		vrLoc = 0;
+	};
+	9007DF9910EE2FE500928CAE /* PBXTargetBookmark */ = {
+		isa = PBXTargetBookmark;
+		trg = D28A88AD04BDD90700651E21 /* JDyncall */;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 0}, {593, 524}}";
+			TOCViewMasterVisibleRect = "{{0, 0}, {237, 524}}";
+			TOCViewSelectedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+		};
+	};
+	9007DFAC10EE30FE00928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */;
+		name = "com_nativelibs4java_runtime_JNI_CallingConvention.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 332;
+		vrLoc = 0;
+	};
+	9007DFAD10EE30FE00928CAE /* PBXTargetBookmark */ = {
+		isa = PBXTargetBookmark;
+		trg = D28A88AD04BDD90700651E21 /* JDyncall */;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 1}, {593, 524}}";
+			TOCViewExpandedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+			TOCViewMasterVisibleRect = "{{0, 0}, {237, 524}}";
+			TOCViewSelectedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+		};
+	};
+	9007DFAE10EE310D00928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */;
+		name = "com_nativelibs4java_runtime_JNI_CallingConvention.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 332;
+		vrLoc = 0;
+	};
+	9007DFAF10EE310D00928CAE /* PBXTargetBookmark */ = {
+		isa = PBXTargetBookmark;
+		trg = D28A88AD04BDD90700651E21 /* JDyncall */;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 69}, {593, 524}}";
+			TOCViewExpandedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+			TOCViewMasterVisibleRect = "{{0, 0}, {237, 524}}";
+			TOCViewSelectedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+		};
+	};
+	9007DFB010EE311300928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */;
+		name = "com_nativelibs4java_runtime_JNI_CallingConvention.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 332;
+		vrLoc = 0;
+	};
+	9007DFB110EE311300928CAE /* PBXTargetBookmark */ = {
+		isa = PBXTargetBookmark;
+		trg = D28A88AD04BDD90700651E21 /* JDyncall */;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 0}, {593, 508}}";
+			TOCViewMasterVisibleRect = "{{0, 0}, {237, 524}}";
+			TOCViewSelectedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+		};
+	};
+	9007DFB610EE312700928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */;
+		name = "com_nativelibs4java_runtime_JNI_CallingConvention.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 332;
+		vrLoc = 0;
+	};
+	9007DFB710EE312700928CAE /* PBXTargetBookmark */ = {
+		isa = PBXTargetBookmark;
+		trg = D28A88AD04BDD90700651E21 /* JDyncall */;
+		uiCtxt = {
+			TOCViewDetailVisibleRect = "{{0, 0}, {593, 508}}";
+			TOCViewMasterVisibleRect = "{{0, 0}, {237, 524}}";
+			TOCViewSelectedItems = (
+				"com.apple.target-editor-pane.settings",
+			);
+		};
+	};
+	9007DFC210EE318300928CAE /* Java Maven Shaded Jar */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+			YES,
+		);
+		argumentStrings = (
+			"-cp ",
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 0;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		dataTipCustomDataFormattersEnabled = 1;
+		dataTipShowTypeColumn = 1;
+		dataTipSortType = 0;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		launchableReference = 9007DFC310EE318300928CAE /* java */;
+		libgmallocEnabled = 0;
+		name = "Java Maven Shaded Jar";
+		showTypeColumn = 0;
+		sourceDirectories = (
+		);
+		startupPath = "<<ProjectDirectory>>";
+	};
+	9007DFC310EE318300928CAE /* java */ = {
+		isa = PBXFileReference;
+		lastKnownFileType = text;
+		path = java;
+		sourceTree = "<group>";
+	};
+	9007DFC410EE318C00928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */;
+		name = "com_nativelibs4java_runtime_JNI_CallingConvention.h: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 332;
+		vrLoc = 0;
+	};
+	D28A88AD04BDD90700651E21 /* JDyncall */ = {
+		activeExec = 0;
+	};
+}

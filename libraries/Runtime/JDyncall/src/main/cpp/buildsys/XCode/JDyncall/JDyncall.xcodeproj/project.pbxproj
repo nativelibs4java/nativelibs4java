@@ -1,0 +1,176 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		9007DF3B10EE2AED00928CAE /* GNUmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = GNUmakefile; path = ../../../jdyncall/GNUmakefile; sourceTree = SOURCE_ROOT; };
+		9007DF3C10EE2AED00928CAE /* Signatures.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Signatures.cpp; path = ../../../jdyncall/Signatures.cpp; sourceTree = SOURCE_ROOT; };
+		9007DF3D10EE2AED00928CAE /* MethodCallInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MethodCallInfo.cpp; path = ../../../jdyncall/MethodCallInfo.cpp; sourceTree = SOURCE_ROOT; };
+		9007DF3E10EE2AED00928CAE /* JNI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JNI.cpp; path = ../../../jdyncall/JNI.cpp; sourceTree = SOURCE_ROOT; };
+		9007DF3F10EE2AED00928CAE /* JavaToNativeCallHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JavaToNativeCallHandler.cpp; path = ../../../jdyncall/JavaToNativeCallHandler.cpp; sourceTree = SOURCE_ROOT; };
+		9007DF4010EE2AED00928CAE /* jdyncall.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = jdyncall.hpp; path = ../../../jdyncall/jdyncall.hpp; sourceTree = SOURCE_ROOT; };
+		9007DF4110EE2AED00928CAE /* CommonClassesAndMethods.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CommonClassesAndMethods.cpp; path = ../../../jdyncall/CommonClassesAndMethods.cpp; sourceTree = SOURCE_ROOT; };
+		9007DF4210EE2AED00928CAE /* Pointer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Pointer.cpp; path = ../../../jdyncall/Pointer.cpp; sourceTree = SOURCE_ROOT; };
+		9007DF4310EE2AED00928CAE /* com_nativelibs4java_runtime_Pointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_nativelibs4java_runtime_Pointer.h; path = ../../../jdyncall/com_nativelibs4java_runtime_Pointer.h; sourceTree = SOURCE_ROOT; };
+		9007DF4410EE2AED00928CAE /* com_nativelibs4java_runtime_JNI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_nativelibs4java_runtime_JNI.h; path = ../../../jdyncall/com_nativelibs4java_runtime_JNI.h; sourceTree = SOURCE_ROOT; };
+		9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_nativelibs4java_runtime_JNI_CallingConvention.h; path = ../../../jdyncall/com_nativelibs4java_runtime_JNI_CallingConvention.h; sourceTree = SOURCE_ROOT; };
+		9007DF4610EE2AED00928CAE /* com_nativelibs4java_runtime_DynCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = com_nativelibs4java_runtime_DynCall.h; path = ../../../jdyncall/com_nativelibs4java_runtime_DynCall.h; sourceTree = SOURCE_ROOT; };
+		9007DF4710EE2AED00928CAE /* RawNativeForwardCallback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RawNativeForwardCallback.cpp; path = ../../../jdyncall/RawNativeForwardCallback.cpp; sourceTree = SOURCE_ROOT; };
+		9007DF4810EE2AED00928CAE /* Options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Options.cpp; path = ../../../jdyncall/Options.cpp; sourceTree = SOURCE_ROOT; };
+		9007DF4910EE2AED00928CAE /* CommonClassesAndMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CommonClassesAndMethods.h; path = ../../../jdyncall/CommonClassesAndMethods.h; sourceTree = SOURCE_ROOT; };
+		9007DF4A10EE2AED00928CAE /* ValueTypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ValueTypes.cpp; path = ../../../jdyncall/ValueTypes.cpp; sourceTree = SOURCE_ROOT; };
+		9007DF4B10EE2AED00928CAE /* RawNativeForwardCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RawNativeForwardCallback.h; path = ../../../jdyncall/RawNativeForwardCallback.h; sourceTree = SOURCE_ROOT; };
+		9007DF4C10EE2AED00928CAE /* Options.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Options.hpp; path = ../../../jdyncall/Options.hpp; sourceTree = SOURCE_ROOT; };
+		9007DF4D10EE2AED00928CAE /* JNIUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = JNIUtils.hpp; path = ../../../jdyncall/JNIUtils.hpp; sourceTree = SOURCE_ROOT; };
+		9007DF4E10EE2AED00928CAE /* JNIUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JNIUtils.cpp; path = ../../../jdyncall/JNIUtils.cpp; sourceTree = SOURCE_ROOT; };
+		9007DF4F10EE2AED00928CAE /* jmethodcall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = jmethodcall.h; path = ../../../jdyncall/jmethodcall.h; sourceTree = SOURCE_ROOT; };
+		9007DF5010EE2AED00928CAE /* BindCallback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BindCallback.cpp; path = ../../../jdyncall/BindCallback.cpp; sourceTree = SOURCE_ROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		08FB7794FE84155DC02AAC07 /* JDyncall */ = {
+			isa = PBXGroup;
+			children = (
+				9007DF3B10EE2AED00928CAE /* GNUmakefile */,
+				9007DF3C10EE2AED00928CAE /* Signatures.cpp */,
+				9007DF3D10EE2AED00928CAE /* MethodCallInfo.cpp */,
+				9007DF3E10EE2AED00928CAE /* JNI.cpp */,
+				9007DF3F10EE2AED00928CAE /* JavaToNativeCallHandler.cpp */,
+				9007DF4010EE2AED00928CAE /* jdyncall.hpp */,
+				9007DF4110EE2AED00928CAE /* CommonClassesAndMethods.cpp */,
+				9007DF4210EE2AED00928CAE /* Pointer.cpp */,
+				9007DF4310EE2AED00928CAE /* com_nativelibs4java_runtime_Pointer.h */,
+				9007DF4410EE2AED00928CAE /* com_nativelibs4java_runtime_JNI.h */,
+				9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */,
+				9007DF4610EE2AED00928CAE /* com_nativelibs4java_runtime_DynCall.h */,
+				9007DF4710EE2AED00928CAE /* RawNativeForwardCallback.cpp */,
+				9007DF4810EE2AED00928CAE /* Options.cpp */,
+				9007DF4910EE2AED00928CAE /* CommonClassesAndMethods.h */,
+				9007DF4A10EE2AED00928CAE /* ValueTypes.cpp */,
+				9007DF4B10EE2AED00928CAE /* RawNativeForwardCallback.h */,
+				9007DF4C10EE2AED00928CAE /* Options.hpp */,
+				9007DF4D10EE2AED00928CAE /* JNIUtils.hpp */,
+				9007DF4E10EE2AED00928CAE /* JNIUtils.cpp */,
+				9007DF4F10EE2AED00928CAE /* jmethodcall.h */,
+				9007DF5010EE2AED00928CAE /* BindCallback.cpp */,
+			);
+			name = JDyncall;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		D28A88AD04BDD90700651E21 /* JDyncall */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 1DEB918F08733D9F0010E9CD /* Build configuration list for PBXLegacyTarget "JDyncall" */;
+			buildPhases = (
+			);
+			buildToolPath = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/JDyncall/src/main/cpp/jdyncall/MakeAll.sh;
+			buildWorkingDirectory = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/JDyncall/src/main/cpp/jdyncall;
+			dependencies = (
+			);
+			name = JDyncall;
+			passBuildSettingsInEnvironment = 0;
+			productName = JDyncall;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		08FB7793FE84155DC02AAC07 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = 1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "JDyncall" */;
+			compatibilityVersion = "Xcode 3.2";
+			hasScannedForEncodings = 1;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* JDyncall */;
+			projectDirPath = "";
+			projectRoots = (
+				"",
+				../../../jdyncall,
+			);
+			targets = (
+				D28A88AD04BDD90700651E21 /* JDyncall */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		1DEB919008733D9F0010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUILD_CONFIG = debug;
+				COPY_PHASE_STRIP = NO;
+				DEBUGGING_SYMBOLS = YES;
+				DYNCALL_HOME = /Users/ochafik/src/dyncall/dyncall;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+			};
+			name = Debug;
+		};
+		1DEB919108733D9F0010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DYNCALL_HOME = /Users/ochafik/src/dyncall/dyncall;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+			};
+			name = Release;
+		};
+		1DEB919408733D9F0010E9CD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Debug;
+		};
+		1DEB919508733D9F0010E9CD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				PREBINDING = NO;
+				SDKROOT = macosx10.6;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1DEB918F08733D9F0010E9CD /* Build configuration list for PBXLegacyTarget "JDyncall" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB919008733D9F0010E9CD /* Debug */,
+				1DEB919108733D9F0010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "JDyncall" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1DEB919408733D9F0010E9CD /* Debug */,
+				1DEB919508733D9F0010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 08FB7793FE84155DC02AAC07 /* Project object */;
+}

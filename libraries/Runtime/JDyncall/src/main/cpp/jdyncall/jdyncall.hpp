@@ -14,10 +14,9 @@
 #include "JNIUtils.hpp"
 
 #include <vector>
-#include <map>
+//#include <map>
 #include <string>
 #include <iostream>
-#include <sstream>
 
 #include "CommonClassesAndMethods.h"
 
@@ -129,9 +128,6 @@ struct MethodCallInfo {
 	const std::string& GetJavaSignature();
 	void* GetCallback();
 };
-
-
-ValueType GetJavaTypeSignature(JNIEnv *env, jobject type, std::ostringstream* javasig, std::ostringstream* dcsig, const Options& options, bool& bIsAdaptableAsRaw);
 
 char __cdecl JavaToNativeCallHandler(DCCallback* pcb, DCArgs* args, DCValue* result, void* userdata);
 jlong BindCallback(jobject obj);

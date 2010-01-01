@@ -1,6 +1,10 @@
 #include "jdyncall.hpp"
 #include "RawNativeForwardCallback.h"
 #include "Options.hpp"
+#include <sstream>
+#include <iostream>
+
+ValueType GetJavaTypeSignature(JNIEnv *env, jobject type, std::ostringstream* javasig, std::ostringstream* dcsig, const Options& options, bool& bIsAdaptableAsRaw);
 
 using namespace std;
 

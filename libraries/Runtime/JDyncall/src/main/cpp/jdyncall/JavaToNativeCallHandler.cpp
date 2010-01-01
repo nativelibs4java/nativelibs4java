@@ -1,4 +1,5 @@
 #include "jdyncall.hpp"
+#include <iostream>
 
 using namespace std;
 

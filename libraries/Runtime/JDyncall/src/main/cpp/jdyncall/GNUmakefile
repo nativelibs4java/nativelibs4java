@@ -17,6 +17,8 @@
 #
 #//////////////////////////////////////////////////////////////////////////////
 
+#BUILD_CONFIG=debug
+
 TOP =	$(DYNCALL_HOME)
 include $(DYNCALL_HOME)/buildsys/gmake/prolog.gmake
 
@@ -30,17 +32,6 @@ CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncall
 CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncallback
 CPPFLAGS	 += -I$(DYNCALL_HOME)/dynload
 
-INSTALL_HEADERS	+= CommonClassesAndMethods.h
-INSTALL_HEADERS	+= JNIUtils.hpp
-INSTALL_HEADERS	+= Options.hpp
-INSTALL_HEADERS	+= RawNativeForwardCallback.h
-INSTALL_HEADERS	+= com_nativelibs4java_runtime_DynCall.h
-INSTALL_HEADERS	+= com_nativelibs4java_runtime_JNI.h
-INSTALL_HEADERS	+= com_nativelibs4java_runtime_JNI_CallingConvention.h
-INSTALL_HEADERS	+= com_nativelibs4java_runtime_Pointer.h
-INSTALL_HEADERS	+= jdyncall.hpp
-INSTALL_HEADERS	+= jmethodcall.h
-
 UNITS += BindCallback
 UNITS += CommonClassesAndMethods
 UNITS += JNI
@@ -51,11 +42,13 @@ UNITS += Options
 UNITS += Pointer
 UNITS += RawNativeForwardCallback
 UNITS += Signatures
-UNITS += ValueTypes
 
 ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 endif
+
+CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
+LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 
 
 LINK_DIRS	+= $(DYNCALL_HOME)/dyncall/$(BUILD_DIR) 
 LINK_DIRS	+= $(DYNCALL_HOME)/dynload/$(BUILD_DIR) 

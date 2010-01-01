@@ -4,6 +4,7 @@
 #include "dynload/dynload.h"
 
 #include "jdyncall/sources/jdyncall.hpp"
+#include <iostream>
 
 using namespace std;
 
