@@ -1,16 +1,14 @@
-// stdafx.h : fichier Include pour les fichiers Include système standard,
-// ou les fichiers Include spécifiques aux projets qui sont utilisés fréquemment,
-// et sont rarement modifiés
-//
-
 #pragma once
+#ifndef __STDAFX_H
+#define __STDAFX_H
 
 #include "targetver.h"
 
-#define WIN32_LEAN_AND_MEAN             // Exclure les en-têtes Windows rarement utilisés
-// Fichiers d'en-tête Windows :
-#include <windows.h>
+#ifdef __GNUC__
+	#include <stdlib.h>
+#else
+	#define WIN32_LEAN_AND_MEAN
+	#include <windows.h>
+#endif
 
-
-
-// TODO : faites référence ici aux en-têtes supplémentaires nécessaires au programme
+#endif // __STDAFX_H

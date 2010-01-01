@@ -17,10 +17,15 @@ echo $DYNCALL_HOME/dyncall/$BUILD_DIR
 
 echo "# Making dyncall"
 cd "$DYNCALL_HOME"
-pwd
 make $@
 
 echo "# Making jdyncall"
 cd "$CURR"
-pwd
 make $@
+
+echo "# Making test library"
+cd "../../../test/cpp/test"
+make $@
+
+cd "$CURR"
+

@@ -4,10 +4,16 @@
 // qui utilisent cette DLL. De cette manière, les autres projets dont les fichiers sources comprennent ce fichier considèrent les fonctions 
 // TEST_API comme étant importées à partir d'une DLL, tandis que cette DLL considère les symboles
 // définis avec cette macro comme étant exportés.
-#ifdef TEST_EXPORTS
-#define TEST_API __declspec(dllexport)
+
+#ifdef __GNUC__
+	#define TEST_API
+	#define __cdecl
 #else
-#define TEST_API __declspec(dllimport)
+	#ifdef TEST_EXPORTS
+		#define TEST_API __declspec(dllexport)
+	#else
+		#define TEST_API __declspec(dllimport)
+	#endif
 #endif
 
 // Cette classe est exportée de test.dll
@@ -21,9 +27,9 @@ public:
 extern TEST_API int ntest;
 TEST_API Ctest* createTest();
 
-TEST_API double _cdecl sinInt(int);
-TEST_API double _cdecl testSum(const double *values, size_t n);
-TEST_API double _cdecl testSumi(const double *values, int n);
-TEST_API long long _cdecl testSumll(const double *values, int n);
-TEST_API int _cdecl testSumInt(const double *values, int n);
-TEST_API void _cdecl testInPlaceSquare(double *values, size_t n);
+TEST_API double __cdecl sinInt(int);
+TEST_API double __cdecl testSum(const double *values, size_t n);
+TEST_API double __cdecl testSumi(const double *values, int n);
+TEST_API long long __cdecl testSumll(const double *values, int n);
+TEST_API int __cdecl testSumInt(const double *values, int n);
+TEST_API void __cdecl testInPlaceSquare(double *values, size_t n);
