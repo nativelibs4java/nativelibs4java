@@ -1,9 +1,18 @@
 
 #include "RawNativeForwardCallback.h"
+
+#ifdef _WIN64
 #include "dyncallback/dyncall_callback_x64.h"
 #include "dyncallback/dyncall_args_x64.h"
+#endif
+
+#ifdef _WIN32
+#include "dyncallback/dyncall_callback_x86.h"
+#include "dyncallback/dyncall_args_x86.h"
+#endif
 
 #include "dyncallback/dyncall_alloc_wx.h"
+#include "dyncallback/dyncall_thunk.h"
 #include "dyncall/dyncall_signature.h"
 
 extern "C" {
@@ -26,7 +35,7 @@ DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)())
 	if (err != 0) 
 		return 0;
 
-	dcThunkInit(&pcb->thunk, dcRawCallAdapterSkipTwoArgs64);
+	dcInitThunk(&pcb->thunk, dcRawCallAdapterSkipTwoArgs64);
 	pcb->handler = handler;
 	return pcb;
 #else
@@ -37,7 +46,7 @@ DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)())
 	if (err != 0) 
 		return 0;
 
-	dcThunkInit(&pcb->thunk, dcRawCallAdapterSkipTwoArgs32_cdecl);
+	dcInitThunk(&pcb->thunk, dcRawCallAdapterSkipTwoArgs32_cdecl);
 	pcb->handler = handler;
 	return pcb;
 #else
