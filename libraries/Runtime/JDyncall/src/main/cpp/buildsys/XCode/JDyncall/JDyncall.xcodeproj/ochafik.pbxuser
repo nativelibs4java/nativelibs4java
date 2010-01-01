@@ -10,19 +10,49 @@
 		);
 		breakpoints = (
 			9007DFC510EE32E300928CAE /* MethodCallInfo.cpp:24 */,
+			9007E10D10EE3F4600928CAE /* dynload_unix.c:40 */,
+			9007E11910EE400300928CAE /* JNI.cpp:99 */,
+			9007E12410EE401A00928CAE /* JNI.cpp:101 */,
+			9007E12610EE401C00928CAE /* JNI.cpp:100 */,
+			9007E15410EE440700928CAE /* JNI.cpp:36 */,
+			9007E15610EE440F00928CAE /* JNI.cpp:22 */,
 		);
 		codeSenseManager = 9007DF0E10EE299F00928CAE /* Code sense */;
 		executables = (
 			9007DFC210EE318300928CAE /* Java Maven Shaded Jar */,
 		);
 		perUserDictionary = {
+			"PBXConfiguration.PBXBreakpointsDataSource.v1:1CA1AED706398EBD00589147" = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXBreakpointsDataSource_BreakpointID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					20,
+					198,
+					20,
+					99,
+					99,
+					29,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXBreakpointsDataSource_ActionID,
+					PBXBreakpointsDataSource_TypeID,
+					PBXBreakpointsDataSource_BreakpointID,
+					PBXBreakpointsDataSource_UseID,
+					PBXBreakpointsDataSource_LocationID,
+					PBXBreakpointsDataSource_ConditionID,
+					PBXBreakpointsDataSource_IgnoreCountID,
+					PBXBreakpointsDataSource_ContinueID,
+				);
+			};
 			PBXConfiguration.PBXFileTableDataSource3.PBXExecutablesDataSource = {
 				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
 				PBXFileTableDataSourceColumnSortingKey = PBXExecutablesDataSource_NameID;
 				PBXFileTableDataSourceColumnWidthsKey = (
 					22,
 					300,
-					229,
+					459,
 				);
 				PBXFileTableDataSourceColumnsKey = (
 					PBXExecutablesDataSource_ActiveFlagID,
@@ -121,6 +151,13 @@
 			9007E02610EE3C3000928CAE /* PBXTargetBookmark */ = 9007E02610EE3C3000928CAE /* PBXTargetBookmark */;
 			9007E02B10EE3C3B00928CAE /* PBXTextBookmark */ = 9007E02B10EE3C3B00928CAE /* PBXTextBookmark */;
 			9007E02C10EE3C3B00928CAE /* PBXTargetBookmark */ = 9007E02C10EE3C3B00928CAE /* PBXTargetBookmark */;
+			9007E10F10EE3F5100928CAE /* PBXTextBookmark */ = 9007E10F10EE3F5100928CAE /* PBXTextBookmark */;
+			9007E11010EE3F5100928CAE /* PBXTextBookmark */ = 9007E11010EE3F5100928CAE /* PBXTextBookmark */;
+			9007E11110EE3F5100928CAE /* PBXTextBookmark */ = 9007E11110EE3F5100928CAE /* PBXTextBookmark */;
+			9007E11210EE3F5100928CAE /* PBXTextBookmark */ = 9007E11210EE3F5100928CAE /* PBXTextBookmark */;
+			9007E13810EE405200928CAE /* PBXTextBookmark */ = 9007E13810EE405200928CAE /* PBXTextBookmark */;
+			9007E13910EE405200928CAE /* PBXTextBookmark */ = 9007E13910EE405200928CAE /* PBXTextBookmark */;
+			9007E13A10EE405200928CAE /* PBXTextBookmark */ = 9007E13A10EE405200928CAE /* PBXTextBookmark */;
 		};
 		sourceControlManager = 9007DF0D10EE299F00928CAE /* Source Control */;
 		userBuildSettings = {
@@ -142,6 +179,12 @@
 		indexTemplatePath = "";
 	};
 	9007DF3D10EE2AED00928CAE /* MethodCallInfo.cpp */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.cpp.cpp;
+		name = MethodCallInfo.cpp;
+		path = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/JDyncall/src/main/cpp/jdyncall/MethodCallInfo.cpp;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {1153, 1469}}";
 			sepNavSelRange = "{0, 0}";
@@ -149,6 +192,12 @@
 		};
 	};
 	9007DF3E10EE2AED00928CAE /* JNI.cpp */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.cpp.cpp;
+		name = JNI.cpp;
+		path = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/JDyncall/src/main/cpp/jdyncall/JNI.cpp;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {978, 1339}}";
 			sepNavSelRange = "{0, 0}";
@@ -156,6 +205,12 @@
 		};
 	};
 	9007DF4510EE2AED00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = com_nativelibs4java_runtime_JNI_CallingConvention.h;
+		path = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/JDyncall/src/main/cpp/jdyncall/com_nativelibs4java_runtime_JNI_CallingConvention.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
 			sepNavIntBoundsRect = "{{0, 0}, {519, 245}}";
 			sepNavSelRange = "{0, 0}";
@@ -163,8 +218,14 @@
 		};
 	};
 	9007DF4610EE2AED00928CAE /* com_nativelibs4java_runtime_DynCall.h */ = {
+		isa = PBXFileReference;
+		fileEncoding = 4;
+		lastKnownFileType = sourcecode.c.h;
+		name = com_nativelibs4java_runtime_DynCall.h;
+		path = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/JDyncall/src/main/cpp/jdyncall/com_nativelibs4java_runtime_DynCall.h;
+		sourceTree = "<absolute>";
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {519, 245}}";
+			sepNavIntBoundsRect = "{{0, 0}, {749, 320}}";
 			sepNavSelRange = "{0, 0}";
 			sepNavVisRange = "{0, 326}";
 		};
@@ -420,6 +481,21 @@
 				remoteHostInfo = "";
 				startActionInfo = "";
 			};
+			"PBXLSLaunchAction-1" = {
+				PBXLSLaunchAction = 1;
+				PBXLSLaunchStartAction = 1;
+				PBXLSLaunchStdioStyle = 2;
+				PBXLSLaunchStyle = 0;
+				class = PBXGDB_LaunchConfig;
+				commandLineArgs = (
+				);
+				displayName = GDB;
+				environment = {
+				};
+				identifier = com.apple.Xcode.launch.GDBMI_Config;
+				remoteHostInfo = "";
+				startActionInfo = "";
+			};
 		};
 		customDataFormattersEnabled = 1;
 		dataTipCustomDataFormattersEnabled = 1;
@@ -478,9 +554,9 @@
 		hitCount = 0;
 		ignoreCount = 0;
 		lineNumber = 24;
-		modificationTime = 284047759.615599;
+		modificationTime = 284050455.064388;
 		originalNumberOfMultipleMatches = 1;
-		state = 1;
+		state = 0;
 	};
 	9007DFC910EE32EE00928CAE /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
@@ -680,6 +756,220 @@
 				"com.apple.target-editor-pane.settings",
 			);
 		};
+	};
+	9007E0C810EE3F0A00928CAE /* dynload.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {749, 351}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{4, 984}";
+		};
+	};
+	9007E0CC10EE3F0A00928CAE /* dynload_syms_elf.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {749, 4914}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 896}";
+		};
+	};
+	9007E0CE10EE3F0A00928CAE /* dynload_unix.c */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {749, 624}}";
+			sepNavSelRange = "{1151, 5}";
+			sepNavVisRange = "{873, 390}";
+		};
+	};
+	9007E0D410EE3F1B00928CAE /* BindCallback.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {749, 320}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 104}";
+		};
+	};
+	9007E0F510EE3F1C00928CAE /* CommonClassesAndMethods.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1349, 1417}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 1231}";
+		};
+	};
+	9007E0FC10EE3F1C00928CAE /* JNI.cpp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {978, 1339}}";
+			sepNavSelRange = "{3301, 0}";
+			sepNavVisRange = "{186, 591}";
+		};
+	};
+	9007E10D10EE3F4600928CAE /* dynload_unix.c:40 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 9007E0CE10EE3F0A00928CAE /* dynload_unix.c */;
+		functionName = "dlFindSymbol()";
+		hitCount = 0;
+		ignoreCount = 0;
+		lineNumber = 40;
+		modificationTime = 284050455.065454;
+		originalNumberOfMultipleMatches = 1;
+		state = 0;
+	};
+	9007E10F10EE3F5100928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007E0CC10EE3F0A00928CAE /* dynload_syms_elf.c */;
+		name = "dynload_syms_elf.c: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 896;
+		vrLoc = 0;
+	};
+	9007E11010EE3F5100928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007E0C810EE3F0A00928CAE /* dynload.c */;
+		name = "dynload.c: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 984;
+		vrLoc = 4;
+	};
+	9007E11110EE3F5100928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007E0CE10EE3F0A00928CAE /* dynload_unix.c */;
+		name = "dynload_unix.c: 9";
+		rLen = 0;
+		rLoc = 353;
+		rType = 0;
+		vrLen = 389;
+		vrLoc = 874;
+	};
+	9007E11210EE3F5100928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007E0CE10EE3F0A00928CAE /* dynload_unix.c */;
+		name = "dynload_unix.c: 40";
+		rLen = 5;
+		rLoc = 1151;
+		rType = 0;
+		vrLen = 390;
+		vrLoc = 873;
+	};
+	9007E11910EE400300928CAE /* JNI.cpp:99 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 9007E0FC10EE3F1C00928CAE /* JNI.cpp */;
+		functionName = "Java_com_nativelibs4java_runtime_JNI_findSymbolInLibrary(JNIEnv *env, jclass, jlong libHandle, jstring nameStr)";
+		hitCount = 0;
+		ignoreCount = 0;
+		lineNumber = 99;
+		modificationTime = 284050455.066149;
+		originalNumberOfMultipleMatches = 1;
+		state = 2;
+	};
+	9007E12410EE401A00928CAE /* JNI.cpp:101 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 9007E0FC10EE3F1C00928CAE /* JNI.cpp */;
+		functionName = "Java_com_nativelibs4java_runtime_JNI_findSymbolInLibrary(JNIEnv *env, jclass, jlong libHandle, jstring nameStr)";
+		hitCount = 0;
+		ignoreCount = 0;
+		lineNumber = 101;
+		modificationTime = 284050455.066882;
+		originalNumberOfMultipleMatches = 1;
+		state = 2;
+	};
+	9007E12610EE401C00928CAE /* JNI.cpp:100 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 9007E0FC10EE3F1C00928CAE /* JNI.cpp */;
+		functionName = "Java_com_nativelibs4java_runtime_JNI_findSymbolInLibrary(JNIEnv *env, jclass, jlong libHandle, jstring nameStr)";
+		hitCount = 0;
+		ignoreCount = 0;
+		lineNumber = 100;
+		modificationTime = 284050455.067628;
+		originalNumberOfMultipleMatches = 1;
+		state = 2;
+	};
+	9007E13810EE405200928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007E0CE10EE3F0A00928CAE /* dynload_unix.c */;
+		name = "dynload_unix.c: 40";
+		rLen = 5;
+		rLoc = 1151;
+		rType = 0;
+		vrLen = 390;
+		vrLoc = 873;
+	};
+	9007E13910EE405200928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007E0FC10EE3F1C00928CAE /* JNI.cpp */;
+		name = "JNI.cpp: 99";
+		rLen = 60;
+		rLoc = 3303;
+		rType = 0;
+		vrLen = 861;
+		vrLoc = 2622;
+	};
+	9007E13A10EE405200928CAE /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007E0FC10EE3F1C00928CAE /* JNI.cpp */;
+		name = "JNI.cpp: 98";
+		rLen = 0;
+		rLoc = 3301;
+		rType = 0;
+		vrLen = 846;
+		vrLoc = 2622;
+	};
+	9007E15410EE440700928CAE /* JNI.cpp:36 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 9007E0FC10EE3F1C00928CAE /* JNI.cpp */;
+		functionName = "Java_com_nativelibs4java_runtime_JNI_registerMethod(JNIEnv *env, jclass, jclass declaringClass, jobject method, jlong symbol)";
+		hitCount = 0;
+		ignoreCount = 0;
+		lineNumber = 36;
+		modificationTime = 284050455.068311;
+		originalNumberOfMultipleMatches = 1;
+		state = 2;
+	};
+	9007E15610EE440F00928CAE /* JNI.cpp:22 */ = {
+		isa = PBXFileBreakpoint;
+		actions = (
+		);
+		breakpointStyle = 0;
+		continueAfterActions = 0;
+		countType = 0;
+		delayBeforeContinue = 0;
+		fileReference = 9007E0FC10EE3F1C00928CAE /* JNI.cpp */;
+		functionName = "Java_com_nativelibs4java_runtime_JNI_init(JNIEnv *env, jclass)";
+		hitCount = 0;
+		ignoreCount = 0;
+		lineNumber = 22;
+		modificationTime = 284050455.068986;
+		originalNumberOfMultipleMatches = 1;
+		state = 0;
 	};
 	D28A88AD04BDD90700651E21 /* JDyncall */ = {
 		activeExec = 0;

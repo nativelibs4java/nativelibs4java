@@ -32,7 +32,7 @@ public class Main {
         }
         //@Library("C:\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\Debug\\test")
         //@Library("C:\\Users\\Olivier\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\x64\\Debug\\test")
-        @Mangling({"?sinInt@@YANH@Z"})
+        @Mangling({"?sinInt@@YANH@Z", "__Z6sinInti"})
         public static native double sinInt(int d);
 
         static class Struct1 {
@@ -51,27 +51,29 @@ public class Main {
     public static void main(String[] args) {
         try {
             System.out.println(Main.class.getResource("Main.class"));
-            Method[] mes = Test.class.getDeclaredMethods();
-            Method me = mes[0];
-            //Test.class.getMethod("sinInt", Integer.TYPE)
-            long address = DynCall.getSymbolAddress(me);
-            JNI.registerClass(Test.class);
-
-            /*
-            mes = PerfTest.class.getDeclaredMethods();
-            me = mes[0];
-            //Test.class.getMethod("sinInt", Integer.TYPE)
-            address = DynCall.getSymbolAddress(me);
-            JNI.registerClass(PerfTest.class);
-*/
-            int arg = 10;
-            double res = Test.sinInt(arg);
             int nWarmUp = 16000;
             int nCalls = 1000000;
             int nTests = 10;
+            int arg = 10;
+            double res = 0;
+            
             boolean warmup = true;
-
+            
             if (true) {
+                Method[] mes = Test.class.getDeclaredMethods();
+                Method me = mes[0];
+                //Test.class.getMethod("sinInt", Integer.TYPE)
+                long address = DynCall.getSymbolAddress(me);
+                JNI.registerClass(Test.class);
+
+                /*
+                mes = PerfTest.class.getDeclaredMethods();
+                me = mes[0];
+                //Test.class.getMethod("sinInt", Integer.TYPE)
+                address = DynCall.getSymbolAddress(me);
+                JNI.registerClass(PerfTest.class);
+    */
+                res = Test.sinInt(arg);
                 double tot = 0;
                 if (warmup) {
                     for (int i = 0; i < nWarmUp; i++)
