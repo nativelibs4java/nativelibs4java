@@ -7,7 +7,9 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Pointer<T> implements Addressable, Comparable<Addressable>, com.sun.jna.Pointer<Pointer<T>> {
+public class Pointer<T> implements Addressable, Comparable<Addressable>
+        //, com.sun.jna.Pointer<Pointer<T>>
+{
 
     static {
         JNI.initLibrary();

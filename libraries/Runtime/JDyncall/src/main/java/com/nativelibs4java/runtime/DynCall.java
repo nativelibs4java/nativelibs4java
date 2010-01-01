@@ -101,10 +101,14 @@ public class DynCall {
         if (paths == null) {
             paths = new ArrayList<String>();
             paths.add(".");
-            String env = System.getenv("PATH");
+			String env;
+			env = System.getenv("LD_LIBRARY_PATH");
             if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
-            env = System.getenv("LD_LIBRARY_PATH");
+            env = System.getenv("DYLD_LIBRARY_PATH");
+            if (env != null)
+                paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
+            env = System.getenv("PATH");
             if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
             env = System.getProperty("java.library.path");
@@ -125,11 +129,11 @@ public class DynCall {
             File pathFile = new File(path);
             File f = new File(pathFile, name + ".dll");
             if (!f.exists())
-                f = new File(pathFile, name + ".so");
+                f = new File(pathFile, "lib" + name + ".so");
             if (!f.exists())
-                f = new File(pathFile, name + ".dylib");
+                f = new File(pathFile, "lib" + name + ".dylib");
             if (!f.exists())
-                f = new File(pathFile, name + ".jnilib");
+                f = new File(pathFile, "lib" + name + ".jnilib");
             if (!f.exists())
                 continue;
 

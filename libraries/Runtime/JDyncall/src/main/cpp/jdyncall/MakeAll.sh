@@ -17,15 +17,19 @@ echo $DYNCALL_HOME/dyncall/$BUILD_DIR
 
 echo "# Making dyncall"
 cd "$DYNCALL_HOME"
-make $@
+make $@ || exit 1
 
 echo "# Making jdyncall"
 cd "$CURR"
-make $@
+make $@ || exit 1
 
 echo "# Making test library"
 cd "../../../test/cpp/test"
-make $@
+make $@ || exit 1
+
+for D in build_out/* ; do 
+	cp $D/*.dylib $CURR/$D ; 
+done
 
 cd "$CURR"
 

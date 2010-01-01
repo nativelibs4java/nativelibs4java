@@ -70,7 +70,7 @@
 			buildConfigurationList = 1DEB918F08733D9F0010E9CD /* Build configuration list for PBXLegacyTarget "JDyncall" */;
 			buildPhases = (
 			);
-			buildToolPath = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/JDyncall/src/main/cpp/jdyncall/MakeAll.sh;
+			buildToolPath = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/JDyncall/src/main/cpp/jdyncall/MakeAllDebug.sh;
 			buildWorkingDirectory = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/JDyncall/src/main/cpp/jdyncall;
 			dependencies = (
 			);
@@ -103,26 +103,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUILD_CONFIG = debug;
-				COPY_PHASE_STRIP = NO;
-				DEBUGGING_SYMBOLS = YES;
 				DYNCALL_HOME = /Users/ochafik/src/dyncall/dyncall;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
 			};
 			name = Debug;
 		};
 		1DEB919108733D9F0010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
 				DYNCALL_HOME = /Users/ochafik/src/dyncall/dyncall;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
 			};
 			name = Release;
 		};
