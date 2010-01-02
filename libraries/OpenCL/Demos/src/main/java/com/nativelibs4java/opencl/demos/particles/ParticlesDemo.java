@@ -595,7 +595,7 @@ public class ParticlesDemo implements GLEventListener {
             if (wgs > maxwgs)
                 wgs = maxwgs;
 
-            particlesProgram.updateParticle(
+            CLEvent evt = particlesProgram.updateParticle(
                 queue,
                 massesMem,
                 velocitiesMem,
@@ -609,6 +609,8 @@ public class ParticlesDemo implements GLEventListener {
                 (byte)(limitToScreen ? 1 : 0),
                 new int[] { particlesCount }, new int[] { (int)wgs }
             );
+            evt.release(); // the gc might be to slow to reclaim the event, so do manual memory management here
+
         } catch (Throwable ex) {
             exception(ex);
             System.exit(1);
