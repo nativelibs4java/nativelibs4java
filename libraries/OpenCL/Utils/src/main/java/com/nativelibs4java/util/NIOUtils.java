@@ -62,36 +62,37 @@ public class NIOUtils
 		output.rewind();
 	}
 
-        public static IntBuffer directCopy(IntBuffer b) {
-            return directCopy((Buffer)b).asIntBuffer();
+        public static IntBuffer directCopy(IntBuffer b, ByteOrder order) {
+            return directCopy((Buffer)b, order).asIntBuffer();
         }
-	public static LongBuffer directCopy(LongBuffer b) {
-            return directCopy((Buffer)b).asLongBuffer();
+	public static LongBuffer directCopy(LongBuffer b, ByteOrder order) {
+            return directCopy((Buffer)b, order).asLongBuffer();
         }
-	public static ShortBuffer directCopy(ShortBuffer b) {
-            return directCopy((Buffer)b).asShortBuffer();
+	public static ShortBuffer directCopy(ShortBuffer b, ByteOrder order) {
+            return directCopy((Buffer)b, order).asShortBuffer();
         }
-	public static CharBuffer directCopy(CharBuffer b) {
-            return directCopy((Buffer)b).asCharBuffer();
+	public static CharBuffer directCopy(CharBuffer b, ByteOrder order) {
+            return directCopy((Buffer)b, order).asCharBuffer();
         }
-	public static DoubleBuffer directCopy(DoubleBuffer b) {
-            return directCopy((Buffer)b).asDoubleBuffer();
+	public static DoubleBuffer directCopy(DoubleBuffer b, ByteOrder order) {
+            return directCopy((Buffer)b, order).asDoubleBuffer();
         }
-	public static FloatBuffer directCopy(FloatBuffer b) {
-            return directCopy((Buffer)b).asFloatBuffer();
+	public static FloatBuffer directCopy(FloatBuffer b, ByteOrder order) {
+            return directCopy((Buffer)b, order).asFloatBuffer();
         }
-	public static ByteBuffer directCopy(Buffer b) {
-		ByteBuffer copy = ByteBuffer.allocateDirect((int)getSizeInBytes(b)).order(ByteOrder.nativeOrder());
+	public static ByteBuffer directCopy(Buffer b, ByteOrder order) {
+		ByteBuffer copy = ByteBuffer.allocateDirect((int)getSizeInBytes(b)).order(order == null ? ByteOrder.nativeOrder() : order);
 		put(b, copy);
 		return copy;
 	}
+    
 	/**
 	 * Creates a direct int buffer of the specified size (in elements) and a native byte order
 	 * @param size size of the buffer in elements
 	 * @return view on new direct buffer
 	 */
-	public static IntBuffer directInts(int size) {
-        return ByteBuffer.allocateDirect(size * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
+	public static IntBuffer directInts(int size, ByteOrder order) {
+        return ByteBuffer.allocateDirect(size * 4).order(order == null ? ByteOrder.nativeOrder() : order).asIntBuffer();
     }
 
     /**
@@ -99,8 +100,8 @@ public class NIOUtils
 	 * @param size size of the buffer in elements
 	 * @return view on new direct buffer
 	 */
-	public static LongBuffer directLongs(int size) {
-        return ByteBuffer.allocateDirect(size * 8).order(ByteOrder.nativeOrder()).asLongBuffer();
+	public static LongBuffer directLongs(int size, ByteOrder order) {
+        return ByteBuffer.allocateDirect(size * 8).order(order == null ? ByteOrder.nativeOrder() : order).asLongBuffer();
     }
 
     /**
@@ -108,8 +109,8 @@ public class NIOUtils
 	 * @param size size of the buffer in elements
 	 * @return view on new direct buffer
 	 */
-	public static ShortBuffer directShorts(int size) {
-        return ByteBuffer.allocateDirect(size * 2).order(ByteOrder.nativeOrder()).asShortBuffer();
+	public static ShortBuffer directShorts(int size, ByteOrder order) {
+        return ByteBuffer.allocateDirect(size * 2).order(order == null ? ByteOrder.nativeOrder() : order).asShortBuffer();
     }
 
     /**
@@ -117,8 +118,8 @@ public class NIOUtils
 	 * @param size size of the buffer in elements
 	 * @return new direct buffer
 	 */
-	public static ByteBuffer directBytes(int size) {
-        return ByteBuffer.allocateDirect(size).order(ByteOrder.nativeOrder());
+	public static ByteBuffer directBytes(int size, ByteOrder order) {
+        return ByteBuffer.allocateDirect(size).order(order == null ? ByteOrder.nativeOrder() : order);
     }
 
     /**
@@ -126,8 +127,8 @@ public class NIOUtils
 	 * @param size size of the buffer in elements
 	 * @return view on new direct buffer
 	 */
-	public static FloatBuffer directFloats(int size) {
-        return ByteBuffer.allocateDirect(size * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+	public static FloatBuffer directFloats(int size, ByteOrder order) {
+        return ByteBuffer.allocateDirect(size * 4).order(order == null ? ByteOrder.nativeOrder() : order).asFloatBuffer();
     }
 
     /**
@@ -135,23 +136,24 @@ public class NIOUtils
 	 * @param size size of the buffer in elements
 	 * @return view on new direct buffer
 	 */
-	public static DoubleBuffer directDoubles(int size) {
-        return ByteBuffer.allocateDirect(size * 8).order(ByteOrder.nativeOrder()).asDoubleBuffer();
+	public static DoubleBuffer directDoubles(int size, ByteOrder order) {
+        return ByteBuffer.allocateDirect(size * 8).order(order == null ? ByteOrder.nativeOrder() : order).asDoubleBuffer();
     }
+    
 
-    public static <B extends Buffer> B directBuffer(int size, Class<B> bufferClass) {
+    public static <B extends Buffer> B directBuffer(int size, ByteOrder order, Class<B> bufferClass) {
         if (IntBuffer.class.isAssignableFrom(bufferClass))
-            return (B)directInts(size);
+            return (B)directInts(size, order);
 		if (LongBuffer.class.isAssignableFrom(bufferClass))
-            return (B)directLongs(size);
+            return (B)directLongs(size, order);
 		if (ShortBuffer.class.isAssignableFrom(bufferClass))
-            return (B)directShorts(size);
+            return (B)directShorts(size, order);
 		if (ByteBuffer.class.isAssignableFrom(bufferClass))
-            return (B)directBytes(size);
+            return (B)directBytes(size, order);
 		if (DoubleBuffer.class.isAssignableFrom(bufferClass))
-            return (B)directDoubles(size);
+            return (B)directDoubles(size, order);
 		if (FloatBuffer.class.isAssignableFrom(bufferClass))
-            return (B)directFloats(size);
+            return (B)directFloats(size, order);
 
         throw new UnsupportedOperationException("Cannot create direct buffers of type " + bufferClass.getName());
 	}
