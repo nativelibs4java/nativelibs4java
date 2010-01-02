@@ -89,7 +89,7 @@ public class CLImage2D extends CLImage {
 			throw new IllegalArgumentException("Image-read only supports int-based RGBA images");
 
 		int width = imageOut.getWidth(null), height = imageOut.getHeight(null);
-		IntBuffer dataOut = directInts(width * height);
+		IntBuffer dataOut = directInts(width * height, getContext().getByteOrder());
 		read(queue, 0, 0, width, height, 0, dataOut, true, eventsToWaitFor);
 		setImageIntPixels(imageOut, allowDeoptimizingDirectWrite, dataOut);
 	}

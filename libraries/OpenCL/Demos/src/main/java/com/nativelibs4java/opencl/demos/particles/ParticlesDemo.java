@@ -471,9 +471,9 @@ public class ParticlesDemo implements GLEventListener {
             }
             queue = context.createDefaultQueue();
             
-            FloatBuffer masses = NIOUtils.directFloats(particlesCount);
-            velocities = NIOUtils.directFloats(2 * particlesCount);
-            interleavedColorAndPositionsTemp = NIOUtils.directBytes(elementSize * particlesCount);
+            FloatBuffer masses = NIOUtils.directFloats(particlesCount, context.getByteOrder());
+            velocities = NIOUtils.directFloats(2 * particlesCount, context.getByteOrder());
+            interleavedColorAndPositionsTemp = NIOUtils.directBytes(elementSize * particlesCount, context.getByteOrder());
             
             FloatBuffer positionsView = interleavedColorAndPositionsTemp.asFloatBuffer();
             for (int i = 0; i < particlesCount; i++) {

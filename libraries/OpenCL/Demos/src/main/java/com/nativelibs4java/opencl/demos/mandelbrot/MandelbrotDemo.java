@@ -58,9 +58,13 @@ public class MandelbrotDemo {
         float deltaReal = (realMax - realMin) / (realResolution-1);
         float deltaImaginary = (imaginaryMax - imaginaryMin) / (imaginaryResolution-1);
 
+        //Create a context and program using the devices discovered.
+        CLContext context = createBestContext();
+        CLQueue queue = context.createDefaultQueue();
+
         //Setup output buffer
         int size = realResolution * imaginaryResolution;
-        IntBuffer results = NIOUtils.directInts(size);
+        IntBuffer results = NIOUtils.directInts(size, context.getByteOrder());
 
         //TODO use an image object directly.
         //CL.clCreateImage2D(context.get(), 0, OpenCLLibrary);
@@ -70,7 +74,7 @@ public class MandelbrotDemo {
         //Read the source file.
         String src = IOUtils.readTextClose(MandelbrotDemo.class.getResourceAsStream("Mandelbrot.cl"));
 
-        long time = buildAndExecuteKernel(realMin, imaginaryMin, realResolution, imaginaryResolution, maxIter, magicNumber,
+        long time = buildAndExecuteKernel(queue, realMin, imaginaryMin, realResolution, imaginaryResolution, maxIter, magicNumber,
                 deltaReal, deltaImaginary, results, src);
 
 		int nPixels = imaginaryResolution * realResolution;
@@ -120,14 +124,11 @@ public class MandelbrotDemo {
         }
     }
 
-    private static long buildAndExecuteKernel(float realMin, float imaginaryMin, int realResolution,
+    private static long buildAndExecuteKernel(CLQueue queue, float realMin, float imaginaryMin, int realResolution,
                                               int imaginaryResolution, int maxIter, int magicNumber, float deltaReal,
                                               float deltaImaginary, IntBuffer results, String src) throws CLBuildException, IOException {
 
-        //Create a context and program using the devices discovered.
-        CLContext context = createBestContext();
-        CLQueue queue = context.createDefaultQueue();
-
+        CLContext context = queue.getContext();
         long startTime = System.nanoTime();
         if (true) {
             Mandelbrot mandelbrot = new Mandelbrot(context);

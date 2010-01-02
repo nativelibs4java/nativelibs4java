@@ -228,7 +228,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     }
     public void setArg(int i, Buffer arg) {
 		if (!arg.isDirect())
-			arg = NIOUtils.directCopy(arg);
+			arg = NIOUtils.directCopy(arg, getProgram().getContext().getByteOrder());
 		long size = NIOUtils.getSizeInBytes(arg);
         error(CL.clSetKernelArg(getEntity(), i, toNS(size), Native.getDirectBufferPointer(arg)));
     }

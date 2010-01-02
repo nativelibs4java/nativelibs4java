@@ -102,7 +102,8 @@ public class OpenCL4JavaBenchmarkTest {
     static ExecResult<ByteBuffer> testOpenCL_aSinB(Target target, Prim nativePrim, int loops, int dataSize, boolean hostInOpenCL, Action2<ByteBuffer, ByteBuffer> fillBuffersWithSomeData) throws CLBuildException {
 
         CLKernel kernel = setupASinB(nativePrim, target);
-        CLQueue queue = kernel.program.context.createDefaultQueue();
+        CLContext context = kernel.getProgram().getContext();
+        CLQueue queue = context.createDefaultQueue();
 
         ByteBuffer input1 = null, input2 = null, output = null;
         CLByteBuffer memIn1, memIn2, memOut;
@@ -111,9 +112,9 @@ public class OpenCL4JavaBenchmarkTest {
             memIn2 = kernel.program.context.createByteBuffer(CLMem.Usage.Input, dataSize * nativePrim.sizeof());
             memOut = kernel.program.context.createByteBuffer(CLMem.Usage.Output, dataSize * nativePrim.sizeof());
         } else {
-            input1 = directBytes(dataSize * nativePrim.sizeof());
-            input2 = directBytes(dataSize * nativePrim.sizeof());
-            output = directBytes(dataSize * nativePrim.sizeof());
+            input1 = directBytes(dataSize * nativePrim.sizeof(), context.getByteOrder());
+            input2 = directBytes(dataSize * nativePrim.sizeof(), context.getByteOrder());
+            output = directBytes(dataSize * nativePrim.sizeof(), context.getByteOrder());
 
             memIn1 = kernel.program.context.createByteBuffer(CLMem.Usage.Input, input1, false);
             memIn2 = kernel.program.context.createByteBuffer(CLMem.Usage.Input, input2, false);
@@ -163,7 +164,7 @@ public class OpenCL4JavaBenchmarkTest {
             // Copy the OpenCL-hosted array back to RAM
             output = memOut.map(queue, CLMem.MapFlags.Read);
             //queue.finish();
-            ByteBuffer b = directBytes(dataSize * nativePrim.sizeof());
+            ByteBuffer b = directBytes(dataSize * nativePrim.sizeof(), context.getByteOrder());
             b.put(output);
             output.rewind();
             b.rewind();

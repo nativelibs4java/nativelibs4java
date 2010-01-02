@@ -89,7 +89,7 @@ public class OpenCL4JavaBasicTest {
             queue.finish();
 
             // Copy the OpenCL-hosted array back to RAM
-            FloatBuffer output = directFloats(dataSize);
+            FloatBuffer output = directFloats(dataSize, context.getByteOrder());
             memOut.read(queue, output, true);
 
             // Compute absolute and relative average errors wrt Java implem

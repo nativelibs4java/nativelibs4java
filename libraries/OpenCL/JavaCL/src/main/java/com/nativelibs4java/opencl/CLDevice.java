@@ -69,7 +69,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     protected void clear() {
     }
 
-    public ByteOrder getNativeOrder() {
+    public ByteOrder getByteOrder() {
         return isEndianLittle() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
     }
 

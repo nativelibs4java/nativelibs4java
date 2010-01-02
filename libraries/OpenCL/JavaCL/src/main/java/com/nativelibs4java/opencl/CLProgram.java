@@ -84,7 +84,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         for (int i = 0; i < sources.length; i++) {
             lengths[i] = toNS(sources[i].length());
         }
-        IntBuffer errBuff = NIOUtils.directInts(1);
+        IntBuffer errBuff = NIOUtils.directInts(1, ByteOrder.nativeOrder());
         cl_program program = CL.clCreateProgramWithSource(context.getEntity(), sources.length, sources, lengths, errBuff);
         error(errBuff.get(0));
         entity = program;
@@ -258,7 +258,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             if (!built)
                 build();
         }
-        IntBuffer errBuff = NIOUtils.directInts(1);
+        IntBuffer errBuff = NIOUtils.directInts(1, ByteOrder.nativeOrder());
         cl_kernel kernel = CL.clCreateKernel(getEntity(), name, errBuff);
         error(errBuff.get(0));
 

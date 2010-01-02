@@ -46,8 +46,8 @@ public class BufferTest extends AbstractCommon {
         CLBuffer<B> buf = context.createBuffer(CLMem.Usage.InputOutput, n, bufferClass);
         assertEquals(n, buf.getElementCount());
 
-        B initial = directBuffer(n, bufferClass);
-        B zeroes = directBuffer(n, bufferClass);
+        B initial = directBuffer(n, context.getByteOrder(), bufferClass);
+        B zeroes = directBuffer(n, context.getByteOrder(), bufferClass);
         for (int i = 0; i < n; i++) {
             put(initial, i, i + 1);
             put(zeroes, i, 0);
@@ -91,7 +91,7 @@ public class BufferTest extends AbstractCommon {
     }
     public void testMap(Class<? extends Buffer> bufferClass) {
         int size = 10;
-        ByteBuffer data = NIOUtils.directBytes(size);
+        ByteBuffer data = NIOUtils.directBytes(size, context.getByteOrder());
         CLBuffer<ByteBuffer> buf = context.createBuffer(CLMem.Usage.Input, data, false);
         ByteBuffer mapped = buf.map(queue, CLMem.MapFlags.Read);
 

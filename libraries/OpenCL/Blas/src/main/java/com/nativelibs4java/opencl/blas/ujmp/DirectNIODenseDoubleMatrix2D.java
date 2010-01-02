@@ -24,7 +24,7 @@ public class DirectNIODenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D
     }
 
     public DirectNIODenseDoubleMatrix2D(long rows, long columns) {
-        this(NIOUtils.directDoubles((int)(rows * columns)), rows, columns);
+        this(NIOUtils.directDoubles((int)(rows * columns), CLDenseDoubleMatrix2DFactory.LINEAR_ALGEBRA_KERNELS.getContext().getByteOrder()), rows, columns);
     }
 
     public DirectNIODenseDoubleMatrix2D(long[] size) {

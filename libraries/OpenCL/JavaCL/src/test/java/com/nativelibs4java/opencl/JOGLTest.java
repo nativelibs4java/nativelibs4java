@@ -96,7 +96,7 @@ public class JOGLTest {
                             assertEquals(VBO[0], info.getName());
                             assertNotNull(clbuf);
 
-                            FloatBuffer inbuf = NIOUtils.directFloats(bufferSize);
+                            FloatBuffer inbuf = NIOUtils.directFloats(bufferSize, context.getByteOrder());
                             float expected = 10;
                             try {
                                 CLKernel kernel = context.createProgram("__kernel void fill(__global float* out) { out[get_global_id(0)] = (float)" + expected + ";}").build().createKernel("fill", clbuf);

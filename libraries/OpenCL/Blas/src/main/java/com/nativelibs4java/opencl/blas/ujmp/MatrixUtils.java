@@ -36,7 +36,7 @@ public class MatrixUtils {
         read(m, DoubleBuffer.wrap(out));
     }
     public static DoubleBuffer read(DoubleMatrix2D m) {
-        DoubleBuffer buffer = NIOUtils.directDoubles((int)(m.getColumnCount() * m.getRowCount()));
+        DoubleBuffer buffer = NIOUtils.directDoubles((int)(m.getColumnCount() * m.getRowCount()), CLDenseDoubleMatrix2DFactory.LINEAR_ALGEBRA_KERNELS.getContext().getByteOrder());
         read(m, buffer);
         return buffer;
     }

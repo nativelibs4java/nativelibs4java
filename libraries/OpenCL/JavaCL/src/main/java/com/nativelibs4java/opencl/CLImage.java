@@ -95,7 +95,7 @@ public abstract class CLImage extends CLMem {
 	protected CLEvent write(CLQueue queue, NativeSize[] origin, NativeSize[] region, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
 		boolean indirect = !in.isDirect();
 		if (indirect)
-			in = directCopy(in);
+			in = directCopy(in, getContext().getByteOrder());
 
 		cl_event[] eventOut = blocking ? null : eventsToWaitFor == null ? null : new cl_event[1];
 		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
@@ -132,7 +132,7 @@ public abstract class CLImage extends CLMem {
     {
 		//checkBounds(offset, length);
 		cl_event[] eventOut = blocking ? null : eventsToWaitFor == null ? null : new cl_event[1];
-		IntBuffer pErr = NIOUtils.directInts(1);
+		IntBuffer pErr = NIOUtils.directInts(1, ByteOrder.nativeOrder());
 
         cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         Pointer p = CL.clEnqueueMapImage(

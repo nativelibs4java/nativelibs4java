@@ -41,7 +41,7 @@ public class ReductionTest {
             }), true);
 
             int maxReductionSize = 2;
-            IntBuffer result = NIOUtils.directInts(1);
+            IntBuffer result = NIOUtils.directInts(1, context.getByteOrder());
             
             Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Min, ReductionUtils.Type.Int, 1);
             reductor.reduce(queue, input, input.getElementCount(), result, maxReductionSize);
@@ -65,7 +65,7 @@ public class ReductionTest {
             int channels = 1;
             int maxReductionSize = 64;
             
-            IntBuffer inBuf = NIOUtils.directInts(channels * dataSize);
+            IntBuffer inBuf = NIOUtils.directInts(channels * dataSize, context.getByteOrder());
             for (int i = 0; i < dataSize; i++) {
                 for (int c = 0; c < channels; c++)
                     inBuf.put(i * channels + c, i);
@@ -78,7 +78,7 @@ public class ReductionTest {
             for (int i = 0; i < dataSize; i++)
                 assertEquals(inBuf.get(i), check.get(i));
             
-            IntBuffer out = NIOUtils.directInts(channels);
+            IntBuffer out = NIOUtils.directInts(channels, context.getByteOrder());
             
             Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, ReductionUtils.Type.Int, channels);
 

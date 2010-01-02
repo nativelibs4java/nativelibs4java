@@ -27,6 +27,7 @@ import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.sun.jna.*;
 import com.sun.jna.ptr.*;
+import java.nio.ByteOrder;
 import java.util.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLException.*;
@@ -137,7 +138,8 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 
     public enum DeviceEvaluationStrategy {
 
-        BiggestMaxComputeUnits
+        BiggestMaxComputeUnits,
+        BiggestMaxComputeUnitsWithNativeEndianness
     }
 
 	static CLDevice getBestDevice(DeviceEvaluationStrategy eval, Iterable<CLDevice> devices) {
@@ -148,6 +150,11 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
                 bestDevice = device;
             } else {
                 switch (eval) {
+                    case BiggestMaxComputeUnitsWithNativeEndianness:
+                        if (bestDevice.getByteOrder() != ByteOrder.nativeOrder() && device.getByteOrder() == ByteOrder.nativeOrder()) {
+                            bestDevice = device;
+                            break;
+                        }
                     case BiggestMaxComputeUnits:
                         if (bestDevice.getMaxComputeUnits() < device.getMaxComputeUnits()) {
                             bestDevice = device;

@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
+import com.nativelibs4java.opencl.blas.LinearAlgebraKernels;
 import com.nativelibs4java.util.NIOUtils;
 import java.nio.DoubleBuffer;
 import org.ujmp.core.Matrix;
@@ -31,7 +32,7 @@ public class CLMatrixBenchmark extends AbstractMatrix2DBenchmark {
         else {
             DoubleMatrix2D dsource = (DoubleMatrix2D)source;
             int rows = (int)dsource.getRowCount(), columns = (int)dsource.getColumnCount();
-            DoubleBuffer b = NIOUtils.directDoubles(rows * columns);
+            DoubleBuffer b = NIOUtils.directDoubles(rows * columns, CLDenseDoubleMatrix2DFactory.LINEAR_ALGEBRA_KERNELS.getContext().getByteOrder());
             for (int i = 0; i < rows; i++) {
                 for (int j = 0; j < rows; j++) {
                     b.put(dsource.getDouble(i, j));
