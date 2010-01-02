@@ -19,6 +19,11 @@ public interface OpenCLLibrary extends com.sun.jna.Library {
 			System.setProperty("jnaerator.dumb", Pointer.SIZE + ""); // force initialization of Native where libdispatch is bound
 			System.getProperties().remove("javawebstart.version");
 			//System.setProperty("javawebstart.version", null); // prevent OpenCL from being looked up in webstart native libs
+            try {
+                com.sun.jna.Native.setProtected(true);
+            } catch (Throwable th) {
+                th.printStackTrace();
+            }
 		}
 	}
 	public static final com.sun.jna.NativeLibrary JNA_NATIVE_LIB = com.sun.jna.NativeLibrary.getInstance(Inner.JNA_LIBRARY_NAME, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
