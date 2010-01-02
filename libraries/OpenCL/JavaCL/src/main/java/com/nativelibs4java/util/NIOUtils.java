@@ -139,6 +139,7 @@ public class NIOUtils
 	public static DoubleBuffer directDoubles(int size, ByteOrder order) {
         return ByteBuffer.allocateDirect(size * 8).order(order == null ? ByteOrder.nativeOrder() : order).asDoubleBuffer();
     }
+    
 
     public static <B extends Buffer> B directBuffer(int size, ByteOrder order, Class<B> bufferClass) {
         if (IntBuffer.class.isAssignableFrom(bufferClass))
