@@ -61,7 +61,6 @@ public class CLException extends RuntimeException {
 		}
 	}
 
-
 	@ErrorCode(CL_OUT_OF_RESOURCES)
 	public static class OutOfResources extends CLTypedException {}
     @ErrorCode(CL_COMPILER_NOT_AVAILABLE)

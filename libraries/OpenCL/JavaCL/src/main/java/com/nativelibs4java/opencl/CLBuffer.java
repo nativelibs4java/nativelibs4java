@@ -49,16 +49,16 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	public long getElementCount() {
         return getByteCount() / getElementSize();
     }
-	public B map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
+	public B map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, 0, getElementCount(), true, eventsToWaitFor).getFirst();
     }
-	public B map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
+	public B map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, true, eventsToWaitFor).getFirst();
     }
-	public Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
+	public Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, 0, getElementCount(), false, eventsToWaitFor);
     }
-	public Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) {
+	public Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, false, eventsToWaitFor);
     }
 	public B read(CLQueue queue, CLEvent... eventsToWaitFor) {

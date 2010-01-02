@@ -141,8 +141,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
 
         if (arg == NULL_POINTER_KERNEL_ARGUMENT) {
             setArg(iArg, (NativeSize)zeroNS);
-        } else if (arg instanceof NativeLong) {
-            setArg(iArg, (NativeLong) arg);
+        //} else if (arg instanceof NativeLong) {
+        //    setArg(iArg, (NativeLong) arg);
         } else if (arg instanceof NativeSize) {
             setArg(iArg, (NativeSize) arg);
         } else if (arg instanceof CLMem) {
@@ -199,11 +199,11 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         error(CL.clSetKernelArg(getEntity(), argIndex, toNS(localArgByteLength), null));
     }
 
-    public void setArg(int i, NativeLong arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(NativeLong.SIZE), new NativeLongByReference(arg).getPointer()));
+    //public void setArg(int i, NativeLong arg) {
+    //    error(CL.clSetKernelArg(getEntity(), i, toNS(NativeLong.SIZE), new NativeLongByReference(arg).getPointer()));
 //			error(CL.clSetKernelArg(get(), i, OpenCL4Java.toNL(Native.LONG_SIZE), new IntByReference(128).getPointer()));
 //			error(CL.clSetKernelArg(get(), i, toNL(Native.LONG_SIZE), new IntByReference(arg.intValue()).getPointer()));
-    }
+    //}
 
     public void setArg(int i, float[] arg) {
         setArg(i, FloatBuffer.wrap(arg));

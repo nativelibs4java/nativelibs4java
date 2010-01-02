@@ -16,6 +16,7 @@
 		<j2se version="1.5+"/>
 		<extension name="OpenCL4Java" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL/OpenCL4Java.jnlp"/>
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl/1.0-SNAPSHOT/javacl-1.0-SNAPSHOT.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-utils/1.0-SNAPSHOT/javacl-utils-1.0-SNAPSHOT.jar"/>
 	</resources>
 	
 	<component-desc/>

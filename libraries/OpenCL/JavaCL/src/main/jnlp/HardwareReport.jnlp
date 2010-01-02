@@ -18,6 +18,7 @@
 	<security>
 	  <all-permissions/>
 	</security>
+	<update check="always" policy="prompt-update"/>
 	<resources>
 		<extension name="JavaCL" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL/JavaCL.jnlp"/>
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT.jar"/>
