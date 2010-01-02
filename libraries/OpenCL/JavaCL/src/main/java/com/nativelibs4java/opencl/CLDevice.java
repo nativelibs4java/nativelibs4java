@@ -69,6 +69,10 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     protected void clear() {
     }
 
+    public ByteOrder getNativeOrder() {
+        return isEndianLittle() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+    }
+
     /** Bit values for CL_DEVICE_EXECUTION_CAPABILITIES */
     public enum ExecutionCapability {
 
@@ -193,7 +197,8 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /**
-     * The default compute device address space size specified as an unsigned integer value in bits. Currently supported values are 32 or 64 bits.
+     * The default compute device address space size specified as an unsigned integer value in bits. Currently supported values are 32 or 64 bits..<br>
+     * Size of size_t type in OpenCL kernels can be obtained with getAddressBits() / 8.
      */
     @InfoName("CL_DEVICE_ADDRESS_BITS")
     public int getAddressBits() {

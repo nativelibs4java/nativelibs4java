@@ -234,7 +234,17 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     }
 
     public void setArg(int i, NativeSize arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(NativeSize.SIZE), new NativeSizeByReference(arg).getPointer()));
+        switch (getProgram().getContext().getAddressBits()) {
+            case 32:
+                error(CL.clSetKernelArg(getEntity(), i, toNS(4), new IntByReference(arg.intValue()).getPointer()));
+                break;
+            case 64:
+                error(CL.clSetKernelArg(getEntity(), i, toNS(8), new LongByReference(arg.longValue()).getPointer()));
+                break;
+            default:
+                error(CL.clSetKernelArg(getEntity(), i, toNS(NativeSize.SIZE), new NativeSizeByReference(arg).getPointer()));
+                break;
+        }
     }
 
     public void setArg(int i, int arg) {

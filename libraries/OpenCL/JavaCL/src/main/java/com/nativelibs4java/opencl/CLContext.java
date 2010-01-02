@@ -509,6 +509,42 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		return new CLByteBuffer(this, byteCount, mem, buffer);
 	}
 
+    public ByteOrder getNativeOrder() {
+        ByteOrder order = null;
+        for (CLDevice device : getDevices()) {
+            ByteOrder devOrder = device.getNativeOrder();
+            if (order != null && devOrder != order)
+                return null;
+            order = devOrder;
+        }
+        return order;
+    }
+
+    private volatile int addressBits = -2;
+    
+    /**
+     * Return the number of bits used to represent a pointer on all of the context's devices, or -1 if not all devices use the same number of bits.<br>
+     * Size of size_t type in OpenCL kernels can be obtained with getAddressBits() / 8.
+     * @return -1 if the address bits of the context's devices do not match, common address bits otherwise
+     */
+    public int getAddressBits() {
+        if (addressBits == -2) {
+            synchronized (this) {
+                if (addressBits == -2) {
+                    for (CLDevice device : getDevices()) {
+                        int bits = device.getAddressBits();
+                        if (addressBits != -2 && bits != addressBits) {
+                            addressBits = -1;
+                            break;
+                        }
+                        addressBits = bits;
+                    }
+                }
+            }
+        }
+        return addressBits;
+    }
+
 	public boolean isDoubleSupported() {
 		for (CLDevice device : getDevices())
 			if (!device.isDoubleSupported())
