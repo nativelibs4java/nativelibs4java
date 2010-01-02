@@ -25,6 +25,17 @@ public class InfoGettersTest {
         MiscTestUtils.protectJNI();
     }
 
+    @Before
+    public void gc() {
+        System.gc();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(InfoGettersTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        System.gc();
+    }
+
     CLProgram createProgram() {
         CLProgram pg = createContext().createProgram("__kernel void f(__global int* a) {}");
         try {
