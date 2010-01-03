@@ -1,18 +1,20 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+#if ($useJNA.equals("true"))
+#set ($package = "com.nativelibs4java.runtime.structs.jna")
+#set ($annPackage = "com.nativelibs4java.runtime.ann.jna")
+#else
+#set ($package = "com.nativelibs4java.runtime.structs")
+#set ($annPackage = "com.nativelibs4java.runtime.ann")
+#end
 
-package com.nativelibs4java.runtime.structs;
+package $package;
 
-import com.nativelibs4java.runtime.ann.Length;
-import com.nativelibs4java.runtime.ann.Bits;
-import com.nativelibs4java.runtime.ann.Field;
-import com.nativelibs4java.runtime.structs.StructIO.FieldIO;
-import com.sun.jna.Pointer;
-import java.nio.IntBuffer;
-import java.util.Arrays;
-import java.util.List;
+import ${memoryClass};
+import ${pointerClass};
+
+import ${annPackage}.*;
+import ${package}.StructIO.FieldIO;
+import java.nio.*;
+import java.util.*;
 
 /**
  *
@@ -47,10 +49,10 @@ public class MyStruct extends Struct<MyStruct> {
 
     @Field(2) @Length(10)
     public IntBuffer values() {
-        return io.getIntArrayField(2, this);
+        return io.getIntBufferField(2, this);
     }
     public void values(IntBuffer buf) {
-        io.setIntArrayField(2, this, buf);
+        io.setIntBufferField(2, this, buf);
     }
 
     public MyStruct toto(int toto) {

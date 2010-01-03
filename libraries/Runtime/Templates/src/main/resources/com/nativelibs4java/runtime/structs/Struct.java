@@ -1,7 +1,13 @@
-package com.nativelibs4java.runtime.structs;
-import com.nativelibs4java.runtime.structs.StructIO.FieldIO.Refreshable;
-import java.nio.ByteBuffer;
+#if ($useJNA.equals("true"))
+#set ($package = "com.nativelibs4java.runtime.structs.jna")
+#else
+#set ($package = "com.nativelibs4java.runtime.structs")
+#end
 
+package $package;
+
+import ${package}.StructIO.FieldIO.Refreshable;
+import java.nio.ByteBuffer;
 import ${memoryClass};
 import ${pointerClass};
 

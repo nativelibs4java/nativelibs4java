@@ -11,7 +11,13 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  */
-package com.nativelibs4java.runtime.structs;
+#if ($useJNA.equals("true"))
+#set ($package = "com.nativelibs4java.runtime.structs.jna")
+#else
+#set ($package = "com.nativelibs4java.runtime.structs")
+#end
+
+package $package;
 
 import ${memoryClass};
 import ${pointerClass};

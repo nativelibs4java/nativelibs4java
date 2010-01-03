@@ -98,23 +98,26 @@
 					<!--pointerTypeClass>com.nativelibs4java.runtime.PointerType</pointerTypeClass-->
 					<getDirectBufferPointer>com.nativelibs4java.runtime.Pointer.getDirectBufferPointer</getDirectBufferPointer>
 				</parameters>
-				<resources>
-					<resource>com/nativelibs4java/runtime/ann/Alignment.java</resource>
-					<resource>com/nativelibs4java/runtime/ann/Bits.java</resource>
-					<resource>com/nativelibs4java/runtime/ann/ByValue.java</resource>
-					<resource>com/nativelibs4java/runtime/ann/Field.java</resource>
-					<resource>com/nativelibs4java/runtime/ann/Length.java</resource>
-					<resource>com/nativelibs4java/runtime/ann/NativeSize.java</resource>
-					<resource>com/nativelibs4java/runtime/ann/Virtual.java</resource>
+				<templates>
+					<template>com/nativelibs4java/runtime/ann/Alignment.java</template>
+					<template>com/nativelibs4java/runtime/ann/Bits.java</template>
+					<template>com/nativelibs4java/runtime/ann/ByValue.java</template>
+					<template>com/nativelibs4java/runtime/ann/Field.java</template>
+					<template>com/nativelibs4java/runtime/ann/Length.java</template>
+					<template>com/nativelibs4java/runtime/ann/NativeSize.java</template>
+					<template>com/nativelibs4java/runtime/ann/Virtual.java</template>
 					
-					<resource>com/nativelibs4java/runtime/structs/Addressable.java</resource>
-					<resource>com/nativelibs4java/runtime/structs/Array.java</resource>
-					<resource>com/nativelibs4java/runtime/structs/BitFields.java</resource>
-					<resource>com/nativelibs4java/runtime/structs/Struct.java</resource>
-					<resource>com/nativelibs4java/runtime/structs/StructWithNIO.java</resource>
-					<resource>com/nativelibs4java/runtime/structs/StructIO.java</resource>
-					<resource>com/nativelibs4java/runtime/structs/StructIOWithNIO.java</resource>
-				</resources>
+					<template>com/nativelibs4java/runtime/structs/Addressable.java</template>
+					<template>com/nativelibs4java/runtime/structs/Array.java</template>
+					<template>com/nativelibs4java/runtime/structs/BitFields.java</template>
+					<template>com/nativelibs4java/runtime/structs/Struct.java</template>
+					<template>com/nativelibs4java/runtime/structs/StructWithNIO.java</template>
+					<template>com/nativelibs4java/runtime/structs/StructIO.java</template>
+					<template>com/nativelibs4java/runtime/structs/StructIOWithNIO.java</template>
+				</templates>
+				<testTemplates>
+					<testTemplate>com/nativelibs4java/runtime/structs/MyStruct.java</testTemplate>
+				</testTemplates>
 			</configuration>
 		</plugin>
 		

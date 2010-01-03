@@ -1,16 +1,19 @@
-package com.nativelibs4java.runtime.structs;
+#if ($useJNA.equals("true"))
+#set ($package = "com.nativelibs4java.runtime.structs.jna")
+#set ($annPackage = "com.nativelibs4java.runtime.ann.jna")
+#else
+#set ($package = "com.nativelibs4java.runtime.structs")
+#set ($annPackage = "com.nativelibs4java.runtime.ann")
+#end
+
+package $package;
 
 #set ($prims = [ "int", "long", "short", "byte", "float", "double", "char" ])
 #set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double", "Char" ])
 #set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer", "CharBuffer" ])
 #set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double", "Character" ])
 
-import com.nativelibs4java.runtime.ann.Alignment;
-import com.nativelibs4java.runtime.ann.Length;
-import com.nativelibs4java.runtime.ann.Bits;
-import com.nativelibs4java.runtime.ann.Field;
-import com.nativelibs4java.runtime.ann.ByValue;
-import com.nativelibs4java.runtime.structs.StructIO.FieldIO.Refreshable;
+import ${annPackage}.*;
 
 import ${memoryClass};
 import ${pointerClass};
@@ -194,6 +197,23 @@ public class StructIO<S extends Struct<S>> {
 		return list;
 	}
 	
+	protected int primTypeLength(Class<?> primType) {
+		if (primType == Integer.TYPE)
+			return 4;
+		else if (primType == Long.TYPE)
+			return 8;
+		else if (primType == Short.TYPE)
+			return 2;
+		else if (primType == Byte.TYPE)
+			return 1;
+		else if (primType == Float.TYPE)
+			return 4;
+		else if (primType == Double.TYPE)
+			return 8;
+		else
+			throw new UnsupportedOperationException("Field type " + primType.getName() + " not supported yet");
+
+	}
 	protected FieldIO[] computeStructLayout() {
 		List<FieldIO> list = listFields();
 		orderFields(list);
@@ -208,21 +228,7 @@ public class StructIO<S extends Struct<S>> {
         for (FieldIO field : list) {
             field.byteOffset = structSize;
             if (field.valueClass.isPrimitive()) {
-                if (field.valueClass == Integer.TYPE)
-                    field.byteLength = 4;
-                else if (field.valueClass == Long.TYPE)
-                    field.byteLength = 8;
-                else if (field.valueClass == Short.TYPE)
-                    field.byteLength = 2;
-                else if (field.valueClass == Byte.TYPE)
-                    field.byteLength = 1;
-                else if (field.valueClass == Float.TYPE)
-                    field.byteLength = 4;
-                else if (field.valueClass == Double.TYPE)
-                    field.byteLength = 8;
-                else
-                    throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
-
+				field.byteLength = primTypeLength(field.valueClass);
             } else if (Struct.class.isAssignableFrom(field.valueClass)) {
                 if (field.isByValue)
                     field.byteLength = Pointer.SIZE;
@@ -255,7 +261,9 @@ public class StructIO<S extends Struct<S>> {
                     throw new UnsupportedOperationException("Field array type " + field.valueClass.getName() + " not supported yet");
                 
                 field.refreshableFieldIndex = refreshableFieldCount++;
-            } else
+            } else if (field.valueClass.isArray() && field.valueClass.getComponentType().isPrimitive()) {
+				field.byteLength = primTypeLength(field.valueClass.getComponentType());
+			} else
                 throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
 
             if (field.bitLength < 0) {
@@ -355,12 +363,12 @@ public class StructIO<S extends Struct<S>> {
             struct.getPointer().setPointer(field.byteOffset, (Pointer)value);
             return;
         }
-        Refreshable ref = (Refreshable)value;
+        FieldIO.Refreshable ref = (FieldIO.Refreshable)value;
         struct.refreshableFields[field.refreshableFieldIndex] = ref;
         struct.getPointer().setPointer(field.byteOffset, ref.getPointer());
     }
 
-    public <F extends Refreshable> F getRefreshableField(int fieldIndex, S struct, Class<F> fieldClass) {
+    public <F extends FieldIO.Refreshable> F getRefreshableField(int fieldIndex, S struct, Class<F> fieldClass) {
         FieldIO field = fields[fieldIndex];
         assert fieldClass.equals(field.valueClass);
         try {
@@ -456,7 +464,7 @@ public class StructIO<S extends Struct<S>> {
             struct.getPointer().set$primCap(field.byteOffset, value);
     }
 
-	public ${primBuf} get${primCap}ArrayField(int fieldIndex, S struct) {
+	public ${primBuf} get${primCap}BufferField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
         ${primBuf} b = (${primBuf})struct.refreshableFields[field.refreshableFieldIndex];
         if (b == null || !b.isDirect() || !struct.getPointer().share(field.byteOffset).equals(${getDirectBufferPointer}(b))) {
@@ -470,7 +478,7 @@ public class StructIO<S extends Struct<S>> {
         }
         return b;
     }
-    public void set${primCap}ArrayField(int fieldIndex, S struct, ${primBuf} fieldValue) {
+    public void set${primCap}BufferField(int fieldIndex, S struct, ${primBuf} fieldValue) {
         FieldIO field = fields[fieldIndex];
         if (fieldValue == null)
             throw new IllegalArgumentException("By-value struct fields cannot be set to null");
@@ -483,6 +491,18 @@ public class StructIO<S extends Struct<S>> {
             .as${primBuf}()
         #end
             .put(fieldValue.duplicate());
+    }
+
+	public ${prim}[] get${primCap}ArrayField(int fieldIndex, S struct) {
+        FieldIO field = fields[fieldIndex];
+		return struct.getPointer().get${primCap}Array(field.byteOffset, field.arraySize);
+    }
+    public void set${primCap}ArrayField(int fieldIndex, S struct, ${prim}[] fieldValue) {
+        FieldIO field = fields[fieldIndex];
+        if (fieldValue == null)
+            throw new IllegalArgumentException("By-value struct fields cannot be set to null");
+
+		struct.getPointer().write(field.byteOffset, fieldValue, 0, field.arraySize);
     }
 
 #end

@@ -45,91 +45,60 @@ jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getByteBuffer(JNIEnv *e
 }
 jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
 	BEGIN_TRY();
-	return (jlong)env->GetDirectBufferAddress(buffer);
+	return !buffer ? 0 : (jlong)env->GetDirectBufferAddress(buffer);
 	END_TRY(env);
 }
 jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
 	BEGIN_TRY();
-	return env->GetDirectBufferCapacity(buffer);
+	return !buffer ? 0 : env->GetDirectBufferCapacity(buffer);
 	END_TRY(env);
 }
 
-
-jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_malloc(JNIEnv *env, jclass, jint size)
-{
-	BEGIN_TRY();
-	return (jlong)malloc(size);
-	END_TRY(env);
+#define FUNC_VOID_3(name, t1, t2, t3, nt1, nt2, nt3) \
+void JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass, t1 a1, t2 a2, t3 a3) \
+{ \
+	BEGIN_TRY(); \
+	name((nt1)a1, (nt2)a2, (nt3)a3); \
+	END_TRY(env); \
 }
 
-void JNICALL Java_com_nativelibs4java_runtime_Pointer_free(JNIEnv *env, jclass, jlong pointer)
-{
-	BEGIN_TRY();
-	free((void*)pointer);
-	END_TRY(env);
+#define FUNC_3(ret, name, t1, t2, t3, nt1, nt2, nt3) \
+ret JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass, t1 a1, t2 a2, t3 a3) \
+{ \
+	BEGIN_TRY(); \
+	return (ret)name((nt1)a1, (nt2)a2, (nt3)a3); \
+	END_TRY(env); \
 }
 
-
-jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_strlen(JNIEnv *env, jclass, jlong pointer)
-{
-	BEGIN_TRY();
-	return strlen((char*)pointer);
-	END_TRY(env);
+#define FUNC_VOID_1(name, t1, nt1) \
+void JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass, t1 a1) \
+{ \
+	BEGIN_TRY(); \
+	name((nt1)a1); \
+	END_TRY(env); \
 }
 
-/*
-jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_wstrlen(JNIEnv *env, jclass, jlong pointer)
-{
-	BEGIN_TRY();
-	return wstrlen((wchar_t*)pointer);
-	END_TRY(env);
-}*/
-
-void JNICALL Java_com_nativelibs4java_runtime_Pointer_memcpy(JNIEnv *env, jclass, jlong dest, jlong source, jlong size)
-{
-	BEGIN_TRY();
-	memcpy((void*)dest, (void*)source, (size_t)size);
-	END_TRY(env);
+#define FUNC_1(ret, name, t1, nt1) \
+ret JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass, t1 a1) \
+{ \
+	BEGIN_TRY(); \
+	return (ret)name((nt1)a1); \
+	END_TRY(env); \
 }
 
-void JNICALL Java_com_nativelibs4java_runtime_Pointer_wmemcpy(JNIEnv *env, jclass, jlong dest, jlong source, jlong size)
-{
-	BEGIN_TRY();
-	wmemcpy((wchar_t*)dest, (wchar_t*)source, (size_t)size);
-	END_TRY(env);
-}
+FUNC_1(jlong, malloc, jlong, size_t)
+FUNC_VOID_1(free, jlong, void*)
 
-void JNICALL Java_com_nativelibs4java_runtime_Pointer_memmove(JNIEnv *env, jclass, jlong dest, jlong source, jlong size)
-{
-	BEGIN_TRY();
-	memmove((void*)dest, (void*)source, (size_t)size);
-	END_TRY(env);
-}
+FUNC_1(jlong, strlen, jlong, char*)
+FUNC_1(jlong, wcslen, jlong, wchar_t*)
 
-void JNICALL Java_com_nativelibs4java_runtime_Pointer_wmemmove(JNIEnv *env, jclass, jlong dest, jlong source, jlong size)
-{
-	BEGIN_TRY();
-	wmemmove((wchar_t*)dest, (wchar_t*)source, (size_t)size);
-	END_TRY(env);
-}
+FUNC_VOID_3(memcpy, jlong, jlong, jlong, void*, void*, size_t)
+FUNC_VOID_3(memmove, jlong, jlong, jlong, void*, void*, size_t)
 
-jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_memchr(JNIEnv *env, jclass, jlong ptr, jbyte value, jlong num)
-{
-	BEGIN_TRY();
-	return (jlong)memchr((void*)ptr, (unsigned char)value, (size_t)num);
-	END_TRY(env);
-}
+FUNC_VOID_3(wmemcpy, jlong, jlong, jlong, wchar_t*, wchar_t*, size_t)
+FUNC_VOID_3(wmemmove, jlong, jlong, jlong, wchar_t*, wchar_t*, size_t)
 
-jint JNICALL Java_com_nativelibs4java_runtime_Pointer_memcmp(JNIEnv *env, jclass, jlong ptr1, jlong ptr2, jlong num)
-{
-	BEGIN_TRY();
-	return (jint)memcmp((void*)ptr1, (void*)ptr2, (size_t)num);
-	END_TRY(env);
-}
+FUNC_3(jlong, memchr, jlong, jbyte, jlong, void*, unsigned char, size_t)
+FUNC_3(jint, memcmp, jlong, jlong, jlong, void*, void*, size_t)
+FUNC_VOID_3(memset, jlong, jbyte, jlong, void*, unsigned char, size_t)
 
-void JNICALL Java_com_nativelibs4java_runtime_Pointer_memset(JNIEnv *env, jclass, jlong ptr, jbyte value, jlong num)
-{
-	BEGIN_TRY();
-	memset((void*)ptr, (unsigned char)value, (size_t)num);
-	END_TRY(env);
-}

@@ -4,6 +4,7 @@ package com.nativelibs4java.runtime;
 #set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double", "Char" ])
 #set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer", "CharBuffer" ])
 #set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double", "Character" ])
+#set ($primSizes = [ 4, 8, 2, 1, 4, 8, 2 ])
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -116,34 +117,89 @@ public class Pointer<T> implements Addressable, Comparable<Addressable>
     public static native long getDirectBufferAddress(Buffer b);
     public static native long getDirectBufferCapacity(Buffer b);
 
+	static Class<?> getPrimitiveType(Buffer buffer) {
+		#foreach ($prim in $prims)
+		#set ($i = $velocityCount - 1)
+		#set ($primWrap = $primWraps.get($i))
+		#set ($primBuf = $primBufs.get($i))
+
+		if (buffer instanceof $primBuf)
+			return ${primWrap}.TYPE;
+		
+		#end
+		
+        throw new UnsupportedOperationException();
+    }
+    public static Pointer<?> getDirectBufferPointer(Buffer b) {
+        return new Pointer(getPrimitiveType(b), getDirectBufferAddress(b));
+    }
+
+    public void write(long byteOffset, Buffer values, int valuesOffset, int length) {
+        #foreach ($prim in $prims)
+
+        #set ($i = $velocityCount - 1)
+        #set ($primCap = $primCaps.get($i))
+        #set ($primBuf = $primBufs.get($i))
+
+        if (values instanceof $primBuf)
+            write(byteOffset, values, valuesOffset, length);
+
+        #end
+
+        throw new UnsupportedOperationException();
+    }
+
 #foreach ($prim in $prims)
 
     #set ($i = $velocityCount - 1)
     #set ($primCap = $primCaps.get($i))
     #set ($primWrap = $primWraps.get($i))
     #set ($primBuf = $primBufs.get($i))
+    #set ($primSize = $primSizes.get($i))
 
     public static Pointer<${primWrap}> getDirectBufferPointer(${primBuf} b) {
         return new Pointer<${primWrap}>(${primWrap}.class, getDirectBufferAddress(b));
     }
 
-    public native $prim get$primCap(long offset);
-    public native void set$primCap(long offset, $prim value);
-
-    public native void write(long offset, $prim[] values, int valuesOffset, int length);
+    public native $prim get$primCap(long byteOffset);
+    public native void set$primCap(long byteOffset, $prim value);
+    public native void write(long byteOffset, $prim[] values, int valuesOffset, int length);
+    
+    public void write(long byteOffset, $primBuf values, int valuesOffset, int length) {
+        if (values.isDirect()) {
+            memcpy(peer + byteOffset, getDirectBufferAddress(values) + valuesOffset * $primSize, length * $primSize);
+        } else if (values.isReadOnly()) {
+            get${primBuf}(byteOffset, length).put(values.duplicate());
+        } else {
+            write(byteOffset, values.array(), values.arrayOffset() + valuesOffset, length);
+        }
+    }
 
     public native $primBuf get$primBuf(long offset, long length);
     public native $prim[] get${primCap}Array(long offset, int length);
 
 #end
 
-    public native String getString(long offset, Charset charset, boolean wide);
+	public String getString(long offset, Charset charset, boolean wide) throws java.io.UnsupportedEncodingException {
+		long len = strlen(peer + offset);
+		if (len >= Integer.MAX_VALUE)
+			throw new IllegalArgumentException("No null-terminated string at this address");
+
+        if (wide)
+            throw new UnsupportedOperationException("Wide strings are not supported yet");
+        
+		return new String(getByteArray(offset, (int)len), charset.name());
+	}
 
     public String getString(long offset, boolean wide) {
-        return getString(offset, Charset.defaultCharset(), wide);
+        try {
+            return getString(offset, Charset.defaultCharset(), wide);
+        } catch (java.io.UnsupportedEncodingException ex) {
+            throw new RuntimeException("Unexpected error", ex);
+        }
     }
     public String getString(long offset) {
-        return getString(offset, Charset.defaultCharset(), false);
+        return getString(offset, false);
     }
         
     public void setPointer(long offset, Pointer value) {
@@ -154,7 +210,7 @@ public class Pointer<T> implements Addressable, Comparable<Addressable>
     protected static native void free(long pointer);
 
     protected static native long strlen(long pointer);
-    //protected static native long wstrlen(long pointer);
+    protected static native long wcslen(long pointer);
 
     protected static native void memcpy(long dest, long source, long size);
     protected static native void wmemcpy(long dest, long source, long size);

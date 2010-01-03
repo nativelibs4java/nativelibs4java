@@ -7,12 +7,8 @@ package jdyncall;
 
 import com.nativelibs4java.runtime.DynCall;
 import com.nativelibs4java.runtime.JNI;
-import com.nativelibs4java.runtime.ann.Length;
-import com.nativelibs4java.runtime.ann.ByValue;
-import com.nativelibs4java.runtime.ann.Library;
-import com.nativelibs4java.runtime.ann.Mangling;
-import com.nativelibs4java.runtime.ann.Wide;
-import com.nativelibs4java.runtime.structs.Struct;
+import com.nativelibs4java.runtime.ann.*;
+import com.nativelibs4java.runtime.structs.*;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;

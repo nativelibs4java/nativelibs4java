@@ -1,14 +1,15 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+#if ($useJNA.equals("true"))
+#set ($package = "com.nativelibs4java.runtime.structs.jna")
+#else
+#set ($package = "com.nativelibs4java.runtime.structs")
+#end
 
-package com.nativelibs4java.runtime.structs;
+package $package;
 
 import ${memoryClass};
 import ${pointerClass};
 
-import java.nio.ByteBuffer;
+import java.nio.*;
 
 /**
  *

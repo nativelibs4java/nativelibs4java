@@ -52,16 +52,29 @@ public class TemplatesMojo
 	
 	/**
      * @parameter
-     * @required
+     * @optional
      */
-    private String[] resources;
-	
+    private String[] templates;
+
+    /**
+     * @parameter
+     * @optional
+     */
+    private String[] testTemplates;
+
     /**
      * Output directory for generated sources.
      * @parameter expression="${project.build.directory}/generated-sources/main/velocity"
      * @optional
      */
     private File outputDirectory;
+
+    /**
+     * Output directory for generated test sources.
+     * @parameter expression="${project.build.directory}/generated-sources/test/velocity"
+     * @optional
+     */
+    private File testOutputDirectory;
 
     /**
      * @parameter expression="${project}"
@@ -89,56 +102,69 @@ public class TemplatesMojo
 		} catch (Exception ex) {
             throw new MojoExecutionException("Failed to initialize Velocity", ex);
         }
-        /*Map transformedParams = new HashMap(parameters.size());
-        for (Map.Entry e : parameters.entrySet()) {
-            Object key = e.getKey();
-            Object v = e.getValue();
-            if (v.equals("true"))
-                v = Boolean.TRUE;
-            else if (v.equals("false"))
-                v = Boolean.FALSE;
+        if (templates != null && templates.length != 0) {
+            getLog().info("Found " + templates.length + " templates");
+            for (String resource : templates)
+                execute(ve, resource, outputDirectory);
+            
+            project.addCompileSourceRoot(outputDirectory.toString());
+        } else {
+            getLog().info("No templates configuration");
 
-            transformedParams.put(key, v);
-        }*/
-        for (String resource : resources) {
-			try {
-                org.apache.velocity.Template template = //Velocity.getTemplate(resource);
-                    ve.getTemplate(resource);
-                
-				VelocityContext context = new VelocityContext(parameters);
-			
-				StringWriter out = new StringWriter();
-				template.merge(context, out);
-				out.close();
+        }
 
-				File outFile = null;
-				Object s = context.get("outputFile");
-				if (s != null)
-					outFile = new File(s.toString());
-				else {
-					s = context.get("relativeOutputFile");
-					if (s != null)
-						outFile = new File(getOutputDirectory(), s.toString());
-					else {
-						getLog().info("No 'outputFile' nor 'relativeOutputFile' variable defined. Using template resource name.");
-						outFile = new File(getOutputDirectory(), resource);
-					}
-				}
-				outFile.getParentFile().mkdirs();
+        if (testTemplates != null && testTemplates.length != 0) {
+            getLog().info("Found " + testTemplates.length + " test templates");
+            for (String resource : testTemplates)
+                execute(ve, resource, testOutputDirectory);
 
-				getLog().info("Writing template '" + resource + "' to '" + outFile + "'");
-				
+            project.addTestCompileSourceRoot(testOutputDirectory.toString());
+        } else {
+            getLog().info("No testTemplates configuration");
 
-				FileWriter f = new FileWriter(outFile);
-				f.write(out.toString());
-				f.close();
-				
-			} catch (Exception ex) {
-				throw new MojoExecutionException("Failed to execute template '" + resource + "'", ex);
-			}
-		}
-        
-		project.addCompileSourceRoot(outputDirectory.toString());
+        }
+    }
+
+    private void execute(VelocityEngine ve, String resource, File outDir) throws MojoExecutionException {
+        try {
+            org.apache.velocity.Template template = ve.getTemplate(resource);
+
+            VelocityContext context = new VelocityContext(new HashMap(parameters));
+
+            StringWriter out = new StringWriter();
+            template.merge(context, out);
+            out.close();
+
+            File outFile = null;
+            Object s = context.get("outputFile");
+            if (s != null)
+                outFile = new File(s.toString());
+            else {
+                s = context.get("relativeOutputFile");
+                if (s != null)
+                    outFile = new File(outDir, s.toString());
+                else {
+                    s = context.get("package");
+                    if (s != null)
+                        outFile = new File(new File(outDir, s.toString().replace('.', File.separatorChar)), new File(resource).getName());
+                    else {
+                        getLog().info("No 'outputFile' nor 'relativeOutputFile' variable defined. Using template resource name.");
+                        outFile = new File(outDir, resource);
+                    }
+                }
+            }
+            outFile.getParentFile().mkdirs();
+
+            getLog().info("Writing template '" + resource + "' to '" + outFile + "'");
+
+
+            FileWriter f = new FileWriter(outFile);
+            f.write(out.toString());
+            f.close();
+
+        } catch (Exception ex) {
+            throw new MojoExecutionException("Failed to execute template '" + resource + "'", ex);
+        }
     }
 
 }
