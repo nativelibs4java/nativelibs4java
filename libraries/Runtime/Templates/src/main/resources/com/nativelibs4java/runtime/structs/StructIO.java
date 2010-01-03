@@ -5,9 +5,11 @@ import com.nativelibs4java.runtime.ann.Bits;
 import com.nativelibs4java.runtime.ann.Field;
 import com.nativelibs4java.runtime.ann.ByValue;
 import com.nativelibs4java.runtime.structs.StructIO.FieldIO.Refreshable;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-import com.sun.jna.PointerType;
+
+import ${memoryClass};
+import ${pointerClass};
+import ${pointerTypeClass};
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -458,7 +460,7 @@ public class StructIO<S extends Struct<S>> {
 	public ${primBuf} get${primCap}ArrayField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
         ${primBuf} b = (${primBuf})struct.refreshableFields[field.refreshableFieldIndex];
-        if (b == null || !b.isDirect() || !struct.getPointer().share(field.byteOffset).equals(Native.getDirectBufferPointer(b))) {
+        if (b == null || !b.isDirect() || !struct.getPointer().share(field.byteOffset).equals(${getDirectBufferPointer}(b))) {
             int len = field.arraySize * field.byteLength;
             struct.refreshableFields[field.refreshableFieldIndex] = b = 
                 //(field.isByValue ?

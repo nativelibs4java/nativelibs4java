@@ -5,8 +5,9 @@
 
 package com.nativelibs4java.runtime.structs;
 
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
+import ${memoryClass};
+import ${pointerClass};
+
 import java.nio.ByteBuffer;
 
 /**
@@ -37,7 +38,7 @@ public class StructWithNIO<S extends StructWithNIO<S>> extends Struct<S> {
 
     public synchronized void setBuffer(ByteBuffer buffer) {
         Pointer pointer = null;
-        if (buffer == null || buffer.isDirect() && ((pointer = Native.getDirectBufferPointer(buffer)) == null || pointer.equals(Pointer.NULL)))
+        if (buffer == null || buffer.isDirect() && ((pointer = ${getDirectBufferPointer}(buffer)) == null || pointer.equals(Pointer.NULL)))
             throw new NullPointerException("Cannot set null pointer as struct address !");
 
         this.buffer = buffer;

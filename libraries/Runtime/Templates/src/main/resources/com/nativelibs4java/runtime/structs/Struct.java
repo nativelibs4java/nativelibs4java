@@ -1,9 +1,13 @@
 package com.nativelibs4java.runtime.structs;
 import com.nativelibs4java.runtime.structs.StructIO.FieldIO.Refreshable;
 import java.nio.ByteBuffer;
-import com.sun.jna.*;
 
-public abstract class Struct<S extends Struct<S>> implements Refreshable<S>, NativeMapped {
+import ${memoryClass};
+import ${pointerClass};
+
+public abstract class Struct<S extends Struct<S>> implements Refreshable<S>
+	#if ($useJNA) , com.sun.jna.NativeMapped #end
+{
     
     protected final StructIO<S> io;
 	protected volatile Pointer pointer;
@@ -58,9 +62,11 @@ public abstract class Struct<S extends Struct<S>> implements Refreshable<S>, Nat
     public void read() {
         io.read((S)this);
     }
+	
+#if ($useJNA)
 
     @Override
-    public Object fromNative(Object o, FromNativeContext fnc) {
+    public Object fromNative(Object o, com.sun.jna.FromNativeContext fnc) {
         read();
         setPointer((Pointer)o);
         return this;
@@ -77,4 +83,5 @@ public abstract class Struct<S extends Struct<S>> implements Refreshable<S>, Nat
         return Pointer.class;
     }
 
+#end
 }

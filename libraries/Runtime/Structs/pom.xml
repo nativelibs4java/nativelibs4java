@@ -37,7 +37,7 @@
   <build>
     <plugins>
 	
-		<plugin>
+		<!--plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>
 			<version>${nl4j-runtime.version}</version>
@@ -49,6 +49,37 @@
 				</goals>
 			  </execution>
 			</executions>
+		</plugin-->
+		
+		<plugin>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>maven-nl4j-runtime-templates-plugin</artifactId>
+			<version>${nl4j-runtime.version}</version>
+			<executions>
+			  <execution>
+				<phase>generate-sources</phase>
+				<goals>
+				  <goal>compile</goal>
+				</goals>
+			  </execution>
+			</executions>
+			<configuration>
+				<parameters>
+					<useJNA>true</useJNA>
+					<memoryClass>com.sun.jna.Memory</memoryClass>
+					<pointerClass>com.sun.jna.Pointer</pointerClass>
+					<pointerTypeClass>com.sun.jna.PointerType</pointerTypeClass>
+					<getDirectBufferPointer>com.sun.jna.Native.getDirectBufferPointer</getDirectBufferPointer>
+				</parameters>
+				<resources>
+					<resource>com/nativelibs4java/runtime/structs/Addressable.java</resource>
+					<resource>com/nativelibs4java/runtime/structs/Array.java</resource>
+					<resource>com/nativelibs4java/runtime/structs/Struct.java</resource>
+					<resource>com/nativelibs4java/runtime/structs/StructWithNIO.java</resource>
+					<resource>com/nativelibs4java/runtime/structs/StructIO.java</resource>
+					<resource>com/nativelibs4java/runtime/structs/StructIOWithNIO.java</resource>
+				</resources>
+			</configuration>
 		</plugin>
 	
 	</plugins>

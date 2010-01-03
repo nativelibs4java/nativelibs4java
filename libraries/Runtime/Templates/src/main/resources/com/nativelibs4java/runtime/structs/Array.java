@@ -5,8 +5,8 @@
 
 package com.nativelibs4java.runtime.structs;
 
-import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
+import ${memoryClass};
+import ${pointerClass};
 import java.lang.reflect.Constructor;
 import java.util.Iterator;
 import java.util.ListIterator;

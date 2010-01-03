@@ -5,8 +5,9 @@
 
 package com.nativelibs4java.runtime.structs;
 
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
+import ${memoryClass};
+import ${pointerClass};
+
 import java.nio.ByteBuffer;
 
 /**
