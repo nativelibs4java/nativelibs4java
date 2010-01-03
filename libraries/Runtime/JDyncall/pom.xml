@@ -25,6 +25,13 @@
       <scope>compile</scope>
     </dependency>
 	
+	<dependency>
+      <groupId>com.jnaerator</groupId>
+      <artifactId>jna-jnaerator</artifactId>
+      <version>${jna.version}</version>
+      <scope>compile</scope>
+    </dependency>
+	
   </dependencies>
 
   <build>
@@ -56,6 +63,20 @@
 			</executions>
 		</plugin>
 		
+		
+		<plugin>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>maven-velocity-plugin</artifactId>
+			<version>${nl4j-runtime.version}</version>
+			<executions>
+			  <execution>
+				<phase>generate-sources</phase>
+				<goals>
+				  <goal>compile</goal>
+				</goals>
+			  </execution>
+			</executions>
+		</plugin>
 		
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>

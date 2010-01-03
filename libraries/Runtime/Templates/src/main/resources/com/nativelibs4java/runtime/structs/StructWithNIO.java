@@ -30,7 +30,7 @@ public class StructWithNIO<S extends StructWithNIO<S>> extends Struct<S> {
     }
 
     @Override
-    public synchronized S setPointer(com.sun.jna.Pointer pointer) {
+    public synchronized S setPointer(Pointer pointer) {
         super.setPointer(pointer);
         this.buffer = null;
         return (S)this;

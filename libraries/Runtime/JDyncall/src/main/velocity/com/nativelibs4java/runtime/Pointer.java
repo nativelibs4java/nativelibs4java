@@ -2,11 +2,8 @@ package com.nativelibs4java.runtime;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.nio.*;
+import java.nio.charset.Charset;
 
 public class Pointer<T> implements Addressable, Comparable<Addressable>
         //, com.sun.jna.Pointer<Pointer<T>>
@@ -101,20 +98,16 @@ public class Pointer<T> implements Addressable, Comparable<Addressable>
         }
         return cachedTarget;
     }
-    public native int getInt(long offset);
-    public native short getShort(long offset);
-    public native long getLong(long offset);
-    public native byte getByte(long offset);
-    public native double getDouble(long offset);
-    public native float getFloat(long offset);
-
-    public native ByteBuffer getByteBuffer(long offset, long length);
     
     //protected native long 	getWChar_(long offset);
     //protected native long 	getChar_(long offset);
     protected native long getPointerAddress(long offset);
 
     protected native void setPointerAddress(long offset, long value);
+
+    public Pointer<?> getPointer(long offset) {
+        return new Pointer(null, getPointerAddress(offset));
+    }
 
     public <U> Pointer<U> getPointer(Type t, long offset) {
         return new Pointer<U>(t, getPointerAddress(offset));
@@ -126,25 +119,43 @@ public class Pointer<T> implements Addressable, Comparable<Addressable>
     public static native long getDirectBufferAddress(Buffer b);
     public static native long getDirectBufferCapacity(Buffer b);
 
-    public static Pointer<Integer> getDirectBufferPointer(IntBuffer b) {
-        return new Pointer<Integer>(Integer.class, getDirectBufferAddress(b));
+#set ($prims = [ "int", "long", "short", "byte", "float", "double", "char" ])
+#set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double", "Char" ])
+#set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer", "CharBuffer" ])
+#set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double", "Character" ])
+#foreach ($prim in $prims)
+
+    #set ($i = $velocityCount - 1)
+    #set ($primCap = $primCaps.get($i))
+    #set ($primWrap = $primWraps.get($i))
+    #set ($primBuf = $primBufs.get($i))
+
+    public static Pointer<${primWrap}> getDirectBufferPointer(${primBuf} b) {
+        return new Pointer<${primWrap}>(${primWrap}.class, getDirectBufferAddress(b));
     }
 
+    public native $prim get$primCap(long offset);
+    public native void set$primCap(long offset, $prim value);
+
+    public native void write(long offset, $prim[] values, int valuesOffset, int length);
+
+    public native $primBuf get$primBuf(long offset, long length);
+    public native $prim[] get${primCap}Array(long offset, int length);
+
+#end
+
+    public native String getString(long offset, Charset charset, boolean wide);
+
+    public String getString(long offset, boolean wide) {
+        return getString(offset, Charset.defaultCharset(), wide);
+    }
+    public String getString(long offset) {
+        return getString(offset, Charset.defaultCharset(), false);
+    }
+        
     public void setPointer(long offset, Pointer value) {
         setPointerAddress(offset, value.peer);
     }
-
-    public native void setInt(long offset, int value);
-
-    public native void setShort(long offset, short value);
-
-    public native void setLong(long offset, long value);
-
-    public native void setByte(long offset, int value);
-
-    public native void setDouble(long offset, double value);
-
-    public native void setFloat(long offset, float value);
 
     protected static native long doAllocate(int size);
 
