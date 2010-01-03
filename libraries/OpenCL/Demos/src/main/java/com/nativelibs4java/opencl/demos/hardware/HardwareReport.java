@@ -19,6 +19,12 @@ along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 package com.nativelibs4java.opencl.demos.hardware;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.demos.SetupUtils;
+import com.ochafik.util.SystemUtils;
+import java.awt.BorderLayout;
+import java.awt.FileDialog;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,10 +35,14 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Method;
 import java.util.*;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
 
 /**
@@ -53,12 +63,12 @@ public class HardwareReport {
         return mets;
     }
 
-    public static List<Map<String, Object>> listInfos() {
+    public static List<Map<String, Object>> listInfos(CLPlatform platform) {
         try {
             List<Map<String, Object>> ret = new ArrayList<Map<String, Object>>();
             Map<String, Method> platMets = infoMethods(CLPlatform.class);
             Map<String, Method> devMets = infoMethods(CLDevice.class);
-            for (CLPlatform platform : JavaCL.listPlatforms()) {
+            //for (CLPlatform platform : JavaCL.listPlatforms()) {
                 Map<String, Object> platInfos = new TreeMap<String, Object>();
                 for (Map.Entry<String, Method> platMet : platMets.entrySet()) {
                     platInfos.put(platMet.getKey(), platMet.getValue().invoke(platform));
@@ -70,7 +80,7 @@ public class HardwareReport {
                     }
                     ret.add(devInfos);
                 }
-            }
+            //}
             return ret;
         } catch (Throwable ex) {
             throw new RuntimeException(ex);
@@ -140,35 +150,64 @@ public class HardwareReport {
                 + "</body></html>";
     }
 
+    public static JComponent getHardwareReportComponent(CLPlatform platform) {
+        List<Map<String, Object>> list = listInfos(platform);
+        final String html = toHTML(list);
+
+        JEditorPane ed = new JEditorPane();
+        ed.setContentType("text/html");
+        ed.setText(html);
+        ed.setEditable(false);
+
+        JPanel ret = new JPanel(new BorderLayout());
+        ret.add("Center", new JScrollPane(ed));
+
+        final String fileName = "HardwareReport.html";
+        JButton bWrite = new JButton("Save " + fileName + "...");
+        bWrite.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                FileDialog fd = new FileDialog((Frame)null, "Save " + fileName, FileDialog.SAVE);
+                fd.setFile(fileName);
+                fd.setVisible(true);
+                if (fd.getFile() == null)
+                    return;
+
+                try {
+                    File file = new File(new File(fd.getDirectory()), fd.getFile());
+                    file.getParentFile().mkdirs();
+                    Writer w = new OutputStreamWriter(new FileOutputStream(file), "utf-8");
+                    w.write(html);
+                    w.close();
+
+                    SystemUtils.runSystemOpenFileParent(file);
+                } catch (Throwable ex) {
+                    SetupUtils.exception(ex);
+                }
+            }
+
+        });
+
+        ret.add("South", bWrite);
+        return ret;
+    }
     public static void main(String[] args) {
         try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch(Exception ex) {}
         SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
 
         try {
-            File file = new File(args.length == 0 ? "HardwareReport.html" : args[0]);
-
-            List<Map<String, Object>> list = listInfos();
-            String html = toHTML(list);
-
+            JTabbedPane pane = new JTabbedPane();
+            for (CLPlatform platform : JavaCL.listPlatforms())
+                pane.addTab(platform.toString(), getHardwareReportComponent(platform));
+            
             JFrame f = new JFrame("OpenCL4Java: Hardware Characteristics");
-            JEditorPane ed = new JEditorPane();
-            ed.setContentType("text/html");
-            ed.setText(html);
-            ed.setEditable(false);
-            f.getContentPane().add("Center", new JScrollPane(ed));
+            f.getContentPane().add("Center", pane);
             f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             f.pack();
             f.setSize(f.getWidth() + 15, 700);
             f.setVisible(true);
-            Writer w = new OutputStreamWriter(new FileOutputStream(file), "utf-8");
-            w.write(html);
-            w.close();
-            System.out.println("The OpenCL Hardware Report was successfully written to the following file:\n"
-                    + "\t" + file.getCanonicalPath()
-                    + "\n"
-                    + "Thanks to send it to the NativeLibs4Java group :\n"
-                    + "\thttp://groups.google.fr/group/nativelibs4java/");
-
+            
         } catch (Throwable ex) {
 			StringWriter sout = new StringWriter();
 			ex.printStackTrace(new PrintWriter(sout));

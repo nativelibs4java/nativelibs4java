@@ -31,13 +31,22 @@
 		<version>2.x-SNAPSHOT</version>
 	    <scope>provided</scope>
 	</dependency>
-	
+    <dependency>
+      <groupId>org.swinglabs</groupId>
+      <artifactId>swing-layout</artifactId>
+      <version>1.0.3</version>
+    </dependency>
+      <dependency>
+          <groupId>unknown.binary</groupId>
+          <artifactId>beansbinding-1.2.1</artifactId>
+          <version>SNAPSHOT</version>
+      </dependency>
   </dependencies>
 
   <build>
   	<plugins>
-	
-	
+
+
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>javacl-generator</artifactId>
@@ -52,7 +61,7 @@
 				  <goal>compile</goal>
 				  <!--goal>test-compile</goal-->
 				</goals>
-				
+
 			  </execution>
 			</executions>
 		</plugin>
@@ -82,10 +91,19 @@
 			  </execution>
 			</executions>
 		</plugin>
-		
+
 	</plugins>
   </build>
+    <repositories>
+        <repository>
+            <id>unknown-jars-temp-repo</id>
+            <name>A temporary repository created by NetBeans for libraries and jars it could not identify. Please replace the dependencies in this repository with correct ones and delete this repository.</name>
+            <url>file:${project.basedir}/lib</url>
+        </repository>
+    </repositories>
 </project>
+
+
 
 
 

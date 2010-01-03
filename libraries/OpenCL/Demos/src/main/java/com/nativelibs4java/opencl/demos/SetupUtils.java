@@ -11,6 +11,7 @@ import com.sun.jna.Platform;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
 /**
@@ -19,6 +20,16 @@ import javax.swing.JOptionPane;
  */
 public class SetupUtils {
 
+    public static void main(String[] args) {
+        JFrame f = new JFrame();
+        JavaCLSettingsPanel sett = new JavaCLSettingsPanel();
+        sett.removeOpenGLComponents();
+        int opt = JOptionPane.showConfirmDialog(null, sett, "JavaCL Demo Settings", JOptionPane.OK_CANCEL_OPTION);
+        //f.getContentPane().add("Center", sett);
+        //f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //f.pack();
+        //f.setVisible(true);
+    }
     public static void failWithDownloadProposalsIfOpenCLNotAvailable() {
         ///*
         try {

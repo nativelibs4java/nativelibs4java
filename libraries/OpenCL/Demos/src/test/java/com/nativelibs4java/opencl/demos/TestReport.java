@@ -18,7 +18,9 @@ public class TestReport {
 
     @Test
     public void runReport() {
-        List<Map<String, Object>> list = HardwareReport.listInfos();
-        HardwareReport.toHTML(list);
+        for (CLPlatform platform : JavaCL.listPlatforms()) {
+            List<Map<String, Object>> list = HardwareReport.listInfos(platform);
+            HardwareReport.toHTML(list);
+        }
     }
 }
