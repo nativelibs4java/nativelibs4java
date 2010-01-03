@@ -1,5 +1,10 @@
 package com.nativelibs4java.runtime;
 
+#set ($prims = [ "int", "long", "short", "byte", "float", "double", "char" ])
+#set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double", "Char" ])
+#set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer", "CharBuffer" ])
+#set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double", "Character" ])
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.*;
@@ -62,14 +67,6 @@ public class Pointer<T> implements Addressable, Comparable<Addressable>
 
     public static Pointer<?> allocate(int size) {
         return new Memory(size);
-        /*
-        long ptr = doAllocate(size);
-        return ptr == 0 ? null : new Pointer(null, ptr) {
-
-            public void finalize() {
-                doFree(peer);
-            }
-        };*/
     }
 
     T cachedTarget;
@@ -119,10 +116,6 @@ public class Pointer<T> implements Addressable, Comparable<Addressable>
     public static native long getDirectBufferAddress(Buffer b);
     public static native long getDirectBufferCapacity(Buffer b);
 
-#set ($prims = [ "int", "long", "short", "byte", "float", "double", "char" ])
-#set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double", "Char" ])
-#set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer", "CharBuffer" ])
-#set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double", "Character" ])
 #foreach ($prim in $prims)
 
     #set ($i = $velocityCount - 1)
@@ -157,7 +150,17 @@ public class Pointer<T> implements Addressable, Comparable<Addressable>
         setPointerAddress(offset, value.peer);
     }
 
-    protected static native long doAllocate(int size);
+    protected static native long malloc(int size);
+    protected static native void free(long pointer);
 
-    protected static native void doFree(long pointer);
+    protected static native long strlen(long pointer);
+    //protected static native long wstrlen(long pointer);
+
+    protected static native void memcpy(long dest, long source, long size);
+    protected static native void wmemcpy(long dest, long source, long size);
+    protected static native void memmove(long dest, long source, long size);
+    protected static native void wmemmove(long dest, long source, long size);
+    protected static native long memchr(long ptr, byte value, long num);
+    protected static native int memcmp(long ptr1, long ptr2, long num);
+    protected static native void memset(long ptr, byte value, long num);
 }

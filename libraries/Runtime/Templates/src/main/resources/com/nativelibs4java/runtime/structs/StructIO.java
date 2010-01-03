@@ -1,4 +1,10 @@
 package com.nativelibs4java.runtime.structs;
+
+#set ($prims = [ "int", "long", "short", "byte", "float", "double", "char" ])
+#set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double", "Char" ])
+#set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer", "CharBuffer" ])
+#set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double", "Character" ])
+
 import com.nativelibs4java.runtime.ann.Alignment;
 import com.nativelibs4java.runtime.ann.Length;
 import com.nativelibs4java.runtime.ann.Bits;
@@ -12,13 +18,7 @@ import ${pointerClass};
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
+import java.nio.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -426,11 +426,6 @@ public class StructIO<S extends Struct<S>> {
 		setByteField(fieldIndex, struct, (byte)(fieldValue ? 1 : 0));
 	}
 
-
-#set ($prims = [ "int", "long", "short", "byte", "float", "double" ])
-#set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double" ])
-#set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer" ])
-#set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double" ])
 #foreach ($prim in $prims)
         
     #set ($i = $velocityCount - 1)
@@ -467,13 +462,10 @@ public class StructIO<S extends Struct<S>> {
         if (b == null || !b.isDirect() || !struct.getPointer().share(field.byteOffset).equals(${getDirectBufferPointer}(b))) {
             int len = field.arraySize * field.byteLength;
             struct.refreshableFields[field.refreshableFieldIndex] = b = 
-                //(field.isByValue ?
-                    struct.getPointer().getByteBuffer(field.byteOffset, len)
-                    #if (!$prim.equals("byte"))
-                        .as${primBuf}()
-                    #end
-                //    struct.getPointer().getPointer(field.byteOffset).getByteBuffer(0, len).asIntBuffer()
-                //)
+                struct.getPointer().getByteBuffer(field.byteOffset, len)
+                #if (!$prim.equals("byte"))
+                    .as${primBuf}()
+                #end
             ;
         }
         return b;
@@ -486,14 +478,11 @@ public class StructIO<S extends Struct<S>> {
         assert fieldValue.capacity() >= field.arraySize;
         struct.refreshableFields[field.refreshableFieldIndex] = fieldValue;
         int len = field.arraySize * field.byteLength;
-        //if (field.isByValue)
-            struct.getPointer().getByteBuffer(field.byteOffset, len)
-            #if (!$prim.equals("byte"))
-                .as${primBuf}()
-            #end
-                .put(fieldValue.duplicate());
-        //else
-        //    struct.getPointer().setPointer(field.byteOffset, Native.getDirectBufferPointer(fieldValue));
+        struct.getPointer().getByteBuffer(field.byteOffset, len)
+        #if (!$prim.equals("byte"))
+            .as${primBuf}()
+        #end
+            .put(fieldValue.duplicate());
     }
 
 #end
