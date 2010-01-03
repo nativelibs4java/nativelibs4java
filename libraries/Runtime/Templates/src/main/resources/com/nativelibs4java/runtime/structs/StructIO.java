@@ -8,7 +8,6 @@ import com.nativelibs4java.runtime.structs.StructIO.FieldIO.Refreshable;
 
 import ${memoryClass};
 import ${pointerClass};
-import ${pointerTypeClass};
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -234,9 +233,11 @@ public class StructIO<S extends Struct<S>> {
                 field.refreshableFieldIndex = refreshableFieldCount++;
             } else if (Pointer.class.equals(field.valueClass)) {
                 field.byteLength = Pointer.SIZE;
-            } else if (PointerType.class.isAssignableFrom(field.valueClass)) {
+		#if ($useJNA.equals("true"))
+            } else if (${pointerTypeClass}.class.isAssignableFrom(field.valueClass)) {
                 field.byteLength = Pointer.SIZE;
-                field.refreshableFieldIndex = refreshableFieldCount++;
+				field.refreshableFieldIndex = refreshableFieldCount++;
+		#end
             } else if (Buffer.class.isAssignableFrom(field.valueClass)) {
                 if (field.valueClass == IntBuffer.class)
                     field.byteLength = 4;
@@ -318,10 +319,12 @@ public class StructIO<S extends Struct<S>> {
 
         struct.getPointer().setPointer(field.byteOffset, p);
     }
-    public <P extends PointerType> P getPointerTypeField(int fieldIndex, S struct) {
+	
+#if ($useJNA.equals("true"))
+    public <P extends ${pointerTypeClass}> P getPointerTypeField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
         assert !field.isBitField;
-        assert PointerType.class.isAssignableFrom(field.valueClass);
+        assert ${pointerTypeClass}.class.isAssignableFrom(field.valueClass);
 
         P p = (P)struct.refreshableFields[field.refreshableFieldIndex];
         Pointer ptr = struct.getPointer().getPointer(field.byteOffset);
@@ -335,14 +338,15 @@ public class StructIO<S extends Struct<S>> {
         }
         return p;
     }
-    public <P extends PointerType> void setPointerTypeField(int fieldIndex, S struct, P p) {
+    public <P extends ${pointerTypeClass}> void setPointerTypeField(int fieldIndex, S struct, P p) {
         FieldIO field = fields[fieldIndex];
         assert !field.isBitField;
-        assert PointerType.class.isAssignableFrom(field.valueClass);
+        assert ${pointerTypeClass}.class.isAssignableFrom(field.valueClass);
 
         struct.refreshableFields[field.refreshableFieldIndex] = p;
         struct.getPointer().setPointer(field.byteOffset, p.getPointer());
     }
+#end
 
     public void setObjectField(int fieldIndex, S struct, Object value) {
         FieldIO field = fields[fieldIndex];

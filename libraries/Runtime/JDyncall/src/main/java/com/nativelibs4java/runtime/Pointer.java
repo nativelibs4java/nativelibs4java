@@ -4,6 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,6 +15,9 @@ public class Pointer<T> implements Addressable, Comparable<Addressable>
     static {
         JNI.initLibrary();
     }
+
+    public static final int SIZE = JNI.POINTER_SIZE;
+
     protected Type type;
     protected long peer;
 
@@ -121,6 +125,10 @@ public class Pointer<T> implements Addressable, Comparable<Addressable>
 
     public static native long getDirectBufferAddress(Buffer b);
     public static native long getDirectBufferCapacity(Buffer b);
+
+    public static Pointer<Integer> getDirectBufferPointer(IntBuffer b) {
+        return new Pointer<Integer>(Integer.class, getDirectBufferAddress(b));
+    }
 
     public void setPointer(long offset, Pointer value) {
         setPointerAddress(offset, value.peer);

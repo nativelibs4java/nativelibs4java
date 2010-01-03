@@ -13,9 +13,9 @@
  */
 package com.nativelibs4java.runtime.structs;
 
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-import com.sun.jna.WString;
+import ${memoryClass};
+import ${pointerClass};
+
 import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.util.IdentityHashMap;
@@ -65,10 +65,14 @@ public class BitFields {
 		}
 		public Object readObject(Pointer p, long offset) {
 			p = p.getPointer(offset);
-            return p != null ? wide ? (Object)new WString(p.getString(0, true)) : (Object)p.getString(0) : null;
+		#if ($useJNA.equals("true"))
+			return p != null ? wide ? (Object)new com.sun.jna.WString(p.getString(0, true)) : (Object)p.getString(0) : null;
+		#else
+			return p != null ? wide ? (Object)p.getString(0, true) : (Object)p.getString(0) : null;
+		#end
 		}
 		public int size() {
-			return Native.POINTER_SIZE;
+			return Pointer.SIZE;
 		}
 
 
@@ -305,7 +309,10 @@ public class BitFields {
 
 //		primHandlers.put(Pointer.class, POINTER_HANDLER);
 		primHandlers.put(String.class, STRING_HANDLER);
-		primHandlers.put(WString.class, WSTRING_HANDLER);
+		
+	#if ($useJNA.equals("true"))
+		primHandlers.put(com.sun.jna.WString.class, WSTRING_HANDLER);
+	#end
 	}
 	private static PrimHandler getHandlerWithAtLeastNBytes(final int n) {
 		switch (n) {

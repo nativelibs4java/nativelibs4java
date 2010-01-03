@@ -6,7 +6,7 @@ import ${memoryClass};
 import ${pointerClass};
 
 public abstract class Struct<S extends Struct<S>> implements Refreshable<S>
-	#if ($useJNA) , com.sun.jna.NativeMapped #end
+	#if ($useJNA.equals("true")) , com.sun.jna.NativeMapped #end
 {
     
     protected final StructIO<S> io;
@@ -63,7 +63,7 @@ public abstract class Struct<S extends Struct<S>> implements Refreshable<S>
         io.read((S)this);
     }
 	
-#if ($useJNA)
+#if ($useJNA.equals("true"))
 
     @Override
     public Object fromNative(Object o, com.sun.jna.FromNativeContext fnc) {

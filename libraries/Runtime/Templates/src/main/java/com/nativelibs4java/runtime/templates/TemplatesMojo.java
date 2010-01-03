@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import org.apache.velocity.*;
@@ -47,7 +48,7 @@ public class TemplatesMojo
      * @parameter
      * @optional
      */
-    private Map parameters;
+    private Map<Object, Object> parameters;
 	
 	/**
      * @parameter
@@ -84,10 +85,21 @@ public class TemplatesMojo
             ve.setProperty("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
             ve.init();
             //Velocity.init();
-            System.out.println("VELOCITY PARAMETERS = " + parameters);
+            //System.out.println("VELOCITY PARAMETERS = " + parameters);
 		} catch (Exception ex) {
             throw new MojoExecutionException("Failed to initialize Velocity", ex);
         }
+        /*Map transformedParams = new HashMap(parameters.size());
+        for (Map.Entry e : parameters.entrySet()) {
+            Object key = e.getKey();
+            Object v = e.getValue();
+            if (v.equals("true"))
+                v = Boolean.TRUE;
+            else if (v.equals("false"))
+                v = Boolean.FALSE;
+
+            transformedParams.put(key, v);
+        }*/
         for (String resource : resources) {
 			try {
                 org.apache.velocity.Template template = //Velocity.getTemplate(resource);

@@ -3,8 +3,8 @@
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>nl4j-runtime-structs</artifactId>
-  <name>NativeLibs4Java Structs</name>
+  <artifactId>nl4j-runtime-structs-jna</artifactId>
+  <name>NativeLibs4Java Structs for JNA</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
   <version>${nl4j-runtime.version}</version>
   <packaging>jar</packaging>
@@ -24,13 +24,6 @@
 	  <version>${jna.version}</version>
 	  <scope>compile</scope>
 	</dependency>
-	
-	<!--dependency>
-	  <groupId>com.jnaerator</groupId>
-	  <artifactId>jnaerator-runtime</artifactId>
-	  <version>${jnaerator.version}</version>
-	  <scope>compile</scope>
-	</dependency-->
 	
   </dependencies>
 
@@ -72,8 +65,17 @@
 					<getDirectBufferPointer>com.sun.jna.Native.getDirectBufferPointer</getDirectBufferPointer>
 				</parameters>
 				<resources>
+					<resource>com/nativelibs4java/runtime/ann/Alignment.java</resource>
+					<resource>com/nativelibs4java/runtime/ann/Bits.java</resource>
+					<resource>com/nativelibs4java/runtime/ann/ByValue.java</resource>
+					<resource>com/nativelibs4java/runtime/ann/Field.java</resource>
+					<resource>com/nativelibs4java/runtime/ann/Length.java</resource>
+					<resource>com/nativelibs4java/runtime/ann/NativeSize.java</resource>
+					<resource>com/nativelibs4java/runtime/ann/Virtual.java</resource>
+					
 					<resource>com/nativelibs4java/runtime/structs/Addressable.java</resource>
 					<resource>com/nativelibs4java/runtime/structs/Array.java</resource>
+					<resource>com/nativelibs4java/runtime/structs/BitFields.java</resource>
 					<resource>com/nativelibs4java/runtime/structs/Struct.java</resource>
 					<resource>com/nativelibs4java/runtime/structs/StructWithNIO.java</resource>
 					<resource>com/nativelibs4java/runtime/structs/StructIO.java</resource>
