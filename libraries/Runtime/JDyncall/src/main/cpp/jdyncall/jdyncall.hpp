@@ -19,6 +19,7 @@
 #include <iostream>
 
 #include "CommonClassesAndMethods.h"
+#include "Exceptions.h"
 
 #ifndef _WIN32
 #define __cdecl

@@ -61,6 +61,8 @@ JNIEXPORT jint JNICALL Java_jdyncall_PerfTest_testAddJNI(JNIEnv *, jclass, jint 
 }
 TEST_API int __cdecl testAddDyncall(int a, int b)
 {
+	if (true)
+		testAddDyncall(a, b);
 	otherFunc();
 	return a + b;
 }

@@ -11,15 +11,8 @@ public:
 	~scoped_ptr() { delete ptr; }
 };
 
-char __cdecl JavaToNativeCallHandler(DCCallback*, DCArgs* args, DCValue* result, void* userdata)
+char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCallInfo *info)
 {
-	if (!userdata) {
-		cerr << "MethodCallHandler was called with a null userdata !!!\n";
-		return DC_SIGCHAR_VOID;
-	}
-	
-	MethodCallInfo *info = (MethodCallInfo*)userdata;
-
 	JNIEnv *env = (JNIEnv*)dcArgs_pointer(args);
 	jobject objOrClass = (jobject)dcArgs_pointer(args);
 
@@ -239,4 +232,18 @@ char __cdecl JavaToNativeCallHandler(DCCallback*, DCArgs* args, DCValue* result,
 	}
 
 	return returnVal;
+}
+
+char __cdecl JavaToNativeCallHandler(DCCallback*, DCArgs* args, DCValue* result, void* userdata)
+{
+	if (!userdata) {
+		cerr << "MethodCallHandler was called with a null userdata !!!\n";
+		return DC_SIGCHAR_VOID;
+	}
+	
+	MethodCallInfo *info = (MethodCallInfo*)userdata;
+
+	BEGIN_TRY();
+	return doJavaToNativeCallHandler(args, result, info);	
+	END_TRY(info->fEnv);
 }

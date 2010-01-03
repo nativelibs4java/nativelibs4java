@@ -357,6 +357,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\jdyncall\Exceptions.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\jdyncall\JavaToNativeCallHandler.cpp"
 				>
 			</File>

@@ -99,7 +99,7 @@ void* MethodCallInfo::GetCallback()
 	//test();
 	if (!fCallback) {
 		void* userdata = this;
-		static bool allowRawAdapters = true;//!getenv("NO_RAW_FWD");
+		static bool allowRawAdapters = false;//!getenv("NO_RAW_FWD");
 		if (allowRawAdapters && fIsAdaptableAsRaw) {
 			fCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())fForwardedSymbol);
 		} 

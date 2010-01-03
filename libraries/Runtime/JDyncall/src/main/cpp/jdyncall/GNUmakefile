@@ -32,6 +32,7 @@ CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncall
 CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncallback
 CPPFLAGS	 += -I$(DYNCALL_HOME)/dynload
 
+UNITS += Exceptions
 UNITS += BindCallback
 UNITS += CommonClassesAndMethods
 UNITS += JNI

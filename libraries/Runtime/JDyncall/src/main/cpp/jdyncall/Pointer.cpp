@@ -1,6 +1,7 @@
 #include "com_nativelibs4java_runtime_Pointer.h"
 
 #include <stdlib.h>
+#include "Exceptions.h"
 
 char* GetPeer(JNIEnv *env, jobject pointerInstance) {
 	jclass pointerClass = env->FindClass("com/nativelibs4java/runtime/Pointer");
@@ -11,12 +12,16 @@ char* GetPeer(JNIEnv *env, jobject pointerInstance) {
 
 #define POINTER_GETSET(lo, hi) \
 lo JNICALL Java_com_nativelibs4java_runtime_Pointer_get ## hi(JNIEnv *env, jobject jthis, jlong offset) { \
+	BEGIN_TRY(); \
 	char* peer = GetPeer(env, jthis); \
 	return *(lo*)(peer + offset); \
+	END_TRY(env); \
 } \
 void JNICALL Java_com_nativelibs4java_runtime_Pointer_set ## hi(JNIEnv *env, jobject jthis, jlong offset, lo value) { \
+	BEGIN_TRY(); \
 	char* peer = GetPeer(env, jthis); \
 	*(lo*)(peer + offset) = value; \
+	END_TRY(env); \
 }
 
 
@@ -31,23 +36,33 @@ POINTER_GETSET(jdouble, Double)
 POINTER_GETSET(jlong, PointerAddress)
 
 jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getByteBuffer(JNIEnv *env, jobject jthis, jlong offset, jlong length) {
+	BEGIN_TRY();
 	char* peer = GetPeer(env, jthis);
 	return env->NewDirectByteBuffer(peer + offset, length);
+	END_TRY(env);
 }
 jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
+	BEGIN_TRY();
 	return (jlong)env->GetDirectBufferAddress(buffer);
+	END_TRY(env);
 }
 jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
+	BEGIN_TRY();
 	return env->GetDirectBufferCapacity(buffer);
+	END_TRY(env);
 }
 
 
-jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_doAllocate(JNIEnv *, jclass, jint size)
+jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_doAllocate(JNIEnv *env, jclass, jint size)
 {
+	BEGIN_TRY();
 	return (jlong)malloc(size);
+	END_TRY(env);
 }
 
-void JNICALL Java_com_nativelibs4java_runtime_Pointer_doFree(JNIEnv *, jclass, jlong pointer)
+void JNICALL Java_com_nativelibs4java_runtime_Pointer_doFree(JNIEnv *env, jclass, jlong pointer)
 {
+	BEGIN_TRY();
 	free((void*)pointer);
+	END_TRY(env);
 }

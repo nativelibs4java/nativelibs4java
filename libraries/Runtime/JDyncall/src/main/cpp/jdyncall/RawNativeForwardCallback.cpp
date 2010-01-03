@@ -4,11 +4,11 @@
 #ifdef _WIN64
 #include "dyncallback/dyncall_callback_x64.h"
 #include "dyncallback/dyncall_args_x64.h"
-#endif
-
+#else
 #ifdef _WIN32
 #include "dyncallback/dyncall_callback_x86.h"
 #include "dyncallback/dyncall_args_x86.h"
+#endif
 #endif
 
 #include "dyncallback/dyncall_alloc_wx.h"
