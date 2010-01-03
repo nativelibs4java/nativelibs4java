@@ -272,9 +272,10 @@ public class OpenCL4JavaBenchmarkTest {
             System.out.println("Found platforms : " + Arrays.asList(JavaCL.listPlatforms()));
             CLPlatform platform = JavaCL.listPlatforms()[0];
             String v = platform.getVendor();
+	    System.out.println("Platform Vendor: " + v);
             boolean isAMD = v.equals("Advanced Micro Devices, Inc.");
             int loops = 10;
-            int dataSize = isAMD ? 100000 : 1000000;
+            int dataSize = isAMD ? 1024 : 1024 * 1024;
             Target target = platform.listGPUDevices(false).length == 0 ? Target.CPU : Target.GPU;
 
 

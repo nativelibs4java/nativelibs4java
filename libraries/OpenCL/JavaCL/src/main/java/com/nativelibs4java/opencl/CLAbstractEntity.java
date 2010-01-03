@@ -56,6 +56,11 @@ abstract class CLAbstractEntity<T extends PointerType> {
 		doRelease();
 	}
 
+    public static <E extends PointerType, A extends CLAbstractEntity<E>> E[] getEntities(A[] objects, E[] out) {
+        for (int i = 0, len = objects.length; i < len; i++)
+            out[i] = objects[i].getEntity();
+        return out;
+    }
     synchronized T getEntity() {
 		if (entity == null && !nullable)
 			throw new RuntimeException("This " + getClass().getSimpleName() + " has been manually released and can't be used anymore !");

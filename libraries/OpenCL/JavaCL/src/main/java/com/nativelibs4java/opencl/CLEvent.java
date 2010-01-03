@@ -62,19 +62,44 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	};
 	
 	private CLEvent(cl_event evt) {
-		super(evt);
+		super(evt, false);
 	}
 
-	static CLEvent createEvent(cl_event evt) {
-		if (evt == null)
-			return null;
-		return new CLEvent(evt);
+    private CLEvent() {
+		super(null, true);
 	}
 
-    static CLEvent createEvent(cl_event[] evt1) {
-		if (evt1 == null || evt1[0] == null)
+    static boolean noEvents = false;
+    public static void setNoEvents(boolean noEvents) {
+        CLEvent.noEvents = noEvents;
+    }
+	static CLEvent createEvent(final CLQueue queue, cl_event evt) {
+		if (noEvents) {
+            if (evt != null)
+                CL.clReleaseEvent(evt);
+            evt = null;
+
+            return new CLEvent() {
+                volatile boolean waited = false;
+                @Override
+                public synchronized void waitFor() {
+                    if (!waited) {
+                        queue.finish();
+                        waited = true;
+                    }
+                }
+            };
+        }
+        if (evt == null)
 			return null;
-		return new CLEvent(evt1[0]);
+
+        return new CLEvent(evt);
+	}
+
+    static CLEvent createEvent(CLQueue queue, cl_event[] evt1) {
+		if (evt1 == null)
+			return null;
+		return createEvent(queue, evt1[0]);
 	}
 
 
@@ -133,7 +158,17 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		}.start();
 	}
 
+    static cl_event[] new_event_out(CLEvent[] eventsToWaitFor) {
+        return noEvents || eventsToWaitFor == null ? null : new cl_event[1];
+    }
+    
 	static cl_event[] to_cl_event_array(CLEvent... events) {
+        if (noEvents) {
+            for (CLEvent evt : events)
+                if (evt != null)
+                    evt.waitFor();
+            return null;
+        }
         int n = events.length;
 		if (n == 0)
 			return null;
@@ -142,6 +177,9 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
             if (events[i] != null && events[i].getEntity() != null)
                 nonNulls++;
 
+        if (nonNulls == 0)
+            return null;
+        
         cl_event[] event_wait_list = new cl_event[nonNulls];
         int iDest = 0;
 		for (int i = 0; i < n; i++) {

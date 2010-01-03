@@ -74,10 +74,22 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     public CLDevice[] getDevices() {
         return devices.clone();
     }
-    
+
+    /// Workaround to avoid crash of ATI Stream 2.0.0 final (beta 3 & 4 worked fine)
+    public static boolean passMacrosAsSources = true;
+
     public synchronized void allocate() {
         if (entity != null)
             throw new IllegalThreadStateException("Program was already allocated !");
+
+        if (passMacrosAsSources) {
+            if (macros != null && !macros.isEmpty()) {
+                StringBuilder b = new StringBuilder();//"-DJAVACL=1 ");
+                for (Map.Entry<String, String> m : macros.entrySet())
+                    b.append("#define " + m.getKey() + " " + m.getValue() + "\n");
+                this.sources.add(0, b.toString());
+            }
+        }
 
         String[] sources = this.sources.toArray(new String[this.sources.size()]);
         NativeSize[] lengths = new NativeSize[sources.length];
@@ -173,10 +185,15 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     }
     
     protected String getOptionsString() {
-        StringBuilder b = new StringBuilder("-DJAVACL=1 ");
-        if (macros != null)
-            for (Map.Entry<String, String> m : macros.entrySet())
-                b.append("-D" + m.getKey() + "=" + m.getValue() + " ");
+        if (passMacrosAsSources)
+            return null;
+
+        if (macros == null || macros.isEmpty())
+            return null;
+
+        StringBuilder b = new StringBuilder();//"-DJAVACL=1 ");
+        for (Map.Entry<String, String> m : macros.entrySet())
+            b.append("-D" + m.getKey() + "=" + m.getValue() + " ");
 
         return b.toString();
     }

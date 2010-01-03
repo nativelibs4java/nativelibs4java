@@ -88,7 +88,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	 * @return
 	 */
 	public CLEvent copyTo(CLQueue queue, long srcOffset, long length, CLMem destination, long destOffset, CLEvent... eventsToWaitFor) {
-		cl_event[] eventOut = eventsToWaitFor == null ? null : new cl_event[1];
+		cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
 		
         cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueCopyBuffer(
@@ -101,12 +101,12 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 			evts == null ? 0 : evts.length, evts,
 			eventOut
 		));
-		return CLEvent.createEvent(eventOut);
+		return CLEvent.createEvent(queue, eventOut);
 	}
 
 	protected Pair<B, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
 		checkBounds(offset, length);
-		cl_event[] eventOut = blocking ? null : eventsToWaitFor == null ? null : new cl_event[1];
+		cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
 		IntByReference pErr = new IntByReference();
         
         cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
@@ -121,7 +121,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 		error(pErr.getValue());
         return new Pair<B, CLEvent>(
 			typedBuffer(p.getByteBuffer(0, getByteCount())),
-			CLEvent.createEvent(eventOut)
+			CLEvent.createEvent(queue, eventOut)
 		);
     }
 
@@ -130,10 +130,10 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
     protected abstract void put(B out, B in);
 
     public CLEvent unmap(CLQueue queue, B buffer, CLEvent... eventsToWaitFor) {
-        cl_event[] eventOut = eventsToWaitFor == null ? null : new cl_event[1];
+        cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
         cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), Native.getDirectBufferPointer(buffer), evts == null ? 0 : evts.length, evts, eventOut));
-		return CLEvent.createEvent(eventOut);
+		return CLEvent.createEvent(queue, eventOut);
     }
 
 	public CLEvent read(CLQueue queue, B out, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -157,7 +157,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
             out = typedBuffer(directBytes((int)(length * getElementSize()), getContext().getByteOrder()));
             blocking = true;
         }
-        cl_event[] eventOut = blocking ? null : eventsToWaitFor == null ? null : new cl_event[1];
+        cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
         cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueReadBuffer(
             queue.getEntity(),
@@ -171,7 +171,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
         ));
         if (originalOut != null)
             put(out, originalOut);
-        return CLEvent.createEvent(eventOut);
+        return CLEvent.createEvent(queue, eventOut);
     }
 
 	public CLEvent write(CLQueue queue, B in, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -195,7 +195,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
             in = typedBuffer(directCopy(in, getContext().getByteOrder()));
         }
             
-        cl_event[] eventOut = blocking ? null : eventsToWaitFor == null ? null : new cl_event[1];
+        cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
         cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueWriteBuffer(
             queue.getEntity(),
@@ -207,7 +207,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
             evts == null ? 0 : evts.length, evts,
             eventOut
         ));
-        return CLEvent.createEvent(eventOut);
+        return CLEvent.createEvent(queue, eventOut);
     }
 
     public CLEvent writeBytes(CLQueue queue, long offset, long length, ByteBuffer in, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -216,7 +216,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
             in = directCopy(in, getContext().getByteOrder());
         }
 
-        cl_event[] eventOut = blocking ? null : eventsToWaitFor == null ? null : new cl_event[1];
+        cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
         cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueWriteBuffer(
             queue.getEntity(),
@@ -228,7 +228,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
             evts == null ? 0 : evts.length, evts,
             eventOut
         ));
-        return CLEvent.createEvent(eventOut);
+        return CLEvent.createEvent(queue, eventOut);
     }
 
 	public ByteBuffer readBytes(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {

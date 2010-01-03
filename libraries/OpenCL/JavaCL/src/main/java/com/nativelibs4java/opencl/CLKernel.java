@@ -297,10 +297,10 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
      * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
      */
     public CLEvent enqueueTask(CLQueue queue, CLEvent... eventsToWaitFor) {
-        cl_event[] eventOut = eventsToWaitFor == null ? null : new cl_event[1];
+        cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
         cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueNDRangeKernel(queue.getEntity(), getEntity(), 1, null, oneNL, oneNL, evts == null ? 0 : evts.length, evts, eventOut));
-        return CLEvent.createEvent(eventOut);
+        return CLEvent.createEvent(queue, eventOut);
     }
 
     /**
@@ -316,11 +316,11 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         if (localWorkSizes != null && localWorkSizes.length != nDims) {
             throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalWorkSizes.length + " vs. " + localWorkSizes.length);
         }
-        cl_event[] eventOut = eventsToWaitFor == null ? null : new cl_event[1];
+        cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
         cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueNDRangeKernel(queue.getEntity(), getEntity(), nDims, null/*toNL(globalOffsets)*/, toNS(globalWorkSizes), toNS(localWorkSizes), evts == null ? 0 : evts.length, evts, eventOut));
         //error(CL.clEnqueueNDRangeKernel(queue.get(), get(), nDims, null, glo, loc, eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
-        return CLEvent.createEvent(eventOut);
+        return CLEvent.createEvent(queue, eventOut);
     }
 	
 	/**

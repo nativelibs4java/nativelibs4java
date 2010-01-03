@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl;
 
+import com.nativelibs4java.test.MiscTestUtils;
 import com.nativelibs4java.util.ImageUtils;
 import java.awt.image.BufferedImage;
 import org.junit.After;
@@ -26,6 +27,11 @@ public abstract class AbstractCommon {
 	CLDevice device;
 	CLImageFormat[] formatsRead2D, formatsRead3D, formatsWrite2D, formatsWrite3D, formatsReadWrite2D, formatsReadWrite3D;
 
+    @BeforeClass
+    public static void setup() {
+        MiscTestUtils.protectJNI();
+    }
+    
     @Before
     public void setUp() {
 		context = JavaCL.createBestContext();

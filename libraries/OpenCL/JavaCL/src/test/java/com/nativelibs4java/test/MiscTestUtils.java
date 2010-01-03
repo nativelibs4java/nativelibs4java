@@ -23,6 +23,8 @@ public class MiscTestUtils {
             Native.setProtected(true);
         }
 	public static void testGetters(Object instance) {
+        if (instance == null)
+            return;
 		Logger log = Logger.getLogger(instance.getClass().getName());
 		for (Method m : instance.getClass().getDeclaredMethods()) {
 			if (Modifier.isStatic(m.getModifiers()))

@@ -134,7 +134,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	public CLEvent enqueueMarker() {
 		cl_event[] eventOut = new cl_event[1];
 		error(CL.clEnqueueMarker(getEntity(), eventOut));
-		return CLEvent.createEvent(eventOut);
+		return CLEvent.createEvent(this, eventOut);
 	}
 
 	/**
@@ -146,13 +146,13 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
 	 */
 	public CLEvent enqueueAcquireGLObjects(CLMem[] objects, CLEvent... eventsToWaitFor) {
-        cl_event[] eventOut = eventsToWaitFor == null ? null : new cl_event[1];
+        cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
 		cl_mem[] mems = new cl_mem[objects.length];
 		for (int i = 0; i < objects.length; i++)
 			mems[i] = objects[i].getEntity();
 		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueAcquireGLObjects(getEntity(), mems.length, mems, evts == null ? 0 : evts.length, evts, eventOut));
-		return CLEvent.createEvent(eventOut);
+		return CLEvent.createEvent(this, eventOut);
 	}
 
 	/**
@@ -164,12 +164,10 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
 	 */
 	public CLEvent enqueueReleaseGLObjects(CLMem[] objects, CLEvent... eventsToWaitFor) {
-        cl_event[] eventOut = eventsToWaitFor == null ? null : new cl_event[1];
-		cl_mem[] mems = new cl_mem[objects.length];
-		for (int i = 0; i < objects.length; i++)
-			mems[i] = objects[i].getEntity();
+        cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
+		cl_mem[] mems = getEntities(objects, new cl_mem[objects.length]);
 		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueReleaseGLObjects(getEntity(), mems.length, mems, evts == null ? 0 : evts.length, evts, eventOut));
-		return CLEvent.createEvent(eventOut);
+		return CLEvent.createEvent(this, eventOut);
 	}
 }
