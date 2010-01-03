@@ -13,12 +13,12 @@ import java.lang.reflect.Type;
  */
 public class Memory<T> extends Pointer<T> {
     public Memory(int size) {
-        super(null, doAllocate(size));
+        super(null, malloc(size));
     }
 
     @Override
     protected void finalize() throws Throwable {
-        doFree(peer);
+        free(peer);
     }
 
     protected static class SharedPointer<T> extends Pointer<T> {
