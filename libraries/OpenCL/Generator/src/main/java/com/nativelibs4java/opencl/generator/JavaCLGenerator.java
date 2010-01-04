@@ -61,7 +61,7 @@ public class JavaCLGenerator extends JNAerator {
         config.genCPlusPlus = false;
         config.gccLong = true;
         config.putTopStructsInSeparateFiles = false;
-        config.fastStructs = true;
+        config.runtime = JNAeratorConfig.Runtime.JNAeratorNL4JStructs;
         config.fileToLibrary = new Adapter<File, String>() {
             @Override
             public String adapt(File value) {
