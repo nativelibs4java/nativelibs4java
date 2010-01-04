@@ -6,12 +6,6 @@ import java.lang.reflect.Type;
 import java.nio.*;
 import java.nio.charset.Charset;
 
-#set ($prims = [ "int", "long", "short", "byte", "float", "double", "char" ])
-#set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double", "Char" ])
-#set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer", "CharBuffer" ])
-#set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double", "Character" ])
-#set ($primSizes = [ 4, 8, 2, 1, 4, 8, 2 ])
-
 public class Pointer<T> implements Comparable<Pointable>
         //, com.sun.jna.Pointer<Pointer<T>>
 {
@@ -83,47 +77,25 @@ public class Pointer<T> implements Comparable<Pointable>
     }
 
     public static <V> Pointer<V> allocateArray(Class<V> elementClass, int size) {
-        #foreach ($prim in $prims)
-
-        #set ($i = $velocityCount - 1)
-        #set ($primWrap = $primWraps.get($i))
-        #set ($primSize = $primSizes.get($i))
-
-        if (elementClass == ${primWrap}.TYPE || elementClass == ${primWrap}.class)
-            return allocateArray($primSize).setTargetClass(elementClass);
-        
+        #foreach ($prim in $primitivesNoBool)
+        if (elementClass == ${prim.WrapperName}.TYPE || elementClass == ${prim.WrapperName}.class)
+            return allocateArray(${prim.Size}).setTargetClass(elementClass);
         #end
-
         throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());
     }
 
     public static <V> Pointer<V> allocate(Class<V> elementClass) {
-        #foreach ($prim in $prims)
-
-        #set ($i = $velocityCount - 1)
-        #set ($primWrap = $primWraps.get($i))
-        #set ($primSize = $primSizes.get($i))
-
-        if (elementClass == ${primWrap}.TYPE || elementClass == ${primWrap}.class)
-            return (Pointer<V>)new Memory<$primWrap>(${primWrap}.class, $primSize);
-
+        #foreach ($prim in $primitivesNoBool)
+        if (elementClass == ${prim.WrapperName}.TYPE || elementClass == ${prim.WrapperName}.class)
+            return (Pointer<V>)new Memory<${prim.WrapperName}>(${prim.WrapperName}.class, ${prim.Size});
         #end
-
         throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());
     }
 
-#foreach ($prim in $prims)
-
-    #set ($i = $velocityCount - 1)
-    #set ($primCap = $primCaps.get($i))
-    #set ($primWrap = $primWraps.get($i))
-    #set ($primBuf = $primBufs.get($i))
-    #set ($primSize = $primSizes.get($i))
-
-    public static Pointer<$primWrap> pointerTo($prim... values) {
-        return new Memory<$primWrap>(${primWrap}.class, $primSize * values.length).write(0, values, 0, values.length);
+#foreach ($prim in $primitivesNoBool)
+    public static Pointer<${prim.WrapperName}> pointerTo(${prim.Name}... values) {
+        return new Memory<${prim.WrapperName}>(${prim.WrapperName}.class, ${prim.Size} * values.length).write(0, values, 0, values.length);
     }
-
 #end
 
     public Type getTargetType() {
@@ -207,16 +179,11 @@ public class Pointer<T> implements Comparable<Pointable>
     public static native long getDirectBufferCapacity(Buffer b);
 
 	static Class<?> getPrimitiveType(Buffer buffer) {
-		#foreach ($prim in $prims)
-		#set ($i = $velocityCount - 1)
-		#set ($primWrap = $primWraps.get($i))
-		#set ($primBuf = $primBufs.get($i))
 
-		if (buffer instanceof $primBuf)
-			return ${primWrap}.TYPE;
-		
+        #foreach ($prim in $primitivesNoBool)
+		if (buffer instanceof ${prim.BufferName})
+			return ${prim.WrapperName}.TYPE;
 		#end
-		
         throw new UnsupportedOperationException();
     }
     public static Pointer<?> getDirectBufferPointer(Buffer b) {
@@ -224,54 +191,41 @@ public class Pointer<T> implements Comparable<Pointable>
     }
 
     public void write(long byteOffset, Buffer values, int valuesOffset, int length) {
-        #foreach ($prim in $prims)
-
-        #set ($i = $velocityCount - 1)
-        #set ($primCap = $primCaps.get($i))
-        #set ($primBuf = $primBufs.get($i))
-
-        if (values instanceof $primBuf)
+        #foreach ($prim in $primitivesNoBool)
+        if (values instanceof ${prim.BufferName})
             write(byteOffset, values, valuesOffset, length);
-
         #end
-
         throw new UnsupportedOperationException();
     }
 
-#foreach ($prim in $prims)
+#foreach ($prim in $primitivesNoBool)
 
-    #set ($i = $velocityCount - 1)
-    #set ($primCap = $primCaps.get($i))
-    #set ($primWrap = $primWraps.get($i))
-    #set ($primBuf = $primBufs.get($i))
-    #set ($primSize = $primSizes.get($i))
-
-    public static Pointer<${primWrap}> getDirectBufferPointer(${primBuf} b) {
-        return new Pointer<${primWrap}>(${primWrap}.class, getDirectBufferAddress(b));
+    public static Pointer<${prim.WrapperName}> getDirectBufferPointer(${prim.BufferName} b) {
+        return new Pointer<${prim.WrapperName}>(${prim.WrapperName}.class, getDirectBufferAddress(b));
     }
 
-    public native $prim get$primCap(long byteOffset);
+    public native ${prim.Name} get${prim.CapName}(long byteOffset);
 
-    public native Pointer<T> set$primCap(long byteOffset, $prim value);
-    public Pointer<T> write(long byteOffset, $prim value) {
-        return set$primCap(byteOffset, value);
+    public native Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value);
+    public Pointer<T> write(long byteOffset, ${prim.Name} value) {
+        return set${prim.CapName}(byteOffset, value);
     }
 
-    public native Pointer<T> write(long byteOffset, $prim[] values, int valuesOffset, int length);
+    public native Pointer<T> write(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length);
     
-    public Pointer<T> write(long byteOffset, $primBuf values, int valuesOffset, int length) {
+    public Pointer<T> write(long byteOffset, ${prim.BufferName} values, int valuesOffset, int length) {
         if (values.isDirect()) {
-            memcpy(peer + byteOffset, getDirectBufferAddress(values) + valuesOffset * $primSize, length * $primSize);
+            memcpy(peer + byteOffset, getDirectBufferAddress(values) + valuesOffset * ${prim.Size}, length * ${prim.Size});
         } else if (values.isReadOnly()) {
-            get${primBuf}(byteOffset, length).put(values.duplicate());
+            get${prim.BufferName}(byteOffset, length).put(values.duplicate());
         } else {
             write(byteOffset, values.array(), values.arrayOffset() + valuesOffset, length);
         }
         return this;
     }
 
-    public native $primBuf get$primBuf(long byteOffset, long length);
-    public native $prim[] get${primCap}Array(long byteOffset, int length);
+    public native ${prim.BufferName} get${prim.BufferName}(long byteOffset, long length);
+    public native ${prim.Name}[] get${prim.CapName}Array(long byteOffset, int length);
 
 #end
 

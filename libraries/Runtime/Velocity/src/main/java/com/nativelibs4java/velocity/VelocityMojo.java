@@ -177,6 +177,9 @@ public class VelocityMojo
                 org.apache.velocity.Template template = Velocity.getTemplate(file.getName());
 
                 VelocityContext context = new VelocityContext();//execution.getParameters());
+                context.put("primitives", Primitive.getPrimitives());
+                context.put("primitivesNoBool", Primitive.getPrimitivesNoBool());
+                
                 StringWriter out = new StringWriter();
                 template.merge(context, out);
                 out.close();

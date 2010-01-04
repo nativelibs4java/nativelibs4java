@@ -130,6 +130,8 @@ public class TemplatesMojo
             org.apache.velocity.Template template = ve.getTemplate(resource);
 
             VelocityContext context = new VelocityContext(new HashMap(parameters));
+            context.put("primitives", Primitive.getPrimitives());
+            context.put("primitivesNoBool", Primitive.getPrimitivesNoBool());
 
             StringWriter out = new StringWriter();
             template.merge(context, out);
