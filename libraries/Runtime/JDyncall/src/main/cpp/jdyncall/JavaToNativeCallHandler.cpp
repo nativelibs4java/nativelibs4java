@@ -38,7 +38,7 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 	dcMode(vm, info->fDCMode);
 
 	if (!info->fIsStatic) {
-		jlong address = env->CallLongMethod(objOrClass, Addressable_getAddress);
+		jlong address = env->CallLongMethod(objOrClass, Pointable_getPointer);
 		dcArgPointer(vm, (void*)address);
 	}
 
@@ -71,7 +71,7 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 			case eCallbackValue:
 				{
 					jobject obj = (jobject)dcArgs_pointer(args);
-					jlong address = obj ? env->CallLongMethod(obj, Addressable_getAddress) : 0;
+					jlong address = obj ? env->CallLongMethod(obj, Pointable_getPointer) : 0;
 					if (!address && obj && type == eCallbackValue) {
 						address = BindCallback(obj); // synchronizes around obj
 					}

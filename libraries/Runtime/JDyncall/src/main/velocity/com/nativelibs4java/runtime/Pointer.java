@@ -190,7 +190,7 @@ public class Pointer<T> implements Comparable<Pointable>
     //protected native long 	getChar_(long offset);
     protected native long getPointerAddress(long byteOffset);
 
-    protected native void setPointerAddress(long byteOffset, long value);
+    protected native Pointer<T> setPointerAddress(long byteOffset, long value);
 
     public Pointer<?> getPointer(long byteOffset) {
         return new Pointer(null, getPointerAddress(byteOffset));

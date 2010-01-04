@@ -48,7 +48,7 @@ MethodCallInfo::MethodCallInfo(JNIEnv *env, jclass declaringClass, jobject metho
 	/*fDCMode = fIsCPlusPlus ?
 		fIsStatic */
 	
-	if (env->IsAssignableFrom((jclass)returnType, Addressable_class)) {
+	if (env->IsAssignableFrom((jclass)returnType, Pointable_class)) {
 		fAddressableReturnFactory = env->NewGlobalRef(env->CallStaticObjectMethod(DynCall_class, DynCall_newAddressableFactory, returnType, genericReturnType));
 	}
 
