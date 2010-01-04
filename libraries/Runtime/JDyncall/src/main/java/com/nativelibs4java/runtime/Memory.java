@@ -16,9 +16,21 @@ public class Memory<T> extends Pointer<T> {
         super(null, malloc(size));
     }
 
+    public Memory(Type type, int size) {
+        super(type, malloc(size));
+    }
+
+    public Memory(Class<T> type, int size) {
+        super(type, malloc(size));
+    }
+
     @Override
     protected void finalize() throws Throwable {
         free(peer);
+    }
+
+    public void setPeer(long peer) {
+        throw new UnsupportedOperationException("Cannot change the peer of a Memory object");
     }
 
     protected static class SharedPointer<T> extends Pointer<T> {

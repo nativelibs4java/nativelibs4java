@@ -70,9 +70,11 @@ DECLARE_METHOD(CharBuffer, array);
 
 DECLARE_CLASS(RuntimeException);
 
-DECLARE_CLASS(Addressable);
-DECLARE_METHOD(Addressable, getAddress);
-DECLARE_METHOD(Addressable, setAddress);
+DECLARE_CLASS(Pointable);
+DECLARE_METHOD(Pointable, getPointer);
+
+DECLARE_CLASS(PointerRefreshable);
+DECLARE_METHOD(PointerRefreshable, setPointer);
 
 DECLARE_CLASS(Callback);
 

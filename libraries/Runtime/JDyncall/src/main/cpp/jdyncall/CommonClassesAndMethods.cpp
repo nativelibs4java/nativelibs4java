@@ -75,9 +75,11 @@ void DefineCommonClassesAndMethods(JNIEnv *env)
 	
 	DEFINE_CLASS("java/lang", RuntimeException);
 
-	DEFINE_CLASS("com/nativelibs4java/runtime", Addressable);
-	DEFINE_METHOD(Addressable, getAddress, "()J");
-	DEFINE_METHOD(Addressable, setAddress, "(J)V");
+	DEFINE_CLASS("com/nativelibs4java/runtime", Pointable);
+	DEFINE_METHOD(Pointable, getPointer, "()J");
+
+        DEFINE_CLASS("com/nativelibs4java/runtime", PointerRefreshable);
+	DEFINE_METHOD(PointerRefreshable, setPointer, "(J)V");
 
 	DEFINE_CLASS("com/nativelibs4java/runtime", Callback);
 	DEFINE_CLASS("com/nativelibs4java/runtime", UnmappableTypeException);

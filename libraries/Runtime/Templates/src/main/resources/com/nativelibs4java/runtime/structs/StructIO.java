@@ -13,6 +13,10 @@ package $package;
 #set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer", "CharBuffer" ])
 #set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double", "Character" ])
 
+#if (!$useJNA.equals("true"))
+import com.nativelibs4java.runtime.*;
+#end
+
 import ${annPackage}.*;
 
 import ${memoryClass};
@@ -46,10 +50,6 @@ public class StructIO<S extends Struct<S>> {
     }
 
     public static class FieldIO {
-        public interface Refreshable<T> {
-            public T setPointer(Pointer p);
-            public Pointer getPointer();
-        }
         String name;
 		int index = -1;
 		int byteOffset, byteLength;
@@ -231,17 +231,17 @@ public class StructIO<S extends Struct<S>> {
 				field.byteLength = primTypeLength(field.valueClass);
             } else if (Struct.class.isAssignableFrom(field.valueClass)) {
                 if (field.isByValue)
-                    field.byteLength = Pointer.SIZE;
+                    field.byteLength = ${pointerClass}.SIZE;
                 else {
                     StructIO<?> io = StructIO.getInstance((Class<? extends Struct>)field.valueClass);
                     field.byteLength = io.getStructSize();
                 }
                 field.refreshableFieldIndex = refreshableFieldCount++;
-            } else if (Pointer.class.equals(field.valueClass)) {
-                field.byteLength = Pointer.SIZE;
+            } else if (${pointerClass}.class.equals(field.valueClass)) {
+                field.byteLength = ${pointerClass}.SIZE;
 		#if ($useJNA.equals("true"))
             } else if (${pointerTypeClass}.class.isAssignableFrom(field.valueClass)) {
-                field.byteLength = Pointer.SIZE;
+                field.byteLength = ${pointerClass}.SIZE;
 				field.refreshableFieldIndex = refreshableFieldCount++;
 		#end
             } else if (Buffer.class.isAssignableFrom(field.valueClass)) {
@@ -313,17 +313,17 @@ public class StructIO<S extends Struct<S>> {
         
     }
     
-    public Pointer getPointerField(int fieldIndex, S struct) {
+    public ${pointerClass} getPointerField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
         assert !field.isBitField;
-        assert Pointer.class.isAssignableFrom(field.valueClass);
+        assert ${pointerClass}.class.isAssignableFrom(field.valueClass);
 
         return struct.getPointer().getPointer(field.byteOffset);
     }
-    public void setPointerField(int fieldIndex, S struct, Pointer p) {
+    public void setPointerField(int fieldIndex, S struct, ${pointerClass} p) {
         FieldIO field = fields[fieldIndex];
         assert !field.isBitField;
-        assert Pointer.class.isAssignableFrom(field.valueClass);
+        assert ${pointerClass}.class.isAssignableFrom(field.valueClass);
 
         struct.getPointer().setPointer(field.byteOffset, p);
     }
@@ -335,10 +335,10 @@ public class StructIO<S extends Struct<S>> {
         assert ${pointerTypeClass}.class.isAssignableFrom(field.valueClass);
 
         P p = (P)struct.refreshableFields[field.refreshableFieldIndex];
-        Pointer ptr = struct.getPointer().getPointer(field.byteOffset);
+        ${pointerClass} ptr = struct.getPointer().getPointer(field.byteOffset);
         try {
             if (p == null)
-                struct.refreshableFields[field.refreshableFieldIndex] = p = (P)field.valueClass.getConstructor(Pointer.class).newInstance(ptr);
+                struct.refreshableFields[field.refreshableFieldIndex] = p = (P)field.valueClass.getConstructor(${pointerClass}.class).newInstance(ptr);
             else
                 p.setPointer(ptr);
         } catch (Exception ex) {
@@ -356,19 +356,21 @@ public class StructIO<S extends Struct<S>> {
     }
 #end
 
-    public void setObjectField(int fieldIndex, S struct, Object value) {
+#if (!$useJNA.equals("true"))
+
+    public void setRefreshableField(int fieldIndex, S struct, PointerRefreshable value) {
         FieldIO field = fields[fieldIndex];
         assert !field.isBitField;
-        if (field.valueClass == Pointer.class) {
-            struct.getPointer().setPointer(field.byteOffset, (Pointer)value);
+        if (field.valueClass == ${pointerClass}.class) {
+            struct.getPointer().setPointer(field.byteOffset, (${pointerClass})value);
             return;
         }
-        FieldIO.Refreshable ref = (FieldIO.Refreshable)value;
+        PointerRefreshable ref = (PointerRefreshable)value;
         struct.refreshableFields[field.refreshableFieldIndex] = ref;
         struct.getPointer().setPointer(field.byteOffset, ref.getPointer());
     }
 
-    public <F extends FieldIO.Refreshable> F getRefreshableField(int fieldIndex, S struct, Class<F> fieldClass) {
+    public <F extends PointerRefreshable> F getRefreshableField(int fieldIndex, S struct, Class<F> fieldClass) {
         FieldIO field = fields[fieldIndex];
         assert fieldClass.equals(field.valueClass);
         try {
@@ -382,6 +384,9 @@ public class StructIO<S extends Struct<S>> {
             throw new RuntimeException("Failed to instantiate struct of type " + fieldClass.getName(), ex);
         }
 	}
+
+#end
+
     public <F extends Struct<F>> void setStructField(int fieldIndex, S struct, Class<F> fieldClass, F fieldValue) {
         FieldIO field = fields[fieldIndex];
         assert fieldClass.equals(field.valueClass);
@@ -415,7 +420,7 @@ public class StructIO<S extends Struct<S>> {
         FieldIO field = fields[fieldIndex];
         assert fieldClass.equals(field.valueClass);
 
-        Pointer ptr = struct.getPointer().share(field.byteOffset);
+        ${pointerClass} ptr = struct.getPointer().share(field.byteOffset);
         Array<F> fieldValue = (Array<F>)struct.refreshableFields[field.refreshableFieldIndex];
         if (fieldValue == null)
             struct.refreshableFields[field.refreshableFieldIndex] = fieldValue = new Array<F>(fieldClass, field.arraySize, ptr);

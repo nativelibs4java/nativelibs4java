@@ -64,8 +64,8 @@ public class MethodCallInfo {
         /*fDCMode = fIsCPlusPlus ?
             fIsStatic */
 
-        if (Addressable.class.isAssignableFrom(fReturnTypeClass))
-            fAddressableReturnFactory = DynCall.newAddressableFactory((Class)fReturnTypeClass, method.getGenericReturnType());
+        //if (Addressable.class.isAssignableFrom(fReturnTypeClass))
+        //    fAddressableReturnFactory = DynCall.newAddressableFactory((Class)fReturnTypeClass, method.getGenericReturnType());
 
         StringBuilder jsig = new StringBuilder(), dcsig = new StringBuilder();
         jsig.append('(');

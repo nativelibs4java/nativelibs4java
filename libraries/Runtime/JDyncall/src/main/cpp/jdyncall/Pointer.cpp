@@ -19,11 +19,12 @@ lo JNICALL Java_com_nativelibs4java_runtime_Pointer_get ## hi(JNIEnv *env, jobje
 	return *(lo*)(peer + offset); \
 	END_TRY(env); \
 } \
-void JNICALL Java_com_nativelibs4java_runtime_Pointer_set ## hi(JNIEnv *env, jobject jthis, jlong offset, lo value) { \
+jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_set ## hi(JNIEnv *env, jobject jthis, jlong offset, lo value) { \
 	BEGIN_TRY(); \
 	char* peer = GetPeer(env, jthis); \
 	*(lo*)(peer + offset) = value; \
 	END_TRY(env); \
+	return jthis; \
 }
 
 

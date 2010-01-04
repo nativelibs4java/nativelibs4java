@@ -7,9 +7,8 @@ package com.nativelibs4java.runtime;
 
 /**
  *
- * @author Olivier Chafik
+ * @author ochafik
  */
-public interface Addressable {
-    long getAddress();
-    void setAddress(long address);
+public interface PointerRefreshable extends Pointable {
+    PointerRefreshable setPointer(Pointer<?> pointer);
 }

@@ -1,18 +1,23 @@
 #if ($useJNA.equals("true"))
 #set ($package = "com.nativelibs4java.runtime.structs.jna")
+#set ($pointerTypeRef = "Pointer")
 #else
 #set ($package = "com.nativelibs4java.runtime.structs")
+#set ($pointerTypeRef = "Pointer<?>")
 #end
 
 package $package;
 
-import ${package}.StructIO.FieldIO.Refreshable;
 import java.nio.ByteBuffer;
 import ${memoryClass};
 import ${pointerClass};
 
-public abstract class Struct<S extends Struct<S>> implements Refreshable<S>
-	#if ($useJNA.equals("true")) , com.sun.jna.NativeMapped #end
+public abstract class Struct<S extends Struct<S>> implements
+#if ($useJNA.equals("true")) 
+	com.sun.jna.NativeMapped
+#else
+	com.nativelibs4java.runtime.PointerRefreshable
+#end
 {
     
     protected final StructIO<S> io;
@@ -45,15 +50,15 @@ public abstract class Struct<S extends Struct<S>> implements Refreshable<S>
         }
     }
 
-    @Override
-    public synchronized Pointer getPointer() {
+    #if (!$useJNA.equals("true")) @Override #end
+    public synchronized ${pointerTypeRef} getPointer() {
         if (pointer == null)
             pointer = new Memory(io.getStructSize());
         return pointer;
     }
 
-    @Override
-    public synchronized S setPointer(Pointer pointer) {
+    #if (!$useJNA.equals("true")) @Override #end
+    public synchronized S setPointer(${pointerTypeRef} pointer) {
         if (pointer == null || pointer.equals(Pointer.NULL))
             throw new NullPointerException("Cannot set null pointer as struct address !");
         

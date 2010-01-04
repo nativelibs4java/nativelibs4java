@@ -27,9 +27,9 @@ import java.util.logging.Logger;
 
 public class DynCall {
     static Map<String, Long> libHandles = new HashMap<String, Long>();
-    public static <T extends Addressable> AddressableFactory<T> newAddressableFactory(final Class<T> adClass, Type adType) {
+    public static <T extends PointerRefreshable> AddressableFactory<T> newAddressableFactory(final Class<T> adClass, Type adType) {
         boolean pointerDerivative = false;
-        if (Pointer.class == adClass || (pointerDerivative = Pointer.class.isAssignableFrom(adClass))) {
+        if (Pointer.class.equals(adClass) || (pointerDerivative = Pointer.class.isAssignableFrom(adClass))) {
             if (pointerDerivative)
             {
                 Class<?> c = adClass;
@@ -53,7 +53,7 @@ public class DynCall {
                     public T newInstance(long address) {
                         try {
                             T instance = (T)c.newInstance(new Object[] {null});
-                            instance.setAddress(address);
+                            instance.setPointer(Pointer.wrapAddress(address));
                             return instance;
                         } catch (Exception ex) {
                             return null;//throw new RuntimeException("Failed to instantiate a " + adType_ + " (" + adClass.getName() + ")", ex);

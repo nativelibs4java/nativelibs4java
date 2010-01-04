@@ -9,15 +9,21 @@ package com.nativelibs4java.runtime;
  *
  * @author Olivier
  */
-public class CPPObject implements Addressable {
-    private long address;
+public class CPPObject implements PointerRefreshable {
+    private Pointer<?> pointer;
 
     public CPPObject(Void v) {}
 
-    public long getAddress() {
-        return address;
+    @Override
+    public CPPObject setPointer(Pointer<?> pointer) {
+        this.pointer = pointer;
+        return null;
     }
-    public void setAddress(long address) {
-        this.address = address;
+
+    @Override
+    public Pointer<?> getPointer() {
+        return pointer;
     }
+
+
 }

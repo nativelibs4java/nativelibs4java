@@ -73,7 +73,6 @@
 					<template>com/nativelibs4java/runtime/ann/NativeSize.java</template>
 					<template>com/nativelibs4java/runtime/ann/Virtual.java</template>
 					
-					<template>com/nativelibs4java/runtime/structs/Addressable.java</template>
 					<template>com/nativelibs4java/runtime/structs/Array.java</template>
 					<template>com/nativelibs4java/runtime/structs/BitFields.java</template>
 					<template>com/nativelibs4java/runtime/structs/Struct.java</template>
