@@ -5,6 +5,7 @@
 
 #include "jdyncall.hpp"
 #include <iostream>
+#include "Exceptions.h"
 
 using namespace std;
 
@@ -112,3 +113,10 @@ jlong JNICALL Java_com_nativelibs4java_runtime_JNI_findSymbolInLibrary(JNIEnv *e
 	env->ReleaseStringUTFChars(nameStr, name);
 	return ret;
 }
+
+jobject JNICALL Java_com_nativelibs4java_runtime_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthis, jlong peer, jlong length) {
+	BEGIN_TRY();
+	return env->NewDirectByteBuffer((void*)peer, length);
+	END_TRY(env);
+}
+

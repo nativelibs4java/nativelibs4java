@@ -7,325 +7,369 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef com_nativelibs4java_runtime_Pointer_LITTLE_ENDIAN
+#define com_nativelibs4java_runtime_Pointer_LITTLE_ENDIAN 108L
+#undef com_nativelibs4java_runtime_Pointer_BIG_ENDIAN
+#define com_nativelibs4java_runtime_Pointer_BIG_ENDIAN 98L
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getPointerAddress
+ * Method:    getSizeT
  * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getPointerAddress
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getSizeT
   (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setPointerAddress
+ * Method:    setSizeT
  * Signature: (JJ)Lcom/nativelibs4java/runtime/Pointer;
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_setPointerAddress
+JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_setSizeT
   (JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getDirectBufferAddress
- * Signature: (Ljava/nio/Buffer;)J
+ * Method:    getIntegerArrayElements
+ * Signature: ([IJ)J
  */
-JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferAddress
-  (JNIEnv *, jclass, jobject);
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getIntegerArrayElements
+  (JNIEnv *, jclass, jintArray, jlong);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getDirectBufferCapacity
- * Signature: (Ljava/nio/Buffer;)J
+ * Method:    releaseIntegerArrayElements
+ * Signature: ([IJI)V
  */
-JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferCapacity
-  (JNIEnv *, jclass, jobject);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_releaseIntegerArrayElements
+  (JNIEnv *, jclass, jintArray, jlong, jint);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getInt
- * Signature: (J)I
+ * Method:    get_int
+ * Signature: (JB)I
  */
-JNIEXPORT jint JNICALL Java_com_nativelibs4java_runtime_Pointer_getInt
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jint JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1int
+  (JNIEnv *, jclass, jlong, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setInt
- * Signature: (JI)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    set_int
+ * Signature: (JIB)V
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_setInt
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1int
+  (JNIEnv *, jclass, jlong, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    write
- * Signature: (J[III)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    get_int_array
+ * Signature: (JIB)[I
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_write__J_3III
-  (JNIEnv *, jobject, jlong, jintArray, jint, jint);
+JNIEXPORT jintArray JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1int_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getIntBuffer
- * Signature: (JJ)Ljava/nio/IntBuffer;
+ * Method:    set_int_array
+ * Signature: (J[IIIB)V
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getIntBuffer
-  (JNIEnv *, jobject, jlong, jlong);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1int_1array
+  (JNIEnv *, jclass, jlong, jintArray, jint, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getIntArray
- * Signature: (JI)[I
+ * Method:    getLongArrayElements
+ * Signature: ([JJ)J
  */
-JNIEXPORT jintArray JNICALL Java_com_nativelibs4java_runtime_Pointer_getIntArray
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getLongArrayElements
+  (JNIEnv *, jclass, jlongArray, jlong);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getLong
- * Signature: (J)J
+ * Method:    releaseLongArrayElements
+ * Signature: ([JJI)V
  */
-JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getLong
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_releaseLongArrayElements
+  (JNIEnv *, jclass, jlongArray, jlong, jint);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setLong
- * Signature: (JJ)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    get_long
+ * Signature: (JB)J
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_setLong
-  (JNIEnv *, jobject, jlong, jlong);
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1long
+  (JNIEnv *, jclass, jlong, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    write
- * Signature: (J[JII)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    set_long
+ * Signature: (JJB)V
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_write__J_3JII
-  (JNIEnv *, jobject, jlong, jlongArray, jint, jint);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1long
+  (JNIEnv *, jclass, jlong, jlong, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getLongBuffer
- * Signature: (JJ)Ljava/nio/LongBuffer;
+ * Method:    get_long_array
+ * Signature: (JIB)[J
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getLongBuffer
-  (JNIEnv *, jobject, jlong, jlong);
+JNIEXPORT jlongArray JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1long_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getLongArray
- * Signature: (JI)[J
+ * Method:    set_long_array
+ * Signature: (J[JIIB)V
  */
-JNIEXPORT jlongArray JNICALL Java_com_nativelibs4java_runtime_Pointer_getLongArray
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1long_1array
+  (JNIEnv *, jclass, jlong, jlongArray, jint, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getShort
- * Signature: (J)S
+ * Method:    getShortArrayElements
+ * Signature: ([SJ)J
  */
-JNIEXPORT jshort JNICALL Java_com_nativelibs4java_runtime_Pointer_getShort
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getShortArrayElements
+  (JNIEnv *, jclass, jshortArray, jlong);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setShort
- * Signature: (JS)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    releaseShortArrayElements
+ * Signature: ([SJI)V
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_setShort
-  (JNIEnv *, jobject, jlong, jshort);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_releaseShortArrayElements
+  (JNIEnv *, jclass, jshortArray, jlong, jint);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    write
- * Signature: (J[SII)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    get_short
+ * Signature: (JB)S
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_write__J_3SII
-  (JNIEnv *, jobject, jlong, jshortArray, jint, jint);
+JNIEXPORT jshort JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1short
+  (JNIEnv *, jclass, jlong, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getShortBuffer
- * Signature: (JJ)Ljava/nio/ShortBuffer;
+ * Method:    set_short
+ * Signature: (JSB)V
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getShortBuffer
-  (JNIEnv *, jobject, jlong, jlong);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1short
+  (JNIEnv *, jclass, jlong, jshort, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getShortArray
- * Signature: (JI)[S
+ * Method:    get_short_array
+ * Signature: (JIB)[S
  */
-JNIEXPORT jshortArray JNICALL Java_com_nativelibs4java_runtime_Pointer_getShortArray
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT jshortArray JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1short_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getByte
- * Signature: (J)B
+ * Method:    set_short_array
+ * Signature: (J[SIIB)V
  */
-JNIEXPORT jbyte JNICALL Java_com_nativelibs4java_runtime_Pointer_getByte
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1short_1array
+  (JNIEnv *, jclass, jlong, jshortArray, jint, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setByte
- * Signature: (JB)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    getByteArrayElements
+ * Signature: ([BJ)J
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_setByte
-  (JNIEnv *, jobject, jlong, jbyte);
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getByteArrayElements
+  (JNIEnv *, jclass, jbyteArray, jlong);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    write
- * Signature: (J[BII)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    releaseByteArrayElements
+ * Signature: ([BJI)V
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_write__J_3BII
-  (JNIEnv *, jobject, jlong, jbyteArray, jint, jint);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_releaseByteArrayElements
+  (JNIEnv *, jclass, jbyteArray, jlong, jint);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getByteBuffer
- * Signature: (JJ)Ljava/nio/ByteBuffer;
+ * Method:    get_byte
+ * Signature: (JB)B
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getByteBuffer
-  (JNIEnv *, jobject, jlong, jlong);
+JNIEXPORT jbyte JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1byte
+  (JNIEnv *, jclass, jlong, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getByteArray
- * Signature: (JI)[B
+ * Method:    set_byte
+ * Signature: (JBB)V
  */
-JNIEXPORT jbyteArray JNICALL Java_com_nativelibs4java_runtime_Pointer_getByteArray
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1byte
+  (JNIEnv *, jclass, jlong, jbyte, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getChar
- * Signature: (J)C
+ * Method:    get_byte_array
+ * Signature: (JIB)[B
  */
-JNIEXPORT jchar JNICALL Java_com_nativelibs4java_runtime_Pointer_getChar
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jbyteArray JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1byte_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setChar
- * Signature: (JC)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    set_byte_array
+ * Signature: (J[BIIB)V
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_setChar
-  (JNIEnv *, jobject, jlong, jchar);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1byte_1array
+  (JNIEnv *, jclass, jlong, jbyteArray, jint, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    write
- * Signature: (J[CII)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    getCharacterArrayElements
+ * Signature: ([CJ)J
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_write__J_3CII
-  (JNIEnv *, jobject, jlong, jcharArray, jint, jint);
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getCharacterArrayElements
+  (JNIEnv *, jclass, jcharArray, jlong);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getCharBuffer
- * Signature: (JJ)Ljava/nio/CharBuffer;
+ * Method:    releaseCharacterArrayElements
+ * Signature: ([CJI)V
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getCharBuffer
-  (JNIEnv *, jobject, jlong, jlong);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_releaseCharacterArrayElements
+  (JNIEnv *, jclass, jcharArray, jlong, jint);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getCharArray
- * Signature: (JI)[C
+ * Method:    get_char
+ * Signature: (JB)C
  */
-JNIEXPORT jcharArray JNICALL Java_com_nativelibs4java_runtime_Pointer_getCharArray
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT jchar JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1char
+  (JNIEnv *, jclass, jlong, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getFloat
- * Signature: (J)F
+ * Method:    set_char
+ * Signature: (JCB)V
  */
-JNIEXPORT jfloat JNICALL Java_com_nativelibs4java_runtime_Pointer_getFloat
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1char
+  (JNIEnv *, jclass, jlong, jchar, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setFloat
- * Signature: (JF)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    get_char_array
+ * Signature: (JIB)[C
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_setFloat
-  (JNIEnv *, jobject, jlong, jfloat);
+JNIEXPORT jcharArray JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1char_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    write
- * Signature: (J[FII)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    set_char_array
+ * Signature: (J[CIIB)V
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_write__J_3FII
-  (JNIEnv *, jobject, jlong, jfloatArray, jint, jint);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1char_1array
+  (JNIEnv *, jclass, jlong, jcharArray, jint, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getFloatBuffer
- * Signature: (JJ)Ljava/nio/FloatBuffer;
+ * Method:    getFloatArrayElements
+ * Signature: ([FJ)J
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getFloatBuffer
-  (JNIEnv *, jobject, jlong, jlong);
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getFloatArrayElements
+  (JNIEnv *, jclass, jfloatArray, jlong);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getFloatArray
- * Signature: (JI)[F
+ * Method:    releaseFloatArrayElements
+ * Signature: ([FJI)V
  */
-JNIEXPORT jfloatArray JNICALL Java_com_nativelibs4java_runtime_Pointer_getFloatArray
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_releaseFloatArrayElements
+  (JNIEnv *, jclass, jfloatArray, jlong, jint);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getDouble
- * Signature: (J)D
+ * Method:    get_float
+ * Signature: (JB)F
  */
-JNIEXPORT jdouble JNICALL Java_com_nativelibs4java_runtime_Pointer_getDouble
-  (JNIEnv *, jobject, jlong);
+JNIEXPORT jfloat JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1float
+  (JNIEnv *, jclass, jlong, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setDouble
- * Signature: (JD)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    set_float
+ * Signature: (JFB)V
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_setDouble
-  (JNIEnv *, jobject, jlong, jdouble);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1float
+  (JNIEnv *, jclass, jlong, jfloat, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    write
- * Signature: (J[DII)Lcom/nativelibs4java/runtime/Pointer;
+ * Method:    get_float_array
+ * Signature: (JIB)[F
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_write__J_3DII
-  (JNIEnv *, jobject, jlong, jdoubleArray, jint, jint);
+JNIEXPORT jfloatArray JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1float_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getDoubleBuffer
- * Signature: (JJ)Ljava/nio/DoubleBuffer;
+ * Method:    set_float_array
+ * Signature: (J[FIIB)V
  */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getDoubleBuffer
-  (JNIEnv *, jobject, jlong, jlong);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1float_1array
+  (JNIEnv *, jclass, jlong, jfloatArray, jint, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getDoubleArray
- * Signature: (JI)[D
+ * Method:    getDoubleArrayElements
+ * Signature: ([DJ)J
  */
-JNIEXPORT jdoubleArray JNICALL Java_com_nativelibs4java_runtime_Pointer_getDoubleArray
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDoubleArrayElements
+  (JNIEnv *, jclass, jdoubleArray, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_Pointer
+ * Method:    releaseDoubleArrayElements
+ * Signature: ([DJI)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_releaseDoubleArrayElements
+  (JNIEnv *, jclass, jdoubleArray, jlong, jint);
+
+/*
+ * Class:     com_nativelibs4java_runtime_Pointer
+ * Method:    get_double
+ * Signature: (JB)D
+ */
+JNIEXPORT jdouble JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1double
+  (JNIEnv *, jclass, jlong, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_Pointer
+ * Method:    set_double
+ * Signature: (JDB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1double
+  (JNIEnv *, jclass, jlong, jdouble, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_Pointer
+ * Method:    get_double_array
+ * Signature: (JIB)[D
+ */
+JNIEXPORT jdoubleArray JNICALL Java_com_nativelibs4java_runtime_Pointer_get_1double_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_Pointer
+ * Method:    set_double_array
+ * Signature: (J[DIIB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_set_1double_1array
+  (JNIEnv *, jclass, jlong, jdoubleArray, jint, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer
  * Method:    malloc
- * Signature: (I)J
+ * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_malloc
-  (JNIEnv *, jclass, jint);
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     com_nativelibs4java_runtime_Pointer

@@ -267,6 +267,9 @@ public class Pointer<T> implements Comparable<Pointable>
 
 #foreach ($prim in $primitivesNoBool)
 
+    protected static native long get${prim.WrapperName}ArrayElements(${prim.Name}[] array, long pIsCopy);
+    protected static native void release${prim.WrapperName}ArrayElements(${prim.Name}[] array, long pointer, int mode);
+
     protected static native ${prim.Name} get_${prim.Name}(long peer, byte endianness);
     protected static native void set_${prim.Name}(long peer, ${prim.Name} value, byte endianness);
 

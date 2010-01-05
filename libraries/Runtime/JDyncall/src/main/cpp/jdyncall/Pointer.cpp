@@ -4,56 +4,11 @@
 #include <wchar.h>
 #include <stdlib.h>
 #include "Exceptions.h"
+#include "jni.h"
 
-char* GetPeer(JNIEnv *env, jobject pointerInstance) {
-	jclass pointerClass = env->FindClass("com/nativelibs4java/runtime/Pointer");
-	jfieldID peerField = env->GetFieldID(pointerClass, "peer", "J");
-	jlong peer = env->GetLongField(pointerInstance, peerField);
-	return (char*)peer;
-}
-
-#define POINTER_GETSET(lo, hi) \
-lo JNICALL Java_com_nativelibs4java_runtime_Pointer_get ## hi(JNIEnv *env, jobject jthis, jlong offset) { \
-	BEGIN_TRY(); \
-	char* peer = GetPeer(env, jthis); \
-	return *(lo*)(peer + offset); \
-	END_TRY(env); \
-} \
-jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_set ## hi(JNIEnv *env, jobject jthis, jlong offset, lo value) { \
-	BEGIN_TRY(); \
-	char* peer = GetPeer(env, jthis); \
-	*(lo*)(peer + offset) = value; \
-	END_TRY(env); \
-	return jthis; \
-}
-
-
-POINTER_GETSET(jint, Int)
-POINTER_GETSET(jlong, Long)
-POINTER_GETSET(jshort, Short)
-POINTER_GETSET(jbyte, Byte)
-//POINTER_GETSET(char, Char)
-POINTER_GETSET(jfloat, Float)
-POINTER_GETSET(jdouble, Double)
-//POINTER_GETSET(ptrdiff_t, Pointer_)
-POINTER_GETSET(jlong, SizeT)
-
-jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getByteBuffer(JNIEnv *env, jobject jthis, jlong offset, jlong length) {
-	BEGIN_TRY();
-	char* peer = GetPeer(env, jthis);
-	return env->NewDirectByteBuffer(peer + offset, length);
-	END_TRY(env);
-}
-jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
-	BEGIN_TRY();
-	return !buffer ? 0 : (jlong)env->GetDirectBufferAddress(buffer);
-	END_TRY(env);
-}
-jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
-	BEGIN_TRY();
-	return !buffer ? 0 : env->GetDirectBufferCapacity(buffer);
-	END_TRY(env);
-}
+#ifndef __GNUC__
+#pragma warning(disable: 4715)
+#endif
 
 #define FUNC_VOID_3(name, t1, t2, t3, nt1, nt2, nt3) \
 void JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass, t1 a1, t2 a2, t3 a3) \
@@ -103,3 +58,26 @@ FUNC_3(jlong, memchr, jlong, jbyte, jlong, void*, unsigned char, size_t)
 FUNC_3(jint, memcmp, jlong, jlong, jlong, void*, void*, size_t)
 FUNC_VOID_3(memset, jlong, jbyte, jlong, void*, unsigned char, size_t)
 
+#include "PrimDefs_int.h"
+#include "Pointer_prim.h"
+
+#include "PrimDefs_long.h"
+#include "Pointer_prim.h"
+
+#include "PrimDefs_short.h"
+#include "Pointer_prim.h"
+
+#include "PrimDefs_byte.h"
+#include "Pointer_prim.h"
+
+#include "PrimDefs_char.h"
+#include "Pointer_prim.h"
+
+#include "PrimDefs_boolean.h"
+#include "Pointer_prim.h"
+
+#include "PrimDefs_float.h"
+#include "Pointer_prim.h"
+
+#include "PrimDefs_double.h"
+#include "Pointer_prim.h"
