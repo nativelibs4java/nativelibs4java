@@ -56,6 +56,7 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-    <name>Maven NativeLibs4Java Runtime Templates Code Generator</name>
+    <name>NativeLibs4Java Interop Templates</name>
 </project>
+
 

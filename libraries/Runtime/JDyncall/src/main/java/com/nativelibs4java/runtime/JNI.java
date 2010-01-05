@@ -3,6 +3,8 @@ package com.nativelibs4java.runtime;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -39,7 +41,6 @@ public class JNI {
     public static native int sizeOf_wchar_t();
     public static native int sizeOf_ptrdiff_t();
 
-    public static native long getObjectPointer(Object object);
     public static native void registerMethod(Class<?> declaringClass, Method method, long functionHandle);
     public static void registerClass(Class<?> declaringClass) {
         for (Method method : declaringClass.getDeclaredMethods()) {
@@ -67,4 +68,17 @@ public class JNI {
     public static native long loadLibrary(String path);
     public static native void freeLibrary(long libHandle);
     public static native long findSymbolInLibrary(long libHandle, String name);
+
+	public static native long newGlobalRef(Object object);
+	public static native void deleteGlobalRef(long reference);
+
+	public static native long newWeakGlobalRef(Object object);
+	public static native void deleteWeakGlobalRef(long reference);
+
+    public static native ByteBuffer newDirectByteBuffer(long address, long capacity);
+    public static native long getDirectBufferAddress(Buffer b);
+    public static native long getDirectBufferCapacity(Buffer b);
+
+	public static native long[] createCallbacks(Method[] nativeMethodsArray, MethodCallInfo[] methodInfosArray);
+    public static native void freeCallbacks(long[] nativeCallbacks);
 }

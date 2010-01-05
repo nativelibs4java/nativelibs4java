@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package com.nativelibs4java.runtime;
 
 import java.lang.reflect.Type;
@@ -12,21 +7,46 @@ import java.lang.reflect.Type;
  * @author Olivier
  */
 public class Memory<T> extends Pointer<T> {
-    public Memory(int size) {
-        super(null, malloc(size));
+    final long size;
+    Memory(PointerIO<T> io, long peer, long size) {//, Deallocator deallocator) {
+        super(io, peer);
+        this.size = size;
     }
-
-    public Memory(Type type, int size) {
-        super(type, malloc(size));
+    public Memory(long size) {
+        this(null, size);
     }
-
-    public Memory(Class<T> type, int size) {
-        super(type, malloc(size));
+    public Memory(PointerIO<T> io, long size) {
+        this(io, malloc(size), size);
+    }
+    public long getSize() {
+        return size;
     }
 
     @Override
-    protected void finalize() throws Throwable {
+    protected void checkValidOffset(long offset, long length) {
+        if (size < 0)
+            return;
+        if (offset < 0 || offset + length >= size)
+            throw new IndexOutOfBoundsException("Cannot access to memory data of length " + length + " at offset " + offset + " : allocated memory size is " + size);
+    }
+
+    protected void deallocate() {
         free(peer);
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+        if (peer != 0)
+            deallocate();
+    }
+
+    @Override
+    public synchronized void release() {
+        if (peer == 0)
+            throw new RuntimeException("Memory was already released !");
+
+        deallocate();
+        peer = 0;
     }
 
     public void setPeer(long peer) {
@@ -35,8 +55,8 @@ public class Memory<T> extends Pointer<T> {
 
     protected static class SharedPointer<T> extends Pointer<T> {
 
-        public SharedPointer(Type targetType, long peer, Memory memoryReferenceNotToGC) {
-            super(targetType, peer);
+        public SharedPointer(PointerIO<T> io, long peer, Memory memoryReferenceNotToGC) {
+            super(io, peer);
             this.memoryReferenceNotToGC = memoryReferenceNotToGC;
         }
 
@@ -44,12 +64,12 @@ public class Memory<T> extends Pointer<T> {
 
         @Override
         public Pointer<T> share(long offset) {
-            return new SharedPointer(type, peer + offset, memoryReferenceNotToGC);
+            return new SharedPointer(io, peer + offset, memoryReferenceNotToGC);
         }
     }
 
     @Override
     public Pointer<T> share(long offset) {
-        return new SharedPointer(type, peer + offset, this);
+        return new SharedPointer(io, peer + offset, this);
     }
 }

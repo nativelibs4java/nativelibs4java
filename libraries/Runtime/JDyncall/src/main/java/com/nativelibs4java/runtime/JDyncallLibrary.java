@@ -12,28 +12,16 @@ package com.nativelibs4java.runtime;
 public class JDyncallLibrary {
     public enum ValueType {
         eVoidValue, // = 0,
-        eArrayValue,
-        eWCharValue,
-        eCallbackValue,
-        eAddressableValue,
-        eLongPtrValue,
         eCLongValue,
         eSizeTValue,
-        eBufferValue,
+        eWCharTValue,
         eIntValue,
         eShortValue,
         eByteValue,
+        eBoolValue,
         eLongValue,
         eDoubleValue,
-        eFloatValue,
-        eIntArrayValue,
-        eShortArrayValue,
-        eByteArrayValue,
-        eLongArrayValue,
-        eDoubleArrayValue,
-        eFloatArrayValue,
-        eBooleanArrayValue,
-        eCharArrayValue
+        eFloatValue
     }
     public static final char
         DC_SIGCHAR_VOID         = 'v',
@@ -59,10 +47,7 @@ public class JDyncallLibrary {
         DC_SIGCHAR_CC_FASTCALL_GNU  = 'f',
         DC_SIGCHAR_CC_FASTCALL_MS   = 'F';
 
-    static class OptimizationHints {
-        boolean isAdaptableAsRaw;
-    }
-    static class Options {
+    public static class Options {
         boolean bIsWideChar;
         boolean bIsConst;
         boolean bIsPointer;

@@ -36,7 +36,7 @@ POINTER_GETSET(jbyte, Byte)
 POINTER_GETSET(jfloat, Float)
 POINTER_GETSET(jdouble, Double)
 //POINTER_GETSET(ptrdiff_t, Pointer_)
-POINTER_GETSET(jlong, PointerAddress)
+POINTER_GETSET(jlong, SizeT)
 
 jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getByteBuffer(JNIEnv *env, jobject jthis, jlong offset, jlong length) {
 	BEGIN_TRY();

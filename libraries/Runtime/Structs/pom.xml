@@ -70,7 +70,7 @@
 					<template>com/nativelibs4java/runtime/ann/ByValue.java</template>
 					<template>com/nativelibs4java/runtime/ann/Field.java</template>
 					<template>com/nativelibs4java/runtime/ann/Length.java</template>
-					<template>com/nativelibs4java/runtime/ann/NativeSize.java</template>
+					<template>com/nativelibs4java/runtime/ann/PointerSized.java</template>
 					<template>com/nativelibs4java/runtime/ann/Virtual.java</template>
 					
 					<template>com/nativelibs4java/runtime/structs/Array.java</template>

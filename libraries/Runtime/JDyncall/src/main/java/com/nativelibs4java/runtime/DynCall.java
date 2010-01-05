@@ -27,45 +27,6 @@ import java.util.logging.Logger;
 
 public class DynCall {
     static Map<String, Long> libHandles = new HashMap<String, Long>();
-    public static <T extends PointerRefreshable> AddressableFactory<T> newAddressableFactory(final Class<T> adClass, Type adType) {
-        boolean pointerDerivative = false;
-        if (Pointer.class.equals(adClass) || (pointerDerivative = Pointer.class.isAssignableFrom(adClass))) {
-            if (pointerDerivative)
-            {
-                Class<?> c = adClass;
-                do {
-                    adType = c.getGenericSuperclass();
-                    c = c.getSuperclass();
-                } while (c != Pointer.class);
-            }
-            ParameterizedType pt = (ParameterizedType)adType;
-            final Type pointerType = pt.getActualTypeArguments()[0];
-            return new AddressableFactory<T>() {
-                public T newInstance(long address) {
-                    return (T)new Pointer(pointerType, address);
-                }
-            };
-        } else if (CPPObject.class.isAssignableFrom(adClass)) {
-            try {
-                final Constructor c = adClass.getDeclaredConstructor(Void.class);
-                final Type adType_ = adType;
-                return new AddressableFactory<T>() {
-                    public T newInstance(long address) {
-                        try {
-                            T instance = (T)c.newInstance(new Object[] {null});
-                            instance.setPointer(Pointer.wrapAddress(address));
-                            return instance;
-                        } catch (Exception ex) {
-                            return null;//throw new RuntimeException("Failed to instantiate a " + adType_ + " (" + adClass.getName() + ")", ex);
-                        }
-                    }
-                };
-            } catch (Exception ex) {
-                return null;//throw new RuntimeException("Failed to create a factory for " + adType + " (" + adClass.getName() + ")", ex);
-            }
-        }
-        return null;//throw new RuntimeException("Unable to create a factory for " + adType + " (" + adClass.getName() + ")");
-    }
     public static synchronized long getSymbolAddress(AnnotatedElement member) throws FileNotFoundException {
         Mangling mg = getAnnotation(Mangling.class, member);
         String lib = getLibrary(member);

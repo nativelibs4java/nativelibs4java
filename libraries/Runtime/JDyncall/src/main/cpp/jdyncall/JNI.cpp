@@ -76,6 +76,17 @@ void JNICALL Java_com_nativelibs4java_runtime_JNI_registerClass(JNIEnv *env, jcl
 
 //char (DCCallbackHandler)(DCCallback* pcb, DCArgs* args, DCValue* result, void* userdata);
 
+jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
+	BEGIN_TRY();
+	return !buffer ? 0 : (jlong)env->GetDirectBufferAddress(buffer);
+	END_TRY(env);
+}
+jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
+	BEGIN_TRY();
+	return !buffer ? 0 : env->GetDirectBufferCapacity(buffer);
+	END_TRY(env);
+}
+
 jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getObjectPointer(JNIEnv *, jclass, jobject object)
 {
 	return (jlong)object;

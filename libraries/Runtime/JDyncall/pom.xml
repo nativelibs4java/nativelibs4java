@@ -96,7 +96,7 @@
 					<memoryClass>com.nativelibs4java.runtime.Memory</memoryClass>
 					<pointerClass>com.nativelibs4java.runtime.Pointer</pointerClass>
 					<!--pointerTypeClass>com.nativelibs4java.runtime.PointerType</pointerTypeClass-->
-					<getDirectBufferPointer>com.nativelibs4java.runtime.Pointer.getDirectBufferPointer</getDirectBufferPointer>
+					<getDirectBufferPointer>com.nativelibs4java.runtime.Pointer.fromBuffer</getDirectBufferPointer>
 				</parameters>
 				<templates>
 					<template>com/nativelibs4java/runtime/ann/Alignment.java</template>
@@ -104,7 +104,7 @@
 					<template>com/nativelibs4java/runtime/ann/ByValue.java</template>
 					<template>com/nativelibs4java/runtime/ann/Field.java</template>
 					<template>com/nativelibs4java/runtime/ann/Length.java</template>
-					<template>com/nativelibs4java/runtime/ann/NativeSize.java</template>
+					<template>com/nativelibs4java/runtime/ann/PointerSized.java</template>
 					<template>com/nativelibs4java/runtime/ann/Virtual.java</template>
 					
 					<template>com/nativelibs4java/runtime/structs/Array.java</template>
