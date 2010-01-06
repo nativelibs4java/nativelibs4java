@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
  *
  * @author Olivier
  */
-public class Memory<T> extends Pointer<T> {
+public class Memory<T> extends DefaultPointer<T> {
     final long size;
     Memory(PointerIO<T> io, long peer, long size) {//, Deallocator deallocator) {
         super(io, peer);
@@ -16,7 +16,7 @@ public class Memory<T> extends Pointer<T> {
         this(null, size);
     }
     public Memory(PointerIO<T> io, long size) {
-        this(io, malloc(size), size);
+        this(io, JNI.malloc(size), size);
     }
     public long getSize() {
         return size;
@@ -31,7 +31,7 @@ public class Memory<T> extends Pointer<T> {
     }
 
     protected void deallocate() {
-        free(peer);
+        JNI.free(peer);
     }
     
     @Override
@@ -53,7 +53,7 @@ public class Memory<T> extends Pointer<T> {
         throw new UnsupportedOperationException("Cannot change the peer of a Memory object");
     }
 
-    protected static class SharedPointer<T> extends Pointer<T> {
+    protected static class SharedPointer<T> extends DefaultPointer<T> {
 
         public SharedPointer(PointerIO<T> io, long peer, Memory memoryReferenceNotToGC) {
             super(io, peer);
@@ -66,6 +66,11 @@ public class Memory<T> extends Pointer<T> {
         public Pointer<T> share(long offset) {
             return new SharedPointer(io, peer + offset, memoryReferenceNotToGC);
         }
+		
+		@Override
+        public void release() {
+			memoryReferenceNotToGC.release();
+		}
     }
 
     @Override

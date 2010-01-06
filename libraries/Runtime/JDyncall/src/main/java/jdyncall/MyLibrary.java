@@ -22,7 +22,7 @@ public class MyLibrary extends NativeLib {
     public static class MyCallback {
         
     }
-    public static class MyTypedPtr extends Pointer {
+    public static class MyTypedPtr extends DefaultPointer {
         public MyTypedPtr(Pointer<?> ptr) {
             super(ptr.getPeer());
         }

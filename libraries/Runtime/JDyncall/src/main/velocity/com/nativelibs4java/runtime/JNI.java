@@ -79,6 +79,23 @@ public class JNI {
     public static native long getDirectBufferAddress(Buffer b);
     public static native long getDirectBufferCapacity(Buffer b);
 
+#foreach ($prim in $primitivesNoBool)
+    public static native long get${prim.WrapperName}ArrayElements(${prim.Name}[] array, long pIsCopy);
+    public static native void release${prim.WrapperName}ArrayElements(${prim.Name}[] array, long pointer, int mode);
+#end
+
 	public static native long[] createCallbacks(Method[] nativeMethodsArray, MethodCallInfo[] methodInfosArray);
     public static native void freeCallbacks(long[] nativeCallbacks);
+	
+    public static native long malloc(long size);
+    public static native void free(long pointer);
+    public static native long strlen(long pointer);
+    public static native long wcslen(long pointer);
+    public static native void memcpy(long dest, long source, long size);
+    public static native void wmemcpy(long dest, long source, long size);
+    public static native void memmove(long dest, long source, long size);
+    public static native void wmemmove(long dest, long source, long size);
+    public static native long memchr(long ptr, byte value, long num);
+    public static native int memcmp(long ptr1, long ptr2, long num);
+    public static native void memset(long ptr, byte value, long num);
 }

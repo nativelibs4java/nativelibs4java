@@ -11,7 +11,7 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  */
-#if ($useJNA.equals("true"))
+#if ($useJNA == "true")
 #set ($package = "com.nativelibs4java.runtime.structs.jna")
 #else
 #set ($package = "com.nativelibs4java.runtime.structs")
@@ -71,7 +71,7 @@ public class BitFields {
 		}
 		public Object readObject(Pointer p, long offset) {
 			p = p.getPointer(offset);
-		#if ($useJNA.equals("true"))
+		#if ($useJNA == "true")
 			return p != null ? wide ? (Object)new com.sun.jna.WString(p.getString(0, true)) : (Object)p.getString(0) : null;
 		#else
 			return p != null ? wide ? (Object)p.getString(0, true) : (Object)p.getString(0) : null;
@@ -316,7 +316,7 @@ public class BitFields {
 //		primHandlers.put(Pointer.class, POINTER_HANDLER);
 		primHandlers.put(String.class, STRING_HANDLER);
 		
-	#if ($useJNA.equals("true"))
+	#if ($useJNA == "true")
 		primHandlers.put(com.sun.jna.WString.class, WSTRING_HANDLER);
 	#end
 	}

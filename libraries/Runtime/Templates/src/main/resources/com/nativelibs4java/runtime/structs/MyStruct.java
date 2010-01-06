@@ -1,4 +1,4 @@
-#if ($useJNA.equals("true"))
+#if ($useJNA == "true")
 #set ($package = "com.nativelibs4java.runtime.structs.jna")
 #set ($annPackage = "com.nativelibs4java.runtime.ann.jna")
 #else

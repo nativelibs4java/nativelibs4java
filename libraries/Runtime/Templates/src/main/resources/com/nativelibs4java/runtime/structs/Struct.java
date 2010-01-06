@@ -1,4 +1,4 @@
-#if ($useJNA.equals("true"))
+#if ($useJNA == "true")
 #set ($package = "com.nativelibs4java.runtime.structs.jna")
 #set ($pointerTypeRef = "Pointer")
 #else
@@ -13,7 +13,7 @@ import ${memoryClass};
 import ${pointerClass};
 
 public abstract class Struct<S extends Struct<S>> implements
-#if ($useJNA.equals("true")) 
+#if ($useJNA == "true") 
 	com.sun.jna.NativeMapped
 #else
 	com.nativelibs4java.runtime.PointerRefreshable
@@ -50,14 +50,20 @@ public abstract class Struct<S extends Struct<S>> implements
         }
     }
 
-    #if (!$useJNA.equals("true")) @Override #end
+#if ($useJNA == "true") 
+	public synchronized Pointer<S> getPointer() {
+        return pointer == null ? pointer = Pointer.allocate(io.getPointerIO(), io.getStructSize()) : pointer;
+    }
+#else
+    @Override
     public synchronized ${pointerTypeRef} getPointer() {
         if (pointer == null)
             pointer = new Memory(io.getStructSize());
         return pointer;
     }
+#end
 
-    #if (!$useJNA.equals("true")) @Override #end
+	#if ($useJNA != "true") @Override #end
     public synchronized S setPointer(${pointerTypeRef} pointer) {
         if (pointer == null || pointer.equals(Pointer.NULL))
             throw new NullPointerException("Cannot set null pointer as struct address !");
@@ -74,7 +80,7 @@ public abstract class Struct<S extends Struct<S>> implements
         io.read((S)this);
     }
 	
-#if ($useJNA.equals("true"))
+#if ($useJNA == "true")
 
     @Override
     public Object fromNative(Object o, com.sun.jna.FromNativeContext fnc) {

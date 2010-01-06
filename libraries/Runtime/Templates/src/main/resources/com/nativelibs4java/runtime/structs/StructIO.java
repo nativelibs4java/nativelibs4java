@@ -1,4 +1,4 @@
-#if ($useJNA.equals("true"))
+#if ($useJNA == "true")
 #set ($package = "com.nativelibs4java.runtime.structs.jna")
 #set ($annPackage = "com.nativelibs4java.runtime.ann.jna")
 #else
@@ -13,7 +13,7 @@ package $package;
 #set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer", "CharBuffer" ])
 #set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double", "Character" ])
 
-#if (!$useJNA.equals("true"))
+#if ($useJNA != "true")
 import com.nativelibs4java.runtime.*;
 #end
 
@@ -61,6 +61,8 @@ public class StructIO<S extends Struct<S>> {
         Class<?> valueClass;
         Class<?> declaringClass;
 	}
+	
+	protected PointerIO<S> pointerIO;
 	protected final Class<S> structClass;
 	protected volatile FieldIO[] fields;
 	private int structSize = -1;
@@ -73,6 +75,15 @@ public class StructIO<S extends Struct<S>> {
 		this.structClass = structClass;
 
 	}
+	
+#if ($useJNA != "true")
+	public synchronized PointerIO<S> getPointerIO() {
+		if (pointerIO == null)
+			pointerIO = new PointerIO(getStructClass(), getStructSize());
+			
+		return pointerIO;
+	}
+#endif
 
     protected int alignSize(int size, int alignment) {
         if (alignment != 1) {
@@ -239,7 +250,7 @@ public class StructIO<S extends Struct<S>> {
                 field.refreshableFieldIndex = refreshableFieldCount++;
             } else if (${pointerClass}.class.equals(field.valueClass)) {
                 field.byteLength = ${pointerClass}.SIZE;
-		#if ($useJNA.equals("true"))
+		#if ($useJNA == "true")
             } else if (${pointerTypeClass}.class.isAssignableFrom(field.valueClass)) {
                 field.byteLength = ${pointerClass}.SIZE;
 				field.refreshableFieldIndex = refreshableFieldCount++;
@@ -328,7 +339,7 @@ public class StructIO<S extends Struct<S>> {
         struct.getPointer().setPointer(field.byteOffset, p);
     }
 	
-#if ($useJNA.equals("true"))
+#if ($useJNA == "true")
     public <P extends ${pointerTypeClass}> P getPointerTypeField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
         assert !field.isBitField;
@@ -356,7 +367,7 @@ public class StructIO<S extends Struct<S>> {
     }
 #end
 
-#if (!$useJNA.equals("true"))
+#if ($useJNA != "true")
 
     public void setRefreshableField(int fieldIndex, S struct, PointerRefreshable value) {
         FieldIO field = fields[fieldIndex];
