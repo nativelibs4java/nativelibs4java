@@ -17,28 +17,29 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         BIG_ENDIAN = (byte)'b',
         DEFAULT_ENDIANNESS = getEndianness(ByteOrder.nativeOrder());
 
+    protected static final int
+		TYPE_FROM_DIRECT_BUFFER				= 0,
+		TYPE_FROM_INDIRECT_BUFFER			= 1,
+		TYPE_FROM_RAW_ADDRESS				= 2,
+		TYPE_FROM_ALLOCATED_ADDRESS			= 3,
+		TYPE_FROM_POINTER_GET_POINTER_VALUE	= 4;
+
     static {
         JNI.initLibrary();
     }
 
-    static byte getEndianness(ByteOrder order) {
+	static byte getEndianness(ByteOrder order) {
         return order.equals(ByteOrder.BIG_ENDIAN) ? BIG_ENDIAN : LITTLE_ENDIAN;
     }
     
     protected PointerIO<T> io;
     protected byte endianness = DEFAULT_ENDIANNESS;
-
-    /**
-	 * TODO JavaDoc
-	 */
+	
     public void order(ByteOrder order) {
         endianness = getEndianness(order);
     }
     
-	/**
-	 * TODO JavaDoc
-	 */
-    public final ByteOrder order() {
+	public final ByteOrder order() {
         switch (endianness) {
             case BIG_ENDIAN:
                 return ByteOrder.BIG_ENDIAN;
@@ -50,126 +51,110 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
     }
 
     /**
-	 * TODO JavaDoc
-	 */
-    public static void update(UpdatablePointer<?> pointer) {
-        if (pointer == null)
-            return;
-        pointer.update();
+     * Create a copy of this pointer
+     * @return
+     * @throws CloneNotSupportedException
+     */
+    @Override
+    public Pointer<T> clone() {
+        throw new UnsupportedOperationException(); // TODO
     }
-    
+
+	public interface UpdatablePointer<P> {
+		Pointer<P> getPointer();
+		void update();
+	}
+	
 	/**
-	 * TODO JavaDoc
+	 * The update will take place inside the release() call
 	 */
-    public static UpdatablePointer<String> updatablePointerTo(final String[] strings) {
+    public static Pointer<String> pointerTo(final String[] strings) {
         final int len = strings.length;
-        final Memory<String> mem = allocateArray(String.class, len);
+        final Pointer<String> mem = allocateArray(String.class, len);
         for (int i = 0; i < len; i++)
             mem.set(i, strings[i]);
 
-        return new UpdatablePointer<String>(PointerIO.getStringInstance(), mem) {
-            
+		class UpdatableStringArrayPointer extends Memory<String> {
+			public UpdatableStringArrayPointer(Memory mem) {
+				super(PointerIO.getStringInstance(), mem);
+			}
+			public Pointer<String> getPointer() {
+				return this;
+			}
             @Override
-            public void update() {
+            public void release() {
                 for (int i = 0; i < len; i++) {
                     strings[i] = mem.get(i);
                 }
+                super.release();
             }
         };
+		return new UpdatableStringArrayPointer((Memory)mem);
     }
 
+	public abstract Pointer<Pointer<T>> getReference();
+
     /**
-	 * TODO JavaDoc
+	 * Dereference this pointer (*ptr).
+     * @throws RuntimeException if the pointer's target type is unknown (@see Pointer.setTargetType())
 	 */
     public T get() {
         return get(0);
     }
     
-	/**
-	 * TODO JavaDoc
-	 */
-    public T get(int index) {
+	public T get(int index) {
+        PointerIO<T> io = getIO();
         if (io == null)
             throw new RuntimeException("Cannot get pointed value without a properly defined targetType");
 
         return io.get(this, index);
     }
     
-    /**
-	 * TODO JavaDoc
-	 */
     public void set(T value) {
         set(0, value);
     }
     
-	/**
-	 * TODO JavaDoc
-	 */
-    public Pointer<T> set(int index, T value) {
-        if (io == null)
-            throw new RuntimeException("Cannot set pointed value without a properly defined targetType");
-
+	public Pointer<T> set(int index, T value) {
+        PointerIO<T> io = getIO();
+        if (io == null) {
+            if (value == null)
+                throw new RuntimeException("Cannot set pointed value without a properly defined targetType");
+            else
+                setTargetType(value.getClass());
+        }
         io.set(this, index, value);
         return this;
     }
     
-	/**
-	 * TODO JavaDoc
-	 */
-    public static long getOrAllocateTempPeer(Pointer<?> pointer) {
+	public static long getOrAllocateTempPeer(Pointer<?> pointer) {
         return pointer == null ? 0 : pointer.getOrAllocateTempPeer();
     }
 	
-	/**
-	 * TODO JavaDoc
-	 */
-    public static long getPeer(Pointer<?> pointer) {
+	public static long getPeer(Pointer<?> pointer) {
         return pointer == null ? 0 : pointer.getPeer();
     }
 	
-	/**
-	 * TODO JavaDoc
-	 */
-    public static void deleteTempPeer(Pointer<?> pointer, long tempPeer) {
+	public static void deleteTempPeer(Pointer<?> pointer, long tempPeer, boolean refresh) {
 		if (pointer == null || tempPeer == 0)
 			return;
-		pointer.deleteTempPeer(tempPeer);
+		pointer.deleteTempPeer(tempPeer, refresh);
     }
 	
     
-    /**
-	 * TODO JavaDoc
-	 */
-    protected void checkValidOffset(long offset, long length) {
-        // Do nothing : this is meant to be overridden by subclasses
-    }
-
-	/**
-	 * TODO JavaDoc
-	 */
     public abstract Pointer<T> share(long offset);
 
 	/**
 	 * TODO JavaDoc
 	 * Returns the long value of the address this Pointer instance points to.
-	 * @throws UnsupportedOperationException if the pointer does not have a peer (@see hasPeer())
+	 * @throws UnsupportedOperationException if the pointer does not have a peer (@see isDirect())
 	 */
     public abstract long getPeer();
     
-	/**
-	 * TODO JavaDoc
-	 */
-    public abstract boolean hasPeer();
+	public abstract boolean isDirect();
 	
-	/**
-	 * TODO JavaDoc
-	 */
-    public abstract long getOrAllocateTempPeer();
+	public abstract long getOrAllocateTempPeer();
     
-	/**
-	 * TODO JavaDoc
-	 */
-    public abstract void deleteTempPeer(long tempPeer, boolean refresh);
+	public abstract void deleteTempPeer(long tempPeer, boolean refresh);
 	
 	/**
 	 * TODO JavaDoc
@@ -191,14 +176,14 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 			return false;
 		
 		Pointer p = (Pointer)obj;
-		boolean hp = hasPeer();
-		if (hp != p.hasPeer())
+		boolean hp = isDirect();
+		if (hp != p.isDirect())
 			return false;
 		
 		if (hp)
 			return getPeer() == p.getPeer();
 		else
-			return identityEqual(obj);
+			return identityEqual(p);
 	}
 	
 	/**
@@ -209,87 +194,37 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 		return super.equals(p);	 
 	}
 
-    /**
-	 * TODO JavaDoc
-	 */
-	@Deprecated
-    public static Pointer<?> fromAddress(long address) {
+    @Deprecated
+    public static Pointer<?> pointerToAddress(long address) {
         return address == 0 ? null : new DefaultPointer(null, address);
     }
 
-    /**
-	 * TODO JavaDoc
-	 */
-	@Deprecated
-    public static Pointer<?> fromAddress(long address, long size) {
-        fromAddress(address, size, null);
+    @Deprecated
+    public static Pointer<?> pointerToAddress(long address, long size) {
+        return pointerToAddress(address, size, null);
     }
 
-    /**
-	 * TODO JavaDoc
-	 */
     public interface Deallocator {
         void deallocate(long peer);
     }
 
-    /**
-	 * TODO JavaDoc
-	 */
     @Deprecated
-    public static Pointer<?> fromAddress(long address, final Deallocator deallocator) {
-		return fromAddress(address, -1, deallocator);
+    public static Pointer<?> pointerToAddress(long address, final Deallocator deallocator) {
+		return pointerToAddress(address, -1, deallocator);
 	}
     
-	/**
-	 * TODO JavaDoc
-	 */
-    public static Pointer<?> fromAddress(long address, long size, final Deallocator deallocator) {
+	public static Pointer<?> pointerToAddress(long address, long size, final Deallocator deallocator) {
         return address == 0 ? null : new Memory(null, address, -1) {
             @Override
-            protected void deallocate() {
+            protected void free(long peer) {
                 if (deallocator != null)
                     deallocator.deallocate(peer);
             }
         };
     }
-
-    /**
-	 * TODO JavaDoc
-	 */
-    public static Pointer<?> fromBuffer(Buffer buffer) {
-		if (buffer)
-			return null;
-		
-        long address = JNI.getDirectBufferAddress(buffer);
-        if (address == 0)
-            return null;
-
-        long size = JNI.getDirectBufferCapacity(buffer);
-
-        class BufferMemory<T> extends Memory<T> {
-            public Buffer buffer;
-            public BufferMemory(PointerIO<T> io, long address, long capacity, Buffer buffer) {
-                super(io, address, capacity);
-                this.buffer = buffer;
-				
-				#foreach ($prim in $primitivesNoBool)
-				if (buffer instanceof ${prim.BufferName})
-				#if (${prim.Name} == "byte")
-					return;
-				#else
-					order(((${prim.BufferName})buffer).order());
-				#end
-				#end
-            }
-            @Override
-            public void deallocate() {
-                BufferMemory.this.buffer = null;
-            }
-        }
-        return new BufferMemory(PointerIO.getBufferPrimitiveInstance(buffer), address, size, buffer);
-    }
-
-    public static <P> Pointer<P> fromAddress(long address, Class<P> targetClass) {
+	
+	@Deprecated
+    public static <P> Pointer<P> pointerToAddress(long address, Class<P> targetClass) {
         return new DefaultPointer(PointerIO.getInstance(targetClass), address);
     }
 
@@ -297,33 +232,111 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         return allocateArray(elementClass, 1);
     }
     
-    public static <V> Pointer<V> allocate(PointerIO<V> io, int byteSize) {
+    protected static <V> Pointer<V> allocate(PointerIO<V> io, int byteSize) {
         return new Memory<V>(io, byteSize);
     }
     
     public static <V> Pointer<V> allocateArray(Class<V> elementClass, int arrayLength) {
         #foreach ($prim in $primitivesNoBool)
         if (elementClass == ${prim.WrapperName}.TYPE || elementClass == ${prim.WrapperName}.class)
-            return (Memory<V>)allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * arrayLength);
+            return (Pointer<V>)allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * arrayLength);
         #end
         throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());
     }
 
+	public static Pointer<?> pointerTo(Buffer buffer) {
+		return pointerTo(buffer, 0);
+    }
+
+    protected static Pointer<?> pointerTo(Buffer buffer, long byteOffset) {
+        if (buffer == null)
+			return null;
+		
+		#foreach ($prim in $primitivesNoBool)
+		if (buffer instanceof ${prim.BufferName})
+			return (Pointer)pointerTo((${prim.BufferName})buffer, byteOffset);
+		#end
+        throw new UnsupportedOperationException();
+	}
+
 #foreach ($prim in $primitivesNoBool)
-    public static Memory<${prim.WrapperName}> pointerTo(${prim.Name}... values) {
-        Memory<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * values.length);
+    public static Pointer<${prim.WrapperName}> pointerTo(${prim.Name}... values) {
+        Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * values.length);
         mem.set${prim.CapName}s(0, values, 0, values.length);
         return mem;
     }
-    public static Memory<${prim.WrapperName}> allocate${prim.CapName}() {
+	
+	public static Pointer<${prim.WrapperName}> pointerTo(${prim.BufferName} buffer) {
+		return pointerTo(buffer);
+	}
+	
+    public static Pointer<${prim.WrapperName}> pointerTo(${prim.BufferName} buffer, long byteOffset) {
+        if (buffer == null)
+			return null;
+		
+		PointerIO<${prim.WrapperName}> io = PointerIO.get${prim.CapName}Instance();
+		Pointer<${prim.WrapperName}> pointer;
+		if (buffer.isDirect()) {
+			long address = JNI.getDirectBufferAddress(buffer);
+			long size = JNI.getDirectBufferCapacity(buffer);
+			if (address == 0 || size == 0)
+				return null;
+			
+			pointer = new Memory(io, address + byteOffset, size, buffer);
+		} else {
+			#if (${prim.Name} == "byte")
+			pointer = new IndirectBufferPointer<${prim.WrapperName}>(io, buffer, byteOffset);
+			pointer.order(buffer.order());
+			#else
+			throw new UnsupportedOperationException("Cannot create pointers to indirect ${prim.BufferName} buffers (try with a ByteBuffer or with any direct buffer)");
+			#end
+		}
+		
+		return pointer;
+    }
+	
+	/*
+	public static Pointer<${prim.WrapperName}> pointerTo(${prim.BufferName} buffer) {
+		if (buffer == null)
+			return null;
+
+        PointerIO<${prim.WrapperName}> io = PointerIO.get${prim.CapName}Instance();
+		if (buffer.isDirect()) {
+			long address = JNI.getDirectBufferAddress(buffer);
+			if (address == 0)
+				return null;
+	
+			long size = JNI.getDirectBufferCapacity(buffer);
+	
+			Pointer<T> pointer = new Memory(PointerIO.getBufferPrimitiveInstance(buffer), address, size, buffer);
+			#if (${prim.Name} != "byte")
+			pointer.order(buffer.order());
+			#end
+			return pointer;
+		}
+		
+		#if (${prim.Name} != "byte")
+		return new IndirectBufferPointer<${prim.WrapperName}>(io, buffer);
+		#else
+		throw new UnsupportedOperationException("Cannot create pointers to indirect ${prim.BufferName} buffers (try with a ByteBuffer or with any direct buffer)");
+		#end
+    }
+	*/
+	
+	
+    public static Pointer<${prim.WrapperName}> allocate${prim.CapName}() {
         return allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size});
     }
-    public static Memory<${prim.WrapperName}> allocate${prim.CapName}Array(int arrayLength) {
+    public static Pointer<${prim.WrapperName}> allocate${prim.CapName}Array(int arrayLength) {
         return allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * arrayLength);
     }
 #end
 
+    protected PointerIO<T> getIO() {
+        return io;
+    }
     public Type getTargetType() {
+        PointerIO<T> io = getIO();
         return io == null ? null : io.getTargetType();
     }
     public <N> Pointer<N> setTargetType(Type type) {
@@ -356,8 +369,9 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 		if (is64)
 			setLong(byteOffset, value);
 		else {
-			setInt(byteOffset);
+			setInt(byteOffset, SizeT.safeIntCast(value));
 		}
+		return this;
 	}
 
     static Class<?> getPrimitiveType(Buffer buffer) {
@@ -382,20 +396,11 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 
 #foreach ($prim in $primitivesNoBool)
 
-	/**
-	 * TODO JavaDoc
-	 */
-    public abstract Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value);
+	public abstract Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value);
 	
-	/**
-	 * TODO JavaDoc
-	 */
-    public abstract Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length);
+	public abstract Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length);
 
-	/**
-	 * TODO JavaDoc
-	 */
-    public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values) {
+	public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values) {
         return set${prim.CapName}s(byteOffset, values, 0, values.length);
     }
 
@@ -408,24 +413,12 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         return set${prim.CapName}s(byteOffset, values, valuesOffset, length);
     }
 
-	/**
-	 * TODO JavaDoc
-	 */
-    public abstract Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.BufferName} values, long valuesOffset, long length);
+	public abstract Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.BufferName} values, long valuesOffset, long length);
 
-	/**
-	 * TODO JavaDoc
-	 */
-    public abstract ${prim.BufferName} get${prim.BufferName}(long byteOffset, long length);
+	public abstract ${prim.BufferName} get${prim.BufferName}(long byteOffset, long length);
     
-    /**
-	 * TODO JavaDoc
-	 */
     public abstract ${prim.Name} get${prim.CapName}(long byteOffset);
 
-    /**
-	 * TODO JavaDoc
-	 */
     public abstract ${prim.Name}[] get${prim.CapName}Array(long byteOffset, int length);
 
 #end
@@ -434,15 +427,9 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         Pascal, C, WideC
     }
 	
-	/**
-	 * TODO JavaDoc
-	 */
-    protected abstract long strlen(long byteOffset);
+	protected abstract long strlen(long byteOffset);
 	
-	/**
-	 * TODO JavaDoc
-	 */
-    public String getString(long byteOffset, Charset charset, StringType type) throws java.io.UnsupportedEncodingException {
+	public String getString(long byteOffset, Charset charset, StringType type) throws UnsupportedEncodingException {
         long len;
         if (type == StringType.Pascal) {
             len = getByte(byteOffset) & 0xff;
@@ -455,24 +442,18 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
             if (type == StringType.WideC)
                 throw new UnsupportedOperationException("Wide strings are not supported yet");
         }
-		return new String(getByteArray(byteOffset, (int)len), charset.name());
+		return new String(getByteArray(byteOffset, SizeT.safeIntCast(len)), charset.name());
 	}
 
-    /**
-	 * TODO JavaDoc
-	 */
     public Pointer<T> setString(long byteOffset, String s) {
         try {
             return setString(byteOffset, s, Charset.defaultCharset(), StringType.C);
-        } catch (java.io.UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException("Unexpected error", ex);
         }
     }
     
-	/**
-	 * TODO JavaDoc
-	 */
-    public Pointer<T> setString(long byteOffset, String s, Charset charset, StringType type) throws UnsupportedEncodingException {
+	public Pointer<T> setString(long byteOffset, String s, Charset charset, StringType type) throws UnsupportedEncodingException {
         if (type == StringType.WideC)
             throw new UnsupportedOperationException("Wide strings are not supported yet");
         
@@ -491,50 +472,35 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         return this;
     }
 	
-	/**
-	 * TODO JavaDoc
-	 */
-    public String getPascalString(long byteOffset) {
+	public String getPascalString(long byteOffset) {
 		try {
             return getString(byteOffset, Charset.defaultCharset(), StringType.Pascal);
-        } catch (java.io.UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException("Unexpected error", ex);
         }
 	}
 	
-	/**
-	 * TODO JavaDoc
-	 */
-    public String getWideString(long byteOffset) {
+	public String getWideString(long byteOffset) {
 		try {
             return getString(byteOffset, Charset.defaultCharset(), StringType.WideC);
-        } catch (java.io.UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException("Unexpected error", ex);
         }
 	}
 	
-	/**
-	 * TODO JavaDoc
-	 */
-    @Deprecated
+	@Deprecated
     public String getString(long byteOffset, boolean wide) {
         try {
             return getString(byteOffset, Charset.defaultCharset(), wide ? StringType.WideC : StringType.C);
-        } catch (java.io.UnsupportedEncodingException ex) {
+        } catch (UnsupportedEncodingException ex) {
             throw new RuntimeException("Unexpected error", ex);
         }
     }
     
-	/**
-	 * TODO JavaDoc
-	 */
-    public String getString(long byteOffset) {
+	public String getString(long byteOffset) {
         return getString(byteOffset, false);
     }
         
-    /**
-	 * TODO JavaDoc
-	 */
     public void setPointer(long byteOffset, Pointer value) {
         setSizeT(byteOffset, value.getPeer());
     }

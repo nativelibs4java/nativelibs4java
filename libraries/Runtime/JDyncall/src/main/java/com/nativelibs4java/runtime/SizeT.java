@@ -15,11 +15,16 @@ public class SizeT extends Number {
         this.value = value;
     }
 
-    @Override
-    public int intValue() {
-        if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE)
+
+	public static int safeIntCast(long value) {
+		if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE)
             throw new RuntimeException("Value is not within the int range");
         return (int)value;
+	}
+
+    @Override
+    public int intValue() {
+        return safeIntCast(value);
     }
 
     @Override

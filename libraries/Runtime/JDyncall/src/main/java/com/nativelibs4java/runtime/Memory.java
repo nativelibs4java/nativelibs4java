@@ -1,80 +1,95 @@
 package com.nativelibs4java.runtime;
 
-import java.lang.reflect.Type;
+import java.nio.*;
 
 /**
  *
  * @author Olivier
  */
 public class Memory<T> extends DefaultPointer<T> {
-    final long size;
-    Memory(PointerIO<T> io, long peer, long size) {//, Deallocator deallocator) {
+    protected final long validStart, validSize;
+
+    Memory(PointerIO<T> io, long peer, long validStart, long validSize, Object memoryOwner) {
         super(io, peer);
-        this.size = size;
+        this.validStart = validStart;
+        this.validSize = validSize;
+        this.memoryOwner = memoryOwner;
     }
-    public Memory(long size) {
+    Memory(PointerIO<T> io, long peer, long validSize, Object memoryOwner) {
+		this(io, peer, peer, validSize, memoryOwner);
+	}
+	public Memory(long size) {
         this(null, size);
+    }
+	/*public Memory(PointerIO<T> io, Buffer directBuffer, long byteOffset) {
+		this(io, JNI.getDirectBufferAddress(directBuffer) + byteOffset, JNI.getDirectBufferCapacity(directBuffer), directBuffer);
+		assert directBuffer != null && directBuffer.isDirect();
+	}*/
+    public Memory(PointerIO<T> io, Memory memoryOwner) {
+        this(io, memoryOwner.getPeer(), memoryOwner.getValidStart(), memoryOwner.getValidStart(), memoryOwner);
+    }
+    Memory(PointerIO<T> io, long peer, long validSize) {
+        this(io, peer, peer, validSize, null);
     }
     public Memory(PointerIO<T> io, long size) {
         this(io, JNI.malloc(size), size);
     }
-    public long getSize() {
-        return size;
+    public long getValidSize() {
+        return validSize;
     }
+    public long getValidStart() {
+        return validStart;
+    }
+    
 
     @Override
-    protected void checkValidOffset(long offset, long length) {
-        if (size < 0)
-            return;
-        if (offset < 0 || offset + length >= size)
-            throw new IndexOutOfBoundsException("Cannot access to memory data of length " + length + " at offset " + offset + " : allocated memory size is " + size);
+    protected long getCheckedPeer(long byteOffset, long validityCheckLength) {
+		long peer = super.getCheckedPeer(byteOffset, validityCheckLength);
+        if (validSize < 0)
+            return peer;
+        if (peer < validStart || peer + validityCheckLength >= validStart + validSize)
+            throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + byteOffset + " : valid memory start is " + validStart + ", valid memory size is " + validSize);
+        return peer;
     }
 
-    protected void deallocate() {
+	@Override
+    protected void free(long peer) {
+        assert peer == 0;
         JNI.free(peer);
     }
     
     @Override
     protected void finalize() throws Throwable {
-        if (peer != 0)
-            deallocate();
+        deallocate();
     }
 
     @Override
     public synchronized void release() {
-        if (peer == 0)
-            throw new RuntimeException("Memory was already released !");
-
-        deallocate();
-        peer = 0;
+        if (memoryOwner != null) {
+            if (memoryOwner instanceof Pointer)
+                ((Pointer)memoryOwner).release();
+            memoryOwner = null;
+        } else
+            deallocate();
     }
 
-    public void setPeer(long peer) {
-        throw new UnsupportedOperationException("Cannot change the peer of a Memory object");
+    /// TODO merge with DefaultPointer.share
+	@Override
+    public Pointer<T> share(long byteOffset) {
+        PointerIO<T> io = getIO();
+        int size = io == null ? io.getTargetSize() : 1;
+        Memory<T> p = new Memory(io, getCheckedPeer(byteOffset, size), validStart + byteOffset, validSize, memoryOwner == null ? this : memoryOwner);
+		p.memoryOwner = memoryOwner;
+		p.peerOrOffsetInOwner += byteOffset;
+        return p;
     }
+	
+	@Override
+	public Pointer<Pointer<T>> getReference() {
+		if (memoryOwner != null)
+			return ((Pointer)memoryOwner).share(peerOrOffsetInOwner);
+		else
+			return super.getReference();
+	}
 
-    protected static class SharedPointer<T> extends DefaultPointer<T> {
-
-        public SharedPointer(PointerIO<T> io, long peer, Memory memoryReferenceNotToGC) {
-            super(io, peer);
-            this.memoryReferenceNotToGC = memoryReferenceNotToGC;
-        }
-
-        protected Memory memoryReferenceNotToGC;
-
-        @Override
-        public Pointer<T> share(long offset) {
-            return new SharedPointer(io, peer + offset, memoryReferenceNotToGC);
-        }
-		
-		@Override
-        public void release() {
-			memoryReferenceNotToGC.release();
-		}
-    }
-
-    @Override
-    public Pointer<T> share(long offset) {
-        return new SharedPointer(io, peer + offset, this);
-    }
 }

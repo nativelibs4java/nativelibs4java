@@ -1,6 +1,7 @@
 package jdyncall;
 
 import com.nativelibs4java.runtime.*;
+import static com.nativelibs4java.runtime.Pointer.*;
 import com.nativelibs4java.runtime.ann.*;
 import java.io.File;
 
@@ -38,12 +39,12 @@ public class MyLibrary extends NativeLib {
 	
 	protected native int someFunction_native(@PointerSized long stringArray, @PointerSized long errOut);
 	public int someFunction(String[] arg1, Pointer<Integer> errOut) {
-		UpdatablePointer<String> pArg1 = Pointer.updatablePointerTo(arg1);
-		try {
-			return someFunction_native(Pointer.getPeer(pArg1), Pointer.getPeer(errOut));
-		} finally {
-			Pointer.update(pArg1);
-		}
+		TempPointers temp = new TempPointers(pointerTo(arg1), errOut);
+        try {
+        	return someFunction_native(temp.get(0), temp.get(1));
+        } finally {
+            temp.release();
+        }
 	}
 	
 	protected native int someFunction2_native(@PointerSized long size, @PointerSized long sizeOut);

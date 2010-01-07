@@ -96,7 +96,7 @@
 					<memoryClass>com.nativelibs4java.runtime.Memory</memoryClass>
 					<pointerClass>com.nativelibs4java.runtime.Pointer</pointerClass>
 					<!--pointerTypeClass>com.nativelibs4java.runtime.PointerType</pointerTypeClass-->
-					<getDirectBufferPointer>com.nativelibs4java.runtime.Pointer.fromBuffer</getDirectBufferPointer>
+					<getDirectBufferPointer>com.nativelibs4java.runtime.Pointer.pointerTo</getDirectBufferPointer>
 				</parameters>
 				<templates>
 					<template>com/nativelibs4java/runtime/ann/Alignment.java</template>
