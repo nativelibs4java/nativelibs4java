@@ -62,7 +62,9 @@ public class StructIO<S extends Struct<S>> {
         Class<?> declaringClass;
 	}
 	
+	#if ($useJNA != "true")
 	protected PointerIO<S> pointerIO;
+	#end
 	protected final Class<S> structClass;
 	protected volatile FieldIO[] fields;
 	private int structSize = -1;
@@ -76,6 +78,10 @@ public class StructIO<S extends Struct<S>> {
 
 	}
 	
+	public Class<S> getStructClass() {
+		return structClass;
+	}
+	
 #if ($useJNA != "true")
 	public synchronized PointerIO<S> getPointerIO() {
 		if (pointerIO == null)
@@ -83,7 +89,7 @@ public class StructIO<S extends Struct<S>> {
 			
 		return pointerIO;
 	}
-#endif
+#end
 
     protected int alignSize(int size, int alignment) {
         if (alignment != 1) {

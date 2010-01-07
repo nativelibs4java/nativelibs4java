@@ -16,7 +16,7 @@ public class PointerIO<T> {
     final Class<T> targetClass;
     final int targetSize;
 
-    protected PointerIO(Type targetType, int targetSize) {
+    public PointerIO(Type targetType, int targetSize) {
         this.targetType = targetType;
         this.targetSize = targetSize;
         if (targetType instanceof Class<?>)

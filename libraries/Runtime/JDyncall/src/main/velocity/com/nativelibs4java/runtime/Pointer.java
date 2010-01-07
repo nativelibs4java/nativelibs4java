@@ -232,7 +232,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         return allocateArray(elementClass, 1);
     }
     
-    protected static <V> Pointer<V> allocate(PointerIO<V> io, int byteSize) {
+    public static <V> Pointer<V> allocate(PointerIO<V> io, int byteSize) {
         return new Memory<V>(io, byteSize);
     }
     

@@ -50,12 +50,11 @@ public abstract class Struct<S extends Struct<S>> implements
         }
     }
 
-#if ($useJNA == "true") 
+#if ($useJNA != "true") 
 	public synchronized Pointer<S> getPointer() {
         return pointer == null ? pointer = Pointer.allocate(io.getPointerIO(), io.getStructSize()) : pointer;
     }
 #else
-    @Override
     public synchronized ${pointerTypeRef} getPointer() {
         if (pointer == null)
             pointer = new Memory(io.getStructSize());
@@ -63,8 +62,7 @@ public abstract class Struct<S extends Struct<S>> implements
     }
 #end
 
-	#if ($useJNA != "true") @Override #end
-    public synchronized S setPointer(${pointerTypeRef} pointer) {
+	public synchronized S setPointer(${pointerTypeRef} pointer) {
         if (pointer == null || pointer.equals(Pointer.NULL))
             throw new NullPointerException("Cannot set null pointer as struct address !");
         

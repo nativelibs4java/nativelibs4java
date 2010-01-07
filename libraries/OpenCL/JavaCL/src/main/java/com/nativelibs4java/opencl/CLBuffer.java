@@ -120,7 +120,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 		);
 		error(pErr.getValue());
         return new Pair<B, CLEvent>(
-			typedBuffer(p.getByteBuffer(0, getByteCount())),
+			typedBuffer(p.getByteBuffer(0, getByteCount()).order(queue.getDevice().getByteOrder())),
 			CLEvent.createEvent(queue, eventOut)
 		);
     }
