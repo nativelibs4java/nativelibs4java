@@ -6,6 +6,7 @@
 package com.nativelibs4java.runtime;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -15,10 +16,13 @@ import java.util.List;
  *
  * @author Olivier
  */
-public class NativeLib {
+public class NativeLib<L> {
 
     private long libraryHandle;
 
+    public NativeLib(Class<L> libraryClass) throws FileNotFoundException {
+        this(DynCall.getLibFile(libraryClass));
+    }
     public NativeLib(String libraryName) {
 		this(DynCall.getLibFile(libraryName));
 	}

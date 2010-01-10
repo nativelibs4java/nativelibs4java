@@ -80,8 +80,21 @@ public class JNI {
     public static native long getDirectBufferCapacity(Buffer b);
 
 #foreach ($prim in $primitivesNoBool)
-    public static native long get${prim.WrapperName}ArrayElements(${prim.Name}[] array, long pIsCopy);
+
+    @Deprecated
+    public static native long get${prim.WrapperName}ArrayElements(${prim.Name}[] array, boolean[] pIsCopy);
+    @Deprecated
     public static native void release${prim.WrapperName}ArrayElements(${prim.Name}[] array, long pointer, int mode);
+
+    @Deprecated
+    protected static native ${prim.Name} get_${prim.Name}(long peer, byte endianness);
+    @Deprecated
+    protected static native void set_${prim.Name}(long peer, ${prim.Name} value, byte endianness);
+
+    @Deprecated
+    protected static native ${prim.Name}[] get_${prim.Name}_array(long peer, int length, byte endianness);
+    @Deprecated
+    protected static native void set_${prim.Name}_array(long peer, ${prim.Name}[] values, int valuesOffset, int length, byte endianness);
 #end
 
 	public static native long[] createCallbacks(Method[] nativeMethodsArray, MethodCallInfo[] methodInfosArray);

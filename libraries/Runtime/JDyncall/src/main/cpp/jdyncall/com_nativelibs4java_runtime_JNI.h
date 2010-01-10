@@ -129,6 +129,118 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDirectBufferCapa
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    getIntegerArrayElements
+ * Signature: ([IJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getIntegerArrayElements
+  (JNIEnv *, jclass, jintArray, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    releaseIntegerArrayElements
+ * Signature: ([IJI)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseIntegerArrayElements
+  (JNIEnv *, jclass, jintArray, jlong, jint);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    getLongArrayElements
+ * Signature: ([JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getLongArrayElements
+  (JNIEnv *, jclass, jlongArray, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    releaseLongArrayElements
+ * Signature: ([JJI)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseLongArrayElements
+  (JNIEnv *, jclass, jlongArray, jlong, jint);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    getShortArrayElements
+ * Signature: ([SJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getShortArrayElements
+  (JNIEnv *, jclass, jshortArray, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    releaseShortArrayElements
+ * Signature: ([SJI)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseShortArrayElements
+  (JNIEnv *, jclass, jshortArray, jlong, jint);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    getByteArrayElements
+ * Signature: ([BJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getByteArrayElements
+  (JNIEnv *, jclass, jbyteArray, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    releaseByteArrayElements
+ * Signature: ([BJI)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseByteArrayElements
+  (JNIEnv *, jclass, jbyteArray, jlong, jint);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    getCharacterArrayElements
+ * Signature: ([CJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getCharacterArrayElements
+  (JNIEnv *, jclass, jcharArray, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    releaseCharacterArrayElements
+ * Signature: ([CJI)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseCharacterArrayElements
+  (JNIEnv *, jclass, jcharArray, jlong, jint);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    getFloatArrayElements
+ * Signature: ([FJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getFloatArrayElements
+  (JNIEnv *, jclass, jfloatArray, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    releaseFloatArrayElements
+ * Signature: ([FJI)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseFloatArrayElements
+  (JNIEnv *, jclass, jfloatArray, jlong, jint);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    getDoubleArrayElements
+ * Signature: ([DJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDoubleArrayElements
+  (JNIEnv *, jclass, jdoubleArray, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    releaseDoubleArrayElements
+ * Signature: ([DJI)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseDoubleArrayElements
+  (JNIEnv *, jclass, jdoubleArray, jlong, jint);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
  * Method:    createCallbacks
  * Signature: ([Ljava/lang/reflect/Method;[Lcom/nativelibs4java/runtime/MethodCallInfo;)[J
  */
@@ -142,6 +254,94 @@ JNIEXPORT jlongArray JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback
  */
 JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_freeCallbacks
   (JNIEnv *, jclass, jlongArray);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    malloc
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_malloc
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    free
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_free
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    strlen
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_strlen
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    wcslen
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_wcslen
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    memcpy
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_memcpy
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    wmemcpy
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_wmemcpy
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    memmove
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_memmove
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    wmemmove
+ * Signature: (JJJ)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_wmemmove
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    memchr
+ * Signature: (JBJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_memchr
+  (JNIEnv *, jclass, jlong, jbyte, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    memcmp
+ * Signature: (JJJ)I
+ */
+JNIEXPORT jint JNICALL Java_com_nativelibs4java_runtime_JNI_memcmp
+  (JNIEnv *, jclass, jlong, jlong, jlong);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    memset
+ * Signature: (JBJ)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_memset
+  (JNIEnv *, jclass, jlong, jbyte, jlong);
 
 #ifdef __cplusplus
 }

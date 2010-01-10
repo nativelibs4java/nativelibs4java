@@ -120,3 +120,27 @@ jobject JNICALL Java_com_nativelibs4java_runtime_JNI_newDirectByteBuffer(JNIEnv 
 	END_TRY(env);
 }
 
+
+#include "PrimDefs_int.h"
+#include "JNI_prim.h"
+
+#include "PrimDefs_long.h"
+#include "JNI_prim.h"
+
+#include "PrimDefs_short.h"
+#include "JNI_prim.h"
+
+#include "PrimDefs_byte.h"
+#include "JNI_prim.h"
+
+#include "PrimDefs_char.h"
+#include "JNI_prim.h"
+
+#include "PrimDefs_boolean.h"
+#include "JNI_prim.h"
+
+#include "PrimDefs_float.h"
+#include "JNI_prim.h"
+
+#include "PrimDefs_double.h"
+#include "JNI_prim.h"

@@ -118,21 +118,15 @@ public class DefaultPointer<T> extends Pointer<T>
 
 #foreach ($prim in $primitivesNoBool)
 
-    protected static native ${prim.Name} get_${prim.Name}(long peer, byte endianness);
-    protected static native void set_${prim.Name}(long peer, ${prim.Name} value, byte endianness);
-
-    protected static native ${prim.Name}[] get_${prim.Name}_array(long peer, int length, byte endianness);
-    protected static native void set_${prim.Name}_array(long peer, ${prim.Name}[] values, int valuesOffset, int length, byte endianness);
-
     @Override
     public Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value) {
-        set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value, endianness);
+        JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value, endianness);
         return this;
     }
 
     @Override
     public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length) {
-        set_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length, endianness);
+        JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length, endianness);
         return this;
     }
 
@@ -166,12 +160,12 @@ public class DefaultPointer<T> extends Pointer<T>
     
     @Override
     public ${prim.Name} get${prim.CapName}(long byteOffset) {
-        return get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), endianness);
+        return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), endianness);
     }
 
     @Override
     public ${prim.Name}[] get${prim.CapName}Array(long byteOffset, int length) {
-        return get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length, endianness);
+        return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length, endianness);
     }
 
 #end

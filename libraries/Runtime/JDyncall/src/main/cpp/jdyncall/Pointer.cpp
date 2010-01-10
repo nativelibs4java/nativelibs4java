@@ -57,27 +57,3 @@ FUNC_VOID_3(wmemmove, jlong, jlong, jlong, wchar_t*, wchar_t*, size_t)
 FUNC_3(jlong, memchr, jlong, jbyte, jlong, void*, unsigned char, size_t)
 FUNC_3(jint, memcmp, jlong, jlong, jlong, void*, void*, size_t)
 FUNC_VOID_3(memset, jlong, jbyte, jlong, void*, unsigned char, size_t)
-
-#include "PrimDefs_int.h"
-#include "Pointer_prim.h"
-
-#include "PrimDefs_long.h"
-#include "Pointer_prim.h"
-
-#include "PrimDefs_short.h"
-#include "Pointer_prim.h"
-
-#include "PrimDefs_byte.h"
-#include "Pointer_prim.h"
-
-#include "PrimDefs_char.h"
-#include "Pointer_prim.h"
-
-#include "PrimDefs_boolean.h"
-#include "Pointer_prim.h"
-
-#include "PrimDefs_float.h"
-#include "Pointer_prim.h"
-
-#include "PrimDefs_double.h"
-#include "Pointer_prim.h"
