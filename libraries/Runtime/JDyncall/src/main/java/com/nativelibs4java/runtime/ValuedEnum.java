@@ -5,7 +5,10 @@
 
 package com.nativelibs4java.runtime;
 
-public interface ValuedEnum<E extends Enum<E>> {
+import java.util.Collections;
+import java.util.Iterator;
+
+public interface ValuedEnum<E extends Enum<E>> extends Iterable<E> {
     long value();
 
     public static class EnumWrapper<EE extends Enum<EE>> implements ValuedEnum<EE> {
@@ -21,5 +24,30 @@ public interface ValuedEnum<E extends Enum<E>> {
             return enumValue.ordinal();
         }
 
+        @Override
+        public Iterator<EE> iterator() {
+            return Collections.singleton(enumValue).iterator();
+        }
+
+    }
+
+    public enum MyEnum implements ValuedEnum<MyEnum> {
+        A(1), B(2);
+
+        MyEnum(long value) { this.value = value; }
+        long value;
+        @Override
+        public long value() {
+            return ordinal();
+        }
+
+        @Override
+        public Iterator<MyEnum> iterator() {
+            return Collections.singleton(this).iterator();
+        }
+
+        public static ValuedEnum<MyEnum> fromValue(long value) {
+            return FlagSet.fromValue(value, values());
+        }
     }
 }

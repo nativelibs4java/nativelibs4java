@@ -1,9 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+#if ($useJNA.equals("true"))
+#set ($package = "com.nativelibs4java.runtime.ann.jna")
+#else
+#set ($package = "com.nativelibs4java.runtime.ann")
+#end
 
-package com.nativelibs4java.runtime.ann;
+package $package;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -16,7 +17,7 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@NoInheritance
+//@NoInheritance
 public @interface Wide {
     /// String encoding
     String value() default "";

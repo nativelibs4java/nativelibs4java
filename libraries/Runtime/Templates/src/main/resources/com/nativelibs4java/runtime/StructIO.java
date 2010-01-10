@@ -1,20 +1,15 @@
 #if ($useJNA == "true")
-#set ($package = "com.nativelibs4java.runtime.structs.jna")
+#set ($package = "com.nativelibs4java.runtime.jna")
 #set ($annPackage = "com.nativelibs4java.runtime.ann.jna")
 #else
-#set ($package = "com.nativelibs4java.runtime.structs")
+#set ($package = "com.nativelibs4java.runtime")
 #set ($annPackage = "com.nativelibs4java.runtime.ann")
 #end
 
 package $package;
 
-#set ($prims = [ "int", "long", "short", "byte", "float", "double", "char" ])
-#set ($primCaps = [ "Int", "Long", "Short", "Byte", "Float", "Double", "Char" ])
-#set ($primBufs = [ "IntBuffer", "LongBuffer", "ShortBuffer", "ByteBuffer", "FloatBuffer", "DoubleBuffer", "CharBuffer" ])
-#set ($primWraps = [ "Integer", "Long", "Short", "Byte", "Float", "Double", "Character" ])
-
 #if ($useJNA != "true")
-import com.nativelibs4java.runtime.*;
+import ${annPackage}.*;
 #end
 
 import ${annPackage}.*;
@@ -55,7 +50,7 @@ public class StructIO<S extends Struct<S>> {
 		int byteOffset, byteLength;
 		int bitOffset, bitLength = -1;
         int arraySize = 1;
-        boolean isBitField, isByValue, isNativeSize, isCLong;
+        boolean isBitField, isByValue, isNativeSize, isCLong, isWide;
         int refreshableFieldIndex = -1;
 		Type valueType;
         Class<?> valueClass;
@@ -180,7 +175,8 @@ public class StructIO<S extends Struct<S>> {
             field.bitLength = bits.value();
         if (arr != null)
             field.arraySize = arr.value();
-        
+        field.isWide = getter.getAnnotation(Wide.class) != null;
+		
         field.isByValue = getter.getAnnotation(ByValue.class) != null;
         return field;
     }
@@ -346,6 +342,50 @@ public class StructIO<S extends Struct<S>> {
     }
 	
 #if ($useJNA == "true")
+
+	public String getStringField(int fieldIndex, S struct) {
+		FieldIO field = fields[fieldIndex];
+        assert field.valueClass.equals(String.class);
+
+		return struct.getPointer().getString(field.byteOffset, field.isWide);
+	}
+	
+	public void setStringField(int fieldIndex, S struct, String value) {
+		FieldIO field = fields[fieldIndex];
+        assert field.valueClass.equals(String.class);
+
+		struct.getPointer().setString(field.byteOffset, value, field.isWide);
+	}
+	
+    public String[] getStringArrayField(int fieldIndex, S struct) {
+		FieldIO field = fields[fieldIndex];
+        assert field.valueClass.equals(String[].class);
+
+		String[] strings = new String[field.arraySize];
+		Pointer p = struct.getPointer();
+		for (int i = 0, len = field.arraySize; i < len; i++) {
+			int offset = field.byteOffset + i * Pointer.SIZE;
+			strings[i] = p.getString(offset, field.isWide);
+		}
+		return strings;
+	}
+	
+	public void setStringArrayField(int fieldIndex, S struct, String[] value) {
+		FieldIO field = fields[fieldIndex];
+        assert field.valueClass.equals(String[].class);
+		assert field.arraySize == value.length;
+
+		Pointer p = struct.getPointer();
+		for (int i = 0, len = value.length; i < len; i++) {
+			String s = value[i];
+			int offset = field.byteOffset + i * Pointer.SIZE;
+			if (s == null)
+				p.setPointer(offset, null);
+			else
+				p.setString(offset, s);
+		}
+	}
+	
     public <P extends ${pointerTypeClass}> P getPointerTypeField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
         assert !field.isBitField;
@@ -456,51 +496,46 @@ public class StructIO<S extends Struct<S>> {
 		setByteField(fieldIndex, struct, (byte)(fieldValue ? 1 : 0));
 	}
 
-#foreach ($prim in $prims)
+#foreach ($prim in $primitivesNoBool)
         
-    #set ($i = $velocityCount - 1)
-    #set ($primCap = $primCaps.get($i))
-    #set ($primWrap = $primWraps.get($i))
-    #set ($primBuf = $primBufs.get($i))
-
     /** $prim field getter */
-    public ${prim} get${primCap}Field(int fieldIndex, S struct) {
+    public ${prim.Name} get${prim.CapName}Field(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
-        assert field.byteLength == (${primWrap}.SIZE / 8);
-        assert ${primWrap}.TYPE.equals(field.valueClass) || ${primWrap}.class.equals(field.valueClass);
+        assert field.byteLength == (${prim.WrapperName}.SIZE / 8);
+        assert ${prim.WrapperName}.TYPE.equals(field.valueClass) || ${prim.WrapperName}.class.equals(field.valueClass);
 
         if (field.isBitField)
-            return BitFields.getPrimitiveValue(struct.getPointer(), field.byteOffset, field.bitOffset, field.bitLength, ${primWrap}.TYPE);
+            return BitFields.getPrimitiveValue(struct.getPointer(), field.byteOffset, field.bitOffset, field.bitLength, ${prim.WrapperName}.TYPE);
 
-        return struct.getPointer().get$primCap(field.byteOffset);
+        return struct.getPointer().get${prim.CapName}(field.byteOffset);
 	}
 
-    public void set${primCap}Field(int fieldIndex, S struct, ${prim} value) {
+    public void set${prim.CapName}Field(int fieldIndex, S struct, ${prim.Name} value) {
         FieldIO field = fields[fieldIndex];
-        assert field.byteLength == (${primWrap}.SIZE / 8);
-        assert ${primWrap}.TYPE.equals(field.valueClass) || ${primWrap}.class.equals(field.valueClass);
+        assert field.byteLength == (${prim.WrapperName}.SIZE / 8);
+        assert ${prim.WrapperName}.TYPE.equals(field.valueClass) || ${prim.WrapperName}.class.equals(field.valueClass);
 
         if (field.isBitField)
-            BitFields.setPrimitiveValue(struct.getPointer(), field.byteOffset, field.bitOffset, field.bitLength, value, ${primWrap}.TYPE);
+            BitFields.setPrimitiveValue(struct.getPointer(), field.byteOffset, field.bitOffset, field.bitLength, value, ${prim.WrapperName}.TYPE);
         else
-            struct.getPointer().set$primCap(field.byteOffset, value);
+            struct.getPointer().set${prim.CapName}(field.byteOffset, value);
     }
 
-	public ${primBuf} get${primCap}BufferField(int fieldIndex, S struct) {
+	public ${prim.BufferName} get${prim.CapName}BufferField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
-        ${primBuf} b = (${primBuf})struct.refreshableFields[field.refreshableFieldIndex];
+        ${prim.BufferName} b = (${prim.BufferName})struct.refreshableFields[field.refreshableFieldIndex];
         if (b == null || !b.isDirect() || !struct.getPointer().share(field.byteOffset).equals(${getDirectBufferPointer}(b))) {
             int len = field.arraySize * field.byteLength;
             struct.refreshableFields[field.refreshableFieldIndex] = b = 
                 struct.getPointer().getByteBuffer(field.byteOffset, len)
-                #if (!$prim.equals("byte"))
-                    .as${primBuf}()
+                #if (!$prim.Name.equals("byte"))
+                    .as${prim.BufferName}()
                 #end
             ;
         }
         return b;
     }
-    public void set${primCap}BufferField(int fieldIndex, S struct, ${primBuf} fieldValue) {
+    public void set${prim.CapName}BufferField(int fieldIndex, S struct, ${prim.BufferName} fieldValue) {
         FieldIO field = fields[fieldIndex];
         if (fieldValue == null)
             throw new IllegalArgumentException("By-value struct fields cannot be set to null");
@@ -509,17 +544,17 @@ public class StructIO<S extends Struct<S>> {
         struct.refreshableFields[field.refreshableFieldIndex] = fieldValue;
         int len = field.arraySize * field.byteLength;
         struct.getPointer().getByteBuffer(field.byteOffset, len)
-        #if (!$prim.equals("byte"))
-            .as${primBuf}()
+        #if (!$prim.Name.equals("byte"))
+            .as${prim.BufferName}()
         #end
             .put(fieldValue.duplicate());
     }
 
-	public ${prim}[] get${primCap}ArrayField(int fieldIndex, S struct) {
+	public ${prim.Name}[] get${prim.CapName}ArrayField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
-		return struct.getPointer().get${primCap}Array(field.byteOffset, field.arraySize);
+		return struct.getPointer().get${prim.CapName}Array(field.byteOffset, field.arraySize);
     }
-    public void set${primCap}ArrayField(int fieldIndex, S struct, ${prim}[] fieldValue) {
+    public void set${prim.CapName}ArrayField(int fieldIndex, S struct, ${prim.Name}[] fieldValue) {
         FieldIO field = fields[fieldIndex];
         if (fieldValue == null)
             throw new IllegalArgumentException("By-value struct fields cannot be set to null");

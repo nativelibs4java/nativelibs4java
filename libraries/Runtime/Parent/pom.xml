@@ -17,7 +17,7 @@
   </parent>
   
   <properties>
-  	<nl4j-runtime.version>1.0-SNAPSHOT</nl4j-runtime.version>
+  	<nl4j-runtime.version>0.1-SNAPSHOT</nl4j-runtime.version>
 	<jnaerator.version>0.9.3-SNAPSHOT</jnaerator.version>
 	<jna.version>3.2.4</jna.version>
 	<jarsigner.skip>true</jarsigner.skip>

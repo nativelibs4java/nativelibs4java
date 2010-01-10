@@ -64,14 +64,14 @@ public class TemplatesMojo
 
     /**
      * Output directory for generated sources.
-     * @parameter expression="${project.build.directory}/generated-sources/main/velocity"
+     * @parameter expression="${project.build.directory}/generated-sources/main/java"
      * @optional
      */
     private File outputDirectory;
 
     /**
      * Output directory for generated test sources.
-     * @parameter expression="${project.build.directory}/generated-sources/test/velocity"
+     * @parameter expression="${project.build.directory}/generated-sources/test/java"
      * @optional
      */
     private File testOutputDirectory;
@@ -107,7 +107,11 @@ public class TemplatesMojo
             for (String resource : templates)
                 execute(ve, resource, outputDirectory);
             
-            project.addCompileSourceRoot(outputDirectory.toString());
+			//File jf = new File(outputDirectory, "java");
+			//if (jf.exists())
+			//	outputDirectory = jf;
+			project.addCompileSourceRoot(outputDirectory.toString());
+			
         } else {
             getLog().info("No templates configuration");
 
@@ -118,7 +122,10 @@ public class TemplatesMojo
             for (String resource : testTemplates)
                 execute(ve, resource, testOutputDirectory);
 
-            project.addTestCompileSourceRoot(testOutputDirectory.toString());
+            //File jf = new File(testOutputDirectory, "java");
+			//if (jf.exists())
+			//	testOutputDirectory = jf;
+			project.addTestCompileSourceRoot(testOutputDirectory.toString());
         } else {
             getLog().info("No testTemplates configuration");
 

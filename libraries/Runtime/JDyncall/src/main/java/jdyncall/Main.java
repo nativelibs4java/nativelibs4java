@@ -5,10 +5,9 @@
 
 package jdyncall;
 
-import com.nativelibs4java.runtime.DynCall;
 import com.nativelibs4java.runtime.JNI;
 import com.nativelibs4java.runtime.ann.*;
-import com.nativelibs4java.runtime.structs.*;
+import com.nativelibs4java.runtime.*;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;

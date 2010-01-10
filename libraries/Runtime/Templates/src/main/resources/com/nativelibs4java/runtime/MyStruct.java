@@ -1,8 +1,8 @@
 #if ($useJNA == "true")
-#set ($package = "com.nativelibs4java.runtime.structs.jna")
+#set ($package = "com.nativelibs4java.runtime.jna")
 #set ($annPackage = "com.nativelibs4java.runtime.ann.jna")
 #else
-#set ($package = "com.nativelibs4java.runtime.structs")
+#set ($package = "com.nativelibs4java.runtime")
 #set ($annPackage = "com.nativelibs4java.runtime.ann")
 #end
 

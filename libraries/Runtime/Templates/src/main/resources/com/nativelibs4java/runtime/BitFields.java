@@ -12,9 +12,9 @@
  * Lesser General Public License for more details.
  */
 #if ($useJNA == "true")
-#set ($package = "com.nativelibs4java.runtime.structs.jna")
+#set ($package = "com.nativelibs4java.runtime.jna")
 #else
-#set ($package = "com.nativelibs4java.runtime.structs")
+#set ($package = "com.nativelibs4java.runtime")
 #end
 
 package $package;

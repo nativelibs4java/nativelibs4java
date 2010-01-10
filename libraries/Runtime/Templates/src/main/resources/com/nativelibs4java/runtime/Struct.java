@@ -1,8 +1,8 @@
 #if ($useJNA == "true")
-#set ($package = "com.nativelibs4java.runtime.structs.jna")
+#set ($package = "com.nativelibs4java.runtime.jna")
 #set ($pointerTypeRef = "Pointer")
 #else
-#set ($package = "com.nativelibs4java.runtime.structs")
+#set ($package = "com.nativelibs4java.runtime")
 #set ($pointerTypeRef = "Pointer<?>")
 #end
 

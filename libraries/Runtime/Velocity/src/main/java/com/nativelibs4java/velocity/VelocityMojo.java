@@ -62,14 +62,14 @@ public class VelocityMojo
 
     /**
      * Output directory for generated sources.
-     * @parameter expression="${project.build.directory}/generated-sources/main/velocity"
+     * @parameter expression="${project.build.directory}/generated-sources/main/java"
      * @optional
      */
     private File outputDirectory;
 
     /**
      * Output directory for generated test sources.
-     * @parameter expression="${project.build.directory}/generated-sources/test/velocity"
+     * @parameter expression="${project.build.directory}/generated-sources/test/java"
      * @optional
      */
     private File testOutputDirectory;
@@ -130,11 +130,19 @@ public class VelocityMojo
     public void execute()
         throws MojoExecutionException
     {
-        if (executeAll(velocitySources, outputDirectory))
-            project.addCompileSourceRoot(outputDirectory.toString());
+        if (executeAll(velocitySources, outputDirectory)) {
+			//File jf = new File(outputDirectory, "java");
+			//if (jf.exists())
+			//	outputDirectory = jf;
+			project.addCompileSourceRoot(outputDirectory.toString());
+		}
         
-        if (executeAll(velocityTestSources, testOutputDirectory))
-            project.addTestCompileSourceRoot(testOutputDirectory.toString());
+        if (executeAll(velocityTestSources, testOutputDirectory)) {
+			//File jf = new File(testOutputDirectory, "java");
+			//if (jf.exists())
+			//	testOutputDirectory = jf;
+			project.addTestCompileSourceRoot(testOutputDirectory.toString());
+		}
         
 		/*if (templates == null)
 			getLog().error("Did not find <templates> !");
