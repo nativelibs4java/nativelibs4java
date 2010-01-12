@@ -15,6 +15,7 @@
   </parent>
 
   <modules>
+	<module>jnaerator</module>
 	<module>OpenCL</module>
 	<module>Mono</module>
 	<module>Runtime</module>
