@@ -72,6 +72,19 @@
 					<shadedArtifactAttached>true</shadedArtifactAttached>
 					<!--shadedArtifactId>${project.artifactId}-standalone</shadedArtifactId-->
 					<!--finalName>${project.artifactId}-standalone-${project.version}</finalName-->
+					<filters>
+					  	<filter>
+			
+							<artifact>org.ujmp:ujmp-core</artifact>
+			
+							<excludes>
+			
+								<exclude>META-INF/**</exclude>
+								
+								</excludes>
+								
+						</filter>
+					</filters>
 					<artifactSet>
 						<excludes>
 						  <exclude>org.scala-lang:scala-library</exclude>
