@@ -305,7 +305,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	public CLImage2D createImage2D(CLMem.Usage usage, Image image, boolean allowUnoptimizingDirectRead) {
 		int width = image.getWidth(null), height = image.getHeight(null);
 		int[] data = getImageIntPixels(image, 0, 0, width, height, allowUnoptimizingDirectRead);
-		IntBuffer directData = NIOUtils.directInts(data.length, getByteOrder());
+		IntBuffer directData = NIOUtils.directInts(data.length, getKernelsDefaultByteOrder());
 		directData.put(IntBuffer.wrap(data));
 		directData.rewind();
 
@@ -479,7 +479,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
                     throw new IllegalArgumentException("Cannot create an OpenCL buffer object out of a non-direct NIO buffer without copy.");
                 if (kind == CLMem.Usage.Output)
                     throw new IllegalArgumentException("Output NIO buffers must be direct.");
-                buffer = NIOUtils.directCopy(buffer, getByteOrder());
+                buffer = NIOUtils.directCopy(buffer, getKernelsDefaultByteOrder());
             }
             return createBuffer(buffer, -1, kind.getIntFlags() | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), copy);
 	}
@@ -508,6 +508,22 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 		return new CLByteBuffer(this, byteCount, mem, buffer);
 	}
+
+    /**
+     * The OpenCL specification states that the default endianness of kernel arguments is that of the device.<br/>
+     * However, there are implementations where this does not appear to be respected, so it is compulsory to perform a runtime test on those platforms.
+     * @return byte order needed for pointer kernel arguments that do not have any <code>__attribute__ ((endian(device))</code> or <code>__attribute__ ((endian(host))</code> attribute.
+     */
+    public ByteOrder getKernelsDefaultByteOrder() {
+        ByteOrder order = null;
+        for (CLDevice device : getDevices()) {
+            ByteOrder devOrder = device.getKernelsDefaultByteOrder();
+            if (order != null && devOrder != order)
+                return null;
+            order = devOrder;
+        }
+        return order;
+    }
 
     public ByteOrder getByteOrder() {
         ByteOrder order = null;

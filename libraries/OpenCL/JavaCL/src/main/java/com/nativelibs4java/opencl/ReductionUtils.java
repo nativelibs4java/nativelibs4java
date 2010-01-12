@@ -67,8 +67,8 @@ public class ReductionUtils {
             throw new IllegalArgumentException("Primitive type not handled: '" + valueType.getName() + "' !");
         }
     }
-    public static Pair<String, Map<String, String>> getReductionCodeAndMacros(Operation op, Type valueType, int channels) throws IOException {
-        Map<String, String> macros = new LinkedHashMap<String, String>();
+    public static Pair<String, Map<String, Object>> getReductionCodeAndMacros(Operation op, Type valueType, int channels) throws IOException {
+        Map<String, Object> macros = new LinkedHashMap<String, Object>();
         String cType = valueType.toCType() + (channels == 1 ? "" : channels);
         macros.put("OPERAND_TYPE", cType);
         String operation, seed;
@@ -131,7 +131,7 @@ public class ReductionUtils {
         }
         macros.put("OPERATION", operation);
         macros.put("SEED", seed);
-        return new Pair<String, Map<String, String>>(getSource(), macros);
+        return new Pair<String, Map<String, Object>>(getSource(), macros);
     }
     public interface Reductor<B extends Buffer> {
         public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor);
@@ -164,7 +164,7 @@ public class ReductionUtils {
         try {
 
 
-            Pair<String, Map<String, String>> codeAndMacros = getReductionCodeAndMacros(op, valueType, valueChannels);
+            Pair<String, Map<String, Object>> codeAndMacros = getReductionCodeAndMacros(op, valueType, valueChannels);
             CLProgram program = context.createProgram(codeAndMacros.getFirst());
             program.defineMacros(codeAndMacros.getValue());
             program.build();

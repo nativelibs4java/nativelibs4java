@@ -62,12 +62,12 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 		return map(queue, flags, offset, length, false, eventsToWaitFor);
     }
 	public B read(CLQueue queue, CLEvent... eventsToWaitFor) {
-        B out = typedBuffer(directBytes((int)getByteCount(), getContext().getByteOrder()));
+        B out = typedBuffer(directBytes((int)getByteCount(), queue.getDevice().getKernelsDefaultByteOrder()));
         read(queue, out, true, eventsToWaitFor);
 		return out;
 	}
 	public B read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		B out = typedBuffer(directBytes((int)getByteCount(), getContext().getByteOrder()));
+		B out = typedBuffer(directBytes((int)getByteCount(), queue.getDevice().getKernelsDefaultByteOrder()));
         read(queue, offset, length, out, true, eventsToWaitFor);
 		return out;
 	}
@@ -120,7 +120,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 		);
 		error(pErr.getValue());
         return new Pair<B, CLEvent>(
-			typedBuffer(p.getByteBuffer(0, getByteCount()).order(queue.getDevice().getByteOrder())),
+			typedBuffer(p.getByteBuffer(0, getByteCount()).order(queue.getDevice().getKernelsDefaultByteOrder())),
 			CLEvent.createEvent(queue, eventOut)
 		);
     }
@@ -154,7 +154,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
         B originalOut = null;
         if (!out.isDirect()) {
             originalOut = out;
-            out = typedBuffer(directBytes((int)(length * getElementSize()), getContext().getByteOrder()));
+            out = typedBuffer(directBytes((int)(length * getElementSize()), queue.getDevice().getKernelsDefaultByteOrder()));
             blocking = true;
         }
         cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
@@ -192,7 +192,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
     public CLEvent write(CLQueue queue, long offset, long length, B in, boolean blocking, CLEvent... eventsToWaitFor) {
         if (!in.isDirect()) {
             blocking = true;
-            in = typedBuffer(directCopy(in, getContext().getByteOrder()));
+            in = typedBuffer(directCopy(in, queue.getDevice().getKernelsDefaultByteOrder()));
         }
             
         cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
@@ -213,7 +213,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
     public CLEvent writeBytes(CLQueue queue, long offset, long length, ByteBuffer in, boolean blocking, CLEvent... eventsToWaitFor) {
         if (!in.isDirect()) {
             blocking = true;
-            in = directCopy(in, getContext().getByteOrder());
+            in = directCopy(in, queue.getDevice().getKernelsDefaultByteOrder());
         }
 
         cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
@@ -232,7 +232,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
     }
 
 	public ByteBuffer readBytes(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		ByteBuffer out = directBytes((int)getByteCount(), getContext().getByteOrder());
+		ByteBuffer out = directBytes((int)getByteCount(), queue.getDevice().getKernelsDefaultByteOrder());
         B tout = typedBuffer(out);
 		read(queue, offset, tout.capacity(), tout, true, eventsToWaitFor);
 		return out;

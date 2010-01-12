@@ -85,7 +85,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         if (passMacrosAsSources) {
             if (macros != null && !macros.isEmpty()) {
                 StringBuilder b = new StringBuilder();//"-DJAVACL=1 ");
-                for (Map.Entry<String, String> m : macros.entrySet())
+                for (Map.Entry<String, Object> m : macros.entrySet())
                     b.append("#define " + m.getKey() + " " + m.getValue() + "\n");
                 this.sources.add(0, b.toString());
             }
@@ -164,22 +164,23 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     public CLContext getContext() {
         return context;
     }
-    Map<String, String> macros;
-    public void defineMacro(String name, String value) {
+    Map<String, Object> macros;
+    public CLProgram defineMacro(String name, Object value) {
         createMacros();
         macros.put(name, value);
+        return this;
     }
-    public void undefineMacro(String name) {
-        if (macros == null)
-            return;
-        macros.remove(name);
+    public CLProgram undefineMacro(String name) {
+        if (macros != null)
+            macros.remove(name);
+        return this;
     }
 
     private void createMacros() {
         if (macros == null)
-            macros = new LinkedHashMap<String, String>();
+            macros = new LinkedHashMap<String, Object>();
     }
-    public void defineMacros(Map<String, String> macros) {
+    public void defineMacros(Map<String, Object> macros) {
         createMacros();
         this.macros.putAll(macros);
     }
@@ -192,7 +193,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             return null;
 
         StringBuilder b = new StringBuilder();//"-DJAVACL=1 ");
-        for (Map.Entry<String, String> m : macros.entrySet())
+        for (Map.Entry<String, Object> m : macros.entrySet())
             b.append("-D" + m.getKey() + "=" + m.getValue() + " ");
 
         return b.toString();

@@ -51,7 +51,7 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
 
     public CLDenseDoubleMatrix2D(long rows, long columns, LinearAlgebraUtils kernels) {
         super(rows, columns);
-        this.data = NIOUtils.directDoubles((int)(rows * columns), kernels.getContext().getByteOrder());
+        this.data = NIOUtils.directDoubles((int)(rows * columns), kernels.getContext().getKernelsDefaultByteOrder());
         this.buffer = kernels.getContext().createDoubleBuffer(Usage.InputOutput, data, false);
         this.kernels = kernels;
         map();
@@ -159,7 +159,7 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
         //long count = buffer.getElementCount();
         waitForRead();
         CLDenseDoubleMatrix2D copy = new CLDenseDoubleMatrix2D(rows, columns, kernels);
-        DoubleBuffer data = NIOUtils.directDoubles((int)(rows * columns), kernels.getContext().getByteOrder());
+        DoubleBuffer data = NIOUtils.directDoubles((int)(rows * columns), kernels.getContext().getKernelsDefaultByteOrder());
         data.put(this.data.duplicate());
         return new CLDenseDoubleMatrix2D(buffer, data, rows, columns, kernels);
         /*

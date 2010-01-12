@@ -151,7 +151,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             } else {
                 switch (eval) {
                     case BiggestMaxComputeUnitsWithNativeEndianness:
-                        if (bestDevice.getByteOrder() != ByteOrder.nativeOrder() && device.getByteOrder() == ByteOrder.nativeOrder()) {
+                        if (bestDevice.getKernelsDefaultByteOrder() != ByteOrder.nativeOrder() && device.getKernelsDefaultByteOrder() == ByteOrder.nativeOrder()) {
                             bestDevice = device;
                             break;
                         }
