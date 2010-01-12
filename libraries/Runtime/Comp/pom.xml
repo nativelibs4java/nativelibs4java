@@ -1,0 +1,92 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+ <modelVersion>4.0.0</modelVersion>
+  <groupId>com.nativelibs4java</groupId>
+  <artifactId>nl4j-runtime-comp</artifactId>
+  <name>NativeLibs4Java C/C++ Interop Layer Comparison</name>
+  <url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
+  <version>${nl4j-runtime.version}</version>
+  <packaging>jar</packaging>
+
+  <parent>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>nl4j-runtime-parent</artifactId>
+	  <version>0.1-SNAPSHOT</version>
+	  <relativePath>../Parent</relativePath>
+  </parent>
+
+  <dependencies>
+
+	<dependency>
+      <groupId>com.ochafik</groupId>
+      <artifactId>ochafik-util</artifactId>
+      <version>${jnaerator.version}</version>
+      <scope>compile</scope>
+    </dependency>
+	
+	<dependency>
+      <groupId>com.nativelibs4java</groupId>
+      <artifactId>nl4j-runtime</artifactId>
+      <version>${nl4j-runtime.version}</version>
+      <scope>compile</scope>
+    </dependency>
+	
+	<dependency>
+      <groupId>com.jnaerator</groupId>
+      <artifactId>jna-jnaerator</artifactId>
+      <version>${jna.version}</version>
+      <scope>compile</scope>
+    </dependency>
+	
+  </dependencies>
+
+  <build>
+  	<plugins>
+
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
+			<version>1.2.2</version>
+			<executions>
+			  <execution>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+				<configuration>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<!--shadedArtifactId>${project.artifactId}-standalone</shadedArtifactId-->
+					<!--finalName>${project.artifactId}-standalone-${project.version}</finalName-->
+					<artifactSet>
+						<excludes>
+						  <exclude>org.scala-lang:scala-library</exclude>
+						  <exclude>org.slf4j:slf4j-jdk14</exclude>
+						  <exclude>junit:junit</exclude>
+						</excludes>
+					  </artifactSet>
+				</configuration>
+			  </execution>
+			</executions>
+		</plugin>
+		
+		<plugin>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>maven-velocity-plugin</artifactId>
+			<version>${nl4j-runtime.version}</version>
+			<executions>
+			  <execution>
+				<phase>generate-sources</phase>
+				<goals>
+				  <goal>compile</goal>
+				</goals>
+			  </execution>
+			</executions>
+		</plugin>
+		
+	</plugins>
+  </build>
+</project>
+
+
+
