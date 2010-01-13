@@ -74,7 +74,6 @@
 					<template>com/nativelibs4java/runtime/ann/Virtual.java</template>
 					<template>com/nativelibs4java/runtime/ann/Wide.java</template>
 					
-					<template>com/nativelibs4java/runtime/Array.java</template>
 					<template>com/nativelibs4java/runtime/BitFields.java</template>
 					<template>com/nativelibs4java/runtime/Struct.java</template>
 					<template>com/nativelibs4java/runtime/StructWithNIO.java</template>

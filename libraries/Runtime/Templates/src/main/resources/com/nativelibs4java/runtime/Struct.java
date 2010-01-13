@@ -1,9 +1,11 @@
 #if ($useJNA == "true")
 #set ($package = "com.nativelibs4java.runtime.jna")
 #set ($pointerTypeRef = "Pointer")
+#set ($getPointer = "getPointer")
 #else
 #set ($package = "com.nativelibs4java.runtime")
 #set ($pointerTypeRef = "Pointer<?>")
+#set ($getPointer = "getReference")
 #end
 
 package $package;
@@ -43,7 +45,7 @@ public abstract class Struct<S extends Struct<S>> implements
         try {
             S clone = (S) getClass().newInstance();
             int sz = io.getStructSize();
-            clone.getPointer().getByteBuffer(0, sz).put(getPointer().getByteBuffer(0, sz));
+            clone.$getPointer().getByteBuffer(0, sz).put($getPointer().getByteBuffer(0, sz));
             return clone;
         } catch (Exception ex) {
             throw new RuntimeException("Failed to clone struct of type " + getClass().getName(), ex);
@@ -51,11 +53,11 @@ public abstract class Struct<S extends Struct<S>> implements
     }
 
 #if ($useJNA != "true") 
-	public synchronized Pointer<S> getPointer() {
+	public synchronized Pointer<S> $getPointer() {
         return pointer == null ? pointer = Pointer.allocate(io.getPointerIO(), io.getStructSize()) : pointer;
     }
 #else
-    public synchronized ${pointerTypeRef} getPointer() {
+    public synchronized ${pointerTypeRef} $getPointer() {
         if (pointer == null)
             pointer = new Memory(io.getStructSize());
         return pointer;
@@ -90,7 +92,7 @@ public abstract class Struct<S extends Struct<S>> implements
     @Override
     public Object toNative() {
         write();
-        return getPointer();
+        return $getPointer();
     }
 
     @Override
