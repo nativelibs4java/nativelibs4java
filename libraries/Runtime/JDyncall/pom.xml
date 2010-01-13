@@ -103,9 +103,7 @@
 					
 					<template>com/nativelibs4java/runtime/BitFields.java</template>
 					<template>com/nativelibs4java/runtime/Struct.java</template>
-					<template>com/nativelibs4java/runtime/StructWithNIO.java</template>
 					<template>com/nativelibs4java/runtime/StructIO.java</template>
-					<template>com/nativelibs4java/runtime/StructIOWithNIO.java</template>
 				</templates>
 				<testTemplates>
 					<testTemplate>com/nativelibs4java/runtime/MyStruct.java</testTemplate>
