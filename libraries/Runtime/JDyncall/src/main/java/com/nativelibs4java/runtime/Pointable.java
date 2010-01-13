@@ -10,5 +10,5 @@ package com.nativelibs4java.runtime;
  * @author ochafik
  */
 public interface Pointable {
-    Pointer<?> getPointer();
+    Pointer<?> getReference();
 }

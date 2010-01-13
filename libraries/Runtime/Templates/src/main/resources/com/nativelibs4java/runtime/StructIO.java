@@ -426,7 +426,7 @@ public class StructIO<S extends Struct<S>> {
         }
         PointerRefreshable ref = (PointerRefreshable)value;
         struct.refreshableFields[field.refreshableFieldIndex] = ref;
-        struct.$getPointer().setPointer(field.byteOffset, ref.getPointer());
+        struct.$getPointer().setPointer(field.byteOffset, ref.$getPointer());
     }
 
     public <F extends PointerRefreshable> F getRefreshableField(int fieldIndex, S struct, Class<F> fieldClass) {
@@ -475,6 +475,7 @@ public class StructIO<S extends Struct<S>> {
         return fieldValue;
 	}
 
+	/*
     public <F extends Struct<F>> Array<F> getStructArrayField(int fieldIndex, S struct, Class<F> fieldClass) {
         FieldIO field = fields[fieldIndex];
         assert fieldClass.equals(field.valueClass);
@@ -488,6 +489,7 @@ public class StructIO<S extends Struct<S>> {
         
         return fieldValue;
 	}
+	*/
 
 	public boolean getBoolField(int fieldIndex, S struct) {
 		return getByteField(fieldIndex, struct) != 0;

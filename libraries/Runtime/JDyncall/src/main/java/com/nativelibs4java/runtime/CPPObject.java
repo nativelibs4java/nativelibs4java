@@ -21,7 +21,7 @@ public class CPPObject implements PointerRefreshable {
     }
 
     @Override
-    public Pointer<?> getPointer() {
+    public Pointer<?> getReference() {
         return pointer;
     }
 

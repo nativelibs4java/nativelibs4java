@@ -13,7 +13,7 @@ public abstract class Callback<C extends Callback<C>> implements Pointable {
 	protected Pointer<?> pointer;
 
     @Override
-    public Pointer<?> getPointer() {
+    public Pointer<?> getReference() {
         return pointer;
     }
 
