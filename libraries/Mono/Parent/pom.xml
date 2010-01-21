@@ -13,7 +13,7 @@
   <properties>
 	<maven.jar.sign.skip>true</maven.jar.sign.skip>
 	<mono4java.version>0.1-SNAPSHOT</mono4java.version>
-	<jnaerator.version>0.9.3-SNAPSHOT</jnaerator.version>
+	<jnaerator.version>0.9.3</jnaerator.version>
   </properties>
 
   <parent>

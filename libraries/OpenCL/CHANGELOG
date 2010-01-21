@@ -1,5 +1,9 @@
 Current development version (1.0-SNAPSHOT)
 
+...
+
+Version 1.0-beta-4 (r , 20091030)
+
 - Changed semantics of offset & length arguments in typed CLxxxBuffer.read / write / map methods : now expressed in elements, not in bytes (e.g. 4 bytes per element for CLIntBuffer)
 - Added OpenGL interoperability methods to CLContext and CLQueue (can create a CLByteBuffer from an OpenGL buffer object, a CLImage2D/3D from an OpenGL 2D/3D texture or a renderbuffer).
 - Added OpenGL-compatible context creation methods to JavaCL & CLPlatform classes

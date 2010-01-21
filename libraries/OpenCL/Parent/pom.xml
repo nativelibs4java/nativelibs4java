@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
     <artifactId>opencl4java-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-beta-4</version>
 	<packaging>pom</packaging>
 	<name>OpenCL4Java Common Configuration</name>
 	<inceptionYear>2009</inceptionYear>
@@ -22,8 +22,8 @@ OpenCL4Java, JavaCL and ScalaCL are OpenCL binding libraries for the Java platfo
   
   
   <properties>
-  	<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
-	<jnaerator.version>0.9.3-SNAPSHOT</jnaerator.version>
+  	<opencl4java.version>1.0-beta-4</opencl4java.version>
+	<jnaerator.version>0.9.3</jnaerator.version>
 	<jarsigner.skip>true</jarsigner.skip>
 	
   </properties>
