@@ -85,11 +85,6 @@ public class JavaCL {
 		return devices[0].getPlatform().createContext(contextProperties, devices);
     }
 
-    @Deprecated
-    public static CLContext createContext(CLDevice... devices) {
-		return createContext(null, devices);
-    }
-
     /**
 	 * Allows the implementation to release the resources allocated by the OpenCL compiler. <br/>
 	 * This is a hint from the application and does not guarantee that the compiler will not be used in the future or that the compiler will actually be unloaded by the implementation. <br/>
