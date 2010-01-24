@@ -77,9 +77,9 @@ public class OpenCL4JavaBenchmarkTest {
         return new ExecResult(outputBuffer, time / (loops * (double) dataSize));
     }
 
-    static ExecResult<FloatBuffer> testOpenCL_float_aSinB(Target target, int loops, int dataSize, boolean hostInOpenCL) throws CLBuildException {
+    static ExecResult<FloatBuffer> testOpenCL_float_aSinB(CLContext context, int loops, int dataSize, boolean hostInOpenCL) throws CLBuildException {
 
-        ExecResult<ByteBuffer> er = testOpenCL_aSinB(target, Prim.Float, loops, dataSize, hostInOpenCL, new Action2<ByteBuffer, ByteBuffer>() {
+        ExecResult<ByteBuffer> er = testOpenCL_aSinB(context, Prim.Float, loops, dataSize, hostInOpenCL, new Action2<ByteBuffer, ByteBuffer>() {
 
             public void call(ByteBuffer a, ByteBuffer b) {
                 fillBuffersWithSomeData(a.asFloatBuffer(), b.asFloatBuffer());
@@ -88,9 +88,9 @@ public class OpenCL4JavaBenchmarkTest {
         return new ExecResult(er.buffer.asFloatBuffer(), er.unitTimeNano);
     }
 
-    static ExecResult<DoubleBuffer> testOpenCL_double_aSinB(Target target, int loops, int dataSize, boolean hostInOpenCL) throws CLBuildException {
+    static ExecResult<DoubleBuffer> testOpenCL_double_aSinB(CLContext context, int loops, int dataSize, boolean hostInOpenCL) throws CLBuildException {
 
-        ExecResult<ByteBuffer> er = testOpenCL_aSinB(target, Prim.Double, loops, dataSize, hostInOpenCL, new Action2<ByteBuffer, ByteBuffer>() {
+        ExecResult<ByteBuffer> er = testOpenCL_aSinB(context, Prim.Double, loops, dataSize, hostInOpenCL, new Action2<ByteBuffer, ByteBuffer>() {
 
             public void call(ByteBuffer a, ByteBuffer b) {
                 fillBuffersWithSomeData(a.asDoubleBuffer(), b.asDoubleBuffer());
@@ -99,10 +99,9 @@ public class OpenCL4JavaBenchmarkTest {
         return new ExecResult(er.buffer.asDoubleBuffer(), er.unitTimeNano);
     }
 
-    static ExecResult<ByteBuffer> testOpenCL_aSinB(Target target, Prim nativePrim, int loops, int dataSize, boolean hostInOpenCL, Action2<ByteBuffer, ByteBuffer> fillBuffersWithSomeData) throws CLBuildException {
+    static ExecResult<ByteBuffer> testOpenCL_aSinB(CLContext context, Prim nativePrim, int loops, int dataSize, boolean hostInOpenCL, Action2<ByteBuffer, ByteBuffer> fillBuffersWithSomeData) throws CLBuildException {
 
-        CLKernel kernel = setupASinB(nativePrim, target);
-        CLContext context = kernel.getProgram().getContext();
+        CLKernel kernel = setupASinB(nativePrim, context);
         CLQueue queue = context.createDefaultQueue();
 
         ByteBuffer input1 = null, input2 = null, output = null;
@@ -174,7 +173,7 @@ public class OpenCL4JavaBenchmarkTest {
         return new ExecResult(output, time / (loops * (double) dataSize));
     }
 
-    static CLKernel setupASinB(Prim nativeType, Target target) throws CLBuildException {
+    static CLKernel setupASinB(Prim nativeType, CLContext context) throws CLBuildException {
         String src = "\n"
                 + "#pragma OPENCL EXTENSION cl_khr_fp16 : enable\n"
                 + "#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n"
@@ -189,21 +188,7 @@ public class OpenCL4JavaBenchmarkTest {
                 + "   output[i] = ai * sin(bi);// + atan2(ai, bi);                     \n"
                 + "}                                                                 \n";
 
-        CLDevice[] devices = getDevices(target);
-        CLDevice bestDevice = null;
-        ;
-        for (CLDevice device : devices) {
-            System.out.println("OpenCL device: " + device);
-            if (bestDevice == null || bestDevice.getMaxComputeUnits() < device.getMaxComputeUnits()) {
-                bestDevice = device;
-            }
-        }
-
-        if (devices.length > 1) {
-            System.out.println("Chose 'best' device: " + bestDevice);
-        }
-
-        CLProgram program = createContext(bestDevice).createProgram(src).build();
+        CLProgram program = context.createProgram(src).build();
         CLKernel kernel = program.createKernel("aSinB");
 
         return kernel;
@@ -276,24 +261,17 @@ public class OpenCL4JavaBenchmarkTest {
             boolean isAMD = v.equals("Advanced Micro Devices, Inc.");
             int loops = 10;
             int dataSize = isAMD ? 1024 : 1024 * 1024;
-            Target target = platform.listGPUDevices(false).length == 0 ? Target.CPU : Target.GPU;
-
-
-            boolean hasDoubleSupport = true;
-            CLDevice[] devices = getDevices(target);
-            for (CLDevice device : devices) {
-                if (!device.isDoubleSupported()) {
-                    hasDoubleSupport = false;
-                }
-            }
+            
+            CLContext context = JavaCL.createBestContext();
+            boolean hasDoubleSupport = context.isDoubleSupported();
 
             if (!hasDoubleSupport) {
-                System.out.println("Not all devices support double precision computations : skipping second part of the	test");
+                System.out.println("OpenCL context does not support double precision computations : skipping second part of the	test");
             } else {
                 System.out.println("#\n# [Double Operations]\n#");
                 ExecResult<DoubleBuffer> nsByJavaOp = testJava_double_aSinB(loops, dataSize);
-                ExecResult<DoubleBuffer> nsByCLHostedOp = testOpenCL_double_aSinB(target, loops, dataSize, true);
-                ExecResult<DoubleBuffer> nsByNativeHostedCLOp = testOpenCL_double_aSinB(target, loops, dataSize, false);
+                ExecResult<DoubleBuffer> nsByCLHostedOp = testOpenCL_double_aSinB(context, loops, dataSize, true);
+                ExecResult<DoubleBuffer> nsByNativeHostedCLOp = testOpenCL_double_aSinB(context, loops, dataSize, false);
                 double errCLHosted = avgError(nsByJavaOp.buffer, nsByCLHostedOp.buffer, dataSize);
                 double errNativeHosted = avgError(nsByJavaOp.buffer, nsByNativeHostedCLOp.buffer, dataSize);
 
@@ -315,8 +293,8 @@ public class OpenCL4JavaBenchmarkTest {
             if (true) {
                 System.out.println("#\n# [Float Operations]\n#");
                 ExecResult<FloatBuffer> nsByJavaOp = testJava_float_aSinB(loops, dataSize);
-                ExecResult<FloatBuffer> nsByCLHostedOp = testOpenCL_float_aSinB(target, loops, dataSize, true);
-                ExecResult<FloatBuffer> nsByNativeHostedCLOp = testOpenCL_float_aSinB(target, loops, dataSize, false);
+                ExecResult<FloatBuffer> nsByCLHostedOp = testOpenCL_float_aSinB(context, loops, dataSize, true);
+                ExecResult<FloatBuffer> nsByNativeHostedCLOp = testOpenCL_float_aSinB(context, loops, dataSize, false);
                 double errCLHosted = avgError(nsByJavaOp.buffer, nsByCLHostedOp.buffer, dataSize);
                 double errNativeHosted = avgError(nsByJavaOp.buffer, nsByNativeHostedCLOp.buffer, dataSize);
 

@@ -1,6 +1,12 @@
 Current development version (1.0-SNAPSHOT)
 
-...
+- Now using a nice configuration dialog when launching ParticlesDemo : has
+optional OpenCL settings with "Fastest", "Normal" and "Safest" presets +
+detailed platform and device choice (with optional OpenGL sharing choice).
+- Removed deprecated method JavaCL.createContext(CLDevice...) in favor of
+alternative with optional context properties map as first arg (can be nulled
+out).
+- Fixed issue #18: CLImage.write calls enqueueImageRead !
 
 Version 1.0-beta-4 (r760, 20100121)
 
@@ -17,6 +23,7 @@ Version 1.0-beta-4 (r760, 20100121)
 - Created a kernel wrapper autogenerator (Maven plugin based on JNAerator) : translates all constants on the Java side and presents kernels as methods with the correct Java argument types. It assumes OpenCL kernels (*.c, *.cl) are in src/main/opencl
 - Added wrappers around clGetKernelWorkGroupInfo
 - Fixed respect of endianness of devices that have different endianness than platform
+- Fixed issue #10: "getMaxWorkItemSizes() fails on win7 64 GTX260"
 
 Version 1.0-beta-3 (r , 20091030)
 
