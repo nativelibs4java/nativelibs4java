@@ -99,7 +99,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	<!--dependency>
 		<groupId>com.jnaerator</groupId>
 		<artifactId>jnaerator-runtime</artifactId>
-		<version>0.9.3</version>
+		<version>0.9.4-SNAPSHOT</version>
 	  <scope>compile</scope>
 	</dependency>
 	
