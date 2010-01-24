@@ -99,7 +99,7 @@ public abstract class CLImage extends CLMem {
 
 		cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
 		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
+        error(CL.clEnqueueWriteImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
 			origin,
 			region,
