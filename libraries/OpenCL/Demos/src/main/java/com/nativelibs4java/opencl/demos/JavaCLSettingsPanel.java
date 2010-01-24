@@ -68,9 +68,13 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
     public List getPlatforms() {
         CLPlatform[] platforms = JavaCL.listPlatforms();
         boolean hasSharing = false;
-        for (CLPlatform platform : platforms)
+        plat: for (CLPlatform platform : platforms)
             if (platform.isGLSharingSupported())
-                hasSharing = true;
+                for (CLDevice device : platform.listAllDevices(false)) 
+                    if (device.isGLSharingSupported()) {
+                        hasSharing = true;
+                        break plat;
+                    }
 
         configFromGLCheck.setEnabled(hasSharing);
         configFromGLCheck.setToolTipText("Did not find any OpenCL platform with OpenGL sharing support.");
@@ -139,7 +143,7 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
         });
 
         awtRenderingCheck.setSelected(true);
-        awtRenderingCheck.setText("Direct OpenGL AWT Rendering");
+        awtRenderingCheck.setText("Direct OpenGL AWT Rendering (faster)");
         awtRenderingCheck.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 awtRenderingCheckActionPerformed(evt);
@@ -147,6 +151,7 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
         });
 
         configFromGLCheck.setText("Configure from OpenGL context");
+        configFromGLCheck.setToolTipText("Attempt to share data between OpenCL and OpenGL. \nThis is not well supported by existing graphic card drivers might crash the program.");
         configFromGLCheck.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 configFromGLChanged(evt);
@@ -188,28 +193,25 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
         settingsPanelLayout.setHorizontalGroup(
             settingsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(settingsPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .add(settingsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                    .add(platformLab)
+                    .add(deviceLab))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(settingsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(settingsPanelLayout.createSequentialGroup()
-                        .add(82, 82, 82)
                         .add(fastestButt)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(normalButt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .add(normalButt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 170, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                         .add(safestButt, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(configFromGLCheck)
+                    .add(awtRenderingCheck)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, settingsPanelLayout.createSequentialGroup()
-                        .addContainerGap()
-                        .add(settingsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
-                            .add(platformLab)
-                            .add(deviceLab))
+                        .add(platformCombo, 0, 354, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(settingsPanelLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(configFromGLCheck)
-                            .add(awtRenderingCheck)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, settingsPanelLayout.createSequentialGroup()
-                                .add(platformCombo, 0, 354, Short.MAX_VALUE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(detailsButt))
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, deviceCombo, 0, 448, Short.MAX_VALUE))))
+                        .add(detailsButt))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, deviceCombo, 0, 448, Short.MAX_VALUE))
                 .addContainerGap())
         );
         settingsPanelLayout.setVerticalGroup(
@@ -273,20 +275,26 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
 
     private void fastestButtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fastestButtActionPerformed
         selectBestDevice();
-        awtRenderingCheck.setSelected(true);
-        configFromGLCheck.setSelected(true);
+        if (awtRenderingCheck.isEnabled())
+            awtRenderingCheck.setSelected(true);
+        if (configFromGLCheck.isEnabled())
+            configFromGLCheck.setSelected(true);
     }//GEN-LAST:event_fastestButtActionPerformed
 
     private void normalButtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_normalButtActionPerformed
         selectBestDevice();
-        awtRenderingCheck.setSelected(true);
-        configFromGLCheck.setSelected(false);
+        if (awtRenderingCheck.isEnabled())
+            awtRenderingCheck.setSelected(true);
+        if (configFromGLCheck.isEnabled())
+            configFromGLCheck.setSelected(false);
     }//GEN-LAST:event_normalButtActionPerformed
 
     private void safestButtActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_safestButtActionPerformed
         selectBestDevice();
-        awtRenderingCheck.setSelected(false);
-        configFromGLCheck.setSelected(false);
+        if (awtRenderingCheck.isEnabled())
+            awtRenderingCheck.setSelected(false);
+        if (configFromGLCheck.isEnabled())
+            configFromGLCheck.setSelected(false);
     }//GEN-LAST:event_safestButtActionPerformed
 
     private void configFromGLChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_configFromGLChanged
@@ -346,11 +354,12 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
     }
 
     public boolean isGLSharingEnabled() {
-        return configFromGLCheck.isSelected();
+        return configFromGLCheck.isEnabled() && configFromGLCheck.isSelected();
     }
 
     public void setGLSharingEnabled(boolean b) {
-        configFromGLCheck.setSelected(b);
+        if (configFromGLCheck.isEnabled())
+            configFromGLCheck.setSelected(b);
     }
 
 }

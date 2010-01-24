@@ -32,33 +32,28 @@
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="1" attributes="0">
+                      <Component id="platformLab" min="-2" max="-2" attributes="0"/>
+                      <Component id="deviceLab" min="-2" max="-2" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
-                          <EmptySpace min="-2" pref="82" max="-2" attributes="0"/>
                           <Component id="fastestButt" min="-2" max="-2" attributes="1"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="normalButt" max="32767" attributes="1"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="normalButt" pref="170" max="32767" attributes="1"/>
                           <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Component id="safestButt" max="32767" attributes="1"/>
                       </Group>
+                      <Component id="configFromGLCheck" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Component id="awtRenderingCheck" alignment="0" min="-2" max="-2" attributes="0"/>
                       <Group type="102" alignment="1" attributes="0">
+                          <Component id="platformCombo" pref="354" max="32767" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="platformLab" min="-2" max="-2" attributes="0"/>
-                              <Component id="deviceLab" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="configFromGLCheck" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Component id="awtRenderingCheck" alignment="0" min="-2" max="-2" attributes="0"/>
-                              <Group type="102" alignment="1" attributes="0">
-                                  <Component id="platformCombo" pref="354" max="32767" attributes="0"/>
-                                  <EmptySpace max="-2" attributes="0"/>
-                                  <Component id="detailsButt" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Component id="deviceCombo" alignment="1" pref="448" max="32767" attributes="0"/>
-                          </Group>
+                          <Component id="detailsButt" min="-2" max="-2" attributes="0"/>
                       </Group>
+                      <Component id="deviceCombo" alignment="1" pref="448" max="32767" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
               </Group>
@@ -135,7 +130,7 @@
         <Component class="javax.swing.JCheckBox" name="awtRenderingCheck">
           <Properties>
             <Property name="selected" type="boolean" value="true"/>
-            <Property name="text" type="java.lang.String" value="Direct OpenGL AWT Rendering"/>
+            <Property name="text" type="java.lang.String" value="Direct OpenGL AWT Rendering (faster)"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="awtRenderingCheckActionPerformed"/>
@@ -144,6 +139,7 @@
         <Component class="javax.swing.JCheckBox" name="configFromGLCheck">
           <Properties>
             <Property name="text" type="java.lang.String" value="Configure from OpenGL context"/>
+            <Property name="toolTipText" type="java.lang.String" value="Attempt to share data between OpenCL and OpenGL. &#xa;This is not well supported by existing graphic card drivers might crash the program."/>
           </Properties>
           <Events>
             <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="configFromGLChanged"/>
