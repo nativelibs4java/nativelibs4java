@@ -8,11 +8,23 @@ package com.nativelibs4java.opencl.demos;
 import com.nativelibs4java.opencl.JavaCL;
 import com.ochafik.util.SystemUtils;
 import com.sun.jna.Platform;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Frame;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
+import javax.swing.Box;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import sun.font.Font2D;
 
 /**
  *
@@ -22,9 +34,72 @@ public class SetupUtils {
 
     public static void main(String[] args) {
         JFrame f = new JFrame();
-        JavaCLSettingsPanel sett = new JavaCLSettingsPanel();
-        sett.removeOpenGLComponents();
-        int opt = JOptionPane.showConfirmDialog(null, sett, "JavaCL Demo Settings", JOptionPane.OK_CANCEL_OPTION);
+        
+        class CountItem {
+            public int count;
+            public String string;
+            public CountItem(int count, String string) {
+                this.count = count;
+                this.string = string;
+            }
+            @Override
+            public String toString() {
+                return string;
+            }
+
+        }
+        CountItem[] items = new CountItem[] {
+            new CountItem(1024, "1K"),
+            new CountItem(1024 * 10,"10K"),
+            new CountItem(1024 * 100,"100K"),
+            new CountItem(1024 * 1000,"1M"),
+            new CountItem(1024 * 10000,"10M")
+        };
+        JComboBox cb = new JComboBox(items);
+        cb.setSelectedIndex(2);
+        JLabel lb = new JLabel("Number of particles");
+        Box countPanel = Box.createHorizontalBox();
+        GUIUtils.setEtchedTitledBorder(countPanel, "Particles Demo Settings");
+        countPanel.add(lb);
+        countPanel.add(cb);
+
+        final JavaCLSettingsPanel sett = new JavaCLSettingsPanel();
+        //sett.removeOpenGLComponents();
+
+        final JPanel opts = new JPanel(new BorderLayout());
+        JLabel detailsLab = new JLabel("<html><body><a href='#'>Advanced OpenCL settings...</a></body>", JLabel.RIGHT);
+        detailsLab.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        opts.add("Center", detailsLab);
+        detailsLab.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                opts.removeAll();
+                opts.add("Center", sett);
+                opts.invalidate();
+                Component c = opts.getParent();
+                while (c != null) {
+                    if (c instanceof Frame) {
+                        ((Frame)c).pack();
+                        break;
+                    }
+                    if (c instanceof JDialog) {
+                        ((JDialog)c).pack();
+                        break;
+                    }
+                    c = c.getParent();
+                }
+            }
+
+        });
+
+        int opt = JOptionPane.showConfirmDialog(null, new Object[] { countPanel, opts }, "JavaCL Demo Settings", JOptionPane.OK_CANCEL_OPTION);
+        if (opt != JOptionPane.OK_OPTION)
+            System.exit(0);
+
+        int count = ((CountItem)cb.getSelectedItem()).count;
+
+        
         //f.getContentPane().add("Center", sett);
         //f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //f.pack();

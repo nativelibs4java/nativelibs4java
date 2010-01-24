@@ -34,6 +34,8 @@ package com.nativelibs4java.opencl.demos.particles;
 
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.CLMem.Usage;
+import com.nativelibs4java.opencl.demos.GUIUtils;
+import com.nativelibs4java.opencl.demos.JavaCLSettingsPanel;
 import com.nativelibs4java.opencl.demos.SetupUtils;
 import com.nativelibs4java.util.*;
 import com.ochafik.util.SystemUtils;
@@ -56,6 +58,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Map;
 import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.media.opengl.*;
@@ -97,13 +100,28 @@ public class ParticlesDemo implements GLEventListener {
     volatile boolean paused;
     final static float DEFAULT_MOUSE_WEIGHT = 0.7f;
     volatile float mouseWeight = DEFAULT_MOUSE_WEIGHT;
-    
+
+    static class ParticlesCountItem {
+        public int count;
+        public String string;
+        public ParticlesCountItem(int count, String string) {
+            this.count = count;
+            this.string = string;
+        }
+        @Override
+        public String toString() {
+            return string;
+        }
+
+    }
+
     public static void main(String[] args) {
         try {
             System.setProperty("sun.java2d.noddraw","true");
 
             try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch(Exception ex) {}
             SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
+
 
             JFrame f = new JFrame("JavaCL Particles Demo");
             Box tb = Box.createHorizontalBox();
@@ -114,42 +132,9 @@ public class ParticlesDemo implements GLEventListener {
             //final JCheckBox limi
             final AssertionError[] err = new AssertionError[1];
 
-            int[] sizes = new int[] {
-                1024,
-                1024 * 10,
-                1024 * 100,
-                1024 * 1000,
-                1024 * 10000,
-            };
-            String[] descs = new String[] {
-                "1K",
-                "10K",
-                "100K",
-                "1M",
-                "10M"
-            };
-            int defaultChoice = 2;
-            int choice = JOptionPane.showOptionDialog(null, "Number of particles ?", "JavaCL Particles Demo", JOptionPane.OK_OPTION, JOptionPane.QUESTION_MESSAGE, null, descs, descs[defaultChoice]);
-            if (choice < 0)
-                System.exit(0);
 
-            int nParticles = sizes[choice];
-            final ParticlesDemo demo = new ParticlesDemo(nParticles);
+            final ParticlesDemo demo = new ParticlesDemo();
             final int nSpeeds = 21;
-
-            boolean hasSharing = false;
-            for (CLPlatform platform : JavaCL.listPlatforms())
-                if (platform.isGLSharingSupported())
-                    hasSharing = true;
-
-            if (hasSharing) {
-                int conf = JOptionPane.showConfirmDialog(null,
-                    "Do you want to enable the OpenCL/OpenGL context sharing ?\n" +
-                    "(this is typically very unstable with most drivers, but shouldn't crash anything else than this demo)",
-                    "JavaCL Demo : Stability Warning", JOptionPane.YES_NO_OPTION);
-                if (conf == JOptionPane.YES_OPTION)
-                    demo.useOpenGLContext = true;
-            }
 
             final JSlider speedSlider = new JSlider(0, nSpeeds - 1);
             speedSlider.setValue(nSpeeds / 2);
@@ -423,9 +408,60 @@ public class ParticlesDemo implements GLEventListener {
     CLByteBuffer colorsMem;
 
     Random random = new Random(System.nanoTime());
+    JavaCLSettingsPanel settings = new JavaCLSettingsPanel();
 
-    public ParticlesDemo(int particlesCount) {
-        this.particlesCount = particlesCount;
+    public ParticlesDemo() {
+
+        ParticlesCountItem[] items = new ParticlesCountItem[] {
+            new ParticlesCountItem(1024, "1K"),
+            new ParticlesCountItem(1024 * 10,"10K"),
+            new ParticlesCountItem(1024 * 100,"100K"),
+            new ParticlesCountItem(1024 * 1000,"1M"),
+            new ParticlesCountItem(1024 * 10000,"10M")
+        };
+        JComboBox cb = new JComboBox(items);
+        cb.setSelectedIndex(2);
+        JLabel lb = new JLabel("Number of particles");
+        Box countPanel = Box.createHorizontalBox();
+        GUIUtils.setEtchedTitledBorder(countPanel, "Particles Demo Settings");
+        countPanel.add(lb);
+        countPanel.add(cb);
+
+        //sett.removeOpenGLComponents();
+
+        final JPanel opts = new JPanel(new BorderLayout());
+        JLabel detailsLab = new JLabel("<html><body><a href='#'>Advanced OpenCL settings...</a></body>", JLabel.RIGHT);
+        detailsLab.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        opts.add("Center", detailsLab);
+        detailsLab.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                opts.removeAll();
+                opts.add("Center", settings);
+                opts.invalidate();
+                Component c = opts.getParent();
+                while (c != null) {
+                    if (c instanceof Frame) {
+                        ((Frame)c).pack();
+                        break;
+                    }
+                    if (c instanceof JDialog) {
+                        ((JDialog)c).pack();
+                        break;
+                    }
+                    c = c.getParent();
+                }
+            }
+
+        });
+
+        int opt = JOptionPane.showConfirmDialog(null, new Object[] { countPanel, opts }, "JavaCL Particles Demo", JOptionPane.OK_CANCEL_OPTION);
+        if (opt != JOptionPane.OK_OPTION)
+            System.exit(0);
+
+        useOpenGLContext = settings.isGLSharingEnabled();
+        particlesCount = ((ParticlesCountItem)cb.getSelectedItem()).count;
     }
 
     int[] blends = new int[] {
@@ -463,11 +499,14 @@ public class ParticlesDemo implements GLEventListener {
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(null, "Sharing of context between OpenCL and OpenGL failed.\n" +
-                        "The demo should run fine without anyway", "JavaCL Demo", JOptionPane.OK_OPTION);
+                        "The demo will run fine without anyway.", "JavaCL Demo", JOptionPane.OK_OPTION);
             }
             if (context == null) {
                 useOpenGLContext = false;
-                context = JavaCL.createBestContext();
+                CLDevice device = settings.getDevice();
+                if (device == null)
+                    device = JavaCL.getBestDevice();
+                context = JavaCL.createContext(null, device);
             }
             queue = context.createDefaultQueue();
             
