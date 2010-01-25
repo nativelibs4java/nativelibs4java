@@ -34,7 +34,6 @@ package com.nativelibs4java.opencl.demos.particles;
 
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.CLMem.Usage;
-import com.nativelibs4java.opencl.demos.GUIUtils;
 import com.nativelibs4java.opencl.demos.JavaCLSettingsPanel;
 import com.nativelibs4java.opencl.demos.SetupUtils;
 import com.nativelibs4java.util.*;
@@ -75,16 +74,7 @@ import javax.swing.plaf.basic.BasicMenuUI.ChangeHandler;
  */
 public class ParticlesDemo implements GLEventListener {
 
-    public static Component createGLCanvas(int width, int height) {
-        boolean useSwing = false;
-        if (Platform.isWindows() && !Platform.is64Bit()) {
-            int conf = JOptionPane.showConfirmDialog(null, 
-                "A bug in the OpenGL library (JOGL 2.x) might prevent the demo from working unless some amount of performance is sacrificed.\n" +
-                "This should be fixed in the future.\n" +
-                "Degrade performance for better stability ? (advised)", "JavaCL Demo : Performance Warning", JOptionPane.YES_NO_OPTION);
-            if (conf == JOptionPane.YES_OPTION)
-                useSwing = true;
-        }
+    public static Component createGLCanvas(int width, int height, boolean useSwing) {
         GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         GLCapabilities caps = new GLCapabilities(GLProfile.get(GLProfile.GL2));
         Component canvas = useSwing ? new GLJPanel(caps) : new GLCanvas(caps);
@@ -161,7 +151,7 @@ public class ParticlesDemo implements GLEventListener {
 
             });
 
-            final Component canvas = createGLCanvas(1000, 800);
+            final Component canvas = createGLCanvas(1000, 800, demo.settings.isDirectGLRendering());
             f.setLayout(new BorderLayout());
             f.add("Center", canvas);
 
@@ -423,9 +413,13 @@ public class ParticlesDemo implements GLEventListener {
         cb.setSelectedIndex(2);
         JLabel lb = new JLabel("Number of particles");
         Box countPanel = Box.createHorizontalBox();
-        GUIUtils.setEtchedTitledBorder(countPanel, "Particles Demo Settings");
+        SetupUtils.setEtchedTitledBorder(countPanel, "Particles Demo Settings");
         countPanel.add(lb);
         countPanel.add(cb);
+        cb.setMinimumSize(new Dimension(100, 10));
+        cb.setMaximumSize(new Dimension(200, Integer.MAX_VALUE));
+        countPanel.add(Box.createHorizontalGlue());
+
 
         //sett.removeOpenGLComponents();
 

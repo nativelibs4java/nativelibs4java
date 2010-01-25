@@ -17,13 +17,19 @@ import java.awt.event.MouseEvent;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 import sun.font.Font2D;
 
 /**
@@ -59,7 +65,7 @@ public class SetupUtils {
         cb.setSelectedIndex(2);
         JLabel lb = new JLabel("Number of particles");
         Box countPanel = Box.createHorizontalBox();
-        GUIUtils.setEtchedTitledBorder(countPanel, "Particles Demo Settings");
+        setEtchedTitledBorder(countPanel, "Particles Demo Settings");
         countPanel.add(lb);
         countPanel.add(cb);
 
@@ -162,5 +168,17 @@ public class SetupUtils {
         ex.printStackTrace(new PrintWriter(sout));
         JOptionPane.showMessageDialog(null, sout.toString(), "Error in JavaCL Demo", JOptionPane.ERROR_MESSAGE);
     }
-    
+
+    static Border etchedBorder;
+    static synchronized Border getEtchedBorder() {
+        if (etchedBorder == null) {
+            etchedBorder = UIManager.getBorder( "TitledBorder.aquaVariant" );
+            if (etchedBorder == null)
+                etchedBorder = BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5), new EtchedBorder());
+        }
+        return etchedBorder;
+    }
+    public static void setEtchedTitledBorder(JComponent comp, String title) {
+        comp.setBorder(new TitledBorder(getEtchedBorder(), title));
+    }
 }

@@ -16,6 +16,7 @@ import com.nativelibs4java.opencl.JavaCL;
 import com.nativelibs4java.opencl.ReductionUtils;
 import com.nativelibs4java.opencl.ReductionUtils.Reductor;
 import com.nativelibs4java.util.IOUtils;
+import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.util.NIOUtils.*;
 import static com.nativelibs4java.util.JNAUtils.*;
 import java.io.FileNotFoundException;
@@ -26,6 +27,8 @@ import java.io.StringWriter;
 import java.nio.DoubleBuffer;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -76,11 +79,34 @@ public class LinearAlgebraUtils {
         tanh,
         asinh,
         acosh,
-        atanh
+        atanh;
+
+        void expr(String a, StringBuilder out) {
+            out.append(name()).append('(').append(a).append(")");
+        }
     }
     public enum Fun2 {
         atan2,
-        dist
+        dist,
+        modulo("%"),
+        rshift(">>"),
+        lshift("<<"),
+        add("+"),
+        substract("-"),
+        multiply("*"),
+        divide("/");
+
+        String infixOp;
+        Fun2() {}
+        Fun2(String infixOp) {
+            this.infixOp = infixOp;
+        }
+        void expr(String a, String b, StringBuilder out) {
+            if (infixOp == null)
+                out.append(name()).append('(').append(a).append(", ").append(b).append(")");
+            else
+                out.append(a).append(' ').append(infixOp).append(' ').append(b);
+        }
     }
     public enum Primitive {
         Float,
@@ -123,33 +149,43 @@ public class LinearAlgebraUtils {
         Long16,
         Int16,
         Short16,
-        Byte16,
+        Byte16;
+
+        String type() {
+            return name().toLowerCase();
+        }
     }
 
-    protected String createVectFun1Source(String functionName, String type, PrintWriter out, boolean inPlace) {
-        String kernelName = "vect_" + functionName + "_" + type + (inPlace ? "_inplace" : "");
-        out.println("__kernel void " + kernelName + "(\n");
+    protected String createVectFun1Source(Fun1 function, Primitive type, StringBuilder out, boolean inPlace) {
+        String t = type.type();
+        String kernelName = "vect_" + function.name() + "_" + t + (inPlace ? "_inplace" : "");
+        out.append("__kernel void " + kernelName + "(\n");
         if (!inPlace)
-            out.println("\t__global const " + type + "* in,");
-        out.println("\t__global " + type + "* out");
-        out.println(") {");
-        out.println("\tint i = get_global_id(0);");
-        out.println("\tout[i] = " + functionName + "(" + (inPlace ? "out" : "in") + "[i]);");
-        out.println("}");
+            out.append("\t__global const " + t + "* in,\n");
+        out.append("\t__global " + t + "* out\n");
+        out.append(") {\n");
+        out.append("\tint i = get_global_id(0);\n");
+        out.append("\tout[i] = ");
+        function.expr(inPlace ? "out" : "in", out);
+        out.append("[i]);\n");
+        out.append("}\n");
         return kernelName;
     }
     
     
-    protected String createVectFun2Source(String functionName, String type, PrintWriter out) {
-        String kernelName = "vect_" + functionName + "_" + type;
-        out.println("__kernel void " + kernelName + "(\n");
-        out.println("\t__global const " + type + "* in1,");
-        out.println("\t__global const " + type + "* in2,");
-        out.println("\t__global " + type + "* out");
-        out.println(") {");
-        out.println("\tint i = get_global_id(0);");
-        out.println("\tout[i] = " + functionName + "(in1[i], in2[i]);");
-        out.println("}");
+    protected String createVectFun2Source(Fun2 function, Primitive type1, Primitive type2, Primitive typeOut, StringBuilder out) {
+        String t1 = type1.type(), t2 = type2.type(), to = typeOut.type();
+        String kernelName = "vect_" + function.name() + "_" + t1 + "_" + t2 + "_" + to;
+        out.append("__kernel void " + kernelName + "(\n");
+        out.append("\t__global const " + t1 + "* in1,\n");
+        out.append("\t__global const " + t2 + "* in2,\n");
+        out.append("\t__global " + to + "* out\n");
+        out.append(") {\n");
+        out.append("\tint i = get_global_id(0);\n");
+        out.append("\tout[i] = (" + to + ")");
+        function.expr("in1[i]", "in2[i]", out);
+        out.append(";\n");
+        out.append("}\n");
         return kernelName;
     }
 
@@ -158,18 +194,19 @@ public class LinearAlgebraUtils {
         CLKernel inPlace, notInPlace;
     }
     private EnumMap<Fun1, EnumMap<Primitive, Fun1Kernels>> fun1Kernels = new EnumMap<Fun1, EnumMap<Primitive, Fun1Kernels>>(Fun1.class);
-    public synchronized CLKernel getFun1Kernel(Fun1 op, Primitive prim, boolean inPlace) throws CLBuildException {
+
+    
+    public synchronized CLKernel getKernel(Fun1 op, Primitive prim, boolean inPlace) throws CLBuildException {
         EnumMap<Primitive, Fun1Kernels> m = fun1Kernels.get(op);
         if (m == null)
             fun1Kernels.put(op, m = new EnumMap<Primitive, Fun1Kernels>(Primitive.class));
 
         Fun1Kernels kers = m.get(prim);
         if (kers == null) {
-            StringWriter s = new StringWriter(300);
-            PrintWriter out = new PrintWriter(s);
-            String inPlaceName = createVectFun1Source(op.toString().toLowerCase(), prim.toString().toLowerCase(), out, true);
-            String notInPlaceName = createVectFun1Source(op.toString().toLowerCase(), prim.toString().toLowerCase(), out, false);
-            CLProgram prog = getContext().createProgram(s.toString()).build();
+            StringBuilder out = new StringBuilder(300);
+            String inPlaceName = createVectFun1Source(op, prim, out, true);
+            String notInPlaceName = createVectFun1Source(op, prim, out, false);
+            CLProgram prog = getContext().createProgram(out.toString()).build();
             kers = new Fun1Kernels();
             kers.inPlace = prog.createKernel(inPlaceName);
             kers.notInPlace = prog.createKernel(notInPlaceName);
@@ -178,25 +215,33 @@ public class LinearAlgebraUtils {
         return inPlace ? kers.inPlace : kers.notInPlace;
     }
 
-    private EnumMap<Fun2, EnumMap<Primitive, CLKernel>> fun2Kernels = new EnumMap<Fun2, EnumMap<Primitive, CLKernel>>(Fun2.class);
-    public synchronized CLKernel getFun2Kernel(Fun2 op, Primitive prim) throws CLBuildException {
-        EnumMap<Primitive, CLKernel> m = fun2Kernels.get(op);
-        if (m == null)
-            fun2Kernels.put(op, m = new EnumMap<Primitive, CLKernel>(Primitive.class));
+    static class PrimitiveTrio extends Pair<Primitive, Pair<Primitive, Primitive>> {
+        public PrimitiveTrio(Primitive a, Primitive b, Primitive c) {
+            super(a, new Pair<Primitive, Primitive>(b, c));
+        }
+    }
+    private EnumMap<Fun2, Map<PrimitiveTrio, CLKernel>> fun2Kernels = new EnumMap<Fun2, Map<PrimitiveTrio, CLKernel>>(Fun2.class);
+    public synchronized CLKernel getKernel(Fun2 op, Primitive prim) throws CLBuildException {
+        return getKernel(op, prim, prim, prim);
+    }
 
-        CLKernel ker = m.get(prim);
+    public synchronized CLKernel getKernel(Fun2 op, Primitive prim1, Primitive prim2, Primitive primOut) throws CLBuildException {
+        Map<PrimitiveTrio, CLKernel> m = fun2Kernels.get(op);
+        if (m == null)
+            fun2Kernels.put(op, m = new HashMap<PrimitiveTrio, CLKernel>());
+
+        PrimitiveTrio key = new PrimitiveTrio(prim1, prim2, primOut);
+        CLKernel ker = m.get(key);
         if (ker == null) {
-            StringWriter s = new StringWriter(300);
-            PrintWriter out = new PrintWriter(s);
-            String name = createVectFun2Source(op.toString().toLowerCase(), prim.toString().toLowerCase(), out);
-            CLProgram prog = getContext().createProgram(s.toString()).build();
+            StringBuilder out = new StringBuilder(300);
+            String name = createVectFun2Source(op, prim1, prim2, primOut, out);
+            CLProgram prog = getContext().createProgram(out.toString()).build();
             ker = prog.createKernel(name);
-            m.put(prim, ker);
+            m.put(key, ker);
         }
         return ker;
     }
     
-
 	private static final int[] unitIntArr = new int[] { 1 };
     private static final int[] unitInt2Arr = new int[] { 1, 1 };
 
@@ -207,16 +252,6 @@ public class LinearAlgebraUtils {
             CLEvent... eventsToWaitFor) throws CLBuildException
     {
         long outRows = aRows;
-        /*
-            if (bColumns == 1) {
-            mulVecKernel.setArgs(
-                a, (int)aColumns,
-                b, (int)bRows,
-                out
-            );
-            return mulMatKernel.enqueueNDRange(queue, new int[] { (int)outRows }, unitIntArr, eventsToWaitFor);
-        }
-        */
         long outColumns = bColumns;
         return kernels.mulMat(queue,
             a, (int)aColumns,
