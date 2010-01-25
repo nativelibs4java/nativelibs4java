@@ -50,7 +50,7 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
         if (border == null)
             border = new EtchedBorder();
         settingsPanel.setBorder(new TitledBorder(border, "OpenCL & OpenGL Settings"));
-        
+        platformCombo.setModel(new DefaultComboBoxModel(getPlatforms().toArray()));
         normalButtActionPerformed(null);
     }
 
@@ -96,7 +96,6 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-        bindingGroup = new org.jdesktop.beansbinding.BindingGroup();
 
         settingsPanel = new javax.swing.JPanel();
         fastestButt = new javax.swing.JButton();
@@ -167,11 +166,6 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
 
         platformCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         platformCombo.setMinimumSize(new java.awt.Dimension(16, 27));
-
-        org.jdesktop.beansbinding.ELProperty eLProperty = org.jdesktop.beansbinding.ELProperty.create("${platforms}");
-        org.jdesktop.swingbinding.JComboBoxBinding jComboBoxBinding = org.jdesktop.swingbinding.SwingBindings.createJComboBoxBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, eLProperty, platformCombo);
-        bindingGroup.addBinding(jComboBoxBinding);
-
         platformCombo.addItemListener(new java.awt.event.ItemListener() {
             public void itemStateChanged(java.awt.event.ItemEvent evt) {
                 platformChanged(evt);
@@ -246,8 +240,6 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(settingsPanel, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
         );
-
-        bindingGroup.bind();
     }// </editor-fold>//GEN-END:initComponents
 
     private void configFromGLCheckActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configFromGLCheckActionPerformed
@@ -327,7 +319,6 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
     private javax.swing.JLabel platformLab;
     private javax.swing.JButton safestButt;
     private javax.swing.JPanel settingsPanel;
-    private org.jdesktop.beansbinding.BindingGroup bindingGroup;
     // End of variables declaration//GEN-END:variables
 
     private void setDevice(CLDevice device) {

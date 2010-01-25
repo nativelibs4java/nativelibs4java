@@ -165,9 +165,6 @@
               <Dimension value="[16, 27]"/>
             </Property>
           </Properties>
-          <BindingProperties>
-            <BindingProperty name="elements" source="Form" sourcePath="${platforms}" target="platformCombo" targetPath="elements" updateStrategy="0" immediately="false"/>
-          </BindingProperties>
           <Events>
             <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="platformChanged"/>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="platformComboActionPerformed"/>
