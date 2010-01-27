@@ -120,7 +120,8 @@ public class ParallelRandom {
      */
     public synchronized IntBuffer next() {
         CLEvent evt = doNext();
-        return mappedOutputBuffer = output.map(queue, MapFlags.Read, evt).asReadOnlyBuffer();
+        //queue.finish(); evt = null;
+        return (mappedOutputBuffer = output.map(queue, MapFlags.Read, evt)).asReadOnlyBuffer();
         //return output.read(queue, evt);
     }
 
