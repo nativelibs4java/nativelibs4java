@@ -96,7 +96,7 @@ public class ParallelRandomDemo {
             Stat stat;
 
 
-            int testSize = 1024 * 10;//1024 * 1024;
+            int testSize = 1024 * 1024;//1024 * 1024;
             int testLoops = 10;
 
             System.err.println("n = " + testSize);

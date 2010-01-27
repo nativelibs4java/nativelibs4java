@@ -61,8 +61,6 @@ public class ParallelRandom {
                 lws = 32;
             localWorkSizes = new int[] { lws };
 
-
-            
             randomProgram.getProgram().defineMacro("NUMBERS_COUNT", parallelSize);
             randomProgram.getProgram().defineMacro("WORK_ITEMS_COUNT", scheduledWorkItems);
 
@@ -94,7 +92,8 @@ public class ParallelRandom {
             //    //output.unmap(queue, mappedOutputBuffer);
             //    mappedOutputBuffer = null;
             //}
-            return randomProgram.gen_numbers(queue, seeds, parallelSize, output, globalWorkSizes, localWorkSizes);
+            return randomProgram.gen_numbers(queue, seeds, //parallelSize,
+                    output, globalWorkSizes, localWorkSizes);
         } catch (CLBuildException ex) {
             Logger.getLogger(ParallelRandom.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException("Failed to compile the random number generation routine", ex);
