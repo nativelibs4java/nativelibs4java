@@ -51,10 +51,7 @@ public class ParallelRandom {
             int countByWorkItem = parallelSize / scheduledWorkItems;
             if (scheduledWorkItems > parallelSize / seedsNeededByWorkItem) {
                 scheduledWorkItems = parallelSize / seedsNeededByWorkItem;
-                if (scheduledWorkItems == 0)
-                    scheduledWorkItems = 1;
-                // Each work item is going to create less values than it consumes !!!
-                //TODO scheduledWorkItems
+                scheduledWorkItems += parallelSize % seedsNeededByWorkItem;
             }
             //int iterationsByWorkItem = parallelCount / (generatedNumbersByWorkItemIteration * scheduledWorkItems);
             globalWorkSizes = new int[] { scheduledWorkItems };
@@ -91,12 +88,12 @@ public class ParallelRandom {
         return parallelSize;
     }
     
-    protected synchronized CLEvent doNext() {
+    public synchronized CLEvent doNext() {
         try {
-            if (mappedOutputBuffer != null) {
-                //output.unmap(queue, mappedOutputBuffer);
-                mappedOutputBuffer = null;
-            }
+            //if (mappedOutputBuffer != null) {
+            //    //output.unmap(queue, mappedOutputBuffer);
+            //    mappedOutputBuffer = null;
+            //}
             return randomProgram.gen_numbers(queue, seeds, parallelSize, output, globalWorkSizes, localWorkSizes);
         } catch (CLBuildException ex) {
             Logger.getLogger(ParallelRandom.class.getName()).log(Level.SEVERE, null, ex);
@@ -113,6 +110,7 @@ public class ParallelRandom {
         this.output.read(queue, output, true, evt);
     }
 
+    
     /**
      * Returns a direct NIO buffer containing the next @see ParallelRandom#getParallelSize() random integers.<br>
      * This buffer is read only and will only be valid until any of the "next" method is called again.
@@ -121,8 +119,9 @@ public class ParallelRandom {
     public synchronized IntBuffer next() {
         CLEvent evt = doNext();
         //queue.finish(); evt = null;
-        return (mappedOutputBuffer = output.map(queue, MapFlags.Read, evt)).asReadOnlyBuffer();
-        //return output.read(queue, evt);
+        //return outputBuffer;
+        //return (mappedOutputBuffer = output.map(queue, MapFlags.Read, evt)).asReadOnlyBuffer();
+        return output.read(queue, evt);
     }
 
     private void initSeeds(final IntBuffer seedsBuf, final long seed) throws InterruptedException {

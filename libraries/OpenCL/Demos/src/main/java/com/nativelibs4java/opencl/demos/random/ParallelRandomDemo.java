@@ -83,7 +83,8 @@ public class ParallelRandomDemo {
             int res = 0;
             for (int i = loops; i-- != 0;) {
                 //demo.next(b);
-                demo.next();
+                //demo.next();
+                demo.doNext();
                 res |= random.nextInt();
             }
             demo.queue.finish();
@@ -107,7 +108,8 @@ public class ParallelRandomDemo {
             stat = new Stat();
             for (int iTest = 0; iTest < testLoops; iTest++) {
                 start = System.nanoTime();
-                b = demo.next();//b);
+                //b = demo.next();//b);
+                demo.doNext();
                 demo.queue.finish();
                 time = System.nanoTime() - start;
                 stat.add(time);
