@@ -13,16 +13,25 @@
 __kernel void gen_numbers(__global uint4* seeds, size_t nNumbersArg, __global uint* output)
 {
 	const uint iWorkItem = get_global_id(0);
-	const uint nNumbers = NUMBERS_COUNT;
-	//size_t nWorkItems = get_global_size(0);
-	const uint nWorkItems = WORK_ITEMS_COUNT;
-	const uint nNumbersByWorkItem = nNumbers / nWorkItems;
 	const uint seedsOffset = iWorkItem;
-	const uint outputOffset = iWorkItem * nNumbersByWorkItem;
-	size_t nNumbersInThisWorkItem = nNumbersByWorkItem;
+#if 1
+#define nNumbers NUMBERS_COUNT
+#define nWorkItems WORK_ITEMS_COUNT
+#define nNumbersByWorkItem nNumbers / nWorkItems
+#define REMAINDER nNumbers - nNumbersByWorkItem * WORK_ITEMS_COUNT
+	uint nNumbersInThisWorkItem = nNumbersByWorkItem;
+	if (iWorkItem == nWorkItems - 1)
+		nNumbersInThisWorkItem += REMAINDER;
+#else
+	const uint nNumbers = nNumbersArg;
+	const size_t nWorkItems = get_global_size(0);
+	const uint nNumbersByWorkItem = nNumbers / nWorkItems;
+	uint nNumbersInThisWorkItem = nNumbersByWorkItem;
 	if (iWorkItem == nWorkItems - 1)
 		nNumbersInThisWorkItem += nNumbers - nNumbersByWorkItem * nWorkItems;
+#endif
 	
+	const uint outputOffset = iWorkItem * nNumbersByWorkItem;
 	//output[iWorkItem] = nNumbersArg;//seeds[iWorkItem].x;
 	//if (true)
 	//	return;

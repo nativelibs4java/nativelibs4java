@@ -47,7 +47,7 @@ public class ParallelRandom {
 
             int seedsNeededByWorkItem = 4;
             int generatedNumbersByWorkItemIteration = 1;
-            int scheduledWorkItems = queue.getDevice().getMaxComputeUnits() * 4;
+            int scheduledWorkItems = queue.getDevice().getMaxComputeUnits();// * 4;
             int countByWorkItem = parallelSize / scheduledWorkItems;
             if (scheduledWorkItems > parallelSize / seedsNeededByWorkItem) {
                 scheduledWorkItems = parallelSize / seedsNeededByWorkItem;
@@ -94,7 +94,7 @@ public class ParallelRandom {
     protected synchronized CLEvent doNext() {
         try {
             if (mappedOutputBuffer != null) {
-                output.unmap(queue, mappedOutputBuffer);
+                //output.unmap(queue, mappedOutputBuffer);
                 mappedOutputBuffer = null;
             }
             return randomProgram.gen_numbers(queue, seeds, parallelSize, output, globalWorkSizes, localWorkSizes);
