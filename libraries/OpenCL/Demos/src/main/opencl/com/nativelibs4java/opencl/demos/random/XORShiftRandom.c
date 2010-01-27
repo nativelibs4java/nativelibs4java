@@ -59,3 +59,9 @@ __kernel void gen_numbers(__global uint4* seeds, /*size_t nNumbersArg, */__globa
 #endif
 }
 
+#undef seedsOffset
+#undef nNumbers
+#undef nWorkItems
+#undef nNumbersByWorkItem
+#undef REMAINDER
+

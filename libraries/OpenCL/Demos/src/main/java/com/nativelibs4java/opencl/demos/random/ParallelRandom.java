@@ -129,15 +129,15 @@ public class ParallelRandom {
         long start = System.nanoTime();
 
         // TODO benchmark threshold :
-        boolean parallelize = nSeeds < 10000;
-        parallelize = false;
+        boolean parallelize = nSeeds > 10000;
+        //parallelize = false;
         if (parallelize) {
             Random random = new Random(seed);
             for (int i = nSeeds; i-- != 0;)
                 seedsBuf.put(i, random.nextInt());
         } else {
             // Parallelize seeds initialization
-            final int nThreads = Runtime.getRuntime().availableProcessors() * 2;
+            final int nThreads = Runtime.getRuntime().availableProcessors();// * 2;
             ExecutorService service = Executors.newFixedThreadPool(nThreads);
             for (int i = 0; i < nThreads; i++) {
                 final int iThread = i;
@@ -146,12 +146,12 @@ public class ParallelRandom {
                     public void run() {
                         int n = nSeeds / nThreads;
                         int offset = n * iThread;
-                        Random random = new Random(seed + iThread * System.currentTimeMillis());
+                        Random random = new Random(seed + iThread);// * System.currentTimeMillis());
                         if (iThread == nThreads - 1)
                             n += nSeeds - n * nThreads;
                         
                         for (int i = n; i-- != 0;)
-                            seedsBuf.put(offset + i, random.nextInt());
+                            seedsBuf.put(offset++, random.nextInt());
                     }
                 });
             }
