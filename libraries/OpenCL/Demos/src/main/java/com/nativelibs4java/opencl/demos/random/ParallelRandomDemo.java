@@ -14,7 +14,6 @@ import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.JavaCL;
 import com.nativelibs4java.util.NIOUtils;
-import com.sun.corba.se.spi.orbutil.threadpool.ThreadPool;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -68,9 +67,12 @@ public class ParallelRandomDemo {
             int warmupSize = 16;
             ParallelRandom demo = new ParallelRandom(queue, warmupSize, System.currentTimeMillis());
 
+            println(demo.seeds.read(queue));
             IntBuffer b = demo.next();
             println(b);
+            b = demo.next();
             println(b);
+            b = demo.next();
             println(b);
 
             gc();
@@ -93,7 +95,7 @@ public class ParallelRandomDemo {
             Stat stat;
 
 
-            int testSize = 1024 * 1024;//1024 * 1024;
+            int testSize = 1024 * 10;//1024 * 1024;
             int testLoops = 10;
 
             System.err.println("n = " + testSize);
@@ -109,7 +111,7 @@ public class ParallelRandomDemo {
                 demo.queue.finish();
                 time = System.nanoTime() - start;
                 stat.add(time);
-                System.err.println("[OpenCL] Cost per random number = " + (time / (double)testSize) + " ns");
+                //System.err.println("[OpenCL] Cost per random number = " + (time / (double)testSize) + " ns");
 
             }
             long avgCL = stat.average();
@@ -125,7 +127,7 @@ public class ParallelRandomDemo {
                     res |= random.nextInt();
                 time = System.nanoTime() - start;
                 stat.add(time);
-                System.err.println("[Random.nextInt()] Cost per random number = " + (time / (double)testSize) + " ns");
+                //System.err.println("[Random.nextInt()] Cost per random number = " + (time / (double)testSize) + " ns");
             }
             long avgJava = stat.average();
             System.err.println("[Random.nextInt()] Avg Cost per random number = " + (stat.average() / (double)testSize) + " ns");

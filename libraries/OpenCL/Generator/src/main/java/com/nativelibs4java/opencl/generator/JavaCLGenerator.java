@@ -406,6 +406,7 @@ public class JavaCLGenerator extends JNAerator {
                 continue;
 
             String packageName = srcParent == null || srcParent.length() == 0 ? null : srcParent.replace('/', '.').replace('\\', '.');
+            Identifier packageIdent = ident(packageName);
             String className = (packageName == null ? "" : packageName + ".") + name;
 
 
@@ -491,9 +492,10 @@ public class JavaCLGenerator extends JNAerator {
             }
 
             PrintWriter out = result.classOutputter.getClassSourceWriter(className);
-            if (packageName != null)
-                out.println("package " + packageName + ";");
-            out.println(interf);
+            result.printJavaClass(packageIdent, interf, out);
+            //if (packageName != null)
+            //    out.println("package " + packageName + ";");
+            //out.println(interf);
             out.close();
         }
     }

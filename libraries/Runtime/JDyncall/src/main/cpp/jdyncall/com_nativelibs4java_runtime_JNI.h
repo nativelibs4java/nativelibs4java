@@ -130,10 +130,10 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDirectBufferCapa
 /*
  * Class:     com_nativelibs4java_runtime_JNI
  * Method:    getIntegerArrayElements
- * Signature: ([IJ)J
+ * Signature: ([I[Z)J
  */
 JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getIntegerArrayElements
-  (JNIEnv *, jclass, jintArray, jlong);
+  (JNIEnv *, jclass, jintArray, jbooleanArray);
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
@@ -145,11 +145,43 @@ JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseIntegerArrayE
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_int
+ * Signature: (JB)I
+ */
+JNIEXPORT jint JNICALL Java_com_nativelibs4java_runtime_JNI_get_1int
+  (JNIEnv *, jclass, jlong, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_int
+ * Signature: (JIB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1int
+  (JNIEnv *, jclass, jlong, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_int_array
+ * Signature: (JIB)[I
+ */
+JNIEXPORT jintArray JNICALL Java_com_nativelibs4java_runtime_JNI_get_1int_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_int_array
+ * Signature: (J[IIIB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1int_1array
+  (JNIEnv *, jclass, jlong, jintArray, jint, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
  * Method:    getLongArrayElements
- * Signature: ([JJ)J
+ * Signature: ([J[Z)J
  */
 JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getLongArrayElements
-  (JNIEnv *, jclass, jlongArray, jlong);
+  (JNIEnv *, jclass, jlongArray, jbooleanArray);
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
@@ -161,11 +193,43 @@ JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseLongArrayElem
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_long
+ * Signature: (JB)J
+ */
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_get_1long
+  (JNIEnv *, jclass, jlong, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_long
+ * Signature: (JJB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1long
+  (JNIEnv *, jclass, jlong, jlong, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_long_array
+ * Signature: (JIB)[J
+ */
+JNIEXPORT jlongArray JNICALL Java_com_nativelibs4java_runtime_JNI_get_1long_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_long_array
+ * Signature: (J[JIIB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1long_1array
+  (JNIEnv *, jclass, jlong, jlongArray, jint, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
  * Method:    getShortArrayElements
- * Signature: ([SJ)J
+ * Signature: ([S[Z)J
  */
 JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getShortArrayElements
-  (JNIEnv *, jclass, jshortArray, jlong);
+  (JNIEnv *, jclass, jshortArray, jbooleanArray);
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
@@ -177,11 +241,43 @@ JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseShortArrayEle
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_short
+ * Signature: (JB)S
+ */
+JNIEXPORT jshort JNICALL Java_com_nativelibs4java_runtime_JNI_get_1short
+  (JNIEnv *, jclass, jlong, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_short
+ * Signature: (JSB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1short
+  (JNIEnv *, jclass, jlong, jshort, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_short_array
+ * Signature: (JIB)[S
+ */
+JNIEXPORT jshortArray JNICALL Java_com_nativelibs4java_runtime_JNI_get_1short_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_short_array
+ * Signature: (J[SIIB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1short_1array
+  (JNIEnv *, jclass, jlong, jshortArray, jint, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
  * Method:    getByteArrayElements
- * Signature: ([BJ)J
+ * Signature: ([B[Z)J
  */
 JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getByteArrayElements
-  (JNIEnv *, jclass, jbyteArray, jlong);
+  (JNIEnv *, jclass, jbyteArray, jbooleanArray);
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
@@ -193,11 +289,43 @@ JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseByteArrayElem
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_byte
+ * Signature: (JB)B
+ */
+JNIEXPORT jbyte JNICALL Java_com_nativelibs4java_runtime_JNI_get_1byte
+  (JNIEnv *, jclass, jlong, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_byte
+ * Signature: (JBB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1byte
+  (JNIEnv *, jclass, jlong, jbyte, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_byte_array
+ * Signature: (JIB)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_nativelibs4java_runtime_JNI_get_1byte_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_byte_array
+ * Signature: (J[BIIB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1byte_1array
+  (JNIEnv *, jclass, jlong, jbyteArray, jint, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
  * Method:    getCharacterArrayElements
- * Signature: ([CJ)J
+ * Signature: ([C[Z)J
  */
 JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getCharacterArrayElements
-  (JNIEnv *, jclass, jcharArray, jlong);
+  (JNIEnv *, jclass, jcharArray, jbooleanArray);
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
@@ -209,11 +337,43 @@ JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseCharacterArra
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_char
+ * Signature: (JB)C
+ */
+JNIEXPORT jchar JNICALL Java_com_nativelibs4java_runtime_JNI_get_1char
+  (JNIEnv *, jclass, jlong, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_char
+ * Signature: (JCB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1char
+  (JNIEnv *, jclass, jlong, jchar, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_char_array
+ * Signature: (JIB)[C
+ */
+JNIEXPORT jcharArray JNICALL Java_com_nativelibs4java_runtime_JNI_get_1char_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_char_array
+ * Signature: (J[CIIB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1char_1array
+  (JNIEnv *, jclass, jlong, jcharArray, jint, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
  * Method:    getFloatArrayElements
- * Signature: ([FJ)J
+ * Signature: ([F[Z)J
  */
 JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getFloatArrayElements
-  (JNIEnv *, jclass, jfloatArray, jlong);
+  (JNIEnv *, jclass, jfloatArray, jbooleanArray);
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
@@ -225,11 +385,43 @@ JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseFloatArrayEle
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_float
+ * Signature: (JB)F
+ */
+JNIEXPORT jfloat JNICALL Java_com_nativelibs4java_runtime_JNI_get_1float
+  (JNIEnv *, jclass, jlong, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_float
+ * Signature: (JFB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1float
+  (JNIEnv *, jclass, jlong, jfloat, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_float_array
+ * Signature: (JIB)[F
+ */
+JNIEXPORT jfloatArray JNICALL Java_com_nativelibs4java_runtime_JNI_get_1float_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_float_array
+ * Signature: (J[FIIB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1float_1array
+  (JNIEnv *, jclass, jlong, jfloatArray, jint, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
  * Method:    getDoubleArrayElements
- * Signature: ([DJ)J
+ * Signature: ([D[Z)J
  */
 JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDoubleArrayElements
-  (JNIEnv *, jclass, jdoubleArray, jlong);
+  (JNIEnv *, jclass, jdoubleArray, jbooleanArray);
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI
@@ -238,6 +430,38 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDoubleArrayEleme
  */
 JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_releaseDoubleArrayElements
   (JNIEnv *, jclass, jdoubleArray, jlong, jint);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_double
+ * Signature: (JB)D
+ */
+JNIEXPORT jdouble JNICALL Java_com_nativelibs4java_runtime_JNI_get_1double
+  (JNIEnv *, jclass, jlong, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_double
+ * Signature: (JDB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1double
+  (JNIEnv *, jclass, jlong, jdouble, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    get_double_array
+ * Signature: (JIB)[D
+ */
+JNIEXPORT jdoubleArray JNICALL Java_com_nativelibs4java_runtime_JNI_get_1double_1array
+  (JNIEnv *, jclass, jlong, jint, jbyte);
+
+/*
+ * Class:     com_nativelibs4java_runtime_JNI
+ * Method:    set_double_array
+ * Signature: (J[DIIB)V
+ */
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_set_1double_1array
+  (JNIEnv *, jclass, jlong, jdoubleArray, jint, jint, jbyte);
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI

@@ -13,7 +13,7 @@
     <dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>ScalaCL</artifactId>
-	  <version>1.0-beta-4</version>
+	  <version>1.0-SNAPSHOT</version>
 	  <scope>compile</scope>
 	</dependency>
 	
@@ -27,7 +27,7 @@
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>OpenCL4Java</artifactId>
-	  <version>1.0-beta-4</version>
+	  <version>1.0-SNAPSHOT</version>
 	  <scope>compile</scope>
 	</dependency>
   

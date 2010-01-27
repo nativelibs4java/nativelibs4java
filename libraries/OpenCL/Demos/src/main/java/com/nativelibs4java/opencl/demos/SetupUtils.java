@@ -30,7 +30,6 @@ import javax.swing.UIManager;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
-import sun.font.Font2D;
 
 /**
  *

@@ -14,7 +14,6 @@ import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.JavaCL;
 import com.nativelibs4java.util.NIOUtils;
-import com.sun.corba.se.spi.orbutil.threadpool.ThreadPool;
 import java.io.IOException;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -50,14 +49,26 @@ public class ParallelRandom {
             int generatedNumbersByWorkItemIteration = 1;
             int scheduledWorkItems = queue.getDevice().getMaxComputeUnits() * 4;
             int countByWorkItem = parallelSize / scheduledWorkItems;
-            if (countByWorkItem < seedsNeededByWorkItem) {
+            if (scheduledWorkItems > parallelSize / seedsNeededByWorkItem) {
+                scheduledWorkItems = parallelSize / seedsNeededByWorkItem;
+                if (scheduledWorkItems == 0)
+                    scheduledWorkItems = 1;
                 // Each work item is going to create less values than it consumes !!!
                 //TODO scheduledWorkItems
             }
             //int iterationsByWorkItem = parallelCount / (generatedNumbersByWorkItemIteration * scheduledWorkItems);
             globalWorkSizes = new int[] { scheduledWorkItems };
-            localWorkSizes = new int[] { 1 };
+
+            int lws = 1;//(int)queue.getDevice().getMaxWorkGroupSize();
+            if (lws > 32)
+                lws = 32;
+            localWorkSizes = new int[] { lws };
+
+
             
+            randomProgram.getProgram().defineMacro("NUMBERS_COUNT", parallelSize);
+            randomProgram.getProgram().defineMacro("WORK_ITEMS_COUNT", scheduledWorkItems);
+
             final int nSeeds = seedsNeededByWorkItem * parallelSize;
             final IntBuffer seedsBuf = NIOUtils.directInts(nSeeds, context.getKernelsDefaultByteOrder());
             initSeeds(seedsBuf, seed);
@@ -110,6 +121,7 @@ public class ParallelRandom {
     public synchronized IntBuffer next() {
         CLEvent evt = doNext();
         return mappedOutputBuffer = output.map(queue, MapFlags.Read, evt).asReadOnlyBuffer();
+        //return output.read(queue, evt);
     }
 
     private void initSeeds(final IntBuffer seedsBuf, final long seed) throws InterruptedException {
