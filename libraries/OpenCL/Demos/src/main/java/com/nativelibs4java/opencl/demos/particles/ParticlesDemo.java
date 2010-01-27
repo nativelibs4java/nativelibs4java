@@ -415,6 +415,7 @@ public class ParticlesDemo implements GLEventListener {
         Box countPanel = Box.createHorizontalBox();
         SetupUtils.setEtchedTitledBorder(countPanel, "Particles Demo Settings");
         countPanel.add(lb);
+        countPanel.add(Box.createHorizontalStrut(5));
         countPanel.add(cb);
         cb.setMinimumSize(new Dimension(100, 10));
         cb.setMaximumSize(new Dimension(200, Integer.MAX_VALUE));
