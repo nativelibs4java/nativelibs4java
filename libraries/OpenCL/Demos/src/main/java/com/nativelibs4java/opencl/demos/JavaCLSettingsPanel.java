@@ -78,7 +78,10 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
                     }
 
         configFromGLCheck.setEnabled(hasSharing);
-        configFromGLCheck.setToolTipText("Did not find any OpenCL platform with OpenGL sharing support.");
+        if (!hasSharing) {
+            configFromGLCheck.setText(configFromGLCheck.getText() + " (unavailable option)");
+            configFromGLCheck.setToolTipText("Did not find any OpenCL platform with OpenGL sharing support.");
+        }
         
         return Arrays.asList(platforms);
     }
