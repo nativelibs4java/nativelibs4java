@@ -174,7 +174,7 @@ public class SetupUtils {
         if (etchedBorder == null) {
             etchedBorder = UIManager.getBorder( "TitledBorder.aquaVariant" );
             if (etchedBorder == null)
-                etchedBorder = BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5), new EtchedBorder());
+                etchedBorder = BorderFactory.createCompoundBorder(new EtchedBorder(), BorderFactory.createEmptyBorder(5, 5, 5, 5));
         }
         return etchedBorder;
     }

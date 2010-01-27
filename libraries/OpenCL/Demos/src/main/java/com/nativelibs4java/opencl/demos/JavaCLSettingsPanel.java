@@ -51,6 +51,7 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
             border = new EtchedBorder();
         settingsPanel.setBorder(new TitledBorder(border, "OpenCL & OpenGL Settings"));
         platformCombo.setModel(new DefaultComboBoxModel(getPlatforms().toArray()));
+        platformChanged(null);
         normalButtActionPerformed(null);
     }
 
@@ -260,7 +261,8 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
             CLDevice[] devices = platform.listAllDevices(true);
             deviceCombo.setModel(new DefaultComboBoxModel(devices));
             setDevice(platform.getBestDevice());
-            
+        } else {
+            deviceCombo.setModel(new DefaultComboBoxModel(new Object[0]));
         }
     }//GEN-LAST:event_platformChanged
 

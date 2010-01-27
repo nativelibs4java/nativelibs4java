@@ -137,7 +137,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
     }
 
 	public CLEvent read(CLQueue queue, B out, boolean blocking, CLEvent... eventsToWaitFor) {
-		long length;
+        long length;
         if (isGL) {
             length = out.capacity();
         } else {
@@ -151,6 +151,8 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 
 	@SuppressWarnings("deprecation")
     public CLEvent read(CLQueue queue, long offset, long length, B out, boolean blocking, CLEvent... eventsToWaitFor) {
+        if (out.isReadOnly())
+            throw new IllegalArgumentException("Output buffer for read operation is read-only !");
         B originalOut = null;
         if (!out.isDirect()) {
             originalOut = out;
