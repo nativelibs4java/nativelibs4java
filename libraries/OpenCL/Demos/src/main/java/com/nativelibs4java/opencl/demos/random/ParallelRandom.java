@@ -46,9 +46,11 @@ public class ParallelRandom {
             this.parallelSize = parallelSize;
 
             int seedsNeededByWorkItem = 4;
-            int generatedNumbersByWorkItemIteration = 1;
-            int scheduledWorkItems = queue.getDevice().getMaxComputeUnits();// * 4;
-            int countByWorkItem = parallelSize / scheduledWorkItems;
+            //int generatedNumbersByWorkItemIteration = 1;
+            int maxUnits = queue.getDevice().getMaxComputeUnits();
+            int unitsFactor = maxUnits < 10 ? 1 : 16;
+            int scheduledWorkItems = maxUnits * unitsFactor;
+            //int countByWorkItem = parallelSize / scheduledWorkItems;
             if (scheduledWorkItems > parallelSize / seedsNeededByWorkItem) {
                 scheduledWorkItems = parallelSize / seedsNeededByWorkItem;
                 scheduledWorkItems += parallelSize % seedsNeededByWorkItem;

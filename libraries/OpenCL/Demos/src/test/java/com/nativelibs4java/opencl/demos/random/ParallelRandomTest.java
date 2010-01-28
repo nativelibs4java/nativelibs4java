@@ -1,23 +1,7 @@
 package com.nativelibs4java.opencl.demos.random;
 
-import com.nativelibs4java.opencl.CLBuildException;
-import com.nativelibs4java.opencl.CLContext;
-import com.nativelibs4java.opencl.CLEvent;
-import com.nativelibs4java.opencl.CLIntBuffer;
-import com.nativelibs4java.opencl.CLMem.MapFlags;
-import com.nativelibs4java.opencl.CLMem.Usage;
-import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.JavaCL;
-import com.nativelibs4java.util.NIOUtils;
-import java.io.IOException;
-import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
