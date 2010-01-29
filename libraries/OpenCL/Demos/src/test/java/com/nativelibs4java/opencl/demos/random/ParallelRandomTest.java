@@ -2,8 +2,9 @@ package com.nativelibs4java.opencl.demos.random;
 
 import com.nativelibs4java.opencl.JavaCL;
 import java.nio.IntBuffer;
+
+import org.junit.Assert;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -64,6 +65,6 @@ public class ParallelRandomTest {
 		System.out.println("   Reference PI = " + piRef);
 		System.out.println("\tAbsolute error = " + error);
 		System.out.println("\tRelative error = " + (relError * 100) + " %");
-		assertEquals(piRef, piApprox, 0.001);
+		Assert.assertEquals(piRef, piApprox, 0.001);
 	}
 }

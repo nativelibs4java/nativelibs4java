@@ -1,21 +1,19 @@
 
 package com.nativelibs4java.opencl;
 
-import com.nativelibs4java.opencl.*;
+import static com.nativelibs4java.opencl.JavaCL.createBestContext;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import com.nativelibs4java.util.NIOUtils;
+import java.nio.IntBuffer;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
 import com.nativelibs4java.opencl.ReductionUtils.Reductor;
 import com.nativelibs4java.test.MiscTestUtils;
-import java.lang.reflect.*;
-import java.util.EnumSet;
-import java.util.logging.*;
-import org.junit.*;
-import static org.junit.Assert.*;
-import static com.nativelibs4java.test.MiscTestUtils.*;
-import java.nio.*;
-import java.util.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.util.NIOUtils.*;
+import com.nativelibs4java.util.NIOUtils;
 
 public class ReductionTest {
 
@@ -82,7 +80,8 @@ public class ReductionTest {
             
             Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, ReductionUtils.Type.Int, channels);
 
-            CLEvent evt = reductor.reduce(queue, in, dataSize, out, maxReductionSize);
+            //CLEvent evt = 
+        	reductor.reduce(queue, in, dataSize, out, maxReductionSize);
             //if (evt != null)
             queue.finish();
             //    evt.waitFor();

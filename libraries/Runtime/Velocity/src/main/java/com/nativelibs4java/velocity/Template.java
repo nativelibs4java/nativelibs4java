@@ -1,16 +1,11 @@
 package com.nativelibs4java.velocity;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.maven.plugin.AbstractMojo;
-import org.apache.maven.plugin.MojoExecutionException;
-
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.StringWriter;
-import java.util.Map;
-import org.apache.velocity.*;
+
+import org.apache.maven.plugin.MojoExecutionException;
+import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.exception.ParseErrorException;
 import org.apache.velocity.exception.ResourceNotFoundException;

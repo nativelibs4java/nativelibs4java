@@ -5,18 +5,16 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import com.nativelibs4java.util.NIOUtils;
 import java.nio.DoubleBuffer;
 import org.ujmp.core.doublematrix.stub.AbstractDenseDoubleMatrix2D;
-import org.ujmp.core.interfaces.Wrapper;
 
 /**
  *
  * @author ochafik
  */
 public abstract class AbstractNIODenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
-
-    final long rows, columns;
+	private static final long serialVersionUID = -5550605402491407083L;
+	final long rows, columns;
 
     public AbstractNIODenseDoubleMatrix2D(long rows, long columns) {
         this.rows = rows;

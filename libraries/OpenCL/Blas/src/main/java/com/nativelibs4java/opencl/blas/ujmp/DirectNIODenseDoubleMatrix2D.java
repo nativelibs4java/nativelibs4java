@@ -5,10 +5,11 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import com.nativelibs4java.util.NIOUtils;
 import java.nio.DoubleBuffer;
-import org.ujmp.core.doublematrix.stub.AbstractDenseDoubleMatrix2D;
+
 import org.ujmp.core.interfaces.Wrapper;
+
+import com.nativelibs4java.util.NIOUtils;
 
 /**
  *
@@ -16,7 +17,11 @@ import org.ujmp.core.interfaces.Wrapper;
  */
 public class DirectNIODenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D implements Wrapper<DoubleBuffer> {
 
-    DoubleBuffer data;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 8936390922363132043L;
+	DoubleBuffer data;
 
     public DirectNIODenseDoubleMatrix2D(DoubleBuffer data, long rows, long columns) {
         super(rows, columns);

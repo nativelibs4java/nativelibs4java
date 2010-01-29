@@ -17,18 +17,41 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.JavaCL.CL;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_COMPILE_WORK_GROUP_SIZE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_FUNCTION_NAME;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_LOCAL_MEM_SIZE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_NUM_ARGS;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_WORK_GROUP_SIZE;
+import static com.nativelibs4java.util.JNAUtils.toNS;
+
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
+import java.util.HashMap;
+import java.util.Map;
+
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
 import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
-import java.nio.*;
-import java.util.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.ByteByReference;
+import com.sun.jna.ptr.DoubleByReference;
+import com.sun.jna.ptr.FloatByReference;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
+import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.ptr.ShortByReference;
 
 /**
  * OpenCL kernel.<br/>

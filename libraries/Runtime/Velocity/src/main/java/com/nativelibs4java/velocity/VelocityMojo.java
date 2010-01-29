@@ -44,7 +44,7 @@ public class VelocityMojo
 	 * Each execution corresponds to one template and a set of parameters
      * @required
      */
-    private List<Template> templates;
+    //private List<Template> templates;
 
 	/**
      * Source folder for velocity templates

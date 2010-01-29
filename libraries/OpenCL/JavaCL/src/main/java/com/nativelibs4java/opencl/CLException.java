@@ -31,6 +31,7 @@ import java.util.logging.Logger;
  * OpenCL error
  * @author ochafik
  */
+@SuppressWarnings("serial")
 public class CLException extends RuntimeException {
     protected int code;
     CLException(String message, int code) {
@@ -170,7 +171,8 @@ public class CLException extends RuntimeException {
     }
 
 	static Map<Integer, Class<? extends CLTypedException>> typedErrorClassesByCode;
-    public static void error(int err) {
+    @SuppressWarnings("unchecked")
+	public static void error(int err) {
         if (err == CL_SUCCESS)
             return;
         //if (err == CL_OUT_OF_RESOURCES)

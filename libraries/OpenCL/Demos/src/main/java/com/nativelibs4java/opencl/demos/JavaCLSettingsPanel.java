@@ -36,7 +36,12 @@ import javax.swing.border.TitledBorder;
  */
 public class JavaCLSettingsPanel extends javax.swing.JPanel {
 
-    public void removeOpenGLComponents() {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -3840797355369910724L;
+
+	public void removeOpenGLComponents() {
         configFromGLCheck.getParent().remove(configFromGLCheck);
         awtRenderingCheck.getParent().remove(awtRenderingCheck);
         invalidate();
@@ -66,7 +71,7 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
         return (CLDevice)deviceCombo.getSelectedItem();
     }
 
-    public List getPlatforms() {
+    public List<CLPlatform> getPlatforms() {
         CLPlatform[] platforms = JavaCL.listPlatforms();
         boolean hasSharing = false;
         plat: for (CLPlatform platform : platforms)
@@ -86,8 +91,8 @@ public class JavaCLSettingsPanel extends javax.swing.JPanel {
         return Arrays.asList(platforms);
     }
 
-    public List getGLProfiles() {
-        List list = new ArrayList();
+    public List<String> getGLProfiles() {
+        List<String> list = new ArrayList<String>();
         list.add(GLProfile.GL2);
         return list;
     }

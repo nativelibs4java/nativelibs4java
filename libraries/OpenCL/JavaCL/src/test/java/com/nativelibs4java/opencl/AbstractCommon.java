@@ -5,15 +5,10 @@
 
 package com.nativelibs4java.opencl;
 
-import com.nativelibs4java.test.MiscTestUtils;
-import com.nativelibs4java.util.ImageUtils;
-import java.awt.image.BufferedImage;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+
+import com.nativelibs4java.test.MiscTestUtils;
 
 /**
  *

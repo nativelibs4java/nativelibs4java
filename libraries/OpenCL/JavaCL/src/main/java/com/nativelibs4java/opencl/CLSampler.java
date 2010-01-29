@@ -17,18 +17,24 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
+import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.JavaCL.CL;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ADDRESS_CLAMP;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ADDRESS_CLAMP_TO_EDGE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ADDRESS_NONE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ADDRESS_REPEAT;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FILTER_LINEAR;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FILTER_NEAREST;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SAMPLER_ADDRESSING_MODE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SAMPLER_FILTER_MODE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SAMPLER_NORMALIZED_COORDS;
+
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
-import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import java.util.*;
-import static com.nativelibs4java.opencl.CLException.*;
+import com.sun.jna.Pointer;
 
 /**
  * OpenCL sampler object.<br/>

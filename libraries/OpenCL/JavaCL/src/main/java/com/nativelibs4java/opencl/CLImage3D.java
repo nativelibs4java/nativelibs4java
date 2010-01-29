@@ -17,16 +17,15 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_DEPTH;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_SLICE_PITCH;
+import static com.nativelibs4java.util.JNAUtils.toNS;
+
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.ochafik.util.listenable.Pair;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
-import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
 
 /**
  * OpenCL 3D Image Memory Object<br/>

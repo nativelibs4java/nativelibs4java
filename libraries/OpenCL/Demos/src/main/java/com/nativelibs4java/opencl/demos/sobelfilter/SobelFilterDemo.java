@@ -22,13 +22,10 @@ package com.nativelibs4java.opencl.demos.sobelfilter;
 import java.nio.*;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.demos.SetupUtils;
-import com.nativelibs4java.util.IOUtils;
-import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.util.listenable.Pair;
 import java.awt.image.*;
 import java.io.*;
 import java.nio.FloatBuffer;
-import java.util.Arrays;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -61,7 +58,12 @@ public class SobelFilterDemo {
                     new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                         new JScrollPane(new JLabel(new ImageIcon(imgs.getFirst()))),
                         new JScrollPane(new JLabel(new ImageIcon(imgs.getSecond())))
-                    ) {{
+                    ) {/**
+						 * 
+						 */
+						private static final long serialVersionUID = 8267014922143370639L;
+
+					{
                         setResizeWeight(0.5);
                     }}
                 //)

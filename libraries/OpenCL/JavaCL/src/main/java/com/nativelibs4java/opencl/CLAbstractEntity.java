@@ -17,12 +17,7 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
-import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
+import com.sun.jna.PointerType;
 
 abstract class CLAbstractEntity<T extends PointerType> {
     protected volatile T entity;
@@ -96,7 +91,7 @@ abstract class CLAbstractEntity<T extends PointerType> {
 	public boolean equals(Object obj) {
 		if (obj == null || !getClass().isInstance(obj))
 			return false;
-		CLAbstractEntity e = (CLAbstractEntity)obj;
+		CLAbstractEntity<?> e = (CLAbstractEntity<?>)obj;
 		return getEntity().getPointer().equals(e.getEntity().getPointer());
 	}
 

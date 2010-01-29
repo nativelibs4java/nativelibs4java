@@ -6,19 +6,18 @@
 package com.nativelibs4java.opencl;
 
 
-import com.nativelibs4java.util.IOUtils;
-import com.nativelibs4java.util.NIOUtils;
-import com.ochafik.util.listenable.Pair;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.nativelibs4java.util.IOUtils;
+import com.nativelibs4java.util.NIOUtils;
+import com.ochafik.util.listenable.Pair;
 
 /**
  *
@@ -158,7 +157,6 @@ public class ReductionUtils {
             i = next;
         }
     }
-    private static final int[] UNIT_INT_ARRAY = new int[] { 1 };
 
     public static <B extends Buffer> Reductor<B> createReductor(final CLContext context, Operation op, Type valueType, final int valueChannels) throws CLBuildException {
         try {
@@ -173,6 +171,7 @@ public class ReductionUtils {
                 throw new RuntimeException("Expected 1 kernel, found : " + kernels.length);
             final CLKernel kernel = kernels[0];
             return new Reductor<B>() {
+				@SuppressWarnings("unchecked")
 				@Override
                 public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor) {
                     Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, (int)inputLength, (Class<B>)output.getClass(), maxReductionSize, eventsToWaitFor);
@@ -192,7 +191,8 @@ public class ReductionUtils {
                     Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, (int)inputLength, output.typedBufferClass(), maxReductionSize, eventsToWaitFor);
                     return outAndEvts.getFirst().copyTo(queue, 0, valueChannels, output, 0, outAndEvts.getSecond());
                 }
-                public Pair<CLBuffer<B>, CLEvent[]> reduceHelper(CLQueue queue, CLBuffer<B> input, int inputLength, Class<B> outputClass, int maxReductionSize, CLEvent... eventsToWaitFor) {
+                @SuppressWarnings("unchecked")
+				public Pair<CLBuffer<B>, CLEvent[]> reduceHelper(CLQueue queue, CLBuffer<B> input, int inputLength, Class<B> outputClass, int maxReductionSize, CLEvent... eventsToWaitFor) {
                     CLBuffer<?>[] tempBuffers = new CLBuffer<?>[2];
                     int depth = 0;
 					CLBuffer<B> currentOutput = null;
@@ -207,7 +207,7 @@ public class ReductionUtils {
 							nInCurrentDepth++;
                         
 						int iOutput = depth & 1;
-                        CLBuffer currentInput = depth == 0 ? input : tempBuffers[iOutput ^ 1];
+                        CLBuffer<? extends Buffer> currentInput = depth == 0 ? input : tempBuffers[iOutput ^ 1];
                         currentOutput = (CLBuffer<B>)tempBuffers[iOutput];
                         if (currentOutput == null)
                             currentOutput = (CLBuffer<B>)(tempBuffers[iOutput] = context.createBuffer(CLMem.Usage.InputOutput, maxReductionSize * valueChannels, outputClass));

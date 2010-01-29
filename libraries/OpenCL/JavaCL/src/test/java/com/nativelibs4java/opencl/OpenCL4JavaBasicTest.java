@@ -1,19 +1,16 @@
 
 package com.nativelibs4java.opencl;
 
-import com.nativelibs4java.opencl.*;
-import com.nativelibs4java.test.MiscTestUtils;
+import static com.nativelibs4java.opencl.JavaCL.createBestContext;
+import static com.nativelibs4java.util.NIOUtils.directFloats;
+import static org.junit.Assert.assertEquals;
 
-import java.lang.reflect.*;
-import java.util.EnumSet;
-import java.util.logging.*;
-import org.junit.*;
-import static org.junit.Assert.*;
-import static com.nativelibs4java.test.MiscTestUtils.*;
-import java.nio.*;
-import java.util.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.util.NIOUtils.*;
+import java.nio.FloatBuffer;
+
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.nativelibs4java.test.MiscTestUtils;
 
 public class OpenCL4JavaBasicTest {
 
@@ -29,23 +26,9 @@ public class OpenCL4JavaBasicTest {
     public void simpleTest() {
         try {
 			CLContext context = createBestContext();
-			CLPlatform platform = context.getPlatform();
-            CLDevice[] devices = platform.listAllDevices(true);
-            for (CLDevice device : context.getDevices()) {
-				System.out.println("Using device " + device + "\n\tmaxWorkItemSizes = " + Arrays.toString(device.getMaxWorkItemSizes()));
-			}
-
-			//System.out.println("Supported images 2d: " + Arrays.asList(context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image2D)));
-            //System.out.println("Supported images 3d: " + Arrays.asList(context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image3D)));
-
+			
             int dataSize = 10000;
-//			String src = //"#include <math.h>\n" + 
-//					"__kernel void function2(__global const double* in1, __global double* out2, __global const double* in3) {\n" +
-//					"	int dim1 = get_global_id(0);\n" + 
-//					"	out2[dim1] = in1[dim1] * sin(in3[dim1]) + 1;\n" + 
-//					"}\n" + 
-//					"";
-            String src = "\n" +
+			String src = "\n" +
                     "__kernel void aSinB(                                                   \n" +
                     "   __global const float* a,                                       \n" +
                     "   __global const float* b,                                       \n" +

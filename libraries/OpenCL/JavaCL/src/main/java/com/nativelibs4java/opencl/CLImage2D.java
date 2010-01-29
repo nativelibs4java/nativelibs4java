@@ -17,21 +17,22 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.ochafik.util.listenable.Pair;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_HEIGHT;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_ROW_PITCH;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_WIDTH;
+import static com.nativelibs4java.util.ImageUtils.getImageIntPixels;
+import static com.nativelibs4java.util.ImageUtils.setImageIntPixels;
+import static com.nativelibs4java.util.JNAUtils.toNS;
+import static com.nativelibs4java.util.NIOUtils.directInts;
+
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferInt;
-import java.nio.*;
-import java.util.concurrent.BlockingDeque;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.ImageUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
+import com.ochafik.util.listenable.Pair;
 
 /**
  * OpenCL 2D Image Memory Object<br/>

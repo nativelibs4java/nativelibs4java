@@ -60,7 +60,6 @@ import java.nio.IntBuffer;
 import java.util.Map;
 import java.util.Random;
 import javax.imageio.ImageIO;
-import javax.media.opengl.*;
 import static javax.media.opengl.GL2.*;
 import javax.media.opengl.awt.*;
 import javax.media.opengl.glu.GLU;
@@ -157,7 +156,8 @@ public class ParticlesDemo implements GLEventListener {
 
             saveImage.addActionListener(new ActionListener() {
 
-                @Override
+                @SuppressWarnings("deprecation")
+				@Override
                 public void actionPerformed(ActionEvent ae) {
                     boolean paused = demo.paused;
                     demo.paused = true;
@@ -174,7 +174,7 @@ public class ParticlesDemo implements GLEventListener {
                         try {
                             ImageIO.write(im, "jpeg", lastFile = new File(new File(fc.getDirectory()), fc.getFile()));
                         } catch (Exception ex) {
-                            demo.exception(ex);
+                            ParticlesDemo.exception(ex);
                             Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
@@ -186,7 +186,8 @@ public class ParticlesDemo implements GLEventListener {
 
             openImage.addActionListener(new ActionListener() {
 
-                @Override
+                @SuppressWarnings("deprecation")
+				@Override
                 public void actionPerformed(ActionEvent ae) {
                     boolean paused = demo.paused;
                     demo.paused = true;
@@ -199,7 +200,7 @@ public class ParticlesDemo implements GLEventListener {
                             BufferedImage im = ImageIO.read(lastFile = new File(new File(fc.getDirectory()), fc.getFile()));
                             demo.setImage(im);
                         } catch (Exception ex) {
-                            demo.exception(ex);
+                            ParticlesDemo.exception(ex);
                             Logger.getLogger(ParticlesDemo.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }

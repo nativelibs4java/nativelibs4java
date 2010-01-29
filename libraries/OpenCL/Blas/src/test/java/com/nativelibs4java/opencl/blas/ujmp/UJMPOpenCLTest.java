@@ -6,21 +6,19 @@
 package com.nativelibs4java.opencl.blas.ujmp;
 
 
-import static com.nativelibs4java.opencl.blas.ujmp.MatrixUtils.*;
+import static com.nativelibs4java.opencl.blas.ujmp.MatrixUtils.read;
+import static com.nativelibs4java.opencl.blas.ujmp.MatrixUtils.write;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
-import java.nio.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import static org.junit.Assert.*;
-import org.junit.*;
+import java.nio.DoubleBuffer;
+
+import org.junit.Before;
+import org.junit.Test;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.MatrixFactory;
-import org.ujmp.core.calculation.Calculation.Ret;
 import org.ujmp.core.doublematrix.DenseDoubleMatrix2D;
 import org.ujmp.core.mapper.MatrixMapper;
-import org.ujmp.core.matrix.DenseMatrix2D;
-import org.ujmp.core.matrix.Matrix2D;
 /**
  *
  * @author ochafik

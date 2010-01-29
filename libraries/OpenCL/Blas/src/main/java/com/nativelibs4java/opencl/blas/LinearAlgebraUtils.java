@@ -27,7 +27,6 @@ import java.io.StringWriter;
 import java.nio.DoubleBuffer;
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -36,6 +35,7 @@ import java.util.logging.Logger;
  *
  * @author ochafik
  */
+@SuppressWarnings("unused")
 public class LinearAlgebraUtils {
 
     protected CLContext context;

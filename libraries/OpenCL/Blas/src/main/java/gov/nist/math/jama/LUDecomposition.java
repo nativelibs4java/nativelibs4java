@@ -19,7 +19,12 @@ public class LUDecomposition implements java.io.Serializable {
    Class variables
  * ------------------------ */
 
-   /** Array for internal storage of decomposition.
+   /**
+	 * 
+	 */
+	private static final long serialVersionUID = 2307191144169624735L;
+
+/** Array for internal storage of decomposition.
    @serial internal array storage.
    */
    private double[][] LU;

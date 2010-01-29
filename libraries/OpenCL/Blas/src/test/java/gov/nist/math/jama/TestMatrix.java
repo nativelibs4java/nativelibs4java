@@ -1,13 +1,16 @@
 package gov.nist.math.jama;
-import gov.nist.math.util.*;
-import java.io.*;
-import java.util.zip.GZIPInputStream;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Test;
 
 /** TestMatrix tests the functionality of the Jama Matrix class and associated decompositions.
 <P>
@@ -38,7 +41,7 @@ public class TestMatrix {
       // Locale.setDefault(Locale.GERMAN);
       int errorCount=0;
       int warningCount=0;
-      double tmp, s;
+      double tmp;
       double[] columnwise = {1.,2.,3.,4.,5.,6.,7.,8.,9.,10.,11.,12.};
       double[] rowwise = {1.,4.,7.,10.,2.,5.,8.,11.,3.,6.,9.,12.};
       double[][] avals = {{1.,4.,7.,10.},{2.,5.,8.,11.},{3.,6.,9.,12.}};
@@ -938,7 +941,7 @@ public class TestMatrix {
 
    /** Print a row vector. **/
 
-   private static void print(double[] x, int w, int d) {
+   static void print(double[] x, int w, int d) {
       // Use format Fw.d for all elements.
       System.out.print("\n");
       new Matrix(x,1).print(w,d);

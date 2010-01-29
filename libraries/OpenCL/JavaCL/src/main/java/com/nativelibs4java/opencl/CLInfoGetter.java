@@ -18,17 +18,16 @@ along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.nativelibs4java.opencl;
 
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.nativelibs4java.util.JNAUtils;
+import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.util.JNAUtils.readNS;
+import static com.nativelibs4java.util.JNAUtils.toNS;
+
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
-import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.PointerType;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  *

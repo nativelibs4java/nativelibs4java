@@ -16,23 +16,16 @@ package com.nativelibs4java.runtime.templates;
  * limitations under the License.
  */
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.project.MavenProject;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.List;
-import org.apache.velocity.*;
-import org.apache.velocity.app.Velocity;
+import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 
 /**
@@ -64,14 +57,14 @@ public class TemplatesMojo
 
     /**
      * Output directory for generated sources.
-     * @parameter expression="${project.build.directory}/generated-sources/main/java"
+     * @parameter expression="${project.build.directory}/generated-sources/main"
      * @optional
      */
     private File outputDirectory;
 
     /**
      * Output directory for generated test sources.
-     * @parameter expression="${project.build.directory}/generated-sources/test/java"
+     * @parameter expression="${project.build.directory}/generated-sources/test"
      * @optional
      */
     private File testOutputDirectory;
@@ -132,7 +125,8 @@ public class TemplatesMojo
         }
     }
 
-    private void execute(VelocityEngine ve, String resource, File outDir) throws MojoExecutionException {
+    @SuppressWarnings("unchecked")
+	private void execute(VelocityEngine ve, String resource, File outDir) throws MojoExecutionException {
         try {
             org.apache.velocity.Template template = ve.getTemplate(resource);
 

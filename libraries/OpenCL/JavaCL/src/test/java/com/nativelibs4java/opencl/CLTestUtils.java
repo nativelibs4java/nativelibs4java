@@ -1,9 +1,9 @@
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.*;
-import java.nio.*;
+import static com.nativelibs4java.opencl.JavaCL.listPlatforms;
 
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import java.nio.Buffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
 /**
  * @author ochafik
  */

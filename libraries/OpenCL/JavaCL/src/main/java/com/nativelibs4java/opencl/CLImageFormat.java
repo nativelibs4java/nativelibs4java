@@ -17,18 +17,35 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_A;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ARGB;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_BGRA;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FLOAT;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_HALF_FLOAT;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_INTENSITY;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_LUMINANCE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_R;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_RA;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_RG;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_RGB;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_RGBA;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SIGNED_INT16;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SIGNED_INT32;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SIGNED_INT8;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SNORM_INT16;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SNORM_INT8;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNORM_INT16;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNORM_INT8;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNORM_INT_101010;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNORM_SHORT_555;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNORM_SHORT_565;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNSIGNED_INT16;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNSIGNED_INT32;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNSIGNED_INT8;
+
+import com.nativelibs4java.opencl.library.cl_image_format;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import com.nativelibs4java.opencl.library.cl_image_format;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
-import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.util.NIOUtils.*;
-import java.util.*;
-import static com.nativelibs4java.opencl.CLException.*;
 
 /**
  * OpenCL Image Format

@@ -5,20 +5,17 @@
 
 package com.nativelibs4java.opencl;
 
-import com.nativelibs4java.test.MiscTestUtils;
-import com.nativelibs4java.util.ImageUtils;
-import java.awt.geom.AffineTransform;
-import java.awt.image.AffineTransformOp;
+import static org.junit.Assert.assertEquals;
+
 import java.awt.image.BufferedImage;
 import java.nio.IntBuffer;
-import java.util.Arrays;
-import org.junit.After;
-import org.junit.AfterClass;
+
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import com.nativelibs4java.test.MiscTestUtils;
+import com.nativelibs4java.util.ImageUtils;
 
 /**
  *
@@ -74,7 +71,7 @@ public class ImageTest extends AbstractCommon {
         if (!supportsImages())
             return;
         context.createImage2D(CLMem.Usage.Input, formatsRead2D[0], device.getImage2DMaxWidth() - 1, 1);
-        long d = device.getImage3DMaxDepth();
+        //long d = device.getImage3DMaxDepth();
         //TODO FAILING !!! context.createInput3D(formatsRead3D[0], device.getImage3DMaxWidth() - 1, 1, 1);
     }
     @Test
@@ -82,7 +79,7 @@ public class ImageTest extends AbstractCommon {
         if (!supportsImages())
             return;
         context.createImage2D(CLMem.Usage.Input, formatsRead2D[0], 1, device.getImage2DMaxHeight() - 1);
-        long d = device.getImage3DMaxDepth();
+        //long d = device.getImage3DMaxDepth();
         //TODO FAILING !!! context.createInput3D(formatsRead3D[0], 1, device.getImage3DMaxHeight(), 1);
     }
     @Test

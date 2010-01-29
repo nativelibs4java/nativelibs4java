@@ -1,16 +1,21 @@
 package com.nativelibs4java.opencl;
 
-import com.nativelibs4java.opencl.*;
-import com.nativelibs4java.test.MiscTestUtils;
-import java.io.File;
-import java.util.*;
-import java.nio.*;
+import static com.nativelibs4java.opencl.CLTestUtils.avgError;
+import static com.nativelibs4java.opencl.CLTestUtils.fillBuffersWithSomeData;
+import static com.nativelibs4java.test.BenchmarkUtils.gc;
+import static com.nativelibs4java.util.NIOUtils.directBytes;
+
+import java.nio.ByteBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.util.Arrays;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLTestUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
-import static com.nativelibs4java.test.BenchmarkUtils.*;
+
+import com.nativelibs4java.opencl.CLTestUtils.Action2;
+import com.nativelibs4java.opencl.CLTestUtils.ExecResult;
+import com.nativelibs4java.test.MiscTestUtils;
 
 //import com.nativelibs4java.scalacl.*;
 /// @see http://ati.amd.com/technology/streamcomputing/intro_opencl.html#simple
@@ -47,7 +52,7 @@ public class OpenCL4JavaBenchmarkTest {
         }
         long time = System.nanoTime() - start;
         System.out.println("Java operations : " + time + "ns");
-        return new ExecResult(outputBuffer, time / (loops * (double) dataSize));
+        return new ExecResult<FloatBuffer>(outputBuffer, time / (loops * (double) dataSize));
     }
 
     static ExecResult<DoubleBuffer> testJava_double_aSinB(int loops, int dataSize) throws CLBuildException {
@@ -74,7 +79,7 @@ public class OpenCL4JavaBenchmarkTest {
         }
         long time = System.nanoTime() - start;
         System.out.println("Java operations : " + time + "ns");
-        return new ExecResult(outputBuffer, time / (loops * (double) dataSize));
+        return new ExecResult<DoubleBuffer>(outputBuffer, time / (loops * (double) dataSize));
     }
 
     static ExecResult<FloatBuffer> testOpenCL_float_aSinB(CLContext context, int loops, int dataSize, boolean hostInOpenCL) throws CLBuildException {
@@ -85,7 +90,7 @@ public class OpenCL4JavaBenchmarkTest {
                 fillBuffersWithSomeData(a.asFloatBuffer(), b.asFloatBuffer());
             }
         });
-        return new ExecResult(er.buffer.asFloatBuffer(), er.unitTimeNano);
+        return new ExecResult<FloatBuffer>(er.buffer.asFloatBuffer(), er.unitTimeNano);
     }
 
     static ExecResult<DoubleBuffer> testOpenCL_double_aSinB(CLContext context, int loops, int dataSize, boolean hostInOpenCL) throws CLBuildException {
@@ -96,7 +101,7 @@ public class OpenCL4JavaBenchmarkTest {
                 fillBuffersWithSomeData(a.asDoubleBuffer(), b.asDoubleBuffer());
             }
         });
-        return new ExecResult(er.buffer.asDoubleBuffer(), er.unitTimeNano);
+        return new ExecResult<DoubleBuffer>(er.buffer.asDoubleBuffer(), er.unitTimeNano);
     }
 
     static ExecResult<ByteBuffer> testOpenCL_aSinB(CLContext context, Prim nativePrim, int loops, int dataSize, boolean hostInOpenCL, Action2<ByteBuffer, ByteBuffer> fillBuffersWithSomeData) throws CLBuildException {
@@ -170,7 +175,7 @@ public class OpenCL4JavaBenchmarkTest {
             memOut.unmap(queue, output);
             output = b;
         }
-        return new ExecResult(output, time / (loops * (double) dataSize));
+        return new ExecResult<ByteBuffer>(output, time / (loops * (double) dataSize));
     }
 
     static CLKernel setupASinB(Prim nativeType, CLContext context) throws CLBuildException {
@@ -192,16 +197,6 @@ public class OpenCL4JavaBenchmarkTest {
         CLKernel kernel = program.createKernel("aSinB");
 
         return kernel;
-    }
-
-    private static void openCL_aSinB(/*FloatBuffer input1, FloatBuffer input2, FloatBuffer output, */int dataSize, CLKernel kernel, CLQueue queue) throws CLBuildException {
-        /*kernel.setArgs(
-        context.createInput(input1, false),
-        context.createInput(input2, false),
-        context.createOutput(output)
-        );
-         */
-        kernel.enqueueNDRange(queue, new int[]{dataSize}, new int[]{1});
     }
 
     public static void java_aSinB(float[] a, float[] b, float[] output, int dataSize) throws CLBuildException {
@@ -238,7 +233,6 @@ public class OpenCL4JavaBenchmarkTest {
 
     @Test
     public void testBenchmark() {
-        File f = null;
         /*for (String s : new String[] {
         "C:\\Program Files (x86)\\ATI Stream\\bin\\x86_64\\OpenCL.dll",
         "C:\\Program Files (x86)\\ATI Stream\\bin\\x86\\OpenCL.dll",

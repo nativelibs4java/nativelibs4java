@@ -15,6 +15,7 @@ import gov.nist.math.util.*;
    rank can be computed from this decomposition.
    */
 
+@SuppressWarnings("serial")
 public class SingularValueDecomposition implements java.io.Serializable {
 
 /* ------------------------

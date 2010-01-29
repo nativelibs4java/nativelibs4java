@@ -17,9 +17,11 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.ptr.*;
-import java.nio.*;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 
 /**
  * OpenCL Memory Buffer Object with Float values.<br/>

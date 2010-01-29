@@ -5,14 +5,14 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import com.nativelibs4java.opencl.blas.LinearAlgebraKernels;
-import com.nativelibs4java.util.NIOUtils;
 import java.nio.DoubleBuffer;
+
 import org.ujmp.core.Matrix;
 import org.ujmp.core.benchmark.AbstractMatrix2DBenchmark;
-import org.ujmp.core.doublematrix.DoubleMatrix;
 import org.ujmp.core.doublematrix.DoubleMatrix2D;
 import org.ujmp.core.exceptions.MatrixException;
+
+import com.nativelibs4java.util.NIOUtils;
 
 /**
  *

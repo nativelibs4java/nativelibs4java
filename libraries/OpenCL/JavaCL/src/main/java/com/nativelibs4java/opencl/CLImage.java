@@ -17,20 +17,29 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.JavaCL.CL;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FALSE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_ELEMENT_SIZE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_FORMAT;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
+import static com.nativelibs4java.util.JNAUtils.toNS;
+import static com.nativelibs4java.util.NIOUtils.directCopy;
+
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+
 import com.nativelibs4java.opencl.library.cl_image_format;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.ochafik.util.listenable.Pair;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
-import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 
 
 /**

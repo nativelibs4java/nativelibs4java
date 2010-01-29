@@ -4,15 +4,16 @@
  */
 package com.nativelibs4java.opencl;
 
-import com.nativelibs4java.opencl.CLDevice.*;
-import com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import static com.nativelibs4java.test.MiscTestUtils.testGetters;
+import static org.junit.Assert.assertFalse;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.junit.Before;
+import org.junit.BeforeClass;
+
 import com.nativelibs4java.test.MiscTestUtils;
-import java.lang.reflect.*;
-import java.util.EnumSet;
-import java.util.logging.*;
-import org.junit.*;
-import static org.junit.Assert.*;
-import static com.nativelibs4java.test.MiscTestUtils.*;
 
 /**
  *

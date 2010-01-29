@@ -66,6 +66,7 @@ public class HelloDotNetWorld {
 	private static MonoObject invokeMethod(MonoLibrary m, MonoDomain domain, MonoObject ob, String methodName, MonoObject... args) {
 		return invokeMethod(m, domain, m.mono_object_get_class(ob), ob, methodName, args);
 	}
+	@SuppressWarnings("deprecation")
 	private static MonoObject invokeMethod(MonoLibrary m, MonoDomain domain, MonoClass cl, MonoObject ob, String methodName, MonoObject... args) {
 		Memory mem = new Memory(args.length * Native.POINTER_SIZE);
 		for (int i = 0; i < args.length; i++)
@@ -76,6 +77,7 @@ public class HelloDotNetWorld {
 		return m.mono_runtime_invoke(m.mono_class_get_method_from_name(cl, methodName, args.length), ob == null ? null : ob.getPointer(), pargs, (PointerByReference)null);
 	}
 
+	@SuppressWarnings("deprecation")
 	private static MonoObject getProperty(MonoLibrary m, MonoDomain domain,
 			MonoObject ob, String propertyName) {
 		return m.mono_runtime_invoke(m.mono_property_get_get_method(m.mono_class_get_property_from_name(m.mono_object_get_class(ob), propertyName)), ob.getPointer(), null, (PointerByReference)null);
@@ -91,6 +93,7 @@ public class HelloDotNetWorld {
 		return ob;
 	}
 
+	@SuppressWarnings("deprecation")
 	static void setProperty(MonoLibrary m, MonoDomain domain, MonoObject ob, String propertyName, Object value) {
 		MonoClass cl = m.mono_object_get_class(ob);
 		

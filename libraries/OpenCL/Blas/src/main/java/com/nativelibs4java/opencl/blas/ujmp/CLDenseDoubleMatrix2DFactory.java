@@ -16,8 +16,8 @@ import org.ujmp.core.exceptions.MatrixException;
  */
 public class CLDenseDoubleMatrix2DFactory extends
 		AbstractDoubleMatrix2DFactory {
-
-    public static volatile LinearAlgebraUtils LINEAR_ALGEBRA_KERNELS;
+	private static final long serialVersionUID = -6740394573899401514L;
+	public static volatile LinearAlgebraUtils LINEAR_ALGEBRA_KERNELS;
 
     static synchronized LinearAlgebraUtils getLinearAlgebraKernels() {
         if (LINEAR_ALGEBRA_KERNELS == null) {

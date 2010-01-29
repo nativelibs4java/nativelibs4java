@@ -13,7 +13,7 @@ import java.util.*;
  */
 public class EnumValues {
 
-	private static class Cache<E extends Enum> {
+	private static class Cache<E extends Enum<?>> {
 		final Map<Long, E> enumsByValue = new LinkedHashMap<Long, E>();
 		final Map<E, Long> valuesByEnum = new LinkedHashMap<E, Long>();
 		public Cache(Class<E> enumClass) {
@@ -32,8 +32,9 @@ public class EnumValues {
 			}
 		}
 	}
-	private static final Map<Class<? extends Enum>, Cache<?>> caches = new HashMap<Class<? extends Enum>, Cache<?>>();
-	private static synchronized <E extends Enum> Cache<E> getCache(Class<E> enumClass) {
+	private static final Map<Class<? extends Enum<?>>, Cache<?>> caches = new HashMap<Class<? extends Enum<?>>, Cache<?>>();
+	@SuppressWarnings("unchecked")
+	private static synchronized <E extends Enum<?>> Cache<E> getCache(Class<E> enumClass) {
 		Cache<E> cache = (Cache<E>)caches.get(enumClass);
 		if (cache == null) {
 			caches.put(enumClass, cache = new Cache(enumClass));
@@ -74,7 +75,8 @@ public class EnumValues {
 	 * @param enumItem
 	 * @return
 	 */
-	public static <E extends Enum> long getValue(E enumItem) {
+	@SuppressWarnings("unchecked")
+	public static <E extends Enum<?>> long getValue(E enumItem) {
 		return getCache((Class<E>)enumItem.getDeclaringClass()).valuesByEnum.get(enumItem);
 	}
 

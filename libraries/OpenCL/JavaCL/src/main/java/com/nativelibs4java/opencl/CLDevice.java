@@ -46,6 +46,7 @@ import java.util.logging.Logger;
  * @see CLPlatform#listCPUDevices(boolean)
  * @see CLPlatform#listGPUDevices(boolean)
  */
+@SuppressWarnings("unused")
 public class CLDevice extends CLAbstractEntity<cl_device_id> {
 
     private static CLInfoGetter<cl_device_id> infos = new CLInfoGetter<cl_device_id>() {

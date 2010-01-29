@@ -17,20 +17,35 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.JavaCL.CL;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BINARIES;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BINARY_SIZES;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BUILD_LOG;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_SOURCE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SUCCESS;
+import static com.nativelibs4java.util.JNAUtils.readNSArray;
+import static com.nativelibs4java.util.JNAUtils.toNS;
+
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program;
 import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.ochafik.util.listenable.Pair;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
-import java.util.*;
-import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * OpenCL program.<br/>

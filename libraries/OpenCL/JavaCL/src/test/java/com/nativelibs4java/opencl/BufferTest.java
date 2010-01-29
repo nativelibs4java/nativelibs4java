@@ -5,31 +5,31 @@
 
 package com.nativelibs4java.opencl;
 
-import com.nativelibs4java.test.MiscTestUtils;
-import com.nativelibs4java.util.ImageUtils;
-import com.nativelibs4java.util.NIOUtils;
-import com.sun.jna.Native;
-import static com.nativelibs4java.util.NIOUtils.*;
-import java.awt.image.BufferedImage;
+import static com.nativelibs4java.util.NIOUtils.directBuffer;
+import static com.nativelibs4java.util.NIOUtils.get;
+import static com.nativelibs4java.util.NIOUtils.put;
+import static org.junit.Assert.assertEquals;
+
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import com.nativelibs4java.test.MiscTestUtils;
+import com.nativelibs4java.util.NIOUtils;
+import com.sun.jna.Native;
 
 /**
  *
  * @author ochafik
  */
+@SuppressWarnings("unchecked")
 public class BufferTest extends AbstractCommon {
 
     @BeforeClass
@@ -75,7 +75,7 @@ public class BufferTest extends AbstractCommon {
         }
     }
 
-    Class[] bufferClasses = new Class[] {
+    Class<? extends Buffer>[] bufferClasses = new Class[] {
         IntBuffer.class,
         LongBuffer.class,
         ShortBuffer.class,

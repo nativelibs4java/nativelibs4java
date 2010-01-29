@@ -1,27 +1,32 @@
 package com.nativelibs4java.opencl.demos.mandelbrot;
 
 //package bbbob.gparallel.mandelbrot;
-import com.nativelibs4java.opencl.*;
-import com.nativelibs4java.opencl.demos.SetupUtils;
-import com.nativelibs4java.util.IOUtils;
-import static com.nativelibs4java.opencl.OpenCL4Java.*;
-import com.nativelibs4java.util.NIOUtils;
+import static com.nativelibs4java.opencl.JavaCL.createBestContext;
 
 import java.awt.Color;
-import javax.imageio.ImageWriter;
-import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageOutputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.IOException;
-import java.io.File;
-import java.nio.IntBuffer;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.IntBuffer;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
+
+import com.nativelibs4java.opencl.CLBuildException;
+import com.nativelibs4java.opencl.CLContext;
+import com.nativelibs4java.opencl.CLKernel;
+import com.nativelibs4java.opencl.CLMem;
+import com.nativelibs4java.opencl.CLProgram;
+import com.nativelibs4java.opencl.CLQueue;
+import com.nativelibs4java.opencl.demos.SetupUtils;
+import com.nativelibs4java.util.IOUtils;
+import com.nativelibs4java.util.NIOUtils;
 
 
 /**
@@ -124,13 +129,14 @@ public class MandelbrotDemo {
         }
     }
 
+    static boolean useAutoGenWrapper = true;
     private static long buildAndExecuteKernel(CLQueue queue, float realMin, float imaginaryMin, int realResolution,
                                               int imaginaryResolution, int maxIter, int magicNumber, float deltaReal,
                                               float deltaImaginary, IntBuffer results, String src) throws CLBuildException, IOException {
 
         CLContext context = queue.getContext();
         long startTime = System.nanoTime();
-        if (true) {
+        if (useAutoGenWrapper) {
             Mandelbrot mandelbrot = new Mandelbrot(context);
             mandelbrot.mandelbrot(
                 queue,

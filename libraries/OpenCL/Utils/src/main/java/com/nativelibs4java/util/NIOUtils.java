@@ -141,7 +141,8 @@ public class NIOUtils
     }
     
 
-    public static <B extends Buffer> B directBuffer(int size, ByteOrder order, Class<B> bufferClass) {
+    @SuppressWarnings("unchecked")
+	public static <B extends Buffer> B directBuffer(int size, ByteOrder order, Class<B> bufferClass) {
         if (IntBuffer.class.isAssignableFrom(bufferClass))
             return (B)directInts(size, order);
 		if (LongBuffer.class.isAssignableFrom(bufferClass))
@@ -197,7 +198,8 @@ public class NIOUtils
             throw new UnsupportedOperationException();
     }
 
-    public static <B extends Buffer, V> V get(B buffer, int position) {
+    @SuppressWarnings("unchecked")
+	public static <B extends Buffer, V> V get(B buffer, int position) {
         if (buffer instanceof IntBuffer)
             return (V)(Integer)((IntBuffer)buffer).get(position);
         else if (buffer instanceof LongBuffer)

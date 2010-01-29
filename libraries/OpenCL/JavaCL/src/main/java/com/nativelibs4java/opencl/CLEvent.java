@@ -17,18 +17,44 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.util.EnumValues;
+import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.JavaCL.CL;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_ACQUIRE_GL_OBJECTS;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_COPY_BUFFER;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_COPY_BUFFER_TO_IMAGE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_COPY_IMAGE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_COPY_IMAGE_TO_BUFFER;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_MAP_BUFFER;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_MAP_IMAGE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_MARKER;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_NATIVE_KERNEL;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_NDRANGE_KERNEL;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_READ_BUFFER;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_READ_IMAGE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_RELEASE_GL_OBJECTS;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_TASK;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_UNMAP_MEM_OBJECT;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_WRITE_BUFFER;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_WRITE_IMAGE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMPLETE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_EVENT_COMMAND_EXECUTION_STATUS;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_EVENT_COMMAND_TYPE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROFILING_COMMAND_END;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROFILING_COMMAND_QUEUED;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROFILING_COMMAND_START;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROFILING_COMMAND_SUBMIT;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_QUEUED;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_RUNNING;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SUBMITTED;
+
+import java.util.Arrays;
+
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.util.EnumValue;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import com.nativelibs4java.util.EnumValues;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
-import java.nio.*;
-import java.util.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
+import com.sun.jna.Pointer;
 
 /**
  * OpenCL event object.<br/>

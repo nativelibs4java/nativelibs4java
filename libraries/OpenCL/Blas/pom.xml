@@ -22,7 +22,7 @@
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl</artifactId>
 	  <version>${opencl4java.version}</version>
-	  <classifier>shaded</classifier>
+	  <!--classifier>shaded</classifier-->
 	  <scope>compile</scope>
 	</dependency>
 	

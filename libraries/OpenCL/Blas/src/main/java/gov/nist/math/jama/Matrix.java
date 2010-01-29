@@ -4,7 +4,6 @@ import java.text.NumberFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.Locale;
-import java.text.FieldPosition;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.StreamTokenizer;
@@ -59,7 +58,12 @@ public class Matrix implements Cloneable, java.io.Serializable {
    Class variables
  * ------------------------ */
 
-   /** Array for internal storage of elements.
+   /**
+	 * 
+	 */
+	private static final long serialVersionUID = 3230867840857885492L;
+
+/** Array for internal storage of elements.
    @serial internal array storage.
    */
    private double[][] A;
@@ -999,7 +1003,7 @@ public class Matrix implements Cloneable, java.io.Serializable {
       tokenizer.wordChars(0,255);
       tokenizer.whitespaceChars(0, ' ');
       tokenizer.eolIsSignificant(true);
-      java.util.Vector v = new java.util.Vector();
+      java.util.Vector<Object> v = new java.util.Vector<Object>();
 
       // Ignore initial empty lines
       while (tokenizer.nextToken() == StreamTokenizer.TT_EOL);

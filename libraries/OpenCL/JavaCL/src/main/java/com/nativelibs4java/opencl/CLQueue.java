@@ -17,20 +17,21 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.JavaCL.CL;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FALSE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_QUEUE_PROPERTIES;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
+
+import java.util.EnumSet;
+
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.LongByReference;
-import com.sun.jna.ptr.PointerByReference;
-import java.nio.*;
-import java.util.EnumSet;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
-import static com.nativelibs4java.opencl.CLException.*;
 
 /**
  * OpenCL command queue.<br/>
@@ -81,6 +82,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 		return CLDevice.QueueProperties.getEnumSet(infos.getIntOrLong(getEntity(), CL_QUEUE_PROPERTIES));
 	}
 
+	@SuppressWarnings("deprecation")
 	public void setProperty(CLDevice.QueueProperties property, boolean enabled) {
 		error(CL.clSetCommandQueueProperty(getEntity(), property.getValue(), enabled ? CL_TRUE : CL_FALSE, (LongByReference)null));
 	}

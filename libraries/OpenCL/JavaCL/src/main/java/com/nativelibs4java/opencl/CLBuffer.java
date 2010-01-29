@@ -17,16 +17,23 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.JavaCL.CL;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FALSE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
+import static com.nativelibs4java.util.JNAUtils.toNS;
+import static com.nativelibs4java.util.NIOUtils.directBytes;
+import static com.nativelibs4java.util.NIOUtils.directCopy;
+
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.ochafik.util.listenable.Pair;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
-import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * OpenCL Memory Buffer Object.<br/>
@@ -149,8 +156,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 		return read(queue, 0, length, out, blocking, eventsToWaitFor);
 	}
 
-	@SuppressWarnings("deprecation")
-    public CLEvent read(CLQueue queue, long offset, long length, B out, boolean blocking, CLEvent... eventsToWaitFor) {
+	public CLEvent read(CLQueue queue, long offset, long length, B out, boolean blocking, CLEvent... eventsToWaitFor) {
         if (out.isReadOnly())
             throw new IllegalArgumentException("Output buffer for read operation is read-only !");
         B originalOut = null;
@@ -189,9 +195,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 		return write(queue, 0, length, in, blocking, eventsToWaitFor);
 	}
 
-
-	@SuppressWarnings("deprecation")
-    public CLEvent write(CLQueue queue, long offset, long length, B in, boolean blocking, CLEvent... eventsToWaitFor) {
+	public CLEvent write(CLQueue queue, long offset, long length, B in, boolean blocking, CLEvent... eventsToWaitFor) {
         if (!in.isDirect()) {
             blocking = true;
             in = typedBuffer(directCopy(in, queue.getDevice().getKernelsDefaultByteOrder()));

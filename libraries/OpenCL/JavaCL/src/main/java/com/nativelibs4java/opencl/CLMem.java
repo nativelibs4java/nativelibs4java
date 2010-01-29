@@ -17,21 +17,34 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.JavaCL.CL;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_GL_OBJECT_BUFFER;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_GL_OBJECT_RENDERBUFFER;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_GL_OBJECT_TEXTURE2D;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_GL_OBJECT_TEXTURE3D;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MAP_READ;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MAP_WRITE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_ALLOC_HOST_PTR;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_COPY_HOST_PTR;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_OBJECT_BUFFER;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_OBJECT_IMAGE2D;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_OBJECT_IMAGE3D;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_READ_ONLY;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_READ_WRITE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_SIZE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_USE_HOST_PTR;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_WRITE_ONLY;
+
+import java.util.EnumSet;
+
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import com.ochafik.util.listenable.Pair;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
-import java.nio.*;
-import java.util.EnumSet;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * OpenCL memory object.<br/>
@@ -187,7 +200,8 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
             return name;
         }
     }
-    public GLObjectInfo getGLObjectInfo() {
+    @SuppressWarnings("deprecation")
+	public GLObjectInfo getGLObjectInfo() {
         IntByReference typeRef = new IntByReference();
         IntByReference nameRef = new IntByReference();
         CL.clGetGLObjectInfo(getEntity(), typeRef, nameRef);

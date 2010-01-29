@@ -18,22 +18,16 @@
 */
 package com.nativelibs4java.opencl;
 
-import com.nativelibs4java.opencl.library.OpenCLLibrary;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import static com.nativelibs4java.opencl.CLException.error;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.*;
-
-import com.ochafik.util.string.StringUtils;
-import com.sun.jna.*;
-import java.nio.*;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import com.sun.jna.ptr.*;
 import java.util.Arrays;
-import static com.nativelibs4java.opencl.CLException.*;
+import java.util.List;
+import java.util.Map;
+
+import com.nativelibs4java.opencl.library.OpenCLLibrary;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * Entry point class for the OpenCL4Java Object-oriented wrappers around the OpenCL API.<br/>
