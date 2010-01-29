@@ -170,6 +170,29 @@ public class CLException extends RuntimeException {
         return StringUtils.implode(candidates, " or ");
     }
 
+    static boolean failedForLackOfMemory(int err, int previousAttempts) {
+    	switch (err) {
+    	case CL_SUCCESS:
+    		return false;
+    	case CL_OUT_OF_HOST_MEMORY:
+    	case CL_OUT_OF_RESOURCES:
+    	case CL_MEM_OBJECT_ALLOCATION_FAILURE:
+    		if (previousAttempts <= 1) {
+	    		System.gc();
+	    		if (previousAttempts == 1) {
+	    			try {
+	    				Thread.sleep(100);
+	    			} catch (InterruptedException ex) {}
+	    		}
+	    		return true;
+    		}
+		default:
+			error(err);
+			assert false; // won't reach
+			return false;
+    	}
+    }
+    
 	static Map<Integer, Class<? extends CLTypedException>> typedErrorClassesByCode;
     @SuppressWarnings("unchecked")
 	public static void error(int err) {

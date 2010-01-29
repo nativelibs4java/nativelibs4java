@@ -18,28 +18,52 @@ along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.nativelibs4java.opencl;
 
+import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.CLException.failedForLackOfMemory;
+import static com.nativelibs4java.opencl.JavaCL.CL;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_CONTEXT_DEVICES;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FALSE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_COPY_HOST_PTR;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_USE_HOST_PTR;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
+import static com.nativelibs4java.util.ImageUtils.getImageIntPixels;
+import static com.nativelibs4java.util.JNAUtils.toNS;
+import static com.nativelibs4java.util.JNAUtils.toNSArray;
+import static com.nativelibs4java.util.NIOUtils.getSizeInBytes;
+
+import java.awt.Image;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.CharBuffer;
+import java.nio.DoubleBuffer;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.nativelibs4java.opencl.CLDevice.QueueProperties;
 import com.nativelibs4java.opencl.CLSampler.AddressingMode;
 import com.nativelibs4java.opencl.CLSampler.FilterMode;
 import com.nativelibs4java.opencl.library.OpenGLContextUtils;
 import com.nativelibs4java.opencl.library.cl_image_format;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
-import java.awt.Image;
-import java.nio.*;
-import java.util.ArrayList;
-import java.util.List;
-import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
-import static com.nativelibs4java.util.NIOUtils.*;
-import static com.nativelibs4java.util.ImageUtils.*;
+import com.sun.jna.Memory;
+import com.sun.jna.Native;
+import com.sun.jna.Platform;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * OpenCL context.<br/>
@@ -211,8 +235,11 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	@SuppressWarnings("deprecation")
 	public CLByteBuffer createBufferFromGLBuffer(CLMem.Usage usage, int openGLBufferObject) {
 		IntByReference pErr = new IntByReference();
-		cl_mem mem = CL.clCreateFromGLBuffer(getEntity(), usage.getIntFlags(), openGLBufferObject, pErr);
-		error(pErr.getValue());
+		cl_mem mem;
+		int previousAttempts = 0;
+		do {
+			mem = CL.clCreateFromGLBuffer(getEntity(), usage.getIntFlags(), openGLBufferObject, pErr);
+		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
         return markAsGL(new CLByteBuffer(this, -1, mem, null));
 	}
 
@@ -226,8 +253,11 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2DFromGLRenderBuffer(CLMem.Usage usage, int openGLRenderBuffer) {
 		IntByReference pErr = new IntByReference();
-		cl_mem mem = CL.clCreateFromGLRenderbuffer(openGLRenderBuffer, pErr);
-		error(pErr.getValue());
+		cl_mem mem;
+		int previousAttempts = 0;
+		do {
+			mem = CL.clCreateFromGLRenderbuffer(openGLRenderBuffer, pErr);
+		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
 	
@@ -246,8 +276,11 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2DFromGLTexture2D(CLMem.Usage usage, GLTextureTarget textureTarget, int texture, int mipLevel) {
 		IntByReference pErr = new IntByReference();
-		cl_mem mem = CL.clCreateFromGLTexture2D(textureTarget.getValue(), mipLevel, texture, pErr);
-		error(pErr.getValue());
+		cl_mem mem;
+		int previousAttempts = 0;
+		do {
+			mem = CL.clCreateFromGLTexture2D(textureTarget.getValue(), mipLevel, texture, pErr);
+		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
 
@@ -297,8 +330,11 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	@SuppressWarnings("deprecation")
 	public CLImage3D createImage3DFromGLTexture3D(CLMem.Usage usage, int texture, int mipLevel) {
 		IntByReference pErr = new IntByReference();
-		cl_mem mem = CL.clCreateFromGLTexture3D(GL_TEXTURE_3D, mipLevel, texture, pErr);
-		error(pErr.getValue());
+		cl_mem mem;
+		int previousAttempts = 0;
+		do {
+			mem = CL.clCreateFromGLTexture3D(GL_TEXTURE_3D, mipLevel, texture, pErr);
+		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
 		return markAsGL(new CLImage3D(this, mem, null));
 	}
 	
@@ -330,7 +366,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		}
 
 		IntByReference pErr = new IntByReference();
-		cl_mem mem = CL.clCreateImage2D(
+		cl_mem mem;
+		int previousAttempts = 0;
+		do {
+			mem = CL.clCreateImage2D(
 				getEntity(),
 				memFlags,
 				format.to_cl_image_format(),
@@ -339,7 +378,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 				toNS(rowPitch),
 				buffer == null ? null : Native.getDirectBufferPointer(buffer),
 				pErr);
-		error(pErr.getValue());
+		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
 		return new CLImage2D(this, mem, format);
 	}
 
@@ -359,7 +398,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		}
 
 		IntByReference pErr = new IntByReference();
-		cl_mem mem = CL.clCreateImage3D(
+		cl_mem mem;
+		int previousAttempts = 0;
+		do {
+			mem = CL.clCreateImage3D(
 				getEntity(),
 				memFlags,
 				format.to_cl_image_format(),
@@ -370,7 +412,8 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 				toNS(slicePitch),
 				buffer == null ? null : Native.getDirectBufferPointer(buffer),
 				pErr);
-		error(pErr.getValue());
+		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
+		
 		return new CLImage3D(this, mem, format);
 	}
 
@@ -506,13 +549,16 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 		IntByReference pErr = new IntByReference();
 		//IntBuffer errBuff = IntBuffer.wrap(new int[1]);
-		cl_mem mem = CL.clCreateBuffer(
+		cl_mem mem;
+		int previousAttempts = 0;
+		do {
+			mem = CL.clCreateBuffer(
 				getEntity(),
 				CLBufferFlags,
 				toNS(byteCount),
 				buffer == null ? null : Native.getDirectBufferPointer(buffer),
 				pErr);
-		error(pErr.getValue());
+		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
 
 		return new CLByteBuffer(this, byteCount, mem, buffer);
 	}

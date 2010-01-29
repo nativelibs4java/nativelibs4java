@@ -18,6 +18,7 @@
 */
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.CLException.failedForLackOfMemory;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BINARIES;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BINARY_SIZES;
@@ -112,8 +113,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             lengths[i] = toNS(sources[i].length());
         }
         IntBuffer errBuff = NIOUtils.directInts(1, ByteOrder.nativeOrder());
-        cl_program program = CL.clCreateProgramWithSource(context.getEntity(), sources.length, sources, lengths, errBuff);
-        error(errBuff.get(0));
+        cl_program program;
+		int previousAttempts = 0;
+		do {
+			program = CL.clCreateProgramWithSource(context.getEntity(), sources.length, sources, lengths, errBuff);
+		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
         entity = program;
     }
     
@@ -270,11 +274,13 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                 build();
         }
 		IntByReference pCount = new IntByReference();
-        error(CL.clCreateKernelsInProgram(getEntity(), 0, (cl_kernel[])null, pCount));
+		int previousAttempts = 0;
+		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), 0, (cl_kernel[])null, pCount), previousAttempts++)) {}
 
 		int count = pCount.getValue();
 		cl_kernel[] kerns = new cl_kernel[count];
-		error(CL.clCreateKernelsInProgram(getEntity(), count, kerns, pCount));
+		previousAttempts = 0;
+		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), count, kerns, pCount), previousAttempts++)) {}
 
 		CLKernel[] kernels = new CLKernel[count];
 		for (int i = 0; i < count; i++)
@@ -292,8 +298,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                 build();
         }
         IntBuffer errBuff = NIOUtils.directInts(1, ByteOrder.nativeOrder());
-        cl_kernel kernel = CL.clCreateKernel(getEntity(), name, errBuff);
-        error(errBuff.get(0));
+        cl_kernel kernel;
+		int previousAttempts = 0;
+		do {
+			kernel = CL.clCreateKernel(getEntity(), name, errBuff);
+		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
 
         CLKernel kn = new CLKernel(this, name, kernel);
         kn.setArgs(args);
