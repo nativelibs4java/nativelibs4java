@@ -62,14 +62,14 @@ public class VelocityMojo
 
     /**
      * Output directory for generated sources.
-     * @parameter expression="${project.build.directory}/generated-sources/main/java"
+     * @parameter expression="${project.build.directory}/generated-sources/main"
      * @optional
      */
     private File outputDirectory;
 
     /**
      * Output directory for generated test sources.
-     * @parameter expression="${project.build.directory}/generated-sources/test/java"
+     * @parameter expression="${project.build.directory}/generated-sources/test"
      * @optional
      */
     private File testOutputDirectory;
