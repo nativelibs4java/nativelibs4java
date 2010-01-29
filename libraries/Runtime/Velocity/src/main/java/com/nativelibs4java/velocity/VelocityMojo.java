@@ -120,10 +120,10 @@ public class VelocityMojo
         }
         int i = rel.lastIndexOf('.');
         File out = outputDirectory;
-        if (i >= 0) {
-            String ext = rel.substring(i + 1);
-            out = new File(out, ext);
-        }
+        //if (i >= 0) {
+        //    String ext = rel.substring(i + 1);
+        //    out = new File(out, ext);
+        //}
 
         return new File(out.getCanonicalPath() + rel);
     }

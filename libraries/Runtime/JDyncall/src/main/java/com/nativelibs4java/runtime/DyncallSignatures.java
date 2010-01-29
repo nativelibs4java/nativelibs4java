@@ -4,7 +4,6 @@
  */
 
 package com.nativelibs4java.runtime;
-import static com.nativelibs4java.runtime.JDyncallLibrary.*;
 /**
  *
  * @author Olivier

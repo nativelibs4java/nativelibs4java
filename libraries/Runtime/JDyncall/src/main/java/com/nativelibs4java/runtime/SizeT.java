@@ -10,7 +10,11 @@ package com.nativelibs4java.runtime;
  * @author Olivier
  */
 public class SizeT extends Number {
-    private final long value;
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1547942367767922396L;
+	private final long value;
     public SizeT(long value) {
         this.value = value;
     }

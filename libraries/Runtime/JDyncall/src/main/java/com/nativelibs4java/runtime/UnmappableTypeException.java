@@ -10,7 +10,12 @@ package com.nativelibs4java.runtime;
  * @author Olivier Chafik
  */
 public class UnmappableTypeException extends RuntimeException {
-    public UnmappableTypeException(String message) {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -5748442361297147821L;
+
+	public UnmappableTypeException(String message) {
         super(message);
     }
 }

@@ -1,6 +1,5 @@
 package com.nativelibs4java.runtime;
 
-import java.nio.*;
 
 /**
  *
@@ -25,7 +24,7 @@ public class Memory<T> extends DefaultPointer<T> {
 		this(io, JNI.getDirectBufferAddress(directBuffer) + byteOffset, JNI.getDirectBufferCapacity(directBuffer), directBuffer);
 		assert directBuffer != null && directBuffer.isDirect();
 	}*/
-    public Memory(PointerIO<T> io, Memory memoryOwner) {
+    public Memory(PointerIO<T> io, Memory<?> memoryOwner) {
         this(io, memoryOwner.getPeer(), memoryOwner.getValidStart(), memoryOwner.getValidStart(), memoryOwner);
     }
     Memory(PointerIO<T> io, long peer, long validSize) {
@@ -66,8 +65,8 @@ public class Memory<T> extends DefaultPointer<T> {
     @Override
     public synchronized void release() {
         if (memoryOwner != null) {
-            if (memoryOwner instanceof Pointer)
-                ((Pointer)memoryOwner).release();
+            if (memoryOwner instanceof Pointer<?>)
+                ((Pointer<?>)memoryOwner).release();
             memoryOwner = null;
         } else
             deallocate();
@@ -77,17 +76,18 @@ public class Memory<T> extends DefaultPointer<T> {
 	@Override
     public Pointer<T> share(long byteOffset) {
         PointerIO<T> io = getIO();
-        int size = io == null ? io.getTargetSize() : 1;
-        Memory<T> p = new Memory(io, getCheckedPeer(byteOffset, size), validStart + byteOffset, validSize, memoryOwner == null ? this : memoryOwner);
+        int size = io != null ? io.getTargetSize() : 1;
+        Memory<T> p = new Memory<T>(io, getCheckedPeer(byteOffset, size), validStart + byteOffset, validSize, memoryOwner == null ? this : memoryOwner);
 		p.memoryOwner = memoryOwner;
 		p.peerOrOffsetInOwner += byteOffset;
         return p;
     }
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Pointer<Pointer<T>> getReference() {
 		if (memoryOwner != null)
-			return ((Pointer)memoryOwner).share(peerOrOffsetInOwner);
+			return ((Pointer<Pointer<T>>)memoryOwner).share(peerOrOffsetInOwner);
 		else
 			return super.getReference();
 	}

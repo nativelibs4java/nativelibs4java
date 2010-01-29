@@ -59,7 +59,8 @@ object ScalaCLTestRun extends Application {
 	prog1.a.write(1 to 10) // slow + unoptimized
     prog1.b.write(1000 to 1011) // slow + unoptimized
 	
-	var list = List(1f, 2f, 3f, 4f);
+    e eee
+    var list = List(1f, 2f, 3f, 4f);
     prog1.a.write(list)
     prog1.b.write(list)
     //prog1.a.write(ints)

@@ -4,34 +4,31 @@
  */
 package com.nativelibs4java.opencl;
 
-import com.nativelibs4java.opencl.CLMem.GLObjectInfo;
-import com.nativelibs4java.util.NIOUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.media.opengl.GL;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.glu.GLU;
-
-import javax.swing.*;
-import java.io.IOException;
-import java.nio.FloatBuffer;
-
-import com.sun.opengl.util.BufferUtil;
-import com.sun.opengl.util.FPSAnimator;
-import com.sun.opengl.util.texture.TextureIO;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.nio.ByteBuffer;
-import java.util.concurrent.Semaphore;
 import javax.media.opengl.GL2;
+import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCapabilities;
+import javax.media.opengl.GLEventListener;
 import javax.media.opengl.GLProfile;
 import javax.media.opengl.awt.GLCanvas;
-import org.junit.Before;
+import javax.swing.JFrame;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import com.nativelibs4java.opencl.CLMem.GLObjectInfo;
+import com.sun.opengl.util.BufferUtil;
+import com.sun.opengl.util.FPSAnimator;
 
 public class JOGLTest {
 
@@ -42,7 +39,7 @@ public class JOGLTest {
     }
     
     public GLCanvas createGLCanvas(int width, int height) {
-        GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        //GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         GLCanvas glCanvas = new GLCanvas(new GLCapabilities(GLProfile.get(GLProfile.GL2)));
         glCanvas.setSize( width, height );
         glCanvas.setIgnoreRepaint( true );
@@ -96,7 +93,7 @@ public class JOGLTest {
                             assertEquals(VBO[0], info.getName());
                             assertNotNull(clbuf);
 
-                            FloatBuffer inbuf = NIOUtils.directFloats(bufferSize, context.getByteOrder());
+                            //FloatBuffer inbuf = NIOUtils.directFloats(bufferSize, context.getByteOrder());
                             float expected = 10;
                             try {
                                 CLKernel kernel = context.createProgram("__kernel void fill(__global float* out) { out[get_global_id(0)] = (float)" + expected + ";}").build().createKernel("fill", clbuf);
@@ -133,7 +130,8 @@ public class JOGLTest {
                     throw new UnsupportedOperationException("Not supported yet.");
                 }
 
-                public void displayChanged(GLAutoDrawable glad, boolean bln, boolean bln1) {
+                @SuppressWarnings("unused")
+				public void displayChanged(GLAutoDrawable glad, boolean bln, boolean bln1) {
                     throw new UnsupportedOperationException("Not supported yet.");
                 }
 

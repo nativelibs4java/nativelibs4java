@@ -29,7 +29,8 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
 
     private static Map<Class<?>, Object[]> enumsCache = new WeakHashMap<Class<?>, Object[]>();
 
-    private static synchronized <EE extends Enum<EE>> EE[] getValues(Class<EE> enumClass) {
+    @SuppressWarnings("unchecked")
+	private static synchronized <EE extends Enum<EE>> EE[] getValues(Class<EE> enumClass) {
         EE[] values = (EE[])enumsCache.get(enumClass);
         if (values == null) {
             try {
@@ -87,7 +88,7 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         List<E> ret = new ArrayList<E>();
         if (enumClass != null) {
             for (E e : getEnumClassValues()) {
-                long eMask = ((ValuedEnum)e).value();
+                long eMask = ((ValuedEnum<?>)e).value();
                 if ((value & eMask) == eMask)
                     ret.add((E)e);
             }

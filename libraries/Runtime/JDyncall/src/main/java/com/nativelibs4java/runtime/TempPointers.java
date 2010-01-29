@@ -10,19 +10,19 @@ package com.nativelibs4java.runtime;
  */
 public final class TempPointers {
     private final boolean refresh;
-    private final Pointer[] pointers;
+    private final Pointer<?>[] pointers;
     private long[] tempPeers;
 
-    public TempPointers(Pointer... pointers) {
+    public TempPointers(Pointer<?>... pointers) {
         this(false, pointers);
     }
-    public TempPointers(boolean refresh, Pointer... pointers) {
+    public TempPointers(boolean refresh, Pointer<?>... pointers) {
         this.pointers = pointers;
         this.refresh = refresh;
         int len = pointers.length;
         tempPeers = new long[len];
         for (int i = 0; i < len; i++) {
-            Pointer p = pointers[i];
+            Pointer<?> p = pointers[i];
             if (p == null)
                 continue;
 
@@ -50,7 +50,7 @@ public final class TempPointers {
             long peer = tempPeers[i];
             if (peer == 0)
                 continue;
-            Pointer p = pointers[i];
+            Pointer<?> p = pointers[i];
             if (p == null)
                 continue;
 

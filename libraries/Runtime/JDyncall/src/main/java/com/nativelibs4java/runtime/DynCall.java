@@ -1,21 +1,12 @@
 
 package com.nativelibs4java.runtime;
 
-import com.nativelibs4java.runtime.ann.Library;
-import com.nativelibs4java.runtime.ann.Mangling;
-import com.nativelibs4java.runtime.ann.NoInheritance;
-import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -23,7 +14,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-//import jdyncall.CPPTest;
+
+import com.nativelibs4java.runtime.ann.Library;
+import com.nativelibs4java.runtime.ann.Mangling;
+import com.nativelibs4java.runtime.ann.NoInheritance;
 
 public class DynCall {
     static Map<String, Long> libHandles = new HashMap<String, Long>();
@@ -44,8 +38,8 @@ public class DynCall {
         String name = null;
         if (member instanceof Member)
             name = ((Member)member).getName();
-        else if (member instanceof Class)
-            name = ((Class)member).getSimpleName();
+        else if (member instanceof Class<?>)
+            name = ((Class<?>)member).getSimpleName();
 
         if (name != null) {
             long handle = JNI.findSymbolInLibrary(libHandle, name);
