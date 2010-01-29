@@ -9,6 +9,13 @@
     <inceptionYear>2009</inceptionYear>
     <name>NativeLibs4Java Common Configuration</name>
     
+	<properties>
+		<jnaerator.version>0.9.4-SNAPSHOT</jnaerator.version>
+		<nativelibs4java.version>1.0-SNAPSHOT</nativelibs4java.version>
+		<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
+		<jarsigner.skip>true</jarsigner.skip>
+	</properties>
+	
 	<developers>
 		<developer>
 			<id>olivier.chafik</id>

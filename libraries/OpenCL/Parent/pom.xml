@@ -20,14 +20,6 @@
 OpenCL4Java, JavaCL and ScalaCL are OpenCL binding libraries for the Java platform.
 	</description>
   
-  
-  <properties>
-  	<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
-	<jnaerator.version>0.9.4-SNAPSHOT</jnaerator.version>
-	<jarsigner.skip>true</jarsigner.skip>
-	
-  </properties>
-
   <dependencies>
   	
 	<dependency>
