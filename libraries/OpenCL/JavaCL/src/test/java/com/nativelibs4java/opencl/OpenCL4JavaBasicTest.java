@@ -11,6 +11,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.nativelibs4java.test.MiscTestUtils;
+import com.nativelibs4java.util.NIOUtils;
 
 public class OpenCL4JavaBasicTest {
 
@@ -42,27 +43,22 @@ public class OpenCL4JavaBasicTest {
 			CLKernel kernel = program.createKernel("aSinB");
             CLQueue queue = context.createDefaultQueue();
 
-            // Allocate OpenCL-hosted memory for inputs and output
-            CLFloatBuffer memIn1 = context.createFloatBuffer(CLMem.Usage.Input, dataSize);
-            CLFloatBuffer memIn2 = context.createFloatBuffer(CLMem.Usage.Input, dataSize);
-            CLFloatBuffer memOut = context.createFloatBuffer(CLMem.Usage.Output, dataSize);
-
-            // Bind these memory objects to the arguments of the kernel
-            kernel.setArgs(memIn1, memIn2, memOut);
-
-            /// Map input buffers to populate them with some data
-            FloatBuffer a = memIn1.map(queue, CLMem.MapFlags.Write);
-            FloatBuffer b = memIn2.map(queue, CLMem.MapFlags.Write);
-
-            // Fill the mapped input buffers with data
+            /// Create direct NIO buffers and fill them with data in the correct byte order
+            FloatBuffer a = NIOUtils.directFloats(dataSize, context.getKernelsDefaultByteOrder());
+            FloatBuffer b = NIOUtils.directFloats(dataSize, context.getKernelsDefaultByteOrder());
             for (int i = 0; i < dataSize; i++) {
                 a.put(i, i);
                 b.put(i, i);
             }
 
-            /// Unmap input buffers
-            memIn1.unmap(queue, a);
-            memIn2.unmap(queue, b);
+            // Allocate OpenCL-hosted memory for inputs and output, 
+            // with inputs initialized as copies of the NIO buffers
+            CLFloatBuffer memIn1 = context.createFloatBuffer(CLMem.Usage.Input, a, true); // 'true' : copy provided data
+            CLFloatBuffer memIn2 = context.createFloatBuffer(CLMem.Usage.Input, b, true);
+            CLFloatBuffer memOut = context.createFloatBuffer(CLMem.Usage.Output, dataSize);
+
+            // Bind these memory objects to the arguments of the kernel
+            kernel.setArgs(memIn1, memIn2, memOut);
 
             // Ask for execution of the kernel with global size = dataSize
             //   and workgroup size = 1
@@ -72,8 +68,7 @@ public class OpenCL4JavaBasicTest {
             queue.finish();
 
             // Copy the OpenCL-hosted array back to RAM
-            FloatBuffer output = directFloats(dataSize, context.getByteOrder());
-            memOut.read(queue, output, true);
+            FloatBuffer output = memOut.read(queue);
 
             // Compute absolute and relative average errors wrt Java implem
             double totalAbsoluteError = 0, totalRelativeError = 0;
