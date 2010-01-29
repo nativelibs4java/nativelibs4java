@@ -21,6 +21,7 @@
     <module>JavaCL</module>
     <module>ScalaCL</module>
     <module>Blas</module>
+	<module>Common</module>
     <module>Utils</module>
     <module>Parent</module>
   </modules>
