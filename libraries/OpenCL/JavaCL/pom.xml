@@ -44,7 +44,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 		<groupId>net.java.jogl.nl4j</groupId>
 		<artifactId>jogl</artifactId>
 		<version>2.x-SNAPSHOT</version>
-	  <scope>runtime</scope>
+		<scope>provided</scope>
 	</dependency>
 	
 	<!--dependency>
