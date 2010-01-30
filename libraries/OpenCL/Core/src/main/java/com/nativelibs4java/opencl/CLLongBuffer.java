@@ -42,7 +42,7 @@ public class CLLongBuffer extends CLBuffer<LongBuffer> {
     }
 
     @Override
-    protected Class<LongBuffer> typedBufferClass() {
+    public Class<LongBuffer> typedBufferClass() {
         return LongBuffer.class;
     }
 

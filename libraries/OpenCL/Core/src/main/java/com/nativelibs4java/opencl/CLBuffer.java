@@ -133,7 +133,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
     }
 
     protected abstract B typedBuffer(ByteBuffer b);
-    protected abstract Class<B> typedBufferClass();
+    public abstract Class<B> typedBufferClass();
     protected abstract void put(B out, B in);
 
     public CLEvent unmap(CLQueue queue, B buffer, CLEvent... eventsToWaitFor) {

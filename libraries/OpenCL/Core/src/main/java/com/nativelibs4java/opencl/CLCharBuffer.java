@@ -42,7 +42,7 @@ public class CLCharBuffer extends CLBuffer<CharBuffer> {
     }
 
     @Override
-    protected Class<CharBuffer> typedBufferClass() {
+    public Class<CharBuffer> typedBufferClass() {
         return CharBuffer.class;
     }
 }

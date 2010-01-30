@@ -1,6 +1,7 @@
 
-package com.nativelibs4java.opencl;
+package com.nativelibs4java.opencl.util;
 
+import com.nativelibs4java.opencl.*;
 import static com.nativelibs4java.opencl.JavaCL.createBestContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -11,15 +12,14 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.nativelibs4java.opencl.ReductionUtils.Reductor;
-import com.nativelibs4java.test.MiscTestUtils;
+import com.nativelibs4java.opencl.util.ReductionUtils.Reductor;
 import com.nativelibs4java.util.NIOUtils;
 
 public class ReductionTest {
 
     @BeforeClass
     public static void setup() {
-        MiscTestUtils.protectJNI();
+        com.sun.jna.Native.setProtected(true);
     }
 
     CLContext context;

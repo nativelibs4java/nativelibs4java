@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl.demos.random;
 
+import com.nativelibs4java.opencl.util.ParallelRandom;
 import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.CLContext;
 import com.nativelibs4java.opencl.CLEvent;
@@ -67,7 +68,7 @@ public class ParallelRandomDemo {
             int warmupSize = 16;
             ParallelRandom demo = new ParallelRandom(queue, warmupSize, System.currentTimeMillis());
 
-            println(demo.seeds.read(queue));
+            println(demo.getSeeds().read(queue));
             IntBuffer b = demo.next();
             println(b);
             b = demo.next();
@@ -87,7 +88,7 @@ public class ParallelRandomDemo {
                 demo.doNext();
                 res |= random.nextInt();
             }
-            demo.queue.finish();
+            demo.getQueue().finish();
             long time = System.nanoTime() - start;
 
             System.err.println("Warmup took " + time + " ns");
@@ -110,7 +111,7 @@ public class ParallelRandomDemo {
                 start = System.nanoTime();
                 //b = demo.next();//b);
                 demo.doNext();
-                demo.queue.finish();
+                demo.getQueue().finish();
                 time = System.nanoTime() - start;
                 stat.add(time);
                 //System.err.println("[OpenCL] Cost per random number = " + (time / (double)testSize) + " ns");

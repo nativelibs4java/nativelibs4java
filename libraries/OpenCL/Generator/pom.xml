@@ -28,7 +28,7 @@
 	
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>javacl</artifactId>
+	  <artifactId>javacl-core</artifactId>
 	  <version>${opencl4java.version}</version>
 	  <scope>compile</scope>
 	</dependency>

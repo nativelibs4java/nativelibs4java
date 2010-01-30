@@ -3,9 +3,9 @@
  * and open the template in the editor.
  */
 
-package com.nativelibs4java.opencl;
+package com.nativelibs4java.opencl.util;
 
-
+import com.nativelibs4java.opencl.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;

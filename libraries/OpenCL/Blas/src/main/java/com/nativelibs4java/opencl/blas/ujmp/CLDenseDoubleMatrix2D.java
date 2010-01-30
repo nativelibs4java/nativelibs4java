@@ -19,7 +19,7 @@ import com.nativelibs4java.opencl.CLDoubleBuffer;
 import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLMem.MapFlags;
 import com.nativelibs4java.opencl.CLMem.Usage;
-import com.nativelibs4java.opencl.blas.LinearAlgebraUtils;
+import com.nativelibs4java.opencl.util.LinearAlgebraUtils;
 import com.nativelibs4java.util.NIOUtils;
 
 /**

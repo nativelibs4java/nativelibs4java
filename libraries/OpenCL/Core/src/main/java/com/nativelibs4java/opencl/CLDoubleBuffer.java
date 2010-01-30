@@ -42,7 +42,7 @@ public class CLDoubleBuffer extends CLBuffer<DoubleBuffer> {
     }
 
     @Override
-    protected Class<DoubleBuffer> typedBufferClass() {
+    public Class<DoubleBuffer> typedBufferClass() {
         return DoubleBuffer.class;
     }
 

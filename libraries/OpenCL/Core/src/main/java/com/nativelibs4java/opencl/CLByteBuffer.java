@@ -49,7 +49,7 @@ public class CLByteBuffer extends CLBuffer<ByteBuffer> {
     }
 
     @Override
-    protected Class<ByteBuffer> typedBufferClass() {
+    public Class<ByteBuffer> typedBufferClass() {
         return ByteBuffer.class;
     }
 

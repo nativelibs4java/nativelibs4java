@@ -5,7 +5,7 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import com.nativelibs4java.opencl.blas.LinearAlgebraUtils;
+import com.nativelibs4java.opencl.util.LinearAlgebraUtils;
 import org.ujmp.core.doublematrix.DenseDoubleMatrix2D;
 import org.ujmp.core.doublematrix.factory.AbstractDoubleMatrix2DFactory;
 import org.ujmp.core.exceptions.MatrixException;

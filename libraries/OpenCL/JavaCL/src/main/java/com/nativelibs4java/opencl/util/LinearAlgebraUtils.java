@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.nativelibs4java.opencl.blas;
+package com.nativelibs4java.opencl.util;
 
 import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.CLContext;
@@ -13,8 +13,8 @@ import com.nativelibs4java.opencl.CLKernel;
 import com.nativelibs4java.opencl.CLProgram;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.JavaCL;
-import com.nativelibs4java.opencl.ReductionUtils;
-import com.nativelibs4java.opencl.ReductionUtils.Reductor;
+import com.nativelibs4java.opencl.util.ReductionUtils;
+import com.nativelibs4java.opencl.util.ReductionUtils.Reductor;
 import com.nativelibs4java.util.IOUtils;
 import com.ochafik.util.listenable.Pair;
 import static com.nativelibs4java.util.NIOUtils.*;

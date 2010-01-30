@@ -1,4 +1,4 @@
-package com.nativelibs4java.opencl.demos.random;
+package com.nativelibs4java.opencl.util;
 
 import com.nativelibs4java.opencl.JavaCL;
 import java.nio.IntBuffer;

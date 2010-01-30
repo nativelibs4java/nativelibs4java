@@ -21,6 +21,7 @@ package com.nativelibs4java.opencl.demos.sobelfilter;
 
 import java.nio.*;
 import com.nativelibs4java.opencl.*;
+import com.nativelibs4java.opencl.util.*;
 import com.nativelibs4java.opencl.demos.SetupUtils;
 import com.ochafik.util.listenable.Pair;
 import java.awt.image.*;

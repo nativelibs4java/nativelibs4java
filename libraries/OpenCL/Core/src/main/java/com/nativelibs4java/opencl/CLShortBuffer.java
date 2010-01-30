@@ -42,7 +42,7 @@ public class CLShortBuffer extends CLBuffer<ShortBuffer> {
     }
 
     @Override
-    protected Class<ShortBuffer> typedBufferClass() {
+    public Class<ShortBuffer> typedBufferClass() {
         return ShortBuffer.class;
     }
 

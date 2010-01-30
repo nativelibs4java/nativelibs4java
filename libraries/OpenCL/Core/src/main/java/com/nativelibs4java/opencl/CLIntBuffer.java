@@ -42,7 +42,7 @@ public class CLIntBuffer extends CLBuffer<IntBuffer> {
     }
 
     @Override
-    protected Class<IntBuffer> typedBufferClass() {
+    public Class<IntBuffer> typedBufferClass() {
         return IntBuffer.class;
     }
 }

@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.nativelibs4java.opencl.demos.random;
+package com.nativelibs4java.opencl.util;
 
 import java.io.IOException;
 import java.nio.IntBuffer;
@@ -77,6 +77,13 @@ public class ParallelRandom {
         }
     }
 
+	public CLIntBuffer getSeeds() {
+		return seeds;
+	}
+	public CLQueue getQueue() {
+		return queue;
+	}
+	
     /**
      * Number of random numbers generated at each call of @see ParallelRandom#next() or @see ParallelRandom#next(IntBuffer)<br>
      * The numbers might not all be generated exactly in parallel, the level of parallelism is implementation-dependent.
