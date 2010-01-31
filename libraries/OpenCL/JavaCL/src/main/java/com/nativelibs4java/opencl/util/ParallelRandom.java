@@ -29,17 +29,25 @@ import com.nativelibs4java.util.NIOUtils;
 public class ParallelRandom {
 
     protected final XORShiftRandom randomProgram;
-    protected final CLIntBuffer seeds, output;
-    private final IntBuffer outputBuffer;
+    //private final IntBuffer outputBuffer;
     //private IntBuffer mappedOutputBuffer;
     protected final CLQueue queue;
+    protected final CLContext context;
     protected final int parallelSize;
     protected final int[] globalWorkSizes, localWorkSizes;
+	
+	protected int consumedInts = 0;
 
+	boolean preload;
+	CLEvent preloadEvent;
+	protected CLIntBuffer seeds, output;
+	IntBuffer lastData;
+	boolean isDataFresh;
+	
     public ParallelRandom(CLQueue queue, int parallelSize, final long seed) throws IOException {
         try {
             this.queue = queue;
-            CLContext context = queue.getContext();
+            this.context = queue.getContext();
             randomProgram = new XORShiftRandom(context);
             this.parallelSize = parallelSize;
 
@@ -69,13 +77,94 @@ public class ParallelRandom {
             initSeeds(seedsBuf, seed);
             //println(seedsBuf);
             this.seeds = context.createIntBuffer(Usage.InputOutput, seedsBuf, true);
-            this.outputBuffer = NIOUtils.directInts(parallelSize, context.getKernelsDefaultByteOrder());
-            this.output = context.createIntBuffer(Usage.Output, outputBuffer, false); // no copy of outputBuffer
+            //this.lastOutputData = NIOUtils.directInts(parallelSize, context.getKernelsDefaultByteOrder());
+            this.output = context.createIntBuffer(Usage.Output, parallelSize);
         } catch (InterruptedException ex) {
             Logger.getLogger(ParallelRandom.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException("Failed to initialized parallel random", ex);
         }
     }
+	
+	static final int floatMask = 0x00ffffff;
+	static final double floatDivid = (1 << 24);
+	//static final int mask = (1 << 30) - 1;
+	//static final double divid = (1 << 30);
+
+	public int nextInt() {
+		waitForData(1);
+		return lastData.get(consumedInts++);		
+	}
+	
+	public synchronized void setPreload(boolean preload) throws CLBuildException {
+		this.preload = preload;
+		if (preload && preloadEvent == null) {
+			if (lastData == null) {
+				preloadEvent = randomProgram.gen_numbers(queue, seeds, output, globalWorkSizes, localWorkSizes);
+			} else if (consumedInts > 0) {
+				preload();
+			}
+		}
+	}
+	private synchronized CLEvent preload() throws CLBuildException {
+		return preloadEvent = randomProgram.gen_numbers(queue, seeds, output, globalWorkSizes, localWorkSizes, preloadEvent);
+	}
+	private synchronized void waitForData(int n) {
+		try {
+			if (lastData == null) {
+				//lastOutputData = NIOUtils.directInts(parallelSize, context.getKernelsDefaultByteOrder());
+				if (preloadEvent == null)
+					preloadEvent = randomProgram.gen_numbers(queue, seeds, output, globalWorkSizes, localWorkSizes);
+					
+				readLastOutputData();
+			}
+			if (consumedInts > parallelSize - n) {
+				preload().waitFor();
+				consumedInts = 0;
+				readLastOutputData();
+			}
+			if (preload && preloadEvent == null)
+				preload();
+		} catch (CLBuildException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+	private synchronized void readLastOutputData() {
+		if (lastData == null)
+			lastData = output.read(queue, preloadEvent);
+		else
+			output.read(queue, lastData, true, preloadEvent);
+		preloadEvent = null;
+	}
+	public long nextLong() {
+        return (((long)nextInt()) << 32) | nextInt();
+    }
+	
+	private static final int intSignMask = 1 << 31;
+	public int nextInt(int n) {
+        if (n <= 0)
+            throw new IllegalArgumentException("n must be positive");
+
+        if ((n & -n) == n)  // i.e., n is a power of 2
+            return (int)((n * (long)(nextInt() & intSignMask)) >> 31);
+
+        int bits, val;
+        do {
+            bits = nextInt() & intSignMask;
+            val = bits % n;
+        } while (bits - val + (n-1) < 0);
+        return val;
+    }
+
+	public float nextFloat() {
+		return (float)((nextInt() & floatMask) / floatDivid);
+	}
+	
+	private static final int doubleMask = (1 << 27) - 1;
+	private static final double doubleDivid = 1L << 53;
+	
+	public double nextDouble() {
+		return (((long)(nextInt() & doubleMask) << 27) | (nextInt() & doubleMask)) / doubleDivid;
+	}
 
 	public CLIntBuffer getSeeds() {
 		return seeds;

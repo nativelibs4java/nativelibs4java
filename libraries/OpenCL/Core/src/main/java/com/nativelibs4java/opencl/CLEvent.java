@@ -133,6 +133,8 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	 * Wait for this event, blocking the caller thread independently of any queue until all of the command associated with this events completes.
 	 */
 	public void waitFor() {
+		if (entity == null)
+			return;
 		waitFor(this);
         release();
 	}
