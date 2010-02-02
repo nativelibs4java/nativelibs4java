@@ -11,7 +11,7 @@ jprimName JNICALL CONCAT_2(Java_com_nativelibs4java_runtime_JNI_get_1, primName)
 	return *(jprimName*)((char*)peer);
 	END_TRY(env);
 }
-void JNICALL CONCAT_2(Java_com_nativelibs4java_runtime_JNI_set_1, primName)(JNIEnv *env, jobject, jlong peer, primName value, jbyte endianness) {
+void JNICALL CONCAT_2(Java_com_nativelibs4java_runtime_JNI_set_1, primName)(JNIEnv *env, jobject, jlong peer, jprimName value, jbyte endianness) {
 	BEGIN_TRY();
 	//TODO handle endianness
 	*(jprimName*)((char*)peer) = value;

@@ -1,5 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="src" output="jnaerator/ochafik-util/target/classes" path="jnaerator/ochafik-util/src/main/java"/>
+	<classpathentry kind="src" output="jnaerator/ochafik-util/target/test-classes" path="jnaerator/ochafik-util/src/test/java"/>
+	<classpathentry kind="src" output="jnaerator/ochafik-swing/target/classes" path="jnaerator/ochafik-swing/src/main/java"/>
+	<classpathentry kind="src" output="jnaerator/jna-jnaerator/target/classes" path="jnaerator/jna-jnaerator/src/main/java"/>
+	<classpathentry kind="src" output="jnaerator/jnaerator-runtime/target/classes" path="jnaerator/jnaerator-runtime/src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="jnaerator/jnaerator-runtime/target/classes" path="jnaerator/jnaerator-runtime/src/main/resources"/>
+	<classpathentry kind="src" output="jnaerator/jnaerator-rococoa-runtime/target/classes" path="jnaerator/jnaerator-rococoa-runtime/src/main/java"/>
+	<classpathentry kind="src" output="jnaerator/jnaerator-parser/target/classes" path="jnaerator/jnaerator-parser/src/main/java"/>
+	<classpathentry kind="src" output="jnaerator/jnaerator-parser/target/test-classes" path="jnaerator/jnaerator-parser/src/test/java"/>
+	<classpathentry excluding="**" kind="src" output="jnaerator/jnaerator-parser/target/test-classes" path="jnaerator/jnaerator-parser/src/test/resources"/>
+	<classpathentry kind="src" output="jnaerator/maven-jnaerator-plugin/target/classes" path="jnaerator/maven-jnaerator-plugin/src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="jnaerator/maven-jnaerator-plugin/target/classes" path="jnaerator/maven-jnaerator-plugin/src/main/resources"/>
+	<classpathentry kind="src" output="jnaerator/jnaerator/target/classes" path="jnaerator/jnaerator/src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="jnaerator/jnaerator/target/classes" path="jnaerator/jnaerator/src/main/resources"/>
+	<classpathentry kind="src" output="jnaerator/jnaerator/target/test-classes" path="jnaerator/jnaerator/src/test/java"/>
+	<classpathentry excluding="**" kind="src" output="jnaerator/jnaerator/target/test-classes" path="jnaerator/jnaerator/src/test/resources"/>
+	<classpathentry kind="src" output="OpenCL/Generator/target/classes" path="OpenCL/Generator/src/main/java"/>
+	<classpathentry kind="src" output="OpenCL/OpenCL4Java/target/classes" path="OpenCL/OpenCL4Java/src/main/java"/>
+	<classpathentry kind="src" output="OpenCL/Demos/target/classes" path="OpenCL/Demos/src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="OpenCL/Demos/target/classes" path="OpenCL/Demos/src/main/resources"/>
+	<classpathentry kind="src" output="OpenCL/Demos/target/test-classes" path="OpenCL/Demos/src/test/java"/>
+	<classpathentry kind="src" output="OpenCL/JavaCL/target/classes" path="OpenCL/JavaCL/src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="OpenCL/JavaCL/target/classes" path="OpenCL/JavaCL/src/main/resources"/>
+	<classpathentry kind="src" output="OpenCL/JavaCL/target/test-classes" path="OpenCL/JavaCL/src/test/java"/>
+	<classpathentry kind="src" output="OpenCL/Core/target/classes" path="OpenCL/Core/src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="OpenCL/Core/target/classes" path="OpenCL/Core/src/main/resources"/>
+	<classpathentry kind="src" output="OpenCL/Core/target/test-classes" path="OpenCL/Core/src/test/java"/>
+	<classpathentry kind="src" output="OpenCL/Blas/target/classes" path="OpenCL/Blas/src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="OpenCL/Blas/target/classes" path="OpenCL/Blas/src/main/resources"/>
+	<classpathentry kind="src" output="OpenCL/Blas/target/test-classes" path="OpenCL/Blas/src/test/java"/>
+	<classpathentry kind="src" output="Mono/Mono4Java/target/classes" path="Mono/Mono4Java/src/main/java"/>
+	<classpathentry kind="src" output="Runtime/Structs/target/classes" path="Runtime/Structs/src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="Runtime/Structs/target/classes" path="Runtime/Structs/src/main/resources"/>
+	<classpathentry kind="src" output="Runtime/JDyncall/target/classes" path="Runtime/JDyncall/src/main/java"/>
+	<classpathentry kind="src" output="Runtime/Velocity/target/classes" path="Runtime/Velocity/src/main/java"/>
+	<classpathentry kind="src" output="Runtime/Comp/target/classes" path="Runtime/Comp/src/main/java"/>
+	<classpathentry kind="src" output="Runtime/Templates/target/classes" path="Runtime/Templates/src/main/java"/>
+	<classpathentry excluding="**" kind="src" output="Runtime/Templates/target/classes" path="Runtime/Templates/src/main/resources"/>
+	<classpathentry kind="src" output="Common/target/classes" path="Common/src/main/java"/>
+	<classpathentry kind="src" output="TestLibraries/target/classes" path="TestLibraries/src/main/java"/>
+	<classpathentry kind="src" output="TestLibraries/target/test-classes" path="TestLibraries/src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry kind="output" path="target/classes"/>
