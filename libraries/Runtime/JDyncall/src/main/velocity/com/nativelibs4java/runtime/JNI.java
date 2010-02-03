@@ -1,12 +1,16 @@
 package com.nativelibs4java.runtime;
 
 import java.io.FileNotFoundException;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.nativelibs4java.runtime.MethodCallInfo;
 
 public class JNI {
     private static boolean inited;
@@ -41,30 +45,6 @@ public class JNI {
     public static native int sizeOf_wchar_t();
     public static native int sizeOf_ptrdiff_t();
 
-    public static native void registerMethod(Class<?> declaringClass, Method method, long functionHandle);
-    public static void registerClass(Class<?> declaringClass) {
-        for (Method method : declaringClass.getDeclaredMethods()) {
-            try {
-                int modifiers = method.getModifiers();
-                if (!Modifier.isNative(modifiers)) {
-                    continue;
-                }
-                if (Modifier.isStatic(modifiers)) {
-                }
-                long functionHandle = DynCall.getSymbolAddress(method);
-                if (functionHandle == 0) {
-                    throw new UnsatisfiedLinkError("Failed to find symbol " + method.getName());// + " in " + declaringClass.getName());
-                }
-                registerMethod(declaringClass, method, functionHandle);
-            } catch (FileNotFoundException ex) {
-                Logger.getLogger(JNI.class.getName()).log(Level.SEVERE, null, ex);
-                throw new UnsatisfiedLinkError(ex.toString());
-            }
-        }
-        for (Class<?> inner : declaringClass.getDeclaredClasses())
-            registerClass(inner);
-    }
-
     public static native long loadLibrary(String path);
     public static native void freeLibrary(long libHandle);
     public static native long findSymbolInLibrary(long libHandle, String name);
@@ -97,10 +77,46 @@ public class JNI {
     protected static native void set_${prim.Name}_array(long peer, ${prim.Name}[] values, int valuesOffset, int length, byte endianness);
 #end
 
-	public static native long[] createCallbacks(Method[] nativeMethodsArray, MethodCallInfo[] methodInfosArray);
-    public static native void freeCallbacks(long[] nativeCallbacks);
+	public static long[] createCallbacks(List<MethodCallInfo> methodInfos) {
+		long[] ret = new long[methodInfos.size()];
+		for (int i = 0, n = methodInfos.size(); i < n; i++) {
+			MethodCallInfo info = methodInfos.get(i);
+			ret[i] = createCallback(
+				info.method.getDeclaringClass(),
+				info.method.getName(),
+				0,
+				info.forwardedPointer, 
+				info.direct, 
+				info.getJavaSignature(), 
+				info.getDcSignature(),
+				info.paramsValueTypes.length,
+				info.returnValueType,
+				info.paramsValueTypes
+			);
+		}
+		return ret;
+	}
+	public static void freeCallbacks(long[] nativeCallbacks) {
+		for (int i = 0, n = nativeCallbacks.length; i < n; i++)
+			freeCallback(nativeCallbacks[i]);
+	}
 	
-    public static native long malloc(long size);
+	public static native int getMaxDirectMappingArgCount();
+	public static native long createCallback(
+		Class<?> declaringClass,
+		String methodName,
+		int callMode,
+		long forwardedPointer, 
+		boolean direct, 
+		String javaSignature, 
+		String dcSignature,
+		int nParams,
+		int returnValueType, 
+		int paramsValueTypes[]
+	);
+	public static native void freeCallback(long nativeCallback);
+
+	public static native long malloc(long size);
     public static native void free(long pointer);
     public static native long strlen(long pointer);
     public static native long wcslen(long pointer);

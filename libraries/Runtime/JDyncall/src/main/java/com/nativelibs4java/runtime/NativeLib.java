@@ -32,21 +32,18 @@ public class NativeLib<L> {
 		if (libraryHandle == 0)
 			throw new UnsatisfiedLinkError("Could not load library '" + libraryFile + "'");
 
-		List<Method> nativeMethods = new ArrayList<Method>();
 		List<MethodCallInfo> methodInfos = new ArrayList<MethodCallInfo>();
-		//List<Long> callbackPointers = new ArrayList<Method>();
 		for (Class<?> c = getClass(); c != NativeLib.class; c = c.getSuperclass()) {
 			for (Method method : c.getDeclaredMethods()) {
 				int modifiers = method.getModifiers();
 				if (Modifier.isNative(modifiers) && !Modifier.isStatic(modifiers)) {
-                    nativeMethods.add(method);
-                    methodInfos.add(new MethodCallInfo(method));
+                    methodInfos.add(new MethodCallInfo(method, libraryHandle));
 				}
 			}
 		}
-		Method[] nativeMethodsArray = nativeMethods.toArray(new Method[nativeMethods.size()]);
-		MethodCallInfo[] methodInfosArray = methodInfos.toArray(new MethodCallInfo[methodInfos.size()]);
-		nativeCallbacks = JNI.createCallbacks(nativeMethodsArray, methodInfosArray);
+		//Method[] nativeMethodsArray = nativeMethods.toArray(new Method[nativeMethods.size()]);
+		//MethodCallInfo[] methodInfosArray = methodInfos.toArray(new MethodCallInfo[methodInfos.size()]);
+		nativeCallbacks = JNI.createCallbacks(methodInfos);
 	}
 	long[] nativeCallbacks;
 

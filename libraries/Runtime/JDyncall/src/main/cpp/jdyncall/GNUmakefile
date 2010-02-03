@@ -33,16 +33,10 @@ CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncallback
 CPPFLAGS	 += -I$(DYNCALL_HOME)/dynload
 
 UNITS += Exceptions
-UNITS += BindCallback
-UNITS += CommonClassesAndMethods
 UNITS += JNI
-UNITS += JNIUtils
 UNITS += JavaToNativeCallHandler
-UNITS += MethodCallInfo
-UNITS += Options
 UNITS += Pointer
 UNITS += RawNativeForwardCallback
-UNITS += Signatures
 
 ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/

@@ -22,11 +22,14 @@ import com.nativelibs4java.runtime.ann.NoInheritance;
 public class DynCall {
     static Map<String, Long> libHandles = new HashMap<String, Long>();
     public static synchronized long getSymbolAddress(AnnotatedElement member) throws FileNotFoundException {
-        Mangling mg = getAnnotation(Mangling.class, member);
         String lib = getLibrary(member);
         long libHandle = getLibHandle(lib);
         if (libHandle == 0)
             return 0;
+        return getSymbolAddress(libHandle, member);
+    }
+    public static synchronized long getSymbolAddress(long libHandle, AnnotatedElement member) throws FileNotFoundException {
+        Mangling mg = getAnnotation(Mangling.class, member);
         if (mg != null)
             for (String name : mg.value())
             {

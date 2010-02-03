@@ -11,14 +11,6 @@
 
 #include "jni.h"
 #include "dyncallback/dyncall_callback.h"
-#include "JNIUtils.hpp"
-
-#include <vector>
-//#include <map>
-#include <string>
-#include <iostream>
-
-#include "CommonClassesAndMethods.h"
 #include "Exceptions.h"
 
 #ifndef _WIN32
@@ -50,88 +42,28 @@
 
 enum ValueType {
 	eVoidValue = 0,
-	eArrayValue,
 	eWCharValue,
-	eCallbackValue,
-	eAddressableValue,
-	eLongPtrValue,
 	eCLongValue,
 	eSizeTValue,
-	eBufferValue,
 	eIntValue,
 	eShortValue,
 	eByteValue,
 	eLongValue,
 	eDoubleValue,
-	eFloatValue,
-	eIntArrayValue,
-	eShortArrayValue,
-	eByteArrayValue,
-	eLongArrayValue,
-	eDoubleArrayValue,
-	eFloatArrayValue,
-	eBooleanArrayValue,
-	eCharArrayValue
+	eFloatValue
 };
-
-struct Options {
-	bool bIsWideChar: 1;
-	bool bIsConst: 1;
-	bool bIsPointer: 1;
-	bool bIsVirtual: 1;
-	bool bIsByValue: 1;
-	bool bIsSizeT: 1;
-	bool bIsCLong: 1;
-	int index;
-
-	Options() {
-		memset(this, 0, sizeof(Options));
-		index = -1;
-	}
-};
-
-struct FieldOptions : public Options {
-	char bits;
-	int arraySize;
-
-	FieldOptions() : Options() {
-		bits = -1;
-		arraySize = -1;
-	}
-};
-
-ValueType GetValueType(JNIEnv *env, jobject obj, ValueType *typeConstraint);
-ValueType GetValueType(JNIEnv *env, jclass c);
 
 struct MethodCallInfo {
-	jobject fMethod;
-	jclass fReturnTypeClass;
-	jobject fAddressableReturnFactory;
-	JNIEnv* fEnv;
-	std::string fDCSignature;
-	std::string fJavaSignature;
-	std::vector<ValueType> fArgTypes;
-	std::vector<Options> fArgOptions;
-	Options fMethodOptions;
-	ValueType fReturnType;
-	bool fIsVarArgs: 1;
-	bool fIsStatic: 1;
-	bool fIsCPlusPlus: 1;
-	bool fIsAdaptableAsRaw;
-	DCCallback* fCallback;
+	void* fCallback;
 	void* fForwardedSymbol;
+	ValueType fReturnType;
+	ValueType* fParamTypes;
+	jint nParams;
 	int fDCMode;
-	
-	MethodCallInfo(JNIEnv *env, jclass declaringClass, jobject method, void* forwardedSymbol);
-	~MethodCallInfo();
-
-	const std::string& GetDCSignature();
-	const std::string& GetJavaSignature();
-	void* GetCallback();
 };
 
 char __cdecl JavaToNativeCallHandler(DCCallback* pcb, DCArgs* args, DCValue* result, void* userdata);
-jlong BindCallback(jobject obj);
+//jlong BindCallback(jobject obj);
 
 #endif
 

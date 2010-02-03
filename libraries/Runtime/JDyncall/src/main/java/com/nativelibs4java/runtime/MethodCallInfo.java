@@ -4,6 +4,7 @@
  */
 
 package com.nativelibs4java.runtime;
+import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import static com.nativelibs4java.runtime.JDyncallLibrary.*;
 import static com.nativelibs4java.runtime.DyncallSignatures.*;
@@ -26,6 +27,7 @@ public class MethodCallInfo {
     int returnValueType, paramsValueTypes[];
     Options methodOptions, paramsOptions[];
 	Method method;
+	long forwardedPointer;
     String dcSignature;
 	String javaSignature;
     int dcCallingConvention;
@@ -33,14 +35,17 @@ public class MethodCallInfo {
 	boolean isVarArgs;
 	boolean isStatic;
 	boolean isCPlusPlus;
+	
+	boolean direct;
 
     boolean isCallableAsRaw;
 
-	public MethodCallInfo(Method method) {
+	public MethodCallInfo(Method method, long libraryHandle) throws FileNotFoundException {
         isVarArgs = false;
         isCPlusPlus = false;
         dcCallingConvention = 0;
         this.method = method;
+        forwardedPointer = DynCall.getSymbolAddress(libraryHandle, method);
 
         Class<?>[] paramsTypes = method.getParameterTypes();
         Annotation[][] paramsAnnotations = method.getParameterAnnotations();
@@ -55,6 +60,8 @@ public class MethodCallInfo {
         paramsValueTypes = new int[nParams];
         paramsOptions = new Options[nParams];
 
+        this.direct = nParams <= JNI.getMaxDirectMappingArgCount();
+        
         isCallableAsRaw = true; // TODO on native side : test number of parameters (on 64 bits win : must be <= 4)
         isCPlusPlus = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
 
@@ -84,6 +91,13 @@ public class MethodCallInfo {
         javaSignature = javaSig.toString();
         dcSignature = dcSig.toString();
     }
+	
+	public String getDcSignature() {
+		return dcSignature;
+	}
+	public String getJavaSignature() {
+		return javaSignature;
+	}
     boolean getBoolAnnotation(Class<? extends Annotation> ac, AnnotatedElement element, Annotation... directAnnotations) {
         Annotation ann = DynCall.getAnnotation(ac, element, directAnnotations);
         return ann != null;

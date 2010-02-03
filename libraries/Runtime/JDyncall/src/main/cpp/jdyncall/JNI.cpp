@@ -2,6 +2,7 @@
 
 #include "dyncallback/dyncall_callback.h"
 #include "dynload/dynload.h"
+#include "RawNativeForwardCallback.h"
 
 #include "jdyncall.hpp"
 #include <iostream>
@@ -20,62 +21,8 @@ JNI_SIZEOF_t(ptrdiff)
 
 void JNICALL Java_com_nativelibs4java_runtime_JNI_init(JNIEnv *env, jclass)
 {
-	DefineCommonClassesAndMethods(env);
+	//DefineCommonClassesAndMethods(env);
 }
-
-class MethodCallInfos : public vector<MethodCallInfo*> {
-public:
-	~MethodCallInfos() {
-		for (size_t i = size(); i--;) {
-			delete (*this)[i];
-		}
-	}
-} gMethodCallInfos;
-
-void JNICALL Java_com_nativelibs4java_runtime_JNI_registerMethod(JNIEnv *env, jclass, jclass declaringClass, jobject method, jlong symbol)
-{
-	if (!symbol) {
-		cerr << "No symbol !\n";
-		return;
-	}
-	MethodCallInfo *info = new MethodCallInfo(env, declaringClass, method, (void*)(ptrdiff_t)symbol);
-
-	gMethodCallInfos.push_back(info);
-
-	JString name(env, (jstring)env->CallObjectMethod(method, Member_getName));
-	
-	JNINativeMethod meth;
-	meth.fnPtr = info->GetCallback();
-	meth.name = (char*)(const char*)name;
-	meth.signature = (char*)info->GetJavaSignature().c_str();
-	env->RegisterNatives(declaringClass, &meth, 1);
-}
-/*
-
-void JNICALL Java_com_nativelibs4java_runtime_JNI_registerClass(JNIEnv *env, jclass, jclass declaringClass)
-{
-	jarray methods = (jarray)env->CallObjectMethod((jobject)declaringClass, Class_getDeclaredMethods);
-	vector<jobject> methodsToBind;
-	for (jsize iMethod = 0, nMethods = env->GetArrayLength(methods); iMethod < nMethods; iMethod++) {
-		jobject method = env->GetObjectArrayElement((jobjectArray)methods, iMethod);
-		jint modifiers = env->CallIntMethod(method, Member_getModifiers);
-		//if (modifiers & 
-		methodsToBind.push_back(method);
-	}
-	
-	//DynCall_getSymbolAddress = env->GetMethodID(DynCall_class, "getSymbolAddress", "(Ljava/lang/reflect/AnnotatedElement;)J");
-	
-	for (size_t iMethod = 0, nMethods = methodsToBind.size(); iMethod < nMethods; iMethod++) {
-		jobject method = methodsToBind[iMethod];
-		method = env->CallObjectMethod((jobject)AnnotatedElement_class, Class_cast, method);
-		void* symbol = (void*)env->CallStaticLongMethod(DynCall_class, DynCall_getSymbolAddress, method);
-		registerMethod(env, declaringClass, method, symbol);
-	}
-}
-*/
-
-
-//char (DCCallbackHandler)(DCCallback* pcb, DCArgs* args, DCValue* result, void* userdata);
 
 jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
 	BEGIN_TRY();
@@ -120,14 +67,74 @@ jobject JNICALL Java_com_nativelibs4java_runtime_JNI_newDirectByteBuffer(JNIEnv 
 	END_TRY(env);
 }
 
-JNIEXPORT jlongArray JNICALL Java_com_nativelibs4java_runtime_JNI_createCallbacks(JNIEnv *env, jclass, jobjectArray nativeMethodsArray, jobjectArray methodInfosArray)
-{
-	return NULL;
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getMaxDirectMappingArgCount() {
+#ifdef _WIN64
+	return 4;
+#else	
+#ifdef _WIN64
+	return 65000;
+#else
+	return -1;
+#endif
+#endif
 }
 
-JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_freeCallbacks(JNIEnv *env, jclass, jlongArray nativeCallbacks)
-{
+JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
+	JNIEnv *env, 
+	jclass,
+	jclass declaringClass,
+	jstring methodName,
+	jint callMode,
+	jlong forwardedPointer, 
+	jboolean direct, 
+	jstring javaSignature, 
+	jstring dcSignature,
+	jint nParams,
+	jint returnValueType, 
+	jintArray paramsValueTypes
+) {
+	if (!forwardedPointer)
+		return NULL;
 	
+	MethodCallInfo *info = (MethodCallInfo*)malloc(sizeof(MethodCallInfo));
+	memset(info, 0, sizeof(MethodCallInfo));
+	
+	info->fDCMode = callMode;
+	info->fReturnType = (ValueType)returnValueType;
+	info->nParams = nParams;
+	if (nParams) {
+		info->fParamTypes = (ValueType*)malloc(nParams * sizeof(jint));	
+		env->GetIntArrayRegion(paramsValueTypes, 0, nParams, (jint*)info->fParamTypes);
+	}
+	
+	JNINativeMethod meth;
+	meth.fnPtr = NULL;
+	if (direct)
+		info->fCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer);
+	if (!meth.fnPtr) {
+		const char* ds = env->GetStringUTFChars(dcSignature, NULL);
+		info->fCallback = dcNewCallback(ds, JavaToNativeCallHandler, info);
+		env->ReleaseStringUTFChars(dcSignature, ds);
+	}
+	meth.fnPtr = info->fCallback;
+	meth.name = (char*)env->GetStringUTFChars(methodName, NULL);
+	meth.signature = (char*)env->GetStringUTFChars(javaSignature, NULL);
+	env->RegisterNatives(declaringClass, &meth, 1);
+	
+	env->ReleaseStringUTFChars(methodName, meth.name);
+	env->ReleaseStringUTFChars(javaSignature, meth.signature);
+	
+	return (jlong)info;
+}
+
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_freeCallbacks(JNIEnv *env, jclass, jlong nativeCallback)
+{
+	MethodCallInfo* info = (MethodCallInfo*)nativeCallback;
+	if (info->nParams)
+		free(info->fParamTypes);
+	
+	dcFreeCallback((DCCallback*)info->fCallback);
+	free(info);
 }
 
 
