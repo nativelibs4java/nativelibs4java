@@ -5,6 +5,7 @@
 #ifndef __GNUC__
 
 #include <windows.h>
+#include <jni.h>
 #define BEGIN_TRY() __try {
 #define END_TRY(env) } __except (WinExceptionHandler(env, GetExceptionCode())) {}
 

@@ -6,6 +6,7 @@
 
 #include "jdyncall.hpp"
 #include <string.h>
+#include <stdlib.h>
 #include "Exceptions.h"
 
 #define JNI_SIZEOF(type, escType) \
@@ -91,12 +92,15 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
 	jint returnValueType, 
 	jintArray paramsValueTypes
 ) {
+	JNINativeMethod meth;
+	struct MethodCallInfo *info = NULL;
 	if (!forwardedPointer)
 		return NULL;
 	
-	MethodCallInfo *info = (MethodCallInfo*)malloc(sizeof(MethodCallInfo));
+	info = (struct MethodCallInfo*)malloc(sizeof(struct MethodCallInfo));
 	memset(info, 0, sizeof(MethodCallInfo));
 	
+	info->fEnv = env;
 	info->fDCMode = callMode;
 	info->fReturnType = (ValueType)returnValueType;
 	info->nParams = nParams;
@@ -105,7 +109,6 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
 		(*env)->GetIntArrayRegion(env, paramsValueTypes, 0, nParams, (jint*)info->fParamTypes);
 	}
 	
-	JNINativeMethod meth;
 	meth.fnPtr = NULL;
 	if (direct)
 		info->fCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer);

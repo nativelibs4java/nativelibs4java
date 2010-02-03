@@ -353,27 +353,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\jdyncall\BindCallback.cpp"
+				RelativePath="..\..\..\jdyncall\Exceptions.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\jdyncall\Exceptions.cpp"
+				RelativePath="..\..\..\jdyncall\JavaToNativeCallHandler.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\jdyncall\JavaToNativeCallHandler.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\jdyncall\MethodCallInfo.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\jdyncall\Options.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\jdyncall\RawNativeForwardCallback.cpp"
+				RelativePath="..\..\..\jdyncall\RawNativeForwardCallback.c"
 				>
 			</File>
 			<File
@@ -396,27 +384,15 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath="..\..\..\jdyncall\Signatures.cpp"
-				>
-			</File>
 			<Filter
 				Name="jni"
 				>
 				<File
-					RelativePath="..\..\..\jdyncall\CommonClassesAndMethods.cpp"
+					RelativePath="..\..\..\jdyncall\JNI.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\jdyncall\JNI.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\jdyncall\JNIUtils.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\jdyncall\Pointer.cpp"
+					RelativePath="..\..\..\jdyncall\Pointer.c"
 					>
 				</File>
 			</Filter>
@@ -439,23 +415,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\jdyncall\CommonClassesAndMethods.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\jdyncall\jdyncall.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\jdyncall\jmethodcall.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\jdyncall\JNIUtils.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\jdyncall\Options.hpp"
 				>
 			</File>
 			<File

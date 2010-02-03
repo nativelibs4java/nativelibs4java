@@ -4,6 +4,8 @@
 
 char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCallInfo *info)
 {
+	void* callback;
+	char returnVal = DC_SIGCHAR_VOID;
 	size_t iParam;
 	size_t nParams = info->nParams;
 	JNIEnv *env = (JNIEnv*)dcArgs_pointer(args);
@@ -50,12 +52,11 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 				break;
 		}
 	}
-	void* cb = info->fForwardedSymbol;
-	char returnVal = DC_SIGCHAR_VOID;
+	callback = info->fForwardedSymbol;
 	switch (info->fReturnType) {
 #define CALL_CASE(valueType, capCase, hiCase, uni) \
 		case valueType: \
-			result->uni = dcCall ## capCase(vm, cb); \
+			result->uni = dcCall ## capCase(vm, callback); \
 			returnVal = DC_SIGCHAR_ ## hiCase; \
 			break;
 		CALL_CASE(eIntValue, Int, INT, i)
@@ -65,15 +66,15 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 		CALL_CASE(eDoubleValue, Double, DOUBLE, d)
 		CALL_CASE(eByteValue, Char, CHAR, c)
 		case eCLongValue:
-			result->l = dcCallLong(vm, cb);
+			result->l = dcCallLong(vm, callback);
 			returnVal = DC_SIGCHAR_LONG;
 			break;
 		case eSizeTValue:
-			result->l = (sizeof(size_t) == 4) ? dcCallInt(vm, cb) : dcCallLongLong(vm, cb);
+			result->l = (sizeof(size_t) == 4) ? dcCallInt(vm, callback) : dcCallLongLong(vm, callback);
 			returnVal = DC_SIGCHAR_LONG;
 			break;
 		case eVoidValue:
-			dcCallVoid(vm, cb);
+			dcCallVoid(vm, callback);
 			returnVal = DC_SIGCHAR_VOID;
 			break;
 		case eWCharValue:
@@ -88,12 +89,13 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 
 char __cdecl JavaToNativeCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {
+	MethodCallInfo *info = NULL;
 	if (!userdata) {
 		//cerr << "MethodCallHandler was called with a null userdata !!!\n";
 		return DC_SIGCHAR_VOID;
 	}
 	
-	MethodCallInfo *info = (MethodCallInfo*)userdata;
+	info = (MethodCallInfo*)userdata;
 
 	BEGIN_TRY();
 	return doJavaToNativeCallHandler(args, result, info);	

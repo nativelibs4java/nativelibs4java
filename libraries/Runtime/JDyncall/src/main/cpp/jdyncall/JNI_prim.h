@@ -18,9 +18,10 @@ void JNICALL CONCAT_2(Java_com_nativelibs4java_runtime_JNI_set_1, primName)(JNIE
 	END_TRY(env);
 }
 jprimArray JNICALL CONCAT_3(Java_com_nativelibs4java_runtime_JNI_get_1, primName, _1array)(JNIEnv *env, jobject instance, jlong peer, jint length, jbyte endianness) {
+	jprimArray array;
 	BEGIN_TRY();
 	//TODO handle endianness
-	jprimArray array = (jprimArray)(void*)(size_t)(*env)->CONCAT_3(New, primJNICapName, Array)(env, length);
+	array = (jprimArray)(void*)(size_t)(*env)->CONCAT_3(New, primJNICapName, Array)(env, length);
 	(*env)->CONCAT_3(Set, primJNICapName, ArrayRegion)(env, array, 0, (jsize)length, (jprimName*)((char*)(size_t)peer));
 	return array;
 	END_TRY(env);

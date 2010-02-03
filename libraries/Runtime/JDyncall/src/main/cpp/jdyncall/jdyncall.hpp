@@ -15,6 +15,7 @@
 
 //#include "jni.h"
 #include "dyncallback/dyncall_callback.h"
+#include <jni.h>
 //#include "Exceptions.h"
 
 #ifdef _MSC_VER
@@ -60,6 +61,7 @@ typedef struct MethodCallInfo {
 	ValueType* fParamTypes;
 	int nParams;
 	int fDCMode;
+	JNIEnv* fEnv;
 } MethodCallInfo;
 
 char __cdecl JavaToNativeCallHandler(DCCallback* pcb, DCArgs* args, DCValue* result, void* userdata);

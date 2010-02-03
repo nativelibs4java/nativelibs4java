@@ -476,8 +476,8 @@ JNIEXPORT jlongArray JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback
  * Method:    freeCallbacks
  * Signature: ([J)V
  */
-JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_freeCallback
-  (JNIEnv *, jclass, jlong);
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_freeCallbacks
+  (JNIEnv *, jclass, jlongArray);
 
 /*
  * Class:     com_nativelibs4java_runtime_JNI

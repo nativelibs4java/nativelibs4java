@@ -6,7 +6,7 @@
 #ifndef __GNUC__
 
 int WinExceptionHandler(JNIEnv* env, int exceptionCode) {
-	switch (exceptionCode) 
+	/*switch (exceptionCode) 
 	{
 #define EX_CASE(name) \
 	case EXCEPTION_ ## name: \
@@ -38,7 +38,7 @@ int WinExceptionHandler(JNIEnv* env, int exceptionCode) {
 	EX_CASE(STACK_OVERFLOW             );
 	//EX_CASE(STATUS_UNWIND_CONSOLIDATE            );
 	}
-	return EXCEPTION_CONTINUE_SEARCH;
+	return EXCEPTION_CONTINUE_SEARCH;*/
 }
 
 #endif
