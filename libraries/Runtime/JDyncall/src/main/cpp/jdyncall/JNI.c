@@ -114,7 +114,7 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
 		info->fCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer);
 	if (!info->fCallback) {
 		const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-		info->fCallback = dcNewCallback(ds, JavaToNativeCallHandler, info);
+		info->fCallback = dcbNewCallback(ds, JavaToNativeCallHandler, info);
 		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 	}
 	meth.fnPtr = info->fCallback;
@@ -134,7 +134,7 @@ JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_freeCallback(JNIEnv 
 	if (info->nParams)
 		free(info->fParamTypes);
 	
-	dcFreeCallback((DCCallback*)info->fCallback);
+	dcbFreeCallback((DCCallback*)info->fCallback);
 	free(info);
 }
 

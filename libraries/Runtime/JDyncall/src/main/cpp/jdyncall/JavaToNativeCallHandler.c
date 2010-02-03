@@ -8,8 +8,8 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 	char returnVal = DC_SIGCHAR_VOID;
 	size_t iParam;
 	size_t nParams = info->nParams;
-	JNIEnv *env = (JNIEnv*)dcArgs_pointer(args);
-	jobject objOrClass = (jobject)dcArgs_pointer(args);
+	JNIEnv *env = (JNIEnv*)dcbArgPointer(args);
+	jobject objOrClass = (jobject)dcbArgPointer(args);
 	THREAD_STATIC DCCallVM* vm = NULL;
 	
 	if (!vm) {
@@ -24,31 +24,31 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 		ValueType type = info->fParamTypes[iParam];
 		switch (type) {
 			case eIntValue:
-				dcArgInt(vm, dcArgs_int(args));
+				dcArgInt(vm, dcbArgInt(args));
 				break;
 			case eCLongValue:
-				dcArgLong(vm, (long)dcArgs_longlong(args));
+				dcArgLong(vm, (long)dcbArgLongLong(args));
 				break;
 			case eSizeTValue:
 				if (sizeof(size_t) == 4)
-					dcArgInt(vm, (int)dcArgs_longlong(args));
+					dcArgInt(vm, (int)dcbArgLongLong(args));
 				else
-					dcArgLongLong(vm, dcArgs_longlong(args));
+					dcArgLongLong(vm, dcbArgLongLong(args));
 				break;
 			case eLongValue:
-				dcArgLongLong(vm, dcArgs_longlong(args));
+				dcArgLongLong(vm, dcbArgLongLong(args));
 				break;
 			case eShortValue:
-				dcArgShort(vm, dcArgs_short(args));
+				dcArgShort(vm, dcbArgShort(args));
 				break;
 			case eByteValue:
-				dcArgChar(vm, dcArgs_char(args));
+				dcArgChar(vm, dcbArgChar(args));
 				break;
 			case eFloatValue:
-				dcArgFloat(vm, dcArgs_float(args));
+				dcArgFloat(vm, dcbArgFloat(args));
 				break;
 			case eDoubleValue:
-				dcArgDouble(vm, dcArgs_double(args));
+				dcArgDouble(vm, dcbArgDouble(args));
 				break;
 		}
 	}

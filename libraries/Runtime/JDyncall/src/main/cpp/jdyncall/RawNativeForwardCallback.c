@@ -35,7 +35,7 @@ DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)())
 	if (err != 0) 
 		return 0;
 
-	dcInitThunk(&pcb->thunk, dcRawCallAdapterSkipTwoArgs64);
+	dcbInitThunk(&pcb->thunk, dcRawCallAdapterSkipTwoArgs64);
 	pcb->handler = handler;
 	return pcb;
 #else
@@ -46,7 +46,7 @@ DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)())
 	if (err != 0) 
 		return 0;
 
-	dcInitThunk(&pcb->thunk, dcRawCallAdapterSkipTwoArgs32_cdecl);
+	dcbInitThunk(&pcb->thunk, dcRawCallAdapterSkipTwoArgs32_cdecl);
 	pcb->handler = handler;
 	return pcb;
 #else
