@@ -1,5 +1,5 @@
 #include "jdyncall.hpp"
-#include <iostream>
+//#include <iostream>
 
 using namespace std;
 
@@ -94,9 +94,10 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 			ARRAY_VALUE_CASE(double, Double)
 			ARRAY_VALUE_CASE(boolean, Boolean)
 			//ARRAY_VALUE_CASE(char, Char)*/
-			case eVoidValue:
-			default:
-				cerr << "ValueType not supported yet: " << (int)type << " !\n";
+			//case eVoidValue:
+			//default:
+				//ASSERT(0);
+				//cerr << "ValueType not supported yet: " << (int)type << " !\n";
 		}
 	}
 	void* cb = info->fForwardedSymbol;
@@ -128,7 +129,7 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 		case eWCharValue:
 			// TODO
 		default:
-			cerr << "Return ValueType not supported yet: " << (int)info->fReturnType << " !\n";
+			//cerr << "Return ValueType not supported yet: " << (int)info->fReturnType << " !\n";
 			returnVal = DC_SIGCHAR_VOID;
 	}
 
@@ -151,7 +152,7 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 char __cdecl JavaToNativeCallHandler(DCCallback*, DCArgs* args, DCValue* result, void* userdata)
 {
 	if (!userdata) {
-		cerr << "MethodCallHandler was called with a null userdata !!!\n";
+		//cerr << "MethodCallHandler was called with a null userdata !!!\n";
 		return DC_SIGCHAR_VOID;
 	}
 	

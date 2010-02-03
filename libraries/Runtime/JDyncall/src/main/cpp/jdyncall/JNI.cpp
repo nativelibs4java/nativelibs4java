@@ -5,7 +5,7 @@
 #include "RawNativeForwardCallback.h"
 
 #include "jdyncall.hpp"
-#include <iostream>
+#include <string.h>
 #include "Exceptions.h"
 
 using namespace std;
