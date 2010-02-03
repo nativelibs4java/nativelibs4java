@@ -120,6 +120,16 @@ jobject JNICALL Java_com_nativelibs4java_runtime_JNI_newDirectByteBuffer(JNIEnv 
 	END_TRY(env);
 }
 
+JNIEXPORT jlongArray JNICALL Java_com_nativelibs4java_runtime_JNI_createCallbacks(JNIEnv *env, jclass, jobjectArray nativeMethodsArray, jobjectArray methodInfosArray)
+{
+	return NULL;
+}
+
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_freeCallbacks(JNIEnv *env, jclass, jlongArray nativeCallbacks)
+{
+	
+}
+
 
 #include "PrimDefs_int.h"
 #include "JNI_prim.h"
