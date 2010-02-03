@@ -8,10 +8,8 @@
 #include <string.h>
 #include "Exceptions.h"
 
-using namespace std;
-
 #define JNI_SIZEOF(type, escType) \
-jint JNICALL Java_com_nativelibs4java_runtime_JNI_sizeOf_1 ## escType(JNIEnv *, jclass) { return sizeof(type); }
+jint JNICALL Java_com_nativelibs4java_runtime_JNI_sizeOf_1 ## escType(JNIEnv *env, jclass clazz) { return sizeof(type); }
 
 #define JNI_SIZEOF_t(type) JNI_SIZEOF(type ## _t, type ## _1t)
 
@@ -19,51 +17,51 @@ JNI_SIZEOF_t(size)
 JNI_SIZEOF_t(wchar)
 JNI_SIZEOF_t(ptrdiff)
 
-void JNICALL Java_com_nativelibs4java_runtime_JNI_init(JNIEnv *env, jclass)
+void JNICALL Java_com_nativelibs4java_runtime_JNI_init(JNIEnv *env, jclass clazz)
 {
 	//DefineCommonClassesAndMethods(env);
 }
 
 jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
 	BEGIN_TRY();
-	return !buffer ? 0 : (jlong)env->GetDirectBufferAddress(buffer);
+	return !buffer ? 0 : (jlong)(*env)->GetDirectBufferAddress(env, buffer);
 	END_TRY(env);
 }
 jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
 	BEGIN_TRY();
-	return !buffer ? 0 : env->GetDirectBufferCapacity(buffer);
+	return !buffer ? 0 : (*env)->GetDirectBufferCapacity(env, buffer);
 	END_TRY(env);
 }
 
-jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getObjectPointer(JNIEnv *, jclass, jobject object)
+jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getObjectPointer(JNIEnv *env, jclass clazz, jobject object)
 {
 	return (jlong)object;
 }
  
-jlong JNICALL Java_com_nativelibs4java_runtime_JNI_loadLibrary(JNIEnv *env, jclass, jstring pathStr)
+jlong JNICALL Java_com_nativelibs4java_runtime_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring pathStr)
 {
-	const char* path = env->GetStringUTFChars(pathStr, NULL);
+	const char* path = (*env)->GetStringUTFChars(env, pathStr, NULL);
 	jlong ret = (jlong)dlLoadLibrary(path);
-	env->ReleaseStringUTFChars(pathStr, path);
+	(*env)->ReleaseStringUTFChars(env, pathStr, path);
 	return ret;
 }
 
-void JNICALL Java_com_nativelibs4java_runtime_JNI_freeLibrary(JNIEnv *, jclass, jlong libHandle)
+void JNICALL Java_com_nativelibs4java_runtime_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong libHandle)
 {
 	dlFreeLibrary((DLLib*)libHandle);
 }
 
-jlong JNICALL Java_com_nativelibs4java_runtime_JNI_findSymbolInLibrary(JNIEnv *env, jclass, jlong libHandle, jstring nameStr)
+jlong JNICALL Java_com_nativelibs4java_runtime_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, jlong libHandle, jstring nameStr)
 {
-	const char* name = env->GetStringUTFChars(nameStr, NULL);
+	const char* name = (*env)->GetStringUTFChars(env, nameStr, NULL);
 	jlong ret = (jlong)dlFindSymbol((DLLib*)libHandle, name);
-	env->ReleaseStringUTFChars(nameStr, name);
+	(*env)->ReleaseStringUTFChars(env, nameStr, name);
 	return ret;
 }
 
 jobject JNICALL Java_com_nativelibs4java_runtime_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthis, jlong peer, jlong length) {
 	BEGIN_TRY();
-	return env->NewDirectByteBuffer((void*)peer, length);
+	return (*env)->NewDirectByteBuffer(env, (void*)peer, length);
 	END_TRY(env);
 }
 
@@ -81,7 +79,7 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getMaxDirectMapping
 
 JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
 	JNIEnv *env, 
-	jclass,
+	jclass clazz,
 	jclass declaringClass,
 	jstring methodName,
 	jint callMode,
@@ -104,7 +102,7 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
 	info->nParams = nParams;
 	if (nParams) {
 		info->fParamTypes = (ValueType*)malloc(nParams * sizeof(jint));	
-		env->GetIntArrayRegion(paramsValueTypes, 0, nParams, (jint*)info->fParamTypes);
+		(*env)->GetIntArrayRegion(env, paramsValueTypes, 0, nParams, (jint*)info->fParamTypes);
 	}
 	
 	JNINativeMethod meth;
@@ -112,22 +110,22 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
 	if (direct)
 		info->fCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer);
 	if (!meth.fnPtr) {
-		const char* ds = env->GetStringUTFChars(dcSignature, NULL);
+		const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
 		info->fCallback = dcNewCallback(ds, JavaToNativeCallHandler, info);
-		env->ReleaseStringUTFChars(dcSignature, ds);
+		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 	}
 	meth.fnPtr = info->fCallback;
-	meth.name = (char*)env->GetStringUTFChars(methodName, NULL);
-	meth.signature = (char*)env->GetStringUTFChars(javaSignature, NULL);
-	env->RegisterNatives(declaringClass, &meth, 1);
+	meth.name = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
+	meth.signature = (char*)(*env)->GetStringUTFChars(env, javaSignature, NULL);
+	(*env)->RegisterNatives(env, declaringClass, &meth, 1);
 	
-	env->ReleaseStringUTFChars(methodName, meth.name);
-	env->ReleaseStringUTFChars(javaSignature, meth.signature);
+	(*env)->ReleaseStringUTFChars(env, methodName, meth.name);
+	(*env)->ReleaseStringUTFChars(env, javaSignature, meth.signature);
 	
 	return (jlong)info;
 }
 
-JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_freeCallbacks(JNIEnv *env, jclass, jlong nativeCallback)
+JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_freeCallback(JNIEnv *env, jclass clazz, jlong nativeCallback)
 {
 	MethodCallInfo* info = (MethodCallInfo*)nativeCallback;
 	if (info->nParams)

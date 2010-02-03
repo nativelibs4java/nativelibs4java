@@ -5,45 +5,45 @@
 	#define CONCAT_3(a, b, c) CONCAT_3_(a, b, c)
 #endif
 
-jprimName JNICALL CONCAT_2(Java_com_nativelibs4java_runtime_JNI_get_1, primName)(JNIEnv *env, jobject, jlong peer, jbyte endianness) {
+jprimName JNICALL CONCAT_2(Java_com_nativelibs4java_runtime_JNI_get_1, primName)(JNIEnv *env, jobject instance, jlong peer, jbyte endianness) {
 	BEGIN_TRY();
 	//TODO handle endianness
-	return *(jprimName*)((char*)peer);
+	return *(jprimName*)((char*)(size_t)peer);
 	END_TRY(env);
 }
-void JNICALL CONCAT_2(Java_com_nativelibs4java_runtime_JNI_set_1, primName)(JNIEnv *env, jobject, jlong peer, jprimName value, jbyte endianness) {
+void JNICALL CONCAT_2(Java_com_nativelibs4java_runtime_JNI_set_1, primName)(JNIEnv *env, jobject instance, jlong peer, jprimName value, jbyte endianness) {
 	BEGIN_TRY();
 	//TODO handle endianness
-	*(jprimName*)((char*)peer) = value;
+	*(jprimName*)((char*)(size_t)peer) = value;
 	END_TRY(env);
 }
-jprimArray JNICALL CONCAT_3(Java_com_nativelibs4java_runtime_JNI_get_1, primName, _1array)(JNIEnv *env, jobject, jlong peer, jint length, jbyte endianness) {
+jprimArray JNICALL CONCAT_3(Java_com_nativelibs4java_runtime_JNI_get_1, primName, _1array)(JNIEnv *env, jobject instance, jlong peer, jint length, jbyte endianness) {
 	BEGIN_TRY();
 	//TODO handle endianness
-	jprimArray array = env->CONCAT_3(New, primJNICapName, Array)(length);
-	env->CONCAT_3(Set, primJNICapName, ArrayRegion)(array, 0, (jsize)length, (jprimName*)((char*)peer));
+	jprimArray array = (jprimArray)(void*)(size_t)(*env)->CONCAT_3(New, primJNICapName, Array)(env, length);
+	(*env)->CONCAT_3(Set, primJNICapName, ArrayRegion)(env, array, 0, (jsize)length, (jprimName*)((char*)(size_t)peer));
 	return array;
 	END_TRY(env);
 }
-void JNICALL CONCAT_3(Java_com_nativelibs4java_runtime_JNI_set_1, primName, _1array)(JNIEnv *env, jobject, jlong peer, jprimArray values, jlong valuesOffset, jlong length, jbyte endianness) {
+void JNICALL CONCAT_3(Java_com_nativelibs4java_runtime_JNI_set_1, primName, _1array)(JNIEnv *env, jclass clazz, jlong peer, jprimArray values, jint valuesOffset, jint length, jbyte endianness) {
 	BEGIN_TRY();
 	//TODO handle endianness
-	env->CONCAT_3(Get, primJNICapName, ArrayRegion)(values, (jsize)valuesOffset, (jsize)length, (jprimName*)((char*)peer));
+	(*env)->CONCAT_3(Get, primJNICapName, ArrayRegion)(env, values, (jsize)valuesOffset, (jsize)length, (jprimName*)((char*)(size_t)peer));
 	END_TRY(env);
 }
 
-JNIEXPORT jlong JNICALL CONCAT_3(Java_com_nativelibs4java_runtime_JNI_get, primJNICapName, ArrayElements)(JNIEnv *env, jclass, jprimArray array, jbooleanArray aIsCopy)
+JNIEXPORT jlong JNICALL CONCAT_3(Java_com_nativelibs4java_runtime_JNI_get, primJNICapName, ArrayElements)(JNIEnv *env, jclass clazz, jprimArray array, jbooleanArray aIsCopy)
 {
-	jboolean tr = true;
-	jboolean *pIsCopy = aIsCopy ? env->GetBooleanArrayElements(aIsCopy, &tr) : NULL;
-	jlong ret = (jlong)env->CONCAT_3(Get, primJNICapName, ArrayElements)(array, pIsCopy);
+	jboolean tr = JNI_TRUE;
+	jboolean *pIsCopy = aIsCopy ? (*env)->GetBooleanArrayElements(env, aIsCopy, &tr) : NULL;
+	jlong ret = (jlong)(*env)->CONCAT_3(Get, primJNICapName, ArrayElements)(env, array, pIsCopy);
 	if (aIsCopy)
-		env->ReleaseBooleanArrayElements(aIsCopy, pIsCopy, JNI_COMMIT);
+		(*env)->ReleaseBooleanArrayElements(env, aIsCopy, pIsCopy, JNI_COMMIT);
 	return ret;
 }
 
-JNIEXPORT void JNICALL CONCAT_3(Java_com_nativelibs4java_runtime_JNI_get, primJNICapName, ArrayElements)(JNIEnv *env, jclass, jprimArray array, jlong pointer, jint mode)
+JNIEXPORT void JNICALL CONCAT_3(Java_com_nativelibs4java_runtime_JNI_release, primJNICapName, ArrayElements)(JNIEnv *env, jclass clazz, jprimArray array, jlong pointer, jint mode)
 {
-	env->CONCAT_3(Release, primJNICapName, ArrayElements)(array, (jprimName*)(size_t)pointer, mode);
+	(*env)->CONCAT_3(Release, primJNICapName, ArrayElements)(env, array, (jprimName*)(size_t)pointer, mode);
 }
 

@@ -9,13 +9,13 @@
 #pragma warning(disable: 4127)
 #pragma warning(disable: 4706) // assignment inside a conditional expression
 
-#include "jni.h"
-#include "dyncallback/dyncall_callback.h"
-#include "Exceptions.h"
-
 #ifndef _WIN32
 #define __cdecl
 #endif
+
+#include "jni.h"
+#include "dyncallback/dyncall_callback.h"
+#include "Exceptions.h"
 
 #ifdef _MSC_VER
 #	define THREAD_STATIC __declspec(thread) static
@@ -40,7 +40,7 @@
 #define Modifier_TRANSIENT	128
 #define Modifier_VOLATILE	64
 
-enum ValueType {
+typedef enum ValueType {
 	eVoidValue = 0,
 	eWCharValue,
 	eCLongValue,
@@ -51,16 +51,16 @@ enum ValueType {
 	eLongValue,
 	eDoubleValue,
 	eFloatValue
-};
+} ValueType;
 
-struct MethodCallInfo {
+typedef struct MethodCallInfo {
 	void* fCallback;
 	void* fForwardedSymbol;
 	ValueType fReturnType;
 	ValueType* fParamTypes;
 	jint nParams;
 	int fDCMode;
-};
+} MethodCallInfo;
 
 char __cdecl JavaToNativeCallHandler(DCCallback* pcb, DCArgs* args, DCValue* result, void* userdata);
 //jlong BindCallback(jobject obj);

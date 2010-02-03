@@ -1,8 +1,6 @@
 #include "jdyncall.hpp"
 #include "jni.h"
 
-using namespace std;
-
 // http://msdn.microsoft.com/en-us/library/ms679356(VS.85).aspx
 
 #ifndef __GNUC__
@@ -12,8 +10,8 @@ int WinExceptionHandler(JNIEnv* env, int exceptionCode) {
 	{
 #define EX_CASE(name) \
 	case EXCEPTION_ ## name: \
-		env->ExceptionClear(); \
-		env->ThrowNew(RuntimeException_class, #name); \
+		(*env)->ExceptionClear(env); \
+		(*env)->ThrowNew(env, RuntimeException_class, #name); \
 		return EXCEPTION_CONTINUE_EXECUTION;
     
 	EX_CASE(ACCESS_VIOLATION           );

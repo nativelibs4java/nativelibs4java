@@ -1,17 +1,16 @@
-#include "com_nativelibs4java_runtime_Pointer.h"
-
 #include <string.h>
 #include <wchar.h>
 #include <stdlib.h>
 #include "Exceptions.h"
-#include "jni.h"
+#include "com_nativelibs4java_runtime_Pointer.h"
+#include <jni.h>
 
 #ifndef __GNUC__
 #pragma warning(disable: 4715)
 #endif
 
 #define FUNC_VOID_3(name, t1, t2, t3, nt1, nt2, nt3) \
-void JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass, t1 a1, t2 a2, t3 a3) \
+void JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass clazz, t1 a1, t2 a2, t3 a3) \
 { \
 	BEGIN_TRY(); \
 	name((nt1)a1, (nt2)a2, (nt3)a3); \
@@ -19,7 +18,7 @@ void JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jcla
 }
 
 #define FUNC_3(ret, name, t1, t2, t3, nt1, nt2, nt3) \
-ret JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass, t1 a1, t2 a2, t3 a3) \
+ret JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass clazz, t1 a1, t2 a2, t3 a3) \
 { \
 	BEGIN_TRY(); \
 	return (ret)name((nt1)a1, (nt2)a2, (nt3)a3); \
@@ -27,7 +26,7 @@ ret JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclas
 }
 
 #define FUNC_VOID_1(name, t1, nt1) \
-void JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass, t1 a1) \
+void JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass clazz, t1 a1) \
 { \
 	BEGIN_TRY(); \
 	name((nt1)a1); \
@@ -35,7 +34,7 @@ void JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jcla
 }
 
 #define FUNC_1(ret, name, t1, nt1) \
-ret JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass, t1 a1) \
+ret JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclass clazz, t1 a1) \
 { \
 	BEGIN_TRY(); \
 	return (ret)name((nt1)a1); \

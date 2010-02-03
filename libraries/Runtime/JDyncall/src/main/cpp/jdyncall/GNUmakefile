@@ -40,15 +40,19 @@ UNITS += RawNativeForwardCallback
 
 ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
+#LDFLAGS		+= -framework JavaVM
 endif
 
-CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
-LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 
+#CPPFLAGS +=	-std=gnu99 
+#CPPFLAGS += -DJNICALL=__cdecl -DJNIEXPORT=__cdecl
+#CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
+#LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 
 
 LINK_DIRS	+= $(DYNCALL_HOME)/dyncall/$(BUILD_DIR) 
 LINK_DIRS	+= $(DYNCALL_HOME)/dynload/$(BUILD_DIR) 
 LINK_DIRS	+= $(DYNCALL_HOME)/dyncallback/$(BUILD_DIR) 
 LINK_LIBS   += dyncall_s dynload_s dyncallback_s
-LINK_LIBS	+= stdc++
+#LINK_LIBS	+= java
+#LINK_LIBS	+= stdc++
 
 include $(DYNCALL_HOME)/buildsys/gmake/epilog.gmake

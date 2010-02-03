@@ -15,10 +15,10 @@
 #include "dyncallback/dyncall_thunk.h"
 #include "dyncall/dyncall_signature.h"
 
-extern "C" {
+//extern "C" {
 extern void dcRawCallAdapterSkipTwoArgs64();
 extern void dcRawCallAdapterSkipTwoArgs32_cdecl();
-}
+//}
 
 struct DCAdapterCallback
 {
