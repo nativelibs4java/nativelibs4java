@@ -13,9 +13,9 @@
 #define __cdecl
 #endif
 
-#include "jni.h"
+//#include "jni.h"
 #include "dyncallback/dyncall_callback.h"
-#include "Exceptions.h"
+//#include "Exceptions.h"
 
 #ifdef _MSC_VER
 #	define THREAD_STATIC __declspec(thread) static
@@ -58,7 +58,7 @@ typedef struct MethodCallInfo {
 	void* fForwardedSymbol;
 	ValueType fReturnType;
 	ValueType* fParamTypes;
-	jint nParams;
+	int nParams;
 	int fDCMode;
 } MethodCallInfo;
 

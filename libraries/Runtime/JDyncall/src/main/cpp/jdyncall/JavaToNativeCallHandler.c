@@ -1,4 +1,6 @@
 #include "jdyncall.hpp"
+#include <jni.h>
+#include "Exceptions.h"
 
 char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCallInfo *info)
 {

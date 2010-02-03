@@ -109,7 +109,7 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
 	meth.fnPtr = NULL;
 	if (direct)
 		info->fCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer);
-	if (!meth.fnPtr) {
+	if (!info->fCallback) {
 		const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
 		info->fCallback = dcNewCallback(ds, JavaToNativeCallHandler, info);
 		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);

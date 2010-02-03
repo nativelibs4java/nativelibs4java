@@ -23,11 +23,11 @@ public class NativeLib<L> {
     public NativeLib(Class<L> libraryClass) throws FileNotFoundException {
         this(DynCall.getLibFile(libraryClass));
     }
-    public NativeLib(String libraryName) {
+    public NativeLib(String libraryName) throws FileNotFoundException {
 		this(DynCall.getLibFile(libraryName));
 	}
     
-	public NativeLib(File libraryFile) {//, LibraryOptions options) {
+	public NativeLib(File libraryFile) throws FileNotFoundException {
 		libraryHandle = JNI.loadLibrary(libraryFile.getAbsolutePath());
 		if (libraryHandle == 0)
 			throw new UnsatisfiedLinkError("Could not load library '" + libraryFile + "'");

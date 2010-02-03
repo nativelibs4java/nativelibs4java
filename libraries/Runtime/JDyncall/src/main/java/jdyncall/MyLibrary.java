@@ -4,19 +4,20 @@ import com.nativelibs4java.runtime.*;
 import static com.nativelibs4java.runtime.Pointer.*;
 import com.nativelibs4java.runtime.ann.*;
 import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  *
  * @author Olivier
  */
 public class MyLibrary extends NativeLib {
-    public MyLibrary() {
+    public MyLibrary() throws FileNotFoundException {
 		this("myLibrary");
 	}
-	public MyLibrary(String libraryName) {
+	public MyLibrary(String libraryName) throws FileNotFoundException {
 		super(libraryName);
 	}
-	public MyLibrary(File libraryFile) {
+	public MyLibrary(File libraryFile) throws FileNotFoundException {
 		super(libraryFile);
 	}
 

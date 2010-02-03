@@ -8,6 +8,9 @@ package jdyncall;
 import com.nativelibs4java.runtime.JNI;
 import com.nativelibs4java.runtime.ann.*;
 import com.nativelibs4java.runtime.*;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -21,14 +24,15 @@ import java.util.logging.Logger;
 public class Main {
 
     @Library("test")
-    public static class Test {
-        static {
-            JNI.registerClass(Test.class);
-        }
+    public static class Test extends NativeLib<Test> {
+        public Test() throws FileNotFoundException {
+			//super(Test.class);
+        	super(new File("/Users/ochafik/nativelibs4java/Runtime/JDyncall/src/main/cpp/jdyncall/build_out/darwin_universal_gcc_debug/libtest.dylib"));
+		}
         //@Library("C:\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\Debug\\test")
         //@Library("C:\\Users\\Olivier\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\x64\\Debug\\test")
         @Mangling({"?sinInt@@YANH@Z", "__Z6sinInti"})
-        public static native double sinInt(int d);
+        public native double sinInt(int d);
 
         static class Struct1 {
             @Wide String ws;
@@ -58,8 +62,8 @@ public class Main {
                 Method[] mes = Test.class.getDeclaredMethods();
                 Method me = mes[0];
                 //Test.class.getMethod("sinInt", Integer.TYPE)
-                long address = DynCall.getSymbolAddress(me);
-                JNI.registerClass(Test.class);
+                //long address = DynCall.getSymbolAddress(me);
+                //JNI.registerClass(Test.class);
 
                 /*
                 mes = PerfTest.class.getDeclaredMethods();
@@ -68,11 +72,12 @@ public class Main {
                 address = DynCall.getSymbolAddress(me);
                 JNI.registerClass(PerfTest.class);
     */
-                res = Test.sinInt(arg);
+                Test test = new Test();
+                res = test.sinInt(arg);
                 double tot = 0;
                 if (warmup) {
                     for (int i = 0; i < nWarmUp; i++)
-                        tot += Test.sinInt(arg);
+                        tot += test.sinInt(arg);
                     for (int i = 0; i < nWarmUp; i++)
                         tot += Math.sin(arg);
                 }
@@ -81,7 +86,7 @@ public class Main {
                 for (int iTest = 0; iTest < nTests; iTest++) {
                     long startNat = System.nanoTime();
                     for (int i = 0; i < nCalls; i++)
-                        tot += Test.sinInt(arg);
+                        tot += test.sinInt(arg);
                     long timeNat = System.nanoTime() - startNat;
 
                     long startPrim = System.nanoTime();

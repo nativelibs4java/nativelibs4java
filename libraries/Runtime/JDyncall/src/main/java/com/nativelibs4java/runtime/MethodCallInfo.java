@@ -25,7 +25,7 @@ public class MethodCallInfo {
     }
     GenericMethodInfo genericInfo = new GenericMethodInfo();*/
     int returnValueType, paramsValueTypes[];
-    Options methodOptions, paramsOptions[];
+    Options methodOptions = new Options(), paramsOptions[];
 	Method method;
 	long forwardedPointer;
     String dcSignature;
