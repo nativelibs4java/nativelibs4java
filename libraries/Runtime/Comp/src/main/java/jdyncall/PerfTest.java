@@ -7,6 +7,7 @@ package jdyncall;
 
 import com.nativelibs4java.runtime.JNI;
 import com.nativelibs4java.runtime.DynCall;
+import com.nativelibs4java.runtime.NativeLib;
 import com.nativelibs4java.runtime.ann.Library;
 import com.sun.jna.Native;
 import java.io.FileNotFoundException;
@@ -27,17 +28,17 @@ public class PerfTest {
             Logger.getLogger(PerfTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    public static class DynCallTest {
-        static {
-            JNI.registerClass(PerfTest.DynCallTest.class);
+    public static class DynCallTest extends NativeLib {
+        public DynCallTest() throws FileNotFoundException {
+            super(DynCallTest.class);
         }
-        public static native int testAddDyncall(int a, int b);
-        public static native int testASinB(int a, int b);
+        public native int testAddDyncall(int a, int b);
+        public native int testASinB(int a, int b);
     }
 
     public static class JNATest implements com.sun.jna.Library {
         static {
-            Native.register("test");
+            com.sun.jna.Native.register("test");
         }
         public static native int testAddJNA(int a, int b);
         public static native int testASinB(int a, int b);

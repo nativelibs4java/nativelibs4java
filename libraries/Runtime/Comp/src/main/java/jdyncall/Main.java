@@ -102,6 +102,7 @@ public class Main {
                 System.out.println("# Dyncall+JNI's sinus is " + (totalSlower / nTests) + " times slower than java sinus function");
             }
 
+            PerfTest.DynCallTest dct = new PerfTest.DynCallTest();
             if (true) {
                 //JNI.registerClass(PerfTest.class);
                 //PerfTest.DynCall.testAddDyncall(1, 2);
@@ -110,7 +111,7 @@ public class Main {
                     for (int i = 0; i < nWarmUp; i++)
                         tot = PerfTest.testAddJNI(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
-                        tot = PerfTest.DynCallTest.testAddDyncall(tot, seed);
+                        tot = dct.testAddDyncall(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
                         tot = PerfTest.JNATest.testAddJNA(tot, seed);
                 }
@@ -128,7 +129,7 @@ public class Main {
                 long startDyncall = System.nanoTime();
                 for (int iTest = 0; iTest < nTests; iTest++) {
                     for (int i = 0; i < nCalls; i++)
-                        tot = PerfTest.DynCallTest.testAddDyncall(tot, seed);
+                        tot = dct.testAddDyncall(tot, seed);
                 }
                 long timeDyncall = System.nanoTime() - startDyncall;
                 totalDynCall += timeDyncall;
@@ -157,7 +158,7 @@ public class Main {
                     for (int i = 0; i < nWarmUp; i++)
                         tot = PerfTest.testASinB(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
-                        tot = PerfTest.DynCallTest.testASinB(tot, seed);
+                        tot = dct.testASinB(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
                         tot = PerfTest.JNATest.testASinB(tot, seed);
                 }
@@ -174,7 +175,7 @@ public class Main {
                 long startDyncall = System.nanoTime();
                 for (int iTest = 0; iTest < nTests; iTest++) {
                     for (int i = 0; i < nCalls; i++)
-                        tot = PerfTest.DynCallTest.testASinB(tot, seed);
+                        tot = dct.testASinB(tot, seed);
                 }
                 long timeDyncall = System.nanoTime() - startDyncall;
                 totalDynCall += timeDyncall;
