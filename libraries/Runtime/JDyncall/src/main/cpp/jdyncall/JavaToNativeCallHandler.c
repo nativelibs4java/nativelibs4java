@@ -4,13 +4,13 @@
 
 char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCallInfo *info)
 {
+	THREAD_STATIC DCCallVM* vm = NULL;
 	void* callback;
 	char returnVal = DC_SIGCHAR_VOID;
 	size_t iParam;
 	size_t nParams = info->nParams;
-	JNIEnv *env = (JNIEnv*)dcbArgPointer(args);
-	jobject objOrClass = (jobject)dcbArgPointer(args);
-	THREAD_STATIC DCCallVM* vm = NULL;
+	/*JNIEnv *env = (JNIEnv*)*/dcbArgPointer(args);
+	/*jobject objOrClass = (jobject)*/dcbArgPointer(args);
 	
 	if (!vm) {
 		vm = dcNewCallVM(1024);

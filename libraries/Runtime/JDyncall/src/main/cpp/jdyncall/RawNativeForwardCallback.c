@@ -15,6 +15,8 @@
 #include "dyncallback/dyncall_thunk.h"
 #include "dyncall/dyncall_signature.h"
 
+#pragma warning(disable: 4152) // casting a function pointer as a data pointer
+
 //extern "C" {
 extern void dcRawCallAdapterSkipTwoArgs64();
 extern void dcRawCallAdapterSkipTwoArgs32_cdecl();
