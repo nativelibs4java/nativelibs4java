@@ -179,15 +179,11 @@ public class MethodCallInfo {
                 dcChar = DC_SIGCHAR_FLOAT;
                 javaChar = 'F';
                 break;
-            case eBoolValue:
-                dcChar = DC_SIGCHAR_CHAR;
-                javaChar = 'Z';
-                break;
             case eByteValue:
                 dcChar = DC_SIGCHAR_CHAR;
                 javaChar = 'B';
                 break;
-            case eWCharTValue:
+            case eWCharValue:
                 switch (JNI.WCHAR_T_SIZE) {
                 case 1:
                     dcChar = DC_SIGCHAR_CHAR;
