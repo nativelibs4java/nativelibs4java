@@ -28,13 +28,14 @@ public class Main {
         public Test() throws FileNotFoundException {
 			//super(Test.class);
         	//super(new File("/Users/ochafik/nativelibs4java/Runtime/JDyncall/src/main/cpp/jdyncall/build_out/darwin_universal_gcc_debug/libtest.dylib"));
-            super(new File("test.dll"));
+            super("test");//new File("test.dll"));
 		}
         //@Library("C:\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\Debug\\test")
         //@Library("C:\\Users\\Olivier\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\x64\\Debug\\test")
         @Mangling({"?sinInt@@YANH@Z", "__Z6sinInti"})
         public native double sinInt(int d);
 
+        @Mangling({"_voidTest"})
         public native void voidTest();
         
         static class Struct1 {

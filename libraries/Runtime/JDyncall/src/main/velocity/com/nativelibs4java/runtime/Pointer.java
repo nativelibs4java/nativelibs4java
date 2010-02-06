@@ -1,6 +1,5 @@
 package com.nativelibs4java.runtime;
 
-import com.ochafik.lang.SyntaxUtils;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.*;

@@ -32,14 +32,12 @@ public class NativeLib<L> {
 		if (libraryHandle == 0)
 			throw new UnsatisfiedLinkError("Could not load library '" + libraryFile + "'");
 
-        int maxArgsForDirect = JNI.getMaxDirectMappingArgCount();
-		List<MethodCallInfo> methodInfos = new ArrayList<MethodCallInfo>();
+        List<MethodCallInfo> methodInfos = new ArrayList<MethodCallInfo>();
 		for (Class<?> c = getClass(); c != NativeLib.class; c = c.getSuperclass()) {
 			for (Method method : c.getDeclaredMethods()) {
 				int modifiers = method.getModifiers();
 				if (Modifier.isNative(modifiers) && !Modifier.isStatic(modifiers)) {
                     MethodCallInfo mi = new MethodCallInfo(method, libraryHandle);
-                    mi.direct = method.getParameterTypes().length <= maxArgsForDirect;
                     methodInfos.add(mi);
 				}
 			}

@@ -1,6 +1,5 @@
 package com.nativelibs4java.runtime;
 
-import com.ochafik.lang.SyntaxUtils;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -34,10 +33,10 @@ public class PointerIO<T> {
     public Class<T> getTargetClass() {
         return targetClass;
     }
-
-    public static PointerIO change(PointerIO io, Type newTargetType) {
-        if (io != null && SyntaxUtils.equal(newTargetType, io.targetType))
-            return io;
+	
+	public static PointerIO change(PointerIO io, Type newTargetType) {
+        if (io != null && newTargetType != null && newTargetType.equals(io.targetType))
+			return io;
         return getInstanceByType(newTargetType);
     }
 

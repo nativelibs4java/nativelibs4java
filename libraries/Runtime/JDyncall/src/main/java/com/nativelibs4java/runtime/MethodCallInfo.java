@@ -58,26 +58,25 @@ public class MethodCallInfo {
 
         int nParams = paramsTypes.length;
         paramsValueTypes = new int[nParams];
-        paramsOptions = new Options[nParams];
 
         this.direct = nParams <= JNI.getMaxDirectMappingArgCount();
         
         isCallableAsRaw = true; // TODO on native side : test number of parameters (on 64 bits win : must be <= 4)
         isCPlusPlus = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
 
-        GetOptions(methodOptions, method);
+        //GetOptions(methodOptions, method);
 
         StringBuilder javaSig = new StringBuilder(64), dcSig = new StringBuilder(16);
         javaSig.append('(');
         dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
         for (int iParam = 0; iParam < nParams; iParam++) {
-            Options paramOptions = paramsOptions[iParam] = new Options();
+//            Options paramOptions = paramsOptions[iParam] = new Options();
             Class<?> param = paramsTypes[iParam];
 
             ValueType paramValueType = getValueType(param, null, paramsAnnotations[iParam]);
             paramsValueTypes[iParam] = paramValueType.ordinal();
-            GetOptions(paramOptions, method, paramsAnnotations[iParam]);
+            //GetOptions(paramOptions, method, paramsAnnotations[iParam]);
 
             appendToSignature(paramValueType, javaSig, dcSig);
         }

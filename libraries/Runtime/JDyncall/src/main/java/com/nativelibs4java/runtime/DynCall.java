@@ -29,6 +29,7 @@ public class DynCall {
         return getSymbolAddress(libHandle, member);
     }
     public static synchronized long getSymbolAddress(long libHandle, AnnotatedElement member) throws FileNotFoundException {
+        //libHandle = libHandle & 0xffffffffL;
         Mangling mg = getAnnotation(Mangling.class, member);
         if (mg != null)
             for (String name : mg.value())

@@ -144,7 +144,6 @@
 		9007E0D010EE3F0A00928CAE /* GNUmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNUmakefile; sourceTree = "<group>"; };
 		9007E0D110EE3F0A00928CAE /* Nmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Nmakefile; sourceTree = "<group>"; };
 		9007E0D210EE3F0A00928CAE /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
-		9007E0D410EE3F1B00928CAE /* BindCallback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BindCallback.cpp; sourceTree = "<group>"; };
 		9007E0D710EE3F1B00928CAE /* BindCallback.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = BindCallback.o; sourceTree = "<group>"; };
 		9007E0D810EE3F1B00928CAE /* CommonClassesAndMethods.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = CommonClassesAndMethods.o; sourceTree = "<group>"; };
 		9007E0D910EE3F1B00928CAE /* JavaToNativeCallHandler.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = JavaToNativeCallHandler.o; sourceTree = "<group>"; };
@@ -152,11 +151,8 @@
 		9007E0DB10EE3F1B00928CAE /* JNIUtils.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = JNIUtils.o; sourceTree = "<group>"; };
 		9007E0DC10EE3F1B00928CAE /* libjdyncall.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libjdyncall.dylib; sourceTree = "<group>"; };
 		9007E0DD10EE3F1B00928CAE /* libtest.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libtest.dylib; sourceTree = "<group>"; };
-		9007E0DE10EE3F1B00928CAE /* MethodCallInfo.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = MethodCallInfo.o; sourceTree = "<group>"; };
-		9007E0DF10EE3F1B00928CAE /* Options.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = Options.o; sourceTree = "<group>"; };
 		9007E0E010EE3F1B00928CAE /* Pointer.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = Pointer.o; sourceTree = "<group>"; };
 		9007E0E110EE3F1B00928CAE /* RawNativeForwardCallback.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = RawNativeForwardCallback.o; sourceTree = "<group>"; };
-		9007E0E210EE3F1B00928CAE /* Signatures.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = Signatures.o; sourceTree = "<group>"; };
 		9007E0E410EE3F1B00928CAE /* BindCallback.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = BindCallback.o; sourceTree = "<group>"; };
 		9007E0E510EE3F1B00928CAE /* CommonClassesAndMethods.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = CommonClassesAndMethods.o; sourceTree = "<group>"; };
 		9007E0E610EE3F1B00928CAE /* JavaToNativeCallHandler.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = JavaToNativeCallHandler.o; sourceTree = "<group>"; };
@@ -164,39 +160,25 @@
 		9007E0E810EE3F1B00928CAE /* JNIUtils.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = JNIUtils.o; sourceTree = "<group>"; };
 		9007E0E910EE3F1B00928CAE /* libjdyncall.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libjdyncall.dylib; sourceTree = "<group>"; };
 		9007E0EA10EE3F1B00928CAE /* libtest.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libtest.dylib; sourceTree = "<group>"; };
-		9007E0EB10EE3F1B00928CAE /* MethodCallInfo.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = MethodCallInfo.o; sourceTree = "<group>"; };
-		9007E0EC10EE3F1B00928CAE /* Options.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = Options.o; sourceTree = "<group>"; };
 		9007E0ED10EE3F1B00928CAE /* Pointer.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = Pointer.o; sourceTree = "<group>"; };
 		9007E0EE10EE3F1B00928CAE /* RawNativeForwardCallback.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = RawNativeForwardCallback.o; sourceTree = "<group>"; };
-		9007E0EF10EE3F1B00928CAE /* Signatures.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = Signatures.o; sourceTree = "<group>"; };
-		9007E0F010EE3F1B00928CAE /* ValueTypes.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = ValueTypes.o; sourceTree = "<group>"; };
 		9007E0F110EE3F1C00928CAE /* com_nativelibs4java_runtime_DynCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = com_nativelibs4java_runtime_DynCall.h; sourceTree = "<group>"; };
 		9007E0F210EE3F1C00928CAE /* com_nativelibs4java_runtime_JNI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = com_nativelibs4java_runtime_JNI.h; sourceTree = "<group>"; };
 		9007E0F310EE3F1C00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = com_nativelibs4java_runtime_JNI_CallingConvention.h; sourceTree = "<group>"; };
 		9007E0F410EE3F1C00928CAE /* com_nativelibs4java_runtime_Pointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = com_nativelibs4java_runtime_Pointer.h; sourceTree = "<group>"; };
-		9007E0F510EE3F1C00928CAE /* CommonClassesAndMethods.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommonClassesAndMethods.cpp; sourceTree = "<group>"; };
-		9007E0F610EE3F1C00928CAE /* CommonClassesAndMethods.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommonClassesAndMethods.h; sourceTree = "<group>"; };
 		9007E0F710EE3F1C00928CAE /* GNUmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNUmakefile; sourceTree = "<group>"; };
-		9007E0F810EE3F1C00928CAE /* JavaToNativeCallHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JavaToNativeCallHandler.cpp; sourceTree = "<group>"; };
-		9007E0F910EE3F1C00928CAE /* jdyncall.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = jdyncall.hpp; sourceTree = "<group>"; };
+		9007E0F810EE3F1C00928CAE /* JavaToNativeCallHandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = JavaToNativeCallHandler.c; sourceTree = "<group>"; };
+		9007E0F910EE3F1C00928CAE /* jdyncall.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jdyncall.hpp; sourceTree = "<group>"; };
 		9007E0FA10EE3F1C00928CAE /* jmethodcall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jmethodcall.h; sourceTree = "<group>"; };
-		9007E0FC10EE3F1C00928CAE /* JNI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JNI.cpp; sourceTree = "<group>"; };
-		9007E0FD10EE3F1C00928CAE /* JNIUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JNIUtils.cpp; sourceTree = "<group>"; };
-		9007E0FE10EE3F1C00928CAE /* JNIUtils.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = JNIUtils.hpp; sourceTree = "<group>"; };
+		9007E0FC10EE3F1C00928CAE /* JNI.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = JNI.c; sourceTree = "<group>"; };
 		9007E0FF10EE3F1C00928CAE /* make.out */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = make.out; sourceTree = "<group>"; };
 		9007E10010EE3F1C00928CAE /* MakeAll.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = MakeAll.sh; sourceTree = "<group>"; };
-		9007E10110EE3F1C00928CAE /* MakeAllDebug.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = MakeAllDebug.sh; sourceTree = "<group>"; };
-		9007E10210EE3F1C00928CAE /* MethodCallInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MethodCallInfo.cpp; sourceTree = "<group>"; };
-		9007E10310EE3F1C00928CAE /* Options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Options.cpp; sourceTree = "<group>"; };
-		9007E10410EE3F1C00928CAE /* Options.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Options.hpp; sourceTree = "<group>"; };
 		9007E10510EE3F1C00928CAE /* out.jar */ = {isa = PBXFileReference; lastKnownFileType = archive.jar; path = out.jar; sourceTree = "<group>"; };
-		9007E10610EE3F1C00928CAE /* Pointer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Pointer.cpp; sourceTree = "<group>"; };
-		9007E10710EE3F1C00928CAE /* RawNativeForwardCallback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RawNativeForwardCallback.cpp; sourceTree = "<group>"; };
+		9007E10610EE3F1C00928CAE /* Pointer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Pointer.c; sourceTree = "<group>"; };
+		9007E10710EE3F1C00928CAE /* RawNativeForwardCallback.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = RawNativeForwardCallback.c; sourceTree = "<group>"; };
 		9007E10810EE3F1C00928CAE /* RawNativeForwardCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RawNativeForwardCallback.h; sourceTree = "<group>"; };
 		9007E10910EE3F1C00928CAE /* RawNativeForwardCallback_WIN32_masm.asm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm.asm; path = RawNativeForwardCallback_WIN32_masm.asm; sourceTree = "<group>"; };
 		9007E10A10EE3F1C00928CAE /* RawNativeForwardCallback_WIN64_masm.asm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm.asm; path = RawNativeForwardCallback_WIN64_masm.asm; sourceTree = "<group>"; };
-		9007E10B10EE3F1C00928CAE /* Signatures.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Signatures.cpp; sourceTree = "<group>"; };
-		9007E10C10EE3F1C00928CAE /* ValueTypes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ValueTypes.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -447,36 +429,24 @@
 		9007E0D310EE3F1B00928CAE /* jdyncall */ = {
 			isa = PBXGroup;
 			children = (
-				9007E0D410EE3F1B00928CAE /* BindCallback.cpp */,
 				9007E0D510EE3F1B00928CAE /* build_out */,
 				9007E0F110EE3F1C00928CAE /* com_nativelibs4java_runtime_DynCall.h */,
 				9007E0F210EE3F1C00928CAE /* com_nativelibs4java_runtime_JNI.h */,
 				9007E0F310EE3F1C00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */,
 				9007E0F410EE3F1C00928CAE /* com_nativelibs4java_runtime_Pointer.h */,
-				9007E0F510EE3F1C00928CAE /* CommonClassesAndMethods.cpp */,
-				9007E0F610EE3F1C00928CAE /* CommonClassesAndMethods.h */,
 				9007E0F710EE3F1C00928CAE /* GNUmakefile */,
-				9007E0F810EE3F1C00928CAE /* JavaToNativeCallHandler.cpp */,
+				9007E0F810EE3F1C00928CAE /* JavaToNativeCallHandler.c */,
 				9007E0F910EE3F1C00928CAE /* jdyncall.hpp */,
 				9007E0FA10EE3F1C00928CAE /* jmethodcall.h */,
-				9007E0FB10EE3F1C00928CAE /* jni */,
-				9007E0FC10EE3F1C00928CAE /* JNI.cpp */,
-				9007E0FD10EE3F1C00928CAE /* JNIUtils.cpp */,
-				9007E0FE10EE3F1C00928CAE /* JNIUtils.hpp */,
+				9007E0FC10EE3F1C00928CAE /* JNI.c */,
 				9007E0FF10EE3F1C00928CAE /* make.out */,
 				9007E10010EE3F1C00928CAE /* MakeAll.sh */,
-				9007E10110EE3F1C00928CAE /* MakeAllDebug.sh */,
-				9007E10210EE3F1C00928CAE /* MethodCallInfo.cpp */,
-				9007E10310EE3F1C00928CAE /* Options.cpp */,
-				9007E10410EE3F1C00928CAE /* Options.hpp */,
 				9007E10510EE3F1C00928CAE /* out.jar */,
-				9007E10610EE3F1C00928CAE /* Pointer.cpp */,
-				9007E10710EE3F1C00928CAE /* RawNativeForwardCallback.cpp */,
+				9007E10610EE3F1C00928CAE /* Pointer.c */,
+				9007E10710EE3F1C00928CAE /* RawNativeForwardCallback.c */,
 				9007E10810EE3F1C00928CAE /* RawNativeForwardCallback.h */,
 				9007E10910EE3F1C00928CAE /* RawNativeForwardCallback_WIN32_masm.asm */,
 				9007E10A10EE3F1C00928CAE /* RawNativeForwardCallback_WIN64_masm.asm */,
-				9007E10B10EE3F1C00928CAE /* Signatures.cpp */,
-				9007E10C10EE3F1C00928CAE /* ValueTypes.cpp */,
 			);
 			name = jdyncall;
 			path = ../../../jdyncall;
@@ -501,11 +471,8 @@
 				9007E0DB10EE3F1B00928CAE /* JNIUtils.o */,
 				9007E0DC10EE3F1B00928CAE /* libjdyncall.dylib */,
 				9007E0DD10EE3F1B00928CAE /* libtest.dylib */,
-				9007E0DE10EE3F1B00928CAE /* MethodCallInfo.o */,
-				9007E0DF10EE3F1B00928CAE /* Options.o */,
 				9007E0E010EE3F1B00928CAE /* Pointer.o */,
 				9007E0E110EE3F1B00928CAE /* RawNativeForwardCallback.o */,
-				9007E0E210EE3F1B00928CAE /* Signatures.o */,
 			);
 			path = darwin_universal_gcc_debug;
 			sourceTree = "<group>";
@@ -520,21 +487,10 @@
 				9007E0E810EE3F1B00928CAE /* JNIUtils.o */,
 				9007E0E910EE3F1B00928CAE /* libjdyncall.dylib */,
 				9007E0EA10EE3F1B00928CAE /* libtest.dylib */,
-				9007E0EB10EE3F1B00928CAE /* MethodCallInfo.o */,
-				9007E0EC10EE3F1B00928CAE /* Options.o */,
 				9007E0ED10EE3F1B00928CAE /* Pointer.o */,
 				9007E0EE10EE3F1B00928CAE /* RawNativeForwardCallback.o */,
-				9007E0EF10EE3F1B00928CAE /* Signatures.o */,
-				9007E0F010EE3F1B00928CAE /* ValueTypes.o */,
 			);
 			path = darwin_universal_gcc_release;
-			sourceTree = "<group>";
-		};
-		9007E0FB10EE3F1C00928CAE /* jni */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = jni;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -546,7 +502,7 @@
 			buildConfigurationList = 1DEB918F08733D9F0010E9CD /* Build configuration list for PBXLegacyTarget "JDyncall" */;
 			buildPhases = (
 			);
-			buildToolPath = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/JDyncall/src/main/cpp/jdyncall/MakeAllDebug.sh;
+			buildToolPath = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/JDyncall/src/main/cpp/jdyncall/MakeAll.sh;
 			buildWorkingDirectory = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/JDyncall/src/main/cpp/jdyncall;
 			dependencies = (
 			);

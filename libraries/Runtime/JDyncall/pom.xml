@@ -18,12 +18,12 @@
 
   <dependencies>
 
-	<dependency>
+	<!--dependency>
       <groupId>com.ochafik</groupId>
       <artifactId>ochafik-util</artifactId>
       <version>${jnaerator.version}</version>
       <scope>compile</scope>
-    </dependency>
+    </dependency-->
 	
   </dependencies>
 

@@ -19,6 +19,9 @@
 
 #BUILD_CONFIG=debug
 
+LD=gcc
+CXX=gcc
+
 TOP =	$(DYNCALL_HOME)
 include $(DYNCALL_HOME)/buildsys/gmake/prolog.gmake
 
@@ -27,23 +30,23 @@ INSTALL_LIB	 = 1
 
 # uses some dyncall headers - no other dependencies.
 
-CPPFLAGS	 += -I$(DYNCALL_HOME)
-CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncall
-CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncallback
-CPPFLAGS	 += -I$(DYNCALL_HOME)/dynload
+CFLAGS	 += -I$(DYNCALL_HOME)
+CFLAGS	 += -I$(DYNCALL_HOME)/dyncall
+CFLAGS	 += -I$(DYNCALL_HOME)/dyncallback
+CFLAGS	 += -I$(DYNCALL_HOME)/dynload
 
-UNITS += Exceptions
+#UNITS += Exceptions
 UNITS += JNI
 UNITS += JavaToNativeCallHandler
 UNITS += Pointer
 UNITS += RawNativeForwardCallback
 
 ifdef BUILD_OS_darwin
-CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
+CFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 #LDFLAGS		+= -framework JavaVM
 endif
 
-#CPPFLAGS +=	-std=gnu99 
+#CFLAGS +=	-std=gnu99 
 #CPPFLAGS += -DJNICALL=__cdecl -DJNIEXPORT=__cdecl
 #CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
 #LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 
@@ -52,7 +55,5 @@ LINK_DIRS	+= $(DYNCALL_HOME)/dyncall/$(BUILD_DIR)
 LINK_DIRS	+= $(DYNCALL_HOME)/dynload/$(BUILD_DIR) 
 LINK_DIRS	+= $(DYNCALL_HOME)/dyncallback/$(BUILD_DIR) 
 LINK_LIBS   += dyncall_s dynload_s dyncallback_s
-#LINK_LIBS	+= java
-#LINK_LIBS	+= stdc++
 
 include $(DYNCALL_HOME)/buildsys/gmake/epilog.gmake

@@ -7,6 +7,7 @@ if [[ "$DYNCALL_HOME" == "" ]] ; then
 fi
 	
 CURR="`pwd`"
+LD=gcc
 
 BUILD_DIR=
 echo BUILD_DIR = $BUILD_DIR

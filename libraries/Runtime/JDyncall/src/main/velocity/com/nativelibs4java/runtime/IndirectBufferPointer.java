@@ -2,7 +2,6 @@ package com.nativelibs4java.runtime;
 
 import com.nativelibs4java.runtime.Pointer;
 import java.nio.*;
-import com.ochafik.lang.SyntaxUtils;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.io.UnsupportedEncodingException;
