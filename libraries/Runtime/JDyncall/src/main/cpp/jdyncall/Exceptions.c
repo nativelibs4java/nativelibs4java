@@ -5,13 +5,15 @@
 
 #ifndef __GNUC__
 
+#include <windows.h>
+
 int WinExceptionHandler(JNIEnv* env, int exceptionCode) {
-	/*switch (exceptionCode) 
+	switch (exceptionCode) 
 	{
 #define EX_CASE(name) \
 	case EXCEPTION_ ## name: \
 		(*env)->ExceptionClear(env); \
-		(*env)->ThrowNew(env, RuntimeException_class, #name); \
+		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), #name); \
 		return EXCEPTION_CONTINUE_EXECUTION;
     
 	EX_CASE(ACCESS_VIOLATION           );
@@ -38,8 +40,8 @@ int WinExceptionHandler(JNIEnv* env, int exceptionCode) {
 	EX_CASE(STACK_OVERFLOW             );
 	//EX_CASE(STATUS_UNWIND_CONSOLIDATE            );
 	}
-	return EXCEPTION_CONTINUE_SEARCH;*/
-	return 0;
+	return EXCEPTION_CONTINUE_SEARCH;
+	//return 0;
 }
 
 #endif

@@ -36,10 +36,10 @@ public class PerfTest {
         public native int testASinB(int a, int b);
     }
 
-    public static class JNATest {/*implements com.sun.jna.Library {
+    public static class JNATest implements com.sun.jna.Library {
         static {
             com.sun.jna.Native.register("test");
-        }*/
+        }
         public static native int testAddJNA(int a, int b);
         public static native int testASinB(int a, int b);
     }

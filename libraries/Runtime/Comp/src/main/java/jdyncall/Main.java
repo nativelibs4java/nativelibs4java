@@ -51,6 +51,8 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+
+        Test test = null;
         try {
             System.out.println(Main.class.getResource("Main.class"));
             int nWarmUp = 16000;
@@ -60,7 +62,8 @@ public class Main {
             double res = 0;
             
             boolean warmup = true;
-            
+            test = new Test();
+
             if (true) {
                 Method[] mes = Test.class.getDeclaredMethods();
                 Method me = mes[0];
@@ -75,7 +78,6 @@ public class Main {
                 address = DynCall.getSymbolAddress(me);
                 JNI.registerClass(PerfTest.class);
     */
-                Test test = new Test();
                 test.voidTest();
                 res = test.sinInt(arg);
                 double tot = 0;
@@ -200,6 +202,9 @@ public class Main {
             System.out.println("res = " + res + ", sin(" + arg + ") = " + Math.sin(arg));
         } catch (Exception ex) {
             ex.printStackTrace();
+        } finally {
+            if (test != null)
+                test.voidTest();
         }
         System.out.println(JNI.SIZE_T_SIZE);
         try {

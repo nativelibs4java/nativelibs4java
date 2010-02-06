@@ -14,7 +14,8 @@ TEST_API int ntest=0;
 // Il s'agit d'un exemple de fonction exportée.
 TEST_API void __cdecl voidTest()
 {
-	std::cout << "Ok\n";
+	printf("ok\n");
+	//std::cout << "Ok\n";
 }
 TEST_API double __cdecl sinInt(int d)
 {
