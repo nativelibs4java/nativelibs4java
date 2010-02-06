@@ -22,7 +22,7 @@ ret JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclas
 { \
 	BEGIN_TRY(); \
 	return (ret)name((nt1)a1, (nt2)a2, (nt3)a3); \
-	END_TRY(env); \
+	END_TRY_RET(env, (ret)0); \
 }
 
 #define FUNC_VOID_1(name, t1, nt1) \
@@ -38,7 +38,7 @@ ret JNICALL Java_com_nativelibs4java_runtime_Pointer_ ## name(JNIEnv *env, jclas
 { \
 	BEGIN_TRY(); \
 	return (ret)name((nt1)a1); \
-	END_TRY(env); \
+	END_TRY_RET(env, (ret)0); \
 }
 
 FUNC_1(jlong, malloc, jlong, size_t)

@@ -8,6 +8,7 @@
 #include <jni.h>
 #define BEGIN_TRY() __try {
 #define END_TRY(env) } __except (WinExceptionHandler(env, GetExceptionCode())) {}
+#define END_TRY_RET(env, ret) } __except (WinExceptionHandler(env, GetExceptionCode())) { return ret; }
 
 int WinExceptionHandler(JNIEnv* env, int exceptionCode);
 

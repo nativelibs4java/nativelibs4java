@@ -98,6 +98,6 @@ char __cdecl JavaToNativeCallHandler(DCCallback* callback, DCArgs* args, DCValue
 	info = (MethodCallInfo*)userdata;
 
 	BEGIN_TRY();
-	return doJavaToNativeCallHandler(args, result, info);	
-	END_TRY(info->fEnv);
+	return doJavaToNativeCallHandler(args, result, info);
+	END_TRY_RET(info->fEnv, 0);
 }

@@ -39,6 +39,7 @@ int WinExceptionHandler(JNIEnv* env, int exceptionCode) {
 	//EX_CASE(STATUS_UNWIND_CONSOLIDATE            );
 	}
 	return EXCEPTION_CONTINUE_SEARCH;*/
+	return 0;
 }
 
 #endif

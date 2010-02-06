@@ -26,12 +26,12 @@ void JNICALL Java_com_nativelibs4java_runtime_JNI_init(JNIEnv *env, jclass clazz
 jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
 	BEGIN_TRY();
 	return !buffer ? 0 : (jlong)(*env)->GetDirectBufferAddress(env, buffer);
-	END_TRY(env);
+	END_TRY_RET(env, 0);
 }
 jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
 	BEGIN_TRY();
 	return !buffer ? 0 : (*env)->GetDirectBufferCapacity(env, buffer);
-	END_TRY(env);
+	END_TRY_RET(env, 0);
 }
 
 jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getObjectPointer(JNIEnv *env, jclass clazz, jobject object)
@@ -63,7 +63,7 @@ jlong JNICALL Java_com_nativelibs4java_runtime_JNI_findSymbolInLibrary(JNIEnv *e
 jobject JNICALL Java_com_nativelibs4java_runtime_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthis, jlong peer, jlong length) {
 	BEGIN_TRY();
 	return (*env)->NewDirectByteBuffer(env, (void*)peer, length);
-	END_TRY(env);
+	END_TRY_RET(env, NULL);
 }
 
 JNIEXPORT jint JNICALL Java_com_nativelibs4java_runtime_JNI_getMaxDirectMappingArgCount(JNIEnv *env, jclass clazz) {
@@ -95,7 +95,7 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
 	JNINativeMethod meth;
 	struct MethodCallInfo *info = NULL;
 	if (!forwardedPointer)
-		return NULL;
+		return 0;
 	
 	info = (struct MethodCallInfo*)malloc(sizeof(struct MethodCallInfo));
 	memset(info, 0, sizeof(MethodCallInfo));
@@ -126,7 +126,7 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
 	(*env)->ReleaseStringUTFChars(env, methodName, meth.name);
 	(*env)->ReleaseStringUTFChars(env, javaSignature, meth.signature);
 	
-	return (jlong)info;
+	return (jlong)(size_t)info;
 }
 
 JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_freeCallback(JNIEnv *env, jclass clazz, jlong nativeCallback)
