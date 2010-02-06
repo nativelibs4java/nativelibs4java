@@ -7,158 +7,20 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getInt
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_nativelibs4java_runtime_Pointer_getInt
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getShort
- * Signature: (J)S
- */
-JNIEXPORT jshort JNICALL Java_com_nativelibs4java_runtime_Pointer_getShort
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getLong
- * Signature: (J)J
- */
-JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getLong
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getByte
- * Signature: (J)B
- */
-JNIEXPORT jbyte JNICALL Java_com_nativelibs4java_runtime_Pointer_getByte
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getDouble
- * Signature: (J)D
- */
-JNIEXPORT jdouble JNICALL Java_com_nativelibs4java_runtime_Pointer_getDouble
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getFloat
- * Signature: (J)F
- */
-JNIEXPORT jfloat JNICALL Java_com_nativelibs4java_runtime_Pointer_getFloat
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getByteBuffer
- * Signature: (JJ)Ljava/nio/ByteBuffer;
- */
-JNIEXPORT jobject JNICALL Java_com_nativelibs4java_runtime_Pointer_getByteBuffer
-  (JNIEnv *, jobject, jlong, jlong);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getPointerAddress
- * Signature: (J)J
- */
-JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getPointerAddress
-  (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setPointerAddress
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_setPointerAddress
-  (JNIEnv *, jobject, jlong, jlong);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getDirectBufferAddress
- * Signature: (Ljava/nio/Buffer;)J
- */
-JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferAddress
-  (JNIEnv *, jclass, jobject);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    getDirectBufferCapacity
- * Signature: (Ljava/nio/Buffer;)J
- */
-JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_getDirectBufferCapacity
-  (JNIEnv *, jclass, jobject);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setInt
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_setInt
-  (JNIEnv *, jobject, jlong, jint);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setShort
- * Signature: (JS)V
- */
-JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_setShort
-  (JNIEnv *, jobject, jlong, jshort);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setLong
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_setLong
-  (JNIEnv *, jobject, jlong, jlong);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setByte
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_setByte
-  (JNIEnv *, jobject, jlong, jint);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setDouble
- * Signature: (JD)V
- */
-JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_setDouble
-  (JNIEnv *, jobject, jlong, jdouble);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    setFloat
- * Signature: (JF)V
- */
-JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_setFloat
-  (JNIEnv *, jobject, jlong, jfloat);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    doAllocate
- * Signature: (I)J
- */
-JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_Pointer_doAllocate
-  (JNIEnv *, jclass, jint);
-
-/*
- * Class:     com_nativelibs4java_runtime_Pointer
- * Method:    doFree
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_Pointer_doFree
-  (JNIEnv *, jclass, jlong);
-
+#undef com_nativelibs4java_runtime_Pointer_LITTLE_ENDIAN
+#define com_nativelibs4java_runtime_Pointer_LITTLE_ENDIAN 108L
+#undef com_nativelibs4java_runtime_Pointer_BIG_ENDIAN
+#define com_nativelibs4java_runtime_Pointer_BIG_ENDIAN 98L
+#undef com_nativelibs4java_runtime_Pointer_TYPE_FROM_DIRECT_BUFFER
+#define com_nativelibs4java_runtime_Pointer_TYPE_FROM_DIRECT_BUFFER 0L
+#undef com_nativelibs4java_runtime_Pointer_TYPE_FROM_INDIRECT_BUFFER
+#define com_nativelibs4java_runtime_Pointer_TYPE_FROM_INDIRECT_BUFFER 1L
+#undef com_nativelibs4java_runtime_Pointer_TYPE_FROM_RAW_ADDRESS
+#define com_nativelibs4java_runtime_Pointer_TYPE_FROM_RAW_ADDRESS 2L
+#undef com_nativelibs4java_runtime_Pointer_TYPE_FROM_ALLOCATED_ADDRESS
+#define com_nativelibs4java_runtime_Pointer_TYPE_FROM_ALLOCATED_ADDRESS 3L
+#undef com_nativelibs4java_runtime_Pointer_TYPE_FROM_POINTER_GET_POINTER_VALUE
+#define com_nativelibs4java_runtime_Pointer_TYPE_FROM_POINTER_GET_POINTER_VALUE 4L
 #ifdef __cplusplus
 }
 #endif

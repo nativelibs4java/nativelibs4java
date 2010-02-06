@@ -66,11 +66,11 @@ jobject JNICALL Java_com_nativelibs4java_runtime_JNI_newDirectByteBuffer(JNIEnv 
 	END_TRY(env);
 }
 
-JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getMaxDirectMappingArgCount() {
+JNIEXPORT jint JNICALL Java_com_nativelibs4java_runtime_JNI_getMaxDirectMappingArgCount(JNIEnv *env, jclass clazz) {
 #ifdef _WIN64
 	return 4;
 #else	
-#ifdef _WIN64
+#ifdef _WIN32
 	return 65000;
 #else
 	return -1;
@@ -100,6 +100,7 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
 	info = (struct MethodCallInfo*)malloc(sizeof(struct MethodCallInfo));
 	memset(info, 0, sizeof(MethodCallInfo));
 	
+	info->fForwardedSymbol = (void*)(size_t)forwardedPointer;
 	info->fEnv = env;
 	info->fDCMode = callMode;
 	info->fReturnType = (ValueType)returnValueType;

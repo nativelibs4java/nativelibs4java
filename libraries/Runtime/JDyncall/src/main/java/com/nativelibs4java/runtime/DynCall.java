@@ -84,14 +84,20 @@ public class DynCall {
         if (name == null)
             return null;
         for (String path : getPaths()) {
-            File pathFile = new File(path);
-            File f = new File(pathFile, name + ".dll");
+            File pathFile;
+            try {
+                pathFile = new File(path).getCanonicalFile();
+            } catch (IOException ex) {
+                Logger.getLogger(DynCall.class.getName()).log(Level.SEVERE, null, ex);
+                continue;
+            }
+            File f = new File(pathFile, name + ".dll").getAbsoluteFile();
             if (!f.exists())
-                f = new File(pathFile, "lib" + name + ".so");
+                f = new File(pathFile, "lib" + name + ".so").getAbsoluteFile();
             if (!f.exists())
-                f = new File(pathFile, "lib" + name + ".dylib");
+                f = new File(pathFile, "lib" + name + ".dylib").getAbsoluteFile();
             if (!f.exists())
-                f = new File(pathFile, "lib" + name + ".jnilib");
+                f = new File(pathFile, "lib" + name + ".jnilib").getAbsoluteFile();
             if (!f.exists())
                 continue;
 

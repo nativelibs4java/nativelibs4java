@@ -11,14 +11,13 @@ package com.nativelibs4java.runtime;
  */
 public class JDyncallLibrary {
     public enum ValueType {
-        eVoidValue, // = 0,
+        eVoidValue,
+        eWCharValue,
         eCLongValue,
         eSizeTValue,
-        eWCharTValue,
         eIntValue,
         eShortValue,
         eByteValue,
-        eBoolValue,
         eLongValue,
         eDoubleValue,
         eFloatValue

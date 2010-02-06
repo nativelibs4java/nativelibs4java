@@ -12,6 +12,10 @@
 TEST_API int ntest=0;
 
 // Il s'agit d'un exemple de fonction exportée.
+TEST_API void __cdecl voidTest()
+{
+	std::cout << "Ok\n";
+}
 TEST_API double __cdecl sinInt(int d)
 {
 	return sin((double)d);
@@ -61,8 +65,8 @@ JNIEXPORT jint JNICALL Java_jdyncall_PerfTest_testAddJNI(JNIEnv *, jclass, jint 
 }
 TEST_API int __cdecl testAddDyncall(int a, int b)
 {
-	if (true)
-		testAddDyncall(a, b);
+	//if (true)
+	//	testAddDyncall(a, b);
 	otherFunc();
 	return a + b;
 }

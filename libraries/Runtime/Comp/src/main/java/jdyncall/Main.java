@@ -27,13 +27,16 @@ public class Main {
     public static class Test extends NativeLib<Test> {
         public Test() throws FileNotFoundException {
 			//super(Test.class);
-        	super(new File("/Users/ochafik/nativelibs4java/Runtime/JDyncall/src/main/cpp/jdyncall/build_out/darwin_universal_gcc_debug/libtest.dylib"));
+        	//super(new File("/Users/ochafik/nativelibs4java/Runtime/JDyncall/src/main/cpp/jdyncall/build_out/darwin_universal_gcc_debug/libtest.dylib"));
+            super(new File("test.dll"));
 		}
         //@Library("C:\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\Debug\\test")
         //@Library("C:\\Users\\Olivier\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\x64\\Debug\\test")
         @Mangling({"?sinInt@@YANH@Z", "__Z6sinInti"})
         public native double sinInt(int d);
 
+        public native void voidTest();
+        
         static class Struct1 {
             @Wide String ws;
             String s;
@@ -73,6 +76,7 @@ public class Main {
                 JNI.registerClass(PerfTest.class);
     */
                 Test test = new Test();
+                test.voidTest();
                 res = test.sinInt(arg);
                 double tot = 0;
                 if (warmup) {

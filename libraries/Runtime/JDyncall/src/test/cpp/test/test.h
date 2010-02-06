@@ -27,6 +27,9 @@ public:
 extern TEST_API int ntest;
 TEST_API Ctest* createTest();
 
+extern "C" {
+TEST_API void __cdecl voidTest();
+}
 TEST_API double __cdecl sinInt(int);
 TEST_API double __cdecl testSum(const double *values, size_t n);
 TEST_API double __cdecl testSumi(const double *values, int n);
