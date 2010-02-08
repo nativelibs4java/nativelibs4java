@@ -30,9 +30,14 @@ echo "# Making test library"
 cd "../../../test/cpp/test"
 make $@ || exit 1
 
-for D in build_out/* ; do 
-	cp $D/*.dylib $CURR/$D ; 
+for D in build_out/darwin_universal_gcc_release ; do 
+	cp $D/*.dylib $CURR/$D ;
 done
 
 cd "$CURR"
+
+for D in build_out/*_release ; do 
+	cp $D/libjdyncall.dylib ../../bin/darwin
+	cp $D/libtest.dylib ../../../test/bin/darwin ;
+done
 
