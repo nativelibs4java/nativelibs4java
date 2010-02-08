@@ -30,7 +30,7 @@
   <build>
   	<plugins>
 
-		<plugin>
+		<!--plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-shade-plugin</artifactId>
 			<version>1.2.2</version>
@@ -42,8 +42,6 @@
 				</goals>
 				<configuration>
 					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<!--shadedArtifactId>${project.artifactId}-standalone</shadedArtifactId-->
-					<!--finalName>${project.artifactId}-standalone-${project.version}</finalName-->
 					<artifactSet>
 						<excludes>
 						  <exclude>org.scala-lang:scala-library</exclude>
@@ -54,9 +52,23 @@
 				</configuration>
 			  </execution>
 			</executions>
-		</plugin>
+		</plugin-->
 		
-		
+		<!--project>
+		  <build>
+			<plugins>
+			  <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+				   
+				</configuration>
+			  </plugin>
+			</plugins>
+		  </build>
+		</project-->
+
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>
@@ -73,6 +85,13 @@
 		
 		
 	</plugins>
+	
+	<resources>
+     <resource>
+       <directory>src/main/bin</directory>
+     </resource>
+   </resources>
+   
   </build>
 </project>
 
