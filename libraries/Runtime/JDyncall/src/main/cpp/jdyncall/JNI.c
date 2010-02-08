@@ -9,6 +9,10 @@
 #include <stdlib.h>
 #include "Exceptions.h"
 
+#if defined(DC_UNIX)
+#include <dlfcn.h>
+#endif
+
 #define JNI_SIZEOF(type, escType) \
 jint JNICALL Java_com_nativelibs4java_runtime_JNI_sizeOf_1 ## escType(JNIEnv *env, jclass clazz) { return sizeof(type); }
 
@@ -42,20 +46,31 @@ jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getObjectPointer(JNIEnv *env,
 jlong JNICALL Java_com_nativelibs4java_runtime_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring pathStr)
 {
 	const char* path = (*env)->GetStringUTFChars(env, pathStr, NULL);
-	jlong ret = (jlong)dlLoadLibrary(path);
+	DLLib* lib = dlLoadLibrary(path);
+	printf(path);
+	printf("\n");
+	jlong ret = (jlong)(size_t)lib;
 	(*env)->ReleaseStringUTFChars(env, pathStr, path);
 	return ret;
 }
 
 void JNICALL Java_com_nativelibs4java_runtime_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong libHandle)
 {
-	dlFreeLibrary((DLLib*)libHandle);
+	dlFreeLibrary((DLLib*)(size_t)libHandle);
 }
 
 jlong JNICALL Java_com_nativelibs4java_runtime_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, jlong libHandle, jstring nameStr)
 {
 	const char* name = (*env)->GetStringUTFChars(env, nameStr, NULL);
-	jlong ret = (jlong)dlFindSymbol((DLLib*)libHandle, name);
+	DLLib* lib = (DLLib*)(size_t)libHandle;
+	jlong ret = (jlong)dlFindSymbol(lib, name);
+#if defined(DC_UNIX)
+	if (!ret) {
+		const char* error = dlerror();
+		printf(error);
+		printf("\n");
+	}
+#endif
 	(*env)->ReleaseStringUTFChars(env, nameStr, name);
 	return ret;
 }
@@ -67,14 +82,14 @@ jobject JNICALL Java_com_nativelibs4java_runtime_JNI_newDirectByteBuffer(JNIEnv 
 }
 
 JNIEXPORT jint JNICALL Java_com_nativelibs4java_runtime_JNI_getMaxDirectMappingArgCount(JNIEnv *env, jclass clazz) {
-#ifdef _WIN64
+#if defined(_WIN64)
 	return 4;
-#else	
-#ifdef _WIN32
+#elif defined(DC__OS_Darwin) && defined(DC__Arch_AMD64)
+	return 6;	
+#elif defined(_WIN32)
 	return 65000;
 #else
 	return -1;
-#endif
 #endif
 }
 

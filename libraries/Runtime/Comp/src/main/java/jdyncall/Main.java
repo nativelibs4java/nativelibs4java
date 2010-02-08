@@ -32,10 +32,10 @@ public class Main {
 		}
         //@Library("C:\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\Debug\\test")
         //@Library("C:\\Users\\Olivier\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\x64\\Debug\\test")
-        @Mangling({"?sinInt@@YANH@Z", "__Z6sinInti"})
+        @Mangling({"?sinInt@@YANH@Z", "_Z6sinInti"})
         public native double sinInt(int d);
 
-        @Mangling({"_voidTest"})
+        @Mangling({"_Z8voidTestv"})
         public native void voidTest();
         
         static class Struct1 {
@@ -57,7 +57,7 @@ public class Main {
         try {
             System.out.println(Main.class.getResource("Main.class"));
             int nWarmUp = 16000;
-            int nCalls = 1000000;
+            int nCalls = 100000;
             int nTests = 10;
             int arg = 10;
             double res = 0;
@@ -163,7 +163,7 @@ public class Main {
                 int tot = 0, seed = System.getenv().size();
                 if (warmup) {
                     for (int i = 0; i < nWarmUp; i++)
-                        tot = PerfTest.testASinB(tot, seed);
+                        tot += (int)PerfTest.testASinB(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
                         tot = dct.testASinB(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
@@ -174,7 +174,7 @@ public class Main {
                 long startJNI = System.nanoTime();
                 for (int iTest = 0; iTest < nTests; iTest++) {
                     for (int i = 0; i < nCalls; i++)
-                        tot = PerfTest.testASinB(tot, seed);
+                        tot += (int)PerfTest.testASinB(tot, seed);
                 }
                 long timeJNI = System.nanoTime() - startJNI;
                 totalJNI += timeJNI;
@@ -209,8 +209,8 @@ public class Main {
         }
         System.out.println(JNI.SIZE_T_SIZE);
         try {
-            System.in.read();
-        } catch (IOException ex) {
+            //System.in.read();
+        } catch (Exception ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

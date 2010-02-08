@@ -30,10 +30,10 @@ INSTALL_LIB	 = 1
 
 # uses some dyncall headers - no other dependencies.
 
-CFLAGS	 += -I$(DYNCALL_HOME)
-CFLAGS	 += -I$(DYNCALL_HOME)/dyncall
-CFLAGS	 += -I$(DYNCALL_HOME)/dyncallback
-CFLAGS	 += -I$(DYNCALL_HOME)/dynload
+CPPFLAGS	 += -I$(DYNCALL_HOME)
+CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncall
+CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncallback
+CPPFLAGS	 += -I$(DYNCALL_HOME)/dynload
 
 #UNITS += Exceptions
 UNITS += JNI
@@ -41,13 +41,16 @@ UNITS += JavaToNativeCallHandler
 UNITS += Pointer
 UNITS += RawNativeForwardCallback
 
+ifdef BUILD_TOOL_gcc
+UNITS += RawNativeForwardCallback_arch
+endif
+
 ifdef BUILD_OS_darwin
-CFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
+CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 #LDFLAGS		+= -framework JavaVM
 endif
 
-#CFLAGS +=	-std=gnu99 
-#CPPFLAGS += -DJNICALL=__cdecl -DJNIEXPORT=__cdecl
+CPPFLAGS += -DJNICALL=__cdecl -DJNIEXPORT=__cdecl
 #CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
 #LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 
 

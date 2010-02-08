@@ -1,0 +1,47 @@
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(revision 557)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(working copy)
+@@ -32,12 +32,17 @@
+ 
+ DLLib* dlLoadLibrary(const char* libPath)
+ {
++
++#if defined (DC__OS_Darwin)
++  return (DLLib*) dlopen(libPath,RTLD_LAZY);
++#else
+   return (DLLib*) dlopen(libPath,RTLD_NOW);
++#endif
+ }
+ 
+ void* dlFindSymbol(DLLib* libHandle, const char* symbol)
+ {
+-  return dlsym( (void*) libHandle, symbol);
++  return dlsym(libHandle ? libHandle : RTLD_DEFAULT, symbol);
+ }
+ 
+ void  dlFreeLibrary(DLLib* libHandle)
+Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile	(revision 557)
++++ /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile	(working copy)
+@@ -56,6 +56,7 @@
+ UNITS += dyncall_callback_x86_masm
+ endif
+ ifdef BUILD_ARCH_x64
++UNITS += dyncall_callback_x64
+ UNITS += dyncall_callback_x64_masm
+ endif
+ endif
+Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(revision 557)
++++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(working copy)
+@@ -48,6 +48,6 @@
+ 
+ void dcbFreeCallback(DCCallback* pcb)
+ {
+-  dcbFreeWX(pcb, sizeof(DCCallback));
++  dcFreeWX(pcb, sizeof(DCCallback));
+ }
+ 

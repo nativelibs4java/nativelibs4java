@@ -44,5 +44,5 @@ public class PerfTest {
         public static native int testASinB(int a, int b);
     }
     public static native int testAddJNI(int a, int b);
-    public static native int testASinB(int a, int b);
+    public static native double testASinB(int a, int b);
 }

@@ -10,11 +10,13 @@ CURR="`pwd`"
 LD=gcc
 
 BUILD_DIR=
-echo BUILD_DIR = $BUILD_DIR
-echo BUILD_CONFIG = $BUILD_CONFIG
-echo LINK_DIRS = $LINK_DIRS
+#echo BUILD_DIR = $BUILD_DIR
+#echo BUILD_CONFIG = $BUILD_CONFIG
+#echo LINK_DIRS = $LINK_DIRS
 
-echo $DYNCALL_HOME/dyncall/$BUILD_DIR
+#echo $DYNCALL_HOME/dyncall/$BUILD_DIR
+
+svn diff ~/src/dyncall/dyncall > dyncall.diff
 
 echo "# Making dyncall"
 cd "$DYNCALL_HOME"

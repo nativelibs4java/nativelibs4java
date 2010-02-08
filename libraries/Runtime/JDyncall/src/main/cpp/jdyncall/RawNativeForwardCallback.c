@@ -30,7 +30,7 @@ struct DCAdapterCallback
 
 DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)())
 {
-#ifdef _WIN64
+#if defined(DC__OS_Darwin) && defined(DC__Arch_AMD64) || defined(_WIN64)
 	int err;
 	DCAdapterCallback* pcb;
 	err = dcAllocWX(sizeof(DCAdapterCallback), (void**) &pcb);
@@ -40,8 +40,7 @@ DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)())
 	dcbInitThunk(&pcb->thunk, dcRawCallAdapterSkipTwoArgs64);
 	pcb->handler = handler;
 	return pcb;
-#else
-#ifdef _WIN32
+#elif defined(_WIN32)
 	int err;
 	DCAdapterCallback* pcb;
 	err = dcAllocWX(sizeof(DCAdapterCallback), (void**) &pcb);
@@ -53,6 +52,5 @@ DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)())
 	return pcb;
 #else
 	return NULL;
-#endif
 #endif
 }

@@ -29,8 +29,8 @@ INSTALL_LIB	 = 1
 
 UNITS += test
 
-CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
-LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 
+#CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
+#LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 
 
 ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
