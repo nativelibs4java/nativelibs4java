@@ -3,8 +3,8 @@
 #set ($annPackage = "com.nativelibs4java.runtime.ann.jna")
 #set ($getPointer = "getPointer")
 #else
-#set ($package = "com.nativelibs4java.runtime")
-#set ($annPackage = "com.nativelibs4java.runtime.ann")
+#set ($package = "com.jdyncall")
+#set ($annPackage = "com.jdyncall.ann")
 #set ($getPointer = "getReference")
 #end
 

@@ -71,45 +71,6 @@
 			</executions>
 		</plugin>
 		
-		<plugin>
-			<groupId>com.nativelibs4java</groupId>
-			<artifactId>maven-nl4j-runtime-templates-plugin</artifactId>
-			<version>${nl4j-runtime.version}</version>
-			<executions>
-			  <execution>
-				<phase>generate-sources</phase>
-				<goals>
-				  <goal>compile</goal>
-				</goals>
-			  </execution>
-			</executions>
-			<configuration>
-				<parameters>
-					<useJNA>false</useJNA>
-					<memoryClass>com.nativelibs4java.runtime.Memory</memoryClass>
-					<pointerClass>com.nativelibs4java.runtime.Pointer</pointerClass>
-					<!--pointerTypeClass>com.nativelibs4java.runtime.PointerType</pointerTypeClass-->
-					<getDirectBufferPointer>com.nativelibs4java.runtime.Pointer.pointerTo</getDirectBufferPointer>
-				</parameters>
-				<templates>
-					<template>com/nativelibs4java/runtime/ann/Alignment.java</template>
-					<template>com/nativelibs4java/runtime/ann/Bits.java</template>
-					<template>com/nativelibs4java/runtime/ann/ByValue.java</template>
-					<template>com/nativelibs4java/runtime/ann/Field.java</template>
-					<template>com/nativelibs4java/runtime/ann/Length.java</template>
-					<template>com/nativelibs4java/runtime/ann/PointerSized.java</template>
-					<template>com/nativelibs4java/runtime/ann/Virtual.java</template>
-					<template>com/nativelibs4java/runtime/ann/Wide.java</template>
-					
-					<template>com/nativelibs4java/runtime/BitFields.java</template>
-					<template>com/nativelibs4java/runtime/Struct.java</template>
-					<template>com/nativelibs4java/runtime/StructIO.java</template>
-				</templates>
-				<testTemplates>
-					<testTemplate>com/nativelibs4java/runtime/MyStruct.java</testTemplate>
-				</testTemplates>
-			</configuration>
-		</plugin>
 		
 	</plugins>
   </build>

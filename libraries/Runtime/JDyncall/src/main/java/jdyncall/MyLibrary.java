@@ -1,8 +1,8 @@
 package jdyncall;
 
-import com.nativelibs4java.runtime.*;
-import static com.nativelibs4java.runtime.Pointer.*;
-import com.nativelibs4java.runtime.ann.*;
+import com.jdyncall.*;
+import static com.jdyncall.Pointer.*;
+import com.jdyncall.ann.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 

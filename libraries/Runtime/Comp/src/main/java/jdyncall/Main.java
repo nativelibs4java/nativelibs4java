@@ -5,9 +5,9 @@
 
 package jdyncall;
 
-import com.nativelibs4java.runtime.JNI;
-import com.nativelibs4java.runtime.ann.*;
-import com.nativelibs4java.runtime.*;
+import com.jdyncall.JNI;
+import com.jdyncall.ann.*;
+import com.jdyncall.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;

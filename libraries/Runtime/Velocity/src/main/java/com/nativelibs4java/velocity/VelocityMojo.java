@@ -155,10 +155,16 @@ public class VelocityMojo
 
     private boolean executeAll(File velocitySources, File outputDirectory) throws MojoExecutionException {
         List<File> files = new ArrayList<File>();
+		String canoPath;
 		try {
 			velocitySources = velocitySources.getCanonicalFile();
 			listVeloFiles(velocitySources, files);
 
+			canoPath = velocitySources.getCanonicalPath();
+			Velocity.setProperty("file.resource.loader.path", canoPath);//file.getParent());
+			Velocity.init();
+					
+			
 		} catch (Exception ex) {
 			throw new MojoExecutionException("Failed to list files from '" + velocitySources + "'", ex);
 		}
@@ -168,7 +174,7 @@ public class VelocityMojo
         if (files.isEmpty())
             return false;
 
-        for (File file : files) {
+		for (File file : files) {
             try {
 				file = file.getCanonicalFile();
 
@@ -179,10 +185,13 @@ public class VelocityMojo
                 }
                 getLog().info("Executing template '" + file + "'...");
 
-                Velocity.setProperty("file.resource.loader.path", file.getParent());
-                Velocity.init();
                 //context = new VelocityContext();
-                org.apache.velocity.Template template = Velocity.getTemplate(file.getName());
+				String cano = file.getCanonicalPath();
+				cano = cano.substring(canoPath.length());
+				if (cano.startsWith(File.separator))
+					cano = cano.substring(File.separator.length());
+				
+                org.apache.velocity.Template template = Velocity.getTemplate(cano);//file.getName());
 
                 VelocityContext context = new VelocityContext();//execution.getParameters());
                 context.put("primitives", Primitive.getPrimitives());
@@ -201,9 +210,11 @@ public class VelocityMojo
                 getLog().info("\tGenerated '" + outFile + "'");
 
             } catch (Exception ex) {
-                throw new MojoExecutionException("Failed to execute template '" + file + "'", ex);
+                //throw 
+				new MojoExecutionException("Failed to execute template '" + file + "'", ex).printStackTrace();
             }
         }
+		
         return true;
     }
 

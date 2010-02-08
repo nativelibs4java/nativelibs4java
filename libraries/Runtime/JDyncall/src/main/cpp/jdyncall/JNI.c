@@ -1,4 +1,4 @@
-#include "com_nativelibs4java_runtime_JNI.h"
+#include "com_jdyncall_JNI.h"
 
 #include "dyncallback/dyncall_callback.h"
 #include "dynload/dynload.h"
@@ -9,12 +9,14 @@
 #include <stdlib.h>
 #include "Exceptions.h"
 
+#if 0
 #if defined(DC_UNIX)
 #include <dlfcn.h>
 #endif
+#endif
 
 #define JNI_SIZEOF(type, escType) \
-jint JNICALL Java_com_nativelibs4java_runtime_JNI_sizeOf_1 ## escType(JNIEnv *env, jclass clazz) { return sizeof(type); }
+jint JNICALL Java_com_jdyncall_JNI_sizeOf_1 ## escType(JNIEnv *env, jclass clazz) { return sizeof(type); }
 
 #define JNI_SIZEOF_t(type) JNI_SIZEOF(type ## _t, type ## _1t)
 
@@ -22,48 +24,45 @@ JNI_SIZEOF_t(size)
 JNI_SIZEOF_t(wchar)
 JNI_SIZEOF_t(ptrdiff)
 
-void JNICALL Java_com_nativelibs4java_runtime_JNI_init(JNIEnv *env, jclass clazz)
+void JNICALL Java_com_jdyncall_JNI_init(JNIEnv *env, jclass clazz)
 {
 	//DefineCommonClassesAndMethods(env);
 }
 
-jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
+jlong JNICALL Java_com_jdyncall_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
 	BEGIN_TRY();
 	return !buffer ? 0 : (jlong)(*env)->GetDirectBufferAddress(env, buffer);
 	END_TRY_RET(env, 0);
 }
-jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
+jlong JNICALL Java_com_jdyncall_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
 	BEGIN_TRY();
 	return !buffer ? 0 : (*env)->GetDirectBufferCapacity(env, buffer);
 	END_TRY_RET(env, 0);
 }
 
-jlong JNICALL Java_com_nativelibs4java_runtime_JNI_getObjectPointer(JNIEnv *env, jclass clazz, jobject object)
+jlong JNICALL Java_com_jdyncall_JNI_getObjectPointer(JNIEnv *env, jclass clazz, jobject object)
 {
 	return (jlong)object;
 }
  
-jlong JNICALL Java_com_nativelibs4java_runtime_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring pathStr)
+jlong JNICALL Java_com_jdyncall_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring pathStr)
 {
 	const char* path = (*env)->GetStringUTFChars(env, pathStr, NULL);
-	DLLib* lib = dlLoadLibrary(path);
-	printf(path);
-	printf("\n");
-	jlong ret = (jlong)(size_t)lib;
+	jlong ret = (jlong)(size_t)dlLoadLibrary(path);
 	(*env)->ReleaseStringUTFChars(env, pathStr, path);
 	return ret;
 }
 
-void JNICALL Java_com_nativelibs4java_runtime_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong libHandle)
+void JNICALL Java_com_jdyncall_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong libHandle)
 {
 	dlFreeLibrary((DLLib*)(size_t)libHandle);
 }
 
-jlong JNICALL Java_com_nativelibs4java_runtime_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, jlong libHandle, jstring nameStr)
+jlong JNICALL Java_com_jdyncall_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, jlong libHandle, jstring nameStr)
 {
 	const char* name = (*env)->GetStringUTFChars(env, nameStr, NULL);
-	DLLib* lib = (DLLib*)(size_t)libHandle;
-	jlong ret = (jlong)dlFindSymbol(lib, name);
+	jlong ret = (jlong)dlFindSymbol((DLLib*)(size_t)libHandle, name);
+#if 0
 #if defined(DC_UNIX)
 	if (!ret) {
 		const char* error = dlerror();
@@ -71,21 +70,22 @@ jlong JNICALL Java_com_nativelibs4java_runtime_JNI_findSymbolInLibrary(JNIEnv *e
 		printf("\n");
 	}
 #endif
+#endif
 	(*env)->ReleaseStringUTFChars(env, nameStr, name);
 	return ret;
 }
 
-jobject JNICALL Java_com_nativelibs4java_runtime_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthis, jlong peer, jlong length) {
+jobject JNICALL Java_com_jdyncall_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthis, jlong peer, jlong length) {
 	BEGIN_TRY();
 	return (*env)->NewDirectByteBuffer(env, (void*)peer, length);
 	END_TRY_RET(env, NULL);
 }
 
-JNIEXPORT jint JNICALL Java_com_nativelibs4java_runtime_JNI_getMaxDirectMappingArgCount(JNIEnv *env, jclass clazz) {
+JNIEXPORT jint JNICALL Java_com_jdyncall_JNI_getMaxDirectMappingArgCount(JNIEnv *env, jclass clazz) {
 #if defined(_WIN64)
 	return 4;
 #elif defined(DC__OS_Darwin) && defined(DC__Arch_AMD64)
-	return 6;	
+	return 4;
 #elif defined(_WIN32)
 	return 65000;
 #else
@@ -93,7 +93,7 @@ JNIEXPORT jint JNICALL Java_com_nativelibs4java_runtime_JNI_getMaxDirectMappingA
 #endif
 }
 
-JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
+JNIEXPORT jlong JNICALL Java_com_jdyncall_JNI_createCallback(
 	JNIEnv *env, 
 	jclass clazz,
 	jclass declaringClass,
@@ -144,7 +144,7 @@ JNIEXPORT jlong JNICALL Java_com_nativelibs4java_runtime_JNI_createCallback(
 	return (jlong)(size_t)info;
 }
 
-JNIEXPORT void JNICALL Java_com_nativelibs4java_runtime_JNI_freeCallback(JNIEnv *env, jclass clazz, jlong nativeCallback)
+JNIEXPORT void JNICALL Java_com_jdyncall_JNI_freeCallback(JNIEnv *env, jclass clazz, jlong nativeCallback)
 {
 	MethodCallInfo* info = (MethodCallInfo*)nativeCallback;
 	if (info->nParams)

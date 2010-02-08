@@ -1,7 +1,7 @@
 #if ($useJNA == "true")
 #set ($package = "com.nativelibs4java.runtime.jna")
 #else                                        
-#set ($package = "com.nativelibs4java.runtime")
+#set ($package = "com.jdyncall")
 #end
 
 package $package;

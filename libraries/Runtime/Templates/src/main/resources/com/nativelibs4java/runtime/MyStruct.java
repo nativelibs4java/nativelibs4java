@@ -2,8 +2,8 @@
 #set ($package = "com.nativelibs4java.runtime.jna")
 #set ($annPackage = "com.nativelibs4java.runtime.ann.jna")
 #else
-#set ($package = "com.nativelibs4java.runtime")
-#set ($annPackage = "com.nativelibs4java.runtime.ann")
+#set ($package = "com.jdyncall")
+#set ($annPackage = "com.jdyncall.ann")
 #end
 
 package $package;

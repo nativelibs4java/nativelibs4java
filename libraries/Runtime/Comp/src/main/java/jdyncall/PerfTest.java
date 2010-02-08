@@ -5,10 +5,10 @@
 
 package jdyncall;
 
-import com.nativelibs4java.runtime.JNI;
-import com.nativelibs4java.runtime.DynCall;
-import com.nativelibs4java.runtime.NativeLib;
-import com.nativelibs4java.runtime.ann.Library;
+import com.jdyncall.JNI;
+import com.jdyncall.DynCall;
+import com.jdyncall.NativeLib;
+import com.jdyncall.ann.Library;
 //import com.sun.jna.Native;
 import java.io.FileNotFoundException;
 import java.util.logging.Level;

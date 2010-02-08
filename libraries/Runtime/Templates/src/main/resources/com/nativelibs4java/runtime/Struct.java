@@ -3,7 +3,7 @@
 #set ($pointerTypeRef = "Pointer")
 #set ($getPointer = "getPointer")
 #else
-#set ($package = "com.nativelibs4java.runtime")
+#set ($package = "com.jdyncall")
 #set ($pointerTypeRef = "Pointer<?>")
 #set ($getPointer = "getReference")
 #end
@@ -18,7 +18,7 @@ public abstract class Struct<S extends Struct<S>> implements
 #if ($useJNA == "true") 
 	com.sun.jna.NativeMapped
 #else
-	com.nativelibs4java.runtime.PointerRefreshable
+	${package}.PointerRefreshable
 #end
 {
     
