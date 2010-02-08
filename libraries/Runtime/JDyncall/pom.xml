@@ -3,11 +3,16 @@
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>nl4j-runtime</artifactId>
+  <artifactId>jdyncall</artifactId>
   <name>NativeLibs4Java C/C++ Interop Layer</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
   <version>${nl4j-runtime.version}</version>
   <packaging>jar</packaging>
+
+  
+  <properties>
+  	<maven.compiler.debug>false</maven.compiler.debug>
+  </properties>
 
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
@@ -93,12 +98,6 @@
 		
 		
 	</plugins>
-	
-	<resources>
-     <resource>
-       <directory>src/main/bin</directory>
-     </resource>
-   </resources>
    
   </build>
 </project>

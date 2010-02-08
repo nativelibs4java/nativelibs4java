@@ -16,4 +16,15 @@ for %%C in (Debug Release) do (
 	devenv /useenv /Build "%%C|x64" jdyncall.sln
 )
 
+for %%T in (win32 win64) do (
+	del ..\..\..\resources\%%T\*.dll
+	del ..\..\..\..\test\resources\%%T\*.dll
+)
+
+copy Release\jdyncall.dll ..\..\..\resources\win32
+copy Release\test.dll ..\..\..\..\test\resources\win32
+
+copy x64\Release\jdyncall.dll ..\..\..\resources\win64
+copy x64\Release\test.dll ..\..\..\..\test\resources\win64
+
 if not "%1" == "nopause" pause

@@ -18,7 +18,6 @@
     <!--module>Structs</module-->
     <module>JDyncall</module>
     <module>Velocity</module>
-    <module>Comp</module>
     <!--module>Templates</module-->
     <module>Parent</module>
   </modules>
