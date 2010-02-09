@@ -16,7 +16,7 @@
 
   <modules>
     <module>Structs</module>
-    <module>JDyncall</module>
+    <module>BridJ</module>
     <module>Velocity</module>
     <module>Templates</module>
     <module>JarShrinker</module>
