@@ -35,7 +35,7 @@ public class ComparisonTest {
         @Mangling({"?sinInt@@YANH@Z", "_Z6sinInti"})
         public native double sinInt(int d);
 
-        @Mangling({"_Z8voidTestv"})
+        @Mangling({"?voidTest@@YAXXZ", "_Z8voidTestv"})
         public native void voidTest();
         
         static class Struct1 {

@@ -1,5 +1,5 @@
 @echo off
 setlocal enabledelayedexpansion
 
-"%JAVA_HOME%\bin\javah.exe" -d ..\jdyncall -classpath ..\..\..\..\target\classes com.nativelibs4java.runtime.JNI com.nativelibs4java.runtime.DynCall com.nativelibs4java.runtime.Pointer
+"%JAVA_HOME%\bin\javah.exe" -d ..\jdyncall -classpath ..\..\..\..\target\classes com.jdyncall.JNI com.jdyncall.DynCall com.jdyncall.Pointer
 

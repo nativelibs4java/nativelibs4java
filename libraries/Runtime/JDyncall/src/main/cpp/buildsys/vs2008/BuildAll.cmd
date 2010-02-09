@@ -21,10 +21,13 @@ for %%T in (win32 win64) do (
 	del ..\..\..\..\test\resources\%%T\*.dll
 )
 
-copy Release\jdyncall.dll ..\..\..\resources\win32
-copy Release\test.dll ..\..\..\..\test\resources\win32
+rem set CONFIG=Debug
+set CONFIG=Release
 
-copy x64\Release\jdyncall.dll ..\..\..\resources\win64
-copy x64\Release\test.dll ..\..\..\..\test\resources\win64
+copy %CONFIG%\jdyncall.dll ..\..\..\resources\win32
+copy %CONFIG%\test.dll ..\..\..\..\test\resources\win32
+
+copy x64\%CONFIG%\jdyncall.dll ..\..\..\resources\win64
+copy x64\%CONFIG%\test.dll ..\..\..\..\test\resources\win64
 
 if not "%1" == "nopause" pause
