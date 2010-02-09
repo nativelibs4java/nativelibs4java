@@ -3,12 +3,12 @@
  * and open the template in the editor.
  */
 
-package com.jdyncall;
+package com.bridj;
 
-import com.jdyncall.JNI;
-import com.jdyncall.DynCall;
-import com.jdyncall.NativeLib;
-import com.jdyncall.ann.Library;
+import com.bridj.JNI;
+import com.bridj.DynCall;
+import com.bridj.NativeLib;
+import com.bridj.ann.Library;
 //import com.sun.jna.Native;
 import java.io.FileNotFoundException;
 import java.util.logging.Level;

@@ -1,4 +1,4 @@
-#include "jdyncall.hpp"
+#include "bridj.hpp"
 #include <jni.h>
 #include "Exceptions.h"
 

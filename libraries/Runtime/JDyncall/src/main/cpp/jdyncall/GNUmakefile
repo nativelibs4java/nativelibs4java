@@ -25,7 +25,7 @@ CXX=gcc
 TOP =	$(DYNCALL_HOME)
 include $(DYNCALL_HOME)/buildsys/gmake/prolog.gmake
 
-TARGET_DLL	 = jdyncall
+TARGET_DLL	 = bridj
 INSTALL_LIB	 = 1
 
 # uses some dyncall headers - no other dependencies.

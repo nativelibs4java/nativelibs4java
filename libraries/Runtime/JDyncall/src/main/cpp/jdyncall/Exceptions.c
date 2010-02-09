@@ -1,4 +1,4 @@
-#include "jdyncall.hpp"
+#include "bridj.hpp"
 #include "jni.h"
 
 // http://msdn.microsoft.com/en-us/library/ms679356(VS.85).aspx

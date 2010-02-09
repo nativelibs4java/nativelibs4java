@@ -10,8 +10,8 @@
 			>
 			<DebugSettings
 				Command="c:\Program Files (x86)\Java\jre6\bin\java.exe"
-				WorkingDirectory="C:\Users\Olivier\Prog\nativelibs4java\Runtime\JDyncall\src\main\cpp\buildsys\vs2008\Debug"
-				CommandArguments="-cp &quot;C:\Users\Olivier\Prog\nativelibs4java\Runtime\JDyncall\target\nl4j-runtime-interop-1.0-SNAPSHOT-shaded.jar&quot; jdyncall.Main"
+				WorkingDirectory="C:\Users\Olivier\Prog\nativelibs4java\Runtime\bridj\src\main\cpp\buildsys\vs2008\Debug"
+				CommandArguments="-cp &quot;C:\Users\Olivier\Prog\nativelibs4java\Runtime\bridj\target\nl4j-runtime-interop-1.0-SNAPSHOT-shaded.jar&quot; bridj.Main"
 				Attach="false"
 				DebuggerType="3"
 				Remote="1"
@@ -38,8 +38,8 @@
 			>
 			<DebugSettings
 				Command="c:\Program Files\Java\jre6\bin\java.exe"
-				WorkingDirectory="C:\Users\Olivier\Prog\nativelibs4java\Runtime\JDyncall\src\main\cpp\buildsys\vs2008\x64\Debug"
-				CommandArguments="-cp &quot;C:\Users\Olivier\Prog\nativelibs4java\Runtime\JDyncall\target\nl4j-runtime-interop-1.0-SNAPSHOT-shaded.jar&quot; jdyncall.Main"
+				WorkingDirectory="C:\Users\Olivier\Prog\nativelibs4java\Runtime\bridj\src\main\cpp\buildsys\vs2008\x64\Debug"
+				CommandArguments="-cp &quot;C:\Users\Olivier\Prog\nativelibs4java\Runtime\bridj\target\nl4j-runtime-interop-1.0-SNAPSHOT-shaded.jar&quot; bridj.Main"
 				Attach="false"
 				DebuggerType="3"
 				Remote="1"
@@ -66,8 +66,8 @@
 			>
 			<DebugSettings
 				Command="c:\Program Files (x86)\Java\jre6\bin\java.exe"
-				WorkingDirectory="C:\Users\Olivier\Prog\nativelibs4java\Runtime\JDyncall\src\main\cpp\buildsys\vs2008\Release"
-				CommandArguments="-cp &quot;C:\Users\Olivier\Prog\nativelibs4java\Runtime\JDyncall\target\nl4j-runtime-interop-1.0-SNAPSHOT-shaded.jar&quot; jdyncall.Main"
+				WorkingDirectory="C:\Users\Olivier\Prog\nativelibs4java\Runtime\bridj\src\main\cpp\buildsys\vs2008\Release"
+				CommandArguments="-cp &quot;C:\Users\Olivier\Prog\nativelibs4java\Runtime\bridj\target\nl4j-runtime-interop-1.0-SNAPSHOT-shaded.jar&quot; bridj.Main"
 				Attach="false"
 				DebuggerType="3"
 				Remote="1"
@@ -94,8 +94,8 @@
 			>
 			<DebugSettings
 				Command="c:\Program Files\Java\jre6\bin\java.exe"
-				WorkingDirectory="C:\Users\Olivier\Prog\nativelibs4java\Runtime\JDyncall\src\main\cpp\buildsys\vs2008\x64\Release"
-				CommandArguments="-cp &quot;C:\Users\Olivier\Prog\nativelibs4java\Runtime\JDyncall\target\nl4j-runtime-interop-1.0-SNAPSHOT-shaded.jar&quot; jdyncall.Main"
+				WorkingDirectory="C:\Users\Olivier\Prog\nativelibs4java\Runtime\bridj\src\main\cpp\buildsys\vs2008\x64\Release"
+				CommandArguments="-cp &quot;C:\Users\Olivier\Prog\nativelibs4java\Runtime\bridj\target\nl4j-runtime-interop-1.0-SNAPSHOT-shaded.jar&quot; bridj.Main"
 				Attach="false"
 				DebuggerType="3"
 				Remote="1"

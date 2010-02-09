@@ -1,4 +1,4 @@
-package com.jdyncall.ann;
+package com.bridj.ann;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

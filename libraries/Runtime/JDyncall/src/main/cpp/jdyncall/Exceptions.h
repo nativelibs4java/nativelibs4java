@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _JDYNCALL_EXCEPTIONS_H
-#define _JDYNCALL_EXCEPTIONS_H
+#ifndef _BRIDJ_EXCEPTIONS_H
+#define _BRIDJ_EXCEPTIONS_H
 
 #ifndef __GNUC__
 
@@ -19,4 +19,4 @@ int WinExceptionHandler(JNIEnv* env, int exceptionCode);
 
 #endif
 
-#endif // _JDYNCALL_EXCEPTIONS_H
+#endif // _BRIDJ_EXCEPTIONS_H

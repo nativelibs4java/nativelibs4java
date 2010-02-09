@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="jdyncall64"
+	Name="bridj64"
 	ProjectGUID="{07387AE1-67E7-48C7-89E8-BBAE28200196}"
-	RootNamespace="jdyncall"
+	RootNamespace="bridj"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -71,7 +71,7 @@
 				RegisterOutput="false"
 				UseLibraryDependencyInputs="true"
 				AdditionalDependencies="jvm.lib dyncall32.lib dyncallback32.lib dynload.lib"
-				OutputFile="$(OutDir)\jdyncall.dll"
+				OutputFile="$(OutDir)\bridj.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME32)\lib;..\Debug"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
@@ -154,7 +154,7 @@
 				RegisterOutput="false"
 				UseLibraryDependencyInputs="false"
 				AdditionalDependencies="jvm.lib dyncall64.lib dyncallback64.lib dynload.lib"
-				OutputFile="$(OutDir)\jdyncall.dll"
+				OutputFile="$(OutDir)\bridj.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME64)\lib;..\x64\Debug"
 				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
@@ -234,7 +234,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib dyncall32.lib dyncallback32.lib dynload.lib"
-				OutputFile="$(OutDir)\jdyncall.dll"
+				OutputFile="$(OutDir)\bridj.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME)\lib;..\Release"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
@@ -314,7 +314,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="jvm.lib dyncall64.lib dyncallback64.lib dynload.lib"
-				OutputFile="$(OutDir)\jdyncall.dll"
+				OutputFile="$(OutDir)\bridj.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME)\lib;..\x64\Release"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
@@ -353,19 +353,19 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\..\jdyncall\Exceptions.c"
+				RelativePath="..\..\..\bridj\Exceptions.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\jdyncall\JavaToNativeCallHandler.c"
+				RelativePath="..\..\..\bridj\JavaToNativeCallHandler.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\jdyncall\RawNativeForwardCallback.c"
+				RelativePath="..\..\..\bridj\RawNativeForwardCallback.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\jdyncall\RawNativeForwardCallback_WIN64_masm.asm"
+				RelativePath="..\..\..\bridj\RawNativeForwardCallback_WIN64_masm.asm"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -388,11 +388,11 @@
 				Name="jni"
 				>
 				<File
-					RelativePath="..\..\..\jdyncall\JNI.c"
+					RelativePath="..\..\..\bridj\JNI.c"
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\jdyncall\Pointer.c"
+					RelativePath="..\..\..\bridj\Pointer.c"
 					>
 				</File>
 			</Filter>
@@ -415,15 +415,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\jdyncall\Exceptions.h"
+				RelativePath="..\..\..\bridj\Exceptions.h"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\jdyncall\jdyncall.hpp"
+				RelativePath="..\..\..\bridj\bridj.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\jdyncall\RawNativeForwardCallback.h"
+				RelativePath="..\..\..\bridj\RawNativeForwardCallback.h"
 				>
 			</File>
 		</Filter>

@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jdyncall64", "jdyncall64\jdyncall64.vcproj", "{07387AE1-67E7-48C7-89E8-BBAE28200196}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bridj64", "bridj64\bridj64.vcproj", "{07387AE1-67E7-48C7-89E8-BBAE28200196}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jdyncall32", "jdyncall32\jdyncall32.vcproj", "{07387AE1-67E7-48C7-89E8-BBAE28200197}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "bridj32", "bridj32\bridj32.vcproj", "{07387AE1-67E7-48C7-89E8-BBAE28200197}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcproj", "{47AFB4D0-B124-40BC-A379-BA5AD59D5405}"
 EndProject

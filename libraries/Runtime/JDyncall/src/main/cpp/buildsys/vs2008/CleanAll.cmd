@@ -1,7 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 
-for /D %%F in (dyncall32 dyncall64 dyncallback32 dyncallback64 dynload jdyncall32 jdyncall64) do (
+for /D %%F in (dyncall32 dyncall64 dyncallback32 dyncallback64 dynload bridj32 bridj64) do (
 	for %%S in (x64 Debug Release obj build) do (
 		if exist "%%F\%%S" (
 			echo Deleting "%%F\%%S"

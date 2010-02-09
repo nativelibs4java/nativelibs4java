@@ -22,7 +22,7 @@ echo "# Making dyncall"
 cd "$DYNCALL_HOME"
 make $@ || exit 1
 
-echo "# Making jdyncall"
+echo "# Making bridj"
 cd "$CURR"
 make $@ || exit 1
 
@@ -38,12 +38,12 @@ done
 cd "$CURR"
 
 for D in build_out/darwin_universal_gcc_release ; do 
-	cp $D/libjdyncall.dylib ../../resources/darwin
+	cp $D/libbridj.dylib ../../resources/darwin
 	cp $D/libtest.dylib ../../../test/resources/darwin ;
 done
 
 for D in build_out/linux_x86_gcc_release ; do 
-	cp $D/jdyncall.so ../../resources/linux_x86
+	cp $D/bridj.so ../../resources/linux_x86
 	cp $D/test.so ../../../test/resources/linux_x86 ;
 done
 

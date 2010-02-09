@@ -1,8 +1,8 @@
-package com.jdyncall;
+package com.bridj;
 
-import com.jdyncall.*;
-import static com.jdyncall.Pointer.*;
-import com.jdyncall.ann.*;
+import com.bridj.*;
+import static com.bridj.Pointer.*;
+import com.bridj.ann.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 

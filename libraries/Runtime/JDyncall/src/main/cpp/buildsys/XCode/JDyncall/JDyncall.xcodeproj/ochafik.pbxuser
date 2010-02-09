@@ -4,9 +4,9 @@
 		activeArchitecturePreference = i386;
 		activeBuildConfigurationName = Debug;
 		activeExecutable = 9007DFC210EE318300928CAE /* Java Maven Shaded Jar */;
-		activeTarget = D28A88AD04BDD90700651E21 /* JDyncall */;
+		activeTarget = D28A88AD04BDD90700651E21 /* bridj */;
 		addToTargets = (
-			D28A88AD04BDD90700651E21 /* JDyncall */,
+			D28A88AD04BDD90700651E21 /* bridj */,
 		);
 		breakpoints = (
 			90376584111E1159004983BE /* JNI.c:61 */,
@@ -126,7 +126,7 @@
 		scmConfiguration = {
 			repositoryNamesForRoots = {
 				"" = "";
-				../../../jdyncall = svn;
+				../../../bridj = svn;
 			};
 		};
 	};
@@ -142,7 +142,7 @@
 		);
 		argumentStrings = (
 			"-cp \"/Users/ochafik/nativelibs4java/Runtime/Comp/target/nl4j-runtime-comp-0.1-shaded.jar\" ",
-			jdyncall.Main,
+			bridj.Main,
 		);
 		autoAttachOnCrash = 1;
 		breakpointsEnabled = 1;
@@ -190,7 +190,7 @@
 			{
 				active = YES;
 				name = DYLD_LIBRARY_PATH;
-				value = /Users/ochafik/nativelibs4java/Runtime/JDyncall/src/main/cpp/jdyncall/build_out/darwin_universal_gcc_debug;
+				value = /Users/ochafik/nativelibs4java/Runtime/bridj/src/main/cpp/bridj/build_out/darwin_universal_gcc_debug;
 			},
 		);
 		executableSystemSymbolLevel = 0;
@@ -203,7 +203,7 @@
 		showTypeColumn = 0;
 		sourceDirectories = (
 		);
-		startupPath = /Users/ochafik/nativelibs4java/Runtime/JDyncall/src/main/cpp/jdyncall/build_out/darwin_universal_gcc_debug;
+		startupPath = /Users/ochafik/nativelibs4java/Runtime/bridj/src/main/cpp/bridj/build_out/darwin_universal_gcc_debug;
 	};
 	9007DFC310EE318300928CAE /* java */ = {
 		isa = PBXFileReference;
@@ -426,7 +426,7 @@
 		vrLen = 345;
 		vrLoc = 0;
 	};
-	D28A88AD04BDD90700651E21 /* JDyncall */ = {
+	D28A88AD04BDD90700651E21 /* bridj */ = {
 		activeExec = 0;
 	};
 }

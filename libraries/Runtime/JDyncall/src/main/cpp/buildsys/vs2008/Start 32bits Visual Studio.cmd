@@ -3,4 +3,4 @@ call SetEnv.cmd
 setlocal enabledelayedexpansion
 call CopyRulesIfNeeded.cmd
 
-start jdyncall.sln
+start bridj.sln
