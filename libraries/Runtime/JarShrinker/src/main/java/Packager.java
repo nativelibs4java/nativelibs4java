@@ -7,7 +7,7 @@ public class Packager
 {
 	public static void main(String[] args) throws Exception
 	{
-		ClassLoader cl = Compress.class.getClassLoader();
+		ClassLoader cl = Packager.class.getClassLoader();
 		BufferedReader rin = new BufferedReader(new InputStreamReader(cl.getResourceAsStream("runtime.list")));
 		String line;
 		
