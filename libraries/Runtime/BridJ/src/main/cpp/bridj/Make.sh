@@ -20,7 +20,7 @@ svn diff ~/src/dyncall/dyncall > dyncall.diff
 
 echo "# Making dyncall"
 cd "$DYNCALL_HOME"
-./configure --target-universal
+#./configure --target-universal
 make $@ || exit 1
 
 echo "# Making bridj"
