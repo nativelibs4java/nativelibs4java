@@ -29,7 +29,7 @@
 			  <configuration>
 			<archive>
 			  <manifest>
-				<mainClass>SevenZip.Compress</mainClass>
+				<mainClass>Packager</mainClass>
 			  </manifest>
 			</archive>
 			  </configuration>

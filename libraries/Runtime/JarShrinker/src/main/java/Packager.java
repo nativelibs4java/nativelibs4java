@@ -1,12 +1,26 @@
-package SevenZip;
+import SevenZip.*;
 import java.io.*;
+import java.util.*;
 import java.util.zip.*;
-public class Compress
+
+public class Packager
 {
 	public static void main(String[] args) throws Exception
 	{
-		InputStream inStream;
+		ClassLoader cl = Compress.class.getClassLoader();
+		BufferedReader rin = new BufferedReader(new InputStreamReader(cl.getResourceAsStream("runtime.list")));
+		String line;
 		
+		Set<String> runtimeRes = new HashSet<String>();
+		while ((line = rin.readLine()) != null)
+			runtimeRes.add(line);
+		
+		rin.close();
+		
+		InputStream inStream;
+		byte[] b = new byte[1024];
+		int len;
+				
 		if (args.length > 0) {
 			String inFile = args[0], inFileLo = inFile.toLowerCase();
 			if (inFileLo.endsWith(".jar") || inFileLo.endsWith(".zip")) {
@@ -15,12 +29,10 @@ public class Compress
 				ZipInputStream zin = new ZipInputStream(new FileInputStream(file));
 				ZipOutputStream zout = new ZipOutputStream(bout);
 				ZipEntry e;
-				byte[] b = new byte[1024];
 				while ((e = zin.getNextEntry()) != null) {
 					ZipEntry ee = new ZipEntry(e.getName());
 					ee.setMethod(ZipEntry.STORED);
 					ByteArrayOutputStream eout = new ByteArrayOutputStream();
-					int len;
 					while ((len = zin.read(b)) > 0)
 						eout.write(b, 0, len);
 					eout.close();
@@ -44,12 +56,35 @@ public class Compress
 				inStream = new BufferedInputStream(new FileInputStream(args[0]));
 		} else
 			inStream = System.in;
-		BufferedOutputStream outStream = new BufferedOutputStream(args.length == 0 ? System.out : new FileOutputStream(args[1]));
+			
+		ZipOutputStream zout = new ZipOutputStream(args.length == 0 ? System.out : new FileOutputStream(args[1]));
+		zout.putNextEntry(new ZipEntry("META-INF/Manifest.mf"));
+		PrintStream pout = new PrintStream(zout);
+		pout.println("Main-Class: " + JarShrinkerLoader.class.getName());
+		pout.flush();
+		zout.closeEntry();
 		
-		compress(inStream, outStream);
+		for (String res : runtimeRes) {
+			zout.putNextEntry(new ZipEntry(res));
+			InputStream resIn = cl.getResourceAsStream(res);
+			while ((len = resIn.read(b)) > 0)
+				zout.write(b, 0, len);
+			resIn.close();
+			zout.closeEntry();
+		}
 		
-		outStream.flush();
-		outStream.close();
+		zout.putNextEntry(new ZipEntry("classes.7z"));
+			
+		//BufferedOutputStream outStream = new BufferedOutputStream(args.length == 0 ? System.out : new FileOutputStream(args[1]));
+		
+		compress(inStream, zout);//outStream);
+		
+		zout.closeEntry();
+		
+		zout.close();
+		
+		//outStream.flush();
+		//outStream.close();
 		inStream.close();
 	}
 	public static void compress(InputStream inStream, OutputStream outStream) throws IOException
