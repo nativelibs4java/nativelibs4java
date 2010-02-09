@@ -50,6 +50,13 @@ CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Heade
 #LDFLAGS		+= -framework JavaVM
 endif
 
+ifdef BUILD_OS_linux
+CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/
+CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux
+#LDFLAGS		+= -ljni
+endif
+
+
 CPPFLAGS += -DJNICALL=__cdecl -DJNIEXPORT=__cdecl
 #CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
 #LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 

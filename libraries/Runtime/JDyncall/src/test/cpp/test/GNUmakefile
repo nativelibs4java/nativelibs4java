@@ -36,6 +36,12 @@ ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 endif
 
+ifdef BUILD_OS_linux
+CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/
+CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux
+#LDFLAGS		+= -ljni
+endif
+
 LINK_LIBS	+= stdc++
 
 include $(DYNCALL_HOME)/buildsys/gmake/epilog.gmake

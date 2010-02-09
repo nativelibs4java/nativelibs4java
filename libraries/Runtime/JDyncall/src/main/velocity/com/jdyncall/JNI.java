@@ -59,7 +59,7 @@ public class JNI {
     	if (isMacOSX())
     		return "darwin/lib" + name + ".dylib";
     	if (isLinux())
-    		return (is64Bits() ? "linux64/lib" : "linux32/lib") + name + ".so";
+    		return (is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so";
     	
     	throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
     }
