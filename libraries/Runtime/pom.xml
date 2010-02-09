@@ -19,6 +19,7 @@
     <module>JDyncall</module>
     <module>Velocity</module>
     <module>Templates</module>
+    <module>JarShrinker</module>
     <module>Parent</module>
   </modules>
   
