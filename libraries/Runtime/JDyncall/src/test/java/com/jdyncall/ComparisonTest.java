@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package jdyncall;
+package com.jdyncall;
 
 import com.jdyncall.JNI;
 import com.jdyncall.ann.*;
@@ -21,7 +21,7 @@ import java.util.logging.Logger;
  *
  * @author Olivier Chafik
  */
-public class Main {
+public class ComparisonTest {
 
     @Library("test")
     public static class Test extends NativeLib<Test> {
@@ -51,11 +51,12 @@ public class Main {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    @org.junit.Test
+    public void perfTest() {
 
         Test test = null;
         try {
-            System.out.println(Main.class.getResource("Main.class"));
+            System.out.println(ComparisonTest.class.getResource("Main.class"));
             int nWarmUp = 16000;
             int nCalls = 100000;
             int nTests = 10;
@@ -109,18 +110,18 @@ public class Main {
                 System.out.println("# Dyncall+JNI's sinus is " + (totalSlower / nTests) + " times slower than java sinus function");
             }
 
-            PerfTest.DynCallTest dct = new PerfTest.DynCallTest();
+            PerfLib.DynCallTest dct = new PerfLib.DynCallTest();
             if (true) {
                 //JNI.registerClass(PerfTest.class);
                 //PerfTest.DynCall.testAddDyncall(1, 2);
                 int tot = 0, seed = System.getenv().size();
                 if (warmup) {
                     for (int i = 0; i < nWarmUp; i++)
-                        tot = PerfTest.testAddJNI(tot, seed);
+                        tot = PerfLib.testAddJNI(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
                         tot = dct.testAddDyncall(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
-                        tot = PerfTest.JNATest.testAddJNA(tot, seed);
+                        tot = PerfLib.JNATest.testAddJNA(tot, seed);
                 }
 
                 double totalJNI = 0, totalDynCall = 0, totalJNA = 0;
@@ -128,7 +129,7 @@ public class Main {
                 long startJNI = System.nanoTime();
                 for (int iTest = 0; iTest < nTests; iTest++) {
                     for (int i = 0; i < nCalls; i++)
-                        tot = PerfTest.testAddJNI(tot, seed);
+                        tot = PerfLib.testAddJNI(tot, seed);
                 }
                 long timeJNI = System.nanoTime() - startJNI;
                 totalJNI += timeJNI;
@@ -144,7 +145,7 @@ public class Main {
                 long startJNA = System.nanoTime();
                 for (int iTest = 0; iTest < nTests; iTest++) {
                     for (int i = 0; i < nCalls; i++)
-                        tot = PerfTest.JNATest.testAddJNA(tot, seed);
+                        tot = PerfLib.JNATest.testAddJNA(tot, seed);
                 }
                 long timeJNA = System.nanoTime() - startJNA;
                 totalJNA += timeJNA;
@@ -163,18 +164,18 @@ public class Main {
                 int tot = 0, seed = System.getenv().size();
                 if (warmup) {
                     for (int i = 0; i < nWarmUp; i++)
-                        tot += (int)PerfTest.testASinB(tot, seed);
+                        tot += (int)PerfLib.testASinB(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
                         tot = dct.testASinB(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
-                        tot = PerfTest.JNATest.testASinB(tot, seed);
+                        tot = PerfLib.JNATest.testASinB(tot, seed);
                 }
 
                 double totalJNI = 0, totalDynCall = 0, totalJNA = 0;
                 long startJNI = System.nanoTime();
                 for (int iTest = 0; iTest < nTests; iTest++) {
                     for (int i = 0; i < nCalls; i++)
-                        tot += (int)PerfTest.testASinB(tot, seed);
+                        tot += (int)PerfLib.testASinB(tot, seed);
                 }
                 long timeJNI = System.nanoTime() - startJNI;
                 totalJNI += timeJNI;
@@ -190,7 +191,7 @@ public class Main {
                 long startJNA = System.nanoTime();
                 for (int iTest = 0; iTest < nTests; iTest++) {
                     for (int i = 0; i < nCalls; i++)
-                        tot = PerfTest.JNATest.testASinB(tot, seed);
+                        tot = PerfLib.JNATest.testASinB(tot, seed);
                 }
                 long timeJNA = System.nanoTime() - startJNA;
                 totalJNA += timeJNA;
@@ -211,7 +212,7 @@ public class Main {
         try {
             //System.in.read();
         } catch (Exception ex) {
-            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ComparisonTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

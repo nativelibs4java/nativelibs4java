@@ -37,7 +37,7 @@ done
 cd "$CURR"
 
 for D in build_out/*_release ; do 
-	cp $D/libjdyncall.dylib ../../bin/darwin
-	cp $D/libtest.dylib ../../../test/bin/darwin ;
+	cp $D/libjdyncall.dylib ../../resources/darwin
+	cp $D/libtest.dylib ../../../test/resources/darwin ;
 done
 

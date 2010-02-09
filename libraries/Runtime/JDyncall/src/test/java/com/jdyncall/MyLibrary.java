@@ -1,4 +1,4 @@
-package jdyncall;
+package com.jdyncall;
 
 import com.jdyncall.*;
 import static com.jdyncall.Pointer.*;

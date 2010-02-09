@@ -108,7 +108,11 @@ public class DynCall {
                 Logger.getLogger(DynCall.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return null;
+        try {
+        	return JNI.extractEmbeddedLibraryResource(name);
+        } catch (IOException ex) {
+        	return null;
+        }
     }
     public static synchronized long getLibHandle(String name) throws FileNotFoundException {
         if (name == null)

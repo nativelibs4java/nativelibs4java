@@ -1,6 +1,6 @@
 package com.jdyncall;
 
-import java.io.FileNotFoundException;
+import java.io.*;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -10,10 +10,13 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.jdyncall.DynCall;
 import com.jdyncall.MethodCallInfo;
 
 public class JNI {
     private static boolean inited;
+    static final String osName = System.getProperty("os.name", "");
+    static final String jdyncallLibraryName = "jdyncall";
     
     public static int POINTER_SIZE, WCHAR_T_SIZE, SIZE_T_SIZE;
     static {
@@ -23,21 +26,79 @@ public class JNI {
             th.printStackTrace();
         }
     }
+    public static boolean isLinux() {
+    	return isUnix() && osName.toLowerCase().contains("linux");
+    }
+    public static boolean isMacOSX() {
+    	return isUnix() && (osName.startsWith("Mac") || osName.startsWith("Darwin"));
+    }
+    public static boolean isSolaris() {
+    	return isUnix() && (osName.startsWith("SunOS") || osName.startsWith("Solaris"));
+    }
+    public static boolean isBSD() {
+    	return isUnix() && (osName.contains("BSD") || isMacOSX());
+    }
+    public static boolean isUnix() {
+    	return File.separatorChar == '/';
+    }
+    public static boolean isWindows() {
+    	return File.separatorChar == '\\';
+    }
+    public static Boolean is64Bits() {
+    	String arch = System.getProperty("sun.arch.data.model");
+        if (arch == null)
+            arch = System.getProperty("os.arch");
+        return
+    		arch.contains("64") ||
+    		arch.equalsIgnoreCase("sparcv9");
+    }
+    
+    static String getEmbeddedLibraryResource(String name) {
+    	if (isWindows())
+    		return (is64Bits() ? "win64/" : "win32/") + name + ".dll";
+    	if (isMacOSX())
+    		return "darwin/lib" + name + ".dylib";
+    	if (isLinux())
+    		return (is64Bits() ? "linux64/lib" : "linux32/lib") + name + ".so";
+    	
+    	throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
+    }
+    static File extractEmbeddedLibraryResource(String name) throws IOException {
+    	String libraryResource = getEmbeddedLibraryResource(name);
+        int i = libraryResource.lastIndexOf('.');
+        String ext = i < 0 ? "" : libraryResource.substring(i);
+        int len;
+        byte[] b = new byte[8196];
+        InputStream in = JNI.class.getClassLoader().getResourceAsStream(libraryResource);
+        if (in == null)
+        	throw new FileNotFoundException(libraryResource);
+        File libFile = File.createTempFile(new File(libraryResource).getName(), ext);
+        libFile.deleteOnExit();
+        OutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
+        while ((len = in.read(b)) > 0)
+        	out.write(b, 0, len);
+        out.close();
+        in.close();
+        
+        return libFile;
+    }
     public static void initLibrary() {
         if (inited)
             return;
 		
-		String f = com.jdyncall.DynCall.getLibFile("jdyncall").toString();
-        System.load(f);
-        //System.load("C:\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\Debug\\jdyncall.dll");
-        //System.load("c:\\Users\\Olivier\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\x64\\Debug\\jdyncall.dll");
-
-        init();
-        POINTER_SIZE = sizeOf_ptrdiff_t();
-        WCHAR_T_SIZE = sizeOf_wchar_t();
-        SIZE_T_SIZE = sizeOf_size_t();
-
-        inited = true;
+        try {
+	        File libFile = extractEmbeddedLibraryResource(jdyncallLibraryName);
+	        System.load(libFile.toString());
+	        
+	        init();
+	        POINTER_SIZE = sizeOf_ptrdiff_t();
+	        WCHAR_T_SIZE = sizeOf_wchar_t();
+	        SIZE_T_SIZE = sizeOf_size_t();
+	
+	        inited = true;
+        } catch (Throwable ex) {
+        	throw new RuntimeException("Failed to initialize " + DynCall.class.getSimpleName(), ex);
+        }
     }
     private static native void init();
 

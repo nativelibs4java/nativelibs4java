@@ -28,6 +28,8 @@ public class NativeLib<L> {
 	}
     
 	public NativeLib(File libraryFile) throws FileNotFoundException {
+		if (libraryFile == null)
+			throw new NullPointerException("Null library file");
 		libraryHandle = JNI.loadLibrary(libraryFile.getAbsolutePath());
 		if (libraryHandle == 0)
 			throw new UnsatisfiedLinkError("Could not load library '" + libraryFile + "'");

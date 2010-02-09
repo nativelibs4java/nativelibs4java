@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package jdyncall;
+package com.jdyncall;
 
 import com.jdyncall.JNI;
 import com.jdyncall.DynCall;
@@ -19,13 +19,13 @@ import java.util.logging.Logger;
  * @author Olivier
  */
 @Library("test")
-public class PerfTest {
+public class PerfLib {
     static {
         try {
-            String f = DynCall.getLibFile(PerfTest.class).toString();
+            String f = DynCall.getLibFile(PerfLib.class).toString();
             System.load(f);
         } catch (FileNotFoundException ex) {
-            Logger.getLogger(PerfTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PerfLib.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     public static class DynCallTest extends NativeLib {
@@ -38,7 +38,11 @@ public class PerfTest {
 
     public static class JNATest implements com.sun.jna.Library {
         static {
-            com.sun.jna.Native.register("test");
+        	try {
+        		com.sun.jna.Native.register(JNI.extractEmbeddedLibraryResource("test").toString());
+        	} catch (Exception ex) {
+        		throw new RuntimeException("Failed to initialize test JNA library", ex);
+        	}
         }
         public static native int testAddJNA(int a, int b);
         public static native int testASinB(int a, int b);

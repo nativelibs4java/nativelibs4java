@@ -60,7 +60,7 @@ extern "C" {
 void otherFunc() {
 	//std::cout << "other\n";
 }
-JNIEXPORT jint JNICALL Java_jdyncall_PerfTest_testAddJNI(JNIEnv *, jclass, jint a, jint b) {
+JNIEXPORT jint JNICALL Java_com_jdyncall_PerfLib_testAddJNI(JNIEnv *, jclass, jint a, jint b) {
 	otherFunc();
 	return a + b;
 }
@@ -76,7 +76,7 @@ TEST_API int __cdecl testAddJNA(int a, int b)
 	otherFunc();
 	return a + b;
 }
-JNIEXPORT jdouble JNICALL Java_jdyncall_PerfTest_testASinB(JNIEnv *, jclass, jint a, jint b)
+JNIEXPORT jdouble JNICALL Java_com_jdyncall_PerfLib_testASinB(JNIEnv *, jclass, jint a, jint b)
 {
 	otherFunc();
 	return a * sin((double)b);
