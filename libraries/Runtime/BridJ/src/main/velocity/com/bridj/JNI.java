@@ -57,9 +57,9 @@ public class JNI {
     	if (isWindows())
     		return (is64Bits() ? "win64/" : "win32/") + name + ".dll";
     	if (isMacOSX())
-    		return "darwin/lib" + name + ".dylib";
+    		return "darwin_universal/lib" + name + ".dylib";
     	if (isLinux())
-    		return (is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so";
+    		return (is64Bits() ? "linux_x86_64/" : "linux_x86/") + name + ".so";
     	
     	throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
     }

@@ -1,6 +1,6 @@
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(revision 557)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(revision 559)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(working copy)
 @@ -32,12 +32,17 @@
  
@@ -23,9 +23,9 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c
  void  dlFreeLibrary(DLLib* libHandle)
 Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile	(revision 557)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile	(revision 559)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile	(working copy)
-@@ -56,6 +56,7 @@
+@@ -60,6 +60,7 @@
  UNITS += dyncall_callback_x86_masm
  endif
  ifdef BUILD_ARCH_x64
@@ -35,7 +35,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile
  endif
 Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(revision 557)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(revision 559)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(working copy)
 @@ -48,6 +48,6 @@
  

@@ -20,6 +20,7 @@ svn diff ~/src/dyncall/dyncall > dyncall.diff
 
 echo "# Making dyncall"
 cd "$DYNCALL_HOME"
+./configure --target-universal
 make $@ || exit 1
 
 echo "# Making bridj"
@@ -37,13 +38,17 @@ done
 
 cd "$CURR"
 
-for D in build_out/darwin_universal_gcc_release ; do 
-	cp $D/libbridj.dylib ../../resources/darwin
-	cp $D/libtest.dylib ../../../test/resources/darwin ;
+for D in `ls *_release` ; do
+	ARCH_NAME="`echo $D| sed 's/_gcc_release//'`"
+	MAIN_OUT="../../../resources/$ARCH_NAME"
+	TEST_OUT="../../../../test/resources/$ARCH_NAME"
+	
+	cp $D/*.dylib $MAIN_OUT
+	cp $D/*.so $MAIN_OUT 
+	
+	cp ../../../../test/cpp/test/$D/*.dylib $TEST_OUT
+	cp ../../../../test/cpp/test/$D/*.so $TEST_OUT
+	
+	svn add $MAIN_OUT
+	svn add $TEST_OUT ;
 done
-
-for D in build_out/linux_x86_gcc_release ; do 
-	cp $D/bridj.so ../../resources/linux_x86
-	cp $D/test.so ../../../test/resources/linux_x86 ;
-done
-
