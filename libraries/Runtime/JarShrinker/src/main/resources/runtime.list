@@ -1,0 +1,10 @@
+JarShrinkerLoader.class
+SevenZip/Compression/LZ/OutWindow.class
+SevenZip/Compression/LZMA/Base.class
+SevenZip/Compression/LZMA/Decoder$LenDecoder.class
+SevenZip/Compression/LZMA/Decoder$LiteralDecoder$Decoder2.class
+SevenZip/Compression/LZMA/Decoder$LiteralDecoder.class
+SevenZip/Compression/LZMA/Decoder.class
+SevenZip/Compression/RangeCoder/BitTreeDecoder.class
+SevenZip/Compression/RangeCoder/Decoder.class
+SevenZip/Decompress.class

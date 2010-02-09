@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+ <modelVersion>4.0.0</modelVersion>
+  <groupId>com.nativelibs4java</groupId>
+  <artifactId>jarshrinker</artifactId>
+  <name>JarShrinker</name>
+  <url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
+  <version>${nl4j-runtime.version}</version>
+  <packaging>jar</packaging>
+
+  <properties>
+  	<maven.compiler.debug>false</maven.compiler.debug>
+  </properties>
+
+  <parent>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>nl4j-runtime-parent</artifactId>
+	  <version>0.1</version>
+	  <relativePath>../Parent</relativePath>
+  </parent>
+
+  <build>
+  	<plugins>
+
+		 <plugin>
+			  <groupId>org.apache.maven.plugins</groupId>
+			  <artifactId>maven-jar-plugin</artifactId>
+			  <configuration>
+			<archive>
+			  <manifest>
+				<mainClass>SevenZip.Compress</mainClass>
+			  </manifest>
+			</archive>
+			  </configuration>
+		  </plugin>
+		  
+	</plugins>
+   
+  </build>
+</project>
+
+
+
