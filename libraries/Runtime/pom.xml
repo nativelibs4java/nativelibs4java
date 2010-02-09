@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
     <artifactId>nl4j-runtime-root</artifactId>
-    <version>${nl4j-runtime.version}T</version>
+    <version>${nl4j-runtime.version}</version>
 	<packaging>pom</packaging>
 	<name>NativeLibs4Java Runtime Root Project</name>
    

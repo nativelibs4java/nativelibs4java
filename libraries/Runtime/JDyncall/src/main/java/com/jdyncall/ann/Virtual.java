@@ -1,10 +1,4 @@
-#if ($useJNA.equals("true"))
-#set ($package = "com.nativelibs4java.runtime.ann.jna")
-#else
-#set ($package = "com.jdyncall.ann")
-#end
-
-package $package;
+package com.jdyncall.ann;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
