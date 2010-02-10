@@ -29,7 +29,7 @@ public class IndirectBufferPointer<T> extends Pointer<T>
         return new IndirectBufferPointer(io, byteBuffer, this.byteOffset + byteOffset);
     }
 	
-    public boolean isDirect() {
+    public boolean hasPeer() {
 		return false;
 	}
 	
@@ -105,7 +105,7 @@ public class IndirectBufferPointer<T> extends Pointer<T>
     }
 
     @Override
-    public ${prim.Name}[] get${prim.CapName}Array(long byteOffset, int length) {
+    public ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length) {
         // TODO
 		throw new UnsupportedOperationException();
     }

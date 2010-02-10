@@ -453,7 +453,7 @@ public class StructIO<S extends Struct<S>> {
 
 	public ${prim.Name}[] get${prim.CapName}ArrayField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
-		return struct.getReference().get${prim.CapName}Array(field.byteOffset, field.arraySize);
+		return struct.getReference().get${prim.CapName}s(field.byteOffset, field.arraySize);
     }
     public void set${prim.CapName}ArrayField(int fieldIndex, S struct, ${prim.Name}[] fieldValue) {
         FieldIO field = fields[fieldIndex];

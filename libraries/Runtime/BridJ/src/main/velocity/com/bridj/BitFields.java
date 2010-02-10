@@ -361,7 +361,7 @@ public class BitFields {
 	}
 
 	private static byte[] getBigEndianByteArray(Pointer pointer, long offset, int bytesToFetch) {
-		byte[] bs = pointer.getByteArray(offset, bytesToFetch);
+		byte[] bs = pointer.getBytes(offset, bytesToFetch);
 		if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN)
 			revert(bs);
 		return bs;

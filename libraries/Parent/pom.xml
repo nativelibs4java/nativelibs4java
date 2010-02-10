@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
     <artifactId>nativelibs4java-parent</artifactId>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <inceptionYear>2009</inceptionYear>
     <name>NativeLibs4Java Common Configuration</name>
@@ -13,6 +13,7 @@
 		<jnaerator.version>0.9.4-SNAPSHOT</jnaerator.version>
 		<nativelibs4java.version>1.0-SNAPSHOT</nativelibs4java.version>
 		<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
+		<nl4j-runtime.version>0.1-SNAPSHOT</nl4j-runtime.version>
 		<jarsigner.skip>true</jarsigner.skip>
 	</properties>
 	

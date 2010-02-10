@@ -3,7 +3,7 @@
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>BridJ</artifactId>
+  <artifactId>bridj</artifactId>
   <name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
   <version>${nl4j-runtime.version}</version>
@@ -17,7 +17,7 @@
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nl4j-runtime-parent</artifactId>
-	  <version>0.1</version>
+	  <version>0.1-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
 
