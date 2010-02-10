@@ -9,10 +9,12 @@ call GenerateJNIStubs.cmd
 popd
 
 for %%C in (Debug Release) do (
-	call "c:\Program Files\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
+	if exists "c:\Program Files (x86)" call "c:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
+	if not exists "c:\Program Files (x86)" call "c:\Program Files\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
 	devenv /useenv /Build "%%C|Win32" bridj.sln
 	
-	call "c:\Program Files\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86_amd64
+	if exists "c:\Program Files (x86)" call "c:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86_amd64
+	if not exists "c:\Program Files (x86)" call "c:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86_amd64
 	devenv /useenv /Build "%%C|x64" bridj.sln
 )
 
