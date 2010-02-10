@@ -745,26 +745,10 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_memcpy
 
 /*
  * Class:     com_bridj_JNI
- * Method:    wmemcpy
- * Signature: (JJJ)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_wmemcpy
-  (JNIEnv *, jclass, jlong, jlong, jlong);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    memmove
  * Signature: (JJJ)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_memmove
-  (JNIEnv *, jclass, jlong, jlong, jlong);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    wmemmove
- * Signature: (JJJ)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_wmemmove
   (JNIEnv *, jclass, jlong, jlong, jlong);
 
 /*

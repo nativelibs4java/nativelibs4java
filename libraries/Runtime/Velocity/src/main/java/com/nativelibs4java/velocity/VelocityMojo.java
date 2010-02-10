@@ -48,6 +48,13 @@ public class VelocityMojo
 
 	/**
      * Source folder for velocity templates
+     * @parameter expression="${project.build.directory}/../src/"
+     * @required
+     */
+    private File sourcePathRoot;
+
+    /**
+     * Source folder for velocity templates
      * @parameter expression="${project.build.directory}/../src/main/velocity/"
      * @required
      */
@@ -108,7 +115,9 @@ public class VelocityMojo
     }
 
     public File getOutputFile(File vmFile, File velocitySources, File outputDirectory) throws IOException {
+        //String canoRoot = sourcePathRoot.getCanonicalPath();
         String canoRoot = velocitySources.getCanonicalPath();
+        //String canoSrc = velocitySources.getCanonicalPath();
         String abs = vmFile.getCanonicalPath();
         String rel = abs.substring(canoRoot.length());
         String relLow = rel.toLowerCase();
@@ -160,7 +169,7 @@ public class VelocityMojo
 			velocitySources = velocitySources.getCanonicalFile();
 			listVeloFiles(velocitySources, files);
 
-			canoPath = velocitySources.getCanonicalPath();
+			canoPath = sourcePathRoot.getCanonicalPath();
 			Velocity.setProperty("file.resource.loader.path", canoPath);//file.getParent());
 			Velocity.init();
 					

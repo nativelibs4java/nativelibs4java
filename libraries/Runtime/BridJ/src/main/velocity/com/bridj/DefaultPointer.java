@@ -40,7 +40,7 @@ public class DefaultPointer<T> extends Pointer<T>
 	public Pointer<Pointer<T>> getReference() {
 		if (memoryOwner != null) {
 			if (memoryOwner instanceof Pointer)
-				return ((Pointer)memoryOwner).shift(peerOrOffsetInOwner);
+				return ((Pointer)memoryOwner).offset(peerOrOffsetInOwner);
 			else if (memoryOwner instanceof Buffer) {
 				Buffer b = (Buffer)memoryOwner;
 				if (b.isDirect())
@@ -60,7 +60,7 @@ public class DefaultPointer<T> extends Pointer<T>
 	
 	/// TODO merge with Memory.share
 	@Override    
-    public Pointer<T> shift(long byteOffset) {
+    public Pointer<T> offset(long byteOffset) {
         PointerIO<T> io = getIO();
         int size = io == null ? io.getTargetSize() : 1;
         DefaultPointer<T> p = new DefaultPointer(io, getCheckedPeer(byteOffset, size));

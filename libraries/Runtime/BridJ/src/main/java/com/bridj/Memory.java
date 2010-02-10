@@ -32,6 +32,7 @@ public class Memory<T> extends DefaultPointer<T> {
     }
     public Memory(PointerIO<T> io, long size) {
         this(io, JNI.malloc(size), size);
+        JNI.memset(getPeer(), (byte)0, size);
     }
     public long getValidSize() {
         return validSize;
@@ -46,7 +47,7 @@ public class Memory<T> extends DefaultPointer<T> {
 		long peer = super.getCheckedPeer(byteOffset, validityCheckLength);
         if (validSize < 0)
             return peer;
-        if (peer < validStart || peer + validityCheckLength >= validStart + validSize)
+        if (peer < validStart || peer + validityCheckLength > validStart + validSize)
             throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + byteOffset + " : valid memory start is " + validStart + ", valid memory size is " + validSize);
         return peer;
     }
@@ -74,7 +75,7 @@ public class Memory<T> extends DefaultPointer<T> {
 
     /// TODO merge with DefaultPointer.share
 	@Override
-    public Pointer<T> shift(long byteOffset) {
+    public Pointer<T> offset(long byteOffset) {
         PointerIO<T> io = getIO();
         int size = io != null ? io.getTargetSize() : 1;
         Memory<T> p = new Memory<T>(io, getCheckedPeer(byteOffset, size), validStart + byteOffset, validSize, memoryOwner == null ? this : memoryOwner);
@@ -87,7 +88,7 @@ public class Memory<T> extends DefaultPointer<T> {
 	@Override
 	public Pointer<Pointer<T>> getReference() {
 		if (memoryOwner != null)
-			return ((Pointer<Pointer<T>>)memoryOwner).shift(peerOrOffsetInOwner);
+			return ((Pointer<Pointer<T>>)memoryOwner).offset(peerOrOffsetInOwner);
 		else
 			return super.getReference();
 	}

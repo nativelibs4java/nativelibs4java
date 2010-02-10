@@ -190,9 +190,9 @@ public class JNI {
     public static native long strlen(long pointer);
     public static native long wcslen(long pointer);
     public static native void memcpy(long dest, long source, long size);
-    public static native void wmemcpy(long dest, long source, long size);
+    //public static native void wmemcpy(long dest, long source, long size);
     public static native void memmove(long dest, long source, long size);
-    public static native void wmemmove(long dest, long source, long size);
+    //public static native void wmemmove(long dest, long source, long size);
     public static native long memchr(long ptr, byte value, long num);
     public static native int memcmp(long ptr1, long ptr2, long num);
     public static native void memset(long ptr, byte value, long num);

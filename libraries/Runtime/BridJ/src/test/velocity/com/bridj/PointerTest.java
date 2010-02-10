@@ -7,28 +7,28 @@ public class PointerTest {
 
 #foreach ($prim in $primitivesNoBool)
 	@Test 
-    public static void testPointerTo_${prim.Name}_Values() {
+    public void testPointerTo_${prim.Name}_Values() {
 		Pointer<${prim.WrapperName}> p = Pointer.pointerTo(new ${prim.Name}[]{ (${prim.Name})1, (${prim.Name})2, (${prim.Name})3 });
-		assertEqual((${prim.Name})1, p.get(0));
-		assertEqual((${prim.Name})2, p.get(1));
-		assertEqual((${prim.Name})3, p.get(2));
+		assertEquals((${prim.Name})1, (${prim.Name})p.get(0), 0);
+		assertEquals((${prim.Name})2, (${prim.Name})p.get(1), 0);
+		assertEquals((${prim.Name})3, (${prim.Name})p.get(2), 0);
 	}
 	
 	@Test 
-    public static void testAllocateBounds_${prim.Name}_ok() {
-		assertEqual((double)(${prim.Name})0, (double)Pointer.allocate${prim.CapName}().get(0), 0);
-		assertEqual((double)(${prim.Name})0, (double)Pointer.allocate${prim.CapName}s(1).get(0), 0);
-		assertEqual((double)(${prim.Name})0, (double)Pointer.allocate${prim.CapName}s(2).slide(1).get(-1), 0);
+    public void testAllocateBounds_${prim.Name}_ok() {
+		assertEquals((double)(${prim.Name})0, (double)Pointer.allocate${prim.CapName}().get(0), 0);
+		assertEquals((double)(${prim.Name})0, (double)Pointer.allocate${prim.CapName}s(1).get(0), 0);
+		assertEquals((double)(${prim.Name})0, (double)Pointer.allocate${prim.CapName}s(2).offset(${prim.Size}).get(-1), 0);
 		
 		//TODO slide, slideBytes
 	}
 	
-	@Test 
-    public static void testAllocateBounds_${prim.Name}_failAfter() throws ArrayIndexOutOfBoundsException {
+	@Test(expected=IndexOutOfBoundsException.class)
+    public void testAllocateBounds_${prim.Name}_failAfter() {
 		Pointer.allocate${prim.CapName}().get(1);
 	}
-	@Test 
-    public static void testAllocateBounds_${prim.Name}_failBefore() throws ArrayIndexOutOfBoundsException {
+	@Test(expected=IndexOutOfBoundsException.class)
+    public void testAllocateBounds_${prim.Name}_failBefore() throws IndexOutOfBoundsException {
 		Pointer.allocate${prim.CapName}().get(-1);
 	}
 	

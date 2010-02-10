@@ -122,9 +122,9 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	
     /**
 	 * Returns a pointer which address value was obtained by this pointer's by adding a byte offset.
-	 * If the pointer has a peer (<code>ptr.hasPeer()</code>), the following is true : <code>offset == (ptr.shift(offset).getPeer() - ptr.getPeer())</code>
+	 * If the pointer has a peer (<code>ptr.hasPeer()</code>), the following is true : <code>offset == (ptr.offset(offset).getPeer() - ptr.getPeer())</code>
 	 */
-    public abstract Pointer<T> shift(long offset);
+    public abstract Pointer<T> offset(long offset);
 
 	/**
 	 * TODO JavaDoc
@@ -272,7 +272,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 			if (address == 0 || size == 0)
 				return null;
 			
-			pointer = new Memory(io, address, size, buffer).shift(byteOffset);
+			pointer = new Memory(io, address, size, buffer).offset(byteOffset);
 		} else {
 			#if (${prim.Name} == "byte")
 			pointer = new IndirectBufferPointer<${prim.WrapperName}>(io, buffer, byteOffset).order(buffer.order());

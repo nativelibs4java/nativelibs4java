@@ -25,7 +25,7 @@ public class IndirectBufferPointer<T> extends Pointer<T>
     }
 	
 	@Override    
-    public Pointer<T> shift(long byteOffset) {
+    public Pointer<T> offset(long byteOffset) {
         return new IndirectBufferPointer(io, byteBuffer, this.byteOffset + byteOffset);
     }
 	

@@ -336,7 +336,7 @@ public class StructIO<S extends Struct<S>> {
             if (sf == null) 
                 struct.refreshableFields[field.refreshableFieldIndex] = sf = fieldClass.newInstance();
             
-            sf.setPointer(field.isByValue ? struct.getReference().shift(field.byteOffset) : struct.getReference().getPointer(field.byteOffset));
+            sf.setPointer(field.isByValue ? struct.getReference().offset(field.byteOffset) : struct.getReference().getPointer(field.byteOffset));
             return sf;
         } catch (Exception ex) {
             throw new RuntimeException("Failed to instantiate struct of type " + fieldClass.getName(), ex);
@@ -368,7 +368,7 @@ public class StructIO<S extends Struct<S>> {
             }
         }
         
-        fieldValue.setPointer(struct.getReference().shift(field.byteOffset));
+        fieldValue.setPointer(struct.getReference().offset(field.byteOffset));
         return fieldValue;
 	}
 
@@ -377,7 +377,7 @@ public class StructIO<S extends Struct<S>> {
         FieldIO field = fields[fieldIndex];
         assert fieldClass.equals(field.valueClass);
 
-        Pointer ptr = struct.getReference().shift(field.byteOffset);
+        Pointer ptr = struct.getReference().offset(field.byteOffset);
         Array<F> fieldValue = (Array<F>)struct.refreshableFields[field.refreshableFieldIndex];
         if (fieldValue == null)
             struct.refreshableFields[field.refreshableFieldIndex] = fieldValue = new Array<F>(fieldClass, field.arraySize, ptr);
@@ -425,7 +425,7 @@ public class StructIO<S extends Struct<S>> {
 	public ${prim.BufferName} get${prim.CapName}BufferField(int fieldIndex, S struct) {
         FieldIO field = fields[fieldIndex];
         ${prim.BufferName} b = (${prim.BufferName})struct.refreshableFields[field.refreshableFieldIndex];
-        if (b == null || !b.isDirect() || !struct.getReference().shift(field.byteOffset).equals(Pointer.pointerTo(b))) {
+        if (b == null || !b.isDirect() || !struct.getReference().offset(field.byteOffset).equals(Pointer.pointerTo(b))) {
             int len = field.arraySize * field.byteLength;
             struct.refreshableFields[field.refreshableFieldIndex] = b = 
                 struct.getReference().getByteBuffer(field.byteOffset, len)
