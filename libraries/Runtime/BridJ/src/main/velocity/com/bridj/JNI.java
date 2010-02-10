@@ -128,14 +128,22 @@ public class JNI {
     public static native void release${prim.WrapperName}ArrayElements(${prim.Name}[] array, long pointer, int mode);
 
     @Deprecated
-    protected static native ${prim.Name} get_${prim.Name}(long peer, byte endianness);
+    protected static native ${prim.Name} get_${prim.Name}(long peer);
     @Deprecated
-    protected static native void set_${prim.Name}(long peer, ${prim.Name} value, byte endianness);
+    protected static native ${prim.Name} get_${prim.Name}_disordered(long peer);
+    @Deprecated
+    protected static native void set_${prim.Name}(long peer, ${prim.Name} value);
+	@Deprecated
+    protected static native void set_${prim.Name}_disordered(long peer, ${prim.Name} value);
 
     @Deprecated
-    protected static native ${prim.Name}[] get_${prim.Name}_array(long peer, int length, byte endianness);
+    protected static native ${prim.Name}[] get_${prim.Name}_array(long peer, int length);
     @Deprecated
-    protected static native void set_${prim.Name}_array(long peer, ${prim.Name}[] values, int valuesOffset, int length, byte endianness);
+    protected static native ${prim.Name}[] get_${prim.Name}_array_disordered(long peer, int length);
+    @Deprecated
+    protected static native void set_${prim.Name}_array(long peer, ${prim.Name}[] values, int valuesOffset, int length);
+	@Deprecated
+    protected static native void set_${prim.Name}_array_disordered(long peer, ${prim.Name}[] values, int valuesOffset, int length);
 #end
 
 	public static long[] createCallbacks(List<MethodCallInfo> methodInfos) {

@@ -90,7 +90,7 @@ public class DefaultPointer<T> extends Pointer<T>
 		return getCheckedPeer(0, 0);
 	}
 	
-    public boolean isDirect() {
+    public boolean hasPeer() {
 		return true;
 	}
 	
@@ -102,7 +102,7 @@ public class DefaultPointer<T> extends Pointer<T>
 	
 	@Override
     public int compareTo(Pointer<?> p) {
-		if (p == null || !p.isDirect())
+		if (p == null || !p.hasPeer())
 			return 1;
 		
 		long p1 = getPeer(), p2 = p.getPeer();
@@ -119,13 +119,13 @@ public class DefaultPointer<T> extends Pointer<T>
 
     @Override
     public Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value) {
-        JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value, endianness);
+        JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value);
         return this;
     }
 
     @Override
     public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length) {
-        JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length, endianness);
+        JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
         return this;
     }
 
@@ -159,12 +159,12 @@ public class DefaultPointer<T> extends Pointer<T>
     
     @Override
     public ${prim.Name} get${prim.CapName}(long byteOffset) {
-        return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), endianness);
+        return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
     }
 
     @Override
-    public ${prim.Name}[] get${prim.CapName}Array(long byteOffset, int length) {
-        return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length, endianness);
+    public ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length) {
+        return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
     }
 
 #end

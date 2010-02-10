@@ -8,3 +8,8 @@
 #define bufferName 		IntBuffer
 #define primSize		4
 #define alignmentMask	3
+#ifdef LITTLE_ENDIAN
+#define REORDER_VALUE_BYTES(peer) REORDER_HALVES(peer, jint, jshort, 16, 0, 1)
+#else
+#define REORDER_VALUE_BYTES(peer) REORDER_HALVES(peer, jint, jshort, 16, 1, 0)
+#endif

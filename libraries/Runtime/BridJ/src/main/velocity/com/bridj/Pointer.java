@@ -11,42 +11,23 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 {
     public static final Pointer NULL = null;
 	public static final int SIZE = JNI.POINTER_SIZE;
-    public static final byte
-        LITTLE_ENDIAN = (byte)'l',
-        BIG_ENDIAN = (byte)'b',
-        DEFAULT_ENDIANNESS = getEndianness(ByteOrder.nativeOrder());
-
-    protected static final int
-		TYPE_FROM_DIRECT_BUFFER				= 0,
-		TYPE_FROM_INDIRECT_BUFFER			= 1,
-		TYPE_FROM_RAW_ADDRESS				= 2,
-		TYPE_FROM_ALLOCATED_ADDRESS			= 3,
-		TYPE_FROM_POINTER_GET_POINTER_VALUE	= 4;
-
-    static {
+    
+	static {
         JNI.initLibrary();
     }
 
-	static byte getEndianness(ByteOrder order) {
-        return order.equals(ByteOrder.BIG_ENDIAN) ? BIG_ENDIAN : LITTLE_ENDIAN;
-    }
-    
     protected PointerIO<T> io;
-    protected byte endianness = DEFAULT_ENDIANNESS;
 	
-    public void order(ByteOrder order) {
-        endianness = getEndianness(order);
+    public Pointer<T> order(ByteOrder order) {
+		if (order.equals(order()))
+			return this;
+		
+		//TODO DisorderedPointer
+		throw new UnsupportedOperationException();
     }
-    
-	public final ByteOrder order() {
-        switch (endianness) {
-            case BIG_ENDIAN:
-                return ByteOrder.BIG_ENDIAN;
-            case LITTLE_ENDIAN:
-                return ByteOrder.LITTLE_ENDIAN;
-            default:
-                return ByteOrder.nativeOrder();
-        }
+	
+	public ByteOrder order() {
+		return ByteOrder.nativeOrder();
     }
 
     /**
@@ -139,17 +120,20 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 		pointer.deleteTempPeer(tempPeer, refresh);
     }
 	
-    
+    /**
+	 * Returns a pointer which address value was obtained by this pointer's by adding a byte offset.
+	 * If the pointer has a peer (<code>ptr.hasPeer()</code>), the following is true : <code>offset == (ptr.shift(offset).getPeer() - ptr.getPeer())</code>
+	 */
     public abstract Pointer<T> shift(long offset);
 
 	/**
 	 * TODO JavaDoc
 	 * Returns the long value of the address this Pointer instance points to.
-	 * @throws UnsupportedOperationException if the pointer does not have a peer (@see isDirect())
+	 * @throws UnsupportedOperationException if the pointer does not have a peer (@see hasPeer())
 	 */
     public abstract long getPeer();
     
-	public abstract boolean isDirect();
+	public abstract boolean hasPeer();
 	
 	public abstract long getOrAllocateTempPeer();
     
@@ -160,6 +144,13 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	 * Ask for early memory reclamation in case of manually allocated pointer.
 	 */
     public void release() {}
+
+	
+	/**
+	 * TODO JavaDoc
+	 * Updates linked Java structures, if any.
+	 */
+    public void update() {}
 
     /**
 	 * Compare to another Pointer instance
@@ -175,8 +166,8 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 			return false;
 		
 		Pointer p = (Pointer)obj;
-		boolean hp = isDirect();
-		if (hp != p.isDirect())
+		boolean hp = hasPeer();
+		if (hp != p.hasPeer())
 			return false;
 		
 		if (hp)
@@ -284,8 +275,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 			pointer = new Memory(io, address, size, buffer).shift(byteOffset);
 		} else {
 			#if (${prim.Name} == "byte")
-			pointer = new IndirectBufferPointer<${prim.WrapperName}>(io, buffer, byteOffset);
-			pointer.order(buffer.order());
+			pointer = new IndirectBufferPointer<${prim.WrapperName}>(io, buffer, byteOffset).order(buffer.order());
 			#else
 			throw new UnsupportedOperationException("Cannot create pointers to indirect ${prim.BufferName} buffers (try with a ByteBuffer or with any direct buffer)");
 			#end
@@ -326,7 +316,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
     public static Pointer<${prim.WrapperName}> allocate${prim.CapName}() {
         return allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size});
     }
-    public static Pointer<${prim.WrapperName}> allocate${prim.CapName}Array(int arrayLength) {
+    public static Pointer<${prim.WrapperName}> allocate${prim.CapName}s(int arrayLength) {
         return allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * arrayLength);
     }
 #end
@@ -418,7 +408,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
     
     public abstract ${prim.Name} get${prim.CapName}(long byteOffset);
 
-    public abstract ${prim.Name}[] get${prim.CapName}Array(long byteOffset, int length);
+    public abstract ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length);
 
 #end
 
@@ -441,7 +431,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
             if (type == StringType.WideC)
                 throw new UnsupportedOperationException("Wide strings are not supported yet");
         }
-		return new String(getByteArray(byteOffset, SizeT.safeIntCast(len)), charset.name());
+		return new String(getBytes(byteOffset, SizeT.safeIntCast(len)), charset.name());
 	}
 
     public Pointer<T> setString(long byteOffset, String s) {

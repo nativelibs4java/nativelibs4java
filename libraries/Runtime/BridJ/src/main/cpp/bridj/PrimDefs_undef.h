@@ -33,3 +33,13 @@
 #ifdef alignmentMask
 	#undef alignmentMask
 #endif
+
+#ifdef REORDER_VALUE_BYTES
+	#undef REORDER_VALUE_BYTES
+#endif
+
+#ifndef REORDER_HALVES
+#define REORDER_HALVES(ptr, retType, halfType, shift, upperIndex, lowerIndex) \
+	((((retType)((halfType*)ptr)[upperIndex]) << shift) | ((halfType*)ptr)[lowerIndex])
+#endif
+
