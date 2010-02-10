@@ -7,3 +7,4 @@
 #define wrapperName 	Character
 #define bufferName 		CharBuffer
 #define primSize		2
+#define alignmentMask	1

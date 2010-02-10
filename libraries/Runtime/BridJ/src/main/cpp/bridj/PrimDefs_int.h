@@ -7,3 +7,4 @@
 #define wrapperName 	Integer
 #define bufferName 		IntBuffer
 #define primSize		4
+#define alignmentMask	3

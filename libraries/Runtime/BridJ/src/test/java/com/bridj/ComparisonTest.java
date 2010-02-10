@@ -54,6 +54,7 @@ public class ComparisonTest {
     @org.junit.Test
     public void perfTest() {
 
+		//com.sun.jna.Native.setProtected(true);
         Test test = null;
         try {
             System.out.println(ComparisonTest.class.getResource("Main.class"));

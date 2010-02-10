@@ -30,4 +30,6 @@
 	#undef primJNICapName
 #endif        
 
-
+#ifdef alignmentMask
+	#undef alignmentMask
+#endif

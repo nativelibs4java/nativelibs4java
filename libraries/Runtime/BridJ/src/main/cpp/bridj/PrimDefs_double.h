@@ -7,3 +7,4 @@
 #define wrapperName 	Double
 #define bufferName 		DoubleBuffer
 #define primSize		8
+#define alignmentMask	7

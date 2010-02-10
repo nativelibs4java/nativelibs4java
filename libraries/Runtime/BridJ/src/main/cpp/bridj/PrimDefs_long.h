@@ -7,3 +7,4 @@
 #define wrapperName 	Long
 #define bufferName 		LongBuffer
 #define primSize		8
+#define alignmentMask	7

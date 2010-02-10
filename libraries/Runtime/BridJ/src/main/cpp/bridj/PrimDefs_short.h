@@ -7,3 +7,4 @@
 #define wrapperName 	Short
 #define bufferName 		ShortBuffer
 #define primSize		2
+#define alignmentMask	1

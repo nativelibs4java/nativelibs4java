@@ -7,3 +7,4 @@
 #define wrapperName 	Float
 #define bufferName 		FloatBuffer
 #define primSize		4
+#define alignmentMask	3

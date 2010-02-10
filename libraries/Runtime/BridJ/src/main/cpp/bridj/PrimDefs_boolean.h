@@ -5,5 +5,4 @@
 #define primJNICapName 	Boolean
 #define primCapName 	Bool
 #define wrapperName 	Boolean
-//#define bufferName 		BooleanBuffer
 #define primSize		1
