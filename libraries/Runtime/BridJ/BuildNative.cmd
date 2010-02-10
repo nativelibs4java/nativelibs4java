@@ -1,6 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
+pushd .
+cd src\main\cpp\buildsys\vs2008
+
 call SetEnv.cmd
 call CopyRulesIfNeeded.cmd
 
@@ -31,5 +34,7 @@ copy %CONFIG%\test.dll ..\..\..\..\test\resources\win32
 
 copy x64\%CONFIG%\bridj.dll ..\..\..\resources\win64
 copy x64\%CONFIG%\test.dll ..\..\..\..\test\resources\win64
+
+popd
 
 if not "%1" == "nopause" pause
