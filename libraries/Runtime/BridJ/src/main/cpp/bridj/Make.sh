@@ -33,23 +33,26 @@ cd "../../../test/cpp/test"
 make $@ || exit 1
 
 cd "$CURR"
-cd build_out
 
-for D in `ls . | grep _release` ; do
-	ARCH_NAME="`echo $D| sed 's/_gcc_release//'`"
-	MAIN_OUT="../../../resources/$ARCH_NAME"
+if [[ -d build_out ]] ; then
+	cd build_out
+
+	for D in `ls . | grep _release` ; do
+		ARCH_NAME="`echo $D| sed 's/_gcc_release//'`"
+		MAIN_OUT="../../../resources/$ARCH_NAME"
 	
-	echo ARCH_NAME: $ARCH_NAME ;
-	TEST_OUT="../../../../test/resources/$ARCH_NAME"
+		echo ARCH_NAME: $ARCH_NAME ;
+		TEST_OUT="../../../../test/resources/$ARCH_NAME"
 	
-	if [[ -d /System/Library/Frameworks/ ]] ; then 
-		cp $D/*.dylib $MAIN_OUT
-		cp ../../../../test/cpp/test/build_out/$D/*.dylib $TEST_OUT ;
-	else 
-		cp $D/*.so $MAIN_OUT 
-		cp ../../../../test/cpp/test/build_out/$D/*.so $TEST_OUT ;
-	fi
+		if [[ -d /System/Library/Frameworks/ ]] ; then 
+			cp $D/*.dylib $MAIN_OUT
+			cp ../../../../test/cpp/test/build_out/$D/*.dylib $TEST_OUT ;
+		else 
+			cp $D/*.so $MAIN_OUT 
+			cp ../../../../test/cpp/test/build_out/$D/*.so $TEST_OUT ;
+		fi ;
 	
-	svn add $MAIN_OUT
-	svn add $TEST_OUT ;
-done
+	#	svn add $MAIN_OUT
+	#	svn add $TEST_OUT ;
+	done ;
+fi

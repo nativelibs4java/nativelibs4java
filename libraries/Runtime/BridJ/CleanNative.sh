@@ -1,4 +1,5 @@
 #!/bin/bash
 
-cd src/main/cpp/bridj
-./MakeAll.sh clean || exit 1
+rm -fR src/test/cpp/test/build_out
+rm -fR src/main/cpp/test/build_out
+sh BuildNative.sh clean || exit 1
