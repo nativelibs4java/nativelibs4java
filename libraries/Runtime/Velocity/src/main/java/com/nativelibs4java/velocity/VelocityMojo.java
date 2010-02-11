@@ -170,6 +170,7 @@ public class VelocityMojo
 			listVeloFiles(velocitySources, files);
 
 			canoPath = sourcePathRoot.getCanonicalPath();
+            System.out.println("Velocity root path = " + canoPath);
 			Velocity.setProperty("file.resource.loader.path", canoPath);//file.getParent());
 			Velocity.init();
 					
