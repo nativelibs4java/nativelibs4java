@@ -52,29 +52,32 @@
 
 #ifndef REORDER_VALUE_BYTES_jshort
 #define REORDER_VALUE_BYTES_jshort(peer, lowerIndex, upperIndex) \
-	((((jshort)((jbyte*)peer)[upperIndex]) << 8) | ((jbyte*)peer)[lowerIndex])
+	(\
+		(((jshort)((unsigned char*)peer)[upperIndex]) << 8) | \ 
+				  ((unsigned char*)peer)[lowerIndex] \
+	)
 #endif
 
 #ifndef REORDER_VALUE_BYTES_jint
 #define REORDER_VALUE_BYTES_jint(peer, idx0, idx1, idx2, idx3) \
 	(\
-		(((jint)((jbyte*)peer)[idx3]) << 24) | \
-		(((jint)((jbyte*)peer)[idx2]) << 16) | \
-		(((jint)((jbyte*)peer)[idx1]) << 8) | \
-		((jbyte*)peer)[idx0] \
+		(((jint)((unsigned char*)peer)[idx3]) << 24) | \
+		(((jint)((unsigned char*)peer)[idx2]) << 16) | \
+		(((jint)((unsigned char*)peer)[idx1]) << 8) | \
+				((unsigned char*)peer)[idx0] \
 	)
 #endif
 
 #ifndef REORDER_VALUE_BYTES_jlong
 #define REORDER_VALUE_BYTES_jlong(peer, idx0, idx1, idx2, idx3, idx4, idx5, idx6, idx7) \
 	(\
-		(((jlong)((jbyte*)peer)[idx7]) << 56) | \
-		(((jlong)((jbyte*)peer)[idx6]) << 48) | \
-		(((jlong)((jbyte*)peer)[idx5]) << 40) | \
-		(((jlong)((jbyte*)peer)[idx4]) << 32) | \
-		(((jlong)((jbyte*)peer)[idx3]) << 24) | \
-		(((jlong)((jbyte*)peer)[idx2]) << 16) | \
-		(((jlong)((jbyte*)peer)[idx1]) << 8) | \
-		((jbyte*)peer)[idx0] \
+		(((jlong)((unsigned char*)peer)[idx7]) << 56) | \
+		(((jlong)((unsigned char*)peer)[idx6]) << 48) | \
+		(((jlong)((unsigned char*)peer)[idx5]) << 40) | \
+		(((jlong)((unsigned char*)peer)[idx4]) << 32) | \
+		(((jlong)((unsigned char*)peer)[idx3]) << 24) | \
+		(((jlong)((unsigned char*)peer)[idx2]) << 16) | \
+		(((jlong)((unsigned char*)peer)[idx1]) << 8) | \
+				 ((unsigned char*)peer)[idx0] \
 	)
 #endif

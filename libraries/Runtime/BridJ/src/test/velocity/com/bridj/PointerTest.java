@@ -1,6 +1,9 @@
 package com.bridj;
 
 import org.junit.Test;
+
+import com.bridj.DefaultDisorderedPointer;
+
 import java.nio.ByteOrder;
 import static org.junit.Assert.*;
 
@@ -33,12 +36,17 @@ public class PointerTest {
 		Pointer.allocate${prim.CapName}().get(-1);
 	}
 
+    @Test
+    public void test${prim.CapName}DisorderClass() {
+    	Class<?> c = Pointer.allocate${prim.CapName}().order(ByteOrder.nativeOrder().equals(ByteOrder.BIG_ENDIAN) ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN).getClass();
+    	assertTrue(DefaultDisorderedPointer.class.isAssignableFrom(c));
+    }
 	#if (($prim.Name == "short") || ($prim.Name == "int") || ($prim.Name == "long"))
 	@Test
 	public void test${prim.CapName}Endianness() {
 		for (${prim.Name} value : new ${prim.Name}[] { (${prim.Name})0, (${prim.Name})1, (${prim.Name})-1 }) {
-			test${prim.CapName}Endianness(ByteOrder.BIG_ENDIAN, value);
 			test${prim.CapName}Endianness(ByteOrder.LITTLE_ENDIAN, value);
+			test${prim.CapName}Endianness(ByteOrder.BIG_ENDIAN, value);
 		}
 	}
 	void test${prim.CapName}Endianness(ByteOrder order, ${prim.Name} value) {
@@ -46,8 +54,8 @@ public class PointerTest {
 		p.set(value);
         assertEquals(order, p.order());
         assertEquals(order, p.get${prim.BufferName}(0, 1).order());
-		assertEquals(value, p.getByteBuffer(0, ${prim.Size}).order(order).as${prim.BufferName}().get(), 0);
 		assertEquals(value, p.get${prim.BufferName}(0, 1).get(), 0); // check that the NIO buffer was created with the correct order by default
+		assertEquals(value, p.getByteBuffer(0, ${prim.Size}).order(order).as${prim.BufferName}().get(), 0);
 	}
 	#end
 
