@@ -6,7 +6,7 @@
 #endif
 
 #ifndef SUPPORTS_UNALIGNED_ACCESS
-jprimName CONCAT_2(unaligned_get_1, primName)(JNIEnv* env, jclass clazz, jlong peer, jprimName (JNICALL *getter)(JNIEnv*, jclass, jlong)) {
+static jprimName CONCAT_2(unaligned_get_1, primName)(JNIEnv* env, jclass clazz, jlong peer, jprimName (JNICALL *getter)(JNIEnv*, jclass, jlong)) {
 	int i;
 	union { char bytes[primSize]; jprimName prim; } aligned;
 	char* ptr = (char*)peer;
@@ -17,9 +17,21 @@ jprimName CONCAT_2(unaligned_get_1, primName)(JNIEnv* env, jclass clazz, jlong p
 }
 #endif // ifndef SUPPORTS_UNALIGNED_ACCESS
 
+#ifndef SUPPORTS_UNALIGNED_ACCESS
+static void CONCAT_2(unaligned_set_1, primName)(JNIEnv* env, jclass clazz, jlong peer, jprimName value, void (JNICALL *setter)(JNIEnv*, jclass, jlong, jprimName)) {
+	int i;
+	char* ptr;
+	union { char bytes[primSize]; jprimName prim; } aligned;
+	setter(env, clazz, (jlong)&aligned.bytes, value);
+	
+	ptr = (char*)peer;
+	for (i = 0; i < primSize; i++)
+		*(ptr++) = aligned.bytes[i];
+}
+#endif // ifndef SUPPORTS_UNALIGNED_ACCESS
+
 #ifdef REORDER_VALUE_BYTES
 jprimName JNICALL CONCAT_3(Java_com_bridj_JNI_get_1, primName, _1disordered)(JNIEnv* env, jclass clazz, jlong peer) {
-	short* hptr;
 #ifndef SUPPORTS_UNALIGNED_ACCESS
 #ifdef alignmentMask
 	if (peer & alignmentMask)
@@ -42,17 +54,39 @@ jprimName JNICALL CONCAT_2(Java_com_bridj_JNI_get_1, primName)(JNIEnv *env, jcla
 	return *(jprimName*)((char*)(size_t)peer);
 	END_TRY_RET(env, (jprimName)0);
 }
-
 void JNICALL CONCAT_2(Java_com_bridj_JNI_set_1, primName)(JNIEnv *env, jclass clazz, jlong peer, jprimName value) {
-	BEGIN_TRY();
-	//TODO handle endianness
+#ifndef SUPPORTS_UNALIGNED_ACCESS
+#ifdef alignmentMask
+	if (peer & alignmentMask) {
+		CONCAT_2(unaligned_set_1, primName)(env, clazz, peer, value, CONCAT_2(Java_com_bridj_JNI_set_1, primName));
+		return;
+	}
+#endif
+#endif
+    BEGIN_TRY();
 	*(jprimName*)((char*)(size_t)peer) = value;
 	END_TRY(env);
 }
+
+#ifdef REORDER_VALUE_BYTES
+void JNICALL CONCAT_3(Java_com_bridj_JNI_set_1, primName, _1disordered)(JNIEnv* env, jclass clazz, jlong peer, jprimName value) {
+#ifndef SUPPORTS_UNALIGNED_ACCESS
+#ifdef alignmentMask
+	if (peer & alignmentMask) {
+		CONCAT_2(unaligned_set_1, primName)(env, clazz, peer, value, CONCAT_3(Java_com_bridj_JNI_set_1, primName, _1disordered));
+		return;
+	}
+#endif
+#endif
+    BEGIN_TRY();
+	*(jprimName*)((char*)(size_t)peer) = REORDER_VALUE_BYTES(&value);
+	END_TRY(env);
+}
+#endif // ifdef REORDER_VALUE_BYTES
+
 jprimArray JNICALL CONCAT_3(Java_com_bridj_JNI_get_1, primName, _1array)(JNIEnv *env, jclass clazz, jlong peer, jint length) {
 	jprimArray array;
 	BEGIN_TRY();
-	//TODO handle endianness
 	array = (jprimArray)(void*)(size_t)(*env)->CONCAT_3(New, primJNICapName, Array)(env, length);
 	(*env)->CONCAT_3(Set, primJNICapName, ArrayRegion)(env, array, 0, (jsize)length, (jprimName*)((char*)(size_t)peer));
 	return array;
@@ -60,7 +94,6 @@ jprimArray JNICALL CONCAT_3(Java_com_bridj_JNI_get_1, primName, _1array)(JNIEnv 
 }
 void JNICALL CONCAT_3(Java_com_bridj_JNI_set_1, primName, _1array)(JNIEnv *env, jclass clazz, jlong peer, jprimArray values, jint valuesOffset, jint length) {
 	BEGIN_TRY();
-	//TODO handle endianness
 	(*env)->CONCAT_3(Get, primJNICapName, ArrayRegion)(env, values, (jsize)valuesOffset, (jsize)length, (jprimName*)((char*)(size_t)peer));
 	END_TRY(env);
 }

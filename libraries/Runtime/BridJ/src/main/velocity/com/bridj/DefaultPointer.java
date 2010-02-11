@@ -19,6 +19,15 @@ public class DefaultPointer<T> extends Pointer<T>
 		this(null, peer);
     }
 
+    @Override
+    public Pointer<T> clone() {
+    		return new DefaultPointer(io, peerOrOffsetInOwner);
+    }
+    @Override
+    protected Pointer<T> disorderedClone() {
+    		return new DefaultDisorderedPointer(io, peerOrOffsetInOwner);
+    }
+    
 	protected void free(long address) {}
 	
 	protected void deallocate() {

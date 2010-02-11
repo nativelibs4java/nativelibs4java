@@ -7,6 +7,7 @@
 
 #pragma warning(error: 4061)
 #pragma warning(disable: 4127)
+#pragma warning(disable: 4100) // unreferenced formal parameter
 #pragma warning(disable: 4706) // assignment inside a conditional expression
 
 #ifndef _WIN32

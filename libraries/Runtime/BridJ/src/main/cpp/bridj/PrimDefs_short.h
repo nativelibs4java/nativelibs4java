@@ -13,3 +13,8 @@
 #else
 #define REORDER_VALUE_BYTES(peer) REORDER_HALVES(peer, jshort, jbyte, 8, 1, 0)
 #endif
+#ifdef LITTLE_ENDIAN
+#define REORDER_VALUE_BYTES(peer) REORDER_HALVES(peer, jshort, jbyte, 8, 0, 1)
+#else
+#define REORDER_VALUE_BYTES(peer) REORDER_HALVES(peer, jshort, jbyte, 8, 1, 0)
+#endif

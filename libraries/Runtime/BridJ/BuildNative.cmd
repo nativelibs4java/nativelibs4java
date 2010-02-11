@@ -15,12 +15,14 @@ for %%C in (Debug Release) do (
 	REM if exists "c:\Program Files (x86)" 
 	call "c:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
 	REM if not exists "c:\Program Files (x86)" call "c:\Program Files\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
-	devenv /useenv /Build "%%C|Win32" bridj.sln
+	devenv /nologo /useenv /Build "%%C|Win32" bridj.sln
+	echo.
 	
 	REM if exists "c:\Program Files (x86)" 
 	call "c:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86_amd64
 	REM if not exists "c:\Program Files (x86)" call "c:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86_amd64
-	devenv /useenv /Build "%%C|x64" bridj.sln
+	devenv /nologo /useenv /Build "%%C|x64" bridj.sln
+	echo.
 )
 
 for %%T in (win32 win64) do (

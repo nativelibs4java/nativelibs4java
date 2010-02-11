@@ -18,14 +18,13 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 
     protected PointerIO<T> io;
 	
-    public Pointer<T> order(ByteOrder order) {
+	public Pointer<T> order(ByteOrder order) {
 		if (order.equals(order()))
 			return this;
 		
-		//TODO DisorderedPointer
-		throw new UnsupportedOperationException();
-    }
-	
+		return disorderedClone();
+	}
+    
 	public ByteOrder order() {
 		return ByteOrder.nativeOrder();
     }
@@ -40,6 +39,10 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         throw new UnsupportedOperationException(); // TODO
     }
 
+    protected Pointer<T> disorderedClone() {
+        throw new UnsupportedOperationException(); // TODO
+    }
+    
 	public interface UpdatablePointer<P> {
 		Pointer<P> getPointer();
 		void update();
@@ -120,7 +123,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 		pointer.deleteTempPeer(tempPeer, refresh);
     }
 	
-    /**
+	/**
 	 * Returns a pointer which address value was obtained by this pointer's by adding a byte offset.
 	 * If the pointer has a peer (<code>ptr.hasPeer()</code>), the following is true : <code>offset == (ptr.offset(offset).getPeer() - ptr.getPeer())</code>
 	 */
