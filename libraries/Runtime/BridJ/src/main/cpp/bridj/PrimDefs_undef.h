@@ -50,17 +50,20 @@
 	#undef REORDER_VALUE_BYTES
 #endif
 
+#ifndef __GNUC__
+#ifndef BIG_ENDIAN
+#define BIG_ENDIAN
+#endif
+#endif
+
 #ifndef REORDER_VALUE_BYTES_jshort
 #define REORDER_VALUE_BYTES_jshort(peer, lowerIndex, upperIndex) \
-	(\
-		(((jshort)((unsigned char*)peer)[upperIndex]) << 8) | \ 
-				  ((unsigned char*)peer)[lowerIndex] \
-	)
+	((((jshort)((unsigned char*)peer)[upperIndex]) << 8) | ((unsigned char*)peer)[lowerIndex])
 #endif
 
 #ifndef REORDER_VALUE_BYTES_jint
 #define REORDER_VALUE_BYTES_jint(peer, idx0, idx1, idx2, idx3) \
-	(\
+	( \
 		(((jint)((unsigned char*)peer)[idx3]) << 24) | \
 		(((jint)((unsigned char*)peer)[idx2]) << 16) | \
 		(((jint)((unsigned char*)peer)[idx1]) << 8) | \
@@ -70,7 +73,7 @@
 
 #ifndef REORDER_VALUE_BYTES_jlong
 #define REORDER_VALUE_BYTES_jlong(peer, idx0, idx1, idx2, idx3, idx4, idx5, idx6, idx7) \
-	(\
+	( \
 		(((jlong)((unsigned char*)peer)[idx7]) << 56) | \
 		(((jlong)((unsigned char*)peer)[idx6]) << 48) | \
 		(((jlong)((unsigned char*)peer)[idx5]) << 40) | \
