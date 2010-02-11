@@ -179,6 +179,27 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	 */
     public abstract Pointer<T> offset(long offset);
 
+	public int getTargetSize() {
+		PointerIO<T> io = getIO();
+        if (io == null)
+            throw new RuntimeException("Cannot compute target size without a properly defined targetType");
+
+        return io.getTargetSize();
+	}
+	
+	/**
+	 * Returns a pointer to the n-th next (or previous) target.
+	 * Same as incrementing a C pointer of delta elements, but creates a new pointer instance.
+	 * @return offset(getTargetSize() * delta)
+	 */
+	public Pointer<T> next(long delta) {
+		PointerIO<T> io = getIO();
+        if (io == null)
+            throw new RuntimeException("Cannot get pointers to next or previous targets without a properly defined targetType");
+
+        return offset(io.getTargetSize() * delta);
+	}
+	
 	/**
 	 * TODO JavaDoc
 	 * Returns the long value of the address this Pointer instance points to.
