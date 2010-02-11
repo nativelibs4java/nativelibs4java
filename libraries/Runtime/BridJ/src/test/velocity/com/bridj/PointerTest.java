@@ -44,7 +44,9 @@ public class PointerTest {
 	void test${prim.CapName}Endianness(ByteOrder order, ${prim.Name} value) {
 		Pointer<${prim.WrapperName}> p = Pointer.allocate${prim.CapName}().order(order);
 		p.set(value);
-		assertEquals(value, p.getByteBuffer(0, 1).order(order).as${prim.BufferName}().get(), 0);
+        assertEquals(order, p.order());
+        assertEquals(order, p.get${prim.BufferName}(0, 1).order());
+		assertEquals(value, p.getByteBuffer(0, ${prim.Size}).order(order).as${prim.BufferName}().get(), 0);
 		assertEquals(value, p.get${prim.BufferName}(0, 1).get(), 0); // check that the NIO buffer was created with the correct order by default
 	}
 	#end

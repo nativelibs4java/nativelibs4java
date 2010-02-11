@@ -157,7 +157,8 @@ public class DefaultPointer<T> extends Pointer<T>
 
 	@Override
     public ${prim.BufferName} get${prim.BufferName}(long byteOffset, long length) {
-        ByteBuffer buffer = JNI.newDirectByteBuffer(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
+        long blen = ${prim.Size} * length;
+        ByteBuffer buffer = JNI.newDirectByteBuffer(getCheckedPeer(byteOffset, blen), blen);
 		buffer.order(order());
         #if ($prim.Name == "byte")
         return buffer;
