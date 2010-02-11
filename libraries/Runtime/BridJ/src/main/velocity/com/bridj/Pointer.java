@@ -43,6 +43,56 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         throw new UnsupportedOperationException(); // TODO
     }
     
+	/**
+	 * Check that the pointer's peer is aligned to the target type alignment.
+	 * If the pointer has no peer, this method returns true.
+	 * @throw RuntimeException If the target type of this pointer is unknown
+	 * @return !hasPeer() || getPeer() % alignment == 0
+	 */
+	public boolean isAligned() {
+		PointerIO<T> io = getIO();
+        if (io == null)
+            throw new RuntimeException("Cannot check alignment without a properly defined targetType");
+
+        return isAligned(io.getTargetAlignment());
+	}
+	
+	/**
+	 * Check that the pointer's peer is aligned to the given alignment.
+	 * If the pointer has no peer, this method returns true.
+	 * @return !hasPeer() || getPeer() % alignment == 0
+	 */
+	public boolean isAligned(int alignment) {
+		if (!hasPeer())
+			return true;
+		return isAligned(getPeer(), alignment);
+	}
+	
+	/**
+	 * Check that the provided address is aligned to the given alignment.
+	 * @return address % alignment == 0
+	 */
+	protected static boolean isAligned(long address, int alignment) {
+		switch (alignment) {
+		case 1:
+			return true;
+		case 2:
+			return (address & 1) == 0;
+		case 4:
+			return (address & 3) == 0;
+		case 8:
+			return (address & 7) == 0;
+		case 16:
+			return (address & 15) == 0;
+		case 32:
+			return (address & 31) == 0;
+		case 64:
+			return (address & 63) == 0;
+		default:
+			return (address % alignment) == 0;
+		}
+	}
+	
 	public interface UpdatablePointer<P> {
 		Pointer<P> getPointer();
 		void update();

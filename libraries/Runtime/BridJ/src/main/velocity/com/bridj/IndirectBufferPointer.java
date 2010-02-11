@@ -24,6 +24,22 @@ public class IndirectBufferPointer<T> extends Pointer<T>
 		this.byteOffset = byteOffset;
     }
 	
+	@Override
+    public Pointer<T> clone() {
+		return new IndirectBufferPointer(io, byteBuffer.duplicate(), byteOffset);
+    }
+    @Override
+    protected Pointer<T> disorderedClone() {
+		ByteOrder order = byteBuffer.order(), newOrder = ByteOrder.BIG_ENDIAN.equals(order) ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+		return new IndirectBufferPointer(io, byteBuffer.duplicate().order(newOrder), byteOffset);
+    }
+    
+	
+	@Override
+    public ByteOrder order() {
+		return byteBuffer.order();
+    }
+	
 	@Override    
     public Pointer<T> offset(long byteOffset) {
         return new IndirectBufferPointer(io, byteBuffer, this.byteOffset + byteOffset);

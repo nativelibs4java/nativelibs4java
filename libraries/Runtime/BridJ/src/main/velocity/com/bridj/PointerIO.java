@@ -39,6 +39,10 @@ public class PointerIO<T> {
 			return io;
         return getInstanceByType(newTargetType);
     }
+	
+	public int getTargetAlignment() {
+		return getTargetSize();
+	}
 
     public int getTargetSize() {
         return targetSize;
