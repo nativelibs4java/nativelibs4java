@@ -124,6 +124,8 @@
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
+				WarnAsError="true"
+				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
 			/>
 			<Tool

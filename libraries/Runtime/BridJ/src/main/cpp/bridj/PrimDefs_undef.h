@@ -40,7 +40,7 @@
 
 #ifndef REORDER_HALVES
 #define REORDER_HALVES(ptr, retType, halfType, shift, upperIndex, lowerIndex) \
-	((((retType)((halfType*)ptr)[upperIndex]) << shift) | ((halfType*)ptr)[lowerIndex])
+	((((retType)((halfType*)ptr)[lowerIndex]) << shift) | ((halfType*)ptr)[upperIndex])
 #endif
 
 
