@@ -9,10 +9,8 @@
 #include <stdlib.h>
 #include "Exceptions.h"
 
-#if 0
 #if defined(DC_UNIX)
 #include <dlfcn.h>
-#endif
 #endif
 
 #define JNI_SIZEOF(type, escType) \
@@ -58,6 +56,44 @@ void JNICALL Java_com_bridj_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong lib
 	dlFreeLibrary((DLLib*)(size_t)libHandle);
 }
 
+jarray JNICALL Java_com_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle)
+{
+	jclass stringClass;
+    jarray ret;
+    DLSyms* pSyms = (DLSyms*)malloc(dlSyms_sizeof());
+	int count, i;
+	dlSymsInit((DLLib*)libHandle, pSyms);
+	count = dlSymsCount(pSyms);
+	
+	stringClass = (*env)->FindClass(env, "java/lang/String");
+	ret = (*env)->NewObjectArray(env, count, stringClass, 0);
+    for (i = 0; i < count; i++) {
+		jstring str;
+		const char* name = dlSymsName(pSyms, i);
+		if (!name)
+			continue;
+		(*env)->SetObjectArrayElement(env, ret, i, (*env)->NewStringUTF(env, name));
+    }
+	dlSymsCleanup(pSyms);
+	free(pSyms);
+    return ret;
+}
+
+jstring JNICALL Java_com_bridj_JNI_findSymbolName(JNIEnv *env, jclass clazz, jlong libHandle, jlong address)
+{
+#if defined(DC_UNIX)
+	Dl_info info;
+	if (!dladdr((void*)(size_t)address, &info))
+		return NULL;
+	if (!info.dli_sname || ((jlong)info.dli_saddr) != address)
+		return NULL;
+	
+	return (*env)->NewStringUTF(env, info.dli_sname);
+#else
+	return NULL;
+#endif
+}
+
 jlong JNICALL Java_com_bridj_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, jlong libHandle, jstring nameStr)
 {
 	const char* name = (*env)->GetStringUTFChars(env, nameStr, NULL);
@@ -100,6 +136,8 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback(
 	jstring methodName,
 	jint callMode,
 	jlong forwardedPointer, 
+	jint virtualTableOffset,
+	jint virtualIndex,
 	jboolean direct, 
 	jstring javaSignature, 
 	jstring dcSignature,
@@ -109,8 +147,8 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback(
 ) {
 	JNINativeMethod meth;
 	struct MethodCallInfo *info = NULL;
-	if (!forwardedPointer)
-		return 0;
+	//if (!forwardedPointer && virtualIndex < 0)
+	//	return 0;
 	
 	info = (struct MethodCallInfo*)malloc(sizeof(struct MethodCallInfo));
 	memset(info, 0, sizeof(MethodCallInfo));
@@ -120,13 +158,15 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback(
 	info->fDCMode = callMode;
 	info->fReturnType = (ValueType)returnValueType;
 	info->nParams = nParams;
+	info->fVirtualIndex = virtualIndex;
+	info->fVirtualTableOffset = virtualTableOffset;
 	if (nParams) {
 		info->fParamTypes = (ValueType*)malloc(nParams * sizeof(jint));	
 		(*env)->GetIntArrayRegion(env, paramsValueTypes, 0, nParams, (jint*)info->fParamTypes);
 	}
 	
 	meth.fnPtr = NULL;
-	if (direct)
+	if (direct && forwardedPointer) // TODO DIRECT C++ virtual thunk
 		info->fCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer);
 	if (!info->fCallback) {
 		const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);

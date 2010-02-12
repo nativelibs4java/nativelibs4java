@@ -54,6 +54,8 @@ public class PointerIO<T> {
                 return (T)(${prim.WrapperName})pointer.get${prim.CapName}(index * ${prim.Size});
             #end
             Class<T> c = getTargetClass();
+            if (Pointer.class.equals(c))
+                return (T)Pointer.pointerToAddress(pointer.getSizeT(JNI.POINTER_SIZE * index), (PointerIO)PointerIO.getInstanceByType(getTargetType()));
             if (Pointer.class.isAssignableFrom(c))
                 return (T)c.getConstructor(Long.TYPE).newInstance(pointer.getSizeT(JNI.POINTER_SIZE * index));
             if (c == String.class || c == CharSequence.class)

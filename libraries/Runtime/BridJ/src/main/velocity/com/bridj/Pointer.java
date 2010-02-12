@@ -292,6 +292,10 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         return new DefaultPointer(PointerIO.getInstance(targetClass), address);
     }
 
+    static <P> Pointer<P> pointerToAddress(long address, PointerIO<P> io) {
+        return new DefaultPointer(io, address);
+    }
+
     public static <V> Pointer<V> allocate(Class<V> elementClass) {
         return allocateArray(elementClass, 1);
     }

@@ -62,6 +62,8 @@ typedef struct MethodCallInfo {
 	ValueType* fParamTypes;
 	int nParams;
 	int fDCMode;
+	int fVirtualIndex;
+	int fVirtualTableOffset;
 	JNIEnv* fEnv;
 } MethodCallInfo;
 

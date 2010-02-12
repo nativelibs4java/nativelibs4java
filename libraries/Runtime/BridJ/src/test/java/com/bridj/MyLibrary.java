@@ -10,17 +10,10 @@ import java.io.FileNotFoundException;
  *
  * @author Olivier
  */
-public class MyLibrary extends NativeLib {
-    public MyLibrary() throws FileNotFoundException {
-		this("myLibrary");
+public class MyLibrary {
+    public MyLibrary() {
+		BridJ.register(getClass());
 	}
-	public MyLibrary(String libraryName) throws FileNotFoundException {
-		super(libraryName);
-	}
-	public MyLibrary(File libraryFile) throws FileNotFoundException {
-		super(libraryFile);
-	}
-
     public static class MyCallback {
         
     }

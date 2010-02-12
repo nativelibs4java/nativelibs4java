@@ -11,21 +11,74 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c
  }
  
  const char* dlSymsName(DLSyms* pResolver, int index)
+@@ -98,3 +98,6 @@
+   return (void*) ( pResolver->pBase + pResolver->pFuncs[index] );
+ }
+ 
++/*void* dlSymsNameValue(DLSyms* pSyms, int index, const char** nameOut) {
++	return (*nameOut = dlSymsName(pSyms, index)) ? dlSymsValue(pSyms, index) : NULL;
++}*/
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(revision 559)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(working copy)
+@@ -61,6 +61,7 @@
+ int         dlSymsCount  (DLSyms* pSyms);
+ const char* dlSymsName   (DLSyms* pSyms, int index);
+ void*       dlSymsValue  (DLSyms* pSyms, int index);
++//void*		dlSymsNameValue(DLSyms* pSyms, int index, const char** nameOut);
+ 
+ #ifdef __cplusplus
+ }
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(revision 559)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(working copy)
+@@ -23,11 +23,10 @@
+ # include "dynload_syms_pe32.c"
+ #elif defined(DC_UNIX)
+ # if defined (DC__OS_Darwin)
+-void dummy() { }
++# include "dynload_syms_darwin.c"
+ # else
+ # include "dynload_syms_elf.c"
+ # endif
+ #else
+ void dummy() { }
+ #endif
+-
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(revision 559)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(working copy)
+@@ -21,6 +21,10 @@
+ #if defined(DC_WINDOWS)
+ #include "dynload_win32.c"
+ #elif defined(DC_UNIX)
+-#include "dynload_unix.c"
++# if defined (DC__OS_Darwin)
++# include "dynload_darwin.c"
++# else
++# include "dynload_unix.c"
++# endif
+ #endif
+ 
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 559)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(working copy)
+@@ -388,3 +388,6 @@
+ }
+ #endif
+ 
++/*void* dlSymsNameValue(DLSyms* pSyms, int index, const char** nameOut) {
++	return (*nameOut = dlSymsName(pSyms, index)) ? dlSymsValue(pSyms, index) : NULL;
++}*/
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(revision 559)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(working copy)
-@@ -32,12 +32,17 @@
- 
- DLLib* dlLoadLibrary(const char* libPath)
- {
-+
-+#if defined (DC__OS_Darwin)
-+  return (DLLib*) dlopen(libPath,RTLD_LAZY);
-+#else
-   return (DLLib*) dlopen(libPath,RTLD_NOW);
-+#endif
- }
+@@ -37,7 +37,7 @@
  
  void* dlFindSymbol(DLLib* libHandle, const char* symbol)
  {

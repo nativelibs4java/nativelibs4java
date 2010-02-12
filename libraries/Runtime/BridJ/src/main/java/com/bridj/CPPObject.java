@@ -5,25 +5,21 @@
 
 package com.bridj;
 
+
 /**
  *
  * @author Olivier
  */
-public class CPPObject implements PointerRefreshable {
-    private Pointer<?> pointer;
-
-    public CPPObject(Void v) {}
-
-    @Override
-    public CPPObject setPointer(Pointer<?> pointer) {
-        this.pointer = pointer;
-        return null;
-    }
-
-    @Override
-    public Pointer<?> getReference() {
-        return pointer;
-    }
-
-
+public class CPPObject {
+	protected Pointer<?> $this;
+	public CPPObject(Pointer<?> $this) {
+		this.$this = $this;
+		BridJ.register(getClass());
+	}
+	//protected CPPObjectIO $io;
+	//public CPPObject(CPPObjectIO $io, long $this) {
+	//	this.$io = $io;
+	//	this.$this = $this;
+	//	$io.use();
+	//}
 }

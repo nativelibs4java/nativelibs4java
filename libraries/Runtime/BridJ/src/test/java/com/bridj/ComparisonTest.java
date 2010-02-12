@@ -24,14 +24,10 @@ import java.util.logging.Logger;
 public class ComparisonTest {
 
     @Library("test")
-    public static class Test extends NativeLib<Test> {
-        public Test() throws FileNotFoundException {
-			//super(Test.class);
-        	//super(new File("/Users/ochafik/nativelibs4java/Runtime/bridj/src/main/cpp/bridj/build_out/darwin_universal_gcc_debug/libtest.dylib"));
-            super("test");//new File("test.dll"));
+    public static class Test {
+    	public Test() {
+			BridJ.register(getClass());
 		}
-        //@Library("C:\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\Debug\\test")
-        //@Library("C:\\Users\\Olivier\\Prog\\dyncall\\dyncall\\buildsys\\vs2008\\x64\\Debug\\test")
         @Mangling({"?sinInt@@YANH@Z", "_Z6sinInti"})
         public native double sinInt(int d);
 

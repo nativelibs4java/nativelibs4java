@@ -6,8 +6,7 @@
 package com.bridj;
 
 import com.bridj.JNI;
-import com.bridj.DynCall;
-import com.bridj.NativeLib;
+import com.bridj.BridJ;
 import com.bridj.ann.Library;
 //import com.sun.jna.Native;
 import java.io.FileNotFoundException;
@@ -22,15 +21,15 @@ import java.util.logging.Logger;
 public class PerfLib {
     static {
         try {
-            String f = DynCall.getLibFile(PerfLib.class).toString();
+            String f = BridJ.getLibFile(PerfLib.class).toString();
             System.load(f);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(PerfLib.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    public static class DynCallTest extends NativeLib {
+    public static class DynCallTest {
         public DynCallTest() throws FileNotFoundException {
-            super(DynCallTest.class);
+            BridJ.register(getClass());
         }
         public native int testAddDyncall(int a, int b);
         public native int testASinB(int a, int b);

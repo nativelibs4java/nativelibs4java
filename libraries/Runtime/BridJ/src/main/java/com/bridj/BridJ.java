@@ -19,22 +19,34 @@ import com.bridj.ann.Library;
 import com.bridj.ann.Mangling;
 import com.bridj.ann.NoInheritance;
 
-public class DynCall {
-    static Map<String, Long> libHandles = new HashMap<String, Long>();
-    public static synchronized long getSymbolAddress(AnnotatedElement member) throws FileNotFoundException {
+/// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
+public class BridJ {
+	
+	public static void register(Class<?> type) {
+		try {
+			String libraryName = getLibrary(type);
+			NativeLibrary library = getLibHandle(libraryName);
+			library.register(type);
+		} catch (FileNotFoundException ex) {
+			throw new RuntimeException("Failed to register class " + type.getName(), ex);
+		}
+	}
+	
+    static Map<String, NativeLibrary> libHandles = new HashMap<String, NativeLibrary>();
+    static synchronized long getSymbolAddress(AnnotatedElement member) throws FileNotFoundException {
         String lib = getLibrary(member);
-        long libHandle = getLibHandle(lib);
-        if (libHandle == 0)
+        NativeLibrary libHandle = getLibHandle(lib);
+        if (libHandle == null)
             return 0;
         return getSymbolAddress(libHandle, member);
     }
-    public static synchronized long getSymbolAddress(long libHandle, AnnotatedElement member) throws FileNotFoundException {
+    static synchronized long getSymbolAddress(NativeLibrary library, AnnotatedElement member) throws FileNotFoundException {
         //libHandle = libHandle & 0xffffffffL;
         Mangling mg = getAnnotation(Mangling.class, member);
         if (mg != null)
             for (String name : mg.value())
             {
-                long handle = JNI.findSymbolInLibrary(libHandle, name);
+                long handle = library.getSymbolAddress(name);
                 if (handle != 0)
                     return handle;
             }
@@ -46,10 +58,7 @@ public class DynCall {
             name = ((Class<?>)member).getSimpleName();
 
         if (name != null) {
-            long handle = JNI.findSymbolInLibrary(libHandle, name);
-            if (handle == 0)
-                handle = JNI.findSymbolInLibrary(libHandle, "_" + name);
-
+            long handle = library.getSymbolAddress(name);
             if (handle != 0)
                 return handle;
         }
@@ -77,11 +86,11 @@ public class DynCall {
         return paths;
     }
 
-    public static synchronized File getLibFile(Class<?> member) throws FileNotFoundException {
+    static synchronized File getLibFile(Class<?> member) throws FileNotFoundException {
         return getLibFile(getLibrary(member));
     }
 
-    public static File getLibFile(String name) {
+    static File getLibFile(String name) {
         if (name == null)
             return null;
         for (String path : getPaths()) {
@@ -89,10 +98,12 @@ public class DynCall {
             try {
                 pathFile = new File(path).getCanonicalFile();
             } catch (IOException ex) {
-                Logger.getLogger(DynCall.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(BridJ.class.getName()).log(Level.SEVERE, null, ex);
                 continue;
             }
-            File f = new File(pathFile, name + ".dll").getAbsoluteFile();
+            File f = new File(name);
+        	if (!f.exists())
+                f = new File(pathFile, name + ".dll").getAbsoluteFile();
             if (!f.exists())
                 f = new File(pathFile, "lib" + name + ".so").getAbsoluteFile();
             if (!f.exists())
@@ -105,7 +116,7 @@ public class DynCall {
             try {
                 return f.getCanonicalFile();
             } catch (IOException ex) {
-                Logger.getLogger(DynCall.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(BridJ.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         try {
@@ -114,26 +125,26 @@ public class DynCall {
         	return null;
         }
     }
-    public static synchronized long getLibHandle(String name) throws FileNotFoundException {
+    public static synchronized NativeLibrary getLibHandle(String name) throws FileNotFoundException {
         if (name == null)
-            return 0;
+            return null;
         
-        Long l = libHandles.get(name);
+        NativeLibrary l = libHandles.get(name);
         if (l != null)
             return l;
 
         File f = getLibFile(name);
-        long ll = f == null ? 0 : JNI.loadLibrary(f.toString());
-        if (ll == 0)
+        NativeLibrary ll = NativeLibrary.load(f.toString());
+        if (ll == null)
             throw new FileNotFoundException("Library '" + name + "' was not found in path '" + getPaths() + "'");
         libHandles.put(name, ll);
         return ll;
     }
-    public static String getLibrary(AnnotatedElement m) {
+    static String getLibrary(AnnotatedElement m) {
         Library lib = getAnnotation(Library.class, m);
         return lib == null ? null : lib.value(); // TODO use package as last resort
     }
-    protected static <A extends Annotation> A getAnnotation(Class<A> ac, AnnotatedElement m, Annotation... directAnnotations) {
+    static <A extends Annotation> A getAnnotation(Class<A> ac, AnnotatedElement m, Annotation... directAnnotations) {
         if (directAnnotations != null)
             for (Annotation ann : directAnnotations)
                 if (ac.isInstance(ann))

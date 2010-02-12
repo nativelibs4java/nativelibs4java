@@ -16,12 +16,22 @@
 	#endif
 #endif
 
-// Cette classe est exportée de test.dll
 class TEST_API Ctest {
 public:
-	Ctest(void);
-	virtual int testAdd(int a, int b);
-	// TODO : ajoutez ici vos méthodes.
+	Ctest();
+	//virtual 
+	~Ctest();
+	virtual 
+	int testAdd(int a, int b);
+};
+
+class TEST_API Ctest2 : public Ctest {
+public:
+	Ctest2();
+	//virtual 
+	~Ctest2();
+	virtual 
+	int testAdd(int a, int b);
 };
 
 extern TEST_API int ntest;

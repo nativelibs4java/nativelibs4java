@@ -30,6 +30,8 @@ public class MethodCallInfo {
 	long forwardedPointer;
     String dcSignature;
 	String javaSignature;
+	int virtualIndex = -1;
+	int virtualTableOffset = 0;
     int dcCallingConvention;
 
 	boolean isVarArgs;
@@ -40,12 +42,12 @@ public class MethodCallInfo {
 
     boolean isCallableAsRaw;
 
-	public MethodCallInfo(Method method, long libraryHandle) throws FileNotFoundException {
+	public MethodCallInfo(Method method, NativeLibrary library) throws FileNotFoundException {
         isVarArgs = false;
         isCPlusPlus = false;
         dcCallingConvention = 0;
         this.method = method;
-        forwardedPointer = DynCall.getSymbolAddress(libraryHandle, method);
+        forwardedPointer = BridJ.getSymbolAddress(library, method);
 
         Class<?>[] paramsTypes = method.getParameterTypes();
         Annotation[][] paramsAnnotations = method.getParameterAnnotations();
@@ -98,7 +100,7 @@ public class MethodCallInfo {
 		return javaSignature;
 	}
     boolean getBoolAnnotation(Class<? extends Annotation> ac, AnnotatedElement element, Annotation... directAnnotations) {
-        Annotation ann = DynCall.getAnnotation(ac, element, directAnnotations);
+        Annotation ann = BridJ.getAnnotation(ac, element, directAnnotations);
         return ann != null;
     }
     private void GetOptions(Options out, Method method, Annotation... directAnnotations) {
@@ -108,7 +110,7 @@ public class MethodCallInfo {
         out.bIsSizeT = getBoolAnnotation(PointerSized.class, method, directAnnotations);
         out.bIsCLong = getBoolAnnotation(CLong.class, method, directAnnotations);
 
-        Virtual virtual = DynCall.getAnnotation(Virtual.class, method, directAnnotations);
+        Virtual virtual = BridJ.getAnnotation(Virtual.class, method, directAnnotations);
         out.virtualIndex = virtual == null ? -1 : virtual.value();
     }
 
@@ -124,10 +126,13 @@ public class MethodCallInfo {
         if (c == Integer.class || c == Integer.TYPE)
             return ValueType.eIntValue;
         if (c == Long.class || c == Long.TYPE) {
-            PointerSized sz = DynCall.getAnnotation(PointerSized.class, element, directAnnotations);
+            PointerSized sz = BridJ.getAnnotation(PointerSized.class, element, directAnnotations);
+            This th = element == null ? null : element.getAnnotation(This.class);
             if (sz != null) {
                 isCallableAsRaw = false;
                 return ValueType.eSizeTValue;
+            } else if (th != null) {
+            	return ValueType.eSizeTValue;
             }
             return ValueType.eLongValue;
         }
@@ -155,6 +160,10 @@ public class MethodCallInfo {
             case eIntValue:
                 dcChar = DC_SIGCHAR_INT;
                 javaChar = 'I';
+                break;
+            case eLongValue:
+                dcChar = DC_SIGCHAR_LONGLONG;
+                javaChar = 'J';
                 break;
             case eSizeTValue:
                 if (JNI.SIZE_T_SIZE == 8) {

@@ -89,11 +89,11 @@ TEST_API double __cdecl testASinB(int a, int b)
 
 }
 
-// Il s'agit du constructeur d'une classe qui a été exportée.
-// consultez test.h pour la définition de la classe
 Ctest::Ctest()
 {
-	return;
+}
+Ctest::~Ctest()
+{
 }
 
 int Ctest::testAdd(int a, int b) {
@@ -105,3 +105,16 @@ Ctest* createTest() {
 	std::cout << test->testAdd(1, 2);
 	return test;
 }
+
+
+Ctest2::Ctest2() : Ctest()
+{
+}
+Ctest2::~Ctest2()
+{
+}
+
+int Ctest2::testAdd(int a, int b) {
+	return a + b;
+}
+

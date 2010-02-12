@@ -188,12 +188,18 @@ public class VelocityMojo
             try {
 				file = file.getCanonicalFile();
 
+				String name = file.getName();
+				if (name.endsWith("~") || name.endsWith(".bak")) {
+					getLog().info("Skipping: '" + name + "'");
+                    continue;
+				}
+					
                 File outFile = getOutputFile(file, velocitySources, outputDirectory);
                 if (outFile.exists() && outFile.lastModified() > file.lastModified()) {
-                    getLog().info("Up-to-date: '" + file + "'");
+                    getLog().info("Up-to-date: '" + name + "'");
                     continue;
                 }
-                getLog().info("Executing template '" + file + "'...");
+                getLog().info("Executing template '" + name + "'...");
 
                 //context = new VelocityContext();
 				String cano = file.getCanonicalPath();
@@ -217,7 +223,7 @@ public class VelocityMojo
                 FileWriter f = new FileWriter(outFile);
                 f.write(out.toString());
                 f.close();
-                getLog().info("\tGenerated '" + outFile + "'");
+                //getLog().info("\tGenerated '" + outFile.getName() + "'");
 
             } catch (Exception ex) {
                 //throw 

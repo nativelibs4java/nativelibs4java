@@ -2,6 +2,11 @@
 #include <jni.h>
 #include "Exceptions.h"
 
+void* getNthVirtualMethodFromThis(void* thisPtr, size_t virtualTableOffset, size_t virtualIndex) {
+	// Get virtual pointer table
+	void** vptr = (void**)*((void**)thisPtr);//[virtualTableOffset];
+	return (void*)vptr[virtualIndex];
+}
 char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCallInfo *info)
 {
 	THREAD_STATIC DCCallVM* vm = NULL;
@@ -20,6 +25,8 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 
 	dcMode(vm, info->fDCMode);
 
+	callback = info->fForwardedSymbol;
+	int virtualIndex = info->fVirtualIndex;
 	for (iParam = 0; iParam < nParams; iParam++) {
 		ValueType type = info->fParamTypes[iParam];
 		switch (type) {
@@ -30,10 +37,17 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 				dcArgLong(vm, (long)dcbArgLongLong(args));
 				break;
 			case eSizeTValue:
-				if (sizeof(size_t) == 4)
-					dcArgInt(vm, (int)dcbArgLongLong(args));
-				else
-					dcArgLongLong(vm, dcbArgLongLong(args));
+				{
+					long long argValue = dcbArgLongLong(args);
+					// If first arg is expected to be this
+					if (iParam == 0 && virtualIndex != -1)
+						callback = getNthVirtualMethodFromThis((void*)argValue, info->fVirtualTableOffset, virtualIndex);
+					
+					if (sizeof(size_t) == 4)
+						dcArgInt(vm, (int)argValue);
+					else
+						dcArgLongLong(vm, argValue);
+				}
 				break;
 			case eLongValue:
 				dcArgLongLong(vm, dcbArgLongLong(args));
@@ -52,7 +66,7 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, MethodCall
 				break;
 		}
 	}
-	callback = info->fForwardedSymbol;
+	
 	switch (info->fReturnType) {
 #define CALL_CASE(valueType, capCase, hiCase, uni) \
 		case valueType: \

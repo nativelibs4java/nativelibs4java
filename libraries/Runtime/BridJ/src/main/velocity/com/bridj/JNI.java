@@ -70,8 +70,14 @@ public class JNI {
         int len;
         byte[] b = new byte[8196];
         InputStream in = JNI.class.getClassLoader().getResourceAsStream(libraryResource);
-        if (in == null)
+        if (in == null) {
+        	File f = new File(libraryResource);
+        	if (!f.exists())
+        		f = new File(f.getName());
+        	if (f.exists())
+        		return f;
         	throw new FileNotFoundException(libraryResource);
+        }
         File libFile = File.createTempFile(new File(libraryResource).getName(), ext);
         libFile.deleteOnExit();
         OutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
@@ -109,6 +115,8 @@ public class JNI {
     public static native long loadLibrary(String path);
     public static native void freeLibrary(long libHandle);
     public static native long findSymbolInLibrary(long libHandle, String name);
+    public static native String[] getLibrarySymbols(long libHandle);
+    public static native String findSymbolName(long libHandle, long address);
 
 	public static native long newGlobalRef(Object object);
 	public static native void deleteGlobalRef(long reference);
@@ -154,7 +162,9 @@ public class JNI {
 				info.method.getDeclaringClass(),
 				info.method.getName(),
 				0,
-				info.forwardedPointer, 
+				info.forwardedPointer,
+				info.virtualTableOffset, 
+				info.virtualIndex,
 				info.direct, 
 				info.getJavaSignature(), 
 				info.getDcSignature(),
@@ -176,6 +186,8 @@ public class JNI {
 		String methodName,
 		int callMode,
 		long forwardedPointer, 
+		int virtualTableOffset,
+		int virtualIndex,
 		boolean direct, 
 		String javaSignature, 
 		String dcSignature,
