@@ -18,6 +18,82 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c
 +/*void* dlSymsNameValue(DLSyms* pSyms, int index, const char** nameOut) {
 +	return (*nameOut = dlSymsName(pSyms, index)) ? dlSymsValue(pSyms, index) : NULL;
 +}*/
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 0)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 0)
+@@ -0,0 +1,71 @@
++/*
++
++ Copyright (c) 2007-2009 Olivier Chafik <olivier.chafik@gmail.com>
++
++ Permission to use, copy, modify, and distribute this software for any
++ purpose with or without fee is hereby granted, provided that the above
++ copyright notice and this permission notice appear in all copies.
++
++ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++ WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++ MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++/*
++
++  dynload_darwin.c
++
++  dynload module for .dylib (mach-o darwin/OS X) files
++
++*/
++
++
++#include "dynload.h"
++
++#include <dlfcn.h>
++
++struct DLLib_
++{
++	char* libPath;
++	void* handle;
++};
++
++DLLib* dlLoadLibrary(const char* libPath)
++{
++	void* handle;
++	size_t len;
++	DLLib* lib;
++	
++	handle = dlopen(libPath, RTLD_LAZY);
++	if (!handle)
++		return NULL;
++	
++	len = strlen(libPath);
++	lib = (DLLib*)malloc(sizeof(DLLib));
++	lib->libPath = (char*)malloc(len + 1);
++	strcpy(lib->libPath, libPath);
++	lib->libPath[len] = '\0';
++	lib->handle = handle;
++	return lib;
++}
++
++void* dlFindSymbol(DLLib* libHandle, const char* symbol)
++{
++  return dlsym(libHandle ? libHandle->handle : RTLD_DEFAULT, symbol);
++}
++
++void  dlFreeLibrary(DLLib* libHandle)
++{
++	if (!libHandle)
++		return;
++	
++	dlclose(libHandle->handle);
++	free(libHandle->libPath);
++	free(libHandle);
++}
++
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(revision 559)
@@ -47,6 +123,102 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c
  void dummy() { }
  #endif
 -
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c	(revision 0)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c	(revision 0)
+@@ -0,0 +1,91 @@
++/*
++
++ Copyright (c) 2007-2009 Olivier Chafik <olivier.chafik@gmail.com>
++
++ Permission to use, copy, modify, and distribute this software for any
++ purpose with or without fee is hereby granted, provided that the above
++ copyright notice and this permission notice appear in all copies.
++
++ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++ WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++ MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++/*
++ 
++ dynamic symbol resolver for Mach-O
++
++ */
++
++#include "dynload.h"
++#include "dynload_macros.h"
++#include <mach-o/dyld.h>
++#include <stdio.h>
++
++void dummy() { }
++
++struct DLLib_
++{
++	char* libPath;
++	void* handle;
++};
++
++struct DLSyms_
++{
++	DLLib* pLib;
++	NSObjectFileImage pObjectFileImage;
++};
++
++size_t dlSyms_sizeof()
++{
++  return sizeof(DLSyms);
++}
++void dlSymsInit(DLSyms* pSyms, DLLib* pLib)
++{
++	//const char* path = "/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/resources/darwin_universal/libtest.dylib";
++	pSyms->pLib = pLib;
++	if (NSCreateObjectFileImageFromFile(//path,
++		pLib->libPath, 
++		&pSyms->pObjectFileImage) != NSObjectFileImageSuccess)
++		pSyms->pObjectFileImage = 0;
++}
++
++void dlSymsCleanup(DLSyms* pSyms)
++{
++	if (pSyms->pObjectFileImage)
++		NSDestroyObjectFileImage(pSyms->pObjectFileImage);
++}
++
++int dlSymsCount(DLSyms* pSyms)
++{
++	if (!pSyms->pObjectFileImage)
++		return 0;
++	return NSSymbolDefinitionCountInObjectFileImage(pSyms->pObjectFileImage);
++}
++
++const char* dlSymsName(DLSyms* pSyms, int index)
++{
++	if (!pSyms->pObjectFileImage)
++		return NULL;
++	return NSSymbolDefinitionNameInObjectFileImage(pSyms->pObjectFileImage, index);
++}
++
++void* dlSymsValue(DLSyms* pSyms, int index)
++{
++	const char* name = dlSymsName(pSyms, index);
++	if (!name)
++		return NULL;
++	return dlFindSymbol(pSyms->pLib, name);
++}
++/*void* dlSymsNameValue(DLSyms* pSyms, int index, const char** nameOut) {
++	if (!pSyms->pObjectFileImage)
++		return false;
++	
++	*nameOut = NSSymbolDefinitionNameInObjectFileImage(pSyms->pObjectFileImage, index);
++	return *nameOut ? dlFindSymbol(pSyms->pLib, *nameOut) : NULL;
++}*/
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(revision 559)

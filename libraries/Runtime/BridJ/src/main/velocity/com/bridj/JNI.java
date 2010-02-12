@@ -10,13 +10,10 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.bridj.DynCall;
-import com.bridj.MethodCallInfo;
-
 public class JNI {
     private static boolean inited;
     static final String osName = System.getProperty("os.name", "");
-    static final String JDyncallLibraryName = "bridj";
+    static final String BridJLibraryName = "bridj";
     
     public static int POINTER_SIZE, WCHAR_T_SIZE, SIZE_T_SIZE;
     static {
@@ -93,7 +90,7 @@ public class JNI {
             return;
 		
         try {
-	        File libFile = extractEmbeddedLibraryResource(JDyncallLibraryName);
+	        File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
 	        System.load(libFile.toString());
 	        
 	        init();
@@ -103,7 +100,7 @@ public class JNI {
 	
 	        inited = true;
         } catch (Throwable ex) {
-        	throw new RuntimeException("Failed to initialize " + DynCall.class.getSimpleName(), ex);
+        	throw new RuntimeException("Failed to initialize " + BridJ.class.getSimpleName(), ex);
         }
     }
     private static native void init();
