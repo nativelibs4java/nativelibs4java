@@ -10,7 +10,7 @@
 
 CTX_phandler      =  16
 
-_dcRawCallAdapterSkipTwoArgs32_cdecl PROC EXPORT
+_dcRawCallAdapterSkipTwoArgs32_cdecl PROC ; EXPORT
 
     OPTION PROLOGUE:NONE, EPILOGUE:NONE
 

@@ -11,7 +11,11 @@ import com.bridj.ann.Virtual;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class TestCPP {
-	static String libraryPath = "/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/resources/darwin_universal/libtest.dylib";
+	static String libraryPath = JNI.isMacOSX() ? 
+		"/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/resources/darwin_universal/libtest.dylib" :
+		//"F:\\Experiments\\tmp\\key\\svn\\nativelibs4java\\Runtime\\BridJ\\src\\test\\resources\\win32\\test.dll" +
+        "C:\\Users\\Olivier\\Prog\\nativelibs4java\\Runtime\\BridJ\\src\\main\\cpp\\buildsys\\vs2008\\x64\\Debug\\test.dll"
+	;
 	static NativeLibrary library = NativeLibrary.load(libraryPath);
 	
 	static void print(String name, long addr, int n, int minI) {
@@ -27,10 +31,11 @@ public class TestCPP {
 	public static void main(String[] args) throws Exception {
 		
 		for (String name : library.getSymbols()) {
+			long addr = library.getSymbolAddress(name);
+			System.out.println(name + " = \t" + hex(addr));
 			
-			if (name.startsWith("_ZTV") || name.startsWith("_ZTI")) {
-				long addr = library.getSymbolAddress(name);
-				print(name, addr, 10, 1);
+			if (name.startsWith("_ZTV") || name.startsWith("_ZTI") || name.startsWith("??_")) {
+				print("vtable", addr, 10, 1);
 			}
 		}
 		

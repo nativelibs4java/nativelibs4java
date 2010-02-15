@@ -13,6 +13,12 @@
 #include <dlfcn.h>
 #endif
 
+#if defined(DC__OS_Win64) || defined(DC__OS_Win32)
+#include <Dbghelp.h>
+#endif
+
+#pragma warning(disable: 4152)
+
 #define JNI_SIZEOF(type, escType) \
 jint JNICALL Java_com_bridj_JNI_sizeOf_1 ## escType(JNIEnv *env, jclass clazz) { return sizeof(type); }
 
@@ -29,17 +35,25 @@ jclass bridjClass = NULL;
 jmethodID getGetPeerMethod(JNIEnv* env) {
 	if (!getPeerMethod)
 	{
-		bridjClass = (*env)->FindClass(env, "com/bridj/BridJ");
+		bridjClass = (jclass)(*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/bridj/BridJ"));
 		//getPeerMethod = (*env)->GetMethodID(env, bridjClass, "getPeer", "(Lcom/bridj/CPPObject;Ljava/lang/Class;)J");
 		getPeerMethod = (*env)->GetMethodID(env, bridjClass, "getPeer", "(Lcom/lang/Object;Ljava/lang/Class;)J");
 	}
 	return getPeerMethod;
 }
+
+//void main() {}
+
 void* getCPPInstancePointer(JNIEnv *env, jobject instance, jclass targetClass) {
 	return (void*)(size_t)(*env)->CallLongMethod(env, NULL, getGetPeerMethod(env), instance, targetClass);
 }
+//void _DllMainCRTStartup();
+
 void JNICALL Java_com_bridj_JNI_init(JNIEnv *env, jclass clazz)
 {
+/*#if defined(DC__OS_Win64) || defined(DC__OS_Win32)
+	_DllMainCRTStartup();
+#endif*/
 	//bridjClass = (*env)->FindClass(env, "com/bridj/BridJ");
 	//getPeerMethod = (*env)->GetMethodID(env, bridjClass, "getPeer", "(Lcom/bridj/CPPObject;Ljava/lang/Class;)J");
 	//getPeerMethod = (*env)->GetMethodID(env, bridjClass, "getPeer", "(Lcom/lang/Object;Ljava/lang/Class;)J");
@@ -76,15 +90,13 @@ void JNICALL Java_com_bridj_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong lib
 
 jlong JNICALL Java_com_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle)
 {
-    jclass stringClass;
-    jarray ret;
     DLSyms* pSyms = (DLSyms*)malloc(dlSyms_sizeof());
-	int count, i;
+	int count;
 	dlSymsInit(pSyms, (DLLib*)libHandle);
 	count = dlSymsCount(pSyms);
 	return (jlong)(size_t)pSyms;
 }
-jlong JNICALL Java_com_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jlong symbolsHandle)
+void JNICALL Java_com_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jlong symbolsHandle)
 {
 	DLSyms* pSyms = (DLSyms*)symbolsHandle;
 	dlSymsCleanup(pSyms);
@@ -102,7 +114,6 @@ jarray JNICALL Java_com_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 	stringClass = (*env)->FindClass(env, "java/lang/String");
 	ret = (*env)->NewObjectArray(env, count, stringClass, 0);
     for (i = 0; i < count; i++) {
-		jstring str;
 		const char* name = dlSymsName(pSyms, i);
 		if (!name)
 			continue;
@@ -114,6 +125,9 @@ jarray JNICALL Java_com_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 
 jstring JNICALL Java_com_bridj_JNI_findSymbolName(JNIEnv *env, jclass clazz, jlong libHandle, jlong symbolsHandle, jlong address)
 {
+	const char* name = dlSymsNameFromValue((DLSyms*)(size_t)symbolsHandle, (void*)(size_t)address);
+	return name ? (*env)->NewStringUTF(env, name) : NULL;
+	/*
 #if defined(DC_UNIX)
 	Dl_info info;
 	if (!dladdr((void*)(size_t)address, &info))
@@ -122,9 +136,40 @@ jstring JNICALL Java_com_bridj_JNI_findSymbolName(JNIEnv *env, jclass clazz, jlo
 		return NULL;
 	
 	return (*env)->NewStringUTF(env, info.dli_sname);
+#elif defined(DC__OS_Win64) || defined(DC__OS_Win32)
+    DWORD64  dwAddress = (DWORD64)address;
+    DWORD64  dwDisplacement;
+    DWORD  error;
+    HANDLE hProcess;
+    ULONG64 buffer[(
+        sizeof(SYMBOL_INFO) +
+        MAX_SYM_NAME * sizeof(TCHAR) +
+        sizeof(ULONG64) - 1) /
+        sizeof(ULONG64)
+    ];
+    PSYMBOL_INFO pSymbol = (PSYMBOL_INFO) buffer;
+        
+    SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);
+
+    hProcess = (HANDLE)libHandle;//GetCurrentProcess();
+
+    if (!SymInitialize(hProcess, NULL, TRUE))
+    {
+        // SymInitialize failed
+        error = GetLastError();
+        printf("SymInitialize returned error : %d\n", error);
+        return FALSE;
+    }
+
+    pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+    pSymbol->MaxNameLen = MAX_SYM_NAME;
+
+    if (SymFromAddr(hProcess, dwAddress, &dwDisplacement, pSymbol) && !dwDisplacement)
+        return pSymbol->Name ? (*env)->NewStringUTF(env, pSymbol->Name) : NULL;
+    return NULL;
 #else
 	return NULL;
-#endif
+#endif*/
 }
 
 jlong JNICALL Java_com_bridj_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, jlong libHandle, jstring nameStr)
@@ -252,7 +297,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback(
 	jclass clazz,
 	jclass declaringClass,
 	jobject javaCallbackInstance,
-	jmethodID method,
+	jobject method,
 	jboolean startsWithThis,
 	jstring methodName,
 	jint callMode,
@@ -273,18 +318,23 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback(
 	
 	if (javaCallbackInstance)
 	{
+		const char *dcSig, *javaSig, *methName;
 		NEW_STRUCT(JavaCallbackCallInfo, info, pInfo, pCommonInfo);
 		
-		info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
-		info->fCallbackInstance = javaCallbackInstance;
+		javaSig = (char*)(*env)->GetStringUTFChars(env, javaSignature, NULL);
+		methName = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
+		info->fMethod = (*env)->GetMethodID(env, declaringClass, methName, javaSig);
+		(*env)->ReleaseStringUTFChars(env, javaSignature, javaSig);
+		(*env)->ReleaseStringUTFChars(env, methodName, methName);
 		
 		// TODO DIRECT C++ virtual thunk
-		const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-		info->fInfo.fDCCallback = dcbNewCallback(ds, NativeToJavaCallHandler, info);
-		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
+		dcSig = (*env)->GetStringUTFChars(env, dcSignature, NULL);
+		info->fInfo.fDCCallback = dcbNewCallback(dcSig, NativeToJavaCallHandler, info);
+		(*env)->ReleaseStringUTFChars(env, dcSignature, dcSig);
 	} 
 	else if (virtualIndex >= 0)
 	{
+	    const char* ds;
 		NEW_STRUCT(VirtualMethodCallInfo, info, pInfo, pCommonInfo);
 		
 		info->fClass = declaringClass;
@@ -293,7 +343,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback(
 		info->fVirtualTableOffset = virtualTableOffset;
 		
 		// TODO DIRECT C++ virtual thunk
-		const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
+		ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
 		info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToVirtualMethodCallHandler, info);
 		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 		

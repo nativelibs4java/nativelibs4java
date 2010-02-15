@@ -104,7 +104,7 @@ char __cdecl doJavaToFunctionCallHandler(DCArgs* args, DCValue* result, Function
 {
 	DCCallVM* vm;
 	JNIEnv *env;
-	jobject instance = initCallHandler(args, &vm, &env);
+	initCallHandler(args, &vm, &env);
 	
 	dcMode(vm, info->fInfo.fDCMode);
 	followArgs(args, vm, info->fInfo.nParams, info->fInfo.fParamTypes);
@@ -170,7 +170,7 @@ char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, JavaCallba
 	
 	dcMode(vm, 0);
 	
-	dcArgPointer(vm, env);
+	dcArgPointer(vm, (DCpointer)env);
 	dcArgPointer(vm, info->fCallbackInstance);
 	dcArgPointer(vm, info->fMethod);
 	

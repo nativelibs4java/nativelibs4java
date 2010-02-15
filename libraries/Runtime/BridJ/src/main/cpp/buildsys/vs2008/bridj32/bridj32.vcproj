@@ -26,6 +26,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			UseOfMFC="0"
 			CharacterSet="2"
 			>
 			<Tool
@@ -52,12 +53,15 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
 				MinimalRebuild="true"
+				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
+				EnableEnhancedInstructionSet="2"
 				WarningLevel="3"
 				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -72,12 +76,14 @@
 				Name="VCLinkerTool"
 				RegisterOutput="false"
 				UseLibraryDependencyInputs="true"
-				AdditionalDependencies="jvm.lib dyncall32.lib dyncallback32.lib dynload.lib"
+				AdditionalDependencies="jvm.lib dyncall32.lib dyncallback32.lib dynload.lib dbghelp.lib"
 				OutputFile="$(OutDir)\bridj.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME32)\lib;$(JAVA_HOME)\lib;..\Debug"
 				GenerateManifest="true"
 				GenerateDebugInformation="true"
-				ResourceOnlyDLL="true"
+				OptimizeForWindows98="1"
+				EntryPointSymbol="_DllMainCRTStartup"
+				ResourceOnlyDLL="false"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -136,12 +142,15 @@
 				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
 				PreprocessorDefinitions="WIN64;_WIN64"
 				MinimalRebuild="true"
+				ExceptionHandling="0"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="1"
+				EnableEnhancedInstructionSet="2"
 				WarningLevel="4"
 				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -156,13 +165,15 @@
 				Name="VCLinkerTool"
 				RegisterOutput="false"
 				UseLibraryDependencyInputs="false"
-				AdditionalDependencies="jvm.lib dyncall64.lib dyncallback64.lib dynload.lib"
+				AdditionalDependencies="jvm.lib dyncall64.lib dyncallback64.lib dynload.lib dbghelp.lib"
 				OutputFile="$(OutDir)\bridj.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME64)\lib;..\x64\Debug"
 				GenerateManifest="true"
 				IgnoreAllDefaultLibraries="false"
 				GenerateDebugInformation="true"
-				ResourceOnlyDLL="true"
+				OptimizeForWindows98="1"
+				EntryPointSymbol="_DllMainCRTStartup"
+				ResourceOnlyDLL="false"
 				TargetMachine="17"
 			/>
 			<Tool
@@ -192,6 +203,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
+			UseOfMFC="0"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
@@ -220,12 +232,15 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
-				RuntimeLibrary="2"
+				ExceptionHandling="0"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="2"
 				WarningLevel="3"
 				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -238,12 +253,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="jvm.lib dyncall32.lib dyncallback32.lib dynload.lib"
+				AdditionalDependencies="jvm.lib dyncall32.lib dyncallback32.lib dynload.lib dbghelp.lib"
 				OutputFile="$(OutDir)\bridj.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME)\lib;$(JAVA_HOME)\lib;..\Release"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
+				EntryPointSymbol="_DllMainCRTStartup"
+				ResourceOnlyDLL="false"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -273,6 +291,7 @@
 			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
+			UseOfMFC="0"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -302,12 +321,15 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				AdditionalIncludeDirectories="&quot;$(JAVA_HOME)\include&quot;;&quot;$(JAVA_HOME)\include\win32&quot;;.;..;$(DYNCALL_HOME)\dyncall;$(DYNCALL_HOME)\dyncall\dyncall;$(DYNCALL_HOME)\dyncall\dyncallback;$(DYNCALL_HOME)\dyncall\dynload"
-				RuntimeLibrary="2"
+				ExceptionHandling="0"
+				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
+				EnableEnhancedInstructionSet="2"
 				WarningLevel="3"
 				WarnAsError="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
+				CompileAs="1"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -320,12 +342,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="jvm.lib dyncall64.lib dyncallback64.lib dynload.lib"
+				AdditionalDependencies="jvm.lib dyncall64.lib dyncallback64.lib dynload.lib dbghelp.lib"
 				OutputFile="$(OutDir)\bridj.dll"
 				AdditionalLibraryDirectories="$(JAVA_HOME)\lib;..\x64\Release"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				OptimizeForWindows98="1"
+				EntryPointSymbol="_DllMainCRTStartup"
+				ResourceOnlyDLL="false"
 				TargetMachine="17"
 			/>
 			<Tool

@@ -41,6 +41,14 @@ JNIEXPORT jint JNICALL Java_com_bridj_JNI_sizeOf_1ptrdiff_1t
 
 /*
  * Class:     com_bridj_JNI
+ * Method:    sizeOf_long
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_bridj_JNI_sizeOf_1long
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_bridj_JNI
  * Method:    loadLibrary
  * Signature: (Ljava/lang/String;)J
  */
@@ -57,11 +65,43 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeLibrary
 
 /*
  * Class:     com_bridj_JNI
+ * Method:    loadLibrarySymbols
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_loadLibrarySymbols
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    freeLibrarySymbols
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_freeLibrarySymbols
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_bridj_JNI
  * Method:    findSymbolInLibrary
  * Signature: (JLjava/lang/String;)J
  */
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_findSymbolInLibrary
   (JNIEnv *, jclass, jlong, jstring);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    getLibrarySymbols
+ * Signature: (JJ)[Ljava/lang/String;
+ */
+JNIEXPORT jobjectArray JNICALL Java_com_bridj_JNI_getLibrarySymbols
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    findSymbolName
+ * Signature: (JJJ)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_bridj_JNI_findSymbolName
+  (JNIEnv *, jclass, jlong, jlong, jlong);
 
 /*
  * Class:     com_bridj_JNI
@@ -690,10 +730,10 @@ JNIEXPORT jint JNICALL Java_com_bridj_JNI_getMaxDirectMappingArgCount
 /*
  * Class:     com_bridj_JNI
  * Method:    createCallback
- * Signature: (Ljava/lang/Class;Ljava/lang/String;IJZLjava/lang/String;Ljava/lang/String;II[I)J
+ * Signature: (Ljava/lang/Class;Lcom/bridj/Callback;Ljava/lang/reflect/Method;ZLjava/lang/String;IJIIZLjava/lang/String;Ljava/lang/String;II[I)J
  */
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback
-  (JNIEnv *, jclass, jclass, jobject, jmethodID, jboolean, jstring, jint, jlong, jint, jint, jboolean, jstring, jstring, jint, jint, jintArray);
+  (JNIEnv *, jclass, jclass, jobject, jobject, jboolean, jstring, jint, jlong, jint, jint, jboolean, jstring, jstring, jint, jint, jintArray);
 
 /*
  * Class:     com_bridj_JNI

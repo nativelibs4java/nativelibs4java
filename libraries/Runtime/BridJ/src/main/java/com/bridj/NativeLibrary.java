@@ -162,7 +162,15 @@ public class NativeLibrary {
 		return Collections.unmodifiableSet(nameToAddr.keySet());
 	}
 	public String getSymbolName(long address) {
-		return JNI.findSymbolName(getHandle(), getSymbolsHandle(), address);
+		if (getSymbolsHandle() != 0)//JNI.isUnix())
+			return JNI.findSymbolName(getHandle(), getSymbolsHandle(), address);
+		
+		try {
+			scanSymbols();
+			return addrToName.get(address);
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to get name of address " + address, ex);
+		}
 	}
 	void scanSymbols() throws Exception {
 		if (addrToName != null)

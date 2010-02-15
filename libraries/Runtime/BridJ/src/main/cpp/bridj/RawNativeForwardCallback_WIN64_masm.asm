@@ -13,7 +13,7 @@ CTX_userdata    =   32
 DCCallback_size =   40
 ;ZERO_IREG_ISMS	=	
 
-dcRawCallAdapterSkipTwoArgs64 PROC EXPORT
+dcRawCallAdapterSkipTwoArgs64 PROC ; EXPORT
 
   OPTION PROLOGUE:NONE, EPILOGUE:NONE
 	
