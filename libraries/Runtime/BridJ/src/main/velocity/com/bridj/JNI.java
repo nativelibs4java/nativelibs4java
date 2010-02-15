@@ -116,7 +116,7 @@ public class JNI {
     public static native long loadLibrarySymbols(long libHandle);
     public static native void freeLibrarySymbols(long symbolsHandle);
     public static native long findSymbolInLibrary(long libHandle, String name);
-    public static native String[] getLibrarySymbols(long libHandle);
+    public static native String[] getLibrarySymbols(long libHandle, long symbolsHandle);
     public static native String findSymbolName(long libHandle, long symbolsHandle, long address);
 
 	public static native long newGlobalRef(Object object);

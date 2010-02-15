@@ -148,16 +148,12 @@ public class BridJ {
 	public static synchronized NativeLibrary getNativeLibrary(AnnotatedElement type) throws FileNotFoundException {
 		NativeLibrary lib = librariesByClass.get(type);
 		if (lib == null) {
-			String name = getLibrary(type);
-			lib = getLibHandle(name);
+			String name = getNativeLibraryName(type);
+			lib = getNativeLibrary(name);
 			if (lib != null)
 				librariesByClass.put(type, lib);
 		}
 		return lib;
-	}
-	//static List<Runnable> releaseHooks = new ArrayList<Runnable>();
-	public synchronized static void addShutdownHook(NativeLibrary library, Runnable runnable) {
-		//releaseHooks.add(runnable);
 	}
 	
 	/**
@@ -195,39 +191,8 @@ public class BridJ {
 //	}
 //	
     static Map<String, NativeLibrary> libHandles = new HashMap<String, NativeLibrary>();
-    static synchronized long getSymbolAddress(AnnotatedElement member) throws FileNotFoundException {
-        String lib = getLibrary(member);
-        NativeLibrary libHandle = getLibHandle(lib);
-        if (libHandle == null)
-            return 0;
-        return getSymbolAddress(libHandle, member);
-    }
-    static synchronized long getSymbolAddress(NativeLibrary library, AnnotatedElement member) throws FileNotFoundException {
-        //libHandle = libHandle & 0xffffffffL;
-        Mangling mg = getAnnotation(Mangling.class, false, member);
-        if (mg != null)
-            for (String name : mg.value())
-            {
-                long handle = library.getSymbolAddress(name);
-                if (handle != 0)
-                    return handle;
-            }
-
-        String name = null;
-        if (member instanceof Member)
-            name = ((Member)member).getName();
-        else if (member instanceof Class<?>)
-            name = ((Class<?>)member).getSimpleName();
-
-        if (name != null) {
-            long handle = library.getSymbolAddress(name);
-            if (handle != 0)
-                return handle;
-        }
-        return 0;
-    }
     static List<String> paths;
-    static synchronized List<String> getPaths() {
+    static synchronized List<String> getNativeLibraryPaths() {
         if (paths == null) {
             paths = new ArrayList<String>();
             paths.add(".");
@@ -248,14 +213,10 @@ public class BridJ {
         return paths;
     }
 
-    static synchronized File getLibFile(Class<?> member) throws FileNotFoundException {
-        return getLibFile(getLibrary(member));
-    }
-
-    static File getLibFile(String name) {
+    public static File getNativeLibraryFile(String name) {
         if (name == null)
             return null;
-        for (String path : getPaths()) {
+        for (String path : getNativeLibraryPaths()) {
             File pathFile;
             try {
                 pathFile = new File(path).getCanonicalFile();
@@ -287,7 +248,7 @@ public class BridJ {
         	return null;
         }
     }
-    public static synchronized NativeLibrary getLibHandle(String name) throws FileNotFoundException {
+    public static synchronized NativeLibrary getNativeLibrary(String name) throws FileNotFoundException {
         if (name == null)
             return null;
         
@@ -295,14 +256,17 @@ public class BridJ {
         if (l != null)
             return l;
 
-        File f = getLibFile(name);
+        File f = getNativeLibraryFile(name);
+        if (f == null)
+        	throw new FileNotFoundException("Couldn't find library file for library '" + name + "'");
+        
         NativeLibrary ll = NativeLibrary.load(f.toString());
         if (ll == null)
-            throw new FileNotFoundException("Library '" + name + "' was not found in path '" + getPaths() + "'");
+            throw new FileNotFoundException("Library '" + name + "' was not found in path '" + getNativeLibraryPaths() + "'");
         libHandles.put(name, ll);
         return ll;
     }
-    static String getLibrary(AnnotatedElement m) {
+    static String getNativeLibraryName(AnnotatedElement m) {
         Library lib = getAnnotation(Library.class, true, m);
         return lib == null ? null : lib.value(); // TODO use package as last resort
     }

@@ -7,7 +7,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -19,6 +21,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bridj.ann.Mangling;
 import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
 
@@ -82,6 +85,31 @@ public class NativeLibrary {
 			address = JNI.findSymbolInLibrary(getHandle(), "_" + name);
 		return address;
 	}
+
+    static synchronized long getSymbolAddress(NativeLibrary library, AnnotatedElement member) throws FileNotFoundException {
+        //libHandle = libHandle & 0xffffffffL;
+        Mangling mg = BridJ.getAnnotation(Mangling.class, false, member);
+        if (mg != null)
+            for (String name : mg.value())
+            {
+                long handle = library.getSymbolAddress(name);
+                if (handle != 0)
+                    return handle;
+            }
+
+        String name = null;
+        if (member instanceof Member)
+            name = ((Member)member).getName();
+        else if (member instanceof Class<?>)
+            name = ((Class<?>)member).getSimpleName();
+
+        if (name != null) {
+            long handle = library.getSymbolAddress(name);
+            if (handle != 0)
+                return handle;
+        }
+        return 0;
+    }
 	public int getPositionInVirtualTable(Method method) {
 		Class<?> type = method.getDeclaringClass();
 		Pointer<Pointer<?>> pVirtualTable = getVirtualTable(type);
@@ -144,6 +172,7 @@ public class NativeLibrary {
 		nameToAddr = new HashMap<String, Long>();
 		
 		String[] symbs = null;
+		if (true) // TODO turn to false !!!
 		try {
 			if (JNI.isMacOSX()) {
 				Process process = Runtime.getRuntime().exec(new String[] {"nm", "-gj", path});
@@ -159,7 +188,7 @@ public class NativeLibrary {
 			ex.printStackTrace();
 		}
 		if (symbs == null)
-			symbs = JNI.getLibrarySymbols(getHandle());
+			symbs = JNI.getLibrarySymbols(getHandle(), getSymbolsHandle());
 		
 		for (String name : symbs) {
 			long addr = JNI.findSymbolInLibrary(getHandle(), name);

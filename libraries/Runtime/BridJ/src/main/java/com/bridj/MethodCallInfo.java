@@ -49,7 +49,8 @@ public class MethodCallInfo {
         isVarArgs = false;
         isCPlusPlus = false;
         this.method = method;
-        forwardedPointer = BridJ.getSymbolAddress(library, method);
+        
+        forwardedPointer = library.getSymbolAddress(library, method);
 
         Class<?>[] paramsTypes = method.getParameterTypes();
         Annotation[][] paramsAnnotations = method.getParameterAnnotations();

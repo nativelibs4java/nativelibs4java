@@ -20,12 +20,8 @@ import java.util.logging.Logger;
 @Library("test")
 public class PerfLib {
     static {
-        try {
-            String f = BridJ.getLibFile(PerfLib.class).toString();
-            System.load(f);
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(PerfLib.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        String f = BridJ.getNativeLibraryFile(BridJ.getNativeLibraryName(PerfLib.class)).toString();
+        System.load(f);
     }
     public static class DynCallTest {
         public DynCallTest() throws FileNotFoundException {

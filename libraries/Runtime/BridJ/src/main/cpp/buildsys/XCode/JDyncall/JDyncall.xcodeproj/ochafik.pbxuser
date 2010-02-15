@@ -123,6 +123,7 @@
 			905E20161128CDAE0036B0FA /* PBXTextBookmark */ = 905E20161128CDAE0036B0FA /* PBXTextBookmark */;
 			905E20211128CE680036B0FA /* PBXTextBookmark */ = 905E20211128CE680036B0FA /* PBXTextBookmark */;
 			905E20281128CEAD0036B0FA /* PBXTextBookmark */ = 905E20281128CEAD0036B0FA /* PBXTextBookmark */;
+			905E20291128E6A50036B0FA /* PBXTextBookmark */ = 905E20291128E6A50036B0FA /* PBXTextBookmark */;
 		};
 		sourceControlManager = 9007DF0D10EE299F00928CAE /* Source Control */;
 		userBuildSettings = {
@@ -270,9 +271,9 @@
 	};
 	9007E0F810EE3F1C00928CAE /* JavaToNativeCallHandler.c */ = {
 		uiCtxt = {
-			sepNavIntBoundsRect = "{{0, 0}, {789, 3042}}";
-			sepNavSelRange = "{6365, 0}";
-			sepNavVisRange = "{0, 675}";
+			sepNavIntBoundsRect = "{{0, 0}, {789, 2925}}";
+			sepNavSelRange = "{6071, 0}";
+			sepNavVisRange = "{0, 594}";
 		};
 	};
 	9007E0FC10EE3F1C00928CAE /* JNI.c */ = {
@@ -534,6 +535,16 @@
 		rLoc = 6365;
 		rType = 0;
 		vrLen = 675;
+		vrLoc = 0;
+	};
+	905E20291128E6A50036B0FA /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = 9007E0F810EE3F1C00928CAE /* JavaToNativeCallHandler.c */;
+		name = "JavaToNativeCallHandler.c: 215";
+		rLen = 0;
+		rLoc = 6071;
+		rType = 0;
+		vrLen = 594;
 		vrLoc = 0;
 	};
 	D28A88AD04BDD90700651E21 /* bridj */ = {

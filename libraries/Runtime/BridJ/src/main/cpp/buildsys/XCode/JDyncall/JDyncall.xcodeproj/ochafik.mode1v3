@@ -324,7 +324,7 @@
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>905E20281128CEAD0036B0FA</string>
+										<string>905E20291128E6A50036B0FA</string>
 										<key>history</key>
 										<array>
 											<string>9007E10F10EE3F5100928CAE</string>
@@ -534,9 +534,9 @@
 	<integer>5</integer>
 	<key>WindowOrderList</key>
 	<array>
+		<string>9007DF5310EE2B1A00928CAE</string>
 		<string>1CD10A99069EF8BA00B06720</string>
 		<string>/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/BridJ/src/main/cpp/buildsys/XCode/JDyncall/JDyncall.xcodeproj</string>
-		<string>9007DF5310EE2B1A00928CAE</string>
 	</array>
 	<key>WindowString</key>
 	<string>136 199 1018 579 0 0 1280 778 </string>
@@ -631,7 +631,7 @@
 			<key>WindowToolGUID</key>
 			<string>9007DF5310EE2B1A00928CAE</string>
 			<key>WindowToolIsVisible</key>
-			<true/>
+			<false/>
 		</dict>
 		<dict>
 			<key>FirstTimeWindowDisplayed</key>
