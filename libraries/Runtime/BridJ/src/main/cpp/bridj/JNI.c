@@ -21,15 +21,33 @@ jint JNICALL Java_com_bridj_JNI_sizeOf_1 ## escType(JNIEnv *env, jclass clazz) {
 JNI_SIZEOF_t(size)
 JNI_SIZEOF_t(wchar)
 JNI_SIZEOF_t(ptrdiff)
+JNI_SIZEOF(long, long)
 
+jmethodID getPeerMethod = NULL;
+jclass bridjClass = NULL;
+
+jmethodID getGetPeerMethod(JNIEnv* env) {
+	if (!getPeerMethod)
+	{
+		bridjClass = (*env)->FindClass(env, "com/bridj/BridJ");
+		//getPeerMethod = (*env)->GetMethodID(env, bridjClass, "getPeer", "(Lcom/bridj/CPPObject;Ljava/lang/Class;)J");
+		getPeerMethod = (*env)->GetMethodID(env, bridjClass, "getPeer", "(Lcom/lang/Object;Ljava/lang/Class;)J");
+	}
+	return getPeerMethod;
+}
+void* getCPPInstancePointer(JNIEnv *env, jobject instance, jclass targetClass) {
+	return (void*)(size_t)(*env)->CallLongMethod(env, NULL, getGetPeerMethod(env), instance, targetClass);
+}
 void JNICALL Java_com_bridj_JNI_init(JNIEnv *env, jclass clazz)
 {
-	//DefineCommonClassesAndMethods(env);
+	//bridjClass = (*env)->FindClass(env, "com/bridj/BridJ");
+	//getPeerMethod = (*env)->GetMethodID(env, bridjClass, "getPeer", "(Lcom/bridj/CPPObject;Ljava/lang/Class;)J");
+	//getPeerMethod = (*env)->GetMethodID(env, bridjClass, "getPeer", "(Lcom/lang/Object;Ljava/lang/Class;)J");
 }
 
 jlong JNICALL Java_com_bridj_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
 	BEGIN_TRY();
-	return !buffer ? 0 : (jlong)(*env)->GetDirectBufferAddress(env, buffer);
+	return !buffer ? 0 : (jlong)(size_t)(*env)->GetDirectBufferAddress(env, buffer);
 	END_TRY_RET(env, 0);
 }
 jlong JNICALL Java_com_bridj_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
@@ -40,7 +58,7 @@ jlong JNICALL Java_com_bridj_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jt
 
 jlong JNICALL Java_com_bridj_JNI_getObjectPointer(JNIEnv *env, jclass clazz, jobject object)
 {
-	return (jlong)object;
+	return (jlong)(size_t)object;
 }
  
 jlong JNICALL Java_com_bridj_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring pathStr)
@@ -56,13 +74,29 @@ void JNICALL Java_com_bridj_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong lib
 	dlFreeLibrary((DLLib*)(size_t)libHandle);
 }
 
-jarray JNICALL Java_com_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle)
+jlong JNICALL Java_com_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle)
 {
-	jclass stringClass;
+    jclass stringClass;
     jarray ret;
     DLSyms* pSyms = (DLSyms*)malloc(dlSyms_sizeof());
 	int count, i;
-	dlSymsInit((DLLib*)libHandle, pSyms);
+	dlSymsInit(pSyms, (DLLib*)libHandle);
+	count = dlSymsCount(pSyms);
+	return (jlong)(size_t)pSyms;
+}
+jlong JNICALL Java_com_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jlong symbolsHandle)
+{
+	DLSyms* pSyms = (DLSyms*)symbolsHandle;
+	dlSymsCleanup(pSyms);
+	free(pSyms);
+}
+
+jarray JNICALL Java_com_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle, jlong symbolsHandle)
+{
+	jclass stringClass;
+    jarray ret;
+    DLSyms* pSyms = (DLSyms*)symbolsHandle;
+	int count, i;
 	count = dlSymsCount(pSyms);
 	
 	stringClass = (*env)->FindClass(env, "java/lang/String");
@@ -74,18 +108,17 @@ jarray JNICALL Java_com_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 			continue;
 		(*env)->SetObjectArrayElement(env, ret, i, (*env)->NewStringUTF(env, name));
     }
-	dlSymsCleanup(pSyms);
-	free(pSyms);
     return ret;
 }
 
-jstring JNICALL Java_com_bridj_JNI_findSymbolName(JNIEnv *env, jclass clazz, jlong libHandle, jlong address)
+
+jstring JNICALL Java_com_bridj_JNI_findSymbolName(JNIEnv *env, jclass clazz, jlong libHandle, jlong symbolsHandle, jlong address)
 {
 #if defined(DC_UNIX)
 	Dl_info info;
 	if (!dladdr((void*)(size_t)address, &info))
 		return NULL;
-	if (!info.dli_sname || ((jlong)info.dli_saddr) != address)
+	if (!info.dli_sname || ((jlong)(size_t)info.dli_saddr) != address)
 		return NULL;
 	
 	return (*env)->NewStringUTF(env, info.dli_sname);
@@ -97,13 +130,12 @@ jstring JNICALL Java_com_bridj_JNI_findSymbolName(JNIEnv *env, jclass clazz, jlo
 jlong JNICALL Java_com_bridj_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, jlong libHandle, jstring nameStr)
 {
 	const char* name = (*env)->GetStringUTFChars(env, nameStr, NULL);
-	jlong ret = (jlong)dlFindSymbol((DLLib*)(size_t)libHandle, name);
+	jlong ret = (jlong)(size_t)dlFindSymbol((DLLib*)(size_t)libHandle, name);
 #if 0
 #if defined(DC_UNIX)
 	if (!ret) {
 		const char* error = dlerror();
-		printf(error);
-		printf("\n");
+		throwException(env, error);
 	}
 #endif
 #endif
@@ -129,10 +161,99 @@ JNIEXPORT jint JNICALL Java_com_bridj_JNI_getMaxDirectMappingArgCount(JNIEnv *en
 #endif
 }
 
+/*char __cdecl callInt(JNIEnv *env, jclass clazz, long args, long methodCallInfo) {
+{
+	DCArgs* args;
+	, DCValue* result, MethodCallInfo *info
+	JavaToNativeCallHandler(
+}*/
+
+char getDCReturnType(ValueType returnType) 
+{
+	switch (returnType) {
+#define CALL_CASE(valueType, capCase, hiCase, uni) \
+		case valueType: \
+			return DC_SIGCHAR_ ## hiCase;
+		CALL_CASE(eIntValue, Int, INT, i)
+		CALL_CASE(eLongValue, Long, LONGLONG, l)
+		CALL_CASE(eShortValue, Short, SHORT, s)
+		CALL_CASE(eFloatValue, Float, FLOAT, f)
+		CALL_CASE(eDoubleValue, Double, DOUBLE, d)
+		CALL_CASE(eByteValue, Char, CHAR, c)
+		case eCLongValue:
+			return DC_SIGCHAR_LONG;
+		case eSizeTValue:
+			return DC_SIGCHAR_LONG;
+		case eVoidValue:
+			return DC_SIGCHAR_VOID;
+		case eWCharValue:
+			// TODO
+		default:
+			//cerr << "Return ValueType not supported yet: " << (int)info->fReturnType << " !\n";
+			return DC_SIGCHAR_VOID;
+	}
+}
+
+void initCommonCallInfo(
+	struct CallInfo* info,
+	JNIEnv *env,
+	jint callMode,
+	jint nParams,
+	jint returnValueType, 
+	jintArray paramsValueTypes
+) {
+	info->fEnv = env;
+	info->fDCMode = callMode;
+	info->fReturnType = (ValueType)returnValueType;
+	info->nParams = nParams;
+	if (nParams) {
+		info->fParamTypes = (ValueType*)malloc(nParams * sizeof(jint));	
+		(*env)->GetIntArrayRegion(env, paramsValueTypes, 0, nParams, (jint*)info->fParamTypes);
+	}
+	info->fDCReturnType = getDCReturnType(info->fReturnType);
+}
+
+void* getJNICallFunction(JNIEnv* env, ValueType valueType) {
+	switch (valueType) {
+	case eIntValue:
+		return (*env)->CallIntMethod;
+	case eSizeTValue:
+	case eCLongValue:
+	case eLongValue:
+		return (*env)->CallLongMethod;
+	case eFloatValue:
+		return (*env)->CallFloatMethod;
+	case eDoubleValue:
+		return (*env)->CallDoubleMethod;
+	case eByteValue:
+		return (*env)->CallByteMethod;
+	case eShortValue:
+		return (*env)->CallShortMethod;
+	case eWCharValue:
+		return (*env)->CallCharMethod;
+	case eVoidValue:
+		return (*env)->CallVoidMethod;
+	default:
+		throwException(env, "Unhandled type in getJNICallFunction !");
+		return NULL;
+	}
+}
+
+#define NEW_STRUCT(type, name, assignTo, pCommon) \
+	struct type *name = NULL; \
+	name = (struct type*)malloc(sizeof(struct type)); \
+	memset(name, 0, sizeof(struct type)); \
+	assignTo = name; \
+	pCommon = &name->fInfo;
+	
+		
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback(
 	JNIEnv *env, 
 	jclass clazz,
 	jclass declaringClass,
+	jobject javaCallbackInstance,
+	jmethodID method,
+	jboolean startsWithThis,
 	jstring methodName,
 	jint callMode,
 	jlong forwardedPointer, 
@@ -145,52 +266,77 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback(
 	jint returnValueType, 
 	jintArray paramsValueTypes
 ) {
-	JNINativeMethod meth;
-	struct MethodCallInfo *info = NULL;
-	//if (!forwardedPointer && virtualIndex < 0)
-	//	return 0;
 	
-	info = (struct MethodCallInfo*)malloc(sizeof(struct MethodCallInfo));
-	memset(info, 0, sizeof(MethodCallInfo));
+	struct CallInfo *pCommonInfo = NULL;
+	void *pInfo = NULL;
+	void *callbackToRegister = NULL;
 	
-	info->fForwardedSymbol = (void*)(size_t)forwardedPointer;
-	info->fEnv = env;
-	info->fDCMode = callMode;
-	info->fReturnType = (ValueType)returnValueType;
-	info->nParams = nParams;
-	info->fVirtualIndex = virtualIndex;
-	info->fVirtualTableOffset = virtualTableOffset;
-	if (nParams) {
-		info->fParamTypes = (ValueType*)malloc(nParams * sizeof(jint));	
-		(*env)->GetIntArrayRegion(env, paramsValueTypes, 0, nParams, (jint*)info->fParamTypes);
-	}
-	
-	meth.fnPtr = NULL;
-	if (direct && forwardedPointer) // TODO DIRECT C++ virtual thunk
-		info->fCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer);
-	if (!info->fCallback) {
+	if (javaCallbackInstance)
+	{
+		NEW_STRUCT(JavaCallbackCallInfo, info, pInfo, pCommonInfo);
+		
+		info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
+		info->fCallbackInstance = javaCallbackInstance;
+		
+		// TODO DIRECT C++ virtual thunk
 		const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-		info->fCallback = dcbNewCallback(ds, JavaToNativeCallHandler, info);
+		info->fInfo.fDCCallback = dcbNewCallback(ds, NativeToJavaCallHandler, info);
 		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
+	} 
+	else if (virtualIndex >= 0)
+	{
+		NEW_STRUCT(VirtualMethodCallInfo, info, pInfo, pCommonInfo);
+		
+		info->fClass = declaringClass;
+		info->fHasThisPtrArg = startsWithThis;
+		info->fVirtualIndex = virtualIndex;
+		info->fVirtualTableOffset = virtualTableOffset;
+		
+		// TODO DIRECT C++ virtual thunk
+		const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
+		info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToVirtualMethodCallHandler, info);
+		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
+		
+		callbackToRegister = info->fInfo.fDCCallback;
+	} 
+	else
+	{
+		NEW_STRUCT(FunctionCallInfo, info, pInfo, pCommonInfo);
+		
+		info->fForwardedSymbol = (void*)(size_t)forwardedPointer;
+		if (direct && forwardedPointer)
+			info->fInfo.fDCCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer, callMode);
+		
+		if (!info->fInfo.fDCCallback) {
+			const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
+			info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToFunctionCallHandler, info);
+			(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
+		}
+		callbackToRegister = info->fInfo.fDCCallback;
 	}
-	meth.fnPtr = info->fCallback;
-	meth.name = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
-	meth.signature = (char*)(*env)->GetStringUTFChars(env, javaSignature, NULL);
-	(*env)->RegisterNatives(env, declaringClass, &meth, 1);
 	
-	(*env)->ReleaseStringUTFChars(env, methodName, meth.name);
-	(*env)->ReleaseStringUTFChars(env, javaSignature, meth.signature);
+	initCommonCallInfo(pCommonInfo, env, callMode, nParams, returnValueType, paramsValueTypes);
 	
-	return (jlong)(size_t)info;
+	if (callbackToRegister) {
+		JNINativeMethod meth;
+		meth.fnPtr = callbackToRegister;
+		meth.name = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
+		meth.signature = (char*)(*env)->GetStringUTFChars(env, javaSignature, NULL);
+		(*env)->RegisterNatives(env, declaringClass, &meth, 1);
+		
+		(*env)->ReleaseStringUTFChars(env, methodName, meth.name);
+		(*env)->ReleaseStringUTFChars(env, javaSignature, meth.signature);
+	}
+	return (jlong)(size_t)pInfo;
 }
 
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCallback(JNIEnv *env, jclass clazz, jlong nativeCallback)
 {
-	MethodCallInfo* info = (MethodCallInfo*)nativeCallback;
+	CallInfo* info = (CallInfo*)nativeCallback;
 	if (info->nParams)
 		free(info->fParamTypes);
 	
-	dcbFreeCallback((DCCallback*)info->fCallback);
+	dcbFreeCallback((DCCallback*)info->fDCCallback);
 	free(info);
 }
 

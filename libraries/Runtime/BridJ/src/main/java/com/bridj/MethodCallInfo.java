@@ -6,10 +6,13 @@
 package com.bridj;
 import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
-import static com.bridj.JDyncallLibrary.*;
-import static com.bridj.DyncallSignatures.*;
+import static com.bridj.Dyncall.*;
+import static com.bridj.Dyncall.CallingConvention.*;
+import com.bridj.ann.CallingConvention;
+import static com.bridj.Dyncall.SignatureChars.*;
 import com.bridj.*;
 import com.bridj.ann.*;
+
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,27 +28,26 @@ public class MethodCallInfo {
     }
     GenericMethodInfo genericInfo = new GenericMethodInfo();*/
     int returnValueType, paramsValueTypes[];
-    Options methodOptions = new Options(), paramsOptions[];
 	Method method;
 	long forwardedPointer;
     String dcSignature;
 	String javaSignature;
+	Callback javaCallback;
 	int virtualIndex = -1;
 	int virtualTableOffset = 0;
-    int dcCallingConvention;
+    int dcCallingConvention = DC_CALL_C_DEFAULT;
 
 	boolean isVarArgs;
 	boolean isStatic;
 	boolean isCPlusPlus;
 	
 	boolean direct;
-
+	boolean startsWithThis;
     boolean isCallableAsRaw;
 
 	public MethodCallInfo(Method method, NativeLibrary library) throws FileNotFoundException {
         isVarArgs = false;
         isCPlusPlus = false;
-        dcCallingConvention = 0;
         this.method = method;
         forwardedPointer = BridJ.getSymbolAddress(library, method);
 
@@ -64,7 +66,7 @@ public class MethodCallInfo {
         this.direct = nParams <= JNI.getMaxDirectMappingArgCount();
         
         isCallableAsRaw = true; // TODO on native side : test number of parameters (on 64 bits win : must be <= 4)
-        isCPlusPlus = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
+        //isCPlusPlus = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
 
         //GetOptions(methodOptions, method);
 
@@ -76,7 +78,7 @@ public class MethodCallInfo {
 //            Options paramOptions = paramsOptions[iParam] = new Options();
             Class<?> param = paramsTypes[iParam];
 
-            ValueType paramValueType = getValueType(param, null, paramsAnnotations[iParam]);
+            ValueType paramValueType = getValueType(iParam, param, null, paramsAnnotations[iParam]);
             paramsValueTypes[iParam] = paramValueType.ordinal();
             //GetOptions(paramOptions, method, paramsAnnotations[iParam]);
 
@@ -85,56 +87,80 @@ public class MethodCallInfo {
         javaSig.append(')');
         dcSig.append(')');
 
-        ValueType retType = getValueType(method.getReturnType(), method);
+        ValueType retType = getValueType(-1, method.getReturnType(), method);
         appendToSignature(retType, javaSig, dcSig);
         returnValueType = retType.ordinal();
 
         javaSignature = javaSig.toString();
         dcSignature = dcSig.toString();
+        
+        
+        Virtual virtual = BridJ.getAnnotation(Virtual.class, false, method);
+        isCPlusPlus = isCPlusPlus || virtual != null;
+        
+        CallingConvention cc = BridJ.getAnnotation(CallingConvention.class, false, method);
+    	if (isCPlusPlus) {
+        	if (JNI.isWindows()) {
+        		if (!JNI.is64Bits())
+        			dcCallingConvention = DC_CALL_C_X86_WIN32_THIS_MS;
+        	} else {
+        		if (!JNI.is64Bits())
+        			dcCallingConvention = DC_CALL_C_X86_WIN32_THIS_GNU;
+        	}
+        } else {
+        	if (cc != null) {
+        		switch (cc.value()) {
+        		case Auto:
+        			break;
+        		case FastCall:
+        			dcCallingConvention = JNI.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_X86_WIN32_FAST_GNU;
+        			break;
+        		case StdCall:
+        			dcCallingConvention = DC_CALL_C_X86_WIN32_STD;
+        			break;
+        		}
+        	}
+        }
     }
 	
+
 	public String getDcSignature() {
 		return dcSignature;
 	}
 	public String getJavaSignature() {
 		return javaSignature;
 	}
-    boolean getBoolAnnotation(Class<? extends Annotation> ac, AnnotatedElement element, Annotation... directAnnotations) {
-        Annotation ann = BridJ.getAnnotation(ac, element, directAnnotations);
+    boolean getBoolAnnotation(Class<? extends Annotation> ac, boolean inherit, AnnotatedElement element, Annotation... directAnnotations) {
+        Annotation ann = BridJ.getAnnotation(ac, inherit, element, directAnnotations);
         return ann != null;
     }
-    private void GetOptions(Options out, Method method, Annotation... directAnnotations) {
-        out.bIsWideChar = getBoolAnnotation(Wide.class, method, directAnnotations);
-        out.bIsByValue = getBoolAnnotation(ByValue.class, method, directAnnotations);
-        out.bIsConst = getBoolAnnotation(Const.class, method, directAnnotations);
-        out.bIsSizeT = getBoolAnnotation(PointerSized.class, method, directAnnotations);
-        out.bIsCLong = getBoolAnnotation(CLong.class, method, directAnnotations);
-
-        Virtual virtual = BridJ.getAnnotation(Virtual.class, method, directAnnotations);
-        out.virtualIndex = virtual == null ? -1 : virtual.value();
-    }
-
-    public static class UnmappableMethod extends RuntimeException {
-        public UnmappableMethod(Method method) {
-            super("Method " + method + " cannot be used as a native mapping");
-        }
-    }
-
-    public ValueType getValueType(Class<?> c, AnnotatedElement element, Annotation... directAnnotations) {
-        if (c == null || c.equals(Void.TYPE))
+    public ValueType getValueType(int iParam, Class<?> c, AnnotatedElement element, Annotation... directAnnotations) {
+    	PointerSized sz = BridJ.getAnnotation(PointerSized.class, true, element, directAnnotations);
+    	This th = BridJ.getAnnotation(This.class, true, element, directAnnotations);
+    	CLong cl = BridJ.getAnnotation(CLong.class, true, element, directAnnotations);
+        
+    	if (sz != null || th != null || cl != null) {
+    		if (!(c == Long.class || c == Long.TYPE))
+    			throw new RuntimeException("Annotation should only be used on a long parameter, not on a " + c.getName());
+    		
+    		if (sz != null) {
+                isCallableAsRaw = isCallableAsRaw && JNI.is64Bits();
+            } else if (cl != null) {
+                isCallableAsRaw = isCallableAsRaw && (JNI.CLONG_SIZE == 8);
+            } else if (th != null) {
+            	isCPlusPlus = true;
+				startsWithThis = true;
+				if (iParam != 0)
+					throw new RuntimeException("Annotation " + This.class.getName() + " can only be used on the first parameter");
+            }
+    	    return ValueType.eSizeTValue;
+    	}
+    	if (c == null || c.equals(Void.TYPE))
             return ValueType.eVoidValue;
         if (c == Integer.class || c == Integer.TYPE)
             return ValueType.eIntValue;
         if (c == Long.class || c == Long.TYPE) {
-            PointerSized sz = BridJ.getAnnotation(PointerSized.class, element, directAnnotations);
-            This th = element == null ? null : element.getAnnotation(This.class);
-            if (sz != null) {
-                isCallableAsRaw = false;
-                return ValueType.eSizeTValue;
-            } else if (th != null) {
-            	return ValueType.eSizeTValue;
-            }
-            return ValueType.eLongValue;
+        	return ValueType.eLongValue;
         }
         if (c == Short.class || c == Short.TYPE)
             return ValueType.eShortValue;

@@ -81,7 +81,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
 +
 +void* dlFindSymbol(DLLib* libHandle, const char* symbol)
 +{
-+  return dlsym(libHandle ? libHandle->handle : RTLD_DEFAULT, symbol);
++  return dlsym(libHandle && libHandle->handle ? libHandle->handle : RTLD_DEFAULT, symbol);
 +}
 +
 +void  dlFreeLibrary(DLLib* libHandle)

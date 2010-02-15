@@ -102,7 +102,6 @@ int Ctest::testAdd(int a, int b) {
 
 Ctest* createTest() {
 	Ctest* test = new Ctest();
-	std::cout << test->testAdd(1, 2);
 	return test;
 }
 

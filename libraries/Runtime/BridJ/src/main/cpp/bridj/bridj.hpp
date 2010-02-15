@@ -55,20 +55,43 @@ typedef enum ValueType {
 	eFloatValue
 } ValueType;
 
-typedef struct MethodCallInfo {
-	void* fCallback;
-	void* fForwardedSymbol;
-	ValueType fReturnType;
-	ValueType* fParamTypes;
+typedef struct CallInfo {
 	int nParams;
+	char fDCReturnType;
+	enum ValueType fReturnType;
+	enum ValueType* fParamTypes;
 	int fDCMode;
+	void* fDCCallback;
+	JNIEnv* fEnv;
+} CallInfo;
+
+typedef struct VirtualMethodCallInfo {
+	struct CallInfo fInfo;
+	jclass fClass;
+	jboolean fHasThisPtrArg;
 	int fVirtualIndex;
 	int fVirtualTableOffset;
-	JNIEnv* fEnv;
-} MethodCallInfo;
+} VirtualMethodCallInfo;
 
-char __cdecl JavaToNativeCallHandler(DCCallback* pcb, DCArgs* args, DCValue* result, void* userdata);
-//jlong BindCallback(jobject obj);
+typedef struct FunctionCallInfo {
+	struct CallInfo fInfo;
+	void* fForwardedSymbol;
+} FunctionCallInfo;
+
+typedef struct JavaCallbackCallInfo {
+	struct CallInfo fInfo;
+	void* fJNICallFunction;
+	jobject fCallbackInstance;
+	jmethodID fMethod;
+} JavaCallbackCallInfo;
+
+char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
+char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
+char __cdecl NativeToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
+
+void* getCPPInstancePointer(JNIEnv *env, jobject instance, jclass targetClass);
+void throwException(JNIEnv* env, const char* message);
+jboolean assertThrow(JNIEnv* env, jboolean value, const char* message);
 
 #endif
 

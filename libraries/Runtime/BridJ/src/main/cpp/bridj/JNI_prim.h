@@ -9,11 +9,11 @@
 static jprimName CONCAT_2(unaligned_get_1, primName)(JNIEnv* env, jclass clazz, jlong peer, jprimName (JNICALL *getter)(JNIEnv*, jclass, jlong)) {
 	int i;
 	union { char bytes[primSize]; jprimName prim; } aligned;
-	char* ptr = (char*)peer;
+	char* ptr = (char*)(size_t)peer;
 	for (i = 0; i < primSize; i++)
 		aligned.bytes[i] = *(ptr++);
 	
-	return getter(env, clazz, (jlong)&aligned.bytes);
+	return getter(env, clazz, (jlong)(size_t)&aligned.bytes);
 }
 #endif // ifndef SUPPORTS_UNALIGNED_ACCESS
 
@@ -22,9 +22,9 @@ static void CONCAT_2(unaligned_set_1, primName)(JNIEnv* env, jclass clazz, jlong
 	int i;
 	char* ptr;
 	union { char bytes[primSize]; jprimName prim; } aligned;
-	setter(env, clazz, (jlong)&aligned.bytes, value);
+	setter(env, clazz, (jlong)(size_t)&aligned.bytes, value);
 	
-	ptr = (char*)peer;
+	ptr = (char*)(size_t)peer;
 	for (i = 0; i < primSize; i++)
 		*(ptr++) = aligned.bytes[i];
 }

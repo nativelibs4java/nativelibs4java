@@ -5,6 +5,12 @@
 if [[ "$DYNCALL_HOME" == "" ]] ; then
 	export DYNCALL_HOME=~/src/dyncall/dyncall ;
 fi
+
+if [[ "$DEBUG" == "" ]] ; then
+	export OUT_PATTERN=release ;
+else
+	export OUT_PATTERN=debug ;
+fi
 	
 CURR="`pwd`"
 LD=gcc
@@ -37,8 +43,8 @@ cd "$CURR"
 if [[ -d build_out ]] ; then
 	cd build_out
 
-	for D in `ls . | grep _release` ; do
-		ARCH_NAME="`echo $D| sed 's/_gcc_release//'`"
+	for D in `ls . | grep _$OUT_PATTERN` ; do
+		ARCH_NAME="`echo $D| sed "s/_gcc_$OUT_PATTERN//"`"
 		MAIN_OUT="../../../resources/$ARCH_NAME"
 	
 		echo ARCH_NAME: $ARCH_NAME ;

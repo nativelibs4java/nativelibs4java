@@ -15,7 +15,7 @@ public class JNI {
     static final String osName = System.getProperty("os.name", "");
     static final String BridJLibraryName = "bridj";
     
-    public static int POINTER_SIZE, WCHAR_T_SIZE, SIZE_T_SIZE;
+    public static int POINTER_SIZE, WCHAR_T_SIZE, SIZE_T_SIZE, CLONG_SIZE;
     static {
         try {
             initLibrary();
@@ -72,7 +72,7 @@ public class JNI {
         	if (!f.exists())
         		f = new File(f.getName());
         	if (f.exists())
-        		return f;
+        		return f.getCanonicalFile();
         	throw new FileNotFoundException(libraryResource);
         }
         File libFile = File.createTempFile(new File(libraryResource).getName(), ext);
@@ -96,6 +96,7 @@ public class JNI {
 	        init();
 	        POINTER_SIZE = sizeOf_ptrdiff_t();
 	        WCHAR_T_SIZE = sizeOf_wchar_t();
+	        CLONG_SIZE = sizeOf_long();
 	        SIZE_T_SIZE = sizeOf_size_t();
 	
 	        inited = true;
@@ -108,12 +109,15 @@ public class JNI {
     public static native int sizeOf_size_t();
     public static native int sizeOf_wchar_t();
     public static native int sizeOf_ptrdiff_t();
+	public static native int sizeOf_long();
 
     public static native long loadLibrary(String path);
     public static native void freeLibrary(long libHandle);
+    public static native long loadLibrarySymbols(long libHandle);
+    public static native void freeLibrarySymbols(long symbolsHandle);
     public static native long findSymbolInLibrary(long libHandle, String name);
     public static native String[] getLibrarySymbols(long libHandle);
-    public static native String findSymbolName(long libHandle, long address);
+    public static native String findSymbolName(long libHandle, long symbolsHandle, long address);
 
 	public static native long newGlobalRef(Object object);
 	public static native void deleteGlobalRef(long reference);
@@ -157,8 +161,11 @@ public class JNI {
 			MethodCallInfo info = methodInfos.get(i);
 			ret[i] = createCallback(
 				info.method.getDeclaringClass(),
+				info.javaCallback,
+				info.method,
+				info.startsWithThis,
 				info.method.getName(),
-				0,
+				info.dcCallingConvention,
 				info.forwardedPointer,
 				info.virtualTableOffset, 
 				info.virtualIndex,
@@ -180,6 +187,9 @@ public class JNI {
 	public static native int getMaxDirectMappingArgCount();
 	public static native long createCallback(
 		Class<?> declaringClass,
+		Callback javaCallbackInstance,
+		Method method,
+		boolean startsWithThis,
 		String methodName,
 		int callMode,
 		long forwardedPointer, 

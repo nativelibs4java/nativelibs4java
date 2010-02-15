@@ -18,6 +18,8 @@
 
 class TEST_API Ctest {
 public:
+	int firstField;
+	int secondField;
 	Ctest();
 	//virtual 
 	~Ctest();

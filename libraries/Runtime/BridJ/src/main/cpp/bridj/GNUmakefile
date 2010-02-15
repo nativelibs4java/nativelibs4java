@@ -35,7 +35,7 @@ CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncall
 CPPFLAGS	 += -I$(DYNCALL_HOME)/dyncallback
 CPPFLAGS	 += -I$(DYNCALL_HOME)/dynload
 
-#UNITS += Exceptions
+UNITS += Exceptions
 UNITS += JNI
 UNITS += JavaToNativeCallHandler
 UNITS += Pointer

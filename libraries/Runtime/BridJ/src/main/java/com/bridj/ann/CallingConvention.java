@@ -1,10 +1,11 @@
 package com.bridj.ann;
 
 import java.lang.annotation.ElementType;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
+import static com.bridj.Dyncall.CallingConvention.*;
 /**
  *
  * @author Olivier Chafik
@@ -15,7 +16,7 @@ public @interface CallingConvention {
     public enum Style {
         Auto,
         StdCall,
-        ThisCall,
+        //ThisCall,
         FastCall,
         CDecl
     }

@@ -693,7 +693,7 @@ JNIEXPORT jint JNICALL Java_com_bridj_JNI_getMaxDirectMappingArgCount
  * Signature: (Ljava/lang/Class;Ljava/lang/String;IJZLjava/lang/String;Ljava/lang/String;II[I)J
  */
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback
-  (JNIEnv *, jclass, jclass, jstring, jint, jlong, jint, jint, jboolean, jstring, jstring, jint, jint, jintArray);
+  (JNIEnv *, jclass, jclass, jobject, jmethodID, jboolean, jstring, jint, jlong, jint, jint, jboolean, jstring, jstring, jint, jint, jintArray);
 
 /*
  * Class:     com_bridj_JNI

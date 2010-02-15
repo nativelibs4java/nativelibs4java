@@ -144,36 +144,21 @@
 		9007E0D010EE3F0A00928CAE /* GNUmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNUmakefile; sourceTree = "<group>"; };
 		9007E0D110EE3F0A00928CAE /* Nmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Nmakefile; sourceTree = "<group>"; };
 		9007E0D210EE3F0A00928CAE /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.txt; sourceTree = "<group>"; };
-		9007E0D710EE3F1B00928CAE /* BindCallback.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = BindCallback.o; sourceTree = "<group>"; };
-		9007E0D810EE3F1B00928CAE /* CommonClassesAndMethods.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = CommonClassesAndMethods.o; sourceTree = "<group>"; };
 		9007E0D910EE3F1B00928CAE /* JavaToNativeCallHandler.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = JavaToNativeCallHandler.o; sourceTree = "<group>"; };
 		9007E0DA10EE3F1B00928CAE /* JNI.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = JNI.o; sourceTree = "<group>"; };
-		9007E0DB10EE3F1B00928CAE /* JNIUtils.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = JNIUtils.o; sourceTree = "<group>"; };
 		9007E0DC10EE3F1B00928CAE /* libbridj.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libbridj.dylib; sourceTree = "<group>"; };
 		9007E0DD10EE3F1B00928CAE /* libtest.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libtest.dylib; sourceTree = "<group>"; };
 		9007E0E010EE3F1B00928CAE /* Pointer.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = Pointer.o; sourceTree = "<group>"; };
 		9007E0E110EE3F1B00928CAE /* RawNativeForwardCallback.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = RawNativeForwardCallback.o; sourceTree = "<group>"; };
-		9007E0E410EE3F1B00928CAE /* BindCallback.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = BindCallback.o; sourceTree = "<group>"; };
-		9007E0E510EE3F1B00928CAE /* CommonClassesAndMethods.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = CommonClassesAndMethods.o; sourceTree = "<group>"; };
 		9007E0E610EE3F1B00928CAE /* JavaToNativeCallHandler.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = JavaToNativeCallHandler.o; sourceTree = "<group>"; };
 		9007E0E710EE3F1B00928CAE /* JNI.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = JNI.o; sourceTree = "<group>"; };
-		9007E0E810EE3F1B00928CAE /* JNIUtils.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = JNIUtils.o; sourceTree = "<group>"; };
 		9007E0E910EE3F1B00928CAE /* libbridj.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libbridj.dylib; sourceTree = "<group>"; };
-		9007E0EA10EE3F1B00928CAE /* libtest.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libtest.dylib; sourceTree = "<group>"; };
 		9007E0ED10EE3F1B00928CAE /* Pointer.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = Pointer.o; sourceTree = "<group>"; };
 		9007E0EE10EE3F1B00928CAE /* RawNativeForwardCallback.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = RawNativeForwardCallback.o; sourceTree = "<group>"; };
-		9007E0F110EE3F1C00928CAE /* com_nativelibs4java_runtime_DynCall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = com_nativelibs4java_runtime_DynCall.h; sourceTree = "<group>"; };
-		9007E0F210EE3F1C00928CAE /* com_nativelibs4java_runtime_JNI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = com_nativelibs4java_runtime_JNI.h; sourceTree = "<group>"; };
-		9007E0F310EE3F1C00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = com_nativelibs4java_runtime_JNI_CallingConvention.h; sourceTree = "<group>"; };
-		9007E0F410EE3F1C00928CAE /* com_nativelibs4java_runtime_Pointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = com_nativelibs4java_runtime_Pointer.h; sourceTree = "<group>"; };
 		9007E0F710EE3F1C00928CAE /* GNUmakefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = GNUmakefile; sourceTree = "<group>"; };
 		9007E0F810EE3F1C00928CAE /* JavaToNativeCallHandler.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = JavaToNativeCallHandler.c; sourceTree = "<group>"; };
 		9007E0F910EE3F1C00928CAE /* bridj.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bridj.hpp; sourceTree = "<group>"; };
-		9007E0FA10EE3F1C00928CAE /* jmethodcall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jmethodcall.h; sourceTree = "<group>"; };
 		9007E0FC10EE3F1C00928CAE /* JNI.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = JNI.c; sourceTree = "<group>"; };
-		9007E0FF10EE3F1C00928CAE /* make.out */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = make.out; sourceTree = "<group>"; };
-		9007E10010EE3F1C00928CAE /* MakeAll.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = MakeAll.sh; sourceTree = "<group>"; };
-		9007E10510EE3F1C00928CAE /* out.jar */ = {isa = PBXFileReference; lastKnownFileType = archive.jar; path = out.jar; sourceTree = "<group>"; };
 		9007E10610EE3F1C00928CAE /* Pointer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = Pointer.c; sourceTree = "<group>"; };
 		9007E10710EE3F1C00928CAE /* RawNativeForwardCallback.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = RawNativeForwardCallback.c; sourceTree = "<group>"; };
 		9007E10810EE3F1C00928CAE /* RawNativeForwardCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RawNativeForwardCallback.h; sourceTree = "<group>"; };
@@ -430,18 +415,10 @@
 			isa = PBXGroup;
 			children = (
 				9007E0D510EE3F1B00928CAE /* build_out */,
-				9007E0F110EE3F1C00928CAE /* com_nativelibs4java_runtime_DynCall.h */,
-				9007E0F210EE3F1C00928CAE /* com_nativelibs4java_runtime_JNI.h */,
-				9007E0F310EE3F1C00928CAE /* com_nativelibs4java_runtime_JNI_CallingConvention.h */,
-				9007E0F410EE3F1C00928CAE /* com_nativelibs4java_runtime_Pointer.h */,
 				9007E0F710EE3F1C00928CAE /* GNUmakefile */,
 				9007E0F810EE3F1C00928CAE /* JavaToNativeCallHandler.c */,
 				9007E0F910EE3F1C00928CAE /* bridj.hpp */,
-				9007E0FA10EE3F1C00928CAE /* jmethodcall.h */,
 				9007E0FC10EE3F1C00928CAE /* JNI.c */,
-				9007E0FF10EE3F1C00928CAE /* make.out */,
-				9007E10010EE3F1C00928CAE /* MakeAll.sh */,
-				9007E10510EE3F1C00928CAE /* out.jar */,
 				9007E10610EE3F1C00928CAE /* Pointer.c */,
 				9007E10710EE3F1C00928CAE /* RawNativeForwardCallback.c */,
 				9007E10810EE3F1C00928CAE /* RawNativeForwardCallback.h */,
@@ -464,11 +441,8 @@
 		9007E0D610EE3F1B00928CAE /* darwin_universal_gcc_debug */ = {
 			isa = PBXGroup;
 			children = (
-				9007E0D710EE3F1B00928CAE /* BindCallback.o */,
-				9007E0D810EE3F1B00928CAE /* CommonClassesAndMethods.o */,
 				9007E0D910EE3F1B00928CAE /* JavaToNativeCallHandler.o */,
 				9007E0DA10EE3F1B00928CAE /* JNI.o */,
-				9007E0DB10EE3F1B00928CAE /* JNIUtils.o */,
 				9007E0DC10EE3F1B00928CAE /* libbridj.dylib */,
 				9007E0DD10EE3F1B00928CAE /* libtest.dylib */,
 				9007E0E010EE3F1B00928CAE /* Pointer.o */,
@@ -480,13 +454,9 @@
 		9007E0E310EE3F1B00928CAE /* darwin_universal_gcc_release */ = {
 			isa = PBXGroup;
 			children = (
-				9007E0E410EE3F1B00928CAE /* BindCallback.o */,
-				9007E0E510EE3F1B00928CAE /* CommonClassesAndMethods.o */,
 				9007E0E610EE3F1B00928CAE /* JavaToNativeCallHandler.o */,
 				9007E0E710EE3F1B00928CAE /* JNI.o */,
-				9007E0E810EE3F1B00928CAE /* JNIUtils.o */,
 				9007E0E910EE3F1B00928CAE /* libbridj.dylib */,
-				9007E0EA10EE3F1B00928CAE /* libtest.dylib */,
 				9007E0ED10EE3F1B00928CAE /* Pointer.o */,
 				9007E0EE10EE3F1B00928CAE /* RawNativeForwardCallback.o */,
 			);
@@ -502,8 +472,8 @@
 			buildConfigurationList = 1DEB918F08733D9F0010E9CD /* Build configuration list for PBXLegacyTarget "bridj" */;
 			buildPhases = (
 			);
-			buildToolPath = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/bridj/src/main/cpp/bridj/MakeAll.sh;
-			buildWorkingDirectory = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/bridj/src/main/cpp/bridj;
+			buildToolPath = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/BridJ/BuildNative;
+			buildWorkingDirectory = /Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/Runtime/BridJ;
 			dependencies = (
 			);
 			name = bridj;
@@ -515,7 +485,7 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "bridj" */;
+			buildConfigurationList = 1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "JDyncall" */;
 			compatibilityVersion = "Xcode 3.2";
 			hasScannedForEncodings = 1;
 			mainGroup = 08FB7794FE84155DC02AAC07 /* bridj */;
@@ -581,7 +551,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "bridj" */ = {
+		1DEB919308733D9F0010E9CD /* Build configuration list for PBXProject "JDyncall" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB919408733D9F0010E9CD /* Debug */,

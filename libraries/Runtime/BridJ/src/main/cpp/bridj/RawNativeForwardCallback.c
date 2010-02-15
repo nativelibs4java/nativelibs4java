@@ -28,29 +28,29 @@ struct DCAdapterCallback
 	void (*handler)();
 };
 
-DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)())
-{
+
 #if defined(DC__OS_Darwin) && defined(DC__Arch_AMD64) || defined(_WIN64)
-	int err;
-	DCAdapterCallback* pcb;
-	err = dcAllocWX(sizeof(DCAdapterCallback), (void**) &pcb);
-	if (err != 0) 
-		return 0;
-
-	dcbInitThunk(&pcb->thunk, dcRawCallAdapterSkipTwoArgs64);
-	pcb->handler = handler;
-	return pcb;
+#define DIRECT_SKIP_TWO_ARGS dcRawCallAdapterSkipTwoArgs64
 #elif defined(_WIN32)
+#define DIRECT_SKIP_TWO_ARGS dcRawCallAdapterSkipTwoArgs32_cdecl
+#endif
+
+DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)(), int callMode)
+{
+#ifndef DIRECT_SKIP_TWO_ARGS
+	return NULL;
+#else
 	int err;
 	DCAdapterCallback* pcb;
+	if (callMode != DC_CALL_C_DEFAULT)
+		return NULL;
+	
 	err = dcAllocWX(sizeof(DCAdapterCallback), (void**) &pcb);
 	if (err != 0) 
 		return 0;
-
-	dcbInitThunk(&pcb->thunk, dcRawCallAdapterSkipTwoArgs32_cdecl);
+	
+	dcbInitThunk(&pcb->thunk, DIRECT_SKIP_TWO_ARGS);
 	pcb->handler = handler;
 	return pcb;
-#else
-	return NULL;
 #endif
 }

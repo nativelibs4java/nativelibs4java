@@ -42,7 +42,6 @@ public class TestCPP {
 		int res = test.testAdd(1, 2);
 		System.out.println("res = " + res);
 	}
-	static ThreadLocal<Boolean> currentlyCastingACPPClass = new ThreadLocal<Boolean>();
 	@Library("test")
 	static class Ctest extends CPPObject {
 		static {
@@ -53,6 +52,7 @@ public class TestCPP {
 		@Mangling("_Z10createTestv")
 		static native @PointerSized long createTest();
 		
+
 		public Ctest() {
 			super(Pointer.pointerToAddress(createTest()));
 		}
@@ -62,6 +62,8 @@ public class TestCPP {
 		@Virtual
 		protected static native int testAdd(@This long thisPtr, int a, int b);
 		public int testAdd(int a, int b) {
+			print("this", $this.getPeer(), 10, 10);
+			print("*this", $this.getPointer(0).getPeer(), 10, 10);
 			return testAdd($this.getPeer(), a, b);
 		}
 	}

@@ -3,6 +3,18 @@
 
 // http://msdn.microsoft.com/en-us/library/ms679356(VS.85).aspx
 
+void throwException(JNIEnv* env, const char* message) {
+	(*env)->ExceptionClear(env);
+	(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), message);
+}
+
+jboolean assertThrow(JNIEnv* env, jboolean value, const char* message) {
+	if (!value)
+		throwException(env, message);
+	return value;
+}
+
+
 #ifndef __GNUC__
 
 #include <windows.h>

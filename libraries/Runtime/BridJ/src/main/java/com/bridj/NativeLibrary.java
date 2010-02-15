@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -22,112 +23,36 @@ import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
 
 public class NativeLibrary {
-	long handle;
+	long handle, symbols;
 	String path;
-	Map<Class<?>, long[]> callbacks = new HashMap<Class<?>, long[]>();
+	//Map<Class<?>, long[]> callbacks = new HashMap<Class<?>, long[]>();
+	NativeEntities nativeEntities = new NativeEntities();
 	
 	Map<Long, String> addrToName;
 	Map<String, Long> nameToAddr;
 	
-	Map<Class<? extends CPPObject>, Pointer<Pointer<?>>> vtables = new HashMap<Class<? extends CPPObject>, Pointer<Pointer<?>>>();
-	protected NativeLibrary(String path, long handle) {
+	Map<Class<?>, Pointer<Pointer<?>>> vtables = new HashMap<Class<?>, Pointer<Pointer<?>>>();
+	protected NativeLibrary(String path, long handle, long symbols) {
 		this.path = path;
 		this.handle = handle;
+		this.symbols = symbols;
 	}
 	
+	long getSymbolsHandle() {
+		return symbols;
+	}
+	public NativeEntities getNativeEntities() {
+		return nativeEntities;
+	}
 	public static NativeLibrary load(String path) {
 		long handle = JNI.loadLibrary(path);
 		if (handle == 0)
 			return null;
-		
-		return new NativeLibrary(path, handle);
+		long symbols = JNI.loadLibrarySymbols(handle);
+		return new NativeLibrary(path, handle, symbols);
 	}
 	
-	public void register(Class<?> type) throws FileNotFoundException {
-		if (callbacks.get(type) != null)
-			return; // already registered
-		do {
-			
-			try {
-				List<MethodCallInfo> methodInfos = new ArrayList<MethodCallInfo>();
-			
-				boolean isCPPClass = CPPObject.class.isAssignableFrom(type);
-				Pointer<Pointer<?>> pVirtualTable = isCPPClass ? getVirtualTable((Class<? extends CPPObject>)type) : null;
-				for (Method method : type.getDeclaredMethods()) {
-					try {
-						int modifiers = method.getModifiers();
-						if (!Modifier.isNative(modifiers))
-							continue;
-						
-						MethodCallInfo mci = new MethodCallInfo(method, this);
-						Annotation[][] anns = method.getParameterAnnotations();
-						boolean isCPPInstanceMethod = false;
-						if (anns.length > 0) {
-							for (Annotation ann : anns[0]) {
-								if (ann instanceof This) {
-									isCPPInstanceMethod = true;
-									break;
-								}
-							}
-						}
-						
-						if (isCPPInstanceMethod) {
-//							if (Modifier.isStatic(modifiers)) {
-//								Logger.getLogger(getClass().getName()).log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a C++ instance method. It should not be static.");
-//								continue;
-//							}
-							
-							if (!isCPPClass) {
-								Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Method " + method.toGenericString() + " should have been declared in a " + CPPObject.class.getName() + " subclass.");
-								continue;
-							}
-							Virtual va = method.getAnnotation(Virtual.class);
-							if (va == null) {
-								if (mci.forwardedPointer == 0) {
-									for (String symbol : getSymbols()) {
-										if (methodMatchesSymbol(type, method, symbol)) {
-											mci.forwardedPointer = getSymbolAddress(symbol);
-											if (mci.forwardedPointer != 0)
-												break;
-										}
-									}
-									if (mci.forwardedPointer == 0) {
-										Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Method " + method.toGenericString() + " is not virtual but its address could not be resolved in the library.");
-										continue;
-									}
-								}
-							} else {
-								if (pVirtualTable == null) {
-									Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Method " + method.toGenericString() + " is virtual but the virtual table of class " + type.getName() + " was not found.");
-									continue;
-								}
-								int virtualIndex = va.value() < 0 ? getPositionInVirtualTable(pVirtualTable, method) : va.value();
-								if (virtualIndex < 0) {
-									Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Method " + method.toGenericString() + " is virtual but its position could not be found in the virtual table.");
-									continue;
-								} else {
-									mci.virtualIndex = virtualIndex;
-								}
-							}
-						} else {
-							if (!Modifier.isStatic(modifiers))
-								Logger.getLogger(getClass().getName()).log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
-							
-						}
-						methodInfos.add(mci);
-					} catch (Exception ex) {
-						Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Method " + method.toGenericString() + " cannot be mapped : " + ex, ex);
-					}
-				}
-				callbacks.put(type, JNI.createCallbacks(methodInfos));
-			} catch (Exception ex) {
-				throw new RuntimeException("Failed to register class " + type.getName(), ex);
-			}
-			type = type.getSuperclass();
-		} while (type != null && type != Object.class);
-	}
-
-	public boolean methodMatchesSymbol(Class declaringClass, Method method, String symbol) {
+	public boolean methodMatchesSymbol(Class<?> declaringClass, Method method, String symbol) {
 		return symbol.contains(method.getName()) && symbol.contains(declaringClass.getSimpleName());
 	}
 
@@ -145,10 +70,10 @@ public class NativeLibrary {
 		if (handle == 0)
 			return;
 		
-		for (long[] callbacks : this.callbacks.values())
-		    JNI.freeCallbacks(callbacks);
+		nativeEntities.release();
 		
 		JNI.freeLibrary(handle);
+		JNI.freeLibrarySymbols(symbols);
 		handle = 0;
 	}
 	public long getSymbolAddress(String name) {
@@ -158,14 +83,15 @@ public class NativeLibrary {
 		return address;
 	}
 	public int getPositionInVirtualTable(Method method) {
-		Class type = method.getDeclaringClass();
+		Class<?> type = method.getDeclaringClass();
 		Pointer<Pointer<?>> pVirtualTable = getVirtualTable(type);
 		return getPositionInVirtualTable(pVirtualTable, method);
 	}
 	public int getPositionInVirtualTable(Pointer<Pointer<?>> pVirtualTable, Method method) {
 		String methodName = method.getName();
-		Pointer<?> typeInfo = pVirtualTable.get(1);
-		int methodsOffset = 2;
+		//Pointer<?> typeInfo = pVirtualTable.get(1);
+		int methodsOffset = isMSVC() ? 0 : 2;
+		String className = getCPPClassName(method.getDeclaringClass());
 		for (int iVirtual = 0;; iVirtual++) {
 			Pointer<?> pMethod = pVirtualTable.get(methodsOffset + iVirtual);
 			if (pMethod == null)
@@ -175,11 +101,20 @@ public class NativeLibrary {
 			if (virtualMethodName.contains(methodName)) {
 				// TODO cross check !!!
 				return iVirtual;
-			}
+			} else if (isMSVC() && !virtualMethodName.contains(className))
+				break; // no NULL terminator in MSVC++ vtables, so we have to guess when we've reached the end
 		}
 		return -1;
 	}
-	public Pointer<Pointer<?>> getVirtualTable(Class<? extends CPPObject> type) {
+	boolean isMSVC() {
+		return JNI.isWindows();
+	}
+	private String getCPPClassName(Class<?> declaringClass) {
+		return declaringClass.getSimpleName();
+	}
+
+	@SuppressWarnings("unchecked")
+	public Pointer<Pointer<?>> getVirtualTable(Class<?> type) {
 		Pointer<Pointer<?>> p = vtables.get(type);
 		if (p == null) {
 			String className = type.getSimpleName();
@@ -199,7 +134,7 @@ public class NativeLibrary {
 		return Collections.unmodifiableSet(nameToAddr.keySet());
 	}
 	public String getSymbolName(long address) {
-		return JNI.findSymbolName(getHandle(), address);
+		return JNI.findSymbolName(getHandle(), getSymbolsHandle(), address);
 	}
 	void scanSymbols() throws Exception {
 		if (addrToName != null)
@@ -240,5 +175,9 @@ public class NativeLibrary {
 			nameToAddr.put(name, addr);
 			//System.out.println("'" + name + "' = \t" + TestCPP.hex(addr));
 		}
+	}
+
+	public void getCPPConstructor(Constructor constructor) {
+		//TODO
 	}
 }
