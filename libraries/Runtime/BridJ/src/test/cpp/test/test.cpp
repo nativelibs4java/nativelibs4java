@@ -96,6 +96,9 @@ Ctest::~Ctest()
 {
 }
 
+const std::string& Ctest2::toString() {
+	return "";
+}
 int Ctest::testAdd(int a, int b) {
 	return a + b;
 }

@@ -1,4 +1,3 @@
-
 package com.bridj;
 
 import java.io.File;

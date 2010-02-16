@@ -21,6 +21,8 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bridj.Demangler.DemanglingException;
+import com.bridj.Demangler.MemberRef;
 import com.bridj.ann.Mangling;
 import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
@@ -31,7 +33,7 @@ public class NativeLibrary {
 	//Map<Class<?>, long[]> callbacks = new HashMap<Class<?>, long[]>();
 	NativeEntities nativeEntities = new NativeEntities();
 	
-	Map<Long, String> addrToName;
+	Map<Long, Demangler.Symbol> addrToName;
 	Map<String, Long> nameToAddr;
 	
 	Map<Class<?>, Pointer<Pointer<?>>> vtables = new HashMap<Class<?>, Pointer<Pointer<?>>>();
@@ -126,7 +128,10 @@ public class NativeLibrary {
 				break;
 			
 			String virtualMethodName = getSymbolName(pMethod.getPeer());
-			if (virtualMethodName.contains(methodName)) {
+			if (virtualMethodName == null)
+				return -1;
+			
+			if (virtualMethodName != null && virtualMethodName.contains(methodName)) {
 				// TODO cross check !!!
 				return iVirtual;
 			} else if (isMSVC() && !virtualMethodName.contains(className))
@@ -167,7 +172,7 @@ public class NativeLibrary {
 		
 		try {
 			scanSymbols();
-			return addrToName.get(address);
+			return addrToName.get(address).symbol;
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed to get name of address " + address, ex);
 		}
@@ -176,11 +181,11 @@ public class NativeLibrary {
 		if (addrToName != null)
 			return;
 		
-		addrToName = new HashMap<Long, String>();
+		addrToName = new HashMap<Long, Demangler.Symbol>();
 		nameToAddr = new HashMap<String, Long>();
 		
 		String[] symbs = null;
-		if (true) // TODO turn to false !!!
+		if (false) // TODO turn to false !!!
 		try {
 			if (JNI.isMacOSX()) {
 				Process process = Runtime.getRuntime().exec(new String[] {"nm", "-gj", path});
@@ -208,7 +213,7 @@ public class NativeLibrary {
 				System.out.println("Symbol '" + name + "' not found.");
 				continue;
 			}
-			addrToName.put(addr, name);
+			addrToName.put(addr, new Demangler.Symbol(name, this));
 			nameToAddr.put(name, addr);
 			//System.out.println("'" + name + "' = \t" + TestCPP.hex(addr));
 		}
@@ -216,5 +221,14 @@ public class NativeLibrary {
 
 	public void getCPPConstructor(Constructor constructor) {
 		//TODO
+	}
+
+	public MemberRef parseSymbol(String symbol) throws DemanglingException {
+		Demangler demangler;
+		if (JNI.isWindows())
+			demangler = new VC9Demangler(symbol);
+		else
+			demangler = new GCC4Demangler(symbol);
+		return demangler.parseSymbol();
 	}
 }

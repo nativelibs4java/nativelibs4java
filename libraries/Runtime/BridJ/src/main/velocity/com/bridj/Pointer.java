@@ -289,11 +289,11 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	
 	@Deprecated
     public static <P> Pointer<P> pointerToAddress(long address, Class<P> targetClass) {
-        return new DefaultPointer(PointerIO.getInstance(targetClass), address);
+        return address == 0 ? null : new DefaultPointer(PointerIO.getInstance(targetClass), address);
     }
 
     static <P> Pointer<P> pointerToAddress(long address, PointerIO<P> io) {
-        return new DefaultPointer(io, address);
+        return address == 0 ? null : new DefaultPointer(io, address);
     }
 
     public static <V> Pointer<V> allocate(Class<V> elementClass) {
@@ -301,10 +301,13 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
     }
     
     public static <V> Pointer<V> allocate(PointerIO<V> io, int byteSize) {
-        return new Memory<V>(io, byteSize);
+        return byteSize == 0 ? null : new Memory<V>(io, byteSize);
     }
     
     public static <V> Pointer<V> allocateArray(Class<V> elementClass, int arrayLength) {
+		if (arrayLength == 0)
+			return null;
+		
         #foreach ($prim in $primitivesNoBool)
         if (elementClass == ${prim.WrapperName}.TYPE || elementClass == ${prim.WrapperName}.class)
             return (Pointer<V>)allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * arrayLength);

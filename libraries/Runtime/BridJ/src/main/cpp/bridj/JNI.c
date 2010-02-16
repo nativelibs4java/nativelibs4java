@@ -127,49 +127,6 @@ jstring JNICALL Java_com_bridj_JNI_findSymbolName(JNIEnv *env, jclass clazz, jlo
 {
 	const char* name = dlSymsNameFromValue((DLSyms*)(size_t)symbolsHandle, (void*)(size_t)address);
 	return name ? (*env)->NewStringUTF(env, name) : NULL;
-	/*
-#if defined(DC_UNIX)
-	Dl_info info;
-	if (!dladdr((void*)(size_t)address, &info))
-		return NULL;
-	if (!info.dli_sname || ((jlong)(size_t)info.dli_saddr) != address)
-		return NULL;
-	
-	return (*env)->NewStringUTF(env, info.dli_sname);
-#elif defined(DC__OS_Win64) || defined(DC__OS_Win32)
-    DWORD64  dwAddress = (DWORD64)address;
-    DWORD64  dwDisplacement;
-    DWORD  error;
-    HANDLE hProcess;
-    ULONG64 buffer[(
-        sizeof(SYMBOL_INFO) +
-        MAX_SYM_NAME * sizeof(TCHAR) +
-        sizeof(ULONG64) - 1) /
-        sizeof(ULONG64)
-    ];
-    PSYMBOL_INFO pSymbol = (PSYMBOL_INFO) buffer;
-        
-    SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);
-
-    hProcess = (HANDLE)libHandle;//GetCurrentProcess();
-
-    if (!SymInitialize(hProcess, NULL, TRUE))
-    {
-        // SymInitialize failed
-        error = GetLastError();
-        printf("SymInitialize returned error : %d\n", error);
-        return FALSE;
-    }
-
-    pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-    pSymbol->MaxNameLen = MAX_SYM_NAME;
-
-    if (SymFromAddr(hProcess, dwAddress, &dwDisplacement, pSymbol) && !dwDisplacement)
-        return pSymbol->Name ? (*env)->NewStringUTF(env, pSymbol->Name) : NULL;
-    return NULL;
-#else
-	return NULL;
-#endif*/
 }
 
 jlong JNICALL Java_com_bridj_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, jlong libHandle, jstring nameStr)

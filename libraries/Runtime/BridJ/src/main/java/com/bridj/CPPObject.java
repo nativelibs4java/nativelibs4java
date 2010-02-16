@@ -54,10 +54,4 @@ public class CPPObject {
 	public Pointer<? extends CPPObject> getReference() {
 		return $this;
 	}
-	//protected CPPObjectIO $io;
-	//public CPPObject(CPPObjectIO $io, long $this) {
-	//	this.$io = $io;
-	//	this.$this = $this;
-	//	$io.use();
-	//}
 }

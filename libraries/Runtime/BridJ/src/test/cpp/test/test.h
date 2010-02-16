@@ -16,6 +16,8 @@
 	#endif
 #endif
 
+#include <string>
+
 class TEST_API Ctest {
 public:
 	int firstField;
@@ -34,6 +36,8 @@ public:
 	~Ctest2();
 	virtual 
 	int testAdd(int a, int b);
+	
+	const std::string& toString();
 };
 
 extern TEST_API int ntest;

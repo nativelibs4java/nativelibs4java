@@ -2,7 +2,7 @@
 
 cd src/main/cpp/bridj
 
-./Make.sh $@ || exit 1
+#./Make.sh $@ || exit 1
 
 BUILD_CONFIG=debug ./Make.sh $@ || exit 1
 

@@ -1,8 +1,98 @@
+Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x86_masm.asm
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x86_masm.asm	(revision 559)
++++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x86_masm.asm	(working copy)
+@@ -33,7 +33,7 @@
+ 
+ 
+ ; Main dyncall call.
+-_dcCall_x86_cdecl PROC EXPORT
++_dcCall_x86_cdecl PROC
+ 
+     OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+@@ -71,7 +71,7 @@
+ _dcCall_x86_cdecl ENDP
+ 
+ 
+-_dcCall_x86_win32_msthis PROC EXPORT
++_dcCall_x86_win32_msthis PROC ; EXPORT
+ 
+     OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+@@ -114,7 +114,7 @@
+ _dcCall_x86_win32_msthis ENDP
+ 
+ 
+-_dcCall_x86_win32_std PROC EXPORT
++_dcCall_x86_win32_std PROC ; EXPORT
+ 
+     OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+@@ -151,7 +151,7 @@
+ _dcCall_x86_win32_std ENDP
+ 
+ 
+-_dcCall_x86_win32_fast PROC EXPORT
++_dcCall_x86_win32_fast PROC ; EXPORT
+ 
+     OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 559)
++++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(working copy)
+@@ -31,7 +31,7 @@
+ 
+ 
+ ; Main dyncall call.
+-dcCall_x64_win64 PROC EXPORT
++dcCall_x64_win64 PROC
+ 
+ 	OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c	(revision 559)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c	(working copy)
-@@ -67,7 +67,7 @@
+@@ -20,6 +20,7 @@
+ #include "dynload.h"
+ 
+ #include <windows.h>
++#include <Dbghelp.h>
+ 
+ struct DLLib_
+ {
+@@ -28,6 +29,7 @@
+ 
+ struct DLSyms_
+ {
++  DLLib* pLib;
+   const char* pBase;
+   ptrdiff_t* pNames;
+   ptrdiff_t* pFuncs;
+@@ -46,15 +48,19 @@
+   IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( ptr + pDOSHeader->e_lfanew );  
+   IMAGE_DATA_DIRECTORY*   pExportsDataDir = &pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+   IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
++  
+   pResolver->pBase  = ptr;
+   pResolver->pNames = (ptrdiff_t*) ( ptr + ( (ptrdiff_t)pExports->AddressOfNames) );
+   pResolver->pFuncs = (ptrdiff_t*) ( ptr+( (ptrdiff_t) pExports->AddressOfFunctions) );
+   pResolver->count  = (size_t)       pExports->NumberOfNames;
++  pResolver->pLib   = pLib;
++  SymSetOptions(SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS);
++  SymInitialize((HANDLE)pLib, NULL, TRUE);
+ }
+ 
+ void dlSymsCleanup(DLSyms* pResolver)
+ {
+-  /* do nothing. */
++    SymCleanup((HANDLE)pResolver->pLib);
+ }
+ 
+ int dlSymsCount(DLSyms* pResolver)
+@@ -67,7 +73,7 @@
    IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
    return pExports->NumberOfNames;
  */
@@ -11,13 +101,6 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c
  }
  
  const char* dlSymsName(DLSyms* pResolver, int index)
-@@ -98,3 +98,6 @@
-   return (void*) ( pResolver->pBase + pResolver->pFuncs[index] );
- }
- 
-+/*void* dlSymsNameValue(DLSyms* pSyms, int index, const char** nameOut) {
-+	return (*nameOut = dlSymsName(pSyms, index)) ? dlSymsValue(pSyms, index) : NULL;
-+}*/
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 0)
@@ -102,7 +185,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
  int         dlSymsCount  (DLSyms* pSyms);
  const char* dlSymsName   (DLSyms* pSyms, int index);
  void*       dlSymsValue  (DLSyms* pSyms, int index);
-+//void*		dlSymsNameValue(DLSyms* pSyms, int index, const char** nameOut);
++const char* dlSymsNameFromValue(DLSyms* pSyms, void* value);
  
  #ifdef __cplusplus
  }
@@ -127,7 +210,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c	(revision 0)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c	(revision 0)
-@@ -0,0 +1,91 @@
+@@ -0,0 +1,106 @@
 +/*
 +
 + Copyright (c) 2007-2009 Olivier Chafik <olivier.chafik@gmail.com>
@@ -157,6 +240,8 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
 +#include <mach-o/dyld.h>
 +#include <stdio.h>
 +
++#include <dlfcn.h>
++
 +void dummy() { }
 +
 +struct DLLib_
@@ -177,11 +262,15 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
 +}
 +void dlSymsInit(DLSyms* pSyms, DLLib* pLib)
 +{
++	int ret;
 +	//const char* path = "/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/resources/darwin_universal/libtest.dylib";
 +	pSyms->pLib = pLib;
-+	if (NSCreateObjectFileImageFromFile(//path,
++
++	ret = NSCreateObjectFileImageFromFile(
 +		pLib->libPath, 
-+		&pSyms->pObjectFileImage) != NSObjectFileImageSuccess)
++		&pSyms->pObjectFileImage
++	);
++	if (ret != NSObjectFileImageSuccess)
 +		pSyms->pObjectFileImage = 0;
 +}
 +
@@ -219,6 +308,15 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
 +	*nameOut = NSSymbolDefinitionNameInObjectFileImage(pSyms->pObjectFileImage, index);
 +	return *nameOut ? dlFindSymbol(pSyms->pLib, *nameOut) : NULL;
 +}*/
++
++const char* dlSymsNameFromValue(DLSyms* pSyms, void* value)
++{
++  Dl_info info;
++  if (dladdr(value, &info) && (value == info.dli_saddr))
++    return info.dli_sname;
++  return NULL;
++}
++
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(revision 559)
@@ -239,18 +337,23 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 559)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(working copy)
-@@ -388,3 +388,6 @@
+@@ -388,3 +388,11 @@
  }
  #endif
  
-+/*void* dlSymsNameValue(DLSyms* pSyms, int index, const char** nameOut) {
-+	return (*nameOut = dlSymsName(pSyms, index)) ? dlSymsValue(pSyms, index) : NULL;
-+}*/
++const char* dlSymsNameFromValue(DLSyms* pSyms, void* value)
++{
++  Dl_info info;
++  if (dladdr(value, &info) && (value == info.dli_saddr))
++    return info.dli_fname;
++  return NULL;
++}
++
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(revision 559)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(working copy)
-@@ -37,7 +37,7 @@
+@@ -37,11 +37,10 @@
  
  void* dlFindSymbol(DLLib* libHandle, const char* symbol)
  {
@@ -259,6 +362,36 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c
  }
  
  void  dlFreeLibrary(DLLib* libHandle)
+ {
+   dlclose( (void*) libHandle);
+ }
+-
+Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x64_masm.asm
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x64_masm.asm	(revision 559)
++++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x64_masm.asm	(working copy)
+@@ -45,7 +45,7 @@
+ DCCallback_size =   40
+ 
+ 
+-dcCallbackThunkEntry PROC EXPORT
++dcCallbackThunkEntry PROC
+ 
+   OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 559)
++++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(working copy)
+@@ -49,7 +49,7 @@
+ frame_DCArgs      = -24
+ frame_DCValue     = -32
+ 
+-_dcCallbackThunkEntry PROC EXPORT
++_dcCallbackThunkEntry PROC
+ 
+   OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
 Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile	(revision 559)
