@@ -357,7 +357,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
 +{
 +  Dl_info info;
 +  if (dladdr(value, &info) && (value == info.dli_saddr))
-+    return info.dli_sname;
++    return "";//info.dli_sname;
 +  return NULL;
 +}
 +
@@ -468,7 +468,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
 +{
 +  Dl_info info;
 +  if (dladdr(value, &info) && (value == info.dli_saddr))
-+    return info.dli_fname;
++    return info.dli_sname;
 +  return NULL;
 +}
 +

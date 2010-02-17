@@ -179,12 +179,13 @@ public class NativeLibrary {
 		return Collections.unmodifiableCollection(addrToName.values());
 	}
 	public String getSymbolName(long address) {
-		if (getSymbolsHandle() != 0)//JNI.isUnix())
+		if (addrToName == null && getSymbolsHandle() != 0)//JNI.isUnix())
 			return JNI.findSymbolName(getHandle(), getSymbolsHandle(), address);
 		
 		try {
 			scanSymbols();
-			return addrToName.get(address).symbol;
+			Demangler.Symbol symbol = addrToName.get(address);
+			return symbol == null ? null : symbol.symbol;
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed to get name of address " + address, ex);
 		}
@@ -197,7 +198,7 @@ public class NativeLibrary {
 		nameToAddr = new HashMap<String, Long>();
 		
 		String[] symbs = null;
-		if (false) // TODO turn to false !!!
+		if (true) // TODO turn to false !!!
 		try {
 			if (JNI.isMacOSX()) {
 				Process process = Runtime.getRuntime().exec(new String[] {"nm", "-gj", path});
