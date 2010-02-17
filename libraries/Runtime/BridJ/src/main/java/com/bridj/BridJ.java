@@ -83,9 +83,9 @@ public class BridJ {
 							Virtual va = method.getAnnotation(Virtual.class);
 							if (va == null) {
 								if (mci.forwardedPointer == 0) {
-									for (String symbol : methodLibrary.getSymbols()) {
-										if (methodLibrary.methodMatchesSymbol(type, method, symbol)) {
-											mci.forwardedPointer = methodLibrary.getSymbolAddress(symbol);
+									for (Demangler.Symbol symbol : methodLibrary.getSymbols()) {
+										if (symbol.matches(method)) {
+											mci.forwardedPointer = symbol.getAddress();
 											if (mci.forwardedPointer != 0)
 												break;
 										}

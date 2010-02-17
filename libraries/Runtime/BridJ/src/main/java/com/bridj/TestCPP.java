@@ -33,8 +33,9 @@ public class TestCPP {
 	public static void main(String[] args) throws Exception {
 		library = NativeLibrary.load(libraryPath);
 		
-		for (String name : library.getSymbols()) {
-			long addr = library.getSymbolAddress(name);
+		for (Demangler.Symbol symbol : library.getSymbols()) {
+            String name = symbol.getName();
+			long addr = symbol.getAddress();
 			System.out.println(name + " = \t" + hex(addr));
 			
 			if (name.startsWith("_ZTV") || name.startsWith("_ZTI") || name.startsWith("??_")) {
@@ -58,7 +59,7 @@ public class TestCPP {
 		}
 		//static final CPPObjectIO<Ctest> $io = new CPPObjectIO<Ctest>(library, Ctest.class);
 
-		@Mangling("_Z10createTestv")
+		//@Mangling({"_Z10createTestv", "?createTest@@YAPEAVCtest@@XZ"})
 		static native @PointerSized long createTest();
 		
 

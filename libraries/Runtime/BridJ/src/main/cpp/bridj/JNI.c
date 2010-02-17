@@ -306,7 +306,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback(
 		
 		callbackToRegister = info->fInfo.fDCCallback;
 	} 
-	else
+	else if (forwardedPointer)
 	{
 		NEW_STRUCT(FunctionCallInfo, info, pInfo, pCommonInfo);
 		
@@ -320,7 +320,8 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback(
 			(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 		}
 		callbackToRegister = info->fInfo.fDCCallback;
-	}
+	} else
+		return 0;
 	
 	initCommonCallInfo(pCommonInfo, env, callMode, nParams, returnValueType, paramsValueTypes);
 	

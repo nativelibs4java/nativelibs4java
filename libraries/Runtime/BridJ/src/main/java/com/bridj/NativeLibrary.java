@@ -26,6 +26,7 @@ import com.bridj.Demangler.MemberRef;
 import com.bridj.ann.Mangling;
 import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
+import java.util.Collection;
 
 public class NativeLibrary {
 	long handle, symbols;
@@ -88,13 +89,13 @@ public class NativeLibrary {
 		return address;
 	}
 
-    static synchronized long getSymbolAddress(NativeLibrary library, AnnotatedElement member) throws FileNotFoundException {
+    synchronized long getSymbolAddress(AnnotatedElement member) throws FileNotFoundException {
         //libHandle = libHandle & 0xffffffffL;
         Mangling mg = BridJ.getAnnotation(Mangling.class, false, member);
         if (mg != null)
             for (String name : mg.value())
             {
-                long handle = library.getSymbolAddress(name);
+                long handle = getSymbolAddress(name);
                 if (handle != 0)
                     return handle;
             }
@@ -102,13 +103,19 @@ public class NativeLibrary {
         String name = null;
         if (member instanceof Member)
             name = ((Member)member).getName();
-        else if (member instanceof Class<?>)
-            name = ((Class<?>)member).getSimpleName();
-
+        
         if (name != null) {
-            long handle = library.getSymbolAddress(name);
+            long handle = getSymbolAddress(name);
             if (handle != 0)
                 return handle;
+        }
+
+        if (member instanceof Method) {
+            Method method = (Method)member;
+            for (Demangler.Symbol symbol : getSymbols()) {
+                if (symbol.matches(method))
+                    return symbol.getAddress();
+            }
         }
         return 0;
     }
@@ -151,20 +158,25 @@ public class NativeLibrary {
 		Pointer<Pointer<?>> p = vtables.get(type);
 		if (p == null) {
 			String className = type.getSimpleName();
-			String vtableSymbolName = "_ZTV" + className.length() + className;
+			String vtableSymbolName;
+            if (JNI.isWindows())
+                vtableSymbolName = "??_7" + className + "@@6B@";
+            else
+                vtableSymbolName = "_ZTV" + className.length() + className;
+
 			long addr = JNI.findSymbolInLibrary(getHandle(), vtableSymbolName);
-			if (addr == 0) {
-				vtableSymbolName = "_@..." + className.length() + className;
-				addr = JNI.findSymbolInLibrary(getHandle(), vtableSymbolName);
-			}
 			p = (Pointer)Pointer.pointerToAddress(addr, Pointer.class);
 			vtables.put(type, p);
 		}
 		return p;
 	}
-	public Set<String> getSymbols() throws Exception {
-		scanSymbols();
-		return Collections.unmodifiableSet(nameToAddr.keySet());
+	Collection<Demangler.Symbol> getSymbols() {
+        try {
+            scanSymbols();
+        } catch (Exception ex) {
+            Logger.getLogger(NativeLibrary.class.getName()).log(Level.SEVERE, null, ex);
+        }
+		return Collections.unmodifiableCollection(addrToName.values());
 	}
 	public String getSymbolName(long address) {
 		if (getSymbolsHandle() != 0)//JNI.isUnix())

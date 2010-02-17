@@ -68,7 +68,7 @@ abstract class Demangler {
 
 	public static class Symbol {
 		final String symbol;
-		//long address;
+		long address;
 		MemberRef ref;
 		boolean refParsed;
 		final NativeLibrary library;
@@ -78,16 +78,25 @@ abstract class Demangler {
 			this.library = library;
 			
 		}
+
+        long getAddress() {
+            if (address == 0)
+                address = library.getSymbolAddress(symbol);
+            return address;
+        }
 		public boolean matches(Method method) {
 			if (!symbol.contains(method.getName()))
 				return false;
 		
 			parse();
-			
-			if (ref == null)
-				return false;
-			
-			return ref.matches(method);
+
+            try {
+                if (ref != null)
+                    return ref.matches(method);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return true;
 		}
 		void parse() { 
 			if (!refParsed) {
@@ -99,6 +108,11 @@ abstract class Demangler {
 				refParsed = true;
 			}
 		}
+
+        String getName() {
+            return symbol;
+        }
+
 	}
 
 	public static abstract class TypeRef implements TemplateArg {
@@ -115,6 +129,9 @@ abstract class Demangler {
 
 	public static class NamespaceRef extends TypeRef {
 		String[] namespace;
+        public NamespaceRef(String[] namespace) {
+            this.namespace = namespace;
+        }
 		public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
 			return implode(b, namespace, ".");
 		}
@@ -144,6 +161,11 @@ abstract class Demangler {
 		}
 		@Override
 		public boolean matches(Class<?> type) {
+            Class<?> tc = getTypeClass();
+            if ((type == Long.TYPE && Pointer.class.isAssignableFrom(tc)) ||
+                    (Pointer.class.isAssignableFrom(type) && tc == Long.TYPE))
+                return true;
+            
 			return type.equals(getTypeClass()); // TODO isAssignableFrom or the opposite, depending on context
 		}
 		
@@ -199,47 +221,43 @@ abstract class Demangler {
 			if (enclosingType != null && !enclosingType.matches(method.getDeclaringClass()))
 				return false;
 			
-			if (!memberName.equals(method.getName()))
+			if (memberName != null && !memberName.equals(method.getName()))
 				return false;
 			
-			if (!valueType.matches(method.getReturnType()))
+			if (valueType != null && !valueType.matches(method.getReturnType()))
 				return false;
 			
-			if (paramTypes != null) {
-				Class<?>[] methodArgTypes = method.getParameterTypes();
-				int totalArgs = 0; 
-				for (int i = 0, n = templateArguments.length; i < n; i++) {
-					if (totalArgs >= methodArgTypes.length)
-						return false;
-					
-					Class<?> paramType = methodArgTypes[i];
-					
-					TemplateArg arg = templateArguments[i];
-					if (arg instanceof TypeRef) {
-						if (!paramType.equals(Class.class))
-							return false;
-					} else if (arg instanceof Constant) {
-						try {
-							paramType.cast(((Constant)arg).value);
-						} catch (ClassCastException ex) {
-							return false;
-						}
-					}
-					totalArgs++;
-				}
-				for (int i = 0, n = paramTypes.length; i < n; i++) {
-					if (totalArgs >= methodArgTypes.length)
-						return false;
-					
-					if (!paramTypes[i].matches(methodArgTypes[totalArgs]))
-						return false;
-					
-					totalArgs++;
-				}
-				return totalArgs == methodArgTypes.length;
-			}
-			
-			return true;
+            Class<?>[] methodArgTypes = method.getParameterTypes();
+            int totalArgs = 0;
+            for (int i = 0, n = templateArguments == null ? 0 : templateArguments.length; i < n; i++) {
+                if (totalArgs >= methodArgTypes.length)
+                    return false;
+
+                Class<?> paramType = methodArgTypes[i];
+
+                TemplateArg arg = templateArguments[i];
+                if (arg instanceof TypeRef) {
+                    if (!paramType.equals(Class.class))
+                        return false;
+                } else if (arg instanceof Constant) {
+                    try {
+                        paramType.cast(((Constant)arg).value);
+                    } catch (ClassCastException ex) {
+                        return false;
+                    }
+                }
+                totalArgs++;
+            }
+            for (int i = 0, n = paramTypes == null ? 0 : paramTypes.length; i < n; i++) {
+                if (totalArgs >= methodArgTypes.length)
+                    return false;
+
+                if (!paramTypes[i].matches(methodArgTypes[totalArgs]))
+                    return false;
+
+                totalArgs++;
+            }
+            return totalArgs == methodArgTypes.length;
 		}
 	}
 }

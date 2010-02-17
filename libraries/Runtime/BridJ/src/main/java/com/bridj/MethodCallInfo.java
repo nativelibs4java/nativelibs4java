@@ -45,7 +45,7 @@ public class MethodCallInfo {
         isCPlusPlus = false;
         this.method = method;
         
-        forwardedPointer = library.getSymbolAddress(library, method);
+        forwardedPointer = library.getSymbolAddress(method);
 
         Class<?>[] paramsTypes = method.getParameterTypes();
         Annotation[][] paramsAnnotations = method.getParameterAnnotations();

@@ -71,24 +71,25 @@ public class VC9Demangler extends Demangler {
 				if (consumeChar() != 'A')
 					throw error();
 				
-				mr.valueType = parseType();
+				mr.valueType = parseType(true);
 				List<TypeRef> paramTypes = new ArrayList<TypeRef>();
 				char c;
-				while ((c = peekChar()) != '@' && c != 'Z' && c != 0)
-					paramTypes.add(parseType());
-				
+				while ((c = peekChar()) != '@' && c != 'Z' && c != 0) {
+                    TypeRef tr = parseType(false);
+                    if (tr == null)
+                        continue;
+					paramTypes.add(tr);
+                }
+
+
 				mr.paramTypes = paramTypes.toArray(new TypeRef[paramTypes.size()]);
 			}
 			
-			Collections.reverse(ns);
-			
-			NamespaceRef parent = new NamespaceRef();
-			parent.namespace = ns.toArray(new String[ns.size()]);
-			mr.enclosingType = parent;
+			mr.enclosingType = reverseNamespace(ns);
 		}
 		return mr;
 	}
-	TypeRef parseType() throws DemanglingException {
+	TypeRef parseType(boolean allowVoid) throws DemanglingException {
 		switch (consumeChar()) {
 		case '_':
 			switch (consumeChar()) {
@@ -113,18 +114,42 @@ public class VC9Demangler extends Demangler {
 		case 'F':
 			return classType(Short.TYPE);
 		case 'X':
+            if (!allowVoid)
+                return null;
 			return classType(Void.TYPE);
 		case 'M':
 			return classType(Float.TYPE);
 		case 'N':
 			return classType(Double.TYPE);
 		case 'P':
-			parseType(); // TODO use it
+        //case 'A': // reference ?
+            consumeChar(); //'E'
+			consumeChar(); //'A'
+			parseType(allowVoid); // TODO use it
 			return classType(Pointer.class);
+        case 'V': // class
+        //case 'C': // struct
+        case 'T': // union
+            return parseQualifiedTypeName();
 		default:
 			throw error();
 		}
 	}
+    static NamespaceRef reverseNamespace(List<String> names) {
+        if (names == null || names.isEmpty())
+            return null;
+        Collections.reverse(names);
+        return new NamespaceRef(names.toArray(new String[names.size()]));
+    }
+    TypeRef parseQualifiedTypeName() {
+        List<String> names = parseNames();
+
+        ClassRef tr = new ClassRef();
+        tr.simpleName = names.get(0);
+        names.remove(0);
+        tr.enclosingType = reverseNamespace(names);
+        return tr;
+    }
 	List<String> parseNames() {
 		List<String> ns = new ArrayList<String>();
 		while (peekChar() != '@')

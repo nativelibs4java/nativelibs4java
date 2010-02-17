@@ -97,7 +97,8 @@ Ctest::~Ctest()
 }
 
 const std::string& Ctest2::toString() {
-	return "";
+	static std::string s = "";
+	return s;
 }
 int Ctest::testAdd(int a, int b) {
 	return a + b;
@@ -119,4 +120,8 @@ Ctest2::~Ctest2()
 int Ctest2::testAdd(int a, int b) {
 	return a + b;
 }
+
+TEST_API void* test_pvoid() { return NULL; }
+TEST_API int* test_pint() { return NULL; }
+TEST_API int test_int() { return 0; }
 
