@@ -1,0 +1,230 @@
+Index: dyncall/dyncall/dyncall_call_x64_masm.asm
+===================================================================
+--- dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 559)
++++ dyncall/dyncall/dyncall_call_x64_masm.asm	(working copy)
+@@ -31,7 +31,7 @@
+ 
+ 
+ ; Main dyncall call.
+-dcCall_x64_win64 PROC EXPORT
++dcCall_x64_win64 PROC
+ 
+ 	OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+Index: dyncall/dyncall/dyncall_call_x86_masm.asm
+===================================================================
+--- dyncall/dyncall/dyncall_call_x86_masm.asm	(revision 559)
++++ dyncall/dyncall/dyncall_call_x86_masm.asm	(working copy)
+@@ -33,7 +33,7 @@
+ 
+ 
+ ; Main dyncall call.
+-_dcCall_x86_cdecl PROC EXPORT
++_dcCall_x86_cdecl PROC
+ 
+     OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+@@ -71,7 +71,7 @@
+ _dcCall_x86_cdecl ENDP
+ 
+ 
+-_dcCall_x86_win32_msthis PROC EXPORT
++_dcCall_x86_win32_msthis PROC ; EXPORT
+ 
+     OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+@@ -114,7 +114,7 @@
+ _dcCall_x86_win32_msthis ENDP
+ 
+ 
+-_dcCall_x86_win32_std PROC EXPORT
++_dcCall_x86_win32_std PROC ; EXPORT
+ 
+     OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+@@ -151,7 +151,7 @@
+ _dcCall_x86_win32_std ENDP
+ 
+ 
+-_dcCall_x86_win32_fast PROC EXPORT
++_dcCall_x86_win32_fast PROC ; EXPORT
+ 
+     OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+Index: dyncall/dyncallback/dyncall_callback_x64_masm.asm
+===================================================================
+--- dyncall/dyncallback/dyncall_callback_x64_masm.asm	(revision 559)
++++ dyncall/dyncallback/dyncall_callback_x64_masm.asm	(working copy)
+@@ -45,7 +45,7 @@
+ DCCallback_size =   40
+ 
+ 
+-dcCallbackThunkEntry PROC EXPORT
++dcCallbackThunkEntry PROC
+ 
+   OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+Index: dyncall/dyncallback/dyncall_callback_x86_masm.asm
+===================================================================
+--- dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 559)
++++ dyncall/dyncallback/dyncall_callback_x86_masm.asm	(working copy)
+@@ -49,7 +49,7 @@
+ frame_DCArgs      = -24
+ frame_DCValue     = -32
+ 
+-_dcCallbackThunkEntry PROC EXPORT
++_dcCallbackThunkEntry PROC
+ 
+   OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+Index: dyncall/dynload/dynload.h
+===================================================================
+--- dyncall/dynload/dynload.h	(revision 559)
++++ dyncall/dynload/dynload.h	(working copy)
+@@ -61,6 +61,7 @@
+ int         dlSymsCount  (DLSyms* pSyms);
+ const char* dlSymsName   (DLSyms* pSyms, int index);
+ void*       dlSymsValue  (DLSyms* pSyms, int index);
++const char* dlSymsNameFromValue(DLSyms* pSyms, void* value);
+ 
+ #ifdef __cplusplus
+ }
+Index: dyncall/dynload/dynload_syms_pe32.c
+===================================================================
+--- dyncall/dynload/dynload_syms_pe32.c	(revision 559)
++++ dyncall/dynload/dynload_syms_pe32.c	(working copy)
+@@ -20,6 +20,7 @@
+ #include "dynload.h"
+ 
+ #include <windows.h>
++#include <Dbghelp.h>
+ 
+ struct DLLib_
+ {
+@@ -28,10 +29,12 @@
+ 
+ struct DLSyms_
+ {
++  DLLib* pLib;
+   const char* pBase;
+-  ptrdiff_t* pNames;
+-  ptrdiff_t* pFuncs;
+-  size_t     count;
++  const DWORD* pNames;
++  const DWORD* pFuncs;
++  const unsigned short* pOrds;
++  size_t count;
+ };
+ 
+ size_t dlSyms_sizeof()
+@@ -41,20 +44,27 @@
+ 
+ void dlSymsInit(DLSyms* pResolver, DLLib* pLib)
+ {
+-  const char* ptr = (const char*) pLib;
+-  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) ptr;  
+-  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( ptr + pDOSHeader->e_lfanew );  
++  const char* base = (const char*) pLib;
++  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) base;  
++  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( base + pDOSHeader->e_lfanew );  
+   IMAGE_DATA_DIRECTORY*   pExportsDataDir = &pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+-  IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
+-  pResolver->pBase  = ptr;
+-  pResolver->pNames = (ptrdiff_t*) ( ptr + ( (ptrdiff_t)pExports->AddressOfNames) );
+-  pResolver->pFuncs = (ptrdiff_t*) ( ptr+( (ptrdiff_t) pExports->AddressOfFunctions) );
+-  pResolver->count  = (size_t)       pExports->NumberOfNames;
++  IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (base + pExportsDataDir->VirtualAddress);  
++  
++  pResolver->pBase	= base;
++  pResolver->pNames = (DWORD*)(base + pExports->AddressOfNames);
++  pResolver->pFuncs = (DWORD*)(base + pExports->AddressOfFunctions);
++  pResolver->pOrds	= (unsigned short*)(base + pExports->AddressOfNameOrdinals);
++  pResolver->count  = (size_t)pExports->NumberOfNames;
++  pResolver->pLib   = pLib;
++  SymSetOptions(//SYMOPT_UNDNAME | 
++	  SYMOPT_DEFERRED_LOADS);
++  //SymInitialize((HANDLE)pLib, NULL, TRUE);
++  SymInitialize(GetCurrentProcess(), NULL, TRUE);
+ }
+ 
+ void dlSymsCleanup(DLSyms* pResolver)
+ {
+-  /* do nothing. */
++    SymCleanup((HANDLE)pResolver->pLib);
+ }
+ 
+ int dlSymsCount(DLSyms* pResolver)
+@@ -67,34 +77,36 @@
+   IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
+   return pExports->NumberOfNames;
+ */
+-  return pResolver->count;
++  return (int)pResolver->count;
+ }
+ 
+ const char* dlSymsName(DLSyms* pResolver, int index)
+ {
+-/*
+-  unsigned char* ptr = (unsigned char*) handle;
+-  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) ptr;  
+-  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( ptr + pDOSHeader->e_lfanew );  
+-  IMAGE_DATA_DIRECTORY*   pExportsDataDir = &pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+-  IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
+-  ptrdiff_t* pNames = (ptrdiff_t*) ( ptr + ( (ptrdiff_t)pExports->AddressOfNames) );
+-  return (const char*) ( ptr + pNames[index] );
+-*/
+-  return (const char*) ( ( (const char*) pResolver->pBase ) + pResolver->pNames[index] );
++  return (const char*)((BYTE*)pResolver->pBase + pResolver->pNames[index]);
+ }
+ 
+ void* dlSymsValue(DLSyms* pResolver, int index)
+ {
+-/*
+-  unsigned char* ptr = (unsigned char*) handle;
+-  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) ptr;  
+-  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( ptr + pDOSHeader->e_lfanew );  
+-  IMAGE_DATA_DIRECTORY*   pExportsDataDir = &pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+-  IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
+-  ptrdiff_t* pFuncs = (ptrdiff_t*) ( ptr+( (ptrdiff_t) pExports->AddressOfFunctions) );
+-  return (void*) ( ptr + pFuncs[index] );
+-*/
+-  return (void*) ( pResolver->pBase + pResolver->pFuncs[index] );
++  return (void*)((void**)pResolver->pBase + pResolver->pFuncs[pResolver->pOrds[index]]);
+ }
+ 
++const char* dlSymsNameFromValue(DLSyms* pResolver, void* value) 
++{
++    DWORD64  dwAddress = (DWORD64)value;
++    DWORD64  dwDisplacement = 0;
++    ULONG64 buffer[(
++        sizeof(SYMBOL_INFO) +
++        MAX_SYM_NAME * sizeof(TCHAR) +
++        sizeof(ULONG64) - 1) /
++        sizeof(ULONG64)
++    ];
++    PSYMBOL_INFO pSymbol = (PSYMBOL_INFO) buffer;
++    pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
++    pSymbol->MaxNameLen = MAX_SYM_NAME;
++    
++	//if (SymFromAddr((HANDLE)pResolver->pLib, dwAddress, &dwDisplacement, pSymbol)) {
++	if (SymFromAddr(GetCurrentProcess(), dwAddress, &dwDisplacement, pSymbol) && !dwDisplacement)
++		return pSymbol->Name;
++
++    return NULL;
++}
+Index: dyncall/dynload/dynload_unix.c
+===================================================================
+--- dyncall/dynload/dynload_unix.c	(revision 559)
++++ dyncall/dynload/dynload_unix.c	(working copy)
+@@ -45,3 +45,11 @@
+   dlclose( (void*) libHandle);
+ }
+ 
++const char* dlSymsNameFromValue(DLSyms* pSyms, void* value)
++{
++  Dl_info info;
++  if (dladdr(value, &info) && (value == info.dli_saddr))
++    return info.dli_fname;
++  return NULL;
++}
++
