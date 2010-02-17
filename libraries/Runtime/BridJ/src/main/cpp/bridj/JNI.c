@@ -90,11 +90,7 @@ void JNICALL Java_com_bridj_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong lib
 
 jlong JNICALL Java_com_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle)
 {
-    DLSyms* pSyms = (DLSyms*)malloc(dlSyms_sizeof());
-	int count;
-	dlSymsInit(pSyms, (DLLib*)libHandle);
-	count = dlSymsCount(pSyms);
-	return (jlong)(size_t)pSyms;
+	return (jlong)(size_t)dlSymsInit((DLLib*)libHandle);
 }
 void JNICALL Java_com_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jlong symbolsHandle)
 {
