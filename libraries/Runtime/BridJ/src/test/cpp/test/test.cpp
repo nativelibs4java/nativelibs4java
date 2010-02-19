@@ -101,7 +101,12 @@ const std::string& Ctest2::toString() {
 	return s;
 }
 int Ctest::testAdd(int a, int b) {
+	//printf("testAdd(%d, %d)\n", a, b);
 	return a + b;
+}
+
+void Ctest::static_void() {
+	
 }
 
 Ctest* createTest() {
@@ -117,10 +122,14 @@ Ctest2::~Ctest2()
 }
 
 int Ctest2::testAdd(int a, int b) {
-	return a + b;
+	return a + b * 2;
 }
 
 TEST_API void* test_pvoid() { return NULL; }
 TEST_API int* test_pint() { return NULL; }
 TEST_API int test_int() { return 0; }
+TEST_API void test_void() { }
+
+
+TEST_API int test_int_short(short s) { return 0; }
 

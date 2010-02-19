@@ -9,8 +9,8 @@ import com.bridj.ann.CLong;
 import com.bridj.ann.Wide;
 
 public class VC9Demangler extends Demangler {
-	public VC9Demangler(String str) {
-		super(str);
+	public VC9Demangler(NativeLibrary library, String str) {
+		super(library, str);
 	}
 	public MemberRef parseSymbol() throws DemanglingException {
 		MemberRef mr = new MemberRef();
@@ -43,34 +43,33 @@ public class VC9Demangler extends Demangler {
 				case 'Q':
 				case 'U': // WTF ??
 					mr.modifiers = Modifier.PUBLIC;
+					mr.type = MemberRef.Type.InstanceMethod;
 					break;
 				case 'A':
 					mr.modifiers = Modifier.PRIVATE;
+					mr.type = MemberRef.Type.InstanceMethod;
 					break;
 				case 'C':
 					mr.modifiers = Modifier.PRIVATE | Modifier.STATIC;
+					mr.type = MemberRef.Type.StaticMethod;
 					break;
 				case 'I':
 					mr.modifiers = Modifier.PROTECTED;
+					mr.type = MemberRef.Type.InstanceMethod;
 					break;
 				case 'K':
 					mr.modifiers = Modifier.PROTECTED | Modifier.STATIC;
+					mr.type = MemberRef.Type.StaticMethod;
 					break;
 				case 'S':
 					mr.modifiers = Modifier.PUBLIC | Modifier.STATIC;
+					mr.type = MemberRef.Type.StaticMethod;
 					break;
 				default:
 					throw error(-1);
 				}
-				if (mr.type == null)
-					mr.type = MemberRef.Type.Method;
-					
-				if (mr.type != MemberRef.Type.CFunction) {
-					//ns.
-				}
 				
-				if (consumeChar() != 'A')
-					throw error(-1);
+				expectChars('A');
 				
 				mr.valueType = parseType(true);
 				List<TypeRef> paramTypes = new ArrayList<TypeRef>();

@@ -103,6 +103,17 @@ class PointerIO<T> {
                     }
                 };
             #end
+            else if (type == Pointer.class)
+                io = new PointerIO<Pointer>(type, Pointer.SIZE) {
+                    @Override
+                    public Pointer get(Pointer<Pointer> pointer, int index) {
+                        return pointer.getPointer(index * Pointer.SIZE);
+                    }
+                    @Override
+                    public void set(Pointer<Pointer> pointer, int index, Pointer value) {
+                        pointer.setPointer(index * Pointer.SIZE, value);
+                    }
+                };
             else
                 io = new PointerIO(type, -1);
 

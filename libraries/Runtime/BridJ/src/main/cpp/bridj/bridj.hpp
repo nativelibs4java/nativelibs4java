@@ -52,7 +52,8 @@ typedef enum ValueType {
 	eByteValue,
 	eLongValue,
 	eDoubleValue,
-	eFloatValue
+	eFloatValue,
+	ePointerValue
 } ValueType;
 
 typedef struct CallInfo {
@@ -90,6 +91,11 @@ char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, 
 char __cdecl NativeToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 
 void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass);
+void* getPointerPeer(JNIEnv *env, jobject pointer);
+jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
+
+void callDefaultConstructor(void* constructor, void* thisPtr, int callMode);
+
 void throwException(JNIEnv* env, const char* message);
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message);
 

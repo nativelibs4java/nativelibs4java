@@ -29,35 +29,49 @@ JNI_SIZEOF_t(wchar)
 JNI_SIZEOF_t(ptrdiff)
 JNI_SIZEOF(long, long)
 
-jmethodID getAddressMethod = NULL;
-jclass bridjClass = NULL;
+jclass gPointerClass = NULL;
+jmethodID gAddressMethod = NULL;
+jmethodID gGetPeerMethod = NULL;
+jmethodID gCreatePeerMethod = NULL;
 
-void main() {}
+int main() {}
 
-jmethodID getGetAddressMethod(JNIEnv* env) {
-	if (!getAddressMethod)
+void initMethods(JNIEnv* env) {
+	if (!gAddressMethod)
 	{
-		bridjClass = (jclass)(*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/bridj/Pointer"));
-		getAddressMethod = (*env)->GetMethodID(env, bridjClass, "getAddress", "(Lcom/bridj/NativeObject;Ljava/lang/Class;)J");
+		gPointerClass = (*env)->FindClass(env, "com/bridj/Pointer");
+		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lcom/bridj/NativeObject;Ljava/lang/Class;)J");
+		gGetPeerMethod = (*env)->GetMethodID(env, gPointerClass, "getPeer", "()J");
+		gCreatePeerMethod = (*env)->GetStaticMethodID(env, gPointerClass, "pointerToAddress", "(JLjava/lang/Class;)Lcom/bridj/Pointer;");
+		
 	}
-	return getAddressMethod;
 }
 
 //void main() {}
 
+jobject createPointer(JNIEnv *env, void* ptr, jclass targetType) {
+	initMethods(env);
+	return (*env)->CallStaticObjectMethod(env, gPointerClass, gCreatePeerMethod, (jlong)(size_t)ptr, targetType);
+}
+
+void* getPointerPeer(JNIEnv *env, jobject pointer) {
+	initMethods(env);
+	return (void*)(size_t)(*env)->CallLongMethod(env, gPointerClass, gGetPeerMethod, pointer);
+}
+
 void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass) {
-	return (void*)(size_t)(*env)->CallLongMethod(env, NULL, getGetAddressMethod(env), instance, targetClass);
+	initMethods(env);
+	return (void*)(size_t)(*env)->CallStaticLongMethod(env, gPointerClass, gAddressMethod, instance, targetClass);
 }
 //void _DllMainCRTStartup();
 
 void JNICALL Java_com_bridj_JNI_init(JNIEnv *env, jclass clazz)
 {
-/*#if defined(DC__OS_Win64) || defined(DC__OS_Win32)
-	_DllMainCRTStartup();
-#endif*/
-	//bridjClass = (*env)->FindClass(env, "com/bridj/BridJ");
-	//getPeerMethod = (*env)->GetMethodID(env, bridjClass, "getPeer", "(Lcom/bridj/CPPObject;Ljava/lang/Class;)J");
-	//getPeerMethod = (*env)->GetMethodID(env, bridjClass, "getPeer", "(Lcom/lang/Object;Ljava/lang/Class;)J");
+}
+
+void JNICALL Java_com_bridj_JNI_callDefaultCPPConstructor(JNIEnv *env, jclass clazz, jlong constructor, jlong thisPtr, jint callMode)
+{
+	callDefaultConstructor((void*)(size_t)constructor, (void*)(size_t)thisPtr, callMode);
 }
 
 jlong JNICALL Java_com_bridj_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
@@ -291,10 +305,11 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback(
 	    const char* ds;
 		NEW_STRUCT(VirtualMethodCallInfo, info, pInfo, pCommonInfo);
 		
-		info->fClass = declaringClass;
+		info->fClass = (*env)->NewGlobalRef(env, declaringClass);
 		info->fHasThisPtrArg = startsWithThis;
 		info->fVirtualIndex = virtualIndex;
 		info->fVirtualTableOffset = virtualTableOffset;
+		//info->fClass = NULL;//TODO declaringClass;
 		
 		// TODO DIRECT C++ virtual thunk
 		ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);

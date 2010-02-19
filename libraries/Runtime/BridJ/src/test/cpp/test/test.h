@@ -27,6 +27,8 @@ public:
 	~Ctest();
 	virtual 
 	int testAdd(int a, int b);
+	
+	static void static_void();
 };
 
 class TEST_API Ctest2 : public Ctest {

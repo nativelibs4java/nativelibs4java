@@ -45,8 +45,6 @@ class MethodCallInfo {
         isCPlusPlus = false;
         this.method = method;
         
-        forwardedPointer = library.getSymbolAddress(method);
-
         Class<?>[] paramsTypes = method.getParameterTypes();
         Annotation[][] paramsAnnotations = method.getParameterAnnotations();
         /*genericInfo.returnType = method.getGenericReturnType();
@@ -131,7 +129,7 @@ class MethodCallInfo {
         return ann != null;
     }
     public ValueType getValueType(int iParam, Class<?> c, AnnotatedElement element, Annotation... directAnnotations) {
-    	PointerSized sz = BridJ.getAnnotation(PointerSized.class, true, element, directAnnotations);
+    	Ptr sz = BridJ.getAnnotation(Ptr.class, true, element, directAnnotations);
     	This th = BridJ.getAnnotation(This.class, true, element, directAnnotations);
     	CLong cl = BridJ.getAnnotation(CLong.class, true, element, directAnnotations);
         

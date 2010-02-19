@@ -6,19 +6,19 @@ import java.util.Collection;
 import com.bridj.ann.Constructor;
 import com.bridj.ann.Library;
 import com.bridj.ann.Mangling;
-import com.bridj.ann.PointerSized;
+import com.bridj.ann.Ptr;
 import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class TestCPP {
-	static String libraryPath = //BridJ.getNativeLibraryFile("test").toString()
-		JNI.isMacOSX() ? 
-				//"/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/resources/darwin_universal/libtest.dylib"
-				"/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/cpp/test/build_out/darwin_universal_gcc_debug/libtest.dylib" :
-		//"F:\\Experiments\\tmp\\key\\svn\\nativelibs4java\\Runtime\\BridJ\\src\\test\\resources\\win32\\test.dll" +
-        "C:\\Users\\Olivier\\Prog\\nativelibs4java\\Runtime\\BridJ\\src\\main\\cpp\\buildsys\\vs2008\\x64\\Debug\\test.dll"
-	;
+//	static String libraryPath = //BridJ.getNativeLibraryFile("test").toString()
+//		JNI.isMacOSX() ? 
+//				//"/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/resources/darwin_universal/libtest.dylib"
+//				"/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/cpp/test/build_out/darwin_universal_gcc_debug/libtest.dylib" :
+//		//"F:\\Experiments\\tmp\\key\\svn\\nativelibs4java\\Runtime\\BridJ\\src\\test\\resources\\win32\\test.dll" +
+//        "C:\\Users\\Olivier\\Prog\\nativelibs4java\\Runtime\\BridJ\\src\\main\\cpp\\buildsys\\vs2008\\x64\\Debug\\test.dll"
+//	;
 	static NativeLibrary library;
 	
 	static void print(String name, long addr, int n, int minI) {
@@ -32,7 +32,8 @@ public class TestCPP {
 		System.out.println();
 	}
 	public static void main(String[] args) throws Exception {
-		library = NativeLibrary.load(libraryPath);
+		library = BridJ.getNativeLibrary("test");
+			//NativeLibrary.load(libraryPath);
 		
 		for (Demangler.Symbol symbol : library.getSymbols()) {
             String name = symbol.getName();
@@ -46,10 +47,13 @@ public class TestCPP {
 		}
 		
 		boolean is64 = JNI.is64Bits();
+		long crea = Ctest.createTest();
+		crea = Pointer.pointerToAddress(crea).getPointer(0).getPeer();
+		print("Ctest.createTest()", crea, 10, 0);
 		Ctest test = new Ctest();
 		//long thisPtr = test.$this.getPeer();
 		//System.out.println(hex(thisPtr));
-		print("Ctest.this", Pointer.getAddress(test, Ctest.class), 10, 0);
+		print("Ctest.this", Pointer.pointerTo(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
 		int res = test.testAdd(1, 2);
 		System.out.println("res = " + res);
 	}
@@ -58,29 +62,22 @@ public class TestCPP {
 		static {
 			BridJ.register(Ctest.class);
 		}
-		//static final CPPObjectIO<Ctest> $io = new CPPObjectIO<Ctest>(library, Ctest.class);
 
-		//@Mangling({"_Z10createTestv", "?createTest@@YAPEAVCtest@@XZ"})
 		@Constructor
-		static native void createTest(@PointerSized long thisPtr);
+		private static native void Ctest(@This long thisPtr);
 		
-		//static native @PointerSized long createTest();
+		static native @Ptr long createTest();
 		
-
-		public Ctest() {
-			super(-1);
-			//super(Pointer.pointerToAddress(createTest(), Ctest.class));
-		}
-		public Ctest(Pointer<? extends Ctest> peer) {
-			super(peer);
-		}
+		
 		@Virtual
-		protected static native int testAdd(@This long thisPtr, int a, int b);
-		public int testAdd(int a, int b) {
-			//print("this", Pointer.getAddress(this, Ctest.class), 10, 10);
-			//print("*this", $this.getPointer(0).getPeer(), 10, 10);
-			return testAdd(Pointer.getAddress(this, Ctest.class), a, b);
-		}
+//		protected static native int testAdd(@This long thisPtr, int a, int b);
+		public native int testAdd(int a, int b);
+		
+//		public int testAdd(int a, int b) {
+//			//print("this", Pointer.getAddress(this, Ctest.class), 10, 10);
+//			//print("*this", $this.getPointer(0).getPeer(), 10, 10);
+//			return testAdd(Pointer.getAddress(this, Ctest.class), a, b);
+//		}
 	}
 	
 	static String hex(long v) {

@@ -155,6 +155,9 @@ public class JNI {
     protected static native void set_${prim.Name}_array_disordered(long peer, ${prim.Name}[] values, int valuesOffset, int length);
 #end
 
+	static native void callDefaultCPPConstructor(long constructor, long thisPtr, int callMode);
+	
+	static boolean allowDirect = !"false".equals(System.getProperty("bridj.allowDirect"));
 	public static long[] createCallbacks(List<MethodCallInfo> methodInfos) {
 		long[] ret = new long[methodInfos.size()];
 		for (int i = 0, n = methodInfos.size(); i < n; i++) {
@@ -169,7 +172,7 @@ public class JNI {
 				info.forwardedPointer,
 				info.virtualTableOffset, 
 				info.virtualIndex,
-				info.direct, 
+				allowDirect && info.direct, 
 				info.getJavaSignature(), 
 				info.getDcSignature(),
 				info.paramsValueTypes.length,

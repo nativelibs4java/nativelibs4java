@@ -74,7 +74,7 @@ class DefaultPointer<T> extends Pointer<T>
         int size = io == null ? io.getTargetSize() : 1;
         DefaultPointer<T> p = new DefaultPointer(io, getCheckedPeer(byteOffset, size));
 		p.memoryOwner = memoryOwner;
-		p.peerOrOffsetInOwner += byteOffset;
+		//p.peerOrOffsetInOwner += byteOffset;
 		return p;
     }
 	

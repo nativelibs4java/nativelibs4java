@@ -5,6 +5,9 @@ import java.lang.annotation.*;
 import java.util.Arrays;
 
 import com.bridj.Demangler.MemberRef.Type;
+import com.bridj.ann.Constructor;
+import com.bridj.ann.Destructor;
+import com.bridj.ann.This;
 
 abstract class Demangler {
 	public static class DemanglingException extends Exception {
@@ -17,11 +20,28 @@ abstract class Demangler {
 	protected final String str;
 	protected final int length;
 	protected int position = 0;
-	public Demangler(String str) {
+	protected final NativeLibrary library;
+	public Demangler(NativeLibrary library, String str) {
 		this.str = str;
 		this.length = str.length();
+		this.library = library;
 	}
 	
+	void expectChars(char... cs) throws DemanglingException {
+		for (char c : cs) {
+			char cc = consumeChar();
+			if (cc != c)
+				throw error("Expected char '" + c + "', found '" + cc + "'", -1);
+		}
+	}
+	void expectAnyChar(char... cs) throws DemanglingException {
+		char cc = consumeChar();
+		for (char c : cs) {
+			if (cc == c)
+				return;
+		}
+		throw error("Expected any of " + Arrays.toString(cs) + ", found '" + cc + "'", -1);
+	}
 	public static StringBuilder implode(StringBuilder b, Object[] items, String sep) {
 		return implode(b, Arrays.asList(items), sep);
 	}
@@ -93,6 +113,9 @@ abstract class Demangler {
 			if (!symbol.contains(method.getName()))
 				return false;
 		
+			if (!Modifier.isStatic(method.getModifiers()) && !symbol.contains(method.getDeclaringClass().getSimpleName()))
+				return false;
+		
 			parse();
 
             try {
@@ -101,7 +124,7 @@ abstract class Demangler {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
-            return true;
+            return false;
 		}
 		void parse() { 
 			if (!refParsed) {
@@ -117,6 +140,11 @@ abstract class Demangler {
         String getName() {
             return symbol;
         }
+
+		public boolean matchesConstructor(Class<?> type) {
+			// TODO Auto-generated method stub
+			return false;
+		}
 
 	}
 
@@ -210,7 +238,7 @@ abstract class Demangler {
 
 	public static class MemberRef {
 		public enum Type {
-			Constructor, Method, Destructor, CFunction, Field, ScalarDeletingDestructor
+			Constructor, InstanceMethod, StaticMethod, Destructor, CFunction, Field, ScalarDeletingDestructor
 		}
 		TypeRef enclosingType;
 		TypeRef valueType;
@@ -221,8 +249,14 @@ abstract class Demangler {
 		public TypeRef[] paramTypes;
 		TemplateArg[] templateArguments;
 		
+		protected boolean matchesConstructor(Class<?> type) {
+			return false;//TODO matches(type.getConstructor());
+		}
 		protected boolean matches(Method method) {
 			
+			if (type == null)
+            	return false;
+            
 			if (enclosingType != null && !enclosingType.matches(method.getDeclaringClass()))
 				return false;
 			
@@ -232,7 +266,10 @@ abstract class Demangler {
 			if (valueType != null && !valueType.matches(method.getReturnType()))
 				return false;
 			
+			Annotation[][] anns = method.getParameterAnnotations();
             Class<?>[] methodArgTypes = method.getParameterTypes();
+            
+            boolean hasThisAsFirstArgument = BridJ.hasThisAsFirstArgument(methodArgTypes, anns, true);
             int totalArgs = 0;
             for (int i = 0, n = templateArguments == null ? 0 : templateArguments.length; i < n; i++) {
                 if (totalArgs >= methodArgTypes.length)
@@ -253,6 +290,10 @@ abstract class Demangler {
                 }
                 totalArgs++;
             }
+            
+            if (hasThisAsFirstArgument)
+            	totalArgs++;
+            
             for (int i = 0, n = paramTypes == null ? 0 : paramTypes.length; i < n; i++) {
                 if (totalArgs >= methodArgTypes.length)
                     return false;
@@ -261,6 +302,28 @@ abstract class Demangler {
                     return false;
 
                 totalArgs++;
+            }
+            
+            int thisDirac = hasThisAsFirstArgument ? 1 : 0;
+            switch (type) {
+            case Constructor:
+            case Destructor:
+            	Annotation ann = method.getAnnotation(type == Type.Constructor ? Constructor.class : Destructor.class);
+            	if (ann == null)
+            		return false;
+            	if (!hasThisAsFirstArgument)
+            		return false;
+            	if (methodArgTypes.length - thisDirac != 0 )
+            		return false;
+            	break;
+            case InstanceMethod:
+            	if (!hasThisAsFirstArgument)
+            		return false;
+            	break;
+            case StaticMethod:
+            	if (hasThisAsFirstArgument)
+            		return false;
+            	break;
             }
             return totalArgs == methodArgTypes.length;
 		}

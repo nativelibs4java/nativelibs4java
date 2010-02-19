@@ -1,6 +1,6 @@
 Index: /Users/ochafik/src/dyncall/dyncall/test/nm/nm.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/test/nm/nm.c	(revision 559)
+--- /Users/ochafik/src/dyncall/dyncall/test/nm/nm.c	(revision 560)
 +++ /Users/ochafik/src/dyncall/dyncall/test/nm/nm.c	(working copy)
 @@ -24,11 +24,8 @@
  {
@@ -17,7 +17,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/test/nm/nm.c
    for (; i < n; ++i) {
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c	(revision 559)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c	(revision 560)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c	(working copy)
 @@ -28,10 +28,12 @@
  
@@ -134,7 +134,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 0)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 0)
-@@ -0,0 +1,71 @@
+@@ -0,0 +1,72 @@
 +/*
 +
 + Copyright (c) 2007-2009 Olivier Chafik <olivier.chafik@gmail.com>
@@ -206,9 +206,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
 +	free(libHandle);
 +}
 +
++
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(revision 559)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(revision 560)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(working copy)
 @@ -54,13 +54,13 @@
  
@@ -228,7 +229,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
  }
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(revision 559)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(revision 560)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(working copy)
 @@ -23,11 +23,10 @@
  # include "dynload_syms_pe32.c"
@@ -247,7 +248,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c	(revision 0)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c	(revision 0)
-@@ -0,0 +1,113 @@
+@@ -0,0 +1,114 @@
 +/*
 +
 + Copyright (c) 2007-2009 Olivier Chafik <olivier.chafik@gmail.com>
@@ -361,9 +362,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
 +  return NULL;
 +}
 +
++
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(revision 559)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(revision 560)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(working copy)
 @@ -21,6 +21,10 @@
  #if defined(DC_WINDOWS)
@@ -379,7 +381,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
  
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 559)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 560)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(working copy)
 @@ -105,15 +105,15 @@
    uint32_t*     pGNUHashChain;
@@ -474,7 +476,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
 +
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(revision 559)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(revision 560)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(working copy)
 @@ -45,3 +45,11 @@
    dlclose( (void*) libHandle);
@@ -490,7 +492,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c
 +
 Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile	(revision 559)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile	(revision 560)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile	(working copy)
 @@ -60,6 +60,7 @@
  UNITS += dyncall_callback_x86_masm
@@ -502,7 +504,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile
  endif
 Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(revision 559)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(revision 560)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(working copy)
 @@ -48,6 +48,6 @@
  

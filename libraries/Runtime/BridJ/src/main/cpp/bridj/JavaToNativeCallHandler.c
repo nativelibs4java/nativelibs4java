@@ -2,6 +2,10 @@
 #include <jni.h>
 #include "Exceptions.h"
 
+typedef char BOOL;
+#define TRUE 1
+#define FALSE 0
+
 void* getNthVirtualMethodFromThis(JNIEnv* env, void* thisPtr, size_t virtualTableOffset, size_t virtualIndex) {
 	// Get virtual pointer table
 	void* ret;
@@ -17,7 +21,7 @@ void* getNthVirtualMethodFromThis(JNIEnv* env, void* thisPtr, size_t virtualTabl
 	return ret;
 }
 
-void followArgs(DCArgs* args, DCCallVM* vm, int nTypes, ValueType* pTypes) 
+BOOL followArgs(JNIEnv* env, DCArgs* args, DCCallVM* vm, int nTypes, ValueType* pTypes) 
 {	
 	int iParam;
 	for (iParam = 0; iParam < nTypes; iParam++) {
@@ -50,11 +54,23 @@ void followArgs(DCArgs* args, DCCallVM* vm, int nTypes, ValueType* pTypes)
 			case eDoubleValue:
 				dcArgDouble(vm, dcbArgDouble(args));
 				break;
+			case ePointerValue:
+				{
+					jobject jptr = (jobject)dcbArgPointer(args);
+					void* ptr = jptr ? getPointerPeer(env, (void*)jptr) : NULL;
+					dcArgPointer(vm, ptr);
+				}
+				break;
+			default:
+				throwException(env, "Invalid argument value type !");
+				return FALSE;
+			
 		}
-	}		
+	}
+	return TRUE;
 }
 
-void followCall(ValueType returnType, DCCallVM* vm, DCValue* result, void* callback) 
+BOOL followCall(JNIEnv* env, ValueType returnType, DCCallVM* vm, DCValue* result, void* callback) 
 {
 	switch (returnType) {
 #define CALL_CASE(valueType, capCase, hiCase, uni) \
@@ -76,18 +92,30 @@ void followCall(ValueType returnType, DCCallVM* vm, DCValue* result, void* callb
 		case eVoidValue:
 			dcCallVoid(vm, callback);
 			break;
+		case ePointerValue:
+			{
+				void* ptr = dcCallPointer(vm, callback);
+				result->p = createPointer(env, ptr, NULL);
+			}
+			break;
 		case eWCharValue:
 			// TODO
 		default:
-			//cerr << "Return ValueType not supported yet: " << (int)info->fReturnType << " !\n";
-			break;
+			throwException(env, "Invalid return value type !");
+			return FALSE;
 	}
+	return TRUE;
 }
 
 jobject initCallHandler(DCArgs* args, DCCallVM** vmOut, JNIEnv** envOut) {
 	THREAD_STATIC DCCallVM* vm = NULL;
-	JNIEnv *env = (JNIEnv*)dcbArgPointer(args); // first arg = Java env
-	jobject instance = dcbArgPointer(args); // skip second arg = jclass or jobject
+	JNIEnv *env = NULL;
+	jobject instance = NULL;
+	
+	if (args) {
+		env = (JNIEnv*)dcbArgPointer(args); // first arg = Java env
+		instance = dcbArgPointer(args); // skip second arg = jclass or jobject
+	}
 	
 	if (!vm) {
 		vm = dcNewCallVM(1024);
@@ -107,8 +135,9 @@ char __cdecl doJavaToFunctionCallHandler(DCArgs* args, DCValue* result, Function
 	initCallHandler(args, &vm, &env);
 	
 	dcMode(vm, info->fInfo.fDCMode);
-	followArgs(args, vm, info->fInfo.nParams, info->fInfo.fParamTypes);
-	followCall(info->fInfo.fReturnType, vm, result, info->fForwardedSymbol);
+	followArgs(env, args, vm, info->fInfo.nParams, info->fInfo.fParamTypes) 
+	&&
+	followCall(env, info->fInfo.fReturnType, vm, result, info->fForwardedSymbol);
 
 	return info->fInfo.fDCReturnType;
 }
@@ -134,26 +163,45 @@ char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, Vir
 			return info->fInfo.fDCReturnType;
 		}
 		thisPtr = dcbArgPointer(args);
+		if (!thisPtr) {
+			throwException(env, "Calling a method on a NULL C++ class pointer !");
+			return info->fInfo.fDCReturnType;
+		}
 		nParams--;
 		pParamTypes++;
+		
 	} else {
 		thisPtr = getNativeObjectPointer(env, instance, info->fClass);
+		if (!thisPtr) {
+			throwException(env, "Failed to get the pointer to the target C++ instance of the method invocation !");
+			return info->fInfo.fDCReturnType;
+		}
+		
 	}
 	
-	if (!thisPtr) {
-		throwException(env, "Calling a method on a NULL C++ class pointer !");
-		return info->fInfo.fDCReturnType;
-	}
 	callback = getNthVirtualMethodFromThis(env, thisPtr, info->fVirtualTableOffset, info->fVirtualIndex);
 	if (!callback)
 		return info->fInfo.fDCReturnType;
 		
 	dcArgPointer(vm, thisPtr);
 
-	followArgs(args, vm, nParams, pParamTypes);
-	followCall(info->fInfo.fReturnType, vm, result, callback);
+	followArgs(env, args, vm, nParams, pParamTypes) 
+	&&
+	followCall(env, info->fInfo.fReturnType, vm, result, callback);
 
 	return info->fInfo.fDCReturnType;
+}
+
+void callDefaultConstructor(void* constructor, void* thisPtr, int callMode)
+{
+	DCCallVM* vm;
+	JNIEnv *env;
+	initCallHandler(NULL, &vm, &env);
+	
+	dcMode(vm, callMode);
+	dcArgPointer(vm, thisPtr);
+	dcCallVoid(vm, constructor);
+	return DC_SIGCHAR_VOID;
 }
 
 char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, JavaCallbackCallInfo *info)
@@ -174,8 +222,9 @@ char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, JavaCallba
 	dcArgPointer(vm, info->fCallbackInstance);
 	dcArgPointer(vm, info->fMethod);
 	
-	followArgs(args, vm, info->fInfo.nParams, info->fInfo.fParamTypes);
-	followCall(info->fInfo.fReturnType, vm, result, info->fJNICallFunction);
+	followArgs(env, args, vm, info->fInfo.nParams, info->fInfo.fParamTypes)
+	&&
+	followCall(env, info->fInfo.fReturnType, vm, result, info->fJNICallFunction);
 
 	exc = (*env)->ExceptionOccurred(env);
 	if (exc) {

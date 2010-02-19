@@ -21,6 +21,7 @@ import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Library;
 import com.bridj.ann.Mangling;
 import com.bridj.ann.NoInheritance;
@@ -72,9 +73,41 @@ public class BridJ {
 			weakNativeObjects.put(peer, ob);
 	}
 	
-
+	static boolean hasThisAsFirstArgument(Method method, boolean checkConsistency) {
+		return hasThisAsFirstArgument(method.getParameterTypes(), method.getParameterAnnotations(), checkConsistency);
+	}
+	static boolean hasThisAsFirstArgument(Class<?>[] paramTypes, Annotation[][] anns, boolean checkConsistency) {
+		boolean hasThis = false;
+		int len = anns.length;
+        if (len > 0) {
+        	top: for (int i = 0; i < len; i++) {
+        		for (Annotation ann : anns[i]) {
+	        		if (ann instanceof This) {
+	        			hasThis = true;
+	        			if (!checkConsistency)
+	        				return true;
+	        			if (paramTypes[0] != Long.TYPE)
+	        				throw new RuntimeException("First parameter with annotation " + This.class.getName() + " must be of type long, but is of type " + paramTypes[0].getName() + ".");
+	        		}
+	    		}
+        		if (i == 0 && !checkConsistency)
+        			return false;
+        	}
+        }
+        return hasThis;
+	}
+	
+	static final int defaultObjectSize = 128;
+	static final String PROPERTY_bridj_cpp_defaultObjectSize = "bridj.cpp.defaultObjectSize";
     public static int sizeOf(Class<?> type) {
-    	return 40;
+    	String s = System.getProperty(PROPERTY_bridj_cpp_defaultObjectSize);
+    	if (s != null)
+    		try {
+    			return Integer.parseInt(s);
+	    	} catch (Throwable th) {
+	    		log(Level.SEVERE, "Invalid value for property " + PROPERTY_bridj_cpp_defaultObjectSize + " : '" + s + "'");
+	    	}
+    	return defaultObjectSize;
     }
     
     public static <O extends CPPObject> Pointer<O> newCPPInstance(Class<? extends CPPObject> type) throws Exception {
@@ -128,10 +161,29 @@ public class BridJ {
 		}
 		throw new NoSuchMethodException("Cannot find constructor with index " + constructorId);
 	}
+	static Map<Class<?>, Long> defaultConstructors = new HashMap<Class<?>, Long>();
     public static <T extends NativeObject> Pointer<T> allocate(Class<?> type, int constructorId, Object... args) {
         register(type);
         Pointer<T> peer = null;
         try {
+        	peer = (Pointer)Pointer.allocate(PointerIO.getInstance(type), sizeOf(type));
+        	NativeLibrary lib = getNativeLibrary(type);
+        	if (constructorId < 0) {
+        		Long defaultConstructor = defaultConstructors.get(type);
+        		if (defaultConstructor == null) {
+        			for (Symbol symbol : lib.getSymbols()) {
+        				if (symbol.matchesConstructor(type)) {
+        					defaultConstructor = symbol.address;
+        					break;
+        				}
+        			}
+        			if (defaultConstructor == null)
+        				throw new RuntimeException("Cannot find the default constructor for type " + type.getName());
+        			
+        			JNI.callDefaultCPPConstructor(defaultConstructor, peer.getPeer(), 0);// TODO use right call convention
+        			return peer;
+        		}
+        	}
         	Method meth = getConstructor(type, constructorId, args);
         	Object[] consArgs = new Object[args.length + 1];
         	if (CPPObject.class.isAssignableFrom(type)) {
@@ -139,13 +191,19 @@ public class BridJ {
 	        		throw new RuntimeException("Constructor-mapped methods must return void, but " + meth.getName() + " returns " + meth.getReturnType().getName());
         		if (!Modifier.isStatic(meth.getModifiers()))
 	        		throw new RuntimeException("Constructor-mapped methods must be static, but " + meth.getName() + " is not.");
-	        	peer = (Pointer)Pointer.allocate(PointerIO.getInstance(type), sizeOf(type));
-	        	peer.setPointer(0, getNativeLibrary(type).getVirtualTable(type));
+        		if (!meth.getName().equals(type.getSimpleName()))
+	        		throw new RuntimeException("Constructor methods must have the same name as their class : " + meth.getName() + " is not " + type.getSimpleName());
+	        	Pointer<Pointer<?>> vptr = lib.getVirtualTable(type);
+	        	if (!lib.isMSVC());
+//	        		vptr = vptr.offset(16);
+	        		vptr = vptr.next(2);
+	        	peer.setPointer(0, vptr);
         	} else {
         		// TODO ObjCObject : call alloc on class type !!
         	}
         	consArgs[0] = peer.getPeer();
         	System.arraycopy(args, 0, consArgs, 1, args.length);
+        	meth.setAccessible(true);
         	meth.invoke(null, consArgs);
         	return peer;
         } catch (Exception ex) {
@@ -177,12 +235,15 @@ public class BridJ {
 						Annotation[][] anns = method.getParameterAnnotations();
 						boolean isCPPInstanceMethod = false;
 						if (anns.length > 0) {
-							for (Annotation ann : anns[0]) {
-								if (ann instanceof This) {
-									isCPPInstanceMethod = true;
-									break;
+							if (method.getAnnotation(Virtual.class) != null)
+								isCPPInstanceMethod = true;
+							else
+								for (Annotation ann : anns[0]) {
+									if (ann instanceof This) {
+										isCPPInstanceMethod = true;
+										break;
+									}
 								}
-							}
 						}
 						
 						if (isCPPInstanceMethod) {
@@ -197,7 +258,8 @@ public class BridJ {
 							}
 							Virtual va = method.getAnnotation(Virtual.class);
 							if (va == null) {
-								if (mci.forwardedPointer == 0) {
+								mci.forwardedPointer = methodLibrary.getSymbolAddress(method);
+						        if (mci.forwardedPointer == 0) {
 									for (Demangler.Symbol symbol : methodLibrary.getSymbols()) {
 										if (symbol.matches(method)) {
 											mci.forwardedPointer = symbol.getAddress();
@@ -212,6 +274,9 @@ public class BridJ {
 								}
 							} else {
 								int virtualIndex = va.value();
+								if (Modifier.isStatic(modifiers))
+									log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
+									
 								if (virtualIndex < 0) {
 									Pointer<Pointer<?>> pVirtualTable = isCPPClass && typeLibrary != null ? typeLibrary.getVirtualTable((Class<? extends CPPObject>)type) : null;
 									if (pVirtualTable == null) {
@@ -229,8 +294,11 @@ public class BridJ {
 							}
 							builder.addCPPMethod(mci);
 						} else {
-							if (!Modifier.isStatic(modifiers))
-								log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
+							//if (!Modifier.isStatic(modifiers))
+							//	log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
+							
+							mci.forwardedPointer = methodLibrary.getSymbolAddress(method);
+					        
 							builder.addFunction(mci);
 						}
 						

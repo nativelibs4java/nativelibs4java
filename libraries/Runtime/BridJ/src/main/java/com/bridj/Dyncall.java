@@ -20,7 +20,8 @@ class Dyncall {
         eByteValue,
         eLongValue,
         eDoubleValue,
-        eFloatValue
+        eFloatValue,
+        ePointerValue
     }
     
     

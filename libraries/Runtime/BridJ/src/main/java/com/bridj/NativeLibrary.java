@@ -82,6 +82,11 @@ public class NativeLibrary {
 		handle = 0;
 	}
 	public long getSymbolAddress(String name) {
+		if (nameToAddr != null) {
+			Long addr = nameToAddr.get(name);
+			if (addr != null)
+				return addr;
+		}
 		long address = JNI.findSymbolInLibrary(getHandle(), name);
 		if (address == 0)
 			address = JNI.findSymbolInLibrary(getHandle(), "_" + name);
@@ -163,7 +168,11 @@ public class NativeLibrary {
             else
                 vtableSymbolName = "_ZTV" + className.length() + className;
 
-			long addr = JNI.findSymbolInLibrary(getHandle(), vtableSymbolName);
+            long addr = getSymbolAddress(vtableSymbolName);
+			//long addr = JNI.findSymbolInLibrary(getHandle(), vtableSymbolName);
+//			System.out.println(TestCPP.hex(addr));
+//			TestCPP.print(type.getName() + " vtable", addr, 5, 2);
+        	
 			p = (Pointer)Pointer.pointerToAddress(addr, Pointer.class);
 			vtables.put(type, p);
 		}
@@ -238,9 +247,9 @@ public class NativeLibrary {
 	MemberRef parseSymbol(String symbol) throws DemanglingException {
 		Demangler demangler;
 		if (JNI.isWindows())
-			demangler = new VC9Demangler(symbol);
+			demangler = new VC9Demangler(this, symbol);
 		else
-			demangler = new GCC4Demangler(symbol);
+			demangler = new GCC4Demangler(this, symbol);
 		return demangler.parseSymbol();
 	}
 }

@@ -44,10 +44,10 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
     }
     
     public static Pointer<? extends NativeObject> pointerTo(NativeObject instance, Class targetType) {
-    		return (Pointer)instance.peer;
+		return (Pointer)instance.peer;
     }
-    static long getAddress(NativeObject instance, Class targetType) {
-    		return pointerTo(instance, targetType).getPeer();
+    public static long getAddress(NativeObject instance, Class targetType) {
+		return pointerTo(instance, targetType).getPeer();
     }
     
     
@@ -580,7 +580,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
     }
         
     public void setPointer(long byteOffset, Pointer value) {
-        setSizeT(byteOffset, value.getPeer());
+        setSizeT(byteOffset, value == null ? 0 : value.getPeer());
     }
 
 }

@@ -15,6 +15,8 @@ extern "C" {
 JNIEXPORT void JNICALL Java_com_bridj_JNI_init
   (JNIEnv *, jclass);
 
+JNIEXPORT void JNICALL Java_com_bridj_JNI_callDefaultCPPConstructor(JNIEnv *, jclass, jlong, jlong, jint);
+
 /*
  * Class:     com_bridj_JNI
  * Method:    sizeOf_size_t
