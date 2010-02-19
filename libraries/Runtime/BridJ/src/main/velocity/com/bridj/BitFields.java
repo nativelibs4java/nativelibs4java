@@ -22,7 +22,7 @@ import java.util.Map;
  * Support for C bit fields
  * @author Olivier Chafik
  */
-public class BitFields {
+class BitFields {
 	private static abstract class PrimHandler {
 		abstract long longValue(Object value);
 		abstract Object objectValue(long value);

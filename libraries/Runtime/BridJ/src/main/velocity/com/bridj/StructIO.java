@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class StructIO<S extends Struct<S>> {
+class StructIO<S extends Struct<S>> {
 
     static Map<Class<?>, StructIO<?>> structIOs = new HashMap<Class<?>, StructIO<?>>();
 

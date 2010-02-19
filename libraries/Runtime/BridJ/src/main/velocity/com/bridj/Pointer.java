@@ -43,6 +43,14 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         throw new UnsupportedOperationException(); // TODO
     }
     
+    public static Pointer<? extends NativeObject> pointerTo(NativeObject instance, Class targetType) {
+    		return (Pointer)instance.peer;
+    }
+    static long getAddress(NativeObject instance, Class targetType) {
+    		return pointerTo(instance, targetType).getPeer();
+    }
+    
+    
 	/**
 	 * Check that the pointer's peer is aligned to the target type alignment.
 	 * If the pointer has no peer, this method returns true.

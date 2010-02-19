@@ -6,7 +6,7 @@ import java.nio.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
-public class DefaultPointer<T> extends Pointer<T>
+class DefaultPointer<T> extends Pointer<T>
 {
 	protected long peerOrOffsetInOwner;
     protected Object memoryOwner;

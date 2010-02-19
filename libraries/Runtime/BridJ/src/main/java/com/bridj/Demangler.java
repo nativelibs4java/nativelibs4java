@@ -54,11 +54,16 @@ abstract class Demangler {
 			}
 		return false;
 	}
-	protected DemanglingException error() {
-		return error(null);
+	protected DemanglingException error(int deltaPosition) {
+		return error(null, deltaPosition);
 	}
-	protected DemanglingException error(String mess) {
-		return new DemanglingException("Parsing error at position " + position + (mess == null ? "" : ": " + mess));
+	protected DemanglingException error(String mess, int deltaPosition) {
+		StringBuilder err = new StringBuilder(position + 1);
+		int position = this.position + deltaPosition;
+		for (int i = 0; i < position; i++)
+			err.append(' ');
+		err.append('^');
+		return new DemanglingException("Parsing error at position " + position + (mess == null ? "" : ": " + mess) + " \n\t" + str + "\n\t" + err);
 	}
 	
 	public interface TemplateArg {

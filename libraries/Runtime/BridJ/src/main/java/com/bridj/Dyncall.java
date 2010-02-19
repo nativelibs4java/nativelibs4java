@@ -9,7 +9,7 @@ package com.bridj;
  *
  * @author Olivier
  */
-public class Dyncall {
+class Dyncall {
     public enum ValueType {
         eVoidValue,
         eWCharValue,

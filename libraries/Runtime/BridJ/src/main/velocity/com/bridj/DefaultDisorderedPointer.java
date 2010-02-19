@@ -6,7 +6,7 @@ import java.nio.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
-public class DefaultDisorderedPointer<T> extends DefaultPointer<T>
+class DefaultDisorderedPointer<T> extends DefaultPointer<T>
 {
 	public DefaultDisorderedPointer(PointerIO<T> io, long peer) {
 		super(io, peer);

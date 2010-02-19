@@ -7,7 +7,7 @@ import java.lang.reflect.Type;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
-public class IndirectBufferPointer<T> extends Pointer<T>
+class IndirectBufferPointer<T> extends Pointer<T>
 {
 	#foreach ($prim in $primitivesNoBool)
 	${prim.BufferName} ${prim.Name}Buffer;

@@ -1,5 +1,5 @@
 package com.bridj;
 
-public interface AddressableFactory<T extends PointerRefreshable> {
+interface AddressableFactory<T extends PointerRefreshable> {
     T newInstance(long address);
 }

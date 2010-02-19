@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NativeEntities {
+class NativeEntities {
 	Map<Class<?>, long[]> functions = new HashMap<Class<?>, long[]>();
 	//Map<Class<?>, long[]> getters;
 	//Map<Class<?>, long[]> setters;

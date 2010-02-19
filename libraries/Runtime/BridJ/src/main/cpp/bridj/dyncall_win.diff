@@ -51,6 +51,18 @@ Index: dyncall/dyncall/dyncall_call_x86_masm.asm
  
      OPTION PROLOGUE:NONE, EPILOGUE:NONE
  
+Index: dyncall/dyncallback/dyncall_callback_ppc32.c
+===================================================================
+--- dyncall/dyncallback/dyncall_callback_ppc32.c	(revision 559)
++++ dyncall/dyncallback/dyncall_callback_ppc32.c	(working copy)
+@@ -48,6 +48,6 @@
+ 
+ void dcbFreeCallback(DCCallback* pcb)
+ {
+-  dcbFreeWX(pcb, sizeof(DCCallback));
++  dcFreeWX(pcb, sizeof(DCCallback));
+ }
+ 
 Index: dyncall/dyncallback/dyncall_callback_x64_masm.asm
 ===================================================================
 --- dyncall/dyncallback/dyncall_callback_x64_masm.asm	(revision 559)
@@ -77,18 +89,361 @@ Index: dyncall/dyncallback/dyncall_callback_x86_masm.asm
  
    OPTION PROLOGUE:NONE, EPILOGUE:NONE
  
+Index: dyncall/dyncallback/GNUmakefile
+===================================================================
+--- dyncall/dyncallback/GNUmakefile	(revision 559)
++++ dyncall/dyncallback/GNUmakefile	(working copy)
+@@ -60,6 +60,7 @@
+ UNITS += dyncall_callback_x86_masm
+ endif
+ ifdef BUILD_ARCH_x64
++UNITS += dyncall_callback_x64
+ UNITS += dyncall_callback_x64_masm
+ endif
+ endif
+Index: dyncall/dynload/dynload.c
+===================================================================
+--- dyncall/dynload/dynload.c	(revision 559)
++++ dyncall/dynload/dynload.c	(working copy)
+@@ -21,6 +21,10 @@
+ #if defined(DC_WINDOWS)
+ #include "dynload_win32.c"
+ #elif defined(DC_UNIX)
+-#include "dynload_unix.c"
++# if defined (DC__OS_Darwin)
++# include "dynload_darwin.c"
++# else
++# include "dynload_unix.c"
++# endif
+ #endif
+ 
 Index: dyncall/dynload/dynload.h
 ===================================================================
 --- dyncall/dynload/dynload.h	(revision 559)
 +++ dyncall/dynload/dynload.h	(working copy)
-@@ -61,6 +61,7 @@
+@@ -54,13 +54,14 @@
+ 
+ typedef struct DLSyms_ DLSyms;
+ 
+-size_t      dlSyms_sizeof();
+-void        dlSymsInit   (DLSyms* pSyms, DLLib* pLib);
++DLSyms*     dlSymsInit   (DLLib* pLib);
+ void        dlSymsCleanup(DLSyms* pSyms);
+ 
  int         dlSymsCount  (DLSyms* pSyms);
  const char* dlSymsName   (DLSyms* pSyms, int index);
  void*       dlSymsValue  (DLSyms* pSyms, int index);
 +const char* dlSymsNameFromValue(DLSyms* pSyms, void* value);
++const char* dlSymsNameFromValue(DLSyms* pSyms, void* value);
  
  #ifdef __cplusplus
  }
+Index: dyncall/dynload/dynload_darwin.c
+===================================================================
+--- dyncall/dynload/dynload_darwin.c	(revision 0)
++++ dyncall/dynload/dynload_darwin.c	(revision 0)
+@@ -0,0 +1,71 @@
++/*
++
++ Copyright (c) 2007-2009 Olivier Chafik <olivier.chafik@gmail.com>
++
++ Permission to use, copy, modify, and distribute this software for any
++ purpose with or without fee is hereby granted, provided that the above
++ copyright notice and this permission notice appear in all copies.
++
++ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++ WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++ MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++/*
++
++  dynload_darwin.c
++
++  dynload module for .dylib (mach-o darwin/OS X) files
++
++*/
++
++
++#include "dynload.h"
++
++#include <dlfcn.h>
++
++struct DLLib_
++{
++	char* libPath;
++	void* handle;
++};
++
++DLLib* dlLoadLibrary(const char* libPath)
++{
++	void* handle;
++	size_t len;
++	DLLib* lib;
++	
++	handle = dlopen(libPath, RTLD_LAZY);
++	if (!handle)
++		return NULL;
++	
++	len = strlen(libPath);
++	lib = (DLLib*)malloc(sizeof(DLLib));
++	lib->libPath = (char*)malloc(len + 1);
++	strcpy(lib->libPath, libPath);
++	lib->libPath[len] = '\0';
++	lib->handle = handle;
++	return lib;
++}
++
++void* dlFindSymbol(DLLib* libHandle, const char* symbol)
++{
++  return dlsym(libHandle && libHandle->handle ? libHandle->handle : RTLD_DEFAULT, symbol);
++}
++
++void  dlFreeLibrary(DLLib* libHandle)
++{
++	if (!libHandle)
++		return;
++	
++	dlclose(libHandle->handle);
++	free(libHandle->libPath);
++	free(libHandle);
++}
++
+Index: dyncall/dynload/dynload_syms.c
+===================================================================
+--- dyncall/dynload/dynload_syms.c	(revision 559)
++++ dyncall/dynload/dynload_syms.c	(working copy)
+@@ -23,11 +23,10 @@
+ # include "dynload_syms_pe32.c"
+ #elif defined(DC_UNIX)
+ # if defined (DC__OS_Darwin)
+-void dummy() { }
++# include "dynload_syms_darwin.c"
+ # else
+ # include "dynload_syms_elf.c"
+ # endif
+ #else
+ void dummy() { }
+ #endif
+-
+Index: dyncall/dynload/dynload_syms_darwin.c
+===================================================================
+--- dyncall/dynload/dynload_syms_darwin.c	(revision 0)
++++ dyncall/dynload/dynload_syms_darwin.c	(revision 0)
+@@ -0,0 +1,113 @@
++/*
++
++ Copyright (c) 2007-2009 Olivier Chafik <olivier.chafik@gmail.com>
++
++ Permission to use, copy, modify, and distribute this software for any
++ purpose with or without fee is hereby granted, provided that the above
++ copyright notice and this permission notice appear in all copies.
++
++ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++ WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++ MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++/*
++ 
++ dynamic symbol resolver for Mach-O
++
++ */
++
++#include "dynload.h"
++#include "dynload_macros.h"
++#include <mach-o/dyld.h>
++#include <stdio.h>
++
++#include <dlfcn.h>
++
++void dummy() { }
++
++struct DLLib_
++{
++	char* libPath;
++	void* handle;
++};
++
++struct DLSyms_
++{
++	DLLib* pLib;
++	NSObjectFileImage pObjectFileImage;
++};
++
++DLSyms* dlSymsInit(DLLib* pLib)
++{
++	DLSyms* pSyms;
++	int ret;
++	if (!pLib)
++		return NULL;
++	
++	pSyms = (DLSyms*)malloc(sizeof(DLSyms));
++	pSyms->pLib = pLib;
++	pSyms->pObjectFileImage = NULL;
++
++	ret = NSCreateObjectFileImageFromFile(
++		pLib->libPath, 
++		&pSyms->pObjectFileImage
++	);
++	if (ret != NSObjectFileImageSuccess) {
++		
++	}
++}
++
++void dlSymsCleanup(DLSyms* pSyms)
++{
++	if (!pSyms)
++		return;
++	
++	if (pSyms->pObjectFileImage)
++		NSDestroyObjectFileImage(pSyms->pObjectFileImage);
++	
++	free(pSyms);
++}
++
++int dlSymsCount(DLSyms* pSyms)
++{
++	if (!pSyms || !pSyms->pObjectFileImage)
++		return 0;
++	return NSSymbolDefinitionCountInObjectFileImage(pSyms->pObjectFileImage);
++}
++
++const char* dlSymsName(DLSyms* pSyms, int index)
++{
++	if (!pSyms->pObjectFileImage)
++		return NULL;
++	return NSSymbolDefinitionNameInObjectFileImage(pSyms->pObjectFileImage, index);
++}
++
++void* dlSymsValue(DLSyms* pSyms, int index)
++{
++	const char* name = dlSymsName(pSyms, index);
++	if (!name)
++		return NULL;
++	return dlFindSymbol(pSyms->pLib, name);
++}
++/*void* dlSymsNameValue(DLSyms* pSyms, int index, const char** nameOut) {
++	if (!pSyms->pObjectFileImage)
++		return false;
++	
++	*nameOut = NSSymbolDefinitionNameInObjectFileImage(pSyms->pObjectFileImage, index);
++	return *nameOut ? dlFindSymbol(pSyms->pLib, *nameOut) : NULL;
++}*/
++
++const char* dlSymsNameFromValue(DLSyms* pSyms, void* value)
++{
++  Dl_info info;
++  if (dladdr(value, &info) && (value == info.dli_saddr))
++    return "";//info.dli_sname;
++  return NULL;
++}
++
+Index: dyncall/dynload/dynload_syms_elf.c
+===================================================================
+--- dyncall/dynload/dynload_syms_elf.c	(revision 559)
++++ dyncall/dynload/dynload_syms_elf.c	(working copy)
+@@ -105,15 +105,15 @@
+   uint32_t*     pGNUHashChain;
+ };
+ 
+-size_t dlSyms_sizeof()
+-{
+-  return sizeof(DLSyms);
+-}
+ #include <stdio.h>
+-void dlSymsInit(DLSyms* pSyms, DLLib* pLib)
++
++DLSyms* dlSymsInit(DLLib* pLib)
+ {
+-  assert(pSyms && pLib);
++  DLSyms* pSyms;
++  if (!pLib)
++	  return NULL;
+   
++  pSyms = (DLSyms*)malloc(sizeof(DLSyms));
+   pSyms->pStrTab  = 0;
+   pSyms->pSymTab  = 0;
+   pSyms->pHash    = 0;
+@@ -173,16 +173,19 @@
+     uint32_t* pchain   = (uint32_t*) &pbuckets[p->nbuckets];
+     pSyms->pGNUHashChain = pchain;
+   }
++  return pSyms;
+ }
+ 
+ void dlSymsCleanup(DLSyms* pSyms)
+ {
+-  /* do nothing. */
++  free(pSyms);
+ }
+ 
+ int dlSymsCount(DLSyms* pSyms)
+ {
+-  assert(pSyms && pSyms->pHash);
++  if (!pSyms || !pSyms->pHash)
++    return 0;
++
+   if (pSyms->pGNUHash) {
+     return pSyms->pHash->nchain - pSyms->pGNUHash->symndx;
+   } else {
+@@ -192,8 +195,10 @@
+ 
+ const char* dlSymsName(DLSyms* pSyms, int index)
+ {
+-  assert(pSyms && pSyms->pSymTab && pSyms->pStrTab );
+   int export_base;
++  if (!pSyms || !pSyms->pSymTab || !pSyms->pStrTab)
++    return NULL;
++
+   if (pSyms->pGNUHash) {
+     export_base = pSyms->pGNUHash->symndx;
+   } else {
+@@ -205,8 +210,10 @@
+ 
+ void* dlSymsValue(DLSyms* pSyms, int index)
+ {
+-  assert(pSyms && pSyms->pSymTab);
+   int export_base;
++  if (!pSyms || !pSyms->pSymTab)
++    return NULL;
++  
+   if (pSyms->pGNUHash) {
+     export_base = pSyms->pGNUHash->symndx;
+   } else {
+@@ -344,8 +351,9 @@
+   // return 0;
+ }
+ 
+-void dlInitSyms_elf32(DLSyms* pResolver, DLLib* pLib)
++void dlInitSyms_elf32(DLLib* pLib)
+ {
++  DLSyms* pResolver = (DLSyms*)malloc(sizeof(DLSyms));
+   pResolver->elf64 = 0;
+   Elf32_Ehdr* pH   = pLib->u.pElf32_Ehdr;
+   assert(pH->e_phoff > 0);
+@@ -388,3 +396,11 @@
+ }
+ #endif
+ 
++const char* dlSymsNameFromValue(DLSyms* pSyms, void* value)
++{
++  Dl_info info;
++  if (dladdr(value, &info) && (value == info.dli_saddr))
++    return info.dli_sname;
++  return NULL;
++}
++
 Index: dyncall/dynload/dynload_syms_pe32.c
 ===================================================================
 --- dyncall/dynload/dynload_syms_pe32.c	(revision 559)
@@ -117,13 +472,17 @@ Index: dyncall/dynload/dynload_syms_pe32.c
  };
  
  size_t dlSyms_sizeof()
-@@ -41,20 +44,27 @@
+@@ -39,22 +42,31 @@
+   return sizeof(DLSyms);
+ }
  
- void dlSymsInit(DLSyms* pResolver, DLLib* pLib)
+-void dlSymsInit(DLSyms* pResolver, DLLib* pLib)
++DLSyms* dlSymsInit(DLLib* pLib)
  {
 -  const char* ptr = (const char*) pLib;
 -  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) ptr;  
 -  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( ptr + pDOSHeader->e_lfanew );  
++  DLSyms* pResolver = (DLSyms*)malloc(sizeof(DLSyms));
 +  const char* base = (const char*) pLib;
 +  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) base;  
 +  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( base + pDOSHeader->e_lfanew );  
@@ -145,16 +504,17 @@ Index: dyncall/dynload/dynload_syms_pe32.c
 +	  SYMOPT_DEFERRED_LOADS);
 +  //SymInitialize((HANDLE)pLib, NULL, TRUE);
 +  SymInitialize(GetCurrentProcess(), NULL, TRUE);
++  return pResolver;
  }
  
  void dlSymsCleanup(DLSyms* pResolver)
  {
 -  /* do nothing. */
-+    SymCleanup((HANDLE)pResolver->pLib);
++  SymCleanup(GetCurrentProcess());
  }
  
  int dlSymsCount(DLSyms* pResolver)
-@@ -67,34 +77,36 @@
+@@ -67,34 +79,35 @@
    IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
    return pExports->NumberOfNames;
  */
@@ -206,7 +566,6 @@ Index: dyncall/dynload/dynload_syms_pe32.c
 +    pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 +    pSymbol->MaxNameLen = MAX_SYM_NAME;
 +    
-+	//if (SymFromAddr((HANDLE)pResolver->pLib, dwAddress, &dwDisplacement, pSymbol)) {
 +	if (SymFromAddr(GetCurrentProcess(), dwAddress, &dwDisplacement, pSymbol) && !dwDisplacement)
 +		return pSymbol->Name;
 +
@@ -216,7 +575,7 @@ Index: dyncall/dynload/dynload_unix.c
 ===================================================================
 --- dyncall/dynload/dynload_unix.c	(revision 559)
 +++ dyncall/dynload/dynload_unix.c	(working copy)
-@@ -45,3 +45,11 @@
+@@ -45,3 +45,19 @@
    dlclose( (void*) libHandle);
  }
  
@@ -228,3 +587,28 @@ Index: dyncall/dynload/dynload_unix.c
 +  return NULL;
 +}
 +
++const char* dlSymsNameFromValue(DLSyms* pSyms, void* value)
++{
++  Dl_info info;
++  if (dladdr(value, &info) && (value == info.dli_saddr))
++    return info.dli_fname;
++  return NULL;
++}
++
+Index: dyncall/test/nm/nm.c
+===================================================================
+--- dyncall/test/nm/nm.c	(revision 559)
++++ dyncall/test/nm/nm.c	(working copy)
+@@ -24,11 +24,8 @@
+ {
+   DLSyms* pSyms;
+   int i,n;
+-  pSyms = (DLSyms*) malloc( dlSyms_sizeof() );
+-
++  pSyms = dlSymsInit(pLib);
+   
+-  dlSymsInit(pSyms, pLib);
+-
+   i = 0, n = dlSymsCount(pSyms);
+ 
+   for (; i < n; ++i) {

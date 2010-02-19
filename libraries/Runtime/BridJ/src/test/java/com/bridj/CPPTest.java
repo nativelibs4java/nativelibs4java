@@ -19,7 +19,7 @@ public class CPPTest {
 	public void testAdd() {
 		
 		Ctest test = new Ctest();
-		long peer = BridJ.getPeer(test, getClass());
+		long peer = Pointer.getAddress(test, Ctest.class);
 		int res = test.testAdd(1, 2);
 		assertEquals(3, res);
 	}
@@ -33,9 +33,9 @@ public class CPPTest {
 		
 
 		public Ctest() {
-			super(Pointer.pointerToAddress(createTest()));
+			super(Pointer.pointerToAddress(createTest(), Ctest.class));
 		}
-		public Ctest(Pointer<?> peer) {
+		public Ctest(Pointer<? extends Ctest> peer) {
 			super(peer);
 		}
 		@Virtual
@@ -43,7 +43,7 @@ public class CPPTest {
 		public int testAdd(int a, int b) {
 			//print("this", $this.getPeer(), 10, 10);
 			//print("*this", $this.getPointer(0).getPeer(), 10, 10);
-			return testAdd($this.getPeer(), a, b);
+			return testAdd(Pointer.getAddress(this, getClass()), a, b);
 		}
 	}
 	

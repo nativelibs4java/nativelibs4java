@@ -5,7 +5,7 @@ package com.bridj;
  *
  * @author Olivier
  */
-public class Memory<T> extends DefaultPointer<T> {
+class Memory<T> extends DefaultPointer<T> {
     protected final long validStart, validSize;
 
     Memory(PointerIO<T> io, long peer, long validStart, long validSize, Object memoryOwner) {
@@ -17,20 +17,20 @@ public class Memory<T> extends DefaultPointer<T> {
     Memory(PointerIO<T> io, long peer, long validSize, Object memoryOwner) {
 		this(io, peer, peer, validSize, memoryOwner);
 	}
-	public Memory(long size) {
+	Memory(long size) {
         this(null, size);
     }
 	/*public Memory(PointerIO<T> io, Buffer directBuffer, long byteOffset) {
 		this(io, JNI.getDirectBufferAddress(directBuffer) + byteOffset, JNI.getDirectBufferCapacity(directBuffer), directBuffer);
 		assert directBuffer != null && directBuffer.isDirect();
 	}*/
-    public Memory(PointerIO<T> io, Memory<?> memoryOwner) {
+    Memory(PointerIO<T> io, Memory<?> memoryOwner) {
         this(io, memoryOwner.getPeer(), memoryOwner.getValidStart(), memoryOwner.getValidStart(), memoryOwner);
     }
     Memory(PointerIO<T> io, long peer, long validSize) {
         this(io, peer, peer, validSize, null);
     }
-    public Memory(PointerIO<T> io, long size) {
+    Memory(PointerIO<T> io, long size) {
         this(io, JNI.malloc(size), size);
         JNI.memset(getPeer(), (byte)0, size);
     }

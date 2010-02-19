@@ -13,4 +13,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
 public @interface Library {
     String value();
+
+    public String versionPattern() default "";
 }

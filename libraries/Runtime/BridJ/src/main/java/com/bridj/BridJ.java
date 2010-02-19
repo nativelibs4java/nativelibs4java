@@ -34,12 +34,18 @@ public class BridJ {
 	static Set<Class<?>> registeredTypes = new HashSet<Class<?>>();
 	
 	static {
-		Runtime.getRuntime().addShutdownHook(new Thread() { public void run() {
+		java.lang.Runtime.getRuntime().addShutdownHook(new Thread() { public void run() {
 			// The JVM being shut down doesn't mean the process is about to exit, so we need to clean our JNI mess
 			//runShutdownHooks();
 			releaseAll();
 		}});
 	}
+    
+    public static <T extends NativeObject> Pointer<T> allocate(Class<?> type, int constructorId, Object... args) {
+        register(type);
+        throw new RuntimeException("Failed to allocate new instance of type " + type);
+    }
+    
 	public static synchronized void register(Class<?> type) {
 		if (registeredTypes.contains(type))
 			return;
@@ -298,11 +304,6 @@ public class BridJ {
     }
     public static int sizeOf(Class<?> type) {
     	return 40;
-    }
-    
-    //static <T extends CPPObject> long getPeer(T instance, Class<T> targetClass) {
-    public static long getPeer(Object instance, Class targetClass) {
-    	return ((CPPObject)instance).$this.getPeer();
     }
     
     public static <O extends CPPObject> Pointer<O> newCPPInstance(Class<? extends CPPObject> type) throws Exception {

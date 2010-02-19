@@ -46,9 +46,9 @@ public class TestCPP {
 		
 		boolean is64 = JNI.is64Bits();
 		Ctest test = new Ctest();
-		long thisPtr = test.$this.getPeer();
-		System.out.println(hex(thisPtr));
-		print("Ctest.this", test.$this.getSizeT(0), 10, 0);
+		//long thisPtr = test.$this.getPeer();
+		//System.out.println(hex(thisPtr));
+		print("Ctest.this", Pointer.getAddress(test, Ctest.class), 10, 0);
 		int res = test.testAdd(1, 2);
 		System.out.println("res = " + res);
 	}
@@ -64,17 +64,17 @@ public class TestCPP {
 		
 
 		public Ctest() {
-			super(Pointer.pointerToAddress(createTest()));
+			super(Pointer.pointerToAddress(createTest(), Ctest.class));
 		}
-		public Ctest(Pointer<?> peer) {
+		public Ctest(Pointer<? extends Ctest> peer) {
 			super(peer);
 		}
 		@Virtual
 		protected static native int testAdd(@This long thisPtr, int a, int b);
 		public int testAdd(int a, int b) {
-			print("this", $this.getPeer(), 10, 10);
-			print("*this", $this.getPointer(0).getPeer(), 10, 10);
-			return testAdd($this.getPeer(), a, b);
+			//print("this", Pointer.getAddress(this, Ctest.class), 10, 10);
+			//print("*this", $this.getPointer(0).getPeer(), 10, 10);
+			return testAdd(Pointer.getAddress(this, Ctest.class), a, b);
 		}
 	}
 	

@@ -16,7 +16,7 @@ import java.util.NoSuchElementException;
  *
  * @author Olivier
  */
-public class MethodCallInfo {
+class MethodCallInfo {
 
     /*public static class GenericMethodInfo {
         Type returnType, paramsTypes[];
@@ -188,12 +188,11 @@ public class MethodCallInfo {
                 javaChar = 'J';
                 break;
             case eSizeTValue:
-                if (JNI.SIZE_T_SIZE == 8) {
+                javaChar = 'J';
+				if (JNI.SIZE_T_SIZE == 8) {
                     dcChar = DC_SIGCHAR_LONGLONG;
-                    javaChar = 'J';
                 } else {
                     dcChar = DC_SIGCHAR_INT;
-                    javaChar = 'I';
                     isCallableAsRaw = false;
                 }
                 break;

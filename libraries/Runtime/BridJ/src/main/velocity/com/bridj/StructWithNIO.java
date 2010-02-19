@@ -6,7 +6,7 @@ import java.nio.*;
  *
  * @author ochafik
  */
-public class StructWithNIO<S extends StructWithNIO<S>> extends Struct<S> {
+class StructWithNIO<S extends StructWithNIO<S>> extends Struct<S> {
 
 	protected ByteBuffer buffer;
 

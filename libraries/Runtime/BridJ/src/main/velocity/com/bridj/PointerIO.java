@@ -10,7 +10,7 @@ import java.nio.*;
  *
  * @author Olivier
  */
-public class PointerIO<T> {
+class PointerIO<T> {
     final Type targetType;
     final Class<T> targetClass;
     final int targetSize;

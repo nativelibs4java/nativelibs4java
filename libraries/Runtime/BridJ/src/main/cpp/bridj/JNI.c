@@ -6,7 +6,7 @@
 
 #include "bridj.hpp"
 #include <string.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 #include "Exceptions.h"
 
 #if defined(DC_UNIX)
@@ -14,7 +14,7 @@
 #endif
 
 #if defined(DC__OS_Win64) || defined(DC__OS_Win32)
-#include <Dbghelp.h>
+//#include <Dbghelp.h>
 #endif
 
 #pragma warning(disable: 4152)
@@ -29,23 +29,24 @@ JNI_SIZEOF_t(wchar)
 JNI_SIZEOF_t(ptrdiff)
 JNI_SIZEOF(long, long)
 
-jmethodID getPeerMethod = NULL;
+jmethodID getAddressMethod = NULL;
 jclass bridjClass = NULL;
 
-jmethodID getGetPeerMethod(JNIEnv* env) {
-	if (!getPeerMethod)
+void main() {}
+
+jmethodID getGetAddressMethod(JNIEnv* env) {
+	if (!getAddressMethod)
 	{
-		bridjClass = (jclass)(*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/bridj/BridJ"));
-		//getPeerMethod = (*env)->GetMethodID(env, bridjClass, "getPeer", "(Lcom/bridj/CPPObject;Ljava/lang/Class;)J");
-		getPeerMethod = (*env)->GetMethodID(env, bridjClass, "getPeer", "(Lcom/lang/Object;Ljava/lang/Class;)J");
+		bridjClass = (jclass)(*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/bridj/Pointer"));
+		getAddressMethod = (*env)->GetMethodID(env, bridjClass, "getAddress", "(Lcom/bridj/NativeObject;Ljava/lang/Class;)J");
 	}
-	return getPeerMethod;
+	return getAddressMethod;
 }
 
 //void main() {}
 
-void* getCPPInstancePointer(JNIEnv *env, jobject instance, jclass targetClass) {
-	return (void*)(size_t)(*env)->CallLongMethod(env, NULL, getGetPeerMethod(env), instance, targetClass);
+void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass) {
+	return (void*)(size_t)(*env)->CallLongMethod(env, NULL, getGetAddressMethod(env), instance, targetClass);
 }
 //void _DllMainCRTStartup();
 

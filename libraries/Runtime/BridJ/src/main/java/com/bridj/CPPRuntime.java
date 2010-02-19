@@ -7,8 +7,8 @@ package com.bridj;
 
 /**
  *
- * @author Olivier Chafik
+ * @author Olivier
  */
-public abstract class Callback<C extends Callback<C>> extends NativeObject {
+public class CPPRuntime {
 
 }

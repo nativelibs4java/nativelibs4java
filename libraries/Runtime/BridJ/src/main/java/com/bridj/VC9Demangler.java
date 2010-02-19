@@ -27,7 +27,7 @@ public class VC9Demangler extends Demangler {
 					mr.type = MemberRef.Type.ScalarDeletingDestructor;
 					break;
 				default:
-					throw error();
+					throw error(-1);
 				}
 			}
 			
@@ -41,6 +41,7 @@ public class VC9Demangler extends Demangler {
 					mr.type = MemberRef.Type.CFunction;
 					break;
 				case 'Q':
+				case 'U': // WTF ??
 					mr.modifiers = Modifier.PUBLIC;
 					break;
 				case 'A':
@@ -59,7 +60,7 @@ public class VC9Demangler extends Demangler {
 					mr.modifiers = Modifier.PUBLIC | Modifier.STATIC;
 					break;
 				default:
-					throw error();
+					throw error(-1);
 				}
 				if (mr.type == null)
 					mr.type = MemberRef.Type.Method;
@@ -69,7 +70,7 @@ public class VC9Demangler extends Demangler {
 				}
 				
 				if (consumeChar() != 'A')
-					throw error();
+					throw error(-1);
 				
 				mr.valueType = parseType(true);
 				List<TypeRef> paramTypes = new ArrayList<TypeRef>();
@@ -99,7 +100,7 @@ public class VC9Demangler extends Demangler {
 			case 'W':
 				return classType(Character.TYPE, Wide.class);
 			default:
-				throw error();
+				throw error(-1);
 			}
 		case 'D':
 		case 'E': // unsigned
@@ -123,16 +124,18 @@ public class VC9Demangler extends Demangler {
 			return classType(Double.TYPE);
 		case 'P':
         //case 'A': // reference ?
-            consumeChar(); //'E'
-			consumeChar(); //'A'
+            if (consumeChar() == 'E') //'E'
+				consumeChar(); //'A'
+				
 			parseType(allowVoid); // TODO use it
 			return classType(Pointer.class);
         case 'V': // class
-        //case 'C': // struct
+        case 'U': // struct
         case 'T': // union
+			//System.out.println("Found struct, class or union");
             return parseQualifiedTypeName();
 		default:
-			throw error();
+			throw error(-1);
 		}
 	}
     static NamespaceRef reverseNamespace(List<String> names) {

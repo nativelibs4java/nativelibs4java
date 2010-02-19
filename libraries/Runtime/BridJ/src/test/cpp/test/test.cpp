@@ -109,7 +109,6 @@ Ctest* createTest() {
 	return test;
 }
 
-
 Ctest2::Ctest2() : Ctest()
 {
 }

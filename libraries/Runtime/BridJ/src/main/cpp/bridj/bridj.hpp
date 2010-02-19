@@ -89,7 +89,7 @@ char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCVal
 char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl NativeToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 
-void* getCPPInstancePointer(JNIEnv *env, jobject instance, jclass targetClass);
+void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass);
 void throwException(JNIEnv* env, const char* message);
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message);
 

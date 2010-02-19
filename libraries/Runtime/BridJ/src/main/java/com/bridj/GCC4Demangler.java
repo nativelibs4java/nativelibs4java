@@ -1,6 +1,6 @@
 package com.bridj;
 
-public class GCC4Demangler extends Demangler {
+class GCC4Demangler extends Demangler {
 	
 	public GCC4Demangler(String symbol) {
 		super(symbol);

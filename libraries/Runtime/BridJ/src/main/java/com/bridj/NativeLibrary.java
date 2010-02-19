@@ -47,7 +47,7 @@ public class NativeLibrary {
 	long getSymbolsHandle() {
 		return symbols;
 	}
-	public NativeEntities getNativeEntities() {
+	NativeEntities getNativeEntities() {
 		return nativeEntities;
 	}
 	public static NativeLibrary load(String path) {
@@ -58,12 +58,11 @@ public class NativeLibrary {
 		return new NativeLibrary(path, handle, symbols);
 	}
 	
-	public boolean methodMatchesSymbol(Class<?> declaringClass, Method method, String symbol) {
+	/*public boolean methodMatchesSymbol(Class<?> declaringClass, Method method, String symbol) {
 		return symbol.contains(method.getName()) && symbol.contains(declaringClass.getSimpleName());
-	}
-
+	}*/
 	
-	public long getHandle() {
+	long getHandle() {
 		if (handle == 0)
 			throw new RuntimeException("Library was released and cannot be used anymore");
 		return handle;
@@ -119,12 +118,12 @@ public class NativeLibrary {
         }
         return 0;
     }
-	public int getPositionInVirtualTable(Method method) {
+	int getPositionInVirtualTable(Method method) {
 		Class<?> type = method.getDeclaringClass();
 		Pointer<Pointer<?>> pVirtualTable = getVirtualTable(type);
 		return getPositionInVirtualTable(pVirtualTable, method);
 	}
-	public int getPositionInVirtualTable(Pointer<Pointer<?>> pVirtualTable, Method method) {
+	int getPositionInVirtualTable(Pointer<Pointer<?>> pVirtualTable, Method method) {
 		String methodName = method.getName();
 		//Pointer<?> typeInfo = pVirtualTable.get(1);
 		int methodsOffset = isMSVC() ? 0 : 2;
@@ -149,12 +148,12 @@ public class NativeLibrary {
 	boolean isMSVC() {
 		return JNI.isWindows();
 	}
-	private String getCPPClassName(Class<?> declaringClass) {
+	String getCPPClassName(Class<?> declaringClass) {
 		return declaringClass.getSimpleName();
 	}
 
 	@SuppressWarnings("unchecked")
-	public Pointer<Pointer<?>> getVirtualTable(Class<?> type) {
+	Pointer<Pointer<?>> getVirtualTable(Class<?> type) {
 		Pointer<Pointer<?>> p = vtables.get(type);
 		if (p == null) {
 			String className = type.getSimpleName();
@@ -201,7 +200,7 @@ public class NativeLibrary {
 		if (true) // TODO turn to false !!!
 		try {
 			if (JNI.isMacOSX()) {
-				Process process = Runtime.getRuntime().exec(new String[] {"nm", "-gj", path});
+				Process process = java.lang.Runtime.getRuntime().exec(new String[] {"nm", "-gj", path});
 				BufferedReader rin = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String line;
 				List<String> symbsList = new ArrayList<String>();
@@ -232,11 +231,11 @@ public class NativeLibrary {
 		}
 	}
 
-	public void getCPPConstructor(Constructor constructor) {
+	void getCPPConstructor(Constructor constructor) {
 		//TODO
 	}
 
-	public MemberRef parseSymbol(String symbol) throws DemanglingException {
+	MemberRef parseSymbol(String symbol) throws DemanglingException {
 		Demangler demangler;
 		if (JNI.isWindows())
 			demangler = new VC9Demangler(symbol);

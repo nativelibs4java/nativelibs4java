@@ -6,7 +6,7 @@ import java.nio.ByteBuffer;
  *
  * @author ochafik
  */
-public class StructIOWithNIO<S extends StructWithNIO<S>> extends StructIO<S> {
+class StructIOWithNIO<S extends StructWithNIO<S>> extends StructIO<S> {
     public StructIOWithNIO(Class<S> structClass) {
         super(structClass);
     }

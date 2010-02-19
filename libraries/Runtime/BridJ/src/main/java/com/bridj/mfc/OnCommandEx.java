@@ -3,12 +3,12 @@
  * and open the template in the editor.
  */
 
-package com.bridj;
+package com.bridj.mfc;
 
 /**
  *
- * @author ochafik
+ * @author Olivier
  */
-interface Pointable {
-    Pointer<?> getReference();
+public @interface OnCommandEx {
+    int[] value();
 }

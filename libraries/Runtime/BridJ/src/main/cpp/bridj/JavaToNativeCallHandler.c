@@ -137,7 +137,7 @@ char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, Vir
 		nParams--;
 		pParamTypes++;
 	} else {
-		thisPtr = getCPPInstancePointer(env, instance, info->fClass);
+		thisPtr = getNativeObjectPointer(env, instance, info->fClass);
 	}
 	
 	if (!thisPtr) {
