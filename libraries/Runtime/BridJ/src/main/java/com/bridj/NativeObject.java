@@ -37,6 +37,11 @@ public class NativeObject {
         this.peer = BridJ.allocate(getClass(), constructorId, args);
     }
     
+    @Override
+    protected void finalize() throws Throwable {
+    	BridJ.deallocate(this);
+    }
+    
 	public static synchronized <O extends NativeObject> O castAddress(long address, Class<O> type) {
 		Stack<Boolean> s = currentlyCasting.get();
 		s.push(true);

@@ -3,6 +3,7 @@ package com.bridj;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 
+import com.bridj.ann.Constructor;
 import com.bridj.ann.Library;
 import com.bridj.ann.Mangling;
 import com.bridj.ann.PointerSized;
@@ -60,11 +61,15 @@ public class TestCPP {
 		//static final CPPObjectIO<Ctest> $io = new CPPObjectIO<Ctest>(library, Ctest.class);
 
 		//@Mangling({"_Z10createTestv", "?createTest@@YAPEAVCtest@@XZ"})
-		static native @PointerSized long createTest();
+		@Constructor
+		static native void createTest(@PointerSized long thisPtr);
+		
+		//static native @PointerSized long createTest();
 		
 
 		public Ctest() {
-			super(Pointer.pointerToAddress(createTest(), Ctest.class));
+			super(-1);
+			//super(Pointer.pointerToAddress(createTest(), Ctest.class));
 		}
 		public Ctest(Pointer<? extends Ctest> peer) {
 			super(peer);

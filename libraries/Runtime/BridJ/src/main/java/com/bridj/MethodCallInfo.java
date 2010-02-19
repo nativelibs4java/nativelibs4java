@@ -3,7 +3,7 @@ import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import static com.bridj.Dyncall.*;
 import static com.bridj.Dyncall.CallingConvention.*;
-import com.bridj.ann.CallingConvention;
+import com.bridj.ann.Convention;
 import static com.bridj.Dyncall.SignatureChars.*;
 import com.bridj.*;
 import com.bridj.ann.*;
@@ -94,7 +94,7 @@ class MethodCallInfo {
         Virtual virtual = BridJ.getAnnotation(Virtual.class, false, method);
         isCPlusPlus = isCPlusPlus || virtual != null;
         
-        CallingConvention cc = BridJ.getAnnotation(CallingConvention.class, false, method);
+        Convention cc = BridJ.getAnnotation(Convention.class, false, method);
     	if (isCPlusPlus) {
         	if (JNI.isWindows()) {
         		if (!JNI.is64Bits())
@@ -106,8 +106,8 @@ class MethodCallInfo {
         } else {
         	if (cc != null) {
         		switch (cc.value()) {
-        		case Auto:
-        			break;
+        		//case Auto:
+        		//	break;
         		case FastCall:
         			dcCallingConvention = JNI.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_X86_WIN32_FAST_GNU;
         			break;

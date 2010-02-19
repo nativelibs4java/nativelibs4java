@@ -15,7 +15,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,7 +34,10 @@ public class BridJ {
 	static Map<File, NativeLibrary> librariesByFile = new HashMap<File, NativeLibrary>();
 	static NativeEntities orphanEntities = new NativeEntities();
 	static Set<Class<?>> registeredTypes = new HashSet<Class<?>>();
-	
+	static Map<Long, NativeObject> 
+		strongNativeObjects = new HashMap<Long, NativeObject>(),
+		weakNativeObjects = new WeakHashMap<Long, NativeObject>();
+
 	static {
 		java.lang.Runtime.getRuntime().addShutdownHook(new Thread() { public void run() {
 			// The JVM being shut down doesn't mean the process is about to exit, so we need to clean our JNI mess
@@ -41,9 +46,113 @@ public class BridJ {
 		}});
 	}
     
+	static synchronized void registerNativeObject(NativeObject ob) {
+		weakNativeObjects.put(Pointer.getAddress(ob, null), ob);
+	}
+	/// Caller should display message such as "target was GC'ed. You might need to add a BridJ.protectFromGC(NativeObject), BridJ.unprotectFromGC(NativeObject)
+	static synchronized NativeObject getNativeObject(long peer) {
+		NativeObject ob = weakNativeObjects.get(peer);
+		if (ob == null)
+			ob = strongNativeObjects.get(peer);
+		return ob;
+	}
+	static synchronized void unregisterNativeObject(NativeObject ob) {
+		long peer = Pointer.getAddress(ob, null);
+		weakNativeObjects.remove(peer);
+		strongNativeObjects.remove(peer);
+	}
+	public static synchronized void protectFromGC(NativeObject ob) {
+		long peer = Pointer.getAddress(ob, null);
+		if (weakNativeObjects.remove(peer) != null)
+			strongNativeObjects.put(peer, ob);
+	}
+	public static synchronized void unprotectFromGC(NativeObject ob) {
+		long peer = Pointer.getAddress(ob, null);
+		if (strongNativeObjects.remove(peer) != null)
+			weakNativeObjects.put(peer, ob);
+	}
+	
+
+    public static int sizeOf(Class<?> type) {
+    	return 40;
+    }
+    
+    public static <O extends CPPObject> Pointer<O> newCPPInstance(Class<? extends CPPObject> type) throws Exception {
+		return newCPPInstance(type.getConstructor());
+	}
+	public static <O extends CPPObject> Pointer<O> newCPPInstance(Constructor constructor) throws Exception {
+		Class<?> type = constructor.getDeclaringClass();
+		int size = sizeOf(type);
+		Pointer p = Pointer.pointerToAddress(JNI.malloc(size), type);
+		NativeLibrary lib = getNativeLibrary(type); 
+			//getLibrary(type);
+		//TODO lib.getCPPConstructor(constructor);
+		return p;
+	}
+	public static void deallocate(NativeObject nativeObject) {
+		unregisterNativeObject(nativeObject);
+		//TODO call destructor !!! 
+		Pointer.pointerTo(nativeObject, null).release();
+	}
+	
+	static Method getConstructor(Class<?> type, int constructorId, Object[] args) throws SecurityException, NoSuchMethodException {
+		for (Method c : type.getDeclaredMethods()) {
+			com.bridj.ann.Constructor ca = c.getAnnotation(com.bridj.ann.Constructor.class);
+			if (ca == null)
+				continue;
+			if (constructorId < 0) {
+				Class<?>[] params = c.getParameterTypes();
+				int n = params.length;
+				if (n == args.length + 1) {
+					boolean matches = true;
+					for (int i = 0; i < n; i++) {
+						Class<?> param = params[i];
+						if (i == 0) {
+							if (param != Long.TYPE) {
+								matches = false;
+								break;
+							}
+							continue;
+						}
+						Object arg = args[i - 1];
+						if (arg == null && param.isPrimitive() || !param.isInstance(arg)) {
+							matches = false;
+							break;
+						}
+					}
+					if (matches) 
+						return c;
+				}
+			} else if (ca != null && ca.value() == constructorId)
+				return c;
+		}
+		throw new NoSuchMethodException("Cannot find constructor with index " + constructorId);
+	}
     public static <T extends NativeObject> Pointer<T> allocate(Class<?> type, int constructorId, Object... args) {
         register(type);
-        throw new RuntimeException("Failed to allocate new instance of type " + type);
+        Pointer<T> peer = null;
+        try {
+        	Method meth = getConstructor(type, constructorId, args);
+        	Object[] consArgs = new Object[args.length + 1];
+        	if (CPPObject.class.isAssignableFrom(type)) {
+        		if (meth.getReturnType() != Void.TYPE)
+	        		throw new RuntimeException("Constructor-mapped methods must return void, but " + meth.getName() + " returns " + meth.getReturnType().getName());
+        		if (!Modifier.isStatic(meth.getModifiers()))
+	        		throw new RuntimeException("Constructor-mapped methods must be static, but " + meth.getName() + " is not.");
+	        	peer = (Pointer)Pointer.allocate(PointerIO.getInstance(type), sizeOf(type));
+	        	peer.setPointer(0, getNativeLibrary(type).getVirtualTable(type));
+        	} else {
+        		// TODO ObjCObject : call alloc on class type !!
+        	}
+        	consArgs[0] = peer.getPeer();
+        	System.arraycopy(args, 0, consArgs, 1, args.length);
+        	meth.invoke(null, consArgs);
+        	return peer;
+        } catch (Exception ex) {
+        	if (peer != null)
+        		peer.release();
+        	throw new RuntimeException("Failed to allocate new instance of type " + type, ex);
+        }
     }
     
 	public static synchronized void register(Class<?> type) {
@@ -166,6 +275,10 @@ public class BridJ {
 	 * This is automatically called at shutdown time.
 	 */
 	public synchronized static void releaseAll() {
+		strongNativeObjects.clear();
+		weakNativeObjects.clear();
+		System.gc();
+		
 		for (NativeLibrary lib : librariesByFile.values())
 			lib.release();
 		librariesByFile.clear();
@@ -302,20 +415,4 @@ public class BridJ {
         }
         return null;
     }
-    public static int sizeOf(Class<?> type) {
-    	return 40;
-    }
-    
-    public static <O extends CPPObject> Pointer<O> newCPPInstance(Class<? extends CPPObject> type) throws Exception {
-		return newCPPInstance(type.getConstructor());
-	}
-	public static <O extends CPPObject> Pointer<O> newCPPInstance(Constructor constructor) throws Exception {
-		Class<?> type = constructor.getDeclaringClass();
-		int size = sizeOf(type);
-		Pointer p = Pointer.pointerToAddress(JNI.malloc(size), type);
-		NativeLibrary lib = getNativeLibrary(type); 
-			//getLibrary(type);
-		//TODO lib.getCPPConstructor(constructor);
-		return p;
-	}
 }

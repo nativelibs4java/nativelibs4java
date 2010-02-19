@@ -11,13 +11,13 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD, ElementType.PACKAGE, ElementType.PARAMETER, ElementType.CONSTRUCTOR})
-public @interface CallingConvention {
+public @interface Convention {
     public enum Style {
-        Auto,
+        //Auto,
         StdCall,
         //ThisCall,
         FastCall,
         CDecl
     }
-    Style value() default Style.Auto;
+    Style value();
 }
