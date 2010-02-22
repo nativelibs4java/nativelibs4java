@@ -1,15 +1,7 @@
 package com.bridj;
 
-import java.io.FileNotFoundException;
-import java.util.Collection;
-
-
-import com.bridj.CallbackTest.MyCallback;
-import com.bridj.ann.Constructor;
 import com.bridj.ann.Library;
-import com.bridj.ann.Mangling;
 import com.bridj.ann.Ptr;
-import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
