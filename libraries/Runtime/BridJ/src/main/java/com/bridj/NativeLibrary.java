@@ -240,10 +240,6 @@ public class NativeLibrary {
 		}
 	}
 
-	void getCPPConstructor(Constructor constructor) {
-		//TODO
-	}
-
 	MemberRef parseSymbol(String symbol) throws DemanglingException {
 		Demangler demangler;
 		if (JNI.isWindows())

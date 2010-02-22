@@ -3,6 +3,8 @@ package com.bridj;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 
+
+import com.bridj.CallbackTest.MyCallback;
 import com.bridj.ann.Constructor;
 import com.bridj.ann.Library;
 import com.bridj.ann.Mangling;
@@ -11,6 +13,7 @@ import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
+@Library("test")
 public class TestCPP {
 //	static String libraryPath = //BridJ.getNativeLibraryFile("test").toString()
 //		JNI.isMacOSX() ? 
@@ -19,6 +22,11 @@ public class TestCPP {
 //		//"F:\\Experiments\\tmp\\key\\svn\\nativelibs4java\\Runtime\\BridJ\\src\\test\\resources\\win32\\test.dll" +
 //        "C:\\Users\\Olivier\\Prog\\nativelibs4java\\Runtime\\BridJ\\src\\main\\cpp\\buildsys\\vs2008\\x64\\Debug\\test.dll"
 //	;
+
+	static {
+		BridJ.register();
+	}
+	
 	static NativeLibrary library;
 	
 	static void print(String name, long addr, int n, int minI) {
@@ -53,18 +61,21 @@ public class TestCPP {
 		Ctest test = new Ctest();
 		//long thisPtr = test.$this.getPeer();
 		//System.out.println(hex(thisPtr));
-		print("Ctest.this", Pointer.pointerTo(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
+		print("Ctest.this", Pointer.getPeer(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
 		int res = test.testAdd(1, 2);
 		System.out.println("res = " + res);
+		
+		testNativeTargetCallbacks();
+		testJavaTargetCallbacks();
 	}
 	@Library("test")
 	static class Ctest extends CPPObject {
 		static {
-			BridJ.register(Ctest.class);
+			BridJ.register();//Ctest.class);
 		}
 
-		@Constructor
-		private static native void Ctest(@This long thisPtr);
+//		@Constructor
+//		private static native void Ctest(@This long thisPtr);
 		
 		static native @Ptr long createTest();
 		
@@ -92,4 +103,35 @@ public class TestCPP {
 		else
 			return JNI.get_int(peer);
 	}
+	
+	
+	public static void testJavaTargetCallbacks() {
+		forwardCall(new MyCallback() {
+			@Override
+			public int doSomething(int a, int b) {
+				return a + b;
+			}
+		}.toPointer(), 1, 2);
+		
+		forwardCall(new MyCallback() {
+			@Override
+			public int doSomething(int a, int b) {
+				return a + b * 10;
+			}
+		}.toPointer(), 1, 2);
+	}
+	
+	public static void testNativeTargetCallbacks() {
+		Pointer<com.bridj.TestCPP.MyCallback> ptr = getAdder();
+		MyCallback adder = ptr.toNativeObject(MyCallback.class);
+		adder.doSomething(1, 2);
+	}
+	
+	static native int forwardCall(Pointer<MyCallback> cb, int a, int b);
+	static native Pointer<MyCallback> getAdder();
+	
+	public static abstract class MyCallback extends Callback {
+		public abstract int doSomething(int a, int b); 
+	}
+	
 }

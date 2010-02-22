@@ -60,7 +60,9 @@ class PointerIO<T> {
                 return (T)c.getConstructor(Long.TYPE).newInstance(pointer.getSizeT(JNI.POINTER_SIZE * index));
             if (c == String.class || c == CharSequence.class)
                 return (T)pointer.getString(index * JNI.POINTER_SIZE);
-
+			if (NativeObject.class.isAssignableFrom(c))
+				return (T)pointer.toNativeObject((Class)c); 
+				
             throw new UnsupportedOperationException("Cannot get value of type " + targetType);
         } catch (Exception ex) {
             throw new RuntimeException("Unexpectedly failed to get value of type " + targetType, ex);
@@ -103,6 +105,7 @@ class PointerIO<T> {
                     }
                 };
             #end
+			//else if (NativeObject.class.isAssignableFrom(type))
             else if (type == Pointer.class)
                 io = new PointerIO<Pointer>(type, Pointer.SIZE) {
                     @Override

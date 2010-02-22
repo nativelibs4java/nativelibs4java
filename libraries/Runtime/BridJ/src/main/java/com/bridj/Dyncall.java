@@ -24,6 +24,12 @@ class Dyncall {
         ePointerValue
     }
     
+    public enum CallbackType {
+    	eJavaCallbackToNativeFunction,
+    	eNativeToJavaCallback,
+    	eJavaToNativeFunction,
+    	eJavaToVirtualMethod
+    }    
     
     public static class CallingConvention {
     	public static final int

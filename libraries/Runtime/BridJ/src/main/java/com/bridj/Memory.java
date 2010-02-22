@@ -1,5 +1,7 @@
 package com.bridj;
 
+import java.util.logging.Level;
+
 
 /**
  *
@@ -54,8 +56,12 @@ class Memory<T> extends DefaultPointer<T> {
 
 	@Override
     protected void free(long peer) {
-        assert peer == 0;
-        JNI.free(peer);
+		assert peer != 0;
+        if (peer == 0)
+			return;
+		
+        BridJ.log(Level.SEVERE, "Leaking memory at address " + peer + " to avoid the free() crash.");
+        //TODO JNI.free(peer);
     }
     
     @Override

@@ -22,8 +22,10 @@ class MethodCallInfo {
         Type returnType, paramsTypes[];
     }
     GenericMethodInfo genericInfo = new GenericMethodInfo();*/
+	Class<?> declaringClass;
     int returnValueType, paramsValueTypes[];
 	Method method;
+	String methodName;
 	long forwardedPointer;
     String dcSignature;
 	String javaSignature;
@@ -35,15 +37,17 @@ class MethodCallInfo {
 	boolean isVarArgs;
 	boolean isStatic;
 	boolean isCPlusPlus;
-	
+	boolean isJavaToCCallback;
 	boolean direct;
 	boolean startsWithThis;
     boolean isCallableAsRaw;
 
-	public MethodCallInfo(Method method, NativeLibrary library) throws FileNotFoundException {
+	public MethodCallInfo(Method method) throws FileNotFoundException {
         isVarArgs = false;
         isCPlusPlus = false;
         this.method = method;
+		this.declaringClass = method.getDeclaringClass();
+		this.methodName = method.getName();
         
         Class<?>[] paramsTypes = method.getParameterTypes();
         Annotation[][] paramsAnnotations = method.getParameterAnnotations();
@@ -166,27 +170,30 @@ class MethodCallInfo {
             return ValueType.eDoubleValue;
         if (c == Boolean.class || c == Boolean.TYPE)
             return ValueType.eByteValue;
+        if (c == Pointer.class)
+        	return ValueType.ePointerValue;
 
         throw new NoSuchElementException("No " + ValueType.class.getSimpleName() + " for class " + c.getName());
     }
 
     public void appendToSignature(ValueType type, StringBuilder javaSig, StringBuilder dcSig) {
-        char dcChar, javaChar;
+        char dcChar;
+        String javaChar;
         switch (type) {
             case eVoidValue:
                 dcChar = DC_SIGCHAR_VOID;
-                javaChar = 'V';
+                javaChar = "V";
                 break;
             case eIntValue:
                 dcChar = DC_SIGCHAR_INT;
-                javaChar = 'I';
+                javaChar = "I";
                 break;
             case eLongValue:
                 dcChar = DC_SIGCHAR_LONGLONG;
-                javaChar = 'J';
+                javaChar = "J";
                 break;
             case eSizeTValue:
-                javaChar = 'J';
+                javaChar = "J";
 				if (JNI.SIZE_T_SIZE == 8) {
                     dcChar = DC_SIGCHAR_LONGLONG;
                 } else {
@@ -196,19 +203,19 @@ class MethodCallInfo {
                 break;
             case eShortValue:
                 dcChar = DC_SIGCHAR_SHORT;
-                javaChar = 'S';
+                javaChar = "S";
                 break;
             case eDoubleValue:
                 dcChar = DC_SIGCHAR_DOUBLE;
-                javaChar = 'D';
+                javaChar = "D";
                 break;
             case eFloatValue:
                 dcChar = DC_SIGCHAR_FLOAT;
-                javaChar = 'F';
+                javaChar = "F";
                 break;
             case eByteValue:
                 dcChar = DC_SIGCHAR_CHAR;
-                javaChar = 'B';
+                javaChar = "B";
                 break;
             case eWCharValue:
                 switch (JNI.WCHAR_T_SIZE) {
@@ -226,9 +233,15 @@ class MethodCallInfo {
                 default:
                     throw new RuntimeException("Unhandled sizeof(wchar_t) in GetJavaTypeSignature: " + JNI.WCHAR_T_SIZE);
                 }
-                javaChar = 'C';
+                javaChar = "C";
                 break;
+            case ePointerValue:
+            	dcChar = DC_SIGCHAR_POINTER;
+                javaChar = "Lcom/bridj/Pointer;";
+                isCallableAsRaw = false;
+            	break;
             default:
+                isCallableAsRaw = false;
                 throw new RuntimeException("Unhandled " + ValueType.class.getSimpleName() + ": " + type);
         }
         if (javaSig != null)

@@ -502,6 +502,18 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile
  UNITS += dyncall_callback_x64_masm
  endif
  endif
+Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback.h
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback.h	(revision 560)
++++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback.h	(working copy)
+@@ -40,6 +40,7 @@
+ DCCallback* dcbNewCallback(const char* signature, DCCallbackHandler* funcptr, void* userdata);
+ void        dcbInitCallback(DCCallback* pcb, const char* signature, DCCallbackHandler* handler, void* userdata);
+ void        dcbFreeCallback(DCCallback* pcb);
++//void*		dcbUserData(DCCallback* pcb);
+ 
+ #ifdef __cplusplus
+ }
 Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(revision 560)

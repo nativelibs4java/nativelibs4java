@@ -70,6 +70,9 @@ class DefaultPointer<T> extends Pointer<T>
 	/// TODO merge with Memory.share
 	@Override    
     public Pointer<T> offset(long byteOffset) {
+		if (byteOffset == 0)
+			return this;
+		
         PointerIO<T> io = getIO();
         int size = io == null ? io.getTargetSize() : 1;
         DefaultPointer<T> p = new DefaultPointer(io, getCheckedPeer(byteOffset, size));

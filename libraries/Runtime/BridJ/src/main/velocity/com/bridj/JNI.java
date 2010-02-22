@@ -5,6 +5,7 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.Buffer;
+import static com.bridj.Dyncall.*;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.logging.Level;
@@ -157,12 +158,16 @@ public class JNI {
 
 	static native void callDefaultCPPConstructor(long constructor, long thisPtr, int callMode);
 	
-	static boolean allowDirect = !"false".equals(System.getProperty("bridj.allowDirect"));
-	public static long[] createCallbacks(List<MethodCallInfo> methodInfos) {
+	//static boolean allowDirect = !"false".equals(System.getProperty("bridj.allowDirect"));
+	/*public static long[] createCallbacks(
+		int callbackType,
+		List<MethodCallInfo> methodInfos
+	) {
 		long[] ret = new long[methodInfos.size()];
 		for (int i = 0, n = methodInfos.size(); i < n; i++) {
 			MethodCallInfo info = methodInfos.get(i);
 			ret[i] = createCallback(
+				callbackType,
 				info.method.getDeclaringClass(),
 				info.javaCallback,
 				info.method,
@@ -175,6 +180,7 @@ public class JNI {
 				allowDirect && info.direct, 
 				info.getJavaSignature(), 
 				info.getDcSignature(),
+				info.isJavaToCCallback,
 				info.paramsValueTypes.length,
 				info.returnValueType,
 				info.paramsValueTypes
@@ -185,10 +191,21 @@ public class JNI {
 	public static void freeCallbacks(long[] nativeCallbacks) {
 		for (int i = 0, n = nativeCallbacks.length; i < n; i++)
 			freeCallback(nativeCallbacks[i]);
-	}
+	}*/
+	
+	public static native long createCToJavaCallback(MethodCallInfo info, Callback instance);
+	public static native long bindJavaToCCallbacks(MethodCallInfo... infos);
+	public static native long bindJavaMethodsToCFunctions(MethodCallInfo... infos);
+	public static native long bindJavaMethodsToVirtualMethods(MethodCallInfo... infos);
+	
+	public static native void freeCToJavaCallback(long handle);
+	public static native void freeJavaToCCallbacks(long handle, int size);
+	public static native void freeCFunctionBindings(long handle, int size);
+	public static native void freeVirtualMethodBindings(long handle, int size);
 	
 	public static native int getMaxDirectMappingArgCount();
-	public static native long createCallback(
+	/*public static native long createCallback(
+		int callbackType,
 		Class<?> declaringClass,
 		Callback javaCallbackInstance,
 		Method method,
@@ -205,7 +222,7 @@ public class JNI {
 		int returnValueType, 
 		int paramsValueTypes[]
 	);
-	public static native void freeCallback(long nativeCallback);
+	public static native void freeCallback(long nativeCallback);*/
 
 	public static native long malloc(long size);
     public static native void free(long pointer);

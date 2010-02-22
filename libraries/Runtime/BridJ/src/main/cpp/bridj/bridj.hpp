@@ -56,7 +56,7 @@ typedef enum ValueType {
 	ePointerValue
 } ValueType;
 
-typedef struct CallInfo {
+typedef struct CommonCallbackInfo {
 	int nParams;
 	char fDCReturnType;
 	enum ValueType fReturnType;
@@ -64,10 +64,10 @@ typedef struct CallInfo {
 	int fDCMode;
 	void* fDCCallback;
 	JNIEnv* fEnv;
-} CallInfo;
+} CommonCallbackInfo;
 
 typedef struct VirtualMethodCallInfo {
-	struct CallInfo fInfo;
+	struct CommonCallbackInfo fInfo;
 	jclass fClass;
 	jboolean fHasThisPtrArg;
 	int fVirtualIndex;
@@ -75,16 +75,20 @@ typedef struct VirtualMethodCallInfo {
 } VirtualMethodCallInfo;
 
 typedef struct FunctionCallInfo {
-	struct CallInfo fInfo;
+	struct CommonCallbackInfo fInfo;
 	void* fForwardedSymbol;
 } FunctionCallInfo;
 
-typedef struct JavaCallbackCallInfo {
-	struct CallInfo fInfo;
+typedef struct NativeToJavaCallbackCallInfo {
+	struct CommonCallbackInfo fInfo;
 	void* fJNICallFunction;
 	jobject fCallbackInstance;
 	jmethodID fMethod;
-} JavaCallbackCallInfo;
+} NativeToJavaCallbackCallInfo;
+
+typedef struct JavaToNativeCallbackCallInfo {
+	struct CommonCallbackInfo fInfo;
+} JavaToNativeCallbackCallInfo;
 
 char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);

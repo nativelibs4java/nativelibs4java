@@ -19,6 +19,11 @@ class GCC4Demangler extends Demangler {
 		case 'P':
 			parseType(); // TODO we don't care what this points to right now
 			return classType(Pointer.class);
+		case 'F':
+			// TODO parse function type correctly !!!
+			while (consumeChar() != 'E') {}
+			
+			return null;
 		case 'K':
 			return parseType();
 		case 'v': // char

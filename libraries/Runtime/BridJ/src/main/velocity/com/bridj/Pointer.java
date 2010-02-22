@@ -3,6 +3,7 @@ package com.bridj;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.*;
+import java.util.Stack;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
@@ -43,13 +44,42 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         throw new UnsupportedOperationException(); // TODO
     }
     
-    public static Pointer<? extends NativeObject> pointerTo(NativeObject instance, Class targetType) {
+    public static Pointer<? extends NativeObject> getPeer(NativeObject instance) {
+		return getPeer(instance, null);
+    }
+    public static Pointer<? extends NativeObject> getPeer(NativeObject instance, Class targetType) {
 		return (Pointer)instance.peer;
     }
     public static long getAddress(NativeObject instance, Class targetType) {
-		return pointerTo(instance, targetType).getPeer();
+		return getPeer(instance, targetType).getPeer();
     }
     
+	static ThreadLocal<Stack<Boolean>> currentlyCasting = new ThreadLocal<Stack<Boolean>>() {
+        @Override
+		protected java.util.Stack<Boolean> initialValue() {
+			Stack<Boolean> s = new Stack<Boolean>();
+			s.push(false);
+			return s;
+		};
+	};
+	
+	static boolean isCastingInCurrentThread() {
+		return currentlyCasting.get().peek();
+	}
+    
+	public <O extends NativeObject> O toNativeObject(Class<O> type) {
+		Stack<Boolean> s = currentlyCasting.get();
+		s.push(true);
+		try {
+			O instance = type.newInstance();
+			instance.peer = (Pointer)this;//offset(byteOffset);//Pointer.pointerToAddress(address, type);
+			return instance;
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to cast pointer to native object of type " + type.getName(), ex);
+		} finally {
+			s.pop();
+		}
+	}
     
 	/**
 	 * Check that the pointer's peer is aligned to the target type alignment.

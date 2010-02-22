@@ -91,6 +91,7 @@ TEST_API double __cdecl testASinB(int a, int b)
 
 Ctest::Ctest()
 {
+	printf("Ctest::Ctest() (this = %ld, low = %d)\n", (long int)(size_t)this, (int)(0xffffffffLL & (size_t)this));
 }
 Ctest::~Ctest()
 {
@@ -101,7 +102,7 @@ const std::string& Ctest2::toString() {
 	return s;
 }
 int Ctest::testAdd(int a, int b) {
-	//printf("testAdd(%d, %d)\n", a, b);
+	printf("Ctest::testAdd(%d, %d) (this = %ld, low = %d)\n", a, b, (long int)(size_t)this, (int)(0xffffffffLL & (size_t)this));
 	return a + b;
 }
 
@@ -116,12 +117,14 @@ Ctest* createTest() {
 
 Ctest2::Ctest2() : Ctest()
 {
+	printf("Ctest2::Ctest2() (this = %ld)\n", (long int)(size_t)this);
 }
 Ctest2::~Ctest2()
 {
 }
 
 int Ctest2::testAdd(int a, int b) {
+	printf("Ctest2::testAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
 	return a + b * 2;
 }
 
@@ -133,3 +136,13 @@ TEST_API void test_void() { }
 
 TEST_API int test_int_short(short s) { return 0; }
 
+typedef int (*fun_iii)(int, int);
+int add(int a, int b) {
+	return a + b;
+}
+TEST_API fun_iii getAdder() {
+	return add;
+}
+TEST_API int forwardCall(fun_iii f, int a, int b) {
+	return f(a, b);
+}

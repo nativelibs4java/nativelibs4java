@@ -25,8 +25,7 @@ public:
 	Ctest();
 	//virtual 
 	~Ctest();
-	virtual 
-	int testAdd(int a, int b);
+	virtual int testAdd(int a, int b);
 	
 	static void static_void();
 };
@@ -36,8 +35,7 @@ public:
 	Ctest2();
 	//virtual 
 	~Ctest2();
-	virtual 
-	int testAdd(int a, int b);
+	virtual int testAdd(int a, int b);
 	
 	const std::string& toString();
 };

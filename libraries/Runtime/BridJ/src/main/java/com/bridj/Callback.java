@@ -10,5 +10,7 @@ package com.bridj;
  * @author Olivier Chafik
  */
 public abstract class Callback<C extends Callback<C>> extends NativeObject {
-
+	public Pointer<C> toPointer() {
+		return (Pointer)Pointer.getPeer(this);
+	}
 }

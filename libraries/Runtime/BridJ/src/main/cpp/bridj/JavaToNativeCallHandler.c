@@ -121,6 +121,7 @@ jobject initCallHandler(DCArgs* args, DCCallVM** vmOut, JNIEnv** envOut) {
 		vm = dcNewCallVM(1024);
 	} else {
 		// reset is done by dcMode anyway ! dcReset(vm);
+		dcReset(vm); // TODO remove me !
 	}
 	
 	*vmOut = vm;
@@ -177,6 +178,9 @@ char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, Vir
 			return info->fInfo.fDCReturnType;
 		}
 		
+		//nParams--;
+		//pParamTypes++;
+		
 	}
 	
 	callback = getNthVirtualMethodFromThis(env, thisPtr, info->fVirtualTableOffset, info->fVirtualIndex);
@@ -201,10 +205,9 @@ void callDefaultConstructor(void* constructor, void* thisPtr, int callMode)
 	dcMode(vm, callMode);
 	dcArgPointer(vm, thisPtr);
 	dcCallVoid(vm, constructor);
-	return DC_SIGCHAR_VOID;
 }
 
-char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, JavaCallbackCallInfo *info)
+char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaCallbackCallInfo *info)
 {
 	THREAD_STATIC DCCallVM* vm = NULL;
 	JNIEnv *env = info->fInfo.fEnv;
@@ -235,6 +238,24 @@ char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, JavaCallba
 	return info->fInfo.fDCReturnType;
 }
 
+char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, JavaToNativeCallbackCallInfo *info)
+{
+	void* callback;
+    DCCallVM* vm;
+	JNIEnv *env;
+	jobject instance = initCallHandler(args, &vm, &env);
+	
+	dcMode(vm, info->fInfo.fDCMode);
+	callback = getNativeObjectPointer(env, instance, NULL);
+	
+	followArgs(env, args, vm, info->fInfo.nParams, info->fInfo.fParamTypes)
+	&&
+	followCall(env, info->fInfo.fReturnType, vm, result, callback);
+
+	return info->fInfo.fDCReturnType;
+}
+
+
 
 char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {
@@ -255,9 +276,17 @@ char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, 
 
 char __cdecl NativeToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {
-	JavaCallbackCallInfo* info = (JavaCallbackCallInfo*)userdata;
+	NativeToJavaCallbackCallInfo* info = (NativeToJavaCallbackCallInfo*)userdata;
 	BEGIN_TRY();
 	return doNativeToJavaCallHandler(args, result, info);
+	END_TRY_RET(info->fInfo.fEnv, 0);
+}
+
+char __cdecl JavaToNativeCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
+{
+	JavaToNativeCallbackCallInfo* info = (JavaToNativeCallbackCallInfo*)userdata;
+	BEGIN_TRY();
+	return doJavaToNativeCallHandler(args, result, info);
 	END_TRY_RET(info->fInfo.fEnv, 0);
 }
 

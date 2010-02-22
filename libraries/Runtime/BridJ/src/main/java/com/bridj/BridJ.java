@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,6 +40,8 @@ public class BridJ {
 		strongNativeObjects = new HashMap<Long, NativeObject>(),
 		weakNativeObjects = new WeakHashMap<Long, NativeObject>();
 
+	static CallbackNativeImplementer callbackNativeImplementer = new CallbackNativeImplementer(orphanEntities);
+	
 	static {
 		java.lang.Runtime.getRuntime().addShutdownHook(new Thread() { public void run() {
 			// The JVM being shut down doesn't mean the process is about to exit, so we need to clean our JNI mess
@@ -80,7 +83,7 @@ public class BridJ {
 		boolean hasThis = false;
 		int len = anns.length;
         if (len > 0) {
-        	top: for (int i = 0; i < len; i++) {
+        	for (int i = 0; i < len; i++) {
         		for (Annotation ann : anns[i]) {
 	        		if (ann instanceof This) {
 	        			hasThis = true;
@@ -110,22 +113,10 @@ public class BridJ {
     	return defaultObjectSize;
     }
     
-    public static <O extends CPPObject> Pointer<O> newCPPInstance(Class<? extends CPPObject> type) throws Exception {
-		return newCPPInstance(type.getConstructor());
-	}
-	public static <O extends CPPObject> Pointer<O> newCPPInstance(Constructor constructor) throws Exception {
-		Class<?> type = constructor.getDeclaringClass();
-		int size = sizeOf(type);
-		Pointer p = Pointer.pointerToAddress(JNI.malloc(size), type);
-		NativeLibrary lib = getNativeLibrary(type); 
-			//getLibrary(type);
-		//TODO lib.getCPPConstructor(constructor);
-		return p;
-	}
 	public static void deallocate(NativeObject nativeObject) {
 		unregisterNativeObject(nativeObject);
 		//TODO call destructor !!! 
-		Pointer.pointerTo(nativeObject, null).release();
+		Pointer.getPeer(nativeObject, null).release();
 	}
 	
 	static Method getConstructor(Class<?> type, int constructorId, Object[] args) throws SecurityException, NoSuchMethodException {
@@ -163,8 +154,52 @@ public class BridJ {
 	}
 	static Map<Class<?>, Long> defaultConstructors = new HashMap<Class<?>, Long>();
     public static <T extends NativeObject> Pointer<T> allocate(Class<?> type, int constructorId, Object... args) {
-        register(type);
-        Pointer<T> peer = null;
+    	register(type);
+        if (CPPObject.class.isAssignableFrom(type))
+        	return newCPPInstance(type, constructorId, args);
+        if (Callback.class.isAssignableFrom(type)) {
+        	if (constructorId != -1 || args.length != 0)
+        		throw new RuntimeException("Callback should have a constructorId == -1 and no constructor args !");
+        	return newCallbackInstance(type);
+        }
+        throw new RuntimeException("Cannot allocate instance of type " + type.getName() + " (unhandled NativeObject subclass)");
+    }
+    
+    private static <T extends NativeObject> Pointer<T> newCallbackInstance(Class<?> type) {
+//    	Method method = null;
+    	Class<?> parent = null;
+    	while ((parent = type.getSuperclass()) != null && parent != Callback.class) {
+    		type = parent;
+    	}
+    	
+    	registerOne(type);
+//    	if (Callback.class.isAssignableFrom(type)) {
+//			callbackNativeImplementer.getCallbackImplType((Class) type);
+//		}
+		
+    	
+    	Method method = null;
+    	for (Method dm : type.getDeclaredMethods()) {
+    		int modifiers = dm.getModifiers();
+    		if (!Modifier.isAbstract(modifiers))
+    			continue;
+    		
+    		method = dm;
+    		break;
+    	}
+    	if (method == null)
+    		throw new RuntimeException("Type doesn't have any abstract method : " + type.getName());
+    	
+		try {
+			MethodCallInfo mci = new MethodCallInfo(method);
+			mci.isJavaToCCallback = true;
+			return null;//(Pointer)Pointer.pointerToAddress(JNI.createJavaToCCallbacks(mci), type);
+		} catch (FileNotFoundException e) {
+			throw new RuntimeException("Failed to create instance of callback " + type.getName(), e);
+		}
+	}
+	private static <T extends NativeObject> Pointer<T> newCPPInstance(Class<?> type, int constructorId, Object... args) {
+    	Pointer<T> peer = null;
         try {
         	peer = (Pointer)Pointer.allocate(PointerIO.getInstance(type), sizeOf(type));
         	NativeLibrary lib = getNativeLibrary(type);
@@ -173,13 +208,14 @@ public class BridJ {
         		if (defaultConstructor == null) {
         			for (Symbol symbol : lib.getSymbols()) {
         				if (symbol.matchesConstructor(type)) {
-        					defaultConstructor = symbol.address;
+        					defaultConstructor = symbol.getAddress();
         					break;
         				}
         			}
-        			if (defaultConstructor == null)
+        			if (defaultConstructor == null || defaultConstructor == 0)
         				throw new RuntimeException("Cannot find the default constructor for type " + type.getName());
         			
+        			installVTablePtr(type, lib, peer);
         			JNI.callDefaultCPPConstructor(defaultConstructor, peer.getPeer(), 0);// TODO use right call convention
         			return peer;
         		}
@@ -193,30 +229,66 @@ public class BridJ {
 	        		throw new RuntimeException("Constructor-mapped methods must be static, but " + meth.getName() + " is not.");
         		if (!meth.getName().equals(type.getSimpleName()))
 	        		throw new RuntimeException("Constructor methods must have the same name as their class : " + meth.getName() + " is not " + type.getSimpleName());
-	        	Pointer<Pointer<?>> vptr = lib.getVirtualTable(type);
-	        	if (!lib.isMSVC());
-//	        		vptr = vptr.offset(16);
-	        		vptr = vptr.next(2);
-	        	peer.setPointer(0, vptr);
+	        	installVTablePtr(type, lib, peer);
         	} else {
         		// TODO ObjCObject : call alloc on class type !!
         	}
         	consArgs[0] = peer.getPeer();
         	System.arraycopy(args, 0, consArgs, 1, args.length);
-        	meth.setAccessible(true);
-        	meth.invoke(null, consArgs);
+        	boolean acc = meth.isAccessible();
+        	try {
+        		meth.setAccessible(true);
+        		meth.invoke(null, consArgs);
+        	} finally {
+        		try {
+        			meth.setAccessible(acc);
+        		} catch (Exception ex) {}
+        	}
         	return peer;
         } catch (Exception ex) {
         	if (peer != null)
         		peer.release();
         	throw new RuntimeException("Failed to allocate new instance of type " + type, ex);
         }
+	}
+	static void installVTablePtr(Class<?> type, NativeLibrary lib, Pointer<?> peer) {
+    	Pointer<Pointer<?>> vptr = lib.getVirtualTable(type);
+    	if (!lib.isMSVC());
+//    		vptr = vptr.offset(16);
+    		vptr = vptr.next(2);
+    	peer.setPointer(0, vptr);
     }
+
+    public static synchronized void register(Class<?>... types) {
+		if (types.length == 0) {
+			StackTraceElement[] stackTrace = new Exception().getStackTrace();
+	    	if (stackTrace.length < 2)
+	    		throw new RuntimeException("No useful stack trace : cannot register with register(), please use register(Class) instead.");
+	    	String name = stackTrace[1].getClassName();
+	    	try {
+	    		Class<?> type = Class.forName(name);
+	    		register(type);
+	    	} catch (Exception ex) {
+	    		throw new RuntimeException("Failed to register class " + name, ex);
+	    	}
+	    	return;
+		}
+		for (Class<?> type : types)
+			registerOne(type);
+		
+		
+	}
     
-	public static synchronized void register(Class<?> type) {
+    
+	private static void registerOne(Class<?> type) {
 		if (registeredTypes.contains(type))
 			return;
 		
+		int typeModifiers = type.getModifiers();
+		if (Callback.class.isAssignableFrom(type)) {
+			if (Modifier.isAbstract(typeModifiers))
+				callbackNativeImplementer.getCallbackImplType((Class) type);
+		}
 		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
 		for (; type != null && type != Object.class; type = type.getSuperclass()) {
 			try {
@@ -231,7 +303,7 @@ public class BridJ {
 						NativeEntities.Builder builder = builders.get(getNativeEntities(method));
 						NativeLibrary methodLibrary = getNativeLibrary(method);
 						
-						MethodCallInfo mci = new MethodCallInfo(method, methodLibrary);
+						MethodCallInfo mci = new MethodCallInfo(method);
 						Annotation[][] anns = method.getParameterAnnotations();
 						boolean isCPPInstanceMethod = false;
 						if (anns.length > 0) {
@@ -292,7 +364,7 @@ public class BridJ {
 								}
 								mci.virtualIndex = virtualIndex;
 							}
-							builder.addCPPMethod(mci);
+							builder.addVirtualMethod(mci);
 						} else {
 							//if (!Modifier.isStatic(modifiers))
 							//	log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
