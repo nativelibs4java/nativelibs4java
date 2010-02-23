@@ -19,6 +19,8 @@
 
 #pragma warning(disable: 4152)
 
+#pragma warning(disable: 4189) // local variable initialized but unreferenced // TODO remove this !
+
 #define JNI_SIZEOF(type, escType) \
 jint JNICALL Java_com_bridj_JNI_sizeOf_1 ## escType(JNIEnv *env, jclass clazz) { return sizeof(type); }
 
@@ -258,6 +260,7 @@ void* getJNICallFunction(JNIEnv* env, ValueType valueType) {
 	
 void registerJavaFunction(JNIEnv* env, jclass declaringClass, jstring methodName, jstring methodSignature, void (*callback)())
 {
+	JNINativeMethod meth;
 	if (!callback) {
 			throwException(env, "No callback !");
 			return;
@@ -275,7 +278,6 @@ void registerJavaFunction(JNIEnv* env, jclass declaringClass, jstring methodName
 			return;
 		}
 
-	JNINativeMethod meth;
 	meth.fnPtr = callback;
 	meth.name = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
 	meth.signature = (char*)(*env)->GetStringUTFChars(env, methodSignature, NULL);
@@ -341,7 +343,6 @@ jboolean GetInfoClassAndFields(
 
 #define BEGIN_INFOS_LOOP(type)                                                                                           \
 	jsize i, n = (*env)->GetArrayLength(env, methodCallInfos);															 \
-	NEW_STRUCTS(n, type, infos);																						 \
 	jclass 		cl					;                                                                                    \
 	jfieldID 	id_javaSignature 		;                                                                                \
 	jfieldID 	id_dcSignature 		;                                                                                    \
@@ -356,6 +357,7 @@ jboolean GetInfoClassAndFields(
 	jfieldID 	id_dcCallingConvention	;                                                                                \
 	jfieldID 	id_methodName			;                                                                                \
 	jfieldID 	id_declaringClass		;                                                                                \
+	NEW_STRUCTS(n, type, infos);																						 \
 	                                                                                                                     \
 	if (!GetInfoClassAndFields(env,                                                                                      \
 		&cl					,                                                                                            \

@@ -59,6 +59,9 @@ abstract class Demangler {
 	protected char peekChar() {
 		return position >= length ? 0 : str.charAt(position);
 	}
+	protected char lastChar() {
+		return position == 0 ? 0 : str.charAt(position - 1);
+	}
 	protected char consumeChar() {
 		char c = peekChar();
 		if (c != 0)
@@ -180,16 +183,39 @@ abstract class Demangler {
 		}
 	}
 
-	protected static TypeRef classType(Class<?> c, Class<? extends Annotation>... annotations) {
+    protected static TypeRef classType(final Class<?> c, Class<? extends Annotation>... annotations) {
+        return classType(c, null, annotations);
+    }
+	protected static TypeRef classType(final Class<?> c, final java.lang.reflect.Type[] genericTypes, Class<? extends Annotation>... annotations) {
 		JavaTypeRef tr = new JavaTypeRef();
-		tr.type = c;
+        if (genericTypes == null)
+            tr.type = c;
+        else
+            tr.type = new ParameterizedType() {
+
+                @Override
+                public java.lang.reflect.Type[] getActualTypeArguments() {
+                    return genericTypes;
+                }
+
+                @Override
+                public java.lang.reflect.Type getOwnerType() {
+                    return null;
+                }
+
+                @Override
+                public java.lang.reflect.Type getRawType() {
+                    return c;
+                }
+            };
+            
 		tr.annotations = annotations;
 		return tr;
 	}
 	public static class JavaTypeRef extends TypeRef {
 
 		java.lang.reflect.Type type;
-		Class<? extends Annotation>[] annotations;
+        Class<? extends Annotation>[] annotations;
 		
 		Class<?> getTypeClass() {
 			if (type instanceof Class<?>)
@@ -266,7 +292,29 @@ abstract class Demangler {
 	}
 	public static class MemberRef {
 		public enum Type {
-			Constructor, InstanceMethod, StaticMethod, Destructor, CFunction, Field, ScalarDeletingDestructor
+			Constructor, 
+            InstanceMethod,
+            StaticMethod,
+            Destructor,
+            New,
+            Delete,
+            OperatorAssign,
+            OperatorRShift,
+            OperatorDivideAssign,
+            OperatorModuloAssign,
+            OperatorRShiftAssign,
+            OperatorLShiftAssign,
+            OperatorBitAndAssign,
+            OperatorBitOrAssign,
+            OperatorXORAssign,
+            VFTable,
+            VBTable,
+            VCall, // What is that ???
+            TypeOf,
+            
+            CFunction,
+            Field,
+            ScalarDeletingDestructor
 		}
 		TypeRef enclosingType;
 		TypeRef valueType;

@@ -2,10 +2,6 @@
 #include <jni.h>
 #include "Exceptions.h"
 
-typedef char BOOL;
-#define TRUE 1
-#define FALSE 0
-
 void* getNthVirtualMethodFromThis(JNIEnv* env, void* thisPtr, size_t virtualTableOffset, size_t virtualIndex) {
 	// Get virtual pointer table
 	void* ret;
@@ -21,7 +17,7 @@ void* getNthVirtualMethodFromThis(JNIEnv* env, void* thisPtr, size_t virtualTabl
 	return ret;
 }
 
-BOOL followArgs(JNIEnv* env, DCArgs* args, DCCallVM* vm, int nTypes, ValueType* pTypes) 
+jboolean followArgs(JNIEnv* env, DCArgs* args, DCCallVM* vm, int nTypes, ValueType* pTypes) 
 {	
 	int iParam;
 	for (iParam = 0; iParam < nTypes; iParam++) {
@@ -63,14 +59,14 @@ BOOL followArgs(JNIEnv* env, DCArgs* args, DCCallVM* vm, int nTypes, ValueType* 
 				break;
 			default:
 				throwException(env, "Invalid argument value type !");
-				return FALSE;
+				return JNI_FALSE;
 			
 		}
 	}
-	return TRUE;
+	return JNI_TRUE;
 }
 
-BOOL followCall(JNIEnv* env, ValueType returnType, DCCallVM* vm, DCValue* result, void* callback) 
+jboolean followCall(JNIEnv* env, ValueType returnType, DCCallVM* vm, DCValue* result, void* callback) 
 {
 	switch (returnType) {
 #define CALL_CASE(valueType, capCase, hiCase, uni) \
@@ -102,9 +98,9 @@ BOOL followCall(JNIEnv* env, ValueType returnType, DCCallVM* vm, DCValue* result
 			// TODO
 		default:
 			throwException(env, "Invalid return value type !");
-			return FALSE;
+			return JNI_FALSE;
 	}
-	return TRUE;
+	return JNI_TRUE;
 }
 
 jobject initCallHandler(DCArgs* args, DCCallVM** vmOut, JNIEnv** envOut) {

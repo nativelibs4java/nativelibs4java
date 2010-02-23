@@ -131,7 +131,21 @@ int Ctest2::testAdd(int a, int b) {
 TEST_API void* test_pvoid() { return NULL; }
 TEST_API int* test_pint() { return NULL; }
 TEST_API int test_int() { return 0; }
+TEST_API void test_void_double() { return; }
+TEST_API int test_int_double() { return 0; }
+TEST_API int test_int_float(float) { return 0; }
 TEST_API void test_void() { }
+
+typedef void (*fun_void)();
+typedef void (*fun_void_int)(int);
+typedef int (*fun_int)();
+typedef int (*fun_int_float)(float);
+TEST_API fun_void test_fun_void() { return NULL; }
+TEST_API fun_void test_fun_void__double(double) { return NULL; }
+TEST_API fun_void_int test_fun_void_int() { return NULL; }
+TEST_API fun_int test_fun_int() { return NULL; }
+TEST_API fun_int_float test_fun_int_float() { return NULL; }
+TEST_API fun_int_float test_fun_int_float__double(double) { return NULL; }
 
 
 TEST_API int test_int_short(short s) { return 0; }

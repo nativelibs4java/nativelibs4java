@@ -15,8 +15,6 @@ extern "C" {
 JNIEXPORT void JNICALL Java_com_bridj_JNI_init
   (JNIEnv *, jclass);
 
-JNIEXPORT void JNICALL Java_com_bridj_JNI_callDefaultCPPConstructor(JNIEnv *, jclass, jlong, jlong, jint);
-
 /*
  * Class:     com_bridj_JNI
  * Method:    sizeOf_size_t
@@ -723,27 +721,83 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1double_1array_1disordered
 
 /*
  * Class:     com_bridj_JNI
+ * Method:    callDefaultCPPConstructor
+ * Signature: (JJI)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_callDefaultCPPConstructor
+  (JNIEnv *, jclass, jlong, jlong, jint);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    createCToJavaCallback
+ * Signature: (Lcom/bridj/MethodCallInfo;Lcom/bridj/Callback;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback
+  (JNIEnv *, jclass, jobject, jobject);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    bindJavaToCCallbacks
+ * Signature: ([Lcom/bridj/MethodCallInfo;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaToCCallbacks
+  (JNIEnv *, jclass, jobjectArray);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    bindJavaMethodsToCFunctions
+ * Signature: ([Lcom/bridj/MethodCallInfo;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCFunctions
+  (JNIEnv *, jclass, jobjectArray);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    bindJavaMethodsToVirtualMethods
+ * Signature: ([Lcom/bridj/MethodCallInfo;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToVirtualMethods
+  (JNIEnv *, jclass, jobjectArray);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    freeCToJavaCallback
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCToJavaCallback
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    freeJavaToCCallbacks
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_freeJavaToCCallbacks
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    freeCFunctionBindings
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCFunctionBindings
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    freeVirtualMethodBindings
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_freeVirtualMethodBindings
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_bridj_JNI
  * Method:    getMaxDirectMappingArgCount
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_com_bridj_JNI_getMaxDirectMappingArgCount
   (JNIEnv *, jclass);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    createCallback
- * Signature: (Ljava/lang/Class;Lcom/bridj/Callback;Ljava/lang/reflect/Method;ZLjava/lang/String;IJIIZLjava/lang/String;Ljava/lang/String;II[I)J
- */
-JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback
-  (JNIEnv *, jclass, jclass, jobject, jobject, jboolean, jstring, jint, jlong, jint, jint, jboolean, jstring, jstring, jint, jint, jintArray);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    freeCallback
- * Signature: (J)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCallback
-  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     com_bridj_JNI
