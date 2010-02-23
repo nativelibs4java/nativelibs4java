@@ -1,139 +1,158 @@
-Index: /home/ubuntu/src/dyncall/dyncall/test/nm/nm.c
+Index: dyncall/dyncall_call_x64_masm.asm
 ===================================================================
---- /home/ubuntu/src/dyncall/dyncall/test/nm/nm.c	(revision 559)
-+++ /home/ubuntu/src/dyncall/dyncall/test/nm/nm.c	(working copy)
-@@ -24,11 +24,8 @@
- {
-   DLSyms* pSyms;
-   int i,n;
--  pSyms = (DLSyms*) malloc( dlSyms_sizeof() );
--
-+  pSyms = dlSymsInit(pLib);
-   
--  dlSymsInit(pSyms, pLib);
--
-   i = 0, n = dlSymsCount(pSyms);
+--- dyncall/dyncall_call_x64_masm.asm	(revision 560)
++++ dyncall/dyncall_call_x64_masm.asm	(working copy)
+@@ -31,7 +31,7 @@
  
-   for (; i < n; ++i) {
-Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_pe32.c
+ 
+ ; Main dyncall call.
+-dcCall_x64_win64 PROC EXPORT
++dcCall_x64_win64 PROC
+ 
+ 	OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+Index: dyncall/dyncall_call_x86_masm.asm
 ===================================================================
---- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_pe32.c	(revision 559)
-+++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_pe32.c	(working copy)
-@@ -28,10 +28,12 @@
+--- dyncall/dyncall_call_x86_masm.asm	(revision 560)
++++ dyncall/dyncall_call_x86_masm.asm	(working copy)
+@@ -33,7 +33,7 @@
  
- struct DLSyms_
- {
-+  DLLib* pLib;
-   const char* pBase;
--  ptrdiff_t* pNames;
--  ptrdiff_t* pFuncs;
--  size_t     count;
-+  const DWORD* pNames;
-+  const DWORD* pFuncs;
-+  const unsigned short* pOrds;
-+  size_t count;
- };
  
- size_t dlSyms_sizeof()
-@@ -41,20 +43,27 @@
+ ; Main dyncall call.
+-_dcCall_x86_cdecl PROC EXPORT
++_dcCall_x86_cdecl PROC
  
- void dlSymsInit(DLSyms* pResolver, DLLib* pLib)
- {
--  const char* ptr = (const char*) pLib;
--  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) ptr;  
--  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( ptr + pDOSHeader->e_lfanew );  
-+  const char* base = (const char*) pLib;
-+  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) base;  
-+  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( base + pDOSHeader->e_lfanew );  
-   IMAGE_DATA_DIRECTORY*   pExportsDataDir = &pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
--  IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
--  pResolver->pBase  = ptr;
--  pResolver->pNames = (ptrdiff_t*) ( ptr + ( (ptrdiff_t)pExports->AddressOfNames) );
--  pResolver->pFuncs = (ptrdiff_t*) ( ptr+( (ptrdiff_t) pExports->AddressOfFunctions) );
--  pResolver->count  = (size_t)       pExports->NumberOfNames;
-+  IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (base + pExportsDataDir->VirtualAddress);  
-+  
-+  pResolver->pBase	= base;
-+  pResolver->pNames = (DWORD*)(base + pExports->AddressOfNames);
-+  pResolver->pFuncs = (DWORD*)(base + pExports->AddressOfFunctions);
-+  pResolver->pOrds	= (unsigned short*)(base + pExports->AddressOfNameOrdinals);
-+  pResolver->count  = (size_t)pExports->NumberOfNames;
-+  pResolver->pLib   = pLib;
-+  SymSetOptions(//SYMOPT_UNDNAME | 
-+	  SYMOPT_DEFERRED_LOADS);
-+  //SymInitialize((HANDLE)pLib, NULL, TRUE);
-+  SymInitialize(GetCurrentProcess(), NULL, TRUE);
- }
+     OPTION PROLOGUE:NONE, EPILOGUE:NONE
  
- void dlSymsCleanup(DLSyms* pResolver)
- {
--  /* do nothing. */
-+    SymCleanup(GetCurrentProcess());
- }
+@@ -71,7 +71,7 @@
+ _dcCall_x86_cdecl ENDP
  
- int dlSymsCount(DLSyms* pResolver)
-@@ -67,34 +76,36 @@
-   IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
-   return pExports->NumberOfNames;
- */
--  return pResolver->count;
-+  return (int)pResolver->count;
- }
  
- const char* dlSymsName(DLSyms* pResolver, int index)
- {
--/*
--  unsigned char* ptr = (unsigned char*) handle;
--  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) ptr;  
--  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( ptr + pDOSHeader->e_lfanew );  
--  IMAGE_DATA_DIRECTORY*   pExportsDataDir = &pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
--  IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
--  ptrdiff_t* pNames = (ptrdiff_t*) ( ptr + ( (ptrdiff_t)pExports->AddressOfNames) );
--  return (const char*) ( ptr + pNames[index] );
--*/
--  return (const char*) ( ( (const char*) pResolver->pBase ) + pResolver->pNames[index] );
-+  return (const char*)((BYTE*)pResolver->pBase + pResolver->pNames[index]);
- }
+-_dcCall_x86_win32_msthis PROC EXPORT
++_dcCall_x86_win32_msthis PROC
  
- void* dlSymsValue(DLSyms* pResolver, int index)
- {
--/*
--  unsigned char* ptr = (unsigned char*) handle;
--  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) ptr;  
--  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( ptr + pDOSHeader->e_lfanew );  
--  IMAGE_DATA_DIRECTORY*   pExportsDataDir = &pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
--  IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
--  ptrdiff_t* pFuncs = (ptrdiff_t*) ( ptr+( (ptrdiff_t) pExports->AddressOfFunctions) );
--  return (void*) ( ptr + pFuncs[index] );
--*/
--  return (void*) ( pResolver->pBase + pResolver->pFuncs[index] );
-+  return (void*)((void**)pResolver->pBase + pResolver->pFuncs[pResolver->pOrds[index]]);
- }
+     OPTION PROLOGUE:NONE, EPILOGUE:NONE
  
-+const char* dlSymsNameFromValue(DLSyms* pResolver, void* value) 
-+{
-+    DWORD64  dwAddress = (DWORD64)value;
-+    DWORD64  dwDisplacement = 0;
-+    ULONG64 buffer[(
-+        sizeof(SYMBOL_INFO) +
-+        MAX_SYM_NAME * sizeof(TCHAR) +
-+        sizeof(ULONG64) - 1) /
-+        sizeof(ULONG64)
-+    ];
-+    PSYMBOL_INFO pSymbol = (PSYMBOL_INFO) buffer;
-+    pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-+    pSymbol->MaxNameLen = MAX_SYM_NAME;
-+    
-+	//if (SymFromAddr((HANDLE)pResolver->pLib, dwAddress, &dwDisplacement, pSymbol)) {
-+	if (SymFromAddr(GetCurrentProcess(), dwAddress, &dwDisplacement, pSymbol) && !dwDisplacement)
-+		return pSymbol->Name;
-+
-+    return NULL;
-+}
-Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_darwin.c
+@@ -114,7 +114,7 @@
+ _dcCall_x86_win32_msthis ENDP
+ 
+ 
+-_dcCall_x86_win32_std PROC EXPORT
++_dcCall_x86_win32_std PROC
+ 
+     OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+@@ -151,7 +151,7 @@
+ _dcCall_x86_win32_std ENDP
+ 
+ 
+-_dcCall_x86_win32_fast PROC EXPORT
++_dcCall_x86_win32_fast PROC
+ 
+     OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+Index: dyncallback/dyncall_callback.h
 ===================================================================
---- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 0)
-+++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 0)
+--- dyncallback/dyncall_callback.h	(revision 560)
++++ dyncallback/dyncall_callback.h	(working copy)
+@@ -40,6 +40,7 @@
+ DCCallback* dcbNewCallback(const char* signature, DCCallbackHandler* funcptr, void* userdata);
+ void        dcbInitCallback(DCCallback* pcb, const char* signature, DCCallbackHandler* handler, void* userdata);
+ void        dcbFreeCallback(DCCallback* pcb);
++//void*		dcbUserData(DCCallback* pcb);
+ 
+ #ifdef __cplusplus
+ }
+Index: dyncallback/dyncall_callback_ppc32.c
+===================================================================
+--- dyncallback/dyncall_callback_ppc32.c	(revision 560)
++++ dyncallback/dyncall_callback_ppc32.c	(working copy)
+@@ -48,6 +48,6 @@
+ 
+ void dcbFreeCallback(DCCallback* pcb)
+ {
+-  dcbFreeWX(pcb, sizeof(DCCallback));
++  dcFreeWX(pcb, sizeof(DCCallback));
+ }
+ 
+Index: dyncallback/dyncall_callback_x64_masm.asm
+===================================================================
+--- dyncallback/dyncall_callback_x64_masm.asm	(revision 560)
++++ dyncallback/dyncall_callback_x64_masm.asm	(working copy)
+@@ -45,7 +45,7 @@
+ DCCallback_size =   40
+ 
+ 
+-dcCallbackThunkEntry PROC EXPORT
++dcCallbackThunkEntry PROC
+ 
+   OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+Index: dyncallback/dyncall_callback_x86_masm.asm
+===================================================================
+--- dyncallback/dyncall_callback_x86_masm.asm	(revision 560)
++++ dyncallback/dyncall_callback_x86_masm.asm	(working copy)
+@@ -49,7 +49,7 @@
+ frame_DCArgs      = -24
+ frame_DCValue     = -32
+ 
+-_dcCallbackThunkEntry PROC EXPORT
++_dcCallbackThunkEntry PROC
+ 
+   OPTION PROLOGUE:NONE, EPILOGUE:NONE
+ 
+Index: dyncallback/GNUmakefile
+===================================================================
+--- dyncallback/GNUmakefile	(revision 560)
++++ dyncallback/GNUmakefile	(working copy)
+@@ -60,6 +60,7 @@
+ UNITS += dyncall_callback_x86_masm
+ endif
+ ifdef BUILD_ARCH_x64
++UNITS += dyncall_callback_x64
+ UNITS += dyncall_callback_x64_masm
+ endif
+ endif
+Index: dynload/dynload.c
+===================================================================
+--- dynload/dynload.c	(revision 560)
++++ dynload/dynload.c	(working copy)
+@@ -21,6 +21,10 @@
+ #if defined(DC_WINDOWS)
+ #include "dynload_win32.c"
+ #elif defined(DC_UNIX)
+-#include "dynload_unix.c"
++# if defined (DC__OS_Darwin)
++# include "dynload_darwin.c"
++# else
++# include "dynload_unix.c"
++# endif
+ #endif
+ 
+Index: dynload/dynload.h
+===================================================================
+--- dynload/dynload.h	(revision 560)
++++ dynload/dynload.h	(working copy)
+@@ -54,13 +54,13 @@
+ 
+ typedef struct DLSyms_ DLSyms;
+ 
+-size_t      dlSyms_sizeof();
+-void        dlSymsInit   (DLSyms* pSyms, DLLib* pLib);
++DLSyms*     dlSymsInit   (DLLib* pLib);
+ void        dlSymsCleanup(DLSyms* pSyms);
+ 
+ int         dlSymsCount  (DLSyms* pSyms);
+ const char* dlSymsName   (DLSyms* pSyms, int index);
+ void*       dlSymsValue  (DLSyms* pSyms, int index);
++const char* dlSymsNameFromValue(DLSyms* pSyms, void* value);
+ 
+ #ifdef __cplusplus
+ }
+Index: dynload/dynload_darwin.c
+===================================================================
+--- dynload/dynload_darwin.c	(revision 0)
++++ dynload/dynload_darwin.c	(revision 0)
 @@ -0,0 +1,72 @@
 +/*
 +
@@ -207,30 +226,10 @@ Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_darwin.c
 +}
 +
 +
-Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload.h
+Index: dynload/dynload_syms.c
 ===================================================================
---- /home/ubuntu/src/dyncall/dyncall/dynload/dynload.h	(revision 559)
-+++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload.h	(working copy)
-@@ -54,13 +54,13 @@
- 
- typedef struct DLSyms_ DLSyms;
- 
--size_t      dlSyms_sizeof();
--void        dlSymsInit   (DLSyms* pSyms, DLLib* pLib);
-+DLSyms*     dlSymsInit   (DLLib* pLib);
- void        dlSymsCleanup(DLSyms* pSyms);
- 
- int         dlSymsCount  (DLSyms* pSyms);
- const char* dlSymsName   (DLSyms* pSyms, int index);
- void*       dlSymsValue  (DLSyms* pSyms, int index);
-+const char* dlSymsNameFromValue(DLSyms* pSyms, void* value);
- 
- #ifdef __cplusplus
- }
-Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms.c
-===================================================================
---- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms.c	(revision 559)
-+++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms.c	(working copy)
+--- dynload/dynload_syms.c	(revision 560)
++++ dynload/dynload_syms.c	(working copy)
 @@ -23,11 +23,10 @@
  # include "dynload_syms_pe32.c"
  #elif defined(DC_UNIX)
@@ -244,22 +243,10 @@ Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms.c
  void dummy() { }
  #endif
 -
-Index: /home/ubuntu/src/dyncall/dyncall/dynload/GNUmakefile
+Index: dynload/dynload_syms_darwin.c
 ===================================================================
---- /home/ubuntu/src/dyncall/dyncall/dynload/GNUmakefile	(revision 559)
-+++ /home/ubuntu/src/dyncall/dyncall/dynload/GNUmakefile	(working copy)
-@@ -29,6 +29,7 @@
- TARGET_LIB = dynload
- UNITS = dynload dynload_syms
- CPPFLAGS = -I../dyncall
-+CPPFLAGS += -D__USE_GNU
- INSTALL_HEADERS = dynload.h
- INSTALL_LIB = 1
- 
-Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
-===================================================================
---- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_darwin.c	(revision 0)
-+++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_darwin.c	(revision 0)
+--- dynload/dynload_syms_darwin.c	(revision 0)
++++ dynload/dynload_syms_darwin.c	(revision 0)
 @@ -0,0 +1,152 @@
 +/*
 +
@@ -413,26 +400,10 @@ Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
 +}
 +
 +
-Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload.c
+Index: dynload/dynload_syms_elf.c
 ===================================================================
---- /home/ubuntu/src/dyncall/dyncall/dynload/dynload.c	(revision 559)
-+++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload.c	(working copy)
-@@ -21,6 +21,10 @@
- #if defined(DC_WINDOWS)
- #include "dynload_win32.c"
- #elif defined(DC_UNIX)
--#include "dynload_unix.c"
-+# if defined (DC__OS_Darwin)
-+# include "dynload_darwin.c"
-+# else
-+# include "dynload_unix.c"
-+# endif
- #endif
- 
-Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_elf.c
-===================================================================
---- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 559)
-+++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(working copy)
+--- dynload/dynload_syms_elf.c	(revision 560)
++++ dynload/dynload_syms_elf.c	(working copy)
 @@ -32,6 +32,10 @@
  #endif
  #include <assert.h>
@@ -533,17 +504,144 @@ Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_elf.c
 +#ifdef __USE_GNU
 +  struct Dl_info info;
 +  if (dladdr(value, &info) && (value == info.dli_saddr))
-+    return info.dli_fname;
++    return info.dli_sname;
 +  return NULL;
 +#else
 +  return NULL;
 +#endif
 +}
 +
-Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_unix.c
+Index: dynload/dynload_syms_pe32.c
 ===================================================================
---- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_unix.c	(revision 559)
-+++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_unix.c	(working copy)
+--- dynload/dynload_syms_pe32.c	(revision 560)
++++ dynload/dynload_syms_pe32.c	(working copy)
+@@ -20,6 +20,7 @@
+ #include "dynload.h"
+ 
+ #include <windows.h>
++#include <Dbghelp.h>
+ 
+ struct DLLib_
+ {
+@@ -28,10 +29,12 @@
+ 
+ struct DLSyms_
+ {
++  DLLib* pLib;
+   const char* pBase;
+-  ptrdiff_t* pNames;
+-  ptrdiff_t* pFuncs;
+-  size_t     count;
++  const DWORD* pNames;
++  const DWORD* pFuncs;
++  const unsigned short* pOrds;
++  size_t count;
+ };
+ 
+ size_t dlSyms_sizeof()
+@@ -39,22 +42,31 @@
+   return sizeof(DLSyms);
+ }
+ 
+-void dlSymsInit(DLSyms* pResolver, DLLib* pLib)
++DLSyms* dlSymsInit(DLLib* pLib)
+ {
+-  const char* ptr = (const char*) pLib;
+-  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) ptr;  
+-  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( ptr + pDOSHeader->e_lfanew );  
++  DLSyms* pResolver = (DLSyms*)malloc(sizeof(DLSyms));
++  const char* base = (const char*) pLib;
++  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) base;  
++  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( base + pDOSHeader->e_lfanew );  
+   IMAGE_DATA_DIRECTORY*   pExportsDataDir = &pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+-  IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
+-  pResolver->pBase  = ptr;
+-  pResolver->pNames = (ptrdiff_t*) ( ptr + ( (ptrdiff_t)pExports->AddressOfNames) );
+-  pResolver->pFuncs = (ptrdiff_t*) ( ptr+( (ptrdiff_t) pExports->AddressOfFunctions) );
+-  pResolver->count  = (size_t)       pExports->NumberOfNames;
++  IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (base + pExportsDataDir->VirtualAddress);  
++  
++  pResolver->pBase	= base;
++  pResolver->pNames = (DWORD*)(base + pExports->AddressOfNames);
++  pResolver->pFuncs = (DWORD*)(base + pExports->AddressOfFunctions);
++  pResolver->pOrds	= (unsigned short*)(base + pExports->AddressOfNameOrdinals);
++  pResolver->count  = (size_t)pExports->NumberOfNames;
++  pResolver->pLib   = pLib;
++  SymSetOptions(//SYMOPT_UNDNAME | 
++	  SYMOPT_DEFERRED_LOADS);
++  //SymInitialize((HANDLE)pLib, NULL, TRUE);
++  SymInitialize(GetCurrentProcess(), NULL, TRUE);
++  return pResolver;
+ }
+ 
+ void dlSymsCleanup(DLSyms* pResolver)
+ {
+-  /* do nothing. */
++  SymCleanup(GetCurrentProcess());
+ }
+ 
+ int dlSymsCount(DLSyms* pResolver)
+@@ -67,34 +79,35 @@
+   IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
+   return pExports->NumberOfNames;
+ */
+-  return pResolver->count;
++  return (int)pResolver->count;
+ }
+ 
+ const char* dlSymsName(DLSyms* pResolver, int index)
+ {
+-/*
+-  unsigned char* ptr = (unsigned char*) handle;
+-  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) ptr;  
+-  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( ptr + pDOSHeader->e_lfanew );  
+-  IMAGE_DATA_DIRECTORY*   pExportsDataDir = &pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+-  IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
+-  ptrdiff_t* pNames = (ptrdiff_t*) ( ptr + ( (ptrdiff_t)pExports->AddressOfNames) );
+-  return (const char*) ( ptr + pNames[index] );
+-*/
+-  return (const char*) ( ( (const char*) pResolver->pBase ) + pResolver->pNames[index] );
++  return (const char*)((BYTE*)pResolver->pBase + pResolver->pNames[index]);
+ }
+ 
+ void* dlSymsValue(DLSyms* pResolver, int index)
+ {
+-/*
+-  unsigned char* ptr = (unsigned char*) handle;
+-  IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) ptr;  
+-  IMAGE_NT_HEADERS*       pNTHeader       = (IMAGE_NT_HEADERS*) ( ptr + pDOSHeader->e_lfanew );  
+-  IMAGE_DATA_DIRECTORY*   pExportsDataDir = &pNTHeader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT];
+-  IMAGE_EXPORT_DIRECTORY* pExports        = (IMAGE_EXPORT_DIRECTORY*) (ptr + pExportsDataDir->VirtualAddress);  
+-  ptrdiff_t* pFuncs = (ptrdiff_t*) ( ptr+( (ptrdiff_t) pExports->AddressOfFunctions) );
+-  return (void*) ( ptr + pFuncs[index] );
+-*/
+-  return (void*) ( pResolver->pBase + pResolver->pFuncs[index] );
++  return (void*)((void**)pResolver->pBase + pResolver->pFuncs[pResolver->pOrds[index]]);
+ }
+ 
++const char* dlSymsNameFromValue(DLSyms* pResolver, void* value) 
++{
++    DWORD64  dwAddress = (DWORD64)value;
++    DWORD64  dwDisplacement = 0;
++    ULONG64 buffer[(
++        sizeof(SYMBOL_INFO) +
++        MAX_SYM_NAME * sizeof(TCHAR) +
++        sizeof(ULONG64) - 1) /
++        sizeof(ULONG64)
++    ];
++    PSYMBOL_INFO pSymbol = (PSYMBOL_INFO) buffer;
++    pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
++    pSymbol->MaxNameLen = MAX_SYM_NAME;
++    
++	if (SymFromAddr(GetCurrentProcess(), dwAddress, &dwDisplacement, pSymbol) && !dwDisplacement)
++		return pSymbol->Name;
++
++    return NULL;
++}
+Index: dynload/dynload_unix.c
+===================================================================
+--- dynload/dynload_unix.c	(revision 560)
++++ dynload/dynload_unix.c	(working copy)
 @@ -25,7 +25,6 @@
  
  */
@@ -552,39 +650,32 @@ Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_unix.c
  #include "dynload.h"
  
  #include <dlfcn.h>
-Index: /home/ubuntu/src/dyncall/dyncall/dyncallback/GNUmakefile
+Index: dynload/GNUmakefile
 ===================================================================
---- /home/ubuntu/src/dyncall/dyncall/dyncallback/GNUmakefile	(revision 559)
-+++ /home/ubuntu/src/dyncall/dyncall/dyncallback/GNUmakefile	(working copy)
-@@ -60,6 +60,7 @@
- UNITS += dyncall_callback_x86_masm
- endif
- ifdef BUILD_ARCH_x64
-+UNITS += dyncall_callback_x64
- UNITS += dyncall_callback_x64_masm
- endif
- endif
-Index: /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback.h
-===================================================================
---- /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback.h	(revision 559)
-+++ /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback.h	(working copy)
-@@ -40,6 +40,7 @@
- DCCallback* dcbNewCallback(const char* signature, DCCallbackHandler* funcptr, void* userdata);
- void        dcbInitCallback(DCCallback* pcb, const char* signature, DCCallbackHandler* handler, void* userdata);
- void        dcbFreeCallback(DCCallback* pcb);
-+//void*		dcbUserData(DCCallback* pcb);
+--- dynload/GNUmakefile	(revision 560)
++++ dynload/GNUmakefile	(working copy)
+@@ -29,6 +29,7 @@
+ TARGET_LIB = dynload
+ UNITS = dynload dynload_syms
+ CPPFLAGS = -I../dyncall
++CPPFLAGS += -D__USE_GNU
+ INSTALL_HEADERS = dynload.h
+ INSTALL_LIB = 1
  
- #ifdef __cplusplus
- }
-Index: /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c
+Index: test/nm/nm.c
 ===================================================================
---- /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(revision 559)
-+++ /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(working copy)
-@@ -48,6 +48,6 @@
- 
- void dcbFreeCallback(DCCallback* pcb)
+--- test/nm/nm.c	(revision 560)
++++ test/nm/nm.c	(working copy)
+@@ -24,11 +24,8 @@
  {
--  dcbFreeWX(pcb, sizeof(DCCallback));
-+  dcFreeWX(pcb, sizeof(DCCallback));
- }
+   DLSyms* pSyms;
+   int i,n;
+-  pSyms = (DLSyms*) malloc( dlSyms_sizeof() );
+-
++  pSyms = dlSymsInit(pLib);
+   
+-  dlSymsInit(pSyms, pLib);
+-
+   i = 0, n = dlSymsCount(pSyms);
  
+   for (; i < n; ++i) {
