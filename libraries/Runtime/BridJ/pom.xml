@@ -56,7 +56,7 @@
   <build>
   	<plugins>
 
-		<!--plugin>
+		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-shade-plugin</artifactId>
 			<version>1.2.2</version>
@@ -67,7 +67,7 @@
 				  <goal>shade</goal>
 				</goals>
 				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<!--shadedArtifactAttached>true</shadedArtifactAttached-->
 					<artifactSet>
 						<excludes>
 						  <exclude>org.scala-lang:scala-library</exclude>
@@ -78,7 +78,7 @@
 				</configuration>
 			  </execution>
 			</executions>
-		</plugin-->
+		</plugin>
 		
 		<!--project>
 		  <build>
