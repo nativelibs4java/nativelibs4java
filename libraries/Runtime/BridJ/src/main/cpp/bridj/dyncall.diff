@@ -1,7 +1,7 @@
-Index: /Users/ochafik/src/dyncall/dyncall/test/nm/nm.c
+Index: /home/ubuntu/src/dyncall/dyncall/test/nm/nm.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/test/nm/nm.c	(revision 560)
-+++ /Users/ochafik/src/dyncall/dyncall/test/nm/nm.c	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/test/nm/nm.c	(revision 559)
++++ /home/ubuntu/src/dyncall/dyncall/test/nm/nm.c	(working copy)
 @@ -24,11 +24,8 @@
  {
    DLSyms* pSyms;
@@ -15,10 +15,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/test/nm/nm.c
    i = 0, n = dlSymsCount(pSyms);
  
    for (; i < n; ++i) {
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_pe32.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c	(revision 560)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_pe32.c	(revision 559)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_pe32.c	(working copy)
 @@ -28,10 +28,12 @@
  
  struct DLSyms_
@@ -130,10 +130,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_pe32.c
 +
 +    return NULL;
 +}
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_darwin.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 0)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 0)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 0)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 0)
 @@ -0,0 +1,72 @@
 +/*
 +
@@ -207,10 +207,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
 +}
 +
 +
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload.h
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(revision 560)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload.h	(revision 559)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload.h	(working copy)
 @@ -54,13 +54,13 @@
  
  typedef struct DLSyms_ DLSyms;
@@ -227,10 +227,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
  
  #ifdef __cplusplus
  }
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(revision 560)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms.c	(revision 559)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms.c	(working copy)
 @@ -23,11 +23,10 @@
  # include "dynload_syms_pe32.c"
  #elif defined(DC_UNIX)
@@ -244,10 +244,22 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c
  void dummy() { }
  #endif
 -
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/GNUmakefile
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c	(revision 0)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c	(revision 0)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/GNUmakefile	(revision 559)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/GNUmakefile	(working copy)
+@@ -29,6 +29,7 @@
+ TARGET_LIB = dynload
+ UNITS = dynload dynload_syms
+ CPPFLAGS = -I../dyncall
++CPPFLAGS += -D__USE_GNU
+ INSTALL_HEADERS = dynload.h
+ INSTALL_LIB = 1
+ 
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
+===================================================================
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_darwin.c	(revision 0)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_darwin.c	(revision 0)
 @@ -0,0 +1,152 @@
 +/*
 +
@@ -401,10 +413,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_darwin.c
 +}
 +
 +
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(revision 560)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload.c	(revision 559)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload.c	(working copy)
 @@ -21,6 +21,10 @@
  #if defined(DC_WINDOWS)
  #include "dynload_win32.c"
@@ -417,11 +429,22 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
 +# endif
  #endif
  
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_elf.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 560)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(working copy)
-@@ -105,15 +105,15 @@
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 559)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(working copy)
+@@ -32,6 +32,10 @@
+ #endif
+ #include <assert.h>
+ 
++#ifdef __USE_GNU
++#include <dlfcn.h>
++#endif
++
+ /* run-time configuration 64/32 */
+ 
+ #ifdef DL__BinaryFormat_elf64
+@@ -105,15 +109,15 @@
    uint32_t*     pGNUHashChain;
  };
  
@@ -443,7 +466,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
    pSyms->pStrTab  = 0;
    pSyms->pSymTab  = 0;
    pSyms->pHash    = 0;
-@@ -173,16 +173,19 @@
+@@ -173,16 +177,19 @@
      uint32_t* pchain   = (uint32_t*) &pbuckets[p->nbuckets];
      pSyms->pGNUHashChain = pchain;
    }
@@ -465,7 +488,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
    if (pSyms->pGNUHash) {
      return pSyms->pHash->nchain - pSyms->pGNUHash->symndx;
    } else {
-@@ -192,8 +195,10 @@
+@@ -192,8 +199,10 @@
  
  const char* dlSymsName(DLSyms* pSyms, int index)
  {
@@ -477,7 +500,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
    if (pSyms->pGNUHash) {
      export_base = pSyms->pGNUHash->symndx;
    } else {
-@@ -205,8 +210,10 @@
+@@ -205,8 +214,10 @@
  
  void* dlSymsValue(DLSyms* pSyms, int index)
  {
@@ -489,7 +512,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
    if (pSyms->pGNUHash) {
      export_base = pSyms->pGNUHash->symndx;
    } else {
-@@ -344,8 +351,9 @@
+@@ -344,8 +355,9 @@
    // return 0;
  }
  
@@ -500,38 +523,39 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
    pResolver->elf64 = 0;
    Elf32_Ehdr* pH   = pLib->u.pElf32_Ehdr;
    assert(pH->e_phoff > 0);
-@@ -388,3 +396,11 @@
+@@ -388,3 +400,16 @@
  }
  #endif
  
-+const char* dlSymsNameFromValue(DLSyms* pSyms, void* value)
-+{
-+  Dl_info info;
-+  if (dladdr(value, &info) && (value == info.dli_saddr))
-+    return info.dli_sname;
-+  return NULL;
-+}
 +
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c
-===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(revision 560)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_unix.c	(working copy)
-@@ -45,3 +45,11 @@
-   dlclose( (void*) libHandle);
- }
- 
 +const char* dlSymsNameFromValue(DLSyms* pSyms, void* value)
 +{
-+  Dl_info info;
++#ifdef __USE_GNU
++  struct Dl_info info;
 +  if (dladdr(value, &info) && (value == info.dli_saddr))
 +    return info.dli_fname;
 +  return NULL;
++#else
++  return NULL;
++#endif
 +}
 +
-Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_unix.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile	(revision 560)
-+++ /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_unix.c	(revision 559)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_unix.c	(working copy)
+@@ -25,7 +25,6 @@
+ 
+ */
+ 
+-
+ #include "dynload.h"
+ 
+ #include <dlfcn.h>
+Index: /home/ubuntu/src/dyncall/dyncall/dyncallback/GNUmakefile
+===================================================================
+--- /home/ubuntu/src/dyncall/dyncall/dyncallback/GNUmakefile	(revision 559)
++++ /home/ubuntu/src/dyncall/dyncall/dyncallback/GNUmakefile	(working copy)
 @@ -60,6 +60,7 @@
  UNITS += dyncall_callback_x86_masm
  endif
@@ -540,10 +564,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/GNUmakefile
  UNITS += dyncall_callback_x64_masm
  endif
  endif
-Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback.h
+Index: /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback.h
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback.h	(revision 560)
-+++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback.h	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback.h	(revision 559)
++++ /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback.h	(working copy)
 @@ -40,6 +40,7 @@
  DCCallback* dcbNewCallback(const char* signature, DCCallbackHandler* funcptr, void* userdata);
  void        dcbInitCallback(DCCallback* pcb, const char* signature, DCCallbackHandler* handler, void* userdata);
@@ -552,10 +576,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback.h
  
  #ifdef __cplusplus
  }
-Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c
+Index: /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(revision 560)
-+++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(revision 559)
++++ /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_ppc32.c	(working copy)
 @@ -48,6 +48,6 @@
  
  void dcbFreeCallback(DCCallback* pcb)
