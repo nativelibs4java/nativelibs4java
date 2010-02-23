@@ -142,16 +142,13 @@ jstring JNICALL Java_com_bridj_JNI_findSymbolName(JNIEnv *env, jclass clazz, jlo
 
 jlong JNICALL Java_com_bridj_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, jlong libHandle, jstring nameStr)
 {
-	const char* name = (*env)->GetStringUTFChars(env, nameStr, NULL);
-	jlong ret = (jlong)(size_t)dlFindSymbol((DLLib*)(size_t)libHandle, name);
-#if 0
-#if defined(DC_UNIX)
-	if (!ret) {
-		const char* error = dlerror();
-		throwException(env, error);
-	}
-#endif
-#endif
+	const char* name;
+	jlong ret;
+	if (!nameStr)
+		return 0;
+	
+	name = (*env)->GetStringUTFChars(env, nameStr, NULL);
+	ret = (jlong)(size_t)dlFindSymbol((DLLib*)(size_t)libHandle, name);
 	(*env)->ReleaseStringUTFChars(env, nameStr, name);
 	return ret;
 }

@@ -164,6 +164,10 @@
 		9007E10810EE3F1C00928CAE /* RawNativeForwardCallback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RawNativeForwardCallback.h; sourceTree = "<group>"; };
 		9007E10910EE3F1C00928CAE /* RawNativeForwardCallback_WIN32_masm.asm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm.asm; path = RawNativeForwardCallback_WIN32_masm.asm; sourceTree = "<group>"; };
 		9007E10A10EE3F1C00928CAE /* RawNativeForwardCallback_WIN64_masm.asm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm.asm; path = RawNativeForwardCallback_WIN64_masm.asm; sourceTree = "<group>"; };
+		90DC54271133337000F33FC9 /* dynload_syms_darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dynload_syms_darwin.c; sourceTree = "<group>"; };
+		90DC54281133337C00F33FC9 /* dynload_darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dynload_darwin.c; sourceTree = "<group>"; };
+		90FD14AC11335069006462C7 /* dynload_darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dynload_darwin.c; sourceTree = "<group>"; };
+		90FD14AD11335069006462C7 /* dynload_syms_darwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dynload_syms_darwin.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -364,6 +368,10 @@
 		9007E0BD10EE3F0A00928CAE /* dynload */ = {
 			isa = PBXGroup;
 			children = (
+				90FD14AC11335069006462C7 /* dynload_darwin.c */,
+				90FD14AD11335069006462C7 /* dynload_syms_darwin.c */,
+				90DC54281133337C00F33FC9 /* dynload_darwin.c */,
+				90DC54271133337000F33FC9 /* dynload_syms_darwin.c */,
 				9007E0BE10EE3F0A00928CAE /* BSDmakefile */,
 				9007E0BF10EE3F0A00928CAE /* build_out */,
 				9007E0C810EE3F0A00928CAE /* dynload.c */,

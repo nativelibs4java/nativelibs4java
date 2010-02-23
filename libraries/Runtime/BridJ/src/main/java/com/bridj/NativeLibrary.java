@@ -206,7 +206,7 @@ public class NativeLibrary {
 		nameToAddr = new HashMap<String, Long>();
 		
 		String[] symbs = null;
-		if (true) // TODO turn to false !!!
+		if (false) // TODO turn to false !!!
 		try {
 			if (JNI.isMacOSX()) {
 				Process process = java.lang.Runtime.getRuntime().exec(new String[] {"nm", "-gj", path});
@@ -225,6 +225,9 @@ public class NativeLibrary {
 			symbs = JNI.getLibrarySymbols(getHandle(), getSymbolsHandle());
 		
 		for (String name : symbs) {
+			if (name == null)
+				continue;
+			
 			long addr = JNI.findSymbolInLibrary(getHandle(), name);
 			if (name.startsWith("_")) {
 				name = name.substring(1);
