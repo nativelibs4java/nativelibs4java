@@ -4,6 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.*;
 import java.util.Stack;
+import com.bridj.c.Callback;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
@@ -134,6 +135,14 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	public interface UpdatablePointer<P> {
 		Pointer<P> getPointer();
 		void update();
+	}
+	
+	
+	public static Pointer<Byte> pointerTo(String string) {
+		byte[] bytes = string.getBytes();
+		Pointer<Byte> p = allocateArray(Byte.class, bytes.length + 1);
+		p.setString(0, string);
+		return p;
 	}
 	
 	/**
@@ -334,6 +343,12 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         return address == 0 ? null : new DefaultPointer(io, address);
     }
 
+    public static <V> Pointer<Pointer<V>> allocatePointer(Class<V> type) {
+    	return (Pointer)allocate(Pointer.class); // TODO TODO TODO
+    }
+    public static <V> Pointer<Pointer<?>> allocatePointer() {
+    	return (Pointer)allocate(Pointer.class); // TODO TODO TODO
+    }
     public static <V> Pointer<V> allocate(Class<V> elementClass) {
         return allocateArray(elementClass, 1);
     }
@@ -469,7 +484,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	
 	static final boolean is64 = JNI.POINTER_SIZE == 8; 
 	
-	protected long getSizeT(long byteOffset) {
+	public long getSizeT(long byteOffset) {
 		return is64 ? getLong(byteOffset) : getInt(byteOffset);
 	}
 	

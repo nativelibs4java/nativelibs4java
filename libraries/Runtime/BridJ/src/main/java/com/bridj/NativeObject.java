@@ -13,20 +13,24 @@ import java.util.Stack;
  */
 public class NativeObject {
     Pointer<? extends NativeObject> peer;
+    BridJRuntime runtime;
 
-	public NativeObject(Pointer<? extends NativeObject> peer) {
+	public NativeObject(Pointer<? extends NativeObject> peer, BridJRuntime runtime) {
 		BridJ.register(getClass());
 		this.peer = peer;
+		this.runtime = runtime;
 	}
 	
 	public NativeObject() {
-		if (Pointer.isCastingInCurrentThread())
-            BridJ.register(getClass());
-        else
-            this.peer = BridJ.allocate(getClass(), -1);
+		Class<?> c = getClass();
+		this.runtime = BridJ.registerOne(c);
+		if (!Pointer.isCastingInCurrentThread())
+            this.peer = runtime.allocate(c, -1);
     }
     public NativeObject(int constructorId, Object[] args) {
-        this.peer = BridJ.allocate(getClass(), constructorId, args);
+    	Class<?> c = getClass();
+		this.runtime = BridJ.registerOne(c);
+        this.peer = (Pointer)runtime.allocate(c, constructorId, args);
     }
     
     @Override

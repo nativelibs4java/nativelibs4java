@@ -7,6 +7,7 @@ import com.bridj.ann.Convention;
 import static com.bridj.Dyncall.SignatureChars.*;
 import com.bridj.*;
 import com.bridj.ann.*;
+import com.bridj.c.Callback;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -16,28 +17,28 @@ import java.util.NoSuchElementException;
  *
  * @author Olivier
  */
-class MethodCallInfo {
+public class MethodCallInfo {
 
     /*public static class GenericMethodInfo {
         Type returnType, paramsTypes[];
     }
     GenericMethodInfo genericInfo = new GenericMethodInfo();*/
-	Class<?> declaringClass;
+	private Class<?> declaringClass;
     int returnValueType, paramsValueTypes[];
-	Method method;
+	private Method method;
 	String methodName;
-	long forwardedPointer;
+	private long forwardedPointer;
     String dcSignature;
 	String javaSignature;
 	Callback javaCallback;
-	int virtualIndex = -1;
+	private int virtualIndex = -1;
 	int virtualTableOffset = 0;
-    int dcCallingConvention = DC_CALL_C_DEFAULT;
+    private int dcCallingConvention = DC_CALL_C_DEFAULT;
 
 	boolean isVarArgs;
 	boolean isStatic;
 	boolean isCPlusPlus;
-	boolean isJavaToCCallback;
+	private boolean isJavaToCCallback;
 	boolean direct;
 	boolean startsWithThis;
     boolean isCallableAsRaw;
@@ -45,8 +46,8 @@ class MethodCallInfo {
 	public MethodCallInfo(Method method) throws FileNotFoundException {
         isVarArgs = false;
         isCPlusPlus = false;
-        this.method = method;
-		this.declaringClass = method.getDeclaringClass();
+        this.setMethod(method);
+		this.setDeclaringClass(method.getDeclaringClass());
 		this.methodName = method.getName();
         
         Class<?>[] paramsTypes = method.getParameterTypes();
@@ -100,10 +101,10 @@ class MethodCallInfo {
     	if (isCPlusPlus) {
         	if (JNI.isWindows()) {
         		if (!JNI.is64Bits())
-        			dcCallingConvention = DC_CALL_C_X86_WIN32_THIS_MS;
+        			setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
         	} else {
         		if (!JNI.is64Bits())
-        			dcCallingConvention = DC_CALL_C_X86_WIN32_THIS_GNU;
+        			setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_GNU);
         	}
         } else {
         	if (cc != null) {
@@ -111,10 +112,10 @@ class MethodCallInfo {
         		//case Auto:
         		//	break;
         		case FastCall:
-        			dcCallingConvention = JNI.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_X86_WIN32_FAST_GNU;
+        			setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_X86_WIN32_FAST_GNU);
         			break;
         		case StdCall:
-        			dcCallingConvention = DC_CALL_C_X86_WIN32_STD;
+        			setDcCallingConvention(DC_CALL_C_X86_WIN32_STD);
         			break;
         		}
         	}
@@ -249,5 +250,65 @@ class MethodCallInfo {
         if (dcSig != null)
             dcSig.append(dcChar);
     }
+
+
+	public void setMethod(Method method) {
+		this.method = method;
+	}
+
+
+	public Method getMethod() {
+		return method;
+	}
+
+
+	public void setDeclaringClass(Class<?> declaringClass) {
+		this.declaringClass = declaringClass;
+	}
+
+
+	public Class<?> getDeclaringClass() {
+		return declaringClass;
+	}
+
+
+	public void setForwardedPointer(long forwardedPointer) {
+		this.forwardedPointer = forwardedPointer;
+	}
+
+
+	public long getForwardedPointer() {
+		return forwardedPointer;
+	}
+
+
+	public void setVirtualIndex(int virtualIndex) {
+		this.virtualIndex = virtualIndex;
+	}
+
+
+	public int getVirtualIndex() {
+		return virtualIndex;
+	}
+
+
+	public void setDcCallingConvention(int dcCallingConvention) {
+		this.dcCallingConvention = dcCallingConvention;
+	}
+
+
+	public int getDcCallingConvention() {
+		return dcCallingConvention;
+	}
+
+
+	public void setJavaToCCallback(boolean isJavaToCCallback) {
+		this.isJavaToCCallback = isJavaToCCallback;
+	}
+
+
+	public boolean isJavaToCCallback() {
+		return isJavaToCCallback;
+	}
 
 }

@@ -13,6 +13,7 @@ import com.bridj.ann.Mangling;
 import com.bridj.ann.Ptr;
 import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
+import com.bridj.cpp.CPPObject;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class CPPTest {

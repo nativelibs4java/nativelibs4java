@@ -6,15 +6,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/**
- *
- * @author Olivier Chafik
- */
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
+@Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@NoInheritance
 @Inherited
-public @interface Encoding {
-    /// String encoding
-    String value() default "";
+public @interface Struct {
+	boolean packed() default false;
+	int padding() default -1;
 }

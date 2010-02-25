@@ -28,20 +28,25 @@ import com.bridj.ann.Mangling;
 import com.bridj.ann.NoInheritance;
 import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
+import com.bridj.c.CRuntime;
+import com.bridj.c.Callback;
+import com.bridj.cpp.CPPObject;
+import com.bridj.cpp.CPPRuntime;
+import com.bridj.cpp.com.COMRuntime;
+import com.bridj.cpp.mfc.MFCRuntime;
+import com.bridj.objc.ObjectiveCRuntime;
 
 /// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class BridJ {
 	static Map<AnnotatedElement, NativeLibrary> librariesByClass = new HashMap<AnnotatedElement, NativeLibrary>();
 	static Map<String, File> librariesFilesByName = new HashMap<String, File>();
 	static Map<File, NativeLibrary> librariesByFile = new HashMap<File, NativeLibrary>();
-	static NativeEntities orphanEntities = new NativeEntities();
-	static Set<Class<?>> registeredTypes = new HashSet<Class<?>>();
+	private static NativeEntities orphanEntities = new NativeEntities();
+	static Map<Class<?>, BridJRuntime> registeredTypes = new HashMap<Class<?>, BridJRuntime>();
 	static Map<Long, NativeObject> 
 		strongNativeObjects = new HashMap<Long, NativeObject>(),
 		weakNativeObjects = new WeakHashMap<Long, NativeObject>();
 
-	static CallbackNativeImplementer callbackNativeImplementer = new CallbackNativeImplementer(orphanEntities);
-	
 	static {
 		java.lang.Runtime.getRuntime().addShutdownHook(new Thread() { public void run() {
 			// The JVM being shut down doesn't mean the process is about to exit, so we need to clean our JNI mess
@@ -100,165 +105,14 @@ public class BridJ {
         return hasThis;
 	}
 	
-	static final int defaultObjectSize = 128;
-	static final String PROPERTY_bridj_cpp_defaultObjectSize = "bridj.cpp.defaultObjectSize";
-    public static int sizeOf(Class<?> type) {
-    	String s = System.getProperty(PROPERTY_bridj_cpp_defaultObjectSize);
-    	if (s != null)
-    		try {
-    			return Integer.parseInt(s);
-	    	} catch (Throwable th) {
-	    		log(Level.SEVERE, "Invalid value for property " + PROPERTY_bridj_cpp_defaultObjectSize + " : '" + s + "'");
-	    	}
-    	return defaultObjectSize;
-    }
-    
 	public static void deallocate(NativeObject nativeObject) {
 		unregisterNativeObject(nativeObject);
 		//TODO call destructor !!! 
 		Pointer.getPeer(nativeObject, null).release();
 	}
 	
-	static Method getConstructor(Class<?> type, int constructorId, Object[] args) throws SecurityException, NoSuchMethodException {
-		for (Method c : type.getDeclaredMethods()) {
-			com.bridj.ann.Constructor ca = c.getAnnotation(com.bridj.ann.Constructor.class);
-			if (ca == null)
-				continue;
-			if (constructorId < 0) {
-				Class<?>[] params = c.getParameterTypes();
-				int n = params.length;
-				if (n == args.length + 1) {
-					boolean matches = true;
-					for (int i = 0; i < n; i++) {
-						Class<?> param = params[i];
-						if (i == 0) {
-							if (param != Long.TYPE) {
-								matches = false;
-								break;
-							}
-							continue;
-						}
-						Object arg = args[i - 1];
-						if (arg == null && param.isPrimitive() || !param.isInstance(arg)) {
-							matches = false;
-							break;
-						}
-					}
-					if (matches) 
-						return c;
-				}
-			} else if (ca != null && ca.value() == constructorId)
-				return c;
-		}
-		throw new NoSuchMethodException("Cannot find constructor with index " + constructorId);
-	}
-	static Map<Class<?>, Long> defaultConstructors = new HashMap<Class<?>, Long>();
-    public static <T extends NativeObject> Pointer<T> allocate(Class<?> type, int constructorId, Object... args) {
-    	register(type);
-        if (CPPObject.class.isAssignableFrom(type))
-        	return newCPPInstance(type, constructorId, args);
-        if (Callback.class.isAssignableFrom(type)) {
-        	if (constructorId != -1 || args.length != 0)
-        		throw new RuntimeException("Callback should have a constructorId == -1 and no constructor args !");
-        	return newCallbackInstance(type);
-        }
-        throw new RuntimeException("Cannot allocate instance of type " + type.getName() + " (unhandled NativeObject subclass)");
-    }
-    
-    private static <T extends NativeObject> Pointer<T> newCallbackInstance(Class<?> type) {
-//    	Method method = null;
-    	Class<?> parent = null;
-    	while ((parent = type.getSuperclass()) != null && parent != Callback.class) {
-    		type = parent;
-    	}
-    	
-    	registerOne(type);
-//    	if (Callback.class.isAssignableFrom(type)) {
-//			callbackNativeImplementer.getCallbackImplType((Class) type);
-//		}
-		
-    	
-    	Method method = null;
-    	for (Method dm : type.getDeclaredMethods()) {
-    		int modifiers = dm.getModifiers();
-    		if (!Modifier.isAbstract(modifiers))
-    			continue;
-    		
-    		method = dm;
-    		break;
-    	}
-    	if (method == null)
-    		throw new RuntimeException("Type doesn't have any abstract method : " + type.getName());
-    	
-		try {
-			MethodCallInfo mci = new MethodCallInfo(method);
-			mci.isJavaToCCallback = true;
-			return null;//(Pointer)Pointer.pointerToAddress(JNI.createJavaToCCallbacks(mci), type);
-		} catch (FileNotFoundException e) {
-			throw new RuntimeException("Failed to create instance of callback " + type.getName(), e);
-		}
-	}
-	private static <T extends NativeObject> Pointer<T> newCPPInstance(Class<?> type, int constructorId, Object... args) {
-    	Pointer<T> peer = null;
-        try {
-        	peer = (Pointer)Pointer.allocate(PointerIO.getInstance(type), sizeOf(type));
-        	NativeLibrary lib = getNativeLibrary(type);
-        	if (constructorId < 0) {
-        		Long defaultConstructor = defaultConstructors.get(type);
-        		if (defaultConstructor == null) {
-        			for (Symbol symbol : lib.getSymbols()) {
-        				if (symbol.matchesConstructor(type)) {
-        					defaultConstructor = symbol.getAddress();
-        					break;
-        				}
-        			}
-        			if (defaultConstructor == null || defaultConstructor == 0)
-        				throw new RuntimeException("Cannot find the default constructor for type " + type.getName());
-        			
-        			installVTablePtr(type, lib, peer);
-        			JNI.callDefaultCPPConstructor(defaultConstructor, peer.getPeer(), 0);// TODO use right call convention
-        			return peer;
-        		}
-        	}
-        	Method meth = getConstructor(type, constructorId, args);
-        	Object[] consArgs = new Object[args.length + 1];
-        	if (CPPObject.class.isAssignableFrom(type)) {
-        		if (meth.getReturnType() != Void.TYPE)
-	        		throw new RuntimeException("Constructor-mapped methods must return void, but " + meth.getName() + " returns " + meth.getReturnType().getName());
-        		if (!Modifier.isStatic(meth.getModifiers()))
-	        		throw new RuntimeException("Constructor-mapped methods must be static, but " + meth.getName() + " is not.");
-        		if (!meth.getName().equals(type.getSimpleName()))
-	        		throw new RuntimeException("Constructor methods must have the same name as their class : " + meth.getName() + " is not " + type.getSimpleName());
-	        	installVTablePtr(type, lib, peer);
-        	} else {
-        		// TODO ObjCObject : call alloc on class type !!
-        	}
-        	consArgs[0] = peer.getPeer();
-        	System.arraycopy(args, 0, consArgs, 1, args.length);
-        	boolean acc = meth.isAccessible();
-        	try {
-        		meth.setAccessible(true);
-        		meth.invoke(null, consArgs);
-        	} finally {
-        		try {
-        			meth.setAccessible(acc);
-        		} catch (Exception ex) {}
-        	}
-        	return peer;
-        } catch (Exception ex) {
-        	if (peer != null)
-        		peer.release();
-        	throw new RuntimeException("Failed to allocate new instance of type " + type, ex);
-        }
-	}
-	static void installVTablePtr(Class<?> type, NativeLibrary lib, Pointer<?> peer) {
-    	Pointer<Pointer<?>> vptr = lib.getVirtualTable(type);
-    	if (!lib.isMSVC());
-//    		vptr = vptr.offset(16);
-    		vptr = vptr.next(2);
-    	peer.setPointer(0, vptr);
-    }
-
+	
+	
     public static synchronized void register(Class<?>... types) {
 		if (types.length == 0) {
 			StackTraceElement[] stackTrace = new Exception().getStackTrace();
@@ -279,113 +133,38 @@ public class BridJ {
 		
 	}
     
+    CPPRuntime cppRuntime;
+    CRuntime cRuntime;
+    ObjectiveCRuntime objCRuntime;
+    MFCRuntime mfcRuntime;
+    COMRuntime comRuntime;
     
-	private static void registerOne(Class<?> type) {
-		if (registeredTypes.contains(type))
-			return;
-		
-		int typeModifiers = type.getModifiers();
-		if (Callback.class.isAssignableFrom(type)) {
-			if (Modifier.isAbstract(typeModifiers))
-				callbackNativeImplementer.getCallbackImplType((Class) type);
-		}
-		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
-		for (; type != null && type != Object.class; type = type.getSuperclass()) {
+    private static Map<Class<? extends BridJRuntime>, BridJRuntime> runtimes = new HashMap<Class<? extends BridJRuntime>, BridJRuntime>();
+    
+    static synchronized <R extends BridJRuntime> R getRuntimeByRuntimeClass(Class<R> runtimeClass) {
+    	R r = (R)runtimes.get(runtimeClass);
+    	if (r == null)
 			try {
-				boolean isCPPClass = CPPObject.class.isAssignableFrom(type);
-				NativeLibrary typeLibrary = getNativeLibrary(type);
-				for (Method method : type.getDeclaredMethods()) {
-					try {
-						int modifiers = method.getModifiers();
-						if (!Modifier.isNative(modifiers))
-							continue;
-						
-						NativeEntities.Builder builder = builders.get(getNativeEntities(method));
-						NativeLibrary methodLibrary = getNativeLibrary(method);
-						
-						MethodCallInfo mci = new MethodCallInfo(method);
-						Annotation[][] anns = method.getParameterAnnotations();
-						boolean isCPPInstanceMethod = false;
-						if (anns.length > 0) {
-							if (method.getAnnotation(Virtual.class) != null)
-								isCPPInstanceMethod = true;
-							else
-								for (Annotation ann : anns[0]) {
-									if (ann instanceof This) {
-										isCPPInstanceMethod = true;
-										break;
-									}
-								}
-						}
-						
-						if (isCPPInstanceMethod) {
-//							if (Modifier.isStatic(modifiers)) {
-//								log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a C++ instance method. It should not be static.");
-//								continue;
-//							}
-							
-							if (!isCPPClass) {
-								log(Level.SEVERE, "Method " + method.toGenericString() + " should have been declared in a " + CPPObject.class.getName() + " subclass.");
-								continue;
-							}
-							Virtual va = method.getAnnotation(Virtual.class);
-							if (va == null) {
-								mci.forwardedPointer = methodLibrary.getSymbolAddress(method);
-						        if (mci.forwardedPointer == 0) {
-									for (Demangler.Symbol symbol : methodLibrary.getSymbols()) {
-										if (symbol.matches(method)) {
-											mci.forwardedPointer = symbol.getAddress();
-											if (mci.forwardedPointer != 0)
-												break;
-										}
-									}
-									if (mci.forwardedPointer == 0) {
-										log(Level.SEVERE, "Method " + method.toGenericString() + " is not virtual but its address could not be resolved in the library.");
-										continue;
-									}
-								}
-							} else {
-								int virtualIndex = va.value();
-								if (Modifier.isStatic(modifiers))
-									log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
-									
-								if (virtualIndex < 0) {
-									Pointer<Pointer<?>> pVirtualTable = isCPPClass && typeLibrary != null ? typeLibrary.getVirtualTable((Class<? extends CPPObject>)type) : null;
-									if (pVirtualTable == null) {
-										log(Level.SEVERE, "Method " + method.toGenericString() + " is virtual but the virtual table of class " + type.getName() + " was not found.");
-										continue;
-									}
-									
-									virtualIndex = typeLibrary.getPositionInVirtualTable(pVirtualTable, method);
-									if (virtualIndex < 0) {
-										log(Level.SEVERE, "Method " + method.toGenericString() + " is virtual but its position could not be found in the virtual table.");
-										continue;
-									}
-								}
-								mci.virtualIndex = virtualIndex;
-							}
-							builder.addVirtualMethod(mci);
-						} else {
-							//if (!Modifier.isStatic(modifiers))
-							//	log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
-							
-							mci.forwardedPointer = methodLibrary.getSymbolAddress(method);
-					        
-							builder.addFunction(mci);
-						}
-						
-					} catch (Exception ex) {
-						log(Level.SEVERE, "Method " + method.toGenericString() + " cannot be mapped : " + ex, ex);
-					}
-				}
-				registeredTypes.add(type);
-			} catch (Exception ex) {
-				throw new RuntimeException("Failed to register class " + type.getName(), ex);
+				runtimes.put(runtimeClass, r = runtimeClass.newInstance());
+			} catch (Exception e) {
+				throw new RuntimeException("Failed to instantiate runtime " + runtimeClass.getName());
 			}
-		}
-		for (Map.Entry<NativeEntities, NativeEntities.Builder> e : builders.entrySet()) {
-			e.getKey().addDefinitions(type, e.getValue());
-		}
+    	
+    	return r;
+    }
+    
+	static BridJRuntime registerOne(Class<?> type) {
+		BridJRuntime runtime = registeredTypes.get(type);
+		if (runtime != null)
+			return runtime;
+		
+		com.bridj.ann.Runtime runtimeAnn = type.getAnnotation(com.bridj.ann.Runtime.class);
+		if (runtimeAnn == null)
+			throw new IllegalArgumentException("Class " + type.getName() + " has no " + com.bridj.ann.Runtime.class.getName() + " annotation. Unable to guess the corresponding " + BridJRuntime.class.getName() + " implementation.");
+		
+		runtime = getRuntimeByRuntimeClass(runtimeAnn.value());
+		runtime.register(type);
+		return runtime;
 	}
 	static void log(Level level, String message, Throwable ex) {
 		Logger.getLogger(BridJ.class.getName()).log(level, message, ex);
@@ -393,11 +172,11 @@ public class BridJ {
 	static void log(Level level, String message) {
 		log(level, message, null);
 	}
-	protected static synchronized NativeEntities getNativeEntities(AnnotatedElement type) throws FileNotFoundException {
+	public static synchronized NativeEntities getNativeEntities(AnnotatedElement type) throws FileNotFoundException {
 		NativeLibrary lib = getNativeLibrary(type);
 		if (lib != null)
 			return lib.getNativeEntities();
-		return orphanEntities;
+		return getOrphanEntities();
 	}
 	public static synchronized NativeLibrary getNativeLibrary(AnnotatedElement type) throws FileNotFoundException {
 		NativeLibrary lib = librariesByClass.get(type);
@@ -423,7 +202,7 @@ public class BridJ {
 			lib.release();
 		librariesByFile.clear();
 		librariesByClass.clear();
-		orphanEntities.release();
+		getOrphanEntities().release();
 		System.gc();
 	}
 	//public synchronized static void release(Class<?>);
@@ -555,4 +334,18 @@ public class BridJ {
         }
         return null;
     }
+	public static Symbol getSymbolByAddress(long peer) {
+		for (NativeLibrary lib : libHandles.values()) {
+			Symbol symbol = lib.getSymbol(peer);
+			if (symbol != null)
+				return symbol;
+		}
+		return null;
+	}
+	public static void setOrphanEntities(NativeEntities orphanEntities) {
+		BridJ.orphanEntities = orphanEntities;
+	}
+	public static NativeEntities getOrphanEntities() {
+		return orphanEntities;
+	}
 }

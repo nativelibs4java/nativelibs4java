@@ -4,12 +4,13 @@ import java.lang.reflect.*;
 import java.lang.annotation.*;
 import java.util.Arrays;
 
+import com.bridj.Pointer;
 import com.bridj.Demangler.MemberRef.Type;
 import com.bridj.ann.Constructor;
 import com.bridj.ann.Destructor;
 import com.bridj.ann.This;
 
-abstract class Demangler {
+public abstract class Demangler {
 	public static class DemanglingException extends Exception {
 		public DemanglingException(String mess) {
 			super(mess);
@@ -27,14 +28,14 @@ abstract class Demangler {
 		this.library = library;
 	}
 	
-	void expectChars(char... cs) throws DemanglingException {
+	protected void expectChars(char... cs) throws DemanglingException {
 		for (char c : cs) {
 			char cc = consumeChar();
 			if (cc != c)
 				throw error("Expected char '" + c + "', found '" + cc + "'", -1);
 		}
 	}
-	void expectAnyChar(char... cs) throws DemanglingException {
+	protected void expectAnyChar(char... cs) throws DemanglingException {
 		char cc = consumeChar();
 		for (char c : cs) {
 			if (cc == c)
@@ -107,7 +108,7 @@ abstract class Demangler {
 			
 		}
 
-        long getAddress() {
+        public long getAddress() {
             if (address == 0)
                 address = library.getSymbolAddress(symbol);
             return address;
@@ -140,7 +141,7 @@ abstract class Demangler {
 			}
 		}
 
-        String getName() {
+        public String getName() {
             return symbol;
         }
 
@@ -157,6 +158,11 @@ abstract class Demangler {
                 ex.printStackTrace();
             }
             return false;
+		}
+
+		public boolean isVirtualTable() {
+			// TODO Auto-generated method stub
+			return false;
 		}
 
 	}
@@ -240,17 +246,17 @@ abstract class Demangler {
 		
 	}
 	public static class ClassRef extends TypeRef {
-		TypeRef enclosingType;
-		String simpleName;
+		private TypeRef enclosingType;
+		private String simpleName;
 		TemplateArg[] templateArguments;
 		
 		public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
-			if (enclosingType instanceof ClassRef) {
-				enclosingType.getQualifiedName(b, generic).append('$');
-			} else if (enclosingType instanceof NamespaceRef) {
-				enclosingType.getQualifiedName(b, generic).append('.');
+			if (getEnclosingType() instanceof ClassRef) {
+				getEnclosingType().getQualifiedName(b, generic).append('$');
+			} else if (getEnclosingType() instanceof NamespaceRef) {
+				getEnclosingType().getQualifiedName(b, generic).append('.');
 			}
-			b.append(simpleName);
+			b.append(getSimpleName());
 			if (generic && templateArguments != null) {
 				int args = 0;
 				for (int i = 0, n = templateArguments.length; i < n; i++) {
@@ -269,6 +275,22 @@ abstract class Demangler {
 					b.append('>');
 			}
 			return b;
+		}
+
+		public void setSimpleName(String simpleName) {
+			this.simpleName = simpleName;
+		}
+
+		public String getSimpleName() {
+			return simpleName;
+		}
+
+		public void setEnclosingType(TypeRef enclosingType) {
+			this.enclosingType = enclosingType;
+		}
+
+		public TypeRef getEnclosingType() {
+			return enclosingType;
 		}
 	}
 
@@ -316,9 +338,9 @@ abstract class Demangler {
             Field,
             ScalarDeletingDestructor
 		}
-		TypeRef enclosingType;
-		TypeRef valueType;
-		String memberName;
+		private TypeRef enclosingType;
+		private TypeRef valueType;
+		private String memberName;
 		Boolean isStatic, isProtected, isPrivate;
 		public Type type;
 		public int modifiers;
@@ -327,13 +349,13 @@ abstract class Demangler {
 		
 		protected boolean matchesConstructor(Class<?> type) {
 			
-			if (enclosingType != null && !enclosingType.matches(type))
+			if (getEnclosingType() != null && !getEnclosingType().matches(type))
 				return false;
 			
-			if (memberName != null && !memberName.equals(type.getSimpleName()))
+			if (getMemberName() != null && !getMemberName().equals(type.getSimpleName()))
 				return false;
 			
-			if (valueType != null && !valueType.matches(Void.TYPE))
+			if (getValueType() != null && !getValueType().matches(Void.TYPE))
 				return false;
 			
 			Annotation[][] anns = constructorPatternAnnotations;
@@ -349,13 +371,13 @@ abstract class Demangler {
 			if (type == null)
             	return false;
             
-			if (enclosingType != null && !enclosingType.matches(method.getDeclaringClass()))
+			if (getEnclosingType() != null && !getEnclosingType().matches(method.getDeclaringClass()))
 				return false;
 			
-			if (memberName != null && !memberName.equals(method.getName()))
+			if (getMemberName() != null && !getMemberName().equals(method.getName()))
 				return false;
 			
-			if (valueType != null && !valueType.matches(method.getReturnType()))
+			if (getValueType() != null && !getValueType().matches(method.getReturnType()))
 				return false;
 			
 			Annotation[][] anns = method.getParameterAnnotations();
@@ -424,6 +446,24 @@ abstract class Demangler {
                 totalArgs++;
             }
             return totalArgs == methodArgTypes.length;
+		}
+		public void setMemberName(String memberName) {
+			this.memberName = memberName;
+		}
+		public String getMemberName() {
+			return memberName;
+		}
+		public void setValueType(TypeRef valueType) {
+			this.valueType = valueType;
+		}
+		public TypeRef getValueType() {
+			return valueType;
+		}
+		public void setEnclosingType(TypeRef enclosingType) {
+			this.enclosingType = enclosingType;
+		}
+		public TypeRef getEnclosingType() {
+			return enclosingType;
 		}
 	}
 }

@@ -1,5 +1,7 @@
 package com.bridj;
 
+import com.bridj.c.*;
+
 import java.io.*;
 
 import java.lang.reflect.Method;
@@ -156,7 +158,7 @@ public class JNI {
     protected static native void set_${prim.Name}_array_disordered(long peer, ${prim.Name}[] values, int valuesOffset, int length);
 #end
 
-	static native void callDefaultCPPConstructor(long constructor, long thisPtr, int callMode);
+	public static native void callDefaultCPPConstructor(long constructor, long thisPtr, int callMode);
 	
 	//static boolean allowDirect = !"false".equals(System.getProperty("bridj.allowDirect"));
 	/*public static long[] createCallbacks(

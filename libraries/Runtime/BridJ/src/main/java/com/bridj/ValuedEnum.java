@@ -8,6 +8,8 @@ package com.bridj;
 import java.util.Collections;
 import java.util.Iterator;
 
+import com.bridj.c.FlagSet;
+
 public interface ValuedEnum<E extends Enum<E>> extends Iterable<E> {
     long value();
 

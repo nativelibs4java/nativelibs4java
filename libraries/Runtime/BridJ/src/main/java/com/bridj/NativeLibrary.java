@@ -23,9 +23,13 @@ import java.util.logging.Logger;
 
 import com.bridj.Demangler.DemanglingException;
 import com.bridj.Demangler.MemberRef;
+import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Mangling;
 import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
+import com.bridj.cpp.GCC4Demangler;
+import com.bridj.cpp.VC9Demangler;
+
 import java.util.Collection;
 
 public class NativeLibrary {
@@ -93,7 +97,7 @@ public class NativeLibrary {
 		return address;
 	}
 
-    synchronized long getSymbolAddress(AnnotatedElement member) throws FileNotFoundException {
+    public synchronized long getSymbolAddress(AnnotatedElement member) throws FileNotFoundException {
         //libHandle = libHandle & 0xffffffffL;
         Mangling mg = BridJ.getAnnotation(Mangling.class, false, member);
         if (mg != null)
@@ -128,7 +132,7 @@ public class NativeLibrary {
 		Pointer<Pointer<?>> pVirtualTable = getVirtualTable(type);
 		return getPositionInVirtualTable(pVirtualTable, method);
 	}
-	int getPositionInVirtualTable(Pointer<Pointer<?>> pVirtualTable, Method method) {
+	public int getPositionInVirtualTable(Pointer<Pointer<?>> pVirtualTable, Method method) {
 		String methodName = method.getName();
 		//Pointer<?> typeInfo = pVirtualTable.get(1);
 		int methodsOffset = isMSVC() ? 0 : 2;
@@ -150,7 +154,7 @@ public class NativeLibrary {
 		}
 		return -1;
 	}
-	boolean isMSVC() {
+	public boolean isMSVC() {
 		return JNI.isWindows();
 	}
 	String getCPPClassName(Class<?> declaringClass) {
@@ -158,6 +162,7 @@ public class NativeLibrary {
 	}
 
 	@SuppressWarnings("unchecked")
+	public
 	Pointer<Pointer<?>> getVirtualTable(Class<?> type) {
 		Pointer<Pointer<?>> p = vtables.get(type);
 		if (p == null) {
@@ -178,7 +183,7 @@ public class NativeLibrary {
 		}
 		return p;
 	}
-	Collection<Demangler.Symbol> getSymbols() {
+	public Collection<Demangler.Symbol> getSymbols() {
         try {
             scanSymbols();
         } catch (Exception ex) {
@@ -189,11 +194,15 @@ public class NativeLibrary {
 	public String getSymbolName(long address) {
 		if (addrToName == null && getSymbolsHandle() != 0)//JNI.isUnix())
 			return JNI.findSymbolName(getHandle(), getSymbolsHandle(), address);
-		
+	
+		Demangler.Symbol symbol = getSymbol(address);
+		return symbol == null ? null : symbol.symbol;
+	}
+	public Symbol getSymbol(long address) {
 		try {
 			scanSymbols();
-			Demangler.Symbol symbol = addrToName.get(address);
-			return symbol == null ? null : symbol.symbol;
+			Symbol symbol = addrToName.get(address);
+			return symbol;
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed to get name of address " + address, ex);
 		}

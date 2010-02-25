@@ -7,7 +7,7 @@ package com.bridj;
 
 import com.bridj.JNI;
 import com.bridj.ann.*;
-import com.bridj.*;
+import com.bridj.c.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;

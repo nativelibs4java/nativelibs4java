@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-class NativeEntities {
+public class NativeEntities {
 	static class CBInfo {
 		long handle;
 		int size;
@@ -46,6 +46,9 @@ class NativeEntities {
 		}
 		public void addJavaToNativeCallback(MethodCallInfo info) {
 			javaToNativeCallbacks.add(info);
+		}
+		public void addMethodFunction(MethodCallInfo info) {
+			functionInfos.add(info);
 		}
 	}
 	
