@@ -6,9 +6,9 @@
 package com.bridj.cpp.mfc;
 
 import com.bridj.BridJ;
+import com.bridj.Callback;
 import com.bridj.NativeObject;
 import com.bridj.Pointer;
-import com.bridj.c.Callback;
 import com.bridj.cpp.CPPRuntime;
 
 import java.lang.reflect.Method;

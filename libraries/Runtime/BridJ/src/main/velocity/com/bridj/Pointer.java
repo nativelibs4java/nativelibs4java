@@ -4,7 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.*;
 import java.util.Stack;
-import com.bridj.c.Callback;
+import com.bridj.c.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 

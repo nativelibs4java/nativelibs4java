@@ -7,7 +7,6 @@ import com.bridj.ann.Convention;
 import static com.bridj.Dyncall.SignatureChars.*;
 import com.bridj.*;
 import com.bridj.ann.*;
-import com.bridj.c.Callback;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;

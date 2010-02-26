@@ -4,7 +4,6 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.bridj.ann.Library;
-import com.bridj.c.Callback;
 
 @Library("test")
 public class CallbackTest {

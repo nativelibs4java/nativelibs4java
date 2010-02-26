@@ -3,9 +3,8 @@
  * and open the template in the editor.
  */
 
-package com.bridj.c;
+package com.bridj;
 
-import com.bridj.NativeObject;
 import com.bridj.Pointer;
 
 /**

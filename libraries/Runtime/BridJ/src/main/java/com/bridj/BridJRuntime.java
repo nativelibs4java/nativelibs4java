@@ -4,7 +4,6 @@ import java.lang.reflect.Method;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.bridj.c.Callback;
 import com.bridj.cpp.CPPObject;
 import com.bridj.cpp.mfc.CObject;
 import com.bridj.cpp.mfc.CRuntimeClass;

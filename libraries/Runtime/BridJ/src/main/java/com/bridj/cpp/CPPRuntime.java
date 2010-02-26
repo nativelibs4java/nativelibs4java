@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import com.bridj.BridJ;
+import com.bridj.Callback;
 import com.bridj.Demangler;
 import com.bridj.JNI;
 import com.bridj.MethodCallInfo;
@@ -30,7 +31,6 @@ import com.bridj.NativeEntities.Builder;
 import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
 import com.bridj.c.CRuntime;
-import com.bridj.c.Callback;
 import com.bridj.util.AutoHashMap;
 
 /**

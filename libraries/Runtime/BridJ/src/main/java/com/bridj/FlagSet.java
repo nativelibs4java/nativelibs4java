@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.bridj.c;
+package com.bridj;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import com.bridj.ValuedEnum;
 
 /**
  *

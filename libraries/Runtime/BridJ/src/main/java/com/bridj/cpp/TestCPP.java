@@ -1,6 +1,7 @@
 package com.bridj.cpp;
 
 import com.bridj.BridJ;
+import com.bridj.Callback;
 import com.bridj.Demangler;
 import com.bridj.JNI;
 import com.bridj.NativeLibrary;
@@ -9,10 +10,10 @@ import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Library;
 import com.bridj.ann.Ptr;
 import com.bridj.ann.Virtual;
-import com.bridj.c.Callback;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 @Library("test")
+@com.bridj.ann.Runtime(CPPRuntime.class)
 public class TestCPP {
 //	static String libraryPath = //BridJ.getNativeLibraryFile("test").toString()
 //		JNI.isMacOSX() ? 
@@ -98,7 +99,7 @@ public class TestCPP {
 	}
 	static long getPtr(long peer) {
 		Pointer<?> ptr = Pointer.pointerToAddress(peer);
-		return ptr.getSizeT(peer);
+		return ptr.getSizeT(0);
 	}
 	
 	

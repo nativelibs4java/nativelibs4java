@@ -10,6 +10,7 @@ import java.util.logging.Level;
 
 import com.bridj.BridJ;
 import com.bridj.BridJRuntime;
+import com.bridj.Callback;
 import com.bridj.MethodCallInfo;
 import com.bridj.NativeEntities;
 import com.bridj.NativeLibrary;

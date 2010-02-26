@@ -29,7 +29,6 @@ import com.bridj.ann.NoInheritance;
 import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
 import com.bridj.c.CRuntime;
-import com.bridj.c.Callback;
 import com.bridj.cpp.CPPObject;
 import com.bridj.cpp.CPPRuntime;
 import com.bridj.cpp.com.COMRuntime;
@@ -111,27 +110,21 @@ public class BridJ {
 		Pointer.getPeer(nativeObject, null).release();
 	}
 	
-	
-	
-    public static synchronized void register(Class<?>... types) {
-		if (types.length == 0) {
-			StackTraceElement[] stackTrace = new Exception().getStackTrace();
-	    	if (stackTrace.length < 2)
-	    		throw new RuntimeException("No useful stack trace : cannot register with register(), please use register(Class) instead.");
-	    	String name = stackTrace[1].getClassName();
-	    	try {
-	    		Class<?> type = Class.forName(name);
-	    		register(type);
-	    	} catch (Exception ex) {
-	    		throw new RuntimeException("Failed to register class " + name, ex);
-	    	}
-	    	return;
-		}
-		for (Class<?> type : types)
-			registerOne(type);
-		
-		
-	}
+	/**
+	 * Registers the class of the caller
+	 */
+    public static synchronized void register() {
+		StackTraceElement[] stackTrace = new Exception().getStackTrace();
+    	if (stackTrace.length < 2)
+    		throw new RuntimeException("No useful stack trace : cannot register with register(), please use register(Class) instead.");
+    	String name = stackTrace[1].getClassName();
+    	try {
+    		Class<?> type = Class.forName(name);
+    		register(type);
+    	} catch (Exception ex) {
+    		throw new RuntimeException("Failed to register class " + name, ex);
+    	}
+    }
     
     CPPRuntime cppRuntime;
     CRuntime cRuntime;
@@ -153,7 +146,7 @@ public class BridJ {
     	return r;
     }
     
-	static BridJRuntime registerOne(Class<?> type) {
+	static BridJRuntime register(Class<?> type) {
 		BridJRuntime runtime = registeredTypes.get(type);
 		if (runtime != null)
 			return runtime;
@@ -164,6 +157,7 @@ public class BridJ {
 		
 		runtime = getRuntimeByRuntimeClass(runtimeAnn.value());
 		runtime.register(type);
+		registeredTypes.put(type, runtime);
 		return runtime;
 	}
 	static void log(Level level, String message, Throwable ex) {

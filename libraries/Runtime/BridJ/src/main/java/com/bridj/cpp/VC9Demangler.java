@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.bridj.Callback;
 import com.bridj.Demangler;
 import com.bridj.NativeLibrary;
 import com.bridj.Pointer;
@@ -16,7 +17,6 @@ import com.bridj.Demangler.TypeRef;
 import com.bridj.Demangler.MemberRef.Type;
 import com.bridj.ann.CLong;
 import com.bridj.ann.Wide;
-import com.bridj.c.Callback;
 
 public class VC9Demangler extends Demangler {
 	public VC9Demangler(NativeLibrary library, String str) {
