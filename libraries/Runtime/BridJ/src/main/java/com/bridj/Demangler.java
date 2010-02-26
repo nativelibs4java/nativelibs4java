@@ -152,8 +152,9 @@ public abstract class Demangler {
 			parse();
 
             try {
-                if (ref != null)
-                    return ref.matchesConstructor(type);
+                if (ref != null) {
+                	return ref.matchesConstructor(type);
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -349,6 +350,9 @@ public abstract class Demangler {
 		
 		protected boolean matchesConstructor(Class<?> type) {
 			
+			if (this.type != MemberRef.Type.Constructor)
+				return false;
+                
 			if (getEnclosingType() != null && !getEnclosingType().matches(type))
 				return false;
 			

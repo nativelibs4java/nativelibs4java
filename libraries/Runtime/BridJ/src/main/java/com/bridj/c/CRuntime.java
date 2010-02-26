@@ -1,10 +1,12 @@
 package com.bridj.c;
 
+import com.bridj.AbstractBridJRuntime;
 import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -22,11 +24,14 @@ import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
 import com.bridj.util.AutoHashMap;
 
-public class CRuntime extends BridJRuntime {
+public class CRuntime extends AbstractBridJRuntime {
 
 	Set<Method> registeredMethods = new HashSet<Method>();
 	CallbackNativeImplementer callbackNativeImplementer = new CallbackNativeImplementer(BridJ.getOrphanEntities());
-	
+
+    public boolean isAvailable() {
+        return true;
+    }
 	@Override
 	public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Class<T> officialType) {
 		return officialType;
@@ -43,7 +48,6 @@ public class CRuntime extends BridJRuntime {
 		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
 		for (; type != null && type != Object.class; type = type.getSuperclass()) {
 			try {
-				boolean isCPPClass = CPPObject.class.isAssignableFrom(type);
 				NativeLibrary typeLibrary = BridJ.getNativeLibrary(type);
 				for (Method method : type.getDeclaredMethods()) {
 					try {
@@ -64,11 +68,21 @@ public class CRuntime extends BridJRuntime {
 				throw new RuntimeException("Failed to register class " + type.getName(), ex);
 			}
 		}
+
+		for (Map.Entry<NativeEntities, NativeEntities.Builder> e : builders.entrySet()) {
+			e.getKey().addDefinitions(type, e.getValue());
+		}
 	}
 
 	protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder) throws FileNotFoundException {
+		long address = methodLibrary.getSymbolAddress(method);
+		if (address == 0) 
+		{
+			log(Level.SEVERE, "Failed to get address of method " + method);
+			return;
+		}
 		MethodCallInfo mci = new MethodCallInfo(method);
-		mci.setForwardedPointer(methodLibrary.getSymbolAddress(method));
+		mci.setForwardedPointer(address);
 	    builder.addFunction(mci);
 	}
 	
@@ -80,7 +94,7 @@ public class CRuntime extends BridJRuntime {
         		throw new RuntimeException("Callback should have a constructorId == -1 and no constructor args !");
         	return newCallbackInstance(type);
         }
-        return super.allocate(type, constructorId, args);
+        throw new RuntimeException("Cannot allocate instance of type " + type.getName() + " (unhandled NativeObject subclass)");
 	}
 	
 	static final int defaultObjectSize = 128;

@@ -67,109 +67,6 @@ public class CPPRuntime extends CRuntime {
 		return officialType;
 	}
 	
-
-	@Override
-	public void register(Class<?> type) {
-		super.register(type);
-		
-		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
-		for (; type != null && type != Object.class; type = type.getSuperclass()) {
-			try {
-				boolean isCPPClass = CPPObject.class.isAssignableFrom(type);
-				NativeLibrary typeLibrary = BridJ.getNativeLibrary(type);
-				for (Method method : type.getDeclaredMethods()) {
-					try {
-						int modifiers = method.getModifiers();
-						if (!Modifier.isNative(modifiers))
-							continue;
-						
-						NativeEntities.Builder builder = builders.get(BridJ.getNativeEntities(method));
-						NativeLibrary methodLibrary = BridJ.getNativeLibrary(method);
-						
-						MethodCallInfo mci = new MethodCallInfo(method);
-						Annotation[][] anns = method.getParameterAnnotations();
-						boolean isCPPInstanceMethod = false;
-						if (anns.length > 0) {
-							if (method.getAnnotation(Virtual.class) != null)
-								isCPPInstanceMethod = true;
-							else
-								for (Annotation ann : anns[0]) {
-									if (ann instanceof This) {
-										isCPPInstanceMethod = true;
-										break;
-									}
-								}
-						}
-						
-						if (isCPPInstanceMethod) {
-//							if (Modifier.isStatic(modifiers)) {
-//								log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a C++ instance method. It should not be static.");
-//								continue;
-//							}
-							
-							if (!isCPPClass) {
-								log(Level.SEVERE, "Method " + method.toGenericString() + " should have been declared in a " + CPPObject.class.getName() + " subclass.");
-								continue;
-							}
-							Virtual va = method.getAnnotation(Virtual.class);
-							if (va == null) {
-								mci.setForwardedPointer(methodLibrary.getSymbolAddress(method));
-						        if (mci.getForwardedPointer() == 0) {
-									for (Demangler.Symbol symbol : methodLibrary.getSymbols()) {
-										if (symbol.matches(method)) {
-											mci
-													.setForwardedPointer(symbol.getAddress());
-											if (mci.getForwardedPointer() != 0)
-												break;
-										}
-									}
-									if (mci.getForwardedPointer() == 0) {
-										log(Level.SEVERE, "Method " + method.toGenericString() + " is not virtual but its address could not be resolved in the library.");
-										continue;
-									}
-								}
-							} else {
-								int virtualIndex = va.value();
-								if (Modifier.isStatic(modifiers))
-									log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
-									
-								if (virtualIndex < 0) {
-									Pointer<Pointer<?>> pVirtualTable = isCPPClass && typeLibrary != null ? typeLibrary.getVirtualTable((Class<? extends CPPObject>)type) : null;
-									if (pVirtualTable == null) {
-										log(Level.SEVERE, "Method " + method.toGenericString() + " is virtual but the virtual table of class " + type.getName() + " was not found.");
-										continue;
-									}
-									
-									virtualIndex = typeLibrary.getPositionInVirtualTable(pVirtualTable, method);
-									if (virtualIndex < 0) {
-										log(Level.SEVERE, "Method " + method.toGenericString() + " is virtual but its position could not be found in the virtual table.");
-										continue;
-									}
-								}
-								mci.setVirtualIndex(virtualIndex);
-							}
-							builder.addVirtualMethod(mci);
-						} else {
-							//if (!Modifier.isStatic(modifiers))
-							//	log(Level.WARNING, "Method " + method.toGenericString() + " is native and maps to a function, but is not static.");
-							
-							mci.setForwardedPointer(methodLibrary.getSymbolAddress(method));
-					        
-							builder.addFunction(mci);
-						}
-						
-					} catch (Exception ex) {
-						log(Level.SEVERE, "Method " + method.toGenericString() + " cannot be mapped : " + ex, ex);
-					}
-				}
-			} catch (Exception ex) {
-				throw new RuntimeException("Failed to register class " + type.getName(), ex);
-			}
-		}
-		for (Map.Entry<NativeEntities, NativeEntities.Builder> e : builders.entrySet()) {
-			e.getKey().addDefinitions(type, e.getValue());
-		}
-	}
 	@Override
 	protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder) throws FileNotFoundException {
 
@@ -217,7 +114,7 @@ public class CPPRuntime extends CRuntime {
 					return;
 				}
 			}
-	        mci.setDcCallingConvention(JNI.is64Bits() ? DC_CALL_C_DEFAULT : JNI.isWindows() ? DC_CALL_C_X86_WIN32_THIS_MS : DC_CALL_C_X86_WIN32_THIS_GNU); 
+	        mci.setDcCallingConvention(!JNI.is64Bits() && JNI.isWindows() ? DC_CALL_C_X86_WIN32_THIS_MS : DC_CALL_C_DEFAULT);
 			builder.addMethodFunction(mci);
 		} else {
 			int virtualIndex = va.value();
@@ -307,9 +204,9 @@ public class CPPRuntime extends CRuntime {
 	}
 	static void installVTablePtr(Class<?> type, NativeLibrary lib, Pointer<?> peer) {
     	Pointer<Pointer<?>> vptr = lib.getVirtualTable(type);
-    	if (!lib.isMSVC());
-//    		vptr = vptr.offset(16);
-    		vptr = vptr.next(2);
+//    	if (!lib.isMSVC());
+////    		vptr = vptr.offset(16);
+//    		vptr = vptr.next(2);
     	peer.setPointer(0, vptr);
     }
 }

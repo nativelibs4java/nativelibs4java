@@ -128,7 +128,10 @@ public class VC9Demangler extends Demangler {
                 parseStorageMods();
 
                 if (mr.type != MemberRef.Type.Destructor) {
-                    mr.setValueType(parseType(true));
+                	if (mr.type == MemberRef.Type.Constructor) {
+                		consumeCharIf('E');
+                	} else
+                		mr.setValueType(parseType(true));
                     List<TypeRef> paramTypes = parseParams();
                     mr.paramTypes = paramTypes.toArray(new TypeRef[paramTypes.size()]);
                 }
@@ -178,7 +181,9 @@ public class VC9Demangler extends Demangler {
             if (peekChar() == '6') {
                 consumeChar();
                 parseStorageMods();
-                
+                parseType(true); // return type
+                parseParams();
+                expectChars('@', 'Z');
                 return classType(Pointer.class, new java.lang.reflect.Type[] { Callback.class });
             }
         case 'Q': // array
@@ -202,8 +207,20 @@ public class VC9Demangler extends Demangler {
         Collections.reverse(names);
         return new NamespaceRef(names.toArray(new String[names.size()]));
     }
-    TypeRef parseQualifiedTypeName() {
-        List<String> names = parseNames();
+    List<List<String>> allQualifiedNames = new ArrayList<List<String>>();
+	
+    TypeRef parseQualifiedTypeName() throws DemanglingException {
+    	char c = peekChar();
+    	List<String> names;
+    	if (Character.isDigit(c)) {
+    		consumeChar();
+    		int i = (int)(c - '0');
+    		if (i < 0 || i >= allQualifiedNames.size())
+    			throw error("Invalid back reference " + i + " (knows only " + allQualifiedNames + ")", -1);
+    		names = new ArrayList<String>(allQualifiedNames.get(i));
+    	} else {
+    		names = parseNames();
+    	}
 
         ClassRef tr = new ClassRef();
         tr.setSimpleName(names.get(0));
@@ -211,7 +228,7 @@ public class VC9Demangler extends Demangler {
         tr.setEnclosingType(reverseNamespace(names));
         return tr;
     }
-	List<String> parseNames() {
+    List<String> parseNames() {
 		List<String> ns = new ArrayList<String>();
 		while (peekChar() != '@')
 			ns.add(parseName());
@@ -226,7 +243,9 @@ public class VC9Demangler extends Demangler {
 		while ((c = consumeChar()) != '@')
 			b.append(c);
 		
-		return b.toString();
+		String name = b.toString();
+		allQualifiedNames.add(Collections.singletonList(name));
+		return name;
 	}
 
     void parseStorageMods() {

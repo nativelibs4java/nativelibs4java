@@ -220,7 +220,8 @@ public class BridJ {
 //			throw new RuntimeException("Failed to register class " + type.getName(), ex);
 //		}
 //	}
-//	
+//
+
     static Map<String, NativeLibrary> libHandles = new HashMap<String, NativeLibrary>();
     static List<String> paths;
     static synchronized List<String> getNativeLibraryPaths() {
