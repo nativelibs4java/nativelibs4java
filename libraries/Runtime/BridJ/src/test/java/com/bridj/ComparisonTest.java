@@ -8,6 +8,7 @@ package com.bridj;
 import com.bridj.JNI;
 import com.bridj.ann.*;
 import com.bridj.c.*;
+import com.bridj.cpp.CPPRuntime;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,6 +22,7 @@ import java.util.logging.Logger;
  *
  * @author Olivier Chafik
  */
+@com.bridj.ann.Runtime(CPPRuntime.class)
 public class ComparisonTest {
 
     @Library("test")

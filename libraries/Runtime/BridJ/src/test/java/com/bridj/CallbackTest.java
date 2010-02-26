@@ -4,8 +4,10 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.bridj.ann.Library;
+import com.bridj.c.CRuntime;
 
 @Library("test")
+@com.bridj.ann.Runtime(CRuntime.class)
 public class CallbackTest {
 	static {
 		BridJ.register();

@@ -151,7 +151,7 @@ public class BridJ {
 		if (runtime != null)
 			return runtime;
 		
-		com.bridj.ann.Runtime runtimeAnn = type.getAnnotation(com.bridj.ann.Runtime.class);
+		com.bridj.ann.Runtime runtimeAnn = getAnnotation(com.bridj.ann.Runtime.class, true, type);
 		if (runtimeAnn == null)
 			throw new IllegalArgumentException("Class " + type.getName() + " has no " + com.bridj.ann.Runtime.class.getName() + " annotation. Unable to guess the corresponding " + BridJRuntime.class.getName() + " implementation.");
 		

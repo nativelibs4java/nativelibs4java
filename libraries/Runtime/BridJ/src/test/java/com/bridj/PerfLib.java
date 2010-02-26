@@ -8,6 +8,7 @@ package com.bridj;
 import com.bridj.JNI;
 import com.bridj.BridJ;
 import com.bridj.ann.Library;
+import com.bridj.c.CRuntime;
 //import com.sun.jna.Native;
 import java.io.FileNotFoundException;
 import java.util.logging.Level;
@@ -18,6 +19,7 @@ import java.util.logging.Logger;
  * @author Olivier
  */
 @Library("test")
+@com.bridj.ann.Runtime(CRuntime.class)
 public class PerfLib {
     static {
         String f = BridJ.getNativeLibraryFile(BridJ.getNativeLibraryName(PerfLib.class)).toString();
