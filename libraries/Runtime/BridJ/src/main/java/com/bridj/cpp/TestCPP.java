@@ -42,7 +42,11 @@ public class TestCPP {
 	public static void main(String[] args) throws Exception {
 		library = BridJ.getNativeLibrary("test");
 			//NativeLibrary.load(libraryPath);
-		
+
+        new VC9Demangler(null, "?forwardCall@@YAHP6AHHH@ZHH@Z").parseSymbol();
+
+        //new VC9Demangler(null, "??0Ctest2@@QEAA@XZ").parseSymbol();
+
 		for (Demangler.Symbol symbol : library.getSymbols()) {
             String name = symbol.getName();
 			long addr = symbol.getAddress();

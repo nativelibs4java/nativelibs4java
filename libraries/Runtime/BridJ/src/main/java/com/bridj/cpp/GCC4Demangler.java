@@ -14,7 +14,7 @@ import com.bridj.Demangler.DemanglingException;
 import com.bridj.Demangler.MemberRef;
 import com.bridj.Demangler.NamespaceRef;
 import com.bridj.Demangler.TypeRef;
-import com.bridj.Demangler.MemberRef.Type;
+import com.bridj.Demangler.SpecialName;
 
 public class GCC4Demangler extends Demangler {
 	
@@ -93,7 +93,6 @@ public class GCC4Demangler extends Demangler {
 				ns.add(parseName());
 			} while (Character.isDigit(peekChar()));
 			mr.setMemberName(ns.remove(ns.size() - 1));
-			mr.type = Type.InstanceMethod;
 			if (!ns.isEmpty()) {
 				ClassRef parent = new ClassRef();
 				parent.setSimpleName(ns.remove(ns.size() - 1));
@@ -104,17 +103,17 @@ public class GCC4Demangler extends Demangler {
 				case 'C':
 					consumeChar();
 					expectAnyChar('1', '2');
-					mr.type = Type.Constructor;
+					mr.setMemberName(SpecialName.Constructor);
 					break;
 				case 'D':
 					consumeChar();
 					expectAnyChar('1', '2');
-					mr.type = Type.Destructor;
+					mr.setMemberName(SpecialName.Destructor);
 					break;
 				}
 			}
 		} else {
-			mr.type = Type.CFunction;
+			//mr.type = SpecialName.CFunction;
 			mr.setMemberName(parseName());
 		}
 		//mr.isStatic =

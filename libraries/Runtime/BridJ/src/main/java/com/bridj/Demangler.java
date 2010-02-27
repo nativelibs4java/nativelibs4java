@@ -1,14 +1,15 @@
 package com.bridj;
 
+import com.bridj.ann.Convention.Style;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
 import java.util.Arrays;
 
 import com.bridj.Pointer;
-import com.bridj.Demangler.MemberRef.Type;
 import com.bridj.ann.Constructor;
 import com.bridj.ann.Destructor;
 import com.bridj.ann.This;
+import com.bridj.util.DefaultParameterizedType;
 
 public abstract class Demangler {
 	public static class DemanglingException extends Exception {
@@ -32,7 +33,7 @@ public abstract class Demangler {
 		for (char c : cs) {
 			char cc = consumeChar();
 			if (cc != c)
-				throw error("Expected char '" + c + "', found '" + cc + "'", -1);
+				throw error("Expected char '" + c + "', found '" + cc + "'");
 		}
 	}
 	protected void expectAnyChar(char... cs) throws DemanglingException {
@@ -41,7 +42,7 @@ public abstract class Demangler {
 			if (cc == c)
 				return;
 		}
-		throw error("Expected any of " + Arrays.toString(cs) + ", found '" + cc + "'", -1);
+		throw error("Expected any of " + Arrays.toString(cs) + ", found '" + cc + "'");
 	}
 	public static StringBuilder implode(StringBuilder b, Object[] items, String sep) {
 		return implode(b, Arrays.asList(items), sep);
@@ -69,6 +70,17 @@ public abstract class Demangler {
 			position++;
 		return c;
 	}
+    protected boolean consumeCharsIf(char... nextChars) {
+        int initialPosition = position;
+        for (char c : nextChars) {
+			char cc = consumeChar();
+			if (cc != c) {
+                position = initialPosition;
+                return false;
+            }
+		}
+        return true;
+    }
 	protected boolean consumeCharIf(char... allowedChars) {
 		char c = peekChar();
 		for (char allowedChar : allowedChars)
@@ -81,6 +93,9 @@ public abstract class Demangler {
 	protected DemanglingException error(int deltaPosition) {
 		return error(null, deltaPosition);
 	}
+    protected DemanglingException error(String mess) {
+        return error(mess, -1);
+    }
 	protected DemanglingException error(String mess, int deltaPosition) {
 		StringBuilder err = new StringBuilder(position + 1);
 		int position = this.position + deltaPosition;
@@ -178,18 +193,41 @@ public abstract class Demangler {
 
 	public static class Constant implements TemplateArg {
 		Object value;
+
+        public Constant(Object value) {
+            this.value = value;
+        }
+
+
+        @Override
+        public String toString() {
+            return value.toString();
+        }
 	}
 
 	public static class NamespaceRef extends TypeRef {
-		String[] namespace;
-        public NamespaceRef(String[] namespace) {
+		Object[] namespace;
+        public NamespaceRef(Object[] namespace) {
             this.namespace = namespace;
         }
 		public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
 			return implode(b, namespace, ".");
 		}
+
+        @Override
+        public String toString() {
+            return getQualifiedName(new StringBuilder(), true).toString();
+        }
+
 	}
 
+    public static class PointerType {
+
+    }
+
+    protected static TypeRef pointerType(TypeRef tr) {
+        return classType(Pointer.class); // TODO
+    }
     protected static TypeRef classType(final Class<?> c, Class<? extends Annotation>... annotations) {
         return classType(c, null, annotations);
     }
@@ -198,23 +236,7 @@ public abstract class Demangler {
         if (genericTypes == null)
             tr.type = c;
         else
-            tr.type = new ParameterizedType() {
-
-                @Override
-                public java.lang.reflect.Type[] getActualTypeArguments() {
-                    return genericTypes;
-                }
-
-                @Override
-                public java.lang.reflect.Type getOwnerType() {
-                    return null;
-                }
-
-                @Override
-                public java.lang.reflect.Type getRawType() {
-                    return c;
-                }
-            };
+            tr.type = new DefaultParameterizedType(c, genericTypes);
             
 		tr.annotations = annotations;
 		return tr;
@@ -244,11 +266,20 @@ public abstract class Demangler {
             
 			return type.equals(getTypeClass()); // TODO isAssignableFrom or the opposite, depending on context
 		}
+
+        @Override
+        public String toString() {
+            StringBuilder b = new StringBuilder();
+            for (Class ann : annotations)
+                b.append(ann.getSimpleName()).append(' ');
+            b.append((type instanceof Class) ? ((Class)type).getSimpleName() : type.toString());
+            return b.toString();
+        }
 		
 	}
 	public static class ClassRef extends TypeRef {
 		private TypeRef enclosingType;
-		private String simpleName;
+		private Object simpleName;
 		TemplateArg[] templateArguments;
 		
 		public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
@@ -278,11 +309,11 @@ public abstract class Demangler {
 			return b;
 		}
 
-		public void setSimpleName(String simpleName) {
+		public void setSimpleName(Object simpleName) {
 			this.simpleName = simpleName;
 		}
 
-		public String getSimpleName() {
+		public Object getSimpleName() {
 			return simpleName;
 		}
 
@@ -293,8 +324,53 @@ public abstract class Demangler {
 		public TypeRef getEnclosingType() {
 			return enclosingType;
 		}
-	}
 
+        public void setTemplateArguments(TemplateArg[] templateArguments) {
+            this.templateArguments = templateArguments;
+        }
+
+        public TemplateArg[] getTemplateArguments() {
+            return templateArguments;
+        }
+
+        @Override
+        public boolean matches(Class<?> type) {
+            if (!type.getSimpleName().equals(simpleName))
+                return false;
+            
+            return true;
+        }
+
+
+
+        @Override
+        public String toString() {
+            StringBuilder b = new StringBuilder();
+
+            if (enclosingType != null)
+                b.append(enclosingType).append('.');
+
+            b.append(simpleName);
+            appendTemplateArgs(b, templateArguments);
+            return b.toString();
+        }
+
+
+	}
+    static void appendTemplateArgs(StringBuilder b, Object[] params) {
+        if (params == null || params.length == 0)
+            return;
+        appendArgs(b, '<', '>', params);
+    }
+    static void appendArgs(StringBuilder b, char pre, char post, Object[] params) {
+        b.append(pre);
+        for (int i = 0; i < params.length; i++) {
+            if (i != 0)
+                b.append(", ");
+            b.append(params[i]);
+        }
+        b.append(post);
+    }
 	public static void constructorPattern(@This long thisPtr) {}
 	static Annotation[][] constructorPatternAnnotations;
 	static {
@@ -307,57 +383,120 @@ public abstract class Demangler {
 	public static class FunctionTypeRef extends TypeRef {
 		MemberRef function;
 
+        public FunctionTypeRef(MemberRef function) {
+            this.function = function;
+        }
 		@Override
 		public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
 			// TODO Auto-generated method stub
 			return null;
 		}
+
+
+        @Override
+        public String toString() {
+            return function.toString();
+        }
 	}
+    public enum SpecialName {
+        Constructor("", true, true),
+        Destructor("", true, true),
+        New("new", true, true),
+        Delete("delete", true, true),
+        VFTable("vftable", false, true),
+        VBTable("vftable", false, true),
+        VCall("vcall", false, false), // What is that ???
+        TypeOf("typeof", false, false),
+        ScalarDeletingDestructor("'scalar deleting destructor'", true, true),
+        VectorDeletingDestructor("'vector deleting destructor'", true, true),
+        
+        OperatorAssign("operator=", true, true),
+        OperatorRShift("operator>>", true, true),
+        OperatorDivideAssign("operator/=", true, true),
+        OperatorModuloAssign("operator%=", true, true),
+        OperatorRShiftAssign("operator>>=", true, true),
+        OperatorLShiftAssign("operator<<=", true, true),
+        OperatorBitAndAssign("operator&=", true, true),
+        OperatorBitOrAssign("operator|=", true, true),
+        OperatorXORAssign("operator^=", true, true),
+        OperatorLShift("operator<<", true, true),
+        OperatorLogicNot("operator!", true, true),
+        OperatorEquals("operator==", true, true),
+        OperatorDifferent("operator!=", true, true),
+        OperatorSquareBrackets("operator[]", true, true),
+        OperatorCast("'some cast operator'", true, true),
+        OperatorArrow("operator->", true, true),
+        OperatorMultiply("operator*", true, true),
+        OperatorIncrement("operator++", true, true),
+        OperatorDecrement("operator--", true, true),
+        OperatorSubstract("operator-", true, true),
+        OperatorAdd("operator+", true, true),
+        OperatorBitAnd("operator&=", true, true),
+        /// Member pointer selector
+        OperatorArrowStar("operator->*", true, true),
+        OperatorDivide("operator/", true, true),
+        OperatorModulo("operator%", true, true),
+        OperatorLower("operator<", true, true),
+        OperatorLowerEquals("operator<=", true, true),
+        OperatorGreater("operator>", true, true),
+        OperatorGreaterEquals("operator>=", true, true),
+        OperatorComma("operator,", true, true),
+        OperatorParenthesis("operator()", true, true),
+        OperatorBitNot("operator~", true, true),
+        OperatorXOR("operator^", true, true),
+        OperatorBitOr("operator|", true, true),
+        OperatorLogicAnd("operator&&", true, true),
+        OperatorLogicOr("operator||", true, true),
+        OperatorMultiplyAssign("operator*=", true, true),
+        OperatorAddAssign("operator+=", true, true),
+        OperatorSubstractAssign("operator-=", true, true);
+
+        private SpecialName(String name, boolean isFunction, boolean isMember) {
+            this.name = name;
+            this.isFunction = isFunction;
+            this.isMember = isMember;
+        }
+        final String name;
+        final boolean isFunction;
+        final boolean isMember;
+
+        @Override
+        public String toString() {
+            return name;
+        }
+
+        public boolean isFunction() {
+            return isFunction;
+        }
+
+        public boolean isMember() {
+            return isMember;
+        }
+
+
+
+
+    }
 	public static class MemberRef {
-		public enum Type {
-			Constructor, 
-            InstanceMethod,
-            StaticMethod,
-            Destructor,
-            New,
-            Delete,
-            OperatorAssign,
-            OperatorRShift,
-            OperatorDivideAssign,
-            OperatorModuloAssign,
-            OperatorRShiftAssign,
-            OperatorLShiftAssign,
-            OperatorBitAndAssign,
-            OperatorBitOrAssign,
-            OperatorXORAssign,
-            VFTable,
-            VBTable,
-            VCall, // What is that ???
-            TypeOf,
-            
-            CFunction,
-            Field,
-            ScalarDeletingDestructor
-		}
+		
 		private TypeRef enclosingType;
 		private TypeRef valueType;
-		private String memberName;
+		private Object memberName;
 		Boolean isStatic, isProtected, isPrivate;
-		public Type type;
 		public int modifiers;
-		public TypeRef[] paramTypes;
+		public TypeRef[] paramTypes, throwTypes;
 		TemplateArg[] templateArguments;
+        public Style callingConvention;
 		
 		protected boolean matchesConstructor(Class<?> type) {
-			
-			if (this.type != MemberRef.Type.Constructor)
+			if (this.memberName != SpecialName.Constructor)
 				return false;
                 
 			if (getEnclosingType() != null && !getEnclosingType().matches(type))
 				return false;
 			
-			if (getMemberName() != null && !getMemberName().equals(type.getSimpleName()))
-				return false;
+			//if (getMemberName() != null && !getMemberName().equals(type.getSimpleName()))
+			//	return false;
 			
 			if (getValueType() != null && !getValueType().matches(Void.TYPE))
 				return false;
@@ -372,8 +511,8 @@ public abstract class Demangler {
 		}
 		protected boolean matches(Method method) {
 			
-			if (type == null)
-            	return false;
+			if (memberName instanceof SpecialName)
+            	return false; // use matchesConstructor... 
             
 			if (getEnclosingType() != null && !getEnclosingType().matches(method.getDeclaringClass()))
 				return false;
@@ -392,11 +531,12 @@ public abstract class Demangler {
             	return false;
             
             
-            int thisDirac = hasThisAsFirstArgument ? 1 : 0;
+            //int thisDirac = hasThisAsFirstArgument ? 1 : 0;
+            /*
             switch (type) {
             case Constructor:
             case Destructor:
-            	Annotation ann = method.getAnnotation(type == Type.Constructor ? Constructor.class : Destructor.class);
+            	Annotation ann = method.getAnnotation(type == SpecialName.Constructor ? Constructor.class : Destructor.class);
             	if (ann == null)
             		return false;
             	if (!hasThisAsFirstArgument)
@@ -412,7 +552,8 @@ public abstract class Demangler {
             	if (hasThisAsFirstArgument)
             		return false;
             	break;
-            }
+            }*/
+            
             return true;
 		}
 		private boolean matchesArgs(Class<?>[] methodArgTypes, Annotation[][] anns, boolean hasThisAsFirstArgument) {
@@ -449,12 +590,44 @@ public abstract class Demangler {
 
                 totalArgs++;
             }
-            return totalArgs == methodArgTypes.length;
+            if (totalArgs != methodArgTypes.length)
+                return false;
+
+            return true;
 		}
-		public void setMemberName(String memberName) {
+
+        @Override
+        public String toString() {
+            StringBuilder b = new StringBuilder();
+
+            b.append(valueType).append(' ');
+            boolean nameWritten = false;
+            if (enclosingType != null) {
+                b.append(enclosingType);
+                b.append('.');
+                if (memberName instanceof SpecialName) {
+                    switch ((SpecialName)memberName) {
+                        case Destructor:
+                            b.append('~');
+                        case Constructor:
+                            b.append(((ClassRef)enclosingType).simpleName);
+                            nameWritten = true;
+                            break;
+                    }
+                }
+            }
+            if (!nameWritten)
+                b.append(memberName);
+            
+            appendTemplateArgs(b, templateArguments);
+            appendArgs(b, '(', ')', paramTypes);
+            return b.toString();
+        }
+        
+		public void setMemberName(Object memberName) {
 			this.memberName = memberName;
 		}
-		public String getMemberName() {
+		public Object getMemberName() {
 			return memberName;
 		}
 		public void setValueType(TypeRef valueType) {

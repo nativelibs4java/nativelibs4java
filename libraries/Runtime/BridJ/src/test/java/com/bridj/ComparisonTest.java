@@ -9,6 +9,7 @@ import com.bridj.JNI;
 import com.bridj.ann.*;
 import com.bridj.c.*;
 import com.bridj.cpp.CPPRuntime;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;

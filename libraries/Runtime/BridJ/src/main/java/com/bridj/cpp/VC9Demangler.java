@@ -1,5 +1,6 @@
 package com.bridj.cpp;
 
+import com.bridj.ann.Convention.Style;
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,204 +15,374 @@ import com.bridj.Demangler.DemanglingException;
 import com.bridj.Demangler.MemberRef;
 import com.bridj.Demangler.NamespaceRef;
 import com.bridj.Demangler.TypeRef;
-import com.bridj.Demangler.MemberRef.Type;
+import com.bridj.Demangler.SpecialName;
+import com.bridj.Dyncall.CallingConvention;
 import com.bridj.ann.CLong;
+import com.bridj.ann.Convention;
 import com.bridj.ann.Wide;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public class VC9Demangler extends Demangler {
 	public VC9Demangler(NativeLibrary library, String str) {
 		super(library, str);
 	}
+
+    private AccessLevelAndStorageClass parseAccessLevelAndStorageClass() throws DemanglingException {
+        AccessLevelAndStorageClass ac = new AccessLevelAndStorageClass();
+        switch (consumeChar()) {
+            case 'A':
+            case 'B':
+                ac.modifiers = Modifier.PRIVATE;
+                break;
+            case 'C':
+            case 'D':
+                ac.modifiers = Modifier.PRIVATE | Modifier.STATIC;
+                break;
+            case 'E':
+            case 'F':
+                ac.modifiers = Modifier.PRIVATE;
+                ac.isVirtual = true;
+                break;
+            case 'G':
+            case 'H':
+                ac.modifiers = Modifier.PRIVATE;
+                ac.isThunk = true;
+                break;
+            case 'I':
+            case 'J':
+                ac.modifiers = Modifier.PROTECTED;
+                break;
+            case 'K':
+            case 'L':
+                ac.modifiers = Modifier.PROTECTED | Modifier.STATIC;
+                break;
+            case 'M':
+            case 'N':
+                ac.modifiers = Modifier.PROTECTED;
+                ac.isVirtual = true;
+                break;
+            case 'O':
+            case 'P':
+                ac.modifiers = Modifier.PROTECTED;
+                ac.isThunk = true;
+                break;
+            case 'Q':
+            case 'R':
+                ac.modifiers = Modifier.PUBLIC;
+                break;
+            case 'S':
+            case 'T':
+                ac.modifiers = Modifier.PUBLIC | Modifier.STATIC;
+                break;
+            case 'U':
+            case 'V':
+                ac.modifiers = Modifier.PUBLIC;
+                ac.isVirtual = true;
+                break;
+            case 'W':
+            case 'X':
+                ac.modifiers = Modifier.PUBLIC;
+                ac.isThunk = true;
+                break;
+            case 'Y':
+            case 'Z':
+                // No modifier, no storage class
+                ac.modifiers = 0;
+                break;
+            default:
+                throw error("Unknown access level + storage class");
+        }
+        return ac;
+    }
+
+    private Object parseTemplateType() throws DemanglingException {
+        List<TypeRef> br = backReferences;
+        backReferences = new ArrayList<TypeRef>();
+
+        String name = parseNameFragment();
+        List<TemplateArg> args = parseTemplateParams();
+        ClassRef tr = new ClassRef();
+        tr.setSimpleName(name);
+        tr.setTemplateArguments(args.toArray(new TemplateArg[args.size()]));
+
+        backReferences = br;
+        return tr;
+    }
+
+    private void parseFunctionProperty(MemberRef mr) throws DemanglingException {
+        mr.callingConvention = parseCallingConvention();
+        TypeRef returnType = consumeCharIf('@') ? classType(Void.TYPE) : parseType(true);
+        List<TypeRef> paramTypes = parseParams();
+        mr.paramTypes = paramTypes.toArray(new TypeRef[paramTypes.size()]);
+        if (!consumeCharIf('Z')) {
+            List<TypeRef> throwTypes = parseParams();
+            mr.throwTypes = throwTypes.toArray(new TypeRef[throwTypes.size()]);
+        }
+
+        mr.setValueType(returnType);
+    }
+
+    static class AnonymousTemplateArg implements TemplateArg {
+        public AnonymousTemplateArg(String v) {
+            this.v = v;
+        }
+        String v;
+
+        @Override
+        public String toString() {
+            return v;
+        }
+
+    }
+
+    private TemplateArg parseTemplateParameter() throws DemanglingException {
+        switch (consumeChar()) {
+            case '?':
+                return new AnonymousTemplateArg("'anonymous template param " + parseNumber(false) + "'");
+            case '$':
+                switch (consumeChar()) {
+                    case '0':
+                        return new Constant(parseNumber(true));
+                    case '2':
+                        int a = parseNumber(true);
+                        int b = parseNumber(true);
+                        return new Constant(a * Math.exp(10 * (int)Math.log(b - Math.log10(a) + 1)));
+                    case 'D':
+                        return new AnonymousTemplateArg("'anonymous template param " + parseNumber(false) + "'");
+                    case 'F':
+                        return new AnonymousTemplateArg("'tuple (" + parseNumber(true) + ", " + parseNumber(true) + ")'");
+                    case 'G':
+                        return new AnonymousTemplateArg("'tuple (" + parseNumber(true) + ", " + parseNumber(true) + ", " + parseNumber(true) + ")'");
+                    case 'Q':
+                        return new AnonymousTemplateArg("'anonymous non-type template param " + parseNumber(false) + "'");
+                }
+                break;
+        }
+        return parseType(true);
+    }
+    static class AccessLevelAndStorageClass {
+        int modifiers;
+        boolean isVirtual = false, isThunk = false;
+            
+    }
 	public MemberRef parseSymbol() throws DemanglingException {
 		MemberRef mr = new MemberRef();
 		
 		if (consumeCharIf('?')) {
-			boolean isFunctionOrMethod = str.endsWith("Z");
-			boolean isMemberFunction = false;
-			if (consumeCharIf('?')) {
-				switch (consumeChar()) {
-              	case '0': // "??1"
-					mr.type = MemberRef.Type.Constructor;
-					break;
-				case '1': // "??1"
-					mr.type = MemberRef.Type.Destructor;
-					break;
-                case '2':
-                    mr.type = MemberRef.Type.New;
-                    break;
-                case '3':
-				    mr.type = MemberRef.Type.Delete;
-                    break;
-                case '4':
-				    mr.type = MemberRef.Type.OperatorAssign;
-                    break;
-                case '5':
-				    mr.type = MemberRef.Type.OperatorRShift;
-                    break;
-                case '_': 
-                    switch (consumeChar()) {
-                        case '0':
-                            mr.type = MemberRef.Type.OperatorDivideAssign;
-                            break;
-                        case '1':
-                            mr.type = MemberRef.Type.OperatorModuloAssign;
-                            break;
-                        case '2':
-                            mr.type = MemberRef.Type.OperatorLShiftAssign;
-                            break;
-                        case '3':
-                            mr.type = MemberRef.Type.OperatorRShiftAssign;
-                            break;
-                        case '4':
-                            mr.type = MemberRef.Type.OperatorBitAndAssign;
-                            break;
-                        case '5':
-                            mr.type = MemberRef.Type.OperatorBitOrAssign;
-                            break;
-                        case '6':
-                            mr.type = MemberRef.Type.OperatorXORAssign;
-                            break;
-                    }
-					mr.type = MemberRef.Type.ScalarDeletingDestructor;
-					break;
-				default:
-					throw error(-1);
-				}
-			}
-			
-			mr.setMemberName(parseName());
-			List<String> ns = parseNames();
-			
-			if (isFunctionOrMethod) {
-				char type = consumeChar();
-				switch (type) {
-				case 'Y':
-					if (mr.type == null)
-                        mr.type = MemberRef.Type.CFunction;
-					break;
-				case 'Q':
-				case 'U': // WTF ??
-					mr.modifiers = Modifier.PUBLIC;
-                    if (mr.type == null)
-                        mr.type = MemberRef.Type.InstanceMethod;
-                    consumeCharIf('E');
-					break;
-				case 'A':
-					mr.modifiers = Modifier.PRIVATE;
-					if (mr.type == null)
-                        mr.type = MemberRef.Type.InstanceMethod;
-					break;
-				case 'C':
-					mr.modifiers = Modifier.PRIVATE | Modifier.STATIC;
-					if (mr.type == null)
-                        mr.type = MemberRef.Type.StaticMethod;
-					break;
-				case 'I':
-					mr.modifiers = Modifier.PROTECTED;
-					if (mr.type == null)
-                        mr.type = MemberRef.Type.InstanceMethod;
-					break;
-				case 'K':
-					mr.modifiers = Modifier.PROTECTED | Modifier.STATIC;
-					if (mr.type == null)
-                        mr.type = MemberRef.Type.StaticMethod;
-					break;
-				case 'S':
-					mr.modifiers = Modifier.PUBLIC | Modifier.STATIC;
-					if (mr.type == null)
-                        mr.type = MemberRef.Type.StaticMethod;
-					break;
-				default:
-					throw error(-1);
-				}
+            consumeCharsIf('@', '?');
 
-                parseStorageMods();
+            Object memberName = parseFirstQualifiedTypeNameComponent();
+            if (memberName instanceof SpecialName) {
+                SpecialName specialName = (SpecialName)memberName;
+                if (!specialName.isFunction())
+                    return null;
+            }
+            mr.setMemberName(memberName);
+            List<Object> qNames = new ArrayList<Object>();
+            parseNameQualifications(qNames);
 
-                if (mr.type != MemberRef.Type.Destructor) {
-                	if (mr.type == MemberRef.Type.Constructor) {
-                		consumeCharIf('E');
-                	} else
-                		mr.setValueType(parseType(true));
-                    List<TypeRef> paramTypes = parseParams();
-                    mr.paramTypes = paramTypes.toArray(new TypeRef[paramTypes.size()]);
-                }
-			}
-			
-			mr.setEnclosingType(reverseNamespace(ns));
-		}
+            //TypeRef qualifiedName = parseQualifiedTypeName();
+
+            AccessLevelAndStorageClass ac = parseAccessLevelAndStorageClass();
+            CVClassModifier cvMod = null;
+            if (ac.modifiers != 0 && !Modifier.isStatic(ac.modifiers))
+                cvMod = parseCVClassModifier();
+
+            // Function property :
+            parseFunctionProperty(mr);
+            if (cvMod != null && (cvMod.isMember || (memberName instanceof SpecialName))) {
+                ClassRef tr = new ClassRef();
+                tr.setSimpleName(qNames.get(0));
+                qNames.remove(0);
+                tr.setEnclosingType(reverseNamespace(qNames));
+                mr.setEnclosingType(tr);
+            } else {
+                mr.setEnclosingType(reverseNamespace(qNames));
+            }
+            if (position != length)
+                error("Failed to demangle the whole symbol");
+		} else {
+            mr.setMemberName(str);
+        }
 		return mr;
 	}
+
+
+    TypeRef parseReturnType() throws DemanglingException {
+        List<TypeRef> br = backReferences;
+        backReferences = new ArrayList<TypeRef>();
+        TypeRef tr = parseType(true);
+        backReferences = br;
+        return tr;
+    }
+    int parseNumber(boolean allowSign) throws DemanglingException {
+        int sign = allowSign && consumeCharIf('?') ? -1 : 1;
+        if (Character.isDigit(peekChar())) {
+            char c = consumeChar();
+            return sign * (int)(c - '0');
+        }
+        if (peekChar() == '@')
+            return 0;
+
+        char c;
+        StringBuilder b = new StringBuilder();
+        long n = 0;
+        while (((c = consumeChar()) >= 'A' && c <= 'P') && c != '@')
+            n += 16 * (c - 'A');
+        
+        if (c != '@')
+            throw error("Expected a number here", -b.length());
+        return sign * Integer.parseInt(b.toString(), 16);
+    }
 	TypeRef parseType(boolean allowVoid) throws DemanglingException {
-		switch (consumeChar()) {
+        char c = consumeChar();
+        if (Character.isDigit(c)) {
+            int iBack = (int)(c - '0');
+            if (iBack >= backReferences.size())
+                throw error("Invalid back reference", -1);
+            return backReferences.get(iBack);
+        }
+		switch (c) {
 		case '_':
 			switch (consumeChar()) {
-			case 'J':
-			case 'K': // unsigned
-				return classType(Long.TYPE);
+            case 'D': // __int8
+                return classType(Byte.TYPE);
+            case 'E': // unsigned __int8
+                return classType(Byte.TYPE);
+            case 'F': // __int16
+            case 'G': // unsigned __int16
+                return classType(Short.TYPE);
+            case 'H': // __int32
+            case 'I': // unsigned __int32
+                return classType(Integer.TYPE);
+            case 'J': // __int64
+            case 'K': // unsigned __int64
+                return classType(Long.TYPE);
+            case 'L': // __int128
+                return classType(BigInteger.class);
+			case 'N': // bool
+                return classType(Boolean.class);
+			case '0': // array ??
+                parseCVClassModifier();
+                parseType(false);
+                return classType(Object[].class);
 			case 'W':
 				return classType(Character.TYPE, Wide.class);
 			default:
 				throw error(-1);
 			}
+        //case 'Z':
+        //    return classType(Object[].class); // TODO ellipsis
         case 'O':
             throw error("'long double' type cannot be mapped !", -1);
-		case 'D':
-		case 'E': // unsigned
-		case 'C': // signed
+		case 'C': // signed char
+		case 'D': // char
+		case 'E': // unsigned char
 			return classType(Byte.TYPE);
-		case 'J':
-		case 'K': // unsigned
-			return classType(Long.TYPE, CLong.class);
-		case 'H':
-		case 'I': // unsigned
-			return classType(Integer.TYPE);
-		case 'F':
+		case 'F': // short
+		case 'G': // unsigned short
 			return classType(Short.TYPE);
+		case 'H': // int
+		case 'I': // unsigned int
+			return classType(Integer.TYPE);
+		case 'J': // long
+		case 'K': // unsigned long
+			return classType(Long.TYPE, CLong.class);
+        case 'M': // float
+            expectChars('@');
+			return classType(Float.TYPE);
+		case 'N': // double
+			expectChars('@');
+			return classType(Double.TYPE);
+        case 'Y':
+            throw error("TODO handle cointerfaces", -1);
 		case 'X':
+            // TODO handle coclass case
             if (!allowVoid)
                 return null;
 			return classType(Void.TYPE);
-		case 'M':
-            expectChars('@');
-			return classType(Float.TYPE);
-		case 'N':
-			expectChars('@');
-			return classType(Double.TYPE);
-		case 'P':
-            if (peekChar() == '6') {
-                consumeChar();
-                parseStorageMods();
-                parseType(true); // return type
-                parseParams();
-                expectChars('@', 'Z');
-                return classType(Pointer.class, new java.lang.reflect.Type[] { Callback.class });
-            }
-        case 'Q': // array
         case 'A': // reference
-            //TODO store these values :
-            parseStorageMods();
-			parseType(allowVoid); // TODO use it
-			return classType(Pointer.class);
+        case 'B': // volatile reference
+        case 'P': // pointer
+        case 'Q': // const pointer
+        case 'R': // volatile pointer
+        case 'S': // const volatile pointer
+            if (!consumeCharsIf('$', 'A')) // __gc
+                consumeCharsIf('$', 'B');  // __pin
+
+            CVClassModifier cvMods = parseCVClassModifier();
+            if (cvMods.isVariable) {
+                if (consumeCharIf('Y')) {
+                    int dimensions = parseNumber(false);
+                    int[] indices = new int[dimensions];
+                    for (int i = 0; i < dimensions; i++)
+                        indices[i] = parseNumber(false);
+                }
+                return pointerType(parseType(true));
+            } else {
+                MemberRef mr = new MemberRef();
+                parseFunctionProperty(mr);
+                return pointerType(new FunctionTypeRef(mr));
+            }
         case 'V': // class
         case 'U': // struct
         case 'T': // union
 			//System.out.println("Found struct, class or union");
             return parseQualifiedTypeName();
+        case 'W':
+            Class<?> cl;
+            switch (consumeChar()) {
+                case '0':
+                case '1':
+                    cl = Byte.class;
+                    break;
+                case '2':
+                case '3':
+                    cl = Short.class;
+                    break;
+                case '4':
+                case '5':
+                    cl = Integer.class;
+                    break;
+                case '6':
+                case '7': // CLong : int on win32 and win64 !
+                    cl = Integer.class;
+                    break;
+                default:
+                    throw error("Unfinished enum", -1);
+            }
+            parseNameQualifications(new ArrayList<Object>());
+            return classType(cl);
 		default:
 			throw error(-1);
 		}
 	}
-    static NamespaceRef reverseNamespace(List<String> names) {
+    static NamespaceRef reverseNamespace(List<Object> names) {
         if (names == null || names.isEmpty())
             return null;
         Collections.reverse(names);
-        return new NamespaceRef(names.toArray(new String[names.size()]));
+        return new NamespaceRef(names.toArray(new Object[names.size()]));
     }
+    List<TypeRef> backReferences = new ArrayList<TypeRef>();
     List<List<String>> allQualifiedNames = new ArrayList<List<String>>();
-	
+
+    Object parseFirstQualifiedTypeNameComponent() throws DemanglingException {
+        if (consumeCharIf('?')) {
+            if (consumeCharIf('$'))
+                return parseTemplateType();
+            else
+                return parseSpecialName();
+        }
+        else
+            return parseNameFragment();
+    }
     TypeRef parseQualifiedTypeName() throws DemanglingException {
-    	char c = peekChar();
-    	List<String> names;
+        char c = peekChar();
+    	List<Object> names = new ArrayList<Object>();
+        names.add(parseFirstQualifiedTypeNameComponent());
+        parseNameQualifications(names);
+        /*
     	if (Character.isDigit(c)) {
     		consumeChar();
     		int i = (int)(c - '0');
@@ -220,7 +391,7 @@ public class VC9Demangler extends Demangler {
     		names = new ArrayList<String>(allQualifiedNames.get(i));
     	} else {
     		names = parseNames();
-    	}
+    	}*/
 
         ClassRef tr = new ClassRef();
         tr.setSimpleName(names.get(0));
@@ -228,51 +399,318 @@ public class VC9Demangler extends Demangler {
         tr.setEnclosingType(reverseNamespace(names));
         return tr;
     }
-    List<String> parseNames() {
-		List<String> ns = new ArrayList<String>();
-		while (peekChar() != '@')
-			ns.add(parseName());
 
-		consumeChar();
-		return ns;
-	}		
-	String parseName() {
-		StringBuilder b = new StringBuilder();
-		char c;
-		
-		while ((c = consumeChar()) != '@')
-			b.append(c);
-		
-		String name = b.toString();
-		allQualifiedNames.add(Collections.singletonList(name));
-		return name;
-	}
-
-    void parseStorageMods() {
+    public Object parseSpecialName() throws DemanglingException {
         switch (consumeChar()) {
-            case 'E': // static member
-                parseStorageMods();
-                break;
-            case 'I': // __fastcall
-            case 'G': // __stdcall
-            case 'B': // const
-            case 'A': // default ?
-                break;
-            default:
-                error(-1);
+        case '0':
+            return SpecialName.Constructor;
+        case '1':
+            return SpecialName.Destructor;
+        case '2':
+            return SpecialName.New;
+        case '3':
+            return SpecialName.Delete;
+        case '4':
+            return SpecialName.OperatorAssign;
+        case '5':
+            return SpecialName.OperatorRShift;
+        case '6':
+            return SpecialName.OperatorLShift;
+        case '7':
+            return SpecialName.OperatorLogicNot;
+        case '8':
+            return SpecialName.OperatorEquals;
+        case '9':
+            return SpecialName.OperatorDifferent;
+        case 'A':
+            return SpecialName.OperatorSquareBrackets;
+        case 'B':
+            return SpecialName.OperatorCast;
+        case 'C':
+            return SpecialName.OperatorArrow;
+        case 'D':
+            return SpecialName.OperatorMultiply;
+        case 'E':
+            return SpecialName.OperatorIncrement;
+        case 'F':
+            return SpecialName.OperatorDecrement;
+        case 'G':
+            return SpecialName.OperatorSubstract;
+        case 'H':
+            return SpecialName.OperatorAdd;
+        case 'I':
+            return SpecialName.OperatorBitAnd;
+        case 'J':
+            return SpecialName.OperatorArrowStar;
+        case 'K':
+            return SpecialName.OperatorDivide;
+        case 'L':
+            return SpecialName.OperatorModulo;
+        case 'M':
+            return SpecialName.OperatorLower;
+        case 'N':
+            return SpecialName.OperatorLowerEquals;
+        case 'O':
+            return SpecialName.OperatorGreater;
+        case 'P':
+            return SpecialName.OperatorGreaterEquals;
+        case 'Q':
+            return SpecialName.OperatorComma;
+        case 'R':
+            return SpecialName.OperatorParenthesis;
+        case 'S':
+            return SpecialName.OperatorBitNot;
+        case 'T':
+            return SpecialName.OperatorXOR;
+        case 'U':
+            return SpecialName.OperatorBitOr;
+        case 'V':
+            return SpecialName.OperatorLogicAnd;
+        case 'W':
+            return SpecialName.OperatorLogicOr;
+        case 'X':
+            return SpecialName.OperatorMultiplyAssign;
+        case 'Y':
+            return SpecialName.OperatorAddAssign;
+        case 'Z':
+            return SpecialName.OperatorSubstractAssign;
+        case '_':
+            switch (consumeChar()) {
+                case '0':
+                    return SpecialName.OperatorDivideAssign;
+                case '1':
+                    return SpecialName.OperatorModuloAssign;
+                case '2':
+                    return SpecialName.OperatorLShiftAssign;
+                case '3':
+                    return SpecialName.OperatorRShiftAssign;
+                case '4':
+                    return SpecialName.OperatorBitAndAssign;
+                case '5':
+                    return SpecialName.OperatorBitOrAssign;
+                case '6':
+                    return SpecialName.OperatorXORAssign;
+                case '7':
+                    return SpecialName.VFTable;
+                case '8':
+                    return SpecialName.VBTable;
+                case '9':
+                    return SpecialName.VCall;
+                case 'E':
+                    return SpecialName.VectorDeletingDestructor;
+                case 'G':
+                    return SpecialName.ScalarDeletingDestructor;
+                default:
+                    throw error("unhandled extended special name");
+            }
+            
+        default:
+            throw error("Invalid special name");
         }
     }
 
     private List<TypeRef> parseParams() throws DemanglingException {
         List<TypeRef> paramTypes = new ArrayList<TypeRef>();
-        char c;
-        while ((c = peekChar()) != '@' && c != 'Z' && c != 0) {
-            TypeRef tr = parseType(false);
-            if (tr == null)
-                continue;
-            paramTypes.add(tr);
+        if (!consumeCharIf('X')) {
+            char c;
+            while ((c = peekChar()) != '@' && c != 0 && c != 'Z') {
+                TypeRef tr = parseType(false);
+                if (tr == null)
+                    continue;
+                paramTypes.add(tr);
+            }
+            if (c == 'Z')
+                consumeChar();
+                //break;
+            if (c == '@')
+                consumeChar();
         }
-
         return paramTypes;
+    }
+    private List<TemplateArg> parseTemplateParams() throws DemanglingException {
+        List<TemplateArg> paramTypes = new ArrayList<TemplateArg>();
+        if (!consumeCharIf('X')) {
+            char c;
+            while ((c = peekChar()) != '@' && c != 0) {
+                TemplateArg tr = parseTemplateParameter();
+                if (tr == null)
+                    continue;
+                paramTypes.add(tr);
+            }
+        }
+        return paramTypes;
+    }
+
+    String parseNameFragment() {
+		StringBuilder b = new StringBuilder();
+		char c;
+
+		while ((c = consumeChar()) != '@')
+			b.append(c);
+
+		String name = b.toString();
+		//allQualifiedNames.add(Collections.singletonList(name));
+		return name;
+	}
+
+    private void parseNameQualifications(List<Object> names) throws DemanglingException {
+        if (Character.isDigit(peekChar()))
+            throw error("No support of back references in name qualifications yet", 0);
+
+        while (peekChar() != '@')
+            names.add(parseNameQualification());
+
+        expectChars('@');
+    }
+    Object parseNameQualification() throws DemanglingException {
+        if (consumeCharIf('?')) {
+            if (consumeCharIf('$'))
+                return parseTemplateType();
+            else {
+                if (peekChar() == 'A')
+                    throw error("Anonymous numbered namespaces not handled yet");
+                int namespaceNumber = parseNumber(false);
+                return String.valueOf(namespaceNumber);
+            }
+        } else
+            return parseNameFragment();
+    }
+
+    Style parseCallingConvention() throws DemanglingException {
+        Convention.Style cc;
+        boolean exported = true;
+        switch (consumeChar()) {
+            case 'A':
+                exported = false;
+            case 'B':
+                cc = Convention.Style.CDecl;
+                break;
+            case 'C':
+                exported = false;
+            case 'D':
+                cc = Convention.Style.Pascal;
+                break;
+            case 'E':
+                exported = false;
+            case 'F':
+                cc = Convention.Style.ThisCall;
+                break;
+            case 'G':
+                exported = false;
+            case 'H':
+                cc = Convention.Style.StdCall;
+                break;
+            case 'I':
+                exported = false;
+            case 'J':
+                cc = Convention.Style.FastCall;
+                break;
+            case 'K':
+                exported = false;
+            case 'L':
+                cc = null;
+                break;
+            case 'N':
+                cc = Convention.Style.CLRCall;
+                break;
+            default:
+                throw error("Unknown calling convention");
+        }
+        return cc;
+    }
+    static class CVClassModifier {
+        boolean isVariable;
+        boolean isMember;
+        boolean isBased;
+    }
+    CVClassModifier parseCVClassModifier() throws DemanglingException {
+        CVClassModifier mod = new CVClassModifier();
+        switch (peekChar()) {
+            case 'E': // __ptr64
+            case 'F': // __unaligned 
+            case 'I': // __restrict
+                consumeChar();
+                break;
+        }
+        boolean based = false;
+        switch (consumeChar()) {
+            case 'M': // __based
+            case 'N': // __based
+            case 'O': // __based
+            case 'P': // __based
+                mod.isBased = true;
+            case 'A':
+            case 'B':
+            case 'J':
+            case 'C':
+            case 'G':
+            case 'K':
+            case 'D':
+            case 'H':
+            case 'L':
+                mod.isVariable = true;
+                mod.isMember = false;
+                break;
+            case '2': // __based
+            case '3': // __based
+            case '4': // __based
+            case '5': // __based
+                mod.isBased = true;
+            case 'Q':
+            case 'U':
+            case 'Y':
+            case 'R':
+            case 'V':
+            case 'Z':
+            case 'S':
+            case 'W':
+            case '0':
+            case 'T':
+            case 'X':
+            case '1':
+                mod.isVariable = true;
+                mod.isMember = true;
+                break;
+            case '_': // __based
+                mod.isBased = true;
+                switch (consumeChar()) {
+                    case 'A':
+                    case 'B':
+                        mod.isVariable = false;
+                        break;
+                    case 'C':
+                    case 'D':
+                        mod.isVariable = false;
+                        mod.isMember = true;
+                        break;
+                    default:
+                        throw error("Unknown extended __based class modifier", -1);
+                }
+                break;
+            case '6':
+            case '7':
+                mod.isVariable = false;
+                mod.isMember = false;
+                break;
+            case '8':
+            case '9':
+                mod.isVariable = false;
+                mod.isMember = true;
+                break;
+            default:
+                throw error("Unknown CV class modifier", -1);
+        }
+        if (mod.isBased) {
+            switch (consumeChar()) {
+                case '0': // __based(void)
+                    break;
+                case '2':
+                    parseNameQualifications(new ArrayList<Object>());
+                    break;
+                case '5': // no __based() ??
+                    break;
+            }
+        }
+        return mod;
     }
 }

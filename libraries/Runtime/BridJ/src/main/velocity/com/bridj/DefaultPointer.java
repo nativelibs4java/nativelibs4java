@@ -124,7 +124,7 @@ class DefaultPointer<T> extends Pointer<T>
     @Override
     public int hashCode() {
 		int hc = new Long(peerOrOffsetInOwner).hashCode();
-		return memoryOwner == null ? memoryOwner.hashCode() ^ hc : hc;
+		return memoryOwner != null ? memoryOwner.hashCode() ^ hc : hc;
     }
 
 #foreach ($prim in $primitivesNoBool)

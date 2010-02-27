@@ -40,7 +40,6 @@ public class MethodCallInfo {
 	private boolean isJavaToCCallback;
 	boolean direct;
 	boolean startsWithThis;
-    boolean isCallableAsRaw;
 
 	public MethodCallInfo(Method method) throws FileNotFoundException {
         isVarArgs = false;
@@ -61,9 +60,7 @@ public class MethodCallInfo {
         int nParams = paramsTypes.length;
         paramsValueTypes = new int[nParams];
 
-        this.direct = nParams <= JNI.getMaxDirectMappingArgCount();
-        
-        isCallableAsRaw = true; // TODO on native side : test number of parameters (on 64 bits win : must be <= 4)
+        direct = true; // TODO on native side : test number of parameters (on 64 bits win : must be <= 4)
         //isCPlusPlus = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
 
         //GetOptions(methodOptions, method);
@@ -119,6 +116,9 @@ public class MethodCallInfo {
         		}
         	}
         }
+
+        if (nParams <= JNI.getMaxDirectMappingArgCount())
+            this.direct = false;
     }
 	
 
@@ -142,9 +142,11 @@ public class MethodCallInfo {
     			throw new RuntimeException("Annotation should only be used on a long parameter, not on a " + c.getName());
     		
     		if (sz != null) {
-                isCallableAsRaw = isCallableAsRaw && JNI.is64Bits();
+                if (!JNI.is64Bits())
+                    direct = false;
             } else if (cl != null) {
-                isCallableAsRaw = isCallableAsRaw && (JNI.CLONG_SIZE == 8);
+                if (JNI.CLONG_SIZE != 8)
+                    direct = false;
             } else if (th != null) {
             	isCPlusPlus = true;
 				startsWithThis = true;
@@ -170,8 +172,10 @@ public class MethodCallInfo {
             return ValueType.eDoubleValue;
         if (c == Boolean.class || c == Boolean.TYPE)
             return ValueType.eByteValue;
-        if (c == Pointer.class)
+        if (c == Pointer.class) {
+            direct = false;
         	return ValueType.ePointerValue;
+        }
 
         throw new NoSuchElementException("No " + ValueType.class.getSimpleName() + " for class " + c.getName());
     }
@@ -198,7 +202,7 @@ public class MethodCallInfo {
                     dcChar = DC_SIGCHAR_LONGLONG;
                 } else {
                     dcChar = DC_SIGCHAR_INT;
-                    isCallableAsRaw = false;
+                    direct = false;
                 }
                 break;
             case eShortValue:
@@ -221,14 +225,14 @@ public class MethodCallInfo {
                 switch (JNI.WCHAR_T_SIZE) {
                 case 1:
                     dcChar = DC_SIGCHAR_CHAR;
-                    isCallableAsRaw = false;
+                    direct = false;
                     break;
                 case 2:
                     dcChar = DC_SIGCHAR_SHORT;
                     break;
                 case 4:
                     dcChar = DC_SIGCHAR_INT;
-                    isCallableAsRaw = false;
+                    direct = false;
                     break;
                 default:
                     throw new RuntimeException("Unhandled sizeof(wchar_t) in GetJavaTypeSignature: " + JNI.WCHAR_T_SIZE);
@@ -238,10 +242,10 @@ public class MethodCallInfo {
             case ePointerValue:
             	dcChar = DC_SIGCHAR_POINTER;
                 javaChar = "Lcom/bridj/Pointer;";
-                isCallableAsRaw = false;
+                direct = false;
             	break;
             default:
-                isCallableAsRaw = false;
+                direct = false;
                 throw new RuntimeException("Unhandled " + ValueType.class.getSimpleName() + ": " + type);
         }
         if (javaSig != null)

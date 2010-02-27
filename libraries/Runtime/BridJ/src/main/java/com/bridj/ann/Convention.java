@@ -19,7 +19,10 @@ public @interface Convention {
         StdCall,
         //ThisCall,
         FastCall,
-        CDecl
+        CDecl, 
+        Pascal,
+        CLRCall,
+        ThisCall
     }
     Style value();
 }

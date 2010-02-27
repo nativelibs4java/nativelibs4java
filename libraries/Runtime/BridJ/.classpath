@@ -9,5 +9,8 @@
 	<classpathentry kind="con" path="org.eclipse.iam.jdt.core.mavenClasspathContainer"/>
 	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/Olivier/.m2/repository/asm/asm/3.2/asm-3.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Olivier/.m2/repository/com/jnaerator/jna-jnaerator/3.2.4/jna-jnaerator-3.2.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Olivier/.m2/repository/junit/junit/4.7/junit-4.7.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
