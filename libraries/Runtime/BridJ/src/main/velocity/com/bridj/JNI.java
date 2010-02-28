@@ -172,7 +172,7 @@ public class JNI {
 	
 	
 	public static native void freeCToJavaCallback(long handle);
-	public static native long freeObjCMethodBindings(long handle, int size);
+	public static native void freeObjCMethodBindings(long handle, int size);
 	public static native void freeJavaToCCallbacks(long handle, int size);
 	public static native void freeCFunctionBindings(long handle, int size);
 	public static native void freeVirtualMethodBindings(long handle, int size);

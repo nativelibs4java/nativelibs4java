@@ -745,6 +745,14 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_getActualCToJavaCallback
 
 /*
  * Class:     com_bridj_JNI
+ * Method:    bindJavaMethodsToObjCMethods
+ * Signature: ([Lcom/bridj/MethodCallInfo;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToObjCMethods
+  (JNIEnv *, jclass, jobjectArray);
+
+/*
+ * Class:     com_bridj_JNI
  * Method:    bindJavaToCCallbacks
  * Signature: ([Lcom/bridj/MethodCallInfo;)J
  */
@@ -774,6 +782,14 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToVirtualMethods
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCToJavaCallback
   (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    freeObjCMethodBindings
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_freeObjCMethodBindings
+  (JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     com_bridj_JNI

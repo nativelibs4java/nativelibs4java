@@ -89,9 +89,11 @@ TEST_API double __cdecl testASinB(int a, int b)
 
 }
 
+#if defined(DC__Arch_Intel_x86)
 #include <dlfcn.h>
 #include <objc/objc.h>
 #include <objc/message.h>
+#endif
 
 Ctest::Ctest()
 {
