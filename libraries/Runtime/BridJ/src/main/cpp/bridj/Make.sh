@@ -56,8 +56,10 @@ if [[ -d build_out ]] ; then
 		else 
 			cp $D/*.so $MAIN_OUT 
 			cp ../../../../test/cpp/test/build_out/$D/*.so $TEST_OUT ;
-		fi ;
-	
+		fi 
+		
+		nm $TEST_OUT/*.so > $TEST_OUT/test.so.nm
+		nm $TEST_OUT/*.dylib > $TEST_OUT/test.dylib.nm ;
 	#	svn add $MAIN_OUT
 	#	svn add $TEST_OUT ;
 	done ;
