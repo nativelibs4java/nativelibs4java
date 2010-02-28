@@ -1,7 +1,7 @@
-Index: dyncall/dyncall_call_x64_masm.asm
+Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
 ===================================================================
---- dyncall/dyncall_call_x64_masm.asm	(revision 563)
-+++ dyncall/dyncall_call_x64_masm.asm	(working copy)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 563)
++++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(working copy)
 @@ -49,8 +49,7 @@
  
  	sub			rsp, rcx					; Setup stack frame by subtracting the size of the arguments.
@@ -12,3 +12,27 @@ Index: dyncall/dyncall_call_x64_masm.asm
  	and			rax, 15
  	sub			rsp, rax
  
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 563)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(working copy)
+@@ -23,6 +23,10 @@
+  dynamic symbol resolver for elf
+ 
+  */
++ 
++#ifndef _GNU_SOURCE
++#define _GNU_SOURCE
++#endif
+ 
+ #include "dynload.h"
+ #include "dynload_macros.h"
+@@ -411,7 +415,7 @@
+ 
+ const char* dlSymsNameFromValue(DLSyms* pSyms, void* value)
+ {
+-  struct Dl_info info;
++  Dl_info info;
+   return (dladdr(value, &info) && (value == info.dli_saddr))
+     ? info.dli_sname
+     : NULL;
