@@ -14,10 +14,13 @@
 #define __cdecl
 #endif
 
+#ifdef _WIN64
+#define NO_DIRECT_CALLS // TODO REMOVE ME !!! (issues with stack alignment on COM calls ?)
+#endif
+
 #include "dyncallback/dyncall_callback.h"
 #include <jni.h>
 
-//#define NO_DIRECT_CALLS
 
 #ifdef _MSC_VER
 #	define THREAD_STATIC __declspec(thread) static

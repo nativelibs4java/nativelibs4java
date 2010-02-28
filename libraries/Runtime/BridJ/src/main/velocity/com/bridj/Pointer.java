@@ -244,6 +244,11 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	 */
     public void release() {}
 
+    public static void release(Pointer... pointers) {
+    		for (Pointer pointer : pointers)
+    			if (pointer != null)
+    				pointer.release();
+	}
 	
 	/**
 	 * TODO JavaDoc

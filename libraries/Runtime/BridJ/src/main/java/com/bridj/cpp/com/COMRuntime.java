@@ -151,12 +151,9 @@ public class COMRuntime extends CPPRuntime {
         lazyInit();
         
 		Pointer<Pointer<?>> p = Pointer.allocatePointer();
-        p.setInt(0, 10);
-		int flags = CLSCTX_ALL; // TODO
-        //flags = CLSCTX_FROM_DEFAULT_CONTEXT | CLSCTX_ACTIVATE_64_BIT_SERVER;
         Pointer<Byte> clsid = getCLSID(instanceClass), uuid = getIID(instanceInterface);
         try {
-            int ret = CoCreateInstance(clsid, null, flags, uuid, p);
+            int ret = CoCreateInstance(clsid, null, CLSCTX_ALL, uuid, p);
             if (ret == REGDB_E_CLASSNOTREG)
                 throw new ClassNotFoundException("COM class is not registered : " + instanceClass.getSimpleName() + " (clsid = " + clsid.getString(0) + ")");
             error(ret);
@@ -165,11 +162,7 @@ public class COMRuntime extends CPPRuntime {
                 throw new RuntimeException("Serious low-level issue : CoCreateInstance executed fine but we only retrieved a null pointer !");
             return inst.toNativeObject(instanceInterface);
         } finally {
-            p.release();
-            if (clsid != null)
-                clsid.release();
-            if (uuid != null)
-                uuid.release();
+            Pointer.release(p, clsid, uuid);
         }
 	}
 }
