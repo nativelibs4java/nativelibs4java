@@ -27,6 +27,8 @@ public class NIOUtils
 			outputBytes.asShortBuffer().put((ShortBuffer)input);
 		else if (input instanceof CharBuffer)
 			outputBytes.asCharBuffer().put((CharBuffer)input);
+        else if (input instanceof ByteBuffer)
+            outputBytes.put((ByteBuffer)input);
 		else if (input instanceof DoubleBuffer)
 			outputBytes.asDoubleBuffer().put((DoubleBuffer)input);
 		else if (input instanceof FloatBuffer)
@@ -52,6 +54,8 @@ public class NIOUtils
 			((ShortBuffer)output).put(inputBytes.asShortBuffer());
 		else if (output instanceof CharBuffer)
 			((CharBuffer)output).put(inputBytes.asCharBuffer());
+        else if (output instanceof ByteBuffer)
+            ((ByteBuffer)output).put(inputBytes);
 		else if (output instanceof DoubleBuffer)
 			((DoubleBuffer)output).put(inputBytes.asDoubleBuffer());
 		else if (output instanceof FloatBuffer)
