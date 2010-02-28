@@ -104,24 +104,27 @@ public class MethodCallInfo {
         			setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_GNU);
         	}
         }
-        Convention cc = BridJ.getAnnotation(Convention.class, false, method);
+        Convention cc = BridJ.getAnnotation(Convention.class, true, method);
         if (cc != null) {
-            switch (cc.value()) {
-            //case Auto:
-            //	break;
-            case FastCall:
-                setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_DEFAULT); // TODO allow GCC-compiled C++ libs on windows
-                break;
-            case Pascal:
-            case StdCall:
-                setDcCallingConvention(DC_CALL_C_X86_WIN32_STD);
-                break;
-            case ThisCall:
-                setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_THIS_GNU : DC_CALL_C_DEFAULT);
+            if (JNI.isWindows() && !JNI.is64Bits()) {
+                switch (cc.value()) {
+                case FastCall:
+                    this.direct = false;
+                    setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_DEFAULT); // TODO allow GCC-compiled C++ libs on windows
+                    break;
+                case Pascal:
+                case StdCall:
+                    this.direct = false;
+                    setDcCallingConvention(DC_CALL_C_X86_WIN32_STD);
+                    break;
+                case ThisCall:
+                    this.direct = false;
+                    setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_THIS_GNU : DC_CALL_C_DEFAULT);
+                }
             }
         }
 
-        if (nParams <= JNI.getMaxDirectMappingArgCount())
+        if (nParams > JNI.getMaxDirectMappingArgCount())
             this.direct = false;
 
         symbolName = methodName;

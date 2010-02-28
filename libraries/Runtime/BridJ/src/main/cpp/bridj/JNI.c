@@ -397,6 +397,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback(
 			info->fMethod = (*env)->GetMethodID(env, declaringClass, methName, javaSig);
 			info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
 
+			//info->fInfo.fSymbolName = methName;
 
 			(*env)->ReleaseStringUTFChars(env, javaSignature, javaSig);
 			(*env)->ReleaseStringUTFChars(env, methodName, methName);
@@ -533,6 +534,8 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToObjCMethods(
 	return 0;
 #endif
 }
+#include <shobjidl.h>
+
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeObjCMethodBindings(
 	JNIEnv *env, 
 	jclass clazz,

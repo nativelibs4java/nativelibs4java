@@ -42,7 +42,7 @@ public class ComparisonTest {
         }
         static class Struct2 extends StructObject {
             @ByValue Struct1 s1;
-            @Wide @Length(10) String s;
+            @Wide @Array(10) String s;
         }
     }
     /**

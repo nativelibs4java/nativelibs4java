@@ -32,6 +32,8 @@ import com.bridj.NativeEntities.Builder;
 import com.bridj.ann.Virtual;
 import com.bridj.CRuntime;
 import com.bridj.util.AutoHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -66,7 +68,31 @@ public class CPPRuntime extends CRuntime {
 		// 
 		return officialType;
 	}
-	
+
+    Map<Class<?>, Integer> virtualMethodsCounts = new HashMap<Class<?>, Integer>();
+    public int getVirtualMethodsCount(Class<?> type) {
+        Integer count = virtualMethodsCounts.get(type);
+        if (count == null) {
+            List<Method> mets = new ArrayList<Method>();
+            listVirtualMethods(type, mets);
+
+            // TODO unify this !
+            virtualMethodsCounts.put(type, count = mets.size());
+        }
+        return count;
+    }
+    public void listVirtualMethods(Class<?> type, List<Method> out) {
+        if (!CPPObject.class.isAssignableFrom(type))
+            return;
+
+        for (Method m : type.getDeclaredMethods())
+            if (m.getAnnotation(Virtual.class) != null)
+                out.add(m);
+
+        type = type.getSuperclass();
+        if (type != CPPObject.class)
+            listVirtualMethods(type.getSuperclass(), out);
+    }
 	@Override
 	protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder) throws FileNotFoundException {
 
@@ -78,6 +104,8 @@ public class CPPRuntime extends CRuntime {
 			super.registerNativeMethod(type, typeLibrary, method, methodLibrary, builder);
 			return;
 		}
+
+        log(Level.INFO, "Registering method " + method);
 		
 		MethodCallInfo mci = new MethodCallInfo(method);
 		
@@ -119,7 +147,8 @@ public class CPPRuntime extends CRuntime {
 					return;
 				}
 			}
-			mci.setVirtualIndex(virtualIndex);
+            int virtualOffset = getVirtualMethodsCount(type.getSuperclass());
+			mci.setVirtualIndex(virtualOffset + virtualIndex);
 			builder.addVirtualMethod(mci);
 		}
 	}

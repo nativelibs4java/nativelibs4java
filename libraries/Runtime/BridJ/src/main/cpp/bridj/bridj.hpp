@@ -17,7 +17,7 @@
 #include "dyncallback/dyncall_callback.h"
 #include <jni.h>
 
-//#define NO_DIRECT_CALLS 1
+//#define NO_DIRECT_CALLS
 
 #ifdef _MSC_VER
 #	define THREAD_STATIC __declspec(thread) static
@@ -64,6 +64,9 @@ typedef struct CommonCallbackInfo {
 	int fDCMode;
 	void* fDCCallback;
 	JNIEnv* fEnv;
+#ifdef _DEBUG
+	const char* fSymbolName;
+#endif
 } CommonCallbackInfo;
 
 typedef struct VirtualMethodCallInfo {

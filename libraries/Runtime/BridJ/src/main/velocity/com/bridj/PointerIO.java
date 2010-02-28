@@ -152,4 +152,12 @@ public class PointerIO<T> {
         return stringInstance;
     }
 
+
+    static PointerIO pointerInstance;
+    public synchronized static PointerIO<Pointer> getPointerInstance() {
+        if (pointerInstance == null)
+            pointerInstance = getInstance(Pointer.class);
+        return pointerInstance;
+    }
+
 }

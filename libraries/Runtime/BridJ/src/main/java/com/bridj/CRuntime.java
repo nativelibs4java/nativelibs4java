@@ -44,7 +44,9 @@ public class CRuntime extends AbstractBridJRuntime {
 	public void register(Class<?> type) {
 		if (!registeredClasses.add(type))
 			return;
-		
+
+        log(Level.INFO, "Registering type " + type.getName());
+        
 		int typeModifiers = type.getModifiers();
 		if (Callback.class.isAssignableFrom(type)) {
 			if (Callback.class == type)
@@ -93,9 +95,10 @@ public class CRuntime extends AbstractBridJRuntime {
 	protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder) throws FileNotFoundException {
         MethodCallInfo mci = new MethodCallInfo(method);
 		if (Callback.class.isAssignableFrom(type)) {
+            log(Level.INFO, "Registering java -> native callback : " + method);
             builder.addJavaToNativeCallback(mci);
         } else {
-            Symbol address = methodLibrary.getSymbol(method);
+            Symbol address = methodLibrary == null ? null : methodLibrary.getSymbol(method);
             if (address == null)
             {
 //                for (Demangler.Symbol symbol : methodLibrary.getSymbols()) {

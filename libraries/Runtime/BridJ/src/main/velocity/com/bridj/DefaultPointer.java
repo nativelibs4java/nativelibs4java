@@ -12,6 +12,8 @@ class DefaultPointer<T> extends Pointer<T>
     protected Object memoryOwner;
 	
 	public DefaultPointer(PointerIO<T> io, long peer) {
+		if (peer == 0)
+			throw new IllegalArgumentException("Cannot instantiate a pointer with a null peer");
 		this.io = io;
         this.peerOrOffsetInOwner = peer;
     }

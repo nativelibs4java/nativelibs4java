@@ -1,14 +1,16 @@
-package com.bridj.cpp.com;
+package com.bridj.ann;
 
 import java.lang.annotation.ElementType;
-import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Array length
+ * @author ochafik
+ */
 @Retention(RetentionPolicy.RUNTIME)
-@Inherited
-@Target({ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR})
-public @interface UUID {
-	String value();
+@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
+public @interface Array {
+    int value();
 }

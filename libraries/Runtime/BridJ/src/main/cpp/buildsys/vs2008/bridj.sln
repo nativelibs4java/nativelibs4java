@@ -17,6 +17,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dyncallback64", "dyncallbac
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dynload", "dynload\dynload.vcproj", "{124D59C2-1412-4F02-AE80-1ADA83166F83}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testexe", "testexe\testexe.vcproj", "{D7B787E4-63F3-4917-92F9-9ADE590E94BB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{47AFB4D0-B124-40BC-A379-BA5AD59D5405} = {47AFB4D0-B124-40BC-A379-BA5AD59D5405}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -77,6 +82,13 @@ Global
 		{124D59C2-1412-4F02-AE80-1ADA83166F83}.Release|Win32.Build.0 = Release|Win32
 		{124D59C2-1412-4F02-AE80-1ADA83166F83}.Release|x64.ActiveCfg = Release|x64
 		{124D59C2-1412-4F02-AE80-1ADA83166F83}.Release|x64.Build.0 = Release|x64
+		{D7B787E4-63F3-4917-92F9-9ADE590E94BB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D7B787E4-63F3-4917-92F9-9ADE590E94BB}.Debug|Win32.Build.0 = Debug|Win32
+		{D7B787E4-63F3-4917-92F9-9ADE590E94BB}.Debug|x64.ActiveCfg = Debug|x64
+		{D7B787E4-63F3-4917-92F9-9ADE590E94BB}.Debug|x64.Build.0 = Debug|x64
+		{D7B787E4-63F3-4917-92F9-9ADE590E94BB}.Release|Win32.ActiveCfg = Release|Win32
+		{D7B787E4-63F3-4917-92F9-9ADE590E94BB}.Release|Win32.Build.0 = Release|Win32
+		{D7B787E4-63F3-4917-92F9-9ADE590E94BB}.Release|x64.ActiveCfg = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

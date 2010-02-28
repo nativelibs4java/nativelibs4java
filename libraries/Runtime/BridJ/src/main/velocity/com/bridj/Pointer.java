@@ -117,7 +117,9 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	public static Pointer<Byte> pointerTo(String string) {
 		byte[] bytes = string.getBytes();
 		Pointer<Byte> p = allocateArray(Byte.class, bytes.length + 1);
-		p.setString(0, string);
+        p.setBytes(0, bytes);
+		p.setByte(bytes.length, (byte)0);
+		//p.setString(0, string);
 		return p;
 	}
 	
@@ -354,6 +356,8 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         if (elementClass == ${prim.WrapperName}.TYPE || elementClass == ${prim.WrapperName}.class)
             return (Pointer<V>)allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * arrayLength);
         #end
+        if (Pointer.class.isAssignableFrom(elementClass))
+            return (Pointer<V>)allocate(PointerIO.getPointerInstance(), Pointer.SIZE * arrayLength);
         throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());
     }
 
@@ -459,16 +463,18 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         return setTargetType((Type)type);
     }
 
-    
+    public <U> Pointer<U> getPointer(long byteOffset, PointerIO pio) {
+        long peer = getSizeT(byteOffset);
+        return peer == 0 ? null : new DefaultPointer(pio, getSizeT(byteOffset));
+    }
     public Pointer<?> getPointer(long byteOffset) {
-        return new DefaultPointer(null, getSizeT(byteOffset));
+        return getPointer(byteOffset, (PointerIO)null);
     }
-
-    public <U> Pointer<U> getPointer(long offset, Type t) {
-        return new DefaultPointer(PointerIO.getInstanceByType(t), getSizeT(offset));
+    public <U> Pointer<U> getPointer(long byteOffset, Type t) {
+        return getPointer(byteOffset, t == null ? null : PointerIO.getInstanceByType(t));
     }
-    public <U> Pointer<U> getPointer(long offset, Class<U> t) {
-        return new DefaultPointer<U>(PointerIO.getInstance(t), getSizeT(offset));
+    public <U> Pointer<U> getPointer(long byteOffset, Class<U> t) {
+        return getPointer(byteOffset, t == null ? null : PointerIO.getInstance(t));
     }
 	
 	static final boolean is64 = JNI.POINTER_SIZE == 8; 

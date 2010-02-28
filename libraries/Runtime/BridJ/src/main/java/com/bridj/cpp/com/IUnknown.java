@@ -3,15 +3,16 @@ package com.bridj.cpp.com;
 import com.bridj.*;
 import com.bridj.ann.*;
 import com.bridj.ann.Runtime;
+import com.bridj.cpp.CPPObject;
 import com.bridj.cpp.mfc.MFCRuntime;
 
 import static com.bridj.cpp.com.COMRuntime.*;
 
 //@Runtime(COMRuntime.class)
 @Convention(Convention.Style.StdCall) // TODO make it inheritable
-@UUID("00000000-0000-0000-C000-000000000046")
-@Runtime(MFCRuntime.class)
-public class IUnknown extends NativeObject {
+@IID("00000000-0000-0000-C000-000000000046")
+@Runtime(COMRuntime.class)
+public class IUnknown extends CPPObject {
 	
 	public IUnknown() {}
 	public IUnknown(Pointer<? extends IUnknown> peer, COMRuntime runtime) {
@@ -27,7 +28,7 @@ public class IUnknown extends NativeObject {
 	
 	public <I extends IUnknown> I QueryInterface(Class<I> type) {
 		Pointer<Pointer<IUnknown>> p = Pointer.allocatePointer(IUnknown.class);
-		int ret = QueryInterface(getUUID(type), p);
+		int ret = QueryInterface(getIID(type), p);
 		if (ret != S_OK)
 			return null;
 		

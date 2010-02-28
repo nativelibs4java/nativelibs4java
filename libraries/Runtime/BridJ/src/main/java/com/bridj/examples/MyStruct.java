@@ -15,7 +15,7 @@ public class MyStruct extends StructObject {
     @Field(1) @Bits(1)
     public native int isOk();
 
-    @Field(2) @Length(10)
+    @Field(2) @Array(10)
     public native Pointer<Integer> values();
     public native void values(Pointer<Integer> buf);
 

@@ -2,7 +2,11 @@ package com.bridj.cpp.com;
 
 import com.bridj.BridJ;
 import com.bridj.Pointer;
+import com.bridj.CRuntime;
+import com.bridj.ann.Convention;
 import com.bridj.ann.Library;
+import com.bridj.ann.Ptr;
+import com.bridj.ann.Runtime;
 import com.bridj.cpp.CPPRuntime;
 
 /**
@@ -18,6 +22,8 @@ import com.bridj.cpp.CPPRuntime;
  * http://msdn.microsoft.com/en-us/library/ms680076(VS.85).aspx
  */
 @Library("Ole32")
+@Runtime(CRuntime.class)
+@Convention(Convention.Style.StdCall)
 public class COMRuntime extends CPPRuntime {
 	static {
 		BridJ.register();
@@ -45,9 +51,38 @@ public class COMRuntime extends CPPRuntime {
 	  CLSCTX_ACTIVATE_64_BIT_SERVER   = 0x80000,
 	  CLSCTX_ENABLE_CLOAKING          = 0x100000,
 	  CLSCTX_PS_DLL                   = 0x80000000;
-	  
-	public static final int S_OK = 0;
-	
+
+    public static final int
+        CLSCTX_INPROC           = CLSCTX_INPROC_SERVER|CLSCTX_INPROC_HANDLER,
+        CLSCTX_ALL              =(CLSCTX_INPROC_SERVER|
+                                 CLSCTX_INPROC_HANDLER|
+                                 CLSCTX_LOCAL_SERVER|
+                                 CLSCTX_REMOTE_SERVER),
+     CLSCTX_SERVER           = (CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER|CLSCTX_REMOTE_SERVER);
+    
+	public static final int S_OK = 0,
+            REGDB_E_CLASSNOTREG = 0x80040154,
+            CLASS_E_NOAGGREGATION = 0x80040110,
+            CO_E_NOTINITIALIZED = 0x800401F0;
+
+    public static final int E_UNEXPECTED                    = 0x8000FFFF;
+    public static final int E_NOTIMPL                       = 0x80004001;
+    public static final int E_OUTOFMEMORY                   = 0x8007000E;
+    public static final int E_INVALIDARG                    = 0x80070057;
+    public static final int E_NOINTERFACE                   = 0x80004002;
+    public static final int E_POINTER                       = 0x80004003;
+    public static final int E_HANDLE                        = 0x80070006;
+    public static final int E_ABORT                         = 0x80004004;
+    public static final int E_FAIL                          = 0x80004005;
+    public static final int E_ACCESSDENIED                  = 0x80070005;
+
+    public static interface COINIT {
+        public final int
+            COINIT_APARTMENTTHREADED  = 0x2,      // Apartment model
+            COINIT_MULTITHREADED      = 0x0,      // OLE calls objects on any thread.
+            COINIT_DISABLE_OLE1DDE    = 0x4,      // Don't use DDE for Ole1 support.
+            COINIT_SPEED_OVER_MEMORY  = 0x8;
+    }
 	@Deprecated
 	public static native int CoCreateInstance(
 		Pointer<Byte> rclsid,
@@ -56,28 +91,85 @@ public class COMRuntime extends CPPRuntime {
 		Pointer<Byte> riid,
 		Pointer<Pointer<?>> ppv
 	);
-	
-	public static <I extends IUnknown> Pointer<Byte> getUUID(Class<I> type) {
-		UUID id = type.getAnnotation(UUID.class);
+
+    public static native int CoInitializeEx(@Ptr long pvReserved, int dwCoInit);
+    public static native int CoInitialize(@Ptr long pvReserved);
+    public static native void CoUninitialize();
+
+    static void error(int err) {
+        switch (err) {
+            case E_INVALIDARG:
+            case E_OUTOFMEMORY:
+            case E_UNEXPECTED:
+                throw new RuntimeException("Error " + Integer.toHexString(err));
+            case S_OK:
+                return;
+            case CO_E_NOTINITIALIZED:
+                throw new RuntimeException("CoInitialized wasn't called !!");
+            case E_NOINTERFACE:
+                throw new RuntimeException("Interface does not inherit from class");
+            case E_POINTER:
+                throw new RuntimeException("Allocated pointer pointer is null !!");
+            default:
+                throw new RuntimeException("Unexpected COM error code : " + err);
+        }
+    }
+	public static <I extends IUnknown> Pointer<Byte> getIID(Class<I> type) {
+		IID id = type.getAnnotation(IID.class);
 		if (id == null)
-			throw new RuntimeException("No " + UUID.class.getName() + " annotation set on type " + type.getName() + " !");
-		return Pointer.pointerTo(id.value());
+			throw new RuntimeException("No " + IID.class.getName() + " annotation set on type " + type.getName() + " !");
+
+        return (Pointer)GUID.parseGUID128Bits(id.value());
 	}
 	
 	public static <I extends IUnknown> Pointer<Byte> getCLSID(Class<I> type) {
 		CLSID id = type.getAnnotation(CLSID.class);
 		if (id == null)
 			throw new RuntimeException("No " + CLSID.class.getName() + " annotation set on type " + type.getName() + " !");
-		return Pointer.pointerTo(id.value());
+        
+		return (Pointer)GUID.parseGUID128Bits(id.value());
 	}
-	
-	public static <I extends IUnknown> I CoCreateInstance(Class<I> type) {
+    static ThreadLocal<Object> comInitializer = new ThreadLocal<Object>() {
+        @Override
+        protected Object initialValue() {
+            error(CoInitializeEx(0, COINIT.COINIT_MULTITHREADED));
+            return new Object() {
+                @Override
+                protected void finalize() throws Throwable {
+                    CoUninitialize();
+                }
+            };
+        }
+    };
+    public static void lazyInit() {
+        comInitializer.get();
+    }
+	public static <I extends IUnknown> I newInstance(Class<I> type) throws ClassNotFoundException {
+        return newInstance(type, type);
+    }
+    public static <T extends IUnknown, I extends IUnknown> I newInstance(Class<T> instanceClass, Class<I> instanceInterface) throws ClassNotFoundException {
+        lazyInit();
+        
 		Pointer<Pointer<?>> p = Pointer.allocatePointer();
-		int flags = 0; // TODO
-		int ret = CoCreateInstance(getCLSID(type), null, flags, getUUID(type), p);
-		if (ret != S_OK)
-			return null;
-		
-		return p.get().toNativeObject(type);
+        p.setInt(0, 10);
+		int flags = CLSCTX_ALL; // TODO
+        //flags = CLSCTX_FROM_DEFAULT_CONTEXT | CLSCTX_ACTIVATE_64_BIT_SERVER;
+        Pointer<Byte> clsid = getCLSID(instanceClass), uuid = getIID(instanceInterface);
+        try {
+            int ret = CoCreateInstance(clsid, null, flags, uuid, p);
+            if (ret == REGDB_E_CLASSNOTREG)
+                throw new ClassNotFoundException("COM class is not registered : " + instanceClass.getSimpleName() + " (clsid = " + clsid.getString(0) + ")");
+            error(ret);
+            Pointer<?> inst = p.getPointer(0);
+            if (inst == null)
+                throw new RuntimeException("Serious low-level issue : CoCreateInstance executed fine but we only retrieved a null pointer !");
+            return inst.toNativeObject(instanceInterface);
+        } finally {
+            p.release();
+            if (clsid != null)
+                clsid.release();
+            if (uuid != null)
+                uuid.release();
+        }
 	}
 }

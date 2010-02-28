@@ -148,7 +148,7 @@ class StructIO<S extends StructObject> {
 
         Field fil = getter.getAnnotation(Field.class);
         Bits bits = getter.getAnnotation(Bits.class);
-        Length arr = getter.getAnnotation(Length.class);
+        Array arr = getter.getAnnotation(Array.class);
         if (fil != null)
             field.index = fil.value();
         if (bits != null)

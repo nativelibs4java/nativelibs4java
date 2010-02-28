@@ -14,6 +14,10 @@ import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
 import com.bridj.cpp.CPPRuntime;
 import com.bridj.cpp.VC9Demangler;
+import com.bridj.cpp.com.COMRuntime;
+import com.bridj.cpp.com.IShellWindows;
+import com.bridj.cpp.com.IUnknown;
+import com.bridj.cpp.com.shell32.IShellFolder;
 import com.bridj.objc.NSAutoReleasePool;
 import com.bridj.objc.ObjCObject;
 
@@ -50,7 +54,17 @@ public class TestCPP {
 		System.out.println();
 	}
 	public static void main(String[] args) throws Exception {
-		library = BridJ.getNativeLibrary("test");
+		try {
+            IShellWindows win = COMRuntime.newInstance(IShellWindows.class);
+            IUnknown iu = win.QueryInterface(IUnknown.class);
+            if (iu == null) {
+                throw new RuntimeException("Interface does not handle IUnknown !");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        library = BridJ.getNativeLibrary("test");
 			//NativeLibrary.load(libraryPath);
 
 		new VC9Demangler(null, "?sinInt@@YANH@Z").parseSymbol();
