@@ -162,48 +162,17 @@ public class JNI {
 
 	public static native void callDefaultCPPConstructor(long constructor, long thisPtr, int callMode);
 	
-	//static boolean allowDirect = !"false".equals(System.getProperty("bridj.allowDirect"));
-	/*public static long[] createCallbacks(
-		int callbackType,
-		List<MethodCallInfo> methodInfos
-	) {
-		long[] ret = new long[methodInfos.size()];
-		for (int i = 0, n = methodInfos.size(); i < n; i++) {
-			MethodCallInfo info = methodInfos.get(i);
-			ret[i] = createCallback(
-				callbackType,
-				info.method.getDeclaringClass(),
-				info.javaCallback,
-				info.method,
-				info.startsWithThis,
-				info.method.getName(),
-				info.dcCallingConvention,
-				info.forwardedPointer,
-				info.virtualTableOffset, 
-				info.virtualIndex,
-				allowDirect && info.direct, 
-				info.getJavaSignature(), 
-				info.getDcSignature(),
-				info.isJavaToCCallback,
-				info.paramsValueTypes.length,
-				info.returnValueType,
-				info.paramsValueTypes
-			);
-		}
-		return ret;
-	}
-	public static void freeCallbacks(long[] nativeCallbacks) {
-		for (int i = 0, n = nativeCallbacks.length; i < n; i++)
-			freeCallback(nativeCallbacks[i]);
-	}*/
-	
 	public static native long createCToJavaCallback(MethodCallInfo info);
 	public static native long getActualCToJavaCallback(long handle);
+	
+	public static native long bindJavaMethodsToObjCMethods(MethodCallInfo... infos);
 	public static native long bindJavaToCCallbacks(MethodCallInfo... infos);
 	public static native long bindJavaMethodsToCFunctions(MethodCallInfo... infos);
 	public static native long bindJavaMethodsToVirtualMethods(MethodCallInfo... infos);
 	
+	
 	public static native void freeCToJavaCallback(long handle);
+	public static native long freeObjCMethodBindings(long handle, int size);
 	public static native void freeJavaToCCallbacks(long handle, int size);
 	public static native void freeCFunctionBindings(long handle, int size);
 	public static native void freeVirtualMethodBindings(long handle, int size);

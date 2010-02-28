@@ -277,11 +277,6 @@
 									<integer>14</integer>
 									<integer>0</integer>
 								</array>
-								<array>
-									<integer>16</integer>
-									<integer>14</integer>
-									<integer>0</integer>
-								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
 							<string>{{0, 0}, {186, 660}}</string>
@@ -321,7 +316,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>dynload_syms_darwin.c</string>
+								<string>dynload_darwin.c</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -329,11 +324,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>dynload_syms_darwin.c</string>
+										<string>dynload_darwin.c</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>90FD14F2113363C7006462C7</string>
+										<string>901E70F3113A173000F15234</string>
 										<key>history</key>
 										<array>
 											<string>9007E11010EE3F5100928CAE</string>
@@ -347,8 +342,8 @@
 											<string>90FD14A011335059006462C7</string>
 											<string>90FD14A111335059006462C7</string>
 											<string>90FD14AE11335079006462C7</string>
-											<string>90FD14AF11335079006462C7</string>
-											<string>90FD14B011335079006462C7</string>
+											<string>90FD14F311376F9D006462C7</string>
+											<string>90FD14F511376F9D006462C7</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -360,14 +355,14 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 0}, {1072, 427}}</string>
+								<string>{{0, 0}, {1072, 419}}</string>
 								<key>RubberWindowFrame</key>
 								<string>0 59 1280 719 0 0 1280 778 </string>
 							</dict>
 							<key>Module</key>
 							<string>PBXNavigatorGroup</string>
 							<key>Proportion</key>
-							<string>427pt</string>
+							<string>419pt</string>
 						</dict>
 						<dict>
 							<key>ContentConfiguration</key>
@@ -380,14 +375,14 @@
 							<key>GeometryConfiguration</key>
 							<dict>
 								<key>Frame</key>
-								<string>{{0, 432}, {1072, 246}}</string>
+								<string>{{0, 424}, {1072, 254}}</string>
 								<key>RubberWindowFrame</key>
 								<string>0 59 1280 719 0 0 1280 778 </string>
 							</dict>
 							<key>Module</key>
 							<string>XCDetailModule</string>
 							<key>Proportion</key>
-							<string>246pt</string>
+							<string>254pt</string>
 						</dict>
 					</array>
 					<key>Proportion</key>
@@ -406,9 +401,9 @@
 			</array>
 			<key>TableOfContents</key>
 			<array>
-				<string>90FD14A311335059006462C7</string>
+				<string>901E70F4113A173000F15234</string>
 				<string>1CE0B1FE06471DED0097A5F4</string>
-				<string>90FD14A411335059006462C7</string>
+				<string>901E70F5113A173000F15234</string>
 				<string>1CE0B20306471E060097A5F4</string>
 				<string>1CE0B20506471E060097A5F4</string>
 			</array>
@@ -628,7 +623,7 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>9007DF5310EE2B1A00928CAE</string>
-				<string>90FD14A511335059006462C7</string>
+				<string>901E70F6113A173000F15234</string>
 				<string>1CD0528F0623707200166675</string>
 				<string>XCMainBuildResultsModuleGUID</string>
 			</array>
@@ -750,13 +745,13 @@
 			<key>TableOfContents</key>
 			<array>
 				<string>1CD10A99069EF8BA00B06720</string>
-				<string>90FD14A611335059006462C7</string>
+				<string>901E70F7113A173000F15234</string>
 				<string>1C162984064C10D400B95A72</string>
-				<string>90FD14A711335059006462C7</string>
-				<string>90FD14A811335059006462C7</string>
-				<string>90FD14A911335059006462C7</string>
-				<string>90FD14AA11335059006462C7</string>
-				<string>90FD14AB11335059006462C7</string>
+				<string>901E70F8113A173000F15234</string>
+				<string>901E70F9113A173000F15234</string>
+				<string>901E70FA113A173000F15234</string>
+				<string>901E70FB113A173000F15234</string>
+				<string>901E70FC113A173000F15234</string>
 			</array>
 			<key>ToolbarConfiguration</key>
 			<string>xcode.toolbar.config.debugV3</string>

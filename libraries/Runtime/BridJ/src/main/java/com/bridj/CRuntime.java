@@ -19,7 +19,6 @@ import com.bridj.NativeLibrary;
 import com.bridj.NativeObject;
 import com.bridj.Pointer;
 import com.bridj.NativeEntities.Builder;
-import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
 import com.bridj.util.AutoHashMap;

@@ -28,7 +28,6 @@ import static com.bridj.Dyncall.CallingConvention.*;
 
 import com.bridj.Demangler.Symbol;
 import com.bridj.NativeEntities.Builder;
-import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
 import com.bridj.CRuntime;
 import com.bridj.util.AutoHashMap;
@@ -74,24 +73,7 @@ public class CPPRuntime extends CRuntime {
 		boolean isCPPClass = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
 				
 		Annotation[][] anns = method.getParameterAnnotations();
-		boolean isCPPInstanceMethod = false;
-		if (anns.length > 0) {
-			if (method.getAnnotation(Virtual.class) != null)
-				isCPPInstanceMethod = true;
-			else
-				for (Annotation ann : anns[0]) {
-					if (ann instanceof This) {
-						isCPPInstanceMethod = true;
-						break;
-					}
-				}
-		}
-		if (isCPPInstanceMethod && !isCPPClass) {
-			log(Level.SEVERE, "Method " + method.toGenericString() + " should have been declared in a " + CPPObject.class.getName() + " subclass.");
-			return;
-		}
-				
-		if (!isCPPInstanceMethod) {
+		if (!isCPPClass) {
 			super.registerNativeMethod(type, typeLibrary, method, methodLibrary, builder);
 			return;
 		}

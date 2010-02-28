@@ -91,7 +91,7 @@ TEST_API double __cdecl testASinB(int a, int b)
 
 Ctest::Ctest()
 {
-	//printf("Ctest::Ctest() (this = %ld, low = %d)\n", (long int)(size_t)this, (int)(0xffffffffLL & (size_t)this));
+	printf("Ctest::Ctest() (this = %ld)\n", (long int)(size_t)this);
 }
 Ctest::~Ctest()
 {
@@ -102,7 +102,7 @@ const std::string& Ctest2::toString() {
 	return s;
 }
 int Ctest::testAdd(int a, int b) {
-	//printf("Ctest::testAdd(%d, %d) (this = %ld, low = %d)\n", a, b, (long int)(size_t)this, (int)(0xffffffffLL & (size_t)this));
+	printf("Ctest::testAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
 	return a + b;
 }
 
@@ -117,15 +117,16 @@ Ctest* createTest() {
 
 Ctest2::Ctest2() : Ctest()
 {
-	//printf("Ctest2::Ctest2() (this = %ld)\n", (long int)(size_t)this);
+	printf("Ctest2::Ctest2() (this = %ld)\n", (long int)(size_t)this);
 }
 Ctest2::~Ctest2()
 {
 }
 
 int Ctest2::testAdd(int a, int b) {
-	//printf("Ctest2::testAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
-	return a + b * 2;
+	int ret = a + b * 2;
+	printf("Ctest2::testAdd(%d, %d) = %d (this = %ld)\n", a, b, ret, (long int)(size_t)this);
+	return ret;
 }
 
 TEST_API void* test_pvoid() { return NULL; }

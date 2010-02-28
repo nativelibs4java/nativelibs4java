@@ -7,8 +7,6 @@ import java.util.Arrays;
 
 import com.bridj.Pointer;
 import com.bridj.ann.Constructor;
-import com.bridj.ann.Destructor;
-import com.bridj.ann.This;
 import com.bridj.util.DefaultParameterizedType;
 
 public abstract class Demangler {
@@ -271,9 +269,9 @@ public abstract class Demangler {
         @Override
         public String toString() {
             StringBuilder b = new StringBuilder();
-            for (Class ann : annotations)
+            for (Class<?> ann : annotations)
                 b.append(ann.getSimpleName()).append(' ');
-            b.append((type instanceof Class) ? ((Class)type).getSimpleName() : type.toString());
+            b.append((type instanceof Class<?>) ? ((Class<?>)type).getSimpleName() : type.toString());
             return b.toString();
         }
 		
@@ -372,15 +370,6 @@ public abstract class Demangler {
         }
         b.append(post);
     }
-	public static void constructorPattern(@This long thisPtr) {}
-	static Annotation[][] constructorPatternAnnotations;
-	static {
-		try {
-			Demangler.class.getMethod("constructorPattern", Long.TYPE).getAnnotations();
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
-	}
 	public static class FunctionTypeRef extends TypeRef {
 		MemberRef function;
 
@@ -502,10 +491,8 @@ public abstract class Demangler {
 			if (getValueType() != null && !getValueType().matches(Void.TYPE))
 				return false;
 			
-			Annotation[][] anns = constructorPatternAnnotations;
             Class<?>[] methodArgTypes = new Class[] { Long.TYPE };
-            
-            if (!matchesArgs(methodArgTypes, anns, true))
+            if (!matchesArgs(methodArgTypes, null, true))
             	return false;
             
 			return true;
@@ -526,7 +513,7 @@ public abstract class Demangler {
 			
 			Annotation[][] anns = method.getParameterAnnotations();
             Class<?>[] methodArgTypes = method.getParameterTypes();
-            boolean hasThisAsFirstArgument = BridJ.hasThisAsFirstArgument(methodArgTypes, anns, true);
+            boolean hasThisAsFirstArgument = BridJ.hasThisAsFirstArgument(method);//methodArgTypes, anns, true);
             
             if (!matchesArgs(methodArgTypes, anns, hasThisAsFirstArgument))
             	return false;

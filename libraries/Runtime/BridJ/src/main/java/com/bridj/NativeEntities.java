@@ -20,16 +20,20 @@ public class NativeEntities {
 		virtualMethods = new HashMap<Class<?>, CBInfo>(),
 		getters = new HashMap<Class<?>, CBInfo>(),
 		setters = new HashMap<Class<?>, CBInfo>(),
-		javaToNativeCallbacks = new HashMap<Class<?>, CBInfo>();
+		javaToNativeCallbacks = new HashMap<Class<?>, CBInfo>(),
+		objcMethodInfos = new HashMap<Class<?>, CBInfo>();
+	
 	//Map<Class<?>, long[]> getters;
 	//Map<Class<?>, long[]> setters;
 	
 	public static class Builder {
-		List<MethodCallInfo> functionInfos = new ArrayList<MethodCallInfo>();
-		List<MethodCallInfo> virtualMethods = new ArrayList<MethodCallInfo>();
-		List<MethodCallInfo> javaToNativeCallbacks = new ArrayList<MethodCallInfo>();
-		List<MethodCallInfo> getters = new ArrayList<MethodCallInfo>();
-		List<MethodCallInfo> setters = new ArrayList<MethodCallInfo>();
+		List<MethodCallInfo> 
+			functionInfos = new ArrayList<MethodCallInfo>(),
+			virtualMethods = new ArrayList<MethodCallInfo>(),
+			javaToNativeCallbacks = new ArrayList<MethodCallInfo>(),
+			getters = new ArrayList<MethodCallInfo>(),
+			setters = new ArrayList<MethodCallInfo>(),
+			objcMethodInfos = new ArrayList<MethodCallInfo>();
 		//List<MethodCallInfo> getterInfos = new ArrayList<MethodCallInfo>();
 		
 		public void addFunction(MethodCallInfo info) {
@@ -50,6 +54,9 @@ public class NativeEntities {
 		public void addMethodFunction(MethodCallInfo info) {
 			functionInfos.add(info);
 		}
+		public void addObjCMethod(MethodCallInfo info) {
+			objcMethodInfos.add(info);
+		}
 	}
 	
 	
@@ -59,9 +66,12 @@ public class NativeEntities {
 		
 		for (CBInfo callbacks : javaToNativeCallbacks.values())
 		    JNI.freeJavaToCCallbacks(callbacks.handle, callbacks.size);
-		
+
 		for (CBInfo callbacks : virtualMethods.values())
 		    JNI.freeVirtualMethodBindings(callbacks.handle, callbacks.size);
+		
+		for (CBInfo callbacks : objcMethodInfos.values())
+		    JNI.freeObjCMethodBindings(callbacks.handle, callbacks.size);
 	}
 	@Override
 	public void finalize() {
@@ -81,6 +91,10 @@ public class NativeEntities {
 		n = builder.javaToNativeCallbacks.size();
 		if (n != 0)
 			javaToNativeCallbacks.put(type, new CBInfo(JNI.bindJavaToCCallbacks(builder.javaToNativeCallbacks.toArray(new MethodCallInfo[n])), n));
+
+		n = builder.objcMethodInfos.size();
+		if (n != 0)
+			objcMethodInfos.put(type, new CBInfo(JNI.bindJavaMethodsToObjCMethods(builder.objcMethodInfos.toArray(new MethodCallInfo[n])), n));
 
 //		n = builder.setters.size();
 //		if (n != 0)

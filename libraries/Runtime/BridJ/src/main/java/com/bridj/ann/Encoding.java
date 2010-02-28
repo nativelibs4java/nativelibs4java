@@ -12,7 +12,6 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@NoInheritance
 @Inherited
 public @interface Encoding {
     /// String encoding

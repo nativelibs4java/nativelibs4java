@@ -81,9 +81,9 @@ public class TestCPP {
         testJavaTargetCallbacks();
 
 
-        double dres = PerfLib.testASinB(1, 2);
+        /*double dres = PerfLib.testASinB(1, 2);
         res = PerfLib.testAddJNI(1, 2);
-        System.out.println("Done");
+        System.out.println("Done");*/
 	}
 	@Library("test")
 	static class Ctest extends CPPObject {
@@ -161,6 +161,7 @@ public class TestCPP {
 	
 }
 
+/*
 
 @Library("test")
 @com.bridj.ann.Runtime(CRuntime.class)
@@ -190,4 +191,4 @@ class PerfLib {
     }
     public static native int testAddJNI(int a, int b);
     public static native double testASinB(int a, int b);
-}
+}*/

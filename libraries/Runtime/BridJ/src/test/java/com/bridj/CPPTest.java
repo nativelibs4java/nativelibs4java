@@ -11,7 +11,6 @@ import com.bridj.ann.Constructor;
 import com.bridj.ann.Library;
 import com.bridj.ann.Mangling;
 import com.bridj.ann.Ptr;
-import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
 

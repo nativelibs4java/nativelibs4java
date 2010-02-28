@@ -83,10 +83,11 @@ public class CallbackNativeImplementer extends ClassLoader implements Opcodes {
 
 		cw.visitSource(sourceFile, null);
 
-        //AnnotationVisitor av = cw.visitAnnotation(classSig(com.bridj.ann.Runtime.class), false);
-        //av.visit("value", CRuntime.class);
-        //av.visitEnd();
-
+//		{
+//	        AnnotationVisitor av = cw.visitAnnotation(classSig(com.bridj.ann.Runtime.class), true);
+//	        av.visit("value", Type.getType(classSig(CRuntime.class)));
+//	        av.visitEnd();
+//		}
 		{
 			mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
 			mv.visitCode();

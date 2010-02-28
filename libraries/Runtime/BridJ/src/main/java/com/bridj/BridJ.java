@@ -25,8 +25,6 @@ import java.util.logging.Logger;
 import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Library;
 import com.bridj.ann.Mangling;
-import com.bridj.ann.NoInheritance;
-import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
 import com.bridj.cpp.CPPRuntime;
@@ -80,30 +78,32 @@ public class BridJ {
 			weakNativeObjects.put(peer, ob);
 	}
 	
-	static boolean hasThisAsFirstArgument(Method method, boolean checkConsistency) {
-		return hasThisAsFirstArgument(method.getParameterTypes(), method.getParameterAnnotations(), checkConsistency);
-	}
-	static boolean hasThisAsFirstArgument(Class<?>[] paramTypes, Annotation[][] anns, boolean checkConsistency) {
-		boolean hasThis = false;
-		int len = anns.length;
-        if (len > 0) {
-        	for (int i = 0; i < len; i++) {
-        		for (Annotation ann : anns[i]) {
-	        		if (ann instanceof This) {
-	        			hasThis = true;
-	        			if (!checkConsistency)
-	        				return true;
-	        			if (paramTypes[0] != Long.TYPE)
-	        				throw new RuntimeException("First parameter with annotation " + This.class.getName() + " must be of type long, but is of type " + paramTypes[0].getName() + ".");
-	        		}
-	    		}
-        		if (i == 0 && !checkConsistency)
-        			return false;
-        	}
-        }
-        return hasThis;
-	}
 	
+	static boolean hasThisAsFirstArgument(Method method) {//, boolean checkConsistency) {
+		return method.getAnnotation(com.bridj.ann.Constructor.class) != null;
+//		return hasThisAsFirstArgument(method.getParameterTypes(), method.getParameterAnnotations(), checkConsistency);
+	}
+//	static boolean hasThisAsFirstArgument(Class<?>[] paramTypes, Annotation[][] anns, boolean checkConsistency) {
+//		boolean hasThis = false;
+//		int len = anns.length;
+//        if (len > 0) {
+//        	for (int i = 0; i < len; i++) {
+//        		for (Annotation ann : anns[i]) {
+//	        		if (ann instanceof This) {
+//	        			hasThis = true;
+//	        			if (!checkConsistency)
+//	        				return true;
+//	        			if (paramTypes[0] != Long.TYPE)
+//	        				throw new RuntimeException("First parameter with annotation " + This.class.getName() + " must be of type long, but is of type " + paramTypes[0].getName() + ".");
+//	        		}
+//	    		}
+//        		if (i == 0 && !checkConsistency)
+//        			return false;
+//        	}
+//        }
+//        return hasThis;
+//	}
+//	
 	public static void deallocate(NativeObject nativeObject) {
 		unregisterNativeObject(nativeObject);
 		//TODO call destructor !!! 
@@ -140,12 +140,12 @@ public class BridJ {
 		return currentlyCastingNativeObject.get().peek();
 	}
 
-    static CRuntime cRuntime;
-    static synchronized CRuntime getCRuntime() {
-        if (cRuntime == null)
-            cRuntime = getRuntimeByRuntimeClass(CRuntime.class);
-        return cRuntime;
-    }
+//    static CRuntime cRuntime;
+//    static synchronized CRuntime getCRuntime() {
+//        if (cRuntime == null)
+//            cRuntime = getRuntimeByRuntimeClass(CRuntime.class);
+//        return cRuntime;
+//    }
 	public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Class<O> type) {
 		Stack<Boolean> s = currentlyCastingNativeObject.get();
 		s.push(true);
@@ -189,8 +189,8 @@ public class BridJ {
 
 		com.bridj.ann.Runtime runtimeAnn = getAnnotation(com.bridj.ann.Runtime.class, true, type);
 		if (runtimeAnn == null)
-            return getCRuntime();
-			//throw new IllegalArgumentException("Class " + type.getName() + " has no " + com.bridj.ann.Runtime.class.getName() + " annotation. Unable to guess the corresponding " + BridJRuntime.class.getName() + " implementation.");
+            //return getCRuntime();
+			throw new IllegalArgumentException("Class " + type.getName() + " has no " + com.bridj.ann.Runtime.class.getName() + " annotation. Unable to guess the corresponding " + BridJRuntime.class.getName() + " implementation.");
 
 		return getRuntimeByRuntimeClass(runtimeAnn.value());
     }
@@ -356,9 +356,6 @@ public class BridJ {
         A a = m.getAnnotation(ac);
         if (a != null)
             return a;
-
-        if (ac.getAnnotation(NoInheritance.class) != null)
-            return null;
 
         if (inherit) {
 	        if (m instanceof Member)

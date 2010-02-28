@@ -47,7 +47,7 @@ endif
 
 ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
-LDFLAGS		+= -ldl
+LDFLAGS		+= -ldl -lobjc
 endif
 
 ifdef BUILD_OS_linux

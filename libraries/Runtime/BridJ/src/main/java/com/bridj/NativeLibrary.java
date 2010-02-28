@@ -25,7 +25,6 @@ import com.bridj.Demangler.DemanglingException;
 import com.bridj.Demangler.MemberRef;
 import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Mangling;
-import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.GCC4Demangler;
 import com.bridj.cpp.VC9Demangler;

@@ -26,6 +26,22 @@ jmethodID gAddressMethod = NULL;
 jmethodID gGetPeerMethod = NULL;
 jmethodID gCreatePeerMethod = NULL;
 
+jclass 		gMethodCallInfoClass 		 = NULL;
+jfieldID 	gFieldId_javaSignature 		 = NULL;
+jfieldID 	gFieldId_dcSignature 		 = NULL;    
+jfieldID 	gFieldId_paramsValueTypes 	 = NULL;
+jfieldID 	gFieldId_returnValueType 	 = NULL;    
+jfieldID 	gFieldId_forwardedPointer 	 = NULL;
+jfieldID 	gFieldId_virtualIndex 		 = NULL;
+jfieldID 	gFieldId_virtualTableOffset	 = NULL;
+jfieldID 	gFieldId_javaCallback 		 = NULL;
+jfieldID 	gFieldId_direct		 		 = NULL;
+jfieldID 	gFieldId_startsWithThis 	 = NULL;
+jfieldID 	gFieldId_dcCallingConvention = NULL;
+jfieldID 	gFieldId_symbolName			 = NULL;
+jfieldID 	gFieldId_methodName			 = NULL;
+jfieldID 	gFieldId_declaringClass		 = NULL;
+
 int main() {}
 
 void initMethods(JNIEnv* env) {
@@ -35,6 +51,28 @@ void initMethods(JNIEnv* env) {
 		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lcom/bridj/NativeObject;Ljava/lang/Class;)J");
 		gGetPeerMethod = (*env)->GetMethodID(env, gPointerClass, "getPeer", "()J");
 		gCreatePeerMethod = (*env)->GetStaticMethodID(env, gPointerClass, "pointerToAddress", "(JLjava/lang/Class;)Lcom/bridj/Pointer;");
+		
+		gMethodCallInfoClass = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/bridj/MethodCallInfo"));
+		
+#define GETFIELD_ID(out, name, sig) \
+		if (!(gFieldId_ ## out = (*env)->GetFieldID(env, gMethodCallInfoClass, name, sig))) \
+			throwException(env, "Failed to get field " #name " in MethodCallInfo !");
+		
+	
+		GETFIELD_ID(javaSignature 		,	"javaSignature"			,	"Ljava/lang/String;"	);
+		GETFIELD_ID(dcSignature 		,	"dcSignature" 			,	"Ljava/lang/String;"	);
+		GETFIELD_ID(symbolName 		,	"symbolName" 			,	"Ljava/lang/String;"	);
+		GETFIELD_ID(methodName 		,	"methodName" 			,	"Ljava/lang/String;"	);
+		GETFIELD_ID(declaringClass		,	"declaringClass" 		,	"Ljava/lang/Class;"		);
+		GETFIELD_ID(paramsValueTypes 	,	"paramsValueTypes"		,	"[I"					);
+		GETFIELD_ID(returnValueType 	,	"returnValueType" 		,	"I"						);
+		GETFIELD_ID(forwardedPointer 	,	"forwardedPointer" 		,	"J"						);
+		GETFIELD_ID(virtualIndex 		,	"virtualIndex" 			,	"I"						);
+		GETFIELD_ID(virtualTableOffset	,	"virtualTableOffset"	,	"I"						);
+		GETFIELD_ID(javaCallback 		,	"javaCallback" 			,	"Lcom/bridj/Callback;"	);
+		GETFIELD_ID(direct		 		,	"direct"	 			,	"Z"						);
+		GETFIELD_ID(startsWithThis		,	"startsWithThis"		,	"Z"						);
+		GETFIELD_ID(dcCallingConvention,	"dcCallingConvention"	,	"I"						);
 		
 	}
 }
@@ -284,115 +322,35 @@ void freeCommon(CommonCallbackInfo* info)
 	
 	dcbFreeCallback((DCCallback*)info->fDCCallback);
 }
-
-jboolean GetInfoClassAndFields(
-	JNIEnv* env						, 
-	jclass* 	clOut				, 
-	jfieldID* 	javaSignature 		,
-	jfieldID* 	dcSignature 		,
-	jfieldID* 	paramsValueTypes 	,
-	jfieldID* 	returnValueType 	,
-	jfieldID* 	forwardedPointer 	,
-	jfieldID* 	virtualIndex 		,
-	jfieldID* 	virtualTableOffset	,
-	jfieldID* 	javaCallback 		,
-	jfieldID* 	direct		 		,
-	jfieldID* 	startsWithThis 		,
-	jfieldID* 	methodName			,
-	jfieldID* 	declaringClass		,
-	jfieldID* 	dcCallingConvention	
-) {
-	jclass cl = (*env)->FindClass(env, "com/bridj/MethodCallInfo");
-	if (clOut)
-		*clOut = cl;    
-
-#define GETFIELD(out, name, sig) \
-	if (out) { \
-		if (!(*out = (*env)->GetFieldID(env, cl, name, sig))) { \
-			throwException(env, "Failed to get field " #name " in MethodCallInfo !"); \
-			return JNI_FALSE; \
-		} \
-	}
-
-	GETFIELD(javaSignature 		,	"javaSignature"			,	"Ljava/lang/String;"	);
-	GETFIELD(dcSignature 		,	"dcSignature" 			,	"Ljava/lang/String;"	);
-	GETFIELD(methodName 		,	"methodName" 			,	"Ljava/lang/String;"	);
-	GETFIELD(declaringClass		,	"declaringClass" 		,	"Ljava/lang/Class;"		);
-	GETFIELD(paramsValueTypes 	,	"paramsValueTypes"		,	"[I"					);
-	GETFIELD(returnValueType 	,	"returnValueType" 		,	"I"						);
-	GETFIELD(forwardedPointer 	,	"forwardedPointer" 		,	"J"						);
-	GETFIELD(virtualIndex 		,	"virtualIndex" 			,	"I"						);
-	GETFIELD(virtualTableOffset	,	"virtualTableOffset"	,	"I"						);
-	GETFIELD(javaCallback 		,	"javaCallback" 			,	"Lcom/bridj/Callback;"	);
-	GETFIELD(direct		 		,	"direct"	 			,	"Z"						);
-	GETFIELD(startsWithThis		,	"startsWithThis"		,	"Z"						);
-	GETFIELD(dcCallingConvention,	"dcCallingConvention"	,	"I"						);
-	
-	return JNI_TRUE;
-}
-
-#define GET_INFO_FIELD_IDS()                                                                                            \
-	jclass 		cl					;                                                                                    \
-	jfieldID 	id_javaSignature 		;                                                                                \
-	jfieldID 	id_dcSignature 		;                                                                                    \
-	jfieldID 	id_paramsValueTypes 	;                                                                                \
-	jfieldID 	id_returnValueType 	;                                                                                    \
-	jfieldID 	id_forwardedPointer 	;                                                                                \
-	jfieldID 	id_virtualIndex 		;                                                                                \
-	jfieldID 	id_virtualTableOffset	;                                                                                \
-	jfieldID 	id_javaCallback 		;                                                                                \
-	jfieldID 	id_direct		 		;                                                                                \
-	jfieldID 	id_startsWithThis 		;                                                                                \
-	jfieldID 	id_dcCallingConvention	;                                                                                \
-	jfieldID 	id_methodName			;                                                                                \
-	jfieldID 	id_declaringClass		;                                                                                \
-	if (!GetInfoClassAndFields(env,                                                                                      \
-		&cl					,                                                                                            \
-		&id_javaSignature 		,                                                                                        \
-		&id_dcSignature 		,                                                                                        \
-		&id_paramsValueTypes 	,                                                                                        \
-		&id_returnValueType 	,                                                                                        \
-		&id_forwardedPointer 	,                                                                                        \
-		&id_virtualIndex 		,                                                                                        \
-		&id_virtualTableOffset	,                                                                                        \
-		&id_javaCallback 		,                                                                                        \
-		&id_direct		 		,                                                                                        \
-		&id_startsWithThis 		,                                                                                        \
-		&id_methodName			,                                                                                    	 \
-		&id_declaringClass 		,                                                                                    	 \
-		&id_dcCallingConvention                                                                                          \
-	))																													 \
-		return 0;                                                                                                        \
 	                                                                                                                     
-#define GET_INFO_FIELDS()                                                                                               \
-		jstring 	javaSignature 		= (*env)->GetObjectField(	env, methodCallInfo, id_javaSignature 			);   \
-		jstring 	dcSignature 		= (*env)->GetObjectField(	env, methodCallInfo, id_dcSignature 		    );   \
-		jstring 	methodName	 		= (*env)->GetObjectField(	env, methodCallInfo, id_methodName	 		    );   \
-		jstring 	declaringClass 		= (jclass)(*env)->GetObjectField(	env, methodCallInfo, id_declaringClass	);   \
-		jintArray 	paramsValueTypes 	= (*env)->GetObjectField(	env, methodCallInfo, id_paramsValueTypes 	    );   \
-		jobject 	javaCallback 		= (*env)->GetObjectField(	env, methodCallInfo, id_javaCallback 		    );   \
-		jlong 		forwardedPointer 	= (*env)->GetLongField(		env, methodCallInfo, id_forwardedPointer 	    );   \
-		jint	 	returnValueType 	= (*env)->GetIntField(		env, methodCallInfo, id_returnValueType 	    );   \
-		jint	 	virtualIndex 		= (*env)->GetIntField(		env, methodCallInfo, id_virtualIndex 		    );   \
-		jint	 	virtualTableOffset	= (*env)->GetIntField(		env, methodCallInfo, id_virtualTableOffset		);   \
-		jint	 	dcCallingConvention	= (*env)->GetIntField(		env, methodCallInfo, id_dcCallingConvention		);   \
-		jboolean 	direct		 		= (*env)->GetBooleanField(	env, methodCallInfo, id_direct		 			);   \
-		jboolean 	startsWithThis		= (*env)->GetBooleanField(	env, methodCallInfo, id_startsWithThis 			);   \
+#define GET_INFO_FIELDS()                                                                                               	 \
+		jstring 	javaSignature 		= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_javaSignature 		);   \
+		jstring 	dcSignature 		= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_dcSignature 		    );   \
+		jstring 	symbolName	 		= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_symbolName	 	    );   \
+		jstring 	methodName	 		= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_methodName	 	    );   \
+		jstring    declaringClass= (jclass)(*env)->GetObjectField(	env, methodCallInfo, gFieldId_declaringClass		);   \
+		jintArray 	paramsValueTypes 	= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_paramsValueTypes 	    );   \
+		jobject 	javaCallback 		= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_javaCallback 		    );   \
+		jlong 		forwardedPointer 	= (*env)->GetLongField(		env, methodCallInfo, gFieldId_forwardedPointer 	    );   \
+		jint	 	returnValueType 	= (*env)->GetIntField(		env, methodCallInfo, gFieldId_returnValueType 	    );   \
+		jint	 	virtualIndex 		= (*env)->GetIntField(		env, methodCallInfo, gFieldId_virtualIndex 		    );   \
+		jint	 	virtualTableOffset	= (*env)->GetIntField(		env, methodCallInfo, gFieldId_virtualTableOffset	);   \
+		jint	 	dcCallingConvention	= (*env)->GetIntField(		env, methodCallInfo, gFieldId_dcCallingConvention	);   \
+		jboolean 	direct		 		= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_direct		 		);   \
+		jboolean 	startsWithThis		= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_startsWithThis 		);   \
 		jsize		nParams				= (*env)->GetArrayLength(	env, paramsValueTypes);
 		
 #define BEGIN_INFOS_LOOP(type)                                                                                           \
 	jsize i, n = (*env)->GetArrayLength(env, methodCallInfos);															 \
 	NEW_STRUCTS(n, type, infos);																						 \
-	{																													 \
-		GET_INFO_FIELD_IDS()	                                                                                         \
-		                                                                                                                 \
-		for (i = 0; i < n; i++)                                                                                          \
-		{                  																								 \
-			type* info = &infos[i];																						 \
+	initMethods(env);                                                                                        	 		 \
+	for (i = 0; i < n; i++)                                                                                          	 \
+	{                  																								 	 \
+		type* info = &infos[i];																						 	 \
 			jobject methodCallInfo = (*env)->GetObjectArrayElement(env, methodCallInfos, i);                             \
 			GET_INFO_FIELDS();
 
-#define END_INFOS_LOOP() } }
+#define END_INFOS_LOOP() }
 
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback(
 	JNIEnv *env, 
@@ -400,7 +358,6 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback(
 	jobject methodCallInfo
 ) {
 	struct NativeToJavaCallbackCallInfo* info = NULL;
-	GET_INFO_FIELD_IDS();
 	{
 		const char* dcSig, *javaSig, *methName;
 		GET_INFO_FIELDS();
@@ -523,6 +480,56 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCFunctionBindings(
 	}
 	free(infos);
 }
+
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToObjCMethods(
+	JNIEnv *env, 
+	jclass clazz,
+	jobjectArray methodCallInfos
+) {
+#if defined (DC__OS_Darwin)
+	BEGIN_INFOS_LOOP(JavaToObjCCallInfo)
+	{
+		const char* ds, *methName;
+	
+		// TODO DIRECT ObjC thunk
+		methName = (char*)(*env)->GetStringUTFChars(env, symbolName, NULL);
+		ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
+		
+		info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToObjCCallHandler, info);
+		info->fSelector = sel_registerName(methName);
+		
+		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
+		(*env)->ReleaseStringUTFChars(env, symbolName, methName);
+		
+		
+		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
+		registerJavaFunction(env, declaringClass, methodName, javaSignature, info->fInfo.fDCCallback);
+	}
+	END_INFOS_LOOP()
+	return (jlong)(size_t)infos;
+#else
+	return 0;
+#endif
+}
+JNIEXPORT void JNICALL Java_com_bridj_JNI_freeObjCMethodBindings(
+	JNIEnv *env, 
+	jclass clazz,
+	jlong handle,
+	jint size
+) {
+#if defined (DC__OS_Darwin)
+	JavaToObjCCallInfo* infos = (JavaToObjCCallInfo*)(size_t)handle;
+	jint i;
+	if (!infos)
+		return;
+	for (i = 0; i < size; i++) {
+		freeCommon(&infos[i].fInfo);
+	}
+	free(infos);
+#endif
+}
+
+
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToVirtualMethods(
 	JNIEnv *env, 
 	jclass clazz,

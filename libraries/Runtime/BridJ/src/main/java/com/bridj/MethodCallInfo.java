@@ -3,6 +3,8 @@ import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import static com.bridj.Dyncall.*;
 import static com.bridj.Dyncall.CallingConvention.*;
+
+import com.bridj.ann.Constructor;
 import com.bridj.ann.Convention;
 import static com.bridj.Dyncall.SignatureChars.*;
 import com.bridj.*;
@@ -26,7 +28,7 @@ public class MethodCallInfo {
 	private Class<?> declaringClass;
     int returnValueType, paramsValueTypes[];
 	private Method method;
-	String methodName;
+	String methodName, symbolName;
 	private long forwardedPointer;
     String dcSignature;
 	String javaSignature;
@@ -121,6 +123,7 @@ public class MethodCallInfo {
         if (nParams <= JNI.getMaxDirectMappingArgCount())
             this.direct = false;
 
+        symbolName = methodName;
         //this.direct = false; // TODO remove me !
     }
 	
@@ -137,10 +140,11 @@ public class MethodCallInfo {
     }
     public ValueType getValueType(int iParam, Class<?> c, AnnotatedElement element, Annotation... directAnnotations) {
     	Ptr sz = BridJ.getAnnotation(Ptr.class, true, element, directAnnotations);
-    	This th = BridJ.getAnnotation(This.class, true, element, directAnnotations);
+    	Constructor cons = this.method.getAnnotation(Constructor.class);
+    	//This th = BridJ.getAnnotation(This.class, true, element, directAnnotations);
     	CLong cl = BridJ.getAnnotation(CLong.class, true, element, directAnnotations);
         
-    	if (sz != null || th != null || cl != null) {
+    	if (sz != null || cons != null || cl != null) {
     		if (!(c == Long.class || c == Long.TYPE))
     			throw new RuntimeException("Annotation should only be used on a long parameter, not on a " + c.getName());
     		
@@ -150,11 +154,11 @@ public class MethodCallInfo {
             } else if (cl != null) {
                 if (JNI.CLONG_SIZE != 8)
                     direct = false;
-            } else if (th != null) {
+            } else if (cons != null) {
             	isCPlusPlus = true;
 				startsWithThis = true;
 				if (iParam != 0)
-					throw new RuntimeException("Annotation " + This.class.getName() + " can only be used on the first parameter");
+					throw new RuntimeException("Annotation " + Constructor.class.getName() + " cannot have more than one (long) argument");
             }
     	    return ValueType.eSizeTValue;
     	}
@@ -297,7 +301,12 @@ public class MethodCallInfo {
 		return virtualIndex;
 	}
 
-
+	public String getSymbolName() {
+		return symbolName;
+	}
+	public void setSymbolName(String symbolName) {
+		this.symbolName = symbolName;
+	}
 	public void setDcCallingConvention(int dcCallingConvention) {
 		this.dcCallingConvention = dcCallingConvention;
 	}

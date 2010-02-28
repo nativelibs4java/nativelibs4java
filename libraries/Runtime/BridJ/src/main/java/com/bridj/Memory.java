@@ -1,5 +1,9 @@
 package com.bridj;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 
 
@@ -35,7 +39,14 @@ class Memory<T> extends DefaultPointer<T> {
     Memory(PointerIO<T> io, long size) {
         this(io, JNI.malloc(size), size);
         JNI.memset(getPeer(), (byte)0, size);
+        
+        Exception ex = new RuntimeException();
+        ex.getStackTrace();
+        mallocTraces.put(getPeer(), ex);
     }
+    static Map<Long, Exception> mallocTraces = new HashMap<Long, Exception>();
+    
+    
     public long getValidSize() {
         return validSize;
     }
@@ -53,6 +64,8 @@ class Memory<T> extends DefaultPointer<T> {
             throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + byteOffset + " : valid memory start is " + validStart + ", valid memory size is " + validSize);
         return peer;
     }
+    
+    Set<Long> freed = new HashSet<Long>();
 
 	@Override
     protected void free(long peer) {
@@ -60,8 +73,16 @@ class Memory<T> extends DefaultPointer<T> {
         if (peer == 0)
 			return;
 		
-        //BridJ.log(Level.SEVERE, "Leaking memory at address " + peer + " to avoid the free() crash.");
-        JNI.free(peer);
+        if (!freed.add(peer)) {
+        	Exception ex = mallocTraces.get(peer);
+        	if (ex != null)
+        		BridJ.log(Level.SEVERE, "Re-freeing memory !", ex);
+        	else
+        		BridJ.log(Level.SEVERE, "Freeing memory that wasn't malloced here !");
+        }
+        
+        BridJ.log(Level.SEVERE, "Leaking memory at address " + peer + " to avoid the free() crash.");
+        //JNI.free(peer);
     }
     
     @Override
