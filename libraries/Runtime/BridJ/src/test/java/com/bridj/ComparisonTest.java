@@ -7,7 +7,6 @@ package com.bridj;
 
 import com.bridj.JNI;
 import com.bridj.ann.*;
-import com.bridj.c.*;
 import com.bridj.cpp.CPPRuntime;
 import static org.junit.Assert.*;
 
@@ -31,10 +30,10 @@ public class ComparisonTest {
     	public Test() {
 			BridJ.register(getClass());
 		}
-        @Mangling({"?sinInt@@YANH@Z", "_Z6sinInti"})
+        //@Mangling({"?sinInt@@YANH@Z", "_Z6sinInti"})
         public native double sinInt(int d);
 
-        @Mangling({"?voidTest@@YAXXZ", "_Z8voidTestv"})
+        //@Mangling({"?voidTest@@YAXXZ", "_Z8voidTestv"})
         public native void voidTest();
         
         static class Struct1 {
@@ -57,8 +56,8 @@ public class ComparisonTest {
         Test test = null;
         try {
             System.out.println(ComparisonTest.class.getResource("Main.class"));
-            int nWarmUp = 16000;
-            int nCalls = 100000;
+            int nWarmUp = 1600;
+            int nCalls = 1000;
             int nTests = 10;
             int arg = 10;
             double res = 0;
@@ -81,7 +80,7 @@ public class ComparisonTest {
                 JNI.registerClass(PerfTest.class);
     */
                 test.voidTest();
-                res = test.sinInt(arg);
+                //res = test.sinInt(arg);
                 double tot = 0;
                 if (warmup) {
                     for (int i = 0; i < nWarmUp; i++)

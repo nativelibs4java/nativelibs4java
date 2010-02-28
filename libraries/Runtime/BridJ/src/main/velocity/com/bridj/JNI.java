@@ -1,7 +1,5 @@
 package com.bridj;
 
-import com.bridj.c.*;
-
 import java.io.*;
 
 import java.lang.reflect.Method;
@@ -44,6 +42,10 @@ public class JNI {
     public static boolean isWindows() {
     	return File.separatorChar == '\\';
     }
+    
+    public static boolean isWindows7() {
+    	return osName.equals("Windows 7");
+    }
     public static Boolean is64Bits() {
     	String arch = System.getProperty("sun.arch.data.model");
         if (arch == null)
@@ -63,7 +65,7 @@ public class JNI {
     	
     	throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
     }
-    static File extractEmbeddedLibraryResource(String name) throws IOException {
+    public static File extractEmbeddedLibraryResource(String name) throws IOException {
     	String libraryResource = getEmbeddedLibraryResource(name);
         int i = libraryResource.lastIndexOf('.');
         String ext = i < 0 ? "" : libraryResource.substring(i);
@@ -195,7 +197,8 @@ public class JNI {
 			freeCallback(nativeCallbacks[i]);
 	}*/
 	
-	public static native long createCToJavaCallback(MethodCallInfo info, Callback instance);
+	public static native long createCToJavaCallback(MethodCallInfo info);
+	public static native long getActualCToJavaCallback(long handle);
 	public static native long bindJavaToCCallbacks(MethodCallInfo... infos);
 	public static native long bindJavaMethodsToCFunctions(MethodCallInfo... infos);
 	public static native long bindJavaMethodsToVirtualMethods(MethodCallInfo... infos);

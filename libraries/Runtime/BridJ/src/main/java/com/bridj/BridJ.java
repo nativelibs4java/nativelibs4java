@@ -28,12 +28,12 @@ import com.bridj.ann.Mangling;
 import com.bridj.ann.NoInheritance;
 import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
-import com.bridj.c.CRuntime;
 import com.bridj.cpp.CPPObject;
 import com.bridj.cpp.CPPRuntime;
 import com.bridj.cpp.com.COMRuntime;
 import com.bridj.cpp.mfc.MFCRuntime;
 import com.bridj.objc.ObjectiveCRuntime;
+import java.util.Stack;
 
 /// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class BridJ {
@@ -126,12 +126,41 @@ public class BridJ {
     	}
     }
     
-    CPPRuntime cppRuntime;
-    CRuntime cRuntime;
-    ObjectiveCRuntime objCRuntime;
-    MFCRuntime mfcRuntime;
-    COMRuntime comRuntime;
     
+	static ThreadLocal<Stack<Boolean>> currentlyCastingNativeObject = new ThreadLocal<Stack<Boolean>>() {
+        @Override
+		protected java.util.Stack<Boolean> initialValue() {
+			Stack<Boolean> s = new Stack<Boolean>();
+			s.push(false);
+			return s;
+		};
+	};
+	
+	static boolean isCastingNativeObjectInCurrentThread() {
+		return currentlyCastingNativeObject.get().peek();
+	}
+
+    static CRuntime cRuntime;
+    static synchronized CRuntime getCRuntime() {
+        if (cRuntime == null)
+            cRuntime = getRuntimeByRuntimeClass(CRuntime.class);
+        return cRuntime;
+    }
+	public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Class<O> type) {
+		Stack<Boolean> s = currentlyCastingNativeObject.get();
+		s.push(true);
+		try {
+            BridJRuntime runtime = getRuntime(type);
+            O instance = runtime.getTypeForCast(type).newInstance();
+			instance.peer = (Pointer)pointer;//offset(byteOffset);//Pointer.pointerToAddress(address, type);
+			return instance;
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to cast pointer to native object of type " + type.getName(), ex);
+		} finally {
+			s.pop();
+		}
+	}
+
     private static Map<Class<? extends BridJRuntime>, BridJRuntime> runtimes = new HashMap<Class<? extends BridJRuntime>, BridJRuntime>();
     
     static synchronized <R extends BridJRuntime> R getRuntimeByRuntimeClass(Class<R> runtimeClass) {
@@ -145,17 +174,31 @@ public class BridJ {
     	
     	return r;
     }
-    
-	static BridJRuntime register(Class<?> type) {
-		BridJRuntime runtime = registeredTypes.get(type);
-		if (runtime != null)
-			return runtime;
-		
+
+    static BridJRuntime getRuntime(Class<?> type) {
+        return getRuntime(type, true);
+    }
+    private static BridJRuntime getRuntime(Class<?> type, boolean checkInRegisteredTypes) {
+
+		BridJRuntime runtime = null;
+        if (checkInRegisteredTypes) {
+            runtime = registeredTypes.get(type);
+            if (runtime != null)
+                return runtime;
+        }
+
 		com.bridj.ann.Runtime runtimeAnn = getAnnotation(com.bridj.ann.Runtime.class, true, type);
 		if (runtimeAnn == null)
-			throw new IllegalArgumentException("Class " + type.getName() + " has no " + com.bridj.ann.Runtime.class.getName() + " annotation. Unable to guess the corresponding " + BridJRuntime.class.getName() + " implementation.");
+            return getCRuntime();
+			//throw new IllegalArgumentException("Class " + type.getName() + " has no " + com.bridj.ann.Runtime.class.getName() + " annotation. Unable to guess the corresponding " + BridJRuntime.class.getName() + " implementation.");
+
+		return getRuntimeByRuntimeClass(runtimeAnn.value());
+    }
+	public static BridJRuntime register(Class<?> type) {
+		BridJRuntime runtime = registeredTypes.get(type);
+		if (runtime == null)
+			runtime = getRuntime(type, false);
 		
-		runtime = getRuntimeByRuntimeClass(runtimeAnn.value());
 		runtime.register(type);
 		registeredTypes.put(type, runtime);
 		return runtime;
@@ -298,7 +341,7 @@ public class BridJ {
         libHandles.put(name, ll);
         return ll;
     }
-    static String getNativeLibraryName(AnnotatedElement m) {
+    public static String getNativeLibraryName(AnnotatedElement m) {
         Library lib = getAnnotation(Library.class, true, m);
         return lib == null ? null : lib.value(); // TODO use package as last resort
     }
@@ -343,4 +386,12 @@ public class BridJ {
 	public static NativeEntities getOrphanEntities() {
 		return orphanEntities;
 	}
+
+    static void initialize(NativeObject instance) {
+        (instance.runtime = register(instance.getClass())).initialize(instance);
+    }
+
+    static void initialize(NativeObject instance, int constructorId, Object[] args) {
+        (instance.runtime = register(instance.getClass())).initialize(instance, constructorId, args);
+    }
 }

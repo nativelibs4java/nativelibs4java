@@ -103,6 +103,14 @@ jboolean followCall(JNIEnv* env, ValueType returnType, DCCallVM* vm, DCValue* re
 	return JNI_TRUE;
 }
 
+void initVM(DCCallVM** vm) {
+	if (!*vm) {
+		*vm = dcNewCallVM(1024);
+	} else {
+		dcReset(*vm); // TODO remove me (reset is done by dcMode ?)
+	}
+}
+
 jobject initCallHandler(DCArgs* args, DCCallVM** vmOut, JNIEnv** envOut) {
 	THREAD_STATIC DCCallVM* vm = NULL;
 	JNIEnv *env = NULL;
@@ -113,12 +121,7 @@ jobject initCallHandler(DCArgs* args, DCCallVM** vmOut, JNIEnv** envOut) {
 		instance = dcbArgPointer(args); // skip second arg = jclass or jobject
 	}
 	
-	if (!vm) {
-		vm = dcNewCallVM(1024);
-	} else {
-		// reset is done by dcMode anyway ! dcReset(vm);
-		dcReset(vm); // TODO remove me !
-	}
+	initVM(&vm);
 	
 	*vmOut = vm;
 	*envOut = env;
@@ -208,13 +211,8 @@ char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJa
 	THREAD_STATIC DCCallVM* vm = NULL;
 	JNIEnv *env = info->fInfo.fEnv;
 	jthrowable exc;
-    
-	if (!vm) {
-		vm = dcNewCallVM(1024);
-	} else {
-		// reset is done by dcMode anyway ! dcReset(vm);
-	}
-	
+
+	initVM(&vm);
 	dcMode(vm, 0);
 	
 	dcArgPointer(vm, (DCpointer)env);

@@ -30,7 +30,7 @@ import com.bridj.Demangler.Symbol;
 import com.bridj.NativeEntities.Builder;
 import com.bridj.ann.This;
 import com.bridj.ann.Virtual;
-import com.bridj.c.CRuntime;
+import com.bridj.CRuntime;
 import com.bridj.util.AutoHashMap;
 
 /**
@@ -139,14 +139,6 @@ public class CPPRuntime extends CRuntime {
 		}
 	}
 	
-	@Override
-	public <T extends NativeObject> Pointer<T> allocate(Class<?> type, int constructorId, Object... args) {
-		if (CPPObject.class.isAssignableFrom(type))
-        	return newCPPInstance(type, constructorId, args);
-        
-        return super.allocate(type, constructorId, args);
-	}
-	
 	static Map<Class<?>, Long> defaultConstructors = new HashMap<Class<?>, Long>();
     
 	protected <T extends NativeObject> Pointer<T> newCPPInstance(Class<?> type, int constructorId, Object... args) {
@@ -209,4 +201,20 @@ public class CPPRuntime extends CRuntime {
 //    		vptr = vptr.next(2);
     	peer.setPointer(0, vptr);
     }
+
+    @Override
+    public void destroy(NativeObject instance) {
+        // TODO call C++ destructor if needed
+        super.destroy(instance);
+    }
+
+    @Override
+    public void initialize(NativeObject instance, int constructorId, Object[] args) {
+        if (CPPObject.class.isInstance(instance)) {
+            //instance.peer = allocate(instance.getClass(), constructorId, args);
+        	setNativeObjectPeer(instance, newCPPInstance(instance.getClass(), constructorId, args));
+        }
+        else
+            super.initialize(instance, constructorId, args);
+	}
 }

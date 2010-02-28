@@ -290,10 +290,8 @@ public class VC9Demangler extends Demangler {
 		case 'K': // unsigned long
 			return classType(Long.TYPE, CLong.class);
         case 'M': // float
-            expectChars('@');
-			return classType(Float.TYPE);
+            return classType(Float.TYPE);
 		case 'N': // double
-			expectChars('@');
 			return classType(Double.TYPE);
         case 'Y':
             throw error("TODO handle cointerfaces", -1);

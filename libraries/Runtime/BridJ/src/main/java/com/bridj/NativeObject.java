@@ -22,15 +22,10 @@ public class NativeObject {
 	}
 	
 	public NativeObject() {
-		Class<?> c = getClass();
-		this.runtime = BridJ.register(c);
-		if (!Pointer.isCastingInCurrentThread())
-            this.peer = runtime.allocate(c, -1);
+		BridJ.initialize(this);
     }
     public NativeObject(int constructorId, Object[] args) {
-    	Class<?> c = getClass();
-		this.runtime = BridJ.register(c);
-        this.peer = (Pointer)runtime.allocate(c, constructorId, args);
+        BridJ.initialize(this, constructorId, args);
     }
     
     @Override

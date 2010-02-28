@@ -4,7 +4,6 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.*;
 import java.util.Stack;
-import com.bridj.c.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
@@ -55,31 +54,8 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 		return getPeer(instance, targetType).getPeer();
     }
     
-	static ThreadLocal<Stack<Boolean>> currentlyCasting = new ThreadLocal<Stack<Boolean>>() {
-        @Override
-		protected java.util.Stack<Boolean> initialValue() {
-			Stack<Boolean> s = new Stack<Boolean>();
-			s.push(false);
-			return s;
-		};
-	};
-	
-	static boolean isCastingInCurrentThread() {
-		return currentlyCasting.get().peek();
-	}
-    
 	public <O extends NativeObject> O toNativeObject(Class<O> type) {
-		Stack<Boolean> s = currentlyCasting.get();
-		s.push(true);
-		try {
-			O instance = type.newInstance();
-			instance.peer = (Pointer)this;//offset(byteOffset);//Pointer.pointerToAddress(address, type);
-			return instance;
-		} catch (Exception ex) {
-			throw new RuntimeException("Failed to cast pointer to native object of type " + type.getName(), ex);
-		} finally {
-			s.pop();
-		}
+		return (O)BridJ.createNativeObjectFromPointer((Pointer)this, type);
 	}
     
 	/**
@@ -318,8 +294,21 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
     public interface Deallocator {
         void deallocate(long peer);
     }
-
-    @Deprecated
+    
+    public static Pointer<?> pointerToAddress(long address, Class<?> type, final Deallocator deallocator) {
+        return pointerToAddress(address, PointerIO.getInstance(type), deallocator);
+    }
+	static Pointer<?> pointerToAddress(long address, PointerIO io, final Deallocator deallocator) {
+        return address == 0 ? null : new Memory(io, address, -1) {
+            @Override
+            protected void free(long peer) {
+                if (deallocator != null)
+                    deallocator.deallocate(peer);
+            }
+        };
+    }
+	
+	@Deprecated
     public static Pointer<?> pointerToAddress(long address, final Deallocator deallocator) {
 		return pointerToAddress(address, -1, deallocator);
 	}

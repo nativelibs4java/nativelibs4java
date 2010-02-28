@@ -12,7 +12,7 @@ import com.bridj.Pointer;
 import com.bridj.cs.CSharpRuntime;
 
 /**
- *
+ * {@link http://msdn.microsoft.com/en-us/library/system.runtime.interopservices.marshal.getdelegateforfunctionpointer(VS.80).aspx}
  * @author Olivier
  */
 public class DotNetRuntime extends AbstractBridJRuntime implements CSharpRuntime {
@@ -33,7 +33,17 @@ public class DotNetRuntime extends AbstractBridJRuntime implements CSharpRuntime
     }
 
     @Override
-    public <T extends NativeObject> Pointer<T> allocate(Class<?> type, int constructorId, Object... args) {
+    public void initialize(NativeObject instance) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void initialize(NativeObject instance, int constructorId, Object[] args) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void destroy(NativeObject instance) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

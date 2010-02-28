@@ -11,7 +11,7 @@ import static com.bridj.cpp.mfc.OnMessage.Type.*;
 import static com.bridj.cpp.mfc.StandardAfxCommands.*;
 
 /**
- *
+ * 
  * @author Olivier
  */
 public class TestMFC {

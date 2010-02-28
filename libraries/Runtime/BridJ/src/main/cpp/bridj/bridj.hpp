@@ -14,10 +14,10 @@
 #define __cdecl
 #endif
 
-//#include "jni.h"
 #include "dyncallback/dyncall_callback.h"
 #include <jni.h>
-//#include "Exceptions.h"
+
+//#define NO_DIRECT_CALLS 1
 
 #ifdef _MSC_VER
 #	define THREAD_STATIC __declspec(thread) static
@@ -92,6 +92,7 @@ typedef struct JavaToNativeCallbackCallInfo {
 
 char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
+char __cdecl JavaToNativeCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl NativeToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 
 void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass);

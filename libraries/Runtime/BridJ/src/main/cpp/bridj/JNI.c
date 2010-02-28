@@ -6,19 +6,9 @@
 
 #include "bridj.hpp"
 #include <string.h>
-//#include <stdlib.h>
 #include "Exceptions.h"
 
-#if defined(DC_UNIX)
-#include <dlfcn.h>
-#endif
-
-#if defined(DC__OS_Win64) || defined(DC__OS_Win32)
-//#include <Dbghelp.h>
-#endif
-
 #pragma warning(disable: 4152)
-
 #pragma warning(disable: 4189) // local variable initialized but unreferenced // TODO remove this !
 
 #define JNI_SIZEOF(type, escType) \
@@ -41,7 +31,7 @@ int main() {}
 void initMethods(JNIEnv* env) {
 	if (!gAddressMethod)
 	{
-		gPointerClass = (*env)->FindClass(env, "com/bridj/Pointer");
+		gPointerClass = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/bridj/Pointer"));
 		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lcom/bridj/NativeObject;Ljava/lang/Class;)J");
 		gGetPeerMethod = (*env)->GetMethodID(env, gPointerClass, "getPeer", "()J");
 		gCreatePeerMethod = (*env)->GetStaticMethodID(env, gPointerClass, "pointerToAddress", "(JLjava/lang/Class;)Lcom/bridj/Pointer;");
@@ -58,7 +48,7 @@ jobject createPointer(JNIEnv *env, void* ptr, jclass targetType) {
 
 void* getPointerPeer(JNIEnv *env, jobject pointer) {
 	initMethods(env);
-	return (void*)(size_t)(*env)->CallLongMethod(env, gPointerClass, gGetPeerMethod, pointer);
+	return (void*)(size_t)(*env)->CallLongMethod(env, pointer, gGetPeerMethod, pointer);
 }
 
 void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass) {
@@ -341,8 +331,7 @@ jboolean GetInfoClassAndFields(
 	return JNI_TRUE;
 }
 
-#define BEGIN_INFOS_LOOP(type)                                                                                           \
-	jsize i, n = (*env)->GetArrayLength(env, methodCallInfos);															 \
+#define GET_INFO_FIELD_IDS()                                                                                            \
 	jclass 		cl					;                                                                                    \
 	jfieldID 	id_javaSignature 		;                                                                                \
 	jfieldID 	id_dcSignature 		;                                                                                    \
@@ -357,8 +346,6 @@ jboolean GetInfoClassAndFields(
 	jfieldID 	id_dcCallingConvention	;                                                                                \
 	jfieldID 	id_methodName			;                                                                                \
 	jfieldID 	id_declaringClass		;                                                                                \
-	NEW_STRUCTS(n, type, infos);																						 \
-	                                                                                                                     \
 	if (!GetInfoClassAndFields(env,                                                                                      \
 		&cl					,                                                                                            \
 		&id_javaSignature 		,                                                                                        \
@@ -376,12 +363,8 @@ jboolean GetInfoClassAndFields(
 		&id_dcCallingConvention                                                                                          \
 	))																													 \
 		return 0;                                                                                                        \
-	                                                                                                                     \
-	for (i = 0; i < n; i++)                                                                                              \
-	{                  																									 \
-		type* info = &infos[i];																							 \
-		jobject methodCallInfo = (*env)->GetObjectArrayElement(env, methodCallInfos, i);                                 \
-		                                                                                                                 \
+	                                                                                                                     
+#define GET_INFO_FIELDS()                                                                                               \
 		jstring 	javaSignature 		= (*env)->GetObjectField(	env, methodCallInfo, id_javaSignature 			);   \
 		jstring 	dcSignature 		= (*env)->GetObjectField(	env, methodCallInfo, id_dcSignature 		    );   \
 		jstring 	methodName	 		= (*env)->GetObjectField(	env, methodCallInfo, id_methodName	 		    );   \
@@ -397,7 +380,73 @@ jboolean GetInfoClassAndFields(
 		jboolean 	startsWithThis		= (*env)->GetBooleanField(	env, methodCallInfo, id_startsWithThis 			);   \
 		jsize		nParams				= (*env)->GetArrayLength(	env, paramsValueTypes);
 		
-#define END_INFOS_LOOP() }
+#define BEGIN_INFOS_LOOP(type)                                                                                           \
+	jsize i, n = (*env)->GetArrayLength(env, methodCallInfos);															 \
+	NEW_STRUCTS(n, type, infos);																						 \
+	{																													 \
+		GET_INFO_FIELD_IDS()	                                                                                         \
+		                                                                                                                 \
+		for (i = 0; i < n; i++)                                                                                          \
+		{                  																								 \
+			type* info = &infos[i];																						 \
+			jobject methodCallInfo = (*env)->GetObjectArrayElement(env, methodCallInfos, i);                             \
+			GET_INFO_FIELDS();
+
+#define END_INFOS_LOOP() } }
+
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback(
+	JNIEnv *env, 
+	jclass clazz,
+	jobject methodCallInfo
+) {
+	struct NativeToJavaCallbackCallInfo* info = NULL;
+	GET_INFO_FIELD_IDS();
+	{
+		const char* dcSig, *javaSig, *methName;
+		GET_INFO_FIELDS();
+		{
+			info = (struct NativeToJavaCallbackCallInfo*)malloc(sizeof(struct NativeToJavaCallbackCallInfo));
+			memset(info, 0, sizeof(struct NativeToJavaCallbackCallInfo));
+			
+			// TODO DIRECT C++ virtual thunk
+			javaSig = (char*)(*env)->GetStringUTFChars(env, javaSignature, NULL);
+			dcSig = (*env)->GetStringUTFChars(env, dcSignature, NULL);
+			methName = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
+
+			info->fInfo.fDCCallback = dcbNewCallback(dcSig, NativeToJavaCallHandler, info);
+			info->fCallbackInstance = (*env)->NewGlobalRef(env, javaCallback);
+			info->fMethod = (*env)->GetMethodID(env, declaringClass, methName, javaSig);
+			info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
+
+
+			(*env)->ReleaseStringUTFChars(env, javaSignature, javaSig);
+			(*env)->ReleaseStringUTFChars(env, methodName, methName);
+			(*env)->ReleaseStringUTFChars(env, dcSignature, dcSig);
+			
+			initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
+		}
+	}
+	return (jlong)(size_t)info;
+}
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_getActualCToJavaCallback(
+	JNIEnv *env, 
+	jclass clazz,
+	jlong handle
+) {
+	struct NativeToJavaCallbackCallInfo* info = (struct NativeToJavaCallbackCallInfo*)(size_t)handle;
+	return (jlong)(size_t)info->fInfo.fDCCallback;
+}
+JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCToJavaCallback(
+	JNIEnv *env, 
+	jclass clazz,
+	jlong handle
+) {
+	struct NativeToJavaCallbackCallInfo* info = (struct NativeToJavaCallbackCallInfo*)(size_t)handle;
+	(*env)->DeleteGlobalRef(env, info->fCallbackInstance);
+	freeCommon(&info->fInfo);
+	free(info);
+}
+
 
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaToCCallbacks(
 	JNIEnv *env, 
@@ -406,12 +455,12 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaToCCallbacks(
 ) {
 	BEGIN_INFOS_LOOP(JavaToNativeCallbackCallInfo)
 	{
-		void* callback;
+		//void* callback;
 		const char* dcSig;
 		
 		// TODO DIRECT C++ virtual thunk
 		dcSig = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-		callback = dcbNewCallback(dcSig, NativeToJavaCallHandler, info);
+		info->fInfo.fDCCallback = dcbNewCallback(dcSig, JavaToNativeCallHandler/* NativeToJavaCallHandler*/, info);
 		(*env)->ReleaseStringUTFChars(env, dcSignature, dcSig);
 			
 		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
@@ -443,8 +492,10 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCFunctions(
 	BEGIN_INFOS_LOOP(FunctionCallInfo)
 	{
 		info->fForwardedSymbol = (void*)(size_t)forwardedPointer;
+#ifndef NO_DIRECT_CALLS
 		if (direct && forwardedPointer)
 			info->fInfo.fDCCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer, dcCallingConvention);
+#endif
 		
 		if (!info->fInfo.fDCCallback) {
 			const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
@@ -515,141 +566,6 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeVirtualMethodBindings(
 	}
 	free(infos);
 }
-
-/*
-JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallback(
-	JNIEnv *env, 
-	jclass clazz,
-	jint callbackType,
-	jclass declaringClass,
-	jobject javaCallbackInstance,
-	jobject method,
-	jboolean startsWithThis,
-	jstring methodName,
-	jint callMode,
-	jlong forwardedPointer, 
-	jint virtualTableOffset,
-	jint virtualIndex,
-	jboolean direct, 
-	jstring javaSignature, 
-	jstring dcSignature,
-	jboolean isJavaToCCallback,
-	jint nParams,
-	jint returnValueType, 
-	jintArray paramsValueTypes
-) {
-	
-	struct CommonCallbackInfo *pCommonInfo = NULL;
-	void *pInfo = NULL;
-	void *callbackToRegister = NULL;
-	
-	switch ((CallbackType)callbackType)
-	{
-	case eJavaCallbackToNativeFunction:
-		{
-			const char *dcSig, *javaSig, *methName;
-			NEW_STRUCT(JavaToNativeCallbackCallInfo, info, pInfo, pCommonInfo);
-			
-			javaSig = (char*)(*env)->GetStringUTFChars(env, javaSignature, NULL);
-			methName = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
-			info->fMethod = (*env)->GetMethodID(env, declaringClass, methName, javaSig);
-			(*env)->ReleaseStringUTFChars(env, javaSignature, javaSig);
-			(*env)->ReleaseStringUTFChars(env, methodName, methName);
-			
-			// TODO DIRECT C++ virtual thunk
-			dcSig = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-			info->fInfo.fDCCallback = dcbNewCallback(dcSig, NativeToJavaCallHandler, info);
-			(*env)->ReleaseStringUTFChars(env, dcSignature, dcSig);
-		} 
-		break;
-	case eNativeToJavaCallback:
-		{
-			const char *dcSig, *javaSig, *methName;
-			NEW_STRUCT(NativeToJavaCallbackCallInfo, info, pInfo, pCommonInfo);
-			
-			javaSig = (char*)(*env)->GetStringUTFChars(env, javaSignature, NULL);
-			methName = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
-			info->fCallbackInstance = javaCallbackInstance;
-			info->fMethod = (*env)->GetMethodID(env, declaringClass, methName, javaSig);
-			info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
-			
-			(*env)->ReleaseStringUTFChars(env, javaSignature, javaSig);
-			(*env)->ReleaseStringUTFChars(env, methodName, methName);
-			
-			// TODO DIRECT C++ virtual thunk
-			dcSig = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-			info->fInfo.fDCCallback = dcbNewCallback(dcSig, NativeToJavaCallHandler, info);
-			(*env)->ReleaseStringUTFChars(env, dcSignature, dcSig);
-		}
-		break;
-	case eJavaToVirtualMethod:
-		{
-			const char* ds;
-			NEW_STRUCT(VirtualMethodCallInfo, info, pInfo, pCommonInfo);
-			
-			info->fClass = (*env)->NewGlobalRef(env, declaringClass);
-			info->fHasThisPtrArg = startsWithThis;
-			info->fVirtualIndex = virtualIndex;
-			info->fVirtualTableOffset = virtualTableOffset;
-			//info->fClass = NULL;//TODO declaringClass;
-			
-			// TODO DIRECT C++ virtual thunk
-			ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-			info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToVirtualMethodCallHandler, info);
-			(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
-			
-			callbackToRegister = info->fInfo.fDCCallback;
-		}
-		break;
-	case eJavaToNativeFunction:
-		{
-			NEW_STRUCT(FunctionCallInfo, info, pInfo, pCommonInfo);
-			
-			info->fForwardedSymbol = (void*)(size_t)forwardedPointer;
-			if (direct && forwardedPointer)
-				info->fInfo.fDCCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer, callMode);
-			
-			if (!info->fInfo.fDCCallback) {
-				const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-				info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToFunctionCallHandler, info);
-				(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
-			}
-			callbackToRegister = info->fInfo.fDCCallback;
-		}
-		break;
-	default:
-		throwException(env, "Unknown callbackType !");
-		return 0;
-	}
-	initCommonCallInfo(pCommonInfo, env, callMode, nParams, returnValueType, paramsValueTypes);
-	
-	if (callbackToRegister) {
-		JNINativeMethod meth;
-		meth.fnPtr = callbackToRegister;
-		meth.name = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
-		meth.signature = (char*)(*env)->GetStringUTFChars(env, javaSignature, NULL);
-		(*env)->RegisterNatives(env, declaringClass, &meth, 1);
-		
-		(*env)->ReleaseStringUTFChars(env, methodName, meth.name);
-		(*env)->ReleaseStringUTFChars(env, javaSignature, meth.signature);
-	}
-	return (jlong)(size_t)pInfo;
-}
-
-JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCallback(
-	JNIEnv *env, 
-	jclass clazz,
-	jint callbackType,
-	jlong nativeCallback
-) {
-	CallInfo* info = (CallInfo*)nativeCallback;
-	if (info->nParams)
-		free(info->fParamTypes);
-	
-	dcbFreeCallback((DCCallback*)info->fDCCallback);
-	free(info);
-}*/
-
 
 #define FUNC_VOID_3(name, t1, t2, t3, nt1, nt2, nt3) \
 void JNICALL Java_com_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1, t2 a2, t3 a3) \

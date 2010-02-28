@@ -55,4 +55,10 @@ public abstract class AbstractBridJRuntime implements BridJRuntime {
 		}
 		throw new NoSuchMethodException("Cannot find constructor with index " + constructorId);
 	}
+
+    @Override
+    public <T extends NativeObject> Class<? extends T> getTypeForCast(Class<T> type) {
+        return type;
+    }
+
 }

@@ -7,6 +7,7 @@ import com.bridj.ann.Convention;
 import static com.bridj.Dyncall.SignatureChars.*;
 import com.bridj.*;
 import com.bridj.ann.*;
+import com.bridj.cpp.CPPObject;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -36,14 +37,12 @@ public class MethodCallInfo {
 
 	boolean isVarArgs;
 	boolean isStatic;
-	boolean isCPlusPlus;
-	private boolean isJavaToCCallback;
+    boolean isCPlusPlus;
 	boolean direct;
 	boolean startsWithThis;
 
 	public MethodCallInfo(Method method) throws FileNotFoundException {
         isVarArgs = false;
-        isCPlusPlus = false;
         this.setMethod(method);
 		this.setDeclaringClass(method.getDeclaringClass());
 		this.methodName = method.getName();
@@ -93,8 +92,7 @@ public class MethodCallInfo {
         Virtual virtual = BridJ.getAnnotation(Virtual.class, false, method);
         isCPlusPlus = isCPlusPlus || virtual != null;
         
-        Convention cc = BridJ.getAnnotation(Convention.class, false, method);
-    	if (isCPlusPlus) {
+        if (isCPlusPlus) {
         	if (JNI.isWindows()) {
         		if (!JNI.is64Bits())
         			setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
@@ -102,23 +100,28 @@ public class MethodCallInfo {
         		if (!JNI.is64Bits())
         			setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_GNU);
         	}
-        } else {
-        	if (cc != null) {
-        		switch (cc.value()) {
-        		//case Auto:
-        		//	break;
-        		case FastCall:
-        			setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_X86_WIN32_FAST_GNU);
-        			break;
-        		case StdCall:
-        			setDcCallingConvention(DC_CALL_C_X86_WIN32_STD);
-        			break;
-        		}
-        	}
+        }
+        Convention cc = BridJ.getAnnotation(Convention.class, false, method);
+        if (cc != null) {
+            switch (cc.value()) {
+            //case Auto:
+            //	break;
+            case FastCall:
+                setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_DEFAULT); // TODO allow GCC-compiled C++ libs on windows
+                break;
+            case Pascal:
+            case StdCall:
+                setDcCallingConvention(DC_CALL_C_X86_WIN32_STD);
+                break;
+            case ThisCall:
+                setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_THIS_GNU : DC_CALL_C_DEFAULT);
+            }
         }
 
         if (nParams <= JNI.getMaxDirectMappingArgCount())
             this.direct = false;
+
+        //this.direct = false; // TODO remove me !
     }
 	
 
@@ -304,14 +307,11 @@ public class MethodCallInfo {
 		return dcCallingConvention;
 	}
 
+    public Callback getJavaCallback() {
+        return javaCallback;
+    }
 
-	public void setJavaToCCallback(boolean isJavaToCCallback) {
-		this.isJavaToCCallback = isJavaToCCallback;
-	}
-
-
-	public boolean isJavaToCCallback() {
-		return isJavaToCCallback;
-	}
-
+    public void setJavaCallback(Callback javaCallback) {
+        this.javaCallback = javaCallback;
+    }
 }

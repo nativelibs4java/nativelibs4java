@@ -1,6 +1,7 @@
-package com.bridj.cpp;
+package com.bridj;
 
 import com.bridj.BridJ;
+import com.bridj.CRuntime;
 import com.bridj.Callback;
 import com.bridj.Demangler;
 import com.bridj.JNI;
@@ -10,6 +11,10 @@ import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Library;
 import com.bridj.ann.Ptr;
 import com.bridj.ann.Virtual;
+import com.bridj.cpp.CPPObject;
+import com.bridj.cpp.CPPRuntime;
+import com.bridj.cpp.VC9Demangler;
+import java.io.FileNotFoundException;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 @Library("test")
@@ -24,7 +29,7 @@ public class TestCPP {
 //	;
 
 	static {
-		BridJ.register();
+		//BridJ.register();
 	}
 	
 	static NativeLibrary library;
@@ -43,8 +48,11 @@ public class TestCPP {
 		library = BridJ.getNativeLibrary("test");
 			//NativeLibrary.load(libraryPath);
 
+        new VC9Demangler(null, "?sinInt@@YANH@Z").parseSymbol();
         new VC9Demangler(null, "?forwardCall@@YAHP6AHHH@ZHH@Z").parseSymbol();
 
+        BridJ.register();
+        
         //new VC9Demangler(null, "??0Ctest2@@QEAA@XZ").parseSymbol();
 
 		for (Demangler.Symbol symbol : library.getSymbols()) {
@@ -70,7 +78,12 @@ public class TestCPP {
 		System.out.println("res = " + res);
 		
 		testNativeTargetCallbacks();
-		testJavaTargetCallbacks();
+        testJavaTargetCallbacks();
+
+
+        double dres = PerfLib.testASinB(1, 2);
+        res = PerfLib.testAddJNI(1, 2);
+        System.out.println("Done");
 	}
 	@Library("test")
 	static class Ctest extends CPPObject {
@@ -108,25 +121,35 @@ public class TestCPP {
 	
 	
 	public static void testJavaTargetCallbacks() {
-		forwardCall(new MyCallback() {
-			@Override
-			public int doSomething(int a, int b) {
-				return a + b;
-			}
-		}.toPointer(), 1, 2);
-		
-		forwardCall(new MyCallback() {
+		int res;
+
+        res = forwardCall(new MyCallback() {
 			@Override
 			public int doSomething(int a, int b) {
 				return a + b * 10;
 			}
 		}.toPointer(), 1, 2);
+        if (res != (1 + 2 * 10))
+            throw new RuntimeException();
+
+        res = forwardCall(new MyCallback() {
+			@Override
+			public int doSomething(int a, int b) {
+				return a + b;
+			}
+		}.toPointer(), 1, 2);
+        if (res != (1 + 2))
+            throw new RuntimeException();
+
 	}
 	
 	public static void testNativeTargetCallbacks() {
-		Pointer<com.bridj.cpp.TestCPP.MyCallback> ptr = getAdder();
+		Pointer<com.bridj.TestCPP.MyCallback> ptr = getAdder();
 		MyCallback adder = ptr.toNativeObject(MyCallback.class);
-		adder.doSomething(1, 2);
+		int res = adder.doSomething(1, 2);
+
+        if (res != 3)
+            throw new RuntimeException("Expected 3, got "+ res);
 	}
 	
 	static native int forwardCall(Pointer<MyCallback> cb, int a, int b);
@@ -136,4 +159,35 @@ public class TestCPP {
 		public abstract int doSomething(int a, int b); 
 	}
 	
+}
+
+
+@Library("test")
+@com.bridj.ann.Runtime(CRuntime.class)
+class PerfLib {
+    static {
+        String f = BridJ.getNativeLibraryFile(BridJ.getNativeLibraryName(PerfLib.class)).toString();
+        System.load(f);
+    }
+    public static class DynCallTest {
+        public DynCallTest() throws FileNotFoundException {
+            BridJ.register(getClass());
+        }
+        public native int testAddDyncall(int a, int b);
+        public native int testASinB(int a, int b);
+    }
+
+    public static class JNATest implements com.sun.jna.Library {
+        static {
+        	try {
+        		com.sun.jna.Native.register(JNI.extractEmbeddedLibraryResource("test").toString());
+        	} catch (Exception ex) {
+        		throw new RuntimeException("Failed to initialize test JNA library", ex);
+        	}
+        }
+        public static native int testAddJNA(int a, int b);
+        public static native int testASinB(int a, int b);
+    }
+    public static native int testAddJNI(int a, int b);
+    public static native double testASinB(int a, int b);
 }

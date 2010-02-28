@@ -78,10 +78,10 @@ public class NativeEntities {
 		if (n != 0)
 			virtualMethods.put(type, new CBInfo(JNI.bindJavaMethodsToVirtualMethods(builder.virtualMethods.toArray(new MethodCallInfo[n])), n));
 
-		n = builder.getters.size();
+		n = builder.javaToNativeCallbacks.size();
 		if (n != 0)
-			getters.put(type, new CBInfo(JNI.bindJavaToCCallbacks(builder.getters.toArray(new MethodCallInfo[n])), n));
-		
+			javaToNativeCallbacks.put(type, new CBInfo(JNI.bindJavaToCCallbacks(builder.javaToNativeCallbacks.toArray(new MethodCallInfo[n])), n));
+
 //		n = builder.setters.size();
 //		if (n != 0)
 //			setters.put(type, new CBInfo(JNI.bindFieldGetters(builder.setters.toArray(new MethodCallInfo[n])), n));

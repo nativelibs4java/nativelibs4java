@@ -60,8 +60,8 @@ class Memory<T> extends DefaultPointer<T> {
         if (peer == 0)
 			return;
 		
-        BridJ.log(Level.SEVERE, "Leaking memory at address " + peer + " to avoid the free() crash.");
-        //TODO JNI.free(peer);
+        //BridJ.log(Level.SEVERE, "Leaking memory at address " + peer + " to avoid the free() crash.");
+        JNI.free(peer);
     }
     
     @Override

@@ -24,7 +24,8 @@ public class VC9DemanglingTest {
 	}
 
     @Test
-	public void simpleFunction() {
+	public void simpleFunctions() {
+		demangleVC9("?sinInt@@YANH@Z", null, "sinInt", double.class, int.class);
 		demangleVC9("?forwardCall@@YAHP6AHHH@ZHH@Z", null, "forwardCall", int.class, Pointer.class, int.class, int.class);
 	}
 

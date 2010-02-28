@@ -10,11 +10,16 @@ import com.bridj.cpp.mfc.CRuntimeClass;
 
 public interface BridJRuntime {
 
+	void register(Class<?> type);
+
+    void initialize(NativeObject instance);
+    void initialize(NativeObject instance, int constructorId, Object... args);
+
+    void destroy(NativeObject instance);
+
+    <T extends NativeObject> Class<? extends T> getTypeForCast(Class<T> type);
+    
     boolean isAvailable();
 	<T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Class<T> officialType);
-	void register(Class<?> type);
-	
-	<T extends NativeObject> Pointer<T> allocate(Class<?> type, int constructorId, Object... args);
     
-	
 }

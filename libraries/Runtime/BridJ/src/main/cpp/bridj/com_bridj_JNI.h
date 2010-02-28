@@ -730,10 +730,18 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_callDefaultCPPConstructor
 /*
  * Class:     com_bridj_JNI
  * Method:    createCToJavaCallback
- * Signature: (Lcom/bridj/MethodCallInfo;Lcom/bridj/Callback;)J
+ * Signature: (Lcom/bridj/MethodCallInfo;)J
  */
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback
-  (JNIEnv *, jclass, jobject, jobject);
+  (JNIEnv *, jclass, jobject);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    getActualCToJavaCallback
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_getActualCToJavaCallback
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     com_bridj_JNI

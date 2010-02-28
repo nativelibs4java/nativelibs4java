@@ -1,4 +1,4 @@
-package com.bridj.c;
+package com.bridj;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -15,15 +15,17 @@ public class CallbackNativeImplementer extends ClassLoader implements Opcodes {
 	Map<Class<? extends Callback>, Class<?>> implClasses = new HashMap<Class<? extends Callback>, Class<?>>();
 	String implNameSuffix = "_NativeImpl";
 	final NativeEntities nativeEntities;
-	public CallbackNativeImplementer(NativeEntities nativeEntities) {
+    final CRuntime runtime;
+	public CallbackNativeImplementer(NativeEntities nativeEntities, CRuntime runtime) {
 		this.nativeEntities = nativeEntities;
+        this.runtime = runtime;
 	}
 	/**
 	 * The class created here is to be used to cast a pointer to a callback
 	 * @param callbackType
 	 * @return
 	 */
-	public synchronized Class<?> getCallbackImplType(Class<? extends Callback> callbackType) {
+	public synchronized <T extends Callback> Class<? extends T> getCallbackImplType(Class<T> callbackType) {
 		Class<?> callbackImplType = implClasses.get(callbackType);
 		if (callbackImplType == null) {
 			try {
@@ -50,21 +52,26 @@ public class CallbackNativeImplementer extends ClassLoader implements Opcodes {
 				String methodSignature = mci.getJavaSignature();
 				
 				byte[] byteArray = emitBytes(sourceFile, callbackTypeName, callbackTypeImplName, methodName, methodSignature);
-				callbackImplType = defineClass(callbackTypeImplName, byteArray, 0, byteArray.length);
-				Method callbackMethodImpl = callbackImplType.getDeclaredMethod(methodName, parameterTypes);
-				mci.setMethod(callbackMethodImpl);
-				mci.setDeclaringClass(callbackType);
-				NativeEntities.Builder builder = new NativeEntities.Builder();
-				builder.addJavaToNativeCallback(mci);
-				nativeEntities.addDefinitions(callbackType, builder);
-				implClasses.put(callbackType, callbackImplType);
+				callbackImplType = defineClass(callbackTypeImplName.replace('/', '.'), byteArray, 0, byteArray.length);
+                //Method[] methods = callbackImplType.getDeclaredMethods();
+				//Method callbackMethodImpl = callbackImplType.getDeclaredMethod(methodName, parameterTypes);
+				//mci.setMethod(callbackMethodImpl);
+				//mci.setDeclaringClass(callbackImplType);
+				//NativeEntities.Builder builder = new NativeEntities.Builder();
+				//builder.addJavaToNativeCallback(mci);
+				//nativeEntities.addDefinitions(callbackType, builder);
+				runtime.register(callbackImplType);
+                implClasses.put(callbackType, callbackImplType);
 			} catch (Exception ex) {
 				throw new RuntimeException("Failed to create implementation class for callback type " + callbackType.getName(), ex);
 			}
 		}
-		return callbackImplType;
+		return (Class)callbackImplType;
 	}
 
+    static String classSig(Class c) {
+        return "L" + c.getName().replace('.', '/') + ";";
+    }
 	private byte[] emitBytes(String sourceFile, String callbackTypeName,
 			String callbackTypeImplName, String methodName,
 			String methodSignature) {
@@ -76,8 +83,12 @@ public class CallbackNativeImplementer extends ClassLoader implements Opcodes {
 
 		cw.visitSource(sourceFile, null);
 
+        //AnnotationVisitor av = cw.visitAnnotation(classSig(com.bridj.ann.Runtime.class), false);
+        //av.visit("value", CRuntime.class);
+        //av.visitEnd();
+
 		{
-			mv = cw.visitMethod(ACC_PUBLIC, "<init>", methodSignature, null, null);
+			mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
 			mv.visitCode();
 			Label l0 = new Label();
 			mv.visitLabel(l0);

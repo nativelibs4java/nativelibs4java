@@ -8,7 +8,6 @@ package com.bridj;
 import com.bridj.JNI;
 import com.bridj.BridJ;
 import com.bridj.ann.Library;
-import com.bridj.c.CRuntime;
 //import com.sun.jna.Native;
 import java.io.FileNotFoundException;
 import java.util.logging.Level;

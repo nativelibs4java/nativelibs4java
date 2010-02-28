@@ -21,5 +21,6 @@ import com.bridj.BridJRuntime;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface Runtime {
-    Class<? extends BridJRuntime> value();
+    Class //<? extends BridJRuntime>
+            value();
 }

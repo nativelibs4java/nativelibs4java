@@ -105,6 +105,8 @@ public class NativeLibrary {
             {
                 long handle = getSymbolAddress(name);
                 if (handle != 0)
+                    handle = getSymbolAddress("_" + name);
+                if (handle != 0)
                     return handle;
             }
 

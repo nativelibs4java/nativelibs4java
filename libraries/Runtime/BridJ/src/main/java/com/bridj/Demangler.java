@@ -132,8 +132,8 @@ public abstract class Demangler {
 			if (!symbol.contains(method.getName()))
 				return false;
 		
-			if (!Modifier.isStatic(method.getModifiers()) && !symbol.contains(method.getDeclaringClass().getSimpleName()))
-				return false;
+			//if (!Modifier.isStatic(method.getModifiers()) && !symbol.contains(method.getDeclaringClass().getSimpleName()))
+			//	return false;
 		
 			parse();
 
@@ -150,7 +150,8 @@ public abstract class Demangler {
 				try {
 					ref = library.parseSymbol(symbol);
 				} catch (DemanglingException ex) {
-					ex.printStackTrace();
+                    System.err.println(ex);
+					//ex.printStackTrace();
 				}
 				refParsed = true;
 			}

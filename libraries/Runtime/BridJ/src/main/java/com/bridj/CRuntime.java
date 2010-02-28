@@ -1,4 +1,4 @@
-package com.bridj.c;
+package com.bridj;
 
 import com.bridj.AbstractBridJRuntime;
 import java.io.FileNotFoundException;
@@ -27,8 +27,11 @@ import com.bridj.util.AutoHashMap;
 public class CRuntime extends AbstractBridJRuntime {
 
 	Set<Method> registeredMethods = new HashSet<Method>();
-	CallbackNativeImplementer callbackNativeImplementer = new CallbackNativeImplementer(BridJ.getOrphanEntities());
+	CallbackNativeImplementer callbackNativeImplementer;
 
+    public CRuntime() {
+        callbackNativeImplementer = new CallbackNativeImplementer(BridJ.getOrphanEntities(), this);
+    }
     public boolean isAvailable() {
         return true;
     }
@@ -42,7 +45,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		int typeModifiers = type.getModifiers();
 		if (Callback.class.isAssignableFrom(type)) {
 			if (Modifier.isAbstract(typeModifiers))
-			callbackNativeImplementer.getCallbackImplType((Class) type);
+                callbackNativeImplementer.getCallbackImplType((Class) type);
 		}
 		
 		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
@@ -75,24 +78,34 @@ public class CRuntime extends AbstractBridJRuntime {
 	}
 
 	protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder) throws FileNotFoundException {
-		long address = methodLibrary.getSymbolAddress(method);
-		if (address == 0) 
-		{
-			log(Level.SEVERE, "Failed to get address of method " + method);
-			return;
-		}
-		MethodCallInfo mci = new MethodCallInfo(method);
-		mci.setForwardedPointer(address);
-	    builder.addFunction(mci);
+        MethodCallInfo mci = new MethodCallInfo(method);
+		if (Callback.class.isAssignableFrom(type)) {
+            builder.addJavaToNativeCallback(mci);
+        } else {
+            long address = methodLibrary.getSymbolAddress(method);
+            if (address == 0)
+            {
+                for (Demangler.Symbol symbol : methodLibrary.getSymbols()) {
+                    if (symbol.matches(method)) {
+                        address = symbol.getAddress();
+                        break;
+                    }
+                }
+                if (address == 0) {
+                    log(Level.SEVERE, "Failed to get address of method " + method);
+                    return;
+                }
+            }
+            mci.setForwardedPointer(address);
+            builder.addFunction(mci);
+        }
 	}
 	
-
-	@Override
-	public <T extends NativeObject> Pointer<T> allocate(Class<?> type, int constructorId, Object... args) {
+	public <T extends NativeObject> Pointer<T> allocate(Class<T> type, int constructorId, Object... args) {
 	    if (Callback.class.isAssignableFrom(type)) {
         	if (constructorId != -1 || args.length != 0)
         		throw new RuntimeException("Callback should have a constructorId == -1 and no constructor args !");
-        	return newCallbackInstance(type);
+        	return null;//newCallbackInstance(type);
         }
         throw new RuntimeException("Cannot allocate instance of type " + type.getName() + " (unhandled NativeObject subclass)");
 	}
@@ -110,38 +123,79 @@ public class CRuntime extends AbstractBridJRuntime {
 	    	}
     	return defaultObjectSize;
     }
-    
-    private <T extends NativeObject> Pointer<T> newCallbackInstance(Class<?> type) {
-//    	Method method = null;
-    	Class<?> parent = null;
+
+    static Method getUniqueAbstractCallbackMethod(Class type) {
+        Class<?> parent = null;
     	while ((parent = type.getSuperclass()) != null && parent != Callback.class) {
     		type = parent;
     	}
-    	
-    	register(type);
-//    	if (Callback.class.isAssignableFrom(type)) {
-//			callbackNativeImplementer.getCallbackImplType((Class) type);
-//		}
-		
-    	
+
     	Method method = null;
     	for (Method dm : type.getDeclaredMethods()) {
     		int modifiers = dm.getModifiers();
     		if (!Modifier.isAbstract(modifiers))
     			continue;
-    		
+
     		method = dm;
     		break;
     	}
     	if (method == null)
     		throw new RuntimeException("Type doesn't have any abstract method : " + type.getName());
-    	
+    	return method;
+    }
+
+    @Override
+    public <T extends NativeObject> Class<? extends T> getTypeForCast(Class<T> type) {
+        if (Callback.class.isAssignableFrom(type))
+            return callbackNativeImplementer.getCallbackImplType((Class) type);
+        else
+            return super.getTypeForCast(type);
+    }
+
+
+    private <T extends Callback> Pointer<T> registerCallbackInstance(T instance) {
 		try {
-			MethodCallInfo mci = new MethodCallInfo(method);
-			mci.setJavaToCCallback(true);
-			return null;//(Pointer)Pointer.pointerToAddress(JNI.createJavaToCCallbacks(mci), type);
+            Class c = instance.getClass();
+			MethodCallInfo mci = new MethodCallInfo(getUniqueAbstractCallbackMethod(c));
+            mci.setJavaCallback(instance);
+            final long handle = JNI.createCToJavaCallback(mci);
+            long peer = JNI.getActualCToJavaCallback(handle);
+            return (Pointer)Pointer.pointerToAddress(peer, c, new Pointer.Deallocator() {
+
+                @Override
+                public void deallocate(long peer) {
+                    JNI.freeCToJavaCallback(handle);
+                }
+            });
 		} catch (FileNotFoundException e) {
-			throw new RuntimeException("Failed to create instance of callback " + type.getName(), e);
+			throw new RuntimeException("Failed to register callback instance of type " + instance.getClass().getName(), e);
 		}
 	}
+    @Override
+    public void initialize(NativeObject instance) {
+        if (!BridJ.isCastingNativeObjectInCurrentThread()) {
+            if (instance instanceof Callback)
+                setNativeObjectPeer(instance, registerCallbackInstance((Callback)instance));
+            else
+                initialize(instance, -1);
+        }
+    }
+    
+    @Override
+    public void initialize(NativeObject instance, int constructorId, Object... args) {
+        throw new UnsupportedOperationException("TODO implement structs here !");
+    }
+
+    protected void setNativeObjectPeer(NativeObject instance, Pointer<? extends NativeObject> peer) {
+        instance.peer = peer;
+    }
+    
+    @Override
+    public void destroy(NativeObject instance) {
+        if (instance instanceof Callback)
+            return;
+
+        
+    }
+
 }

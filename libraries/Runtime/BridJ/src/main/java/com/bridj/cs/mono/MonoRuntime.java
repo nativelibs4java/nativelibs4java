@@ -47,11 +47,6 @@ public class MonoRuntime extends AbstractBridJRuntime implements CSharpRuntime {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    public <T extends NativeObject> Pointer<T> allocate(Class<?> type, int constructorId, Object... args) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
     NativeLibrary monoLibrary;
     boolean fetchedLibrary;
     private synchronized NativeLibrary getMonoLibrary() {
@@ -64,6 +59,21 @@ public class MonoRuntime extends AbstractBridJRuntime implements CSharpRuntime {
             }
         }
         return monoLibrary;
+    }
+
+    @Override
+    public void initialize(NativeObject instance) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void initialize(NativeObject instance, int constructorId, Object[] args) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void destroy(NativeObject instance) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }
