@@ -534,7 +534,6 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToObjCMethods(
 	return 0;
 #endif
 }
-#include <shobjidl.h>
 
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeObjCMethodBindings(
 	JNIEnv *env, 
