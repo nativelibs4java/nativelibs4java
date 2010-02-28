@@ -81,7 +81,9 @@ public class GCC4Demangler extends Demangler {
 	}
 	@Override
 	public MemberRef parseSymbol() throws DemanglingException {
-		expectChars('_', 'Z');
+		expectChars('_');
+		consumeCharIf('_');
+		expectChars('Z');
 		
 		if (peekChar() == 'T')
 			return null; // can be a type info, a virtual table or strange things like that
@@ -98,6 +100,7 @@ public class GCC4Demangler extends Demangler {
 				parent.setSimpleName(ns.remove(ns.size() - 1));
 				if (!ns.isEmpty())
 					parent.setEnclosingType(new NamespaceRef(ns.toArray(new String[ns.size()])));
+				mr.setEnclosingType(parent);
 			} else {
 				switch (peekChar()) {
 				case 'C':
