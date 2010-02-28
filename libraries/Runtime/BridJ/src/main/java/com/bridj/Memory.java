@@ -40,11 +40,11 @@ class Memory<T> extends DefaultPointer<T> {
         this(io, JNI.malloc(size), size);
         JNI.memset(getPeer(), (byte)0, size);
         
-        Exception ex = new RuntimeException();
-        ex.getStackTrace();
-        mallocTraces.put(getPeer(), ex);
+        //Exception ex = new RuntimeException();
+        //ex.getStackTrace();
+        //mallocTraces.put(getPeer(), ex);
     }
-    static Map<Long, Exception> mallocTraces = new HashMap<Long, Exception>();
+    //static Map<Long, Exception> mallocTraces = new HashMap<Long, Exception>();
     
     
     public long getValidSize() {
@@ -65,7 +65,7 @@ class Memory<T> extends DefaultPointer<T> {
         return peer;
     }
     
-    Set<Long> freed = new HashSet<Long>();
+    //Set<Long> freed = new HashSet<Long>();
 
 	@Override
     protected void free(long peer) {
@@ -73,13 +73,14 @@ class Memory<T> extends DefaultPointer<T> {
         if (peer == 0)
 			return;
 		
+		/*
         if (!freed.add(peer)) {
         	Exception ex = mallocTraces.get(peer);
         	if (ex != null)
         		BridJ.log(Level.SEVERE, "Re-freeing memory !", ex);
         	else
         		BridJ.log(Level.SEVERE, "Freeing memory that wasn't malloced here !");
-        }
+        }*/
         
         BridJ.log(Level.SEVERE, "Leaking memory at address " + peer + " to avoid the free() crash.");
         //JNI.free(peer);

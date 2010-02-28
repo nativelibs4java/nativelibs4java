@@ -89,8 +89,23 @@ TEST_API double __cdecl testASinB(int a, int b)
 
 }
 
+#include <dlfcn.h>
+#include <objc/objc.h>
+#include <objc/message.h>
+
 Ctest::Ctest()
 {
+	
+#if defined(DC__Arch_Intel_x86)
+
+	dlopen("/System/Library/Frameworks/Foundation.framework/Foundation", RTLD_LAZY);
+	{
+	id clsPool = objc_getClass("NSAutoreleasePool");
+	id poolInst = objc_msgSend(clsPool, sel_registerName("new"));
+	printf("#\n# poolInst in Ctest::Ctest : %ld\n#\n", (long int)poolInst);
+	}
+#endif
+
 	printf("Ctest::Ctest() (this = %ld)\n", (long int)(size_t)this);
 }
 Ctest::~Ctest()

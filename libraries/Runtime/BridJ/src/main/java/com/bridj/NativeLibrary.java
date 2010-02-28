@@ -38,7 +38,8 @@ public class NativeLibrary {
 	NativeEntities nativeEntities = new NativeEntities();
 	
 	Map<Long, Demangler.Symbol> addrToName;
-	Map<String, Long> nameToAddr;
+	Map<String, Symbol> nameToSym;
+//	Map<String, Long> nameToAddr;
 	
 	Map<Class<?>, Pointer<Pointer<?>>> vtables = new HashMap<Class<?>, Pointer<Pointer<?>>>();
 	protected NativeLibrary(String path, long handle, long symbols) {
@@ -85,10 +86,12 @@ public class NativeLibrary {
 		handle = 0;
 	}
 	public long getSymbolAddress(String name) {
-		if (nameToAddr != null) {
-			Long addr = nameToAddr.get(name);
+		if (nameToSym != null) {
+			Symbol addr = nameToSym.get(name);
+//			long addr = nameToAddr.get(name);
+//			if (addr != 0)
 			if (addr != null)
-				return addr;
+				return addr.getAddress();
 		}
 		long address = JNI.findSymbolInLibrary(getHandle(), name);
 		if (address == 0)
@@ -96,16 +99,16 @@ public class NativeLibrary {
 		return address;
 	}
 
-    public synchronized long getSymbolAddress(AnnotatedElement member) throws FileNotFoundException {
+    public synchronized Symbol getSymbol(AnnotatedElement member) throws FileNotFoundException {
         //libHandle = libHandle & 0xffffffffL;
         Mangling mg = BridJ.getAnnotation(Mangling.class, false, member);
         if (mg != null)
             for (String name : mg.value())
             {
-                long handle = getSymbolAddress(name);
-                if (handle != 0)
-                    handle = getSymbolAddress("_" + name);
-                if (handle != 0)
+            	Symbol handle = getSymbol(name);
+                if (handle != null)
+                    handle = getSymbol("_" + name);
+                if (handle != null)
                     return handle;
             }
 
@@ -114,8 +117,8 @@ public class NativeLibrary {
             name = ((Member)member).getName();
         
         if (name != null) {
-            long handle = getSymbolAddress(name);
-            if (handle != 0)
+            Symbol handle = getSymbol(name);
+            if (handle != null)
                 return handle;
         }
 
@@ -123,10 +126,10 @@ public class NativeLibrary {
             Method method = (Method)member;
             for (Demangler.Symbol symbol : getSymbols()) {
                 if (symbol.matches(method))
-                    return symbol.getAddress();
+                    return symbol;
             }
         }
-        return 0;
+        return null;
     }
 	int getPositionInVirtualTable(Method method) {
 		Class<?> type = method.getDeclaringClass();
@@ -199,6 +202,7 @@ public class NativeLibrary {
 		Demangler.Symbol symbol = getSymbol(address);
 		return symbol == null ? null : symbol.symbol;
 	}
+	
 	public Symbol getSymbol(long address) {
 		try {
 			scanSymbols();
@@ -208,12 +212,21 @@ public class NativeLibrary {
 			throw new RuntimeException("Failed to get name of address " + address, ex);
 		}
 	}
+	public Symbol getSymbol(String name) {
+		try {
+			scanSymbols();
+			return nameToSym.get(name);
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to get symbol " + name, ex);
+		}
+	}
 	void scanSymbols() throws Exception {
 		if (addrToName != null)
 			return;
 		
 		addrToName = new HashMap<Long, Demangler.Symbol>();
-		nameToAddr = new HashMap<String, Long>();
+		nameToSym = new HashMap<String, Symbol>();
+//		nameToAddr = new HashMap<String, Long>();
 		
 		String[] symbs = null;
 		if (false) // TODO turn to false !!!
@@ -247,8 +260,12 @@ public class NativeLibrary {
 				System.out.println("Symbol '" + name + "' not found.");
 				continue;
 			}
-			addrToName.put(addr, new Demangler.Symbol(name, this));
-			nameToAddr.put(name, addr);
+			
+			Symbol sym = new Demangler.Symbol(name, this);
+			sym.address = addr;
+			addrToName.put(addr, sym);
+			nameToSym.put(name, sym);
+			//nameToAddr.put(name, addr);
 			//System.out.println("'" + name + "' = \t" + TestCPP.hex(addr));
 		}
 	}

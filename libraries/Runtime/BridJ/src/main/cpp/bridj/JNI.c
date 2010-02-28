@@ -95,8 +95,30 @@ void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass) 
 }
 //void _DllMainCRTStartup();
 
+/*
+#include <dlfcn.h>
+
+void TESTOBJC() {
+	dlopen("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation", RTLD_LAZY);
+	dlopen("/System/Library/Frameworks/Foundation.framework/Foundation", RTLD_LAZY);
+	dlopen("/System/Library/Frameworks/Cocoa.framework/Cocoa", RTLD_LAZY);
+	{
+		id clsPool = objc_getClass("NSAutoreleasePool");
+		if (!clsPool) {
+			printf("#\n# INIT NO clsPool : %ld\n#\n", (long int)clsPool);
+		} else {
+			//clsPool = class_createInstance((Class)clsPool, 0);
+			id poolInst = objc_msgSend(clsPool, sel_registerName("new"));
+			printf("#\n# INIT poolInst : %ld\n#\n", (long int)poolInst);
+		}
+	}
+	
+	
+}*/
+
 void JNICALL Java_com_bridj_JNI_init(JNIEnv *env, jclass clazz)
 {
+	//TESTOBJC();
 }
 
 void JNICALL Java_com_bridj_JNI_callDefaultCPPConstructor(JNIEnv *env, jclass clazz, jlong constructor, jlong thisPtr, jint callMode)

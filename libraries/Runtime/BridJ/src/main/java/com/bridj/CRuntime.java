@@ -18,6 +18,7 @@ import com.bridj.NativeEntities;
 import com.bridj.NativeLibrary;
 import com.bridj.NativeObject;
 import com.bridj.Pointer;
+import com.bridj.Demangler.Symbol;
 import com.bridj.NativeEntities.Builder;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
@@ -25,7 +26,7 @@ import com.bridj.util.AutoHashMap;
 
 public class CRuntime extends AbstractBridJRuntime {
 
-	Set<Method> registeredMethods = new HashSet<Method>();
+	Set<Class<?>> registeredClasses = new HashSet<Class<?>>();
 	CallbackNativeImplementer callbackNativeImplementer;
 
     public CRuntime() {
@@ -41,16 +42,22 @@ public class CRuntime extends AbstractBridJRuntime {
 
 	@Override
 	public void register(Class<?> type) {
+		if (!registeredClasses.add(type))
+			return;
+		
 		int typeModifiers = type.getModifiers();
 		if (Callback.class.isAssignableFrom(type)) {
+			if (Callback.class == type)
+				return;
+			
 			if (Modifier.isAbstract(typeModifiers))
                 callbackNativeImplementer.getCallbackImplType((Class) type);
 		}
 		
 		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
-		for (; type != null && type != Object.class; type = type.getSuperclass()) {
+//		for (; type != null && type != Object.class; type = type.getSuperclass()) {
 			try {
-				NativeLibrary typeLibrary = BridJ.getNativeLibrary(type);
+				NativeLibrary typeLibrary = getNativeLibrary(type);
 				for (Method method : type.getDeclaredMethods()) {
 					try {
 						int modifiers = method.getModifiers();
@@ -69,33 +76,40 @@ public class CRuntime extends AbstractBridJRuntime {
 			} catch (Exception ex) {
 				throw new RuntimeException("Failed to register class " + type.getName(), ex);
 			}
-		}
+//		}
 
 		for (Map.Entry<NativeEntities, NativeEntities.Builder> e : builders.entrySet()) {
 			e.getKey().addDefinitions(type, e.getValue());
 		}
+		
+		type = type.getSuperclass();
+		if (type != null && type != Object.class)
+			register(type);
 	}
 
+	protected NativeLibrary getNativeLibrary(Class<?> type) throws FileNotFoundException {
+		return BridJ.getNativeLibrary(type);
+	}
 	protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder) throws FileNotFoundException {
         MethodCallInfo mci = new MethodCallInfo(method);
 		if (Callback.class.isAssignableFrom(type)) {
             builder.addJavaToNativeCallback(mci);
         } else {
-            long address = methodLibrary.getSymbolAddress(method);
-            if (address == 0)
+            Symbol address = methodLibrary.getSymbol(method);
+            if (address == null)
             {
-                for (Demangler.Symbol symbol : methodLibrary.getSymbols()) {
-                    if (symbol.matches(method)) {
-                        address = symbol.getAddress();
-                        break;
-                    }
-                }
-                if (address == 0) {
+//                for (Demangler.Symbol symbol : methodLibrary.getSymbols()) {
+//                    if (symbol.matches(method)) {
+//                        address = symbol.getAddress();
+//                        break;
+//                    }
+//                }
+//                if (address == null) {
                     log(Level.SEVERE, "Failed to get address of method " + method);
                     return;
-                }
+//                }
             }
-            mci.setForwardedPointer(address);
+            mci.setForwardedPointer(address.getAddress());
             builder.addFunction(mci);
         }
 	}
@@ -192,9 +206,15 @@ public class CRuntime extends AbstractBridJRuntime {
     @Override
     public void destroy(NativeObject instance) {
         if (instance instanceof Callback)
-            return;
-
-        
+            return;        
+    }
+    
+    @Override
+    public <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
+    	if (instance instanceof NativeObject) {
+    		return (T) Pointer.getPeer(instance).toNativeObject(instance.getClass());
+    	}
+    	return super.clone(instance);
     }
 
 }

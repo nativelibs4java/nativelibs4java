@@ -14,6 +14,9 @@ import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
 import com.bridj.cpp.CPPRuntime;
 import com.bridj.cpp.VC9Demangler;
+import com.bridj.objc.NSAutoReleasePool;
+import com.bridj.objc.ObjCObject;
+
 import java.io.FileNotFoundException;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
@@ -34,11 +37,13 @@ public class TestCPP {
 	
 	static NativeLibrary library;
 	
-	static void print(String name, long addr, int n, int minI) {
+	public static void print(String name, long addr, int n, int minI) {
 		System.out.println(name);
 		for (int i = -1; i < n; i++) {
 			long v = getPtr(addr + i * Pointer.SIZE);
-			System.out.println("\tOffset " + i + ":\t" + hex(v) + " \t('" + library.getSymbolName(v) + "')");
+			Symbol sym = BridJ.getSymbolByAddress(v);
+			String sname = sym == null ? null : sym.getName();
+			System.out.println("\tOffset " + i + ":\t" + hex(v) + " \t('" + sname + "')");
 			if (v == 0 && i >= minI)
 				break;
 		}
@@ -48,13 +53,15 @@ public class TestCPP {
 		library = BridJ.getNativeLibrary("test");
 			//NativeLibrary.load(libraryPath);
 
-        new VC9Demangler(null, "?sinInt@@YANH@Z").parseSymbol();
+		new VC9Demangler(null, "?sinInt@@YANH@Z").parseSymbol();
         new VC9Demangler(null, "?forwardCall@@YAHP6AHHH@ZHH@Z").parseSymbol();
 
         BridJ.register();
         
         //new VC9Demangler(null, "??0Ctest2@@QEAA@XZ").parseSymbol();
-
+//        NSAutoReleasePool object = new NSAutoReleasePool();
+		
+        
 		for (Demangler.Symbol symbol : library.getSymbols()) {
             String name = symbol.getName();
 			long addr = symbol.getAddress();

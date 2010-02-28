@@ -10,6 +10,7 @@ import com.bridj.cpp.mfc.CRuntimeClass;
 
 public interface BridJRuntime {
 
+	
 	void register(Class<?> type);
 
     void initialize(NativeObject instance);
@@ -17,6 +18,8 @@ public interface BridJRuntime {
 
     void destroy(NativeObject instance);
 
+    <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException;
+    
     <T extends NativeObject> Class<? extends T> getTypeForCast(Class<T> type);
     
     boolean isAvailable();

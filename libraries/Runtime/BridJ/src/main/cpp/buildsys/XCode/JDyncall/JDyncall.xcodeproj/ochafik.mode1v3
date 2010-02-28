@@ -229,6 +229,8 @@
 			<key>Layout</key>
 			<array>
 				<dict>
+					<key>BecomeActive</key>
+					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -273,8 +275,8 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>15</integer>
-									<integer>14</integer>
+									<integer>5</integer>
+									<integer>1</integer>
 									<integer>0</integer>
 								</array>
 							</array>
@@ -309,14 +311,12 @@
 					<key>Dock</key>
 					<array>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>dynload_darwin.c</string>
+								<string>bridj.hpp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -324,11 +324,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>dynload_darwin.c</string>
+										<string>bridj.hpp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>901E70F3113A173000F15234</string>
+										<string>901E70FF113A2AFF00F15234</string>
 										<key>history</key>
 										<array>
 											<string>9007E11010EE3F5100928CAE</string>
@@ -343,7 +343,8 @@
 											<string>90FD14A111335059006462C7</string>
 											<string>90FD14AE11335079006462C7</string>
 											<string>90FD14F311376F9D006462C7</string>
-											<string>90FD14F511376F9D006462C7</string>
+											<string>901E70FD113A2AFF00F15234</string>
+											<string>901E70FE113A2AFF00F15234</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>

@@ -294,7 +294,8 @@ char __cdecl doJavaToObjCCallHandler(DCArgs* args, DCValue* result, JavaToObjCCa
 	jobject instance = initCallHandler(args, &vm, &env);
 	
 	void* thisPtr = thisPtr = getNativeObjectPointer(env, instance, NULL);
-	void* callback = objc_msgSend;
+	void* callback = //objc_msgSend_stret;//
+		objc_msgSend;
 	
 #if defined(DC__Arch_Intel_x86)
 	switch (info->fInfo.fReturnType) {

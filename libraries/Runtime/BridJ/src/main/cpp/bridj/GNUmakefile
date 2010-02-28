@@ -56,6 +56,7 @@ CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux
 #LDFLAGS		+= -ljni
 endif
 
+#LINK_LIBS	+= stdc++
 
 CPPFLAGS += -DJNICALL=__cdecl -DJNIEXPORT=__cdecl
 #CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 

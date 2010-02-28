@@ -61,4 +61,9 @@ public abstract class AbstractBridJRuntime implements BridJRuntime {
         return type;
     }
 
+    public <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
+    	if (instance == null)
+    		return null;
+    	throw new CloneNotSupportedException("Cannot clone instance of type " + instance.getClass().getName());
+    }
 }

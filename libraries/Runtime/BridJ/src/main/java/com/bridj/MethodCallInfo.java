@@ -1,6 +1,7 @@
 package com.bridj;
 import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
+import java.util.logging.Level;
 import static com.bridj.Dyncall.*;
 import static com.bridj.Dyncall.CallingConvention.*;
 
@@ -125,6 +126,8 @@ public class MethodCallInfo {
 
         symbolName = methodName;
         //this.direct = false; // TODO remove me !
+        
+        BridJ.log(Level.INFO, (direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
     }
 	
 

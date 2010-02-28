@@ -5,14 +5,14 @@
 
 package com.bridj.cpp.mfc;
 
-import com.bridj.Struct;
+import com.bridj.StructObject;
 import com.bridj.ann.Field;
 
 /**
  *
  * @author Olivier
  */
-public class CPoint extends Struct<CPoint> {
+public class CPoint extends StructObject {
     @Field(0)
     public native int x();
     @Field(0)

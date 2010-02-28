@@ -169,7 +169,7 @@ public class BridJ {
 			try {
 				runtimes.put(runtimeClass, r = runtimeClass.newInstance());
 			} catch (Exception e) {
-				throw new RuntimeException("Failed to instantiate runtime " + runtimeClass.getName());
+				throw new RuntimeException("Failed to instantiate runtime " + runtimeClass.getName(), e);
 			}
     	
     	return r;
@@ -335,7 +335,10 @@ public class BridJ {
         if (f == null)
         	throw new FileNotFoundException("Couldn't find library file for library '" + name + "'");
         
-        NativeLibrary ll = NativeLibrary.load(f.toString());
+        return getNativeLibrary(name, f);
+    }
+    public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
+		NativeLibrary ll = NativeLibrary.load(f.toString());
         if (ll == null)
             throw new FileNotFoundException("Library '" + name + "' was not found in path '" + getNativeLibraryPaths() + "'");
         libHandles.put(name, ll);
@@ -391,4 +394,7 @@ public class BridJ {
     static void initialize(NativeObject instance, int constructorId, Object[] args) {
         (instance.runtime = register(instance.getClass())).initialize(instance, constructorId, args);
     }
+	public static <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
+		return instance.runtime.clone(instance);
+	}
 }

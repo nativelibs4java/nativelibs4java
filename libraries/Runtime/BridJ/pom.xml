@@ -11,7 +11,7 @@
 
   
   <properties>
-  	<maven.compiler.debug>false</maven.compiler.debug>
+  	<maven.compiler.debug>true</maven.compiler.debug>
   </properties>
 
   <parent>

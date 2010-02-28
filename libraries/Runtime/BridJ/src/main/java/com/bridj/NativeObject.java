@@ -32,4 +32,8 @@ public class NativeObject {
     protected void finalize() throws Throwable {
     	BridJ.deallocate(this);
     }
+    
+    public NativeObject clone() throws CloneNotSupportedException {
+    	return BridJ.clone(this);
+    }
 }

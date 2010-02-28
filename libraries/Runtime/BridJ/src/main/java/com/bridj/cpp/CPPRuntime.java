@@ -23,6 +23,7 @@ import com.bridj.NativeLibrary;
 import com.bridj.NativeObject;
 import com.bridj.Pointer;
 import com.bridj.PointerIO;
+import com.bridj.TestCPP;
 
 import static com.bridj.Dyncall.CallingConvention.*;
 
@@ -82,19 +83,21 @@ public class CPPRuntime extends CRuntime {
 		
 		Virtual va = method.getAnnotation(Virtual.class);
 		if (va == null) {
-			mci.setForwardedPointer(methodLibrary.getSymbolAddress(method));
+			methodLibrary.getSymbol(method);
+			Symbol symbol = methodLibrary.getSymbol(method);
+			mci.setForwardedPointer(symbol == null ? 0 : symbol.getAddress());
 	        if (mci.getForwardedPointer() == 0) {
-				for (Demangler.Symbol symbol : methodLibrary.getSymbols()) {
-					if (symbol.matches(method)) {
-						mci.setForwardedPointer(symbol.getAddress());
-						if (mci.getForwardedPointer() != 0)
-							break;
-					}
-				}
-				if (mci.getForwardedPointer() == 0) {
+//				for (Demangler.Symbol symbol : methodLibrary.getSymbols()) {
+//					if (symbol.matches(method)) {
+//						mci.setForwardedPointer(symbol.getAddress());
+//						if (mci.getForwardedPointer() != 0)
+//							break;
+//					}
+//				}
+//				if (mci.getForwardedPointer() == 0) {
 					log(Level.SEVERE, "Method " + method.toGenericString() + " is not virtual but its address could not be resolved in the library.");
 					return;
-				}
+//				}
 			}
 	        mci.setDcCallingConvention(!JNI.is64Bits() && JNI.isWindows() ? DC_CALL_C_X86_WIN32_THIS_MS : DC_CALL_C_DEFAULT);
 			builder.addMethodFunction(mci);
@@ -142,6 +145,7 @@ public class CPPRuntime extends CRuntime {
         			
         			installVTablePtr(type, lib, peer);
         			JNI.callDefaultCPPConstructor(defaultConstructor, peer.getPeer(), 0);// TODO use right call convention
+        			TestCPP.print(type.getSimpleName(), peer.getPeer(), 10, 2);
         			return peer;
         		}
         	}
@@ -171,6 +175,7 @@ public class CPPRuntime extends CRuntime {
         	}
         	return peer;
         } catch (Exception ex) {
+        	ex.printStackTrace();
         	if (peer != null)
         		peer.release();
         	throw new RuntimeException("Failed to allocate new instance of type " + type, ex);
@@ -191,7 +196,7 @@ public class CPPRuntime extends CRuntime {
     }
 
     @Override
-    public void initialize(NativeObject instance, int constructorId, Object[] args) {
+    public void initialize(NativeObject instance, int constructorId, Object... args) {
         if (CPPObject.class.isInstance(instance)) {
             //instance.peer = allocate(instance.getClass(), constructorId, args);
         	setNativeObjectPeer(instance, newCPPInstance(instance.getClass(), constructorId, args));
@@ -199,4 +204,11 @@ public class CPPRuntime extends CRuntime {
         else
             super.initialize(instance, constructorId, args);
 	}
+    
+    public <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
+    	if (instance instanceof CPPObject) {
+			// TODO use copy constructor !!!
+    	}
+    	return super.clone(instance);
+    }
 }

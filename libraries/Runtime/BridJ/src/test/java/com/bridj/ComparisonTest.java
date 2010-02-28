@@ -5,7 +5,6 @@
 
 package com.bridj;
 
-import com.bridj.JNI;
 import com.bridj.ann.*;
 import com.bridj.cpp.CPPRuntime;
 import static org.junit.Assert.*;
@@ -41,7 +40,7 @@ public class ComparisonTest {
             String s;
             
         }
-        static class Struct2 extends Struct<Struct2> {
+        static class Struct2 extends StructObject {
             @ByValue Struct1 s1;
             @Wide @Length(10) String s;
         }
