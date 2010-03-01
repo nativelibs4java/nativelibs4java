@@ -99,15 +99,13 @@ typedef struct JavaToObjCCallInfo {
 char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 #endif
 
-typedef struct StructGetterInfo {
+typedef struct StructFieldInfo {
 	struct CommonCallbackInfo fInfo;
-	void* fGetFunction;
-} StructGetterInfo;
+	jmethodID fMethod;
+	void* fJNICallFunction;
+	jint fFieldIndex;
+} StructFieldInfo;
 
-typedef struct StructSetterInfo {
-	struct CommonCallbackInfo fInfo;
-	void* fSetFunction;
-} StructSetterInfo;
 
 typedef struct NativeToJavaCallbackCallInfo {
 	struct CommonCallbackInfo fInfo;
@@ -124,8 +122,7 @@ char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCVal
 char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl JavaToNativeCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl NativeToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
-char __cdecl StructGetterHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
-char __cdecl StructSetterHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
+char __cdecl StructHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 
 
 void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass);
