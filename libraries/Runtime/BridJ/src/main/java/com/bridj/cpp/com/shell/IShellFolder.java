@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.bridj.cpp.com.shell32;
+package com.bridj.cpp.com.shell;
 
 import com.bridj.cpp.com.CLSID;
 import com.bridj.cpp.com.IID;

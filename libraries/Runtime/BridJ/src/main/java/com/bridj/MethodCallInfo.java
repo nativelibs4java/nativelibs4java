@@ -75,7 +75,7 @@ public class MethodCallInfo {
 //            Options paramOptions = paramsOptions[iParam] = new Options();
             Class<?> param = paramsTypes[iParam];
 
-            ValueType paramValueType = getValueType(iParam, param, null, paramsAnnotations[iParam]);
+            ValueType paramValueType = getValueType(iParam, nParams, param, null, paramsAnnotations[iParam]);
             paramsValueTypes[iParam] = paramValueType.ordinal();
             //GetOptions(paramOptions, method, paramsAnnotations[iParam]);
 
@@ -84,7 +84,7 @@ public class MethodCallInfo {
         javaSig.append(')');
         dcSig.append(')');
 
-        ValueType retType = getValueType(-1, method.getReturnType(), method);
+        ValueType retType = getValueType(-1, nParams, method.getReturnType(), method);
         appendToSignature(retType, javaSig, dcSig);
         returnValueType = retType.ordinal();
 
@@ -144,7 +144,7 @@ public class MethodCallInfo {
         Annotation ann = BridJ.getAnnotation(ac, inherit, element, directAnnotations);
         return ann != null;
     }
-    public ValueType getValueType(int iParam, Class<?> c, AnnotatedElement element, Annotation... directAnnotations) {
+    public ValueType getValueType(int iParam, int nParams, Class<?> c, AnnotatedElement element, Annotation... directAnnotations) {
     	Ptr sz = BridJ.getAnnotation(Ptr.class, true, element, directAnnotations);
     	Constructor cons = this.method.getAnnotation(Constructor.class);
     	//This th = BridJ.getAnnotation(This.class, true, element, directAnnotations);
@@ -188,6 +188,14 @@ public class MethodCallInfo {
         if (c == Pointer.class) {
             direct = false;
         	return ValueType.ePointerValue;
+        }
+        if (c.isArray() && iParam == nParams - 1) {
+        	direct = false;
+        	return ValueType.eEllipsis;
+        }
+        if (c == FlagSet.class) {
+        	direct = false;
+        	return ValueType.eFlagSet;
         }
 
         throw new NoSuchElementException("No " + ValueType.class.getSimpleName() + " for class " + c.getName());

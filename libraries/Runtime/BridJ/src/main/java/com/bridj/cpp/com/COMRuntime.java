@@ -18,6 +18,9 @@ import com.bridj.cpp.CPPRuntime;
  * TODO CoRevokeClassObject
  * TODO CoCreateGuid 
  * 
+ * IDL syntax : 
+ * http://caml.inria.fr/pub/old_caml_site/camlidl/htmlman/main002.html
+ * 
  * Registering a Running EXE Server :
  * http://msdn.microsoft.com/en-us/library/ms680076(VS.85).aspx
  */
@@ -92,9 +95,9 @@ public class COMRuntime extends CPPRuntime {
 		Pointer<Pointer<?>> ppv
 	);
 
-    public static native int CoInitializeEx(@Ptr long pvReserved, int dwCoInit);
-    public static native int CoInitialize(@Ptr long pvReserved);
-    public static native void CoUninitialize();
+    static native int CoInitializeEx(@Ptr long pvReserved, int dwCoInit);
+    static native int CoInitialize(@Ptr long pvReserved);
+    static native void CoUninitialize();
 
     static void error(int err) {
         switch (err) {
@@ -141,14 +144,19 @@ public class COMRuntime extends CPPRuntime {
             };
         }
     };
-    public static void lazyInit() {
+    
+    /**
+     * Initialize COM the current thread (uninitialization is done automatically upon thread death)
+     * Calls CoInitialize with COINIT_MULTITHREADED max once per thread.
+     */
+    public static void initialize() {
         comInitializer.get();
     }
 	public static <I extends IUnknown> I newInstance(Class<I> type) throws ClassNotFoundException {
         return newInstance(type, type);
     }
     public static <T extends IUnknown, I extends IUnknown> I newInstance(Class<T> instanceClass, Class<I> instanceInterface) throws ClassNotFoundException {
-        lazyInit();
+        initialize();
         
 		Pointer<Pointer<?>> p = Pointer.allocatePointer();
         Pointer<Byte> clsid = getCLSID(instanceClass), uuid = getIID(instanceInterface);

@@ -3,7 +3,11 @@
  * and open the template in the editor.
  */
 
-package com.bridj.cpp.com;
+package com.bridj.cpp.com.shell;
+
+import com.bridj.cpp.com.CLSID;
+import com.bridj.cpp.com.IDispatch;
+import com.bridj.cpp.com.IID;
 
 /**
  * IShellWindows provides access to the collection of open Shell windows (see {@link http://msdn.microsoft.com/en-us/library/cc836570(VS.85).aspx})

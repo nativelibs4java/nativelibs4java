@@ -15,9 +15,9 @@ import com.bridj.cpp.CPPObject;
 import com.bridj.cpp.CPPRuntime;
 import com.bridj.cpp.VC9Demangler;
 import com.bridj.cpp.com.COMRuntime;
-import com.bridj.cpp.com.IShellWindows;
 import com.bridj.cpp.com.IUnknown;
-import com.bridj.cpp.com.shell32.IShellFolder;
+import com.bridj.cpp.com.shell.IShellFolder;
+import com.bridj.cpp.com.shell.IShellWindows;
 import com.bridj.objc.NSAutoReleasePool;
 import com.bridj.objc.ObjCObject;
 
@@ -54,27 +54,9 @@ public class TestCPP {
 		System.out.println();
 	}
 	public static void main(String[] args) throws Exception {
-		try {
-            IShellWindows win = COMRuntime.newInstance(IShellWindows.class);
-            IUnknown iu = win.QueryInterface(IUnknown.class);
-            if (iu == null) {
-                throw new RuntimeException("Interface does not handle IUnknown !");
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-
-        library = BridJ.getNativeLibrary("test");
-			//NativeLibrary.load(libraryPath);
-
-		new VC9Demangler(null, "?sinInt@@YANH@Z").parseSymbol();
-        new VC9Demangler(null, "?forwardCall@@YAHP6AHHH@ZHH@Z").parseSymbol();
+		library = BridJ.getNativeLibrary("test");
 
         BridJ.register();
-        
-        //new VC9Demangler(null, "??0Ctest2@@QEAA@XZ").parseSymbol();
-//        NSAutoReleasePool object = new NSAutoReleasePool();
-		
         
 		for (Demangler.Symbol symbol : library.getSymbols()) {
             String name = symbol.getName();
@@ -98,11 +80,7 @@ public class TestCPP {
 		int res = test.testAdd(1, 2);
 		System.out.println("res = " + res);
 		
-		testNativeTargetCallbacks();
-        testJavaTargetCallbacks();
-
-
-        /*double dres = PerfLib.testASinB(1, 2);
+		/*double dres = PerfLib.testASinB(1, 2);
         res = PerfLib.testAddJNI(1, 2);
         System.out.println("Done");*/
 	}
@@ -164,15 +142,6 @@ public class TestCPP {
 
 	}
 	
-	public static void testNativeTargetCallbacks() {
-		Pointer<com.bridj.TestCPP.MyCallback> ptr = getAdder();
-		MyCallback adder = ptr.toNativeObject(MyCallback.class);
-		int res = adder.doSomething(1, 2);
-
-        if (res != 3)
-            throw new RuntimeException("Expected 3, got "+ res);
-	}
-	
 	static native int forwardCall(Pointer<MyCallback> cb, int a, int b);
 	static native Pointer<MyCallback> getAdder();
 	
@@ -181,35 +150,3 @@ public class TestCPP {
 	}
 	
 }
-
-/*
-
-@Library("test")
-@com.bridj.ann.Runtime(CRuntime.class)
-class PerfLib {
-    static {
-        String f = BridJ.getNativeLibraryFile(BridJ.getNativeLibraryName(PerfLib.class)).toString();
-        System.load(f);
-    }
-    public static class DynCallTest {
-        public DynCallTest() throws FileNotFoundException {
-            BridJ.register(getClass());
-        }
-        public native int testAddDyncall(int a, int b);
-        public native int testASinB(int a, int b);
-    }
-
-    public static class JNATest implements com.sun.jna.Library {
-        static {
-        	try {
-        		com.sun.jna.Native.register(JNI.extractEmbeddedLibraryResource("test").toString());
-        	} catch (Exception ex) {
-        		throw new RuntimeException("Failed to initialize test JNA library", ex);
-        	}
-        }
-        public static native int testAddJNA(int a, int b);
-        public static native int testASinB(int a, int b);
-    }
-    public static native int testAddJNI(int a, int b);
-    public static native double testASinB(int a, int b);
-}*/

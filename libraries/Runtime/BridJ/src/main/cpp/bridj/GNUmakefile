@@ -37,10 +37,18 @@ CPPFLAGS	 += -I$(DYNCALL_HOME)/dynload
 
 UNITS += Exceptions
 UNITS += JNI
-UNITS += JavaToNativeCallHandler
 UNITS += Pointer
-UNITS += RawNativeForwardCallback
 
+UNITS += HandlersCommon
+UNITS += CallbackHandler
+UNITS += CppHandler
+UNITS += FunctionHandler
+UNITS += StructHandler
+UNITS += CallbackHandler
+ifdef BUILD_OS_darwin
+UNITS += ObjCHandler
+endif
+UNITS += RawNativeForwardCallback
 ifdef BUILD_TOOL_gcc
 UNITS += RawNativeForwardCallback_arch
 endif

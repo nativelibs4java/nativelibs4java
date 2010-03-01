@@ -6,14 +6,17 @@ import org.junit.Test;
 import com.bridj.ann.*;
 import static org.junit.Assert.*;
 import com.bridj.cpp.com.COMRuntime;
-import com.bridj.cpp.com.IShellWindows;
 import com.bridj.cpp.com.IUnknown;
-import com.bridj.cpp.com.shell32.IShellFolder;
+import com.bridj.cpp.com.shell.IShellFolder;
+import com.bridj.cpp.com.shell.IShellWindows;
 
 public class COMTest {
 
+	boolean skip = !JNI.isWindows();
+	
 	@Test
 	public void shellFolder() {
+		if (skip) return;
         try {
             IShellWindows win = COMRuntime.newInstance(IShellWindows.class);
             assertNotNull(win);

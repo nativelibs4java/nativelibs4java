@@ -21,7 +21,10 @@ public class Dyncall {
         eLongValue,
         eDoubleValue,
         eFloatValue,
-        ePointerValue
+        ePointerValue,
+        eEllipsis,
+        eFlagSet,
+        eObjectByValue
     }
     
     public enum CallbackType {
