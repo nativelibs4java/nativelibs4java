@@ -110,12 +110,12 @@ class StructFieldsIO {
 	*/
 
 	public static boolean getBoolField(StructObject struct, int fieldIndex) {
-		return getByteField(fieldIndex, struct) != 0;
+		return getByteField(struct, fieldIndex) != 0;
 	}
 	
 	
 	public static void setBoolField(StructObject struct, int fieldIndex, boolean fieldValue) {
-		setByteField(fieldIndex, struct, (byte)(fieldValue ? 1 : 0));
+		setByteField(struct, fieldIndex, (byte)(fieldValue ? 1 : 0));
 	}
 
 #foreach ($prim in $primitivesNoBool)
