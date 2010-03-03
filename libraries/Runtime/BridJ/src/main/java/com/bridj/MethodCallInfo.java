@@ -197,6 +197,10 @@ public class MethodCallInfo {
         	direct = false;
         	return ValueType.eFlagSet;
         }
+        if (NativeObject.class.isAssignableFrom(c)) {
+        	direct = false;
+        	return ValueType.eObjectByValue;
+        }
 
         throw new NoSuchElementException("No " + ValueType.class.getSimpleName() + " for class " + c.getName());
     }
