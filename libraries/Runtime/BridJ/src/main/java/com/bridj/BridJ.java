@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 
 import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Library;
-import com.bridj.ann.Mangling;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
 import com.bridj.cpp.CPPRuntime;

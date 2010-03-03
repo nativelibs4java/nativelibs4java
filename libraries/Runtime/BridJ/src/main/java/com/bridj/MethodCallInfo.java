@@ -34,7 +34,7 @@ public class MethodCallInfo {
     String dcSignature;
 	String javaSignature;
 	Callback javaCallback;
-	private int virtualIndex = -1;
+	private int index = -1;
 	int virtualTableOffset = 0;
     private int dcCallingConvention = DC_CALL_C_DEFAULT;
 
@@ -179,6 +179,8 @@ public class MethodCallInfo {
             return ValueType.eShortValue;
         if (c == Byte.class || c == Byte.TYPE)
             return ValueType.eByteValue;
+        if (c == Boolean.class || c == Boolean.TYPE)
+            return ValueType.eByteValue;
         if (c == Float.class || c == Float.TYPE)
             return ValueType.eFloatValue;
         if (c == Double.class || c == Double.TYPE)
@@ -246,6 +248,10 @@ public class MethodCallInfo {
                 dcChar = DC_SIGCHAR_CHAR;
                 javaChar = "B";
                 break;
+            case eBooleanValue:
+            	dcChar = DC_SIGCHAR_BOOL;
+            	javaChar = "Z";
+            	break;
             case eWCharValue:
                 switch (JNI.WCHAR_T_SIZE) {
                 case 1:
@@ -310,13 +316,17 @@ public class MethodCallInfo {
 	}
 
 
-	public void setVirtualIndex(int virtualIndex) {
-		this.virtualIndex = virtualIndex;
+	/**
+	 * Used for C++ virtual indexes and for struct fields ids
+	 * @param index
+	 */
+	public void setIndex(int index) {
+		this.index = index;
 	}
 
 
 	public int getVirtualIndex() {
-		return virtualIndex;
+		return index;
 	}
 
 	public String getSymbolName() {

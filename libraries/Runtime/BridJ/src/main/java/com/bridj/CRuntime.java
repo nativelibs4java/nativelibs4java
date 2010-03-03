@@ -20,6 +20,7 @@ import com.bridj.NativeObject;
 import com.bridj.Pointer;
 import com.bridj.Demangler.Symbol;
 import com.bridj.NativeEntities.Builder;
+import com.bridj.ann.Struct;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
 import com.bridj.util.AutoHashMap;
@@ -48,15 +49,40 @@ public class CRuntime extends AbstractBridJRuntime {
         log(Level.INFO, "Registering type " + type.getName());
         
 		int typeModifiers = type.getModifiers();
-		if (Callback.class.isAssignableFrom(type)) {
-			if (Callback.class == type)
-				return;
-			
-			if (Modifier.isAbstract(typeModifiers))
-                callbackNativeImplementer.getCallbackImplType((Class) type);
-		}
 		
 		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
+		try {
+			if (StructObject.class.isAssignableFrom(type)) {
+				StructIO io = StructIO.getInstance(type);
+				for (StructIO.FieldIO fio : io.getFields()) {
+					NativeEntities.Builder builder = builders.get(BridJ.getOrphanEntities());
+	
+					try {
+						{
+							MethodCallInfo getter = new MethodCallInfo(fio.getter);
+							getter.setIndex(fio.index);
+							builder.addGetter(getter);
+						}
+						if (fio.setter != null) {
+							MethodCallInfo setter = new MethodCallInfo(fio.setter);
+							setter.setIndex(fio.index);
+							builder.addSetter(setter);
+						}
+					} catch (FileNotFoundException ex) {
+						ex.printStackTrace();
+					}
+				}
+			}
+			
+			if (Callback.class.isAssignableFrom(type)) {
+				if (Callback.class == type)
+					return;
+				
+				if (Modifier.isAbstract(typeModifiers))
+	                callbackNativeImplementer.getCallbackImplType((Class) type);
+			}
+		
+		
 //		for (; type != null && type != Object.class; type = type.getSuperclass()) {
 			try {
 				NativeLibrary typeLibrary = getNativeLibrary(type);
@@ -79,14 +105,15 @@ public class CRuntime extends AbstractBridJRuntime {
 				throw new RuntimeException("Failed to register class " + type.getName(), ex);
 			}
 //		}
-
-		for (Map.Entry<NativeEntities, NativeEntities.Builder> e : builders.entrySet()) {
-			e.getKey().addDefinitions(type, e.getValue());
+		} finally {
+			for (Map.Entry<NativeEntities, NativeEntities.Builder> e : builders.entrySet()) {
+				e.getKey().addDefinitions(type, e.getValue());
+			}
+			
+			type = type.getSuperclass();
+			if (type != null && type != Object.class)
+				register(type);
 		}
-		
-		type = type.getSuperclass();
-		if (type != null && type != Object.class)
-			register(type);
 	}
 
 	protected NativeLibrary getNativeLibrary(Class<?> type) throws FileNotFoundException {
@@ -129,8 +156,8 @@ public class CRuntime extends AbstractBridJRuntime {
 	static final int defaultObjectSize = 128;
 	public static final String PROPERTY_bridj_c_defaultObjectSize = "bridj.c.defaultObjectSize";
 	
-	public int sizeOf(Class<?> type) {
-    	String s = System.getProperty(PROPERTY_bridj_c_defaultObjectSize);
+	public int getDefaultStructSize() {
+		String s = System.getProperty(PROPERTY_bridj_c_defaultObjectSize);
     	if (s != null)
     		try {
     			return Integer.parseInt(s);
@@ -138,6 +165,14 @@ public class CRuntime extends AbstractBridJRuntime {
 	    		log(Level.SEVERE, "Invalid value for property " + PROPERTY_bridj_c_defaultObjectSize + " : '" + s + "'");
 	    	}
     	return defaultObjectSize;
+	}
+	protected int sizeOf(Class<? extends StructObject> type, StructIO io) {
+		if (io == null)
+			io = StructIO.getInstance(type);
+		int size;
+		if (io == null || (size = io.getStructSize()) == 0)
+			return getDefaultStructSize();
+		return size;	
     }
 
     static Method getUniqueAbstractCallbackMethod(Class type) {
@@ -169,9 +204,9 @@ public class CRuntime extends AbstractBridJRuntime {
     }
 
 
-    private <T extends Callback> Pointer<T> registerCallbackInstance(T instance) {
+    private <T extends Callback<?>> Pointer<T> registerCallbackInstance(T instance) {
 		try {
-            Class c = instance.getClass();
+            Class<?> c = instance.getClass();
 			MethodCallInfo mci = new MethodCallInfo(getUniqueAbstractCallbackMethod(c));
             mci.setJavaCallback(instance);
             final long handle = JNI.createCToJavaCallback(mci);
@@ -190,8 +225,8 @@ public class CRuntime extends AbstractBridJRuntime {
     @Override
     public void initialize(NativeObject instance) {
         if (!BridJ.isCastingNativeObjectInCurrentThread()) {
-            if (instance instanceof Callback)
-                setNativeObjectPeer(instance, registerCallbackInstance((Callback)instance));
+            if (instance instanceof Callback<?>)
+                setNativeObjectPeer(instance, registerCallbackInstance((Callback<?>)instance));
             else
                 initialize(instance, -1);
         }
@@ -199,7 +234,18 @@ public class CRuntime extends AbstractBridJRuntime {
     
     @Override
     public void initialize(NativeObject instance, int constructorId, Object... args) {
-        throw new UnsupportedOperationException("TODO implement structs here !");
+    	if (!(instance instanceof StructObject))
+    		return;
+    	
+    	StructObject s = (StructObject)instance;
+    	if (constructorId < 0) {
+    		
+    		Class<? extends StructObject> c = (Class)instance.getClass();
+    		StructIO io = StructIO.getInstance(c);
+    		s.io = io; 
+    		instance.peer = Pointer.allocate(PointerIO.getInstance(io), sizeOf(c, io));
+    	} else
+    		throw new UnsupportedOperationException("TODO implement structs constructors !");
     }
 
     protected void setNativeObjectPeer(NativeObject instance, Pointer<? extends NativeObject> peer) {

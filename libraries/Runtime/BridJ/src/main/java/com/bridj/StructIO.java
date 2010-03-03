@@ -11,25 +11,28 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-class StructIO<S extends StructObject> {
+class StructIO {
 
-    static Map<Class<?>, StructIO<?>> structIOs = new HashMap<Class<?>, StructIO<?>>();
+    static Map<Class<?>, StructIO> structIOs = new HashMap<Class<?>, StructIO>();
 
-    public static synchronized <E extends StructObject> StructIO<E> getInstance(Class<E> structClass) {
-        StructIO<?> io = structIOs.get(structClass);
+    public static synchronized StructIO getInstance(Class structClass) {
+        StructIO io = structIOs.get(structClass);
         if (io == null)
-            registerStructIO((Class)structClass, (StructIO)(io = new StructIO(structClass)));
-        return (StructIO<E>)io;
+            registerStructIO(structClass, (StructIO)(io = new StructIO(structClass)));
+        return (StructIO)io;
     }
 
-    public static synchronized <E extends StructObject> StructIO<E> registerStructIO(Class<E> structClass, StructIO<E> io) {
+    public static synchronized StructIO registerStructIO(Class structClass, StructIO io) {
         structIOs.put(structClass, io);
         return io;
     }
 
     public static class FieldIO {
         String name;
+        Method getter, setter;
 		int index = -1;
 		int byteOffset, byteLength;
 		int bitOffset, bitLength = -1;
@@ -41,8 +44,8 @@ class StructIO<S extends StructObject> {
         Class<?> declaringClass;
 	}
 	
-	protected PointerIO<S> pointerIO;
-	protected final Class<S> structClass;
+	protected PointerIO<?> pointerIO;
+	protected final Class<?> structClass;
 	protected volatile FieldIO[] fields;
 	private int structSize = -1;
     private int structAlignment = -1;
@@ -50,16 +53,19 @@ class StructIO<S extends StructObject> {
     protected java.lang.reflect.Field[] javaFields;
     protected java.lang.reflect.Method[] javaIOGetters, javaIOSetters;
 	
-	public StructIO(Class<S> structClass) {
+	public StructIO(Class<?> structClass) {
 		this.structClass = structClass;
 
 	}
 	
-	public Class<S> getStructClass() {
+	public FieldIO[] getFields() {
+		return fields;
+	}
+	public Class<?> getStructClass() {
 		return structClass;
 	}
 	
-	public synchronized PointerIO<S> getPointerIO() {
+	public synchronized PointerIO<?> getPointerIO() {
 		if (pointerIO == null)
 			pointerIO = new PointerIO(getStructClass(), getStructSize());
 			
@@ -128,14 +134,12 @@ class StructIO<S extends StructObject> {
         //    return false;
 
         int modifiers = method.getModifiers();
-        return Modifier.isPublic(modifiers) && !Modifier.isStatic(modifiers);
+        return method.getAnnotation(Field.class) != null && Modifier.isNative(modifiers) && !Modifier.isStatic(modifiers);
     }
 
-    protected FieldIO newFieldIO() {
-        return new FieldIO();
-    }
     protected FieldIO createFieldIO(Method getter) {
-        FieldIO field = newFieldIO();
+        FieldIO field = new FieldIO();
+        field.getter = getter;
         field.valueType = getter.getGenericReturnType();
         field.valueClass = getter.getReturnType();
         field.declaringClass = getter.getDeclaringClass();
@@ -170,6 +174,13 @@ class StructIO<S extends StructObject> {
         for (Method method : structClass.getMethods()) {
             if (acceptFieldGetter(method)) {
                 FieldIO io = createFieldIO(method);
+                try {
+                	Method setter = structClass.getMethod(method.getName(), io.valueClass);
+                	if (Modifier.isAbstract(method.getModifiers()))
+                		io.setter = setter;
+                } catch (Exception ex) {
+                	Logger.getLogger(getClass().getName()).log(Level.INFO, "No setter for getter " + method);
+                }
                 if (io != null)
                     list.add(io);
             }
@@ -226,7 +237,7 @@ class StructIO<S extends StructObject> {
                 if (field.isByValue)
                     field.byteLength = Pointer.SIZE;
                 else {
-                    StructIO<?> io = StructIO.getInstance((Class<? extends StructObject>)field.valueClass);
+                    StructIO io = StructIO.getInstance((Class<? extends StructObject>)field.valueClass);
                     field.byteLength = io.getStructSize();
                 }
                 field.refreshableFieldIndex = refreshableFieldCount++;

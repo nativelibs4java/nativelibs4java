@@ -18,6 +18,7 @@ public class Dyncall {
         eIntValue,
         eShortValue,
         eByteValue,
+    	eBooleanValue,
         eLongValue,
         eDoubleValue,
         eFloatValue,

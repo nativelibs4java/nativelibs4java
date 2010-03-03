@@ -9,6 +9,7 @@ import java.util.Stack;
 
 import com.bridj.NativeObject;
 import com.bridj.Pointer;
+import com.bridj.StructObject;
 import com.bridj.ann.Runtime;
 import com.bridj.cpp.mfc.MFCRuntime;
 
@@ -18,7 +19,7 @@ import com.bridj.cpp.mfc.MFCRuntime;
  * @author Olivier
  */
 @Runtime(CPPRuntime.class)
-public class CPPObject extends NativeObject {
+public class CPPObject extends StructObject {
 	public CPPObject() {}
     public CPPObject(Pointer<? extends CPPObject> peer, CPPRuntime cppRuntime) {
         super(peer, cppRuntime);

@@ -24,6 +24,7 @@ jboolean followArgs(JNIEnv* env, DCArgs* args, DCCallVM* vm, int nTypes, ValueTy
 			case eShortValue:
 				dcArgShort(vm, dcbArgShort(args));
 				break;
+			case eBooleanValue:
 			case eByteValue:
 				dcArgChar(vm, dcbArgChar(args));
 				break;
@@ -61,6 +62,7 @@ jboolean followCall(JNIEnv* env, ValueType returnType, DCCallVM* vm, DCValue* re
 		CALL_CASE(eShortValue, Short, SHORT, s)
 		CALL_CASE(eFloatValue, Float, FLOAT, f)
 		CALL_CASE(eDoubleValue, Double, DOUBLE, d)
+		case eBooleanValue:
 		CALL_CASE(eByteValue, Char, CHAR, c)
 		case eCLongValue:
 			result->l = dcCallLong(vm, callback);

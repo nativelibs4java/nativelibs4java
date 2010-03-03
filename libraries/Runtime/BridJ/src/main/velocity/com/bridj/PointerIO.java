@@ -85,6 +85,9 @@ public class PointerIO<T> {
     }
 
     static Map<Type, PointerIO> ios = new WeakHashMap<Type, PointerIO>();
+    public synchronized static <S extends StructObject> PointerIO<S> getInstance(StructIO structIO) {
+    	return getInstanceByType(structIO.getStructClass());
+    }
     public synchronized static <P> PointerIO<P> getInstance(Class<P> type) {
         return getInstanceByType(type);
     }

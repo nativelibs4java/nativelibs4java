@@ -8,13 +8,14 @@ char __cdecl doStructHandler(DCArgs* args, DCValue* result, StructFieldInfo *inf
 	DCCallVM* vm;
 	jobject instance = initCallHandler(args, &vm, &env);
 	
-	dcMode(DC_CALL_C_DEFAULT);
 	
-	dcArgPointer(env);
-	dcArgPointer(gStructFieldsIOClass);
-	dcArgPointer(info->fMethod);
-	dcArgPointer(instance);
-	dcArgInt(info->fFieldIndex);
+	dcMode(vm, DC_CALL_C_DEFAULT);
+	
+	dcArgPointer(vm, env);
+	dcArgPointer(vm, gStructFieldsIOClass);
+	dcArgPointer(vm, info->fMethod);
+	dcArgPointer(vm, instance);
+	dcArgInt(vm, info->fFieldIndex);
 	
 	followArgs(env, args, vm, info->fInfo.nParams, info->fInfo.fParamTypes) 
 	&&

@@ -53,6 +53,7 @@ typedef enum ValueType {
 	eIntValue,
 	eShortValue,
 	eByteValue,
+	eBooleanValue,
 	eLongValue,
 	eDoubleValue,
 	eFloatValue,

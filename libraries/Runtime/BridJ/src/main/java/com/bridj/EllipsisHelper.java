@@ -35,6 +35,8 @@ class EllipsisHelper {
 				type = ValueType.eFloatValue;
 			else if (arg instanceof Byte)
 				type = ValueType.eByteValue;
+			else if (arg instanceof Boolean)
+				type = ValueType.eBooleanValue;
 			else if (arg instanceof Character)
 				type = ValueType.eWCharValue;
 			else if (arg instanceof SizeT) {

@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 import com.bridj.Demangler.DemanglingException;
 import com.bridj.Demangler.MemberRef;
 import com.bridj.Demangler.Symbol;
-import com.bridj.ann.Mangling;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.GCC4Demangler;
 import com.bridj.cpp.VC9Demangler;
@@ -101,7 +100,7 @@ public class NativeLibrary {
 
     public synchronized Symbol getSymbol(AnnotatedElement member) throws FileNotFoundException {
         //libHandle = libHandle & 0xffffffffL;
-        Mangling mg = BridJ.getAnnotation(Mangling.class, false, member);
+    	com.bridj.ann.Symbol mg = BridJ.getAnnotation(com.bridj.ann.Symbol.class, false, member);
         if (mg != null)
             for (String name : mg.value())
             {

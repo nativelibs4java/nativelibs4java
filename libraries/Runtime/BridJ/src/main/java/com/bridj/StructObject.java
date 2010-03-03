@@ -1,5 +1,6 @@
 package com.bridj;
 
+@com.bridj.ann.Runtime(CRuntime.class)
 public class StructObject extends NativeObject {
 	StructIO io;
 	Object[] refreshableFields;

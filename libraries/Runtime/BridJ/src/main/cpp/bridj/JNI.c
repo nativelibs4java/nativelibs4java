@@ -33,7 +33,7 @@ jfieldID 	gFieldId_dcSignature 		 = NULL;
 jfieldID 	gFieldId_paramsValueTypes 	 = NULL;
 jfieldID 	gFieldId_returnValueType 	 = NULL;    
 jfieldID 	gFieldId_forwardedPointer 	 = NULL;
-jfieldID 	gFieldId_virtualIndex 		 = NULL;
+jfieldID 	gFieldId_index 				 = NULL;
 jfieldID 	gFieldId_virtualTableOffset	 = NULL;
 jfieldID 	gFieldId_javaCallback 		 = NULL;
 jfieldID 	gFieldId_direct		 		 = NULL;
@@ -63,13 +63,13 @@ void initMethods(JNIEnv* env) {
 	
 		GETFIELD_ID(javaSignature 		,	"javaSignature"			,	"Ljava/lang/String;"	);
 		GETFIELD_ID(dcSignature 		,	"dcSignature" 			,	"Ljava/lang/String;"	);
-		GETFIELD_ID(symbolName 		,	"symbolName" 			,	"Ljava/lang/String;"	);
-		GETFIELD_ID(methodName 		,	"methodName" 			,	"Ljava/lang/String;"	);
+		GETFIELD_ID(symbolName 			,	"symbolName" 			,	"Ljava/lang/String;"	);
+		GETFIELD_ID(methodName 			,	"methodName" 			,	"Ljava/lang/String;"	);
 		GETFIELD_ID(declaringClass		,	"declaringClass" 		,	"Ljava/lang/Class;"		);
 		GETFIELD_ID(paramsValueTypes 	,	"paramsValueTypes"		,	"[I"					);
 		GETFIELD_ID(returnValueType 	,	"returnValueType" 		,	"I"						);
 		GETFIELD_ID(forwardedPointer 	,	"forwardedPointer" 		,	"J"						);
-		GETFIELD_ID(virtualIndex 		,	"virtualIndex" 			,	"I"						);
+		GETFIELD_ID(index 				,	"index" 				,	"I"						);
 		GETFIELD_ID(virtualTableOffset	,	"virtualTableOffset"	,	"I"						);
 		GETFIELD_ID(javaCallback 		,	"javaCallback" 			,	"Lcom/bridj/Callback;"	);
 		GETFIELD_ID(direct		 		,	"direct"	 			,	"Z"						);
@@ -232,7 +232,7 @@ JNIEXPORT jint JNICALL Java_com_bridj_JNI_getMaxDirectMappingArgCount(JNIEnv *en
 	JavaToNativeCallHandler(
 }*/
 
-char getDCReturnType(ValueType returnType) 
+char getDCReturnType(JNIEnv* env, ValueType returnType) 
 {
 	switch (returnType) {
 #define CALL_CASE(valueType, capCase, hiCase, uni) \
@@ -243,6 +243,7 @@ char getDCReturnType(ValueType returnType)
 		CALL_CASE(eShortValue, Short, SHORT, s)
 		CALL_CASE(eFloatValue, Float, FLOAT, f)
 		CALL_CASE(eDoubleValue, Double, DOUBLE, d)
+		case eBooleanValue:
 		CALL_CASE(eByteValue, Char, CHAR, c)
 		case eCLongValue:
 			return DC_SIGCHAR_LONG;
@@ -250,10 +251,12 @@ char getDCReturnType(ValueType returnType)
 			return DC_SIGCHAR_LONG;
 		case eVoidValue:
 			return DC_SIGCHAR_VOID;
+		case ePointerValue:
+			return DC_SIGCHAR_POINTER;
 		case eWCharValue:
 			// TODO
 		default:
-			//cerr << "Return ValueType not supported yet: " << (int)info->fReturnType << " !\n";
+			throwException(env, "Return ValueType not supported yet !");
 			return DC_SIGCHAR_VOID;
 	}
 }
@@ -274,7 +277,7 @@ void initCommonCallInfo(
 		info->fParamTypes = (ValueType*)malloc(nParams * sizeof(jint));	
 		(*env)->GetIntArrayRegion(env, paramsValueTypes, 0, nParams, (jint*)info->fParamTypes);
 	}
-	info->fDCReturnType = getDCReturnType(info->fReturnType);
+	info->fDCReturnType = getDCReturnType(env, info->fReturnType);
 }
 
 void* getJNICallFunction(JNIEnv* env, ValueType valueType) {
@@ -289,6 +292,8 @@ void* getJNICallFunction(JNIEnv* env, ValueType valueType) {
 		return (*env)->CallFloatMethod;
 	case eDoubleValue:
 		return (*env)->CallDoubleMethod;
+	case eBooleanValue:
+		return (*env)->CallBooleanMethod;
 	case eByteValue:
 		return (*env)->CallByteMethod;
 	case eShortValue:
@@ -297,6 +302,9 @@ void* getJNICallFunction(JNIEnv* env, ValueType valueType) {
 		return (*env)->CallCharMethod;
 	case eVoidValue:
 		return (*env)->CallVoidMethod;
+	case eObjectByValue:
+	case ePointerValue:
+		return (*env)->CallObjectMethod;
 	default:
 		throwException(env, "Unhandled type in getJNICallFunction !");
 		return NULL;
@@ -316,6 +324,8 @@ void* getJNICallStaticFunction(JNIEnv* env, ValueType valueType) {
 		return (*env)->CallStaticFloatMethod;
 	case eDoubleValue:
 		return (*env)->CallStaticDoubleMethod;
+	case eBooleanValue:
+		return (*env)->CallStaticBooleanMethod;
 	case eByteValue:
 		return (*env)->CallStaticByteMethod;
 	case eShortValue:
@@ -324,6 +334,9 @@ void* getJNICallStaticFunction(JNIEnv* env, ValueType valueType) {
 		return (*env)->CallStaticCharMethod;
 	case eVoidValue:
 		return (*env)->CallStaticVoidMethod;
+	case eObjectByValue:
+	case ePointerValue:
+		return (*env)->CallStaticObjectMethod;
 	default:
 		throwException(env, "Unhandled type in getJNICallStaticFunction !");
 		return NULL;
@@ -384,7 +397,7 @@ void freeCommon(CommonCallbackInfo* info)
 		jobject 	javaCallback 		= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_javaCallback 		    );   \
 		jlong 		forwardedPointer 	= (*env)->GetLongField(		env, methodCallInfo, gFieldId_forwardedPointer 	    );   \
 		jint	 	returnValueType 	= (*env)->GetIntField(		env, methodCallInfo, gFieldId_returnValueType 	    );   \
-		jint	 	virtualIndex 		= (*env)->GetIntField(		env, methodCallInfo, gFieldId_virtualIndex 		    );   \
+		jint	 	index 				= (*env)->GetIntField(		env, methodCallInfo, gFieldId_index 		    	);   \
 		jint	 	virtualTableOffset	= (*env)->GetIntField(		env, methodCallInfo, gFieldId_virtualTableOffset	);   \
 		jint	 	dcCallingConvention	= (*env)->GetIntField(		env, methodCallInfo, gFieldId_dcCallingConvention	);   \
 		jboolean 	direct		 		= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_direct		 		);   \
@@ -494,7 +507,40 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeJavaToCCallbacks(
 	free(infos);
 }
 
-
+jmethodID GetStructMethodId(JNIEnv* env, ValueType type, int isGetter, void** jniFunctionOut) 
+{
+	const char* nameStr = NULL, *sigStr = NULL;
+	switch (type) {
+#define CASE_STRUCT_METHOD(etype, name, typSig, getjni) \
+	case etype: \
+		if (isGetter) { \
+			*jniFunctionOut = (void*)(*env)->getjni; \
+			nameStr = "get" #name "Field"; \
+			sigStr = "()" typSig; \
+		} else { \
+			*jniFunctionOut = (void*)(*env)->CallStaticVoidMethod; \
+			nameStr = "set" #name "Field"; \
+			sigStr = "(" typSig ")V"; \
+		} \
+		break;
+#define _CASE_STRUCT_METHOD_PRIM(name, typSig) CASE_STRUCT_METHOD(e ## name ## Value, name, typSig, CallStatic ## name ## Method)
+#define CASE_STRUCT_METHOD_PRIM(name, typSig) _CASE_STRUCT_METHOD_PRIM(name, typSig)
+	CASE_STRUCT_METHOD_PRIM(Int, "I")
+	CASE_STRUCT_METHOD_PRIM(Long, "J")
+	CASE_STRUCT_METHOD_PRIM(Short, "S")
+	CASE_STRUCT_METHOD_PRIM(Byte, "B")
+	CASE_STRUCT_METHOD_PRIM(Boolean, "Z")
+	CASE_STRUCT_METHOD_PRIM(Double, "D")
+	CASE_STRUCT_METHOD_PRIM(Float, "F")
+	CASE_STRUCT_METHOD(eWCharValue, WChar, "C", CallStaticCharMethod)
+	CASE_STRUCT_METHOD(eObjectByValue, NativeObject, "Lcom/bridj/NativeObject;", CallStaticObjectMethod)
+	CASE_STRUCT_METHOD(ePointerValue, Pointer, "Lcom/bridj/Pointer;", CallStaticObjectMethod)
+	default:
+		throwException(env, "Unhandled struct field type !");
+		return NULL;
+	}
+	return (*env)->GetMethodID(env, gStructFieldsIOClass, nameStr, sigStr); 
+}
 
 
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindGetters(
@@ -508,12 +554,14 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindGetters(
 		info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToFunctionCallHandler, info);
 		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 		
-		//TODO jmethodID fMethod;
-		//TODO void* fJNICallFunction;
-		//TODO jint fFieldIndex
-	
 		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
 		registerJavaFunction(env, declaringClass, methodName, javaSignature, info->fInfo.fDCCallback);
+		
+		info->fMethod = GetStructMethodId(env, info->fInfo.fReturnType, JNI_TRUE, &info->fJNICallFunction);
+		//info->fFieldIndex = fieldIndex;
+		//TODO jint fFieldIndex
+	
+		
 	}
 	END_INFOS_LOOP()
 	return (jlong)(size_t)infos;
@@ -638,7 +686,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToVirtualMethods(
 	
 		info->fClass = (*env)->NewGlobalRef(env, declaringClass);
 		info->fHasThisPtrArg = startsWithThis;
-		info->fVirtualIndex = virtualIndex;
+		info->fVirtualIndex = index;
 		info->fVirtualTableOffset = virtualTableOffset;
 		//info->fClass = NULL;//TODO declaringClass;
 		

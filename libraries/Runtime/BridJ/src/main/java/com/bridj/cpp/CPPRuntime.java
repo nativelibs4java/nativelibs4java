@@ -6,7 +6,6 @@
 package com.bridj.cpp;
 
 import java.io.FileNotFoundException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -14,11 +13,8 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import com.bridj.BridJ;
-import com.bridj.Callback;
-import com.bridj.Demangler;
 import com.bridj.JNI;
 import com.bridj.MethodCallInfo;
-import com.bridj.NativeEntities;
 import com.bridj.NativeLibrary;
 import com.bridj.NativeObject;
 import com.bridj.Pointer;
@@ -42,7 +38,7 @@ import java.util.List;
 public class CPPRuntime extends CRuntime {
 	@Override
 	public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Class<T> officialType) {
-		String className = null;
+		//String className = null;
 		// For C++ classes in general, take type info at offset -1 of vtable (if first field matches the address of a known static or dynamic virtual table) and use it to create the correct instance.
 //		Pointer<?> vptr = pInstance.getPointer(0);
 //		Symbol symbol = BridJ.getSymbolByAddress(vptr.getPeer());
@@ -99,7 +95,7 @@ public class CPPRuntime extends CRuntime {
 		int modifiers = method.getModifiers();
 		boolean isCPPClass = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
 				
-		Annotation[][] anns = method.getParameterAnnotations();
+//		Annotation[][] anns = method.getParameterAnnotations();
 		if (!isCPPClass) {
 			super.registerNativeMethod(type, typeLibrary, method, methodLibrary, builder);
 			return;
@@ -149,7 +145,7 @@ public class CPPRuntime extends CRuntime {
 			}
             int virtualOffset = getVirtualMethodsCount(type.getSuperclass());
             int absoluteVirtualIndex = virtualOffset + virtualIndex;
-			mci.setVirtualIndex(absoluteVirtualIndex);
+			mci.setIndex(absoluteVirtualIndex);
 			log(Level.SEVERE, "Method " + method.toGenericString() + " has relative virtual index = " + virtualIndex + ", absolute index = " + absoluteVirtualIndex);
             builder.addVirtualMethod(mci);
 		}
@@ -157,10 +153,10 @@ public class CPPRuntime extends CRuntime {
 	
 	static Map<Class<?>, Long> defaultConstructors = new HashMap<Class<?>, Long>();
     
-	protected <T extends NativeObject> Pointer<T> newCPPInstance(Class<?> type, int constructorId, Object... args) {
+	protected <T extends CPPObject> Pointer<T> newCPPInstance(Class<T> type, int constructorId, Object... args) {
     	Pointer<T> peer = null;
         try {
-        	peer = (Pointer)Pointer.allocate(PointerIO.getInstance(type), sizeOf(type));
+        	peer = (Pointer)Pointer.allocate(PointerIO.getInstance(type), sizeOf(type, null));
         	NativeLibrary lib = BridJ.getNativeLibrary(type);
         	if (constructorId < 0) {
         		Long defaultConstructor = defaultConstructors.get(type);
@@ -226,11 +222,12 @@ public class CPPRuntime extends CRuntime {
         super.destroy(instance);
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public void initialize(NativeObject instance, int constructorId, Object... args) {
-        if (CPPObject.class.isInstance(instance)) {
+        if (instance instanceof CPPObject) {
             //instance.peer = allocate(instance.getClass(), constructorId, args);
-        	setNativeObjectPeer(instance, newCPPInstance(instance.getClass(), constructorId, args));
+        	setNativeObjectPeer(instance, newCPPInstance((Class<? extends CPPObject>)instance.getClass(), constructorId, args));
         }
         else
             super.initialize(instance, constructorId, args);
