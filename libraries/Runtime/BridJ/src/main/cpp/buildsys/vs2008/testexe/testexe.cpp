@@ -9,6 +9,7 @@
 #include <Objbase.h>
 #include <shobjidl.h>
 #include <exdisp.h>
+#include <shobjidl.h>
 
 int f() {
 	return 10;

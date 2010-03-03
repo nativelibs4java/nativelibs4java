@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class NativeEntities {
 	static class CBInfo {
@@ -79,6 +81,7 @@ public class NativeEntities {
 	}
 	public void addDefinitions(Class<?> type, Builder builder) {
 		int n;
+        try {
 
 		n = builder.functionInfos.size();
 		if (n != 0)
@@ -99,6 +102,9 @@ public class NativeEntities {
 //		n = builder.setters.size();
 //		if (n != 0)
 //			setters.put(type, new CBInfo(JNI.bindFieldGetters(builder.setters.toArray(new MethodCallInfo[n])), n));
-		
+
+        } catch (Throwable th) {
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to add native definitions for class " + type.getName(), th);
+        }
 	}
 }

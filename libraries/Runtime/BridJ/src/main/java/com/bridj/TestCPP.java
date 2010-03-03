@@ -18,10 +18,16 @@ import com.bridj.cpp.com.COMRuntime;
 import com.bridj.cpp.com.IUnknown;
 import com.bridj.cpp.com.shell.IShellFolder;
 import com.bridj.cpp.com.shell.IShellWindows;
+import com.bridj.cpp.com.shell.ITaskbarList3;
 import com.bridj.objc.NSAutoReleasePool;
 import com.bridj.objc.ObjCObject;
 
 import java.io.FileNotFoundException;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JSlider;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 @Library("test")
@@ -54,9 +60,56 @@ public class TestCPP {
 		System.out.println();
 	}
 	public static void main(String[] args) throws Exception {
-		library = BridJ.getNativeLibrary("test");
+		try {
+            IShellWindows win = COMRuntime.newInstance(IShellWindows.class);
+            IUnknown iu = win.QueryInterface(IUnknown.class);
+            if (iu == null) {
+                throw new RuntimeException("Interface does not handle IUnknown !");
+            }
+
+            final ITaskbarList3 list = COMRuntime.newInstance(ITaskbarList3.class);
+            
+            JFrame f = new JFrame("Test");
+            f.getContentPane().add("Center", new JLabel("Hello Native Windows 7 World !"));
+            int min = 0, max = 300, val = (min + max / 2);
+            final JSlider slider = new JSlider(min, max, val);
+            f.getContentPane().add("South", slider);
+            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            f.pack();
+            f.setVisible(true);
+            long hwndVal = com.sun.jna.Native.getComponentID(f);
+            final Pointer<?> hwnd = Pointer.pointerToAddress(hwndVal);
+            slider.addChangeListener(new ChangeListener() {
+
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    list.SetProgressValue((Pointer)hwnd, slider.getValue(), slider.getMaximum());
+                }
+            });
+            int ret;
+            ret = list.SetProgressValue((Pointer)hwnd, 50, 100);
+            ret = list.SetProgressState((Pointer)hwnd, ITaskbarList3.TbpFlag.TBPF_INDETERMINATE.getValue());
+            ret = list.SetProgressState((Pointer)hwnd, ITaskbarList3.TbpFlag.TBPF_PAUSED.getValue());
+            ret = list.SetProgressState((Pointer)hwnd, ITaskbarList3.TbpFlag.TBPF_ERROR.getValue());
+            ret = list.SetProgressState((Pointer)hwnd, ITaskbarList3.TbpFlag.TBPF_NOPROGRESS.getValue());
+            ret = list.SetProgressState((Pointer)hwnd, ITaskbarList3.TbpFlag.TBPF_NORMAL.getValue());
+            if (true)
+                return;
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
+
+        library = BridJ.getNativeLibrary("test");
+			//NativeLibrary.load(libraryPath);
+
+		new VC9Demangler(null, "?sinInt@@YANH@Z").parseSymbol();
+        new VC9Demangler(null, "?forwardCall@@YAHP6AHHH@ZHH@Z").parseSymbol();
 
         BridJ.register();
+        
+        //new VC9Demangler(null, "??0Ctest2@@QEAA@XZ").parseSymbol();
+//        NSAutoReleasePool object = new NSAutoReleasePool();
+		
         
 		for (Demangler.Symbol symbol : library.getSymbols()) {
             String name = symbol.getName();
@@ -80,7 +133,11 @@ public class TestCPP {
 		int res = test.testAdd(1, 2);
 		System.out.println("res = " + res);
 		
-		/*double dres = PerfLib.testASinB(1, 2);
+		testNativeTargetCallbacks();
+        testJavaTargetCallbacks();
+
+
+        /*double dres = PerfLib.testASinB(1, 2);
         res = PerfLib.testAddJNI(1, 2);
         System.out.println("Done");*/
 	}
@@ -142,6 +199,15 @@ public class TestCPP {
 
 	}
 	
+	public static void testNativeTargetCallbacks() {
+		Pointer<com.bridj.TestCPP.MyCallback> ptr = getAdder();
+		MyCallback adder = ptr.toNativeObject(MyCallback.class);
+		int res = adder.doSomething(1, 2);
+
+        if (res != 3)
+            throw new RuntimeException("Expected 3, got "+ res);
+	}
+	
 	static native int forwardCall(Pointer<MyCallback> cb, int a, int b);
 	static native Pointer<MyCallback> getAdder();
 	
@@ -150,3 +216,35 @@ public class TestCPP {
 	}
 	
 }
+
+/*
+
+@Library("test")
+@com.bridj.ann.Runtime(CRuntime.class)
+class PerfLib {
+    static {
+        String f = BridJ.getNativeLibraryFile(BridJ.getNativeLibraryName(PerfLib.class)).toString();
+        System.load(f);
+    }
+    public static class DynCallTest {
+        public DynCallTest() throws FileNotFoundException {
+            BridJ.register(getClass());
+        }
+        public native int testAddDyncall(int a, int b);
+        public native int testASinB(int a, int b);
+    }
+
+    public static class JNATest implements com.sun.jna.Library {
+        static {
+        	try {
+        		com.sun.jna.Native.register(JNI.extractEmbeddedLibraryResource("test").toString());
+        	} catch (Exception ex) {
+        		throw new RuntimeException("Failed to initialize test JNA library", ex);
+        	}
+        }
+        public static native int testAddJNA(int a, int b);
+        public static native int testASinB(int a, int b);
+    }
+    public static native int testAddJNI(int a, int b);
+    public static native double testASinB(int a, int b);
+}*/

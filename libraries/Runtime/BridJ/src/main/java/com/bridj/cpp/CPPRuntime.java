@@ -91,7 +91,7 @@ public class CPPRuntime extends CRuntime {
 
         type = type.getSuperclass();
         if (type != CPPObject.class)
-            listVirtualMethods(type.getSuperclass(), out);
+            listVirtualMethods(type, out);
     }
 	@Override
 	protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder) throws FileNotFoundException {
@@ -148,8 +148,10 @@ public class CPPRuntime extends CRuntime {
 				}
 			}
             int virtualOffset = getVirtualMethodsCount(type.getSuperclass());
-			mci.setVirtualIndex(virtualOffset + virtualIndex);
-			builder.addVirtualMethod(mci);
+            int absoluteVirtualIndex = virtualOffset + virtualIndex;
+			mci.setVirtualIndex(absoluteVirtualIndex);
+			log(Level.SEVERE, "Method " + method.toGenericString() + " has relative virtual index = " + virtualIndex + ", absolute index = " + absoluteVirtualIndex);
+            builder.addVirtualMethod(mci);
 		}
 	}
 	
