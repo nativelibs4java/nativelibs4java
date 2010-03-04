@@ -45,8 +45,8 @@
 	
 	
 	<dependency>
-      <groupId>com.sun.jna</groupId>
-      <artifactId>jna</artifactId>
+      <groupId>com.jnaerator</groupId>
+      <artifactId>jna-jnaerator</artifactId>
       <version>${jna.version}</version>
       <scope>provided</scope>
     </dependency>
