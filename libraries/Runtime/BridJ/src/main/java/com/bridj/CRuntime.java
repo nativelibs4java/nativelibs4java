@@ -54,24 +54,27 @@ public class CRuntime extends AbstractBridJRuntime {
 		try {
 			if (StructObject.class.isAssignableFrom(type)) {
 				StructIO io = StructIO.getInstance(type);
-				for (StructIO.FieldIO fio : io.getFields()) {
-					NativeEntities.Builder builder = builders.get(BridJ.getOrphanEntities());
-	
-					try {
-						{
-							MethodCallInfo getter = new MethodCallInfo(fio.getter);
-							getter.setIndex(fio.index);
-							builder.addGetter(getter);
-						}
-						if (fio.setter != null) {
-							MethodCallInfo setter = new MethodCallInfo(fio.setter);
-							setter.setIndex(fio.index);
-							builder.addSetter(setter);
-						}
-					} catch (FileNotFoundException ex) {
-						ex.printStackTrace();
-					}
-				}
+                io.build();
+                StructIO.FieldIO[] fios = io == null ? null : io.getFields();
+                if (fios != null)
+                    for (StructIO.FieldIO fio : fios) {
+                        NativeEntities.Builder builder = builders.get(BridJ.getOrphanEntities());
+
+                        try {
+                            {
+                                MethodCallInfo getter = new MethodCallInfo(fio.getter);
+                                getter.setIndex(fio.index);
+                                builder.addGetter(getter);
+                            }
+                            if (fio.setter != null) {
+                                MethodCallInfo setter = new MethodCallInfo(fio.setter);
+                                setter.setIndex(fio.index);
+                                builder.addSetter(setter);
+                            }
+                        } catch (FileNotFoundException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
 			}
 			
 			if (Callback.class.isAssignableFrom(type)) {

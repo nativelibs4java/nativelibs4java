@@ -13,12 +13,21 @@ import static com.bridj.cpp.com.COMRuntime.*;
 @IID("00000000-0000-0000-C000-000000000046")
 @Runtime(COMRuntime.class)
 public class IUnknown extends CPPObject {
-	
+	protected boolean autoRelease;
+
 	public IUnknown() {}
 	public IUnknown(Pointer<? extends IUnknown> peer, COMRuntime runtime) {
 		super(peer, runtime);
 	}
-	
+
+    @Override
+    protected void finalize() throws Throwable {
+        if (autoRelease)
+            Release();
+        super.finalize();
+    }
+
+
 	@Virtual(0)
 	@Deprecated
 	public native int QueryInterface(

@@ -18,7 +18,7 @@ public class COMTest {
 	public void shellFolder() {
 		if (skip) return;
         try {
-            IShellWindows win = COMRuntime.newInstance(IShellWindows.class);
+            IShellWindows win = COMRuntime.newInstance(IShellWindows.class, true);
             assertNotNull(win);
             IUnknown iu = win.QueryInterface(IUnknown.class);
             assertNotNull(iu);

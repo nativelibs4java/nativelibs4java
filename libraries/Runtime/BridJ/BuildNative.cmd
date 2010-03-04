@@ -30,8 +30,8 @@ for %%T in (win32 win64) do (
 	del ..\..\..\..\test\resources\%%T\*.dll
 )
 
-rem set CONFIG=Debug
-set CONFIG=Release
+set CONFIG=Debug
+rem set CONFIG=Release
 
 copy %CONFIG%\bridj.dll ..\..\..\resources\win32
 copy %CONFIG%\test.dll ..\..\..\..\test\resources\win32

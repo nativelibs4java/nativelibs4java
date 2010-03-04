@@ -25,7 +25,7 @@ public class Dyncall {
         ePointerValue,
         eEllipsis,
         eFlagSet,
-        eObjectByValue
+        eNativeObjectValue
     }
     
     public enum CallbackType {

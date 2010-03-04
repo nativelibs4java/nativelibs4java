@@ -45,10 +45,10 @@
 	
 	
 	<dependency>
-      <groupId>com.jnaerator</groupId>
-      <artifactId>jna-jnaerator</artifactId>
+      <groupId>com.sun.jna</groupId>
+      <artifactId>jna</artifactId>
       <version>${jna.version}</version>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
 	
   </dependencies>

@@ -9,6 +9,7 @@
 #pragma warning(disable: 4127)
 #pragma warning(disable: 4100) // unreferenced formal parameter
 #pragma warning(disable: 4706) // assignment inside a conditional expression
+#pragma warning(disable: 4054) // casting a function pointer to a data pointer
 
 #ifndef _WIN32
 #define __cdecl
@@ -60,7 +61,7 @@ typedef enum ValueType {
 	ePointerValue,
 	eEllipsis,
 	eFlagSet,
-	eObjectByValue
+	eNativeObjectValue
 } ValueType;
 
 typedef struct CommonCallbackInfo {

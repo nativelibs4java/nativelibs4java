@@ -25,16 +25,12 @@ public class NativeEntities {
 		javaToNativeCallbacks = new HashMap<Class<?>, CBInfo>(),
 		objcMethodInfos = new HashMap<Class<?>, CBInfo>();
 	
-	//Map<Class<?>, long[]> getters;
-	//Map<Class<?>, long[]> setters;
-	
 	public static class Builder {
 		List<MethodCallInfo> 
 			functionInfos = new ArrayList<MethodCallInfo>(),
 			virtualMethods = new ArrayList<MethodCallInfo>(),
 			javaToNativeCallbacks = new ArrayList<MethodCallInfo>(),
 			getters = new ArrayList<MethodCallInfo>(),
-			setters = new ArrayList<MethodCallInfo>(),
 			objcMethodInfos = new ArrayList<MethodCallInfo>();
 		//List<MethodCallInfo> getterInfos = new ArrayList<MethodCallInfo>();
 		
@@ -48,7 +44,7 @@ public class NativeEntities {
 			getters.add(info);
 		}
 		public void addSetter(MethodCallInfo info) {
-			setters.add(info);
+			getters.add(info);
 		}
 		public void addJavaToNativeCallback(MethodCallInfo info) {
 			javaToNativeCallbacks.add(info);
@@ -71,8 +67,11 @@ public class NativeEntities {
 
 		for (CBInfo callbacks : virtualMethods.values())
 		    JNI.freeVirtualMethodBindings(callbacks.handle, callbacks.size);
-		
-		for (CBInfo callbacks : objcMethodInfos.values())
+
+		for (CBInfo callbacks : getters.values())
+		    JNI.freeGetters(callbacks.handle, callbacks.size);
+
+        for (CBInfo callbacks : objcMethodInfos.values())
 		    JNI.freeObjCMethodBindings(callbacks.handle, callbacks.size);
 	}
 	@Override
@@ -99,9 +98,9 @@ public class NativeEntities {
 		if (n != 0)
 			objcMethodInfos.put(type, new CBInfo(JNI.bindJavaMethodsToObjCMethods(builder.objcMethodInfos.toArray(new MethodCallInfo[n])), n));
 
-//		n = builder.setters.size();
-//		if (n != 0)
-//			setters.put(type, new CBInfo(JNI.bindFieldGetters(builder.setters.toArray(new MethodCallInfo[n])), n));
+		n = builder.getters.size();
+		if (n != 0)
+			getters.put(type, new CBInfo(JNI.bindGetters(builder.getters.toArray(new MethodCallInfo[n])), n));
 
         } catch (Throwable th) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, "Failed to add native definitions for class " + type.getName(), th);

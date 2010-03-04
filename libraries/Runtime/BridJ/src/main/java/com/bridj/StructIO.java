@@ -115,26 +115,30 @@ class StructIO {
 
             @Override
             public int compare(FieldIO o1, FieldIO o2) {
+                int d = o1.index - o2.index;
+                if (d != 0)
+                    return d;
+
                 if (o1.declaringClass.isAssignableFrom(o2.declaringClass))
                     return -1;
                 if (o2.declaringClass.isAssignableFrom(o1.declaringClass))
-                    return -1;
+                    return 1;
                 
-                assert o1.declaringClass.equals(o2.declaringClass);
-                return o1.index - o2.index;
+                throw new RuntimeException("Failed to order fields " + o2.name + " and " + o2.name);
             }
 
         });
 	}
 
-    protected boolean acceptFieldGetter(Method method) {
-        if (method.getParameterTypes().length != 0)
+    protected boolean acceptFieldGetter(Method method, boolean getter) {
+        if (method.getParameterTypes().length != (getter ? 0 : 1))
             return false;
-        //if (!Struct.class.isAssignableFrom(method.getDeclaringClass()))
-        //    return false;
+        
+        if (getter && method.getAnnotation(Field.class) == null)
+            return false;
 
         int modifiers = method.getModifiers();
-        return method.getAnnotation(Field.class) != null && Modifier.isNative(modifiers) && !Modifier.isStatic(modifiers);
+        return Modifier.isNative(modifiers) && !Modifier.isStatic(modifiers);
     }
 
     protected FieldIO createFieldIO(Method getter) {
@@ -172,11 +176,11 @@ class StructIO {
 		List<FieldIO> list = new ArrayList<FieldIO>();
 
         for (Method method : structClass.getMethods()) {
-            if (acceptFieldGetter(method)) {
+            if (acceptFieldGetter(method, true)) {
                 FieldIO io = createFieldIO(method);
                 try {
                 	Method setter = structClass.getMethod(method.getName(), io.valueClass);
-                	if (Modifier.isAbstract(method.getModifiers()))
+                	if (acceptFieldGetter(setter, false))
                 		io.setter = setter;
                 } catch (Exception ex) {
                 	Logger.getLogger(getClass().getName()).log(Level.INFO, "No setter for getter " + method);

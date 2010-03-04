@@ -43,7 +43,7 @@ class EllipsisHelper {
 				type = ValueType.eSizeTValue;
 				args[i] = arg = ((SizeT)arg).longValue();
 			} else if (arg instanceof NativeObject) {
-				type = ValueType.eObjectByValue;
+				type = ValueType.eNativeObjectValue;
 			} else
 				throw new IllegalArgumentException("Argument type not handled in variable argument calls  : " + arg + " (" + arg.getClass().getName() + ")");
 			

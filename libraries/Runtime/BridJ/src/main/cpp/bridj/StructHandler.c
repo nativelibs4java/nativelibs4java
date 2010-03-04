@@ -10,8 +10,8 @@ char __cdecl doStructHandler(DCArgs* args, DCValue* result, StructFieldInfo *inf
 	
 	
 	dcMode(vm, DC_CALL_C_DEFAULT);
-	
-	dcArgPointer(vm, env);
+
+	dcArgPointer(vm, (void*)env);
 	dcArgPointer(vm, gStructFieldsIOClass);
 	dcArgPointer(vm, info->fMethod);
 	dcArgPointer(vm, instance);
@@ -22,9 +22,9 @@ char __cdecl doStructHandler(DCArgs* args, DCValue* result, StructFieldInfo *inf
 	followCall(env, info->fInfo.fReturnType, vm, result, info->fJNICallFunction);
 
 	// Special case for setters that return this :
-	if (!info->fInfo.nParams && info->fInfo.fReturnType != eVoidValue)
-		result->p = instance;
-	
+	//if (!info->fInfo.nParams && info->fInfo.fReturnType != eVoidValue)
+	//	result->p = instance;
+
 	return info->fInfo.fDCReturnType;
 }
 

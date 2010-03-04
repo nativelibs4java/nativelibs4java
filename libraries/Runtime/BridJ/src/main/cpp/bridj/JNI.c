@@ -58,7 +58,7 @@ void initMethods(JNIEnv* env) {
 		
 #define GETFIELD_ID(out, name, sig) \
 		if (!(gFieldId_ ## out = (*env)->GetFieldID(env, gMethodCallInfoClass, name, sig))) \
-			throwException(env, "Failed to get field " #name " in MethodCallInfo !");
+			throwException(env, "Failed to get the field " #name " in MethodCallInfo !");
 		
 	
 		GETFIELD_ID(javaSignature 		,	"javaSignature"			,	"Ljava/lang/String;"	);
@@ -80,6 +80,16 @@ void initMethods(JNIEnv* env) {
 }
 
 //void main() {}
+jmethodID GetMethodIDOrFail(JNIEnv* env, jclass declaringClass, const char* methName, const char* javaSig)
+{
+	jmethodID id = (*env)->GetStaticMethodID(env, declaringClass, methName, javaSig);
+	if (!id)
+		id = (*env)->GetMethodID(env, declaringClass, methName, javaSig);
+	if (!id)
+		throwException(env, "Couldn't find this method !");
+	
+	return id;
+}
 
 jobject createPointer(JNIEnv *env, void* ptr, jclass targetType) {
 	initMethods(env);
@@ -302,7 +312,7 @@ void* getJNICallFunction(JNIEnv* env, ValueType valueType) {
 		return (*env)->CallCharMethod;
 	case eVoidValue:
 		return (*env)->CallVoidMethod;
-	case eObjectByValue:
+	case eNativeObjectValue:
 	case ePointerValue:
 		return (*env)->CallObjectMethod;
 	default:
@@ -334,7 +344,7 @@ void* getJNICallStaticFunction(JNIEnv* env, ValueType valueType) {
 		return (*env)->CallStaticCharMethod;
 	case eVoidValue:
 		return (*env)->CallStaticVoidMethod;
-	case eObjectByValue:
+	case eNativeObjectValue:
 	case ePointerValue:
 		return (*env)->CallStaticObjectMethod;
 	default:
@@ -436,7 +446,8 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback(
 
 			info->fInfo.fDCCallback = dcbNewCallback(dcSig, NativeToJavaCallHandler, info);
 			info->fCallbackInstance = (*env)->NewGlobalRef(env, javaCallback);
-			info->fMethod = (*env)->GetMethodID(env, declaringClass, methName, javaSig);
+			info->fMethod = GetMethodIDOrFail(env, declaringClass, methName, javaSig);
+			
 			info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
 
 			//info->fInfo.fSymbolName = methName;
@@ -507,7 +518,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeJavaToCCallbacks(
 	free(infos);
 }
 
-jmethodID GetStructMethodId(JNIEnv* env, ValueType type, int isGetter, void** jniFunctionOut) 
+jmethodID GetStructMethodId(JNIEnv* env, ValueType type, jboolean isGetter, void** jniFunctionOut) 
 {
 	const char* nameStr = NULL, *sigStr = NULL;
 	switch (type) {
@@ -516,11 +527,11 @@ jmethodID GetStructMethodId(JNIEnv* env, ValueType type, int isGetter, void** jn
 		if (isGetter) { \
 			*jniFunctionOut = (void*)(*env)->getjni; \
 			nameStr = "get" #name "Field"; \
-			sigStr = "()" typSig; \
+			sigStr = "(Lcom/bridj/StructObject;I)" typSig; \
 		} else { \
 			*jniFunctionOut = (void*)(*env)->CallStaticVoidMethod; \
 			nameStr = "set" #name "Field"; \
-			sigStr = "(" typSig ")V"; \
+			sigStr = "(Lcom/bridj/StructObject;I" typSig ")V"; \
 		} \
 		break;
 #define _CASE_STRUCT_METHOD_PRIM(name, typSig) CASE_STRUCT_METHOD(e ## name ## Value, name, typSig, CallStatic ## name ## Method)
@@ -533,13 +544,13 @@ jmethodID GetStructMethodId(JNIEnv* env, ValueType type, int isGetter, void** jn
 	CASE_STRUCT_METHOD_PRIM(Double, "D")
 	CASE_STRUCT_METHOD_PRIM(Float, "F")
 	CASE_STRUCT_METHOD(eWCharValue, WChar, "C", CallStaticCharMethod)
-	CASE_STRUCT_METHOD(eObjectByValue, NativeObject, "Lcom/bridj/NativeObject;", CallStaticObjectMethod)
+	CASE_STRUCT_METHOD(eNativeObjectValue, NativeObject, "Lcom/bridj/NativeObject;", CallStaticObjectMethod)
 	CASE_STRUCT_METHOD(ePointerValue, Pointer, "Lcom/bridj/Pointer;", CallStaticObjectMethod)
 	default:
 		throwException(env, "Unhandled struct field type !");
 		return NULL;
 	}
-	return (*env)->GetMethodID(env, gStructFieldsIOClass, nameStr, sigStr); 
+	return GetMethodIDOrFail(env, gStructFieldsIOClass, nameStr, sigStr); 
 }
 
 
@@ -551,19 +562,21 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindGetters(
 	BEGIN_INFOS_LOOP(StructFieldInfo)
 	{
 		const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-		info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToFunctionCallHandler, info);
+		info->fInfo.fDCCallback = dcbNewCallback(ds, StructHandler, info);
 		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 		
 		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
 		registerJavaFunction(env, declaringClass, methodName, javaSignature, info->fInfo.fDCCallback);
 		
-		info->fMethod = GetStructMethodId(env, info->fInfo.fReturnType, JNI_TRUE, &info->fJNICallFunction);
-		//info->fFieldIndex = fieldIndex;
-		//TODO jint fFieldIndex
-	
-		
+		{
+			jboolean isGetter = info->fInfo.nParams == 0;
+			ValueType fieldType = isGetter ? info->fInfo.fReturnType : info->fInfo.fParamTypes[0];
+			info->fMethod = GetStructMethodId(env, fieldType, isGetter, &info->fJNICallFunction);
+			info->fFieldIndex = index;
+		}
 	}
 	END_INFOS_LOOP()
+	initMethods(env);
 	return (jlong)(size_t)infos;
 }
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeGetters(

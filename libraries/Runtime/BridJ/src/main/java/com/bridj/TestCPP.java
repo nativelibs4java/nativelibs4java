@@ -8,6 +8,7 @@ import com.bridj.JNI;
 import com.bridj.NativeLibrary;
 import com.bridj.Pointer;
 import com.bridj.Demangler.Symbol;
+import com.bridj.ann.Field;
 import com.bridj.ann.Library;
 import com.bridj.ann.Ptr;
 import com.bridj.ann.Virtual;
@@ -19,10 +20,12 @@ import com.bridj.cpp.com.IUnknown;
 import com.bridj.cpp.com.shell.IShellFolder;
 import com.bridj.cpp.com.shell.IShellWindows;
 import com.bridj.cpp.com.shell.ITaskbarList3;
+import com.bridj.demos.TaskbarListDemo;
 import com.bridj.objc.NSAutoReleasePool;
 import com.bridj.objc.ObjCObject;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
@@ -59,88 +62,91 @@ public class TestCPP {
 		}
 		System.out.println();
 	}
-	public static void main(String[] args) throws Exception {
-		try {
-            IShellWindows win = COMRuntime.newInstance(IShellWindows.class);
-            IUnknown iu = win.QueryInterface(IUnknown.class);
-            if (iu == null) {
-                throw new RuntimeException("Interface does not handle IUnknown !");
-            }
+	public static void main(String[] args) throws IOException {
+        try {
+            try {
+                MyStruct s = new MyStruct();
+                s.a(10);
+                int a = Pointer.getPeer(s).getInt(0);
+                a = s.a();
+                Pointer.getPeer(s).setInt(0, 10);
+                a = Pointer.getPeer(s).getInt(0);
+                a = s.a();
+                if (s.a() != 10)
+                    throw new RuntimeException("invalid value = " + a);
+                s.b(100.0);
+                if (s.b() != 100.0)
+                    throw new RuntimeException("invalid value = " + a);
 
-            final ITaskbarList3 list = COMRuntime.newInstance(ITaskbarList3.class);
-            
-            JFrame f = new JFrame("Test");
-            f.getContentPane().add("Center", new JLabel("Hello Native Windows 7 World !"));
-            int min = 0, max = 300, val = (min + max / 2);
-            final JSlider slider = new JSlider(min, max, val);
-            f.getContentPane().add("South", slider);
-            f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            f.pack();
-            f.setVisible(true);
-            long hwndVal = com.sun.jna.Native.getComponentID(f);
-            final Pointer<?> hwnd = Pointer.pointerToAddress(hwndVal);
-            slider.addChangeListener(new ChangeListener() {
-
-                @Override
-                public void stateChanged(ChangeEvent e) {
-                    list.SetProgressValue((Pointer)hwnd, slider.getValue(), slider.getMaximum());
+                IShellWindows win = COMRuntime.newInstance(IShellWindows.class, true);
+                IUnknown iu = win.QueryInterface(IUnknown.class);
+                if (iu == null) {
+                    throw new RuntimeException("Interface does not handle IUnknown !");
                 }
-            });
-            int ret;
-            ret = list.SetProgressValue((Pointer)hwnd, 50, 100);
-            ret = list.SetProgressState((Pointer)hwnd, ITaskbarList3.TbpFlag.TBPF_INDETERMINATE.getValue());
-            ret = list.SetProgressState((Pointer)hwnd, ITaskbarList3.TbpFlag.TBPF_PAUSED.getValue());
-            ret = list.SetProgressState((Pointer)hwnd, ITaskbarList3.TbpFlag.TBPF_ERROR.getValue());
-            ret = list.SetProgressState((Pointer)hwnd, ITaskbarList3.TbpFlag.TBPF_NOPROGRESS.getValue());
-            ret = list.SetProgressState((Pointer)hwnd, ITaskbarList3.TbpFlag.TBPF_NORMAL.getValue());
+                TaskbarListDemo.main(null);
+            } catch (Throwable ex) {
+                ex.printStackTrace();
+            }
             if (true)
                 return;
+
+            library = BridJ.getNativeLibrary("test");
+                //NativeLibrary.load(libraryPath);
+
+            new VC9Demangler(null, "?sinInt@@YANH@Z").parseSymbol();
+            new VC9Demangler(null, "?forwardCall@@YAHP6AHHH@ZHH@Z").parseSymbol();
+
+            BridJ.register();
+
+            //new VC9Demangler(null, "??0Ctest2@@QEAA@XZ").parseSymbol();
+    //        NSAutoReleasePool object = new NSAutoReleasePool();
+
+
+            for (Demangler.Symbol symbol : library.getSymbols()) {
+                String name = symbol.getName();
+                long addr = symbol.getAddress();
+                System.out.println(name + " = \t" + hex(addr));
+
+                if (name.startsWith("_ZTV") || name.startsWith("_ZTI") || name.startsWith("??_")) {
+                    print("vtable", addr, 10, 1);
+                } else
+                    System.out.println("'" + name + "'");
+            }
+
+            boolean is64 = JNI.is64Bits();
+            long crea = Ctest.createTest();
+            crea = Pointer.pointerToAddress(crea).getPointer(0).getPeer();
+            print("Ctest.createTest()", crea, 10, 0);
+            Ctest test = new Ctest();
+            //long thisPtr = test.$this.getPeer();
+            //System.out.println(hex(thisPtr));
+            print("Ctest.this", Pointer.getPeer(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
+            int res = test.testAdd(1, 2);
+            System.out.println("res = " + res);
+
+            testNativeTargetCallbacks();
+            testJavaTargetCallbacks();
+
         } catch (Throwable ex) {
             ex.printStackTrace();
+        } finally {
+            System.in.read();
         }
-
-        library = BridJ.getNativeLibrary("test");
-			//NativeLibrary.load(libraryPath);
-
-		new VC9Demangler(null, "?sinInt@@YANH@Z").parseSymbol();
-        new VC9Demangler(null, "?forwardCall@@YAHP6AHHH@ZHH@Z").parseSymbol();
-
-        BridJ.register();
-        
-        //new VC9Demangler(null, "??0Ctest2@@QEAA@XZ").parseSymbol();
-//        NSAutoReleasePool object = new NSAutoReleasePool();
-		
-        
-		for (Demangler.Symbol symbol : library.getSymbols()) {
-            String name = symbol.getName();
-			long addr = symbol.getAddress();
-			System.out.println(name + " = \t" + hex(addr));
-			
-			if (name.startsWith("_ZTV") || name.startsWith("_ZTI") || name.startsWith("??_")) {
-				print("vtable", addr, 10, 1);
-			} else 
-				System.out.println("'" + name + "'");
-		}
-		
-		boolean is64 = JNI.is64Bits();
-		long crea = Ctest.createTest();
-		crea = Pointer.pointerToAddress(crea).getPointer(0).getPeer();
-		print("Ctest.createTest()", crea, 10, 0);
-		Ctest test = new Ctest();
-		//long thisPtr = test.$this.getPeer();
-		//System.out.println(hex(thisPtr));
-		print("Ctest.this", Pointer.getPeer(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
-		int res = test.testAdd(1, 2);
-		System.out.println("res = " + res);
-		
-		testNativeTargetCallbacks();
-        testJavaTargetCallbacks();
-
-
         /*double dres = PerfLib.testASinB(1, 2);
         res = PerfLib.testAddJNI(1, 2);
         System.out.println("Done");*/
 	}
+
+	public static class MyStruct extends StructObject {
+		@Field(0)
+		public native int a();
+		public native void a(int a);
+
+        @Field(1)
+		public native double b();
+		public native void b(double b);
+	}
+
 	@Library("test")
 	static class Ctest extends CPPObject {
 		static {

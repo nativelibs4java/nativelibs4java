@@ -381,11 +381,27 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\..\bridj\CallbackHandler.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\CppHandler.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\bridj\Exceptions.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\bridj\JavaToNativeCallHandler.c"
+				RelativePath="..\..\..\bridj\FunctionHandler.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\HandlersCommon.c"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\ObjCHandler.c"
 				>
 			</File>
 			<File
@@ -411,6 +427,10 @@
 						Name="MASM"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\StructHandler.c"
+				>
 			</File>
 			<Filter
 				Name="jni"

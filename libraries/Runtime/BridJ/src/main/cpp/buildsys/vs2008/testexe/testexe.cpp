@@ -14,6 +14,10 @@
 int f() {
 	return 10;
 }
+int fVarArgs(int i, ...) {
+	printf("i = %d\n", i);
+	return i * 2;
+}
 int _tmain(int argc, _TCHAR* argv[])
 {
 	int a = f();
@@ -37,6 +41,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	dcReset(vm);
 
 	//dcMode(vm, DC_CALL_C_DEFAULT);
+	dcMode(vm, DC_CALL_C_X86_WIN32_STD);
+	dcArgInt(vm, 10);
+	ret = dcCallInt(vm, fVarArgs);
+
 	dcMode(vm, DC_CALL_C_X86_WIN32_STD);
 	dcArgPointer(vm, NULL);
 	ret = dcCallInt(vm, fCoInitialize);

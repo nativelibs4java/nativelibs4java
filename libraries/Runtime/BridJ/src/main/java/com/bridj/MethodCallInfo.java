@@ -201,7 +201,7 @@ public class MethodCallInfo {
         }
         if (NativeObject.class.isAssignableFrom(c)) {
         	direct = false;
-        	return ValueType.eObjectByValue;
+        	return ValueType.eNativeObjectValue;
         }
 
         throw new NoSuchElementException("No " + ValueType.class.getSimpleName() + " for class " + c.getName());
