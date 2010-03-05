@@ -16,6 +16,7 @@ class Memory<T> extends DefaultPointer<T> {
 
     Memory(PointerIO<T> io, long peer, long validStart, long validSize, Object memoryOwner) {
         super(io, peer);
+        assert (getPeer() % 8) == 0;
         this.validStart = validStart;
         this.validSize = validSize;
         this.memoryOwner = memoryOwner;

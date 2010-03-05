@@ -360,7 +360,11 @@ void* getJNICallStaticFunction(JNIEnv* env, ValueType valueType) {
 	memset(name, 0, sizeof ## name);
 
 	
-void registerJavaFunction(JNIEnv* env, jclass declaringClass, jstring methodName, jstring methodSignature, void (*callback)())
+void registerJavaFunction(JNIEnv* env, jclass declaringClass, jstring methodName, jstring methodSignature, 
+#ifdef _DEBUG
+	CommonCallbackInfo* info, 
+#endif
+	void (*callback)())
 {
 	JNINativeMethod meth;
 	if (!callback) {
@@ -385,6 +389,14 @@ void registerJavaFunction(JNIEnv* env, jclass declaringClass, jstring methodName
 	meth.signature = (char*)(*env)->GetStringUTFChars(env, methodSignature, NULL);
 	(*env)->RegisterNatives(env, declaringClass, &meth, 1);
 	
+#ifdef _DEBUG
+#pragma warning(push)
+#pragma warning(disable: 4996)
+	info->fSymbolName = (char*)malloc(strlen(meth.name) + 1);
+	strcpy(info->fSymbolName, meth.name);
+#pragma warning(pop)
+#endif
+
 	(*env)->ReleaseStringUTFChars(env, methodName, meth.name);
 	(*env)->ReleaseStringUTFChars(env, methodSignature, meth.signature);
 }
@@ -394,6 +406,11 @@ void freeCommon(CommonCallbackInfo* info)
 	if (info->nParams)
 		free(info->fParamTypes);
 	
+#ifdef _DEBUG
+	if (info->fSymbolName)
+		free(info->fSymbolName);
+#endif
+
 	dcbFreeCallback((DCCallback*)info->fDCCallback);
 }
 	                                                                                                                     
@@ -497,7 +514,11 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaToCCallbacks(
 		(*env)->ReleaseStringUTFChars(env, dcSignature, dcSig);
 			
 		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
-		registerJavaFunction(env, declaringClass, methodName, javaSignature, info->fInfo.fDCCallback);
+		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
+#ifdef _DEBUG
+			&info->fInfo,
+#endif
+			info->fInfo.fDCCallback);
 	}
 	END_INFOS_LOOP()
 	return (jlong)(size_t)infos;
@@ -566,7 +587,11 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindGetters(
 		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 		
 		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
-		registerJavaFunction(env, declaringClass, methodName, javaSignature, info->fInfo.fDCCallback);
+		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
+#ifdef _DEBUG
+			&info->fInfo,
+#endif
+			info->fInfo.fDCCallback);
 		
 		{
 			jboolean isGetter = info->fInfo.nParams == 0;
@@ -617,7 +642,11 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCFunctions(
 			(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 		}
 		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
-		registerJavaFunction(env, declaringClass, methodName, javaSignature, info->fInfo.fDCCallback);
+		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
+#ifdef _DEBUG
+			&info->fInfo,
+#endif
+			info->fInfo.fDCCallback);
 	}
 	END_INFOS_LOOP()
 	return (jlong)(size_t)infos;
@@ -710,7 +739,11 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToVirtualMethods(
 		
 		
 		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
-		registerJavaFunction(env, declaringClass, methodName, javaSignature, info->fInfo.fDCCallback);
+		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
+#ifdef _DEBUG
+			&info->fInfo,
+#endif
+			info->fInfo.fDCCallback);
 	}
 	END_INFOS_LOOP()
 	return (jlong)(size_t)infos;
@@ -765,6 +798,7 @@ ret JNICALL Java_com_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1) \
 }
 
 FUNC_1(jlong, malloc, jlong, size_t)
+
 FUNC_VOID_1(free, jlong, void*)
 
 FUNC_1(jlong, strlen, jlong, char*)

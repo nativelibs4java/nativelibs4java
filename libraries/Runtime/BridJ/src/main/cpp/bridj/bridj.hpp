@@ -15,9 +15,9 @@
 #define __cdecl
 #endif
 
-#ifdef _WIN64
+//#ifdef _WIN64
 #define NO_DIRECT_CALLS // TODO REMOVE ME !!! (issues with stack alignment on COM calls ?)
-#endif
+//#endif
 
 #include "dyncallback/dyncall_callback.h"
 #include <jni.h>
@@ -73,7 +73,7 @@ typedef struct CommonCallbackInfo {
 	void* fDCCallback;
 	JNIEnv* fEnv;
 #ifdef _DEBUG
-	const char* fSymbolName;
+	char* fSymbolName;
 #endif
 } CommonCallbackInfo;
 

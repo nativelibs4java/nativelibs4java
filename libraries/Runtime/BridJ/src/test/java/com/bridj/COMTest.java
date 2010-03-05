@@ -18,12 +18,14 @@ public class COMTest {
 	public void shellFolder() {
 		if (skip) return;
         try {
-            IShellWindows win = COMRuntime.newInstance(IShellWindows.class, true);
+            IShellWindows win = COMRuntime.newInstance(IShellWindows.class);
             assertNotNull(win);
             IUnknown iu = win.QueryInterface(IUnknown.class);
             assertNotNull(iu);
             win = iu.QueryInterface(IShellWindows.class);
             assertNotNull(win);
+            win.Release();
+            
         } catch (ClassNotFoundException ex) {
             Logger.getLogger(COMTest.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException(ex);

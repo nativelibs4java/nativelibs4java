@@ -7,6 +7,10 @@
 
 #ifndef SUPPORTS_UNALIGNED_ACCESS
 static jprimName CONCAT_2(unaligned_get_1, primName)(JNIEnv* env, jclass clazz, jlong peer, jprimName (JNICALL *getter)(JNIEnv*, jclass, jlong)) {
+#if 1
+	throwException(env, "Unaligned pointer access !");
+	return (jprimName)0;
+#else
 	int i;
 	union { char bytes[primSize]; jprimName prim; } aligned;
 	char* ptr = (char*)(size_t)peer;
@@ -14,6 +18,7 @@ static jprimName CONCAT_2(unaligned_get_1, primName)(JNIEnv* env, jclass clazz, 
 		aligned.bytes[i] = *(ptr++);
 	
 	return getter(env, clazz, (jlong)(size_t)&aligned.bytes);
+#endif
 }
 #endif // ifndef SUPPORTS_UNALIGNED_ACCESS
 

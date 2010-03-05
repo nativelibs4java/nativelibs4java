@@ -152,10 +152,10 @@ public class COMRuntime extends CPPRuntime {
     public static void initialize() {
         comInitializer.get();
     }
-	public static <I extends IUnknown> I newInstance(Class<I> type, boolean autoRelease) throws ClassNotFoundException {
-        return newInstance(type, type, autoRelease);
+	public static <I extends IUnknown> I newInstance(Class<I> type) throws ClassNotFoundException {
+        return newInstance(type, type);
     }
-    public static <T extends IUnknown, I extends IUnknown> I newInstance(Class<T> instanceClass, Class<I> instanceInterface, boolean autoRelease) throws ClassNotFoundException {
+    public static <T extends IUnknown, I extends IUnknown> I newInstance(Class<T> instanceClass, Class<I> instanceInterface) throws ClassNotFoundException {
         initialize();
         
 		Pointer<Pointer<?>> p = Pointer.allocatePointer();
@@ -171,7 +171,6 @@ public class COMRuntime extends CPPRuntime {
                 throw new RuntimeException("Serious low-level issue : CoCreateInstance executed fine but we only retrieved a null pointer !");
 
             I instance = inst.toNativeObject(instanceInterface);
-            instance.autoRelease = autoRelease;
             return instance;
         } finally {
             Pointer.release(p, clsid, uuid);

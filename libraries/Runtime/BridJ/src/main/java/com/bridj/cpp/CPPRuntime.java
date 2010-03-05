@@ -123,8 +123,13 @@ public class CPPRuntime extends CRuntime {
 					return;
 //				}
 			}
-	        mci.setDcCallingConvention(!JNI.is64Bits() && JNI.isWindows() ? DC_CALL_C_X86_WIN32_THIS_MS : DC_CALL_C_DEFAULT);
-			builder.addMethodFunction(mci);
+            if (Modifier.isStatic(modifiers)) {
+                builder.addFunction(mci);
+            } else {
+                //if (!JNI.is64Bits() && JNI.isWindows())
+                //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
+                builder.addMethodFunction(mci);
+            }
 		} else {
 			int virtualIndex = va.value();
 			if (Modifier.isStatic(modifiers))
@@ -146,7 +151,9 @@ public class CPPRuntime extends CRuntime {
             int virtualOffset = getVirtualMethodsCount(type.getSuperclass());
             int absoluteVirtualIndex = virtualOffset + virtualIndex;
 			mci.setIndex(absoluteVirtualIndex);
-			log(Level.SEVERE, "Method " + method.toGenericString() + " has relative virtual index = " + virtualIndex + ", absolute index = " + absoluteVirtualIndex);
+			log(Level.INFO, "Method " + method.toGenericString() + " has relative virtual index = " + virtualIndex + ", absolute index = " + absoluteVirtualIndex);
+            //if (!JNI.is64Bits() && JNI.isWindows())
+            //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
             builder.addVirtualMethod(mci);
 		}
 	}
@@ -171,7 +178,10 @@ public class CPPRuntime extends CRuntime {
         				throw new RuntimeException("Cannot find the default constructor for type " + type.getName());
         			
         			installVTablePtr(type, lib, peer);
-        			JNI.callDefaultCPPConstructor(defaultConstructor, peer.getPeer(), 0);// TODO use right call convention
+                    int convention = DC_CALL_C_DEFAULT;
+                    if (!JNI.is64Bits() && JNI.isWindows())
+                        convention = DC_CALL_C_X86_WIN32_THIS_MS;
+        			JNI.callDefaultCPPConstructor(defaultConstructor, peer.getPeer(), convention);// TODO use right call convention
         			TestCPP.print(type.getSimpleName(), peer.getPeer(), 10, 2);
         			return peer;
         		}

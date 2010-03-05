@@ -37,7 +37,7 @@ public class TaskbarListDemo extends JFrame implements ActionListener, ChangeLis
     public TaskbarListDemo() throws ClassNotFoundException {
         super("TaskbarList Demo");
 
-        list = COMRuntime.newInstance(ITaskbarList3.class, true);
+        list = COMRuntime.newInstance(ITaskbarList3.class);
         
         getContentPane().add("Center", new JLabel("Hello Native Windows 7 World !"));
         Box box = Box.createVerticalBox();

@@ -63,7 +63,7 @@ public class MethodCallInfo {
         paramsValueTypes = new int[nParams];
 
         direct = true; // TODO on native side : test number of parameters (on 64 bits win : must be <= 4)
-        //isCPlusPlus = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
+        isCPlusPlus = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
 
         //GetOptions(methodOptions, method);
 
@@ -95,14 +95,14 @@ public class MethodCallInfo {
         Virtual virtual = BridJ.getAnnotation(Virtual.class, false, method);
         isCPlusPlus = isCPlusPlus || virtual != null;
         
-        if (isCPlusPlus) {
-        	if (JNI.isWindows()) {
-        		if (!JNI.is64Bits())
-        			setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
-        	} else {
-        		if (!JNI.is64Bits())
-        			setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_GNU);
-        	}
+        if (isCPlusPlus && !Modifier.isStatic(modifiers)) {
+			if (JNI.isWindows()) {
+				if (!JNI.is64Bits())
+					setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
+			} else {
+				//if (!JNI.is64Bits())
+				//	setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_GNU);
+			}
         }
         Convention cc = BridJ.getAnnotation(Convention.class, true, method);
         if (cc != null) {

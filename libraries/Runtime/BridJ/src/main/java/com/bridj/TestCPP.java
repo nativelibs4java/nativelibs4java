@@ -49,7 +49,24 @@ public class TestCPP {
 	}
 	
 	static NativeLibrary library;
-	
+
+
+    @Library("test")
+    @com.bridj.ann.Runtime(CRuntime.class)
+    public static class FunctionTest {
+
+        public FunctionTest() {
+            BridJ.register(getClass());
+        }
+        public native int testAddDyncall(int a, int b);
+
+        public void add() {
+            int a = 10, b = 4, exp = a + b;
+            int res = testAddDyncall(a, b);
+            if (res != exp)
+                throw new RuntimeException("Got " + res + " (" + Integer.toHexString(res) + ") instead of " + exp + " (" + Integer.toHexString(exp));
+        }
+    }
 	public static void print(String name, long addr, int n, int minI) {
 		System.out.println(name);
 		for (int i = -1; i < n; i++) {
@@ -64,9 +81,30 @@ public class TestCPP {
 	}
 	public static void main(String[] args) throws IOException {
         try {
+        		Pointer.allocate(null, 8).getSizeT(0);
+        	
+            IShellWindows win = COMRuntime.newInstance(IShellWindows.class);
+                IUnknown iu = win.QueryInterface(IUnknown.class);
+                if (iu == null)
+                    throw new RuntimeException("Interface does not handle IUnknown !");
+                win.Release();
+
+                long crea = Ctest.createTest();
+            crea = Pointer.pointerToAddress(crea).getPointer(0).getPeer();
+            print("Ctest.createTest()", crea, 10, 0);
+            Ctest test = new Ctest();
+            //long thisPtr = test.$this.getPeer();
+            //System.out.println(hex(thisPtr));
+            print("Ctest.this", Pointer.getPeer(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
+            int res = test.testAdd(1, 2);
+            System.out.println("res = " + res);
+
             try {
+                new FunctionTest().add();
+                
                 MyStruct s = new MyStruct();
                 s.a(10);
+                System.out.println("Created MyStruct and set it to 10");
                 int a = Pointer.getPeer(s).getInt(0);
                 a = s.a();
                 Pointer.getPeer(s).setInt(0, 10);
@@ -78,11 +116,6 @@ public class TestCPP {
                 if (s.b() != 100.0)
                     throw new RuntimeException("invalid value = " + a);
 
-                IShellWindows win = COMRuntime.newInstance(IShellWindows.class, true);
-                IUnknown iu = win.QueryInterface(IUnknown.class);
-                if (iu == null) {
-                    throw new RuntimeException("Interface does not handle IUnknown !");
-                }
                 TaskbarListDemo.main(null);
             } catch (Throwable ex) {
                 ex.printStackTrace();
@@ -114,15 +147,6 @@ public class TestCPP {
             }
 
             boolean is64 = JNI.is64Bits();
-            long crea = Ctest.createTest();
-            crea = Pointer.pointerToAddress(crea).getPointer(0).getPeer();
-            print("Ctest.createTest()", crea, 10, 0);
-            Ctest test = new Ctest();
-            //long thisPtr = test.$this.getPeer();
-            //System.out.println(hex(thisPtr));
-            print("Ctest.this", Pointer.getPeer(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
-            int res = test.testAdd(1, 2);
-            System.out.println("res = " + res);
 
             testNativeTargetCallbacks();
             testJavaTargetCallbacks();
