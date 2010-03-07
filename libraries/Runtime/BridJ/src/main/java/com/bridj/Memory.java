@@ -83,8 +83,8 @@ class Memory<T> extends DefaultPointer<T> {
         		BridJ.log(Level.SEVERE, "Freeing memory that wasn't malloced here !");
         }*/
         
-        //BridJ.log(Level.SEVERE, "Leaking memory at address " + peer + " to avoid the free() crash.");
-        JNI.free(peer);
+        BridJ.log(Level.SEVERE, "Leaking memory at address " + peer + " to avoid the free() crash.");
+        //JNI.free(peer);
     }
     
     @Override
