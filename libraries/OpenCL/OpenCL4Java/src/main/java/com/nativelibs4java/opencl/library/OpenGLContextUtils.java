@@ -6,11 +6,10 @@ package com.nativelibs4java.opencl.library;
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a>, <a href="http://rococoa.dev.java.net/">Rococoa</a>, or <a href="http://jna.dev.java.net/">JNA</a>.
  */
 public interface OpenGLContextUtils extends com.sun.jna.Library {
-	public static final java.lang.String JNA_LIBRARY_NAME = com.sun.jna.Platform.isWindows() ?
-		//(com.sun.jna.Platform.is64() ? "OpenGL64" : 
-			"OpenGL32"
-		//	) 
-		: "OpenGL";
+	public static final java.lang.String JNA_LIBRARY_NAME = 
+		com.sun.jna.Platform.isWindows() ? "OpenGL32" :
+		com.sun.jna.Platform.isLinux() ? "GL" :	
+		"OpenGL";
 	//public static final java.lang.String JNA_LIBRARY_NAME = com.ochafik.lang.jnaerator.runtime.LibraryExtractor.getLibraryPath("OpenGL", true, OpenGLApple.class);
 	//public static final com.sun.jna.NativeLibrary JNA_NATIVE_LIB = com.sun.jna.NativeLibrary.getInstance(OpenGLApple.JNA_LIBRARY_NAME, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
 	public static final OpenGLContextUtils INSTANCE = (OpenGLContextUtils)com.sun.jna.Native.loadLibrary(JNA_LIBRARY_NAME, OpenGLContextUtils.class);//OpenGLApple.JNA_LIBRARY_NAME, OpenGLApple.class, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
