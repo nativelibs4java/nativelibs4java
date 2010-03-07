@@ -16,10 +16,10 @@ class Memory<T> extends DefaultPointer<T> {
 
     Memory(PointerIO<T> io, long peer, long validStart, long validSize, Object memoryOwner) {
         super(io, peer);
-        assert (getPeer() % 8) == 0;
         this.validStart = validStart;
         this.validSize = validSize;
         this.memoryOwner = memoryOwner;
+        //assert (getPeer() % 8) == 0; 
     }
     Memory(PointerIO<T> io, long peer, long validSize, Object memoryOwner) {
 		this(io, peer, peer, validSize, memoryOwner);
@@ -83,8 +83,8 @@ class Memory<T> extends DefaultPointer<T> {
         		BridJ.log(Level.SEVERE, "Freeing memory that wasn't malloced here !");
         }*/
         
-        BridJ.log(Level.SEVERE, "Leaking memory at address " + peer + " to avoid the free() crash.");
-        //JNI.free(peer);
+        //BridJ.log(Level.SEVERE, "Leaking memory at address " + peer + " to avoid the free() crash.");
+        JNI.free(peer);
     }
     
     @Override

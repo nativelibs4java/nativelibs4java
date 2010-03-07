@@ -81,7 +81,11 @@ public class TestCPP {
 	}
 	public static void main(String[] args) throws IOException {
         try {
-        		Pointer.allocate(null, 8).getSizeT(0);
+            BridJ.register(MyCallback.class);
+            BridJ.register();
+
+            testNativeTargetCallbacks();
+            testJavaTargetCallbacks();
         	
             IShellWindows win = COMRuntime.newInstance(IShellWindows.class);
                 IUnknown iu = win.QueryInterface(IUnknown.class);
@@ -147,9 +151,6 @@ public class TestCPP {
             }
 
             boolean is64 = JNI.is64Bits();
-
-            testNativeTargetCallbacks();
-            testJavaTargetCallbacks();
 
         } catch (Throwable ex) {
             ex.printStackTrace();
@@ -231,6 +232,8 @@ public class TestCPP {
 	
 	public static void testNativeTargetCallbacks() {
 		Pointer<com.bridj.TestCPP.MyCallback> ptr = getAdder();
+        if (ptr == null)
+            throw new RuntimeException("getAdder returned null adder !!!");
 		MyCallback adder = ptr.toNativeObject(MyCallback.class);
 		int res = adder.doSomething(1, 2);
 

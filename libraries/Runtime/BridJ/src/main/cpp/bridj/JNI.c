@@ -92,8 +92,15 @@ jmethodID GetMethodIDOrFail(JNIEnv* env, jclass declaringClass, const char* meth
 }
 
 jobject createPointer(JNIEnv *env, void* ptr, jclass targetType) {
+	jobject instance;
+	jlong addr;
+	if (!ptr)
+		return NULL;
 	initMethods(env);
-	return (*env)->CallStaticObjectMethod(env, gPointerClass, gCreatePeerMethod, (jlong)(size_t)ptr, targetType);
+	addr = (jlong)(size_t)ptr;
+	instance = (*env)->CallStaticObjectMethod(env, gPointerClass, gCreatePeerMethod, addr, targetType);
+	//instance = (*env)->NewGlobalRef(env, instance);
+	return instance;
 }
 
 void* getPointerPeer(JNIEnv *env, jobject pointer) {

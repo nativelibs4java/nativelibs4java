@@ -84,7 +84,7 @@ class DefaultPointer<T> extends Pointer<T>
     }
 	
 	protected long getCheckedPeer(long byteOffset, long validityCheckLength) {
-		if (memoryOwner != null) {
+		/*if (memoryOwner != null) {
 			if (memoryOwner instanceof Pointer) {
 				return ((Pointer)memoryOwner).getSizeT(peerOrOffsetInOwner) + byteOffset;
 			} else if (memoryOwner instanceof Buffer) {
@@ -95,7 +95,7 @@ class DefaultPointer<T> extends Pointer<T>
 					throw new RuntimeException("Cannot get the peer value of this pointer because it is based on a non-direct NIO " + memoryOwner.getClass().getSimpleName());
 			} else
 				throw new RuntimeException("Cannot get the peer value of this pointer because it is based on a " + memoryOwner.getClass().getName() + " object");
-		}
+		}*/
 		return peerOrOffsetInOwner + byteOffset;
     }
     
