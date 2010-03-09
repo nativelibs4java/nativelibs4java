@@ -369,7 +369,7 @@ class BitFields {
 	private static void setBigEndianByteArray(Pointer pointer, long offset, byte[] bs) {
 		if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN)
 			revert(bs);
-		pointer.write(offset, bs, 0, bs.length);
+		pointer.setBytes(offset, bs, 0, bs.length);
 	}
 	private static void revert(byte[] bs) {
 		for (int i = 0, len = bs.length, sup = len >>> 1; i < sup; i++) {

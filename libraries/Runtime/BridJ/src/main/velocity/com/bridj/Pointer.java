@@ -521,27 +521,42 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 
 	public abstract Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value);
 	
+	public Pointer<T> set${prim.CapName}(${prim.Name} value) {
+		return set${prim.CapName}(0, value);
+	}	
+	
+	public Pointer<T> set${prim.CapName}s(${prim.Name}[] values) {
+		return set${prim.CapName}s(0, values, 0, values.length);
+	}	
+	
 	public abstract Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length);
 
 	public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values) {
         return set${prim.CapName}s(byteOffset, values, 0, values.length);
     }
-
-    /**
-     * TODO JavaDoc
-	 * @deprecated Use @see set${prim.CapName}s(long, ${prim.Name}[], int, int) instead (this method is here only for compatibility with code written for JNA, do not use for new developments)
-     */
-    @Deprecated
-    public Pointer<T> write(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length) {
-        return set${prim.CapName}s(byteOffset, values, valuesOffset, length);
-    }
+    
+	public Pointer<T> set${prim.CapName}s(${prim.BufferName} values) {
+		return set${prim.CapName}s(0, values, 0, values.capacity());
+	}
 
 	public abstract Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.BufferName} values, long valuesOffset, long length);
 
-	public abstract ${prim.BufferName} get${prim.BufferName}(long byteOffset, long length);
+	public ${prim.BufferName} get${prim.BufferName}(long length) {
+		return get${prim.BufferName}(0, length);
+	}
     
+    public abstract ${prim.BufferName} get${prim.BufferName}(long byteOffset, long length);
+    
+    public ${prim.Name} get${prim.CapName}() {
+		return get${prim.CapName}(0);
+	}
+
     public abstract ${prim.Name} get${prim.CapName}(long byteOffset);
 
+    public ${prim.Name}[] get${prim.CapName}s(int length) {
+    	return get${prim.CapName}s(length);
+    }
+    
     public abstract ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length);
 
 #end

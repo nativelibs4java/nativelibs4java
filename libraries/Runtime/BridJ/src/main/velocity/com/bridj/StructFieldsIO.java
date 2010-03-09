@@ -181,7 +181,7 @@ class StructFieldsIO {
         if (fieldValue == null)
             throw new IllegalArgumentException("By-value struct struct.io.fields cannot be set to null");
 
-		Pointer.getPeer(struct).write(field.byteOffset, fieldValue, 0, field.arraySize);
+		Pointer.getPeer(struct).set${prim.CapName}s(field.byteOffset, fieldValue, 0, field.arraySize);
     }
 
 #end
