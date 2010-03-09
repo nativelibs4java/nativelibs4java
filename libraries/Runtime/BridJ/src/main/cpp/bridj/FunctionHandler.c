@@ -4,7 +4,7 @@ char __cdecl doJavaToFunctionCallHandler(DCArgs* args, DCValue* result, Function
 {
 	DCCallVM* vm;
 	JNIEnv *env;
-	initCallHandler(args, &vm, &env);
+	jobject instance = initCallHandler(args, &vm, &env);
 	
 	dcMode(vm, info->fInfo.fDCMode);
 	followArgs(env, args, vm, info->fInfo.nParams, info->fInfo.fParamTypes) 

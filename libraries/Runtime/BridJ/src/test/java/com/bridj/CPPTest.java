@@ -42,13 +42,13 @@ public class CPPTest {
         assertEquals(baseRes, c);
 
         c = instance.testVirtualAddStdCall(null, a, b);
-		assertEquals(res, c);
+		assertEquals(baseRes, c);
 
         c = instance.testVirtualAddStdCall(Pointer.allocateInt(), a, b);
 		assertEquals(0, c);
 
         c = instance.testAddStdCall(null, a, b);
-		assertEquals(res, c);
+		assertEquals(baseRes, c);
 
         c = instance.testAddStdCall(Pointer.allocateInt(), a, b);
 		assertEquals(0, c);

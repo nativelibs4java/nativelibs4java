@@ -169,12 +169,14 @@ public class JNI {
 	public static native long bindJavaMethodsToObjCMethods(MethodCallInfo... infos);
 	public static native long bindJavaToCCallbacks(MethodCallInfo... infos);
 	public static native long bindJavaMethodsToCFunctions(MethodCallInfo... infos);
+	public static native long bindJavaMethodsToCPPMethods(MethodCallInfo... infos);
 	public static native long bindJavaMethodsToVirtualMethods(MethodCallInfo... infos);
 	
 	public static native void freeGetters(long handle, int size);
 	public static native void freeCToJavaCallback(long handle);
 	public static native void freeObjCMethodBindings(long handle, int size);
 	public static native void freeJavaToCCallbacks(long handle, int size);
+	public static native void freeCPPMethodBindings(long handle, int size);
 	public static native void freeCFunctionBindings(long handle, int size);
 	public static native void freeVirtualMethodBindings(long handle, int size);
 	

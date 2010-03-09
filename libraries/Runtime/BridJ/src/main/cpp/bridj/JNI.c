@@ -38,6 +38,7 @@ jfieldID 	gFieldId_virtualTableOffset	 = NULL;
 jfieldID 	gFieldId_javaCallback 		 = NULL;
 jfieldID 	gFieldId_direct		 		 = NULL;
 jfieldID 	gFieldId_startsWithThis 	 = NULL;
+jfieldID 	gFieldId_bNeedsThisPointer 	 = NULL;
 jfieldID 	gFieldId_dcCallingConvention = NULL;
 jfieldID 	gFieldId_symbolName			 = NULL;
 jfieldID 	gFieldId_methodName			 = NULL;
@@ -74,6 +75,7 @@ void initMethods(JNIEnv* env) {
 		GETFIELD_ID(javaCallback 		,	"javaCallback" 			,	"Lcom/bridj/Callback;"	);
 		GETFIELD_ID(direct		 		,	"direct"	 			,	"Z"						);
 		GETFIELD_ID(startsWithThis		,	"startsWithThis"		,	"Z"						);
+		GETFIELD_ID(bNeedsThisPointer	,	"bNeedsThisPointer"		,	"Z"						);
 		GETFIELD_ID(dcCallingConvention,	"dcCallingConvention"	,	"I"						);
 		
 	}
@@ -436,6 +438,7 @@ void freeCommon(CommonCallbackInfo* info)
 		jint	 	dcCallingConvention	= (*env)->GetIntField(		env, methodCallInfo, gFieldId_dcCallingConvention	);   \
 		jboolean 	direct		 		= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_direct		 		);   \
 		jboolean 	startsWithThis		= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_startsWithThis 		);   \
+		jboolean 	bNeedsThisPointer	= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_bNeedsThisPointer 		);   \
 		jsize		nParams				= (*env)->GetArrayLength(	env, paramsValueTypes);
 		
 #define BEGIN_INFOS_LOOP(type)                                                                                           \
@@ -627,9 +630,6 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeGetters(
 	free(infos);
 }
 
-
-
-
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCFunctions(
 	JNIEnv *env, 
 	jclass clazz,
@@ -669,6 +669,48 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCFunctionBindings(
 	if (!infos)
 		return;
 	for (i = 0; i < size; i++) {
+		freeCommon(&infos[i].fInfo);
+	}
+	free(infos);
+}
+
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCPPMethods(
+	JNIEnv *env, 
+	jclass clazz,
+	jobjectArray methodCallInfos
+) {
+	BEGIN_INFOS_LOOP(CPPMethodCallInfo)
+	{
+		info->fForwardedSymbol = (void*)(size_t)forwardedPointer;
+		info->fClass = (*env)->NewGlobalRef(env, declaringClass);
+		
+		if (!info->fInfo.fDCCallback) {
+			const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
+			info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToCPPMethodCallHandler, info);
+			(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
+		}
+		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
+		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
+#ifdef _DEBUG
+			&info->fInfo,
+#endif
+			info->fInfo.fDCCallback);
+	}
+	END_INFOS_LOOP()
+	return (jlong)(size_t)infos;
+}
+JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCPPMethodBindings(
+	JNIEnv *env, 
+	jclass clazz,
+	jlong handle,
+	jint size
+) {
+	CPPMethodCallInfo* infos = (CPPMethodCallInfo*)(size_t)handle;
+	jint i;
+	if (!infos)
+		return;
+	for (i = 0; i < size; i++) {
+		(*env)->DeleteGlobalRef(env, infos[i].fClass);
 		freeCommon(&infos[i].fInfo);
 	}
 	free(infos);

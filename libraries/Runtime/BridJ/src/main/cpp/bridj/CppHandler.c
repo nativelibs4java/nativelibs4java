@@ -87,3 +87,35 @@ char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, 
 	return doJavaToVirtualMethodCallHandler(args, result, info);
 	END_TRY_RET(info->fInfo.fEnv, 0);
 }
+
+char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, CPPMethodCallInfo *info)
+{
+	DCCallVM* vm;
+	JNIEnv *env;
+	void* thisPtr;
+	jobject instance = initCallHandler(args, &vm, &env);
+	
+	dcMode(vm, info->fInfo.fDCMode);
+	
+	thisPtr = getNativeObjectPointer(env, instance, info->fClass);
+	if (!thisPtr) {
+		throwException(env, "Failed to get the pointer to the target C++ instance of the method invocation !");
+		return info->fInfo.fDCReturnType;
+	}
+	dcArgPointer(vm, thisPtr);
+	
+	followArgs(env, args, vm, info->fInfo.nParams, info->fInfo.fParamTypes) 
+	&&
+	followCall(env, info->fInfo.fReturnType, vm, result, info->fForwardedSymbol);
+
+	return info->fInfo.fDCReturnType;
+}
+
+char __cdecl JavaToCPPMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
+{
+	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
+	BEGIN_TRY();
+	return doJavaToCPPMethodCallHandler(args, result, (CPPMethodCallInfo*)userdata);
+	END_TRY_RET(info->fInfo.fEnv, 0);
+}
+

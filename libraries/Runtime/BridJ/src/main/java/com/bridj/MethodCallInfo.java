@@ -43,6 +43,7 @@ public class MethodCallInfo {
     boolean isCPlusPlus;
 	boolean direct;
 	boolean startsWithThis;
+	boolean bNeedsThisPointer;
 
 	public MethodCallInfo(Method method) throws FileNotFoundException {
         isVarArgs = false;
@@ -96,6 +97,7 @@ public class MethodCallInfo {
         isCPlusPlus = isCPlusPlus || virtual != null;
         
         if (isCPlusPlus && !Modifier.isStatic(modifiers)) {
+        	bNeedsThisPointer = true;
 			if (JNI.isWindows()) {
 				if (!JNI.is64Bits())
 					setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);

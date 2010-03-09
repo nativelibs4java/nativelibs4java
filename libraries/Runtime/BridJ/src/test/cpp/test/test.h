@@ -8,6 +8,7 @@
 #ifdef __GNUC__
 	#define TEST_API
 	#define __cdecl
+	#define __stdcall
 #else
 	#ifdef TEST_EXPORTS
 		#define TEST_API __declspec(dllexport)

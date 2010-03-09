@@ -77,6 +77,12 @@ typedef struct CommonCallbackInfo {
 #endif
 } CommonCallbackInfo;
 
+typedef struct CPPMethodCallInfo {
+	struct CommonCallbackInfo fInfo;
+	jclass fClass;
+	void* fForwardedSymbol;
+} CPPMethodCallInfo;
+
 typedef struct VirtualMethodCallInfo {
 	struct CommonCallbackInfo fInfo;
 	jclass fClass;
@@ -121,6 +127,7 @@ typedef struct JavaToNativeCallbackCallInfo {
 } JavaToNativeCallbackCallInfo;
 
 char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
+char __cdecl JavaToCPPMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl JavaToNativeCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl NativeToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
