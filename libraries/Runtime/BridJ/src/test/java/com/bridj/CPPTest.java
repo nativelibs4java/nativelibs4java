@@ -19,18 +19,39 @@ public class CPPTest {
 	
 	@Test
 	public void test_Ctest_testAdd() {
-		testAdd(new Ctest(), 1, 2, 3);
+		testAdd(new Ctest(), 1, 2, 3, 3);
+//		testAdd(Ctest.createTest().get(), 1, 2, 3);
+	}
+	@Test
+	public void test_Ctest_testAddStdCall() {
+        Ctest instance = new Ctest();
+		testAdd(instance, 1, 2, 3, 3);
 //		testAdd(Ctest.createTest().get(), 1, 2, 3);
 	}
 	@Test
 	public void test_Ctest2_testAdd() {
-		testAdd(new Ctest2(), 1, 2, 5);
+		testAdd(new Ctest2(), 1, 2, 5, 3);
 	}
 	
-	void testAdd(Ctest instance, int a, int b, int res) {
+	void testAdd(Ctest instance, int a, int b, int res, int baseRes) {
 		//long peer = Pointer.getAddress(test, Ctest.class);
-		int c = instance.testAdd(a, b);
+		int c = instance.testVirtualAdd(a, b);
 		assertEquals(res, c);
+
+        c = Pointer.getPeer(instance).toNativeObject(Ctest.class).testAdd(a, b);
+        assertEquals(baseRes, c);
+
+        c = instance.testVirtualAddStdCall(null, a, b);
+		assertEquals(res, c);
+
+        c = instance.testVirtualAddStdCall(Pointer.allocateInt(), a, b);
+		assertEquals(0, c);
+
+        c = instance.testAddStdCall(null, a, b);
+		assertEquals(res, c);
+
+        c = instance.testAddStdCall(Pointer.allocateInt(), a, b);
+		assertEquals(0, c);
 	}
 	
 	@Library("test")
@@ -40,9 +61,18 @@ public class CPPTest {
 		static native Pointer<Ctest> createTest();
 		
 		@Virtual
+		public native int testVirtualAdd(int a, int b);
+
 		public native int testAdd(int a, int b);
+
+        @Virtual
+		public native int testVirtualAddStdCall(Pointer<?> ptr, int a, int b);
+
+		public native int testAddStdCall(Pointer<?> ptr, int a, int b);
 	}
 	static class Ctest2 extends Ctest {
+
+        public native int testAdd(int a, int b);
 	}
 	
 }

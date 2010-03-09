@@ -25,7 +25,10 @@ public:
 	Ctest();
 	//virtual 
 	~Ctest();
-	virtual int testAdd(int a, int b);
+	virtual int testVirtualAdd(int a, int b);
+	int testAdd(int a, int b);
+	virtual int __stdcall testVirtualAddStdCall(void* ptr, int a, int b);
+	int __stdcall testAddStdCall(void* ptr, int a, int b);
 	
 	static void static_void();
 };
@@ -35,8 +38,8 @@ public:
 	Ctest2();
 	//virtual 
 	~Ctest2();
-	virtual int testAdd(int a, int b);
-	
+	virtual int testVirtualAdd(int a, int b);
+	int testAdd(int a, int b);
 	const std::string& toString();
 };
 

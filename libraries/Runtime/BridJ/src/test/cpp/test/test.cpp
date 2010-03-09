@@ -118,8 +118,26 @@ const std::string& Ctest2::toString() {
 	static std::string s = "";
 	return s;
 }
+int Ctest::testVirtualAdd(int a, int b) {
+	printf("Ctest::testVirtualAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
+	return a + b;
+}
 int Ctest::testAdd(int a, int b) {
 	printf("Ctest::testAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
+	return a + b;
+}
+
+int Ctest::testAddStdCall(void* ptr, int a, int b) {
+	printf("Ctest::testAddStdCall(ptr, %d, %d) (this = %ld, ptr = %ld)\n", a, b, (long int)(size_t)this, (long int)(size_t)ptr);
+	if (ptr)
+		return 0;
+	return a + b;
+}
+
+int Ctest::testVirtualAddStdCall(void* ptr, int a, int b) {
+	printf("Ctest::testVirtualAddStdCall(ptr, %d, %d) (this = %ld, ptr = %ld)\n", a, b, (long int)(size_t)this, (long int)(size_t)ptr);
+	if (ptr)
+		return 0;
 	return a + b;
 }
 
@@ -140,6 +158,11 @@ Ctest2::~Ctest2()
 {
 }
 
+int Ctest2::testVirtualAdd(int a, int b) {
+	int ret = a + b * 2;
+	printf("Ctest2::testVirtualAdd(%d, %d) = %d (this = %ld)\n", a, b, ret, (long int)(size_t)this);
+	return ret;
+}
 int Ctest2::testAdd(int a, int b) {
 	int ret = a + b * 2;
 	printf("Ctest2::testAdd(%d, %d) = %d (this = %ld)\n", a, b, ret, (long int)(size_t)this);

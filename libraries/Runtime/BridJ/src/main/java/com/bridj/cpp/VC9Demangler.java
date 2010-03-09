@@ -168,7 +168,14 @@ public class VC9Demangler extends Demangler {
     }
 	public MemberRef parseSymbol() throws DemanglingException {
 		MemberRef mr = new MemberRef();
-		
+
+        int iAt = str.indexOf('@');
+        if (iAt >= 0 && consumeCharIf('_')) {
+            if (iAt > 0) {
+                mr.setMemberName(str.substring(1, iAt));
+                mr.setArgumentsStackSize(Integer.parseInt(str.substring(iAt + 1)));
+            }
+        }
 		if (consumeCharIf('?')) {
             consumeCharsIf('@', '?');
 
@@ -191,7 +198,7 @@ public class VC9Demangler extends Demangler {
 
             // Function property :
             parseFunctionProperty(mr);
-            if (cvMod != null && (cvMod.isMember || (memberName instanceof SpecialName))) {
+            if (cvMod != null && (cvMod.isMember || (memberName instanceof SpecialName) || Modifier.isPublic(ac.modifiers))) {
                 ClassRef tr = new ClassRef();
                 tr.setSimpleName(qNames.get(0));
                 qNames.remove(0);

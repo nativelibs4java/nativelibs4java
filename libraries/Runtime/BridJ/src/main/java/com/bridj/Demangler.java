@@ -6,7 +6,9 @@ import java.lang.annotation.*;
 import java.util.Arrays;
 
 import com.bridj.Pointer;
+import com.bridj.ann.CLong;
 import com.bridj.ann.Constructor;
+import com.bridj.ann.Ptr;
 import com.bridj.util.DefaultParameterizedType;
 
 public abstract class Demangler {
@@ -468,7 +470,8 @@ public abstract class Demangler {
 
     }
 	public static class MemberRef {
-		
+
+        private Integer argumentsStackSize;
 		private TypeRef enclosingType;
 		private TypeRef valueType;
 		private Object memberName;
@@ -477,7 +480,15 @@ public abstract class Demangler {
 		public TypeRef[] paramTypes, throwTypes;
 		TemplateArg[] templateArguments;
         public Style callingConvention;
-		
+
+        public Integer getArgumentsStackSize() {
+            return argumentsStackSize;
+        }
+
+        public void setArgumentsStackSize(Integer argumentsStackSize) {
+            this.argumentsStackSize = argumentsStackSize;
+        }
+       
 		protected boolean matchesConstructor(Class<?> type) {
 			if (this.memberName != SpecialName.Constructor)
 				return false;
@@ -497,10 +508,56 @@ public abstract class Demangler {
             
 			return true;
 		}
+        static boolean hasInstance(Object[] array, Class<?>... cs) {
+            for (Object o : array)
+                for (Class<?> c : cs)
+                    if (c.isInstance(o))
+                        return true;
+            return false;
+        }
+        static int getArgumentsStackSize(Method method) {
+            int total = 0;
+            Class<?>[] paramTypes = method.getParameterTypes();
+            Annotation[][] anns = method.getParameterAnnotations();
+            for (int iArg = 0, nArgs = paramTypes.length; iArg < nArgs; iArg++) {
+                Class<?> paramType = paramTypes[iArg];
+                if (paramType == int.class)
+                    total += 4;
+                else if (paramType == long.class) {
+                    if (hasInstance(anns[iArg], Ptr.class, CLong.class))
+                        total += Pointer.SIZE;
+                    else
+                        total += 8;
+                } else if (paramType == float.class)
+                    total += 4;
+                else if (paramType == double.class)
+                    total += 8;
+                else if (paramType == byte.class)
+                    total += 1;
+                else if (paramType == char.class)
+                    total += JNI.WCHAR_T_SIZE;
+                else if (paramType == short.class)
+                    total += 2;
+                else if (paramType == boolean.class)
+                    total += 1;
+                else if (Pointer.class.isAssignableFrom(paramType))
+                    total += Pointer.SIZE;
+                else if (NativeObject.class.isAssignableFrom(paramType))
+                    total += ((CRuntime)BridJ.getRuntime(paramType)).sizeOf((Class<? extends StructObject>) paramType, null);
+                else if (FlagSet.class.isAssignableFrom(paramType))
+                    total += 4; // TODO
+                else
+                    throw new RuntimeException("Type not handled : " + paramType.getName());
+            }
+            return total;
+        }
 		protected boolean matches(Method method) {
 			
 			if (memberName instanceof SpecialName)
             	return false; // use matchesConstructor... 
+
+            if (getArgumentsStackSize() != null && getArgumentsStackSize().intValue() != getArgumentsStackSize(method))
+                return false;
             
 			if (getEnclosingType() != null && !getEnclosingType().matches(method.getDeclaringClass()))
 				return false;
