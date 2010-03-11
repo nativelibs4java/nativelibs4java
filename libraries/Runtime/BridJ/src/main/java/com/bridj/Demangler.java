@@ -282,7 +282,13 @@ public abstract class Demangler {
 		private TypeRef enclosingType;
 		private Object simpleName;
 		TemplateArg[] templateArguments;
-		
+
+		public ClassRef() {
+			
+		}
+		public ClassRef(String simpleName) {
+			this.simpleName = simpleName;
+		}
 		public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
 			if (getEnclosingType() instanceof ClassRef) {
 				getEnclosingType().getQualifiedName(b, generic).append('$');

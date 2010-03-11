@@ -128,8 +128,8 @@ public class CRuntime extends AbstractBridJRuntime {
             log(Level.INFO, "Registering java -> native callback : " + method);
             builder.addJavaToNativeCallback(mci);
         } else {
-            Symbol address = methodLibrary == null ? null : methodLibrary.getSymbol(method);
-            if (address == null)
+            Symbol symbol = methodLibrary == null ? null : methodLibrary.getSymbol(method);
+            if (symbol == null)
             {
 //                for (Demangler.Symbol symbol : methodLibrary.getSymbols()) {
 //                    if (symbol.matches(method)) {
@@ -142,8 +142,9 @@ public class CRuntime extends AbstractBridJRuntime {
                     return;
 //                }
             }
-            mci.setForwardedPointer(address.getAddress());
+            mci.setForwardedPointer(symbol.getAddress());
             builder.addFunction(mci);
+            log(Level.INFO, "Registering " + method + " as C function " + symbol.getName());
         }
 	}
 	

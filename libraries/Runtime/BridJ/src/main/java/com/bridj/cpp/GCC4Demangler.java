@@ -81,14 +81,17 @@ public class GCC4Demangler extends Demangler {
 	}
 	@Override
 	public MemberRef parseSymbol() throws DemanglingException {
-		expectChars('_');
+		MemberRef mr = new MemberRef();
+		if (!consumeCharIf('_')) {
+			mr.setMemberName(str);
+			return mr;
+		}
 		consumeCharIf('_');
 		expectChars('Z');
 		
 		if (peekChar() == 'T')
 			return null; // can be a type info, a virtual table or strange things like that
 		
-		MemberRef mr = new MemberRef();
 		List<String> ns = new ArrayList<String>();
 		if (consumeCharIf('N')) {
 			do {
@@ -106,11 +109,13 @@ public class GCC4Demangler extends Demangler {
 				case 'C':
 					consumeChar();
 					expectAnyChar('1', '2');
+					mr.setEnclosingType(new ClassRef((String)mr.getMemberName()));
 					mr.setMemberName(SpecialName.Constructor);
 					break;
 				case 'D':
 					consumeChar();
 					expectAnyChar('1', '2');
+					mr.setEnclosingType(new ClassRef((String)mr.getMemberName()));
 					mr.setMemberName(SpecialName.Destructor);
 					break;
 				}

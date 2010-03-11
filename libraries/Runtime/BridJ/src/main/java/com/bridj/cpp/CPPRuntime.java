@@ -101,9 +101,7 @@ public class CPPRuntime extends CRuntime {
 			return;
 		}
 
-        log(Level.INFO, "Registering method " + method);
-		
-		MethodCallInfo mci = new MethodCallInfo(method);
+        MethodCallInfo mci = new MethodCallInfo(method);
 		
 		Virtual va = method.getAnnotation(Virtual.class);
 		if (va == null) {
@@ -125,10 +123,12 @@ public class CPPRuntime extends CRuntime {
 			}
             if (Modifier.isStatic(modifiers)) {
                 builder.addFunction(mci);
+                log(Level.INFO, "Registering " + method + " as function or static C++ method " + symbol.getName());
             } else {
                 //if (!JNI.is64Bits() && JNI.isWindows())
                 //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
                 builder.addMethodFunction(mci);
+                log(Level.INFO, "Registering " + method + " as C++ method " + symbol.getName());
             }
 		} else {
 			int virtualIndex = va.value();
@@ -151,7 +151,7 @@ public class CPPRuntime extends CRuntime {
             int virtualOffset = getVirtualMethodsCount(type.getSuperclass());
             int absoluteVirtualIndex = virtualOffset + virtualIndex;
 			mci.setIndex(absoluteVirtualIndex);
-			log(Level.INFO, "Method " + method.toGenericString() + " has relative virtual index = " + virtualIndex + ", absolute index = " + absoluteVirtualIndex);
+			log(Level.INFO, "Registering " + method.toGenericString() + " as virtual C++ method with relative virtual index = " + virtualIndex + ", absolute index = " + absoluteVirtualIndex);
             //if (!JNI.is64Bits() && JNI.isWindows())
             //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
             builder.addVirtualMethod(mci);
@@ -168,8 +168,10 @@ public class CPPRuntime extends CRuntime {
         	if (constructorId < 0) {
         		Long defaultConstructor = defaultConstructors.get(type);
         		if (defaultConstructor == null) {
+        			Symbol constructorSymbol = null;
         			for (Symbol symbol : lib.getSymbols()) {
         				if (symbol.matchesConstructor(type)) {
+        					constructorSymbol = symbol;
         					defaultConstructor = symbol.getAddress();
         					break;
         				}
@@ -177,14 +179,16 @@ public class CPPRuntime extends CRuntime {
         			if (defaultConstructor == null || defaultConstructor == 0)
         				throw new RuntimeException("Cannot find the default constructor for type " + type.getName());
         			
-        			installVTablePtr(type, lib, peer);
-                    int convention = DC_CALL_C_DEFAULT;
-                    if (!JNI.is64Bits() && JNI.isWindows())
-                        convention = DC_CALL_C_X86_WIN32_THIS_MS;
-        			JNI.callDefaultCPPConstructor(defaultConstructor, peer.getPeer(), convention);// TODO use right call convention
-        			TestCPP.print(type.getSimpleName(), peer.getPeer(), 10, 2);
-        			return peer;
+        			log(Level.INFO, "Registering constructor of " + type.getName() + " as " + constructorSymbol.getName());
+        			defaultConstructors.put(type, defaultConstructor);
         		}
+    			installVTablePtr(type, lib, peer);
+                int convention = DC_CALL_C_DEFAULT;
+                if (!JNI.is64Bits() && JNI.isWindows())
+                    convention = DC_CALL_C_X86_WIN32_THIS_MS;
+    			JNI.callDefaultCPPConstructor(defaultConstructor, peer.getPeer(), convention);// TODO use right call convention
+    			TestCPP.print(type.getSimpleName(), peer.getPeer(), 10, 2);
+    			return peer;
         	}
         	Method meth = getConstructor(type, constructorId, args);
         	Object[] consArgs = new Object[args.length + 1];

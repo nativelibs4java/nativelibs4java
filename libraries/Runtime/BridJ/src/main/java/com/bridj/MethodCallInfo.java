@@ -97,6 +97,8 @@ public class MethodCallInfo {
         isCPlusPlus = isCPlusPlus || virtual != null;
         
         if (isCPlusPlus && !Modifier.isStatic(modifiers)) {
+        	if (!startsWithThis)
+        		direct = false;
         	bNeedsThisPointer = true;
 			if (JNI.isWindows()) {
 				if (!JNI.is64Bits())
