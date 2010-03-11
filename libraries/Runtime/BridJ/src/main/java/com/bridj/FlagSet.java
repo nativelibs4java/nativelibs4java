@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-
 /**
  *
  * @author ochafik
@@ -47,7 +46,7 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         return (EE[])values;
     }
 
-    @Override
+    //@Override
     public Iterator<E> iterator() {
         return getMatchingEnums().iterator();
     }
@@ -97,5 +96,16 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
 
         return ret;
     }
+
+	public static <E extends Enum<E>> FlagSet<E> fromValues(E... enumValues) {
+		long value = 0;
+		Class cl = null;
+		for (E enumValue : enumValues) {
+			if (cl == null)
+				cl = enumValue.getClass();
+			value |= ((ValuedEnum)enumValue).value();
+		}
+		return new FlagSet<E>(value, cl, enumValues);
+	}
 
 }

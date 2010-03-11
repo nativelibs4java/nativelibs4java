@@ -24,7 +24,7 @@ public class Dyncall {
         eFloatValue,
         ePointerValue,
         eEllipsis,
-        eFlagSet,
+        eIntFlagSet,
         eNativeObjectValue
     }
     

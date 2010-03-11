@@ -9,10 +9,6 @@ import com.bridj.JNI;
 import com.bridj.BridJ;
 import com.bridj.ann.Library;
 //import com.sun.jna.Native;
-import java.io.FileNotFoundException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -30,9 +26,29 @@ public class FunctionTest {
 	}
     public native int testAddDyncall(int a, int b);
     
+    public enum ETest implements ValuedEnum<ETest> {
+    	eFirst(0),
+    	eSecond(1),
+    	eThird(2);
+    	
+    	ETest(int value) {
+    		this.value = value;
+    	}
+    	final int value;
+    	public long value() {
+    		return value;
+    	}
+    }
+    public static native FlagSet<ETest> testEnum(FlagSet<ETest> e);
+    
     @Test
     public void add() {
     		int res = testAddDyncall(10, 4);
     		assertEquals(14, res);
+    }
+    
+    @Test
+    public void enu() {
+    	FlagSet<ETest> e = FlagSet.fromValues(ETest.eFirst);
     }
 }

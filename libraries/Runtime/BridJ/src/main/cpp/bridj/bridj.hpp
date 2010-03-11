@@ -140,6 +140,7 @@ jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
 
 void callDefaultConstructor(void* constructor, void* thisPtr, int callMode);
 jlong getFlagValue(JNIEnv *env, jobject flagSet);
+jobject newFlagSet(JNIEnv *env, jlong value);
 
 void throwException(JNIEnv* env, const char* message);
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message);

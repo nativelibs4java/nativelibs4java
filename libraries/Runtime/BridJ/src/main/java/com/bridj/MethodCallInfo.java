@@ -201,7 +201,7 @@ public class MethodCallInfo {
         }
         if (c == FlagSet.class) {
         	direct = false;
-        	return ValueType.eFlagSet;
+        	return ValueType.eIntFlagSet;
         }
         if (NativeObject.class.isAssignableFrom(c)) {
         	direct = false;
@@ -274,6 +274,11 @@ public class MethodCallInfo {
                 }
                 javaChar = "C";
                 break;
+            case eIntFlagSet:
+            	dcChar = DC_SIGCHAR_INT;
+            	javaChar = "Lcom/bridj/FlagSet;";
+            	direct = false;
+            	break;
             case ePointerValue:
             	dcChar = DC_SIGCHAR_POINTER;
                 javaChar = "Lcom/bridj/Pointer;";

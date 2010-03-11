@@ -23,10 +23,12 @@ JNI_SIZEOF(long, long)
 
 jclass gStructFieldsIOClass = NULL;
 jclass gPointerClass = NULL;
+jclass gFlagSetClass = NULL;
 jmethodID gAddressMethod = NULL;
 jmethodID gGetPeerMethod = NULL;
 jmethodID gCreatePeerMethod = NULL;
 jmethodID gGetFlagSetValueMethod = NULL;
+jmethodID gNewFlagSetMethod = NULL;
 
 jclass 		gMethodCallInfoClass 		 = NULL;
 jfieldID 	gFieldId_javaSignature 		 = NULL;
@@ -50,8 +52,9 @@ int main() {}
 void initMethods(JNIEnv* env) {
 	if (!gAddressMethod)
 	{
-		jclass flagSetClass = (*env)->FindClass(env, "com/bridj/FlagSet");
-		gGetFlagSetValueMethod = (*env)->GetMethodID(env, flagSetClass, "value", "()J"); 
+		gFlagSetClass = (*env)->FindClass(env, "com/bridj/FlagSet");
+		gGetFlagSetValueMethod = (*env)->GetMethodID(env, gFlagSetClass, "value", "()J"); 
+		gNewFlagSetMethod = (*env)->GetStaticMethodID(env, gFlagSetClass, "fromValue", "(JLjava/lang/Class;)Lcom/bridj/FlagSet;"); 
 		gStructFieldsIOClass = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/bridj/StructFieldsIO"));
 		gPointerClass = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/bridj/Pointer"));
 		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lcom/bridj/NativeObject;Ljava/lang/Class;)J");
@@ -87,6 +90,11 @@ void initMethods(JNIEnv* env) {
 jlong getFlagValue(JNIEnv *env, jobject flagSet)
 {
 	return flagSet ? (*env)->CallLongMethod(env, flagSet, gGetFlagSetValueMethod) : 0;	
+}
+
+jobject newFlagSet(JNIEnv *env, jlong value)
+{
+	return (*env)->CallStaticObjectMethod(env, gFlagSetClass, gNewFlagSetMethod, value);	
 }
 
 //void main() {}

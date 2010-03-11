@@ -76,6 +76,12 @@ jboolean followCall(JNIEnv* env, ValueType returnType, DCCallVM* vm, DCValue* re
 		case eVoidValue:
 			dcCallVoid(vm, callback);
 			break;
+		case eIntFlagSet:
+			{
+				int flags = dcCallInt(vm, callback);
+				result->p = newFlagSet(env, flags);
+			}
+			break;
 		case ePointerValue:
 			{
 				void* ptr = dcCallPointer(vm, callback);
