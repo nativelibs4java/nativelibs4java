@@ -232,7 +232,7 @@ public abstract class Demangler {
     protected static TypeRef classType(final Class<?> c, Class<? extends Annotation>... annotations) {
         return classType(c, null, annotations);
     }
-	protected static TypeRef classType(final Class<?> c, final java.lang.reflect.Type[] genericTypes, Class<? extends Annotation>... annotations) {
+    protected static TypeRef classType(final Class<?> c, final java.lang.reflect.Type[] genericTypes, Class<? extends Annotation>... annotations) {
 		JavaTypeRef tr = new JavaTypeRef();
         if (genericTypes == null)
             tr.type = c;
@@ -241,6 +241,9 @@ public abstract class Demangler {
             
 		tr.annotations = annotations;
 		return tr;
+	}
+    protected static TypeRef simpleType(String name) {
+		return new ClassRef(name);
 	}
 	public static class JavaTypeRef extends TypeRef {
 

@@ -23,6 +23,9 @@ public class GCC4Demangler extends Demangler {
 	}
 	
 	public TypeRef parseType() throws DemanglingException {
+		if (Character.isDigit(peekChar()))
+			return simpleType(parseName());
+		
 		switch (consumeChar()) {
 		case 'P':
 			parseType(); // TODO we don't care what this points to right now
