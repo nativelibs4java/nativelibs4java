@@ -141,6 +141,11 @@ int Ctest::testVirtualAddStdCall(void* ptr, int a, int b) {
 	return a + b;
 }
 
+ETest testEnum(ETest e)
+{
+	return e;	
+}
+
 void Ctest::static_void() {
 	
 }

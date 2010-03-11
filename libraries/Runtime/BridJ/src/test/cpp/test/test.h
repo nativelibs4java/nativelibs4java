@@ -19,6 +19,12 @@
 
 #include <string>
 
+typedef enum ETest {
+	eFirst,
+	eSecond,
+	eThird
+} ETest;
+
 class TEST_API Ctest {
 public:
 	int firstField;
@@ -47,6 +53,7 @@ public:
 extern TEST_API int ntest;
 TEST_API Ctest* createTest();
 
+TEST_API ETest testEnum(ETest e);
 TEST_API void __cdecl voidTest();
 TEST_API double __cdecl sinInt(int);
 TEST_API double __cdecl testSum(const double *values, size_t n);

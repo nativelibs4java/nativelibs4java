@@ -60,7 +60,7 @@ typedef enum ValueType {
 	eFloatValue,
 	ePointerValue,
 	eEllipsis,
-	eFlagSet,
+	eIntFlagSet,
 	eNativeObjectValue
 } ValueType;
 
@@ -139,6 +139,7 @@ void* getPointerPeer(JNIEnv *env, jobject pointer);
 jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
 
 void callDefaultConstructor(void* constructor, void* thisPtr, int callMode);
+jlong getFlagValue(JNIEnv *env, jobject flagSet);
 
 void throwException(JNIEnv* env, const char* message);
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message);

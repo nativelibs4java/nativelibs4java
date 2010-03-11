@@ -6,6 +6,9 @@ jboolean followArgs(JNIEnv* env, DCArgs* args, DCCallVM* vm, int nTypes, ValueTy
 	for (iParam = 0; iParam < nTypes; iParam++) {
 		ValueType type = pTypes[iParam];
 		switch (type) {
+			case eIntFlagSet:
+				dcArgInt(vm, (jint)getFlagValue(env, (jobject)dcbArgPointer(args)));
+				break;
 			case eIntValue:
 				dcArgInt(vm, dcbArgInt(args));
 				break;
