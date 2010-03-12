@@ -280,7 +280,7 @@ public abstract class Demangler {
                     (Pointer.class.isAssignableFrom(typec) && tc == Long.TYPE))
                 return true;
             
-			return type.equals(tc); // TODO isAssignableFrom or the opposite, depending on context
+			return typec.equals(tc); // TODO isAssignableFrom or the opposite, depending on context
 		}
 
         @Override
