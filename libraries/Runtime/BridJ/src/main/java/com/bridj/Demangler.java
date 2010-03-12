@@ -186,8 +186,8 @@ public abstract class Demangler {
 
 	public static abstract class TypeRef implements TemplateArg {
 		public abstract StringBuilder getQualifiedName(StringBuilder b, boolean generic);
-		public boolean matches(Class<?> type) {
-			return getQualifiedName(new StringBuilder(), false).toString().equals(type.getName());
+		public boolean matches(Type type) {
+			return getQualifiedName(new StringBuilder(), false).toString().equals(getTypeClass(type).getName());
 		}
 		
 	}
@@ -245,30 +245,42 @@ public abstract class Demangler {
     protected static TypeRef simpleType(String name) {
 		return new ClassRef(name);
 	}
+    static Class<?> getTypeClass(Type type) {
+		
+		if (type instanceof Class<?>)
+			return (Class<?>)type;
+		if (type instanceof ParameterizedType) {
+			ParameterizedType pt = (ParameterizedType)type;
+			Class<?> c = (Class<?>)pt.getRawType();
+			if (c == FlagSet.class) {
+				Type[] types = pt.getActualTypeArguments();
+				if (types == null || types.length != 1)
+					c = int.class;
+				else
+					c = getTypeClass(pt.getActualTypeArguments()[0]);
+			}
+			return c;
+		}
+		throw new UnsupportedOperationException("Unknown type type : " + type.getClass().getName());
+	}
 	public static class JavaTypeRef extends TypeRef {
 
 		java.lang.reflect.Type type;
         Class<? extends Annotation>[] annotations;
 		
-		Class<?> getTypeClass() {
-			if (type instanceof Class<?>)
-				return (Class<?>)type;
-			if (type instanceof ParameterizedType)
-				return (Class<?>)((ParameterizedType)type).getRawType();
-			throw new UnsupportedOperationException("Unknown type type : " + type.getClass().getName());
-		}
 		@Override
 		public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
-			return b.append(getTypeClass().getName());
+			return b.append(getTypeClass(this.type).getName());
 		}
 		@Override
-		public boolean matches(Class<?> type) {
-            Class<?> tc = getTypeClass();
+		public boolean matches(Type type) {
+            Class<?> tc = getTypeClass(this.type);
+            Class<?> typec = Demangler.getTypeClass(type);
             if ((type == Long.TYPE && Pointer.class.isAssignableFrom(tc)) ||
-                    (Pointer.class.isAssignableFrom(type) && tc == Long.TYPE))
+                    (Pointer.class.isAssignableFrom(typec) && tc == Long.TYPE))
                 return true;
             
-			return type.equals(getTypeClass()); // TODO isAssignableFrom or the opposite, depending on context
+			return type.equals(tc); // TODO isAssignableFrom or the opposite, depending on context
 		}
 
         @Override
@@ -344,8 +356,8 @@ public abstract class Demangler {
         }
 
         @Override
-        public boolean matches(Class<?> type) {
-            if (!type.getSimpleName().equals(simpleName))
+        public boolean matches(Type type) {
+            if (!getTypeClass(type).getSimpleName().equals(simpleName))
                 return false;
             
             return true;
@@ -511,7 +523,7 @@ public abstract class Demangler {
 			if (getValueType() != null && !getValueType().matches(Void.TYPE))
 				return false;
 			
-            Class<?>[] methodArgTypes = new Class[] { Long.TYPE };
+            Type[] methodArgTypes = new Type[] { Long.TYPE };
             if (!matchesArgs(methodArgTypes, null, true))
             	return false;
             
@@ -526,10 +538,10 @@ public abstract class Demangler {
         }
         static int getArgumentsStackSize(Method method) {
             int total = 0;
-            Class<?>[] paramTypes = method.getParameterTypes();
+            Type[] paramTypes = method.getGenericParameterTypes();
             Annotation[][] anns = method.getParameterAnnotations();
             for (int iArg = 0, nArgs = paramTypes.length; iArg < nArgs; iArg++) {
-                Class<?> paramType = paramTypes[iArg];
+                Class<?> paramType = getTypeClass(paramTypes[iArg]);
                 if (paramType == int.class)
                     total += 4;
                 else if (paramType == long.class) {
@@ -578,10 +590,11 @@ public abstract class Demangler {
 				return false;
 			
 			Annotation[][] anns = method.getParameterAnnotations();
-            Class<?>[] methodArgTypes = method.getParameterTypes();
+//            Class<?>[] methodArgTypes = method.getParameterTypes();
+            Type[] parameterTypes = method.getGenericParameterTypes();
             boolean hasThisAsFirstArgument = BridJ.hasThisAsFirstArgument(method);//methodArgTypes, anns, true);
             
-            if (!matchesArgs(methodArgTypes, anns, hasThisAsFirstArgument))
+            if (!matchesArgs(parameterTypes, anns, hasThisAsFirstArgument))
             	return false;
             
             
@@ -610,13 +623,13 @@ public abstract class Demangler {
             
             return true;
 		}
-		private boolean matchesArgs(Class<?>[] methodArgTypes, Annotation[][] anns, boolean hasThisAsFirstArgument) {
+		private boolean matchesArgs(Type[] parameterTypes, Annotation[][] anns, boolean hasThisAsFirstArgument) {
 			int totalArgs = 0;
             for (int i = 0, n = templateArguments == null ? 0 : templateArguments.length; i < n; i++) {
-                if (totalArgs >= methodArgTypes.length)
+                if (totalArgs >= parameterTypes.length)
                     return false;
 
-                Class<?> paramType = methodArgTypes[i];
+                Type paramType = parameterTypes[i];
 
                 TemplateArg arg = templateArguments[i];
                 if (arg instanceof TypeRef) {
@@ -624,7 +637,7 @@ public abstract class Demangler {
                         return false;
                 } else if (arg instanceof Constant) {
                     try {
-                        paramType.cast(((Constant)arg).value);
+                        getTypeClass(paramType).cast(((Constant)arg).value);
                     } catch (ClassCastException ex) {
                         return false;
                     }
@@ -636,15 +649,15 @@ public abstract class Demangler {
             	totalArgs++;
             
             for (int i = 0, n = paramTypes == null ? 0 : paramTypes.length; i < n; i++) {
-                if (totalArgs >= methodArgTypes.length)
+                if (totalArgs >= parameterTypes.length)
                     return false;
 
-                if (!paramTypes[i].matches(methodArgTypes[totalArgs]))
+                if (!paramTypes[i].matches(parameterTypes[totalArgs]))
                     return false;
 
                 totalArgs++;
             }
-            if (totalArgs != methodArgTypes.length)
+            if (totalArgs != parameterTypes.length)
                 return false;
 
             return true;

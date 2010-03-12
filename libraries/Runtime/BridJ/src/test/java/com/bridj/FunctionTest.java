@@ -43,12 +43,20 @@ public class FunctionTest {
     
     @Test
     public void add() {
-    		int res = testAddDyncall(10, 4);
-    		assertEquals(14, res);
+		int res = testAddDyncall(10, 4);
+		assertEquals(14, res);
     }
     
     @Test
     public void enu() {
-    	FlagSet<ETest> e = FlagSet.fromValues(ETest.eFirst);
+    	for (ETest v : ETest.values())
+    	{
+	    	FlagSet<ETest> e = FlagSet.fromValues(v);
+	    	assertNotNull(e);
+	    	assertEquals(v.value(), e.value());
+	    	ETest[] values = e.getEnumClassValues();
+	    	assertEquals(1, values.length);
+	    	assertEquals(v, values[0]);
+    	}
     }
 }

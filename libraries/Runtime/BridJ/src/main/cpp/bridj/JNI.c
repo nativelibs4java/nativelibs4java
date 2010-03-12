@@ -273,6 +273,7 @@ char getDCReturnType(JNIEnv* env, ValueType returnType)
 #define CALL_CASE(valueType, capCase, hiCase, uni) \
 		case valueType: \
 			return DC_SIGCHAR_ ## hiCase;
+		case eIntFlagSet:
 		CALL_CASE(eIntValue, Int, INT, i)
 		CALL_CASE(eLongValue, Long, LONGLONG, l)
 		CALL_CASE(eShortValue, Short, SHORT, s)
