@@ -64,6 +64,11 @@ typedef enum ValueType {
 	eNativeObjectValue
 } ValueType;
 
+typedef struct CallTempStruct {
+	DCCallVM* vm;
+	JNIEnv *env;
+} CallTempStruct;
+
 typedef struct CommonCallbackInfo {
 	int nParams;
 	char fDCReturnType;
@@ -100,10 +105,6 @@ typedef struct FunctionCallInfo {
 #if defined (DC__OS_Darwin)
 #include <objc/objc.h>
 
-typedef struct CallTempStruct {
-	DCCallVM* vm;
-} CallTempStruct;
-
 typedef struct JavaToObjCCallInfo {
 	struct CommonCallbackInfo fInfo;
 	SEL fSelector;
@@ -139,13 +140,13 @@ char __cdecl NativeToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue
 char __cdecl StructHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 
 
-void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass);
+void* getNativeObjectPointer(JNIEnv* env, jobject instance, jclass targetClass);
 void* getPointerPeer(JNIEnv *env, jobject pointer);
 jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
 
 void callDefaultConstructor(void* constructor, void* thisPtr, int callMode);
 jlong getFlagValue(JNIEnv *env, jobject flagSet);
-
+jobject newFlagSet(JNIEnv *env, jlong value);
 
 void throwException(JNIEnv* env, const char* message);
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message);

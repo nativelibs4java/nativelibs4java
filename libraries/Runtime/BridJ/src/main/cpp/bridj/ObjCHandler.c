@@ -5,8 +5,8 @@
 char __cdecl doJavaToObjCCallHandler(DCArgs* args, DCValue* result, JavaToObjCCallInfo *info)
 {
 	CallTempStruct* call;
-	JNIEnv *env;
-	jobject instance = initCallHandler(args, &call, &env);
+	jobject instance = initCallHandler(args, &call);
+	JNIEnv* env = call->env;
 	
 	void* thisPtr = thisPtr = getNativeObjectPointer(env, instance, NULL);
 	void* callback = //objc_msgSend_stret;//
@@ -26,11 +26,11 @@ char __cdecl doJavaToObjCCallHandler(DCArgs* args, DCValue* result, JavaToObjCCa
 	dcArgPointer(call->vm, info->fSelector);
 	dcArgPointer(call->vm, thisPtr);
 
-	followArgs(env, args, call, info->fInfo.nParams, info->fInfo.fParamTypes) 
+	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes) 
 	&&
-	followCall(env, info->fInfo.fReturnType, call, result, callback);
+	followCall(call, info->fInfo.fReturnType, result, callback);
 
-	cleanupCallHandler(env, call);
+	cleanupCallHandler(call);
 	return info->fInfo.fDCReturnType;
 }
 

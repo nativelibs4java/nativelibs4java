@@ -278,6 +278,7 @@ CallTempStruct* getTempCallStruct(JNIEnv* env) {
 	return (CallTempStruct*)(size_t)handle;
 }
 void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
+	//s->env = NULL;
 	(*env)->CallStaticVoidMethod(env, gBridJClass, gReleaseTempCallStruct, (size_t)s);
 }
 
@@ -518,7 +519,7 @@ void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 		jboolean 	direct		 		= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_direct		 		);   \
 		jboolean 	startsWithThis		= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_startsWithThis 		);   \
 		jboolean 	bNeedsThisPointer	= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_bNeedsThisPointer 		);   \
-		jsize		nParams				= (*env)->GetArrayLength(	env, paramsValueTypes									);	 \								
+		jsize		nParams				= (*env)->GetArrayLength(	env, paramsValueTypes									);	 \
 		jobjectArray callIOs			= (*env)->CallObjectMethod(	env, methodCallInfo, gGetCallIOsMethod					);
 		
 #define BEGIN_INFOS_LOOP(type)                                                                                           \

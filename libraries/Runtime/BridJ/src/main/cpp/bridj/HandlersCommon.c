@@ -1,7 +1,8 @@
 #include "HandlersCommon.h"
 
-jboolean followArgs(JNIEnv* env, DCArgs* args, CallTempStruct* call, int nTypes, ValueType* pTypes) 
+jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes) 
 {	
+	JNIEnv* env = call->env;
 	int iParam;
 	for (iParam = 0; iParam < nTypes; iParam++) {
 		ValueType type = pTypes[iParam];
@@ -53,8 +54,9 @@ jboolean followArgs(JNIEnv* env, DCArgs* args, CallTempStruct* call, int nTypes,
 	return JNI_TRUE;
 }
 
-jboolean followCall(JNIEnv* env, ValueType returnType, CallTempStruct* call, DCValue* result, void* callback) 
+jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback) 
 {
+	JNIEnv* env = call->env;
 	switch (returnType) {
 #define CALL_CASE(valueType, capCase, hiCase, uni) \
 		case valueType: \
@@ -97,8 +99,9 @@ jboolean followCall(JNIEnv* env, ValueType returnType, CallTempStruct* call, DCV
 	return JNI_TRUE;
 }
 
-jobject initCallHandler(DCArgs* args, CallTempStruct** callOut, JNIEnv** envOut) {
-	JNIEnv *env = NULL;
+jobject initCallHandler(DCArgs* args, CallTempStruct** callOut) 
+{
+	JNIEnv* env = NULL;
 	jobject instance = NULL;
 	
 	if (args) {
@@ -107,16 +110,14 @@ jobject initCallHandler(DCArgs* args, CallTempStruct** callOut, JNIEnv** envOut)
 	}
 	
 	*callOut = getTempCallStruct(env);
-	
-	if (envOut)
-		*envOut = env;
-	
+	(*callOut)->env = env;
+
 	return instance;
 }
 
-void cleanupCallHandler(JNIEnv* env, CallTempStruct* call)
+void cleanupCallHandler(CallTempStruct* call)
 {
 	dcReset(call->vm);
-	releaseTempCallStruct(env, call);
+	releaseTempCallStruct(call->env, call);
 }
 	

@@ -4,10 +4,9 @@ extern jclass gStructFieldsIOClass;
 
 char __cdecl doStructHandler(DCArgs* args, DCValue* result, StructFieldInfo *info)
 {
-	JNIEnv *env;
 	CallTempStruct* call;
-	jobject instance = initCallHandler(args, &call, &env);
-	
+	jobject instance = initCallHandler(args, &call);
+	JNIEnv* env = call->env;
 	
 	dcMode(call->vm, DC_CALL_C_DEFAULT);
 
@@ -17,11 +16,11 @@ char __cdecl doStructHandler(DCArgs* args, DCValue* result, StructFieldInfo *inf
 	dcArgPointer(call->vm, instance);
 	dcArgInt(call->vm, info->fFieldIndex);
 	
-	followArgs(env, args, call, info->fInfo.nParams, info->fInfo.fParamTypes) 
+	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes) 
 	&&
-	followCall(env, info->fInfo.fReturnType, call, result, info->fJNICallFunction);
+	followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction);
 
-	cleanupCallHandler(env, call);
+	cleanupCallHandler(call);
 	
 	// Special case for setters that return this :
 	if (info->fInfo.nParams == 1 && info->fInfo.fReturnType != eVoidValue) {

@@ -99,6 +99,10 @@ public class TestCPP {
             BridJ.register(MyCallback.class);
             BridJ.register();
 
+            TaskbarListDemo.main(null);
+            if (true)
+                return;
+
             testNativeTargetCallbacks();
             testJavaTargetCallbacks();
         	
@@ -135,12 +139,10 @@ public class TestCPP {
                 if (s.b() != 100.0)
                     throw new RuntimeException("invalid value = " + a);
 
-                TaskbarListDemo.main(null);
             } catch (Throwable ex) {
                 ex.printStackTrace();
             }
-            if (true)
-                return;
+
 
             library = BridJ.getNativeLibrary("test");
                 //NativeLibrary.load(libraryPath);

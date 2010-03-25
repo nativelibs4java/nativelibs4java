@@ -3,12 +3,15 @@
 void callDefaultConstructor(void* constructor, void* thisPtr, int callMode)
 {
 	CallTempStruct* call;
-	JNIEnv *env;
-	initCallHandler(NULL, &call, &env);
+	JNIEnv* env;
+	initCallHandler(NULL, &call);
+	env = call->env;
 	
 	dcMode(call->vm, callMode);
 	dcArgPointer(call->vm, thisPtr);
 	dcCallVoid(call->vm, constructor);
+
+	cleanupCallHandler(call);
 }
 
 void* getNthVirtualMethodFromThis(JNIEnv* env, void* thisPtr, size_t virtualTableOffset, size_t virtualIndex) {
@@ -29,9 +32,9 @@ void* getNthVirtualMethodFromThis(JNIEnv* env, void* thisPtr, size_t virtualTabl
 char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, VirtualMethodCallInfo *info)
 {
 	CallTempStruct* call;
-	JNIEnv *env;
-	jobject instance = initCallHandler(args, &call, &env);
-	
+	jobject instance = initCallHandler(args, &call);
+	JNIEnv* env = call->env;
+
 	void* callback;
 	int nParams = info->fInfo.nParams;
 	ValueType *pParamTypes = info->fInfo.fParamTypes;
@@ -44,13 +47,13 @@ char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, Vir
 	if (info->fHasThisPtrArg) {
 		if (nParams == 0 || *pParamTypes != eSizeTValue) {
 			throwException(env, "A C++ method must be bound with a method having a first argument of type long !");
-			cleanupCallHandler(env, call);
+			cleanupCallHandler(call);
 			return info->fInfo.fDCReturnType;
 		}
 		thisPtr = dcbArgPointer(args);
 		if (!thisPtr) {
 			throwException(env, "Calling a method on a NULL C++ class pointer !");
-			cleanupCallHandler(env, call);
+			cleanupCallHandler(call);
 			return info->fInfo.fDCReturnType;
 		}
 		nParams--;
@@ -60,7 +63,7 @@ char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, Vir
 		thisPtr = getNativeObjectPointer(env, instance, info->fClass);
 		if (!thisPtr) {
 			throwException(env, "Failed to get the pointer to the target C++ instance of the method invocation !");
-			cleanupCallHandler(env, call);
+			cleanupCallHandler(call);
 			return info->fInfo.fDCReturnType;
 		}
 		
@@ -71,17 +74,17 @@ char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, Vir
 	
 	callback = getNthVirtualMethodFromThis(env, thisPtr, info->fVirtualTableOffset, info->fVirtualIndex);
 	if (!callback) {
-		cleanupCallHandler(env, call);
+		cleanupCallHandler(call);
 		return info->fInfo.fDCReturnType;
 	}
 		
 	dcArgPointer(call->vm, thisPtr);
 
-	followArgs(env, args, call->vm, nParams, pParamTypes) 
+	followArgs(call, args, nParams, pParamTypes) 
 	&&
-	followCall(env, info->fInfo.fReturnType, call->vm, result, callback);
+	followCall(call, info->fInfo.fReturnType, result, callback);
 
-	cleanupCallHandler(env, call);
+	cleanupCallHandler(call);
 	return info->fInfo.fDCReturnType;
 }
 
@@ -97,25 +100,25 @@ char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, 
 char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, CPPMethodCallInfo *info)
 {
 	CallTempStruct* call;
-	JNIEnv *env;
 	void* thisPtr;
-	jobject instance = initCallHandler(args, &call, &env);
+	jobject instance = initCallHandler(args, &call);
+	JNIEnv* env = call->env;
 	
 	dcMode(call->vm, info->fInfo.fDCMode);
 	
-	thisPtr = getNativeObjectPointer(env, instance, info->fClass);
+	thisPtr = getNativeObjectPointer(call->env, instance, info->fClass);
 	if (!thisPtr) {
 		throwException(env, "Failed to get the pointer to the target C++ instance of the method invocation !");
-		cleanupCallHandler(env, call);
+		cleanupCallHandler(call);
 		return info->fInfo.fDCReturnType;
 	}
 	dcArgPointer(call->vm, thisPtr);
 	
-	followArgs(env, args, call->vm, info->fInfo.nParams, info->fInfo.fParamTypes) 
+	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes) 
 	&&
-	followCall(env, info->fInfo.fReturnType, call->vm, result, info->fForwardedSymbol);
+	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol);
 
-	cleanupCallHandler(env, call);
+	cleanupCallHandler(call);
 	return info->fInfo.fDCReturnType;
 }
 
