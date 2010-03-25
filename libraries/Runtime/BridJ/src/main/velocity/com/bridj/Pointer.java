@@ -456,6 +456,11 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
     protected PointerIO<T> getIO() {
         return io;
     }
+    
+	void setIO(PointerIO pointerIO) {
+		this.io = pointerIO;	
+	}
+    
     public Type getTargetType() {
         PointerIO<T> io = getIO();
         return io == null ? null : io.getTargetType();

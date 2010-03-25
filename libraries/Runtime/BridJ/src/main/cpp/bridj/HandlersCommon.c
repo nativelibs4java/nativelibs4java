@@ -1,47 +1,47 @@
 #include "HandlersCommon.h"
 
-jboolean followArgs(JNIEnv* env, DCArgs* args, DCCallVM* vm, int nTypes, ValueType* pTypes) 
+jboolean followArgs(JNIEnv* env, DCArgs* args, CallTempStruct* call, int nTypes, ValueType* pTypes) 
 {	
 	int iParam;
 	for (iParam = 0; iParam < nTypes; iParam++) {
 		ValueType type = pTypes[iParam];
 		switch (type) {
 			case eIntFlagSet:
-				dcArgInt(vm, (jint)getFlagValue(env, (jobject)dcbArgPointer(args)));
+				dcArgInt(call->vm, (jint)getFlagValue(env, (jobject)dcbArgPointer(args)));
 				break;
 			case eIntValue:
-				dcArgInt(vm, dcbArgInt(args));
+				dcArgInt(call->vm, dcbArgInt(args));
 				break;
 			case eCLongValue:
-				dcArgLong(vm, (long)dcbArgLongLong(args));
+				dcArgLong(call->vm, (long)dcbArgLongLong(args));
 				break;
 			case eSizeTValue:
 				if (sizeof(size_t) == 4)
-					dcArgInt(vm, (int)dcbArgLong(args));
+					dcArgInt(call->vm, (int)dcbArgLong(args));
 				else
-					dcArgLongLong(vm, dcbArgLongLong(args));
+					dcArgLongLong(call->vm, dcbArgLongLong(args));
 				break;
 			case eLongValue:
-				dcArgLongLong(vm, dcbArgLongLong(args));
+				dcArgLongLong(call->vm, dcbArgLongLong(args));
 				break;
 			case eShortValue:
-				dcArgShort(vm, dcbArgShort(args));
+				dcArgShort(call->vm, dcbArgShort(args));
 				break;
 			case eBooleanValue:
 			case eByteValue:
-				dcArgChar(vm, dcbArgChar(args));
+				dcArgChar(call->vm, dcbArgChar(args));
 				break;
 			case eFloatValue:
-				dcArgFloat(vm, dcbArgFloat(args));
+				dcArgFloat(call->vm, dcbArgFloat(args));
 				break;
 			case eDoubleValue:
-				dcArgDouble(vm, dcbArgDouble(args));
+				dcArgDouble(call->vm, dcbArgDouble(args));
 				break;
 			case ePointerValue:
 				{
 					jobject jptr = (jobject)dcbArgPointer(args);
 					void* ptr = jptr ? getPointerPeer(env, (void*)jptr) : NULL;
-					dcArgPointer(vm, ptr);
+					dcArgPointer(call->vm, ptr);
 				}
 				break;
 			default:
@@ -53,12 +53,12 @@ jboolean followArgs(JNIEnv* env, DCArgs* args, DCCallVM* vm, int nTypes, ValueTy
 	return JNI_TRUE;
 }
 
-jboolean followCall(JNIEnv* env, ValueType returnType, DCCallVM* vm, DCValue* result, void* callback) 
+jboolean followCall(JNIEnv* env, ValueType returnType, CallTempStruct* call, DCValue* result, void* callback) 
 {
 	switch (returnType) {
 #define CALL_CASE(valueType, capCase, hiCase, uni) \
 		case valueType: \
-			result->uni = dcCall ## capCase(vm, callback); \
+			result->uni = dcCall ## capCase(call->vm, callback); \
 			break;
 		CALL_CASE(eIntValue, Int, INT, i)
 		CALL_CASE(eLongValue, Long, LONGLONG, l)
@@ -68,23 +68,23 @@ jboolean followCall(JNIEnv* env, ValueType returnType, DCCallVM* vm, DCValue* re
 		case eBooleanValue:
 		CALL_CASE(eByteValue, Char, CHAR, c)
 		case eCLongValue:
-			result->l = dcCallLong(vm, callback);
+			result->l = dcCallLong(call->vm, callback);
 			break;
 		case eSizeTValue:
-			result->p = dcCallPointer(vm, callback);
+			result->p = dcCallPointer(call->vm, callback);
 			break;
 		case eVoidValue:
-			dcCallVoid(vm, callback);
+			dcCallVoid(call->vm, callback);
 			break;
 		case eIntFlagSet:
 			{
-				int flags = dcCallInt(vm, callback);
+				int flags = dcCallInt(call->vm, callback);
 				result->p = newFlagSet(env, flags);
 			}
 			break;
 		case ePointerValue:
 			{
-				void* ptr = dcCallPointer(vm, callback);
+				void* ptr = dcCallPointer(call->vm, callback);
 				result->p = createPointer(env, ptr, NULL);
 			}
 			break;
@@ -97,16 +97,7 @@ jboolean followCall(JNIEnv* env, ValueType returnType, DCCallVM* vm, DCValue* re
 	return JNI_TRUE;
 }
 
-void initVM(DCCallVM** vm) {
-	if (!*vm) {
-		*vm = dcNewCallVM(1024);
-	} else {
-		dcReset(*vm); // TODO remove me (reset is done by dcMode ?)
-	}
-}
-
-jobject initCallHandler(DCArgs* args, DCCallVM** vmOut, JNIEnv** envOut) {
-	THREAD_STATIC DCCallVM* vm = NULL;
+jobject initCallHandler(DCArgs* args, CallTempStruct** callOut, JNIEnv** envOut) {
 	JNIEnv *env = NULL;
 	jobject instance = NULL;
 	
@@ -115,10 +106,17 @@ jobject initCallHandler(DCArgs* args, DCCallVM** vmOut, JNIEnv** envOut) {
 		instance = dcbArgPointer(args); // skip second arg = jclass or jobject
 	}
 	
-	initVM(&vm);
+	*callOut = getTempCallStruct(env);
 	
-	*vmOut = vm;
-	*envOut = env;
+	if (envOut)
+		*envOut = env;
+	
 	return instance;
 }
 
+void cleanupCallHandler(JNIEnv* env, CallTempStruct* call)
+{
+	dcReset(call->vm);
+	releaseTempCallStruct(env, call);
+}
+	

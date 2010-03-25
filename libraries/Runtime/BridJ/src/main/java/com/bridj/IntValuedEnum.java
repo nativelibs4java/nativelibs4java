@@ -3,12 +3,12 @@
  * and open the template in the editor.
  */
 
-package com.bridj.cpp.com.shell;
+package com.bridj;
+
 
 /**
  *
  * @author Olivier
  */
-interface IntValuedEnum {
-    int getValue();
+public interface IntValuedEnum<E extends Enum<E>> extends ValuedEnum<E> {
 }

@@ -5,27 +5,30 @@ extern jclass gStructFieldsIOClass;
 char __cdecl doStructHandler(DCArgs* args, DCValue* result, StructFieldInfo *info)
 {
 	JNIEnv *env;
-	DCCallVM* vm;
-	jobject instance = initCallHandler(args, &vm, &env);
+	CallTempStruct* call;
+	jobject instance = initCallHandler(args, &call, &env);
 	
 	
-	dcMode(vm, DC_CALL_C_DEFAULT);
+	dcMode(call->vm, DC_CALL_C_DEFAULT);
 
-	dcArgPointer(vm, (void*)env);
-	dcArgPointer(vm, gStructFieldsIOClass);
-	dcArgPointer(vm, info->fMethod);
-	dcArgPointer(vm, instance);
-	dcArgInt(vm, info->fFieldIndex);
+	dcArgPointer(call->vm, (void*)env);
+	dcArgPointer(call->vm, gStructFieldsIOClass);
+	dcArgPointer(call->vm, info->fMethod);
+	dcArgPointer(call->vm, instance);
+	dcArgInt(call->vm, info->fFieldIndex);
 	
-	followArgs(env, args, vm, info->fInfo.nParams, info->fInfo.fParamTypes) 
+	followArgs(env, args, call, info->fInfo.nParams, info->fInfo.fParamTypes) 
 	&&
-	followCall(env, info->fInfo.fReturnType, vm, result, info->fJNICallFunction);
+	followCall(env, info->fInfo.fReturnType, call, result, info->fJNICallFunction);
 
+	cleanupCallHandler(env, call);
+	
 	// Special case for setters that return this :
-	//if (!info->fInfo.nParams && info->fInfo.fReturnType != eVoidValue)
-	//	result->p = instance;
-
-	return info->fInfo.fDCReturnType;
+	if (info->fInfo.nParams == 1 && info->fInfo.fReturnType != eVoidValue) {
+		result->p = instance;
+		return DC_SIGCHAR_POINTER;
+	} else
+		return info->fInfo.fDCReturnType;
 }
 
 char __cdecl StructHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata) {

@@ -83,7 +83,7 @@ public class TaskbarListDemo extends JFrame implements ActionListener, ChangeLis
         if (button.isSelected()) {
             ITaskbarList3.TbpFlag flag = (ITaskbarList3.TbpFlag)button.getClientProperty(ITaskbarList3.TbpFlag.class);
             list.SetProgressValue((Pointer)hwnd, slider.getValue(), slider.getMaximum());
-            list.SetProgressState((Pointer)hwnd, flag.getValue());
+            list.SetProgressState((Pointer)hwnd, flag);
         }
     }
 

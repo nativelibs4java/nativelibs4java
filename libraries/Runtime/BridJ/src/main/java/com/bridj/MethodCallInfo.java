@@ -26,6 +26,7 @@ public class MethodCallInfo {
         Type returnType, paramsTypes[];
     }
     GenericMethodInfo genericInfo = new GenericMethodInfo();*/
+	List<CallIO> callIOs;
 	private Class<?> declaringClass;
     int returnValueType, paramsValueTypes[];
 	private Method method;
@@ -51,7 +52,9 @@ public class MethodCallInfo {
 		this.setDeclaringClass(method.getDeclaringClass());
 		this.methodName = method.getName();
         
-        Class<?>[] paramsTypes = method.getParameterTypes();
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        Type[] genericParameterTypes = method.getGenericParameterTypes();
+        
         Annotation[][] paramsAnnotations = method.getParameterAnnotations();
         /*genericInfo.returnType = method.getGenericReturnType();
         genericInfo.paramsTypes = method.getGenericParameterTypes();*/
@@ -60,7 +63,7 @@ public class MethodCallInfo {
         isStatic = Modifier.isStatic(modifiers);
         isVarArgs = method.isVarArgs();
 
-        int nParams = paramsTypes.length;
+        int nParams = parameterTypes.length;
         paramsValueTypes = new int[nParams];
 
         direct = true; // TODO on native side : test number of parameters (on 64 bits win : must be <= 4)
@@ -74,9 +77,10 @@ public class MethodCallInfo {
 
         for (int iParam = 0; iParam < nParams; iParam++) {
 //            Options paramOptions = paramsOptions[iParam] = new Options();
-            Class<?> param = paramsTypes[iParam];
+            Class<?> parameterType = parameterTypes[iParam];
+            Type genericParameterType = genericParameterTypes[iParam];
 
-            ValueType paramValueType = getValueType(iParam, nParams, param, null, paramsAnnotations[iParam]);
+            ValueType paramValueType = getValueType(iParam, nParams, parameterType, genericParameterType, null, paramsAnnotations[iParam]);
             paramsValueTypes[iParam] = paramValueType.ordinal();
             //GetOptions(paramOptions, method, paramsAnnotations[iParam]);
 
@@ -85,7 +89,7 @@ public class MethodCallInfo {
         javaSig.append(')');
         dcSig.append(')');
 
-        ValueType retType = getValueType(-1, nParams, method.getReturnType(), method);
+        ValueType retType = getValueType(-1, nParams, method.getReturnType(), method.getGenericReturnType(), method);
         appendToSignature(retType, javaSig, dcSig);
         returnValueType = retType.ordinal();
 
@@ -136,7 +140,16 @@ public class MethodCallInfo {
         
         BridJ.log(Level.INFO, (direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
     }
-	
+	void addCallIO(CallIO handler) {
+		if (callIOs == null)
+			callIOs = new ArrayList<CallIO>();
+		callIOs.add(handler);
+	}
+	public CallIO[] getCallIOs() {
+		if (callIOs == null)
+			return new CallIO[0];
+		return callIOs.toArray(new CallIO[callIOs.size()]);
+	}
 
 	public String getDcSignature() {
 		return dcSignature;
@@ -148,7 +161,7 @@ public class MethodCallInfo {
         Annotation ann = BridJ.getAnnotation(ac, inherit, element, directAnnotations);
         return ann != null;
     }
-    public ValueType getValueType(int iParam, int nParams, Class<?> c, AnnotatedElement element, Annotation... directAnnotations) {
+    public ValueType getValueType(int iParam, int nParams, Class<?> c, Type t, AnnotatedElement element, Annotation... directAnnotations) {
     	Ptr sz = BridJ.getAnnotation(Ptr.class, true, element, directAnnotations);
     	Constructor cons = this.method.getAnnotation(Constructor.class);
     	//This th = BridJ.getAnnotation(This.class, true, element, directAnnotations);
@@ -193,6 +206,12 @@ public class MethodCallInfo {
             return ValueType.eByteValue;
         if (c == Pointer.class) {
             direct = false;
+            addCallIO(new CallIO.GenericPointerHandler(((ParameterizedType)t).getActualTypeArguments()[0]));
+        	return ValueType.ePointerValue;
+        }
+        if (TypedPointer.class.isAssignableFrom(c)) {
+            direct = false;
+            addCallIO(new CallIO.TypedPointerIO(((Class<? extends TypedPointer>)c)));
         	return ValueType.ePointerValue;
         }
         if (c.isArray() && iParam == nParams - 1) {
@@ -204,6 +223,7 @@ public class MethodCallInfo {
         	return ValueType.eIntFlagSet;
         }
         if (NativeObject.class.isAssignableFrom(c)) {
+        	addCallIO(new CallIO.NativeObjectHandler((Class<? extends NativeObject>)c, t));
         	direct = false;
         	return ValueType.eNativeObjectValue;
         }

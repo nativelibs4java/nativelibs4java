@@ -2,15 +2,16 @@
 
 char __cdecl doJavaToFunctionCallHandler(DCArgs* args, DCValue* result, FunctionCallInfo *info)
 {
-	DCCallVM* vm;
+	CallTempStruct* call;
 	JNIEnv *env;
-	jobject instance = initCallHandler(args, &vm, &env);
+	jobject instance = initCallHandler(args, &call, &env);
 	
-	dcMode(vm, info->fInfo.fDCMode);
-	followArgs(env, args, vm, info->fInfo.nParams, info->fInfo.fParamTypes) 
+	dcMode(call->vm, info->fInfo.fDCMode);
+	followArgs(env, args, call, info->fInfo.nParams, info->fInfo.fParamTypes) 
 	&&
-	followCall(env, info->fInfo.fReturnType, vm, result, info->fForwardedSymbol);
+	followCall(env, info->fInfo.fReturnType, call, result, info->fForwardedSymbol);
 
+	cleanupCallHandler(env, call);
 	return info->fInfo.fDCReturnType;
 }
 

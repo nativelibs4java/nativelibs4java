@@ -20,6 +20,12 @@ public class IUnknown extends CPPObject {
 		super(peer, runtime);
 	}
 
+	public static IUnknown wrap(Object object) {
+		if (object instanceof IUnknown)
+			return (IUnknown)object;
+		
+		return new COMCallableWrapper(object);
+	}
     @Override
     protected void finalize() throws Throwable {
         if (autoRelease)

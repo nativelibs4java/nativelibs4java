@@ -70,6 +70,7 @@ typedef struct CommonCallbackInfo {
 	enum ValueType fReturnType;
 	enum ValueType* fParamTypes;
 	int fDCMode;
+	jobject* fCallIOs;
 	void* fDCCallback;
 	JNIEnv* fEnv;
 #ifdef _DEBUG
@@ -98,6 +99,10 @@ typedef struct FunctionCallInfo {
 
 #if defined (DC__OS_Darwin)
 #include <objc/objc.h>
+
+typedef struct CallTempStruct {
+	DCCallVM* vm;
+} CallTempStruct;
 
 typedef struct JavaToObjCCallInfo {
 	struct CommonCallbackInfo fInfo;
@@ -140,10 +145,12 @@ jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
 
 void callDefaultConstructor(void* constructor, void* thisPtr, int callMode);
 jlong getFlagValue(JNIEnv *env, jobject flagSet);
-jobject newFlagSet(JNIEnv *env, jlong value);
+
 
 void throwException(JNIEnv* env, const char* message);
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message);
+CallTempStruct* getTempCallStruct(JNIEnv* env);
+void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s);
 
 #endif
 

@@ -180,6 +180,8 @@ public class JNI {
 	public static native void freeCFunctionBindings(long handle, int size);
 	public static native void freeVirtualMethodBindings(long handle, int size);
 	
+	public static native long createCallTempStruct();
+	public static native void deleteCallTempStruct(long handle);
 	public static native int getMaxDirectMappingArgCount();
 	/*public static native long createCallback(
 		int callbackType,

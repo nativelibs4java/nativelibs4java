@@ -51,6 +51,44 @@ public class BridJ {
 		}});
 	}
     
+	protected static class ThreadLocalCallStructs {
+		private int count;
+		private final List<Long> handles = new ArrayList<Long>();
+		public long get() {
+			long handle;
+			if (count < handles.size())
+				handle = handles.get(count);
+			else
+				handles.add(handle = JNI.createCallTempStruct());
+			
+			count++;
+			return handle;
+		}
+		public void release(long handle) {
+			assert count > 0;
+			assert handle == handles.get(count - 1).longValue();
+			count--;
+		}
+		@Override
+		public void finalize() {
+			for (long handle : handles)
+				JNI.deleteCallTempStruct(handle);
+		}
+	}
+	private static ThreadLocal<ThreadLocalCallStructs> threadLocalCallStructs = new ThreadLocal<ThreadLocalCallStructs>() {
+        @Override
+		protected ThreadLocalCallStructs initialValue() {
+			return new ThreadLocalCallStructs();
+		};
+	};
+	
+	protected static long getTempCallStruct() {
+		return threadLocalCallStructs.get().get();
+	}
+	protected static void releaseTempCallStruct(long handle) {
+		threadLocalCallStructs.get().release(handle);
+	}
+	
 	static synchronized void registerNativeObject(NativeObject ob) {
 		weakNativeObjects.put(Pointer.getAddress(ob, null), ob);
 	}

@@ -8,6 +8,7 @@ import com.bridj.JNI;
 import com.bridj.NativeLibrary;
 import com.bridj.Pointer;
 import com.bridj.Demangler.Symbol;
+import com.bridj.ann.Array;
 import com.bridj.ann.Field;
 import com.bridj.ann.Library;
 import com.bridj.ann.Ptr;
@@ -26,6 +27,8 @@ import com.bridj.objc.ObjCObject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Iterator;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JSlider;
@@ -43,7 +46,18 @@ public class TestCPP {
 //		//"F:\\Experiments\\tmp\\key\\svn\\nativelibs4java\\Runtime\\BridJ\\src\\test\\resources\\win32\\test.dll" +
 //        "C:\\Users\\Olivier\\Prog\\nativelibs4java\\Runtime\\BridJ\\src\\main\\cpp\\buildsys\\vs2008\\x64\\Debug\\test.dll"
 //	;
-
+	public enum Toto implements IntValuedEnum<Toto > {
+		IBV_SYSFS_NAME_MAX(64),
+		IBV_SYSFS_PATH_MAX(256);
+		Toto(int value) {
+			this.value = value;
+		}
+		public final int value;
+		@java.lang.Override 
+		public long value() {
+			return this.value;
+		}
+	}
 	static {
 		//BridJ.register();
 	}
@@ -55,10 +69,10 @@ public class TestCPP {
     @com.bridj.ann.Runtime(CRuntime.class)
     public static class FunctionTest {
 
-        public FunctionTest() {
+    	public FunctionTest() {
             BridJ.register(getClass());
         }
-        public native int testAddDyncall(int a, int b);
+    	public native int testAddDyncall(int a, int b);
 
         public void add() {
             int a = 10, b = 4, exp = a + b;
@@ -67,6 +81,7 @@ public class TestCPP {
                 throw new RuntimeException("Got " + res + " (" + Integer.toHexString(res) + ") instead of " + exp + " (" + Integer.toHexString(exp));
         }
     }
+//    @Array(Toto.IBV_SYSFS_NAME_MAX.value)
 	public static void print(String name, long addr, int n, int minI) {
 		System.out.println(name);
 		for (int i = -1; i < n; i++) {

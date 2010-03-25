@@ -831,6 +831,13 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCFunctionBindings
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeVirtualMethodBindings
   (JNIEnv *, jclass, jlong, jint);
 
+  
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallTempStruct
+	(JNIEnv*, jclass);
+	
+JNIEXPORT void JNICALL Java_com_bridj_JNI_deleteCallTempStruct
+	(JNIEnv*, jclass, jlong);
+
 /*
  * Class:     com_bridj_JNI
  * Method:    getMaxDirectMappingArgCount

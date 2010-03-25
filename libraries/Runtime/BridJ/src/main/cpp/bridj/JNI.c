@@ -11,6 +11,9 @@
 #pragma warning(disable: 4152)
 #pragma warning(disable: 4189) // local variable initialized but unreferenced // TODO remove this !
 
+#define MALLOC_STRUCT(type) ((struct type*)malloc(sizeof(struct type)))
+#define MALLOC_STRUCT_ARRAY(type, size) ((struct type*)malloc(sizeof(struct type) * size))
+
 #define JNI_SIZEOF(type, escType) \
 jint JNICALL Java_com_bridj_JNI_sizeOf_1 ## escType(JNIEnv *env, jclass clazz) { return sizeof(type); }
 
@@ -24,11 +27,16 @@ JNI_SIZEOF(long, long)
 jclass gStructFieldsIOClass = NULL;
 jclass gPointerClass = NULL;
 jclass gFlagSetClass = NULL;
+jclass gValuedEnumClass = NULL;
+jclass gBridJClass = NULL;
 jmethodID gAddressMethod = NULL;
 jmethodID gGetPeerMethod = NULL;
 jmethodID gCreatePeerMethod = NULL;
-jmethodID gGetFlagSetValueMethod = NULL;
+jmethodID gGetValuedEnumValueMethod = NULL;
 jmethodID gNewFlagSetMethod = NULL;
+jmethodID gGetCallIOsMethod = NULL;
+jmethodID gGetTempCallStruct = NULL;
+jmethodID gReleaseTempCallStruct = NULL;
 
 jclass 		gMethodCallInfoClass 		 = NULL;
 jfieldID 	gFieldId_javaSignature 		 = NULL;
@@ -52,16 +60,23 @@ int main() {}
 void initMethods(JNIEnv* env) {
 	if (!gAddressMethod)
 	{
-		gFlagSetClass = (*env)->FindClass(env, "com/bridj/FlagSet");
-		gGetFlagSetValueMethod = (*env)->GetMethodID(env, gFlagSetClass, "value", "()J"); 
+		#define FIND_GLOBAL_CLASS(name) (*env)->NewGlobalRef(env, (*env)->FindClass(env, name))
+		
+		gBridJClass = FIND_GLOBAL_CLASS("com/bridj/BridJ");
+		gFlagSetClass = FIND_GLOBAL_CLASS("com/bridj/FlagSet");
+		gValuedEnumClass = FIND_GLOBAL_CLASS("com/bridj/ValuedEnum");
+		gStructFieldsIOClass = FIND_GLOBAL_CLASS("com/bridj/StructFieldsIO");
+		gPointerClass = FIND_GLOBAL_CLASS("com/bridj/Pointer");
+		gMethodCallInfoClass = FIND_GLOBAL_CLASS("com/bridj/MethodCallInfo");
+		
+		gGetTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "getTempCallStruct", "()J"); 
+		gReleaseTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "releaseTempCallStruct", "(J)V"); 
+		gGetValuedEnumValueMethod = (*env)->GetMethodID(env, gValuedEnumClass, "value", "()J"); 
 		gNewFlagSetMethod = (*env)->GetStaticMethodID(env, gFlagSetClass, "fromValue", "(JLjava/lang/Class;)Lcom/bridj/FlagSet;"); 
-		gStructFieldsIOClass = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/bridj/StructFieldsIO"));
-		gPointerClass = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/bridj/Pointer"));
 		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lcom/bridj/NativeObject;Ljava/lang/Class;)J");
 		gGetPeerMethod = (*env)->GetMethodID(env, gPointerClass, "getPeer", "()J");
 		gCreatePeerMethod = (*env)->GetStaticMethodID(env, gPointerClass, "pointerToAddress", "(JLjava/lang/Class;)Lcom/bridj/Pointer;");
-		
-		gMethodCallInfoClass = (*env)->NewGlobalRef(env, (*env)->FindClass(env, "com/bridj/MethodCallInfo"));
+		gGetCallIOsMethod = (*env)->GetMethodID(env, gMethodCallInfoClass, "getCallIOs", "()[Lcom/bridj/CallIO;");
 		
 #define GETFIELD_ID(out, name, sig) \
 		if (!(gFieldId_ ## out = (*env)->GetFieldID(env, gMethodCallInfoClass, name, sig))) \
@@ -87,9 +102,9 @@ void initMethods(JNIEnv* env) {
 	}
 }
 
-jlong getFlagValue(JNIEnv *env, jobject flagSet)
+jlong getFlagValue(JNIEnv *env, jobject valuedEnum)
 {
-	return flagSet ? (*env)->CallLongMethod(env, flagSet, gGetFlagSetValueMethod) : 0;	
+	return valuedEnum ? (*env)->CallLongMethod(env, valuedEnum, gGetValuedEnumValueMethod) : 0;	
 }
 
 jobject newFlagSet(JNIEnv *env, jlong value)
@@ -248,6 +263,25 @@ jobject JNICALL Java_com_bridj_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthi
 	END_TRY_RET(env, NULL);
 }
 
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallTempStruct(JNIEnv* env, jclass clazz) {
+	CallTempStruct* s = MALLOC_STRUCT(CallTempStruct);
+	s->vm = dcNewCallVM(1024);
+	return (jlong)(size_t)s;	
+}
+JNIEXPORT void JNICALL Java_com_bridj_JNI_deleteCallTempStruct(JNIEnv* env, jclass clazz, jlong handle) {
+	CallTempStruct* s = (CallTempStruct*)(size_t)handle;
+	dcFree(s->vm);
+	free(s);	
+}
+CallTempStruct* getTempCallStruct(JNIEnv* env) {
+	jlong handle = (*env)->CallStaticLongMethod(env, gBridJClass, gGetTempCallStruct);
+	return (CallTempStruct*)(size_t)handle;
+}
+void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
+	(*env)->CallStaticVoidMethod(env, gBridJClass, gReleaseTempCallStruct, (size_t)s);
+}
+
+
 JNIEXPORT jint JNICALL Java_com_bridj_JNI_getMaxDirectMappingArgCount(JNIEnv *env, jclass clazz) {
 #if defined(_WIN64)
 	return 4;
@@ -303,7 +337,8 @@ void initCommonCallInfo(
 	jint callMode,
 	jint nParams,
 	jint returnValueType, 
-	jintArray paramsValueTypes
+	jintArray paramsValueTypes,
+	jobjectArray callIOs
 ) {
 	info->fEnv = env;
 	info->fDCMode = callMode;
@@ -314,6 +349,23 @@ void initCommonCallInfo(
 		(*env)->GetIntArrayRegion(env, paramsValueTypes, 0, nParams, (jint*)info->fParamTypes);
 	}
 	info->fDCReturnType = getDCReturnType(env, info->fReturnType);
+	
+	if (callIOs) 
+	{
+		jsize n = (*env)->GetArrayLength(env, callIOs), i;
+		if (n)
+		{
+			info->fCallIOs = (jobject*)malloc((n + 1) * sizeof(jobject));
+			for (i = 0; i < n; i++) {
+				jobject obj = (*env)->GetObjectArrayElement(env, callIOs, i);
+				if (obj)
+					obj = (*env)->NewGlobalRef(env, obj);
+				info->fCallIOs[i] = obj;
+			}
+			info->fCallIOs[n] = NULL;
+		}
+	}
+	
 }
 
 void* getJNICallFunction(JNIEnv* env, ValueType valueType) {
@@ -427,10 +479,20 @@ void registerJavaFunction(JNIEnv* env, jclass declaringClass, jstring methodName
 	(*env)->ReleaseStringUTFChars(env, methodSignature, meth.signature);
 }
 
-void freeCommon(CommonCallbackInfo* info)
+void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 {
 	if (info->nParams)
 		free(info->fParamTypes);
+	
+	if (info->fCallIOs)
+	{
+		jobject* ptr = info->fCallIOs;
+		while (*ptr) {
+			(*env)->DeleteGlobalRef(env, *ptr);
+			ptr++;
+		}
+		free(info->fCallIOs);
+	}
 	
 #ifdef _DEBUG
 	if (info->fSymbolName)
@@ -456,7 +518,8 @@ void freeCommon(CommonCallbackInfo* info)
 		jboolean 	direct		 		= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_direct		 		);   \
 		jboolean 	startsWithThis		= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_startsWithThis 		);   \
 		jboolean 	bNeedsThisPointer	= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_bNeedsThisPointer 		);   \
-		jsize		nParams				= (*env)->GetArrayLength(	env, paramsValueTypes);
+		jsize		nParams				= (*env)->GetArrayLength(	env, paramsValueTypes									);	 \								
+		jobjectArray callIOs			= (*env)->CallObjectMethod(	env, methodCallInfo, gGetCallIOsMethod					);
 		
 #define BEGIN_INFOS_LOOP(type)                                                                                           \
 	jsize i, n = (*env)->GetArrayLength(env, methodCallInfos);															 \
@@ -480,7 +543,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback(
 		const char* dcSig, *javaSig, *methName;
 		GET_INFO_FIELDS();
 		{
-			info = (struct NativeToJavaCallbackCallInfo*)malloc(sizeof(struct NativeToJavaCallbackCallInfo));
+			info = MALLOC_STRUCT(NativeToJavaCallbackCallInfo);
 			memset(info, 0, sizeof(struct NativeToJavaCallbackCallInfo));
 			
 			// TODO DIRECT C++ virtual thunk
@@ -490,6 +553,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback(
 
 			info->fInfo.fDCCallback = dcbNewCallback(dcSig, NativeToJavaCallHandler, info);
 			info->fCallbackInstance = (*env)->NewGlobalRef(env, javaCallback);
+			//printf("GetMethodIDOrFail of %s with signature %s \n", methName, javaSig);
 			info->fMethod = GetMethodIDOrFail(env, declaringClass, methName, javaSig);
 			
 			info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
@@ -500,7 +564,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback(
 			(*env)->ReleaseStringUTFChars(env, methodName, methName);
 			(*env)->ReleaseStringUTFChars(env, dcSignature, dcSig);
 			
-			initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
+			initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
 		}
 	}
 	return (jlong)(size_t)info;
@@ -520,7 +584,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCToJavaCallback(
 ) {
 	struct NativeToJavaCallbackCallInfo* info = (struct NativeToJavaCallbackCallInfo*)(size_t)handle;
 	(*env)->DeleteGlobalRef(env, info->fCallbackInstance);
-	freeCommon(&info->fInfo);
+	freeCommon(env, &info->fInfo);
 	free(info);
 }
 
@@ -540,7 +604,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaToCCallbacks(
 		info->fInfo.fDCCallback = dcbNewCallback(dcSig, JavaToNativeCallHandler/* NativeToJavaCallHandler*/, info);
 		(*env)->ReleaseStringUTFChars(env, dcSignature, dcSig);
 			
-		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
+		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
 		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
 #ifdef _DEBUG
 			&info->fInfo,
@@ -561,7 +625,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeJavaToCCallbacks(
 	if (!infos)
 		return;
 	for (i = 0; i < size; i++) {
-		freeCommon(&infos[i].fInfo);
+		freeCommon(env, &infos[i].fInfo);
 	}
 	free(infos);
 }
@@ -613,7 +677,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindGetters(
 		info->fInfo.fDCCallback = dcbNewCallback(ds, StructHandler, info);
 		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 		
-		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
+		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
 		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
 #ifdef _DEBUG
 			&info->fInfo,
@@ -642,7 +706,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeGetters(
 	if (!infos)
 		return;
 	for (i = 0; i < size; i++) {
-		freeCommon(&infos[i].fInfo);
+		freeCommon(env, &infos[i].fInfo);
 	}
 	free(infos);
 }
@@ -665,7 +729,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCFunctions(
 			info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToFunctionCallHandler, info);
 			(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 		}
-		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
+		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
 		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
 #ifdef _DEBUG
 			&info->fInfo,
@@ -686,7 +750,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCFunctionBindings(
 	if (!infos)
 		return;
 	for (i = 0; i < size; i++) {
-		freeCommon(&infos[i].fInfo);
+		freeCommon(env, &infos[i].fInfo);
 	}
 	free(infos);
 }
@@ -706,7 +770,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCPPMethods(
 			info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToCPPMethodCallHandler, info);
 			(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 		}
-		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
+		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
 		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
 #ifdef _DEBUG
 			&info->fInfo,
@@ -728,7 +792,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCPPMethodBindings(
 		return;
 	for (i = 0; i < size; i++) {
 		(*env)->DeleteGlobalRef(env, infos[i].fClass);
-		freeCommon(&infos[i].fInfo);
+		freeCommon(env, &infos[i].fInfo);
 	}
 	free(infos);
 }
@@ -754,7 +818,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToObjCMethods(
 		(*env)->ReleaseStringUTFChars(env, symbolName, methName);
 		
 		
-		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
+		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
 		registerJavaFunction(env, declaringClass, methodName, javaSignature, info->fInfo.fDCCallback);
 	}
 	END_INFOS_LOOP()
@@ -776,7 +840,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeObjCMethodBindings(
 	if (!infos)
 		return;
 	for (i = 0; i < size; i++) {
-		freeCommon(&infos[i].fInfo);
+		freeCommon(env, &infos[i].fInfo);
 	}
 	free(infos);
 #endif
@@ -804,7 +868,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToVirtualMethods(
 		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 		
 		
-		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes);
+		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
 		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
 #ifdef _DEBUG
 			&info->fInfo,
@@ -826,7 +890,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeVirtualMethodBindings(
 		return;
 	for (i = 0; i < size; i++) {
 		(*env)->DeleteGlobalRef(env, infos[i].fClass);
-		freeCommon(&infos[i].fInfo);
+		freeCommon(env, &infos[i].fInfo);
 	}
 	free(infos);
 }

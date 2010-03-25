@@ -6,8 +6,10 @@
 package com.bridj.cpp.com.shell;
 
 import com.bridj.FlagSet;
+import com.bridj.IntValuedEnum;
 import com.bridj.Pointer;
 import com.bridj.StructObject;
+import com.bridj.ValuedEnum;
 import com.bridj.ann.Array;
 import com.bridj.ann.Field;
 import com.bridj.ann.Virtual;
@@ -25,9 +27,9 @@ public class ITaskbarList3 extends ITaskbarList2 {
 		THUMBBUTTONMASK(int value) {
 			this.value = value;
 		}
-		final int value;
+		public final int value;
         @Override
-		public int getValue() {
+		public long value() {
 			return value;
 		}
 	}
@@ -79,15 +81,16 @@ public class ITaskbarList3 extends ITaskbarList2 {
 		TbpFlag(int value) {
 			this.value = value;
 		}
-		final int value;
-		public int getValue() {
+		public final int value;
+		@Override
+		public long value() {
 			return value;
 		}
     }
 
 
 	//@Virtual(1) public native int SetProgressState(Pointer<Integer> hWnd, FlagSet<TbpFlag> Flags);
-	@Virtual(1) public native int SetProgressState(Pointer<Integer> hWnd, int Flags);
+	@Virtual(1) public native int SetProgressState(Pointer<Integer> hWnd, ValuedEnum<TbpFlag> Flags);
     
 	@Virtual(2) public native void RegisterTab(Pointer<Integer> hWndTab, Pointer<Integer> hWndMDI);
 	@Virtual(3) public native void UnregisterTab(Pointer<Integer> hWndTab);
