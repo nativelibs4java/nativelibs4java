@@ -72,10 +72,10 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		case eBooleanValue:
 		CALL_CASE(eByteValue, Char, CHAR, c)
 		case eCLongValue:
-			result->l = dcCallLong(call->vm, callback);
+			result->l = (jlong)dcCallLong(call->vm, callback);
 			break;
 		case eSizeTValue:
-			result->p = dcCallPointer(call->vm, callback);
+		    result->l = (jlong)(size_t)dcCallPointer(call->vm, callback);
 			break;
 		case eVoidValue:
 			dcCallVoid(call->vm, callback);

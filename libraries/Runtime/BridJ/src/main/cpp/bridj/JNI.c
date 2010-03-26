@@ -320,9 +320,9 @@ char getDCReturnType(JNIEnv* env, ValueType returnType)
 		case eBooleanValue:
 		CALL_CASE(eByteValue, Char, CHAR, c)
 		case eCLongValue:
-			return DC_SIGCHAR_LONG;
+			return DC_SIGCHAR_LONGLONG;
 		case eSizeTValue:
-			return DC_SIGCHAR_LONG;
+			return DC_SIGCHAR_LONGLONG;
 		case eVoidValue:
 			return DC_SIGCHAR_VOID;
 		case ePointerValue:

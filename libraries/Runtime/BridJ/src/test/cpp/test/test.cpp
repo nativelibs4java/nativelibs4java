@@ -208,7 +208,16 @@ typedef int (*fun_iii)(int, int);
 int add(int a, int b) {
 	return a + b;
 }
+TEST_API void* getAdder_pvoid() {
+	return (void*)(size_t)10;
+}
+TEST_API jlong getAdder_long() {
+	return (jlong)10;
+}
 TEST_API fun_iii getAdder() {
+	return add;
+}
+TEST_API fun_iii getAdder_raw() {
 	return add;
 }
 TEST_API int forwardCall(fun_iii f, int a, int b) {

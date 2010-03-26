@@ -13,6 +13,7 @@ import com.bridj.ann.Convention;
 import com.bridj.ann.Field;
 import com.bridj.ann.Library;
 import com.bridj.ann.Ptr;
+import com.bridj.ann.Name;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
 import com.bridj.cpp.CPPRuntime;
@@ -267,6 +268,21 @@ public class TestCPP {
 	}
 	
 	public static void testNativeTargetCallbacks() {
+		long rawadder = getAdder_raw();
+		if (rawadder != 0)
+			System.out.println("Returned non null raw adder, cool (" + Long.toHexString(rawadder) + ") !");
+		else
+			System.out.println("Returned null raw adder !");
+		long longadder = getAdder_long();
+		if (longadder != 0)
+			System.out.println("Returned non null longadder, cool (" + Long.toHexString(longadder) + ") !");
+		else
+			System.out.println("Returned null longadder !");
+		long getAdder_pvoid = getAdder_pvoid();
+		if (getAdder_pvoid != 0)
+			System.out.println("Returned non null getAdder_pvoid, cool (" + Long.toHexString(getAdder_pvoid) + ") !");
+		else
+			System.out.println("Returned null getAdder_pvoid !");
 		Pointer<com.bridj.TestCPP.MyCallback> ptr = getAdder();
         if (ptr == null)
             throw new RuntimeException("getAdder returned null adder !!!");
@@ -279,6 +295,11 @@ public class TestCPP {
 	
 	static native int forwardCall(Pointer<MyCallback> cb, int a, int b);
 	static native Pointer<MyCallback> getAdder();
+	@Name("getAdder")
+	static native @Ptr long getAdder_raw();
+	
+	static native @Ptr long getAdder_pvoid();
+	static native long getAdder_long();
 	
 	public static abstract class MyCallback extends Callback {
 		public abstract int doSomething(int a, int b); 
