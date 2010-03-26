@@ -51,6 +51,8 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 			
 		}
 	}
+	if ((*env)->ExceptionCheck(env))
+		return JNI_FALSE;
 	return JNI_TRUE;
 }
 
@@ -96,6 +98,8 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 			throwException(env, "Invalid return value type !");
 			return JNI_FALSE;
 	}
+	if ((*env)->ExceptionCheck(env))
+		return JNI_FALSE;
 	return JNI_TRUE;
 }
 

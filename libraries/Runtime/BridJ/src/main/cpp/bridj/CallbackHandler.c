@@ -9,6 +9,12 @@ char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJa
 	
 	dcMode(call->vm, 0);
 	
+	if (!info->fCallbackInstance)
+	{
+		throwException(env, "Trying to call a null callback instance !");
+		cleanupCallHandler(call);
+		return info->fInfo.fDCReturnType;
+	}
 	dcArgPointer(call->vm, (DCpointer)call->env);
 	dcArgPointer(call->vm, info->fCallbackInstance);
 	dcArgPointer(call->vm, info->fMethod);

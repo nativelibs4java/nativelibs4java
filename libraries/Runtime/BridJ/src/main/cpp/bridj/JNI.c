@@ -140,7 +140,7 @@ jobject createPointer(JNIEnv *env, void* ptr, jclass targetType) {
 
 void* getPointerPeer(JNIEnv *env, jobject pointer) {
 	initMethods(env);
-	return (void*)(size_t)(*env)->CallLongMethod(env, pointer, gGetPeerMethod, pointer);
+	return pointer ? (void*)(size_t)(*env)->CallLongMethod(env, pointer, gGetPeerMethod, pointer) : NULL;
 }
 
 void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass) {
