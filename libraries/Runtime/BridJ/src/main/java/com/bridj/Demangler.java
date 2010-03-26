@@ -252,7 +252,7 @@ public abstract class Demangler {
 		if (type instanceof ParameterizedType) {
 			ParameterizedType pt = (ParameterizedType)type;
 			Class<?> c = (Class<?>)pt.getRawType();
-			if (c == FlagSet.class) {
+			if (ValuedEnum.class.isAssignableFrom(c)) {
 				Type[] types = pt.getActualTypeArguments();
 				if (types == null || types.length != 1)
 					c = int.class;
@@ -278,6 +278,9 @@ public abstract class Demangler {
             Class<?> typec = Demangler.getTypeClass(type);
             if ((type == Long.TYPE && Pointer.class.isAssignableFrom(tc)) ||
                     (Pointer.class.isAssignableFrom(typec) && tc == Long.TYPE))
+                return true;
+
+            if ((tc == Integer.class || tc == int.class) && ValuedEnum.class.isAssignableFrom(typec))
                 return true;
             
 			return typec.equals(tc); // TODO isAssignableFrom or the opposite, depending on context

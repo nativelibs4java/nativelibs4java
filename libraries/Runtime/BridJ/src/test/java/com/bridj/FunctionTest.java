@@ -39,14 +39,22 @@ public class FunctionTest {
     		return value;
     	}
     }
-    public static native FlagSet<ETest> testEnum(FlagSet<ETest> e);
+    public static native ValuedEnum<ETest> testEnum(ValuedEnum<ETest> e);
     
     @Test
     public void add() {
 		int res = testAddDyncall(10, 4);
 		assertEquals(14, res);
     }
-    
+
+    @Test
+    public void testEnumCalls() {
+        for (ETest e : ETest.values()) {
+            ValuedEnum<ETest> r = testEnum(e);
+            assertEquals(e.value(), r.value());
+            //assertEquals(e, r);
+        }
+    }
     @Test
     public void enu() {
     	for (ETest v : ETest.values())

@@ -1,5 +1,6 @@
 package com.bridj;
 
+import com.bridj.Dyncall.CallingConvention;
 import java.io.FileNotFoundException;
 
 import java.util.Collection;
@@ -8,6 +9,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.bridj.ann.Constructor;
+import com.bridj.ann.Convention;
 import com.bridj.ann.Library;
 import com.bridj.ann.Symbol;
 import com.bridj.ann.Ptr;
@@ -42,16 +44,16 @@ public class CPPTest {
         assertEquals(baseRes, c);
 
         c = instance.testVirtualAddStdCall(null, a, b);
-		assertEquals(baseRes, c);
+		assertEquals("testVirtualAddStdCall", baseRes, c);
 
         c = instance.testVirtualAddStdCall(Pointer.allocateInt(), a, b);
-		assertEquals(0, c);
+		assertEquals("testVirtualAddStdCall", 0, c);
 
         c = instance.testAddStdCall(null, a, b);
-		assertEquals(baseRes, c);
+		assertEquals("testAddStdCall", baseRes, c);
 
         c = instance.testAddStdCall(Pointer.allocateInt(), a, b);
-		assertEquals(0, c);
+		assertEquals("testAddStdCall", 0, c);
 	}
 	
 	@Library("test")
@@ -66,8 +68,10 @@ public class CPPTest {
 		public native int testAdd(int a, int b);
 
         @Virtual
+        @Convention(Convention.Style.StdCall)
 		public native int testVirtualAddStdCall(Pointer<?> ptr, int a, int b);
 
+		@Convention(Convention.Style.StdCall)
 		public native int testAddStdCall(Pointer<?> ptr, int a, int b);
 	}
 	static class Ctest2 extends Ctest {

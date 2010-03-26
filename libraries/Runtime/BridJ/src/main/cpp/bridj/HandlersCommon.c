@@ -99,18 +99,19 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 	return JNI_TRUE;
 }
 
-jobject initCallHandler(DCArgs* args, CallTempStruct** callOut) 
+jobject initCallHandler(DCArgs* args, CallTempStruct** callOut, JNIEnv* env) 
 {
-	JNIEnv* env = NULL;
 	jobject instance = NULL;
-	
+
 	if (args) {
 		env = (JNIEnv*)dcbArgPointer(args); // first arg = Java env
 		instance = dcbArgPointer(args); // skip second arg = jclass or jobject
 	}
-	
-	*callOut = getTempCallStruct(env);
-	(*callOut)->env = env;
+	if (env) {
+		*callOut = getTempCallStruct(env);
+		(*callOut)->env = env;
+	} else
+		*callOut = NULL;
 
 	return instance;
 }

@@ -1,11 +1,9 @@
 #include "HandlersCommon.h"
 
-void callDefaultConstructor(void* constructor, void* thisPtr, int callMode)
+void callDefaultConstructor(JNIEnv* env, void* constructor, void* thisPtr, int callMode)
 {
 	CallTempStruct* call;
-	JNIEnv* env;
-	initCallHandler(NULL, &call);
-	env = call->env;
+	initCallHandler(NULL, &call, env);
 	
 	dcMode(call->vm, callMode);
 	dcArgPointer(call->vm, thisPtr);
@@ -32,7 +30,7 @@ void* getNthVirtualMethodFromThis(JNIEnv* env, void* thisPtr, size_t virtualTabl
 char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, VirtualMethodCallInfo *info)
 {
 	CallTempStruct* call;
-	jobject instance = initCallHandler(args, &call);
+	jobject instance = initCallHandler(args, &call, NULL);
 	JNIEnv* env = call->env;
 
 	void* callback;
@@ -101,7 +99,7 @@ char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, CPPMeth
 {
 	CallTempStruct* call;
 	void* thisPtr;
-	jobject instance = initCallHandler(args, &call);
+	jobject instance = initCallHandler(args, &call, NULL);
 	JNIEnv* env = call->env;
 	
 	dcMode(call->vm, info->fInfo.fDCMode);

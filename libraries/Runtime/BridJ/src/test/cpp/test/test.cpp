@@ -145,6 +145,14 @@ ETest testEnum(ETest e)
 {
 	return e;	
 }
+ETest testVoidEnum()
+{
+	return (ETest)0;	
+}
+ETest testIntEnum(int i, ETest e)
+{
+	return e;	
+}
 
 void Ctest::static_void() {
 	

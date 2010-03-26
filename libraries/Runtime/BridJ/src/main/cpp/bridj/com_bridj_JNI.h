@@ -777,6 +777,14 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCFunctions
 
 /*
  * Class:     com_bridj_JNI
+ * Method:    bindJavaMethodsToCPPMethods
+ * Signature: ([Lcom/bridj/MethodCallInfo;)J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCPPMethods
+  (JNIEnv *, jclass, jobjectArray);
+
+/*
+ * Class:     com_bridj_JNI
  * Method:    bindJavaMethodsToVirtualMethods
  * Signature: ([Lcom/bridj/MethodCallInfo;)J
  */
@@ -817,6 +825,14 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeJavaToCCallbacks
 
 /*
  * Class:     com_bridj_JNI
+ * Method:    freeCPPMethodBindings
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCPPMethodBindings
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_bridj_JNI
  * Method:    freeCFunctionBindings
  * Signature: (JI)V
  */
@@ -830,6 +846,22 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCFunctionBindings
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeVirtualMethodBindings
   (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    createCallTempStruct
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallTempStruct
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    deleteCallTempStruct
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_deleteCallTempStruct
+  (JNIEnv *, jclass, jlong);
 
 /*
  * Class:     com_bridj_JNI

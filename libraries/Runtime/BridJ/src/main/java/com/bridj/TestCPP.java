@@ -9,6 +9,7 @@ import com.bridj.NativeLibrary;
 import com.bridj.Pointer;
 import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Array;
+import com.bridj.ann.Convention;
 import com.bridj.ann.Field;
 import com.bridj.ann.Library;
 import com.bridj.ann.Ptr;
@@ -99,20 +100,13 @@ public class TestCPP {
             BridJ.register(MyCallback.class);
             BridJ.register();
 
-            TaskbarListDemo.main(null);
+            testNativeTargetCallbacks();
+            testJavaTargetCallbacks();
+
             if (true)
                 return;
 
-            testNativeTargetCallbacks();
-            testJavaTargetCallbacks();
-        	
-            IShellWindows win = COMRuntime.newInstance(IShellWindows.class);
-                IUnknown iu = win.QueryInterface(IUnknown.class);
-                if (iu == null)
-                    throw new RuntimeException("Interface does not handle IUnknown !");
-                win.Release();
-
-                long crea = Ctest.createTest();
+            long crea = Ctest.createTest();
             crea = Pointer.pointerToAddress(crea).getPointer(0).getPeer();
             print("Ctest.createTest()", crea, 10, 0);
             Ctest test = new Ctest();
@@ -121,6 +115,21 @@ public class TestCPP {
             print("Ctest.this", Pointer.getPeer(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
             int res = test.testAdd(1, 2);
             System.out.println("res = " + res);
+            res = test.testVirtualAdd(1, 2);
+            System.out.println("res = " + res);
+
+            res = test.testVirtualAddStdCall(null, 1, 2);
+            System.out.println("res = " + res);
+            res = test.testAddStdCall(null, 1, 2);
+            System.out.println("res = " + res);
+
+            TaskbarListDemo.main(null);
+
+            IShellWindows win = COMRuntime.newInstance(IShellWindows.class);
+                IUnknown iu = win.QueryInterface(IUnknown.class);
+                if (iu == null)
+                    throw new RuntimeException("Interface does not handle IUnknown !");
+                win.Release();
 
             try {
                 new FunctionTest().add();
@@ -202,9 +211,19 @@ public class TestCPP {
 		
 		
 		@Virtual
+        public native int testVirtualAdd(int a, int b);
+
 //		protected static native int testAdd(@This long thisPtr, int a, int b);
 		public native int testAdd(int a, int b);
-		
+
+
+        @Virtual
+        @Convention(Convention.Style.StdCall)
+		public native int testVirtualAddStdCall(Pointer<?> ptr, int a, int b);
+
+		@Convention(Convention.Style.StdCall)
+		public native int testAddStdCall(Pointer<?> ptr, int a, int b);
+        
 //		public int testAdd(int a, int b) {
 //			//print("this", Pointer.getAddress(this, Ctest.class), 10, 10);
 //			//print("*this", $this.getPointer(0).getPeer(), 10, 10);

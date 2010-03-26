@@ -116,8 +116,10 @@ jobject newFlagSet(JNIEnv *env, jlong value)
 jmethodID GetMethodIDOrFail(JNIEnv* env, jclass declaringClass, const char* methName, const char* javaSig)
 {
 	jmethodID id = (*env)->GetStaticMethodID(env, declaringClass, methName, javaSig);
-	if (!id)
+	if (!id) {
+		(*env)->ExceptionClear(env);
 		id = (*env)->GetMethodID(env, declaringClass, methName, javaSig);
+	}
 	if (!id)
 		throwException(env, "Couldn't find this method !");
 	
@@ -175,7 +177,7 @@ void JNICALL Java_com_bridj_JNI_init(JNIEnv *env, jclass clazz)
 
 void JNICALL Java_com_bridj_JNI_callDefaultCPPConstructor(JNIEnv *env, jclass clazz, jlong constructor, jlong thisPtr, jint callMode)
 {
-	callDefaultConstructor((void*)(size_t)constructor, (void*)(size_t)thisPtr, callMode);
+	callDefaultConstructor(env, (void*)(size_t)constructor, (void*)(size_t)thisPtr, callMode);
 }
 
 jlong JNICALL Java_com_bridj_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
@@ -279,7 +281,8 @@ CallTempStruct* getTempCallStruct(JNIEnv* env) {
 }
 void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
 	//s->env = NULL;
-	(*env)->CallStaticVoidMethod(env, gBridJClass, gReleaseTempCallStruct, (size_t)s);
+	jlong h = (jlong)(size_t)s;
+	(*env)->CallStaticVoidMethod(env, gBridJClass, gReleaseTempCallStruct, h);
 }
 
 

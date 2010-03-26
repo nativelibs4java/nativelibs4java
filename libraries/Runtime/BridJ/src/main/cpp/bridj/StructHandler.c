@@ -5,7 +5,7 @@ extern jclass gStructFieldsIOClass;
 char __cdecl doStructHandler(DCArgs* args, DCValue* result, StructFieldInfo *info)
 {
 	CallTempStruct* call;
-	jobject instance = initCallHandler(args, &call);
+	jobject instance = initCallHandler(args, &call, NULL);
 	JNIEnv* env = call->env;
 	
 	dcMode(call->vm, DC_CALL_C_DEFAULT);

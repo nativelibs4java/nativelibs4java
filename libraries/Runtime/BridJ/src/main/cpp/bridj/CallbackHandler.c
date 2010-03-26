@@ -5,7 +5,7 @@ char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJa
 	CallTempStruct* call;
 	jthrowable exc;
 	JNIEnv *env = info->fInfo.fEnv;
-	initCallHandler(NULL, &call);
+	initCallHandler(NULL, &call, env);
 	
 	dcMode(call->vm, 0);
 	
@@ -32,7 +32,7 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, JavaToNati
 {
 	void* callback;
 	CallTempStruct* call;
-	jobject instance = initCallHandler(args, &call);
+	jobject instance = initCallHandler(args, &call, NULL);
 	
 	dcMode(call->vm, info->fInfo.fDCMode);
 	callback = getNativeObjectPointer(call->env, instance, NULL);

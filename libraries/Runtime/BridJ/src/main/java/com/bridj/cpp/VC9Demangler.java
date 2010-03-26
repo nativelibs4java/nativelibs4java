@@ -22,6 +22,7 @@ import com.bridj.ann.Convention;
 import com.bridj.ann.Wide;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Collection;
 
 public class VC9Demangler extends Demangler {
 	public VC9Demangler(NativeLibrary library, String str) {
@@ -307,6 +308,9 @@ public class VC9Demangler extends Demangler {
             if (!allowVoid)
                 return null;
 			return classType(Void.TYPE);
+        case '?':
+            parseCVClassModifier(); // TODO do something with this !
+            return parseType(allowVoid);
         case 'A': // reference
         case 'B': // volatile reference
         case 'P': // pointer
@@ -335,7 +339,7 @@ public class VC9Demangler extends Demangler {
         case 'T': // union
 			//System.out.println("Found struct, class or union");
             return parseQualifiedTypeName();
-        case 'W':
+        case 'W': // enum
             Class<?> cl;
             switch (consumeChar()) {
                 case '0':
@@ -554,13 +558,20 @@ public class VC9Demangler extends Demangler {
 			b.append(c);
 
 		String name = b.toString();
-		//allQualifiedNames.add(Collections.singletonList(name));
+		allQualifiedNames.add(Collections.singletonList(name));
 		return name;
 	}
 
     private void parseNameQualifications(List<Object> names) throws DemanglingException {
-        if (Character.isDigit(peekChar()))
-            throw error("No support of back references in name qualifications yet", 0);
+        if (Character.isDigit(peekChar())) {
+            try {
+                names.add(((Collection)allQualifiedNames.get(consumeChar() - '0')).iterator().next());
+                expectChars('@');
+                return;
+            } catch (Exception ex) {
+                throw error("Invalid back references in name qualifications", -1);
+            }
+        }
 
         while (peekChar() != '@')
             names.add(parseNameQualification());

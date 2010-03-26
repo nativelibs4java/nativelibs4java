@@ -66,6 +66,9 @@ public class BridJ {
 		}
 		public void release(long handle) {
 			assert count > 0;
+            //long h = handles.get(count - 1).longValue();
+            //if (h != handle)
+            //    throw new RuntimeException("Releasing temp call struct handle " + Long.toHexString(handle) + ", expected " + Long.toHexString(h) + " = " + h + " from " + handles);
 			assert handle == handles.get(count - 1).longValue();
 			count--;
 		}

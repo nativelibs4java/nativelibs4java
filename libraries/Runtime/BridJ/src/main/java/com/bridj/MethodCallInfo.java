@@ -218,7 +218,7 @@ public class MethodCallInfo {
         	direct = false;
         	return ValueType.eEllipsis;
         }
-        if (c == FlagSet.class) {
+        if (c == ValuedEnum.class) {//.isAssignableFrom(c)) {
         	direct = false;
         	return ValueType.eIntFlagSet;
         }
@@ -296,7 +296,7 @@ public class MethodCallInfo {
                 break;
             case eIntFlagSet:
             	dcChar = DC_SIGCHAR_INT;
-            	javaChar = "Lcom/bridj/FlagSet;";
+            	javaChar = "Lcom/bridj/ValuedEnum;";
             	direct = false;
             	break;
             case ePointerValue:

@@ -144,7 +144,7 @@ void* getNativeObjectPointer(JNIEnv* env, jobject instance, jclass targetClass);
 void* getPointerPeer(JNIEnv *env, jobject pointer);
 jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
 
-void callDefaultConstructor(void* constructor, void* thisPtr, int callMode);
+void callDefaultConstructor(JNIEnv *env, void* constructor, void* thisPtr, int callMode);
 jlong getFlagValue(JNIEnv *env, jobject flagSet);
 jobject newFlagSet(JNIEnv *env, jlong value);
 

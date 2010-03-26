@@ -212,6 +212,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		try {
             Class<?> c = instance.getClass();
 			MethodCallInfo mci = new MethodCallInfo(getUniqueAbstractCallbackMethod(c));
+            mci.setDeclaringClass(c);
             mci.setJavaCallback(instance);
             final long handle = JNI.createCToJavaCallback(mci);
             long peer = JNI.getActualCToJavaCallback(handle);

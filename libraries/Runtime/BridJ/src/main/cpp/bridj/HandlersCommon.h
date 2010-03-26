@@ -6,5 +6,5 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 
 jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback);
 
-jobject initCallHandler(DCArgs* args, CallTempStruct** callOut);
+jobject initCallHandler(DCArgs* args, CallTempStruct** callOut, JNIEnv* env);
 void cleanupCallHandler(CallTempStruct* call);
