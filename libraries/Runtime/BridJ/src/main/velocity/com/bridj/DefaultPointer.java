@@ -39,11 +39,12 @@ class DefaultPointer<T> extends Pointer<T>
 		
 		if (memoryOwner != null) {
 			if (memoryOwner instanceof Pointer)
-				((Pointer)memoryOwner).setSizeT(0, 0);
-			else
-				return;
-		}
-		this.peerOrOffsetInOwner = 0;
+				((Pointer)memoryOwner).setSizeT(this.peerOrOffsetInOwner, 0);
+			memoryOwner = null;
+			return;
+		} else
+			this.peerOrOffsetInOwner = 0;
+			
 		free(peer);
     }
     

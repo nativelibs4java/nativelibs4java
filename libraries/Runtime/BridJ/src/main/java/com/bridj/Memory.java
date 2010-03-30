@@ -14,11 +14,14 @@ import java.util.logging.Level;
 class Memory<T> extends DefaultPointer<T> {
     protected final long validStart, validSize;
 
+    //Exception creation;
     Memory(PointerIO<T> io, long peer, long validStart, long validSize, Object memoryOwner) {
         super(io, peer);
         this.validStart = validStart;
         this.validSize = validSize;
         this.memoryOwner = memoryOwner;
+        //creation = new Exception();
+        //creation.getStackTrace();
         //assert (getPeer() % 8) == 0; 
     }
     Memory(PointerIO<T> io, long peer, long validSize, Object memoryOwner) {
@@ -83,7 +86,12 @@ class Memory<T> extends DefaultPointer<T> {
         		BridJ.log(Level.SEVERE, "Freeing memory that wasn't malloced here !");
         }*/
         
+        if (memoryOwner != null)
+        	return;
+        
         //BridJ.log(Level.SEVERE, "Leaking memory at address " + peer + " to avoid the free() crash.");
+        //new Exception().printStackTrace();
+        //creation.printStackTrace();
         JNI.free(peer);
     }
     
@@ -108,7 +116,7 @@ class Memory<T> extends DefaultPointer<T> {
         PointerIO<T> io = getIO();
         int size = io != null ? io.getTargetSize() : 1;
         Memory<T> p = new Memory<T>(io, getCheckedPeer(byteOffset, size), validStart + byteOffset, validSize, memoryOwner == null ? this : memoryOwner);
-		p.memoryOwner = memoryOwner;
+		//p.memoryOwner = memoryOwner;
 		p.peerOrOffsetInOwner += byteOffset;
         return p;
     }
