@@ -251,9 +251,16 @@ public class NativeLibrary {
 				continue;
 			
 			long addr = JNI.findSymbolInLibrary(getHandle(), name);
-			if (name.startsWith("_")) {
-				name = name.substring(1);
-				addr = JNI.findSymbolInLibrary(getHandle(), name);
+			if (addr == 0 && name.startsWith("_")) {
+				String n2 = name.substring(1);
+				addr = JNI.findSymbolInLibrary(getHandle(), n2);
+                if (addr == 0) {
+                    n2 = "_" + name;
+                    addr = JNI.findSymbolInLibrary(getHandle(), n2);
+                }
+                if (addr != 0)
+                    name = n2;
+
 			}
 			if (addr == 0) {
 				System.out.println("Symbol '" + name + "' not found.");
