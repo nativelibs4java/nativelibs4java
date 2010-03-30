@@ -1,6 +1,6 @@
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 563)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 576)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(working copy)
 @@ -49,8 +49,7 @@
  
@@ -12,22 +12,9 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
  	and			rax, 15
  	sub			rsp, rax
  
-Index: /Users/ochafik/src/dyncall/dyncallback/dyncall_callback_x86_masm.asm
-===================================================================
---- /Users/ochafik/src/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 563)
-+++ /Users/ochafik/src/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(working copy)
-@@ -101,6 +101,8 @@
-   je return_i64
-   cmp al, 'i'
-   je return_i32
-+  cmp al, 'p'
-+  je return_i32
-   ret
- 
- return_i32:
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 563)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 576)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(working copy)
 @@ -23,6 +23,10 @@
   dynamic symbol resolver for elf
@@ -40,12 +27,127 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
  
  #include "dynload.h"
  #include "dynload_macros.h"
-@@ -411,7 +415,7 @@
+Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(revision 576)
++++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(working copy)
+@@ -95,15 +95,18 @@
  
- const char* dlSymsNameFromValue(DLSyms* pSyms, void* value)
- {
--  struct Dl_info info;
-+  Dl_info info;
-   return (dladdr(value, &info) && (value == info.dli_saddr))
-     ? info.dli_sname
-     : NULL;
+ 	// handle return value
+ 
++	cmp %al, 'v'
++	je .return_void
+ 	cmp %al, 'd'
+ 	je .return_f64
+ 	cmp %al, 'f'
+ 	je .return_f32
+ 	cmp %al, 'l'
+ 	je .return_i64
+-	cmp %al, 'i'
+-	je .return_i32
+-	ret
++	cmp %al, 'L'
++	je .return_i64
++	
++	// All int cases <= 32 bits (+ pointer & string cases) fall in the 32 bits int case
+ 
+ .return_i32:
+ 	mov  %eax, [%edx]
+@@ -121,3 +124,6 @@
+ .return_f64:
+ 	fld qword ptr [%edx]
+ 	ret
++
++.return_void:
++	ret
+Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 576)
++++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(working copy)
+@@ -93,16 +93,19 @@
+   mov  ebp, [ebp]                    ; EBP = parent frame
+ 
+   ; handle return value
++  
++  cmp al, 'v'
++  je return_void
+   cmp al, 'd'
+   je return_f64
+   cmp al, 'f'
+   je return_f32
+   cmp al, 'l'
+   je return_i64
+-  cmp al, 'i'
+-  je return_i32
+-  ret
+-
++  cmp al, 'L'
++  je return_i64
++  ; All int cases <= 32 bits (+ pointer & string cases) fall in the 32 bits int case
++  
+ return_i32:
+   mov  eax, [edx]
+   ret
+@@ -120,6 +123,9 @@
+   fld qword ptr [edx]
+   ret
+ 
++return_void:
++  ret
++
+ _dcCallbackThunkEntry ENDP
+ 
+ END
+Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(revision 576)
++++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(working copy)
+@@ -44,10 +44,12 @@
+ frame_DCArgs       = -24
+ frame_DCValue      = -32
+ 
++ASCII_L = 76
+ ASCII_l = 108
+ ASCII_d	= 100
+ ASCII_f = 102
+ ASCII_i = 105
++ASCII_v = 118
+ 
+ _dcCallbackThunkEntry:
+ 	push %ebp
+@@ -96,21 +98,25 @@
+ 
+ 	// handle return value
+ 
++	cmp %al, ASCII_v
++	je .return_void
+ 	cmp %al, ASCII_d
+ 	je .return_f64
+ 	cmp %al, ASCII_f
+ 	je .return_f32
+ 	cmp %al, ASCII_l
+ 	je .return_i64
+-	cmp %al, ASCII_i
+-	je .return_i32
+-	ret
++	cmp %al, ASCII_L
++	je .return_i64_
++	
++	// All int cases <= 32 bits (+ pointer & string cases) fall in the 32 bits int case	
+ 
+ .return_i32:
+ 	mov  %eax, [%edx]
+ 	ret
+ 
+ .return_i64:
++.return_i64_:
+ 	mov  %eax, [%edx]
+ 	mov  %edx, [%edx+4]
+ 	ret
+@@ -122,3 +128,6 @@
+ .return_f64:
+ 	fld qword ptr [%edx]
+ 	ret
++
++.return_void:
++	ret
