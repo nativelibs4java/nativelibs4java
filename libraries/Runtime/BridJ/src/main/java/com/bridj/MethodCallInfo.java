@@ -138,7 +138,7 @@ public class MethodCallInfo {
         symbolName = methodName;
         //this.direct = false; // TODO remove me !
         
-        BridJ.log(Level.INFO, (direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
+        assert BridJ.log(Level.INFO, (direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
     }
 	void addCallIO(CallIO handler) {
 		if (callIOs == null)

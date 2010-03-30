@@ -97,7 +97,7 @@ TEST_API double __cdecl testASinB(int a, int b)
 
 Ctest::Ctest()
 {
-	
+	/*
 #if defined(DC__Arch_Intel_x86)
 
 	dlopen("/System/Library/Frameworks/Foundation.framework/Foundation", RTLD_LAZY);
@@ -107,8 +107,8 @@ Ctest::Ctest()
 	printf("#\n# poolInst in Ctest::Ctest : %ld\n#\n", (long int)poolInst);
 	}
 #endif
-
-	printf("Ctest::Ctest() (this = %ld)\n", (long int)(size_t)this);
+*/
+	//printf("Ctest::Ctest() (this = %ld)\n", (long int)(size_t)this);
 }
 Ctest::~Ctest()
 {
@@ -119,23 +119,23 @@ const std::string& Ctest2::toString() {
 	return s;
 }
 int Ctest::testVirtualAdd(int a, int b) {
-	printf("Ctest::testVirtualAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
+	//printf("Ctest::testVirtualAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
 	return a + b;
 }
 int Ctest::testAdd(int a, int b) {
-	printf("Ctest::testAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
+	//printf("Ctest::testAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
 	return a + b;
 }
 
 int Ctest::testAddStdCall(void* ptr, int a, int b) {
-	printf("Ctest::testAddStdCall(ptr, %d, %d) (this = %ld, ptr = %ld)\n", a, b, (long int)(size_t)this, (long int)(size_t)ptr);
+	//printf("Ctest::testAddStdCall(ptr, %d, %d) (this = %ld, ptr = %ld)\n", a, b, (long int)(size_t)this, (long int)(size_t)ptr);
 	if (ptr)
 		return 0;
 	return a + b;
 }
 
 int Ctest::testVirtualAddStdCall(void* ptr, int a, int b) {
-	printf("Ctest::testVirtualAddStdCall(ptr, %d, %d) (this = %ld, ptr = %ld)\n", a, b, (long int)(size_t)this, (long int)(size_t)ptr);
+	//printf("Ctest::testVirtualAddStdCall(ptr, %d, %d) (this = %ld, ptr = %ld)\n", a, b, (long int)(size_t)this, (long int)(size_t)ptr);
 	if (ptr)
 		return 0;
 	return a + b;
@@ -165,7 +165,7 @@ Ctest* createTest() {
 
 Ctest2::Ctest2() : Ctest()
 {
-	printf("Ctest2::Ctest2() (this = %ld)\n", (long int)(size_t)this);
+	//printf("Ctest2::Ctest2() (this = %ld)\n", (long int)(size_t)this);
 }
 Ctest2::~Ctest2()
 {
@@ -173,12 +173,12 @@ Ctest2::~Ctest2()
 
 int Ctest2::testVirtualAdd(int a, int b) {
 	int ret = a + b * 2;
-	printf("Ctest2::testVirtualAdd(%d, %d) = %d (this = %ld)\n", a, b, ret, (long int)(size_t)this);
+	//printf("Ctest2::testVirtualAdd(%d, %d) = %d (this = %ld)\n", a, b, ret, (long int)(size_t)this);
 	return ret;
 }
 int Ctest2::testAdd(int a, int b) {
 	int ret = a + b * 2;
-	printf("Ctest2::testAdd(%d, %d) = %d (this = %ld)\n", a, b, ret, (long int)(size_t)this);
+	//printf("Ctest2::testAdd(%d, %d) = %d (this = %ld)\n", a, b, ret, (long int)(size_t)this);
 	return ret;
 }
 

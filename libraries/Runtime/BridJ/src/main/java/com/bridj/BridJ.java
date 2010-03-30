@@ -243,11 +243,13 @@ public class BridJ {
 		registeredTypes.put(type, runtime);
 		return runtime;
 	}
-	static void log(Level level, String message, Throwable ex) {
+	static boolean log(Level level, String message, Throwable ex) {
 		Logger.getLogger(BridJ.class.getName()).log(level, message, ex);
+		return true;
 	}
-	static void log(Level level, String message) {
+	static boolean log(Level level, String message) {
 		log(level, message, null);
+		return true;
 	}
 	public static synchronized NativeEntities getNativeEntities(AnnotatedElement type) throws FileNotFoundException {
 		NativeLibrary lib = getNativeLibrary(type);
@@ -336,7 +338,7 @@ public class BridJ {
             try {
                 pathFile = new File(path).getCanonicalFile();
             } catch (IOException ex) {
-                Logger.getLogger(BridJ.class.getName()).log(Level.SEVERE, null, ex);
+                log(Level.SEVERE, null, ex);
                 continue;
             }
             File f = new File(name);
@@ -354,7 +356,7 @@ public class BridJ {
             try {
                 return f.getCanonicalFile();
             } catch (IOException ex) {
-                Logger.getLogger(BridJ.class.getName()).log(Level.SEVERE, null, ex);
+                log(Level.SEVERE, null, ex);
             }
         }
         try {

@@ -117,13 +117,13 @@ public class CPPRuntime extends CRuntime {
 //					}
 //				}
 //				if (mci.getForwardedPointer() == 0) {
-					log(Level.SEVERE, "Method " + method.toGenericString() + " is not virtual but its address could not be resolved in the library.");
+					assert log(Level.SEVERE, "Method " + method.toGenericString() + " is not virtual but its address could not be resolved in the library.");
 					return;
 //				}
 			}
             if (Modifier.isStatic(modifiers)) {
                 builder.addFunction(mci);
-                log(Level.INFO, "Registering " + method + " as function or static C++ method " + symbol.getName());
+                assert log(Level.INFO, "Registering " + method + " as function or static C++ method " + symbol.getName());
             } else {
                 //if (!JNI.is64Bits() && JNI.isWindows())
                 //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);

@@ -143,7 +143,7 @@ public class NativeLibrary {
 		for (int iVirtual = 0;; iVirtual++) {
 			Pointer<?> pMethod = pVirtualTable.get(methodsOffset + iVirtual);
 			String virtualMethodName = pMethod == null ? null : getSymbolName(pMethod.getPeer());
-			System.out.println("#\n# At index " + methodsOffset + " + " + iVirtual + " of vptr for class " + className + ", found symbol " + Long.toHexString(pMethod.getPeer()) + " = '" + virtualMethodName + "'\n#");
+			//System.out.println("#\n# At index " + methodsOffset + " + " + iVirtual + " of vptr for class " + className + ", found symbol " + Long.toHexString(pMethod.getPeer()) + " = '" + virtualMethodName + "'\n#");
 			if (virtualMethodName == null)
 				return -1;
 			
@@ -188,7 +188,7 @@ public class NativeLibrary {
         try {
             scanSymbols();
         } catch (Exception ex) {
-            Logger.getLogger(NativeLibrary.class.getName()).log(Level.SEVERE, null, ex);
+            assert BridJ.log(Level.SEVERE, "Failed to scan symbols of library '" + path + "'", ex);
         }
 		return Collections.unmodifiableCollection(nameToSym.values());
 	}
@@ -262,12 +262,12 @@ public class NativeLibrary {
 
 			}
 			if (addr == 0) {
-				System.out.println("Symbol '" + name + "' not found.");
+				System.err.println("Symbol '" + name + "' not found.");
 				continue;
 			}
-			if (is32)
-				addr = addr & 0xffffffffL;
-			System.out.println("Symbol " + Long.toHexString(addr) + " = '" + name + "'");
+			//if (is32)
+			//	addr = addr & 0xffffffffL;
+			//System.out.println("Symbol " + Long.toHexString(addr) + " = '" + name + "'");
 			
 			Symbol sym = new Demangler.Symbol(name, this);
 			sym.address = addr;

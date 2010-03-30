@@ -15,11 +15,12 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractBridJRuntime implements BridJRuntime {
 
-	protected void log(Level level, String message, Throwable ex) {
+	protected boolean log(Level level, String message, Throwable ex) {
 		Logger.getLogger(getClass().getName()).log(level, message, ex);
+		return true;
 	}
-	protected void log(Level level, String message) {
-		log(level, message, null);
+	protected boolean log(Level level, String message) {
+		return log(level, message, null);
 	}
 	
     protected Method getConstructor(Class<?> type, int constructorId, Object[] args) throws SecurityException, NoSuchMethodException {

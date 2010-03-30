@@ -183,7 +183,7 @@ class StructIO {
                 	if (acceptFieldGetter(setter, false))
                 		io.setter = setter;
                 } catch (Exception ex) {
-                	Logger.getLogger(getClass().getName()).log(Level.INFO, "No setter for getter " + method);
+                		assert BridJ.log(Level.INFO, "No setter for getter " + method);
                 }
                 if (io != null)
                     list.add(io);
