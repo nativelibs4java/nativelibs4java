@@ -36,7 +36,7 @@ public class NativeLibrary {
 	//Map<Class<?>, long[]> callbacks = new HashMap<Class<?>, long[]>();
 	NativeEntities nativeEntities = new NativeEntities();
 	
-	Map<Long, Demangler.Symbol> addrToName;
+	Map<Long, Symbol> addrToName;
 	Map<String, Symbol> nameToSym;
 //	Map<String, Long> nameToAddr;
 	
@@ -192,7 +192,7 @@ public class NativeLibrary {
         } catch (Exception ex) {
             Logger.getLogger(NativeLibrary.class.getName()).log(Level.SEVERE, null, ex);
         }
-		return Collections.unmodifiableCollection(addrToName.values());
+		return Collections.unmodifiableCollection(nameToSym.values());
 	}
 	public String getSymbolName(long address) {
 		if (addrToName == null && getSymbolsHandle() != 0)//JNI.isUnix())

@@ -123,6 +123,12 @@ public abstract class Demangler {
 			
 		}
 
+        @Override
+        public String toString() {
+            return symbol + (ref == null ? "" : " (" + ref + ")");
+        }
+
+
         public long getAddress() {
             if (address == 0)
                 address = library.getSymbolAddress(symbol);
