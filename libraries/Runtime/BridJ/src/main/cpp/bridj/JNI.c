@@ -134,7 +134,6 @@ jobject createPointer(JNIEnv *env, void* ptr, jclass targetType) {
 	initMethods(env);
 	addr = (jlong)(size_t)ptr;
 	instance = (*env)->CallStaticObjectMethod(env, gPointerClass, gCreatePeerMethod, addr, targetType);
-	//instance = (*env)->NewGlobalRef(env, instance);
 	return instance;
 }
 

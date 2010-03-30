@@ -12,6 +12,19 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
  	and			rax, 15
  	sub			rsp, rax
  
+Index: /Users/ochafik/src/dyncall/dyncallback/dyncall_callback_x86_masm.asm
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 563)
++++ /Users/ochafik/src/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(working copy)
+@@ -101,6 +101,8 @@
+   je return_i64
+   cmp al, 'i'
+   je return_i32
++  cmp al, 'p'
++  je return_i32
+   ret
+ 
+ return_i32:
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
 ===================================================================
 --- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 563)

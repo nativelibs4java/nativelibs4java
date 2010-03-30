@@ -206,7 +206,7 @@ public class MethodCallInfo {
             return ValueType.eByteValue;
         if (c == Pointer.class) {
             direct = false;
-            addCallIO(new CallIO.GenericPointerHandler(((ParameterizedType)t).getActualTypeArguments()[0]));
+            addCallIO(new CallIO.GenericPointerHandler((t instanceof Class) ? null : ((ParameterizedType)t).getActualTypeArguments()[0]));
         	return ValueType.ePointerValue;
         }
         if (TypedPointer.class.isAssignableFrom(c)) {
