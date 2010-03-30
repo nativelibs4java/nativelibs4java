@@ -32,6 +32,8 @@
 #endif
 
 #define MAX(x, y) (x < y ? y : x)
+#define PTR_TO_JLONG(ptr) (sizeof(size_t) == 4 ? ((jlong)(unsigned long long)(unsigned int)(ptr)) : ((jlong)(ptr)))
+#define JLONG_TO_PTR(jl) (sizeof(size_t) == 4 ? ((void*)(unsigned int)(unsigned long long)(jl)) : ((void*)(jl)))
 
 #define Modifier_ABSTRACT	1024
 #define Modifier_FINAL	16

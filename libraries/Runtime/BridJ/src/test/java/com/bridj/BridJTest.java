@@ -11,6 +11,13 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class BridJTest {
+	
+	@Test
+	public void testLongToIntCast() {
+		for (long value : new long[] { 1, -1, -2, 100 }) {
+			assertEquals((int)value, SizeT.safeIntCast(value));
+		}
+	}
 	@Test
 	public void symbolsTest() throws Exception {
 		NativeLibrary lib = BridJ.getNativeLibrary("test");

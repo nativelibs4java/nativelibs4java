@@ -132,19 +132,19 @@ jobject createPointer(JNIEnv *env, void* ptr, jclass targetType) {
 	if (!ptr)
 		return NULL;
 	initMethods(env);
-	addr = (jlong)(size_t)ptr;
+	addr = PTR_TO_JLONG(ptr);
 	instance = (*env)->CallStaticObjectMethod(env, gPointerClass, gCreatePeerMethod, addr, targetType);
 	return instance;
 }
 
 void* getPointerPeer(JNIEnv *env, jobject pointer) {
 	initMethods(env);
-	return pointer ? (void*)(size_t)(*env)->CallLongMethod(env, pointer, gGetPeerMethod, pointer) : NULL;
+	return pointer ? JLONG_TO_PTR((*env)->CallLongMethod(env, pointer, gGetPeerMethod, pointer)) : NULL;
 }
 
 void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass) {
 	initMethods(env);
-	return (void*)(size_t)(*env)->CallStaticLongMethod(env, gPointerClass, gAddressMethod, instance, targetClass);
+	return JLONG_TO_PTR((*env)->CallStaticLongMethod(env, gPointerClass, gAddressMethod, instance, targetClass));
 }
 //void _DllMainCRTStartup();
 
@@ -176,12 +176,12 @@ void JNICALL Java_com_bridj_JNI_init(JNIEnv *env, jclass clazz)
 
 void JNICALL Java_com_bridj_JNI_callDefaultCPPConstructor(JNIEnv *env, jclass clazz, jlong constructor, jlong thisPtr, jint callMode)
 {
-	callDefaultConstructor(env, (void*)(size_t)constructor, (void*)(size_t)thisPtr, callMode);
+	callDefaultConstructor(env, JLONG_TO_PTR(constructor), JLONG_TO_PTR(thisPtr), callMode);
 }
 
 jlong JNICALL Java_com_bridj_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
 	BEGIN_TRY();
-	return !buffer ? 0 : (jlong)(size_t)(*env)->GetDirectBufferAddress(env, buffer);
+	return !buffer ? 0 : PTR_TO_JLONG((*env)->GetDirectBufferAddress(env, buffer));
 	END_TRY_RET(env, 0);
 }
 jlong JNICALL Java_com_bridj_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
@@ -192,25 +192,25 @@ jlong JNICALL Java_com_bridj_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jt
 
 jlong JNICALL Java_com_bridj_JNI_getObjectPointer(JNIEnv *env, jclass clazz, jobject object)
 {
-	return (jlong)(size_t)object;
+	return PTR_TO_JLONG(object);
 }
  
 jlong JNICALL Java_com_bridj_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring pathStr)
 {
 	const char* path = (*env)->GetStringUTFChars(env, pathStr, NULL);
-	jlong ret = (jlong)(size_t)dlLoadLibrary(path);
+	jlong ret = PTR_TO_JLONG(dlLoadLibrary(path));
 	(*env)->ReleaseStringUTFChars(env, pathStr, path);
 	return ret;
 }
 
 void JNICALL Java_com_bridj_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong libHandle)
 {
-	dlFreeLibrary((DLLib*)(size_t)libHandle);
+	dlFreeLibrary((DLLib*)JLONG_TO_PTR(libHandle));
 }
 
 jlong JNICALL Java_com_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle)
 {
-	return (jlong)(size_t)dlSymsInit((DLLib*)libHandle);
+	return PTR_TO_JLONG(dlSymsInit((DLLib*)libHandle));
 }
 void JNICALL Java_com_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jlong symbolsHandle)
 {
@@ -226,7 +226,6 @@ jarray JNICALL Java_com_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
     DLSyms* pSyms = (DLSyms*)symbolsHandle;
 	int count, i;
 	count = dlSymsCount(pSyms);
-	
 	stringClass = (*env)->FindClass(env, "java/lang/String");
 	ret = (*env)->NewObjectArray(env, count, stringClass, 0);
     for (i = 0; i < count; i++) {
@@ -241,21 +240,22 @@ jarray JNICALL Java_com_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 
 jstring JNICALL Java_com_bridj_JNI_findSymbolName(JNIEnv *env, jclass clazz, jlong libHandle, jlong symbolsHandle, jlong address)
 {
-	const char* name = dlSymsNameFromValue((DLSyms*)(size_t)symbolsHandle, (void*)(size_t)address);
+	const char* name = dlSymsNameFromValue((DLSyms*)JLONG_TO_PTR(symbolsHandle), JLONG_TO_PTR(address));
 	return name ? (*env)->NewStringUTF(env, name) : NULL;
 }
 
 jlong JNICALL Java_com_bridj_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, jlong libHandle, jstring nameStr)
 {
 	const char* name;
-	jlong ret;
+	void* ptr;
 	if (!nameStr)
 		return 0;
 	
 	name = (*env)->GetStringUTFChars(env, nameStr, NULL);
-	ret = (jlong)(size_t)dlFindSymbol((DLLib*)(size_t)libHandle, name);
+	
+	ptr = dlFindSymbol((DLLib*)JLONG_TO_PTR(libHandle), name);
 	(*env)->ReleaseStringUTFChars(env, nameStr, name);
-	return ret;
+	return PTR_TO_JLONG(ptr);
 }
 
 jobject JNICALL Java_com_bridj_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthis, jlong peer, jlong length) {
@@ -267,20 +267,20 @@ jobject JNICALL Java_com_bridj_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthi
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCallTempStruct(JNIEnv* env, jclass clazz) {
 	CallTempStruct* s = MALLOC_STRUCT(CallTempStruct);
 	s->vm = dcNewCallVM(1024);
-	return (jlong)(size_t)s;	
+	return PTR_TO_JLONG(s);	
 }
 JNIEXPORT void JNICALL Java_com_bridj_JNI_deleteCallTempStruct(JNIEnv* env, jclass clazz, jlong handle) {
-	CallTempStruct* s = (CallTempStruct*)(size_t)handle;
+	CallTempStruct* s = (CallTempStruct*)JLONG_TO_PTR(handle);
 	dcFree(s->vm);
 	free(s);	
 }
 CallTempStruct* getTempCallStruct(JNIEnv* env) {
 	jlong handle = (*env)->CallStaticLongMethod(env, gBridJClass, gGetTempCallStruct);
-	return (CallTempStruct*)(size_t)handle;
+	return (CallTempStruct*)JLONG_TO_PTR(handle);
 }
 void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
 	//s->env = NULL;
-	jlong h = (jlong)(size_t)s;
+	jlong h = PTR_TO_JLONG(s);
 	(*env)->CallStaticVoidMethod(env, gBridJClass, gReleaseTempCallStruct, h);
 }
 
@@ -570,22 +570,22 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback(
 			initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
 		}
 	}
-	return (jlong)(size_t)info;
+	return PTR_TO_JLONG(info);
 }
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_getActualCToJavaCallback(
 	JNIEnv *env, 
 	jclass clazz,
 	jlong handle
 ) {
-	struct NativeToJavaCallbackCallInfo* info = (struct NativeToJavaCallbackCallInfo*)(size_t)handle;
-	return (jlong)(size_t)info->fInfo.fDCCallback;
+	struct NativeToJavaCallbackCallInfo* info = (struct NativeToJavaCallbackCallInfo*)JLONG_TO_PTR(handle);
+	return PTR_TO_JLONG(info->fInfo.fDCCallback);
 }
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCToJavaCallback(
 	JNIEnv *env, 
 	jclass clazz,
 	jlong handle
 ) {
-	struct NativeToJavaCallbackCallInfo* info = (struct NativeToJavaCallbackCallInfo*)(size_t)handle;
+	struct NativeToJavaCallbackCallInfo* info = (struct NativeToJavaCallbackCallInfo*)JLONG_TO_PTR(handle);
 	(*env)->DeleteGlobalRef(env, info->fCallbackInstance);
 	freeCommon(env, &info->fInfo);
 	free(info);
@@ -615,7 +615,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaToCCallbacks(
 			info->fInfo.fDCCallback);
 	}
 	END_INFOS_LOOP()
-	return (jlong)(size_t)infos;
+	return PTR_TO_JLONG(infos);
 }
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeJavaToCCallbacks(
 	JNIEnv *env, 
@@ -623,7 +623,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeJavaToCCallbacks(
 	jlong handle,
 	jint size
 ) {
-	JavaToNativeCallbackCallInfo* infos = (JavaToNativeCallbackCallInfo*)(size_t)handle;
+	JavaToNativeCallbackCallInfo* infos = (JavaToNativeCallbackCallInfo*)JLONG_TO_PTR(handle);
 	jint i;
 	if (!infos)
 		return;
@@ -696,7 +696,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindGetters(
 	}
 	END_INFOS_LOOP()
 	initMethods(env);
-	return (jlong)(size_t)infos;
+	return PTR_TO_JLONG(infos);
 }
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeGetters(
 	JNIEnv *env, 
@@ -704,7 +704,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeGetters(
 	jlong handle,
 	jint size
 ) {
-	StructFieldInfo* infos = (StructFieldInfo*)(size_t)handle;
+	StructFieldInfo* infos = (StructFieldInfo*)JLONG_TO_PTR(handle);
 	jint i;
 	if (!infos)
 		return;
@@ -721,7 +721,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCFunctions(
 ) {
 	BEGIN_INFOS_LOOP(FunctionCallInfo)
 	{
-		info->fForwardedSymbol = (void*)(size_t)forwardedPointer;
+		info->fForwardedSymbol = JLONG_TO_PTR(forwardedPointer);
 #ifndef NO_DIRECT_CALLS
 		if (direct && forwardedPointer)
 			info->fInfo.fDCCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer, dcCallingConvention);
@@ -740,7 +740,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCFunctions(
 			info->fInfo.fDCCallback);
 	}
 	END_INFOS_LOOP()
-	return (jlong)(size_t)infos;
+	return PTR_TO_JLONG(infos);
 }
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCFunctionBindings(
 	JNIEnv *env, 
@@ -748,7 +748,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCFunctionBindings(
 	jlong handle,
 	jint size
 ) {
-	FunctionCallInfo* infos = (FunctionCallInfo*)(size_t)handle;
+	FunctionCallInfo* infos = (FunctionCallInfo*)JLONG_TO_PTR(handle);
 	jint i;
 	if (!infos)
 		return;
@@ -765,7 +765,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCPPMethods(
 ) {
 	BEGIN_INFOS_LOOP(CPPMethodCallInfo)
 	{
-		info->fForwardedSymbol = (void*)(size_t)forwardedPointer;
+		info->fForwardedSymbol = JLONG_TO_PTR(forwardedPointer);
 		info->fClass = (*env)->NewGlobalRef(env, declaringClass);
 		
 		if (!info->fInfo.fDCCallback) {
@@ -781,7 +781,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCPPMethods(
 			info->fInfo.fDCCallback);
 	}
 	END_INFOS_LOOP()
-	return (jlong)(size_t)infos;
+	return PTR_TO_JLONG(infos);
 }
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCPPMethodBindings(
 	JNIEnv *env, 
@@ -789,7 +789,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCPPMethodBindings(
 	jlong handle,
 	jint size
 ) {
-	CPPMethodCallInfo* infos = (CPPMethodCallInfo*)(size_t)handle;
+	CPPMethodCallInfo* infos = (CPPMethodCallInfo*)JLONG_TO_PTR(handle);
 	jint i;
 	if (!infos)
 		return;
@@ -825,7 +825,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToObjCMethods(
 		registerJavaFunction(env, declaringClass, methodName, javaSignature, info->fInfo.fDCCallback);
 	}
 	END_INFOS_LOOP()
-	return (jlong)(size_t)infos;
+	return PTR_TO_JLONG(infos);
 #else
 	return 0;
 #endif
@@ -838,7 +838,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeObjCMethodBindings(
 	jint size
 ) {
 #if defined (DC__OS_Darwin)
-	JavaToObjCCallInfo* infos = (JavaToObjCCallInfo*)(size_t)handle;
+	JavaToObjCCallInfo* infos = (JavaToObjCCallInfo*)JLONG_TO_PTR(handle);
 	jint i;
 	if (!infos)
 		return;
@@ -879,7 +879,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToVirtualMethods(
 			info->fInfo.fDCCallback);
 	}
 	END_INFOS_LOOP()
-	return (jlong)(size_t)infos;
+	return PTR_TO_JLONG(infos);
 }
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeVirtualMethodBindings(
 	JNIEnv *env, 
@@ -887,7 +887,7 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeVirtualMethodBindings(
 	jlong handle,
 	jint size
 ) {
-	VirtualMethodCallInfo* infos = (VirtualMethodCallInfo*)(size_t)handle;
+	VirtualMethodCallInfo* infos = (VirtualMethodCallInfo*)JLONG_TO_PTR(handle);
 	jint i;
 	if (!infos)
 		return;

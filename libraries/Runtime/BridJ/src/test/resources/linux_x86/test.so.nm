@@ -1,94 +1,104 @@
-Java_com_bridj_PerfLib_testASinB
-Java_com_bridj_PerfLib_testAddJNI
-_DYNAMIC
-_GLOBAL_OFFSET_TABLE_
-_GLOBAL__I_ntest
-_Jv_RegisterClasses
-_Unwind_Resume@@GCC_3.0
-_Z10createTestv
-_Z10testSumIntPKdi
-_Z10test_pvoidv
-_Z11forwardCallPFiiiEii
-_Z12test_fun_intv
-_Z13test_fun_voidv
-_Z14test_int_floatf
-_Z14test_int_shorts
-_Z15test_int_doublev
-_Z16test_void_doublev
-_Z17testInPlaceSquarePdj
-_Z17test_fun_void_intv
-_Z18test_fun_int_floatv
-_Z21test_fun_void__doubled
-_Z26test_fun_int_float__doubled
-_Z3addii
-_Z6sinInti
-_Z7testSumPKdj
-_Z8getAdderv
-_Z8testSumiPKdi
-_Z8test_intv
-_Z8voidTestv
-_Z9testSumllPKdi
-_Z9test_pintv
-_Z9test_voidv
-_ZGVZN6Ctest28toStringEvE1s
-_ZN5Ctest11static_voidEv
-_ZN5Ctest7testAddEii
-_ZN5CtestC1Ev
-_ZN5CtestC2Ev
-_ZN5CtestD1Ev
-_ZN5CtestD2Ev
-_ZN6Ctest27testAddEii
-_ZN6Ctest28toStringEv
-_ZN6Ctest2C1Ev
-_ZN6Ctest2C2Ev
-_ZN6Ctest2D1Ev
-_ZN6Ctest2D2Ev
-_ZNSsC1EPKcRKSaIcE@@GLIBCXX_3.4
-_ZNSsD1Ev@@GLIBCXX_3.4
-_ZNSt8ios_base4InitC1Ev@@GLIBCXX_3.4
-_ZNSt8ios_base4InitD1Ev@@GLIBCXX_3.4
-_ZStL8__ioinit
-_ZTI5Ctest
-_ZTI6Ctest2
-_ZTS5Ctest
-_ZTS6Ctest2
-_ZTV5Ctest
-_ZTV6Ctest2
-_ZTVN10__cxxabiv117__class_type_infoE@@CXXABI_1.3
-_ZTVN10__cxxabiv120__si_class_type_infoE@@CXXABI_1.3
-_ZZN6Ctest28toStringEvE1s
-_ZdlPv@@GLIBCXX_3.4
-_Znwj@@GLIBCXX_3.4
-__CTOR_END__
-__CTOR_LIST__
-__DTOR_END__
-__DTOR_LIST__
-__FRAME_END__
-__JCR_END__
-__JCR_LIST__
-__bss_start
-__cxa_atexit@@GLIBC_2.1.3
-__cxa_finalize@@GLIBC_2.1.3
-__cxa_guard_abort@@CXXABI_1.3
-__cxa_guard_acquire@@CXXABI_1.3
-__cxa_guard_release@@CXXABI_1.3
-__do_global_ctors_aux
-__do_global_dtors_aux
-__dso_handle
-__gmon_start__
-__gxx_personality_v0@@CXXABI_1.3
-__i686.get_pc_thunk.bx
-__printf_chk@@GLIBC_2.3.4
-_edata
-_end
-_fini
-_init
-completed.6990
-dtor_idx.6992
-frame_dummy
-ntest
-otherFunc
-sin
-testASinB
-testAddDyncall
-testAddJNA
+00001cc0 T Java_com_bridj_PerfLib_testASinB
+000017a0 T Java_com_bridj_PerfLib_testAddJNI
+00003f08 a _DYNAMIC
+00003ff4 a _GLOBAL_OFFSET_TABLE_
+000019a0 t _GLOBAL__I_ntest
+         w _Jv_RegisterClasses
+         U _Unwind_Resume@@GCC_3.0
+00001ce0 T _Z10createTestv
+00001720 T _Z10testSumIntPKdi
+00001850 T _Z10test_pvoidv
+00001980 T _Z11forwardCallPFiiiEii
+00001810 T _Z11testIntEnumi5ETest
+00001970 T _Z12getAdder_rawv
+00001800 T _Z12testVoidEnumv
+000018f0 T _Z12test_fun_intv
+00001950 T _Z13getAdder_longv
+000018c0 T _Z13test_fun_voidv
+00001940 T _Z14getAdder_pvoidv
+000018a0 T _Z14test_int_floatf
+00001920 T _Z14test_int_shorts
+00001890 T _Z15test_int_doublev
+00001880 T _Z16test_void_doublev
+00001760 T _Z17testInPlaceSquarePdj
+000018e0 T _Z17test_fun_void_intv
+00001900 T _Z18test_fun_int_floatv
+000018d0 T _Z21test_fun_void__doubled
+00001910 T _Z26test_fun_int_float__doubled
+00001930 T _Z3addii
+00001650 T _Z6sinInti
+00001660 T _Z7testSumPKdj
+00001960 T _Z8getAdderv
+000017f0 T _Z8testEnum5ETest
+00001690 T _Z8testSumiPKdi
+00001870 T _Z8test_intv
+00001640 T _Z8voidTestv
+000016c0 T _Z9testSumllPKdi
+00001860 T _Z9test_pintv
+000018b0 T _Z9test_voidv
+00004020 b _ZGVZN6Ctest28toStringEvE1s
+00001820 T _ZN5Ctest11static_voidEv
+00001ab0 T _ZN5Ctest14testAddStdCallEPvii
+00001b60 T _ZN5Ctest14testVirtualAddEii
+00001a50 T _ZN5Ctest21testVirtualAddStdCallEPvii
+00001b10 T _ZN5Ctest7testAddEii
+00001bb0 T _ZN5CtestC1Ev
+00001be0 T _ZN5CtestC2Ev
+000017e0 T _ZN5CtestD1Ev
+000017d0 T _ZN5CtestD2Ev
+00001a10 T _ZN6Ctest214testVirtualAddEii
+000019d0 T _ZN6Ctest27testAddEii
+00001c10 T _ZN6Ctest28toStringEv
+00001d40 T _ZN6Ctest2C1Ev
+00001da0 T _ZN6Ctest2C2Ev
+00001840 T _ZN6Ctest2D1Ev
+00001830 T _ZN6Ctest2D2Ev
+         U _ZNSsC1EPKcRKSaIcE@@GLIBCXX_3.4
+         U _ZNSsD1Ev@@GLIBCXX_3.4
+         U _ZNSt8ios_base4InitC1Ev@@GLIBCXX_3.4
+         U _ZNSt8ios_base4InitD1Ev@@GLIBCXX_3.4
+0000401c b _ZStL8__ioinit
+0000200c V _ZTI5Ctest
+00001ff8 V _ZTI6Ctest2
+00002004 V _ZTS5Ctest
+00001ff0 V _ZTS6Ctest2
+00001fe0 V _ZTV5Ctest
+00001fd0 V _ZTV6Ctest2
+         U _ZTVN10__cxxabiv117__class_type_infoE@@CXXABI_1.3
+         U _ZTVN10__cxxabiv120__si_class_type_infoE@@CXXABI_1.3
+00004028 b _ZZN6Ctest28toStringEvE1s
+         U _ZdlPv@@GLIBCXX_3.4
+         U _Znwj@@GLIBCXX_3.4
+00003ef8 d __CTOR_END__
+00003ef0 d __CTOR_LIST__
+00003f00 d __DTOR_END__
+00003efc d __DTOR_LIST__
+00002820 r __FRAME_END__
+00003f04 d __JCR_END__
+00003f04 d __JCR_LIST__
+0000400c A __bss_start
+         U __cxa_atexit@@GLIBC_2.1.3
+         w __cxa_finalize@@GLIBC_2.1.3
+         U __cxa_guard_abort@@CXXABI_1.3
+         U __cxa_guard_acquire@@CXXABI_1.3
+         U __cxa_guard_release@@CXXABI_1.3
+00001e00 t __do_global_ctors_aux
+00001580 t __do_global_dtors_aux
+00004008 d __dso_handle
+         w __gmon_start__
+         U __gxx_personality_v0@@CXXABI_1.3
+00001637 t __i686.get_pc_thunk.bx
+         U __printf_chk@@GLIBC_2.3.4
+0000400c A _edata
+0000402c A _end
+00001e38 T _fini
+00001518 T _init
+00004010 b completed.6990
+00004014 b dtor_idx.6992
+00001600 t frame_dummy
+00004018 B ntest
+00001790 T otherFunc
+         U sin
+00001ca0 T testASinB
+000017b0 T testAddDyncall
+000017c0 T testAddJNA

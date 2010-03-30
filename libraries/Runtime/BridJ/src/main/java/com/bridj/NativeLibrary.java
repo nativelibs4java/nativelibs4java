@@ -138,14 +138,12 @@ public class NativeLibrary {
 	public int getPositionInVirtualTable(Pointer<Pointer<?>> pVirtualTable, Method method) {
 		String methodName = method.getName();
 		//Pointer<?> typeInfo = pVirtualTable.get(1);
-		int methodsOffset = isMSVC() ? 0 : 2;
+		int methodsOffset = isMSVC() ? 0 : -2;///2;
 		String className = getCPPClassName(method.getDeclaringClass());
 		for (int iVirtual = 0;; iVirtual++) {
 			Pointer<?> pMethod = pVirtualTable.get(methodsOffset + iVirtual);
-			if (pMethod == null)
-				break;
-			
-			String virtualMethodName = getSymbolName(pMethod.getPeer());
+			String virtualMethodName = pMethod == null ? null : getSymbolName(pMethod.getPeer());
+			System.out.println("#\n# At index " + methodsOffset + " + " + iVirtual + " of vptr for class " + className + ", found symbol " + Long.toHexString(pMethod.getPeer()) + " = '" + virtualMethodName + "'\n#");
 			if (virtualMethodName == null)
 				return -1;
 			
@@ -246,6 +244,7 @@ public class NativeLibrary {
 		if (symbs == null)
 			symbs = JNI.getLibrarySymbols(getHandle(), getSymbolsHandle());
 		
+		boolean is32 = !JNI.is64Bits();
 		for (String name : symbs) {
 			if (name == null)
 				continue;
@@ -266,6 +265,9 @@ public class NativeLibrary {
 				System.out.println("Symbol '" + name + "' not found.");
 				continue;
 			}
+			if (is32)
+				addr = addr & 0xffffffffL;
+			System.out.println("Symbol " + Long.toHexString(addr) + " = '" + name + "'");
 			
 			Symbol sym = new Demangler.Symbol(name, this);
 			sym.address = addr;

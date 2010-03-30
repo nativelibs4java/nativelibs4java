@@ -20,10 +20,14 @@ public class SizeT extends Number {
     }
 
 
+	static final long HIGH_NEG = 0xffffffff00000000L;
 	public static int safeIntCast(long value) {
-		if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE)
-            throw new RuntimeException("Value is not within the int range");
-        return (int)value;
+		long high = value & HIGH_NEG;
+		if (high != 0 && high != HIGH_NEG) 
+		//if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE)
+            throw new RuntimeException("Value " + value + " = 0x" + Long.toHexString(value) + " is not within the int range");
+		
+        return (int)(value & 0xffffffff);
 	}
 
     @Override

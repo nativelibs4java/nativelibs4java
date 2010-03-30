@@ -13,11 +13,11 @@ static jprimName CONCAT_2(unaligned_get_1, primName)(JNIEnv* env, jclass clazz, 
 #else
 	int i;
 	union { char bytes[primSize]; jprimName prim; } aligned;
-	char* ptr = (char*)(size_t)peer;
+	char* ptr = (char*)JLONG_TO_PTR(peer);
 	for (i = 0; i < primSize; i++)
 		aligned.bytes[i] = *(ptr++);
 	
-	return getter(env, clazz, (jlong)(size_t)&aligned.bytes);
+	return getter(env, clazz, PTR_TO_JLONG(&aligned.bytes));
 #endif
 }
 #endif // ifndef SUPPORTS_UNALIGNED_ACCESS
@@ -27,9 +27,9 @@ static void CONCAT_2(unaligned_set_1, primName)(JNIEnv* env, jclass clazz, jlong
 	int i;
 	char* ptr;
 	union { char bytes[primSize]; jprimName prim; } aligned;
-	setter(env, clazz, (jlong)(size_t)&aligned.bytes, value);
+	setter(env, clazz, PTR_TO_JLONG(&aligned.bytes), value);
 	
-	ptr = (char*)(size_t)peer;
+	ptr = (char*)JLONG_TO_PTR(peer);
 	for (i = 0; i < primSize; i++)
 		*(ptr++) = aligned.bytes[i];
 }
@@ -56,7 +56,7 @@ jprimName JNICALL CONCAT_2(Java_com_bridj_JNI_get_1, primName)(JNIEnv *env, jcla
 		return CONCAT_2(unaligned_get_1, primName)(env, clazz, peer, CONCAT_2(Java_com_bridj_JNI_get_1, primName));
 #endif
 #endif
-	return *(jprimName*)((char*)(size_t)peer);
+	return *(jprimName*)((char*)JLONG_TO_PTR(peer));
 	END_TRY_RET(env, (jprimName)0);
 }
 void JNICALL CONCAT_2(Java_com_bridj_JNI_set_1, primName)(JNIEnv *env, jclass clazz, jlong peer, jprimName value) {
@@ -69,7 +69,7 @@ void JNICALL CONCAT_2(Java_com_bridj_JNI_set_1, primName)(JNIEnv *env, jclass cl
 #endif
 #endif
     BEGIN_TRY();
-	*(jprimName*)((char*)(size_t)peer) = value;
+	*(jprimName*)((char*)JLONG_TO_PTR(peer)) = value;
 	END_TRY(env);
 }
 
@@ -84,7 +84,7 @@ void JNICALL CONCAT_3(Java_com_bridj_JNI_set_1, primName, _1disordered)(JNIEnv* 
 #endif
 #endif
     BEGIN_TRY();
-	*(jprimName*)((char*)(size_t)peer) = REORDER_VALUE_BYTES(&value);
+	*(jprimName*)((char*)JLONG_TO_PTR(peer)) = REORDER_VALUE_BYTES(&value);
 	END_TRY(env);
 }
 #endif // ifdef REORDER_VALUE_BYTES
@@ -92,14 +92,14 @@ void JNICALL CONCAT_3(Java_com_bridj_JNI_set_1, primName, _1disordered)(JNIEnv* 
 jprimArray JNICALL CONCAT_3(Java_com_bridj_JNI_get_1, primName, _1array)(JNIEnv *env, jclass clazz, jlong peer, jint length) {
 	jprimArray array;
 	BEGIN_TRY();
-	array = (jprimArray)(void*)(size_t)(*env)->CONCAT_3(New, primJNICapName, Array)(env, length);
-	(*env)->CONCAT_3(Set, primJNICapName, ArrayRegion)(env, array, 0, (jsize)length, (jprimName*)((char*)(size_t)peer));
+	array = (jprimArray)JLONG_TO_PTR((*env)->CONCAT_3(New, primJNICapName, Array)(env, length));
+	(*env)->CONCAT_3(Set, primJNICapName, ArrayRegion)(env, array, 0, (jsize)length, (jprimName*)((char*)JLONG_TO_PTR(peer)));
 	return array;
 	END_TRY_RET(env, NULL);
 }
 void JNICALL CONCAT_3(Java_com_bridj_JNI_set_1, primName, _1array)(JNIEnv *env, jclass clazz, jlong peer, jprimArray values, jint valuesOffset, jint length) {
 	BEGIN_TRY();
-	(*env)->CONCAT_3(Get, primJNICapName, ArrayRegion)(env, values, (jsize)valuesOffset, (jsize)length, (jprimName*)((char*)(size_t)peer));
+	(*env)->CONCAT_3(Get, primJNICapName, ArrayRegion)(env, values, (jsize)valuesOffset, (jsize)length, (jprimName*)((char*)JLONG_TO_PTR(peer)));
 	END_TRY(env);
 }
 
@@ -115,6 +115,6 @@ JNIEXPORT jlong JNICALL CONCAT_3(Java_com_bridj_JNI_get, primJNICapName, ArrayEl
 
 JNIEXPORT void JNICALL CONCAT_3(Java_com_bridj_JNI_release, primJNICapName, ArrayElements)(JNIEnv *env, jclass clazz, jprimArray array, jlong pointer, jint mode)
 {
-	(*env)->CONCAT_3(Release, primJNICapName, ArrayElements)(env, array, (jprimName*)(size_t)pointer, mode);
+	(*env)->CONCAT_3(Release, primJNICapName, ArrayElements)(env, array, (jprimName*)JLONG_TO_PTR(pointer), mode);
 }
 

@@ -490,7 +490,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	static final boolean is64 = JNI.POINTER_SIZE == 8; 
 	
 	public long getSizeT(long byteOffset) {
-		return is64 ? getLong(byteOffset) : getInt(byteOffset);
+		return is64 ? getLong(byteOffset) : 0xffffffffL & getInt(byteOffset);
 	}
 	
     protected Pointer<T> setSizeT(long byteOffset, long value) {

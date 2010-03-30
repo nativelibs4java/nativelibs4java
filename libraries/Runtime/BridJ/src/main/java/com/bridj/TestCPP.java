@@ -233,10 +233,12 @@ public class TestCPP {
 	}
 	
 	static String hex(long v) {
+		return Long.toHexString(v);
+		/*
 		String s = Long.toString(v, 16);
 		while ((s.length() < 16))
 			s = "0" + s;
-		return s;
+		return s;*/
 	}
 	static long getPtr(long peer) {
 		Pointer<?> ptr = Pointer.pointerToAddress(peer);
