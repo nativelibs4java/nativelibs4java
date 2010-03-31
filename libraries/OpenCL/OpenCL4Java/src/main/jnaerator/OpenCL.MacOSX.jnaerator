@@ -5,7 +5,7 @@
 
 -framework OpenCL
 
--framework OpenGL
+//-framework OpenGL
 //-package com.nativelibs4java.opengl.library -framework OpenGL
 
 -v
