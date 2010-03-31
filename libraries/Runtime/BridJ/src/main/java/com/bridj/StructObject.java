@@ -11,7 +11,7 @@ public class StructObject extends NativeObject {
     public StructObject(int constructorId, Object[] args) {
     	super(constructorId, args);
     }
-    public StructObject(Pointer p, BridJRuntime runtime) {
-    	super(p, runtime);
+    public StructObject(Pointer<? extends StructObject> peer) {
+    	super(peer);
     }
 }

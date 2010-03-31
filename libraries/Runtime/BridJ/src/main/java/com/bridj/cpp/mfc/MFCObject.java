@@ -14,8 +14,8 @@ import com.bridj.cpp.CPPObject;
 @Runtime(MFCRuntime.class)
 public class MFCObject extends CPPObject {
 	public MFCObject() {}
-    public MFCObject(Pointer<? extends MFCObject> peer, MFCRuntime mfcRuntime) {
-        super(peer, mfcRuntime);
+    public MFCObject(Pointer<? extends MFCObject> peer) {
+        super(peer);
     }
     public MFCObject(int constructorId, Object... args) {
         super(constructorId, args);
