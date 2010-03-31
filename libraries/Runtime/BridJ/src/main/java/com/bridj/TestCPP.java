@@ -96,11 +96,18 @@ public class TestCPP {
 		}
 		System.out.println();
 	}
+	
+	public static native int testAddDyncall(int a, int b);
+
 	public static void main(String[] args) throws IOException {
         try {
             BridJ.register(MyCallback.class);
             BridJ.register();
 
+			int ra = testAddDyncall(10, 4);
+			if (ra != 14)
+				throw new RuntimeException("Expected 14, got " + ra);
+			
             NSAutoReleasePool object = new NSAutoReleasePool();
 
             testNativeTargetCallbacks();

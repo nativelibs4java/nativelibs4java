@@ -81,7 +81,7 @@ public class JNI {
         //f = BridJ.getNativeLibraryFile(name);
         //    if (f.exists())
         //        return f.getCanonicalFile();
-        //		throw new FileNotFoundException(libraryResource);
+        	throw new FileNotFoundException(libraryResource);
         }
         File libFile = File.createTempFile(new File(libraryResource).getName(), ext);
         libFile.deleteOnExit();
