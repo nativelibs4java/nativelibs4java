@@ -1,81 +1,85 @@
-0000000000001296 s  stub helpers
-0000000000000ea0 T _Java_com_bridj_PerfLib_testASinB
-0000000000000ef0 T _Java_com_bridj_PerfLib_testAddJNI
-0000000000000990 t __GLOBAL__I_ntest
+0000000000001252 s  stub helpers
+00000000000010d0 T _Java_com_bridj_PerfLib_testASinB
+0000000000001120 T _Java_com_bridj_PerfLib_testAddJNI
+0000000000000ca0 t __GLOBAL__I_ntest
                  U __Unwind_Resume
-0000000000000f70 T __Z10createTestv
-0000000000000f00 T __Z10testSumIntPKdi
-0000000000000ac0 T __Z10test_pvoidv
-0000000000000bc0 T __Z11forwardCallPFiiiEii
-0000000000000b60 T __Z12test_fun_intv
-0000000000000b30 T __Z13test_fun_voidv
-0000000000000b10 T __Z14test_int_floatf
-0000000000000b90 T __Z14test_int_shorts
-0000000000000b00 T __Z15test_int_doublev
-0000000000000af0 T __Z16test_void_doublev
-0000000000000a30 T __Z17testInPlaceSquarePdm
-0000000000000b50 T __Z17test_fun_void_intv
-0000000000000b70 T __Z18test_fun_int_floatv
-0000000000000b40 T __Z21test_fun_void__doubled
-0000000000000b80 T __Z26test_fun_int_float__doubled
-0000000000000ba0 T __Z3addii
-0000000000000950 t __Z41__static_initialization_and_destruction_0ii
-00000000000009c0 T __Z6sinInti
-00000000000009d0 T __Z7testSumPKdm
-0000000000000bb0 T __Z8getAdderv
-0000000000000a00 T __Z8testSumiPKdi
-0000000000000ae0 T __Z8test_intv
-00000000000009b0 T __Z8voidTestv
-0000000000000f40 T __Z9testSumllPKdi
-0000000000000ad0 T __Z9test_pintv
-0000000000000b20 T __Z9test_voidv
-0000000000002120 b __ZGVZN6Ctest28toStringEvE1s
-0000000000000a90 T __ZN5Ctest11static_voidEv
-0000000000000c90 T __ZN5Ctest14testAddStdCallEPvii
-0000000000000d20 T __ZN5Ctest14testVirtualAddEii
-0000000000000c40 T __ZN5Ctest21testVirtualAddStdCallEPvii
-0000000000000ce0 T __ZN5Ctest7testAddEii
-0000000000000d60 T __ZN5CtestC1Ev
+0000000000001150 T __Z10createTestv
+00000000000011a0 T __Z10testSumIntPKdi
+0000000000000e80 T __Z10test_pvoidv
+0000000000000fb0 T __Z11forwardCallPFiiiEii
+0000000000000e20 T __Z11testIntEnumi5ETest
+0000000000000fa0 T __Z12getAdder_rawv
+0000000000000e10 T __Z12testVoidEnumv
+0000000000000f20 T __Z12test_fun_intv
+0000000000000f80 T __Z13getAdder_longv
+0000000000000ef0 T __Z13test_fun_voidv
+0000000000000f70 T __Z14getAdder_pvoidv
+0000000000000ed0 T __Z14test_int_floatf
+0000000000000f50 T __Z14test_int_shorts
+0000000000000ec0 T __Z15test_int_doublev
+0000000000000eb0 T __Z16test_void_doublev
+0000000000000d40 T __Z17testInPlaceSquarePdm
+0000000000000f10 T __Z17test_fun_void_intv
+0000000000000f30 T __Z18test_fun_int_floatv
+0000000000000f00 T __Z21test_fun_void__doubled
+0000000000000f40 T __Z26test_fun_int_float__doubled
+0000000000000f60 T __Z3addii
+0000000000000c60 t __Z41__static_initialization_and_destruction_0ii
+0000000000000cd0 T __Z6sinInti
+0000000000000ce0 T __Z7testSumPKdm
+0000000000000f90 T __Z8getAdderv
+0000000000000e00 T __Z8testEnum5ETest
+0000000000000d10 T __Z8testSumiPKdi
+0000000000000ea0 T __Z8test_intv
+0000000000000cc0 T __Z8voidTestv
+0000000000001170 T __Z9testSumllPKdi
+0000000000000e90 T __Z9test_pintv
+0000000000000ee0 T __Z9test_voidv
+0000000000002100 b __ZGVZN6Ctest28toStringEvE1s
+0000000000000e30 T __ZN5Ctest11static_voidEv
+0000000000000de0 T __ZN5Ctest14testAddStdCallEPvii
+0000000000000dc0 T __ZN5Ctest14testVirtualAddEii
+0000000000000df0 T __ZN5Ctest21testVirtualAddStdCallEPvii
+0000000000000dd0 T __ZN5Ctest7testAddEii
+0000000000000d90 T __ZN5CtestC1Ev
 0000000000000d80 T __ZN5CtestC2Ev
-0000000000000a80 T __ZN5CtestD1Ev
-0000000000000a70 T __ZN5CtestD2Ev
-0000000000000c10 T __ZN6Ctest214testVirtualAddEii
-0000000000000be0 T __ZN6Ctest27testAddEii
-0000000000000de0 T __ZN6Ctest28toStringEv
-0000000000000fd0 T __ZN6Ctest2C1Ev
-0000000000001030 T __ZN6Ctest2C2Ev
-0000000000000ab0 T __ZN6Ctest2D1Ev
-0000000000000aa0 T __ZN6Ctest2D2Ev
+0000000000000db0 T __ZN5CtestD1Ev
+0000000000000da0 T __ZN5CtestD2Ev
+0000000000000e60 T __ZN6Ctest214testVirtualAddEii
+0000000000000e70 T __ZN6Ctest27testAddEii
+0000000000001010 T __ZN6Ctest28toStringEv
+0000000000001130 T __ZN6Ctest2C1Ev
+0000000000001140 T __ZN6Ctest2C2Ev
+0000000000000e50 T __ZN6Ctest2D1Ev
+0000000000000e40 T __ZN6Ctest2D2Ev
                  U __ZNSs4_Rep10_M_destroyERKSaIcE
                  U __ZNSs4_Rep20_S_empty_rep_storageE
                  U __ZNSsC1EPKcRKSaIcE
                  U __ZNSt8ios_base4InitC1Ev
                  U __ZNSt8ios_base4InitD1Ev
-0000000000002118 b __ZStL8__ioinit
-0000000000002100 S __ZTI5Ctest
-00000000000020e0 S __ZTI6Ctest2
-000000000000128f S __ZTS5Ctest
-0000000000001287 S __ZTS6Ctest2
-00000000000020c0 S __ZTV5Ctest
-00000000000020a0 S __ZTV6Ctest2
+00000000000020f8 b __ZStL8__ioinit
+00000000000020e0 S __ZTI5Ctest
+00000000000020c0 S __ZTI6Ctest2
+000000000000124b S __ZTS5Ctest
+0000000000001243 S __ZTS6Ctest2
+00000000000020a0 S __ZTV5Ctest
+0000000000002080 S __ZTV6Ctest2
                  U __ZTVN10__cxxabiv117__class_type_infoE
                  U __ZTVN10__cxxabiv120__si_class_type_infoE
-0000000000002128 b __ZZN6Ctest28toStringEvE1s
-                 U __ZdlPv
+0000000000002108 b __ZZN6Ctest28toStringEvE1s
                  U __Znwm
                  U ___cxa_atexit
                  U ___cxa_guard_abort
                  U ___cxa_guard_acquire
                  U ___cxa_guard_release
                  U ___gxx_personality_v0
-0000000000000da0 t ___tcf_0
-0000000000001090 t ___tcf_1
+0000000000000fd0 t ___tcf_0
+00000000000011e0 t ___tcf_1
 0000000000000000 t __mh_dylib_header
-0000000000002110 D _ntest
-0000000000000a60 T _otherFunc
-                 U _printf
+00000000000020f0 D _ntest
+0000000000000d70 T _otherFunc
                  U _sin
-0000000000000e70 T _testASinB
-0000000000000ee0 T _testAddDyncall
-0000000000000ed0 T _testAddJNA
+00000000000010a0 T _testASinB
+0000000000001110 T _testAddDyncall
+0000000000001100 T _testAddJNA
                  U dyld_stub_binder

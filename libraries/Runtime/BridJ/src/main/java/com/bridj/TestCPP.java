@@ -101,6 +101,8 @@ public class TestCPP {
             BridJ.register(MyCallback.class);
             BridJ.register();
 
+            NSAutoReleasePool object = new NSAutoReleasePool();
+
             testNativeTargetCallbacks();
             testJavaTargetCallbacks();
 
@@ -163,9 +165,7 @@ public class TestCPP {
             BridJ.register();
 
             //new VC9Demangler(null, "??0Ctest2@@QEAA@XZ").parseSymbol();
-    //        NSAutoReleasePool object = new NSAutoReleasePool();
-
-
+            
             for (Demangler.Symbol symbol : library.getSymbols()) {
                 String name = symbol.getName();
                 long addr = symbol.getAddress();
