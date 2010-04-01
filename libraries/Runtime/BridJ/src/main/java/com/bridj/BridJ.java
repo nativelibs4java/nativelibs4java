@@ -31,6 +31,7 @@ import com.bridj.cpp.com.COMRuntime;
 import com.bridj.cpp.mfc.MFCRuntime;
 import com.bridj.objc.ObjectiveCRuntime;
 import java.util.Stack;
+import java.io.PrintWriter;
 
 /// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class BridJ {
@@ -438,5 +439,22 @@ public class BridJ {
     }
 	public static <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
 		return instance.runtime.clone(instance);
+	}
+	
+	public static void main(String[] args) {
+		List<NativeLibrary> libraries = new ArrayList<NativeLibrary>();
+		try {
+			for (String arg : args) {
+				NativeLibrary lib = getNativeLibrary(arg);
+				libraries.add(lib);
+			}
+			String file = "out.h";
+			PrintWriter out = new PrintWriter(new File(file));
+			HeadersReconstructor.reconstructHeaders(libraries, out);
+			out.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			System.exit(1);
+		}
 	}
 }

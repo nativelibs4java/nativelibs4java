@@ -151,6 +151,10 @@ public abstract class Demangler {
             }
             return false;
 		}
+		public MemberRef getParsedRef() {
+			parse();
+			return ref;
+		}
 		void parse() { 
 			if (!refParsed) {
 				try {
