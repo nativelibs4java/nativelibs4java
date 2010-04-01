@@ -332,6 +332,11 @@ char getDCReturnType(JNIEnv* env, ValueType returnType)
 				return DC_SIGCHAR_CHAR;
 			case 2:
 				return DC_SIGCHAR_SHORT;
+			case 4:
+				return DC_SIGCHAR_INT;
+			default:
+				throwException(env, "wchar_t size not supported yet !");
+				return DC_SIGCHAR_VOID;
 			}
 			// TODO
 		default:
