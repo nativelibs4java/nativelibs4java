@@ -200,6 +200,11 @@ public class MethodCallInfo {
             return ValueType.eByteValue;
         if (c == Float.class || c == Float.TYPE)
             return ValueType.eFloatValue;
+        if (c == char.class || c == Character.TYPE) {
+            if (JNI.WCHAR_T_SIZE != 2)
+                direct = false;
+            return ValueType.eWCharValue;
+        }
         if (c == Double.class || c == Double.TYPE)
             return ValueType.eDoubleValue;
         if (c == Boolean.class || c == Boolean.TYPE)

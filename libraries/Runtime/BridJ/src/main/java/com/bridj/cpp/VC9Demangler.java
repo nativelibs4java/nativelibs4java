@@ -296,7 +296,7 @@ public class VC9Demangler extends Demangler {
 			return classType(Integer.TYPE);
 		case 'J': // long
 		case 'K': // unsigned long
-			return classType(Long.TYPE, CLong.class);
+			return classType(CLong.class);
         case 'M': // float
             return classType(Float.TYPE);
 		case 'N': // double

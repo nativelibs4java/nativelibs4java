@@ -45,6 +45,22 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 					dcArgPointer(call->vm, ptr);
 				}
 				break;
+			case eWCharValue:
+				switch (sizeof(wchar_t)) {
+				case 1:
+					dcArgChar(call->vm, dcbArgChar(args));
+					break;
+				case 2:
+					dcArgShort(call->vm, dcbArgShort(args));
+					break;
+				case 4:
+					dcArgInt(call->vm, dcbArgInt(args));
+					break;
+				default:
+					throwException(env, "Invalid wchar_t size for argument !");
+					return JNI_FALSE;
+				}
+				break;
 			default:
 				throwException(env, "Invalid argument value type !");
 				return JNI_FALSE;
@@ -93,7 +109,21 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 			}
 			break;
 		case eWCharValue:
-			// TODO
+			switch (sizeof(wchar_t)) {
+			case 1:
+				result->c = dcCallChar(call->vm, callback);
+				break;
+			case 2:
+				result->s = dcCallShort(call->vm, callback);
+				break;
+			case 4:
+				result->i = dcCallInt(call->vm, callback);
+				break;
+			default:
+				throwException(env, "Invalid wchar_t size !");
+				return JNI_FALSE;
+			}
+			break;
 		default:
 			throwException(env, "Invalid return value type !");
 			return JNI_FALSE;

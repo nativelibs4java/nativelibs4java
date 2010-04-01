@@ -282,8 +282,20 @@ public abstract class Demangler {
 		public boolean matches(Type type) {
             Class<?> tc = getTypeClass(this.type);
             Class<?> typec = Demangler.getTypeClass(type);
+            if (tc == typec)
+                return true;
+            
             if ((type == Long.TYPE && Pointer.class.isAssignableFrom(tc)) ||
                     (Pointer.class.isAssignableFrom(typec) && tc == Long.TYPE))
+                return true;
+            if (tc == CLong.class) {
+                if ((typec == int.class || typec == Integer.class) && (JNI.CLONG_SIZE == 4) || typec == long.class || typec == Long.class)
+                    return true;
+            } else if (tc == SizeT.class) {
+                if ((typec == int.class || typec == Integer.class) && (JNI.SIZE_T_SIZE == 4) || typec == long.class || typec == Long.class)
+                    return true;
+            }
+            if ((tc == Character.TYPE || tc == Character.class || tc == short.class || tc == Short.class) && (typec == char.class || typec == Character.class))
                 return true;
 
             if ((tc == Integer.class || tc == int.class) && ValuedEnum.class.isAssignableFrom(typec))
@@ -582,7 +594,7 @@ public abstract class Demangler {
             return total;
         }
 		protected boolean matches(Method method) {
-			
+
 			if (memberName instanceof SpecialName)
             	return false; // use matchesConstructor... 
 

@@ -224,3 +224,5 @@ TEST_API int forwardCall(fun_iii f, int a, int b) {
 	int res = f(a, b);
 	return res;
 }
+
+#include "../../../../target/generated-sources/test/com/bridj/CallTest.cpp"

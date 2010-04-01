@@ -327,6 +327,12 @@ char getDCReturnType(JNIEnv* env, ValueType returnType)
 		case ePointerValue:
 			return DC_SIGCHAR_POINTER;
 		case eWCharValue:
+			switch (sizeof(wchar_t)) {
+			case 1:
+				return DC_SIGCHAR_CHAR;
+			case 2:
+				return DC_SIGCHAR_SHORT;
+			}
 			// TODO
 		default:
 			throwException(env, "Return ValueType not supported yet !");

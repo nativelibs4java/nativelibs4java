@@ -96,7 +96,9 @@ public class TestCPP {
 		}
 		System.out.println();
 	}
-	
+
+    public static native char test_incr_char(char value);
+	//public static native short test_incr_char(short value);
 	public static native int testAddDyncall(int a, int b);
 
 	public static void main(String[] args) throws IOException {
