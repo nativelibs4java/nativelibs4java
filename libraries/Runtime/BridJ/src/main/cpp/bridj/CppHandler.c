@@ -122,9 +122,9 @@ char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, CPPMeth
 
 char __cdecl JavaToCPPMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {
-	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
+	CPPMethodCallInfo* info = (CPPMethodCallInfo*)userdata;
 	BEGIN_TRY();
-	return doJavaToCPPMethodCallHandler(args, result, (CPPMethodCallInfo*)userdata);
+	return doJavaToCPPMethodCallHandler(args, result, info);
 	END_TRY_RET(info->fInfo.fEnv, 0);
 }
 

@@ -20,7 +20,7 @@ char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCVal
 {
 	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
 	BEGIN_TRY();
-	return doJavaToFunctionCallHandler(args, result, (FunctionCallInfo*)userdata);
+	return doJavaToFunctionCallHandler(args, result, info);
 	END_TRY_RET(info->fInfo.fEnv, 0);
 }
 

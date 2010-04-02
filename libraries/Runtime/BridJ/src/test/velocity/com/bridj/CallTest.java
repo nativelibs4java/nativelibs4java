@@ -47,25 +47,24 @@ public class CallTest {
 	}
 	*/
 
-	/*
+	
 #foreach ($n in [9..9])
-	/// Returns value + 1
-	public static native ${prim.Name} test_add${n}_${prim.Name}(#foreach ($i in [1..$n])#if($i > 0), #end${prim.Name} arg$i#end);
+	public static native ${prim.Name} test_add${n}_${prim.Name}(#foreach ($i in [1..$n])#if($i > 1), #end${prim.Name} arg$i#end);
 	
 	@Test
 	public void testAdd${n}${prim.CapName}() {
 		${prim.Name} expectedTot = (${prim.Name})0;
 		${prim.Name} fact = (${prim.Name})1;
 #foreach ($i in [1..$n])
-		${prim.Name} arg$i = fact * ($i + 1);
+		${prim.Name} arg$i = (${prim.Name})(fact * ($i + 1));
 		fact *= (${prim.Name})2;
 		expectedTot += arg$i;
 #end
-		${prim.Name} tot = test_add${n}_${prim.Name}(#foreach ($i in [1..$n])#if($i > 0),#end arg$i#end);
+		${prim.Name} tot = test_add${n}_${prim.Name}(#foreach ($i in [1..$n])#if($i > 1),#end arg$i#end);
 		assertEquals(expectedTot, tot#if($prim.Name == "float" || $prim.Name == "double"), 0#end);
 	}
 #end
-*/
+
 
 #end
 }
