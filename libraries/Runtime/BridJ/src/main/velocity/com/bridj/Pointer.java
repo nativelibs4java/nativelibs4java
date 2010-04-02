@@ -489,8 +489,39 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	
 	static final boolean is64 = JNI.POINTER_SIZE == 8; 
 	
+	public static Pointer<SizeT> pointerToSizeT(long value) {
+		Pointer<SizeT> p = allocate(PointerIO.getSizeTInstance(), JNI.SIZE_T_SIZE);
+		p.setSizeT(0, value);
+		return p;
+	}
+	public static Pointer<SizeT> allocateSizeTs(int arrayLength) {
+		return allocate(PointerIO.getSizeTInstance(), JNI.SIZE_T_SIZE * arrayLength);
+	}
+	public static Pointer<SizeT> allocateSizeT(int arrayLength) {
+		return allocate(PointerIO.getSizeTInstance(), JNI.SIZE_T_SIZE);
+	}
+	public static Pointer<SizeT> pointerToSizeTs(long... values) {
+		int n = values.length, s = JNI.SIZE_T_SIZE;
+		Pointer<SizeT> p = allocate(PointerIO.getSizeTInstance(), s * n);
+		for (int i = 0; i < n; i++) {
+			p.setSizeT(i * s, values[i]);
+		}
+		return p;
+	}
+	
 	public long getSizeT(long byteOffset) {
 		return is64 ? getLong(byteOffset) : 0xffffffffL & getInt(byteOffset);
+	}
+	public long[] getSizeTs(long byteOffset, int arrayLength) {
+		if (is64)  
+			return getLongs(byteOffset, arrayLength);
+		
+		int[] values = getInts(byteOffset, arrayLength);
+		long[] ret = new long[arrayLength];
+		for (int i = 0; i < arrayLength; i++) {
+			ret[i] = 0xffffffffL & values[i];
+		}
+		return ret;
 	}
 	
     protected Pointer<T> setSizeT(long byteOffset, long value) {

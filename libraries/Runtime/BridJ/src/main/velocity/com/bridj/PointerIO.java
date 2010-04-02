@@ -128,6 +128,14 @@ public class PointerIO<T> {
         return io;
     }
 
+    static PointerIO<SizeT> sizeTInstance;
+
+    public static PointerIO<SizeT> getSizeTInstance() {
+        if (sizeTInstance == null)
+            sizeTInstance = getInstance(SizeT.class);
+        return sizeTInstance;
+	}
+
     #foreach ($prim in $primitivesNoBool)
     static PointerIO<${prim.WrapperName}> ${prim.Name}Instance;
     #end
