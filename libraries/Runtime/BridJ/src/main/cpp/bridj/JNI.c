@@ -11,9 +11,6 @@
 #pragma warning(disable: 4152)
 #pragma warning(disable: 4189) // local variable initialized but unreferenced // TODO remove this !
 
-#define MALLOC_STRUCT(type) ((struct type*)malloc(sizeof(struct type)))
-#define MALLOC_STRUCT_ARRAY(type, size) ((struct type*)malloc(sizeof(struct type) * size))
-
 #define JNI_SIZEOF(type, escType) \
 jint JNICALL Java_com_bridj_JNI_sizeOf_1 ## escType(JNIEnv *env, jclass clazz) { return sizeof(type); }
 
@@ -171,6 +168,7 @@ void TESTOBJC() {
 
 void JNICALL Java_com_bridj_JNI_init(JNIEnv *env, jclass clazz)
 {
+	initThreadLocal(env);
 	//TESTOBJC();
 }
 
@@ -274,16 +272,6 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_deleteCallTempStruct(JNIEnv* env, jcla
 	dcFree(s->vm);
 	free(s);	
 }
-CallTempStruct* getTempCallStruct(JNIEnv* env) {
-	jlong handle = (*env)->CallStaticLongMethod(env, gBridJClass, gGetTempCallStruct);
-	return (CallTempStruct*)JLONG_TO_PTR(handle);
-}
-void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
-	//s->env = NULL;
-	jlong h = PTR_TO_JLONG(s);
-	(*env)->CallStaticVoidMethod(env, gBridJClass, gReleaseTempCallStruct, h);
-}
-
 
 JNIEXPORT jint JNICALL Java_com_bridj_JNI_getMaxDirectMappingArgCount(JNIEnv *env, jclass clazz) {
 #if defined(_WIN64)

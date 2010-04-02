@@ -109,8 +109,12 @@ public class TestCPP {
 			int ra = testAddDyncall(10, 4);
 			if (ra != 14)
 				throw new RuntimeException("Expected 14, got " + ra);
+			ra = testAddDyncall(10, 4);
+			if (ra != 14)
+				throw new RuntimeException("Expected 14, got " + ra);
 			
-            NSAutoReleasePool object = new NSAutoReleasePool();
+			if (JNI.isMacOSX())
+				new NSAutoReleasePool();
 
             testNativeTargetCallbacks();
             testJavaTargetCallbacks();
