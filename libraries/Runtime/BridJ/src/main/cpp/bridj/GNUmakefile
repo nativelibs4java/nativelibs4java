@@ -45,6 +45,7 @@ UNITS += CppHandler
 UNITS += FunctionHandler
 UNITS += StructHandler
 UNITS += CallbackHandler
+UNITS += ThreadLocal
 ifdef BUILD_OS_darwin
 UNITS += ObjCHandler
 endif
