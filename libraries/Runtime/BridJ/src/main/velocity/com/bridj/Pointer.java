@@ -4,10 +4,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.nio.*;
 import java.util.Stack;
+import java.util.NoSuchElementException;
+import java.util.Iterator;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
-public abstract class Pointer<T> implements Comparable<Pointer<?>>
+public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<Pointer<T>>
         //, com.sun.jna.Pointer<Pointer<T>>
 {
     public static final Pointer NULL = null;
@@ -19,6 +21,43 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 
     protected PointerIO<T> io;
 	
+    
+    public long getRemainingBytes() {
+    	return -1;
+    }
+    public long getRemainingElements() {
+    	long bytes = getRemainingBytes();
+    	long elementSize = getTargetSize();
+    	if (bytes < 0 || elementSize <= 0)
+    		return -1;
+    	return bytes / elementSize;
+    }
+    
+    
+    public Iterator<Pointer<T>> iterator() {
+    	return new Iterator<Pointer<T>>() {
+    		Pointer<T> next = Pointer.this;
+    		@Override
+			public Pointer<T> next() {
+				if (next == null)
+					throw new NoSuchElementException();
+				Pointer<T> ptr = next.next(1);
+				next = ptr.getRemainingBytes() == 0 ? null : ptr;
+				return ptr;
+			}
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public boolean hasNext() {
+				long rem;
+				return next != null && ((rem = next.getRemainingBytes()) < 0 || rem > 0);
+			}
+    	};
+    }
+
+    
 	public Pointer<T> order(ByteOrder order) {
 		if (order.equals(order()))
 			return this;
@@ -114,7 +153,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	}
 	
 	
-	public static Pointer<Byte> pointerTo(String string) {
+	public static Pointer<Byte> pointerToCString(String string) {
 		byte[] bytes = string.getBytes();
 		Pointer<Byte> p = allocateArray(Byte.class, bytes.length + 1);
         p.setBytes(0, bytes);
@@ -126,23 +165,25 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	/**
 	 * The update will take place inside the release() call
 	 */
-    public static Pointer<String> pointerTo(final String[] strings) {
+    public static Pointer<Pointer<Byte>> pointerToCStrings(final String[] strings) {
         final int len = strings.length;
-        final Pointer<String> mem = allocateArray(String.class, len);
+        final Pointer<Byte>[] pointers = (Pointer<Byte>[])new Pointer[len];
+        final Pointer<Pointer<?>> mem = allocatePointers(len);
         for (int i = 0; i < len; i++)
-            mem.set(i, strings[i]);
+            mem.set(i, pointers[i] = pointerToCString(strings[i]));
 
-		class UpdatableStringArrayPointer extends Memory<String> {
+		class UpdatableStringArrayPointer extends Memory<Pointer<Byte>> {
 			public UpdatableStringArrayPointer(Memory mem) {
-				super(PointerIO.getStringInstance(), mem);
+				super((PointerIO<Pointer<Byte>>)(PointerIO)PointerIO.getPointerInstance(), mem); // TODO
 			}
-			public Pointer<String> getPointer() {
+			public Pointer<Pointer<Byte>> getPointer() {
 				return this;
 			}
             @Override
             public void release() {
                 for (int i = 0; i < len; i++) {
-                    strings[i] = mem.get(i);
+                    strings[i] = mem.get(i).getCString(0);
+                    pointers[i].release();
                 }
                 super.release();
             }
@@ -339,17 +380,32 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         return address == 0 ? null : new DefaultPointer(io, address);
     }
 
-    public static <V> Pointer<Pointer<V>> allocatePointer(Class<V> type) {
-    	return (Pointer)allocate(Pointer.class); // TODO TODO TODO
+    public static <P extends TypedPointer> Pointer<P> allocateTypedPointer(Class<P> type) {
+    	return (Pointer<P>)(Pointer)allocate(PointerIO.getInstance(type), Pointer.SIZE);
+    }
+    public static <P extends TypedPointer> Pointer<P> allocateTypedPointers(Class<P> type, long arrayLength) {
+    	return (Pointer<P>)(Pointer)allocate(PointerIO.getInstance(type), Pointer.SIZE * arrayLength);
+    }
+    public static <P> Pointer<Pointer<P>> allocatePointer(Class<P> type) {
+    	return (Pointer<Pointer<P>>)(Pointer)allocate(PointerIO.getPointerInstance(), Pointer.SIZE); // TODO 
     }
     public static <V> Pointer<Pointer<?>> allocatePointer() {
-    	return (Pointer)allocate(Pointer.class); // TODO TODO TODO
+    	return (Pointer)allocate(PointerIO.getPointerInstance(), Pointer.SIZE);
     }
+    public static Pointer<Pointer<?>> allocatePointers(int arrayLength) {
+		return (Pointer<Pointer<?>>)(Pointer)allocate(PointerIO.getPointerInstance(), JNI.POINTER_SIZE * arrayLength); 
+	}
+	
+    public static <P> Pointer<Pointer<P>> allocatePointers(Class<P> type, int arrayLength) {
+		return (Pointer<Pointer<P>>)(Pointer)allocate(PointerIO.getPointerInstance(), JNI.POINTER_SIZE * arrayLength); // TODO 
+	}
+	
+    
     public static <V> Pointer<V> allocate(Class<V> elementClass) {
         return allocateArray(elementClass, 1);
     }
     
-    public static <V> Pointer<V> allocate(PointerIO<V> io, int byteSize) {
+    public static <V> Pointer<V> allocate(PointerIO<V> io, long byteSize) {
         return byteSize == 0 ? null : new Memory<V>(io, byteSize);
     }
     
@@ -366,33 +422,39 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());
     }
 
-	public static Pointer<?> pointerTo(Buffer buffer) {
-		return pointerTo(buffer, 0);
+	public static Pointer<?> pointerToBuffer(Buffer buffer) {
+		return pointerToBuffer(buffer, 0);
     }
 
-    protected static Pointer<?> pointerTo(Buffer buffer, long byteOffset) {
+    protected static Pointer<?> pointerToBuffer(Buffer buffer, long byteOffset) {
         if (buffer == null)
 			return null;
 		
 		#foreach ($prim in $primitivesNoBool)
 		if (buffer instanceof ${prim.BufferName})
-			return (Pointer)pointerTo((${prim.BufferName})buffer, byteOffset);
+			return (Pointer)pointerToBuffer((${prim.BufferName})buffer, byteOffset);
 		#end
         throw new UnsupportedOperationException();
 	}
 
 #foreach ($prim in $primitivesNoBool)
-    public static Pointer<${prim.WrapperName}> pointerTo(${prim.Name}... values) {
+    public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}(${prim.Name} value) {
+        Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size});
+        mem.set${prim.CapName}(0, value);
+        return mem;
+    }
+	
+	public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.Name}... values) {
         Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * values.length);
         mem.set${prim.CapName}s(0, values, 0, values.length);
         return mem;
     }
 	
-	public static Pointer<${prim.WrapperName}> pointerTo(${prim.BufferName} buffer) {
-		return pointerTo(buffer, 0);
+	public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.BufferName} buffer) {
+		return pointerTo${prim.CapName}s(buffer, 0);
 	}
 	
-    public static Pointer<${prim.WrapperName}> pointerTo(${prim.BufferName} buffer, long byteOffset) {
+    public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.BufferName} buffer, long byteOffset) {
         if (buffer == null)
 			return null;
 		
@@ -448,7 +510,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
     public static Pointer<${prim.WrapperName}> allocate${prim.CapName}() {
         return allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size});
     }
-    public static Pointer<${prim.WrapperName}> allocate${prim.CapName}s(int arrayLength) {
+    public static Pointer<${prim.WrapperName}> allocate${prim.CapName}s(long arrayLength) {
         return allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * arrayLength);
     }
 #end
@@ -487,6 +549,30 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         return getPointer(byteOffset, t == null ? null : PointerIO.getInstance(t));
     }
 	
+    public Pointer<?>[] getPointers(long byteOffset, int arrayLength) {
+        return getPointers(byteOffset, arrayLength, (PointerIO)null);
+    }
+    public <U> Pointer<U>[] getPointers(long byteOffset, int arrayLength, Type t) {
+        return getPointers(byteOffset, arrayLength, t == null ? null : PointerIO.getInstanceByType(t));
+    }
+    public <U> Pointer<U>[] getPointers(long byteOffset, int arrayLength, Class<U> t) {
+        return getPointers(byteOffset, arrayLength, t == null ? null : PointerIO.getInstance(t));
+    }
+    
+    public <U> Pointer<U>[] getPointers(long byteOffset, int arrayLength, PointerIO pio) {
+    	Pointer<U>[] values = (Pointer<U>[])new Pointer[arrayLength];
+		int s = JNI.POINTER_SIZE;
+		for (int i = 0; i < arrayLength; i++)
+			values[i] = getPointer(i * s, pio);
+		return values;
+	}
+	public Pointer<T> setPointers(long byteOffset, Pointer<?>... values) {
+		int n = values.length, s = JNI.POINTER_SIZE;
+		for (int i = 0; i < n; i++)
+			setPointer(i * s, values[i]);
+		return this;
+	}
+	
 	static final boolean is64 = JNI.POINTER_SIZE == 8; 
 	
 	public static Pointer<SizeT> pointerToSizeT(long value) {
@@ -494,19 +580,32 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 		p.setSizeT(0, value);
 		return p;
 	}
-	public static Pointer<SizeT> allocateSizeTs(int arrayLength) {
-		return allocate(PointerIO.getSizeTInstance(), JNI.SIZE_T_SIZE * arrayLength);
-	}
-	public static Pointer<SizeT> allocateSizeT(int arrayLength) {
-		return allocate(PointerIO.getSizeTInstance(), JNI.SIZE_T_SIZE);
-	}
 	public static Pointer<SizeT> pointerToSizeTs(long... values) {
 		int n = values.length, s = JNI.SIZE_T_SIZE;
-		Pointer<SizeT> p = allocate(PointerIO.getSizeTInstance(), s * n);
+		return allocate(PointerIO.getSizeTInstance(), s * n).setSizeTs(0, values);
+	}
+	
+	public static <T> Pointer<Pointer<T>> pointerToPointer(Pointer<T> value) {
+		// TODO
+		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocate(PointerIO.getPointerInstance(/*value.getIO()*/), JNI.POINTER_SIZE);
+		p.setPointer(0, value);
+		return p;
+	}
+	public static <T> Pointer<Pointer<T>> pointerToPointers(Pointer<T>... values) {
+		int n = values.length, s = JNI.POINTER_SIZE;
+		// TODO
+		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocate(PointerIO.getPointerInstance(/*values[0].getIO()*/), s * n);
 		for (int i = 0; i < n; i++) {
-			p.setSizeT(i * s, values[i]);
+			p.setPointer(i * s, values[i]);
 		}
 		return p;
+	}
+	
+    public static Pointer<SizeT> allocateSizeTs(long arrayLength) {
+		return allocate(PointerIO.getSizeTInstance(), JNI.SIZE_T_SIZE * arrayLength);
+	}
+	public static Pointer<SizeT> allocateSizeT() {
+		return allocate(PointerIO.getSizeTInstance(), JNI.SIZE_T_SIZE);
 	}
 	
 	public long getSizeT(long byteOffset) {
@@ -524,7 +623,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 		return ret;
 	}
 	
-    protected Pointer<T> setSizeT(long byteOffset, long value) {
+    public Pointer<T> setSizeT(long byteOffset, long value) {
 		if (is64)
 			setLong(byteOffset, value);
 		else {
@@ -532,8 +631,18 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 		}
 		return this;
 	}
-
-    static Class<?> getPrimitiveType(Buffer buffer) {
+	public Pointer<T> setSizeTs(long byteOffset, long... values) {
+		if (is64) {
+			setLongs(byteOffset, values);
+		} else {
+			int n = values.length, s = 4;
+			for (int i = 0; i < n; i++)
+				setInt(i * s, (int)values[i]);
+		}
+		return this;
+	}
+	
+	static Class<?> getPrimitiveType(Buffer buffer) {
 
         #foreach ($prim in $primitivesNoBool)
 		if (buffer instanceof ${prim.BufferName})
@@ -619,7 +728,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 		return new String(getBytes(byteOffset, SizeT.safeIntCast(len)), charset.name());
 	}
 
-    public Pointer<T> setString(long byteOffset, String s) {
+    public Pointer<T> setCString(long byteOffset, String s) {
         try {
             return setString(byteOffset, s, Charset.defaultCharset(), StringType.C);
         } catch (UnsupportedEncodingException ex) {
@@ -654,7 +763,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         }
 	}
 	
-	public String getWideString(long byteOffset) {
+	public String getWideCString(long byteOffset) {
 		try {
             return getString(byteOffset, Charset.defaultCharset(), StringType.WideC);
         } catch (UnsupportedEncodingException ex) {
@@ -663,7 +772,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
 	}
 	
 	@Deprecated
-    public String getString(long byteOffset, boolean wide) {
+    public String getCString(long byteOffset, boolean wide) {
         try {
             return getString(byteOffset, Charset.defaultCharset(), wide ? StringType.WideC : StringType.C);
         } catch (UnsupportedEncodingException ex) {
@@ -671,8 +780,8 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>
         }
     }
     
-	public String getString(long byteOffset) {
-        return getString(byteOffset, false);
+	public String getCString(long byteOffset) {
+        return getCString(byteOffset, false);
     }
         
     public void setPointer(long byteOffset, Pointer value) {

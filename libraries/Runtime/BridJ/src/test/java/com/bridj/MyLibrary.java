@@ -33,7 +33,7 @@ public class MyLibrary {
 	
 	protected native int someFunction_native(@Ptr long stringArray, @Ptr long errOut);
 	public int someFunction(String[] arg1, Pointer<Integer> errOut) {
-		TempPointers temp = new TempPointers(pointerTo(arg1), errOut);
+		TempPointers temp = new TempPointers(pointerToCStrings(arg1), errOut);
         try {
         	return someFunction_native(temp.get(0), temp.get(1));
         } finally {

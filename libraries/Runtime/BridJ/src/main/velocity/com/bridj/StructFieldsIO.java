@@ -146,7 +146,7 @@ class StructFieldsIO {
 	public static ${prim.BufferName} get${prim.CapName}BufferField(StructObject struct, int fieldIndex) {
         FieldIO field = struct.io.fields[fieldIndex];
         ${prim.BufferName} b = (${prim.BufferName})struct.refreshableFields[field.refreshableFieldIndex];
-        if (b == null || !b.isDirect() || !Pointer.getPeer(struct).offset(field.byteOffset).equals(Pointer.pointerTo(b))) {
+        if (b == null || !b.isDirect() || !Pointer.getPeer(struct).offset(field.byteOffset).equals(Pointer.pointerToBuffer(b))) {
             int len = field.arraySize * field.byteLength;
             struct.refreshableFields[field.refreshableFieldIndex] = b = 
                 Pointer.getPeer(struct).getByteBuffer(field.byteOffset, len)

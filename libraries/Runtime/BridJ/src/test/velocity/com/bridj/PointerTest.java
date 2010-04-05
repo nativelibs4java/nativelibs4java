@@ -12,7 +12,7 @@ public class PointerTest {
 #foreach ($prim in $primitivesNoBool)
 	@Test 
     public void testPointerTo_${prim.Name}_Values() {
-		Pointer<${prim.WrapperName}> p = Pointer.pointerTo(new ${prim.Name}[]{ (${prim.Name})1, (${prim.Name})2, (${prim.Name})3 });
+		Pointer<${prim.WrapperName}> p = Pointer.pointerTo${prim.CapName}s((${prim.Name})1, (${prim.Name})2, (${prim.Name})3);
 		assertEquals((${prim.Name})1, (${prim.Name})p.get(0), 0);
 		assertEquals((${prim.Name})2, (${prim.Name})p.get(1), 0);
 		assertEquals((${prim.Name})3, (${prim.Name})p.get(2), 0);

@@ -56,7 +56,7 @@ class DefaultPointer<T> extends Pointer<T>
 			else if (memoryOwner instanceof Buffer) {
 				Buffer b = (Buffer)memoryOwner;
 				if (b.isDirect())
-					return (Pointer)pointerTo(b, peerOrOffsetInOwner);
+					return (Pointer)pointerToBuffer(b, peerOrOffsetInOwner);
 				else
 					throw new RuntimeException("Cannot get a pointer to this pointer because it is based on a non-direct NIO " + memoryOwner.getClass().getSimpleName());
 			} else

@@ -2,7 +2,9 @@ package com.bridj;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.logging.Level;
 
@@ -57,7 +59,13 @@ class Memory<T> extends DefaultPointer<T> {
     public long getValidStart() {
         return validStart;
     }
-    
+    @Override
+    public long getRemainingBytes() {
+    	long peer = getPeer();
+    	long taken = peer - getValidStart();
+    	long remaining = getValidSize() - taken;
+    	return remaining < 0 ? -1 : remaining;
+    }
 
     @Override
     protected long getCheckedPeer(long byteOffset, long validityCheckLength) {
