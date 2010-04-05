@@ -49,7 +49,7 @@ public class MFCRuntime extends CPPRuntime {
 	}
 	
 	private Class<?> getMFCClass(Pointer<Byte> mLpszClassName) throws ClassNotFoundException {
-		throw new ClassNotFoundException(mLpszClassName.getString(0));
+		throw new ClassNotFoundException(mLpszClassName.getCString(0));
 	}
 
 	public void getExtraFieldsOfNewClass(Class<?> type, Map<String, Type> out) {

@@ -59,7 +59,7 @@ public class PointerIO<T> {
             if (Pointer.class.isAssignableFrom(c))
                 return (T)c.getConstructor(Long.TYPE).newInstance(pointer.getSizeT(JNI.POINTER_SIZE * index));
             if (c == String.class || c == CharSequence.class)
-                return (T)pointer.getString(index * JNI.POINTER_SIZE);
+                return (T)pointer.getCString(index * JNI.POINTER_SIZE);
 			if (NativeObject.class.isAssignableFrom(c))
 				return (T)pointer.toNativeObject((Class)c); 
 				
@@ -79,7 +79,7 @@ public class PointerIO<T> {
         else if (Pointer.class.isAssignableFrom(c))
             pointer.setSizeT(JNI.POINTER_SIZE * index, (Long)value);
         else if (CharSequence.class.isAssignableFrom(c))
-            pointer.setString(index * JNI.POINTER_SIZE, value.toString());
+            pointer.setCString(index * JNI.POINTER_SIZE, value.toString());
         else
             throw new UnsupportedOperationException("Cannot get value of type " + c.getName());
     }

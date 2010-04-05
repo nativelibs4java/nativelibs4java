@@ -585,6 +585,11 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<Poi
 		return allocate(PointerIO.getSizeTInstance(), s * n).setSizeTs(0, values);
 	}
 	
+	public static Pointer<SizeT> pointerToSizeTs(int[] values) {
+		int n = values.length, s = JNI.SIZE_T_SIZE;
+		return allocate(PointerIO.getSizeTInstance(), s * n).setSizeTs(0, values);
+	}
+	
 	public static <T> Pointer<Pointer<T>> pointerToPointer(Pointer<T> value) {
 		// TODO
 		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocate(PointerIO.getPointerInstance(/*value.getIO()*/), JNI.POINTER_SIZE);
@@ -638,6 +643,17 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<Poi
 			int n = values.length, s = 4;
 			for (int i = 0; i < n; i++)
 				setInt(i * s, (int)values[i]);
+		}
+		return this;
+	}
+	
+	public Pointer<T> setSizeTs(long byteOffset, int[] values) {
+		if (!is64) {
+			setInts(byteOffset, values);
+		} else {
+			int n = values.length, s = 8;
+			for (int i = 0; i < n; i++)
+				setLong(i * s, values[i]);
 		}
 		return this;
 	}
