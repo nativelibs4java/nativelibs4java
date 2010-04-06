@@ -9,7 +9,7 @@ import java.util.Iterator;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
-public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<Pointer<T>>
+public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         //, com.sun.jna.Pointer<Pointer<T>>
 {
     public static final Pointer NULL = null;
@@ -34,16 +34,16 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<Poi
     }
     
     
-    public Iterator<Pointer<T>> iterator() {
-    	return new Iterator<Pointer<T>>() {
+    public Iterator<T> iterator() {
+    	return new Iterator<T>() {
     		Pointer<T> next = Pointer.this;
     		@Override
-			public Pointer<T> next() {
+			public T next() {
 				if (next == null)
 					throw new NoSuchElementException();
 				Pointer<T> ptr = next.next(1);
 				next = ptr.getRemainingBytes() == 0 ? null : ptr;
-				return ptr;
+				return ptr.get();
 			}
 			@Override
 			public void remove() {
@@ -83,11 +83,11 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<Poi
         throw new UnsupportedOperationException(); // TODO
     }
     
-    public static Pointer<? extends NativeObject> getPeer(NativeObject instance) {
+    public static <N extends NativeObject> Pointer<N> getPeer(N instance) {
 		return getPeer(instance, null);
     }
-    public static Pointer<? extends NativeObject> getPeer(NativeObject instance, Class targetType) {
-		return (Pointer)instance.peer;
+    public static <R extends NativeObject> Pointer<R> getPeer(NativeObject instance, Class<R> targetType) {
+		return (Pointer<R>)instance.peer;
     }
     public static long getAddress(NativeObject instance, Class targetType) {
 		return getPeer(instance, targetType).getPeer();
