@@ -4,12 +4,60 @@ import org.junit.Test;
 
 import com.bridj.DefaultDisorderedPointer;
 
-import java.nio.ByteOrder;
+import java.nio.*;
 import static org.junit.Assert.*;
 
 public class PointerTest {
+	int n = 10;
 
 #foreach ($prim in $primitivesNoBool)
+	
+	@Test 
+    public void testSetGet${prim.CapName}Buffer() {
+		
+		Pointer<${prim.WrapperName}> p = Pointer.allocate${prim.CapName}s(n);
+		${prim.Name}[] expected = new ${prim.Name}[n];
+		${prim.BufferName} buf = ${prim.BufferName}.wrap(expected);
+		
+		p.set${prim.CapName}s(buf);
+		
+		${prim.Name}[] values = p.get${prim.CapName}s(0, n);
+		${prim.BufferName} valuesBuffer = p.get${prim.CapName}Buffer(0, n);
+		
+		for (int i = 0; i < n; i++) {
+			assertEquals(expected[i], values[i], 0);
+			assertEquals(expected[i], valuesBuffer.get(i), 0);
+			assertEquals(expected[i], p.get${prim.CapName}(i * ${prim.Size}), 0);
+		}
+		
+	}
+	@Test 
+    public void testSetGet${prim.CapName}s() {
+		
+		Pointer<${prim.WrapperName}> p = Pointer.allocate${prim.CapName}s(n);
+		${prim.Name}[] expected = new ${prim.Name}[n];
+		for (int i = 0; i < n; i++)
+			expected[i] = (${prim.Name})(i + 1);
+		
+		p.set${prim.CapName}s(0, expected);
+		${prim.Name}[] values = p.get${prim.CapName}s(0, n);
+		${prim.BufferName} valuesBuffer = p.get${prim.CapName}Buffer(0, n);
+		
+		for (int i = 0; i < n; i++) {
+			assertEquals(expected[i], values[i], 0);
+			assertEquals(expected[i], valuesBuffer.get(i), 0);
+			assertEquals(expected[i], p.get${prim.CapName}(i * ${prim.Size}), 0);
+		}
+		
+		for (int i = 0; i < n; i++) {
+			expected[i] = (${prim.Name})((i + 1) * 10);
+			p.set${prim.CapName}(i * ${prim.Size}, expected[i]);
+		}
+		
+		for (int i = 0; i < n; i++)
+			assertEquals(expected[i], p.get${prim.CapName}(i * ${prim.Size}), 0);
+	}
+
 	@Test 
     public void testPointerTo_${prim.Name}_Values() {
 		Pointer<${prim.WrapperName}> p = Pointer.pointerTo${prim.CapName}s((${prim.Name})1, (${prim.Name})2, (${prim.Name})3);

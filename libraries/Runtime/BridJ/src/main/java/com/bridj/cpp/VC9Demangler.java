@@ -190,7 +190,7 @@ public class VC9Demangler extends Demangler {
             List<Object> qNames = new ArrayList<Object>();
             parseNameQualifications(qNames);
 
-            //TypeRef qualifiedName = parseQualifiedTypeName();
+			//TypeRef qualifiedName = parseQualifiedTypeName();
 
             AccessLevelAndStorageClass ac = parseAccessLevelAndStorageClass();
             CVClassModifier cvMod = null;
@@ -253,33 +253,45 @@ public class VC9Demangler extends Demangler {
         }
 		switch (c) {
 		case '_':
+			TypeRef tr;
 			switch (consumeChar()) {
             case 'D': // __int8
-                return classType(Byte.TYPE);
+                tr = classType(Byte.TYPE);
+				break;
             case 'E': // unsigned __int8
-                return classType(Byte.TYPE);
+                tr = classType(Byte.TYPE);
+				break;
             case 'F': // __int16
             case 'G': // unsigned __int16
-                return classType(Short.TYPE);
+                tr = classType(Short.TYPE);
+				break;
             case 'H': // __int32
             case 'I': // unsigned __int32
-                return classType(Integer.TYPE);
+                tr = classType(Integer.TYPE);
+				break;
             case 'J': // __int64
             case 'K': // unsigned __int64
-                return classType(Long.TYPE);
+                tr = classType(Long.TYPE);
+				break;
             case 'L': // __int128
-                return classType(BigInteger.class);
+                tr = classType(BigInteger.class);
+				break;
 			case 'N': // bool
-                return classType(Boolean.class);
+                tr = classType(Boolean.class);
+				break;
 			case '0': // array ??
                 parseCVClassModifier();
                 parseType(false);
-                return classType(Object[].class);
+                tr = classType(Object[].class);
+				break;
 			case 'W':
-				return classType(Character.TYPE, Wide.class);
+				tr = classType(Character.TYPE, Wide.class);
+				break;
 			default:
 				throw error(-1);
 			}
+			allQualifiedNames.add(Collections.singletonList(tr));
+			return tr;
         //case 'Z':
         //    return classType(Object[].class); // TODO ellipsis
         case 'O':
@@ -374,7 +386,7 @@ public class VC9Demangler extends Demangler {
         return new NamespaceRef(names.toArray(new Object[names.size()]));
     }
     List<TypeRef> backReferences = new ArrayList<TypeRef>();
-    List<List<String>> allQualifiedNames = new ArrayList<List<String>>();
+    List<List> allQualifiedNames = new ArrayList<List>();
 
     Object parseFirstQualifiedTypeNameComponent() throws DemanglingException {
         if (consumeCharIf('?')) {
@@ -391,6 +403,11 @@ public class VC9Demangler extends Demangler {
     	List<Object> names = new ArrayList<Object>();
         names.add(parseFirstQualifiedTypeNameComponent());
         parseNameQualifications(names);
+		
+		if (names.size() == 1 && (names.get(0) instanceof TypeRef)) {
+			return (TypeRef)names.get(0);
+		}
+		
         /*
     	if (Character.isDigit(c)) {
     		consumeChar();
