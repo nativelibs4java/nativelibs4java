@@ -1,4 +1,4 @@
 //-root com.nativelibs4java
 -package com.nativelibs4java.opencl.library
 -gccLong
--limitComments
+//-limitComments

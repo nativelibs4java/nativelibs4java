@@ -57,13 +57,11 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.util.NIOUtils;
-import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import com.sun.jna.Memory;
-import com.sun.jna.Native;
-import com.sun.jna.Platform;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
+import com.bridj.JNI;
+import com.bridj.Pointer;
+import com.bridj.SizeT;
+import static com.bridj.Pointer.*;
+
 
 /**
  * OpenCL context.<br/>
@@ -76,14 +74,14 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	private static CLInfoGetter<cl_context> infos = new CLInfoGetter<cl_context>() {
 
 		@Override
-		protected int getInfo(cl_context entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+		protected int getInfo(cl_context entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
 			return CL.clGetContextInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};
 	CLPlatform platform;
-	protected cl_device_id[] deviceIds;
+	protected Pointer<cl_device_id> deviceIds;
 
-	CLContext(CLPlatform platform, cl_device_id[] deviceIds, cl_context context) {
+	CLContext(CLPlatform platform, Pointer<cl_device_id> deviceIds, cl_context context) {
 		super(context);
 		this.platform = platform;
 		this.deviceIds = deviceIds;
@@ -95,7 +93,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @return new OpenCL queue
 	 */
 	public CLQueue createDefaultQueue(QueueProperties... queueProperties) {
-		return new CLDevice(platform, deviceIds[0]).createQueue(this, queueProperties);
+		return new CLDevice(platform, deviceIds.get(0)).createQueue(this, queueProperties);
 	}
 
 	/**
@@ -104,7 +102,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @return new out-of-order OpenCL queue
 	 */
 	public CLQueue createDefaultOutOfOrderQueue() {
-		return new CLDevice(platform, deviceIds[0]).createOutOfOrderQueue(this);
+		return new CLDevice(platform, deviceIds.get(0)).createOutOfOrderQueue(this);
 	}
 
 	/**
@@ -113,31 +111,26 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 * @return new profiling-enabled OpenCL queue
 	 */
 	public CLQueue createDefaultProfilingQueue() {
-		return new CLDevice(platform, deviceIds[0]).createProfilingQueue(this);
+		return new CLDevice(platform, deviceIds.get(0)).createProfilingQueue(this);
 	}
 
 	@SuppressWarnings("deprecation")
 	public CLImageFormat[] getSupportedImageFormats(CLBuffer.Flags flags, CLBuffer.ObjectType imageType) {
-		IntByReference pCount = new IntByReference();
+		Pointer<Integer> pCount = allocateInt();
 		int memFlags = (int) flags.getValue();
 		int imTyp = (int) imageType.getValue();
-		Memory memCount = new Memory(16);
-		pCount.setPointer(memCount);
 		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, 0, null, pCount);
-		cl_image_format ft = new cl_image_format();
-		int sz = ft.size();
-		int n = pCount.getValue();
+		//cl_image_format ft = new cl_image_format();
+		//int sz = ft.size();
+		int n = pCount.get();
 		if (n == 0) {
 			n = 30; // There HAS to be at least one format. the spec even says even more, but in fact on Mac OS X / CPU there's only one...
 		}
-		Memory mem = new Memory(n * sz);
-		ft.use(mem);
-		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, n, ft, (IntByReference) null);
+        Pointer<cl_image_format> formats = allocateArray(cl_image_format.class, n);
+		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, n, formats, (Pointer<Integer>) null);
 		List<CLImageFormat> ret = new ArrayList<CLImageFormat>(n);
-		for (int i = 0; i < n; i++) {
-			ft.use(mem, i * sz);
-			ft.read();
-			if (ft.image_channel_data_type == 0 && ft.image_channel_order == 0)
+        for (cl_image_format ft : formats) {
+            if (ft.image_channel_data_type() == 0 && ft.image_channel_order() == 0)
 				break;
 
 			ret.add(new CLImageFormat(ft));
@@ -147,9 +140,9 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 	@SuppressWarnings("deprecation")
 	public CLSampler createSampler(boolean normalized_coords, AddressingMode addressing_mode, FilterMode filter_mode) {
-		IntByReference pErr = new IntByReference();
+		Pointer<Integer> pErr = allocateInt();
 		cl_sampler sampler = CL.clCreateSampler(getEntity(), normalized_coords ? CL_TRUE : CL_FALSE, (int) addressing_mode.getValue(), (int) filter_mode.getValue(), pErr);
-		error(pErr.getValue());
+		error(pErr.get());
 		return new CLSampler(sampler);
 	}
 
@@ -159,16 +152,14 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	public synchronized CLDevice[] getDevices() {
 		if (deviceIds == null) {
-			Memory ptrs = infos.getMemory(getEntity(), CL_CONTEXT_DEVICES);
-			int n = (int) (ptrs.getSize() / Native.POINTER_SIZE);
-			deviceIds = new cl_device_id[n];
-			for (int i = 0; i < n; i++) {
-				deviceIds[i] = new cl_device_id(ptrs.getPointer(i * Native.POINTER_SIZE));
-			}
+			Pointer<?> ptrs = infos.getMemory(getEntity(), CL_CONTEXT_DEVICES);
+			deviceIds = ptrs.setTargetClass(cl_device_id.class);
 		}
-		CLDevice[] devices = new CLDevice[deviceIds.length];
-		for (int i = devices.length; i-- != 0;) {
-			devices[i] = new CLDevice(platform, deviceIds[i]);
+        int n = (int)deviceIds.getRemainingElements();
+
+		CLDevice[] devices = new CLDevice[n];
+		for (int i = n; i-- != 0;) {
+			devices[i] = new CLDevice(platform, deviceIds.get(i));
 		}
 		return devices;
 	}
@@ -200,19 +191,19 @@ public class CLContext extends CLAbstractEntity<cl_context> {
     @Deprecated
     public CLDevice guessCurrentGLDevice() {
         long[] props = CLPlatform.getContextProps(CLPlatform.getGLContextProperties());
-        Memory propsMem = toNSArray(props);
-        NativeSizeByReference propsRef = new NativeSizeByReference();
-        propsRef.setPointer(propsMem);
-
-        NativeSizeByReference pCount = new NativeSizeByReference();
-        Memory mem = new Memory(Pointer.SIZE);
-        if (Platform.isMac())
-            error(CL.clGetGLContextInfoAPPLE(getEntity(), OpenGLContextUtils.INSTANCE.CGLGetCurrentContext(), CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, toNS(Pointer.SIZE), mem, pCount));
+        Pointer<SizeT> propsRef = pointerToSizeTs(props);
+        
+        Pointer<SizeT> pCount = allocateSizeT();
+        Pointer<Pointer<?>> mem = allocatePointer();
+        if (JNI.isMacOSX())
+            error(CL.clGetGLContextInfoAPPLE(getEntity(), OpenGLContextUtils.CGLGetCurrentContext(),
+                    //CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,
+                    Pointer.SIZE, mem, pCount));
         else
-            error(CL.clGetGLContextInfoKHR(propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, toNS(Pointer.SIZE), mem, pCount));
+            error(CL.clGetGLContextInfoKHR(propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, Pointer.SIZE, mem, pCount));
 
-        if (pCount.getValue().intValue() != Pointer.SIZE)
-            throw new RuntimeException("Not a device : len = " + pCount.getValue().intValue());
+        if (pCount.get().intValue() != Pointer.SIZE)
+            throw new RuntimeException("Not a device : len = " + pCount.get().intValue());
 
         Pointer p = mem.getPointer(0);
         if (p.equals(Pointer.NULL))
@@ -234,12 +225,12 @@ public class CLContext extends CLAbstractEntity<cl_context> {
      */
 	@SuppressWarnings("deprecation")
 	public CLByteBuffer createBufferFromGLBuffer(CLMem.Usage usage, int openGLBufferObject) {
-		IntByReference pErr = new IntByReference();
+		Pointer<Integer> pErr = allocateInt();
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateFromGLBuffer(getEntity(), usage.getIntFlags(), openGLBufferObject, pErr);
-		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
+		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
         return markAsGL(new CLByteBuffer(this, -1, mem, null));
 	}
 
@@ -252,12 +243,12 @@ public class CLContext extends CLAbstractEntity<cl_context> {
      */
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2DFromGLRenderBuffer(CLMem.Usage usage, int openGLRenderBuffer) {
-		IntByReference pErr = new IntByReference();
+		Pointer<Integer> pErr = allocateInt();
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateFromGLRenderbuffer(openGLRenderBuffer, pErr);
-		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
+		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
 	
@@ -275,12 +266,12 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	@SuppressWarnings("deprecation")
 	public CLImage2D createImage2DFromGLTexture2D(CLMem.Usage usage, GLTextureTarget textureTarget, int texture, int mipLevel) {
-		IntByReference pErr = new IntByReference();
+		Pointer<Integer> pErr = allocateInt();
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateFromGLTexture2D(textureTarget.getValue(), mipLevel, texture, pErr);
-		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
+		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
 
@@ -329,12 +320,12 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	@SuppressWarnings("deprecation")
 	public CLImage3D createImage3DFromGLTexture3D(CLMem.Usage usage, int texture, int mipLevel) {
-		IntByReference pErr = new IntByReference();
+		Pointer<Integer> pErr = allocateInt();
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateFromGLTexture3D(GL_TEXTURE_3D, mipLevel, texture, pErr);
-		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
+		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
 		return markAsGL(new CLImage3D(this, mem, null));
 	}
 	
@@ -365,20 +356,20 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			memFlags |= copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR;
 		}
 
-		IntByReference pErr = new IntByReference();
+		Pointer<Integer> pErr = allocateInt();
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateImage2D(
 				getEntity(),
 				memFlags,
-				format.to_cl_image_format(),
-				toNS(width),
-				toNS(height),
-				toNS(rowPitch),
-				buffer == null ? null : Native.getDirectBufferPointer(buffer),
+				getPeer(format.to_cl_image_format()),
+				width,
+				height,
+				rowPitch,
+				buffer == null ? null : pointerToBuffer(buffer),
 				pErr);
-		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
+		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
 		return new CLImage2D(this, mem, format);
 	}
 
@@ -397,22 +388,22 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			memFlags |= copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR;
 		}
 
-		IntByReference pErr = new IntByReference();
+		Pointer<Integer> pErr = allocateInt();
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
 			mem = CL.clCreateImage3D(
 				getEntity(),
 				memFlags,
-				format.to_cl_image_format(),
-				toNS(width),
-				toNS(height),
-				toNS(depth),
-				toNS(rowPitch),
-				toNS(slicePitch),
-				buffer == null ? null : Native.getDirectBufferPointer(buffer),
+				getPeer(format.to_cl_image_format()),
+				width,
+				height,
+				depth,
+				rowPitch,
+				slicePitch,
+				buffer == null ? null : pointerToBuffer(buffer),
 				pErr);
-		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
+		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
 		
 		return new CLImage3D(this, mem, format);
 	}
@@ -547,7 +538,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			throw new IllegalArgumentException("Buffer size must be greater than zero (asked for size " + byteCount + ")");
 		}
 
-		IntByReference pErr = new IntByReference();
+		Pointer<Integer> pErr = allocateInt();
 		//IntBuffer errBuff = IntBuffer.wrap(new int[1]);
 		cl_mem mem;
 		int previousAttempts = 0;
@@ -555,10 +546,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			mem = CL.clCreateBuffer(
 				getEntity(),
 				CLBufferFlags,
-				toNS(byteCount),
-				buffer == null ? null : Native.getDirectBufferPointer(buffer),
+				byteCount,
+				buffer == null ? null : pointerToBuffer(buffer),
 				pErr);
-		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
+		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
 
 		return new CLByteBuffer(this, byteCount, mem, buffer);
 	}

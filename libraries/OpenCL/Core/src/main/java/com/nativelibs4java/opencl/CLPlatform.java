@@ -23,15 +23,15 @@ import com.nativelibs4java.opencl.library.OpenGLContextUtils;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
+import com.bridj.*;
+
 import java.nio.ByteOrder;
 import java.util.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLException.*;
 import static com.nativelibs4java.util.JNAUtils.*;
+import static com.bridj.Pointer.*;
 
 /**
  * OpenCL implementation entry point.
@@ -46,7 +46,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     private static CLInfoGetter<cl_platform_id> infos = new CLInfoGetter<cl_platform_id>() {
 
         @Override
-        protected int getInfo(cl_platform_id entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+        protected int getInfo(cl_platform_id entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
             return CL.clGetPlatformInfo(entity, infoTypeEnum, size, out, sizeOut);
         }
     };
@@ -101,13 +101,13 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         }
     }
 
-    private CLDevice[] getDevices(cl_device_id[] ids, boolean onlyAvailable) {
-        int nDevs = ids.length;
+    private CLDevice[] getDevices(Pointer<cl_device_id> ids, boolean onlyAvailable) {
+        int nDevs = (int)ids.getRemainingElements();
         CLDevice[] devices;
         if (onlyAvailable) {
             List<CLDevice> list = new ArrayList<CLDevice>(nDevs);
             for (int i = 0; i < nDevs; i++) {
-                CLDevice device = new CLDevice(this, ids[i]);
+                CLDevice device = new CLDevice(this, ids.get(i));
                 if (device.isAvailable()) {
                     list.add(device);
                 }
@@ -116,7 +116,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         } else {
             devices = new CLDevice[nDevs];
             for (int i = 0; i < nDevs; i++) {
-                devices[i] = new CLDevice(this, ids[i]);
+                devices[i] = new CLDevice(this, ids.get(i));
             }
         }
         return devices;
@@ -199,21 +199,21 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     static Map<ContextProperties, Number> getGLContextProperties() {
         Map<ContextProperties, Number> out = new LinkedHashMap<ContextProperties, Number>();
 
-        if (Platform.isMac()) {
-            NativeSize context = OpenGLContextUtils.INSTANCE.CGLGetCurrentContext();
-            NativeSize shareGroup = OpenGLContextUtils.INSTANCE.CGLGetShareGroup(context);
-            out.put(ContextProperties.GLContext, context.longValue());
-            out.put(ContextProperties.CGLShareGroup, shareGroup.longValue());
-        } else if (Platform.isWindows()) {
-            NativeSize context = OpenGLContextUtils.INSTANCE.wglGetCurrentContext();
-            NativeSize dc = OpenGLContextUtils.INSTANCE.wglGetCurrentDC();
-            out.put(ContextProperties.GLContext, context.longValue());
-            out.put(ContextProperties.WGLHDC, dc.longValue());
-        } else if (Platform.isX11()) {
-            NativeSize context = OpenGLContextUtils.INSTANCE.glXGetCurrentContext();
-            NativeSize dc = OpenGLContextUtils.INSTANCE.glXGetCurrentDisplay();
-            out.put(ContextProperties.GLContext, context.longValue());
-            out.put(ContextProperties.GLXDisplay, dc.longValue());
+        if (JNI.isMacOSX()) {
+            Pointer<?> context = OpenGLContextUtils.CGLGetCurrentContext();
+            Pointer<?> shareGroup = OpenGLContextUtils.CGLGetShareGroup(context);
+            out.put(ContextProperties.GLContext, context.getPeer());
+            out.put(ContextProperties.CGLShareGroup, shareGroup.getPeer());
+        } else if (JNI.isWindows()) {
+            Pointer<?> context = OpenGLContextUtils.wglGetCurrentContext();
+            Pointer<?> dc = OpenGLContextUtils.wglGetCurrentDC();
+            out.put(ContextProperties.GLContext, context.getPeer());
+            out.put(ContextProperties.WGLHDC, dc.getPeer());
+        } else if (JNI.isUnix()) {
+            Pointer<?> context = OpenGLContextUtils.glXGetCurrentContext();
+            Pointer<?> dc = OpenGLContextUtils.glXGetCurrentDisplay();
+            out.put(ContextProperties.GLContext, context.getPeer());
+            out.put(ContextProperties.GLXDisplay, dc.getPeer());
         } else
             throw new UnsupportedOperationException("Current GL context retrieval not implemented on this platform !");
         
@@ -240,19 +240,17 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         if (nDevs == 0) {
             throw new IllegalArgumentException("Cannot create a context with no associated device !");
         }
-        cl_device_id[] ids = new cl_device_id[nDevs];
+        Pointer<cl_device_id> ids = allocateTypedPointers(cl_device_id.class, nDevs);
         for (int i = 0; i < nDevs; i++) {
-            ids[i] = devices[i].getEntity();
+            ids.set(i, devices[i].getEntity());
         }
 
-        IntByReference errRef = new IntByReference();
+        Pointer<Integer> errRef = allocateInt();
 
         long[] props = getContextProps(contextProperties);
-        Memory propsMem = toNSArray(props);
-        NativeSizeByReference propsRef = new NativeSizeByReference();
-        propsRef.setPointer(propsMem);
-        cl_context context = CL.clCreateContext(propsRef, ids.length, ids, null, null, errRef);
-        error(errRef.getValue());
+        Pointer<SizeT> propsRef = props == null ? null : pointerToSizeTs(props);
+        cl_context context = CL.clCreateContext(propsRef, nDevs, ids, null, null, errRef);
+        error(errRef.get());
         return new CLContext(this, ids, context);
     }
 
@@ -263,15 +261,15 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     public CLDevice[] listDevices(EnumSet<CLDevice.Type> types, boolean onlyAvailable) {
         int flags = (int) CLDevice.Type.getValue(types);
 
-        IntByReference pCount = new IntByReference();
-        error(CL.clGetDeviceIDs(getEntity(), flags, 0, (PointerByReference) null, pCount));
+        Pointer<Integer> pCount = allocateInt();
+        error(CL.clGetDeviceIDs(getEntity(), flags, 0, null, pCount));
 
-        int nDevs = pCount.getValue();
+        int nDevs = pCount.get();
         if (nDevs == 0) {
             return new CLDevice[0];
         }
 
-        cl_device_id[] ids = new cl_device_id[nDevs];
+        Pointer<cl_device_id> ids = allocateTypedPointers(cl_device_id.class, nDevs);
 
         error(CL.clGetDeviceIDs(getEntity(), flags, nDevs, ids, pCount));
         return getDevices(ids, onlyAvailable);
@@ -280,20 +278,20 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     /*
     public CLDevice[] listGLDevices(long openglContextId, boolean onlyAvailable) {
         
-        IntByReference errRef = new IntByReference();
+        Pointer<Integer> errRef = allocateInt();
         long[] props = getContextProps(getGLContextProperties());
         Memory propsMem = toNSArray(props);
-        NativeSizeByReference propsRef = new NativeSizeByReference();
+        Pointer<SizeT> propsRef = allocateSizeT();
         propsRef.setPointer(propsMem);
         
-        NativeSizeByReference pCount = new NativeSizeByReference();
-        error(CL.clGetGLContextInfoKHR(propsRef, CL_DEVICES_FOR_GL_CONTEXT_KHR, toNS(0), (Pointer) null, pCount));
+        Pointer<SizeT> pCount = allocateSizeT();
+        error(CL.clGetGLContextInfoKHR(propsRef, CL_DEVICES_FOR_GL_CONTEXT_KHR, 0, (Pointer) null, pCount));
 
         int nDevs = pCount.getValue().intValue();
         if (nDevs == 0)
             return new CLDevice[0];
         Memory idsMem = new Memory(nDevs * Pointer.SIZE);
-        error(CL.clGetGLContextInfoKHR(propsRef, CL_DEVICES_FOR_GL_CONTEXT_KHR, toNS(nDevs), idsMem, pCount));
+        error(CL.clGetGLContextInfoKHR(propsRef, CL_DEVICES_FOR_GL_CONTEXT_KHR, nDevs, idsMem, pCount));
         cl_device_id[] ids = new cl_device_id[nDevs];
         for (int i = 0; i < nDevs; i++)
             ids[i] = new cl_device_id(idsMem.getPointer(i * Pointer.SIZE));

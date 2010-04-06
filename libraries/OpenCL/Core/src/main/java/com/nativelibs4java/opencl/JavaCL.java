@@ -27,7 +27,8 @@ import java.util.Map;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id;
-import com.sun.jna.ptr.IntByReference;
+import com.bridj.*;
+import static com.bridj.Pointer.*;
 
 /**
  * Entry point class for the OpenCL4Java Object-oriented wrappers around the OpenCL API.<br/>
@@ -35,7 +36,7 @@ import com.sun.jna.ptr.IntByReference;
  */
 public class JavaCL {
 
-    static final OpenCLLibrary CL = OpenCLLibrary.INSTANCE;
+    static final OpenCLLibrary CL = new OpenCLLibrary();
 
     public static CLPlatform[] listGPUPoweredPlatforms() {
         CLPlatform[] platforms = listPlatforms();
@@ -50,20 +51,20 @@ public class JavaCL {
 	 * Lists all available OpenCL implementations.
 	 */
     public static CLPlatform[] listPlatforms() {
-        IntByReference pCount = new IntByReference();
-        error(CL.clGetPlatformIDs(0, (cl_platform_id[])null, pCount));
+        Pointer<Integer> pCount = allocateInt();
+        error(CL.clGetPlatformIDs(0, null, pCount));
 
-        int nPlats = pCount.getValue();
+        int nPlats = pCount.get();
         if (nPlats == 0)
             return new CLPlatform[0];
 
-        cl_platform_id[] ids = new cl_platform_id[nPlats];
+        Pointer<cl_platform_id> ids = allocateTypedPointers(cl_platform_id.class, nPlats);
 
         error(CL.clGetPlatformIDs(nPlats, ids, null));
         CLPlatform[] platforms = new CLPlatform[nPlats];
 
         for (int i = 0; i < nPlats; i++) {
-            platforms[i] = new CLPlatform(ids[i]);
+            platforms[i] = new CLPlatform(ids.get(i));
         }
         return platforms;
     }

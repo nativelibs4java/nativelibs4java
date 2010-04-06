@@ -17,21 +17,26 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.sun.jna.PointerType;
+import com.bridj.Pointer;
+import com.bridj.TypedPointer;
+import static com.bridj.Pointer.*;
 
-abstract class CLAbstractEntity<T extends PointerType> {
+abstract class CLAbstractEntity<T extends TypedPointer> {
     protected volatile T entity;
 	private final boolean nullable;
+    //protected final Class<T> entityClass;
 
-	CLAbstractEntity(T entity) {
-		this(entity, false);
+	CLAbstractEntity(/*Class<T> entityClass, */T entity) {
+		this(/*entityClass, */entity, false);
+
 	}
-    CLAbstractEntity(T entity, boolean nullable) {
+    CLAbstractEntity(/*Class<T> entityClass, */T entity, boolean nullable) {
 		if (!nullable && entity == null) {
             throw new IllegalArgumentException("Null OpenCL " + getClass().getSimpleName() + " !");
         }
 		this.nullable = nullable;
         this.entity = entity;
+        //this.entityClass = entityClass;
     }
 
 	/**
@@ -51,9 +56,9 @@ abstract class CLAbstractEntity<T extends PointerType> {
 		doRelease();
 	}
 
-    public static <E extends PointerType, A extends CLAbstractEntity<E>> E[] getEntities(A[] objects, E[] out) {
+    public static <E extends TypedPointer, A extends CLAbstractEntity<E>> Pointer<E> getEntities(A[] objects, Pointer<E> out) {
         for (int i = 0, len = objects.length; i < len; i++)
-            out[i] = objects[i].getEntity();
+            out.setPointer(i * Pointer.SIZE, objects[i].getEntity());
         return out;
     }
     synchronized T getEntity() {
@@ -81,7 +86,7 @@ abstract class CLAbstractEntity<T extends PointerType> {
 	 */
 	@Override
 	public int hashCode() {
-		return getEntity() == null ? 0 : getEntity().getPointer().hashCode();
+		return getEntity() == null ? 0 : getEntity().hashCode();
 	}
 
 	/**
@@ -92,7 +97,7 @@ abstract class CLAbstractEntity<T extends PointerType> {
 		if (obj == null || !getClass().isInstance(obj))
 			return false;
 		CLAbstractEntity<?> e = (CLAbstractEntity<?>)obj;
-		return getEntity().getPointer().equals(e.getEntity().getPointer());
+		return getEntity().equals(e.getEntity());
 	}
 
 }

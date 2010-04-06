@@ -7,8 +7,8 @@
 -U_MSC_VER
 -library OpenCL
 	"-I$(DIR)/../headers"
+	"$(DIR)/../headers/CL/cl_javacl.h"
 	"$(DIR)/../headers/CL/cl.h"
 	"$(DIR)/../headers/CL/cl_platform.h"
 	"$(DIR)/../headers/CL/cl_gl.h"
-	"$(DIR)/../headers/CL/cl_javacl.h"
 

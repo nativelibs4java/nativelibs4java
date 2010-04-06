@@ -3,7 +3,7 @@
 -DAVAILABLE_MAC_OS_X_VERSION_10_6_AND_LATER=
 -D__APPLE__=
 
--framework OpenCL
+//-framework OpenCL
 
 //-framework OpenGL
 //-package com.nativelibs4java.opengl.library -framework OpenGL

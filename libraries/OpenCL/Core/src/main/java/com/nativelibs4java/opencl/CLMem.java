@@ -42,9 +42,11 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
+
+import com.bridj.Pointer;
+import com.bridj.SizeT;
+import static com.bridj.Pointer.*;
+
 
 /**
  * OpenCL memory object.<br/>
@@ -69,7 +71,7 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 
 	protected static CLInfoGetter<cl_mem> infos = new CLInfoGetter<cl_mem>() {
 		@Override
-		protected int getInfo(cl_mem entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+		protected int getInfo(cl_mem entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
 			return CL.clGetImageInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};
@@ -202,10 +204,10 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
     }
     @SuppressWarnings("deprecation")
 	public GLObjectInfo getGLObjectInfo() {
-        IntByReference typeRef = new IntByReference();
-        IntByReference nameRef = new IntByReference();
+        Pointer<Integer> typeRef = allocateInt();
+        Pointer<Integer> nameRef = allocateInt();
         CL.clGetGLObjectInfo(getEntity(), typeRef, nameRef);
-        return new GLObjectInfo(GLObjectType.getEnum(typeRef.getValue()), nameRef.getValue());
+        return new GLObjectInfo(GLObjectType.getEnum(typeRef.get()), nameRef.get());
     }
 	public enum MapFlags {
 		@EnumValue(CL_MAP_READ) Read,

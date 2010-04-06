@@ -36,10 +36,12 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
+
 import com.ochafik.util.listenable.Pair;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
+import com.bridj.JNI;
+import com.bridj.Pointer;
+import com.bridj.SizeT;
+import static com.bridj.Pointer.*;
 
 
 /**
@@ -65,9 +67,7 @@ public abstract class CLImage extends CLMem {
 	public CLImageFormat getFormat() {
 		if (format == null) {
 			/// TODO: DOES NOT SEEM TO WORK ON MAC OS X 10.6.1 / CPU
-			cl_image_format fmt = new cl_image_format();
-			fmt.use(infos.getMemory(getEntity(), CL_IMAGE_FORMAT));
-			format = new CLImageFormat(fmt);
+			format = new CLImageFormat(new cl_image_format(infos.getMemory(getEntity(), CL_IMAGE_FORMAT)));
 		}
 		return format;
 	}
@@ -82,43 +82,43 @@ public abstract class CLImage extends CLMem {
 	}
 
 
-	protected CLEvent read(CLQueue queue, NativeSize[] origin, NativeSize[] region, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
+	protected CLEvent read(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
 		/*if (!out.isDirect()) {
 
 		}*/
-		cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
+		Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueReadImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
 			origin,
 			region,
-			toNS(rowPitch),
-			toNS(slicePitch),
-			Native.getDirectBufferPointer(out),
-			evts == null ? 0 : evts.length, evts,
+			rowPitch,
+			slicePitch,
+			pointerToBuffer(out),
+			evts == null ? 0 : (int)evts.getRemainingElements(), evts,
 			eventOut
 		));
-		return CLEvent.createEvent(queue, eventOut);
+		return CLEvent.createEventFromPointer(queue, eventOut);
 	}
 
-	protected CLEvent write(CLQueue queue, NativeSize[] origin, NativeSize[] region, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
+	protected CLEvent write(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
 		boolean indirect = !in.isDirect();
 		if (indirect)
 			in = directCopy(in, getContext().getByteOrder());
 
-		cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
+		Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueWriteImage(queue.getEntity(), getEntity(),
 			blocking ? CL_TRUE : CL_FALSE,
 			origin,
 			region,
-			toNS(rowPitch),
-			toNS(slicePitch),
-			Native.getDirectBufferPointer(in),
-			evts == null ? 0 : evts.length, evts,
+			rowPitch,
+			slicePitch,
+			pointerToBuffer(in),
+			evts == null ? 0 : (int)evts.getRemainingElements(), evts,
 			eventOut
 		));
-		CLEvent evt = CLEvent.createEvent(queue, eventOut);
+		CLEvent evt = CLEvent.createEventFromPointer(queue, eventOut);
 
 		if (indirect && !blocking) {
 			final Buffer toHold = in;
@@ -134,31 +134,31 @@ public abstract class CLImage extends CLMem {
 	}
 
     protected Pair<ByteBuffer, CLEvent> map(CLQueue queue, MapFlags flags,
-            NativeSize[] offset3, NativeSize[] length3,
+            Pointer<SizeT> offset3, Pointer<SizeT> length3,
             Long imageRowPitch,
             Long imageSlicePitch,
             boolean blocking, CLEvent... eventsToWaitFor)
     {
 		//checkBounds(offset, length);
-		cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-		IntBuffer pErr = NIOUtils.directInts(1, ByteOrder.nativeOrder());
+		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
+		Pointer<Integer> pErr = allocateInt();
 
-        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         Pointer p = CL.clEnqueueMapImage(
             queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
             flags.getValue(),
 			offset3,
             length3,
-            imageRowPitch == null ? null : new NativeSizeByReference(toNS(imageRowPitch)),
-            imageSlicePitch == null ? null : new NativeSizeByReference(toNS(imageSlicePitch)),
-			evts == null ? 0 : evts.length, evts,
+            imageRowPitch == null ? null : pointerToSizeT(imageRowPitch),
+            imageSlicePitch == null ? null : pointerToSizeT(imageSlicePitch),
+			evts == null ? 0 : (int)evts.getRemainingElements(), evts,
 			eventOut,
 			pErr
 		);
 		error(pErr.get());
         return new Pair<ByteBuffer, CLEvent>(
 			p.getByteBuffer(0, getByteCount()),
-			CLEvent.createEvent(queue, eventOut)
+			CLEvent.createEventFromPointer(queue, eventOut)
 		);
     }
 
@@ -171,9 +171,9 @@ public abstract class CLImage extends CLMem {
      * @return
      */
     public CLEvent unmap(CLQueue queue, ByteBuffer buffer, CLEvent... eventsToWaitFor) {
-        cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
-        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), Native.getDirectBufferPointer(buffer), evts == null ? 0 : evts.length, evts, eventOut));
-		return CLEvent.createEvent(queue, eventOut);
+        Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
+        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), pointerToBuffer(buffer), evts == null ? 0 : (int)evts.getRemainingElements(), evts, eventOut));
+		return CLEvent.createEventFromPointer(queue, eventOut);
     }
 }

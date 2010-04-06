@@ -23,68 +23,68 @@ import static com.nativelibs4java.util.JNAUtils.readNS;
 import static com.nativelibs4java.util.JNAUtils.toNS;
 
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
+
 import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
-import com.sun.jna.PointerType;
-import com.sun.jna.ptr.IntByReference;
+import com.bridj.Pointer;
+import static com.bridj.Pointer.*;
+import com.bridj.Pointer;
+import com.bridj.SizeT;
+import static com.bridj.Pointer.*;
+
 
 /**
  *
  * @author ochafik
  */
-abstract class CLInfoGetter<T extends PointerType> {
+abstract class CLInfoGetter<T extends Pointer> {
 
-    protected abstract int getInfo(T entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut);
+    protected abstract int getInfo(T entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut);
 
     public String getString(T entity, int infoName) {
-        NativeSizeByReference pLen = new NativeSizeByReference();
-        error(getInfo(entity, infoName, toNS(0), null, pLen));
+        Pointer<SizeT> pLen = allocate(SizeT.class);
+        error(getInfo(entity, infoName, 0, null, pLen));
 
-        int len = pLen.getValue().intValue();
+        int len = (int)pLen.getSizeT(0);
         if (len == 0) {
             return "";
         }
-        Memory buffer = new Memory(len + 1);
-        error(getInfo(entity, infoName, pLen.getValue(), buffer, null));
+        Pointer<?> buffer = allocateBytes(len + 1);
+        error(getInfo(entity, infoName, pLen.get().intValue(), buffer, null));
 
-        return buffer.getString(0);
+        return buffer.getCString(0);
     }
 
     public Pointer getPointer(T entity, int infoName) {
-        NativeSizeByReference pLen = new NativeSizeByReference();
-        Memory mem = new Memory(Pointer.SIZE);
-        error(getInfo(entity, infoName, toNS(Pointer.SIZE), mem, pLen));
-        if (pLen.getValue().intValue() != Pointer.SIZE) {
-            throw new RuntimeException("Not a pointer : len = " + pLen.getValue());
+        Pointer<SizeT> pLen = allocate(SizeT.class);
+        Pointer<Pointer<?>> mem = allocatePointer();
+        error(getInfo(entity, infoName, Pointer.SIZE, mem, pLen));
+        if (pLen.getSizeT(0) != Pointer.SIZE) {
+            throw new RuntimeException("Not a pointer : len = " + pLen.get());
         }
-        return mem.getPointer(0);
+        return mem.get();
     }
 
-    public Memory getMemory(T entity, int infoName) {
-        NativeSizeByReference pLen = new NativeSizeByReference();
-        error(getInfo(entity, infoName, toNS(0), null, pLen));
+    public Pointer<?> getMemory(T entity, int infoName) {
+        Pointer<SizeT> pLen = allocate(SizeT.class);
+        error(getInfo(entity, infoName, 0, null, pLen));
 
-        Memory buffer = new Memory(pLen.getValue().intValue());
-        error(getInfo(entity, infoName, pLen.getValue(), buffer, null));
+        int len = pLen.get().intValue();
+        Pointer<?> buffer = allocateBytes(len);
+        error(getInfo(entity, infoName, len, buffer, null));
 
         return buffer;
     }
 
     public long[] getNativeSizes(T entity, int infoName, int n) {
         int nBytes = NativeSize.SIZE * n;
-        NativeSizeByReference pLen = new NativeSizeByReference(toNS(nBytes));
-        Memory mem = new Memory(nBytes);
-        error(getInfo(entity, infoName, toNS(nBytes), mem, null));
+        Pointer<SizeT> pLen = pointerToSizeT(nBytes);
+        Pointer<SizeT> mem = allocateSizeTs(n);
+        error(getInfo(entity, infoName, nBytes, mem, pLen));
 
-        if (pLen.getValue().longValue() != nBytes) {
-            throw new RuntimeException("Not a Size[" + n + "] : len = " + pLen.getValue());
+        if (pLen.get().longValue() != nBytes) {
+            throw new RuntimeException("Not a Size[" + n + "] : len = " + pLen.get());
         }
-        long[] longs = new long[n];
-        for (int i = 0; i < n; i++) {
-            longs[i] = readNS(mem, i * NativeSize.SIZE).longValue();
-        }
-        return longs;
+        return mem.getSizeTs(0, n);
     }
 
     public int getInt(T entity, int infoName) {
@@ -92,28 +92,28 @@ abstract class CLInfoGetter<T extends PointerType> {
     }
 
     public boolean getBool(T entity, int infoName) {
-        NativeSizeByReference pLen = new NativeSizeByReference();
-        IntByReference pValue = new IntByReference();
-        error(getInfo(entity, infoName, toNS(4), pValue.getPointer(), pLen));
+        Pointer<SizeT> pLen = allocate(SizeT.class);
+        Pointer<Integer> pValue = allocateInt();
+        error(getInfo(entity, infoName, 4, pValue, pLen));
 
-        if (pLen.getValue().longValue() != 4) {
-            throw new RuntimeException("Not a BOOL : len = " + pLen.getValue());
+        if (pLen.get().longValue() != 4) {
+            throw new RuntimeException("Not a BOOL : len = " + pLen.get());
         }
-        return pValue.getValue() != 0;
+        return pValue.get() != 0;
     }
 
     public long getIntOrLong(T entity, int infoName) {
-        NativeSizeByReference pLen = new NativeSizeByReference();
-        Memory mem = new Memory(8);
-        error(getInfo(entity, infoName, toNS(8), mem, pLen));
+        Pointer<SizeT> pLen = allocate(SizeT.class);
+        Pointer<Long> mem = allocateLong();
+        error(getInfo(entity, infoName, 8, mem, pLen));
 
-        switch (pLen.getValue().intValue()) {
+        switch (pLen.get().intValue()) {
             case 4:
                 return mem.getInt(0);
             case 8:
                 return mem.getLong(0);
             default:
-                throw new RuntimeException("Not a native long : len = " + pLen.getValue());
+                throw new RuntimeException("Not a native long : len = " + pLen.get());
         }
     }
 }

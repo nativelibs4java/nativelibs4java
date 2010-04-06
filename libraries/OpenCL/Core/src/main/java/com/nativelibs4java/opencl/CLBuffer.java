@@ -31,9 +31,11 @@ import java.nio.ByteBuffer;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.ochafik.util.listenable.Pair;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
+import com.bridj.JNI;
+import com.bridj.Pointer;
+import static com.bridj.Pointer.*;
+import static com.bridj.Pointer.*;
+
 
 /**
  * OpenCL Memory Buffer Object.<br/>
@@ -95,40 +97,40 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	 * @return
 	 */
 	public CLEvent copyTo(CLQueue queue, long srcOffset, long length, CLMem destination, long destOffset, CLEvent... eventsToWaitFor) {
-		cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
+		Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
 		
-        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueCopyBuffer(
 			queue.getEntity(),
 			getEntity(),
 			destination.getEntity(),
-			toNS(srcOffset * getElementSize()),
-			toNS(destOffset * getElementSize()),
-			toNS(length),
-			evts == null ? 0 : evts.length, evts,
+			srcOffset * getElementSize(),
+			destOffset * getElementSize(),
+			length,
+			evts == null ? 0 : (int)evts.getRemainingElements(), evts,
 			eventOut
 		));
-		return CLEvent.createEvent(queue, eventOut);
+		return CLEvent.createEventFromPointer(queue, eventOut);
 	}
 
 	protected Pair<B, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
 		checkBounds(offset, length);
-		cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-		IntByReference pErr = new IntByReference();
+		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
+		Pointer<Integer> pErr = allocateInt();
         
-        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         Pointer p = CL.clEnqueueMapBuffer(queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
 			flags.getValue(),
-			toNS(offset * getElementSize()),
-            toNS(length * getElementSize()),
-			evts == null ? 0 : evts.length, evts,
+			offset * getElementSize(),
+            length * getElementSize(),
+			evts == null ? 0 : (int)evts.getRemainingElements(), evts,
 			eventOut,
 			pErr
 		);
-		error(pErr.getValue());
+		error(pErr.get());
         return new Pair<B, CLEvent>(
 			typedBuffer(p.getByteBuffer(0, getByteCount()).order(queue.getDevice().getKernelsDefaultByteOrder())),
-			CLEvent.createEvent(queue, eventOut)
+			CLEvent.createEventFromPointer(queue, eventOut)
 		);
     }
 
@@ -137,10 +139,10 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
     protected abstract void put(B out, B in);
 
     public CLEvent unmap(CLQueue queue, B buffer, CLEvent... eventsToWaitFor) {
-        cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
-        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), Native.getDirectBufferPointer(buffer), evts == null ? 0 : evts.length, evts, eventOut));
-		return CLEvent.createEvent(queue, eventOut);
+        Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
+        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), pointerToBuffer(buffer), evts == null ? 0 : (int)evts.getRemainingElements(), evts, eventOut));
+		return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
 	public CLEvent read(CLQueue queue, B out, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -165,21 +167,21 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
             out = typedBuffer(directBytes((int)(length * getElementSize()), queue.getDevice().getKernelsDefaultByteOrder()));
             blocking = true;
         }
-        cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
+        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueReadBuffer(
             queue.getEntity(),
             getEntity(),
             blocking ? CL_TRUE : 0,
-            toNS(offset * getElementSize()),
-            toNS(length * getElementSize()),
-            Native.getDirectBufferPointer(out),
-            evts == null ? 0 : evts.length, evts,
+            offset * getElementSize(),
+            length * getElementSize(),
+            pointerToBuffer(out),
+            evts == null ? 0 : (int)evts.getRemainingElements(), evts,
             eventOut
         ));
         if (originalOut != null)
             put(out, originalOut);
-        return CLEvent.createEvent(queue, eventOut);
+        return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
 	public CLEvent write(CLQueue queue, B in, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -201,19 +203,19 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
             in = typedBuffer(directCopy(in, queue.getDevice().getKernelsDefaultByteOrder()));
         }
             
-        cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
+        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueWriteBuffer(
             queue.getEntity(),
             getEntity(),
             blocking ? CL_TRUE : CL_FALSE,
-            toNS(offset * getElementSize()),
-            toNS(length * getElementSize()),
-            Native.getDirectBufferPointer(in),
-            evts == null ? 0 : evts.length, evts,
+            offset * getElementSize(),
+            length * getElementSize(),
+            pointerToBuffer(in),
+            evts == null ? 0 : (int)evts.getRemainingElements(), evts,
             eventOut
         ));
-        return CLEvent.createEvent(queue, eventOut);
+        return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
     public CLEvent writeBytes(CLQueue queue, long offset, long length, ByteBuffer in, boolean blocking, CLEvent... eventsToWaitFor) {
@@ -222,19 +224,19 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
             in = directCopy(in, queue.getDevice().getKernelsDefaultByteOrder());
         }
 
-        cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
-        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
+        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueWriteBuffer(
             queue.getEntity(),
             getEntity(),
             blocking ? CL_TRUE : 0,
-            toNS(offset),
-            toNS(length),
-            Native.getDirectBufferPointer(in),
-            evts == null ? 0 : evts.length, evts,
+            offset,
+            length,
+            pointerToBuffer(in),
+            evts == null ? 0 : (int)evts.getRemainingElements(), evts,
             eventOut
         ));
-        return CLEvent.createEvent(queue, eventOut);
+        return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
 	public ByteBuffer readBytes(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {

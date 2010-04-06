@@ -13,7 +13,7 @@ import java.lang.reflect.Modifier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.sun.jna.Native;
+import com.bridj.JNI;
 
 /**
  *
@@ -21,7 +21,7 @@ import com.sun.jna.Native;
  */
 public class MiscTestUtils {
 	public static void protectJNI() {
-            Native.setProtected(true);
+            //Native.setProtected(true);
         }
 	public static void testGetters(Object instance) {
         if (instance == null)

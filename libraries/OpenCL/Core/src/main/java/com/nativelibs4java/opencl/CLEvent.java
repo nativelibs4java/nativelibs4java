@@ -53,8 +53,10 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import com.sun.jna.Pointer;
+
+import com.bridj.Pointer;
+import com.bridj.SizeT;
+import static com.bridj.Pointer.*;
 
 /**
  * OpenCL event object.<br/>
@@ -75,14 +77,14 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 
 	private static CLInfoGetter<cl_event> infos = new CLInfoGetter<cl_event>() {
 		@Override
-		protected int getInfo(cl_event entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+		protected int getInfo(cl_event entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
 			return CL.clGetEventInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};
 
 	private static CLInfoGetter<cl_event> profilingInfos = new CLInfoGetter<cl_event>() {
 		@Override
-		protected int getInfo(cl_event entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+		protected int getInfo(cl_event entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
 			return CL.clGetEventProfilingInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};
@@ -122,10 +124,10 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
         return new CLEvent(evt);
 	}
 
-    static CLEvent createEvent(CLQueue queue, cl_event[] evt1) {
+    static CLEvent createEventFromPointer(CLQueue queue, Pointer<cl_event> evt1) {
 		if (evt1 == null)
 			return null;
-		return createEvent(queue, evt1[0]);
+		return createEvent(queue, evt1.get());
 	}
 
 
@@ -148,10 +150,10 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 			return;
 		
 		try {
-			cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-            if (evts == null || evts.length == 0)
+			Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+            if (evts == null)
                 return;
-            error(CL.clWaitForEvents(evts.length, evts));
+            error(CL.clWaitForEvents((int)evts.getRemainingElements(), evts));
 		} catch (Exception ex) {
 			throw new RuntimeException("Exception while waiting for events " + Arrays.asList(eventsToWaitFor), ex);
 		}
@@ -186,11 +188,11 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		}.start();
 	}
 
-    static cl_event[] new_event_out(CLEvent[] eventsToWaitFor) {
-        return noEvents || eventsToWaitFor == null ? null : new cl_event[1];
+    static Pointer<cl_event> new_event_out(CLEvent[] eventsToWaitFor) {
+        return noEvents || eventsToWaitFor == null ? null : allocate(cl_event.class);
     }
     
-	static cl_event[] to_cl_event_array(CLEvent... events) {
+	static Pointer<cl_event> to_cl_event_array(CLEvent... events) {
         if (noEvents) {
             for (CLEvent evt : events)
                 if (evt != null)
@@ -208,13 +210,13 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
         if (nonNulls == 0)
             return null;
         
-        cl_event[] event_wait_list = new cl_event[nonNulls];
+        Pointer<cl_event> event_wait_list = allocateArray(cl_event.class, nonNulls);
         int iDest = 0;
 		for (int i = 0; i < n; i++) {
             CLEvent event = events[i];
             if (event == null || event.getEntity() == null)
                 continue;
-            event_wait_list[iDest] = event.getEntity();
+            event_wait_list.set(iDest, event.getEntity());
         }
 		return event_wait_list;	
 	}

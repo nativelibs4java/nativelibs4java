@@ -23,7 +23,8 @@ import org.junit.Test;
 
 import com.nativelibs4java.test.MiscTestUtils;
 import com.nativelibs4java.util.NIOUtils;
-import com.sun.jna.Native;
+import com.bridj.*;
+import static com.bridj.Pointer.*;
 
 /**
  *
@@ -95,7 +96,7 @@ public class BufferTest extends AbstractCommon {
         CLBuffer<ByteBuffer> buf = context.createBuffer(CLMem.Usage.Input, data, false);
         ByteBuffer mapped = buf.map(queue, CLMem.MapFlags.Read);
 
-        assertEquals(Native.getDirectBufferPointer(data), Native.getDirectBufferPointer(mapped));
+        assertEquals(pointerToBuffer(data), pointerToBuffer(mapped));
     }
 
 }

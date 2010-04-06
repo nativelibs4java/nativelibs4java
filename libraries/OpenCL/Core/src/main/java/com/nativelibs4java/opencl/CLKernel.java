@@ -42,16 +42,13 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
 import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.ByteByReference;
-import com.sun.jna.ptr.DoubleByReference;
-import com.sun.jna.ptr.FloatByReference;
-import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.LongByReference;
-import com.sun.jna.ptr.PointerByReference;
-import com.sun.jna.ptr.ShortByReference;
+
+import com.bridj.JNI;
+import com.bridj.Pointer;
+import com.bridj.SizeT;
+import static com.bridj.Pointer.*;
+
+import com.bridj.Pointer;
 
 /**
  * OpenCL kernel.<br/>
@@ -70,7 +67,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     protected String name;
     private static CLInfoGetter<cl_kernel> infos = new CLInfoGetter<cl_kernel>() {
         @Override
-        protected int getInfo(cl_kernel entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+        protected int getInfo(cl_kernel entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
             return CL.clGetKernelInfo(entity, infoTypeEnum, size, out, sizeOut);
         }
     };
@@ -81,7 +78,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
             kernelInfos = new CLInfoGetter<cl_device_id>() {
 
                 @Override
-                protected int getInfo(cl_device_id entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+                protected int getInfo(cl_device_id entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
                     return CL.clGetKernelWorkGroupInfo(getEntity(), entity, infoTypeEnum, size, out, sizeOut);
                 }
             };
@@ -155,7 +152,6 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
             this.size = size;
         }
     }
-    private static final NativeSize zeroNS = toNS(0);
     public static final Object NULL_POINTER_KERNEL_ARGUMENT = new Object() {};
     public void setObjectArg(int iArg, Object arg) {
 
@@ -163,11 +159,11 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
             throw new IllegalArgumentException("Null arguments are not accepted. Please use CLKernel.NULL_POINTER_KERNEL_ARGUMENT instead.");
 
         if (arg == NULL_POINTER_KERNEL_ARGUMENT) {
-            setArg(iArg, (NativeSize)zeroNS);
+            setArg(iArg, new SizeT(0));
         //} else if (arg instanceof NativeLong) {
         //    setArg(iArg, (NativeLong) arg);
-        } else if (arg instanceof NativeSize) {
-            setArg(iArg, (NativeSize) arg);
+        } else if (arg instanceof SizeT) {
+            setArg(iArg, (SizeT) arg);
         } else if (arg instanceof CLMem) {
             setArg(iArg, (CLMem) arg);
         } else if (arg instanceof CLEvent) {
@@ -219,13 +215,13 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         setLocalArg(i, arg.size);
     }
     public void setLocalArg(int argIndex, long localArgByteLength) {
-        error(CL.clSetKernelArg(getEntity(), argIndex, toNS(localArgByteLength), null));
+        error(CL.clSetKernelArg(getEntity(), argIndex, localArgByteLength, null));
     }
 
     //public void setArg(int i, NativeLong arg) {
-    //    error(CL.clSetKernelArg(getEntity(), i, toNS(NativeLong.SIZE), new NativeLongByReference(arg).getPointer()));
-//			error(CL.clSetKernelArg(get(), i, OpenCL4Java.toNL(Native.LONG_SIZE), new IntByReference(128).getPointer()));
-//			error(CL.clSetKernelArg(get(), i, toNL(Native.LONG_SIZE), new IntByReference(arg.intValue()).getPointer()));
+    //    error(CL.clSetKernelArg(getEntity(), i, pointerToSizeTs(NativeLong.SIZE), new NativePointer<Long>(arg).getPointer()));
+//			error(CL.clSetKernelArg(get(), i, OpenCL4Java.toNL(Native.LONG_SIZE), new Pointer<Integer>(128).getPointer()));
+//			error(CL.clSetKernelArg(get(), i, toNL(Native.LONG_SIZE), new Pointer<Integer>(arg.intValue()).getPointer()));
     //}
 
     public void setArg(int i, float[] arg) {
@@ -253,57 +249,62 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
 		if (!arg.isDirect())
 			arg = NIOUtils.directCopy(arg, getProgram().getContext().getByteOrder());
 		long size = NIOUtils.getSizeInBytes(arg);
-        error(CL.clSetKernelArg(getEntity(), i, toNS(size), Native.getDirectBufferPointer(arg)));
+        error(CL.clSetKernelArg(getEntity(), i, size, pointerToBuffer(arg)));
     }
 
-    public void setArg(int i, NativeSize arg) {
+    public void setArg(int i, SizeT arg) {
         switch (getProgram().getContext().getAddressBits()) {
             case 32:
-                error(CL.clSetKernelArg(getEntity(), i, toNS(4), new IntByReference(arg.intValue()).getPointer()));
+                error(CL.clSetKernelArg(getEntity(), i, 4, pointerToInts(arg.intValue())));
                 break;
             case 64:
-                error(CL.clSetKernelArg(getEntity(), i, toNS(8), new LongByReference(arg.longValue()).getPointer()));
+                error(CL.clSetKernelArg(getEntity(), i, 8, pointerToLongs(arg.longValue())));
                 break;
             default:
-                error(CL.clSetKernelArg(getEntity(), i, toNS(NativeSize.SIZE), new NativeSizeByReference(arg).getPointer()));
+                error(CL.clSetKernelArg(getEntity(), i, SizeT.SIZE, pointerToSizeT(arg.longValue())));
                 break;
         }
     }
 
+    void test(int a) {}
+    void test(int... as) {}
+    void ddo() {
+        test(12);
+    }
     public void setArg(int i, int arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(4), new IntByReference(arg).getPointer()));
+        error(CL.clSetKernelArg(getEntity(), i, 4, pointerToInts(arg)));
     }
 
     public void setArg(int i, long arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(8), new LongByReference(arg).getPointer()));
+        error(CL.clSetKernelArg(getEntity(), i, 8, pointerToLongs(arg)));
     }
 
     public void setArg(int i, short arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(2), new ShortByReference(arg).getPointer()));
+        error(CL.clSetKernelArg(getEntity(), i, 2, pointerToShorts(arg)));
     }
 
     public void setArg(int i, byte arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(1), new ByteByReference(arg).getPointer()));
+        error(CL.clSetKernelArg(getEntity(), i, 1, pointerToBytes(arg)));
     }
 
     public void setArg(int i, float arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(4), new FloatByReference(arg).getPointer()));
+        error(CL.clSetKernelArg(getEntity(), i, 4, pointerToFloats(arg)));
     }
 
     public void setArg(int i, double arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(8), new DoubleByReference(arg).getPointer()));
+        error(CL.clSetKernelArg(getEntity(), i, 8, pointerToDoubles(arg)));
     }
 
     public void setArg(int index, CLMem mem) {
-        error(CL.clSetKernelArg(getEntity(), index, toNS(Pointer.SIZE), new PointerByReference(mem.getEntity().getPointer()).getPointer()));
+        error(CL.clSetKernelArg(getEntity(), index, Pointer.SIZE, pointerToPointer(mem.getEntity())));
     }
 
     public void setArg(int index, CLEvent event) {
-        error(CL.clSetKernelArg(getEntity(), index, toNS(Pointer.SIZE), new PointerByReference(event.getEntity().getPointer()).getPointer()));
+        error(CL.clSetKernelArg(getEntity(), index, Pointer.SIZE, pointerToPointer(event.getEntity())));
     }
 
     public void setArg(int index, CLSampler sampler) {
-        error(CL.clSetKernelArg(getEntity(), index, toNS(Pointer.SIZE), new PointerByReference(sampler.getEntity().getPointer()).getPointer()));
+        error(CL.clSetKernelArg(getEntity(), index, Pointer.SIZE, pointerToPointer(sampler.getEntity())));
     }
 
     @Override
@@ -311,7 +312,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         error(CL.clReleaseKernel(getEntity()));
     }
 
-    private static final NativeSize[] oneNL = new NativeSize[] {new NativeSize(1)};
+    private static final Pointer<SizeT> oneNL = pointerToSizeT(1);
     /**
      * Enqueues a command to execute a kernel on a device. <br>
      * The kernel is executed using a single work-item.
@@ -320,10 +321,10 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
      * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
      */
     public CLEvent enqueueTask(CLQueue queue, CLEvent... eventsToWaitFor) {
-        cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
-        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        error(CL.clEnqueueNDRangeKernel(queue.getEntity(), getEntity(), 1, null, oneNL, oneNL, evts == null ? 0 : evts.length, evts, eventOut));
-        return CLEvent.createEvent(queue, eventOut);
+        Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
+        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        error(CL.clEnqueueNDRangeKernel(queue.getEntity(), getEntity(), 1, null, oneNL, oneNL, evts == null ? 0 : (int)evts.getRemainingElements(), evts, eventOut));
+        return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
     /**
@@ -339,11 +340,21 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         if (localWorkSizes != null && localWorkSizes.length != nDims) {
             throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalWorkSizes.length + " vs. " + localWorkSizes.length);
         }
-        cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
-        cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        error(CL.clEnqueueNDRangeKernel(queue.getEntity(), getEntity(), nDims, null/*toNL(globalOffsets)*/, toNS(globalWorkSizes), toNS(localWorkSizes), evts == null ? 0 : evts.length, evts, eventOut));
+        Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
+        Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        error(CL.clEnqueueNDRangeKernel(
+            queue.getEntity(),
+            getEntity(),
+            nDims,
+            null,
+            pointerToSizeTs(globalWorkSizes),
+            pointerToSizeTs(localWorkSizes),
+            evts == null ? 0 : (int)evts.getRemainingElements(),
+            evts,
+            eventOut
+        ));
         //error(CL.clEnqueueNDRangeKernel(queue.get(), get(), nDims, null, glo, loc, eventsToWaitFor.length, CLEvent.to_cl_event_array(eventsToWaitFor), eventOut));
-        return CLEvent.createEvent(queue, eventOut);
+        return CLEvent.createEventFromPointer(queue, eventOut);
     }
 	
 	/**

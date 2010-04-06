@@ -29,9 +29,11 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.LongByReference;
+
+import com.bridj.Pointer;
+import static com.bridj.Pointer.*;
+import com.bridj.Pointer;
+import com.bridj.SizeT;
 
 /**
  * OpenCL command queue.<br/>
@@ -56,7 +58,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
     private CLInfoGetter<cl_command_queue> infos = new CLInfoGetter<cl_command_queue>() {
 		@Override
-		protected int getInfo(cl_command_queue entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+		protected int getInfo(cl_command_queue entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
 			return CL.clGetCommandQueueInfo(getEntity(), infoTypeEnum, size, out, sizeOut);
 		}
 	};
@@ -84,7 +86,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
 	@SuppressWarnings("deprecation")
 	public void setProperty(CLDevice.QueueProperties property, boolean enabled) {
-		error(CL.clSetCommandQueueProperty(getEntity(), property.getValue(), enabled ? CL_TRUE : CL_FALSE, (LongByReference)null));
+		error(CL.clSetCommandQueueProperty(getEntity(), property.getValue(), enabled ? CL_TRUE : CL_FALSE, (Pointer<Long>)null));
 	}
 	
 
@@ -115,8 +117,8 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * Enqueues a wait for a specific event or a list of events to complete before any future commands queued in the this queue are executed.
 	 */
 	public void enqueueWaitForEvents(CLEvent... events) {
-        cl_event[] evts = CLEvent.to_cl_event_array(events);
-        error(CL.clEnqueueWaitForEvents(getEntity(), evts == null ? 0 : evts.length, evts));
+        Pointer<cl_event> evts = CLEvent.to_cl_event_array(events);
+        error(CL.clEnqueueWaitForEvents(getEntity(), evts == null ? 0 : (int)evts.getRemainingElements(), evts));
 	}
 
 	/**
@@ -134,9 +136,9 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
 	 */
 	public CLEvent enqueueMarker() {
-		cl_event[] eventOut = new cl_event[1];
+		Pointer<cl_event> eventOut = allocateTypedPointer(cl_event.class);
 		error(CL.clEnqueueMarker(getEntity(), eventOut));
-		return CLEvent.createEvent(this, eventOut);
+		return CLEvent.createEventFromPointer(this, eventOut);
 	}
 
 	/**
@@ -148,13 +150,13 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
 	 */
 	public CLEvent enqueueAcquireGLObjects(CLMem[] objects, CLEvent... eventsToWaitFor) {
-        cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
-		cl_mem[] mems = new cl_mem[objects.length];
+        Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
+		Pointer<cl_mem> mems = allocateTypedPointers(cl_mem.class, objects.length);
 		for (int i = 0; i < objects.length; i++)
-			mems[i] = objects[i].getEntity();
-		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        error(CL.clEnqueueAcquireGLObjects(getEntity(), mems.length, mems, evts == null ? 0 : evts.length, evts, eventOut));
-		return CLEvent.createEvent(this, eventOut);
+			mems.set(i, objects[i].getEntity());
+		Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        error(CL.clEnqueueAcquireGLObjects(getEntity(), objects.length, mems, evts == null ? 0 : (int)evts.getRemainingElements(), evts, eventOut));
+		return CLEvent.createEventFromPointer(this, eventOut);
 	}
 
 	/**
@@ -166,10 +168,10 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	 * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
 	 */
 	public CLEvent enqueueReleaseGLObjects(CLMem[] objects, CLEvent... eventsToWaitFor) {
-        cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
-		cl_mem[] mems = getEntities(objects, new cl_mem[objects.length]);
-		cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
-        error(CL.clEnqueueReleaseGLObjects(getEntity(), mems.length, mems, evts == null ? 0 : evts.length, evts, eventOut));
-		return CLEvent.createEvent(this, eventOut);
+        Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
+		Pointer<cl_mem> mems = getEntities(objects, allocateTypedPointers(cl_mem.class, objects.length));
+		Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
+        error(CL.clEnqueueReleaseGLObjects(getEntity(), objects.length, mems, evts == null ? 0 : (int)evts.getRemainingElements(), evts, eventOut));
+		return CLEvent.createEventFromPointer(this, eventOut);
 	}
 }

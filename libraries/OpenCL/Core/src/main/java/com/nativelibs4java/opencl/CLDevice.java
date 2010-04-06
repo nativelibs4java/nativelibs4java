@@ -24,10 +24,11 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.util.IOUtils;
 import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
+
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.sun.jna.*;
-import com.sun.jna.ptr.*;
+import com.bridj.*;
+import static com.bridj.Pointer.*;
+
 import java.io.IOException;
 import java.nio.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
@@ -52,7 +53,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     private static CLInfoGetter<cl_device_id> infos = new CLInfoGetter<cl_device_id>() {
 
         @Override
-        protected int getInfo(cl_device_id entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+        protected int getInfo(cl_device_id entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
             return CL.clGetDeviceInfo(entity, infoTypeEnum, size, out, sizeOut);
         }
     };
@@ -312,21 +313,21 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
      */
     @SuppressWarnings("deprecation")
     public CLQueue createQueue(CLContext context, QueueProperties... queueProperties) {
-        IntByReference pErr = new IntByReference();
+        Pointer<Integer> pErr = allocateInt();
         long flags = 0;
         for (QueueProperties prop : queueProperties)
             flags |= prop.getValue();
         cl_command_queue queue = CL.clCreateCommandQueue(context.getEntity(), getEntity(), flags, pErr);
-        error(pErr.getValue());
+        error(pErr.get());
 
         return new CLQueue(context, queue, this);
     }
 
     @Deprecated
     public CLQueue createQueue(EnumSet<QueueProperties> queueProperties, CLContext context) {
-        IntByReference pErr = new IntByReference();
+        Pointer<Integer> pErr = allocateInt();
         cl_command_queue queue = CL.clCreateCommandQueue(context.getEntity(), getEntity(), QueueProperties.getValue(queueProperties), pErr);
-        error(pErr.getValue());
+        error(pErr.get());
 
         return new CLQueue(context, queue, this);
     }

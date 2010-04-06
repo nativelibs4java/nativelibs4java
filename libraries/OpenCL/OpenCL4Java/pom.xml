@@ -35,6 +35,14 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <scope>compile</scope>
 	</dependency>
 	
+	<dependency>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>bridj</artifactId>
+	  <!--classifier>shaded</classifier-->
+	  <version>${nl4j-runtime.version}</version>
+	  <scope>compile</scope>
+	</dependency>
+	
   </dependencies>
 
   <build>

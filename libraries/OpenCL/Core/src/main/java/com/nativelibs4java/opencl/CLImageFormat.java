@@ -58,10 +58,10 @@ public class CLImageFormat {
 	private final ChannelDataType channelDataType;
 
 	CLImageFormat(cl_image_format fmt) {
-		this(ChannelOrder.getEnum(fmt.image_channel_order), ChannelDataType.getEnum(fmt.image_channel_data_type));
+		this(ChannelOrder.getEnum(fmt.image_channel_order()), ChannelDataType.getEnum(fmt.image_channel_data_type()));
 	}
 	cl_image_format to_cl_image_format() {
-		return new cl_image_format((int)channelOrder.getValue(), (int)channelDataType.getValue());
+		return new cl_image_format().image_channel_order((int)channelOrder.getValue()).image_channel_data_type((int)channelDataType.getValue());
 	}
 	public CLImageFormat(ChannelOrder channelOrder, ChannelDataType channelDataType) {
 		super();

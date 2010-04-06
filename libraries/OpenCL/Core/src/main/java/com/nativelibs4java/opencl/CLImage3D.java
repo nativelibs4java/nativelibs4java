@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.ochafik.util.listenable.Pair;
 
+import static com.bridj.Pointer.*;
 /**
  * OpenCL 3D Image Memory Object<br/>
  * @see CLContext#createImage3D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long)
@@ -57,25 +58,25 @@ public class CLImage3D extends CLImage2D {
 	}
 
 	public CLEvent read(CLQueue queue, long minX, long minY, long minZ, long width, long height, long depth, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
-		return read(queue, toNS(minX, minY, minZ), toNS(width, height, depth), rowPitch, slicePitch, out, blocking, eventsToWaitFor);
+		return read(queue, pointerToSizeTs(minX, minY, minZ), pointerToSizeTs(width, height, depth), rowPitch, slicePitch, out, blocking, eventsToWaitFor);
 	}
 
 	public CLEvent write(CLQueue queue, long minX, long minY, long minZ, long width, long height, long depth, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
-		return write(queue, toNS(minX, minY, minZ), toNS(width, height, depth), rowPitch, slicePitch, in, blocking, eventsToWaitFor);
+		return write(queue, pointerToSizeTs(minX, minY, minZ), pointerToSizeTs(width, height, depth), rowPitch, slicePitch, in, blocking, eventsToWaitFor);
 	}
 
     public ByteBuffer map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
 		return map(queue, flags, 0, 0, 0, getWidth(), getHeight(), getDepth(), getWidth(), getHeight(), true, eventsToWaitFor);
     }
 	public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) {
-		return map(queue, flags, toNS(0, 0, 0), toNS(getWidth(), getHeight(), getDepth()), getWidth(), getHeight(), true, eventsToWaitFor);
+		return map(queue, flags, pointerToSizeTs(0, 0, 0), pointerToSizeTs(getWidth(), getHeight(), getDepth()), getWidth(), getHeight(), true, eventsToWaitFor);
     }
 
     public ByteBuffer map(CLQueue queue, MapFlags flags, long offsetX, long offsetY, long offsetZ, long lengthX, long lengthY, long lengthZ, long rowPitch, long slicePitch, boolean blocking, CLEvent... eventsToWaitFor) {
-        return map(queue, flags, toNS(offsetX, offsetY, offsetZ), toNS(lengthX, lengthY, lengthZ), rowPitch, slicePitch, true, eventsToWaitFor).getFirst();
+        return map(queue, flags, pointerToSizeTs(offsetX, offsetY, offsetZ), pointerToSizeTs(lengthX, lengthY, lengthZ), rowPitch, slicePitch, true, eventsToWaitFor).getFirst();
     }
     public Pair<ByteBuffer, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offsetX, long offsetY, long offsetZ, long lengthX, long lengthY, long lengthZ, long rowPitch, long slicePitch, CLEvent... eventsToWaitFor) {
-        return map(queue, flags, toNS(offsetX, offsetY, offsetZ), toNS(lengthX, lengthY, lengthZ), rowPitch, slicePitch, true, eventsToWaitFor);
+        return map(queue, flags, pointerToSizeTs(offsetX, offsetY, offsetZ), pointerToSizeTs(lengthX, lengthY, lengthZ), rowPitch, slicePitch, true, eventsToWaitFor);
     }
 
 }

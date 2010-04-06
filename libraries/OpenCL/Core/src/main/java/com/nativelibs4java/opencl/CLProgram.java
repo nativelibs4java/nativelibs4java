@@ -42,11 +42,13 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program;
 import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
-import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
+
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
+import com.bridj.JNI;
+import com.bridj.Pointer;
+import com.bridj.SizeT;
+import static com.bridj.Pointer.*;
+
 
 /**
  * OpenCL program.<br/>
@@ -72,7 +74,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
 	private static CLInfoGetter<cl_program> infos = new CLInfoGetter<cl_program>() {
 		@Override
-		protected int getInfo(cl_program entity, int infoTypeEnum, NativeSize size, Pointer out, NativeSizeByReference sizeOut) {
+		protected int getInfo(cl_program entity, int infoTypeEnum, long size, Pointer out, Pointer<SizeT> sizeOut) {
 			return CL.clGetProgramInfo(entity, infoTypeEnum, size, out, sizeOut);
 		}
 	};
@@ -108,15 +110,15 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         }
 
         String[] sources = this.sources.toArray(new String[this.sources.size()]);
-        NativeSize[] lengths = new NativeSize[sources.length];
+        long[] lengths = new long[sources.length];
         for (int i = 0; i < sources.length; i++) {
-            lengths[i] = toNS(sources[i].length());
+            lengths[i] = sources[i].length();
         }
-        IntBuffer errBuff = NIOUtils.directInts(1, ByteOrder.nativeOrder());
+        Pointer<Integer> errBuff = allocateInt();
         cl_program program;
 		int previousAttempts = 0;
 		do {
-			program = CL.clCreateProgramWithSource(context.getEntity(), sources.length, sources, lengths, errBuff);
+			program = CL.clCreateProgramWithSource(context.getEntity(), sources.length, pointerToCStrings(sources), pointerToSizeTs(lengths), errBuff);
 		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
         entity = program;
     }
@@ -152,26 +154,26 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                 build();
         }
         
-		Memory s = infos.getMemory(getEntity(), CL_PROGRAM_BINARY_SIZES);
-		int n = (int)s.getSize() / Native.SIZE_T_SIZE;
-		NativeSize[] sizes = readNSArray(s, n);
+		Pointer<?> s = infos.getMemory(getEntity(), CL_PROGRAM_BINARY_SIZES);
+		int n = (int)s.getRemainingBytes() / JNI.SIZE_T_SIZE;
+		long[] sizes = s.getSizeTs(0, n);
 		//int[] sizes = new int[n];
 		//for (int i = 0; i < n; i++) {
 		//	sizes[i] = s.getNativeLong(i * Native.LONG_SIZE).intValue();
 		//}
 
-		Memory[] binMems = new Memory[n];
-		Memory ptrs = new Memory(n * Native.POINTER_SIZE);
+		Pointer<?>[] binMems = (Pointer<?>[])new Pointer[n];
+		Pointer<Pointer<?>> ptrs = allocatePointers(n);
 		for (int i = 0; i < n; i++) {
-			ptrs.setPointer(i * Native.POINTER_SIZE, binMems[i] = new Memory(sizes[i].intValue()));
+			ptrs.set(i, binMems[i] = allocateBytes(sizes[i]));
 		}
-		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, toNS(ptrs.getSize()), ptrs, null));
+		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, ptrs.getRemainingElements(), ptrs, null));
 
 		Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>(devices.length);
         for (int i = 0; i < n; i++) {
             CLDevice device = devices[i];
-			Memory bytes = binMems[i];
-            ret.put(device, bytes.getByteArray(0, sizes[i].intValue()));
+			Pointer<?> bytes = binMems[i];
+            ret.put(device, bytes.getBytes(0, (int)sizes[i]));
 		}
 
         return ret;
@@ -229,28 +231,28 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             allocate();
 
         int nDevices = devices.length;
-        cl_device_id[] deviceIds = null;
+        Pointer<cl_device_id> deviceIds = null;
         if (nDevices != 0) {
-            deviceIds = new cl_device_id[nDevices];
+            deviceIds = allocateTypedPointers(cl_device_id.class, nDevices);
             for (int i = 0; i < nDevices; i++)
-                deviceIds[i] = devices[i].getEntity();
+                deviceIds.set(i, devices[i].getEntity());
         }
-        int err = CL.clBuildProgram(getEntity(), nDevices, deviceIds, getOptionsString(), null, null);
+        int err = CL.clBuildProgram(getEntity(), nDevices, deviceIds, pointerToCString(getOptionsString()), null, null);
         //int err = CL.clBuildProgram(getEntity(), 0, null, getOptionsString(), null, null);
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
-            NativeSizeByReference len = new NativeSizeByReference();
+            Pointer<SizeT> len = allocateSizeT();
             int bufLen = 2048 * 32; //TODO find proper size
-            Memory buffer = new Memory(bufLen);
+            Pointer<?> buffer = allocateBytes(bufLen);
 
             HashSet<String> errs = new HashSet<String>();
             if (deviceIds == null) {
-                error(CL.clGetProgramBuildInfo(getEntity(), null, CL_PROGRAM_BUILD_LOG, toNS(bufLen), buffer, len));
-                String s = buffer.getString(0);
+                error(CL.clGetProgramBuildInfo(getEntity(), null, CL_PROGRAM_BUILD_LOG, bufLen, buffer, len));
+                String s = buffer.getCString(0);
                 errs.add(s);
             } else
-                for (cl_device_id device : deviceIds) {
-                    error(CL.clGetProgramBuildInfo(getEntity(), device, CL_PROGRAM_BUILD_LOG, toNS(bufLen), buffer, len));
-                    String s = buffer.getString(0);
+                for (Pointer<cl_device_id> device : deviceIds) {
+                    error(CL.clGetProgramBuildInfo(getEntity(), device.get(), CL_PROGRAM_BUILD_LOG, bufLen, buffer, len));
+                    String s = buffer.getCString(0);
                     errs.add(s);
                 }
                 
@@ -273,18 +275,18 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             if (!built)
                 build();
         }
-		IntByReference pCount = new IntByReference();
+		Pointer<Integer> pCount = allocateInt();
 		int previousAttempts = 0;
-		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), 0, (cl_kernel[])null, pCount), previousAttempts++)) {}
+		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), 0, null, pCount), previousAttempts++)) {}
 
-		int count = pCount.getValue();
-		cl_kernel[] kerns = new cl_kernel[count];
+		int count = pCount.get();
+		Pointer<cl_kernel> kerns = allocateTypedPointers(cl_kernel.class, count);
 		previousAttempts = 0;
 		while (failedForLackOfMemory(CL.clCreateKernelsInProgram(getEntity(), count, kerns, pCount), previousAttempts++)) {}
 
 		CLKernel[] kernels = new CLKernel[count];
 		for (int i = 0; i < count; i++)
-			kernels[i] = new CLKernel(this, null, kerns[i]);
+			kernels[i] = new CLKernel(this, null, kerns.get(i));
 
 		return kernels;
 	}
@@ -297,11 +299,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             if (!built)
                 build();
         }
-        IntBuffer errBuff = NIOUtils.directInts(1, ByteOrder.nativeOrder());
+        Pointer<Integer> errBuff = allocateInt();
         cl_kernel kernel;
 		int previousAttempts = 0;
 		do {
-			kernel = CL.clCreateKernel(getEntity(), name, errBuff);
+			kernel = CL.clCreateKernel(getEntity(), pointerToCString(name), errBuff);
 		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
 
         CLKernel kn = new CLKernel(this, name, kernel);
