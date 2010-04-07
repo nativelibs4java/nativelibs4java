@@ -348,6 +348,17 @@ public class BridJ {
                 log(Level.SEVERE, null, ex);
             }
         }
+        if (JNI.isMacOSX()) {
+        	for (String s : new String[] { "/System/Library/Frameworks", new File(System.getProperty("user.home"), "Library/Frameworks").toString() }) {
+        		try {
+					File f = new File(new File(s, name + ".framework"), name);
+					if (f.exists() && !f.isDirectory())
+						return f.getCanonicalFile();
+        		} catch (IOException ex) {
+					return null;
+				} 
+        	}
+        }
         try {
         	return JNI.extractEmbeddedLibraryResource(name);
         } catch (IOException ex) {
