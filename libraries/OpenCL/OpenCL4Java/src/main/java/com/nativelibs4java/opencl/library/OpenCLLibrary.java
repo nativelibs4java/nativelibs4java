@@ -612,8 +612,8 @@ public class OpenCLLibrary {
 	public native static int clGetPlatformInfo(OpenCLLibrary.cl_platform_id cl_platform_id1, int cl_platform_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	public native static int clGetDeviceIDs(OpenCLLibrary.cl_platform_id cl_platform_id1, long cl_device_type1, int cl_uint1, Pointer<OpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<java.lang.Integer > cl_uintPtr1);
 	public native static int clGetDeviceInfo(OpenCLLibrary.cl_device_id cl_device_id1, int cl_device_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
-	public native static OpenCLLibrary.cl_context clCreateContext(Pointer<SizeT > cl_context_propertiesPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_device_id > cl_device_idPtr1, OpenCLLibrary.pfn_notify arg1, Pointer<? > voidPtr1, Pointer<java.lang.Integer > cl_intPtr1);
-	public native static OpenCLLibrary.cl_context clCreateContextFromType(Pointer<SizeT > cl_context_propertiesPtr1, long cl_device_type1, OpenCLLibrary.pfn_notify arg1, Pointer<? > voidPtr1, Pointer<java.lang.Integer > cl_intPtr1);
+	public native static OpenCLLibrary.cl_context clCreateContext(Pointer<SizeT > cl_context_propertiesPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<OpenCLLibrary.pfn_notify > arg1, Pointer<? > voidPtr1, Pointer<java.lang.Integer > cl_intPtr1);
+	public native static OpenCLLibrary.cl_context clCreateContextFromType(Pointer<SizeT > cl_context_propertiesPtr1, long cl_device_type1, Pointer<OpenCLLibrary.pfn_notify > arg1, Pointer<? > voidPtr1, Pointer<java.lang.Integer > cl_intPtr1);
 	public native static int clRetainContext(OpenCLLibrary.cl_context cl_context1);
 	public native static int clReleaseContext(OpenCLLibrary.cl_context cl_context1);
 	public native static int clGetContextInfo(OpenCLLibrary.cl_context cl_context1, int cl_context_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
@@ -638,7 +638,7 @@ public class OpenCLLibrary {
 	public native static OpenCLLibrary.cl_program clCreateProgramWithBinary(OpenCLLibrary.cl_context cl_context1, int cl_uint1, Pointer<OpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<SizeT > size_tPtr1, Pointer<Pointer<java.lang.Byte > > charPtrPtr1, Pointer<java.lang.Integer > cl_intPtr1, Pointer<java.lang.Integer > cl_intPtr2);
 	public native static int clRetainProgram(OpenCLLibrary.cl_program cl_program1);
 	public native static int clReleaseProgram(OpenCLLibrary.cl_program cl_program1);
-	public native static int clBuildProgram(OpenCLLibrary.cl_program cl_program1, int cl_uint1, Pointer<OpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<java.lang.Byte > charPtr1, OpenCLLibrary.pfn_notify arg1, Pointer<? > voidPtr1);
+	public native static int clBuildProgram(OpenCLLibrary.cl_program cl_program1, int cl_uint1, Pointer<OpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<java.lang.Byte > charPtr1, Pointer<OpenCLLibrary.pfn_notify > arg1, Pointer<? > voidPtr1);
 	public native static int clUnloadCompiler();
 	public native static int clGetProgramInfo(OpenCLLibrary.cl_program cl_program1, int cl_program_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	public native static int clGetProgramBuildInfo(OpenCLLibrary.cl_program cl_program1, OpenCLLibrary.cl_device_id cl_device_id1, int cl_program_build_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
@@ -669,7 +669,7 @@ public class OpenCLLibrary {
 	public native static int clEnqueueUnmapMemObject(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native static int clEnqueueNDRangeKernel(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, int cl_uint2, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native static int clEnqueueTask(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_kernel cl_kernel1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
-	public native static int clEnqueueNativeKernel(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.user_func arg1, Pointer<? > voidPtr1, @Ptr long size_t1, int cl_uint1, Pointer<OpenCLLibrary.cl_mem > cl_memPtr1, Pointer<Pointer<? > > voidPtrPtr1, int cl_uint2, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
+	public native static int clEnqueueNativeKernel(OpenCLLibrary.cl_command_queue cl_command_queue1, Pointer<OpenCLLibrary.user_func > arg1, Pointer<? > voidPtr1, @Ptr long size_t1, int cl_uint1, Pointer<OpenCLLibrary.cl_mem > cl_memPtr1, Pointer<Pointer<? > > voidPtrPtr1, int cl_uint2, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native static int clEnqueueMarker(OpenCLLibrary.cl_command_queue cl_command_queue1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1);
 	public native static int clEnqueueWaitForEvents(OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1);
 	public native static int clEnqueueBarrier(OpenCLLibrary.cl_command_queue cl_command_queue1);

@@ -17,10 +17,6 @@ public class OpenGLContextUtils {
         // TODO BridJ.setLibraryName("OpenGL", JNI.isWindows() ? "OpenGL32" : JNI.isLinux() ? "GL" : "OpenGL");
         BridJ.register();
     }
-	//public static final java.lang.String JNA_LIBRARY_NAME = com.ochafik.lang.jnaerator.runtime.LibraryExtractor.getLibraryPath("OpenGL", true, OpenGLApple.class);
-	//public static final com.sun.jna.NativeLibrary JNA_NATIVE_LIB = com.sun.jna.NativeLibrary.getInstance(OpenGLApple.JNA_LIBRARY_NAME, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
-	public static final OpenGLContextUtils INSTANCE = new OpenGLContextUtils();
-	
 	/// Original signature : <code>CGLShareGroupObj CGLGetShareGroup(CGLContextObj)</code>
 	public static native Pointer<?> CGLGetShareGroup(Pointer<?> ctx);
 	/**
