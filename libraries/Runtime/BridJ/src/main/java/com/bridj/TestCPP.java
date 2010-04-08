@@ -117,7 +117,7 @@ public class TestCPP {
 //        	NativeLibrary lib = BridJ.getNativeLibrary("OpenCL", new File("/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/cpp/test/build_out/darwin_universal_gcc_debug/libtest.dylib"));
         	
         	
-        	Collection<Symbol> symbols = lib.getSymbols();
+//        	Collection<Symbol> symbols = lib.getSymbols();
         	BridJ.register(MyCallback.class);
             BridJ.register();
 

@@ -84,13 +84,13 @@ public class MethodCallInfo {
             paramsValueTypes[iParam] = paramValueType.ordinal();
             //GetOptions(paramOptions, method, paramsAnnotations[iParam]);
 
-            appendToSignature(paramValueType, javaSig, dcSig);
+            appendToSignature(paramValueType, parameterType, javaSig, dcSig);
         }
         javaSig.append(')');
         dcSig.append(')');
 
         ValueType retType = getValueType(-1, nParams, method.getReturnType(), method.getGenericReturnType(), method);
-        appendToSignature(retType, javaSig, dcSig);
+        appendToSignature(retType, method.getReturnType(), javaSig, dcSig);
         returnValueType = retType.ordinal();
 
         javaSignature = javaSig.toString();
@@ -236,7 +236,7 @@ public class MethodCallInfo {
         throw new NoSuchElementException("No " + ValueType.class.getSimpleName() + " for class " + c.getName());
     }
 
-    public void appendToSignature(ValueType type, StringBuilder javaSig, StringBuilder dcSig) {
+    public void appendToSignature(ValueType type, Class<?> parameterType, StringBuilder javaSig, StringBuilder dcSig) {
         char dcChar;
         String javaChar;
         switch (type) {
@@ -306,7 +306,8 @@ public class MethodCallInfo {
             	break;
             case ePointerValue:
             	dcChar = DC_SIGCHAR_POINTER;
-                javaChar = "Lcom/bridj/Pointer;";
+            	javaChar = "L" + parameterType.getName().replace('.', '/') + ";";
+//                javaChar = "Lcom/bridj/Pointer;";
                 direct = false;
             	break;
             default:
