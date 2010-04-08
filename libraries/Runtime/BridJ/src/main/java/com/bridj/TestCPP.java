@@ -25,10 +25,13 @@ import com.bridj.cpp.com.shell.IShellWindows;
 import com.bridj.cpp.com.shell.ITaskbarList3;
 import com.bridj.demos.TaskbarListDemo;
 import com.bridj.objc.NSAutoReleasePool;
+import com.bridj.objc.NSCalendar;
 import com.bridj.objc.ObjCObject;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 
 import javax.swing.JFrame;
@@ -103,7 +106,19 @@ public class TestCPP {
 
 	public static void main(String[] args) throws IOException {
         try {
-            BridJ.register(MyCallback.class);
+
+//			if (JNI.isMacOSX()) {
+//				new NSCalendar();
+//				new NSAutoReleasePool();
+//			}
+
+//        	NativeLibrary lib = BridJ.getNativeLibrary("OpenCL", new File("/System/Library/Frameworks/OpenCL.framework/OpenCL"));
+//        	NativeLibrary lib = BridJ.getNativeLibrary("OpenCL", new File("/usr/lib/libobjc.dylib"));
+//        	NativeLibrary lib = BridJ.getNativeLibrary("OpenCL", new File("/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/cpp/test/build_out/darwin_universal_gcc_debug/libtest.dylib"));
+        	
+        	
+        	Collection<Symbol> symbols = lib.getSymbols();
+        	BridJ.register(MyCallback.class);
             BridJ.register();
 
 			int ra = testAddDyncall(10, 4);
@@ -113,9 +128,6 @@ public class TestCPP {
 			if (ra != 14)
 				throw new RuntimeException("Expected 14, got " + ra);
 			
-			if (JNI.isMacOSX())
-				new NSAutoReleasePool();
-
             testNativeTargetCallbacks();
             testJavaTargetCallbacks();
 

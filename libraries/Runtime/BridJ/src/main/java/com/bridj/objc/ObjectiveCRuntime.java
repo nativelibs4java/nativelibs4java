@@ -67,8 +67,12 @@ public class ObjectiveCRuntime extends CRuntime {
     @Override
     public void register(Class<?> type) {
     	Library libAnn = type.getAnnotation(Library.class);
-    	if (libAnn != null)
-    		System.loadLibrary(libAnn.value());
+    	if (libAnn != null) {
+    		String name = libAnn.value();
+    		File libraryFile = BridJ.getNativeLibraryFile(name);
+    		if (libraryFile != null)
+    			System.load(libraryFile.toString());
+    	}
     	
     	super.register(type);
     }
