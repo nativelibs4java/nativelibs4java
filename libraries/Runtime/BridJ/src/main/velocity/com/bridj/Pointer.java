@@ -418,7 +418,11 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
             return (Pointer<V>)allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * arrayLength);
         #end
         if (Pointer.class.isAssignableFrom(elementClass))
-            return (Pointer<V>)allocate(PointerIO.getPointerInstance(), Pointer.SIZE * arrayLength);
+            return (Pointer<V>)allocate(PointerIO.getPointerInstance(), Pointer.SIZE * arrayLength); // TODO
+        if (SizeT.class.isAssignableFrom(elementClass))
+            return (Pointer<V>)allocate(PointerIO.getSizeTInstance(), SizeT.SIZE * arrayLength); // TODO
+        //if (CLong.class.isAssignableFrom(elementClass))
+        //    return (Pointer<V>)allocate(PointerIO.getPointerInstance(), Pointer.SIZE * arrayLength); // TODO
         throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());
     }
 

@@ -92,6 +92,12 @@ public class PointerIO<T> {
         return getInstanceByType(type);
     }
     public synchronized static <P> PointerIO<P> getInstanceByType(Type type) {
+    	Class<?> cl = null;
+    	if (type instanceof Class)
+    		cl = (Class)type;
+    	else if (type instanceof ParameterizedType)
+    		cl = (Class)((ParameterizedType)type).getRawType();
+    	
         PointerIO io = ios.get(type);
         if (io == null) {
             #foreach ($prim in $primitivesNoBool)
@@ -109,7 +115,7 @@ public class PointerIO<T> {
                 };
             #end
 			//else if (NativeObject.class.isAssignableFrom(type))
-            else if (type == Pointer.class)
+            else if (Pointer.class.isAssignableFrom(cl))
                 io = new PointerIO<Pointer>(type, Pointer.SIZE) {
                     @Override
                     public Pointer get(Pointer<Pointer> pointer, int index) {
@@ -118,6 +124,17 @@ public class PointerIO<T> {
                     @Override
                     public void set(Pointer<Pointer> pointer, int index, Pointer value) {
                         pointer.setPointer(index * Pointer.SIZE, value);
+                    }
+                };
+            else if (SizeT.class.isAssignableFrom(cl))
+                io = new PointerIO<SizeT>(type, SizeT.SIZE) {
+                    @Override
+                    public SizeT get(Pointer<SizeT> pointer, int index) {
+                        return new SizeT(pointer.getSizeT(index * SizeT.SIZE));
+                    }
+                    @Override
+                    public void set(Pointer<SizeT> pointer, int index, SizeT value) {
+                        pointer.setSizeT(index * SizeT.SIZE, value == null ? 0 : value.longValue());
                     }
                 };
             else
