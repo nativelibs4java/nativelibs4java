@@ -64,7 +64,7 @@ public class JavaCL {
         CLPlatform[] platforms = new CLPlatform[nPlats];
 
         for (int i = 0; i < nPlats; i++) {
-            platforms[i] = new CLPlatform(ids.get(i));
+            platforms[i] = new CLPlatform(new cl_platform_id(ids.get(i)));
         }
         return platforms;
     }

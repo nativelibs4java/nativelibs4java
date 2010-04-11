@@ -265,7 +265,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         error(CL.clGetDeviceIDs(getEntity(), flags, 0, null, pCount));
 
         int nDevs = pCount.get();
-        if (nDevs == 0) {
+        if (nDevs <= 0) {
             return new CLDevice[0];
         }
 
