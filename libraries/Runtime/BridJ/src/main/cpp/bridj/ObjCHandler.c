@@ -29,7 +29,7 @@ char __cdecl doJavaToObjCCallHandler(DCArgs* args, DCValue* result, JavaToObjCCa
 
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes) 
 	&&
-	followCall(call, info->fInfo.fReturnType, result, callback);
+	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE);
 
 	cleanupCallHandler(call);
 	return info->fInfo.fDCReturnType;
