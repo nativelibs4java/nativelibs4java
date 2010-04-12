@@ -6,6 +6,7 @@ char __cdecl doJavaToObjCCallHandler(DCArgs* args, DCValue* result, JavaToObjCCa
 {
 	CallTempStruct* call;
 	jobject instance = initCallHandler(args, &call, NULL);
+	call->pCallIOs = &info->fInfo.fCallIOs;
 	JNIEnv* env = call->env;
 	
 	void* thisPtr = thisPtr = getNativeObjectPointer(env, instance, NULL);

@@ -218,6 +218,8 @@ class StructIO {
 			return 4;
 		else if (primType == Double.TYPE)
 			return 8;
+		else if (Pointer.class.isAssignableFrom(primType))
+			return 8;
 		else
 			throw new UnsupportedOperationException("Field type " + primType.getName() + " not supported yet");
 
@@ -245,7 +247,7 @@ class StructIO {
                     field.byteLength = io.getStructSize();
                 }
                 field.refreshableFieldIndex = refreshableFieldCount++;
-            } else if (Pointer.class.equals(field.valueClass)) {
+            } else if (Pointer.class.isAssignableFrom(field.valueClass)) {
                 field.byteLength = Pointer.SIZE;
 		    } else if (Buffer.class.isAssignableFrom(field.valueClass)) {
                 if (field.valueClass == IntBuffer.class)

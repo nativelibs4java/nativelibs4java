@@ -310,6 +310,14 @@ public class MethodCallInfo {
 //                javaChar = "Lcom/bridj/Pointer;";
                 direct = false;
             	break;
+            case eNativeObjectValue:
+                if (parameterType.equals(method.getDeclaringClass())) {
+                    dcChar = DC_SIGCHAR_POINTER;
+                    javaChar = "L" + parameterType.getName().replace('.', '/') + ";";
+                    // javaChar = "Lcom/bridj/Pointer;";
+                    direct = false;
+                    break;
+                }
             default:
                 direct = false;
                 throw new RuntimeException("Unhandled " + ValueType.class.getSimpleName() + ": " + type);

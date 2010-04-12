@@ -92,11 +92,7 @@ public class PointerIO<T> {
         return getInstanceByType(type);
     }
     public synchronized static <P> PointerIO<P> getInstanceByType(Type type) {
-    	Class<?> cl = null;
-    	if (type instanceof Class)
-    		cl = (Class)type;
-    	else if (type instanceof ParameterizedType)
-    		cl = (Class)((ParameterizedType)type).getRawType();
+    	final Class<?> cl = (type instanceof Class) ? (Class)type : (type instanceof ParameterizedType) ? (Class)((ParameterizedType)type).getRawType() : null;
     	
         PointerIO io = ios.get(type);
         if (io == null) {
@@ -114,8 +110,7 @@ public class PointerIO<T> {
                     }
                 };
             #end
-			//else if (NativeObject.class.isAssignableFrom(type))
-            else if (Pointer.class.isAssignableFrom(cl))
+			else if (cl != null && Pointer.class.equals(cl))
                 io = new PointerIO<Pointer>(type, Pointer.SIZE) {
                     @Override
                     public Pointer get(Pointer<Pointer> pointer, int index) {
@@ -126,7 +121,30 @@ public class PointerIO<T> {
                         pointer.setPointer(index * Pointer.SIZE, value);
                     }
                 };
-            else if (SizeT.class.isAssignableFrom(cl))
+            else if (cl != null && Pointer.class.isAssignableFrom(cl))
+                io = new PointerIO<Pointer>(type, Pointer.SIZE) {
+                	java.lang.reflect.Constructor cons;
+                    @Override
+                    public Pointer get(Pointer<Pointer> pointer, int index) {
+                    	try {
+                    		return (Pointer)cons.newInstance(pointer.getSizeT(index * Pointer.SIZE));
+                    	} catch (Exception ex) {
+                    		throw new RuntimeException("Cannot create pointer of type " + cl.getName(), ex);
+                    	}
+                    }
+                    @Override
+                    public void set(Pointer<Pointer> pointer, int index, Pointer value) {
+                        pointer.setPointer(index * Pointer.SIZE, value);
+                    }
+                    {
+                    	try {
+                    		cons = cl.getConstructor(long.class);
+                    	} catch (Exception ex) {
+                    		throw new RuntimeException("Cannot find constructor for " + cl.getName(), ex);
+                    	}
+                    }
+                };
+            else if (cl != null && SizeT.class.isAssignableFrom(cl))
                 io = new PointerIO<SizeT>(type, SizeT.SIZE) {
                     @Override
                     public SizeT get(Pointer<SizeT> pointer, int index) {

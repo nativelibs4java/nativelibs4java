@@ -26,6 +26,7 @@ jclass gPointerClass = NULL;
 jclass gFlagSetClass = NULL;
 jclass gValuedEnumClass = NULL;
 jclass gBridJClass = NULL;
+jclass gCallIOClass = NULL;
 jmethodID gAddressMethod = NULL;
 jmethodID gGetPeerMethod = NULL;
 jmethodID gCreatePeerMethod = NULL;
@@ -34,6 +35,7 @@ jmethodID gNewFlagSetMethod = NULL;
 jmethodID gGetCallIOsMethod = NULL;
 jmethodID gGetTempCallStruct = NULL;
 jmethodID gReleaseTempCallStruct = NULL;
+jmethodID gNewCallIOInstance = NULL;
 
 jclass 		gMethodCallInfoClass 		 = NULL;
 jfieldID 	gFieldId_javaSignature 		 = NULL;
@@ -65,6 +67,7 @@ void initMethods(JNIEnv* env) {
 		gStructFieldsIOClass = FIND_GLOBAL_CLASS("com/bridj/StructFieldsIO");
 		gPointerClass = FIND_GLOBAL_CLASS("com/bridj/Pointer");
 		gMethodCallInfoClass = FIND_GLOBAL_CLASS("com/bridj/MethodCallInfo");
+		gCallIOClass = FIND_GLOBAL_CLASS("com/bridj/CallIO");
 		
 		gGetTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "getTempCallStruct", "()J"); 
 		gReleaseTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "releaseTempCallStruct", "(J)V"); 
@@ -74,6 +77,7 @@ void initMethods(JNIEnv* env) {
 		gGetPeerMethod = (*env)->GetMethodID(env, gPointerClass, "getPeer", "()J");
 		gCreatePeerMethod = (*env)->GetStaticMethodID(env, gPointerClass, "pointerToAddress", "(JLjava/lang/Class;)Lcom/bridj/Pointer;");
 		gGetCallIOsMethod = (*env)->GetMethodID(env, gMethodCallInfoClass, "getCallIOs", "()[Lcom/bridj/CallIO;");
+		gNewCallIOInstance = (*env)->GetMethodID(env, gCallIOClass, "newInstance", "(J)Ljava/lang/Object;");
 		
 #define GETFIELD_ID(out, name, sig) \
 		if (!(gFieldId_ ## out = (*env)->GetFieldID(env, gMethodCallInfoClass, name, sig))) \
@@ -123,6 +127,18 @@ jmethodID GetMethodIDOrFail(JNIEnv* env, jclass declaringClass, const char* meth
 	return id;
 }
 
+
+jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO) {
+	jobject instance;
+	jlong addr;
+	if (!ptr || !callIO)
+		return NULL;
+	initMethods(env);
+	addr = PTR_TO_JLONG(ptr);
+	instance = (*env)->CallObjectMethod(env, gNewCallIOInstance, callIO, addr);
+	return instance;
+}
+/*
 jobject createPointer(JNIEnv *env, void* ptr, jclass targetType) {
 	jobject instance;
 	jlong addr;
@@ -132,7 +148,7 @@ jobject createPointer(JNIEnv *env, void* ptr, jclass targetType) {
 	addr = PTR_TO_JLONG(ptr);
 	instance = (*env)->CallStaticObjectMethod(env, gPointerClass, gCreatePeerMethod, addr, targetType);
 	return instance;
-}
+}*/
 
 void* getPointerPeer(JNIEnv *env, jobject pointer) {
 	initMethods(env);

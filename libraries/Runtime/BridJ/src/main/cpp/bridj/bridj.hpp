@@ -71,6 +71,7 @@ typedef enum ValueType {
 typedef struct CallTempStruct {
 	DCCallVM* vm;
 	JNIEnv *env;
+	jobject* pCallIOs;
 } CallTempStruct;
 
 typedef struct CommonCallbackInfo {
@@ -146,7 +147,8 @@ char __cdecl StructHandler(DCCallback* callback, DCArgs* args, DCValue* result, 
 
 void* getNativeObjectPointer(JNIEnv* env, jobject instance, jclass targetClass);
 void* getPointerPeer(JNIEnv *env, jobject pointer);
-jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
+//jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
+jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO);
 
 void callDefaultConstructor(JNIEnv *env, void* constructor, void* thisPtr, int callMode);
 jlong getFlagValue(JNIEnv *env, jobject flagSet);

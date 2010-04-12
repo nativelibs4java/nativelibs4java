@@ -52,6 +52,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		
 		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
 		try {
+            Set<Method> handledMethods = new HashSet<Method>();
 			if (StructObject.class.isAssignableFrom(type)) {
 				StructIO io = StructIO.getInstance(type);
                 io.build();
@@ -65,11 +66,13 @@ public class CRuntime extends AbstractBridJRuntime {
                                 MethodCallInfo getter = new MethodCallInfo(fio.getter);
                                 getter.setIndex(fio.index);
                                 builder.addGetter(getter);
+                                handledMethods.add(fio.getter);
                             }
                             if (fio.setter != null) {
                                 MethodCallInfo setter = new MethodCallInfo(fio.setter);
                                 setter.setIndex(fio.index);
                                 builder.addSetter(setter);
+                                handledMethods.add(fio.setter);
                             }
                         } catch (FileNotFoundException ex) {
                             ex.printStackTrace();
@@ -90,6 +93,8 @@ public class CRuntime extends AbstractBridJRuntime {
 			try {
 				NativeLibrary typeLibrary = getNativeLibrary(type);
 				for (Method method : type.getDeclaredMethods()) {
+                    if (handledMethods.contains(method))
+                        continue;
 					try {
 						int modifiers = method.getModifiers();
 						if (!Modifier.isNative(modifiers))
@@ -99,7 +104,8 @@ public class CRuntime extends AbstractBridJRuntime {
 						NativeLibrary methodLibrary = BridJ.getNativeLibrary(method);
 						
 						registerNativeMethod(type, typeLibrary, method, methodLibrary, builder);
-						
+
+                        handledMethods.add(method);
 					} catch (Exception ex) {
 						assert log(Level.SEVERE, "Method " + method.toGenericString() + " cannot be mapped : " + ex, ex);
 					}

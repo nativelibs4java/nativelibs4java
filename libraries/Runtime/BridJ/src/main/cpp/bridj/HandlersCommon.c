@@ -41,6 +41,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 			case ePointerValue:
 				{
 					jobject jptr = (jobject)dcbArgPointer(args);
+					call->pCallIOs++;
 					void* ptr = jptr ? getPointerPeer(env, (void*)jptr) : NULL;
 					dcArgPointer(call->vm, ptr);
 				}
@@ -105,7 +106,9 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		case ePointerValue:
 			{
 				void* ptr = dcCallPointer(call->vm, callback);
-				result->p = createPointer(env, ptr, NULL);
+				jobject callIO = *call->pCallIOs;
+				call->pCallIOs++;
+				result->p = createPointerFromIO(env, ptr, callIO);
 			}
 			break;
 		case eWCharValue:
