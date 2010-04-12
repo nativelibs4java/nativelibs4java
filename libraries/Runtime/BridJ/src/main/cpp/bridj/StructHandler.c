@@ -19,7 +19,7 @@ char __cdecl doStructHandler(DCArgs* args, DCValue* result, StructFieldInfo *inf
 	
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes) 
 	&&
-	followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction);
+	followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction, JNI_TRUE);
 
 	cleanupCallHandler(call);
 	

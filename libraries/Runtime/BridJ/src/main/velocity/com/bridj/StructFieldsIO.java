@@ -25,8 +25,9 @@ class StructFieldsIO {
         FieldIO field = struct.io.fields[fieldIndex];
         assert !field.isBitField;
         assert Pointer.class.isAssignableFrom(field.valueClass);
-
-        return Pointer.getPeer(struct).getPointer(field.byteOffset);
+        assert field.callIO != null;
+        
+        return (Pointer)field.callIO.newInstance(Pointer.getPeer(struct).getSizeT(field.byteOffset));
     }
     public static void setPointerField(StructObject struct, int fieldIndex, Pointer p) {
         FieldIO field = struct.io.fields[fieldIndex];

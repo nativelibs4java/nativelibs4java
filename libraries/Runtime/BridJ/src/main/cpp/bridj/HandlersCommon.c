@@ -73,7 +73,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 	return JNI_TRUE;
 }
 
-jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback) 
+jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback, jboolean bCallingJava) 
 {
 	JNIEnv* env = call->env;
 	switch (returnType) {
@@ -106,9 +106,14 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		case ePointerValue:
 			{
 				void* ptr = dcCallPointer(call->vm, callback);
-				jobject callIO = *call->pCallIOs;
+				if (bCallingJava)
+					result->p = ptr;
+				else
+				{
+					jobject callIO = *call->pCallIOs;
+					result->p = createPointerFromIO(env, ptr, callIO);
+				}
 				call->pCallIOs++;
-				result->p = createPointerFromIO(env, ptr, callIO);
 			}
 			break;
 		case eWCharValue:

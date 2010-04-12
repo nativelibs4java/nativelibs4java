@@ -11,7 +11,7 @@ char __cdecl doJavaToFunctionCallHandler(DCArgs* args, DCValue* result, Function
 	dcMode(call->vm, info->fInfo.fDCMode);
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes) 
 	&&
-	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol);
+	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol, JNI_FALSE);
 
 	cleanupCallHandler(call);
 	return info->fInfo.fDCReturnType;

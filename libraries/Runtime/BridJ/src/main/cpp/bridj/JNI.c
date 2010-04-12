@@ -678,6 +678,7 @@ jmethodID GetStructMethodId(JNIEnv* env, ValueType type, jboolean isGetter, void
 	CASE_STRUCT_METHOD_PRIM(Float, "F")
 	CASE_STRUCT_METHOD(eWCharValue, WChar, "C", CallStaticCharMethod)
 	CASE_STRUCT_METHOD(eNativeObjectValue, NativeObject, "Lcom/bridj/NativeObject;", CallStaticObjectMethod)
+	//CASE_STRUCT_METHOD(ePointerValue, SizeT, "J", CallStaticLongMethod)
 	CASE_STRUCT_METHOD(ePointerValue, Pointer, "Lcom/bridj/Pointer;", CallStaticObjectMethod)
 	default:
 		throwException(env, "Unhandled struct field type !");

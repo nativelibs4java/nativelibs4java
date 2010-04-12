@@ -589,7 +589,7 @@ public abstract class Demangler {
                 else if (Pointer.class.isAssignableFrom(paramType))
                     total += Pointer.SIZE;
                 else if (NativeObject.class.isAssignableFrom(paramType))
-                    total += ((CRuntime)BridJ.getRuntime(paramType)).sizeOf((Class<? extends StructObject>) paramType, null);
+                    total += ((CRuntime)BridJ.getRuntime(paramType)).sizeOf((Class<? extends StructObject>) paramType, paramTypes[iArg], null);
                 else if (FlagSet.class.isAssignableFrom(paramType))
                     total += 4; // TODO
                 else

@@ -100,6 +100,25 @@ public class TestCPP {
 		System.out.println();
 	}
 
+
+	public static class MyPtr extends TypedPointer {
+		public MyPtr(long peer) {
+			super(peer);
+		}
+		public MyPtr(Pointer peer) {
+			super(peer);
+		}
+	}
+
+	@Library("test")
+	public static class MyPtrStruct extends StructObject {
+		@Field(0)
+		//public native Pointer<Integer> a();
+		//public native MyStruct a(MyPtr a);
+        public native MyPtr a();
+        public native void a(MyPtr a);
+        //public native void a(MyPtr a);
+	}
     public static native char test_incr_char(char value);
 	//public static native short test_incr_char(short value);
 	public static native int testAddDyncall(int a, int b);
@@ -107,6 +126,12 @@ public class TestCPP {
 	public static void main(String[] args) throws IOException {
         try {
 
+            {
+                MyPtrStruct s = new MyPtrStruct();
+                Pointer<MyPtrStruct> ps = Pointer.getPeer(s);
+                ps.setSizeT(0, 10);
+                MyPtr ptr = s.a();
+            }
 //			if (JNI.isMacOSX()) {
 //				new NSCalendar();
 //				new NSAutoReleasePool();

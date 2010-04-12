@@ -24,6 +24,7 @@ import com.bridj.ann.Struct;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
 import com.bridj.util.AutoHashMap;
+import java.lang.reflect.Type;
 
 public class CRuntime extends AbstractBridJRuntime {
 
@@ -54,7 +55,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		try {
             Set<Method> handledMethods = new HashSet<Method>();
 			if (StructObject.class.isAssignableFrom(type)) {
-				StructIO io = StructIO.getInstance(type);
+				StructIO io = StructIO.getInstance(type, type, this); // TODO handle differently with templates...
                 io.build();
                 StructIO.FieldIO[] fios = io == null ? null : io.getFields();
                 if (fios != null)
@@ -176,9 +177,9 @@ public class CRuntime extends AbstractBridJRuntime {
 	    	}
     	return defaultObjectSize;
 	}
-	protected int sizeOf(Class<? extends StructObject> type, StructIO io) {
+	protected int sizeOf(Class<? extends StructObject> structClass, Type structType, StructIO io) {
 		if (io == null)
-			io = StructIO.getInstance(type);
+			io = StructIO.getInstance(structClass, structType, this);
 		int size;
 		if (io == null || (size = io.getStructSize()) == 0)
 			return getDefaultStructSize();
@@ -252,9 +253,9 @@ public class CRuntime extends AbstractBridJRuntime {
     	if (constructorId < 0) {
     		
     		Class<? extends StructObject> c = (Class)instance.getClass();
-    		StructIO io = StructIO.getInstance(c);
+    		StructIO io = StructIO.getInstance(c, c, this);
     		s.io = io; 
-    		instance.peer = Pointer.allocate(PointerIO.getInstance(io), sizeOf(c, io));
+    		instance.peer = Pointer.allocate(PointerIO.getInstance(io), io.getStructSize());//sizeOf(c, c, io));
     	} else
     		throw new UnsupportedOperationException("TODO implement structs constructors !");
     }

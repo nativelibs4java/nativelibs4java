@@ -209,15 +209,10 @@ public class MethodCallInfo {
             return ValueType.eDoubleValue;
         if (c == Boolean.class || c == Boolean.TYPE)
             return ValueType.eByteValue;
-        if (c == Pointer.class) {
+        if (Pointer.class.isAssignableFrom(c)) {
             direct = false;
-            addCallIO(new CallIO.GenericPointerHandler((t instanceof Class) ? null : ((ParameterizedType)t).getActualTypeArguments()[0]));
-        	return ValueType.ePointerValue;
-        }
-        if (TypedPointer.class.isAssignableFrom(c)) {
-            direct = false;
-            addCallIO(new CallIO.TypedPointerIO(((Class<? extends TypedPointer>)c)));
-        	return ValueType.ePointerValue;
+            addCallIO(CallIO.Utils.createPointerCallIO(c, t));
+        		return ValueType.ePointerValue;
         }
         if (c.isArray() && iParam == nParams - 1) {
         	direct = false;

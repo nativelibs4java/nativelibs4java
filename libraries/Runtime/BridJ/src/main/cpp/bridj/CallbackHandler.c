@@ -22,7 +22,7 @@ char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJa
 	
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes)
 	&&
-	followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction);
+	followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction, JNI_TRUE);
 
 	exc = (*env)->ExceptionOccurred(env);
 	if (exc) {
@@ -47,7 +47,7 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, JavaToNati
 	
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes)
 	&&
-	followCall(call, info->fInfo.fReturnType, result, callback);
+	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE);
 
 	cleanupCallHandler(call);
 	return info->fInfo.fDCReturnType;

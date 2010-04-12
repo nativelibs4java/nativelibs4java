@@ -20,6 +20,7 @@ import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Library;
 import java.util.Stack;
 import java.io.PrintWriter;
+import java.lang.reflect.Type;
 
 /// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class BridJ {
@@ -223,6 +224,7 @@ public class BridJ {
 
 		return getRuntimeByRuntimeClass(runtimeAnn.value());
     }
+
 	public static BridJRuntime register(Class<?> type) {
 		BridJRuntime runtime = registeredTypes.get(type);
 		if (runtime == null)
