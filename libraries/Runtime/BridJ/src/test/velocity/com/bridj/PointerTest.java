@@ -26,6 +26,7 @@ public class PointerTest {
     public void testSetGet${prim.BufferName}() {
 		${prim.Name}[] expected = createExpected${prim.CapName}s(n);
 		Pointer<${prim.WrapperName}> p = Pointer.pointerTo${prim.CapName}s(expected);
+		long peer = p.getPeer();
 		
 		Iterator<${prim.WrapperName}> it = p.iterator();
 		for (int i = 0; i < n; i++) {
@@ -33,7 +34,7 @@ public class PointerTest {
 			${prim.WrapperName} obVal = it.next();
 			assertNotNull(obVal);
 			${prim.Name} val = obVal;
-			assertEquals(expected[i], val, 0);
+			assertEquals("at position i = " + i, expected[i], val, 0);
 		}
 		assertTrue(!it.hasNext());
 	}

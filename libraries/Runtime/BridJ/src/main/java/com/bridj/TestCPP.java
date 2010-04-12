@@ -7,6 +7,7 @@ import com.bridj.Demangler;
 import com.bridj.JNI;
 import com.bridj.NativeLibrary;
 import com.bridj.Pointer;
+import static com.bridj.Pointer.*;
 import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Array;
 import com.bridj.ann.Convention;
@@ -41,7 +42,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
-@Library("test")
+@Library("C:\\Users\\Olivier\\Prog\\nativelibs4java\\Runtime\\BridJ\\src\\test\\resources\\win64\\test.dll")
+//@Library("test")
 @com.bridj.ann.Runtime(CPPRuntime.class)
 public class TestCPP {
 //	static String libraryPath = //BridJ.getNativeLibraryFile("test").toString()
@@ -99,38 +101,34 @@ public class TestCPP {
 		}
 		System.out.println();
 	}
-
-
-	public static class MyPtr extends TypedPointer {
-		public MyPtr(long peer) {
-			super(peer);
-		}
-		public MyPtr(Pointer peer) {
-			super(peer);
-		}
-	}
-
-	@Library("test")
-	public static class MyPtrStruct extends StructObject {
-		@Field(0)
-		//public native Pointer<Integer> a();
-		//public native MyStruct a(MyPtr a);
-        public native MyPtr a();
-        public native void a(MyPtr a);
-        //public native void a(MyPtr a);
-	}
     public static native char test_incr_char(char value);
 	//public static native short test_incr_char(short value);
 	public static native int testAddDyncall(int a, int b);
 
+
+    public enum ETest implements ValuedEnum<ETest> {
+    	eFirst(0),
+    	eSecond(1),
+    	eThird(2);
+
+    	ETest(int value) {
+    		this.value = value;
+    	}
+    	final int value;
+    	public long value() {
+    		return value;
+    	}
+    }
+
+    public static native ValuedEnum<ETest> testEnum(ValuedEnum<ETest> e);
+
 	public static void main(String[] args) throws IOException {
         try {
-
             {
-                MyPtrStruct s = new MyPtrStruct();
-                Pointer<MyPtrStruct> ps = Pointer.getPeer(s);
-                ps.setSizeT(0, 10);
-                MyPtr ptr = s.a();
+                BridJ.register();
+                ValuedEnum<ETest> t = testEnum(ETest.eFirst);
+                if (t != ETest.eFirst)
+                    throw new RuntimeException();
             }
 //			if (JNI.isMacOSX()) {
 //				new NSCalendar();

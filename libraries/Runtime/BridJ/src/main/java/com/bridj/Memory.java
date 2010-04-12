@@ -123,9 +123,9 @@ class Memory<T> extends DefaultPointer<T> {
     public Pointer<T> offset(long byteOffset) {
         PointerIO<T> io = getIO();
         int size = io != null ? io.getTargetSize() : 1;
-        Memory<T> p = new Memory<T>(io, getCheckedPeer(byteOffset, size), validStart + byteOffset, validSize, memoryOwner == null ? this : memoryOwner);
+        Memory<T> p = new Memory<T>(io, getCheckedPeer(byteOffset, size), validStart, validSize, memoryOwner == null ? this : memoryOwner);
 		//p.memoryOwner = memoryOwner;
-		p.peerOrOffsetInOwner += byteOffset;
+		//p.peerOrOffsetInOwner += byteOffset;
         return p;
     }
 	

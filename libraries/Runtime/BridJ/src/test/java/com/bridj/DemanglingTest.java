@@ -28,6 +28,15 @@ public class DemanglingTest {
 		);
 	}
     @Test
+    public void testLongLongBackReference() {
+        demangle(
+            "?test_add9_long@@YA_J_J00000000@Z",
+            null,
+            null, "test_add9_long",
+            long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class
+        );
+    }
+    @Test
 	public void simpleConstructor() {
 		demangle(
 			"??0Ctest@@QEAA@XZ", 

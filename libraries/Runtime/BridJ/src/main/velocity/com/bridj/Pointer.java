@@ -41,9 +41,9 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			public T next() {
 				if (next == null)
 					throw new NoSuchElementException();
-				Pointer<T> ptr = next.next(1);
-				next = ptr.getRemainingBytes() == 0 ? null : ptr;
-				return ptr.get();
+                T value = next.get();
+				next = next.getRemainingElements() > 1 ? next.next(1) : null;
+				return value;
 			}
 			@Override
 			public void remove() {

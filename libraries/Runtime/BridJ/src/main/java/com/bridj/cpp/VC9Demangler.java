@@ -198,6 +198,7 @@ public class VC9Demangler extends Demangler {
                 cvMod = parseCVClassModifier();
 
             // Function property :
+            allQualifiedNames.clear(); // TODO fix this !!
             parseFunctionProperty(mr);
             if (cvMod != null && (cvMod.isMember || (memberName instanceof SpecialName) || Modifier.isPublic(ac.modifiers))) {
                 ClassRef tr = new ClassRef();
@@ -247,9 +248,17 @@ public class VC9Demangler extends Demangler {
         char c = consumeChar();
         if (Character.isDigit(c)) {
             int iBack = (int)(c - '0');
-            if (iBack >= backReferences.size())
+            if (iBack >= allQualifiedNames.size())
+            //if (iBack >= backReferences.size())
                 throw error("Invalid back reference", -1);
-            return backReferences.get(iBack);
+            List l = allQualifiedNames.get(iBack);
+            if (l.size() == 1) {
+                Object o = l.get(0);
+                if (o instanceof TypeRef)
+                    return (TypeRef)o;
+            }
+            throw error("Invalid back reference", -1);
+            //return backReferences.get(iBack);
         }
 		switch (c) {
 		case '_':
@@ -582,7 +591,10 @@ public class VC9Demangler extends Demangler {
     private void parseNameQualifications(List<Object> names) throws DemanglingException {
         if (Character.isDigit(peekChar())) {
             try {
-                names.add(((Collection)allQualifiedNames.get(consumeChar() - '0')).iterator().next());
+                int i = consumeChar() - '0';
+                if (i == allQualifiedNames.size())
+                    i--; // TODO fix this !!!
+                names.add(((Collection)allQualifiedNames.get(i)).iterator().next());
                 expectChars('@');
                 return;
             } catch (Exception ex) {
