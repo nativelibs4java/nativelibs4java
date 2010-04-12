@@ -25,8 +25,10 @@ public class TypedPointersTest {
 	@Library("test")
 	public static class MyStruct extends StructObject {
 		@Field(0)
-		public native Pointer<Integer> a();
+		//public native Pointer<Integer> a();
 		//public native MyStruct a(MyPtr a);
+        public native MyPtr a();
+        public native void a(MyPtr a);
         //public native void a(MyPtr a);
 	}
 	
