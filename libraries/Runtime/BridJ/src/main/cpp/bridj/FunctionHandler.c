@@ -5,8 +5,8 @@ char __cdecl doJavaToFunctionCallHandler(DCArgs* args, DCValue* result, Function
 	CallTempStruct* call;
 	JNIEnv* env;
 	initCallHandler(args, &call, NULL);
-	call->pCallIOs = &info->fInfo.fCallIOs;
 	env = call->env;
+	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	dcMode(call->vm, info->fInfo.fDCMode);
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes) 

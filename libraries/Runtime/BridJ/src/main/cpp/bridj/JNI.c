@@ -135,7 +135,7 @@ jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO) {
 		return NULL;
 	initMethods(env);
 	addr = PTR_TO_JLONG(ptr);
-	instance = (*env)->CallObjectMethod(env, gNewCallIOInstance, callIO, addr);
+	instance = (*env)->CallObjectMethod(env, callIO, gNewCallIOInstance, addr);
 	return instance;
 }
 /*

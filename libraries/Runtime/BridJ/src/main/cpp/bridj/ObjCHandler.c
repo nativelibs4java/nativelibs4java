@@ -6,8 +6,8 @@ char __cdecl doJavaToObjCCallHandler(DCArgs* args, DCValue* result, JavaToObjCCa
 {
 	CallTempStruct* call;
 	jobject instance = initCallHandler(args, &call, NULL);
-	call->pCallIOs = &info->fInfo.fCallIOs;
 	JNIEnv* env = call->env;
+	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	void* thisPtr = thisPtr = getNativeObjectPointer(env, instance, NULL);
 	void* callback = //objc_msgSend_stret;//

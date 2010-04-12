@@ -31,13 +31,12 @@ char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, Vir
 {
 	CallTempStruct* call;
 	jobject instance = initCallHandler(args, &call, NULL);
-	call->pCallIOs = &info->fInfo.fCallIOs;
 	JNIEnv* env = call->env;
-
 	void* callback;
 	int nParams = info->fInfo.nParams;
 	ValueType *pParamTypes = info->fInfo.fParamTypes;
 	void* thisPtr;
+	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	//jobject objOrClass;
 	
@@ -101,8 +100,8 @@ char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, CPPMeth
 	CallTempStruct* call;
 	void* thisPtr;
 	jobject instance = initCallHandler(args, &call, NULL);
-	call->pCallIOs = &info->fInfo.fCallIOs;
 	JNIEnv* env = call->env;
+	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	dcMode(call->vm, info->fInfo.fDCMode);
 	

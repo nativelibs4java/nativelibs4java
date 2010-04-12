@@ -6,8 +6,8 @@ char __cdecl doStructHandler(DCArgs* args, DCValue* result, StructFieldInfo *inf
 {
 	CallTempStruct* call;
 	jobject instance = initCallHandler(args, &call, NULL);
-	call->pCallIOs = &info->fInfo.fCallIOs;
 	JNIEnv* env = call->env;
+	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	dcMode(call->vm, DC_CALL_C_DEFAULT);
 

@@ -5,6 +5,7 @@
 
 package com.bridj.demos;
 
+import com.bridj.JNI;
 import com.bridj.Pointer;
 import com.bridj.cpp.com.COMRuntime;
 import com.bridj.cpp.com.IUnknown;
@@ -35,7 +36,7 @@ public class TaskbarListDemo extends JFrame implements ActionListener, ChangeLis
     Pointer<?> hwnd;
 
     public TaskbarListDemo() throws ClassNotFoundException {
-        super("TaskbarList Demo");
+        super("TaskbarList Demo (" + (JNI.is64Bits() ? "64 bits" : "32 bits") + ")");
 
         list = COMRuntime.newInstance(ITaskbarList3.class);
         
