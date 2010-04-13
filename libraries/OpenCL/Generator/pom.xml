@@ -3,8 +3,8 @@
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>javacl-generator</artifactId>
-  <name>JavaCL OpenCL Wrapper Code Generator</name>
+  <artifactId>javacl-generator-bridj</artifactId>
+  <name>JavaCL OpenCL Wrapper Code Generator / BridJ</name>
   <url>http://code.google.com/p/javacl/</url>
   <version>${opencl4java.version}</version>
   <packaging>maven-plugin</packaging>
@@ -12,7 +12,7 @@
   
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java-parent</artifactId>
+	  <artifactId>opencl4java-parent-bridj</artifactId>
 	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
@@ -28,7 +28,7 @@
 	
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>javacl-core</artifactId>
+	  <artifactId>javacl-core-bridj</artifactId>
 	  <version>${opencl4java.version}</version>
 	  <scope>compile</scope>
 	</dependency>

@@ -3,8 +3,8 @@
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>scalacl</artifactId>
-  <name>ScalaCL</name>
+  <artifactId>scalacl-bridj</artifactId>
+  <name>ScalaCL / BridJ</name>
   <url>http://code.google.com/p/scalacl/</url>
   <version>${opencl4java.version}</version>
   <packaging>jar</packaging>
@@ -18,7 +18,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java-parent</artifactId>
+	  <artifactId>opencl4java-parent-bridj</artifactId>
 	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
@@ -27,7 +27,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   	
   	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>javacl</artifactId>
+	  <artifactId>javacl-bridj</artifactId>
 	  <version>${opencl4java.version}</version>
 	  <scope>compile</scope>
 	</dependency>
