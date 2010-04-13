@@ -69,6 +69,9 @@ class StructIO {
 	public Class<?> getStructClass() {
 		return structClass;
 	}
+	public Type getStructType() {
+		return structType;
+	}
 	
 	public synchronized PointerIO<?> getPointerIO() {
 		if (pointerIO == null)

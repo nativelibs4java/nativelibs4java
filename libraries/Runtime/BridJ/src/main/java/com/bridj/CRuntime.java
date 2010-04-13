@@ -241,8 +241,22 @@ public class CRuntime extends AbstractBridJRuntime {
                 setNativeObjectPeer(instance, registerCallbackInstance((Callback<?>)instance));
             else
                 initialize(instance, -1);
+        } else if (instance instanceof StructObject) {
+            StructObject s = (StructObject)instance;
+            Class<? extends StructObject> c = (Class)instance.getClass();
+    		StructIO io = StructIO.getInstance(c, c, this);
+    		s.io = io;
         }
     }
+
+
+    @Override
+    public void initialize(NativeObject instance, Pointer peer) {
+        instance.peer = peer;
+        Class c = instance.getClass();
+        ((StructObject)instance).io = StructIO.getInstance(c, c, this);
+    }
+
     
     @Override
     public void initialize(NativeObject instance, int constructorId, Object... args) {

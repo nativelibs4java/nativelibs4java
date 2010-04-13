@@ -85,8 +85,19 @@ public class PointerIO<T> {
     }
 
     static Map<Type, PointerIO> ios = new WeakHashMap<Type, PointerIO>();
-    public synchronized static <S extends StructObject> PointerIO<S> getInstance(StructIO structIO) {
-    	return getInstanceByType(structIO.getStructClass());
+    public synchronized static <S extends StructObject> PointerIO<S> getInstance(final StructIO structIO) {
+    	final int ss = structIO.getStructSize();
+    	return new PointerIO<S>(structIO.getStructClass(), ss) {
+			@Override
+			public S get(Pointer<S> pointer, int index) {
+				return (S)pointer.getNativeObject(index * ss, structIO.getStructType());
+			}
+			@Override
+			public void set(Pointer<S> pointer, int index, S value) {
+				Pointer<S> ps = Pointer.getPeer(value);
+				pointer.getByteBuffer(index * ss).put(ps.getByteBuffer(0));
+			}
+		};
     }
     public synchronized static <P> PointerIO<P> getInstance(Class<P> type) {
         return getInstanceByType(type);
@@ -155,6 +166,8 @@ public class PointerIO<T> {
                         pointer.setSizeT(index * SizeT.SIZE, value == null ? 0 : value.longValue());
                     }
                 };
+			else if (cl != null && StructObject.class.isAssignableFrom(cl))
+				io = getInstance(StructIO.getInstance((Class)cl, type, (CRuntime)BridJ.getRuntime(cl)));
             else
                 io = new PointerIO(type, -1);
 

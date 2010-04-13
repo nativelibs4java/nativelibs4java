@@ -67,6 +67,11 @@ public class MonoRuntime extends AbstractBridJRuntime implements CSharpRuntime {
     }
 
     @Override
+    public void initialize(NativeObject instance, Pointer peer) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
     public void initialize(NativeObject instance, int constructorId, Object[] args) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

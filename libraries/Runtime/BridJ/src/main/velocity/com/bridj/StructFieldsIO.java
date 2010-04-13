@@ -18,11 +18,17 @@ class StructFieldsIO {
 
 	
 	public static Type getFieldType(StructObject struct, int fieldIndex) {
+		assert struct != null;
+		assert struct.io != null;
+		assert struct.io.fields != null;
 		return struct.io.fields[fieldIndex].valueType;
 	}
     
     public static Pointer getPointerField(StructObject struct, int fieldIndex) {
-        FieldIO field = struct.io.fields[fieldIndex];
+        assert struct != null;
+		assert struct.io != null;
+		assert struct.io.fields != null;
+		FieldIO field = struct.io.fields[fieldIndex];
         assert !field.isBitField;
         assert Pointer.class.isAssignableFrom(field.valueClass);
         assert field.callIO != null;
@@ -30,7 +36,10 @@ class StructFieldsIO {
         return (Pointer)field.callIO.newInstance(Pointer.getPeer(struct).getSizeT(field.byteOffset));
     }
     public static void setPointerField(StructObject struct, int fieldIndex, Pointer p) {
-        FieldIO field = struct.io.fields[fieldIndex];
+        assert struct != null;
+		assert struct.io != null;
+		assert struct.io.fields != null;
+		FieldIO field = struct.io.fields[fieldIndex];
         assert !field.isBitField;
         assert Pointer.class.isAssignableFrom(field.valueClass);
 
@@ -66,7 +75,10 @@ class StructFieldsIO {
 	}*/
 
     public static <F extends NativeObject> void setNativeObjectField(StructObject struct, int fieldIndex, F fieldValue) {
-        FieldIO field = struct.io.fields[fieldIndex];
+        assert struct != null;
+		assert struct.io != null;
+		assert struct.io.fields != null;
+		FieldIO field = struct.io.fields[fieldIndex];
         assert field.valueClass.isInstance(fieldValue);
         if (field.isByValue) {
             if (fieldValue == null)
@@ -79,7 +91,10 @@ class StructFieldsIO {
 	}
 
     public static <F extends NativeObject> F getNativeObjectField(StructObject struct, int fieldIndex, Class<F> fieldClass) {
-        FieldIO field = struct.io.fields[fieldIndex];
+        assert struct != null;
+		assert struct.io != null;
+		assert struct.io.fields != null;
+		FieldIO field = struct.io.fields[fieldIndex];
         assert fieldClass.equals(field.valueClass);
         F fieldValue = (F)struct.refreshableFields[field.refreshableFieldIndex];
         if (fieldValue == null) {
@@ -123,7 +138,10 @@ class StructFieldsIO {
         
     /** $prim field getter */
     public static ${prim.Name} get${prim.CapName}Field(StructObject struct, int fieldIndex) {
-        FieldIO field = struct.io.fields[fieldIndex];
+        assert struct != null;
+		assert struct.io != null;
+		assert struct.io.fields != null;
+		FieldIO field = struct.io.fields[fieldIndex];
         assert field.byteLength == (${prim.WrapperName}.SIZE / 8);
         assert ${prim.WrapperName}.TYPE.equals(field.valueClass) || ${prim.WrapperName}.class.equals(field.valueClass);
 
@@ -134,7 +152,10 @@ class StructFieldsIO {
 	}
 
     public static void set${prim.CapName}Field(StructObject struct, int fieldIndex, ${prim.Name} value) {
-        FieldIO field = struct.io.fields[fieldIndex];
+        assert struct != null;
+		assert struct.io != null;
+		assert struct.io.fields != null;
+		FieldIO field = struct.io.fields[fieldIndex];
         assert field.byteLength == (${prim.WrapperName}.SIZE / 8);
         assert ${prim.WrapperName}.TYPE.equals(field.valueClass) || ${prim.WrapperName}.class.equals(field.valueClass);
 
@@ -145,7 +166,10 @@ class StructFieldsIO {
     }
 
 	public static ${prim.BufferName} get${prim.CapName}BufferField(StructObject struct, int fieldIndex) {
-        FieldIO field = struct.io.fields[fieldIndex];
+        assert struct != null;
+		assert struct.io != null;
+		assert struct.io.fields != null;
+		FieldIO field = struct.io.fields[fieldIndex];
         ${prim.BufferName} b = (${prim.BufferName})struct.refreshableFields[field.refreshableFieldIndex];
         if (b == null || !b.isDirect() || !Pointer.getPeer(struct).offset(field.byteOffset).equals(Pointer.pointerToBuffer(b))) {
             int len = field.arraySize * field.byteLength;
@@ -159,7 +183,10 @@ class StructFieldsIO {
         return b;
     }
     public static void set${prim.CapName}BufferField(StructObject struct, int fieldIndex, ${prim.BufferName} fieldValue) {
-        FieldIO field = struct.io.fields[fieldIndex];
+        assert struct != null;
+		assert struct.io != null;
+		assert struct.io.fields != null;
+		FieldIO field = struct.io.fields[fieldIndex];
         if (fieldValue == null)
             throw new IllegalArgumentException("By-value struct struct.io.fields cannot be set to null");
 
@@ -174,11 +201,17 @@ class StructFieldsIO {
     }
 
 	public static ${prim.Name}[] get${prim.CapName}ArrayField(StructObject struct, int fieldIndex) {
-        FieldIO field = struct.io.fields[fieldIndex];
+        assert struct != null;
+		assert struct.io != null;
+		assert struct.io.fields != null;
+		FieldIO field = struct.io.fields[fieldIndex];
 		return Pointer.getPeer(struct).get${prim.CapName}s(field.byteOffset, field.arraySize);
     }
     public void set${prim.CapName}ArrayField(StructObject struct, int fieldIndex, ${prim.Name}[] fieldValue) {
-        FieldIO field = struct.io.fields[fieldIndex];
+        assert struct != null;
+		assert struct.io != null;
+		assert struct.io.fields != null;
+		FieldIO field = struct.io.fields[fieldIndex];
         if (fieldValue == null)
             throw new IllegalArgumentException("By-value struct struct.io.fields cannot be set to null");
 

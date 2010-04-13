@@ -93,10 +93,16 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return getPeer(instance, targetType).getPeer();
     }
     
-	public <O extends NativeObject> O toNativeObject(Class<O> type) {
-		return (O)BridJ.createNativeObjectFromPointer((Pointer)this, type);
+	public <O extends NativeObject> O getNativeObject(long byteOffset, Type type) {
+		return (O)BridJ.createNativeObjectFromPointer((Pointer<O>)this, type);
 	}
-    
+    public <O extends NativeObject> O getNativeObject(long byteOffset, Class<O> type) {
+		return (O)getNativeObject(byteOffset, (Type)type);
+	}
+    public <O extends NativeObject> O toNativeObject(Class<O> type) {
+		return getNativeObject(0, type);
+	}
+	
 	/**
 	 * Check that the pointer's peer is aligned to the target type alignment.
 	 * If the pointer has no peer, this method returns true.
@@ -154,6 +160,9 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	
 	
 	public static Pointer<Byte> pointerToCString(String string) {
+		if (string == null)
+			return null;
+		
 		byte[] bytes = string.getBytes();
 		Pointer<Byte> p = allocateArray(Byte.class, bytes.length + 1);
         p.setBytes(0, bytes);
@@ -421,6 +430,12 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
             return (Pointer<V>)allocate(PointerIO.getPointerInstance(), Pointer.SIZE * arrayLength); // TODO
         if (SizeT.class.isAssignableFrom(elementClass))
             return (Pointer<V>)allocate(PointerIO.getSizeTInstance(), SizeT.SIZE * arrayLength); // TODO
+        if (StructObject.class.isAssignableFrom(elementClass)) {
+        	CRuntime runtime = (CRuntime)BridJ.getRuntime(elementClass);
+        	StructIO sio = StructIO.getInstance(elementClass, elementClass, runtime);
+        	PointerIO pio = PointerIO.getInstance(sio);
+        	return (Pointer<V>)allocate(pio, sio.getStructSize() * arrayLength); // TODO
+        }
         //if (CLong.class.isAssignableFrom(elementClass))
         //    return (Pointer<V>)allocate(PointerIO.getPointerInstance(), Pointer.SIZE * arrayLength); // TODO
         throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());
@@ -436,7 +451,7 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		
 		#foreach ($prim in $primitivesNoBool)
 		if (buffer instanceof ${prim.BufferName})
-			return (Pointer)pointerToBuffer((${prim.BufferName})buffer, byteOffset);
+			return (Pointer)pointerTo${prim.CapName}s((${prim.BufferName})buffer, byteOffset);
 		#end
         throw new UnsupportedOperationException();
 	}

@@ -14,6 +14,7 @@ public interface BridJRuntime {
 	void register(Class<?> type);
 
     void initialize(NativeObject instance);
+    void initialize(NativeObject instance, Pointer peer);
     void initialize(NativeObject instance, int constructorId, Object... args);
 
     void destroy(NativeObject instance);

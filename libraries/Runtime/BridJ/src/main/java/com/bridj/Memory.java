@@ -113,7 +113,7 @@ class Memory<T> extends DefaultPointer<T> {
         if (memoryOwner != null) {
             if (memoryOwner instanceof Pointer<?>)
                 ((Pointer<?>)memoryOwner).release();
-            memoryOwner = null;
+            //memoryOwner = null;
         } else
             deallocate();
     }
@@ -121,6 +121,8 @@ class Memory<T> extends DefaultPointer<T> {
     /// TODO merge with DefaultPointer.share
 	@Override
     public Pointer<T> offset(long byteOffset) {
+    	if (byteOffset == 0)
+    		return this;
         PointerIO<T> io = getIO();
         int size = io != null ? io.getTargetSize() : 1;
         Memory<T> p = new Memory<T>(io, getCheckedPeer(byteOffset, size), validStart, validSize, memoryOwner == null ? this : memoryOwner);

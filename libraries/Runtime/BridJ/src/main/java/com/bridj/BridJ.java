@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -176,16 +177,17 @@ public class BridJ {
 //            cRuntime = getRuntimeByRuntimeClass(CRuntime.class);
 //        return cRuntime;
 //    }
-	public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Class<O> type) {
+	public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type) {
 		Stack<Boolean> s = currentlyCastingNativeObject.get();
 		s.push(true);
+		Class<O> cl = type instanceof Class ? (Class<O>)type : (Class<O>)((ParameterizedType)type).getRawType();
 		try {
-            BridJRuntime runtime = getRuntime(type);
-            O instance = runtime.getTypeForCast(type).newInstance();
+			BridJRuntime runtime = getRuntime(cl); 
+            O instance = runtime.getTypeForCast(cl).newInstance(); // TODO template parameters here !!!
 			instance.peer = (Pointer)pointer;//offset(byteOffset);//Pointer.pointerToAddress(address, type);
 			return instance;
 		} catch (Exception ex) {
-			throw new RuntimeException("Failed to cast pointer to native object of type " + type.getName(), ex);
+			throw new RuntimeException("Failed to cast pointer to native object of type " + cl.getName(), ex);
 		} finally {
 			s.pop();
 		}
@@ -434,6 +436,13 @@ public class BridJ {
     static void initialize(NativeObject instance) {
         (instance.runtime = register(instance.getClass())).initialize(instance);
     }
+
+
+    static void initialize(NativeObject instance, Pointer peer) {
+        (instance.runtime = register(instance.getClass())).initialize(instance, peer);
+    }
+
+
 
     static void initialize(NativeObject instance, int constructorId, Object[] args) {
         (instance.runtime = register(instance.getClass())).initialize(instance, constructorId, args);

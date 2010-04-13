@@ -50,5 +50,12 @@ public class TypedPointersTest {
 		assertTrue(ptr instanceof MyPtr);
 		assertEquals(10, ptr.getPeer());
 	}
+	
+	@Test
+	public void testStringPointer() {
+		assertNull(Pointer.pointerToCString(null));
+		Pointer<Byte> p = Pointer.pointerToCString("test");
+		assertEquals("test", p.getCString(0));
+	}
 }
 
