@@ -57,5 +57,54 @@ public class TypedPointersTest {
 		Pointer<Byte> p = Pointer.pointerToCString("test");
 		assertEquals("test", p.getCString(0));
 	}
+	
+	@Test
+	public void testStringsPointer() {
+		assertNull(Pointer.pointerToCStrings((String[])null));
+		
+		Pointer<Pointer<Byte>> p = Pointer.pointerToCStrings(null, null);
+		assertNull(p.get(0));
+		assertNull(p.get(1));
+		
+		p = Pointer.pointerToCStrings("test1", "test2");
+		assertEquals("test1", p.get(0).getCString(0));
+		assertEquals("test2", p.get(1).getCString(0));
+	}
+	
+	@Test
+	public void testEquals() {
+		Pointer m1 = Pointer.allocateBytes(2), m2 = Pointer.allocateBytes(2);
+		assertNotNull(m1);
+		assertNotNull(m2);
+		assertTrue(!m1.equals(m2));
+		
+		long addr1 = m1.getPeer(), addr2 = m2.getPeer();
+		Pointer[] ps1 = new Pointer[] {
+			m1,
+			new MyPtr(addr1),
+			Pointer.pointerToAddress(addr1)
+		};
+		Pointer[] ps2 = new Pointer[] {
+			m2,
+			new MyPtr(addr2),
+			Pointer.pointerToAddress(addr2)
+		};
+		for (Pointer p1 : ps1) {
+			assertNotNull(p1);
+			assertEquals(m1, p1);
+			assertEquals(p1, m1);	
+		}
+		for (Pointer p2 : ps2) {
+			assertNotNull(p2);
+			assertEquals(m2, p2);
+			assertEquals(p2, m2);	
+		}
+		
+		for (Pointer p1 : ps1) {
+			for (Pointer p2 : ps2) {
+				assertTrue(!p1.equals(p2));
+			}	
+		}
+	}
 }
 

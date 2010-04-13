@@ -41,47 +41,6 @@ public class BridJ {
 			releaseAll();
 		}});
 	}
-    
-	protected static class ThreadLocalCallStructs {
-		private int count;
-		private final List<Long> handles = new ArrayList<Long>();
-		public long get() {
-			long handle;
-			if (count < handles.size())
-				handle = handles.get(count);
-			else
-				handles.add(handle = JNI.createCallTempStruct());
-			
-			count++;
-			return handle;
-		}
-		public void release(long handle) {
-			assert count > 0;
-            //long h = handles.get(count - 1).longValue();
-            //if (h != handle)
-            //    throw new RuntimeException("Releasing temp call struct handle " + Long.toHexString(handle) + ", expected " + Long.toHexString(h) + " = " + h + " from " + handles);
-			assert handle == handles.get(count - 1).longValue();
-			count--;
-		}
-		@Override
-		public void finalize() {
-			for (long handle : handles)
-				JNI.deleteCallTempStruct(handle);
-		}
-	}
-	private static ThreadLocal<ThreadLocalCallStructs> threadLocalCallStructs = new ThreadLocal<ThreadLocalCallStructs>() {
-        @Override
-		protected ThreadLocalCallStructs initialValue() {
-			return new ThreadLocalCallStructs();
-		};
-	};
-	
-	protected static long getTempCallStruct() {
-		return threadLocalCallStructs.get().get();
-	}
-	protected static void releaseTempCallStruct(long handle) {
-		threadLocalCallStructs.get().release(handle);
-	}
 	
 	static synchronized void registerNativeObject(NativeObject ob) {
 		weakNativeObjects.put(Pointer.getAddress(ob, null), ob);
@@ -335,14 +294,21 @@ public class BridJ {
                 continue;
             }
             File f = new File(name);
-        	if (!f.exists())
-                f = new File(pathFile, name + ".dll").getAbsoluteFile();
-            if (!f.exists())
-                f = new File(pathFile, "lib" + name + ".so").getAbsoluteFile();
-            if (!f.exists())
-                f = new File(pathFile, "lib" + name + ".dylib").getAbsoluteFile();
-            if (!f.exists())
-                f = new File(pathFile, "lib" + name + ".jnilib").getAbsoluteFile();
+            if (JNI.isWindows()) {
+				if (!f.exists())
+					f = new File(pathFile, name + ".dll").getAbsoluteFile();
+			} else if (JNI.isMacOSX()) {
+				if (!f.exists())
+					f = new File(pathFile, "lib" + name + ".dylib").getAbsoluteFile();
+				if (!f.exists())
+					f = new File(pathFile, "lib" + name + ".jnilib").getAbsoluteFile();
+			} else if (JNI.isUnix()) {
+				if (!f.exists())
+					f = new File(pathFile, "lib" + name + ".so").getAbsoluteFile();
+				if (!f.exists())
+					f = new File(pathFile, name + ".so").getAbsoluteFile();
+            }
+            
             if (!f.exists())
                 continue;
 

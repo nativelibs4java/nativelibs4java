@@ -114,6 +114,7 @@ class Memory<T> extends DefaultPointer<T> {
             if (memoryOwner instanceof Pointer<?>)
                 ((Pointer<?>)memoryOwner).release();
             //memoryOwner = null;
+            //peerOrOffsetInOwner = 0;
         } else
             deallocate();
     }

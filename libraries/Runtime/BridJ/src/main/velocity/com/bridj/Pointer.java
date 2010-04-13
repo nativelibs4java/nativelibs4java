@@ -174,7 +174,9 @@ public abstract class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	/**
 	 * The update will take place inside the release() call
 	 */
-    public static Pointer<Pointer<Byte>> pointerToCStrings(final String[] strings) {
+    public static Pointer<Pointer<Byte>> pointerToCStrings(final String... strings) {
+    	if (strings == null)
+    		return null;
         final int len = strings.length;
         final Pointer<Byte>[] pointers = (Pointer<Byte>[])new Pointer[len];
         final Pointer<Pointer<?>> mem = allocatePointers(len);
