@@ -33,8 +33,8 @@ jmethodID gCreatePeerMethod = NULL;
 jmethodID gGetValuedEnumValueMethod = NULL;
 jmethodID gNewFlagSetMethod = NULL;
 jmethodID gGetCallIOsMethod = NULL;
-jmethodID gGetTempCallStruct = NULL;
-jmethodID gReleaseTempCallStruct = NULL;
+//jmethodID gGetTempCallStruct = NULL;
+//jmethodID gReleaseTempCallStruct = NULL;
 jmethodID gNewCallIOInstance = NULL;
 
 jclass 		gMethodCallInfoClass 		 = NULL;
@@ -69,8 +69,8 @@ void initMethods(JNIEnv* env) {
 		gMethodCallInfoClass = FIND_GLOBAL_CLASS("com/bridj/MethodCallInfo");
 		gCallIOClass = FIND_GLOBAL_CLASS("com/bridj/CallIO");
 		
-		gGetTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "getTempCallStruct", "()J"); 
-		gReleaseTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "releaseTempCallStruct", "(J)V"); 
+		//gGetTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "getTempCallStruct", "()J"); 
+		//gReleaseTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "releaseTempCallStruct", "(J)V"); 
 		gGetValuedEnumValueMethod = (*env)->GetMethodID(env, gValuedEnumClass, "value", "()J"); 
 		gNewFlagSetMethod = (*env)->GetStaticMethodID(env, gFlagSetClass, "fromValue", "(JLjava/lang/Class;)Lcom/bridj/FlagSet;"); 
 		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lcom/bridj/NativeObject;Ljava/lang/Class;)J");
@@ -346,6 +346,8 @@ char getDCReturnType(JNIEnv* env, ValueType returnType)
 				return DC_SIGCHAR_VOID;
 			}
 			// TODO
+		case eNativeObjectValue:
+			return DC_SIGCHAR_POINTER;
 		default:
 			throwException(env, "Return ValueType not supported yet !");
 			return DC_SIGCHAR_VOID;

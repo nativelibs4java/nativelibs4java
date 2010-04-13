@@ -198,15 +198,19 @@ public class MethodCallInfo {
             return ValueType.eByteValue;
         if (c == Boolean.class || c == Boolean.TYPE)
             return ValueType.eByteValue;
-        if (c == Float.class || c == Float.TYPE)
+        if (c == Float.class || c == Float.TYPE) {
+            usesFloats();
             return ValueType.eFloatValue;
+        }
         if (c == char.class || c == Character.TYPE) {
             if (JNI.WCHAR_T_SIZE != 2)
                 direct = false;
             return ValueType.eWCharValue;
         }
-        if (c == Double.class || c == Double.TYPE)
+        if (c == Double.class || c == Double.TYPE) {
+            usesFloats();
             return ValueType.eDoubleValue;
+        }
         if (c == Boolean.class || c == Boolean.TYPE)
             return ValueType.eByteValue;
         if (Pointer.class.isAssignableFrom(c)) {
@@ -229,6 +233,12 @@ public class MethodCallInfo {
         }
 
         throw new NoSuchElementException("No " + ValueType.class.getSimpleName() + " for class " + c.getName());
+    }
+    void usesFloats() {
+        if (direct && JNI.isMacOSX()) {
+            direct = false;
+            assert BridJ.log(Level.WARNING, "[unstable direct] FIXME Disable direct call due to float/double usage in " + method);
+        }
     }
 
     public void appendToSignature(ValueType type, Class<?> parameterType, StringBuilder javaSig, StringBuilder dcSig) {

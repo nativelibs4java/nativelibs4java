@@ -59,6 +59,8 @@ CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Heade
 LDFLAGS		+= -ldl -lobjc
 endif
 
+LDFLAGS		+= -lpthread
+
 ifdef BUILD_OS_linux
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux

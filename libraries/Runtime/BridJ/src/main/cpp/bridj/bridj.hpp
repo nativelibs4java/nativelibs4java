@@ -15,9 +15,9 @@
 #define __cdecl
 #endif
 
-//#ifdef _WIN64
+#if !defined (DC__OS_Darwin)
 #define NO_DIRECT_CALLS // TODO REMOVE ME !!! (issues with stack alignment on COM calls ?)
-//#endif
+#endif
 
 #include "dyncallback/dyncall_callback.h"
 #include <jni.h>

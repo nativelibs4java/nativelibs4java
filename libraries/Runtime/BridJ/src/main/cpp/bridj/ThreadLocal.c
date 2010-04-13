@@ -1,25 +1,22 @@
 #include "bridj.hpp"
 #include <string.h>
 #include "Exceptions.h"
+#include <stdlib.h>
 
 extern jclass gBridJClass;
-extern jmethodID gGetTempCallStruct;
-extern jmethodID gReleaseTempCallStruct;
+//extern jmethodID gGetTempCallStruct;
+//extern jmethodID gReleaseTempCallStruct;
 
-#if defined(DC__OS_Win64) || defined(DC__OS_Win32)
-
-#include <windows.h>
-
-DWORD gTlsIndex = TLS_OUT_OF_INDEXES;
 
 typedef struct CallTempStructNode {
 	struct CallTempStruct fCallTempStruct;
 	struct CallTempStructNode* fPrevious;
 	struct CallTempStructNode* fNext;
-	BOOL fUsed;
+	jboolean fUsed;
 } CallTempStructNode;
 
 CallTempStructNode* NewNode(CallTempStructNode* pPrevious) {
+	//printf("### Creating new temp node...\n");
 	CallTempStructNode* pNode = MALLOC_STRUCT(CallTempStructNode);
 	memset(pNode, 0, sizeof(CallTempStructNode));
 	pNode->fCallTempStruct.vm = dcNewCallVM(1024);
@@ -29,46 +26,23 @@ CallTempStructNode* NewNode(CallTempStructNode* pPrevious) {
 	}
 	return pNode;
 }
-CallTempStruct* getTempCallStruct(JNIEnv* env) {
-	CallTempStructNode* pNode = (CallTempStructNode*)TlsGetValue(gTlsIndex);
-	if (!pNode) {
-		pNode = NewNode(NULL);
-		TlsSetValue(gTlsIndex, pNode);
-	}
 
-	if (pNode->fUsed) {
-		if (!pNode->fNext)
-			pNode->fNext = NewNode(pNode);
-		
-		pNode = pNode->fNext;
-		TlsSetValue(gTlsIndex, pNode);
+
+void FreeNodes(CallTempStructNode* pNode) {
+	while (pNode) {
+		CallTempStructNode* pNext = pNode->fNext;
+		free(pNode);
+		pNode = pNext;
 	}
-	pNode->fUsed = JNI_TRUE;
-	return &pNode->fCallTempStruct;
 }
 
-void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
-	CallTempStructNode* pNode = (CallTempStructNode*)TlsGetValue(gTlsIndex);
-	if (!pNode || &pNode->fCallTempStruct != s) {
-		throwException(env, "Invalid thread-local status : critical bug !");
-		return;
-	}
-	pNode->fUsed = JNI_FALSE;
-	if (pNode->fPrevious)
-		TlsSetValue(gTlsIndex, pNode->fPrevious);
-}
+#if defined(DC__OS_Win64) || defined(DC__OS_Win32)
 
-void freeCurrentThreadLocalData() {
-	CallTempStructNode* pNode = (CallTempStructNode*)TlsGetValue(gTlsIndex);
-	if (pNode) {
-		do {
-			CallTempStructNode* pNext = pNode->fNext;
-			free(pNode);
-			pNode = pNext;
-		} while (pNode);
-		TlsSetValue(gTlsIndex, NULL);
-	}
-}
+#include <windows.h>
+
+DWORD gTlsIndex = TLS_OUT_OF_INDEXES;
+#define GET_THREAD_LOCAL_DATA() ((CallTempStructNode*)TlsGetValue(gTlsIndex))
+#define SET_THREAD_LOCAL_DATA(data) TlsSetValue(gTlsIndex, data);
 
 void initThreadLocal(JNIEnv* env) {
 	gTlsIndex = TlsAlloc();
@@ -106,8 +80,20 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 #else
 
-void initThreadLocal(JNIEnv* env) {
+#include <pthread.h>
+
+pthread_key_t gTlsKey;
+#define GET_THREAD_LOCAL_DATA() ((CallTempStructNode*)pthread_getspecific(gTlsKey))
+#define SET_THREAD_LOCAL_DATA(data) pthread_setspecific(gTlsKey, data);
+
+void destroyThreadLocal(void* data) {
+	FreeNodes((CallTempStructNode*)data);
 }
+void initThreadLocal(JNIEnv* env) {
+	pthread_key_create(&gTlsKey, destroyThreadLocal);
+}
+
+/*
 CallTempStruct* getTempCallStruct(JNIEnv* env) {
 	jlong handle = (*env)->CallStaticLongMethod(env, gBridJClass, gGetTempCallStruct);
 	return (CallTempStruct*)JLONG_TO_PTR(handle);
@@ -116,6 +102,42 @@ void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
 	//s->env = NULL;
 	jlong h = PTR_TO_JLONG(s);
 	(*env)->CallStaticVoidMethod(env, gBridJClass, gReleaseTempCallStruct, h);
-}
+}*/
 
 #endif
+
+
+CallTempStruct* getTempCallStruct(JNIEnv* env) {
+	CallTempStructNode* pNode = (CallTempStructNode*)GET_THREAD_LOCAL_DATA();
+	if (!pNode) {
+		pNode = NewNode(NULL);
+		SET_THREAD_LOCAL_DATA(pNode);
+	}
+
+	if (pNode->fUsed) {
+		if (!pNode->fNext)
+			pNode->fNext = NewNode(pNode);
+		
+		pNode = pNode->fNext;
+		SET_THREAD_LOCAL_DATA(pNode);
+	}
+	pNode->fUsed = JNI_TRUE;
+	return &pNode->fCallTempStruct;
+}
+
+void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
+	CallTempStructNode* pNode = (CallTempStructNode*)GET_THREAD_LOCAL_DATA();
+	if (!pNode || &pNode->fCallTempStruct != s) {
+		throwException(env, "Invalid thread-local status : critical bug !");
+		return;
+	}
+	pNode->fUsed = JNI_FALSE;
+	if (pNode->fPrevious)
+		SET_THREAD_LOCAL_DATA(pNode->fPrevious);
+}
+
+void freeCurrentThreadLocalData() {
+	CallTempStructNode* pNode = (CallTempStructNode*)GET_THREAD_LOCAL_DATA();
+	FreeNodes(pNode);
+	SET_THREAD_LOCAL_DATA(NULL);
+}

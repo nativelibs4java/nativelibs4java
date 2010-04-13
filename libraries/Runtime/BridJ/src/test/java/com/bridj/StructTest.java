@@ -54,7 +54,7 @@ public class StructTest {
 
 		@Field(0)
 		public native int a();
-		public native void a(int a);
+		public native ArrStruct a(int a);
 
 	}
     @Test
@@ -64,8 +64,25 @@ public class StructTest {
         for (ArrStruct s : formats) {
             assertNotNull(s);
             assertEquals(0, s.a());
+            assertTrue(s == s.a(10));
         }
     }
 
+
+    public static class ThisStruct extends StructObject {
+
+		@Field(0)
+		public native int a();
+		public native ThisStruct a(int a);
+
+	}
+    @Test
+    public void testThisStruct() {
+        ThisStruct s = new ThisStruct();
+        ThisStruct o = s.a(10);
+        assertTrue(s == o);
+        int a = s.a();
+        assertEquals(10, a);
+    }
 }
 
