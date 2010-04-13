@@ -189,7 +189,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	}
 
     static Pointer<cl_event> new_event_out(CLEvent[] eventsToWaitFor) {
-        return noEvents || eventsToWaitFor == null ? null : allocate(cl_event.class);
+        return noEvents || eventsToWaitFor == null ? null : allocateTypedPointer(cl_event.class);
     }
     
 	static Pointer<cl_event> to_cl_event_array(CLEvent... events) {
