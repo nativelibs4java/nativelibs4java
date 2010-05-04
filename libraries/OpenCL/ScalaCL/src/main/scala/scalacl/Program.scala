@@ -67,8 +67,8 @@ abstract class Program(context: Context, var dimensions: Dim*)
     markVarUsage;
 
     // Sort inputs first
-    var (write, notWrite) = filteredVariables.filter(v => v.mode.read || v.mode.write).partition(_.mode.write)
-    filteredVariables = notWrite ++ write
+    //TODO var (write, notWrite) = filteredVariables.filter(v => v.mode.read || v.mode.write).partition(_.mode.write)
+    //TODO filteredVariables = notWrite ++ write
     
     import scala.collection.mutable.HashMap
     var namesPerHint = new HashMap[String, Int]
