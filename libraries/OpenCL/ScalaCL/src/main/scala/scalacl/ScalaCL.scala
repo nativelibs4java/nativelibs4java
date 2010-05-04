@@ -32,12 +32,12 @@ object ScalaCL extends Functions {
 
   implicit def Stats2Statements(stats: Seq[Stat]) = Statements(stats)
   
-  def BytesVar = new BytesVar(None)
-  def ShortsVar = new ShortsVar(None)
-  def IntsVar = new IntsVar(None)
-  def LongsVar = new LongsVar(None)
-  def FloatsVar = new FloatsVar(None)
-  def DoublesVar = new DoublesVar(None)
+  def BytesVar() = new BytesVar(None)
+  def ShortsVar() = new ShortsVar(None)
+  def IntsVar() = new scalacl.IntsVar(None)
+  def LongsVar() = new LongsVar(None)
+  def FloatsVar() = new FloatsVar(None)
+  def DoublesVar() = new DoublesVar(None)
 
   def BytesVar(sizeExpr: Expr) = new BytesVar(Some(sizeExpr))
   def ShortsVar(sizeExpr: Expr) = new ShortsVar(Some(sizeExpr))
