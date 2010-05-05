@@ -13,7 +13,7 @@ import SyntaxUtils._
 
 class Context(var context: CLContext, var queue: CLQueue)
 object Context {
-  def newContext(ctx: CLContext) = new Context(ctx, ctx.createDefaultQueue())
+  def newContext(ctx: CLContext) = new Context(ctx, if (ctx == null) null else ctx.createDefaultQueue())
   /*def newContext(devices: Array[CLDevice]) : Option[Context] = {
     var ctx = CLContext.createContext(null, devices: _*);
     Some(new Context(ctx, ctx.createDefaultQueue))
@@ -67,8 +67,8 @@ abstract class Program(context: Context, var dimensions: Dim*)
     markVarUsage;
 
     // Sort inputs first
-    //TODO var (write, notWrite) = filteredVariables.filter(v => v.mode.read || v.mode.write).partition(_.mode.write)
-    //TODO filteredVariables = notWrite ++ write
+    var (write, notWrite) = filteredVariables.filter(v => v.mode.read || v.mode.write).partition(_.mode.write)
+    filteredVariables = notWrite ++ write
     
     import scala.collection.mutable.HashMap
     var namesPerHint = new HashMap[String, Int]
@@ -123,14 +123,17 @@ abstract class Program(context: Context, var dimensions: Dim*)
       v.typeDesc.cType + " " + v.name
     )
 
-	if (context.context.isHalfSupported())
-		doc.append("#pragma OPENCL EXTENSION cl_khr_fp16 : require\n");
-
-	if (context.context.isDoubleSupported())
-		doc.append("#pragma OPENCL EXTENSION cl_khr_fp64 : require\n");
-
-	if (context.context.isByteAddressableStoreSupported())
-		doc.append("#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : require\n");
+    if (context.context != null)
+    {
+        if (context.context.isHalfSupported())
+            doc.append("#pragma OPENCL EXTENSION cl_khr_fp16 : require\n");
+    
+        if (context.context.isDoubleSupported())
+            doc.append("#pragma OPENCL EXTENSION cl_khr_fp64 : require\n");
+    
+        if (context.context.isByteAddressableStoreSupported())
+            doc.append("#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : require\n");
+    }
 	
     //doc.append(variables.map(v => "\t//"+ v.name + ": " + v.mode + "\n").implode(""))
     doc.append("__kernel void function(" + argDefs.implode(", ") + ") {\n");
@@ -144,14 +147,14 @@ abstract class Program(context: Context, var dimensions: Dim*)
     doc.toString
   }
   def markVarUsage = content accept { (x, stack) =>
-  	//val stackList = stack.toList // scala 2.8.0
-	val stackList = stack.toList.reverse // scala 2.7.6
+  	val stackList = stack.toList // scala 2.8.0
+	//val stackList = stack.toList.reverse // scala 2.7.6
 	//if (stackList != Nil)
 	//println(stackList(stackList.size - 1) == x)
     x match {
       case v: AbstractVar => stackList match {
           case (_: Assignment) :: xs => 
-          case (_: ArrayElement[_, _]) :: (_: Assignment) :: xs => 
+          case (_: ArrayElement[_, _]) :: (_: Assignment) :: xs => println("array + assignment mode = true")
           case _ => v.mode.read = true
       }
       case Assignment(_, t, _) => t match {
