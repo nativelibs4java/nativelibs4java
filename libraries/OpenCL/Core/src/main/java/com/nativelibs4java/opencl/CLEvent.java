@@ -215,6 +215,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
             if (event == null || event.getEntity() == null)
                 continue;
             event_wait_list[iDest] = event.getEntity();
+            iDest++;
         }
 		return event_wait_list;	
 	}
