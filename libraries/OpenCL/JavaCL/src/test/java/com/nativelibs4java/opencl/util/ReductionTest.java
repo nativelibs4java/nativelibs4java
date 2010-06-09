@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.IntBuffer;
+import java.nio.FloatBuffer;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -51,6 +52,33 @@ public class ReductionTest {
             queue.finish();
             assertEquals(35535, result.get(0));
             
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            assertTrue(ex.toString(), false);
+        }
+    }
+    
+    /// http://code.google.com/p/nativelibs4java/issues/detail?id=26
+    @Test
+    public void testIssue26() {
+        try {
+			float[] array = new float[4097];
+			for (int i = 0; i < array.length; i++)
+				array[i] = 1;
+			
+			CLFloatBuffer clBufferInput = context.createFloatBuffer(CLMem.Usage.Input, FloatBuffer.wrap(array), true);
+			
+			ReductionUtils.Reductor<FloatBuffer> reductor = ReductionUtils.createReductor(
+				context, 
+				ReductionUtils.Operation.Add, 
+				ReductionUtils.Type.Float, 
+				1
+			);
+			FloatBuffer result = reductor.reduce(queue, clBufferInput, 4097, 64);
+			float sum = result.get(0);
+			float expected = 4097;
+			System.err.println("[Test of issue 26] Expected " + expected + ", got " + sum);
+			assertEquals(expected, sum, 0);
         } catch (Exception ex) {
             ex.printStackTrace();
             assertTrue(ex.toString(), false);
