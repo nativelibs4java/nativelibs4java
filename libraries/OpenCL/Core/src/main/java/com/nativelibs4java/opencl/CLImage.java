@@ -146,7 +146,7 @@ public abstract class CLImage extends CLMem {
         cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         Pointer p = CL.clEnqueueMapImage(
             queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
-            flags.getValue(),
+            flags.value(),
 			offset3,
             length3,
             imageRowPitch == null ? null : new NativeSizeByReference(toNS(imageRowPitch)),

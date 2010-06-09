@@ -84,7 +84,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
 	@SuppressWarnings("deprecation")
 	public void setProperty(CLDevice.QueueProperties property, boolean enabled) {
-		error(CL.clSetCommandQueueProperty(getEntity(), property.getValue(), enabled ? CL_TRUE : CL_FALSE, (LongByReference)null));
+		error(CL.clSetCommandQueueProperty(getEntity(), property.value(), enabled ? CL_TRUE : CL_FALSE, (LongByReference)null));
 	}
 	
 

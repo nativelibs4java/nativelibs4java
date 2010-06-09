@@ -52,6 +52,7 @@ import java.util.Arrays;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
+import com.nativelibs4java.util.ValuedEnum;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.Pointer;
@@ -226,17 +227,20 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	}
 
 	/** Values for CL_EVENT_COMMAND_EXECUTION_STATUS */
-	public enum CommandExecutionStatus {
+	public enum CommandExecutionStatus implements ValuedEnum {
 		/** command has been enqueued in the command-queue                                             */ 
-		@EnumValue(CL_QUEUED	) Queued	,
+		Queued(CL_QUEUED),
 		/** enqueued command has been submitted by the host to the device associated with the command-queue */ 
-		@EnumValue(CL_SUBMITTED ) Submitted ,
+		Submitted(CL_SUBMITTED),
 		/** device is currently executing this command */ 
-		@EnumValue(CL_RUNNING	) Running	,
+		Running(CL_RUNNING),
 		/** the command has completed */ 
-		@EnumValue(CL_COMPLETE	) Complete	;
+		Complete(CL_COMPLETE);
 		
-		public long getValue() { return EnumValues.getValue(this); }
+		CommandExecutionStatus(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
 		public static CommandExecutionStatus getEnum(long v) { return EnumValues.getEnum(v, CommandExecutionStatus.class); }
 	}
 	
@@ -254,26 +258,29 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	}
 
 	/** Values for CL_EVENT_COMMAND_TYPE */
-	public enum CommandType {
-		@EnumValue(CL_COMMAND_NDRANGE_KERNEL		) NDRangeKernel,
-		@EnumValue(CL_COMMAND_TASK					) Task,
-		@EnumValue(CL_COMMAND_NATIVE_KERNEL			) NativeKernel,
-		@EnumValue(CL_COMMAND_READ_BUFFER			) ReadBuffer,
-		@EnumValue(CL_COMMAND_WRITE_BUFFER			) WriteBuffer,
-		@EnumValue(CL_COMMAND_COPY_BUFFER			) CopyBuffer,
-		@EnumValue(CL_COMMAND_READ_IMAGE 			) ReadImage,
-		@EnumValue(CL_COMMAND_WRITE_IMAGE			) WriteImage,
-		@EnumValue(CL_COMMAND_COPY_IMAGE			) CopyImage,
-		@EnumValue(CL_COMMAND_COPY_BUFFER_TO_IMAGE	) CopyBufferToImage,
-		@EnumValue(CL_COMMAND_COPY_IMAGE_TO_BUFFER  ) CopyImageToBuffer,
-		@EnumValue(CL_COMMAND_MAP_BUFFER 			) MapBuffer,
-		@EnumValue(CL_COMMAND_MAP_IMAGE             ) CommandMapImage,
-		@EnumValue(CL_COMMAND_UNMAP_MEM_OBJECT		) UnmapMemObject,             
-		@EnumValue(CL_COMMAND_MARKER             	) Marker,             
-		@EnumValue(CL_COMMAND_ACQUIRE_GL_OBJECTS    ) AcquireGLObjects,             
-		@EnumValue(CL_COMMAND_RELEASE_GL_OBJECTS	) ReleaseGLObjects;
+	public enum CommandType implements ValuedEnum {
+		NDRangeKernel(CL_COMMAND_NDRANGE_KERNEL),
+		Task(CL_COMMAND_TASK),
+		NativeKernel(CL_COMMAND_NATIVE_KERNEL),
+		ReadBuffer(CL_COMMAND_READ_BUFFER),
+		WriteBuffer(CL_COMMAND_WRITE_BUFFER),
+		CopyBuffer(CL_COMMAND_COPY_BUFFER),
+		ReadImage(CL_COMMAND_READ_IMAGE),
+		WriteImage(CL_COMMAND_WRITE_IMAGE),
+		CopyImage(CL_COMMAND_COPY_IMAGE),
+		CopyBufferToImage(CL_COMMAND_COPY_BUFFER_TO_IMAGE),
+		CopyImageToBuffer(CL_COMMAND_COPY_IMAGE_TO_BUFFER),
+		MapBuffer(CL_COMMAND_MAP_BUFFER),
+		CommandMapImage(CL_COMMAND_MAP_IMAGE),
+		UnmapMemObject(CL_COMMAND_UNMAP_MEM_OBJECT),             
+		Marker(CL_COMMAND_MARKER),             
+		AcquireGLObjects(CL_COMMAND_ACQUIRE_GL_OBJECTS),             
+		ReleaseGLObjects(CL_COMMAND_RELEASE_GL_OBJECTS);
 
-		public long getValue() { return EnumValues.getValue(this); }
+		CommandType(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
 		public static CommandType getEnum(long v) { return EnumValues.getEnum(v, CommandType.class); }
 	}
 

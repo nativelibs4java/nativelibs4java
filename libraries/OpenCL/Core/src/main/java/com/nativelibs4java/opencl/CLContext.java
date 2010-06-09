@@ -57,6 +57,7 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.util.NIOUtils;
+import com.nativelibs4java.util.ValuedEnum;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.Memory;
@@ -119,8 +120,8 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	@SuppressWarnings("deprecation")
 	public CLImageFormat[] getSupportedImageFormats(CLBuffer.Flags flags, CLBuffer.ObjectType imageType) {
 		IntByReference pCount = new IntByReference();
-		int memFlags = (int) flags.getValue();
-		int imTyp = (int) imageType.getValue();
+		int memFlags = (int) flags.value();
+		int imTyp = (int) imageType.value();
 		Memory memCount = new Memory(16);
 		pCount.setPointer(memCount);
 		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, 0, null, pCount);
@@ -148,7 +149,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	@SuppressWarnings("deprecation")
 	public CLSampler createSampler(boolean normalized_coords, AddressingMode addressing_mode, FilterMode filter_mode) {
 		IntByReference pErr = new IntByReference();
-		cl_sampler sampler = CL.clCreateSampler(getEntity(), normalized_coords ? CL_TRUE : CL_FALSE, (int) addressing_mode.getValue(), (int) filter_mode.getValue(), pErr);
+		cl_sampler sampler = CL.clCreateSampler(getEntity(), normalized_coords ? CL_TRUE : CL_FALSE, (int) addressing_mode.value(), (int) filter_mode.value(), pErr);
 		error(pErr.getValue());
 		return new CLSampler(sampler);
 	}
@@ -279,7 +280,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLTexture2D(textureTarget.getValue(), mipLevel, texture, pErr);
+			mem = CL.clCreateFromGLTexture2D((int)textureTarget.value(), mipLevel, texture, pErr);
 		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
@@ -300,19 +301,22 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 		
 
-	public enum GLTextureTarget {
+	public enum GLTextureTarget implements ValuedEnum {
 		
-		@EnumValue(GL_TEXTURE_2D)						Texture2D,
-		//@EnumValue(GL_TEXTURE_3D)						Texture3D,
-		@EnumValue(GL_TEXTURE_CUBE_MAP_POSITIVE_X)		CubeMapPositiveX,
-		@EnumValue(GL_TEXTURE_CUBE_MAP_NEGATIVE_X)		CubeMapNegativeX,
-		@EnumValue(GL_TEXTURE_CUBE_MAP_POSITIVE_Y)		CubeMapPositiveY,
-		@EnumValue(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y)		CubeMapNegativeY,
-		@EnumValue(GL_TEXTURE_CUBE_MAP_POSITIVE_Z)		CubeMapPositiveZ,
-		@EnumValue(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z)		CubeMapNegativeZ,
-		@EnumValue(GL_TEXTURE_RECTANGLE)				Rectangle;
+		Texture2D(GL_TEXTURE_2D),
+		//Texture3D(GL_TEXTURE_3D),
+		CubeMapPositiveX(GL_TEXTURE_CUBE_MAP_POSITIVE_X),
+		CubeMapNegativeX(GL_TEXTURE_CUBE_MAP_NEGATIVE_X),
+		CubeMapPositiveY(GL_TEXTURE_CUBE_MAP_POSITIVE_Y),
+		CubeMapNegativeY(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y),
+		CubeMapPositiveZ(GL_TEXTURE_CUBE_MAP_POSITIVE_Z),
+		CubeMapNegativeZ(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z),
+		Rectangle(GL_TEXTURE_RECTANGLE);
 
-		public int getValue() { return (int)EnumValues.getValue(this); }
+		GLTextureTarget(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
 		public static GLTextureTarget getEnum(int v) { return EnumValues.getEnum(v, GLTextureTarget.class); }
 	}
 	

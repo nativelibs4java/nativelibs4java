@@ -41,6 +41,7 @@ import java.util.EnumSet;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
+import com.nativelibs4java.util.ValuedEnum;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.sun.jna.Pointer;
@@ -132,27 +133,27 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 		}
 	}
 
-	public enum Flags {
+	public enum Flags implements ValuedEnum {
 		/**
 		 * This flag specifies that the memory object will be read and written by a kernel. This is the default.
 		 */
-		@EnumValue(CL_MEM_READ_WRITE)		ReadWrite,
+		ReadWrite(CL_MEM_READ_WRITE),
 		/**
 		 * This flags specifies that the memory object will be written but not read by a kernel.<br/>
 		 * Reading from a buffer or image object created with CL_MEM_WRITE_ONLY inside a kernel is undefined.
 		 */
-		@EnumValue(CL_MEM_WRITE_ONLY)		WriteOnly,
+		WriteOnly(CL_MEM_WRITE_ONLY),
 		/**
 		 * This flag specifies that the memory object is a read-only memory object when used inside a kernel. <br/>
 		 * Writing to a buffer or image object created with CL_MEM_READ_ONLY inside a kernel is undefined.
 		 */
-		@EnumValue(CL_MEM_READ_ONLY)		ReadOnly,
+		ReadOnly(CL_MEM_READ_ONLY),
 		/**
 		 * This flag is valid only if host_ptr is not NULL. If specified, it indicates that the application wants the OpenCL implementation to use memory referenced by host_ptr as the storage bits for the memory object. <br/>
 		 * OpenCL implementations are allowed to cache the buffer contents pointed to by host_ptr in device memory. This cached copy can be used when kernels are executed on a device. <br/>
 		 * The result of OpenCL commands that operate on multiple buffer objects created with the same host_ptr or overlapping host regions is considered to be undefined.
 		 */
-		@EnumValue(CL_MEM_USE_HOST_PTR)		UseHostPtr,
+		UseHostPtr(CL_MEM_USE_HOST_PTR),
 		/**
 		 * This flag specifies that the application wants the OpenCL implementation to allocate memory from host accessible memory. <br/>
 		 * CL_MEM_ALLOC_HOST_PTR and CL_MEM_USE_HOST_PTR are mutually exclusive.<br/>
@@ -160,29 +161,38 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 		 * CL_MEM_COPY_HOST_PTR and CL_MEM_USE_HOST_PTR are mutually exclusive.<br/>
 		 * CL_MEM_COPY_HOST_PTR can be used with CL_MEM_ALLOC_HOST_PTR to initialize the contents of the cl_mem object allocated using host-accessible (e.g. PCIe) memory.
 		 */
-		@EnumValue(CL_MEM_ALLOC_HOST_PTR)		AllocHostPtr,
-		@EnumValue(CL_MEM_COPY_HOST_PTR)		CopyHostPtr;
+		AllocHostPtr(CL_MEM_ALLOC_HOST_PTR),
+		CopyHostPtr(CL_MEM_COPY_HOST_PTR);
 
-		public long getValue() { return EnumValues.getValue(this); }
+		Flags(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
 		public static long getValue(EnumSet<Flags> set) { return EnumValues.getValue(set); }
 		public static EnumSet<Flags> getEnumSet(long v) { return EnumValues.getEnumSet(v, Flags.class); }
 	}
-	public enum ObjectType {
-		@EnumValue(CL_MEM_OBJECT_BUFFER) Buffer,
-		@EnumValue(CL_MEM_OBJECT_IMAGE2D) Image2D,
-		@EnumValue(CL_MEM_OBJECT_IMAGE3D) Image3D;
+	public enum ObjectType implements ValuedEnum {
+		Buffer(CL_MEM_OBJECT_BUFFER),
+		Image2D(CL_MEM_OBJECT_IMAGE2D),
+		Image3D(CL_MEM_OBJECT_IMAGE3D);
 
-		public long getValue() { return EnumValues.getValue(this); }
+		ObjectType(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
 		public static ObjectType getEnum(long v) { return EnumValues.getEnum(v, ObjectType.class); }
 	}
 
-    public enum GLObjectType {
-		@EnumValue(CL_GL_OBJECT_BUFFER) Buffer,
-		@EnumValue(CL_GL_OBJECT_RENDERBUFFER) RenderBuffer,
-		@EnumValue(CL_GL_OBJECT_TEXTURE2D) Texture2D,
-		@EnumValue(CL_GL_OBJECT_TEXTURE3D) Texture3D;
+    public enum GLObjectType implements ValuedEnum {
+		Buffer(CL_GL_OBJECT_BUFFER),
+		RenderBuffer(CL_GL_OBJECT_RENDERBUFFER),
+		Texture2D(CL_GL_OBJECT_TEXTURE2D),
+		Texture3D(CL_GL_OBJECT_TEXTURE3D);
 
-		public long getValue() { return EnumValues.getValue(this); }
+		GLObjectType(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
 		public static GLObjectType getEnum(long v) { return EnumValues.getEnum(v, GLObjectType.class); }
 	}
 
@@ -207,12 +217,14 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
         CL.clGetGLObjectInfo(getEntity(), typeRef, nameRef);
         return new GLObjectInfo(GLObjectType.getEnum(typeRef.getValue()), nameRef.getValue());
     }
-	public enum MapFlags {
-		@EnumValue(CL_MAP_READ) Read,
-		@EnumValue(CL_MAP_WRITE) Write,
-		@EnumValue(CL_MAP_READ | CL_MAP_WRITE) ReadWrite;
+	public enum MapFlags implements ValuedEnum {
+		Read(CL_MAP_READ),
+		Write(CL_MAP_WRITE),
+		ReadWrite(CL_MAP_READ | CL_MAP_WRITE);
 
-		public long getValue() { return EnumValues.getValue(this); }
+		MapFlags(long value) { this.value = value; }
+		long value;
+		public long value() { return value; }
 		public static MapFlags getEnum(long v) { return EnumValues.getEnum(v, MapFlags.class); }
 	}
 

@@ -19,6 +19,7 @@ along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 package com.nativelibs4java.opencl;
 
 
+import com.nativelibs4java.util.ValuedEnum;
 import com.nativelibs4java.opencl.library.OpenGLContextUtils;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
@@ -129,7 +130,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         int iProp = 0;
         for (Map.Entry<ContextProperties, Number> e : contextProperties.entrySet()) {
             //if (!(v instanceof Number)) throw new IllegalArgumentException("Invalid context property value for '" + e.getKey() + ": " + v);
-            properties[iProp++] = e.getKey().getValue();
+            properties[iProp++] = e.getKey().value();
             properties[iProp++] = e.getValue().longValue();
         }
         properties[iProp] = 0;
@@ -171,18 +172,19 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     }
 
     /** Bit values for CL_CONTEXT_PROPERTIES */
-    public enum ContextProperties {
+    public enum ContextProperties implements ValuedEnum {
 
-        @EnumValue(CL_GL_CONTEXT_KHR        ) GLContext 	   ,
-		@EnumValue(CL_EGL_DISPLAY_KHR       ) EGLDisplay	   ,
-		@EnumValue(CL_GLX_DISPLAY_KHR       ) GLXDisplay	   ,
-		@EnumValue(CL_WGL_HDC_KHR           ) WGLHDC		   ,
-		@EnumValue(CL_CGL_SHAREGROUP_KHR	) CGLShareGroup    ;
+        GLContext(CL_GL_CONTEXT_KHR),
+		EGLDisplay(CL_EGL_DISPLAY_KHR),
+		GLXDisplay(CL_GLX_DISPLAY_KHR),
+		WGLHDC(CL_WGL_HDC_KHR),
+		CGLShareGroup(CL_CGL_SHAREGROUP_KHR);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
-
+		ContextProperties(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
+		
         public static long getValue(EnumSet<ContextProperties> set) {
             return EnumValues.getValue(set);
         }

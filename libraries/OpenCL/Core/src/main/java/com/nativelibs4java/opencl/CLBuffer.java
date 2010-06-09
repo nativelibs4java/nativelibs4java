@@ -118,7 +118,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
         
         cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         Pointer p = CL.clEnqueueMapBuffer(queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
-			flags.getValue(),
+			flags.value(),
 			toNS(offset * getElementSize()),
             toNS(length * getElementSize()),
 			evts == null ? 0 : evts.length, evts,

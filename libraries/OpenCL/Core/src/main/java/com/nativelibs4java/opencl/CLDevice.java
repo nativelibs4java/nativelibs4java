@@ -35,6 +35,7 @@ import static com.nativelibs4java.util.JNAUtils.*;
 import static com.nativelibs4java.util.NIOUtils.*;
 import java.util.*;
 import static com.nativelibs4java.opencl.CLException.*;
+import com.nativelibs4java.util.ValuedEnum;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -135,17 +136,15 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /** Bit values for CL_DEVICE_EXECUTION_CAPABILITIES */
-    public enum ExecutionCapability {
+    public enum ExecutionCapability implements ValuedEnum {
 
-        @EnumValue(CL_EXEC_KERNEL)
-        Kernel,
-        @EnumValue(CL_EXEC_NATIVE_KERNEL)
-        NativeKernel;
+        Kernel(CL_EXEC_KERNEL),
+        NativeKernel(CL_EXEC_NATIVE_KERNEL);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
-
+        ExecutionCapability(long value) { this.value = value; }
+        long value;
+        @Override
+        public long value() { return value; }
         public static long getValue(EnumSet<ExecutionCapability> set) {
             return EnumValues.getValue(set);
         }
@@ -165,21 +164,18 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /** Bit values for CL_DEVICE_TYPE */
-    public enum Type {
+    public enum Type implements ValuedEnum {
 
-        @EnumValue(CL_DEVICE_TYPE_CPU)
-        CPU,
-        @EnumValue(CL_DEVICE_TYPE_GPU)
-        GPU,
-        @EnumValue(CL_DEVICE_TYPE_ACCELERATOR)
-        Accelerator,
-        @EnumValue(CL_DEVICE_TYPE_DEFAULT)
-        Default;
+        CPU(CL_DEVICE_TYPE_CPU),
+        GPU(CL_DEVICE_TYPE_GPU),
+        Accelerator(CL_DEVICE_TYPE_ACCELERATOR),
+        Default(CL_DEVICE_TYPE_DEFAULT);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
-
+        Type(long value) { this.value = value; }
+        long value;
+        @Override
+		public long value() { return value; }
+        
         public static long getValue(EnumSet<Type> set) {
             return EnumValues.getValue(set);
         }
@@ -315,7 +311,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
         IntByReference pErr = new IntByReference();
         long flags = 0;
         for (QueueProperties prop : queueProperties)
-            flags |= prop.getValue();
+            flags |= prop.value();
         cl_command_queue queue = CL.clCreateCommandQueue(context.getEntity(), getEntity(), flags, pErr);
         error(pErr.getValue());
 
@@ -420,30 +416,26 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /** Bit values for CL_DEVICE_SINGLE_FP_CONFIG */
-    public enum SingleFPConfig {
+    public enum SingleFPConfig implements ValuedEnum {
 
         /** denorms are supported                                  */
-        @EnumValue(CL_FP_DENORM)
-        Denorm,
+        Denorm(CL_FP_DENORM),
         /** INF and quiet NaNs are supported.                      */
-        @EnumValue(CL_FP_INF_NAN)
-        InfNaN,
+        InfNaN(CL_FP_INF_NAN),
         /** round to nearest even rounding mode supported          */
-        @EnumValue(CL_FP_ROUND_TO_NEAREST)
-        RoundToNearest,
+        RoundToNearest(CL_FP_ROUND_TO_NEAREST),
         /** round to zero rounding mode supported                  */
-        @EnumValue(CL_FP_ROUND_TO_ZERO)
-        RoundToZero,
+        RoundToZero(CL_FP_ROUND_TO_ZERO),
         /** round to +ve and -ve infinity rounding modes supported */
-        @EnumValue(CL_FP_ROUND_TO_INF)
-        RoundToInf,
+        RoundToInf(CL_FP_ROUND_TO_INF),
         /** IEEE754-2008 fused multiply-add is supported.          */
-        @EnumValue(CL_FP_FMA)
-        FMA;
+        FMA(CL_FP_FMA);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
+        SingleFPConfig(long value) { this.value = value; }
+        long value;
+        @Override
+		public long value() { return value; }
+        
 
         public static long getValue(EnumSet<SingleFPConfig> set) {
             return EnumValues.getValue(set);
@@ -464,19 +456,17 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /** Values for CL_DEVICE_GLOBAL_MEM_CACHE_TYPE */
-    public enum GlobalMemCacheType {
+    public enum GlobalMemCacheType implements ValuedEnum {
 
-        @EnumValue(CL_NONE)
-        None,
-        @EnumValue(CL_READ_ONLY_CACHE)
-        ReadOnlyCache,
-        @EnumValue(CL_READ_WRITE_CACHE)
-        ReadWriteCache;
+        None(CL_NONE),
+        ReadOnlyCache(CL_READ_ONLY_CACHE),
+        ReadWriteCache(CL_READ_WRITE_CACHE);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
-
+        GlobalMemCacheType(long value) { this.value = value; }
+        long value;
+        @Override
+		public long value() { return value; }
+        
         public static GlobalMemCacheType getEnum(long v) {
             return EnumValues.getEnum(v, GlobalMemCacheType.class);
         }
@@ -533,18 +523,17 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /** Values for CL_DEVICE_LOCAL_MEM_TYPE */
-    public enum LocalMemType {
+    public enum LocalMemType implements ValuedEnum {
 
         /** implying dedicated local memory storage such as SRAM */
-        @EnumValue(CL_LOCAL)
-        Local,
-        @EnumValue(CL_GLOBAL)
-        Global;
+        Local(CL_LOCAL),
+        Global(CL_GLOBAL);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
-
+        LocalMemType(long value) { this.value = value; }
+        long value;
+        @Override
+		public long value() { return value; }
+        
         public static LocalMemType getEnum(long v) {
             return EnumValues.getEnum(v, LocalMemType.class);
         }
@@ -778,17 +767,16 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /** Bit values for CL_DEVICE_QUEUE_PROPERTIES */
-    public enum QueueProperties {
+    public enum QueueProperties implements ValuedEnum {
 
-        @EnumValue(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)
-        OutOfOrderExecModeEnable,
-        @EnumValue(CL_QUEUE_PROFILING_ENABLE)
-        ProfilingEnable;
+        OutOfOrderExecModeEnable(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE),
+        ProfilingEnable(CL_QUEUE_PROFILING_ENABLE);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
-
+        QueueProperties(long value) { this.value = value; }
+        long value;
+        @Override
+		public long value() { return value; }
+        
         public static long getValue(EnumSet<QueueProperties> set) {
             return EnumValues.getValue(set);
         }
