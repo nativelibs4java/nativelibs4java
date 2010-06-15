@@ -611,6 +611,26 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /**
+     * OpenCL C version string. <br/>
+     * Returns the highest OpenCL C version supported by the compiler for this device. <br/>
+     * This version string has the following format:<br/>
+     *  OpenCL&lt;space&gt;C&lt;space&gt;&lt;major_version.minor_version&gt;&lt;space&gt;&lt;vendor-specific information&gt;<br/>
+     *  The major_version.minor_version value returned must be 1.1 if CL_DEVICE_VERSION is OpenCL 1.1.<br/>
+     *  The major_version.minor_version value returned can be 1.0 or 1.1 if CL_DEVICE_VERSION is OpenCL 1.0. <br/>
+     *  If OpenCL C 1.1 is returned, this implies that the language feature set defined in section 6 of the OpenCL 1.1 specification is supported by the OpenCL 1.0 device.
+     *  @since OpenCL 1.1
+     */
+    @InfoName("CL_DEVICE_OPENCL_C_VERSION")
+    public String getOpenCLVersion() {
+    	try {
+    		return infos.getString(getEntity(), CL_DEVICE_OPENCL_C_VERSION);
+    	} catch (Throwable th) {
+    		// TODO throw if supposed to handle OpenCL 1.1
+    		return "OpenCL C 1.0";
+    	}
+    }
+    
+    /**
     Vendor name string.
      */
     @InfoName("CL_DEVICE_VENDOR")
@@ -640,6 +660,20 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
         return infos.getString(getEntity(), CL_DEVICE_PROFILE);
     }
 
+    /**
+     * Whether the device and the host have a unified memory subsystem.
+     * @since OpenCL 1.1
+     */
+    @InfoName("CL_DEVICE_HOST_UNIFIED_MEMORY")
+    public boolean isHostUnifiedMemory() {
+    	try {
+    		return infos.getBool(getEntity(), CL_DEVICE_HOST_UNIFIED_MEMORY);
+    	} catch (Throwable th) {
+    		// TODO throw if supposed to handle OpenCL 1.1
+    		return false;
+    	}
+    }
+    
     /**
      * Preferred native vector width size for built-in scalar types that can be put into vectors. <br/>
      * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
@@ -698,6 +732,66 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     @InfoName("CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE")
     public int getPreferredVectorWidthDouble() {
         return infos.getInt(getEntity(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE);
+    }
+    
+    /**
+     * Returns the native ISA vector width. <br/>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
+     */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR")
+    public int getNativeVectorWidthChar() {
+        return infos.getInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR);
+    }
+
+    /**
+     * Returns the native ISA vector width. <br/>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
+     */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT")
+    public int getNativeVectorWidthShort() {
+        return infos.getInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT);
+    }
+
+    /**
+     * Returns the native ISA vector width. <br/>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
+     */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_INT")
+    public int getNativeVectorWidthInt() {
+        return infos.getInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_INT);
+    }
+
+    /**
+     * Returns the native ISA vector width. <br/>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
+     */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG")
+    public int getNativeVectorWidthLong() {
+        return infos.getInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG);
+    }
+
+    /**
+     * Returns the native ISA vector width. <br/>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
+     */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT")
+    public int getNativeVectorWidthFloat() {
+        return infos.getInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT);
+    }
+
+    /**
+     * Returns the native ISA vector width. <br/>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
+     */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE")
+    public int getNativeVectorWidthDouble() {
+        return infos.getInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE);
     }
 
     /**

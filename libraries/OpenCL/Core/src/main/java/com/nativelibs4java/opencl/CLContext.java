@@ -21,12 +21,8 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.CLException.failedForLackOfMemory;
 import static com.nativelibs4java.opencl.JavaCL.CL;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_CONTEXT_DEVICES;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FALSE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_COPY_HOST_PTR;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_USE_HOST_PTR;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import static com.nativelibs4java.util.ImageUtils.getImageIntPixels;
 import static com.nativelibs4java.util.JNAUtils.toNS;
 import static com.nativelibs4java.util.JNAUtils.toNSArray;
@@ -88,6 +84,23 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		super(context);
 		this.platform = platform;
 		this.deviceIds = deviceIds;
+	}
+	
+	/**
+	 * Creates a user event object. <br/>
+	 * User events allow applications to enqueue commands that wait on a user event to finish before the command is executed by the device.
+	 * @since OpenCL 1.1
+	 */
+	public CLEvent createUserEvent() {
+		try {
+			IntByReference pErr = new IntByReference();
+			cl_event evt = CL.clCreateUserEvent(getEntity(), pErr);
+			error(pErr.getValue());
+			return CLEvent.createEvent(null, evt);
+		} catch (Throwable th) {
+			// TODO throw if supposed to handle OpenCL 1.1
+    		return null;
+		}
 	}
 
 	/**
@@ -154,6 +167,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		return new CLSampler(sampler);
 	}
 
+	public int getDeviceCount() {
+		return infos.getInt(getEntity(), CL.CL_CONTEXT_NUM_DEVICES);
+	}
+	
 	/**
 	 * Lists the devices of this context
 	 * @return array of the devices that form this context

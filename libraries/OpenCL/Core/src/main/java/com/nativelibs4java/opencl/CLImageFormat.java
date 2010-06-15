@@ -17,31 +17,7 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_A;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_ARGB;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_BGRA;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FLOAT;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_HALF_FLOAT;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_INTENSITY;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_LUMINANCE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_R;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_RA;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_RG;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_RGB;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_RGBA;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SIGNED_INT16;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SIGNED_INT32;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SIGNED_INT8;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SNORM_INT16;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SNORM_INT8;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNORM_INT16;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNORM_INT8;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNORM_INT_101010;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNORM_SHORT_555;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNORM_SHORT_565;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNSIGNED_INT16;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNSIGNED_INT32;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_UNSIGNED_INT8;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 
 import com.nativelibs4java.opencl.library.cl_image_format;
 import com.nativelibs4java.util.EnumValue;
@@ -129,10 +105,16 @@ public class CLImageFormat {
 
 
 	public enum ChannelOrder implements ValuedEnum {
+		
 		/**
 		 * components of channel data: (r, 0.0, 0.0, 1.0)
 		 */
 		R(CL_R),
+		/**
+		 * components of channel data: (r, 0.0, 0.0, 1.0)
+		 * @since OpenCL 1.1
+		 */
+		Rx(CL_Rx), 
 		/**
 		 * components of channel data: (0.0, 0.0, 0.0, a)
 		 */
@@ -152,6 +134,11 @@ public class CLImageFormat {
 		 */
 		RG(CL_RG),
 		/**
+		 * components of channel data: (r, g, 0.0, 1.0)
+		 * @since OpenCL 1.1
+		 */
+		RGx(CL_RGx), 
+		/**
 		 * components of channel data: (r, 0.0, 0.0, a)
 		 */
 		RA(CL_RA),
@@ -160,6 +147,12 @@ public class CLImageFormat {
 		 * This format can only be used if channel data type = CL_UNORM_SHORT_565, CL_UNORM_SHORT_555 or CL_UNORM_INT101010.
 		 */
 		RGB(CL_RGB),
+		/**
+		 * components of channel data: (r, g, b, 1.0) <br/>
+		 * This format can only be used if channel data type = CL_UNORM_SHORT_565, CL_UNORM_SHORT_555 or CL_UNORM_INT101010.
+		 * @since OpenCL 1.1
+		 */
+		RGBx(CL_RGBx),
 		/**
 		 * components of channel data: (r, g, b, a)
 		 */
@@ -205,7 +198,7 @@ public class CLImageFormat {
 		UNormInt16(CL_UNORM_INT16, 16),
 		/**
 		 * Represents a normalized 5-6-5 3-channel RGB image. <br/>
-		 * The channel order must be CL_RGB.<br/>
+		 * The channel order must be CL_RGB or CL_RGBx.<br/>
 		 * CL_UNORM_SHORT_565 is a special cases of packed image format where the channels of each element are packed into a single unsigned short or unsigned int. <br/>
 		 * For this special packed image format, the channels are normally packed with the first channel in the most significant bits of the bitfield, and successive channels occupying progressively less significant locations.<br/>
 		 * For CL_UNORM_SHORT_565, R is in bits 15:11, G is in bits 10:5 and B is in bits 4:0.
@@ -213,7 +206,7 @@ public class CLImageFormat {
 		UNormShort565(CL_UNORM_SHORT_565, 16/* ?? */),
 		/**
 		 * Represents a normalized x-5-5-5 4-channel xRGB image. <br/>
-		 * The channel order must be CL_RGB.<br/>
+		 * The channel order must be CL_RGB or CL_RGBx.<br/>
 		 * CL_UNORM_SHORT_555 is a special cases of packed image format where the channels of each element are packed into a single unsigned short or unsigned int. <br/>
 		 * For this special packed image format, the channels are normally packed with the first channel in the most significant bits of the bitfield, and successive channels occupying progressively less significant locations.<br/>
 		 * For CL_UNORM_SHORT_555, bit 15 is undefined, R is in bits 14:10, G in bits 9:5 and B in bits 4:0.
@@ -221,7 +214,7 @@ public class CLImageFormat {
 		UNormShort555(CL_UNORM_SHORT_555, 15/* ?? */),
 		/**
 		 * Represents a normalized x-10-10-10 4-channel xRGB image. <br/>
-		 * The channel order must be CL_RGB.<br/>
+		 * The channel order must be CL_RGB or CL_RGBx.<br/>
 		 * CL_UNORM_INT_101010 is a special cases of packed image format where the channels of each element are packed into a single unsigned short or unsigned int. <br/>
 		 * For this special packed image format, the channels are normally packed with the first channel in the most significant bits of the bitfield, and successive channels occupying progressively less significant locations.<br/>
 		 * For CL_UNORM_INT_101010, bits 31:30 are undefined, R is in bits 29:20, G in bits 19:10 and B in bits 9:0.

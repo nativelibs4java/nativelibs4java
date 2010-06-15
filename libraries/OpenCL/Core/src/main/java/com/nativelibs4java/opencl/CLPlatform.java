@@ -173,8 +173,8 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 
     /** Bit values for CL_CONTEXT_PROPERTIES */
     public enum ContextProperties implements ValuedEnum {
-
-        GLContext(CL_GL_CONTEXT_KHR),
+    	//D3D10Device(CL_CONTEXT_D3D10_DEVICE_KHR), 
+    	GLContext(CL_GL_CONTEXT_KHR),
 		EGLDisplay(CL_EGL_DISPLAY_KHR),
 		GLXDisplay(CL_GLX_DISPLAY_KHR),
 		WGLHDC(CL_WGL_HDC_KHR),

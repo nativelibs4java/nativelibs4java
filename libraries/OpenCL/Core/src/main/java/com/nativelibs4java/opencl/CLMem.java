@@ -19,31 +19,18 @@
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_GL_OBJECT_BUFFER;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_GL_OBJECT_RENDERBUFFER;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_GL_OBJECT_TEXTURE2D;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_GL_OBJECT_TEXTURE3D;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MAP_READ;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MAP_WRITE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_ALLOC_HOST_PTR;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_COPY_HOST_PTR;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_OBJECT_BUFFER;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_OBJECT_IMAGE2D;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_OBJECT_IMAGE3D;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_READ_ONLY;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_READ_WRITE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_SIZE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_USE_HOST_PTR;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_WRITE_ONLY;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 
 import java.util.EnumSet;
 
+import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.util.ValuedEnum;
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
+import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
@@ -85,6 +72,28 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
         return context;
     }
 
+    public interface DestructorCallback {
+    	void callback(CLMem mem);
+    }
+    
+    /**
+     * Registers a user callback function that will be called when the memory object is deleted and its resources freed. <br/>
+     * Each call to clSetMemObjectDestructorCallback registers the specified user callback function on a callback stack associated with memobj. <br/>
+     * The registered user callback functions are called in the reverse order in which they were registered. <br/>
+     * The user callback functions are called and then the memory object’s resources are freed and the memory object is deleted. <br/>
+     * This provides a mechanism for the application (and libraries) using memobj to be notified when the memory referenced by host_ptr, specified when the memory object is created and used as the storage bits for the memory object, can be reused or freed.
+     * @since OpenCL 1.1
+     * @param callback
+     */
+    public void setDestructorCallback(final DestructorCallback callback) {
+    	error(CL.clSetMemObjectDestructorCallback(getEntity(), new clSetMemObjectDestructorCallback_arg1_callback() {
+    		/// @param cl_mem1 user_data
+    		public void invoke(OpenCLLibrary.cl_mem mem, Pointer userData) {
+    			callback.callback(CLMem.this);
+    		}
+    	}, null));
+    }
+    
     public CLEvent acquireGLObject(CLQueue queue, CLEvent... eventsToWaitFor) {
         return queue.enqueueAcquireGLObjects(new CLMem[] { this }, eventsToWaitFor);
     }
