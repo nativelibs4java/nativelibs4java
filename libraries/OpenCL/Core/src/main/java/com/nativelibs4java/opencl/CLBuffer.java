@@ -19,8 +19,7 @@
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FALSE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import static com.nativelibs4java.util.JNAUtils.toNS;
 import static com.nativelibs4java.util.NIOUtils.directBytes;
 import static com.nativelibs4java.util.NIOUtils.directCopy;
@@ -28,6 +27,7 @@ import static com.nativelibs4java.util.NIOUtils.directCopy;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
+import com.nativelibs4java.opencl.library.cl_buffer_region;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.ochafik.util.listenable.Pair;
@@ -85,6 +85,23 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	}
 
 	/**
+	 * Can be used to create a new buffer object (referred to as a sub-buffer object) from an existing buffer object.
+	 * @param usage is used to specify allocation and usage information about the image memory object being created and is described in table 5.3 of the OpenCL spec.
+	 * @param offset
+	 * @param length
+	 * @since OpenCL 1.1
+	 * @return
+	 */
+	public CLBuffer<B> createSubBuffer(Usage usage, long offset, long length) {
+		int s = getElementSize();
+		cl_buffer_region region = new cl_buffer_region(toNS(s * offset), toNS(s * length));
+		IntByReference pErr = new IntByReference();
+        cl_mem mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, region.getPointer(), pErr);
+        error(pErr.getValue());
+        return mem == null ? null : createBuffer(mem);
+	}
+	
+	/**
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
 	 * @param queue
 	 * @param srcOffset
@@ -135,6 +152,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
     protected abstract B typedBuffer(ByteBuffer b);
     public abstract Class<B> typedBufferClass();
     protected abstract void put(B out, B in);
+    protected abstract CLBuffer<B> createBuffer(cl_mem mem);
 
     public CLEvent unmap(CLQueue queue, B buffer, CLEvent... eventsToWaitFor) {
         cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);

@@ -20,6 +20,8 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import java.nio.*;
 
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
+
 /**
  * OpenCL Memory Buffer Object.<br/>
  * A buffer object stores a one-dimensional collection of elements.<br/>
@@ -31,6 +33,11 @@ import java.nio.*;
 public class CLByteBuffer extends CLBuffer<ByteBuffer> {
 	CLByteBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer, 1);
+	}
+
+	@Override
+	protected CLBuffer<ByteBuffer> createBuffer(cl_mem mem) {
+		return new CLByteBuffer(getContext(), -1, mem, null);
 	}
 
     @Override 
@@ -52,5 +59,4 @@ public class CLByteBuffer extends CLBuffer<ByteBuffer> {
     public Class<ByteBuffer> typedBufferClass() {
         return ByteBuffer.class;
     }
-
 }

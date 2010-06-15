@@ -20,6 +20,8 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import java.nio.*;
 
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
+
 /**
  * OpenCL Memory Buffer Object with Double values.<br/>
  * @see CLContext#createDoubleBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
@@ -29,6 +31,11 @@ import java.nio.*;
 public class CLDoubleBuffer extends CLBuffer<DoubleBuffer> {
 	CLDoubleBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer, 8);
+	}
+
+	@Override
+	protected CLBuffer<DoubleBuffer> createBuffer(cl_mem mem) {
+		return new CLDoubleBuffer(getContext(), -1, mem, null);
 	}
 
     @Override

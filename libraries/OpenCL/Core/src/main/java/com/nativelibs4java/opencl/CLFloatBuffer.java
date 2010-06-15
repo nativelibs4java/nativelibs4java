@@ -34,6 +34,11 @@ public class CLFloatBuffer extends CLBuffer<FloatBuffer> {
         super(context, byteCount, entity, buffer, 4);
 	}
 
+	@Override
+	protected CLBuffer<FloatBuffer> createBuffer(cl_mem mem) {
+		return new CLFloatBuffer(getContext(), -1, mem, null);
+	}
+
     @Override
     protected FloatBuffer typedBuffer(ByteBuffer b) {
         return b.asFloatBuffer();

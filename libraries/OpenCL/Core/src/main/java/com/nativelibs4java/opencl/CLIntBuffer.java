@@ -20,6 +20,8 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import java.nio.*;
 
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
+
 /**
  * OpenCL Memory Buffer Object with Int values.<br/>
  * @see CLContext#createIntBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
@@ -31,6 +33,11 @@ public class CLIntBuffer extends CLBuffer<IntBuffer> {
         super(context, byteCount, entity, buffer, 4);
 	}
 	
+	@Override
+	protected CLBuffer<IntBuffer> createBuffer(cl_mem mem) {
+		return new CLIntBuffer(getContext(), -1, mem, null);
+	}
+
     @Override
     protected IntBuffer typedBuffer(ByteBuffer b) {
         return b.asIntBuffer();
