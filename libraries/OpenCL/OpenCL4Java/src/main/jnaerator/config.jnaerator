@@ -35,4 +35,4 @@
 	"$(DIR)/../headers/1.1/CL/cl_gl.h"
 	"$(DIR)/../headers/1.1/CL/cl_gl_ext.h"
 
--onlineDoc "Khronos Documentation for {0}" "http://www.khronos.org/opencl/sdk/1.1/docs/man/xhtml/{0}.html"
+-onlineDoc "Khronos Documentation for {0}" "http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/{0}.html"
