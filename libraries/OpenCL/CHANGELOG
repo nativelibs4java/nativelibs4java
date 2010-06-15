@@ -7,6 +7,22 @@ detailed platform and device choice (with optional OpenGL sharing choice).
 alternative with optional context properties map as first arg (can be nulled
 out).
 - Fixed issue #18: CLImage.write calls enqueueImageRead !
+- Documented workaround for Linux crashes (issue #20) : http://code.google.com/p/javacl/wiki/TroubleShootingJavaCLOnLinux
+- Fixed issue #21: NIOUtils.put() doesn't accept ByteBuffer
+- Fixed issue #25: CLEvent.waitFor bug causes segfault
+- OpenCL 1.1 support :
+	- CLContext.createUserEvent()
+	- CLUserEvent.setStatus(int), setCompleted()
+	- CLEvent.setCallback(status, callbac), setCompletionCallback(callback)
+	- CLBuffer.createSubBuffer(usage, offset, length)
+	- CLContext.getDeviceCount()
+	- CLDevice.getOpenCLVersion()
+	- CLDevice.isHostUnifiedMemory()
+	- CLDevice.getNativeVectorWidthXXX() methods
+	- CLMem.setDestructorCallback(callback)
+	- CLKernel.getPreferredWorkGroupSizeMultiple()
+	- CLKernel.enqueueNDRange overload with potentially non-null globalOffsets
+	- CLImageFormat.ChannelOrder.Rx, RGx, RGBx
 
 Version 1.0-beta-4 (r760, 20100121)
 

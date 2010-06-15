@@ -93,12 +93,17 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	 * @return
 	 */
 	public CLBuffer<B> createSubBuffer(Usage usage, long offset, long length) {
-		int s = getElementSize();
-		cl_buffer_region region = new cl_buffer_region(toNS(s * offset), toNS(s * length));
-		IntByReference pErr = new IntByReference();
-        cl_mem mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, region.getPointer(), pErr);
-        error(pErr.getValue());
-        return mem == null ? null : createBuffer(mem);
+		try {
+			int s = getElementSize();
+			cl_buffer_region region = new cl_buffer_region(toNS(s * offset), toNS(s * length));
+			IntByReference pErr = new IntByReference();
+	        cl_mem mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, region.getPointer(), pErr);
+	        error(pErr.getValue());
+	        return mem == null ? null : createBuffer(mem);
+		} catch (Throwable th) {
+    		// TODO check if supposed to handle OpenCL 1.1
+    		throw new UnsupportedOperationException("Cannot create sub-buffer (OpenCL 1.1 feature).", th);
+    	}
 	}
 	
 	/**
