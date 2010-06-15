@@ -208,7 +208,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         NativeSizeByReference pCount = new NativeSizeByReference();
         Memory mem = new Memory(Pointer.SIZE);
         if (Platform.isMac())
-            error(CL.clGetGLContextInfoAPPLE(getEntity(), OpenGLContextUtils.INSTANCE.CGLGetCurrentContext(), CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, toNS(Pointer.SIZE), mem, pCount));
+        	error(CL.clGetGLContextInfoAPPLE(getEntity(), OpenGLContextUtils.INSTANCE.CGLGetCurrentContext(), CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, toNS(Pointer.SIZE), mem, pCount));
         else
             error(CL.clGetGLContextInfoKHR(propsRef, CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR, toNS(Pointer.SIZE), mem, pCount));
 
@@ -257,7 +257,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLRenderbuffer(openGLRenderBuffer, pErr);
+			mem = CL.clCreateFromGLRenderbuffer(getEntity(), usage.getIntFlags(), openGLRenderBuffer, pErr);
 		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
@@ -280,7 +280,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLTexture2D((int)textureTarget.value(), mipLevel, texture, pErr);
+			mem = CL.clCreateFromGLTexture2D(getEntity(), usage.getIntFlags(), (int)textureTarget.value(), mipLevel, texture, pErr);
 		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
@@ -337,7 +337,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLTexture3D(GL_TEXTURE_3D, mipLevel, texture, pErr);
+			mem = CL.clCreateFromGLTexture3D(getEntity(), usage.getIntFlags(), GL_TEXTURE_3D, mipLevel, texture, pErr);
 		} while (failedForLackOfMemory(pErr.getValue(), previousAttempts++));
 		return markAsGL(new CLImage3D(this, mem, null));
 	}
