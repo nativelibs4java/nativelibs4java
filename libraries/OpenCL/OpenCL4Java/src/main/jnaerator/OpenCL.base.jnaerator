@@ -2,3 +2,5 @@
 -package com.nativelibs4java.opencl.library
 -gccLong
 -limitComments
+-runtime JNAerator
+
