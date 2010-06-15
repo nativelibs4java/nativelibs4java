@@ -1,18 +1,1 @@
-"$(DIR)/OpenCL.base.jnaerator"
--nocpp
-//"-Dcl_bitfield=unsigned long"
-"-Dintptr_t=size_t"
-"-D__stdcall="
-"-D__declspec(x)=x"
-"-D__extension__="
--U_MSC_VER
--U__APPLE__
--library OpenCL
-	"-I$(DIR)/../headers/1.1"
-	"$(DIR)/../headers/1.1/CL/cl_platform.h"
-	"$(DIR)/../headers/1.1/CL/cl.h"
-	"$(DIR)/../headers/1.1/CL/opencl.h"
-	"$(DIR)/../headers/1.1/CL/cl_ext.h"
-	"$(DIR)/../headers/1.1/CL/cl_gl.h"
-	"$(DIR)/../headers/1.1/CL/cl_gl_ext.h"
 

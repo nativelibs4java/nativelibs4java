@@ -1,15 +1,38 @@
-//-ifRegexMatch
-//	os.name
-//	"Mac OS X"
-//	"$(DIR)/OpenCL.MacOSX.jnaerator"
-	"$(DIR)/OpenCL.OtherPlatforms.jnaerator"
-	//"$(DIR)/OpenCL.Win32ATIStream.jnaerator"
-	
-	-noMangling
-	-noJar -noComp
-	//-o "$(DIR)/../../../target/generated-sources/java"
-	
+//"$(DIR)/OpenCL.base.jnaerator"
+-nocpp
+-runtime JNAerator
+//"-Dcl_bitfield=unsigned long"
+"-Dintptr_t=size_t"
+"-Dextern="
+"-Dcl_int=int"
+"-Dcl_uint=unsigned int"
+"-D__stdcall="
+"-D__declspec(x)=x"
+"-D__extension__="
+//-U_MSC_VER
+-U__APPLE__
+//-U__cplusplus
+//-U_WIN32
+
+-noMangling
+-noJar -noComp
+//-o "$(DIR)/../../../target/generated-sources/java"
+
 //-choicesOut "$(DIR)/OpenCL.choices"
 -v
 
--onlineDoc "Khronos Documentation for {0}" "http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/{0}.html"
+-package com.nativelibs4java.opencl.library
+-gccLong
+-limitComments
+-runtime JNAerator
+
+-library OpenCL
+	"-I$(DIR)/../headers/1.1"
+	//"$(DIR)/../headers/1.1/CL/opencl.h"
+	"$(DIR)/../headers/1.1/CL/cl.h"
+	//"$(DIR)/../headers/1.1/CL/cl_platform.h"
+	"$(DIR)/../headers/1.1/CL/cl_ext.h"
+	"$(DIR)/../headers/1.1/CL/cl_gl.h"
+	"$(DIR)/../headers/1.1/CL/cl_gl_ext.h"
+
+-onlineDoc "Khronos Documentation for {0}" "http://www.khronos.org/opencl/sdk/1.1/docs/man/xhtml/{0}.html"
