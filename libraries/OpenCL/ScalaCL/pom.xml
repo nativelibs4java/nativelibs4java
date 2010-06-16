@@ -70,7 +70,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-shade-plugin</artifactId>
-			<version>1.2.2</version>
+			<version>1.3.3</version>
 			<executions>
 			  <execution>
 				<phase>package</phase>
@@ -88,6 +88,18 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 						  <exclude>junit:junit</exclude>
 						</excludes>
 					  </artifactSet>
+					  
+					  
+					  <filters>
+						<filter>
+						  <artifact>*:*</artifact>
+						  <excludes>
+							<exclude>META-INF/*.SF</exclude>
+							<exclude>META-INF/*.DSA</exclude>
+							<exclude>META-INF/*.RSA</exclude>
+						  </excludes>
+						</filter>
+					</filters>
 				</configuration>
 			  </execution>
 			</executions>
