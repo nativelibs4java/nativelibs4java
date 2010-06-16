@@ -19,6 +19,7 @@
 		<!--<jna.version>3.2.5-20100310</jna.version>-->
 		<jna.version>3.2.5</jna.version>
 		<maven.compiler.debug>true</maven.compiler.debug>
+		<shadedArtifactAttached>true</shadedArtifactAttached>
 	</properties>
 	
 	<developers>
@@ -167,6 +168,7 @@ Most of these wrappers are created automatically by JNAerator.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
 				<executions>
 					<execution>
 						<id>attach-sources</id>
@@ -180,7 +182,7 @@ Most of these wrappers are created automatically by JNAerator.
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.0.2</version>
+				<version>2.3.1</version>
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
@@ -248,7 +250,6 @@ Most of these wrappers are created automatically by JNAerator.
 				  <goal>shade</goal>
 				</goals>
 				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
 					<artifactSet>
 						<excludes>
 						  <exclude>org.scala-lang:scala-library</exclude>
