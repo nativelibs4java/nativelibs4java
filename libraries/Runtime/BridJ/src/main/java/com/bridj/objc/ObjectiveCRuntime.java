@@ -43,7 +43,7 @@ public class ObjectiveCRuntime extends CRuntime {
     		Pointer<?> cls = objc_getClass(Pointer.pointerToCString(name));
     		c = class_createInstance(cls, 0);
     		if (c != null) {
-    			c.setTargetClass(ObjCClass.class);
+    			//c.setTargetClass(ObjCClass.class);
     			classes.put(name, c);
     		}
     	}

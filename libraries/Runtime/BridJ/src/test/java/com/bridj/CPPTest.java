@@ -40,7 +40,7 @@ public class CPPTest {
 		int c = instance.testVirtualAdd(a, b);
 		assertEquals(res, c);
 
-        c = Pointer.getPeer(instance).toNativeObject(Ctest.class).testAdd(a, b);
+        c = Pointer.getPointer(instance).toNativeObject(Ctest.class).testAdd(a, b);
         assertEquals(baseRes, c);
 
         c = instance.testVirtualAddStdCall(null, a, b);

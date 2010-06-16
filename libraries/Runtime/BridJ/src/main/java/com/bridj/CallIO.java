@@ -66,7 +66,7 @@ interface CallIO {
 		PointerIO pointerIO;
 		public GenericPointerHandler(Type targetType) {
 			this.targetType = targetType;
-			this.pointerIO = PointerIO.getInstanceByType(targetType);
+			this.pointerIO = PointerIO.getInstance(targetType);
 		}
 		@Override
 		public Pointer<?> newInstance(long address) {
@@ -74,9 +74,9 @@ interface CallIO {
 		}
 		@Override
 		public void checkArg(Object ptr) {
-			Pointer<?> pointer = (Pointer<?>)ptr;
-			if (pointer.getIO() == null)
-				pointer.setIO(pointerIO);
+			//Pointer<?> pointer = (Pointer<?>)ptr;
+			//if (pointer.getIO() == null)
+			//	pointer.setIO(pointerIO);
 			// TODO check existing pointerio !
 		}
 	}

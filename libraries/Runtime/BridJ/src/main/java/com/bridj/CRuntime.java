@@ -223,11 +223,11 @@ public class CRuntime extends AbstractBridJRuntime {
             mci.setJavaCallback(instance);
             final long handle = JNI.createCToJavaCallback(mci);
             long peer = JNI.getActualCToJavaCallback(handle);
-            return (Pointer)Pointer.pointerToAddress(peer, c, new Pointer.Deallocator() {
+            return (Pointer)Pointer.pointerToAddress(peer, c, new Pointer.Releaser() {
 
                 @Override
-                public void deallocate(long peer) {
-                    JNI.freeCToJavaCallback(handle);
+                public void release(Pointer<?> pointer) {
+                    JNI.freeCToJavaCallback(pointer.getPeer());
                 }
             });
 		} catch (FileNotFoundException e) {
@@ -287,7 +287,7 @@ public class CRuntime extends AbstractBridJRuntime {
     @Override
     public <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
     	if (instance instanceof NativeObject) {
-    		return (T) Pointer.getPeer(instance).toNativeObject(instance.getClass());
+    		return (T) Pointer.getPointer(instance).toNativeObject(instance.getClass());
     	}
     	return super.clone(instance);
     }

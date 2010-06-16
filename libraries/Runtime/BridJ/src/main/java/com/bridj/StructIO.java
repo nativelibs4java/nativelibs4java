@@ -75,7 +75,7 @@ class StructIO {
 	
 	public synchronized PointerIO<?> getPointerIO() {
 		if (pointerIO == null)
-			pointerIO = new PointerIO(getStructClass(), getStructSize());
+			pointerIO = new CommonPointerIOs.StructPointerIO(this);
 			
 		return pointerIO;
 	}

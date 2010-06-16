@@ -42,8 +42,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
-@Library("C:\\Users\\Olivier\\Prog\\nativelibs4java\\Runtime\\BridJ\\src\\test\\resources\\win64\\test.dll")
-//@Library("test")
+//@Library("C:\\Users\\Olivier\\Prog\\nativelibs4java\\Runtime\\BridJ\\src\\test\\resources\\win64\\test.dll")
+@Library("test")
 @com.bridj.ann.Runtime(CPPRuntime.class)
 public class TestCPP {
 //	static String libraryPath = //BridJ.getNativeLibraryFile("test").toString()
@@ -122,6 +122,29 @@ public class TestCPP {
 
     public static native ValuedEnum<ETest> testEnum(ValuedEnum<ETest> e);
 
+
+	static int[] createExpectedInts(int n) {
+		int[] expected = new int[n];
+		for (int i = 0; i < n; i++)
+			expected[i] = (int)(i + 1);
+		return expected;
+	}
+	
+
+    public static void testSetGetIntBuffer(int n) {
+		int[] expected = createExpectedInts(n);
+		Pointer<Integer> p = Pointer.pointerToInts(expected);
+		long peer = p.getPeer();
+
+		Iterator<Integer> it = p.iterator();
+		for (int i = 0; i < n; i++) {
+			Integer obVal = it.next();
+			int val = obVal;
+			if (val != expected[i])
+                throw new RuntimeException("at position i = " + i);
+		}
+	}
+
 	public static void main(String[] args) throws IOException {
         try {
             {
@@ -130,6 +153,7 @@ public class TestCPP {
                 if (t != ETest.eFirst)
                     throw new RuntimeException();
             }
+            testSetGetIntBuffer(10);
 //			if (JNI.isMacOSX()) {
 //				new NSCalendar();
 //				new NSAutoReleasePool();
@@ -163,7 +187,7 @@ public class TestCPP {
             Ctest test = new Ctest();
             //long thisPtr = test.$this.getPeer();
             //System.out.println(hex(thisPtr));
-            print("Ctest.this", Pointer.getPeer(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
+            print("Ctest.this", Pointer.getPointer(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
             int res = test.testAdd(1, 2);
             System.out.println("res = " + res);
             res = test.testVirtualAdd(1, 2);
@@ -188,10 +212,10 @@ public class TestCPP {
                 MyStruct s = new MyStruct();
                 s.a(10);
                 System.out.println("Created MyStruct and set it to 10");
-                int a = Pointer.getPeer(s).getInt(0);
+                int a = Pointer.getPointer(s).getInt(0);
                 a = s.a();
-                Pointer.getPeer(s).setInt(0, 10);
-                a = Pointer.getPeer(s).getInt(0);
+                Pointer.getPointer(s).setInt(0, 10);
+                a = Pointer.getPointer(s).getInt(0);
                 a = s.a();
                 if (s.a() != 10)
                     throw new RuntimeException("invalid value = " + a);
