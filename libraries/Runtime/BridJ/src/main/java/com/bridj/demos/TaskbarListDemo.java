@@ -69,7 +69,7 @@ public class TaskbarListDemo extends JFrame implements ActionListener, ChangeLis
     public void setVisible(boolean visible) {
         super.setVisible(visible);
 
-        long hwndVal = com.sun.jna.Native.getComponentID(this);
+        long hwndVal = 0;//TODOcom.sun.jna.Native.getComponentID(this);
         hwnd = Pointer.pointerToAddress(hwndVal);
         list.SetProgressValue((Pointer)hwnd, slider.getValue(), slider.getMaximum());
         

@@ -18,6 +18,7 @@
 		<junit.version>4.8.1</junit.version>
 		<!--<jna.version>3.2.5-20100310</jna.version>-->
 		<jna.version>3.2.5</jna.version>
+		<maven.compiler.debug>true</maven.compiler.debug>
 	</properties>
 	
 	<developers>
@@ -186,6 +187,32 @@ Most of these wrappers are created automatically by JNAerator.
 				</configuration>
 			</plugin>
 		  
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jarsigner-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+				  <execution>
+					<id>sign</id>
+					<phase>verify</phase>
+					<goals>
+					  <goal>sign</goal>
+					</goals>
+				  </execution>
+				</executions>
+				<configuration>
+				<removeExistingSignatures>true</removeExistingSignatures>
+				  <keystore>/Users/ochafik/security/ochafik.keystore</keystore>
+			  <!--keystore>/Users/Olivier/security/ochafik.keystore</keystore-->
+			  <alias>ochafik2009</alias>
+			  <!--   
+				  mvn "-Dstorepass=$KEYSTORE_PASS" -Dmaven.test.skip=true package  
+				  <storepass>yourstorepassword</storepass>
+			  -->
+			    <storepass>${storepass}</storepass>
+				</configuration>
+			  </plugin>
+			  
 		  <!--
 		  <plugin>
 			<groupId>org.codehaus.mojo</groupId>
@@ -262,7 +289,7 @@ Most of these wrappers are created automatically by JNAerator.
 		<repository>
 			<id>nativelibs4java-repo</id>
 			<name>NativeLibs4Java Sourceforge Maven Repository</name>
-			<url>sftp://opentator,nativelibs4java@frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven</url>
+			<url>sftp://opentator,nativelibs4java@frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven2</url>
 		</repository>
 	</distributionManagement>
 
