@@ -741,7 +741,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
      */
     @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR")
     public int getNativeVectorWidthChar() {
-        return infos.getInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR);
+        return infos.getOptionalFeatureInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR);
     }
 
     /**
@@ -751,7 +751,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
      */
     @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT")
     public int getNativeVectorWidthShort() {
-        return infos.getInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT);
+        return infos.getOptionalFeatureInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT);
     }
 
     /**
@@ -761,7 +761,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
      */
     @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_INT")
     public int getNativeVectorWidthInt() {
-        return infos.getInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_INT);
+        return infos.getOptionalFeatureInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_INT);
     }
 
     /**
@@ -771,7 +771,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
      */
     @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG")
     public int getNativeVectorWidthLong() {
-        return infos.getInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG);
+        return infos.getOptionalFeatureInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG);
     }
 
     /**
@@ -781,7 +781,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
      */
     @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT")
     public int getNativeVectorWidthFloat() {
-        return infos.getInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT);
+        return infos.getOptionalFeatureInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT);
     }
 
     /**
@@ -791,7 +791,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
      */
     @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE")
     public int getNativeVectorWidthDouble() {
-        return infos.getInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE);
+        return infos.getOptionalFeatureInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE);
     }
 
     /**

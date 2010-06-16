@@ -87,6 +87,15 @@ abstract class CLInfoGetter<T extends PointerType> {
         return longs;
     }
 
+    public int getOptionalFeatureInt(T entity, int infoName) {
+    	try {
+    		return getInt(entity, infoName);
+    	} catch (CLException.InvalidValue ex) {
+    		throw new UnsupportedOperationException("Cannot get value " + infoName, ex);
+    	} catch (CLException.InvalidOperation ex) {
+    		throw new UnsupportedOperationException("Cannot get value " + infoName, ex);
+    	}
+    }
     public int getInt(T entity, int infoName) {
         return (int)getIntOrLong(entity, infoName);
     }

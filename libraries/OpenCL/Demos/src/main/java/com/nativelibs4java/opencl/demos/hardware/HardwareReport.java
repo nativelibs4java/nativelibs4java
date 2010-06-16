@@ -32,6 +32,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import javax.swing.JButton;
@@ -70,12 +71,26 @@ public class HardwareReport {
             //for (CLPlatform platform : JavaCL.listPlatforms()) {
                 Map<String, Object> platInfos = new TreeMap<String, Object>();
                 for (Map.Entry<String, Method> platMet : platMets.entrySet()) {
-                    platInfos.put(platMet.getKey(), platMet.getValue().invoke(platform));
+                	try {
+                		platInfos.put(platMet.getKey(), platMet.getValue().invoke(platform));
+                	} catch (InvocationTargetException ex) {
+                		if (ex.getCause() instanceof UnsupportedOperationException)
+                			platInfos.put(platMet.getKey(), "n/a");
+                		else
+                			throw ex;
+                	}
                 }
                 for (CLDevice device : platform.listAllDevices(false)) {
                     Map<String, Object> devInfos = new TreeMap<String, Object>(platInfos);
                     for (Map.Entry<String, Method> devMet : devMets.entrySet()) {
-                        devInfos.put(devMet.getKey(), devMet.getValue().invoke(device));
+                    	try {
+                    		devInfos.put(devMet.getKey(), devMet.getValue().invoke(device));
+                    	} catch (InvocationTargetException ex) {
+                    		if (ex.getCause() instanceof UnsupportedOperationException)
+                    			devInfos.put(devMet.getKey(), "n/a");
+                    		else
+                    			throw ex;
+                    	}
                     }
                     ret.add(devInfos);
                 }

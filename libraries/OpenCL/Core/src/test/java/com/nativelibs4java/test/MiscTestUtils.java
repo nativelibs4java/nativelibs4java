@@ -52,8 +52,11 @@ public class MiscTestUtils {
 					if (!isToString)
 						log.log(Level.WARNING, msg, ex);
 				} catch (InvocationTargetException ex) {
-					log.log(Level.SEVERE, msg, ex.getCause());
-					assertFalse(msg, true);
+					Throwable cause = ex.getCause();
+					if (!(cause instanceof UnsupportedOperationException)) {
+						log.log(Level.SEVERE, msg, ex.getCause());
+						assertFalse(msg, true);
+					}
 				} catch (Exception ex) {
 					log.log(Level.SEVERE, msg, ex);
 				}

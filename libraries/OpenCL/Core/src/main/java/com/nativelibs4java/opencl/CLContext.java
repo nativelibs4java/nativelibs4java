@@ -168,7 +168,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 
 	public int getDeviceCount() {
-		return infos.getInt(getEntity(), CL.CL_CONTEXT_NUM_DEVICES);
+		return infos.getOptionalFeatureInt(getEntity(), CL.CL_CONTEXT_NUM_DEVICES);
 	}
 	
 	/**
