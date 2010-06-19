@@ -31,7 +31,7 @@ class CommonPointerIOs {
 		final PointerIO<T> underlyingIO;
 
 		public PointerPointerIO(PointerIO<T> underlyingIO) {
-			super(new DefaultParameterizedType(Pointer.class, new Type[] {underlyingIO.getTargetType()}), Pointer.SIZE, null);
+			super(underlyingIO == null ? null : new DefaultParameterizedType(Pointer.class, new Type[] {underlyingIO.getTargetType()}), Pointer.SIZE, null);
 			this.underlyingIO = underlyingIO;
 		}
 		

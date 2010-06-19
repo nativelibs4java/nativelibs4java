@@ -290,7 +290,7 @@ Most of these wrappers are created automatically by JNAerator.
 		<repository>
 			<id>nativelibs4java-repo</id>
 			<name>NativeLibs4Java Sourceforge Maven Repository</name>
-			<url>sftp://opentator,nativelibs4java@frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven2</url>
+			<url>sftp://opentator,nativelibs4java@frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven</url>
 		</repository>
 	</distributionManagement>
 
