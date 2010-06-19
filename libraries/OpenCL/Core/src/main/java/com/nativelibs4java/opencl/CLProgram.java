@@ -25,8 +25,8 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BINARY
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BUILD_LOG;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_SOURCE;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SUCCESS;
-import static com.nativelibs4java.util.JNAUtils.readNSArray;
-import static com.nativelibs4java.util.JNAUtils.toNS;
+//import static com.nativelibs4java.util.JNAUtils.readNSArray;
+//import static com.nativelibs4java.util.JNAUtils.toNS;
 
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;

@@ -21,7 +21,7 @@ import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FALSE;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
-import static com.nativelibs4java.util.JNAUtils.toNS;
+//import static com.nativelibs4java.util.JNAUtils.toNS;
 import static com.nativelibs4java.util.NIOUtils.directBytes;
 import static com.nativelibs4java.util.NIOUtils.directCopy;
 

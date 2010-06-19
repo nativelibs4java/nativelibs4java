@@ -19,8 +19,8 @@ along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 package com.nativelibs4java.opencl;
 
 import static com.nativelibs4java.opencl.CLException.error;
-import static com.nativelibs4java.util.JNAUtils.readNS;
-import static com.nativelibs4java.util.JNAUtils.toNS;
+//import static com.nativelibs4java.util.JNAUtils.readNS;
+//import static com.nativelibs4java.util.JNAUtils.toNS;
 
 import com.ochafik.lang.jnaerator.runtime.NativeSize;
 

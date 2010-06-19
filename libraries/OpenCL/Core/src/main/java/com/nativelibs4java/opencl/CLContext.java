@@ -28,8 +28,8 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_COPY_HOST_
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_USE_HOST_PTR;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
 import static com.nativelibs4java.util.ImageUtils.getImageIntPixels;
-import static com.nativelibs4java.util.JNAUtils.toNS;
-import static com.nativelibs4java.util.JNAUtils.toNSArray;
+//import static com.nativelibs4java.util.JNAUtils.toNS;
+//import static com.nativelibs4java.util.JNAUtils.toNSArray;
 import static com.nativelibs4java.util.NIOUtils.getSizeInBytes;
 
 import java.awt.Image;
@@ -152,8 +152,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	public synchronized CLDevice[] getDevices() {
 		if (deviceIds == null) {
-			Pointer<?> ptrs = infos.getMemory(getEntity(), CL_CONTEXT_DEVICES);
-			deviceIds = ptrs.setTargetClass(cl_device_id.class);
+			deviceIds = infos.getMemory(getEntity(), CL_CONTEXT_DEVICES).asPointerTo(cl_device_id.class);
 		}
         int n = (int)deviceIds.getRemainingElements();
 
@@ -363,7 +362,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			mem = CL.clCreateImage2D(
 				getEntity(),
 				memFlags,
-				getPeer(format.to_cl_image_format()),
+				getPointer(format.to_cl_image_format()),
 				width,
 				height,
 				rowPitch,
@@ -395,7 +394,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			mem = CL.clCreateImage3D(
 				getEntity(),
 				memFlags,
-				getPeer(format.to_cl_image_format()),
+				getPointer(format.to_cl_image_format()),
 				width,
 				height,
 				depth,

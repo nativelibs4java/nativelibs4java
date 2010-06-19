@@ -22,7 +22,7 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_ROW_PITC
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_WIDTH;
 import static com.nativelibs4java.util.ImageUtils.getImageIntPixels;
 import static com.nativelibs4java.util.ImageUtils.setImageIntPixels;
-import static com.nativelibs4java.util.JNAUtils.toNS;
+//import static com.nativelibs4java.util.JNAUtils.toNS;
 import static com.nativelibs4java.util.NIOUtils.directInts;
 
 import java.awt.Image;

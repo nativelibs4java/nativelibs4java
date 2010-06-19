@@ -24,7 +24,7 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_FUNCTIO
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_LOCAL_MEM_SIZE;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_NUM_ARGS;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_WORK_GROUP_SIZE;
-import static com.nativelibs4java.util.JNAUtils.toNS;
+//import static com.nativelibs4java.util.JNAUtils.toNS;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;

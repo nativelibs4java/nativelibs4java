@@ -30,7 +30,7 @@ import java.nio.ByteOrder;
 import java.util.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLException.*;
-import static com.nativelibs4java.util.JNAUtils.*;
+//import static com.nativelibs4java.util.JNAUtils.*;
 import static com.bridj.Pointer.*;
 
 /**

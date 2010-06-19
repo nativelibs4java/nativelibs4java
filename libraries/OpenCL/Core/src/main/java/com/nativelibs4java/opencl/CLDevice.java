@@ -32,7 +32,7 @@ import static com.bridj.Pointer.*;
 import java.io.IOException;
 import java.nio.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
-import static com.nativelibs4java.util.JNAUtils.*;
+//import static com.nativelibs4java.util.JNAUtils.*;
 import static com.nativelibs4java.util.NIOUtils.*;
 import java.util.*;
 import static com.nativelibs4java.opencl.CLException.*;
