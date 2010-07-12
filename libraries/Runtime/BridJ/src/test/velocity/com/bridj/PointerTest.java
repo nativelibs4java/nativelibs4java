@@ -10,7 +10,8 @@ import static org.junit.Assert.*;
 
 public class PointerTest {
 	int n = 10;
-
+	static final ByteOrder[] orders = new ByteOrder[] { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
+    
 #foreach ($prim in $primitivesNoBool)
 	
 
@@ -109,10 +110,14 @@ public class PointerTest {
 		Pointer.allocate${prim.CapName}().get(-1);
 	}
 
-    @Test
-    public void test${prim.CapName}DisorderClass() {
-    	Class<?> c = Pointer.allocate${prim.CapName}().order(ByteOrder.nativeOrder().equals(ByteOrder.BIG_ENDIAN) ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN).getClass();
-    	assertTrue(DefaultDisorderedPointer.class.isAssignableFrom(c));
+	@Test
+    public void test${prim.CapName}Order() {
+    	for (ByteOrder order : orders) {
+    		boolean isOrdered = order.equals(ByteOrder.nativeOrder());
+    		Pointer<${prim.WrapperName}> p = Pointer.allocate${prim.CapName}().order(order);
+    		assertEquals(order, p.order());
+    		assertEquals(isOrdered, p.isOrdered());
+    	}
     }
 	#if (($prim.Name == "short") || ($prim.Name == "int") || ($prim.Name == "long"))
 	@Test

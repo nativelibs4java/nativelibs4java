@@ -85,7 +85,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Returns a pointer which address value was obtained by this pointer's by adding a byte offset.
 	 */
     public Pointer<T> offset(long byteOffset) {
-    	return offset(byteOffset, null);
+    	return offset(byteOffset, getIO());
     }
 
     <U> Pointer<U> offset(long byteOffset, PointerIO<U> pio) {
@@ -96,8 +96,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		
 		if (validStart == UNKNOWN_VALIDITY)
 			return new Pointer<U>(pio, newPeer, ordered, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, 0, this, releaser);	
+		if (newPeer >= validEnd || newPeer < validStart)
+			throw new IndexOutOfBoundsException("Invalid pointer offset !");
 		
-		return new Pointer<U>(pio, newPeer, ordered, validStart + byteOffset, validEnd + byteOffset, null, 0, this, releaser);    	
+		return new Pointer<U>(pio, newPeer, ordered, validStart, validEnd, null, 0, this, releaser);    	
 	}
 	public Pointer<Pointer<T>> getReference() {
 		if (parent == null)
@@ -131,10 +133,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
 
     <U> Pointer<U> cloneAs(boolean ordered, PointerIO<U> newIO) {
-    	if (newIO == io)
+    	if (newIO == io && ordered == isOrdered())
     		return (Pointer<U>)this;
     	else
-    		return new Pointer<U>(newIO, getPeer(), isOrdered(), getValidStart(), getValidEnd(), getParent(), getOffsetInParent(), getSibling(), getReleaser());
+    		return new Pointer<U>(newIO, getPeer(), ordered, getValidStart(), getValidEnd(), getParent(), getOffsetInParent(), getSibling(), getReleaser());
     }
 
     protected final PointerIO<T> getIO() {
@@ -199,7 +201,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
     public Iterator<T> iterator() {
     	return new Iterator<T>() {
-    		Pointer<T> next = Pointer.this;
+    		Pointer<T> next = Pointer.this.getRemainingElements() > 0 ? Pointer.this : null;
     		@Override
 			public T next() {
 				if (next == null)
@@ -508,7 +510,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         long address = JNI.malloc(byteSize);
         if (address == 0)
         	throw new RuntimeException("Failed to allocate " + byteSize);
-        
+
+		JNI.memset(address, (byte)0, byteSize);        
         return pointerToAddress(address, byteSize, io, beforeDeallocation == null ? freeReleaser : new Releaser() {
         	@Override
         	public void release(Pointer<?> p) {

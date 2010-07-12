@@ -84,8 +84,10 @@ public abstract class PointerIO<T> {
                 io = CommonPointerIOs.sizeTIO;
 			else if (cl != null && StructObject.class.isAssignableFrom(cl))
 				io = getInstance(StructIO.getInstance((Class)cl, type, (CRuntime)BridJ.getRuntime(cl)));
+            else if (cl != null && Callback.class.isAssignableFrom(cl))
+				io = new CommonPointerIOs.CallbackPointerIO(cl);
             else
-            	throw new UnsupportedOperationException("Cannot create pointer io to type " + type);
+            throw new UnsupportedOperationException("Cannot create pointer io to type " + type + ((type instanceof Class) && ((Class)type).getSuperclass() != null ? " (parent type : " + ((Class)type).getSuperclass().getName() + ")" : ""));
             	//return null; // TODO throw here ?
 
             if (io == null)

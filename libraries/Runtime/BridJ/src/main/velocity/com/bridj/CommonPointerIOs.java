@@ -46,6 +46,24 @@ class CommonPointerIOs {
 		}
 	}
 	
+	static class CallbackPointerIO<T extends Callback> extends PointerIO<T> {
+		final Class<T> callbackClass;
+
+		public CallbackPointerIO(Class<T> callbackClass) {
+			super(callbackClass, Pointer.SIZE, null);
+			this.callbackClass = callbackClass;
+		}
+		
+		@Override
+		public T get(Pointer<T> pointer, long index) {
+			return pointer.getPointer(index * Pointer.SIZE, (Class<T>)null).getNativeObject(0, callbackClass);
+		}
+
+		@Override
+		public void set(Pointer<T> pointer, long index, T value) {
+			pointer.setPointer(index * Pointer.SIZE, Pointer.getPointer(value, callbackClass));
+		}
+	}
 	
 	static class TypedPointerPointerIO<P extends TypedPointer> extends PointerIO<P> {
 		final java.lang.reflect.Constructor cons;
@@ -101,6 +119,8 @@ class CommonPointerIOs {
 			pointer.setSizeT(index * SizeT.SIZE, value == null ? 0 : value.longValue());
 		}		
 	};
+	
+	
 
 	/*public static final PointerIO<Integer> intIO = new PointerIO<Integer>(Integer.class, 4, null) {
 		@Override
