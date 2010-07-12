@@ -9,6 +9,7 @@
 	<name>NativeLibs4Java Common Configuration</name>
 	
 	<properties>
+		<scala.version>2.8.0.RC7</scala.version>
 		<rococoa.version>0.5</rococoa.version>
 		<jnaerator.version>0.9.4-SNAPSHOT</jnaerator.version>
 		<nativelibs4java.version>1.0-SNAPSHOT</nativelibs4java.version>
