@@ -45,6 +45,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		this.offsetInParent = offsetInParent;
 		this.sibling = sibling;
 		this.releaser = releaser;
+		assert !(sibling != null && releaser != null); // Pointer with both a sibling and a releaser !
 	}
 	public void release() {
 		if (releaser != null) {
@@ -99,7 +100,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (newPeer >= validEnd || newPeer < validStart)
 			throw new IndexOutOfBoundsException("Invalid pointer offset !");
 		
-		return new Pointer<U>(pio, newPeer, ordered, validStart, validEnd, null, 0, this, releaser);    	
+		return new Pointer<U>(pio, newPeer, ordered, validStart, validEnd, null, 0, getSibling() != null ? getSibling() : this, null);    	
 	}
 	public Pointer<Pointer<T>> getReference() {
 		if (parent == null)
@@ -136,7 +137,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     	if (newIO == io && ordered == isOrdered())
     		return (Pointer<U>)this;
     	else
-    		return new Pointer<U>(newIO, getPeer(), ordered, getValidStart(), getValidEnd(), getParent(), getOffsetInParent(), getSibling(), getReleaser());
+    		return new Pointer<U>(newIO, getPeer(), ordered, getValidStart(), getValidEnd(), getParent(), getOffsetInParent(), getSibling() != null ? getSibling() : this, null);
     }
 
     protected final PointerIO<T> getIO() {
@@ -524,6 +525,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     static class FreeReleaser implements Releaser {
     	@Override
 		public void release(Pointer<?> p) {
+			assert p.getSibling() == null;
+			assert p.validStart == p.getPeer();
     		JNI.free(p.getPeer());
     	}
     }
