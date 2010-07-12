@@ -80,7 +80,7 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
      * Registers a user callback function that will be called when the memory object is deleted and its resources freed. <br/>
      * Each call to clSetMemObjectDestructorCallback registers the specified user callback function on a callback stack associated with memobj. <br/>
      * The registered user callback functions are called in the reverse order in which they were registered. <br/>
-     * The user callback functions are called and then the memory object’s resources are freed and the memory object is deleted. <br/>
+     * The user callback functions are called and then the memory object's resources are freed and the memory object is deleted. <br/>
      * This provides a mechanism for the application (and libraries) using memobj to be notified when the memory referenced by host_ptr, specified when the memory object is created and used as the storage bits for the memory object, can be reused or freed.
      * @since OpenCL 1.1
      * @param callback
