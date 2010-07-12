@@ -93,6 +93,7 @@ public class NIOUtils
 	/**
 	 * Creates a direct int buffer of the specified size (in elements) and a native byte order
 	 * @param size size of the buffer in elements
+	 * @param order byte order of the direct buffer
 	 * @return view on new direct buffer
 	 */
 	public static IntBuffer directInts(int size, ByteOrder order) {
@@ -102,6 +103,7 @@ public class NIOUtils
     /**
 	 * Creates a direct lpng buffer of the specified size (in elements) and a native byte order
 	 * @param size size of the buffer in elements
+	 * @param order byte order of the direct buffer
 	 * @return view on new direct buffer
 	 */
 	public static LongBuffer directLongs(int size, ByteOrder order) {
@@ -111,6 +113,7 @@ public class NIOUtils
     /**
 	 * Creates a direct short buffer of the specified size (in elements) and a native byte order
 	 * @param size size of the buffer in elements
+	 * @param order byte order of the direct buffer
 	 * @return view on new direct buffer
 	 */
 	public static ShortBuffer directShorts(int size, ByteOrder order) {
@@ -120,6 +123,7 @@ public class NIOUtils
     /**
 	 * Creates a direct byte buffer of the specified size (in elements) and a native byte order
 	 * @param size size of the buffer in elements
+	 * @param order byte order of the direct buffer
 	 * @return new direct buffer
 	 */
 	public static ByteBuffer directBytes(int size, ByteOrder order) {
@@ -129,6 +133,7 @@ public class NIOUtils
     /**
 	 * Creates a direct float buffer of the specified size (in elements) and a native byte order
 	 * @param size size of the buffer in elements
+	 * @param order byte order of the direct buffer
 	 * @return view on new direct buffer
 	 */
 	public static FloatBuffer directFloats(int size, ByteOrder order) {
@@ -138,14 +143,21 @@ public class NIOUtils
     /**
 	 * Creates a direct double buffer of the specified size (in elements) and a native byte order
 	 * @param size size of the buffer in elements
+	 * @param order byte order of the direct buffer
 	 * @return view on new direct buffer
 	 */
 	public static DoubleBuffer directDoubles(int size, ByteOrder order) {
         return ByteBuffer.allocateDirect(size * 8).order(order == null ? ByteOrder.nativeOrder() : order).asDoubleBuffer();
     }
     
-
-    @SuppressWarnings("unchecked")
+    /**
+	 * Creates a direct buffer of the specified size (in elements) and type..
+	 * @param size size of the buffer in elements
+	 * @param order byte order of the direct buffer
+	 * @param bufferClass type of the buffer. Must be one of IntBuffer.class, LongBuffer.class, ShortBuffer.class, ByteBuffer.class, DoubleBuffer.class, FloatBuffer.class
+	 * @return view on new direct buffer
+	 */
+	 @SuppressWarnings("unchecked")
 	public static <B extends Buffer> B directBuffer(int size, ByteOrder order, Class<B> bufferClass) {
         if (IntBuffer.class.isAssignableFrom(bufferClass))
             return (B)directInts(size, order);
