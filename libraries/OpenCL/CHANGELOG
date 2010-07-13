@@ -23,6 +23,7 @@ out).
 	- CLKernel.getPreferredWorkGroupSizeMultiple()
 	- CLKernel.enqueueNDRange overload with potentially non-null globalOffsets
 	- CLImageFormat.ChannelOrder.Rx, RGx, RGBx
+- Faster enums
 
 Version 1.0-beta-4 (r760, 20100121)
 
