@@ -7,6 +7,96 @@ import java.util.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
+/**
+ * Pointer to a native memory location.<br/>
+ * Pointer is the entry point of any pointer-related operation in BridJ.
+ * <p>
+ * <u><b>Manipulating memory</b></u>
+ * <p>
+ * <ul>
+ *	<li>Wrapping a memory address as a pointer : {@link Pointer#pointerToAddress(long)}
+ *  </li>
+ *	<li>Reading a primitive from the pointed memory location :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#get${prim.CapName}()}<br/>
+ *       #end
+ *  </li>
+ *	<li>Reading a primitive from the pointed memory location shifted by a given amount of bytes :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#get${prim.CapName}(long)}<br/>
+ *       #end
+ *  </li>
+ *	<li>Reading an array of primitives from the pointed memory location :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#get${prim.CapName}s(int)}<br/>
+ *       #end
+ *  </li>
+ *	<li>Reading an NIO buffer of primitives from the pointed memory location :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#get${prim.BufferName}(long)}<br/>
+ *       #end
+ *  </li>
+ *	<li>Reading an array of primitives from the pointed memory location shifted by a given amount of bytes :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#get${prim.CapName}s(long, int)}<br/>
+ *       #end
+ *  </li>
+ *	<li>Writing a primitive to the pointed memory location :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#set${prim.CapName}(${prim.Name})}<br/>
+ *       #end
+ *  </li>
+ *	<li>Writing a primitive to the pointed memory location shifted by a given amount of bytes :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#set${prim.CapName}(long, ${prim.Name})}<br/>
+ *       #end
+ *  </li>
+ *	<li>Writing an array of primitives to the pointed memory location :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#set${prim.CapName}s(${prim.Name}[])}<br/>
+ *       #end
+ *  </li>
+ *	<li>Writing an array of primitives to the pointed memory location shifted by a given amount of bytes :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#set${prim.CapName}s(long, ${prim.Name}[])}<br/>
+ *       #end
+ *  </li>
+ * </ul>
+ * <p>
+ * <u><b>Allocating memory</b></u>
+ * <p>
+ * <ul>
+ *	<li>Getting the pointer to a struct / a C++ class / a COM object :
+ *		{@link Pointer#getPointer(NativeObject)}
+ *  </li>
+ *	<li>Allocating a primitive without an initial value (zero-initialized memory) :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#allocate${prim.CapName}()}<br/>
+ *       #end
+ *  </li>
+ *	<li>Allocating a primitive with an initial value :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#pointerTo${prim.CapName}(${prim.Name})}<br/>
+ *       #end
+ *  </li>
+ *	<li>Allocating an array of primitives without initial values (zero-initialized memory) :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#allocate${prim.CapName}s(long)}<br/>
+ *       #end
+ *  </li>
+ *	<li>Allocating an array of primitives with an array of initial values :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])}<br/>
+ *       #end
+ *  </li>
+ *	<li>Allocating an array of primitives with a buffer of initial values :<br/>
+ *		#foreach ($prim in $primitivesNoBool)
+ *		{@link Pointer#pointerTo${prim.CapName}s(${prim.BufferName})}<br/>
+ *       #end
+ *		{@link Pointer#pointerToBuffer(Buffer)}<br/>
+ *  </li>
+ * </ul>
+ */
 public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         //, com.sun.jna.Pointer<Pointer<T>>
 {
@@ -54,6 +144,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		}
 	}
 
+	/**
+	 * Compare to another pointer based on pointed addresses.
+	 * @param p other pointer
+	 * @return 1 if this pointer's address is greater than p's (or if p is null), -1 if the opposite is true, 0 if this and p point to the same memory location.
+	 */
 	@Override
     public int compareTo(Pointer<?> p) {
 		if (p == null)
@@ -63,7 +158,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return p1 < p2 ? -1 : 1;
 	}
 	
-    @Override
+    /**
+	 * Compute a hash code based on pointed address.
+	 */
+	@Override
     public int hashCode() {
 		int hc = new Long(getPeer()).hashCode();
 		return hc;
@@ -83,7 +181,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
 
     /**
-	 * Returns a pointer which address value was obtained by this pointer's by adding a byte offset.
+	 * Returns a pointer which address value was obtained by this pointer's by adding a byte offset.<br/>
+	 * The returned pointer will prevent the memory associated to this pointer from being automatically reclaimed as long as it lives, unless Pointer.release() is called on the originally-allocated pointer.
+	 * @param byteOffset offset in bytes of the new pointer vs. this pointer. The expression {@code p.offset(byteOffset).getPeer() - p.getPeer() == byteOffset} is always true.
 	 */
     public Pointer<T> offset(long byteOffset) {
     	return offset(byteOffset, getIO());
@@ -102,7 +202,25 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		
 		return new Pointer<U>(pio, newPeer, ordered, validStart, validEnd, null, 0, getSibling() != null ? getSibling() : this, null);    	
 	}
-	public Pointer<Pointer<T>> getReference() {
+	/**
+	 * Returns a pointer to this pointer.<br/>
+	 * It will only succeed if this pointer was dereferenced from another pointer.<br/>
+	 * Let's take the following C++ code :
+	 * <pre>{@code
+	int** pp = ...;
+	int* p = pp[10];
+	int** ref = &p;
+	ASSERT(pp == ref);
+	 }</pre>
+	 * Here is its equivalent Java code :
+	 * <pre>{@code
+	Pointer<Pointer<Integer>> pp = ...;
+	Pointer<Integer> p = pp.get(10);
+	Pointer<Pointer<Integer>> ref = p.getReference();
+	assert pp.equals(ref);
+	 }</pre>
+	 */
+    public Pointer<Pointer<T>> getReference() {
 		if (parent == null)
 			throw new UnsupportedOperationException("Cannot get reference to this pointer, it wasn't created from Pointer.getPointer(offset) or from a similar method.");
 		
@@ -122,6 +240,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     protected <U> Pointer<U> withIO(PointerIO<U> newIO) {
     	return cloneAs(isOrdered(), newIO);
     }
+    /**
+     * Create a clone of this pointer that has the byte order provided in argument, or return this if this pointer already uses the requested byte order.
+     * @param order byte order (endianness) of the returned pointer
+     */
     public Pointer<T> order(ByteOrder order) {
 		if (order.equals(ByteOrder.nativeOrder()) == isOrdered())
 			return this;
@@ -129,7 +251,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return cloneAs(!isOrdered(), getIO());
 	}
     
-	public ByteOrder order() {
+	/**
+     * Get the byte order (endianness) of this pointer.
+     */
+    public ByteOrder order() {
 		return isOrdered() ? ByteOrder.nativeOrder() : ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
     }
 
@@ -177,6 +302,17 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     	return withIO(pio);
     }
 
+    /**
+     * Cast this pointer to another pointer type
+     * {@link Pointer#asPointerTo(Type)}
+     * @param <U>
+     * @param newIO
+     * @return
+     */
+    public <U> Pointer<U> as(Class<U> type) {
+    	return asPointerTo(type);
+    }
+
     public <U> Pointer<U> getPointer(long byteOffset, PointerIO<U> pio) {
     	long value = getSizeT(byteOffset);
     	if (value == 0)
@@ -202,6 +338,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     	return bytes / elementSize;
     }
     
+    /**
+     * Returns an iterator over the elements pointed by this pointer.<br/>
+     * If this pointer was allocated from Java with the allocateXXX, pointerToXXX methods (or is a view or a clone of such a pointer), the iteration is safely bounded.<br/>
+     * If this iterator is just a wrapper for a native-allocated pointer (or a view / clone of such a pointer), iteration will go forever (until illegal areas of memory are reached and cause a JVM crash).
+     */
     public Iterator<T> iterator() {
     	return new Iterator<T>() {
     		Pointer<T> next = Pointer.this.getRemainingElements() > 0 ? Pointer.this : null;
@@ -304,10 +445,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			return null;
 		
 		byte[] bytes = string.getBytes();
-		Pointer<Byte> p = allocateArray(Byte.class, bytes.length + 1);
+		Pointer<Byte> p = allocateBytes(bytes.length + 1);
         p.setBytes(0, bytes);
 		p.setByte(bytes.length, (byte)0);
-		//p.setString(0, string);
 		return p;
 	}
 	
@@ -340,13 +480,57 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
 
     /**
-	 * Dereference this pointer (*ptr).
-     * @throws RuntimeException if the pointer's target type is unknown (@see Pointer.getTargetType())
+	 * Dereference this pointer (*ptr).<br/>
+     Take the following C++ code fragment :
+     <pre>{@code
+     int* array = new int[10];
+     for (int index = 0; index < 10; index++, array++) 
+     	printf("%i\n", *array);
+     }</pre>
+     Here is its equivalent in Java :
+     <pre>{@code
+     import static com.bridj.Pointer.*;
+     ...
+     Pointer<Integer> array = allocateInts(10);
+     for (int index = 0; index < 10; index++) { 
+     	System.out.println("%i\n".format(array.get()));
+     	array = array.next();
+	 }
+     }</pre>
+     Here is a simpler equivalent in Java :
+     <pre>{@code
+     import static com.bridj.Pointer.*;
+     ...
+     Pointer<Integer> array = allocateInts(10);
+     for (int value : array) // array knows its size, so we can iterate on it
+     	System.out.println("%i\n".format(value));
+     }</pre>
+     @throws RuntimeException if called on an untyped {@code Pointer<?>} instance (see {@link  Pointer#getTargetType()}) 
 	 */
     public T get() {
         return get(0);
     }
     
+    /**
+     Gets the n-th element from this pointer.<br/>
+     This is equivalent to the C/C++ square bracket syntax.<br/>
+     Take the following C++ code fragment :
+     <pre>{@code
+	int* array = new int[10];
+	int index = 5;
+	int value = array[index];
+     }</pre>
+     Here is its equivalent in Java :
+     <pre>{@code
+	import static com.bridj.Pointer.*;
+	...
+	Pointer<Integer> array = allocateInts(10);
+	int index = 5;
+	int value = array.get(index);
+     }</pre>
+     @param index offset in pointed elements at which the value should be copied. Can be negative if the pointer was offset and the memory before it is valid.
+     @throws RuntimeException if called on an untyped {@code Pointer<?>} instance ({@link  Pointer#getTargetType()}) 
+	 */
 	public T get(int index) {
         PointerIO<T> io = getIO();
         if (io == null)
@@ -355,6 +539,29 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         return io.get(this, index);
     }
     
+    /**
+	 Assign a value to the pointed memory location.<br/>
+     Take the following C++ code fragment :
+     <pre>{@code
+	int* array = new int[10];
+	for (int index = 0; index < 10; index++, array++) { 
+		int value = index;
+		*array = value;
+	}
+     }</pre>
+     Here is its equivalent in Java :
+     <pre>{@code
+	import static com.bridj.Pointer.*;
+	...
+	Pointer<Integer> array = allocateInts(10);
+	for (int index = 0; index < 10; index++) {
+		int value = index;
+		array.set(value);
+		array = array.next();
+	}
+     }</pre>
+     @throws RuntimeException if called on an untyped {@code Pointer<?>} instance ({@link  Pointer#getTargetType()}) 
+	 */
     public void set(T value) {
         set(0, value);
     }
@@ -365,6 +572,29 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     void throwUnexpected(Throwable ex) {
     	throw new RuntimeException("Unexpected error", ex);
     }
+	/**
+     Sets the n-th element from this pointer.<br/>
+     This is equivalent to the C/C++ square bracket assignment syntax.<br/>
+     Take the following C++ code fragment :
+     <pre>{@code
+     float* array = new float[10];
+     int index = 5;
+     float value = 12;
+     array[index] = value;
+     }</pre>
+     Here is its equivalent in Java :
+     <pre>{@code
+     import static com.bridj.Pointer.*;
+     ...
+     Pointer<Float> array = allocateFloats(10);
+     int index = 5;
+     float value = 12;
+     array.set(index, value);
+     }</pre>
+     @param index offset in pointed elements at which the value should be copied. Can be negative if the pointer was offset and the memory before it is valid.
+     @param value value to set at pointed memory location
+     @throws RuntimeException if called on an untyped {@code Pointer<?>} instance ({@link  Pointer#getTargetType()}) 
+	 */
 	public Pointer<T> set(int index, T value) {
         PointerIO<T> io = getIO();
         if (io == null)
@@ -482,27 +712,63 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         return pointerToAddress(address, UNKNOWN_VALIDITY, (PointerIO<P>)PointerIO.getInstance(targetClass), null);
     }
 
+    /**
+     * Create a memory area large enough to hold a single typed pointer.
+     * @param type type the the typed pointer
+     * @return a pointer to a new memory area large enough to hold a single typed pointer
+     */
     public static <P extends TypedPointer> Pointer<P> allocateTypedPointer(Class<P> type) {
     	return (Pointer<P>)(Pointer)allocate(PointerIO.getInstance(type), Pointer.SIZE);
     }
+    /**
+     * Create a memory area large enough to hold an array of arrayLength typed pointers.
+     * @param type type the the typed pointers
+     * @param arrayLength size of the allocated array, in elements
+     * @return a pointer to a new memory area large enough to hold an array of arrayLength typed pointers
+     */
     public static <P extends TypedPointer> Pointer<P> allocateTypedPointers(Class<P> type, long arrayLength) {
     	return (Pointer<P>)(Pointer)allocate(PointerIO.getInstance(type), Pointer.SIZE * arrayLength);
     }
+    /**
+     * Create a memory area large enough to hold a single typed pointer.
+     * @param targetType target type of the pointer values to be stored in the allocated memory 
+     * @return a pointer to a new memory area large enough to hold a single typed pointer
+     */
     public static <P> Pointer<Pointer<P>> allocatePointer(Class<P> targetType) {
     	return (Pointer<Pointer<P>>)(Pointer)allocate(PointerIO.getPointerInstance(targetType), Pointer.SIZE); // TODO 
     }
+    /**
+     * Create a memory area large enough to hold a single untyped pointer.
+     * @return a pointer to a new memory area large enough to hold a single untyped pointer
+     */
     public static <V> Pointer<Pointer<?>> allocatePointer() {
     	return (Pointer)allocate(PointerIO.getPointerInstance(), Pointer.SIZE);
     }
+    /**
+     * Create a memory area large enough to hold an array of arrayLength untyped pointers.
+     * @param arrayLength size of the allocated array, in elements
+     * @return a pointer to a new memory area large enough to hold an array of arrayLength untyped pointers
+     */
     public static Pointer<Pointer<?>> allocatePointers(int arrayLength) {
 		return (Pointer<Pointer<?>>)(Pointer)allocate(PointerIO.getPointerInstance(), JNI.POINTER_SIZE * arrayLength); 
 	}
 	
-    public static <P> Pointer<Pointer<P>> allocatePointers(Class<P> type, int arrayLength) {
-		return (Pointer<Pointer<P>>)(Pointer)allocate(PointerIO.getPointerInstance(), JNI.POINTER_SIZE * arrayLength); // TODO 
+    /**
+     * Create a memory area large enough to hold an array of arrayLength typed pointers.
+     * @param targetType target type of element pointers in the resulting pointer array. 
+     * @param arrayLength size of the allocated array, in elements
+     * @return a pointer to a new memory area large enough to hold an array of arrayLength typed pointers
+     */
+    public static <P> Pointer<Pointer<P>> allocatePointers(Class<P> targetType, int arrayLength) {
+		return (Pointer<Pointer<P>>)(Pointer)allocate(PointerIO.getPointerInstance(targetType), JNI.POINTER_SIZE * arrayLength); // TODO 
 	}
 	
     
+    /**
+     * Create a memory area large enough to a single items of type elementClass.
+     * @param elementClass type of the array elements
+     * @return a pointer to a new memory area large enough to hold a single item of type elementClass.
+     */
     public static <V> Pointer<V> allocate(Class<V> elementClass) {
         return allocateArray(elementClass, 1);
     }
@@ -510,7 +776,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     public static <V> Pointer<V> allocate(PointerIO<V> io, long byteSize) {
     	return allocate(io, byteSize, null);
     }
-    public static <V> Pointer<V> allocate(PointerIO<V> io, long byteSize, final Releaser beforeDeallocation) {
+    static <V> Pointer<V> allocate(PointerIO<V> io, long byteSize, final Releaser beforeDeallocation) {
         if (byteSize == 0)
         	return null;
         
@@ -537,6 +803,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     	}
     }
     
+    /**
+     * Create a memory area large enough to hold arrayLength items of type elementClass.
+     * @param elementClass type of the array elements
+     * @param arrayLength length of the array in elements
+     * @return a pointer to a new memory area large enough to hold arrayLength items of type elementClass.  
+     */
     public static <V> Pointer<V> allocateArray(Class<V> elementClass, int arrayLength) {
 		if (arrayLength == 0)
 			return null;
@@ -560,39 +832,52 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());
     }
 
-	public static Pointer<?> pointerToBuffer(Buffer buffer) {
-		return pointerToBuffer(buffer, 0);
-    }
-
-    protected static Pointer<?> pointerToBuffer(Buffer buffer, long byteOffset) {
+    protected static Pointer<?> pointerToBuffer(Buffer buffer) {
         if (buffer == null)
 			return null;
 		
 		#foreach ($prim in $primitivesNoBool)
 		if (buffer instanceof ${prim.BufferName})
-			return (Pointer)pointerTo${prim.CapName}s((${prim.BufferName})buffer, byteOffset);
+			return (Pointer)pointerTo${prim.CapName}s((${prim.BufferName})buffer);
 		#end
         throw new UnsupportedOperationException();
 	}
 
 #foreach ($prim in $primitivesNoBool)
+    /**
+     * Allocate enough memory for a single ${prim.Name} value, copy the value provided in argument into it and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * @param value initial value for the created memory location
+     * @return pointer to a new memory location that initially contains the ${prim.Name} value given in argument
+     */
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}(${prim.Name} value) {
         Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size});
         mem.set${prim.CapName}(0, value);
         return mem;
     }
 	
-	public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.Name}... values) {
+	/**
+     * Allocate enough memory for values.length ${prim.Name} values, copy the values provided as argument into it and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The returned pointer is also an {@code Iterable<${prim.WrapperName}>} instance that can be safely iterated upon :
+     <pre>{@code
+     for (float f : pointerTo(1f, 2f, 3.3f))
+     	System.out.println(f); }</pre>
+     * @param values initial values for the created memory location
+     * @return pointer to a new memory location that initially contains the ${prim.Name} consecutive values provided in argument
+     */
+    public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.Name}... values) {
         Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * values.length);
         mem.set${prim.CapName}s(0, values, 0, values.length);
         return mem;
     }
 	
-	public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.BufferName} buffer) {
-		return pointerTo${prim.CapName}s(buffer, 0);
-	}
-	
-    public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.BufferName} buffer, long byteOffset) {
+	/**
+     * TODO preserve owner !
+     */
+    public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.BufferName} buffer) {
         if (buffer == null)
 			return null;
 		
@@ -605,12 +890,24 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			return null;
 		
 		PointerIO<${prim.WrapperName}> io = CommonPointerIOs.${prim.Name}IO;
-		return pointerToAddress(address, size, io).offset(byteOffset);
+		return pointerToAddress(address, size, io);
     }
 	
+    /**
+     * Allocate enough memory for a ${prim.Name} value and return a pointer to it.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * @return pointer to a single zero-initialized ${prim.Name} value
+     */
     public static Pointer<${prim.WrapperName}> allocate${prim.CapName}() {
         return allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size});
     }
+    /**
+     * Allocate enough memory for arrayLength ${prim.Name} values and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The returned pointer is also an {@code Iterable<${prim.WrapperName}>} instance that can be safely iterated upon.
+     * @return pointer to arrayLength zero-initialized ${prim.Name} consecutive values
+     */
     public static Pointer<${prim.WrapperName}> allocate${prim.CapName}s(long arrayLength) {
         return allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * arrayLength);
     }
@@ -662,6 +959,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return p;
 	}
 	public static Pointer<SizeT> pointerToSizeTs(long... values) {
+		int n = values.length, s = JNI.SIZE_T_SIZE;
+		return allocate(PointerIO.getSizeTInstance(), s * n).setSizeTs(0, values);
+	}
+	public static Pointer<SizeT> pointerToSizeTs(SizeT[] values) {
 		int n = values.length, s = JNI.SIZE_T_SIZE;
 		return allocate(PointerIO.getSizeTInstance(), s * n).setSizeTs(0, values);
 	}
@@ -717,6 +1018,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		}
 		return this;
 	}
+	
+    public Pointer<T> setSizeT(long byteOffset, SizeT value) {
+		return setSizeT(byteOffset, value.longValue());
+	}
 	public Pointer<T> setSizeTs(long byteOffset, long... values) {
 		if (is64) {
 			setLongs(byteOffset, values);
@@ -727,7 +1032,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		}
 		return this;
 	}
-	
+	public Pointer<T> setSizeTs(long byteOffset, SizeT... values) {
+		int n = values.length, s = 4;
+		for (int i = 0; i < n; i++)
+			setSizeT(i * s, values[i].longValue());
+		return this;
+	}
 	public Pointer<T> setSizeTs(long byteOffset, int[] values) {
 		if (!is64) {
 			setInts(byteOffset, values);

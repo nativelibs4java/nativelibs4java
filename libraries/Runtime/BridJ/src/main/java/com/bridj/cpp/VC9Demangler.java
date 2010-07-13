@@ -175,6 +175,7 @@ public class VC9Demangler extends Demangler {
             if (iAt > 0) {
                 mr.setMemberName(str.substring(1, iAt));
                 mr.setArgumentsStackSize(Integer.parseInt(str.substring(iAt + 1)));
+                return mr;
             }
         }
 		if (consumeCharIf('?')) {

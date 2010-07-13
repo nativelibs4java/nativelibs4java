@@ -35,7 +35,7 @@
       <groupId>com.jnaerator</groupId>
       <artifactId>jna-jnaerator</artifactId>
       <version>${jna.version}</version>
-      <scope>compile</scope>
+      <scope>test</scope>
     </dependency>
 	
   </dependencies>

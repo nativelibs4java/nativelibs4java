@@ -80,7 +80,7 @@ char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, Vir
 
 	followArgs(call, args, nParams, pParamTypes) 
 	&&
-	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE);
+	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE, JNI_FALSE);
 
 	cleanupCallHandler(call);
 	return info->fInfo.fDCReturnType;
@@ -115,7 +115,7 @@ char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, CPPMeth
 	
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes) 
 	&&
-	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol, JNI_FALSE);
+	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol, JNI_FALSE, JNI_FALSE);
 
 	cleanupCallHandler(call);
 	return info->fInfo.fDCReturnType;

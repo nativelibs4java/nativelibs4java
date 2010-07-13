@@ -6,7 +6,7 @@
 extern jclass gBridJClass;
 //extern jmethodID gGetTempCallStruct;
 //extern jmethodID gReleaseTempCallStruct;
-
+void freeCurrentThreadLocalData();
 
 typedef struct CallTempStructNode {
 	struct CallTempStruct fCallTempStruct;

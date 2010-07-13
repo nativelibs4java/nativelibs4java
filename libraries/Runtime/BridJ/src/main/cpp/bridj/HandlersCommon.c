@@ -73,7 +73,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 	return JNI_TRUE;
 }
 
-jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback, jboolean bCallingJava) 
+jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback, jboolean bCallingJava, jboolean forceVoidReturn) 
 {
 	JNIEnv* env = call->env;
 	switch (returnType) {
@@ -133,6 +133,11 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 			}
 			break;
 		default:
+			if (forceVoidReturn) 
+			{
+				dcCallVoid(call->vm, callback);
+				break;
+			}
 			throwException(env, "Invalid return value type !");
 			return JNI_FALSE;
 	}
