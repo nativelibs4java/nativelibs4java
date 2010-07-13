@@ -1,22 +1,143 @@
+Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c	(working copy)
+@@ -22,14 +22,31 @@
+ 
+ #include "dyncall_vector.h"
+ #include <string.h>
++//void memcpy(void*, const void*, size_t);
+ 
+ void dcVecAppend(DCVecHead* pHead, const void* pData, size_t size)
+ {
+-  if (pHead->mSize+size <= pHead->mTotal) 
++	size_t newSize = pHead->mSize + size;
++  if (newSize <= pHead->mTotal) 
+   {
+-    void* dst = (char*)dcVecData(pHead) + pHead->mSize;
+-    memcpy(dst, pData, size); /* @@@ heavy for small types. */
+-    pHead->mSize += size;
++  	void* dst = (char*)dcVecData(pHead) + pHead->mSize;
++  	switch (size) {
++  	case 1:
++  		*(char*)dst = *(const char*)pData;
++  		break;
++  	case 2:
++  		*(short*)dst = *(const short*)pData;
++  		break;
++  	case 4:
++  		*(int*)dst = *(const int*)pData;
++  		break;
++  	case 8:
++  		*(long long*)dst = *(const long long*)pData;
++  		break;
++  	default:
++  		memcpy(dst, pData, size); /* @@@ heavy for small types. */
++  	}
++    pHead->mSize = newSize;
+   } 
+ }
+ 
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 576)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 670)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(working copy)
-@@ -49,8 +49,7 @@
+@@ -49,8 +49,8 @@
  
  	sub			rsp, rcx					; Setup stack frame by subtracting the size of the arguments.
  
 -	mov			rax, rcx					; Align stack.
 -	add			rax, 8
-+	mov			rax, rsp					; Align stack.
++	mov         rax, rsp                    ; Align stack.
++
  	and			rax, 15
  	sub			rsp, rax
  
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(working copy)
+@@ -26,6 +26,9 @@
+ 
+ 
+ #include "dynload.h"
++#include "dynload_macros.h"
++#include "dyncall_macros.h"
++#include "dyncall_alloc.h"
+ 
+ #include <dlfcn.h>
+ #include <string.h>
+@@ -56,7 +59,6 @@
+ 	return lib;
+ }
+ 
+-
+ void* dlFindSymbol(DLLib* libHandle, const char* symbol)
+ {
+   return dlsym(libHandle && libHandle->handle ? libHandle->handle : RTLD_DEFAULT, symbol);
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(working copy)
+@@ -24,6 +24,9 @@
+ #ifndef DYNLOAD_H
+ #define DYNLOAD_H
+ 
++
++#include "dyncall_macros.h"
++#include "dynload_macros.h"
+ #include <stddef.h>
+ #include <stdlib.h>
+ 
+@@ -31,15 +34,19 @@
+ extern "C" {
+ #endif
+ 
++#ifndef DC_API
++#define DC_API
++#endif
++
+ /* --- public api ---------------------------------------------------------- */
+ 
+ /* shared library loading and explicit symbol resolving */
+ 
+ typedef struct DLLib_ DLLib;
+ 
+-DLLib* dlLoadLibrary(const char* libpath);
+-void   dlFreeLibrary(DLLib* pLib);
+-void*  dlFindSymbol(DLLib* pLib, const char* pSymbolName);
++DC_API DLLib* dlLoadLibrary(const char* libpath);
++DC_API void   dlFreeLibrary(DLLib* pLib);
++DC_API void*  dlFindSymbol(DLLib* pLib, const char* pSymbolName);
+ 
+ /* symbol table enumeration */
+ 
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(working copy)
+@@ -17,12 +17,15 @@
+ 
+ */
+ 
++#include "dynload.h"
++#include "dynload_macros.h"
+ #include "dyncall_macros.h"
++#include "dyncall_alloc.h""
+ 
+ #if defined(DC_WINDOWS)
+ #  include "dynload_syms_pe.c"
+ #elif defined(DC_UNIX)
+-#  if defined (DC__OS_Darwin) 
++#  if defined (DC__OS_Darwin)
+ #    include "dynload_syms_mach-o.c"
+ #  else
+ #    include "dynload_syms_elf.c"
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	(revision 576)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	(revision 670)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	(working copy)
-@@ -31,9 +31,11 @@
+@@ -33,9 +33,11 @@
  
  #if defined(DC__Arch_AMD64)
  #define MACH_HEADER_TYPE mach_header_64
@@ -28,11 +149,13 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c
  #define NLIST_TYPE nlist
  #endif
  
-@@ -66,12 +68,17 @@
+@@ -67,8 +69,13 @@
+ 		const char* name = _dyld_get_image_name(iImage);
  		if (name && !strcmp(name, pLib->libPath))
  		{
- 			const struct MACH_HEADER_TYPE* pHeader = _dyld_get_image_header(iImage);
+-			const struct mach_header* pHeader = _dyld_get_image_header(iImage);
 -			const char* pBase = (const char*)pHeader;
++			const struct MACH_HEADER_TYPE* pHeader = _dyld_get_image_header(iImage);
 +			const char* pBase = ((const char*)pHeader);
 +			if (pHeader->filetype != MH_DYLIB)
 +				return NULL;
@@ -42,44 +165,45 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c
  			if (pHeader)
  			{
  				uint32_t iCmd, nCmds = pHeader->ncmds;
- 				const struct load_command* cmd = (const struct load_command*)(pBase + sizeof(struct MACH_HEADER_TYPE));
--				
-+
- 				for (iCmd = 0; iCmd < nCmds; iCmd++) 
- 				{
- 					if (cmd->cmd == LC_SYMTAB) 
-@@ -120,6 +127,13 @@
- 		return NULL;
- 	
- 	nl = pSyms->pSymbolTable + index;
-+
-+//	if (!nl->n_value // undefined
-+//		|| nl->n_type >= N_PEXT //|| // debug symbol
-+//		|| !(nl->n_type & N_EXT)
-+//	)
-+//		return NULL;
-+
- 	if (nl->n_un.n_strx <= 1)
- 		return NULL; // would be empty string anyway
- 	
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
-===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 576)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(working copy)
-@@ -23,6 +23,10 @@
-  dynamic symbol resolver for elf
+@@ -106,7 +113,6 @@
+ 	dcFreeMem(pSyms);
+ }
  
-  */
-+ 
-+#ifndef _GNU_SOURCE
-+#define _GNU_SOURCE
-+#endif
+-
+ int dlSymsCount(DLSyms* pSyms)
+ {
+ 	if (!pSyms)
+@@ -114,7 +120,6 @@
+ 	return pSyms->symbolCount;
+ }
+ 
+-
+ static const struct NLIST_TYPE* get_nlist(DLSyms* pSyms, int index)
+ {
+ 	const struct NLIST_TYPE* nl;
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(working copy)
+@@ -18,11 +18,14 @@
+ */
  
  #include "dynload.h"
- #include "dynload_macros.h"
++#include "dynload_macros.h"
++#include "dyncall_macros.h"
++#include "dyncall_alloc.h"
+ 
+ #if defined(DC_WINDOWS)
+ #  include "dynload_windows.c"
+ #elif defined(DC_UNIX)
+-#  if defined (DC__OS_Darwin)
++#  if defined(DC__OS_Darwin)
+ #    include "dynload_darwin.c"
+ #  else
+ #    include "dynload_unix.c"
 Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(revision 576)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(revision 670)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(working copy)
 @@ -95,21 +95,25 @@
  
@@ -110,16 +234,9 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S
  	mov  %eax, [%edx]
  	mov  %edx, [%edx+4]
  	ret
-@@ -121,3 +125,6 @@
- .return_f64:
- 	fld qword ptr [%edx]
- 	ret
-+
-+.return_void:
-+	ret
 Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 576)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 670)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(working copy)
 @@ -93,16 +93,19 @@
    mov  ebp, [ebp]                    ; EBP = parent frame
@@ -157,7 +274,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.
  END
 Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(revision 576)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(revision 670)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(working copy)
 @@ -44,10 +44,12 @@
  frame_DCArgs       = -24

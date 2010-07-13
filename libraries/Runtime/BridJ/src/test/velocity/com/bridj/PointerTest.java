@@ -2,8 +2,6 @@ package com.bridj;
 
 import org.junit.Test;
 
-import com.bridj.DefaultDisorderedPointer;
-
 import java.nio.*;
 import java.util.Iterator;
 import static org.junit.Assert.*;

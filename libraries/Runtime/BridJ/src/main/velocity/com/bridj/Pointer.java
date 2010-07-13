@@ -179,6 +179,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 
     public <U> Pointer<U> getPointer(long byteOffset, PointerIO<U> pio) {
     	long value = getSizeT(byteOffset);
+    	if (value == 0)
+    		return null;
     	return new Pointer<U>(pio, value, isOrdered(), UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, this, byteOffset, null, null);
     }
 
@@ -322,8 +324,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         	public void release(Pointer<?> p) {
         		Pointer<Pointer<Byte>> mem = (Pointer<Pointer<Byte>>)p;
         		for (int i = 0; i < len; i++) {
-                    strings[i] = mem.get(i).getCString(0);
-                    pointers[i].release();
+        			Pointer<Byte> pp = mem.get(i);
+        			if (pp != null)
+        				strings[i] = pp.getCString(0);
+        			pp = pointers[i];
+        			if (pp != null)
+        				pp.release();
                 }
         	}
         });
