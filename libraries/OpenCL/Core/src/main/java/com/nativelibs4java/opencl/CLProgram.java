@@ -25,8 +25,6 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BINARY
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BUILD_LOG;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_SOURCE;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SUCCESS;
-//import static com.nativelibs4java.util.JNAUtils.readNSArray;
-//import static com.nativelibs4java.util.JNAUtils.toNS;
 
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -41,9 +39,7 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program;
 import com.nativelibs4java.util.NIOUtils;
-import com.ochafik.lang.jnaerator.runtime.NativeSize;
 
-import com.sun.jna.Memory;
 import com.bridj.JNI;
 import com.bridj.Pointer;
 import com.bridj.SizeT;

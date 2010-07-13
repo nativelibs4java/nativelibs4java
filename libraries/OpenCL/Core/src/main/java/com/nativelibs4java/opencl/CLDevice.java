@@ -23,7 +23,6 @@ import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.util.IOUtils;
 import com.nativelibs4java.util.NIOUtils;
-import com.ochafik.lang.jnaerator.runtime.NativeSize;
 
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.bridj.*;
@@ -32,7 +31,6 @@ import static com.bridj.Pointer.*;
 import java.io.IOException;
 import java.nio.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
-//import static com.nativelibs4java.util.JNAUtils.*;
 import static com.nativelibs4java.util.NIOUtils.*;
 import java.util.*;
 import static com.nativelibs4java.opencl.CLException.*;

@@ -28,8 +28,6 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_COPY_HOST_
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_USE_HOST_PTR;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
 import static com.nativelibs4java.util.ImageUtils.getImageIntPixels;
-//import static com.nativelibs4java.util.JNAUtils.toNS;
-//import static com.nativelibs4java.util.JNAUtils.toNSArray;
 import static com.nativelibs4java.util.NIOUtils.getSizeInBytes;
 
 import java.awt.Image;

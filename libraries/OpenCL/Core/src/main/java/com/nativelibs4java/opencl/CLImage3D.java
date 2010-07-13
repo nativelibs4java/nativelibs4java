@@ -19,7 +19,6 @@
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_DEPTH;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_SLICE_PITCH;
-//import static com.nativelibs4java.util.JNAUtils.toNS;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;

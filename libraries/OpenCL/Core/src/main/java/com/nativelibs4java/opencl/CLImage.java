@@ -23,7 +23,6 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FALSE;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_ELEMENT_SIZE;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_FORMAT;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
-//import static com.nativelibs4java.util.JNAUtils.toNS;
 import static com.nativelibs4java.util.NIOUtils.directCopy;
 
 import java.nio.Buffer;
@@ -35,7 +34,6 @@ import com.nativelibs4java.opencl.library.cl_image_format;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.NIOUtils;
-//import com.ochafik.lang.jnaerator.runtime.NativeSize;
 
 import com.ochafik.util.listenable.Pair;
 import com.bridj.JNI;

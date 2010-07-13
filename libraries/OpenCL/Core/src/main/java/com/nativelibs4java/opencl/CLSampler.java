@@ -32,7 +32,6 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SAMPLER_NORMAL
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
-import com.ochafik.lang.jnaerator.runtime.NativeSize;
 
 import com.bridj.Pointer;
 import com.bridj.SizeT;

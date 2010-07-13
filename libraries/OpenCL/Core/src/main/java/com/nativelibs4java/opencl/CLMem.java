@@ -41,7 +41,6 @@ import java.util.EnumSet;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
-import com.ochafik.lang.jnaerator.runtime.NativeSize;
 
 import com.bridj.Pointer;
 import com.bridj.SizeT;

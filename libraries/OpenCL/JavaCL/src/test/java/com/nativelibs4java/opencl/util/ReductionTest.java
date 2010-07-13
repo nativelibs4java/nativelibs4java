@@ -17,10 +17,10 @@ import com.nativelibs4java.util.NIOUtils;
 
 public class ReductionTest {
 
-    @BeforeClass
-    public static void setup() {
-        com.sun.jna.Native.setProtected(true);
-    }
+    //@BeforeClass
+    //public static void setup() {
+    //    com.sun.jna.Native.setProtected(true);
+    //}
 
     CLContext context;
     CLQueue queue;

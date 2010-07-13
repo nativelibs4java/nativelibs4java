@@ -28,7 +28,6 @@ import java.util.EnumSet;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
-import com.ochafik.lang.jnaerator.runtime.NativeSize;
 
 import com.bridj.Pointer;
 import static com.bridj.Pointer.*;

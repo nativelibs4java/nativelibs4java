@@ -19,12 +19,8 @@ along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 package com.nativelibs4java.opencl;
 
 import static com.nativelibs4java.opencl.CLException.error;
-//import static com.nativelibs4java.util.JNAUtils.readNS;
-//import static com.nativelibs4java.util.JNAUtils.toNS;
 
-import com.ochafik.lang.jnaerator.runtime.NativeSize;
 
-import com.sun.jna.Memory;
 import com.bridj.Pointer;
 import static com.bridj.Pointer.*;
 import com.bridj.Pointer;
@@ -76,7 +72,7 @@ abstract class CLInfoGetter<T extends Pointer> {
     }
 
     public long[] getNativeSizes(T entity, int infoName, int n) {
-        int nBytes = NativeSize.SIZE * n;
+        int nBytes = SizeT.SIZE * n;
         Pointer<SizeT> pLen = pointerToSizeT(nBytes);
         Pointer<SizeT> mem = allocateSizeTs(n);
         error(getInfo(entity, infoName, nBytes, mem, pLen));
