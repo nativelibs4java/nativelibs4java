@@ -5,11 +5,79 @@ import org.junit.Test;
 import java.nio.*;
 import java.util.Iterator;
 import static org.junit.Assert.*;
+import static com.bridj.Pointer.*;
 
 public class PointerTest {
 	int n = 10;
 	static final ByteOrder[] orders = new ByteOrder[] { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
     
+	@Test(expected=UnsupportedOperationException.class)
+	public void noRef() {
+		allocateBytes(10).getReference();
+	}
+	@Test(expected=UnsupportedOperationException.class)
+	public void noRemoveIt() {
+		Iterator<Byte> it = allocateBytes(10).iterator();
+		assertTrue(it.hasNext());
+		it.next();
+		it.remove();
+	}
+	@Test(expected=RuntimeException.class)
+	public void untypedGet() {
+		allocateBytes(10).as(null).get(0);
+	}
+	
+	@Test
+	public void alignment() {
+		Pointer<Integer> p = allocateInts(2);
+		assertTrue(p.isAligned());
+		assertTrue(!p.offset(1).isAligned());
+		assertTrue(!p.offset(2).isAligned());
+		assertTrue(p.offset(2).isAligned(2));
+		assertTrue(!p.offset(3).isAligned());
+		assertTrue(p.offset(4).isAligned());
+	}
+	
+	@Test
+	public void iterate() {
+		int i = 0;
+		for (int v : pointerToInts(0, 1, 2, 3, 4)) {
+			assertEquals(i, v);
+			i++;
+		}
+	}
+	
+	@Test
+	public void basicTest() {
+		Pointer<Byte> p = allocateBytes(10);
+		assertTrue(p == p.offset(0));
+		assertEquals(p, p);
+		
+		assertTrue(!p.equals(p.offset(1)));
+		assertEquals(p, p.offset(1).offset(-1));
+		
+		assertEquals(new Long(p.getPeer()).hashCode(), p.hashCode());
+		
+		assertEquals(1, p.compareTo(null));
+		assertEquals(-1, p.compareTo(p.offset(1)));
+		assertEquals(0, p.compareTo(p.offset(1).offset(-1)));
+		assertEquals(1, p.offset(1).compareTo(p.offset(1).offset(-1)));
+		
+		assertTrue(!allocateBytes(10).equals(allocateBytes(10)));
+	}
+	
+	@Test
+	public void refTest() {
+		Pointer<Pointer<?>> pp = allocatePointers(10);
+		Pointer<?> pa = allocateBytes(5);
+		pp.set(2, pa);
+		Pointer<?> p = pp.get(2);
+		assertEquals(p, pa);
+		Pointer ref = p.getReference();
+		assertNotNull(ref);
+		assertEquals(pp.offset(2 * Pointer.SIZE), ref);
+	}
+	
 #foreach ($prim in $primitivesNoBool)
 	
 
@@ -36,6 +104,27 @@ public class PointerTest {
 			assertEquals("at position i = " + i, expected[i], val, 0);
 		}
 		assertTrue(!it.hasNext());
+	}
+	
+	@Test 
+    public void simpleSetGet${prim.BufferName}() {
+    	for (ByteOrder order : new ByteOrder[] { ByteOrder.LITTLE_ENDIAN, ByteOrder.BIG_ENDIAN }) {
+			Pointer<${prim.WrapperName}> p = allocate${prim.CapName}s(3).order(order);
+			p.set${prim.CapName}((${prim.Name})1);
+			assertEquals((${prim.Name})1, p.get${prim.CapName}(), 0);
+			
+			p.set${prim.CapName}(${prim.Size}, (${prim.Name})-2);
+			assertEquals((${prim.Name})-2, p.get${prim.CapName}(${prim.Size}), 0);
+			
+			p.set(2, (${prim.Name})3);
+			assertEquals((${prim.Name})3, p.get(2), 0);
+			
+			p.set${prim.CapName}s(1, new ${prim.Name}[] { (${prim.Name})5, (${prim.Name})6 });
+			${prim.Name}[] a = p.get${prim.CapName}s(1, 2);
+			assertEquals(2, a.length);
+			assertEquals((${prim.Name})5, a[0], 0);
+			assertEquals((${prim.Name})6, a[1], 0);
+		}
 	}
 	
 	@Test 
@@ -95,6 +184,23 @@ public class PointerTest {
 		assertEquals((double)(${prim.Name})0, (double)Pointer.allocate${prim.CapName}().get(0), 0);
 		assertEquals((double)(${prim.Name})0, (double)Pointer.allocate${prim.CapName}s(1).get(0), 0);
 		assertEquals((double)(${prim.Name})0, (double)Pointer.allocate${prim.CapName}s(2).offset(${prim.Size}).get(-1), 0);
+		
+		//TODO slide, slideBytes
+	}
+	@Test 
+    public void testAllocateRemaining_${prim.Name}_ok() {
+    	Pointer<${prim.WrapperName}> p = Pointer.allocate${prim.CapName}s(2);
+    	assertEquals(2, p.getRemainingElements());
+		assertEquals(2 * ${prim.Size}, p.getRemainingBytes());
+		
+		Pointer<${prim.WrapperName}> n = p.next();
+		Pointer<${prim.WrapperName}> o = p.offset(${prim.Size});
+		assertEquals(n, o);
+		
+		assertEquals(1, n.getRemainingElements());
+		assertEquals(${prim.Size}, n.getRemainingBytes());
+		assertEquals(1, o.getRemainingElements());
+		assertEquals(${prim.Size}, o.getRemainingBytes());
 		
 		//TODO slide, slideBytes
 	}

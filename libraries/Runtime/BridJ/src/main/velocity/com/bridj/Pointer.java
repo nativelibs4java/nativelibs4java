@@ -16,49 +16,21 @@ import java.nio.charset.Charset;
  * <ul>
  *	<li>Wrapping a memory address as a pointer : {@link Pointer#pointerToAddress(long)}
  *  </li>
- *	<li>Reading a primitive from the pointed memory location :<br/>
+ *	<li>Reading / writing a primitive from / to the pointed memory location :<br/>
  *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#get${prim.CapName}()}<br/>
+ *		{@link Pointer#get${prim.CapName}()} / {@link Pointer#set${prim.CapName}(${prim.Name})} ; With an offset : {@link Pointer#get${prim.CapName}(long)} / {@link Pointer#set${prim.CapName}(long, ${prim.Name})}<br/>
  *       #end
+ *		{@link Pointer#getSizeT()} / {@link Pointer#setSizeT(long)} ; With an offset : {@link Pointer#getSizeT(long)} / {@link Pointer#setSizeT(long, long)} <br/>
  *  </li>
- *	<li>Reading a primitive from the pointed memory location shifted by a given amount of bytes :<br/>
+ *	<li>Reading / writing an array of primitives from / to the pointed memory location :<br/>
  *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#get${prim.CapName}(long)}<br/>
+ *		{@link Pointer#get${prim.CapName}s(int)} / {@link Pointer#set${prim.CapName}s(${prim.Name}[])} ; With an offset : {@link Pointer#get${prim.CapName}s(long, int)} / {@link Pointer#set${prim.CapName}s(long, ${prim.Name}[])}<br/>
  *       #end
+ *		{@link Pointer#getSizeTs(int)} / {@link Pointer#setSizeTs(long[])} ; With an offset : {@link Pointer#getSizeTs(long, int)} / {@link Pointer#setSizeTs(long, long[])}<br/>
  *  </li>
- *	<li>Reading an array of primitives from the pointed memory location :<br/>
+ *	<li>Reading / writing an NIO buffer of primitives from / to the pointed memory location :<br/>
  *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#get${prim.CapName}s(int)}<br/>
- *       #end
- *  </li>
- *	<li>Reading an NIO buffer of primitives from the pointed memory location :<br/>
- *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#get${prim.BufferName}(long)}<br/>
- *       #end
- *  </li>
- *	<li>Reading an array of primitives from the pointed memory location shifted by a given amount of bytes :<br/>
- *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#get${prim.CapName}s(long, int)}<br/>
- *       #end
- *  </li>
- *	<li>Writing a primitive to the pointed memory location :<br/>
- *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#set${prim.CapName}(${prim.Name})}<br/>
- *       #end
- *  </li>
- *	<li>Writing a primitive to the pointed memory location shifted by a given amount of bytes :<br/>
- *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#set${prim.CapName}(long, ${prim.Name})}<br/>
- *       #end
- *  </li>
- *	<li>Writing an array of primitives to the pointed memory location :<br/>
- *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#set${prim.CapName}s(${prim.Name}[])}<br/>
- *       #end
- *  </li>
- *	<li>Writing an array of primitives to the pointed memory location shifted by a given amount of bytes :<br/>
- *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#set${prim.CapName}s(long, ${prim.Name}[])}<br/>
+ *		{@link Pointer#get${prim.BufferName}(long)} (can be used for writing as well) / set${prim.CapName}s(${prim.BufferName})<br/>
  *       #end
  *  </li>
  * </ul>
@@ -69,31 +41,18 @@ import java.nio.charset.Charset;
  *	<li>Getting the pointer to a struct / a C++ class / a COM object :
  *		{@link Pointer#getPointer(NativeObject)}
  *  </li>
- *	<li>Allocating a primitive without an initial value (zero-initialized memory) :<br/>
+ *	<li>Allocating a primitive with / without an initial value (zero-initialized) :<br/>
  *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#allocate${prim.CapName}()}<br/>
+ *		{@link Pointer#pointerTo${prim.CapName}(${prim.Name})} / {@link Pointer#allocate${prim.CapName}()}<br/>
  *       #end
+ *		{@link Pointer#pointerToSizeT(long)} / {@link Pointer#allocateSizeT()}<br/>
  *  </li>
- *	<li>Allocating a primitive with an initial value :<br/>
+ *	<li>Allocating an array of primitives with / without initial values (zero-initialized) :<br/>
  *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#pointerTo${prim.CapName}(${prim.Name})}<br/>
+ *		{@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])} or {@link Pointer#pointerTo${prim.CapName}s(${prim.BufferName})} / {@link Pointer#allocate${prim.CapName}s(long)}<br/>
  *       #end
- *  </li>
- *	<li>Allocating an array of primitives without initial values (zero-initialized memory) :<br/>
- *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#allocate${prim.CapName}s(long)}<br/>
- *       #end
- *  </li>
- *	<li>Allocating an array of primitives with an array of initial values :<br/>
- *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])}<br/>
- *       #end
- *  </li>
- *	<li>Allocating an array of primitives with a buffer of initial values :<br/>
- *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#pointerTo${prim.CapName}s(${prim.BufferName})}<br/>
- *       #end
- *		{@link Pointer#pointerToBuffer(Buffer)}<br/>
+ *		{@link Pointer#pointerToSizeTs(long[])} / {@link Pointer#allocateSizeTs(long)}<br/>
+ *		{@link Pointer#pointerToBuffer(Buffer)} / n/a<br/>
  *  </li>
  * </ul>
  */
@@ -155,7 +114,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			return 1;
 		
 		long p1 = getPeer(), p2 = p.getPeer();
-		return p1 < p2 ? -1 : 1;
+		return p1 == p2 ? 0 : p1 < p2 ? -1 : 1;
 	}
 	
     /**
@@ -224,7 +183,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (parent == null)
 			throw new UnsupportedOperationException("Cannot get reference to this pointer, it wasn't created from Pointer.getPointer(offset) or from a similar method.");
 		
-		return parent.offset(offsetInParent).withIO(getIO().getReferenceIO());
+		PointerIO io = getIO();
+		return parent.offset(offsetInParent).withIO(io == null ? null : io.getReferenceIO());
 	}
 	public final long getPeer() {
 		return peer;
@@ -320,16 +280,32 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     	return new Pointer<U>(pio, value, isOrdered(), UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, this, byteOffset, null, null);
     }
 
+    /**
+     * Write a pointer value to the pointed memory location
+     */
+    public Pointer<T> setPointer(Pointer<?> value) {
+    	return setPointer(0, value);
+    }
     public Pointer<T> setPointer(long byteOffset, Pointer<?> value) {
         setSizeT(byteOffset, value == null ? 0 : value.getPeer());
         return this;
     }
     
+    /**
+     * Get the amount of memory known to be valid from this pointer, or -1 if it is unknown.<br/>
+     * Memory validity information is available when the pointer was created out of another pointer (with {@link #offset(long)}, {@link #next()}, {@link #next(long)}) or from a direct NIO buffer ({@link #pointerToBuffer(Buffer)}, {@link #pointerToInts(IntBuffer)}...)
+     * @return amount of bytes that can be safely read or written from this pointer, or -1 if this amount is unknown
+     */
     public long getRemainingBytes() {
     	long ve = getValidEnd();
     	return ve == UNKNOWN_VALIDITY ? -1 : ve - getPeer();
     }
     
+    /**
+    * Get the amount of memory known to be valid from this pointer (expressed in elements of the target type, see {@link #getTargetType()}) or -1 if it is unknown.<br/>
+     * Memory validity information is available when the pointer was created out of another pointer (with {@link #offset(long)}, {@link #next()}, {@link #next(long)}) or from a direct NIO buffer ({@link #pointerToBuffer(Buffer)}, {@link #pointerToInts(IntBuffer)}...)
+     * @return amount of elements that can be safely read or written from this pointer, or -1 if this amount is unknown
+     */
     public long getRemainingElements() {
     	long bytes = getRemainingBytes();
     	long elementSize = getTargetSize();
@@ -366,13 +342,24 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     	};
     }
     
+    /**
+     * Get a pointer to a native object (C++ or ObjectiveC class, struct, union, callback...) 
+     */
     public static <N extends NativeObject> Pointer<N> getPointer(N instance) {
 		return getPointer(instance, null);
     }
     
+    /**
+     * Get a pointer to a native object, specifying the type of the pointer's target.<br/>
+     * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
+     */
     public static <R extends NativeObject> Pointer<R> getPointer(NativeObject instance, Class<R> targetType) {
 		return (Pointer<R>)instance.peer;
     }
+    /**
+    * Get the address of a native object, specifying the type of the pointer's target (same as {@code getPointer(instance, targetType).getPeer()}, see {@link getPointer(NativeObject, Class)}).<br/>
+     * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
+     */
     public static long getAddress(NativeObject instance, Class targetType) {
 		return getPointer(instance, targetType).getPeer();
     }
@@ -614,6 +601,15 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
             throwBecauseUntyped("Cannot compute target size");
 
         return io.getTargetSize();
+	}
+	
+	/**
+	 * Returns a pointer to the next target.
+	 * Same as incrementing a C pointer of delta elements, but creates a new pointer instance.
+	 * @return next(1)
+	 */
+	public Pointer<T> next() {
+		return next(1);
 	}
 	
 	/**
@@ -988,17 +984,47 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return p;
 	}
 	
+	/**
+     * Allocate enough memory for arrayLength size_t values and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The returned pointer is also an {@code Iterable<SizeT>} instance that can be safely iterated upon.
+     * @return pointer to arrayLength zero-initialized ${prim.Name} consecutive values
+     */
     public static Pointer<SizeT> allocateSizeTs(long arrayLength) {
 		return allocate(PointerIO.getSizeTInstance(), JNI.SIZE_T_SIZE * arrayLength);
 	}
-	public static Pointer<SizeT> allocateSizeT() {
+	/**
+     * Allocate enough memory for a size_t value and return a pointer to it.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * @return pointer to a single zero-initialized size_t value
+     */
+    public static Pointer<SizeT> allocateSizeT() {
 		return allocate(PointerIO.getSizeTInstance(), JNI.SIZE_T_SIZE);
 	}
 	
-	public long getSizeT(long byteOffset) {
+	/**
+     * Read a size_t value from the pointed memory location
+     */
+    public long getSizeT() {
+		return getSizeT(0);
+	}
+	/**
+     * Read a size_t value from the pointed memory location shifted by a byte offset
+     */
+    public long getSizeT(long byteOffset) {
 		return is64 ? getLong(byteOffset) : 0xffffffffL & getInt(byteOffset);
 	}
-	public long[] getSizeTs(long byteOffset, int arrayLength) {
+	/**
+     * Read an array of size_t values of the specified size from the pointed memory location
+     */
+    public long[] getSizeTs(int arrayLength) {
+		return getSizeTs(0, arrayLength);
+	}
+	/**
+     * Read an array of size_t values of the specified size from the pointed memory location shifted by a byte offset
+     */
+    public long[] getSizeTs(long byteOffset, int arrayLength) {
 		if (is64)  
 			return getLongs(byteOffset, arrayLength);
 		
@@ -1010,6 +1036,21 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return ret;
 	}
 	
+	/**
+     * Write a size_t value to the pointed memory location
+     */
+    public Pointer<T> setSizeT(long value) {
+		return setSizeT(0, value);
+	}
+    /**
+     * Write a size_t value to the pointed memory location
+     */
+    public Pointer<T> setSizeT(SizeT value) {
+		return setSizeT(0, value);
+	}
+    /**
+     * Write a size_t value to the pointed memory location shifted by a byte offset
+     */
     public Pointer<T> setSizeT(long byteOffset, long value) {
 		if (is64)
 			setLong(byteOffset, value);
@@ -1019,10 +1060,34 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return this;
 	}
 	
+    /**
+     * Write a size_t value to the pointed memory location shifted by a byte offset
+     */
     public Pointer<T> setSizeT(long byteOffset, SizeT value) {
 		return setSizeT(byteOffset, value.longValue());
 	}
-	public Pointer<T> setSizeTs(long byteOffset, long... values) {
+	/**
+     * Write an array of size_t values to the pointed memory location
+     */
+    public Pointer<T> setSizeTs(long[] values) {
+		return setSizeTs(0, values);
+	}
+	/**
+     * Write an array of size_t values to the pointed memory location
+     */
+    public Pointer<T> setSizeTs(int[] values) {
+		return setSizeTs(0, values);
+	}
+	/**
+     * Write an array of size_t values to the pointed memory location
+     */
+    public Pointer<T> setSizeTs(SizeT[] values) {
+		return setSizeTs(0, values);
+	}
+	/**
+     * Write an array of size_t values to the pointed memory location shifted by a byte offset
+     */
+    public Pointer<T> setSizeTs(long byteOffset, long[] values) {
 		if (is64) {
 			setLongs(byteOffset, values);
 		} else {
@@ -1032,13 +1097,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		}
 		return this;
 	}
-	public Pointer<T> setSizeTs(long byteOffset, SizeT... values) {
+	/**
+     * Write an array of size_t values to the pointed memory location shifted by a byte offset
+     */
+    public Pointer<T> setSizeTs(long byteOffset, SizeT... values) {
 		int n = values.length, s = 4;
 		for (int i = 0; i < n; i++)
 			setSizeT(i * s, values[i].longValue());
 		return this;
 	}
-	public Pointer<T> setSizeTs(long byteOffset, int[] values) {
+	/**
+     * Write an array of size_t values to the pointed memory location shifted by a byte offset
+     */
+    public Pointer<T> setSizeTs(long byteOffset, int[] values) {
 		if (!is64) {
 			setInts(byteOffset, values);
 		} else {
@@ -1071,32 +1142,149 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 
 #foreach ($prim in $primitivesNoBool)
 
-	public Pointer<T> set${prim.CapName}(${prim.Name} value) {
+	/**
+	 * Write a ${prim.Name} value to the pointed memory location
+	 */
+    public Pointer<T> set${prim.CapName}(${prim.Name} value) {
 		return set${prim.CapName}(0, value);
-	}	
+	}
 	
-	public Pointer<T> set${prim.CapName}s(${prim.Name}[] values) {
+	/**
+	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
+	 */
+    public Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value) {
+    	#if ($prim.Name != "byte")
+        if (isOrdered())
+        	JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value);
+        else
+        	JNI.set_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}), value);
+        #else
+		JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value);
+        #end
+        return this;
+    }
+
+	
+	/**
+	 * Write an array of ${prim.Name} values of the specified length to the pointed memory location
+	 */
+    public Pointer<T> set${prim.CapName}s(${prim.Name}[] values) {
 		return set${prim.CapName}s(0, values, 0, values.length);
 	}	
 	
-	public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values) {
+	/**
+	 * Write an array of ${prim.Name} values of the specified length to the pointed memory location shifted by a byte offset
+	 */
+    public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values) {
         return set${prim.CapName}s(byteOffset, values, 0, values.length);
     }
     
-	public Pointer<T> set${prim.CapName}s(${prim.BufferName} values) {
+    /**
+	 * Write an array of ${prim.Name} values of the specified length to the pointed memory location shifted by a byte offset, reading values at the given array offset and for the given length from the provided array.
+	 */
+    public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length) {
+        #if ($prim.Name != "byte")
+        if (isOrdered())
+        	JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
+        else
+        	JNI.set_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
+        #else
+		JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
+		#end
+        	
+        return this;
+    }
+    
+	/**
+	 * Write a buffer of ${prim.Name} values of the specified length to the pointed memory location
+	 */
+    public Pointer<T> set${prim.CapName}s(${prim.BufferName} values) {
 		return set${prim.CapName}s(0, values, 0, values.capacity());
 	}
 
-	public ${prim.BufferName} get${prim.BufferName}(long length) {
+    /**
+	 * Write a buffer of ${prim.Name} values of the specified length to the pointed memory location shifted by a byte offset, reading values at the given buffer offset and for the given length from the provided buffer.
+	 */
+    public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.BufferName} values, long valuesOffset, long length) {
+        if (values.isDirect()) {
+            long len = length * ${prim.Size}, off = valuesOffset * ${prim.Size};
+            long cap = JNI.getDirectBufferCapacity(values);
+            if (cap < off + len)
+                throw new IndexOutOfBoundsException("The provided buffer has a capacity (" + cap + " bytes) smaller than the requested write operation (" + len + " bytes starting at byte offset " + off + ")");
+            
+			JNI.memcpy(getCheckedPeer(byteOffset, ${prim.Size} * length), JNI.getDirectBufferAddress(values) + off, len);
+        } else if (values.isReadOnly()) {
+            get${prim.BufferName}(byteOffset, length).put(values.duplicate());
+        } else {
+            set${prim.CapName}s(byteOffset, values.array(), (int)(values.arrayOffset() + valuesOffset), (int)length);
+        }
+        return this;
+    }
+    
+	/**
+	 * Read a buffer of ${prim.Name} values of the specified length from the pointed memory location 
+	 */
+    public ${prim.BufferName} get${prim.BufferName}(long length) {
 		return get${prim.BufferName}(0, length);
 	}
+	
+	/**
+	 * Read a buffer of ${prim.Name} values of the specified length from the pointed memory location shifted by a byte offset
+	 */
+    public ${prim.BufferName} get${prim.BufferName}(long byteOffset, long length) {
+        long blen = ${prim.Size} * length;
+        ByteBuffer buffer = JNI.newDirectByteBuffer(getCheckedPeer(byteOffset, blen), blen);
+		buffer.order(order());
+        #if ($prim.Name == "byte")
+        return buffer;
+        #else
+        return buffer.as${prim.BufferName}();
+        #end
+    }
     
+    
+	/**
+	 * Read a ${prim.Name} value from the pointed memory location
+	 */
     public ${prim.Name} get${prim.CapName}() {
 		return get${prim.CapName}(0);
 	}
+	
+    /**
+	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
+	 */
+    public ${prim.Name} get${prim.CapName}(long byteOffset) {
+        #if ($prim.Name != "byte")
+        if (isOrdered())
+        	return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
+        else
+        	return JNI.get_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}));
+        #else
+        return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
+        #end
+        	
+    }
 
+    /**
+	 * Read an array of ${prim.Name} values of the specified length from the pointed memory location
+	 */
     public ${prim.Name}[] get${prim.CapName}s(int length) {
-    	return get${prim.CapName}s(length);
+    	return get${prim.CapName}s(0, length);
+    }
+    
+    /**
+	 * Read an array of ${prim.Name} values of the specified length from the pointed memory location shifted by a byte offset
+	 */
+    public ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length) {
+        #if ($prim.Name != "byte")
+        if (isOrdered())
+        	return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
+        else
+        	return JNI.get_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
+        #else
+        return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
+        #end
+        	
     }
     
 #end
@@ -1180,71 +1368,6 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	public String getCString(long byteOffset) {
         return getCString(byteOffset, false);
     }
-
-    
-    
-    
-
-#foreach ($prim in $primitivesNoBool)
-    
-    public Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value) {
-        if (isOrdered())
-        	JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value);
-        else
-        	JNI.set_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}), value);
-        return this;
-    }
-
-    public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length) {
-        if (isOrdered())
-        	JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
-        else
-        	JNI.set_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
-        return this;
-    }
-
-    public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.BufferName} values, long valuesOffset, long length) {
-        if (values.isDirect()) {
-            long len = length * ${prim.Size}, off = valuesOffset * ${prim.Size};
-            long cap = JNI.getDirectBufferCapacity(values);
-            if (cap < off + len)
-                throw new IndexOutOfBoundsException("The provided buffer has a capacity (" + cap + " bytes) smaller than the requested write operation (" + len + " bytes starting at byte offset " + off + ")");
-            
-			JNI.memcpy(getCheckedPeer(byteOffset, ${prim.Size} * length), JNI.getDirectBufferAddress(values) + off, len);
-        } else if (values.isReadOnly()) {
-            get${prim.BufferName}(byteOffset, length).put(values.duplicate());
-        } else {
-            set${prim.CapName}s(byteOffset, values.array(), (int)(values.arrayOffset() + valuesOffset), (int)length);
-        }
-        return this;
-    }
-
-    public ${prim.BufferName} get${prim.BufferName}(long byteOffset, long length) {
-        long blen = ${prim.Size} * length;
-        ByteBuffer buffer = JNI.newDirectByteBuffer(getCheckedPeer(byteOffset, blen), blen);
-		buffer.order(order());
-        #if ($prim.Name == "byte")
-        return buffer;
-        #else
-        return buffer.as${prim.BufferName}();
-        #end
-    }
-    
-    public ${prim.Name} get${prim.CapName}(long byteOffset) {
-        if (isOrdered())
-        	return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
-        else
-        	return JNI.get_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}));
-    }
-
-    public ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length) {
-        if (isOrdered())
-        	return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
-        else
-        	return JNI.get_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
-    }
-
-#end
 
     protected long strlen(long byteOffset) {
 		return JNI.strlen(getCheckedPeer(byteOffset, 1));

@@ -425,26 +425,10 @@ JNIEXPORT jbyte JNICALL Java_com_bridj_JNI_get_1byte
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_byte_disordered
- * Signature: (J)B
- */
-JNIEXPORT jbyte JNICALL Java_com_bridj_JNI_get_1byte_1disordered
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_byte
  * Signature: (JB)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1byte
-  (JNIEnv *, jclass, jlong, jbyte);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    set_byte_disordered
- * Signature: (JB)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1byte_1disordered
   (JNIEnv *, jclass, jlong, jbyte);
 
 /*
@@ -457,26 +441,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_bridj_JNI_get_1byte_1array
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_byte_array_disordered
- * Signature: (JI)[B
- */
-JNIEXPORT jbyteArray JNICALL Java_com_bridj_JNI_get_1byte_1array_1disordered
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_byte_array
  * Signature: (J[BII)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1byte_1array
-  (JNIEnv *, jclass, jlong, jbyteArray, jint, jint);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    set_byte_array_disordered
- * Signature: (J[BII)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1byte_1array_1disordered
   (JNIEnv *, jclass, jlong, jbyteArray, jint, jint);
 
 /*

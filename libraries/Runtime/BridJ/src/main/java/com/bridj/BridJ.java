@@ -101,7 +101,16 @@ public class BridJ {
 	}
 	
 	/**
-	 * Registers the class of the caller
+	 * Registers the native methods of the caller class and all its inner types.
+	 * <pre>{@code
+	 	@Library("mylib")
+	 	public class MyLib {
+	 		static {
+	 			BridJ.register();
+			}
+			public static native void someFunc();
+		}
+		}</pre>
 	 */
     public static synchronized void register() {
 		StackTraceElement[] stackTrace = new Exception().getStackTrace();
@@ -186,7 +195,19 @@ public class BridJ {
 		return getRuntimeByRuntimeClass(runtimeAnn.value());
     }
 
-	public static BridJRuntime register(Class<?> type) {
+	/**
+	 * Registers the native method of a type (and all its inner types).
+	 * <pre>{@code
+	 	@Library("mylib")
+	 	public class MyLib {
+	 		static {
+	 			BridJ.register(MyLib.class);
+			}
+			public static native void someFunc();
+		}
+		}</pre>
+	 */
+    public static BridJRuntime register(Class<?> type) {
 		BridJRuntime runtime = registeredTypes.get(type);
 		if (runtime == null)
 			runtime = getRuntime(type, false);
@@ -282,6 +303,9 @@ public class BridJ {
         return paths;
     }
 
+    /**
+     * Given a library name (e.g. "test"), finds the shared library file in the system-specific path ("/usr/bin/libtest.so", "./libtest.dylib", "c:\\windows\\system\\test.dll"...)
+	 */
     public static File getNativeLibraryFile(String name) {
         if (name == null)
             return null;
@@ -335,6 +359,9 @@ public class BridJ {
         	return null;
         }
     }
+    /**
+     * Loads the library with the name provided in argument (see {@link #getNativeLibraryFile(String)})
+	 */
     public static synchronized NativeLibrary getNativeLibrary(String name) throws FileNotFoundException {
         if (name == null)
             return null;
@@ -349,6 +376,9 @@ public class BridJ {
         
         return getNativeLibrary(name, f);
     }
+    /**
+     * Loads the shared library file under the provided name. Any subsequent call to {@link #getNativeLibrary(String)} will return this library.
+	 */
     public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
 		NativeLibrary ll = NativeLibrary.load(f.toString());
         if (ll == null)
@@ -356,6 +386,9 @@ public class BridJ {
         libHandles.put(name, ll);
         return ll;
     }
+    /**
+     * Gets the name of the library declared for an annotated element. Recurses up to parents of the element (class, enclosing classes) to find any {@link com.bridj.ann.Library} annotation.
+	 */
     public static String getNativeLibraryName(AnnotatedElement m) {
         Library lib = getAnnotation(Library.class, true, m);
         return lib == null ? null : lib.value(); // TODO use package as last resort
