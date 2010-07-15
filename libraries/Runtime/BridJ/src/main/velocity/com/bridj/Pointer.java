@@ -71,12 +71,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	
 	private final PointerIO<T> io;
 	private final long peer, offsetInParent;
-	private Pointer<?> parent;
-	private Pointer<?> sibling;
+	private final Pointer<?> parent;
+	private final Object sibling;
 	private final long validStart, validEnd;
 	private final boolean ordered;
 
-	private Releaser releaser;
+	private volatile Releaser releaser;
 	interface Releaser {
 		void release(Pointer<?> p);
 	}
@@ -84,7 +84,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	Pointer(PointerIO<T> io, long peer) {
 		this(io, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, 0, null, null);
 	}
-	Pointer(PointerIO<T> io, long peer, boolean ordered, long validStart, long validEnd, Pointer<?> parent, long offsetInParent, Pointer<?> sibling, Releaser releaser) {
+	Pointer(PointerIO<T> io, long peer, boolean ordered, long validStart, long validEnd, Pointer<?> parent, long offsetInParent, Object sibling, Releaser releaser) {
 		this.io = io;
 		this.peer = peer;
 		this.ordered = ordered;
@@ -96,7 +96,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		this.releaser = releaser;
 		assert !(sibling != null && releaser != null); // Pointer with both a sibling and a releaser !
 	}
-	public void release() {
+	public synchronized void release() {
 		if (releaser != null) {
 			releaser.release(this);
 			releaser = null;
@@ -237,7 +237,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     protected final Pointer<?> getParent() {
 		return parent;
 	}
-    protected final Pointer<?> getSibling() {
+    protected final Object getSibling() {
 		return sibling;
 	}
     
@@ -871,7 +871,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
 	
 	/**
-     * TODO preserve owner !
+     * Create a pointer to the memory location used by a direct NIO ${prim.BufferName}}.<br/>
+     * The returned pointer (and its subsequent clones returned by {@link #clone()}, {@link #offset(long)} or {@link #next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
+     * @throws UnsupportedOperationException if the buffer is not direct
      */
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.BufferName} buffer) {
         if (buffer == null)
@@ -886,7 +888,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			return null;
 		
 		PointerIO<${prim.WrapperName}> io = CommonPointerIOs.${prim.Name}IO;
-		return pointerToAddress(address, size, io);
+		
+		return new Pointer<${prim.WrapperName}>(io, address, buffer.order().equals(ByteOrder.nativeOrder()), address, address + size, null, -1, buffer, null);
+		//return pointerToAddress(address, size, io);
     }
 	
     /**
