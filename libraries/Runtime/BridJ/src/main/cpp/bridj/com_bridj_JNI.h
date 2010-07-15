@@ -553,26 +553,10 @@ JNIEXPORT jfloat JNICALL Java_com_bridj_JNI_get_1float
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_float_disordered
- * Signature: (J)F
- */
-JNIEXPORT jfloat JNICALL Java_com_bridj_JNI_get_1float_1disordered
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_float
  * Signature: (JF)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1float
-  (JNIEnv *, jclass, jlong, jfloat);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    set_float_disordered
- * Signature: (JF)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1float_1disordered
   (JNIEnv *, jclass, jlong, jfloat);
 
 /*
@@ -585,26 +569,10 @@ JNIEXPORT jfloatArray JNICALL Java_com_bridj_JNI_get_1float_1array
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_float_array_disordered
- * Signature: (JI)[F
- */
-JNIEXPORT jfloatArray JNICALL Java_com_bridj_JNI_get_1float_1array_1disordered
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_float_array
  * Signature: (J[FII)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1float_1array
-  (JNIEnv *, jclass, jlong, jfloatArray, jint, jint);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    set_float_array_disordered
- * Signature: (J[FII)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1float_1array_1disordered
   (JNIEnv *, jclass, jlong, jfloatArray, jint, jint);
 
 /*
@@ -633,26 +601,10 @@ JNIEXPORT jdouble JNICALL Java_com_bridj_JNI_get_1double
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_double_disordered
- * Signature: (J)D
- */
-JNIEXPORT jdouble JNICALL Java_com_bridj_JNI_get_1double_1disordered
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_double
  * Signature: (JD)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1double
-  (JNIEnv *, jclass, jlong, jdouble);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    set_double_disordered
- * Signature: (JD)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1double_1disordered
   (JNIEnv *, jclass, jlong, jdouble);
 
 /*
@@ -665,26 +617,10 @@ JNIEXPORT jdoubleArray JNICALL Java_com_bridj_JNI_get_1double_1array
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_double_array_disordered
- * Signature: (JI)[D
- */
-JNIEXPORT jdoubleArray JNICALL Java_com_bridj_JNI_get_1double_1array_1disordered
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_double_array
  * Signature: (J[DII)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1double_1array
-  (JNIEnv *, jclass, jlong, jdoubleArray, jint, jint);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    set_double_array_disordered
- * Signature: (J[DII)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1double_1array_1disordered
   (JNIEnv *, jclass, jlong, jdoubleArray, jint, jint);
 
 /*

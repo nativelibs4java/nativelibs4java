@@ -119,8 +119,10 @@ public class PointerTest {
 			p.set(2, (${prim.Name})3);
 			assertEquals((${prim.Name})3, p.get(2), 0);
 			
-			p.set${prim.CapName}s(1, new ${prim.Name}[] { (${prim.Name})5, (${prim.Name})6 });
-			${prim.Name}[] a = p.get${prim.CapName}s(1, 2);
+			p.set${prim.CapName}s(${prim.Size}, new ${prim.Name}[] { (${prim.Name})5, (${prim.Name})6 });
+			assertEquals((${prim.Name})5, p.get(1), 0);
+			assertEquals((${prim.Name})6, p.get(2), 0);
+			${prim.Name}[] a = p.get${prim.CapName}s(${prim.Size}, 2);
 			assertEquals(2, a.length);
 			assertEquals((${prim.Name})5, a[0], 0);
 			assertEquals((${prim.Name})6, a[1], 0);

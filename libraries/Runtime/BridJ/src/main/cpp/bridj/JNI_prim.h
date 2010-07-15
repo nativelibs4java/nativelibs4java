@@ -112,8 +112,8 @@ jprimArray JNICALL CONCAT_3(Java_com_bridj_JNI_get_1, primName, _1array_1disorde
 	BEGIN_TRY();
 	array = (jprimArray)JLONG_TO_PTR((*env)->CONCAT_3(New, primJNICapName, Array)(env, length));
 	nativeArray = (jprimName*)((char*)JLONG_TO_PTR(peer));
-	for (i; i < length; i++) {
-		tempVal = REORDER_VALUE_BYTES(nativeArray[i]);
+	for (i = 0; i < length; i++) {
+		tempVal = REORDER_VALUE_BYTES(&nativeArray[i]);
 		(*env)->CONCAT_3(Set, primJNICapName, ArrayRegion)(env, array, i, 1, &tempVal);
 	}
 	return array;
@@ -125,9 +125,9 @@ void JNICALL CONCAT_3(Java_com_bridj_JNI_set_1, primName, _1array_1disordered)(J
 	jprimName tempVal;
 	BEGIN_TRY();
 	nativeArray = (jprimName*)((char*)JLONG_TO_PTR(peer));
-	for (i; i < length; i++) {
-		tempVal = REORDER_VALUE_BYTES(nativeArray[i]);
-		(*env)->CONCAT_3(Set, primJNICapName, ArrayRegion)(env, values, i, 1, &tempVal);
+	for (i = 0; i < length; i++) {
+		(*env)->CONCAT_3(Get, primJNICapName, ArrayRegion)(env, values, valuesOffset + i, 1, &tempVal);
+		nativeArray[i] = REORDER_VALUE_BYTES(&tempVal);
 	}
 	END_TRY(env);
 }

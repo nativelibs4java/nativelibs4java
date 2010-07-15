@@ -1153,7 +1153,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
 	 */
     public Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value) {
-    	#if ($prim.Name != "byte")
+    	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
         if (isOrdered())
         	JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value);
         else
@@ -1183,7 +1183,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Write an array of ${prim.Name} values of the specified length to the pointed memory location shifted by a byte offset, reading values at the given array offset and for the given length from the provided array.
 	 */
     public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length) {
-        #if ($prim.Name != "byte")
+        #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
         if (isOrdered())
         	JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
         else
@@ -1254,7 +1254,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
 	 */
     public ${prim.Name} get${prim.CapName}(long byteOffset) {
-        #if ($prim.Name != "byte")
+        #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
         if (isOrdered())
         	return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
         else
@@ -1276,7 +1276,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Read an array of ${prim.Name} values of the specified length from the pointed memory location shifted by a byte offset
 	 */
     public ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length) {
-        #if ($prim.Name != "byte")
+        #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
         if (isOrdered())
         	return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
         else

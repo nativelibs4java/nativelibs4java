@@ -148,25 +148,25 @@ public class JNI {
 
     @Deprecated
     protected static native ${prim.Name} get_${prim.Name}(long peer);
-    #if ($prim.Name != "byte")
+    #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
 	@Deprecated
     protected static native ${prim.Name} get_${prim.Name}_disordered(long peer);
     #end
     @Deprecated
     protected static native void set_${prim.Name}(long peer, ${prim.Name} value);
-	#if ($prim.Name != "byte")
+	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
 	@Deprecated
     protected static native void set_${prim.Name}_disordered(long peer, ${prim.Name} value);
     #end
     @Deprecated
     protected static native ${prim.Name}[] get_${prim.Name}_array(long peer, int length);
-    #if ($prim.Name != "byte")
+    #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
 	@Deprecated
     protected static native ${prim.Name}[] get_${prim.Name}_array_disordered(long peer, int length);
     #end
     @Deprecated
     protected static native void set_${prim.Name}_array(long peer, ${prim.Name}[] values, int valuesOffset, int length);
-	#if ($prim.Name != "byte")
+	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
 	@Deprecated
     protected static native void set_${prim.Name}_array_disordered(long peer, ${prim.Name}[] values, int valuesOffset, int length);
     #end
