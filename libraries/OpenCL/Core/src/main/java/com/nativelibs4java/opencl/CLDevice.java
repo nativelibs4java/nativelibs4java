@@ -831,7 +831,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     public boolean isDoubleSupported() {
-        return hasExtension("cl_khr_fp64");
+        return hasExtension("cl_khr_fp64") || hasExtension("cl_amd_fp64");
     }
 
     public boolean isHalfSupported() {

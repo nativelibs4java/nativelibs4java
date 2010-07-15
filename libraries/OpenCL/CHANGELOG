@@ -24,6 +24,7 @@ out).
 	- CLKernel.enqueueNDRange overload with potentially non-null globalOffsets
 	- CLImageFormat.ChannelOrder.Rx, RGx, RGBx
 - Faster enums
+- Check for cl_amd_fp64 in CLDevice.isDoubleSupported()
 
 Version 1.0-beta-4 (r760, 20100121)
 
