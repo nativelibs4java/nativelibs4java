@@ -64,8 +64,20 @@ public class JAWTUtils {
 				try {
                     Pointer<com.bridj.jawt.JAWT_DrawingSurfaceInfo > pInfo = surface.GetDrawingSurfaceInfo().get().invoke(pSurface);
 					Pointer<?> platformInfo = pInfo.get().platformInfo();
-					if (JNI.isWindows())
+                    return platformInfo.getSizeT(); // on win, mac, x11 platforms, the relevant field is the first in the struct !
+					/*if (JNI.isWindows())
 					{
+                        @Library("jawt") 
+                        public static class JAWT_Win32DrawingSurfaceInfo extends StructObject {
+                            public JAWT_Win32DrawingSurfaceInfo() {
+                                super();
+                            }
+                            public JAWT_Win32DrawingSurfaceInfo(Pointer pointer) {
+                                super(pointer);
+                            }
+                            @Field(0)
+                            public static native Pointer<?> hwnd();
+                        }
 						JAWT_Win32DrawingSurfaceInfo wdsi = new JAWT_Win32DrawingSurfaceInfo(platformInfo);
 						return wdsi.hwnd().getPeer();
 					} else if (JNI.isMacOSX())
@@ -77,7 +89,7 @@ public class JAWTUtils {
 						return 0;//JAWT_X11DrawingSurfaceInfo xdsi = new JAWT_X11DrawingSurfaceInfo(platformInfo);	
 						//return xdsi.drawable();
 					} else 
-						throw new UnsupportedOperationException("Native peer can only be fetched on Windows, MacOS X and X11-powered platforms");
+						throw new UnsupportedOperationException("Native peer can only be fetched on Windows, MacOS X and X11-powered platforms");*/
 				} finally {
 					surface.Unlock().get().invoke(pSurface);
 				}
@@ -90,18 +102,4 @@ public class JAWTUtils {
 		}
 	}
     
-    /**
-     * THIS CLASS IS PARTIAL !!!
-     */
-    @Library("jawt") 
-    public static class JAWT_Win32DrawingSurfaceInfo extends StructObject {
-        public JAWT_Win32DrawingSurfaceInfo() {
-            super();
-        }
-        public JAWT_Win32DrawingSurfaceInfo(Pointer pointer) {
-            super(pointer);
-        }
-        @Field(0)
-        public static native Pointer<?> hwnd();
-    }
 }

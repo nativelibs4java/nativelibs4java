@@ -44,22 +44,22 @@ public class JAWT extends StructObject {
     public native Pointer<GetComponent_callback> GetComponent();
     
 	public static abstract class GetDrawingSurface_callback extends Callback {
-		public native Pointer<com.bridj.jawt.JAWT_DrawingSurface > invoke(Pointer<JNIEnv > env, Pointer<? > target);
+		public abstract Pointer<com.bridj.jawt.JAWT_DrawingSurface > invoke(Pointer<JNIEnv > env, Pointer<? > target);
 	};
 	/// <i>native declaration : jawt.h:236</i>
 	public static abstract class FreeDrawingSurface_callback extends Callback {
-		public native void invoke(Pointer<com.bridj.jawt.JAWT_DrawingSurface > ds);
+		public abstract void invoke(Pointer<com.bridj.jawt.JAWT_DrawingSurface > ds);
 	};
 	/// <i>native declaration : jawt.h:242</i>
 	public static abstract class Lock_callback extends Callback {
-		public native void invoke(Pointer<JNIEnv > env);
+		public abstract void invoke(Pointer<JNIEnv > env);
 	};
 	/// <i>native declaration : jawt.h:247</i>
 	public static abstract class Unlock_callback extends Callback {
-		public native void invoke(Pointer<JNIEnv > env);
+		public abstract void invoke(Pointer<JNIEnv > env);
 	};
 	/// <i>native declaration : jawt.h:259</i>
 	public static abstract class GetComponent_callback extends Callback {
-		public native Pointer<? > invoke(Pointer<JNIEnv > env, Pointer<? > platformInfo);
+		public abstract Pointer<? > invoke(Pointer<JNIEnv > env, Pointer<? > platformInfo);
 	};
 }

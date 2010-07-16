@@ -64,18 +64,18 @@ public class JAWT_DrawingSurface extends StructObject {
 	/// Conversion Error : Unlock_callback (Unsupported type)
 	/// <i>native declaration : jawt.h:187</i>
 	public static abstract class Lock_callback extends Callback {
-		public native int invoke(Pointer<JAWT_DrawingSurface > ds);
+		public abstract int invoke(Pointer<JAWT_DrawingSurface > ds);
 	};
 	/// <i>native declaration : jawt.h:198</i>
 	public static abstract class GetDrawingSurfaceInfo_callback extends Callback {
-		public native Pointer<com.bridj.jawt.JAWT_DrawingSurfaceInfo > invoke(Pointer<JAWT_DrawingSurface > ds);
+		public abstract Pointer<com.bridj.jawt.JAWT_DrawingSurfaceInfo > invoke(Pointer<JAWT_DrawingSurface > ds);
 	};
 	/// <i>native declaration : jawt.h:203</i>
 	public static abstract class FreeDrawingSurfaceInfo_callback extends Callback {
-		public native void invoke(Pointer<com.bridj.jawt.JAWT_DrawingSurfaceInfo > dsi);
+		public abstract void invoke(Pointer<com.bridj.jawt.JAWT_DrawingSurfaceInfo > dsi);
 	};
 	/// <i>native declaration : jawt.h:208</i>
 	public static abstract class Unlock_callback extends Callback {
-		public native void invoke(Pointer<JAWT_DrawingSurface > ds);
+		public abstract void invoke(Pointer<JAWT_DrawingSurface > ds);
 	};
 }

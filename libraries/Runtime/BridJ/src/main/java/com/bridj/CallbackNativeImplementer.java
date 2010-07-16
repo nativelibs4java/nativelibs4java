@@ -60,8 +60,8 @@ public class CallbackNativeImplementer extends ClassLoader implements Opcodes {
 				//NativeEntities.Builder builder = new NativeEntities.Builder();
 				//builder.addJavaToNativeCallback(mci);
 				//nativeEntities.addDefinitions(callbackType, builder);
-				runtime.register(callbackImplType);
                 implClasses.put(callbackType, callbackImplType);
+				runtime.register(callbackImplType);
 			} catch (Exception ex) {
 				throw new RuntimeException("Failed to create implementation class for callback type " + callbackType.getName(), ex);
 			}
