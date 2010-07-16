@@ -163,7 +163,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		for (int i = 0; i < n; i++) {
 			ptrs.set(i, binMems[i] = allocateBytes(sizes[i]));
 		}
-		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, ptrs.getRemainingElements(), ptrs, null));
+		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, ptrs.getRemainingBytes(), ptrs, null));
 
 		Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>(devices.length);
         for (int i = 0; i < n; i++) {
