@@ -21,15 +21,15 @@
 
 __kernel void reduce(                  
    __global const OPERAND_TYPE* input,
-   size_t dataLength,
-   size_t blockLength,
+   long dataLength,
+   long blockLength,
    __global OUTPUT_TYPE* output)            
 {
-	size_t globalId = get_global_id(0);
-	size_t block = globalId / blockLength;
+	long globalId = get_global_id(0);
+	long block = globalId / blockLength;
 	
-	size_t inputStart = block * blockLength;
-	size_t inputEnd = min(inputStart + blockLength, dataLength);
+	long inputStart = block * blockLength;
+	long inputEnd = min(inputStart + blockLength, dataLength);
 	
 	OUTPUT_TYPE total = (OUTPUT_TYPE)SEED;
 	for (int inputOffset = inputStart; inputOffset < inputEnd; inputOffset++)

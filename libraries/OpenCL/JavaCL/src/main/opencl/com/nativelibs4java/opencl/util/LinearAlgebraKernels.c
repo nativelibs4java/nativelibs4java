@@ -1,8 +1,8 @@
 #pragma OPENCL EXTENSION cl_khr_fp64: enable
 
 __kernel void mulMat(
-   __global const double* a, /*size_t aRows,*/ size_t aColumns,
-   __global const double* b, /*size_t bRows,*/ size_t bColumns,
+   __global const double* a, /*size_t aRows,*/ long aColumns,
+   __global const double* b, /*size_t bRows,*/ long bColumns,
    __global double* c
 ) {
     size_t i = get_global_id(0);
@@ -19,8 +19,8 @@ __kernel void mulMat(
 }
 
 __kernel void mulVec(
-   __global const double* a, /*size_t aRows,*/ size_t aColumns,
-   __global const double* b, size_t bSize,
+   __global const double* a, /*size_t aRows,*/ long aColumns,
+   __global const double* b, long bSize,
    __global double* c
 ) {
     size_t globalId = get_global_id(0);
@@ -35,7 +35,7 @@ __kernel void mulVec(
 }
 
 __kernel void transpose(
-    __global const double* a, size_t aRows, size_t aColumns,
+    __global const double* a, long aRows, long aColumns,
     __global double* out
 ) {
     size_t i = get_global_id(0);
