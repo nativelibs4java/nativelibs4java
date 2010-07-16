@@ -78,6 +78,8 @@ public class JOGLTest {
                         
 						gl.glGenTextures(1, Texture, 0);
 						gl.glBindTexture(GL2.GL_TEXTURE_2D, Texture[0]);
+                        
+                        gl.glBindBuffer(GL2.GL_PIXEL_UNPACK_BUFFER, Texture[0]);
 						int width = 2, height = 2, border = 0;
 						gl.glTexImage2D (
 							GL2.GL_TEXTURE_2D,

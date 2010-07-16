@@ -217,7 +217,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
     @Deprecated
     public CLDevice guessCurrentGLDevice() {
-        long[] props = CLPlatform.getContextProps(CLPlatform.getGLContextProperties());
+        long[] props = CLPlatform.getContextProps(CLPlatform.getGLContextProperties(getPlatform()));
         Memory propsMem = toNSArray(props);
         NativeSizeByReference propsRef = new NativeSizeByReference();
         propsRef.setPointer(propsMem);

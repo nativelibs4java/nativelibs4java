@@ -25,6 +25,8 @@ out).
 	- CLImageFormat.ChannelOrder.Rx, RGx, RGBx
 - Faster enums
 - Check for cl_amd_fp64 in CLDevice.isDoubleSupported()
+- Fixed CLProgram.getBinaries()
+- 
 
 Version 1.0-beta-4 (r760, 20100121)
 
