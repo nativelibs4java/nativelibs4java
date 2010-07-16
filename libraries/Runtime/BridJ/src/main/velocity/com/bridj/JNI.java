@@ -100,6 +100,7 @@ public class JNI {
         try {
 	        File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
 	        //File libFile = BridJ.getNativeLibraryFile(BridJLibraryName);
+			System.out.println("Loading library " + libFile);
 	        System.load(libFile.toString());
 	        //System.load("/Users/ochafik/nativelibs4java/Runtime/BridJ/src/main/cpp/bridj/build_out/darwin_universal_gcc_debug/libbridj.dylib");
 	        
