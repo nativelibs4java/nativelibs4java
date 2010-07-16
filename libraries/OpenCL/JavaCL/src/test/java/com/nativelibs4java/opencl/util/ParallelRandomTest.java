@@ -11,7 +11,7 @@ import org.junit.Test;
  * @author ochafik
  */
 public class ParallelRandomTest {
-	int nPoints = 1024 * 128;
+	int nPoints = 1024 * 1024;
 	int nLoops = 10;
 	long seed = 1;
 
