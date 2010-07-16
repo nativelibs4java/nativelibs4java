@@ -188,6 +188,32 @@ void JNICALL Java_com_bridj_JNI_init(JNIEnv *env, jclass clazz)
 	//TESTOBJC();
 }
 
+
+jlong JNICALL Java_com_bridj_JNI_getEnv(JNIEnv *env, jclass clazz)
+{
+	return PTR_TO_JLONG(env);
+}
+
+jlong JNICALL Java_com_bridj_JNI_newGlobalRef(JNIEnv *env, jclass clazz, jobject obj)
+{
+	return obj ? PTR_TO_JLONG((*env)->NewGlobalRef(env, obj)) : 0;
+}
+
+void JNICALL Java_com_bridj_JNI_deleteGlobalRef(JNIEnv *env, jclass clazz, jlong ref)
+{
+	if (ref)
+		(*env)->DeleteGlobalRef(env, (jobject)JLONG_TO_PTR(ref));
+}
+jlong JNICALL Java_com_bridj_JNI_newWeakGlobalRef(JNIEnv *env, jclass clazz, jobject obj)
+{
+	return obj ? PTR_TO_JLONG((*env)->NewWeakGlobalRef(env, obj)) : 0;
+}
+
+void JNICALL Java_com_bridj_JNI_deleteWeakGlobalRef(JNIEnv *env, jclass clazz, jlong ref)
+{
+	if (ref)
+		(*env)->DeleteWeakGlobalRef(env, (jobject)JLONG_TO_PTR(ref));
+}
 void JNICALL Java_com_bridj_JNI_callDefaultCPPConstructor(JNIEnv *env, jclass clazz, jlong constructor, jlong thisPtr, jint callMode)
 {
 	callDefaultConstructor(env, JLONG_TO_PTR(constructor), JLONG_TO_PTR(thisPtr), callMode);

@@ -46,6 +46,17 @@
 
   <build>
   	<plugins>
+  		
+		<plugin>
+			<groupId>com.jnaerator</groupId>
+			<artifactId>maven-jnaerator-plugin</artifactId>
+			<version>${jnaerator.version}</version>
+			<configuration>
+				<javaOutputDirectory>src/main/java</javaOutputDirectory>
+				<scalaOutputDirectory>src/main/scala</scalaOutputDirectory>
+			</configuration>
+		</plugin>
+		
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>

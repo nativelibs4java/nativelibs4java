@@ -197,7 +197,7 @@ public class MethodCallInfo {
         if (c == Byte.class || c == Byte.TYPE)
             return ValueType.eByteValue;
         if (c == Boolean.class || c == Boolean.TYPE)
-            return ValueType.eByteValue;
+            return ValueType.eBooleanValue;
         if (c == Float.class || c == Float.TYPE) {
             usesFloats();
             return ValueType.eFloatValue;
@@ -211,8 +211,6 @@ public class MethodCallInfo {
             usesFloats();
             return ValueType.eDoubleValue;
         }
-        if (c == Boolean.class || c == Boolean.TYPE)
-            return ValueType.eByteValue;
         if (Pointer.class.isAssignableFrom(c)) {
             direct = false;
             addCallIO(CallIO.Utils.createPointerCallIO(c, t));

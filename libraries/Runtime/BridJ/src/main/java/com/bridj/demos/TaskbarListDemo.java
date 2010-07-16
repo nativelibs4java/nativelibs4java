@@ -11,6 +11,7 @@ import com.bridj.cpp.com.COMRuntime;
 import com.bridj.cpp.com.IUnknown;
 import com.bridj.cpp.com.shell.IShellWindows;
 import com.bridj.cpp.com.shell.ITaskbarList3;
+import com.bridj.jawt.JAWTUtils;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Box;
@@ -69,7 +70,7 @@ public class TaskbarListDemo extends JFrame implements ActionListener, ChangeLis
     public void setVisible(boolean visible) {
         super.setVisible(visible);
 
-        long hwndVal = 0;//TODO com.sun.jna.Native.getComponentID(this);
+        long hwndVal = JAWTUtils.getNativePeerHandle(this);//TODO com.sun.jna.Native.getComponentID(this);
         hwnd = Pointer.pointerToAddress(hwndVal);
         list.SetProgressValue((Pointer)hwnd, slider.getValue(), slider.getMaximum());
         

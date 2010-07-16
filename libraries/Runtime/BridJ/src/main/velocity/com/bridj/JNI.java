@@ -122,6 +122,8 @@ public class JNI {
     public static native int sizeOf_ptrdiff_t();
 	public static native int sizeOf_long();
 
+    @Deprecated
+    public static native long getEnv();
     public static native long loadLibrary(String path);
     public static native void freeLibrary(long libHandle);
     public static native long loadLibrarySymbols(long libHandle);

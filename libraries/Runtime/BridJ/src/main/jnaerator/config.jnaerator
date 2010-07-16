@@ -1,0 +1,16 @@
+-runtime BridJ
+-library jawt
+-noJar 
+-noComp
+-nocpp
+-DJNICALL=
+-Djboolean=bool
+-Djint=int
+-Djobject=void*
+"-Djlong=long long"
+-package com.bridj.jawt
+"-I$(JAVA_HOME)\include"
+"-I$(JAVA_HOME)\include\win32"
+"$(JAVA_HOME)\include\jawt.h"
+"$(JAVA_HOME)\include\win32\jawt_md.h"
+//-o "$(DIR)/../../../target/generated-sources/java"
