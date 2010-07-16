@@ -33,7 +33,6 @@ import com.ochafik.util.listenable.Pair;
 import com.bridj.JNI;
 import com.bridj.Pointer;
 import static com.bridj.Pointer.*;
-import static com.bridj.Pointer.*;
 
 
 /**
