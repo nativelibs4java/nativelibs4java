@@ -49,7 +49,7 @@ public class MFCRuntime extends CPPRuntime {
 	}
 	
 	private Class<?> getMFCClass(Pointer<Byte> mLpszClassName) throws ClassNotFoundException {
-		throw new ClassNotFoundException(mLpszClassName.getString(0));
+		throw new ClassNotFoundException(mLpszClassName.getCString(0));
 	}
 
 	public void getExtraFieldsOfNewClass(Class<?> type, Map<String, Type> out) {
@@ -62,7 +62,7 @@ public class MFCRuntime extends CPPRuntime {
 	
 	public void getOverriddenVirtualMethods(Map<String, Pointer<?>> out) {
 		//super.getVirtualMethodBindings(out);
-		out.put("mfcGetMessageMap", Pointer.getPeer(mfcGetMessageMapCallback));
+		out.put("mfcGetMessageMap", Pointer.getPointer(mfcGetMessageMapCallback));
 	}
 
 	@Override

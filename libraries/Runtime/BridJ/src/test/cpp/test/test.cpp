@@ -1,5 +1,3 @@
-// test.cpp : définit les fonctions exportées pour l'application DLL.
-//
 
 #include "stdafx.h"
 #include "test.h"
@@ -8,10 +6,8 @@
 
 #include <iostream>
 
-// Il s'agit d'un exemple de variable exportée
 TEST_API int ntest=0;
 
-// Il s'agit d'un exemple de fonction exportée.
 TEST_API void __cdecl voidTest()
 {
 	//printf("ok\n");
@@ -224,3 +220,5 @@ TEST_API int forwardCall(fun_iii f, int a, int b) {
 	int res = f(a, b);
 	return res;
 }
+
+#include "../../../../target/generated-sources/test/com/bridj/CallTest.cpp"

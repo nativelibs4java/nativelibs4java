@@ -5,11 +5,10 @@
 
 package com.bridj.cpp.com.shell;
 
-import com.bridj.FlagSet;
+import com.bridj.ValuedEnum;
 import com.bridj.IntValuedEnum;
 import com.bridj.Pointer;
 import com.bridj.StructObject;
-import com.bridj.ValuedEnum;
 import com.bridj.ann.Array;
 import com.bridj.ann.Field;
 import com.bridj.ann.Virtual;
@@ -19,7 +18,7 @@ import com.bridj.cpp.com.IID;
 @IID("EA1AFB91-9E28-4B86-90E9-9E9F8A5EEFAF")
 @CLSID("56FDF344-FD6D-11d0-958A-006097C9A090")
 public class ITaskbarList3 extends ITaskbarList2 {
-	public enum THUMBBUTTONMASK implements IntValuedEnum {
+	public enum THUMBBUTTONMASK implements IntValuedEnum<THUMBBUTTONMASK> {
 		THB_BITMAP(0x00000001),
 		THB_ICON(0x00000002),
 		THB_TOOLTIP(0x00000004),
@@ -34,7 +33,7 @@ public class ITaskbarList3 extends ITaskbarList2 {
 		}
 	}
 	/// http://msdn.microsoft.com/en-us/library/dd562321(VS.85).aspx
-	public enum THUMBBUTTONFLAGS {
+	public enum THUMBBUTTONFLAGS implements IntValuedEnum<THUMBBUTTONFLAGS> {
 		THBF_ENABLED(0x00000000),
 		THBF_DISABLED(0x00000001),
 		THBF_DISMISSONCLICK(0x00000002),
@@ -45,14 +44,15 @@ public class ITaskbarList3 extends ITaskbarList2 {
 			this.value = value;
 		}
 		final int value;
-		public int getValue() {
+        @Override
+		public long value() {
 			return value;
 		}
 	}
 	public static class THUMBBUTTON extends StructObject {
 		@Field(0)
-		public native FlagSet<THUMBBUTTONMASK> dwMask();
-		public native void dwMask(FlagSet<THUMBBUTTONMASK> dwMask);
+		public native ValuedEnum<THUMBBUTTONMASK> dwMask();
+		public native void dwMask(ValuedEnum<THUMBBUTTONMASK> dwMask);
 		@Field(1)
 		public native int iId();
 		public native void iId(int iId);
@@ -66,12 +66,12 @@ public class ITaskbarList3 extends ITaskbarList2 {
 		public native Pointer<Character> szTip();
 		public native void szTip(Pointer<Character> szTip);
 		@Field(5)
-		public native FlagSet<THUMBBUTTONFLAGS> dwFlags();
-		public native void dwFlags(FlagSet<THUMBBUTTONFLAGS> dwFlags);
+		public native ValuedEnum<THUMBBUTTONFLAGS> dwFlags();
+		public native void dwFlags(ValuedEnum<THUMBBUTTONFLAGS> dwFlags);
 	}
 	@Virtual(0) public native int SetProgressValue(Pointer<Integer> hWnd, int Completed, int Total);
 
-    public enum TbpFlag implements IntValuedEnum  {
+    public enum TbpFlag implements IntValuedEnum<TbpFlag>  {
         TBPF_NOPROGRESS(0),
         TBPF_INDETERMINATE(1),
         TBPF_NORMAL(2),
@@ -89,7 +89,7 @@ public class ITaskbarList3 extends ITaskbarList2 {
     }
 
 
-	//@Virtual(1) public native int SetProgressState(Pointer<Integer> hWnd, FlagSet<TbpFlag> Flags);
+	//@Virtual(1) public native int SetProgressState(Pointer<Integer> hWnd, ValuedEnum<TbpFlag> Flags);
 	@Virtual(1) public native int SetProgressState(Pointer<Integer> hWnd, ValuedEnum<TbpFlag> Flags);
     
 	@Virtual(2) public native void RegisterTab(Pointer<Integer> hWndTab, Pointer<Integer> hWndMDI);

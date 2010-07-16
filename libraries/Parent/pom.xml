@@ -1,20 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <groupId>com.nativelibs4java</groupId>
-    <artifactId>nativelibs4java-parent</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <inceptionYear>2009</inceptionYear>
-    <name>NativeLibs4Java Common Configuration</name>
-    
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.nativelibs4java</groupId>
+	<artifactId>nativelibs4java-parent</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<inceptionYear>2009</inceptionYear>
+	<name>NativeLibs4Java Common Configuration</name>
+	
 	<properties>
+		<scala.version>2.8.0</scala.version>
+		<rococoa.version>0.5</rococoa.version>
 		<jnaerator.version>0.9.4-SNAPSHOT</jnaerator.version>
 		<nativelibs4java.version>1.0-SNAPSHOT</nativelibs4java.version>
 		<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
 		<nl4j-runtime.version>0.1-SNAPSHOT</nl4j-runtime.version>
 		<jarsigner.skip>true</jarsigner.skip>
+		<junit.version>4.8.1</junit.version>
+		<!--<jna.version>3.2.5-20100310</jna.version>-->
+		<jna.version>3.2.5</jna.version>
+		<maven.compiler.debug>true</maven.compiler.debug>
+		<shadedArtifactAttached>true</shadedArtifactAttached>
 	</properties>
 	
 	<developers>
@@ -24,186 +30,192 @@
 			<email>olivier.chafik@gmail.com</email>
 		</developer>
 	</developers>
-
-	  <description>
+	
+	<description>
 NativeLibs4Java is an umbrella project that gathers ready-to-use Java libraries that wrap various native libraries.
 Most of these wrappers are created automatically by JNAerator.
 	</description>
+
+	<mailingLists>
+		<mailingList>
+			<name>nativelibs4java</name>
+			<post>nativelibs4java@googlegroups.com</post>
+			<archive>http://groups.google.com/group/nativelibs4java/topics</archive>
+		</mailingList>
+	</mailingLists>
+
+	<licenses>
+		<license>
+			<name>LGPL 2.1</name>
+			<url>http://www.gnu.org/copyleft/lesser.html</url>
+			<distribution>repo</distribution>
+			<comments>Covers everything under packages com.ochafik.*</comments>
+		</license>
+
+	</licenses>
   
-  <mailingLists>
-    <mailingList>
-      <name>nativelibs4java</name>
-      <post>nativelibs4java@googlegroups.com</post>
-      <archive>http://groups.google.com/group/nativelibs4java/topics</archive>
-    </mailingList>
-  </mailingLists>
-  
-  <licenses>
-    <license>
-      <name>LGPL 2.1</name>
-      <url>http://www.gnu.org/copyleft/lesser.html</url>
-      <distribution>repo</distribution>
-      <comments>Covers everything under packages com.ochafik.*</comments>
-	</license>
 	
-  </licenses>
+	<dependencies>
+		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.7</version>
+			<scope>test</scope>
+		</dependency>
+	
+	</dependencies>
+	
 	<reporting>
 		<plugins>
 		
-		  <plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-checkstyle-plugin</artifactId>
-			<version>2.3</version>
-		  </plugin>
-		  
-		  <plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>taglist-maven-plugin</artifactId>
-			<version>2.4</version>
-		  </plugin>
-		  
-		  <plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-jxr-plugin</artifactId>
-			<version>2.1</version>
-		  </plugin>
-		
-		  <plugin>
-			<groupId>org.codehaus.mojo</groupId>
-			<artifactId>findbugs-maven-plugin</artifactId>
-			<!--<version>2.0.1</version>-->
-			<version>RELEASE</version>
-			<configuration>
-			 <effort>Max</effort>
-			 <onlyAnalyze>~com\.ochafik\..*</onlyAnalyze>
-			</configuration>
-		  </plugin>
-		  
-		  <plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-javadoc-plugin</artifactId>
-			<version>2.5</version>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.5</version>
 			
-			<configuration>
-				<aggregate>true</aggregate>
-				<minmemory>128m</minmemory>
-				<maxmemory>512</maxmemory>
-				<breakiterator>true</breakiterator>
-				<quiet>true</quiet>
-				<source>1.6</source>
-				<verbose>false</verbose>
-				<linksource>true</linksource>
-				<show>public</show>
-				<links>
-					<link>http://java.sun.com/javase/6/docs/api/</link>
-					<link>https://jna.dev.java.net/javadoc</link>
-					<link>http://jnaerator.sourceforge.net/sites/jnaerator/apidocs</link>
-					<link>http://jnaerator.sourceforge.net/sites/jna-jnaerator/apidocs</link>
-					<link>http://jnaerator.sourceforge.net/sites/jnaerator-runtime/apidocs</link>
+				<configuration>
+					<aggregate>true</aggregate>
+					<minmemory>128m</minmemory>
+					<maxmemory>512</maxmemory>
+					<breakiterator>true</breakiterator>
+					<quiet>true</quiet>
+					<source>1.6</source>
+					<verbose>false</verbose>
+					<linksource>true</linksource>
+					<show>public</show>
+					<links>
+						<link>http://java.sun.com/javase/6/docs/api/</link>
+						<link>https://jna.dev.java.net/javadoc</link>
+						<link>http://jnaerator.sourceforge.net/sites/jnaerator/apidocs</link>
+						<link>http://jnaerator.sourceforge.net/sites/jna-jnaerator/apidocs</link>
+						<link>http://jnaerator.sourceforge.net/sites/jnaerator-runtime/apidocs</link>
 					
-					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/opencl4java/apidocs/</link>
-					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl/apidocs/</link>
-					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-blas/apidocs/</link>
-					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-utils/apidocs/</link>
-					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-demos/apidocs/</link>
-					
-				</links>
-			</configuration>
-		  </plugin>
-	
-		</plugins>
+						<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/opencl4java/apidocs/</link>
+						<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl/apidocs/</link>
+						<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-blas/apidocs/</link>
+						<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-utils/apidocs/</link>
+						<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-demos/apidocs/</link>
+				
+					</links>
+				</configuration>
+			</plugin>
 		
+		</plugins>
+	
 	</reporting>
 	
 	<repositories>
-	
+		
 		<repository>
-		  <id>maven2-repository.dev.java.net</id>
-		  <name>Java.net Repository for Maven</name>
-		  <url>http://download.java.net/maven/2/</url>
+			<id>maven2-repository.dev.java.net</id>
+			<name>Java.net Repository for Maven</name>
+			<url>http://download.java.net/maven/2/</url>
 		</repository>
 		
 		<repository>
-		  <id>nifty-gui.sourceforge.net</id>
-		  <name>Nifty Maven Repository</name>
-		  <url>http://nifty-gui.sourceforge.net/nifty-maven-repo/</url>
+			<id>nifty-gui.sourceforge.net</id>
+			<name>Nifty Maven Repository</name>
+			<url>http://nifty-gui.sourceforge.net/nifty-maven-repo/</url>
 		</repository>
 		
 		<repository>
-		    <id>release.scala-tools.org</id>
-		    <name>Scala-tools Maven2 Repository</name>
-		    <url>http://scala-tools.org/repo-releases</url>
+			<id>release.scala-tools.org</id>
+			<name>Scala-tools Maven2 Repository</name>
+			<url>http://scala-tools.org/repo-releases</url>
 		</repository>
+		
 		<repository>
-                    <id>snapshot.scala-tools.org</id>
-                    <name>Scala-tools Maven2 SNAPSHOT Repository</name>
-                    <url>http://scala-tools.org/repo-snapshots</url>
-                </repository>
+			<id>snapshot.scala-tools.org</id>
+			<name>Scala-tools Maven2 SNAPSHOT Repository</name>
+			<url>http://scala-tools.org/repo-snapshots</url>
+		</repository>
 
-	<!-- TODO JNLP: http://mojo.codehaus.org/webstart/webstart-maven-plugin/jnlp-mojos-overview.html -->
-	
 		<repository>
-		  <id>nativelibs4java</id>
-          <url>http://nativelibs4java.sourceforge.net/maven</url>
-		</repository>
-  
-		<repository>
-		  <id>jnaerator</id>
-		  <url>http://jnaerator.sourceforge.net/maven</url>
+			<id>nativelibs4java</id>
+			<url>http://nativelibs4java.sourceforge.net/maven</url>
 		</repository>
 		
-    </repositories>
+		<!--<repository>
+			<id>nativelibs4java-snapshots</id>
+			<url>http://nativelibs4java.sourceforge.net/mavenSnapshots</url>
+		</repository>-->
+		
+		<repository>
+			<id>jnaerator</id>
+			<url>http://jnaerator.sourceforge.net/maven</url>
+		</repository>
+		
+		<!--<repository>
+			<id>jnaerator-snapshots</id>
+			<url>http://jnaerator.sourceforge.net/mavenSnapshots</url>
+		</repository>-->
+
+	</repositories>
 	
 	<build>
 		<extensions>
-			
-		  <!--extension>
-               <groupId>org.apache.maven.wagon</groupId>
-               <artifactId>wagon-ssh</artifactId>
-               <version>1.0-beta-6</version>
-           </extension-->
-		  <!--
-		  <extension>
-			<groupId>org.jvnet.wagon-svn</groupId>
-			<artifactId>wagon-svn</artifactId>
-			<version>1.8</version>
-		  </extension>
-		  -->
-		  <!--
-		  <extension>
-			 <groupId>org.apache.maven.wagon</groupId>
-			  <artifactId>wagon-http-googlecode</artifactId>
-			  <version>1.0-beta-3</version>
-		  </extension>
-		  -->
-		  
+		
+			<extension>
+				<groupId>org.apache.maven.wagon</groupId>
+				<artifactId>wagon-ssh</artifactId>
+				<version>1.0-beta-6</version>
+			</extension>
+		
 		</extensions>
 		
 		<plugins>
-		  
-			<plugin>  
-			  <groupId>org.apache.maven.plugins</groupId>  
-			  <artifactId>maven-source-plugin</artifactId>  
-			  <executions>  
-				<execution>  
-				  <id>attach-sources</id>  
-				  <goals>  
-					 <goal>jar</goal>  
-				  </goals>  
-				</execution>  
-			  </executions>  
-			</plugin>  
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.1.2</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		
-		  <plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-compiler-plugin</artifactId>
-			<version>2.0.2</version>
-			<configuration>
-			  <source>1.6</source>
-			  <target>1.6</target>
-			</configuration>
-		  </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.1</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
 		  
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jarsigner-plugin</artifactId>
+				<version>1.2</version>
+				<executions>
+				  <execution>
+					<id>sign</id>
+					<phase>verify</phase>
+					<goals>
+					  <goal>sign</goal>
+					</goals>
+				  </execution>
+				</executions>
+				<configuration>
+				<removeExistingSignatures>true</removeExistingSignatures>
+				  <keystore>/Users/ochafik/security/ochafik.keystore</keystore>
+			  <!--keystore>/Users/Olivier/security/ochafik.keystore</keystore-->
+			  <alias>ochafik2009</alias>
+			  <!--   
+				  mvn "-Dstorepass=$KEYSTORE_PASS" -Dmaven.test.skip=true package  
+				  <storepass>yourstorepassword</storepass>
+			  -->
+			    <storepass>${storepass}</storepass>
+				</configuration>
+			  </plugin>
+			  
 		  <!--
 		  <plugin>
 			<groupId>org.codehaus.mojo</groupId>
@@ -226,14 +238,12 @@ Most of these wrappers are created automatically by JNAerator.
 		  </plugin>
 		  -->
 		  
-		  <!--Put this in each project's pom.xml :
-		  
-		  
+		  <!--Put this in each project's pom.xml :-->
 		  
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-shade-plugin</artifactId>
-			<version>1.2.2</version>
+			<version>1.3.3</version>
 			<executions>
 			  <execution>
 				<phase>package</phase>
@@ -241,7 +251,6 @@ Most of these wrappers are created automatically by JNAerator.
 				  <goal>shade</goal>
 				</goals>
 				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
 					<artifactSet>
 						<excludes>
 						  <exclude>org.scala-lang:scala-library</exclude>
@@ -249,88 +258,59 @@ Most of these wrappers are created automatically by JNAerator.
 						  <exclude>junit:junit</exclude>
 						</excludes>
 					  </artifactSet>
+					  
+					  <filters>
+						<filter>
+						  <artifact>*:*</artifact>
+						  <excludes>
+							<exclude>META-INF/*.SF</exclude>
+							<exclude>META-INF/*.DSA</exclude>
+							<exclude>META-INF/*.RSA</exclude>
+						  </excludes>
+						</filter>
+					</filters>
 				</configuration>
 			  </execution>
 			</executions>
 		</plugin>
-					
-		  -->
+			
 		</plugins>
 	</build>
 	
 	<issueManagement>
 		<system>googlecode</system>
 		<url>http://code.google.com/p/nativelibs4java/issues/list</url>
-	  </issueManagement>
-
+	</issueManagement>
+	
 	<distributionManagement>
 		<site>
-           <id>nativelibs4java-sites</id>
-           <name>NativeLibs4Java Sourceforge Sites</name>
-		   <url>scp://shell.sourceforge.net/home/groups/n/na/nativelibs4java/htdocs/sites</url>
-	    </site>
+			<id>nativelibs4java-sites</id>
+			<name>NativeLibs4Java Sourceforge Sites</name>
+		    <url>sftp://opentator,nativelibs4java@frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/sites</url>
+		</site>
 		<repository>
-           <id>nativelibs4java-repo</id>
-           <uniqueVersion>false</uniqueVersion>
-		   <name>NativeLibs4Java Sourceforge Maven Repository</name>
-		   <url>scp://shell.sourceforge.net/home/groups/n/na/nativelibs4java/htdocs/maven</url>
-	    </repository>
+			<id>nativelibs4java-repo</id>
+			<name>NativeLibs4Java Sourceforge Maven Repository</name>
+			<url>sftp://opentator,nativelibs4java@frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven</url>
+		</repository>
 	</distributionManagement>
-  
-    <pluginRepositories>
-        <pluginRepository>
-            <id>scala-tools.org</id>
-            <name>Scala-tools Maven2 Repository</name>
-            <url>http://scala-tools.org/repo-releases</url>
-        </pluginRepository>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>scala-tools.org</id>
+			<name>Scala-tools Maven2 Repository</name>
+			<url>http://scala-tools.org/repo-releases</url>
+		</pluginRepository>
+
+		<pluginRepository>
+			<id>jnaerator-plugins</id>
+			<url>http://jnaerator.sourceforge.net/maven</url>
+		</pluginRepository>
 		
-        <pluginRepository>
-		  <id>jnaerator</id>
-		  <url>http://jnaerator.sourceforge.net/maven</url>
-        </pluginRepository>
-    </pluginRepositories>
-    <profiles>
-        <profile>
-            <id>Scala Project</id>
-            <activation>
-                <file>
-                    <exists>src/main/scala</exists>
-                </file>
-            </activation>
-            <dependencies>
-                
-				<dependency>
-                    <groupId>org.scala-lang</groupId>
-                    <artifactId>scala-library</artifactId>
-                    <version>2.7.7</version>
-                </dependency>
-				
-				<dependency>
-				  <groupId>junit</groupId>
-				  <artifactId>junit</artifactId>
-				  <version>4.7</version>
-				  <scope>test</scope>
-				</dependency>
-				
-				
-            </dependencies>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.scala-tools</groupId>
-                        <artifactId>maven-scala-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>compile</goal>
-                                    <goal>testCompile</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
+		<pluginRepository>
+			<id>nativelibs4java-plugins</id>
+			<url>http://nativelibs4java.sourceforge.net/maven</url>
+		</pluginRepository>
+	</pluginRepositories>
 </project>
 

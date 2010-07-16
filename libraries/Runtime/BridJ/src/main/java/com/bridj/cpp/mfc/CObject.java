@@ -11,7 +11,7 @@ public class CObject extends MFCObject {
 
 	public CObject() {}
 	public CObject(Pointer<? extends CObject> pInstance, MFCRuntime mfcRuntime) {
-		super(pInstance, mfcRuntime);
+		super(pInstance);
 	}
 	
 	@Virtual

@@ -21,9 +21,7 @@ package com.ochafik.lang.jnaerator;
 import com.bridj.FlagSet;
 import com.bridj.IntValuedEnum;
 import com.bridj.StructObject;
-import com.bridj.TempPointers;
 import com.bridj.ValuedEnum;
-import com.bridj.ann.Library;
 import com.bridj.cpp.CPPObject;
 
 import static com.ochafik.lang.SyntaxUtils.as;
@@ -94,8 +92,13 @@ public class DeclarationsConverter {
 		Element comel = parent != null && parent instanceof TypeDef ? parent : functionSignature;
 		
 		Struct callbackStruct = new Struct();
-		callbackStruct.setType(Struct.Type.JavaInterface);
-		callbackStruct.addModifiers(Modifier.Public);
+		if (result.config.runtime == JNAeratorConfig.Runtime.BridJ) {
+			callbackStruct.setType(Struct.Type.JavaClass);
+			callbackStruct.addModifiers(Modifier.Public, Modifier.Static, Modifier.Abstract);
+		} else {
+			callbackStruct.setType(Struct.Type.JavaInterface);
+			callbackStruct.addModifiers(Modifier.Public);
+		}
 		callbackStruct.setParents(Arrays.asList(
 			FunctionSignature.Type.ObjCBlock.equals(functionSignature.getType()) ?
 				result.config.runtime.typeRef(JNAeratorConfig.Runtime.Ann.ObjCBlock) :
@@ -867,12 +870,14 @@ public class DeclarationsConverter {
     }
 
     private void convertNL4JFunction(Function function, Signatures signatures, boolean isCallback, DeclarationsHolder out, Identifier libraryClassName, String sig, Identifier functionName, String library) throws UnsupportedConversionException {
+		Element parent = function.getParentElement();
     	List<Modifier> modifiers = function.getModifiers();
     	MemberVisibility visibility = function.getVisibility();
     	boolean isPublic = visibility == MemberVisibility.Public || Modifier.Public.isContainedBy(modifiers);
     	boolean isPrivate = visibility == MemberVisibility.Private || Modifier.Private.isContainedBy(modifiers);
     	boolean isProtected = visibility == MemberVisibility.Protected || Modifier.Protected.isContainedBy(modifiers);
-    	if ((function.getParentElement() instanceof Struct) && result.config.skipPrivateMembers && (isPrivate || !isPublic && !isProtected))
+		boolean isInStruct = parent instanceof Struct;
+    	if (isInStruct && result.config.skipPrivateMembers && (isPrivate || !isPublic && !isProtected))
         	return;
         boolean isStatic = Modifier.Static.isContainedBy(modifiers);
 		
@@ -880,7 +885,7 @@ public class DeclarationsConverter {
 //        typedMethod.addModifiers(Modifier.Public, isStatic ? Modifier.Static : null);
         
         Function nativeMethod = new Function(Type.JavaMethod, ident(functionName), null);
-        nativeMethod.addModifiers(isProtected ? Modifier.Protected : Modifier.Public, Modifier.Native, isStatic ? Modifier.Static : null);
+        nativeMethod.addModifiers(isProtected ? Modifier.Protected : Modifier.Public, Modifier.Native, isStatic || !isCallback && !isInStruct ? Modifier.Static : null);
 
         TypeConversion.NL4JTypeConversion retType = result.typeConverter.toNL4JType(function.getValueType(), null, libraryClassName);
 //        typedMethod.setValueType(retType.getTypedTypeRef());
@@ -1368,7 +1373,8 @@ public class DeclarationsConverter {
 			Identifier javaPackage = result.getLibraryPackage(library);
 			Identifier fullClassName = ident(javaPackage, structJavaClass.getTag().clone());
 			
-			structJavaClass.addAnnotation(new Annotation(Library.class, expr(library)));
+			if (result.config.runtime == JNAeratorConfig.Runtime.BridJ)
+				structJavaClass.addAnnotation(new Annotation(com.bridj.ann.Library.class, expr(library)));
 			structJavaClass.removeModifiers(Modifier.Static);
 			structJavaClass = result.notifyBeforeWritingClass(fullClassName, structJavaClass, signatures, library);
 			if (structJavaClass != null) {
@@ -1629,11 +1635,14 @@ public class DeclarationsConverter {
 						if (!st.equals(mst))
 							vd.setValueType(new Primitive(mst));
 					}*/
-                    for (Declaration vd : vds) {
-                        if (!(mutatedType instanceof Primitive) && !result.config.noComments)
-                            vd.addToCommentBefore("C type : " + mutatedType);
-                        out.addDeclaration(vd);
-                    }
+                
+                for (Declaration vd : vds) {
+                	vd.importDetails(mutatedType, true);
+                	vd.moveAllCommentsBefore();
+        			if (!(mutatedType instanceof Primitive) && !result.config.noComments)
+                        vd.addToCommentBefore("C type : " + mutatedType);
+                    out.addDeclaration(vd);
+                }
 				//}
 				iChild[0]++;
 			}
@@ -1662,6 +1671,9 @@ public class DeclarationsConverter {
 					Declarator d = v.getDeclarators().get(0);
 					if (d.getBits() > 0) {
 						int bits = d.getBits();
+                                                if (!result.config.runtime.hasBitFields)
+                                                    throw new UnsupportedConversionException(d, "This runtime does not support bit fields : " + result.config.runtime);
+                                                
 						vd.addAnnotation(new Annotation(result.config.runtime.typeRef(JNAeratorConfig.Runtime.Ann.Bits), expr(bits)));
 						String st = vd.getValueType().toString(), mst = st;
 						if (st.equals("int") || st.equals("long") || st.equals("short") || st.equals("long")) {
@@ -1680,6 +1692,14 @@ public class DeclarationsConverter {
 					if (!(mutatedType instanceof Primitive) && !result.config.noComments)
 						vd.addToCommentBefore("C type : " + mutatedType);
 					out.addDeclaration(vd);
+				}
+				if (result.config.beanStructs) {
+					out.addDeclaration(new Function(Function.Type.JavaMethod, ident("get" + StringUtils.capitalize(name)), vd.getValueType().clone()).setBody(block(
+						new Statement.Return(varRef(name))
+					)).addModifiers(Modifier.Public));
+					out.addDeclaration(new Function(Function.Type.JavaMethod, ident("set" + StringUtils.capitalize(name)), typeRef(Void.TYPE), new Arg(name, vd.getValueType().clone())).setBody(block(
+						stat(expr(memberRef(varRef("this"), MemberRefStyle.Dot, ident(name)), AssignmentOperator.Equal, varRef(name)))
+					)).addModifiers(Modifier.Public));
 				}
 				iChild[0]++;
 			}

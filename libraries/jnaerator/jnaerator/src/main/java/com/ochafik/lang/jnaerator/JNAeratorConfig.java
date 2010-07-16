@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.bridj.ann.Array;
 import com.ochafik.lang.jnaerator.JNAeratorConfigUtils.FileExtensionFilter;
 import com.ochafik.lang.jnaerator.cplusplus.CPlusPlusMangler;
 import com.ochafik.lang.jnaerator.parser.Element;
@@ -62,7 +63,7 @@ public class JNAeratorConfig {
 		Windows, Linux, MacOSX
 	}
     public enum Runtime {
-        JNA(false, true,
+        JNA(false, true, false,
             com.sun.jna.Callback.class,
             com.sun.jna.Pointer.class,
             com.sun.jna.Memory.class,
@@ -73,7 +74,7 @@ public class JNAeratorConfig {
             com.sun.jna.Library.class,
             null,
             "jna-runtime.jar.files"),
-        JNAerator(false, true,
+        JNAerator(false, true, true,
             com.sun.jna.Callback.class,
             com.sun.jna.Pointer.class,
             com.sun.jna.Memory.class,
@@ -91,7 +92,7 @@ public class JNAeratorConfig {
             }
 
         },
-        BridJ(true, false,
+        BridJ(true, false, true,
             com.bridj.Callback.class,
             com.bridj.Pointer.class,
             null, //com.bridj.Memory.class,
@@ -130,6 +131,7 @@ public class JNAeratorConfig {
         }
         Runtime(boolean hasFastStructs, 
                 boolean hasJNA,
+                boolean hasBitFields,
                 Class<?> callbackClass,
                 Class<?> pointerClass,
                 Class<?> memoryClass,
@@ -142,6 +144,7 @@ public class JNAeratorConfig {
                 String runtimeFilesListFileName)
         {
             this.hasFastStructs = hasFastStructs;
+            this.hasBitFields = hasBitFields;
             this.hasJNA = hasJNA;
             this.callbackClass = callbackClass;
             this.pointerClass = pointerClass;
@@ -157,14 +160,22 @@ public class JNAeratorConfig {
         public final String runtimeFilesListFileName;
         private String annotationPackage;
         public SimpleTypeRef typeRef(Ann ann) {
+			if (annotationPackage == null)
+				return null;
+			String n = ann.toString();
+        	if (this == BridJ) {
+        		if (ann == Ann.Length)
+        			n = Array.class.getSimpleName();
+        	}
             List<String> elts = new ArrayList<String>();
             elts.addAll(Arrays.asList(annotationPackage.split("\\.")));
-            elts.add(ann.toString());
+            elts.add(n);
             return annotationPackage == null ? null : ElementsHelper.typeRef(ident(elts.toArray(new String[elts.size()])));
         }
         public final Class callbackClass, pointerClass, memoryClass, structClass, unionClass, structIOClass, arrayClass, libraryClass;
         public final boolean hasFastStructs;
         public final boolean hasJNA;
+        public final boolean hasBitFields;
     }
 	public enum GenFeatures {
 		Compile,
@@ -212,6 +223,7 @@ public class JNAeratorConfig {
     public List<Pair<MessageFormat, MessageFormat>> onlineDocumentationURLFormats = new ArrayList<Pair<MessageFormat, MessageFormat>>();
 	public String entryName;
 	public int maxConstructedFields = 10;
+	public boolean beanStructs;
 	
 	public Map<String, String> extraJavaSourceFilesContents = new LinkedHashMap<String, String>();
 	public Set<String> frameworks = new LinkedHashSet<String>();
@@ -350,6 +362,8 @@ public class JNAeratorConfig {
 	public boolean noPrimitiveArrays;
 	public File scalaOut;
 	public boolean skipPrivateMembers = true;
+	public File rawParsedSourcesOutFile, normalizedParsedSourcesOutFile;
+	public boolean skipLibraryInstanceDeclarations;
 	public Collection<File> getFiles() {
 		/*return new AdaptedCollection<String, File>(libraryByFile.keySet(), new Adapter<String, File>() {
 			@Override

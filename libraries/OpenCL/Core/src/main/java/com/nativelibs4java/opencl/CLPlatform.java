@@ -23,13 +23,14 @@ import com.nativelibs4java.opencl.library.OpenGLContextUtils;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+
 import com.bridj.*;
+import static com.bridj.Pointer.*;
 
 import java.nio.ByteOrder;
 import java.util.*;
 import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.opencl.CLException.*;
-import static com.bridj.Pointer.*;
 
 /**
  * OpenCL implementation entry point.
@@ -127,7 +128,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         int iProp = 0;
         for (Map.Entry<ContextProperties, Number> e : contextProperties.entrySet()) {
             //if (!(v instanceof Number)) throw new IllegalArgumentException("Invalid context property value for '" + e.getKey() + ": " + v);
-            properties[iProp++] = e.getKey().getValue();
+            properties[iProp++] = e.getKey().value();
             properties[iProp++] = e.getValue().longValue();
         }
         properties[iProp] = 0;
@@ -169,18 +170,19 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     }
 
     /** Bit values for CL_CONTEXT_PROPERTIES */
-    public enum ContextProperties {
+    public enum ContextProperties implements com.nativelibs4java.util.ValuedEnum {
+    	//D3D10Device(CL_CONTEXT_D3D10_DEVICE_KHR), 
+    	GLContext(CL_GL_CONTEXT_KHR),
+		EGLDisplay(CL_EGL_DISPLAY_KHR),
+		GLXDisplay(CL_GLX_DISPLAY_KHR),
+		WGLHDC(CL_WGL_HDC_KHR),
+		CGLShareGroup(CL_CGL_SHAREGROUP_KHR);
 
-        @EnumValue(CL_GL_CONTEXT_KHR        ) GLContext 	   ,
-		@EnumValue(CL_EGL_DISPLAY_KHR       ) EGLDisplay	   ,
-		@EnumValue(CL_GLX_DISPLAY_KHR       ) GLXDisplay	   ,
-		@EnumValue(CL_WGL_HDC_KHR           ) WGLHDC		   ,
-		@EnumValue(CL_CGL_SHAREGROUP_KHR	) CGLShareGroup    ;
-
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
-
+		ContextProperties(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
+		
         public static long getValue(EnumSet<ContextProperties> set) {
             return EnumValues.getValue(set);
         }

@@ -49,7 +49,6 @@
   <build>
   	<plugins>
 
-
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>javacl-generator</artifactId>
@@ -69,41 +68,9 @@
 			</executions>
 		</plugin>
 
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-shade-plugin</artifactId>
-			<version>1.2.2</version>
-			<executions>
-			  <execution>
-				<phase>package</phase>
-				<goals>
-				  <goal>shade</goal>
-				</goals>
-				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<!--shadedArtifactId>${project.artifactId}-standalone</shadedArtifactId-->
-					<!--finalName>${project.artifactId}-standalone-${project.version}</finalName-->
-					<artifactSet>
-						<excludes>
-						  <exclude>org.scala-lang:scala-library</exclude>
-						  <exclude>org.slf4j:slf4j-jdk14</exclude>
-						  <exclude>junit:junit</exclude>
-						</excludes>
-					  </artifactSet>
-				</configuration>
-			  </execution>
-			</executions>
-		</plugin>
-
 	</plugins>
   </build>
-    <repositories>
-        <repository>
-            <id>unknown-jars-temp-repo</id>
-            <name>A temporary repository created by NetBeans for libraries and jars it could not identify. Please replace the dependencies in this repository with correct ones and delete this repository.</name>
-            <url>file:${project.basedir}/lib</url>
-        </repository>
-    </repositories>
+  
 </project>
 
 

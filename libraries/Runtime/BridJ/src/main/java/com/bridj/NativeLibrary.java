@@ -101,22 +101,24 @@ public class NativeLibrary {
     public synchronized Symbol getSymbol(AnnotatedElement member) throws FileNotFoundException {
         //libHandle = libHandle & 0xffffffffL;
     	com.bridj.ann.Symbol mg = BridJ.getAnnotation(com.bridj.ann.Symbol.class, false, member);
+    	String name = null;
+    	if (member instanceof Member)
+            name = ((Member)member).getName();
+        
         if (mg != null)
-            for (String name : mg.value())
+            for (String n : mg.value())
             {
-            	Symbol handle = getSymbol(name);
-                if (handle != null)
-                    handle = getSymbol("_" + name);
+            	Symbol handle = getSymbol(n);
+                if (handle == null)
+                    handle = getSymbol("_" + n);
                 if (handle != null)
                     return handle;
             }
 
-        String name = null;
-        if (member instanceof Member)
-            name = ((Member)member).getName();
-        
         if (name != null) {
             Symbol handle = getSymbol(name);
+            if (handle == null)
+                handle = getSymbol("_" + name);
             if (handle != null)
                 return handle;
         }
@@ -212,16 +214,28 @@ public class NativeLibrary {
 	public Symbol getSymbol(String name) {
 		try {
 			scanSymbols();
-			return nameToSym.get(name);
+			Symbol symbol = nameToSym.get(name);
+			if (addrToName == null) {
+				if (symbol == null) {
+					long addr = JNI.findSymbolInLibrary(getHandle(), name);
+					if (addr != 0) {
+						symbol = new Symbol(name, this);
+						symbol.address = addr;
+						nameToSym.put(name, symbol);
+					}
+				}
+			}
+			return symbol;
 		} catch (Exception ex) {
-			throw new RuntimeException("Failed to get symbol " + name, ex);
+			ex.printStackTrace();
+			return null;
+//			throw new RuntimeException("Failed to get symbol " + name, ex);
 		}
 	}
 	void scanSymbols() throws Exception {
 		if (addrToName != null)
 			return;
 		
-		addrToName = new HashMap<Long, Demangler.Symbol>();
 		nameToSym = new HashMap<String, Symbol>();
 //		nameToAddr = new HashMap<String, Long>();
 		
@@ -243,6 +257,11 @@ public class NativeLibrary {
 		}
 		if (symbs == null)
 			symbs = JNI.getLibrarySymbols(getHandle(), getSymbolsHandle());
+		
+		if (symbs == null)
+			return;
+		
+		addrToName = new HashMap<Long, Demangler.Symbol>();
 		
 		boolean is32 = !JNI.is64Bits();
 		for (String name : symbs) {

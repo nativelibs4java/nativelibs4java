@@ -433,6 +433,10 @@
 				RelativePath="..\..\..\bridj\StructHandler.c"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\bridj\ThreadLocal.c"
+				>
+			</File>
 			<Filter
 				Name="jni"
 				>
@@ -465,6 +469,58 @@
 			</File>
 			<File
 				RelativePath="jni\com_ochafik_jni_Pointer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\Exceptions.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\HandlersCommon.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\JNI_prim.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\Pointer_prim.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\PrimDefs_boolean.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\PrimDefs_byte.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\PrimDefs_char.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\PrimDefs_double.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\PrimDefs_float.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\PrimDefs_int.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\PrimDefs_long.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\PrimDefs_short.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\bridj\PrimDefs_undef.h"
 				>
 			</File>
 			<File

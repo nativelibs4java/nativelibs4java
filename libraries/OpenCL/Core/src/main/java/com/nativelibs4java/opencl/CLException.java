@@ -62,6 +62,8 @@ public class CLException extends RuntimeException {
 		}
 	}
 
+	@ErrorCode(CL_MISALIGNED_SUB_BUFFER_OFFSET)
+	public static class MisalignedSubBufferOffset extends CLTypedException {}
 	@ErrorCode(CL_OUT_OF_RESOURCES)
 	public static class OutOfResources extends CLTypedException {}
     @ErrorCode(CL_COMPILER_NOT_AVAILABLE)

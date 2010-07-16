@@ -2,131 +2,108 @@ package com.bridj;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.*;
 import java.nio.*;
 
 /**
  *
  * @author Olivier
  */
-public class PointerIO<T> {
-    final Type targetType;
-    final Class<T> targetClass;
-    final int targetSize;
-
-    public PointerIO(Type targetType, int targetSize) {
-        this.targetType = targetType;
-        this.targetSize = targetSize;
-        if (targetType instanceof Class<?>)
-            targetClass = (Class<T>)targetType;
-        else if (targetType instanceof ParameterizedType)
-            targetClass = (Class<T>)((ParameterizedType)targetType).getRawType();
-        else
-            targetClass = null;//throw new UnsupportedOperationException("Can't extract class from type " + targetType.toString());
-    }
-
-    public Type getTargetType() {
-        return targetType;
-    }
-
-    public Class<T> getTargetClass() {
-        return targetClass;
-    }
+public abstract class PointerIO<T> {
+	final Type targetType;
+	final Class<?> typedPointerClass;
+	final int targetSize, targetAlignment = -1;
 	
-	public static PointerIO change(PointerIO io, Type newTargetType) {
-        if (io != null && newTargetType != null && newTargetType.equals(io.targetType))
-			return io;
-        return getInstanceByType(newTargetType);
-    }
-	
-	public int getTargetAlignment() {
-		return getTargetSize();
+	public PointerIO(Type targetType, int targetSize, Class<?> typedPointerClass) {
+		this.targetType = targetType;
+		this.targetSize = targetSize;
+		this.typedPointerClass = typedPointerClass;
 	}
-
-    public int getTargetSize() {
-        return targetSize;
-    }
-    public T get(Pointer<T> pointer, int index) {
-        try {
-            #foreach ($prim in $primitivesNoBool)
-            if (targetType == ${prim.WrapperName}.TYPE || targetType == ${prim.WrapperName}.class)
-                return (T)(${prim.WrapperName})pointer.get${prim.CapName}(index * ${prim.Size});
-            #end
-            Class<T> c = getTargetClass();
-            if (Pointer.class.equals(c))
-                return (T)Pointer.pointerToAddress(pointer.getSizeT(JNI.POINTER_SIZE * index), (PointerIO)PointerIO.getInstanceByType(getTargetType()));
-            if (Pointer.class.isAssignableFrom(c))
-                return (T)c.getConstructor(Long.TYPE).newInstance(pointer.getSizeT(JNI.POINTER_SIZE * index));
-            if (c == String.class || c == CharSequence.class)
-                return (T)pointer.getString(index * JNI.POINTER_SIZE);
-			if (NativeObject.class.isAssignableFrom(c))
-				return (T)pointer.toNativeObject((Class)c); 
-				
-            throw new UnsupportedOperationException("Cannot get value of type " + targetType);
-        } catch (Exception ex) {
-            throw new RuntimeException("Unexpectedly failed to get value of type " + targetType, ex);
-        }
+	abstract T get(Pointer<T> pointer, long byteOffset);
+	abstract void set(Pointer<T> pointer, long byteOffset, T value);
+	
+	PointerIO<Pointer<T>> getReferenceIO() {
+		return new CommonPointerIOs.PointerPointerIO<T>(this);
+	}
+	public int getTargetSize() {
+		return targetSize;
+	}
+	public int getTargetAlignment() { 
+		return targetAlignment < 0 ? getTargetSize() : targetAlignment;
+	}
+	public boolean isTypedPointer() {
+		return typedPointerClass != null;
+	}
+	public Class<?> getTypedPointerClass() {
+		return typedPointerClass;
+	}
+	public Type getTargetType() {
+		return targetType;
+	}
+	
+	static Class<?> getClass(Type type) {
+		if (type instanceof Class<?>)
+			return (Class<?>)type;
+		if (type instanceof ParameterizedType)
+			return getClass(((ParameterizedType)type).getRawType());
+		return null;
+	}
+	
+	static PointerIO pointerInstance;
+    public synchronized static PointerIO<Pointer> getPointerInstance() {
+        if (pointerInstance == null)
+            pointerInstance = getPointerInstance((PointerIO<?>)null);
+        return pointerInstance;
     }
     
-    public void set(Pointer<T> pointer, int index, T value) {
-        Class<T> c = getTargetClass();
-        #foreach ($prim in $primitivesNoBool)
-        #if ($velocityCount > 1) else #end
-        if (c == ${prim.WrapperName}.TYPE || c == ${prim.WrapperName}.class)
-            pointer.set${prim.CapName}(index * ${prim.Size}, (${prim.WrapperName})value);
-        #end
-        else if (Pointer.class.isAssignableFrom(c))
-            pointer.setSizeT(JNI.POINTER_SIZE * index, (Long)value);
-        else if (CharSequence.class.isAssignableFrom(c))
-            pointer.setString(index * JNI.POINTER_SIZE, value.toString());
-        else
-            throw new UnsupportedOperationException("Cannot get value of type " + c.getName());
+	public static <T> PointerIO<Pointer<T>> getPointerInstance(Type target) {
+		return getPointerInstance((PointerIO<T>)getInstance(target));
+	}
+	public static <T> PointerIO<Pointer<T>> getPointerInstance(PointerIO<T> targetIO) {
+		return new CommonPointerIOs.PointerPointerIO<T>(targetIO);
+	}
+    public synchronized static <S extends StructObject> PointerIO<S> getInstance(StructIO s) {
+        return new CommonPointerIOs.StructPointerIO(s);
     }
-
-    static Map<Type, PointerIO> ios = new WeakHashMap<Type, PointerIO>();
-    public synchronized static <S extends StructObject> PointerIO<S> getInstance(StructIO structIO) {
-    	return getInstanceByType(structIO.getStructClass());
-    }
-    public synchronized static <P> PointerIO<P> getInstance(Class<P> type) {
-        return getInstanceByType(type);
-    }
-    public synchronized static <P> PointerIO<P> getInstanceByType(Type type) {
-        PointerIO io = ios.get(type);
+    static Map<Type, PointerIO<?>> ios = new HashMap<Type, PointerIO<?>>();
+	public synchronized static <P> PointerIO<P> getInstance(Type type) {
+		PointerIO io = ios.get(type);
         if (io == null) {
+            final Class<?> cl = (type instanceof Class) ? (Class)type : (type instanceof ParameterizedType) ? (Class)((ParameterizedType)type).getRawType() : null;
+    	
             #foreach ($prim in $primitivesNoBool)
             #if ($velocityCount > 1) else #end
             if (type == ${prim.WrapperName}.TYPE || type == ${prim.WrapperName}.class)
-                io = new PointerIO<${prim.WrapperName}>(type, ${prim.Size}) {
-                    @Override
-                    public ${prim.WrapperName} get(Pointer<${prim.WrapperName}> pointer, int index) {
-                        return pointer.get${prim.CapName}(index * ${prim.Size});
-                    }
-                    @Override
-                    public void set(Pointer<${prim.WrapperName}> pointer, int index, ${prim.WrapperName} value) {
-                        pointer.set${prim.CapName}(index * ${prim.Size}, value);
-                    }
-                };
+                io = CommonPointerIOs.${prim.Name}IO;
             #end
-			//else if (NativeObject.class.isAssignableFrom(type))
-            else if (type == Pointer.class)
-                io = new PointerIO<Pointer>(type, Pointer.SIZE) {
-                    @Override
-                    public Pointer get(Pointer<Pointer> pointer, int index) {
-                        return pointer.getPointer(index * Pointer.SIZE);
-                    }
-                    @Override
-                    public void set(Pointer<Pointer> pointer, int index, Pointer value) {
-                        pointer.setPointer(index * Pointer.SIZE, value);
-                    }
-                };
-            else
-                io = new PointerIO(type, -1);
+			else if (cl != null && Pointer.class.equals(cl))
+                io = getPointerInstance();
+            else if (cl != null && TypedPointer.class.isAssignableFrom(cl))
+            	io = new CommonPointerIOs.TypedPointerPointerIO((Class<? extends TypedPointer>)cl);
+            else if (cl != null && SizeT.class.isAssignableFrom(cl))
+                io = CommonPointerIOs.sizeTIO;
+			else if (cl != null && StructObject.class.isAssignableFrom(cl))
+				io = getInstance(StructIO.getInstance((Class)cl, type, (CRuntime)BridJ.getRuntime(cl)));
+            else if (cl != null && Callback.class.isAssignableFrom(cl))
+				io = new CommonPointerIOs.CallbackPointerIO(cl);
+            //else
+            //throw new UnsupportedOperationException("Cannot create pointer io to type " + type + ((type instanceof Class) && ((Class)type).getSuperclass() != null ? " (parent type : " + ((Class)type).getSuperclass().getName() + ")" : ""));
+            	//return null; // TODO throw here ?
 
+            //if (io == null)
+            //	throw new RuntimeException("Failed to create pointer io to type " + type);
             ios.put(type, io);
         }
         return io;
     }
+
+    static PointerIO<SizeT> sizeTInstance;
+
+    public static PointerIO<SizeT> getSizeTInstance() {
+        if (sizeTInstance == null)
+            sizeTInstance = getInstance(SizeT.class);
+        return sizeTInstance;
+	}
 
     #foreach ($prim in $primitivesNoBool)
     static PointerIO<${prim.WrapperName}> ${prim.Name}Instance;
@@ -153,14 +130,6 @@ public class PointerIO<T> {
         if (stringInstance == null)
             stringInstance = getInstance(String.class);
         return stringInstance;
-    }
-
-
-    static PointerIO pointerInstance;
-    public synchronized static PointerIO<Pointer> getPointerInstance() {
-        if (pointerInstance == null)
-            pointerInstance = getInstance(Pointer.class);
-        return pointerInstance;
     }
 
 }

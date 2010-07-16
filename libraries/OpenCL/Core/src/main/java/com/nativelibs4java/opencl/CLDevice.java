@@ -34,6 +34,7 @@ import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.util.NIOUtils.*;
 import java.util.*;
 import static com.nativelibs4java.opencl.CLException.*;
+import com.bridj.ValuedEnum;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -134,17 +135,15 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /** Bit values for CL_DEVICE_EXECUTION_CAPABILITIES */
-    public enum ExecutionCapability {
+    public enum ExecutionCapability implements com.nativelibs4java.util.ValuedEnum {
 
-        @EnumValue(CL_EXEC_KERNEL)
-        Kernel,
-        @EnumValue(CL_EXEC_NATIVE_KERNEL)
-        NativeKernel;
+        Kernel(CL_EXEC_KERNEL),
+        NativeKernel(CL_EXEC_NATIVE_KERNEL);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
-
+        ExecutionCapability(long value) { this.value = value; }
+        long value;
+        @Override
+        public long value() { return value; }
         public static long getValue(EnumSet<ExecutionCapability> set) {
             return EnumValues.getValue(set);
         }
@@ -164,21 +163,18 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /** Bit values for CL_DEVICE_TYPE */
-    public enum Type {
+    public enum Type implements com.nativelibs4java.util.ValuedEnum {
 
-        @EnumValue(CL_DEVICE_TYPE_CPU)
-        CPU,
-        @EnumValue(CL_DEVICE_TYPE_GPU)
-        GPU,
-        @EnumValue(CL_DEVICE_TYPE_ACCELERATOR)
-        Accelerator,
-        @EnumValue(CL_DEVICE_TYPE_DEFAULT)
-        Default;
+        CPU(CL_DEVICE_TYPE_CPU),
+        GPU(CL_DEVICE_TYPE_GPU),
+        Accelerator(CL_DEVICE_TYPE_ACCELERATOR),
+        Default(CL_DEVICE_TYPE_DEFAULT);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
-
+        Type(long value) { this.value = value; }
+        long value;
+        @Override
+		public long value() { return value; }
+        
         public static long getValue(EnumSet<Type> set) {
             return EnumValues.getValue(set);
         }
@@ -314,7 +310,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
         Pointer<Integer> pErr = allocateInt();
         long flags = 0;
         for (QueueProperties prop : queueProperties)
-            flags |= prop.getValue();
+            flags |= prop.value();
         cl_command_queue queue = CL.clCreateCommandQueue(context.getEntity(), getEntity(), flags, pErr);
         error(pErr.get());
 
@@ -419,30 +415,26 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /** Bit values for CL_DEVICE_SINGLE_FP_CONFIG */
-    public enum SingleFPConfig {
+    public enum SingleFPConfig implements com.nativelibs4java.util.ValuedEnum {
 
         /** denorms are supported                                  */
-        @EnumValue(CL_FP_DENORM)
-        Denorm,
+        Denorm(CL_FP_DENORM),
         /** INF and quiet NaNs are supported.                      */
-        @EnumValue(CL_FP_INF_NAN)
-        InfNaN,
+        InfNaN(CL_FP_INF_NAN),
         /** round to nearest even rounding mode supported          */
-        @EnumValue(CL_FP_ROUND_TO_NEAREST)
-        RoundToNearest,
+        RoundToNearest(CL_FP_ROUND_TO_NEAREST),
         /** round to zero rounding mode supported                  */
-        @EnumValue(CL_FP_ROUND_TO_ZERO)
-        RoundToZero,
+        RoundToZero(CL_FP_ROUND_TO_ZERO),
         /** round to +ve and -ve infinity rounding modes supported */
-        @EnumValue(CL_FP_ROUND_TO_INF)
-        RoundToInf,
+        RoundToInf(CL_FP_ROUND_TO_INF),
         /** IEEE754-2008 fused multiply-add is supported.          */
-        @EnumValue(CL_FP_FMA)
-        FMA;
+        FMA(CL_FP_FMA);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
+        SingleFPConfig(long value) { this.value = value; }
+        long value;
+        @Override
+		public long value() { return value; }
+        
 
         public static long getValue(EnumSet<SingleFPConfig> set) {
             return EnumValues.getValue(set);
@@ -463,19 +455,17 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /** Values for CL_DEVICE_GLOBAL_MEM_CACHE_TYPE */
-    public enum GlobalMemCacheType {
+    public enum GlobalMemCacheType implements com.nativelibs4java.util.ValuedEnum {
 
-        @EnumValue(CL_NONE)
-        None,
-        @EnumValue(CL_READ_ONLY_CACHE)
-        ReadOnlyCache,
-        @EnumValue(CL_READ_WRITE_CACHE)
-        ReadWriteCache;
+        None(CL_NONE),
+        ReadOnlyCache(CL_READ_ONLY_CACHE),
+        ReadWriteCache(CL_READ_WRITE_CACHE);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
-
+        GlobalMemCacheType(long value) { this.value = value; }
+        long value;
+        @Override
+		public long value() { return value; }
+        
         public static GlobalMemCacheType getEnum(long v) {
             return EnumValues.getEnum(v, GlobalMemCacheType.class);
         }
@@ -532,18 +522,17 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /** Values for CL_DEVICE_LOCAL_MEM_TYPE */
-    public enum LocalMemType {
+    public enum LocalMemType implements com.nativelibs4java.util.ValuedEnum {
 
         /** implying dedicated local memory storage such as SRAM */
-        @EnumValue(CL_LOCAL)
-        Local,
-        @EnumValue(CL_GLOBAL)
-        Global;
+        Local(CL_LOCAL),
+        Global(CL_GLOBAL);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
-
+        LocalMemType(long value) { this.value = value; }
+        long value;
+        @Override
+		public long value() { return value; }
+        
         public static LocalMemType getEnum(long v) {
             return EnumValues.getEnum(v, LocalMemType.class);
         }
@@ -621,6 +610,26 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /**
+     * OpenCL C version string. <br/>
+     * Returns the highest OpenCL C version supported by the compiler for this device. <br/>
+     * This version string has the following format:<br/>
+     *  OpenCL&lt;space&gt;C&lt;space&gt;&lt;major_version.minor_version&gt;&lt;space&gt;&lt;vendor-specific information&gt;<br/>
+     *  The major_version.minor_version value returned must be 1.1 if CL_DEVICE_VERSION is OpenCL 1.1.<br/>
+     *  The major_version.minor_version value returned can be 1.0 or 1.1 if CL_DEVICE_VERSION is OpenCL 1.0. <br/>
+     *  If OpenCL C 1.1 is returned, this implies that the language feature set defined in section 6 of the OpenCL 1.1 specification is supported by the OpenCL 1.0 device.
+     *  @since OpenCL 1.1
+     */
+    @InfoName("CL_DEVICE_OPENCL_C_VERSION")
+    public String getOpenCLVersion() {
+    	try {
+    		return infos.getString(getEntity(), CL_DEVICE_OPENCL_C_VERSION);
+    	} catch (Throwable th) {
+    		// TODO throw if supposed to handle OpenCL 1.1
+    		return "OpenCL C 1.0";
+    	}
+    }
+    
+    /**
     Vendor name string.
      */
     @InfoName("CL_DEVICE_VENDOR")
@@ -650,6 +659,20 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
         return infos.getString(getEntity(), CL_DEVICE_PROFILE);
     }
 
+    /**
+     * Whether the device and the host have a unified memory subsystem.
+     * @since OpenCL 1.1
+     */
+    @InfoName("CL_DEVICE_HOST_UNIFIED_MEMORY")
+    public boolean isHostUnifiedMemory() {
+    	try {
+    		return infos.getBool(getEntity(), CL_DEVICE_HOST_UNIFIED_MEMORY);
+    	} catch (Throwable th) {
+    		// TODO throw if supposed to handle OpenCL 1.1
+    		return false;
+    	}
+    }
+    
     /**
      * Preferred native vector width size for built-in scalar types that can be put into vectors. <br/>
      * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
@@ -709,6 +732,66 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     public int getPreferredVectorWidthDouble() {
         return infos.getInt(getEntity(), CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE);
     }
+    
+    /**
+     * Returns the native ISA vector width. <br/>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
+     */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR")
+    public int getNativeVectorWidthChar() {
+        return infos.getOptionalFeatureInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_CHAR);
+    }
+
+    /**
+     * Returns the native ISA vector width. <br/>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
+     */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT")
+    public int getNativeVectorWidthShort() {
+        return infos.getOptionalFeatureInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_SHORT);
+    }
+
+    /**
+     * Returns the native ISA vector width. <br/>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
+     */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_INT")
+    public int getNativeVectorWidthInt() {
+        return infos.getOptionalFeatureInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_INT);
+    }
+
+    /**
+     * Returns the native ISA vector width. <br/>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
+     */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG")
+    public int getNativeVectorWidthLong() {
+        return infos.getOptionalFeatureInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_LONG);
+    }
+
+    /**
+     * Returns the native ISA vector width. <br/>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
+     */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT")
+    public int getNativeVectorWidthFloat() {
+        return infos.getOptionalFeatureInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_FLOAT);
+    }
+
+    /**
+     * Returns the native ISA vector width. <br/>
+     * The vector width is defined as the number of scalar elements that can be stored in the vector. <br/>
+     * If the cl_khr_fp64 extension is not supported, CL_DEVICE_NATIVE_VECTOR_WID TH_DOUBLE must return 0.
+     */
+    @InfoName("CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE")
+    public int getNativeVectorWidthDouble() {
+        return infos.getOptionalFeatureInt(getEntity(), CL_DEVICE_NATIVE_VECTOR_WIDTH_DOUBLE);
+    }
 
     /**
      * OpenCL version string. <br/>
@@ -747,7 +830,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     public boolean isDoubleSupported() {
-        return hasExtension("cl_khr_fp64");
+        return hasExtension("cl_khr_fp64") || hasExtension("cl_amd_fp64");
     }
 
     public boolean isHalfSupported() {
@@ -777,17 +860,16 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /** Bit values for CL_DEVICE_QUEUE_PROPERTIES */
-    public enum QueueProperties {
+    public enum QueueProperties implements com.nativelibs4java.util.ValuedEnum {
 
-        @EnumValue(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)
-        OutOfOrderExecModeEnable,
-        @EnumValue(CL_QUEUE_PROFILING_ENABLE)
-        ProfilingEnable;
+        OutOfOrderExecModeEnable(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE),
+        ProfilingEnable(CL_QUEUE_PROFILING_ENABLE);
 
-        public long getValue() {
-            return EnumValues.getValue(this);
-        }
-
+        QueueProperties(long value) { this.value = value; }
+        long value;
+        @Override
+		public long value() { return value; }
+        
         public static long getValue(EnumSet<QueueProperties> set) {
             return EnumValues.getValue(set);
         }

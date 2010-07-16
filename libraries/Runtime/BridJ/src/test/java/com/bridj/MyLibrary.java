@@ -17,7 +17,7 @@ public class MyLibrary {
     public static class MyCallback {
         
     }
-    public static class MyTypedPtr extends DefaultPointer {
+    public static class MyTypedPtr extends TypedPointer {
         public MyTypedPtr(Pointer<?> ptr) {
             super(ptr.getPeer());
         }
@@ -33,12 +33,7 @@ public class MyLibrary {
 	
 	protected native int someFunction_native(@Ptr long stringArray, @Ptr long errOut);
 	public int someFunction(String[] arg1, Pointer<Integer> errOut) {
-		TempPointers temp = new TempPointers(pointerTo(arg1), errOut);
-        try {
-        	return someFunction_native(temp.get(0), temp.get(1));
-        } finally {
-            temp.release();
-        }
+		return someFunction_native(pointerToCStrings(arg1).getPeer(), errOut.getPeer());
 	}
 	
 	protected native int someFunction2_native(@Ptr long size, @Ptr long sizeOut);

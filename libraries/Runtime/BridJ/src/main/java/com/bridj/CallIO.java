@@ -1,13 +1,22 @@
 package com.bridj;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 interface CallIO {
 	Object newInstance(long address);
 	void checkArg(Object arg);
-	
+
+    public static class Utils {
+        public static CallIO createPointerCallIO(Class<?> cl, Type type) {
+            if (cl == Pointer.class)
+                return new CallIO.GenericPointerHandler((type instanceof ParameterizedType) ? ((ParameterizedType)type).getActualTypeArguments()[0] : null);
+
+            assert TypedPointer.class.isAssignableFrom(cl);
+            return new CallIO.TypedPointerIO(((Class<? extends TypedPointer>)cl));
+        }
+    }
 	
 	public static class TypedPointerIO implements CallIO {
 		Class<? extends TypedPointer> type;
@@ -57,7 +66,7 @@ interface CallIO {
 		PointerIO pointerIO;
 		public GenericPointerHandler(Type targetType) {
 			this.targetType = targetType;
-			this.pointerIO = PointerIO.getInstanceByType(targetType);
+			this.pointerIO = PointerIO.getInstance(targetType);
 		}
 		@Override
 		public Pointer<?> newInstance(long address) {
@@ -65,9 +74,9 @@ interface CallIO {
 		}
 		@Override
 		public void checkArg(Object ptr) {
-			Pointer<?> pointer = (Pointer<?>)ptr;
-			if (pointer.getIO() == null)
-				pointer.setIO(pointerIO);
+			//Pointer<?> pointer = (Pointer<?>)ptr;
+			//if (pointer.getIO() == null)
+			//	pointer.setIO(pointerIO);
 			// TODO check existing pointerio !
 		}
 	}

@@ -6,6 +6,7 @@ char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJa
 	jthrowable exc;
 	JNIEnv *env = info->fInfo.fEnv;
 	initCallHandler(NULL, &call, env);
+	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	dcMode(call->vm, 0);
 	
@@ -21,7 +22,7 @@ char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJa
 	
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes)
 	&&
-	followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction);
+	followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction, JNI_TRUE, JNI_FALSE);
 
 	exc = (*env)->ExceptionOccurred(env);
 	if (exc) {
@@ -39,13 +40,14 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, JavaToNati
 	void* callback;
 	CallTempStruct* call;
 	jobject instance = initCallHandler(args, &call, NULL);
+	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	dcMode(call->vm, info->fInfo.fDCMode);
 	callback = getNativeObjectPointer(call->env, instance, NULL);
 	
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes)
 	&&
-	followCall(call, info->fInfo.fReturnType, result, callback);
+	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE, JNI_FALSE);
 
 	cleanupCallHandler(call);
 	return info->fInfo.fDCReturnType;

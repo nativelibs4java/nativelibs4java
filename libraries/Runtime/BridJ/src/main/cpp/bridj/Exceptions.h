@@ -2,7 +2,9 @@
 #ifndef _BRIDJ_EXCEPTIONS_H
 #define _BRIDJ_EXCEPTIONS_H
 
-#ifndef __GNUC__
+#define ENABLE_PROTECTED_MODE
+
+#if !defined(__GNUC__) && defined(ENABLE_PROTECTED_MODE)
 
 #include <windows.h>
 #include <jni.h>
@@ -14,8 +16,9 @@ int WinExceptionHandler(JNIEnv* env, int exceptionCode);
 
 #else
 
-#define BEGIN_TRY()
-#define END_TRY(env)
+#define BEGIN_TRY() {
+#define END_TRY(env) }
+#define END_TRY_RET(env, ret) }
 
 #endif
 

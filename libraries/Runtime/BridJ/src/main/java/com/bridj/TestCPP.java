@@ -7,6 +7,7 @@ import com.bridj.Demangler;
 import com.bridj.JNI;
 import com.bridj.NativeLibrary;
 import com.bridj.Pointer;
+import static com.bridj.Pointer.*;
 import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Array;
 import com.bridj.ann.Convention;
@@ -25,10 +26,13 @@ import com.bridj.cpp.com.shell.IShellWindows;
 import com.bridj.cpp.com.shell.ITaskbarList3;
 import com.bridj.demos.TaskbarListDemo;
 import com.bridj.objc.NSAutoReleasePool;
+//import com.bridj.objc.NSCalendar;
 import com.bridj.objc.ObjCObject;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Iterator;
 
 import javax.swing.JFrame;
@@ -38,6 +42,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
+//@Library("C:\\Users\\Olivier\\Prog\\nativelibs4java\\Runtime\\BridJ\\src\\test\\resources\\win64\\test.dll")
 @Library("test")
 @com.bridj.ann.Runtime(CPPRuntime.class)
 public class TestCPP {
@@ -96,13 +101,80 @@ public class TestCPP {
 		}
 		System.out.println();
 	}
+    public static native char test_incr_char(char value);
+	//public static native short test_incr_char(short value);
+	public static native int testAddDyncall(int a, int b);
+
+
+    public enum ETest implements ValuedEnum<ETest> {
+    	eFirst(0),
+    	eSecond(1),
+    	eThird(2);
+
+    	ETest(int value) {
+    		this.value = value;
+    	}
+    	final int value;
+    	public long value() {
+    		return value;
+    	}
+    }
+
+    public static native ValuedEnum<ETest> testEnum(ValuedEnum<ETest> e);
+
+
+	static int[] createExpectedInts(int n) {
+		int[] expected = new int[n];
+		for (int i = 0; i < n; i++)
+			expected[i] = (int)(i + 1);
+		return expected;
+	}
+	
+
+    public static void testSetGetIntBuffer(int n) {
+		int[] expected = createExpectedInts(n);
+		Pointer<Integer> p = Pointer.pointerToInts(expected);
+		long peer = p.getPeer();
+
+		Iterator<Integer> it = p.iterator();
+		for (int i = 0; i < n; i++) {
+			Integer obVal = it.next();
+			int val = obVal;
+			if (val != expected[i])
+                throw new RuntimeException("at position i = " + i);
+		}
+	}
+
 	public static void main(String[] args) throws IOException {
         try {
-            BridJ.register(MyCallback.class);
+            {
+                BridJ.register();
+                ValuedEnum<ETest> t = testEnum(ETest.eFirst);
+                if (t != ETest.eFirst)
+                    throw new RuntimeException();
+            }
+            testSetGetIntBuffer(10);
+//			if (JNI.isMacOSX()) {
+//				new NSCalendar();
+//				new NSAutoReleasePool();
+//			}
+
+//        	NativeLibrary lib = BridJ.getNativeLibrary("OpenCL", new File("/System/Library/Frameworks/OpenCL.framework/OpenCL"));
+//        	NativeLibrary lib = BridJ.getNativeLibrary("OpenCL", new File("/usr/lib/libobjc.dylib"));
+//        	NativeLibrary lib = BridJ.getNativeLibrary("OpenCL", new File("/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/cpp/test/build_out/darwin_universal_gcc_debug/libtest.dylib"));
+        	
+        	
+//        	Collection<Symbol> symbols = lib.getSymbols();
+        	BridJ.register(MyCallback.class);
             BridJ.register();
 
-            NSAutoReleasePool object = new NSAutoReleasePool();
-
+			int ra = testAddDyncall(10, 4);
+			if (ra != 14)
+				throw new RuntimeException("Expected 14, got " + ra);
+			ra = testAddDyncall(10, 4);
+			if (ra != 14)
+				throw new RuntimeException("Expected 14, got " + ra);
+			
             testNativeTargetCallbacks();
             testJavaTargetCallbacks();
 
@@ -115,7 +187,7 @@ public class TestCPP {
             Ctest test = new Ctest();
             //long thisPtr = test.$this.getPeer();
             //System.out.println(hex(thisPtr));
-            print("Ctest.this", Pointer.getPeer(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
+            print("Ctest.this", Pointer.getPointer(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
             int res = test.testAdd(1, 2);
             System.out.println("res = " + res);
             res = test.testVirtualAdd(1, 2);
@@ -140,10 +212,10 @@ public class TestCPP {
                 MyStruct s = new MyStruct();
                 s.a(10);
                 System.out.println("Created MyStruct and set it to 10");
-                int a = Pointer.getPeer(s).getInt(0);
+                int a = Pointer.getPointer(s).getInt(0);
                 a = s.a();
-                Pointer.getPeer(s).setInt(0, 10);
-                a = Pointer.getPeer(s).getInt(0);
+                Pointer.getPointer(s).setInt(0, 10);
+                a = Pointer.getPointer(s).getInt(0);
                 a = s.a();
                 if (s.a() != 10)
                     throw new RuntimeException("invalid value = " + a);

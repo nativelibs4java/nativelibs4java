@@ -19,6 +19,8 @@
 
 package com.nativelibs4java.opencl.demos.sobelfilter;
 
+import javax.swing.*;
+
 import java.nio.*;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.util.*;
@@ -33,19 +35,38 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-
-
+import com.sun.jna.Platform;
+import java.awt.FileDialog;
 public class SobelFilterDemo {
 
+	static File chooseFile() {
+		if (Platform.isMac()) {
+			FileDialog d = new FileDialog((java.awt.Frame)null);
+			d.setMode(FileDialog.LOAD);
+			d.show();
+			String f = d.getFile();
+			if (f != null)
+				return new File(new File(d.getDirectory()), d.getFile());
+		} else {
+	        JFileChooser chooser = new JFileChooser();
+	        if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION)
+	        	return chooser.getSelectedFile();
+		}
+        return null;
+	}
      public static void main(String[] args) {
         try {
             SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
 
-            BufferedImage image = ImageIO.read(SobelFilterDemo.class.getResourceAsStream("test4.jpg"));
+            File imageFile = chooseFile();
+            if (imageFile == null)
+            	return;
+            
+            BufferedImage image = ImageIO.read(imageFile);
             int width = image.getWidth(), height = image.getHeight();
             //int step = 32;
            // image = image.getSubimage(0, 0, (width / step) * step, (height / step) * step);
-            image = image.getSubimage(0, 0, 512, 512);//(width / step) * step, (height / step) * step);
+            //image = image.getSubimage(0, 0, 512, 512);//(width / step) * step, (height / step) * step);
             
 
             JFrame f = new JFrame("JavaCL Sobel Filter Demo");

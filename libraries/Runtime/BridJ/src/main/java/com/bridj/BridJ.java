@@ -5,32 +5,23 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Library;
-import com.bridj.ann.Virtual;
-import com.bridj.cpp.CPPObject;
-import com.bridj.cpp.CPPRuntime;
-import com.bridj.cpp.com.COMRuntime;
-import com.bridj.cpp.mfc.MFCRuntime;
-import com.bridj.objc.ObjectiveCRuntime;
 import java.util.Stack;
+import java.io.PrintWriter;
+import java.lang.reflect.Type;
 
 /// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class BridJ {
@@ -49,47 +40,6 @@ public class BridJ {
 			//runShutdownHooks();
 			releaseAll();
 		}});
-	}
-    
-	protected static class ThreadLocalCallStructs {
-		private int count;
-		private final List<Long> handles = new ArrayList<Long>();
-		public long get() {
-			long handle;
-			if (count < handles.size())
-				handle = handles.get(count);
-			else
-				handles.add(handle = JNI.createCallTempStruct());
-			
-			count++;
-			return handle;
-		}
-		public void release(long handle) {
-			assert count > 0;
-            //long h = handles.get(count - 1).longValue();
-            //if (h != handle)
-            //    throw new RuntimeException("Releasing temp call struct handle " + Long.toHexString(handle) + ", expected " + Long.toHexString(h) + " = " + h + " from " + handles);
-			assert handle == handles.get(count - 1).longValue();
-			count--;
-		}
-		@Override
-		public void finalize() {
-			for (long handle : handles)
-				JNI.deleteCallTempStruct(handle);
-		}
-	}
-	private static ThreadLocal<ThreadLocalCallStructs> threadLocalCallStructs = new ThreadLocal<ThreadLocalCallStructs>() {
-        @Override
-		protected ThreadLocalCallStructs initialValue() {
-			return new ThreadLocalCallStructs();
-		};
-	};
-	
-	protected static long getTempCallStruct() {
-		return threadLocalCallStructs.get().get();
-	}
-	protected static void releaseTempCallStruct(long handle) {
-		threadLocalCallStructs.get().release(handle);
 	}
 	
 	static synchronized void registerNativeObject(NativeObject ob) {
@@ -147,11 +97,20 @@ public class BridJ {
 	public static void deallocate(NativeObject nativeObject) {
 		unregisterNativeObject(nativeObject);
 		//TODO call destructor !!! 
-		Pointer.getPeer(nativeObject, null).release();
+		Pointer.getPointer(nativeObject, null).release();
 	}
 	
 	/**
-	 * Registers the class of the caller
+	 * Registers the native methods of the caller class and all its inner types.
+	 * <pre>{@code
+	 	@Library("mylib")
+	 	public class MyLib {
+	 		static {
+	 			BridJ.register();
+			}
+			public static native void someFunc();
+		}
+		}</pre>
 	 */
     public static synchronized void register() {
 		StackTraceElement[] stackTrace = new Exception().getStackTrace();
@@ -186,16 +145,17 @@ public class BridJ {
 //            cRuntime = getRuntimeByRuntimeClass(CRuntime.class);
 //        return cRuntime;
 //    }
-	public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Class<O> type) {
+	public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type) {
 		Stack<Boolean> s = currentlyCastingNativeObject.get();
 		s.push(true);
+		Class<O> cl = type instanceof Class ? (Class<O>)type : (Class<O>)((ParameterizedType)type).getRawType();
 		try {
-            BridJRuntime runtime = getRuntime(type);
-            O instance = runtime.getTypeForCast(type).newInstance();
+			BridJRuntime runtime = getRuntime(cl); 
+            O instance = runtime.getTypeForCast(cl).newInstance(); // TODO template parameters here !!!
 			instance.peer = (Pointer)pointer;//offset(byteOffset);//Pointer.pointerToAddress(address, type);
 			return instance;
 		} catch (Exception ex) {
-			throw new RuntimeException("Failed to cast pointer to native object of type " + type.getName(), ex);
+			throw new RuntimeException("Failed to cast pointer to native object of type " + cl.getName(), ex);
 		} finally {
 			s.pop();
 		}
@@ -234,7 +194,20 @@ public class BridJ {
 
 		return getRuntimeByRuntimeClass(runtimeAnn.value());
     }
-	public static BridJRuntime register(Class<?> type) {
+
+	/**
+	 * Registers the native method of a type (and all its inner types).
+	 * <pre>{@code
+	 	@Library("mylib")
+	 	public class MyLib {
+	 		static {
+	 			BridJ.register(MyLib.class);
+			}
+			public static native void someFunc();
+		}
+		}</pre>
+	 */
+    public static BridJRuntime register(Class<?> type) {
 		BridJRuntime runtime = registeredTypes.get(type);
 		if (runtime == null)
 			runtime = getRuntime(type, false);
@@ -330,6 +303,9 @@ public class BridJ {
         return paths;
     }
 
+    /**
+     * Given a library name (e.g. "test"), finds the shared library file in the system-specific path ("/usr/bin/libtest.so", "./libtest.dylib", "c:\\windows\\system\\test.dll"...)
+	 */
     public static File getNativeLibraryFile(String name) {
         if (name == null)
             return null;
@@ -342,14 +318,21 @@ public class BridJ {
                 continue;
             }
             File f = new File(name);
-        	if (!f.exists())
-                f = new File(pathFile, name + ".dll").getAbsoluteFile();
-            if (!f.exists())
-                f = new File(pathFile, "lib" + name + ".so").getAbsoluteFile();
-            if (!f.exists())
-                f = new File(pathFile, "lib" + name + ".dylib").getAbsoluteFile();
-            if (!f.exists())
-                f = new File(pathFile, "lib" + name + ".jnilib").getAbsoluteFile();
+            if (JNI.isWindows()) {
+				if (!f.exists())
+					f = new File(pathFile, name + ".dll").getAbsoluteFile();
+			} else if (JNI.isMacOSX()) {
+				if (!f.exists())
+					f = new File(pathFile, "lib" + name + ".dylib").getAbsoluteFile();
+				if (!f.exists())
+					f = new File(pathFile, "lib" + name + ".jnilib").getAbsoluteFile();
+			} else if (JNI.isUnix()) {
+				if (!f.exists())
+					f = new File(pathFile, "lib" + name + ".so").getAbsoluteFile();
+				if (!f.exists())
+					f = new File(pathFile, name + ".so").getAbsoluteFile();
+            }
+            
             if (!f.exists())
                 continue;
 
@@ -359,12 +342,26 @@ public class BridJ {
                 log(Level.SEVERE, null, ex);
             }
         }
+        if (JNI.isMacOSX()) {
+        	for (String s : new String[] { "/System/Library/Frameworks", new File(System.getProperty("user.home"), "Library/Frameworks").toString() }) {
+        		try {
+					File f = new File(new File(s, name + ".framework"), name);
+					if (f.exists() && !f.isDirectory())
+						return f.getCanonicalFile();
+        		} catch (IOException ex) {
+					return null;
+				} 
+        	}
+        }
         try {
         	return JNI.extractEmbeddedLibraryResource(name);
         } catch (IOException ex) {
         	return null;
         }
     }
+    /**
+     * Loads the library with the name provided in argument (see {@link #getNativeLibraryFile(String)})
+	 */
     public static synchronized NativeLibrary getNativeLibrary(String name) throws FileNotFoundException {
         if (name == null)
             return null;
@@ -379,6 +376,9 @@ public class BridJ {
         
         return getNativeLibrary(name, f);
     }
+    /**
+     * Loads the shared library file under the provided name. Any subsequent call to {@link #getNativeLibrary(String)} will return this library.
+	 */
     public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
 		NativeLibrary ll = NativeLibrary.load(f.toString());
         if (ll == null)
@@ -386,6 +386,9 @@ public class BridJ {
         libHandles.put(name, ll);
         return ll;
     }
+    /**
+     * Gets the name of the library declared for an annotated element. Recurses up to parents of the element (class, enclosing classes) to find any {@link com.bridj.ann.Library} annotation.
+	 */
     public static String getNativeLibraryName(AnnotatedElement m) {
         Library lib = getAnnotation(Library.class, true, m);
         return lib == null ? null : lib.value(); // TODO use package as last resort
@@ -433,10 +436,34 @@ public class BridJ {
         (instance.runtime = register(instance.getClass())).initialize(instance);
     }
 
+
+    static void initialize(NativeObject instance, Pointer peer) {
+        (instance.runtime = register(instance.getClass())).initialize(instance, peer);
+    }
+
+
+
     static void initialize(NativeObject instance, int constructorId, Object[] args) {
         (instance.runtime = register(instance.getClass())).initialize(instance, constructorId, args);
     }
 	public static <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
 		return instance.runtime.clone(instance);
+	}
+	
+	public static void main(String[] args) {
+		List<NativeLibrary> libraries = new ArrayList<NativeLibrary>();
+		try {
+			for (String arg : args) {
+				NativeLibrary lib = getNativeLibrary(arg);
+				libraries.add(lib);
+			}
+			String file = "out.h";
+			PrintWriter out = new PrintWriter(new File(file));
+			HeadersReconstructor.reconstructHeaders(libraries, out);
+			out.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			System.exit(1);
+		}
 	}
 }

@@ -1,4 +1,5 @@
 package com.bridj;
+import com.bridj.CallIO.NativeObjectHandler;
 import com.bridj.ann.*;
 
 import java.lang.reflect.Method;
@@ -16,17 +17,17 @@ import java.util.logging.Logger;
 
 class StructIO {
 
-    static Map<Class<?>, StructIO> structIOs = new HashMap<Class<?>, StructIO>();
+    static Map<Type, StructIO> structIOs = new HashMap<Type, StructIO>();
 
-    public static synchronized StructIO getInstance(Class structClass) {
-        StructIO io = structIOs.get(structClass);
+    public static synchronized StructIO getInstance(Class structClass, Type structType, CRuntime runtime) {
+        StructIO io = structIOs.get(structType == null ? structClass : structType);
         if (io == null)
-            registerStructIO(structClass, (StructIO)(io = new StructIO(structClass)));
+            registerStructIO(structClass, structType, (StructIO)(io = new StructIO(structClass, structType, runtime)));
         return (StructIO)io;
     }
 
-    public static synchronized StructIO registerStructIO(Class structClass, StructIO io) {
-        structIOs.put(structClass, io);
+    public static synchronized StructIO registerStructIO(Class structClass, Type structType, StructIO io) {
+        structIOs.put(structType, io);
         return io;
     }
 
@@ -42,20 +43,24 @@ class StructIO {
 		Type valueType;
         Class<?> valueClass;
         Class<?> declaringClass;
+        CallIO callIO;
 	}
 	
 	protected PointerIO<?> pointerIO;
-	protected final Class<?> structClass;
 	protected volatile FieldIO[] fields;
 	private int structSize = -1;
     private int structAlignment = -1;
+	protected final Class<?> structClass;
+	protected final Type structType;
 
     protected java.lang.reflect.Field[] javaFields;
     protected java.lang.reflect.Method[] javaIOGetters, javaIOSetters;
+    protected final CRuntime runtime;
 	
-	public StructIO(Class<?> structClass) {
+	public StructIO(Class<?> structClass, Type structType, CRuntime runtime) {
 		this.structClass = structClass;
-
+        this.structType = structType;
+        this.runtime = runtime;
 	}
 	
 	public FieldIO[] getFields() {
@@ -64,10 +69,13 @@ class StructIO {
 	public Class<?> getStructClass() {
 		return structClass;
 	}
+	public Type getStructType() {
+		return structType;
+	}
 	
 	public synchronized PointerIO<?> getPointerIO() {
 		if (pointerIO == null)
-			pointerIO = new PointerIO(getStructClass(), getStructSize());
+			pointerIO = new CommonPointerIOs.StructPointerIO(this);
 			
 		return pointerIO;
 	}
@@ -218,6 +226,8 @@ class StructIO {
 			return 4;
 		else if (primType == Double.TYPE)
 			return 8;
+		else if (Pointer.class.isAssignableFrom(primType))
+			return 8;
 		else
 			throw new UnsupportedOperationException("Field type " + primType.getName() + " not supported yet");
 
@@ -237,17 +247,18 @@ class StructIO {
             field.byteOffset = structSize;
             if (field.valueClass.isPrimitive()) {
 				field.byteLength = primTypeLength(field.valueClass);
-            } else if (Struct.class.isAssignableFrom(field.valueClass)) {
+            } else if (StructObject.class.isAssignableFrom(field.valueClass)) {
                 if (field.isByValue)
                     field.byteLength = Pointer.SIZE;
                 else {
-                    StructIO io = StructIO.getInstance((Class<? extends StructObject>)field.valueClass);
+                    StructIO io = StructIO.getInstance(field.valueClass, field.valueType, runtime);
                     field.byteLength = io.getStructSize();
                 }
                 field.refreshableFieldIndex = refreshableFieldCount++;
-            } else if (Pointer.class.equals(field.valueClass)) {
+            } else if (Pointer.class.isAssignableFrom(field.valueClass)) {
                 field.byteLength = Pointer.SIZE;
-		    } else if (Buffer.class.isAssignableFrom(field.valueClass)) {
+                field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
+            } else if (Buffer.class.isAssignableFrom(field.valueClass)) {
                 if (field.valueClass == IntBuffer.class)
                     field.byteLength = 4;
                 else if (field.valueClass == LongBuffer.class)

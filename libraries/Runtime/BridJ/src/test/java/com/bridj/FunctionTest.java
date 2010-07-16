@@ -24,6 +24,15 @@ public class FunctionTest {
     public void register() {
 		BridJ.register(getClass());
 	}
+    @After
+    public void unregister() {
+	//	BridJ.releaseAll();
+		System.gc();
+		try {
+			Thread.sleep(200);
+		} catch (Exception ex) {}
+		System.gc();
+	}
     public native int testAddDyncall(int a, int b);
     
     public enum ETest implements ValuedEnum<ETest> {

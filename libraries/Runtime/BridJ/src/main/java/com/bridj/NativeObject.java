@@ -15,10 +15,8 @@ public class NativeObject {
     Pointer<? extends NativeObject> peer;
     BridJRuntime runtime;
 
-	public NativeObject(Pointer<? extends NativeObject> peer, BridJRuntime runtime) {
-		BridJ.register(getClass());
-		this.peer = peer;
-		this.runtime = runtime;
+	public NativeObject(Pointer<? extends NativeObject> peer) {
+        BridJ.initialize(this, peer);
 	}
 	
 	public NativeObject() {

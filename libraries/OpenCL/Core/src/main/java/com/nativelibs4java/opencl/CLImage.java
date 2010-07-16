@@ -36,9 +36,7 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.NIOUtils;
 
 import com.ochafik.util.listenable.Pair;
-import com.bridj.JNI;
-import com.bridj.Pointer;
-import com.bridj.SizeT;
+import com.bridj.*;
 import static com.bridj.Pointer.*;
 
 
@@ -144,7 +142,7 @@ public abstract class CLImage extends CLMem {
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         Pointer p = CL.clEnqueueMapImage(
             queue.getEntity(), getEntity(), blocking ? CL_TRUE : CL_FALSE,
-            flags.getValue(),
+            flags.value(),
 			offset3,
             length3,
             imageRowPitch == null ? null : pointerToSizeT(imageRowPitch),

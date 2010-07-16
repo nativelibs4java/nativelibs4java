@@ -56,15 +56,15 @@ _dcRawCallAdapterSkipTwoArgs64:
 	movq  %rbp, %rsp
 
 	// float parameters
-	//TODO movd %xmm0  , %xmm2  # float parameter 0
-	//TODO movd %xmm1  , %xmm3  # float parameter 1
-	//TODO movd %xmm2  , %xmm4  # float parameter 2
-	//TODO movd %xmm3  , %xmm5  # float parameter 3
+	//movq %xmm0  , %xmm2  # float parameter 0
+	//movq %xmm1  , %xmm3  # float parameter 1
+	//movq %xmm2  , %xmm4  # float parameter 2
+	//movq %xmm3  , %xmm5  # float parameter 3
 	
-	movd %xmm0  , %rdx	# float parameter 0
-	movd %xmm1  , %rcx	# float parameter 1
-	movd %xmm2  , %r8	# float parameter 2
-	movd %xmm3  , %r9	# float parameter 3
+	//movd %xmm0  , %rdx	# float parameter 0
+	//movd %xmm1  , %rcx	# float parameter 1
+	//movd %xmm2  , %r8	# float parameter 2
+	//movd %xmm3  , %r9	# float parameter 3
 	
 	// integer parameters
 	mov	 %rdi	, %rdx	# parameter 0

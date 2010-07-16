@@ -20,13 +20,8 @@ package com.nativelibs4java.opencl;
 
 import static com.nativelibs4java.opencl.CLException.error;
 
-
-import com.bridj.Pointer;
+import com.bridj.*;
 import static com.bridj.Pointer.*;
-import com.bridj.Pointer;
-import com.bridj.SizeT;
-import static com.bridj.Pointer.*;
-
 
 /**
  *
@@ -83,6 +78,15 @@ abstract class CLInfoGetter<T extends Pointer> {
         return mem.getSizeTs(0, n);
     }
 
+    public int getOptionalFeatureInt(T entity, int infoName) {
+    	try {
+    		return getInt(entity, infoName);
+    	} catch (CLException.InvalidValue ex) {
+    		throw new UnsupportedOperationException("Cannot get value " + infoName, ex);
+    	} catch (CLException.InvalidOperation ex) {
+    		throw new UnsupportedOperationException("Cannot get value " + infoName, ex);
+    	}
+    }
     public int getInt(T entity, int infoName) {
         return (int)getIntOrLong(entity, infoName);
     }

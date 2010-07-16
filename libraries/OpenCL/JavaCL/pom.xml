@@ -56,35 +56,10 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 			</executions>
 		</plugin>
 
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-shade-plugin</artifactId>
-			<version>1.2.2</version>
-			<executions>
-			  <execution>
-				<phase>package</phase>
-				<goals>
-				  <goal>shade</goal>
-				</goals>
-				<configuration>
-					<shadedArtifactAttached>true</shadedArtifactAttached>
-					<!--shadedArtifactId>${project.artifactId}-standalone</shadedArtifactId-->
-					<!--finalName>${project.artifactId}-standalone-${project.version}</finalName-->
-					<artifactSet>
-						<excludes>
-						  <exclude>org.scala-lang:scala-library</exclude>
-						  <exclude>org.slf4j:slf4j-jdk14</exclude>
-						  <exclude>junit:junit</exclude>
-						</excludes>
-					  </artifactSet>
-				</configuration>
-			  </execution>
-			</executions>
-		</plugin>
-		
    	   <plugin>
 		  <groupId>org.apache.maven.plugins</groupId>
 		  <artifactId>maven-jar-plugin</artifactId>
+		  <version>2.3.1</version>
 		  <configuration>
 			<archive>
 			  <manifest>

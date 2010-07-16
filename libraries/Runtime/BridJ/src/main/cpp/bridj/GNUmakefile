@@ -45,6 +45,7 @@ UNITS += CppHandler
 UNITS += FunctionHandler
 UNITS += StructHandler
 UNITS += CallbackHandler
+UNITS += ThreadLocal
 ifdef BUILD_OS_darwin
 UNITS += ObjCHandler
 endif
@@ -57,6 +58,8 @@ ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 LDFLAGS		+= -ldl -lobjc
 endif
+
+LDFLAGS		+= -lpthread
 
 ifdef BUILD_OS_linux
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/

@@ -17,8 +17,7 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
-import com.bridj.Pointer;
-import com.bridj.TypedPointer;
+import com.bridj.*;
 import static com.bridj.Pointer.*;
 
 abstract class CLAbstractEntity<T extends TypedPointer> {

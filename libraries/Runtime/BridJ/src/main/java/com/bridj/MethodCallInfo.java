@@ -84,13 +84,13 @@ public class MethodCallInfo {
             paramsValueTypes[iParam] = paramValueType.ordinal();
             //GetOptions(paramOptions, method, paramsAnnotations[iParam]);
 
-            appendToSignature(paramValueType, javaSig, dcSig);
+            appendToSignature(paramValueType, parameterType, javaSig, dcSig);
         }
         javaSig.append(')');
         dcSig.append(')');
 
         ValueType retType = getValueType(-1, nParams, method.getReturnType(), method.getGenericReturnType(), method);
-        appendToSignature(retType, javaSig, dcSig);
+        appendToSignature(retType, method.getReturnType(), javaSig, dcSig);
         returnValueType = retType.ordinal();
 
         javaSignature = javaSig.toString();
@@ -198,21 +198,25 @@ public class MethodCallInfo {
             return ValueType.eByteValue;
         if (c == Boolean.class || c == Boolean.TYPE)
             return ValueType.eByteValue;
-        if (c == Float.class || c == Float.TYPE)
+        if (c == Float.class || c == Float.TYPE) {
+            usesFloats();
             return ValueType.eFloatValue;
-        if (c == Double.class || c == Double.TYPE)
+        }
+        if (c == char.class || c == Character.TYPE) {
+            if (JNI.WCHAR_T_SIZE != 2)
+                direct = false;
+            return ValueType.eWCharValue;
+        }
+        if (c == Double.class || c == Double.TYPE) {
+            usesFloats();
             return ValueType.eDoubleValue;
+        }
         if (c == Boolean.class || c == Boolean.TYPE)
             return ValueType.eByteValue;
-        if (c == Pointer.class) {
+        if (Pointer.class.isAssignableFrom(c)) {
             direct = false;
-            addCallIO(new CallIO.GenericPointerHandler((t instanceof Class) ? null : ((ParameterizedType)t).getActualTypeArguments()[0]));
-        	return ValueType.ePointerValue;
-        }
-        if (TypedPointer.class.isAssignableFrom(c)) {
-            direct = false;
-            addCallIO(new CallIO.TypedPointerIO(((Class<? extends TypedPointer>)c)));
-        	return ValueType.ePointerValue;
+            addCallIO(CallIO.Utils.createPointerCallIO(c, t));
+        		return ValueType.ePointerValue;
         }
         if (c.isArray() && iParam == nParams - 1) {
         	direct = false;
@@ -230,8 +234,14 @@ public class MethodCallInfo {
 
         throw new NoSuchElementException("No " + ValueType.class.getSimpleName() + " for class " + c.getName());
     }
+    void usesFloats() {
+        if (direct && JNI.isMacOSX()) {
+            direct = false;
+            assert BridJ.log(Level.WARNING, "[unstable direct] FIXME Disable direct call due to float/double usage in " + method);
+        }
+    }
 
-    public void appendToSignature(ValueType type, StringBuilder javaSig, StringBuilder dcSig) {
+    public void appendToSignature(ValueType type, Class<?> parameterType, StringBuilder javaSig, StringBuilder dcSig) {
         char dcChar;
         String javaChar;
         switch (type) {
@@ -301,9 +311,18 @@ public class MethodCallInfo {
             	break;
             case ePointerValue:
             	dcChar = DC_SIGCHAR_POINTER;
-                javaChar = "Lcom/bridj/Pointer;";
+            	javaChar = "L" + parameterType.getName().replace('.', '/') + ";";
+//                javaChar = "Lcom/bridj/Pointer;";
                 direct = false;
             	break;
+            case eNativeObjectValue:
+                if (parameterType.equals(method.getDeclaringClass())) {
+                    dcChar = DC_SIGCHAR_POINTER;
+                    javaChar = "L" + parameterType.getName().replace('.', '/') + ";";
+                    // javaChar = "Lcom/bridj/Pointer;";
+                    direct = false;
+                    break;
+                }
             default:
                 direct = false;
                 throw new RuntimeException("Unhandled " + ValueType.class.getSimpleName() + ": " + type);

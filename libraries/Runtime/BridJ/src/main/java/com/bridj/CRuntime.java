@@ -24,6 +24,7 @@ import com.bridj.ann.Struct;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
 import com.bridj.util.AutoHashMap;
+import java.lang.reflect.Type;
 
 public class CRuntime extends AbstractBridJRuntime {
 
@@ -52,8 +53,9 @@ public class CRuntime extends AbstractBridJRuntime {
 		
 		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
 		try {
+            Set<Method> handledMethods = new HashSet<Method>();
 			if (StructObject.class.isAssignableFrom(type)) {
-				StructIO io = StructIO.getInstance(type);
+				StructIO io = StructIO.getInstance(type, type, this); // TODO handle differently with templates...
                 io.build();
                 StructIO.FieldIO[] fios = io == null ? null : io.getFields();
                 if (fios != null)
@@ -65,11 +67,13 @@ public class CRuntime extends AbstractBridJRuntime {
                                 MethodCallInfo getter = new MethodCallInfo(fio.getter);
                                 getter.setIndex(fio.index);
                                 builder.addGetter(getter);
+                                handledMethods.add(fio.getter);
                             }
                             if (fio.setter != null) {
                                 MethodCallInfo setter = new MethodCallInfo(fio.setter);
                                 setter.setIndex(fio.index);
                                 builder.addSetter(setter);
+                                handledMethods.add(fio.setter);
                             }
                         } catch (FileNotFoundException ex) {
                             ex.printStackTrace();
@@ -90,6 +94,8 @@ public class CRuntime extends AbstractBridJRuntime {
 			try {
 				NativeLibrary typeLibrary = getNativeLibrary(type);
 				for (Method method : type.getDeclaredMethods()) {
+                    if (handledMethods.contains(method))
+                        continue;
 					try {
 						int modifiers = method.getModifiers();
 						if (!Modifier.isNative(modifiers))
@@ -99,7 +105,8 @@ public class CRuntime extends AbstractBridJRuntime {
 						NativeLibrary methodLibrary = BridJ.getNativeLibrary(method);
 						
 						registerNativeMethod(type, typeLibrary, method, methodLibrary, builder);
-						
+
+                        handledMethods.add(method);
 					} catch (Exception ex) {
 						assert log(Level.SEVERE, "Method " + method.toGenericString() + " cannot be mapped : " + ex, ex);
 					}
@@ -170,9 +177,9 @@ public class CRuntime extends AbstractBridJRuntime {
 	    	}
     	return defaultObjectSize;
 	}
-	protected int sizeOf(Class<? extends StructObject> type, StructIO io) {
+	protected int sizeOf(Class<? extends StructObject> structClass, Type structType, StructIO io) {
 		if (io == null)
-			io = StructIO.getInstance(type);
+			io = StructIO.getInstance(structClass, structType, this);
 		int size;
 		if (io == null || (size = io.getStructSize()) == 0)
 			return getDefaultStructSize();
@@ -216,11 +223,11 @@ public class CRuntime extends AbstractBridJRuntime {
             mci.setJavaCallback(instance);
             final long handle = JNI.createCToJavaCallback(mci);
             long peer = JNI.getActualCToJavaCallback(handle);
-            return (Pointer)Pointer.pointerToAddress(peer, c, new Pointer.Deallocator() {
+            return (Pointer)Pointer.pointerToAddress(peer, c, new Pointer.Releaser() {
 
                 @Override
-                public void deallocate(long peer) {
-                    JNI.freeCToJavaCallback(handle);
+                public void release(Pointer<?> pointer) {
+                    JNI.freeCToJavaCallback(pointer.getPeer());
                 }
             });
 		} catch (FileNotFoundException e) {
@@ -234,8 +241,22 @@ public class CRuntime extends AbstractBridJRuntime {
                 setNativeObjectPeer(instance, registerCallbackInstance((Callback<?>)instance));
             else
                 initialize(instance, -1);
+        } else if (instance instanceof StructObject) {
+            StructObject s = (StructObject)instance;
+            Class<? extends StructObject> c = (Class)instance.getClass();
+    		StructIO io = StructIO.getInstance(c, c, this);
+    		s.io = io;
         }
     }
+
+
+    @Override
+    public void initialize(NativeObject instance, Pointer peer) {
+        instance.peer = peer;
+        Class c = instance.getClass();
+        ((StructObject)instance).io = StructIO.getInstance(c, c, this);
+    }
+
     
     @Override
     public void initialize(NativeObject instance, int constructorId, Object... args) {
@@ -246,9 +267,9 @@ public class CRuntime extends AbstractBridJRuntime {
     	if (constructorId < 0) {
     		
     		Class<? extends StructObject> c = (Class)instance.getClass();
-    		StructIO io = StructIO.getInstance(c);
+    		StructIO io = StructIO.getInstance(c, c, this);
     		s.io = io; 
-    		instance.peer = Pointer.allocate(PointerIO.getInstance(io), sizeOf(c, io));
+    		instance.peer = Pointer.allocate(PointerIO.getInstance(io), io.getStructSize());//sizeOf(c, c, io));
     	} else
     		throw new UnsupportedOperationException("TODO implement structs constructors !");
     }
@@ -266,7 +287,7 @@ public class CRuntime extends AbstractBridJRuntime {
     @Override
     public <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
     	if (instance instanceof NativeObject) {
-    		return (T) Pointer.getPeer(instance).toNativeObject(instance.getClass());
+    		return (T) Pointer.getPointer(instance).toNativeObject(instance.getClass());
     	}
     	return super.clone(instance);
     }

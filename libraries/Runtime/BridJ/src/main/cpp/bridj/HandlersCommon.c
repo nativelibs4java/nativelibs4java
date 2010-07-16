@@ -42,7 +42,24 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				{
 					jobject jptr = (jobject)dcbArgPointer(args);
 					void* ptr = jptr ? getPointerPeer(env, (void*)jptr) : NULL;
+					call->pCallIOs++;
 					dcArgPointer(call->vm, ptr);
+				}
+				break;
+			case eWCharValue:
+				switch (sizeof(wchar_t)) {
+				case 1:
+					dcArgChar(call->vm, dcbArgChar(args));
+					break;
+				case 2:
+					dcArgShort(call->vm, dcbArgShort(args));
+					break;
+				case 4:
+					dcArgInt(call->vm, dcbArgInt(args));
+					break;
+				default:
+					throwException(env, "Invalid wchar_t size for argument !");
+					return JNI_FALSE;
 				}
 				break;
 			default:
@@ -56,7 +73,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 	return JNI_TRUE;
 }
 
-jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback) 
+jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback, jboolean bCallingJava, jboolean forceVoidReturn) 
 {
 	JNIEnv* env = call->env;
 	switch (returnType) {
@@ -89,12 +106,38 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		case ePointerValue:
 			{
 				void* ptr = dcCallPointer(call->vm, callback);
-				result->p = createPointer(env, ptr, NULL);
+				if (bCallingJava)
+					result->p = ptr;
+				else
+				{
+					jobject callIO = *call->pCallIOs;
+					result->p = createPointerFromIO(env, ptr, callIO);
+				}
+				call->pCallIOs++;
 			}
 			break;
 		case eWCharValue:
-			// TODO
+			switch (sizeof(wchar_t)) {
+			case 1:
+				result->c = dcCallChar(call->vm, callback);
+				break;
+			case 2:
+				result->s = dcCallShort(call->vm, callback);
+				break;
+			case 4:
+				result->i = dcCallInt(call->vm, callback);
+				break;
+			default:
+				throwException(env, "Invalid wchar_t size !");
+				return JNI_FALSE;
+			}
+			break;
 		default:
+			if (forceVoidReturn) 
+			{
+				dcCallVoid(call->vm, callback);
+				break;
+			}
 			throwException(env, "Invalid return value type !");
 			return JNI_FALSE;
 	}

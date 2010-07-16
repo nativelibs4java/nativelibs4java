@@ -20,6 +20,8 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import java.nio.*;
 
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
+
 /**
  * OpenCL Memory Buffer Object with Character values.<br/>
  * @see CLContext#createCharBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
@@ -29,6 +31,11 @@ import java.nio.*;
 public class CLCharBuffer extends CLBuffer<CharBuffer> {
 	CLCharBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer, 2);
+	}
+
+	@Override
+	protected CLBuffer<CharBuffer> createBuffer(cl_mem mem) {
+		return new CLCharBuffer(getContext(), -1, mem, null);
 	}
 
     @Override

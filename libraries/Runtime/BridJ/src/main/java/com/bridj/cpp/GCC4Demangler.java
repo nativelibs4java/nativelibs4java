@@ -40,6 +40,7 @@ public class GCC4Demangler extends Demangler {
 		case 'v': // char
 			return classType(Void.TYPE);
 		case 'c':
+		case 'a':
 		case 'h': // unsigned
 		case 'b': // bool
 			return classType(Byte.TYPE);

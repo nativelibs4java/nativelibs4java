@@ -24,7 +24,7 @@ public class MyStruct extends StructObject {
     public static void main(String[] args) throws CloneNotSupportedException {
         MyStruct s = new MyStruct();
         s.toto(10);
-        s.values(Pointer.pointerTo(new int[] { 1, 2, 3}));
+        s.values(Pointer.pointerToInts(new int[] { 1, 2, 3}));
         int[] out = s.values().getInts(0, 3);
         System.out.println(Arrays.toString(out));
 

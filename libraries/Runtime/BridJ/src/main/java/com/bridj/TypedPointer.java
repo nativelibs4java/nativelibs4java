@@ -1,13 +1,15 @@
 package com.bridj;
 
 
-public class TypedPointer extends DefaultPointer {
+public class TypedPointer extends Pointer {
 	Pointer<?> copy;
 	public TypedPointer(long address) {
-		super(address);
+        //TODO
+        super(PointerIO.getPointerInstance(), address);
 	}
 	public TypedPointer(Pointer<?> ptr) {
-		super(ptr.getPeer());
+		//TODO
+        super(PointerIO.getPointerInstance(), ptr.getPeer());
 		copy = ptr;
 	}
 }

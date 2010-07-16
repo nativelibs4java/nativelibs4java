@@ -11,9 +11,6 @@
 #pragma warning(disable: 4152)
 #pragma warning(disable: 4189) // local variable initialized but unreferenced // TODO remove this !
 
-#define MALLOC_STRUCT(type) ((struct type*)malloc(sizeof(struct type)))
-#define MALLOC_STRUCT_ARRAY(type, size) ((struct type*)malloc(sizeof(struct type) * size))
-
 #define JNI_SIZEOF(type, escType) \
 jint JNICALL Java_com_bridj_JNI_sizeOf_1 ## escType(JNIEnv *env, jclass clazz) { return sizeof(type); }
 
@@ -29,14 +26,16 @@ jclass gPointerClass = NULL;
 jclass gFlagSetClass = NULL;
 jclass gValuedEnumClass = NULL;
 jclass gBridJClass = NULL;
+jclass gCallIOClass = NULL;
 jmethodID gAddressMethod = NULL;
 jmethodID gGetPeerMethod = NULL;
 jmethodID gCreatePeerMethod = NULL;
 jmethodID gGetValuedEnumValueMethod = NULL;
 jmethodID gNewFlagSetMethod = NULL;
 jmethodID gGetCallIOsMethod = NULL;
-jmethodID gGetTempCallStruct = NULL;
-jmethodID gReleaseTempCallStruct = NULL;
+//jmethodID gGetTempCallStruct = NULL;
+//jmethodID gReleaseTempCallStruct = NULL;
+jmethodID gNewCallIOInstance = NULL;
 
 jclass 		gMethodCallInfoClass 		 = NULL;
 jfieldID 	gFieldId_javaSignature 		 = NULL;
@@ -68,15 +67,17 @@ void initMethods(JNIEnv* env) {
 		gStructFieldsIOClass = FIND_GLOBAL_CLASS("com/bridj/StructFieldsIO");
 		gPointerClass = FIND_GLOBAL_CLASS("com/bridj/Pointer");
 		gMethodCallInfoClass = FIND_GLOBAL_CLASS("com/bridj/MethodCallInfo");
+		gCallIOClass = FIND_GLOBAL_CLASS("com/bridj/CallIO");
 		
-		gGetTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "getTempCallStruct", "()J"); 
-		gReleaseTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "releaseTempCallStruct", "(J)V"); 
+		//gGetTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "getTempCallStruct", "()J"); 
+		//gReleaseTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "releaseTempCallStruct", "(J)V"); 
 		gGetValuedEnumValueMethod = (*env)->GetMethodID(env, gValuedEnumClass, "value", "()J"); 
 		gNewFlagSetMethod = (*env)->GetStaticMethodID(env, gFlagSetClass, "fromValue", "(JLjava/lang/Class;)Lcom/bridj/FlagSet;"); 
 		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lcom/bridj/NativeObject;Ljava/lang/Class;)J");
 		gGetPeerMethod = (*env)->GetMethodID(env, gPointerClass, "getPeer", "()J");
 		gCreatePeerMethod = (*env)->GetStaticMethodID(env, gPointerClass, "pointerToAddress", "(JLjava/lang/Class;)Lcom/bridj/Pointer;");
 		gGetCallIOsMethod = (*env)->GetMethodID(env, gMethodCallInfoClass, "getCallIOs", "()[Lcom/bridj/CallIO;");
+		gNewCallIOInstance = (*env)->GetMethodID(env, gCallIOClass, "newInstance", "(J)Ljava/lang/Object;");
 		
 #define GETFIELD_ID(out, name, sig) \
 		if (!(gFieldId_ ## out = (*env)->GetFieldID(env, gMethodCallInfoClass, name, sig))) \
@@ -126,6 +127,18 @@ jmethodID GetMethodIDOrFail(JNIEnv* env, jclass declaringClass, const char* meth
 	return id;
 }
 
+
+jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO) {
+	jobject instance;
+	jlong addr;
+	if (!ptr || !callIO)
+		return NULL;
+	initMethods(env);
+	addr = PTR_TO_JLONG(ptr);
+	instance = (*env)->CallObjectMethod(env, callIO, gNewCallIOInstance, addr);
+	return instance;
+}
+/*
 jobject createPointer(JNIEnv *env, void* ptr, jclass targetType) {
 	jobject instance;
 	jlong addr;
@@ -135,7 +148,7 @@ jobject createPointer(JNIEnv *env, void* ptr, jclass targetType) {
 	addr = PTR_TO_JLONG(ptr);
 	instance = (*env)->CallStaticObjectMethod(env, gPointerClass, gCreatePeerMethod, addr, targetType);
 	return instance;
-}
+}*/
 
 void* getPointerPeer(JNIEnv *env, jobject pointer) {
 	initMethods(env);
@@ -171,6 +184,7 @@ void TESTOBJC() {
 
 void JNICALL Java_com_bridj_JNI_init(JNIEnv *env, jclass clazz)
 {
+	initThreadLocal(env);
 	//TESTOBJC();
 }
 
@@ -225,6 +239,9 @@ jarray JNICALL Java_com_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
     jarray ret;
     DLSyms* pSyms = (DLSyms*)symbolsHandle;
 	int count, i;
+	if (!pSyms)
+		return NULL;
+
 	count = dlSymsCount(pSyms);
 	stringClass = (*env)->FindClass(env, "java/lang/String");
 	ret = (*env)->NewObjectArray(env, count, stringClass, 0);
@@ -274,16 +291,6 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_deleteCallTempStruct(JNIEnv* env, jcla
 	dcFree(s->vm);
 	free(s);	
 }
-CallTempStruct* getTempCallStruct(JNIEnv* env) {
-	jlong handle = (*env)->CallStaticLongMethod(env, gBridJClass, gGetTempCallStruct);
-	return (CallTempStruct*)JLONG_TO_PTR(handle);
-}
-void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
-	//s->env = NULL;
-	jlong h = PTR_TO_JLONG(s);
-	(*env)->CallStaticVoidMethod(env, gBridJClass, gReleaseTempCallStruct, h);
-}
-
 
 JNIEXPORT jint JNICALL Java_com_bridj_JNI_getMaxDirectMappingArgCount(JNIEnv *env, jclass clazz) {
 #if defined(_WIN64)
@@ -327,7 +334,20 @@ char getDCReturnType(JNIEnv* env, ValueType returnType)
 		case ePointerValue:
 			return DC_SIGCHAR_POINTER;
 		case eWCharValue:
+			switch (sizeof(wchar_t)) {
+			case 1:
+				return DC_SIGCHAR_CHAR;
+			case 2:
+				return DC_SIGCHAR_SHORT;
+			case 4:
+				return DC_SIGCHAR_INT;
+			default:
+				throwException(env, "wchar_t size not supported yet !");
+				return DC_SIGCHAR_VOID;
+			}
 			// TODO
+		case eNativeObjectValue:
+			return DC_SIGCHAR_POINTER;
 		default:
 			throwException(env, "Return ValueType not supported yet !");
 			return DC_SIGCHAR_VOID;
@@ -660,6 +680,7 @@ jmethodID GetStructMethodId(JNIEnv* env, ValueType type, jboolean isGetter, void
 	CASE_STRUCT_METHOD_PRIM(Float, "F")
 	CASE_STRUCT_METHOD(eWCharValue, WChar, "C", CallStaticCharMethod)
 	CASE_STRUCT_METHOD(eNativeObjectValue, NativeObject, "Lcom/bridj/NativeObject;", CallStaticObjectMethod)
+	//CASE_STRUCT_METHOD(ePointerValue, SizeT, "J", CallStaticLongMethod)
 	CASE_STRUCT_METHOD(ePointerValue, Pointer, "Lcom/bridj/Pointer;", CallStaticObjectMethod)
 	default:
 		throwException(env, "Unhandled struct field type !");

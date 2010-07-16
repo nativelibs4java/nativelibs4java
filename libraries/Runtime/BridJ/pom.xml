@@ -9,11 +9,10 @@
   <version>${nl4j-runtime.version}</version>
   <packaging>jar</packaging>
 
-  
   <properties>
   	<maven.compiler.debug>true</maven.compiler.debug>
   </properties>
-
+  
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nl4j-runtime-parent</artifactId>
@@ -29,72 +28,24 @@
 		<version>3.2</version>
 	</dependency>
   
-		<dependency>
-		  <groupId>junit</groupId>
-		  <artifactId>junit</artifactId>
-		  <version>4.7</version>
-		  <scope>test</scope>
-		</dependency>
-	
   	<dependency>
       <groupId>com.ochafik</groupId>
       <artifactId>ochafik-util</artifactId>
       <version>${jnaerator.version}</version>
       <scope>test</scope>
     </dependency>
-	
-	
+		
 	<dependency>
       <groupId>com.jnaerator</groupId>
       <artifactId>jna-jnaerator</artifactId>
       <version>${jna.version}</version>
-      <scope>provided</scope>
+      <scope>test</scope>
     </dependency>
 	
   </dependencies>
 
   <build>
   	<plugins>
-
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-shade-plugin</artifactId>
-			<version>1.2.2</version>
-			<executions>
-			  <execution>
-				<phase>package</phase>
-				<goals>
-				  <goal>shade</goal>
-				</goals>
-				<configuration>
-					<!--shadedArtifactAttached>true</shadedArtifactAttached-->
-					<artifactSet>
-						<excludes>
-						  <exclude>org.scala-lang:scala-library</exclude>
-						  <exclude>org.slf4j:slf4j-jdk14</exclude>
-						  <exclude>junit:junit</exclude>
-						</excludes>
-					  </artifactSet>
-				</configuration>
-			  </execution>
-			</executions>
-		</plugin>
-		
-		<!--project>
-		  <build>
-			<plugins>
-			  <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.2</version>
-				<configuration>
-				   
-				</configuration>
-			  </plugin>
-			</plugins>
-		  </build>
-		</project-->
-
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>
@@ -108,17 +59,18 @@
 			  </execution>
 			</executions>
 		</plugin>
-  	 <plugin>
-  	  <groupId>org.apache.maven.plugins</groupId>
-  	  <artifactId>maven-compiler-plugin</artifactId>
-  	  <version>2.0.2</version>
-  	  <configuration>
-  	   <debug>true</debug>
-  	  </configuration>
-  	 </plugin>
-  	</plugins>
+  	 </plugins>
 
   </build>
+  
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
 </project>
 
 

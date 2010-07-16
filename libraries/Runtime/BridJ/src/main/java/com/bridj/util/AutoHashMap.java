@@ -1,10 +1,10 @@
 package com.bridj.util;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 public class AutoHashMap<K, V> extends HashMap<K, V> {
+	private static final long serialVersionUID = 1693618702345072811L;
 	public AutoHashMap(Class<V> valueClass) {
 		try {
 			valueConstructor = valueClass.getConstructor();
@@ -12,14 +12,15 @@ public class AutoHashMap<K, V> extends HashMap<K, V> {
 			throw new RuntimeException("No accessible default constructor in class " + (valueClass == null ? "null" : valueClass.getName()), ex);
 		}
 	}
-	Constructor valueConstructor;
+	Constructor<V> valueConstructor;
 	protected V newInstance(K key) {
 		try {
-			return (V) valueConstructor.newInstance();
+			return valueConstructor.newInstance();
 		} catch (Exception ex) {
 			throw new RuntimeException("Failed to call constructor " + valueConstructor, ex);
 		}
 	}
+	@SuppressWarnings("unchecked")
 	public V get(Object key) {
 		V v = super.get(key);
 		if (v == null)

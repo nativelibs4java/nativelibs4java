@@ -69,20 +69,38 @@ public class JOGLTest {
                         int bufferSize = 1024;
                         FloatBuffer buffer;
                         int[] VBO = new int[1];
+                        int[] Texture = new int[1];
                         GL gl = drawable.getGL();
 						buffer = BufferUtil.newFloatBuffer(bufferSize);
 						gl.glGenBuffers(1, VBO, 0); // Get A Valid Name
 						gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]); // Bind The Buffer
 						gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * BufferUtil.SIZEOF_FLOAT, buffer, GL2.GL_DYNAMIC_READ);
                         
+						gl.glGenTextures(1, Texture, 0);
+						gl.glBindTexture(GL2.GL_TEXTURE_2D, Texture[0]);
+						int width = 2, height = 2, border = 0;
+						gl.glTexImage2D (
+							GL2.GL_TEXTURE_2D,
+							0, // no mipmap
+							4, // 4 colours
+							width,
+							height,
+							border,
+							GL2.GL_RGBA,
+							GL2.GL_UNSIGNED_BYTE,
+							Texture[0]
+						);
+						
                         CLContext context = JavaCL.createContextFromCurrentGL();
                         if (context != null) {
                             //int glcontext = gl.glGet.getContext().CONTEXT_CURRENT;
                             CLQueue queue = context.createDefaultQueue();
 
                             CLFloatBuffer clbuf = context.createBufferFromGLBuffer(CLMem.Usage.Input, VBO[0]).asCLFloatBuffer();
+                            CLImage2D climg = context.createImage2DFromGLTexture2D(CLMem.Usage.InputOutput, CLContext.GLTextureTarget.Texture2D, Texture[0], 0);
 
                             queue.enqueueAcquireGLObjects(new CLMem[] { clbuf });
+                            queue.enqueueAcquireGLObjects(new CLMem[] { climg });
                             queue.finish();
 
                             //Throws an InvalidMemObject exception : System.out.println(clbuf.getByteCount());

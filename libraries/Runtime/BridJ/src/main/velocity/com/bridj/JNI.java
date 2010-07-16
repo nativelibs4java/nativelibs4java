@@ -81,7 +81,7 @@ public class JNI {
         //f = BridJ.getNativeLibraryFile(name);
         //    if (f.exists())
         //        return f.getCanonicalFile();
-        //		throw new FileNotFoundException(libraryResource);
+        	throw new FileNotFoundException(libraryResource);
         }
         File libFile = File.createTempFile(new File(libraryResource).getName(), ext);
         libFile.deleteOnExit();
@@ -100,7 +100,9 @@ public class JNI {
         try {
 	        File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
 	        //File libFile = BridJ.getNativeLibraryFile(BridJLibraryName);
+			System.out.println("Loading library " + libFile);
 	        System.load(libFile.toString());
+	        //System.load("/Users/ochafik/nativelibs4java/Runtime/BridJ/src/main/cpp/bridj/build_out/darwin_universal_gcc_debug/libbridj.dylib");
 	        
 	        init();
 	        POINTER_SIZE = sizeOf_ptrdiff_t();
@@ -147,21 +149,28 @@ public class JNI {
 
     @Deprecated
     protected static native ${prim.Name} get_${prim.Name}(long peer);
-    @Deprecated
+    #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
+	@Deprecated
     protected static native ${prim.Name} get_${prim.Name}_disordered(long peer);
+    #end
     @Deprecated
     protected static native void set_${prim.Name}(long peer, ${prim.Name} value);
+	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
 	@Deprecated
     protected static native void set_${prim.Name}_disordered(long peer, ${prim.Name} value);
-
+    #end
     @Deprecated
     protected static native ${prim.Name}[] get_${prim.Name}_array(long peer, int length);
-    @Deprecated
+    #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
+	@Deprecated
     protected static native ${prim.Name}[] get_${prim.Name}_array_disordered(long peer, int length);
+    #end
     @Deprecated
     protected static native void set_${prim.Name}_array(long peer, ${prim.Name}[] values, int valuesOffset, int length);
+	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
 	@Deprecated
     protected static native void set_${prim.Name}_array_disordered(long peer, ${prim.Name}[] values, int valuesOffset, int length);
+    #end
 #end
 
 	public static native void callDefaultCPPConstructor(long constructor, long thisPtr, int callMode);

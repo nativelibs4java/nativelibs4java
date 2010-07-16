@@ -163,7 +163,7 @@ public class CPPRuntime extends CRuntime {
 	protected <T extends CPPObject> Pointer<T> newCPPInstance(Class<T> type, int constructorId, Object... args) {
     	Pointer<T> peer = null;
         try {
-        	peer = (Pointer)Pointer.allocate(PointerIO.getInstance(type), sizeOf(type, null));
+        	peer = (Pointer)Pointer.allocate(PointerIO.getInstance(type), sizeOf(type, type, null)); // TODO handle templates here
         	NativeLibrary lib = BridJ.getNativeLibrary(type);
         	if (constructorId < 0) {
         		Long defaultConstructor = defaultConstructors.get(type);

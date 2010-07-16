@@ -40,20 +40,22 @@ public class CPPTest {
 		int c = instance.testVirtualAdd(a, b);
 		assertEquals(res, c);
 
-        c = Pointer.getPeer(instance).toNativeObject(Ctest.class).testAdd(a, b);
+        c = Pointer.getPointer(instance).toNativeObject(Ctest.class).testAdd(a, b);
         assertEquals(baseRes, c);
 
-        c = instance.testVirtualAddStdCall(null, a, b);
-		assertEquals("testVirtualAddStdCall", baseRes, c);
-
-        c = instance.testVirtualAddStdCall(Pointer.allocateInt(), a, b);
-		assertEquals("testVirtualAddStdCall", 0, c);
-
-        c = instance.testAddStdCall(null, a, b);
-		assertEquals("testAddStdCall", baseRes, c);
-
-        c = instance.testAddStdCall(Pointer.allocateInt(), a, b);
-		assertEquals("testAddStdCall", 0, c);
+        if (JNI.isWindows()) {
+	        c = instance.testVirtualAddStdCall(null, a, b);
+			assertEquals("testVirtualAddStdCall", baseRes, c);
+	
+	        c = instance.testVirtualAddStdCall(Pointer.allocateInt(), a, b);
+			assertEquals("testVirtualAddStdCall", 0, c);
+	
+	        c = instance.testAddStdCall(null, a, b);
+			assertEquals("testAddStdCall", baseRes, c);
+	
+	        c = instance.testAddStdCall(Pointer.allocateInt(), a, b);
+			assertEquals("testAddStdCall", 0, c);
+        }
 	}
 	
 	@Library("test")

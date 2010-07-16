@@ -40,10 +40,10 @@ public class ObjectiveCRuntime extends CRuntime {
     synchronized Pointer<ObjCClass> getClass(String name) {
     	Pointer<ObjCClass> c = classes.get(name);
     	if (c == null) {
-    		Pointer<?> cls = objc_getClass(Pointer.pointerTo(name));
+    		Pointer<?> cls = objc_getClass(Pointer.pointerToCString(name));
     		c = class_createInstance(cls, 0);
     		if (c != null) {
-    			c.setTargetClass(ObjCClass.class);
+    			//c.setTargetClass(ObjCClass.class);
     			classes.put(name, c);
     		}
     	}
@@ -67,8 +67,12 @@ public class ObjectiveCRuntime extends CRuntime {
     @Override
     public void register(Class<?> type) {
     	Library libAnn = type.getAnnotation(Library.class);
-    	if (libAnn != null)
-    		System.loadLibrary(libAnn.value());
+    	if (libAnn != null) {
+    		String name = libAnn.value();
+    		File libraryFile = BridJ.getNativeLibraryFile(name);
+    		if (libraryFile != null)
+    			System.load(libraryFile.toString());
+    	}
     	
     	super.register(type);
     }

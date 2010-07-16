@@ -7,6 +7,10 @@ char __cdecl doStructHandler(DCArgs* args, DCValue* result, StructFieldInfo *inf
 	CallTempStruct* call;
 	jobject instance = initCallHandler(args, &call, NULL);
 	JNIEnv* env = call->env;
+	jboolean bChainableSetter;
+	//instance = (*env)->NewGlobalRef(env, instance);
+	//instance = (*env)->NewLocalRef(env, instance);
+	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	dcMode(call->vm, DC_CALL_C_DEFAULT);
 
@@ -16,14 +20,18 @@ char __cdecl doStructHandler(DCArgs* args, DCValue* result, StructFieldInfo *inf
 	dcArgPointer(call->vm, instance);
 	dcArgInt(call->vm, info->fFieldIndex);
 	
+	bChainableSetter = info->fInfo.nParams == 1 && info->fInfo.fReturnType != eVoidValue;
+	
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes) 
 	&&
-	followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction);
+	followCall(call, bChainableSetter ? eVoidValue : info->fInfo.fReturnType, result, info->fJNICallFunction, JNI_TRUE, bChainableSetter);
 
 	cleanupCallHandler(call);
 	
 	// Special case for setters that return this :
-	if (info->fInfo.nParams == 1 && info->fInfo.fReturnType != eVoidValue) {
+	if (bChainableSetter) {
+		//instance = (*env)->NewGlobalRef(env, instance);
+		//instance = (*env)->NewLocalRef(env, instance);
 		result->p = instance;
 		return DC_SIGCHAR_POINTER;
 	} else

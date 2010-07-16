@@ -55,6 +55,7 @@ import com.bridj.TypedPointer;
 import com.bridj.cpp.CPPRuntime;
 import com.ochafik.io.FileListUtils;
 import com.ochafik.io.ReadText;
+import com.ochafik.io.WriteText;
 import com.ochafik.lang.compiler.CompilerUtils;
 import com.ochafik.lang.compiler.MemoryFileManager;
 import com.ochafik.lang.compiler.MemoryJavaFile;
@@ -296,6 +297,9 @@ public class JNAerator {
 					case MaxConstructedFields:
 						config.maxConstructedFields = a.getIntParam(0);
 						break;
+					case BeanStructs:
+						config.beanStructs = true;
+						break;
 					case NoPrimitiveArrays:
 						config.noPrimitiveArrays = true;
 						break;
@@ -317,6 +321,9 @@ public class JNAerator {
                     case NoCompile:
 						config.compile = false;
 						break;
+                    case SkipLibInstance:
+                    	config.skipLibraryInstanceDeclarations = true;
+                    	break;
 					case NoStringReturns:
 						config.stringifyConstCStringReturnValues = false;
 						break;
@@ -599,6 +606,10 @@ public class JNAerator {
 						config.outputJar = new File(config.outputDir, (entry == null ? "out" : entry) + ".jar");
 					
 					if (config.verbose) {
+						if (config.rawParsedSourcesOutFile == null)
+							config.rawParsedSourcesOutFile = new File("_jnaerator.rawParsed.cpp");
+						if (config.normalizedParsedSourcesOutFile == null)
+							config.normalizedParsedSourcesOutFile = new File("_jnaerator.normalizedParsed.cpp");
 						if (config.macrosOutFile == null)
 							config.macrosOutFile = new File("_jnaerator.macros.cpp");
 						if (config.choicesOutFile == null)
@@ -1114,17 +1125,17 @@ public class JNAerator {
 				))
 			)).addModifiers(Modifier.Static));
 
-            String libFileOrDirArgName = "libraryFileOrDirectory";
-            Function constr = new Function(Function.Type.JavaMethod, fullLibraryClassName.resolveLastSimpleIdentifier().clone(), null, new Arg(libFileOrDirArgName, typeRef(File.class)));
-            constr.addModifiers(Modifier.Public);
-            constr.setBody(block(stat(methodCall("super", varRef(libFileOrDirArgName)))));
-            interf.addDeclaration(constr);
-
-            constr = new Function(Function.Type.JavaMethod, fullLibraryClassName.resolveLastSimpleIdentifier().clone(), null);
-            constr.addModifiers(Modifier.Public);
-            constr.addThrown(typeRef(FileNotFoundException.class));
-            constr.setBody(block(stat(methodCall("super", classLiteral(typeRef(fullLibraryClassName.clone()))))));
-            interf.addDeclaration(constr);
+//            String libFileOrDirArgName = "libraryFileOrDirectory";
+//            Function constr = new Function(Function.Type.JavaMethod, fullLibraryClassName.resolveLastSimpleIdentifier().clone(), null, new Arg(libFileOrDirArgName, typeRef(File.class)));
+//            constr.addModifiers(Modifier.Public);
+//            constr.setBody(block(stat(methodCall("super", varRef(libFileOrDirArgName)))));
+//            interf.addDeclaration(constr);
+//
+//            constr = new Function(Function.Type.JavaMethod, fullLibraryClassName.resolveLastSimpleIdentifier().clone(), null);
+//            constr.addModifiers(Modifier.Public);
+//            constr.addThrown(typeRef(FileNotFoundException.class));
+//            constr.setBody(block(stat(methodCall("super", classLiteral(typeRef(fullLibraryClassName.clone()))))));
+//            interf.addDeclaration(constr);
 
             fillLibraryMapping(result, sourceFiles, interf, library, javaPackage, fullLibraryClassName, varRef("this"));
         }
@@ -1169,68 +1180,71 @@ public class JNAerator {
 			interf.addModifiers(Modifier.Public);
 			interf.setTag(simpleLibraryClassName);
 			
-			Expression libNameExpr = opaqueExpr(result.getLibraryFileExpression(library));
-			TypeRef libTypeRef = typeRef(fullLibraryClassName);
-			Expression libClassLiteral = classLiteral(libTypeRef);
-			
-			Expression libraryPathGetterExpr = methodCall(
-				expr(typeRef(LibraryExtractor.class)),
-				MemberRefStyle.Dot,
-				"getLibraryPath",
-				libNameExpr,
-				expr(true),
-				libClassLiteral
-			);
-			
-			String libNameStringFieldName = "JNA_LIBRARY_NAME", nativeLibFieldName = "JNA_NATIVE_LIB";
-			interf.addDeclaration(new VariablesDeclaration(typeRef(String.class), new Declarator.DirectDeclarator(
-				libNameStringFieldName,
-				libraryPathGetterExpr
-			)).addModifiers(Modifier.Public, Modifier.Static, Modifier.Final));
-			
-			Expression libraryNameFieldExpr = memberRef(expr(libTypeRef.clone()), MemberRefStyle.Dot, ident(libNameStringFieldName));
-			Expression optionsMapExpr = memberRef(expr(typeRef(MangledFunctionMapper.class)), MemberRefStyle.Dot, "DEFAULT_OPTIONS");
-			interf.addDeclaration(new VariablesDeclaration(typeRef(NativeLibrary.class), new Declarator.DirectDeclarator(
-				nativeLibFieldName,
-				methodCall(
-					expr(typeRef(NativeLibrary.class)),
-					MemberRefStyle.Dot,
-					"getInstance",
-					libraryNameFieldExpr.clone(),
-					optionsMapExpr.clone()
-				)
-			)).addModifiers(Modifier.Public, Modifier.Static, Modifier.Final));
-			Expression nativeLibFieldExpr = memberRef(expr(libTypeRef.clone()), MemberRefStyle.Dot, ident(nativeLibFieldName));
+			Expression nativeLibFieldExpr = null;
+			if (!result.config.skipLibraryInstanceDeclarations) {
+				Expression libNameExpr = opaqueExpr(result.getLibraryFileExpression(library));
+				TypeRef libTypeRef = typeRef(fullLibraryClassName);
+				Expression libClassLiteral = classLiteral(libTypeRef);
 				
-			if (result.config.useJNADirectCalls) {
-				interf.addDeclaration(new Function(Function.Type.StaticInit, null, null).setBody(block(
-					stat(methodCall(
-						expr(typeRef(Native.class)),
+				Expression libraryPathGetterExpr = methodCall(
+					expr(typeRef(LibraryExtractor.class)),
+					MemberRefStyle.Dot,
+					"getLibraryPath",
+					libNameExpr,
+					expr(true),
+					libClassLiteral
+				);
+				
+				String libNameStringFieldName = "JNA_LIBRARY_NAME", nativeLibFieldName = "JNA_NATIVE_LIB";
+				interf.addDeclaration(new VariablesDeclaration(typeRef(String.class), new Declarator.DirectDeclarator(
+					libNameStringFieldName,
+					libraryPathGetterExpr
+				)).addModifiers(Modifier.Public, Modifier.Static, Modifier.Final));
+				
+				Expression libraryNameFieldExpr = memberRef(expr(libTypeRef.clone()), MemberRefStyle.Dot, ident(libNameStringFieldName));
+				Expression optionsMapExpr = memberRef(expr(typeRef(MangledFunctionMapper.class)), MemberRefStyle.Dot, "DEFAULT_OPTIONS");
+				interf.addDeclaration(new VariablesDeclaration(typeRef(NativeLibrary.class), new Declarator.DirectDeclarator(
+					nativeLibFieldName,
+					methodCall(
+						expr(typeRef(NativeLibrary.class)),
 						MemberRefStyle.Dot,
-						"register",
-						libraryNameFieldExpr.clone()
-					))
-				)).addModifiers(Modifier.Static));
-			} else {
-				VariablesDeclaration instanceDecl = new VariablesDeclaration(libTypeRef, new Declarator.DirectDeclarator(
-					librariesHub == null ? "INSTANCE" : library,
-					cast(
-						libTypeRef, 
-						methodCall(
+						"getInstance",
+						libraryNameFieldExpr.clone(),
+						optionsMapExpr.clone()
+					)
+				)).addModifiers(Modifier.Public, Modifier.Static, Modifier.Final));
+				nativeLibFieldExpr = memberRef(expr(libTypeRef.clone()), MemberRefStyle.Dot, ident(nativeLibFieldName));
+					
+				if (result.config.useJNADirectCalls) {
+					interf.addDeclaration(new Function(Function.Type.StaticInit, null, null).setBody(block(
+						stat(methodCall(
 							expr(typeRef(Native.class)),
 							MemberRefStyle.Dot,
-							"loadLibrary",
-							libraryNameFieldExpr.clone(),
-							libClassLiteral,
-							optionsMapExpr.clone()
+							"register",
+							libraryNameFieldExpr.clone()
+						))
+					)).addModifiers(Modifier.Static));
+				} else {
+					VariablesDeclaration instanceDecl = new VariablesDeclaration(libTypeRef, new Declarator.DirectDeclarator(
+						librariesHub == null ? "INSTANCE" : library,
+						cast(
+							libTypeRef, 
+							methodCall(
+								expr(typeRef(Native.class)),
+								MemberRefStyle.Dot,
+								"loadLibrary",
+								libraryNameFieldExpr.clone(),
+								libClassLiteral,
+								optionsMapExpr.clone()
+							)
 						)
-					)
-				)).addModifiers(Modifier.Public, Modifier.Static, Modifier.Final);
-				if (librariesHub != null) {
-					librariesHub.addDeclaration(instanceDecl);
-					librariesHub.addProtocol(fullLibraryClassName.clone());
-				} else
-					interf.addDeclaration(instanceDecl);
+					)).addModifiers(Modifier.Public, Modifier.Static, Modifier.Final);
+					if (librariesHub != null) {
+						librariesHub.addDeclaration(instanceDecl);
+						librariesHub.addProtocol(fullLibraryClassName.clone());
+					} else
+						interf.addDeclaration(instanceDecl);
+				}
 			}
 
             boolean stdcall = false;
@@ -1308,6 +1322,11 @@ public class JNAerator {
                 String addressVarName = "address";
                 ptClass.addDeclaration(new Function(Function.Type.JavaMethod, fakePointer, null,
                     new Arg(addressVarName, typeRef(long.class))
+                ).addModifiers(Modifier.Public).setBody(
+                    block(stat(methodCall("super", varRef(addressVarName)))))
+                );
+                ptClass.addDeclaration(new Function(Function.Type.JavaMethod, fakePointer, null,
+                    new Arg(addressVarName, typeRef(com.bridj.Pointer.class))
                 ).addModifiers(Modifier.Public).setBody(
                     block(stat(methodCall("super", varRef(addressVarName)))))
                 );
@@ -1392,8 +1411,14 @@ public class JNAerator {
 		if (result.config.choicesInputFile != null)
 			readChoices(result);
 		
+		if (config.rawParsedSourcesOutFile != null) {
+			if (config.verbose)
+				System.out.println("Writing raw parsed sources to '" + config.rawParsedSourcesOutFile + "'");
+			WriteText.writeText(sourceFiles.toString(), config.rawParsedSourcesOutFile);
+		}
+		
 		/// Perform Objective-C-specific pre-transformation (javadoc conversion for enums + find name of enums based on next sibling integer typedefs)
-		sourceFiles.accept(new ObjectiveCToJavaPreScanner());
+		sourceFiles.accept(new ObjectiveCToJavaPreScanner(result));
 
 		/// Explode declarations to have only one direct declarator each
 		sourceFiles.accept(new CToJavaPreScanner());
@@ -1434,6 +1459,12 @@ public class JNAerator {
 		sourceFiles.accept(new JavaDocCreator(result));
 		
 		assert checkNoCycles(sourceFiles);
+
+		if (config.normalizedParsedSourcesOutFile != null) {
+			if (config.verbose)
+				System.out.println("Writing normalized parsed sources to '" + config.normalizedParsedSourcesOutFile + "'");
+			WriteText.writeText(sourceFiles.toString(), config.normalizedParsedSourcesOutFile);
+		}
 		
 		//##################################################################
 		//##### BEGINNING HERE, sourceFiles NO LONGER GETS MODIFIED ! ######
@@ -1491,9 +1522,9 @@ public class JNAerator {
 		
 		generateLibraryFiles(sourceFiles, result);
 
-		//if (config.verbose)
-		for (String unknownType : result.typeConverter.unknownTypes) 
-			System.out.println("Unknown Type: " + unknownType);
+		if (config.verbose)
+			for (String unknownType : result.typeConverter.unknownTypes) 
+				System.out.println("Unknown Type: " + unknownType);
 
 		if (result.config.choicesOutFile != null) {
 			PrintWriter out = new PrintWriter(result.config.choicesOutFile);

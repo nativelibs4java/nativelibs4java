@@ -7,5 +7,7 @@
 	<classpathentry kind="con" path="org.eclipse.iam.jdt.core.mavenClasspathContainer"/>
 	<classpathentry kind="con" path="org.maven.ide.eclipse.MAVEN2_CLASSPATH_CONTAINER"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Blas"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JavaCL"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

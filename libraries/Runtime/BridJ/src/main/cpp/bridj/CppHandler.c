@@ -32,11 +32,11 @@ char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, Vir
 	CallTempStruct* call;
 	jobject instance = initCallHandler(args, &call, NULL);
 	JNIEnv* env = call->env;
-
 	void* callback;
 	int nParams = info->fInfo.nParams;
 	ValueType *pParamTypes = info->fInfo.fParamTypes;
 	void* thisPtr;
+	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	//jobject objOrClass;
 	
@@ -80,7 +80,7 @@ char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, Vir
 
 	followArgs(call, args, nParams, pParamTypes) 
 	&&
-	followCall(call, info->fInfo.fReturnType, result, callback);
+	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE, JNI_FALSE);
 
 	cleanupCallHandler(call);
 	return info->fInfo.fDCReturnType;
@@ -101,6 +101,7 @@ char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, CPPMeth
 	void* thisPtr;
 	jobject instance = initCallHandler(args, &call, NULL);
 	JNIEnv* env = call->env;
+	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	dcMode(call->vm, info->fInfo.fDCMode);
 	
@@ -114,7 +115,7 @@ char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, CPPMeth
 	
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes) 
 	&&
-	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol);
+	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol, JNI_FALSE, JNI_FALSE);
 
 	cleanupCallHandler(call);
 	return info->fInfo.fDCReturnType;
@@ -122,9 +123,9 @@ char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, CPPMeth
 
 char __cdecl JavaToCPPMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {
-	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
+	CPPMethodCallInfo* info = (CPPMethodCallInfo*)userdata;
 	BEGIN_TRY();
-	return doJavaToCPPMethodCallHandler(args, result, (CPPMethodCallInfo*)userdata);
+	return doJavaToCPPMethodCallHandler(args, result, info);
 	END_TRY_RET(info->fInfo.fEnv, 0);
 }
 

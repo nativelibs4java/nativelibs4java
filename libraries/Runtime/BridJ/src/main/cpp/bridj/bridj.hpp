@@ -15,9 +15,9 @@
 #define __cdecl
 #endif
 
-//#ifdef _WIN64
+#if !defined (DC__OS_Darwin)
 #define NO_DIRECT_CALLS // TODO REMOVE ME !!! (issues with stack alignment on COM calls ?)
-//#endif
+#endif
 
 #include "dyncallback/dyncall_callback.h"
 #include <jni.h>
@@ -34,6 +34,8 @@
 #define MAX(x, y) (x < y ? y : x)
 #define PTR_TO_JLONG(ptr) ((jlong)(size_t)(ptr))
 #define JLONG_TO_PTR(jl) ((void*)(size_t)(jl))
+#define MALLOC_STRUCT(type) ((struct type*)malloc(sizeof(struct type)))
+#define MALLOC_STRUCT_ARRAY(type, size) ((struct type*)malloc(sizeof(struct type) * size))
 
 #define Modifier_ABSTRACT	1024
 #define Modifier_FINAL	16
@@ -69,6 +71,7 @@ typedef enum ValueType {
 typedef struct CallTempStruct {
 	DCCallVM* vm;
 	JNIEnv *env;
+	jobject* pCallIOs;
 } CallTempStruct;
 
 typedef struct CommonCallbackInfo {
@@ -144,7 +147,8 @@ char __cdecl StructHandler(DCCallback* callback, DCArgs* args, DCValue* result, 
 
 void* getNativeObjectPointer(JNIEnv* env, jobject instance, jclass targetClass);
 void* getPointerPeer(JNIEnv *env, jobject pointer);
-jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
+//jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
+jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO);
 
 void callDefaultConstructor(JNIEnv *env, void* constructor, void* thisPtr, int callMode);
 jlong getFlagValue(JNIEnv *env, jobject flagSet);
@@ -152,6 +156,9 @@ jobject newFlagSet(JNIEnv *env, jlong value);
 
 void throwException(JNIEnv* env, const char* message);
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message);
+
+
+void initThreadLocal(JNIEnv* env);
 CallTempStruct* getTempCallStruct(JNIEnv* env);
 void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s);
 
