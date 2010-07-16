@@ -32,9 +32,7 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SAMPLER_NORMAL
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
-
-import com.bridj.Pointer;
-import com.bridj.SizeT;
+import com.bridj.*;
 import static com.bridj.Pointer.*;
 
 /**
@@ -67,13 +65,16 @@ public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	 * Values for CL_SAMPLER_ADDRESSING_MODE<br/>
 	 * How out-of-range image coordinates are handled when reading from an image
 	 */
-	public enum AddressingMode {
-		@EnumValue(CL_ADDRESS_REPEAT        ) Repeat        ,
-		@EnumValue(CL_ADDRESS_CLAMP_TO_EDGE ) ClampToEdge 	,
-		@EnumValue(CL_ADDRESS_CLAMP         ) Clamp         ,
-		@EnumValue(CL_ADDRESS_NONE          ) None          ;
+	public enum AddressingMode implements com.nativelibs4java.util.ValuedEnum {
+		Repeat(CL_ADDRESS_REPEAT),
+		ClampToEdge(CL_ADDRESS_CLAMP_TO_EDGE),
+		Clamp(CL_ADDRESS_CLAMP),
+		None(CL_ADDRESS_NONE);
 		
-		public long getValue() { return (int)EnumValues.getValue(this); }
+		AddressingMode(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
 		public static AddressingMode getEnum(long v) { return EnumValues.getEnum(v, AddressingMode.class); }
 	}
 
@@ -89,11 +90,14 @@ public class CLSampler extends CLAbstractEntity<cl_sampler> {
 	 * Values for CL_SAMPLER_FILTER_MODE<br/>
 	 * Type of filter that must be applied when reading an image
 	 */
-	public enum FilterMode {
-		@EnumValue(CL_FILTER_NEAREST ) Nearest,
-		@EnumValue(CL_FILTER_LINEAR  ) Linear ;
+	public enum FilterMode implements com.nativelibs4java.util.ValuedEnum {
+		Nearest(CL_FILTER_NEAREST),
+		Linear(CL_FILTER_LINEAR);
 		
-		public int getValue() { return (int)EnumValues.getValue(this); }
+		FilterMode(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
 		public static FilterMode getEnum(int v) { return EnumValues.getEnum(v, FilterMode.class); }
 	}
 	/**

@@ -19,11 +19,7 @@
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_COMPILE_WORK_GROUP_SIZE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_FUNCTION_NAME;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_LOCAL_MEM_SIZE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_NUM_ARGS;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_KERNEL_WORK_GROUP_SIZE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
@@ -41,12 +37,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
 import com.nativelibs4java.util.NIOUtils;
 
-import com.bridj.JNI;
-import com.bridj.Pointer;
-import com.bridj.SizeT;
+import com.bridj.*;
 import static com.bridj.Pointer.*;
-
-import com.bridj.Pointer;
 
 /**
  * OpenCL kernel.<br/>
@@ -96,6 +88,25 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         return getFunctionName() + " {args: " + getNumArgs() + "}";//, workGroupSize = " + getWorkGroupSize() + ", localMemSize = " + getLocalMemSize() + "}";
     }
 
+    /**
+     * Returns the preferred multiple of work- group size for launch. <br/>
+     * This is a performance hint. <br/>
+     * Specifying a work- group size that is not a multiple of the value returned by this query as the value of the local work size argument to clEnqueueNDRangeKernel will not fail to enqueue the kernel for execution unless the work-group size specified is larger than the device maximum.
+     * @since OpenCL 1.1
+     */
+    public Map<CLDevice, Long> getPreferredWorkGroupSizeMultiple() {
+    	try {
+	    	CLDevice[] devices = program.getDevices();
+	        Map<CLDevice, Long> ret = new HashMap<CLDevice, Long>(devices.length);
+	        for (CLDevice device : devices)
+	            ret.put(device, getKernelInfos().getIntOrLong(device.getEntity(), CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE));
+	        return ret;
+    	} catch (Throwable th) {
+    		// TODO check if supposed to handle OpenCL 1.1
+    		throw new UnsupportedOperationException("Cannot get CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE (OpenCL 1.1 feature).", th);
+    	}
+    }
+    
     /**
      * This provides a mechanism for the application to query the maximum work-group size that can be used to execute a kernel on a specific device given by device. <br/>
      * The OpenCL implementation uses the resource requirements of the kernel (register usage etc.) to determine what this work- group size should be.
@@ -327,6 +338,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
 
     /**
      * Enqueues a command to execute a kernel on a device.
+     * @see enqueueNDRange(CLQueue, int[], int[], int[], CLEvent...)
      * @param globalWorkSizes Each element describes the number of global work-items in a dimension that will execute the kernel function. The total number of global work-items is computed as globalWorkSizes[0] * ... * globalWorkSizes[globalWorkSizes.length - 1].
      * @param localWorkSizes Each element describes the number of work-items that make up a work-group (also referred to as the size of the work-group) that will execute the kernel specified by kernel. The total number of work-items in a work-group is computed as localWorkSizes[0] * ... * localWorkSizes[localWorkSizes.length - 1]. The total number of work-items in the work-group must be less than or equal to the CL_DEVICE_MAX_WORK_GROUP_SIZE value specified in table 4.3 and the number of work- items specified in localWorkSizes[0], ... localWorkSizes[localWorkSizes.length - 1] must be less than or equal to the corresponding values specified by CLDevice.getMaxWorkItemSizes()[dimensionIndex].	The explicitly specified localWorkSize will be used to determine how to break the global work-items specified by global_work_size into appropriate work-group instances. If localWorkSize is specified, the values specified in globalWorkSize[dimensionIndex] must be evenly divisible by the corresponding values specified in localWorkSize[dimensionIndex].
      * @param queue This kernel will be queued for execution on the device associated with that queue.
@@ -334,6 +346,19 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
      * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
      */
     public CLEvent enqueueNDRange(CLQueue queue /*, int[] globalOffsets*/, int[] globalWorkSizes, int[] localWorkSizes, CLEvent... eventsToWaitFor) {
+    	return enqueueNDRange(queue, null, globalWorkSizes, localWorkSizes, eventsToWaitFor);
+    }
+    
+    /**
+     * Enqueues a command to execute a kernel on a device.
+     * @param globalOffsets Must be null in OpenCL 1.0. Each element describes the offset used to calculate the global ID of a work-item. If globalOffsets is null, the global IDs start at offset (0, 0, ... 0).
+     * @param globalWorkSizes Each element describes the number of global work-items in a dimension that will execute the kernel function. The total number of global work-items is computed as globalWorkSizes[0] * ... * globalWorkSizes[globalWorkSizes.length - 1].
+     * @param localWorkSizes Each element describes the number of work-items that make up a work-group (also referred to as the size of the work-group) that will execute the kernel specified by kernel. The total number of work-items in a work-group is computed as localWorkSizes[0] * ... * localWorkSizes[localWorkSizes.length - 1]. The total number of work-items in the work-group must be less than or equal to the CL_DEVICE_MAX_WORK_GROUP_SIZE value specified in table 4.3 and the number of work- items specified in localWorkSizes[0], ... localWorkSizes[localWorkSizes.length - 1] must be less than or equal to the corresponding values specified by CLDevice.getMaxWorkItemSizes()[dimensionIndex].	The explicitly specified localWorkSize will be used to determine how to break the global work-items specified by global_work_size into appropriate work-group instances. If localWorkSize is specified, the values specified in globalWorkSize[dimensionIndex] must be evenly divisible by the corresponding values specified in localWorkSize[dimensionIndex].
+     * @param queue This kernel will be queued for execution on the device associated with that queue.
+     * @param eventsToWaitFor Events that need to complete before this particular command can be executed.
+     * @return Event object that identifies this command and can be used to query or queue a wait for the command to complete.
+     */
+    public CLEvent enqueueNDRange(CLQueue queue, int[] globalOffsets, int[] globalWorkSizes, int[] localWorkSizes, CLEvent... eventsToWaitFor) {
         int nDims = globalWorkSizes.length;
         if (localWorkSizes != null && localWorkSizes.length != nDims) {
             throw new IllegalArgumentException("Global and local sizes must have same dimensions, given " + globalWorkSizes.length + " vs. " + localWorkSizes.length);
@@ -344,7 +369,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
             queue.getEntity(),
             getEntity(),
             nDims,
-            null,
+            pointerToSizeTs(globalOffsets),
             pointerToSizeTs(globalWorkSizes),
             pointerToSizeTs(localWorkSizes),
             evts == null ? 0 : (int)evts.getRemainingElements(),

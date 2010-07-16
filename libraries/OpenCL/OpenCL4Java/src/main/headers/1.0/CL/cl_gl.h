@@ -26,8 +26,13 @@
 #ifndef __OPENCL_CL_GL_H
 #define __OPENCL_CL_GL_H
 
+#ifdef __APPLE__
+#include <OpenCL/cl_platform.h>
+#include <OpenGL/gl.h>
+#else
 #include <CL/cl_platform.h>
 #include <GL/gl.h>
+#endif	
 
 #ifdef __cplusplus
 extern "C" {

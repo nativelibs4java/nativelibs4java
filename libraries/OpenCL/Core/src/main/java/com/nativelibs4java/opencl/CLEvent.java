@@ -19,42 +19,15 @@
 package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_ACQUIRE_GL_OBJECTS;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_COPY_BUFFER;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_COPY_BUFFER_TO_IMAGE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_COPY_IMAGE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_COPY_IMAGE_TO_BUFFER;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_MAP_BUFFER;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_MAP_IMAGE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_MARKER;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_NATIVE_KERNEL;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_NDRANGE_KERNEL;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_READ_BUFFER;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_READ_IMAGE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_RELEASE_GL_OBJECTS;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_TASK;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_UNMAP_MEM_OBJECT;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_WRITE_BUFFER;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMMAND_WRITE_IMAGE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_COMPLETE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_EVENT_COMMAND_EXECUTION_STATUS;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_EVENT_COMMAND_TYPE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROFILING_COMMAND_END;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROFILING_COMMAND_QUEUED;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROFILING_COMMAND_START;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROFILING_COMMAND_SUBMIT;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_QUEUED;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_RUNNING;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SUBMITTED;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 
 import java.util.Arrays;
 
+import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
-
-import com.bridj.Pointer;
-import com.bridj.SizeT;
+import com.bridj.*;
 import static com.bridj.Pointer.*;
 
 /**
@@ -88,7 +61,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		}
 	};
 	
-	private CLEvent(cl_event evt) {
+	CLEvent(cl_event evt) {
 		super(evt, false);
 	}
 
@@ -96,12 +69,49 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		super(null, true);
 	}
 
+    public interface EventCallback {
+    	public void callback(CLEvent event, int executionStatus);
+    }
+    
+    /**
+     * Registers a user callback function for the completion execution status (CL_COMPLETE). <br/>
+     * @param callback
+     * @throws UnsupportedOperationException in OpenCL 1.0
+     * @since OpenCL 1.1
+     */
+    public void setCompletionCallback(final EventCallback callback) {
+    	setCallback(CL_COMPLETE, callback);
+    }
+    /**
+     * Registers a user callback function for a specific command execution status. <br/>
+     * The registered callback function will be called when the execution status of command associated with event changes to the execution status specified by command_exec_status.
+     * @param commandExecStatus specifies the command execution status for which the callback is registered. The command execution callback values for which a callback can be registered are: CL_COMPLETE. There is no guarantee that the callback functions registered for various execution status values for an event will be called in the exact order that the execution status of a command changes.
+     * @param callback
+     * @throws UnsupportedOperationException in OpenCL 1.0
+     * @since OpenCL 1.1
+     */
+    public void setCallback(int commandExecStatus, final EventCallback callback) {
+    	try {
+    		clSetEventCallback_arg1_callback cb = new clSetEventCallback_arg1_callback() {
+	    		public void invoke(OpenCLLibrary.cl_event evt, int executionStatus, Pointer voidPtr1) {
+	    			callback.callback(CLEvent.this, executionStatus);
+	    		}
+	    	};
+	    	// TODO manage lifespan of cb
+    		BridJ.protectFromGC(cb);
+	    	error(CL.clSetEventCallback(getEntity(), commandExecStatus, getPointer(cb), null));
+    	} catch (Throwable th) {
+    		// TODO check if supposed to handle OpenCL 1.1
+    		throw new UnsupportedOperationException("Cannot set event callback (OpenCL 1.1 feature).", th);
+    	}
+    }
+    
     static boolean noEvents = false;
     public static void setNoEvents(boolean noEvents) {
         CLEvent.noEvents = noEvents;
     }
 	static CLEvent createEvent(final CLQueue queue, cl_event evt) {
-		if (noEvents) {
+		if (noEvents && queue != null) {
             if (evt != null)
                 CL.clReleaseEvent(evt);
             evt = null;
@@ -216,6 +226,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
             if (event == null || event.getEntity() == null)
                 continue;
             event_wait_list.set(iDest, event.getEntity());
+            iDest++;
         }
 		return event_wait_list;	
 	}
@@ -226,17 +237,20 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	}
 
 	/** Values for CL_EVENT_COMMAND_EXECUTION_STATUS */
-	public enum CommandExecutionStatus {
+	public enum CommandExecutionStatus implements com.nativelibs4java.util.ValuedEnum {
 		/** command has been enqueued in the command-queue                                             */ 
-		@EnumValue(CL_QUEUED	) Queued	,
+		Queued(CL_QUEUED),
 		/** enqueued command has been submitted by the host to the device associated with the command-queue */ 
-		@EnumValue(CL_SUBMITTED ) Submitted ,
+		Submitted(CL_SUBMITTED),
 		/** device is currently executing this command */ 
-		@EnumValue(CL_RUNNING	) Running	,
+		Running(CL_RUNNING),
 		/** the command has completed */ 
-		@EnumValue(CL_COMPLETE	) Complete	;
+		Complete(CL_COMPLETE);
 		
-		public long getValue() { return EnumValues.getValue(this); }
+		CommandExecutionStatus(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
 		public static CommandExecutionStatus getEnum(long v) { return EnumValues.getEnum(v, CommandExecutionStatus.class); }
 	}
 	
@@ -244,7 +258,6 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 	 * Return the execution status of the command identified by event.  <br/>
 	 * @throws CLException is the execution status denotes an error
 	 */
-	@InfoName("CL_EVENT_COMMAND_EXECUTION_STATUS")
 	public CommandExecutionStatus getCommandExecutionStatus() {
 		int v = infos.getInt(getEntity(), CL_EVENT_COMMAND_EXECUTION_STATUS);
 		CommandExecutionStatus status =  CommandExecutionStatus.getEnum(v);
@@ -252,28 +265,39 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 			error(v);
 		return status;
 	}
+	/**
+	 * Return the execution status of the command identified by event.  <br/>
+	 * @throws CLException is the execution status denotes an error
+	 */
+	@InfoName("CL_EVENT_COMMAND_EXECUTION_STATUS")
+	public int getCommandExecutionStatusValue() {
+		return infos.getInt(getEntity(), CL_EVENT_COMMAND_EXECUTION_STATUS);
+	}
 
 	/** Values for CL_EVENT_COMMAND_TYPE */
-	public enum CommandType {
-		@EnumValue(CL_COMMAND_NDRANGE_KERNEL		) NDRangeKernel,
-		@EnumValue(CL_COMMAND_TASK					) Task,
-		@EnumValue(CL_COMMAND_NATIVE_KERNEL			) NativeKernel,
-		@EnumValue(CL_COMMAND_READ_BUFFER			) ReadBuffer,
-		@EnumValue(CL_COMMAND_WRITE_BUFFER			) WriteBuffer,
-		@EnumValue(CL_COMMAND_COPY_BUFFER			) CopyBuffer,
-		@EnumValue(CL_COMMAND_READ_IMAGE 			) ReadImage,
-		@EnumValue(CL_COMMAND_WRITE_IMAGE			) WriteImage,
-		@EnumValue(CL_COMMAND_COPY_IMAGE			) CopyImage,
-		@EnumValue(CL_COMMAND_COPY_BUFFER_TO_IMAGE	) CopyBufferToImage,
-		@EnumValue(CL_COMMAND_COPY_IMAGE_TO_BUFFER  ) CopyImageToBuffer,
-		@EnumValue(CL_COMMAND_MAP_BUFFER 			) MapBuffer,
-		@EnumValue(CL_COMMAND_MAP_IMAGE             ) CommandMapImage,
-		@EnumValue(CL_COMMAND_UNMAP_MEM_OBJECT		) UnmapMemObject,             
-		@EnumValue(CL_COMMAND_MARKER             	) Marker,             
-		@EnumValue(CL_COMMAND_ACQUIRE_GL_OBJECTS    ) AcquireGLObjects,             
-		@EnumValue(CL_COMMAND_RELEASE_GL_OBJECTS	) ReleaseGLObjects;
+	public enum CommandType implements com.nativelibs4java.util.ValuedEnum {
+		NDRangeKernel(CL_COMMAND_NDRANGE_KERNEL),
+		Task(CL_COMMAND_TASK),
+		NativeKernel(CL_COMMAND_NATIVE_KERNEL),
+		ReadBuffer(CL_COMMAND_READ_BUFFER),
+		WriteBuffer(CL_COMMAND_WRITE_BUFFER),
+		CopyBuffer(CL_COMMAND_COPY_BUFFER),
+		ReadImage(CL_COMMAND_READ_IMAGE),
+		WriteImage(CL_COMMAND_WRITE_IMAGE),
+		CopyImage(CL_COMMAND_COPY_IMAGE),
+		CopyBufferToImage(CL_COMMAND_COPY_BUFFER_TO_IMAGE),
+		CopyImageToBuffer(CL_COMMAND_COPY_IMAGE_TO_BUFFER),
+		MapBuffer(CL_COMMAND_MAP_BUFFER),
+		CommandMapImage(CL_COMMAND_MAP_IMAGE),
+		UnmapMemObject(CL_COMMAND_UNMAP_MEM_OBJECT),             
+		Marker(CL_COMMAND_MARKER),             
+		AcquireGLObjects(CL_COMMAND_ACQUIRE_GL_OBJECTS),             
+		ReleaseGLObjects(CL_COMMAND_RELEASE_GL_OBJECTS);
 
-		public long getValue() { return EnumValues.getValue(this); }
+		CommandType(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
 		public static CommandType getEnum(long v) { return EnumValues.getEnum(v, CommandType.class); }
 	}
 

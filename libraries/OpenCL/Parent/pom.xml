@@ -7,65 +7,22 @@
 	<packaging>pom</packaging>
 	<name>OpenCL4Java Common Configuration / BridJ</name>
 	<inceptionYear>2009</inceptionYear>
-    <url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
-  
-  <parent>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>nativelibs4java-parent</artifactId>
-	  <version>1.0-SNAPSHOT</version>
-	  <relativePath>../../Parent</relativePath>
-  </parent>
-  
-	  <description>
-OpenCL4Java, JavaCL and ScalaCL are OpenCL binding libraries for the Java platform.
-	</description>
-  
-  <dependencies>
-  	
-	<dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.7</version>
-      <scope>test</scope>
-    </dependency>
-	
-  </dependencies>
+	<url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
+     
+	<!--<properties>
+		<jnaerator.version>0.9.3</jnaerator.version>
+	</properties>-->
 
-  <distributionManagement>
-		<site>
-           <id>nativelibs4java-sites</id>
-           <name>NativeLibs4Java Sourceforge Sites</name>
-		   <url>scp://shell.sourceforge.net/home/groups/n/na/nativelibs4java/htdocs/sites</url>
-	    </site>
-		</distributionManagement>
-  <build>
-  	<plugins>
-	 		 <plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jarsigner-plugin</artifactId>
-				<version>1.2</version>
-				<executions>
-				  <execution>
-					<id>sign</id>
-					<phase>verify</phase>
-					<goals>
-					  <goal>sign</goal>
-					</goals>
-				  </execution>
-				</executions>
-				<configuration>
-				<removeExistingSignatures>true</removeExistingSignatures>
-				  <keystore>/Users/ochafik/security/ochafik.keystore</keystore>
-			  <!--keystore>/Users/Olivier/security/ochafik.keystore</keystore-->
-			  <alias>ochafik2009</alias>
-			  <!--   
-				  mvn "-Dstorepass=$KEYSTORE_PASS" -Dmaven.test.skip=true package  
-				  <storepass>yourstorepassword</storepass>
-			  -->
-			    <storepass>${storepass}</storepass>
-				</configuration>
-			  </plugin>
-	</plugins>
-  </build>
+	<parent>
+		<groupId>com.nativelibs4java</groupId>
+		<artifactId>nativelibs4java-parent</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../../Parent</relativePath>
+	</parent>
+	
+	<description>
+		OpenCL4Java, JavaCL and ScalaCL are OpenCL binding libraries for the Java platform.
+	</description>
+
 </project>
 

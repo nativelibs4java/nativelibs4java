@@ -28,11 +28,8 @@ import java.util.EnumSet;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
-
-import com.bridj.Pointer;
+import com.bridj.*;
 import static com.bridj.Pointer.*;
-import com.bridj.Pointer;
-import com.bridj.SizeT;
 
 /**
  * OpenCL command queue.<br/>
@@ -85,7 +82,7 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 
 	@SuppressWarnings("deprecation")
 	public void setProperty(CLDevice.QueueProperties property, boolean enabled) {
-		error(CL.clSetCommandQueueProperty(getEntity(), property.getValue(), enabled ? CL_TRUE : CL_FALSE, (Pointer<Long>)null));
+		error(CL.clSetCommandQueueProperty(getEntity(), property.value(), enabled ? CL_TRUE : CL_FALSE, (Pointer<Long>)null));
 	}
 	
 

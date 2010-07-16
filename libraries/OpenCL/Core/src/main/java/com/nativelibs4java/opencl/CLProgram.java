@@ -40,11 +40,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program;
 import com.nativelibs4java.util.NIOUtils;
 
-import com.bridj.JNI;
-import com.bridj.Pointer;
-import com.bridj.SizeT;
+import com.bridj.*;
 import static com.bridj.Pointer.*;
-
 
 /**
  * OpenCL program.<br/>
@@ -171,8 +168,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 			Pointer<?> bytes = binMems[i];
             ret.put(device, bytes.getBytes(0, (int)sizes[i]));
 		}
-
-        return ret;
+		return ret;
 	}
 
 	/**

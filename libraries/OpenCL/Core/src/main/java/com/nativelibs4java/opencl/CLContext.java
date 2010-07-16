@@ -21,12 +21,8 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.CLException.failedForLackOfMemory;
 import static com.nativelibs4java.opencl.JavaCL.CL;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_CONTEXT_DEVICES;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_FALSE;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_COPY_HOST_PTR;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_MEM_USE_HOST_PTR;
-import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_TRUE;
+import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
+import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import static com.nativelibs4java.util.ImageUtils.getImageIntPixels;
 import static com.nativelibs4java.util.NIOUtils.getSizeInBytes;
 
@@ -55,9 +51,7 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.util.NIOUtils;
-import com.bridj.JNI;
-import com.bridj.Pointer;
-import com.bridj.SizeT;
+import com.bridj.*;
 import static com.bridj.Pointer.*;
 
 
@@ -83,6 +77,23 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		super(context);
 		this.platform = platform;
 		this.deviceIds = deviceIds;
+	}
+	
+	/**
+	 * Creates a user event object. <br/>
+	 * User events allow applications to enqueue commands that wait on a user event to finish before the command is executed by the device.
+	 * @since OpenCL 1.1
+	 */
+	public CLEvent createUserEvent() {
+		try {
+			Pointer<Integer> pErr = allocateInt();
+			cl_event evt = CL.clCreateUserEvent(getEntity(), pErr);
+			error(pErr.get());
+			return CLEvent.createEvent(null, evt);
+		} catch (Throwable th) {
+			// TODO throw if supposed to handle OpenCL 1.1
+    		return null;
+		}
 	}
 
 	/**
@@ -115,8 +126,8 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	@SuppressWarnings("deprecation")
 	public CLImageFormat[] getSupportedImageFormats(CLBuffer.Flags flags, CLBuffer.ObjectType imageType) {
 		Pointer<Integer> pCount = allocateInt();
-		int memFlags = (int) flags.getValue();
-		int imTyp = (int) imageType.getValue();
+		int memFlags = (int) flags.value();
+		int imTyp = (int) imageType.value();
 		CL.clGetSupportedImageFormats(getEntity(), memFlags, imTyp, 0, null, pCount);
 		//cl_image_format ft = new cl_image_format();
 		//int sz = ft.size();
@@ -139,11 +150,15 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	@SuppressWarnings("deprecation")
 	public CLSampler createSampler(boolean normalized_coords, AddressingMode addressing_mode, FilterMode filter_mode) {
 		Pointer<Integer> pErr = allocateInt();
-		cl_sampler sampler = CL.clCreateSampler(getEntity(), normalized_coords ? CL_TRUE : CL_FALSE, (int) addressing_mode.getValue(), (int) filter_mode.getValue(), pErr);
+		cl_sampler sampler = CL.clCreateSampler(getEntity(), normalized_coords ? CL_TRUE : CL_FALSE, (int) addressing_mode.value(), (int) filter_mode.value(), pErr);
 		error(pErr.get());
 		return new CLSampler(sampler);
 	}
 
+	public int getDeviceCount() {
+		return infos.getOptionalFeatureInt(getEntity(), CL.CL_CONTEXT_NUM_DEVICES);
+	}
+	
 	/**
 	 * Lists the devices of this context
 	 * @return array of the devices that form this context
@@ -244,7 +259,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLRenderbuffer(openGLRenderBuffer, pErr);
+			mem = CL.clCreateFromGLRenderbuffer(getEntity(), usage.getIntFlags(), openGLRenderBuffer, pErr);
 		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
@@ -267,7 +282,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLTexture2D(textureTarget.getValue(), mipLevel, texture, pErr);
+			mem = CL.clCreateFromGLTexture2D(getEntity(), usage.getIntFlags(), (int)textureTarget.value(), mipLevel, texture, pErr);
 		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
 		return markAsGL(new CLImage2D(this, mem, null));
 	}
@@ -288,19 +303,22 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 		
 
-	public enum GLTextureTarget {
+	public enum GLTextureTarget implements com.nativelibs4java.util.ValuedEnum {
 		
-		@EnumValue(GL_TEXTURE_2D)						Texture2D,
-		//@EnumValue(GL_TEXTURE_3D)						Texture3D,
-		@EnumValue(GL_TEXTURE_CUBE_MAP_POSITIVE_X)		CubeMapPositiveX,
-		@EnumValue(GL_TEXTURE_CUBE_MAP_NEGATIVE_X)		CubeMapNegativeX,
-		@EnumValue(GL_TEXTURE_CUBE_MAP_POSITIVE_Y)		CubeMapPositiveY,
-		@EnumValue(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y)		CubeMapNegativeY,
-		@EnumValue(GL_TEXTURE_CUBE_MAP_POSITIVE_Z)		CubeMapPositiveZ,
-		@EnumValue(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z)		CubeMapNegativeZ,
-		@EnumValue(GL_TEXTURE_RECTANGLE)				Rectangle;
+		Texture2D(GL_TEXTURE_2D),
+		//Texture3D(GL_TEXTURE_3D),
+		CubeMapPositiveX(GL_TEXTURE_CUBE_MAP_POSITIVE_X),
+		CubeMapNegativeX(GL_TEXTURE_CUBE_MAP_NEGATIVE_X),
+		CubeMapPositiveY(GL_TEXTURE_CUBE_MAP_POSITIVE_Y),
+		CubeMapNegativeY(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y),
+		CubeMapPositiveZ(GL_TEXTURE_CUBE_MAP_POSITIVE_Z),
+		CubeMapNegativeZ(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z),
+		Rectangle(GL_TEXTURE_RECTANGLE);
 
-		public int getValue() { return (int)EnumValues.getValue(this); }
+		GLTextureTarget(long value) { this.value = value; }
+		long value;
+		@Override
+		public long value() { return value; }
 		public static GLTextureTarget getEnum(int v) { return EnumValues.getEnum(v, GLTextureTarget.class); }
 	}
 	
@@ -321,7 +339,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		cl_mem mem;
 		int previousAttempts = 0;
 		do {
-			mem = CL.clCreateFromGLTexture3D(GL_TEXTURE_3D, mipLevel, texture, pErr);
+			mem = CL.clCreateFromGLTexture3D(getEntity(), usage.getIntFlags(), GL_TEXTURE_3D, mipLevel, texture, pErr);
 		} while (failedForLackOfMemory(pErr.get(), previousAttempts++));
 		return markAsGL(new CLImage3D(this, mem, null));
 	}
