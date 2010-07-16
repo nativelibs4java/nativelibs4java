@@ -48,7 +48,7 @@
 				HttpUrl=""
 				PDBPath=""
 				SQLDebugging=""
-				Environment=""
+				Environment="FORCE_BRIDJ_LIBRARY=C:\Users\Olivier\Prog\nativelibs4java\Runtime\BridJ\src\main\cpp\buildsys\vs2008\x64\Debug\bridj.dll"
 				EnvironmentMerge="true"
 				DebuggerFlavor="0"
 				MPIRunCommand=""

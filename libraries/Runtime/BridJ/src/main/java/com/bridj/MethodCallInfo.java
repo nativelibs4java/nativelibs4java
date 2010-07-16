@@ -34,6 +34,7 @@ public class MethodCallInfo {
 	private long forwardedPointer;
     String dcSignature;
 	String javaSignature;
+	String asmSignature;
 	Callback javaCallback;
 	private int index = -1;
 	int virtualTableOffset = 0;
@@ -71,8 +72,12 @@ public class MethodCallInfo {
 
         //GetOptions(methodOptions, method);
 
-        StringBuilder javaSig = new StringBuilder(64), dcSig = new StringBuilder(16);
+        StringBuilder 
+            javaSig = new StringBuilder(64), 
+            asmSig = new StringBuilder(64), 
+            dcSig = new StringBuilder(16);
         javaSig.append('(');
+        asmSig.append('(');
         dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
         for (int iParam = 0; iParam < nParams; iParam++) {
@@ -84,16 +89,18 @@ public class MethodCallInfo {
             paramsValueTypes[iParam] = paramValueType.ordinal();
             //GetOptions(paramOptions, method, paramsAnnotations[iParam]);
 
-            appendToSignature(paramValueType, parameterType, javaSig, dcSig);
+            appendToSignature(paramValueType, parameterType, genericParameterType, javaSig, dcSig, asmSig);
         }
         javaSig.append(')');
+        asmSig.append(')');
         dcSig.append(')');
 
         ValueType retType = getValueType(-1, nParams, method.getReturnType(), method.getGenericReturnType(), method);
-        appendToSignature(retType, method.getReturnType(), javaSig, dcSig);
+        appendToSignature(retType, method.getReturnType(), method.getGenericReturnType(), javaSig, dcSig, asmSig);
         returnValueType = retType.ordinal();
 
         javaSignature = javaSig.toString();
+        asmSignature = asmSig.toString();
         dcSignature = dcSig.toString();
         
         
@@ -157,6 +164,9 @@ public class MethodCallInfo {
 	public String getJavaSignature() {
 		return javaSignature;
 	}
+    public String getASMSignature() {
+		return asmSignature;
+	}
     boolean getBoolAnnotation(Class<? extends Annotation> ac, boolean inherit, AnnotatedElement element, Annotation... directAnnotations) {
         Annotation ann = BridJ.getAnnotation(ac, inherit, element, directAnnotations);
         return ann != null;
@@ -213,7 +223,7 @@ public class MethodCallInfo {
         }
         if (Pointer.class.isAssignableFrom(c)) {
             direct = false;
-            addCallIO(CallIO.Utils.createPointerCallIO(c, t));
+            addCallIO(CallIO.Utils.createPointerCallIO(c, t, iParam));
         		return ValueType.ePointerValue;
         }
         if (c.isArray() && iParam == nParams - 1) {
@@ -239,9 +249,9 @@ public class MethodCallInfo {
         }
     }
 
-    public void appendToSignature(ValueType type, Class<?> parameterType, StringBuilder javaSig, StringBuilder dcSig) {
+    public void appendToSignature(ValueType type, Class<?> parameterType, Type genericParameterType, StringBuilder javaSig, StringBuilder dcSig, StringBuilder asmSig) {
         char dcChar;
-        String javaChar;
+        String javaChar, asmChar = null;
         switch (type) {
             case eVoidValue:
                 dcChar = DC_SIGCHAR_VOID;
@@ -325,8 +335,29 @@ public class MethodCallInfo {
                 direct = false;
                 throw new RuntimeException("Unhandled " + ValueType.class.getSimpleName() + ": " + type);
         }
+        if (genericParameterType instanceof ParameterizedType)
+        {
+            ParameterizedType pt = (ParameterizedType)genericParameterType;
+            // TODO handle all cases !!!
+            Type[] ts = pt.getActualTypeArguments();
+            if (ts != null && ts.length == 1) {
+                Type t = ts[0];
+                if (t instanceof ParameterizedType)
+                    t = ((ParameterizedType)t).getRawType();
+                if (t instanceof Class) {
+                    Class c = (Class)t;
+                    if (javaChar.endsWith(";")) {
+                        asmChar = javaChar.substring(0, javaChar.length() - 1) + "<*L" + c.getName().replace('.', '/') + ";>;";
+                    }
+                }   
+            }
+        }
         if (javaSig != null)
             javaSig.append(javaChar);
+        if (asmChar == null)
+            asmChar = javaChar;
+        if (asmSig != null)
+            asmSig.append(asmChar);
         if (dcSig != null)
             dcSig.append(dcChar);
     }

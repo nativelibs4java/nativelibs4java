@@ -8,6 +8,7 @@ import org.objectweb.asm.*;
 
 import com.bridj.*;
 import com.bridj.NativeEntities.Builder;
+import org.objectweb.asm.signature.SignatureWriter;
 
 //import org.objectweb.asm.attrs.*;
 public class CallbackNativeImplementer extends ClassLoader implements Opcodes {
@@ -49,7 +50,7 @@ public class CallbackNativeImplementer extends ClassLoader implements Opcodes {
 				Class<?>[] parameterTypes = callbackMethod.getParameterTypes();
 				MethodCallInfo mci = new MethodCallInfo(callbackMethod);
 				String methodName = callbackMethod.getName();
-				String methodSignature = mci.getJavaSignature();
+				String methodSignature = mci.getASMSignature();
 				
 				byte[] byteArray = emitBytes(sourceFile, callbackTypeName, callbackTypeImplName, methodName, methodSignature);
 				callbackImplType = defineClass(callbackTypeImplName.replace('/', '.'), byteArray, 0, byteArray.length);
@@ -77,7 +78,7 @@ public class CallbackNativeImplementer extends ClassLoader implements Opcodes {
 			String methodSignature) {
 		ClassWriter cw = new ClassWriter(0);
 		MethodVisitor mv;
-		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER,
+        cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER,
 				callbackTypeImplName, null,
 				callbackTypeName, null);
 
