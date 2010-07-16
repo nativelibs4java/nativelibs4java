@@ -338,7 +338,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\..\..\..\..\..\..\dc\dyncall\dyncall\dyncall_callvm_base.c"
+				RelativePath="$(DYNCALL_HOME)\dyncall\dyncall\dyncall_callvm_base.c"
 				>
 			</File>
 			<File

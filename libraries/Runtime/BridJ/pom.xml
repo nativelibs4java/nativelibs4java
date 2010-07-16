@@ -9,6 +9,10 @@
   <version>${nl4j-runtime.version}</version>
   <packaging>jar</packaging>
 
+  <properties>
+  	<maven.compiler.debug>true</maven.compiler.debug>
+  </properties>
+  
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nl4j-runtime-parent</artifactId>
