@@ -828,7 +828,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());
     }
 
-    protected static Pointer<?> pointerToBuffer(Buffer buffer) {
+    /**
+     * Create a pointer to the memory location used by a direct NIO buffer.<br/>
+     * The returned pointer (and its subsequent clones returned by {@link #clone()}, {@link #offset(long)} or {@link #next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
+     * @throws UnsupportedOperationException if the buffer is not direct
+     */
+    public static Pointer<?> pointerToBuffer(Buffer buffer) {
         if (buffer == null)
 			return null;
 		

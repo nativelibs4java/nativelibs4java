@@ -1,7 +1,7 @@
-Index: dyncall/dyncall/dyncall_vector.c
+Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c
 ===================================================================
---- dyncall/dyncall/dyncall_vector.c	(revision 671)
-+++ dyncall/dyncall/dyncall_vector.c	(working copy)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c	(working copy)
 @@ -22,14 +22,31 @@
  
  #include "dyncall_vector.h"
@@ -38,10 +38,10 @@ Index: dyncall/dyncall/dyncall_vector.c
    } 
  }
  
-Index: dyncall/dyncall/dyncall_call_x64_masm.asm
+Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
 ===================================================================
---- dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 671)
-+++ dyncall/dyncall/dyncall_call_x64_masm.asm	(working copy)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(working copy)
 @@ -49,8 +49,8 @@
  
  	sub			rsp, rcx					; Setup stack frame by subtracting the size of the arguments.
@@ -53,10 +53,32 @@ Index: dyncall/dyncall/dyncall_call_x64_masm.asm
  	and			rax, 15
  	sub			rsp, rax
  
-Index: dyncall/dynload/dynload.h
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
 ===================================================================
---- dyncall/dynload/dynload.h	(revision 671)
-+++ dyncall/dynload/dynload.h	(working copy)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(working copy)
+@@ -26,6 +26,9 @@
+ 
+ 
+ #include "dynload.h"
++#include "dynload_macros.h"
++#include "dyncall_macros.h"
++#include "dyncall_alloc.h"
+ 
+ #include <dlfcn.h>
+ #include <string.h>
+@@ -56,7 +59,6 @@
+ 	return lib;
+ }
+ 
+-
+ void* dlFindSymbol(DLLib* libHandle, const char* symbol)
+ {
+   return dlsym(libHandle && libHandle->handle ? libHandle->handle : RTLD_DEFAULT, symbol);
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
+===================================================================
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(working copy)
 @@ -24,6 +24,9 @@
  #ifndef DYNLOAD_H
  #define DYNLOAD_H
@@ -90,10 +112,10 @@ Index: dyncall/dynload/dynload.h
  
  /* symbol table enumeration */
  
-Index: dyncall/dynload/dynload_syms.c
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c
 ===================================================================
---- dyncall/dynload/dynload_syms.c	(revision 671)
-+++ dyncall/dynload/dynload_syms.c	(working copy)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(working copy)
 @@ -17,12 +17,15 @@
  
  */
@@ -101,7 +123,7 @@ Index: dyncall/dynload/dynload_syms.c
 +#include "dynload.h"
 +#include "dynload_macros.h"
  #include "dyncall_macros.h"
-+#include "dyncall_alloc.h"
++#include "dyncall_alloc.h""
  
  #if defined(DC_WINDOWS)
  #  include "dynload_syms_pe.c"
@@ -111,10 +133,10 @@ Index: dyncall/dynload/dynload_syms.c
  #    include "dynload_syms_mach-o.c"
  #  else
  #    include "dynload_syms_elf.c"
-Index: dyncall/dynload/dynload_syms_mach-o.c
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
---- dyncall/dynload/dynload_syms_mach-o.c	(revision 671)
-+++ dyncall/dynload/dynload_syms_mach-o.c	(working copy)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	(working copy)
 @@ -33,9 +33,11 @@
  
  #if defined(DC__Arch_AMD64)
@@ -159,10 +181,10 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
  static const struct NLIST_TYPE* get_nlist(DLSyms* pSyms, int index)
  {
  	const struct NLIST_TYPE* nl;
-Index: dyncall/dynload/dynload.c
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
 ===================================================================
---- dyncall/dynload/dynload.c	(revision 671)
-+++ dyncall/dynload/dynload.c	(working copy)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(working copy)
 @@ -18,11 +18,14 @@
  */
  
@@ -179,22 +201,10 @@ Index: dyncall/dynload/dynload.c
  #    include "dynload_darwin.c"
  #  else
  #    include "dynload_unix.c"
-Index: dyncall/dynload/dynload_syms_elf.c
+Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S
 ===================================================================
---- dyncall/dynload/dynload_syms_elf.c	(revision 671)
-+++ dyncall/dynload/dynload_syms_elf.c	(working copy)
-@@ -20,6 +20,7 @@
- 
- #if defined(DC__OS_Linux) && !defined(_GNU_SOURCE)
- #define _GNU_SOURCE
-+#define __USE_GNU
- #endif
- 
- /*
-Index: dyncall/dyncallback/dyncall_callback_x86_gas.S
-===================================================================
---- dyncall/dyncallback/dyncall_callback_x86_gas.S	(revision 671)
-+++ dyncall/dyncallback/dyncall_callback_x86_gas.S	(working copy)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(working copy)
 @@ -95,21 +95,25 @@
  
  	// handle return value
@@ -224,17 +234,10 @@ Index: dyncall/dyncallback/dyncall_callback_x86_gas.S
  	mov  %eax, [%edx]
  	mov  %edx, [%edx+4]
  	ret
-@@ -121,3 +125,6 @@
- .return_f64:
- 	fld qword ptr [%edx]
- 	ret
-+	
-+.return_void:
-+	ret
-Index: dyncall/dyncallback/dyncall_callback_x86_masm.asm
+Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm
 ===================================================================
---- dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 671)
-+++ dyncall/dyncallback/dyncall_callback_x86_masm.asm	(working copy)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(working copy)
 @@ -93,16 +93,19 @@
    mov  ebp, [ebp]                    ; EBP = parent frame
  
@@ -269,10 +272,10 @@ Index: dyncall/dyncallback/dyncall_callback_x86_masm.asm
  _dcCallbackThunkEntry ENDP
  
  END
-Index: dyncall/dyncallback/dyncall_callback_x86_apple.s
+Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s
 ===================================================================
---- dyncall/dyncallback/dyncall_callback_x86_apple.s	(revision 671)
-+++ dyncall/dyncallback/dyncall_callback_x86_apple.s	(working copy)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(revision 670)
++++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(working copy)
 @@ -44,10 +44,12 @@
  frame_DCArgs       = -24
  frame_DCValue      = -32
