@@ -46,7 +46,7 @@
 
   <build>
   	<plugins>
-  		
+  		<!--
 		<plugin>
 			<groupId>com.jnaerator</groupId>
 			<artifactId>maven-jnaerator-plugin</artifactId>
@@ -56,7 +56,7 @@
 				<scalaOutputDirectory>src/main/scala</scalaOutputDirectory>
 			</configuration>
 		</plugin>
-		
+		-->
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>
