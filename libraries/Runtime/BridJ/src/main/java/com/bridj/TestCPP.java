@@ -25,6 +25,7 @@ import com.bridj.cpp.com.shell.IShellFolder;
 import com.bridj.cpp.com.shell.IShellWindows;
 import com.bridj.cpp.com.shell.ITaskbarList3;
 import com.bridj.demos.TaskbarListDemo;
+import com.bridj.jawt.JAWTUtils;
 import com.bridj.objc.NSAutoReleasePool;
 //import com.bridj.objc.NSCalendar;
 import com.bridj.objc.ObjCObject;
@@ -148,6 +149,11 @@ public class TestCPP {
 	public static void main(String[] args) throws IOException {
         try {
             {
+                JFrame f = new JFrame();
+                f.setVisible(true);
+                long hwndVal = JAWTUtils.getNativePeerHandle(f);//TODO com.sun.jna.Native.getComponentID(this);
+                System.out.println("#\n# hwndVal = " + hwndVal + "\n#");
+                
                 BridJ.register();
                 ValuedEnum<ETest> t = testEnum(ETest.eFirst);
                 if (t != ETest.eFirst)

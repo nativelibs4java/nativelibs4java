@@ -52,7 +52,7 @@ public class JAWTUtils {
 				throw new RuntimeException("Failed to get JAWT pointer !");
 				
 			Pointer<?> componentPointer = pointerToAddress(JNI.newGlobalRef(component));
-			Pointer<JAWT_DrawingSurface> pSurface = awt.GetDrawingSurface().get().invoke(env, componentPointer);
+			Pointer<JAWT_DrawingSurface> pSurface = awt.GetDrawingSurface().as(JAWT.GetDrawingSurface_callback.class).get().invoke(env, componentPointer).as(JAWT_DrawingSurface.class);
 			if (pSurface == null)
 				throw new RuntimeException("Cannot get drawing surface from " + component);
             JAWT_DrawingSurface surface = pSurface.get();
@@ -62,7 +62,10 @@ public class JAWTUtils {
 				if ((lock & JAWT_LOCK_ERROR) != 0)
 					throw new RuntimeException("Cannot lock drawing surface of " + component);
 				try {
-                    Pointer<com.bridj.jawt.JAWT_DrawingSurfaceInfo > pInfo = surface.GetDrawingSurfaceInfo().get().invoke(pSurface);
+                    Pointer<JAWT_DrawingSurface.GetDrawingSurfaceInfo_callback> cb = surface.GetDrawingSurfaceInfo().as(JAWT_DrawingSurface.GetDrawingSurfaceInfo_callback.class);
+                    Pointer<com.bridj.jawt.JAWT_DrawingSurfaceInfo > pInfo = cb.get().invoke(pSurface);
+                    if (pInfo != null)
+                        pInfo = pInfo.as(JAWT_DrawingSurfaceInfo.class);
 					Pointer<?> platformInfo = pInfo.get().platformInfo();
                     return platformInfo.getSizeT(); // on win, mac, x11 platforms, the relevant field is the first in the struct !
 					/*if (JNI.isWindows())

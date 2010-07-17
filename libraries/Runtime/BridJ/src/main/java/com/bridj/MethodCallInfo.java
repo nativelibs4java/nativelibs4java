@@ -89,14 +89,14 @@ public class MethodCallInfo {
             paramsValueTypes[iParam] = paramValueType.ordinal();
             //GetOptions(paramOptions, method, paramsAnnotations[iParam]);
 
-            appendToSignature(paramValueType, parameterType, genericParameterType, javaSig, dcSig, asmSig);
+            appendToSignature(iParam, paramValueType, parameterType, genericParameterType, javaSig, dcSig, asmSig);
         }
         javaSig.append(')');
         asmSig.append(')');
         dcSig.append(')');
 
         ValueType retType = getValueType(-1, nParams, method.getReturnType(), method.getGenericReturnType(), method);
-        appendToSignature(retType, method.getReturnType(), method.getGenericReturnType(), javaSig, dcSig, asmSig);
+        appendToSignature(-1, retType, method.getReturnType(), method.getGenericReturnType(), javaSig, dcSig, asmSig);
         returnValueType = retType.ordinal();
 
         javaSignature = javaSig.toString();
@@ -249,7 +249,7 @@ public class MethodCallInfo {
         }
     }
 
-    public void appendToSignature(ValueType type, Class<?> parameterType, Type genericParameterType, StringBuilder javaSig, StringBuilder dcSig, StringBuilder asmSig) {
+    public void appendToSignature(int iParam, ValueType type, Class<?> parameterType, Type genericParameterType, StringBuilder javaSig, StringBuilder dcSig, StringBuilder asmSig) {
         char dcChar;
         String javaChar, asmChar = null;
         switch (type) {
@@ -335,7 +335,7 @@ public class MethodCallInfo {
                 direct = false;
                 throw new RuntimeException("Unhandled " + ValueType.class.getSimpleName() + ": " + type);
         }
-        if (genericParameterType instanceof ParameterizedType)
+        if (genericParameterType instanceof ParameterizedType && iParam < 0)
         {
             ParameterizedType pt = (ParameterizedType)genericParameterType;
             // TODO handle all cases !!!
@@ -347,7 +347,8 @@ public class MethodCallInfo {
                 if (t instanceof Class) {
                     Class c = (Class)t;
                     if (javaChar.endsWith(";")) {
-                        asmChar = javaChar.substring(0, javaChar.length() - 1) + "<*L" + c.getName().replace('.', '/') + ";>;";
+                        asmChar = javaChar.substring(0, javaChar.length() - 1) + "<*L" + c.getName().replace('.', '/') + ";>";
+                        //asmChar += ";";
                     }
                 }   
             }
