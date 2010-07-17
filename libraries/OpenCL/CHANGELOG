@@ -2,7 +2,7 @@ Current development version (1.0-SNAPSHOT)
 
 - Experimental BridJ port with same functionality as JNA-powered version, but smaller and faster (JAR weighs 750 kB instead of 1.8 MB, overhead per-function call about 5x smaller)
 
-Version 1.0-beta-5 (r1067, 20100121)
+Version 1.0-beta-5 (r1067, 20100717)
 
 - Now using a nice configuration dialog when launching ParticlesDemo : has
 optional OpenCL settings with "Fastest", "Normal" and "Safest" presets +
