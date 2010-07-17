@@ -17,6 +17,7 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
+import com.nativelibs4java.util.Pair;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
@@ -29,7 +30,6 @@ import java.nio.ByteBuffer;
 import com.nativelibs4java.opencl.library.cl_buffer_region;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
-import com.ochafik.util.listenable.Pair;
 import com.bridj.*;
 import static com.bridj.Pointer.*;
 
@@ -61,6 +61,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	public B map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, true, eventsToWaitFor).getFirst();
     }
+    
 	public Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, 0, getElementCount(), false, eventsToWaitFor);
     }

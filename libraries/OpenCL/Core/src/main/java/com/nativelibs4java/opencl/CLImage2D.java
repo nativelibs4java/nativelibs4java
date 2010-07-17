@@ -33,7 +33,7 @@ import java.nio.IntBuffer;
 import static com.bridj.Pointer.*;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
-import com.ochafik.util.listenable.Pair;
+import com.nativelibs4java.util.Pair;
 
 /**
  * OpenCL 2D Image Memory Object<br/>

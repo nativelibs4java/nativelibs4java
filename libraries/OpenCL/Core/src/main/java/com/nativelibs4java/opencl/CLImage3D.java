@@ -24,7 +24,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
-import com.ochafik.util.listenable.Pair;
+import com.nativelibs4java.util.Pair;
 
 import static com.bridj.Pointer.*;
 /**

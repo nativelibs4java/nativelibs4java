@@ -26,7 +26,7 @@ import java.nio.*;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.util.*;
 import com.nativelibs4java.opencl.demos.SetupUtils;
-import com.ochafik.util.listenable.Pair;
+import com.nativelibs4java.util.Pair;
 import java.awt.image.*;
 import java.io.*;
 import java.nio.FloatBuffer;

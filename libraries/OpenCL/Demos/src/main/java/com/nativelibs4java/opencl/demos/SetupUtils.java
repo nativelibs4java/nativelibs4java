@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl.demos;
 
+import com.bridj.BridJ;
 import com.bridj.JNI;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -19,7 +20,6 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import com.nativelibs4java.opencl.JavaCL;
-import com.ochafik.util.SystemUtils;
 
 /**
  *
@@ -71,7 +71,7 @@ public class SetupUtils {
                 urlString = "http://developer.amd.com/GPU/ATISTREAMSDKBETAPROGRAM/Pages/default.aspx";
 
             try {
-                SystemUtils.runSystemOpenURL(new URL(urlString));
+                BridJ.open(new URL(urlString));
             } catch (Exception ex1) {
                 exception(ex1);
             }

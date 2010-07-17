@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 
 import com.nativelibs4java.util.IOUtils;
 import com.nativelibs4java.util.NIOUtils;
-import com.ochafik.util.listenable.Pair;
+import com.nativelibs4java.util.Pair;
 
 /**
  *

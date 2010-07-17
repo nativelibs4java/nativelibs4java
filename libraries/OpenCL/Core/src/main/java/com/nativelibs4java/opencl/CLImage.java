@@ -35,7 +35,7 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.NIOUtils;
 
-import com.ochafik.util.listenable.Pair;
+import com.nativelibs4java.util.Pair;
 import com.bridj.*;
 import static com.bridj.Pointer.*;
 

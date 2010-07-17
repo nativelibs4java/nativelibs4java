@@ -17,9 +17,9 @@ You should have received a copy of the GNU Lesser General Public License
 along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.nativelibs4java.opencl.demos.hardware;
+import com.bridj.BridJ;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.demos.SetupUtils;
-import com.ochafik.util.SystemUtils;
 import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.Frame;
@@ -195,7 +195,7 @@ public class HardwareReport {
                     w.write(html);
                     w.close();
 
-                    SystemUtils.runSystemOpenFileParent(file);
+                    BridJ.show(file);
                 } catch (Throwable ex) {
                     SetupUtils.exception(ex);
                 }

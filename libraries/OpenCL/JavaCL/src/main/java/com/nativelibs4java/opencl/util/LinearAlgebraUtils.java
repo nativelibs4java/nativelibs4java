@@ -16,7 +16,7 @@ import com.nativelibs4java.opencl.JavaCL;
 import com.nativelibs4java.opencl.util.ReductionUtils;
 import com.nativelibs4java.opencl.util.ReductionUtils.Reductor;
 import com.nativelibs4java.util.IOUtils;
-import com.ochafik.util.listenable.Pair;
+import com.nativelibs4java.util.Pair;
 import static com.nativelibs4java.util.NIOUtils.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;

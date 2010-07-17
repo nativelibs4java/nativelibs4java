@@ -32,13 +32,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <scope>compile</scope>
 	</dependency>
 	
-	<dependency>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>nativelibs4java-utils</artifactId>
-	  <version>${nativelibs4java.version}</version>
-	  <scope>compile</scope>
-	</dependency>
-	
 	<!-- http://download.java.net/media/jogl/builds/archive/jsr-231-2.0-beta10/ -->
 	<dependency>
 		<groupId>net.java.jogl.nl4j</groupId>
