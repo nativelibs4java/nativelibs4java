@@ -27,14 +27,7 @@
 		<artifactId>asm</artifactId>
 		<version>3.2</version>
 	</dependency>
-  
-  	<dependency>
-      <groupId>com.ochafik</groupId>
-      <artifactId>ochafik-util</artifactId>
-      <version>${jnaerator.version}</version>
-      <scope>test</scope>
-    </dependency>
-		
+	
 	<dependency>
       <groupId>com.jnaerator</groupId>
       <artifactId>jna-jnaerator</artifactId>
@@ -46,7 +39,7 @@
 
   <build>
   	<plugins>
-  		
+  		<!--
 		<plugin>
 			<groupId>com.jnaerator</groupId>
 			<artifactId>maven-jnaerator-plugin</artifactId>
@@ -56,7 +49,7 @@
 				<scalaOutputDirectory>src/main/scala</scalaOutputDirectory>
 			</configuration>
 		</plugin>
-		
+		-->
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>

@@ -50,7 +50,7 @@ public class CallbackNativeImplementer extends ClassLoader implements Opcodes {
 				Class<?>[] parameterTypes = callbackMethod.getParameterTypes();
 				MethodCallInfo mci = new MethodCallInfo(callbackMethod);
 				String methodName = callbackMethod.getName();
-				String methodSignature = mci.getASMSignature();
+				String methodSignature = mci.getJavaSignature();//mci.getASMSignature();
 				
 				byte[] byteArray = emitBytes(sourceFile, callbackTypeName, callbackTypeImplName, methodName, methodSignature);
 				callbackImplType = defineClass(callbackTypeImplName.replace('/', '.'), byteArray, 0, byteArray.length);

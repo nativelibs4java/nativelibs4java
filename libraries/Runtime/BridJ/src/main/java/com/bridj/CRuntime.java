@@ -75,7 +75,8 @@ public class CRuntime extends AbstractBridJRuntime {
                                 builder.addSetter(setter);
                                 handledMethods.add(fio.setter);
                             }
-                        } catch (FileNotFoundException ex) {
+                        } catch (Exception ex) {
+                            System.err.println("Failed to register field " + fio.name + " in struct " + type);
                             ex.printStackTrace();
                         }
                     }

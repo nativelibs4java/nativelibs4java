@@ -51,11 +51,11 @@ public class JAWT_DrawingSurface extends StructObject {
     
     @Field(2)
     public native Pointer<Lock_callback> Lock();
-    @Field(2)
+    @Field(3)
     public native Pointer<GetDrawingSurfaceInfo_callback> GetDrawingSurfaceInfo();
-    @Field(2)
+    @Field(4)
     public native Pointer<FreeDrawingSurfaceInfo_callback> FreeDrawingSurfaceInfo();
-    @Field(2)
+    @Field(5)
     public native Pointer<Unlock_callback> Unlock();
     
 	/// Conversion Error : Lock_callback (Unsupported type)

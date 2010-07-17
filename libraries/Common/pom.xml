@@ -6,7 +6,7 @@
   <artifactId>nativelibs4java-utils</artifactId>
   <name>NativeLibs4Java Common Utilities</name>
   <url>http://code.google.com/p/nativelibs4java/</url>
-  <version>${nativelibs4java.version}</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   <parent>
@@ -17,14 +17,21 @@
   </parent>
 
   <dependencies>
-  	
+  	<!--
 	<dependency>
 		<groupId>com.jnaerator</groupId>
 		<artifactId>jnaerator-runtime</artifactId>
 		<version>${jnaerator.version}</version>
 	  <scope>compile</scope>
 	</dependency>
+	-->
 	
+	<dependency>
+		<groupId>com.ochafik</groupId>
+		<artifactId>ochafik-util</artifactId>
+		<version>${jnaerator.version}</version>
+	  <scope>compile</scope>
+	</dependency>
   </dependencies>
 
 </project>
