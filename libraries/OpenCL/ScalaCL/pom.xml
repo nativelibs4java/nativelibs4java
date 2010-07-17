@@ -6,7 +6,7 @@
   <artifactId>scalacl</artifactId>
   <name>ScalaCL</name>
   <url>http://code.google.com/p/scalacl/</url>
-  <version>1.0-beta-5</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
 	  <description>
@@ -18,7 +18,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>opencl4java-parent</artifactId>
-	  <version>1.0-beta-5</version>
+	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
 
