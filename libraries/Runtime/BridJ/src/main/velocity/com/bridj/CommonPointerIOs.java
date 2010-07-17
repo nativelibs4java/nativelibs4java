@@ -56,12 +56,16 @@ class CommonPointerIOs {
 		
 		@Override
 		public T get(Pointer<T> pointer, long index) {
-			return pointer.getPointer(index * Pointer.SIZE, (Class<T>)null).getNativeObject(0, callbackClass);
+			if (index != 0)
+				throw new UnsupportedOperationException("Cannot get function pointer at index different from 0");
+			//return pointer.getPointer(index * Pointer.SIZE, (Class<T>)null).getNativeObject(0, callbackClass);
+			return pointer.getNativeObject(0, callbackClass);
 		}
 
 		@Override
 		public void set(Pointer<T> pointer, long index, T value) {
-			pointer.setPointer(index * Pointer.SIZE, Pointer.getPointer(value, callbackClass));
+			throw new UnsupportedOperationException("Cannot write to body of function");
+			//pointer.setPointer(index * Pointer.SIZE, Pointer.getPointer(value, callbackClass));
 		}
 	}
 	

@@ -27,8 +27,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.nativelibs4java.opencl.CLMem.GLObjectInfo;
+import com.nativelibs4java.util.NIOUtils;
 import com.sun.opengl.util.BufferUtil;
 import com.sun.opengl.util.FPSAnimator;
+
+import java.nio.ByteOrder;
 
 public class JOGLTest {
 
@@ -60,58 +63,72 @@ public class JOGLTest {
             GLCanvas canvas = createGLCanvas(100, 100);
             f.getContentPane().add("Center", canvas);
             final AssertionError[] err = new AssertionError[1];
+            final Throwable[] exx = new Throwable[1];
             canvas.addGLEventListener(new GLEventListener() {
 
                 @Override
                 public void init(GLAutoDrawable drawable) {
                     try {
-                        System.err.println("Initializing...");
-                        int bufferSize = 1024;
-                        FloatBuffer buffer;
-                        int[] VBO = new int[1];
-                        int[] Texture = new int[1];
-                        GL gl = drawable.getGL();
-						buffer = BufferUtil.newFloatBuffer(bufferSize);
-						gl.glGenBuffers(1, VBO, 0); // Get A Valid Name
-						gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]); // Bind The Buffer
-						gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * BufferUtil.SIZEOF_FLOAT, buffer, GL2.GL_DYNAMIC_READ);
-                        
-						gl.glGenTextures(1, Texture, 0);
-						gl.glBindTexture(GL2.GL_TEXTURE_2D, Texture[0]);
-						int width = 2, height = 2, border = 0;
-						gl.glTexImage2D (
-							GL2.GL_TEXTURE_2D,
-							0, // no mipmap
-							4, // 4 colours
-							width,
-							height,
-							border,
-							GL2.GL_RGBA,
-							GL2.GL_UNSIGNED_BYTE,
-							Texture[0]
-						);
-						
                         CLContext context = JavaCL.createContextFromCurrentGL();
+                        assertNotNull(context);
                         if (context != null) {
                             //int glcontext = gl.glGet.getContext().CONTEXT_CURRENT;
                             CLQueue queue = context.createDefaultQueue();
 
+                            System.err.println("Initializing...");
+                            int bufferSize = 1024;
+                            FloatBuffer buffer;
+                            int[] VBO = new int[1];
+                            int[] Texture = new int[1];
+                            GL gl = drawable.getGL();
+                            buffer = BufferUtil.newFloatBuffer(bufferSize);
+                            gl.glGenBuffers(1, VBO, 0); // Get A Valid Name
+                            gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]); // Bind The Buffer
+                            gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * BufferUtil.SIZEOF_FLOAT, buffer, GL2.GL_DYNAMIC_READ);
+
+                            gl.glGenTextures(1, Texture, 0);
+                            gl.glBindTexture(GL2.GL_TEXTURE_2D, Texture[0]);
+                            int width = 2, height = 2, border = 0;
+                            byte bZero = (byte)0, bMin1 = (byte)0xFF;
+                            ByteBuffer texData = NIOUtils.directCopy(ByteBuffer.wrap(new byte[] {
+                                bMin1,bMin1,bMin1,bMin1, bMin1,bMin1,bMin1,bMin1,
+                                bMin1,bMin1,bMin1,bMin1, bMin1,bMin1,bMin1,bMin1
+                            }), queue.getDevice().getByteOrder());
+                            gl.glTexImage2D (
+                                GL2.GL_TEXTURE_2D,
+                                0, // no mipmap
+                                4, // 4 colours
+                                width,
+                                height,
+                                border,
+                                GL2.GL_RGBA,
+                                GL2.GL_UNSIGNED_INT_8_8_8_8,
+                                texData
+                            );
+						
                             CLFloatBuffer clbuf = context.createBufferFromGLBuffer(CLMem.Usage.Input, VBO[0]).asCLFloatBuffer();
                             CLImage2D climg = context.createImage2DFromGLTexture2D(CLMem.Usage.InputOutput, CLContext.GLTextureTarget.Texture2D, Texture[0], 0);
 
+                            assertNotNull(clbuf);
+                            assertNotNull(climg);
+                            
                             queue.enqueueAcquireGLObjects(new CLMem[] { clbuf });
                             queue.enqueueAcquireGLObjects(new CLMem[] { climg });
                             queue.finish();
 
-                            //Throws an InvalidMemObject exception : System.out.println(clbuf.getByteCount());
-                            //assertEquals(bufferSize, clbuf.asCLFloatBuffer().getElementCount());
-
-                            GLObjectInfo info = clbuf.getGLObjectInfo();
-                            assertEquals(CLMem.GLObjectType.Buffer, info.getType());
-                            assertEquals(VBO[0], info.getName());
-                            assertNotNull(clbuf);
-
-                            //FloatBuffer inbuf = NIOUtils.directFloats(bufferSize, context.getByteOrder());
+                            {
+                                GLObjectInfo info = clbuf.getGLObjectInfo();
+                                assertNotNull(info);
+                                assertEquals(CLMem.GLObjectType.Buffer, info.getType());
+                                assertEquals(VBO[0], info.getName());
+                            }
+                            {
+                                GLObjectInfo info = climg.getGLObjectInfo();
+                                assertNotNull(info);
+                                assertEquals(CLMem.GLObjectType.Texture2D, info.getType());
+                                assertEquals(Texture[0], info.getName());
+                            }
+                            
                             float expected = 10;
                             try {
                                 CLKernel kernel = context.createProgram("__kernel void fill(__global float* out) { out[get_global_id(0)] = (float)" + expected + ";}").build().createKernel("fill", clbuf);
@@ -138,8 +155,13 @@ public class JOGLTest {
                         }
 
                     } catch (AssertionError ex) {
+                        ex.printStackTrace();
                         err[0] = ex;
+                    } catch (Throwable ex) {
+                        ex.printStackTrace();
+                        exx[0] = ex;
                     } finally {
+                        System.out.println("Releasing...");
                         sem.release();
                     }
                 }
@@ -168,12 +190,19 @@ public class JOGLTest {
             animator.setRunAsFastAsPossible(true);
             animator.start();
 
+            System.out.println("Acquiring...");
             sem.acquire();
-
+            System.out.println("Acquired !");
+            
             f.setVisible(false);
             if (err[0] != null) {
                 throw err[0];
             }
+            if (err[0] != null) {
+                throw exx[0];
+            }
+        } catch (AssertionError ex) {
+        		throw ex;
         } catch (Throwable ex) {
             Logger.getLogger(JOGLTest.class.getName()).log(Level.SEVERE, null, ex);
             ex.printStackTrace();

@@ -76,7 +76,7 @@ public class JavaCL {
 	 * @param devices devices that are to form the new context
 	 * @return new OpenCL context
 	 */
-    public static CLContext createContext(Map<CLPlatform.ContextProperties, Number> contextProperties, CLDevice... devices) {
+    public static CLContext createContext(Map<CLPlatform.ContextProperties, Object> contextProperties, CLDevice... devices) {
 		return devices[0].getPlatform().createContext(contextProperties, devices);
     }
 

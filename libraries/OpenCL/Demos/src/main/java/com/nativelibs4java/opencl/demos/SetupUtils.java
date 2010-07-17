@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl.demos;
 
+import com.bridj.JNI;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
@@ -19,7 +20,6 @@ import javax.swing.border.TitledBorder;
 
 import com.nativelibs4java.opencl.JavaCL;
 import com.ochafik.util.SystemUtils;
-import com.sun.jna.Platform;
 
 /**
  *
@@ -36,7 +36,7 @@ public class SetupUtils {
             ex.printStackTrace();
         } //*/
         String title = "JavaCL Error: OpenCL library not found";
-        if (Platform.isMac()) {
+        if (JNI.isMacOSX()) {
             JOptionPane.showMessageDialog(null, "Please upgrade Mac OS X to Snow Leopard (10.6) to be able to use OpenCL.", title, JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -57,14 +57,14 @@ public class SetupUtils {
                 boolean appendPlatform = true;
                 String sys;
 
-                if (Platform.isWindows()) {
+                if (JNI.isWindows()) {
                     if (System.getProperty("os.name").toLowerCase().contains("xp")) {
                         sys = "winxp";
                         appendPlatform = false;
                     } else {
                         sys = "win7_vista";
                     }
-                    urlString = "http://www.nvidia.fr/object/" + sys + "_" + nvidiaVersion + (appendPlatform ? "_" + (Platform.is64Bit() ? "64" : "32") + "bit" : "") + "_whql.html";
+                    urlString = "http://www.nvidia.fr/object/" + sys + "_" + nvidiaVersion + (appendPlatform ? "_" + (JNI.is64Bits() ? "64" : "32") + "bit" : "") + "_whql.html";
                 } else
                     urlString = "http://developer.nvidia.com/object/opencl-download.html";
             } else

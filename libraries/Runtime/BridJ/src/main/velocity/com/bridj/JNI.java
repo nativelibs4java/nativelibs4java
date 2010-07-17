@@ -98,11 +98,16 @@ public class JNI {
             return;
 		
         try {
-	        File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
+        		String forceLibFile = System.getenv("FORCE_BRIDJ_LIBRARY");
+	        File libFile = forceLibFile == null ? 
+				extractEmbeddedLibraryResource(BridJLibraryName) :
+				new File(forceLibFile);
+	        //File libFile = new File("C:\\Users\\Olivier\\Prog\\nativelibs4java\\Runtime\\BridJ\\src\\main\\cpp\\buildsys\\vs2008\\x64\\Debug\\bridj.dll");
 	        //File libFile = BridJ.getNativeLibraryFile(BridJLibraryName);
 			System.out.println("Loading library " + libFile);
 	        System.load(libFile.toString());
 	        //System.load("/Users/ochafik/nativelibs4java/Runtime/BridJ/src/main/cpp/bridj/build_out/darwin_universal_gcc_debug/libbridj.dylib");
+	        
 	        
 	        init();
 	        POINTER_SIZE = sizeOf_ptrdiff_t();
@@ -122,6 +127,8 @@ public class JNI {
     public static native int sizeOf_ptrdiff_t();
 	public static native int sizeOf_long();
 
+    @Deprecated
+    public static native long getEnv();
     public static native long loadLibrary(String path);
     public static native void freeLibrary(long libHandle);
     public static native long loadLibrarySymbols(long libHandle);

@@ -49,6 +49,14 @@ JNIEXPORT jint JNICALL Java_com_bridj_JNI_sizeOf_1long
 
 /*
  * Class:     com_bridj_JNI
+ * Method:    getEnv
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_getEnv
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_bridj_JNI
  * Method:    loadLibrary
  * Signature: (Ljava/lang/String;)J
  */

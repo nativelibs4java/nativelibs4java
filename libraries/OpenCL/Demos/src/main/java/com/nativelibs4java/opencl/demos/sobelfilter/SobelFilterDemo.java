@@ -19,6 +19,7 @@
 
 package com.nativelibs4java.opencl.demos.sobelfilter;
 
+import com.bridj.JNI;
 import javax.swing.*;
 
 import java.nio.*;
@@ -35,12 +36,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import com.sun.jna.Platform;
 import java.awt.FileDialog;
 public class SobelFilterDemo {
 
 	static File chooseFile() {
-		if (Platform.isMac()) {
+		if (JNI.isMacOSX()) {
 			FileDialog d = new FileDialog((java.awt.Frame)null);
 			d.setMode(FileDialog.LOAD);
 			d.show();

@@ -213,7 +213,7 @@ public class ReductionUtils {
                             currentOutput = (CLBuffer<B>)(tempBuffers[iOutput] = context.createBuffer(CLMem.Usage.InputOutput, maxReductionSize * valueChannels, outputClass));
 						
                         synchronized (kernel) {
-                            kernel.setArgs(currentInput, inputLength, maxReductionSize, currentOutput);
+                            kernel.setArgs(currentInput, (long)inputLength, (long)maxReductionSize, currentOutput);
                             inputLengthArr[0] = inputLength;
                             int wis = (inputLength & 1) == 0 && maxWIS > 1 ? 2 : 1;
                             eventsArr[0] = kernel.enqueueNDRange(queue, inputLengthArr, new int[] { wis }, eventsToWaitFor);

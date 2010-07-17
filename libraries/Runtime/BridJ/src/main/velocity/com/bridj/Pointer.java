@@ -870,7 +870,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return pointer to a new memory location that initially contains the ${prim.Name} consecutive values provided in argument
      */
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.Name}... values) {
-        Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * values.length);
+        if (values == null)
+			return null;
+		Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * values.length);
         mem.set${prim.CapName}s(0, values, 0, values.length);
         return mem;
     }
@@ -950,6 +952,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return values;
 	}
 	public Pointer<T> setPointers(long byteOffset, Pointer<?>... values) {
+		if (values == null)
+			throw new IllegalArgumentException("Null values");
 		int n = values.length, s = JNI.POINTER_SIZE;
 		for (int i = 0; i < n; i++)
 			setPointer(i * s, values[i]);
@@ -964,15 +968,21 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return p;
 	}
 	public static Pointer<SizeT> pointerToSizeTs(long... values) {
+		if (values == null)
+			return null;
 		int n = values.length, s = JNI.SIZE_T_SIZE;
 		return allocate(PointerIO.getSizeTInstance(), s * n).setSizeTs(0, values);
 	}
 	public static Pointer<SizeT> pointerToSizeTs(SizeT[] values) {
+		if (values == null)
+			return null;
 		int n = values.length, s = JNI.SIZE_T_SIZE;
 		return allocate(PointerIO.getSizeTInstance(), s * n).setSizeTs(0, values);
 	}
 	
 	public static Pointer<SizeT> pointerToSizeTs(int[] values) {
+		if (values == null)
+			return null;
 		int n = values.length, s = JNI.SIZE_T_SIZE;
 		return allocate(PointerIO.getSizeTInstance(), s * n).setSizeTs(0, values);
 	}
@@ -984,6 +994,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return p;
 	}
 	public static <T> Pointer<Pointer<T>> pointerToPointers(Pointer<T>... values) {
+		if (values == null)
+			return null;
 		int n = values.length, s = JNI.POINTER_SIZE;
 		// TODO
 		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocate(PointerIO.getPointerInstance(), s * n);
@@ -1110,6 +1122,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * Write an array of size_t values to the pointed memory location shifted by a byte offset
      */
     public Pointer<T> setSizeTs(long byteOffset, SizeT... values) {
+		if (values == null)
+			throw new IllegalArgumentException("Null values");
 		int n = values.length, s = 4;
 		for (int i = 0; i < n; i++)
 			setSizeT(i * s, values[i].longValue());
@@ -1215,7 +1229,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Write a buffer of ${prim.Name} values of the specified length to the pointed memory location shifted by a byte offset, reading values at the given buffer offset and for the given length from the provided buffer.
 	 */
     public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.BufferName} values, long valuesOffset, long length) {
-        if (values.isDirect()) {
+        if (values == null)
+			throw new IllegalArgumentException("Null values");
+		if (values.isDirect()) {
             long len = length * ${prim.Size}, off = valuesOffset * ${prim.Size};
             long cap = JNI.getDirectBufferCapacity(values);
             if (cap < off + len)

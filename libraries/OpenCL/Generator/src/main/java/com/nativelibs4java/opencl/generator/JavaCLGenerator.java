@@ -355,7 +355,7 @@ public class JavaCLGenerator extends JNAerator {
             }
         } else if (valueType instanceof TypeRef.SimpleTypeRef) {
             TypeRef.SimpleTypeRef sr = (TypeRef.SimpleTypeRef)valueType;
-            String name = sr.getName().toString();
+            String name = sr.getName() == null ? sr.toString() : sr.getName().toString();
             if (name.equals("size_t")) {
                 ret.outerJavaTypeRef = typeRef(Long.TYPE);
                 ret.convertedExpr = new Expression.New(typeRef(NativeSize.class), ret.convertedExpr);
