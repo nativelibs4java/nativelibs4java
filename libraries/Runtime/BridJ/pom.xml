@@ -27,14 +27,7 @@
 		<artifactId>asm</artifactId>
 		<version>3.2</version>
 	</dependency>
-  
-  	<dependency>
-      <groupId>com.ochafik</groupId>
-      <artifactId>ochafik-util</artifactId>
-      <version>${jnaerator.version}</version>
-      <scope>test</scope>
-    </dependency>
-		
+	
 	<dependency>
       <groupId>com.jnaerator</groupId>
       <artifactId>jna-jnaerator</artifactId>

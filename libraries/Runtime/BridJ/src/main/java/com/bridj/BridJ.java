@@ -22,6 +22,7 @@ import com.bridj.ann.Library;
 import java.util.Stack;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
+import java.net.URL;
 
 /// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class BridJ {
@@ -466,4 +467,87 @@ public class BridJ {
 			System.exit(1);
 		}
 	}
+    /**
+     * Opens an URL with the default system action.
+     * @param url url to open
+     * @throws NoSuchMethodException if opening an URL on the current platform is not supported
+     */
+	public static final void open(URL url) throws NoSuchMethodException {
+		if (url.getProtocol().equals("file"))
+            open(new File(url.getFile()));
+        else {
+			if (JNI.isMacOSX())
+                execArgs("open",url.toString());
+            else if (JNI.isWindows())
+                execArgs("rundll32","url.dll,FileProtocolHandler", url.toString());
+            else if (JNI.isUnix() && hasUnixCommand("gnome-open"))
+                execArgs("gnome-open", url.toString());
+            else if (JNI.isUnix() && hasUnixCommand("konqueror"))
+                execArgs("konqueror", url.toString());
+            else if (JNI.isUnix() && hasUnixCommand("mozilla"))
+                execArgs("mozilla",url.toString());
+            else
+                throw new NoSuchMethodException("Cannot open urls on this platform");
+		}
+	}
+    /**
+     * Opens a file with the default system action.
+     * @param file file to open
+     * @throws NoSuchMethodException if opening a file on the current platform is not supported
+     */
+	public static final void open(File file) throws NoSuchMethodException {
+		if (JNI.isMacOSX())
+			execArgs("open", file.getAbsolutePath());
+		else if (JNI.isWindows()) {
+            if (file.isDirectory())
+                execArgs("explorer", file.getAbsolutePath());
+            else
+                execArgs("start",file.getAbsolutePath());
+        }
+        if (JNI.isUnix() && hasUnixCommand("gnome-open"))
+            execArgs("gnome-open", file.toString());
+        else if (JNI.isUnix() && hasUnixCommand("konqueror"))
+            execArgs("konqueror", file.toString());
+        else if (JNI.isSolaris() && file.isDirectory())
+            execArgs("/usr/dt/bin/dtfile","-folder",file.getAbsolutePath());
+        else
+            throw new NoSuchMethodException("Cannot open files on this platform");
+	}
+    /**
+     * Show a file in its parent directory, if possible selecting the file (not possible on all platforms).
+     * @param file file to show in the system's default file navigator
+     * @throws NoSuchMethodException if showing a file on the current platform is not supported
+     */
+	public static final void show(File file) throws NoSuchMethodException, IOException {
+		if (JNI.isWindows())
+			exec("explorer /e,/select,\"" + file.getCanonicalPath() + "\"");
+        else
+            open(file.getAbsoluteFile().getParentFile());
+    }
+    static final void execArgs(String... cmd) throws NoSuchMethodException {
+		try {
+			Runtime.getRuntime().exec(cmd);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw new NoSuchMethodException(ex.toString());
+		}
+	}
+	static final void exec(String cmd) throws NoSuchMethodException {
+		try {
+			Runtime.getRuntime().exec(cmd).waitFor();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw new NoSuchMethodException(ex.toString());
+		}
+	}
+    static final boolean hasUnixCommand(String name) {
+		try {
+			Process p = Runtime.getRuntime().exec(new String[] {"which", name });
+			return p.waitFor() == 0;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return false;
+		}
+	}
+	
 }
