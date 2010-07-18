@@ -67,6 +67,7 @@ public abstract class CLImage extends CLMem {
 			/// TODO: DOES NOT SEEM TO WORK ON MAC OS X 10.6.1 / CPU
 			cl_image_format fmt = new cl_image_format();
 			fmt.use(infos.getMemory(getEntity(), CL_IMAGE_FORMAT));
+            fmt.read();
 			format = new CLImageFormat(fmt);
 		}
 		return format;
