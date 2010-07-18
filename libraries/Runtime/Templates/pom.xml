@@ -5,13 +5,13 @@
   
   <groupId>com.nativelibs4java</groupId>
   <artifactId>maven-nl4j-runtime-templates-plugin</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.2-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nl4j-runtime-parent</artifactId>
-	  <version>0.1-SNAPSHOT</version>
+	  <version>0.2-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
   
