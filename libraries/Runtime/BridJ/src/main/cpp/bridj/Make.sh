@@ -50,11 +50,13 @@ if [[ -d build_out ]] ; then
 		echo ARCH_NAME: $ARCH_NAME ;
 		TEST_OUT="../../../../test/resources/$ARCH_NAME"
 	
-		if [[ -d /System/Library/Frameworks/ ]] ; then 
+		mkdir -p $MAIN_OUT
+		mkdir -p $TEST_OUT
+		if [[ -d /System/Library/Frameworks/ ]] ; then
 			cp $D/*.dylib $MAIN_OUT
 			cp ../../../../test/cpp/test/build_out/$D/*.dylib $TEST_OUT ;
 		else 
-			cp $D/*.so $MAIN_OUT 
+			cp $D/*.so $MAIN_OUT
 			cp ../../../../test/cpp/test/build_out/$D/*.so $TEST_OUT ;
 		fi 
 		
