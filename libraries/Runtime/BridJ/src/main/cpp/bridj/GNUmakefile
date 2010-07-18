@@ -50,9 +50,9 @@ ifdef BUILD_OS_darwin
 UNITS += ObjCHandler
 endif
 UNITS += RawNativeForwardCallback
-ifdef BUILD_TOOL_gcc
+#ifdef BUILD_TOOL_gcc
 UNITS += RawNativeForwardCallback_arch
-endif
+#endif
 
 ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
