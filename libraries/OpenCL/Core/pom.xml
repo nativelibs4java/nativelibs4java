@@ -6,7 +6,7 @@
   <artifactId>javacl-core-bridj</artifactId>
   <name>JavaCL Core / BridJ</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>${opencl4java.version}</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   

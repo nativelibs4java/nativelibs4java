@@ -1,7 +1,7 @@
-Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c
+Index: /home/ubuntu/src/dyncall/dyncall/dyncall/dyncall_vector.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c	(revision 670)
-+++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dyncall/dyncall_vector.c	(revision 672)
++++ /home/ubuntu/src/dyncall/dyncall/dyncall/dyncall_vector.c	(working copy)
 @@ -22,14 +22,31 @@
  
  #include "dyncall_vector.h"
@@ -38,10 +38,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c
    } 
  }
  
-Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
+Index: /home/ubuntu/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 670)
-+++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 672)
++++ /home/ubuntu/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(working copy)
 @@ -49,8 +49,8 @@
  
  	sub			rsp, rcx					; Setup stack frame by subtracting the size of the arguments.
@@ -53,10 +53,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
  	and			rax, 15
  	sub			rsp, rax
  
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_darwin.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 670)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 672)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_darwin.c	(working copy)
 @@ -26,6 +26,9 @@
  
  
@@ -75,10 +75,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
  void* dlFindSymbol(DLLib* libHandle, const char* symbol)
  {
    return dlsym(libHandle && libHandle->handle ? libHandle->handle : RTLD_DEFAULT, symbol);
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload.h
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(revision 670)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload.h	(revision 672)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload.h	(working copy)
 @@ -24,6 +24,9 @@
  #ifndef DYNLOAD_H
  #define DYNLOAD_H
@@ -112,10 +112,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
  
  /* symbol table enumeration */
  
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(revision 670)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms.c	(revision 672)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms.c	(working copy)
 @@ -17,12 +17,15 @@
  
  */
@@ -123,7 +123,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c
 +#include "dynload.h"
 +#include "dynload_macros.h"
  #include "dyncall_macros.h"
-+#include "dyncall_alloc.h""
++#include "dyncall_alloc.h"
  
  #if defined(DC_WINDOWS)
  #  include "dynload_syms_pe.c"
@@ -133,10 +133,22 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c
  #    include "dynload_syms_mach-o.c"
  #  else
  #    include "dynload_syms_elf.c"
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/GNUmakefile
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	(revision 670)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/GNUmakefile	(revision 672)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/GNUmakefile	(working copy)
+@@ -29,6 +29,7 @@
+ TARGET_LIB = dynload
+ UNITS = dynload dynload_syms
+ CPPFLAGS += -I../dyncall
++CPPFLAGS += -D_GNU_SOURCE -D__USE_GNU
+ INSTALL_HEADERS = dynload.h
+ INSTALL_LIB = 1
+ 
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c
+===================================================================
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	(revision 672)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	(working copy)
 @@ -33,9 +33,11 @@
  
  #if defined(DC__Arch_AMD64)
@@ -181,10 +193,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c
  static const struct NLIST_TYPE* get_nlist(DLSyms* pSyms, int index)
  {
  	const struct NLIST_TYPE* nl;
-Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(revision 670)
-+++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload.c	(revision 672)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload.c	(working copy)
 @@ -18,11 +18,14 @@
  */
  
@@ -201,10 +213,25 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
  #    include "dynload_darwin.c"
  #  else
  #    include "dynload_unix.c"
-Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S
+Index: /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_elf.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(revision 670)
-+++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 672)
++++ /home/ubuntu/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(working copy)
+@@ -18,10 +18,6 @@
+ 
+ */
+ 
+-#if defined(DC__OS_Linux) && !defined(_GNU_SOURCE)
+-#define _GNU_SOURCE
+-#endif
+-
+ /*
+  
+  dynamic symbol resolver for elf
+Index: /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S
+===================================================================
+--- /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(revision 672)
++++ /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(working copy)
 @@ -95,21 +95,25 @@
  
  	// handle return value
@@ -234,10 +261,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S
  	mov  %eax, [%edx]
  	mov  %edx, [%edx+4]
  	ret
-Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm
+Index: /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 670)
-+++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 672)
++++ /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(working copy)
 @@ -93,16 +93,19 @@
    mov  ebp, [ebp]                    ; EBP = parent frame
  
@@ -272,10 +299,10 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.
  _dcCallbackThunkEntry ENDP
  
  END
-Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s
+Index: /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(revision 670)
-+++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(working copy)
+--- /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(revision 672)
++++ /home/ubuntu/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(working copy)
 @@ -44,10 +44,12 @@
  frame_DCArgs       = -24
  frame_DCValue      = -32

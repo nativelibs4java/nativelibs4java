@@ -15,7 +15,7 @@
 #define __cdecl
 #endif
 
-#if !defined (DC__OS_Darwin)
+#if !defined (DC__OS_Darwin) && !defined(DC__OS_Linux)
 #define NO_DIRECT_CALLS // TODO REMOVE ME !!! (issues with stack alignment on COM calls ?)
 #endif
 

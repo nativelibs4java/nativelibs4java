@@ -6,7 +6,7 @@
   <artifactId>opencl4java-bridj</artifactId>
   <name>OpenCL4Java / BridJ</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
-  <version>${opencl4java.version}</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   	  <description>

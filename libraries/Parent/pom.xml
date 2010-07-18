@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nativelibs4java</groupId>
 	<artifactId>nativelibs4java-parent</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0.20100717</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2009</inceptionYear>
 	<name>NativeLibs4Java Common Configuration</name>
@@ -11,13 +11,12 @@
 	<properties>
 		<scala.version>2.8.0</scala.version>
 		<rococoa.version>0.5</rococoa.version>
-		<jnaerator.version>0.9.4-SNAPSHOT</jnaerator.version>
-		<nativelibs4java.version>1.0-SNAPSHOT</nativelibs4java.version>
+		<jnaerator.version>0.9.5-SNAPSHOT</jnaerator.version>
+		<nativelibs4java.version>1.0.20100717</nativelibs4java.version>
 		<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
 		<nl4j-runtime.version>0.1-SNAPSHOT</nl4j-runtime.version>
 		<jarsigner.skip>true</jarsigner.skip>
 		<junit.version>4.8.1</junit.version>
-		<!--<jna.version>3.2.5-20100310</jna.version>-->
 		<jna.version>3.2.5</jna.version>
 		<maven.compiler.debug>true</maven.compiler.debug>
 		<shadedArtifactAttached>true</shadedArtifactAttached>
@@ -291,7 +290,7 @@ Most of these wrappers are created automatically by JNAerator.
 		</site>
 		<repository>
 			<id>nativelibs4java-repo</id>
-			<uniqueVersion>true</uniqueVersion>
+			<uniqueVersion>false</uniqueVersion>
 			<name>NativeLibs4Java Sourceforge Maven Repository</name>
 			<url>sftp://frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven</url>
 		</repository>

@@ -1,11 +1,14 @@
 Current development version (1.0-SNAPSHOT)
 
+- Experimental BridJ port with same functionality as JNA-powered version, but smaller and faster (JAR weighs 750 kB instead of 1.8 MB, overhead per-function call about 5x smaller)
+
+Version 1.0-beta-5 (r1067, 20100717)
+
 - Now using a nice configuration dialog when launching ParticlesDemo : has
 optional OpenCL settings with "Fastest", "Normal" and "Safest" presets +
 detailed platform and device choice (with optional OpenGL sharing choice).
-- Removed deprecated method JavaCL.createContext(CLDevice...) in favor of
-alternative with optional context properties map as first arg (can be nulled
-out).
+- Added optional context properties map argument to JavaCL.createContext (can be nulled
+out)
 - Fixed issue #18: CLImage.write calls enqueueImageRead !
 - Documented workaround for Linux crashes (issue #20) : http://code.google.com/p/javacl/wiki/TroubleShootingJavaCLOnLinux
 - Fixed issue #21: NIOUtils.put() doesn't accept ByteBuffer
@@ -26,7 +29,7 @@ out).
 - Faster enums
 - Check for cl_amd_fp64 in CLDevice.isDoubleSupported()
 - Fixed CLProgram.getBinaries()
-- 
+- Fixed issue #22 (maven pom issue)
 
 Version 1.0-beta-4 (r760, 20100121)
 

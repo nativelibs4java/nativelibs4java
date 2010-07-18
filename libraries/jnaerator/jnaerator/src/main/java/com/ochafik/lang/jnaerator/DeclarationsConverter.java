@@ -591,7 +591,7 @@ public class DeclarationsConverter {
 		//if (function.findParentOfType(Template))
 		String library = result.getLibrary(function);
 		Identifier functionName = function.getName();
-		if (functionName == null) {
+		if (functionName == null || isCallback) {
 			if (function.getParentElement() instanceof FunctionSignature)
 				functionName = ident("invoke");
 			else
@@ -885,7 +885,11 @@ public class DeclarationsConverter {
 //        typedMethod.addModifiers(Modifier.Public, isStatic ? Modifier.Static : null);
         
         Function nativeMethod = new Function(Type.JavaMethod, ident(functionName), null);
-        nativeMethod.addModifiers(isProtected ? Modifier.Protected : Modifier.Public, Modifier.Native, isStatic || !isCallback && !isInStruct ? Modifier.Static : null);
+        nativeMethod.addModifiers(
+            isProtected ? Modifier.Protected : Modifier.Public, 
+            isCallback ? Modifier.Abstract : Modifier.Native, 
+            isStatic || !isCallback && !isInStruct ? Modifier.Static : null
+        );
 
         TypeConversion.NL4JTypeConversion retType = result.typeConverter.toNL4JType(function.getValueType(), null, libraryClassName);
 //        typedMethod.setValueType(retType.getTypedTypeRef());
@@ -1588,6 +1592,17 @@ public class DeclarationsConverter {
             setter.addArg(new Arg(name, javaType));
             setter.addModifiers(Modifier.Native);
             out.add(setter);
+            
+            if (result.config.scalaStructSetters) {
+                setter = new Function();
+                setter.setName(ident(name + "_$eq"));
+                setter.setValueType(typeRef(holderName.clone()));//Void.TYPE));
+                setter.addArg(new Arg(name, javaType.clone()));
+                setter.addModifiers(Modifier.Public, Modifier.Final);
+                setter.setBody(block(
+                    new Statement.Return(methodCall(name, varRef(name)))
+                ));
+            }
         }
         return out;
     }

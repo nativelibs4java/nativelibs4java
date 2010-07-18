@@ -6,7 +6,7 @@
   <artifactId>javacl-generator-bridj</artifactId>
   <name>JavaCL OpenCL Wrapper Code Generator / BridJ</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>${opencl4java.version}</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <!--packaging>jar</packaging-->
   

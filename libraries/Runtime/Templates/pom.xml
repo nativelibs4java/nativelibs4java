@@ -5,7 +5,7 @@
   
   <groupId>com.nativelibs4java</groupId>
   <artifactId>maven-nl4j-runtime-templates-plugin</artifactId>
-  <version>${nl4j-runtime.version}</version>
+  <version>0.1-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   
   <parent>

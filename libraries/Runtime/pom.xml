@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
     <artifactId>nl4j-runtime-root</artifactId>
-    <version>${nl4j-runtime.version}</version>
+    <version>0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>NativeLibs4Java Runtime Root Project</name>
    
@@ -15,10 +15,8 @@
   </parent>
 
   <modules>
-    <module>Structs</module>
     <module>BridJ</module>
     <module>Velocity</module>
-    <module>Templates</module>
     <module>JarShrinker</module>
     <module>Parent</module>
   </modules>
