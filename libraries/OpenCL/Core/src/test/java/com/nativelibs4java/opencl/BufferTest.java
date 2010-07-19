@@ -24,6 +24,7 @@ import org.junit.Test;
 import com.nativelibs4java.test.MiscTestUtils;
 import com.nativelibs4java.util.NIOUtils;
 import com.bridj.*;
+import java.nio.ByteOrder;
 import static com.bridj.Pointer.*;
 
 /**
@@ -44,35 +45,31 @@ public class BufferTest extends AbstractCommon {
             testReadWrite(bufferClass, 10, 3, 3);
     }
     public <B extends Buffer> void testReadWrite(Class<B> bufferClass, int n, int zeroOffset, int zeroLength) {
-        CLBuffer<B> buf = context.createBuffer(CLMem.Usage.InputOutput, n, bufferClass);
+        CLBuffer<B> buf = context.createBuffer(CLMem.Usage.InputOutput, bufferClass, n);
         assertEquals(n, buf.getElementCount());
 
-        B initial = directBuffer(n, context.getByteOrder(), bufferClass);
-        B zeroes = directBuffer(n, context.getByteOrder(), bufferClass);
+        Pointer<B> initial = allocateArray(bufferClass, n).order(context.getByteOrder());
+        Pointer<B> zeroes = allocateArray(bufferClass, n).order(context.getByteOrder());
         for (int i = 0; i < n; i++) {
-            put(initial, i, i + 1);
-            put(zeroes, i, 0);
+            initial.set(i, (B)(Object)(i + 1));
         }
 
         buf.write(queue, initial, true);
 
-        B retrieved = buf.read(queue);
-        assertEquals(buf.getElementCount(), retrieved.capacity());
-
-        retrieved.rewind();
-        initial.rewind();
+        Pointer<B> retrieved = buf.read(queue);
+        assertEquals(buf.getElementCount(), retrieved.getRemainingElements());
 
         for (int i = 0; i < n; i++)
-            assertEquals(bufferClass.getName(), get(initial, i), get(retrieved, i));
+            assertEquals(bufferClass.getName(), initial.get(i), retrieved.get(i));
 
         buf.write(queue, zeroOffset, zeroLength, zeroes, true);
 
         buf.read(queue, retrieved, true);
         for (int i = 0; i < n; i++) {
             if (i >= zeroOffset && i < (zeroOffset + zeroLength))
-                assertEquals(bufferClass.getName(), get(zeroes, i), get(retrieved, i));
+                assertEquals(bufferClass.getName(), zeroes.get(i), retrieved.get(i));
             else
-                assertEquals(bufferClass.getName(), get(initial, i), get(retrieved, i));
+                assertEquals(bufferClass.getName(), initial.get(i), retrieved.get(i));
         }
     }
 
@@ -92,11 +89,11 @@ public class BufferTest extends AbstractCommon {
     }
     public void testMap(Class<? extends Buffer> bufferClass) {
         int size = 10;
-        ByteBuffer data = NIOUtils.directBytes(size, context.getByteOrder());
-        CLBuffer<ByteBuffer> buf = context.createBuffer(CLMem.Usage.Input, data, false);
-        ByteBuffer mapped = buf.map(queue, CLMem.MapFlags.Read);
+        Pointer<Byte> data = allocateBytes(size).order(context.getByteOrder());
+        CLBuffer<Byte> buf = context.createBuffer(CLMem.Usage.Input, data, false);
+        Pointer<Byte> mapped = buf.map(queue, CLMem.MapFlags.Read);
 
-        assertEquals(pointerToBuffer(data), pointerToBuffer(mapped));
+        assertEquals(data, mapped);
     }
 
 }

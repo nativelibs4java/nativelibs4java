@@ -4,6 +4,10 @@ import static com.nativelibs4java.opencl.JavaCL.listPlatforms;
 import java.nio.Buffer;
 import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
+
+
+import com.bridj.*;
+import static com.bridj.Pointer.*;
 /**
  * @author ochafik
  */
@@ -57,18 +61,20 @@ public class CLTestUtils {
         return tot / dataSize;
     }
 
-    public static void fillBuffersWithSomeData(FloatBuffer a, FloatBuffer b) {
-        int s = a.capacity();
+    public static void fillBuffersWithSomeDataf(Pointer<Float> a, Pointer<Float> b) {
+        int s = (int)a.getRemainingElements();
         for (int i = 0; i < s; i++) {
-            a.put(i, i);
-            b.put(i, i);
+            float v = i;
+            a.set(i, v);
+            b.set(i, v);
         }
     }
-    public static void fillBuffersWithSomeData(DoubleBuffer a, DoubleBuffer b) {
-        int s = a.capacity();
+    public static void fillBuffersWithSomeDatad(Pointer<Double> a, Pointer<Double> b) {
+        int s = (int)a.getRemainingElements();
         for (int i = 0; i < s; i++) {
-            a.put(i, i);
-            b.put(i, i);
+            double v = i;
+            a.set(i, v);
+            b.set(i, v);
         }
     }
     

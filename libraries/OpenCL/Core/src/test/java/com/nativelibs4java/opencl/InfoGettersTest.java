@@ -72,7 +72,7 @@ public class InfoGettersTest {
 
     CLEvent createEvent() {
         CLContext c = createContext();
-        return c.createIntBuffer(CLMem.Usage.Input, 10).mapLater(c.createDefaultQueue(), CLMem.MapFlags.Read).getSecond();
+        return c.createBuffer(CLMem.Usage.Input, Integer.class, 10).mapLater(c.createDefaultQueue(), CLMem.MapFlags.Read).getSecond();
     }
 
     CLSampler createSampler() {
@@ -97,8 +97,8 @@ public class InfoGettersTest {
 
     @org.junit.Test
     public void CLMemGetters() {
-        testGetters(createContext().createByteBuffer(CLMem.Usage.Input, 10));
-        testGetters(createContext().createByteBuffer(CLMem.Usage.Output, 10));
+        testGetters(createContext().createBuffer(CLMem.Usage.Input, Byte.class, 10));
+        testGetters(createContext().createBuffer(CLMem.Usage.Output, Byte.class, 10));
     }
 
     @org.junit.Test

@@ -17,6 +17,7 @@
 	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
 */
 package com.nativelibs4java.opencl;
+import java.util.Arrays;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.CLException.failedForLackOfMemory;
 import static com.nativelibs4java.opencl.JavaCL.CL;
@@ -199,17 +200,19 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     }
     
     protected String getOptionsString() {
-        if (passMacrosAsSources)
-            return null;
-
-        if (macros == null || macros.isEmpty())
+        if ((macros == null || macros.isEmpty()) && (args == null || args.isEmpty()))
             return null;
 
         StringBuilder b = new StringBuilder();//"-DJAVACL=1 ");
-        for (Map.Entry<String, Object> m : macros.entrySet())
-            b.append("-D" + m.getKey() + "=" + m.getValue() + " ");
-
-        return b.toString();
+        if (macros != null && !passMacrosAsSources)
+            for (Map.Entry<String, Object> m : macros.entrySet())
+                b.append("-D" + m.getKey() + "=" + m.getValue() + " ");
+        if (args != null)
+            for (String arg : args)
+                b.append(arg).append(" ");
+        
+        String s = b.toString().trim();
+        return s.length() == 0 ? null : s;
     }
 
     boolean built;
@@ -301,6 +304,13 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         CLKernel kn = new CLKernel(this, name, kernel);
         kn.setArgs(args);
         return kn;
+    }
+
+    List<String> args;
+    public void addArgs(String... as) {
+        if (args == null)
+            args = new ArrayList<String>();
+        args.addAll(Arrays.asList(as));
     }
 
 

@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl;
 
+import com.bridj.Pointer;
 import static org.junit.Assert.assertEquals;
 
 import java.awt.image.BufferedImage;
@@ -136,7 +137,7 @@ public class ImageTest extends AbstractCommon {
                 image.setRGB(i, height - 1, i);
 			
             CLProgram program = context.createProgram(src).build();
-			CLIntBuffer cloutput = context.createIntBuffer(CLMem.Usage.Output, width);
+			CLBuffer<Integer> cloutput = context.createBuffer(CLMem.Usage.Output, Integer.class, width);
 			CLKernel kernel = program.createKernel(
 				"test",
 				context.createImage2D(CLMem.Usage.Input, image, true),
@@ -145,7 +146,7 @@ public class ImageTest extends AbstractCommon {
             
             kernel.enqueueNDRange(queue, new int[] {width}, new int[]{1}).waitFor();
 
-			IntBuffer output = cloutput.read(queue);
+			Pointer<Integer> output = cloutput.read(queue);
 			for (int i = 0; i < width; i++) {
 				int value = output.get(i);
                 //System.out.println(value);

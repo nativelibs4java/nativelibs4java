@@ -106,7 +106,7 @@ public class JOGLTest {
                                 texData
                             );
 						
-                            CLFloatBuffer clbuf = context.createBufferFromGLBuffer(CLMem.Usage.Input, VBO[0]).asCLFloatBuffer();
+                            CLBuffer<Float> clbuf = context.createBufferFromGLBuffer(CLMem.Usage.Input, VBO[0]).as(Float.class);
                             CLImage2D climg = context.createImage2DFromGLTexture2D(CLMem.Usage.InputOutput, CLContext.GLTextureTarget.Texture2D, Texture[0], 0);
 
                             assertNotNull(clbuf);

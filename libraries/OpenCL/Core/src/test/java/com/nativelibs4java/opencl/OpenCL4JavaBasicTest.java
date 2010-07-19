@@ -4,6 +4,8 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.JavaCL.createBestContext;
 import static com.nativelibs4java.util.NIOUtils.directFloats;
 import static org.junit.Assert.assertEquals;
+import com.bridj.*;
+import static com.bridj.Pointer.*;
 
 import java.nio.FloatBuffer;
 
@@ -44,18 +46,19 @@ public class OpenCL4JavaBasicTest {
             CLQueue queue = context.createDefaultQueue();
 
             /// Create direct NIO buffers and fill them with data in the correct byte order
-            FloatBuffer a = NIOUtils.directFloats(dataSize, context.getKernelsDefaultByteOrder());
-            FloatBuffer b = NIOUtils.directFloats(dataSize, context.getKernelsDefaultByteOrder());
+            Pointer<Float> a = allocateFloats(dataSize).order(context.getKernelsDefaultByteOrder());
+            Pointer<Float> b = allocateFloats(dataSize).order(context.getKernelsDefaultByteOrder());
             for (int i = 0; i < dataSize; i++) {
-                a.put(i, i);
-                b.put(i, i);
+                float value = (float)i;
+                a.set(i, value);
+                b.set(i, value);
             }
 
             // Allocate OpenCL-hosted memory for inputs and output, 
             // with inputs initialized as copies of the NIO buffers
-            CLFloatBuffer memIn1 = context.createFloatBuffer(CLMem.Usage.Input, a, true); // 'true' : copy provided data
-            CLFloatBuffer memIn2 = context.createFloatBuffer(CLMem.Usage.Input, b, true);
-            CLFloatBuffer memOut = context.createFloatBuffer(CLMem.Usage.Output, dataSize);
+            CLBuffer<Float> memIn1 = context.createBuffer(CLMem.Usage.Input, a, true); // 'true' : copy provided data
+            CLBuffer<Float> memIn2 = context.createBuffer(CLMem.Usage.Input, b, true);
+            CLBuffer<Float> memOut = context.createBuffer(CLMem.Usage.Output, Float.class, dataSize);
 
             // Bind these memory objects to the arguments of the kernel
             kernel.setArgs(memIn1, memIn2, memOut);
@@ -68,7 +71,7 @@ public class OpenCL4JavaBasicTest {
             queue.finish();
 
             // Copy the OpenCL-hosted array back to RAM
-            FloatBuffer output = memOut.read(queue);
+            Pointer<Float> output = memOut.read(queue);
 
             // Compute absolute and relative average errors wrt Java implem
             double totalAbsoluteError = 0, totalRelativeError = 0;
