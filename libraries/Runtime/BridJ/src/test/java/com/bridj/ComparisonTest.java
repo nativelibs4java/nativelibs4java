@@ -120,9 +120,11 @@ public class ComparisonTest {
                         tot = dct.testAddDyncall(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
                         tot = PerfLib.JNATest.testAddJNA(tot, seed);
+                    for (int i = 0; i < nWarmUp; i++)
+                        tot = PerfLib.JNAInterfaceTest.INSTANCE.testAddJNA(tot, seed);
                 }
 
-                double totalJNI = 0, totalDynCall = 0, totalJNA = 0;
+                double totalJNI = 0, totalDynCall = 0, totalJNA = 0, totalJNAInterface = 0;
                 
                 long startJNI = System.nanoTime();
                 for (int iTest = 0; iTest < nTests; iTest++) {
@@ -147,12 +149,23 @@ public class ComparisonTest {
                 }
                 long timeJNA = System.nanoTime() - startJNA;
                 totalJNA += timeJNA;
+                
+                long startJNAInterface = System.nanoTime();
+                for (int iTest = 0; iTest < nTests; iTest++) {
+                    for (int i = 0; i < nCalls; i++)
+                        tot = PerfLib.JNAInterfaceTest.INSTANCE.testAddJNA(tot, seed);
+                }
+                long timeJNAInterface = System.nanoTime() - startJNAInterface;
+                totalJNAInterface += timeJNAInterface;
+                
+                
 
                 //System.out.println("timeNat = " + timeNat);
                 //System.out.println("timePrim = " + timePrim);
                 System.out.println("# Dyncall's simple int add is " + (totalDynCall / totalJNI) + " times slower than pure JNI in average");
                 System.out.println("# JNA's simple int add is " + (totalJNA / totalJNI) + " times slower than pure JNI in average");
-                System.out.println("# => Dyncall is " + (totalJNA / totalDynCall) + " times faster than JNA");
+                System.out.println("# => Dyncall is " + (totalJNA / totalDynCall) + " times faster than JNA (direct mode)");
+                System.out.println("# => Dyncall is " + (totalJNAInterface / totalDynCall) + " times faster than JNA (interface mode)");
 
             }
 
@@ -167,9 +180,11 @@ public class ComparisonTest {
                         tot = dct.testASinB(tot, seed);
                     for (int i = 0; i < nWarmUp; i++)
                         tot = PerfLib.JNATest.testASinB(tot, seed);
+                    for (int i = 0; i < nWarmUp; i++)
+                        tot = PerfLib.JNAInterfaceTest.INSTANCE.testASinB(tot, seed);
                 }
 
-                double totalJNI = 0, totalDynCall = 0, totalJNA = 0;
+                double totalJNI = 0, totalDynCall = 0, totalJNA = 0, totalJNAInterface = 0;
                 long startJNI = System.nanoTime();
                 for (int iTest = 0; iTest < nTests; iTest++) {
                     for (int i = 0; i < nCalls; i++)
@@ -194,9 +209,19 @@ public class ComparisonTest {
                 long timeJNA = System.nanoTime() - startJNA;
                 totalJNA += timeJNA;
 
+
+                long startJNAInterface = System.nanoTime();
+                for (int iTest = 0; iTest < nTests; iTest++) {
+                    for (int i = 0; i < nCalls; i++)
+                        tot = PerfLib.JNAInterfaceTest.INSTANCE.testASinB(tot, seed);
+                }
+                long timeJNAInterface = System.nanoTime() - startJNAInterface;
+                totalJNAInterface += timeJNAInterface;
+
                 System.out.println("# Dyncall's 'a * sin(b)' add is " + (totalDynCall / totalJNI) + " times slower than pure JNI in average");
                 System.out.println("# JNA's 'a * sin(b)' add is " + (totalJNA / totalJNI) + " times slower than pure JNI in average");
-                System.out.println("# => Dyncall is " + (totalJNA / totalDynCall) + " times faster than JNA");
+                System.out.println("# => Dyncall is " + (totalJNA / totalDynCall) + " times faster than JNA (direct mode)");
+                System.out.println("# => Dyncall is " + (totalJNAInterface / totalDynCall) + " times faster than JNA (interface mode)");
 
             }
             System.out.println("res = " + res + ", sin(" + arg + ") = " + Math.sin(arg));

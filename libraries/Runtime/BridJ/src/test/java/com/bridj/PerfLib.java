@@ -20,13 +20,13 @@ import java.util.logging.Logger;
 @Library("test")
 @com.bridj.ann.Runtime(CRuntime.class)
 public class PerfLib {
+	static java.io.File libraryFile = BridJ.getNativeLibraryFile(BridJ.getNativeLibraryName(PerfLib.class));
     static {
-        String f = BridJ.getNativeLibraryFile(BridJ.getNativeLibraryName(PerfLib.class)).toString();
-        System.load(f);
+        System.load(libraryFile.toString());
     }
     public static class DynCallTest {
-        public DynCallTest() throws FileNotFoundException {
-            BridJ.register(getClass());
+        static {
+        		BridJ.register();
         }
         public native int testAddDyncall(int a, int b);
         public native int testASinB(int a, int b);
@@ -35,13 +35,18 @@ public class PerfLib {
     public static class JNATest implements com.sun.jna.Library {
         static {
         	try {
-        		com.sun.jna.Native.register(JNI.extractEmbeddedLibraryResource("test").toString());
+        		com.sun.jna.Native.register(libraryFile.toString());
         	} catch (Exception ex) {
         		throw new RuntimeException("Failed to initialize test JNA library", ex);
         	}
         }
         public static native int testAddJNA(int a, int b);
         public static native int testASinB(int a, int b);
+    }
+    public interface JNAInterfaceTest extends com.sun.jna.Library {
+        public static final JNAInterfaceTest INSTANCE = (JNAInterfaceTest)com.sun.jna.Native.loadLibrary(libraryFile.toString(), JNAInterfaceTest.class);
+        int testAddJNA(int a, int b);
+        int testASinB(int a, int b);
     }
     public static native int testAddJNI(int a, int b);
     public static native double testASinB(int a, int b);
