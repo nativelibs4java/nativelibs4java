@@ -525,7 +525,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      @param index offset in pointed elements at which the value should be copied. Can be negative if the pointer was offset and the memory before it is valid.
      @throws RuntimeException if called on an untyped {@code Pointer<?>} instance ({@link  Pointer#getTargetType()}) 
 	 */
-	public T get(int index) {
+	public T get(long index) {
         PointerIO<T> io = getIO();
         if (io == null)
             throwBecauseUntyped("Cannot get pointed value");
@@ -589,7 +589,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      @param value value to set at pointed memory location
      @throws RuntimeException if called on an untyped {@code Pointer<?>} instance ({@link  Pointer#getTargetType()}) 
 	 */
-	public Pointer<T> set(int index, T value) {
+	public Pointer<T> set(long index, T value) {
         PointerIO<T> io = getIO();
         if (io == null)
             throwBecauseUntyped("Cannot set pointed value");
@@ -777,7 +777,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     public static <V> Pointer<V> allocate(PointerIO<V> io, long byteSize) {
-    	return allocate(io, byteSize, null);
+    		return allocate(io, byteSize, null);
     }
     static <V> Pointer<V> allocate(PointerIO<V> io, long byteSize, final Releaser beforeDeallocation) {
         if (byteSize == 0)

@@ -19,8 +19,8 @@ public abstract class PointerIO<T> {
 		this.targetSize = targetSize;
 		this.typedPointerClass = typedPointerClass;
 	}
-	abstract T get(Pointer<T> pointer, long byteOffset);
-	abstract void set(Pointer<T> pointer, long byteOffset, T value);
+	abstract T get(Pointer<T> pointer, long index);
+	abstract void set(Pointer<T> pointer, long index, T value);
 	
 	PointerIO<Pointer<T>> getReferenceIO() {
 		return new CommonPointerIOs.PointerPointerIO<T>(this);
