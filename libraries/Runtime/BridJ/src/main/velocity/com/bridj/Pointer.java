@@ -197,7 +197,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @param newIO
      * @return
      */
-    protected <U> Pointer<U> withIO(PointerIO<U> newIO) {
+    public <U> Pointer<U> withIO(PointerIO<U> newIO) {
     	return cloneAs(isOrdered(), newIO);
     }
     /**
@@ -225,7 +225,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     		return new Pointer<U>(newIO, getPeer(), ordered, getValidStart(), getValidEnd(), getParent(), getOffsetInParent(), getSibling() != null ? getSibling() : this, null);
     }
 
-    protected final PointerIO<T> getIO() {
+    public final PointerIO<T> getIO() {
 		return io;
 	}
     protected final boolean isOrdered() {
@@ -342,6 +342,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     	};
     }
     
+    
+    /**
+     * Get a pointer to a native object (C++ or ObjectiveC class, struct, union, callback...) 
+     */
+    public static <N extends NativeObject> Pointer<N> pointerTo(N instance) {
+    		return getPointer(instance);
+    }
     /**
      * Get a pointer to a native object (C++ or ObjectiveC class, struct, union, callback...) 
      */
@@ -1162,6 +1169,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         throw new UnsupportedOperationException();
     }
 
+    /**
+     * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination).
+     */
+    public void copyTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
+    		JNI.memcpy(destination.getCheckedPeer(byteOffsetInDestination, byteCount), getCheckedPeer(byteOffset, byteCount), byteCount);
+    }
+    
+    /**
+    * Copy remaining bytes from this pointer to a destination (see {@link #copyTo(long, Pointer, long, long)}, {@link #getRemainingBytes})
+     */
+    public void copyTo(Pointer<?> destination) {
+    		copyTo(0, destination, 0, getRemainingBytes());
+    }
 
 #foreach ($prim in $primitivesNoBool)
 
@@ -1251,6 +1271,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 */
     public ${prim.BufferName} get${prim.BufferName}(long length) {
 		return get${prim.BufferName}(0, length);
+	}
+	
+	/**
+	 * Read a buffer of ${prim.Name} values of the remaining length from the pointed memory location 
+	 */
+    public ${prim.BufferName} get${prim.BufferName}() {
+    		long rem = getRemainingElements();
+    		if (rem < 0)
+    			throwBecauseUntyped("Cannot create buffer if remaining length is not known. Please use get${prim.BufferName}(long length) instead.");
+		return get${prim.BufferName}(0, rem);
 	}
 	
 	/**

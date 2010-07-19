@@ -143,7 +143,8 @@ public class MethodCallInfo {
             this.direct = false;
 
         symbolName = methodName;
-        //this.direct = false; // TODO remove me !
+        if (!BridJ.isDirectModeEnabled())
+        		this.direct = false; // TODO remove me !
         
         assert BridJ.log(Level.INFO, (direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
     }

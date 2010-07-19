@@ -321,17 +321,21 @@ public class BridJ {
             File f = new File(name);
             if (JNI.isWindows()) {
 				if (!f.exists())
-					f = new File(pathFile, name + ".dll").getAbsoluteFile();
-			} else if (JNI.isMacOSX()) {
-				if (!f.exists())
-					f = new File(pathFile, "lib" + name + ".dylib").getAbsoluteFile();
-				if (!f.exists())
-					f = new File(pathFile, "lib" + name + ".jnilib").getAbsoluteFile();
+					f = new File(pathFile, name + ".dll");
+                if (!f.exists())
+					f = new File(pathFile, name + ".drv");
 			} else if (JNI.isUnix()) {
+                if (JNI.isMacOSX()) {
+                    if (!f.exists())
+                        f = new File(pathFile, "lib" + name + ".dylib");
+                } else {
+                    if (!f.exists())
+                        f = new File(pathFile, "lib" + name + ".so");
+                    if (!f.exists())
+                        f = new File(pathFile, name + ".so");
+                }
 				if (!f.exists())
-					f = new File(pathFile, "lib" + name + ".so").getAbsoluteFile();
-				if (!f.exists())
-					f = new File(pathFile, name + ".so").getAbsoluteFile();
+					f = new File(pathFile, "lib" + name + ".jnilib");
             }
             
             if (!f.exists())
@@ -359,6 +363,30 @@ public class BridJ {
         } catch (IOException ex) {
         	return null;
         }
+    }
+    
+    static Boolean directModeEnabled;
+    /**
+     * Query direct mode.<br>
+     * In direct mode, BridJ will <i>attempt</i> to optimize calls with assembler code, so that the overhead of each call is about the same as with plain JNI.<br>
+     * Set -Dbridj.direct=false in the command line (or System.setProperty("bridj.direct", "false")) or environment var BRIDJ_DIRECT=0 to disable
+     */
+    public static boolean isDirectModeEnabled() {
+		if (directModeEnabled == null) {
+			String prop = System.getProperty("bridj.direct");
+			String env = System.getenv("BRIDJ_DIRECT");
+			directModeEnabled = !"false".equalsIgnoreCase(prop) && !"false".equalsIgnoreCase(env) && !"0".equals(env) && !"no".equalsIgnoreCase(env);
+			System.out.println("directModeEnabled = " + directModeEnabled + " (" + System.getProperty("bridj.direct") + ")");			
+		}
+		return directModeEnabled;	    	
+    }
+    /**
+     * Set direct mode.<br>
+     * In direct mode, BridJ will <i>attempt</i> to optimize calls with assembler code, so that the overhead of each call is about the same as with plain JNI.<br>
+     * Set -Dbridj.direct=false in the command line (or System.setProperty("bridj.direct", "false")) or environment var BRIDJ_DIRECT=0 to disable
+     */
+    static void setDirectModeEnabled(boolean v) {
+    		directModeEnabled = v;
     }
     /**
      * Loads the library with the name provided in argument (see {@link #getNativeLibraryFile(String)})
