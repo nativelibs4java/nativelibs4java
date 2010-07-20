@@ -5,6 +5,7 @@
 
 #include "dynload/dynload.h"
 #include "dyncall/dyncall.h"
+#include "d:\Experiments\n4\libraries\Runtime\BridJ\src\main\cpp\bridj\RawNativeForwardCallback.h"
 
 #include <Objbase.h>
 #include <shobjidl.h>
@@ -18,8 +19,26 @@ int fVarArgs(int i, ...) {
 	printf("i = %d\n", i);
 	return i * 2;
 }
+
+__declspec(dllimport) long test_incr_int(long value);
+
+void fOneInt(int a) {
+	printf("i = %d\n", a);
+}
+void fTwoInts(int a, int b) {
+	printf("i = %d, %d\n", a, b);
+}
+void fOneDouble(double a) {
+	printf("i = %f\n", a);
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
+	int (*fSkipped)(void*, void*, int);
+	DCAdapterCallback* cb = dcRawCallAdapterSkipTwoArgs((void (*)())test_incr_int, DC_CALL_C_DEFAULT);
+	fSkipped = (int (*)(void*, void*, int))cb;
+
+	int rrr = fSkipped((void*)1, (void*)2, 3);
 	int a = f();
 	if (a != 0) {
 		printf("ok");

@@ -218,10 +218,14 @@ public class ComparisonTest {
                 long timeJNAInterface = System.nanoTime() - startJNAInterface;
                 totalJNAInterface += timeJNAInterface;
 
-                System.out.println("# Dyncall's 'a * sin(b)' add is " + (totalDynCall / totalJNI) + " times slower than pure JNI in average");
-                System.out.println("# JNA's 'a * sin(b)' add is " + (totalJNA / totalJNI) + " times slower than pure JNI in average");
-                System.out.println("# => Dyncall is " + (totalJNA / totalDynCall) + " times faster than JNA (direct mode)");
-                System.out.println("# => Dyncall is " + (totalJNAInterface / totalDynCall) + " times faster than JNA (interface mode)");
+                System.out.println("totalJNI = " + totalJNI);
+                System.out.println("totalDynCall = " + totalDynCall);
+                System.out.println("totalJNA = " + totalJNA);
+                System.out.println("totalJNAInterface = " + totalJNAInterface);
+                System.out.println("# Dyncall's 'a * sin(b)' add is " + (totalDynCall / (double)totalJNI) + " times slower than pure JNI in average");
+                System.out.println("# JNA's 'a * sin(b)' add is " + (totalJNA / (double)totalJNI) + " times slower than pure JNI in average");
+                System.out.println("# => Dyncall is " + (totalJNA / (double)totalDynCall) + " times faster than JNA (direct mode)");
+                System.out.println("# => Dyncall is " + (totalJNAInterface / (double)totalDynCall) + " times faster than JNA (interface mode)");
 
             }
             System.out.println("res = " + res + ", sin(" + arg + ") = " + Math.sin(arg));

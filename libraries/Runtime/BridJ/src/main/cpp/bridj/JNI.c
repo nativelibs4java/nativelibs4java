@@ -326,7 +326,7 @@ JNIEXPORT jint JNICALL Java_com_bridj_JNI_getMaxDirectMappingArgCount(JNIEnv *en
 #elif defined(DC__OS_Linux) && defined(DC__Arch_AMD64)
 	return 4;
 #elif defined(_WIN32)
-	return 65000;
+	return 8;//65000;
 #else
 	return -1;
 #endif
