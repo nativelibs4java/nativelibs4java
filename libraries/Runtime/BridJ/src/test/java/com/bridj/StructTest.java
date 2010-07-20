@@ -18,6 +18,12 @@ public class StructTest {
 		public native double b();
 		public native void b(double a);
 	}
+	
+	public static class MyJNAStruct extends com.sun.jna.Structure {
+		public int a;
+		public double b;
+	}
+	
 	@Test
 	public void trivial() {
 		MyStruct s = new MyStruct();
@@ -84,5 +90,51 @@ public class StructTest {
         int a = s.a();
         assertEquals(10, a);
     }
+    
+    @Test
+	public void testBridJStructsCreationVsJNAs() {
+		System.err.println("#");
+		System.err.println("# Warming structs up...");
+		System.err.println("#");
+		long n = 40000;
+		long warmup = 2000;
+		for (int i = 0; i < warmup; i++)
+			Pointer.pointerTo(new MyStruct());
+		
+		for (int i = 0; i < warmup; i++)
+			new MyJNAStruct().getPointer();
+		
+		long timeJNA, timeBridJ;
+		
+		System.err.println("#");
+		System.err.println("# Testings BridJ structs...");
+		System.err.println("#");
+		{
+			long start = System.currentTimeMillis();
+			for (int i = 0; i < n; i++)
+				Pointer.pointerTo(new MyStruct());
+			
+			timeBridJ = System.currentTimeMillis() - start;
+		}
+		System.err.println("#");
+		System.err.println("# Testings JNA structs...");
+		System.err.println("#");
+		{
+			long start = System.currentTimeMillis();
+			for (int i = 0; i < n; i++)
+				new MyJNAStruct().getPointer();
+			
+			timeJNA = System.currentTimeMillis() - start;
+		}
+		System.err.println("#");
+		System.err.println("# BridJ took " + timeBridJ + " ms to create " + n + " simple structs (" + (1000d * timeBridJ / (double)n) + " micro second per struct)");
+		System.err.println("# JNA took " + timeJNA + " ms to create " + n + " simple structs (" + (1000d * timeJNA / (double)n) + " micro second per struct)");
+		
+		double bridJFaster = timeJNA / (double)timeBridJ;
+		System.err.println("# Creation of BridJ's structs is " + bridJFaster + " times faster than JNA's");
+		System.err.println("#");
+		
+		assertTrue(bridJFaster > 5);
+	}
 }
 
