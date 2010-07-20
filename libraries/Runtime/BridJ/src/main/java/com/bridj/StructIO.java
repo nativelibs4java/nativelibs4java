@@ -10,8 +10,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,11 +21,13 @@ class StructIO {
 
     static Map<Type, StructIO> structIOs = new HashMap<Type, StructIO>();
 
-    public static synchronized StructIO getInstance(Class structClass, Type structType, CRuntime runtime) {
-        StructIO io = structIOs.get(structType == null ? structClass : structType);
-        if (io == null)
-            registerStructIO(structClass, structType, (StructIO)(io = new StructIO(structClass, structType, runtime)));
-        return (StructIO)io;
+    public static StructIO getInstance(Class structClass, Type structType, CRuntime runtime) {
+        synchronized (structIOs) {
+            StructIO io = structIOs.get(structType == null ? structClass : structType);
+            if (io == null)
+                registerStructIO(structClass, structType, (StructIO)(io = new StructIO(structClass, structType, runtime)));
+            return (StructIO)io;
+        }
     }
 
     public static synchronized StructIO registerStructIO(Class structClass, Type structType, StructIO io) {
@@ -137,7 +141,18 @@ class StructIO {
 
         });
 	}
-
+/*
+    static Set<String> forbiddenGetterNames = new HashSet<String>();
+    static {
+        forbiddenGetterNames.add("getClass");
+        forbiddenGetterNames.add("hashCode");
+        forbiddenGetterNames.add("equals");
+        forbiddenGetterNames.add("clone");
+        forbiddenGetterNames.add("finalize");
+        forbiddenGetterNames.add("notify");
+        forbiddenGetterNames.add("notifyAll");
+        forbiddenGetterNames.add("wait");
+    }*/
     protected boolean acceptFieldGetter(Method method, boolean getter) {
         if (method.getParameterTypes().length != (getter ? 0 : 1))
             return false;
@@ -146,7 +161,10 @@ class StructIO {
             return false;
 
         int modifiers = method.getModifiers();
-        return Modifier.isNative(modifiers) && !Modifier.isStatic(modifiers);
+        
+        return //Modifier.isNative(modifiers) && 
+                !Modifier.isStatic(modifiers);// &&
+                //!forbiddenGetterNames.contains(method.getName());
     }
 
     protected FieldIO createFieldIO(Method getter) {
@@ -247,14 +265,6 @@ class StructIO {
             field.byteOffset = structSize;
             if (field.valueClass.isPrimitive()) {
 				field.byteLength = primTypeLength(field.valueClass);
-            } else if (StructObject.class.isAssignableFrom(field.valueClass)) {
-                if (field.isByValue)
-                    field.byteLength = Pointer.SIZE;
-                else {
-                    StructIO io = StructIO.getInstance(field.valueClass, field.valueType, runtime);
-                    field.byteLength = io.getStructSize();
-                }
-                field.refreshableFieldIndex = refreshableFieldCount++;
             } else if (Pointer.class.isAssignableFrom(field.valueClass)) {
                 field.byteLength = Pointer.SIZE;
                 field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
@@ -277,8 +287,18 @@ class StructIO {
                 field.refreshableFieldIndex = refreshableFieldCount++;
             } else if (field.valueClass.isArray() && field.valueClass.getComponentType().isPrimitive()) {
 				field.byteLength = primTypeLength(field.valueClass.getComponentType());
-			} else
-                throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
+			} else {
+                if (!field.isByValue)
+                    field.byteLength = Pointer.SIZE;
+                else {
+                    StructIO io = StructIO.getInstance(field.valueClass, field.valueType, runtime);
+                    int s = io.getStructSize();
+                    if (s > 0)
+                        field.byteLength = s;
+                    else
+                        throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
+                }
+            }   
 
             if (field.bitLength < 0) {
 				// Align fields as appropriate

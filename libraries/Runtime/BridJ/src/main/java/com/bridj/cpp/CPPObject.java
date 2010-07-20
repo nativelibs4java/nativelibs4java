@@ -12,6 +12,7 @@ import com.bridj.Pointer;
 import com.bridj.StructObject;
 import com.bridj.ann.Runtime;
 import com.bridj.cpp.mfc.MFCRuntime;
+import com.bridj.BridJ;
 
 
 /**
@@ -26,5 +27,10 @@ public class CPPObject extends StructObject {
     }
     public CPPObject(int constructorId, Object... args) {
         super(constructorId, args);
+    }
+    
+    @Override
+    protected void finalize() throws Throwable {
+    		BridJ.deallocate(this);
     }
 }

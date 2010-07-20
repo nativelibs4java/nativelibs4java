@@ -13,7 +13,7 @@ import java.util.Stack;
  */
 public class NativeObject {
     Pointer<? extends NativeObject> peer;
-    BridJRuntime runtime;
+    BridJRuntime.TypeInfo typeInfo;
 
 	public NativeObject(Pointer<? extends NativeObject> peer) {
         BridJ.initialize(this, peer);
@@ -25,11 +25,11 @@ public class NativeObject {
     public NativeObject(int constructorId, Object[] args) {
         BridJ.initialize(this, constructorId, args);
     }
-    
+    /*
     @Override
     protected void finalize() throws Throwable {
     	BridJ.deallocate(this);
-    }
+    }*/
     
     public NativeObject clone() throws CloneNotSupportedException {
     	return BridJ.clone(this);

@@ -223,6 +223,7 @@ public class JNI {
 	);
 	public static native void freeCallback(long nativeCallback);*/
 
+	public static native long mallocNulled(long size);
 	public static native long malloc(long size);
     public static native void free(long pointer);
     public static native long strlen(long pointer);

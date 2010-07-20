@@ -28,8 +28,8 @@ import java.lang.reflect.Type;
 
 public class CRuntime extends AbstractBridJRuntime {
 
-	Set<Class<?>> registeredClasses = new HashSet<Class<?>>();
-	CallbackNativeImplementer callbackNativeImplementer;
+	final Set<Type> registeredTypes = new HashSet<Type>();
+	final CallbackNativeImplementer callbackNativeImplementer;
 
     public CRuntime() {
         callbackNativeImplementer = new CallbackNativeImplementer(BridJ.getOrphanEntities(), this);
@@ -37,25 +37,124 @@ public class CRuntime extends AbstractBridJRuntime {
     public boolean isAvailable() {
         return true;
     }
+    
+    
 	@Override
-	public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Class<T> officialType) {
-		return officialType;
+	public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType) {
+		return (Class<? extends T>)Utils.getClass(officialType);
 	}
 
+    public class CTypeInfo<T extends NativeObject> implements TypeInfo<T> {
+        public CTypeInfo(Type type) {
+            this.type = type;
+            this.typeClass = (Class<T>)Utils.getClass(type);
+            this.structIO = StructIO.getInstance(typeClass, typeClass, null);
+            this.pointerIO = (PointerIO<T>)PointerIO.getInstance(structIO);
+            //this.castClass = getTypeForCast(typeClass);
+            register(typeClass);
+        }
+        protected final Type type;
+        protected final Class<T> typeClass;
+		protected final StructIO structIO;
+		protected final PointerIO<T> pointerIO;
+        protected Class<?> castClass;
+		
+        @Override
+        public BridJRuntime getRuntime() {
+            return CRuntime.this;
+        }
+        @Override
+        public Type getType() {
+            return type;
+        }
+        
+        synchronized Class<?> getCastClass() {
+            if (castClass == null)
+                castClass = getTypeForCast(typeClass);
+            return castClass;
+        }
+
+        @Override
+        public T cast(Pointer peer) {
+            try {
+                T instance = (T)getCastClass().newInstance(); // TODO template parameters here !!!
+                initialize(instance, peer);
+                return instance;
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to cast pointer " + peer + " to instance of type " + typeClass.getName(), ex);
+            }
+        }
+
+        @Override
+        public void initialize(T instance) {
+            if (!BridJ.isCastingNativeObjectInCurrentThread()) {
+                if (instance instanceof Callback<?>)
+                    setNativeObjectPeer(instance, registerCallbackInstance((Callback<?>)instance));
+                else
+                    initialize(instance, -1, structIO);
+            } else if (instance instanceof StructObject) {
+                ((StructObject)instance).io = structIO;
+            }
+        }
+        @Override
+        public void initialize(T instance, Pointer peer) {
+            instance.peer = peer;
+            if (instance instanceof StructObject)
+                ((StructObject)instance).io = structIO;
+        }
+
+        @Override
+        public void initialize(T instance, int constructorId, Object... args) {
+            StructObject s = (StructObject)instance;
+            if (constructorId < 0) {
+                s.io = structIO; 
+                instance.peer = Pointer.allocate(pointerIO, structIO.getStructSize());
+            } else
+                throw new UnsupportedOperationException("TODO implement structs constructors !");
+        }
+
+        @Override
+        public T clone(T instance) throws CloneNotSupportedException {
+            if (instance == null)
+                return null;
+
+            try {
+                T clone = (T)typeClass.newInstance();
+                Pointer<T> p = Pointer.allocate(pointerIO);
+                Pointer.pointerTo(instance).copyTo(p);
+                initialize(clone, p);
+                return clone;
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to clone instance of type " + getType());
+            }
+        }
+        
+        @Override
+        public void destroy(T instance) {
+            if (instance instanceof Callback)
+                return;        
+        }
+    }
+    /// Needs not be fast : TypeInfo will be cached in BridJ anyway !
 	@Override
-	public void register(Class<?> type) {
-		if (!registeredClasses.add(type))
+	public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
+        return new CTypeInfo(type);
+	}
+	@Override
+	public void register(Type type) {
+		if (!registeredTypes.add(type))
 			return;
 
-        assert log(Level.INFO, "Registering type " + type.getName());
+        Class typeClass = Utils.getClass(type);
+        assert log(Level.INFO, "Registering type " + typeClass.getName());
         
-		int typeModifiers = type.getModifiers();
+		int typeModifiers = typeClass.getModifiers();
 		
 		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
 		try {
             Set<Method> handledMethods = new HashSet<Method>();
-			if (StructObject.class.isAssignableFrom(type)) {
-				StructIO io = StructIO.getInstance(type, type, this); // TODO handle differently with templates...
+			if (StructObject.class.isAssignableFrom(typeClass)) {
+				StructIO io = StructIO.getInstance(typeClass, type, this); // TODO handle differently with templates...
                 io.build();
                 StructIO.FieldIO[] fios = io == null ? null : io.getFields();
                 if (fios != null)
@@ -82,7 +181,7 @@ public class CRuntime extends AbstractBridJRuntime {
                     }
 			}
 			
-			if (Callback.class.isAssignableFrom(type)) {
+			if (Callback.class.isAssignableFrom(typeClass)) {
 				if (Callback.class == type)
 					return;
 				
@@ -93,8 +192,8 @@ public class CRuntime extends AbstractBridJRuntime {
 		
 //		for (; type != null && type != Object.class; type = type.getSuperclass()) {
 			try {
-				NativeLibrary typeLibrary = getNativeLibrary(type);
-				for (Method method : type.getDeclaredMethods()) {
+				NativeLibrary typeLibrary = getNativeLibrary(typeClass);
+				for (Method method : typeClass.getDeclaredMethods()) {
                     if (handledMethods.contains(method))
                         continue;
 					try {
@@ -105,7 +204,7 @@ public class CRuntime extends AbstractBridJRuntime {
 						NativeEntities.Builder builder = builders.get(BridJ.getNativeEntities(method));
 						NativeLibrary methodLibrary = BridJ.getNativeLibrary(method);
 						
-						registerNativeMethod(type, typeLibrary, method, methodLibrary, builder);
+						registerNativeMethod(typeClass, typeLibrary, method, methodLibrary, builder);
 
                         handledMethods.add(method);
 					} catch (Exception ex) {
@@ -113,17 +212,17 @@ public class CRuntime extends AbstractBridJRuntime {
 					}
 				}
 			} catch (Exception ex) {
-				throw new RuntimeException("Failed to register class " + type.getName(), ex);
+				throw new RuntimeException("Failed to register class " + typeClass.getName(), ex);
 			}
 //		}
 		} finally {
 			for (Map.Entry<NativeEntities, NativeEntities.Builder> e : builders.entrySet()) {
-				e.getKey().addDefinitions(type, e.getValue());
+				e.getKey().addDefinitions(typeClass, e.getValue());
 			}
 			
-			type = type.getSuperclass();
-			if (type != null && type != Object.class)
-				register(type);
+			typeClass = typeClass.getSuperclass();
+			if (typeClass != null && typeClass != Object.class)
+				register(typeClass);
 		}
 	}
 
@@ -207,12 +306,12 @@ public class CRuntime extends AbstractBridJRuntime {
     	return method;
     }
 
-    @Override
-    public <T extends NativeObject> Class<? extends T> getTypeForCast(Class<T> type) {
-        if (Callback.class.isAssignableFrom(type))
-            return callbackNativeImplementer.getCallbackImplType((Class) type);
+    public <T extends NativeObject> Class<? extends T> getTypeForCast(Type type) {
+        Class<?> typeClass = Utils.getClass(type);
+        if (Callback.class.isAssignableFrom(typeClass))
+            return callbackNativeImplementer.getCallbackImplType((Class) typeClass);
         else
-            return super.getTypeForCast(type);
+            return (Class<? extends T>)typeClass;
     }
 
 
@@ -235,62 +334,8 @@ public class CRuntime extends AbstractBridJRuntime {
 			throw new RuntimeException("Failed to register callback instance of type " + instance.getClass().getName(), e);
 		}
 	}
-    @Override
-    public void initialize(NativeObject instance) {
-        if (!BridJ.isCastingNativeObjectInCurrentThread()) {
-            if (instance instanceof Callback<?>)
-                setNativeObjectPeer(instance, registerCallbackInstance((Callback<?>)instance));
-            else
-                initialize(instance, -1);
-        } else if (instance instanceof StructObject) {
-            StructObject s = (StructObject)instance;
-            Class<? extends StructObject> c = (Class)instance.getClass();
-    		StructIO io = StructIO.getInstance(c, c, this);
-    		s.io = io;
-        }
-    }
-
-
-    @Override
-    public void initialize(NativeObject instance, Pointer peer) {
-        instance.peer = peer;
-        Class c = instance.getClass();
-        ((StructObject)instance).io = StructIO.getInstance(c, c, this);
-    }
-
-    
-    @Override
-    public void initialize(NativeObject instance, int constructorId, Object... args) {
-    	if (!(instance instanceof StructObject))
-    		return;
-    	
-    	StructObject s = (StructObject)instance;
-    	if (constructorId < 0) {
-    		
-    		Class<? extends StructObject> c = (Class)instance.getClass();
-    		StructIO io = StructIO.getInstance(c, c, this);
-    		s.io = io; 
-    		instance.peer = Pointer.allocate(PointerIO.getInstance(io), io.getStructSize());//sizeOf(c, c, io));
-    	} else
-    		throw new UnsupportedOperationException("TODO implement structs constructors !");
-    }
 
     protected void setNativeObjectPeer(NativeObject instance, Pointer<? extends NativeObject> peer) {
         instance.peer = peer;
     }
-    
-    @Override
-    public void destroy(NativeObject instance) {
-        if (instance instanceof Callback)
-            return;        
-    }
-    
-    @Override
-    public <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
-    	if (instance instanceof NativeObject) {
-    		return (T) Pointer.getPointer(instance).toNativeObject(instance.getClass());
-    	}
-    	return super.clone(instance);
-    }
-
 }

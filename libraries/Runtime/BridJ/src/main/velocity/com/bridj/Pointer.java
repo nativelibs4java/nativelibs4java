@@ -779,16 +779,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     public static <V> Pointer<V> allocate(PointerIO<V> io, long byteSize) {
     		return allocate(io, byteSize, null);
     }
+    static <V> Pointer<V> allocate(PointerIO<V> io) {
+    		return allocate(io, io.getTargetSize(), null);
+    }
     static <V> Pointer<V> allocate(PointerIO<V> io, long byteSize, final Releaser beforeDeallocation) {
         if (byteSize == 0)
         	return null;
         
-        long address = JNI.malloc(byteSize);
+        long address = JNI.mallocNulled(byteSize);
         if (address == 0)
         	throw new RuntimeException("Failed to allocate " + byteSize);
 
-		JNI.memset(address, (byte)0, byteSize);        
-        return pointerToAddress(address, byteSize, io, beforeDeallocation == null ? freeReleaser : new Releaser() {
+		return pointerToAddress(address, byteSize, io, beforeDeallocation == null ? freeReleaser : new Releaser() {
         	@Override
         	public void release(Pointer<?> p) {
         		beforeDeallocation.release(p);

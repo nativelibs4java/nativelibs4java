@@ -14,9 +14,11 @@ import com.bridj.NativeLibrary;
 import com.bridj.NativeObject;
 import com.bridj.Pointer;
 import com.bridj.NativeEntities.Builder;
+import com.bridj.Utils;
 import com.bridj.ann.Library;
 import com.bridj.ann.Ptr;
 import com.bridj.ann.Runtime;
+import java.lang.reflect.Type;
 
 /// http://developer.apple.com/mac/library/documentation/Cocoa/Reference/ObjCRuntimeRef/Reference/reference.html
 @Library("/usr/lib/libobjc.A.dylib")
@@ -65,8 +67,9 @@ public class ObjectiveCRuntime extends CRuntime {
     }
     
     @Override
-    public void register(Class<?> type) {
-    	Library libAnn = type.getAnnotation(Library.class);
+    public void register(Type type) {
+        Class<?> typeClass = Utils.getClass(type);typeClass.getAnnotation(Library.class);
+    	Library libAnn = typeClass.getAnnotation(Library.class);
     	if (libAnn != null) {
     		String name = libAnn.value();
     		File libraryFile = BridJ.getNativeLibraryFile(name);
@@ -91,19 +94,24 @@ public class ObjectiveCRuntime extends CRuntime {
     	}
     	builder.addObjCMethod(mci);
     }
-    
-    
-	@Override
-	public void initialize(NativeObject instance, int constructorId, Object... args) {
-		Pointer<ObjCClass> c = getClass(instance.getClass());
-		Pointer<ObjCObject> p = c.get().new$();//.alloc();
-		if (constructorId == -1)
-			p = p.get().create();
-		else
-			throw new UnsupportedOperationException("TODO handle constructors !");
-		setNativeObjectPeer(instance, p);
-	}
 
+    @Override
+    public <T extends NativeObject> TypeInfo<T> getTypeInfo(Type type) {
+        return new CTypeInfo<T>(type) {
+            @Override
+            public void initialize(T instance, int constructorId, Object... args) {
+                Pointer<ObjCClass> c = ObjectiveCRuntime.this.getClass(typeClass);
+                Pointer<ObjCObject> p = c.get().new$();//.alloc();
+                if (constructorId == -1)
+                    p = p.get().create();
+                else
+                    throw new UnsupportedOperationException("TODO handle constructors !");
+                setNativeObjectPeer(instance, p);
+            }
+        };
+    }
+    
+	
 	private Pointer<ObjCClass> getClass(Class<? extends NativeObject> class1) {
 		return getClass(class1.getSimpleName());
 	}

@@ -979,6 +979,16 @@ ret JNICALL Java_com_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1) \
 	END_TRY_RET(env, (ret)0); \
 }
 
+
+jlong JNICALL Java_com_bridj_JNI_mallocNulled(JNIEnv *env, jclass clazz, jlong size) 
+{
+	size_t len = (size_t)size;
+	void* p = malloc(len);
+	if (p)
+		memset(p, 0, len);
+	return PTR_TO_JLONG(p);
+}
+
 FUNC_1(jlong, malloc, jlong, size_t)
 
 FUNC_VOID_1(free, jlong, void*)

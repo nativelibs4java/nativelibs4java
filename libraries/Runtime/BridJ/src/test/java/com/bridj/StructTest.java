@@ -1,5 +1,7 @@
 package com.bridj;
 
+import com.sun.jna.Memory;
+import java.nio.ByteBuffer;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -10,6 +12,12 @@ import static com.bridj.Pointer.*;
 public class StructTest {
 	
 	public static class MyStruct extends StructObject {
+		public MyStruct(com.bridj.Pointer<MyStruct> p) {
+			super(p);
+		}
+		public MyStruct() {
+			super();
+		}
 		@Field(0)
 		public native int a();
 		public native void a(int a);
@@ -20,8 +28,67 @@ public class StructTest {
 	}
 	
 	public static class MyJNAStruct extends com.sun.jna.Structure {
+		public MyJNAStruct(com.sun.jna.Pointer p) {
+			super(p);
+		}
+		public MyJNAStruct() {
+			super();
+		}
 		public int a;
 		public double b;
+	}
+    public static class MyNIOStruct {
+        final ByteBuffer p;
+		public MyNIOStruct(ByteBuffer p) {
+            this.p = p;
+        }
+        public MyNIOStruct() {
+            this(ByteBuffer.allocateDirect(12));
+        }
+        public int a() {
+			return p.getInt(0);
+        }
+        public void a(int a) {
+            p.putInt(0, a);
+        }
+        
+        public double b() {
+			return p.getDouble(4);
+        }
+        public void b(double b) {
+            p.putDouble(4, b);
+        }
+	}
+    public static class MyOptimalStruct {
+        public final com.sun.jna.Pointer pointer;
+        private static final int aOffset, bOffset;
+        static {
+            int[] offsets = BridJ.getStructFieldsOffset(MyOptimalStruct.class);
+            aOffset = offsets[0];
+            bOffset = offsets[1];
+        }
+		public MyOptimalStruct(com.sun.jna.Pointer p) {
+            this.pointer = p;
+        }
+        public MyOptimalStruct() {
+            this(new Memory(12));
+            //this(allocateBytes(12));
+        }
+        @Field(0)
+		public int a() {
+			return pointer.getInt(0);
+        }
+        public void a(int a) {
+            pointer.setInt(0, aOffset);
+        }
+        
+        @Field(1)
+		public double b() {
+			return pointer.getDouble(4);
+        }
+        public void b(double b) {
+            pointer.setDouble(4, bOffset);
+        }
 	}
 	
 	@Test
@@ -90,51 +157,5 @@ public class StructTest {
         int a = s.a();
         assertEquals(10, a);
     }
-    
-    @Test
-	public void testBridJStructsCreationVsJNAs() {
-		System.err.println("#");
-		System.err.println("# Warming structs up...");
-		System.err.println("#");
-		long n = 40000;
-		long warmup = 2000;
-		for (int i = 0; i < warmup; i++)
-			Pointer.pointerTo(new MyStruct());
-		
-		for (int i = 0; i < warmup; i++)
-			new MyJNAStruct().getPointer();
-		
-		long timeJNA, timeBridJ;
-		
-		System.err.println("#");
-		System.err.println("# Testings BridJ structs...");
-		System.err.println("#");
-		{
-			long start = System.currentTimeMillis();
-			for (int i = 0; i < n; i++)
-				Pointer.pointerTo(new MyStruct());
-			
-			timeBridJ = System.currentTimeMillis() - start;
-		}
-		System.err.println("#");
-		System.err.println("# Testings JNA structs...");
-		System.err.println("#");
-		{
-			long start = System.currentTimeMillis();
-			for (int i = 0; i < n; i++)
-				new MyJNAStruct().getPointer();
-			
-			timeJNA = System.currentTimeMillis() - start;
-		}
-		System.err.println("#");
-		System.err.println("# BridJ took " + timeBridJ + " ms to create " + n + " simple structs (" + (1000d * timeBridJ / (double)n) + " micro second per struct)");
-		System.err.println("# JNA took " + timeJNA + " ms to create " + n + " simple structs (" + (1000d * timeJNA / (double)n) + " micro second per struct)");
-		
-		double bridJFaster = timeJNA / (double)timeBridJ;
-		System.err.println("# Creation of BridJ's structs is " + bridJFaster + " times faster than JNA's");
-		System.err.println("#");
-		
-		assertTrue(bridJFaster > 5);
-	}
 }
 

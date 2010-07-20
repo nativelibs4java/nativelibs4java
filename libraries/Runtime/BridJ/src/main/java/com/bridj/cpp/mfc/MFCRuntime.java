@@ -9,6 +9,7 @@ import com.bridj.BridJ;
 import com.bridj.Callback;
 import com.bridj.NativeObject;
 import com.bridj.Pointer;
+import com.bridj.Utils;
 import com.bridj.cpp.CPPRuntime;
 
 import java.lang.reflect.Method;
@@ -29,18 +30,19 @@ public class MFCRuntime extends CPPRuntime {
 	Set<Class<?>> hasMessageMap = new HashSet<Class<?>>();
 
 	@Override
-	public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Class<T> officialType) {
+	public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType) {
+        Class officialTypeClass = Utils.getClass(officialType);
 		// For MFC classes, use GetRuntimeClass()
-		if (CObject.class.isAssignableFrom(officialType)) {
+		if (CObject.class.isAssignableFrom(officialTypeClass)) {
 			Pointer<CRuntimeClass> pClass = new CObject((Pointer)pInstance, this).GetRuntimeClass();
 			if (pClass != null) {
 				CRuntimeClass rtc = pClass.get();
 				try {
 					Class<? extends T> type = (Class)getMFCClass(rtc.m_lpszClassName());
-					if (officialType == null || officialType.isAssignableFrom(type))
+					if (officialTypeClass == null || officialTypeClass.isAssignableFrom(type))
 						return type;
 				} catch (ClassNotFoundException ex) {}
-				return officialType;
+				return officialTypeClass;
 			}
 		}
 		
@@ -66,11 +68,12 @@ public class MFCRuntime extends CPPRuntime {
 	}
 
 	@Override
-	public void register(Class<?> type) {
+	public void register(Type type) {
 		super.register(type);
+        Class typeClass = Utils.getClass(type);
 
 		MessageMapBuilder map = new MessageMapBuilder();
-		for (Method method : type.getMethods()) {
+		for (Method method : typeClass.getMethods()) {
 
 			OnCommand onCommand = method.getAnnotation(OnCommand.class);
 			if (onCommand != null)
@@ -93,7 +96,7 @@ public class MFCRuntime extends CPPRuntime {
 				map.add(method, onMessage);
 		}
 		if (!map.isEmpty())
-			map.register(this, type);
+			map.register(this, typeClass);
 
 	}
 }

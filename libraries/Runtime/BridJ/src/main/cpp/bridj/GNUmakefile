@@ -69,6 +69,8 @@ endif
 
 #LINK_LIBS	+= stdc++
 
+CPPFLAGS += -O3
+
 CPPFLAGS += -DJNICALL=__cdecl -DJNIEXPORT=__cdecl
 #CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
 #LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 

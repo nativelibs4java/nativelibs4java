@@ -7,23 +7,26 @@ import java.util.logging.Logger;
 import com.bridj.cpp.CPPObject;
 import com.bridj.cpp.mfc.CObject;
 import com.bridj.cpp.mfc.CRuntimeClass;
+import java.lang.reflect.Type;
 
 public interface BridJRuntime {
 
 	
-	void register(Class<?> type);
+	public interface TypeInfo<T extends NativeObject> {
+		T cast(Pointer peer);
+		void initialize(T instance);
+		void initialize(T instance, Pointer peer);
+		void initialize(T instance, int constructorId, Object[] args);
+        void destroy(T instance);
+		T clone(T instance) throws CloneNotSupportedException;
+		BridJRuntime getRuntime();
+		Type getType();
+	}
+	
+	void register(Type type);
+	<T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type);
 
-    void initialize(NativeObject instance);
-    void initialize(NativeObject instance, Pointer peer);
-    void initialize(NativeObject instance, int constructorId, Object... args);
-
-    void destroy(NativeObject instance);
-
-    <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException;
-    
-    <T extends NativeObject> Class<? extends T> getTypeForCast(Class<T> type);
-    
     boolean isAvailable();
-	<T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Class<T> officialType);
+	<T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType);
     
 }

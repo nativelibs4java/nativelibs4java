@@ -6,6 +6,7 @@
 package com.bridj;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,14 +58,4 @@ public abstract class AbstractBridJRuntime implements BridJRuntime {
 		throw new NoSuchMethodException("Cannot find constructor with index " + constructorId);
 	}
 
-    @Override
-    public <T extends NativeObject> Class<? extends T> getTypeForCast(Class<T> type) {
-        return type;
-    }
-
-    public <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
-    	if (instance == null)
-    		return null;
-    	throw new CloneNotSupportedException("Cannot clone instance of type " + instance.getClass().getName());
-    }
 }

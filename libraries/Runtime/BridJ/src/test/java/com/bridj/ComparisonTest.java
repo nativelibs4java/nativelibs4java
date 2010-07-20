@@ -4,6 +4,7 @@
  */
 
 package com.bridj;
+import static com.bridj.Pointer.*;
 
 import com.bridj.ann.*;
 import com.bridj.cpp.CPPRuntime;
@@ -14,19 +15,21 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.junit.Test;
 /**
- *
+ * mvn -o test-compile && MAVEN_OPTS="-Xmx2g -Xrunhprof:cpu=samples,doe=y,depth=15" mvn -o -DforkMode=never surefire:test -Dtest=ComparisonTest
  * @author Olivier Chafik
  */
 @com.bridj.ann.Runtime(CPPRuntime.class)
 public class ComparisonTest {
 
     @Library("test")
-    public static class Test {
-    	public Test() {
+    public static class TestLib {
+    	public TestLib() {
 			BridJ.register(getClass());
 		}
         //@Mangling({"?sinInt@@YANH@Z", "_Z6sinInti"})
@@ -48,11 +51,11 @@ public class ComparisonTest {
     /**
      * @param args the command line arguments
      */
-    @org.junit.Test
+    @Test
     public void perfTest() {
-
+    	
 		//com.sun.jna.Native.setProtected(true);
-        Test test = null;
+        TestLib test = null;
         try {
             System.out.println(ComparisonTest.class.getResource("Main.class"));
             int nWarmUp = 1600;
@@ -62,10 +65,10 @@ public class ComparisonTest {
             double res = 0;
             
             boolean warmup = true;
-            test = new Test();
+            test = new TestLib();
 
             if (true) {
-                Method[] mes = Test.class.getDeclaredMethods();
+                Method[] mes = TestLib.class.getDeclaredMethods();
                 Method me = mes[0];
                 //Test.class.getMethod("sinInt", Integer.TYPE)
                 //long address = DynCall.getSymbolAddress(me);
@@ -105,7 +108,10 @@ public class ComparisonTest {
                     double slower = (timeNat / (double)timePrim);
                     totalSlower += slower;
                 }
+                System.out.println("#");
                 System.out.println("# Dyncall+JNI's sinus is " + (totalSlower / nTests) + " times slower than java sinus function");
+                System.out.println("#");
+                
             }
 
             PerfLib.DynCallTest dct = new PerfLib.DynCallTest();
@@ -162,10 +168,12 @@ public class ComparisonTest {
 
                 //System.out.println("timeNat = " + timeNat);
                 //System.out.println("timePrim = " + timePrim);
+                System.out.println("#");
                 System.out.println("# Dyncall's simple int add is " + (totalDynCall / totalJNI) + " times slower than pure JNI in average");
                 System.out.println("# JNA's simple int add is " + (totalJNA / totalJNI) + " times slower than pure JNI in average");
-                System.out.println("# => Dyncall is " + (totalJNA / totalDynCall) + " times faster than JNA (direct mode)");
-                System.out.println("# => Dyncall is " + (totalJNAInterface / totalDynCall) + " times faster than JNA (interface mode)");
+                System.out.println("# => Dyncall is " + (totalJNA / totalDynCall) + " times faster than JNA in direct mode");
+                System.out.println("# => Dyncall is " + (totalJNAInterface / totalDynCall) + " times faster than JNA in interface mode");
+                System.out.println("#");
 
             }
 
@@ -218,15 +226,13 @@ public class ComparisonTest {
                 long timeJNAInterface = System.nanoTime() - startJNAInterface;
                 totalJNAInterface += timeJNAInterface;
 
-                System.out.println("totalJNI = " + totalJNI);
-                System.out.println("totalDynCall = " + totalDynCall);
-                System.out.println("totalJNA = " + totalJNA);
-                System.out.println("totalJNAInterface = " + totalJNAInterface);
+                System.out.println("#");
                 System.out.println("# Dyncall's 'a * sin(b)' add is " + (totalDynCall / (double)totalJNI) + " times slower than pure JNI in average");
                 System.out.println("# JNA's 'a * sin(b)' add is " + (totalJNA / (double)totalJNI) + " times slower than pure JNI in average");
-                System.out.println("# => Dyncall is " + (totalJNA / (double)totalDynCall) + " times faster than JNA (direct mode)");
-                System.out.println("# => Dyncall is " + (totalJNAInterface / (double)totalDynCall) + " times faster than JNA (interface mode)");
-
+                System.out.println("# => Dyncall is " + (totalJNA / (double)totalDynCall) + " times faster than JNA in direct mode");
+                System.out.println("# => Dyncall is " + (totalJNAInterface / (double)totalDynCall) + " times faster than JNA in interface mode");
+                System.out.println("#");
+                
             }
             System.out.println("res = " + res + ", sin(" + arg + ") = " + Math.sin(arg));
         } catch (Exception ex) {
@@ -242,5 +248,154 @@ public class ComparisonTest {
             Logger.getLogger(ComparisonTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
+    
+    
+    
+    @Test
+	public void testBridJStructsCreationVsJNAs() throws InterruptedException {
+		//System.err.println("#");
+		//System.err.println("# Warming structs up...");
+		long n = 100000;
+		long warmup = 2000;
+		for (int i = 0; i < warmup; i++)
+			new StructTest.MyStruct();
+		
+		for (int i = 0; i < warmup; i++)
+			new StructTest.MyJNAStruct();
+		
+		for (int i = 0; i < warmup; i++)
+			new StructTest.MyNIOStruct();
+		
+		for (int i = 0; i < warmup; i++)
+			new StructTest.MyOptimalStruct();
+		
+		long timeJNA, timeOptimal, timeBridJ, timeNIO;
+		
+        doGC();
+        //System.err.println("# Testings NIO structs...");
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++)
+				new StructTest.MyNIOStruct();
+			
+			timeNIO = System.nanoTime() - start;
+		}
+        doGC();
+		//System.err.println("# Testings JNA structs...");
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++)
+				new StructTest.MyJNAStruct();
+			
+			timeJNA = System.nanoTime() - start;
+		}
+        doGC();
+        //System.err.println("# Testings Optimal structs...");
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++)
+				new StructTest.MyOptimalStruct();
+			
+			timeOptimal = System.nanoTime() - start;
+		}
+        doGC();
+		//System.err.println("# Testings BridJ structs...");
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++)
+				new StructTest.MyStruct();
+			
+			timeBridJ = System.nanoTime() - start;
+		}
+		double bridJFaster = printResults("Creation of struct", "Creation of BridJ's structs", "create", n, timeJNA, timeOptimal, timeBridJ, timeNIO);
+        
+		assertTrue(bridJFaster > 20);
+	}
+	
+	@Test
+	public void testBridJStructsCastVsJNAs() throws InterruptedException {
+//		System.err.println("#");
+//		System.err.println("# Warming structs up...");
+		long n = 10000;
+		long warmup = 2000;
+		Pointer pBridJ = allocateBytes(100);
+		com.sun.jna.Memory pJNA = new com.sun.jna.Memory(100);
+        ByteBuffer pDumb = ByteBuffer.allocateDirect(100);
+		
+		for (int i = 0; i < warmup; i++)
+			new StructTest.MyStruct(pBridJ);
+		
+		for (int i = 0; i < warmup; i++)
+			new StructTest.MyNIOStruct(pDumb);
+		
+		for (int i = 0; i < warmup; i++)
+			new StructTest.MyJNAStruct(pJNA);
+		
+		for (int i = 0; i < warmup; i++)
+			new StructTest.MyOptimalStruct(pJNA);
+		
+		long timeJNA, timeOptimal, timeBridJ, timeNIO;
+		
+		doGC();
+//        System.err.println("# Testings NIO structs...");
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++)
+				new StructTest.MyNIOStruct(pDumb);
+			
+			timeNIO = System.nanoTime() - start;
+		}
+		doGC();
+//        System.err.println("# Testings JNA structs...");
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++)
+				new StructTest.MyJNAStruct(pJNA);
+			
+			timeJNA = System.nanoTime() - start;
+		}
+        doGC();
+//        System.err.println("# Testings Optimal structs...");
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++)
+				new StructTest.MyOptimalStruct(pJNA);
+			
+			timeOptimal = System.nanoTime() - start;
+		}
+        doGC();
+//		System.err.println("# Testings BridJ structs...");
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++)
+				new StructTest.MyStruct(pBridJ);
+			
+			timeBridJ = System.nanoTime() - start;
+		}
+        double bridJFaster = printResults("Cast to struct", "Cast to BridJ's structs", "cast", n, timeJNA, timeOptimal, timeBridJ, timeNIO);
+        
+		assertTrue(bridJFaster > 50); // */
+	}
+    static double printResults(String title, String longOp, String op, long n, long timeJNA, long timeOptimal, long timeBridJ, long timeNIO) {
+        System.err.println("#");
+        System.err.println("# " + title + " :");
+		System.err.println("# Optimal took " + (timeOptimal / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeOptimal, n));
+		System.err.println("# BridJ took " + (timeBridJ / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeBridJ, n));
+		System.err.println("# NIO took " + (timeNIO / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeNIO, n));
+		System.err.println("# JNA took " + (timeJNA / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeJNA, n));
+		
+		double bridJFaster = timeJNA / (double)timeBridJ;
+		System.err.println("# " + longOp + " is " + bridJFaster + " times faster than JNA's ");
+        System.err.println("#");
+		return bridJFaster;
+    }
+    static String microPerStruct(long nanoTime, long n) {
+        return (nanoTime / 1000d / (double)n) + " microsecond per struct";
+    }
+    static void doGC() throws InterruptedException {
+        System.gc();
+        Thread.sleep(200);
+		System.gc();
+        Thread.sleep(100);
+    }
 }
