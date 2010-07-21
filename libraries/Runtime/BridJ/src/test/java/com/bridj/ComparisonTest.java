@@ -374,7 +374,7 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Cast to struct", "Cast to BridJ's structs", "cast", n, timeJNA, timeOptimal, timeBridJ, timeNIO);
         
-		assertTrue(bridJFaster > 50); // */
+		assertTrue(bridJFaster > 30); // */
 	}
     static double printResults(String title, String longOp, String op, long n, long timeJNA, long timeOptimal, long timeBridJ, long timeNIO) {
         System.err.println("#");

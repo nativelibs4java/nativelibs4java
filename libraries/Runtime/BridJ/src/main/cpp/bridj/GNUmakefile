@@ -56,6 +56,7 @@ UNITS += RawNativeForwardCallback_arch
 
 ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
+CPPFLAGS += -O3
 LDFLAGS		+= -ldl -lobjc
 endif
 
@@ -67,9 +68,13 @@ CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux
 #LDFLAGS		+= -ljni
 endif
 
-#LINK_LIBS	+= stdc++
-
+ifdef BUILD_OS_darwin
 CPPFLAGS += -O3
+else
+CPPFLAGS += -O2
+endif
+
+#LINK_LIBS	+= stdc++
 
 CPPFLAGS += -DJNICALL=__cdecl -DJNIEXPORT=__cdecl
 #CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
