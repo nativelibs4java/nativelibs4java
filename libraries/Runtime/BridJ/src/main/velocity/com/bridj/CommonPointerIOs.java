@@ -8,9 +8,14 @@ class CommonPointerIOs {
 	static class StructPointerIO<S extends StructObject> extends PointerIO<S> {
 		final StructIO structIO;
 		public StructPointerIO(StructIO structIO) {
-			super(structIO.getStructType(), structIO.getStructSize(), null);
+			super(structIO.getStructType(), -1, null);
 			this.structIO = structIO;
 		}
+
+        @Override
+        public int getTargetSize() {
+            return structIO.getStructSize();
+        }
 		
 		@Override
 		public S get(Pointer<S> pointer, long index) {

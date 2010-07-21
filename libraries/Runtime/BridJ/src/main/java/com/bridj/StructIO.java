@@ -209,7 +209,7 @@ class StructIO {
                 	if (acceptFieldGetter(setter, false))
                 		io.setter = setter;
                 } catch (Exception ex) {
-                		assert BridJ.log(Level.INFO, "No setter for getter " + method);
+                		//assert BridJ.log(Level.INFO, "No setter for getter " + method);
                 }
                 if (io != null)
                     list.add(io);
@@ -265,6 +265,14 @@ class StructIO {
             field.byteOffset = structSize;
             if (field.valueClass.isPrimitive()) {
 				field.byteLength = primTypeLength(field.valueClass);
+            } else if (StructObject.class.isAssignableFrom(field.valueClass)) {		
+                if (field.isByValue)		
+                    field.byteLength = Pointer.SIZE;		
+                else {		
+                    StructIO io = StructIO.getInstance(field.valueClass, field.valueType, runtime);		
+                    field.byteLength = io.getStructSize();		
+                }		
+                field.refreshableFieldIndex = refreshableFieldCount++;		
             } else if (Pointer.class.isAssignableFrom(field.valueClass)) {
                 field.byteLength = Pointer.SIZE;
                 field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
@@ -288,6 +296,7 @@ class StructIO {
             } else if (field.valueClass.isArray() && field.valueClass.getComponentType().isPrimitive()) {
 				field.byteLength = primTypeLength(field.valueClass.getComponentType());
 			} else {
+                //throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
                 if (!field.isByValue)
                     field.byteLength = Pointer.SIZE;
                 else {

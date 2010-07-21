@@ -785,6 +785,14 @@ JNIEXPORT jint JNICALL Java_com_bridj_JNI_getMaxDirectMappingArgCount
 
 /*
  * Class:     com_bridj_JNI
+ * Method:    mallocNulled
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_mallocNulled
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_bridj_JNI
  * Method:    malloc
  * Signature: (J)J
  */
