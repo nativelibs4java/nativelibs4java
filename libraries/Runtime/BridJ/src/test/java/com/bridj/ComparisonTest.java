@@ -59,7 +59,7 @@ public class ComparisonTest {
         try {
             System.out.println(ComparisonTest.class.getResource("Main.class"));
             int nWarmUp = 1600;
-            int nCalls = 1000;
+            int nCalls = 100000;
             int nTests = 10;
             int arg = 10;
             double res = 0;
@@ -171,9 +171,15 @@ public class ComparisonTest {
                 System.out.println("#");
                 System.out.println("# Dyncall's simple int add is " + (totalDynCall / totalJNI) + " times slower than pure JNI in average");
                 System.out.println("# JNA's simple int add is " + (totalJNA / totalJNI) + " times slower than pure JNI in average");
-                System.out.println("# => Dyncall is " + (totalJNA / totalDynCall) + " times faster than JNA in direct mode");
-                System.out.println("# => Dyncall is " + (totalJNAInterface / totalDynCall) + " times faster than JNA in interface mode");
+
+		double bridJFaster = totalJNA / (double)totalDynCall;
+                double bridJFasterInterf = totalJNAInterface / (double)totalDynCall;
+                System.out.println("# => Dyncall is " + bridJFaster + " times faster than JNA in direct mode");
+                System.out.println("# => Dyncall is " + bridJFasterInterf + " times faster than JNA in interface mode");
                 System.out.println("#");
+
+		assertTrue(bridJFaster > 0.8);
+		assertTrue(bridJFasterInterf > 5.0);
 
             }
 
@@ -229,10 +235,14 @@ public class ComparisonTest {
                 System.out.println("#");
                 System.out.println("# Dyncall's 'a * sin(b)' add is " + (totalDynCall / (double)totalJNI) + " times slower than pure JNI in average");
                 System.out.println("# JNA's 'a * sin(b)' add is " + (totalJNA / (double)totalJNI) + " times slower than pure JNI in average");
-                System.out.println("# => Dyncall is " + (totalJNA / (double)totalDynCall) + " times faster than JNA in direct mode");
-                System.out.println("# => Dyncall is " + (totalJNAInterface / (double)totalDynCall) + " times faster than JNA in interface mode");
+                double bridJFaster = totalJNA / (double)totalDynCall;
+                double bridJFasterInterf = totalJNAInterface / (double)totalDynCall;
+                System.out.println("# => Dyncall is " + bridJFaster + " times faster than JNA in direct mode");
+                System.out.println("# => Dyncall is " + bridJFasterInterf + " times faster than JNA in interface mode");
                 System.out.println("#");
-                
+
+		assertTrue(bridJFaster > 0.8);
+		assertTrue(bridJFasterInterf > 5.0);
             }
             System.out.println("res = " + res + ", sin(" + arg + ") = " + Math.sin(arg));
         } catch (Exception ex) {
