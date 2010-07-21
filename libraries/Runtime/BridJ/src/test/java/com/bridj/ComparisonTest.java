@@ -326,7 +326,7 @@ public class ComparisonTest {
 	public void testBridJStructsCastVsJNAs() throws InterruptedException {
 //		System.err.println("#");
 //		System.err.println("# Warming structs up...");
-		long n = 10000;
+		long n = 100000;
 		long warmup = 2000;
 		Pointer pBridJ = allocateBytes(100);
 		com.sun.jna.Memory pJNA = new com.sun.jna.Memory(100);
