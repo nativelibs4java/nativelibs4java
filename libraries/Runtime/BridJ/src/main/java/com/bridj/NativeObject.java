@@ -12,8 +12,8 @@ import java.util.Stack;
  * @author Olivier
  */
 public class NativeObject {
-    Pointer<? extends NativeObject> peer;
-    BridJRuntime.TypeInfo typeInfo;
+    protected Pointer<? extends NativeObject> peer;
+    protected BridJRuntime.TypeInfo typeInfo;
 
 	public NativeObject(Pointer<? extends NativeObject> peer) {
         BridJ.initialize(this, peer);

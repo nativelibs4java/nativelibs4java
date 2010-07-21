@@ -10,7 +10,7 @@
   <packaging>jar</packaging>
 
   <properties>
-  	<maven.compiler.debug>true</maven.compiler.debug>
+  	<maven.compiler.debug>false</maven.compiler.debug>
   </properties>
   
   <parent>
@@ -31,10 +31,17 @@
 	<dependency>
       <groupId>net.java.dev.jna</groupId>
       <artifactId>jna</artifactId>
-      <version>${jna.version}</version>
+      <version>3.2.5</version>
       <scope>test</scope>
     </dependency>
 	
+    <dependency>
+          <groupId>javolution</groupId>
+          <artifactId>javolution</artifactId>
+          <version>5.5.1</version>
+          <scope>test</scope>
+	</dependency>  
+      
   </dependencies>
 
   <build>

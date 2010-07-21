@@ -118,6 +118,16 @@ class StructIO {
 		build();
 		return structAlignment;
 	}
+
+	public int getFieldOffset(int iField) {
+		return fields[iField].byteOffset;	
+	}
+	public int getFieldBitOffset(int iField) {
+		return fields[iField].bitOffset;	
+	}
+	public int getFieldBitLength(int iField) {
+		return fields[iField].bitLength;	
+	}
 	
 	/**
      * Orders the fields to match the actual structure layout
