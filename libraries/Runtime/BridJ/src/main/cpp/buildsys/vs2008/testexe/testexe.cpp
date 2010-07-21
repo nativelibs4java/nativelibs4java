@@ -5,7 +5,7 @@
 
 #include "dynload/dynload.h"
 #include "dyncall/dyncall.h"
-#include "d:\Experiments\n4\libraries\Runtime\BridJ\src\main\cpp\bridj\RawNativeForwardCallback.h"
+#include "../../../bridj/RawNativeForwardCallback.h"
 
 #include <Objbase.h>
 #include <shobjidl.h>
