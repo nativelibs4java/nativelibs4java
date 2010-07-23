@@ -21,11 +21,11 @@ class StructIO {
 
     static Map<Type, StructIO> structIOs = new HashMap<Type, StructIO>();
 
-    public static StructIO getInstance(Class structClass, Type structType, CRuntime runtime) {
+    public static StructIO getInstance(Class structClass, Type structType) {
         synchronized (structIOs) {
             StructIO io = structIOs.get(structType == null ? structClass : structType);
             if (io == null)
-                registerStructIO(structClass, structType, (StructIO)(io = new StructIO(structClass, structType, runtime)));
+                registerStructIO(structClass, structType, (StructIO)(io = new StructIO(structClass, structType)));
             return (StructIO)io;
         }
     }
@@ -35,41 +35,35 @@ class StructIO {
         return io;
     }
 
-    public static class FieldIO {
-        String name;
-        Method getter, setter;
+    public static class FieldDesc {
+        public int byteOffset;
+		public int bitOffset, bitLength = -1;
+        public int arrayLength = 1;
+	}
+	protected static class FieldDecl {
+		final FieldDesc desc = new FieldDesc();
+		Method getter, setter;
+		String name;
 		int index = -1;
-		int byteOffset, byteLength;
-		int bitOffset, bitLength = -1;
-        int arraySize = 1;
-        boolean isBitField, isByValue, isNativeSize, isCLong, isWide;
-        int refreshableFieldIndex = -1;
+		int byteLength;
 		Type valueType;
         Class<?> valueClass;
         Class<?> declaringClass;
-        CallIO callIO;
-	}
+        boolean isBitField, isByValue, isNativeSize, isCLong, isWide;
+    }
 	
 	protected PointerIO<?> pointerIO;
-	protected volatile FieldIO[] fields;
+	protected volatile FieldDesc[] fields;
 	private int structSize = -1;
     private int structAlignment = -1;
 	protected final Class<?> structClass;
 	protected final Type structType;
 
-    protected java.lang.reflect.Field[] javaFields;
-    protected java.lang.reflect.Method[] javaIOGetters, javaIOSetters;
-    protected final CRuntime runtime;
-	
-	public StructIO(Class<?> structClass, Type structType, CRuntime runtime) {
+    public StructIO(Class<?> structClass, Type structType) {
 		this.structClass = structClass;
         this.structType = structType;
-        this.runtime = runtime;
 	}
 	
-	public FieldIO[] getFields() {
-		return fields;
-	}
 	public Class<?> getStructClass() {
 		return structClass;
 	}
@@ -125,6 +119,9 @@ class StructIO {
 	public int getFieldBitOffset(int iField) {
 		return fields[iField].bitOffset;	
 	}
+	public int getFieldArrayLength(int iField) {
+		return fields[iField].arrayLength;	
+	}
 	public int getFieldBitLength(int iField) {
 		return fields[iField].bitLength;	
 	}
@@ -132,11 +129,11 @@ class StructIO {
 	/**
      * Orders the fields to match the actual structure layout
      */
-	protected void orderFields(List<FieldIO> fields) {
-		Collections.sort(fields, new Comparator<FieldIO>() {
+	protected void orderFields(List<FieldDecl> fields) {
+		Collections.sort(fields, new Comparator<FieldDecl>() {
 
             @Override
-            public int compare(FieldIO o1, FieldIO o2) {
+            public int compare(FieldDecl o1, FieldDecl o2) {
                 int d = o1.index - o2.index;
                 if (d != 0)
                     return d;
@@ -151,18 +148,7 @@ class StructIO {
 
         });
 	}
-/*
-    static Set<String> forbiddenGetterNames = new HashSet<String>();
-    static {
-        forbiddenGetterNames.add("getClass");
-        forbiddenGetterNames.add("hashCode");
-        forbiddenGetterNames.add("equals");
-        forbiddenGetterNames.add("clone");
-        forbiddenGetterNames.add("finalize");
-        forbiddenGetterNames.add("notify");
-        forbiddenGetterNames.add("notifyAll");
-        forbiddenGetterNames.add("wait");
-    }*/
+	
     protected boolean acceptFieldGetter(Method method, boolean getter) {
         if (method.getParameterTypes().length != (getter ? 0 : 1))
             return false;
@@ -177,8 +163,8 @@ class StructIO {
                 //!forbiddenGetterNames.contains(method.getName());
     }
 
-    protected FieldIO createFieldIO(Method getter) {
-        FieldIO field = new FieldIO();
+    protected FieldDecl createFieldDecl(Method getter) {
+        FieldDecl field = new FieldDecl();
         field.getter = getter;
         field.valueType = getter.getGenericReturnType();
         field.valueClass = getter.getReturnType();
@@ -196,11 +182,10 @@ class StructIO {
         if (fil != null)
             field.index = fil.value();
         if (bits != null)
-            field.bitLength = bits.value();
+            field.desc.bitLength = bits.value();
         if (arr != null)
-            field.arraySize = arr.value();
+            field.desc.arrayLength = arr.value();
         field.isWide = getter.getAnnotation(Wide.class) != null;
-		
         field.isByValue = getter.getAnnotation(ByValue.class) != null;
         return field;
     }
@@ -208,12 +193,12 @@ class StructIO {
     /**
      * Creates a list of structure fields
      */
-	protected List<FieldIO> listFields() {
-		List<FieldIO> list = new ArrayList<FieldIO>();
+	protected List<FieldDecl> listFields() {
+		List<FieldDecl> list = new ArrayList<FieldDecl>();
 
         for (Method method : structClass.getMethods()) {
             if (acceptFieldGetter(method, true)) {
-                FieldIO io = createFieldIO(method);
+                FieldDecl io = createFieldDecl(method);
                 try {
                 	Method setter = structClass.getMethod(method.getName(), io.valueClass);
                 	if (acceptFieldGetter(setter, false))
@@ -260,8 +245,8 @@ class StructIO {
 			throw new UnsupportedOperationException("Field type " + primType.getName() + " not supported yet");
 
 	}
-	protected FieldIO[] computeStructLayout() {
-		List<FieldIO> list = listFields();
+	protected FieldDesc[] computeStructLayout() {
+		List<FieldDecl> list = listFields();
 		orderFields(list);
 
         Alignment alignment = structClass.getAnnotation(Alignment.class);
@@ -271,21 +256,21 @@ class StructIO {
         int refreshableFieldCount = 0;
         structSize = 0;
         int cumulativeBitOffset = 0;
-        for (FieldIO field : list) {
-            field.byteOffset = structSize;
+        for (FieldDecl field : list) {
+            field.desc.byteOffset = structSize;
             if (field.valueClass.isPrimitive()) {
 				field.byteLength = primTypeLength(field.valueClass);
             } else if (StructObject.class.isAssignableFrom(field.valueClass)) {		
                 if (field.isByValue)		
                     field.byteLength = Pointer.SIZE;		
                 else {		
-                    StructIO io = StructIO.getInstance(field.valueClass, field.valueType, runtime);		
+                    StructIO io = StructIO.getInstance(field.valueClass, field.valueType);		
                     field.byteLength = io.getStructSize();		
                 }		
-                field.refreshableFieldIndex = refreshableFieldCount++;		
+                //field.refreshableFieldIndex = refreshableFieldCount++;		
             } else if (Pointer.class.isAssignableFrom(field.valueClass)) {
                 field.byteLength = Pointer.SIZE;
-                field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
+                //field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
             } else if (Buffer.class.isAssignableFrom(field.valueClass)) {
                 if (field.valueClass == IntBuffer.class)
                     field.byteLength = 4;
@@ -302,7 +287,7 @@ class StructIO {
                 else
                     throw new UnsupportedOperationException("Field array type " + field.valueClass.getName() + " not supported yet");
                 
-                field.refreshableFieldIndex = refreshableFieldCount++;
+                //field.refreshableFieldIndex = refreshableFieldCount++;
             } else if (field.valueClass.isArray() && field.valueClass.getComponentType().isPrimitive()) {
 				field.byteLength = primTypeLength(field.valueClass.getComponentType());
 			} else {
@@ -310,7 +295,7 @@ class StructIO {
                 if (!field.isByValue)
                     field.byteLength = Pointer.SIZE;
                 else {
-                    StructIO io = StructIO.getInstance(field.valueClass, field.valueType, runtime);
+                    StructIO io = StructIO.getInstance(field.valueClass, field.valueType);
                     int s = io.getStructSize();
                     if (s > 0)
                         field.byteLength = s;
@@ -319,7 +304,7 @@ class StructIO {
                 }
             }   
 
-            if (field.bitLength < 0) {
+            if (field.desc.bitLength < 0) {
 				// Align fields as appropriate
 				if (cumulativeBitOffset != 0) {
 					cumulativeBitOffset = 0;
@@ -329,17 +314,17 @@ class StructIO {
 				structAlignment = Math.max(structAlignment, fieldAlignment);
                 structSize = alignSize(structSize, fieldAlignment);
 			}
-			field.byteOffset = structSize;
-            field.bitOffset = cumulativeBitOffset;
+			field.desc.byteOffset = structSize;
+            field.desc.bitOffset = cumulativeBitOffset;
             //field.index = fieldCount++;
 
-			if (field.bitLength >= 0) {
-				field.byteLength = (field.bitLength >>> 3) + ((field.bitLength & 7) != 0 ? 1 : 0);
-                cumulativeBitOffset += field.bitLength;
+			if (field.desc.bitLength >= 0) {
+				field.byteLength = (field.desc.bitLength >>> 3) + ((field.desc.bitLength & 7) != 0 ? 1 : 0);
+                cumulativeBitOffset += field.desc.bitLength;
 				structSize += cumulativeBitOffset >>> 3;
 				cumulativeBitOffset &= 7;
 			} else {
-                structSize += field.arraySize * field.byteLength;
+                structSize += field.desc.arrayLength * field.byteLength;
 			}
         }
         if (cumulativeBitOffset > 0)
@@ -347,12 +332,12 @@ class StructIO {
         else if (structSize > 0)
             structSize = alignSize(structSize, structAlignment);
 
-        List<FieldIO> filtered = new ArrayList<FieldIO>();
-        for (FieldIO fio : list)
+        List<FieldDesc> filtered = new ArrayList<FieldDesc>();
+        for (FieldDecl fio : list)
             if (fio.declaringClass.equals(structClass))
-                filtered.add(fio);
+                filtered.add(fio.desc);
         
-		return filtered.toArray(new FieldIO[filtered.size()]);
+		return filtered.toArray(new FieldDesc[filtered.size()]);
 	}
 	
 }

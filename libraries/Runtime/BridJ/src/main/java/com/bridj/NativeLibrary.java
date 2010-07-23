@@ -27,6 +27,7 @@ import com.bridj.Demangler.Symbol;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.GCC4Demangler;
 import com.bridj.cpp.VC9Demangler;
+import java.lang.reflect.Type;
 
 import java.util.Collection;
 
@@ -40,7 +41,6 @@ public class NativeLibrary {
 	Map<String, Symbol> nameToSym;
 //	Map<String, Long> nameToAddr;
 	
-	Map<Class<?>, Pointer<Pointer<?>>> vtables = new HashMap<Class<?>, Pointer<Pointer<?>>>();
 	protected NativeLibrary(String path, long handle, long symbols) {
 		this.path = path;
 		this.handle = handle;
@@ -132,60 +132,19 @@ public class NativeLibrary {
         }
         return null;
     }
-	int getPositionInVirtualTable(Method method) {
-		Class<?> type = method.getDeclaringClass();
-		Pointer<Pointer<?>> pVirtualTable = getVirtualTable(type);
-		return getPositionInVirtualTable(pVirtualTable, method);
-	}
-	public int getPositionInVirtualTable(Pointer<Pointer<?>> pVirtualTable, Method method) {
-		String methodName = method.getName();
-		//Pointer<?> typeInfo = pVirtualTable.get(1);
-		int methodsOffset = isMSVC() ? 0 : -2;///2;
-		String className = getCPPClassName(method.getDeclaringClass());
-		for (int iVirtual = 0;; iVirtual++) {
-			Pointer<?> pMethod = pVirtualTable.get(methodsOffset + iVirtual);
-			String virtualMethodName = pMethod == null ? null : getSymbolName(pMethod.getPeer());
-			//System.out.println("#\n# At index " + methodsOffset + " + " + iVirtual + " of vptr for class " + className + ", found symbol " + Long.toHexString(pMethod.getPeer()) + " = '" + virtualMethodName + "'\n#");
-			if (virtualMethodName == null)
-				return -1;
-			
-			if (virtualMethodName != null && virtualMethodName.contains(methodName)) {
-				// TODO cross check !!!
-				return iVirtual;
-			} else if (isMSVC() && !virtualMethodName.contains(className))
-				break; // no NULL terminator in MSVC++ vtables, so we have to guess when we've reached the end
-		}
-		return -1;
-	}
+	
 	public boolean isMSVC() {
 		return JNI.isWindows();
 	}
-	String getCPPClassName(Class<?> declaringClass) {
-		return declaringClass.getSimpleName();
-	}
-
-	@SuppressWarnings("unchecked")
-	public
-	Pointer<Pointer<?>> getVirtualTable(Class<?> type) {
-		Pointer<Pointer<?>> p = vtables.get(type);
-		if (p == null) {
-			String className = type.getSimpleName();
-			String vtableSymbolName;
-            if (JNI.isWindows())
-                vtableSymbolName = "??_7" + className + "@@6B@";
-            else
-                vtableSymbolName = "_ZTV" + className.length() + className;
-
-            long addr = getSymbolAddress(vtableSymbolName);
-			//long addr = JNI.findSymbolInLibrary(getHandle(), vtableSymbolName);
-//			System.out.println(TestCPP.hex(addr));
-//			TestCPP.print(type.getName() + " vtable", addr, 5, 2);
-        	
-			p = (Pointer)Pointer.pointerToAddress(addr, Pointer.class);
-			vtables.put(type, p);
-		}
-		return p;
-	}
+	public interface SymbolAccepter {
+        boolean accept(Symbol symbol);
+    }
+    public Symbol getFirstMatchingSymbol(SymbolAccepter accepter) {
+        for (Symbol symbol : getSymbols())
+            if (accepter.accept(symbol))
+                return symbol;
+        return null;
+    }
 	public Collection<Demangler.Symbol> getSymbols() {
         try {
             scanSymbols();

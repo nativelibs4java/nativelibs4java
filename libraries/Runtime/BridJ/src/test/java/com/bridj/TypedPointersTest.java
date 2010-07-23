@@ -27,8 +27,13 @@ public class TypedPointersTest {
 		@Field(0)
 		//public native Pointer<Integer> a();
 		//public native MyStruct a(MyPtr a);
-        public native MyPtr a();
-        public native void a(MyPtr a);
+        public MyPtr a() {
+            return new MyPtr(peer.getSizeT(io.getFieldOffset(0)));
+        }
+        public MyStruct a(MyPtr a) {
+            peer.setPointer(io.getFieldOffset(0), a);
+            return this;
+        }
         //public native void a(MyPtr a);
 	}
 	

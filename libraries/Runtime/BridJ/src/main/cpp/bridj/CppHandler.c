@@ -1,6 +1,6 @@
 #include "HandlersCommon.h"
 
-void callDefaultConstructor(JNIEnv* env, void* constructor, void* thisPtr, int callMode)
+void callSinglePointerArgVoidFunction(JNIEnv* env, void* constructor, void* thisPtr, int callMode)
 {
 	CallTempStruct* call;
 	initCallHandler(NULL, &call, env);

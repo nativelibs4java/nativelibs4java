@@ -20,16 +20,18 @@ public class StructTest {
 		public int a() {
 			return peer.getInt(io.getFieldOffset(0));
         }
-        public void a(int a) {
+        public MyStruct a(int a) {
             peer.setInt(io.getFieldOffset(0), a);
+            return this;
         }
         
         @Field(1)
 		public double b() {
 			return peer.getDouble(io.getFieldOffset(1));
         }
-        public void b(double b) {
+        public MyStruct b(double b) {
             peer.setDouble(io.getFieldOffset(1), b);
+            return this;
         }
 	}/*
 	public static class MyStruct extends StructObject {
@@ -81,26 +83,29 @@ public class StructTest {
         }
 	}
     public static class MyOptimalStruct {
-        protected final com.sun.jna.Pointer pointer;
+        //protected final com.sun.jna.Pointer pointer;
+        ByteBuffer pointer;
         private static final int aOffset, bOffset;
         static {
-            int[] offsets = BridJ.getStructFieldsOffset(MyOptimalStruct.class);
-            aOffset = offsets[0];
-            bOffset = offsets[1];
+            StructIO io = StructIO.getInstance(MyOptimalStruct.class, MyOptimalStruct.class);
+            io.build();
+            aOffset = io.getFieldOffset(0);
+            bOffset = io.getFieldOffset(1);
         }
-		public MyOptimalStruct(com.sun.jna.Pointer p) {
+		public MyOptimalStruct(ByteBuffer p) {//com.sun.jna.Pointer p) {
             this.pointer = p;
         }
         public MyOptimalStruct() {
-            this(new Memory(16));
+            //this(new Memory(16));
             //this(allocateBytes(16));
+            this(ByteBuffer.allocateDirect(16));
         }
         @Field(0)
 		public int a() {
 			return pointer.getInt(aOffset);
         }
         public void a(int a) {
-            pointer.setInt(aOffset, aOffset);
+            pointer.putInt(aOffset, aOffset);
         }
         
         @Field(1)
@@ -108,7 +113,7 @@ public class StructTest {
 			return pointer.getDouble(bOffset);
         }
         public void b(double b) {
-            pointer.setDouble(bOffset, bOffset);
+            pointer.putDouble(bOffset, bOffset);
         }
 	}
 	
@@ -133,8 +138,12 @@ public class StructTest {
             super(p);
         }
 		@Field(0)
-		public native int a();
-        public native void a(int a);
+		public int a() {
+			return this.peer.getInt(this.io.getFieldOffset(0));
+		}
+        public void a(int a) {
+			this.peer.setInt(this.io.getFieldOffset(0), a);
+		}
 		//public native CastStruct a(int a);
 
 	}
@@ -152,8 +161,13 @@ public class StructTest {
     public static class ArrStruct extends StructObject {
 
 		@Field(0)
-		public native int a();
-		public native ArrStruct a(int a);
+		public int a() {
+			return this.peer.getInt(this.io.getFieldOffset(0));
+		}
+		public ArrStruct a(int a) {
+			this.peer.setInt(this.io.getFieldOffset(0));
+			return this;
+		}
 
 	}
     @Test
@@ -171,8 +185,13 @@ public class StructTest {
     public static class ThisStruct extends StructObject {
 
 		@Field(0)
-		public native int a();
-		public native ThisStruct a(int a);
+		public int a() {
+            return peer.getInt(io.getFieldOffset(0));
+        }
+		public ThisStruct a(int a) {
+            peer.setInt(io.getFieldOffset(0), a);
+            return this;
+        }
 
 	}
     @Test

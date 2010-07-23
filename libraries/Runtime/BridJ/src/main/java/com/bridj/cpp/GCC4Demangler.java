@@ -93,8 +93,14 @@ public class GCC4Demangler extends Demangler {
 		consumeCharIf('_');
 		expectChars('Z');
 		
-		if (peekChar() == 'T')
+		if (consumeCharIf('T')) {
+			if (consumeCharIf('V')) {
+				mr.setEnclosingType(new ClassRef(parseName()));
+				mr.setMemberName(SpecialName.VFTable);
+				return mr;
+			}
 			return null; // can be a type info, a virtual table or strange things like that
+		}
 		
 		List<String> ns = new ArrayList<String>();
 		if (consumeCharIf('N')) {
@@ -112,15 +118,26 @@ public class GCC4Demangler extends Demangler {
 				switch (peekChar()) {
 				case 'C':
 					consumeChar();
-					expectAnyChar('1', '2');
 					mr.setEnclosingType(new ClassRef((String)mr.getMemberName()));
-					mr.setMemberName(SpecialName.Constructor);
+					if (consumeCharIf('1'))
+						mr.setMemberName(SpecialName.Constructor);
+					else if (consumeCharIf('2'))
+						mr.setMemberName(SpecialName.SpecialConstructor);
+                    else
+                        error("Unknown constructor type");
 					break;
 				case 'D':
 					consumeChar();
-					expectAnyChar('1', '2');
 					mr.setEnclosingType(new ClassRef((String)mr.getMemberName()));
-					mr.setMemberName(SpecialName.Destructor);
+                    // see http://zedcode.blogspot.com/2007/02/gcc-c-link-problems-on-small-embedded.html
+					if (consumeCharIf('0'))
+						mr.setMemberName(SpecialName.DeletingDestructor);
+					else if (consumeCharIf('1'))
+						mr.setMemberName(SpecialName.Destructor);
+					else if (consumeCharIf('2'))
+						mr.setMemberName(SpecialName.SelfishDestructor);
+                    else
+                        error("Unknown destructor type");
 					break;
 				}
 			}

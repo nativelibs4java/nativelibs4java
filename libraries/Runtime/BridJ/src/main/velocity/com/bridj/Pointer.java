@@ -77,7 +77,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	private final boolean ordered;
 
 	private volatile Releaser releaser;
-	interface Releaser {
+	public interface Releaser {
 		void release(Pointer<?> p);
 	}
 	
@@ -117,6 +117,22 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return p1 == p2 ? 0 : p1 < p2 ? -1 : 1;
 	}
 	
+	/**
+	 * Compare the byteCount bytes at the memory location pointed by this pointer to the byteCount bytes at the memory location pointer by other using the C memcmp function.<br>
+	 * @return 0 if the two memory blocks are equal, -1 if this pointer's memory is "less" than the other and 1 otherwise.
+	 */
+	public int compareBytes(Pointer<?> other, long byteCount) {
+		return compareBytes(0, other, 0, byteCount);	
+	}
+	
+	/**
+	 * Compare the byteCount bytes at the memory location pointed by this pointer shifted by byteOffset to the byteCount bytes at the memory location pointer by other shifted by otherByteOffset using the C memcmp function.<br>
+	 * @return 0 if the two memory blocks are equal, -1 if this pointer's memory is "less" than the other and 1 otherwise.
+	 */
+	public int compareBytes(long byteOffset, Pointer<?> other, long otherByteOffset, long byteCount) {
+		return JNI.memcmp(getCheckedPeer(byteOffset, byteCount), other.getCheckedPeer(otherByteOffset, byteCount), byteCount);	
+	}
+	
     /**
 	 * Compute a hash code based on pointed address.
 	 */
@@ -149,17 +165,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
 
     <U> Pointer<U> offset(long byteOffset, PointerIO<U> pio) {
-    	if (byteOffset == 0)
+		if (byteOffset == 0)
 			return pio == this.io ? (Pointer<U>)this : withIO(pio);
-	
+		
 		long newPeer = getPeer() + byteOffset;
 		
+		Object newSibling = getSibling() != null ? getSibling() : this;
 		if (validStart == UNKNOWN_VALIDITY)
-			return new Pointer<U>(pio, newPeer, ordered, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, 0, this, releaser);	
+			return new Pointer<U>(pio, newPeer, ordered, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, 0, newSibling, releaser);	
 		if (newPeer >= validEnd || newPeer < validStart)
 			throw new IndexOutOfBoundsException("Invalid pointer offset !");
 		
-		return new Pointer<U>(pio, newPeer, ordered, validStart, validEnd, null, 0, getSibling() != null ? getSibling() : this, null);    	
+		return new Pointer<U>(pio, newPeer, ordered, validStart, validEnd, null, 0, newSibling, null);    	
 	}
 	/**
 	 * Returns a pointer to this pointer.<br/>
@@ -453,7 +470,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     		return null;
         final int len = strings.length;
         final Pointer<Byte>[] pointers = (Pointer<Byte>[])new Pointer[len];
-        Pointer<Pointer<Byte>> mem = allocate((PointerIO<Pointer<Byte>>)(PointerIO)PointerIO.getPointerInstance(Byte.class), len * Pointer.SIZE, new Releaser() {
+        Pointer<Pointer<Byte>> mem = allocateArray((PointerIO<Pointer<Byte>>)(PointerIO)PointerIO.getPointerInstance(Byte.class), len, new Releaser() {
         	@Override
         	public void release(Pointer<?> p) {
         		Pointer<Pointer<Byte>> mem = (Pointer<Pointer<Byte>>)p;
@@ -721,7 +738,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold a single typed pointer
      */
     public static <P extends TypedPointer> Pointer<P> allocateTypedPointer(Class<P> type) {
-    	return (Pointer<P>)(Pointer)allocate(PointerIO.getInstance(type), Pointer.SIZE);
+    	return (Pointer<P>)(Pointer)allocate(PointerIO.getInstance(type));
     }
     /**
      * Create a memory area large enough to hold an array of arrayLength typed pointers.
@@ -730,7 +747,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold an array of arrayLength typed pointers
      */
     public static <P extends TypedPointer> Pointer<P> allocateTypedPointers(Class<P> type, long arrayLength) {
-    	return (Pointer<P>)(Pointer)allocate(PointerIO.getInstance(type), Pointer.SIZE * arrayLength);
+    	return (Pointer<P>)(Pointer)allocateArray(PointerIO.getInstance(type), arrayLength);
     }
     /**
      * Create a memory area large enough to hold a single typed pointer.
@@ -738,14 +755,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold a single typed pointer
      */
     public static <P> Pointer<Pointer<P>> allocatePointer(Class<P> targetType) {
-    	return (Pointer<Pointer<P>>)(Pointer)allocate(PointerIO.getPointerInstance(targetType), Pointer.SIZE); // TODO 
+    	return (Pointer<Pointer<P>>)(Pointer)allocate(PointerIO.getPointerInstance(targetType)); 
     }
     /**
      * Create a memory area large enough to hold a single untyped pointer.
      * @return a pointer to a new memory area large enough to hold a single untyped pointer
      */
     public static <V> Pointer<Pointer<?>> allocatePointer() {
-    	return (Pointer)allocate(PointerIO.getPointerInstance(), Pointer.SIZE);
+    	return (Pointer)allocate(PointerIO.getPointerInstance());
     }
     /**
      * Create a memory area large enough to hold an array of arrayLength untyped pointers.
@@ -753,7 +770,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold an array of arrayLength untyped pointers
      */
     public static Pointer<Pointer<?>> allocatePointers(int arrayLength) {
-		return (Pointer<Pointer<?>>)(Pointer)allocate(PointerIO.getPointerInstance(), JNI.POINTER_SIZE * arrayLength); 
+		return (Pointer<Pointer<?>>)(Pointer)allocateArray(PointerIO.getPointerInstance(), arrayLength); 
 	}
 	
     /**
@@ -763,7 +780,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold an array of arrayLength typed pointers
      */
     public static <P> Pointer<Pointer<P>> allocatePointers(Class<P> targetType, int arrayLength) {
-		return (Pointer<Pointer<P>>)(Pointer)allocate(PointerIO.getPointerInstance(targetType), JNI.POINTER_SIZE * arrayLength); // TODO 
+		return (Pointer<Pointer<P>>)(Pointer)allocateArray(PointerIO.getPointerInstance(targetType), arrayLength); // TODO 
 	}
 	
     
@@ -776,13 +793,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         return allocateArray(elementClass, 1);
     }
     
-    public static <V> Pointer<V> allocate(PointerIO<V> io, long byteSize) {
-    		return allocate(io, byteSize, null);
+    public static <V> Pointer<V> allocate(PointerIO<V> io) {
+    		return allocateBytes(io, io.getTargetSize(), null);
     }
-    static <V> Pointer<V> allocate(PointerIO<V> io) {
-    		return allocate(io, io.getTargetSize(), null);
+    public static <V> Pointer<V> allocateArray(PointerIO<V> io, long arrayLength) {
+    		return allocateBytes(io, io.getTargetSize() * arrayLength, null);
     }
-    static <V> Pointer<V> allocate(PointerIO<V> io, long byteSize, final Releaser beforeDeallocation) {
+    public static <V> Pointer<V> allocateArray(PointerIO<V> io, long arrayLength, final Releaser beforeDeallocation) {
+    		return allocateBytes(io, io.getTargetSize() * arrayLength, beforeDeallocation);
+    }
+    public static <V> Pointer<V> allocateBytes(PointerIO<V> io, long byteSize, final Releaser beforeDeallocation) {
         if (byteSize == 0)
         	return null;
         
@@ -820,17 +840,17 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		
         #foreach ($prim in $primitivesNoBool)
         if (elementClass == ${prim.WrapperName}.TYPE || elementClass == ${prim.WrapperName}.class)
-            return (Pointer<V>)allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * arrayLength);
+            return (Pointer<V>)allocateArray(PointerIO.get${prim.CapName}Instance(), arrayLength);
         #end
         if (Pointer.class.isAssignableFrom(elementClass))
-            return (Pointer<V>)allocate(PointerIO.getPointerInstance(elementClass), Pointer.SIZE * arrayLength); // TODO
+            return (Pointer<V>)allocateArray(PointerIO.getPointerInstance(elementClass), arrayLength); // TODO
         if (SizeT.class.isAssignableFrom(elementClass))
-            return (Pointer<V>)allocate(PointerIO.getSizeTInstance(), SizeT.SIZE * arrayLength); // TODO
+            return (Pointer<V>)allocateArray(PointerIO.getSizeTInstance(), arrayLength); // TODO
         if (StructObject.class.isAssignableFrom(elementClass)) {
         	CRuntime runtime = (CRuntime)BridJ.getRuntime(elementClass);
-        	StructIO sio = StructIO.getInstance(elementClass, elementClass, runtime);
+        	StructIO sio = StructIO.getInstance(elementClass, elementClass);
         	PointerIO pio = PointerIO.getInstance(sio);
-        	return (Pointer<V>)allocate(pio, sio.getStructSize() * arrayLength); // TODO
+        	return (Pointer<V>)allocateArray(pio, arrayLength); // TODO
         }
         //if (CLong.class.isAssignableFrom(elementClass))
         //    return (Pointer<V>)allocate(PointerIO.getPointerInstance(), Pointer.SIZE * arrayLength); // TODO
@@ -862,7 +882,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return pointer to a new memory location that initially contains the ${prim.Name} value given in argument
      */
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}(${prim.Name} value) {
-        Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size});
+        Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance());
         mem.set${prim.CapName}(0, value);
         return mem;
     }
@@ -881,7 +901,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.Name}... values) {
         if (values == null)
 			return null;
-		Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * values.length);
+		Pointer<${prim.WrapperName}> mem = allocateArray(PointerIO.get${prim.CapName}Instance(), values.length);
         mem.set${prim.CapName}s(0, values, 0, values.length);
         return mem;
     }
@@ -915,7 +935,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return pointer to a single zero-initialized ${prim.Name} value
      */
     public static Pointer<${prim.WrapperName}> allocate${prim.CapName}() {
-        return allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size});
+        return allocate(PointerIO.get${prim.CapName}Instance());
     }
     /**
      * Allocate enough memory for arrayLength ${prim.Name} values and return a pointer to that memory.<br/>
@@ -925,7 +945,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return pointer to arrayLength zero-initialized ${prim.Name} consecutive values
      */
     public static Pointer<${prim.WrapperName}> allocate${prim.CapName}s(long arrayLength) {
-        return allocate(PointerIO.get${prim.CapName}Instance(), ${prim.Size} * arrayLength);
+        return allocateArray(PointerIO.get${prim.CapName}Instance(), arrayLength);
     }
 #end
     
@@ -972,42 +992,37 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	static final boolean is64 = JNI.POINTER_SIZE == 8; 
 	
 	public static Pointer<SizeT> pointerToSizeT(long value) {
-		Pointer<SizeT> p = allocate(PointerIO.getSizeTInstance(), JNI.SIZE_T_SIZE);
+		Pointer<SizeT> p = allocate(PointerIO.getSizeTInstance());
 		p.setSizeT(0, value);
 		return p;
 	}
 	public static Pointer<SizeT> pointerToSizeTs(long... values) {
 		if (values == null)
 			return null;
-		int n = values.length, s = JNI.SIZE_T_SIZE;
-		return allocate(PointerIO.getSizeTInstance(), s * n).setSizeTs(0, values);
+		return allocateArray(PointerIO.getSizeTInstance(), values.length).setSizeTs(0, values);
 	}
 	public static Pointer<SizeT> pointerToSizeTs(SizeT[] values) {
 		if (values == null)
 			return null;
-		int n = values.length, s = JNI.SIZE_T_SIZE;
-		return allocate(PointerIO.getSizeTInstance(), s * n).setSizeTs(0, values);
+		return allocateArray(PointerIO.getSizeTInstance(), values.length).setSizeTs(0, values);
 	}
 	
 	public static Pointer<SizeT> pointerToSizeTs(int[] values) {
 		if (values == null)
 			return null;
-		int n = values.length, s = JNI.SIZE_T_SIZE;
-		return allocate(PointerIO.getSizeTInstance(), s * n).setSizeTs(0, values);
+		return allocateArray(PointerIO.getSizeTInstance(), values.length).setSizeTs(0, values);
 	}
 	
 	public static <T> Pointer<Pointer<T>> pointerToPointer(Pointer<T> value) {
-		// TODO
-		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocate(PointerIO.getPointerInstance(), JNI.POINTER_SIZE);
+		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocate(PointerIO.getPointerInstance());
 		p.setPointer(0, value);
 		return p;
 	}
 	public static <T> Pointer<Pointer<T>> pointerToPointers(Pointer<T>... values) {
 		if (values == null)
 			return null;
-		int n = values.length, s = JNI.POINTER_SIZE;
-		// TODO
-		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocate(PointerIO.getPointerInstance(), s * n);
+		int n = values.length, s = Pointer.SIZE;
+		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocateArray(PointerIO.getPointerInstance(), n);
 		for (int i = 0; i < n; i++) {
 			p.setPointer(i * s, values[i]);
 		}
@@ -1022,7 +1037,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return pointer to arrayLength zero-initialized ${prim.Name} consecutive values
      */
     public static Pointer<SizeT> allocateSizeTs(long arrayLength) {
-		return allocate(PointerIO.getSizeTInstance(), JNI.SIZE_T_SIZE * arrayLength);
+		return allocateArray(PointerIO.getSizeTInstance(), arrayLength);
 	}
 	/**
      * Allocate enough memory for a size_t value and return a pointer to it.<br/>
@@ -1030,7 +1045,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return pointer to a single zero-initialized size_t value
      */
     public static Pointer<SizeT> allocateSizeT() {
-		return allocate(PointerIO.getSizeTInstance(), JNI.SIZE_T_SIZE);
+		return allocate(PointerIO.getSizeTInstance());
 	}
 	
 	/**
@@ -1172,10 +1187,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
 
     /**
-     * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination).
+     * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the memcpy C function.<br>
+     * If the destination and source memory locations are likely to overlap, {@link #moveTo(long, Pointer, long, long)} must be used instead.
      */
     public void copyTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
     		JNI.memcpy(destination.getCheckedPeer(byteOffsetInDestination, byteCount), getCheckedPeer(byteOffset, byteCount), byteCount);
+    }
+    
+    /**
+     * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the memcpy C function.<br>
+     * Works even if the destination and source memory locations are overlapping.
+     */
+    public void moveTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
+    		JNI.memmove(destination.getCheckedPeer(byteOffsetInDestination, byteCount), getCheckedPeer(byteOffset, byteCount), byteCount);
     }
     
     /**
@@ -1199,14 +1223,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 */
     public Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value) {
     	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
-        if (isOrdered())
-        	JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value);
-        else
-        	JNI.set_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}), value);
-        #else
+		if (isOrdered())
+			JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value);
+		else
+			JNI.set_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}), value);
+	#else
 		JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value);
-        #end
-        return this;
+	#end
+		return this;
     }
 
 	
@@ -1356,12 +1380,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
             len = getByte(byteOffset) & 0xff;
             byteOffset++;
 		} else {
-            len = strlen(byteOffset);
+            len = type == StringType.WideC ? wcslen(byteOffset) : strlen(byteOffset);
             if (len >= Integer.MAX_VALUE)
                 throw new IllegalArgumentException("No null-terminated string at this address");
-
-            if (type == StringType.WideC)
-                throw new UnsupportedOperationException("Wide strings are not supported yet");
         }
 		return new String(getBytes(byteOffset, SizeT.safeIntCast(len)), charset.name());
 	}
@@ -1412,7 +1433,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         }
 	}
 	
-	@Deprecated
+	public String getCString(long byteOffset) {
+        return getCString(byteOffset, false);
+    }
+
+    @Deprecated
     public String getCString(long byteOffset, boolean wide) {
         try {
             return getString(byteOffset, Charset.defaultCharset(), wide ? StringType.WideC : StringType.C);
@@ -1422,11 +1447,27 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         }
     }
     
-	public String getCString(long byteOffset) {
-        return getCString(byteOffset, false);
-    }
-
-    protected long strlen(long byteOffset) {
+	protected long strlen(long byteOffset) {
 		return JNI.strlen(getCheckedPeer(byteOffset, 1));
+	}
+	
+	protected long wcslen(long byteOffset) {
+		return JNI.wcslen(getCheckedPeer(byteOffset, 1));
+	}
+	
+	public void clearBytes(long length) {
+		clearBytes(0, length, (byte)0);	
+	}
+	public void clearBytes(long byteOffset, long length, byte value) {
+		JNI.memset(getCheckedPeer(byteOffset, length), value, length);
+	}
+	
+	/**
+	 * Find the first occurrence of a value in the memory block of length searchLength bytes pointed by this pointer shifted by a byteOffset 
+	 */
+	public Pointer<T> findByte(long byteOffset, byte value, long searchLength) {
+		long ptr = getCheckedPeer(byteOffset, searchLength);
+		long found = JNI.memchr(ptr, value, searchLength);	
+		return found == 0 ? null : offset(found - ptr);
 	}
 }

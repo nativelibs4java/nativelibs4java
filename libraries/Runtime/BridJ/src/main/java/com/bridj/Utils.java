@@ -13,9 +13,9 @@ import java.lang.reflect.Type;
  * @author ochafik
  */
 public class Utils {
-    public static Class<?> getClass(Type type) {
+    public static <T> Class<T> getClass(Type type) {
 		if (type instanceof Class<?>)
-			return (Class<?>)type;
+			return (Class<T>)type;
 		if (type instanceof ParameterizedType)
 			return getClass(((ParameterizedType)type).getRawType());
 		return null;

@@ -21,7 +21,8 @@ import java.util.logging.Logger;
 
 import org.junit.Test;
 /**
- * mvn -o test-compile && MAVEN_OPTS="-Xmx2g -Xrunhprof:cpu=samples,doe=y,depth=15" mvn -o -DforkMode=never surefire:test -Dtest=ComparisonTest
+ * mvn -o test-compile && MAVEN_OPTS="-Xmx2g -Xrunhprof:cpu=samples,doe=y,depth=15" mvn -o -DforkMode=never surefire:test -Dtest=ComparisonTest && jProfBeautifier
+
  * @author Olivier Chafik
  */
 @com.bridj.ann.Runtime(CPPRuntime.class)
@@ -53,7 +54,8 @@ public class ComparisonTest {
      */
     @Test
     public void perfTest() {
-    	
+    		if (true)
+    			return;
 		//com.sun.jna.Native.setProtected(true);
         TestLib test = null;
         try {
@@ -267,8 +269,8 @@ public class ComparisonTest {
     
     @Test
 	public void compareStructCreations() throws InterruptedException {
-		//System.err.println("#");
-		//System.err.println("# Warming structs up...");
+		if (true)
+    			return;
 		long n = 100000;
 		long warmup = 2000;
 		for (int i = 0; i < warmup; i++)
@@ -343,8 +345,8 @@ public class ComparisonTest {
 	
 	@Test
 	public void compareStructCasts() throws InterruptedException {
-//		System.err.println("#");
-//		System.err.println("# Warming structs up...");
+		if (true)
+    			return;
 		long n = 100000;
 		long warmup = 2000;
 		Pointer pBridJ = allocateBytes(100);
@@ -361,7 +363,7 @@ public class ComparisonTest {
 			new StructTest.MyJNAStruct(pJNA);
 		
 		for (int i = 0; i < warmup; i++)
-			new StructTest.MyOptimalStruct(pJNA);
+			new StructTest.MyOptimalStruct(pNIO);
 		
 		for (int i = 0; i < warmup; i++)
 			new StructTest.MyJavolutionStruct().setByteBuffer(pNIO, 0);
@@ -369,7 +371,6 @@ public class ComparisonTest {
 		long timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution;
 		
 		doGC();
-//        System.err.println("# Testings NIO structs...");
 		{
 			long start = System.nanoTime();
 			for (int i = 0; i < n; i++)
@@ -378,7 +379,6 @@ public class ComparisonTest {
 			timeNIO = System.nanoTime() - start;
 		}
 		doGC();
-//        System.err.println("# Testings JNA structs...");
 		{
 			long start = System.nanoTime();
 			for (int i = 0; i < n; i++)
@@ -387,16 +387,14 @@ public class ComparisonTest {
 			timeJNA = System.nanoTime() - start;
 		}
         doGC();
-//        System.err.println("# Testings Optimal structs...");
 		{
 			long start = System.nanoTime();
 			for (int i = 0; i < n; i++)
-				new StructTest.MyOptimalStruct(pJNA);
+				new StructTest.MyOptimalStruct(pNIO);
 			
 			timeOptimal = System.nanoTime() - start;
 		}
         doGC();
-//		System.err.println("# Testings BridJ structs...");
 		{
 			long start = System.nanoTime();
 			for (int i = 0; i < n; i++)
@@ -405,7 +403,6 @@ public class ComparisonTest {
 			timeBridJ = System.nanoTime() - start;
 		}
         doGC();
-//		System.err.println("# Testings Javolution structs...");
 		{
 			long start = System.nanoTime();
 			for (int i = 0; i < n; i++)
@@ -419,7 +416,7 @@ public class ComparisonTest {
 	}
 	@Test
 	public void compareFieldsAccess() throws InterruptedException {
-		long n = 100000;
+		long n = 1000000;
 		long warmup = 2000;
 		Pointer pBridJ = allocateBytes(100);
 		com.sun.jna.Memory pJNA = new com.sun.jna.Memory(100);
@@ -504,6 +501,7 @@ public class ComparisonTest {
 			
 			timeBridJ = System.nanoTime() - start;
 		}
+		
         doGC();
 		{
 			long start = System.nanoTime();
@@ -516,7 +514,7 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Fields read/write", "Read/write of BridJ's struct fields", "read/write", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-        //assertTrue(bridJFaster > 30); // */
+        assertTrue(bridJFaster > 2); // */
 	}
     static double printResults(String title, String longOp, String op, long n, long timeJNA, long timeOptimal, long timeBridJ, long timeNIO, long timeJavolution) {
         System.err.println("#");

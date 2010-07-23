@@ -21,6 +21,8 @@ public interface BridJRuntime {
 		T clone(T instance) throws CloneNotSupportedException;
 		BridJRuntime getRuntime();
 		Type getType();
+
+        long sizeOf(T instance);
 	}
 	
 	void register(Type type);

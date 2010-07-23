@@ -150,7 +150,7 @@ void* getPointerPeer(JNIEnv *env, jobject pointer);
 //jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
 jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO);
 
-void callDefaultConstructor(JNIEnv *env, void* constructor, void* thisPtr, int callMode);
+void callSinglePointerArgVoidFunction(JNIEnv *env, void* constructor, void* thisPtr, int callMode);
 jlong getFlagValue(JNIEnv *env, jobject flagSet);
 jobject newFlagSet(JNIEnv *env, jlong value);
 

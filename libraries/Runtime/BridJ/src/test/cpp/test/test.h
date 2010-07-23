@@ -34,10 +34,14 @@ public:
 };
 
 class TEST_API Ctest2 : public Ctest {
+	int* fState;
+	int fDestructedState;
 public:
 	Ctest2();
 	//virtual 
 	~Ctest2();
+	void setState(int* pState);
+	void setDestructedState(int destructedState);
 	virtual int testVirtualAdd(int a, int b);
 	int testAdd(int a, int b);
 	const std::string& toString();

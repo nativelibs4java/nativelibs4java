@@ -83,7 +83,7 @@ public abstract class PointerIO<T> {
             else if (cl != null && SizeT.class.isAssignableFrom(cl))
                 io = CommonPointerIOs.sizeTIO;
 			else if (cl != null && StructObject.class.isAssignableFrom(cl))
-				io = getInstance(StructIO.getInstance((Class)cl, type, (CRuntime)BridJ.getRuntime(cl)));
+				io = getInstance(StructIO.getInstance((Class)cl, type));
             else if (cl != null && Callback.class.isAssignableFrom(cl))
 				io = new CommonPointerIOs.CallbackPointerIO(cl);
             //else

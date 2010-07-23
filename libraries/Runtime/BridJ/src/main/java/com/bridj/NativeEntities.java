@@ -20,8 +20,8 @@ public class NativeEntities {
 	Map<Class<?>, CBInfo> 
 		functions = new HashMap<Class<?>, CBInfo>(),
 		virtualMethods = new HashMap<Class<?>, CBInfo>(),
-		getters = new HashMap<Class<?>, CBInfo>(),
-		setters = new HashMap<Class<?>, CBInfo>(),
+		//getters = new HashMap<Class<?>, CBInfo>(),
+		//setters = new HashMap<Class<?>, CBInfo>(),
 		javaToNativeCallbacks = new HashMap<Class<?>, CBInfo>(),
 		cppMethods = new HashMap<Class<?>, CBInfo>(),
 		objcMethodInfos = new HashMap<Class<?>, CBInfo>();
@@ -31,7 +31,7 @@ public class NativeEntities {
 			functionInfos = new ArrayList<MethodCallInfo>(),
 			virtualMethods = new ArrayList<MethodCallInfo>(),
 			javaToNativeCallbacks = new ArrayList<MethodCallInfo>(),
-			getters = new ArrayList<MethodCallInfo>(),
+			//getters = new ArrayList<MethodCallInfo>(),
 			cppMethodInfos = new ArrayList<MethodCallInfo>(),
 			objcMethodInfos = new ArrayList<MethodCallInfo>();
 		//List<MethodCallInfo> getterInfos = new ArrayList<MethodCallInfo>();
@@ -42,12 +42,12 @@ public class NativeEntities {
 		public void addVirtualMethod(MethodCallInfo info) {
 			virtualMethods.add(info);
 		}
-		public void addGetter(MethodCallInfo info) {
+		/*public void addGetter(MethodCallInfo info) {
 			getters.add(info);
 		}
 		public void addSetter(MethodCallInfo info) {
 			getters.add(info);
-		}
+		}*/
 		public void addJavaToNativeCallback(MethodCallInfo info) {
 			javaToNativeCallbacks.add(info);
 		}
@@ -73,8 +73,8 @@ public class NativeEntities {
 		for (CBInfo callbacks : virtualMethods.values())
 		    JNI.freeVirtualMethodBindings(callbacks.handle, callbacks.size);
 
-		for (CBInfo callbacks : getters.values())
-		    JNI.freeGetters(callbacks.handle, callbacks.size);
+		//for (CBInfo callbacks : getters.values())
+		//    JNI.freeGetters(callbacks.handle, callbacks.size);
 
         for (CBInfo callbacks : objcMethodInfos.values())
 		    JNI.freeObjCMethodBindings(callbacks.handle, callbacks.size);
@@ -107,10 +107,10 @@ public class NativeEntities {
 		if (n != 0)
 			objcMethodInfos.put(type, new CBInfo(JNI.bindJavaMethodsToObjCMethods(builder.objcMethodInfos.toArray(new MethodCallInfo[n])), n));
 
-		n = builder.getters.size();
+		/*n = builder.getters.size();
 		if (n != 0)
 			getters.put(type, new CBInfo(JNI.bindGetters(builder.getters.toArray(new MethodCallInfo[n])), n));
-
+		*/
         } catch (Throwable th) {
             assert BridJ.log(Level.SEVERE, "Failed to add native definitions for class " + type.getName(), th);
         }

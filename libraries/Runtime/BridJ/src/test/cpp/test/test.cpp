@@ -5,13 +5,14 @@
 #include "math.h"
 
 #include <iostream>
+using namespace std;
 
 TEST_API int ntest=0;
 
 TEST_API void __cdecl voidTest()
 {
 	//printf("ok\n");
-	//std::cout << "Ok\n";
+	//cout << "Ok\n";
 }
 TEST_API double __cdecl sinInt(int d)
 {
@@ -54,7 +55,7 @@ TEST_API void __cdecl testInPlaceSquare(double *values, size_t n)
 extern "C" {
 
 void otherFunc() {
-	//std::cout << "other\n";
+	//cout << "other\n";
 }
 JNIEXPORT jint JNICALL Java_com_bridj_PerfLib_testAddJNI(JNIEnv *, jclass, jint a, jint b) {
 	otherFunc();
@@ -93,6 +94,8 @@ TEST_API double __cdecl testASinB(int a, int b)
 
 Ctest::Ctest()
 {
+	cout << "Constructing Ctest instance\n";
+	
 	/*
 #if defined(DC__Arch_Intel_x86)
 
@@ -108,10 +111,11 @@ Ctest::Ctest()
 }
 Ctest::~Ctest()
 {
+	cout << "Destructor of Ctest is called !\n";
 }
 
-const std::string& Ctest2::toString() {
-	static std::string s = "";
+const string& Ctest2::toString() {
+	static string s = "";
 	return s;
 }
 int Ctest::testVirtualAdd(int a, int b) {
@@ -159,14 +163,26 @@ Ctest* createTest() {
 	return test;
 }
 
-Ctest2::Ctest2() : Ctest()
+Ctest2::Ctest2() : Ctest(), fState(NULL), fDestructedState(0)
 {
+	cout << "Constructing Ctest2 instance\n";
 	//printf("Ctest2::Ctest2() (this = %ld)\n", (long int)(size_t)this);
 }
 Ctest2::~Ctest2()
 {
+	if (fState)
+		*fState = fDestructedState;
+	
+	cout << "Destructing Ctest2 instance\n";
+	
 }
-
+void Ctest2::setState(int* pState) {
+	fState = pState;
+}
+void Ctest2::setDestructedState(int destructedState) {
+	fDestructedState = destructedState;
+}
+	
 int Ctest2::testVirtualAdd(int a, int b) {
 	int ret = a + b * 2;
 	//printf("Ctest2::testVirtualAdd(%d, %d) = %d (this = %ld)\n", a, b, ret, (long int)(size_t)this);

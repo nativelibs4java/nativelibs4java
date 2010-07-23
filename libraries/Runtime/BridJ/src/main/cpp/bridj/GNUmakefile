@@ -43,7 +43,7 @@ UNITS += HandlersCommon
 UNITS += CallbackHandler
 UNITS += CppHandler
 UNITS += FunctionHandler
-UNITS += StructHandler
+#UNITS += StructHandler
 UNITS += CallbackHandler
 UNITS += ThreadLocal
 ifdef BUILD_OS_darwin

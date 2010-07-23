@@ -19,7 +19,6 @@ import java.util.logging.Logger;
 
 import com.bridj.BridJRuntime.TypeInfo;
 import com.bridj.Demangler.Symbol;
-import com.bridj.StructIO.FieldIO;
 import com.bridj.ann.Library;
 import java.util.Stack;
 import java.io.PrintWriter;
@@ -47,7 +46,16 @@ public class BridJ {
             }
         });
     }
-
+    
+    public static long sizeOf(Object o) {
+        if (o == null)
+            return 0;
+        if (o instanceof NativeObject) {
+            NativeObject no = (NativeObject)o;
+            return no.typeInfo.sizeOf(no);
+        }
+        throw new RuntimeException("Unable to compute size for object " + o + " of type " + o.getClass().getName());
+    }
     static synchronized void registerNativeObject(NativeObject ob) {
         weakNativeObjects.put(Pointer.getAddress(ob, null), ob);
     }
@@ -660,19 +668,4 @@ public class BridJ {
 			return false;
 		}
 	}
-	
-    public static int[] getStructFieldsOffset(Class<?> s) {
-        StructIO sio = StructIO.getInstance(s, s, null);
-        sio.build();
-        FieldIO[] fios = sio.fields;
-        int n = fios.length;
-        int[] offsets = new int[n];
-        for (int i = 0; i < n; i++) {
-            FieldIO fio = fios[i];
-            assert fio.bitLength == -1;
-            assert fio.bitOffset == 0;
-            offsets[i] = fio.byteOffset;
-        }
-        return offsets;
-    }
 }

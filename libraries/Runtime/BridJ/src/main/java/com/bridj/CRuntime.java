@@ -41,14 +41,16 @@ public class CRuntime extends AbstractBridJRuntime {
     
 	@Override
 	public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType) {
-		return (Class<? extends T>)Utils.getClass(officialType);
+		return Utils.getClass(officialType);
 	}
 
     public class CTypeInfo<T extends NativeObject> implements TypeInfo<T> {
         public CTypeInfo(Type type) {
             this.type = type;
-            this.typeClass = (Class<T>)Utils.getClass(type);
-            this.structIO = StructIO.getInstance(typeClass, typeClass, null);
+            this.typeClass = Utils.getClass(type);
+            this.structIO = StructIO.getInstance(typeClass, typeClass);
+            if (structIO != null)
+            		structIO.build();
             this.pointerIO = (PointerIO<T>)PointerIO.getInstance(structIO);
             //this.castClass = getTypeForCast(typeClass);
             register(typeClass);
@@ -58,7 +60,13 @@ public class CRuntime extends AbstractBridJRuntime {
 		protected final StructIO structIO;
 		protected final PointerIO<T> pointerIO;
         protected Class<?> castClass;
+
+        @Override
+        public long sizeOf(T instance) {
+            return structIO.getStructSize();
+        }
 		
+        
         @Override
         public BridJRuntime getRuntime() {
             return CRuntime.this;
@@ -108,7 +116,7 @@ public class CRuntime extends AbstractBridJRuntime {
             StructObject s = (StructObject)instance;
             if (constructorId < 0) {
                 s.io = structIO; 
-                instance.peer = Pointer.allocate(pointerIO, structIO.getStructSize());
+                instance.peer = Pointer.allocate(pointerIO);
             } else
                 throw new UnsupportedOperationException("TODO implement structs constructors !");
         }
@@ -153,7 +161,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
 		try {
             Set<Method> handledMethods = new HashSet<Method>();
-			if (StructObject.class.isAssignableFrom(typeClass)) {
+			/*if (StructObject.class.isAssignableFrom(typeClass)) {
 				StructIO io = StructIO.getInstance(typeClass, type, this); // TODO handle differently with templates...
                 io.build();
                 StructIO.FieldIO[] fios = io == null ? null : io.getFields();
@@ -179,7 +187,7 @@ public class CRuntime extends AbstractBridJRuntime {
                             ex.printStackTrace();
                         }
                     }
-			}
+			}*/
 			
 			if (Callback.class.isAssignableFrom(typeClass)) {
 				if (Callback.class == type)
@@ -277,9 +285,9 @@ public class CRuntime extends AbstractBridJRuntime {
 	    	}
     	return defaultObjectSize;
 	}
-	protected int sizeOf(Class<? extends StructObject> structClass, Type structType, StructIO io) {
+	protected int sizeOf(Type structType, StructIO io) {
 		if (io == null)
-			io = StructIO.getInstance(structClass, structType, this);
+			io = StructIO.getInstance(Utils.getClass(structType), structType);
 		int size;
 		if (io == null || (size = io.getStructSize()) == 0)
 			return getDefaultStructSize();

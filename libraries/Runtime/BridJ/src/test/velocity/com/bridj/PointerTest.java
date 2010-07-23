@@ -28,6 +28,14 @@ public class PointerTest {
 	}
 	
 	@Test
+	public void findByte() {
+		Pointer<Byte> p = pointerToBytes((byte)1, (byte)2, (byte)3, (byte)4);
+		assertNotNull(p.findByte(0, (byte)2, 4));
+		assertNull(p.findByte(0, (byte)5, 4));
+		assertNull(p.findByte(0, (byte)2, 1));
+	}
+	
+	@Test
 	public void alignment() {
 		Pointer<Integer> p = allocateInts(2);
 		assertTrue(p.isAligned());

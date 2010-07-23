@@ -10,11 +10,14 @@ import static org.junit.Assert.*;
 
 import com.bridj.ann.Constructor;
 import com.bridj.ann.Convention;
+import com.bridj.ann.Field;
 import com.bridj.ann.Library;
 import com.bridj.ann.Symbol;
 import com.bridj.ann.Ptr;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
+import org.junit.After;
+import static com.bridj.Pointer.*;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class CPPTest {
@@ -77,9 +80,38 @@ public class CPPTest {
 		public native int testAddStdCall(Pointer<?> ptr, int a, int b);
 	}
 	static class Ctest2 extends Ctest {
-
+        @Field(0)
+        public Pointer<Integer> fState() {
+            return peer.getPointer(io.getFieldOffset(0), Integer.class);
+        }
+        public Ctest2 fState(Pointer<Integer> fState) {
+            peer.setPointer(io.getFieldOffset(0), fState);
+            return this;
+        }
+        
+        public native void setState(Pointer<Integer> pState);
+        public native void setDestructedState(int destructedState);
+        
         public native int testAdd(int a, int b);
 	}
+    
+    @Test
+    public void testDestruction() throws InterruptedException {
+        Pointer<Integer> pState = allocateInt();
+        Ctest2 t = new Ctest2();
+        t.setState(pState);
+        int destructedState = 10;
+        t.setDestructedState(destructedState);
+        t = null;
+        GC();
+        assertEquals(destructedState, pState.getInt());
+    }
+    
+    @After
+    public void GC() throws InterruptedException {
+        System.gc();
+        Thread.sleep(200);
+    }
 	
 }
 

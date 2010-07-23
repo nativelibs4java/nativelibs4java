@@ -21,7 +21,7 @@ JNI_SIZEOF_t(wchar)
 JNI_SIZEOF_t(ptrdiff)
 JNI_SIZEOF(long, long)
 
-jclass gStructFieldsIOClass = NULL;
+//jclass gStructFieldsIOClass = NULL;
 jclass gPointerClass = NULL;
 jclass gFlagSetClass = NULL;
 jclass gValuedEnumClass = NULL;
@@ -64,7 +64,7 @@ void initMethods(JNIEnv* env) {
 		gBridJClass = FIND_GLOBAL_CLASS("com/bridj/BridJ");
 		gFlagSetClass = FIND_GLOBAL_CLASS("com/bridj/FlagSet");
 		gValuedEnumClass = FIND_GLOBAL_CLASS("com/bridj/ValuedEnum");
-		gStructFieldsIOClass = FIND_GLOBAL_CLASS("com/bridj/StructFieldsIO");
+		//gStructFieldsIOClass = FIND_GLOBAL_CLASS("com/bridj/StructFieldsIO");
 		gPointerClass = FIND_GLOBAL_CLASS("com/bridj/Pointer");
 		gMethodCallInfoClass = FIND_GLOBAL_CLASS("com/bridj/MethodCallInfo");
 		gCallIOClass = FIND_GLOBAL_CLASS("com/bridj/CallIO");
@@ -138,17 +138,6 @@ jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO) {
 	instance = (*env)->CallObjectMethod(env, callIO, gNewCallIOInstance, addr);
 	return instance;
 }
-/*
-jobject createPointer(JNIEnv *env, void* ptr, jclass targetType) {
-	jobject instance;
-	jlong addr;
-	if (!ptr)
-		return NULL;
-	initMethods(env);
-	addr = PTR_TO_JLONG(ptr);
-	instance = (*env)->CallStaticObjectMethod(env, gPointerClass, gCreatePeerMethod, addr, targetType);
-	return instance;
-}*/
 
 void* getPointerPeer(JNIEnv *env, jobject pointer) {
 	initMethods(env);
@@ -159,33 +148,10 @@ void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass) 
 	initMethods(env);
 	return JLONG_TO_PTR((*env)->CallStaticLongMethod(env, gPointerClass, gAddressMethod, instance, targetClass));
 }
-//void _DllMainCRTStartup();
-
-/*
-#include <dlfcn.h>
-
-void TESTOBJC() {
-	dlopen("/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation", RTLD_LAZY);
-	dlopen("/System/Library/Frameworks/Foundation.framework/Foundation", RTLD_LAZY);
-	dlopen("/System/Library/Frameworks/Cocoa.framework/Cocoa", RTLD_LAZY);
-	{
-		id clsPool = objc_getClass("NSAutoreleasePool");
-		if (!clsPool) {
-			printf("#\n# INIT NO clsPool : %ld\n#\n", (long int)clsPool);
-		} else {
-			//clsPool = class_createInstance((Class)clsPool, 0);
-			id poolInst = objc_msgSend(clsPool, sel_registerName("new"));
-			printf("#\n# INIT poolInst : %ld\n#\n", (long int)poolInst);
-		}
-	}
-	
-	
-}*/
 
 void JNICALL Java_com_bridj_JNI_init(JNIEnv *env, jclass clazz)
 {
 	initThreadLocal(env);
-	//TESTOBJC();
 }
 
 
@@ -214,9 +180,9 @@ void JNICALL Java_com_bridj_JNI_deleteWeakGlobalRef(JNIEnv *env, jclass clazz, j
 	if (ref)
 		(*env)->DeleteWeakGlobalRef(env, (jobject)JLONG_TO_PTR(ref));
 }
-void JNICALL Java_com_bridj_JNI_callDefaultCPPConstructor(JNIEnv *env, jclass clazz, jlong constructor, jlong thisPtr, jint callMode)
+void JNICALL Java_com_bridj_JNI_callSinglePointerArgVoidFunction(JNIEnv *env, jclass clazz, jlong constructor, jlong thisPtr, jint callMode)
 {
-	callDefaultConstructor(env, JLONG_TO_PTR(constructor), JLONG_TO_PTR(thisPtr), callMode);
+	callSinglePointerArgVoidFunction(env, JLONG_TO_PTR(constructor), JLONG_TO_PTR(thisPtr), callMode);
 }
 
 jlong JNICALL Java_com_bridj_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
@@ -326,18 +292,11 @@ JNIEXPORT jint JNICALL Java_com_bridj_JNI_getMaxDirectMappingArgCount(JNIEnv *en
 #elif defined(DC__OS_Linux) && defined(DC__Arch_AMD64)
 	return 4;
 #elif defined(_WIN32)
-	return 8;//65000;
+	return 8;
 #else
 	return -1;
 #endif
 }
-
-/*char __cdecl callInt(JNIEnv *env, jclass clazz, long args, long methodCallInfo) {
-{
-	DCArgs* args;
-	, DCValue* result, MethodCallInfo *info
-	JavaToNativeCallHandler(
-}*/
 
 char getDCReturnType(JNIEnv* env, ValueType returnType) 
 {
@@ -604,12 +563,9 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback(
 
 			info->fInfo.fDCCallback = dcbNewCallback(dcSig, NativeToJavaCallHandler, info);
 			info->fCallbackInstance = (*env)->NewGlobalRef(env, javaCallback);
-			//printf("GetMethodIDOrFail of %s with signature %s \n", methName, javaSig);
 			info->fMethod = GetMethodIDOrFail(env, declaringClass, methName, javaSig);
 			
 			info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
-
-			//info->fInfo.fSymbolName = methName;
 
 			(*env)->ReleaseStringUTFChars(env, javaSignature, javaSig);
 			(*env)->ReleaseStringUTFChars(env, methodName, methName);
@@ -672,88 +628,6 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeJavaToCCallbacks(
 	jint size
 ) {
 	JavaToNativeCallbackCallInfo* infos = (JavaToNativeCallbackCallInfo*)JLONG_TO_PTR(handle);
-	jint i;
-	if (!infos)
-		return;
-	for (i = 0; i < size; i++) {
-		freeCommon(env, &infos[i].fInfo);
-	}
-	free(infos);
-}
-
-jmethodID GetStructMethodId(JNIEnv* env, ValueType type, jboolean isGetter, void** jniFunctionOut) 
-{
-	const char* nameStr = NULL, *sigStr = NULL;
-	switch (type) {
-#define CASE_STRUCT_METHOD(etype, name, typSig, getjni) \
-	case etype: \
-		if (isGetter) { \
-			*jniFunctionOut = (void*)(*env)->getjni; \
-			nameStr = "get" #name "Field"; \
-			sigStr = "(Lcom/bridj/StructObject;I)" typSig; \
-		} else { \
-			*jniFunctionOut = (void*)(*env)->CallStaticVoidMethod; \
-			nameStr = "set" #name "Field"; \
-			sigStr = "(Lcom/bridj/StructObject;I" typSig ")V"; \
-		} \
-		break;
-#define _CASE_STRUCT_METHOD_PRIM(name, typSig) CASE_STRUCT_METHOD(e ## name ## Value, name, typSig, CallStatic ## name ## Method)
-#define CASE_STRUCT_METHOD_PRIM(name, typSig) _CASE_STRUCT_METHOD_PRIM(name, typSig)
-	CASE_STRUCT_METHOD_PRIM(Int, "I")
-	CASE_STRUCT_METHOD_PRIM(Long, "J")
-	CASE_STRUCT_METHOD_PRIM(Short, "S")
-	CASE_STRUCT_METHOD_PRIM(Byte, "B")
-	CASE_STRUCT_METHOD_PRIM(Boolean, "Z")
-	CASE_STRUCT_METHOD_PRIM(Double, "D")
-	CASE_STRUCT_METHOD_PRIM(Float, "F")
-	CASE_STRUCT_METHOD(eWCharValue, WChar, "C", CallStaticCharMethod)
-	CASE_STRUCT_METHOD(eNativeObjectValue, NativeObject, "Lcom/bridj/NativeObject;", CallStaticObjectMethod)
-	//CASE_STRUCT_METHOD(ePointerValue, SizeT, "J", CallStaticLongMethod)
-	CASE_STRUCT_METHOD(ePointerValue, Pointer, "Lcom/bridj/Pointer;", CallStaticObjectMethod)
-	default:
-		throwException(env, "Unhandled struct field type !");
-		return NULL;
-	}
-	return GetMethodIDOrFail(env, gStructFieldsIOClass, nameStr, sigStr); 
-}
-
-
-JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindGetters(
-	JNIEnv *env, 
-	jclass clazz,
-	jobjectArray methodCallInfos
-) {
-	BEGIN_INFOS_LOOP(StructFieldInfo)
-	{
-		const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-		info->fInfo.fDCCallback = dcbNewCallback(ds, StructHandler, info);
-		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
-		
-		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
-		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
-#ifdef _DEBUG
-			&info->fInfo,
-#endif
-			info->fInfo.fDCCallback);
-		
-		{
-			jboolean isGetter = info->fInfo.nParams == 0;
-			ValueType fieldType = isGetter ? info->fInfo.fReturnType : info->fInfo.fParamTypes[0];
-			info->fMethod = GetStructMethodId(env, fieldType, isGetter, &info->fJNICallFunction);
-			info->fFieldIndex = index;
-		}
-	}
-	END_INFOS_LOOP()
-	initMethods(env);
-	return PTR_TO_JLONG(infos);
-}
-JNIEXPORT void JNICALL Java_com_bridj_JNI_freeGetters(
-	JNIEnv *env, 
-	jclass clazz,
-	jlong handle,
-	jint size
-) {
-	StructFieldInfo* infos = (StructFieldInfo*)JLONG_TO_PTR(handle);
 	jint i;
 	if (!infos)
 		return;
@@ -912,7 +786,6 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToVirtualMethods(
 		info->fHasThisPtrArg = startsWithThis;
 		info->fVirtualIndex = index;
 		info->fVirtualTableOffset = virtualTableOffset;
-		//info->fClass = NULL;//TODO declaringClass;
 		
 		// TODO DIRECT C++ virtual thunk
 		ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
@@ -998,9 +871,6 @@ FUNC_1(jlong, wcslen, jlong, wchar_t*)
 
 FUNC_VOID_3(memcpy, jlong, jlong, jlong, void*, void*, size_t)
 FUNC_VOID_3(memmove, jlong, jlong, jlong, void*, void*, size_t)
-
-//FUNC_VOID_3(wmemcpy, jlong, jlong, jlong, wchar_t*, wchar_t*, size_t)
-//FUNC_VOID_3(wmemmove, jlong, jlong, jlong, wchar_t*, wchar_t*, size_t)
 
 FUNC_3(jlong, memchr, jlong, jbyte, jlong, void*, unsigned char, size_t)
 FUNC_3(jint, memcmp, jlong, jlong, jlong, void*, void*, size_t)

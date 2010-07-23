@@ -171,6 +171,21 @@ public abstract class Demangler {
             return symbol;
         }
 
+        public boolean matchesVirtualTable(Class<?> type) {
+			if (!symbol.contains(type.getSimpleName()))
+				return false;
+		
+			parse();
+
+            try {
+                if (ref != null) {
+                	return ref.matchesVirtualTable(type);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return false;
+		}
 		public boolean matchesConstructor(Class<?> type) {
 			if (!symbol.contains(type.getSimpleName()))
 				return false;
@@ -180,6 +195,21 @@ public abstract class Demangler {
             try {
                 if (ref != null) {
                 	return ref.matchesConstructor(type);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return false;
+		}
+		public boolean matchesDestructor(Class<?> type) {
+			if (!symbol.contains(type.getSimpleName()))
+				return false;
+		
+			parse();
+
+            try {
+                if (ref != null) {
+                	return ref.matchesDestructor(type);
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -438,11 +468,14 @@ public abstract class Demangler {
 	}
     public enum SpecialName {
         Constructor("", true, true),
+        SpecialConstructor("", true, true),
         Destructor("", true, true),
+        SelfishDestructor("", true, true),
+        DeletingDestructor("", true, true),
         New("new", true, true),
         Delete("delete", true, true),
         VFTable("vftable", false, true),
-        VBTable("vftable", false, true),
+        VBTable("vbtable", false, true),
         VCall("vcall", false, false), // What is that ???
         TypeOf("typeof", false, false),
         ScalarDeletingDestructor("'scalar deleting destructor'", true, true),
@@ -535,15 +568,9 @@ public abstract class Demangler {
             this.argumentsStackSize = argumentsStackSize;
         }
        
-		protected boolean matchesConstructor(Class<?> type) {
-			if (this.memberName != SpecialName.Constructor)
-				return false;
-                
+        public boolean matchesSingleThisPointerVoidMethod(Class<?> type) {
 			if (getEnclosingType() != null && !getEnclosingType().matches(type))
 				return false;
-			
-			//if (getMemberName() != null && !getMemberName().equals(type.getSimpleName()))
-			//	return false;
 			
 			if (getValueType() != null && !getValueType().matches(Void.TYPE))
 				return false;
@@ -553,6 +580,16 @@ public abstract class Demangler {
             	return false;
             
 			return true;
+		}
+        
+		protected boolean matchesVirtualTable(Class<?> type) {
+			return memberName == SpecialName.VFTable && getEnclosingType() != null && getEnclosingType().matches(type);
+		}
+        protected boolean matchesConstructor(Class<?> type) {
+			return memberName == SpecialName.Constructor && matchesSingleThisPointerVoidMethod(type);
+		}
+        protected boolean matchesDestructor(Class<?> type) {
+        		return memberName == SpecialName.Destructor && matchesSingleThisPointerVoidMethod(type);
 		}
         static boolean hasInstance(Object[] array, Class<?>... cs) {
             for (Object o : array)
@@ -589,7 +626,7 @@ public abstract class Demangler {
                 else if (Pointer.class.isAssignableFrom(paramType))
                     total += Pointer.SIZE;
                 else if (NativeObject.class.isAssignableFrom(paramType))
-                    total += ((CRuntime)BridJ.getRuntime(paramType)).sizeOf((Class<? extends StructObject>) paramType, paramTypes[iArg], null);
+                    total += ((CRuntime)BridJ.getRuntime(paramType)).sizeOf(paramTypes[iArg], null);
                 else if (FlagSet.class.isAssignableFrom(paramType))
                     total += 4; // TODO
                 else

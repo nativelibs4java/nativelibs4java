@@ -122,27 +122,27 @@ public class JNI {
     }
     private static native void init();
 
-    public static native int sizeOf_size_t();
-    public static native int sizeOf_wchar_t();
-    public static native int sizeOf_ptrdiff_t();
-	public static native int sizeOf_long();
+    static native int sizeOf_size_t();
+    static native int sizeOf_wchar_t();
+    static native int sizeOf_ptrdiff_t();
+	static native int sizeOf_long();
 
     @Deprecated
     public static native long getEnv();
-    public static native long loadLibrary(String path);
-    public static native void freeLibrary(long libHandle);
-    public static native long loadLibrarySymbols(long libHandle);
-    public static native void freeLibrarySymbols(long symbolsHandle);
-    public static native long findSymbolInLibrary(long libHandle, String name);
-    public static native String[] getLibrarySymbols(long libHandle, long symbolsHandle);
-    public static native String findSymbolName(long libHandle, long symbolsHandle, long address);
-
+    static native long loadLibrary(String path);
+    static native void freeLibrary(long libHandle);
+    static native long loadLibrarySymbols(long libHandle);
+    static native void freeLibrarySymbols(long symbolsHandle);
+    static native long findSymbolInLibrary(long libHandle, String name);
+    static native String[] getLibrarySymbols(long libHandle, long symbolsHandle);
+    static native String findSymbolName(long libHandle, long symbolsHandle, long address);
+    
 	public static native long newGlobalRef(Object object);
 	public static native void deleteGlobalRef(long reference);
-
+    
 	public static native long newWeakGlobalRef(Object object);
 	public static native void deleteWeakGlobalRef(long reference);
-
+    
     public static native ByteBuffer newDirectByteBuffer(long address, long capacity);
     public static native long getDirectBufferAddress(Buffer b);
     public static native long getDirectBufferCapacity(Buffer b);
@@ -150,59 +150,59 @@ public class JNI {
 #foreach ($prim in $primitivesNoBool)
 
     @Deprecated
-    public static native long get${prim.WrapperName}ArrayElements(${prim.Name}[] array, boolean[] pIsCopy);
+    static native long get${prim.WrapperName}ArrayElements(${prim.Name}[] array, boolean[] pIsCopy);
     @Deprecated
-    public static native void release${prim.WrapperName}ArrayElements(${prim.Name}[] array, long pointer, int mode);
+    static native void release${prim.WrapperName}ArrayElements(${prim.Name}[] array, long pointer, int mode);
 
     @Deprecated
-    protected static native ${prim.Name} get_${prim.Name}(long peer);
+    static native ${prim.Name} get_${prim.Name}(long peer);
     #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
 	@Deprecated
-    protected static native ${prim.Name} get_${prim.Name}_disordered(long peer);
+    static native ${prim.Name} get_${prim.Name}_disordered(long peer);
     #end
     @Deprecated
-    protected static native void set_${prim.Name}(long peer, ${prim.Name} value);
+    static native void set_${prim.Name}(long peer, ${prim.Name} value);
 	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
 	@Deprecated
-    protected static native void set_${prim.Name}_disordered(long peer, ${prim.Name} value);
+    static native void set_${prim.Name}_disordered(long peer, ${prim.Name} value);
     #end
     @Deprecated
-    protected static native ${prim.Name}[] get_${prim.Name}_array(long peer, int length);
+    static native ${prim.Name}[] get_${prim.Name}_array(long peer, int length);
     #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
 	@Deprecated
-    protected static native ${prim.Name}[] get_${prim.Name}_array_disordered(long peer, int length);
+    static native ${prim.Name}[] get_${prim.Name}_array_disordered(long peer, int length);
     #end
     @Deprecated
-    protected static native void set_${prim.Name}_array(long peer, ${prim.Name}[] values, int valuesOffset, int length);
+    static native void set_${prim.Name}_array(long peer, ${prim.Name}[] values, int valuesOffset, int length);
 	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
 	@Deprecated
-    protected static native void set_${prim.Name}_array_disordered(long peer, ${prim.Name}[] values, int valuesOffset, int length);
+    static native void set_${prim.Name}_array_disordered(long peer, ${prim.Name}[] values, int valuesOffset, int length);
     #end
 #end
 
-	public static native void callDefaultCPPConstructor(long constructor, long thisPtr, int callMode);
+	public static native void callSinglePointerArgVoidFunction(long functionPointer, long pointerArg, int callMode);
 	
-	public static native long createCToJavaCallback(MethodCallInfo info);
-	public static native long getActualCToJavaCallback(long handle);
+	static native long createCToJavaCallback(MethodCallInfo info);
+	static native long getActualCToJavaCallback(long handle);
 	
-	public static native long bindGetters(MethodCallInfo... infos);
-	public static native long bindJavaMethodsToObjCMethods(MethodCallInfo... infos);
-	public static native long bindJavaToCCallbacks(MethodCallInfo... infos);
-	public static native long bindJavaMethodsToCFunctions(MethodCallInfo... infos);
-	public static native long bindJavaMethodsToCPPMethods(MethodCallInfo... infos);
-	public static native long bindJavaMethodsToVirtualMethods(MethodCallInfo... infos);
+	//static native long bindGetters(MethodCallInfo... infos);
+	static native long bindJavaMethodsToObjCMethods(MethodCallInfo... infos);
+	static native long bindJavaToCCallbacks(MethodCallInfo... infos);
+	static native long bindJavaMethodsToCFunctions(MethodCallInfo... infos);
+	static native long bindJavaMethodsToCPPMethods(MethodCallInfo... infos);
+	static native long bindJavaMethodsToVirtualMethods(MethodCallInfo... infos);
 	
-	public static native void freeGetters(long handle, int size);
-	public static native void freeCToJavaCallback(long handle);
-	public static native void freeObjCMethodBindings(long handle, int size);
-	public static native void freeJavaToCCallbacks(long handle, int size);
-	public static native void freeCPPMethodBindings(long handle, int size);
-	public static native void freeCFunctionBindings(long handle, int size);
-	public static native void freeVirtualMethodBindings(long handle, int size);
+	static native void freeGetters(long handle, int size);
+	static native void freeCToJavaCallback(long handle);
+	static native void freeObjCMethodBindings(long handle, int size);
+	static native void freeJavaToCCallbacks(long handle, int size);
+	static native void freeCPPMethodBindings(long handle, int size);
+	static native void freeCFunctionBindings(long handle, int size);
+	static native void freeVirtualMethodBindings(long handle, int size);
 	
-	public static native long createCallTempStruct();
-	public static native void deleteCallTempStruct(long handle);
-	public static native int getMaxDirectMappingArgCount();
+	static native long createCallTempStruct();
+	static native void deleteCallTempStruct(long handle);
+	static native int getMaxDirectMappingArgCount();
 	/*public static native long createCallback(
 		int callbackType,
 		Class<?> declaringClass,
@@ -223,16 +223,16 @@ public class JNI {
 	);
 	public static native void freeCallback(long nativeCallback);*/
 
-	public static native long mallocNulled(long size);
-	public static native long malloc(long size);
-    public static native void free(long pointer);
-    public static native long strlen(long pointer);
-    public static native long wcslen(long pointer);
-    public static native void memcpy(long dest, long source, long size);
+	static native long mallocNulled(long size);
+	static native long malloc(long size);
+    static native void free(long pointer);
+    static native long strlen(long pointer);
+    static native long wcslen(long pointer);
+    static native void memcpy(long dest, long source, long size);
     //public static native void wmemcpy(long dest, long source, long size);
-    public static native void memmove(long dest, long source, long size);
+    static native void memmove(long dest, long source, long size);
     //public static native void wmemmove(long dest, long source, long size);
-    public static native long memchr(long ptr, byte value, long num);
-    public static native int memcmp(long ptr1, long ptr2, long num);
-    public static native void memset(long ptr, byte value, long num);
+    static native long memchr(long ptr, byte value, long num);
+    static native int memcmp(long ptr1, long ptr2, long num);
+    static native void memset(long ptr, byte value, long num);
 }
