@@ -633,10 +633,10 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1double_1array
 
 /*
  * Class:     com_bridj_JNI
- * Method:    callDefaultCPPConstructor
+ * Method:    callSinglePointerArgVoidFunction
  * Signature: (JJI)V
  */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_callDefaultCPPConstructor
+JNIEXPORT void JNICALL Java_com_bridj_JNI_callSinglePointerArgVoidFunction
   (JNIEnv *, jclass, jlong, jlong, jint);
 
 /*
@@ -654,14 +654,6 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_createCToJavaCallback
  */
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_getActualCToJavaCallback
   (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    bindGetters
- * Signature: ([Lcom/bridj/MethodCallInfo;)J
- */
-JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindGetters
-  (JNIEnv *, jclass, jobjectArray);
 
 /*
  * Class:     com_bridj_JNI

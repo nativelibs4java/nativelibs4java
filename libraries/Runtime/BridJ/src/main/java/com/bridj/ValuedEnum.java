@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.Iterator;
 
 
-public interface ValuedEnum<E extends Enum<E>> {
+public interface ValuedEnum<E extends Enum<E>> extends Iterable<E> {
     long value();
 //
 //    public static class EnumWrapper<EE extends Enum<EE>> implements ValuedEnum<EE> {
