@@ -6,10 +6,14 @@
 package com.bridj.cpp.com;
 
 import com.bridj.FlagSet;
+import com.bridj.IntValuedEnum;
+import com.bridj.ValuedEnum;
 import com.bridj.Pointer;
 import com.bridj.StructObject;
 import com.bridj.ann.Field;
 import com.bridj.ann.Virtual;
+import java.util.Collections;
+import java.util.Iterator;
 
 /**
  *
@@ -28,7 +32,7 @@ public class IDispatch extends IUnknown {
 		public native int cNamedArgs();
 	}
 	
-	public enum VARENUM
+	public enum VARENUM implements IntValuedEnum<VARENUM>
     {	
     	VT_EMPTY(0),
 		VT_NULL(1),
@@ -87,6 +91,15 @@ public class IDispatch extends IUnknown {
 			this.value = value;
 		}
 		int value;
+		public long value() {
+			return value;
+		}
+		public Iterator<VARENUM> iterator() {
+			return Collections.singleton(this).iterator();
+		}
+		public static ValuedEnum<VARENUM> fromValue(long value) {
+			return FlagSet.fromValue(value, values());
+		}
     } ;
 	public static class VARIANT extends StructObject {
 		@Field(0)

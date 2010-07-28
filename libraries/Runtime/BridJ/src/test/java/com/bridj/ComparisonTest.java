@@ -54,8 +54,7 @@ public class ComparisonTest {
      */
     @Test
     public void perfTest() {
-    		if (true)
-    			return;
+    	
 		//com.sun.jna.Native.setProtected(true);
         TestLib test = null;
         try {
@@ -269,8 +268,7 @@ public class ComparisonTest {
     
     @Test
 	public void compareStructCreations() throws InterruptedException {
-		if (true)
-    			return;
+		
 		long n = 100000;
 		long warmup = 2000;
 		for (int i = 0; i < warmup; i++)
@@ -345,8 +343,7 @@ public class ComparisonTest {
 	
 	@Test
 	public void compareStructCasts() throws InterruptedException {
-		if (true)
-    			return;
+		
 		long n = 100000;
 		long warmup = 2000;
 		Pointer pBridJ = allocateBytes(100);

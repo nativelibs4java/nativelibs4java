@@ -9,6 +9,8 @@ import com.bridj.JNI;
 import com.bridj.BridJ;
 import com.bridj.ann.Library;
 //import com.sun.jna.Native;
+import java.util.Collections;
+import java.util.Iterator;
 import org.junit.*;
 import static org.junit.Assert.*;
 
@@ -47,6 +49,12 @@ public class FunctionTest {
     	public long value() {
     		return value;
     	}
+		public Iterator<ETest> iterator() {
+			return Collections.singleton(this).iterator();
+		}
+		public static ValuedEnum<ETest> fromValue(long value) {
+			return FlagSet.fromValue(value, values());
+		}
     }
     public static native ValuedEnum<ETest> testEnum(ValuedEnum<ETest> e);
     
