@@ -35,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Collections;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -64,6 +65,12 @@ public class TestCPP {
 		@java.lang.Override 
 		public long value() {
 			return this.value;
+		}
+		public Iterator<Toto> iterator() {
+			return Collections.singleton(this).iterator();
+		}
+		public static ValuedEnum<Toto> fromValue(long value) {
+			return FlagSet.fromValue(value, values());
 		}
 	}
 	static {
@@ -119,6 +126,12 @@ public class TestCPP {
     	public long value() {
     		return value;
     	}
+		public Iterator<ETest> iterator() {
+			return Collections.singleton(this).iterator();
+		}
+		public static ValuedEnum<ETest> fromValue(long value) {
+			return FlagSet.fromValue(value, values());
+		}
     }
 
     public static native ValuedEnum<ETest> testEnum(ValuedEnum<ETest> e);

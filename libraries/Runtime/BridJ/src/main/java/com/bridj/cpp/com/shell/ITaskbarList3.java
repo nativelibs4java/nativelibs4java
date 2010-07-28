@@ -4,8 +4,10 @@
  */
 
 package com.bridj.cpp.com.shell;
-
+import java.util.Collections;
+import java.util.Iterator;
 import com.bridj.ValuedEnum;
+import com.bridj.FlagSet;
 import com.bridj.IntValuedEnum;
 import com.bridj.Pointer;
 import com.bridj.StructObject;
@@ -31,6 +33,12 @@ public class ITaskbarList3 extends ITaskbarList2 {
 		public long value() {
 			return value;
 		}
+		public Iterator<THUMBBUTTONMASK> iterator() {
+			return Collections.singleton(this).iterator();
+		}
+		public static ValuedEnum<THUMBBUTTONMASK> fromValue(long value) {
+			return FlagSet.fromValue(value, values());
+		}
 	}
 	/// http://msdn.microsoft.com/en-us/library/dd562321(VS.85).aspx
 	public enum THUMBBUTTONFLAGS implements IntValuedEnum<THUMBBUTTONFLAGS> {
@@ -47,6 +55,12 @@ public class ITaskbarList3 extends ITaskbarList2 {
         @Override
 		public long value() {
 			return value;
+		}
+		public Iterator<THUMBBUTTONFLAGS> iterator() {
+			return Collections.singleton(this).iterator();
+		}
+		public static ValuedEnum<THUMBBUTTONFLAGS> fromValue(long value) {
+			return FlagSet.fromValue(value, values());
 		}
 	}
 	public static class THUMBBUTTON extends StructObject {
@@ -85,6 +99,12 @@ public class ITaskbarList3 extends ITaskbarList2 {
 		@Override
 		public long value() {
 			return value;
+		}
+		public Iterator<TbpFlag> iterator() {
+			return Collections.singleton(this).iterator();
+		}
+		public static ValuedEnum<TbpFlag> fromValue(long value) {
+			return FlagSet.fromValue(value, values());
 		}
     }
 
