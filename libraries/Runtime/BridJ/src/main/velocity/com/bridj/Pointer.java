@@ -2,6 +2,7 @@ package com.bridj;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.Array;
 import java.nio.*;
 import java.util.*;
 import java.io.UnsupportedEncodingException;
@@ -56,7 +57,7 @@ import java.nio.charset.Charset;
  *  </li>
  * </ul>
  */
-public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
+public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         //, com.sun.jna.Pointer<Pointer<T>>
 {
     public static final Pointer NULL = null;
@@ -143,9 +144,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     protected final long getCheckedPeer(long byteOffset, long validityCheckLength) {
-    	long offsetPeer = getPeer() + byteOffset;
-    	checkPeer(offsetPeer, validityCheckLength);
-        return offsetPeer;
+		long offsetPeer = getPeer() + byteOffset;
+		checkPeer(offsetPeer, validityCheckLength);
+		return offsetPeer;
     }
     protected final void checkPeer(long peerToCheck, long validityCheckLength) {
 		if (validStart == UNKNOWN_VALIDITY)
@@ -178,6 +179,36 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		
 		return new Pointer<U>(pio, newPeer, ordered, validStart, validEnd, null, 0, newSibling, null);    	
 	}
+	
+	/**
+	 * Creates a pointer that has the given number of valid bytes ahead.<br>
+	 * If the pointer was already bound, the valid bytes must be lower or equal to the current getRemainingBytes() value.
+	 */
+	public Pointer<T> validBytes(long byteCount) {
+		long peer = getPeer();
+		long newValidEnd = peer + byteCount;
+		if (validStart == 0 && validEnd == newValidEnd)
+			return this;
+		
+		if (validEnd != UNKNOWN_VALIDITY && newValidEnd > validEnd)
+			throw new IndexOutOfBoundsException("Cannot extend validity of pointed memory from " + validEnd + " to " + newValidEnd);
+		
+		Object newSibling = getSibling() != null ? getSibling() : this;
+		return new Pointer<T>(getIO(), peer, ordered, peer, newValidEnd, null, 0, newSibling, null);    	
+	}
+	
+	/**
+	 * Creates a pointer that has the given number of valid elements ahead.<br>
+	 * If the pointer was already bound, the valid bytes must be lower or equal to the current getRemainingElements() value.
+	 */
+	public Pointer<T> validElements(long elementCount) {
+		PointerIO<T> io = getIO();
+        if (io == null)
+            throwBecauseUntyped("Cannot define elements validity");
+        
+        return validBytes(elementCount * io.getTargetSize());
+    }   
+	
 	/**
 	 * Returns a pointer to this pointer.<br/>
 	 * It will only succeed if this pointer was dereferenced from another pointer.<br/>
@@ -336,14 +367,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * If this pointer was allocated from Java with the allocateXXX, pointerToXXX methods (or is a view or a clone of such a pointer), the iteration is safely bounded.<br/>
      * If this iterator is just a wrapper for a native-allocated pointer (or a view / clone of such a pointer), iteration will go forever (until illegal areas of memory are reached and cause a JVM crash).
      */
-    public Iterator<T> iterator() {
-    	return new Iterator<T>() {
+    public ListIterator<T> iterator() {
+    	return new ListIterator<T>() {
     		Pointer<T> next = Pointer.this.getRemainingElements() > 0 ? Pointer.this : null;
+    		Pointer<T> previous;
     		@Override
 			public T next() {
 				if (next == null)
 					throw new NoSuchElementException();
                 T value = next.get();
+                previous = next;
 				next = next.getRemainingElements() > 1 ? next.next(1) : null;
 				return value;
 			}
@@ -356,6 +389,33 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 				long rem;
 				return next != null && ((rem = next.getRemainingBytes()) < 0 || rem > 0);
 			}
+			@Override
+			public void add(T o) {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public boolean hasPrevious() {
+				return previous != null;
+			}
+			@Override
+			public int nextIndex() {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public T previous() {
+				//TODO return previous;
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public int previousIndex() {
+				throw new UnsupportedOperationException();
+			}
+			@Override
+			public void set(T o) {
+				if (previous == null)
+					throw new NoSuchElementException("You haven't called next() prior to calling ListIterator.set(E)");
+				previous.set(o);
+			} 
     	};
     }
     
@@ -1469,5 +1529,136 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		long ptr = getCheckedPeer(byteOffset, searchLength);
 		long found = JNI.memchr(ptr, value, searchLength);	
 		return found == 0 ? null : offset(found - ptr);
+	}
+	
+	@Deprecated
+	public boolean add(T item) {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public void add(int index, T element) {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public boolean addAll(Collection<? extends T> c) {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public boolean addAll(int index, Collection<? extends T> c) {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public void clear() {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public boolean contains(Object o) {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public boolean containsAll(Collection<?> c) {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public final T get(int index) {
+		return get((long)index);
+	}
+	
+    @Deprecated
+	public int indexOf(Object o) {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public boolean isEmpty() {
+		return getRemainingElements() == 0;
+	}
+	
+    @Deprecated
+	public int lastIndexOf(Object o) {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public ListIterator<T> listIterator() {
+		return iterator();
+	}
+	
+    @Deprecated
+	public ListIterator<T> listIterator(int index) {
+		return next(index).listIterator();
+	}
+	
+    @Deprecated
+	public T remove(int index) {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public boolean remove(Object o) {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public boolean removeAll(Collection<?> c) {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public boolean retainAll(Collection<?> c) {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public final T set(int index, T element) {
+		set((long)index, element);
+		return element;
+	}
+	
+    @Deprecated
+	public int size() {
+		throw new UnsupportedOperationException();
+	}
+	
+    @Deprecated
+	public List<T> subList(int fromIndex, int toIndex) {
+		PointerIO<T> io = getIO();
+        if (io == null)
+            throwBecauseUntyped("Cannot create sublist");
+
+        return next(fromIndex).validBytes((toIndex - fromIndex) * io.getTargetSize());
+	}
+	
+    @Deprecated
+	public T[] toArray() {
+		PointerIO<T> io = getIO();
+        if (io == null)
+            throwBecauseUntyped("Cannot create array");
+        if (validEnd == UNKNOWN_VALIDITY)
+        	throw new IndexOutOfBoundsException("Length of pointed memory is unknown, cannot create array out of this pointer");
+
+        Class<?> c = Utils.getClass(io.getTargetType());
+        return (T[])toArray((Object[])Array.newInstance(c, (int)getRemainingElements()));
+	}
+	
+    @Deprecated
+	public <U> U[] toArray(U[] array) {
+		int n = (int)getRemainingElements();
+		if (n < 0)
+            throwBecauseUntyped("Cannot create array");
+        
+        if (array.length != n)
+        	return (U[])toArray();
+        
+        for (int i = 0; i < n; i++)
+        	array[i] = (U)get(i);
+        return array;
 	}
 }

@@ -411,6 +411,109 @@ public class ComparisonTest {
         
         assertTrue(bridJFaster > 30); // */
 	}
+	
+	ByteBuffer next(ByteBuffer b, long skip) {
+		for (int i = 0; i < skip; i++)
+			b.get();
+		return b.slice();
+	}
+	@Test
+	public void compareStructArrayCasts() throws InterruptedException {
+		
+		long n = 100000;
+		long warmup = 2000;
+		long structSize = 10;
+		int arraySize = 5;
+		Pointer<StructTest.MyStruct> pBridJ = allocateBytes(100).as(StructTest.MyStruct.class).validElements(arraySize);
+		com.sun.jna.Memory pJNA = new com.sun.jna.Memory(100);
+        ByteBuffer pNIO = ByteBuffer.allocateDirect(100);
+		
+		for (int i = 0; i < warmup; i++) {
+			StructTest.MyStruct[] a = pBridJ.toArray(new StructTest.MyStruct[arraySize]);
+		}
+		
+		for (int i = 0; i < warmup; i++) {
+			StructTest.MyNIOStruct[] a = new StructTest.MyNIOStruct[arraySize];
+			ByteBuffer b = pNIO.duplicate();
+			for (int o = 0; o < arraySize; o++) {
+				a[o] = new StructTest.MyNIOStruct(b);
+				b = next(b, structSize);
+			}
+		}
+		
+		for (int i = 0; i < warmup; i++) {
+			com.sun.jna.Structure[] a = new StructTest.MyJNAStruct(pJNA).toArray(new StructTest.MyJNAStruct[arraySize]);
+		}
+		/*
+		for (int i = 0; i < warmup; i++)
+			new StructTest.MyOptimalStruct(pNIO);
+		*/
+		for (int i = 0; i < warmup; i++) {
+			StructTest.MyJavolutionStruct[] a = new StructTest.MyJavolutionStruct[arraySize];
+			for (int o = 0; o < arraySize; o++) { 
+				(a[o] = new StructTest.MyJavolutionStruct()).setByteBuffer(pNIO, (int)(o * structSize));
+			}
+		}
+		
+		long timeJNA, timeOptimal = -1, timeBridJ, timeNIO, timeJavolution;
+		
+		doGC();
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++) {
+				StructTest.MyNIOStruct[] a = new StructTest.MyNIOStruct[arraySize];
+				ByteBuffer b = pNIO.duplicate();
+				for (int o = 0; o < arraySize; o++) {
+					a[o] = new StructTest.MyNIOStruct(b);
+					b = next(b, structSize);
+				}
+			}
+			
+			timeNIO = System.nanoTime() - start;
+		}
+		doGC();
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++) {
+				com.sun.jna.Structure[] a = new StructTest.MyJNAStruct(pJNA).toArray(new StructTest.MyJNAStruct[arraySize]);
+			}
+			
+			timeJNA = System.nanoTime() - start;
+		}
+        /*doGC();
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++)
+				new StructTest.MyOptimalStruct(pNIO);
+			
+			timeOptimal = System.nanoTime() - start;
+		}*/
+        doGC();
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++) {
+				StructTest.MyStruct[] a = pBridJ.toArray(new StructTest.MyStruct[arraySize]);
+			}
+			
+			timeBridJ = System.nanoTime() - start;
+		}
+        doGC();
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++) {
+				StructTest.MyJavolutionStruct[] a = new StructTest.MyJavolutionStruct[arraySize];
+				for (int o = 0; o < arraySize; o++) { 
+					(a[o] = new StructTest.MyJavolutionStruct()).setByteBuffer(pNIO, (int)(o * structSize));
+				}
+			}
+			
+			timeJavolution = System.nanoTime() - start;
+		}
+        double bridJFaster = printResults("Cast to struct array", "Cast to BridJ's struct array", "cast", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
+        
+        assertTrue(bridJFaster > 30); // */
+	}
+	
 	@Test
 	public void compareFieldsAccess() throws InterruptedException {
 		long n = 1000000;
@@ -516,11 +619,16 @@ public class ComparisonTest {
     static double printResults(String title, String longOp, String op, long n, long timeJNA, long timeOptimal, long timeBridJ, long timeNIO, long timeJavolution) {
         System.err.println("#");
         System.err.println("# " + title + " :");
-		System.err.println("# Optimal took " + (timeOptimal / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeOptimal, n));
-		System.err.println("# BridJ took " + (timeBridJ / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeBridJ, n));
-		System.err.println("# Javolution took " + (timeJavolution / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeJavolution, n));
-		System.err.println("# NIO took " + (timeNIO / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeNIO, n));
-		System.err.println("# JNA took " + (timeJNA / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeJNA, n));
+        if (timeOptimal >= 0)
+        	System.err.println("# Optimal took " + (timeOptimal / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeOptimal, n));
+		if (timeBridJ >= 0)
+        	System.err.println("# BridJ took " + (timeBridJ / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeBridJ, n));
+		if (timeJavolution >= 0)
+        	System.err.println("# Javolution took " + (timeJavolution / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeJavolution, n));
+		if (timeNIO >= 0)
+        	System.err.println("# NIO took " + (timeNIO / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeNIO, n));
+		if (timeJNA >= 0)
+        	System.err.println("# JNA took " + (timeJNA / 1000000d) + " millis to " + op + " " + n + " simple structs : " + microPerStruct(timeJNA, n));
 		
 		double bridJFaster = timeJNA / (double)timeBridJ;
 		System.err.println("# " + longOp + " is " + bridJFaster + " times faster than JNA's ");
