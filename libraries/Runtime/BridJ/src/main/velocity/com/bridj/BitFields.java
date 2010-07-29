@@ -83,7 +83,7 @@ class BitFields {
 			return p.getInt(offset);
 		}
 		public Object objectValue(long value) {
-			return new Integer((int)value);
+			return Integer.valueOf((int)value);
 		}
 		public long longValue(Object value) {
 			return ((Integer)value).longValue();
@@ -92,7 +92,7 @@ class BitFields {
 			p.setInt(offset, value == null ? 0 : ((Integer)value).intValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return new Integer(p.getInt(offset));
+			return Integer.valueOf(p.getInt(offset));
 		}
 		public int size() {
 			return 4;
@@ -106,7 +106,7 @@ class BitFields {
 			return p.getLong(offset);
 		}
 		public Object objectValue(long value) {
-			return new Long(value);
+			return Long.valueOf(value);
 		}
 		public long longValue(Object value) {
 			return ((Long)value).longValue();
@@ -115,7 +115,7 @@ class BitFields {
 			p.setLong(offset, value == null ? 0 : ((Long)value).longValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return new Long(p.getLong(offset));
+			return Long.valueOf(p.getLong(offset));
 		}
 		public int size() {
 			return 8;
@@ -129,7 +129,7 @@ class BitFields {
 			return p.getShort(offset);
 		}
 		public Object objectValue(long value) {
-			return new Short((short)value);
+			return Short.valueOf((short)value);
 		}
 		public long longValue(Object value) {
 			return ((Short)value).longValue();
@@ -138,7 +138,7 @@ class BitFields {
 			p.setShort(offset, value == null ? 0 : ((Short)value).shortValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return new Short(p.getShort(offset));
+			return Short.valueOf(p.getShort(offset));
 		}
 		public int size() {
 			return 2;
@@ -152,7 +152,7 @@ class BitFields {
 			return p.getByte(offset);
 		}
 		public Object objectValue(long value) {
-			return new Byte((byte)value);
+			return Byte.valueOf((byte)value);
 		}
 		public long longValue(Object value) {
 			return ((Byte)value).longValue();
@@ -161,7 +161,7 @@ class BitFields {
 			p.setByte(offset, value == null ? 0 : ((Byte)value).byteValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return new Byte(p.getByte(offset));
+			return Byte.valueOf(p.getByte(offset));
 		}
 		public int size() {
 			return 1;
@@ -175,7 +175,7 @@ class BitFields {
 			return p.getChar(offset);
 		}
 		public Object objectValue(long value) {
-			return new Character((char)value);
+			return Character.valueOf((char)value);
 		}
 		public long longValue(Object value) {
 			return ((Character)value).charValue();
@@ -184,7 +184,7 @@ class BitFields {
 			p.setChar(offset, value == null ? (char)0 : ((Character)value).charValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return new Character(p.getChar(offset));
+			return Character.valueOf(p.getChar(offset));
 		}
 		public int size() {
 			return 2;
@@ -224,13 +224,13 @@ class BitFields {
 			return Double.doubleToRawLongBits(((Double)value).doubleValue());
 		}
 		public Object objectValue(long value) {
-			return new Double(Double.longBitsToDouble((long)value));
+			return Double.valueOf(Double.longBitsToDouble((long)value));
 		}
 		public void writeObject(Pointer p, long offset, Object value) {
 			p.setDouble(offset, value == null ? 0 : ((Double)value).doubleValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return new Double(p.getDouble(offset));
+			return Double.valueOf(p.getDouble(offset));
 		}
 		public int size() {
 			return 8;
@@ -247,13 +247,13 @@ class BitFields {
 			return Float.floatToRawIntBits(((Float)value).floatValue());
 		}
 		public Object objectValue(long value) {
-			return new Float(Float.intBitsToFloat((int)value));
+			return Float.valueOf(Float.intBitsToFloat((int)value));
 		}
 		public void writeObject(Pointer p, long offset, Object value) {
 			p.setFloat(offset, value == null ? 0 : ((Float)value).floatValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return new Float(p.getFloat(offset));
+			return Float.valueOf(p.getFloat(offset));
 		}
 		public int size() {
 			return 4;
