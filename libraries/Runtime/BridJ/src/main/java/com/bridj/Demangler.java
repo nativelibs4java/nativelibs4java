@@ -29,6 +29,10 @@ public abstract class Demangler {
 		this.library = library;
 	}
 	
+	public String getString() {
+		return str;
+	}
+	
 	protected void expectChars(char... cs) throws DemanglingException {
 		for (char c : cs) {
 			char cc = consumeChar();
@@ -262,12 +266,22 @@ public abstract class Demangler {
 
 	}
 
-    public static class PointerType {
+    public static class PointerTypeRef extends TypeRef {
+        
+        public TypeRef pointedType;
 
+        public PointerTypeRef(TypeRef pointedType) {
+            this.pointedType = pointedType;
+        }
+
+        @Override
+        public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
+            return b.append("com.bridj.Pointer");
+        }
     }
 
     protected static TypeRef pointerType(TypeRef tr) {
-        return classType(Pointer.class); // TODO
+        return new PointerTypeRef(tr);
     }
     protected static TypeRef classType(final Class<?> c, Class<? extends Annotation>... annotations) {
         return classType(c, null, annotations);
