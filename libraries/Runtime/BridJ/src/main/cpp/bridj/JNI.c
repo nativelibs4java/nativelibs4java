@@ -51,6 +51,7 @@ jfieldID 	gFieldId_startsWithThis 	 = NULL;
 jfieldID 	gFieldId_bNeedsThisPointer 	 = NULL;
 jfieldID 	gFieldId_dcCallingConvention = NULL;
 jfieldID 	gFieldId_symbolName			 = NULL;
+jfieldID 	gFieldId_nativeClass			 = NULL;
 jfieldID 	gFieldId_methodName			 = NULL;
 jfieldID 	gFieldId_declaringClass		 = NULL;
 
@@ -87,6 +88,7 @@ void initMethods(JNIEnv* env) {
 		GETFIELD_ID(javaSignature 		,	"javaSignature"			,	"Ljava/lang/String;"	);
 		GETFIELD_ID(dcSignature 		,	"dcSignature" 			,	"Ljava/lang/String;"	);
 		GETFIELD_ID(symbolName 			,	"symbolName" 			,	"Ljava/lang/String;"	);
+		GETFIELD_ID(nativeClass 			,	"nativeClass" 			,	"J"	);
 		GETFIELD_ID(methodName 			,	"methodName" 			,	"Ljava/lang/String;"	);
 		GETFIELD_ID(declaringClass		,	"declaringClass" 		,	"Ljava/lang/Class;"		);
 		GETFIELD_ID(paramsValueTypes 	,	"paramsValueTypes"		,	"[I"					);
@@ -516,6 +518,7 @@ void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 		jstring 	javaSignature 		= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_javaSignature 		);   \
 		jstring 	dcSignature 		= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_dcSignature 		    );   \
 		jstring 	symbolName	 		= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_symbolName	 	    );   \
+		jlong 	nativeClass	 		= (*env)->GetLongField(		env, methodCallInfo, gFieldId_nativeClass	 	    );   \
 		jstring 	methodName	 		= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_methodName	 	    );   \
 		jstring    declaringClass= (jclass)(*env)->GetObjectField(	env, methodCallInfo, gFieldId_declaringClass		);   \
 		jintArray 	paramsValueTypes 	= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_paramsValueTypes 	    );   \
@@ -739,6 +742,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToObjCMethods(
 		
 		info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToObjCCallHandler, info);
 		info->fSelector = sel_registerName(methName);
+		info->fNativeClass = nativeClass;
 		
 		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
 		(*env)->ReleaseStringUTFChars(env, symbolName, methName);

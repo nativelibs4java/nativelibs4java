@@ -10,7 +10,7 @@
   <packaging>jar</packaging>
 
   <properties>
-  	<maven.compiler.debug>false</maven.compiler.debug>
+  	<maven.compiler.debug>true</maven.compiler.debug>
   </properties>
   
   <parent>
@@ -31,7 +31,7 @@
 	<dependency>
       <groupId>net.java.dev.jna</groupId>
       <artifactId>jna</artifactId>
-      <version>3.2.5</version>
+      <version>3.2.7</version>
       <scope>test</scope>
     </dependency>
 	

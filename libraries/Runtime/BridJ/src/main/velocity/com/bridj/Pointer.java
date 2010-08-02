@@ -537,7 +537,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         		for (int i = 0; i < len; i++) {
         			Pointer<Byte> pp = mem.get(i);
         			if (pp != null)
-        				strings[i] = pp.getCString(0);
+        				strings[i] = pp.getCString();
         			pp = pointers[i];
         			if (pp != null)
         				pp.release();
@@ -633,8 +633,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      }</pre>
      @throws RuntimeException if called on an untyped {@code Pointer<?>} instance ({@link  Pointer#getTargetType()}) 
 	 */
-    public void set(T value) {
-        set(0, value);
+    public T set(T value) {
+        return set(0, value);
     }
     
     void throwBecauseUntyped(String message) {
@@ -666,13 +666,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      @param value value to set at pointed memory location
      @throws RuntimeException if called on an untyped {@code Pointer<?>} instance ({@link  Pointer#getTargetType()}) 
 	 */
-	public Pointer<T> set(long index, T value) {
+	public T set(long index, T value) {
         PointerIO<T> io = getIO();
         if (io == null)
             throwBecauseUntyped("Cannot set pointed value");
         
         io.set(this, index, value);
-        return this;
+        return value;
     }
 	
 	public static long getPeer(Pointer<?> pointer) {
@@ -1493,7 +1493,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         }
 	}
 	
-	public String getCString(long byteOffset) {
+	public String getCString() {
+        return getCString(0, false);
+    }
+
+    public String getCString(long byteOffset) {
         return getCString(byteOffset, false);
     }
 

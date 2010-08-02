@@ -113,6 +113,7 @@ typedef struct FunctionCallInfo {
 typedef struct JavaToObjCCallInfo {
 	struct CommonCallbackInfo fInfo;
 	SEL fSelector;
+	jlong fNativeClass;
 } JavaToObjCCallInfo;
 
 char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);

@@ -57,7 +57,7 @@ UNITS += RawNativeForwardCallback_arch
 ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 CPPFLAGS += -O3
-LDFLAGS		+= -ldl -lobjc
+LDFLAGS		+= -ldl -lobjc -all_load
 endif
 
 LDFLAGS		+= -lpthread

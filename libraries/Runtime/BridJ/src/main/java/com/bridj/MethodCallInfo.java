@@ -1,4 +1,5 @@
 package com.bridj;
+import com.bridj.objc.ObjCClass;
 import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import java.util.logging.Level;
@@ -28,6 +29,7 @@ public class MethodCallInfo {
     GenericMethodInfo genericInfo = new GenericMethodInfo();*/
 	List<CallIO> callIOs;
 	private Class<?> declaringClass;
+        long nativeClass;
     int returnValueType, paramsValueTypes[];
 	private Method method;
 	String methodName, symbolName;
@@ -429,5 +431,9 @@ public class MethodCallInfo {
 
     public void setJavaCallback(Callback javaCallback) {
         this.javaCallback = javaCallback;
+    }
+
+    public void setNativeClass(long nativeClass) {
+        this.nativeClass = nativeClass;
     }
 }

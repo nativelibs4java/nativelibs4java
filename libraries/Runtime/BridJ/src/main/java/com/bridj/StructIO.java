@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-class StructIO {
+public class StructIO {
 
     static Map<Type, StructIO> structIOs = new HashMap<Type, StructIO>();
 
@@ -62,6 +62,7 @@ class StructIO {
     public StructIO(Class<?> structClass, Type structType) {
 		this.structClass = structClass;
         this.structType = structType;
+        // Don't call build here, for recursive initialization cases (TODO test this)
 	}
 	
 	public Class<?> getStructClass() {
@@ -89,7 +90,7 @@ class StructIO {
 
 
 	/// Call whenever an instanceof a struct that depends on that StructIO is created
-	public void build() {
+	void build() {
 		if (fields == null) {
 			synchronized (this) {
 				if (fields == null)
@@ -104,25 +105,29 @@ class StructIO {
     }
 	
 	public int getStructSize() {
-		build();
+//		build();
 		return structSize;
 	}
 
     public int getStructAlignment() {
-		build();
+//		build();
 		return structAlignment;
 	}
 
 	public int getFieldOffset(int iField) {
+//		build();
 		return fields[iField].byteOffset;	
 	}
 	public int getFieldBitOffset(int iField) {
+//		build();
 		return fields[iField].bitOffset;	
 	}
 	public int getFieldArrayLength(int iField) {
+//		build();
 		return fields[iField].arrayLength;	
 	}
 	public int getFieldBitLength(int iField) {
+//		build();
 		return fields[iField].bitLength;	
 	}
 	
