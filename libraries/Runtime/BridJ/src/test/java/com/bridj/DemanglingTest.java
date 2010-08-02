@@ -67,17 +67,19 @@ public class DemanglingTest {
     private void demangle(String vc9, String gcc4, Class enclosingType, Object memberName, Class returnType, Class... paramTypes) {
         try {
         	if (vc9 != null)
-        		checkSymbol(new VC9Demangler(null, vc9).parseSymbol(), enclosingType, memberName, returnType, paramTypes);
+        		checkSymbol(vc9, new VC9Demangler(null, vc9).parseSymbol(), enclosingType, memberName, returnType, paramTypes);
         	if (gcc4 != null)
-        		checkSymbol(new GCC4Demangler(null, gcc4).parseSymbol(), enclosingType, memberName, returnType, paramTypes);
+        		checkSymbol(gcc4, new GCC4Demangler(null, gcc4).parseSymbol(), enclosingType, memberName, returnType, paramTypes);
         } catch (DemanglingException ex) {
             Logger.getLogger(DemanglingTest.class.getName()).log(Level.SEVERE, null, ex);
             throw new AssertionError(ex.toString());
         }
     }
 
-    private void checkSymbol(MemberRef symbol, Class enclosingType, Object memberName, Class returnType, Class[] paramTypes) {
-        if (memberName != null)
+    private void checkSymbol(String str, MemberRef symbol, Class enclosingType, Object memberName, Class returnType, Class[] paramTypes) {
+        if (symbol == null)
+        		assertTrue("Symbol not successfully parsed \"" + str + "\"", false);
+    		if (memberName != null)
             assertEquals("Bad name", memberName, symbol.getMemberName());
         if (enclosingType != null) {
         	assertNotNull("Null enclosing type : " + symbol, symbol.getEnclosingType());

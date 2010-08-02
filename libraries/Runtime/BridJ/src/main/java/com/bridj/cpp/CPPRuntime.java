@@ -208,6 +208,13 @@ public class CPPRuntime extends CRuntime {
         }
         return convention;
     }
+    
+    static Boolean enableDestructors;
+    static boolean enableDestructors() {
+    		if (enableDestructors == null)
+    			enableDestructors = "true".equals(System.getProperty("bridj.destructors")) || "1".equals(System.getenv("BRIDJ_DESTRUCTORS"));
+    		return enableDestructors;
+    }
 
     protected <T extends CPPObject> Pointer<T> newCPPInstance(final Type type, int constructorId, Object... args) {
         Pointer<T> peer = null;
@@ -216,22 +223,24 @@ public class CPPRuntime extends CRuntime {
             NativeLibrary lib = BridJ.getNativeLibrary(typeClass);
             Pointer.Releaser releaser = null;
 
-            Long destructor = destructors.get(type);
-            if (destructor == null) {
-                Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
-                    return symbol.matchesDestructor(typeClass);
-                }});
-                if (symbol != null)
-                    log(Level.INFO, "Registering destructor of " + typeClass.getName() + " as " + symbol.getName());
-                destructors.put(type, destructor = symbol == null ? 0 : symbol.getAddress());
-            }
-            final long destructorAddr = destructor;
-            if (destructorAddr != 0) {
-                releaser = new Pointer.Releaser() { @Override public void release(Pointer<?> p) {
-                    //System.out.println("Destructing instance of C++ type " + type + "...");
-                    JNI.callSinglePointerArgVoidFunction(destructorAddr, p.getPeer(), getDefaultDyncallCppConvention());
-                }};
-            }
+            if (enableDestructors()) {
+				Long destructor = destructors.get(type);
+				if (destructor == null) {
+					Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
+						return symbol.matchesDestructor(typeClass);
+					}});
+					if (symbol != null)
+						log(Level.INFO, "Registering destructor of " + typeClass.getName() + " as " + symbol.getName());
+					destructors.put(type, destructor = symbol == null ? 0 : symbol.getAddress());
+				}
+				final long destructorAddr = destructor;
+				if (destructorAddr != 0) {
+					releaser = new Pointer.Releaser() { @Override public void release(Pointer<?> p) {
+						//System.out.println("Destructing instance of C++ type " + type + "...");
+						JNI.callSinglePointerArgVoidFunction(destructorAddr, p.getPeer(), getDefaultDyncallCppConvention());
+					}};
+				}
+			}
             // TODO handle templates here
             peer = (Pointer) Pointer.allocateBytes(PointerIO.getInstance(type), sizeOf(type, null), releaser); 
 
