@@ -17,7 +17,7 @@
 		<nl4j-runtime.version>0.2-SNAPSHOT</nl4j-runtime.version>
 		<jarsigner.skip>true</jarsigner.skip>
 		<junit.version>4.8.1</junit.version>
-		<jna.version>3.2.5</jna.version>
+		<jna.version>3.2.7</jna.version>
 		<maven.compiler.debug>true</maven.compiler.debug>
 		<shadedArtifactAttached>true</shadedArtifactAttached>
 	</properties>
