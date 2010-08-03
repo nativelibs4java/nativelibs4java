@@ -39,7 +39,7 @@ public class CPPTest {
 		assertEquals("Invalid size for class Ctest", 12, BridJ.sizeOf(new Ctest()));
 		assertEquals("Invalid size for class Ctest2", 20, BridJ.sizeOf(new Ctest2()));
 	}
-	/*
+	
 	@Test
 	public void test_Ctest_testAdd() {
 		testAdd(new Ctest(), 1, 2, 3, 3);
@@ -58,6 +58,10 @@ public class CPPTest {
 	
 	void testAdd(Ctest instance, int a, int b, int res, int baseRes) {
 		//long peer = Pointer.getAddress(test, Ctest.class);
+		
+		TestCPP.print(instance.getClass().getSimpleName(), pointerTo(instance).getPeer(), 10, 2);
+		TestCPP.print(instance.getClass().getSimpleName() + "'s vtable", pointerTo(instance).getSizeT(0), 10, 2);
+                
 		int c = instance.testVirtualAdd(a, b);
 		assertEquals(res, c);
 
@@ -78,7 +82,7 @@ public class CPPTest {
 			assertEquals("testAddStdCall", 0, c);
         }
 	}
-	*/
+	
 	@Library("test")
 	public static class Ctest extends CPPObject {
 		public Ctest() {
@@ -113,13 +117,13 @@ public class CPPTest {
 			secondField(secondField);
 			return secondField;
 		}
-		@Name("~Ctest") 
-		public native void CtestDestructor();
 		@Virtual(0) 
 		public native int testVirtualAdd(int a, int b);
 		public native int testAdd(int a, int b);
 		@Virtual(1) 
+		@Convention(Convention.Style.StdCall)
 		public native int testVirtualAddStdCall(Pointer<? > ptr, int a, int b);
+		@Convention(Convention.Style.StdCall)
 		public native int testAddStdCall(Pointer<? > ptr, int a, int b);
 		public native static void static_void();
 	};
@@ -160,48 +164,13 @@ public class CPPTest {
 			fDestructedState(fDestructedState);
 			return fDestructedState;
 		}
-		@Name("~Ctest2") 
-		public native void Ctest2Destructor();
 		public native void setState(Pointer<java.lang.Integer > pState);
 		public native void setDestructedState(int destructedState);
 		@Virtual(0) 
 		public native int testVirtualAdd(int a, int b);
 		public native int testAdd(int a, int b);
 	};
-	/*
-	static class Ctest extends CPPObject {
-		static { BridJ.register(); }
-		
-		static native Pointer<Ctest> createTest();
-		
-		@Virtual
-		public native int testVirtualAdd(int a, int b);
-
-		public native int testAdd(int a, int b);
-
-        @Virtual
-        @Convention(Convention.Style.StdCall)
-		public native int testVirtualAddStdCall(Pointer<?> ptr, int a, int b);
-
-		@Convention(Convention.Style.StdCall)
-		public native int testAddStdCall(Pointer<?> ptr, int a, int b);
-	}
-	static class Ctest2 extends Ctest {
-        @Field(0)
-        public Pointer<Integer> fState() {
-            return peer.getPointer(io.getFieldOffset(0), Integer.class);
-        }	
-        public Ctest2 fState(Pointer<Integer> fState) {
-            peer.setPointer(io.getFieldOffset(0), fState);
-            return this;
-        }
-        
-        public native void setState(Pointer<Integer> pState);
-        public native void setDestructedState(int destructedState);
-        
-        public native int testAdd(int a, int b);
-	}*/
-    /*
+	
     @Test
     public void testDestruction() throws InterruptedException {
         Pointer<Integer> pState = allocateInt();
@@ -219,6 +188,5 @@ public class CPPTest {
         System.gc();
         Thread.sleep(200);
     }
-	*/
 }
 

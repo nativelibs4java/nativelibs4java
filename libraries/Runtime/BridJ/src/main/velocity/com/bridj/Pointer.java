@@ -885,7 +885,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         if (byteSize < 0)
         	throw new IllegalArgumentException("Cannot allocate a negative amount of memory !");
         
-        long address = JNI.mallocNulled(byteSize);
+        long address = JNI.malloc(byteSize);
         if (address == 0)
         	throw new RuntimeException("Failed to allocate " + byteSize);
 

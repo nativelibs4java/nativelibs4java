@@ -258,7 +258,8 @@ public class CPPRuntime extends CRuntime {
                 }
                 installVTablePtr(type, lib, peer);
                 JNI.callSinglePointerArgVoidFunction(defaultConstructor, peer.getPeer(), getDefaultDyncallCppConvention());// TODO use right call convention
-                TestCPP.print(typeClass.getSimpleName(), peer.getPeer(), 10, 2);
+                //TestCPP.print(typeClass.getSimpleName(), peer.getPeer(), 10, 2);
+                //TestCPP.print(typeClass.getSimpleName() + "'s vtable", peer.getSizeT(0), 10, 2);
                 return peer;
             }
             Method meth = getConstructor(typeClass, constructorId, args);
