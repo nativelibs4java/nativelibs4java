@@ -71,7 +71,7 @@ public abstract class PointerIO<T> {
         if (io == null) {
             final Class<?> cl = (type instanceof Class) ? (Class)type : (type instanceof ParameterizedType) ? (Class)((ParameterizedType)type).getRawType() : null;
     	
-            #foreach ($prim in $primitivesNoBool)
+            #foreach ($prim in $primitives)
             #if ($velocityCount > 1) else #end
             if (type == ${prim.WrapperName}.TYPE || type == ${prim.WrapperName}.class)
                 io = CommonPointerIOs.${prim.Name}IO;
@@ -115,17 +115,15 @@ public abstract class PointerIO<T> {
         return clongInstance;
 	}
 
-    #foreach ($prim in $primitivesNoBool)
+#foreach ($prim in $primitives)
     static PointerIO<${prim.WrapperName}> ${prim.Name}Instance;
-    #end
-
-    #foreach ($prim in $primitivesNoBool)
-    public static PointerIO<${prim.WrapperName}> get${prim.CapName}Instance() {
+    
+	public static PointerIO<${prim.WrapperName}> get${prim.CapName}Instance() {
         if (${prim.Name}Instance == null)
             ${prim.Name}Instance = getInstance(${prim.WrapperName}.class);
         return ${prim.Name}Instance;
 	}
-    #end
+#end
 
     public static <P> PointerIO<P> getBufferPrimitiveInstance(Buffer buffer) {
         #foreach ($prim in $primitivesNoBool)

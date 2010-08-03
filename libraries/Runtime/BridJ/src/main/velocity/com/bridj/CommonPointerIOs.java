@@ -14,6 +14,7 @@ class CommonPointerIOs {
 
         @Override
         public int getTargetSize() {
+        	structIO.build();
             return structIO.getStructSize();
         }
 		
@@ -102,7 +103,7 @@ class CommonPointerIOs {
 		}
 	}
 	
-#foreach ($prim in $primitivesNoBool)
+#foreach ($prim in $primitives)
 		
 	public static final PointerIO<${prim.WrapperName}> ${prim.Name}IO = new PointerIO<${prim.WrapperName}>(${prim.WrapperName}.class, ${prim.Size}, null) {
 		@Override

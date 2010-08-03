@@ -49,7 +49,7 @@ public class StructIO {
 		Type valueType;
         Class<?> valueClass;
         Class<?> declaringClass;
-        boolean isBitField, isByValue, isNativeSize, isCLong, isWide;
+        boolean isBitField, isByValue, isWide;
     }
 	
 	protected PointerIO<?> pointerIO;
@@ -65,6 +65,13 @@ public class StructIO {
         // Don't call build here, for recursive initialization cases (TODO test this)
 	}
 	
+	boolean isVirtual() {
+		for (Method m : structClass.getMethods()) {
+			if (m.getAnnotation(Virtual.class) != null)
+				return true;
+		}
+		return false;
+	}
 	public Class<?> getStructClass() {
 		return structClass;
 	}
@@ -253,6 +260,14 @@ public class StructIO {
 	protected FieldDesc[] computeStructLayout() {
 		List<FieldDecl> list = listFields();
 		orderFields(list);
+		
+		if (isVirtual()) {
+			FieldDecl d = new FieldDecl();
+			d.byteLength = Pointer.SIZE;
+			d.valueType = d.valueClass = Pointer.class;
+			d.name = "vtablePtr";
+			list.add(0, d);
+		}
 
         Alignment alignment = structClass.getAnnotation(Alignment.class);
         structAlignment = alignment != null ? alignment.value() : 1; //TODO get platform default alignment
@@ -339,7 +354,7 @@ public class StructIO {
 
         List<FieldDesc> filtered = new ArrayList<FieldDesc>();
         for (FieldDecl fio : list)
-            if (fio.declaringClass.equals(structClass))
+            if (fio.declaringClass != null && fio.declaringClass.equals(structClass))
                 filtered.add(fio.desc);
         
 		return filtered.toArray(new FieldDesc[filtered.size()]);

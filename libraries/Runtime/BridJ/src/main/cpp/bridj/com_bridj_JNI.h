@@ -193,26 +193,10 @@ JNIEXPORT jint JNICALL Java_com_bridj_JNI_get_1int
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_int_disordered
- * Signature: (J)I
- */
-JNIEXPORT jint JNICALL Java_com_bridj_JNI_get_1int_1disordered
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_int
  * Signature: (JI)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1int
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    set_int_disordered
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1int_1disordered
   (JNIEnv *, jclass, jlong, jint);
 
 /*
@@ -225,19 +209,35 @@ JNIEXPORT jintArray JNICALL Java_com_bridj_JNI_get_1int_1array
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_int_array_disordered
- * Signature: (JI)[I
- */
-JNIEXPORT jintArray JNICALL Java_com_bridj_JNI_get_1int_1array_1disordered
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_int_array
  * Signature: (J[III)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1int_1array
   (JNIEnv *, jclass, jlong, jintArray, jint, jint);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    get_int_disordered
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_bridj_JNI_get_1int_1disordered
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    set_int_disordered
+ * Signature: (JI)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1int_1disordered
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    get_int_array_disordered
+ * Signature: (JI)[I
+ */
+JNIEXPORT jintArray JNICALL Java_com_bridj_JNI_get_1int_1array_1disordered
+  (JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     com_bridj_JNI
@@ -273,26 +273,10 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_get_1long
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_long_disordered
- * Signature: (J)J
- */
-JNIEXPORT jlong JNICALL Java_com_bridj_JNI_get_1long_1disordered
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_long
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1long
-  (JNIEnv *, jclass, jlong, jlong);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    set_long_disordered
- * Signature: (JJ)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1long_1disordered
   (JNIEnv *, jclass, jlong, jlong);
 
 /*
@@ -305,19 +289,35 @@ JNIEXPORT jlongArray JNICALL Java_com_bridj_JNI_get_1long_1array
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_long_array_disordered
- * Signature: (JI)[J
- */
-JNIEXPORT jlongArray JNICALL Java_com_bridj_JNI_get_1long_1array_1disordered
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_long_array
  * Signature: (J[JII)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1long_1array
   (JNIEnv *, jclass, jlong, jlongArray, jint, jint);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    get_long_disordered
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_get_1long_1disordered
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    set_long_disordered
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1long_1disordered
+  (JNIEnv *, jclass, jlong, jlong);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    get_long_array_disordered
+ * Signature: (JI)[J
+ */
+JNIEXPORT jlongArray JNICALL Java_com_bridj_JNI_get_1long_1array_1disordered
+  (JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     com_bridj_JNI
@@ -353,26 +353,10 @@ JNIEXPORT jshort JNICALL Java_com_bridj_JNI_get_1short
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_short_disordered
- * Signature: (J)S
- */
-JNIEXPORT jshort JNICALL Java_com_bridj_JNI_get_1short_1disordered
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_short
  * Signature: (JS)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1short
-  (JNIEnv *, jclass, jlong, jshort);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    set_short_disordered
- * Signature: (JS)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1short_1disordered
   (JNIEnv *, jclass, jlong, jshort);
 
 /*
@@ -385,19 +369,35 @@ JNIEXPORT jshortArray JNICALL Java_com_bridj_JNI_get_1short_1array
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_short_array_disordered
- * Signature: (JI)[S
- */
-JNIEXPORT jshortArray JNICALL Java_com_bridj_JNI_get_1short_1array_1disordered
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_short_array
  * Signature: (J[SII)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1short_1array
   (JNIEnv *, jclass, jlong, jshortArray, jint, jint);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    get_short_disordered
+ * Signature: (J)S
+ */
+JNIEXPORT jshort JNICALL Java_com_bridj_JNI_get_1short_1disordered
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    set_short_disordered
+ * Signature: (JS)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1short_1disordered
+  (JNIEnv *, jclass, jlong, jshort);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    get_short_array_disordered
+ * Signature: (JI)[S
+ */
+JNIEXPORT jshortArray JNICALL Java_com_bridj_JNI_get_1short_1array_1disordered
+  (JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     com_bridj_JNI
@@ -481,26 +481,10 @@ JNIEXPORT jchar JNICALL Java_com_bridj_JNI_get_1char
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_char_disordered
- * Signature: (J)C
- */
-JNIEXPORT jchar JNICALL Java_com_bridj_JNI_get_1char_1disordered
-  (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_char
  * Signature: (JC)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1char
-  (JNIEnv *, jclass, jlong, jchar);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    set_char_disordered
- * Signature: (JC)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1char_1disordered
   (JNIEnv *, jclass, jlong, jchar);
 
 /*
@@ -513,19 +497,35 @@ JNIEXPORT jcharArray JNICALL Java_com_bridj_JNI_get_1char_1array
 
 /*
  * Class:     com_bridj_JNI
- * Method:    get_char_array_disordered
- * Signature: (JI)[C
- */
-JNIEXPORT jcharArray JNICALL Java_com_bridj_JNI_get_1char_1array_1disordered
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    set_char_array
  * Signature: (J[CII)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1char_1array
   (JNIEnv *, jclass, jlong, jcharArray, jint, jint);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    get_char_disordered
+ * Signature: (J)C
+ */
+JNIEXPORT jchar JNICALL Java_com_bridj_JNI_get_1char_1disordered
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    set_char_disordered
+ * Signature: (JC)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1char_1disordered
+  (JNIEnv *, jclass, jlong, jchar);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    get_char_array_disordered
+ * Signature: (JI)[C
+ */
+JNIEXPORT jcharArray JNICALL Java_com_bridj_JNI_get_1char_1array_1disordered
+  (JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     com_bridj_JNI
@@ -630,6 +630,54 @@ JNIEXPORT jdoubleArray JNICALL Java_com_bridj_JNI_get_1double_1array
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1double_1array
   (JNIEnv *, jclass, jlong, jdoubleArray, jint, jint);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    getBooleanArrayElements
+ * Signature: ([Z[Z)J
+ */
+JNIEXPORT jlong JNICALL Java_com_bridj_JNI_getBooleanArrayElements
+  (JNIEnv *, jclass, jbooleanArray, jbooleanArray);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    releaseBooleanArrayElements
+ * Signature: ([ZJI)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_releaseBooleanArrayElements
+  (JNIEnv *, jclass, jbooleanArray, jlong, jint);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    get_boolean
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_bridj_JNI_get_1boolean
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    set_boolean
+ * Signature: (JZ)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1boolean
+  (JNIEnv *, jclass, jlong, jboolean);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    get_boolean_array
+ * Signature: (JI)[Z
+ */
+JNIEXPORT jbooleanArray JNICALL Java_com_bridj_JNI_get_1boolean_1array
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     com_bridj_JNI
+ * Method:    set_boolean_array
+ * Signature: (J[ZII)V
+ */
+JNIEXPORT void JNICALL Java_com_bridj_JNI_set_1boolean_1array
+  (JNIEnv *, jclass, jlong, jbooleanArray, jint, jint);
 
 /*
  * Class:     com_bridj_JNI

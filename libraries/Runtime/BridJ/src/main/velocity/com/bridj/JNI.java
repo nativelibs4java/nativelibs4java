@@ -147,7 +147,7 @@ public class JNI {
     public static native long getDirectBufferAddress(Buffer b);
     public static native long getDirectBufferCapacity(Buffer b);
 
-#foreach ($prim in $primitivesNoBool)
+#foreach ($prim in $primitives)
 
     @Deprecated
     static native long get${prim.WrapperName}ArrayElements(${prim.Name}[] array, boolean[] pIsCopy);
@@ -156,28 +156,23 @@ public class JNI {
 
     @Deprecated
     static native ${prim.Name} get_${prim.Name}(long peer);
-    #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
-	@Deprecated
-    static native ${prim.Name} get_${prim.Name}_disordered(long peer);
-    #end
     @Deprecated
     static native void set_${prim.Name}(long peer, ${prim.Name} value);
-	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
-	@Deprecated
-    static native void set_${prim.Name}_disordered(long peer, ${prim.Name} value);
-    #end
     @Deprecated
     static native ${prim.Name}[] get_${prim.Name}_array(long peer, int length);
-    #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
-	@Deprecated
-    static native ${prim.Name}[] get_${prim.Name}_array_disordered(long peer, int length);
-    #end
     @Deprecated
     static native void set_${prim.Name}_array(long peer, ${prim.Name}[] values, int valuesOffset, int length);
-	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
+
+	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double"&& $prim.Name != "boolean")
+	@Deprecated
+    static native ${prim.Name} get_${prim.Name}_disordered(long peer);
+	@Deprecated
+    static native void set_${prim.Name}_disordered(long peer, ${prim.Name} value);
+    @Deprecated
+    static native ${prim.Name}[] get_${prim.Name}_array_disordered(long peer, int length);
 	@Deprecated
     static native void set_${prim.Name}_array_disordered(long peer, ${prim.Name}[] values, int valuesOffset, int length);
-    #end
+	#end
 #end
 
 	public static native void callSinglePointerArgVoidFunction(long functionPointer, long pointerArg, int callMode);

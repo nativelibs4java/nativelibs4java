@@ -16,12 +16,30 @@ import com.bridj.ann.Symbol;
 import com.bridj.ann.Ptr;
 import com.bridj.ann.Virtual;
 import com.bridj.cpp.CPPObject;
+
+
+import com.bridj.BridJ;
+import com.bridj.Pointer;
+import com.bridj.ann.Field;
+import com.bridj.ann.Library;
+import com.bridj.ann.Name;
+import com.bridj.ann.Runtime;
+import com.bridj.ann.Virtual;
+import com.bridj.cpp.CPPRuntime;
+
 import org.junit.After;
+import org.junit.Before;
 import static com.bridj.Pointer.*;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class CPPTest {
 	
+	@Test
+	public void testSize() {
+		assertEquals("Invalid size for class Ctest", 12, BridJ.sizeOf(new Ctest()));
+		assertEquals("Invalid size for class Ctest2", 20, BridJ.sizeOf(new Ctest2()));
+	}
+	/*
 	@Test
 	public void test_Ctest_testAdd() {
 		testAdd(new Ctest(), 1, 2, 3, 3);
@@ -60,8 +78,97 @@ public class CPPTest {
 			assertEquals("testAddStdCall", 0, c);
         }
 	}
-	
+	*/
 	@Library("test")
+	public static class Ctest extends CPPObject {
+		public Ctest() {
+			super();
+		}
+		public Ctest(Pointer pointer) {
+			super(pointer);
+		}
+		@Field(0) 
+		public int firstField() {
+			return this.peer.getInt(this.io.getFieldOffset(0));
+		}
+		@Field(0) 
+		public Ctest firstField(int firstField) {
+			this.peer.setInt(this.io.getFieldOffset(0), firstField);
+			return this;
+		}
+		public final int firstField_$eq(int firstField) {
+			firstField(firstField);
+			return firstField;
+		}
+		@Field(1) 
+		public int secondField() {
+			return this.peer.getInt(this.io.getFieldOffset(1));
+		}
+		@Field(1) 
+		public Ctest secondField(int secondField) {
+			this.peer.setInt(this.io.getFieldOffset(1), secondField);
+			return this;
+		}
+		public final int secondField_$eq(int secondField) {
+			secondField(secondField);
+			return secondField;
+		}
+		@Name("~Ctest") 
+		public native void CtestDestructor();
+		@Virtual(0) 
+		public native int testVirtualAdd(int a, int b);
+		public native int testAdd(int a, int b);
+		@Virtual(1) 
+		public native int testVirtualAddStdCall(Pointer<? > ptr, int a, int b);
+		public native int testAddStdCall(Pointer<? > ptr, int a, int b);
+		public native static void static_void();
+	};
+	/// <i>native declaration : line 18</i>
+	public static class Ctest2 extends Ctest {
+		public Ctest2() {
+			super();
+		}
+		public Ctest2(Pointer pointer) {
+			super(pointer);
+		}
+		/// C type : int*
+		@Field(0) 
+		public Pointer<java.lang.Integer > fState() {
+			return this.peer.getPointer(this.io.getFieldOffset(0), java.lang.Integer.class);
+		}
+		/// C type : int*
+		@Field(0) 
+		public Ctest2 fState(Pointer<java.lang.Integer > fState) {
+			this.peer.setPointer(this.io.getFieldOffset(0), fState);
+			return this;
+		}
+		/// C type : int*
+		public final Pointer<java.lang.Integer > fState_$eq(Pointer<java.lang.Integer > fState) {
+			fState(fState);
+			return fState;
+		}
+		@Field(1) 
+		public int fDestructedState() {
+			return this.peer.getInt(this.io.getFieldOffset(1));
+		}
+		@Field(1) 
+		public Ctest2 fDestructedState(int fDestructedState) {
+			this.peer.setInt(this.io.getFieldOffset(1), fDestructedState);
+			return this;
+		}
+		public final int fDestructedState_$eq(int fDestructedState) {
+			fDestructedState(fDestructedState);
+			return fDestructedState;
+		}
+		@Name("~Ctest2") 
+		public native void Ctest2Destructor();
+		public native void setState(Pointer<java.lang.Integer > pState);
+		public native void setDestructedState(int destructedState);
+		@Virtual(0) 
+		public native int testVirtualAdd(int a, int b);
+		public native int testAdd(int a, int b);
+	};
+	/*
 	static class Ctest extends CPPObject {
 		static { BridJ.register(); }
 		
@@ -83,7 +190,7 @@ public class CPPTest {
         @Field(0)
         public Pointer<Integer> fState() {
             return peer.getPointer(io.getFieldOffset(0), Integer.class);
-        }
+        }	
         public Ctest2 fState(Pointer<Integer> fState) {
             peer.setPointer(io.getFieldOffset(0), fState);
             return this;
@@ -93,8 +200,8 @@ public class CPPTest {
         public native void setDestructedState(int destructedState);
         
         public native int testAdd(int a, int b);
-	}
-    
+	}*/
+    /*
     @Test
     public void testDestruction() throws InterruptedException {
         Pointer<Integer> pState = allocateInt();
@@ -112,6 +219,6 @@ public class CPPTest {
         System.gc();
         Thread.sleep(200);
     }
-	
+	*/
 }
 

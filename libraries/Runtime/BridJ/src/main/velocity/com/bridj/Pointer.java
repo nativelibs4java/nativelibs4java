@@ -18,16 +18,20 @@ import java.nio.charset.Charset;
  *	<li>Wrapping a memory address as a pointer : {@link Pointer#pointerToAddress(long)}
  *  </li>
  *	<li>Reading / writing a primitive from / to the pointed memory location :<br/>
- *		#foreach ($prim in $primitivesNoBool)
+ *		#foreach ($prim in $primitives)
  *		{@link Pointer#get${prim.CapName}()} / {@link Pointer#set${prim.CapName}(${prim.Name})} ; With an offset : {@link Pointer#get${prim.CapName}(long)} / {@link Pointer#set${prim.CapName}(long, ${prim.Name})}<br/>
  *       #end
- *		{@link Pointer#getSizeT()} / {@link Pointer#setSizeT(long)} ; With an offset : {@link Pointer#getSizeT(long)} / {@link Pointer#setSizeT(long, long)} <br/>
+ *		#foreach ($sizePrim in ["SizeT", "CLong"])
+ *		{@link Pointer#get${sizePrim}()} / {@link Pointer#set${sizePrim}(long)} ; With an offset : {@link Pointer#get${sizePrim}(long)} / {@link Pointer#set${sizePrim}(long, long)} <br/>
+ *		#end
  *  </li>
  *	<li>Reading / writing an array of primitives from / to the pointed memory location :<br/>
- *		#foreach ($prim in $primitivesNoBool)
+ *		#foreach ($prim in $primitives)
  *		{@link Pointer#get${prim.CapName}s(int)} / {@link Pointer#set${prim.CapName}s(${prim.Name}[])} ; With an offset : {@link Pointer#get${prim.CapName}s(long, int)} / {@link Pointer#set${prim.CapName}s(long, ${prim.Name}[])}<br/>
  *       #end
- *		{@link Pointer#getSizeTs(int)} / {@link Pointer#setSizeTs(long[])} ; With an offset : {@link Pointer#getSizeTs(long, int)} / {@link Pointer#setSizeTs(long, long[])}<br/>
+ *		#foreach ($sizePrim in ["SizeT", "CLong"])
+ *		{@link Pointer#get${sizePrim}s(int)} / {@link Pointer#set${sizePrim}s(long[])} ; With an offset : {@link Pointer#get${sizePrim}s(long, int)} / {@link Pointer#set${sizePrim}s(long, long[])}<br/>
+ *		#end
  *  </li>
  *	<li>Reading / writing an NIO buffer of primitives from / to the pointed memory location :<br/>
  *		#foreach ($prim in $primitivesNoBool)
@@ -43,16 +47,20 @@ import java.nio.charset.Charset;
  *		{@link Pointer#getPointer(NativeObject)}
  *  </li>
  *	<li>Allocating a primitive with / without an initial value (zero-initialized) :<br/>
- *		#foreach ($prim in $primitivesNoBool)
+ *		#foreach ($prim in $primitives)
  *		{@link Pointer#pointerTo${prim.CapName}(${prim.Name})} / {@link Pointer#allocate${prim.CapName}()}<br/>
  *       #end
- *		{@link Pointer#pointerToSizeT(long)} / {@link Pointer#allocateSizeT()}<br/>
+ *		#foreach ($sizePrim in ["SizeT", "CLong"])
+ *		{@link Pointer#pointerTo${sizePrim}(long)} / {@link Pointer#allocate${sizePrim}()}<br/>
+ *		#end
  *  </li>
  *	<li>Allocating an array of primitives with / without initial values (zero-initialized) :<br/>
- *		#foreach ($prim in $primitivesNoBool)
+ *		#foreach ($prim in $primitives)
  *		{@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])} or {@link Pointer#pointerTo${prim.CapName}s(${prim.BufferName})} / {@link Pointer#allocate${prim.CapName}s(long)}<br/>
  *       #end
- *		{@link Pointer#pointerToSizeTs(long[])} / {@link Pointer#allocateSizeTs(long)}<br/>
+ *		#foreach ($sizePrim in ["SizeT", "CLong"])
+ *		{@link Pointer#pointerTo${sizePrim}s(long[])} / {@link Pointer#allocate${sizePrim}s(long)}<br/>
+ *		#end
  *		{@link Pointer#pointerToBuffer(Buffer)} / n/a<br/>
  *  </li>
  * </ul>
@@ -637,10 +645,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return set(0, value);
     }
     
-    void throwBecauseUntyped(String message) {
+    static void throwBecauseUntyped(String message) {
     	throw new RuntimeException("Pointer is not typed (call Pointer.asPointerTo(Type) to create a typed pointer) : " + message);
     }
-    void throwUnexpected(Throwable ex) {
+    static void throwUnexpected(Throwable ex) {
     	throw new RuntimeException("Unexpected error", ex);
     }
 	/**
@@ -854,17 +862,28 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     public static <V> Pointer<V> allocate(PointerIO<V> io) {
-    		return allocateBytes(io, io.getTargetSize(), null);
+    	int targetSize = io.getTargetSize();
+    	if (targetSize < 0)
+    		throwBecauseUntyped("Cannot allocate array ");
+		return allocateBytes(io, targetSize, null);
     }
     public static <V> Pointer<V> allocateArray(PointerIO<V> io, long arrayLength) {
-    		return allocateBytes(io, io.getTargetSize() * arrayLength, null);
+		int targetSize = io.getTargetSize();
+    	if (targetSize < 0)
+    		throwBecauseUntyped("Cannot allocate array ");
+		return allocateBytes(io, targetSize * arrayLength, null);
     }
     public static <V> Pointer<V> allocateArray(PointerIO<V> io, long arrayLength, final Releaser beforeDeallocation) {
-    		return allocateBytes(io, io.getTargetSize() * arrayLength, beforeDeallocation);
+		int targetSize = io.getTargetSize();
+    	if (targetSize < 0)
+    		throwBecauseUntyped("Cannot allocate array ");
+		return allocateBytes(io, targetSize * arrayLength, beforeDeallocation);
     }
     public static <V> Pointer<V> allocateBytes(PointerIO<V> io, long byteSize, final Releaser beforeDeallocation) {
         if (byteSize == 0)
         	return null;
+        if (byteSize < 0)
+        	throw new IllegalArgumentException("Cannot allocate a negative amount of memory !");
         
         long address = JNI.mallocNulled(byteSize);
         if (address == 0)
@@ -898,7 +917,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		if (arrayLength == 0)
 			return null;
 		
-        #foreach ($prim in $primitivesNoBool)
+        #foreach ($prim in $primitives)
         if (elementClass == ${prim.WrapperName}.TYPE || elementClass == ${prim.WrapperName}.class)
             return (Pointer<V>)allocateArray(PointerIO.get${prim.CapName}Instance(), arrayLength);
         #end
@@ -935,7 +954,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         throw new UnsupportedOperationException();
 	}
 
-#foreach ($prim in $primitivesNoBool)
+#foreach ($prim in $primitives)
     /**
      * Allocate enough memory for a single ${prim.Name} value, copy the value provided in argument into it and return a pointer to that memory.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
@@ -968,6 +987,28 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return mem;
     }
 	
+    /**
+     * Allocate enough memory for a ${prim.Name} value and return a pointer to it.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * @return pointer to a single zero-initialized ${prim.Name} value
+     */
+    public static Pointer<${prim.WrapperName}> allocate${prim.CapName}() {
+        return allocate(PointerIO.get${prim.CapName}Instance());
+    }
+    /**
+     * Allocate enough memory for arrayLength ${prim.Name} values and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The returned pointer is also an {@code Iterable<${prim.WrapperName}>} instance that can be safely iterated upon.
+     * @return pointer to arrayLength zero-initialized ${prim.Name} consecutive values
+     */
+    public static Pointer<${prim.WrapperName}> allocate${prim.CapName}s(long arrayLength) {
+        return allocateArray(PointerIO.get${prim.CapName}Instance(), arrayLength);
+    }
+
+#end
+#foreach ($prim in $primitivesNoBool)
+
 	/**
      * Create a pointer to the memory location used by a direct NIO ${prim.BufferName}}.<br/>
      * The returned pointer (and its subsequent clones returned by {@link #clone()}, {@link #offset(long)} or {@link #next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
@@ -991,24 +1032,6 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		//return pointerToAddress(address, size, io);
     }
 	
-    /**
-     * Allocate enough memory for a ${prim.Name} value and return a pointer to it.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * @return pointer to a single zero-initialized ${prim.Name} value
-     */
-    public static Pointer<${prim.WrapperName}> allocate${prim.CapName}() {
-        return allocate(PointerIO.get${prim.CapName}Instance());
-    }
-    /**
-     * Allocate enough memory for arrayLength ${prim.Name} values and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
-     * The returned pointer is also an {@code Iterable<${prim.WrapperName}>} instance that can be safely iterated upon.
-     * @return pointer to arrayLength zero-initialized ${prim.Name} consecutive values
-     */
-    public static Pointer<${prim.WrapperName}> allocate${prim.CapName}s(long arrayLength) {
-        return allocateArray(PointerIO.get${prim.CapName}Instance(), arrayLength);
-    }
 #end
     
     public Type getTargetType() {
@@ -1275,7 +1298,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     		copyTo(0, destination, 0, getRemainingBytes());
     }
 
-#foreach ($prim in $primitivesNoBool)
+#foreach ($prim in $primitives)
 
 	/**
 	 * Write a ${prim.Name} value to the pointed memory location
@@ -1288,7 +1311,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
 	 */
     public Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value) {
-    	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
+    	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double" && $prim.Name != "boolean")
 		if (isOrdered())
 			JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value);
 		else
@@ -1318,7 +1341,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Write an array of ${prim.Name} values of the specified length to the pointed memory location shifted by a byte offset, reading values at the given array offset and for the given length from the provided array.
 	 */
     public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length) {
-        #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
+        #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double" && $prim.Name != "boolean")
         if (isOrdered())
         	JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
         else
@@ -1330,6 +1353,53 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return this;
     }
     
+    /**
+	 * Read a ${prim.Name} value from the pointed memory location
+	 */
+    public ${prim.Name} get${prim.CapName}() {
+		return get${prim.CapName}(0);
+	}
+	
+    /**
+	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
+	 */
+    public ${prim.Name} get${prim.CapName}(long byteOffset) {
+        #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double" && $prim.Name != "boolean")
+        if (isOrdered())
+        	return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
+        else
+        	return JNI.get_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}));
+        #else
+        return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
+        #end
+        	
+    }
+
+    /**
+	 * Read an array of ${prim.Name} values of the specified length from the pointed memory location
+	 */
+    public ${prim.Name}[] get${prim.CapName}s(int length) {
+    	return get${prim.CapName}s(0, length);
+    }
+    
+    /**
+	 * Read an array of ${prim.Name} values of the specified length from the pointed memory location shifted by a byte offset
+	 */
+    public ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length) {
+        #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double" && $prim.Name != "boolean")
+        if (isOrdered())
+        	return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
+        else
+        	return JNI.get_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
+        #else
+        return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
+        #end
+        	
+    }
+    
+#end
+#foreach ($prim in $primitivesNoBool)
+
 	/**
 	 * Write a buffer of ${prim.Name} values of the specified length to the pointed memory location
 	 */
@@ -1387,51 +1457,6 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         #else
         return buffer.as${prim.BufferName}();
         #end
-    }
-    
-    
-	/**
-	 * Read a ${prim.Name} value from the pointed memory location
-	 */
-    public ${prim.Name} get${prim.CapName}() {
-		return get${prim.CapName}(0);
-	}
-	
-    /**
-	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
-	 */
-    public ${prim.Name} get${prim.CapName}(long byteOffset) {
-        #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
-        if (isOrdered())
-        	return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
-        else
-        	return JNI.get_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}));
-        #else
-        return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
-        #end
-        	
-    }
-
-    /**
-	 * Read an array of ${prim.Name} values of the specified length from the pointed memory location
-	 */
-    public ${prim.Name}[] get${prim.CapName}s(int length) {
-    	return get${prim.CapName}s(0, length);
-    }
-    
-    /**
-	 * Read an array of ${prim.Name} values of the specified length from the pointed memory location shifted by a byte offset
-	 */
-    public ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length) {
-        #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double")
-        if (isOrdered())
-        	return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
-        else
-        	return JNI.get_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
-        #else
-        return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
-        #end
-        	
     }
     
 #end
@@ -1643,7 +1668,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         if (io == null)
             throwBecauseUntyped("Cannot create sublist");
 
-        return next(fromIndex).validBytes((toIndex - fromIndex) * io.getTargetSize());
+        return next(fromIndex).validElements(toIndex - fromIndex);
 	}
 	
     @Deprecated
