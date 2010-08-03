@@ -77,14 +77,25 @@ class CommonPointerIOs {
 	
 	static class TypedPointerPointerIO<P extends TypedPointer> extends PointerIO<P> {
 		final java.lang.reflect.Constructor cons;
+		//final java.lang.reflect.Constructor cons2;
 		final Class<P> pointerClass;
 		public TypedPointerPointerIO(Class<P> pointerClass) {
 			super(pointerClass, Pointer.SIZE, null);
 			this.pointerClass = pointerClass;
 			try {
 				cons = pointerClass.getConstructor(long.class);
+				//cons2 = pointerClass.getConstructor(Pointer.class);
 			} catch (Exception ex) {
 				throw new RuntimeException("Cannot find constructor for " + pointerClass.getName(), ex);
+			}
+		}
+		
+		@Override
+		public P castTarget(long peer) {
+			try {
+				return (P)cons.newInstance(peer);
+			} catch (Exception ex) {
+				throw new RuntimeException("Cannot create pointer of type " + pointerClass.getName(), ex);
 			}
 		}
 		

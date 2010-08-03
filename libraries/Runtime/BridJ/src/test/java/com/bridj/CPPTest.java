@@ -93,11 +93,11 @@ public class CPPTest {
 		}
 		@Field(0) 
 		public int firstField() {
-			return this.peer.getInt(this.io.getFieldOffset(0));
+			return this.io.getIntField(this, 0);
 		}
 		@Field(0) 
 		public Ctest firstField(int firstField) {
-			this.peer.setInt(this.io.getFieldOffset(0), firstField);
+			this.io.setIntField(this, 0, firstField);
 			return this;
 		}
 		public final int firstField_$eq(int firstField) {
@@ -106,17 +106,19 @@ public class CPPTest {
 		}
 		@Field(1) 
 		public int secondField() {
-			return this.peer.getInt(this.io.getFieldOffset(1));
+			return this.io.getIntField(this, 1);
 		}
 		@Field(1) 
 		public Ctest secondField(int secondField) {
-			this.peer.setInt(this.io.getFieldOffset(1), secondField);
+			this.io.setIntField(this, 1, secondField);
 			return this;
 		}
 		public final int secondField_$eq(int secondField) {
 			secondField(secondField);
 			return secondField;
 		}
+		@Name("~Ctest") 
+		public native void CtestDestructor();
 		@Virtual(0) 
 		public native int testVirtualAdd(int a, int b);
 		public native int testAdd(int a, int b);
@@ -138,12 +140,12 @@ public class CPPTest {
 		/// C type : int*
 		@Field(0) 
 		public Pointer<java.lang.Integer > fState() {
-			return this.peer.getPointer(this.io.getFieldOffset(0), java.lang.Integer.class);
+			return this.io.getPointerField(this, 0, java.lang.Integer.class);
 		}
 		/// C type : int*
 		@Field(0) 
 		public Ctest2 fState(Pointer<java.lang.Integer > fState) {
-			this.peer.setPointer(this.io.getFieldOffset(0), fState);
+			this.io.setPointerField(this, 0, fState);
 			return this;
 		}
 		/// C type : int*
@@ -153,11 +155,11 @@ public class CPPTest {
 		}
 		@Field(1) 
 		public int fDestructedState() {
-			return this.peer.getInt(this.io.getFieldOffset(1));
+			return this.io.getIntField(this, 1);
 		}
 		@Field(1) 
 		public Ctest2 fDestructedState(int fDestructedState) {
-			this.peer.setInt(this.io.getFieldOffset(1), fDestructedState);
+			this.io.setIntField(this, 1, fDestructedState);
 			return this;
 		}
 		public final int fDestructedState_$eq(int fDestructedState) {

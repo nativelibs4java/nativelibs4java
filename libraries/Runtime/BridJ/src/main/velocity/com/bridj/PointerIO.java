@@ -22,6 +22,10 @@ public abstract class PointerIO<T> {
 	abstract T get(Pointer<T> pointer, long index);
 	abstract void set(Pointer<T> pointer, long index, T value);
 	
+	public T castTarget(long peer) {
+		throw new UnsupportedOperationException("Cannot cast pointer to " + targetType);
+	}
+	
 	PointerIO<Pointer<T>> getReferenceIO() {
 		return new CommonPointerIOs.PointerPointerIO<T>(this);
 	}

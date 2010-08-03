@@ -54,7 +54,7 @@ public class ComparisonTest {
      */
     @Test
     public void perfTest() {
-    	
+    	//if (true) return;
 		//com.sun.jna.Native.setProtected(true);
         TestLib test = null;
         try {
@@ -268,6 +268,7 @@ public class ComparisonTest {
     
     @Test
 	public void compareStructCreations() throws InterruptedException {
+		//if (true) return;
 		
 		long n = 100000;
 		long warmup = 2000;
@@ -343,6 +344,7 @@ public class ComparisonTest {
 	
 	@Test
 	public void compareStructCasts() throws InterruptedException {
+		//if (true) return;
 		
 		long n = 100000;
 		long warmup = 2000;
@@ -419,6 +421,7 @@ public class ComparisonTest {
 	}
 	@Test
 	public void compareStructArrayCasts() throws InterruptedException {
+		//if (true) return;
 		
 		long n = 100000;
 		long warmup = 2000;
@@ -516,6 +519,8 @@ public class ComparisonTest {
 	
 	@Test
 	public void compareFieldsAccess() throws InterruptedException {
+		//if (true) return;
+		
 		long n = 1000000;
 		long warmup = 2000;
 		Pointer pBridJ = allocateBytes(100);
@@ -534,16 +539,16 @@ public class ComparisonTest {
 		}
 		
 		for (int i = 0; i < warmup; i++) {
-			nio.a(nio.a() + 1);
-			nio.b(nio.a() + nio.b());
-		}
-		
-		for (int i = 0; i < warmup; i++) {
 			jna.a = jna.a + 1;
 			jna.b = jna.a + jna.b;
 			//jna.writeField("b");
 			//jna.writeField("b");
 			jna.write();
+		}
+		
+		for (int i = 0; i < warmup; i++) {
+			nio.a(nio.a() + 1);
+			nio.b(nio.a() + nio.b());
 		}
 		
 		for (int i = 0; i < warmup; i++) {
@@ -568,19 +573,6 @@ public class ComparisonTest {
 			
 			timeNIO = System.nanoTime() - start;
 		}
-		doGC();
-		{
-			long start = System.nanoTime();
-			for (int i = 0; i < n; i++) {
-				jna.a = jna.a + 1;
-				jna.b = jna.a + jna.b;
-				//jna.writeField("b");
-				//jna.writeField("b");
-				jna.write();
-			}
-			
-			timeJNA = System.nanoTime() - start;
-		}
         doGC();
 		{
 			long start = System.nanoTime();
@@ -595,26 +587,38 @@ public class ComparisonTest {
 		{
 			long start = System.nanoTime();
 			for (int i = 0; i < n; i++) {
-				bridJ.a(bridJ.a() + 1);
-				bridJ.b(bridJ.a() + bridJ.b());
-			}
-			
-			timeBridJ = System.nanoTime() - start;
-		}
-		
-        doGC();
-		{
-			long start = System.nanoTime();
-			for (int i = 0; i < n; i++) {
 				javo.a.set(javo.a.get() + 1);
 				javo.b.set(javo.a.get() + javo.b.get());
 			}
 			
 			timeJavolution = System.nanoTime() - start;
 		}
+		doGC();
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++) {
+				jna.a = jna.a + 1;
+				jna.b = jna.a + jna.b;
+				//jna.writeField("b");
+				//jna.writeField("b");
+				jna.write();
+			}
+			
+			timeJNA = System.nanoTime() - start;
+		} // */
+		doGC();
+		{
+			long start = System.nanoTime();
+			for (int i = 0; i < n; i++) {
+				bridJ.a(bridJ.a() + 1);
+				bridJ.b(bridJ.a() + bridJ.b());
+			}
+			
+			timeBridJ = System.nanoTime() - start;
+		}
         double bridJFaster = printResults("Fields read/write", "Read/write of BridJ's struct fields", "read/write", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-        assertTrue(bridJFaster > 2); // */
+        assertTrue(bridJFaster > 3); // */
 	}
     static double printResults(String title, String longOp, String op, long n, long timeJNA, long timeOptimal, long timeBridJ, long timeNIO, long timeJavolution) {
         System.err.println("#");

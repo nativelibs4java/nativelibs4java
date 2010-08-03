@@ -18,19 +18,19 @@ public class StructTest {
         public MyStruct() { super(); }
         @Field(0)
 		public int a() {
-			return peer.getInt(io.getFieldOffset(0));
+			return io.getIntField(this, 0);
         }
         public MyStruct a(int a) {
-            peer.setInt(io.getFieldOffset(0), a);
+            io.setIntField(this, 0, a);
             return this;
         }
         
         @Field(1)
 		public double b() {
-			return peer.getDouble(io.getFieldOffset(1));
+			return io.getDoubleField(this, 1);
         }
         public MyStruct b(double b) {
-            peer.setDouble(io.getFieldOffset(1), b);
+            io.setDoubleField(this, 1, b);
             return this;
         }
 	}/*
@@ -89,8 +89,8 @@ public class StructTest {
         static {
             StructIO io = StructIO.getInstance(MyOptimalStruct.class, MyOptimalStruct.class);
             io.build();
-            aOffset = io.getFieldOffset(0);
-            bOffset = io.getFieldOffset(1);
+            aOffset = io.fields[0].byteOffset;
+            bOffset = io.fields[1].byteOffset;
         }
 		public MyOptimalStruct(ByteBuffer p) {//com.sun.jna.Pointer p) {
             this.pointer = p;
@@ -139,10 +139,10 @@ public class StructTest {
         }
 		@Field(0)
 		public int a() {
-			return this.peer.getInt(this.io.getFieldOffset(0));
+			return this.io.getIntField(this, 0);
 		}
         public void a(int a) {
-			this.peer.setInt(this.io.getFieldOffset(0), a);
+			this.io.setIntField(this, 0, a);
 		}
 		//public native CastStruct a(int a);
 
@@ -162,10 +162,10 @@ public class StructTest {
 
 		@Field(0)
 		public int a() {
-			return this.peer.getInt(this.io.getFieldOffset(0));
+			return this.io.getIntField(this, 0);
 		}
 		public ArrStruct a(int a) {
-			this.peer.setInt(this.io.getFieldOffset(0));
+			this.io.setIntField(this, 0, a);
 			return this;
 		}
 
@@ -186,10 +186,10 @@ public class StructTest {
 
 		@Field(0)
 		public int a() {
-            return peer.getInt(io.getFieldOffset(0));
+            return io.getIntField(this, 0);
         }
 		public ThisStruct a(int a) {
-            peer.setInt(io.getFieldOffset(0), a);
+            io.setIntField(this, 0, a);
             return this;
         }
 

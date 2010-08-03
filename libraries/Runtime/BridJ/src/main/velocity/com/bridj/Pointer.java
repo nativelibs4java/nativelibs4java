@@ -153,15 +153,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     
     protected final long getCheckedPeer(long byteOffset, long validityCheckLength) {
 		long offsetPeer = getPeer() + byteOffset;
-		checkPeer(offsetPeer, validityCheckLength);
+		if (validStart != UNKNOWN_VALIDITY) {
+			if (offsetPeer < validStart || (offsetPeer + validityCheckLength) > validEnd)
+				throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + (offsetPeer - getPeer()) + " : valid memory start is " + validStart + ", valid memory size is " + (validEnd - validStart));
+		}
 		return offsetPeer;
-    }
-    protected final void checkPeer(long peerToCheck, long validityCheckLength) {
-		if (validStart == UNKNOWN_VALIDITY)
-			return;
-		
-    	if (peerToCheck < validStart || (peerToCheck + validityCheckLength) > validEnd)
-            throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + (peerToCheck - getPeer()) + " : valid memory start is " + validStart + ", valid memory size is " + (validEnd - validStart));
     }
 
     /**
