@@ -129,6 +129,17 @@ class CommonPointerIOs {
 		}		
 	};
 	
+	public static final PointerIO<CLong> clongIO = new PointerIO<CLong>(CLong.class, CLong.SIZE, null) {
+		@Override
+		public CLong get(Pointer<CLong> pointer, long index) {
+			return new CLong(pointer.getCLong(index * CLong.SIZE));
+		}
+		@Override
+		public void set(Pointer<CLong> pointer, long index, CLong value) {
+			pointer.setCLong(index * CLong.SIZE, value == null ? 0 : value.longValue());
+		}		
+	};
+	
 	
 
 	/*public static final PointerIO<Integer> intIO = new PointerIO<Integer>(Integer.class, 4, null) {

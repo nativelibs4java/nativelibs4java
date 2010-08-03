@@ -906,6 +906,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
             return (Pointer<V>)allocateArray(PointerIO.getPointerInstance(elementClass), arrayLength); // TODO
         if (SizeT.class.isAssignableFrom(elementClass))
             return (Pointer<V>)allocateArray(PointerIO.getSizeTInstance(), arrayLength); // TODO
+        if (CLong.class.isAssignableFrom(elementClass))
+            return (Pointer<V>)allocateArray(PointerIO.getCLongInstance(), arrayLength); // TODO
         if (StructObject.class.isAssignableFrom(elementClass)) {
         	CRuntime runtime = (CRuntime)BridJ.getRuntime(elementClass);
         	StructIO sio = StructIO.getInstance(elementClass, elementClass);
@@ -1049,29 +1051,29 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return this;
 	}
 	
-	static final boolean is64 = JNI.POINTER_SIZE == 8; 
-	
-	public static Pointer<SizeT> pointerToSizeT(long value) {
-		Pointer<SizeT> p = allocate(PointerIO.getSizeTInstance());
-		p.setSizeT(0, value);
+	#foreach ($sizePrim in ["SizeT", "CLong"])
+	public static Pointer<${sizePrim}> pointerTo${sizePrim}(long value) {
+		Pointer<${sizePrim}> p = allocate(PointerIO.get${sizePrim}Instance());
+		p.set${sizePrim}(0, value);
 		return p;
 	}
-	public static Pointer<SizeT> pointerToSizeTs(long... values) {
+	public static Pointer<${sizePrim}> pointerTo${sizePrim}s(long... values) {
 		if (values == null)
 			return null;
-		return allocateArray(PointerIO.getSizeTInstance(), values.length).setSizeTs(0, values);
+		return allocateArray(PointerIO.get${sizePrim}Instance(), values.length).set${sizePrim}s(0, values);
 	}
-	public static Pointer<SizeT> pointerToSizeTs(SizeT[] values) {
+	public static Pointer<${sizePrim}> pointerTo${sizePrim}s(${sizePrim}[] values) {
 		if (values == null)
 			return null;
-		return allocateArray(PointerIO.getSizeTInstance(), values.length).setSizeTs(0, values);
+		return allocateArray(PointerIO.get${sizePrim}Instance(), values.length).set${sizePrim}s(0, values);
 	}
 	
-	public static Pointer<SizeT> pointerToSizeTs(int[] values) {
+	public static Pointer<${sizePrim}> pointerTo${sizePrim}s(int[] values) {
 		if (values == null)
 			return null;
-		return allocateArray(PointerIO.getSizeTInstance(), values.length).setSizeTs(0, values);
+		return allocateArray(PointerIO.get${sizePrim}Instance(), values.length).set${sizePrim}s(0, values);
 	}
+	#end
 	
 	public static <T> Pointer<Pointer<T>> pointerToPointer(Pointer<T> value) {
 		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocate(PointerIO.getPointerInstance());
@@ -1089,48 +1091,50 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return p;
 	}
 	
+	#foreach ($sizePrim in ["SizeT", "CLong"])
+	
 	/**
      * Allocate enough memory for arrayLength size_t values and return a pointer to that memory.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
      * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
-     * The returned pointer is also an {@code Iterable<SizeT>} instance that can be safely iterated upon.
+     * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon.
      * @return pointer to arrayLength zero-initialized ${prim.Name} consecutive values
      */
-    public static Pointer<SizeT> allocateSizeTs(long arrayLength) {
-		return allocateArray(PointerIO.getSizeTInstance(), arrayLength);
+    public static Pointer<${sizePrim}> allocate${sizePrim}s(long arrayLength) {
+		return allocateArray(PointerIO.get${sizePrim}Instance(), arrayLength);
 	}
 	/**
      * Allocate enough memory for a size_t value and return a pointer to it.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
      * @return pointer to a single zero-initialized size_t value
      */
-    public static Pointer<SizeT> allocateSizeT() {
-		return allocate(PointerIO.getSizeTInstance());
+    public static Pointer<${sizePrim}> allocate${sizePrim}() {
+		return allocate(PointerIO.get${sizePrim}Instance());
 	}
 	
 	/**
      * Read a size_t value from the pointed memory location
      */
-    public long getSizeT() {
-		return getSizeT(0);
+    public long get${sizePrim}() {
+		return get${sizePrim}(0);
 	}
 	/**
      * Read a size_t value from the pointed memory location shifted by a byte offset
      */
-    public long getSizeT(long byteOffset) {
-		return is64 ? getLong(byteOffset) : 0xffffffffL & getInt(byteOffset);
+    public long get${sizePrim}(long byteOffset) {
+		return ${sizePrim}.SIZE == 8 ? getLong(byteOffset) : 0xffffffffL & getInt(byteOffset);
 	}
 	/**
      * Read an array of size_t values of the specified size from the pointed memory location
      */
-    public long[] getSizeTs(int arrayLength) {
-		return getSizeTs(0, arrayLength);
+    public long[] get${sizePrim}s(int arrayLength) {
+		return get${sizePrim}s(0, arrayLength);
 	}
 	/**
      * Read an array of size_t values of the specified size from the pointed memory location shifted by a byte offset
      */
-    public long[] getSizeTs(long byteOffset, int arrayLength) {
-		if (is64)  
+    public long[] get${sizePrim}s(long byteOffset, int arrayLength) {
+		if (${sizePrim}.SIZE == 8)  
 			return getLongs(byteOffset, arrayLength);
 		
 		int[] values = getInts(byteOffset, arrayLength);
@@ -1144,20 +1148,20 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Write a size_t value to the pointed memory location
      */
-    public Pointer<T> setSizeT(long value) {
-		return setSizeT(0, value);
+    public Pointer<T> set${sizePrim}(long value) {
+		return set${sizePrim}(0, value);
 	}
     /**
      * Write a size_t value to the pointed memory location
      */
-    public Pointer<T> setSizeT(SizeT value) {
-		return setSizeT(0, value);
+    public Pointer<T> set${sizePrim}(${sizePrim} value) {
+		return set${sizePrim}(0, value);
 	}
     /**
      * Write a size_t value to the pointed memory location shifted by a byte offset
      */
-    public Pointer<T> setSizeT(long byteOffset, long value) {
-		if (is64)
+    public Pointer<T> set${sizePrim}(long byteOffset, long value) {
+		if (${sizePrim}.SIZE == 8)
 			setLong(byteOffset, value);
 		else {
 			setInt(byteOffset, SizeT.safeIntCast(value));
@@ -1168,32 +1172,32 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     /**
      * Write a size_t value to the pointed memory location shifted by a byte offset
      */
-    public Pointer<T> setSizeT(long byteOffset, SizeT value) {
-		return setSizeT(byteOffset, value.longValue());
+    public Pointer<T> set${sizePrim}(long byteOffset, ${sizePrim} value) {
+		return set${sizePrim}(byteOffset, value.longValue());
 	}
 	/**
      * Write an array of size_t values to the pointed memory location
      */
-    public Pointer<T> setSizeTs(long[] values) {
-		return setSizeTs(0, values);
+    public Pointer<T> set${sizePrim}s(long[] values) {
+		return set${sizePrim}s(0, values);
 	}
 	/**
      * Write an array of size_t values to the pointed memory location
      */
-    public Pointer<T> setSizeTs(int[] values) {
-		return setSizeTs(0, values);
+    public Pointer<T> set${sizePrim}s(int[] values) {
+		return set${sizePrim}s(0, values);
 	}
 	/**
      * Write an array of size_t values to the pointed memory location
      */
-    public Pointer<T> setSizeTs(SizeT[] values) {
-		return setSizeTs(0, values);
+    public Pointer<T> set${sizePrim}s(${sizePrim}[] values) {
+		return set${sizePrim}s(0, values);
 	}
 	/**
      * Write an array of size_t values to the pointed memory location shifted by a byte offset
      */
-    public Pointer<T> setSizeTs(long byteOffset, long[] values) {
-		if (is64) {
+    public Pointer<T> set${sizePrim}s(long byteOffset, long[] values) {
+		if (${sizePrim}.SIZE == 8) {
 			setLongs(byteOffset, values);
 		} else {
 			int n = values.length, s = 4;
@@ -1205,19 +1209,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Write an array of size_t values to the pointed memory location shifted by a byte offset
      */
-    public Pointer<T> setSizeTs(long byteOffset, SizeT... values) {
+    public Pointer<T> set${sizePrim}s(long byteOffset, ${sizePrim}... values) {
 		if (values == null)
 			throw new IllegalArgumentException("Null values");
 		int n = values.length, s = 4;
 		for (int i = 0; i < n; i++)
-			setSizeT(i * s, values[i].longValue());
+			set${sizePrim}(i * s, values[i].longValue());
 		return this;
 	}
 	/**
      * Write an array of size_t values to the pointed memory location shifted by a byte offset
      */
-    public Pointer<T> setSizeTs(long byteOffset, int[] values) {
-		if (!is64) {
+    public Pointer<T> set${sizePrim}s(long byteOffset, int[] values) {
+		if (${sizePrim}.SIZE == 4) {
 			setInts(byteOffset, values);
 		} else {
 			int n = values.length, s = 8;
@@ -1226,6 +1230,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		}
 		return this;
 	}
+	
+	#end
 	
 	static Class<?> getPrimitiveType(Buffer buffer) {
 

@@ -82,6 +82,8 @@ public abstract class PointerIO<T> {
             	io = new CommonPointerIOs.TypedPointerPointerIO((Class<? extends TypedPointer>)cl);
             else if (cl != null && SizeT.class.isAssignableFrom(cl))
                 io = CommonPointerIOs.sizeTIO;
+			else if (cl != null && CLong.class.isAssignableFrom(cl))
+                io = CommonPointerIOs.clongIO;
 			else if (cl != null && StructObject.class.isAssignableFrom(cl))
 				io = getInstance(StructIO.getInstance((Class)cl, type));
             else if (cl != null && Callback.class.isAssignableFrom(cl))
@@ -103,6 +105,14 @@ public abstract class PointerIO<T> {
         if (sizeTInstance == null)
             sizeTInstance = getInstance(SizeT.class);
         return sizeTInstance;
+	}
+
+    static PointerIO<CLong> clongInstance;
+
+    public static PointerIO<CLong> getCLongInstance() {
+        if (clongInstance == null)
+            clongInstance = getInstance(CLong.class);
+        return clongInstance;
 	}
 
     #foreach ($prim in $primitivesNoBool)

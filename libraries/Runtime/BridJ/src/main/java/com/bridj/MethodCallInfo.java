@@ -178,7 +178,7 @@ public class MethodCallInfo {
     	Ptr sz = BridJ.getAnnotation(Ptr.class, true, element, directAnnotations);
     	Constructor cons = this.method.getAnnotation(Constructor.class);
     	//This th = BridJ.getAnnotation(This.class, true, element, directAnnotations);
-    	CLong cl = BridJ.getAnnotation(CLong.class, true, element, directAnnotations);
+    	com.bridj.ann.CLong cl = BridJ.getAnnotation(com.bridj.ann.CLong.class, true, element, directAnnotations);
         
     	if (sz != null || cons != null || cl != null) {
     		if (!(c == Long.class || c == Long.TYPE))
