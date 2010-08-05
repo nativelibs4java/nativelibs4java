@@ -244,20 +244,21 @@ public class StructIO {
 		List<FieldDecl> list = listFields();
 		orderFields(list);
 		
-		if (isVirtual()) {
-			FieldDecl d = new FieldDecl();
-			d.byteLength = Pointer.SIZE;
-			d.valueType = d.valueClass = Pointer.class;
-			d.name = "vtablePtr";
-			list.add(0, d);
-		}
-
-        Alignment alignment = structClass.getAnnotation(Alignment.class);
+		Alignment alignment = structClass.getAnnotation(Alignment.class);
         structAlignment = alignment != null ? alignment.value() : 1; //TODO get platform default alignment
 
         //int fieldCount = 0;
         int refreshableFieldCount = 0;
         structSize = 0;
+        if (isVirtual()) {
+        	structSize += Pointer.SIZE;
+			/*FieldDecl d = new FieldDecl();
+			d.byteLength = Pointer.SIZE;
+			d.valueType = d.valueClass = Pointer.class;
+			d.name = "vtablePtr";
+			list.add(0, d);*/
+		}
+
         int cumulativeBitOffset = 0;
         for (FieldDecl field : list) {
             field.desc.byteOffset = structSize;

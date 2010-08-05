@@ -28,9 +28,9 @@ public class CPPObject extends StructObject {
     public CPPObject(int constructorId, Object... args) {
         super(constructorId, args);
     }
-    
+    /*
     @Override
     protected void finalize() throws Throwable {
     		BridJ.deallocate(this);
-    }
+    }*/
 }
