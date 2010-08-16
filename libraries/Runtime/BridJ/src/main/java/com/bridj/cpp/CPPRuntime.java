@@ -139,6 +139,7 @@ public class CPPRuntime extends CRuntime {
                 //if (!JNI.is64Bits() && JNI.isWindows())
                 //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
                 builder.addMethodFunction(mci);
+                //builder.addFunction(mci);
                 log(Level.INFO, "Registering " + method + " as C++ method " + symbol.getName());
             }
         } else {

@@ -53,7 +53,7 @@ public class NativeEntities {
 		}
 		public void addMethodFunction(MethodCallInfo info) {
 			cppMethodInfos.add(info);
-		}
+		}//*/
 		public void addObjCMethod(MethodCallInfo info) {
 			objcMethodInfos.add(info);
 		}
@@ -102,7 +102,7 @@ public class NativeEntities {
 		n = builder.cppMethodInfos.size();
 		if (n != 0)
 			cppMethods.put(type, new CBInfo(JNI.bindJavaMethodsToCPPMethods(builder.cppMethodInfos.toArray(new MethodCallInfo[n])), n));
-
+		//*/
 		n = builder.objcMethodInfos.size();
 		if (n != 0)
 			objcMethodInfos.put(type, new CBInfo(JNI.bindJavaMethodsToObjCMethods(builder.objcMethodInfos.toArray(new MethodCallInfo[n])), n));
