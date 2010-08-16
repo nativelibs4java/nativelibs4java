@@ -314,6 +314,7 @@ public class BridJ {
     static synchronized List<String> getNativeLibraryPaths() {
         if (paths == null) {
             paths = new ArrayList<String>();
+            paths.add(null);
             paths.add(".");
 			String env;
 			env = System.getenv("LD_LIBRARY_PATH");
@@ -354,44 +355,48 @@ public class BridJ {
         if (name == null)
             return null;
         
+        //System.out.println("Getting file of '" + name + "'");
         String actualName = libraryActualNames.get(name);
         if (actualName != null)
             name = actualName;
         for (String path : getNativeLibraryPaths()) {
             File pathFile;
             try {
-                pathFile = new File(path).getCanonicalFile();
+                pathFile = path == null ? null : new File(path).getCanonicalFile();
             } catch (IOException ex) {
                 log(Level.SEVERE, null, ex);
                 continue;
             }
             File f = new File(name);
-            if (JNI.isWindows()) {
-                if (!f.exists()) {
-                    f = new File(pathFile, name + ".dll");
-                }
-                if (!f.exists()) {
-                    f = new File(pathFile, name + ".drv");
-                }
-			} else if (JNI.isUnix()) {
-                if (JNI.isMacOSX()) {
-                    if (!f.exists()) {
-                        f = new File(pathFile, "lib" + name + ".dylib");
-            }
-                } else {
-                    if (!f.exists()) {
-                        f = new File(pathFile, "lib" + name + ".so");
-                    }
-                    if (!f.exists()) {
-                        f = new File(pathFile, name + ".so");
-                    }
-                }
-                if (!f.exists()) {
-                    f = new File(pathFile, "lib" + name + ".jnilib");
-                }
-            }
+            if (pathFile != null) {
+				if (JNI.isWindows()) {
+					if (!f.exists()) {
+						f = new File(pathFile, name + ".dll");
+					}
+					if (!f.exists()) {
+						f = new File(pathFile, name + ".drv");
+					}
+				} else if (JNI.isUnix()) {
+					if (JNI.isMacOSX()) {
+						if (!f.exists()) {
+							f = new File(pathFile, "lib" + name + ".dylib");
+				}
+					} else {
+						if (!f.exists()) {
+							f = new File(pathFile, "lib" + name + ".so");
+						}
+						if (!f.exists()) {
+							f = new File(pathFile, name + ".so");
+						}
+					}
+					if (!f.exists()) {
+						f = new File(pathFile, "lib" + name + ".jnilib");
+					}
+				}
+			}
 
             if (!f.exists()) {
+            	//System.err.println("File '" + f + "' does not exist");
                 continue;
             }
 

@@ -38,7 +38,7 @@ public class MethodCallInfo {
 	String javaSignature;
 	String asmSignature;
 	Callback javaCallback;
-	private int index = -1;
+	int virtualIndex = -1;
 	int virtualTableOffset = 0;
     private int dcCallingConvention = DC_CALL_C_DEFAULT;
 
@@ -401,13 +401,14 @@ public class MethodCallInfo {
 	 * Used for C++ virtual indexes and for struct fields ids
 	 * @param index
 	 */
-	public void setIndex(int index) {
-		this.index = index;
+	public void setVirtualIndex(int virtualIndex) {
+		//new RuntimeException("Setting virtualIndex of " + getMethod().getName() + " = " + virtualIndex).printStackTrace();
+		this.virtualIndex = virtualIndex;
 	}
 
 
 	public int getVirtualIndex() {
-		return index;
+		return virtualIndex;
 	}
 
 	public String getSymbolName() {

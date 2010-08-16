@@ -10,6 +10,7 @@
 #pragma warning(disable: 4100) // unreferenced formal parameter
 #pragma warning(disable: 4706) // assignment inside a conditional expression
 #pragma warning(disable: 4054) // casting a function pointer to a data pointer
+#pragma warning(disable: 4996)
 
 #ifndef _WIN32
 #define __cdecl
@@ -154,6 +155,13 @@ jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO);
 void callSinglePointerArgVoidFunction(JNIEnv *env, void* constructor, void* thisPtr, int callMode);
 jlong getFlagValue(JNIEnv *env, jobject flagSet);
 jobject newFlagSet(JNIEnv *env, jlong value);
+
+#define THROW_EXCEPTION(env, message, ...) \
+{ \
+	char err[256]; \
+	sprintf(err, message, ##__VA_ARGS__); \
+	throwException(env, err); \
+}
 
 void throwException(JNIEnv* env, const char* message);
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message);

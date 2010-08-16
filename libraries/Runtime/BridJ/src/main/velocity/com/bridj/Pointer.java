@@ -77,6 +77,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     
     
 	private static long UNKNOWN_VALIDITY = -1;
+	private static long NO_PARENT = 0/*-1*/;
 	
 	private final PointerIO<T> io;
 	private final long peer, offsetInParent;
@@ -85,15 +86,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	private final long validStart, validEnd;
 	private final boolean ordered;
 
-	private volatile Releaser releaser;
 	public interface Releaser {
 		void release(Pointer<?> p);
 	}
 	
 	Pointer(PointerIO<T> io, long peer) {
-		this(io, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, 0, null, null);
+		this(io, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, 0, null);
 	}
-	Pointer(PointerIO<T> io, long peer, boolean ordered, long validStart, long validEnd, Pointer<?> parent, long offsetInParent, Object sibling, Releaser releaser) {
+	Pointer(PointerIO<T> io, long peer, boolean ordered, long validStart, long validEnd, Pointer<?> parent, long offsetInParent, Object sibling) {
 		this.io = io;
 		this.peer = peer;
 		this.ordered = ordered;
@@ -102,15 +102,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		this.parent = parent;
 		this.offsetInParent = offsetInParent;
 		this.sibling = sibling;
-		this.releaser = releaser;
-		assert !(sibling != null && releaser != null); // Pointer with both a sibling and a releaser !
 	}
-	public synchronized void release() {
-		if (releaser != null) {
-			releaser.release(this);
-			releaser = null;
-		}
-	}
+	public void release() {}
 
 	/**
 	 * Compare to another pointer based on pointed addresses.
@@ -151,12 +144,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return hc;
     }
     
-    protected final long getCheckedPeer(long byteOffset, long validityCheckLength) {
+    private final long getCheckedPeer(long byteOffset, long validityCheckLength) {
 		long offsetPeer = getPeer() + byteOffset;
+		///*
 		if (validStart != UNKNOWN_VALIDITY) {
 			if (offsetPeer < validStart || (offsetPeer + validityCheckLength) > validEnd)
 				throw new IndexOutOfBoundsException("Cannot access to memory data of length " + validityCheckLength + " at offset " + (offsetPeer - getPeer()) + " : valid memory start is " + validStart + ", valid memory size is " + (validEnd - validStart));
 		}
+		//*/
 		return offsetPeer;
     }
 
@@ -177,11 +172,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		
 		Object newSibling = getSibling() != null ? getSibling() : this;
 		if (validStart == UNKNOWN_VALIDITY)
-			return new Pointer<U>(pio, newPeer, ordered, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, 0, newSibling, releaser);	
+			return newPointer(pio, newPeer, ordered, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, newSibling);	
 		if (newPeer >= validEnd || newPeer < validStart)
 			throw new IndexOutOfBoundsException("Invalid pointer offset !");
 		
-		return new Pointer<U>(pio, newPeer, ordered, validStart, validEnd, null, 0, newSibling, null);    	
+		return newPointer(pio, newPeer, ordered, validStart, validEnd, null, NO_PARENT, null, newSibling);	
 	}
 	
 	/**
@@ -198,7 +193,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 			throw new IndexOutOfBoundsException("Cannot extend validity of pointed memory from " + validEnd + " to " + newValidEnd);
 		
 		Object newSibling = getSibling() != null ? getSibling() : this;
-		return new Pointer<T>(getIO(), peer, ordered, peer, newValidEnd, null, 0, newSibling, null);    	
+		return newPointer(getIO(), peer, ordered, peer, newValidEnd, parent, offsetInParent, null, newSibling);    	
 	}
 	
 	/**
@@ -274,7 +269,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     	if (newIO == io && ordered == isOrdered())
     		return (Pointer<U>)this;
     	else
-    		return new Pointer<U>(newIO, getPeer(), ordered, getValidStart(), getValidEnd(), getParent(), getOffsetInParent(), getSibling() != null ? getSibling() : this, null);
+    		return newPointer(newIO, getPeer(), ordered, getValidStart(), getValidEnd(), getParent(), getOffsetInParent(), null, getSibling() != null ? getSibling() : this);
     }
 
     public final PointerIO<T> getIO() {
@@ -293,9 +288,6 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return sibling;
 	}
     
-    protected final Releaser getReleaser() {
-		return releaser;
-	}
     protected final long getValidEnd() {
 		return validEnd;
 	}
@@ -329,7 +321,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     	long value = getSizeT(byteOffset);
     	if (value == 0)
     		return null;
-    	return new Pointer<U>(pio, value, isOrdered(), UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, this, byteOffset, null, null);
+    	return newPointer(pio, value, isOrdered(), UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, this, byteOffset, null, null);
     }
 
     /**
@@ -741,61 +733,83 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 
     @Deprecated
     public static Pointer<?> pointerToAddress(long address) {
-        return address == 0 ? null : new Pointer(null, address);
+        return newPointer(null, address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, null);
     }
 
     @Deprecated
     public static Pointer<?> pointerToAddress(long address, long size) {
-        return pointerToAddress(address, size, null, null);
+        return newPointer(null, address, true, address, address + size, null, NO_PARENT, null, null);
     }
     
     public static Pointer<?> pointerToAddress(long address, Class<?> type, final Releaser releaser) {
-        return pointerToAddress(address, PointerIO.getInstance(type), releaser);
+        return newPointer(PointerIO.getInstance(type), address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, null, null);
     }
     static <P> Pointer<P> pointerToAddress(long address, PointerIO<P> io) {
-        return pointerToAddress(address, UNKNOWN_VALIDITY, io, null);
+    	return newPointer(io, address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, null);
 	}
 	static <P> Pointer<P> pointerToAddress(long address, PointerIO<P> io, Releaser releaser) {
-        return pointerToAddress(address, UNKNOWN_VALIDITY, io, releaser);
+    	return newPointer(io, address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, releaser, null);
 	}
-	static <U> Pointer<U> pointerToAddress(long address, long size, PointerIO<U> io) {
-		return pointerToAddress(address, size, io, null);
-	}
-	static <U> Pointer<U> pointerToAddress(long address, long size, PointerIO<U> io, Releaser releaser) {
-		if (address == 0)
-			return null;
-		
-		long start, end;
-		if (size == UNKNOWN_VALIDITY)
-			start = end = UNKNOWN_VALIDITY;
-		else {
-			start = address;
-			end = address + size;
-		}
-		if (releaser == null)
-			return new Pointer<U>(io, address, true, start, end, null, -1, null, null);
-        else
-			return new Pointer<U>(io, address, true, start, end, null, -1, null, releaser) {
-				protected void finalize() {
-					release();
-				}
-			};
-    }
+	
 	
 	@Deprecated
     public static Pointer<?> pointerToAddress(long address, Releaser releaser) {
-		return pointerToAddress(address, UNKNOWN_VALIDITY, null, releaser);
+		return newPointer(null, address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, releaser, null);
 	}
     
 	public static Pointer<?> pointerToAddress(long address, long size, Releaser releaser) {
-        return pointerToAddress(address, size, null, releaser);
+        return newPointer(null, address, true, address, address + size, null, NO_PARENT, releaser, null);
     }
 	
 	@Deprecated
     public static <P> Pointer<P> pointerToAddress(long address, Class<P> targetClass) {
-        return pointerToAddress(address, UNKNOWN_VALIDITY, (PointerIO<P>)PointerIO.getInstance(targetClass), null);
+    	return newPointer((PointerIO<P>)PointerIO.getInstance(targetClass), address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, null, null);
     }
-
+    
+	static <U> Pointer<U> pointerToAddress(long address, long size, PointerIO<U> io) {
+    	return newPointer(io, address, true, address, address + size, null, NO_PARENT, null, null);
+	}
+	
+	static <U> Pointer<U> newPointer(
+		PointerIO<U> io, 
+		long peer, 
+		boolean ordered, 
+		long validStart, 
+		long validEnd, 
+		Pointer<?> parent, 
+		long offsetInParent, 
+		final Releaser releaser,
+		Object sibling)
+	{
+		if (peer == 0)
+			return null;
+		
+		if (validEnd != UNKNOWN_VALIDITY) {
+			long size = validEnd - validStart;
+			if (size <= 0)
+				return null;
+		}
+		
+		if (releaser == null)
+			return new Pointer<U>(io, peer, ordered, validStart, validEnd, parent, offsetInParent, sibling);
+		else {
+			assert sibling == null;
+			return new Pointer<U>(io, peer, ordered, validStart, validEnd, parent, offsetInParent, sibling) {
+				private Releaser rel = releaser;
+				@Override
+				public synchronized void release() {
+					if (rel != null) {
+						rel.release(this);
+						rel = null;
+					}
+				}
+				protected void finalize() {
+					release();
+				}
+			};
+		}
+    }
+	
     /**
      * Create a memory area large enough to hold a single typed pointer.
      * @param type type the the typed pointer
@@ -885,13 +899,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         if (address == 0)
         	throw new RuntimeException("Failed to allocate " + byteSize);
 
-		return pointerToAddress(address, byteSize, io, beforeDeallocation == null ? freeReleaser : new Releaser() {
+		return newPointer(io, address, true, address, address + byteSize, null, NO_PARENT, beforeDeallocation == null ? freeReleaser : new Releaser() {
         	@Override
         	public void release(Pointer<?> p) {
         		beforeDeallocation.release(p);
         		freeReleaser.release(p);
         	}
-        });
+        }, null);
     }
     static FreeReleaser freeReleaser = new FreeReleaser();
     static class FreeReleaser implements Releaser {
@@ -1023,9 +1037,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 			return null;
 		
 		PointerIO<${prim.WrapperName}> io = CommonPointerIOs.${prim.Name}IO;
-		
-		return new Pointer<${prim.WrapperName}>(io, address, buffer.order().equals(ByteOrder.nativeOrder()), address, address + size, null, -1, buffer, null);
-		//return pointerToAddress(address, size, io);
+		boolean ordered = buffer.order().equals(ByteOrder.nativeOrder());
+		return newPointer(io, address, ordered, address, address + size, null, NO_PARENT, null, buffer);
     }
 	
 #end
@@ -1308,13 +1321,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 */
     public Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value) {
     	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double" && $prim.Name != "boolean")
-		if (isOrdered())
-			JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value);
-		else
+		if (!isOrdered()) {
 			JNI.set_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}), value);
-	#else
+			return this;
+		}
+		#end
 		JNI.set_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}), value);
-	#end
 		return this;
     }
 
@@ -1338,40 +1350,34 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 */
     public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length) {
         #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double" && $prim.Name != "boolean")
-        if (isOrdered())
-        	JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
-        else
+        if (!isOrdered()) {
         	JNI.set_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
-        #else
+        	return this;
+    	}
+        #end
 		JNI.set_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
-		#end
-        	
         return this;
-    }
-    
+	}
+	
     /**
 	 * Read a ${prim.Name} value from the pointed memory location
 	 */
     public ${prim.Name} get${prim.CapName}() {
 		return get${prim.CapName}(0);
-	}
-	
+    }
+    
     /**
 	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
 	 */
     public ${prim.Name} get${prim.CapName}(long byteOffset) {
         #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double" && $prim.Name != "boolean")
-        if (isOrdered())
-        	return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
-        else
+        if (!isOrdered())
         	return JNI.get_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}));
-        #else
-        return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
         #end
-        	
+        return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
     }
-
-    /**
+    
+	/**
 	 * Read an array of ${prim.Name} values of the specified length from the pointed memory location
 	 */
     public ${prim.Name}[] get${prim.CapName}s(int length) {
@@ -1383,14 +1389,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 */
     public ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length) {
         #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double" && $prim.Name != "boolean")
-        if (isOrdered())
-        	return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
-        else
+        if (!isOrdered())
         	return JNI.get_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
-        #else
-        return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
         #end
-        	
+        return JNI.get_${prim.Name}_array(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
     }
     
 #end

@@ -160,10 +160,18 @@ public class CPPRuntime extends CRuntime {
                     return;
                 }
             }
-            int virtualOffset = getVirtualMethodsCount(type.getSuperclass());
-            int absoluteVirtualIndex = virtualOffset + virtualIndex;
-            mci.setIndex(absoluteVirtualIndex);
-            log(Level.INFO, "Registering " + method.toGenericString() + " as virtual C++ method with relative virtual index = " + virtualIndex + ", absolute index = " + absoluteVirtualIndex);
+            Class<?> superclass = type.getSuperclass();
+            /*int virtualOffset = getVirtualMethodsCount(superclass);
+            boolean isNewVirtual = true;
+            if (superclass != null) {
+            	try {
+            		superclass.getMethod(method.getName(), method.getParameterTypes()) ==
+            		isNewVirtual = false;
+            	} catch (NoSuchMethodException ex) {}
+            }
+            int absoluteVirtualIndex = isNewVirtual ? virtualOffset + virtualIndex;*/
+            mci.setVirtualIndex(virtualIndex);//absoluteVirtualIndex);
+            log(Level.INFO, "Registering " + method.toGenericString() + " as virtual C++ method with relative virtual index = " + virtualIndex);// + ", absolute index = " + absoluteVirtualIndex);
             //if (!JNI.is64Bits() && JNI.isWindows())
             //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
             builder.addVirtualMethod(mci);
@@ -211,9 +219,14 @@ public class CPPRuntime extends CRuntime {
     
     static Boolean enableDestructors;
     static boolean enableDestructors() {
-    		if (enableDestructors == null)
-    			enableDestructors = "true".equals(System.getProperty("bridj.destructors")) || "1".equals(System.getenv("BRIDJ_DESTRUCTORS"));
-    		return enableDestructors;
+		if (enableDestructors == null) {
+			String prop = System.getProperty("bridj.destructors"), env = System.getenv("BRIDJ_DESTRUCTORS"); 
+			boolean forceTrue = "true".equals(prop) || "1".equals(env);
+			boolean forceFalse = "false".equals(prop) || "0".equals(env);
+			boolean shouldBeStable = JNI.isWindows();
+			enableDestructors = forceTrue || shouldBeStable && !forceFalse;
+		}
+		return enableDestructors;
     }
 
     protected <T extends CPPObject> Pointer<T> newCPPInstance(final Type type, int constructorId, Object... args) {
@@ -258,8 +271,8 @@ public class CPPRuntime extends CRuntime {
                 }
                 installVTablePtr(type, lib, peer);
                 JNI.callSinglePointerArgVoidFunction(defaultConstructor, peer.getPeer(), getDefaultDyncallCppConvention());// TODO use right call convention
-                //TestCPP.print(typeClass.getSimpleName(), peer.getPeer(), 10, 2);
-                //TestCPP.print(typeClass.getSimpleName() + "'s vtable", peer.getSizeT(0), 10, 2);
+                //TestCPP.print(typeClass.getSimpleName(), peer.getPeer(), 10, 5);
+                //TestCPP.print(typeClass.getSimpleName() + "'s vtable", peer.getSizeT(0), 10, 5);
                 return peer;
             }
             Method meth = getConstructor(typeClass, constructorId, args);
@@ -334,20 +347,23 @@ public class CPPRuntime extends CRuntime {
         Long vtable = vtables.get(type);
         if (vtable == null) {
             final Class<?> typeClass = Utils.getClass(type);
-//            String className = typeClass.getSimpleName();
-//			String vtableSymbol;
-//            if (JNI.isWindows())
-//                vtableSymbol = "??_7" + className + "@@6B@";
-//            else
-//                vtableSymbol = "_ZTV" + className.length() + className;
-//
-//			vtables.put(type, vtable = library.getSymbolAddress(vtableSymbol));
-            Symbol symbol = library.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) { 
-                return symbol.matchesVirtualTable(typeClass);
-            }});
-            if (symbol != null)
-                log(Level.INFO, "Registering vtable of " + typeClass.getName() + " as " + symbol.getName());
-            vtables.put(type, vtable = symbol == null ? 0 : symbol.getAddress());//*/
+            if (false) {
+	            String className = typeClass.getSimpleName();
+				String vtableSymbol;
+	            if (JNI.isWindows())
+	                vtableSymbol = "??_7" + className + "@@6B@";
+	            else
+	                vtableSymbol = "_ZTV" + className.length() + className;
+	
+				vtables.put(type, vtable = library.getSymbolAddress(vtableSymbol));
+			} else {
+				Symbol symbol = library.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) { 
+					return symbol.matchesVirtualTable(typeClass);
+				}});
+				if (symbol != null)
+					log(Level.INFO, "Registering vtable of " + typeClass.getName() + " as " + symbol.getName());
+				vtables.put(type, vtable = symbol == null ? 0 : symbol.getAddress());//*/
+			}
         }
         return vtable;
     }

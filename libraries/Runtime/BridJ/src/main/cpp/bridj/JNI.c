@@ -43,7 +43,7 @@ jfieldID 	gFieldId_dcSignature 		 = NULL;
 jfieldID 	gFieldId_paramsValueTypes 	 = NULL;
 jfieldID 	gFieldId_returnValueType 	 = NULL;    
 jfieldID 	gFieldId_forwardedPointer 	 = NULL;
-jfieldID 	gFieldId_index 				 = NULL;
+jfieldID 	gFieldId_virtualIndex 		 = NULL;
 jfieldID 	gFieldId_virtualTableOffset	 = NULL;
 jfieldID 	gFieldId_javaCallback 		 = NULL;
 jfieldID 	gFieldId_direct		 		 = NULL;
@@ -94,7 +94,7 @@ void initMethods(JNIEnv* env) {
 		GETFIELD_ID(paramsValueTypes 	,	"paramsValueTypes"		,	"[I"					);
 		GETFIELD_ID(returnValueType 	,	"returnValueType" 		,	"I"						);
 		GETFIELD_ID(forwardedPointer 	,	"forwardedPointer" 		,	"J"						);
-		GETFIELD_ID(index 				,	"index" 				,	"I"						);
+		GETFIELD_ID(virtualIndex 		,	"virtualIndex"			,	"I"						);
 		GETFIELD_ID(virtualTableOffset	,	"virtualTableOffset"	,	"I"						);
 		GETFIELD_ID(javaCallback 		,	"javaCallback" 			,	"Lcom/bridj/Callback;"	);
 		GETFIELD_ID(direct		 		,	"direct"	 			,	"Z"						);
@@ -525,7 +525,7 @@ void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 		jobject 	javaCallback 		= (*env)->GetObjectField(	env, methodCallInfo, gFieldId_javaCallback 		    );   \
 		jlong 		forwardedPointer 	= (*env)->GetLongField(		env, methodCallInfo, gFieldId_forwardedPointer 	    );   \
 		jint	 	returnValueType 	= (*env)->GetIntField(		env, methodCallInfo, gFieldId_returnValueType 	    );   \
-		jint	 	index 				= (*env)->GetIntField(		env, methodCallInfo, gFieldId_index 		    	);   \
+		jint	 	virtualIndex		= (*env)->GetIntField(		env, methodCallInfo, gFieldId_virtualIndex	    	);   \
 		jint	 	virtualTableOffset	= (*env)->GetIntField(		env, methodCallInfo, gFieldId_virtualTableOffset	);   \
 		jint	 	dcCallingConvention	= (*env)->GetIntField(		env, methodCallInfo, gFieldId_dcCallingConvention	);   \
 		jboolean 	direct		 		= (*env)->GetBooleanField(	env, methodCallInfo, gFieldId_direct		 		);   \
@@ -788,7 +788,7 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToVirtualMethods(
 	
 		info->fClass = (*env)->NewGlobalRef(env, declaringClass);
 		info->fHasThisPtrArg = startsWithThis;
-		info->fVirtualIndex = index;
+		info->fVirtualIndex = virtualIndex;
 		info->fVirtualTableOffset = virtualTableOffset;
 		
 		// TODO DIRECT C++ virtual thunk

@@ -21,7 +21,10 @@ import java.util.logging.Logger;
 
 import org.junit.Test;
 /**
- * mvn -o test-compile && MAVEN_OPTS="-Xmx2g -Xrunhprof:cpu=samples,doe=y,depth=15" mvn -o -DforkMode=never surefire:test -Dtest=ComparisonTest && jProfBeautifier
+ * mvn -o compile test-compile && MAVEN_OPTS="-Xmx2g -Xrunhprof:cpu=samples,doe=y,depth=15" mvn -o -DforkMode=never surefire:test -DenableAssertions=false -Dtest=ComparisonTest && jProfBeautifier
+ 
+set MAVEN_OPTS=-Xmx1g -Xrunhprof:cpu=samples,doe=y,depth=15
+mvn -o compile test-compile && mvn -o -DforkMode=never surefire:test -DenableAssertions=false -Dtest=ComparisonTest
 
  * @author Olivier Chafik
  */
@@ -180,8 +183,8 @@ public class ComparisonTest {
                 System.out.println("#");
 
 		if (Math.abs(bridJFaster - 1) > 1e10) {
-			assertTrue(bridJFaster > 0.8);
-			assertTrue(bridJFasterInterf > 5.0);
+			assertBridJFaster(bridJFaster, 0.8);
+			assertBridJFaster(bridJFasterInterf, 5.0);
 		}
 
             }
@@ -245,8 +248,8 @@ public class ComparisonTest {
                 System.out.println("#");
 
 		if (Math.abs(bridJFaster - 1) > 1e10) {
-			assertTrue(bridJFaster > 0.8);
-			assertTrue(bridJFasterInterf > 5.0);
+			assertBridJFaster(bridJFaster, 0.8);
+			assertBridJFaster(bridJFasterInterf, 5.0);
 		}
             }
             System.out.println("res = " + res + ", sin(" + arg + ") = " + Math.sin(arg));
@@ -339,7 +342,7 @@ public class ComparisonTest {
 		if (Math.abs(bridJFaster - 1) < 1e10)
 			return;
 		
-		assertTrue(bridJFaster > 20);
+		assertBridJFaster(bridJFaster, 20);
 	}
 	
 	@Test
@@ -411,7 +414,7 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Cast to struct", "Cast to BridJ's structs", "cast", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-        assertTrue(bridJFaster > 30); // */
+        assertBridJFaster(bridJFaster, 30); // */
 	}
 	
 	ByteBuffer next(ByteBuffer b, long skip) {
@@ -514,7 +517,7 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Cast to struct array", "Cast to BridJ's struct array", "cast", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-        assertTrue(bridJFaster > 30); // */
+        assertBridJFaster(bridJFaster, 30); // */
 	}
 	
 	@Test
@@ -618,7 +621,10 @@ public class ComparisonTest {
 		}
         double bridJFaster = printResults("Fields read/write", "Read/write of BridJ's struct fields", "read/write", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
-        assertTrue(bridJFaster > 3); // */
+        assertBridJFaster(bridJFaster, 3); // */
+	}
+	static void assertBridJFaster(double factor, double minExpectedFactor) {
+		assertTrue("BridJ is not as fast as expected (" + factor + "x faster, expected > " + minExpectedFactor + "x faster)", factor >= minExpectedFactor);
 	}
     static double printResults(String title, String longOp, String op, long n, long timeJNA, long timeOptimal, long timeBridJ, long timeNIO, long timeJavolution) {
         System.err.println("#");
