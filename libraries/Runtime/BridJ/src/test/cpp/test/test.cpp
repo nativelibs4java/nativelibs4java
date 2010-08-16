@@ -119,6 +119,13 @@ const string& Ctest2::toString() {
 	static string s = "";
 	return s;
 }
+
+TEST_API size_t sizeOfCtest() {
+	return sizeof(Ctest);
+}
+TEST_API size_t sizeOfCtest2() {
+	return sizeof(Ctest2);
+}
 int Ctest::testVirtualAdd(int a, int b) {
 	//printf("Ctest::testVirtualAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
 	return a + b;

@@ -32,12 +32,16 @@ import org.junit.Before;
 import static com.bridj.Pointer.*;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
+@Library("test")
+@Runtime(CRuntime.class)
 public class CPPTest {
 	
 	@Test
 	public void testSize() {
-		assertEquals("Invalid size for class Ctest", 12, BridJ.sizeOf(new Ctest()));
-		assertEquals("Invalid size for class Ctest2", 20, BridJ.sizeOf(new Ctest2()));
+		assertEquals("Invalid size for class Ctest", sizeOfCtest(), BridJ.sizeOf(new Ctest()));
+		assertEquals("Invalid size for class Ctest2", sizeOfCtest2(), BridJ.sizeOf(new Ctest2()));
+		assertTrue("sizeOfCtest() = " + sizeOfCtest(), sizeOfCtest() > 12 && sizeOfCtest() <= 20);
+		assertTrue("sizeOfCtest2() = " + sizeOfCtest2(), sizeOfCtest2() >= 16 && sizeOfCtest() <= 30);
 	}
 	
 	@Test
@@ -83,7 +87,13 @@ public class CPPTest {
         }
 	}
 	
-	@Library("test")
+	static {
+		BridJ.register();
+	}
+	@Ptr public static native long sizeOfCtest();
+	@Ptr public static native long sizeOfCtest2();
+	
+	//@Library("test")
 	public static class Ctest extends CPPObject {
 		public Ctest() {
 			super();
@@ -91,6 +101,7 @@ public class CPPTest {
 		public Ctest(Pointer pointer) {
 			super(pointer);
 		}
+		
 		@Field(0) 
 		public int firstField() {
 			return this.io.getIntField(this, 0);
@@ -137,6 +148,7 @@ public class CPPTest {
 		public Ctest2(Pointer pointer) {
 			super(pointer);
 		}
+		
 		/// C type : int*
 		@Field(0) 
 		public Pointer<java.lang.Integer > fState() {
