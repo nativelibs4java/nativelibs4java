@@ -1604,6 +1604,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return get((long)index);
 	}
 	
+	/**
+	 * Alias for {@link #get(long)} defined for more natural use from the Scala language.
+	 */
+    public final T apply(long index) {
+		return get(index);
+	}
+	
     @Deprecated
 	public int indexOf(Object o) {
 		throw new UnsupportedOperationException();
@@ -1653,6 +1660,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	public final T set(int index, T element) {
 		set((long)index, element);
 		return element;
+	}
+	
+	/**
+	 * Alias for {@link \#set(long, T)} defined for more natural use from the Scala language.
+	 */
+	public final void update(long index, T element) {
+		set(index, element);
 	}
 	
     @Deprecated

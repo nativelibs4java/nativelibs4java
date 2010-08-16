@@ -224,7 +224,7 @@ public class CPPRuntime extends CRuntime {
 			String prop = System.getProperty("bridj.destructors"), env = System.getenv("BRIDJ_DESTRUCTORS"); 
 			boolean forceTrue = "true".equals(prop) || "1".equals(env);
 			boolean forceFalse = "false".equals(prop) || "0".equals(env);
-			boolean shouldBeStable = JNI.isWindows();
+			boolean shouldBeStable = true;//JNI.isWindows();
 			enableDestructors = forceTrue || shouldBeStable && !forceFalse;
 		}
 		return enableDestructors;

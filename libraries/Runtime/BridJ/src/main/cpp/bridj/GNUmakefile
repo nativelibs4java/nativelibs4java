@@ -54,6 +54,8 @@ UNITS += RawNativeForwardCallback
 UNITS += RawNativeForwardCallback_arch
 #endif
 
+CPPFLAGS += -std=c99
+
 ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 CPPFLAGS += -O3

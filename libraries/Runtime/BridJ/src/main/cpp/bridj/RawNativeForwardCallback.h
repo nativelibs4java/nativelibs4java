@@ -8,8 +8,8 @@ extern "C" {
 #endif 
 
 typedef struct DCAdapterCallback DCAdapterCallback;
-//DC_API 
-__declspec(dllexport) DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)(), int callMode);
+
+DC_API DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)(), int callMode);
 
 #ifdef __cplusplus
 }
