@@ -161,17 +161,18 @@ public class CPPRuntime extends CRuntime {
                 }
             }
             Class<?> superclass = type.getSuperclass();
-            /*int virtualOffset = getVirtualMethodsCount(superclass);
+            int virtualOffset = getVirtualMethodsCount(superclass);
             boolean isNewVirtual = true;
             if (superclass != null) {
             	try {
-            		superclass.getMethod(method.getName(), method.getParameterTypes()) ==
+            		// TODO handle polymorphism in overloads :
+            		superclass.getMethod(method.getName(), method.getParameterTypes());
             		isNewVirtual = false;
             	} catch (NoSuchMethodException ex) {}
             }
-            int absoluteVirtualIndex = isNewVirtual ? virtualOffset + virtualIndex;*/
-            mci.setVirtualIndex(virtualIndex);//absoluteVirtualIndex);
-            log(Level.INFO, "Registering " + method.toGenericString() + " as virtual C++ method with relative virtual index = " + virtualIndex);// + ", absolute index = " + absoluteVirtualIndex);
+            int absoluteVirtualIndex = isNewVirtual ? virtualOffset + virtualIndex : virtualIndex;
+            mci.setVirtualIndex(absoluteVirtualIndex);
+            log(Level.INFO, "Registering " + method.toGenericString() + " as virtual C++ method with relative virtual index = " + virtualIndex + ", absolute index = " + absoluteVirtualIndex);
             //if (!JNI.is64Bits() && JNI.isWindows())
             //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
             builder.addVirtualMethod(mci);
