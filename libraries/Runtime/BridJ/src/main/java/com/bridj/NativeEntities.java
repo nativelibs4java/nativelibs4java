@@ -23,7 +23,7 @@ public class NativeEntities {
 		//getters = new HashMap<Class<?>, CBInfo>(),
 		//setters = new HashMap<Class<?>, CBInfo>(),
 		javaToNativeCallbacks = new HashMap<Class<?>, CBInfo>(),
-		cppMethods = new HashMap<Class<?>, CBInfo>(),
+		//cppMethods = new HashMap<Class<?>, CBInfo>(),
 		objcMethodInfos = new HashMap<Class<?>, CBInfo>();
 	
 	public static class Builder {
@@ -64,9 +64,10 @@ public class NativeEntities {
 		for (CBInfo callbacks : functions.values())
 		    JNI.freeCFunctionBindings(callbacks.handle, callbacks.size);
 		
+		/*
 		for (CBInfo callbacks : cppMethods.values())
 		    JNI.freeCPPMethodBindings(callbacks.handle, callbacks.size);
-		
+		//*/
 		for (CBInfo callbacks : javaToNativeCallbacks.values())
 		    JNI.freeJavaToCCallbacks(callbacks.handle, callbacks.size);
 
@@ -99,6 +100,7 @@ public class NativeEntities {
 		if (n != 0)
 			javaToNativeCallbacks.put(type, new CBInfo(JNI.bindJavaToCCallbacks(builder.javaToNativeCallbacks.toArray(new MethodCallInfo[n])), n));
 
+		/*
 		n = builder.cppMethodInfos.size();
 		if (n != 0)
 			cppMethods.put(type, new CBInfo(JNI.bindJavaMethodsToCPPMethods(builder.cppMethodInfos.toArray(new MethodCallInfo[n])), n));

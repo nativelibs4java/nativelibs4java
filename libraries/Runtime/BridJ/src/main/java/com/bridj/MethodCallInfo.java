@@ -109,7 +109,7 @@ public class MethodCallInfo {
         Virtual virtual = BridJ.getAnnotation(Virtual.class, false, method);
         isCPlusPlus = isCPlusPlus || virtual != null;
         
-        if (isCPlusPlus && !Modifier.isStatic(modifiers)) {
+        if (isCPlusPlus && !isStatic) {
         	if (!startsWithThis)
         		direct = false;
         	bNeedsThisPointer = true;

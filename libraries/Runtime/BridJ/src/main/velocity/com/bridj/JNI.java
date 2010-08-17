@@ -180,53 +180,28 @@ public class JNI {
 	static native long createCToJavaCallback(MethodCallInfo info);
 	static native long getActualCToJavaCallback(long handle);
 	
-	//static native long bindGetters(MethodCallInfo... infos);
 	static native long bindJavaMethodsToObjCMethods(MethodCallInfo... infos);
 	static native long bindJavaToCCallbacks(MethodCallInfo... infos);
 	static native long bindJavaMethodsToCFunctions(MethodCallInfo... infos);
-	static native long bindJavaMethodsToCPPMethods(MethodCallInfo... infos);
 	static native long bindJavaMethodsToVirtualMethods(MethodCallInfo... infos);
 	
-	static native void freeGetters(long handle, int size);
 	static native void freeCToJavaCallback(long handle);
 	static native void freeObjCMethodBindings(long handle, int size);
 	static native void freeJavaToCCallbacks(long handle, int size);
-	static native void freeCPPMethodBindings(long handle, int size);
 	static native void freeCFunctionBindings(long handle, int size);
 	static native void freeVirtualMethodBindings(long handle, int size);
 	
 	static native long createCallTempStruct();
 	static native void deleteCallTempStruct(long handle);
 	static native int getMaxDirectMappingArgCount();
-	/*public static native long createCallback(
-		int callbackType,
-		Class<?> declaringClass,
-		Callback javaCallbackInstance,
-		Method method,
-		boolean startsWithThis,
-		String methodName,
-		int callMode,
-		long forwardedPointer, 
-		int virtualTableOffset,
-		int virtualIndex,
-		boolean direct, 
-		String javaSignature, 
-		String dcSignature,
-		int nParams,
-		int returnValueType, 
-		int paramsValueTypes[]
-	);
-	public static native void freeCallback(long nativeCallback);*/
-
+	
 	static native long mallocNulled(long size);
 	static native long malloc(long size);
     static native void free(long pointer);
     static native long strlen(long pointer);
     static native long wcslen(long pointer);
     static native void memcpy(long dest, long source, long size);
-    //public static native void wmemcpy(long dest, long source, long size);
     static native void memmove(long dest, long source, long size);
-    //public static native void wmemmove(long dest, long source, long size);
     static native long memchr(long ptr, byte value, long num);
     static native int memcmp(long ptr1, long ptr2, long num);
     static native void memset(long ptr, byte value, long num);

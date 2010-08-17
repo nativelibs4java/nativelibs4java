@@ -100,6 +100,8 @@ void initMethods(JNIEnv* env) {
 		GETFIELD_ID(virtualTableOffset	,	"virtualTableOffset"	,	"I"						);
 		GETFIELD_ID(javaCallback 		,	"javaCallback" 			,	"Lcom/bridj/Callback;"	);
 		GETFIELD_ID(direct		 		,	"direct"	 			,	"Z"						);
+		GETFIELD_ID(isCPlusPlus	 		,	"isCPlusPlus"		,	"Z"						);
+		GETFIELD_ID(isStatic		 		,	"isStatic"			,	"Z"						);
 		GETFIELD_ID(startsWithThis		,	"startsWithThis"		,	"Z"						);
 		GETFIELD_ID(bNeedsThisPointer	,	"bNeedsThisPointer"		,	"Z"						);
 		GETFIELD_ID(dcCallingConvention,	"dcCallingConvention"	,	"I"						);
@@ -706,15 +708,14 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCFunctions(
 	GetField_callIOs()              ;
 	
 	{
+		info->fForwardedSymbol = JLONG_TO_PTR(forwardedPointer);
 		if (isCPlusPlus && !isStatic && declaringClass)
 			info->fClass = (*env)->NewGlobalRef(env, declaringClass);
 		
-		info->fForwardedSymbol = JLONG_TO_PTR(forwardedPointer);
 #ifndef NO_DIRECT_CALLS
 		if (direct && forwardedPointer)
 			info->fInfo.fDCCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer, dcCallingConvention);
 #endif
-		
 		if (!info->fInfo.fDCCallback) {
 			const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
 			//info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToFunctionCallHandler, info);
@@ -748,71 +749,6 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCFunctionBindings(
 	}
 	free(infos);
 }
-
-JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCPPMethods(
-	JNIEnv *env, 
-	jclass clazz,
-	jobjectArray methodCallInfos
-) {
-	//BEGIN_INFOS_LOOP(CPPMethodCallInfo)
-	BEGIN_INFOS_LOOP(FunctionCallInfo)
-	
-	GetField_javaSignature()        ;
-	GetField_dcSignature()          ;
-	GetField_symbolName()           ;
-	GetField_nativeClass()          ;
-	GetField_methodName()           ;
-	GetField_paramsValueTypes()     ;
-	//GetField_javaCallback()         ;
-	GetField_forwardedPointer()     ;
-	GetField_returnValueType()      ;
-	//GetField_virtualIndex()         ;
-	//GetField_virtualTableOffset()   ;
-	GetField_dcCallingConvention()  ;
-	//GetField_direct()               ;
-	GetField_startsWithThis()       ;
-	GetField_bNeedsThisPointer()    ;
-	GetField_declaringClass()       ;
-	GetField_nParams()              ;
-	GetField_callIOs()              ;
-	
-	{
-		info->fForwardedSymbol = JLONG_TO_PTR(forwardedPointer);
-		info->fClass = (*env)->NewGlobalRef(env, declaringClass);
-		
-		if (!info->fInfo.fDCCallback) {
-			const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-			info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToCPPMethodCallHandler, info);
-			(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
-		}
-		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
-		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
-#ifdef _DEBUG
-			&info->fInfo,
-#endif
-			info->fInfo.fDCCallback);
-	}
-	END_INFOS_LOOP()
-	return PTR_TO_JLONG(infos);
-}
-JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCPPMethodBindings(
-	JNIEnv *env, 
-	jclass clazz,
-	jlong handle,
-	jint size
-) {
-	//CPPMethodCallInfo* infos = (CPPMethodCallInfo*)JLONG_TO_PTR(handle);
-	FunctionCallInfo* infos = (FunctionCallInfo*)JLONG_TO_PTR(handle);
-	jint i;
-	if (!infos)
-		return;
-	for (i = 0; i < size; i++) {
-		(*env)->DeleteGlobalRef(env, infos[i].fClass);
-		freeCommon(env, &infos[i].fInfo);
-	}
-	free(infos);
-}
-
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToObjCMethods(
 	JNIEnv *env, 
 	jclass clazz,
