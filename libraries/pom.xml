@@ -20,7 +20,6 @@
 	<module>Mono</module>
 	<module>Runtime</module>
     <module>Parent</module>
-	<module>Common</module>
 	
     <!--<module>TestLibraries</module>-->
   </modules>
