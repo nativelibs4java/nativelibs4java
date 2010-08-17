@@ -120,10 +120,10 @@ const string& Ctest2::toString() {
 	return s;
 }
 
-TEST_API size_t sizeOfCtest() {
+TEST_API size_t __cdecl sizeOfCtest() {
 	return sizeof(Ctest);
 }
-TEST_API size_t sizeOfCtest2() {
+TEST_API size_t __cdecl sizeOfCtest2() {
 	return sizeof(Ctest2);
 }
 int Ctest::testVirtualAdd(int a, int b) {

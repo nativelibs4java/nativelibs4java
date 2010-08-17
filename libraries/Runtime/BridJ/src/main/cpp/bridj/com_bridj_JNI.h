@@ -729,27 +729,11 @@ JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCFunctions
 
 /*
  * Class:     com_bridj_JNI
- * Method:    bindJavaMethodsToCPPMethods
- * Signature: ([Lcom/bridj/MethodCallInfo;)J
- */
-JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToCPPMethods
-  (JNIEnv *, jclass, jobjectArray);
-
-/*
- * Class:     com_bridj_JNI
  * Method:    bindJavaMethodsToVirtualMethods
  * Signature: ([Lcom/bridj/MethodCallInfo;)J
  */
 JNIEXPORT jlong JNICALL Java_com_bridj_JNI_bindJavaMethodsToVirtualMethods
   (JNIEnv *, jclass, jobjectArray);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    freeGetters
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_freeGetters
-  (JNIEnv *, jclass, jlong, jint);
 
 /*
  * Class:     com_bridj_JNI
@@ -773,14 +757,6 @@ JNIEXPORT void JNICALL Java_com_bridj_JNI_freeObjCMethodBindings
  * Signature: (JI)V
  */
 JNIEXPORT void JNICALL Java_com_bridj_JNI_freeJavaToCCallbacks
-  (JNIEnv *, jclass, jlong, jint);
-
-/*
- * Class:     com_bridj_JNI
- * Method:    freeCPPMethodBindings
- * Signature: (JI)V
- */
-JNIEXPORT void JNICALL Java_com_bridj_JNI_freeCPPMethodBindings
   (JNIEnv *, jclass, jlong, jint);
 
 /*

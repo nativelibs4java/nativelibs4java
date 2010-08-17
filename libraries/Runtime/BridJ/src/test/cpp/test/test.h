@@ -53,6 +53,7 @@ TEST_API Ctest* createTest();
 TEST_API ETest testEnum(ETest e);
 TEST_API ETest testVoidEnum();
 TEST_API ETest testIntEnum(int i, ETest e);
+
 TEST_API void __cdecl voidTest();
 TEST_API double __cdecl sinInt(int);
 TEST_API double __cdecl testSum(const double *values, size_t n);

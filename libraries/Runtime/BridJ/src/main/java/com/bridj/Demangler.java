@@ -12,6 +12,29 @@ import com.bridj.ann.Ptr;
 import com.bridj.util.DefaultParameterizedType;
 
 public abstract class Demangler {
+	interface Annotations {
+		<A extends Annotation> A getAnnotation(Class<A> c);	
+	}
+	static Annotations annotations(final Annotation[] aa) {
+		return new Annotations() {
+			@Override
+			public <A extends Annotation> A getAnnotation(Class<A> c) {
+				for (Annotation a : aa)
+					if (c.isInstance(a))
+						return (A)a;
+				return null;
+			}
+		};
+	}
+	static Annotations annotations(final AnnotatedElement e) {
+		return new Annotations() {
+			@Override
+			public <A extends Annotation> A getAnnotation(Class<A> c) {
+				return e.getAnnotation(c);
+			}
+		};
+	}
+	
 	public static class DemanglingException extends Exception {
 		public DemanglingException(String mess) {
 			super(mess);
@@ -230,7 +253,7 @@ public abstract class Demangler {
 
 	public static abstract class TypeRef implements TemplateArg {
 		public abstract StringBuilder getQualifiedName(StringBuilder b, boolean generic);
-		public boolean matches(Type type) {
+		public boolean matches(Type type, Annotations annotations) {
 			return getQualifiedName(new StringBuilder(), false).toString().equals(getTypeClass(type).getName());
 		}
 		
@@ -327,7 +350,7 @@ public abstract class Demangler {
 			return b.append(getTypeClass(this.type).getName());
 		}
 		@Override
-		public boolean matches(Type type) {
+		public boolean matches(Type type, Annotations annotations) {
             Class<?> tc = getTypeClass(this.type);
             Class<?> typec = Demangler.getTypeClass(type);
             if (tc == typec)
@@ -336,6 +359,14 @@ public abstract class Demangler {
             if ((type == Long.TYPE && Pointer.class.isAssignableFrom(tc)) ||
                     (Pointer.class.isAssignableFrom(typec) && tc == Long.TYPE))
                 return true;
+                
+			if (type == Long.TYPE && annotations != null) {
+				boolean 
+					isPtr = annotations.getAnnotation(Ptr.class) != null,
+					isCLong = annotations.getAnnotation(CLong.class) != null;
+				if (isPtr || isCLong)
+					return true;
+			}
             if (tc == CLong.class) {
                 if ((typec == int.class || typec == Integer.class) && (JNI.CLONG_SIZE == 4) || typec == long.class || typec == Long.class)
                     return true;
@@ -425,7 +456,7 @@ public abstract class Demangler {
         }
 
         @Override
-        public boolean matches(Type type) {
+        public boolean matches(Type type, Annotations annotations) {
             if (!getTypeClass(type).getSimpleName().equals(simpleName))
                 return false;
             
@@ -583,10 +614,10 @@ public abstract class Demangler {
         }
        
         public boolean matchesSingleThisPointerVoidMethod(Class<?> type) {
-			if (getEnclosingType() != null && !getEnclosingType().matches(type))
+			if (getEnclosingType() != null && !getEnclosingType().matches(type, annotations(type)))
 				return false;
 			
-			if (getValueType() != null && !getValueType().matches(Void.TYPE))
+			if (getValueType() != null && !getValueType().matches(Void.TYPE, null))
 				return false;
 			
             Type[] methodArgTypes = new Type[] { Long.TYPE };
@@ -597,7 +628,7 @@ public abstract class Demangler {
 		}
         
 		protected boolean matchesVirtualTable(Class<?> type) {
-			return memberName == SpecialName.VFTable && getEnclosingType() != null && getEnclosingType().matches(type);
+			return memberName == SpecialName.VFTable && getEnclosingType() != null && getEnclosingType().matches(type, annotations(type));
 		}
         protected boolean matchesConstructor(Class<?> type) {
 			return memberName == SpecialName.Constructor && matchesSingleThisPointerVoidMethod(type);
@@ -656,13 +687,13 @@ public abstract class Demangler {
             if (getArgumentsStackSize() != null && getArgumentsStackSize().intValue() != getArgumentsStackSize(method))
                 return false;
             
-			if (getEnclosingType() != null && !getEnclosingType().matches(method.getDeclaringClass()))
+			if (getEnclosingType() != null && !getEnclosingType().matches(method.getDeclaringClass(), annotations(method)))
 				return false;
 			
 			if (getMemberName() != null && !getMemberName().equals(method.getName()))
 				return false;
 			
-			if (getValueType() != null && !getValueType().matches(method.getReturnType()))
+			if (getValueType() != null && !getValueType().matches(method.getReturnType(), annotations(method)))
 				return false;
 			
 			Annotation[][] anns = method.getParameterAnnotations();
@@ -728,7 +759,7 @@ public abstract class Demangler {
                 if (totalArgs >= parameterTypes.length)
                     return false;
 
-                if (!paramTypes[i].matches(parameterTypes[totalArgs]))
+                if (!paramTypes[i].matches(parameterTypes[totalArgs], annotations(anns[i])))
                     return false;
 
                 totalArgs++;

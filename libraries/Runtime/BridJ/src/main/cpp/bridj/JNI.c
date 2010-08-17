@@ -518,26 +518,26 @@ void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 	dcbFreeCallback((DCCallback*)info->fDCCallback);
 }
 	      
-#define GetField_javaSignature()         jstring          javaSignature        = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_javaSignature       );
-#define GetField_dcSignature()           jstring          dcSignature          = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_dcSignature         );
-#define GetField_symbolName()            jstring          symbolName           = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_symbolName          );
-#define GetField_nativeClass()           jlong            nativeClass          = (*env)->GetLongField(     env, methodCallInfo, gFieldId_nativeClass         );
-#define GetField_methodName()            jstring          methodName           = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_methodName          );
-#define GetField_paramsValueTypes()      jintArray        paramsValueTypes     = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_paramsValueTypes    );
-#define GetField_javaCallback()          jobject          javaCallback         = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_javaCallback        );
-#define GetField_forwardedPointer()      jlong            forwardedPointer     = (*env)->GetLongField(     env, methodCallInfo, gFieldId_forwardedPointer    );
-#define GetField_returnValueType()       jint             returnValueType      = (*env)->GetIntField(      env, methodCallInfo, gFieldId_returnValueType     );
-#define GetField_virtualIndex()          jint             virtualIndex         = (*env)->GetIntField(      env, methodCallInfo, gFieldId_virtualIndex        );
-#define GetField_virtualTableOffset()    jint             virtualTableOffset   = (*env)->GetIntField(      env, methodCallInfo, gFieldId_virtualTableOffset  );
-#define GetField_dcCallingConvention()   jint             dcCallingConvention  = (*env)->GetIntField(      env, methodCallInfo, gFieldId_dcCallingConvention );
-#define GetField_direct()                jboolean         direct               = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_direct              );
-#define GetField_isCPlusPlus()           jboolean         isCPlusPlus          = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_isCPlusPlus         );
-#define GetField_isStatic()              jboolean         isStatic             = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_isStatic            );
-#define GetField_startsWithThis()        jboolean         startsWithThis       = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_startsWithThis      );
-#define GetField_bNeedsThisPointer()     jboolean         bNeedsThisPointer    = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_bNeedsThisPointer   );
-#define GetField_declaringClass()        jstring          declaringClass       = (jclass)(*env)->GetObjectField(env, methodCallInfo, gFieldId_declaringClass );
-#define GetField_nParams()               jsize            nParams              = (*env)->GetArrayLength(   env, paramsValueTypes                             );
-#define GetField_callIOs()               jobjectArray     callIOs              = (*env)->CallObjectMethod( env, methodCallInfo, gGetCallIOsMethod            );
+#define GetField_javaSignature()         jstring          javaSignature        = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_javaSignature       )
+#define GetField_dcSignature()           jstring          dcSignature          = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_dcSignature         )
+#define GetField_symbolName()            jstring          symbolName           = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_symbolName          )
+#define GetField_nativeClass()           jlong            nativeClass          = (*env)->GetLongField(     env, methodCallInfo, gFieldId_nativeClass         )
+#define GetField_methodName()            jstring          methodName           = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_methodName          )
+#define GetField_paramsValueTypes()      jintArray        paramsValueTypes     = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_paramsValueTypes    )
+#define GetField_javaCallback()          jobject          javaCallback         = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_javaCallback        )
+#define GetField_forwardedPointer()      jlong            forwardedPointer     = (*env)->GetLongField(     env, methodCallInfo, gFieldId_forwardedPointer    )
+#define GetField_returnValueType()       jint             returnValueType      = (*env)->GetIntField(      env, methodCallInfo, gFieldId_returnValueType     )
+#define GetField_virtualIndex()          jint             virtualIndex         = (*env)->GetIntField(      env, methodCallInfo, gFieldId_virtualIndex        )
+#define GetField_virtualTableOffset()    jint             virtualTableOffset   = (*env)->GetIntField(      env, methodCallInfo, gFieldId_virtualTableOffset  )
+#define GetField_dcCallingConvention()   jint             dcCallingConvention  = (*env)->GetIntField(      env, methodCallInfo, gFieldId_dcCallingConvention )
+#define GetField_direct()                jboolean         direct               = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_direct              )
+#define GetField_isCPlusPlus()           jboolean         isCPlusPlus          = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_isCPlusPlus         )
+#define GetField_isStatic()              jboolean         isStatic             = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_isStatic            )
+#define GetField_startsWithThis()        jboolean         startsWithThis       = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_startsWithThis      )
+#define GetField_bNeedsThisPointer()     jboolean         bNeedsThisPointer    = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_bNeedsThisPointer   )
+#define GetField_declaringClass()        jstring          declaringClass       = (jclass)(*env)->GetObjectField(env, methodCallInfo, gFieldId_declaringClass )
+#define GetField_nParams()               jsize            nParams              = (*env)->GetArrayLength(   env, paramsValueTypes                             )
+#define GetField_callIOs()               jobjectArray     callIOs              = (*env)->CallObjectMethod( env, methodCallInfo, gGetCallIOsMethod            )
 
 
 #define BEGIN_INFOS_LOOP(type)                                                                                           \

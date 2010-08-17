@@ -252,7 +252,7 @@ public class NativeLibrary {
 			addrToName.put(addr, sym);
 			nameToSym.put(name, sym);
 			//nameToAddr.put(name, addr);
-			//System.out.println("'" + name + "' = \t" + TestCPP.hex(addr));
+			//System.out.println("'" + name + "' = \t" + TestCPP.hex(addr) + "\n\t" + sym.getParsedRef());
 		}
 	}
 

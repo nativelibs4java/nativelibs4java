@@ -33,14 +33,14 @@ import static com.bridj.Pointer.*;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 @Library("test")
-@Runtime(CRuntime.class)
+@Runtime(CPPRuntime.class)
 public class CPPTest {
 	
 	@Test
 	public void testSize() {
 		assertEquals("Invalid size for class Ctest", sizeOfCtest(), BridJ.sizeOf(new Ctest()));
 		assertEquals("Invalid size for class Ctest2", sizeOfCtest2(), BridJ.sizeOf(new Ctest2()));
-		assertTrue("sizeOfCtest() = " + sizeOfCtest(), sizeOfCtest() > 12 && sizeOfCtest() <= 20);
+		assertTrue("sizeOfCtest() = " + sizeOfCtest(), sizeOfCtest() >= 12 && sizeOfCtest() <= 20);
 		assertTrue("sizeOfCtest2() = " + sizeOfCtest2(), sizeOfCtest2() >= 16 && sizeOfCtest() <= 30);
 	}
 	
