@@ -25,6 +25,11 @@ public class DefaultParameterizedType implements ParameterizedType {
     public DefaultParameterizedType(Type rawType, Type... actualTypeArguments) {
         this(null, rawType, actualTypeArguments);
     }
+    
+    public static Type paramType(Type rawType, Type... actualTypeArguments) {
+    	return new DefaultParameterizedType(rawType, actualTypeArguments);
+    }
+    
     @Override
     public Type[] getActualTypeArguments() {
         return actualTypeArguments.clone();

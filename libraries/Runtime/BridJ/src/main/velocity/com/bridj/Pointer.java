@@ -996,6 +996,43 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         mem.set${prim.CapName}s(0, values, 0, values.length);
         return mem;
     }
+    
+    /**
+     * Allocate enough memory for all the values in the 2D ${prim.Name} array, copy the values provided as argument into it as packed C array and return a pointer to that memory.<br/>
+     * Assumes that all of the subarrays of the provided array are non null and have the same size.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * @param values initial values for the created memory location
+     * @return pointer to a new memory location that initially contains the ${prim.Name} values provided in argument packed as a 2D C array would be
+     */
+    public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.Name}[][] values) {
+        if (values == null)
+			return null;
+		int dim1 = values.length, dim2 = values[0].length;
+		Pointer<${prim.WrapperName}> mem = allocateArray(PointerIO.get${prim.CapName}Instance(), dim1 * dim2);
+        for (int i1 = 0; i1 < dim1; i1++)
+        	mem.set${prim.CapName}s(i1 * dim2 * ${prim.Size}, values[i1], 0, dim2);
+		return mem;
+    }
+    
+    /**
+     * Allocate enough memory for all the values in the 3D ${prim.Name} array, copy the values provided as argument into it as packed C array and return a pointer to that memory.<br/>
+     * Assumes that all of the subarrays of the provided array are non null and have the same size.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * @param values initial values for the created memory location
+     * @return pointer to a new memory location that initially contains the ${prim.Name} values provided in argument packed as a 3D C array would be
+     */
+    public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.Name}[][][] values) {
+        if (values == null)
+			return null;
+		int dim1 = values.length, dim2 = values[0].length, dim3 = values[0][0].length;
+		Pointer<${prim.WrapperName}> mem = allocateArray(PointerIO.get${prim.CapName}Instance(), dim1 * dim2 * dim3);
+        for (int i1 = 0; i1 < dim1; i1++)
+        	for (int i2 = 0; i2 < dim2; i2++)
+				mem.set${prim.CapName}s((i1 * dim2 + i2) * dim3 * ${prim.Size}, values[i1][i2], 0, dim3);
+		return mem;
+    }
 	
     /**
      * Allocate enough memory for a ${prim.Name} value and return a pointer to it.<br/>

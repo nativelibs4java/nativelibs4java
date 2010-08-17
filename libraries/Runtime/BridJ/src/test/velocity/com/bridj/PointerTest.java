@@ -190,6 +190,22 @@ public class PointerTest {
 	}
 	
 	@Test 
+    public void testPointerTo_${prim.Name}_Values2D() {
+		${prim.Name}[][] values = new ${prim.Name}[][] {
+				{(${prim.Name})1, (${prim.Name})2},
+				{(${prim.Name})10, (${prim.Name})20},
+				{(${prim.Name})100, (${prim.Name})200}
+		};
+		Pointer<${prim.WrapperName}> p = Pointer.pointerTo${prim.CapName}s(values);
+		int dim2 = values[0].length;
+		for (int i = 0; i < values.length; i++) {
+			for (int j = 0; j < dim2; j++) {
+				assertEquals(values[i][j], p.get(i * dim2 + j), 0);
+			}
+		}
+	}
+	
+	@Test 
     public void testAllocateBounds_${prim.Name}_ok() {
 		assertEquals((double)(${prim.Name})0, (double)Pointer.allocate${prim.CapName}().get(0), 0);
 		assertEquals((double)(${prim.Name})0, (double)Pointer.allocate${prim.CapName}s(1).get(0), 0);

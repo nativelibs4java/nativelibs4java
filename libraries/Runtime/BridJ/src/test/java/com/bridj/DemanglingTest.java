@@ -13,6 +13,8 @@ import static com.bridj.Demangler.MemberRef.*;
 import com.bridj.Demangler.SpecialName;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.annotation.Annotation;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -67,32 +69,32 @@ public class DemanglingTest {
     private void demangle(String vc9, String gcc4, Class enclosingType, Object memberName, Class returnType, Class... paramTypes) {
         try {
         	if (vc9 != null)
-        		checkSymbol(vc9, new VC9Demangler(null, vc9).parseSymbol(), enclosingType, memberName, returnType, paramTypes);
+        		checkSymbol(vc9, new VC9Demangler(null, vc9).parseSymbol(), enclosingType, memberName, returnType, paramTypes, null, null);
         	if (gcc4 != null)
-        		checkSymbol(gcc4, new GCC4Demangler(null, gcc4).parseSymbol(), enclosingType, memberName, returnType, paramTypes);
+        		checkSymbol(gcc4, new GCC4Demangler(null, gcc4).parseSymbol(), enclosingType, memberName, returnType, paramTypes,null, null);
         } catch (DemanglingException ex) {
             Logger.getLogger(DemanglingTest.class.getName()).log(Level.SEVERE, null, ex);
             throw new AssertionError(ex.toString());
         }
     }
 
-    private void checkSymbol(String str, MemberRef symbol, Class enclosingType, Object memberName, Class returnType, Class[] paramTypes) {
+    private void checkSymbol(String str, MemberRef symbol, Class enclosingType, Object memberName, Class returnType, Class[] paramTypes, Annotation[][] paramAnns, AnnotatedElement element) {
         if (symbol == null)
         		assertTrue("Symbol not successfully parsed \"" + str + "\"", false);
     		if (memberName != null)
             assertEquals("Bad name", memberName, symbol.getMemberName());
         if (enclosingType != null) {
         	assertNotNull("Null enclosing type : " + symbol, symbol.getEnclosingType());
-            assertTrue("Bad enclosing type (got " + symbol.getEnclosingType() + ", expected " + enclosingType.getName() + ")", symbol.getEnclosingType().matches(enclosingType));
+            assertTrue("Bad enclosing type (got " + symbol.getEnclosingType() + ", expected " + enclosingType.getName() + ")", symbol.getEnclosingType().matches(enclosingType, Demangler.annotations(enclosingType)));
         }
         if (returnType != null && symbol.getValueType() != null)
-            assertTrue("Bad return type", symbol.getValueType().matches(returnType));
+            assertTrue("Bad return type", symbol.getValueType().matches(returnType, Demangler.annotations(element)));
 
         int nArgs = symbol.paramTypes.length;
         assertEquals("Bad number of parameters", paramTypes.length, nArgs);
 
         for (int iArg = 0; iArg < nArgs; iArg++) {
-            assertTrue("Bad type for " + (iArg + 1) + "th param", symbol.paramTypes[iArg].matches(paramTypes[iArg]));
+            assertTrue("Bad type for " + (iArg + 1) + "th param", symbol.paramTypes[iArg].matches(paramTypes[iArg], paramAnns == null ? null : Demangler.annotations(paramAnns[iArg])));
         }
     }
 

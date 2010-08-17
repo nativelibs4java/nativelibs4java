@@ -355,7 +355,7 @@ public class ComparisonTest {
 		com.sun.jna.Memory pJNA = new com.sun.jna.Memory(100);
         ByteBuffer pNIO = ByteBuffer.allocateDirect(100);
 		
-		for (int i = 0; i < warmup; i++)
+        for (int i = 0; i < warmup; i++)
 			new StructTest.MyStruct(pBridJ);
 		
 		for (int i = 0; i < warmup; i++)
@@ -400,17 +400,18 @@ public class ComparisonTest {
 		{
 			long start = System.nanoTime();
 			for (int i = 0; i < n; i++)
-				new StructTest.MyStruct(pBridJ);
+				new StructTest.MyJavolutionStruct().setByteBuffer(pNIO, 0);
 			
-			timeBridJ = System.nanoTime() - start;
+			timeJavolution = System.nanoTime() - start;
 		}
+		//*/
         doGC();
 		{
 			long start = System.nanoTime();
 			for (int i = 0; i < n; i++)
-				new StructTest.MyJavolutionStruct().setByteBuffer(pNIO, 0);
+				new StructTest.MyStruct(pBridJ);
 			
-			timeJavolution = System.nanoTime() - start;
+			timeBridJ = System.nanoTime() - start;
 		}
         double bridJFaster = printResults("Cast to struct", "Cast to BridJ's structs", "cast", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
         
@@ -624,6 +625,8 @@ public class ComparisonTest {
         assertBridJFaster(bridJFaster, 1.7); // */
 	}
 	static void assertBridJFaster(double factor, double minExpectedFactor) {
+		if (factor < 0)
+			return;
 		assertTrue("BridJ is not as fast as expected (" + factor + "x faster, expected > " + minExpectedFactor + "x faster)", factor >= minExpectedFactor);
 	}
     static double printResults(String title, String longOp, String op, long n, long timeJNA, long timeOptimal, long timeBridJ, long timeNIO, long timeJavolution) {
