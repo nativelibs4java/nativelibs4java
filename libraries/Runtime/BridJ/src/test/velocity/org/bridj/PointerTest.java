@@ -196,13 +196,11 @@ public class PointerTest {
 				{(${prim.Name})10, (${prim.Name})20},
 				{(${prim.Name})100, (${prim.Name})200}
 		};
-		Pointer<${prim.WrapperName}> p = Pointer.pointerTo${prim.CapName}s(values);
+		Pointer<Pointer<${prim.WrapperName}>> p = Pointer.pointerTo${prim.CapName}s(values);
 		int dim2 = values[0].length;
-		for (int i = 0; i < values.length; i++) {
-			for (int j = 0; j < dim2; j++) {
-				assertEquals(values[i][j], p.get(i * dim2 + j), 0);
-			}
-		}
+		for (int i = 0; i < values.length; i++)
+			for (int j = 0; j < dim2; j++)
+				assertEquals(values[i][j], p.get(i).get(j), 0);
 	}
 	
 	@Test 

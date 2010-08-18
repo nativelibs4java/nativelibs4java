@@ -675,7 +675,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return pointer == null ? 0 : pointer.getPeer();
     }
 	
-	public int getTargetSize() {
+	public long getTargetSize() {
 		PointerIO<T> io = getIO();
         if (io == null)
             throwBecauseUntyped("Cannot compute target size");
@@ -872,19 +872,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     public static <V> Pointer<V> allocate(PointerIO<V> io) {
-    	int targetSize = io.getTargetSize();
+    	long targetSize = io.getTargetSize();
     	if (targetSize < 0)
     		throwBecauseUntyped("Cannot allocate array ");
 		return allocateBytes(io, targetSize, null);
     }
     public static <V> Pointer<V> allocateArray(PointerIO<V> io, long arrayLength) {
-		int targetSize = io.getTargetSize();
+		long targetSize = io.getTargetSize();
     	if (targetSize < 0)
     		throwBecauseUntyped("Cannot allocate array ");
 		return allocateBytes(io, targetSize * arrayLength, null);
     }
     public static <V> Pointer<V> allocateArray(PointerIO<V> io, long arrayLength, final Releaser beforeDeallocation) {
-		int targetSize = io.getTargetSize();
+		long targetSize = io.getTargetSize();
     	if (targetSize < 0)
     		throwBecauseUntyped("Cannot allocate array ");
 		return allocateBytes(io, targetSize * arrayLength, beforeDeallocation);
@@ -1005,12 +1005,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * @param values initial values for the created memory location
      * @return pointer to a new memory location that initially contains the ${prim.Name} values provided in argument packed as a 2D C array would be
      */
-    public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.Name}[][] values) {
+    public static Pointer<Pointer<${prim.WrapperName}>> pointerTo${prim.CapName}s(${prim.Name}[][] values) {
         if (values == null)
 			return null;
 		int dim1 = values.length, dim2 = values[0].length;
-		Pointer<${prim.WrapperName}> mem = allocateArray(PointerIO.get${prim.CapName}Instance(), dim1 * dim2);
-        for (int i1 = 0; i1 < dim1; i1++)
+		Pointer<Pointer<${prim.WrapperName}>> mem = allocate${prim.CapName}s(dim1, dim2);
+		for (int i1 = 0; i1 < dim1; i1++)
         	mem.set${prim.CapName}s(i1 * dim2 * ${prim.Size}, values[i1], 0, dim2);
 		return mem;
     }
@@ -1023,14 +1023,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * @param values initial values for the created memory location
      * @return pointer to a new memory location that initially contains the ${prim.Name} values provided in argument packed as a 3D C array would be
      */
-    public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.Name}[][][] values) {
+    public static Pointer<Pointer<Pointer<${prim.WrapperName}>>> pointerTo${prim.CapName}s(${prim.Name}[][][] values) {
         if (values == null)
 			return null;
 		int dim1 = values.length, dim2 = values[0].length, dim3 = values[0][0].length;
-		Pointer<${prim.WrapperName}> mem = allocateArray(PointerIO.get${prim.CapName}Instance(), dim1 * dim2 * dim3);
-        for (int i1 = 0; i1 < dim1; i1++)
-        	for (int i2 = 0; i2 < dim2; i2++)
-				mem.set${prim.CapName}s((i1 * dim2 + i2) * dim3 * ${prim.Size}, values[i1][i2], 0, dim3);
+		Pointer<Pointer<Pointer<${prim.WrapperName}>>> mem = allocate${prim.CapName}s(dim1, dim2, dim3);
+		for (int i1 = 0; i1 < dim1; i1++) {
+        	int offset1 = i1 * dim2;
+        	for (int i2 = 0; i2 < dim2; i2++) {
+        		int offset2 = (offset1 + i2) * dim3;
+				mem.set${prim.CapName}s(offset2 * ${prim.Size}, values[i1][i2], 0, dim3);
+			}
+		}
 		return mem;
     }
 	
@@ -1051,6 +1055,28 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      */
     public static Pointer<${prim.WrapperName}> allocate${prim.CapName}s(long arrayLength) {
         return allocateArray(PointerIO.get${prim.CapName}Instance(), arrayLength);
+    }
+    
+    public static Pointer<Pointer<${prim.WrapperName}>> allocate${prim.CapName}s(long dim1, long dim2) {
+        return allocateArray(PointerIO.getArrayInstance(PointerIO.get${prim.CapName}Instance(), new long[] { dim1, dim2 }, 0), dim1);
+        
+    }
+    public static Pointer<Pointer<Pointer<${prim.WrapperName}>>> allocate${prim.CapName}s(long dim1, long dim2, long dim3) {
+        long[] dims = new long[] { dim1, dim2, dim3 };
+		return
+			allocateArray(
+				PointerIO.getArrayInstance(
+					PointerIO.getArrayInstance(
+						PointerIO.get${prim.CapName}Instance(), 
+						dims,
+						1
+					),
+					dims,
+					0
+				),
+				dim1
+			)
+		;
     }
 
 #end

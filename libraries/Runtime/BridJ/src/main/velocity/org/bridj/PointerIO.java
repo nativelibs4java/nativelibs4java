@@ -29,11 +29,11 @@ public abstract class PointerIO<T> {
 	PointerIO<Pointer<T>> getReferenceIO() {
 		return new CommonPointerIOs.PointerPointerIO<T>(this);
 	}
-	public int getTargetSize() {
+	public long getTargetSize() {
 		return targetSize;
 	}
 	public int getTargetAlignment() { 
-		return targetAlignment < 0 ? getTargetSize() : targetAlignment;
+		return targetAlignment < 0 ? (int)getTargetSize() : targetAlignment;
 	}
 	public boolean isTypedPointer() {
 		return typedPointerClass != null;
@@ -66,6 +66,10 @@ public abstract class PointerIO<T> {
 	public static <T> PointerIO<Pointer<T>> getPointerInstance(PointerIO<T> targetIO) {
 		return new CommonPointerIOs.PointerPointerIO<T>(targetIO);
 	}
+	public static <T> PointerIO<Pointer<T>> getArrayInstance(PointerIO<T> targetIO, long[] dimensions, int iDimension) {
+		return new CommonPointerIOs.PointerArrayIO<T>(targetIO, dimensions, iDimension);
+	}
+	
     public synchronized static <S extends StructObject> PointerIO<S> getInstance(StructIO s) {
         return new CommonPointerIOs.StructPointerIO(s);
     }

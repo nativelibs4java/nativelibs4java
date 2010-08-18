@@ -2,6 +2,8 @@ package org.bridj;
 import org.bridj.util.*;
 import java.util.*;
 import java.lang.reflect.Type;
+import com.ochafik.util.string.StringUtils;
+import static org.bridj.util.DefaultParameterizedType.*;
 
 class CommonPointerIOs {
 
@@ -13,7 +15,7 @@ class CommonPointerIOs {
 		}
 
         @Override
-        public int getTargetSize() {
+        public long getTargetSize() {
         	structIO.build();
             return structIO.getStructSize();
         }
@@ -37,7 +39,7 @@ class CommonPointerIOs {
 		final PointerIO<T> underlyingIO;
 
 		public PointerPointerIO(PointerIO<T> underlyingIO) {
-			super(underlyingIO == null ? null : new DefaultParameterizedType(Pointer.class, new Type[] {underlyingIO.getTargetType()}), Pointer.SIZE, null);
+			super(underlyingIO == null ? null : paramType(Pointer.class, new Type[] {underlyingIO.getTargetType()}), Pointer.SIZE, null);
 			this.underlyingIO = underlyingIO;
 		}
 		
@@ -49,6 +51,67 @@ class CommonPointerIOs {
 		@Override
 		public void set(Pointer<Pointer<T>> pointer, long index, Pointer<T> value) {
 			pointer.setPointer(index * Pointer.SIZE, value);
+		}
+	}
+	
+	static class PointerArrayIO<T> extends PointerIO<Pointer<T>> {
+		final PointerIO<T> underlyingIO;
+		final long[] dimensions;
+		final long totalRemainingDims;
+		final int iDimension;
+
+		static Type arrayPtrType(Type elementType, long... dimensions) {
+			Type type = elementType;
+			for (int i = 0; i < dimensions.length; i++)
+				type = paramType(Pointer.class, type);
+			return type;
+		}
+		static long getTotalRemainingDims(long[] dimensions, int iDimension) {
+			long d = 1;
+			for (int i = iDimension + 1; i < dimensions.length; i++)
+				d *= dimensions[i];
+			return d;
+		}
+		
+		public PointerArrayIO(PointerIO<T> underlyingIO, long[] dimensions, int iDimension) {
+			super(
+				underlyingIO == null ? null : arrayPtrType(underlyingIO.getTargetType(), dimensions), 
+				-1, 
+				null
+			);
+			if (iDimension >= dimensions.length - 2) {
+				this.underlyingIO = underlyingIO;
+			} else {
+				this.underlyingIO = new PointerArrayIO(underlyingIO, dimensions, iDimension + 1);
+			}
+			this.dimensions = dimensions;
+			this.iDimension = iDimension;
+			totalRemainingDims = getTotalRemainingDims(dimensions, iDimension);
+		}
+		
+		@Override
+		public long getTargetSize() {
+			return underlyingIO.getTargetSize() * totalRemainingDims;
+		}
+		
+		@Override
+		public Pointer<T> get(Pointer<Pointer<T>> pointer, long index) {
+			long offset = getOffset(index);
+			return pointer.offset(offset * underlyingIO.getTargetSize()).withIO(underlyingIO);
+		}
+
+		long getOffset(long index) {
+			assert iDimension < dimensions.length;
+			long offset = index * totalRemainingDims;
+			
+			List<Long> list = new ArrayList<Long>();
+			for (long i : dimensions)
+				list.add(i);
+			return offset;
+		}
+		@Override
+		public void set(Pointer<Pointer<T>> pointer, long index, Pointer<T> value) {
+			throw new RuntimeException("Cannot set a multi-dimensional array's sub-arrays pointers !");
 		}
 	}
 	
