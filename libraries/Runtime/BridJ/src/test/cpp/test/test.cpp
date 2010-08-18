@@ -57,7 +57,7 @@ extern "C" {
 void otherFunc() {
 	//cout << "other\n";
 }
-JNIEXPORT jint JNICALL Java_com_bridj_PerfLib_testAddJNI(JNIEnv *, jclass, jint a, jint b) {
+JNIEXPORT jint JNICALL Java_org_bridj_PerfLib_testAddJNI(JNIEnv *, jclass, jint a, jint b) {
 	otherFunc();
 	return a + b;
 }
@@ -73,7 +73,7 @@ TEST_API int __cdecl testAddJNA(int a, int b)
 	otherFunc();
 	return a + b;
 }
-JNIEXPORT jdouble JNICALL Java_com_bridj_PerfLib_testASinB(JNIEnv *, jclass, jint a, jint b)
+JNIEXPORT jdouble JNICALL Java_org_bridj_PerfLib_testASinB(JNIEnv *, jclass, jint a, jint b)
 {
 	otherFunc();
 	return a * sin((double)b);
@@ -245,4 +245,4 @@ TEST_API int forwardCall(fun_iii f, int a, int b) {
 	return res;
 }
 
-#include "../../../../target/generated-sources/test/com/bridj/CallTest.cpp"
+#include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"

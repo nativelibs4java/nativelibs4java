@@ -89,14 +89,6 @@ typedef struct CommonCallbackInfo {
 #endif
 } CommonCallbackInfo;
 
-///*
-typedef struct CPPMethodCallInfo {
-	struct CommonCallbackInfo fInfo;
-	jclass fClass;
-	void* fForwardedSymbol;
-} CPPMethodCallInfo;
-//*/
-
 typedef struct VirtualMethodCallInfo {
 	struct CommonCallbackInfo fInfo;
 	jclass fClass;
@@ -109,7 +101,7 @@ typedef struct FunctionCallInfo {
 	struct CommonCallbackInfo fInfo;
 	jclass fClass;
 	void* fForwardedSymbol;
-} FunctionCallInfo;//, CPPMethodCallInfo;
+} FunctionCallInfo, CPPMethodCallInfo;
 
 #if defined (DC__OS_Darwin)
 #include <objc/objc.h>
