@@ -433,7 +433,7 @@ public class JavaCLGenerator extends JNAerator {
                                 varRef(argName),
                                 methodCall(
                                     "readRawSourceForClass",
-                                    classLiteral(typeRef(name))
+                                    result.typeConverter.typeLiteral(typeRef(name))
                                 )
                             )
                         )

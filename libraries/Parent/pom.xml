@@ -138,6 +138,20 @@ Most of these wrappers are created automatically by JNAerator.
 			<id>jnaerator</id>
 			<url>http://jnaerator.sourceforge.net/maven</url>
 		</repository>
+		<!-- http://stackoverflow.com/questions/1962718/maven-and-the-jogl-library
+		http://jogamp.762907.n3.nabble.com/What-about-Maven-td844816.html
+		-->
+		<repository>
+			<id>blackpad-nexus</id>
+			<name>Blackpad Nexus</name>
+			<layout>default</layout>
+			<url>http://www.blackpad.fr/nexus/content/groups/public</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+
+
 	</repositories>
 	
 	<build>
