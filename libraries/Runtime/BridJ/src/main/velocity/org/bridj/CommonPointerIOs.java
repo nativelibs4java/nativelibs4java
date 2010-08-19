@@ -102,12 +102,7 @@ class CommonPointerIOs {
 
 		long getOffset(long index) {
 			assert iDimension < dimensions.length;
-			long offset = index * totalRemainingDims;
-			
-			List<Long> list = new ArrayList<Long>();
-			for (long i : dimensions)
-				list.add(i);
-			return offset;
+			return index * totalRemainingDims;
 		}
 		@Override
 		public void set(Pointer<Pointer<T>> pointer, long index, Pointer<T> value) {

@@ -1,6 +1,6 @@
 0000000000001b78 s  stub helpers
-00000000000015c0 T _Java_com_bridj_PerfLib_testASinB
-0000000000001610 T _Java_com_bridj_PerfLib_testAddJNI
+00000000000015c0 T _Java_org_bridj_PerfLib_testASinB
+0000000000001610 T _Java_org_bridj_PerfLib_testAddJNI
 0000000000001030 t __GLOBAL__I_ntest
                  U __Unwind_Resume
 0000000000001750 T __Z10createTestv
