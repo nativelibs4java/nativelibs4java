@@ -766,15 +766,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return getPeer() == p.getPeer();
 	}
 	
-	/**
-	 * Used in case of pointers that don't have peers to compare.
-	 * This can be overridden to provide an identity equality that takes underlying data into account.
-	 */
-	protected boolean identityEqual(Pointer p) {
-		return super.equals(p);	 
-	}
-
-    @Deprecated
+	@Deprecated
     public static Pointer<?> pointerToAddress(long address) {
         return newPointer(null, address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, null);
     }
@@ -1011,7 +1003,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     /**
      * Allocate enough memory for a single ${prim.Name} value, copy the value provided in argument into it and return a pointer to that memory.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
      * @param value initial value for the created memory location
      * @return pointer to a new memory location that initially contains the ${prim.Name} value given in argument
      */
@@ -1024,7 +1016,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Allocate enough memory for values.length ${prim.Name} values, copy the values provided as argument into it and return a pointer to that memory.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
      * The returned pointer is also an {@code Iterable<${prim.WrapperName}>} instance that can be safely iterated upon :
      <pre>{@code
      for (float f : pointerTo(1f, 2f, 3.3f))
@@ -1041,10 +1033,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     /**
-     * Allocate enough memory for all the values in the 2D ${prim.Name} array, copy the values provided as argument into it as packed C array and return a pointer to that memory.<br/>
+     * Allocate enough memory for all the values in the 2D ${prim.Name} array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br/>
      * Assumes that all of the subarrays of the provided array are non null and have the same size.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
      * @param values initial values for the created memory location
      * @return pointer to a new memory location that initially contains the ${prim.Name} values provided in argument packed as a 2D C array would be
      */
@@ -1059,10 +1051,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     /**
-     * Allocate enough memory for all the values in the 3D ${prim.Name} array, copy the values provided as argument into it as packed C array and return a pointer to that memory.<br/>
+     * Allocate enough memory for all the values in the 3D ${prim.Name} array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br/>
      * Assumes that all of the subarrays of the provided array are non null and have the same size.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
      * @param values initial values for the created memory location
      * @return pointer to a new memory location that initially contains the ${prim.Name} values provided in argument packed as a 3D C array would be
      */
@@ -1092,7 +1084,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     /**
      * Allocate enough memory for arrayLength ${prim.Name} values and return a pointer to that memory.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
      * The returned pointer is also an {@code Iterable<${prim.WrapperName}>} instance that can be safely iterated upon.
      * @return pointer to arrayLength zero-initialized ${prim.Name} consecutive values
      */
@@ -1281,7 +1273,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Allocate enough memory for a single ${sizePrim} value, copy the value provided in argument into it and return a pointer to that memory.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
      * @param value initial value for the created memory location
      * @return pointer to a new memory location that initially contains the ${sizePrim} value given in argument
      */
@@ -1293,7 +1285,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Allocate enough memory for values.length ${sizePrim} values, copy the values provided as argument into it and return a pointer to that memory.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
      * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon :
      <pre>{@code
      for (float f : pointerTo(1f, 2f, 3.3f))
@@ -1309,7 +1301,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Allocate enough memory for values.length ${sizePrim} values, copy the values provided as argument into it and return a pointer to that memory.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
      * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon :
      <pre>{@code
      for (float f : pointerTo(1f, 2f, 3.3f))
@@ -1326,7 +1318,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Allocate enough memory for values.length ${sizePrim} values, copy the values provided as argument into it and return a pointer to that memory.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
      * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon :
      <pre>{@code
      for (float f : pointerTo(1f, 2f, 3.3f))
@@ -1370,7 +1362,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Allocate enough memory for arrayLength size_t values and return a pointer to that memory.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
      * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon.
      * @return pointer to arrayLength zero-initialized ${sizePrim} consecutive values
      */
@@ -1705,111 +1697,140 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 #end
 
 	/**
-	 * Type of a String<br>
-	 * In the native world, there are several ways to represent a string.
+	 * Type of a native character string.<br>
+	 * In the native world, there are several ways to represent a string.<br>
+	 * See {@link Pointer#getString(long, Charset, StringType)} and {@link Pointer#setString(long, String, Charset, StringType)}
 	 */
     public enum StringType {
+        /**
+    	 * C strings (a.k.a "NULL-terminated strings") have no size limit and are the most used strings in the C world.
+    	 * They are stored with the bytes of the string (using either a single-byte encoding such as ASCII, ISO-8859 or windows-1252 or a C-string compatible multi-byte encoding, such as UTF-8), followed with a zero byte that indicates the end of the string.<br>
+    	 * Corresponding C types : {@code char* } and {@code const char* }<br>
+    	 * See {@link Pointer#getCString()} and {@link Pointer#setCString(String)}
+    	 */
+        C,
+        /**
+        * Wide C strings are stored as C strings (see {@link StringType#C}) except they are composed of shorts instead of bytes (and are ended by one zero short value = two zero byte values). This allows the use of two-bytes encodings, which is why this kind of strings is often found in modern Unicode-aware system APIs.<br>
+    	 * Corresponding C types : {@code wchar_t* } and {@code const wchar_t* }<br>
+    	 * See {@link Pointer#getWideCString()} and {@link Pointer#setWideCString(String)}
+    	 */
+        WideC,
     	/**
     	 * Pascal strings can be up to 256 characters long.<br>
     	 * They are stored with a first byte that indicates the length of the string, followed by the ascii or extended ascii chars of the string (no support for multibyte encoding).<br>
     	 * They are often used in very old Mac OS programs and / or Pascal programs.<br>
-    	 * C type : {@code unsigned char* }
+    	 * Usual corresponding C types : {@code unsigned char* } and {@code const unsigned char* }<br>
+    	 * See {@link Pointer#getPascalString()} and {@link Pointer#setPascalString(String)}
     	 */
-        Pascal, 
-        /**
-    	 * C strings (a.k.a "NULL-terminated strings") have no size limit and are the most used strings in the C world.
-    	 * They are stored with the bytes of the string (using either a single-byte encoding such as ASCII, ISO-8859 or windows-1252 or a C-string compatible multi-byte encoding, such as UTF-8), followed with a zero byte that indicates the end of the string.<br>
-    	 * C type : {@code char* }
-    	 */
-        C,
-        /**
-    	 * Wide C strings are stored as C strings except they are streams of shorts instead of bytes (and are ended by one zero short value = two zero byte values). This allows the use of two-bytes encodings, which is why this kind of strings is often found in modern Unicode-aware system APIs.<br>
-    	 * C type : {@code wchar_t* }
-    	 */
-        WideC
+        Pascal
     }
 	
-	public String getString(long byteOffset, Charset charset, StringType type) throws UnsupportedEncodingException {
-        long len;
-        if (type == StringType.Pascal) {
-            len = getByte(byteOffset) & 0xff;
-            byteOffset++;
-		} else {
-            len = type == StringType.WideC ? wcslen(byteOffset) : strlen(byteOffset);
-            if (len >= Integer.MAX_VALUE)
-                throw new IllegalArgumentException("No null-terminated string at this address");
-        }
-		return new String(getBytes(byteOffset, SizeT.safeIntCast(len)), charset.name());
-	}
-
-    public Pointer<T> setCString(long byteOffset, String s) {
+	/**
+	 * Read a native string from the pointed memory location shifted by a byte offset, using the provided charset or the system's default if not provided.
+	 * @param byteOffset
+	 * @param charset charset to use (will use {@link Charset#defaultCharset()} if null)
+	 * @param type type of the string to write
+	 * @return string read from native memory
+	 */
+	public String getString(long byteOffset, Charset charset, StringType type) {
         try {
-            return setString(byteOffset, s, Charset.defaultCharset(), StringType.C);
-        } catch (UnsupportedEncodingException ex) {
-            throwUnexpected(ex);
-            return null;
-        }
-    }
-    
-	public Pointer<T> setString(long byteOffset, String s, Charset charset, StringType type) throws UnsupportedEncodingException {
-        if (type == StringType.WideC)
-            throw new UnsupportedOperationException("Wide strings are not supported yet");
-        
-        byte[] bytes = s.getBytes(charset.name());
-        int bytesCount = bytes.length;
-
-        if (type == StringType.Pascal) {
-            if (bytesCount > 255)
-                throw new IllegalArgumentException("Pascal strings cannot be more than 255 chars long (tried to write string of byte length " + bytesCount + ")");
-            byteOffset++;
-        }
-        setBytes(byteOffset, bytes, 0, bytesCount);
-        if (type == StringType.C)
-            setByte(byteOffset + bytesCount, (byte)0);
-
-        return this;
-    }
-	
-	public String getPascalString(long byteOffset) {
-		try {
-            return getString(byteOffset, Charset.defaultCharset(), StringType.Pascal);
-        } catch (UnsupportedEncodingException ex) {
+			if (charset == null)
+				charset = Charset.defaultCharset();
+			
+			long len;
+			if (type == StringType.Pascal) {
+				len = getByte(byteOffset) & 0xff;
+				byteOffset++;
+			} else {
+				len = type == StringType.WideC ? wcslen(byteOffset) : strlen(byteOffset);
+				if (len >= Integer.MAX_VALUE)
+					throw new IllegalArgumentException("No null-terminated string at this address");
+			}
+			return new String(getBytes(byteOffset, SizeT.safeIntCast(len)), charset.name());
+		} catch (UnsupportedEncodingException ex) {
             throwUnexpected(ex);
             return null;
         }
 	}
-	
-	public String getWideCString(long byteOffset) {
-		try {
-            return getString(byteOffset, Charset.defaultCharset(), StringType.WideC);
-        } catch (UnsupportedEncodingException ex) {
-            throwUnexpected(ex);
-            return null;
-        }
-	}
-	
-	public String getCString() {
-        return getCString(0, false);
-    }
 
-    public String getCString(long byteOffset) {
-        return getCString(byteOffset, false);
-    }
-
-    @Deprecated
-    public String getCString(long byteOffset, boolean wide) {
+    /**
+	 * Write a native string to the pointed memory location shifted by a byte offset, using the provided charset or the system's default if not provided.
+	 * @param byteOffset
+	 * @param s string to write
+	 * @param charset charset to use (will use {@link Charset#defaultCharset()} if null)
+	 * @param type type of the string to write
+	 */
+	public Pointer<T> setString(long byteOffset, String s, Charset charset, StringType type) {
         try {
-            return getString(byteOffset, Charset.defaultCharset(), wide ? StringType.WideC : StringType.C);
-        } catch (UnsupportedEncodingException ex) {
+			if (type == StringType.WideC)
+				throw new UnsupportedOperationException("Wide strings are not supported yet");
+			
+			if (charset == null)
+				charset = Charset.defaultCharset();
+			
+			byte[] bytes = s.getBytes(charset.name());
+			int bytesCount = bytes.length;
+	
+			if (type == StringType.Pascal) {
+				if (bytesCount > 255)
+					throw new IllegalArgumentException("Pascal strings cannot be more than 255 chars long (tried to write string of byte length " + bytesCount + ")");
+				byteOffset++;
+			}
+			setBytes(byteOffset, bytes, 0, bytesCount);
+			if (type == StringType.C)
+				setByte(byteOffset + bytesCount, (byte)0);
+	
+			return this;
+		} catch (UnsupportedEncodingException ex) {
             throwUnexpected(ex);
             return null;
         }
     }
-    
+	
+#foreach ($string in ["C", "WideC", "Pascal"])
+	/**
+	 * Read a ${string} string using the default charset from the pointed memory location (see {@link StringType#${string}}).<br>
+	 * See {@link Pointer#get${string}String(long)} and {@link Pointer#getString(long, Charset, StringType)} for more options
+	 */
+	public String get${string}String() {
+		return get${string}String(0);
+	}
+	
+	/**
+	 * Read a ${string} string using the default charset from the pointed memory location shifted by a byte offset (see {@link StringType#${string}}).<br>
+	 * See {@link Pointer#getString(long, Charset, StringType)} for more options
+	 */
+	public String get${string}String(long byteOffset) {
+		return getString(byteOffset, null, StringType.${string});
+	}
+	
+	/**
+	 * Write a ${string} string using the default charset to the pointed memory location (see {@link StringType#${string}}).<br>
+	 * See {@link Pointer#set${string}String(long, String)} and {@link Pointer#setString(long, Charset, StringType)} for more options
+	 */
+	public Pointer<T> set${string}String(String s) {
+        return set${string}String(0, s);
+    }
+    /**
+	 * Write a ${string} string using the default charset to the pointed memory location shifted by a byte offset (see {@link StringType#${string}}).<br>
+	 * See {@link Pointer#setString(long, Charset, StringType)} for more options
+	 */
+	public Pointer<T> set${string}String(long byteOffset, String s) {
+        return setString(byteOffset, s, null, StringType.${string});
+    }
+	
+#end
+
+	/**
+	 * Get the length of the C string at the pointed memory location shifted by a byte offset (see {@link StringType#C}).
+	 */
 	protected long strlen(long byteOffset) {
 		return JNI.strlen(getCheckedPeer(byteOffset, 1));
 	}
 	
+	/**
+	 * Get the length of the wide C string at the pointed memory location shifted by a byte offset (see {@link StringType#WideC}).
+	 */
 	protected long wcslen(long byteOffset) {
 		return JNI.wcslen(getCheckedPeer(byteOffset, 1));
 	}
@@ -1837,7 +1858,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
-	 * Implementation of {@link List#add(T)} that throws UnsupportedOperationException
+	 * Implementation of {@link List#add(Object)} that throws UnsupportedOperationException
 	 * @throws UnsupportedOperationException
 	 */
     @Deprecated
@@ -1846,7 +1867,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
     /**
-	 * Implementation of {@link List#add(int, T)} that throws UnsupportedOperationException
+	 * Implementation of {@link List#add(int, Object)} that throws UnsupportedOperationException
 	 * @throws UnsupportedOperationException
 	 */
     @Deprecated
@@ -1997,7 +2018,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
-	 * Alias for {@link \#set(long, T)} defined for more natural use from the Scala language.
+	 * Alias for {@link Pointer\#set(long, Object)} defined for more natural use from the Scala language.
 	 */
 	public final void update(long index, T element) {
 		set(index, element);
@@ -2041,7 +2062,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
     /**
-	 * Implementation of {@link List#toArray(U[])}
+	 * Implementation of {@link List#toArray(Object[])}
 	 */
 	public <U> U[] toArray(U[] array) {
 		int n = (int)getRemainingElements();
