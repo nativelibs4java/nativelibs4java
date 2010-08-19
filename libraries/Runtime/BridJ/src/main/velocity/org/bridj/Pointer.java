@@ -44,7 +44,7 @@ import java.nio.charset.Charset;
  * <p>
  * <ul>
  *	<li>Getting the pointer to a struct / a C++ class / a COM object :
- *		{@link Pointer#getPointer(NativeObject)}
+ *		{@link Pointer#pointerTo(NativeObject)}
  *  </li>
  *	<li>Allocating a primitive with / without an initial value (zero-initialized) :<br/>
  *		#foreach ($prim in $primitives)
@@ -571,28 +571,21 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Get a pointer to a native object (C++ or ObjectiveC class, struct, union, callback...) 
      */
     public static <N extends NativeObject> Pointer<N> pointerTo(N instance) {
-    		return getPointer(instance);
+    		return pointerTo(instance);
     }
-    /**
-     * Get a pointer to a native object (C++ or ObjectiveC class, struct, union, callback...) 
-     */
-    public static <N extends NativeObject> Pointer<N> getPointer(N instance) {
-		return getPointer(instance, null);
-    }
-    
     /**
      * Get a pointer to a native object, specifying the type of the pointer's target.<br/>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */
-    public static <R extends NativeObject> Pointer<R> getPointer(NativeObject instance, Class<R> targetType) {
+    public static <R extends NativeObject> Pointer<R> pointerTo(NativeObject instance, Class<R> targetType) {
 		return (Pointer<R>)instance.peer;
     }
     /**
-    * Get the address of a native object, specifying the type of the pointer's target (same as {@code getPointer(instance, targetType).getPeer()}, see {@link getPointer(NativeObject, Class)}).<br/>
+    * Get the address of a native object, specifying the type of the pointer's target (same as {@code pointerTo(instance, targetType).getPeer()}, see {@link pointerTo(NativeObject, Class)}).<br/>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */
     public static long getAddress(NativeObject instance, Class targetType) {
-		return getPointer(instance, targetType).getPeer();
+		return pointerTo(instance, targetType).getPeer();
     }
     
 #docGetOffset("native object", "O extends NativeObject")

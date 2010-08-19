@@ -15,6 +15,6 @@ import org.bridj.ann.Runtime;
 @Runtime(CRuntime.class)
 public abstract class Callback<C extends Callback<C>> extends NativeObject {
 	public Pointer<C> toPointer() {
-		return (Pointer)Pointer.getPointer(this);
+		return (Pointer)Pointer.pointerTo(this);
 	}
 }

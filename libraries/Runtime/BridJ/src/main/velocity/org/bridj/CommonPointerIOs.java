@@ -26,7 +26,7 @@ class CommonPointerIOs {
 		}
 		@Override
 		public void set(Pointer<S> pointer, long index, S value) {
-			Pointer<S> ps = Pointer.getPointer(value);
+			Pointer<S> ps = Pointer.pointerTo(value);
 			pointer.getByteBuffer(index * getTargetSize()).put(ps.getByteBuffer(0));
 		}
 		@Override

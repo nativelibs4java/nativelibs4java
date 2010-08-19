@@ -49,7 +49,7 @@ public class TypedPointersTest {
 	@Test
 	public void testStructTypedPtrField() {
 		MyStruct s = new MyStruct();
-		Pointer<MyStruct> ps = Pointer.getPointer(s);
+		Pointer<MyStruct> ps = Pointer.pointerTo(s);
 		ps.setSizeT(0, 10);
 		MyPtr ptr = s.a();
 		assertTrue(ptr instanceof MyPtr);

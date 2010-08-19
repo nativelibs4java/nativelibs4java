@@ -47,7 +47,7 @@ public class JAWTUtils {
 			
 			JNIEnv env = new JNIEnv(JNI.getEnv());
 			JAWT awt = new JAWT().version(JAWT_VERSION_1_4);
-			Pointer<JAWT> pAwt = getPointer(awt);
+			Pointer<JAWT> pAwt = pointerTo(awt);
 			if (!JAWT_GetAWT(env, pAwt))
 				throw new RuntimeException("Failed to get JAWT pointer !");
 				

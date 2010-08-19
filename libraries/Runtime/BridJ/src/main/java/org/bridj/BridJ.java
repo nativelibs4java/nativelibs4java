@@ -116,8 +116,7 @@ public class BridJ {
 
 	public static void delete(NativeObject nativeObject) {
 		unregisterNativeObject(nativeObject);
-		//TODO call destructor !!! 
-		Pointer.getPointer(nativeObject, null).release();
+		Pointer.pointerTo(nativeObject, null).release();
 	}
 
 	/**
