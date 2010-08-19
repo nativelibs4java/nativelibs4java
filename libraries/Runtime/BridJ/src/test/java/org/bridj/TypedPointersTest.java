@@ -60,7 +60,7 @@ public class TypedPointersTest {
 	public void testStringPointer() {
 		assertNull(Pointer.pointerToCString(null));
 		Pointer<Byte> p = Pointer.pointerToCString("test");
-		assertEquals("test", p.getCString(0));
+		assertEquals("test", p.getCString());
 	}
 	
 	@Test
@@ -72,8 +72,8 @@ public class TypedPointersTest {
 		assertNull(p.get(1));
 		
 		p = Pointer.pointerToCStrings("test1", "test2");
-		assertEquals("test1", p.get(0).getCString(0));
-		assertEquals("test2", p.get(1).getCString(0));
+		assertEquals("test1", p.get(0).getCString());
+		assertEquals("test2", p.get(1).getCString());
 	}
 	
 	@Test

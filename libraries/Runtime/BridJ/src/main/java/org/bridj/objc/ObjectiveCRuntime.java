@@ -72,7 +72,7 @@ public class ObjectiveCRuntime extends CRuntime {
         if (cn == null)
             throw new RuntimeException("Null class name for this ObjectiveC object pointer !");
 
-        String n = cn.getCString(0);
+        String n = cn.getCString();
 
         Class<? extends ObjCObject> c = bridjClassesByObjCName.get(n);
         if (c == null)

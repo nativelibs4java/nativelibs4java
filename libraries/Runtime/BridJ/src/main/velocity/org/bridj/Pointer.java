@@ -68,6 +68,124 @@ import java.nio.charset.Charset;
 public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         //, com.sun.jna.Pointer<Pointer<T>>
 {
+	
+#macro (docAllocateCopy $cPrimName $primWrapper)
+	/**
+     * Allocate enough memory for a single $cPrimName value, copy the value provided in argument into it and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
+     * @param value initial value for the created memory location
+     * @return pointer to a new memory location that initially contains the $cPrimName value given in argument
+     */
+#end
+#macro (docAllocateArrayCopy $cPrimName $primWrapper)
+	/**
+     * Allocate enough memory for values.length $cPrimName values, copy the values provided as argument into it and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
+     * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon :
+     <pre>{@code
+     for (float f : pointerTo(1f, 2f, 3.3f))
+     	System.out.println(f); }</pre>
+     * @param values initial values for the created memory location
+     * @return pointer to a new memory location that initially contains the $cPrimName consecutive values provided in argument
+     */
+#end
+#macro (docAllocateArray2DCopy $cPrimName $primWrapper)
+    /**
+     * Allocate enough memory for all the values in the 2D $cPrimName array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br/>
+     * Assumes that all of the subarrays of the provided array are non null and have the same size.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
+     * @param values initial values for the created memory location
+     * @return pointer to a new memory location that initially contains the $cPrimName values provided in argument packed as a 2D C array would be
+     */
+#end
+#macro (docAllocateArray3DCopy $cPrimName $primWrapper)
+    /**
+     * Allocate enough memory for all the values in the 3D $cPrimName array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br/>
+     * Assumes that all of the subarrays of the provided array are non null and have the same size.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
+     * @param values initial values for the created memory location
+     * @return pointer to a new memory location that initially contains the $cPrimName values provided in argument packed as a 3D C array would be
+     */
+#end
+#macro (docAllocate $cPrimName $primWrapper)
+	/**
+     * Allocate enough memory for a $cPrimName value and return a pointer to it.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * @return pointer to a single zero-initialized $cPrimName value
+     */
+#end
+#macro (docAllocateArray $cPrimName $primWrapper)
+	/**
+     * Allocate enough memory for arrayLength $cPrimName values and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br/>
+     * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon.
+     * @return pointer to arrayLength zero-initialized $cPrimName consecutive values
+     */
+#end
+#macro (docAllocateArray2D $cPrimName $primWrapper)
+	/**
+     * Allocate enough memory for dim1 * dim2 $cPrimName values in a packed multi-dimensional C array and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br/>
+     * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon.
+     * @return pointer to dim1 * dim2 zero-initialized $cPrimName consecutive values
+     */
+#end
+#macro (docAllocateArray3D $cPrimName $primWrapper)
+	/**
+     * Allocate enough memory for dim1 * dim2 * dim3 $cPrimName values in a packed multi-dimensional C array and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br/>
+     * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon.
+     * @return pointer to dim1 * dim2 * dim3 zero-initialized $cPrimName consecutive values
+     */
+#end
+#macro (docGet $cPrimName $primWrapper)
+	/**
+     * Read a $cPrimName value from the pointed memory location
+     */
+#end
+#macro (docGetOffset $cPrimName $primWrapper)
+	/**
+     * Read a $cPrimName value from the pointed memory location shifted by a byte offset
+     */
+#end
+#macro (docGetArray $cPrimName $primWrapper)
+	/**
+     * Read an array of $cPrimName values of the specified size from the pointed memory location
+     */
+#end
+#macro (docGetArrayOffset $cPrimName $primWrapper)
+	/**
+     * Read an array of $cPrimName values of the specified size from the pointed memory location shifted by a byte offset
+     */
+#end
+#macro (docSet $cPrimName $primWrapper)
+	/**
+     * Write a $cPrimName value to the pointed memory location
+     */
+#end
+#macro (docSetOffset $cPrimName $primWrapper)
+    /**
+     * Write a $cPrimName value to the pointed memory location shifted by a byte offset
+     */
+#end
+#macro (docSetArray $cPrimName $primWrapper)
+	/**
+     * Write an array of $cPrimName values to the pointed memory location
+     */
+#end
+#macro (docSetArrayOffset $cPrimName $primWrapper)
+	/**
+     * Write an array of $cPrimName values to the pointed memory location shifted by a byte offset
+     */
+#end
+	
 	/** The NULL pointer is <b>always</b> Java's null value */
     public static final Pointer NULL = null;
 	
@@ -264,9 +382,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     
     /**
      * Cast this pointer to another pointer type
-     * @param <U>
      * @param newIO
-     * @return
      */
     public <U> Pointer<U> withIO(PointerIO<U> newIO) {
     	return cloneAs(isOrdered(), newIO);
@@ -479,14 +595,22 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return getPointer(instance, targetType).getPeer();
     }
     
+#docGetOffset("native object", "O extends NativeObject")
 	public <O extends NativeObject> O getNativeObject(long byteOffset, Type type) {
 		return (O)BridJ.createNativeObjectFromPointer((Pointer<O>)this, type);
 	}
+#docGetOffset("native object", "O extends NativeObject")
     public <O extends NativeObject> O getNativeObject(long byteOffset, Class<O> type) {
 		return (O)getNativeObject(byteOffset, (Type)type);
 	}
+#docGet("native object", "O extends NativeObject")
     public <O extends NativeObject> O getNativeObject(Class<O> type) {
 		return getNativeObject(0, type);
+	}
+#docGet("native object", "O extends NativeObject")
+    public <O extends NativeObject> O getNativeObject(Type type) {
+		O o = (O)getNativeObject(0, type);
+		return o;
 	}
 	
 	/**
@@ -766,46 +890,108 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return getPeer() == p.getPeer();
 	}
 	
-	@Deprecated
-    public static Pointer<?> pointerToAddress(long address) {
-        return newPointer(null, address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, null);
+	/**
+     * Create a pointer out of a native memory address
+     * @param address native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == address }
+     */
+    @Deprecated
+    public static Pointer<?> pointerToAddress(long peer) {
+        return newPointer(null, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, null);
     }
 
+    /**
+     * Create a pointer out of a native memory address
+     * @param size number of bytes known to be readable at the pointed address 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
     @Deprecated
-    public static Pointer<?> pointerToAddress(long address, long size) {
-        return newPointer(null, address, true, address, address + size, null, NO_PARENT, null, null);
+    public static Pointer<?> pointerToAddress(long peer, long size) {
+        return newPointer(null, peer, true, peer, peer + size, null, NO_PARENT, null, null);
     }
     
-    public static Pointer<?> pointerToAddress(long address, Class<?> type, final Releaser releaser) {
-        return newPointer(PointerIO.getInstance(type), address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, null, null);
+    /**
+     * Create a pointer out of a native memory address
+     * @param targetClass type of the elements pointed by the resulting pointer 
+	 * @param releaser object responsible for reclaiming the native memory once whenever the returned pointer is garbage-collected 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    public static Pointer<?> pointerToAddress(long peer, Class<?> targetClass, final Releaser releaser) {
+        return newPointer(PointerIO.getInstance(targetClass), peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, null, null);
     }
-    static <P> Pointer<P> pointerToAddress(long address, PointerIO<P> io) {
-    	return newPointer(io, address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, null);
+    /**
+     * Create a pointer out of a native memory address
+     * @param io PointerIO instance that knows how to read the elements pointed by the resulting pointer 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    static <P> Pointer<P> pointerToAddress(long peer, PointerIO<P> io) {
+    	return newPointer(io, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, null);
 	}
-	static <P> Pointer<P> pointerToAddress(long address, PointerIO<P> io, Releaser releaser) {
-    	return newPointer(io, address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, releaser, null);
+	/**
+     * Create a pointer out of a native memory address
+     * @param io PointerIO instance that knows how to read the elements pointed by the resulting pointer 
+	 * @param releaser object responsible for reclaiming the native memory once whenever the returned pointer is garbage-collected 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    static <P> Pointer<P> pointerToAddress(long peer, PointerIO<P> io, Releaser releaser) {
+    	return newPointer(io, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, releaser, null);
 	}
 	
-	
-	@Deprecated
-    public static Pointer<?> pointerToAddress(long address, Releaser releaser) {
-		return newPointer(null, address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, releaser, null);
+	/**
+     * Create a pointer out of a native memory address
+     * @param releaser object responsible for reclaiming the native memory once whenever the returned pointer is garbage-collected 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    @Deprecated
+    public static Pointer<?> pointerToAddress(long peer, Releaser releaser) {
+		return newPointer(null, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, releaser, null);
 	}
     
-	public static Pointer<?> pointerToAddress(long address, long size, Releaser releaser) {
-        return newPointer(null, address, true, address, address + size, null, NO_PARENT, releaser, null);
+	/**
+     * Create a pointer out of a native memory address
+     * @param releaser object responsible for reclaiming the native memory once whenever the returned pointer is garbage-collected 
+	 * @param size number of bytes known to be readable at the pointed address 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    public static Pointer<?> pointerToAddress(long peer, long size, Releaser releaser) {
+        return newPointer(null, peer, true, peer, peer + size, null, NO_PARENT, releaser, null);
     }
 	
-	@Deprecated
-    public static <P> Pointer<P> pointerToAddress(long address, Class<P> targetClass) {
-    	return newPointer((PointerIO<P>)PointerIO.getInstance(targetClass), address, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, null, null);
+	/**
+     * Create a pointer out of a native memory address
+     * @param targetClass type of the elements pointed by the resulting pointer 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    @Deprecated
+    public static <P> Pointer<P> pointerToAddress(long peer, Class<P> targetClass) {
+    	return newPointer((PointerIO<P>)PointerIO.getInstance(targetClass), peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, null, null);
     }
     
-	static <U> Pointer<U> pointerToAddress(long address, long size, PointerIO<U> io) {
-    	return newPointer(io, address, true, address, address + size, null, NO_PARENT, null, null);
+	/**
+     * Create a pointer out of a native memory address
+     * @param size number of bytes known to be readable at the pointed address 
+	 * @param io PointerIO instance that knows how to read the elements pointed by the resulting pointer 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    static <U> Pointer<U> pointerToAddress(long peer, long size, PointerIO<U> io) {
+    	return newPointer(io, peer, true, peer, peer + size, null, NO_PARENT, null, null);
 	}
 	
-	static <U> Pointer<U> newPointer(
+	/**
+     * Create a pointer out of a native memory address
+     * @param releaser object responsible for reclaiming the native memory once whenever the returned pointer is garbage-collected 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    static <U> Pointer<U> newPointer(
 		PointerIO<U> io, 
 		long peer, 
 		boolean ordered, 
@@ -845,43 +1031,31 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		}
     }
 	
-    /**
-     * Create a memory area large enough to hold a single typed pointer.
-     * @param type type the the typed pointer
-     * @return a pointer to a new memory area large enough to hold a single typed pointer
-     */
+#docAllocate("typed pointer", "P extends TypedPointer")
     public static <P extends TypedPointer> Pointer<P> allocateTypedPointer(Class<P> type) {
     	return (Pointer<P>)(Pointer)allocate(PointerIO.getInstance(type));
     }
-    /**
-     * Create a memory area large enough to hold an array of arrayLength typed pointers.
-     * @param type type the the typed pointers
-     * @param arrayLength size of the allocated array, in elements
-     * @return a pointer to a new memory area large enough to hold an array of arrayLength typed pointers
-     */
+#docAllocateArray("typed pointer", "P extends TypedPointer")
     public static <P extends TypedPointer> Pointer<P> allocateTypedPointers(Class<P> type, long arrayLength) {
     	return (Pointer<P>)(Pointer)allocateArray(PointerIO.getInstance(type), arrayLength);
     }
     /**
-     * Create a memory area large enough to hold a single typed pointer.
+     * Create a memory area large enough to hold a pointer.
      * @param targetType target type of the pointer values to be stored in the allocated memory 
      * @return a pointer to a new memory area large enough to hold a single typed pointer
      */
     public static <P> Pointer<Pointer<P>> allocatePointer(Class<P> targetType) {
     	return (Pointer<Pointer<P>>)(Pointer)allocate(PointerIO.getPointerInstance(targetType)); 
     }
+#docAllocate("untyped pointer", "Pointer<?>")
     /**
-     * Create a memory area large enough to hold a single untyped pointer.
+     * Create a memory area large enough to hold an untyped pointer.
      * @return a pointer to a new memory area large enough to hold a single untyped pointer
      */
     public static <V> Pointer<Pointer<?>> allocatePointer() {
     	return (Pointer)allocate(PointerIO.getPointerInstance());
     }
-    /**
-     * Create a memory area large enough to hold an array of arrayLength untyped pointers.
-     * @param arrayLength size of the allocated array, in elements
-     * @return a pointer to a new memory area large enough to hold an array of arrayLength untyped pointers
-     */
+#docAllocateArray("untyped pointer", "Pointer<?>")
     public static Pointer<Pointer<?>> allocatePointers(int arrayLength) {
 		return (Pointer<Pointer<?>>)(Pointer)allocateArray(PointerIO.getPointerInstance(), arrayLength); 
 	}
@@ -912,18 +1086,38 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     		throwBecauseUntyped("Cannot allocate array ");
 		return allocateBytes(io, targetSize, null);
     }
+    /**
+     * Create a memory area large enough to hold arrayLength items of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
+     * @param elementClass type of the array elements
+     * @param arrayLength length of the array in elements
+     * @return a pointer to a new memory area large enough to hold arrayLength items of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
+     */
     public static <V> Pointer<V> allocateArray(PointerIO<V> io, long arrayLength) {
 		long targetSize = io.getTargetSize();
     	if (targetSize < 0)
     		throwBecauseUntyped("Cannot allocate array ");
 		return allocateBytes(io, targetSize * arrayLength, null);
     }
+    /**
+     * Create a memory area large enough to hold arrayLength items of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
+     * @param elementClass type of the array elements
+     * @param arrayLength length of the array in elements
+     * @param beforeDeallocation fake releaser that should be run just before the memory is actually released, for instance in order to call some object destructor
+     * @return a pointer to a new memory area large enough to hold arrayLength items of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
+     */
     public static <V> Pointer<V> allocateArray(PointerIO<V> io, long arrayLength, final Releaser beforeDeallocation) {
 		long targetSize = io.getTargetSize();
     	if (targetSize < 0)
     		throwBecauseUntyped("Cannot allocate array ");
 		return allocateBytes(io, targetSize * arrayLength, beforeDeallocation);
     }
+    /**
+     * Create a memory area large enough to hold byteSize consecutive bytes and return a pointer to elements of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
+     * @param elementClass type of the array elements
+     * @param arrayLength length of the array in elements
+     * @param beforeDeallocation fake releaser that should be run just before the memory is actually released, for instance in order to call some object destructor
+     * @return a pointer to a new memory area large enough to hold byteSize consecutive bytes
+     */
     public static <V> Pointer<V> allocateBytes(PointerIO<V> io, long byteSize, final Releaser beforeDeallocation) {
         if (byteSize == 0)
         	return null;
@@ -1000,30 +1194,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 
 #foreach ($prim in $primitives)
-    /**
-     * Allocate enough memory for a single ${prim.Name} value, copy the value provided in argument into it and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
-     * @param value initial value for the created memory location
-     * @return pointer to a new memory location that initially contains the ${prim.Name} value given in argument
-     */
+    #docAllocateCopy($prim.Name $prim.WrapperName)
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}(${prim.Name} value) {
         Pointer<${prim.WrapperName}> mem = allocate(PointerIO.get${prim.CapName}Instance());
         mem.set${prim.CapName}(0, value);
         return mem;
     }
 	
-	/**
-     * Allocate enough memory for values.length ${prim.Name} values, copy the values provided as argument into it and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
-     * The returned pointer is also an {@code Iterable<${prim.WrapperName}>} instance that can be safely iterated upon :
-     <pre>{@code
-     for (float f : pointerTo(1f, 2f, 3.3f))
-     	System.out.println(f); }</pre>
-     * @param values initial values for the created memory location
-     * @return pointer to a new memory location that initially contains the ${prim.Name} consecutive values provided in argument
-     */
+#docAllocateArrayCopy($prim.Name $prim.WrapperName)
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.Name}... values) {
         if (values == null)
 			return null;
@@ -1032,14 +1210,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return mem;
     }
     
-    /**
-     * Allocate enough memory for all the values in the 2D ${prim.Name} array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br/>
-     * Assumes that all of the subarrays of the provided array are non null and have the same size.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
-     * @param values initial values for the created memory location
-     * @return pointer to a new memory location that initially contains the ${prim.Name} values provided in argument packed as a 2D C array would be
-     */
+    #docAllocateArray2DCopy($prim.Name $prim.WrapperName)
     public static Pointer<Pointer<${prim.WrapperName}>> pointerTo${prim.CapName}s(${prim.Name}[][] values) {
         if (values == null)
 			return null;
@@ -1050,14 +1221,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return mem;
     }
     
-    /**
-     * Allocate enough memory for all the values in the 3D ${prim.Name} array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br/>
-     * Assumes that all of the subarrays of the provided array are non null and have the same size.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
-     * @param values initial values for the created memory location
-     * @return pointer to a new memory location that initially contains the ${prim.Name} values provided in argument packed as a 3D C array would be
-     */
+    #docAllocateArray3DCopy($prim.Name $prim.WrapperName)
     public static Pointer<Pointer<Pointer<${prim.WrapperName}>>> pointerTo${prim.CapName}s(${prim.Name}[][][] values) {
         if (values == null)
 			return null;
@@ -1073,29 +1237,21 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return mem;
     }
 	
-    /**
-     * Allocate enough memory for a ${prim.Name} value and return a pointer to it.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * @return pointer to a single zero-initialized ${prim.Name} value
-     */
+    #docAllocate($prim.Name $prim.WrapperName)
     public static Pointer<${prim.WrapperName}> allocate${prim.CapName}() {
         return allocate(PointerIO.get${prim.CapName}Instance());
     }
-    /**
-     * Allocate enough memory for arrayLength ${prim.Name} values and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
-     * The returned pointer is also an {@code Iterable<${prim.WrapperName}>} instance that can be safely iterated upon.
-     * @return pointer to arrayLength zero-initialized ${prim.Name} consecutive values
-     */
+    #docAllocateArray($prim.Name $prim.WrapperName)
     public static Pointer<${prim.WrapperName}> allocate${prim.CapName}s(long arrayLength) {
         return allocateArray(PointerIO.get${prim.CapName}Instance(), arrayLength);
     }
     
+    #docAllocateArray2D($prim.Name $prim.WrapperName)
     public static Pointer<Pointer<${prim.WrapperName}>> allocate${prim.CapName}s(long dim1, long dim2) {
         return allocateArray(PointerIO.getArrayInstance(PointerIO.get${prim.CapName}Instance(), new long[] { dim1, dim2 }, 0), dim1);
         
     }
+    #docAllocateArray3D($prim.Name $prim.WrapperName)
     public static Pointer<Pointer<Pointer<${prim.WrapperName}>>> allocate${prim.CapName}s(long dim1, long dim2, long dim3) {
         long[] dims = new long[] { dim1, dim2, dim3 };
 		return
@@ -1270,135 +1426,54 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
 	#foreach ($sizePrim in ["SizeT", "CLong"])
 	
-	/**
-     * Allocate enough memory for a single ${sizePrim} value, copy the value provided in argument into it and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
-     * @param value initial value for the created memory location
-     * @return pointer to a new memory location that initially contains the ${sizePrim} value given in argument
-     */
+#docAllocateCopy($sizePrim $sizePrim)
     public static Pointer<${sizePrim}> pointerTo${sizePrim}(long value) {
 		Pointer<${sizePrim}> p = allocate(PointerIO.get${sizePrim}Instance());
 		p.set${sizePrim}(0, value);
 		return p;
 	}
-	/**
-     * Allocate enough memory for values.length ${sizePrim} values, copy the values provided as argument into it and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
-     * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon :
-     <pre>{@code
-     for (float f : pointerTo(1f, 2f, 3.3f))
-     	System.out.println(f); }</pre>
-     * @param values initial values for the created memory location
-     * @return pointer to a new memory location that initially contains the ${sizePrim} consecutive values provided in argument
-     */
+#docAllocateArrayCopy($sizePrim $sizePrim)
     public static Pointer<${sizePrim}> pointerTo${sizePrim}s(long... values) {
 		if (values == null)
 			return null;
 		return allocateArray(PointerIO.get${sizePrim}Instance(), values.length).set${sizePrim}s(0, values);
 	}
-	/**
-     * Allocate enough memory for values.length ${sizePrim} values, copy the values provided as argument into it and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
-     * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon :
-     <pre>{@code
-     for (float f : pointerTo(1f, 2f, 3.3f))
-     	System.out.println(f); }</pre>
-     * @param values initial values for the created memory location
-     * @return pointer to a new memory location that initially contains the ${sizePrim} consecutive values provided in argument
-     */
+#docAllocateArrayCopy($sizePrim $sizePrim)
     public static Pointer<${sizePrim}> pointerTo${sizePrim}s(${sizePrim}[] values) {
 		if (values == null)
 			return null;
 		return allocateArray(PointerIO.get${sizePrim}Instance(), values.length).set${sizePrim}s(0, values);
 	}
 	
-	/**
-     * Allocate enough memory for values.length ${sizePrim} values, copy the values provided as argument into it and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
-     * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon :
-     <pre>{@code
-     for (float f : pointerTo(1f, 2f, 3.3f))
-     	System.out.println(f); }</pre>
-     * @param values initial values for the created memory location
-     * @return pointer to a new memory location that initially contains the ${sizePrim} consecutive values provided in argument
-     */
+#docAllocateArrayCopy($sizePrim $sizePrim)
     public static Pointer<${sizePrim}> pointerTo${sizePrim}s(int[] values) {
 		if (values == null)
 			return null;
 		return allocateArray(PointerIO.get${sizePrim}Instance(), values.length).set${sizePrim}s(0, values);
 	}
-	#end
 	
-	/**
-	 * Allocate enough memory for a pointer and write the provided pointer value to it.
-	 */
-	public static <T> Pointer<Pointer<T>> pointerToPointer(Pointer<T> value) {
-		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocate(PointerIO.getPointerInstance());
-		p.setPointer(0, value);
-		return p;
-	}
-	
-	/**
-	 * Allocate enough memory for values.length consecutive pointer values and write the provided pointer array to it.
-	 */
-	public static <T> Pointer<Pointer<T>> pointerToPointers(Pointer<T>... values) {
-		if (values == null)
-			return null;
-		int n = values.length, s = Pointer.SIZE;
-		PointerIO<Pointer> pio = PointerIO.getPointerInstance(); // TODO get actual pointer instances PointerIO !!!
-		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocateArray(pio, n);
-		for (int i = 0; i < n; i++) {
-			p.setPointer(i * s, values[i]);
-		}
-		return p;
-	}
-	
-	#foreach ($sizePrim in ["SizeT", "CLong"])
-	
-	/**
-     * Allocate enough memory for arrayLength size_t values and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
-     * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon.
-     * @return pointer to arrayLength zero-initialized ${sizePrim} consecutive values
-     */
+#docAllocateArray($sizePrim $sizePrim)
     public static Pointer<${sizePrim}> allocate${sizePrim}s(long arrayLength) {
 		return allocateArray(PointerIO.get${sizePrim}Instance(), arrayLength);
 	}
-	/**
-     * Allocate enough memory for a size_t value and return a pointer to it.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * @return pointer to a single zero-initialized size_t value
-     */
+#docAllocate($sizePrim $sizePrim)
     public static Pointer<${sizePrim}> allocate${sizePrim}() {
 		return allocate(PointerIO.get${sizePrim}Instance());
 	}
 	
-	/**
-     * Read a size_t value from the pointed memory location
-     */
+#docGet($sizePrim $sizePrim)
     public long get${sizePrim}() {
 		return get${sizePrim}(0);
 	}
-	/**
-     * Read a size_t value from the pointed memory location shifted by a byte offset
-     */
+#docGetOffset($sizePrim $sizePrim)
     public long get${sizePrim}(long byteOffset) {
 		return ${sizePrim}.SIZE == 8 ? getLong(byteOffset) : 0xffffffffL & getInt(byteOffset);
 	}
-	/**
-     * Read an array of size_t values of the specified size from the pointed memory location
-     */
+#docGetArray($sizePrim $sizePrim)
     public long[] get${sizePrim}s(int arrayLength) {
 		return get${sizePrim}s(0, arrayLength);
 	}
-	/**
-     * Read an array of size_t values of the specified size from the pointed memory location shifted by a byte offset
-     */
+#docGetArrayOffset($sizePrim $sizePrim)
     public long[] get${sizePrim}s(long byteOffset, int arrayLength) {
 		if (${sizePrim}.SIZE == 8)  
 			return getLongs(byteOffset, arrayLength);
@@ -1411,21 +1486,15 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return ret;
 	}
 	
-	/**
-     * Write a size_t value to the pointed memory location
-     */
+#docSet($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}(long value) {
 		return set${sizePrim}(0, value);
 	}
-    /**
-     * Write a size_t value to the pointed memory location
-     */
+    #docSet($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}(${sizePrim} value) {
 		return set${sizePrim}(0, value);
 	}
-    /**
-     * Write a size_t value to the pointed memory location shifted by a byte offset
-     */
+    #docSetOffset($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}(long byteOffset, long value) {
 		if (${sizePrim}.SIZE == 8)
 			setLong(byteOffset, value);
@@ -1435,33 +1504,23 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return this;
 	}
 	
-    /**
-     * Write a size_t value to the pointed memory location shifted by a byte offset
-     */
+    #docSetOffset($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}(long byteOffset, ${sizePrim} value) {
 		return set${sizePrim}(byteOffset, value.longValue());
 	}
-	/**
-     * Write an array of size_t values to the pointed memory location
-     */
+#docSetArray($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}s(long[] values) {
 		return set${sizePrim}s(0, values);
 	}
-	/**
-     * Write an array of size_t values to the pointed memory location
-     */
+#docSetArray($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}s(int[] values) {
 		return set${sizePrim}s(0, values);
 	}
-	/**
-     * Write an array of size_t values to the pointed memory location
-     */
+#docSetArray($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}s(${sizePrim}[] values) {
 		return set${sizePrim}s(0, values);
 	}
-	/**
-     * Write an array of size_t values to the pointed memory location shifted by a byte offset
-     */
+#docSetArrayOffset($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}s(long byteOffset, long[] values) {
 		if (${sizePrim}.SIZE == 8) {
 			setLongs(byteOffset, values);
@@ -1472,9 +1531,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		}
 		return this;
 	}
-	/**
-     * Write an array of size_t values to the pointed memory location shifted by a byte offset
-     */
+#docSetArrayOffset($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}s(long byteOffset, ${sizePrim}... values) {
 		if (values == null)
 			throw new IllegalArgumentException("Null values");
@@ -1483,9 +1540,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 			set${sizePrim}(i * s, values[i].longValue());
 		return this;
 	}
-	/**
-     * Write an array of size_t values to the pointed memory location shifted by a byte offset
-     */
+#docSetArrayOffset($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}s(long byteOffset, int[] values) {
 		if (${sizePrim}.SIZE == 4) {
 			setInts(byteOffset, values);
@@ -1498,6 +1553,26 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	#end
+	
+#docAllocateCopy("pointer", "Pointer")
+    public static <T> Pointer<Pointer<T>> pointerToPointer(Pointer<T> value) {
+		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocate(PointerIO.getPointerInstance());
+		p.setPointer(0, value);
+		return p;
+	}
+	
+#docAllocateArrayCopy("pointer", "Pointer")
+	public static <T> Pointer<Pointer<T>> pointerToPointers(Pointer<T>... values) {
+		if (values == null)
+			return null;
+		int n = values.length, s = Pointer.SIZE;
+		PointerIO<Pointer> pio = PointerIO.getPointerInstance(); // TODO get actual pointer instances PointerIO !!!
+		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocateArray(pio, n);
+		for (int i = 0; i < n; i++) {
+			p.setPointer(i * s, values[i]);
+		}
+		return p;
+	}
 	
 	static Class<?> getPrimitiveType(Buffer buffer) {
 

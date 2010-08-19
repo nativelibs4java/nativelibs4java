@@ -1,7 +1,6 @@
 package org.bridj.cpp.mfc;
 
 import org.bridj.Pointer;
-import org.bridj.WString;
 import org.bridj.ann.Field;
 import org.bridj.ann.NotNull;
 import org.bridj.ann.Struct;
@@ -39,10 +38,10 @@ public class CRuntimeClass extends MFCObject {
 	public native boolean IsDerivedFrom(Pointer<CRuntimeClass> pBaseClass);
 
 	// dynamic name lookup and creation
-	public native static Pointer<CRuntimeClass> FromName(Pointer<String> /*LPCSTR*/ lpszClassName);
-	public native static Pointer<CRuntimeClass> FromName$2(Pointer<WString> lpszClassName);
-	public native static Pointer<CObject> CreateObject(Pointer<String> lpszClassName);
-	public native static Pointer<CObject> CreateObject$2(Pointer<WString> lpszClassName);
+	public native static Pointer<CRuntimeClass> FromName(Pointer<Byte> /*LPCSTR*/ lpszClassName);
+	public native static Pointer<CRuntimeClass> FromName$2(Pointer<Character> lpszClassName);
+	public native static Pointer<CObject> CreateObject(Pointer<Byte> lpszClassName);
+	public native static Pointer<CObject> CreateObject$2(Pointer<Character> lpszClassName);
 
 	// Implementation
 	public native void Store(@NotNull Pointer<CArchive> ar);

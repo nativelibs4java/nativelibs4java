@@ -62,7 +62,7 @@ class BitFields {
 		}
 		public Object readObject(Pointer p, long offset) {
 			p = p.getPointer(offset);
-			return p != null ? wide ? (Object)p.getCString(0, true) : (Object)p.getCString(0) : null;
+			return p != null ? wide ? (Object)p.getWideCString() : (Object)p.getCString() : null;
 		}
 		public int size() {
 			return Pointer.SIZE;

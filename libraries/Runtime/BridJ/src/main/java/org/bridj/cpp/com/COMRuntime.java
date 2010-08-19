@@ -163,7 +163,7 @@ public class COMRuntime extends CPPRuntime {
         try {
             int ret = CoCreateInstance(clsid, null, CLSCTX_ALL, uuid, p);
             if (ret == REGDB_E_CLASSNOTREG)
-                throw new ClassNotFoundException("COM class is not registered : " + instanceClass.getSimpleName() + " (clsid = " + clsid.getCString(0) + ")");
+                throw new ClassNotFoundException("COM class is not registered : " + instanceClass.getSimpleName() + " (clsid = " + clsid.getCString() + ")");
             error(ret);
 
             Pointer<?> inst = p.getPointer(0);
