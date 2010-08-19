@@ -571,21 +571,21 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Get a pointer to a native object (C++ or ObjectiveC class, struct, union, callback...) 
      */
     public static <N extends NativeObject> Pointer<N> pointerTo(N instance) {
-    		return pointerTo(instance);
+    		return pointerTo(instance, null);
     }
     /**
      * Get a pointer to a native object, specifying the type of the pointer's target.<br/>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */
     public static <R extends NativeObject> Pointer<R> pointerTo(NativeObject instance, Class<R> targetType) {
-		return (Pointer<R>)instance.peer;
+		return instance == null ? null : (Pointer<R>)instance.peer;
     }
     /**
     * Get the address of a native object, specifying the type of the pointer's target (same as {@code pointerTo(instance, targetType).getPeer()}, see {@link pointerTo(NativeObject, Class)}).<br/>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */
     public static long getAddress(NativeObject instance, Class targetType) {
-		return pointerTo(instance, targetType).getPeer();
+		return getPeer(pointerTo(instance, targetType));
     }
     
 #docGetOffset("native object", "O extends NativeObject")
