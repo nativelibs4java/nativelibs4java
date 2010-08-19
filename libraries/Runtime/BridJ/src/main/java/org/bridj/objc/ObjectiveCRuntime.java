@@ -77,7 +77,7 @@ public class ObjectiveCRuntime extends CRuntime {
         Class<? extends ObjCObject> c = bridjClassesByObjCName.get(n);
         if (c == null)
             throw new RuntimeException("Class " + n + " was not registered yet in the BridJ runtime ! (TODO : auto create by scanning path, then reflection !)");
-        return (T)id.toNativeObject(c);
+        return (T)id.getNativeObject(c);
     }
     /*
 

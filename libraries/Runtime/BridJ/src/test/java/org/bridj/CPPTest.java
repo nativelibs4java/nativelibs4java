@@ -69,7 +69,7 @@ public class CPPTest {
 		int c = instance.testVirtualAdd(a, b);
 		assertEquals(res, c);
 
-        c = Pointer.getPointer(instance).toNativeObject(Ctest.class).testAdd(a, b);
+        c = Pointer.getPointer(instance).getNativeObject(Ctest.class).testAdd(a, b);
         assertEquals(baseRes, c);
 
         if (JNI.isWindows()) {

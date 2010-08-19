@@ -379,7 +379,7 @@ public class TestCPP {
 		Pointer<org.bridj.TestCPP.MyCallback> ptr = getAdder();
         if (ptr == null)
             throw new RuntimeException("getAdder returned null adder !!!");
-		MyCallback adder = ptr.toNativeObject(MyCallback.class);
+		MyCallback adder = ptr.getNativeObject(MyCallback.class);
 		int res = adder.doSomething(1, 2);
 
         if (res != 3)

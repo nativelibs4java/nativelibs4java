@@ -52,7 +52,7 @@ interface CallIO {
 		}
 		@Override
 		public NativeObject newInstance(long address) {
-			return Pointer.pointerToAddress(address).toNativeObject(nativeClass);
+			return Pointer.pointerToAddress(address).getNativeObject(nativeClass);
 		}
 		@Override
 		public void checkArg(Object ptr) {

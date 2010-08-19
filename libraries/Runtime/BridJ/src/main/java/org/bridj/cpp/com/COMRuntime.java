@@ -170,7 +170,7 @@ public class COMRuntime extends CPPRuntime {
             if (inst == null)
                 throw new RuntimeException("Serious low-level issue : CoCreateInstance executed fine but we only retrieved a null pointer !");
 
-            I instance = inst.toNativeObject(instanceInterface);
+            I instance = inst.getNativeObject(instanceInterface);
             return instance;
         } finally {
             Pointer.release(p, clsid, uuid);

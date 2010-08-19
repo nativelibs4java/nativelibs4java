@@ -31,7 +31,7 @@ public class CallbackTest {
 	
 	@Test
 	public void testNativeTargetCallbacks() {
-		MyCallback adder = getAdder().toNativeObject(MyCallback.class);
+		MyCallback adder = getAdder().getNativeObject(MyCallback.class);
 		assertEquals(3, adder.doSomething(1, 2));
 	}
 	

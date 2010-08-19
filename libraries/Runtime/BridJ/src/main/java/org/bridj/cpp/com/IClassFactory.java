@@ -28,7 +28,7 @@ public class IClassFactory extends IUnknown
 		if (ret != S_OK)
 			return null;
 		
-		return p.get().toNativeObject(type);
+		return p.get().getNativeObject(type);
 	}
 	
 	@Virtual(1)

@@ -68,8 +68,15 @@ import java.nio.charset.Charset;
 public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         //, com.sun.jna.Pointer<Pointer<T>>
 {
+	/** The NULL pointer is <b>always</b> Java's null value */
     public static final Pointer NULL = null;
-	public static final int SIZE = JNI.POINTER_SIZE;
+	
+    /** 
+     * Size of a pointer in bytes. <br>
+     * This is 4 bytes in a 32 bits environment and 8 bytes in a 64 bits environment.<br>
+     * Note that some 64 bits environments allow for 32 bits JVM execution (using the -d32 command line argument for Sun's JVM, for instance). In that case, Java programs will believe they're executed in a 32 bits environment. 
+     */
+    public static final int SIZE = JNI.POINTER_SIZE;
     
 	static {
         JNI.initLibrary();
@@ -86,6 +93,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	private final long validStart, validEnd;
 	private final boolean ordered;
 
+	/**
+	 * Object responsible for reclamation of some pointed memory when it's not used anymore.
+	 */
 	public interface Releaser {
 		void release(Pointer<?> p);
 	}
@@ -103,6 +113,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		this.offsetInParent = offsetInParent;
 		this.sibling = sibling;
 	}
+	
+	/**
+	 * Manually release the memory pointed by this pointer if it was allocated on the Java side.<br>
+	 * If the pointer is an offset version of another pointer (using {@link Pointer#share(long)} or {@link Pointer#next(long)}, for instance), this method does nothing.<br>
+	 * If the memory was not allocated from the Java side, this method does nothing either.<br>
+	 * If the memory was already successfully released, this throws a RuntimeException.
+	 * @throws RuntimeException if the pointer was already released
+	 */
 	public void release() {}
 
 	/**
@@ -233,6 +251,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		PointerIO io = getIO();
 		return parent.offset(offsetInParent).withIO(io == null ? null : io.getReferenceIO());
 	}
+	
+	/**
+	 * Get the address of the memory pointed to by this pointer ("cast this pointer to long", in C jargon).<br>
+	 * This is equivalent to the C code {@code (size_t)&pointer}
+	 * @return Address of the memory pointed to by this pointer
+	 */
 	public final long getPeer() {
 		return peer;
 	}
@@ -272,31 +296,50 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     		return newPointer(newIO, getPeer(), ordered, getValidStart(), getValidEnd(), getParent(), getOffsetInParent(), null, getSibling() != null ? getSibling() : this);
     }
 
+    /**
+     * Get the PointerIO instance used by this pointer to get and set pointed values.
+     */
     public final PointerIO<T> getIO() {
 		return io;
 	}
-    protected final boolean isOrdered() {
+    
+	/**
+     * Whether this pointer reads data in the system's native byte order or not.
+     * See {@link Pointer#order()}, {@link Pointer#order(ByteOrder)}
+     */
+    final boolean isOrdered() {
     	return ordered;
     }
-    protected final long getOffsetInParent() {
+    
+    final long getOffsetInParent() {
 		return offsetInParent;
 	}
-    protected final Pointer<?> getParent() {
+    final Pointer<?> getParent() {
 		return parent;
 	}
-    protected final Object getSibling() {
+    final Object getSibling() {
 		return sibling;
 	}
     
-    protected final long getValidEnd() {
+    final long getValidEnd() {
 		return validEnd;
 	}
-    protected final long getValidStart() {
+    final long getValidStart() {
 		return validStart;
 	}
 
     /**
-     * Cast this pointer to another pointer type
+     * Cast this pointer to another pointer type<br>
+     * The following C code :<br>
+     * <code>{@code 
+     * T* pointerT = ...;
+     * U* pointerU = (U*)pointerT;
+     * }</code><br>
+     * Can be translated to the following Java code :<br>
+     * <code>{@code 
+     * Pointer<T> pointerT = ...;
+     * Pointer<U> pointerU = pointerT.as(U.class); // or pointerT.asPointerTo(U.class);
+     * }</code><br>
      * @param <U>
      * @param newIO
      * @return
@@ -307,7 +350,17 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
 
     /**
-     * Cast this pointer to another pointer type
+     * Cast this pointer to another pointer type<br>.
+     * The following C code :<br>
+     * <code>{@code 
+     * T* pointerT = ...;
+     * U* pointerU = (U*)pointerT;
+     * }</code><br>
+     * Can be translated to the following Java code :<br>
+     * <code>{@code 
+     * Pointer<T> pointerT = ...;
+     * Pointer<U> pointerU = pointerT.as(U.class); // or pointerT.asPointerTo(U.class);
+     * }</code><br>
      * {@link Pointer#asPointerTo(Type)}
      * @param <U>
      * @param newIO
@@ -317,24 +370,6 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     	return asPointerTo(type);
     }
 
-    public <U> Pointer<U> getPointer(long byteOffset, PointerIO<U> pio) {
-    	long value = getSizeT(byteOffset);
-    	if (value == 0)
-    		return null;
-    	return newPointer(pio, value, isOrdered(), UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, this, byteOffset, null, null);
-    }
-
-    /**
-     * Write a pointer value to the pointed memory location
-     */
-    public Pointer<T> setPointer(Pointer<?> value) {
-    	return setPointer(0, value);
-    }
-    public Pointer<T> setPointer(long byteOffset, Pointer<?> value) {
-        setSizeT(byteOffset, value == null ? 0 : value.getPeer());
-        return this;
-    }
-    
     /**
      * Get the amount of memory known to be valid from this pointer, or -1 if it is unknown.<br/>
      * Memory validity information is available when the pointer was created out of another pointer (with {@link #offset(long)}, {@link #next()}, {@link #next(long)}) or from a direct NIO buffer ({@link #pointerToBuffer(Buffer)}, {@link #pointerToInts(IntBuffer)}...)
@@ -450,7 +485,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     public <O extends NativeObject> O getNativeObject(long byteOffset, Class<O> type) {
 		return (O)getNativeObject(byteOffset, (Type)type);
 	}
-    public <O extends NativeObject> O toNativeObject(Class<O> type) {
+    public <O extends NativeObject> O getNativeObject(Class<O> type) {
 		return getNativeObject(0, type);
 	}
 	
@@ -501,12 +536,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		}
 	}
 	
-	public interface UpdatablePointer<P> {
-		Pointer<P> getPointer();
-		void update();
-	}
-	
-	
+	/**
+	 * Allocate memory and write a C-style null-terminated string to it, using the system's default charset to convert the string. 
+	 */
 	public static Pointer<Byte> pointerToCString(String string) {
 		if (string == null)
 			return null;
@@ -671,10 +703,17 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return value;
     }
 	
+    /**
+     * Get a pointer's peer (see {@link Pointer#getPeer}), or zero if the pointer is null.
+     */
 	public static long getPeer(Pointer<?> pointer) {
         return pointer == null ? 0 : pointer.getPeer();
     }
 	
+    /**
+     * Get the unitary size of the pointed elements in bytes.
+     * @throws RuntimeException if the target type is unknown (see {@link Pointer#getTargetType()})
+     */
 	public long getTargetSize() {
 		PointerIO<T> io = getIO();
         if (io == null)
@@ -705,6 +744,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return offset(io.getTargetSize() * delta);
 	}
 	
+	/**
+     * Release pointers, if they're not null (see {@link Pointer#release}).
+     */
 	public static void release(Pointer... pointers) {
     		for (Pointer pointer : pointers)
     			if (pointer != null)
@@ -712,7 +754,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 
     /**
-	 * Test equality of the 
+	 * Test equality of the pointer using the address.<br>
+	 * @return true if and only if obj is a Pointer instance and {@code obj.getPeer() == this.getPeer() }
 	 */
 	@Override
     public boolean equals(Object obj) {
@@ -1106,30 +1149,114 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
 #end
     
-    public Type getTargetType() {
+    /**
+     * Get the type of pointed elements.
+     */
+	public Type getTargetType() {
         PointerIO<T> io = getIO();
         return io == null ? null : io.getTargetType();
     }
+    
+    /**
+	 * Read an untyped pointer value from the pointed memory location
+	 */
+	@Deprecated
+    public Pointer<?> getPointer() {
+    	return getPointer(0, (PointerIO)null);	
+    }
+    
+    /**
+	 * Read a pointer value from the pointed memory location shifted by a byte offset
+	 */
     public Pointer<?> getPointer(long byteOffset) {
         return getPointer(byteOffset, (PointerIO)null);
     }
+    
+    /**
+	 * Read a pointer value from the pointed memory location.<br>
+	 * @param c class of the elements pointed by the resulting pointer 
+	 */
+    public <U> Pointer<U> getPointer(Class<U> c) {
+    	return getPointer(0, (PointerIO<U>)PointerIO.getInstance(c));	
+    }
+    
+    /**
+	 * Read a pointer value from the pointed memory location
+	 * @param pio PointerIO instance that knows how to read the elements pointed by the resulting pointer 
+	 */
+    public <U> Pointer<U> getPointer(PointerIO<U> pio) {
+    	return getPointer(0, pio);	
+    }
+    
+    /**
+	 * Read a pointer value from the pointed memory location shifted by a byte offset
+	 * @param c class of the elements pointed by the resulting pointer 
+	 */
+    public <U> Pointer<U> getPointer(long byteOffset, Class<U> c) {
+    	return getPointer(byteOffset, (PointerIO<U>)PointerIO.getInstance(c));	
+    }
+    
+    /**
+	 * Read a pointer value from the pointed memory location shifted by a byte offset
+	 * @param c class of the elements pointed by the resulting pointer 
+	 */
     public <U> Pointer<U> getPointer(long byteOffset, Type t) {
         return getPointer(byteOffset, t == null ? null : (PointerIO<U>)PointerIO.getInstance(t));
     }
-    public <U> Pointer<U> getPointer(long byteOffset, Class<U> t) {
-        return getPointer(byteOffset, t == null ? null : (PointerIO<U>)PointerIO.getInstance(t));
+    
+    /**
+	 * Read a pointer value from the pointed memory location shifted by a byte offset
+	 * @param pio PointerIO instance that knows how to read the elements pointed by the resulting pointer 
+	 */
+    public <U> Pointer<U> getPointer(long byteOffset, PointerIO<U> pio) {
+    	long value = getSizeT(byteOffset);
+    	if (value == 0)
+    		return null;
+    	return newPointer(pio, value, isOrdered(), UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, this, byteOffset, null, null);
     }
-	
-    public Pointer<?>[] getPointers(long byteOffset, int arrayLength) {
+
+    /**
+     * Write a pointer value to the pointed memory location
+     */
+    public Pointer<T> setPointer(Pointer<?> value) {
+    	return setPointer(0, value);
+    }
+    
+    /**
+     * Write a pointer value to the pointed memory location shifted by a byte offset
+     */
+    public Pointer<T> setPointer(long byteOffset, Pointer<?> value) {
+        setSizeT(byteOffset, value == null ? 0 : value.getPeer());
+        return this;
+    }
+    
+    /**
+	 * Read an array of untyped pointer values from the pointed memory location shifted by a byte offset
+	 * @deprecated Use a typed version instead : {@link Pointer#getPointers(long, int, Type)}, {@link Pointer#getPointers(long, int, Class)} or {@link Pointer#getPointers(long, int, PointerIO)}
+	 */
+    @Deprecated
+	public Pointer<?>[] getPointers(long byteOffset, int arrayLength) {
         return getPointers(byteOffset, arrayLength, (PointerIO)null);
     }
+    /**
+	 * Read an array of pointer values from the pointed memory location shifted by a byte offset
+	 * @param t type of the elements pointed by the resulting pointer 
+	 */
     public <U> Pointer<U>[] getPointers(long byteOffset, int arrayLength, Type t) {
         return getPointers(byteOffset, arrayLength, t == null ? null : (PointerIO<U>)PointerIO.getInstance(t));
     }
+    /**
+	 * Read an array of pointer values from the pointed memory location shifted by a byte offset
+	 * @param t class of the elements pointed by the resulting pointer 
+	 */
     public <U> Pointer<U>[] getPointers(long byteOffset, int arrayLength, Class<U> t) {
         return getPointers(byteOffset, arrayLength, t == null ? null : PointerIO.getInstance(t));
     }
     
+    /**
+	 * Read an array of pointer values from the pointed memory location shifted by a byte offset
+	 * @param pio PointerIO instance that knows how to read the elements pointed by the resulting pointer 
+	 */
     public <U> Pointer<U>[] getPointers(long byteOffset, int arrayLength, PointerIO pio) {
     	Pointer<U>[] values = (Pointer<U>[])new Pointer[arrayLength];
 		int s = JNI.POINTER_SIZE;
@@ -1137,7 +1264,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 			values[i] = getPointer(i * s, pio);
 		return values;
 	}
-	public Pointer<T> setPointers(long byteOffset, Pointer<?>... values) {
+	/**
+	 * Write an array of pointer values to the pointed memory location shifted by a byte offset
+	 */
+    public Pointer<T> setPointers(long byteOffset, Pointer<?>... values) {
 		if (values == null)
 			throw new IllegalArgumentException("Null values");
 		int n = values.length, s = JNI.POINTER_SIZE;
@@ -1147,39 +1277,88 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	#foreach ($sizePrim in ["SizeT", "CLong"])
-	public static Pointer<${sizePrim}> pointerTo${sizePrim}(long value) {
+	
+	/**
+     * Allocate enough memory for a single ${sizePrim} value, copy the value provided in argument into it and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * @param value initial value for the created memory location
+     * @return pointer to a new memory location that initially contains the ${sizePrim} value given in argument
+     */
+    public static Pointer<${sizePrim}> pointerTo${sizePrim}(long value) {
 		Pointer<${sizePrim}> p = allocate(PointerIO.get${sizePrim}Instance());
 		p.set${sizePrim}(0, value);
 		return p;
 	}
-	public static Pointer<${sizePrim}> pointerTo${sizePrim}s(long... values) {
+	/**
+     * Allocate enough memory for values.length ${sizePrim} values, copy the values provided as argument into it and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon :
+     <pre>{@code
+     for (float f : pointerTo(1f, 2f, 3.3f))
+     	System.out.println(f); }</pre>
+     * @param values initial values for the created memory location
+     * @return pointer to a new memory location that initially contains the ${sizePrim} consecutive values provided in argument
+     */
+    public static Pointer<${sizePrim}> pointerTo${sizePrim}s(long... values) {
 		if (values == null)
 			return null;
 		return allocateArray(PointerIO.get${sizePrim}Instance(), values.length).set${sizePrim}s(0, values);
 	}
-	public static Pointer<${sizePrim}> pointerTo${sizePrim}s(${sizePrim}[] values) {
+	/**
+     * Allocate enough memory for values.length ${sizePrim} values, copy the values provided as argument into it and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon :
+     <pre>{@code
+     for (float f : pointerTo(1f, 2f, 3.3f))
+     	System.out.println(f); }</pre>
+     * @param values initial values for the created memory location
+     * @return pointer to a new memory location that initially contains the ${sizePrim} consecutive values provided in argument
+     */
+    public static Pointer<${sizePrim}> pointerTo${sizePrim}s(${sizePrim}[] values) {
 		if (values == null)
 			return null;
 		return allocateArray(PointerIO.get${sizePrim}Instance(), values.length).set${sizePrim}s(0, values);
 	}
 	
-	public static Pointer<${sizePrim}> pointerTo${sizePrim}s(int[] values) {
+	/**
+     * Allocate enough memory for values.length ${sizePrim} values, copy the values provided as argument into it and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
+     * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon :
+     <pre>{@code
+     for (float f : pointerTo(1f, 2f, 3.3f))
+     	System.out.println(f); }</pre>
+     * @param values initial values for the created memory location
+     * @return pointer to a new memory location that initially contains the ${sizePrim} consecutive values provided in argument
+     */
+    public static Pointer<${sizePrim}> pointerTo${sizePrim}s(int[] values) {
 		if (values == null)
 			return null;
 		return allocateArray(PointerIO.get${sizePrim}Instance(), values.length).set${sizePrim}s(0, values);
 	}
 	#end
 	
+	/**
+	 * Allocate enough memory for a pointer and write the provided pointer value to it.
+	 */
 	public static <T> Pointer<Pointer<T>> pointerToPointer(Pointer<T> value) {
 		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocate(PointerIO.getPointerInstance());
 		p.setPointer(0, value);
 		return p;
 	}
+	
+	/**
+	 * Allocate enough memory for values.length consecutive pointer values and write the provided pointer array to it.
+	 */
 	public static <T> Pointer<Pointer<T>> pointerToPointers(Pointer<T>... values) {
 		if (values == null)
 			return null;
 		int n = values.length, s = Pointer.SIZE;
-		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocateArray(PointerIO.getPointerInstance(), n);
+		PointerIO<Pointer> pio = PointerIO.getPointerInstance(); // TODO get actual pointer instances PointerIO !!!
+		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocateArray(pio, n);
 		for (int i = 0; i < n; i++) {
 			p.setPointer(i * s, values[i]);
 		}
@@ -1193,7 +1372,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
      * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(int)}, {@link #next()}).<br/>
      * The returned pointer is also an {@code Iterable<${sizePrim}>} instance that can be safely iterated upon.
-     * @return pointer to arrayLength zero-initialized ${prim.Name} consecutive values
+     * @return pointer to arrayLength zero-initialized ${sizePrim} consecutive values
      */
     public static Pointer<${sizePrim}> allocate${sizePrim}s(long arrayLength) {
 		return allocateArray(PointerIO.get${sizePrim}Instance(), arrayLength);
@@ -1337,6 +1516,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         throw new UnsupportedOperationException();
     }
     
+    /**
+     * Copy length values from an NIO buffer (beginning at element at valuesOffset index) to the pointed memory location shifted by a byte offset
+     */
     public void setValues(long byteOffset, Buffer values, int valuesOffset, int length) {
         #foreach ($prim in $primitivesNoBool)
         if (values instanceof ${prim.BufferName}) {
@@ -1522,8 +1704,29 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     
 #end
 
+	/**
+	 * Type of a String<br>
+	 * In the native world, there are several ways to represent a string.
+	 */
     public enum StringType {
-        Pascal, C, WideC
+    	/**
+    	 * Pascal strings can be up to 256 characters long.<br>
+    	 * They are stored with a first byte that indicates the length of the string, followed by the ascii or extended ascii chars of the string (no support for multibyte encoding).<br>
+    	 * They are often used in very old Mac OS programs and / or Pascal programs.<br>
+    	 * C type : {@code unsigned char* }
+    	 */
+        Pascal, 
+        /**
+    	 * C strings (a.k.a "NULL-terminated strings") have no size limit and are the most used strings in the C world.
+    	 * They are stored with the bytes of the string (using either a single-byte encoding such as ASCII, ISO-8859 or windows-1252 or a C-string compatible multi-byte encoding, such as UTF-8), followed with a zero byte that indicates the end of the string.<br>
+    	 * C type : {@code char* }
+    	 */
+        C,
+        /**
+    	 * Wide C strings are stored as C strings except they are streams of shorts instead of bytes (and are ended by one zero short value = two zero byte values). This allows the use of two-bytes encodings, which is why this kind of strings is often found in modern Unicode-aware system APIs.<br>
+    	 * C type : {@code wchar_t* }
+    	 */
+        WideC
     }
 	
 	public String getString(long byteOffset, Charset charset, StringType type) throws UnsupportedEncodingException {
@@ -1611,9 +1814,15 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return JNI.wcslen(getCheckedPeer(byteOffset, 1));
 	}
 	
+	/**
+	 * Write zero bytes to the first length bytes pointed by this pointer
+	 */
 	public void clearBytes(long length) {
 		clearBytes(0, length, (byte)0);	
 	}
+	/**
+	 * Write a byte {@code value} to each of the {@code length} bytes at the address pointed to by this pointer shifted by a {@code byteOffset}
+	 */
 	public void clearBytes(long byteOffset, long length, byte value) {
 		JNI.memset(getCheckedPeer(byteOffset, length), value, length);
 	}
@@ -1627,42 +1836,72 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return found == 0 ? null : offset(found - ptr);
 	}
 	
-	@Deprecated
+	/**
+	 * Implementation of {@link List#add(T)} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
+    @Deprecated
 	public boolean add(T item) {
 		throw new UnsupportedOperationException();
 	}
 	
+    /**
+	 * Implementation of {@link List#add(int, T)} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
     @Deprecated
 	public void add(int index, T element) {
 		throw new UnsupportedOperationException();
 	}
 	
+    /**
+	 * Implementation of {@link List#addAll(Collection)} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
     @Deprecated
 	public boolean addAll(Collection<? extends T> c) {
 		throw new UnsupportedOperationException();
 	}
 	
+    /**
+	 * Implementation of {@link List#addAll(int, Collection)} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
     @Deprecated
 	public boolean addAll(int index, Collection<? extends T> c) {
 		throw new UnsupportedOperationException();
 	}
 	
+    /**
+	 * Implementation of {@link List#clear()} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
     @Deprecated
 	public void clear() {
 		throw new UnsupportedOperationException();
 	}
 	
+    /**
+	 * Implementation of {@link List#contains(Object)} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
     @Deprecated
 	public boolean contains(Object o) {
 		throw new UnsupportedOperationException();
 	}
 	
+    /**
+	 * Implementation of {@link List#containsAll(Collection)} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
     @Deprecated
 	public boolean containsAll(Collection<?> c) {
 		throw new UnsupportedOperationException();
 	}
 	
-    @Deprecated
+    /**
+	 * Implementation of {@link List#get(int)}
+	 */
 	public final T get(int index) {
 		return get((long)index);
 	}
@@ -1674,52 +1913,84 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return get(index);
 	}
 	
+    /**
+	 * Implementation of {@link List#indexOf(Object)} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
     @Deprecated
 	public int indexOf(Object o) {
 		throw new UnsupportedOperationException();
 	}
 	
-    @Deprecated
+    /**
+	 * Implementation of {@link List#isEmpty()}
+	 */
 	public boolean isEmpty() {
 		return getRemainingElements() == 0;
 	}
 	
+    /**
+     * Implementation of {@link List#lastIndexOf(Object)} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
     @Deprecated
 	public int lastIndexOf(Object o) {
 		throw new UnsupportedOperationException();
 	}
 	
-    @Deprecated
+    /**
+	 * Implementation of {@link List#listIterator()}
+	 */
 	public ListIterator<T> listIterator() {
 		return iterator();
 	}
 	
-    @Deprecated
+    /**
+	 * Implementation of {@link List#listIterator(int)}
+	 */
 	public ListIterator<T> listIterator(int index) {
 		return next(index).listIterator();
 	}
 	
+    /**
+	 * Implementation of {@link List#remove(int)} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
     @Deprecated
 	public T remove(int index) {
 		throw new UnsupportedOperationException();
 	}
 	
+    /**
+	 * Implementation of {@link List#remove(Object)} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
     @Deprecated
 	public boolean remove(Object o) {
 		throw new UnsupportedOperationException();
 	}
 	
+    /**
+	 * Implementation of {@link List#removeAll(Collection)} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
     @Deprecated
 	public boolean removeAll(Collection<?> c) {
 		throw new UnsupportedOperationException();
 	}
 	
+	/**
+	 * Implementation of {@link List#retainAll(Collection)} that throws UnsupportedOperationException
+	 * @throws UnsupportedOperationException
+	 */
     @Deprecated
 	public boolean retainAll(Collection<?> c) {
 		throw new UnsupportedOperationException();
 	}
 	
-    @Deprecated
+    /**
+	 * Implementation of {@link List\#set(int, T)}
+	 */
 	public final T set(int index, T element) {
 		set((long)index, element);
 		return element;
@@ -1732,12 +2003,21 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		set(index, element);
 	}
 	
-    @Deprecated
+    /**
+	 * Implementation of {@link List#size()}
+	 * @deprecated Casts the result of getRemainingElements() to int, so sizes greater that 2^31 will be invalid
+	 * @return {@link Pointer#getRemainingElements()}
+	 */
 	public int size() {
-		throw new UnsupportedOperationException();
+		long size = getRemainingElements();
+		if (size > Integer.MAX_VALUE)
+			throw new RuntimeException("Size is greater than Integer.MAX_VALUE, cannot convert to int in Pointer.size()");
+		return (int)size;
 	}
 	
-    @Deprecated
+    /**
+	 * Implementation of {@link List#subList(int, int)}
+	 */
 	public List<T> subList(int fromIndex, int toIndex) {
 		PointerIO<T> io = getIO();
         if (io == null)
@@ -1746,7 +2026,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return next(fromIndex).validElements(toIndex - fromIndex);
 	}
 	
-    @Deprecated
+    /**
+	 * Implementation of {@link List#toArray()}
+	 */
 	public T[] toArray() {
 		PointerIO<T> io = getIO();
         if (io == null)
@@ -1758,7 +2040,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return (T[])toArray((Object[])Array.newInstance(c, (int)getRemainingElements()));
 	}
 	
-    @Deprecated
+    /**
+	 * Implementation of {@link List#toArray(U[])}
+	 */
 	public <U> U[] toArray(U[] array) {
 		int n = (int)getRemainingElements();
 		if (n < 0)
