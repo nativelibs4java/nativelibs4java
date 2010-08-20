@@ -1751,14 +1751,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		 * Corresponding Pascal type : {@code PChar }<br>
 		 * See {@link Pointer#pointerToCString(String)}, {@link Pointer#getCString()} and {@link Pointer#setCString(String)}
 		 */
-		C,
+		C(false, true),
 		/**
 		 * Wide C strings are stored as C strings (see {@link StringType#C}) except they are composed of shorts instead of bytes (and are ended by one zero short value = two zero byte values). 
 		 * This allows the use of two-bytes encodings, which is why this kind of strings is often found in modern Unicode-aware system APIs.<br>
 		 * Corresponding C types : {@code wchar_t* }, {@code const wchar_t* }, {@code LPCWSTR }<br>
 		 * See {@link Pointer#pointerToWideCString(String)}, {@link Pointer#getWideCString()} and {@link Pointer#setWideCString(String)}
 		 */
-        WideC,
+        WideC(true, true),
     		/**
 		 * Pascal strings can be up to 255 characters long.<br>
 		 * They are stored with a first byte that indicates the length of the string, followed by the ascii or extended ascii chars of the string (no support for multibyte encoding).<br>
@@ -1767,29 +1767,47 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		 * Corresponding Pascal type : {@code ShortString } (see {@link http://www.codexterity.com/delphistrings.htm})<br>
 		 * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
-        PascalShort,
+        PascalShort(false, true),
 		/**
 		 * Wide Pascal strings are ref-counted unicode strings that look like WideC strings but are prepended with a ref count and length (both 32 bits ints).<br>
 		 * They are the current default in Delphi (2010).<br>
 		 * Corresponding Pascal type : {@code WideString } (see {@link http://www.codexterity.com/delphistrings.htm})<br>
 		 * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
-        PascalWide,
+        PascalWide(true, true),
         /**
 		 * Pascal ANSI strings are ref-counted single-byte strings that look like C strings but are prepended with a ref count and length (both 32 bits ints).<br>
 		 * Corresponding Pascal type : {@code AnsiString } (see {@link http://www.codexterity.com/delphistrings.htm})<br>
 		 * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
-        PascalAnsi,
+        PascalAnsi(false, true),
         /**
          * Microsoft's BSTR strings, used in COM, OLE, MS.NET Interop and MS.NET Automation functions.<br>
          * See {@link http://msdn.microsoft.com/en-us/library/ms221069.aspx} for more details.<br>
          * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
-        BSTR
+        BSTR(true, true),
+        /**
+         * STL strings have compiler- and STL library-specific implementations and memory layouts.<br>
+         * BridJ support reading and writing to / from pointers to most implementation's STL strings, though.
+         * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
+		 */
+		STL(false, false),
+        /**
+         * STL wide strings have compiler- and STL library-specific implementations and memory layouts.<br>
+         * BridJ supports reading and writing to / from pointers to most implementation's STL strings, though.
+         * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
+		 */
+		WideSTL(true, false);
         //MFCCString,
         //CComBSTR,
         //_bstr_t
+        
+        final boolean isWide, canCreate;
+        StringType(boolean isWide, boolean canCreate) {
+			this.isWide = isWide;
+			this.canCreate = canCreate;
+        }
         
     }
 	
@@ -1812,6 +1830,74 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	public String getString(StringType type) {
 		return getString(0, null, type);
 	}
+	
+	String getSTLString(long byteOffset, Charset charset, StringType type) {
+		// Assume the following layout :
+		// - fixed buff of 16 chars
+		// - ptr to dynamic array if the string is bigger
+		// - size of the string (size_t)
+		// - max allowed size of the string without the need for reallocation
+		boolean wide = type == StringType.WideSTL;
+		
+		int fixedBuffLength = 16;
+		int fixedBuffSize = wide ? fixedBuffLength * 2 : fixedBuffLength;
+		long length = getSizeT(byteOffset + fixedBuffSize + Pointer.SIZE);
+		long pOff;
+		Pointer<?> p;
+		if (length < fixedBuffLength - 1) {
+			pOff = byteOffset;
+			p = this;
+		} else {
+			pOff = 0;
+			p = getPointer(byteOffset + fixedBuffSize + Pointer.SIZE);
+		}
+		int endChar = wide ? p.getChar(pOff + length * 2) : p.getByte(pOff + length);
+		if (endChar != 0)
+			notAString(type, "STL string format is not recognized : did not find a NULL char at the expected end of string of expected length " + length);
+		return p.getString(pOff, charset, wide ? StringType.WideC : StringType.C);
+	}
+	
+	static <U> Pointer<U> setSTLString(Pointer<U> pointer, long byteOffset, String s, Charset charset, StringType type) {
+		boolean wide = type == StringType.WideSTL;
+		
+		int fixedBuffLength = 16;
+		int fixedBuffSize = wide ? fixedBuffLength * 2 : fixedBuffLength;
+		long lengthOffset = byteOffset + fixedBuffSize + Pointer.SIZE;
+		long capacityOffset = lengthOffset + Pointer.SIZE;
+		
+		long length = s.length();
+		if (pointer == null)// { && length > fixedBuffLength - 1)
+			throw new UnsupportedOperationException("Cannot create STL strings (yet)");
+		
+		long currentLength = pointer.getSizeT(lengthOffset);
+		long currentCapacity = pointer.getSizeT(capacityOffset);
+		
+		if (currentLength < 0 || currentCapacity < 0 || currentLength > currentCapacity)
+			notAString(type, "STL string format not recognized : currentLength = " + currentLength + ", currentCapacity = " + currentCapacity);
+		
+		if (length > currentCapacity)
+			throw new RuntimeException("The target STL string is not large enough to write a string of length " + length + " (current capacity = " + currentCapacity + ")");
+		
+		pointer.setSizeT(lengthOffset, length);
+		
+		long pOff;
+		Pointer<?> p;
+		if (length < fixedBuffLength - 1) {
+			pOff = byteOffset;
+			p = pointer;
+		} else {
+			pOff = 0;
+			p = pointer.getPointer(byteOffset + fixedBuffSize + SizeT.SIZE);
+		}
+		
+		int endChar = wide ? p.getChar(pOff + currentLength * 2) : p.getByte(pOff + currentLength);
+		if (endChar != 0)
+			notAString(type, "STL string format is not recognized : did not find a NULL char at the expected end of string of expected length " + currentLength);
+		
+		p.setString(pOff, s, charset, wide ? StringType.WideC : StringType.C);
+		return pointer;
+	}
+    
 	
 	/**
 	 * Read a native string from the pointed memory location shifted by a byte offset, using the provided charset or the system's default if not provided.
@@ -1852,6 +1938,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 			case WideC:
 				len = wcslen(byteOffset);
 				return new String(getChars(byteOffset, safeIntCast(len)));
+			case STL:
+			case WideSTL:
+				return getSTLString(byteOffset, charset, type);
 			default:
 				throw new RuntimeException("Unhandled string type : " + type);
 			}
@@ -1970,6 +2059,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 				pointer.setChar(byteOffset + bytesCount, (char)0);
 				// Return a pointer to the WideC string-compatible part of the Pascal WideString
 				return (Pointer<U>)pointer.offset(headerShift);
+			case STL:
+			case WideSTL:
+				return setSTLString(pointer, byteOffset, s, charset, type);
+			default:
+				throw new RuntimeException("Unhandled string type : " + type);
 			}
 	
 			return (Pointer<U>)pointer;

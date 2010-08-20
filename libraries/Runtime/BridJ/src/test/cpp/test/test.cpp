@@ -5,6 +5,8 @@
 #include "math.h"
 
 #include <iostream>
+#include <string>
+
 using namespace std;
 
 TEST_API int ntest=0;
@@ -243,6 +245,44 @@ TEST_API fun_iii getAdder_raw() {
 TEST_API int forwardCall(fun_iii f, int a, int b) {
 	int res = f(a, b);
 	return res;
+}
+
+TEST_API std::string* newString() {
+	return new std::string();
+}
+TEST_API void appendToString(std::string* s, const char* a) {
+	(*s) += a;
+}
+TEST_API void reserveString(std::string* s, size_t reservedSize) {
+	s->reserve(reservedSize);
+}
+TEST_API void resizeString(std::string* s, size_t newSize) {
+	s->resize(newSize);
+}
+TEST_API void deleteString(std::string* s) {
+	delete s;
+}
+TEST_API const char* stringCStr(std::string* s) {
+	s->c_str();
+}
+
+TEST_API std::wstring* newWString() {
+	return new std::wstring();
+}
+TEST_API void appendToWString(std::wstring* s, const wchar_t* a) {
+	(*s) += a;
+}
+TEST_API void reserveWString(std::wstring* s, size_t reservedSize) {
+	s->reserve(reservedSize);
+}
+TEST_API void resizeString(std::wstring* s, size_t newSize) {
+	s->resize(newSize);
+}
+TEST_API void deleteString(std::wstring* s) {
+	delete s;
+}
+TEST_API const char* wstringCStr(std::wstring* s) {
+	s->c_str();
 }
 
 #include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"
