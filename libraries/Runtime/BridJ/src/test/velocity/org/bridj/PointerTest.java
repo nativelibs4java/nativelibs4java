@@ -2,6 +2,7 @@ package org.bridj;
 
 import org.junit.Test;
 
+import java.nio.charset.Charset;
 import java.nio.*;
 import java.util.Iterator;
 import static org.junit.Assert.*;
@@ -92,12 +93,26 @@ public class PointerTest {
     		String s = "Hello, World !";
     		Pointer<$eltWrapper> p = pointerTo${string}String(s);
     		assertEquals(s, p.get${string}String());
-	}	
+	}
 #end
 #testString("C", "Byte")
 #testString("WideC", "Character")
-#testString("Pascal", "Byte")
-#testString("WidePascal", "Character")
+
+	@Test
+    public void testStrings() {
+		String s = "Hello, World !";
+		String s2 = "Hello you !";
+		Charset charset = null;
+		for (int offset : new int[] { 0, 1, 4, 10 }) {
+			for (Pointer.StringType type : Pointer.StringType.values()) {
+				Pointer<?> p = pointerToString(s, charset, type);
+				assertEquals("Failed alloc / set of string type " + type, s, p.getString(type));
+				
+				p.setString(s2, type);
+				assertEquals("Failed set / get of string type " + type, s2, p.getString(type));
+			}
+		}
+	}
 
 #foreach ($prim in $primitivesNoBool)
 	
