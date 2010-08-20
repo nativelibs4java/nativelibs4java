@@ -7,6 +7,7 @@ import java.nio.*;
 import java.util.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import static org.bridj.SizeT.safeIntCast;
 
 /**
  * Pointer to a native memory location.<br/>
@@ -654,48 +655,6 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
-	 * Allocate memory and write a C-style null-terminated string to it, using the system's default charset to convert the string. 
-	 */
-	public static Pointer<Byte> pointerToCString(String string) {
-		if (string == null)
-			return null;
-		
-		byte[] bytes = string.getBytes();
-		Pointer<Byte> p = allocateBytes(bytes.length + 1);
-        p.setBytes(0, bytes);
-		p.setByte(bytes.length, (byte)0);
-		return p;
-	}
-	
-	/**
-	 * The update will take place inside the release() call
-	 */
-    public static Pointer<Pointer<Byte>> pointerToCStrings(final String... strings) {
-    	if (strings == null)
-    		return null;
-        final int len = strings.length;
-        final Pointer<Byte>[] pointers = (Pointer<Byte>[])new Pointer[len];
-        Pointer<Pointer<Byte>> mem = allocateArray((PointerIO<Pointer<Byte>>)(PointerIO)PointerIO.getPointerInstance(Byte.class), len, new Releaser() {
-        	@Override
-        	public void release(Pointer<?> p) {
-        		Pointer<Pointer<Byte>> mem = (Pointer<Pointer<Byte>>)p;
-        		for (int i = 0; i < len; i++) {
-        			Pointer<Byte> pp = mem.get(i);
-        			if (pp != null)
-        				strings[i] = pp.getCString();
-        			pp = pointers[i];
-        			if (pp != null)
-        				pp.release();
-                }
-        	}
-        });
-        for (int i = 0; i < len; i++)
-            mem.set(i, pointers[i] = pointerToCString(strings[i]));
-
-		return mem;
-    }
-
-    /**
 	 * Dereference this pointer (*ptr).<br/>
      Take the following C++ code fragment :
      <pre>{@code
@@ -1773,22 +1732,25 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         /**
     	 * C strings (a.k.a "NULL-terminated strings") have no size limit and are the most used strings in the C world.
     	 * They are stored with the bytes of the string (using either a single-byte encoding such as ASCII, ISO-8859 or windows-1252 or a C-string compatible multi-byte encoding, such as UTF-8), followed with a zero byte that indicates the end of the string.<br>
-    	 * Corresponding C types : {@code char* } and {@code const char* }<br>
+    	 * Corresponding C types : {@code char* }, {@code const char* }, {@code LPCSTR }<br>
+    	 * Corresponding Pascal type : {@code PChar }<br>
     	 * See {@link Pointer#getCString()} and {@link Pointer#setCString(String)}
     	 */
         C,
-        /**
-        * Wide C strings are stored as C strings (see {@link StringType#C}) except they are composed of shorts instead of bytes (and are ended by one zero short value = two zero byte values). This allows the use of two-bytes encodings, which is why this kind of strings is often found in modern Unicode-aware system APIs.<br>
-    	 * Corresponding C types : {@code wchar_t* } and {@code const wchar_t* }<br>
+	/**
+	 * Wide C strings are stored as C strings (see {@link StringType#C}) except they are composed of shorts instead of bytes (and are ended by one zero short value = two zero byte values). 
+	 * This allows the use of two-bytes encodings, which is why this kind of strings is often found in modern Unicode-aware system APIs.<br>
+    	 * Corresponding C types : {@code wchar_t* }, {@code const wchar_t* }, {@code LPCWSTR }<br>
     	 * See {@link Pointer#getWideCString()} and {@link Pointer#setWideCString(String)}
     	 */
         WideC,
     	/**
-    	 * Pascal strings can be up to 256 characters long.<br>
+    	 * Pascal strings can be up to 255 characters long.<br>
     	 * They are stored with a first byte that indicates the length of the string, followed by the ascii or extended ascii chars of the string (no support for multibyte encoding).<br>
     	 * They are often used in very old Mac OS programs and / or Pascal programs.<br>
     	 * Usual corresponding C types : {@code unsigned char* } and {@code const unsigned char* }<br>
     	 * See {@link Pointer#getPascalString()} and {@link Pointer#setPascalString(String)}
+    	 * Corresponding Pascal type : {@code ShortString } (@see http://www.codexterity.com/delphistrings.htm)<br>
     	 */
         Pascal
     }
@@ -1802,19 +1764,35 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 */
 	public String getString(long byteOffset, Charset charset, StringType type) {
         try {
-			if (charset == null)
-				charset = Charset.defaultCharset();
-			
+			byte[] bytes;
+			char[] chars;
 			long len;
-			if (type == StringType.Pascal) {
-				len = getByte(byteOffset) & 0xff;
-				byteOffset++;
-			} else {
-				len = type == StringType.WideC ? wcslen(byteOffset) : strlen(byteOffset);
-				if (len >= Integer.MAX_VALUE)
-					throw new IllegalArgumentException("No null-terminated string at this address");
+			
+			switch (type) {
+			case Pascal:
+				len = getByte() & 0xff;
+				bytes = getBytes(byteOffset + 1, safeIntCast(len));
+				if (charset == null)
+					charset = Charset.defaultCharset();
+			
+				return new String(bytes, charset.name());
+			case C:
+				len = strlen(byteOffset);
+				bytes = getBytes(byteOffset, safeIntCast(len));
+				if (charset == null)
+					charset = Charset.defaultCharset();
+				
+				return new String(bytes, charset.name());
+			case WideC:
+				//BUGGY: len = wcslen(byteOffset);
+				len = 0;
+				while (getShort(byteOffset + len * 2) != 0)
+					len++;
+				chars = getChars(byteOffset, safeIntCast(len));
+				return new String(chars);
+			default:
+				throw new RuntimeException("Unhandled string type : " + type);
 			}
-			return new String(getBytes(byteOffset, SizeT.safeIntCast(len)), charset.name());
 		} catch (UnsupportedEncodingException ex) {
             throwUnexpected(ex);
             return null;
@@ -1829,33 +1807,109 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * @param type type of the string to write
 	 */
 	public Pointer<T> setString(long byteOffset, String s, Charset charset, StringType type) {
+		return setString(this, byteOffset, s, charset, type);
+	}
+	/**
+	 * Write a native string to the pointed memory location shifted by a byte offset, using the provided charset or the system's default if not provided.
+	 * @param byteOffset
+	 * @param s string to write
+	 * @param charset charset to use (will use {@link Charset#defaultCharset()} if null)
+	 * @param type type of the string to write
+	 */
+	static <U> Pointer<U> setString(Pointer<U> pointer, long byteOffset, String s, Charset charset, StringType type) {
         try {
-			if (type == StringType.WideC)
-				throw new UnsupportedOperationException("Wide strings are not supported yet");
+			if (s == null)
+				return null;
 			
 			if (charset == null)
 				charset = Charset.defaultCharset();
 			
-			byte[] bytes = s.getBytes(charset.name());
-			int bytesCount = bytes.length;
-	
-			if (type == StringType.Pascal) {
+			byte[] bytes;
+			char[] chars;
+			int bytesCount;
+			
+			switch (type) {
+			case Pascal:
+				bytes = s.getBytes(charset.name());
+				bytesCount = bytes.length;
+				if (pointer == null)
+					pointer = (Pointer<U>)allocateBytes(bytesCount + 1);
 				if (bytesCount > 255)
 					throw new IllegalArgumentException("Pascal strings cannot be more than 255 chars long (tried to write string of byte length " + bytesCount + ")");
-				byteOffset++;
+				pointer.setByte(0, (byte)bytesCount);
+				pointer.setBytes(byteOffset + 1, bytes, 0, bytesCount);
+				break;
+			case C:
+				bytes = s.getBytes(charset.name());
+				bytesCount = bytes.length;
+				if (pointer == null)
+					pointer = (Pointer<U>)allocateBytes(bytesCount + 1);
+				pointer.setBytes(byteOffset, bytes, 0, bytesCount);
+				pointer.setByte(byteOffset + bytesCount, (byte)0);
+				break;
+			case WideC:
+				chars = s.toCharArray();
+				bytesCount = chars.length * 2;
+				if (pointer == null)
+					pointer = (Pointer<U>)allocateChars(bytesCount + 2);
+				pointer.setChars(byteOffset, chars);
+				pointer.setChar(byteOffset + bytesCount, (char)0);
+				break;
 			}
-			setBytes(byteOffset, bytes, 0, bytesCount);
-			if (type == StringType.C)
-				setByte(byteOffset + bytesCount, (byte)0);
 	
-			return this;
+			return (Pointer<U>)pointer;
 		} catch (UnsupportedEncodingException ex) {
             throwUnexpected(ex);
             return null;
         }
     }
 	
+#macro (defPointerToString $string $eltWrapper)
+    /**
+     * Allocate memory and write a ${string} string to it, using the system's default charset to convert the string.  (see {@link StringType#${string}}).<br>
+	 * See {@link Pointer#set${string}String(String}.
+	 */
+	 public static Pointer<$eltWrapper> pointerTo${string}String(String string) {
+		return setString(null, 0, string, null, StringType.${string});
+	}
+	
+	/**
+	 * The update will take place inside the release() call
+	 */
+    public static Pointer<Pointer<$eltWrapper>> pointerTo${string}Strings(final String... strings) {
+    	if (strings == null)
+    		return null;
+        final int len = strings.length;
+        final Pointer<$eltWrapper>[] pointers = (Pointer<$eltWrapper>[])new Pointer[len];
+        Pointer<Pointer<$eltWrapper>> mem = allocateArray((PointerIO<Pointer<$eltWrapper>>)(PointerIO)PointerIO.getPointerInstance(${eltWrapper}.class), len, new Releaser() {
+        	@Override
+        	public void release(Pointer<?> p) {
+        		Pointer<Pointer<$eltWrapper>> mem = (Pointer<Pointer<$eltWrapper>>)p;
+        		for (int i = 0; i < len; i++) {
+        			Pointer<$eltWrapper> pp = mem.get(i);
+        			if (pp != null)
+        				strings[i] = pp.get${string}String();
+        			pp = pointers[i];
+        			if (pp != null)
+        				pp.release();
+                }
+        	}
+        });
+        for (int i = 0; i < len; i++)
+            mem.set(i, pointers[i] = pointerTo${string}String(strings[i]));
+
+		return mem;
+    }
+    
+#end
+
+#defPointerToString("C" "Byte")
+#defPointerToString("WideC" "Character")
+#defPointerToString("Pascal" "Byte")
+
+	
 #foreach ($string in ["C", "WideC", "Pascal"])
+	
 	/**
 	 * Read a ${string} string using the default charset from the pointed memory location (see {@link StringType#${string}}).<br>
 	 * See {@link Pointer#get${string}String(long)} and {@link Pointer#getString(long, Charset, StringType)} for more options

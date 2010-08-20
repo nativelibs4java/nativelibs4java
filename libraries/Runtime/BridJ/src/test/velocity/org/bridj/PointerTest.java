@@ -86,6 +86,18 @@ public class PointerTest {
 		assertEquals(pp.offset(2 * Pointer.SIZE), ref);
 	}
 	
+#macro (testString $string $eltWrapper)
+	@Test
+    public void test${string}String() {
+    		String s = "Hello, World !";
+    		Pointer<$eltWrapper> p = pointerTo${string}String(s);
+    		assertEquals(s, p.get${string}String());
+	}	
+#end
+#testString("C", "Byte")
+#testString("WideC", "Character")
+#testString("Pascal", "Byte")
+
 #foreach ($prim in $primitivesNoBool)
 	
 
