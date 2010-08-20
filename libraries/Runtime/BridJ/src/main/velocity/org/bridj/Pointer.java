@@ -1752,7 +1752,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     	 * See {@link Pointer#getPascalString()} and {@link Pointer#setPascalString(String)}
     	 * Corresponding Pascal type : {@code ShortString } (@see http://www.codexterity.com/delphistrings.htm)<br>
     	 */
-        Pascal
+        Pascal,
+    	/**
+    	 * Wide Pascal strings are ref-counted unicode strings that look like WideC strings but are prepended with a ref count and length (both 32 bits ints).<br>
+    	 * They are the current default in Delphi (2010).<br>
+    	 * Corresponding Pascal type : {@code WideString } (@see http://www.codexterity.com/delphistrings.htm)<br>
+    	 */
+        WidePascal
     }
 	
 	/**
@@ -1776,6 +1782,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 					charset = Charset.defaultCharset();
 			
 				return new String(bytes, charset.name());
+			case WidePascal:
+				int refCount = getInt(-8);
+				if (refCount <= 0)
+					throw new RuntimeException("There is no Pascal WideString here ! (invalid refcount)");
+				int expectedLen = getInt(-4);
+				if (expectedLen < 0)
+					throw new RuntimeException("There is no Pascal WideString here ! (invalid length)");
+				len = wcslen(byteOffset);
+				if (len != expectedLen)
+					throw new RuntimeException("There is no Pascal WideString here ! (invalid length: pascal header says " + expectedLen + ", but wcslen = " + len + ")");
+				chars = getChars(byteOffset, safeIntCast(len));
+				return new String(chars);
 			case C:
 				len = strlen(byteOffset);
 				bytes = getBytes(byteOffset, safeIntCast(len));
@@ -1784,10 +1802,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 				
 				return new String(bytes, charset.name());
 			case WideC:
-				//BUGGY: len = wcslen(byteOffset);
-				len = 0;
-				while (getShort(byteOffset + len * 2) != 0)
-					len++;
+				len = wcslen(byteOffset);
 				chars = getChars(byteOffset, safeIntCast(len));
 				return new String(chars);
 			default:
@@ -1855,6 +1870,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 				pointer.setChars(byteOffset, chars);
 				pointer.setChar(byteOffset + bytesCount, (char)0);
 				break;
+			case WidePascal:
+				chars = s.toCharArray();
+				bytesCount = chars.length * 2;
+				if (pointer == null)
+					pointer = (Pointer<U>)allocateChars(bytesCount + 2 + 8);
+				pointer.setInt(0, 1); // refcount
+				pointer.setInt(4, chars.length); // length header
+				byteOffset += 8;
+				pointer.setChars(byteOffset, chars);
+				pointer.setChar(byteOffset + bytesCount, (char)0);
+				// Return a pointer to the WideC string-compatible part of the Pascal WideString
+				return (Pointer<U>)pointer.offset(8);
 			}
 	
 			return (Pointer<U>)pointer;
@@ -1906,9 +1933,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 #defPointerToString("C" "Byte")
 #defPointerToString("WideC" "Character")
 #defPointerToString("Pascal" "Byte")
+#defPointerToString("WidePascal" "Character")
 
 	
-#foreach ($string in ["C", "WideC", "Pascal"])
+#foreach ($string in ["C", "WideC", "Pascal", "WidePascal"])
 	
 	/**
 	 * Read a ${string} string using the default charset from the pointed memory location (see {@link StringType#${string}}).<br>
@@ -1954,7 +1982,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Get the length of the wide C string at the pointed memory location shifted by a byte offset (see {@link StringType#WideC}).
 	 */
 	protected long wcslen(long byteOffset) {
-		return JNI.wcslen(getCheckedPeer(byteOffset, 1));
+		long len = 0;
+		while (getShort(byteOffset + len * 2) != 0)
+			len++;
+		return len; //BUGGY: JNI.wcslen(getCheckedPeer(byteOffset, 1));
 	}
 	
 	/**

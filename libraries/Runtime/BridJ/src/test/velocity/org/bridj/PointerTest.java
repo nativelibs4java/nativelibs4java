@@ -97,6 +97,7 @@ public class PointerTest {
 #testString("C", "Byte")
 #testString("WideC", "Character")
 #testString("Pascal", "Byte")
+#testString("WidePascal", "Character")
 
 #foreach ($prim in $primitivesNoBool)
 	
