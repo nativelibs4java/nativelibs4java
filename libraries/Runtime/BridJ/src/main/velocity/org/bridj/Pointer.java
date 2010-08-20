@@ -19,25 +19,33 @@ import static org.bridj.SizeT.safeIntCast;
  *	<li>Wrapping a memory address as a pointer : {@link Pointer#pointerToAddress(long)}
  *  </li>
  *	<li>Reading / writing a primitive from / to the pointed memory location :<br/>
- *		#foreach ($prim in $primitives)
+#foreach ($prim in $primitives)
  *		{@link Pointer#get${prim.CapName}()} / {@link Pointer#set${prim.CapName}(${prim.Name})} ; With an offset : {@link Pointer#get${prim.CapName}(long)} / {@link Pointer#set${prim.CapName}(long, ${prim.Name})}<br/>
- *       #end
- *		#foreach ($sizePrim in ["SizeT", "CLong"])
+#end
+#foreach ($sizePrim in ["SizeT", "CLong"])
  *		{@link Pointer#get${sizePrim}()} / {@link Pointer#set${sizePrim}(long)} ; With an offset : {@link Pointer#get${sizePrim}(long)} / {@link Pointer#set${sizePrim}(long, long)} <br/>
- *		#end
+#end
  *  </li>
  *	<li>Reading / writing an array of primitives from / to the pointed memory location :<br/>
- *		#foreach ($prim in $primitives)
+#foreach ($prim in $primitives)
  *		{@link Pointer#get${prim.CapName}s(int)} / {@link Pointer#set${prim.CapName}s(${prim.Name}[])} ; With an offset : {@link Pointer#get${prim.CapName}s(long, int)} / {@link Pointer#set${prim.CapName}s(long, ${prim.Name}[])}<br/>
- *       #end
- *		#foreach ($sizePrim in ["SizeT", "CLong"])
+#end
+#foreach ($sizePrim in ["SizeT", "CLong"])
  *		{@link Pointer#get${sizePrim}s(int)} / {@link Pointer#set${sizePrim}s(long[])} ; With an offset : {@link Pointer#get${sizePrim}s(long, int)} / {@link Pointer#set${sizePrim}s(long, long[])}<br/>
- *		#end
+#end
  *  </li>
  *	<li>Reading / writing an NIO buffer of primitives from / to the pointed memory location :<br/>
- *		#foreach ($prim in $primitivesNoBool)
- *		{@link Pointer#get${prim.BufferName}(long)} (can be used for writing as well) / set${prim.CapName}s(${prim.BufferName})<br/>
- *       #end
+#foreach ($prim in $primitivesNoBool)
+*		{@link Pointer#get${prim.BufferName}(long)} (can be used for writing as well) / {@link Pointer#set${prim.CapName}s(${prim.BufferName})}<br/>
+#end
+ *  </li>
+ *  <li>Reading / writing a String from / to the pointed memory location using the default charset :<br/>
+#foreach ($string in ["C", "WideC", "Pascal", "WidePascal"])
+*		{@link Pointer#get${string}String()} / {@link Pointer#set${string}String(String)} ; With an offset : {@link Pointer#get${string}String(long)} / {@link Pointer#set${string}String(long, String)}<br/>
+#end
+ *  </li>
+ *  <li>Reading / writing a String with control on the charset :<br/>
+ *		{@link Pointer#getString(long, Charset, StringType)} / {@link Pointer#setString(long, String, Charset, StringType)}<br/>
  *  </li>
  * </ul>
  * <p>
@@ -48,21 +56,26 @@ import static org.bridj.SizeT.safeIntCast;
  *		{@link Pointer#pointerTo(NativeObject)}
  *  </li>
  *	<li>Allocating a primitive with / without an initial value (zero-initialized) :<br/>
- *		#foreach ($prim in $primitives)
+#foreach ($prim in $primitives)
  *		{@link Pointer#pointerTo${prim.CapName}(${prim.Name})} / {@link Pointer#allocate${prim.CapName}()}<br/>
- *       #end
- *		#foreach ($sizePrim in ["SizeT", "CLong"])
+#end
+#foreach ($sizePrim in ["SizeT", "CLong"])
  *		{@link Pointer#pointerTo${sizePrim}(long)} / {@link Pointer#allocate${sizePrim}()}<br/>
- *		#end
+#end
  *  </li>
  *	<li>Allocating an array of primitives with / without initial values (zero-initialized) :<br/>
- *		#foreach ($prim in $primitives)
+#foreach ($prim in $primitives)
  *		{@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])} or {@link Pointer#pointerTo${prim.CapName}s(${prim.BufferName})} / {@link Pointer#allocate${prim.CapName}s(long)}<br/>
- *       #end
- *		#foreach ($sizePrim in ["SizeT", "CLong"])
+#end
+#foreach ($sizePrim in ["SizeT", "CLong"])
  *		{@link Pointer#pointerTo${sizePrim}s(long[])} / {@link Pointer#allocate${sizePrim}s(long)}<br/>
- *		#end
+#end
  *		{@link Pointer#pointerToBuffer(Buffer)} / n/a<br/>
+ *  </li>
+ *  <li>Allocating a native String with the default charset :<br/>
+#foreach ($string in ["C", "WideC", "Pascal", "WidePascal"])
+*		{@link Pointer#pointerTo${string}String(String)}<br/>
+#end
  *  </li>
  * </ul>
  */
@@ -133,7 +146,6 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Allocate enough memory for dim1 * dim2 $cPrimName values in a packed multi-dimensional C array and return a pointer to that memory.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
      * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br/>
-     * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon.
      * @return pointer to dim1 * dim2 zero-initialized $cPrimName consecutive values
      */
 #end
@@ -142,7 +154,6 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Allocate enough memory for dim1 * dim2 * dim3 $cPrimName values in a packed multi-dimensional C array and return a pointer to that memory.<br/>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
      * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br/>
-     * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon.
      * @return pointer to dim1 * dim2 * dim3 zero-initialized $cPrimName consecutive values
      */
 #end
@@ -1894,7 +1905,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 #macro (defPointerToString $string $eltWrapper)
     /**
      * Allocate memory and write a ${string} string to it, using the system's default charset to convert the string.  (see {@link StringType#${string}}).<br>
-	 * See {@link Pointer#set${string}String(String}.
+	 * See {@link Pointer#set${string}String(String)}.
 	 */
 	 public static Pointer<$eltWrapper> pointerTo${string}String(String string) {
 		return setString(null, 0, string, null, StringType.${string});
