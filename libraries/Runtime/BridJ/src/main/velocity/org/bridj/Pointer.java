@@ -1775,6 +1775,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		 * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
         PascalWide,
+        /**
+		 * Pascal ANSI strings are ref-counted single-byte strings that look like C strings but are prepended with a ref count and length (both 32 bits ints).<br>
+		 * Corresponding Pascal type : {@code AnsiString } (see {@link http://www.codexterity.com/delphistrings.htm})<br>
+		 * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
+		 */
         PascalAnsi,
         /**
          * Microsoft's BSTR strings, used in COM, OLE, MS.NET Interop and MS.NET Automation functions.<br>
