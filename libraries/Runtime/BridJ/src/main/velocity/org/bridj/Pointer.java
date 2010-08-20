@@ -219,7 +219,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	private final PointerIO<T> io;
 	private final long peer, offsetInParent;
 	private final Pointer<?> parent;
-	private final Object sibling;
+	private Object sibling;
 	private final long validStart, validEnd;
 	private final boolean ordered;
 
@@ -246,12 +246,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
 	/**
 	 * Manually release the memory pointed by this pointer if it was allocated on the Java side.<br>
-	 * If the pointer is an offset version of another pointer (using {@link Pointer#share(long)} or {@link Pointer#next(long)}, for instance), this method does nothing.<br>
+	 * If the pointer is an offset version of another pointer (using {@link Pointer#share(long)} or {@link Pointer#next(long)}, for instance), this method tries to release the original pointer.<br>
 	 * If the memory was not allocated from the Java side, this method does nothing either.<br>
 	 * If the memory was already successfully released, this throws a RuntimeException.
 	 * @throws RuntimeException if the pointer was already released
 	 */
-	public void release() {}
+	public void release() {
+		if (sibling instanceof Pointer)
+			((Pointer)sibling).release();
+		sibling = null;
+	}
 
 	/**
 	 * Compare to another pointer based on pointed addresses.
@@ -1745,14 +1749,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     	 * They are stored with the bytes of the string (using either a single-byte encoding such as ASCII, ISO-8859 or windows-1252 or a C-string compatible multi-byte encoding, such as UTF-8), followed with a zero byte that indicates the end of the string.<br>
     	 * Corresponding C types : {@code char* }, {@code const char* }, {@code LPCSTR }<br>
     	 * Corresponding Pascal type : {@code PChar }<br>
-    	 * See {@link Pointer#getCString()} and {@link Pointer#setCString(String)}
+    	 * See {@link Pointer#pointerToCString(String)}, {@link Pointer#getCString()} and {@link Pointer#setCString(String)}
     	 */
         C,
 	/**
 	 * Wide C strings are stored as C strings (see {@link StringType#C}) except they are composed of shorts instead of bytes (and are ended by one zero short value = two zero byte values). 
 	 * This allows the use of two-bytes encodings, which is why this kind of strings is often found in modern Unicode-aware system APIs.<br>
     	 * Corresponding C types : {@code wchar_t* }, {@code const wchar_t* }, {@code LPCWSTR }<br>
-    	 * See {@link Pointer#getWideCString()} and {@link Pointer#setWideCString(String)}
+    	 * See {@link Pointer#pointerToWideCString(String)}, {@link Pointer#getWideCString()} and {@link Pointer#setWideCString(String)}
     	 */
         WideC,
     	/**
@@ -1760,14 +1764,15 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     	 * They are stored with a first byte that indicates the length of the string, followed by the ascii or extended ascii chars of the string (no support for multibyte encoding).<br>
     	 * They are often used in very old Mac OS programs and / or Pascal programs.<br>
     	 * Usual corresponding C types : {@code unsigned char* } and {@code const unsigned char* }<br>
-    	 * See {@link Pointer#getPascalString()} and {@link Pointer#setPascalString(String)}
-    	 * Corresponding Pascal type : {@code ShortString } (@see http://www.codexterity.com/delphistrings.htm)<br>
+    	 * Corresponding Pascal type : {@code ShortString } (see {@link http://www.codexterity.com/delphistrings.htm})<br>
+    	 * See {@link Pointer#pointerToPascalString(String)}, {@link Pointer#getPascalString()} and {@link Pointer#setPascalString(String)}
     	 */
         Pascal,
     	/**
     	 * Wide Pascal strings are ref-counted unicode strings that look like WideC strings but are prepended with a ref count and length (both 32 bits ints).<br>
     	 * They are the current default in Delphi (2010).<br>
-    	 * Corresponding Pascal type : {@code WideString } (@see http://www.codexterity.com/delphistrings.htm)<br>
+    	 * Corresponding Pascal type : {@code WideString } (see {@link http://www.codexterity.com/delphistrings.htm})<br>
+    	 * See {@link Pointer#pointerToWidePascalString(String)}, {@link Pointer#getWidePascalString()} and {@link Pointer#setWidePascalString(String)}
     	 */
         WidePascal
     }
