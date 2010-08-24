@@ -171,8 +171,13 @@ public abstract class Demangler {
 			parse();
 
             try {
-                if (ref != null)
-                    return ref.matches(method);
+                if (ref != null) {
+                	boolean res = ref.matches(method);
+                	if (!res) {
+                		System.err.println("Symbol " + symbol + " was a good candidate but expected demangled signature " + ref + " did not match the method " + method); 	
+                	}
+                    return res;
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -374,7 +379,7 @@ public abstract class Demangler {
                 if ((typec == int.class || typec == Integer.class) && (JNI.SIZE_T_SIZE == 4) || typec == long.class || typec == Long.class)
                     return true;
             }
-            if ((tc == Character.TYPE || tc == Character.class || tc == short.class || tc == Short.class) && (typec == char.class || typec == Character.class))
+            if ((tc == Character.TYPE || tc == Character.class || tc == short.class || tc == Short.class) && (typec == Short.class || typec == short.class || typec == char.class || typec == Character.class))
                 return true;
 
             if ((tc == Integer.class || tc == int.class) && ValuedEnum.class.isAssignableFrom(typec))
@@ -486,11 +491,12 @@ public abstract class Demangler {
     }
     static void appendArgs(StringBuilder b, char pre, char post, Object[] params) {
         b.append(pre);
-        for (int i = 0; i < params.length; i++) {
-            if (i != 0)
-                b.append(", ");
-            b.append(params[i]);
-        }
+        if (params != null)
+			for (int i = 0; i < params.length; i++) {
+				if (i != 0)
+					b.append(", ");
+				b.append(params[i]);
+			}
         b.append(post);
     }
 	public static class FunctionTypeRef extends TypeRef {

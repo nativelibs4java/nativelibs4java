@@ -101,9 +101,18 @@ public class VC9Demangler extends Demangler {
         List<TypeRef> br = backReferences;
         backReferences = new ArrayList<TypeRef>();
 
+        //System.out.println("# START OF parseTemplateParams()");
         String name = parseNameFragment();
         List<TemplateArg> args = parseTemplateParams();
+        
+        List<Object> names = new ArrayList<Object>();
+        parseNameQualifications(names);
+		
+        //String ns = parseNameFragment();
+        
+        //System.out.println("parseTemplateParams() = " + args + ", ns = " + names);
         ClassRef tr = new ClassRef();
+        tr.setEnclosingType(reverseNamespace(names));
         tr.setSimpleName(name);
         tr.setTemplateArguments(args.toArray(new TemplateArg[args.size()]));
 
@@ -138,10 +147,12 @@ public class VC9Demangler extends Demangler {
     }
 
     private TemplateArg parseTemplateParameter() throws DemanglingException {
-        switch (consumeChar()) {
+        switch (peekChar()) {
             case '?':
+            	consumeChar();
                 return new AnonymousTemplateArg("'anonymous template param " + parseNumber(false) + "'");
             case '$':
+            	consumeChar();
                 switch (consumeChar()) {
                     case '0':
                         return new Constant(parseNumber(true));
@@ -159,6 +170,8 @@ public class VC9Demangler extends Demangler {
                         return new AnonymousTemplateArg("'anonymous non-type template param " + parseNumber(false) + "'");
                 }
                 break;
+            default:
+            	//error("Unexpected template param value");
         }
         return parseType(true);
     }

@@ -113,7 +113,7 @@ public class PointerTest {
 		Charset charset = null;
 		for (int offset : new int[] { 0, 1, 4, 10 }) {
 			for (Pointer.StringType type : Pointer.StringType.values()) {
-				if (true)//!type.canCreate)
+				if (!type.canCreate)
 					continue;
 				
 				Pointer<?> p = pointerToString(s, charset, type);
@@ -125,9 +125,6 @@ public class PointerTest {
 		}
 	}
 	
-	
-	/*
-
 	public static native Pointer<?> newString();
 	public static native Pointer<?> newWString();
 
@@ -158,7 +155,7 @@ public class PointerTest {
 		appendToString(p, pointerToCString(s2));
 		assertEquals(s2, stringCStr(p).getCString());
 	}
-	*/
+	
 	
 #foreach ($prim in $primitivesNoBool)
 	

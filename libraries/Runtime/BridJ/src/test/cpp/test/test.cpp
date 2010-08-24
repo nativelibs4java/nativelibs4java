@@ -263,7 +263,7 @@ TEST_API void deleteString(std::string* s) {
 	delete s;
 }
 TEST_API const char* stringCStr(std::string* s) {
-	s->c_str();
+	return s->c_str();
 }
 
 TEST_API std::wstring* newWString() {
@@ -275,14 +275,14 @@ TEST_API void appendToWString(std::wstring* s, const wchar_t* a) {
 TEST_API void reserveWString(std::wstring* s, size_t reservedSize) {
 	s->reserve(reservedSize);
 }
-TEST_API void resizeString(std::wstring* s, size_t newSize) {
+TEST_API void resizeWString(std::wstring* s, size_t newSize) {
 	s->resize(newSize);
 }
-TEST_API void deleteString(std::wstring* s) {
+TEST_API void deleteWString(std::wstring* s) {
 	delete s;
 }
-TEST_API const char* wstringCStr(std::wstring* s) {
-	s->c_str();
+TEST_API const wchar_t* wstringCStr(std::wstring* s) {
+	return s->c_str();
 }
 
 #include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"
