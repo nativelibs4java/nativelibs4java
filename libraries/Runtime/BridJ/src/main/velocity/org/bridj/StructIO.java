@@ -2,6 +2,7 @@ package org.bridj;
 import org.bridj.CallIO.NativeObjectHandler;
 import org.bridj.ann.*;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -39,6 +40,7 @@ public class StructIO {
         public int byteOffset;
 		public int bitOffset, bitLength = -1;
         public int arrayLength = 1;
+        public Type nativeTypeOrPointerTargetType;
 	}
 	protected static class FieldDecl {
 		final FieldDesc desc = new FieldDesc();
@@ -264,7 +266,8 @@ public class StructIO {
             field.desc.byteOffset = structSize;
             if (field.valueClass.isPrimitive()) {
 				field.byteLength = primTypeLength(field.valueClass);
-            } else if (StructObject.class.isAssignableFrom(field.valueClass)) {		
+            } else if (StructObject.class.isAssignableFrom(field.valueClass)) {
+            	field.desc.nativeTypeOrPointerTargetType = field.valueType;
                 if (field.isByValue)		
                     field.byteLength = Pointer.SIZE;		
                 else {		
@@ -272,7 +275,16 @@ public class StructIO {
                     field.byteLength = io.getStructSize();		
                 }		
                 //field.refreshableFieldIndex = refreshableFieldCount++;		
+            } else if (IntValuedEnum.class.isAssignableFrom(field.valueClass)) {
+                field.desc.nativeTypeOrPointerTargetType = (field.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType)field.valueType).getActualTypeArguments()[0]) : null;
+                field.byteLength = 4;
+                //field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
+            } else if (TypedPointer.class.isAssignableFrom(field.valueClass)) {
+                field.desc.nativeTypeOrPointerTargetType = field.valueType;
+                field.byteLength = Pointer.SIZE;
+                //field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
             } else if (Pointer.class.isAssignableFrom(field.valueClass)) {
+                field.desc.nativeTypeOrPointerTargetType = (field.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.valueType).getActualTypeArguments()[0] : null;
                 field.byteLength = Pointer.SIZE;
                 //field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
             } else if (Buffer.class.isAssignableFrom(field.valueClass)) {
@@ -344,24 +356,24 @@ public class StructIO {
 		return filtered.toArray(new FieldDesc[filtered.size()]);
 	}
 
-	public final <T> Pointer<T> getPointerField(StructObject struct, int fieldIndex, Type targetType) {
-		return struct.peer.getPointer(fields[fieldIndex].byteOffset, targetType);	
+	public final <T> Pointer<T> getPointerField(StructObject struct, int fieldIndex) {
+		return struct.peer.getPointer(fields[fieldIndex].byteOffset, fields[fieldIndex].nativeTypeOrPointerTargetType);	
 	}
 	
 	public final <T> void setPointerField(StructObject struct, int fieldIndex, Pointer<T> value) {
 		struct.peer.setPointer(fields[fieldIndex].byteOffset, value);
 	}
 	
-	public final <T extends TypedPointer> T getTypedPointerField(StructObject struct, int fieldIndex, Class<T> typedPointerClass) {
-		PointerIO<T> pio = PointerIO.getInstance(typedPointerClass);
+	public final <T extends TypedPointer> T getTypedPointerField(StructObject struct, int fieldIndex) {
+		PointerIO<T> pio = PointerIO.getInstance(fields[fieldIndex].nativeTypeOrPointerTargetType);
 		return pio.castTarget(struct.peer.getSizeT(fields[fieldIndex].byteOffset));	
 	}
-	public final <O extends NativeObject> O getNativeObjectField(StructObject struct, int fieldIndex, Type type) {
-		return (O)struct.peer.getNativeObject(0, type);
+	public final <O extends NativeObject> O getNativeObjectField(StructObject struct, int fieldIndex) {
+		return (O)struct.peer.getNativeObject(fields[fieldIndex].byteOffset, fields[fieldIndex].nativeTypeOrPointerTargetType);
 	}
 
-	public final <E extends Enum<E>> ValuedEnum<E> getIntEnumField(StructObject struct, int fieldIndex, Class<E> enumClass) {
-		return FlagSet.fromValue(struct.peer.getInt(fields[fieldIndex].byteOffset), enumClass);	
+	public final <E extends Enum<E>> ValuedEnum<E> getIntEnumField(StructObject struct, int fieldIndex) {
+		return FlagSet.fromValue(struct.peer.getInt(fields[fieldIndex].byteOffset), (Class<E>)fields[fieldIndex].nativeTypeOrPointerTargetType);	
 	}
 	
 	public final <E extends Enum<E>> void setIntEnumField(StructObject struct, int fieldIndex, IntValuedEnum<E> value) {
