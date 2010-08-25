@@ -279,9 +279,13 @@ public class StructIO {
                     field.byteLength = io.getStructSize();		
                 }		
                 //field.refreshableFieldIndex = refreshableFieldCount++;		
-            } else if (IntValuedEnum.class.isAssignableFrom(field.valueClass)) {
+            } else if (ValuedEnum.class.isAssignableFrom(field.valueClass)) {
                 field.desc.nativeTypeOrPointerTargetType = (field.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType)field.valueType).getActualTypeArguments()[0]) : null;
-                field.byteLength = 4;
+                Class c = PointerIO.getClass(field.desc.nativeTypeOrPointerTargetType);
+                if (IntValuedEnum.class.isAssignableFrom(c))
+                    field.byteLength = 4;
+                else
+                    throw new RuntimeException("Enum type unknown : " + c);
                 //field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
             } else if (TypedPointer.class.isAssignableFrom(field.valueClass)) {
                 field.desc.nativeTypeOrPointerTargetType = field.valueType;
