@@ -39,7 +39,7 @@ public class StructIO {
     public static class FieldDesc {
         public int byteOffset;
 		public int bitOffset, bitLength = -1;
-        public int arrayLength = 1;
+        public long arrayLength = 1;
         public Type nativeTypeOrPointerTargetType;
 	}
 	protected static class FieldDecl {
@@ -180,8 +180,12 @@ public class StructIO {
             field.index = fil.value();
         if (bits != null)
             field.desc.bitLength = bits.value();
-        if (arr != null)
-            field.desc.arrayLength = arr.value();
+        if (arr != null) {
+            long length = 1;
+            for (long dim : arr.value())
+                length *= dim;
+            field.desc.arrayLength = length;
+        }
         field.isWide = getter.getAnnotation(Wide.class) != null;
         field.isByValue = getter.getAnnotation(ByValue.class) != null;
         return field;
@@ -357,7 +361,11 @@ public class StructIO {
 	}
 
 	public final <T> Pointer<T> getPointerField(StructObject struct, int fieldIndex) {
-		return struct.peer.getPointer(fields[fieldIndex].byteOffset, fields[fieldIndex].nativeTypeOrPointerTargetType);	
+        FieldDesc fd = fields[fieldIndex];
+		Pointer<T> p = struct.peer.getPointer(fd.byteOffset, fd.nativeTypeOrPointerTargetType);
+        if (fd.arrayLength != 1)
+            p = p.validElements(fd.arrayLength);
+        return p;
 	}
 	
 	public final <T> void setPointerField(StructObject struct, int fieldIndex, Pointer<T> value) {
