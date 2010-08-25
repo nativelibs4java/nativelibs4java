@@ -28,7 +28,7 @@ public class TypedPointersTest {
 		//public native Pointer<Integer> a();
 		//public native MyStruct a(MyPtr a);
         public MyPtr a() {
-            return io.getTypedPointerField(this, 0, MyPtr.class);
+            return io.getTypedPointerField(this, 0);
         }
         public MyStruct a(MyPtr a) {
             io.setPointerField(this, 0, a);

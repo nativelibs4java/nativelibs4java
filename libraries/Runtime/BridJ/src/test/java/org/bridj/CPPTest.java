@@ -152,7 +152,7 @@ public class CPPTest {
 		/// C type : int*
 		@Field(0) 
 		public Pointer<java.lang.Integer > fState() {
-			return this.io.getPointerField(this, 0, java.lang.Integer.class);
+			return this.io.getPointerField(this, 0);
 		}
 		/// C type : int*
 		@Field(0) 

@@ -125,6 +125,7 @@ public class PointerTest {
 		}
 	}
 	
+	/*
 	public static native Pointer<?> newString();
 	public static native Pointer<?> newWString();
 
@@ -155,7 +156,7 @@ public class PointerTest {
 		appendToString(p, pointerToCString(s2));
 		assertEquals(s2, stringCStr(p).getCString());
 	}
-	
+	*/
 	
 #foreach ($prim in $primitivesNoBool)
 	

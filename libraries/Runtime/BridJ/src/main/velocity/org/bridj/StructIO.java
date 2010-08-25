@@ -369,40 +369,49 @@ public class StructIO {
 	}
 	
 	public final <T> void setPointerField(StructObject struct, int fieldIndex, Pointer<T> value) {
-		struct.peer.setPointer(fields[fieldIndex].byteOffset, value);
+		FieldDesc fd = fields[fieldIndex];
+		struct.peer.setPointer(fd.byteOffset, value);
 	}
 	
 	public final <T extends TypedPointer> T getTypedPointerField(StructObject struct, int fieldIndex) {
-		PointerIO<T> pio = PointerIO.getInstance(fields[fieldIndex].nativeTypeOrPointerTargetType);
-		return pio.castTarget(struct.peer.getSizeT(fields[fieldIndex].byteOffset));	
+		FieldDesc fd = fields[fieldIndex];
+		PointerIO<T> pio = PointerIO.getInstance(fd.nativeTypeOrPointerTargetType);
+		return pio.castTarget(struct.peer.getSizeT(fd.byteOffset));
 	}
 	public final <O extends NativeObject> O getNativeObjectField(StructObject struct, int fieldIndex) {
-		return (O)struct.peer.getNativeObject(fields[fieldIndex].byteOffset, fields[fieldIndex].nativeTypeOrPointerTargetType);
+		FieldDesc fd = fields[fieldIndex];
+		return (O)struct.peer.getNativeObject(fd.byteOffset, fd.nativeTypeOrPointerTargetType);
 	}
 
-	public final <E extends Enum<E>> ValuedEnum<E> getIntEnumField(StructObject struct, int fieldIndex) {
-		return FlagSet.fromValue(struct.peer.getInt(fields[fieldIndex].byteOffset), (Class<E>)fields[fieldIndex].nativeTypeOrPointerTargetType);	
+	public final <E extends Enum<E>> ValuedEnum<E> getEnumField(StructObject struct, int fieldIndex) {
+        FieldDesc fd = fields[fieldIndex];
+		return FlagSet.fromValue(struct.peer.getInt(fd.byteOffset), (Class<E>)fd.nativeTypeOrPointerTargetType);
 	}
 	
-	public final <E extends Enum<E>> void setIntEnumField(StructObject struct, int fieldIndex, IntValuedEnum<E> value) {
-		struct.peer.setInt(fields[fieldIndex].byteOffset, (int)value.value());
+	public final void setEnumField(StructObject struct, int fieldIndex, ValuedEnum<?> value) {
+		FieldDesc fd = fields[fieldIndex];
+		struct.peer.setInt(fd.byteOffset, (int)value.value());
 	}
 	
 #foreach ($prim in $primitives)
     public final void set${prim.CapName}Field(StructObject struct, int fieldIndex, ${prim.Name} value) {
-		struct.peer.set${prim.CapName}(fields[fieldIndex].byteOffset, value);
+		FieldDesc fd = fields[fieldIndex];
+		struct.peer.set${prim.CapName}(fd.byteOffset, value);
 	}
 	public final ${prim.Name} get${prim.CapName}Field(StructObject struct, int fieldIndex) {
-		return struct.peer.get${prim.CapName}(fields[fieldIndex].byteOffset);
+		FieldDesc fd = fields[fieldIndex];
+		return struct.peer.get${prim.CapName}(fd.byteOffset);
 	}
 #end	
 
 #foreach ($sizePrim in ["SizeT", "CLong"])
     public final void set${sizePrim}Field(StructObject struct, int fieldIndex, long value) {
-		struct.peer.set${sizePrim}(fields[fieldIndex].byteOffset, value);
+		FieldDesc fd = fields[fieldIndex];
+		struct.peer.set${sizePrim}(fd.byteOffset, value);
 	}
 	public final long get${sizePrim}Field(StructObject struct, int fieldIndex) {
-		return struct.peer.get${sizePrim}(fields[fieldIndex].byteOffset);
+		FieldDesc fd = fields[fieldIndex];
+		return struct.peer.get${sizePrim}(fd.byteOffset);
 	}
 #end
 }
