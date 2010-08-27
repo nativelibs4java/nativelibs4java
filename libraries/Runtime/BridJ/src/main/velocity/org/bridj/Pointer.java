@@ -245,6 +245,21 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
+	 * Create a {@code Pointer<T>} type. <br>
+	 * For Instance, {@code Pointer.pointerType(Integer.class) } returns a type that represents {@code Pointer<Integer> }  
+	 */
+	public static Type pointerType(Type targetType) {
+		return org.bridj.util.DefaultParameterizedType.paramType(Pointer.class, targetType);	
+	}
+	/**
+	 * Create a {@code IntValuedEnum<T>} type. <br>
+	 * For Instance, {@code Pointer.intEnumType(SomeEnum.class) } returns a type that represents {@code IntValuedEnum<SomeEnum> }  
+	 */
+	public static <E extends Enum<E>> Type intEnumType(Class<? extends IntValuedEnum<E>> targetType) {
+		return org.bridj.util.DefaultParameterizedType.paramType(IntValuedEnum.class, targetType);	
+	}
+	
+	/**
 	 * Manually release the memory pointed by this pointer if it was allocated on the Java side.<br>
 	 * If the pointer is an offset version of another pointer (using {@link Pointer#share(long)} or {@link Pointer#next(long)}, for instance), this method tries to release the original pointer.<br>
 	 * If the memory was not allocated from the Java side, this method does nothing either.<br>
@@ -1013,6 +1028,29 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      */
     public static <P> Pointer<Pointer<P>> allocatePointer(Class<P> targetType) {
     	return (Pointer<Pointer<P>>)(Pointer)allocate(PointerIO.getPointerInstance(targetType)); 
+    }
+    /**
+     * Create a memory area large enough to hold a pointer.
+     * @param targetType target type of the pointer values to be stored in the allocated memory 
+     * @return a pointer to a new memory area large enough to hold a single typed pointer
+     */
+    public static <P> Pointer<Pointer<P>> allocatePointer(Type targetType) {
+    	return (Pointer<Pointer<P>>)(Pointer)allocate(PointerIO.getPointerInstance(targetType)); 
+    }
+    /**
+     * Create a memory area large enough to hold a pointer to a pointer
+     * @param targetType target type of the values pointed by the pointer values to be stored in the allocated memory 
+     * @return a pointer to a new memory area large enough to hold a single typed pointer
+     */
+    public static <P> Pointer<Pointer<Pointer<P>>> allocatePointerPointer(Type targetType) {
+    	return allocatePointer(pointerType(targetType)); 
+    }/**
+     * Create a memory area large enough to hold a pointer to a pointer
+     * @param targetType target type of the values pointed by the pointer values to be stored in the allocated memory 
+     * @return a pointer to a new memory area large enough to hold a single typed pointer
+     */
+    public static <P> Pointer<Pointer<Pointer<P>>> allocatePointerPointer(Class<P> targetType) {
+    	return allocatePointerPointer(targetType); 
     }
 #docAllocate("untyped pointer", "Pointer<?>")
     /**
