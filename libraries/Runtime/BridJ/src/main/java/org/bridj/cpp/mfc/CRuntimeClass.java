@@ -2,7 +2,6 @@ package org.bridj.cpp.mfc;
 
 import org.bridj.Pointer;
 import org.bridj.ann.Field;
-import org.bridj.ann.NotNull;
 import org.bridj.ann.Struct;
 import org.bridj.func.Fun0;
 
@@ -44,8 +43,8 @@ public class CRuntimeClass extends MFCObject {
 	public native static Pointer<CObject> CreateObject$2(Pointer<Character> lpszClassName);
 
 	// Implementation
-	public native void Store(@NotNull Pointer<CArchive> ar);
-	public native static Pointer<CRuntimeClass> Load(@NotNull Pointer<CArchive> ar, Pointer<Integer> pwSchemaNum);
+	public native void Store(Pointer<CArchive> ar);
+	public native static Pointer<CRuntimeClass> Load(Pointer<CArchive> ar, Pointer<Integer> pwSchemaNum);
 
 	// CRuntimeClass objects linked together in simple list
 	@Field(5)

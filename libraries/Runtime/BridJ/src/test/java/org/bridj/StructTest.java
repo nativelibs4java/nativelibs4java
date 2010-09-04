@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 
 import org.bridj.ann.Field;
 import static org.bridj.Pointer.*;
+import static org.bridj.BridJ.*;
 
 import javolution.io.*;
 
@@ -33,7 +34,24 @@ public class StructTest {
             io.setDoubleField(this, 1, b);
             return this;
         }
-	}/*
+	}
+	
+	@Test
+	public void testEquality() {
+		MyStruct x = new MyStruct(), y = new MyStruct(), z = new MyStruct();
+		long len = sizeOf(x);
+		int a = 10;
+		double b = 12.0;
+		pointerTo(x).clearBytes(0, len, (byte)0xff);
+		for (MyStruct s : new MyStruct[] { x, y })
+			s.a(a).b(b);
+		
+		assertFalse(pointerTo(x).compareBytes(pointerTo(y), len) == 0);
+		assertEquals(x, y);
+		assertFalse(x.equals(z));
+	}
+	
+	/*
 	public static class MyStruct extends StructObject {
 		public MyStruct(org.bridj.Pointer<MyStruct> p) {
 			super(p);

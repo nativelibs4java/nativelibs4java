@@ -35,4 +35,12 @@ public class NativeObject {
     public NativeObject clone() throws CloneNotSupportedException {
         return BridJ.clone(this);
     }
+    
+    @Override
+    public boolean equals(Object o) {
+    		if (!(o instanceof NativeObject))
+    			return false;
+    		
+    		return typeInfo.equal(this, (NativeObject)o);
+    }
 }

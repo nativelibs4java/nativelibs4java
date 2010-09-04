@@ -22,6 +22,8 @@ public interface BridJRuntime {
 		BridJRuntime getRuntime();
 		Type getType();
 
+		boolean equal(T instance, T other);
+		int compare(T instance, T other);
         long sizeOf(T instance);
 	}
 	

@@ -65,6 +65,34 @@ public class CRuntime extends AbstractBridJRuntime {
         public long sizeOf(T instance) {
             return structIO.getStructSize();
         }
+		@Override
+        public boolean equal(T instance, T other) {
+        		if (structIO != null) {
+				if (((StructObject)instance).io != structIO)
+					throw new IllegalArgumentException("This is not this instance's StructIO");
+				
+				if (((StructObject)other).io != structIO)
+					return false;
+				
+				return structIO.equal((StructObject)instance, (StructObject)other);
+			} else {
+				return instance.peer.equals(other.peer);	
+			}
+        }
+        @Override
+        public int compare(T instance, T other) {
+        		if (structIO != null) {
+        			if (((StructObject)instance).io != structIO)
+					throw new IllegalArgumentException("This is not this instance's StructIO");
+				
+				if (((StructObject)other).io != structIO)
+					return 1;
+				
+				return structIO.compare((StructObject)instance, (StructObject)other);
+			} else {
+				return instance.peer.compareTo(other.peer);	
+			}
+        }
 		
         
         @Override

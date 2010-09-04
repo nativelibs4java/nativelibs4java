@@ -48,8 +48,8 @@ public class ComparisonTest {
             
         }
         static class Struct2 extends StructObject {
-            @ByValue Struct1 s1;
-            @Wide @Array(10) String s;
+            Struct1 s1;
+            @Wide @Array(10) Pointer<Character> s;
         }
     }
     /**
