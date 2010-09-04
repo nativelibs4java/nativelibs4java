@@ -53,7 +53,40 @@ public class StructIO {
         Class<?> declaringClass;
         boolean isBitField, isByValue, isWide;
     }
+	/*
+    static class SolidRanges {
+    		long[] offsets, lengths;
+    		static class Builder {
+    			List<Long> offsets = new ArrayList<Long>(), lengths = new ArrayList<Long>();
+    			long lastOffset = -1, nextOffset = 0;
+    			int count;
+    			void add(FieldDesc f) {
+    				long offset = f.byteOffset;
+    				long length = f.byteLength;
+    				
+    				if (offset == lastOffset) {
+    					lengths.set(count - 1, Math.max(lengths.get(count - 1), length));	
+    				}
+    				if (offset == nextOffset && count != 0) {
+    					lengths.set(count - 1, lengths.get(count - 1) + length);
+    				}
+    				lastOffset = offset;
+    				nextOffset = offset + length;
+    				count++;
+    			}
+    			SolidRanges toSolidRanges() {
+    				SolidRanges r = new SolidRanges();
+    				r.offsets = new long[count];
+    				r.lengths = new long[count];
+    				for (int i = 0; i < count; i++) {
+    					r.offsets[i] = offsets.get(i);
+    					r.lengths[i] = lengths.get(i);
+    				}
+    				return r;
+    			}
+		}
 	
+    }*/
 	protected PointerIO<?> pointerIO;
 	protected volatile FieldDesc[] fields;
 	private int structSize = -1;
@@ -361,9 +394,16 @@ public class StructIO {
             if (fio.declaringClass != null && fio.declaringClass.equals(structClass))
                 filtered.add(fio.desc);
         
+            /*SolidRanges.Builder b = new SolidRanges.Builder();
+            for (FieldDecl f : filtered)
+            		b.add(f);
+            	
+            	solidRanges = b.toSolidRanges();*/
 		return filtered.toArray(new FieldDesc[filtered.size()]);
 	}
 
+	//SolidRanges solidRanges;
+	
 	public final <T> Pointer<T> getPointerField(StructObject struct, int fieldIndex) {
         FieldDesc fd = fields[fieldIndex];
 		Pointer<T> p = struct.peer.getPointer(fd.byteOffset, fd.nativeTypeOrPointerTargetType);
