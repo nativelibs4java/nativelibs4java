@@ -322,6 +322,10 @@
 				>
 			</File>
 			<File
+				RelativePath="$(DYNCALL_HOME)\dyncall\dyncall\dyncall_struct.c"
+				>
+			</File>
+			<File
 				RelativePath="$(DYNCALL_HOME)\dyncall\dyncall\dyncall_call_x64_masm.asm"
 				>
 				<FileConfiguration
@@ -369,6 +373,10 @@
 			</File>
 			<File
 				RelativePath="$(DYNCALL_HOME)\dyncall\dyncall\dyncall_alloc.h"
+				>
+			</File>
+			<File
+				RelativePath="$(DYNCALL_HOME)\dyncall\dyncall\dyncall_struct.h"
 				>
 			</File>
 			<File
