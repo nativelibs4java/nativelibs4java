@@ -148,7 +148,6 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		if (entity == null)
 			return;
 		waitFor(this);
-        release();
 	}
 
 	/**
