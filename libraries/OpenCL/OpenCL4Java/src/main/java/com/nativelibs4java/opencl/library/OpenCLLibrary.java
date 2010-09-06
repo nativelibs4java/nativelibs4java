@@ -24,7 +24,7 @@ import java.nio.LongBuffer;
 public interface OpenCLLibrary extends Library {
 	public static final java.lang.String JNA_LIBRARY_NAME = LibraryExtractor.getLibraryPath("OpenCL", true, com.nativelibs4java.opencl.library.OpenCLLibrary.class);
 	public static final NativeLibrary JNA_NATIVE_LIB = NativeLibrary.getInstance(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_LIBRARY_NAME, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
-	public static final OpenCLLibrary INSTANCE = (OpenCLLibrary)Native.loadLibrary(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_LIBRARY_NAME, com.nativelibs4java.opencl.library.OpenCLLibrary.class, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
+	public static final OpenCLLibrary INSTANCE = (OpenCLLibrary)Native.synchronizedLibrary((Library)Native.loadLibrary(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_LIBRARY_NAME, com.nativelibs4java.opencl.library.OpenCLLibrary.class, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS));
 	public static final int CL_DEVICE_TYPE_CPU = (1 << 1);
 	public static final int CL_SCHAR_MAX = 127;
 	public static final int CL_FP_INF_NAN = (1 << 1);
