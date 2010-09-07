@@ -47,6 +47,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * OpenCL program.<br/>
@@ -83,6 +84,29 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         this.context = context;
         this.devices = devices == null || devices.length == 0 ? context.getDevices() : devices;
     }
+	CLProgram(CLContext context, Map<CLDevice, byte[]> binaries) {
+		super(null, true);
+		this.context = context;
+		this.devices = binaries.keySet().toArray(new CLDevice[binaries.size()]);
+
+        NativeSize[] lengths = new NativeSize[devices.length];
+		cl_device_id[] deviceIds = new cl_device_id[devices.length];
+		String[] binptr=new String[devices.length];
+        for (int i = 0; i < devices.length; i++) {
+			final byte[] binary = binaries.get(devices[i]);
+            lengths[i] = toNS(binary.length);
+			deviceIds[i] = devices[i].getEntity();
+			binptr[i]=new String(binary);
+        }
+		
+        IntBuffer errBuff = NIOUtils.directInts(1, ByteOrder.nativeOrder());
+        cl_program program;
+		int previousAttempts = 0;
+		do {
+			program = CL.clCreateProgramWithBinary(context.getEntity(), devices.length, deviceIds, lengths, binptr, null, errBuff);
+		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
+        entity = program;
+	}
 
 	List<String> sources = new ArrayList<String>();
     Map<CLDevice, cl_program> programByDevice = new HashMap<CLDevice, cl_program>();

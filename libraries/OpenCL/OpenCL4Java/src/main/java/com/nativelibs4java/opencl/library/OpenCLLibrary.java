@@ -736,6 +736,11 @@ public interface OpenCLLibrary extends Library {
 	 * Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code><br>
 	 * @see <a href="http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/clCreateProgramWithBinary.html">Khronos Documentation for clCreateProgramWithBinary</a>
 	 */
+	OpenCLLibrary.cl_program clCreateProgramWithBinary(OpenCLLibrary.cl_context cl_context1, int cl_uint1, OpenCLLibrary.cl_device_id cl_device_idPtr1[], NativeSize size_tPtr1[], String[] charPtrPtr1, IntBuffer cl_intPtr1, IntBuffer cl_intPtr2);
+	/**
+	 * Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code><br>
+	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateProgramWithBinary.html">Khronos Documentation for clCreateProgramWithBinary</a>
+	 */
 	OpenCLLibrary.cl_program clCreateProgramWithBinary(OpenCLLibrary.cl_context cl_context1, int cl_uint1, OpenCLLibrary.cl_device_id cl_device_idPtr1[], NativeSizeByReference size_tPtr1, PointerByReference charPtrPtr1, IntByReference cl_intPtr1, IntByReference cl_intPtr2);
 	/**
 	 * Original signature : <code>cl_int clRetainProgram(cl_program)</code><br>

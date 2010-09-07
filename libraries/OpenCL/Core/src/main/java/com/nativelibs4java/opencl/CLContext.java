@@ -61,6 +61,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import java.util.Map;
 
 /**
  * OpenCL context.<br/>
@@ -206,6 +207,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
             program.addSource(src);
         return program;
     }
+
+	public CLProgram createProgram(Map<CLDevice, byte[]> binaries) {
+		return new CLProgram(this, binaries);
+	}
 
 	//cl_queue queue;
 	@Override
