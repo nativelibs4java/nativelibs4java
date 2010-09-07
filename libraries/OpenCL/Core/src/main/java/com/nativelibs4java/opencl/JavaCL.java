@@ -27,8 +27,8 @@ import java.util.Map;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id;
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 /**
  * Entry point class for the OpenCL4Java Object-oriented wrappers around the OpenCL API.<br/>

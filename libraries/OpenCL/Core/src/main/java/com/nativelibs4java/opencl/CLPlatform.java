@@ -24,8 +24,8 @@ import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 import java.nio.ByteOrder;
 import java.util.*;

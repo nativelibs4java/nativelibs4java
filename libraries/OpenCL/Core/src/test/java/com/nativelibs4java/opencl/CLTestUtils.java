@@ -6,8 +6,8 @@ import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 
 
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 /**
  * @author ochafik
  */

@@ -22,8 +22,8 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import com.nativelibs4java.opencl.library.cl_image_format;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 /**
  * OpenCL Image Format

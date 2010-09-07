@@ -5,9 +5,10 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import com.nativelibs4java.util.NIOUtils;
-import java.nio.DoubleBuffer;
 import org.ujmp.core.doublematrix.DoubleMatrix2D;
+
+import org.bridj.Pointer;
+import static org.bridj.Pointer.*;
 
 /**
  *
@@ -15,43 +16,44 @@ import org.ujmp.core.doublematrix.DoubleMatrix2D;
  */
 public class MatrixUtils {
     public static void write(double[] b, DoubleMatrix2D out) {
-        write(DoubleBuffer.wrap(b), out);
+        write(pointerToDoubles(b), out);
     }
-    public static void write(DoubleBuffer b, DoubleMatrix2D out) {
+    public static void write(Pointer<Double> b, DoubleMatrix2D out) {
         long rows = out.getRowCount(), columns = out.getColumnCount();
-        if (b.remaining() < rows * columns)
-            throw new IllegalArgumentException("Not enough data in input buffer to write into " + rows + "x" + columns + " matrix (only has " + b.remaining() + ")");
-        b = b.duplicate();
+        if (b.getRemainingElements() < rows * columns)
+            throw new IllegalArgumentException("Not enough data in input buffer to write into " + rows + "x" + columns + " matrix (only has " + b.getRemainingElements() + ")");
         if (out instanceof CLDenseDoubleMatrix2D) {
             CLDenseDoubleMatrix2D mout = (CLDenseDoubleMatrix2D)out;
             mout.write(b);
         } else {
-            for (long i = 0; i < rows; i++)
+            for (long i = 0; i < rows; i++) {
+            		long offset = i * columns;
                 for (long j = 0; j < columns; j++)
-                    out.setDouble(b.get(), i, j);
+                    out.setDouble(b.get(offset + j), i, j);
+            }
         }
     }
 
-    public static void read(DoubleMatrix2D m, double[] out) {
-        read(m, DoubleBuffer.wrap(out));
-    }
-    public static DoubleBuffer read(DoubleMatrix2D m) {
-        DoubleBuffer buffer = NIOUtils.directDoubles((int)(m.getColumnCount() * m.getRowCount()), CLDenseDoubleMatrix2DFactory.LINEAR_ALGEBRA_KERNELS.getContext().getKernelsDefaultByteOrder());
+    public static Pointer<Double> read(DoubleMatrix2D m) {
+        Pointer<Double> buffer = allocateDoubles(m.getColumnCount() * m.getRowCount()).order(CLDenseDoubleMatrix2DFactory.LINEAR_ALGEBRA_KERNELS.getContext().getKernelsDefaultByteOrder());
         read(m, buffer);
         return buffer;
     }
-    public static void read(DoubleMatrix2D m, DoubleBuffer out) {
+    public static void read(DoubleMatrix2D m, Pointer<Double> out) {
         long rows = m.getRowCount(), columns = m.getColumnCount();
-        if (out.remaining() < rows * columns)
-            throw new IllegalArgumentException("Not enough space in output buffer to read into " + rows + "x" + columns + " matrix (only has " + out.remaining() + ")");
-        out = out.duplicate();
+        if (out.getRemainingElements() < rows * columns)
+            throw new IllegalArgumentException("Not enough space in output buffer to read into " + rows + "x" + columns + " matrix (only has " + out.getRemainingElements() + ")");
+        
         if (m instanceof CLDenseDoubleMatrix2D) {
             CLDenseDoubleMatrix2D mm = (CLDenseDoubleMatrix2D)m;
             mm.read(out);
         } else {
-            for (long i = 0; i < rows; i++)
-                for (long j = 0; j < columns; j++)
-                    out.put(m.getDouble(i, j));
+            for (long i = 0; i < rows; i++) {
+            		long offset = i * columns;
+            		for (long j = 0; j < columns; j++) {
+                    out.set(offset + j, m.getDouble(i, j));
+				}
+			}
         }
     }
 }

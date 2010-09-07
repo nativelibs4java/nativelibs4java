@@ -1,7 +1,9 @@
 package com.nativelibs4java.opencl.util;
 
+import org.bridj.Pointer;
+import static org.bridj.Pointer.*;
+
 import com.nativelibs4java.opencl.JavaCL;
-import java.nio.IntBuffer;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,7 +37,7 @@ public class ParallelRandomTest {
 			int nInside = 0, nTotalPoints = 0;
 
 			for (int iLoop = 0; iLoop < nLoops; iLoop++) {
-				IntBuffer values = random.next();
+				Pointer<Integer> values = random.next();
 				for (int iPoint = 0; iPoint < nPoints; iPoint++) {
 					int offset = iPoint * 2;
 					int ix = values.get(offset), iy = values.get(offset + 1);

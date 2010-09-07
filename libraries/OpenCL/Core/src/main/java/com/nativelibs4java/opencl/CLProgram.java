@@ -41,8 +41,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program;
 import com.nativelibs4java.util.NIOUtils;
 
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 /**
  * OpenCL program.<br/>

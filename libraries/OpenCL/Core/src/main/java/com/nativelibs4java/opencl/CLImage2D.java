@@ -30,7 +30,7 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-import static com.bridj.Pointer.*;
+import static org.bridj.Pointer.*;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.Pair;

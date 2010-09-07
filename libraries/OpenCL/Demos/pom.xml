@@ -51,7 +51,7 @@
 
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
-			<artifactId>javacl-generator</artifactId>
+			<artifactId>javacl-generator-bridj</artifactId>
 			<version>${opencl4java.version}</version>
 			<!--configuration>
 				<javaOutputDirectory>${project.build.directory}/../src/main/java</javaOutputDirectory>

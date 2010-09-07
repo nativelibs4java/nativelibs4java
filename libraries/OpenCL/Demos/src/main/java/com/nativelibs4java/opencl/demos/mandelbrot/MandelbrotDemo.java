@@ -1,13 +1,12 @@
 package com.nativelibs4java.opencl.demos.mandelbrot;
 
-//package bbbob.gparallel.mandelbrot;
 import static com.nativelibs4java.opencl.JavaCL.createBestContext;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.nio.IntBuffer;
+import org.bridj.Pointer;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
@@ -26,7 +25,6 @@ import com.nativelibs4java.opencl.CLProgram;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.demos.SetupUtils;
 import com.nativelibs4java.util.IOUtils;
-import com.nativelibs4java.util.NIOUtils;
 
 
 /**
@@ -69,7 +67,7 @@ public class MandelbrotDemo {
 
         //Setup output buffer
         int size = realResolution * imaginaryResolution;
-        IntBuffer results = NIOUtils.directInts(size, context.getByteOrder());
+        Pointer<Integer> results = Pointer.allocateInts(size).order(context.getByteOrder());
 
         //TODO use an image object directly.
         //CL.clCreateImage2D(context.get(), 0, OpenCLLibrary);
@@ -98,9 +96,8 @@ public class MandelbrotDemo {
     }
 
 	private static BufferedImage getImage(int realResolution, int imaginaryResolution,
-                                      IntBuffer results) {
-        int[] outputResults = new int[realResolution * imaginaryResolution];
-		results.get(outputResults);
+                                      Pointer<Integer> results) {
+        int[] outputResults = results.getInts(realResolution * imaginaryResolution);
 		int max = Integer.MIN_VALUE;
 		for (int i = outputResults.length; i-- != 0;) {
 			int v = outputResults[i];
@@ -132,7 +129,7 @@ public class MandelbrotDemo {
     static boolean useAutoGenWrapper = true;
     private static long buildAndExecuteKernel(CLQueue queue, float realMin, float imaginaryMin, int realResolution,
                                               int imaginaryResolution, int maxIter, int magicNumber, float deltaReal,
-                                              float deltaImaginary, IntBuffer results, String src) throws CLBuildException, IOException {
+                                              float deltaImaginary, Pointer<Integer> results, String src) throws CLBuildException, IOException {
 
         CLContext context = queue.getContext();
         long startTime = System.nanoTime();
@@ -146,7 +143,7 @@ public class MandelbrotDemo {
                 maxIter,
                 magicNumber,
                 realResolution,
-                context.createIntBuffer(CLMem.Usage.Output, results, false),
+                context.createBuffer(CLMem.Usage.Output, results, false),
 
                 new int[]{realResolution, imaginaryResolution},
                 new int[]{1,1}
@@ -163,7 +160,7 @@ public class MandelbrotDemo {
                     maxIter,
                     magicNumber,
                     realResolution,
-                    context.createIntBuffer(CLMem.Usage.Output, results, false)
+                    context.createBuffer(CLMem.Usage.Output, results, false)
             );
 
             //Enqueue and complete work using a 2D range of work groups corrsponding to individual pizels in the set.

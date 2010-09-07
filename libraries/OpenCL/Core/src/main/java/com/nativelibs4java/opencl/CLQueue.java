@@ -28,8 +28,8 @@ import java.util.EnumSet;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_command_queue;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 /**
  * OpenCL command queue.<br/>

@@ -5,31 +5,30 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import java.nio.DoubleBuffer;
-
 import org.ujmp.core.interfaces.Wrapper;
 
-import com.nativelibs4java.util.NIOUtils;
+import org.bridj.Pointer;
+import static org.bridj.Pointer.*;
 
 /**
  *
  * @author ochafik
  */
-public class DirectNIODenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D implements Wrapper<DoubleBuffer> {
+public class DirectNIODenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D implements Wrapper<Pointer<Double>> {
 
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 8936390922363132043L;
-	DoubleBuffer data;
+	Pointer<Double> data;
 
-    public DirectNIODenseDoubleMatrix2D(DoubleBuffer data, long rows, long columns) {
+    public DirectNIODenseDoubleMatrix2D(Pointer<Double> data, long rows, long columns) {
         super(rows, columns);
         this.data = data;
     }
 
     public DirectNIODenseDoubleMatrix2D(long rows, long columns) {
-        this(NIOUtils.directDoubles((int)(rows * columns), CLDenseDoubleMatrix2DFactory.LINEAR_ALGEBRA_KERNELS.getContext().getKernelsDefaultByteOrder()), rows, columns);
+        this(allocateDoubles(rows * columns).order(CLDenseDoubleMatrix2DFactory.LINEAR_ALGEBRA_KERNELS.getContext().getKernelsDefaultByteOrder()), rows, columns);
     }
 
     public DirectNIODenseDoubleMatrix2D(long[] size) {
@@ -38,26 +37,26 @@ public class DirectNIODenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D
             throw new IllegalArgumentException("Size is not 2D !");
     }
 
-    public DoubleBuffer getData() {
+    public Pointer<Double> getData() {
         return data;
     }
 
-    public DoubleBuffer getReadableData() {
+    public Pointer<Double> getReadableData() {
         return getData();
     }
 
 
-    public DoubleBuffer getWritableData() {
+    public Pointer<Double> getWritableData() {
         return getData();
     }
 
     @Override
-    public DoubleBuffer getWrappedObject() {
+    public Pointer<Double> getWrappedObject() {
         return data;
     }
 
     @Override
-    public void setWrappedObject(DoubleBuffer object) {
+    public void setWrappedObject(Pointer<Double> object) {
         this.data = object;
     }
 

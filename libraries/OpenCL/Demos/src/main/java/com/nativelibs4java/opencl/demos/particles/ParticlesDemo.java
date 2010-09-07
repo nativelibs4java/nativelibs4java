@@ -41,7 +41,7 @@ import java.util.logging.*;
 import javax.media.opengl.*;
 
 import javax.swing.*;
-import java.nio.FloatBuffer;
+import org.bridj.Pointer;
 
 import com.sun.opengl.util.FPSAnimator;
 import java.awt.*;
@@ -53,7 +53,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.Map;
 import java.util.Random;
 import javax.imageio.ImageIO;
@@ -343,22 +342,21 @@ public class ParticlesDemo implements GLEventListener {
 
         queue.finish();
         
-        FloatBuffer positionsView = interleavedColorAndPositionsTemp.asFloatBuffer();
-        IntBuffer colorView = interleavedColorAndPositionsTemp.asIntBuffer();
+        Pointer<Float> positionsView = interleavedColorAndPositionsTemp.as(Float.class);
+        Pointer<Integer> colorView = interleavedColorAndPositionsTemp.as(Integer.class);
         for (int iPoint = 0; iPoint < particlesCount; iPoint++) {
             int iPixel = (int)(random.nextFloat() * (nNonEmptyPixels - 1));
 
-            velocities.put(iPixel, 0);
-            velocities.put(iPixel + 1, 0);
+            velocities.set(iPixel, 0f);
+            velocities.set(iPixel + 1, 0f);
 
             int colorOffset = iPoint * (elementSize / 4);
             int posOffset = iPoint * (elementSize / 4) + 1;
 
-            colorView.put(colorOffset, nonEmptyPixels[iPixel]);
-            positionsView.put(posOffset, nonEmptyPixelsX[iPixel]);
-            positionsView.put(posOffset + 1, nonEmptyPixelsY[iPixel]);
+            colorView.set(colorOffset, nonEmptyPixels[iPixel]);
+            positionsView.set(posOffset, nonEmptyPixelsX[iPixel]);
+            positionsView.set(posOffset + 1, nonEmptyPixelsY[iPixel]);
         }
-        velocities.rewind();
         velocitiesMem.write(queue, velocities, false);
 
         if (useOpenGLContext)
@@ -384,16 +382,16 @@ public class ParticlesDemo implements GLEventListener {
     boolean limitToScreen = false;
 
     long lastMouseMove;
-    FloatBuffer velocities;
+    Pointer<Float> velocities;
     //CLKernel updateParticleKernel;
     ParticlesDemoProgram particlesProgram;
-    CLFloatBuffer massesMem, velocitiesMem;
-    CLByteBuffer interleavedColorAndPositionsMem;
-    ByteBuffer interleavedColorAndPositionsTemp;
+    CLBuffer<Float> massesMem, velocitiesMem;
+    CLBuffer<Byte> interleavedColorAndPositionsMem;
+    Pointer<Byte> interleavedColorAndPositionsTemp;
 
     int elementSize = 4 * 4;//4 + 2 * 4 + 4; // 4 color bytes and 2 position floats, 1 dummy alignment float
 
-    CLByteBuffer colorsMem;
+    CLBuffer<Byte> colorsMem;
 
     Random random = new Random(System.nanoTime());
     JavaCLSettingsPanel settings = new JavaCLSettingsPanel();
@@ -503,50 +501,46 @@ public class ParticlesDemo implements GLEventListener {
             }
             queue = context.createDefaultQueue();
             
-            FloatBuffer masses = NIOUtils.directFloats(particlesCount, context.getByteOrder());
-            velocities = NIOUtils.directFloats(2 * particlesCount, context.getByteOrder());
-            interleavedColorAndPositionsTemp = NIOUtils.directBytes(elementSize * particlesCount, context.getByteOrder());
+            Pointer<Float> masses = Pointer.allocateFloats(particlesCount).order(context.getByteOrder());
+            velocities = Pointer.allocateFloats(2 * particlesCount).order(context.getByteOrder());
+            interleavedColorAndPositionsTemp = Pointer.allocateBytes(elementSize * particlesCount).order(context.getByteOrder());
             
-            FloatBuffer positionsView = interleavedColorAndPositionsTemp.asFloatBuffer();
+            Pointer<Float> positionsView = interleavedColorAndPositionsTemp.as(Float.class);
             for (int i = 0; i < particlesCount; i++) {
-                masses.put(0.5f + 0.5f * random.nextFloat());
+                masses.set(i, 0.5f + 0.5f * random.nextFloat());
                 
-			    velocities.put((random.nextFloat() - 0.5f) * 0.2f);
-                velocities.put((random.nextFloat() - 0.5f) * 0.2f);
+			    velocities.set(i * 2, (random.nextFloat() - 0.5f) * 0.2f);
+                velocities.set(i * 2 + 1, (random.nextFloat() - 0.5f) * 0.2f);
 
                 int colorOffset = i * elementSize;
                 int posOffset = i * (elementSize / 4) + 1;
 
                 byte r = (byte)128, g = r, b = r, a = r;
-                interleavedColorAndPositionsTemp.put(colorOffset++, r);
-                interleavedColorAndPositionsTemp.put(colorOffset++, g);
-                interleavedColorAndPositionsTemp.put(colorOffset++, b);
-                interleavedColorAndPositionsTemp.put(colorOffset, a);
+                interleavedColorAndPositionsTemp.set(colorOffset++, r);
+                interleavedColorAndPositionsTemp.set(colorOffset++, g);
+                interleavedColorAndPositionsTemp.set(colorOffset++, b);
+                interleavedColorAndPositionsTemp.set(colorOffset, a);
                 
                 float x = (random.nextFloat() - 0.5f) * 200,
                         y = (random.nextFloat() - 0.5f) * 200;
 
-                positionsView.put(posOffset, x);
-                positionsView.put(posOffset + 1, y);
+                positionsView.set(posOffset, (float)x);
+                positionsView.set(posOffset + 1, y);
 
             }
-            velocities.rewind();
-            masses.rewind();
-            interleavedColorAndPositionsTemp.rewind();
-            
-            velocitiesMem = context.createFloatBuffer(Usage.InputOutput, velocities, false);
-            massesMem = context.createFloatBuffer(Usage.Input, masses, true);
+            velocitiesMem = context.createBuffer(Usage.InputOutput, velocities, false);
+            massesMem = context.createBuffer(Usage.Input, masses, true);
 
             gl.glGenBuffers(1, vbo, 0);
             gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
             gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-            gl.glBufferData(GL_ARRAY_BUFFER, (int) NIOUtils.getSizeInBytes(interleavedColorAndPositionsTemp), interleavedColorAndPositionsTemp, GL_DYNAMIC_COPY);
+            gl.glBufferData(GL_ARRAY_BUFFER, (int) interleavedColorAndPositionsTemp.getRemainingBytes(), interleavedColorAndPositionsTemp.getByteBuffer(), GL_DYNAMIC_COPY);
             gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             if (useOpenGLContext) {
                 interleavedColorAndPositionsMem = context.createBufferFromGLBuffer(Usage.InputOutput, vbo[0]);
             } else
-                interleavedColorAndPositionsMem = context.createByteBuffer(Usage.InputOutput, interleavedColorAndPositionsTemp, false);
+                interleavedColorAndPositionsMem = context.createBuffer(Usage.InputOutput, interleavedColorAndPositionsTemp, false);
                 
             String hsv2rgbSrc = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("HSVtoRGB.c"));
             //String src = IOUtils.readText(ParticlesDemo.class.getResourceAsStream("ParticlesDemo.c"));
@@ -590,7 +584,7 @@ public class ParticlesDemo implements GLEventListener {
         } else {
             //interleavedColorAndPositionsMem.map(queue, CLMem.MapFlags.Read);
             interleavedColorAndPositionsMem.read(queue, interleavedColorAndPositionsTemp, true);
-            gl.glBufferSubData(GL_ARRAY_BUFFER, 0, (int)NIOUtils.getSizeInBytes(interleavedColorAndPositionsTemp), interleavedColorAndPositionsTemp);
+            gl.glBufferSubData(GL_ARRAY_BUFFER, 0, (int)interleavedColorAndPositionsTemp.getRemainingBytes(), interleavedColorAndPositionsTemp.getByteBuffer());
             //interleavedColorAndPositionsMem.unmap(queue, interleavedColorAndPositionsTemp);
         }
 
@@ -631,7 +625,7 @@ public class ParticlesDemo implements GLEventListener {
                 queue,
                 massesMem,
                 velocitiesMem,
-                interleavedColorAndPositionsMem.asCLFloatBuffer(),
+                interleavedColorAndPositionsMem.as(Float.class),
                 new float[] {mouseX - width / 2f, height / 2f - mouseY},
                 new float[] {width, height},
                 massFactor,

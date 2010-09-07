@@ -5,8 +5,10 @@
 
 package com.nativelibs4java.opencl.util;
 
+import org.bridj.Pointer;
+import static org.bridj.Pointer.*;
+
 import java.io.IOException;
-import java.nio.IntBuffer;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,10 +19,9 @@ import java.util.logging.Logger;
 import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.CLContext;
 import com.nativelibs4java.opencl.CLEvent;
-import com.nativelibs4java.opencl.CLIntBuffer;
+import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.CLMem.Usage;
-import com.nativelibs4java.util.NIOUtils;
 
 /**
  *
@@ -40,8 +41,8 @@ public class ParallelRandom {
 
 	boolean preload;
 	CLEvent preloadEvent;
-	protected CLIntBuffer seeds, output;
-	IntBuffer lastData;
+	protected CLBuffer<Integer> seeds, output;
+	Pointer<Integer> lastData;
 	boolean isDataFresh;
 	
     public ParallelRandom(CLQueue queue, int parallelSize, final long seed) throws IOException {
@@ -73,12 +74,12 @@ public class ParallelRandom {
             randomProgram.getProgram().defineMacro("WORK_ITEMS_COUNT", scheduledWorkItems);
 
             final int nSeeds = seedsNeededByWorkItem * parallelSize;
-            final IntBuffer seedsBuf = NIOUtils.directInts(nSeeds, context.getKernelsDefaultByteOrder());
+            final Pointer<Integer> seedsBuf = allocateInts(nSeeds).order(context.getKernelsDefaultByteOrder());
             initSeeds(seedsBuf, seed);
             //println(seedsBuf);
-            this.seeds = context.createIntBuffer(Usage.InputOutput, seedsBuf, true);
+            this.seeds = context.createBuffer(Usage.InputOutput, seedsBuf, true);
             //this.lastOutputData = NIOUtils.directInts(parallelSize, context.getKernelsDefaultByteOrder());
-            this.output = context.createIntBuffer(Usage.Output, parallelSize);
+            this.output = context.createBuffer(Usage.Output, Integer.class, parallelSize);
         } catch (InterruptedException ex) {
             Logger.getLogger(ParallelRandom.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException("Failed to initialized parallel random", ex);
@@ -166,7 +167,7 @@ public class ParallelRandom {
 		return (((long)(nextInt() & doubleMask) << 27) | (nextInt() & doubleMask)) / doubleDivid;
 	}
 
-	public CLIntBuffer getSeeds() {
+	public CLBuffer<Integer> getSeeds() {
 		return seeds;
 	}
 	public CLQueue getQueue() {
@@ -200,7 +201,7 @@ public class ParallelRandom {
      * Copies the next @see ParallelRandom#getParallelSize() random integers in the provided output buffer
      * @param output
      */
-    public synchronized void next(IntBuffer output) {
+    public synchronized void next(Pointer<Integer> output) {
         CLEvent evt = doNext();
         this.output.read(queue, output, true, evt);
     }
@@ -211,7 +212,7 @@ public class ParallelRandom {
      * This buffer is read only and will only be valid until any of the "next" method is called again.
      * @param output buffer of capacity @see ParallelRandom#getParallelSize()
      */
-    public synchronized IntBuffer next() {
+    public synchronized Pointer<Integer> next() {
         CLEvent evt = doNext();
         //queue.finish(); evt = null;
         //return outputBuffer;
@@ -219,8 +220,8 @@ public class ParallelRandom {
         return output.read(queue, evt);
     }
 
-    private void initSeeds(final IntBuffer seedsBuf, final long seed) throws InterruptedException {
-        final int nSeeds = seedsBuf.capacity();
+    private void initSeeds(final Pointer<Integer> seedsBuf, final long seed) throws InterruptedException {
+        final long nSeeds = seedsBuf.getRemainingElements();
 
         long start = System.nanoTime();
 
@@ -229,8 +230,8 @@ public class ParallelRandom {
         //parallelize = false;
         if (parallelize) {
             Random random = new Random(seed);
-            for (int i = nSeeds; i-- != 0;)
-                seedsBuf.put(i, random.nextInt());
+            for (long i = nSeeds; i-- != 0;)
+                seedsBuf.set(i, random.nextInt());
         } else {
             // Parallelize seeds initialization
             final int nThreads = Runtime.getRuntime().availableProcessors();// * 2;
@@ -240,14 +241,14 @@ public class ParallelRandom {
                 service.execute(new Runnable() {
 
                     public void run() {
-                        int n = nSeeds / nThreads;
-                        int offset = n * iThread;
+                        long n = nSeeds / nThreads;
+                        long offset = n * iThread;
                         Random random = new Random(seed + iThread);// * System.currentTimeMillis());
                         if (iThread == nThreads - 1)
                             n += nSeeds - n * nThreads;
                         
-                        for (int i = n; i-- != 0;)
-                            seedsBuf.put(offset++, random.nextInt());
+                        for (long i = n; i-- != 0;)
+                            seedsBuf.set(offset++, random.nextInt());
                     }
                 });
             }

@@ -29,9 +29,9 @@ import java.nio.ByteBuffer;
 import com.nativelibs4java.opencl.library.cl_buffer_region;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
-import com.bridj.*;
+import org.bridj.*;
 import java.nio.ByteOrder;
-import static com.bridj.Pointer.*;
+import static org.bridj.Pointer.*;
 
 
 /**
@@ -51,7 +51,7 @@ public class CLBuffer<B> extends CLMem {
         this.io = io;
 	}
 	public int getElementSize() {
-        return io.getTargetSize();
+        return (int)io.getTargetSize();
     }
 	public long getElementCount() {
         return getByteCount() / getElementSize();
@@ -71,12 +71,12 @@ public class CLBuffer<B> extends CLMem {
     }
     
 	public Pointer<B> read(CLQueue queue, CLEvent... eventsToWaitFor) {
-        Pointer<B> out = allocate(io, getByteCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
+        Pointer<B> out = allocateArray(io, getElementCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
         read(queue, out, true, eventsToWaitFor);
 		return out;
 	}
 	public Pointer<B> read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		Pointer<B> out = allocate(io, getByteCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
+		Pointer<B> out = allocateArray(io, getElementCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
         read(queue, offset, length, out, true, eventsToWaitFor);
 		return out;
 	}
@@ -99,7 +99,7 @@ public class CLBuffer<B> extends CLMem {
 			int s = getElementSize();
 			cl_buffer_region region = new cl_buffer_region().origin(s * offset).size(s * length);
 			Pointer<Integer> pErr = allocateInt();
-	        cl_mem mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, getPointer(region), pErr);
+	        cl_mem mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, pointerTo(region), pErr);
 	        error(pErr.get());
 	        return mem == null ? null : new CLBuffer<B>(context, length * s, mem, null, io);
 		} catch (Throwable th) {

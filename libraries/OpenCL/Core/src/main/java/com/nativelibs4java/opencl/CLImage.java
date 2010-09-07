@@ -36,8 +36,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.NIOUtils;
 
 import com.nativelibs4java.util.Pair;
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 
 /**

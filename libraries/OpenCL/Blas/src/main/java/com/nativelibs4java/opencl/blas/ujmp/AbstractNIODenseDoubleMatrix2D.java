@@ -5,7 +5,8 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import java.nio.DoubleBuffer;
+import org.bridj.Pointer;
+import static org.bridj.Pointer.*;
 import org.ujmp.core.doublematrix.stub.AbstractDenseDoubleMatrix2D;
 
 /**
@@ -21,8 +22,8 @@ public abstract class AbstractNIODenseDoubleMatrix2D extends AbstractDenseDouble
         this.columns = columns;
     }
 
-    public abstract DoubleBuffer getReadableData();
-    public abstract DoubleBuffer getWritableData();
+    public abstract Pointer<Double> getReadableData();
+    public abstract Pointer<Double> getWritableData();
 
     @Override
     public long[] getSize() {

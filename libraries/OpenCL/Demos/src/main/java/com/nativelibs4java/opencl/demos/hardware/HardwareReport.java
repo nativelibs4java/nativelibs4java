@@ -17,7 +17,7 @@ You should have received a copy of the GNU Lesser General Public License
 along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
  */
 package com.nativelibs4java.opencl.demos.hardware;
-import com.bridj.BridJ;
+import org.bridj.BridJ;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.demos.SetupUtils;
 import java.awt.BorderLayout;

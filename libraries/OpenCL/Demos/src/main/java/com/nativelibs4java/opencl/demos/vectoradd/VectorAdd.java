@@ -1,6 +1,9 @@
 package com.nativelibs4java.opencl.demos.vectoradd;
 import com.nativelibs4java.opencl.*;
 import java.nio.*;
+import org.bridj.Pointer;
+import static org.bridj.Pointer.*;
+
 
 /**
  * This is about the simplest possible JavaCL program.<br>
@@ -16,19 +19,19 @@ public class VectorAdd {
 
 	public static void main(String[] args) {
         try {
-            FloatBuffer a = FloatBuffer.wrap(new float[] {  1,  2,  3,  4 });
-            FloatBuffer b = FloatBuffer.wrap(new float[] { 10, 20, 30, 40 });
+            Pointer<Float> a = pointerToFloats(1,  2,  3,  4 );
+            Pointer<Float> b = pointerToFloats(10, 20, 30, 40);
 
-            FloatBuffer sum = add(a, b);
-            for (int i = 0, n = sum.capacity(); i < n; i++)
+            Pointer<Float> sum = add(a, b);
+            for (long i = 0, n = sum.getRemainingElements(); i < n; i++)
                 System.out.println(sum.get(i));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 	}
 
-	public static FloatBuffer add(FloatBuffer a, FloatBuffer b) throws CLBuildException {
-		int n = a.capacity();
+	public static Pointer<Float> add(Pointer<Float> a, Pointer<Float> b) throws CLBuildException {
+		int n = (int)a.getRemainingElements();
 		
 		CLContext context = JavaCL.createBestContext();
 		CLQueue queue = context.createDefaultQueue();
@@ -41,9 +44,9 @@ public class VectorAdd {
 			"}                                                                                                     ";
 		
 		CLKernel kernel = context.createProgram(source).createKernel("addFloats");
-		CLFloatBuffer aBuf = context.createFloatBuffer(CLMem.Usage.Input, a, true);
-		CLFloatBuffer bBuf = context.createFloatBuffer(CLMem.Usage.Input, b, true);
-		CLFloatBuffer outBuf = context.createFloatBuffer(CLMem.Usage.Output, n);
+		CLBuffer<Float> aBuf = context.createBuffer(CLMem.Usage.Input, a, true);
+		CLBuffer<Float> bBuf = context.createBuffer(CLMem.Usage.Input, b, true);
+		CLBuffer<Float> outBuf = context.createBuffer(CLMem.Usage.Output, Float.class, n);
 		kernel.setArgs(aBuf, bBuf, outBuf);
 		
 		kernel.enqueueNDRange(queue, new int[]{n}, new int[] { 1 });

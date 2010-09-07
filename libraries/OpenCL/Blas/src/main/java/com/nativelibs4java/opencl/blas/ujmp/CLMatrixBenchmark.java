@@ -5,14 +5,13 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import java.nio.DoubleBuffer;
+import org.bridj.Pointer;
+import static org.bridj.Pointer.*;
 
 import org.ujmp.core.Matrix;
 import org.ujmp.core.benchmark.AbstractMatrix2DBenchmark;
 import org.ujmp.core.doublematrix.DoubleMatrix2D;
 import org.ujmp.core.exceptions.MatrixException;
-
-import com.nativelibs4java.util.NIOUtils;
 
 /**
  *
@@ -31,11 +30,12 @@ public class CLMatrixBenchmark extends AbstractMatrix2DBenchmark {
             return (DoubleMatrix2D)((CLDenseDoubleMatrix2D)source).copy();
         else {
             DoubleMatrix2D dsource = (DoubleMatrix2D)source;
-            int rows = (int)dsource.getRowCount(), columns = (int)dsource.getColumnCount();
-            DoubleBuffer b = NIOUtils.directDoubles(rows * columns, CLDenseDoubleMatrix2DFactory.LINEAR_ALGEBRA_KERNELS.getContext().getKernelsDefaultByteOrder());
-            for (int i = 0; i < rows; i++) {
-                for (int j = 0; j < rows; j++) {
-                    b.put(dsource.getDouble(i, j));
+            long rows = dsource.getRowCount(), columns = dsource.getColumnCount();
+            Pointer<Double> b = allocateDoubles(rows * columns).order(CLDenseDoubleMatrix2DFactory.LINEAR_ALGEBRA_KERNELS.getContext().getKernelsDefaultByteOrder());
+            for (long i = 0; i < rows; i++) {
+            		long offset = i * columns;
+                for (long j = 0; j < columns; j++) {
+                    b.set(offset + i, dsource.getDouble(i, j));
                 }
             }
             CLDenseDoubleMatrix2D copy = new CLDenseDoubleMatrix2D(rows, columns);

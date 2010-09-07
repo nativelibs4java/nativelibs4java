@@ -23,9 +23,9 @@ import org.junit.Test;
 
 import com.nativelibs4java.test.MiscTestUtils;
 import com.nativelibs4java.util.NIOUtils;
-import com.bridj.*;
+import org.bridj.*;
 import java.nio.ByteOrder;
-import static com.bridj.Pointer.*;
+import static org.bridj.Pointer.*;
 
 /**
  *
@@ -41,17 +41,37 @@ public class BufferTest extends AbstractCommon {
 
     @Test
     public void testReadWrite() {
-        for (Class<? extends Buffer> bufferClass : bufferClasses)
+        for (Class<?> bufferClass : bufferClasses)
             testReadWrite(bufferClass, 10, 3, 3);
     }
-    public <B extends Buffer> void testReadWrite(Class<B> bufferClass, int n, int zeroOffset, int zeroLength) {
+    public <B> void testReadWrite(Class<B> bufferClass, int n, int zeroOffset, int zeroLength) {
         CLBuffer<B> buf = context.createBuffer(CLMem.Usage.InputOutput, bufferClass, n);
         assertEquals(n, buf.getElementCount());
 
         Pointer<B> initial = allocateArray(bufferClass, n).order(context.getByteOrder());
         Pointer<B> zeroes = allocateArray(bufferClass, n).order(context.getByteOrder());
         for (int i = 0; i < n; i++) {
-            initial.set(i, (B)(Object)(i + 1));
+        		int v = i + 1;
+        		Object value = null;
+        		if (bufferClass == Integer.class)
+        			value = (Object)v;
+            else if (bufferClass == Long.class)
+        			value = (Object)(long)v;
+            else if (bufferClass == Short.class)
+        			value = (Object)(short)v;
+            else if (bufferClass == Byte.class)
+        			value = (Object)(byte)v;
+            else if (bufferClass == Double.class)
+        			value = (Object)(double)v;
+            else if (bufferClass == Float.class)
+        			value = (Object)(float)v;
+            else if (bufferClass == Boolean.class)
+        			value = (Object)(v != 0);
+            else if (bufferClass == Character.class)
+        			value = (Object)(char)v;
+        		else
+        			throw new RuntimeException();
+            initial.set(i, (B)value);
         }
 
         buf.write(queue, initial, true);
@@ -73,25 +93,25 @@ public class BufferTest extends AbstractCommon {
         }
     }
 
-    Class<? extends Buffer>[] bufferClasses = new Class[] {
-        IntBuffer.class,
-        LongBuffer.class,
-        ShortBuffer.class,
-        ByteBuffer.class,
-        DoubleBuffer.class,
+    Class<?>[] bufferClasses = new Class[] {
+        Integer.class,
+        Long.class,
+        Short.class,
+        Byte.class,
+        Double.class,
         //CharBuffer.class,
-        FloatBuffer.class
+        Float.class
     };
     @Test
     public void testMap() {
-        for (Class<? extends Buffer> bufferClass : bufferClasses)
+        for (Class<?> bufferClass : bufferClasses)
             testMap(bufferClass);
     }
-    public void testMap(Class<? extends Buffer> bufferClass) {
+    public <T> void testMap(Class<T> bufferClass) {
         int size = 10;
         Pointer<Byte> data = allocateBytes(size).order(context.getByteOrder());
-        CLBuffer<Byte> buf = context.createBuffer(CLMem.Usage.Input, data, false);
-        Pointer<Byte> mapped = buf.map(queue, CLMem.MapFlags.Read);
+        CLBuffer<T> buf = context.createBuffer(CLMem.Usage.Input, data, false).as(bufferClass);
+        Pointer<T> mapped = buf.map(queue, CLMem.MapFlags.Read);
 
         assertEquals(data, mapped);
     }

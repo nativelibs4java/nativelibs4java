@@ -5,8 +5,8 @@
 
 package com.nativelibs4java.opencl.demos;
 
-import com.bridj.BridJ;
-import com.bridj.JNI;
+import org.bridj.BridJ;
+import org.bridj.JNI;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URL;

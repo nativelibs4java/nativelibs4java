@@ -16,8 +16,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.nativelibs4java.util.IOUtils;
-import com.nativelibs4java.util.NIOUtils;
 import com.nativelibs4java.util.Pair;
+
+import org.bridj.Pointer;
+import static org.bridj.Pointer.*;
 
 /**
  *
@@ -40,8 +42,12 @@ public class ReductionUtils {
         Max;
     }
     public enum Type {
-        Int, Long, Short, Byte, Double, Float, Half;
-
+        Int(Integer.class), Long(Long.class), Short(Short.class), Byte(Byte.class), Double(Double.class), Float(Float.class), Half(null);
+        
+        Type(Class<?> type) {
+        		this.type = type;
+        }
+        public final Class<?> type;
         public String toCType() {
             if (this == Byte)
                 return "char";
@@ -132,9 +138,9 @@ public class ReductionUtils {
         macros.put("SEED", seed);
         return new Pair<String, Map<String, Object>>(getSource(), macros);
     }
-    public interface Reductor<B extends Buffer> {
-        public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor);
-        public B reduce(CLQueue queue, CLBuffer<B> input, long inputLength, int maxReductionSize, CLEvent... eventsToWaitFor);
+    public interface Reductor<B> {
+        public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, Pointer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor);
+        public Pointer<B> reduce(CLQueue queue, CLBuffer<B> input, long inputLength, int maxReductionSize, CLEvent... eventsToWaitFor);
         public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, CLBuffer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor);
     }
     /*public interface WeightedReductor<B extends Buffer, W extends Buffer> {
@@ -158,7 +164,7 @@ public class ReductionUtils {
         }
     }
 
-    public static <B extends Buffer> Reductor<B> createReductor(final CLContext context, Operation op, Type valueType, final int valueChannels) throws CLBuildException {
+    public static <B> Reductor<B> createReductor(final CLContext context, Operation op, final Type valueType, final int valueChannels) throws CLBuildException {
         try {
 
 
@@ -173,13 +179,14 @@ public class ReductionUtils {
             return new Reductor<B>() {
 				@SuppressWarnings("unchecked")
 				@Override
-                public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor) {
-                    Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, (int)inputLength, (Class<B>)output.getClass(), maxReductionSize, eventsToWaitFor);
+                public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, Pointer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor) {
+                    Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, (int)inputLength, maxReductionSize, eventsToWaitFor);
                     return outAndEvts.getFirst().read(queue, 0, valueChannels, output, false, outAndEvts.getSecond());
                 }
                 @Override
-                public B reduce(CLQueue queue, CLBuffer<B> input, long inputLength, int maxReductionSize, CLEvent... eventsToWaitFor) {
-                    B output = NIOUtils.directBuffer((int)inputLength, context.getByteOrder(), input.typedBufferClass());
+                public Pointer<B> reduce(CLQueue queue, CLBuffer<B> input, long inputLength, int maxReductionSize, CLEvent... eventsToWaitFor) {
+                    Pointer<B> output = Pointer.allocateArray((Class)valueType.type, inputLength);
+                    output = output.order(context.getByteOrder());
                     CLEvent evt = reduce(queue, input, inputLength, output, maxReductionSize, eventsToWaitFor);
                     //queue.finish();
                     //TODO
@@ -188,11 +195,11 @@ public class ReductionUtils {
                 }
                 @Override
                 public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, CLBuffer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor) {
-                    Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, (int)inputLength, output.typedBufferClass(), maxReductionSize, eventsToWaitFor);
+                    Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, (int)inputLength, maxReductionSize, eventsToWaitFor);
                     return outAndEvts.getFirst().copyTo(queue, 0, valueChannels, output, 0, outAndEvts.getSecond());
                 }
                 @SuppressWarnings("unchecked")
-				public Pair<CLBuffer<B>, CLEvent[]> reduceHelper(CLQueue queue, CLBuffer<B> input, int inputLength, Class<B> outputClass, int maxReductionSize, CLEvent... eventsToWaitFor) {
+				public Pair<CLBuffer<B>, CLEvent[]> reduceHelper(CLQueue queue, CLBuffer<B> input, int inputLength, int maxReductionSize, CLEvent... eventsToWaitFor) {
                     CLBuffer<?>[] tempBuffers = new CLBuffer<?>[2];
                     int depth = 0;
 					CLBuffer<B> currentOutput = null;
@@ -207,10 +214,10 @@ public class ReductionUtils {
 							nInCurrentDepth++;
                         
 						int iOutput = depth & 1;
-                        CLBuffer<? extends Buffer> currentInput = depth == 0 ? input : tempBuffers[iOutput ^ 1];
+                        CLBuffer<?> currentInput = depth == 0 ? input : tempBuffers[iOutput ^ 1];
                         currentOutput = (CLBuffer<B>)tempBuffers[iOutput];
                         if (currentOutput == null)
-                            currentOutput = (CLBuffer<B>)(tempBuffers[iOutput] = context.createBuffer(CLMem.Usage.InputOutput, maxReductionSize * valueChannels, outputClass));
+                            currentOutput = (CLBuffer<B>)(tempBuffers[iOutput] = context.createBuffer(CLMem.Usage.InputOutput, valueType.type, maxReductionSize * valueChannels));
 						
                         synchronized (kernel) {
                             kernel.setArgs(currentInput, (long)inputLength, (long)maxReductionSize, currentOutput);

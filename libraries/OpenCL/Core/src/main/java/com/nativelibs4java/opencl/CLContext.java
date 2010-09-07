@@ -51,8 +51,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_sampler;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
 import com.nativelibs4java.util.NIOUtils;
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 
 /**
@@ -378,7 +378,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			mem = CL.clCreateImage2D(
 				getEntity(),
 				memFlags,
-				getPointer(format.to_cl_image_format()),
+				pointerTo(format.to_cl_image_format()),
 				width,
 				height,
 				rowPitch,
@@ -410,7 +410,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			mem = CL.clCreateImage3D(
 				getEntity(),
 				memFlags,
-				getPointer(format.to_cl_image_format()),
+				pointerTo(format.to_cl_image_format()),
 				width,
 				height,
 				depth,
@@ -436,6 +436,8 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
     public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Class<T> type, long elementCount) {
         PointerIO<T> io = PointerIO.getInstance(type);
+        if (io == null)
+        	throw new IllegalArgumentException("Unknown target type : " + type.getName());
         return createBuffer(io, null, io.getTargetSize() * elementCount, kind.getIntFlags(), false);
 	}
 

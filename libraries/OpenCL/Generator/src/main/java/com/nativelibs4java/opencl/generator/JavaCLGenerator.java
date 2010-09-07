@@ -309,13 +309,13 @@ public class JavaCLGenerator extends JNAerator {
     static Map<String, Pair<Integer, Class<?>>> arraysAndArityByType = new HashMap<String, Pair<Integer, Class<?>>>();
     static {
         Object[] data = new Object[] {
-            "char", Byte.TYPE, byte[].class, CLByteBuffer.class,
-            "long", Long.TYPE, long[].class, CLLongBuffer.class,
-            "int", Integer.TYPE, int[].class, CLIntBuffer.class,
-            "short", Short.TYPE, short[].class, CLShortBuffer.class,
-            "wchar_t", Character.TYPE, char[].class, CLShortBuffer.class,
-            "double", Double.TYPE, double[].class, CLDoubleBuffer.class,
-            "float", Float.TYPE, float[].class, CLFloatBuffer.class,
+            "char", Byte.TYPE, byte[].class, Byte.class,
+            "long", Long.TYPE, long[].class, Long.class,
+            "int", Integer.TYPE, int[].class, Integer.class,
+            "short", Short.TYPE, short[].class, Short.class,
+            "wchar_t", Character.TYPE, char[].class, Short.class,
+            "double", Double.TYPE, double[].class, Double.class,
+            "float", Float.TYPE, float[].class, Float.class,
             "bool", Boolean.TYPE, boolean[].class, null
         };
         for (int arity : new int[] { 1, 2, 4, 8, 16 }) {
@@ -347,9 +347,9 @@ public class JavaCLGenerator extends JNAerator {
             if (target instanceof TypeRef.SimpleTypeRef) {
                 TypeRef.SimpleTypeRef starget = (TypeRef.SimpleTypeRef)target;
 
-                Pair<Integer, Class<?>> pair = buffersAndArityByType.get(starget.getName().toString());
+                Pair<Integer, Class<?>> pair = buffersAndArityByType.get((starget + "").equals("long") ? "long" : starget.getName() + "");
                 if (pair != null) {
-                    ret.outerJavaTypeRef = typeRef(pair.getSecond());
+                    ret.outerJavaTypeRef = typeRef(ident(CLBuffer.class, expr(typeRef(pair.getSecond()))));
                     return ret;
                 }
             }
@@ -433,7 +433,7 @@ public class JavaCLGenerator extends JNAerator {
                                 varRef(argName),
                                 methodCall(
                                     "readRawSourceForClass",
-                                    classLiteral(typeRef(name))
+                                    result.typeConverter.typeLiteral(typeRef(name))
                                 )
                             )
                         )

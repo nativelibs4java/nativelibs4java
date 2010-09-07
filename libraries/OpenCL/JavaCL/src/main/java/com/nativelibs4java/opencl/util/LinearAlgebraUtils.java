@@ -7,7 +7,7 @@ package com.nativelibs4java.opencl.util;
 
 import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.CLContext;
-import com.nativelibs4java.opencl.CLDoubleBuffer;
+import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLKernel;
 import com.nativelibs4java.opencl.CLProgram;
@@ -17,7 +17,6 @@ import com.nativelibs4java.opencl.util.ReductionUtils;
 import com.nativelibs4java.opencl.util.ReductionUtils.Reductor;
 import com.nativelibs4java.util.IOUtils;
 import com.nativelibs4java.util.Pair;
-import static com.nativelibs4java.util.NIOUtils.*;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,14 +59,32 @@ public class LinearAlgebraUtils {
     private static final int[] unitInt2Arr = new int[] { 1, 1 };
 
 	public synchronized CLEvent multiply(
-            CLDoubleBuffer a, long aRows, long aColumns, 
-            CLDoubleBuffer b, long bRows, long bColumns, 
-            CLDoubleBuffer out, //long outRows, long outColumns,
+            CLBuffer<Double> a, long aRows, long aColumns, 
+            CLBuffer<Double> b, long bRows, long bColumns, 
+            CLBuffer<Double> out, //long outRows, long outColumns,
             CLEvent... eventsToWaitFor) throws CLBuildException
     {
         long outRows = aRows;
         long outColumns = bColumns;
         return kernels.mulMat(queue,
+            a, (int)aColumns,
+            b, (int)bColumns,
+            out,
+            new int[] { (int)outRows, (int)outColumns },
+            unitInt2Arr,
+            eventsToWaitFor
+        );
+    }
+    /*
+    public synchronized CLEvent multiplyLongs(
+            CLBuffer<Long> a, long aRows, long aColumns, 
+            CLBuffer<Long> b, long bRows, long bColumns, 
+            CLBuffer<Long> out, //long outRows, long outColumns,
+            CLEvent... eventsToWaitFor) throws CLBuildException
+    {
+        long outRows = aRows;
+        long outColumns = bColumns;
+        return kernels.mulMatLong(queue,
             a, (int)aColumns,
             b, (int)bColumns,
             out,
@@ -88,8 +105,8 @@ public class LinearAlgebraUtils {
 		return null;
     }*/
 
-	Reductor<DoubleBuffer> addReductor;
-	synchronized Reductor<DoubleBuffer> getAddReductor() {
+	Reductor<Double> addReductor;
+	synchronized Reductor<Double> getAddReductor() {
 		if (addReductor == null) {
 			try {
 				addReductor = ReductionUtils.createReductor(getContext(), ReductionUtils.Operation.Add, ReductionUtils.Type.Double, 1);
@@ -101,7 +118,7 @@ public class LinearAlgebraUtils {
 		return addReductor;
 	}
 
-    public synchronized CLEvent transpose(CLDoubleBuffer a, long aRows, long aColumns, CLDoubleBuffer out, CLEvent... eventsToWaitFor) throws CLBuildException {
+    public synchronized CLEvent transpose(CLBuffer<Double> a, long aRows, long aColumns, CLBuffer<Double> out, CLEvent... eventsToWaitFor) throws CLBuildException {
         return kernels.transpose(queue,
             a, aRows, aColumns,
             out,

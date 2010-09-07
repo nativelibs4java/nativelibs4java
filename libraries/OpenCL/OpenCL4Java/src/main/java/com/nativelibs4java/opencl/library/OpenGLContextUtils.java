@@ -1,8 +1,8 @@
 package com.nativelibs4java.opencl.library;
 
-import com.bridj.*;
-import com.bridj.ann.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import org.bridj.ann.*;
+import static org.bridj.Pointer.*;
 
 /**
  * JNA Wrapper for library <b>OpenGL</b><br>
@@ -11,7 +11,7 @@ import static com.bridj.Pointer.*;
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a>, <a href="http://rococoa.dev.java.net/">Rococoa</a>, or <a href="http://jna.dev.java.net/">JNA</a>.
  */
 @Library("OpenGL")
-@com.bridj.ann.Runtime(CRuntime.class)
+@org.bridj.ann.Runtime(CRuntime.class)
 public class OpenGLContextUtils {
     static {
         // TODO BridJ.setLibraryName("OpenGL", JNI.isWindows() ? "OpenGL32" : JNI.isLinux() ? "GL" : "OpenGL");

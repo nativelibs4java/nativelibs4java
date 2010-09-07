@@ -27,8 +27,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 
 /**
@@ -85,12 +85,12 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
     public void setDestructorCallback(final DestructorCallback callback) {
     	clSetMemObjectDestructorCallback_arg1_callback cb = new clSetMemObjectDestructorCallback_arg1_callback() {
     		/// @param cl_mem1 user_data
-    		public void invoke(OpenCLLibrary.cl_mem mem, Pointer userData) {
+    		public void apply(OpenCLLibrary.cl_mem mem, Pointer userData) {
     			callback.callback(CLMem.this);
     		}
     	};
     	BridJ.protectFromGC(cb);
-    	error(CL.clSetMemObjectDestructorCallback(getEntity(), getPointer(cb), null));
+    	error(CL.clSetMemObjectDestructorCallback(getEntity(), pointerTo(cb), null));
     }
     
     public CLEvent acquireGLObject(CLQueue queue, CLEvent... eventsToWaitFor) {

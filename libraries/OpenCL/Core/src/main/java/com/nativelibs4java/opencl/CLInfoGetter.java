@@ -20,8 +20,8 @@ package com.nativelibs4java.opencl;
 
 import static com.nativelibs4java.opencl.CLException.error;
 
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 /**
  *

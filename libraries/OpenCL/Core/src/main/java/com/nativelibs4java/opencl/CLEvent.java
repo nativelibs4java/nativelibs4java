@@ -27,8 +27,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.util.EnumValue;
 import com.nativelibs4java.util.EnumValues;
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 /**
  * OpenCL event object.<br/>
@@ -93,13 +93,13 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
     public void setCallback(int commandExecStatus, final EventCallback callback) {
     	try {
     		clSetEventCallback_arg1_callback cb = new clSetEventCallback_arg1_callback() {
-	    		public void invoke(OpenCLLibrary.cl_event evt, int executionStatus, Pointer voidPtr1) {
+	    		public void apply(OpenCLLibrary.cl_event evt, int executionStatus, Pointer voidPtr1) {
 	    			callback.callback(CLEvent.this, executionStatus);
 	    		}
 	    	};
 	    	// TODO manage lifespan of cb
     		BridJ.protectFromGC(cb);
-	    	error(CL.clSetEventCallback(getEntity(), commandExecStatus, getPointer(cb), null));
+	    	error(CL.clSetEventCallback(getEntity(), commandExecStatus, pointerTo(cb), null));
     	} catch (Throwable th) {
     		// TODO check if supposed to handle OpenCL 1.1
     		throw new UnsupportedOperationException("Cannot set event callback (OpenCL 1.1 feature).", th);

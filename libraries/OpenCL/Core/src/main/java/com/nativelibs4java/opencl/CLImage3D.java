@@ -26,7 +26,7 @@ import java.nio.ByteBuffer;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import com.nativelibs4java.util.Pair;
 
-import static com.bridj.Pointer.*;
+import static org.bridj.Pointer.*;
 /**
  * OpenCL 3D Image Memory Object<br/>
  * @see CLContext#createImage3D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long)

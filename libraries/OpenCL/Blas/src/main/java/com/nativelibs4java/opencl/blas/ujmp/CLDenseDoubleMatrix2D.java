@@ -5,7 +5,9 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import java.nio.DoubleBuffer;
+import org.bridj.Pointer;
+import static org.bridj.Pointer.*;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,12 +17,11 @@ import org.ujmp.core.doublematrix.DoubleMatrix2D;
 import org.ujmp.core.exceptions.MatrixException;
 
 import com.nativelibs4java.opencl.CLBuildException;
-import com.nativelibs4java.opencl.CLDoubleBuffer;
+import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLMem.MapFlags;
 import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.util.LinearAlgebraUtils;
-import com.nativelibs4java.util.NIOUtils;
 
 /**
  *
@@ -29,15 +30,15 @@ import com.nativelibs4java.util.NIOUtils;
 public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
 	private static final long serialVersionUID = -36941159548127670L;
 	protected final LinearAlgebraUtils kernels;
-    protected CLDoubleBuffer buffer;
-    protected DoubleBuffer data;
+    protected CLBuffer<Double> buffer;
+    protected Pointer<Double> data;
 
 
     private final static CLEvent[] EMPTY_EVENTS = new CLEvent[0];
 
 	List<CLEvent> writeEvents, readEvents;
 
-    public CLDenseDoubleMatrix2D(CLDoubleBuffer buffer, DoubleBuffer data, long rows, long columns, LinearAlgebraUtils kernels) {
+    public CLDenseDoubleMatrix2D(CLBuffer<Double> buffer, Pointer<Double> data, long rows, long columns, LinearAlgebraUtils kernels) {
         super(rows, columns);
         this.buffer = buffer;
         this.kernels = kernels;
@@ -47,8 +48,8 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
 
     public CLDenseDoubleMatrix2D(long rows, long columns, LinearAlgebraUtils kernels) {
         super(rows, columns);
-        this.data = NIOUtils.directDoubles((int)(rows * columns), kernels.getContext().getKernelsDefaultByteOrder());
-        this.buffer = kernels.getContext().createDoubleBuffer(Usage.InputOutput, data, false);
+        this.data = allocateDoubles(rows * columns).order(kernels.getContext().getKernelsDefaultByteOrder());
+        this.buffer = kernels.getContext().createBuffer(Usage.InputOutput, data, false);
         this.kernels = kernels;
         map();
     }
@@ -72,13 +73,13 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
     }
 
     @Override
-    public DoubleBuffer getReadableData() {
+    public Pointer<Double> getReadableData() {
         //return data;
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public DoubleBuffer getWritableData() {
+    public Pointer<Double> getWritableData() {
         //return data;
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -105,7 +106,7 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
     @Override
     public void setDouble(double value, long row, long column) {
         waitForWrite();
-        data.put((int)getStorageIndex(row, column), value);
+        data.set(getStorageIndex(row, column), value);
         /*DoubleBuffer rwb = readWriteBuffer.get();
         long offset = getStorageIndex(row, column);
         buffer.write(kernels.getQueue(), offset, 1, rwb, true);*/
@@ -118,7 +119,7 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
                 if (getColumnCount() != matrix.getRowCount()) {
                     throw new MatrixException("Incompatible dimensions");
                 }
-                CLDoubleBuffer arg;
+                CLBuffer<Double> arg;
                 List<CLEvent> eventsToWaitFor = new ArrayList<CLEvent>();
                 waitForRead();
                 //TODO eventsBeforeReading(eventsToWaitFor);
@@ -129,7 +130,7 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
                     //TODO cm.eventsBeforeReading(eventsToWaitFor);
                     arg = cm.buffer;
                 } else if (matrix instanceof DoubleMatrix2D) {
-                    arg = kernels.getContext().createDoubleBuffer(Usage.Input, MatrixUtils.read((DoubleMatrix2D) matrix), true);
+                    arg = kernels.getContext().createBuffer(Usage.Input, MatrixUtils.read((DoubleMatrix2D) matrix), true);
                 } else {
                     return super.mtimes(matrix);
                 }
@@ -155,8 +156,8 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
         //long count = buffer.getElementCount();
         waitForRead();
         //CLDenseDoubleMatrix2D copy = new CLDenseDoubleMatrix2D(rows, columns, kernels);
-        DoubleBuffer data = NIOUtils.directDoubles((int)(rows * columns), kernels.getContext().getKernelsDefaultByteOrder());
-        data.put(this.data.duplicate());
+        Pointer<Double> data = allocateDoubles(rows * columns).order(kernels.getContext().getKernelsDefaultByteOrder());
+        this.data.copyTo(data);
         return new CLDenseDoubleMatrix2D(buffer, data, rows, columns, kernels);
         /*
         CLDoubleBuffer newBuffer = kernels.getContext().createDoubleBuffer(Usage.InputOutput, count);
@@ -277,12 +278,12 @@ public class CLDenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D {
 		}
 	}
 
-    public void write(DoubleBuffer b) {
+    public void write(Pointer<Double> b) {
         waitForWrite();
         addWriteEvent(buffer.write(kernels.getQueue(), b, false));
     }
 
-    public void read(DoubleBuffer b) {
+    public void read(Pointer<Double> b) {
         waitForRead();
         buffer.read(kernels.getQueue(), b, true);
     }

@@ -19,17 +19,17 @@
 
 package com.nativelibs4java.opencl.demos.sobelfilter;
 
-import com.bridj.JNI;
+import org.bridj.JNI;
 import javax.swing.*;
 
-import java.nio.*;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.util.*;
 import com.nativelibs4java.opencl.demos.SetupUtils;
 import com.nativelibs4java.util.Pair;
 import java.awt.image.*;
 import java.io.*;
-import java.nio.FloatBuffer;
+import org.bridj.Pointer;
+import static org.bridj.Pointer.*;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -102,7 +102,7 @@ public class SobelFilterDemo {
     CLContext context;
     CLQueue queue;
     SimpleSobel sobel;
-    ReductionUtils.Reductor<FloatBuffer> floatMinReductor;
+    ReductionUtils.Reductor<Float> floatMinReductor;
     
 
     public SobelFilterDemo() throws IOException, CLBuildException {
@@ -122,14 +122,14 @@ public class SobelFilterDemo {
         int width = img.getWidth(), height = img.getHeight();
 
         int dataSize = height * width;
-        int[] pixels = img.getRGB(0, 0, width, height, null, 0, width);
+        Pointer<Integer> pixels = Pointer.pointerToInts(img.getRGB(0, 0, width, height, null, 0, width));
 
-        CLFloatBuffer
-            gradients = context.createFloatBuffer(CLMem.Usage.InputOutput, dataSize),
-            directions = context.createFloatBuffer(CLMem.Usage.InputOutput, dataSize);
+        CLBuffer<Float>
+            gradients = context.createBuffer(CLMem.Usage.InputOutput, Float.class, dataSize),
+            directions = context.createBuffer(CLMem.Usage.InputOutput, Float.class, dataSize);
 
         CLEvent evt = sobel.simpleSobel(queue,
-            context.createIntBuffer(CLMem.Usage.Input, IntBuffer.wrap(pixels), true).asCLByteBuffer(),
+            (CLBuffer)context.createBuffer(CLMem.Usage.Input, pixels, true),
             width,
             height,
             gradients,
@@ -148,26 +148,25 @@ public class SobelFilterDemo {
 
         //CLEvent.waitFor(evtGradMax, evtDirMax);
 
-        CLIntBuffer gradientPixels = context.createIntBuffer(CLMem.Usage.Output, dataSize);
-        CLIntBuffer directionPixels = context.createIntBuffer(CLMem.Usage.Output, dataSize);
+        CLBuffer<Integer> gradientPixels = context.createBuffer(CLMem.Usage.Output, Integer.class, dataSize);
+        CLBuffer<Integer> directionPixels = context.createBuffer(CLMem.Usage.Output, Integer.class, dataSize);
 
         //CLEvent evtGrad =
-        sobel.normalizeImage(queue, gradients, gradientMax, gradientPixels.asCLByteBuffer(), new int[] { dataSize }, null);
+        sobel.normalizeImage(queue, gradients, gradientMax, (CLBuffer)gradientPixels, new int[] { dataSize }, null);
         //CLEvent evtDir =
-        sobel.normalizeImage(queue, directions, dirMax, directionPixels.asCLByteBuffer(), new int[] { dataSize }, null);
+        sobel.normalizeImage(queue, directions, dirMax, (CLBuffer)directionPixels, new int[] { dataSize }, null);
 
         queue.finish();
         
-        BufferedImage gradientsImage = getRowsOrderImage(queue, gradientPixels, width, height, pixels);//, evtGrad);
-        BufferedImage directionsImage = getRowsOrderImage(queue, directionPixels, width, height, pixels);//, evtDir);
+        BufferedImage gradientsImage = getRowsOrderImage(queue, gradientPixels, width, height);//, evtGrad);
+        BufferedImage directionsImage = getRowsOrderImage(queue, directionPixels, width, height);//, evtDir);
 
         return new Pair<BufferedImage, BufferedImage>(gradientsImage, directionsImage);
     }
-    static BufferedImage getRowsOrderImage(CLQueue queue, CLIntBuffer buffer, int width, int height, int[] pixelsTemp, CLEvent... eventsToWaitFor) {
+    static BufferedImage getRowsOrderImage(CLQueue queue, CLBuffer<Integer> buffer, int width, int height, CLEvent... eventsToWaitFor) {
         queue.finish();
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        int[] pixels = pixelsTemp == null ? new int[width * height] : pixelsTemp;
-        buffer.read(queue, eventsToWaitFor).get(pixels);
+        int[] pixels = buffer.read(queue, eventsToWaitFor).getInts(width * height);
         img.setRGB(0, 0, width,height, pixels, 0, width);
         return img;
     }

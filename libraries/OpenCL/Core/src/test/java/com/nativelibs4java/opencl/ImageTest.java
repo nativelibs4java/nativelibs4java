@@ -5,7 +5,7 @@
 
 package com.nativelibs4java.opencl;
 
-import com.bridj.Pointer;
+import org.bridj.Pointer;
 import static org.junit.Assert.assertEquals;
 
 import java.awt.image.BufferedImage;

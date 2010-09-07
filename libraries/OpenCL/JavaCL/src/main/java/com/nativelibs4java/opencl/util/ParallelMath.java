@@ -7,7 +7,7 @@ package com.nativelibs4java.opencl.util;
 
 import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.CLContext;
-import com.nativelibs4java.opencl.CLDoubleBuffer;
+import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLKernel;
 import com.nativelibs4java.opencl.CLProgram;
@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.DoubleBuffer;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;

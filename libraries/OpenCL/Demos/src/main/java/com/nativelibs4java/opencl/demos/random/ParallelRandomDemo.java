@@ -9,15 +9,14 @@ import com.nativelibs4java.opencl.util.ParallelRandom;
 import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.CLContext;
 import com.nativelibs4java.opencl.CLEvent;
-import com.nativelibs4java.opencl.CLIntBuffer;
+import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLMem.MapFlags;
 import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.JavaCL;
-import com.nativelibs4java.util.NIOUtils;
 import java.io.IOException;
 import java.nio.ByteOrder;
-import java.nio.IntBuffer;
+import org.bridj.Pointer;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -31,8 +30,8 @@ import java.util.logging.Logger;
  */
 public class ParallelRandomDemo {
 
-    private static void println(IntBuffer b) {
-        for (int i = 0, n = b.capacity(); i < n; i++) {
+    private static void println(Pointer<Integer> b) {
+        for (int i = 0, n = (int)b.getRemainingElements(); i < n; i++) {
             if (i > 0)
                 System.out.print(", ");
             System.out.print(b.get(i));
@@ -69,7 +68,7 @@ public class ParallelRandomDemo {
             ParallelRandom demo = new ParallelRandom(queue, warmupSize, System.currentTimeMillis());
 
             println(demo.getSeeds().read(queue));
-            IntBuffer b = demo.next();
+            Pointer<Integer> b = demo.next();
             println(b);
             b = demo.next();
             println(b);

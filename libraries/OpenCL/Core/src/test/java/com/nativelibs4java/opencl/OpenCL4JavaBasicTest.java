@@ -4,8 +4,8 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.JavaCL.createBestContext;
 import static com.nativelibs4java.util.NIOUtils.directFloats;
 import static org.junit.Assert.assertEquals;
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 import java.nio.FloatBuffer;
 

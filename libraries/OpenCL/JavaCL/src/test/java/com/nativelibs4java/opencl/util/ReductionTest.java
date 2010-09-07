@@ -6,8 +6,8 @@ import static com.nativelibs4java.opencl.JavaCL.createBestContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.nio.IntBuffer;
-import java.nio.FloatBuffer;
+import org.bridj.Pointer;
+import static org.bridj.Pointer.*;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -35,22 +35,22 @@ public class ReductionTest {
     @Test
     public void testMinMax() {
         try {
-			CLIntBuffer input = context.createIntBuffer(CLMem.Usage.Input, IntBuffer.wrap(new int[] {
+			CLBuffer<Integer> input = context.createBuffer(CLMem.Usage.Input, pointerToInts(
                 1110, 22, 35535, 3, 1
-            }), true);
+            ), true);
 
             int maxReductionSize = 2;
-            IntBuffer result = NIOUtils.directInts(1, context.getByteOrder());
+            Pointer<Integer> result = allocateInt().order(context.getByteOrder());
             
-            Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Min, ReductionUtils.Type.Int, 1);
+            Reductor<Integer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Min, ReductionUtils.Type.Int, 1);
             reductor.reduce(queue, input, input.getElementCount(), result, maxReductionSize);
             queue.finish();
-            assertEquals(1, result.get(0));
+            assertEquals(1, (int)result.get());
 
             reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Max, ReductionUtils.Type.Int, 1);
             reductor.reduce(queue, input, input.getElementCount(), result, maxReductionSize);
             queue.finish();
-            assertEquals(35535, result.get(0));
+            assertEquals(35535, (int)result.get());
             
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -66,15 +66,15 @@ public class ReductionTest {
 			for (int i = 0; i < array.length; i++)
 				array[i] = 1;
 			
-			CLFloatBuffer clBufferInput = context.createFloatBuffer(CLMem.Usage.Input, FloatBuffer.wrap(array), true);
+			CLBuffer<Float> clBufferInput = context.createBuffer(CLMem.Usage.Input, pointerToFloats(array), true);
 			
-			ReductionUtils.Reductor<FloatBuffer> reductor = ReductionUtils.createReductor(
+			ReductionUtils.Reductor<Float> reductor = ReductionUtils.createReductor(
 				context, 
 				ReductionUtils.Operation.Add, 
 				ReductionUtils.Type.Float, 
 				1
 			);
-			FloatBuffer result = reductor.reduce(queue, clBufferInput, 4097, 64);
+			Pointer<Float> result = reductor.reduce(queue, clBufferInput, 4097, 64);
 			float sum = result.get(0);
 			float expected = 4097;
 			System.err.println("[Test of issue 26] Expected " + expected + ", got " + sum);
@@ -91,22 +91,22 @@ public class ReductionTest {
             int channels = 1;
             int maxReductionSize = 64;
             
-            IntBuffer inBuf = NIOUtils.directInts(channels * dataSize, context.getByteOrder());
+            Pointer<Integer> inBuf = allocateInts(channels * dataSize).order(context.getByteOrder());
             for (int i = 0; i < dataSize; i++) {
                 for (int c = 0; c < channels; c++)
-                    inBuf.put(i * channels + c, i);
+                    inBuf.set(i * channels + c, i);
             }
             
-            CLIntBuffer in = context.createIntBuffer(CLMem.Usage.Input, channels * dataSize);
+            CLBuffer<Integer> in = context.createBuffer(CLMem.Usage.Input, Integer.class, channels * dataSize);
             in.write(queue, inBuf, true);
 
-            IntBuffer check = in.read(queue);
+            Pointer<Integer> check = in.read(queue);
             for (int i = 0; i < dataSize; i++)
-                assertEquals(inBuf.get(i), check.get(i));
+                assertEquals((int)inBuf.get(i), (int)check.get(i));
             
-            IntBuffer out = NIOUtils.directInts(channels, context.getByteOrder());
+            Pointer<Integer> out = allocateInts(channels).order(context.getByteOrder());
             
-            Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, ReductionUtils.Type.Int, channels);
+            Reductor<Integer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, ReductionUtils.Type.Int, channels);
 
             //CLEvent evt = 
         	reductor.reduce(queue, in, dataSize, out, maxReductionSize);

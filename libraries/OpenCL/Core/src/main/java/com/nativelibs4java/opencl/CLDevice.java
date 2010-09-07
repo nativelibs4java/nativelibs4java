@@ -25,8 +25,8 @@ import com.nativelibs4java.util.IOUtils;
 import com.nativelibs4java.util.NIOUtils;
 
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
-import com.bridj.*;
-import static com.bridj.Pointer.*;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 import java.io.IOException;
 import java.nio.*;
@@ -34,7 +34,7 @@ import static com.nativelibs4java.opencl.JavaCL.*;
 import static com.nativelibs4java.util.NIOUtils.*;
 import java.util.*;
 import static com.nativelibs4java.opencl.CLException.*;
-import com.bridj.ValuedEnum;
+import org.bridj.ValuedEnum;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
