@@ -163,7 +163,7 @@ public class JNI {
     @Deprecated
     static native void set_${prim.Name}_array(long peer, ${prim.Name}[] values, int valuesOffset, int length);
 
-	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double"&& $prim.Name != "boolean")
+	#if ($prim.Name != "byte" && $prim.Name != "boolean")
 	@Deprecated
     static native ${prim.Name} get_${prim.Name}_disordered(long peer);
 	@Deprecated

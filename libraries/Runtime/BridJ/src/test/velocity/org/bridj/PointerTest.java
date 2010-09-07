@@ -20,6 +20,22 @@ public class PointerTest {
 	int n = 10;
 	static final ByteOrder[] orders = new ByteOrder[] { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
     
+	/*
+	@Test
+	public void testFloatEndian() {
+		ByteBuffer b = ByteBuffer.allocateDirect(20);
+		b.order(ByteOrder.BIG_ENDIAN).asFloatBuffer().put(0, 10.0f);
+		assertEquals(10.0f, b.order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().get(0), 0);	
+	}*/
+	@Test
+	public void testFloatEndian() {
+		Pointer<Double> b = allocateDouble();
+		for (ByteOrder bo : new ByteOrder[] { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN }) {
+			b.order(bo).setDouble(10.0);
+			assertEquals(10.0, b.order(bo).getDoubles(1)[0], 0);
+			assertEquals(10.0, b.order(bo).getDoubleBuffer().get(0), 0);
+		}
+	}
 	@Test(expected=UnsupportedOperationException.class)
 	public void noRef() {
 		allocateBytes(10).getReference();
@@ -319,7 +335,7 @@ public class PointerTest {
     		assertEquals(isOrdered, p.isOrdered());
     	}
     }
-	#if (($prim.Name == "short") || ($prim.Name == "int") || ($prim.Name == "long"))
+    #if (($prim.Name == "short") || ($prim.Name == "int") || ($prim.Name == "long") || ($prim.Name == "double") || ($prim.Name == "float"))
 	@Test
 	public void test${prim.CapName}Endianness() {
 		for (${prim.Name} value : new ${prim.Name}[] { (${prim.Name})0, (${prim.Name})1, (${prim.Name})-1 }) {

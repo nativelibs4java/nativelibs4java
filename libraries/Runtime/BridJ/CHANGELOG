@@ -7,7 +7,7 @@ Current version : BridJ 0.2-SNAPSHOT
 	- Optimized structs performance (added comparison tests with Javolution & JNA)
 - Enhanced C++ support :
 	- Automatic call of C++ destructors
-	- Better GCC demangling (contributed by Rémi Emonet)
+	- Better GCC demangling (contributed by Remi Emonet)
 	- Fixed long and size_t signature matching (@CLong and @Ptr annotations)
 	- Fixed size computation of (simply) inherited structs and classes
 - Enhanced Pointer<T> class :
@@ -27,6 +27,7 @@ Current version : BridJ 0.2-SNAPSHOT
 		- moveTo (memmov)
 		- clearBytes (memset)
 		- findByte (memchr)
+	- Fixed multiple-endianness support for floats and doubles
 - Added JAWTUtils.getNativePeerHandle(Component)
 - Refactored native libraries (a bit smaller)
 - Enhanced runtime :

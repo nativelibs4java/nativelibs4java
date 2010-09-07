@@ -1157,7 +1157,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * @param arrayLength length of the array in elements
      * @return a pointer to a new memory area large enough to hold arrayLength items of type elementClass.  
      */
-    public static <V> Pointer<V> allocateArray(Class<V> elementClass, int arrayLength) {
+    public static <V> Pointer<V> allocateArray(Class<V> elementClass, long arrayLength) {
 		if (arrayLength == 0)
 			return null;
 		
@@ -1605,7 +1605,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the memcpy C function.<br>
      * If the destination and source memory locations are likely to overlap, {@link #moveTo(long, Pointer, long, long)} must be used instead.
      */
-    public void copyTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
+    public void copyBytesTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
     		JNI.memcpy(destination.getCheckedPeer(byteOffsetInDestination, byteCount), getCheckedPeer(byteOffset, byteCount), byteCount);
     }
     
@@ -1613,7 +1613,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the memcpy C function.<br>
      * Works even if the destination and source memory locations are overlapping.
      */
-    public void moveTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
+    public void moveBytesTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
     		JNI.memmove(destination.getCheckedPeer(byteOffsetInDestination, byteCount), getCheckedPeer(byteOffset, byteCount), byteCount);
     }
     
@@ -1621,7 +1621,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     * Copy remaining bytes from this pointer to a destination (see {@link #copyTo(long, Pointer, long, long)}, {@link #getRemainingBytes})
      */
     public void copyTo(Pointer<?> destination) {
-    		copyTo(0, destination, 0, getRemainingBytes());
+    		copyBytesTo(0, destination, 0, getRemainingBytes());
     }
 
 #foreach ($prim in $primitives)
@@ -1637,7 +1637,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
 	 */
     public Pointer<T> set${prim.CapName}(long byteOffset, ${prim.Name} value) {
-    	#if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double" && $prim.Name != "boolean")
+    	#if ($prim.Name != "byte" && $prim.Name != "boolean")
 		if (!isOrdered()) {
 			JNI.set_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}), value);
 			return this;
@@ -1666,7 +1666,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Write an array of ${prim.Name} values of the specified length to the pointed memory location shifted by a byte offset, reading values at the given array offset and for the given length from the provided array.
 	 */
     public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.Name}[] values, int valuesOffset, int length) {
-        #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double" && $prim.Name != "boolean")
+        #if ($prim.Name != "byte" && $prim.Name != "boolean")
         if (!isOrdered()) {
         	JNI.set_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), values, valuesOffset, length);
         	return this;
@@ -1687,7 +1687,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
 	 */
     public ${prim.Name} get${prim.CapName}(long byteOffset) {
-        #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double" && $prim.Name != "boolean")
+        #if ($prim.Name != "byte" && $prim.Name != "boolean")
         if (!isOrdered())
         	return JNI.get_${prim.Name}_disordered(getCheckedPeer(byteOffset, ${prim.Size}));
         #end
@@ -1705,7 +1705,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Read an array of ${prim.Name} values of the specified length from the pointed memory location shifted by a byte offset
 	 */
     public ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length) {
-        #if ($prim.Name != "byte" && $prim.Name != "float" && $prim.Name != "double" && $prim.Name != "boolean")
+        #if ($prim.Name != "byte" && $prim.Name != "boolean")
         if (!isOrdered())
         	return JNI.get_${prim.Name}_array_disordered(getCheckedPeer(byteOffset, ${prim.Size} * length), length);
         #end
@@ -1715,6 +1715,20 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 #end
 #foreach ($prim in $primitivesNoBool)
 
+    /**
+	 * Read ${prim.Name} values into the specified destination array from the pointed memory location
+	 */
+	public void get${prim.CapName}s(${prim.Name}[] dest) {
+    		get${prim.BufferName}().get(dest);
+    }
+    
+    /**
+	 * Read length ${prim.Name} values into the specified destination array from the pointed memory location shifted by a byte offset, storing values after the provided destination offset.
+	 */
+    public void get${prim.CapName}s(long byteOffset, ${prim.Name}[] dest, int destOffset, int length) {
+    		get${prim.BufferName}(byteOffset).get(dest, destOffset, length);
+    }
+    
 	/**
 	 * Write a buffer of ${prim.Name} values of the specified length to the pointed memory location
 	 */

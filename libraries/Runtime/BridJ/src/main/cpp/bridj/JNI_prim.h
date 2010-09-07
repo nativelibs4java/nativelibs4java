@@ -44,7 +44,8 @@ jprimName JNICALL CONCAT_3(Java_org_bridj_JNI_get_1, primName, _1disordered)(JNI
 #endif
 #endif
     //return ((((jprimName)((jprimName*)peer)[0]) << 16) | ((jprimName*)peer)[1]);
-	return REORDER_VALUE_BYTES(peer);
+    TEMP_REORDER_VAR_TYPE tempVal = REORDER_VALUE_BYTES(peer);
+	return *(jprimName*)&tempVal;
 }
 #endif // ifdef REORDER_VALUE_BYTES
 
@@ -83,8 +84,10 @@ void JNICALL CONCAT_3(Java_org_bridj_JNI_set_1, primName, _1disordered)(JNIEnv* 
 	}
 #endif
 #endif
+	TEMP_REORDER_VAR_TYPE tempVal;
     BEGIN_TRY();
-	*(jprimName*)((char*)JLONG_TO_PTR(peer)) = REORDER_VALUE_BYTES(&value);
+    tempVal = REORDER_VALUE_BYTES(&value);
+	*(jprimName*)((char*)JLONG_TO_PTR(peer)) = *(jprimName*)&tempVal;
 	END_TRY(env);
 }
 #endif // ifdef REORDER_VALUE_BYTES
@@ -108,13 +111,13 @@ jprimArray JNICALL CONCAT_3(Java_org_bridj_JNI_get_1, primName, _1array_1disorde
 	jint i;
 	jprimArray array;
 	jprimName* nativeArray;
-	jprimName tempVal;
+	TEMP_REORDER_VAR_TYPE tempVal;
 	BEGIN_TRY();
 	array = (jprimArray)JLONG_TO_PTR((*env)->CONCAT_3(New, primJNICapName, Array)(env, length));
 	nativeArray = (jprimName*)((char*)JLONG_TO_PTR(peer));
 	for (i = 0; i < length; i++) {
 		tempVal = REORDER_VALUE_BYTES(&nativeArray[i]);
-		(*env)->CONCAT_3(Set, primJNICapName, ArrayRegion)(env, array, i, 1, &tempVal);
+		(*env)->CONCAT_3(Set, primJNICapName, ArrayRegion)(env, array, i, 1, (jprimName*)&tempVal);
 	}
 	return array;
 	END_TRY_RET(env, NULL);
@@ -122,12 +125,13 @@ jprimArray JNICALL CONCAT_3(Java_org_bridj_JNI_get_1, primName, _1array_1disorde
 void JNICALL CONCAT_3(Java_org_bridj_JNI_set_1, primName, _1array_1disordered)(JNIEnv *env, jclass clazz, jlong peer, jprimArray values, jint valuesOffset, jint length) {
 	jint i;
 	jprimName* nativeArray;
-	jprimName tempVal;
+	TEMP_REORDER_VAR_TYPE tempVal;
 	BEGIN_TRY();
 	nativeArray = (jprimName*)((char*)JLONG_TO_PTR(peer));
 	for (i = 0; i < length; i++) {
-		(*env)->CONCAT_3(Get, primJNICapName, ArrayRegion)(env, values, valuesOffset + i, 1, &tempVal);
-		nativeArray[i] = REORDER_VALUE_BYTES(&tempVal);
+		(*env)->CONCAT_3(Get, primJNICapName, ArrayRegion)(env, values, valuesOffset + i, 1, (jprimName*)&tempVal);
+		tempVal = REORDER_VALUE_BYTES(&tempVal);
+		nativeArray[i] = *(jprimName*)&tempVal;
 	}
 	END_TRY(env);
 }
