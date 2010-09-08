@@ -187,6 +187,7 @@ public class GCC4Demangler extends Demangler {
 		if (consumeCharIf('v')) {
 			if (position < length)
 				error("Expected end of symbol", 0);
+			mr.paramTypes = new TypeRef[0];
 		} else {
 			List<TypeRef> paramTypes = new ArrayList<TypeRef>();
 			while (position < length) {
