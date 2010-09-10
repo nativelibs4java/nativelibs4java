@@ -40,8 +40,6 @@ public class CLDenseMatrix2DImpl<V> {
     protected CLBuffer<V> buffer;
     protected Pointer<V> data;
 
-    Pointer<V> tempReadWritePointer;
-
     public CLDenseMatrix2DImpl(Primitive primitive, CLBuffer<V> buffer, long rows, long columns, OpenCLUJMP clUJMP) {
         this.primitive = primitive;
         this.buffer = buffer == null ? (CLBuffer)clUJMP.getContext().createBuffer(Usage.InputOutput, primitive.primitiveType, rows * columns) : buffer;
@@ -49,7 +47,6 @@ public class CLDenseMatrix2DImpl<V> {
         this.rows = rows;
         this.columns = columns;
         this.length = rows * columns;
-        tempReadWritePointer = (Pointer)Pointer.allocate(primitive.primitiveType);
     }
     private final static CLEvent[] EMPTY_EVENTS = new CLEvent[0];
 
@@ -68,14 +65,16 @@ public class CLDenseMatrix2DImpl<V> {
 
     public V get(long row, long column) {
         CLEvent[] evts = eventsBeforeReading();
-        buffer.read(clUJMP.getQueue(), getStorageIndex(row, column), 1, tempReadWritePointer, true, evts);
+        Pointer<V> ptr = (Pointer)Pointer.allocate(primitive.primitiveType);
+        buffer.read(clUJMP.getQueue(), getStorageIndex(row, column), 1, ptr, true, evts);
         purgeEvents(evts);
-        return tempReadWritePointer.get();
+        return ptr.get();
     }
 
     public void set(V value, long row, long column) {
-        tempReadWritePointer.set(value);
-        buffer.write(clUJMP.getQueue(), getStorageIndex(row, column), 1, tempReadWritePointer, true, eventsBeforeWriting());
+        Pointer<V> ptr = (Pointer)Pointer.allocate(primitive.primitiveType);
+        ptr.set(value);
+        addWriteEvent(buffer.write(clUJMP.getQueue(), getStorageIndex(row, column), 1, ptr, true, eventsBeforeWriting()));
     }
 
     public synchronized CLDenseMatrix2DImpl<V> multiplyMatrix(CLDenseMatrix2DImpl<V> matrix) throws MatrixException {
@@ -167,6 +166,8 @@ public class CLDenseMatrix2DImpl<V> {
 	}
 
 	protected synchronized void purgeEvents(CLEvent[] evts) {
+        if (evts.length == 0)
+            return;
         List<CLEvent> evtList = Arrays.asList(evts);
         readEvents.removeAll(evtList);
         writeEvents.removeAll(evtList);
@@ -341,7 +342,10 @@ public class CLDenseMatrix2DImpl<V> {
     }
 
     boolean containsValue(V v) throws CLBuildException {
-        return clUJMP.containsValue(primitive, buffer, length, v, eventsBeforeReading());
+        CLEvent[] evts = eventsBeforeReading();
+        boolean b = clUJMP.containsValue(primitive, buffer, length, v, evts);
+        purgeEvents(evts);
+        return b;
     }
 
     void clear() throws CLBuildException {
