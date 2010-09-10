@@ -27,6 +27,7 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_SOURCE
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SUCCESS;
 import static com.nativelibs4java.util.JNAUtils.readNSArray;
 import static com.nativelibs4java.util.JNAUtils.toNS;
+import java.io.IOException;
 
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -48,6 +49,12 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 /**
  * OpenCL program.<br/>
@@ -89,25 +96,83 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		this.context = context;
 		this.devices = binaries.keySet().toArray(new CLDevice[binaries.size()]);
 
-        NativeSize[] lengths = new NativeSize[devices.length];
-		cl_device_id[] deviceIds = new cl_device_id[devices.length];
-		String[] binptr=new String[devices.length];
-        for (int i = 0; i < devices.length; i++) {
+		int nDevices = devices.length;
+        NativeSize[] lengths = new NativeSize[nDevices];
+		cl_device_id[] deviceIds = new cl_device_id[nDevices];
+		Memory binariesArray = new Memory(Pointer.SIZE * nDevices);
+		Memory[] binariesMems = new Memory[nDevices]; 
+        for (int i = 0; i < nDevices; i++) {
 			final byte[] binary = binaries.get(devices[i]);
+			Memory binaryMem = new Memory(binary.length);
+			binaryMem.write(0, binary, 0, binary.length);
+			binariesArray.setPointer(i * Pointer.SIZE, binaryMem);
+			binariesMems[i] = binaryMem;
             lengths[i] = toNS(binary.length);
 			deviceIds[i] = devices[i].getEntity();
-			binptr[i]=new String(binary);
         }
-		
+		PointerByReference binariesPtr = new PointerByReference();
+        binariesPtr.setPointer(binariesArray);
+        
         IntBuffer errBuff = NIOUtils.directInts(1, ByteOrder.nativeOrder());
         cl_program program;
 		int previousAttempts = 0;
 		do {
-			program = CL.clCreateProgramWithBinary(context.getEntity(), devices.length, deviceIds, lengths, binptr, null, errBuff);
+			program = CL.clCreateProgramWithBinary(context.getEntity(), nDevices, deviceIds, lengths, binariesPtr, null, errBuff);
 		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
         entity = program;
 	}
 
+    /**
+     * Write the compiled binaries of this program (for all devices it was compiled for), so that it can be restored later using {@link CLContext#loadProgram(java.io.InputStream) }
+     * @param out will be closed
+     * @throws CLBuildException
+     * @throws IOException
+     */
+    public void store(OutputStream out) throws CLBuildException, IOException {
+        writeBinaries(getBinaries(), out);
+    }
+    public static void writeBinaries(Map<CLDevice, byte[]> binaries, OutputStream out) throws IOException {
+        Map<String, byte[]> binaryBySignature = new HashMap<String, byte[]>();
+        for (Map.Entry<CLDevice, byte[]> e : binaries.entrySet())
+            binaryBySignature.put(e.getKey().createSignature(), e.getValue()); // Maybe multiple devices will have the same signature : too bad, we don't care and just write one binary per signature.
+
+        ZipOutputStream zout = new ZipOutputStream(out);
+        for (Map.Entry<String, byte[]> e : binaryBySignature.entrySet()) {
+            String name = e.getKey();
+            byte[] data = e.getValue();
+            ZipEntry ze = new ZipEntry(name);
+            ze.setSize(data.length);
+            zout.putNextEntry(ze);
+            zout.write(data);
+            zout.closeEntry();
+        }
+        zout.close();
+    }
+    public static Map<CLDevice, byte[]> readBinaries(List<CLDevice> allowedDevices, InputStream in) throws IOException {
+        Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>();
+        Map<String, List<CLDevice>> devicesBySignature = CLDevice.getDevicesBySignature(allowedDevices);
+
+        ZipInputStream zin = new ZipInputStream(in);
+        ZipEntry ze;
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+
+        byte[] b = new byte[1024];
+        while ((ze = zin.getNextEntry()) != null) {
+            String signature = ze.getName();
+            bout.reset();
+            int len;
+            while ((len = zin.read(b)) > 0)
+                bout.write(b, 0, len);
+
+            byte[] data = bout.toByteArray();
+            List<CLDevice> devices = devicesBySignature.get(signature);
+            for (CLDevice device : devices)
+                ret.put(device, data);
+        }
+        zin.close();
+        return ret;
+    }
+    
 	List<String> sources = new ArrayList<String>();
     Map<CLDevice, cl_program> programByDevice = new HashMap<CLDevice, cl_program>();
 
