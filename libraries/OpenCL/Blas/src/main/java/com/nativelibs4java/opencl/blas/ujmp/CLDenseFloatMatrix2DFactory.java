@@ -5,25 +5,23 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import com.nativelibs4java.opencl.CLPlatform;
-import com.nativelibs4java.opencl.JavaCL;
 import com.nativelibs4java.opencl.util.LinearAlgebraUtils;
 import com.nativelibs4java.opencl.util.Primitive;
-import org.ujmp.core.doublematrix.DenseDoubleMatrix2D;
-import org.ujmp.core.doublematrix.factory.AbstractDoubleMatrix2DFactory;
+import org.ujmp.core.floatmatrix.DenseFloatMatrix2D;
+import org.ujmp.core.floatmatrix.factory.AbstractFloatMatrix2DFactory;
 import org.ujmp.core.exceptions.MatrixException;
 
 /**
  *
  * @author ochafik
  */
-public class CLDenseDoubleMatrix2DFactory extends AbstractDoubleMatrix2DFactory {
+public class CLDenseFloatMatrix2DFactory extends AbstractFloatMatrix2DFactory {
 	public static volatile OpenCLUJMP OpenCLUJMP;
 
     static synchronized OpenCLUJMP getOpenCLUJMP() {
         if (OpenCLUJMP == null) {
             try {
-                OpenCLUJMP = new OpenCLUJMP(JavaCL.createBestContext(CLPlatform.DeviceEvaluationStrategy.BestDoubleSupportThenBiggestMaxComputeUnits).createDefaultQueue());
+                OpenCLUJMP = new OpenCLUJMP();
             } catch (Throwable ex) {
                 throw new RuntimeException(ex);
             }
@@ -31,8 +29,9 @@ public class CLDenseDoubleMatrix2DFactory extends AbstractDoubleMatrix2DFactory 
         return OpenCLUJMP;
     }
 
-	public DenseDoubleMatrix2D dense(long rows, long columns)
+	public DenseFloatMatrix2D dense(long rows, long columns)
 			throws MatrixException {
-		return new CLDenseDoubleMatrix2D(getOpenCLUJMP(), rows, columns);
+		return new CLDenseFloatMatrix2D(getOpenCLUJMP(), rows, columns);
 	}
+
 }

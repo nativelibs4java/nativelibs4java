@@ -55,178 +55,86 @@ public class ParallelMath {
 	public CLContext getContext() {
 		return getQueue().getContext();
 	}
-	
-    public enum Fun1 {
-        log,
-        exp,
-        sqrt,
-        sin,
-        cos,
-        tan,
-        atan,
-        asin,
-        acos,
-        sinh,
-        cosh,
-        tanh,
-        asinh,
-        acosh,
-        atanh;
 
-        void expr(String a, StringBuilder out) {
-            out.append(name()).append('(').append(a).append(")");
-        }
-    }
-    public enum Fun2 {
-        atan2,
-        dist,
-        modulo("%"),
-        rshift(">>"),
-        lshift("<<"),
-        add("+"),
-        substract("-"),
-        multiply("*"),
-        divide("/");
-
-        String infixOp;
-        Fun2() {}
-        Fun2(String infixOp) {
-            this.infixOp = infixOp;
-        }
-        void expr(String a, String b, StringBuilder out) {
-            if (infixOp == null)
-                out.append(name()).append('(').append(a).append(", ").append(b).append(")");
-            else
-                out.append(a).append(' ').append(infixOp).append(' ').append(b);
-        }
-    }
-    public enum Primitive {
-        Float,
-        Double,
-        Long,
-        Int,
-        Short,
-        Byte,
-
-        Float2,
-        Double2,
-        Long2,
-        Int2,
-        Short2,
-        Byte2,
-
-        Float3,
-        Double3,
-        Long3,
-        Int3,
-        Short3,
-        Byte3,
-
-        Float4,
-        Double4,
-        Long4,
-        Int4,
-        Short4,
-        Byte4,
-
-        Float8,
-        Double8,
-        Long8,
-        Int8,
-        Short8,
-        Byte8,
-
-        Float16,
-        Double16,
-        Long16,
-        Int16,
-        Short16,
-        Byte16;
-
-        String type() {
-            return name().toLowerCase();
-        }
-    }
-
-    protected String createVectFun1Source(Fun1 function, Primitive type, StringBuilder out, boolean inPlace) {
-        String t = type.type();
-        String kernelName = "vect_" + function.name() + "_" + t + (inPlace ? "_inplace" : "");
+    protected String createVectFun1Source(Fun1 function, Primitive type, StringBuilder out) {
+        String t = type.clTypeName();
+        String kernelName = "vect_" + function.name() + "_" + t;// + (inPlace ? "_inplace" : "");
         out.append("__kernel void " + kernelName + "(\n");
-        if (!inPlace)
-            out.append("\t__global const " + t + "* in,\n");
-        out.append("\t__global " + t + "* out\n");
+        out.append("\t__global const " + t + "* in,\n");
+        out.append("\t__global " + t + "* out,\n");
+        out.append("\tlong size_t\n");
         out.append(") {\n");
         out.append("\tint i = get_global_id(0);\n");
+        out.append("\tif (i >= length) return;\n");
         out.append("\tout[i] = ");
-        function.expr(inPlace ? "out" : "in", out);
+        function.expr("in", out);
         out.append("[i]);\n");
         out.append("}\n");
         return kernelName;
     }
     
     
-    protected String createVectFun2Source(Fun2 function, Primitive type1, Primitive type2, Primitive typeOut, StringBuilder out) {
-        String t1 = type1.type(), t2 = type2.type(), to = typeOut.type();
+    protected String createVectFun2Source(Fun2 function, Primitive type1, Primitive type2, Primitive typeOut, StringBuilder out, boolean secondOperandIsScalar) {
+        String t1 = type1.clTypeName(), t2 = type2.clTypeName(), to = typeOut.clTypeName();
         String kernelName = "vect_" + function.name() + "_" + t1 + "_" + t2 + "_" + to;
         out.append("__kernel void " + kernelName + "(\n");
         out.append("\t__global const " + t1 + "* in1,\n");
-        out.append("\t__global const " + t2 + "* in2,\n");
-        out.append("\t__global " + to + "* out\n");
+        if (secondOperandIsScalar)
+            out.append("\t" + t2 + "* in2,\n");
+        else
+            out.append("\t__global const " + t2 + "* in2,\n");
+        out.append("\t__global " + to + "* out,\n");
+        out.append("\tlong size_t\n");
         out.append(") {\n");
         out.append("\tint i = get_global_id(0);\n");
+        out.append("\tif (i >= length) return;\n");
         out.append("\tout[i] = (" + to + ")");
-        function.expr("in1[i]", "in2[i]", out);
+        function.expr("in1[i]", (secondOperandIsScalar ? "in2" : "in2[i]"), out);
         out.append(";\n");
         out.append("}\n");
         return kernelName;
     }
 
 
-    private static class Fun1Kernels {
-        CLKernel inPlace, notInPlace;
-    }
-    private EnumMap<Fun1, EnumMap<Primitive, Fun1Kernels>> fun1Kernels = new EnumMap<Fun1, EnumMap<Primitive, Fun1Kernels>>(Fun1.class);
+    private EnumMap<Fun1, EnumMap<Primitive, CLKernel>> fun1Kernels = new EnumMap<Fun1, EnumMap<Primitive, CLKernel>>(Fun1.class);
 
     
-    public synchronized CLKernel getKernel(Fun1 op, Primitive prim, boolean inPlace) throws CLBuildException {
-        EnumMap<Primitive, Fun1Kernels> m = fun1Kernels.get(op);
+    public synchronized CLKernel getKernel(Fun1 op, Primitive prim) throws CLBuildException {
+        EnumMap<Primitive, CLKernel> m = fun1Kernels.get(op);
         if (m == null)
-            fun1Kernels.put(op, m = new EnumMap<Primitive, Fun1Kernels>(Primitive.class));
+            fun1Kernels.put(op, m = new EnumMap<Primitive, CLKernel>(Primitive.class));
 
-        Fun1Kernels kers = m.get(prim);
+        CLKernel kers = m.get(prim);
         if (kers == null) {
             StringBuilder out = new StringBuilder(300);
-            String inPlaceName = createVectFun1Source(op, prim, out, true);
-            String notInPlaceName = createVectFun1Source(op, prim, out, false);
+            String name = createVectFun1Source(op, prim, out);
             CLProgram prog = getContext().createProgram(out.toString()).build();
-            kers = new Fun1Kernels();
-            kers.inPlace = prog.createKernel(inPlaceName);
-            kers.notInPlace = prog.createKernel(notInPlaceName);
+            kers = prog.createKernel(name);
             m.put(prim, kers);
         }
-        return inPlace ? kers.inPlace : kers.notInPlace;
+        return kers;
     }
 
-    static class PrimitiveTrio extends Pair<Primitive, Pair<Primitive, Primitive>> {
-        public PrimitiveTrio(Primitive a, Primitive b, Primitive c) {
-            super(a, new Pair<Primitive, Primitive>(b, c));
+    static class PrimitiveTrio extends Pair<Pair<Primitive, Primitive>, Pair<Primitive, Boolean>> {
+        public PrimitiveTrio(Primitive a, Primitive b, Primitive c, boolean secondOperandIsScalar) {
+            super(new Pair<Primitive, Primitive>(a, b), new Pair<Primitive, Boolean>(c, secondOperandIsScalar));
         }
     }
     private EnumMap<Fun2, Map<PrimitiveTrio, CLKernel>> fun2Kernels = new EnumMap<Fun2, Map<PrimitiveTrio, CLKernel>>(Fun2.class);
-    public synchronized CLKernel getKernel(Fun2 op, Primitive prim) throws CLBuildException {
-        return getKernel(op, prim, prim, prim);
+    public synchronized CLKernel getKernel(Fun2 op, Primitive prim, boolean secondOperandIsScalar) throws CLBuildException {
+        return getKernel(op, prim, prim, prim, secondOperandIsScalar);
     }
 
-    public synchronized CLKernel getKernel(Fun2 op, Primitive prim1, Primitive prim2, Primitive primOut) throws CLBuildException {
+    public synchronized CLKernel getKernel(Fun2 op, Primitive prim1, Primitive prim2, Primitive primOut, boolean secondOperandIsScalar) throws CLBuildException {
         Map<PrimitiveTrio, CLKernel> m = fun2Kernels.get(op);
         if (m == null)
             fun2Kernels.put(op, m = new HashMap<PrimitiveTrio, CLKernel>());
 
-        PrimitiveTrio key = new PrimitiveTrio(prim1, prim2, primOut);
+        PrimitiveTrio key = new PrimitiveTrio(prim1, prim2, primOut, secondOperandIsScalar);
         CLKernel ker = m.get(key);
         if (ker == null) {
             StringBuilder out = new StringBuilder(300);
-            String name = createVectFun2Source(op, prim1, prim2, primOut, out);
+            String name = createVectFun2Source(op, prim1, prim2, primOut, out, secondOperandIsScalar);
             CLProgram prog = getContext().createProgram(out.toString()).build();
             ker = prog.createKernel(name);
             m.put(key, ker);

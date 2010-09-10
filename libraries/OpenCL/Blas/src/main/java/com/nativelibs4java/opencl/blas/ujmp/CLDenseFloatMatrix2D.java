@@ -7,37 +7,35 @@ package com.nativelibs4java.opencl.blas.ujmp;
 
 import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.util.Primitive;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.bridj.Pointer;
 
 import org.ujmp.core.Matrix;
 import org.ujmp.core.calculation.Calculation.Ret;
 import org.ujmp.core.exceptions.MatrixException;
 
-import org.ujmp.core.doublematrix.stub.AbstractDenseDoubleMatrix2D;
+import org.ujmp.core.floatmatrix.stub.AbstractDenseFloatMatrix2D;
 
 /**
  *
  * @author ochafik
  */
-public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implements CLDenseMatrix2D<Double> {
+public class CLDenseFloatMatrix2D extends AbstractDenseFloatMatrix2D implements CLDenseMatrix2D<Float> {
 	private static final long serialVersionUID = -36941159548127670L;
-	protected final CLDenseMatrix2DImpl<Double> impl;
+	protected final CLDenseMatrix2DImpl<Float> impl;
 
-    public CLDenseDoubleMatrix2D(OpenCLUJMP clUJMP, long rows, long columns) {
-        this(new CLDenseMatrix2DImpl<Double>(Primitive.Double, null, rows, columns, clUJMP));
+    public CLDenseFloatMatrix2D(OpenCLUJMP clUJMP, long rows, long columns) {
+        this(new CLDenseMatrix2DImpl<Float>(Primitive.Float, null, rows, columns, clUJMP));
     }
 
-    public CLDenseDoubleMatrix2D(long... size) {
-        this(CLDenseDoubleMatrix2DFactory.getOpenCLUJMP(), size[0], size[1]);
+    public CLDenseFloatMatrix2D(long... size) {
+        this(CLDenseFloatMatrix2DFactory.getOpenCLUJMP(), size[0], size[1]);
     }
 
-    public CLDenseDoubleMatrix2D(long size) {
+    public CLDenseFloatMatrix2D(long size) {
         this(size, size);
     }
 
-    protected CLDenseDoubleMatrix2D(CLDenseMatrix2DImpl<Double> impl) {
+    protected CLDenseFloatMatrix2D(CLDenseMatrix2DImpl<Float> impl) {
         this.impl = impl;
     }
 
@@ -46,38 +44,32 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implement
         return new long[] { impl.rows, impl.columns };
     }
 
-    public void write(Pointer<Double> b) {
+    public void write(Pointer<Float> b) {
         impl.write(b);
     }
 
-    public void read(Pointer<Double> b) {
+    public void read(Pointer<Float> b) {
         impl.read(b);
     }
 
-    public Pointer<Double> read() {
+    public Pointer<Float> read() {
         return impl.read();
     }
 
     @Override
-    public double getDouble(int row, int column) {
-        return getDouble((long)row, (long)column);
+    public float getFloat(int row, int column) {
+        return getFloat((long)row, (long)column);
     }
 
     @Override
-    public void setDouble(double value, int row, int column) {
-        setDouble(value, (long)row, (long)column);
+    public void setFloat(float value, int row, int column) {
+        setFloat(value, (long)row, (long)column);
     }
 
     @Override
-    public CLDenseMatrix2DImpl<Double> getImpl() {
+    public CLDenseMatrix2DImpl<Float> getImpl() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
-    @Override
-    public Iterable<Object> allValues() {
-        return (Pointer)impl.read();
-    }
-
 
     @Override
     public Matrix min(Ret returnType, int dimension) throws MatrixException {
@@ -129,29 +121,29 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implement
                 // TODO
                 return super.center(returnType, dimension, ignoreNaN);
             case ALL:
-                return minus(returnType, ignoreNaN, mean(Ret.NEW, dimension, ignoreNaN).getAsDouble(0, 0));
+                return minus(returnType, ignoreNaN, mean(Ret.NEW, dimension, ignoreNaN).getAsFloat(0, 0));
             default:
                 throw new IllegalArgumentException("Invalid dimension : " + dimension);
         }
     }
 
     @Override
-    public double getDouble(long row, long column) {
+    public float getFloat(long row, long column) {
         return impl.get(row, column);
     }
 
     @Override
-    public void setDouble(double value, long row, long column) {
+    public void setFloat(float value, long row, long column) {
         impl.set(value, row, column);
     }
 
-    static CLDenseDoubleMatrix2D inst(CLDenseMatrix2DImpl<Double> impl) {
-        return new CLDenseDoubleMatrix2D(impl);
+    static CLDenseFloatMatrix2D inst(CLDenseMatrix2DImpl<Float> impl) {
+        return new CLDenseFloatMatrix2D(impl);
     }
 
     @Override
     public Matrix mtimes(Ret returnType, boolean ignoreNaN, Matrix matrix) throws MatrixException {
-        return inst(impl.multiplyMatrix(((CLDenseMatrix2D<Double>)matrix).getImpl()));
+        return inst(impl.multiplyMatrix(((CLDenseMatrix2D<Float>)matrix).getImpl()));
     }
 
     @Override
@@ -205,7 +197,7 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implement
     }
     @Override
     public Matrix minus(Ret returnType, boolean ignoreNaN, double v) throws MatrixException {
-        return inst(impl.minus(returnType, ignoreNaN, v));
+        return inst(impl.minus(returnType, ignoreNaN, (float)v));
     }
 
     @Override
@@ -215,7 +207,7 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implement
 
     @Override
     public Matrix plus(Ret returnType, boolean ignoreNaN, double v) throws MatrixException {
-        return inst(impl.plus(returnType, ignoreNaN, v));
+        return inst(impl.plus(returnType, ignoreNaN, (float)v));
     }
 
     @Override
@@ -225,7 +217,7 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implement
 
     @Override
     public Matrix times(Ret returnType, boolean ignoreNaN, double factor) throws MatrixException {
-        return inst(impl.times(returnType, ignoreNaN, factor));
+        return inst(impl.times(returnType, ignoreNaN, (float)factor));
     }
 
     @Override
@@ -235,42 +227,31 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implement
 
     @Override
     public Matrix divide(Ret returnType, boolean ignoreNaN, double factor) throws MatrixException {
-        return inst(impl.divide(returnType, ignoreNaN, factor));
+        return inst(impl.divide(returnType, ignoreNaN, (float)factor));
     }
 
     @Override
-    public double[][] toDoubleArray() throws MatrixException {
-        Pointer<Double> b = impl.read();
-        double[][] ret = new double[(int)impl.rows][];
+    public float[][] toFloatArray() throws MatrixException {
+        Pointer<Float> b = impl.read();
+        float[][] ret = new float[(int)impl.rows][];
         for (int i = 0; i < impl.rows; i++) {
-            ret[i] = b.getDoubles(i * impl.columns, (int)impl.columns);
+            ret[i] = b.getFloats(i * impl.columns, (int)impl.columns);
         }
         return ret;
     }
 
     @Override
-    public boolean containsDouble(double v) {
-        try {
-            return impl.containsValue(v);
-        } catch (CLBuildException ex) {
-            throw new RuntimeException("Failed to test value presence", ex);
+    public double[][] toDoubleArray() throws MatrixException {
+        Pointer<Float> b = impl.read();
+        double[][] ret = new double[(int)impl.rows][(int)impl.columns];
+        for (int i = 0; i < impl.rows; i++) {
+            float[] floats = b.getFloats(i * impl.columns, (int) impl.columns);
+            double[] doubles = ret[i];
+            for (int j = 0; j < floats.length; j++)
+                doubles[j] = floats[j];
         }
+        return ret;
     }
-
-    @Override
-    public void clear() {
-        try {
-            impl.clear();
-        } catch (CLBuildException ex) {
-            throw new RuntimeException("Failed to clear matrix", ex);
-        }
-    }
-
-    public void waitFor() {
-        impl.waitFor();
-    }
-
-
 
 }
 

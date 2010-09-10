@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
+import org.ujmp.core.doublematrix.stub.AbstractDenseDoubleMatrix2D;
 import org.ujmp.core.interfaces.Wrapper;
 
 import org.bridj.Pointer;
@@ -14,21 +15,23 @@ import static org.bridj.Pointer.*;
  *
  * @author ochafik
  */
-public class DirectNIODenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D implements Wrapper<Pointer<Double>> {
+public class DirectNIODenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
 
     /**
 	 * 
 	 */
 	private static final long serialVersionUID = 8936390922363132043L;
-	Pointer<Double> data;
+	final Pointer<Double> data;
+    final long rows, columns;
 
     public DirectNIODenseDoubleMatrix2D(Pointer<Double> data, long rows, long columns) {
-        super(rows, columns);
+        this.rows = rows;
+        this.columns = columns;
         this.data = data;
     }
 
     public DirectNIODenseDoubleMatrix2D(long rows, long columns) {
-        this(allocateDoubles(rows * columns).order(CLDenseDoubleMatrix2DFactory.LINEAR_ALGEBRA_KERNELS.getContext().getKernelsDefaultByteOrder()), rows, columns);
+        this(allocateDoubles(rows * columns).order(CLDenseDoubleMatrix2DFactory.getOpenCLUJMP().getContext().getKernelsDefaultByteOrder()), rows, columns);
     }
 
     public DirectNIODenseDoubleMatrix2D(long[] size) {
@@ -36,6 +39,7 @@ public class DirectNIODenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D
         if (size.length != 2)
             throw new IllegalArgumentException("Size is not 2D !");
     }
+
 
     public Pointer<Double> getData() {
         return data;
@@ -51,13 +55,27 @@ public class DirectNIODenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D
     }
 
     @Override
-    public Pointer<Double> getWrappedObject() {
-        return data;
+    public long[] getSize() {
+        return new long[] { rows, columns };
     }
 
     @Override
-    public void setWrappedObject(Pointer<Double> object) {
-        this.data = object;
+    public double getDouble(long row, long column) {
+        return data.getDouble((row * columns + column) << 3);
     }
 
+    @Override
+    public void setDouble(double value, long row, long column) {
+        data.setDouble((row * columns + column) << 3, value);
+    }
+
+    @Override
+    public double getDouble(int row, int column) {
+        return getDouble((long)row, column);
+    }
+
+    @Override
+    public void setDouble(double value, int row, int column) {
+        setDouble(value, (long)row, column);
+    }
 }

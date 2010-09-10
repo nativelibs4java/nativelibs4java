@@ -78,4 +78,19 @@ public class UJMPOpenCLTest {
         assertEquals(0, vout.getDouble(1, 0), 0);
 		assertEquals(1, vout.getDouble(2, 0), 0);
 	}
+
+    @Test
+    public void testContains() {
+        CLDenseDoubleMatrix2D m = (CLDenseDoubleMatrix2D)MatrixFactory.dense(2, 2);
+        m.setDouble(1.1, 1, 1);
+        assertEquals(1.1, m.getDouble(1, 1), 0.0);
+        assertTrue(m.containsDouble(1.1));
+        assertTrue(!m.containsDouble(2.0));
+        m.clear();
+        m.waitFor();
+        for (double d : m.read())
+            System.out.println("VALUE: " + d);
+        assertTrue(!m.containsDouble(1.1));
+    }
+
 }

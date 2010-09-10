@@ -195,6 +195,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
             setArg(iArg, (Double) arg);
 		} else if (arg instanceof Boolean) {
             setArg(iArg, (byte)(Boolean.TRUE.equals(arg) ? 1 : 0));
+        } else if (arg instanceof Pointer) {
+            setArg(iArg, (Pointer)arg);
 		} else if (arg instanceof Buffer) {
             setArg(iArg, (Buffer) arg);
 		} else if (arg instanceof int[]) {
@@ -259,6 +261,10 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
 			arg = NIOUtils.directCopy(arg, getProgram().getContext().getByteOrder());
 		long size = NIOUtils.getSizeInBytes(arg);
         error(CL.clSetKernelArg(getEntity(), i, size, pointerToBuffer(arg)));
+    }
+    public <T> void setArg(int i, Pointer<T> arg) {
+		long size = arg.getRemainingBytes();
+        error(CL.clSetKernelArg(getEntity(), i, size, arg));
     }
 
     public void setArg(int i, SizeT arg) {

@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
+import org.ujmp.core.floatmatrix.FloatMatrix2D;
 import org.ujmp.core.doublematrix.DoubleMatrix2D;
 
 import org.bridj.Pointer;
@@ -35,7 +36,7 @@ public class MatrixUtils {
     }
 
     public static Pointer<Double> read(DoubleMatrix2D m) {
-        Pointer<Double> buffer = allocateDoubles(m.getColumnCount() * m.getRowCount()).order(CLDenseDoubleMatrix2DFactory.LINEAR_ALGEBRA_KERNELS.getContext().getKernelsDefaultByteOrder());
+        Pointer<Double> buffer = allocateDoubles(m.getColumnCount() * m.getRowCount()).order(CLDenseDoubleMatrix2DFactory.getOpenCLUJMP().getContext().getKernelsDefaultByteOrder());
         read(m, buffer);
         return buffer;
     }
@@ -52,6 +53,29 @@ public class MatrixUtils {
             		long offset = i * columns;
             		for (long j = 0; j < columns; j++) {
                     out.set(offset + j, m.getDouble(i, j));
+				}
+			}
+        }
+    }
+
+    public static Pointer<Float> read(FloatMatrix2D m) {
+        Pointer<Float> buffer = allocateFloats(m.getColumnCount() * m.getRowCount()).order(CLDenseFloatMatrix2DFactory.getOpenCLUJMP().getContext().getKernelsDefaultByteOrder());
+        read(m, buffer);
+        return buffer;
+    }
+    public static void read(FloatMatrix2D m, Pointer<Float> out) {
+        long rows = m.getRowCount(), columns = m.getColumnCount();
+        if (out.getRemainingElements() < rows * columns)
+            throw new IllegalArgumentException("Not enough space in output buffer to read into " + rows + "x" + columns + " matrix (only has " + out.getRemainingElements() + ")");
+
+        if (m instanceof CLDenseFloatMatrix2D) {
+            CLDenseFloatMatrix2D mm = (CLDenseFloatMatrix2D)m;
+            mm.read(out);
+        } else {
+            for (long i = 0; i < rows; i++) {
+            		long offset = i * columns;
+            		for (long j = 0; j < columns; j++) {
+                    out.set(offset + j, m.getFloat(i, j));
 				}
 			}
         }

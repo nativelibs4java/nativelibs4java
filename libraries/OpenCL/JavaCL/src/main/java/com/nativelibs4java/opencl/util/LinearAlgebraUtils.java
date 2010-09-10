@@ -58,7 +58,7 @@ public class LinearAlgebraUtils {
 	private static final int[] unitIntArr = new int[] { 1 };
     private static final int[] unitInt2Arr = new int[] { 1, 1 };
 
-	public synchronized CLEvent multiply(
+	public synchronized CLEvent multiplyDouble(
             CLBuffer<Double> a, long aRows, long aColumns, 
             CLBuffer<Double> b, long bRows, long bColumns, 
             CLBuffer<Double> out, //long outRows, long outColumns,
@@ -66,7 +66,7 @@ public class LinearAlgebraUtils {
     {
         long outRows = aRows;
         long outColumns = bColumns;
-        return kernels.mulMat(queue,
+        return kernels.mulMatDouble(queue,
             a, (int)aColumns,
             b, (int)bColumns,
             out,
@@ -75,16 +75,15 @@ public class LinearAlgebraUtils {
             eventsToWaitFor
         );
     }
-    /*
-    public synchronized CLEvent multiplyLongs(
-            CLBuffer<Long> a, long aRows, long aColumns, 
-            CLBuffer<Long> b, long bRows, long bColumns, 
-            CLBuffer<Long> out, //long outRows, long outColumns,
+    public synchronized CLEvent multiplyFloat(
+            CLBuffer<Float> a, long aRows, long aColumns, 
+            CLBuffer<Float> b, long bRows, long bColumns, 
+            CLBuffer<Float> out, //long outRows, long outColumns,
             CLEvent... eventsToWaitFor) throws CLBuildException
     {
         long outRows = aRows;
         long outColumns = bColumns;
-        return kernels.mulMatLong(queue,
+        return kernels.mulMatFloat(queue,
             a, (int)aColumns,
             b, (int)bColumns,
             out,
@@ -93,33 +92,43 @@ public class LinearAlgebraUtils {
             eventsToWaitFor
         );
     }
-
-    /*synchronized CLEvent dot(CLVector a b out, CLEvent... eventsToWaitFor) {
-		CLEvent.waitFor(eventsToWaitFor);
-		a.waitForRead();
-		b.waitForRead();
-		out.waitForWrite();
-		FV aa  = newVector(fallBackLibrary, a);
-		FV bb  = newVector(fallBackLibrary, b);
-		out.write(aa.dot(bb, null).read());
-		return null;
-    }*/
-
-	Reductor<Double> addReductor;
-	synchronized Reductor<Double> getAddReductor() {
-		if (addReductor == null) {
+	Reductor<Double> addReductorDouble;
+	synchronized Reductor<Double> getAddReductorDouble() {
+		if (addReductorDouble == null) {
 			try {
-				addReductor = ReductionUtils.createReductor(getContext(), ReductionUtils.Operation.Add, ReductionUtils.Type.Double, 1);
+				addReductorDouble = ReductionUtils.createReductor(getContext(), ReductionUtils.Operation.Add, ReductionUtils.Type.Double, 1);
 			} catch (CLBuildException ex) {
 				Logger.getLogger(LinearAlgebraUtils.class.getName()).log(Level.SEVERE, null, ex);
 				throw new RuntimeException("Failed to create an addition reductor !", ex);
 			}
 		}
-		return addReductor;
+		return addReductorDouble;
 	}
 
-    public synchronized CLEvent transpose(CLBuffer<Double> a, long aRows, long aColumns, CLBuffer<Double> out, CLEvent... eventsToWaitFor) throws CLBuildException {
-        return kernels.transpose(queue,
+    public synchronized CLEvent transposeDouble(CLBuffer<Double> a, long aRows, long aColumns, CLBuffer<Double> out, CLEvent... eventsToWaitFor) throws CLBuildException {
+        return kernels.transposeDouble(queue,
+            a, aRows, aColumns,
+            out,
+            new int[] { (int)aColumns, (int)aRows },
+            unitInt2Arr,
+            eventsToWaitFor
+        );
+    }
+	Reductor<Float> addReductorFloat;
+	synchronized Reductor<Float> getAddReductorFloat() {
+		if (addReductorFloat == null) {
+			try {
+				addReductorFloat = ReductionUtils.createReductor(getContext(), ReductionUtils.Operation.Add, ReductionUtils.Type.Float, 1);
+			} catch (CLBuildException ex) {
+				Logger.getLogger(LinearAlgebraUtils.class.getName()).log(Level.SEVERE, null, ex);
+				throw new RuntimeException("Failed to create an addition reductor !", ex);
+			}
+		}
+		return addReductorFloat;
+	}
+
+    public synchronized CLEvent transposeFloat(CLBuffer<Float> a, long aRows, long aColumns, CLBuffer<Float> out, CLEvent... eventsToWaitFor) throws CLBuildException {
+        return kernels.transposeFloat(queue,
             a, aRows, aColumns,
             out,
             new int[] { (int)aColumns, (int)aRows },

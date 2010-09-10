@@ -245,8 +245,8 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                 String s = buffer.getCString(0);
                 errs.add(s);
             } else
-                for (Pointer<cl_device_id> device : deviceIds) {
-                    error(CL.clGetProgramBuildInfo(getEntity(), device.get(), CL_PROGRAM_BUILD_LOG, bufLen, buffer, len));
+                for (cl_device_id device : deviceIds) {
+                    error(CL.clGetProgramBuildInfo(getEntity(), device, CL_PROGRAM_BUILD_LOG, bufLen, buffer, len));
                     String s = buffer.getCString(0);
                     errs.add(s);
                 }
