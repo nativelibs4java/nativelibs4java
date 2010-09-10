@@ -146,7 +146,8 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     public enum DeviceEvaluationStrategy {
 
         BiggestMaxComputeUnits,
-        BiggestMaxComputeUnitsWithNativeEndianness
+        BiggestMaxComputeUnitsWithNativeEndianness,
+        BestDoubleSupportThenBiggestMaxComputeUnits
     }
 
 	static CLDevice getBestDevice(DeviceEvaluationStrategy eval, Iterable<CLDevice> devices) {
@@ -166,6 +167,10 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
                         if (bestDevice.getMaxComputeUnits() < device.getMaxComputeUnits()) {
                             bestDevice = device;
                         }
+                        break;
+                    case BestDoubleSupportThenBiggestMaxComputeUnits:
+                        if (device.isDoubleSupported() && !bestDevice.isDoubleSupported())
+                            bestDevice = device;
                         break;
                 }
             }

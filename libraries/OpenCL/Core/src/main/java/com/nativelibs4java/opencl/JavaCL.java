@@ -89,13 +89,20 @@ public class JavaCL {
 	}
 
     public static CLDevice getBestDevice() {
+        return getBestDevice(CLPlatform.DeviceEvaluationStrategy.BiggestMaxComputeUnits);
+    }
+	public static CLDevice getBestDevice(CLPlatform.DeviceEvaluationStrategy strategy) {
         List<CLDevice> devices = new ArrayList<CLDevice>();
 		for (CLPlatform platform : listPlatforms())
 			devices.addAll(Arrays.asList(platform.listAllDevices(true)));
-        return CLPlatform.getBestDevice(CLPlatform.DeviceEvaluationStrategy.BiggestMaxComputeUnits, devices);
+        return CLPlatform.getBestDevice(strategy, devices);
     }
 	public static CLContext createBestContext() {
-		CLDevice device = getBestDevice();
+        return createBestContext(CLPlatform.DeviceEvaluationStrategy.BiggestMaxComputeUnits);
+	}
+
+    public static CLContext createBestContext(CLPlatform.DeviceEvaluationStrategy strategy) {
+		CLDevice device = getBestDevice(strategy);
 		return device.getPlatform().createContext(null, device);
 	}
 

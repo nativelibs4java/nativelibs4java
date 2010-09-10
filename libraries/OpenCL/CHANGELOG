@@ -1,6 +1,7 @@
 Current development version (1.0-SNAPSHOT)
 
 - Experimental BridJ port with same functionality as JNA-powered version, but smaller and faster (JAR weighs 750 kB instead of 1.8 MB, overhead per-function call about 5x smaller)
+- Added CLContext.createProgram(Map<CLDevice, byte[]>) to create from saved binaries (contribution from Kazo Csaba, issue #30)
 
 Version 1.0-beta-5 (r1067, 20100717)
 
