@@ -76,6 +76,22 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     protected void clear() {
     }
 
+    public String createSignature() {
+        return getName() + "|" + getVendor() + "|" + getDriverVersion() + "|" + getProfile();
+    }
+    public static Map<String, List<CLDevice>> getDevicesBySignature(List<CLDevice> devices) {
+        Map<String, List<CLDevice>> ret = new HashMap<String, List<CLDevice>>();
+        for (CLDevice device : devices) {
+            String signature = device.createSignature();
+            List<CLDevice> list = ret.get(signature);
+            if (list == null)
+                ret.put(signature, list = new ArrayList<CLDevice>());
+            list.add(device);
+        }
+        return ret;
+    }
+
+
     public ByteOrder getByteOrder() {
         return isEndianLittle() ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
     }

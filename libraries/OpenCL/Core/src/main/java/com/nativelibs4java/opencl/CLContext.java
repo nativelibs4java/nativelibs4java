@@ -29,6 +29,7 @@ import static com.nativelibs4java.util.JNAUtils.toNSArray;
 import static com.nativelibs4java.util.NIOUtils.getSizeInBytes;
 
 import java.awt.Image;
+import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -61,6 +62,8 @@ import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -206,6 +209,17 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         for (String src : srcs)
             program.addSource(src);
         return program;
+    }
+
+    /**
+     * Restore a program previously saved with {@link CLProgram#store(java.io.OutputStream) }
+     * @param in will be closed
+     * @return
+     * @throws IOException
+     */
+    public CLProgram loadProgram(InputStream in) throws IOException {
+        Map<CLDevice, byte[]> binaries = CLProgram.readBinaries(Arrays.asList(getDevices()), in);
+        return createProgram(binaries);
     }
 
 	public CLProgram createProgram(Map<CLDevice, byte[]> binaries) {
