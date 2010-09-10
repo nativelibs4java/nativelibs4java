@@ -94,32 +94,40 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 	CLProgram(CLContext context, Map<CLDevice, byte[]> binaries) {
 		super(null, true);
 		this.context = context;
-		this.devices = binaries.keySet().toArray(new CLDevice[binaries.size()]);
 
-		int nDevices = devices.length;
+        int nDevices = binaries.size();
+        this.devices = new CLDevice[nDevices];
         NativeSize[] lengths = new NativeSize[nDevices];
 		cl_device_id[] deviceIds = new cl_device_id[nDevices];
 		Memory binariesArray = new Memory(Pointer.SIZE * nDevices);
-		Memory[] binariesMems = new Memory[nDevices]; 
-        for (int i = 0; i < nDevices; i++) {
-			final byte[] binary = binaries.get(devices[i]);
-			Memory binaryMem = new Memory(binary.length);
+		Memory[] binariesMems = new Memory[nDevices];
+
+        int iDevice = 0;
+        for (Map.Entry<CLDevice, byte[]> e : binaries.entrySet())
+        {
+            CLDevice device = e.getKey();
+            byte[] binary = e.getValue();
+
+            Memory binaryMem = binariesMems[iDevice] = new Memory(binary.length);
 			binaryMem.write(0, binary, 0, binary.length);
-			binariesArray.setPointer(i * Pointer.SIZE, binaryMem);
-			binariesMems[i] = binaryMem;
-            lengths[i] = toNS(binary.length);
-			deviceIds[i] = devices[i].getEntity();
+			binariesArray.setPointer(iDevice * Pointer.SIZE, binaryMem);
+
+            lengths[iDevice] = toNS(binary.length);
+			deviceIds[iDevice] = (devices[iDevice] = device).getEntity();
+
+            iDevice++;
         }
 		PointerByReference binariesPtr = new PointerByReference();
         binariesPtr.setPointer(binariesArray);
         
         IntBuffer errBuff = NIOUtils.directInts(1, ByteOrder.nativeOrder());
-        cl_program program;
-		int previousAttempts = 0;
+        int previousAttempts = 0;
+        IntBuffer statuses = NIOUtils.directInts(nDevices, ByteOrder.nativeOrder());
 		do {
-			program = CL.clCreateProgramWithBinary(context.getEntity(), nDevices, deviceIds, lengths, binariesPtr, null, errBuff);
+			entity = CL.clCreateProgramWithBinary(context.getEntity(), nDevices, deviceIds, lengths, binariesPtr, statuses, errBuff);
 		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
-        entity = program;
+        
+        built = true;
 	}
 
     /**
