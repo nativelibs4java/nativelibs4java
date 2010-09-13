@@ -1,4 +1,4 @@
-bu/*
+/*
 	Copyright (c) 2009 Olivier Chafik (http://ochafik.free.fr/)
 	
 	This file is part of OpenCL4Java (http://code.google.com/p/nativelibs4java/wiki/OpenCL).
