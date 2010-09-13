@@ -1,4 +1,4 @@
-/*
+bu/*
 	Copyright (c) 2009 Olivier Chafik (http://ochafik.free.fr/)
 	
 	This file is part of OpenCL4Java (http://code.google.com/p/nativelibs4java/wiki/OpenCL).
@@ -127,7 +127,6 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 			entity = CL.clCreateProgramWithBinary(context.getEntity(), nDevices, deviceIds, lengths, binariesPtr, statuses, errBuff);
 		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
         
-        built = true;
 	}
 
     /**
