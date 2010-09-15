@@ -49,11 +49,16 @@ object Example {
     println("filtered = " + filtered.values.toArray.toSeq)
     val arr: Array[Boolean] = filtered.presence.toArray.asInstanceOf[Array[Boolean]]
     val arrB: Array[Byte] = filtered.presence.buffer.as(classOf[Byte]).read(context.queue).getBytes(filtered.values.size.asInstanceOf[Int])
+    val packed = filtered.toCLArray
+    val pref = filtered.updatedPresencePrefixSum.toArray
+    val filteredSize = filtered.size.get
     println("filtered presence = " + arr.toSeq)
     println("filtered presence B = " + arrB.toSeq)
 
-    println("Size of filtered = " + filtered.size.get)
+    println("Size of filtered = " + filteredSize)
 
+    println("presence prefix sum = " + pref.toSeq)
+    println("Packed = " + packed.toSeq)
     //cla = a.toCL
 
     val v = cla.size //(v is not an int, it's a CLFuture[Int]

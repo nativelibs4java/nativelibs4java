@@ -41,12 +41,19 @@ trait CLCol[T] extends CLEventBound with CLArgsProvider {
   def size: CLFuture[Long]
 }
 
-trait MappableInPlace[T] {
-  @Deprecated
-  def mapInPlace(f: CLFunction[T, T]): CLCol[T]
+trait CLUpdatableCol[T] {
+  this: CLCol[T] =>
 
-}
-trait FiltrableInPlace[T] {
   @Deprecated
-  def filterInPlace(f: CLFunction[T, Boolean]): CLCol[T]
+  def update(f: CLFunction[T, T]): ThisCol[T]
+
+  def update(f: T => T): ThisCol[T]
+}
+trait CLUpdatableFilteredCol[T] {
+  this: CLCol[T] =>
+  
+  @Deprecated
+  def refineFilter(f: CLFunction[T, Boolean]): ThisCol[T]
+
+  def refineFilter(f: T => Boolean): ThisCol[T]
 }

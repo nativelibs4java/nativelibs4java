@@ -17,7 +17,7 @@ class CLArray[T](
   context: ScalaCLContext
 )
 extends CLCol[T]
-   with MappableInPlace[T]
+   with CLUpdatableCol[T]
 {
   type ThisCol[T] = CLArray[T]
 
@@ -36,9 +36,15 @@ extends CLCol[T]
   
   private val localSizes = Array(1)
 
-  override def map[V](f: T => V)(implicit v: ClassManifest[V]): CLArray[V] = {
+  override def update(f: T => T): CLArray[T] =
+    doMap(f, this)
+
+  override def map[V](f: T => V)(implicit v: ClassManifest[V]): CLArray[V] =
+    doMap(f, new CLArray[V](buffer.size))
+          
+  protected def doMap[V](f: T => V, out: CLArray[V])(implicit v: ClassManifest[V]): CLArray[V] = {
+
     println("map should not be called directly, you haven't run the compiler plugin or it failed")
-    val out = new CLArray[V](buffer.size)
     readBlock {
       val ptr = buffer.toPointer
       val newPtr = if (v.erasure.equals(t.erasure))
@@ -60,7 +66,7 @@ extends CLCol[T]
     }
     out
   }
-  override def mapInPlace(f: CLFunction[T, T]): CLArray[T] = {
+  override def update(f: CLFunction[T, T]): CLArray[T] = {
     doMap(f, this)
     this
   }

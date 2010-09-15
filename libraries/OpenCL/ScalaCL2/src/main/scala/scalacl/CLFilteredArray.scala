@@ -21,9 +21,11 @@ class CLFilteredArray[T](
   context: ScalaCLContext
 ) 
 extends CLCol[T] 
-   with FiltrableInPlace[T]
-   with MappableInPlace[T]
+   with CLUpdatableFilteredCol[T]
+   with CLUpdatableCol[T]
 {
+  type ThisCol[T] = CLFilteredArray[T]
+  
   val presence = if (initialPresence == null)
     new CLGuardedBuffer(context.context.createBuffer(CLMem.Usage.InputOutput, classOf[Boolean], values.size))
   else
@@ -50,7 +52,15 @@ extends CLCol[T]
   def drop(n: Long): CLCol[T] = clone(start, end - n)
 
   def zipWithIndex: ThisCol[(T, Long)] = error("Zip with index not implemented yet")
-  def toCLArray: CLArray[T] = error("Conversion from filtered array to array not implemented yet, needs prefix sum implementation")
+  def toCLArray: CLArray[T] = {
+    val prefixSum = updatedPresencePrefixSum
+    val size = this.size.get
+    //copyPrefixed[T](size: Long, presencePrefix: CLGuardedBuffer[Long], in: CLGuardedBuffer[T], out: CLGuardedBuffer[T])(implicit t: ClassManifest[T], context: ScalaCLContext) = {
+  
+    val out = new CLGuardedBuffer[T](size)
+    ScalaCLUtils.copyPrefixed(size, prefixSum, values, out)
+    new CLArray(out)
+  }
 
   var prefixSumUpToDate = false
   def updatedPresencePrefixSum = this.synchronized {
@@ -67,9 +77,14 @@ extends CLCol[T]
     //new CLInstantFuture(ps.toArray.last)
   }
 
-  override def map[V](f: T => V)(implicit v: ClassManifest[V]): CLFilteredArray[V] = {
+  override def update(f: T => T): CLFilteredArray[T] =
+    doMap(f, this)
+
+  override def map[V](f: T => V)(implicit v: ClassManifest[V]): CLFilteredArray[V] =
+    doMap(f, new CLFilteredArray(new CLGuardedBuffer[V](values.size), presence.clone, start, end))
+          
+  protected def doMap[V](f: T => V, out: CLFilteredArray[V])(implicit v: ClassManifest[V]): CLFilteredArray[V] = {
     println("map should not be called directly, you haven't run the compiler plugin or it failed")
-    val out = new CLFilteredArray(new CLGuardedBuffer[V](values.size), presence.clone, start, end)
     readBlock {
       val ptr = values.toPointer
       val presencePtr = presence.toPointer
@@ -95,7 +110,7 @@ extends CLCol[T]
     }
     out
   }
-  override def mapInPlace(f: CLFunction[T, T]): CLFilteredArray[T] = {
+  override def update(f: CLFunction[T, T]): CLFilteredArray[T] = {
     this.synchronized {
       prefixSumUpToDate = false
       doMap(f, this)
@@ -133,10 +148,15 @@ extends CLCol[T]
     out
   }
 
+  override def refineFilter(f: T => Boolean): CLFilteredArray[T] =
+    doFilter(f, this)
 
-  override def filter(f: T => Boolean): CLFilteredArray[T] = {
+  override def filter(f: T => Boolean): CLFilteredArray[T] =
+    doFilter(f, new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size), start, end))
+
+  protected def doFilter(f: T => Boolean, out: CLFilteredArray[T]): CLFilteredArray[T] = {
     println("filter should not be called directly, you haven't run the compiler plugin or it failed")
-    val out = new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size), start, end)
+    //val out = new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size), start, end)
     
     val ptr = values.toPointer
     val presencePtr = presence.toPointer
@@ -157,7 +177,7 @@ extends CLCol[T]
   override def filter(f: CLFunction[T, Boolean]): CLFilteredArray[T] =
     filter(f, new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size), start, end))
 
-  override def filterInPlace(f: CLFunction[T, Boolean]): CLFilteredArray[T] =
+  override def refineFilter(f: CLFunction[T, Boolean]): CLFilteredArray[T] =
     this.synchronized {
       prefixSumUpToDate = false
       filter(f, this)
