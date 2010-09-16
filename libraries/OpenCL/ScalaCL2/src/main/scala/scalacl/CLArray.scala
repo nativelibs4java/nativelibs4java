@@ -13,8 +13,8 @@ import org.bridj.SizeT
 class CLArray[T](
   val buffer: CLGuardedBuffer[T]
 )(
-  implicit t: ClassManifest[T],
-  context: ScalaCLContext
+  implicit val t: ClassManifest[T],
+  val context: ScalaCLContext
 )
 extends CLCol[T]
    with CLUpdatableCol[T]
@@ -24,7 +24,7 @@ extends CLCol[T]
   def this(fixedSize: Long)(implicit t: ClassManifest[T], context: ScalaCLContext) =
     this(new CLGuardedBuffer(context.context.createBuffer[T](CLMem.Usage.InputOutput, t.erasure.asInstanceOf[Class[T]], fixedSize)))
 
-  def args = Seq(buffer.buffer)
+  //def args = Seq(buffer.buffer)
 
   val elementClass = t.erasure.asInstanceOf[Class[T]]
   
@@ -140,6 +140,6 @@ extends CLCol[T]
   override def take(n: Long) = new CLArray(buffer.clone(0, n))
   override def drop(n: Long) = new CLArray(buffer.clone(n, buffer.size))
 
-  def view: CLView[T, ThisCol[T]] = error("Not implemented")
-  def zipWithIndex: ThisCol[(T, Long)] = error("Not implemented")
+  def view: CLView[T, ThisCol[T]] = new CLArrayView[T, T, CLArray[T]](this, 0, buffer.size, null, null, null, null)
+  def zipWithIndex: ThisCol[(T, Long)] = notImp
 }

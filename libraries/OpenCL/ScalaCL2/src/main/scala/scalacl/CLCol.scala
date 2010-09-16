@@ -9,11 +9,7 @@ package scalacl
 
 import org.bridj.StructObject
 
-trait CLArgsProvider {
-  def args: Seq[Any]
-}
-
-trait CLCol[T] extends CLEventBound with CLArgsProvider {
+trait CLCol[T] extends CLEventBound {
   protected type ThisCol[T] <: CLCol[T]
 
   @Deprecated
@@ -23,20 +19,21 @@ trait CLCol[T] extends CLEventBound with CLArgsProvider {
   @Deprecated
   def map[V](f: CLFunction[T, V])(implicit v: ClassManifest[V]): CLCol[V]
   def map[V](f: T => V)(implicit v: ClassManifest[V]): CLCol[V]
-  
+
+  protected def notImp = error("Not implemented")
   def toCLArray: CLArray[T]
-  def toArray: Array[T]
+  def toArray: Array[T] = toCLArray.toArray
   def toSeq = toArray.toSeq
   def toSet = toArray.toSet
   def toIndexedSeq = toArray.toIndexedSeq
 
   @Deprecated
-  def toMap[K <: StructObject, V <: StructObject](implicit kvi: T =:= (K, V)) = error("Not implemented yet !")
+  def toMap[K <: StructObject, V <: StructObject](implicit kvi: T =:= (K, V)) = notImp
   
   def view: CLView[T, ThisCol[T]]
   def slice(from: Long, to: Long): CLCol[T]
-  def take(n: Long): CLCol[T]
-  def drop(n: Long): CLCol[T]
+  def take(n: Long): CLCol[T] = slice(n, size.get)
+  def drop(n: Long): CLCol[T] = slice(0, size.get - n)
   def zipWithIndex: CLCol[(T, Long)]
   def size: CLFuture[Long]
 }

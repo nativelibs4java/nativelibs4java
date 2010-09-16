@@ -10,7 +10,7 @@ import org.bridj.SizeT
 
 object ScalaCLUtils {
 
-  lazy val prefixSumCode = new CLCode("""
+  lazy val prefixSumCode = new CLSimpleCode("""
     __kernel void prefSum(size_t size, __global const char* in, __global long* out) {
       size_t i = get_global_id(0);
       size_t j;
@@ -36,7 +36,7 @@ object ScalaCLUtils {
       })
     }
   }
-  lazy val copyPrefixedCode = new CLCode("""
+  lazy val copyPrefixedCode = new CLSimpleCode("""
     __kernel void copyPrefixed(
         size_t size,
         __global const long* presencePrefix,

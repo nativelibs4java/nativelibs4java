@@ -8,7 +8,7 @@ import com.nativelibs4java.opencl._
 import org.bridj.Pointer
 import org.bridj.Pointer._
 
-class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit t: ClassManifest[T], context: ScalaCLContext) extends CLEventBound with CLArgsProvider {
+class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit t: ClassManifest[T], context: ScalaCLContext) extends CLEventBound {
   lazy val elementClass = t.erasure.asInstanceOf[Class[T]]
   //val buffer = context.context.createBuffer[T](CLMem.Usage.InputOutput, elementClass, fixedSize)
 

@@ -13,9 +13,7 @@ import scala.collection.JavaConversions._
 
 class CLFilteredArray[T](
   val values: CLGuardedBuffer[T],
-  initialPresence: CLGuardedBuffer[Boolean],
-  val start: Long,
-  val end: Long
+  initialPresence: CLGuardedBuffer[Boolean]
 )(
   implicit t: ClassManifest[T],
   context: ScalaCLContext
@@ -34,29 +32,23 @@ extends CLCol[T]
   lazy val presencePrefixSum = new CLGuardedBuffer[Long](values.size)
 
   def this(array: CLGuardedBuffer[T])(implicit t: ClassManifest[T], context: ScalaCLContext) = this(
-    array, null, 0, array.size)
+    array, null)
 
-  def args = Seq(values.buffer, presence.buffer)
-
-  def toArray: Array[T] = toCLArray.toArray
+  //def args = Seq(values.buffer, presence.buffer)
 
   override def clone =
-    new CLFilteredArray(values.clone, presence.clone, start, end)
+    new CLFilteredArray(values.clone, presence.clone)
   
   def clone(newStart: Long, newEnd: Long) =
-    new CLFilteredArray(values.clone(newStart, newEnd), presence.clone(newStart, newEnd), 0, newEnd - newStart)
+    new CLFilteredArray(values.clone(newStart, newEnd), presence.clone(newStart, newEnd))
 
-  def view: CLView[T, ThisCol[T]] = error("Not implemented")
-  def slice(from: Long, to: Long): CLCol[T] = clone(start + from, start + to)
-  def take(n: Long): CLCol[T] = clone(n, end)
-  def drop(n: Long): CLCol[T] = clone(start, end - n)
-
-  def zipWithIndex: ThisCol[(T, Long)] = error("Zip with index not implemented yet")
+  def view: CLView[T, ThisCol[T]] = notImp
+  def slice(from: Long, to: Long): CLCol[T] = notImp
+  
+  def zipWithIndex: ThisCol[(T, Long)] = notImp
   def toCLArray: CLArray[T] = {
     val prefixSum = updatedPresencePrefixSum
     val size = this.size.get
-    //copyPrefixed[T](size: Long, presencePrefix: CLGuardedBuffer[Long], in: CLGuardedBuffer[T], out: CLGuardedBuffer[T])(implicit t: ClassManifest[T], context: ScalaCLContext) = {
-  
     val out = new CLGuardedBuffer[T](size)
     ScalaCLUtils.copyPrefixed(size, prefixSum, values, out)
     new CLArray(out)
@@ -81,7 +73,7 @@ extends CLCol[T]
     doMap(f, this)
 
   override def map[V](f: T => V)(implicit v: ClassManifest[V]): CLFilteredArray[V] =
-    doMap(f, new CLFilteredArray(new CLGuardedBuffer[V](values.size), presence.clone, start, end))
+    doMap(f, new CLFilteredArray(new CLGuardedBuffer[V](values.size), presence.clone))
           
   protected def doMap[V](f: T => V, out: CLFilteredArray[V])(implicit v: ClassManifest[V]): CLFilteredArray[V] = {
     println("map should not be called directly, you haven't run the compiler plugin or it failed")
@@ -118,7 +110,7 @@ extends CLCol[T]
     this
   }
   override def map[V](f: CLFunction[T, V])(implicit v: ClassManifest[V]): CLFilteredArray[V] = {
-    val out = new CLFilteredArray(new CLGuardedBuffer[V](values.size), presence.clone, start, end)
+    val out = new CLFilteredArray(new CLGuardedBuffer[V](values.size), presence.clone)
     doMap(f, out)
     out
   }
@@ -152,7 +144,7 @@ extends CLCol[T]
     doFilter(f, this)
 
   override def filter(f: T => Boolean): CLFilteredArray[T] =
-    doFilter(f, new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size), start, end))
+    doFilter(f, new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size)))
 
   protected def doFilter(f: T => Boolean, out: CLFilteredArray[T]): CLFilteredArray[T] = {
     println("filter should not be called directly, you haven't run the compiler plugin or it failed")
@@ -175,7 +167,7 @@ extends CLCol[T]
   }
   
   override def filter(f: CLFunction[T, Boolean]): CLFilteredArray[T] =
-    filter(f, new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size), start, end))
+    filter(f, new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size)))
 
   override def refineFilter(f: CLFunction[T, Boolean]): CLFilteredArray[T] =
     this.synchronized {
@@ -185,7 +177,7 @@ extends CLCol[T]
 
 
   protected def filter(f: CLFunction[T, Boolean], out: CLFilteredArray[T]): CLFilteredArray[T] = {
-    val out = new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size), start, end)
+    val out = new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size))
 
     val kernel = f.getKernel(context, this, out)
     assert(values.size <= Int.MaxValue)

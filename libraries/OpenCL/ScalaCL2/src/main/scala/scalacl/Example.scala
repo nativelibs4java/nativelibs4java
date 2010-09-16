@@ -20,31 +20,13 @@ object Example {
     var cla = new CLArray[Int](10)
     val mapped = cla.map(_ + 10)
 
-    lazy val f = new CLFunction[Int, Int]("""
-      __kernel void map(size_t size, __global const int* in, __global int* out) {
-        size_t i = get_global_id(0);
-        if (i >= size)
-          return;
-        int v = in[i] + i;
-        out[i] = v * (v - 1);
-      }
-    """)
-    val clMapped = mapped.map(f)
+    val clMapped = mapped.map[Int]((Seq("int v = _ + $i;"), "v * (v - 1)"))
 
     println("original = " + cla.toArray.toSeq)
     println("mapped = " + mapped.toArray.toSeq)
     println("clMapped = " + clMapped.toArray.toSeq)
 
-    lazy val filter = new CLFunction[Int, Boolean]("""
-      __kernel void filter(size_t size, __global const int* in, __global char* out) {
-        size_t i = get_global_id(0);
-        if (i >= size)
-          return;
-        int v = in[i];
-        out[i] = (v % 10) == 0;// | ((i % 1) << 2);
-      }
-    """)
-    val filtered = clMapped.filter(filter)
+    val filtered = clMapped.filter("(_ % 10) == 0")
     filtered.waitFor
     println("filtered = " + filtered.values.toArray.toSeq)
     val arr: Array[Boolean] = filtered.presence.toArray.asInstanceOf[Array[Boolean]]
