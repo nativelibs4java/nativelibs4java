@@ -31,31 +31,7 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[
   def toPointer: Pointer[T] =
     readValue(evts => buffer.read(context.queue, evts:_*))
 
-  def toArray: Array[T] = {
-    val c = elementClass
-    val p = toPointer
-    val s = size.asInstanceOf[Int]
-    (
-      if (c == classOf[Int])
-        p.getInts(s)
-      else if (c == classOf[Long])
-        p.getLongs(s)
-      else if (c == classOf[Short])
-        p.getShorts(s)
-      else if (c == classOf[Byte])
-        p.getBytes(s)
-      else if (c == classOf[Char])
-        p.getChars(s)
-      else if (c == classOf[Double])
-        p.getDoubles(s)
-      else if (c == classOf[Float])
-        p.getFloats(s)
-      else if (c == classOf[java.lang.Boolean] || c == classOf[Boolean])
-        p.getBooleans(s)
-      else if (classOf[Object].isAssignableFrom(c))
-        p.toArray(new Array[T](s).asInstanceOf[Array[Object]])
-    ).asInstanceOf[Array[T]]
-  }
+  def toArray: Array[T] = toPointer.getArray.asInstanceOf[Array[T]]
   
   val size = buffer.getElementCount
 
