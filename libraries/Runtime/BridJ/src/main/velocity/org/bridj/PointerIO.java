@@ -21,6 +21,14 @@ public abstract class PointerIO<T> {
 	}
 	abstract T get(Pointer<T> pointer, long index);
 	abstract void set(Pointer<T> pointer, long index, T value);
+	public Object getArray(Pointer<T> pointer, long byteOffset, int length) {
+		return pointer.offset(byteOffset).toArray(length);
+	}
+	public void setArray(Pointer<T> pointer, long byteOffset, Object array) {
+		Object[] a = (Object[])array;
+		for (int i = 0, n = a.length; i < n; i++)
+			set(pointer, i, (T)a[i]);
+	}
 	
 	public T castTarget(long peer) {
 		throw new UnsupportedOperationException("Cannot cast pointer to " + targetType);

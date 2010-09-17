@@ -183,7 +183,21 @@ class CommonPointerIOs {
 		@Override
 		public void set(Pointer<${prim.WrapperName}> pointer, long index, ${prim.WrapperName} value) {
 			pointer.set${prim.CapName}(index * ${prim.Size}, value);
-		}		
+		}
+		
+		@Override
+		public Object getArray(Pointer<${prim.WrapperName}> pointer, long byteOffset, int length) {
+			return pointer.get${prim.CapName}s(byteOffset, length);
+		}
+		
+		@Override
+		public void setArray(Pointer<${prim.WrapperName}> pointer, long byteOffset, Object array) {
+			if (array instanceof ${prim.Name}[])
+				pointer.set${prim.CapName}s(byteOffset, (${prim.Name}[])array);
+			else
+				super.setArray(pointer, byteOffset, array);
+		}
+	
 	};
 
 #end

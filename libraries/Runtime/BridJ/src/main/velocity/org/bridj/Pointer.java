@@ -1429,6 +1429,58 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return this;
 	}
 	
+	/**
+	 * Read an array of elements from the pointed memory location shifted by a byte offset.<br>
+	 * For pointers to primitive types (e.g. {@code Pointer<Integer> }), this method returns primitive arrays (e.g. {@code int[] }), unlike {@link Pointer#toArray } (which returns arrays of objects so primitives end up being boxed, e.g. {@code Integer[] })
+	 * @return an array of values of the requested length. The array is an array of primitives if the pointer's target type is a primitive or a boxed primitive type
+	 */
+	public Object getArray(long byteOffset, int length) {
+		PointerIO<T> io = getIO();
+        if (io == null)
+            throwBecauseUntyped("Cannot create sublist");
+
+        return io.getArray(this, byteOffset, length);	
+	}
+	
+	/**
+	 * Read an array of elements from the pointed memory location.<br>
+	 * For pointers to primitive types (e.g. {@code Pointer<Integer> }), this method returns primitive arrays (e.g. {@code int[] }), unlike {@link Pointer#toArray } (which returns arrays of objects so primitives end up being boxed, e.g. {@code Integer[] })
+	 * @return an array of values of the requested length. The array is an array of primitives if the pointer's target type is a primitive or a boxed primitive type
+	 */
+	public Object getArray(int length) {
+		return getArray(0L, length);	
+	}
+	
+	/**
+	 * Read the array of remaining elements from the pointed memory location.<br>
+	 * For pointers to primitive types (e.g. {@code Pointer<Integer> }), this method returns primitive arrays (e.g. {@code int[] }), unlike {@link Pointer#toArray } (which returns arrays of objects so primitives end up being boxed, e.g. {@code Integer[] })
+	 * @return an array of values of the requested length. The array is an array of primitives if the pointer's target type is a primitive or a boxed primitive type
+	 */
+	public Object getArray() {
+		return getArray(0L, (int)getRemainingElements());	
+	}
+	
+	/**
+	 * Write an array of elements to the pointed memory location shifted by a byte offset.<br>
+	 * For pointers to primitive types (e.g. {@code Pointer<Integer> }), this method accepts primitive arrays (e.g. {@code int[] }) instead of arrays of boxed primitives (e.g. {@code Integer[] })
+	 */
+	public Pointer<T> setArray(long byteOffset, Object array) {
+		PointerIO<T> io = getIO();
+        if (io == null)
+            throwBecauseUntyped("Cannot create sublist");
+
+        io.setArray(this, byteOffset, array);
+        return this;
+	}
+	
+	/**
+	 * Write an array of elements to the pointed memory location.<br>
+	 * For pointers to primitive types (e.g. {@code Pointer<Integer> }), this method accepts primitive arrays (e.g. {@code int[] }) instead of arrays of boxed primitives (e.g. {@code Integer[] })
+	 */
+	public Pointer<T> setArray(Object array) {
+		return setArray(0L, array);
+	}
+	
 	#foreach ($sizePrim in ["SizeT", "CLong"])
 	
 #docAllocateCopy($sizePrim $sizePrim)
@@ -2463,8 +2515,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         if (validEnd == UNKNOWN_VALIDITY)
         	throw new IndexOutOfBoundsException("Length of pointed memory is unknown, cannot create array out of this pointer");
 
-        Class<?> c = Utils.getClass(io.getTargetType());
-        return (T[])toArray((Object[])Array.newInstance(c, (int)getRemainingElements()));
+        return toArray((int)getRemainingElements());
+	}
+	
+	T[] toArray(int length) {
+		Class<?> c = Utils.getClass(io.getTargetType());
+        return (T[])toArray((Object[])Array.newInstance(c, length));
 	}
 	
     /**
