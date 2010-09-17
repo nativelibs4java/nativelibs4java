@@ -3,16 +3,17 @@
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>scalacl2-bridj</artifactId>
-  <name>ScalaCL2 / BridJ</name>
+  <artifactId>scalacl-compiler</artifactId>
+  <name>ScalaCL Compiler Plugin</name>
   <url>http://code.google.com/p/scalacl/</url>
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
 	  <description>
-ScalaCL is a Domain Specific Language (DSL) that makes it trivial to write parallel expressions that evaluate on the GPU in Scala.
-It is based on JavaCL for the Java/OpenCL interop.
-For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL.
+ScalaCL provides data structures that leverage the OpenCL library to execute operations on GPUs.
+This plugin transforms some Scala functions into OpenCL kernels so they can effectively execute in the OpenCL land instead of in the JVM.
+It will also soon feature some limited OpenCL-backed autovectorization.
+For more info, please visit http://code.google.com/p/scalacl
 	</description>
 	
   <parent>
@@ -23,19 +24,17 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   </parent>
 
   <dependencies>
-  	<!--
+  
   	<dependency>
 		<groupId>org.scala-lang</groupId>
 		<artifactId>scala-compiler</artifactId>
 		<version>${scala.version}</version>
 	</dependency>
-	-->
         
   	<dependency>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>javacl-bridj</artifactId>
-	  <version>${opencl4java.version}</version>
-	  <scope>compile</scope>
+  	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>scalacl2-bridj</artifactId>
+	  <version>1.0-SNAPSHOT</version>
 	</dependency>
 	
 	<dependency>

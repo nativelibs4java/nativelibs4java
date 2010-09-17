@@ -19,16 +19,17 @@ object CLFunction {
 }
 
 class CLFunction[A, B](
+  val function: A => B,
   declarations: Seq[String],
-  expression: String,
+  val expression: String,
   includedSources: Seq[String],
   inVar: String = "_",
   indexVar: String = "$i",
   sizeVar: String = "$size"
 )(
   implicit
-  aIO: CLDataIO[A],
-  bIO: CLDataIO[B]
+  val aIO: CLDataIO[A],
+  val bIO: CLDataIO[B]
 )
 extends CLCode
 {
@@ -40,7 +41,7 @@ extends CLCode
       java.util.regex.Matcher.quoteReplacement(s)// + "($|\\b)"
     rx
   }
-  def replaceAllButIn(s: String) = {
+  def replaceAllButIn(s: String) = if (s == null) null else {
     var r = s.replaceAll(toRxb(indexVar), "i")
     r = r.replaceAll(toRxb(sizeVar), "size")
     r
@@ -49,7 +50,7 @@ extends CLCode
   val tb = clType[B]
   val inParam = "__global const " + ta + "* in"
   val outParam = "__global " + tb + "* out"
-  def replaceForFunction(s: String) = {
+  def replaceForFunction(s: String) = if (s == null) null else {
     var r = replaceAllButIn(s)
     r = r.replaceAll(toRxb(inVar), "(*in)")
     r
@@ -64,7 +65,7 @@ extends CLCode
           return;
   """
   val funDecls = declarations.map(replaceForFunction).reduceLeftOption(_ + "\n" + _).getOrElse("")
-  val functionSource = """
+  val functionSource = if (expression == null) null else """
       inline void """ + functionName + """(
           """ + inParam + """,
           """ + outParam + """
@@ -75,12 +76,12 @@ extends CLCode
       }
   """
 
-  def replaceForKernel(s: String) = replaceAllButIn(s).replaceAll(toRxb(inVar), "in[i]")
+  def replaceForKernel(s: String) = if (s == null) null else replaceAllButIn(s).replaceAll(toRxb(inVar), "in[i]")
   val assignt = "out[i] = " + replaceForKernel(expression) + ";"
 
   val presenceParam = "__global const char* presence"
   val kernDecls = declarations.map(replaceForKernel).reduceLeftOption(_ + "\n" + _).getOrElse("")
-  val kernelsSource = """
+  val kernelsSource = if (expression == null) null else """
       __kernel void array(
           size_t size,
           """ + inParam + """,
@@ -104,34 +105,24 @@ extends CLCode
       }
   """
 
-  val sourcesToInclude = includedSources ++ Seq(functionSource)
-  override val sources = sourcesToInclude ++ Seq(kernelsSource)
+  val sourcesToInclude = if (expression == null) null else includedSources ++ Seq(functionSource)
+  override val sources = if (expression == null) null else sourcesToInclude ++ Seq(kernelsSource)
   override val macros = Map[String, String]()
   override val compilerArguments = Seq[String]()
   
-  //def functionSource = sources.reduceLeft(_ + "\n" + _)
   import CLFunction._
-  /*
-  def composed[C](f: CLFunction[B, C])(implicit c: ClassManifest[C]): CLFunction[A, C] = {
-    compositions.synchronized {
-      compositions.getOrElseUpdate((uid, f.uid), {
-        new CLFunction[A, C](Seq(), f.functionName + "(" + functionName + "(_))", sourcesToInclude ++ f.sourcesToInclude).asInstanceOf[CLFunction[_, _]]
-      }).asInstanceOf[CLFunction[A, C]]
-    }
-  }
-  */
   def compose[C](f: CLFunction[C, A])(implicit cIO: CLDataIO[C]): CLFunction[C, B] = {
     compositions.synchronized {
       compositions.getOrElseUpdate((uid, f.uid), {
-        new CLFunction[C, B](Seq(), functionName + "(" + f.functionName + "(_))", sourcesToInclude ++ f.sourcesToInclude).asInstanceOf[CLFunction[_, _]]
+        new CLFunction[C, B](function.compose(f.function), Seq(), functionName + "(" + f.functionName + "(_))", sourcesToInclude ++ f.sourcesToInclude).asInstanceOf[CLFunction[_, _]]
       }).asInstanceOf[CLFunction[C, B]]
     }
   }
 
-  def and(f: CLFunction[A, B]): CLFunction[A, B] = {
+  def and(f: CLFunction[A, B])(implicit el: B =:= Boolean): CLFunction[A, B] = {
     ands.synchronized {
       ands.getOrElseUpdate((uid, f.uid), {
-        new CLFunction[A, B](Seq(), "(" + functionName + "(_) && " + f.functionName + "(_))", sourcesToInclude ++ f.sourcesToInclude).asInstanceOf[CLFunction[_, _]]
+        new CLFunction[A, B](a => (function(a) && f.function(a)).asInstanceOf[B], Seq(), "(" + functionName + "(_) && " + f.functionName + "(_))", sourcesToInclude ++ f.sourcesToInclude).asInstanceOf[CLFunction[_, _]]
       }).asInstanceOf[CLFunction[A, B]]
     }
   }

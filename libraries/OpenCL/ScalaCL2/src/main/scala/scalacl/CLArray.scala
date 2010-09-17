@@ -35,16 +35,16 @@ extends CLCol[T]
   
   private val localSizes = Array(1)
 
-  override def update(f: T => T): CLArray[T] =
-    doMap(f, this)
+  protected def updateFun(f: T => T): CLArray[T] =
+    doMapFun(f, this)
 
-  override def map[V](f: T => V)(implicit vIO: CLDataIO[V]): CLArray[V] = {
+  protected def mapFun[V](f: T => V)(implicit vIO: CLDataIO[V]): CLArray[V] = {
     val out = CLArray[V](longSize)
     implicit val t = out.t
-    doMap(f, out)
+    doMapFun(f, out)
   }
           
-  protected def doMap[V](f: T => V, out: CLArray[V])(implicit vIO: CLDataIO[V]): CLArray[V] = {
+  protected def doMapFun[V](f: T => V, out: CLArray[V])(implicit vIO: CLDataIO[V]): CLArray[V] = {
 
     println("map should not be called directly, you haven't run the compiler plugin or it failed")
     readBlock {
@@ -71,13 +71,22 @@ extends CLCol[T]
     out
   }
   override def update(f: CLFunction[T, T]): CLArray[T] = {
-    doMap(f, this)
-    this
+    if (f.expression == null)
+      updateFun(f.function)
+    else {
+      doMap(f, this)
+      this
+    }
   }
-  override def map[V](f: CLFunction[T, V])(implicit vIO: CLDataIO[V]): CLArray[V] = {
-    val out = CLArray[V](longSize)
-    doMap(f, out)
-    out
+  override def map[V](f: CLFunction[T, V]): CLArray[V] = {
+    implicit val vIO = f.bIO
+    if (f.expression == null)
+      mapFun(f.function)
+    else {
+      val out = CLArray[V](longSize)
+      doMap(f, out)
+      out
+    }
   }
 
   protected def doMap[V](f: CLFunction[T, V], out: CLArray[V]) = {
@@ -95,7 +104,7 @@ extends CLCol[T]
   }
 
 
-  override def filter(f: T => Boolean): CLCol[T] = {
+  protected def filterFun(f: T => Boolean): CLFilteredArray[T] = {
     println("filter should not be called directly, you haven't run the compiler plugin or it failed")
     val out = new CLFilteredArray[T](buffers)
     readBlock {
@@ -117,19 +126,23 @@ extends CLCol[T]
     out
   }
   override def filter(f: CLFunction[T, Boolean]): CLFilteredArray[T] = {
-    val out = new CLFilteredArray[T](buffers)
-    val kernel = f.getKernel(context, this, out, "array")
-    assert(longSize <= Int.MaxValue)
-    val globalSizes = Array(longSize.asInstanceOf[Int])
-    kernel.synchronized {
-      
-      kernel.setArgs((Seq(new SizeT(longSize)) ++ buffers.map(_.buffer) ++ Seq(out.presence.buffer)):_*)
-      // TODO cut size bigger than int into global and local sizes
-      syncAll(buffersList)(List(out.presence.asInstanceOf[CLGuardedBuffer[Any]]))(evts => {
-        kernel.enqueueNDRange(context.queue, globalSizes, localSizes, evts:_*)
-      })
+    if (f.expression == null)
+      filterFun(f.function)
+    else {
+      val out = new CLFilteredArray[T](buffers)
+      val kernel = f.getKernel(context, this, out, "array")
+      assert(longSize <= Int.MaxValue)
+      val globalSizes = Array(longSize.asInstanceOf[Int])
+      kernel.synchronized {
+
+        kernel.setArgs((Seq(new SizeT(longSize)) ++ buffers.map(_.buffer) ++ Seq(out.presence.buffer)):_*)
+        // TODO cut size bigger than int into global and local sizes
+        syncAll(buffersList)(List(out.presence.asInstanceOf[CLGuardedBuffer[Any]]))(evts => {
+          kernel.enqueueNDRange(context.queue, globalSizes, localSizes, evts:_*)
+        })
+      }
+      out
     }
-    out
   }
 
   def longSize = buffers(0).size

@@ -73,13 +73,13 @@ extends CLCol[T]
     //new CLInstantFuture(ps.toArray.last)
   }
 
-  override def update(f: T => T): CLFilteredArray[T] =
-    doMap(f, this)
+  protected def updateFun(f: T => T): CLFilteredArray[T] =
+    doMapFun(f, this)
 
-  override def map[V](f: T => V)(implicit vIO: CLDataIO[V]): CLFilteredArray[V] =
-    doMap(f, new CLFilteredArray[V](vIO.createBuffers(buffersSize), presence.clone))
+  protected def mapFun[V](f: T => V)(implicit vIO: CLDataIO[V]): CLFilteredArray[V] =
+    doMapFun(f, new CLFilteredArray[V](vIO.createBuffers(buffersSize), presence.clone))
           
-  protected def doMap[V](f: T => V, out: CLFilteredArray[V])(implicit vIO: CLDataIO[V]): CLFilteredArray[V] = {
+  protected def doMapFun[V](f: T => V, out: CLFilteredArray[V])(implicit vIO: CLDataIO[V]): CLFilteredArray[V] = {
     println("map should not be called directly, you haven't run the compiler plugin or it failed")
     readBlock {
       val ptrs = buffers.map(_.toPointer)
@@ -111,16 +111,26 @@ extends CLCol[T]
     out
   }
   override def update(f: CLFunction[T, T]): CLFilteredArray[T] = {
-    this.synchronized {
-      prefixSumUpToDate = false
-      doMap(f, this)
+    if (f.expression == null)
+      updateFun(f.function)
+    else {
+      this.synchronized {
+        prefixSumUpToDate = false
+        doMap(f, this)
+      }
+      this
     }
-    this
   }
-  override def map[V](f: CLFunction[T, V])(implicit vIO: CLDataIO[V]): CLFilteredArray[V] = {
-    val out = new CLFilteredArray[V](vIO.createBuffers(buffersSize), presence.clone)
-    doMap(f, out)
-    out
+  override def map[V](f: CLFunction[T, V]): CLFilteredArray[V] = {
+    implicit val kIO = f.aIO
+    implicit val vIO = f.bIO
+    if (f.expression == null)
+      mapFun(f.function)
+    else {
+      val out = new CLFilteredArray[V](vIO.createBuffers(buffersSize), presence.clone)
+      doMap(f, out)
+      out
+    }
   }
 
   private val localSizes = Array(1)
@@ -139,13 +149,13 @@ extends CLCol[T]
     out
   }
 
-  override def refineFilter(f: T => Boolean): CLFilteredArray[T] =
-    doFilter(f, this)
+  protected def refineFilterFun(f: T => Boolean): CLFilteredArray[T] =
+    doFilterFun(f, this)
 
-  override def filter(f: T => Boolean): CLFilteredArray[T] =
-    doFilter(f, new CLFilteredArray[T](buffers.map(_.clone), new CLGuardedBuffer[Boolean](buffersSize)))
+  protected def filterFun(f: T => Boolean): CLFilteredArray[T] =
+    doFilterFun(f, new CLFilteredArray[T](buffers.map(_.clone), new CLGuardedBuffer[Boolean](buffersSize)))
 
-  protected def doFilter(f: T => Boolean, out: CLFilteredArray[T]): CLFilteredArray[T] = {
+  protected def doFilterFun(f: T => Boolean, out: CLFilteredArray[T]): CLFilteredArray[T] = {
     println("filter should not be called directly, you haven't run the compiler plugin or it failed")
     //val out = new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size), start, end)
     
@@ -167,14 +177,21 @@ extends CLCol[T]
   }
   
   override def filter(f: CLFunction[T, Boolean]): CLFilteredArray[T] =
-    filter(f, new CLFilteredArray[T](buffers.map(_.clone), new CLGuardedBuffer[Boolean](buffersSize)))
+    if (f.expression == null)
+      filterFun(f.function)
+    else
+      filter(f, new CLFilteredArray[T](buffers.map(_.clone), new CLGuardedBuffer[Boolean](buffersSize)))
 
-  override def refineFilter(f: CLFunction[T, Boolean]): CLFilteredArray[T] =
-    this.synchronized {
-      prefixSumUpToDate = false
-      filter(f, this)
-    }
-
+  override def refineFilter(f: CLFunction[T, Boolean]): CLFilteredArray[T] = {
+    implicit val vIO = f.bIO
+    if (f.expression == null)
+      refineFilterFun(f.function)
+    else
+      this.synchronized {
+        prefixSumUpToDate = false
+        filter(f, this)
+      }
+  }
 
   protected def filter(f: CLFunction[T, Boolean], out: CLFilteredArray[T]): CLFilteredArray[T] = {
     //val out = new CLFilteredArray(buffers.map(_.clone), new CLGuardedBuffer[Boolean](longSize))

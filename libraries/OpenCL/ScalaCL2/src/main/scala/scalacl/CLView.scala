@@ -45,31 +45,40 @@ extends CLView[T, C]
       error("TODO : slicing filtered views")
   }
 
-  override def filter(f: T => Boolean): CLCol[T] = {
+  protected def filterFun(f: T => Boolean): CLArrayView[A, T, CLFilteredArray[T]] = {
     val mp: A => T = if (map == null) a => a.asInstanceOf[T] else mapFun
     val other: A => Boolean = v => f(mp(v))
     val newFilterFun: A => Boolean = if (filterFun == null) other else v => filterFun(v) && other(v)
-    new CLArrayView[A, T, C](col, start, end, mixError, mixError, newFilterFun, mapFun)
+    new CLArrayView[A, T, CLFilteredArray[T]](col, start, end, mixError, mixError, newFilterFun, mapFun)
   }
 
-  override def map[V](f: T => V)(implicit vIO: CLDataIO[V]): CLCol[V] = {
-    val newMapFun: A => V = if (map == null) a => f(a.asInstanceOf[T]) else f.compose(mapFun)
-    new CLArrayView[A, V, CLCol[V]](col, start, end, mixError, mixError, filterFun, newMapFun)
+  protected def mapFun[W](f: T => W)(implicit vIO: CLDataIO[W]): CLArrayView[A, W, CLCol[W]] = {
+    val newMapFun: A => W = if (map == null) a => f(a.asInstanceOf[T]) else f.compose(mapFun)
+    new CLArrayView[A, W, CLCol[W]](col, start, end, mixError, mixError, filterFun, newMapFun)
   }
 
-  override def map[W](f: CLFunction[T, W])(implicit wIO: CLDataIO[W]): CLArrayView[A, W, CLCol[W]] = {
-    val newFilter: CLFunction[A, Boolean] = filter
-    val newMap: CLFunction[A, W] = if (map == null) f.asInstanceOf[CLFunction[A, W]] else f.compose(map)
-    new CLArrayView[A, W, CLCol[W]](col, start, end, newFilter, newMap, mixErrorFun, mixErrorFun)
+  override def map[W](f: CLFunction[T, W]): CLArrayView[A, W, CLCol[W]] = {
+    implicit val wIO = f.bIO
+    if (f.expression == null)
+      mapFun(f.function)
+    else {
+      val newFilter: CLFunction[A, Boolean] = filter
+      val newMap: CLFunction[A, W] = if (map == null) f.asInstanceOf[CLFunction[A, W]] else f.compose(map)
+      new CLArrayView[A, W, CLCol[W]](col, start, end, newFilter, newMap, mixErrorFun, mixErrorFun)
+    }
   }
   protected def mixError[K, V]: CLFunction[K, V] = null
   protected def mixErrorFun[K, V]: K => V = _ => error("Cannot mix OpenCL functions and Scala functions in the same view !")
 
   override def filter(f: CLFunction[T, Boolean]): CLArrayView[A, T, CLFilteredArray[T]] = {
-    val otherFilter: CLFunction[A, Boolean] = if (map == null) f.asInstanceOf[CLFunction[A, Boolean]] else f.compose(map)
-    val newFilter: CLFunction[A, Boolean] = if (filter == null) otherFilter else filter.and(otherFilter)
-    val newMap: CLFunction[A, T] = map
-    new CLArrayView[A, T, CLFilteredArray[T]](col, start, end, newFilter, newMap, mixErrorFun, mixErrorFun)
+    if (f.expression == null)
+      filterFun(f.function)
+    else {
+      val otherFilter: CLFunction[A, Boolean] = if (map == null) f.asInstanceOf[CLFunction[A, Boolean]] else f.compose(map)
+      val newFilter: CLFunction[A, Boolean] = if (filter == null) otherFilter else filter.and(otherFilter)
+      val newMap: CLFunction[A, T] = map
+      new CLArrayView[A, T, CLFilteredArray[T]](col, start, end, newFilter, newMap, mixErrorFun, mixErrorFun)
+    }
   }
 
   override def view: CLView[T, CLArrayView[A, T, C]] = notImp // view view !

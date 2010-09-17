@@ -36,7 +36,7 @@ object Example {
 
 
     var cla = CLArray[Int](10)
-    val mapped = cla.map(_ + 10)
+    val mapped = cla.map((x: Int) => x + 10)
 
     val clMapped = mapped.map[Int]((Seq("int v = _ + $i;"), "v * (v - 1)"))
 

@@ -80,7 +80,7 @@ class CLColTest {
   def filterMapAndPack {
     val a = Array(1, 2, 3)
 
-    var input = CLArray[Int](10).map(_ + 10)
+    var input = CLArray[Int](10).map((_: Int) + 10)
 
     val clMapped = input.map[Int]((Seq("int v = _ + $i;"), "v * (v - 1)"))
 
