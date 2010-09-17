@@ -28,32 +28,47 @@ class CLColTest {
   @Test
   def testTuples2 {
 
-    val tup2 = clArray[(Float, Float)](3)
+    val tup = clArray[(Float, Float)](3)
     var i = 0
-    val ff2: ((Float, Float)) => (Float, Float) = { case (x, y) => i += 1; val f = i.toFloat; (f, f * f) }
-    val mapTup2 = tup2.map(ff2)
-    println("mapTup2 = " + mapTup2.toSeq)
-    equals(Seq((1.0,1.0), (2.0,4.0), (3.0,9.0)), mapTup2.toSeq)
+    val ff: ((Float, Float)) => (Float, Float) = { case (x, y) => i += 1; val f = i.toFloat; (f, f * f) }
+    val mapTup = tup.map(ff)
+    println("mapTup = " + mapTup.toSeq)
+    assertEquals(Seq((1.0,1.0), (2.0,4.0), (3.0,9.0)), mapTup.toSeq)
+    
+    val fl: ((Float, Float)) => Boolean = p => (p._1 % 2) == 1
+    val filTup = mapTup.filter(fl)
+    println("filTup = " + filTup.toSeq)
+    assertEquals(Seq((1.0,1.0), (3.0,9.0)), filTup.toSeq)
   }
   @Test
   def testTuples3 {
-    val tup3 = clArray[(Float, Float, Float)](3)
+    val tup = clArray[(Float, Float, Float)](3)
     var i = 0
-    val ff3: ((Float, Float, Float)) => (Float, Float, Float) = { case (x, y, z) => i += 1; val f = i.toFloat; (f, f * f, f * f * f) }
-    val mapTup3 = tup3.map(ff3)
+    val ff: ((Float, Float, Float)) => (Float, Float, Float) = { case (x, y, z) => i += 1; val f = i.toFloat; (f, f * f, f * f * f) }
+    val mapTup = tup.map(ff)
     //mapTup2.waitFor
-    println("mapTup3 = " + mapTup3.toSeq)
-    equals(Seq((1.0,1.0,1.0), (2.0,4.0,8.0), (3.0,9.0,27.0)), mapTup3.toSeq)
+    println("mapTup = " + mapTup.toSeq)
+    assertEquals(Seq((1.0,1.0,1.0), (2.0,4.0,8.0), (3.0,9.0,27.0)), mapTup.toSeq)
+    
+    val fl: ((Float, Float, Float)) => Boolean = p => (p._1 % 2) == 1
+    val filTup = mapTup.filter(fl)
+    println("filTup = " + filTup.toSeq)
+    assertEquals(Seq((1.0,1.0,1.0), (3.0,9.0,27.0)), filTup.toSeq)
   }
   @Test
   def testTuples12 {
-    val tup12 = clArray[(Float, (Float, Float))](3)
+    val tup = clArray[(Float, (Float, Float))](3)
     var i = 0
-    val ff12: ((Float, (Float, Float))) => (Float, (Float, Float)) = { case (x, (y, z)) => i += 1; val f = i.toFloat; (f, (f * f, f * f * f)) }
-    val mapTup12 = tup12.map(ff12)
+    val ff: ((Float, (Float, Float))) => (Float, (Float, Float)) = { case (x, (y, z)) => i += 1; val f = i.toFloat; (f, (f * f, f * f * f)) }
+    val mapTup = tup.map(ff)
     //mapTup2.waitFor
-    println("mapTup12 = " + mapTup12.toSeq)
-    equals(Seq((1.0,(1.0,1.0)), (2.0,(4.0,8.0)), (3.0,(9.0,27.0))), mapTup12.toSeq)
+    println("mapTup = " + mapTup.toSeq)
+    assertEquals(Seq((1.0,(1.0,1.0)), (2.0,(4.0,8.0)), (3.0,(9.0,27.0))), mapTup.toSeq)
+    
+    val fl: ((Float, (Float, Float))) => Boolean =  p => (p._1 % 2) == 1
+    val filTup = mapTup.filter(fl)
+    println("filTup = " + filTup.toSeq)
+    assertEquals(Seq((1.0,(1.0,1.0)), (3.0,(9.0,27.0))), filTup.toSeq)
 
   }
   @Test
