@@ -77,7 +77,7 @@ extends CLCol[T]
   }
 
   protected def doMap[V](f: CLFunction[T, V], out: CLArray[V]) = {
-    val kernel = f.getKernel(context, this, out)
+    val kernel = f.getKernel(context, this, out, "array")
     assert(buffer.size <= Int.MaxValue)
     val globalSizes = Array(buffer.size.asInstanceOf[Int])
     kernel.synchronized {
@@ -121,7 +121,7 @@ extends CLCol[T]
   }
   override def filter(f: CLFunction[T, Boolean]): CLFilteredArray[T] = {
     val out = new CLFilteredArray(buffer)
-    val kernel = f.getKernel(context, this, out)
+    val kernel = f.getKernel(context, this, out, "array")
     assert(buffer.size <= Int.MaxValue)
     val globalSizes = Array(buffer.size.asInstanceOf[Int])
     kernel.synchronized {

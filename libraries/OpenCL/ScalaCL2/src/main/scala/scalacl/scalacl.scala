@@ -6,7 +6,12 @@
 package object scalacl {
   import com.nativelibs4java.opencl._
   
-  def clType[T](implicit m: ClassManifest[T]) = m.erasure.getSimpleName.toLowerCase
+  def clType[T](implicit m: ClassManifest[T]) = m.erasure.getSimpleName.toLowerCase match {
+    case "sizet" => "size_t"
+    case "boolean" => "char"
+    case "character" => "short"
+    case n => n
+  }
 
   implicit def expression2CLFunction[K, V](expression: String)(implicit k: ClassManifest[K], v: ClassManifest[V]) =
     new CLFunction[K, V](Seq(), expression, Seq())

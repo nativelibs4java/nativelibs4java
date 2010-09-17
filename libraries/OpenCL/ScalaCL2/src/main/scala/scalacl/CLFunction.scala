@@ -36,7 +36,8 @@ extends CLCode
   lazy val functionName = "f" + uid
 
   private def toRxb(s: String) = {
-    val rx = "(^|\\b)" + java.util.regex.Matcher.quoteReplacement(s) + "($|\\b)"
+    val rx = //"(^|\\b)" +
+      java.util.regex.Matcher.quoteReplacement(s)// + "($|\\b)"
     rx
   }
   def replaceAllButIn(s: String) = {
@@ -47,7 +48,7 @@ extends CLCode
   val ta = clType[A]
   val tb = clType[B]
   val inParam = "__global const " + ta + "* in"
-  val outParam = "__global " + ta + "* out"
+  val outParam = "__global " + tb + "* out"
   def replaceForFunction(s: String) = {
     var r = replaceAllButIn(s)
     r = r.replaceAll(toRxb(inVar), "(*in)")
