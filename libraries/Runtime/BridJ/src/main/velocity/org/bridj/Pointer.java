@@ -1702,6 +1702,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     /**
+	 * Read the array of remaining ${prim.Name} values
+	 */
+    public ${prim.Name}[] get${prim.CapName}s() {
+    		long rem = getRemainingElements();
+    		if (rem < 0)
+    			throwBecauseUntyped("Cannot create array if remaining length is not known. Please use get${prim.CapName}s(int length) instead.");
+		return get${prim.CapName}s(0, (int)rem);
+    }
+    
+    /**
 	 * Read an array of ${prim.Name} values of the specified length from the pointed memory location shifted by a byte offset
 	 */
     public ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length) {
