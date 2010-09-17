@@ -11,7 +11,7 @@ import org.bridj.Pointer
 import org.bridj.Pointer._
 
 
-trait CLFuture[T] extends CLEventBound {
+trait CLFuture[T] {
   def get: T
 }
 trait CLEventFuture[T] extends CLEventBound with CLFuture[T] {
@@ -20,9 +20,8 @@ trait CLEventFuture[T] extends CLEventBound with CLFuture[T] {
   def apply = get
 }
 
-case class CLInstantFuture[T](value: T) extends CLFuture[T] {
+class CLInstantFuture[T](value: T) extends CLFuture[T] {
   override def get = value
-
 }
 case class CLPointerFuture[T](ptr: Pointer[T], evt: CLEvent) extends CLEventFuture[T] {
   lastWriteEvent = evt
@@ -32,3 +31,11 @@ case class CLPointerFuture[T](ptr: Pointer[T], evt: CLEvent) extends CLEventFutu
   })*/
   protected override def doGet = ptr.get
 }
+
+class CLTupleFuture[T](ff: Array[CLFuture[Any]], tuple: Array[Any] => T) extends CLFuture[T] {
+  override def get = tuple(ff.map(_.get))
+}
+/*
+class CLTuple2Future[T1, T2](f1: CLFuture[T1], f2: CLFuture[T2]) extends CLFuture[(T1, T2)] {
+  override def get = (f1.get, f2.get)
+}*/

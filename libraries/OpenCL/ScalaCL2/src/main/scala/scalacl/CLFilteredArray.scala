@@ -12,10 +12,10 @@ import org.bridj.SizeT
 import scala.collection.JavaConversions._
 
 class CLFilteredArray[T](
-  val values: CLGuardedBuffer[T],
+  val buffers: Array[CLGuardedBuffer[Any]],
   initialPresence: CLGuardedBuffer[Boolean]
 )(
-  implicit t: ClassManifest[T],
+  implicit dataIO: CLDataIO[T],
   context: ScalaCLContext
 ) 
 extends CLCol[T] 
@@ -25,22 +25,23 @@ extends CLCol[T]
   type ThisCol[T] = CLFilteredArray[T]
   
   val presence = if (initialPresence == null)
-    new CLGuardedBuffer(context.context.createBuffer(CLMem.Usage.InputOutput, classOf[Boolean], values.size))
+    new CLGuardedBuffer[Boolean](buffersSize)
   else
     initialPresence
 
-  lazy val presencePrefixSum = new CLGuardedBuffer[Long](values.size)
+  lazy val buffersList = buffers.toList
+  lazy val presencePrefixSum = new CLGuardedBuffer[Long](buffersSize)
 
-  def this(array: CLGuardedBuffer[T])(implicit t: ClassManifest[T], context: ScalaCLContext) = this(
-    array, null)
+  def this(buffers: Array[CLGuardedBuffer[Any]])(implicit dataIO: CLDataIO[T], context: ScalaCLContext) = this(
+    buffers, null)
 
-  //def args = Seq(values.buffer, presence.buffer)
+  //def args = Seq(buffers.buffer, presence.buffer)
 
   override def clone =
-    new CLFilteredArray(values.clone, presence.clone)
+    new CLFilteredArray[T](buffers.map(_.clone), presence.clone)
   
   def clone(newStart: Long, newEnd: Long) =
-    new CLFilteredArray(values.clone(newStart, newEnd), presence.clone(newStart, newEnd))
+    new CLFilteredArray[T](buffers.map(_.clone(newStart, newEnd)), presence.clone(newStart, newEnd))
 
   def view: CLView[T, ThisCol[T]] = notImp
   def slice(from: Long, to: Long): CLCol[T] = notImp
@@ -49,9 +50,11 @@ extends CLCol[T]
   def toCLArray: CLArray[T] = {
     val prefixSum = updatedPresencePrefixSum
     val size = this.size.get
-    val out = new CLGuardedBuffer[T](size)
-    ScalaCLUtils.copyPrefixed(size, prefixSum, values, out)
-    new CLArray(out)
+    new CLArray(buffers.map(b => {
+      val out = new CLGuardedBuffer[Any](size)(b.dataIO, context)
+      ScalaCLUtils.copyPrefixed(size, prefixSum, b, out)(b.t, context)
+      out
+    }))
   }
 
   var prefixSumUpToDate = false
@@ -62,42 +65,47 @@ extends CLCol[T]
     }
     presencePrefixSum
   }
+  def buffersSize = buffers(0).size
   def size: CLFuture[Long] = {
     //error("Filtered array size not implemented yet, needs prefix sum implementation")
     val ps = updatedPresencePrefixSum
-    ps(values.size - 1)
+    ps(buffersSize - 1)
     //new CLInstantFuture(ps.toArray.last)
   }
 
   override def update(f: T => T): CLFilteredArray[T] =
     doMap(f, this)
 
-  override def map[V](f: T => V)(implicit v: ClassManifest[V]): CLFilteredArray[V] =
-    doMap(f, new CLFilteredArray(new CLGuardedBuffer[V](values.size), presence.clone))
+  override def map[V](f: T => V)(implicit vIO: CLDataIO[V]): CLFilteredArray[V] =
+    doMap(f, new CLFilteredArray[V](vIO.createBuffers(buffersSize), presence.clone))
           
-  protected def doMap[V](f: T => V, out: CLFilteredArray[V])(implicit v: ClassManifest[V]): CLFilteredArray[V] = {
+  protected def doMap[V](f: T => V, out: CLFilteredArray[V])(implicit vIO: CLDataIO[V]): CLFilteredArray[V] = {
     println("map should not be called directly, you haven't run the compiler plugin or it failed")
     readBlock {
-      val ptr = values.toPointer
+      val ptrs = buffers.map(_.toPointer)
       val presencePtr = presence.toPointer
 
-      val newPtr = if (v.erasure.equals(t.erasure))
-        ptr.asInstanceOf[Pointer[V]]
+      val newPtrs = if (dataIO.t.erasure.equals(vIO.t.erasure))
+        ptrs
       else
-        allocateArray(v.erasure.asInstanceOf[Class[V]], values.size).order(context.order)
+        buffers.map(b => allocateArray(b.t.erasure.asInstanceOf[Class[Any]], buffersSize).order(context.order))
 
       var i = 0L
-      while (i < values.size) {
+      while (i < buffersSize) {
         if (presencePtr.get(i).booleanValue) {
-          val x = ptr.get(i)
+          val x = dataIO.extract(ptrs, i)
           val y = f(x)
-          newPtr.set(i, y)
+          vIO.store(y, newPtrs, i)
         }
         i += 1
       }
-      out.values.write(evts => {
+      syncAll(Nil)(out.buffersList)(evts => {
         assert(evts.forall(_ == null))
-        out.values.buffer.write(context.queue, newPtr, false)
+        var iBuffer = 0
+        var evt: CLEvent = null
+        while (iBuffer < buffers.length)
+          evt = out.buffers(iBuffer).buffer.write(context.queue, newPtrs(iBuffer), false, (Seq(evt) ++ evts):_*)
+        evt
       })
     }
     out
@@ -109,8 +117,8 @@ extends CLCol[T]
     }
     this
   }
-  override def map[V](f: CLFunction[T, V])(implicit v: ClassManifest[V]): CLFilteredArray[V] = {
-    val out = new CLFilteredArray(new CLGuardedBuffer[V](values.size), presence.clone)
+  override def map[V](f: CLFunction[T, V])(implicit vIO: CLDataIO[V]): CLFilteredArray[V] = {
+    val out = new CLFilteredArray[V](vIO.createBuffers(buffersSize), presence.clone)
     doMap(f, out)
     out
   }
@@ -119,23 +127,14 @@ extends CLCol[T]
 
   protected def doMap[V](f: CLFunction[T, V], out: CLFilteredArray[V]) = {
     val kernel = f.getKernel(context, this, out, "filtered")
-    assert(values.size <= Int.MaxValue)
-    val globalSizes = Array(values.size.asInstanceOf[Int])
+    assert(buffersSize <= Int.MaxValue)
+    val globalSizes = Array(buffersSize.toInt)
     kernel.synchronized {
-      kernel.setArgs(new SizeT(values.size), values.buffer, presence.buffer, out.values.buffer)
+      kernel.setArgs((Seq(new SizeT(buffersSize)) ++ buffers.map(_.buffer) ++ Seq(presence.buffer) ++ out.buffers.map(_.buffer)):_*)
       // TODO cut size bigger than int into global and local sizes
-      presence.read(presenceEvts => {
-          if (this == out)
-            values.write(evts => {
-              kernel.enqueueNDRange(context.queue, globalSizes, localSizes, (evts ++ presenceEvts):_*)
-            })
-          else
-            values.read(readEvts => {
-              out.values.write(writeEvts => {
-                kernel.enqueueNDRange(context.queue, globalSizes, localSizes, (readEvts ++ writeEvts ++ presenceEvts):_*)
-              })
-            })
-        })
+      syncAll(presence :: buffersList)(out.buffersList)(evts => {
+        kernel.enqueueNDRange(context.queue, globalSizes, localSizes, evts:_*)
+      })
     }
     out
   }
@@ -144,19 +143,20 @@ extends CLCol[T]
     doFilter(f, this)
 
   override def filter(f: T => Boolean): CLFilteredArray[T] =
-    doFilter(f, new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size)))
+    doFilter(f, new CLFilteredArray[T](buffers.map(_.clone), new CLGuardedBuffer[Boolean](buffersSize)))
 
   protected def doFilter(f: T => Boolean, out: CLFilteredArray[T]): CLFilteredArray[T] = {
     println("filter should not be called directly, you haven't run the compiler plugin or it failed")
     //val out = new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size), start, end)
     
-    val ptr = values.toPointer
+    val ptrs = buffers.map(_.toPointer)
     val presencePtr = presence.toPointer
-    val newPresencePtr = allocateBooleans(values.size).order(context.order)
+    val newPresencePtr = allocateBooleans(buffersSize).order(context.order)
 
     var i = 0L
-    while (i < values.size) {
-      newPresencePtr.set(i, presencePtr.get(i).booleanValue && f(ptr.get(i)))
+    while (i < buffersSize) {
+      val v = dataIO.extract(ptrs, i)
+      newPresencePtr.set(i, presencePtr.get(i).booleanValue && f(v))
       i += 1
     }
     out.presence.write(evts => {
@@ -167,7 +167,7 @@ extends CLCol[T]
   }
   
   override def filter(f: CLFunction[T, Boolean]): CLFilteredArray[T] =
-    filter(f, new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size)))
+    filter(f, new CLFilteredArray[T](buffers.map(_.clone), new CLGuardedBuffer[Boolean](buffersSize)))
 
   override def refineFilter(f: CLFunction[T, Boolean]): CLFilteredArray[T] =
     this.synchronized {
@@ -177,18 +177,16 @@ extends CLCol[T]
 
 
   protected def filter(f: CLFunction[T, Boolean], out: CLFilteredArray[T]): CLFilteredArray[T] = {
-    val out = new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size))
+    //val out = new CLFilteredArray(buffers.map(_.clone), new CLGuardedBuffer[Boolean](longSize))
 
     val kernel = f.getKernel(context, this, out, "filtered")
-    assert(values.size <= Int.MaxValue)
-    val globalSizes = Array(values.size.asInstanceOf[Int])
+    assert(buffersSize <= Int.MaxValue)
+    val globalSizes = Array(buffersSize.toInt)
     kernel.synchronized {
-      kernel.setArgs(new SizeT(values.size), values.buffer, presence.buffer, out.presence.buffer)
+      kernel.setArgs((Seq(new SizeT(buffersSize)) ++ buffers.map(_.buffer) ++ Seq(presence.buffer, out.presence.buffer)):_*)
       // TODO cut size bigger than int into global and local sizes
-      values.read(readEvts => {
-        out.presence.write(writeEvts => {
-          kernel.enqueueNDRange(context.queue, globalSizes, localSizes, (readEvts ++ writeEvts):_*)
-        })
+      syncAll(presence :: buffersList)(out.presence :: Nil)(evts => {
+        kernel.enqueueNDRange(context.queue, globalSizes, localSizes, evts:_*)
       })
     }
     out

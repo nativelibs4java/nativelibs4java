@@ -17,8 +17,8 @@ trait CLCol[T] extends CLEventBound {
   def filter(f: T => Boolean): CLCol[T]
 
   @Deprecated
-  def map[V](f: CLFunction[T, V])(implicit v: ClassManifest[V]): CLCol[V]
-  def map[V](f: T => V)(implicit v: ClassManifest[V]): CLCol[V]
+  def map[V](f: CLFunction[T, V])(implicit vIO: CLDataIO[V]): CLCol[V]
+  def map[V](f: T => V)(implicit vIO: CLDataIO[V]): CLCol[V]
 
   protected def notImp = error("Not implemented")
   def toCLArray: CLArray[T]

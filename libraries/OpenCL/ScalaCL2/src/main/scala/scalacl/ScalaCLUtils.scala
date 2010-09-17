@@ -61,6 +61,7 @@ object ScalaCLUtils {
     val kernel = copyPrefixedCode.getKernel(context, in, out)
     val globalSizes = Array(in.size.asInstanceOf[Int])
     val pio = PointerIO.getInstance(t.erasure)
+    assert(pio != null)
     kernel.synchronized {
       kernel.setArgs(new SizeT(in.size), presencePrefix.buffer, in.buffer, new SizeT(pio.getTargetSize), out.buffer)
       in.read(inEvts => presencePrefix.read(presEvts => {

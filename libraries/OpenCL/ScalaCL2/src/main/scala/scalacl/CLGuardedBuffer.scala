@@ -8,12 +8,12 @@ import com.nativelibs4java.opencl._
 import org.bridj.Pointer
 import org.bridj.Pointer._
 
-class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit t: ClassManifest[T], context: ScalaCLContext) extends CLEventBound {
+class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[T], context: ScalaCLContext) extends CLEventBound {
+  implicit val t = dataIO.t
   lazy val elementClass = t.erasure.asInstanceOf[Class[T]]
-  //val buffer = context.context.createBuffer[T](CLMem.Usage.InputOutput, elementClass, fixedSize)
-
-  def this(size: Long)(implicit t: ClassManifest[T], context: ScalaCLContext) =
-    this(context.context.createBuffer(CLMem.Usage.InputOutput, t.erasure.asInstanceOf[Class[T]], size))
+  
+  def this(size: Long)(implicit dataIO: CLDataIO[T], context: ScalaCLContext) =
+    this(context.context.createBuffer(CLMem.Usage.InputOutput, dataIO.pointerIO, size))
 
   def args = Seq(buffer)
 
@@ -22,11 +22,17 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit t: ClassManifest[T], 
     new CLPointerFuture[T](b, read(evts => buffer.read(context.queue, index, 1, b, false, evts:_*)))
   }
 
-  def toPointer(implicit t: ClassManifest[T]): Pointer[T] =
+  def update(index: Long, value: T): Unit = {
+    val b: Pointer[T] = allocate(elementClass)
+    b.set(value)
+    write(evts => buffer.write(context.queue, index, 1, b, false, evts:_*))
+  }
+
+  def toPointer: Pointer[T] =
     readValue(evts => buffer.read(context.queue, evts:_*))
 
-  def toArray(implicit t: ClassManifest[T]): Array[T] = {
-    val c = t.erasure
+  def toArray: Array[T] = {
+    val c = elementClass
     val p = toPointer
     val s = size.asInstanceOf[Int]
     (

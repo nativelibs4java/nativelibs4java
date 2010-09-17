@@ -25,12 +25,17 @@ class CLArrayView[A, T, C](
   filterFun: A => Boolean,
   mapFun: A => T
 )(
-  implicit t: ClassManifest[T],
+  implicit 
+  aIO: CLDataIO[A],
+  tIO: CLDataIO[T],
   context: ScalaCLContext
 )
 extends CLView[T, C]
 {
-  implicit lazy val a = col.t
+  implicit lazy val a = aIO.t
+  implicit lazy val t = tIO.t
+
+  //implicit lazy val a = col.t
   type ThisCol[T] = CLArrayView[A, T, C]
   
   override def slice(from: Long, to: Long) = {
@@ -47,12 +52,12 @@ extends CLView[T, C]
     new CLArrayView[A, T, C](col, start, end, mixError, mixError, newFilterFun, mapFun)
   }
 
-  override def map[V](f: T => V)(implicit v: ClassManifest[V]): CLCol[V] = {
+  override def map[V](f: T => V)(implicit vIO: CLDataIO[V]): CLCol[V] = {
     val newMapFun: A => V = if (map == null) a => f(a.asInstanceOf[T]) else f.compose(mapFun)
     new CLArrayView[A, V, CLCol[V]](col, start, end, mixError, mixError, filterFun, newMapFun)
   }
 
-  override def map[W](f: CLFunction[T, W])(implicit w: ClassManifest[W]): CLArrayView[A, W, CLCol[W]] = {
+  override def map[W](f: CLFunction[T, W])(implicit wIO: CLDataIO[W]): CLArrayView[A, W, CLCol[W]] = {
     val newFilter: CLFunction[A, Boolean] = filter
     val newMap: CLFunction[A, W] = if (map == null) f.asInstanceOf[CLFunction[A, W]] else f.compose(map)
     new CLArrayView[A, W, CLCol[W]](col, start, end, newFilter, newMap, mixErrorFun, mixErrorFun)
@@ -73,11 +78,13 @@ extends CLView[T, C]
 
   override def force = {
     if (filter != null) {
-      val out = new CLArray[T](col.buffer.size)
+      val out = clArray[T](col.longSize)
       // TODO : use different classes for CLFilteredArrayView
+      // TODO actually compute and write data here !
       out
     } else {
-      val out = new CLFilteredArray(new CLGuardedBuffer[T](col.buffer.size))
+      val out = new CLFilteredArray[T](tIO.createBuffers(col.longSize))
+      // TODO actually compute and write data here !
       out
     }
   }.asInstanceOf[C]

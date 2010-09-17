@@ -29,7 +29,7 @@ class CLColTest {
   def filterMapAndPack = {
     val a = Array(1, 2, 3)
 
-    var input = new CLArray[Int](10).map(_ + 10)
+    var input = clArray[Int](10).map(_ + 10)
 
     val clMapped = input.map[Int]((Seq("int v = _ + $i;"), "v * (v - 1)"))
 
@@ -41,9 +41,9 @@ class CLColTest {
     
     val filtered = clMapped.filter("(_ % 10) == 0")
     filtered.waitFor
-    println("filtered = " + filtered.values.toArray.toSeq)
+    println("filtered = " + filtered.buffers(0).toArray.toSeq)
     val arr: Array[Boolean] = filtered.presence.toArray.asInstanceOf[Array[Boolean]]
-    val arrB: Array[Byte] = filtered.presence.buffer.as(classOf[Byte]).read(context.queue).getBytes(filtered.values.size.asInstanceOf[Int])
+    val arrB: Array[Byte] = filtered.presence.buffer.as(classOf[Byte]).read(context.queue).getBytes(filtered.buffers(0).size.asInstanceOf[Int])
     val packed = filtered.toCLArray
     val pref = filtered.updatedPresencePrefixSum.toArray
     val filteredSize = filtered.size.get

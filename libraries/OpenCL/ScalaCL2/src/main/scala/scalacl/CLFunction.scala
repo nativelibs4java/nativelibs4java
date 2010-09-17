@@ -27,8 +27,8 @@ class CLFunction[A, B](
   sizeVar: String = "$size"
 )(
   implicit
-  a: ClassManifest[A],
-  b: ClassManifest[B]
+  aIO: CLDataIO[A],
+  bIO: CLDataIO[B]
 )
 extends CLCode
 {
@@ -120,7 +120,7 @@ extends CLCode
     }
   }
   */
-  def compose[C](f: CLFunction[C, A])(implicit c: ClassManifest[C]): CLFunction[C, B] = {
+  def compose[C](f: CLFunction[C, A])(implicit cIO: CLDataIO[C]): CLFunction[C, B] = {
     compositions.synchronized {
       compositions.getOrElseUpdate((uid, f.uid), {
         new CLFunction[C, B](Seq(), functionName + "(" + f.functionName + "(_))", sourcesToInclude ++ f.sourcesToInclude).asInstanceOf[CLFunction[_, _]]
