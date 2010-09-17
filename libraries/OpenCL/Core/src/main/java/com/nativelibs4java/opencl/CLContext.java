@@ -438,6 +438,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         PointerIO<T> io = PointerIO.getInstance(type);
         if (io == null)
         	throw new IllegalArgumentException("Unknown target type : " + type.getName());
+        return createBuffer(kind, io, elementCount);
+	}
+
+	public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, PointerIO<T> io, long elementCount) {
         return createBuffer(io, null, io.getTargetSize() * elementCount, kind.getIntFlags(), false);
 	}
 
