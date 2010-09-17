@@ -199,6 +199,36 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implement
         return inst(impl.tanh(returnType));
     }
 
+    //@Override
+    public Matrix asin(Ret returnType) throws MatrixException {
+        return inst(impl.asin(returnType));
+    }
+
+    //@Override
+    public Matrix acos(Ret returnType) throws MatrixException {
+        return inst(impl.acos(returnType));
+    }
+
+    //@Override
+    public Matrix asinh(Ret returnType) throws MatrixException {
+        return inst(impl.asinh(returnType));
+    }
+
+    //@Override
+    public Matrix acosh(Ret returnType) throws MatrixException {
+        return inst(impl.acosh(returnType));
+    }
+
+    //@Override
+    public Matrix atan(Ret returnType) throws MatrixException {
+        return inst(impl.atan(returnType));
+    }
+
+    //@Override
+    public Matrix atanh(Ret returnType) throws MatrixException {
+        return inst(impl.atanh(returnType));
+    }
+
     @Override
     public Matrix minus(Ret returnType, boolean ignoreNaN, Matrix m) throws MatrixException {
         return inst(impl.minus(returnType, ignoreNaN, ((CLDenseMatrix2D)m).getImpl()));

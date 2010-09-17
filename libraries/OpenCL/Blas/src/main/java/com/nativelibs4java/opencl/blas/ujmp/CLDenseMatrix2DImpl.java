@@ -216,7 +216,37 @@ public class CLDenseMatrix2DImpl<V> {
         return op1(primitive, Fun1.tanh, returnType);
     }
 
-    
+
+    public CLDenseMatrix2DImpl<V> asin(Ret returnType) throws MatrixException {
+        return op1(primitive, Fun1.asin, returnType);
+    }
+
+
+    public CLDenseMatrix2DImpl<V> acos(Ret returnType) throws MatrixException {
+        return op1(primitive, Fun1.acos, returnType);
+    }
+
+
+    public CLDenseMatrix2DImpl<V> asinh(Ret returnType) throws MatrixException {
+        return op1(primitive, Fun1.asinh, returnType);
+    }
+
+
+    public CLDenseMatrix2DImpl<V> acosh(Ret returnType) throws MatrixException {
+        return op1(primitive, Fun1.acosh, returnType);
+    }
+
+
+    public CLDenseMatrix2DImpl<V> atan(Ret returnType) throws MatrixException {
+        return op1(primitive, Fun1.atan, returnType);
+    }
+
+
+    public CLDenseMatrix2DImpl<V> atanh(Ret returnType) throws MatrixException {
+        return op1(primitive, Fun1.atanh, returnType);
+    }
+
+
     public CLDenseMatrix2DImpl<V> minus(Ret returnType, boolean ignoreNaN, CLDenseMatrix2DImpl<V> m) throws MatrixException {
         return op2(primitive, Fun2.substract, m, returnType);
     }
