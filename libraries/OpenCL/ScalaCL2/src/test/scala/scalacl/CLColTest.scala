@@ -26,7 +26,7 @@ class CLColTest {
   }
 
   @Test
-  def testTuples = {
+  def testTuples2 {
 
     val tup2 = clArray[(Float, Float)](3)
     var i = 0
@@ -34,18 +34,30 @@ class CLColTest {
     val mapTup2 = tup2.map(ff2)
     println("mapTup2 = " + mapTup2.toSeq)
     equals(Seq((1.0,1.0), (2.0,4.0), (3.0,9.0)), mapTup2.toSeq)
-
+  }
+  @Test
+  def testTuples3 {
     val tup3 = clArray[(Float, Float, Float)](3)
-    i = 0
+    var i = 0
     val ff3: ((Float, Float, Float)) => (Float, Float, Float) = { case (x, y, z) => i += 1; val f = i.toFloat; (f, f * f, f * f * f) }
     val mapTup3 = tup3.map(ff3)
     //mapTup2.waitFor
     println("mapTup3 = " + mapTup3.toSeq)
     equals(Seq((1.0,1.0,1.0), (2.0,4.0,8.0), (3.0,9.0,27.0)), mapTup3.toSeq)
+  }
+  @Test
+  def testTuples12 {
+    val tup12 = clArray[(Float, (Float, Float))](3)
+    var i = 0
+    val ff12: ((Float, (Float, Float))) => (Float, (Float, Float)) = { case (x, (y, z)) => i += 1; val f = i.toFloat; (f, (f * f, f * f * f)) }
+    val mapTup12 = tup12.map(ff12)
+    //mapTup2.waitFor
+    println("mapTup12 = " + mapTup12.toSeq)
+    equals(Seq((1.0,(1.0,1.0)), (2.0,(4.0,8.0)), (3.0,(9.0,27.0))), mapTup12.toSeq)
 
   }
   @Test
-  def filterMapAndPack = {
+  def filterMapAndPack {
     val a = Array(1, 2, 3)
 
     var input = clArray[Int](10).map(_ + 10)
