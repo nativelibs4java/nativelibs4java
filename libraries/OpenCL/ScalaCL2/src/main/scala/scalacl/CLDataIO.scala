@@ -14,6 +14,7 @@ trait CLDataIO[T] {
 
   val pointerIO: PointerIO[T]
 
+  def elements: Seq[CLDataIO[Any]]
   def clType: String
   def createBuffers(length: Long)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]]
 
@@ -58,11 +59,13 @@ object CLTupleDataIO {
 class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple: Array[Any] => T)(implicit override val t: ClassManifest[T]) extends CLDataIO[T] {
   override lazy val pointerIO: PointerIO[T] = error("Cannot create PointerIO for tuples !")
 
+  override def elements: Seq[CLDataIO[Any]] = ios.flatMap(_.elements)
+
   override def clType = {
     val types = ios.map(_.clType)
     val uniqTypes = types.toSet
     val n = ios.size
-    if (uniqTypes.size == 1 && CLTupleDataIO.builtInArities.contains(n))
+    if (uniqTypes.size == 1 && CLTupleDataIO.builtInArities.contains(n) && ios(0).isInstanceOf[CLValDataIO[_]])
       uniqTypes.head + n
     else
       "struct { " + types.reduceLeft(_ + "; " + _) + "; }"
@@ -85,7 +88,7 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
 
     
   override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Long): CLFuture[T] =
-    new CLTupleFuture(ios.map(_.extract(arrays, offset, index)), tuple)
+    new CLTupleFuture(iosAndOffsets.map { case (io, ioOffset) => io.extract(arrays, offset + ioOffset, index) }, tuple)
   
   override def store(v: T, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Long): Unit =
     iosAndOffsets.zip(values(v)).foreach { case ((io, ioOffset), vi) => io.store(vi, arrays, offset + ioOffset, index) }
@@ -98,15 +101,14 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
 
   override def exprs(arrayExpr: String): Seq[String] =
     ios.zipWithIndex.flatMap { case (io, i) => io.exprs(arrayExpr + "._" + (i + 1)) }
-
-  /*override def toArray(arrays: Array[CLGuardedBuffer[Any]], offset: Int): Array[T] =
-    io1.toArray(arrays, offset).zip(io2.toArray(arrays, offset + io1.elementCount))*/
 }
 
 class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extends CLDataIO[T] {
   override val elementCount = 1
 
   override lazy val pointerIO: PointerIO[T] = PointerIO.getInstance(t.erasure)
+
+  override def elements: Seq[CLDataIO[Any]] = Seq(this.asInstanceOf[CLDataIO[Any]])
 
   override def clType = t.erasure.getSimpleName.toLowerCase match {
     case "sizet" => "size_t"
