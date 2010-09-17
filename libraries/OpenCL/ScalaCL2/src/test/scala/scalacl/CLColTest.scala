@@ -12,18 +12,23 @@ import org.bridj.Pointer._
 import org.junit._
 import Assert._
 
-class CLColTest {
+object CLColTest {
 
   implicit var context: ScalaCLContext = _
-  @Before
+  @BeforeClass
   def setUp: Unit = {
     context = new ScalaCLContext(JavaCL.createBestContext)
   }
 
-  @After
+  @AfterClass
   def tearDown: Unit = {
     context.context.release
   }
+}
+
+class CLColTest {
+
+  import CLColTest._
 
   @Test
   def testTuples2 {
