@@ -35,6 +35,7 @@ trait CLCol[T] extends CLEventBound {
   def take(n: Long): CLCol[T] = slice(n, size.get)
   def drop(n: Long): CLCol[T] = slice(0, size.get - n)
   def zipWithIndex: CLCol[(T, Long)]
+  
   def size: CLFuture[Long]
 }
 

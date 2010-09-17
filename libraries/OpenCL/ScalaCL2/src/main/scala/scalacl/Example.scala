@@ -18,7 +18,7 @@ object Example {
 
     implicit val context = new ScalaCLContext(JavaCL.createBestContext)
 
-    val tup2 = clArray[(Float, Float)](3)
+    val tup2 = CLArray[(Float, Float)](3)
     var i = 0
     val ff2: ((Float, Float)) => (Float, Float) = { case (x, y) => i += 1; val f = i.toFloat; (f, f * f) }
     val mapTup2 = tup2.map(ff2)
@@ -26,7 +26,7 @@ object Example {
     equals(Seq((1.0,1.0), (2.0,4.0), (3.0,9.0)), mapTup2.toSeq)
 
 
-    val tup3 = clArray[(Float, Float, Float)](3)
+    val tup3 = CLArray[(Float, Float, Float)](3)
     i = 0
     val ff3: ((Float, Float, Float)) => (Float, Float, Float) = { case (x, y, z) => i += 1; val f = i.toFloat; (f, f * f, f * f * f) }
     val mapTup3 = tup3.map(ff3)
@@ -35,7 +35,7 @@ object Example {
     equals(Seq((1.0,1.0,1.0), (2.0,4.0,8.0), (3.0,9.0,27.0)), mapTup3.toSeq)
 
 
-    var cla = clArray[Int](10)
+    var cla = CLArray[Int](10)
     val mapped = cla.map(_ + 10)
 
     val clMapped = mapped.map[Int]((Seq("int v = _ + $i;"), "v * (v - 1)"))

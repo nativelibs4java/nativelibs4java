@@ -39,7 +39,7 @@ extends CLCol[T]
     doMap(f, this)
 
   override def map[V](f: T => V)(implicit vIO: CLDataIO[V]): CLArray[V] = {
-    val out = clArray[V](longSize)
+    val out = CLArray[V](longSize)
     implicit val t = out.t
     doMap(f, out)
   }
@@ -75,7 +75,7 @@ extends CLCol[T]
     this
   }
   override def map[V](f: CLFunction[T, V])(implicit vIO: CLDataIO[V]): CLArray[V] = {
-    val out = clArray[V](longSize)
+    val out = CLArray[V](longSize)
     doMap(f, out)
     out
   }
