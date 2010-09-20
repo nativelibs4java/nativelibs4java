@@ -1,6 +1,7 @@
 package com.nativelibs4java.ffmpeg.avformat;
 import static com.nativelibs4java.ffmpeg.avcodec.AvcodecLibrary.*;
 import static com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.*;
+import com.nativelibs4java.ffmpeg.avutil.AVRational;
 import static com.nativelibs4java.ffmpeg.avutil.AvutilLibrary.*;
 import static com.nativelibs4java.ffmpeg.swscale.SwscaleLibrary.*;
 import org.bridj.Pointer;
