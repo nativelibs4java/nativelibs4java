@@ -1,0 +1,65 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+ <modelVersion>4.0.0</modelVersion>
+  <groupId>com.nativelibs4java</groupId>
+  <artifactId>ffmpeg4java</artifactId>
+  <name>FFMpeg4Java</name>
+  <url>http://code.google.com/p/nativelibs4java/wiki/FFMpeg</url>
+  <version>0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  
+  
+  <properties>
+  	<maven.compiler.debug>true</maven.compiler.debug>
+  	<bridj.version>0.2-SNAPSHOT</bridj.version>
+  	<jnaerator.version>0.9.5-SNAPSHOT</jnaerator.version>
+  </properties>
+  
+  <dependencies>
+  	
+	<dependency>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>bridj</artifactId>
+	  <version>${bridj.version}</version>
+	  <scope>compile</scope>
+	</dependency>
+	
+  </dependencies>
+
+  <build>
+  	<plugins>
+  		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<version>2.3.1</version>
+			<configuration>
+				<source>1.6</source>
+				<target>1.6</target>
+			</configuration>
+		</plugin>
+	  
+		
+		<plugin>
+			<groupId>com.jnaerator</groupId>
+			<artifactId>maven-jnaerator-plugin</artifactId>
+			<version>${jnaerator.version}</version>
+			<configuration>
+				<javaOutputDirectory>src/main/java</javaOutputDirectory>
+			</configuration>
+		</plugin>
+  	 <plugin>
+  	  <groupId>org.apache.maven.plugins</groupId>
+  	  <artifactId>maven-compiler-plugin</artifactId>
+  	  <version>2.0.2</version>
+  	  <configuration>
+  	   <source>1.6</source>
+  	   <target>1.6</target>
+  	  </configuration>
+  	 </plugin>
+  	</plugins>
+  </build>
+</project>
+
+
+
