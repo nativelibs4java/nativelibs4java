@@ -226,17 +226,18 @@ public class AVCodecContext extends StructObject {
 		extradata_size(extradata_size);
 		return extradata_size;
 	}
-	/// Conversion Error : AVRational (Unsupported type)
 	/**
-	 * picture width / height.<br>
+	 * This is the fundamental unit of time (in seconds) in terms<br>
+	 * of which frame timestamps are represented. For fixed-fps content,<br>
+	 * timebase should be 1/framerate and timestamp increments should be<br>
+	 * identically 1.<br>
 	 * - encoding: MUST be set by user.<br>
 	 * - decoding: Set by libavcodec.<br>
-	 * Note: For compatibility it is possible to set this instead of<br>
-	 * coded_width/height before decoding.
+	 * C type : AVRational
 	 */
 	@Field(8) 
-	public int width() {
-		return this.io.getIntField(this, 8);
+	public AVRational time_base() {
+		return this.io.getNativeObjectField(this, 8);
 	}
 	/**
 	 * picture width / height.<br>
@@ -245,9 +246,20 @@ public class AVCodecContext extends StructObject {
 	 * Note: For compatibility it is possible to set this instead of<br>
 	 * coded_width/height before decoding.
 	 */
-	@Field(8) 
+	@Field(9) 
+	public int width() {
+		return this.io.getIntField(this, 9);
+	}
+	/**
+	 * picture width / height.<br>
+	 * - encoding: MUST be set by user.<br>
+	 * - decoding: Set by libavcodec.<br>
+	 * Note: For compatibility it is possible to set this instead of<br>
+	 * coded_width/height before decoding.
+	 */
+	@Field(9) 
 	public AVCodecContext width(int width) {
-		this.io.setIntField(this, 8, width);
+		this.io.setIntField(this, 9, width);
 		return this;
 	}
 	public final int width_$eq(int width) {
@@ -261,9 +273,9 @@ public class AVCodecContext extends StructObject {
 	 * Note: For compatibility it is possible to set this instead of<br>
 	 * coded_width/height before decoding.
 	 */
-	@Field(9) 
+	@Field(10) 
 	public int height() {
-		return this.io.getIntField(this, 9);
+		return this.io.getIntField(this, 10);
 	}
 	/**
 	 * picture width / height.<br>
@@ -272,9 +284,9 @@ public class AVCodecContext extends StructObject {
 	 * Note: For compatibility it is possible to set this instead of<br>
 	 * coded_width/height before decoding.
 	 */
-	@Field(9) 
+	@Field(10) 
 	public AVCodecContext height(int height) {
-		this.io.setIntField(this, 9, height);
+		this.io.setIntField(this, 10, height);
 		return this;
 	}
 	public final int height_$eq(int height) {
@@ -286,18 +298,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(10) 
+	@Field(11) 
 	public int gop_size() {
-		return this.io.getIntField(this, 10);
+		return this.io.getIntField(this, 11);
 	}
 	/**
 	 * the number of pictures in a group of pictures, or 0 for intra_only<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(10) 
+	@Field(11) 
 	public AVCodecContext gop_size(int gop_size) {
-		this.io.setIntField(this, 10, gop_size);
+		this.io.setIntField(this, 11, gop_size);
 		return this;
 	}
 	public final int gop_size_$eq(int gop_size) {
@@ -310,9 +322,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec.<br>
 	 * C type : PixelFormat
 	 */
-	@Field(11) 
+	@Field(12) 
 	public ValuedEnum<PixelFormat > pix_fmt() {
-		return this.io.getEnumField(this, 11);
+		return this.io.getEnumField(this, 12);
 	}
 	/**
 	 * Pixel format, see PIX_FMT_xxx.<br>
@@ -320,9 +332,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec.<br>
 	 * C type : PixelFormat
 	 */
-	@Field(11) 
+	@Field(12) 
 	public AVCodecContext pix_fmt(ValuedEnum<PixelFormat > pix_fmt) {
-		this.io.setEnumField(this, 11, pix_fmt);
+		this.io.setEnumField(this, 12, pix_fmt);
 		return this;
 	}
 	/// C type : PixelFormat
@@ -336,9 +348,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(12) 
+	@Field(13) 
 	public int rate_emu() {
-		return this.io.getIntField(this, 12);
+		return this.io.getIntField(this, 13);
 	}
 	/**
 	 * Frame rate emulation. If not zero, the lower layer (i.e. format handler)<br>
@@ -346,9 +358,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(12) 
+	@Field(13) 
 	public AVCodecContext rate_emu(int rate_emu) {
-		this.io.setIntField(this, 12, rate_emu);
+		this.io.setIntField(this, 13, rate_emu);
 		return this;
 	}
 	public final int rate_emu_$eq(int rate_emu) {
@@ -375,9 +387,9 @@ public class AVCodecContext extends StructObject {
 	 * @param offset offset into the AVFrame.data from which the slice should be read<br>
 	 * C type : draw_horiz_band_callback
 	 */
-	@Field(13) 
+	@Field(14) 
 	public Pointer<AVCodecContext.draw_horiz_band_callback > draw_horiz_band() {
-		return this.io.getPointerField(this, 13);
+		return this.io.getPointerField(this, 14);
 	}
 	/**
 	 * If non NULL, 'draw_horiz_band' is called by the libavcodec<br>
@@ -399,9 +411,9 @@ public class AVCodecContext extends StructObject {
 	 * @param offset offset into the AVFrame.data from which the slice should be read<br>
 	 * C type : draw_horiz_band_callback
 	 */
-	@Field(13) 
+	@Field(14) 
 	public AVCodecContext draw_horiz_band(Pointer<AVCodecContext.draw_horiz_band_callback > draw_horiz_band) {
-		this.io.setPointerField(this, 13, draw_horiz_band);
+		this.io.setPointerField(this, 14, draw_horiz_band);
 		return this;
 	}
 	/// C type : draw_horiz_band_callback
@@ -413,17 +425,17 @@ public class AVCodecContext extends StructObject {
 	 * audio only<br>
 	 * < samples per second
 	 */
-	@Field(14) 
+	@Field(15) 
 	public int sample_rate() {
-		return this.io.getIntField(this, 14);
+		return this.io.getIntField(this, 15);
 	}
 	/**
 	 * audio only<br>
 	 * < samples per second
 	 */
-	@Field(14) 
+	@Field(15) 
 	public AVCodecContext sample_rate(int sample_rate) {
-		this.io.setIntField(this, 14, sample_rate);
+		this.io.setIntField(this, 15, sample_rate);
 		return this;
 	}
 	public final int sample_rate_$eq(int sample_rate) {
@@ -431,14 +443,14 @@ public class AVCodecContext extends StructObject {
 		return sample_rate;
 	}
 	/// < number of audio channels
-	@Field(15) 
+	@Field(16) 
 	public int channels() {
-		return this.io.getIntField(this, 15);
+		return this.io.getIntField(this, 16);
 	}
 	/// < number of audio channels
-	@Field(15) 
+	@Field(16) 
 	public AVCodecContext channels(int channels) {
-		this.io.setIntField(this, 15, channels);
+		this.io.setIntField(this, 16, channels);
 		return this;
 	}
 	public final int channels_$eq(int channels) {
@@ -452,9 +464,9 @@ public class AVCodecContext extends StructObject {
 	 * < sample format<br>
 	 * C type : SampleFormat
 	 */
-	@Field(16) 
+	@Field(17) 
 	public ValuedEnum<SampleFormat > sample_fmt() {
-		return this.io.getEnumField(this, 16);
+		return this.io.getEnumField(this, 17);
 	}
 	/**
 	 * audio sample format<br>
@@ -463,9 +475,9 @@ public class AVCodecContext extends StructObject {
 	 * < sample format<br>
 	 * C type : SampleFormat
 	 */
-	@Field(16) 
+	@Field(17) 
 	public AVCodecContext sample_fmt(ValuedEnum<SampleFormat > sample_fmt) {
-		this.io.setEnumField(this, 16, sample_fmt);
+		this.io.setEnumField(this, 17, sample_fmt);
 		return this;
 	}
 	/// C type : SampleFormat
@@ -474,14 +486,14 @@ public class AVCodecContext extends StructObject {
 		return sample_fmt;
 	}
 	/// Samples per packet, initialized when calling 'init'.
-	@Field(17) 
+	@Field(18) 
 	public int frame_size() {
-		return this.io.getIntField(this, 17);
+		return this.io.getIntField(this, 18);
 	}
 	/// Samples per packet, initialized when calling 'init'.
-	@Field(17) 
+	@Field(18) 
 	public AVCodecContext frame_size(int frame_size) {
-		this.io.setIntField(this, 17, frame_size);
+		this.io.setIntField(this, 18, frame_size);
 		return this;
 	}
 	public final int frame_size_$eq(int frame_size) {
@@ -489,14 +501,14 @@ public class AVCodecContext extends StructObject {
 		return frame_size;
 	}
 	/// < audio or video frame number
-	@Field(18) 
+	@Field(19) 
 	public int frame_number() {
-		return this.io.getIntField(this, 18);
+		return this.io.getIntField(this, 19);
 	}
 	/// < audio or video frame number
-	@Field(18) 
+	@Field(19) 
 	public AVCodecContext frame_number(int frame_number) {
-		this.io.setIntField(this, 18, frame_number);
+		this.io.setIntField(this, 19, frame_number);
 		return this;
 	}
 	public final int frame_number_$eq(int frame_number) {
@@ -504,14 +516,14 @@ public class AVCodecContext extends StructObject {
 		return frame_number;
 	}
 	/// < Returns the real picture number of previous encoded frame.
-	@Field(19) 
+	@Field(20) 
 	public int real_pict_num() {
-		return this.io.getIntField(this, 19);
+		return this.io.getIntField(this, 20);
 	}
 	/// < Returns the real picture number of previous encoded frame.
-	@Field(19) 
+	@Field(20) 
 	public AVCodecContext real_pict_num(int real_pict_num) {
-		this.io.setIntField(this, 19, real_pict_num);
+		this.io.setIntField(this, 20, real_pict_num);
 		return this;
 	}
 	public final int real_pict_num_$eq(int real_pict_num) {
@@ -524,9 +536,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by libavcodec.<br>
 	 * - decoding: unused
 	 */
-	@Field(20) 
+	@Field(21) 
 	public int delay() {
-		return this.io.getIntField(this, 20);
+		return this.io.getIntField(this, 21);
 	}
 	/**
 	 * Number of frames the decoded output will be delayed relative to<br>
@@ -534,9 +546,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by libavcodec.<br>
 	 * - decoding: unused
 	 */
-	@Field(20) 
+	@Field(21) 
 	public AVCodecContext delay(int delay) {
-		this.io.setIntField(this, 20, delay);
+		this.io.setIntField(this, 21, delay);
 		return this;
 	}
 	public final int delay_$eq(int delay) {
@@ -547,17 +559,17 @@ public class AVCodecContext extends StructObject {
 	 * - encoding parameters<br>
 	 * < amount of qscale change between easy & hard scenes (0.0-1.0)
 	 */
-	@Field(21) 
+	@Field(22) 
 	public float qcompress() {
-		return this.io.getFloatField(this, 21);
+		return this.io.getFloatField(this, 22);
 	}
 	/**
 	 * - encoding parameters<br>
 	 * < amount of qscale change between easy & hard scenes (0.0-1.0)
 	 */
-	@Field(21) 
+	@Field(22) 
 	public AVCodecContext qcompress(float qcompress) {
-		this.io.setFloatField(this, 21, qcompress);
+		this.io.setFloatField(this, 22, qcompress);
 		return this;
 	}
 	public final float qcompress_$eq(float qcompress) {
@@ -565,14 +577,14 @@ public class AVCodecContext extends StructObject {
 		return qcompress;
 	}
 	/// < amount of qscale smoothing over time (0.0-1.0)
-	@Field(22) 
+	@Field(23) 
 	public float qblur() {
-		return this.io.getFloatField(this, 22);
+		return this.io.getFloatField(this, 23);
 	}
 	/// < amount of qscale smoothing over time (0.0-1.0)
-	@Field(22) 
+	@Field(23) 
 	public AVCodecContext qblur(float qblur) {
-		this.io.setFloatField(this, 22, qblur);
+		this.io.setFloatField(this, 23, qblur);
 		return this;
 	}
 	public final float qblur_$eq(float qblur) {
@@ -584,18 +596,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(23) 
+	@Field(24) 
 	public int qmin() {
-		return this.io.getIntField(this, 23);
+		return this.io.getIntField(this, 24);
 	}
 	/**
 	 * minimum quantizer<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(23) 
+	@Field(24) 
 	public AVCodecContext qmin(int qmin) {
-		this.io.setIntField(this, 23, qmin);
+		this.io.setIntField(this, 24, qmin);
 		return this;
 	}
 	public final int qmin_$eq(int qmin) {
@@ -607,18 +619,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(24) 
+	@Field(25) 
 	public int qmax() {
-		return this.io.getIntField(this, 24);
+		return this.io.getIntField(this, 25);
 	}
 	/**
 	 * maximum quantizer<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(24) 
+	@Field(25) 
 	public AVCodecContext qmax(int qmax) {
-		this.io.setIntField(this, 24, qmax);
+		this.io.setIntField(this, 25, qmax);
 		return this;
 	}
 	public final int qmax_$eq(int qmax) {
@@ -630,18 +642,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(25) 
+	@Field(26) 
 	public int max_qdiff() {
-		return this.io.getIntField(this, 25);
+		return this.io.getIntField(this, 26);
 	}
 	/**
 	 * maximum quantizer difference between frames<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(25) 
+	@Field(26) 
 	public AVCodecContext max_qdiff(int max_qdiff) {
-		this.io.setIntField(this, 25, max_qdiff);
+		this.io.setIntField(this, 26, max_qdiff);
 		return this;
 	}
 	public final int max_qdiff_$eq(int max_qdiff) {
@@ -654,9 +666,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(26) 
+	@Field(27) 
 	public int max_b_frames() {
-		return this.io.getIntField(this, 26);
+		return this.io.getIntField(this, 27);
 	}
 	/**
 	 * maximum number of B-frames between non-B-frames<br>
@@ -664,9 +676,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(26) 
+	@Field(27) 
 	public AVCodecContext max_b_frames(int max_b_frames) {
-		this.io.setIntField(this, 26, max_b_frames);
+		this.io.setIntField(this, 27, max_b_frames);
 		return this;
 	}
 	public final int max_b_frames_$eq(int max_b_frames) {
@@ -680,9 +692,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(27) 
+	@Field(28) 
 	public float b_quant_factor() {
-		return this.io.getFloatField(this, 27);
+		return this.io.getFloatField(this, 28);
 	}
 	/**
 	 * qscale factor between IP and B-frames<br>
@@ -691,9 +703,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(27) 
+	@Field(28) 
 	public AVCodecContext b_quant_factor(float b_quant_factor) {
-		this.io.setFloatField(this, 27, b_quant_factor);
+		this.io.setFloatField(this, 28, b_quant_factor);
 		return this;
 	}
 	public final float b_quant_factor_$eq(float b_quant_factor) {
@@ -701,27 +713,27 @@ public class AVCodecContext extends StructObject {
 		return b_quant_factor;
 	}
 	/// obsolete FIXME remove
-	@Field(28) 
+	@Field(29) 
 	public int rc_strategy() {
-		return this.io.getIntField(this, 28);
+		return this.io.getIntField(this, 29);
 	}
 	/// obsolete FIXME remove
-	@Field(28) 
+	@Field(29) 
 	public AVCodecContext rc_strategy(int rc_strategy) {
-		this.io.setIntField(this, 28, rc_strategy);
+		this.io.setIntField(this, 29, rc_strategy);
 		return this;
 	}
 	public final int rc_strategy_$eq(int rc_strategy) {
 		rc_strategy(rc_strategy);
 		return rc_strategy;
 	}
-	@Field(29) 
+	@Field(30) 
 	public int b_frame_strategy() {
-		return this.io.getIntField(this, 29);
+		return this.io.getIntField(this, 30);
 	}
-	@Field(29) 
+	@Field(30) 
 	public AVCodecContext b_frame_strategy(int b_frame_strategy) {
-		this.io.setIntField(this, 29, b_frame_strategy);
+		this.io.setIntField(this, 30, b_frame_strategy);
 		return this;
 	}
 	public final int b_frame_strategy_$eq(int b_frame_strategy) {
@@ -734,9 +746,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by user. 1-> Skip B-frames, 2-> Skip IDCT/dequant too, 5-> Skip everything except header<br>
 	 * @deprecated Deprecated in favor of skip_idct and skip_frame.
 	 */
-	@Field(30) 
+	@Field(31) 
 	public int hurry_up() {
-		return this.io.getIntField(this, 30);
+		return this.io.getIntField(this, 31);
 	}
 	/**
 	 * hurry up amount<br>
@@ -744,9 +756,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by user. 1-> Skip B-frames, 2-> Skip IDCT/dequant too, 5-> Skip everything except header<br>
 	 * @deprecated Deprecated in favor of skip_idct and skip_frame.
 	 */
-	@Field(30) 
+	@Field(31) 
 	public AVCodecContext hurry_up(int hurry_up) {
-		this.io.setIntField(this, 30, hurry_up);
+		this.io.setIntField(this, 31, hurry_up);
 		return this;
 	}
 	public final int hurry_up_$eq(int hurry_up) {
@@ -754,14 +766,14 @@ public class AVCodecContext extends StructObject {
 		return hurry_up;
 	}
 	/// C type : AVCodec*
-	@Field(31) 
+	@Field(32) 
 	public Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodec > codec() {
-		return this.io.getPointerField(this, 31);
+		return this.io.getPointerField(this, 32);
 	}
 	/// C type : AVCodec*
-	@Field(31) 
+	@Field(32) 
 	public AVCodecContext codec(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodec > codec) {
-		this.io.setPointerField(this, 31, codec);
+		this.io.setPointerField(this, 32, codec);
 		return this;
 	}
 	/// C type : AVCodec*
@@ -770,14 +782,14 @@ public class AVCodecContext extends StructObject {
 		return codec;
 	}
 	/// C type : void*
-	@Field(32) 
+	@Field(33) 
 	public Pointer<? > priv_data() {
-		return this.io.getPointerField(this, 32);
+		return this.io.getPointerField(this, 33);
 	}
 	/// C type : void*
-	@Field(32) 
+	@Field(33) 
 	public AVCodecContext priv_data(Pointer<? > priv_data) {
-		this.io.setPointerField(this, 32, priv_data);
+		this.io.setPointerField(this, 33, priv_data);
 		return this;
 	}
 	/// C type : void*
@@ -786,14 +798,14 @@ public class AVCodecContext extends StructObject {
 		return priv_data;
 	}
 	/// The size of the RTP payload: the coder will
-	@Field(33) 
+	@Field(34) 
 	public int rtp_payload_size() {
-		return this.io.getIntField(this, 33);
+		return this.io.getIntField(this, 34);
 	}
 	/// The size of the RTP payload: the coder will
-	@Field(33) 
+	@Field(34) 
 	public AVCodecContext rtp_payload_size(int rtp_payload_size) {
-		this.io.setIntField(this, 33, rtp_payload_size);
+		this.io.setIntField(this, 34, rtp_payload_size);
 		return this;
 	}
 	public final int rtp_payload_size_$eq(int rtp_payload_size) {
@@ -804,17 +816,17 @@ public class AVCodecContext extends StructObject {
 	 * encoded in the RTP payload.<br>
 	 * C type : rtp_callback_callback
 	 */
-	@Field(34) 
+	@Field(35) 
 	public Pointer<AVCodecContext.rtp_callback_callback > rtp_callback() {
-		return this.io.getPointerField(this, 34);
+		return this.io.getPointerField(this, 35);
 	}
 	/**
 	 * encoded in the RTP payload.<br>
 	 * C type : rtp_callback_callback
 	 */
-	@Field(34) 
+	@Field(35) 
 	public AVCodecContext rtp_callback(Pointer<AVCodecContext.rtp_callback_callback > rtp_callback) {
-		this.io.setPointerField(this, 34, rtp_callback);
+		this.io.setPointerField(this, 35, rtp_callback);
 		return this;
 	}
 	/// C type : rtp_callback_callback
@@ -823,105 +835,105 @@ public class AVCodecContext extends StructObject {
 		return rtp_callback;
 	}
 	/// statistics, used for 2-pass encoding
-	@Field(35) 
+	@Field(36) 
 	public int mv_bits() {
-		return this.io.getIntField(this, 35);
+		return this.io.getIntField(this, 36);
 	}
 	/// statistics, used for 2-pass encoding
-	@Field(35) 
+	@Field(36) 
 	public AVCodecContext mv_bits(int mv_bits) {
-		this.io.setIntField(this, 35, mv_bits);
+		this.io.setIntField(this, 36, mv_bits);
 		return this;
 	}
 	public final int mv_bits_$eq(int mv_bits) {
 		mv_bits(mv_bits);
 		return mv_bits;
 	}
-	@Field(36) 
+	@Field(37) 
 	public int header_bits() {
-		return this.io.getIntField(this, 36);
+		return this.io.getIntField(this, 37);
 	}
-	@Field(36) 
+	@Field(37) 
 	public AVCodecContext header_bits(int header_bits) {
-		this.io.setIntField(this, 36, header_bits);
+		this.io.setIntField(this, 37, header_bits);
 		return this;
 	}
 	public final int header_bits_$eq(int header_bits) {
 		header_bits(header_bits);
 		return header_bits;
 	}
-	@Field(37) 
+	@Field(38) 
 	public int i_tex_bits() {
-		return this.io.getIntField(this, 37);
+		return this.io.getIntField(this, 38);
 	}
-	@Field(37) 
+	@Field(38) 
 	public AVCodecContext i_tex_bits(int i_tex_bits) {
-		this.io.setIntField(this, 37, i_tex_bits);
+		this.io.setIntField(this, 38, i_tex_bits);
 		return this;
 	}
 	public final int i_tex_bits_$eq(int i_tex_bits) {
 		i_tex_bits(i_tex_bits);
 		return i_tex_bits;
 	}
-	@Field(38) 
+	@Field(39) 
 	public int p_tex_bits() {
-		return this.io.getIntField(this, 38);
+		return this.io.getIntField(this, 39);
 	}
-	@Field(38) 
+	@Field(39) 
 	public AVCodecContext p_tex_bits(int p_tex_bits) {
-		this.io.setIntField(this, 38, p_tex_bits);
+		this.io.setIntField(this, 39, p_tex_bits);
 		return this;
 	}
 	public final int p_tex_bits_$eq(int p_tex_bits) {
 		p_tex_bits(p_tex_bits);
 		return p_tex_bits;
 	}
-	@Field(39) 
+	@Field(40) 
 	public int i_count() {
-		return this.io.getIntField(this, 39);
+		return this.io.getIntField(this, 40);
 	}
-	@Field(39) 
+	@Field(40) 
 	public AVCodecContext i_count(int i_count) {
-		this.io.setIntField(this, 39, i_count);
+		this.io.setIntField(this, 40, i_count);
 		return this;
 	}
 	public final int i_count_$eq(int i_count) {
 		i_count(i_count);
 		return i_count;
 	}
-	@Field(40) 
+	@Field(41) 
 	public int p_count() {
-		return this.io.getIntField(this, 40);
+		return this.io.getIntField(this, 41);
 	}
-	@Field(40) 
+	@Field(41) 
 	public AVCodecContext p_count(int p_count) {
-		this.io.setIntField(this, 40, p_count);
+		this.io.setIntField(this, 41, p_count);
 		return this;
 	}
 	public final int p_count_$eq(int p_count) {
 		p_count(p_count);
 		return p_count;
 	}
-	@Field(41) 
+	@Field(42) 
 	public int skip_count() {
-		return this.io.getIntField(this, 41);
+		return this.io.getIntField(this, 42);
 	}
-	@Field(41) 
+	@Field(42) 
 	public AVCodecContext skip_count(int skip_count) {
-		this.io.setIntField(this, 41, skip_count);
+		this.io.setIntField(this, 42, skip_count);
 		return this;
 	}
 	public final int skip_count_$eq(int skip_count) {
 		skip_count(skip_count);
 		return skip_count;
 	}
-	@Field(42) 
+	@Field(43) 
 	public int misc_bits() {
-		return this.io.getIntField(this, 42);
+		return this.io.getIntField(this, 43);
 	}
-	@Field(42) 
+	@Field(43) 
 	public AVCodecContext misc_bits(int misc_bits) {
-		this.io.setIntField(this, 42, misc_bits);
+		this.io.setIntField(this, 43, misc_bits);
 		return this;
 	}
 	public final int misc_bits_$eq(int misc_bits) {
@@ -933,18 +945,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by libavcodec.<br>
 	 * - decoding: unused
 	 */
-	@Field(43) 
+	@Field(44) 
 	public int frame_bits() {
-		return this.io.getIntField(this, 43);
+		return this.io.getIntField(this, 44);
 	}
 	/**
 	 * number of bits used for the previously encoded frame<br>
 	 * - encoding: Set by libavcodec.<br>
 	 * - decoding: unused
 	 */
-	@Field(43) 
+	@Field(44) 
 	public AVCodecContext frame_bits(int frame_bits) {
-		this.io.setIntField(this, 43, frame_bits);
+		this.io.setIntField(this, 44, frame_bits);
 		return this;
 	}
 	public final int frame_bits_$eq(int frame_bits) {
@@ -957,9 +969,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by user.<br>
 	 * C type : void*
 	 */
-	@Field(44) 
+	@Field(45) 
 	public Pointer<? > opaque() {
-		return this.io.getPointerField(this, 44);
+		return this.io.getPointerField(this, 45);
 	}
 	/**
 	 * Private data of the user, can be used to carry app specific stuff.<br>
@@ -967,9 +979,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by user.<br>
 	 * C type : void*
 	 */
-	@Field(44) 
+	@Field(45) 
 	public AVCodecContext opaque(Pointer<? > opaque) {
-		this.io.setPointerField(this, 44, opaque);
+		this.io.setPointerField(this, 45, opaque);
 		return this;
 	}
 	/// C type : void*
@@ -979,25 +991,25 @@ public class AVCodecContext extends StructObject {
 	}
 	/// C type : char[32]
 	@Array({32}) 
-	@Field(45) 
+	@Field(46) 
 	public Pointer<java.lang.Byte > codec_name() {
-		return this.io.getPointerField(this, 45);
+		return this.io.getPointerField(this, 46);
 	}
 	/**
 	 * see AVMEDIA_TYPE_xxx<br>
 	 * C type : AVMediaType
 	 */
-	@Field(46) 
+	@Field(47) 
 	public ValuedEnum<AVMediaType > codec_type() {
-		return this.io.getEnumField(this, 46);
+		return this.io.getEnumField(this, 47);
 	}
 	/**
 	 * see AVMEDIA_TYPE_xxx<br>
 	 * C type : AVMediaType
 	 */
-	@Field(46) 
+	@Field(47) 
 	public AVCodecContext codec_type(ValuedEnum<AVMediaType > codec_type) {
-		this.io.setEnumField(this, 46, codec_type);
+		this.io.setEnumField(this, 47, codec_type);
 		return this;
 	}
 	/// C type : AVMediaType
@@ -1009,17 +1021,17 @@ public class AVCodecContext extends StructObject {
 	 * see CODEC_ID_xxx<br>
 	 * C type : CodecID
 	 */
-	@Field(47) 
+	@Field(48) 
 	public ValuedEnum<CodecID > codec_id() {
-		return this.io.getEnumField(this, 47);
+		return this.io.getEnumField(this, 48);
 	}
 	/**
 	 * see CODEC_ID_xxx<br>
 	 * C type : CodecID
 	 */
-	@Field(47) 
+	@Field(48) 
 	public AVCodecContext codec_id(ValuedEnum<CodecID > codec_id) {
-		this.io.setEnumField(this, 47, codec_id);
+		this.io.setEnumField(this, 48, codec_id);
 		return this;
 	}
 	/// C type : CodecID
@@ -1040,9 +1052,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user, if not then the default based on codec_id will be used.<br>
 	 * - decoding: Set by user, will be converted to uppercase by libavcodec during init.
 	 */
-	@Field(48) 
+	@Field(49) 
 	public int codec_tag() {
-		return this.io.getIntField(this, 48);
+		return this.io.getIntField(this, 49);
 	}
 	/**
 	 * fourcc (LSB first, so "ABCD" -> ('D'<<24) + ('C'<<16) + ('B'<<8) + 'A').<br>
@@ -1057,9 +1069,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user, if not then the default based on codec_id will be used.<br>
 	 * - decoding: Set by user, will be converted to uppercase by libavcodec during init.
 	 */
-	@Field(48) 
+	@Field(49) 
 	public AVCodecContext codec_tag(int codec_tag) {
-		this.io.setIntField(this, 48, codec_tag);
+		this.io.setIntField(this, 49, codec_tag);
 		return this;
 	}
 	public final int codec_tag_$eq(int codec_tag) {
@@ -1071,18 +1083,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user<br>
 	 * - decoding: Set by user
 	 */
-	@Field(49) 
+	@Field(50) 
 	public int workaround_bugs() {
-		return this.io.getIntField(this, 49);
+		return this.io.getIntField(this, 50);
 	}
 	/**
 	 * Work around bugs in encoders which sometimes cannot be detected automatically.<br>
 	 * - encoding: Set by user<br>
 	 * - decoding: Set by user
 	 */
-	@Field(49) 
+	@Field(50) 
 	public AVCodecContext workaround_bugs(int workaround_bugs) {
-		this.io.setIntField(this, 49, workaround_bugs);
+		this.io.setIntField(this, 50, workaround_bugs);
 		return this;
 	}
 	public final int workaround_bugs_$eq(int workaround_bugs) {
@@ -1094,18 +1106,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(50) 
+	@Field(51) 
 	public int luma_elim_threshold() {
-		return this.io.getIntField(this, 50);
+		return this.io.getIntField(this, 51);
 	}
 	/**
 	 * luma single coefficient elimination threshold<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(50) 
+	@Field(51) 
 	public AVCodecContext luma_elim_threshold(int luma_elim_threshold) {
-		this.io.setIntField(this, 50, luma_elim_threshold);
+		this.io.setIntField(this, 51, luma_elim_threshold);
 		return this;
 	}
 	public final int luma_elim_threshold_$eq(int luma_elim_threshold) {
@@ -1117,18 +1129,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(51) 
+	@Field(52) 
 	public int chroma_elim_threshold() {
-		return this.io.getIntField(this, 51);
+		return this.io.getIntField(this, 52);
 	}
 	/**
 	 * chroma single coeff elimination threshold<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(51) 
+	@Field(52) 
 	public AVCodecContext chroma_elim_threshold(int chroma_elim_threshold) {
-		this.io.setIntField(this, 51, chroma_elim_threshold);
+		this.io.setIntField(this, 52, chroma_elim_threshold);
 		return this;
 	}
 	public final int chroma_elim_threshold_$eq(int chroma_elim_threshold) {
@@ -1147,9 +1159,9 @@ public class AVCodecContext extends StructObject {
 	 * when they can unless they are explicitly asked to behave stupid<br>
 	 * (=strictly conform to the specs)
 	 */
-	@Field(52) 
+	@Field(53) 
 	public int strict_std_compliance() {
-		return this.io.getIntField(this, 52);
+		return this.io.getIntField(this, 53);
 	}
 	/**
 	 * strictly follow the standard (MPEG4, ...).<br>
@@ -1163,9 +1175,9 @@ public class AVCodecContext extends StructObject {
 	 * when they can unless they are explicitly asked to behave stupid<br>
 	 * (=strictly conform to the specs)
 	 */
-	@Field(52) 
+	@Field(53) 
 	public AVCodecContext strict_std_compliance(int strict_std_compliance) {
-		this.io.setIntField(this, 52, strict_std_compliance);
+		this.io.setIntField(this, 53, strict_std_compliance);
 		return this;
 	}
 	public final int strict_std_compliance_$eq(int strict_std_compliance) {
@@ -1177,18 +1189,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(53) 
+	@Field(54) 
 	public float b_quant_offset() {
-		return this.io.getFloatField(this, 53);
+		return this.io.getFloatField(this, 54);
 	}
 	/**
 	 * qscale offset between IP and B-frames<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(53) 
+	@Field(54) 
 	public AVCodecContext b_quant_offset(float b_quant_offset) {
-		this.io.setFloatField(this, 53, b_quant_offset);
+		this.io.setFloatField(this, 54, b_quant_offset);
 		return this;
 	}
 	public final float b_quant_offset_$eq(float b_quant_offset) {
@@ -1201,9 +1213,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(54) 
+	@Field(55) 
 	public int error_recognition() {
-		return this.io.getIntField(this, 54);
+		return this.io.getIntField(this, 55);
 	}
 	/**
 	 * Error recognization; higher values will detect more errors but may<br>
@@ -1211,9 +1223,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(54) 
+	@Field(55) 
 	public AVCodecContext error_recognition(int error_recognition) {
-		this.io.setIntField(this, 54, error_recognition);
+		this.io.setIntField(this, 55, error_recognition);
 		return this;
 	}
 	public final int error_recognition_$eq(int error_recognition) {
@@ -1232,9 +1244,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec., user can override.<br>
 	 * C type : get_buffer_callback
 	 */
-	@Field(55) 
+	@Field(56) 
 	public Pointer<AVCodecContext.get_buffer_callback > get_buffer() {
-		return this.io.getPointerField(this, 55);
+		return this.io.getPointerField(this, 56);
 	}
 	/**
 	 * Called at the beginning of each frame to get a buffer for it.<br>
@@ -1248,9 +1260,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec., user can override.<br>
 	 * C type : get_buffer_callback
 	 */
-	@Field(55) 
+	@Field(56) 
 	public AVCodecContext get_buffer(Pointer<AVCodecContext.get_buffer_callback > get_buffer) {
-		this.io.setPointerField(this, 55, get_buffer);
+		this.io.setPointerField(this, 56, get_buffer);
 		return this;
 	}
 	/// C type : get_buffer_callback
@@ -1266,9 +1278,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec., user can override.<br>
 	 * C type : release_buffer_callback
 	 */
-	@Field(56) 
+	@Field(57) 
 	public Pointer<AVCodecContext.release_buffer_callback > release_buffer() {
-		return this.io.getPointerField(this, 56);
+		return this.io.getPointerField(this, 57);
 	}
 	/**
 	 * Called to release buffers which were allocated with get_buffer.<br>
@@ -1278,9 +1290,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec., user can override.<br>
 	 * C type : release_buffer_callback
 	 */
-	@Field(56) 
+	@Field(57) 
 	public AVCodecContext release_buffer(Pointer<AVCodecContext.release_buffer_callback > release_buffer) {
-		this.io.setPointerField(this, 56, release_buffer);
+		this.io.setPointerField(this, 57, release_buffer);
 		return this;
 	}
 	/// C type : release_buffer_callback
@@ -1294,9 +1306,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by libavcodec.<br>
 	 * - decoding: Set by libavcodec.
 	 */
-	@Field(57) 
+	@Field(58) 
 	public int has_b_frames() {
-		return this.io.getIntField(this, 57);
+		return this.io.getIntField(this, 58);
 	}
 	/**
 	 * Size of the frame reordering buffer in the decoder.<br>
@@ -1304,9 +1316,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by libavcodec.<br>
 	 * - decoding: Set by libavcodec.
 	 */
-	@Field(57) 
+	@Field(58) 
 	public AVCodecContext has_b_frames(int has_b_frames) {
-		this.io.setIntField(this, 57, has_b_frames);
+		this.io.setIntField(this, 58, has_b_frames);
 		return this;
 	}
 	public final int has_b_frames_$eq(int has_b_frames) {
@@ -1317,17 +1329,17 @@ public class AVCodecContext extends StructObject {
 	 * number of bytes per packet if constant and known or 0<br>
 	 * Used by some WAV based audio codecs.
 	 */
-	@Field(58) 
+	@Field(59) 
 	public int block_align() {
-		return this.io.getIntField(this, 58);
+		return this.io.getIntField(this, 59);
 	}
 	/**
 	 * number of bytes per packet if constant and known or 0<br>
 	 * Used by some WAV based audio codecs.
 	 */
-	@Field(58) 
+	@Field(59) 
 	public AVCodecContext block_align(int block_align) {
-		this.io.setIntField(this, 58, block_align);
+		this.io.setIntField(this, 59, block_align);
 		return this;
 	}
 	public final int block_align_$eq(int block_align) {
@@ -1339,18 +1351,18 @@ public class AVCodecContext extends StructObject {
 	 * (function avcodec_parse_frame()). The frame<br>
 	 * data is returned. Only MPEG codecs support this now.
 	 */
-	@Field(59) 
+	@Field(60) 
 	public int parse_only() {
-		return this.io.getIntField(this, 59);
+		return this.io.getIntField(this, 60);
 	}
 	/**
 	 * - decoding only: If true, only parsing is done<br>
 	 * (function avcodec_parse_frame()). The frame<br>
 	 * data is returned. Only MPEG codecs support this now.
 	 */
-	@Field(59) 
+	@Field(60) 
 	public AVCodecContext parse_only(int parse_only) {
-		this.io.setIntField(this, 59, parse_only);
+		this.io.setIntField(this, 60, parse_only);
 		return this;
 	}
 	public final int parse_only_$eq(int parse_only) {
@@ -1362,18 +1374,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(60) 
+	@Field(61) 
 	public int mpeg_quant() {
-		return this.io.getIntField(this, 60);
+		return this.io.getIntField(this, 61);
 	}
 	/**
 	 * 0-> h263 quant 1-> mpeg quant<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(60) 
+	@Field(61) 
 	public AVCodecContext mpeg_quant(int mpeg_quant) {
-		this.io.setIntField(this, 60, mpeg_quant);
+		this.io.setIntField(this, 61, mpeg_quant);
 		return this;
 	}
 	public final int mpeg_quant_$eq(int mpeg_quant) {
@@ -1386,9 +1398,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: unused<br>
 	 * C type : char*
 	 */
-	@Field(61) 
+	@Field(62) 
 	public Pointer<java.lang.Byte > stats_out() {
-		return this.io.getPointerField(this, 61);
+		return this.io.getPointerField(this, 62);
 	}
 	/**
 	 * pass1 encoding statistics output buffer<br>
@@ -1396,9 +1408,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: unused<br>
 	 * C type : char*
 	 */
-	@Field(61) 
+	@Field(62) 
 	public AVCodecContext stats_out(Pointer<java.lang.Byte > stats_out) {
-		this.io.setPointerField(this, 61, stats_out);
+		this.io.setPointerField(this, 62, stats_out);
 		return this;
 	}
 	/// C type : char*
@@ -1413,9 +1425,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: unused<br>
 	 * C type : char*
 	 */
-	@Field(62) 
+	@Field(63) 
 	public Pointer<java.lang.Byte > stats_in() {
-		return this.io.getPointerField(this, 62);
+		return this.io.getPointerField(this, 63);
 	}
 	/**
 	 * pass2 encoding statistics input buffer<br>
@@ -1424,9 +1436,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: unused<br>
 	 * C type : char*
 	 */
-	@Field(62) 
+	@Field(63) 
 	public AVCodecContext stats_in(Pointer<java.lang.Byte > stats_in) {
-		this.io.setPointerField(this, 62, stats_in);
+		this.io.setPointerField(this, 63, stats_in);
 		return this;
 	}
 	/// C type : char*
@@ -1440,9 +1452,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(63) 
+	@Field(64) 
 	public float rc_qsquish() {
-		return this.io.getFloatField(this, 63);
+		return this.io.getFloatField(this, 64);
 	}
 	/**
 	 * ratecontrol qmin qmax limiting method<br>
@@ -1450,35 +1462,35 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(63) 
+	@Field(64) 
 	public AVCodecContext rc_qsquish(float rc_qsquish) {
-		this.io.setFloatField(this, 63, rc_qsquish);
+		this.io.setFloatField(this, 64, rc_qsquish);
 		return this;
 	}
 	public final float rc_qsquish_$eq(float rc_qsquish) {
 		rc_qsquish(rc_qsquish);
 		return rc_qsquish;
 	}
-	@Field(64) 
+	@Field(65) 
 	public float rc_qmod_amp() {
-		return this.io.getFloatField(this, 64);
+		return this.io.getFloatField(this, 65);
 	}
-	@Field(64) 
+	@Field(65) 
 	public AVCodecContext rc_qmod_amp(float rc_qmod_amp) {
-		this.io.setFloatField(this, 64, rc_qmod_amp);
+		this.io.setFloatField(this, 65, rc_qmod_amp);
 		return this;
 	}
 	public final float rc_qmod_amp_$eq(float rc_qmod_amp) {
 		rc_qmod_amp(rc_qmod_amp);
 		return rc_qmod_amp;
 	}
-	@Field(65) 
+	@Field(66) 
 	public int rc_qmod_freq() {
-		return this.io.getIntField(this, 65);
+		return this.io.getIntField(this, 66);
 	}
-	@Field(65) 
+	@Field(66) 
 	public AVCodecContext rc_qmod_freq(int rc_qmod_freq) {
-		this.io.setIntField(this, 65, rc_qmod_freq);
+		this.io.setIntField(this, 66, rc_qmod_freq);
 		return this;
 	}
 	public final int rc_qmod_freq_$eq(int rc_qmod_freq) {
@@ -1491,9 +1503,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: unused<br>
 	 * C type : RcOverride*
 	 */
-	@Field(66) 
+	@Field(67) 
 	public Pointer<com.nativelibs4java.ffmpeg.avcodec.RcOverride > rc_override() {
-		return this.io.getPointerField(this, 66);
+		return this.io.getPointerField(this, 67);
 	}
 	/**
 	 * ratecontrol override, see RcOverride<br>
@@ -1501,9 +1513,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: unused<br>
 	 * C type : RcOverride*
 	 */
-	@Field(66) 
+	@Field(67) 
 	public AVCodecContext rc_override(Pointer<com.nativelibs4java.ffmpeg.avcodec.RcOverride > rc_override) {
-		this.io.setPointerField(this, 66, rc_override);
+		this.io.setPointerField(this, 67, rc_override);
 		return this;
 	}
 	/// C type : RcOverride*
@@ -1511,13 +1523,13 @@ public class AVCodecContext extends StructObject {
 		rc_override(rc_override);
 		return rc_override;
 	}
-	@Field(67) 
+	@Field(68) 
 	public int rc_override_count() {
-		return this.io.getIntField(this, 67);
+		return this.io.getIntField(this, 68);
 	}
-	@Field(67) 
+	@Field(68) 
 	public AVCodecContext rc_override_count(int rc_override_count) {
-		this.io.setIntField(this, 67, rc_override_count);
+		this.io.setIntField(this, 68, rc_override_count);
 		return this;
 	}
 	public final int rc_override_count_$eq(int rc_override_count) {
@@ -1530,9 +1542,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: unused<br>
 	 * C type : const char*
 	 */
-	@Field(68) 
+	@Field(69) 
 	public Pointer<java.lang.Byte > rc_eq() {
-		return this.io.getPointerField(this, 68);
+		return this.io.getPointerField(this, 69);
 	}
 	/**
 	 * rate control equation<br>
@@ -1540,9 +1552,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: unused<br>
 	 * C type : const char*
 	 */
-	@Field(68) 
+	@Field(69) 
 	public AVCodecContext rc_eq(Pointer<java.lang.Byte > rc_eq) {
-		this.io.setPointerField(this, 68, rc_eq);
+		this.io.setPointerField(this, 69, rc_eq);
 		return this;
 	}
 	/// C type : const char*
@@ -1555,18 +1567,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(69) 
+	@Field(70) 
 	public int rc_max_rate() {
-		return this.io.getIntField(this, 69);
+		return this.io.getIntField(this, 70);
 	}
 	/**
 	 * maximum bitrate<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(69) 
+	@Field(70) 
 	public AVCodecContext rc_max_rate(int rc_max_rate) {
-		this.io.setIntField(this, 69, rc_max_rate);
+		this.io.setIntField(this, 70, rc_max_rate);
 		return this;
 	}
 	public final int rc_max_rate_$eq(int rc_max_rate) {
@@ -1578,18 +1590,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(70) 
+	@Field(71) 
 	public int rc_min_rate() {
-		return this.io.getIntField(this, 70);
+		return this.io.getIntField(this, 71);
 	}
 	/**
 	 * minimum bitrate<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(70) 
+	@Field(71) 
 	public AVCodecContext rc_min_rate(int rc_min_rate) {
-		this.io.setIntField(this, 70, rc_min_rate);
+		this.io.setIntField(this, 71, rc_min_rate);
 		return this;
 	}
 	public final int rc_min_rate_$eq(int rc_min_rate) {
@@ -1601,31 +1613,31 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(71) 
+	@Field(72) 
 	public int rc_buffer_size() {
-		return this.io.getIntField(this, 71);
+		return this.io.getIntField(this, 72);
 	}
 	/**
 	 * decoder bitstream buffer size<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(71) 
+	@Field(72) 
 	public AVCodecContext rc_buffer_size(int rc_buffer_size) {
-		this.io.setIntField(this, 71, rc_buffer_size);
+		this.io.setIntField(this, 72, rc_buffer_size);
 		return this;
 	}
 	public final int rc_buffer_size_$eq(int rc_buffer_size) {
 		rc_buffer_size(rc_buffer_size);
 		return rc_buffer_size;
 	}
-	@Field(72) 
+	@Field(73) 
 	public float rc_buffer_aggressivity() {
-		return this.io.getFloatField(this, 72);
+		return this.io.getFloatField(this, 73);
 	}
-	@Field(72) 
+	@Field(73) 
 	public AVCodecContext rc_buffer_aggressivity(float rc_buffer_aggressivity) {
-		this.io.setFloatField(this, 72, rc_buffer_aggressivity);
+		this.io.setFloatField(this, 73, rc_buffer_aggressivity);
 		return this;
 	}
 	public final float rc_buffer_aggressivity_$eq(float rc_buffer_aggressivity) {
@@ -1639,9 +1651,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(73) 
+	@Field(74) 
 	public float i_quant_factor() {
-		return this.io.getFloatField(this, 73);
+		return this.io.getFloatField(this, 74);
 	}
 	/**
 	 * qscale factor between P and I-frames<br>
@@ -1650,9 +1662,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(73) 
+	@Field(74) 
 	public AVCodecContext i_quant_factor(float i_quant_factor) {
-		this.io.setFloatField(this, 73, i_quant_factor);
+		this.io.setFloatField(this, 74, i_quant_factor);
 		return this;
 	}
 	public final float i_quant_factor_$eq(float i_quant_factor) {
@@ -1664,18 +1676,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(74) 
+	@Field(75) 
 	public float i_quant_offset() {
-		return this.io.getFloatField(this, 74);
+		return this.io.getFloatField(this, 75);
 	}
 	/**
 	 * qscale offset between P and I-frames<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(74) 
+	@Field(75) 
 	public AVCodecContext i_quant_offset(float i_quant_offset) {
-		this.io.setFloatField(this, 74, i_quant_offset);
+		this.io.setFloatField(this, 75, i_quant_offset);
 		return this;
 	}
 	public final float i_quant_offset_$eq(float i_quant_offset) {
@@ -1687,18 +1699,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(75) 
+	@Field(76) 
 	public float rc_initial_cplx() {
-		return this.io.getFloatField(this, 75);
+		return this.io.getFloatField(this, 76);
 	}
 	/**
 	 * initial complexity for pass1 ratecontrol<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(75) 
+	@Field(76) 
 	public AVCodecContext rc_initial_cplx(float rc_initial_cplx) {
-		this.io.setFloatField(this, 75, rc_initial_cplx);
+		this.io.setFloatField(this, 76, rc_initial_cplx);
 		return this;
 	}
 	public final float rc_initial_cplx_$eq(float rc_initial_cplx) {
@@ -1710,18 +1722,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(76) 
+	@Field(77) 
 	public int dct_algo() {
-		return this.io.getIntField(this, 76);
+		return this.io.getIntField(this, 77);
 	}
 	/**
 	 * DCT algorithm, see FF_DCT_* below<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(76) 
+	@Field(77) 
 	public AVCodecContext dct_algo(int dct_algo) {
-		this.io.setIntField(this, 76, dct_algo);
+		this.io.setIntField(this, 77, dct_algo);
 		return this;
 	}
 	public final int dct_algo_$eq(int dct_algo) {
@@ -1733,18 +1745,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(77) 
+	@Field(78) 
 	public float lumi_masking() {
-		return this.io.getFloatField(this, 77);
+		return this.io.getFloatField(this, 78);
 	}
 	/**
 	 * luminance masking (0-> disabled)<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(77) 
+	@Field(78) 
 	public AVCodecContext lumi_masking(float lumi_masking) {
-		this.io.setFloatField(this, 77, lumi_masking);
+		this.io.setFloatField(this, 78, lumi_masking);
 		return this;
 	}
 	public final float lumi_masking_$eq(float lumi_masking) {
@@ -1756,18 +1768,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(78) 
+	@Field(79) 
 	public float temporal_cplx_masking() {
-		return this.io.getFloatField(this, 78);
+		return this.io.getFloatField(this, 79);
 	}
 	/**
 	 * temporary complexity masking (0-> disabled)<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(78) 
+	@Field(79) 
 	public AVCodecContext temporal_cplx_masking(float temporal_cplx_masking) {
-		this.io.setFloatField(this, 78, temporal_cplx_masking);
+		this.io.setFloatField(this, 79, temporal_cplx_masking);
 		return this;
 	}
 	public final float temporal_cplx_masking_$eq(float temporal_cplx_masking) {
@@ -1779,18 +1791,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(79) 
+	@Field(80) 
 	public float spatial_cplx_masking() {
-		return this.io.getFloatField(this, 79);
+		return this.io.getFloatField(this, 80);
 	}
 	/**
 	 * spatial complexity masking (0-> disabled)<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(79) 
+	@Field(80) 
 	public AVCodecContext spatial_cplx_masking(float spatial_cplx_masking) {
-		this.io.setFloatField(this, 79, spatial_cplx_masking);
+		this.io.setFloatField(this, 80, spatial_cplx_masking);
 		return this;
 	}
 	public final float spatial_cplx_masking_$eq(float spatial_cplx_masking) {
@@ -1802,18 +1814,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(80) 
+	@Field(81) 
 	public float p_masking() {
-		return this.io.getFloatField(this, 80);
+		return this.io.getFloatField(this, 81);
 	}
 	/**
 	 * p block masking (0-> disabled)<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(80) 
+	@Field(81) 
 	public AVCodecContext p_masking(float p_masking) {
-		this.io.setFloatField(this, 80, p_masking);
+		this.io.setFloatField(this, 81, p_masking);
 		return this;
 	}
 	public final float p_masking_$eq(float p_masking) {
@@ -1825,18 +1837,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(81) 
+	@Field(82) 
 	public float dark_masking() {
-		return this.io.getFloatField(this, 81);
+		return this.io.getFloatField(this, 82);
 	}
 	/**
 	 * darkness masking (0-> disabled)<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(81) 
+	@Field(82) 
 	public AVCodecContext dark_masking(float dark_masking) {
-		this.io.setFloatField(this, 81, dark_masking);
+		this.io.setFloatField(this, 82, dark_masking);
 		return this;
 	}
 	public final float dark_masking_$eq(float dark_masking) {
@@ -1848,18 +1860,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(82) 
+	@Field(83) 
 	public int idct_algo() {
-		return this.io.getIntField(this, 82);
+		return this.io.getIntField(this, 83);
 	}
 	/**
 	 * IDCT algorithm, see FF_IDCT_* below.<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(82) 
+	@Field(83) 
 	public AVCodecContext idct_algo(int idct_algo) {
-		this.io.setIntField(this, 82, idct_algo);
+		this.io.setIntField(this, 83, idct_algo);
 		return this;
 	}
 	public final int idct_algo_$eq(int idct_algo) {
@@ -1871,18 +1883,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by libavcodec.<br>
 	 * - decoding: Set by user (or 0).
 	 */
-	@Field(83) 
+	@Field(84) 
 	public int slice_count() {
-		return this.io.getIntField(this, 83);
+		return this.io.getIntField(this, 84);
 	}
 	/**
 	 * slice count<br>
 	 * - encoding: Set by libavcodec.<br>
 	 * - decoding: Set by user (or 0).
 	 */
-	@Field(83) 
+	@Field(84) 
 	public AVCodecContext slice_count(int slice_count) {
-		this.io.setIntField(this, 83, slice_count);
+		this.io.setIntField(this, 84, slice_count);
 		return this;
 	}
 	public final int slice_count_$eq(int slice_count) {
@@ -1895,9 +1907,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set/allocated by user (or NULL).<br>
 	 * C type : int*
 	 */
-	@Field(84) 
+	@Field(85) 
 	public Pointer<java.lang.Integer > slice_offset() {
-		return this.io.getPointerField(this, 84);
+		return this.io.getPointerField(this, 85);
 	}
 	/**
 	 * slice offsets in the frame in bytes<br>
@@ -1905,9 +1917,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set/allocated by user (or NULL).<br>
 	 * C type : int*
 	 */
-	@Field(84) 
+	@Field(85) 
 	public AVCodecContext slice_offset(Pointer<java.lang.Integer > slice_offset) {
-		this.io.setPointerField(this, 84, slice_offset);
+		this.io.setPointerField(this, 85, slice_offset);
 		return this;
 	}
 	/// C type : int*
@@ -1920,18 +1932,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(85) 
+	@Field(86) 
 	public int error_concealment() {
-		return this.io.getIntField(this, 85);
+		return this.io.getIntField(this, 86);
 	}
 	/**
 	 * error concealment flags<br>
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(85) 
+	@Field(86) 
 	public AVCodecContext error_concealment(int error_concealment) {
-		this.io.setIntField(this, 85, error_concealment);
+		this.io.setIntField(this, 86, error_concealment);
 		return this;
 	}
 	public final int error_concealment_$eq(int error_concealment) {
@@ -1945,9 +1957,9 @@ public class AVCodecContext extends StructObject {
 	 * (Dangerous: Usable in case of misdetection, improper usage however will<br>
 	 * result into program crash.)
 	 */
-	@Field(86) 
+	@Field(87) 
 	public int dsp_mask() {
-		return this.io.getIntField(this, 86);
+		return this.io.getIntField(this, 87);
 	}
 	/**
 	 * dsp_mask could be add used to disable unwanted CPU features<br>
@@ -1956,9 +1968,9 @@ public class AVCodecContext extends StructObject {
 	 * (Dangerous: Usable in case of misdetection, improper usage however will<br>
 	 * result into program crash.)
 	 */
-	@Field(86) 
+	@Field(87) 
 	public AVCodecContext dsp_mask(int dsp_mask) {
-		this.io.setIntField(this, 86, dsp_mask);
+		this.io.setIntField(this, 87, dsp_mask);
 		return this;
 	}
 	public final int dsp_mask_$eq(int dsp_mask) {
@@ -1970,18 +1982,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by libavcodec.<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(87) 
+	@Field(88) 
 	public int bits_per_coded_sample() {
-		return this.io.getIntField(this, 87);
+		return this.io.getIntField(this, 88);
 	}
 	/**
 	 * bits per sample/pixel from the demuxer (needed for huffyuv).<br>
 	 * - encoding: Set by libavcodec.<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(87) 
+	@Field(88) 
 	public AVCodecContext bits_per_coded_sample(int bits_per_coded_sample) {
-		this.io.setIntField(this, 87, bits_per_coded_sample);
+		this.io.setIntField(this, 88, bits_per_coded_sample);
 		return this;
 	}
 	public final int bits_per_coded_sample_$eq(int bits_per_coded_sample) {
@@ -1993,34 +2005,35 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(88) 
+	@Field(89) 
 	public int prediction_method() {
-		return this.io.getIntField(this, 88);
+		return this.io.getIntField(this, 89);
 	}
 	/**
 	 * prediction method (needed for huffyuv)<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(88) 
+	@Field(89) 
 	public AVCodecContext prediction_method(int prediction_method) {
-		this.io.setIntField(this, 88, prediction_method);
+		this.io.setIntField(this, 89, prediction_method);
 		return this;
 	}
 	public final int prediction_method_$eq(int prediction_method) {
 		prediction_method(prediction_method);
 		return prediction_method;
 	}
-	/// Conversion Error : AVRational (Unsupported type)
 	/**
-	 * the picture in the bitstream<br>
-	 * - encoding: Set by libavcodec.<br>
+	 * sample aspect ratio (0 if unknown)<br>
+	 * That is the width of a pixel divided by the height of the pixel.<br>
+	 * Numerator and denominator must be relatively prime and smaller than 256 for some video standards.<br>
+	 * - encoding: Set by user.<br>
 	 * - decoding: Set by libavcodec.<br>
-	 * C type : AVFrame*
+	 * C type : AVRational
 	 */
-	@Field(89) 
-	public Pointer<com.nativelibs4java.ffmpeg.avcodec.AVFrame > coded_frame() {
-		return this.io.getPointerField(this, 89);
+	@Field(90) 
+	public AVRational sample_aspect_ratio() {
+		return this.io.getNativeObjectField(this, 90);
 	}
 	/**
 	 * the picture in the bitstream<br>
@@ -2028,9 +2041,19 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec.<br>
 	 * C type : AVFrame*
 	 */
-	@Field(89) 
+	@Field(91) 
+	public Pointer<com.nativelibs4java.ffmpeg.avcodec.AVFrame > coded_frame() {
+		return this.io.getPointerField(this, 91);
+	}
+	/**
+	 * the picture in the bitstream<br>
+	 * - encoding: Set by libavcodec.<br>
+	 * - decoding: Set by libavcodec.<br>
+	 * C type : AVFrame*
+	 */
+	@Field(91) 
 	public AVCodecContext coded_frame(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVFrame > coded_frame) {
-		this.io.setPointerField(this, 89, coded_frame);
+		this.io.setPointerField(this, 91, coded_frame);
 		return this;
 	}
 	/// C type : AVFrame*
@@ -2043,18 +2066,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(90) 
+	@Field(92) 
 	public int debug() {
-		return this.io.getIntField(this, 90);
+		return this.io.getIntField(this, 92);
 	}
 	/**
 	 * debug<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(90) 
+	@Field(92) 
 	public AVCodecContext debug(int debug) {
-		this.io.setIntField(this, 90, debug);
+		this.io.setIntField(this, 92, debug);
 		return this;
 	}
 	public final int debug_$eq(int debug) {
@@ -2066,18 +2089,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(91) 
+	@Field(93) 
 	public int debug_mv() {
-		return this.io.getIntField(this, 91);
+		return this.io.getIntField(this, 93);
 	}
 	/**
 	 * debug<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(91) 
+	@Field(93) 
 	public AVCodecContext debug_mv(int debug_mv) {
-		this.io.setIntField(this, 91, debug_mv);
+		this.io.setIntField(this, 93, debug_mv);
 		return this;
 	}
 	public final int debug_mv_$eq(int debug_mv) {
@@ -2091,27 +2114,27 @@ public class AVCodecContext extends StructObject {
 	 * C type : uint64_t[4]
 	 */
 	@Array({4}) 
-	@Field(92) 
+	@Field(94) 
 	public Pointer<java.lang.Long > error() {
-		return this.io.getPointerField(this, 92);
+		return this.io.getPointerField(this, 94);
 	}
 	/**
 	 * minimum MB quantizer<br>
 	 * - encoding: unused<br>
 	 * - decoding: unused
 	 */
-	@Field(93) 
+	@Field(95) 
 	public int mb_qmin() {
-		return this.io.getIntField(this, 93);
+		return this.io.getIntField(this, 95);
 	}
 	/**
 	 * minimum MB quantizer<br>
 	 * - encoding: unused<br>
 	 * - decoding: unused
 	 */
-	@Field(93) 
+	@Field(95) 
 	public AVCodecContext mb_qmin(int mb_qmin) {
-		this.io.setIntField(this, 93, mb_qmin);
+		this.io.setIntField(this, 95, mb_qmin);
 		return this;
 	}
 	public final int mb_qmin_$eq(int mb_qmin) {
@@ -2123,18 +2146,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: unused
 	 */
-	@Field(94) 
+	@Field(96) 
 	public int mb_qmax() {
-		return this.io.getIntField(this, 94);
+		return this.io.getIntField(this, 96);
 	}
 	/**
 	 * maximum MB quantizer<br>
 	 * - encoding: unused<br>
 	 * - decoding: unused
 	 */
-	@Field(94) 
+	@Field(96) 
 	public AVCodecContext mb_qmax(int mb_qmax) {
-		this.io.setIntField(this, 94, mb_qmax);
+		this.io.setIntField(this, 96, mb_qmax);
 		return this;
 	}
 	public final int mb_qmax_$eq(int mb_qmax) {
@@ -2146,18 +2169,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(95) 
+	@Field(97) 
 	public int me_cmp() {
-		return this.io.getIntField(this, 95);
+		return this.io.getIntField(this, 97);
 	}
 	/**
 	 * motion estimation comparison function<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(95) 
+	@Field(97) 
 	public AVCodecContext me_cmp(int me_cmp) {
-		this.io.setIntField(this, 95, me_cmp);
+		this.io.setIntField(this, 97, me_cmp);
 		return this;
 	}
 	public final int me_cmp_$eq(int me_cmp) {
@@ -2169,18 +2192,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(96) 
+	@Field(98) 
 	public int me_sub_cmp() {
-		return this.io.getIntField(this, 96);
+		return this.io.getIntField(this, 98);
 	}
 	/**
 	 * subpixel motion estimation comparison function<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(96) 
+	@Field(98) 
 	public AVCodecContext me_sub_cmp(int me_sub_cmp) {
-		this.io.setIntField(this, 96, me_sub_cmp);
+		this.io.setIntField(this, 98, me_sub_cmp);
 		return this;
 	}
 	public final int me_sub_cmp_$eq(int me_sub_cmp) {
@@ -2192,18 +2215,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(97) 
+	@Field(99) 
 	public int mb_cmp() {
-		return this.io.getIntField(this, 97);
+		return this.io.getIntField(this, 99);
 	}
 	/**
 	 * macroblock comparison function (not supported yet)<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(97) 
+	@Field(99) 
 	public AVCodecContext mb_cmp(int mb_cmp) {
-		this.io.setIntField(this, 97, mb_cmp);
+		this.io.setIntField(this, 99, mb_cmp);
 		return this;
 	}
 	public final int mb_cmp_$eq(int mb_cmp) {
@@ -2215,18 +2238,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(98) 
+	@Field(100) 
 	public int ildct_cmp() {
-		return this.io.getIntField(this, 98);
+		return this.io.getIntField(this, 100);
 	}
 	/**
 	 * interlaced DCT comparison function<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(98) 
+	@Field(100) 
 	public AVCodecContext ildct_cmp(int ildct_cmp) {
-		this.io.setIntField(this, 98, ildct_cmp);
+		this.io.setIntField(this, 100, ildct_cmp);
 		return this;
 	}
 	public final int ildct_cmp_$eq(int ildct_cmp) {
@@ -2238,18 +2261,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(99) 
+	@Field(101) 
 	public int dia_size() {
-		return this.io.getIntField(this, 99);
+		return this.io.getIntField(this, 101);
 	}
 	/**
 	 * ME diamond size & shape<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(99) 
+	@Field(101) 
 	public AVCodecContext dia_size(int dia_size) {
-		this.io.setIntField(this, 99, dia_size);
+		this.io.setIntField(this, 101, dia_size);
 		return this;
 	}
 	public final int dia_size_$eq(int dia_size) {
@@ -2261,18 +2284,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(100) 
+	@Field(102) 
 	public int last_predictor_count() {
-		return this.io.getIntField(this, 100);
+		return this.io.getIntField(this, 102);
 	}
 	/**
 	 * amount of previous MV predictors (2a+1 x 2a+1 square)<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(100) 
+	@Field(102) 
 	public AVCodecContext last_predictor_count(int last_predictor_count) {
-		this.io.setIntField(this, 100, last_predictor_count);
+		this.io.setIntField(this, 102, last_predictor_count);
 		return this;
 	}
 	public final int last_predictor_count_$eq(int last_predictor_count) {
@@ -2284,18 +2307,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(101) 
+	@Field(103) 
 	public int pre_me() {
-		return this.io.getIntField(this, 101);
+		return this.io.getIntField(this, 103);
 	}
 	/**
 	 * prepass for motion estimation<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(101) 
+	@Field(103) 
 	public AVCodecContext pre_me(int pre_me) {
-		this.io.setIntField(this, 101, pre_me);
+		this.io.setIntField(this, 103, pre_me);
 		return this;
 	}
 	public final int pre_me_$eq(int pre_me) {
@@ -2307,18 +2330,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(102) 
+	@Field(104) 
 	public int me_pre_cmp() {
-		return this.io.getIntField(this, 102);
+		return this.io.getIntField(this, 104);
 	}
 	/**
 	 * motion estimation prepass comparison function<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(102) 
+	@Field(104) 
 	public AVCodecContext me_pre_cmp(int me_pre_cmp) {
-		this.io.setIntField(this, 102, me_pre_cmp);
+		this.io.setIntField(this, 104, me_pre_cmp);
 		return this;
 	}
 	public final int me_pre_cmp_$eq(int me_pre_cmp) {
@@ -2330,18 +2353,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(103) 
+	@Field(105) 
 	public int pre_dia_size() {
-		return this.io.getIntField(this, 103);
+		return this.io.getIntField(this, 105);
 	}
 	/**
 	 * ME prepass diamond size & shape<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(103) 
+	@Field(105) 
 	public AVCodecContext pre_dia_size(int pre_dia_size) {
-		this.io.setIntField(this, 103, pre_dia_size);
+		this.io.setIntField(this, 105, pre_dia_size);
 		return this;
 	}
 	public final int pre_dia_size_$eq(int pre_dia_size) {
@@ -2353,18 +2376,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(104) 
+	@Field(106) 
 	public int me_subpel_quality() {
-		return this.io.getIntField(this, 104);
+		return this.io.getIntField(this, 106);
 	}
 	/**
 	 * subpel ME quality<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(104) 
+	@Field(106) 
 	public AVCodecContext me_subpel_quality(int me_subpel_quality) {
-		this.io.setIntField(this, 104, me_subpel_quality);
+		this.io.setIntField(this, 106, me_subpel_quality);
 		return this;
 	}
 	public final int me_subpel_quality_$eq(int me_subpel_quality) {
@@ -2381,9 +2404,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by user, if not set the native format will be chosen.<br>
 	 * C type : get_format_callback
 	 */
-	@Field(105) 
+	@Field(107) 
 	public Pointer<AVCodecContext.get_format_callback > get_format() {
-		return this.io.getPointerField(this, 105);
+		return this.io.getPointerField(this, 107);
 	}
 	/**
 	 * callback to negotiate the pixelFormat<br>
@@ -2395,9 +2418,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by user, if not set the native format will be chosen.<br>
 	 * C type : get_format_callback
 	 */
-	@Field(105) 
+	@Field(107) 
 	public AVCodecContext get_format(Pointer<AVCodecContext.get_format_callback > get_format) {
-		this.io.setPointerField(this, 105, get_format);
+		this.io.setPointerField(this, 107, get_format);
 		return this;
 	}
 	/// C type : get_format_callback
@@ -2412,9 +2435,9 @@ public class AVCodecContext extends StructObject {
 	 * * - encoding: unused<br>
 	 * - decoding: Set by decoder.
 	 */
-	@Field(106) 
+	@Field(108) 
 	public int dtg_active_format() {
-		return this.io.getIntField(this, 106);
+		return this.io.getIntField(this, 108);
 	}
 	/**
 	 * DTG active format information (additional aspect ratio<br>
@@ -2423,9 +2446,9 @@ public class AVCodecContext extends StructObject {
 	 * * - encoding: unused<br>
 	 * - decoding: Set by decoder.
 	 */
-	@Field(106) 
+	@Field(108) 
 	public AVCodecContext dtg_active_format(int dtg_active_format) {
-		this.io.setIntField(this, 106, dtg_active_format);
+		this.io.setIntField(this, 108, dtg_active_format);
 		return this;
 	}
 	public final int dtg_active_format_$eq(int dtg_active_format) {
@@ -2438,9 +2461,9 @@ public class AVCodecContext extends StructObject {
 	 * * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(107) 
+	@Field(109) 
 	public int me_range() {
-		return this.io.getIntField(this, 107);
+		return this.io.getIntField(this, 109);
 	}
 	/**
 	 * maximum motion estimation search range in subpel units<br>
@@ -2448,9 +2471,9 @@ public class AVCodecContext extends StructObject {
 	 * * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(107) 
+	@Field(109) 
 	public AVCodecContext me_range(int me_range) {
-		this.io.setIntField(this, 107, me_range);
+		this.io.setIntField(this, 109, me_range);
 		return this;
 	}
 	public final int me_range_$eq(int me_range) {
@@ -2462,18 +2485,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(108) 
+	@Field(110) 
 	public int intra_quant_bias() {
-		return this.io.getIntField(this, 108);
+		return this.io.getIntField(this, 110);
 	}
 	/**
 	 * intra quantizer bias<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(108) 
+	@Field(110) 
 	public AVCodecContext intra_quant_bias(int intra_quant_bias) {
-		this.io.setIntField(this, 108, intra_quant_bias);
+		this.io.setIntField(this, 110, intra_quant_bias);
 		return this;
 	}
 	public final int intra_quant_bias_$eq(int intra_quant_bias) {
@@ -2485,18 +2508,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(109) 
+	@Field(111) 
 	public int inter_quant_bias() {
-		return this.io.getIntField(this, 109);
+		return this.io.getIntField(this, 111);
 	}
 	/**
 	 * inter quantizer bias<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(109) 
+	@Field(111) 
 	public AVCodecContext inter_quant_bias(int inter_quant_bias) {
-		this.io.setIntField(this, 109, inter_quant_bias);
+		this.io.setIntField(this, 111, inter_quant_bias);
 		return this;
 	}
 	public final int inter_quant_bias_$eq(int inter_quant_bias) {
@@ -2509,9 +2532,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Which clrtable should be used for 8bit RGB images.<br>
 	 *             Tables have to be stored somewhere. FIXME
 	 */
-	@Field(110) 
+	@Field(112) 
 	public int color_table_id() {
-		return this.io.getIntField(this, 110);
+		return this.io.getIntField(this, 112);
 	}
 	/**
 	 * color table ID<br>
@@ -2519,9 +2542,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Which clrtable should be used for 8bit RGB images.<br>
 	 *             Tables have to be stored somewhere. FIXME
 	 */
-	@Field(110) 
+	@Field(112) 
 	public AVCodecContext color_table_id(int color_table_id) {
-		this.io.setIntField(this, 110, color_table_id);
+		this.io.setIntField(this, 112, color_table_id);
 		return this;
 	}
 	public final int color_table_id_$eq(int color_table_id) {
@@ -2532,17 +2555,17 @@ public class AVCodecContext extends StructObject {
 	 * internal_buffer count<br>
 	 * Don't touch, used by libavcodec default_get_buffer().
 	 */
-	@Field(111) 
+	@Field(113) 
 	public int internal_buffer_count() {
-		return this.io.getIntField(this, 111);
+		return this.io.getIntField(this, 113);
 	}
 	/**
 	 * internal_buffer count<br>
 	 * Don't touch, used by libavcodec default_get_buffer().
 	 */
-	@Field(111) 
+	@Field(113) 
 	public AVCodecContext internal_buffer_count(int internal_buffer_count) {
-		this.io.setIntField(this, 111, internal_buffer_count);
+		this.io.setIntField(this, 113, internal_buffer_count);
 		return this;
 	}
 	public final int internal_buffer_count_$eq(int internal_buffer_count) {
@@ -2554,18 +2577,18 @@ public class AVCodecContext extends StructObject {
 	 * Don't touch, used by libavcodec default_get_buffer().<br>
 	 * C type : void*
 	 */
-	@Field(112) 
+	@Field(114) 
 	public Pointer<? > internal_buffer() {
-		return this.io.getPointerField(this, 112);
+		return this.io.getPointerField(this, 114);
 	}
 	/**
 	 * internal_buffers<br>
 	 * Don't touch, used by libavcodec default_get_buffer().<br>
 	 * C type : void*
 	 */
-	@Field(112) 
+	@Field(114) 
 	public AVCodecContext internal_buffer(Pointer<? > internal_buffer) {
-		this.io.setPointerField(this, 112, internal_buffer);
+		this.io.setPointerField(this, 114, internal_buffer);
 		return this;
 	}
 	/// C type : void*
@@ -2579,9 +2602,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(113) 
+	@Field(115) 
 	public int global_quality() {
-		return this.io.getIntField(this, 113);
+		return this.io.getIntField(this, 115);
 	}
 	/**
 	 * Global quality for codecs which cannot change it per frame.<br>
@@ -2589,9 +2612,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(113) 
+	@Field(115) 
 	public AVCodecContext global_quality(int global_quality) {
-		this.io.setIntField(this, 113, global_quality);
+		this.io.setIntField(this, 115, global_quality);
 		return this;
 	}
 	public final int global_quality_$eq(int global_quality) {
@@ -2603,18 +2626,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(114) 
+	@Field(116) 
 	public int coder_type() {
-		return this.io.getIntField(this, 114);
+		return this.io.getIntField(this, 116);
 	}
 	/**
 	 * coder type<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(114) 
+	@Field(116) 
 	public AVCodecContext coder_type(int coder_type) {
-		this.io.setIntField(this, 114, coder_type);
+		this.io.setIntField(this, 116, coder_type);
 		return this;
 	}
 	public final int coder_type_$eq(int coder_type) {
@@ -2626,18 +2649,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(115) 
+	@Field(117) 
 	public int context_model() {
-		return this.io.getIntField(this, 115);
+		return this.io.getIntField(this, 117);
 	}
 	/**
 	 * context model<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(115) 
+	@Field(117) 
 	public AVCodecContext context_model(int context_model) {
-		this.io.setIntField(this, 115, context_model);
+		this.io.setIntField(this, 117, context_model);
 		return this;
 	}
 	public final int context_model_$eq(int context_model) {
@@ -2649,18 +2672,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(116) 
+	@Field(118) 
 	public int slice_flags() {
-		return this.io.getIntField(this, 116);
+		return this.io.getIntField(this, 118);
 	}
 	/**
 	 * slice flags<br>
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(116) 
+	@Field(118) 
 	public AVCodecContext slice_flags(int slice_flags) {
-		this.io.setIntField(this, 116, slice_flags);
+		this.io.setIntField(this, 118, slice_flags);
 		return this;
 	}
 	public final int slice_flags_$eq(int slice_flags) {
@@ -2672,18 +2695,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: forbidden<br>
 	 * - decoding: set by decoder
 	 */
-	@Field(117) 
+	@Field(119) 
 	public int xvmc_acceleration() {
-		return this.io.getIntField(this, 117);
+		return this.io.getIntField(this, 119);
 	}
 	/**
 	 * XVideo Motion Acceleration<br>
 	 * - encoding: forbidden<br>
 	 * - decoding: set by decoder
 	 */
-	@Field(117) 
+	@Field(119) 
 	public AVCodecContext xvmc_acceleration(int xvmc_acceleration) {
-		this.io.setIntField(this, 117, xvmc_acceleration);
+		this.io.setIntField(this, 119, xvmc_acceleration);
 		return this;
 	}
 	public final int xvmc_acceleration_$eq(int xvmc_acceleration) {
@@ -2695,18 +2718,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(118) 
+	@Field(120) 
 	public int mb_decision() {
-		return this.io.getIntField(this, 118);
+		return this.io.getIntField(this, 120);
 	}
 	/**
 	 * macroblock decision mode<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(118) 
+	@Field(120) 
 	public AVCodecContext mb_decision(int mb_decision) {
-		this.io.setIntField(this, 118, mb_decision);
+		this.io.setIntField(this, 120, mb_decision);
 		return this;
 	}
 	public final int mb_decision_$eq(int mb_decision) {
@@ -2719,9 +2742,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec.<br>
 	 * C type : uint16_t*
 	 */
-	@Field(119) 
+	@Field(121) 
 	public Pointer<java.lang.Short > intra_matrix() {
-		return this.io.getPointerField(this, 119);
+		return this.io.getPointerField(this, 121);
 	}
 	/**
 	 * custom intra quantization matrix<br>
@@ -2729,9 +2752,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec.<br>
 	 * C type : uint16_t*
 	 */
-	@Field(119) 
+	@Field(121) 
 	public AVCodecContext intra_matrix(Pointer<java.lang.Short > intra_matrix) {
-		this.io.setPointerField(this, 119, intra_matrix);
+		this.io.setPointerField(this, 121, intra_matrix);
 		return this;
 	}
 	/// C type : uint16_t*
@@ -2745,9 +2768,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec.<br>
 	 * C type : uint16_t*
 	 */
-	@Field(120) 
+	@Field(122) 
 	public Pointer<java.lang.Short > inter_matrix() {
-		return this.io.getPointerField(this, 120);
+		return this.io.getPointerField(this, 122);
 	}
 	/**
 	 * custom inter quantization matrix<br>
@@ -2755,9 +2778,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec.<br>
 	 * C type : uint16_t*
 	 */
-	@Field(120) 
+	@Field(122) 
 	public AVCodecContext inter_matrix(Pointer<java.lang.Short > inter_matrix) {
-		this.io.setPointerField(this, 120, inter_matrix);
+		this.io.setPointerField(this, 122, inter_matrix);
 		return this;
 	}
 	/// C type : uint16_t*
@@ -2771,9 +2794,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user, will be converted to uppercase by libavcodec during init.
 	 */
-	@Field(121) 
+	@Field(123) 
 	public int stream_codec_tag() {
-		return this.io.getIntField(this, 121);
+		return this.io.getIntField(this, 123);
 	}
 	/**
 	 * fourcc from the AVI stream header (LSB first, so "ABCD" -> ('D'<<24) + ('C'<<16) + ('B'<<8) + 'A').<br>
@@ -2781,9 +2804,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user, will be converted to uppercase by libavcodec during init.
 	 */
-	@Field(121) 
+	@Field(123) 
 	public AVCodecContext stream_codec_tag(int stream_codec_tag) {
-		this.io.setIntField(this, 121, stream_codec_tag);
+		this.io.setIntField(this, 123, stream_codec_tag);
 		return this;
 	}
 	public final int stream_codec_tag_$eq(int stream_codec_tag) {
@@ -2796,9 +2819,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(122) 
+	@Field(124) 
 	public int scenechange_threshold() {
-		return this.io.getIntField(this, 122);
+		return this.io.getIntField(this, 124);
 	}
 	/**
 	 * scene change detection threshold<br>
@@ -2806,9 +2829,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(122) 
+	@Field(124) 
 	public AVCodecContext scenechange_threshold(int scenechange_threshold) {
-		this.io.setIntField(this, 122, scenechange_threshold);
+		this.io.setIntField(this, 124, scenechange_threshold);
 		return this;
 	}
 	public final int scenechange_threshold_$eq(int scenechange_threshold) {
@@ -2820,18 +2843,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(123) 
+	@Field(125) 
 	public int lmin() {
-		return this.io.getIntField(this, 123);
+		return this.io.getIntField(this, 125);
 	}
 	/**
 	 * minimum Lagrange multipler<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(123) 
+	@Field(125) 
 	public AVCodecContext lmin(int lmin) {
-		this.io.setIntField(this, 123, lmin);
+		this.io.setIntField(this, 125, lmin);
 		return this;
 	}
 	public final int lmin_$eq(int lmin) {
@@ -2843,18 +2866,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(124) 
+	@Field(126) 
 	public int lmax() {
-		return this.io.getIntField(this, 124);
+		return this.io.getIntField(this, 126);
 	}
 	/**
 	 * maximum Lagrange multipler<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(124) 
+	@Field(126) 
 	public AVCodecContext lmax(int lmax) {
-		this.io.setIntField(this, 124, lmax);
+		this.io.setIntField(this, 126, lmax);
 		return this;
 	}
 	public final int lmax_$eq(int lmax) {
@@ -2867,9 +2890,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by user.<br>
 	 * C type : AVPaletteControl*
 	 */
-	@Field(125) 
+	@Field(127) 
 	public Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPaletteControl > palctrl() {
-		return this.io.getPointerField(this, 125);
+		return this.io.getPointerField(this, 127);
 	}
 	/**
 	 * palette control structure<br>
@@ -2877,9 +2900,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by user.<br>
 	 * C type : AVPaletteControl*
 	 */
-	@Field(125) 
+	@Field(127) 
 	public AVCodecContext palctrl(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPaletteControl > palctrl) {
-		this.io.setPointerField(this, 125, palctrl);
+		this.io.setPointerField(this, 127, palctrl);
 		return this;
 	}
 	/// C type : AVPaletteControl*
@@ -2892,18 +2915,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(126) 
+	@Field(128) 
 	public int noise_reduction() {
-		return this.io.getIntField(this, 126);
+		return this.io.getIntField(this, 128);
 	}
 	/**
 	 * noise reduction strength<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(126) 
+	@Field(128) 
 	public AVCodecContext noise_reduction(int noise_reduction) {
-		this.io.setIntField(this, 126, noise_reduction);
+		this.io.setIntField(this, 128, noise_reduction);
 		return this;
 	}
 	public final int noise_reduction_$eq(int noise_reduction) {
@@ -2923,9 +2946,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec., user can override<br>
 	 * C type : reget_buffer_callback
 	 */
-	@Field(127) 
+	@Field(129) 
 	public Pointer<AVCodecContext.reget_buffer_callback > reget_buffer() {
-		return this.io.getPointerField(this, 127);
+		return this.io.getPointerField(this, 129);
 	}
 	/**
 	 * Called at the beginning of a frame to get cr buffer for it.<br>
@@ -2940,9 +2963,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec., user can override<br>
 	 * C type : reget_buffer_callback
 	 */
-	@Field(127) 
+	@Field(129) 
 	public AVCodecContext reget_buffer(Pointer<AVCodecContext.reget_buffer_callback > reget_buffer) {
-		this.io.setPointerField(this, 127, reget_buffer);
+		this.io.setPointerField(this, 129, reget_buffer);
 		return this;
 	}
 	/// C type : reget_buffer_callback
@@ -2955,18 +2978,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(128) 
+	@Field(130) 
 	public int rc_initial_buffer_occupancy() {
-		return this.io.getIntField(this, 128);
+		return this.io.getIntField(this, 130);
 	}
 	/**
 	 * Number of bits which should be loaded into the rc buffer before decoding starts.<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(128) 
+	@Field(130) 
 	public AVCodecContext rc_initial_buffer_occupancy(int rc_initial_buffer_occupancy) {
-		this.io.setIntField(this, 128, rc_initial_buffer_occupancy);
+		this.io.setIntField(this, 130, rc_initial_buffer_occupancy);
 		return this;
 	}
 	public final int rc_initial_buffer_occupancy_$eq(int rc_initial_buffer_occupancy) {
@@ -2977,17 +3000,17 @@ public class AVCodecContext extends StructObject {
 	 * * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(129) 
+	@Field(131) 
 	public int inter_threshold() {
-		return this.io.getIntField(this, 129);
+		return this.io.getIntField(this, 131);
 	}
 	/**
 	 * * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(129) 
+	@Field(131) 
 	public AVCodecContext inter_threshold(int inter_threshold) {
-		this.io.setIntField(this, 129, inter_threshold);
+		this.io.setIntField(this, 131, inter_threshold);
 		return this;
 	}
 	public final int inter_threshold_$eq(int inter_threshold) {
@@ -2999,18 +3022,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(130) 
+	@Field(132) 
 	public int flags2() {
-		return this.io.getIntField(this, 130);
+		return this.io.getIntField(this, 132);
 	}
 	/**
 	 * CODEC_FLAG2_*<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(130) 
+	@Field(132) 
 	public AVCodecContext flags2(int flags2) {
-		this.io.setIntField(this, 130, flags2);
+		this.io.setIntField(this, 132, flags2);
 		return this;
 	}
 	public final int flags2_$eq(int flags2) {
@@ -3022,18 +3045,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(131) 
+	@Field(133) 
 	public int error_rate() {
-		return this.io.getIntField(this, 131);
+		return this.io.getIntField(this, 133);
 	}
 	/**
 	 * Simulates errors in the bitstream to test error concealment.<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(131) 
+	@Field(133) 
 	public AVCodecContext error_rate(int error_rate) {
-		this.io.setIntField(this, 131, error_rate);
+		this.io.setIntField(this, 133, error_rate);
 		return this;
 	}
 	public final int error_rate_$eq(int error_rate) {
@@ -3045,18 +3068,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(132) 
+	@Field(134) 
 	public int antialias_algo() {
-		return this.io.getIntField(this, 132);
+		return this.io.getIntField(this, 134);
 	}
 	/**
 	 * MP3 antialias algorithm, see FF_AA_* below.<br>
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(132) 
+	@Field(134) 
 	public AVCodecContext antialias_algo(int antialias_algo) {
-		this.io.setIntField(this, 132, antialias_algo);
+		this.io.setIntField(this, 134, antialias_algo);
 		return this;
 	}
 	public final int antialias_algo_$eq(int antialias_algo) {
@@ -3068,18 +3091,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(133) 
+	@Field(135) 
 	public int quantizer_noise_shaping() {
-		return this.io.getIntField(this, 133);
+		return this.io.getIntField(this, 135);
 	}
 	/**
 	 * quantizer noise shaping<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(133) 
+	@Field(135) 
 	public AVCodecContext quantizer_noise_shaping(int quantizer_noise_shaping) {
-		this.io.setIntField(this, 133, quantizer_noise_shaping);
+		this.io.setIntField(this, 135, quantizer_noise_shaping);
 		return this;
 	}
 	public final int quantizer_noise_shaping_$eq(int quantizer_noise_shaping) {
@@ -3092,9 +3115,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(134) 
+	@Field(136) 
 	public int thread_count() {
-		return this.io.getIntField(this, 134);
+		return this.io.getIntField(this, 136);
 	}
 	/**
 	 * thread count<br>
@@ -3102,9 +3125,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(134) 
+	@Field(136) 
 	public AVCodecContext thread_count(int thread_count) {
-		this.io.setIntField(this, 134, thread_count);
+		this.io.setIntField(this, 136, thread_count);
 		return this;
 	}
 	public final int thread_count_$eq(int thread_count) {
@@ -3121,9 +3144,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec, user can override.<br>
 	 * C type : execute_callback
 	 */
-	@Field(135) 
+	@Field(137) 
 	public Pointer<AVCodecContext.execute_callback > execute() {
-		return this.io.getPointerField(this, 135);
+		return this.io.getPointerField(this, 137);
 	}
 	/**
 	 * The codec may call this to execute several independent things.<br>
@@ -3135,9 +3158,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec, user can override.<br>
 	 * C type : execute_callback
 	 */
-	@Field(135) 
+	@Field(137) 
 	public AVCodecContext execute(Pointer<AVCodecContext.execute_callback > execute) {
-		this.io.setPointerField(this, 135, execute);
+		this.io.setPointerField(this, 137, execute);
 		return this;
 	}
 	/// C type : execute_callback
@@ -3152,9 +3175,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: set by execute()<br>
 	 * C type : void*
 	 */
-	@Field(136) 
+	@Field(138) 
 	public Pointer<? > thread_opaque() {
-		return this.io.getPointerField(this, 136);
+		return this.io.getPointerField(this, 138);
 	}
 	/**
 	 * thread opaque<br>
@@ -3163,9 +3186,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: set by execute()<br>
 	 * C type : void*
 	 */
-	@Field(136) 
+	@Field(138) 
 	public AVCodecContext thread_opaque(Pointer<? > thread_opaque) {
-		this.io.setPointerField(this, 136, thread_opaque);
+		this.io.setPointerField(this, 138, thread_opaque);
 		return this;
 	}
 	/// C type : void*
@@ -3179,9 +3202,9 @@ public class AVCodecContext extends StructObject {
 	 * * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(137) 
+	@Field(139) 
 	public int me_threshold() {
-		return this.io.getIntField(this, 137);
+		return this.io.getIntField(this, 139);
 	}
 	/**
 	 * Motion estimation threshold below which no motion estimation is<br>
@@ -3189,9 +3212,9 @@ public class AVCodecContext extends StructObject {
 	 * * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(137) 
+	@Field(139) 
 	public AVCodecContext me_threshold(int me_threshold) {
-		this.io.setIntField(this, 137, me_threshold);
+		this.io.setIntField(this, 139, me_threshold);
 		return this;
 	}
 	public final int me_threshold_$eq(int me_threshold) {
@@ -3203,18 +3226,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(138) 
+	@Field(140) 
 	public int mb_threshold() {
-		return this.io.getIntField(this, 138);
+		return this.io.getIntField(this, 140);
 	}
 	/**
 	 * Macroblock threshold below which the user specified macroblock types will be used.<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(138) 
+	@Field(140) 
 	public AVCodecContext mb_threshold(int mb_threshold) {
-		this.io.setIntField(this, 138, mb_threshold);
+		this.io.setIntField(this, 140, mb_threshold);
 		return this;
 	}
 	public final int mb_threshold_$eq(int mb_threshold) {
@@ -3226,18 +3249,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(139) 
+	@Field(141) 
 	public int intra_dc_precision() {
-		return this.io.getIntField(this, 139);
+		return this.io.getIntField(this, 141);
 	}
 	/**
 	 * precision of the intra DC coefficient - 8<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(139) 
+	@Field(141) 
 	public AVCodecContext intra_dc_precision(int intra_dc_precision) {
-		this.io.setIntField(this, 139, intra_dc_precision);
+		this.io.setIntField(this, 141, intra_dc_precision);
 		return this;
 	}
 	public final int intra_dc_precision_$eq(int intra_dc_precision) {
@@ -3249,18 +3272,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(140) 
+	@Field(142) 
 	public int nsse_weight() {
-		return this.io.getIntField(this, 140);
+		return this.io.getIntField(this, 142);
 	}
 	/**
 	 * noise vs. sse weight for the nsse comparsion function<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(140) 
+	@Field(142) 
 	public AVCodecContext nsse_weight(int nsse_weight) {
-		this.io.setIntField(this, 140, nsse_weight);
+		this.io.setIntField(this, 142, nsse_weight);
 		return this;
 	}
 	public final int nsse_weight_$eq(int nsse_weight) {
@@ -3272,18 +3295,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(141) 
+	@Field(143) 
 	public int skip_top() {
-		return this.io.getIntField(this, 141);
+		return this.io.getIntField(this, 143);
 	}
 	/**
 	 * Number of macroblock rows at the top which are skipped.<br>
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(141) 
+	@Field(143) 
 	public AVCodecContext skip_top(int skip_top) {
-		this.io.setIntField(this, 141, skip_top);
+		this.io.setIntField(this, 143, skip_top);
 		return this;
 	}
 	public final int skip_top_$eq(int skip_top) {
@@ -3295,18 +3318,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(142) 
+	@Field(144) 
 	public int skip_bottom() {
-		return this.io.getIntField(this, 142);
+		return this.io.getIntField(this, 144);
 	}
 	/**
 	 * Number of macroblock rows at the bottom which are skipped.<br>
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(142) 
+	@Field(144) 
 	public AVCodecContext skip_bottom(int skip_bottom) {
-		this.io.setIntField(this, 142, skip_bottom);
+		this.io.setIntField(this, 144, skip_bottom);
 		return this;
 	}
 	public final int skip_bottom_$eq(int skip_bottom) {
@@ -3318,18 +3341,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by libavcodec.
 	 */
-	@Field(143) 
+	@Field(145) 
 	public int profile() {
-		return this.io.getIntField(this, 143);
+		return this.io.getIntField(this, 145);
 	}
 	/**
 	 * profile<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by libavcodec.
 	 */
-	@Field(143) 
+	@Field(145) 
 	public AVCodecContext profile(int profile) {
-		this.io.setIntField(this, 143, profile);
+		this.io.setIntField(this, 145, profile);
 		return this;
 	}
 	public final int profile_$eq(int profile) {
@@ -3341,18 +3364,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by libavcodec.
 	 */
-	@Field(144) 
+	@Field(146) 
 	public int level() {
-		return this.io.getIntField(this, 144);
+		return this.io.getIntField(this, 146);
 	}
 	/**
 	 * level<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by libavcodec.
 	 */
-	@Field(144) 
+	@Field(146) 
 	public AVCodecContext level(int level) {
-		this.io.setIntField(this, 144, level);
+		this.io.setIntField(this, 146, level);
 		return this;
 	}
 	public final int level_$eq(int level) {
@@ -3364,18 +3387,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(145) 
+	@Field(147) 
 	public int lowres() {
-		return this.io.getIntField(this, 145);
+		return this.io.getIntField(this, 147);
 	}
 	/**
 	 * low resolution decoding, 1-> 1/2 size, 2->1/4 size<br>
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(145) 
+	@Field(147) 
 	public AVCodecContext lowres(int lowres) {
-		this.io.setIntField(this, 145, lowres);
+		this.io.setIntField(this, 147, lowres);
 		return this;
 	}
 	public final int lowres_$eq(int lowres) {
@@ -3388,9 +3411,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user before init if known. Codec should override / dynamically change if needed.
 	 */
-	@Field(146) 
+	@Field(148) 
 	public int coded_width() {
-		return this.io.getIntField(this, 146);
+		return this.io.getIntField(this, 148);
 	}
 	/**
 	 * Bitstream width / height, may be different from width/height if lowres<br>
@@ -3398,9 +3421,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user before init if known. Codec should override / dynamically change if needed.
 	 */
-	@Field(146) 
+	@Field(148) 
 	public AVCodecContext coded_width(int coded_width) {
-		this.io.setIntField(this, 146, coded_width);
+		this.io.setIntField(this, 148, coded_width);
 		return this;
 	}
 	public final int coded_width_$eq(int coded_width) {
@@ -3413,9 +3436,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user before init if known. Codec should override / dynamically change if needed.
 	 */
-	@Field(147) 
+	@Field(149) 
 	public int coded_height() {
-		return this.io.getIntField(this, 147);
+		return this.io.getIntField(this, 149);
 	}
 	/**
 	 * Bitstream width / height, may be different from width/height if lowres<br>
@@ -3423,9 +3446,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user before init if known. Codec should override / dynamically change if needed.
 	 */
-	@Field(147) 
+	@Field(149) 
 	public AVCodecContext coded_height(int coded_height) {
-		this.io.setIntField(this, 147, coded_height);
+		this.io.setIntField(this, 149, coded_height);
 		return this;
 	}
 	public final int coded_height_$eq(int coded_height) {
@@ -3437,18 +3460,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(148) 
+	@Field(150) 
 	public int frame_skip_threshold() {
-		return this.io.getIntField(this, 148);
+		return this.io.getIntField(this, 150);
 	}
 	/**
 	 * frame skip threshold<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(148) 
+	@Field(150) 
 	public AVCodecContext frame_skip_threshold(int frame_skip_threshold) {
-		this.io.setIntField(this, 148, frame_skip_threshold);
+		this.io.setIntField(this, 150, frame_skip_threshold);
 		return this;
 	}
 	public final int frame_skip_threshold_$eq(int frame_skip_threshold) {
@@ -3460,18 +3483,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(149) 
+	@Field(151) 
 	public int frame_skip_factor() {
-		return this.io.getIntField(this, 149);
+		return this.io.getIntField(this, 151);
 	}
 	/**
 	 * frame skip factor<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(149) 
+	@Field(151) 
 	public AVCodecContext frame_skip_factor(int frame_skip_factor) {
-		this.io.setIntField(this, 149, frame_skip_factor);
+		this.io.setIntField(this, 151, frame_skip_factor);
 		return this;
 	}
 	public final int frame_skip_factor_$eq(int frame_skip_factor) {
@@ -3483,18 +3506,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(150) 
+	@Field(152) 
 	public int frame_skip_exp() {
-		return this.io.getIntField(this, 150);
+		return this.io.getIntField(this, 152);
 	}
 	/**
 	 * frame skip exponent<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(150) 
+	@Field(152) 
 	public AVCodecContext frame_skip_exp(int frame_skip_exp) {
-		this.io.setIntField(this, 150, frame_skip_exp);
+		this.io.setIntField(this, 152, frame_skip_exp);
 		return this;
 	}
 	public final int frame_skip_exp_$eq(int frame_skip_exp) {
@@ -3506,18 +3529,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(151) 
+	@Field(153) 
 	public int frame_skip_cmp() {
-		return this.io.getIntField(this, 151);
+		return this.io.getIntField(this, 153);
 	}
 	/**
 	 * frame skip comparison function<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(151) 
+	@Field(153) 
 	public AVCodecContext frame_skip_cmp(int frame_skip_cmp) {
-		this.io.setIntField(this, 151, frame_skip_cmp);
+		this.io.setIntField(this, 153, frame_skip_cmp);
 		return this;
 	}
 	public final int frame_skip_cmp_$eq(int frame_skip_cmp) {
@@ -3530,9 +3553,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(152) 
+	@Field(154) 
 	public float border_masking() {
-		return this.io.getFloatField(this, 152);
+		return this.io.getFloatField(this, 154);
 	}
 	/**
 	 * Border processing masking, raises the quantizer for mbs on the borders<br>
@@ -3540,9 +3563,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(152) 
+	@Field(154) 
 	public AVCodecContext border_masking(float border_masking) {
-		this.io.setFloatField(this, 152, border_masking);
+		this.io.setFloatField(this, 154, border_masking);
 		return this;
 	}
 	public final float border_masking_$eq(float border_masking) {
@@ -3554,18 +3577,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(153) 
+	@Field(155) 
 	public int mb_lmin() {
-		return this.io.getIntField(this, 153);
+		return this.io.getIntField(this, 155);
 	}
 	/**
 	 * minimum MB lagrange multipler<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(153) 
+	@Field(155) 
 	public AVCodecContext mb_lmin(int mb_lmin) {
-		this.io.setIntField(this, 153, mb_lmin);
+		this.io.setIntField(this, 155, mb_lmin);
 		return this;
 	}
 	public final int mb_lmin_$eq(int mb_lmin) {
@@ -3577,18 +3600,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(154) 
+	@Field(156) 
 	public int mb_lmax() {
-		return this.io.getIntField(this, 154);
+		return this.io.getIntField(this, 156);
 	}
 	/**
 	 * maximum MB lagrange multipler<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(154) 
+	@Field(156) 
 	public AVCodecContext mb_lmax(int mb_lmax) {
-		this.io.setIntField(this, 154, mb_lmax);
+		this.io.setIntField(this, 156, mb_lmax);
 		return this;
 	}
 	public final int mb_lmax_$eq(int mb_lmax) {
@@ -3599,17 +3622,17 @@ public class AVCodecContext extends StructObject {
 	 * * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(155) 
+	@Field(157) 
 	public int me_penalty_compensation() {
-		return this.io.getIntField(this, 155);
+		return this.io.getIntField(this, 157);
 	}
 	/**
 	 * * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(155) 
+	@Field(157) 
 	public AVCodecContext me_penalty_compensation(int me_penalty_compensation) {
-		this.io.setIntField(this, 155, me_penalty_compensation);
+		this.io.setIntField(this, 157, me_penalty_compensation);
 		return this;
 	}
 	public final int me_penalty_compensation_$eq(int me_penalty_compensation) {
@@ -3623,17 +3646,17 @@ public class AVCodecContext extends StructObject {
 	 * * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(156) 
+	@Field(158) 
 	public int bidir_refine() {
-		return this.io.getIntField(this, 156);
+		return this.io.getIntField(this, 158);
 	}
 	/**
 	 * * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(156) 
+	@Field(158) 
 	public AVCodecContext bidir_refine(int bidir_refine) {
-		this.io.setIntField(this, 156, bidir_refine);
+		this.io.setIntField(this, 158, bidir_refine);
 		return this;
 	}
 	public final int bidir_refine_$eq(int bidir_refine) {
@@ -3644,17 +3667,17 @@ public class AVCodecContext extends StructObject {
 	 * * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(157) 
+	@Field(159) 
 	public int brd_scale() {
-		return this.io.getIntField(this, 157);
+		return this.io.getIntField(this, 159);
 	}
 	/**
 	 * * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(157) 
+	@Field(159) 
 	public AVCodecContext brd_scale(int brd_scale) {
-		this.io.setIntField(this, 157, brd_scale);
+		this.io.setIntField(this, 159, brd_scale);
 		return this;
 	}
 	public final int brd_scale_$eq(int brd_scale) {
@@ -3666,18 +3689,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(158) 
+	@Field(160) 
 	public float crf() {
-		return this.io.getFloatField(this, 158);
+		return this.io.getFloatField(this, 160);
 	}
 	/**
 	 * constant rate factor - quality-based VBR - values ~correspond to qps<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(158) 
+	@Field(160) 
 	public AVCodecContext crf(float crf) {
-		this.io.setFloatField(this, 158, crf);
+		this.io.setFloatField(this, 160, crf);
 		return this;
 	}
 	public final float crf_$eq(float crf) {
@@ -3689,18 +3712,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(159) 
+	@Field(161) 
 	public int cqp() {
-		return this.io.getIntField(this, 159);
+		return this.io.getIntField(this, 161);
 	}
 	/**
 	 * constant quantization parameter rate control method<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(159) 
+	@Field(161) 
 	public AVCodecContext cqp(int cqp) {
-		this.io.setIntField(this, 159, cqp);
+		this.io.setIntField(this, 161, cqp);
 		return this;
 	}
 	public final int cqp_$eq(int cqp) {
@@ -3712,18 +3735,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(160) 
+	@Field(162) 
 	public int keyint_min() {
-		return this.io.getIntField(this, 160);
+		return this.io.getIntField(this, 162);
 	}
 	/**
 	 * minimum GOP size<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(160) 
+	@Field(162) 
 	public AVCodecContext keyint_min(int keyint_min) {
-		this.io.setIntField(this, 160, keyint_min);
+		this.io.setIntField(this, 162, keyint_min);
 		return this;
 	}
 	public final int keyint_min_$eq(int keyint_min) {
@@ -3735,18 +3758,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by lavc.
 	 */
-	@Field(161) 
+	@Field(163) 
 	public int refs() {
-		return this.io.getIntField(this, 161);
+		return this.io.getIntField(this, 163);
 	}
 	/**
 	 * number of reference frames<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: Set by lavc.
 	 */
-	@Field(161) 
+	@Field(163) 
 	public AVCodecContext refs(int refs) {
-		this.io.setIntField(this, 161, refs);
+		this.io.setIntField(this, 163, refs);
 		return this;
 	}
 	public final int refs_$eq(int refs) {
@@ -3758,18 +3781,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(162) 
+	@Field(164) 
 	public int chromaoffset() {
-		return this.io.getIntField(this, 162);
+		return this.io.getIntField(this, 164);
 	}
 	/**
 	 * chroma qp offset from luma<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(162) 
+	@Field(164) 
 	public AVCodecContext chromaoffset(int chromaoffset) {
-		this.io.setIntField(this, 162, chromaoffset);
+		this.io.setIntField(this, 164, chromaoffset);
 		return this;
 	}
 	public final int chromaoffset_$eq(int chromaoffset) {
@@ -3781,18 +3804,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(163) 
+	@Field(165) 
 	public int bframebias() {
-		return this.io.getIntField(this, 163);
+		return this.io.getIntField(this, 165);
 	}
 	/**
 	 * Influences how often B-frames are used.<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(163) 
+	@Field(165) 
 	public AVCodecContext bframebias(int bframebias) {
-		this.io.setIntField(this, 163, bframebias);
+		this.io.setIntField(this, 165, bframebias);
 		return this;
 	}
 	public final int bframebias_$eq(int bframebias) {
@@ -3804,18 +3827,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(164) 
+	@Field(166) 
 	public int trellis() {
-		return this.io.getIntField(this, 164);
+		return this.io.getIntField(this, 166);
 	}
 	/**
 	 * trellis RD quantization<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(164) 
+	@Field(166) 
 	public AVCodecContext trellis(int trellis) {
-		this.io.setIntField(this, 164, trellis);
+		this.io.setIntField(this, 166, trellis);
 		return this;
 	}
 	public final int trellis_$eq(int trellis) {
@@ -3827,18 +3850,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(165) 
+	@Field(167) 
 	public float complexityblur() {
-		return this.io.getFloatField(this, 165);
+		return this.io.getFloatField(this, 167);
 	}
 	/**
 	 * Reduce fluctuations in qp (before curve compression).<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(165) 
+	@Field(167) 
 	public AVCodecContext complexityblur(float complexityblur) {
-		this.io.setFloatField(this, 165, complexityblur);
+		this.io.setFloatField(this, 167, complexityblur);
 		return this;
 	}
 	public final float complexityblur_$eq(float complexityblur) {
@@ -3851,9 +3874,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(166) 
+	@Field(168) 
 	public int deblockalpha() {
-		return this.io.getIntField(this, 166);
+		return this.io.getIntField(this, 168);
 	}
 	/**
 	 * in-loop deblocking filter alphac0 parameter<br>
@@ -3861,9 +3884,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(166) 
+	@Field(168) 
 	public AVCodecContext deblockalpha(int deblockalpha) {
-		this.io.setIntField(this, 166, deblockalpha);
+		this.io.setIntField(this, 168, deblockalpha);
 		return this;
 	}
 	public final int deblockalpha_$eq(int deblockalpha) {
@@ -3876,9 +3899,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(167) 
+	@Field(169) 
 	public int deblockbeta() {
-		return this.io.getIntField(this, 167);
+		return this.io.getIntField(this, 169);
 	}
 	/**
 	 * in-loop deblocking filter beta parameter<br>
@@ -3886,9 +3909,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(167) 
+	@Field(169) 
 	public AVCodecContext deblockbeta(int deblockbeta) {
-		this.io.setIntField(this, 167, deblockbeta);
+		this.io.setIntField(this, 169, deblockbeta);
 		return this;
 	}
 	public final int deblockbeta_$eq(int deblockbeta) {
@@ -3900,18 +3923,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(168) 
+	@Field(170) 
 	public int partitions() {
-		return this.io.getIntField(this, 168);
+		return this.io.getIntField(this, 170);
 	}
 	/**
 	 * macroblock subpartition sizes to consider - p8x8, p4x4, b8x8, i8x8, i4x4<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(168) 
+	@Field(170) 
 	public AVCodecContext partitions(int partitions) {
-		this.io.setIntField(this, 168, partitions);
+		this.io.setIntField(this, 170, partitions);
 		return this;
 	}
 	public final int partitions_$eq(int partitions) {
@@ -3923,18 +3946,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(169) 
+	@Field(171) 
 	public int directpred() {
-		return this.io.getIntField(this, 169);
+		return this.io.getIntField(this, 171);
 	}
 	/**
 	 * direct MV prediction mode - 0 (none), 1 (spatial), 2 (temporal), 3 (auto)<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(169) 
+	@Field(171) 
 	public AVCodecContext directpred(int directpred) {
-		this.io.setIntField(this, 169, directpred);
+		this.io.setIntField(this, 171, directpred);
 		return this;
 	}
 	public final int directpred_$eq(int directpred) {
@@ -3946,18 +3969,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(170) 
+	@Field(172) 
 	public int cutoff() {
-		return this.io.getIntField(this, 170);
+		return this.io.getIntField(this, 172);
 	}
 	/**
 	 * Audio cutoff bandwidth (0 means "automatic")<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(170) 
+	@Field(172) 
 	public AVCodecContext cutoff(int cutoff) {
-		this.io.setIntField(this, 170, cutoff);
+		this.io.setIntField(this, 172, cutoff);
 		return this;
 	}
 	public final int cutoff_$eq(int cutoff) {
@@ -3969,18 +3992,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(171) 
+	@Field(173) 
 	public int scenechange_factor() {
-		return this.io.getIntField(this, 171);
+		return this.io.getIntField(this, 173);
 	}
 	/**
 	 * Multiplied by qscale for each frame and added to scene_change_score.<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(171) 
+	@Field(173) 
 	public AVCodecContext scenechange_factor(int scenechange_factor) {
-		this.io.setIntField(this, 171, scenechange_factor);
+		this.io.setIntField(this, 173, scenechange_factor);
 		return this;
 	}
 	public final int scenechange_factor_$eq(int scenechange_factor) {
@@ -3992,18 +4015,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(172) 
+	@Field(174) 
 	public int mv0_threshold() {
-		return this.io.getIntField(this, 172);
+		return this.io.getIntField(this, 174);
 	}
 	/**
 	 * * Note: Value depends upon the compare function used for fullpel ME.<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(172) 
+	@Field(174) 
 	public AVCodecContext mv0_threshold(int mv0_threshold) {
-		this.io.setIntField(this, 172, mv0_threshold);
+		this.io.setIntField(this, 174, mv0_threshold);
 		return this;
 	}
 	public final int mv0_threshold_$eq(int mv0_threshold) {
@@ -4015,18 +4038,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(173) 
+	@Field(175) 
 	public int b_sensitivity() {
-		return this.io.getIntField(this, 173);
+		return this.io.getIntField(this, 175);
 	}
 	/**
 	 * Adjusts sensitivity of b_frame_strategy 1.<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(173) 
+	@Field(175) 
 	public AVCodecContext b_sensitivity(int b_sensitivity) {
-		this.io.setIntField(this, 173, b_sensitivity);
+		this.io.setIntField(this, 175, b_sensitivity);
 		return this;
 	}
 	public final int b_sensitivity_$eq(int b_sensitivity) {
@@ -4037,17 +4060,17 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(174) 
+	@Field(176) 
 	public int compression_level() {
-		return this.io.getIntField(this, 174);
+		return this.io.getIntField(this, 176);
 	}
 	/**
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(174) 
+	@Field(176) 
 	public AVCodecContext compression_level(int compression_level) {
-		this.io.setIntField(this, 174, compression_level);
+		this.io.setIntField(this, 176, compression_level);
 		return this;
 	}
 	public final int compression_level_$eq(int compression_level) {
@@ -4059,18 +4082,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(175) 
+	@Field(177) 
 	public int use_lpc() {
-		return this.io.getIntField(this, 175);
+		return this.io.getIntField(this, 177);
 	}
 	/**
 	 * Sets whether to use LPC mode - used by FLAC encoder.<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(175) 
+	@Field(177) 
 	public AVCodecContext use_lpc(int use_lpc) {
-		this.io.setIntField(this, 175, use_lpc);
+		this.io.setIntField(this, 177, use_lpc);
 		return this;
 	}
 	public final int use_lpc_$eq(int use_lpc) {
@@ -4082,18 +4105,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(176) 
+	@Field(178) 
 	public int lpc_coeff_precision() {
-		return this.io.getIntField(this, 176);
+		return this.io.getIntField(this, 178);
 	}
 	/**
 	 * LPC coefficient precision - used by FLAC encoder<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(176) 
+	@Field(178) 
 	public AVCodecContext lpc_coeff_precision(int lpc_coeff_precision) {
-		this.io.setIntField(this, 176, lpc_coeff_precision);
+		this.io.setIntField(this, 178, lpc_coeff_precision);
 		return this;
 	}
 	public final int lpc_coeff_precision_$eq(int lpc_coeff_precision) {
@@ -4104,17 +4127,17 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(177) 
+	@Field(179) 
 	public int min_prediction_order() {
-		return this.io.getIntField(this, 177);
+		return this.io.getIntField(this, 179);
 	}
 	/**
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(177) 
+	@Field(179) 
 	public AVCodecContext min_prediction_order(int min_prediction_order) {
-		this.io.setIntField(this, 177, min_prediction_order);
+		this.io.setIntField(this, 179, min_prediction_order);
 		return this;
 	}
 	public final int min_prediction_order_$eq(int min_prediction_order) {
@@ -4125,17 +4148,17 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(178) 
+	@Field(180) 
 	public int max_prediction_order() {
-		return this.io.getIntField(this, 178);
+		return this.io.getIntField(this, 180);
 	}
 	/**
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(178) 
+	@Field(180) 
 	public AVCodecContext max_prediction_order(int max_prediction_order) {
-		this.io.setIntField(this, 178, max_prediction_order);
+		this.io.setIntField(this, 180, max_prediction_order);
 		return this;
 	}
 	public final int max_prediction_order_$eq(int max_prediction_order) {
@@ -4147,18 +4170,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(179) 
+	@Field(181) 
 	public int prediction_order_method() {
-		return this.io.getIntField(this, 179);
+		return this.io.getIntField(this, 181);
 	}
 	/**
 	 * search method for selecting prediction order<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(179) 
+	@Field(181) 
 	public AVCodecContext prediction_order_method(int prediction_order_method) {
-		this.io.setIntField(this, 179, prediction_order_method);
+		this.io.setIntField(this, 181, prediction_order_method);
 		return this;
 	}
 	public final int prediction_order_method_$eq(int prediction_order_method) {
@@ -4169,17 +4192,17 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(180) 
+	@Field(182) 
 	public int min_partition_order() {
-		return this.io.getIntField(this, 180);
+		return this.io.getIntField(this, 182);
 	}
 	/**
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(180) 
+	@Field(182) 
 	public AVCodecContext min_partition_order(int min_partition_order) {
-		this.io.setIntField(this, 180, min_partition_order);
+		this.io.setIntField(this, 182, min_partition_order);
 		return this;
 	}
 	public final int min_partition_order_$eq(int min_partition_order) {
@@ -4190,17 +4213,17 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(181) 
+	@Field(183) 
 	public int max_partition_order() {
-		return this.io.getIntField(this, 181);
+		return this.io.getIntField(this, 183);
 	}
 	/**
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(181) 
+	@Field(183) 
 	public AVCodecContext max_partition_order(int max_partition_order) {
-		this.io.setIntField(this, 181, max_partition_order);
+		this.io.setIntField(this, 183, max_partition_order);
 		return this;
 	}
 	public final int max_partition_order_$eq(int max_partition_order) {
@@ -4212,18 +4235,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(182) 
+	@Field(184) 
 	public long timecode_frame_start() {
-		return this.io.getLongField(this, 182);
+		return this.io.getLongField(this, 184);
 	}
 	/**
 	 * GOP timecode frame start number, in non drop frame format<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(182) 
+	@Field(184) 
 	public AVCodecContext timecode_frame_start(long timecode_frame_start) {
-		this.io.setLongField(this, 182, timecode_frame_start);
+		this.io.setLongField(this, 184, timecode_frame_start);
 		return this;
 	}
 	public final long timecode_frame_start_$eq(long timecode_frame_start) {
@@ -4236,9 +4259,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by user.<br>
 	 * @deprecated Deprecated in favor of request_channel_layout.
 	 */
-	@Field(183) 
+	@Field(185) 
 	public int request_channels() {
-		return this.io.getIntField(this, 183);
+		return this.io.getIntField(this, 185);
 	}
 	/**
 	 * Decoder should decode to this many channels if it can (0 for default)<br>
@@ -4246,9 +4269,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by user.<br>
 	 * @deprecated Deprecated in favor of request_channel_layout.
 	 */
-	@Field(183) 
+	@Field(185) 
 	public AVCodecContext request_channels(int request_channels) {
-		this.io.setIntField(this, 183, request_channels);
+		this.io.setIntField(this, 185, request_channels);
 		return this;
 	}
 	public final int request_channels_$eq(int request_channels) {
@@ -4261,9 +4284,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(184) 
+	@Field(186) 
 	public float drc_scale() {
-		return this.io.getFloatField(this, 184);
+		return this.io.getFloatField(this, 186);
 	}
 	/**
 	 * Percentage of dynamic range compression to be applied by the decoder.<br>
@@ -4271,9 +4294,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(184) 
+	@Field(186) 
 	public AVCodecContext drc_scale(float drc_scale) {
-		this.io.setFloatField(this, 184, drc_scale);
+		this.io.setFloatField(this, 186, drc_scale);
 		return this;
 	}
 	public final float drc_scale_$eq(float drc_scale) {
@@ -4286,9 +4309,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(185) 
+	@Field(187) 
 	public long reordered_opaque() {
-		return this.io.getLongField(this, 185);
+		return this.io.getLongField(this, 187);
 	}
 	/**
 	 * opaque 64bit number (generally a PTS) that will be reordered and<br>
@@ -4296,9 +4319,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(185) 
+	@Field(187) 
 	public AVCodecContext reordered_opaque(long reordered_opaque) {
-		this.io.setLongField(this, 185, reordered_opaque);
+		this.io.setLongField(this, 187, reordered_opaque);
 		return this;
 	}
 	public final long reordered_opaque_$eq(long reordered_opaque) {
@@ -4311,9 +4334,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: set by user.<br>
 	 * - decoding: set by libavcodec.
 	 */
-	@Field(186) 
+	@Field(188) 
 	public int bits_per_raw_sample() {
-		return this.io.getIntField(this, 186);
+		return this.io.getIntField(this, 188);
 	}
 	/**
 	 * Bits per sample/pixel of internal libavcodec pixel/sample format.<br>
@@ -4321,9 +4344,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: set by user.<br>
 	 * - decoding: set by libavcodec.
 	 */
-	@Field(186) 
+	@Field(188) 
 	public AVCodecContext bits_per_raw_sample(int bits_per_raw_sample) {
-		this.io.setIntField(this, 186, bits_per_raw_sample);
+		this.io.setIntField(this, 188, bits_per_raw_sample);
 		return this;
 	}
 	public final int bits_per_raw_sample_$eq(int bits_per_raw_sample) {
@@ -4335,18 +4358,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: set by user.<br>
 	 * - decoding: set by libavcodec.
 	 */
-	@Field(187) 
+	@Field(189) 
 	public long channel_layout() {
-		return this.io.getLongField(this, 187);
+		return this.io.getLongField(this, 189);
 	}
 	/**
 	 * Audio channel layout.<br>
 	 * - encoding: set by user.<br>
 	 * - decoding: set by libavcodec.
 	 */
-	@Field(187) 
+	@Field(189) 
 	public AVCodecContext channel_layout(long channel_layout) {
-		this.io.setLongField(this, 187, channel_layout);
+		this.io.setLongField(this, 189, channel_layout);
 		return this;
 	}
 	public final long channel_layout_$eq(long channel_layout) {
@@ -4358,18 +4381,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(188) 
+	@Field(190) 
 	public long request_channel_layout() {
-		return this.io.getLongField(this, 188);
+		return this.io.getLongField(this, 190);
 	}
 	/**
 	 * Request decoder to use this channel layout if it can (0 for default)<br>
 	 * - encoding: unused<br>
 	 * - decoding: Set by user.
 	 */
-	@Field(188) 
+	@Field(190) 
 	public AVCodecContext request_channel_layout(long request_channel_layout) {
-		this.io.setLongField(this, 188, request_channel_layout);
+		this.io.setLongField(this, 190, request_channel_layout);
 		return this;
 	}
 	public final long request_channel_layout_$eq(long request_channel_layout) {
@@ -4381,18 +4404,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused.
 	 */
-	@Field(189) 
+	@Field(191) 
 	public float rc_max_available_vbv_use() {
-		return this.io.getFloatField(this, 189);
+		return this.io.getFloatField(this, 191);
 	}
 	/**
 	 * Ratecontrol attempt to use, at maximum, <value> of what can be used without an underflow.<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused.
 	 */
-	@Field(189) 
+	@Field(191) 
 	public AVCodecContext rc_max_available_vbv_use(float rc_max_available_vbv_use) {
-		this.io.setFloatField(this, 189, rc_max_available_vbv_use);
+		this.io.setFloatField(this, 191, rc_max_available_vbv_use);
 		return this;
 	}
 	public final float rc_max_available_vbv_use_$eq(float rc_max_available_vbv_use) {
@@ -4404,18 +4427,18 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused.
 	 */
-	@Field(190) 
+	@Field(192) 
 	public float rc_min_vbv_overflow_use() {
-		return this.io.getFloatField(this, 190);
+		return this.io.getFloatField(this, 192);
 	}
 	/**
 	 * Ratecontrol attempt to use, at least, <value> times the amount needed to prevent a vbv overflow.<br>
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused.
 	 */
-	@Field(190) 
+	@Field(192) 
 	public AVCodecContext rc_min_vbv_overflow_use(float rc_min_vbv_overflow_use) {
-		this.io.setFloatField(this, 190, rc_min_vbv_overflow_use);
+		this.io.setFloatField(this, 192, rc_min_vbv_overflow_use);
 		return this;
 	}
 	public final float rc_min_vbv_overflow_use_$eq(float rc_min_vbv_overflow_use) {
@@ -4428,9 +4451,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec<br>
 	 * C type : AVHWAccel*
 	 */
-	@Field(191) 
+	@Field(193) 
 	public Pointer<com.nativelibs4java.ffmpeg.avcodec.AVHWAccel > hwaccel() {
-		return this.io.getPointerField(this, 191);
+		return this.io.getPointerField(this, 193);
 	}
 	/**
 	 * Hardware accelerator in use<br>
@@ -4438,9 +4461,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec<br>
 	 * C type : AVHWAccel*
 	 */
-	@Field(191) 
+	@Field(193) 
 	public AVCodecContext hwaccel(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVHWAccel > hwaccel) {
-		this.io.setPointerField(this, 191, hwaccel);
+		this.io.setPointerField(this, 193, hwaccel);
 		return this;
 	}
 	/// C type : AVHWAccel*
@@ -4454,9 +4477,9 @@ public class AVCodecContext extends StructObject {
 	 * if no telecine is used ...<br>
 	 * * Set to time_base ticks per frame. Default 1, e.g., H.264/MPEG-2 set it to 2.
 	 */
-	@Field(192) 
+	@Field(194) 
 	public int ticks_per_frame() {
-		return this.io.getIntField(this, 192);
+		return this.io.getIntField(this, 194);
 	}
 	/**
 	 * For some codecs, the time base is closer to the field rate than the frame rate.<br>
@@ -4464,9 +4487,9 @@ public class AVCodecContext extends StructObject {
 	 * if no telecine is used ...<br>
 	 * * Set to time_base ticks per frame. Default 1, e.g., H.264/MPEG-2 set it to 2.
 	 */
-	@Field(192) 
+	@Field(194) 
 	public AVCodecContext ticks_per_frame(int ticks_per_frame) {
-		this.io.setIntField(this, 192, ticks_per_frame);
+		this.io.setIntField(this, 194, ticks_per_frame);
 		return this;
 	}
 	public final int ticks_per_frame_$eq(int ticks_per_frame) {
@@ -4484,9 +4507,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by user<br>
 	 * C type : void*
 	 */
-	@Field(193) 
+	@Field(195) 
 	public Pointer<? > hwaccel_context() {
-		return this.io.getPointerField(this, 193);
+		return this.io.getPointerField(this, 195);
 	}
 	/**
 	 * Hardware accelerator context.<br>
@@ -4499,9 +4522,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by user<br>
 	 * C type : void*
 	 */
-	@Field(193) 
+	@Field(195) 
 	public AVCodecContext hwaccel_context(Pointer<? > hwaccel_context) {
-		this.io.setPointerField(this, 193, hwaccel_context);
+		this.io.setPointerField(this, 195, hwaccel_context);
 		return this;
 	}
 	/// C type : void*
@@ -4515,9 +4538,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec<br>
 	 * C type : AVColorPrimaries
 	 */
-	@Field(194) 
+	@Field(196) 
 	public ValuedEnum<AVColorPrimaries > color_primaries() {
-		return this.io.getEnumField(this, 194);
+		return this.io.getEnumField(this, 196);
 	}
 	/**
 	 * Chromaticity coordinates of the source primaries.<br>
@@ -4525,9 +4548,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec<br>
 	 * C type : AVColorPrimaries
 	 */
-	@Field(194) 
+	@Field(196) 
 	public AVCodecContext color_primaries(ValuedEnum<AVColorPrimaries > color_primaries) {
-		this.io.setEnumField(this, 194, color_primaries);
+		this.io.setEnumField(this, 196, color_primaries);
 		return this;
 	}
 	/// C type : AVColorPrimaries
@@ -4541,9 +4564,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec<br>
 	 * C type : AVColorTransferCharacteristic
 	 */
-	@Field(195) 
+	@Field(197) 
 	public ValuedEnum<AVColorTransferCharacteristic > color_trc() {
-		return this.io.getEnumField(this, 195);
+		return this.io.getEnumField(this, 197);
 	}
 	/**
 	 * Color Transfer Characteristic.<br>
@@ -4551,9 +4574,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec<br>
 	 * C type : AVColorTransferCharacteristic
 	 */
-	@Field(195) 
+	@Field(197) 
 	public AVCodecContext color_trc(ValuedEnum<AVColorTransferCharacteristic > color_trc) {
-		this.io.setEnumField(this, 195, color_trc);
+		this.io.setEnumField(this, 197, color_trc);
 		return this;
 	}
 	/// C type : AVColorTransferCharacteristic
@@ -4567,9 +4590,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec<br>
 	 * C type : AVColorSpace
 	 */
-	@Field(196) 
+	@Field(198) 
 	public ValuedEnum<AVColorSpace > colorspace() {
-		return this.io.getEnumField(this, 196);
+		return this.io.getEnumField(this, 198);
 	}
 	/**
 	 * YUV colorspace type.<br>
@@ -4577,9 +4600,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec<br>
 	 * C type : AVColorSpace
 	 */
-	@Field(196) 
+	@Field(198) 
 	public AVCodecContext colorspace(ValuedEnum<AVColorSpace > colorspace) {
-		this.io.setEnumField(this, 196, colorspace);
+		this.io.setEnumField(this, 198, colorspace);
 		return this;
 	}
 	/// C type : AVColorSpace
@@ -4593,9 +4616,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec<br>
 	 * C type : AVColorRange
 	 */
-	@Field(197) 
+	@Field(199) 
 	public ValuedEnum<AVColorRange > color_range() {
-		return this.io.getEnumField(this, 197);
+		return this.io.getEnumField(this, 199);
 	}
 	/**
 	 * MPEG vs JPEG YUV range.<br>
@@ -4603,9 +4626,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec<br>
 	 * C type : AVColorRange
 	 */
-	@Field(197) 
+	@Field(199) 
 	public AVCodecContext color_range(ValuedEnum<AVColorRange > color_range) {
-		this.io.setEnumField(this, 197, color_range);
+		this.io.setEnumField(this, 199, color_range);
 		return this;
 	}
 	/// C type : AVColorRange
@@ -4619,9 +4642,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec<br>
 	 * C type : AVChromaLocation
 	 */
-	@Field(198) 
+	@Field(200) 
 	public ValuedEnum<AVChromaLocation > chroma_sample_location() {
-		return this.io.getEnumField(this, 198);
+		return this.io.getEnumField(this, 200);
 	}
 	/**
 	 * This defines the location of chroma samples.<br>
@@ -4629,9 +4652,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec<br>
 	 * C type : AVChromaLocation
 	 */
-	@Field(198) 
+	@Field(200) 
 	public AVCodecContext chroma_sample_location(ValuedEnum<AVChromaLocation > chroma_sample_location) {
-		this.io.setEnumField(this, 198, chroma_sample_location);
+		this.io.setEnumField(this, 200, chroma_sample_location);
 		return this;
 	}
 	/// C type : AVChromaLocation
@@ -4658,9 +4681,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec, user can override.<br>
 	 * C type : execute2_callback
 	 */
-	@Field(199) 
+	@Field(201) 
 	public Pointer<AVCodecContext.execute2_callback > execute2() {
-		return this.io.getPointerField(this, 199);
+		return this.io.getPointerField(this, 201);
 	}
 	/**
 	 * The codec may call this to execute several independent things.<br>
@@ -4681,9 +4704,9 @@ public class AVCodecContext extends StructObject {
 	 * - decoding: Set by libavcodec, user can override.<br>
 	 * C type : execute2_callback
 	 */
-	@Field(199) 
+	@Field(201) 
 	public AVCodecContext execute2(Pointer<AVCodecContext.execute2_callback > execute2) {
-		this.io.setPointerField(this, 199, execute2);
+		this.io.setPointerField(this, 201, execute2);
 		return this;
 	}
 	/// C type : execute2_callback
@@ -4699,9 +4722,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(200) 
+	@Field(202) 
 	public int weighted_p_pred() {
-		return this.io.getIntField(this, 200);
+		return this.io.getIntField(this, 202);
 	}
 	/**
 	 * explicit P-frame weighted prediction analysis method<br>
@@ -4711,9 +4734,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user.<br>
 	 * - decoding: unused
 	 */
-	@Field(200) 
+	@Field(202) 
 	public AVCodecContext weighted_p_pred(int weighted_p_pred) {
-		this.io.setIntField(this, 200, weighted_p_pred);
+		this.io.setIntField(this, 202, weighted_p_pred);
 		return this;
 	}
 	public final int weighted_p_pred_$eq(int weighted_p_pred) {
@@ -4728,9 +4751,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user<br>
 	 * - decoding: unused
 	 */
-	@Field(201) 
+	@Field(203) 
 	public int aq_mode() {
-		return this.io.getIntField(this, 201);
+		return this.io.getIntField(this, 203);
 	}
 	/**
 	 * AQ mode<br>
@@ -4740,9 +4763,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user<br>
 	 * - decoding: unused
 	 */
-	@Field(201) 
+	@Field(203) 
 	public AVCodecContext aq_mode(int aq_mode) {
-		this.io.setIntField(this, 201, aq_mode);
+		this.io.setIntField(this, 203, aq_mode);
 		return this;
 	}
 	public final int aq_mode_$eq(int aq_mode) {
@@ -4755,9 +4778,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user<br>
 	 * - decoding: unused
 	 */
-	@Field(202) 
+	@Field(204) 
 	public float aq_strength() {
-		return this.io.getFloatField(this, 202);
+		return this.io.getFloatField(this, 204);
 	}
 	/**
 	 * AQ strength<br>
@@ -4765,9 +4788,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user<br>
 	 * - decoding: unused
 	 */
-	@Field(202) 
+	@Field(204) 
 	public AVCodecContext aq_strength(float aq_strength) {
-		this.io.setFloatField(this, 202, aq_strength);
+		this.io.setFloatField(this, 204, aq_strength);
 		return this;
 	}
 	public final float aq_strength_$eq(float aq_strength) {
@@ -4780,9 +4803,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user<br>
 	 * - decoding: unused
 	 */
-	@Field(203) 
+	@Field(205) 
 	public float psy_rd() {
-		return this.io.getFloatField(this, 203);
+		return this.io.getFloatField(this, 205);
 	}
 	/**
 	 * PSY RD<br>
@@ -4790,9 +4813,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user<br>
 	 * - decoding: unused
 	 */
-	@Field(203) 
+	@Field(205) 
 	public AVCodecContext psy_rd(float psy_rd) {
-		this.io.setFloatField(this, 203, psy_rd);
+		this.io.setFloatField(this, 205, psy_rd);
 		return this;
 	}
 	public final float psy_rd_$eq(float psy_rd) {
@@ -4805,9 +4828,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user<br>
 	 * - decoding: unused
 	 */
-	@Field(204) 
+	@Field(206) 
 	public float psy_trellis() {
-		return this.io.getFloatField(this, 204);
+		return this.io.getFloatField(this, 206);
 	}
 	/**
 	 * PSY trellis<br>
@@ -4815,9 +4838,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user<br>
 	 * - decoding: unused
 	 */
-	@Field(204) 
+	@Field(206) 
 	public AVCodecContext psy_trellis(float psy_trellis) {
-		this.io.setFloatField(this, 204, psy_trellis);
+		this.io.setFloatField(this, 206, psy_trellis);
 		return this;
 	}
 	public final float psy_trellis_$eq(float psy_trellis) {
@@ -4830,9 +4853,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user<br>
 	 * - decoding: unused
 	 */
-	@Field(205) 
+	@Field(207) 
 	public int rc_lookahead() {
-		return this.io.getIntField(this, 205);
+		return this.io.getIntField(this, 207);
 	}
 	/**
 	 * RC lookahead<br>
@@ -4840,9 +4863,9 @@ public class AVCodecContext extends StructObject {
 	 * - encoding: Set by user<br>
 	 * - decoding: unused
 	 */
-	@Field(205) 
+	@Field(207) 
 	public AVCodecContext rc_lookahead(int rc_lookahead) {
-		this.io.setIntField(this, 205, rc_lookahead);
+		this.io.setIntField(this, 207, rc_lookahead);
 		return this;
 	}
 	public final int rc_lookahead_$eq(int rc_lookahead) {

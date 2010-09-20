@@ -193,33 +193,7 @@ public class AvformatLibrary {
 	public native static void av_close_input_file(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > s);
 	public native static Pointer<com.nativelibs4java.ffmpeg.avformat.AVStream > av_new_stream(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > s, int id);
 	public native static Pointer<com.nativelibs4java.ffmpeg.avformat.AVProgram > av_new_program(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > s, int id);
-	/**
-	 * SKIPPED:<br>
-	 * Adds a new chapter.<br>
-	 * This function is NOT part of the public API<br>
-	 * and should ONLY be used by demuxers.<br>
-	 * * @param s media file handle<br>
-	 * @param id unique ID for this chapter<br>
-	 * @param start chapter start time in time_base units<br>
-	 * @param end chapter end time in time_base units<br>
-	 * @param title chapter title<br>
-	 * * @return AVChapter or NULL on error<br>
-	 * Original signature : <code>AVChapter* ff_new_chapter(AVFormatContext*, int, AVRational, int64_t, int64_t, const char*)</code><br>
-	 * <i>native declaration : libavformat/avformat.h:1078</i><br>
-	 * Adds a new chapter.<br>
-	 * This function is NOT part of the public API<br>
-	 * and should ONLY be used by demuxers.<br>
-	 * * @param s media file handle<br>
-	 * @param id unique ID for this chapter<br>
-	 * @param start chapter start time in time_base units<br>
-	 * @param end chapter end time in time_base units<br>
-	 * @param title chapter title<br>
-	 * * @return AVChapter or NULL on error<br>
-	 * Original signature : <code>AVChapter* ff_new_chapter(AVFormatContext*, int, AVRational, int64_t, int64_t, const char*)</code><br>
-	 * /<br>
-	 * AVChapter* ff_new_chapter(AVFormatContext* s, int id, AVRational time_base, int64_t start, int64_t end, const char* title);<br>
-	 * Conversion Error : AVRational (Unsupported type)
-	 */
+	public native static Pointer<com.nativelibs4java.ffmpeg.avformat.AVChapter > ff_new_chapter(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > s, int id, AVRational time_base, long start, long end, Pointer<java.lang.Byte > title);
 	public native static void av_set_pts_info(Pointer<com.nativelibs4java.ffmpeg.avformat.AVStream > s, int pts_wrap_bits, int pts_num, int pts_den);
 	public native static int av_find_default_stream_index(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > s);
 	public native static int av_index_search_timestamp(Pointer<com.nativelibs4java.ffmpeg.avformat.AVStream > st, long timestamp, int flags);

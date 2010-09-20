@@ -226,7 +226,7 @@ public class AVCodec extends StructObject {
 	 * C type : const AVRational*
 	 */
 	@Field(11) 
-	public Pointer<? > supported_framerates() {
+	public Pointer<AVRational > supported_framerates() {
 		return this.io.getPointerField(this, 11);
 	}
 	/**
@@ -234,12 +234,12 @@ public class AVCodec extends StructObject {
 	 * C type : const AVRational*
 	 */
 	@Field(11) 
-	public AVCodec supported_framerates(Pointer<? > supported_framerates) {
+	public AVCodec supported_framerates(Pointer<AVRational > supported_framerates) {
 		this.io.setPointerField(this, 11, supported_framerates);
 		return this;
 	}
 	/// C type : const AVRational*
-	public final Pointer<? > supported_framerates_$eq(Pointer<? > supported_framerates) {
+	public final Pointer<AVRational > supported_framerates_$eq(Pointer<AVRational > supported_framerates) {
 		supported_framerates(supported_framerates);
 		return supported_framerates;
 	}

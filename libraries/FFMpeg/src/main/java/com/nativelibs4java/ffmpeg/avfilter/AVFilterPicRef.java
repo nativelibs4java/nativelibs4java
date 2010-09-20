@@ -1,4 +1,5 @@
 package com.nativelibs4java.ffmpeg.avfilter;
+import com.nativelibs4java.ffmpeg.avutil.AVRational;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ann.Array;
@@ -118,16 +119,23 @@ public class AVFilterPicRef extends StructObject {
 		pos(pos);
 		return pos;
 	}
-	/// Conversion Error : AVRational (Unsupported type)
-	/// < permissions
+	/**
+	 * < pixel aspect ratio<br>
+	 * C type : AVRational
+	 */
 	@Field(7) 
-	public int perms() {
-		return this.io.getIntField(this, 7);
+	public AVRational pixel_aspect() {
+		return this.io.getNativeObjectField(this, 7);
 	}
 	/// < permissions
-	@Field(7) 
+	@Field(8) 
+	public int perms() {
+		return this.io.getIntField(this, 8);
+	}
+	/// < permissions
+	@Field(8) 
 	public AVFilterPicRef perms(int perms) {
-		this.io.setIntField(this, 7, perms);
+		this.io.setIntField(this, 8, perms);
 		return this;
 	}
 	public final int perms_$eq(int perms) {

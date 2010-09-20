@@ -23,53 +23,57 @@ public class AVFormatParameters extends StructObject {
 	public AVFormatParameters(Pointer pointer) {
 		super(pointer);
 	}
-	/// Conversion Error : AVRational (Unsupported type)
+	/// C type : AVRational
 	@Field(0) 
-	public int sample_rate() {
-		return this.io.getIntField(this, 0);
+	public AVRational time_base() {
+		return this.io.getNativeObjectField(this, 0);
 	}
-	@Field(0) 
+	@Field(1) 
+	public int sample_rate() {
+		return this.io.getIntField(this, 1);
+	}
+	@Field(1) 
 	public AVFormatParameters sample_rate(int sample_rate) {
-		this.io.setIntField(this, 0, sample_rate);
+		this.io.setIntField(this, 1, sample_rate);
 		return this;
 	}
 	public final int sample_rate_$eq(int sample_rate) {
 		sample_rate(sample_rate);
 		return sample_rate;
 	}
-	@Field(1) 
+	@Field(2) 
 	public int channels() {
-		return this.io.getIntField(this, 1);
+		return this.io.getIntField(this, 2);
 	}
-	@Field(1) 
+	@Field(2) 
 	public AVFormatParameters channels(int channels) {
-		this.io.setIntField(this, 1, channels);
+		this.io.setIntField(this, 2, channels);
 		return this;
 	}
 	public final int channels_$eq(int channels) {
 		channels(channels);
 		return channels;
 	}
-	@Field(2) 
+	@Field(3) 
 	public int width() {
-		return this.io.getIntField(this, 2);
+		return this.io.getIntField(this, 3);
 	}
-	@Field(2) 
+	@Field(3) 
 	public AVFormatParameters width(int width) {
-		this.io.setIntField(this, 2, width);
+		this.io.setIntField(this, 3, width);
 		return this;
 	}
 	public final int width_$eq(int width) {
 		width(width);
 		return width;
 	}
-	@Field(3) 
+	@Field(4) 
 	public int height() {
-		return this.io.getIntField(this, 3);
+		return this.io.getIntField(this, 4);
 	}
-	@Field(3) 
+	@Field(4) 
 	public AVFormatParameters height(int height) {
-		this.io.setIntField(this, 3, height);
+		this.io.setIntField(this, 4, height);
 		return this;
 	}
 	public final int height_$eq(int height) {
@@ -77,14 +81,14 @@ public class AVFormatParameters extends StructObject {
 		return height;
 	}
 	/// C type : PixelFormat
-	@Field(4) 
+	@Field(5) 
 	public ValuedEnum<PixelFormat > pix_fmt() {
-		return this.io.getEnumField(this, 4);
+		return this.io.getEnumField(this, 5);
 	}
 	/// C type : PixelFormat
-	@Field(4) 
+	@Field(5) 
 	public AVFormatParameters pix_fmt(ValuedEnum<PixelFormat > pix_fmt) {
-		this.io.setEnumField(this, 4, pix_fmt);
+		this.io.setEnumField(this, 5, pix_fmt);
 		return this;
 	}
 	/// C type : PixelFormat
@@ -93,14 +97,14 @@ public class AVFormatParameters extends StructObject {
 		return pix_fmt;
 	}
 	/// < Used to select DV channel.
-	@Field(5) 
+	@Field(6) 
 	public int channel() {
-		return this.io.getIntField(this, 5);
+		return this.io.getIntField(this, 6);
 	}
 	/// < Used to select DV channel.
-	@Field(5) 
+	@Field(6) 
 	public AVFormatParameters channel(int channel) {
-		this.io.setIntField(this, 5, channel);
+		this.io.setIntField(this, 6, channel);
 		return this;
 	}
 	public final int channel_$eq(int channel) {
@@ -111,17 +115,17 @@ public class AVFormatParameters extends StructObject {
 	 * < TV standard, NTSC, PAL, SECAM<br>
 	 * C type : const char*
 	 */
-	@Field(6) 
+	@Field(7) 
 	public Pointer<java.lang.Byte > standard() {
-		return this.io.getPointerField(this, 6);
+		return this.io.getPointerField(this, 7);
 	}
 	/**
 	 * < TV standard, NTSC, PAL, SECAM<br>
 	 * C type : const char*
 	 */
-	@Field(6) 
+	@Field(7) 
 	public AVFormatParameters standard(Pointer<java.lang.Byte > standard) {
-		this.io.setPointerField(this, 6, standard);
+		this.io.setPointerField(this, 7, standard);
 		return this;
 	}
 	/// C type : const char*
@@ -130,16 +134,16 @@ public class AVFormatParameters extends StructObject {
 		return standard;
 	}
 	/// < Force raw MPEG-2 transport stream output, if possible.
-	@Field(7) 
+	@Field(8) 
 	@Bits(1) 
 	public int mpeg2ts_raw() {
-		return this.io.getIntField(this, 7);
+		return this.io.getIntField(this, 8);
 	}
 	/// < Force raw MPEG-2 transport stream output, if possible.
-	@Field(7) 
+	@Field(8) 
 	@Bits(1) 
 	public AVFormatParameters mpeg2ts_raw(int mpeg2ts_raw) {
-		this.io.setIntField(this, 7, mpeg2ts_raw);
+		this.io.setIntField(this, 8, mpeg2ts_raw);
 		return this;
 	}
 	@Bits(1) 
@@ -152,20 +156,20 @@ public class AVFormatParameters extends StructObject {
 	 * stream packet (only meaningful if<br>
 	 * mpeg2ts_raw is TRUE).
 	 */
-	@Field(8) 
+	@Field(9) 
 	@Bits(1) 
 	public int mpeg2ts_compute_pcr() {
-		return this.io.getIntField(this, 8);
+		return this.io.getIntField(this, 9);
 	}
 	/**
 	 * < Compute exact PCR for each transport<br>
 	 * stream packet (only meaningful if<br>
 	 * mpeg2ts_raw is TRUE).
 	 */
-	@Field(8) 
+	@Field(9) 
 	@Bits(1) 
 	public AVFormatParameters mpeg2ts_compute_pcr(int mpeg2ts_compute_pcr) {
-		this.io.setIntField(this, 8, mpeg2ts_compute_pcr);
+		this.io.setIntField(this, 9, mpeg2ts_compute_pcr);
 		return this;
 	}
 	@Bits(1) 
@@ -177,19 +181,19 @@ public class AVFormatParameters extends StructObject {
 	 * < Do not begin to play the stream<br>
 	 * immediately (RTSP only).
 	 */
-	@Field(9) 
+	@Field(10) 
 	@Bits(1) 
 	public int initial_pause() {
-		return this.io.getIntField(this, 9);
+		return this.io.getIntField(this, 10);
 	}
 	/**
 	 * < Do not begin to play the stream<br>
 	 * immediately (RTSP only).
 	 */
-	@Field(9) 
+	@Field(10) 
 	@Bits(1) 
 	public AVFormatParameters initial_pause(int initial_pause) {
-		this.io.setIntField(this, 9, initial_pause);
+		this.io.setIntField(this, 10, initial_pause);
 		return this;
 	}
 	@Bits(1) 
@@ -197,15 +201,15 @@ public class AVFormatParameters extends StructObject {
 		initial_pause(initial_pause);
 		return initial_pause;
 	}
-	@Field(10) 
+	@Field(11) 
 	@Bits(1) 
 	public int prealloced_context() {
-		return this.io.getIntField(this, 10);
+		return this.io.getIntField(this, 11);
 	}
-	@Field(10) 
+	@Field(11) 
 	@Bits(1) 
 	public AVFormatParameters prealloced_context(int prealloced_context) {
-		this.io.setIntField(this, 10, prealloced_context);
+		this.io.setIntField(this, 11, prealloced_context);
 		return this;
 	}
 	@Bits(1) 
@@ -214,14 +218,14 @@ public class AVFormatParameters extends StructObject {
 		return prealloced_context;
 	}
 	/// C type : CodecID
-	@Field(11) 
+	@Field(12) 
 	public ValuedEnum<CodecID > video_codec_id() {
-		return this.io.getEnumField(this, 11);
+		return this.io.getEnumField(this, 12);
 	}
 	/// C type : CodecID
-	@Field(11) 
+	@Field(12) 
 	public AVFormatParameters video_codec_id(ValuedEnum<CodecID > video_codec_id) {
-		this.io.setEnumField(this, 11, video_codec_id);
+		this.io.setEnumField(this, 12, video_codec_id);
 		return this;
 	}
 	/// C type : CodecID
@@ -230,14 +234,14 @@ public class AVFormatParameters extends StructObject {
 		return video_codec_id;
 	}
 	/// C type : CodecID
-	@Field(12) 
+	@Field(13) 
 	public ValuedEnum<CodecID > audio_codec_id() {
-		return this.io.getEnumField(this, 12);
+		return this.io.getEnumField(this, 13);
 	}
 	/// C type : CodecID
-	@Field(12) 
+	@Field(13) 
 	public AVFormatParameters audio_codec_id(ValuedEnum<CodecID > audio_codec_id) {
-		this.io.setEnumField(this, 12, audio_codec_id);
+		this.io.setEnumField(this, 13, audio_codec_id);
 		return this;
 	}
 	/// C type : CodecID

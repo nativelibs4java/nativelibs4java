@@ -130,12 +130,20 @@ public class AvutilLibrary {
 	};
 	/// <i>native declaration : ./libavutil/avutil.h</i>
 	public static final int LIBAVUTIL_VERSION_MAJOR = 50;
-	/// <i>native declaration : ./libavutil/avutil.h</i>
+	/// <i>native declaration : libavutil/avutil.h</i>
 	public static final int LIBAVUTIL_VERSION_MINOR = 15;
-	/// <i>native declaration : ./libavutil/avutil.h</i>
+	/// <i>native declaration : libavutil/avutil.h</i>
 	public static final java.lang.String LIBAVUTIL_IDENT = "Lavu";
-	/// <i>native declaration : ./libavutil/avutil.h</i>
+	/// <i>native declaration : libavutil/avutil.h</i>
 	public static final int LIBAVUTIL_VERSION_MICRO = 1;
+	public native static int av_reduce(Pointer<java.lang.Integer > dst_num, Pointer<java.lang.Integer > dst_den, long num, long den, long max);
+	public native static com.nativelibs4java.ffmpeg.avutil.AVRational av_mul_q(com.nativelibs4java.ffmpeg.avutil.AVRational b, com.nativelibs4java.ffmpeg.avutil.AVRational c);
+	public native static com.nativelibs4java.ffmpeg.avutil.AVRational av_div_q(com.nativelibs4java.ffmpeg.avutil.AVRational b, com.nativelibs4java.ffmpeg.avutil.AVRational c);
+	public native static com.nativelibs4java.ffmpeg.avutil.AVRational av_add_q(com.nativelibs4java.ffmpeg.avutil.AVRational b, com.nativelibs4java.ffmpeg.avutil.AVRational c);
+	public native static com.nativelibs4java.ffmpeg.avutil.AVRational av_sub_q(com.nativelibs4java.ffmpeg.avutil.AVRational b, com.nativelibs4java.ffmpeg.avutil.AVRational c);
+	public native static com.nativelibs4java.ffmpeg.avutil.AVRational av_d2q(double d, int max);
+	public native static int av_nearer_q(com.nativelibs4java.ffmpeg.avutil.AVRational q, com.nativelibs4java.ffmpeg.avutil.AVRational q1, com.nativelibs4java.ffmpeg.avutil.AVRational q2);
+	public native static int av_find_nearest_q_idx(com.nativelibs4java.ffmpeg.avutil.AVRational q, Pointer<com.nativelibs4java.ffmpeg.avutil.AVRational > q_list);
 	public native static void avutil_version();
 	public native static Pointer<java.lang.Byte > avutil_configuration();
 	public native static Pointer<java.lang.Byte > avutil_license();

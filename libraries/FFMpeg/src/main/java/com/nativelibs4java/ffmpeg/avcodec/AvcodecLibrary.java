@@ -1259,7 +1259,7 @@ public class AvcodecLibrary {
 	public native static int av_picture_pad(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > dst, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > src, int height, int width, ValuedEnum<PixelFormat > pix_fmt, int padtop, int padbottom, int padleft, int padright, Pointer<java.lang.Integer > color);
 	public native static int av_xiphlacing(Pointer<java.lang.Byte > s, int v);
 	public native static int av_parse_video_frame_size(Pointer<java.lang.Integer > width_ptr, Pointer<java.lang.Integer > height_ptr, Pointer<java.lang.Byte > str);
-	public native static int av_parse_video_frame_rate(Pointer<? > frame_rate, Pointer<java.lang.Byte > str);
+	public native static int av_parse_video_frame_rate(Pointer<AVRational > frame_rate, Pointer<java.lang.Byte > str);
 	public native static void av_log_missing_feature(Pointer<? > avc, Pointer<java.lang.Byte > feature, int want_sample);
 	public native static void av_log_ask_for_sample(Pointer<? > avc, Pointer<java.lang.Byte > msg);
 	public native static void av_register_hwaccel(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVHWAccel > hwaccel);

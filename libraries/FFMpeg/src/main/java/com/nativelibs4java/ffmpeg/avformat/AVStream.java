@@ -4,6 +4,7 @@ import com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext;
 import com.nativelibs4java.ffmpeg.avcodec.AVPacket;
 import com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.AVMetadata;
 import com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.AVStreamParseType;
+import com.nativelibs4java.ffmpeg.avutil.AVRational;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ValuedEnum;
@@ -76,16 +77,28 @@ public class AVStream extends StructObject {
 		codec(codec);
 		return codec;
 	}
-	/// Conversion Error : AVRational (Unsupported type)
-	/// C type : void*
+	/**
+	 * Real base framerate of the stream.<br>
+	 * This is the lowest framerate with which all timestamps can be<br>
+	 * represented accurately (it is the least common multiple of all<br>
+	 * framerates in the stream). Note, this value is just a guess!<br>
+	 * For example, if the time base is 1/90000 and all frames have either<br>
+	 * approximately 3600 or 1800 timer ticks, then r_frame_rate will be 50/1.<br>
+	 * C type : AVRational
+	 */
 	@Field(3) 
-	public Pointer<? > priv_data() {
-		return this.io.getPointerField(this, 3);
+	public AVRational r_frame_rate() {
+		return this.io.getNativeObjectField(this, 3);
 	}
 	/// C type : void*
-	@Field(3) 
+	@Field(4) 
+	public Pointer<? > priv_data() {
+		return this.io.getPointerField(this, 4);
+	}
+	/// C type : void*
+	@Field(4) 
 	public AVStream priv_data(Pointer<? > priv_data) {
-		this.io.setPointerField(this, 3, priv_data);
+		this.io.setPointerField(this, 4, priv_data);
 		return this;
 	}
 	/// C type : void*
@@ -94,14 +107,14 @@ public class AVStream extends StructObject {
 		return priv_data;
 	}
 	/// internal data used in av_find_stream_info()
-	@Field(4) 
+	@Field(5) 
 	public long first_dts() {
-		return this.io.getLongField(this, 4);
+		return this.io.getLongField(this, 5);
 	}
 	/// internal data used in av_find_stream_info()
-	@Field(4) 
+	@Field(5) 
 	public AVStream first_dts(long first_dts) {
-		this.io.setLongField(this, 4, first_dts);
+		this.io.setLongField(this, 5, first_dts);
 		return this;
 	}
 	public final long first_dts_$eq(long first_dts) {
@@ -112,20 +125,29 @@ public class AVStream extends StructObject {
 	 * encoding: pts generation when outputting stream<br>
 	 * C type : AVFrac
 	 */
-	@Field(5) 
-	public avformat.AVFrac pts() {
-		return this.io.getNativeObjectField(this, 5);
-	}
-	/// Conversion Error : AVRational (Unsupported type)
-	/// < number of bits in pts (used for wrapping control)
 	@Field(6) 
+	public com.nativelibs4java.ffmpeg.avformat.AVFrac pts() {
+		return this.io.getNativeObjectField(this, 6);
+	}
+	/**
+	 * This is the fundamental unit of time (in seconds) in terms<br>
+	 * of which frame timestamps are represented. For fixed-fps content,<br>
+	 * time base should be 1/framerate and timestamp increments should be 1.<br>
+	 * C type : AVRational
+	 */
+	@Field(7) 
+	public AVRational time_base() {
+		return this.io.getNativeObjectField(this, 7);
+	}
+	/// < number of bits in pts (used for wrapping control)
+	@Field(8) 
 	public int pts_wrap_bits() {
-		return this.io.getIntField(this, 6);
+		return this.io.getIntField(this, 8);
 	}
 	/// < number of bits in pts (used for wrapping control)
-	@Field(6) 
+	@Field(8) 
 	public AVStream pts_wrap_bits(int pts_wrap_bits) {
-		this.io.setIntField(this, 6, pts_wrap_bits);
+		this.io.setIntField(this, 8, pts_wrap_bits);
 		return this;
 	}
 	public final int pts_wrap_bits_$eq(int pts_wrap_bits) {
@@ -136,17 +158,17 @@ public class AVStream extends StructObject {
 	 * ffmpeg.c private use<br>
 	 * < If set, just copy stream.
 	 */
-	@Field(7) 
+	@Field(9) 
 	public int stream_copy() {
-		return this.io.getIntField(this, 7);
+		return this.io.getIntField(this, 9);
 	}
 	/**
 	 * ffmpeg.c private use<br>
 	 * < If set, just copy stream.
 	 */
-	@Field(7) 
+	@Field(9) 
 	public AVStream stream_copy(int stream_copy) {
-		this.io.setIntField(this, 7, stream_copy);
+		this.io.setIntField(this, 9, stream_copy);
 		return this;
 	}
 	public final int stream_copy_$eq(int stream_copy) {
@@ -158,17 +180,17 @@ public class AVStream extends StructObject {
 	 * Quality, as it has been removed from AVCodecContext and put in AVVideoFrame.<br>
 	 * MN: dunno if that is the right place for it
 	 */
-	@Field(8) 
+	@Field(10) 
 	public float quality() {
-		return this.io.getFloatField(this, 8);
+		return this.io.getFloatField(this, 10);
 	}
 	/**
 	 * Quality, as it has been removed from AVCodecContext and put in AVVideoFrame.<br>
 	 * MN: dunno if that is the right place for it
 	 */
-	@Field(8) 
+	@Field(10) 
 	public AVStream quality(float quality) {
-		this.io.setFloatField(this, 8, quality);
+		this.io.setFloatField(this, 10, quality);
 		return this;
 	}
 	public final float quality_$eq(float quality) {
@@ -183,9 +205,9 @@ public class AVStream extends StructObject {
 	 * @note The ASF header does NOT contain a correct start_time the ASF<br>
 	 * demuxer must NOT set this.
 	 */
-	@Field(9) 
+	@Field(11) 
 	public long start_time() {
-		return this.io.getLongField(this, 9);
+		return this.io.getLongField(this, 11);
 	}
 	/**
 	 * Decoding: pts of the first frame of the stream, in stream time base.<br>
@@ -195,9 +217,9 @@ public class AVStream extends StructObject {
 	 * @note The ASF header does NOT contain a correct start_time the ASF<br>
 	 * demuxer must NOT set this.
 	 */
-	@Field(9) 
+	@Field(11) 
 	public AVStream start_time(long start_time) {
-		this.io.setLongField(this, 9, start_time);
+		this.io.setLongField(this, 11, start_time);
 		return this;
 	}
 	public final long start_time_$eq(long start_time) {
@@ -209,18 +231,18 @@ public class AVStream extends StructObject {
 	 * If a source file does not specify a duration, but does specify<br>
 	 * a bitrate, this value will be estimated from bitrate and file size.
 	 */
-	@Field(10) 
+	@Field(12) 
 	public long duration() {
-		return this.io.getLongField(this, 10);
+		return this.io.getLongField(this, 12);
 	}
 	/**
 	 * Decoding: duration of the stream, in stream time base.<br>
 	 * If a source file does not specify a duration, but does specify<br>
 	 * a bitrate, this value will be estimated from bitrate and file size.
 	 */
-	@Field(10) 
+	@Field(12) 
 	public AVStream duration(long duration) {
-		this.io.setLongField(this, 10, duration);
+		this.io.setLongField(this, 12, duration);
 		return this;
 	}
 	public final long duration_$eq(long duration) {
@@ -232,25 +254,25 @@ public class AVStream extends StructObject {
 	 * C type : char[4]
 	 */
 	@Array({4}) 
-	@Field(11) 
+	@Field(13) 
 	public Pointer<java.lang.Byte > language() {
-		return this.io.getPointerField(this, 11);
+		return this.io.getPointerField(this, 13);
 	}
 	/**
 	 * av_read_frame() support<br>
 	 * C type : AVStreamParseType
 	 */
-	@Field(12) 
+	@Field(14) 
 	public ValuedEnum<AVStreamParseType > need_parsing() {
-		return this.io.getEnumField(this, 12);
+		return this.io.getEnumField(this, 14);
 	}
 	/**
 	 * av_read_frame() support<br>
 	 * C type : AVStreamParseType
 	 */
-	@Field(12) 
+	@Field(14) 
 	public AVStream need_parsing(ValuedEnum<AVStreamParseType > need_parsing) {
-		this.io.setEnumField(this, 12, need_parsing);
+		this.io.setEnumField(this, 14, need_parsing);
 		return this;
 	}
 	/// C type : AVStreamParseType
@@ -259,14 +281,14 @@ public class AVStream extends StructObject {
 		return need_parsing;
 	}
 	/// C type : AVCodecParserContext*
-	@Field(13) 
+	@Field(15) 
 	public Pointer<AVCodecParserContext > parser() {
-		return this.io.getPointerField(this, 13);
+		return this.io.getPointerField(this, 15);
 	}
 	/// C type : AVCodecParserContext*
-	@Field(13) 
+	@Field(15) 
 	public AVStream parser(Pointer<AVCodecParserContext > parser) {
-		this.io.setPointerField(this, 13, parser);
+		this.io.setPointerField(this, 15, parser);
 		return this;
 	}
 	/// C type : AVCodecParserContext*
@@ -274,39 +296,39 @@ public class AVStream extends StructObject {
 		parser(parser);
 		return parser;
 	}
-	@Field(14) 
+	@Field(16) 
 	public long cur_dts() {
-		return this.io.getLongField(this, 14);
+		return this.io.getLongField(this, 16);
 	}
-	@Field(14) 
+	@Field(16) 
 	public AVStream cur_dts(long cur_dts) {
-		this.io.setLongField(this, 14, cur_dts);
+		this.io.setLongField(this, 16, cur_dts);
 		return this;
 	}
 	public final long cur_dts_$eq(long cur_dts) {
 		cur_dts(cur_dts);
 		return cur_dts;
 	}
-	@Field(15) 
+	@Field(17) 
 	public int last_IP_duration() {
-		return this.io.getIntField(this, 15);
+		return this.io.getIntField(this, 17);
 	}
-	@Field(15) 
+	@Field(17) 
 	public AVStream last_IP_duration(int last_IP_duration) {
-		this.io.setIntField(this, 15, last_IP_duration);
+		this.io.setIntField(this, 17, last_IP_duration);
 		return this;
 	}
 	public final int last_IP_duration_$eq(int last_IP_duration) {
 		last_IP_duration(last_IP_duration);
 		return last_IP_duration;
 	}
-	@Field(16) 
+	@Field(18) 
 	public long last_IP_pts() {
-		return this.io.getLongField(this, 16);
+		return this.io.getLongField(this, 18);
 	}
-	@Field(16) 
+	@Field(18) 
 	public AVStream last_IP_pts(long last_IP_pts) {
-		this.io.setLongField(this, 16, last_IP_pts);
+		this.io.setLongField(this, 18, last_IP_pts);
 		return this;
 	}
 	public final long last_IP_pts_$eq(long last_IP_pts) {
@@ -319,9 +341,9 @@ public class AVStream extends StructObject {
 	 * support seeking natively.<br>
 	 * C type : AVIndexEntry*
 	 */
-	@Field(17) 
+	@Field(19) 
 	public Pointer<com.nativelibs4java.ffmpeg.avformat.AVIndexEntry > index_entries() {
-		return this.io.getPointerField(this, 17);
+		return this.io.getPointerField(this, 19);
 	}
 	/**
 	 * av_seek_frame() support<br>
@@ -329,9 +351,9 @@ public class AVStream extends StructObject {
 	 * support seeking natively.<br>
 	 * C type : AVIndexEntry*
 	 */
-	@Field(17) 
+	@Field(19) 
 	public AVStream index_entries(Pointer<com.nativelibs4java.ffmpeg.avformat.AVIndexEntry > index_entries) {
-		this.io.setPointerField(this, 17, index_entries);
+		this.io.setPointerField(this, 19, index_entries);
 		return this;
 	}
 	/// C type : AVIndexEntry*
@@ -339,26 +361,26 @@ public class AVStream extends StructObject {
 		index_entries(index_entries);
 		return index_entries;
 	}
-	@Field(18) 
+	@Field(20) 
 	public int nb_index_entries() {
-		return this.io.getIntField(this, 18);
+		return this.io.getIntField(this, 20);
 	}
-	@Field(18) 
+	@Field(20) 
 	public AVStream nb_index_entries(int nb_index_entries) {
-		this.io.setIntField(this, 18, nb_index_entries);
+		this.io.setIntField(this, 20, nb_index_entries);
 		return this;
 	}
 	public final int nb_index_entries_$eq(int nb_index_entries) {
 		nb_index_entries(nb_index_entries);
 		return nb_index_entries;
 	}
-	@Field(19) 
+	@Field(21) 
 	public int index_entries_allocated_size() {
-		return this.io.getIntField(this, 19);
+		return this.io.getIntField(this, 21);
 	}
-	@Field(19) 
+	@Field(21) 
 	public AVStream index_entries_allocated_size(int index_entries_allocated_size) {
-		this.io.setIntField(this, 19, index_entries_allocated_size);
+		this.io.setIntField(this, 21, index_entries_allocated_size);
 		return this;
 	}
 	public final int index_entries_allocated_size_$eq(int index_entries_allocated_size) {
@@ -366,14 +388,14 @@ public class AVStream extends StructObject {
 		return index_entries_allocated_size;
 	}
 	/// < number of frames in this stream if known or 0
-	@Field(20) 
+	@Field(22) 
 	public long nb_frames() {
-		return this.io.getLongField(this, 20);
+		return this.io.getLongField(this, 22);
 	}
 	/// < number of frames in this stream if known or 0
-	@Field(20) 
+	@Field(22) 
 	public AVStream nb_frames(long nb_frames) {
-		this.io.setLongField(this, 20, nb_frames);
+		this.io.setLongField(this, 22, nb_frames);
 		return this;
 	}
 	public final long nb_frames_$eq(long nb_frames) {
@@ -382,25 +404,25 @@ public class AVStream extends StructObject {
 	}
 	/// C type : int64_t[4 + 1]
 	@Array({4 + 1}) 
-	@Field(21) 
+	@Field(23) 
 	public Pointer<java.lang.Long > unused() {
-		return this.io.getPointerField(this, 21);
+		return this.io.getPointerField(this, 23);
 	}
 	/**
 	 * < source filename of the stream<br>
 	 * C type : char*
 	 */
-	@Field(22) 
+	@Field(24) 
 	public Pointer<java.lang.Byte > filename() {
-		return this.io.getPointerField(this, 22);
+		return this.io.getPointerField(this, 24);
 	}
 	/**
 	 * < source filename of the stream<br>
 	 * C type : char*
 	 */
-	@Field(22) 
+	@Field(24) 
 	public AVStream filename(Pointer<java.lang.Byte > filename) {
-		this.io.setPointerField(this, 22, filename);
+		this.io.setPointerField(this, 24, filename);
 		return this;
 	}
 	/// C type : char*
@@ -409,14 +431,14 @@ public class AVStream extends StructObject {
 		return filename;
 	}
 	/// < AV_DISPOSITION_* bit field
-	@Field(23) 
+	@Field(25) 
 	public int disposition() {
-		return this.io.getIntField(this, 23);
+		return this.io.getIntField(this, 25);
 	}
 	/// < AV_DISPOSITION_* bit field
-	@Field(23) 
+	@Field(25) 
 	public AVStream disposition(int disposition) {
-		this.io.setIntField(this, 23, disposition);
+		this.io.setIntField(this, 25, disposition);
 		return this;
 	}
 	public final int disposition_$eq(int disposition) {
@@ -424,26 +446,35 @@ public class AVStream extends StructObject {
 		return disposition;
 	}
 	/// C type : AVProbeData
-	@Field(24) 
-	public avformat.AVProbeData probe_data() {
-		return this.io.getNativeObjectField(this, 24);
+	@Field(26) 
+	public com.nativelibs4java.ffmpeg.avformat.AVProbeData probe_data() {
+		return this.io.getNativeObjectField(this, 26);
 	}
 	/// C type : int64_t[16 + 1]
 	@Array({16 + 1}) 
-	@Field(25) 
+	@Field(27) 
 	public Pointer<java.lang.Long > pts_buffer() {
-		return this.io.getPointerField(this, 25);
+		return this.io.getPointerField(this, 27);
 	}
-	/// Conversion Error : AVRational (Unsupported type)
+	/**
+	 * sample aspect ratio (0 if unknown)<br>
+	 * - encoding: Set by user.<br>
+	 * - decoding: Set by libavformat.<br>
+	 * C type : AVRational
+	 */
+	@Field(28) 
+	public AVRational sample_aspect_ratio() {
+		return this.io.getNativeObjectField(this, 28);
+	}
 	/// C type : AVMetadata*
-	@Field(26) 
+	@Field(29) 
 	public AVMetadata metadata() {
-		return this.io.getTypedPointerField(this, 26);
+		return this.io.getTypedPointerField(this, 29);
 	}
 	/// C type : AVMetadata*
-	@Field(26) 
+	@Field(29) 
 	public AVStream metadata(AVMetadata metadata) {
-		this.io.setPointerField(this, 26, metadata);
+		this.io.setPointerField(this, 29, metadata);
 		return this;
 	}
 	/// C type : AVMetadata*
@@ -455,17 +486,17 @@ public class AVStream extends StructObject {
 	 * av_read_frame() support<br>
 	 * C type : const uint8_t*
 	 */
-	@Field(27) 
+	@Field(30) 
 	public Pointer<java.lang.Byte > cur_ptr() {
-		return this.io.getPointerField(this, 27);
+		return this.io.getPointerField(this, 30);
 	}
 	/**
 	 * av_read_frame() support<br>
 	 * C type : const uint8_t*
 	 */
-	@Field(27) 
+	@Field(30) 
 	public AVStream cur_ptr(Pointer<java.lang.Byte > cur_ptr) {
-		this.io.setPointerField(this, 27, cur_ptr);
+		this.io.setPointerField(this, 30, cur_ptr);
 		return this;
 	}
 	/// C type : const uint8_t*
@@ -473,13 +504,13 @@ public class AVStream extends StructObject {
 		cur_ptr(cur_ptr);
 		return cur_ptr;
 	}
-	@Field(28) 
+	@Field(31) 
 	public int cur_len() {
-		return this.io.getIntField(this, 28);
+		return this.io.getIntField(this, 31);
 	}
-	@Field(28) 
+	@Field(31) 
 	public AVStream cur_len(int cur_len) {
-		this.io.setIntField(this, 28, cur_len);
+		this.io.setIntField(this, 31, cur_len);
 		return this;
 	}
 	public final int cur_len_$eq(int cur_len) {
@@ -487,9 +518,9 @@ public class AVStream extends StructObject {
 		return cur_len;
 	}
 	/// C type : AVPacket
-	@Field(29) 
+	@Field(32) 
 	public AVPacket cur_pkt() {
-		return this.io.getNativeObjectField(this, 29);
+		return this.io.getNativeObjectField(this, 32);
 	}
 	/**
 	 * Timestamp corresponding to the last dts sync point.<br>
@@ -497,9 +528,9 @@ public class AVStream extends StructObject {
 	 * a DTS is received from the underlying container. Otherwise set to<br>
 	 * AV_NOPTS_VALUE by default.
 	 */
-	@Field(30) 
+	@Field(33) 
 	public long reference_dts() {
-		return this.io.getLongField(this, 30);
+		return this.io.getLongField(this, 33);
 	}
 	/**
 	 * Timestamp corresponding to the last dts sync point.<br>
@@ -507,22 +538,22 @@ public class AVStream extends StructObject {
 	 * a DTS is received from the underlying container. Otherwise set to<br>
 	 * AV_NOPTS_VALUE by default.
 	 */
-	@Field(30) 
+	@Field(33) 
 	public AVStream reference_dts(long reference_dts) {
-		this.io.setLongField(this, 30, reference_dts);
+		this.io.setLongField(this, 33, reference_dts);
 		return this;
 	}
 	public final long reference_dts_$eq(long reference_dts) {
 		reference_dts(reference_dts);
 		return reference_dts;
 	}
-	@Field(31) 
+	@Field(34) 
 	public int probe_packets() {
-		return this.io.getIntField(this, 31);
+		return this.io.getIntField(this, 34);
 	}
-	@Field(31) 
+	@Field(34) 
 	public AVStream probe_packets(int probe_packets) {
-		this.io.setIntField(this, 31, probe_packets);
+		this.io.setIntField(this, 34, probe_packets);
 		return this;
 	}
 	public final int probe_packets_$eq(int probe_packets) {
@@ -534,18 +565,18 @@ public class AVStream extends StructObject {
 	 * used internally, NOT PART OF PUBLIC API, dont read or write from outside of libav*<br>
 	 * C type : AVPacketList*
 	 */
-	@Field(32) 
+	@Field(35) 
 	public Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > last_in_packet_buffer() {
-		return this.io.getPointerField(this, 32);
+		return this.io.getPointerField(this, 35);
 	}
 	/**
 	 * last packet in packet_buffer for this stream when muxing.<br>
 	 * used internally, NOT PART OF PUBLIC API, dont read or write from outside of libav*<br>
 	 * C type : AVPacketList*
 	 */
-	@Field(32) 
+	@Field(35) 
 	public AVStream last_in_packet_buffer(Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > last_in_packet_buffer) {
-		this.io.setPointerField(this, 32, last_in_packet_buffer);
+		this.io.setPointerField(this, 35, last_in_packet_buffer);
 		return this;
 	}
 	/// C type : AVPacketList*
@@ -553,16 +584,23 @@ public class AVStream extends StructObject {
 		last_in_packet_buffer(last_in_packet_buffer);
 		return last_in_packet_buffer;
 	}
-	/// Conversion Error : AVRational (Unsupported type)
-	/// Number of frames that have been demuxed during av_find_stream_info()
-	@Field(33) 
-	public int codec_info_nb_frames() {
-		return this.io.getIntField(this, 33);
+	/**
+	 * Average framerate<br>
+	 * C type : AVRational
+	 */
+	@Field(36) 
+	public AVRational avg_frame_rate() {
+		return this.io.getNativeObjectField(this, 36);
 	}
 	/// Number of frames that have been demuxed during av_find_stream_info()
-	@Field(33) 
+	@Field(37) 
+	public int codec_info_nb_frames() {
+		return this.io.getIntField(this, 37);
+	}
+	/// Number of frames that have been demuxed during av_find_stream_info()
+	@Field(37) 
 	public AVStream codec_info_nb_frames(int codec_info_nb_frames) {
-		this.io.setIntField(this, 33, codec_info_nb_frames);
+		this.io.setIntField(this, 37, codec_info_nb_frames);
 		return this;
 	}
 	public final int codec_info_nb_frames_$eq(int codec_info_nb_frames) {

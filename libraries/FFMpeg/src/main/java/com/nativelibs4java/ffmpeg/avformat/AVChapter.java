@@ -1,5 +1,6 @@
 package com.nativelibs4java.ffmpeg.avformat;
 import com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.AVMetadata;
+import com.nativelibs4java.ffmpeg.avutil.AVRational;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ann.Field;
@@ -33,16 +34,23 @@ public class AVChapter extends StructObject {
 		id(id);
 		return id;
 	}
-	/// Conversion Error : AVRational (Unsupported type)
-	/// < chapter start/end time in time_base units
+	/**
+	 * < time base in which the start/end timestamps are specified<br>
+	 * C type : AVRational
+	 */
 	@Field(1) 
-	public long start() {
-		return this.io.getLongField(this, 1);
+	public AVRational time_base() {
+		return this.io.getNativeObjectField(this, 1);
 	}
 	/// < chapter start/end time in time_base units
-	@Field(1) 
+	@Field(2) 
+	public long start() {
+		return this.io.getLongField(this, 2);
+	}
+	/// < chapter start/end time in time_base units
+	@Field(2) 
 	public AVChapter start(long start) {
-		this.io.setLongField(this, 1, start);
+		this.io.setLongField(this, 2, start);
 		return this;
 	}
 	public final long start_$eq(long start) {
@@ -50,14 +58,14 @@ public class AVChapter extends StructObject {
 		return start;
 	}
 	/// < chapter start/end time in time_base units
-	@Field(2) 
+	@Field(3) 
 	public long end() {
-		return this.io.getLongField(this, 2);
+		return this.io.getLongField(this, 3);
 	}
 	/// < chapter start/end time in time_base units
-	@Field(2) 
+	@Field(3) 
 	public AVChapter end(long end) {
-		this.io.setLongField(this, 2, end);
+		this.io.setLongField(this, 3, end);
 		return this;
 	}
 	public final long end_$eq(long end) {
@@ -68,17 +76,17 @@ public class AVChapter extends StructObject {
 	 * < chapter title<br>
 	 * C type : char*
 	 */
-	@Field(3) 
+	@Field(4) 
 	public Pointer<java.lang.Byte > title() {
-		return this.io.getPointerField(this, 3);
+		return this.io.getPointerField(this, 4);
 	}
 	/**
 	 * < chapter title<br>
 	 * C type : char*
 	 */
-	@Field(3) 
+	@Field(4) 
 	public AVChapter title(Pointer<java.lang.Byte > title) {
-		this.io.setPointerField(this, 3, title);
+		this.io.setPointerField(this, 4, title);
 		return this;
 	}
 	/// C type : char*
@@ -87,14 +95,14 @@ public class AVChapter extends StructObject {
 		return title;
 	}
 	/// C type : AVMetadata*
-	@Field(4) 
+	@Field(5) 
 	public AVMetadata metadata() {
-		return this.io.getTypedPointerField(this, 4);
+		return this.io.getTypedPointerField(this, 5);
 	}
 	/// C type : AVMetadata*
-	@Field(4) 
+	@Field(5) 
 	public AVChapter metadata(AVMetadata metadata) {
-		this.io.setPointerField(this, 4, metadata);
+		this.io.setPointerField(this, 5, metadata);
 		return this;
 	}
 	/// C type : AVMetadata*
