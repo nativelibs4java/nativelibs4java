@@ -1,20 +1,24 @@
 package scalacl
 
+import scala.reflect.generic.Names
+import scala.reflect.generic.Trees
 import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.Plugin
+import scala.tools.nsc.symtab.Definitions
 
-/** A class describing the compiler plugin
- *
- *  @todo Adapt the name of this class to the plugin being
- *  implemented
+/** 
+ * http://code.google.com/p/simple-build-tool/wiki/CompilerPlugins
+ * mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=-d|out|src/examples/BasicExample.scala|-Xprint:scalaclfunctionstransform"
+ * scala -cp target/scalacl-compiler-1.0-SNAPSHOT-shaded.jar scalacl.Main -d out src/examples/BasicExample.scala
+ * javap -c -classpath out/ scalacl.examples.BasicExample
  */
 class ScalaCLPlugin(val global: Global) extends Plugin {
   override val name = "ScalaCL Optimizer"
   override val description =
     "This plugin transforms some Scala functions into OpenCL kernels (for CLCol[T].map and filter's arguments), so they can run on a GPU.\n" +
-    "It will also soon feature autovectorization of ScalaCL programs, detecting parallelizable loops and unnecessary collection creations."
+  "It will also soon feature autovectorization of ScalaCL programs, detecting parallelizable loops and unnecessary collection creations."
 
-  val runsAfter = List[String]("refchecks")
+  val runsAfter = List[String]("analyze")
   override val components = ScalaCLPlugin.components(global)
 }
 
@@ -31,19 +35,166 @@ class ScalaCLFunctionsTransformComponent(val global: Global)
 extends PluginComponent
    with Transform
    with TypingTransformers
+   with MiscMatchers
+   with Printers
 {
   import global._
   import global.definitions._
+  import scala.tools.nsc.symtab.Flags._
+  import typer.{typed, atOwner}    // methods to type trees
 
-  override val runsAfter = List[String]("refchecks")
+  override val runsAfter = List[String]("analyze")
   override val phaseName = "scalaclfunctionstransform"
 
+  class Ids(start: Long = 1) {
+    private var nx = start
+    def next = this.synchronized {
+      val v = nx
+      nx += 1
+      v
+    }
+  }
+
+  val eqName = N("$eq")
+  def replace(varName: String, tree: Tree, by: Tree, unit: CompilationUnit) = new TypingTransformer(unit) {
+    val n = N(varName)
+    override def transform(tree: Tree): Tree = tree match {
+      case Ident(n()) =>
+        by
+      /*
+      case Select(This(n), id) =>
+        Ident(id)
+      case Apply(Select(This(n), varEq), List(v)) =>
+        //Apply(Select(a, N(NameTransformer.encode(op))), List(b))
+        val dec = varEq.decode
+        println("varEq = '" + varEq + "', dec = '" + dec + "'")
+        val transV = super.transform(v)
+        if (varEq.toString.endsWith("_$eq")) {
+          val n = varEq.toString.substring(0, varEq.length - "_$eq".length)
+          Assign(Ident(N(n)), transV)
+        } else
+          Apply(Ident(varEq), List(transV))//super.transform(tree)
+      */
+      case _ =>
+        //println(nodeToString(tree))
+        super.transform(tree)
+    }
+  }.transform(tree)
+  
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
-    override def transform(tree: Tree): Tree = {
-      val trans = tree match {
+    var currentClassName: Name = null
+    implicit def O(n: Name)(implicit symbol: Symbol) = atOwner(symbol) { n }
+    implicit def O(t: Tree)(implicit symbol: Symbol) = atOwner(symbol) { t }
+
+    val labelIds = new Ids
+    val whileIds = new Ids
+
+    override def transform(tree0: Tree): Tree = {
+      val tree = super.transform(tree0)
+      
+      //println("case " + printAny(tree).toString)
+      if (false) {
+        println("case " + nodeToString(tree).replaceAll("\\s*//.*\n", "\n").replaceAll("\\s*\n\\s*", " ").replaceAll("\\(\\s+", "(").replaceAll("\\s+\\)", "") + " => ")
+        val lines = tree.toString
+        if (lines.contains("\n"))
+          println("\t/*\n\t\t" + tree.toString.replaceAll("\n", "\n\t\t") + "\n\t*/")
+        else
+          println("\t// " + lines)
+      }
+
+
+      val trans: Tree = tree match {
+        case ClassDef(mods, name, tparams, template) =>
+          currentClassName = name
+          tree
+        case IntRangeForeach(from, to, isUntil, Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body)) =>
+          println("from = " + from)
+          println("to = " + to)
+          println("FROMTO = " + toStr(tree))
+
+          //implicit val symbol = tree.symbol
+          val id = labelIds.next
+          //val lab = "while$" + labelIds.next
+          val iVar = N("iVar$" + id)
+          val nVal = N("nVal$" + id)
+          
+          def binOp(a: Tree, op: String, b: Tree) = Apply(Select(a, N(NameTransformer.encode(op))), List(b))
+          def incrementIntVar(n: Name) = Assign(Ident(n), binOp(Ident(n), "+", Literal(Constant(1))))
+          def intVar(n: Name, initValue: Tree) = ValDef(Modifiers(MUTABLE), n, TypeTree(IntClass.tpe), initValue)
+          def intVal(n: Name, initValue: Tree) = ValDef(Modifiers(0), n, TypeTree(IntClass.tpe), initValue)
+          def whileLoop(cond: Tree, body: Tree) = {
+            val lab = "while$" + whileIds.next
+            LabelDef(
+                N(lab),
+                Nil,
+                If(
+                  cond,
+                  Block(
+                    if (body == null)
+                      Nil
+                    else
+                      List(body),
+                    Apply(Ident(lab), Nil)//Literal(Constant())//Ident(iVar)
+                  ),
+                  Literal(Constant())
+                  //Ident(iVar)
+                )
+              )
+          }
+
+          localTyper.typed { atPos(tree.pos) { atOwner(tree.symbol) {
+            Block(
+              List(
+                intVar(iVar, from),
+                intVal(nVal, to)
+              ),
+              whileLoop(
+                binOp(Ident(iVar), if (isUntil) "<" else "<=", Ident(nVal)),
+                Block(
+                  List(
+                    /*{
+                      val r = localTyper.typed { replace(paramName.toString, body, Ident(iVar), unit) }
+                      println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
+                      r
+                    }*/
+                  ),
+                  incrementIntVar(iVar)
+                )
+              )
+            )
+          }}}
+          /* case TypeTree()  =>
+          List(
+          case Block(
+          List(
+            ValDef(MUTABLE, "i", TypeTree(), Literal(Constant(0)),
+            ValDef(0, "n", TypeTree(), Literal(Constant(100)),
+            LabelDef(while$1
+              If(Apply(Select(Ident("i"), "$less"), List(Ident("n") Block(List(Block(List(Apply(Select(Select(This("scala"), "Predef"), "println"), List(Ident("i"), Assign(Ident("i") Apply(Select(Ident("i"), "$plus"), List(Literal(Constant(1)), Apply(Ident("while$1"), Nil Literal(Constant(()))  =>
+		{
+		  var i: Int = 0;
+		  val n: Int = 100;
+		  while$1(){
+		    if (i.<(n))
+		      {
+		        {
+		          scala.this.Predef.println(i);
+		          i = i.+(1)
+		        };
+		        while$1()
+		      }
+		    else
+		      ()
+		  }
+		}
+
+           */
+          //treeCopy.Apply()
+          //tree
         case Apply(a1 @ TypeApply(s, typeArgs), List(a2 @ Apply(a3 @ Apply(a4 @ TypeApply(convertFunction, typeArgs2), List(singleArg)), impArgs @ List(io1, io2)))) =>
           try {
-            if (s.symbol.toString == "method map" && convertFunction.toString == "scalacl.package.Expression2CLFunction") {
+            val mn = s.symbol.toString
+            if ((mn == "method map" || mn == "method filter") && convertFunction.toString == "scalacl.package.Expression2CLFunction") {
               singleArg match {
                 case Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body) =>
                   val conv = convertExpr(paramName.toString, body).toString
@@ -62,12 +213,14 @@ extends PluginComponent
               ex.printStackTrace
               tree
           }
+          //case IntRangeForeach(Literal(Constant(from: Int)), Literal(Constant(to: Int)), isUntil, function) =>
         case _ =>
-          //println("TREE " + tree.getClass.getName + " : " + tree)
           tree
       }
       super.transform(trans)
     }
+    
+    
 
     def convertExpr(argName: String, body: Tree, b: StringBuilder = new StringBuilder): StringBuilder = {
       body match {
@@ -86,13 +239,13 @@ extends PluginComponent
               convertExpr(argName, args(0), b)
             case n => error("Unhandled method name !")
           }
-        //case Apply(TypeApply(fun, args1), args2) =>
+          //case Apply(TypeApply(fun, args1), args2) =>
           /*NameTransformer.decode(name.toString) match {
-            case "foreach" =>
-              b.append("FOREACH")
-            case _ =>
-              println("traversing application of "+ name)
-          }*/
+           case "foreach" =>
+           b.append("FOREACH")
+           case _ =>
+           println("traversing application of "+ name)
+           }*/
         case Typed(expr, tpe) =>
           convertExpr(argName, expr, b)
         case _ =>
@@ -109,4 +262,13 @@ extends PluginComponent
       case _ => error("Cannot convert unknown type " + tpt + " to OpenCL")
     }
   }
+}
+
+trait NaiveOptimizer extends Transform with TypingTransformers {
+  val global: Global
+
+  import global._
+  import global.definitions._
+
+  
 }

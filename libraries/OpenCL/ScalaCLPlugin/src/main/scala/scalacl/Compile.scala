@@ -5,10 +5,13 @@ import scala.tools.nsc.Global
 import scala.tools.nsc.Settings
 import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.reporters.Reporter
-import scalacl.ScalaCLPlugin
+//import scalacl.ScalaCLPlugin
 
-object Main {
+object Compile {
   def main(args: Array[String]) {
+      println("""ScalaCL Compiler Plugin
+Copyright Olivier Chafik 2010""")
+      
     val settings = new Settings
 
     val scalaLib = "/Users/ochafik/bin/scala-2.8.0.final/lib/"
