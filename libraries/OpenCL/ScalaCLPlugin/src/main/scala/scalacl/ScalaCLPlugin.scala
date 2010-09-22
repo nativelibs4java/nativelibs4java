@@ -18,7 +18,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
     "This plugin transforms some Scala functions into OpenCL kernels (for CLCol[T].map and filter's arguments), so they can run on a GPU.\n" +
   "It will also soon feature autovectorization of ScalaCL programs, detecting parallelizable loops and unnecessary collection creations."
 
-  val runsAfter = List[String]("analyze")
+  val runsAfter = List[String]("refchecks")
   override val components = ScalaCLPlugin.components(global)
 }
 
@@ -43,7 +43,7 @@ extends PluginComponent
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed, atOwner}    // methods to type trees
 
-  override val runsAfter = List[String]("analyze")
+  override val runsAfter = List[String]("refchecks")
   override val phaseName = "scalaclfunctionstransform"
 
   class Ids(start: Long = 1) {
@@ -55,13 +55,16 @@ extends PluginComponent
     }
   }
 
+  def nodeToStringNoComment(tree: Tree) =
+    nodeToString(tree).replaceAll("\\s*//.*\n", "\n").replaceAll("\\s*\n\\s*", " ").replaceAll("\\(\\s+", "(").replaceAll("\\s+\\)", "")
+
   val eqName = N("$eq")
   def replace(varName: String, tree: Tree, by: Tree, unit: CompilationUnit) = new TypingTransformer(unit) {
     val n = N(varName)
     override def transform(tree: Tree): Tree = tree match {
       case Ident(n()) =>
         by
-      /*
+      
       case Select(This(n), id) =>
         Ident(id)
       case Apply(Select(This(n), varEq), List(v)) =>
@@ -74,9 +77,9 @@ extends PluginComponent
           Assign(Ident(N(n)), transV)
         } else
           Apply(Ident(varEq), List(transV))//super.transform(tree)
-      */
+      
       case _ =>
-        //println(nodeToString(tree))
+        //println("Unknown expr: " + nodeToStringNoComment(tree))
         super.transform(tree)
     }
   }.transform(tree)
@@ -94,7 +97,7 @@ extends PluginComponent
       
       //println("case " + printAny(tree).toString)
       if (false) {
-        println("case " + nodeToString(tree).replaceAll("\\s*//.*\n", "\n").replaceAll("\\s*\n\\s*", " ").replaceAll("\\(\\s+", "(").replaceAll("\\s+\\)", "") + " => ")
+        println("case " + nodeToStringNoComment(tree) + " => ")
         val lines = tree.toString
         if (lines.contains("\n"))
           println("\t/*\n\t\t" + tree.toString.replaceAll("\n", "\n\t\t") + "\n\t*/")
@@ -189,8 +192,15 @@ extends PluginComponent
 		}
 
            */
-          //treeCopy.Apply()
-          //tree
+
+          /*
+          TODO
+          List(case Apply(Apply(TypeApply(Select(Select(This("BasicExample"), "a"), "map"), List(TypeTree(), List(Function(ValDef(PARAM | SYNTHETIC, "x$1", TypeTree(), EmptyTree Apply(Select(Typed(Ident("x$1"), TypeTree(), "$times"), List(Literal(Constant(2.0)), List(Apply(TypeApply(Select(Select(Ident("scalacl"), "package"), "AnyValCLDataIO"), List(TypeTree(), List(Select(Select(This("reflect"), "Manifest"), "Int"), Apply(TypeApply(Select(Select(Ident("scalacl"), "package"), "AnyValCLDataIO"), List(TypeTree(), List(Select(Select(This("reflect"), "Manifest"), "Double")  =>
+          // BasicExample.this.a.map[Double](((x$1: Int) => (x$1: Int).*(2.0)))(scalacl.package.AnyValCLDataIO[Int](reflect.this.Manifest.Int), scalacl.package.AnyValCLDataIO[Double](reflect.this.Manifest.Double))
+
+          case Apply(Apply(TypeApply(Select(Select(Ident("scalacl"), "package"), "CLFun"), List(TypeTree(), TypeTree(), List(Apply(TypeApply(Select(Select(This("collection"), "Seq"), "apply"), List(TypeTree(), List(Literal(Constant(_ * 2.0)), List(Apply(TypeApply(Select(Select(Ident("scalacl"), "package"), "AnyValCLDataIO"), List(TypeTree(), List(Select(Select(This("reflect"), "Manifest"), "Int"), Apply(TypeApply(Select(Select(Ident("scalacl"), "package"), "AnyValCLDataIO"), List(TypeTree(), List(Select(Select(This("reflect"), "Manifest"), "Double")  =>
+          // scalacl.package.CLFun[Int, Double](collection.this.Seq.apply[java.lang.String]("_ * 2.0"))(scalacl.package.AnyValCLDataIO[Int](reflect.this.Manifest.Int), scalacl.package.AnyValCLDataIO[Double](reflect.this.Manifest.Double))
+           */
         case Apply(a1 @ TypeApply(s, typeArgs), List(a2 @ Apply(a3 @ Apply(a4 @ TypeApply(convertFunction, typeArgs2), List(singleArg)), impArgs @ List(io1, io2)))) =>
           try {
             val mn = s.symbol.toString
@@ -262,13 +272,4 @@ extends PluginComponent
       case _ => error("Cannot convert unknown type " + tpt + " to OpenCL")
     }
   }
-}
-
-trait NaiveOptimizer extends Transform with TypingTransformers {
-  val global: Global
-
-  import global._
-  import global.definitions._
-
-  
 }
