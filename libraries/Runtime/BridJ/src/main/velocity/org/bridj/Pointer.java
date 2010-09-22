@@ -1474,6 +1474,27 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
+     * Allocate enough memory for array.length values, copy the values of the array provided as argument into it and return a pointer to that memory.<br/>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
+     * For pointers to primitive types (e.g. {@code Pointer<Integer> }), this method accepts primitive arrays (e.g. {@code int[] }) instead of arrays of boxed primitives (e.g. {@code Integer[] })
+	 * @param array primitive array containing the initial values for the created memory area
+     * @return pointer to a new memory location that initially contains the $cPrimName consecutive values provided in argument
+     */
+	public static <T> Pointer<T> pointerToArray(Object array) {
+		if (array == null)
+			return null;
+		
+		PointerIO<T> io = PointerIO.getArrayIO(array);
+		if (io == null)
+            throwBecauseUntyped("Cannot create pointer to array");
+        
+        Pointer<T> ptr = allocateArray(io, java.lang.reflect.Array.getLength(array));
+        io.setArray(ptr, 0, array);
+        return ptr;
+	}
+	
+	/**
 	 * Write an array of elements to the pointed memory location.<br>
 	 * For pointers to primitive types (e.g. {@code Pointer<Integer> }), this method accepts primitive arrays (e.g. {@code int[] }) instead of arrays of boxed primitives (e.g. {@code Integer[] })
 	 */

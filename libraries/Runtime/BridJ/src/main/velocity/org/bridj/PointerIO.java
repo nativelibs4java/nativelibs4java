@@ -78,7 +78,15 @@ public abstract class PointerIO<T> {
 		return new CommonPointerIOs.PointerArrayIO<T>(targetIO, dimensions, iDimension);
 	}
 	
-    public synchronized static <S extends StructObject> PointerIO<S> getInstance(StructIO s) {
+	static <T> PointerIO<T> getArrayIO(Object array) {
+        #foreach ($prim in $primitives)
+		if (array instanceof ${prim.Name}[])
+			return (PointerIO)PointerIO.get${prim.CapName}Instance();
+		#end
+		return PointerIO.getInstance(array.getClass().getComponentType());
+	}   
+	
+	public synchronized static <S extends StructObject> PointerIO<S> getInstance(StructIO s) {
         return new CommonPointerIOs.StructPointerIO(s);
     }
     static Map<Type, PointerIO<?>> ios = new HashMap<Type, PointerIO<?>>();
