@@ -27,6 +27,8 @@ object Example {
     println("mapTup2 = " + mapTup2.toSeq)
     equals(Seq((1.0,1.0), (2.0,4.0), (3.0,9.0)), mapTup2.toSeq)
     val mapTup22 = mapTup2.mapFun(CLFun[(Float, Float), Float](Seq("_._1 + _._2")))
+    println("mapTup22 = " + mapTup22.toSeq)
+    equals(Seq(2f, 6f, 12f), mapTup22)
 
 
     val tup3 = CLArray[(Float, Float, Float)](3)

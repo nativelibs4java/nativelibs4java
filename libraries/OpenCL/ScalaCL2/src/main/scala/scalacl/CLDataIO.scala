@@ -112,9 +112,9 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
   override def openCLIntermediateKernelTupleElementsExprs(expr: String): Seq[(String, List[Int])] = {
     ios.zipWithIndex.flatMap {
       case (io, i) =>
-        io.openCLIntermediateKernelTupleElementsExprs(expr).map {
+        io.openCLIntermediateKernelTupleElementsExprs(expr + "._" + (i + 1)).map {
           case (x, indexes) =>
-            (x + "._" + (i + 1), i :: indexes)
+            (x, i :: indexes)
         }
     }
   }

@@ -38,12 +38,16 @@ class CLColTest {
     //val ff: ((Float, Float)) => (Float, Float) = { case (x, y) => i += 1; val f = i.toFloat; (f, f * f) }
     val mapTup = tup.map({ case (x, y) => i += 1; val f = i.toFloat; (f, f * f) })
     println("mapTup = " + mapTup.toSeq)
-    assertEquals(Seq((1.0,1.0), (2.0,4.0), (3.0,9.0)), mapTup.toSeq)
+    assertEquals(Seq((1f,1f), (2f,4f), (3f,9f)), mapTup.toSeq)
     
     //val fl: ((Float, Float)) => Boolean = p => (p._1 % 2) == 1
     val filTup = mapTup.filter((x: (Float, Float)) => (x._1 % 2) == 1)
     println("filTup = " + filTup.toSeq)
-    assertEquals(Seq((1.0,1.0), (3.0,9.0)), filTup.toSeq)
+    assertEquals(Seq((1f,1f), (3f,9f)), filTup.toSeq)
+
+    val tup2Scal = mapTup.mapFun(CLFun[(Float, Float), Float](Seq("_._1 + _._2")))
+    println("tup2Scal = " + tup2Scal.toSeq)
+    equals(Seq(2f, 6f, 12f), tup2Scal)
   }
   @Test
   def testTuples3 {
@@ -53,12 +57,16 @@ class CLColTest {
     val mapTup = tup.map(ff)
     //mapTup2.waitFor
     println("mapTup = " + mapTup.toSeq)
-    assertEquals(Seq((1.0,1.0,1.0), (2.0,4.0,8.0), (3.0,9.0,27.0)), mapTup.toSeq)
+    assertEquals(Seq((1f,1f,1f), (2f,4f,8f), (3f,9f,27f)), mapTup.toSeq)
     
     val fl: ((Float, Float, Float)) => Boolean = p => (p._1 % 2) == 1
     val filTup = mapTup.filter(fl)
     println("filTup = " + filTup.toSeq)
-    assertEquals(Seq((1.0,1.0,1.0), (3.0,9.0,27.0)), filTup.toSeq)
+    assertEquals(Seq((1f,1f,1f), (3f,9f,27f)), filTup.toSeq)
+
+    val tup2Scal = mapTup.mapFun(CLFun[(Float, Float, Float), Float](Seq("_._1 + _._2 + _._3")))
+    println("tup2Scal = " + tup2Scal.toSeq)
+    equals(Seq(3f, 14f, 39f), tup2Scal)
   }
   @Test
   def testTuples12 {
@@ -68,13 +76,17 @@ class CLColTest {
     val mapTup = tup.map(ff)
     //mapTup2.waitFor
     println("mapTup = " + mapTup.toSeq)
-    assertEquals(Seq((1.0,(1.0,1.0)), (2.0,(4.0,8.0)), (3.0,(9.0,27.0))), mapTup.toSeq)
+    assertEquals(Seq((1f,(1f,1f)), (2f,(4f,8f)), (3f,(9f,27f))), mapTup.toSeq)
     
     val fl: ((Float, (Float, Float))) => Boolean =  p => (p._1 % 2) == 1
     val filTup = mapTup.filter(fl)
     println("filTup = " + filTup.toSeq)
-    assertEquals(Seq((1.0,(1.0,1.0)), (3.0,(9.0,27.0))), filTup.toSeq)
+    assertEquals(Seq((1f,(1f,1f)), (3f,(9f,27f))), filTup.toSeq)
 
+
+    val tup2Scal = mapTup.mapFun(CLFun[(Float, (Float, Float)), Float](Seq("_._1 + _._2._1 + _._2._2")))
+    println("tup2Scal = " + tup2Scal.toSeq)
+    equals(Seq(3f, 14f, 39f), tup2Scal)
   }
   @Test
   def filterMapAndPack {
@@ -97,7 +109,7 @@ class CLColTest {
     val arrB: Array[Byte] = filtered.presence.buffer.as(classOf[Byte]).read(context.queue).getBytes(filtered.buffers(0).size.asInstanceOf[Int])
     val packed = filtered.toCLArray
     val pref = filtered.updatedPresencePrefixSum.toArray
-    val filteredSize = filtered.size.get
+    val filteredSize = filtered.size
     //println("filtered presence = " + arr.toSeq)
     //println("filtered presence B = " + arrB.toSeq)
     //println("Size of filtered = " + filteredSize)
