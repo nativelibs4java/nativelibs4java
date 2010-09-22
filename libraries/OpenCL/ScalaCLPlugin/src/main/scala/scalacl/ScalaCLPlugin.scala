@@ -238,6 +238,11 @@ extends PluginComponent
       super.transform(trans)
     }
     
+    def cast(expr: Tree, clType: String) = {
+        b.append("((" + clType + ")")
+        convertExpr(expr, b)
+        b.append(")")
+    }
     
 
     def convertExpr(argName: String, body: Tree, b: StringBuilder = new StringBuilder): StringBuilder = {
@@ -266,6 +271,31 @@ extends PluginComponent
            }*/
         case Typed(expr, tpe) =>
           convertExpr(argName, expr, b)
+        case Apply(Select(expr, sizeTName()), Nil) => cast(expr, "size_t")
+        case Apply(Select(expr, longName()), Nil) => cast(expr, "long")
+        case Apply(Select(expr, intName()), Nil) => cast(expr, "int")
+        case Apply(Select(expr, shortName()), Nil) => cast(expr, "short")
+        case Apply(Select(expr, byteName()), Nil) => cast(expr, "char")
+        case Apply(Select(expr, charName()), Nil) => cast(expr, "short")
+        case Apply(Select(expr, doubleName()), Nil) => cast(expr, "double")
+        case Apply(Select(expr, floatName()), Nil) => cast(expr, "float")
+        case Apply(TypeApply(Select(Select(Select(Ident(scalaName())), mathName()), packageName()), funName), List(argType)), List(args)) =>
+            b.append(funName).append("(")
+            var first = false
+            for (arg <- args) {
+                if (first)
+                    first = false
+                else
+                    b.append(", ")
+                convertExpr(arg, b)
+            }
+            b.append(")")
+        case Apply(Select(expr, fun), Nil) =>
+            val fn = fun.toString
+            if (fn.matches("_\\d+")) {
+                convertExpr(expr, b)
+                b.append(".").append(fn)
+            }
         case _ =>
           println("Failed to convert " + body.getClass.getName + ": " + body)
       }

@@ -23,6 +23,17 @@ trait MiscMatchers {
   val mapName = N("map")
   val filterName = N("filter")
   val updateName = N("update")
+  val sizeTName = N("toSizeT")
+  val longName = N("toLong")
+  val intName = N("toInt") 
+  val shortName = N("toShort")
+  val byteName = N("toByte")
+  val charName = N("toChar")
+  val doubleName = N("toDouble")
+  val floatName = N("toFloat")
+  val mathName = N("math")
+  val packageName = N("package")
+    
 
   object IntRangeForeach {
     def apply(from: Tree, to: Tree, isUntil: Boolean, functionReturnType: Tree, function: Tree) =
