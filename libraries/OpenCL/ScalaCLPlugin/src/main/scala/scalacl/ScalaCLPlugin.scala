@@ -8,7 +8,7 @@ import scala.tools.nsc.symtab.Definitions
 
 /** 
  * http://code.google.com/p/simple-build-tool/wiki/CompilerPlugins
- * mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=-d|out|src/examples/BasicExample.scala|-Xprint:scalaclfunctionstransform"
+ * mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=-d|out|src/main/examples/BasicExample.scala|-Xprint:scalaclfunctionstransform"
  * scala -cp target/scalacl-compiler-1.0-SNAPSHOT-shaded.jar scalacl.Main -d out src/examples/BasicExample.scala
  * javap -c -classpath out/ scalacl.examples.BasicExample
  */
@@ -133,11 +133,11 @@ extends PluginComponent
         case ClassDef(mods, name, tparams, template) =>
           currentClassName = name
           tree
-        case IntRangeForeach(from, to, isUntil, Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body)) =>
-          println("from = " + from)
-          println("to = " + to)
-          println("FROMTO = " + toStr(tree))
-          tree
+        //case IntRangeForeach(from, to, by, isUntil, Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body)) =>
+          //println("from = " + from)
+          //println("to = " + to)
+          //println("FROMTO = " + toStr(tree))
+          //tree
           /*
           val id = labelIds.next
           val iVar = N("iVar$" + id)
@@ -183,7 +183,7 @@ extends PluginComponent
            *    "_ * 2.0"
            */
           val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "" + tree.symbol.tag + tree.symbol.pos)) // TODO
-          val functionOpenCLExprString = convertExpr(paramName.toString, body).toString
+          val functionOpenCLExprString = convertExpr(Map(paramName.toString -> "_"), body).toString
           println("Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
           def seqExpr(typeExpr: Tree, values: Tree*) =
             Apply(
@@ -237,67 +237,81 @@ extends PluginComponent
       }
       super.transform(trans)
     }
-    
-    def cast(expr: Tree, clType: String) = {
-        b.append("((" + clType + ")")
-        convertExpr(expr, b)
-        b.append(")")
-    }
-    
 
-    def convertExpr(argName: String, body: Tree, b: StringBuilder = new StringBuilder): StringBuilder = {
+    def convertExpr(argNames: Map[String, String], body: Tree, b: StringBuilder = new StringBuilder): StringBuilder = {
+      def out(args: Any*): Unit = args.foreach(_ match {
+        case t: Tree =>
+          convertExpr(argNames, t, b)
+        case items: List[_] =>
+          var first = false
+          for (item <- items) {
+            if (first)
+              first = false
+            else
+              b.append(", ")
+            out(item)
+          }
+        case s: Any =>
+          b.append(s)
+      })
+      def cast(expr: Tree, clType: String) =
+        out("((", clType, ")", expr, ")")
+
       body match {
         case Literal(Constant(value)) =>
-          b.append(value)
+          out(value)
         case Ident(name) =>
-          if (name.toString.equals(argName))
-            b.append("_")
-          else
-            error("Unknown identifier : '" + name + "' (expected '" + argName + "')")
-        case Apply(s @ Select(left, name), args) =>
-          NameTransformer.decode(name.toString) match {
-            case op @ ("+" | "-" | "*" | "/" | "%" | "^" | "^^" | "&" | "&&" | "|" | "||" | "<<" | ">>") =>
-              convertExpr(argName, left, b)
-              b.append(' ').append(op).append(' ')
-              convertExpr(argName, args(0), b)
-            case n => error("Unhandled method name !")
-          }
+          out(argNames.getOrElse(
+            name.toString, 
+            error("Unknown identifier : '" + name + "' (expected any of " + argNames.keys.map("'" + _ + "'").mkString(", ") + ")")
+          ))
           //case Apply(TypeApply(fun, args1), args2) =>
           /*NameTransformer.decode(name.toString) match {
            case "foreach" =>
-           b.append("FOREACH")
+           out("FOREACH")
            case _ =>
            println("traversing application of "+ name)
            }*/
         case Typed(expr, tpe) =>
-          convertExpr(argName, expr, b)
-        case Apply(Select(expr, sizeTName()), Nil) => cast(expr, "size_t")
-        case Apply(Select(expr, longName()), Nil) => cast(expr, "long")
-        case Apply(Select(expr, intName()), Nil) => cast(expr, "int")
-        case Apply(Select(expr, shortName()), Nil) => cast(expr, "short")
-        case Apply(Select(expr, byteName()), Nil) => cast(expr, "char")
-        case Apply(Select(expr, charName()), Nil) => cast(expr, "short")
-        case Apply(Select(expr, doubleName()), Nil) => cast(expr, "double")
-        case Apply(Select(expr, floatName()), Nil) => cast(expr, "float")
-        case Apply(TypeApply(Select(Select(Select(Ident(scalaName())), mathName()), packageName()), funName), List(argType)), List(args)) =>
-            b.append(funName).append("(")
-            var first = false
-            for (arg <- args) {
-                if (first)
-                    first = false
-                else
-                    b.append(", ")
-                convertExpr(arg, b)
-            }
-            b.append(")")
+          out(expr)
+        case Apply(Select(expr, toSizeTName()), Nil) => cast(expr, "size_t")
+        case Apply(Select(expr, toLongName()), Nil) => cast(expr, "long")
+        case Apply(Select(expr, toIntName()), Nil) => cast(expr, "int")
+        case Apply(Select(expr, toShortName()), Nil) => cast(expr, "short")
+        case Apply(Select(expr, toByteName()), Nil) => cast(expr, "char")
+        case Apply(Select(expr, toCharName()), Nil) => cast(expr, "short")
+        case Apply(Select(expr, toDoubleName()), Nil) => cast(expr, "double")
+        case Apply(Select(expr, toFloatName()), Nil) => cast(expr, "float")
+        case ScalaMathFunction(funName, args) =>
+          // scala.math.package.atan2(x, y)
+          out(funName, "(", args, ")")
+        case IntRangeForeach(from, to, by, isUntil, Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body)) =>
+          val id = labelIds.next
+          val iVar = "iVar$" + id
+          val nVal = "nVal$" + id
+
+          out("int ", iVar, ";\n")
+          out("const int ", nVal, " = ", to, ";\n")
+          out("for (", iVar, " = ", from, "; ", iVar, " ", if (isUntil) "<" else "<=", " ", nVal, "; ", iVar, " += ", by, ") {\n")
+          convertExpr(argNames + (paramName.toString -> iVar), body, b)
+          out("\n}")
+          
         case Apply(Select(expr, fun), Nil) =>
-            val fn = fun.toString
-            if (fn.matches("_\\d+")) {
-                convertExpr(expr, b)
-                b.append(".").append(fn)
-            }
+          val fn = fun.toString
+          if (fn.matches("_\\d+")) {
+            out(expr, ".", fn)
+          }
+        case Apply(s @ Select(left, name), args) =>
+          NameTransformer.decode(name.toString) match {
+            case op @ ("+" | "-" | "*" | "/" | "%" | "^" | "^^" | "&" | "&&" | "|" | "||" | "<<" | ">>") =>
+              out(left, " ", op, " ", args(0))
+            case n =>
+              println(nodeToStringNoComment(body))
+              error("Unhandled method name : " + name)
+          }
         case _ =>
           println("Failed to convert " + body.getClass.getName + ": " + body)
+          println(nodeToStringNoComment(body))
       }
       b
     }

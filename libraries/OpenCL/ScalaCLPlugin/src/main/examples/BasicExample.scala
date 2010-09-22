@@ -1,6 +1,7 @@
-package scalacl.examples
+package scalacl
 
 import scalacl._
+import scala.math._
 
 /** An example demonstrating the fancy features of the new
  *  compiler plugin.
@@ -41,18 +42,24 @@ class BasicExample {
       */
       
   def main(args: Array[String]): Unit = {
-    implicit val context = new ScalaCLContext(null)
+    implicit val context = new ScalaCLContext
   
-    val a = CLArray[Int](10)
+    val a = new CLArray[Int](10)
     //val m1 = a.mapFun(CLFun[Int, Double](Seq("_ * 2.0")))
-    val m2 = a.map(_ + 2.0).map(_ * 2.0)
+    val m2 = a.map(_ + 2.0).map(_ * 2.0).map(cos(_))
+    val m3 = a.map(x => {
+        var x = 0
+        for (i <- 0 to 10 by 2)
+            x += i * 5
+        x
+    })
     println("m2 = " + m2.toSeq)
       
     val r: CLLongRange = 
           0 until 10
           
     val m: CLArray[(Long, Float)] = 
-      r.map(i => (i, cos(i).toFloat))
+      r.map(i => (i, cos(i).toFloat)).toCLArray
 
     val mm = 
       m.map { case (i, c) => i + c }

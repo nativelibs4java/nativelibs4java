@@ -1,5 +1,6 @@
 package scalacl
 
+import java.io.File
 import scala.tools.nsc.CompilerCommand
 import scala.tools.nsc.Global
 import scala.tools.nsc.Settings
@@ -17,7 +18,12 @@ Copyright Olivier Chafik 2010""")
     val scalaLib = "/Users/ochafik/bin/scala-2.8.0.final/lib/"
     val extraArgs = List(
       "-bootclasspath", scalaLib + "scala-library.jar:" + scalaLib + "scala-compiler.jar",
-      "-classpath", "/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar"
+      "-classpath", 
+      Seq(
+        //"/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/classes",
+        //"/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/scala_2.8.0/classes"
+        "/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar"
+      ).mkString(File.pathSeparator)
     )
     val command = new CompilerCommand((args ++ extraArgs).toList, settings) {
       override val cmdName = "scalacl"
