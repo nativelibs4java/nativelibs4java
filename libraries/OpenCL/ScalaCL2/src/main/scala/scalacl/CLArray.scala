@@ -10,6 +10,26 @@ import org.bridj.Pointer
 import org.bridj.Pointer._
 import org.bridj.SizeT
 
+object CLArray {
+  def apply[T](values: T*)(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) = {
+    implicit val t = dataIO.t
+    val valuesArray = values.toArray
+    val size = valuesArray.length
+    if (t.erasure.isPrimitive) {
+      new CLArray[T](Array(new CLGuardedBuffer[T](size).update(valuesArray).asInstanceOf[CLGuardedBuffer[Any]]))
+    } else {
+      val a = new CLArray[T](size)
+      // TODO find a faster way to handle initial copy of complex types !!!
+      var i = 0
+      while (i < size) {
+        dataIO.store(values(i), a.buffers, 0)
+        i += 1
+      }
+      a
+    }
+
+  }
+}
 class CLArray[T](
   val buffers: Array[CLGuardedBuffer[Any]]
 )(
@@ -19,6 +39,9 @@ class CLArray[T](
 extends CLCol[T]
    with CLUpdatableCol[T]
 {
+  def this(length: Long)(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) =
+    this(dataIO.createBuffers(length))
+
   type ThisCol[T] = CLArray[T]
   lazy val buffersList = buffers.toList
 
@@ -39,7 +62,7 @@ extends CLCol[T]
     doMap(f, this)
 
   override def map[V](f: T => V)(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): CLArray[V] = {
-    val out = CLArray[V](size)
+    val out = new CLArray[V](size)
     implicit val t = out.t
     doMap(f, out)
   }
@@ -83,7 +106,7 @@ extends CLCol[T]
     if (f.isOnlyInScalaSpace)
       map(f.function)
     else {
-      val out = CLArray[V](size)
+      val out = new CLArray[V](size)
       doMap(f, out)
       out
     }
@@ -150,4 +173,10 @@ extends CLCol[T]
   override def drop(n: Long) = new CLArray(buffers.map(_.clone(n, size)))
 
   override def view: CLView[T, ThisCol[T]] = new CLArrayView[T, T, CLArray[T]](this, 0, size, null, null, null, null)
+
+  override def copyToArray(a: Array[T], start: Int, len: Int): Unit = {
+    dataIO.toArray(buffers, a, start, len)
+  }
+
+
 }

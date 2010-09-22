@@ -16,7 +16,7 @@ class CLEmptyCol[T](implicit val context: ScalaCLContext, dataIO: CLDataIO[T]) e
   override def mapFun[V](f: CLFunction[T, V])(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): CLCol[V] = new CLEmptyCol[V]
   override def map[V](f: T => V)(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): CLCol[V] = new CLEmptyCol[V]
 
-  override def toCLArray: CLArray[T] = CLArray[T](0)
+  override def toCLArray: CLArray[T] = new CLArray[T](0)
   override def toArray: Array[T] = {
     implicit val t = dataIO.t
     new Array[T](0)

@@ -32,6 +32,12 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[
     new CLPointerFuture[T](b, read(evts => buffer.read(context.queue, index, 1, b, false, evts:_*)))
   }
 
+  def update(values: Array[T]): CLGuardedBuffer[T] = {
+    val b: Pointer[T] = pointerToArray(values)
+    write(evts => buffer.write(context.queue, 0, b.getRemainingElements, b, false, evts:_*))
+    this
+  }
+
   def update(index: Long, value: T): Unit = {
     val b: Pointer[T] = allocate(elementClass)
     b.set(value)

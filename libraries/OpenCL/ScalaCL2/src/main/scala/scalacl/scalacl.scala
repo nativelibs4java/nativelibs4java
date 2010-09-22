@@ -176,11 +176,6 @@ package object scalacl {
 
   def clType[T](implicit dataIO: CLDataIO[T]) = dataIO.clType
 
-  def CLArray[T](fixedSize: Long)(implicit dataIO: CLDataIO[T], context: ScalaCLContext) = {
-    implicit val t = dataIO.t
-    new CLArray[T](dataIO.createBuffers(fixedSize))
-  }
-
   /*def Function2CLFunction[K, V](function: K => V)(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
     new CLFunction[K, V](null, function, Seq(), null, Seq())
   */

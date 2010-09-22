@@ -81,7 +81,7 @@ extends CLView[T, C]
 
   override def force = {
     if (filter != null) {
-      val out = CLArray[T](col.size)
+      val out = new CLArray[T](col.size)
       // TODO : use different classes for CLFilteredArrayView
       // TODO actually compute and write data here !
       out

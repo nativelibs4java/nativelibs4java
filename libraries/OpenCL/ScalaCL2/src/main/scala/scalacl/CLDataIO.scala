@@ -6,6 +6,7 @@
 package scalacl
 import org.bridj.Pointer
 import org.bridj.PointerIO
+import scala.math._
 
 trait CLDataIO[T] {
   implicit val t: ClassManifest[T]
@@ -56,14 +57,19 @@ trait CLDataIO[T] {
   def exprs(arrayExpr: String): Seq[String]
   //def toArray(arrays: Array[CLGuardedBuffer[Any]], offset: Int): Array[T]
 
-  def toArray(arrays: Array[CLGuardedBuffer[Any]]) = {
+  def toArray(arrays: Array[CLGuardedBuffer[Any]]): Array[T] = toArray(arrays, null)
+  def toArray(arrays: Array[CLGuardedBuffer[Any]], out: Array[T], start: Long = 0, length: Long = -1L): Array[T] = {
     assert(elementCount == arrays.length)
     val pointers = arrays.map(_.toPointer)
     val size = pointers(0).getRemainingElements.toInt
-    val out = new Array[T](size)
-    for (i <- 0 until size)
-      out(i) = extract(pointers, 0, i)
-    out
+    val actualOut = if (out == null) new Array[T](size) else out
+    var i = start
+    val sup = if (length < 0) size else min(size, start + length)
+    while (i < sup) {
+      actualOut(i.toInt) = extract(pointers, 0, i)
+      i += 1
+    }
+    actualOut
   }
   
 }

@@ -35,12 +35,16 @@ trait CLCol[T] extends CLEventBound {
   def drop(n: Long): CLCol[T] = slice(0, size - n)
   
   def zip[V](other: CLCol[V])(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): ThisCol[(T, V)] = notImp
-  def zipWithIndex(implicit dataIO: CLDataIO[T]): CLCol[(T, Long)] = zip(new CLLongRange(0, size))
+  def zipWithIndex(implicit dataIO: CLDataIO[T]): CLCol[(T, Long)] = zip(new CLLongRange(0, size, 1))
   
   def sizeFuture: CLFuture[Long]
-  def size: Long = sizeFuture.get
+  def size = sizeFuture.get.toInt
   def isEmpty = size == 0L
-  
+
+  def copyToArray(a: CLArray[T], start: Int, len: Int): Unit = notImp
+  def copyToArray(a: CLArray[T]): Unit = copyToArray(a, 0, size.toInt)
+  def copyToArray(a: Array[T], start: Int, len: Int): Unit = notImp
+  def copyToArray(a: Array[T]): Unit = copyToArray(a, 0, size.toInt)
 }
 
 trait CLUpdatableCol[T] {

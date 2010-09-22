@@ -39,11 +39,36 @@ class BasicExample {
       for (i <- 0 to 100)
         t += 2 * i
       */
-  import com.nativelibs4java.opencl.JavaCL
-  implicit val context = new ScalaCLContext(JavaCL.createBestContext)
-  val a = CLArray[Int](1000)
-  val m1 = a.mapFun(CLFun[Int, Double](Seq("_ * 2.0")))
-  val m2 = a.map((_: Int) * 2.0)
+      
+  def main(args: Array[String]): Unit = {
+    implicit val context = new ScalaCLContext(null)
+  
+    val a = CLArray[Int](10)
+    //val m1 = a.mapFun(CLFun[Int, Double](Seq("_ * 2.0")))
+    val m2 = a.map(_ + 2.0).map(_ * 2.0)
+    println("m2 = " + m2.toSeq)
+      
+    val r: CLLongRange = 
+          0 until 10
+          
+    val m: CLArray[(Long, Float)] = 
+      r.map(i => (i, cos(i).toFloat))
+
+    val mm = 
+      m.map { case (i, c) => i + c }
+    
+    val oddM = m.filter((p: (Long, Float)) => (p._1 % 2) == 0) // compiler knows we're gonna compact this filter to a Seq (without ever calling refineFilter on it), so it can add a .precompact call here that will queue the compact operation in background 
+    
+    val oddM2 = m.filter { case (i, c) => (i % 2) == 0 } 
+    
+    println("m = " + m.toSeq)
+    println("mm = " + mm.toSeq)
+    println("oddM = " + oddM.toSeq)
+    println("oddM2 = " + oddM2.toSeq)
+    
+  }
+  
+  
   /*
   val m3 = a.map((x: Int) => {
       var t = 0

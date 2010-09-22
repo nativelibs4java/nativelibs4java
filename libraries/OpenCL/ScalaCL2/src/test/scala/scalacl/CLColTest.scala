@@ -33,7 +33,7 @@ class CLColTest {
   @Test
   def testTuples2 {
 
-    val tup = CLArray[(Float, Float)](3)
+    val tup = new CLArray[(Float, Float)](3)
     var i = 0
     //val ff: ((Float, Float)) => (Float, Float) = { case (x, y) => i += 1; val f = i.toFloat; (f, f * f) }
     val mapTup = tup.map({ case (x, y) => i += 1; val f = i.toFloat; (f, f * f) })
@@ -51,7 +51,7 @@ class CLColTest {
   }
   @Test
   def testTuples3 {
-    val tup = CLArray[(Float, Float, Float)](3)
+    val tup = new CLArray[(Float, Float, Float)](3)
     var i = 0
     val ff: ((Float, Float, Float)) => (Float, Float, Float) = { case (x, y, z) => i += 1; val f = i.toFloat; (f, f * f, f * f * f) }
     val mapTup = tup.map(ff)
@@ -70,7 +70,7 @@ class CLColTest {
   }
   @Test
   def testTuples12 {
-    val tup = CLArray[(Float, (Float, Float))](3)
+    val tup = new CLArray[(Float, (Float, Float))](3)
     var i = 0
     val ff: ((Float, (Float, Float))) => (Float, (Float, Float)) = { case (x, (y, z)) => i += 1; val f = i.toFloat; (f, (f * f, f * f * f)) }
     val mapTup = tup.map(ff)
@@ -92,7 +92,7 @@ class CLColTest {
   def filterMapAndPack {
     val a = Array(1, 2, 3)
 
-    var input = CLArray[Int](10).map((_: Int) + 10)
+    var input = new CLArray[Int](10).map((_: Int) + 10)
 
     val clMapped = input.mapFun(CLFunSeq[Int, Int](Seq("int v = _ + $i;"), Seq("v * (v - 1)")))
 

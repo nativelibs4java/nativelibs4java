@@ -8,7 +8,7 @@ package scalacl
 import scala.collection.mutable.HashMap
 import com.nativelibs4java.opencl._
 
-class ScalaCLContext(val context: CLContext) {
+class ScalaCLContext(val context: CLContext = JavaCL.createBestContext) {
   lazy val queue = context.createDefaultQueue()
   lazy val order = context.getKernelsDefaultByteOrder
   //var cache = new HashMap[CLFunction[_, _], CLKernel]
