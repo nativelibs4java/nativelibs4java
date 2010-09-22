@@ -30,32 +30,32 @@ extends CLCol[T]
   def apply(index: Long): CLFuture[T] = dataIO.extract(buffers, index)
   override def toArray = dataIO.toArray(buffers)
 
-  override def size = new CLInstantFuture(buffers(0).size)
+  override def sizeFuture = new CLInstantFuture(buffers(0).size)
   override def toCLArray = this
   
   private val localSizes = Array(1)
 
-  protected def updateFun(f: T => T): CLArray[T] =
-    doMapFun(f, this)
+  override def update(f: T => T)(implicit dataIO: CLDataIO[T]): CLArray[T] =
+    doMap(f, this)
 
-  protected def mapFun[V](f: T => V)(implicit vIO: CLDataIO[V]): CLArray[V] = {
-    val out = CLArray[V](longSize)
+  override def map[V](f: T => V)(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): CLArray[V] = {
+    val out = CLArray[V](size)
     implicit val t = out.t
-    doMapFun(f, out)
+    doMap(f, out)
   }
           
-  protected def doMapFun[V](f: T => V, out: CLArray[V])(implicit vIO: CLDataIO[V]): CLArray[V] = {
-
+  protected def doMap[V](f: T => V, out: CLArray[V])(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): CLArray[V] = {
     println("map should not be called directly, you haven't run the compiler plugin or it failed")
+    println("mapping " + dataIO + " to " + vIO)
     readBlock {
       val ptrs = buffers.map(_.toPointer)
       val newPtrs = if (dataIO.t.erasure.equals(vIO.t.erasure))
         ptrs
       else
-        buffers.map(b => allocateArray(b.t.erasure.asInstanceOf[Class[Any]], longSize).order(context.order))
+        buffers.map(b => allocateArray(b.t.erasure.asInstanceOf[Class[Any]], size).order(context.order))
       
       var i = 0L
-      while (i < longSize) {
+      while (i < size) {
         val x = dataIO.extract(ptrs, i)
         val y = f(x)
         vIO.store(y, newPtrs, i)
@@ -70,20 +70,20 @@ extends CLCol[T]
     }
     out
   }
-  override def update(f: CLFunction[T, T]): CLArray[T] = {
-    if (f.expression == null)
-      updateFun(f.function)
+  override def updateFun(f: CLFunction[T, T])(implicit dataIO: CLDataIO[T]): CLArray[T] = {
+    if (f.isOnlyInScalaSpace)
+      update(f.function)
     else {
       doMap(f, this)
       this
     }
   }
-  override def map[V](f: CLFunction[T, V]): CLArray[V] = {
-    implicit val vIO = f.bIO
-    if (f.expression == null)
-      mapFun(f.function)
+  override def mapFun[V](f: CLFunction[T, V])(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): CLArray[V] = {
+    println("mapping " + dataIO + " to " + vIO)
+    if (f.isOnlyInScalaSpace)
+      map(f.function)
     else {
-      val out = CLArray[V](longSize)
+      val out = CLArray[V](size)
       doMap(f, out)
       out
     }
@@ -91,10 +91,10 @@ extends CLCol[T]
 
   protected def doMap[V](f: CLFunction[T, V], out: CLArray[V]) = {
     val kernel = f.getKernel(context, this, out, "array")
-    assert(longSize <= Int.MaxValue)
-    val globalSizes = Array(longSize.asInstanceOf[Int])
+    assert(size <= Int.MaxValue)
+    val globalSizes = Array(size.asInstanceOf[Int])
     kernel.synchronized {
-      kernel.setArgs((Seq(new SizeT(longSize)) ++ buffers.map(_.buffer) ++ out.buffers.map(_.buffer)):_*)
+      kernel.setArgs((Seq(new SizeT(size)) ++ buffers.map(_.buffer) ++ out.buffers.map(_.buffer)):_*)
       // TODO cut size bigger than int into global and local sizes
       syncAll(buffersList)(out.buffersList)(evts => {
         kernel.enqueueNDRange(context.queue, globalSizes, localSizes, evts:_*)
@@ -104,15 +104,15 @@ extends CLCol[T]
   }
 
 
-  protected def filterFun(f: T => Boolean): CLFilteredArray[T] = {
+  override def filter(f: T => Boolean)(implicit dataIO: CLDataIO[T]): CLFilteredArray[T] = {
     println("filter should not be called directly, you haven't run the compiler plugin or it failed")
     val out = new CLFilteredArray[T](buffers)
     readBlock {
       val ptrs = buffers.map(_.toPointer)
-      val newPtr = allocateBooleans(longSize).order(context.order)
+      val newPtr = allocateBooleans(size).order(context.order)
 
       var i = 0L
-      while (i < longSize) {
+      while (i < size) {
         val x = dataIO.extract(ptrs, i)
         val b = f(x)
         newPtr.set(i, b)
@@ -125,17 +125,17 @@ extends CLCol[T]
     }
     out
   }
-  override def filter(f: CLFunction[T, Boolean]): CLFilteredArray[T] = {
-    if (f.expression == null)
-      filterFun(f.function)
+  override def filterFun(f: CLFunction[T, Boolean])(implicit dataIO: CLDataIO[T]): CLFilteredArray[T] = {
+    if (f.isOnlyInScalaSpace)
+      filter(f.function)
     else {
       val out = new CLFilteredArray[T](buffers)
       val kernel = f.getKernel(context, this, out, "array")
-      assert(longSize <= Int.MaxValue)
-      val globalSizes = Array(longSize.asInstanceOf[Int])
+      assert(size <= Int.MaxValue)
+      val globalSizes = Array(size.asInstanceOf[Int])
       kernel.synchronized {
 
-        kernel.setArgs((Seq(new SizeT(longSize)) ++ buffers.map(_.buffer) ++ Seq(out.presence.buffer)):_*)
+        kernel.setArgs((Seq(new SizeT(size)) ++ buffers.map(_.buffer) ++ Seq(out.presence.buffer)):_*)
         // TODO cut size bigger than int into global and local sizes
         syncAll(buffersList)(List(out.presence.asInstanceOf[CLGuardedBuffer[Any]]))(evts => {
           kernel.enqueueNDRange(context.queue, globalSizes, localSizes, evts:_*)
@@ -145,11 +145,9 @@ extends CLCol[T]
     }
   }
 
-  def longSize = buffers(0).size
   override def slice(from: Long, to: Long) = new CLArray(buffers.map(_.clone(from, to)))
   override def take(n: Long) = new CLArray(buffers.map(_.clone(0, n)))
-  override def drop(n: Long) = new CLArray(buffers.map(_.clone(n, longSize)))
+  override def drop(n: Long) = new CLArray(buffers.map(_.clone(n, size)))
 
-  def view: CLView[T, ThisCol[T]] = new CLArrayView[T, T, CLArray[T]](this, 0, longSize, null, null, null, null)
-  def zipWithIndex: ThisCol[(T, Long)] = notImp
+  override def view: CLView[T, ThisCol[T]] = new CLArrayView[T, T, CLArray[T]](this, 0, size, null, null, null, null)
 }

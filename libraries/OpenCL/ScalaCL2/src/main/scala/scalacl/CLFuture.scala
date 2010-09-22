@@ -20,7 +20,7 @@ trait CLEventFuture[T] extends CLEventBound with CLFuture[T] {
   def apply = get
 }
 
-class CLInstantFuture[T](value: T) extends CLFuture[T] {
+case class CLInstantFuture[T](value: T) extends CLFuture[T] {
   override def get = value
 }
 case class CLPointerFuture[T](ptr: Pointer[T], evt: CLEvent) extends CLEventFuture[T] {

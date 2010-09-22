@@ -7,6 +7,8 @@ package scalacl
 
 import com.nativelibs4java.opencl.JavaCL
 
+import scalacl._
+
 object Example {
 
   /**
@@ -24,6 +26,7 @@ object Example {
     val mapTup2 = tup2.map(ff2)
     println("mapTup2 = " + mapTup2.toSeq)
     equals(Seq((1.0,1.0), (2.0,4.0), (3.0,9.0)), mapTup2.toSeq)
+    val mapTup22 = mapTup2.mapFun(CLFun[(Float, Float), Float](Seq("_._1 + _._2")))
 
 
     val tup3 = CLArray[(Float, Float, Float)](3)
@@ -38,20 +41,20 @@ object Example {
     var cla = CLArray[Int](10)
     val mapped = cla.map((x: Int) => x + 10)
 
-    val clMapped = mapped.map[Int]((Seq("int v = _ + $i;"), "v * (v - 1)"))
+    val clMapped = mapped.mapFun(CLFunSeq[Int, Int](Seq("int v = _ + $i;"), Seq("v * (v - 1)")))
 
     println("original = " + cla.toArray.toSeq)
     println("mapped = " + mapped.toArray.toSeq)
     println("clMapped = " + clMapped.toArray.toSeq)
 
-    val filtered = clMapped.filter("(_ % 10) == 0")
+    val filtered = clMapped.filterFun(CLFun[Int, Boolean](Seq("(_ % 10) == 0")))
     filtered.waitFor
     println("filtered = " + filtered.buffers(0).toArray.toSeq)
     val arr: Array[Boolean] = filtered.presence.toArray.asInstanceOf[Array[Boolean]]
     val arrB: Array[Byte] = filtered.presence.buffer.as(classOf[Byte]).read(context.queue).getBytes(filtered.buffersSize.toInt)
     val packed = filtered.toCLArray
     val pref = filtered.updatedPresencePrefixSum.toArray
-    val filteredSize = filtered.size.get
+    val filteredSize = filtered.size
     println("filtered presence = " + arr.toSeq)
     println("filtered presence B = " + arrB.toSeq)
 

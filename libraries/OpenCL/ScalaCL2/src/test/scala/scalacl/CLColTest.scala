@@ -35,13 +35,13 @@ class CLColTest {
 
     val tup = CLArray[(Float, Float)](3)
     var i = 0
-    val ff: ((Float, Float)) => (Float, Float) = { case (x, y) => i += 1; val f = i.toFloat; (f, f * f) }
-    val mapTup = tup.map(ff)
+    //val ff: ((Float, Float)) => (Float, Float) = { case (x, y) => i += 1; val f = i.toFloat; (f, f * f) }
+    val mapTup = tup.map({ case (x, y) => i += 1; val f = i.toFloat; (f, f * f) })
     println("mapTup = " + mapTup.toSeq)
     assertEquals(Seq((1.0,1.0), (2.0,4.0), (3.0,9.0)), mapTup.toSeq)
     
-    val fl: ((Float, Float)) => Boolean = p => (p._1 % 2) == 1
-    val filTup = mapTup.filter(fl)
+    //val fl: ((Float, Float)) => Boolean = p => (p._1 % 2) == 1
+    val filTup = mapTup.filter((x: (Float, Float)) => (x._1 % 2) == 1)
     println("filTup = " + filTup.toSeq)
     assertEquals(Seq((1.0,1.0), (3.0,9.0)), filTup.toSeq)
   }
@@ -82,7 +82,7 @@ class CLColTest {
 
     var input = CLArray[Int](10).map((_: Int) + 10)
 
-    val clMapped = input.map[Int]((Seq("int v = _ + $i;"), "v * (v - 1)"))
+    val clMapped = input.mapFun(CLFunSeq[Int, Int](Seq("int v = _ + $i;"), Seq("v * (v - 1)")))
 
     //println("original = " + cla.toArray.toSeq)
     //println("mapped = " + mapped.toArray.toSeq)
@@ -90,7 +90,7 @@ class CLColTest {
     val expectedMapped = Seq(90, 110, 132, 156, 182, 210, 240, 272, 306, 342)
     assertEquals(expectedMapped, clMapped.toSeq)
     
-    val filtered = clMapped.filter("(_ % 10) == 0")
+    val filtered = clMapped.filterFun(CLFun(Seq("(_ % 10) == 0")))
     filtered.waitFor
     println("filtered = " + filtered.buffers(0).toArray.toSeq)
     val arr: Array[Boolean] = filtered.presence.toArray.asInstanceOf[Array[Boolean]]

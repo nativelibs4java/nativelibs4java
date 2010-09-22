@@ -15,6 +15,14 @@ trait CLDataIO[T] {
   def clType: String
   def createBuffers(length: Long)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]]
 
+  def openCLKernelArgDeclarations(input: Boolean, offset: Int): Seq[String]
+  def openCLKernelNthItemExprs(input: Boolean, offset: Int, n: String): Seq[(String, List[Int])]
+  //def openCLIntermediateKernelNthItemExprs(input: Boolean, offset: Int, n: String): Seq[String]
+  def openCLIntermediateKernelTupleElementsExprs(expr: String): Seq[(String, List[Int])]
+  
+  def openCLIthTupleElementNthItemExpr(input: Boolean, offset: Int, indexes: List[Int], n: String): String
+  //def openCLTupleShuffleNthFieldExprs(input: Boolean, offset: Int, i: String, shuffleExpr: String): Seq[String]
+
   def extract(arrays: Array[CLGuardedBuffer[Any]], index: Long): CLFuture[T] = {
     assert(elementCount == arrays.length)
     extract(arrays, 0, index)
@@ -57,25 +65,75 @@ trait CLDataIO[T] {
       out(i) = extract(pointers, 0, i)
     out
   }
+  
 }
 
 object CLTupleDataIO {
   lazy val builtInArities = Set(1, 2, 4, 8)
 }
 class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple: Array[Any] => T)(implicit override val t: ClassManifest[T]) extends CLDataIO[T] {
-  
+
   override lazy val pointerIO: PointerIO[T] =
     error("Cannot create PointerIO for tuples !")
 
+  override def openCLKernelArgDeclarations(input: Boolean, offset: Int): Seq[String] =
+    iosAndOffsets.flatMap { case (io, ioOffset) => io.openCLKernelArgDeclarations(input, offset + ioOffset) }
+
+  override def openCLKernelNthItemExprs(input: Boolean, offset: Int, n: String): Seq[(String, List[Int])] =
+    iosAndOffsets.zipWithIndex.flatMap {
+      case ((io, ioOffset), i) =>
+        io.openCLKernelNthItemExprs(input, offset + ioOffset, n).map {
+          case (s, indexes) => (s, i :: indexes)
+        }
+    }
+
+  //override def openCLIntermediateKernelNthItemExprs(input: Boolean, offset: Int, n: String): Seq[String] =
+  //  iosAndOffsets.flatMap { case (io, ioOffset) => io.openCLIntermediateKernelNthItemExprs(input, offset + ioOffset, n) }
+
+  /*override def openCLTupleShuffleNthFieldExprs(input: Boolean, offset: Int, n: String, shuffleExpr: String): Seq[String] =
+    if (!isOpenCLTuple)
+      error("Type " + this + " is not an OpenCL tuple !")
+    else
+      shuffleExpr.view.map(_ match {
+        case 'x' => 0
+        case 'y' => 1
+        case 'z' => 2
+        case 'w' => 3
+      }).flatMap(i => {
+        val (io, ioOffset) = iosAndOffsets(i)
+        io.openCLKernelNthItemExprs(input, offset + ioOffset, n).map(_._1)
+      })
+  */
+  override def openCLIthTupleElementNthItemExpr(input: Boolean, offset: Int, indexes: List[Int], n: String): String = {
+    val (io, ioOffset) = iosAndOffsets(indexes.head)
+    io.openCLIthTupleElementNthItemExpr(input, offset + ioOffset, indexes.tail, n)
+  }
+
+  override def openCLIntermediateKernelTupleElementsExprs(expr: String): Seq[(String, List[Int])] = {
+    ios.zipWithIndex.flatMap {
+      case (io, i) =>
+        io.openCLIntermediateKernelTupleElementsExprs(expr).map {
+          case (x, indexes) =>
+            (x + "._" + (i + 1), i :: indexes)
+        }
+    }
+  }
+
+  
   override def elements: Seq[CLDataIO[Any]] =
     ios.flatMap(_.elements)
 
+  lazy val types = ios.map(_.clType)
+  lazy val uniqTypes = types.toSet
+
+  lazy val isOpenCLTuple = {
+    uniqTypes.size == 1 && 
+    CLTupleDataIO.builtInArities.contains(ios.size) &&
+    ios(0).isInstanceOf[CLValDataIO[_]]
+  }
   override def clType = {
-    val types = ios.map(_.clType)
-    val uniqTypes = types.toSet
-    val n = ios.size
-    if (uniqTypes.size == 1 && CLTupleDataIO.builtInArities.contains(n) && ios(0).isInstanceOf[CLValDataIO[_]])
-      uniqTypes.head + n
+    if (isOpenCLTuple)
+      uniqTypes.head + ios.size
     else
       "struct { " + types.reduceLeft(_ + "; " + _) + "; }"
   }
@@ -109,6 +167,8 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
 
   override def exprs(arrayExpr: String): Seq[String] =
     ios.zipWithIndex.flatMap { case (io, i) => io.exprs(arrayExpr + "._" + (i + 1)) }
+
+  override def toString = "(" + ios.map(_.toString).reduceLeft(_ + ", " + _) + ")"
 }
 
 class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extends CLDataIO[T] {
@@ -121,13 +181,33 @@ class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extend
   override def elements: Seq[CLDataIO[Any]] =
     Seq(this.asInstanceOf[CLDataIO[Any]])
 
+  /*override def openCLTupleShuffleNthFieldExprs(input: Boolean, offset: Int, n: String, shuffleExpr: String): Seq[String] =
+    error("Calling tuple shuffle field '" + shuffleExpr + "' on scalar type " + this)*/
+  
+  override def openCLKernelArgDeclarations(input: Boolean, offset: Int): Seq[String] =
+    Seq("__global " + (if (input) " const " + clType + "* in" else clType + "* out") + offset)
+
+  override def openCLKernelNthItemExprs(input: Boolean, offset: Int, n: String) =
+    Seq(("(" + (if (input) "in" else "out") + offset + "[" + n + "])", List(0)))
+
+  override def openCLIntermediateKernelTupleElementsExprs(expr: String): Seq[(String, List[Int])] = 
+    Seq((expr, List(0)))
+
+  override def openCLIthTupleElementNthItemExpr(input: Boolean, offset: Int, indexes: List[Int], n: String): String = {
+    if (indexes != List(0))
+        error("There is only one item in this array of " + this + " (trying to access item " + indexes + ")")
+    openCLKernelNthItemExprs(input, offset, n)(0)._1
+  }
+  
   override def clType = t.erasure.getSimpleName.toLowerCase match {
     case "sizet" => "size_t"
     case "boolean" => "char"
     case "character" => "short"
     case n => n
   }
-  
+
+  override def toString = t.erasure.getSimpleName + " /* " + clType + "*/"
+
   override def createBuffers(length: Long)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
     Array(new CLGuardedBuffer[T](length).asInstanceOf[CLGuardedBuffer[Any]])
 
@@ -149,5 +229,63 @@ class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extend
   override def toArray(arrays: Array[CLGuardedBuffer[Any]]): Array[T] = {
     assert(elementCount == arrays.length)
     arrays(0).asInstanceOf[CLGuardedBuffer[T]].toArray
+  }
+}
+
+
+
+class CLLongRangeDataIO(implicit val t: ClassManifest[Long]) extends CLDataIO[Long] {
+
+  override val elementCount = 1
+
+  override lazy val pointerIO: PointerIO[Long] =
+    PointerIO.getInstance(t.erasure)
+
+  override def elements: Seq[CLDataIO[Any]] =
+    Seq(this.asInstanceOf[CLDataIO[Any]])
+
+  override def openCLKernelArgDeclarations(input: Boolean, offset: Int): Seq[String] = {
+    assert(input)
+    Seq("int rangeLow" + offset)
+  }
+
+  override def openCLKernelNthItemExprs(input: Boolean, offset: Int, n: String) =
+    Seq(("(rangeLow" + offset + " + " + n + ")", List(0)))
+
+  override def openCLIntermediateKernelTupleElementsExprs(expr: String): Seq[(String, List[Int])] =
+    Seq((expr, List(0))) // TODO ?
+
+  override def openCLIthTupleElementNthItemExpr(input: Boolean, offset: Int, indexes: List[Int], n: String): String = {
+    if (indexes != List(0))
+        error("There is only one item in this array of " + this + " (trying to access item " + indexes + ")")
+    openCLKernelNthItemExprs(input, offset, n)(0)._1
+  }
+
+  override def clType = "int"
+
+  override def toString = "int range"
+
+  override def createBuffers(length: Long)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
+    Array(new CLGuardedBuffer[Long](2).asInstanceOf[CLGuardedBuffer[Any]])
+
+  override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Long): CLFuture[Long] =
+    new CLInstantFuture[Long](arrays(offset).asInstanceOf[CLGuardedBuffer[Long]](0).get + index)
+
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Long): Long =
+    pointers(offset).asInstanceOf[Pointer[Long]].get(0) + index
+
+  override def store(v: Long, pointers: Array[Pointer[Any]], offset: Int, index: Long): Unit =
+    error("Long ranges are immutable !")
+
+  override def store(v: Long, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Long): Unit =
+    error("Long ranges are immutable !")
+
+  override def exprs(arrayExpr: String): Seq[String] =
+    Seq(arrayExpr)
+
+  override def toArray(arrays: Array[CLGuardedBuffer[Any]]): Array[Long] = {
+    assert(elementCount == arrays.length)
+    val Array(low, length) = arrays(0).asInstanceOf[CLGuardedBuffer[Long]].toArray
+    (low.toInt until length.toInt).toArray.map(_.toLong)
   }
 }

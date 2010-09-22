@@ -14,6 +14,16 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[
   
   def this(size: Long)(implicit dataIO: CLDataIO[T], context: ScalaCLContext) =
     this(context.context.createBuffer(CLMem.Usage.InputOutput, dataIO.pointerIO, size))
+    
+  def this(values: Array[T])(implicit dataIO: CLDataIO[T], context: ScalaCLContext) = {
+    this(context.context.createBuffer(CLMem.Usage.InputOutput, {
+        val ptr = allocateArray(dataIO.pointerIO, values.length)
+        ptr.setArray(values)
+        ptr
+      }, 
+      true
+    ))
+  }
 
   def args = Seq(buffer)
 

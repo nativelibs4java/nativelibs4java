@@ -181,12 +181,15 @@ package object scalacl {
     new CLArray[T](dataIO.createBuffers(fixedSize))
   }
 
-  implicit def Expression2CLFunction[K, V](function: K => V)(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
-    new CLFunction[K, V](function, Seq(), null, Seq())
+  /*def Function2CLFunction[K, V](function: K => V)(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
+    new CLFunction[K, V](null, function, Seq(), null, Seq())
+  */
+  def CLFun[K, V](expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
+    new CLFunction[K, V](null, null, Seq(), expressions, Seq())
 
-  implicit def Expression2CLFunction[K, V](expression: String)(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
-    new CLFunction[K, V](null, Seq(), expression, Seq())
+  implicit def Expression2CLFunction[K, V](function: K => V, expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
+    new CLFunction[K, V](null, function, Seq(), expressions, Seq())
 
-  implicit def StatementsAndExpression2CLFunction[K, V](declarationsAndExpression: (Seq[String], String))(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
-    new CLFunction[K, V](null, declarationsAndExpression._1, declarationsAndExpression._2, Seq())
+  implicit def CLFunSeq[K, V](declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
+    new CLFunction[K, V](null, null, declarations, expressions, Seq())
 }

@@ -16,7 +16,7 @@ class CLFilteredArray[T](
   initialPresence: CLGuardedBuffer[Boolean]
 )(
   implicit dataIO: CLDataIO[T],
-  context: ScalaCLContext
+  val context: ScalaCLContext
 ) 
 extends CLCol[T] 
    with CLUpdatableFilteredCol[T]
@@ -43,13 +43,11 @@ extends CLCol[T]
   def clone(newStart: Long, newEnd: Long) =
     new CLFilteredArray[T](buffers.map(_.clone(newStart, newEnd)), presence.clone(newStart, newEnd))
 
-  def view: CLView[T, ThisCol[T]] = notImp
-  def slice(from: Long, to: Long): CLCol[T] = notImp
+  override def slice(from: Long, to: Long): CLCol[T] = notImp
   
-  def zipWithIndex: ThisCol[(T, Long)] = notImp
   def toCLArray: CLArray[T] = {
     val prefixSum = updatedPresencePrefixSum
-    val size = this.size.get
+    val size = this.size
     new CLArray(buffers.map(b => {
       val out = new CLGuardedBuffer[Any](size)(b.dataIO, context)
       ScalaCLUtils.copyPrefixed(size, prefixSum, b, out)(b.t, context)
@@ -66,20 +64,20 @@ extends CLCol[T]
     presencePrefixSum
   }
   def buffersSize = buffers(0).size
-  def size: CLFuture[Long] = {
+  def sizeFuture: CLFuture[Long] = {
     //error("Filtered array size not implemented yet, needs prefix sum implementation")
     val ps = updatedPresencePrefixSum
     ps(buffersSize - 1)
     //new CLInstantFuture(ps.toArray.last)
   }
 
-  protected def updateFun(f: T => T): CLFilteredArray[T] =
-    doMapFun(f, this)
+  override def update(f: T => T)(implicit dataIO: CLDataIO[T]): CLFilteredArray[T] =
+    doMap(f, this)
 
-  protected def mapFun[V](f: T => V)(implicit vIO: CLDataIO[V]): CLFilteredArray[V] =
-    doMapFun(f, new CLFilteredArray[V](vIO.createBuffers(buffersSize), presence.clone))
+  override def map[V](f: T => V)(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): CLFilteredArray[V] =
+    doMap(f, new CLFilteredArray[V](vIO.createBuffers(buffersSize), presence.clone))
           
-  protected def doMapFun[V](f: T => V, out: CLFilteredArray[V])(implicit vIO: CLDataIO[V]): CLFilteredArray[V] = {
+  protected def doMap[V](f: T => V, out: CLFilteredArray[V])(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): CLFilteredArray[V] = {
     println("map should not be called directly, you haven't run the compiler plugin or it failed")
     readBlock {
       val ptrs = buffers.map(_.toPointer)
@@ -110,9 +108,9 @@ extends CLCol[T]
     }
     out
   }
-  override def update(f: CLFunction[T, T]): CLFilteredArray[T] = {
-    if (f.expression == null)
-      updateFun(f.function)
+  override def updateFun(f: CLFunction[T, T])(implicit dataIO: CLDataIO[T]): CLFilteredArray[T] = {
+    if (f.isOnlyInScalaSpace)
+      update(f.function)
     else {
       this.synchronized {
         prefixSumUpToDate = false
@@ -121,11 +119,9 @@ extends CLCol[T]
       this
     }
   }
-  override def map[V](f: CLFunction[T, V]): CLFilteredArray[V] = {
-    implicit val kIO = f.aIO
-    implicit val vIO = f.bIO
-    if (f.expression == null)
-      mapFun(f.function)
+  override def mapFun[V](f: CLFunction[T, V])(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): CLFilteredArray[V] = {
+    if (f.isOnlyInScalaSpace)
+      map(f.function)
     else {
       val out = new CLFilteredArray[V](vIO.createBuffers(buffersSize), presence.clone)
       doMap(f, out)
@@ -135,7 +131,7 @@ extends CLCol[T]
 
   private val localSizes = Array(1)
 
-  protected def doMap[V](f: CLFunction[T, V], out: CLFilteredArray[V]) = {
+  protected def doMap[V](f: CLFunction[T, V], out: CLFilteredArray[V])(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]) = {
     val kernel = f.getKernel(context, this, out, "filtered")
     assert(buffersSize <= Int.MaxValue)
     val globalSizes = Array(buffersSize.toInt)
@@ -149,13 +145,13 @@ extends CLCol[T]
     out
   }
 
-  protected def refineFilterFun(f: T => Boolean): CLFilteredArray[T] =
-    doFilterFun(f, this)
+  override def refineFilter(f: T => Boolean)(implicit dataIO: CLDataIO[T]): CLFilteredArray[T] =
+    doFilter(f, this)
 
-  protected def filterFun(f: T => Boolean): CLFilteredArray[T] =
-    doFilterFun(f, new CLFilteredArray[T](buffers.map(_.clone), new CLGuardedBuffer[Boolean](buffersSize)))
+  override def filter(f: T => Boolean)(implicit dataIO: CLDataIO[T]): CLFilteredArray[T] =
+    doFilter(f, new CLFilteredArray[T](buffers.map(_.clone), new CLGuardedBuffer[Boolean](buffersSize)))
 
-  protected def doFilterFun(f: T => Boolean, out: CLFilteredArray[T]): CLFilteredArray[T] = {
+  protected def doFilter(f: T => Boolean, out: CLFilteredArray[T])(implicit dataIO: CLDataIO[T]): CLFilteredArray[T] = {
     println("filter should not be called directly, you haven't run the compiler plugin or it failed")
     //val out = new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size), start, end)
     
@@ -176,25 +172,25 @@ extends CLCol[T]
     out
   }
   
-  override def filter(f: CLFunction[T, Boolean]): CLFilteredArray[T] =
-    if (f.expression == null)
-      filterFun(f.function)
+  override def filterFun(f: CLFunction[T, Boolean])(implicit dataIO: CLDataIO[T]): CLFilteredArray[T] =
+    if (f.isOnlyInScalaSpace)
+      filter(f.function)
     else
-      filter(f, new CLFilteredArray[T](buffers.map(_.clone), new CLGuardedBuffer[Boolean](buffersSize)))
+      filterFun(f, new CLFilteredArray[T](buffers.map(_.clone), new CLGuardedBuffer[Boolean](buffersSize)))
 
-  override def refineFilter(f: CLFunction[T, Boolean]): CLFilteredArray[T] = {
+  override def refineFilterFun(f: CLFunction[T, Boolean])(implicit dataIO: CLDataIO[T]): CLFilteredArray[T] = {
     implicit val vIO = f.bIO
-    if (f.expression == null)
-      refineFilterFun(f.function)
+    if (f.isOnlyInScalaSpace)
+      refineFilter(f.function)
     else
       this.synchronized {
         prefixSumUpToDate = false
-        filter(f, this)
+        filterFun(f, this)
       }
   }
 
-  protected def filter(f: CLFunction[T, Boolean], out: CLFilteredArray[T]): CLFilteredArray[T] = {
-    //val out = new CLFilteredArray(buffers.map(_.clone), new CLGuardedBuffer[Boolean](longSize))
+  protected def filterFun(f: CLFunction[T, Boolean], out: CLFilteredArray[T])(implicit dataIO: CLDataIO[T]): CLFilteredArray[T] = {
+    //val out = new CLFilteredArray(buffers.map(_.clone), new CLGuardedBuffer[Boolean](size))
 
     val kernel = f.getKernel(context, this, out, "filtered")
     assert(buffersSize <= Int.MaxValue)
