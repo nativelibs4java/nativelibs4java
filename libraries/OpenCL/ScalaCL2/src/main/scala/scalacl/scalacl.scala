@@ -192,4 +192,7 @@ package object scalacl {
 
   implicit def CLFunSeq[K, V](declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
     new CLFunction[K, V](null, null, declarations, expressions, Seq())
+
+  implicit def CLFullFun[K, V](uniqueSignature: String, function: K => V, declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
+    new CLFunction[K, V](uniqueSignature, function, declarations, expressions, Seq())
 }

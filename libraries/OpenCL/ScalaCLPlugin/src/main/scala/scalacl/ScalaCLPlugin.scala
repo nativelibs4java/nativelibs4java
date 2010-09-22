@@ -201,7 +201,75 @@ extends PluginComponent
           case Apply(Apply(TypeApply(Select(Select(Ident("scalacl"), "package"), "CLFun"), List(TypeTree(), TypeTree(), List(Apply(TypeApply(Select(Select(This("collection"), "Seq"), "apply"), List(TypeTree(), List(Literal(Constant(_ * 2.0)), List(Apply(TypeApply(Select(Select(Ident("scalacl"), "package"), "AnyValCLDataIO"), List(TypeTree(), List(Select(Select(This("reflect"), "Manifest"), "Int"), Apply(TypeApply(Select(Select(Ident("scalacl"), "package"), "AnyValCLDataIO"), List(TypeTree(), List(Select(Select(This("reflect"), "Manifest"), "Double")  =>
           // scalacl.package.CLFun[Int, Double](collection.this.Seq.apply[java.lang.String]("_ * 2.0"))(scalacl.package.AnyValCLDataIO[Int](reflect.this.Manifest.Int), scalacl.package.AnyValCLDataIO[Double](reflect.this.Manifest.Double))
            */
-        case Apply(a1 @ TypeApply(s, typeArgs), List(a2 @ Apply(a3 @ Apply(a4 @ TypeApply(convertFunction, typeArgs2), List(singleArg)), impArgs @ List(io1, io2)))) =>
+
+        case
+          Apply(
+            Apply(
+              TypeApply(
+                Select(collectionExpr, functionName @ (mapName() | filterName() | updateName())),
+                funTypeArgs @ List(outputType @ TypeTree())
+              ),
+              List(functionExpr @ Function(List(ValDef(paramMods, paramName, inputType @ TypeTree(), rhs)), body))
+            ),
+            implicitArgs @ List(io1, io2)
+          ) =>
+          // if functionExpr is :
+          //    ((x$1: Int) => (x$1: Int).*(2.0)),
+          // functionOpenCLExprString will be :
+          //    "_ * 2.0"
+          val functionOpenCLExprString = convertExpr(paramName.toString, body).toString
+          println("Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
+          //implicit def CLFullFun[K, V](uniqueSignature: String, function: K => V, declarations: Seq[String], expressions: Seq[String])
+          def seqExpr(typeExpr: Tree, values: Tree*) =
+            Apply(
+              TypeApply(
+                Select(
+                  //Select(This(N("collection")), N("Seq")),
+                  Select(Select(Ident(N("scala")), N("collection")), N("Seq")),
+                  N("apply")
+                ),
+                List(typeExpr)
+              ),
+              values.toList
+            )
+
+          val newArg =
+            Apply(
+              Apply(
+                TypeApply(
+                  Select(
+                    Select(
+                      Ident(N("scalacl")),
+                      N("package")
+                    ),
+                    N("CLFullFun")
+                  ),
+                  List(inputType, outputType)
+                ),
+                List(
+                  Literal(Constant("")), // uniqueSignature TODO
+                  functionExpr,
+                  seqExpr(TypeTree(StringClass.tpe)), // statements TODO
+                  seqExpr(TypeTree(StringClass.tpe), Literal(Constant(functionOpenCLExprString))) // expressions TODO
+                )
+              ),
+              implicitArgs
+            )
+          //val newArgs = List(singleArg)
+          localTyper.typed { atPos(tree.pos) { atOwner(tree.symbol) {
+            Apply(
+              Apply(
+                TypeApply(
+                  Select(collectionExpr, N("mapFun")),
+                  funTypeArgs
+                ),
+                List(newArg)
+              ),
+              implicitArgs
+            )
+          } } }
+          //treeCopy.Apply(tree, treeCopy.TypeApply(a1, s, typeArgs), List(treeCopy.Apply(a2, treeCopy.Apply(a3, treeCopy.TypeApply(a4, convertFunction, typeArgs2), newArgs), impArgs)))
+        /*case Apply(a1 @ TypeApply(s, typeArgs), List(a2 @ Apply(a3 @ Apply(a4 @ TypeApply(convertFunction, typeArgs2), List(singleArg)), impArgs @ List(io1, io2)))) =>
           try {
             val mn = s.symbol.toString
             if ((mn == "method map" || mn == "method filter") && convertFunction.toString == "scalacl.package.Expression2CLFunction") {
@@ -222,7 +290,7 @@ extends PluginComponent
             case ex =>
               ex.printStackTrace
               tree
-          }
+          }*/
           //case IntRangeForeach(Literal(Constant(from: Int)), Literal(Constant(to: Int)), isUntil, function) =>
         case _ =>
           tree
