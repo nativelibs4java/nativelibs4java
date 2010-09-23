@@ -67,7 +67,7 @@ trait MiscMatchers {
 	//char	*ecvt(double, int, int *__restrict, int *__restrict); /* LEGACY */
     def unapply(tree: Tree): Option[(Tree, Tree, Tree, Boolean, Tree)] = tree match {
       //case Apply(TypeApply(Select(Apply(Select(Apply(Select(Select(This(scalaName()), PredefName), intWrapperName()), List(from)), funToName), List(to)), foreachName()), List(fRetType)), List(function)) =>
-      case Apply(TypeApply(Select(Apply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), byName()), List(by)), foreachName()), List(fRetType)), List(function)) =>
+      /*case Apply(TypeApply(Select(Apply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), byName()), List(by)), foreachName()), List(fRetType)), List(function)) =>
         funToName match {
           case toName() =>
             Some((from, to, by, false, function))
@@ -75,7 +75,7 @@ trait MiscMatchers {
             Some((from, to, by, true, function))
           case _ =>
             None
-        }
+        }*/
       case Apply(TypeApply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), foreachName()), List(fRetType)), List(function)) =>
         funToName match {
           case toName() =>

@@ -1,5 +1,6 @@
 package scalacl
 
+import scala.collection.immutable.Stack
 import scala.reflect.generic.Names
 import scala.reflect.generic.Trees
 import scala.tools.nsc.Global
@@ -238,6 +239,8 @@ extends PluginComponent
       super.transform(trans)
     }
 
+    var placeHolderRefs = new Stack[String]
+
     def convertExpr(argNames: Map[String, String], body: Tree, b: StringBuilder = new StringBuilder): StringBuilder = {
       def out(args: Any*): Unit = args.foreach(_ match {
         case t: Tree =>
@@ -257,12 +260,32 @@ extends PluginComponent
       def cast(expr: Tree, clType: String) =
         out("((", clType, ")", expr, ")")
 
+      def convertForeach(from: Tree, to: Tree, isUntil: Boolean, by: Tree, function: Tree) = {
+          val Function(List(ValDef(paramMods, paramName, tpt, rhs)), body) = function
+          val id = labelIds.next
+          val iVar = "iVar$" + id
+          val nVal = "nVal$" + id
+    
+          out("int ", iVar, ";\n")
+          out("const int ", nVal, " = ", to, ";\n")
+          out("for (", iVar, " = ", from, "; ", iVar, " ", if (isUntil) "<" else "<=", " ", nVal, "; ", iVar, " += ", by, ") {\n")
+          convertExpr(argNames + (paramName.toString -> iVar), body, b)
+          out("\n}")          
+      }
       body match {
         case Literal(Constant(value)) =>
           out(value)
         case Ident(name) =>
+          val ns = name.toString
+          if (ns == "_") {
+            if (placeHolderRefs.isEmpty)
+              error("Not expecting a placeholder here !")
+            val ph = placeHolderRefs.top
+            placeHolderRefs = placeHolderRefs.pop
+            out(ph)
+          }
           out(argNames.getOrElse(
-            name.toString, 
+            ns,
             error("Unknown identifier : '" + name + "' (expected any of " + argNames.keys.map("'" + _ + "'").mkString(", ") + ")")
           ))
           //case Apply(TypeApply(fun, args1), args2) =>
@@ -272,8 +295,34 @@ extends PluginComponent
            case _ =>
            println("traversing application of "+ name)
            }*/
-        case Typed(expr, tpe) =>
-          out(expr)
+        case Assign(lhs, rhs) =>
+          out(lhs, " = ", rhs, ";\n")
+        case Block(statements, expression) =>
+          out(statements.flatMap(List(_, "\n")):_*)
+          if (expression != EmptyTree)
+            out(expression, "\n")
+        case ValDef(paramMods, paramName, tpt: TypeTree, rhs) =>
+          out(convertTpt(tpt), " ", paramName)
+          rhs match {
+            case Block(statements, expression) =>
+              out(";\n{\n")
+              out(Block(statements, EmptyTree))
+              out(paramName, " = ", expression, ";\n")
+              out("}\n")
+            case tt: Tree =>
+              if (tt != EmptyTree)
+                out(" = ", tt, ";\n")
+          }
+        //case Typed(expr, tpe) =>
+        //  out(expr)
+        case Match(Ident(matchName), List(CaseDef(pat, guard, body))) =>
+          //for ()
+          //x0$1 match {
+          //  case (_1: Long,_2: Float)(Long, Float)((i @ _), (c @ _)) => i.+(c)
+          //}
+          //Match(Ident("x0$1"), List(CaseDef(Apply(TypeTree(), List(Bind(i, Ident("_")), Bind(c, Ident("_"))), EmptyTree Apply(Select(Ident("i"), "$plus"), List(Ident("c")
+
+          convertExpr(argNames + (matchName.toString + "._1" -> "?"), body, b)
         case Apply(Select(expr, toSizeTName()), Nil) => cast(expr, "size_t")
         case Apply(Select(expr, toLongName()), Nil) => cast(expr, "long")
         case Apply(Select(expr, toIntName()), Nil) => cast(expr, "int")
@@ -282,24 +331,31 @@ extends PluginComponent
         case Apply(Select(expr, toCharName()), Nil) => cast(expr, "short")
         case Apply(Select(expr, toDoubleName()), Nil) => cast(expr, "double")
         case Apply(Select(expr, toFloatName()), Nil) => cast(expr, "float")
-        case ScalaMathFunction(funName, args) =>
-          // scala.math.package.atan2(x, y)
+        case Apply(
+          Select(
+            Select(
+              Select(
+                Ident(scalaName()),
+                mathName()
+              ),
+              packageName()
+            ),
+            funName
+          ),
+          args
+        ) =>
           out(funName, "(", args, ")")
-        case IntRangeForeach(from, to, by, isUntil, Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body)) =>
-          val id = labelIds.next
-          val iVar = "iVar$" + id
-          val nVal = "nVal$" + id
-
-          out("int ", iVar, ";\n")
-          out("const int ", nVal, " = ", to, ";\n")
-          out("for (", iVar, " = ", from, "; ", iVar, " ", if (isUntil) "<" else "<=", " ", nVal, "; ", iVar, " += ", by, ") {\n")
-          convertExpr(argNames + (paramName.toString -> iVar), body, b)
-          out("\n}")
-          
-        case Apply(Select(expr, fun), Nil) =>
+        case Apply(TypeApply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), foreachName()), List(fRetType)), List(f: Function)) =>
+          convertForeach(from, to, funToName.toString == "until", Literal(Constant(1)), f)
+        //case IntRangeForeach(from, to, by, isUntil, Function(List(ValDef(paramMods, paramName, tpt, rhs)), body)) =>
+        case Apply(TypeApply(Select(Apply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), byName()), List(by)), foreachName()), List(fRetType)), List(f: Function)) =>
+          convertForeach(from, to, funToName.toString == "until", by, f)
+        case Apply(s @ Select(expr, fun), Nil) =>
           val fn = fun.toString
           if (fn.matches("_\\d+")) {
             out(expr, ".", fn)
+          } else {
+            error("Unknown function " + s)
           }
         case Apply(s @ Select(left, name), args) =>
           NameTransformer.decode(name.toString) match {

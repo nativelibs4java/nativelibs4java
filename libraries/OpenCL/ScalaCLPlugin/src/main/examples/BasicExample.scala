@@ -49,7 +49,7 @@ class BasicExample {
     val m2 = a.map(_ + 2.0).map(_ * 2.0).map(cos(_))
     val m3 = a.map(x => {
         var x = 0
-        for (i <- 0 to 10 by 2)
+        for (i <- 0 to 10)// by 2)
             x += i * 5
         x
     })
