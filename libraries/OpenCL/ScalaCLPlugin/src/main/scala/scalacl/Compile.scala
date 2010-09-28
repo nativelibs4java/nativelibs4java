@@ -25,12 +25,14 @@ Copyright Olivier Chafik 2010""")
         "/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar"
       ).mkString(File.pathSeparator)
     )
+    settings.debug.value = true
+
     val command = new CompilerCommand((args ++ extraArgs).toList, settings) {
       override val cmdName = "scalacl"
     }
 
     if (command.ok) {
-      settings.debug.value = false
+      //settings.debug.value = false
 
       class ScalaCLPluginRunner(settings: Settings, reporter: Reporter) extends Global(settings, reporter) {
         /*import scalacl.ScalaCLAnnotationChecker

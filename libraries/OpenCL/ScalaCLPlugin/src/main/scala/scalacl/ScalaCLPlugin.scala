@@ -7,7 +7,9 @@ import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.Plugin
 import scala.tools.nsc.symtab.Definitions
 
-/** 
+/**
+ * http://www.scala-lang.org/node/140
+ * http://lamp.epfl.ch/~emir/bqbase/2005/06/02/nscTutorial.html
  * http://code.google.com/p/simple-build-tool/wiki/CompilerPlugins
  * mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=-d|out|src/main/examples/BasicExample.scala|-Xprint:scalaclfunctionstransform"
  * scala -cp target/scalacl-compiler-1.0-SNAPSHOT-shaded.jar scalacl.Main -d out src/examples/BasicExample.scala
@@ -59,13 +61,22 @@ extends PluginComponent
   def nodeToStringNoComment(tree: Tree) =
     nodeToString(tree).replaceAll("\\s*//.*\n", "\n").replaceAll("\\s*\n\\s*", " ").replaceAll("\\(\\s+", "(").replaceAll("\\s+\\)", "")
 
+  def fixOwner(tree: Tree, unit: CompilationUnit) = new TypingTransformer(unit) {
+    override def transform(tree: Tree): Tree =
+      typed { atOwner(currentOwner) { super.transform(tree) } }
+  }.transform(tree)
+
   val eqName = N("$eq")
-  def replace(varName: String, tree: Tree, by: Tree, unit: CompilationUnit) = new TypingTransformer(unit) {
+  def replace(varName: String, tree: Tree, by: => Tree, unit: CompilationUnit) = new TypingTransformer(unit) {
     val n = N(varName)
     override def transform(tree: Tree): Tree = tree match {
       case Ident(n()) =>
+        //by.tpe = tree.tpe
+        //by.symbol = tree.symbol
+        //by.pos = tree.pos
+        //atOwner(currentOwner) { by }
         by
-      
+      /*
       case Select(This(n), id) =>
         Ident(id)
       case Apply(Select(This(n), varEq), List(v)) =>
@@ -78,7 +89,7 @@ extends PluginComponent
           Assign(Ident(N(n)), transV)
         } else
           Apply(Ident(varEq), List(transV))//super.transform(tree)
-      
+      */
       case _ =>
         //println("Unknown expr: " + nodeToStringNoComment(tree))
         super.transform(tree)
@@ -87,16 +98,18 @@ extends PluginComponent
   
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     var currentClassName: Name = null
-    implicit def O(n: Name)(implicit symbol: Symbol) = atOwner(symbol) { n }
-    implicit def O(t: Tree)(implicit symbol: Symbol) = atOwner(symbol) { t }
+    //implicit def O(n: Name)(implicit symbol: Symbol) = atOwner(currentOwner) { n }
+    //implicit def O(t: Tree)(implicit symbol: Symbol) = atOwner(currentOwner) { t }
 
     val labelIds = new Ids
     val whileIds = new Ids
 
+    def binOp(a: Tree, op: Symbol, b: Tree) = Apply(Select(a, op), List(b))
     def binOp(a: Tree, op: String, b: Tree) = Apply(Select(a, N(NameTransformer.encode(op))), List(b))
     def incrementIntVar(n: Name) = Assign(Ident(n), binOp(Ident(n), "+", Literal(Constant(1))))
-    def intVar(n: Name, initValue: Tree) = ValDef(Modifiers(MUTABLE), n, TypeTree(IntClass.tpe), initValue)
-    def intVal(n: Name, initValue: Tree) = ValDef(Modifiers(0), n, TypeTree(IntClass.tpe), initValue)
+    def intValOrVar(mod: Int, n: Name, initValue: Tree) = localTyper.typed { ValDef(Modifiers(mod), n, TypeTree(IntClass.tpe), initValue) }
+    def intVar(n: Name, initValue: Tree) = intValOrVar(MUTABLE, n, initValue)
+    def intVal(n: Name, initValue: Tree) = intValOrVar(0, n, initValue)
     def whileLoop(cond: Tree, body: Tree) = {
       val lab = "while$" + whileIds.next
       LabelDef(
@@ -115,12 +128,9 @@ extends PluginComponent
           )
         )
     }
-    
-    override def transform(tree0: Tree): Tree = {
-      val tree = super.transform(tree0)
-      
-      //println("case " + printAny(tree).toString)
-      if (false) {
+
+    /*
+     * if (false) {
         println("case " + nodeToStringNoComment(tree) + " => ")
         val lines = tree.toString
         if (lines.contains("\n"))
@@ -128,116 +138,130 @@ extends PluginComponent
         else
           println("\t// " + lines)
       }
+      
+     */
+    override def transform(tree: Tree): Tree = fixOwner(tree match {
+      /*case ClassDef(mods, name, tparams, template) =>
+        currentClassName = name
+        tree*/
+      case IntRangeForeach(from, to, by, isUntil, Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body)) =>
+        val id = labelIds.next
+        val iVar = N("iVar$" + id)
+        val nVal = N("nVal$" + id)
+        val iDef = intVar(iVar, from)
+        val nDef = intVal(nVal, to)
+        def iIdent = {
+          val id = Ident(iVar)
+          id.tpe = IntClass.tpe
+          id
+        }
+        def nIdent = {
+          val id = Ident(nVal)
+          id.tpe = IntClass.tpe
+          id
+        }
 
-
-      val trans: Tree = tree match {
-        case ClassDef(mods, name, tparams, template) =>
-          currentClassName = name
-          tree
-        //case IntRangeForeach(from, to, by, isUntil, Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body)) =>
-          //println("from = " + from)
-          //println("to = " + to)
-          //println("FROMTO = " + toStr(tree))
-          //tree
-          /*
-          val id = labelIds.next
-          val iVar = N("iVar$" + id)
-          val nVal = N("nVal$" + id)
-          
-          localTyper.typed { atPos(tree.pos) { atOwner(tree.symbol) {
-            Block(
-              List(
-                intVar(iVar, from),
-                intVal(nVal, to)
-              ),
-              whileLoop(
-                binOp(Ident(iVar), if (isUntil) "<" else "<=", Ident(nVal)),
-                Block(
-                  List(
-                    /*{
-                      val r = localTyper.typed { replace(paramName.toString, body, Ident(iVar), unit) }
-                      println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
-                      r
+        val trans = //super.transform(
+          Block(
+            List(
+              iDef,
+              nDef
+            ),
+            whileLoop(
+              binOp(iIdent, if (isUntil) IntClass.tpe.member(nme.LT) else IntClass.tpe.member(nme.LE), nIdent),
+              Block(
+                List(
+                  {
+                    val r = replace(paramName.toString, body, iIdent, unit)
+                    println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
+                    r//localTyper.typed { r }
+                    /*atPhase(phase.next) {
+                      localTyper.typedPos(tree.pos) {
+                        r
+                      }
                     }*/
-                  ),
-                  incrementIntVar(iVar)
-                )
+                  }
+                ),
+                incrementIntVar(iVar)
               )
             )
-          }}}
-          */
-        case
+          )
+        //}}}
+        //)
+        println("TRANS = " + trans)
+        trans
+      case
+        Apply(
+          Apply(
+            TypeApply(
+              Select(collectionExpr, functionName @ (mapName() | filterName() | updateName())),
+              funTypeArgs @ List(outputType @ TypeTree())
+            ),
+            List(functionExpr @ Function(List(ValDef(paramMods, paramName, inputType @ TypeTree(), rhs)), body))
+          ),
+          implicitArgs @ List(io1, io2)
+        ) =>
+        /*
+         * if functionExpr is :
+         *    ((x$1: Int) => (x$1: Int).*(2.0)),
+         * functionOpenCLExprString will be :
+         *    "_ * 2.0"
+         */
+        val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "" + tree.symbol.tag + tree.symbol.pos)) // TODO
+        val functionOpenCLExprString = convertExpr(Map(paramName.toString -> "_"), body).toString
+        println("Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
+        def seqExpr(typeExpr: Tree, values: Tree*) =
+          Apply(
+            TypeApply(
+              Select(
+                Select(Select(Ident(N("scala")), N("collection")), N("Seq")),
+                N("apply")
+              ),
+              List(typeExpr)
+            ),
+            values.toList
+          )
+
+        val newArg =
           Apply(
             Apply(
               TypeApply(
-                Select(collectionExpr, functionName @ (mapName() | filterName() | updateName())),
-                funTypeArgs @ List(outputType @ TypeTree())
+                Select(
+                  Select(
+                    Ident(N("scalacl")),
+                    N("package")
+                  ),
+                  N("CLFullFun")
+                ),
+                List(inputType, outputType)
               ),
-              List(functionExpr @ Function(List(ValDef(paramMods, paramName, inputType @ TypeTree(), rhs)), body))
+              List(
+                uniqueSignature,
+                functionExpr,
+                seqExpr(TypeTree(StringClass.tpe)), // statements TODO
+                seqExpr(TypeTree(StringClass.tpe), Literal(Constant(functionOpenCLExprString))) // expressions TODO
+              )
             ),
-            implicitArgs @ List(io1, io2)
-          ) =>
-          /*
-           * if functionExpr is :
-           *    ((x$1: Int) => (x$1: Int).*(2.0)),
-           * functionOpenCLExprString will be :
-           *    "_ * 2.0"
-           */
-          val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "" + tree.symbol.tag + tree.symbol.pos)) // TODO
-          val functionOpenCLExprString = convertExpr(Map(paramName.toString -> "_"), body).toString
-          println("Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
-          def seqExpr(typeExpr: Tree, values: Tree*) =
+            implicitArgs
+          )
+        //val newArgs = List(singleArg)
+        //localTyper.typed { atPos(tree.pos) { atOwner(currentOwner) {
+        //super.transform(
+          Apply(
             Apply(
               TypeApply(
-                Select(
-                  Select(Select(Ident(N("scala")), N("collection")), N("Seq")),
-                  N("apply")
-                ),
-                List(typeExpr)
+                Select(collectionExpr, N("mapFun")),
+                funTypeArgs
               ),
-              values.toList
-            )
-
-          val newArg =
-            Apply(
-              Apply(
-                TypeApply(
-                  Select(
-                    Select(
-                      Ident(N("scalacl")),
-                      N("package")
-                    ),
-                    N("CLFullFun")
-                  ),
-                  List(inputType, outputType)
-                ),
-                List(
-                  uniqueSignature,
-                  functionExpr,
-                  seqExpr(TypeTree(StringClass.tpe)), // statements TODO
-                  seqExpr(TypeTree(StringClass.tpe), Literal(Constant(functionOpenCLExprString))) // expressions TODO
-                )
-              ),
-              implicitArgs
-            )
-          //val newArgs = List(singleArg)
-          localTyper.typed { atPos(tree.pos) { atOwner(tree.symbol) {
-            Apply(
-              Apply(
-                TypeApply(
-                  Select(collectionExpr, N("mapFun")),
-                  funTypeArgs
-                ),
-                List(newArg)
-              ),
-              implicitArgs
-            )
-          } } }
-        case _ =>
-          tree
-      }
-      super.transform(trans)
-    }
+              List(newArg)
+            ),
+            implicitArgs
+          )
+        //} } }
+        //)
+      case _ =>
+        tree//typed { atOwner(currentOwner) { super.transform(tree) } }
+    }, unit)
 
     var placeHolderRefs = new Stack[String]
 

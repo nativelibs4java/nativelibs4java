@@ -19,6 +19,8 @@
     <module>OpenCL4Java</module>
     <module>Demos</module>
     <module>JavaCL</module>
+    <module>ScalaCL2</module>
+    <module>ScalaCLPlugin</module>
     <module>Core</module>
     <module>ScalaCL</module>
     <module>Blas</module>

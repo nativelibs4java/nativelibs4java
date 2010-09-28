@@ -33,10 +33,13 @@ trait CLCode {
     map.getOrElseUpdate(
       context.context,
       {
-        val program = context.context.createProgram(sources:_*)
+        val program = context.context.createProgram(sources.map(s => """
+            #pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable
+        """ + s):_*)
         for ((key, value) <- macros)
           program.defineMacro(key, value)
 
+        println("Creating kernel")
         program.addArgs(compilerArguments:_*)
         if (name != null)
           program.createKernel(name)

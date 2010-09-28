@@ -78,7 +78,7 @@ extends CLCol[T]
     doMap(f, new CLFilteredArray[V](vIO.createBuffers(buffersSize), presence.clone))
           
   protected def doMap[V](f: T => V, out: CLFilteredArray[V])(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): CLFilteredArray[V] = {
-    println("map should not be called directly, you haven't run the compiler plugin or it failed")
+    //println("map should not be called directly, you haven't run the compiler plugin or it failed")
     readBlock {
       val ptrs = buffers.map(_.toPointer)
       val presencePtr = presence.toPointer
@@ -152,7 +152,7 @@ extends CLCol[T]
     doFilter(f, new CLFilteredArray[T](buffers.map(_.clone), new CLGuardedBuffer[Boolean](buffersSize)))
 
   protected def doFilter(f: T => Boolean, out: CLFilteredArray[T])(implicit dataIO: CLDataIO[T]): CLFilteredArray[T] = {
-    println("filter should not be called directly, you haven't run the compiler plugin or it failed")
+    //println("filter should not be called directly, you haven't run the compiler plugin or it failed")
     //val out = new CLFilteredArray(values.clone, new CLGuardedBuffer[Boolean](values.size), start, end)
     
     val ptrs = buffers.map(_.toPointer)

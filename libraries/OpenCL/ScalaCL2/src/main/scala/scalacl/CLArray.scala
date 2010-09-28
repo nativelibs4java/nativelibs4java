@@ -68,8 +68,8 @@ extends CLCol[T]
   }
           
   protected def doMap[V](f: T => V, out: CLArray[V])(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): CLArray[V] = {
-    println("map should not be called directly, you haven't run the compiler plugin or it failed")
-    println("mapping " + dataIO + " to " + vIO)
+    //println("map should not be called directly, you haven't run the compiler plugin or it failed")
+    //println("mapping " + dataIO + " to " + vIO)
     readBlock {
       val ptrs = buffers.map(_.toPointer)
       val newPtrs = if (dataIO.t.erasure.equals(vIO.t.erasure))
@@ -102,9 +102,10 @@ extends CLCol[T]
     }
   }
   override def mapFun[V](f: CLFunction[T, V])(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): CLArray[V] = {
-    println("mapping " + dataIO + " to " + vIO)
-    if (f.isOnlyInScalaSpace)
-      map(f.function)
+    if (f.isOnlyInScalaSpace) {
+        println("mapping " + dataIO + " to " + vIO + " in scala space !")
+        map(f.function)
+    }
     else {
       val out = new CLArray[V](size)
       doMap(f, out)
@@ -128,7 +129,7 @@ extends CLCol[T]
 
 
   override def filter(f: T => Boolean)(implicit dataIO: CLDataIO[T]): CLFilteredArray[T] = {
-    println("filter should not be called directly, you haven't run the compiler plugin or it failed")
+    //println("filter should not be called directly, you haven't run the compiler plugin or it failed")
     val out = new CLFilteredArray[T](buffers)
     readBlock {
       val ptrs = buffers.map(_.toPointer)

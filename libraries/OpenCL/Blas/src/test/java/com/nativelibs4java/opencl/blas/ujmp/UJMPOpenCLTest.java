@@ -93,4 +93,8 @@ public class UJMPOpenCLTest {
         assertTrue(!m.containsDouble(1.1));
     }
 
+    static void sleep(long millis) {
+        try { Thread.sleep(millis); } catch (Exception ex) { ex.printStackTrace(); }
+    }
+
 }
