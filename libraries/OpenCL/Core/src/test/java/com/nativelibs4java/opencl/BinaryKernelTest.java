@@ -24,6 +24,21 @@ public class BinaryKernelTest extends AbstractCommon {
     }
 
     @Test
+    public void errorTest() {
+        try {
+            CLProgram program = context.createProgram(
+				  "__kernel void copy(__global int* a, __global int* b) {\n" +
+				  "   int i = 10f;\n" +
+				  "   b[i]=a[i];\n" +
+				  "} ");
+            program.build();
+		} catch (Exception ex) {
+            ex.printStackTrace();
+            System.out.println(ex);
+        }
+    }
+
+    @Test
     public void simpleTest() throws CLBuildException {
 		CLProgram program = context.createProgram(
 				  "__kernel void copy(__global int* a, __global int* b) {\n" +
