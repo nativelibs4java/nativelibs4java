@@ -362,7 +362,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                     errs.add(s);
                 }
                 
-            throw new CLBuildException(this, "Compilation failure : " + errorString(err) + " (code = " + err + ")", errs);
+            throw new CLBuildException(this, "Compilation failure : " + errorString(err), errs);
         }
         built = true;
         return this;

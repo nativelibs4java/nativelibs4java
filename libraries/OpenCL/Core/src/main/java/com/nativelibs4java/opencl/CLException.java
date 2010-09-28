@@ -154,6 +154,8 @@ public class CLException extends RuntimeException {
 	public static class InvalidDeviceType extends CLTypedException {}
 	@ErrorCode(CL_INVALID_BUILD_OPTIONS)
 	public static class InvalidBuildOptions extends CLTypedException {}
+	@ErrorCode(CL_BUILD_PROGRAM_FAILURE)
+	public static class BuildProgramFailure extends CLTypedException {}
 
     public static String errorString(int err) {
         if (err == CL_SUCCESS)
