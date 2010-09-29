@@ -348,7 +348,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
 	/**
 	 * Creates a pointer that has the given number of valid bytes ahead.<br>
-	 * If the pointer was already bound, the valid bytes must be lower or equal to the current getRemainingBytes() value.
+	 * If the pointer was already bound, the valid bytes must be lower or equal to the current getValidBytes() value.
 	 */
 	public Pointer<T> validBytes(long byteCount) {
 		long peer = getPeer();
@@ -365,7 +365,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
 	/**
 	 * Creates a pointer that has the given number of valid elements ahead.<br>
-	 * If the pointer was already bound, the valid bytes must be lower or equal to the current getRemainingElements() value.
+	 * If the pointer was already bound, the valid bytes must be lower or equal to the current getValidElements() value.
 	 */
 	public Pointer<T> validElements(long elementCount) {
 		PointerIO<T> io = getIO();
@@ -522,7 +522,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Memory validity information is available when the pointer was created out of another pointer (with {@link #offset(long)}, {@link #next()}, {@link #next(long)}) or from a direct NIO buffer ({@link #pointerToBuffer(Buffer)}, {@link #pointerToInts(IntBuffer)}...)
      * @return amount of bytes that can be safely read or written from this pointer, or -1 if this amount is unknown
      */
-    public long getRemainingBytes() {
+    public long getValidBytes() {
     	long ve = getValidEnd();
     	return ve == UNKNOWN_VALIDITY ? -1 : ve - getPeer();
     }
@@ -532,8 +532,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Memory validity information is available when the pointer was created out of another pointer (with {@link #offset(long)}, {@link #next()}, {@link #next(long)}) or from a direct NIO buffer ({@link #pointerToBuffer(Buffer)}, {@link #pointerToInts(IntBuffer)}...)
      * @return amount of elements that can be safely read or written from this pointer, or -1 if this amount is unknown
      */
-    public long getRemainingElements() {
-    	long bytes = getRemainingBytes();
+    public long getValidElements() {
+    	long bytes = getValidBytes();
     	long elementSize = getTargetSize();
     	if (bytes < 0 || elementSize <= 0)
     		return -1;
@@ -547,7 +547,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      */
     public ListIterator<T> iterator() {
     	return new ListIterator<T>() {
-    		Pointer<T> next = Pointer.this.getRemainingElements() > 0 ? Pointer.this : null;
+    		Pointer<T> next = Pointer.this.getValidElements() > 0 ? Pointer.this : null;
     		Pointer<T> previous;
     		@Override
 			public T next() {
@@ -555,7 +555,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 					throw new NoSuchElementException();
                 T value = next.get();
                 previous = next;
-				next = next.getRemainingElements() > 1 ? next.next(1) : null;
+				next = next.getValidElements() > 1 ? next.next(1) : null;
 				return value;
 			}
 			@Override
@@ -565,7 +565,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 			@Override
 			public boolean hasNext() {
 				long rem;
-				return next != null && ((rem = next.getRemainingBytes()) < 0 || rem > 0);
+				return next != null && ((rem = next.getValidBytes()) < 0 || rem > 0);
 			}
 			@Override
 			public void add(T o) {
@@ -1075,6 +1075,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return (Pointer<Pointer<P>>)(Pointer)allocateArray(PointerIO.getPointerInstance(targetType), arrayLength); // TODO 
 	}
 	
+    /**
+     * Create a memory area large enough to hold an array of arrayLength typed pointers.
+     * @param targetType target type of element pointers in the resulting pointer array. 
+     * @param arrayLength size of the allocated array, in elements
+     * @return a pointer to a new memory area large enough to hold an array of arrayLength typed pointers
+     */
+    public static <P> Pointer<Pointer<P>> allocatePointers(Type targetType, int arrayLength) {
+		return (Pointer<Pointer<P>>)(Pointer)allocateArray(PointerIO.getPointerInstance(targetType), arrayLength); // TODO 
+	}
+	
     
     /**
      * Create a memory area large enough to a single items of type elementClass.
@@ -1457,7 +1467,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * @return an array of values of the requested length. The array is an array of primitives if the pointer's target type is a primitive or a boxed primitive type
 	 */
 	public Object getArray() {
-		return getArray(0L, (int)getRemainingElements());	
+		return getArray(0L, (int)getValidElements());	
 	}
 	
 	/**
@@ -1691,10 +1701,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     /**
-    * Copy remaining bytes from this pointer to a destination (see {@link #copyTo(long, Pointer, long, long)}, {@link #getRemainingBytes})
+    * Copy remaining bytes from this pointer to a destination (see {@link #copyTo(long, Pointer, long, long)}, {@link #getValidBytes})
      */
     public void copyTo(Pointer<?> destination) {
-    		copyBytesTo(0, destination, 0, getRemainingBytes());
+    		copyBytesTo(0, destination, 0, getValidBytes());
     }
 
 #foreach ($prim in $primitives)
@@ -1778,7 +1788,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Read the array of remaining ${prim.Name} values
 	 */
     public ${prim.Name}[] get${prim.CapName}s() {
-    		long rem = getRemainingElements();
+    		long rem = getValidElements();
     		if (rem < 0)
     			throwBecauseUntyped("Cannot create array if remaining length is not known. Please use get${prim.CapName}s(int length) instead.");
 		return get${prim.CapName}s(0, (int)rem);
@@ -1851,7 +1861,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Read a buffer of ${prim.Name} values of the remaining length from the pointed memory location 
 	 */
     public ${prim.BufferName} get${prim.BufferName}() {
-    		long rem = getRemainingElements();
+    		long rem = getValidElements();
     		if (rem < 0)
     			throwBecauseUntyped("Cannot create buffer if remaining length is not known. Please use get${prim.BufferName}(long length) instead.");
 		return get${prim.BufferName}(0, rem);
@@ -2426,7 +2436,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Implementation of {@link List#isEmpty()}
 	 */
 	public boolean isEmpty() {
-		return getRemainingElements() == 0;
+		return getValidElements() == 0;
 	}
 	
     /**
@@ -2505,11 +2515,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
     /**
 	 * Implementation of {@link List#size()}
-	 * @deprecated Casts the result of getRemainingElements() to int, so sizes greater that 2^31 will be invalid
-	 * @return {@link Pointer#getRemainingElements()}
+	 * @deprecated Casts the result of getValidElements() to int, so sizes greater that 2^31 will be invalid
+	 * @return {@link Pointer#getValidElements()}
 	 */
 	public int size() {
-		long size = getRemainingElements();
+		long size = getValidElements();
 		if (size > Integer.MAX_VALUE)
 			throw new RuntimeException("Size is greater than Integer.MAX_VALUE, cannot convert to int in Pointer.size()");
 		return (int)size;
@@ -2536,7 +2546,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         if (validEnd == UNKNOWN_VALIDITY)
         	throw new IndexOutOfBoundsException("Length of pointed memory is unknown, cannot create array out of this pointer");
 
-        return toArray((int)getRemainingElements());
+        return toArray((int)getValidElements());
 	}
 	
 	T[] toArray(int length) {
@@ -2548,7 +2558,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Implementation of {@link List#toArray(Object[])}
 	 */
 	public <U> U[] toArray(U[] array) {
-		int n = (int)getRemainingElements();
+		int n = (int)getValidElements();
 		if (n < 0)
             throwBecauseUntyped("Cannot create array");
         

@@ -302,17 +302,17 @@ public class PointerTest {
 	@Test 
     public void testAllocateRemaining_${prim.Name}_ok() {
     	Pointer<${prim.WrapperName}> p = Pointer.allocate${prim.CapName}s(2);
-    	assertEquals(2, p.getRemainingElements());
-		assertEquals(2 * ${prim.Size}, p.getRemainingBytes());
+    	assertEquals(2, p.getValidElements());
+		assertEquals(2 * ${prim.Size}, p.getValidBytes());
 		
 		Pointer<${prim.WrapperName}> n = p.next();
 		Pointer<${prim.WrapperName}> o = p.offset(${prim.Size});
 		assertEquals(n, o);
 		
-		assertEquals(1, n.getRemainingElements());
-		assertEquals(${prim.Size}, n.getRemainingBytes());
-		assertEquals(1, o.getRemainingElements());
-		assertEquals(${prim.Size}, o.getRemainingBytes());
+		assertEquals(1, n.getValidElements());
+		assertEquals(${prim.Size}, n.getValidBytes());
+		assertEquals(1, o.getValidElements());
+		assertEquals(${prim.Size}, o.getValidBytes());
 		
 		//TODO slide, slideBytes
 	}

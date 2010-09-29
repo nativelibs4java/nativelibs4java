@@ -22,6 +22,7 @@ Current version : BridJ 0.2-SNAPSHOT
 			Pointer<Pointer<Float>> array = pointerToFloats(width, height);
 			float value = array.get(i).get(j);
 	- More consistent read/write methods, added variants for CLong, SizeT, Boolean, CString, WideCString, PascalString, WidePascalString...
+	- Renamed getRemainingElements to getValidElements, getRemainingBytes to getValidBytes 
 	- Added standard bounds-checked util methods : 
 		- Pointer.copyTo (memcpy)
 		- moveTo (memmov)
