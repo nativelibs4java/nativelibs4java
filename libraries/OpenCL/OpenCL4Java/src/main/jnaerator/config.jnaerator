@@ -23,6 +23,7 @@
 -v
 
 -package com.nativelibs4java.opencl.library
+-libraryNamingPrefixes cl
 -library OpenCL
 	"-I$(DIR)/../headers/1.1"
 	"$(DIR)/../headers/1.1/CL/cl_platform.h"
