@@ -442,7 +442,7 @@ public class BridJ {
             String prop = System.getProperty("bridj.direct");
             String env = System.getenv("BRIDJ_DIRECT");
             directModeEnabled = !"false".equalsIgnoreCase(prop) && !"false".equalsIgnoreCase(env) && !"0".equals(env) && !"no".equalsIgnoreCase(env);
-            System.out.println("directModeEnabled = " + directModeEnabled + " (" + System.getProperty("bridj.direct") + ")");
+            log(Level.INFO, "directModeEnabled = " + directModeEnabled + " (" + System.getProperty("bridj.direct") + ")");
         }
         return directModeEnabled;
     }
