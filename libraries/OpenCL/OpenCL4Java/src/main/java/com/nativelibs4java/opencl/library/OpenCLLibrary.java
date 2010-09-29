@@ -5,6 +5,7 @@ import org.bridj.Pointer;
 import org.bridj.SizeT;
 import org.bridj.TypedPointer;
 import org.bridj.ann.Library;
+import org.bridj.ann.Optional;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Runtime;
 import org.bridj.cpp.CPPRuntime;
@@ -450,6 +451,7 @@ public class OpenCLLibrary {
 	public native static synchronized int clGetCommandQueueInfo(OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_command_queue_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	public native static synchronized int clSetCommandQueueProperty(OpenCLLibrary.cl_command_queue cl_command_queue1, long cl_command_queue_properties1, int cl_bool1, Pointer<java.lang.Long > cl_command_queue_propertiesPtr1);
 	public native static synchronized OpenCLLibrary.cl_mem clCreateBuffer(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<java.lang.Integer > cl_intPtr1);
+	@Optional
 	public native static synchronized OpenCLLibrary.cl_mem clCreateSubBuffer(OpenCLLibrary.cl_mem cl_mem1, long cl_mem_flags1, int cl_buffer_create_type1, Pointer<? > voidPtr1, Pointer<java.lang.Integer > cl_intPtr1);
 	public native static synchronized OpenCLLibrary.cl_mem clCreateImage2D(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, Pointer<com.nativelibs4java.opencl.library.cl_image_format > cl_image_formatPtr1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, Pointer<? > voidPtr1, Pointer<java.lang.Integer > cl_intPtr1);
 	public native static synchronized OpenCLLibrary.cl_mem clCreateImage3D(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, Pointer<com.nativelibs4java.opencl.library.cl_image_format > cl_image_formatPtr1, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, @Ptr long size_t5, Pointer<? > voidPtr1, Pointer<java.lang.Integer > cl_intPtr1);
@@ -458,6 +460,7 @@ public class OpenCLLibrary {
 	public native static synchronized int clGetSupportedImageFormats(OpenCLLibrary.cl_context cl_context1, long cl_mem_flags1, int cl_mem_object_type1, int cl_uint1, Pointer<com.nativelibs4java.opencl.library.cl_image_format > cl_image_formatPtr1, Pointer<java.lang.Integer > cl_uintPtr1);
 	public native static synchronized int clGetMemObjectInfo(OpenCLLibrary.cl_mem cl_mem1, int cl_mem_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	public native static synchronized int clGetImageInfo(OpenCLLibrary.cl_mem cl_mem1, int cl_image_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
+	@Optional
 	public native static synchronized int clSetMemObjectDestructorCallback(OpenCLLibrary.cl_mem cl_mem1, Pointer<OpenCLLibrary.clSetMemObjectDestructorCallback_arg1_callback > arg1, Pointer<? > voidPtr1);
 	public native static synchronized OpenCLLibrary.cl_sampler clCreateSampler(OpenCLLibrary.cl_context cl_context1, int cl_bool1, int cl_addressing_mode1, int cl_filter_mode1, Pointer<java.lang.Integer > cl_intPtr1);
 	public native static synchronized int clRetainSampler(OpenCLLibrary.cl_sampler cl_sampler1);
@@ -480,19 +483,25 @@ public class OpenCLLibrary {
 	public native static synchronized int clGetKernelWorkGroupInfo(OpenCLLibrary.cl_kernel cl_kernel1, OpenCLLibrary.cl_device_id cl_device_id1, int cl_kernel_work_group_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	public native static synchronized int clWaitForEvents(int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1);
 	public native static synchronized int clGetEventInfo(OpenCLLibrary.cl_event cl_event1, int cl_event_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
+	@Optional
 	public native static synchronized OpenCLLibrary.cl_event clCreateUserEvent(OpenCLLibrary.cl_context cl_context1, Pointer<java.lang.Integer > cl_intPtr1);
 	public native static synchronized int clRetainEvent(OpenCLLibrary.cl_event cl_event1);
 	public native static synchronized int clReleaseEvent(OpenCLLibrary.cl_event cl_event1);
+	@Optional
 	public native static synchronized int clSetUserEventStatus(OpenCLLibrary.cl_event cl_event1, int cl_int1);
+	@Optional
 	public native static synchronized int clSetEventCallback(OpenCLLibrary.cl_event cl_event1, int cl_int1, Pointer<OpenCLLibrary.clSetEventCallback_arg1_callback > arg1, Pointer<? > voidPtr1);
 	public native static synchronized int clGetEventProfilingInfo(OpenCLLibrary.cl_event cl_event1, int cl_profiling_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	public native static synchronized int clFlush(OpenCLLibrary.cl_command_queue cl_command_queue1);
 	public native static synchronized int clFinish(OpenCLLibrary.cl_command_queue cl_command_queue1);
 	public native static synchronized int clEnqueueReadBuffer(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
+	@Optional
 	public native static synchronized int clEnqueueReadBufferRect(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native static synchronized int clEnqueueWriteBuffer(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, @Ptr long size_t1, @Ptr long size_t2, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
+	@Optional
 	public native static synchronized int clEnqueueWriteBufferRect(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native static synchronized int clEnqueueCopyBuffer(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, OpenCLLibrary.cl_mem cl_mem2, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
+	@Optional
 	public native static synchronized int clEnqueueCopyBufferRect(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, OpenCLLibrary.cl_mem cl_mem2, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, Pointer<SizeT > size_tPtr3, @Ptr long size_t1, @Ptr long size_t2, @Ptr long size_t3, @Ptr long size_t4, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native static synchronized int clEnqueueReadImage(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, @Ptr long size_t1, @Ptr long size_t2, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native static synchronized int clEnqueueWriteImage(OpenCLLibrary.cl_command_queue cl_command_queue1, OpenCLLibrary.cl_mem cl_mem1, int cl_bool1, Pointer<SizeT > size_tPtr1, Pointer<SizeT > size_tPtr2, @Ptr long size_t1, @Ptr long size_t2, Pointer<? > voidPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
@@ -517,7 +526,9 @@ public class OpenCLLibrary {
 	public native static synchronized int clGetGLTextureInfo(OpenCLLibrary.cl_mem cl_mem1, int cl_gl_texture_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
 	public native static synchronized int clEnqueueAcquireGLObjects(OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, Pointer<OpenCLLibrary.cl_mem > cl_memPtr1, int cl_uint2, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
 	public native static synchronized int clEnqueueReleaseGLObjects(OpenCLLibrary.cl_command_queue cl_command_queue1, int cl_uint1, Pointer<OpenCLLibrary.cl_mem > cl_memPtr1, int cl_uint2, Pointer<OpenCLLibrary.cl_event > cl_eventPtr1, Pointer<OpenCLLibrary.cl_event > cl_eventPtr2);
+	@Optional
 	public native static synchronized int clGetGLContextInfoKHR(Pointer<SizeT > cl_context_propertiesPtr1, int cl_gl_context_info1, @Ptr long size_t1, Pointer<? > voidPtr1, Pointer<SizeT > size_tPtr1);
+	@Optional
 	public native static synchronized int clGetGLContextInfoAPPLE(
 		cl_context context, 
 		Pointer<?> platform_gl_ctx,
@@ -525,14 +536,23 @@ public class OpenCLLibrary {
 		Pointer<?> param_value, 
 		Pointer<SizeT > param_value_size_ret);
 	
+	@Optional
 	public native static synchronized OpenCLLibrary.cl_event clCreateEventFromGLsyncKHR(OpenCLLibrary.cl_context cl_context1, OpenCLLibrary.__GLsync cl_GLsync1, Pointer<java.lang.Integer > cl_intPtr1);
+	@Optional
 	public native static synchronized int clSetMemObjectDestructorAPPLE(OpenCLLibrary.cl_mem cl_mem1, Pointer<OpenCLLibrary.clSetMemObjectDestructorAPPLE_arg1_callback > arg1, Pointer<? > voidPtr1);
+	@Optional
 	public native static synchronized void clLogMessagesToSystemLogAPPLE(Pointer<java.lang.Byte > charPtr1, Pointer<? > voidPtr1, @Ptr long size_t1, Pointer<? > voidPtr2);
+	@Optional
 	public native static synchronized void clLogMessagesToStdoutAPPLE(Pointer<java.lang.Byte > charPtr1, Pointer<? > voidPtr1, @Ptr long size_t1, Pointer<? > voidPtr2);
+	@Optional
 	public native static synchronized void clLogMessagesToStderrAPPLE(Pointer<java.lang.Byte > charPtr1, Pointer<? > voidPtr1, @Ptr long size_t1, Pointer<? > voidPtr2);
+	@Optional
 	public native static synchronized int clIcdGetPlatformIDsKHR(int cl_uint1, Pointer<OpenCLLibrary.cl_platform_id > cl_platform_idPtr1, Pointer<java.lang.Integer > cl_uintPtr1);
+	@Optional
 	public native static synchronized int clReleaseDeviceEXT(OpenCLLibrary.cl_device_id cl_device_id1);
+	@Optional
 	public native static synchronized int clRetainDeviceEXT(OpenCLLibrary.cl_device_id cl_device_id1);
+	@Optional
 	public native static synchronized int clCreateSubDevicesEXT(OpenCLLibrary.cl_device_id cl_device_id1, Pointer<java.lang.Long > cl_device_partition_property_extPtr1, int cl_uint1, Pointer<OpenCLLibrary.cl_device_id > cl_device_idPtr1, Pointer<java.lang.Integer > cl_uintPtr1);
 	//public static final GlobalCallback<clCreateSubDevicesEXT_fn_callback > clCreateSubDevicesEXT_fn = new GlobalCallback<clCreateSubDevicesEXT_fn_callback >(this, clCreateSubDevicesEXT_fn_callback.class, "clCreateSubDevicesEXT_fn");
 	/// Pointer to unknown (opaque) type
