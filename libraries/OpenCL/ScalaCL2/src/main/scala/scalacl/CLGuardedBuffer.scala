@@ -34,7 +34,7 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[
 
   def update(values: Array[T]): CLGuardedBuffer[T] = {
     val b: Pointer[T] = pointerToArray(values)
-    write(evts => buffer.write(context.queue, 0, b.getRemainingElements, b, false, evts:_*))
+    write(evts => buffer.write(context.queue, 0, b.getValidElements, b, false, evts:_*))
     this
   }
 

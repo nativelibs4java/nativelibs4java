@@ -61,7 +61,7 @@ trait CLDataIO[T] {
   def toArray(arrays: Array[CLGuardedBuffer[Any]], out: Array[T], start: Long = 0, length: Long = -1L): Array[T] = {
     assert(elementCount == arrays.length)
     val pointers = arrays.map(_.toPointer)
-    val size = pointers(0).getRemainingElements.toInt
+    val size = pointers(0).getValidElements.toInt
     val actualOut = if (out == null) new Array[T](size) else out
     var i = start
     val sup = if (length < 0) size else min(size, start + length)
