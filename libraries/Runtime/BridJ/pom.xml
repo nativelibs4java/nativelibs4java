@@ -29,12 +29,19 @@
 	</dependency>
 	
 	<dependency>
-      <groupId>com.jnaerator</groupId>
-      <artifactId>jna-jnaerator</artifactId>
-      <version>${jna.version}</version>
+      <groupId>net.java.dev.jna</groupId>
+      <artifactId>jna</artifactId>
+      <version>3.2.7</version>
       <scope>test</scope>
     </dependency>
 	
+    <dependency>
+          <groupId>javolution</groupId>
+          <artifactId>javolution</artifactId>
+          <version>5.5.1</version>
+          <scope>test</scope>
+	</dependency>  
+      
   </dependencies>
 
   <build>

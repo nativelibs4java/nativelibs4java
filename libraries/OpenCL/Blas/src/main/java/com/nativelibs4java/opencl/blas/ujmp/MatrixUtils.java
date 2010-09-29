@@ -21,8 +21,8 @@ public class MatrixUtils {
     }
     public static void write(Pointer<Double> b, DoubleMatrix2D out) {
         long rows = out.getRowCount(), columns = out.getColumnCount();
-        if (b.getRemainingElements() < rows * columns)
-            throw new IllegalArgumentException("Not enough data in input buffer to write into " + rows + "x" + columns + " matrix (only has " + b.getRemainingElements() + ")");
+        if (b.getValidElements() < rows * columns)
+            throw new IllegalArgumentException("Not enough data in input buffer to write into " + rows + "x" + columns + " matrix (only has " + b.getValidElements() + ")");
         if (out instanceof CLDenseDoubleMatrix2D) {
             CLDenseDoubleMatrix2D mout = (CLDenseDoubleMatrix2D)out;
             mout.write(b);
@@ -42,8 +42,8 @@ public class MatrixUtils {
     }
     public static void read(DoubleMatrix2D m, Pointer<Double> out) {
         long rows = m.getRowCount(), columns = m.getColumnCount();
-        if (out.getRemainingElements() < rows * columns)
-            throw new IllegalArgumentException("Not enough space in output buffer to read into " + rows + "x" + columns + " matrix (only has " + out.getRemainingElements() + ")");
+        if (out.getValidElements() < rows * columns)
+            throw new IllegalArgumentException("Not enough space in output buffer to read into " + rows + "x" + columns + " matrix (only has " + out.getValidElements() + ")");
         
         if (m instanceof CLDenseDoubleMatrix2D) {
             CLDenseDoubleMatrix2D mm = (CLDenseDoubleMatrix2D)m;
@@ -65,8 +65,8 @@ public class MatrixUtils {
     }
     public static void read(FloatMatrix2D m, Pointer<Float> out) {
         long rows = m.getRowCount(), columns = m.getColumnCount();
-        if (out.getRemainingElements() < rows * columns)
-            throw new IllegalArgumentException("Not enough space in output buffer to read into " + rows + "x" + columns + " matrix (only has " + out.getRemainingElements() + ")");
+        if (out.getValidElements() < rows * columns)
+            throw new IllegalArgumentException("Not enough space in output buffer to read into " + rows + "x" + columns + " matrix (only has " + out.getValidElements() + ")");
 
         if (m instanceof CLDenseFloatMatrix2D) {
             CLDenseFloatMatrix2D mm = (CLDenseFloatMatrix2D)m;

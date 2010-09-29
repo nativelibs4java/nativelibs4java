@@ -1,24 +1,37 @@
 /*
-	Copyright (c) 2009 Olivier Chafik (http://ochafik.free.fr/)
-	
-	This file is part of OpenCL4Java (http://code.google.com/p/nativelibs4java/wiki/OpenCL).
-	
-	OpenCL4Java is free software: you can redistribute it and/or modify
-	it under the terms of the GNU Lesser General Public License as published by
-	the Free Software Foundation, either version 2.1 of the License, or
-	(at your option) any later version.
-	
-	OpenCL4Java is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU Lesser General Public License for more details.
-	
-	You should have received a copy of the GNU Lesser General Public License
-	along with OpenCL4Java.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ * JavaCL - Java API and utilities for OpenCL
+ * http://javacl.googlecode.com/
+ *
+ * Copyright (c) 2009-2010, Olivier Chafik (http://ochafik.free.fr/)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Olivier Chafik nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY OLIVIER CHAFIK AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package com.nativelibs4java.opencl;
 import java.util.Arrays;
 import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.CLException.errorString;
 import static com.nativelibs4java.opencl.CLException.failedForLackOfMemory;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BINARIES;
@@ -26,6 +39,8 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BINARY
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BUILD_LOG;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_SOURCE;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SUCCESS;
+import static org.bridj.util.DefaultParameterizedType.paramType;
+import java.io.IOException;
 
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -39,7 +54,12 @@ import java.util.Map;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program;
-import com.nativelibs4java.util.NIOUtils;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.bridj.*;
 import static org.bridj.Pointer.*;
@@ -79,7 +99,90 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         this.context = context;
         this.devices = devices == null || devices.length == 0 ? context.getDevices() : devices;
     }
+	CLProgram(CLContext context, Map<CLDevice, byte[]> binaries) {
+		super(null, true);
+		this.context = context;
 
+        int nDevices = binaries.size();
+        devices = new CLDevice[nDevices];
+        Pointer<SizeT> lengths = allocateSizeTs(nDevices);
+		Pointer<cl_device_id> deviceIds = allocateTypedPointers(cl_device_id.class, nDevices);
+		Pointer<Pointer<Byte>> binariesArray = allocatePointers(paramType(Pointer.class, Byte.class), nDevices);
+		Pointer<Byte>[] binariesMems = new Pointer[nDevices];
+
+        int iDevice = 0;
+        for (Map.Entry<CLDevice, byte[]> e : binaries.entrySet())
+        {
+            CLDevice device = e.getKey();
+            byte[] binary = e.getValue();
+
+            binariesArray.set(iDevice, binariesMems[iDevice] = pointerToBytes(binary));
+
+            lengths.set(iDevice, new SizeT(binary.length));
+            deviceIds.set(iDevice, (devices[iDevice] = device).getEntity());
+
+            iDevice++;
+        }
+		Pointer<Integer> errBuff = allocateInt();
+        int previousAttempts = 0;
+        Pointer<Integer> statuses = allocateInts(nDevices);
+		do {
+			entity = CL.clCreateProgramWithBinary(context.getEntity(), nDevices, deviceIds, lengths, binariesArray, statuses, errBuff);
+		} while (failedForLackOfMemory(errBuff.get(), previousAttempts++));
+        
+	}
+
+    /**
+     * Write the compiled binaries of this program (for all devices it was compiled for), so that it can be restored later using {@link CLContext#loadProgram(java.io.InputStream) }
+     * @param out will be closed
+     * @throws CLBuildException
+     * @throws IOException
+     */
+    public void store(OutputStream out) throws CLBuildException, IOException {
+        writeBinaries(getBinaries(), out);
+    }
+    public static void writeBinaries(Map<CLDevice, byte[]> binaries, OutputStream out) throws IOException {
+        Map<String, byte[]> binaryBySignature = new HashMap<String, byte[]>();
+        for (Map.Entry<CLDevice, byte[]> e : binaries.entrySet())
+            binaryBySignature.put(e.getKey().createSignature(), e.getValue()); // Maybe multiple devices will have the same signature : too bad, we don't care and just write one binary per signature.
+
+        ZipOutputStream zout = new ZipOutputStream(out);
+        for (Map.Entry<String, byte[]> e : binaryBySignature.entrySet()) {
+            String name = e.getKey();
+            byte[] data = e.getValue();
+            ZipEntry ze = new ZipEntry(name);
+            ze.setSize(data.length);
+            zout.putNextEntry(ze);
+            zout.write(data);
+            zout.closeEntry();
+        }
+        zout.close();
+    }
+    public static Map<CLDevice, byte[]> readBinaries(List<CLDevice> allowedDevices, InputStream in) throws IOException {
+        Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>();
+        Map<String, List<CLDevice>> devicesBySignature = CLDevice.getDevicesBySignature(allowedDevices);
+
+        ZipInputStream zin = new ZipInputStream(in);
+        ZipEntry ze;
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+
+        byte[] b = new byte[1024];
+        while ((ze = zin.getNextEntry()) != null) {
+            String signature = ze.getName();
+            bout.reset();
+            int len;
+            while ((len = zin.read(b)) > 0)
+                bout.write(b, 0, len);
+
+            byte[] data = bout.toByteArray();
+            List<CLDevice> devices = devicesBySignature.get(signature);
+            for (CLDevice device : devices)
+                ret.put(device, data);
+        }
+        zin.close();
+        return ret;
+    }
+    
 	List<String> sources = new ArrayList<String>();
     Map<CLDevice, cl_program> programByDevice = new HashMap<CLDevice, cl_program>();
 
@@ -149,7 +252,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         }
         
 		Pointer<?> s = infos.getMemory(getEntity(), CL_PROGRAM_BINARY_SIZES);
-		int n = (int)s.getRemainingBytes() / JNI.SIZE_T_SIZE;
+		int n = (int)s.getValidBytes() / JNI.SIZE_T_SIZE;
 		long[] sizes = s.getSizeTs(0, n);
 		//int[] sizes = new int[n];
 		//for (int i = 0; i < n; i++) {
@@ -161,7 +264,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		for (int i = 0; i < n; i++) {
 			ptrs.set(i, binMems[i] = allocateBytes(sizes[i]));
 		}
-		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, ptrs.getRemainingBytes(), ptrs, null));
+		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, ptrs.getValidBytes(), ptrs, null));
 
 		Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>(devices.length);
         for (int i = 0; i < n; i++) {
@@ -251,7 +354,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                     errs.add(s);
                 }
                 
-            throw new CLBuildException(this, "Compilation failure ! (code = " + err + ")"/*errorString(err)*/, errs);
+            throw new CLBuildException(this, "Compilation failure : " + errorString(err), errs);
         }
         built = true;
         return this;
@@ -312,6 +415,4 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             args = new ArrayList<String>();
         args.addAll(Arrays.asList(as));
     }
-
-
 }

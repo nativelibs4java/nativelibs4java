@@ -1,0 +1,50 @@
+Current version : BridJ 0.2-SNAPSHOT
+
+- Renamed package com.bridj to org.bridj
+- Vastly improved JNAerator support : now decent and complete :-)
+- Enhanced C support
+	- Faster structs that rely more on JNAerator
+	- Optimized structs performance (added comparison tests with Javolution & JNA)
+- Enhanced C++ support :
+	- Automatic call of C++ destructors
+	- Better GCC demangling (contributed by Remi Emonet)
+	- Fixed long and size_t signature matching (@CLong and @Ptr annotations)
+	- Fixed size computation of (simply) inherited structs and classes
+- Enhanced Pointer<T> class :
+	- Full JavaDocs
+	- Implements List<T>
+	- Support for 2D & 3D arrays, with syntax directly equivalent to C :
+			float array[100][200];
+			float value = array[i][j];
+		Is now :
+			Pointer<Pointer<Float>> array = pointerToFloats(new float[width][height]);
+			// or
+			Pointer<Pointer<Float>> array = pointerToFloats(width, height);
+			float value = array.get(i).get(j);
+	- More consistent read/write methods, added variants for CLong, SizeT, Boolean, CString, WideCString, PascalString, WidePascalString...
+	- Added standard bounds-checked util methods : 
+		- Pointer.copyTo (memcpy)
+		- moveTo (memmov)
+		- clearBytes (memset)
+		- findByte (memchr)
+	- Fixed multiple-endianness support for floats and doubles
+- Added JAWTUtils.getNativePeerHandle(Component)
+- Refactored native libraries (a bit smaller)
+- Enhanced runtime :
+	- Accept .drv as .dll files on Windows
+	- Support for name aliasing (@Name, in addition to the @Symbol annotation that bypasses demangling)
+	- Now compiling native libraries with full optimizations
+	- Fixed assembler optimizations on Win32, added experimental optimizations for Linux64
+	- Can now control assembler optimizations : BridJ.setDirectModeEnabled(boolean)
+- Built for Win32/64, MacOS X (Universal: x86, x64, ppc), Ubuntu Linux (x86, x64)
+
+BridJ 0.1
+
+- Basic support for C (enums, functions, callbacks, structs with native getters/setters)
+- Basic support for C++ with annotations- and demangling-based dynamic signature matching :
+	- Normal and virtual methods
+	- No class fields
+	- No templates
+	- No destructors
+	- No non-trivial constructors)
+- Built for Win32/64, MacOS X (Universal: x86, x64, ppc), Linux32

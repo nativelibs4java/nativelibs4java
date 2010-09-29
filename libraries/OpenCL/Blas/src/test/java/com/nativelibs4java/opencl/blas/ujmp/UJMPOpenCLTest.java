@@ -45,7 +45,7 @@ public class UJMPOpenCLTest {
         double[] min = new double[] { 0, 0, 1, 0, 1, 0, 1, 0, 0 };
         write(min, m);
         Pointer<Double> back = read(m);
-        for (int i = 0, cap = (int)back.getRemainingElements(); i < cap; i++) {
+        for (int i = 0, cap = (int)back.getValidElements(); i < cap; i++) {
             assertEquals(min[i], back.get(i), 0);
             //System.out.println(back.get(i));
         }
@@ -59,7 +59,7 @@ public class UJMPOpenCLTest {
 		//dmout.write((DoubleBuffer)mout.read());
 
         back = read(mout);
-        for (int i = 0, cap = (int)back.getRemainingElements(); i < cap; i++)
+        for (int i = 0, cap = (int)back.getValidElements(); i < cap; i++)
             System.out.println(back.get(i));
 
 		assertEquals(0, mout.getDouble(0, 1), 0);

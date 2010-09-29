@@ -10,12 +10,13 @@
 #pragma warning(disable: 4100) // unreferenced formal parameter
 #pragma warning(disable: 4706) // assignment inside a conditional expression
 #pragma warning(disable: 4054) // casting a function pointer to a data pointer
+#pragma warning(disable: 4996)
 
 #ifndef _WIN32
 #define __cdecl
 #endif
 
-#if !defined (DC__OS_Darwin) && !defined(DC__OS_Linux)
+#if defined(_WIN64) || (!defined (DC__OS_Darwin) && !defined(DC__OS_Linux) && !defined(_WIN32))
 #define NO_DIRECT_CALLS // TODO REMOVE ME !!! (issues with stack alignment on COM calls ?)
 #endif
 
@@ -88,12 +89,6 @@ typedef struct CommonCallbackInfo {
 #endif
 } CommonCallbackInfo;
 
-typedef struct CPPMethodCallInfo {
-	struct CommonCallbackInfo fInfo;
-	jclass fClass;
-	void* fForwardedSymbol;
-} CPPMethodCallInfo;
-
 typedef struct VirtualMethodCallInfo {
 	struct CommonCallbackInfo fInfo;
 	jclass fClass;
@@ -104,8 +99,9 @@ typedef struct VirtualMethodCallInfo {
 
 typedef struct FunctionCallInfo {
 	struct CommonCallbackInfo fInfo;
+	jclass fClass;
 	void* fForwardedSymbol;
-} FunctionCallInfo;
+} FunctionCallInfo, CPPMethodCallInfo;
 
 #if defined (DC__OS_Darwin)
 #include <objc/objc.h>
@@ -113,6 +109,7 @@ typedef struct FunctionCallInfo {
 typedef struct JavaToObjCCallInfo {
 	struct CommonCallbackInfo fInfo;
 	SEL fSelector;
+	jlong fNativeClass;
 } JavaToObjCCallInfo;
 
 char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
@@ -150,9 +147,16 @@ void* getPointerPeer(JNIEnv *env, jobject pointer);
 //jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
 jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO);
 
-void callDefaultConstructor(JNIEnv *env, void* constructor, void* thisPtr, int callMode);
+void callSinglePointerArgVoidFunction(JNIEnv *env, void* constructor, void* thisPtr, int callMode);
 jlong getFlagValue(JNIEnv *env, jobject flagSet);
 jobject newFlagSet(JNIEnv *env, jlong value);
+
+#define THROW_EXCEPTION(env, message, ...) \
+{ \
+	char err[256]; \
+	sprintf(err, message, ##__VA_ARGS__); \
+	throwException(env, err); \
+}
 
 void throwException(JNIEnv* env, const char* message);
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message);

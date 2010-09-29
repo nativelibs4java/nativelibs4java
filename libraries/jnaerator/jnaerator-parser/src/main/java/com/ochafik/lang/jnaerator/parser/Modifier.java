@@ -123,6 +123,10 @@ public enum Modifier {
 	ByCopy(of(ObjectiveC, OnlyInArgDef)),
 	ByRef(of(ObjectiveC, OnlyInArgDef)),
 
+	Package(of(ObjectiveC)),
+	Optional(of(ObjectiveC)),
+	Required(of(ObjectiveC)),
+	
 	Align(of(Declspec, HasArguments)),
 	Allocate(of(Declspec, HasArguments)),
 	AppDomain(of(Declspec)),
@@ -139,6 +143,8 @@ public enum Modifier {
 	Process(of(Declspec)),
 	Property(of(Declspec, HasArguments, StorageClassSpecifier, COMSpecific)), //TODO handle args
 	Restrict(of(Declspec, StorageClassSpecifier)),
+	__restrict(Restrict),
+	
 	SelectAny(of(Declspec, StorageClassSpecifier, COMSpecific)),
 	Thread(of(Declspec)),
 	UUID(of(Declspec, HasArguments, StorageClassSpecifier, COMSpecific)),

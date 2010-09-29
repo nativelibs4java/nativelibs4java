@@ -34,10 +34,14 @@ public:
 };
 
 class TEST_API Ctest2 : public Ctest {
+	int* fState;
+	int fDestructedState;
 public:
 	Ctest2();
 	//virtual 
 	~Ctest2();
+	void setState(int* pState);
+	void setDestructedState(int destructedState);
 	virtual int testVirtualAdd(int a, int b);
 	int testAdd(int a, int b);
 	const std::string& toString();
@@ -49,6 +53,7 @@ TEST_API Ctest* createTest();
 TEST_API ETest testEnum(ETest e);
 TEST_API ETest testVoidEnum();
 TEST_API ETest testIntEnum(int i, ETest e);
+
 TEST_API void __cdecl voidTest();
 TEST_API double __cdecl sinInt(int);
 TEST_API double __cdecl testSum(const double *values, size_t n);

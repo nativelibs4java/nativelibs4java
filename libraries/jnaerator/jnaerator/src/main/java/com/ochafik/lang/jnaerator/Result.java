@@ -77,6 +77,7 @@ public class Result extends Scanner {
 	
 	public final Set<Identifier> 
 		structsFullNames = new HashSet<Identifier>(),
+		enumsFullNames = new HashSet<Identifier>(),
 		unionsFullNames = new HashSet<Identifier>(),
 		callbacksFullNames = new HashSet<Identifier>();
 
@@ -161,6 +162,11 @@ public class Result extends Scanner {
 		}
 		return null;
 	}
+    public boolean isFakePointer(Identifier id) {
+        return resolvedFakePointers.contains(id);
+    }
+    Map<Identifier, List<Pair<Identifier, Function>>> functionsReifiableInFakePointers = new HashMap<Identifier, List<Pair<Identifier, Function>>>();
+    Set<Identifier> resolvedFakePointers = new HashSet<Identifier>();
 	public Identifier getFakePointer(Identifier libraryToUseIfNotDefinedYet, Identifier name) {
 		Identifier lib = findFakePointer(name);
 		if (lib != null)
@@ -170,13 +176,16 @@ public class Result extends Scanner {
 		if (set == null)
 			fakePointersByLibrary.put(libraryToUseIfNotDefinedYet.toString(), set = new HashSet<String>());
 		set.add(name.toString());
-		return ident(libraryToUseIfNotDefinedYet, name);
+		Identifier id = ident(libraryToUseIfNotDefinedYet, name);
+        resolvedFakePointers.add(id);
+        return id;
 	}
 	private Identifier getFakePointerName(Identifier name) {
 
 		String nameStr = name == null ? null : name.toString();
-		if (nameStr != null && nameStr.startsWith("_")) {
-			String nicerName = nameStr.substring(1);
+		String trimmed = StringUtils.trimUnderscores(nameStr);
+		if (trimmed != null && !nameStr.equals(trimmed)) {
+			String nicerName = trimmed;
 			Pair<TypeDef, Declarator> pair = typeDefs.get(nicerName);
 			if (pair != null) {
 				String target = pair.getFirst().getValueType().toString();
@@ -228,7 +237,8 @@ public class Result extends Scanner {
 						Declarator bestPlainStorage = null;
 						for (Declarator st : typeDef.getDeclarators()) {
 							if (st instanceof DirectDeclarator) {
-								boolean niceName = !st.resolveName().startsWith("_");
+								String name = st.resolveName();
+								boolean niceName = StringUtils.trimUnderscores(name).equals(name);;
 								if (bestPlainStorage == null || niceName) {
 									bestPlainStorage = st;
 									if (niceName)
@@ -251,6 +261,11 @@ public class Result extends Scanner {
 		}
 		
 		getList(enumsByLibrary, getLibrary(e)).add(e);
+		
+		Identifier identifier = getTaggedTypeIdentifierInJava(e);
+		if (identifier != null) {
+			enumsFullNames.add(identifier);
+		}
 	}
 	
 	@Override
@@ -369,12 +384,11 @@ public class Result extends Scanner {
 		
 		name = name.clone();
 		Struct parentStruct = s.findParentOfType(Struct.class);
-		if (config.putTopStructsInSeparateFiles) {
-			if (parentStruct != null && parentStruct != s)
-				return ident(getTaggedTypeIdentifierInJava(parentStruct), name);
-			else
-				return ident(getLibraryPackage(library), name);
-		} else
+		if (parentStruct != null && parentStruct != s)
+			return ident(getTaggedTypeIdentifierInJava(parentStruct), name);
+		else if ((s instanceof Struct) && config.putTopStructsInSeparateFiles)
+			return ident(getLibraryPackage(library), name);
+		else
 			return typeConverter.libMember(getLibraryClassFullName(library), null, name);
 	}
 
@@ -516,6 +530,16 @@ public class Result extends Scanner {
 		//NSInvocation.class,
 		//FoundationLibrary.class
 	};
+
+    public void addFunctionReifiableInFakePointer(Identifier resolvedFakePointer, Identifier libraryClassName, Function f) {
+        List<Pair<Identifier, Function>> list = functionsReifiableInFakePointers.get(resolvedFakePointer);
+        if (list == null)
+            functionsReifiableInFakePointers.put(resolvedFakePointer, list = new ArrayList<Pair<Identifier, Function>>());
+        list.add(new Pair<Identifier, Function>(libraryClassName, f));
+    }
+	public List<Pair<Identifier, Function>> getFunctionsReifiableInFakePointer(Identifier resolvedFakePointer) {
+        return functionsReifiableInFakePointers.get(resolvedFakePointer);
+    }
 	public interface ClassWritingNotifiable {
 		Struct writingClass(Identifier fullClassName, Struct interf, Signatures signatures, String currentLibrary);
 	}

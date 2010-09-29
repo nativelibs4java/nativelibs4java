@@ -23,7 +23,7 @@ public class VectorAdd {
             Pointer<Float> b = pointerToFloats(10, 20, 30, 40);
 
             Pointer<Float> sum = add(a, b);
-            for (long i = 0, n = sum.getRemainingElements(); i < n; i++)
+            for (long i = 0, n = sum.getValidElements(); i < n; i++)
                 System.out.println(sum.get(i));
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -31,7 +31,7 @@ public class VectorAdd {
 	}
 
 	public static Pointer<Float> add(Pointer<Float> a, Pointer<Float> b) throws CLBuildException {
-		int n = (int)a.getRemainingElements();
+		int n = (int)a.getValidElements();
 		
 		CLContext context = JavaCL.createBestContext();
 		CLQueue queue = context.createDefaultQueue();

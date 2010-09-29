@@ -268,6 +268,8 @@ public class JNAeratorConfigUtils {
 		if (SystemUtils.isWindows()) {
 			//http://msdn.microsoft.com/en-us/library/b0084kay(VS.80).aspx
 			
+			config.preprocessorConfig.includeStrings.add("#define __declspec(x)\n");
+			
 			//http://support.microsoft.com/kb/65472
 			config.preprocessorConfig.macros.put("_CHAR_UNSIGNED", null);
 			
@@ -278,6 +280,7 @@ public class JNAeratorConfigUtils {
 			config.preprocessorConfig.macros.put("_NATIVE_WCHAR_T_DEFINED", null);
 			
 			config.preprocessorConfig.macros.put("_MSC_VER", "800");
+			config.preprocessorConfig.macros.put("WINAPI", "__stdcall");
 			
 			config.functionsAccepter = new Adapter<Function, Boolean>() {
 	
@@ -426,7 +429,7 @@ public class JNAeratorConfigUtils {
 					try {
 						file = file.getCanonicalFile();
 						System.out.println(file + "\n\t-> " + libraryFile);
-						config.addSourceFile(file, libraryFile, false);
+						config.addSourceFile(file, libraryFile, false, true);
 						
 						//config.preprocessorConfig
 						//config.libraryByFile.put(file, libraryFile)
@@ -462,7 +465,7 @@ public class JNAeratorConfigUtils {
 		File headers = new File(file, "Headers");
 		if (headers.exists()) {
 			config.preprocessorConfig.includes.add(headers.getAbsolutePath());
-			config.addSourceFile(headers, framework, true);
+			config.addSourceFile(headers, framework, true, true);
 		} else
 			new IOException("No Headers subdirectory in framework '" + framework + "' found here : " + file).printStackTrace();
 		

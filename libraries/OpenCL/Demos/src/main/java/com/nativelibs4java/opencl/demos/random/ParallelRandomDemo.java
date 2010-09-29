@@ -31,7 +31,7 @@ import java.util.logging.Logger;
 public class ParallelRandomDemo {
 
     private static void println(Pointer<Integer> b) {
-        for (int i = 0, n = (int)b.getRemainingElements(); i < n; i++) {
+        for (int i = 0, n = (int)b.getValidElements(); i < n; i++) {
             if (i > 0)
                 System.out.print(", ");
             System.out.print(b.get(i));

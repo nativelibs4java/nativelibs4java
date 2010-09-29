@@ -430,10 +430,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\bridj\StructHandler.c"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\bridj\ThreadLocal.c"
 				>
 			</File>

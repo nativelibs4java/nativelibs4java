@@ -18,6 +18,9 @@
 */
 package com.ochafik.lang.jnaerator;
 
+import com.ochafik.lang.jnaerator.parser.TypeRef.SimpleTypeRef;
+import org.bridj.ann.Ptr;
+import com.ochafik.lang.jnaerator.parser.DeclarationsHolder;
 import java.io.File;
 
 import java.io.FileNotFoundException;
@@ -50,9 +53,9 @@ import org.antlr.runtime.RecognitionException;
 import org.rococoa.cocoa.foundation.NSClass;
 import org.rococoa.Rococoa;
 
-import com.bridj.BridJ;
-import com.bridj.TypedPointer;
-import com.bridj.cpp.CPPRuntime;
+import org.bridj.BridJ;
+import org.bridj.TypedPointer;
+import org.bridj.cpp.CPPRuntime;
 import com.ochafik.io.FileListUtils;
 import com.ochafik.io.ReadText;
 import com.ochafik.io.WriteText;
@@ -85,6 +88,7 @@ import com.ochafik.lang.jnaerator.parser.Identifier.QualifiedIdentifier;
 import com.ochafik.lang.jnaerator.parser.Identifier.SimpleIdentifier;
 import com.ochafik.lang.jnaerator.parser.ModifierKind;
 import com.ochafik.lang.jnaerator.parser.ObjCppLexer;
+import com.ochafik.lang.jnaerator.parser.Statement;
 import com.ochafik.lang.jnaerator.parser.Struct.Type;
 import com.ochafik.lang.jnaerator.runtime.LibraryExtractor;
 import com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper;
@@ -122,6 +126,14 @@ import static com.ochafik.lang.jnaerator.nativesupport.NativeExportUtils.*;
  */
 
 public class JNAerator {
+
+    private void privatize(Declaration d) {
+        List<Modifier> modifiers = new ArrayList<Modifier>(d.getModifiers());
+        modifiers.remove(Modifier.Public);
+        modifiers.remove(Modifier.Protected);
+        modifiers.add(0, Modifier.Private);
+        d.setModifiers(modifiers);
+    }
 
 	public static interface Feedback {
 		void setStatus(final String string);
@@ -170,7 +182,7 @@ public class JNAerator {
 				argsArray = list.toArray(new String[list.size()]);
 			}
 			if (argsArray.length == 0) {
-				if (new File("/Users/ochafik").exists()) {
+				/*if (new File("/Users/ochafik").exists()) {
 					argsArray = new String[] {
 	//						"-wikiHelp",
 							//"/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator2.0.sdk/System/Library/Frameworks/Foundation.framework/Versions/C/Headers/NSURL.h",
@@ -261,11 +273,13 @@ public class JNAerator {
 	//						"-o", "/Users/ochafik/src/opencl",
 //							"-v"
 					};
-				} else if (new File(DEFAULT_CONFIG_FILE).exists()){
+				} else */
+				if (new File(DEFAULT_CONFIG_FILE).exists()){
 					argsArray = new String[] { "@", DEFAULT_CONFIG_FILE };
 				} else {
-					JNAeratorCommandLineArgs.displayHelp(false);
-					return;
+					argsArray = new String[] { "-studio" };
+					//JNAeratorCommandLineArgs.displayHelp(false);
+					//return;
 				}
 			}
 		
@@ -286,7 +300,14 @@ public class JNAerator {
 					switch (a.def) {					
 					
 					case AddIncludePath:
-						config.preprocessorConfig.includes.add(a.getFileParam(0).toString());
+						File includedFile = a.getFileParam(0);
+						if (includedFile.isFile())
+							parsedActualFile(includedFile, false);
+						else
+							config.preprocessorConfig.includes.add(includedFile.toString());
+						break;
+					case CallbackInvokeName:
+						config.callbackInvokeMethodName = a.getStringParam(0);
 						break;
 					case AddFrameworksPath:
 						config.preprocessorConfig.frameworksPath.add(a.getFileParam(0).toString());
@@ -345,6 +366,9 @@ public class JNAerator {
                     case OnlineDocURLFormat:
                         config.onlineDocumentationURLFormats.add(new Pair<MessageFormat, MessageFormat>(a.getMessageFormatParam(0), a.getMessageFormatParam(1)));
                         break;
+                    case BeautifyNames:
+                    	config.beautifyNames = true;
+                    	break;
 					case NoLibBundle:
 						config.bundleLibraries = false;
 						break;
@@ -388,6 +412,9 @@ public class JNAerator {
 					case WCharAsShort:
 						config.wcharAsShort = true;
 						break;
+					case Synchronized:
+						config.synchronizedMethods = true;
+						break;
 					case JarOut:
 						config.outputJar = a.getFileParam(0);
 						break;
@@ -418,6 +445,9 @@ public class JNAerator {
 					case NoAuto:
 						config.autoConf = false;
 						break;
+                    case Reification:
+                        config.reification = true;
+                        break;
 					case NoCPP:
 						config.noCPlusPlus = true;
 						break;
@@ -430,6 +460,9 @@ public class JNAerator {
 					case OutputDir:
 						config.outputDir = a.getFileParam(0);
 						break;
+                    case LibraryNamingPrefixes:
+                        config.libraryNamingPrefixes = a.getStringParam(0).split(",");
+                        break;
 					case PreferJavac:
 						config.preferJavac = true;
 						break;
@@ -492,11 +525,28 @@ public class JNAerator {
 					}
 					return Collections.emptyList();
 				}
-
+				private void parsedActualFile(File file, boolean retainAsTarget) throws Exception {
+					String lib = currentLibrary;
+					String fn = file.getName();
+					if (lib == null) {
+						String name = fn;
+						int i = name.indexOf('.');
+						if (i >= 0)
+							name = name.substring(0, i).trim();
+						if (name.length() > 0)
+							lib = name;
+						System.out.println("Warning: no -library option for file '" + fn + "', using \"" + lib + "\".");
+					}
+					config.addSourceFile(file, lib, !file.isFile(), retainAsTarget);
+				}
 				private List<String> parsedFile(ParsedArg a) throws Exception {
 					File file = a.getFileParam(0);
 					if (file != null) {
 						String fn = file.getName();
+						if (fn.startsWith("-") && !file.exists()) {
+							JNAeratorCommandLineArgs.displayHelp(false);
+							System.exit(1);
+						}
 						if (file.isDirectory() && fn.matches(".*\\.framework"))
 							config.frameworks.add(file.toString());
 						else if (file.isFile() && fn.matches(".*\\.jnaerator"))
@@ -514,16 +564,7 @@ public class JNAerator {
 							{
 								JNAeratorConfigUtils.readProjectConfig(file, null, config);
 							} else {
-								if (lib == null) {
-									String name = fn;
-									int i = name.indexOf('.');
-									if (i >= 0)
-										name = name.substring(0, i).trim();
-									if (name.length() > 0)
-										lib = name;
-									System.out.println("Warning: no -library option for file '" + fn + "', using \"" + lib + "\".");
-								}
-								config.addSourceFile(file, lib, !file.isFile());//config.defaultLibrary);
+								parsedActualFile(file, true);
 							}
 						}
 					}
@@ -598,9 +639,13 @@ public class JNAerator {
 					Collection<File> inputFiles = config.getInputFiles();
 					File firstFile = inputFiles.isEmpty() ? null : inputFiles.iterator().next().getAbsoluteFile();
 					String firstFileName = firstFile == null ? null : firstFile.getName();
-					String entry = config.entryName == null ? RegexUtils.findFirst(firstFileName, fileRadixPattern, 1) : config.entryName; 
-					if (entry != null)
-						entry = TypeConversion.getValidJavaIdentifier(ident(entry)).toString();
+					Set<String> libraries = config.getLibraries();
+					String entry = 
+						config.entryName != null ? config.entryName :
+						!libraries.isEmpty() ? libraries.iterator().next() : 
+						RegexUtils.findFirst(firstFileName, fileRadixPattern, 1); 
+					//if (entry != null)
+					//	entry = config.result.typeConversion.getValidJavaIdentifier(ident(entry)).toString();
 
 					if (config.outputDir == null)
 						config.outputDir = firstFile == null ? new File(".") : firstFile.getAbsoluteFile().getParentFile();
@@ -1187,7 +1232,7 @@ public class JNAerator {
 			if (!result.config.skipLibraryInstanceDeclarations) {
 				Expression libNameExpr = opaqueExpr(result.getLibraryFileExpression(library));
 				TypeRef libTypeRef = typeRef(fullLibraryClassName);
-				Expression libClassLiteral = classLiteral(libTypeRef);
+				Expression libClassLiteral = result.typeConverter.typeLiteral(libTypeRef);
 				
 				Expression libraryPathGetterExpr = methodCall(
 					expr(typeRef(LibraryExtractor.class)),
@@ -1302,10 +1347,10 @@ public class JNAerator {
             if (!signatures.classSignatures.add(fakePointer))
                 continue;
 
+            Struct ptClass;
             if (result.config.runtime.hasJNA) {
-            	Struct ptClass = result.declarationsConverter.publicStaticClass(fakePointer, ident(PointerType.class), Struct.Type.JavaClass, null);
-                ptClass.addToCommentBefore("Pointer to unknown (opaque) type");
-
+            	ptClass = result.declarationsConverter.publicStaticClass(fakePointer, ident(PointerType.class), Struct.Type.JavaClass, null);
+                
                 String pointerVarName = "address";
                 ptClass.addDeclaration(new Function(Function.Type.JavaMethod, fakePointer, null,
                     new Arg(pointerVarName, typeRef(Pointer.class))
@@ -1319,9 +1364,8 @@ public class JNAerator {
                 ));
                 interf.addDeclaration(decl(ptClass));
             } else {
-            	Struct ptClass = result.declarationsConverter.publicStaticClass(fakePointer, ident(TypedPointer.class), Struct.Type.JavaClass, null);
-                ptClass.addToCommentBefore("Pointer to unknown (opaque) type");
-
+            	ptClass = result.declarationsConverter.publicStaticClass(fakePointer, ident(TypedPointer.class), Struct.Type.JavaClass, null);
+                
                 String addressVarName = "address";
                 ptClass.addDeclaration(new Function(Function.Type.JavaMethod, fakePointer, null,
                     new Arg(addressVarName, typeRef(long.class))
@@ -1329,17 +1373,116 @@ public class JNAerator {
                     block(stat(methodCall("super", varRef(addressVarName)))))
                 );
                 ptClass.addDeclaration(new Function(Function.Type.JavaMethod, fakePointer, null,
-                    new Arg(addressVarName, typeRef(com.bridj.Pointer.class))
+                    new Arg(addressVarName, typeRef(org.bridj.Pointer.class))
                 ).addModifiers(Modifier.Public).setBody(
                     block(stat(methodCall("super", varRef(addressVarName)))))
                 );
                 interf.addDeclaration(decl(ptClass));
             }
+            ptClass.addToCommentBefore("Pointer to unknown (opaque) type");
+
+            if (result.config.reification) {
+                Identifier resolvedFakePointer = result.getFakePointer(fullLibraryClassName, ident(fakePointerName));
+                List<Pair<Identifier, Function>> functionsReifiableInFakePointers = result.getFunctionsReifiableInFakePointer(resolvedFakePointer);
+                String thisFakePtrRefStr = typeRef(resolvedFakePointer).toString();
+
+                if (functionsReifiableInFakePointers != null)
+                for (Pair<Identifier, Function> p : functionsReifiableInFakePointers) {
+                    Function original = p.getSecond();
+                    Function fDirect = original.clone();
+
+                    int thisLocation = -1;
+                    List<Integer> fakePointersLocations = new ArrayList<Integer>();
+                    int iArg = 0;
+                    for (Arg arg : fDirect.getArgs()) {
+                        if (isFakePointerRef(result, arg.getValueType())) {
+                            if (iArg == 0 && arg.getValueType().toString().equals(thisFakePtrRefStr))
+                                thisLocation = iArg;
+                            fakePointersLocations.add(iArg);
+                            toDirectFakePointer(result, arg);
+                        }
+                        iArg++;
+                    }
+                        
+
+                    String indirectRetVarName = "$";
+                    boolean returnsFakePointer = isFakePointerRef(result, fDirect.getValueType());
+                    boolean needsDirect = !fakePointersLocations.isEmpty() || returnsFakePointer;
+
+                    Expression finalCall = null;
+                    //boolean needsDirect = fDirect.toString().equals(original.toString());
+                    String directFunctionName = null;
+                    if (needsDirect) {
+                        if (returnsFakePointer) {
+                            finalCall = new Expression.New(fDirect.getValueType(), varRef(indirectRetVarName));
+                            toDirectFakePointer(result, fDirect);
+                        }
+                        privatize(fDirect);
+                        if (signatures.methodsSignatures.add(fDirect.computeSignature(false)))
+                            ((DeclarationsHolder)original.getParentElement()).addDeclaration(fDirect);
+                        if (original.computeSignature(false).equals(fDirect.computeSignature(false))) {
+                            fDirect.setName(ident(original.getName() + "$direct"));
+                        }
+                        directFunctionName = fDirect.getName().toString();
+                    }
+
+
+                    // TODO private
+                    // TODO -reify:ptrname
+                    // TODO -reify:function=name
+                    //
+
+                    Function f = original.clone();
+                    List<Arg> args = new ArrayList<Arg>(f.getArgs());
+                    f.setModifiers(Collections.EMPTY_LIST);
+                    f.addModifiers(Modifier.Public);
+                    if (thisLocation < 0)
+                        f.addModifiers(Modifier.Static);
+                    String functionName = f.getName().toString();
+                    f.setName(ident(reifyFunctionName(result, fakePointerName, functionName)));
+                    Identifier id = p.getFirst();
+                    List<Expression> followedArgs = new ArrayList<Expression>();
+                    //followedArgs.add(thisRef());
+
+                    iArg = 0;
+                    for (Arg arg : args) {
+                        if (iArg == thisLocation)
+                            followedArgs.add(methodCall(thisRef(), "getPeer"));
+                        else if (fakePointersLocations.contains(iArg))
+                            followedArgs.add(methodCall(varRef(arg.getName()), "getPeer"));
+                        else
+                            followedArgs.add(varRef(arg.getName()));
+                        iArg++;
+                    }
+                    if (thisLocation >= 0)
+                        args.remove(thisLocation);
+                    f.setArgs(args);
+
+                    Expression nlib = expr(typeRef(p.getFirst().clone()));//nativeLibFieldExpr.clone(); // expr(typeRef(id.clone()))
+                    Expression x = methodCall(nlib, needsDirect ? directFunctionName : functionName, followedArgs.toArray(new Expression[followedArgs.size()]));
+                    boolean retVoid = "void".equals(String.valueOf(f.getValueType()));
+                    if (retVoid)
+                        f.setBody(block(stat(x)));
+                    else if (needsDirect && finalCall != null) {
+                        VariablesDeclaration vd = new VariablesDeclaration(typeRef(long.class), new Declarator.DirectDeclarator(indirectRetVarName, x));
+                        Expression.ConditionalExpression ce = new Expression.ConditionalExpression();
+                        ce.setTest(expr(varRef(indirectRetVarName), Expression.BinaryOperator.IsEqual, expr(0)));
+                        ce.setThenValue(nullExpr());
+                        ce.setElseValue(finalCall);
+                        f.setBody(block(stat(vd), new Statement.Return(ce)));
+                    } else {
+                        f.setBody(block(new Statement.Return(x)));
+                    }
+                    ptClass.addDeclaration(f);
+                }
+            }
+
+
         }
 
         if (result.config.runtime == JNAeratorConfig.Runtime.BridJ) {
-	        interf.addAnnotation(new Annotation(com.bridj.ann.Library.class, expr(library)));
-	        interf.addAnnotation(new Annotation(com.bridj.ann.Runtime.class, classLiteral(CPPRuntime.class)));
+	        interf.addAnnotation(new Annotation(org.bridj.ann.Library.class, expr(library)));
+	        interf.addAnnotation(new Annotation(org.bridj.ann.Runtime.class, classLiteral(CPPRuntime.class)));
         }
 		
         interf = result.notifyBeforeWritingClass(fullLibraryClassName, interf, signatures, library);
@@ -1352,6 +1495,54 @@ public class JNAerator {
         }
     }
 
+    boolean isFakePointerRef(Result result, TypeRef tr) {
+        if (tr instanceof SimpleTypeRef) {
+            Identifier id = ((SimpleTypeRef)tr).getName();
+            if (result.isFakePointer(id))
+            //if (id.equals(ident(result.config.runtime.pointerClass)))
+                return true;
+        }
+        return false;
+    }
+
+    void toDirectFakePointer(Result result, Declaration decl) {
+        decl.setValueType(typeRef(long.class));
+        decl.addAnnotation(new Annotation(typeRef(Ptr.class)));
+    }
+    static String trimAny(String s, String[] prefixes, String[] suffixes) {
+        String l = s.toLowerCase();
+        if (prefixes != null)
+            for (String prefix : prefixes) {
+                if (l.startsWith(prefix.toLowerCase())) {
+                    s = s.substring(prefix.length());
+                    break;
+                }
+            }
+        if (suffixes != null)
+            for (String suffix : suffixes) {
+                if (l.endsWith(suffix.toLowerCase())) {
+                    s = s.substring(0, s.length() - suffix.length());
+                    break;
+                }
+            }
+        return s;
+    }
+    Pattern rxObj1 = Pattern.compile("(\\w+)_([\\w_]+)_.*");
+    public String reifyFunctionName(Result result, String fakePointerName, String functionName) {
+        String simplifiedPointerName = StringUtils.trimUnderscores(trimAny(fakePointerName, result.config.libraryNamingPrefixes, null));
+        List<String> prefs = new ArrayList<String>();
+        if (result.config.libraryNamingPrefixes != null)
+            prefs.addAll(Arrays.asList(result.config.libraryNamingPrefixes));
+        prefs.add(fakePointerName);
+        prefs.add(simplifiedPointerName);
+        String s = StringUtils.uncapitalize(StringUtils.trimUnderscores(trimAny(functionName, prefs.toArray(new String[prefs.size()]), new String[] {
+            simplifiedPointerName,
+            simplifiedPointerName.replaceAll("_", "")
+        })));
+        if (s.length() == 0 || result.typeConverter.isJavaKeyword(s))
+            return functionName;
+        return s;
+    }
 	/// To be overridden
 	public Result createResult(final ClassOutputter outputter, Feedback feedback) {
 		return new Result(config, outputter, feedback);

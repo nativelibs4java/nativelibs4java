@@ -8,6 +8,7 @@
 #define bufferName 		IntBuffer
 #define primSize		4
 #define alignmentMask	3
+#define TEMP_REORDER_VAR_TYPE jint
 
 #ifndef BIG_ENDIAN
 #define REORDER_VALUE_BYTES(peer) REORDER_VALUE_BYTES_jint(peer, 0, 1, 2, 3)

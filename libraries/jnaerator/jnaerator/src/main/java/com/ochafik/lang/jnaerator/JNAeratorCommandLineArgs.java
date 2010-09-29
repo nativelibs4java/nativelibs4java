@@ -49,44 +49,51 @@ public class JNAeratorCommandLineArgs {
 		}
 		
 		public void parse(List<String> args) throws Exception {
-			for (int i = 0; i < args.size(); i++) {
-				String arg = args.get(i);
-				OptionDef defaultOpt = null;
-				for (OptionDef opt : OptionDef.values()) {
-					if (opt.switchPattern == null) {
-						defaultOpt = opt;
-						continue;
-					}
-					Matcher m = opt.switchPattern.matcher(arg);
-					if (m.matches()) {
-						ParsedArg pa = new ParsedArg();
-						pa.def = opt;
-						pa.params = new Object[opt.args.length];
-						int iArg = 0;
-						for (int iGroup = 0; iGroup < m.groupCount(); iGroup++) {
-							String gp = m.group(iGroup + 1);
-							if (gp == null)
-								continue;
-							pa.params[iArg] = opt.args[iArg].convertArg(gp);
-							iArg++;
+			try {
+				for (int i = 0; i < args.size(); i++) {
+					String arg = args.get(i);
+					OptionDef defaultOpt = null;
+					for (OptionDef opt : OptionDef.values()) {
+						if (opt.switchPattern == null) {
+							defaultOpt = opt;
+							continue;
 						}
-						for (; iArg < opt.args.length; iArg++)
-							pa.params[iArg] = opt.args[iArg].convertArg(args.get(++i));
-						
-						List<String> parsed = parsed(pa);
-						if (parsed == null)
-							return;
-						args.addAll(i + 1, parsed);
-						defaultOpt = null;
-						break;
+						Matcher m = opt.switchPattern.matcher(arg);
+						if (m.matches()) {
+							ParsedArg pa = new ParsedArg();
+							pa.def = opt;
+							pa.params = new Object[opt.args.length];
+							int iArg = 0;
+							for (int iGroup = 0; iGroup < m.groupCount(); iGroup++) {
+								String gp = m.group(iGroup + 1);
+								if (gp == null)
+									continue;
+								pa.params[iArg] = opt.args[iArg].convertArg(gp);
+								iArg++;
+							}
+							for (; iArg < opt.args.length; iArg++)
+								pa.params[iArg] = opt.args[iArg].convertArg(args.get(++i));
+							
+							List<String> parsed = parsed(pa);
+							if (parsed == null)
+								return;
+							args.addAll(i + 1, parsed);
+							defaultOpt = null;
+							break;
+						}
+					}
+					if (defaultOpt != null) {
+						ParsedArg pa = new ParsedArg();
+						pa.def = defaultOpt;
+						pa.params = new Object[] { defaultOpt.args[0].convertArg(arg) };
+						args.addAll(i + 1, parsed(pa));
 					}
 				}
-				if (defaultOpt != null) {
-					ParsedArg pa = new ParsedArg();
-					pa.def = defaultOpt;
-					pa.params = new Object[] { defaultOpt.args[0].convertArg(arg) };
-					args.addAll(i + 1, parsed(pa));
-				}
+			} catch (Exception ex) {
+				System.err.println("Error parsing arguments :\n" + StringUtils.implode(args, " "));
+				
+				JNAeratorCommandLineArgs.displayHelp(false);
+				throw ex;
 			}
 			finished();
 		}
@@ -101,7 +108,7 @@ public class JNAeratorCommandLineArgs {
 		IncludeArgs(		"@(.+)?",				"Read command-line arguments from a file. File may contain multiple lines (those beginning with \"//\" will be skipped), file wildcards will be resolved within the file content, as well as variables substitutions : $(someEnvOrJavaVarName), with $(DIR) being the parent directory of the current arguments file.", new ArgDef(Type.ExistingFile, "argumentsFile.jnaerator")),
 		OutputDir(			"-o", 					"Output directory for all artifacts", new ArgDef(Type.OutputDir, "outDir")),
 		ExtractSymbols(		"-scanSymbols", 		"Extract, unmangle and parse the symbols all listed shared libraries"),
-		AddIncludePath(		"-I(.+)?", 				"Add a directory to the include path. See doc of JNAERATOR_INCLUDE_PATH", new ArgDef(Type.File, "dir")),
+		AddIncludePath(		"-I(.+)?", 				"Add a directory to the include path or include a file. See doc of JNAERATOR_INCLUDE_PATH", new ArgDef(Type.File, "dir")),
 		AddFrameworksPath(	"-F(.+)?", 				"Add a directory to the frameworks path. See doc of JNAERATOR_FRAMEWORKS_PATH", new ArgDef(Type.File, "dir")),
 		FrameworksPath(		"-frameworksPath", 		"See doc of JNAERATOR_FRAMEWORKS_PATH", new ArgDef(Type.String, "path1:path2...")),
 		Framework(			"-framework", 			"JNAerate a framework using its headers and its *.bridgesupport files if available", new ArgDef(Type.String, "frameworkName")),
@@ -110,14 +117,19 @@ public class JNAeratorCommandLineArgs {
 		NoMangling(			"-noMangling", 			"Don't output any C++ name mangling information (may cause C++-decorated symbols not to be found at execution time)."),
 		AddRootDir(         "-addRootDir",          "Remove this directory from the path of descendant source files in the generated documentation.", new ArgDef(Type.ExistingDir, "dir")), 
         NoCPP(				"-nocpp",		 		"Do not define the __cplusplus symbol"),
-		Undefine(           "-U(.+)",               "Undefine a preprocessor symbol after the autoconfiguration phase.", new ArgDef(Type.String, "symbolName")),
+		Reification(  "-reification",   		"Automatically create OO shortcuts for functions that look like methods (typedPtr.someFunc() for someFunc(typedPtr))"),
+        Undefine(           "-U(.+)",               "Undefine a preprocessor symbol after the autoconfiguration phase.", new ArgDef(Type.String, "symbolName")),
         GUI(				"-gui",		 			"Show minimalist progression GUI"),
 		NoRuntime(			"-noRuntime",		 	"Don't copy runtime classes to JAR output"),
+		Synchronized(	"-synchronized",			"Generate synchronized native methods"),
 		BeanStructs(		"-beanStructs",			"Generate getters and setters for struct fields"),
+		BeautifyNames(		"-beautifyNames",		"Transform C names to Java-looking names : some_func() => someFunc()"),
 		JarOut(				"-jar",					"Jar file where all generated sources and the compiled classes go", new ArgDef(Type.OutputFile, "outFile")),
 		ScalaStructSetters( "-scalaStructSetters",  "Generate Scala-style setters for BridJ structs (with a name like fieldName_$eq)"),
         WCharAsShort(		"-wcharAsShort",		"Force treatment of wchar_t as short (char by default)"),
-		//Test(				"-test",				"Launch JNAerator's unit tests (DEBUG option)"),
+        CallbackInvokeName( "-callbacksInvokeMethodName", "Name of the invocation method of callbacks ('apply' by default)", new ArgDef(Type.String, "methodName")),
+		LibraryNamingPrefixes("-libraryNamingPrefixes", "Define prefixes commonly used in the library so that objectification of functions is optimal (See -noObjectification)", new ArgDef(Type.String, "commaSeparatedPrefixes")),
+        //Test(				"-test",				"Launch JNAerator's unit tests (DEBUG option)"),
 		Studio(				"-studio",				"Launch JNAeratorStudio"),
 		ScalaOut(			"-scalaOut",				"[Experimental] Output Scala wrappers (callbacks implicits...)", new ArgDef(Type.OutputDir, "outDir")),
 		NoStringReturns(	"-noStringReturns",		"Prevent const char* and const wchar_t* return types from being converted to String and WString."),
@@ -144,7 +156,7 @@ public class JNAeratorCommandLineArgs {
 													"Note that a special hack is done for library \"c\" on Windows systems : the output name is set to \"msvcrt\" instead of \"c\".\n", 
 													new ArgDef(Type.String, "libName")),
 		DefaultLibrary(		"-defaultLibrary", 		"Name of output library for elements declared in files not covered by a ${CurrentLibrary} switch", new ArgDef(Type.String, "libName")),
-		Help(				"-h(?:elp)?", 			"Show command line arguments help"),
+		Help(				"-?-h(?:elp)?", 			"Show command line arguments help"),
 		EntryName(			"-entryClass",			"Generate a class _entryclassName.EntryClassName_ that will contain all of the jnaerated libraries instances. User code will just need to static import or derive from this class to access to the instances.", new ArgDef(Type.String, "entryClassName")),
 //		Undefine(			"-U(.*)?",				"Undefine a preprocessor symbol before ", new ArgDef(Type.String, "entryClassName")),
 		Verbose(			"-v(?:erbose)?",		"Verbose output (both console and files)"),

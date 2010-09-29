@@ -5,13 +5,16 @@
 #include "math.h"
 
 #include <iostream>
+#include <string>
+
+using namespace std;
 
 TEST_API int ntest=0;
 
 TEST_API void __cdecl voidTest()
 {
 	//printf("ok\n");
-	//std::cout << "Ok\n";
+	//cout << "Ok\n";
 }
 TEST_API double __cdecl sinInt(int d)
 {
@@ -54,9 +57,9 @@ TEST_API void __cdecl testInPlaceSquare(double *values, size_t n)
 extern "C" {
 
 void otherFunc() {
-	//std::cout << "other\n";
+	//cout << "other\n";
 }
-JNIEXPORT jint JNICALL Java_com_bridj_PerfLib_testAddJNI(JNIEnv *, jclass, jint a, jint b) {
+JNIEXPORT jint JNICALL Java_org_bridj_PerfLib_testAddJNI(JNIEnv *, jclass, jint a, jint b) {
 	otherFunc();
 	return a + b;
 }
@@ -72,7 +75,7 @@ TEST_API int __cdecl testAddJNA(int a, int b)
 	otherFunc();
 	return a + b;
 }
-JNIEXPORT jdouble JNICALL Java_com_bridj_PerfLib_testASinB(JNIEnv *, jclass, jint a, jint b)
+JNIEXPORT jdouble JNICALL Java_org_bridj_PerfLib_testASinB(JNIEnv *, jclass, jint a, jint b)
 {
 	otherFunc();
 	return a * sin((double)b);
@@ -93,26 +96,37 @@ TEST_API double __cdecl testASinB(int a, int b)
 
 Ctest::Ctest()
 {
-	/*
+	cout << "Constructing Ctest instance\n";
+	
+	
 #if defined(DC__Arch_Intel_x86)
-
+/*
 	dlopen("/System/Library/Frameworks/Foundation.framework/Foundation", RTLD_LAZY);
 	{
 	id clsPool = objc_getClass("NSAutoreleasePool");
 	id poolInst = objc_msgSend(clsPool, sel_registerName("new"));
 	printf("#\n# poolInst in Ctest::Ctest : %ld\n#\n", (long int)poolInst);
 	}
+	*/
 #endif
-*/
+
 	//printf("Ctest::Ctest() (this = %ld)\n", (long int)(size_t)this);
 }
 Ctest::~Ctest()
 {
+	cout << "Destructor of Ctest is called !\n";
 }
 
-const std::string& Ctest2::toString() {
-	static std::string s = "";
+const string& Ctest2::toString() {
+	static string s = "";
 	return s;
+}
+
+TEST_API size_t __cdecl sizeOfCtest() {
+	return sizeof(Ctest);
+}
+TEST_API size_t __cdecl sizeOfCtest2() {
+	return sizeof(Ctest2);
 }
 int Ctest::testVirtualAdd(int a, int b) {
 	//printf("Ctest::testVirtualAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
@@ -159,14 +173,26 @@ Ctest* createTest() {
 	return test;
 }
 
-Ctest2::Ctest2() : Ctest()
+Ctest2::Ctest2() : Ctest(), fState(NULL), fDestructedState(0)
 {
+	cout << "Constructing Ctest2 instance\n";
 	//printf("Ctest2::Ctest2() (this = %ld)\n", (long int)(size_t)this);
 }
 Ctest2::~Ctest2()
 {
+	if (fState)
+		*fState = fDestructedState;
+	
+	cout << "Destructing Ctest2 instance\n";
+	
 }
-
+void Ctest2::setState(int* pState) {
+	fState = pState;
+}
+void Ctest2::setDestructedState(int destructedState) {
+	fDestructedState = destructedState;
+}
+	
 int Ctest2::testVirtualAdd(int a, int b) {
 	int ret = a + b * 2;
 	//printf("Ctest2::testVirtualAdd(%d, %d) = %d (this = %ld)\n", a, b, ret, (long int)(size_t)this);
@@ -221,4 +247,42 @@ TEST_API int forwardCall(fun_iii f, int a, int b) {
 	return res;
 }
 
-#include "../../../../target/generated-sources/test/com/bridj/CallTest.cpp"
+TEST_API std::string* newString() {
+	return new std::string();
+}
+TEST_API void appendToString(std::string* s, const char* a) {
+	(*s) += a;
+}
+TEST_API void reserveString(std::string* s, size_t reservedSize) {
+	s->reserve(reservedSize);
+}
+TEST_API void resizeString(std::string* s, size_t newSize) {
+	s->resize(newSize);
+}
+TEST_API void deleteString(std::string* s) {
+	delete s;
+}
+TEST_API const char* stringCStr(std::string* s) {
+	return s->c_str();
+}
+
+TEST_API std::wstring* newWString() {
+	return new std::wstring();
+}
+TEST_API void appendToWString(std::wstring* s, const wchar_t* a) {
+	(*s) += a;
+}
+TEST_API void reserveWString(std::wstring* s, size_t reservedSize) {
+	s->reserve(reservedSize);
+}
+TEST_API void resizeWString(std::wstring* s, size_t newSize) {
+	s->resize(newSize);
+}
+TEST_API void deleteWString(std::wstring* s) {
+	delete s;
+}
+TEST_API const wchar_t* wstringCStr(std::wstring* s) {
+	return s->c_str();
+}
+
+#include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"

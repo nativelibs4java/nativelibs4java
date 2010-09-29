@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
+import com.ochafik.util.string.StringUtils;
 
 import org.rococoa.cocoa.foundation.NSObject;
 //import org.rococoa.cocoa.foundation.NSString;
@@ -437,7 +438,7 @@ public class ObjectiveCGenerator {
 					MemberRefStyle.Dot,
 					"cast",
 					varRef("this"),
-					classLiteral(typeRef(classId.clone()))
+					result.typeConverter.typeLiteral(typeRef(classId.clone()))
 				)
 			)
 		));

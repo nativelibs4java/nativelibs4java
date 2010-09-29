@@ -8,7 +8,7 @@
 -Djint=int
 -Djobject=void*
 "-Djlong=long long"
--package com.bridj.jawt
+-package org.bridj.jawt
 "-I$(JAVA_HOME)\include"
 "-I$(JAVA_HOME)\include\win32"
 "$(JAVA_HOME)\include\jawt.h"

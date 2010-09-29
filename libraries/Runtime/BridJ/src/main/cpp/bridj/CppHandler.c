@@ -1,6 +1,6 @@
 #include "HandlersCommon.h"
 
-void callDefaultConstructor(JNIEnv* env, void* constructor, void* thisPtr, int callMode)
+void callSinglePointerArgVoidFunction(JNIEnv* env, void* constructor, void* thisPtr, int callMode)
 {
 	CallTempStruct* call;
 	initCallHandler(NULL, &call, env);
@@ -22,7 +22,8 @@ void* getNthVirtualMethodFromThis(JNIEnv* env, void* thisPtr, size_t virtualTabl
 	}
 	ret = (void*)vptr[virtualIndex];
 	if (!ret)
-		throwException(env, "Failed to get the method pointer from the virtual table !");
+		//throwException(env, "Failed to get the method pointer from the virtual table !");
+		THROW_EXCEPTION(env, "Failed to get the method pointer from the virtual table ! Virtual index = %lld, vtable ptr = 0x%llx", (jlong)virtualIndex, PTR_TO_JLONG(vptr));
 	
 	return ret;
 }
@@ -95,7 +96,7 @@ char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, 
 	END_TRY_RET(info->fInfo.fEnv, 0);
 }
 
-char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, CPPMethodCallInfo *info)
+char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, FunctionCallInfo *info)
 {
 	CallTempStruct* call;
 	void* thisPtr;
@@ -123,7 +124,7 @@ char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, CPPMeth
 
 char __cdecl JavaToCPPMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {
-	CPPMethodCallInfo* info = (CPPMethodCallInfo*)userdata;
+	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
 	BEGIN_TRY();
 	return doJavaToCPPMethodCallHandler(args, result, info);
 	END_TRY_RET(info->fInfo.fEnv, 0);

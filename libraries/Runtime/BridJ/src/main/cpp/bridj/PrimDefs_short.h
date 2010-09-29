@@ -8,6 +8,7 @@
 #define bufferName 		ShortBuffer
 #define primSize		2
 #define alignmentMask	1
+#define TEMP_REORDER_VAR_TYPE jshort
 
 #ifndef BIG_ENDIAN
 #define REORDER_VALUE_BYTES(peer) REORDER_VALUE_BYTES_jshort(peer, 0, 1)

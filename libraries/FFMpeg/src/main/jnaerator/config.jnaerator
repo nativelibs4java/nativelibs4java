@@ -1,0 +1,25 @@
+// java -Xmx2g -jar jnaerator-0.9.5-SNAPSHOT-shaded.jar
+// mkdir -p bridj/classes
+// javac -d bridj/classes -cp bridj:bridj-0.2-SNAPSHOT-shaded.jar bridj/*/*.java
+// ./configure --enable-shared && make clean && make && make install
+
+-I $(FFMPEG_HOME)
+
+-library avutil      $(FFMPEG_HOME)/libavutil/rational.h
+-library avutil      $(FFMPEG_HOME)/libavutil/avutil.h
+-library avcodec		$(FFMPEG_HOME)/libavcodec/avcodec.h
+-library avdevice    $(FFMPEG_HOME)/libavdevice/avdevice.h
+-library avfilter    $(FFMPEG_HOME)/libavfilter/avfilter.h
+-library avformat    $(FFMPEG_HOME)/libavformat/avformat.h
+-library postproc	$(FFMPEG_HOME)/libpostproc/postprocess.h
+-library swscale		$(FFMPEG_HOME)/libswscale/swscale.h
+
+-runtime BridJ
+-reification
+-scalaStructSetters
+
+-root com.nativelibs4java.ffmpeg
+
+-nocpp -noJar -noComp
+-o src/main/java
+-v

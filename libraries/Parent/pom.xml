@@ -17,7 +17,7 @@
 		<nl4j-runtime.version>0.2-SNAPSHOT</nl4j-runtime.version>
 		<jarsigner.skip>true</jarsigner.skip>
 		<junit.version>4.8.1</junit.version>
-		<jna.version>3.2.5</jna.version>
+		<jna.version>3.2.7</jna.version>
 		<maven.compiler.debug>true</maven.compiler.debug>
 		<shadedArtifactAttached>true</shadedArtifactAttached>
 	</properties>
@@ -129,26 +129,28 @@ Most of these wrappers are created automatically by JNAerator.
 			<name>Scala-tools Maven2 SNAPSHOT Repository</name>
 			<url>http://scala-tools.org/repo-snapshots</url>
 		</repository>
-
 		<repository>
 			<id>nativelibs4java</id>
 			<url>http://nativelibs4java.sourceforge.net/maven</url>
 		</repository>
 		
-		<!--<repository>
-			<id>nativelibs4java-snapshots</id>
-			<url>http://nativelibs4java.sourceforge.net/mavenSnapshots</url>
-		</repository>-->
-		
 		<repository>
 			<id>jnaerator</id>
 			<url>http://jnaerator.sourceforge.net/maven</url>
 		</repository>
-		
-		<!--<repository>
-			<id>jnaerator-snapshots</id>
-			<url>http://jnaerator.sourceforge.net/mavenSnapshots</url>
-		</repository>-->
+		<!-- http://stackoverflow.com/questions/1962718/maven-and-the-jogl-library
+		http://jogamp.762907.n3.nabble.com/What-about-Maven-td844816.html
+		-->
+		<repository>
+			<id>blackpad-nexus</id>
+			<name>Blackpad Nexus</name>
+			<layout>default</layout>
+			<url>http://www.blackpad.fr/nexus/content/groups/public</url>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+
 
 	</repositories>
 	

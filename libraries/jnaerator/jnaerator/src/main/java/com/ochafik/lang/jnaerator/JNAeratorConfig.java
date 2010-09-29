@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.bridj.ann.Array;
+import org.bridj.ann.Array;
 import com.ochafik.lang.jnaerator.JNAeratorConfigUtils.FileExtensionFilter;
 import com.ochafik.lang.jnaerator.cplusplus.CPlusPlusMangler;
 import com.ochafik.lang.jnaerator.parser.Element;
@@ -93,15 +93,15 @@ public class JNAeratorConfig {
 
         },
         BridJ(true, false, true,
-            com.bridj.Callback.class,
-            com.bridj.Pointer.class,
-            null, //com.bridj.Memory.class,
-            null,//com.bridj.Struct.class,
-            null,//com.bridj.Struct.class,
-            null, //com.bridj.StructIO.class,
-            com.bridj.Pointer.class,// "array" class
-            null, //com.bridj.NativeLib.class,
-            com.bridj.ann.Bits.class,
+            org.bridj.Callback.class,
+            org.bridj.Pointer.class,
+            null, //org.bridj.Memory.class,
+            null,//org.bridj.Struct.class,
+            null,//org.bridj.Struct.class,
+            null, //org.bridj.StructIO.class,
+            org.bridj.Pointer.class,// "array" class
+            null, //org.bridj.NativeLib.class,
+            org.bridj.ann.Bits.class,
             "bridj.jar.files") {
 
             @Override
@@ -127,7 +127,7 @@ public class JNAeratorConfig {
 
         public static final Runtime DEFAULT = JNAerator;
         public enum Ann {
-            Bits, FastCall, Mangling, ObjCBlock, This, ThisCall, Length, ByValue, Field, Virtual
+            Bits, FastCall, Mangling, ObjCBlock, This, ThisCall, Length, ByValue, Field, Virtual, Symbol, Name
         }
         Runtime(boolean hasFastStructs, 
                 boolean hasJNA,
@@ -218,12 +218,15 @@ public class JNAeratorConfig {
 	public boolean limitComments = false, noComments = false;
 	public boolean putTopStructsInSeparateFiles = true;
 	public boolean bundleRuntime = true;
+	public boolean beautifyNames = false;
+    public String[] libraryNamingPrefixes;
 	public boolean extractLibSymbols = false;
     //public boolean fastStructs = false;
     public List<Pair<MessageFormat, MessageFormat>> onlineDocumentationURLFormats = new ArrayList<Pair<MessageFormat, MessageFormat>>();
 	public String entryName;
 	public int maxConstructedFields = 10;
 	public boolean beanStructs;
+    public boolean reification = false;
 	
 	public Map<String, String> extraJavaSourceFilesContents = new LinkedHashMap<String, String>();
 	public Set<String> frameworks = new LinkedHashSet<String>();
@@ -249,20 +252,22 @@ public class JNAeratorConfig {
 		libraryByFile.put(file, fn);
 		libraryFiles.add(file);
 	}
-	public void addSourceFile(File file, String library, boolean applyFilters) throws IOException {
+	public void addSourceFile(File file, String library, boolean applyFilters, boolean retainAsTarget) throws IOException {
 		if (file.isFile()) {
 			if (fileFilter == null || !applyFilters || fileFilter.accept(file)) {
 				file = file.getCanonicalFile();
                 if (library == null && fileToLibrary != null)
                     library = fileToLibrary.adapt(file);
-				libraryByFile.put(file, library);
 				sourceFiles.add(file);
+				if (retainAsTarget) {
+					libraryByFile.put(file, library);
+				}
 			}
 		} else {
 			File[] fs = file.listFiles();
 			if (fs != null) {
 				for (File f : fs) {
-					addSourceFile(f, library, true);
+					addSourceFile(f, library, true, retainAsTarget);
 				}
 			}
 		}
@@ -326,7 +331,13 @@ public class JNAeratorConfig {
 			return libraryByFile.containsKey(f);
 		}
 	};
-	
+	public Set<String> getLibraries() {
+		Set<String> ret = new HashSet<String>();
+		for (Map.Entry<File, String> e : libraryByFile.entrySet())
+			if (e.getValue() != null)
+				ret.add(e.getValue());
+		return ret;
+	}
 	public String libraryForElementsInNullFile;
 	public String cPlusPlusNameSpaceSeparator = "_";
 	public boolean preferJavac = false;
@@ -361,10 +372,12 @@ public class JNAeratorConfig {
 	public boolean noMangling;
     public boolean scalaStructSetters;
 	public boolean noPrimitiveArrays;
+	public boolean synchronizedMethods;
 	public File scalaOut;
 	public boolean skipPrivateMembers = true;
 	public File rawParsedSourcesOutFile, normalizedParsedSourcesOutFile;
 	public boolean skipLibraryInstanceDeclarations;
+	public String callbackInvokeMethodName = "apply";
 	public Collection<File> getFiles() {
 		/*return new AdaptedCollection<String, File>(libraryByFile.keySet(), new Adapter<String, File>() {
 			@Override
@@ -374,7 +387,6 @@ public class JNAeratorConfig {
 		});*/
 		return sourceFiles;//libraryByFile.keySet();
 	}
-
 	public String relativizeFileForSourceComments(String path) {
 		if (path == null)
 			return null;

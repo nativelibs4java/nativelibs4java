@@ -48,6 +48,30 @@ public class StringUtils {
 		return v;
 	}
 	
+	public static String trimUnderscores(String s) {
+		return trimChar(s, '_');
+	}
+	
+	public static String trimChar(String s, char t) {
+		if (s == null)
+			return null;
+		int start = 0, n = s.length(), end = n;
+		for (int i = 0; i < n; i++) {
+			char c = s.charAt(i);
+			if (c != t) {
+				start = i;
+				break;
+			}
+		}
+		for (int i = n - 1; i >= 0; i--) {
+			char c = s.charAt(i);
+			if (c != t) {
+				end = i + 1;
+				break;
+			}
+		}
+		return s.substring(start, end);
+	}
 /*
 	public static final String implode(Object[] strings, String separator) {
 		return implode(Arrays.asList(strings), separator);
@@ -264,6 +288,15 @@ public class StringUtils {
 		for (String s : strings)
 			cap.add(capitalize(s));
 		return implode(cap, separator);
+	}
+	
+	public static String underscoredToCamel(String string) {
+		String[] a = string.split("_");
+		for (int i = 0, n = a.length; i < n; i++) {
+			String s = a[i].trim();
+			a[i] = capitalize(a[i]);
+		}
+		return implode(a, "");
 	}
 	
 	public static String uncapitalize(String string) {

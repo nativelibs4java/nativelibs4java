@@ -77,7 +77,7 @@ public class BufferTest extends AbstractCommon {
         buf.write(queue, initial, true);
 
         Pointer<B> retrieved = buf.read(queue);
-        assertEquals(buf.getElementCount(), retrieved.getRemainingElements());
+        assertEquals(buf.getElementCount(), retrieved.getValidElements());
 
         for (int i = 0; i < n; i++)
             assertEquals(bufferClass.getName(), initial.get(i), retrieved.get(i));
@@ -99,7 +99,6 @@ public class BufferTest extends AbstractCommon {
         Short.class,
         Byte.class,
         Double.class,
-        //CharBuffer.class,
         Float.class
     };
     @Test

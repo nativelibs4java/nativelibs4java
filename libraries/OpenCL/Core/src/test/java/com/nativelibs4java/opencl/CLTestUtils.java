@@ -62,7 +62,7 @@ public class CLTestUtils {
     }
 
     public static void fillBuffersWithSomeDataf(Pointer<Float> a, Pointer<Float> b) {
-        int s = (int)a.getRemainingElements();
+        int s = (int)a.getValidElements();
         for (int i = 0; i < s; i++) {
             float v = i;
             a.set(i, v);
@@ -70,7 +70,7 @@ public class CLTestUtils {
         }
     }
     public static void fillBuffersWithSomeDatad(Pointer<Double> a, Pointer<Double> b) {
-        int s = (int)a.getRemainingElements();
+        int s = (int)a.getValidElements();
         for (int i = 0; i < s; i++) {
             double v = i;
             a.set(i, v);

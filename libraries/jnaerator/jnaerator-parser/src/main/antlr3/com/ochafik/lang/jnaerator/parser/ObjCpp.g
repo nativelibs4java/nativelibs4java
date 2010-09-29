@@ -17,7 +17,6 @@
 	along with JNAerator.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 /**
 	This grammar is by no mean complete.
 	It is able to parse preprocessed C & Objective-C files and can tolerate some amount of C++. 
@@ -401,7 +400,8 @@ externDeclarations returns [ExternDeclarations declarations]
 			(
 				ed=declaration { 
 					$declarations.addDeclarations($ed.declarations); 
-				}
+				} |
+				lineDirective
 			)* 
 		'}'
 	;
@@ -437,7 +437,7 @@ scope ModContext;
 				functionDeclaration {
 					$declarations.add($functionDeclaration.function);
 				} |
-				externDeclarations {
+				{ next("extern") }?=> externDeclarations {
 					$declarations.add($externDeclarations.declarations); 
 				} |
 				varDecl ';' { 
@@ -461,7 +461,8 @@ scope ModContext;
 								d.addNameSpace($ns.text);
 								$declarations.add(d);
 							}
-						}
+						} |
+						lineDirective
 					)*
 				'}'// | 
 				//';' */// allow isolated semi-colons
@@ -614,6 +615,9 @@ objCClassDef returns [Struct struct]
 		(
 			'{'
 			(
+				'@package' | // TODO keep in AST 
+				'@required' | // TODO keep in AST 
+				'@optional' | // TODO keep in AST 
 				'@public' { $struct.setNextMemberVisibility(Struct.MemberVisibility.Public); } | 
 				'@private' { $struct.setNextMemberVisibility(Struct.MemberVisibility.Private); } | 
 				'@protected' { $struct.setNextMemberVisibility(Struct.MemberVisibility.Protected); } |
@@ -621,14 +625,15 @@ objCClassDef returns [Struct struct]
 					functionPointerOrSimpleVarDecl ';' {
 						$struct.addDeclaration($functionPointerOrSimpleVarDecl.decl);
 					}
-				)
+				) |
+				lineDirective
 			)* 
 			'}'
 		)?
 		{ $struct.setNextMemberVisibility(Struct.MemberVisibility.Public); }
 		(
 			objCMethodDecl { 
-				$struct.addDeclaration($objCMethodDecl.function); 
+				$struct.addDeclaration($objCMethodDecl.function);
 			} |
 			objCPropertyDecl {
 				$struct.addDeclaration($objCPropertyDecl.property); 
@@ -638,7 +643,8 @@ objCClassDef returns [Struct struct]
 			} |
 			vd=varDecl ';' { !($vd.decl instanceof VariablesDeclaration) }? {
 				$struct.addDeclaration($vd.decl);
-			}
+			} |
+			lineDirective
 		)*
 		'@end'
 	;						
@@ -655,7 +661,9 @@ functionPointerOrSimpleVarDecl returns [Declaration decl]
 					
 objCPropertyDecl returns [Property property]
 	:
-		'@property' functionPointerOrSimpleVarDecl ';' {
+		'@property' 
+		( '(' IDENTIFIER ( ',' IDENTIFIER ) * ) ? // TODO parse modifiers : assign, nonatomic, readonly, copy...
+		functionPointerOrSimpleVarDecl ';' {
 			$property = new Property($functionPointerOrSimpleVarDecl.decl);
 		}
 	;
@@ -739,7 +747,8 @@ scope ModContext;
 				} |
 				fv=varDecl ';' {
 					$struct.addDeclaration($fv.decl);
-				}
+				} |
+				lineDirective
 			)*
 		'}'
 	;
@@ -1144,31 +1153,41 @@ declarator  returns [Declarator declarator]
 	:
 		modifiers
 		(
-			( 
-				directDeclarator { 
-					$declarator = $directDeclarator.declarator; 
-				} 
-			) |
-			( 
-				pt=('*' | '&' | '^')
-				inner=declarator {
-					$declarator = new PointerDeclarator($inner.declarator, PointerStyle.parsePointerStyle($pt.text));
-				} 
+			((
+				( 
+					directDeclarator { 
+						$declarator = $directDeclarator.declarator; 
+					} 
+				) |
+				( 
+					pt=('*' | '&' | '^')
+					inner=declarator {
+						$declarator = new PointerDeclarator($inner.declarator, PointerStyle.parsePointerStyle($pt.text));
+					} 
+				)
+			)
+			(
+				':' bits=DECIMAL_NUMBER {
+					if ($declarator != null)
+						$declarator.setBits(Integer.parseInt($bits.text));
+				}
+			)?
+			(
+				'=' 
+				dv=topLevelExpr {
+					if ($declarator != null)
+						$declarator.setDefaultValue($dv.expr);
+				}
+			)?
+			)
+			|
+			(
+				':' bits=DECIMAL_NUMBER {
+					$declarator = mark(new DirectDeclarator(null), getLine($bits));
+					$declarator.setBits(Integer.parseInt($bits.text));
+				}
 			)
 		)
-		(
-			':' bits=DECIMAL_NUMBER {
-				if ($declarator != null)
-					$declarator.setBits(Integer.parseInt($bits.text));
-			}
-		)?
-		(
-			'=' 
-			dv=topLevelExpr {
-				if ($declarator != null)
-					$declarator.setDefaultValue($dv.expr);
-			}
-		)?
 		{
 			if ($declarator != null)
 				$declarator.setModifiers($modifiers.modifiers);
@@ -1673,14 +1692,29 @@ scope Symbols;
 		(
 			statement {
 				$stat.addStatement($statement.stat);
-			}
+			} |
+			lineDirective
 		)* 
 		'}' 
 	;
+	
+gccAsmInOut
+	:
+		STRING '(' IDENTIFIER ')'
+	;
+gccAsmInOuts
+	:
+		gccAsmInOut ( ',' gccAsmInOut )*
+	;
+	
 statement	returns [Statement stat]
 	:
 		b=statementsBlock { $stat = $b.stat; } |
 		declaration | // TODO
+		// see http://ibiblio.org/gferg/ldp/GCC-Inline-Assembly-HOWTO.html
+		{ next("__asm__") }? IDENTIFIER '('
+			STRING* ( ':' gccAsmInOuts )*
+		')' ';' ? |
 		es=expression ';' { $stat = new ExpressionStatement($es.expr); } |
 		rt='return' rex=expression? ';' { 
 			$stat = mark(new Return($rex.expr), getLine($rt));
@@ -1699,7 +1733,8 @@ statement	returns [Statement stat]
 		'switch' '(' expression ')' '{' // TODO
 			(	
 				'case' topLevelExpr ':' |
-				statement
+				statement |
+				lineDirective
 			)*
 		'}' |
 		';' |

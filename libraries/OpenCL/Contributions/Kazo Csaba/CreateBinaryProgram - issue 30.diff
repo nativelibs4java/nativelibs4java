@@ -1,0 +1,82 @@
+Index: OpenCL/Core/src/main/java/com/nativelibs4java/opencl/CLContext.java
+===================================================================
+--- OpenCL/Core/src/main/java/com/nativelibs4java/opencl/CLContext.java	(revision 993)
++++ OpenCL/Core/src/main/java/com/nativelibs4java/opencl/CLContext.java	(working copy)
+@@ -64,6 +64,7 @@
+ import com.sun.jna.Platform;
+ import com.sun.jna.Pointer;
+ import com.sun.jna.ptr.IntByReference;
++import java.util.Map;
+ 
+ /**
+  * OpenCL context.<br/>
+@@ -189,6 +190,10 @@
+         return program;
+     }
+ 
++	public CLProgram createProgram(Map<CLDevice, byte[]> binaries) {
++		return new CLProgram(this, binaries);
++	}
++
+ 	//cl_queue queue;
+ 	@Override
+ 	protected void clear() {
+Index: OpenCL/Core/src/main/java/com/nativelibs4java/opencl/CLProgram.java
+===================================================================
+--- OpenCL/Core/src/main/java/com/nativelibs4java/opencl/CLProgram.java	(revision 993)
++++ OpenCL/Core/src/main/java/com/nativelibs4java/opencl/CLProgram.java	(working copy)
+@@ -47,6 +47,7 @@
+ import com.sun.jna.Native;
+ import com.sun.jna.Pointer;
+ import com.sun.jna.ptr.IntByReference;
++import com.sun.jna.ptr.PointerByReference;
+ 
+ /**
+  * OpenCL program.<br/>
+@@ -83,7 +84,30 @@
+         this.context = context;
+         this.devices = devices == null || devices.length == 0 ? context.getDevices() : devices;
+     }
++	CLProgram(CLContext context, Map<CLDevice, byte[]> binaries) {
++		super(null, true);
++		this.context = context;
++		this.devices = binaries.keySet().toArray(new CLDevice[binaries.size()]);
+ 
++        NativeSize[] lengths = new NativeSize[devices.length];
++		cl_device_id[] deviceIds = new cl_device_id[devices.length];
++		String[] binptr=new String[devices.length];
++        for (int i = 0; i < devices.length; i++) {
++			final byte[] binary = binaries.get(devices[i]);
++            lengths[i] = toNS(binary.length);
++			deviceIds[i] = devices[i].getEntity();
++			binptr[i]=new String(binary);
++        }
++		
++        IntBuffer errBuff = NIOUtils.directInts(1, ByteOrder.nativeOrder());
++        cl_program program;
++		int previousAttempts = 0;
++		do {
++			program = CL.clCreateProgramWithBinary(context.getEntity(), devices.length, deviceIds, lengths, binptr, null, errBuff);
++		} while (failedForLackOfMemory(errBuff.get(0), previousAttempts++));
++        entity = program;
++	}
++
+ 	List<String> sources = new ArrayList<String>();
+     Map<CLDevice, cl_program> programByDevice = new HashMap<CLDevice, cl_program>();
+ 
+Index: OpenCL/OpenCL4Java/src/main/java/com/nativelibs4java/opencl/library/OpenCLLibrary.java
+===================================================================
+--- OpenCL/OpenCL4Java/src/main/java/com/nativelibs4java/opencl/library/OpenCLLibrary.java	(revision 993)
++++ OpenCL/OpenCL4Java/src/main/java/com/nativelibs4java/opencl/library/OpenCLLibrary.java	(working copy)
+@@ -595,6 +595,11 @@
+ 	 * Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code><br>
+ 	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateProgramWithBinary.html">Khronos Documentation for clCreateProgramWithBinary</a>
+ 	 */
++	OpenCLLibrary.cl_program clCreateProgramWithBinary(OpenCLLibrary.cl_context cl_context1, int cl_uint1, OpenCLLibrary.cl_device_id cl_device_idPtr1[], NativeSize size_tPtr1[], String[] charPtrPtr1, IntBuffer cl_intPtr1, IntBuffer cl_intPtr2);
++	/**
++	 * Original signature : <code>cl_program clCreateProgramWithBinary(cl_context, cl_uint, const cl_device_id*, const size_t*, const unsigned char**, cl_int*, cl_int*)</code><br>
++	 * @see <a href="http://www.khronos.org/opencl/sdk/1.0/docs/man/xhtml/clCreateProgramWithBinary.html">Khronos Documentation for clCreateProgramWithBinary</a>
++	 */
+ 	OpenCLLibrary.cl_program clCreateProgramWithBinary(OpenCLLibrary.cl_context cl_context1, int cl_uint1, OpenCLLibrary.cl_device_id cl_device_idPtr1[], NativeSizeByReference size_tPtr1, PointerByReference charPtrPtr1, IntByReference cl_intPtr1, IntByReference cl_intPtr2);
+ 	/**
+ 	 * Original signature : <code>cl_int clRetainProgram(cl_program)</code><br>

@@ -43,7 +43,7 @@ UNITS += HandlersCommon
 UNITS += CallbackHandler
 UNITS += CppHandler
 UNITS += FunctionHandler
-UNITS += StructHandler
+#UNITS += StructHandler
 UNITS += CallbackHandler
 UNITS += ThreadLocal
 ifdef BUILD_OS_darwin
@@ -54,9 +54,12 @@ UNITS += RawNativeForwardCallback
 UNITS += RawNativeForwardCallback_arch
 #endif
 
+CPPFLAGS += -std=c99
+
 ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
-LDFLAGS		+= -ldl -lobjc
+CPPFLAGS += -O3
+LDFLAGS		+= -ldl -lobjc -all_load
 endif
 
 LDFLAGS		+= -lpthread
@@ -65,6 +68,12 @@ ifdef BUILD_OS_linux
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux
 #LDFLAGS		+= -ljni
+endif
+
+ifdef BUILD_OS_darwin
+CPPFLAGS += -O3
+else
+CPPFLAGS += -O2
 endif
 
 #LINK_LIBS	+= stdc++

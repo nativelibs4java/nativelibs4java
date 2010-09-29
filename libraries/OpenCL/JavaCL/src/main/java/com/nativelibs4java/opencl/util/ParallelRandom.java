@@ -221,7 +221,7 @@ public class ParallelRandom {
     }
 
     private void initSeeds(final Pointer<Integer> seedsBuf, final long seed) throws InterruptedException {
-        final long nSeeds = seedsBuf.getRemainingElements();
+        final long nSeeds = seedsBuf.getValidElements();
 
         long start = System.nanoTime();
 

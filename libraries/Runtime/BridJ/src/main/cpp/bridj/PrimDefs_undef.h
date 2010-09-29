@@ -50,6 +50,10 @@
 	#undef REORDER_VALUE_BYTES
 #endif
 
+#ifdef TEMP_REORDER_VAR_TYPE
+	#undef TEMP_REORDER_VAR_TYPE
+#endif
+
 #ifndef __GNUC__
 #ifndef BIG_ENDIAN
 #define BIG_ENDIAN
@@ -84,3 +88,4 @@
 				 ((unsigned char*)JLONG_TO_PTR(peer))[idx0] \
 	)
 #endif
+
