@@ -110,4 +110,33 @@ class IntRangeForeach2WhileTest extends TestUtils {
       """
     )
   }
+  
+  @Test
+  def testNestedLoopWithExtRefs {
+    ensurePluginCompilesSnippetsToSameByteCode(
+      """ var t = 0
+          def f(x: Int) = x + 1
+          def g(x: Int) = x - 1
+          for (i <- 0 to 100 by 5; j <- 0 until 1000)
+            t += 2 * (f(i) + g(j))
+      """,
+      """ var t = 0
+          def f(x: Int) = x + 1
+          var i = 0
+          val n = 100
+          while (i <= n)
+          {
+              def g(x: Int) = x - 1
+              var j = 0
+              val m = 1000
+              while (j < m)
+              {
+                t += 2 * (f(i) + g(j))
+                j += 1
+              }
+              i += 5
+          }
+      """
+    )
+  }
 }
