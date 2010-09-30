@@ -174,7 +174,7 @@ extends PluginComponent
                     List(
                       {
                         val r = replace(paramName.toString, body, intSymIdent(iSym, iVar), unit)
-                        println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
+                        //println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
                         localTyper.typed { r }
                       }
                     ),

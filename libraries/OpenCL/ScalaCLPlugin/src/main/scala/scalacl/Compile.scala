@@ -19,10 +19,14 @@ object Compile {
   def main(args: Array[String]) {
     compilerMain(args, true)
   }
-  def compilerMain(args: Array[String], enablePlugins: Boolean) = {
+  lazy val copyrightMessage: Unit = {
     println("""ScalaCL Compiler Plugin
 Copyright Olivier Chafik 2010""")
-      
+  }
+  
+  def compilerMain(args: Array[String], enablePlugins: Boolean) = {
+    copyrightMessage
+    
     val settings = new Settings
 
     val scalaLib = "/Users/ochafik/bin/scala-2.8.0.final/lib/"
