@@ -21,7 +21,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
     "This plugin transforms some Scala functions into OpenCL kernels (for CLCol[T].map and filter's arguments), so they can run on a GPU.\n" +
   "It will also soon feature autovectorization of ScalaCL programs, detecting parallelizable loops and unnecessary collection creations."
 
-  val runsAfter = List[String]("refchecks")
+  val runsAfter = List[String]("namer")//refchecks")
   override val components = ScalaCLPlugin.components(global)
 }
 
@@ -46,7 +46,7 @@ extends PluginComponent
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed, atOwner}    // methods to type trees
 
-  override val runsAfter = List[String]("refchecks")
+  override val runsAfter = List[String]("namer")//refchecks")
   override val phaseName = "scalaclfunctionstransform"
 
   class Ids(start: Long = 1) {
@@ -61,10 +61,41 @@ extends PluginComponent
   def nodeToStringNoComment(tree: Tree) =
     nodeToString(tree).replaceAll("\\s*//.*\n", "\n").replaceAll("\\s*\n\\s*", " ").replaceAll("\\(\\s+", "(").replaceAll("\\s+\\)", "")
 
-  def fixOwner(tree: Tree, unit: CompilationUnit) = new TypingTransformer(unit) {
-    override def transform(tree: Tree): Tree =
-      typed { atOwner(currentOwner) { super.transform(tree) } }
-  }.transform(tree)
+  
+  def clearTypes(tree: Tree, unit: CompilationUnit) =
+    new TypingTransformer(unit) {
+      override def transform(tree: Tree): Tree = {
+        val d = super.transform(tree)
+        d.tpe = NoType
+        d
+      }
+    }.transform(tree)
+    
+  def fixOwner(tree: Tree, unit: CompilationUnit) =
+    new TypingTransformer(unit) {
+      override def transform(tree: Tree): Tree = {
+        if (//t.symbol == NoSymbol &&
+            currentOwner != NoSymbol && currentOwner != NoType)
+          try {
+            tree.symbol = currentOwner
+          } catch { case _ => }
+          /*
+        if (t.pos == null) {
+          t.pos = if (currentOwner.pos != null)
+            currentOwner.pos
+          else
+            tree.pos
+        }*/
+          val t = super.transform(tree)
+        try {
+          typed { t }
+        } catch {
+          case ex =>
+            //ex.printStackTrace
+            t
+        }
+      }
+    }.transform(tree)//clearTypes(tree, unit))
 
   val eqName = N("$eq")
   def replace(varName: String, tree: Tree, by: => Tree, unit: CompilationUnit) = new TypingTransformer(unit) {
@@ -74,6 +105,8 @@ extends PluginComponent
         //by.tpe = tree.tpe
         //by.symbol = tree.symbol
         //by.pos = tree.pos
+        //atOwner(currentOwner) { by }
+        //treeCopy.Ident(tree, by)
         //atOwner(currentOwner) { by }
         by
       /*
@@ -91,7 +124,7 @@ extends PluginComponent
           Apply(Ident(varEq), List(transV))//super.transform(tree)
       */
       case _ =>
-        //println("Unknown expr: " + nodeToStringNoComment(tree))
+        //atOwner(currentOwner) { super.transform(tree) }
         super.transform(tree)
     }
   }.transform(tree)
@@ -104,91 +137,150 @@ extends PluginComponent
     val labelIds = new Ids
     val whileIds = new Ids
 
-    def binOp(a: Tree, op: Symbol, b: Tree) = Apply(Select(a, op), List(b))
-    def binOp(a: Tree, op: String, b: Tree) = Apply(Select(a, N(NameTransformer.encode(op))), List(b))
-    def incrementIntVar(n: Name) = Assign(Ident(n), binOp(Ident(n), "+", Literal(Constant(1))))
-    def intValOrVar(mod: Int, n: Name, initValue: Tree) = localTyper.typed { ValDef(Modifiers(mod), n, TypeTree(IntClass.tpe), initValue) }
-    def intVar(n: Name, initValue: Tree) = intValOrVar(MUTABLE, n, initValue)
-    def intVal(n: Name, initValue: Tree) = intValOrVar(0, n, initValue)
-    def whileLoop(cond: Tree, body: Tree) = {
-      val lab = "while$" + whileIds.next
-      LabelDef(
-          N(lab),
-          Nil,
-          If(
-            cond,
-            Block(
-              if (body == null)
-                Nil
-              else
-                List(body),
-              Apply(Ident(lab), Nil)
-            ),
-            Literal(Constant())
-          )
-        )
+    def binOp(a: Tree, op: Symbol, b: Tree) = typed { 
+      Apply(Select(a, op), List(b))
+    }
+    //def binOp(a: Tree, op: String, b: Tree) = Apply(Select(a, N(NameTransformer.encode(op))), List(b))
+    //def incrementIntVar(n: Name) = Assign(Ident(n), binOp(Ident(n), "+", Literal(Constant(1))))
+    def intIdent(n: Name) = {
+      val i = Ident(n)
+      i.tpe = IntClass.tpe
+      i
+    }
+    def intSymIdent(sym: Symbol, n: Name) = {
+      val v = intIdent(n)
+      v.symbol = sym
+      v
     }
 
-    /*
-     * if (false) {
-        println("case " + nodeToStringNoComment(tree) + " => ")
-        val lines = tree.toString
-        if (lines.contains("\n"))
-          println("\t/*\n\t\t" + tree.toString.replaceAll("\n", "\n\t\t") + "\n\t*/")
-        else
-          println("\t// " + lines)
+    def incrementIntVar(sym: Symbol, n: Name) = //localTyper.typed {
+      withType(UnitClass.tpe) {
+        Assign(
+          intSymIdent(sym, n),
+          //typed {
+            binOp(
+              intSymIdent(sym, n),
+              IntClass.tpe.member(nme.PLUS),
+              Literal(Constant(1))
+            )
+          //}
+        )
       }
+    //}
+    def intValOrVar(mod: Int, n: Name, initValue: Tree) = {
+      val d = ValDef(Modifiers(mod), n, TypeTree(IntClass.tpe), initValue)
+      d.symbol = currentOwner
+      d.tpe = IntClass.tpe
+      d
+    }
+    def withType[V <: Tree](tpe: Type)(t: V) = {
+      t.tpe = tpe
+      t
+    }
+    def withSymbol[V <: Tree](sym: Symbol)(t: V) = {
+      t.symbol = sym
+      if (t.tpe == null || t.tpe == NoType)
+        t.tpe = sym.info
+      t
+    }
+    def intVar(n: Name, initValue: Tree) = intValOrVar(MUTABLE, n, initValue)
+    def intVal(n: Name, initValue: Tree) = intValOrVar(0, n, initValue)
+    def whileLoop(sym: Symbol, cond: Tree, body: Tree) = {
+      val lab = "while$" + whileIds.next
+      val labTyp = MethodType(Nil, UnitClass.tpe)
+      val labSym = currentOwner.newLabel(sym.pos, N(lab)) setInfo labTyp
       
-     */
-    override def transform(tree: Tree): Tree = fixOwner(tree match {
-      /*case ClassDef(mods, name, tparams, template) =>
-        currentClassName = name
-        tree*/
-      case IntRangeForeach(from, to, by, isUntil, Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body)) =>
+      //localTyper.typed {
+      //withType(UnitClass.tpe) {
+        withSymbol(labSym) {
+          LabelDef(
+            N(lab),
+            Nil,
+            withType(UnitClass.tpe) {
+              If(
+                cond,
+                withType(UnitClass.tpe) {
+                  Block(
+                    if (body == null)
+                      Nil
+                    else
+                      List(body),
+                    withType(UnitClass.tpe) {
+                      Apply(
+                        withSymbol(labSym) { Ident(lab) },
+                        Nil
+                      )
+                    }
+                  )
+                },
+                typed { Literal(Constant()) }
+              )
+            }
+          )
+        }
+      //}
+    }
+    override def transform(tree: Tree): Tree = //fixOwner(
+      tree match {
+      case IntRangeForeach(from, to, by, isUntil, f @ Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body)) =>
         val id = labelIds.next
         val iVar = N("iVar$" + id)
         val nVal = N("nVal$" + id)
-        val iDef = intVar(iVar, from)
-        val nDef = intVal(nVal, to)
-        def iIdent = {
-          val id = Ident(iVar)
-          id.tpe = IntClass.tpe
-          id
-        }
-        def nIdent = {
-          val id = Ident(nVal)
-          id.tpe = IntClass.tpe
-          id
-        }
+        val iSym = currentOwner.newVariable(tree.pos, iVar) setInfo IntClass.tpe
+        val nSym = currentOwner.newValue(tree.pos, nVal) setInfo IntClass.tpe
 
-        val trans = //super.transform(
-          Block(
-            List(
-              iDef,
-              nDef
-            ),
-            whileLoop(
-              binOp(iIdent, if (isUntil) IntClass.tpe.member(nme.LT) else IntClass.tpe.member(nme.LE), nIdent),
-              Block(
-                List(
-                  {
-                    val r = replace(paramName.toString, body, iIdent, unit)
-                    println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
-                    r//localTyper.typed { r }
-                    /*atPhase(phase.next) {
-                      localTyper.typedPos(tree.pos) {
-                        r
+        val iDef = intVar(iVar, from)
+        iDef.symbol = iSym
+        val nDef = intVal(nVal, to)
+        nDef.symbol = nSym
+
+        var deletedFunctionSymbol = f.symbol
+        println("#\n# deletedFunctionSymbol = " + deletedFunctionSymbol + "\n#")
+        
+        val trans = super.transform(
+          withType(UnitClass.tpe) {
+            treeCopy.Block(
+              tree,
+              List(
+                iDef,
+                nDef
+              ),
+              whileLoop(
+                currentOwner,
+                //Literal(Constant(true)),
+                //localTyper.typed {
+                //withType(BooleanClass.tpe) {//localTyper.typed {
+                  binOp(
+                    intSymIdent(iSym, iVar),
+                    if (isUntil) IntClass.tpe.member(nme.LT) else IntClass.tpe.member(nme.LE),
+                    intSymIdent(nSym, nVal)
+                  )
+                //}
+                ,
+                //binOp(Ident(iVar), if (isUntil) "<" else "<=", Ident(nVar)),
+                withType(UnitClass.tpe) {
+                  Block(
+                    List(
+                      {
+                        //val r = replace(paramName.toString, body, iVar/*iIdent*/, unit)
+                        val r = replace(paramName.toString, body, intSymIdent(iSym, iVar), unit)
+                        println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
+                        localTyper.typed { r }
+                        /*atPhase(phase.next) {
+                          localTyper.typedPos(tree.pos) {
+                            r
+                          }
+                        }*/
                       }
-                    }*/
-                  }
-                ),
-                incrementIntVar(iVar)
+                    ),
+                    incrementIntVar(iSym, iVar)
+                  )
+                }
               )
             )
-          )
-        //}}}
-        //)
-        println("TRANS = " + trans)
+          }
+        )
+        //println("TRANS = " + trans)
         trans
       case
         Apply(
@@ -244,9 +336,6 @@ extends PluginComponent
             ),
             implicitArgs
           )
-        //val newArgs = List(singleArg)
-        //localTyper.typed { atPos(tree.pos) { atOwner(currentOwner) {
-        //super.transform(
           Apply(
             Apply(
               TypeApply(
@@ -260,8 +349,8 @@ extends PluginComponent
         //} } }
         //)
       case _ =>
-        tree//typed { atOwner(currentOwner) { super.transform(tree) } }
-    }, unit)
+        super.transform(tree)
+    }
 
     var placeHolderRefs = new Stack[String]
 

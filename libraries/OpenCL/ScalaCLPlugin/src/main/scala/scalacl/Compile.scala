@@ -18,7 +18,9 @@ Copyright Olivier Chafik 2010""")
     val scalaLib = "/Users/ochafik/bin/scala-2.8.0.final/lib/"
     val extraArgs = List(
       "-bootclasspath", scalaLib + "scala-library.jar:" + scalaLib + "scala-compiler.jar",
-      "-classpath", 
+      //"-Ybrowse:scalaclfunctionstransform",
+      //"-uniqid",
+      "-classpath",
       Seq(
         //"/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/classes",
         //"/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/scala_2.8.0/classes"
