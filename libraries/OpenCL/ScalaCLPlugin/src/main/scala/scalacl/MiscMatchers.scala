@@ -6,6 +6,15 @@ trait MiscMatchers {
   val global: Trees with Names with Types with Constants
   import global._
 
+  class Ids(start: Long = 1) {
+    private var nx = start
+    def next = this.synchronized {
+      val v = nx
+      nx += 1
+      v
+    }
+  }
+  
   class N(val s: String) {
     def unapply(n: Name): Boolean = n.toString == s
   }

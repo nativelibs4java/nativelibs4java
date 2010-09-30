@@ -44,6 +44,9 @@ Copyright Olivier Chafik 2010""")
           super.computeInternalPhases
           for (phase <- ScalaCLPlugin.components(this))
             phasesSet += phase
+
+          for (phase <- NaiveOptimizerPlugin.components(this))
+            phasesSet += phase
         }
       }
       val runner = new ScalaCLPluginRunner(settings, new ConsoleReporter(settings))
