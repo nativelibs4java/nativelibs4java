@@ -20,12 +20,12 @@ class NaiveOptimizerPlugin(val global: Global) extends Plugin {
   override val description =
     "This plugin transforms foreach loops on integer ranges into equivalent while loops, which execute much faster."
 
-  val runsAfter = List[String]("namer")//refchecks")
+  val runsAfter = RangeForeach2WhileTransformComponent.runsAfter
   override val components = NaiveOptimizerPlugin.components(global)
 }
 
 object NaiveOptimizerPlugin {
-  def components(global: Global) = List(new NaiveOptimizerTransformComponent(global))
+  def components(global: Global) = List(new RangeForeach2WhileTransformComponent(global))
 }
 
 import scala.reflect.NameTransformer
@@ -33,7 +33,11 @@ import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.{Transform, TypingTransformers}
 
-class NaiveOptimizerTransformComponent(val global: Global)
+object RangeForeach2WhileTransformComponent {
+  val runsAfter = List[String]("namer")
+  val phaseName = "rangeforeach2whiletransform"
+}
+class RangeForeach2WhileTransformComponent(val global: Global)
 extends PluginComponent
    with Transform
    with TypingTransformers
@@ -45,8 +49,8 @@ extends PluginComponent
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed, atOwner}    // methods to type trees
 
-  override val runsAfter = List[String]("namer")//refchecks")
-  override val phaseName = "naiveoptimizertransform"
+  override val runsAfter = RangeForeach2WhileTransformComponent.runsAfter
+  override val phaseName = RangeForeach2WhileTransformComponent.phaseName
 
   def replace(varName: String, tree: Tree, by: => Tree, unit: CompilationUnit) = new TypingTransformer(unit) {
     val n = N(varName)

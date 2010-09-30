@@ -26,7 +26,10 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 }
 
 object ScalaCLPlugin {
-  def components(global: Global) = List(new ScalaCLFunctionsTransformComponent(global))
+  def components(global: Global) = List(
+    new ScalaCLFunctionsTransformComponent(global),
+    new RangeForeach2WhileTransformComponent(global)
+  )
 }
 
 import scala.reflect.NameTransformer
@@ -34,6 +37,10 @@ import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.{Transform, TypingTransformers}
 
+object ScalaCLFunctionsTransformComponent {
+  val runsAfter = List[String]("namer", RangeForeach2WhileTransformComponent.phaseName)
+  val phaseName = "scalaclfunctionstransform"
+}
 class ScalaCLFunctionsTransformComponent(val global: Global)
 extends PluginComponent
    with Transform
@@ -47,8 +54,8 @@ extends PluginComponent
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed, atOwner}    // methods to type trees
 
-  override val runsAfter = List[String]("namer")//refchecks")
-  override val phaseName = "scalaclfunctionstransform"
+  override val runsAfter = ScalaCLFunctionsTransformComponent.runsAfter
+  override val phaseName = ScalaCLFunctionsTransformComponent.phaseName
 
   def nodeToStringNoComment(tree: Tree) =
     nodeToString(tree).replaceAll("\\s*//.*\n", "\n").replaceAll("\\s*\n\\s*", " ").replaceAll("\\(\\s+", "(").replaceAll("\\s+\\)", "")
