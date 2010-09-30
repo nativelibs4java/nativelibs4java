@@ -29,19 +29,28 @@ Copyright Olivier Chafik 2010""")
     
     val settings = new Settings
 
-    val scalaLib = "/Users/ochafik/bin/scala-2.8.0.final/lib/"
+    //val scalaHome = new File(System.getenv("SCALA_HOME"))
+    //if (!scalaHome.exists)
+    //    error("SCALA_HOME environment variable is not defined !")
+        
+    //val scalaLib = new File(scalaHome, "lib").getAbsolutePath//"/Users/ochafik/bin/scala-2.8.0.final/lib/"
     val extraArgs = List(
-      "-bootclasspath", scalaLib + "scala-library.jar:" + scalaLib + "scala-compiler.jar",
-      //"-Ybrowse:scalaclfunctionstransform",
-      //"-uniqid",
-      //"-Ydebug"
-      "-classpath",
-      Seq(
-        //"/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/classes",
-        //"/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/scala_2.8.0/classes"
-        "/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar"
-      ).mkString(File.pathSeparator)
+      "-optimise",
+      "-bootclasspath", System.getProperty("java.class.path",".")
     )
+      //List(new File(scalaLib, "scala-library.jar"), new File(scalaLib, "scala-compiler.jar")).map(_.getAbsolutePath).mkString(File.pathSeparator))
+      /*++
+      List(
+        "-Ybrowse:scalaclfunctionstransform",
+        "-uniqid",
+        "-Ydebug",
+        "-classpath",
+        Seq(
+          //"/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/classes",
+          //"/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/scala_2.8.0/classes"
+          "/Users/ochafik/nativelibs4javaBridJed/OpenCL/ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar"
+        ).mkString(File.pathSeparator)
+      )*/
     //settings.debug.value = true
 
     val command = new CompilerCommand((args ++ extraArgs).toList, settings) {
@@ -52,9 +61,6 @@ Copyright Olivier Chafik 2010""")
       //settings.debug.value = false
 
       class ScalaCLPluginRunner(settings: Settings, reporter: Reporter) extends Global(settings, reporter) {
-        /*import scalacl.ScalaCLAnnotationChecker
-        val annotChecker = new ScalaCLAnnotationChecker { val global: ScalaCLPluginRunner.this.type = ScalaCLPluginRunner.this }
-        addAnnotationChecker(annotChecker.checker)*/
         override protected def computeInternalPhases() {
           super.computeInternalPhases
           if (enablePlugins)

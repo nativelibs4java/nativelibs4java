@@ -9,6 +9,10 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
+  <properties>
+  	<!--<scala.version>2.9.0-SNAPSHOT</scala.version>-->
+  </properties>
+  
 	  <description>
 ScalaCL provides data structures that leverage the OpenCL library to execute operations on GPUs.
 This plugin transforms some Scala functions into OpenCL kernels so they can effectively execute in the OpenCL land instead of in the JVM.
