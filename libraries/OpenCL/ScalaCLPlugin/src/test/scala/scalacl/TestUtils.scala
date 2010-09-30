@@ -36,7 +36,7 @@ trait TestUtils {
     */
     byteCode
   }
-  def ensureSourceIsTransformedToExpectedByteCode(source: String, reference: String)(implicit outDir: File) = {
+  def ensurePluginCompilesSnippetsToSameByteCode(source: String, reference: String)(implicit outDir: File) = {
     val expected = getSnippetBytecode(reference, false)
     val withoutPlugin = getSnippetBytecode(source, false)
     val withPlugin = getSnippetBytecode(source, true)

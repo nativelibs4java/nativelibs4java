@@ -11,7 +11,7 @@ class IntRangeForeach2WhileTest extends TestUtils {
     
   @Test
   def simpleToLoop {
-    ensureSourceIsTransformedToExpectedByteCode(
+    ensurePluginCompilesSnippetsToSameByteCode(
       """ var t = 0
           for (i <- 0 to 100)
             t += 2 * i
@@ -31,20 +31,19 @@ class IntRangeForeach2WhileTest extends TestUtils {
 
   @Test
   def simpleUntilLoop {
-    ensureSourceIsTransformedToExpectedByteCode(
+    ensurePluginCompilesSnippetsToSameByteCode(
       """ var t = 0
           for (i <- 0 until 100)
             t += 2 * i
       """,
-      """
-        var t = 0
-        var i = 0
-        val n = 100
-        while (i < n)
-        {
-          t += 2 * i
-          i += 1
-        }
+      """ var t = 0
+          var i = 0
+          val n = 100
+          while (i < n)
+          {
+            t += 2 * i
+            i += 1
+          }
       """
     )
   }
@@ -52,70 +51,62 @@ class IntRangeForeach2WhileTest extends TestUtils {
 
   @Test
   def simpleToByLoop {
-    ensureSourceIsTransformedToExpectedByteCode(
-      """
-        var t = 0
-        for (j <- 50 to 200 by 3)
-          t += j / 2
+    ensurePluginCompilesSnippetsToSameByteCode(
+      """ var t = 0
+          for (j <- 50 to 200 by 3)
+            t += j / 2
       """,
-      """
-        var t = 0
-        var j = 50
-        val m = 200
-        while (j <= m)
-        {
-          t += j / 2
-          j += 3
-        }
+      """ var t = 0
+          var j = 50
+          val m = 200
+          while (j <= m)
+          {
+            t += j / 2
+            j += 3
+          }
       """
     )
   }
 
-
-
   @Test
   def simpleUntilByLoop {
-    ensureSourceIsTransformedToExpectedByteCode(
-      """
-        var t = 0
-        for (j <- 50 until 200 by 3)
-          t += j / 2
+    ensurePluginCompilesSnippetsToSameByteCode(
+      """ var t = 0
+          for (j <- 50 until 200 by 3)
+            t += j / 2
       """,
-      """
-        var t = 0
-        var j = 50
-        val m = 200
-        while (j < m)
-        {
-          t += j / 2
-          j += 3
-        }
+      """ var t = 0
+          var j = 50
+          val m = 200
+          while (j < m)
+          {
+            t += j / 2
+            j += 3
+          }
       """
     )
   }
   @Test
   def testNestedLoop {
-    ensureSourceIsTransformedToExpectedByteCode(
-      """
-        var t = 0
-        for (i <- 0 to 100; j <- 0 to 1000)
-          t += 2 * (i + j)
+    ensurePluginCompilesSnippetsToSameByteCode(
+      """ var t = 0
+          for (i <- 0 to 100 by 5; j <- 0 until 1000)
+            t += 2 * (i + j)
       """,
-      """
-        var t = 0
-        var i = 0
-        val n = 100
-        while (i <= n)
-        {
-            var j = 0
-            val m = 1000
-            while (j <= m)
-            {
-              t += 2 * (i + j)
-              j += 1
-            }
-            i += 1
-        }
+      """ var t = 0
+          var i = 0
+          val n = 100
+          while (i <= n)
+          {
+              var j = 0
+              val m = 1000
+              while (j < m)
+              {
+                t += 2 * (i + j)
+                j += 1
+              }
+              i += 5
+          }
       """
     )
   }
