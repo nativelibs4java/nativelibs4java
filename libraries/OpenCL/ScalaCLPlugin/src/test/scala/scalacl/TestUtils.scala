@@ -27,11 +27,13 @@ trait TestUtils {
     new File(outDir, className + ".class").delete
     Compile.compilerMain(Array("-d", outDir.getAbsolutePath, srcFile.getAbsolutePath), enablePlugin)
     val byteCodeSource = getClassByteCode(className, outDir.getAbsolutePath)
+    val byteCode = byteCodeSource.mkString//("\n")
+    /*
     println("COMPILED :")
     println("\t" + source.replaceAll("\n", "\n\t"))
     println("BYTECODE :")
-    val byteCode = byteCodeSource.mkString//("\n")
     println("\t" + byteCode.replaceAll("\n", "\n\t"))
+    */
     byteCode
   }
   def ensureSourceIsTransformedToExpectedByteCode(source: String, reference: String)(implicit outDir: File) = {
@@ -40,7 +42,16 @@ trait TestUtils {
     val withPlugin = getSnippetBytecode(source, true)
 
     assertTrue("Expected result already found without any plugin !!! (was the Scala compiler improved ?)", expected != withoutPlugin)
-    assertEquals(expected, withPlugin)
+    if (expected != withPlugin) {
+      def trans(tit: String, s: String) =
+        println(tit + " :\n\t" + s.replaceAll("\n", "\n\t"))
+
+      trans("EXPECTED", expected)
+      trans("FOUND", withPlugin)
+
+      assertEquals(expected, withPlugin)
+    }
+    
   }
   def getClassByteCode(className: String, classpath: String) = {
     val args = Array("-c", "-classpath", classpath, className)

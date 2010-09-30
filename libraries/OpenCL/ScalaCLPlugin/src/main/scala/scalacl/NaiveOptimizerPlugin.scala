@@ -79,14 +79,14 @@ extends PluginComponent
       v
     }
 
-    def incrementIntVar(sym: Symbol, n: Name) = 
+    def incrementIntVar(sym: Symbol, n: Name, value: Tree) =
       withType(UnitClass.tpe) {
         Assign(
           intSymIdent(sym, n),
           binOp(
             intSymIdent(sym, n),
             IntClass.tpe.member(nme.PLUS),
-            Literal(Constant(1))
+            value //Literal(Constant(1))
           )
         )
       }
@@ -178,7 +178,7 @@ extends PluginComponent
                         localTyper.typed { r }
                       }
                     ),
-                    incrementIntVar(iSym, iVar)
+                    incrementIntVar(iSym, iVar, by)
                   )
                 }
               )

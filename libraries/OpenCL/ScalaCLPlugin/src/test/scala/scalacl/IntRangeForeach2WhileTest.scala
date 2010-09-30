@@ -10,21 +10,85 @@ class IntRangeForeach2WhileTest extends TestUtils {
   outDir.mkdirs
     
   @Test
-  def testSimpleLoop {
+  def simpleToLoop {
     ensureSourceIsTransformedToExpectedByteCode(
+      """ var t = 0
+          for (i <- 0 to 100)
+            t += 2 * i
+      """,
+      """ var t = 0
+          var i = 0
+          val n = 100
+          while (i <= n)
+          {
+            t += 2 * i
+            i += 1
+          }
       """
-        var t = 0
-        for (i <- 0 to 100)
-          t += 2 * i
+    )
+  }
+
+
+  @Test
+  def simpleUntilLoop {
+    ensureSourceIsTransformedToExpectedByteCode(
+      """ var t = 0
+          for (i <- 0 until 100)
+            t += 2 * i
       """,
       """
         var t = 0
         var i = 0
         val n = 100
-        while (i <= n)
+        while (i < n)
         {
           t += 2 * i
           i += 1
+        }
+      """
+    )
+  }
+
+
+  @Test
+  def simpleToByLoop {
+    ensureSourceIsTransformedToExpectedByteCode(
+      """
+        var t = 0
+        for (j <- 50 to 200 by 3)
+          t += j / 2
+      """,
+      """
+        var t = 0
+        var j = 50
+        val m = 200
+        while (j <= m)
+        {
+          t += j / 2
+          j += 3
+        }
+      """
+    )
+  }
+
+
+
+  @Test
+  def simpleUntilByLoop {
+    ensureSourceIsTransformedToExpectedByteCode(
+      """
+        var t = 0
+        for (j <- 50 until 200 by 3)
+          t += j / 2
+      """,
+      """
+        var t = 0
+        var j = 50
+        val m = 200
+        while (j < m)
+        {
+          t += j / 2
+          j += 3
         }
       """
     )
