@@ -25,6 +25,14 @@ For more info, please visit http://code.google.com/p/scalacl
 
   <dependencies>
   
+  
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.7</version>
+			<scope>test</scope>
+		</dependency>
+		
   	<dependency>
 		<groupId>org.scala-lang</groupId>
 		<artifactId>scala-compiler</artifactId>
