@@ -15,7 +15,7 @@
   </parent>
 
   <modules>
-	<module>Common</module>
+	<!--<module>Common</module>-->
     <module>Generator</module>
     <module>OpenCL4Java</module>
     <module>Demos</module>
@@ -23,7 +23,7 @@
     <module>ScalaCL2</module>
     <module>ScalaCLPlugin</module>
     <module>Core</module>
-    <module>ScalaCL</module>
+    <!--<module>ScalaCL</module>-->
     <module>Blas</module>
     <module>Parent</module>
     <module>OpenGLDemos</module>
