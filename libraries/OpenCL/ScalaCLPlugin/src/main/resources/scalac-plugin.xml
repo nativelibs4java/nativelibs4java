@@ -1,4 +1,4 @@
 <plugin>
   <name>scalacl</name>
-  <classname>scalacl.Compile</classname>
+  <classname>scalacl.ScalaCLPlugin</classname>
 </plugin>

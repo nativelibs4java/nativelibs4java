@@ -73,9 +73,7 @@ trait MiscMatchers {
     def apply(from: Tree, to: Tree, by: Tree, isUntil: Boolean, functionReturnType: Tree, function: Tree) =
       Apply(TypeApply(Select(Apply(Select(Apply(Select(Select(This(scalaName), PredefName), intWrapperName), List(from)), if (isUntil) untilName else toName), List(to)), foreachName), List(functionReturnType)), List(function))
 
-	//char	*ecvt(double, int, int *__restrict, int *__restrict); /* LEGACY */
-    def unapply(tree: Tree): Option[(Tree, Tree, Tree, Boolean, Tree)] = tree match {
-      //case Apply(TypeApply(Select(Apply(Select(Apply(Select(Select(This(scalaName()), PredefName), intWrapperName()), List(from)), funToName), List(to)), foreachName()), List(fRetType)), List(function)) =>
+	def unapply(tree: Tree): Option[(Tree, Tree, Tree, Boolean, Tree)] = tree match {
       case Apply(TypeApply(Select(Apply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), byName()), List(by)), foreachName()), List(fRetType)), List(function)) =>
         funToName match {
           case toName() =>
