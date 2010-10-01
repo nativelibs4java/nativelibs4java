@@ -1,0 +1,17 @@
+#!/bin/bash
+
+mvn clean scala:compile || exit 1
+
+NAME="$1"
+OUT_FILE="$2"
+if [[ -z "$OUT_FILE" ]] ; then OUT_FILE=out.txt ; fi
+
+echo Think of deleting "$OUT_FILE" from time to time 
+
+LOOPS=50
+
+for (( c = 1; c <= $LOOPS; c++ )) ; do
+	echo Run $c / $LOOPS 
+	scala -cp target/classes Test $NAME >> "$OUT_FILE" ;
+done
+
