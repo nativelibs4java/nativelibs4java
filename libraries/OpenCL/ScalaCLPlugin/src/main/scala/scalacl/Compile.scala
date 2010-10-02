@@ -35,6 +35,7 @@ Copyright Olivier Chafik 2010""")
         
     //val scalaLib = new File(scalaHome, "lib").getAbsolutePath//"/Users/ochafik/bin/scala-2.8.0.final/lib/"
     val extraArgs = List(
+      //"-Ybrowse:scalaclfunctionstransform",
       "-optimise",
       "-bootclasspath", System.getProperty("java.class.path",".")
     )

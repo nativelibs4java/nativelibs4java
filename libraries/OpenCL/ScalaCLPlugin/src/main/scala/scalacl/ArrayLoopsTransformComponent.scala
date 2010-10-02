@@ -35,9 +35,11 @@ extends PluginComponent
 
     override def transform(tree: Tree): Tree = tree match {
       case Apply(TypeApply(Select(Apply(Select(predef, doubleArrayOpsName()), List(array)), foreachName()), List(functionReturnType)), List(Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body))) =>
+        //typed { array }
         val tpe = array.tpe
         val sym = tpe.typeSymbol
-        array.tpe = sym.tpe
+        array.tpe = appliedType(ArrayClass.tpe, List(DoubleClass.tpe))
+        //array.tpe = sym.tpe
         val symDir = tpe.typeSymbolDirect
         val args = tpe.typeParams
         println(tree)
@@ -78,7 +80,7 @@ extends PluginComponent
                                 N("apply")
                               ).setSymbol(getMember(array.symbol, "apply")),
                               List(iIdentGen())
-                            ).setSymbol(getMember(array.symbol, "apply"))//.setType(componentSymbol.tpe),
+                            )
                           },
                           unit
                         )
@@ -96,43 +98,6 @@ extends PluginComponent
           }
         } else
           tree
-      /*case IntRangeForeach(from, to, by, isUntil, f @ Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body)) =>
-        val (iIdentGen, iDef) = newIntVariable(unit, "i", currentOwner, tree.pos, true, from)
-        val (nIdentGen, nDef) = newIntVariable(unit, "n", currentOwner, tree.pos, false, to)
-        typed {
-          super.transform(
-            treeCopy.Block(
-              tree,
-              List(
-                iDef,
-                nDef
-              ),
-              whileLoop(
-                currentOwner,
-                unit,
-                tree,
-                binOp(
-                  iIdentGen(),
-                  if (isUntil) IntClass.tpe.member(nme.LT) else IntClass.tpe.member(nme.LE),
-                  nIdentGen()
-                ),
-                Block(
-                  List(
-                    {
-                      val r = replace(paramName.toString, body, iIdentGen(), unit)
-                      unit.comment(tree.pos, "ScalaCL plugin transformed int range foreach loop into equivalent while loop.")
-                      println(tree.pos + ": transformed int range foreach loop into equivalent while loop.")
-                      //println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
-                      typed { r }
-                    }
-                  ),
-                  incrementIntVar(iIdentGen, by)
-                )
-              )
-            )
-          )
-        }
-       tree*/
       case _ =>
         super.transform(tree)
     }

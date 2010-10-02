@@ -30,8 +30,8 @@ extends MiscMatchers
       case Ident(n()) =>
         by
       case _ =>
-        if (tree.symbol.ownerChain.exists(_.isMethod))
-          println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)
+        //if (tree.symbol != null && tree.symbol.ownerChain.exists(_.isMethod))
+        //  println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)
         super.transform(tree)
     }
   }.transform(tree)
