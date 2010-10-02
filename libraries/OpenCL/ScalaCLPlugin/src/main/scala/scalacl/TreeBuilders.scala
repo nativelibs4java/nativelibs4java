@@ -30,6 +30,8 @@ extends MiscMatchers
       case Ident(n()) =>
         by
       case _ =>
+        if (tree.symbol.ownerChain.exists(_.isMethod))
+          println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)
         super.transform(tree)
     }
   }.transform(tree)
@@ -57,17 +59,11 @@ extends MiscMatchers
       )
     ).setType(UnitClass.tpe)
 
-  def intValOrVar(owner: Symbol, mod: Int, n: Name, initValue: Tree) = {
-    val d = ValDef(Modifiers(mod), n, TypeTree(IntClass.tpe), initValue)
-    d.symbol = owner
-    d.tpe = IntClass.tpe
-    d
-  }
 
-  def intVar(owner: Symbol, n: Name, initValue: Tree) = intValOrVar(owner, MUTABLE, n, initValue)
-  def intVal(owner: Symbol, n: Name, initValue: Tree) = intValOrVar(owner, 0, n, initValue)
+  //def intVar(owner: Symbol, n: Name, initValue: Tree) = intValOrVar(owner, MUTABLE, n, initValue)
+  //def intVal(owner: Symbol, n: Name, initValue: Tree) = intValOrVar(owner, 0, n, initValue)
   def whileLoop(owner: Symbol, unit: CompilationUnit, tree: Tree, cond: Tree, body: Tree) = {
-    val lab = unit.fresh.newName(body.pos, "while")
+    val lab = unit.fresh.newName(body.pos, "while$")
     val labTyp = MethodType(Nil, UnitClass.tpe)
     val labSym = owner.newLabel(tree.pos, N(lab)) setInfo labTyp
 
@@ -87,12 +83,12 @@ extends MiscMatchers
               Nil
             )
           ),
-          Literal(Constant())
+          Literal(Constant()).setType(UnitClass.tpe)
         )
       ).setSymbol(labSym)
     }
   }
-  def newIntVariable(unit: CompilationUnit, prefix: String, symbolOwner: Symbol, pos: Position, mutable: Boolean, initialValue: Tree = Literal(Constant(0))) = {
+  /*def newIntVariable(unit: CompilationUnit, prefix: String, symbolOwner: Symbol, pos: Position, mutable: Boolean), initialValue: Tree = Literal(Constant(0)).setType(IntClass.tpe)) = {
     val name = unit.fresh.newName(pos, prefix)
     val sym = symbolOwner.newVariable(pos, name) setInfo IntClass.tpe
     val definition = (
@@ -103,6 +99,13 @@ extends MiscMatchers
     ).setSymbol(sym)
     //(name, sym, definition)
     (() => ident(sym, name), definition)
+  }*/
+
+  def newVariable(unit: CompilationUnit, prefix: String, symbolOwner: Symbol, pos: Position, mutable: Boolean, initialValue: Tree) = {
+    val tpe = initialValue.tpe
+    val name = unit.fresh.newName(pos, prefix)
+    val sym = symbolOwner.newVariable(pos, name) setInfo tpe
+    (() => ident(sym, name), sym, ValDef(Modifiers(if (mutable) MUTABLE else 0), name, TypeTree(tpe), initialValue).setType(tpe).setSymbol(sym))
   }
 }
 
