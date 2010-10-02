@@ -36,7 +36,9 @@ trait MiscMatchers {
   val intArrayOpsName = N("intArrayOps")
   val longArrayOpsName = N("longArrayOps")
   val byteArrayOpsName = N("byteArrayOps")
-  // TODO 
+  val charArrayOpsName = N("charArrayOps")
+  val booleanArrayOpsName = N("booleanArrayOps")
+  // TODO
   val mapName = N("map")
   val filterName = N("filter")
   val updateName = N("update")

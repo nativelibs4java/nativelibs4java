@@ -34,11 +34,58 @@ extends PluginComponent
     var currentClassName: Name = null
 
     override def transform(tree: Tree): Tree = tree match {
-      case Apply(TypeApply(Select(Apply(Select(predef, doubleArrayOpsName()), List(array)), foreachName()), List(functionReturnType)), List(Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body))) =>
+      case Apply(
+          TypeApply(
+            Select(
+              Apply(
+                Select(
+                  predef,
+                  n @ (
+                    doubleArrayOpsName() |
+                    floatArrayOpsName() |
+                    intArrayOpsName() |
+                    shortArrayOpsName() |
+                    longArrayOpsName() |
+                    byteArrayOpsName() |
+                    charArrayOpsName() |
+                    booleanArrayOpsName()
+                  )
+                ),
+                List(array)
+              ),
+              foreachName()
+            ),
+            List(functionReturnType)
+          ),
+          List(
+            Function(
+              List(
+                ValDef(
+                  paramMods,
+                  paramName,
+                  t1: TypeTree,
+                  rhs
+                )
+              ),
+              body
+            )
+          )
+        ) =>
         //typed { array }
         val tpe = array.tpe
         val sym = tpe.typeSymbol
-        array.tpe = appliedType(ArrayClass.tpe, List(DoubleClass.tpe))
+        val componentType = n match {
+          case doubleArrayOpsName() => DoubleClass
+          case floatArrayOpsName() => FloatClass
+          case intArrayOpsName() => IntClass
+          case shortArrayOpsName() => ShortClass
+          case longArrayOpsName() => LongClass
+          case byteArrayOpsName() => ByteClass
+          case charArrayOpsName() => CharClass
+          case booleanArrayOpsName() => BooleanClass
+
+        }
+        array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
         //array.tpe = sym.tpe
         val symDir = tpe.typeSymbolDirect
         val args = tpe.typeParams
@@ -69,7 +116,6 @@ extends PluginComponent
                   Block(
                     List(
                       {
-                        val componentSymbol = DoubleClass
                         val r = replace(
                           paramName.toString,
                           body,
