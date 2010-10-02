@@ -87,10 +87,10 @@ extends PluginComponent
         }
         array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
         //array.tpe = sym.tpe
-        val symDir = tpe.typeSymbolDirect
-        val args = tpe.typeParams
-        println(tree)
-        println(nodeToString(tree))
+        //val symDir = tpe.typeSymbolDirect
+        //val args = tpe.typeParams
+        //println(tree)
+        //println(nodeToString(tree))
         if (sym.toString == "class Array") {
           val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, tree.pos, false, array)
           val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, Literal(Constant(0)).setType(IntClass.tpe))

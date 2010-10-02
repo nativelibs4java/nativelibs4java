@@ -16,20 +16,21 @@ class ArrayForeach2WhileTest extends TestUtils {
 
   @Test
   def simpleArrayForeach {
-    ensurePluginCompilesSnippetsToSameByteCode(
-      """ val a = new Array[Double](10)
-          a.foreach(println(_))
-      """,
-      """ val a = new Array[Double](10)
-          val aa = a
-          var i = 0
-          val n = aa.length
-          while (i < n)
-          {
-            println(a(i))
-            i += 1
-          }
-      """
-    )
+    for (t <- Array("Double", "Float", "Long", "Int", "Long", "Short", "Byte", "Char", "Boolean"))
+        ensurePluginCompilesSnippetsToSameByteCode(
+          """ val a = new Array[""" + t + """](10)
+              a.foreach(println(_))
+          """,
+          """ val a = new Array[""" + t + """](10)
+              val aa = a
+              var i = 0
+              val n = aa.length
+              while (i < n)
+              {
+                println(a(i))
+                i += 1
+              }
+          """
+        )
   }
 }
