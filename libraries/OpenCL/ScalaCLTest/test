@@ -1,17 +1,20 @@
 #!/bin/bash
 
-mvn clean scala:compile || exit 1
+OUT_FILE=out.txt
 
-NAME="$1"
-OUT_FILE="$2"
-if [[ -z "$OUT_FILE" ]] ; then OUT_FILE=out.txt ; fi
-
-echo Think of deleting "$OUT_FILE" from time to time 
+rm "$OUT_FILE"
 
 LOOPS=10
 
+DISABLE_SCALACL_PLUGIN=1 mvn clean scala:compile || exit 1
 for (( c = 1; c <= $LOOPS; c++ )) ; do
-	echo Run $c / $LOOPS 
-	scala -cp target/classes Test $NAME >> "$OUT_FILE" ;
+	echo "Run $c / $LOOPS without ScalaCL's optimizing plugin" 
+	scala -cp target/classes Test Normal >> "$OUT_FILE" ;
+done
+
+mvn clean scala:compile || exit 1
+for (( c = 1; c <= $LOOPS; c++ )) ; do
+	echo "Run $c / $LOOPS with ScalaCL's optimizing plugin" 
+	scala -cp target/classes Test Optimized >> "$OUT_FILE" ;
 done
 

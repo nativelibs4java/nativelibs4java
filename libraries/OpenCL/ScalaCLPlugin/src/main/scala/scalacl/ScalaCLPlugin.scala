@@ -22,7 +22,44 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
   "It will also soon feature autovectorization of ScalaCL programs, detecting parallelizable loops and unnecessary collection creations."
 
   val runsAfter = List[String]("namer")//refchecks")
-  override val components = ScalaCLPlugin.components(global)
+
+  lazy val explicitelyDisabled = "1".equals(System.getenv("DISABLE_SCALACL_PLUGIN")) || "true".equals(System.getProperty("scalacl.plugin.disable"))
+
+  var enabled = !explicitelyDisabled
+  var arrayLoopsEnabled = true
+  var intRangeForeachEnabled = true
+  override def processOptions(options: List[String], error: String => Unit) {
+    for (option <- options) {
+      option match {
+        case "disable" => enabled = false
+        case "enable" => enabled = true
+        case "arrayLoops:enable" => arrayLoopsEnabled = true
+        case "arrayLoops:disable" => arrayLoopsEnabled = false
+        case "intRangeForeach:enable" => intRangeForeachEnabled = true
+        case "intRangeForeach:disable" => intRangeForeachEnabled = false
+        case _ => error("Unknown option: " + option)
+      }
+    }
+  }
+  override val optionsHelp: Option[String] = Some(
+"""
+-P:scalacl:enable                   Enable ScalaCL's Compiler Plugin
+-P:scalacl:disable                  Disable ScalaCL's Compiler Plugin
+-P:scalacl:arrayLoops:enable        Enable transformation of Array[T].foreach and Array[T].map calls to while loops
+-P:scalacl:arrayLoops:disable     Disable transformation of Array[T].foreach and Array[T].map calls to while loops
+-P:scalacl:intRangeForeach:enable   Enable transformation of int range foreach loops (in the model of 'for (i <- a to/until b by c) body') to while loops
+-P:scalacl:intRangeForeach:disable  Disable transformation of int range foreach loops (in the model of 'for (i <- a to/until b by c) body') to while loops
+""".trim
+  )
+
+  override val components = if (enabled)
+    List(
+      new ScalaCLFunctionsTransformComponent(global),
+      if (intRangeForeachEnabled) new RangeForeach2WhileTransformComponent(global) else null,
+      if (arrayLoopsEnabled) new ArrayLoopsTransformComponent(global) else null
+    ).filter(_ != null)
+  else
+    Nil
 }
 
 object ScalaCLPlugin {
