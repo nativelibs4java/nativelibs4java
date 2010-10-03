@@ -1,10 +1,14 @@
 package scalacl
 
-import scala.reflect.generic.{Names, Trees, Types, Constants}
+import scala.reflect.AppliedType
+import scala.reflect.generic.{Names, Trees, Types, Constants, Symbols, StandardDefinitions, Universe}
+import scala.tools.nsc.Global
+import scala.tools.nsc.symtab.Definitions
 
 trait MiscMatchers {
-  val global: Trees with Names with Types with Constants
+  val global: Universe//Trees with Names with Types with Constants with Definitions with Symbols with StandardDefinitions
   import global._
+  import definitions._
 
   class Ids(start: Long = 1) {
     private var nx = start
@@ -24,6 +28,7 @@ trait MiscMatchers {
   implicit def N2Name(n: N) = newTermName(n.s)
   
   val scalaName = N("scala")
+  val ArrayName = N("Array")
   val PredefName = N("Predef")
   val intWrapperName = N("intWrapper")
   val toName = N("to")
@@ -41,6 +46,7 @@ trait MiscMatchers {
   val booleanArrayOpsName = N("booleanArrayOps")
   // TODO
   val mapName = N("map")
+  val canBuildFromName = N("canBuildFrom")
   val filterName = N("filter")
   val updateName = N("update")
   val toSizeTName = N("toSizeT")
@@ -99,6 +105,258 @@ trait MiscMatchers {
             Some((from, to, Literal(Constant(1)), false, function))
           case untilName() =>
             Some((from, to, Literal(Constant(1)), true, function))
+          case _ =>
+            None
+        }
+      case _ =>
+        None
+    }
+  }
+
+  object Predef {
+    def unapply(tree: Tree) = tree match {
+      case Select(This(scalaName()), PredefName()) => true
+      case _ => false
+    }
+  }
+  object ArrayForeach {
+    def apply(array: Tree, componentType: Symbol, paramName: Name, body: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[(Tree, Symbol, Name, Tree)] = tree match {
+      case Apply(
+          TypeApply(
+            Select(
+              Apply(
+                Select(
+                  Predef(),
+                  n @ (
+                    doubleArrayOpsName() |
+                    floatArrayOpsName() |
+                    intArrayOpsName() |
+                    shortArrayOpsName() |
+                    longArrayOpsName() |
+                    byteArrayOpsName() |
+                    charArrayOpsName() |
+                    booleanArrayOpsName()/* |
+                    refArrayOpsName()*/
+                  )
+                ),
+                List(array)
+              ),
+              foreachName()
+            ),
+            List(functionReturnType)
+          ),
+          List(
+            Function(
+              List(
+                ValDef(
+                  paramMods,
+                  paramName,
+                  t1: TypeTree,
+                  rhs
+                )
+              ),
+              body
+            )
+          )
+        ) =>
+        val tpe = array.tpe
+        val sym = tpe.typeSymbol
+        val componentType = //functionReturnType.symbol/*
+          n match {
+            case doubleArrayOpsName() => DoubleClass
+            case floatArrayOpsName() => FloatClass
+            case intArrayOpsName() => IntClass
+            case shortArrayOpsName() => ShortClass
+            case longArrayOpsName() => LongClass
+            case byteArrayOpsName() => ByteClass
+            case charArrayOpsName() => CharClass
+            case booleanArrayOpsName() => BooleanClass
+            //case refArrayOpsName() => functionReturnType.symbol
+          }
+        
+        val symStr = sym.toString
+        if (symStr == "class Array")// || symStr == "class ArrayOps")
+          Some((array, componentType, paramName, body))
+        else
+          None
+      case
+        Apply(
+          TypeApply(
+            Select(
+              Apply(
+                TypeApply(
+                  Select(
+                    Predef(),
+                    refArrayOpsName()
+                  ),
+                  List(functionReturnType)
+                ),
+                List(array)
+              ),
+              foreachName()
+            ),
+            List(functionReturnType2)
+          ),
+          List(
+            Function(
+              List(
+                ValDef(
+                  paramMods,
+                  paramName,
+                  t1: TypeTree,
+                  rhs
+                )
+              ),
+              body
+            )
+          )
+        ) =>
+        Some((array, functionReturnType.symbol, paramName, body))
+      case _ =>
+        None
+    }
+  }
+
+
+  object ArrayMap {
+    def apply(array: Tree, componentType: Symbol, mappedComponentType: Symbol, paramName: Name, body: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[(Tree, Symbol, Symbol, Name, Tree)] = tree match {
+      case 
+        Apply(
+          Apply(
+            TypeApply(
+              Select(
+                Apply(
+                  Select(
+                    Predef(),
+                    n @ (
+                      doubleArrayOpsName() |
+                      floatArrayOpsName() |
+                      intArrayOpsName() |
+                      shortArrayOpsName() |
+                      longArrayOpsName() |
+                      byteArrayOpsName() |
+                      charArrayOpsName() |
+                      booleanArrayOpsName()/* |
+                      refArrayOpsName()*/
+                    )
+                  ),
+                  List(array)
+                ),
+                mapName()
+              ),
+              List(functionArgType, mappedArrayType)//AppliedTypeTree(arrayType, List(functionReturnType)))
+            ),
+            List(
+              Function(
+                List(
+                  ValDef(
+                    paramMods,
+                    paramName,
+                    t1: TypeTree,
+                    rhs
+                  )
+                ),
+                body
+              )
+            )
+          ),
+          List(
+            Apply(
+              TypeApply(
+                Select(
+                  xxx,
+                  canBuildFromName()
+                ),
+                yyy
+              ),
+              zzz
+            )
+          )
+        ) =>
+        val tpe = array.tpe
+        val sym = tpe.typeSymbol
+        val componentType = //functionReturnType.symbol/*
+          n match {
+            case doubleArrayOpsName() => DoubleClass
+            case floatArrayOpsName() => FloatClass
+            case intArrayOpsName() => IntClass
+            case shortArrayOpsName() => ShortClass
+            case longArrayOpsName() => LongClass
+            case byteArrayOpsName() => ByteClass
+            case charArrayOpsName() => CharClass
+            case booleanArrayOpsName() => BooleanClass
+            //case refArrayOpsName() => functionReturnType.symbol
+          }
+
+        val symStr = sym.toString
+
+        if (symStr == "class Array") {
+          mappedArrayType.tpe match {
+            case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
+              Some((array, componentType, sym, paramName, body))
+            case _ =>
+              None
+          }
+        }
+        else
+          None
+      case
+        Apply(
+          Apply(
+            TypeApply(
+              Select(
+                Apply(
+                  TypeApply(
+                    Select(
+                      Predef(),
+                      refArrayOpsName()),
+                    List(
+                      TypeTree()
+                    )
+                  ),
+                  List(
+                    array
+                  )
+                ),
+                mapName()
+              ),
+              List(componentType, mappedArrayType)
+            ),
+            List(
+              Function(
+                List(
+                  ValDef(
+                    paramMods,
+                    paramName,
+                    t1: TypeTree,
+                    rhs
+                  )
+                ),
+                body
+              )
+            )
+          ),
+          List(
+            Apply(
+              TypeApply(
+                Select(
+                  Select(
+                    This(scalaName()),
+                    ArrayName()
+                  ),
+                  canBuildFromName()
+                ),
+                List(TypeTree())
+              ),
+              List(manif)
+            )
+          )
+        ) =>
+        mappedArrayType.tpe match {
+          case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
+            Some((array, componentType.symbol, sym, paramName, body))
           case _ =>
             None
         }

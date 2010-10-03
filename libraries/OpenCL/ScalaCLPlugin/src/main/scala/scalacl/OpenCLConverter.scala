@@ -2,10 +2,10 @@ package scalacl
 
 import scala.collection.immutable.Stack
 import scala.reflect.NameTransformer
-import scala.reflect.generic.{Names, Trees, Types, Constants}
+import scala.reflect.generic.{Names, Trees, Types, Constants, Universe}
 
 trait OpenCLConverter extends MiscMatchers {
-  val global: Trees with Names with Types with Constants
+  val global: Universe//Trees with Names with Types with Constants
   import global._
 
   def nodeToStringNoComment(tree: Tree): String

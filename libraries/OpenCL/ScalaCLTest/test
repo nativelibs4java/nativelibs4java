@@ -8,7 +8,7 @@ if [[ -z "$OUT_FILE" ]] ; then OUT_FILE=out.txt ; fi
 
 echo Think of deleting "$OUT_FILE" from time to time 
 
-LOOPS=50
+LOOPS=10
 
 for (( c = 1; c <= $LOOPS; c++ )) ; do
 	echo Run $c / $LOOPS 
