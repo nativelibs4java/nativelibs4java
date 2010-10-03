@@ -9,10 +9,6 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <properties>
-  	<!--<scala.version>2.9.0-SNAPSHOT</scala.version>-->
-  </properties>
-  
 	  <description>
 ScalaCL provides data structures that leverage the OpenCL library to execute operations on GPUs.
 This plugin transforms some Scala functions into OpenCL kernels so they can effectively execute in the OpenCL land instead of in the JVM.
@@ -20,43 +16,41 @@ It will also soon feature some limited OpenCL-backed autovectorization.
 For more info, please visit http://code.google.com/p/scalacl
 	</description>
 	
-  <parent>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java-parent-bridj</artifactId>
-	  <version>1.0-SNAPSHOT</version>
-	  <relativePath>../Parent</relativePath>
-  </parent>
-
+  <properties>
+  	<scala.version>2.8.0</scala.version>
+  </properties>
   <dependencies>
-  
-  
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.7</version>
-			<scope>test</scope>
-		</dependency>
+	<dependency>
+		<groupId>junit</groupId>
+		<artifactId>junit</artifactId>
+		<version>4.7</version>
+		<scope>test</scope>
+	</dependency>
 		
   	<dependency>
 		<groupId>org.scala-lang</groupId>
 		<artifactId>scala-compiler</artifactId>
 		<version>${scala.version}</version>
-		<!--<scope>provided</scope>-->
+		<scope>provided</scope>
 	</dependency>
-        <!--
   	<dependency>
-  	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>scalacl2-bridj</artifactId>
-	  <version>1.0-SNAPSHOT</version>
-	</dependency>
-	-->
-	<dependency>
-		<groupId>org.scala-lang</groupId>
-		<artifactId>scala-library</artifactId>
-		<version>${scala.version}</version>
-	</dependency>
-	
+  		<groupId>org.scala-lang</groupId>
+  		<artifactId>scala-library</artifactId>
+  		<version>${scala.version}</version>
+    </dependency>
   </dependencies>
+  <repositories>
+    <repository>
+      <id>scala-tools.org</id>
+      <name>Scala-tools Maven2 Repository</name>
+      <url>http://scala-tools.org/repo-releases</url>
+    </repository>
+    <repository>
+      <id>nativelibs4java</id>
+      <name>nativelibs4java Maven2 Repository</name>
+      <url>http://nativelibs4java.sourceforge.net/maven</url>
+    </repository>
+  </repositories>
 
   <reporting>
     <plugins>
@@ -70,8 +64,6 @@ For more info, please visit http://code.google.com/p/scalacl
   
   <build>
   	<plugins>
-	
-  	
 		<plugin>
 			<groupId>org.scala-tools</groupId>
 			<artifactId>maven-scala-plugin</artifactId>
@@ -87,6 +79,21 @@ For more info, please visit http://code.google.com/p/scalacl
 		
 	</plugins>
   </build>
+
+  
+	<distributionManagement>
+		<site>
+			<id>nativelibs4java-sites</id>
+			<name>NativeLibs4Java Sourceforge Sites</name>
+		    <url>sftp://opentator,nativelibs4java@frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/sites</url>
+		</site>
+		<repository>
+			<id>nativelibs4java-repo</id>
+			<uniqueVersion>false</uniqueVersion>
+			<name>NativeLibs4Java Sourceforge Maven Repository</name>
+			<url>sftp://frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven</url>
+		</repository>
+	</distributionManagement>
 
 </project>
 

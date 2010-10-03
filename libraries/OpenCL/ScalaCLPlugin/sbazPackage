@@ -11,7 +11,7 @@ mkdir -p $JAR_OUT
 cp target/scalacl-compiler-plugin-1.0-SNAPSHOT.jar $JAR_OUT
 
 sbaz pack scalacl-compiler-plugin $TEMP_OUT \
-	--linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl \
+	--linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl/ \
 	--version 1.0-SNAPSHOT \
 	--pack200 \
 	--outdir src/main/sbaz \
