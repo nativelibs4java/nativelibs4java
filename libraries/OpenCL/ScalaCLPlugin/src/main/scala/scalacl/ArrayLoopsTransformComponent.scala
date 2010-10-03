@@ -33,6 +33,58 @@ extends PluginComponent
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     var currentClassName: Name = null
 
+    def convertForeachToWhile(array: Tree, tree: Tree, paramName: Name, body: Tree) = {
+      val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, tree.pos, false, array)
+      val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, Literal(Constant(0)).setType(IntClass.tpe))
+      val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, Select(aIdentGen(), "length").setSymbol(getMember(aSym, "length")).setType(IntClass.tpe))
+      typed {
+        super.transform(
+          treeCopy.Block(
+            tree,
+            List(
+              aDef,
+              iDef,
+              nDef
+            ),
+            whileLoop(
+              currentOwner,
+              unit,
+              tree,
+              binOp(
+                iIdentGen(),
+                IntClass.tpe.member(nme.LT),
+                nIdentGen()
+              ),
+              Block(
+                List(
+                  {
+                    val r = replace(
+                      paramName.toString,
+                      body,
+                      typed {
+                        Apply(
+                          Select(
+                            aIdentGen(),
+                            N("apply")
+                          ).setSymbol(getMember(array.symbol, "apply")),
+                          List(iIdentGen())
+                        )
+                      },
+                      unit
+                    )
+                    unit.comment(tree.pos, "ScalaCL plugin transformed array foreach into equivalent while loop.")
+                    println(tree.pos + ": transformed array foreach into equivalent while loop.")
+                    //println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
+                    typed { r }
+                  }
+                ),
+                incrementIntVar(iIdentGen, typed { Literal(Constant(1)) })
+              )
+            )
+          )
+        )
+      }
+    }
     override def transform(tree: Tree): Tree = tree match {
       case Apply(
           TypeApply(
@@ -48,7 +100,8 @@ extends PluginComponent
                     longArrayOpsName() |
                     byteArrayOpsName() |
                     charArrayOpsName() |
-                    booleanArrayOpsName()
+                    booleanArrayOpsName()/* |
+                    refArrayOpsName()*/
                   )
                 ),
                 List(array)
@@ -71,79 +124,61 @@ extends PluginComponent
             )
           )
         ) =>
-        //typed { array }
         val tpe = array.tpe
         val sym = tpe.typeSymbol
-        val componentType = n match {
-          case doubleArrayOpsName() => DoubleClass
-          case floatArrayOpsName() => FloatClass
-          case intArrayOpsName() => IntClass
-          case shortArrayOpsName() => ShortClass
-          case longArrayOpsName() => LongClass
-          case byteArrayOpsName() => ByteClass
-          case charArrayOpsName() => CharClass
-          case booleanArrayOpsName() => BooleanClass
-
-        }
-        array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-        //array.tpe = sym.tpe
-        //val symDir = tpe.typeSymbolDirect
-        //val args = tpe.typeParams
-        //println(tree)
-        //println(nodeToString(tree))
-        if (sym.toString == "class Array") {
-          val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, tree.pos, false, array)
-          val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, Literal(Constant(0)).setType(IntClass.tpe))
-          val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, Select(aIdentGen(), "length").setSymbol(getMember(aSym, "length")).setType(IntClass.tpe))
-          typed {
-            super.transform(
-              treeCopy.Block(
-                tree,
-                List(
-                  aDef,
-                  iDef,
-                  nDef
-                ),
-                whileLoop(
-                  currentOwner,
-                  unit,
-                  tree,
-                  binOp(
-                    iIdentGen(),
-                    IntClass.tpe.member(nme.LT),
-                    nIdentGen()
-                  ),
-                  Block(
-                    List(
-                      {
-                        val r = replace(
-                          paramName.toString,
-                          body,
-                          typed {
-                            Apply(
-                              Select(
-                                aIdentGen(),
-                                N("apply")
-                              ).setSymbol(getMember(array.symbol, "apply")),
-                              List(iIdentGen())
-                            )
-                          },
-                          unit
-                        )
-                        unit.comment(tree.pos, "ScalaCL plugin transformed array foreach into equivalent while loop.")
-                        println(tree.pos + ": transformed array foreach into equivalent while loop.")
-                        //println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
-                        typed { r }
-                      }
-                    ),
-                    incrementIntVar(iIdentGen, typed { Literal(Constant(1)) })
-                  )
-                )
-              )
-            )
+        val componentType = //functionReturnType.symbol/*
+          n match {
+            case doubleArrayOpsName() => DoubleClass
+            case floatArrayOpsName() => FloatClass
+            case intArrayOpsName() => IntClass
+            case shortArrayOpsName() => ShortClass
+            case longArrayOpsName() => LongClass
+            case byteArrayOpsName() => ByteClass
+            case charArrayOpsName() => CharClass
+            case booleanArrayOpsName() => BooleanClass
+            //case refArrayOpsName() => functionReturnType.symbol
           }
-        } else
+        array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
+        val symStr = sym.toString
+        if (symStr == "class Array" || symStr == "class ArrayOps")
+          convertForeachToWhile(array, tree, paramName, body)
+        else
           tree
+      case 
+        Apply(
+          TypeApply(
+            Select(
+              Apply(
+                //Apply(
+                TypeApply(
+                  Select(
+                    predef,
+                    refArrayOpsName()
+                  ),
+                  List(functionReturnType)
+                ),
+                List(array)
+              ),
+              foreachName()
+            ),
+            List(functionReturnType2)
+          ),
+          List(
+            Function(
+              List(
+                ValDef(
+                  paramMods,
+                  paramName,
+                  t1: TypeTree,
+                  rhs
+                )
+              ),
+              body
+            )
+          )
+        ) =>
+        array.tpe = appliedType(ArrayClass.tpe, List(functionReturnType.symbol.tpe))
+        convertForeachToWhile(array, tree, paramName, body)
       case _ =>
         super.transform(tree)
     }

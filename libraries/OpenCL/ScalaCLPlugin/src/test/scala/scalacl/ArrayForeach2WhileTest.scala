@@ -15,22 +15,29 @@ class ArrayForeach2WhileTest extends TestUtils {
   outDir.mkdirs
 
   @Test
-  def simpleArrayForeach {
-    for (t <- Array("Double", "Float", "Long", "Int", "Long", "Short", "Byte", "Char", "Boolean"))
-        ensurePluginCompilesSnippetsToSameByteCode(
-          """ val a = new Array[""" + t + """](10)
-              a.foreach(println(_))
-          """,
-          """ val a = new Array[""" + t + """](10)
-              val aa = a
-              var i = 0
-              val n = aa.length
-              while (i < n)
-              {
-                println(a(i))
-                i += 1
-              }
-          """
-        )
+  def simplePrimitiveArrayForeach = 
+    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
+      simpleArrayForeach(p)
+
+  @Test
+  def simpleStringArrayForeach =
+    simpleArrayForeach("String")
+
+  def simpleArrayForeach(typeStr: String) {
+    ensurePluginCompilesSnippetsToSameByteCode(
+      """ val a = new Array[""" + typeStr + """](10)
+          a.foreach(println(_))
+      """,
+      """ val a = new Array[""" + typeStr + """](10)
+          val aa = a
+          var i = 0
+          val n = aa.length
+          while (i < n)
+          {
+            println(a(i))
+            i += 1
+          }
+      """
+    )
   }
 }
