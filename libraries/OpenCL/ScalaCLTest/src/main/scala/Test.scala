@@ -1,7 +1,6 @@
 /** Run with :
  *
- *  test Normal
- *  test Optimized
+ *  ./test
  *
  *  mvn clean scala:compile && scala -cp target\classes Test
  *  javap -c -classpath target\classes Test$
@@ -62,27 +61,27 @@ object Test {
         }
         
         def tst(count: Long)(b: => Unit) = {
-            val c = time("Cold", count, 1000) { b }
-            // Finish warmup :
-            time(null, count, 2000) { b }
-            val t = time("Test", count, 10000) { b }
-            
-            (c, t)
+            // Run cold code
+            val cold = time("Cold", count, 1000) { b }
+            // Finish warmup : (1000 + 3000 > hotspot threshold both in server and client modes)
+            time(null, count, 3000) { b }
+            val warm = time("Test", count, 10000) { b }
+            (cold, warm)
         }
         
-        val (c1, t1) = tst(mno) { test1_mno } 
-        val (c2, t2) = tst(mno) { test2_mn_o } 
-        val (c3, t3) = tst(mno) { test3_mno }
-        val (c4, t4) = tst(mno * m) { test4_mnom }
+        val (cold1, warm1) = tst(mno) { test1_mno } 
+        val (cold2, warm2) = tst(mno) { test2_mn_o } 
+        val (cold3, warm3) = tst(mno) { test3_mno }
+        val (cold4, warm4) = tst(mno * m) { test4_mnom }
         
-        println(Array(name, "Cold", 1, c1).mkString("\t"));
-        println(Array(name, "Cold", 2, c2).mkString("\t"));
-        println(Array(name, "Cold", 3, c3).mkString("\t"));
-        println(Array(name, "Cold", 4, c4).mkString("\t"));
-        println(Array(name, "Warm", 1, t1).mkString("\t"));
-        println(Array(name, "Warm", 2, t2).mkString("\t"));
-        println(Array(name, "Warm", 3, t3).mkString("\t"));
-        println(Array(name, "Warm", 4, t4).mkString("\t"));
+        println(Array(name, "Cold", 1, cold1).mkString("\t"));
+        println(Array(name, "Cold", 2, cold2).mkString("\t"));
+        println(Array(name, "Cold", 3, cold3).mkString("\t"));
+        println(Array(name, "Cold", 4, cold4).mkString("\t"));
+        println(Array(name, "Warm", 1, warm1).mkString("\t"));
+        println(Array(name, "Warm", 2, warm2).mkString("\t"));
+        println(Array(name, "Warm", 3, warm3).mkString("\t"));
+        println(Array(name, "Warm", 4, warm4).mkString("\t"));
         //println((c + "\t" + t).replace('.', ','))
     }
 }
