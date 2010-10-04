@@ -156,7 +156,7 @@ trait MiscMatchers {
     }
   }
   object PrimitiveArrayOps {
-    def unapply(tree: Tree) = tree match {
+    def unapply(tree: Name): Option[Symbol] = tree match {
       case doubleArrayOpsName() => Some(DoubleClass)
       case floatArrayOpsName() => Some(FloatClass)
       case intArrayOpsName() => Some(IntClass)
