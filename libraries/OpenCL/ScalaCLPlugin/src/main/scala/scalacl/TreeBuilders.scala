@@ -45,16 +45,27 @@ extends MiscMatchers
   this: PluginComponent =>
   
   import global._
-import global.definitions._
+  import global.definitions._
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed, atOwner}    // methods to type trees
 
 
-  def replace(varName: String, tree: Tree, by: => Tree, unit: CompilationUnit) = new TypingTransformer(unit) {
+  /*def replace(varName: String, tree: Tree, by: => Tree, unit: CompilationUnit) = new TypingTransformer(unit) {
     val n = N(varName)
     override def transform(tree: Tree): Tree = tree match {
       case Ident(n()) =>
         by
+      case _ =>
+        //if (tree.symbol != null && tree.symbol.ownerChain.exists(_.isMethod))
+        //  println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)
+        super.transform(tree)
+    }
+  }.transform(tree)
+  */
+  def replace(tree: Tree, mappings: Map[Name, Tree], unit: CompilationUnit) = new TypingTransformer(unit) {
+    override def transform(tree: Tree): Tree = tree match {
+      case Ident(n) =>
+        mappings.get(n).getOrElse(super.transform(tree))
       case _ =>
         //if (tree.symbol != null && tree.symbol.ownerChain.exists(_.isMethod))
         //  println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)

@@ -54,13 +54,56 @@ extends PluginComponent
   override val runsAfter = ArrayLoopsTransformComponent.runsAfter
   override val phaseName = ArrayLoopsTransformComponent.phaseName
 
+  
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
-    override def transform(tree: Tree): Tree = tree match {
-      case ArrayMap(array, componentType, mappedComponentType, paramName, body) =>
-        //println("MATCHED ARRAY MAP " + tree)
-        array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-        val mappedArrayTpe = appliedType(ArrayClass.tpe, List(mappedComponentType.tpe))
-        try {
+
+    def arrayForeach(
+      tree: Tree,
+      array: Tree,
+      outerStatementsFromArrayAndLengthIdents: (() => Ident, () => Ident) => List[Tree],
+      innerStatementsFromArrayLengthAndIndexIdents: (() => Ident, () => Ident, () => Ident) => List[Tree],
+      finalStatementsFromArrayAndLengthIdents: (() => Ident, () => Ident) => Tree
+    ) = {
+      val pos = tree.pos
+      val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, pos, false, array)
+      val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, pos, true, Literal(Constant(0)).setType(IntClass.tpe))
+      val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, pos, false, Select(aIdentGen(), nme.length).setSymbol(getMember(aSym, nme.length)).setType(IntClass.tpe))
+
+      typed {
+        treeCopy.Block(
+          tree,
+          List(
+            aDef,
+            iDef,
+            nDef
+          ) ++
+          outerStatementsFromArrayAndLengthIdents(aIdentGen, nIdentGen) ++
+          List(
+            whileLoop(
+              currentOwner,
+              unit,
+              tree,
+              binOp(
+                iIdentGen(),
+                IntClass.tpe.member(nme.LT),
+                nIdentGen()
+              ),
+              Block(
+                innerStatementsFromArrayLengthAndIndexIdents(aIdentGen, nIdentGen, iIdentGen),
+                incrementIntVar(iIdentGen, typed { Literal(Constant(1)) })
+              )
+            )
+          ),
+          finalStatementsFromArrayAndLengthIdents(aIdentGen, nIdentGen)
+        )
+      }
+    }
+    override def transform(tree: Tree): Tree = try {
+      tree match {
+        case ArrayMap(array, componentType, mappedComponentType, paramName, body) =>
+          //println("MATCHED ARRAY MAP " + tree)
+          array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
+          val mappedArrayTpe = appliedType(ArrayClass.tpe, List(mappedComponentType.tpe))
           val ssym = ArrayClass.typeConstructor.termSymbol
           val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, tree.pos, false, array)
           val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, Literal(Constant(0)).setType(IntClass.tpe))
@@ -102,17 +145,18 @@ extends PluginComponent
                       List(
                         {
                           val r = replace(
-                            paramName.toString,
                             body,
-                            typed {
-                              Apply(
-                                Select(
-                                  aIdentGen(),
-                                  N("apply")
-                                ).setSymbol(getMember(array.symbol, nme.apply)),
-                                List(iIdentGen())
-                              )
-                            },
+                            Map(
+                              paramName -> typed {
+                                Apply(
+                                  Select(
+                                    aIdentGen(),
+                                    N("apply")
+                                  ).setSymbol(getMember(array.symbol, nme.apply)),
+                                  List(iIdentGen())
+                                )
+                              }
+                            ),
                             unit
                           )
                           val u =
@@ -138,14 +182,8 @@ extends PluginComponent
               )
             )
           }
-        } catch {
-          case ex =>
-            ex.printStackTrace
-            tree
-        }
-      case ArrayForeach(array, componentType, paramName, body) =>
-        array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-        try {
+        case ArrayForeach(array, componentType, paramName, body) =>
+          array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
           val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, tree.pos, false, array)
           val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, Literal(Constant(0)).setType(IntClass.tpe))
           val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, Select(aIdentGen(), nme.length).setSymbol(getMember(aSym, nme.length)).setType(IntClass.tpe))
@@ -171,17 +209,18 @@ extends PluginComponent
                     List(
                       {
                         val r = replace(
-                          paramName.toString,
                           body,
-                          typed {
-                            Apply(
-                              Select(
-                                aIdentGen(),
-                                nme.apply
-                              ).setSymbol(getMember(array.symbol, nme.apply)),
-                              List(iIdentGen())
-                            )
-                          },
+                          Map(
+                            paramName -> typed {
+                              Apply(
+                                Select(
+                                  aIdentGen(),
+                                  nme.apply
+                                ).setSymbol(getMember(array.symbol, nme.apply)),
+                                List(iIdentGen())
+                              )
+                            }
+                          ),
                           unit
                         )
                         unit.comment(tree.pos, "ScalaCL plugin transformed array foreach into equivalent while loop.")
@@ -196,12 +235,74 @@ extends PluginComponent
               )
             )
           }
-        } catch {
-          case ex =>
-            ex.printStackTrace
-            tree
-        }
-      case _ =>
+        case ArrayFoldLeft(array, componentType, resultType, accParamName, newParamName, body, initialValue) =>
+          array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
+          val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, tree.pos, false, array)
+          val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, Literal(Constant(0)).setType(IntClass.tpe))
+          val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, Select(aIdentGen(), nme.length).setSymbol(getMember(aSym, nme.length)).setType(IntClass.tpe))
+          val (totIdentGen, totSym, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)//.setType(IntClass.tpe))
+          typed {
+            super.transform(
+              treeCopy.Block(
+                tree,
+                List(
+                  aDef,
+                  iDef,
+                  nDef,
+                  totDef
+                ),
+                whileLoop(
+                  currentOwner,
+                  unit,
+                  tree,
+                  binOp(
+                    iIdentGen(),
+                    IntClass.tpe.member(nme.LT),
+                    nIdentGen()
+                  ),
+                  Block(
+                    List(
+                      {
+                        val r = replace(
+                          body,
+                          Map(
+                            accParamName -> totIdentGen(),
+                            newParamName ->
+                            typed {
+                              Apply(
+                                Select(
+                                  aIdentGen(),
+                                  nme.apply
+                                ).setSymbol(getMember(array.symbol, nme.apply)),
+                                List(iIdentGen())
+                              )
+                            }
+                          ),
+                          unit
+                        )
+                        unit.comment(tree.pos, "ScalaCL plugin transformed array foldLeft into equivalent while loop.")
+                        println(tree.pos + ": transformed array foldLeft into equivalent while loop.")
+                        //println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
+                        Assign(
+                          totIdentGen(),
+                          typed { r }
+                        ).setType(UnitClass.tpe)
+
+                        typed { r }
+                      }
+                    ),
+                    incrementIntVar(iIdentGen, typed { Literal(Constant(1)) })
+                  )
+                )
+              )
+            )
+          }
+        case _ =>
+          super.transform(tree)
+      }
+    } catch {
+      case ex =>
+        ex.printStackTrace
         super.transform(tree)
     }
   }

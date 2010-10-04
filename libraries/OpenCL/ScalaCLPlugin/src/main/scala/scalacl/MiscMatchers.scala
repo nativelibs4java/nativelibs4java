@@ -156,16 +156,21 @@ trait MiscMatchers {
     }
   }
   object PrimitiveArrayOps {
-    def unapply(tree: Name): Option[Symbol] = tree match {
-      case doubleArrayOpsName() => Some(DoubleClass)
-      case floatArrayOpsName() => Some(FloatClass)
-      case intArrayOpsName() => Some(IntClass)
-      case shortArrayOpsName() => Some(ShortClass)
-      case longArrayOpsName() => Some(LongClass)
-      case byteArrayOpsName() => Some(ByteClass)
-      case charArrayOpsName() => Some(CharClass)
-      case booleanArrayOpsName() => Some(BooleanClass)
-      case _ => None
+    def unapply(tree: Tree): Option[Symbol] = tree match {
+      case Select(Predef(), n) =>
+        n match {
+          case doubleArrayOpsName() => Some(DoubleClass)
+          case floatArrayOpsName() => Some(FloatClass)
+          case intArrayOpsName() => Some(IntClass)
+          case shortArrayOpsName() => Some(ShortClass)
+          case longArrayOpsName() => Some(LongClass)
+          case byteArrayOpsName() => Some(ByteClass)
+          case charArrayOpsName() => Some(CharClass)
+          case booleanArrayOpsName() => Some(BooleanClass)
+          case _ => None
+        }
+      case _ =>
+        None
     }
   }
   object ArrayForeach {
@@ -175,29 +180,14 @@ trait MiscMatchers {
           TypeApply(
             Select(
               Apply(
-                Select(
-                  Predef(),
-                  PrimitiveArrayOps(componentType)
-                ),
+                PrimitiveArrayOps(componentType),
                 List(array)
               ),
               foreachName()
             ),
             List(functionReturnType)
           ),
-          List(
-            Function(
-              List(
-                ValDef(
-                  paramMods,
-                  paramName,
-                  t1: TypeTree,
-                  rhs
-                )
-              ),
-              body
-            )
-          )
+          List(Func1(paramName, body))
         ) =>
         val tpe = array.tpe
         val sym = tpe.typeSymbol
@@ -224,19 +214,7 @@ trait MiscMatchers {
             ),
             List(functionReturnType2)
           ),
-          List(
-            Function(
-              List(
-                ValDef(
-                  paramMods,
-                  paramName,
-                  t1: TypeTree,
-                  rhs
-                )
-              ),
-              body
-            )
-          )
+          List(Func1(paramName, body))
         ) =>
         Some((array, functionReturnType.symbol, paramName, body))
       case _ =>
@@ -254,29 +232,14 @@ trait MiscMatchers {
             TypeApply(
               Select(
                 Apply(
-                  Select(
-                    Predef(),
-                    PrimitiveArrayOps(componentType)
-                  ),
+                  PrimitiveArrayOps(componentType),
                   List(array)
                 ),
                 mapName()
               ),
               List(functionArgType, mappedArrayType)
             ),
-            List(
-              Function(
-                List(
-                  ValDef(
-                    paramMods,
-                    paramName,
-                    t1: TypeTree,
-                    rhs
-                  )
-                ),
-                body
-              )
-            )
+            List(Func1(paramName, body))
           ),
           List(
             Apply(
@@ -293,18 +256,12 @@ trait MiscMatchers {
         ) =>
         val tpe = array.tpe
         val sym = tpe.typeSymbol
-        val symStr = sym.toString
-
-        if (symStr == "class Array") {
-          mappedArrayType.tpe match {
-            case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
-              Some((array, componentType, sym, paramName, body))
-            case _ =>
-              None
-          }
+        mappedArrayType.tpe match {
+          case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
+            Some((array, componentType, sym, paramName, body))
+          case _ =>
+            None
         }
-        else
-          None
       case
         Apply(
           Apply(
@@ -315,31 +272,15 @@ trait MiscMatchers {
                     Select(
                       Predef(),
                       refArrayOpsName()),
-                    List(
-                      TypeTree()
-                    )
+                    List(TypeTree())
                   ),
-                  List(
-                    array
-                  )
+                  List(array)
                 ),
                 mapName()
               ),
               List(componentType, mappedArrayType)
             ),
-            List(
-              Function(
-                List(
-                  ValDef(
-                    paramMods,
-                    paramName,
-                    t1: TypeTree,
-                    rhs
-                  )
-                ),
-                body
-              )
-            )
+            List(Func1(paramName, body))
           ),
           List(
             Apply(
@@ -363,6 +304,92 @@ trait MiscMatchers {
           case _ =>
             None
         }
+      case _ =>
+        None
+    }
+  }
+
+  object Func1 {
+    def unapply(tree: Tree) = tree match {
+      case Function(List(ValDef(_, paramName, _, _)), body) => // paramMods, paramName, TypeTree(), rhs
+        Some(paramName, body)
+      case _ =>
+        None
+    }
+  }
+  object Func2 {
+    def unapply(tree: Tree) = tree match {
+      case Function(List(ValDef(_, paramName1, _, _), ValDef(_, paramName2, _, _)), body) => // paramMods, paramName, TypeTree(), rhs
+        Some(paramName1, paramName2, body)
+      case _ =>
+        None
+    }
+  }
+  object ArrayFoldLeft {
+    def apply(array: Tree, componentType: Symbol, resultType: Symbol, accParamName: Name, newParamName: Name, body: Tree, initialValue: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[(Tree, Symbol, Symbol, Name, Name, Tree, Tree)] = tree match {
+      case
+        Apply(
+          Apply(
+            TypeApply(
+              Select(
+                Apply(
+                  PrimitiveArrayOps(componentType),
+                  List(array)
+                ),
+                foldLeftName()
+              ),
+              List(functionResultType)
+            ),
+            List(initialValue)
+          ),
+          List(Func2(accParamName, newParamName, body))
+        ) =>
+        Some((array, componentType, functionResultType.symbol, accParamName, newParamName, body, initialValue))
+      /*case
+        Apply(
+          Apply(
+            TypeApply(
+              Select(
+                Apply(
+                  TypeApply(
+                    Select(
+                      Predef(),
+                      refArrayOpsName()),
+                    List(
+                      TypeTree()
+                    )
+                  ),
+                  List(array)
+                ),
+                mapName()
+              ),
+              List(componentType, mappedArrayType)
+            ),
+            List(Func1(paramName, body))
+          ),
+          List(
+            Apply(
+              TypeApply(
+                Select(
+                  Select(
+                    This(scalaName()),
+                    ArrayName()
+                  ),
+                  canBuildFromName()
+                ),
+                List(TypeTree())
+              ),
+              List(manif)
+            )
+          )
+        ) =>
+        mappedArrayType.tpe match {
+          case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
+            Some((array, componentType.symbol, sym, paramName, body))
+          case _ =>
+            None
+        }*/
       case _ =>
         None
     }

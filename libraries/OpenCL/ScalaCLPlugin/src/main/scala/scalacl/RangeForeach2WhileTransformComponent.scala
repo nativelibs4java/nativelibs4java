@@ -82,7 +82,7 @@ extends PluginComponent
                 Block(
                   List(
                     {
-                      val r = replace(paramName.toString, body, iIdentGen(), unit)
+                      val r = replace(body, Map(paramName -> iIdentGen()), unit)
                       unit.comment(tree.pos, "ScalaCL plugin transformed int range foreach loop into equivalent while loop.")
                       println(tree.pos + ": transformed int range foreach loop into equivalent while loop.")
                       //println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
