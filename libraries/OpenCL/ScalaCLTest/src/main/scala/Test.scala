@@ -60,14 +60,45 @@ object Test {
             t
         }
         
+            
+            
         def tst(count: Long)(b: => Unit) = {
             // Run cold code
             val cold = time("Cold", count, 1000) { b }
             // Finish warmup : (1000 + 3000 > hotspot threshold both in server and client modes)
             time(null, count, 3000) { b }
-            val warm = time("Test", count, 10000) { b }
+            val warm = time("Warm", count, 10000) { b }
             (cold, warm)
         }
+        
+        /*
+        def multMatrix(
+            a: Array[Array[Double]], aRows: Int, aColumns: Int, 
+            b: Array[Array[Double]], bRows: Int, bColumns: Int,
+            out: Array[Array[Double]]) = {
+                
+            for (i <- 0 until aRows) {
+                val outi = out(i)
+                for (j <- 0 until bColumns) {
+                    var tot = 0.0
+                    val ai = a(i)
+                    for (k <- 0 until aColumns)
+                        tot += ai(k) * b(k)(j)
+                    outi(j) = tot
+                }
+            }
+        }
+        
+        val a = new Array[Array[Double]](m).map(_ => new Array[Double](n))
+        val b = new Array[Array[Double]](n).map(_ => new Array[Double](o))
+        val out = new Array[Array[Double]](m).map(_ => new Array[Double](o))
+        def testMat = {
+            multMatrix(a, m, n, b, n, o, out)   
+        }
+        val (coldMat, warmMat) = tst(mno) { testMat }
+        println(Array(name, "Cold", "mat", coldMat).mkString("\t"));
+        println(Array(name, "Warm", "mat", warmMat).mkString("\t"));
+        */
         
         val (cold1, warm1) = tst(mno) { test1_mno } 
         val (cold2, warm2) = tst(mno) { test2_mn_o } 
