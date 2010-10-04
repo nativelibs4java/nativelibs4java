@@ -72,14 +72,12 @@ extends PluginComponent
                 Select(
                   New(
                     TypeTree(mappedArrayTpe)
-                  ),//.setType(ArrayClass.typeConstructor),
-                  //nme.CONSTRUCTOR
+                  ),
                   mappedArrayTpe.typeSymbol.primaryConstructor
                 )
               },
               List(nIdentGen())
-            )//.setType(appliedType(ArrayClass.tpe, List(mappedComponentType.tpe)))
-            //.setSymbol(ArrayClass.typeConstructor.termSymbol)
+            )
           }
           )
 

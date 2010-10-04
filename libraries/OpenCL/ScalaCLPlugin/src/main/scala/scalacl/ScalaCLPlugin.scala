@@ -60,6 +60,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
   var intRangeForeachEnabled = true
   override def processOptions(options: List[String], error: String => Unit) {
     for (option <- options) {
+      println("Found option " + option)
       option match {
         case "disable" => enabled = false
         case "enable" => enabled = true

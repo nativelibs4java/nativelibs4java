@@ -276,7 +276,7 @@ trait MiscMatchers {
                 ),
                 mapName()
               ),
-              List(functionArgType, mappedArrayType)//AppliedTypeTree(arrayType, List(functionReturnType)))
+              List(functionArgType, mappedArrayType)
             ),
             List(
               Function(

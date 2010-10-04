@@ -44,11 +44,8 @@ extends MiscMatchers
 {
   this: PluginComponent =>
   
-  //val global: Trees with Names with Types with Constants with Definitions with Symbols
   import global._
-
-  import global._
-  import global.definitions._
+import global.definitions._
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed, atOwner}    // methods to type trees
 
