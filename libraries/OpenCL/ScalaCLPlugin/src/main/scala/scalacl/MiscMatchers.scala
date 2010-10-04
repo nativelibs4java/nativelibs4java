@@ -65,6 +65,12 @@ trait MiscMatchers {
   val byName = N("by")
   val untilName = N("until")
   val foreachName = N("foreach")
+  val foldLeftName = N("foldLeft")
+  val foldRightName = N("foldRight")
+  val reduceLeftName = N("reduceLeft")
+  val reduceRightName = N("reduceRight")
+  val scanLeftName = N("scanLeft")
+  val scanRightName = N("scanRight")
   val doubleArrayOpsName = N("doubleArrayOps")
   val floatArrayOpsName = N("floatArrayOps")
   val shortArrayOpsName = N("shortArrayOps")
@@ -149,6 +155,19 @@ trait MiscMatchers {
       case _ => false
     }
   }
+  object PrimitiveArrayOps {
+    def unapply(tree: Tree) = tree match {
+      case doubleArrayOpsName() => Some(DoubleClass)
+      case floatArrayOpsName() => Some(FloatClass)
+      case intArrayOpsName() => Some(IntClass)
+      case shortArrayOpsName() => Some(ShortClass)
+      case longArrayOpsName() => Some(LongClass)
+      case byteArrayOpsName() => Some(ByteClass)
+      case charArrayOpsName() => Some(CharClass)
+      case booleanArrayOpsName() => Some(BooleanClass)
+      case _ => None
+    }
+  }
   object ArrayForeach {
     def apply(array: Tree, componentType: Symbol, paramName: Name, body: Tree) = error("not implemented")
     def unapply(tree: Tree): Option[(Tree, Symbol, Name, Tree)] = tree match {
@@ -158,17 +177,7 @@ trait MiscMatchers {
               Apply(
                 Select(
                   Predef(),
-                  n @ (
-                    doubleArrayOpsName() |
-                    floatArrayOpsName() |
-                    intArrayOpsName() |
-                    shortArrayOpsName() |
-                    longArrayOpsName() |
-                    byteArrayOpsName() |
-                    charArrayOpsName() |
-                    booleanArrayOpsName()/* |
-                    refArrayOpsName()*/
-                  )
+                  PrimitiveArrayOps(componentType)
                 ),
                 List(array)
               ),
@@ -192,19 +201,6 @@ trait MiscMatchers {
         ) =>
         val tpe = array.tpe
         val sym = tpe.typeSymbol
-        val componentType = //functionReturnType.symbol/*
-          n match {
-            case doubleArrayOpsName() => DoubleClass
-            case floatArrayOpsName() => FloatClass
-            case intArrayOpsName() => IntClass
-            case shortArrayOpsName() => ShortClass
-            case longArrayOpsName() => LongClass
-            case byteArrayOpsName() => ByteClass
-            case charArrayOpsName() => CharClass
-            case booleanArrayOpsName() => BooleanClass
-            //case refArrayOpsName() => functionReturnType.symbol
-          }
-        
         val symStr = sym.toString
         if (symStr == "class Array")// || symStr == "class ArrayOps")
           Some((array, componentType, paramName, body))
@@ -260,17 +256,7 @@ trait MiscMatchers {
                 Apply(
                   Select(
                     Predef(),
-                    n @ (
-                      doubleArrayOpsName() |
-                      floatArrayOpsName() |
-                      intArrayOpsName() |
-                      shortArrayOpsName() |
-                      longArrayOpsName() |
-                      byteArrayOpsName() |
-                      charArrayOpsName() |
-                      booleanArrayOpsName()/* |
-                      refArrayOpsName()*/
-                    )
+                    PrimitiveArrayOps(componentType)
                   ),
                   List(array)
                 ),
@@ -307,19 +293,6 @@ trait MiscMatchers {
         ) =>
         val tpe = array.tpe
         val sym = tpe.typeSymbol
-        val componentType = //functionReturnType.symbol/*
-          n match {
-            case doubleArrayOpsName() => DoubleClass
-            case floatArrayOpsName() => FloatClass
-            case intArrayOpsName() => IntClass
-            case shortArrayOpsName() => ShortClass
-            case longArrayOpsName() => LongClass
-            case byteArrayOpsName() => ByteClass
-            case charArrayOpsName() => CharClass
-            case booleanArrayOpsName() => BooleanClass
-            //case refArrayOpsName() => functionReturnType.symbol
-          }
-
         val symStr = sym.toString
 
         if (symStr == "class Array") {

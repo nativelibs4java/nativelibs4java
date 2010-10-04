@@ -45,7 +45,6 @@ extends PluginComponent
    with TypingTransformers
    with MiscMatchers
    with TreeBuilders
-   with Printers
 {
   import global._
   import global.definitions._
