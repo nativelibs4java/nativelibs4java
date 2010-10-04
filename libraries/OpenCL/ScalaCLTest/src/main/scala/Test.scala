@@ -23,7 +23,7 @@ object Test {
         timePerItem
     }
     def main(args: Array[String]): Unit = {
-        val name = args(0)
+        val name = if (args.isEmpty) "Normal" else args(0)
         val m = 10
         val n = 10
         val o = 30
