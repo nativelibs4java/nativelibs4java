@@ -13,34 +13,5 @@ mvn compile -Dmaven.test.skip=true
 
 = Using =
 
-If you just want use the plugin, you can pick one of these options :
-- install using sbaz (the plugin will then be enabled by default, turn it off with -P:scalacl:disable) :     
-  sbaz install scalacl-compiler-plugin
-- use with Maven : add the following lines to your pom :
-  <repositories>
-    ...
-    <repository>
-      <id>nativelibs4java</id>
-      <name>nativelibs4java Maven2 Repository</name>
-      <url>http://nativelibs4java.sourceforge.net/maven</url>
-    </repository>
-  </repositories>
-  <build>
-    ...
-    <plugins>
-    	<plugin>
-          <groupId>org.scala-tools</groupId>
-          <artifactId>maven-scala-plugin</artifactId>
-          <configuration>
-            <compilerPlugins>
-              <compilerPlugin>
-                <groupId>com.nativelibs4java</groupId>
-                <artifactId>scalacl-compiler</artifactId>
-                <version>1.0-SNAPSHOT</version>
-              </compilerPlugin>
-            </compilerPlugins>
-          </configuration>
-        </plugin>
-    </plugins>
-  </build>
-
+Please see :
+http://code.google.com/p/scalacl/wiki/ScalaCLPlugin
