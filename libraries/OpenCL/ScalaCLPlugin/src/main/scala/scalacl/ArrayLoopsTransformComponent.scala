@@ -39,6 +39,15 @@ object ArrayLoopsTransformComponent {
   val runsAfter = List[String]("namer")
   val phaseName = "arrayloopstransform"
 }
+
+/**
+ * Transforms the following constructs into their equivalent while loops :
+ * - Array[T].foreach(x => body)
+ * - Array[T].map(x => body)
+ * - Array[T].reduceLeft((x, y) => body) / reduceRight
+ * - Array[T].foldLeft((x, y) => body) / foldRight
+ * - Array[T].scanLeft((x, y) => body) / scanRight
+ */
 class ArrayLoopsTransformComponent(val global: Global)
 extends PluginComponent
    with Transform
@@ -57,244 +66,250 @@ extends PluginComponent
   
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
 
-    def arrayForeach(
+    def arrayApply(array: => Tree, index: => Tree) = {
+      val a = array
+      typed {
+        Apply(
+          Select(
+            a,
+            N("apply")
+          ).setSymbol(getMember(a.symbol, nme.apply)),
+          List(index)
+        )
+      }
+    }
+
+    /// payload is produced by function that creates the outer definitions and passed to the function that creates the inner statements
+    def arrayForeach[Payload](
       tree: Tree,
       array: Tree,
-      outerStatementsFromArrayAndLengthIdents: (() => Ident, () => Ident) => List[Tree],
-      innerStatementsFromArrayLengthAndIndexIdents: (() => Ident, () => Ident, () => Ident) => List[Tree],
-      finalStatementsFromArrayAndLengthIdents: (() => Ident, () => Ident) => Tree
+      reverseOrder: Boolean,
+      outerStatementsReturnAndPayloadFromArrayAndLengthIdent: (IdentGen, IdentGen) => (List[Tree], Tree, Payload),
+      innerStatementsFromIndexItemIdentAndPayload: (IdentGen, IdentGen, Payload) => List[Tree]
     ) = {
       val pos = tree.pos
       val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, pos, false, array)
-      val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, pos, true, Literal(Constant(0)).setType(IntClass.tpe))
-      val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, pos, false, Select(aIdentGen(), nme.length).setSymbol(getMember(aSym, nme.length)).setType(IntClass.tpe))
-
+      val (nIdentGen, _, nDef) = newVariable(unit, "n$", currentOwner, pos, false, Select(aIdentGen(), nme.length).setSymbol(getMember(aSym, nme.length)).setType(IntClass.tpe))
+      val (iIdentGen, _, iDef) = newVariable(unit, "i$", currentOwner, pos, true, if (reverseOrder) nIdentGen() else newInt(0))
+      val (itemIdentGen, itemSym, itemDef) = newVariable(unit, "item$", currentOwner, pos, false, arrayApply(aIdentGen(), iIdentGen()))
+      val (outerStatements, returnValue, payload) = 
+        outerStatementsReturnAndPayloadFromArrayAndLengthIdent(aIdentGen, nIdentGen)
+      
       typed {
         treeCopy.Block(
           tree,
           List(
             aDef,
-            iDef,
-            nDef
+            nDef,
+            iDef
           ) ++
-          outerStatementsFromArrayAndLengthIdents(aIdentGen, nIdentGen) ++
+          outerStatements ++
           List(
             whileLoop(
               currentOwner,
               unit,
               tree,
-              binOp(
-                iIdentGen(),
-                IntClass.tpe.member(nme.LT),
-                nIdentGen()
+              (
+                if (reverseOrder) // while (i > 0) { i--; statements }
+                  binOp(
+                    iIdentGen(),
+                    IntClass.tpe.member(nme.GT),
+                    newInt(0)
+                  )
+                else // while (i < n) { statements; i++ }
+                  binOp(
+                    iIdentGen(),
+                    IntClass.tpe.member(nme.LT),
+                    nIdentGen()
+                  )
               ),
-              Block(
-                innerStatementsFromArrayLengthAndIndexIdents(aIdentGen, nIdentGen, iIdentGen),
-                incrementIntVar(iIdentGen, typed { Literal(Constant(1)) })
-              )
+              typed {
+                val itemAndInnerStats =
+                  List(itemDef) ++
+                  innerStatementsFromIndexItemIdentAndPayload(iIdentGen, itemIdentGen, payload)
+
+                if (reverseOrder)
+                  Block(
+                    List(incrementIntVar(iIdentGen, newInt(-1))) ++
+                    itemAndInnerStats,
+                    newUnit
+                  )
+                else
+                  Block(
+                    itemAndInnerStats,
+                    incrementIntVar(iIdentGen, newInt(1))
+                  )
+              }
             )
           ),
-          finalStatementsFromArrayAndLengthIdents(aIdentGen, nIdentGen)
+          if (returnValue == null)
+            newUnit
+          else
+            returnValue
         )
       }
     }
+    /// print a message only if the operation succeeded :
+    def msg[V](pos: Position, text: String)(v: => V): V = {
+      val r = v
+      unit.comment(pos, text)
+      println(pos + ": " + text)
+      r
+    }
+    def newArray(arrayType: Type, length: => Tree) =
+      typed {
+        Apply(
+          localTyper.typedOperator {
+            Select(
+              New(TypeTree(arrayType)),
+              arrayType.typeSymbol.primaryConstructor
+            )
+          },
+          List(length)
+        )
+      }
+
     override def transform(tree: Tree): Tree = try {
       tree match {
         case ArrayMap(array, componentType, mappedComponentType, paramName, body) =>
-          //println("MATCHED ARRAY MAP " + tree)
           array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-          val mappedArrayTpe = appliedType(ArrayClass.tpe, List(mappedComponentType.tpe))
-          val ssym = ArrayClass.typeConstructor.termSymbol
-          val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, tree.pos, false, array)
-          val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, Literal(Constant(0)).setType(IntClass.tpe))
-          val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, Select(aIdentGen(), nme.length).setSymbol(getMember(aSym, nme.length)).setType(IntClass.tpe))
-          val (mIdentGen, mSym, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, typed {
-            Apply(
-              localTyper.typedOperator {
-                Select(
-                  New(
-                    TypeTree(mappedArrayTpe)
-                  ),
-                  mappedArrayTpe.typeSymbol.primaryConstructor
-                )
-              },
-              List(nIdentGen())
-            )
-          }
-          )
-
           typed {
             super.transform(
-              treeCopy.Block(
+              arrayForeach[IdentGen](
                 tree,
-                List(
-                  aDef,
-                  iDef,
-                  nDef,
-                  mDef,
-                  whileLoop(
-                    currentOwner,
-                    unit,
-                    tree,
-                    binOp(
-                      iIdentGen(),
-                      IntClass.tpe.member(nme.LT),
-                      nIdentGen()
-                    ),
-                    Block(
-                      List(
-                        {
-                          val r = replace(
+                array,
+                false,
+                (_, nIdentGen) => {
+                  val mappedArrayTpe = appliedType(ArrayClass.tpe, List(mappedComponentType.tpe))
+                  val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, nIdentGen()))
+                  (List(mDef), mIdentGen(), mIdentGen)
+                },
+                (iIdentGen, itemIdentGen, mIdentGen) => List(
+                  msg(tree.pos, "transformed array map into equivalent while loop.") {
+                    typed {
+                      Apply(
+                        Select(
+                          mIdentGen(),
+                          N("update")
+                        ).setSymbol(getMember(array.symbol, nme.update)),
+                        List(
+                          iIdentGen(),
+                          replace(
                             body,
-                            Map(
-                              paramName -> typed {
-                                Apply(
-                                  Select(
-                                    aIdentGen(),
-                                    N("apply")
-                                  ).setSymbol(getMember(array.symbol, nme.apply)),
-                                  List(iIdentGen())
-                                )
-                              }
-                            ),
+                            Map(paramName -> itemIdentGen()),
                             unit
                           )
-                          val u =
-                            Apply(
-                              Select(
-                                mIdentGen(),
-                                N("update")
-                              ).setSymbol(getMember(array.symbol, nme.update)),
-                              List(iIdentGen(), r)
-                            )
-
-                          unit.comment(tree.pos, "ScalaCL plugin transformed array map into equivalent while loop.")
-                          println(tree.pos + ": transformed array map into equivalent while loop.")
-                          //println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
-                          typed { u }
-                        }
-                      ),
-                      incrementIntVar(iIdentGen, typed { Literal(Constant(1)) })
-                    )
-                  )
-                ),
-                mIdentGen()
+                        )
+                      )
+                    }
+                  }
+                )
               )
             )
           }
         case ArrayForeach(array, componentType, paramName, body) =>
           array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-          val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, tree.pos, false, array)
-          val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, Literal(Constant(0)).setType(IntClass.tpe))
-          val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, Select(aIdentGen(), nme.length).setSymbol(getMember(aSym, nme.length)).setType(IntClass.tpe))
           typed {
             super.transform(
-              treeCopy.Block(
+              arrayForeach[Unit](
                 tree,
-                List(
-                  aDef,
-                  iDef,
-                  nDef
-                ),
-                whileLoop(
-                  currentOwner,
-                  unit,
-                  tree,
-                  binOp(
-                    iIdentGen(),
-                    IntClass.tpe.member(nme.LT),
-                    nIdentGen()
-                  ),
-                  Block(
-                    List(
-                      {
-                        val r = replace(
-                          body,
-                          Map(
-                            paramName -> typed {
-                              Apply(
-                                Select(
-                                  aIdentGen(),
-                                  nme.apply
-                                ).setSymbol(getMember(array.symbol, nme.apply)),
-                                List(iIdentGen())
-                              )
-                            }
-                          ),
-                          unit
-                        )
-                        unit.comment(tree.pos, "ScalaCL plugin transformed array foreach into equivalent while loop.")
-                        println(tree.pos + ": transformed array foreach into equivalent while loop.")
-                        //println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
-                        typed { r }
-                      }
-                    ),
-                    incrementIntVar(iIdentGen, typed { Literal(Constant(1)) })
-                  )
+                array,
+                false,
+                (_, _) => (Nil, null, ()), // no extra outer statement
+                (_, itemIdentGen, _) => List(
+                  msg(tree.pos, "transformed array foreach into equivalent while loop.") {
+                    replace(
+                      body,
+                      Map(paramName -> itemIdentGen()),
+                      unit
+                    )
+                  }
                 )
               )
             )
           }
-        case ArrayFoldLeft(array, componentType, resultType, accParamName, newParamName, body, initialValue) =>
+        case TraversalOp(array, componentType, resultType, accParamName, newParamName, op, isLeft, body, initialValue) =>
           array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-          val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, tree.pos, false, array)
-          val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, Literal(Constant(0)).setType(IntClass.tpe))
-          val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, Select(aIdentGen(), nme.length).setSymbol(getMember(aSym, nme.length)).setType(IntClass.tpe))
-          val (totIdentGen, totSym, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)//.setType(IntClass.tpe))
           typed {
             super.transform(
-              treeCopy.Block(
-                tree,
-                List(
-                  aDef,
-                  iDef,
-                  nDef,
-                  totDef
-                ),
-                whileLoop(
-                  currentOwner,
-                  unit,
-                  tree,
-                  binOp(
-                    iIdentGen(),
-                    IntClass.tpe.member(nme.LT),
-                    nIdentGen()
-                  ),
-                  Block(
-                    List(
-                      {
-                        val r = replace(
-                          body,
-                          Map(
-                            accParamName -> totIdentGen(),
-                            newParamName ->
-                            typed {
-                              Apply(
-                                Select(
-                                  aIdentGen(),
-                                  nme.apply
-                                ).setSymbol(getMember(array.symbol, nme.apply)),
-                                List(iIdentGen())
-                              )
-                            }
-                          ),
-                          unit
-                        )
-                        unit.comment(tree.pos, "ScalaCL plugin transformed array foldLeft into equivalent while loop.")
-                        println(tree.pos + ": transformed array foldLeft into equivalent while loop.")
-                        //println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
+              op match {
+                case Reduce | Fold =>
+                  arrayForeach[IdentGen](
+                    tree,
+                    array,
+                    !isLeft,
+                    (aIdentGen, nIdentGen) => {
+                      assert((initialValue == null) == (op == Reduce)) // no initial value for reduce only
+                      val (totIdentGen, _, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, 
+                        if (initialValue == null)
+                          arrayApply(aIdentGen(), if (isLeft) newInt(0) else intAdd(nIdentGen(), newInt(-1)))
+                        else
+                          initialValue
+                      )
+                      (List(totDef), totIdentGen(), totIdentGen)
+                    },
+                    (iIdentGen, itemIdentGen, totIdentGen) => List(
+                      msg(tree.pos, "transformed array foldLeft into equivalent while loop.") {
                         Assign(
                           totIdentGen(),
-                          typed { r }
+                          replace(
+                            body,
+                            Map(
+                              accParamName -> totIdentGen(),
+                              newParamName -> itemIdentGen()
+                            ),
+                            unit
+                          )
                         ).setType(UnitClass.tpe)
-
-                        typed { r }
                       }
-                    ),
-                    incrementIntVar(iIdentGen, typed { Literal(Constant(1)) })
+                    )
                   )
-                )
-              )
+                case Scan =>
+                  super.transform(tree)
+                  /* TODO FIX THE UPDATE !
+                  val mappedArrayTpe = appliedType(ArrayClass.tpe, List(resultType.tpe))
+                  arrayForeach[(IdentGen, IdentGen)](
+                    tree,
+                    array,
+                    !isLeft,
+                    (aIdentGen, nIdentGen) => {
+                      val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, nIdentGen()))
+                      val (totIdentGen, _, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)//.setType(IntClass.tpe))
+                      (List(totDef, mDef), totIdentGen(), (mIdentGen, totIdentGen))
+                    },
+                    {
+                      case (iIdentGen, itemIdentGen, (mIdentGen, totIdentGen)) =>
+                        msg(tree.pos, "transformed array foldLeft into equivalent while loop.") {
+                          List(
+                            Apply(
+                              typed {
+                                val mIdent = mIdentGen()
+                                Select(
+                                  mIdent,
+                                  N("update")
+                                ).setSymbol(getMember(mIdent.symbol, nme.update))
+                              },
+                              List(
+                                iIdentGen(),
+                                totIdentGen()
+                              )
+                            ).setType(UnitClass.tpe),
+                            Assign(
+                              totIdentGen(),
+                              replace(
+                                body,
+                                Map(
+                                  accParamName -> totIdentGen(),
+                                  newParamName -> itemIdentGen()
+                                ),
+                                unit
+                              )
+                            ).setType(UnitClass.tpe)
+                          )
+                        }
+                    }
+                  )*/
+              }
             )
           }
         case _ =>

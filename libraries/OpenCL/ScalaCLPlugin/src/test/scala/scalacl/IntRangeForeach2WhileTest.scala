@@ -36,12 +36,9 @@ import Assert._
 
 class IntRangeForeach2WhileTest extends TestUtils {
 
-  implicit val outDir = new File("target/intRangeTestOut")
-  outDir.mkdirs
-    
   @Test
   def simpleToLoop {
-    ensurePluginCompilesSnippetsToSameByteCode(
+    ensurePluginCompilesSnippetsToSameByteCode("simpleToLoop", 
       """ var t = 0
           for (i <- 0 to 100)
             t += 2 * i
@@ -61,7 +58,7 @@ class IntRangeForeach2WhileTest extends TestUtils {
 
   @Test
   def simpleUntilLoop {
-    ensurePluginCompilesSnippetsToSameByteCode(
+    ensurePluginCompilesSnippetsToSameByteCode("simpleUntilLoop",
       """ var t = 0
           for (i <- 0 until 100)
             t += 2 * i
@@ -81,7 +78,7 @@ class IntRangeForeach2WhileTest extends TestUtils {
 
   @Test
   def simpleToByLoop {
-    ensurePluginCompilesSnippetsToSameByteCode(
+    ensurePluginCompilesSnippetsToSameByteCode("simpleToByLoop", 
       """ var t = 0
           for (j <- 50 to 200 by 3)
             t += j / 2
@@ -100,7 +97,7 @@ class IntRangeForeach2WhileTest extends TestUtils {
 
   @Test
   def simpleUntilByLoop {
-    ensurePluginCompilesSnippetsToSameByteCode(
+    ensurePluginCompilesSnippetsToSameByteCode("simpleUntilByLoop", 
       """ var t = 0
           for (j <- 50 until 200 by 3)
             t += j / 2
@@ -118,7 +115,7 @@ class IntRangeForeach2WhileTest extends TestUtils {
   }
   @Test
   def testNestedLoop {
-    ensurePluginCompilesSnippetsToSameByteCode(
+    ensurePluginCompilesSnippetsToSameByteCode("testNestedLoop", 
       """ var t = 0
           for (i <- 0 to 100 by 5; j <- 0 until 1000)
             t += 2 * (i + j)
@@ -143,7 +140,7 @@ class IntRangeForeach2WhileTest extends TestUtils {
   
   @Test
   def testNestedLoopWithExtRefs {
-    ensurePluginCompilesSnippetsToSameByteCode(
+    ensurePluginCompilesSnippetsToSameByteCode("testNestedLoopWithExtRefs", 
       """ var t = 0
           def f(x: Int) = x + 1
           def g(x: Int) = x - 1

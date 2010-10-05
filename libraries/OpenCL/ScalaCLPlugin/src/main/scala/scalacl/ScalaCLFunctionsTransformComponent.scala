@@ -56,6 +56,7 @@ extends PluginComponent
    with Transform
    with TypingTransformers
    with MiscMatchers
+   with TreeBuilders
    with OpenCLConverter
 {
   import global._

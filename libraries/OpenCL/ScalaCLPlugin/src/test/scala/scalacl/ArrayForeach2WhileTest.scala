@@ -36,9 +36,6 @@ import Assert._
 
 class ArrayForeach2WhileTest extends TestUtils {
 
-  implicit val outDir = new File("target/arrayForeachTestOut")
-  outDir.mkdirs
-
   @Test
   def simplePrimitiveArrayForeach = 
     for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
@@ -49,17 +46,18 @@ class ArrayForeach2WhileTest extends TestUtils {
     simpleArrayForeach("String")
 
   def simpleArrayForeach(typeStr: String) {
-    ensurePluginCompilesSnippetsToSameByteCode(
+    ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ArrayForeach",
       """ val a = new Array[""" + typeStr + """](10)
           a.foreach(println(_))
       """,
       """ val a = new Array[""" + typeStr + """](10)
           val aa = a
-          var i = 0
           val n = aa.length
+          var i = 0
           while (i < n)
           {
-            println(a(i))
+            val item = a(i)
+            println(item)
             i += 1
           }
       """

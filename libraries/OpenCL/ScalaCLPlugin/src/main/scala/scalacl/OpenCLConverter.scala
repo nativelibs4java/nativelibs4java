@@ -34,8 +34,10 @@ import scala.collection.immutable.Stack
 import scala.reflect.NameTransformer
 import scala.reflect.generic.{Names, Trees, Types, Constants, Universe}
 
-trait OpenCLConverter extends MiscMatchers {
-  val global: Universe//Trees with Names with Types with Constants
+trait OpenCLConverter
+extends MiscMatchers
+{
+  val global: Universe
   import global._
 
   def nodeToStringNoComment(tree: Tree): String

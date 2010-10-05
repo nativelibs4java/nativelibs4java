@@ -49,28 +49,17 @@ extends MiscMatchers
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed, atOwner}    // methods to type trees
 
-
-  /*def replace(varName: String, tree: Tree, by: => Tree, unit: CompilationUnit) = new TypingTransformer(unit) {
-    val n = N(varName)
-    override def transform(tree: Tree): Tree = tree match {
-      case Ident(n()) =>
-        by
-      case _ =>
-        //if (tree.symbol != null && tree.symbol.ownerChain.exists(_.isMethod))
-        //  println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)
-        super.transform(tree)
-    }
-  }.transform(tree)
-  */
   def replace(tree: Tree, mappings: Map[Name, Tree], unit: CompilationUnit) = new TypingTransformer(unit) {
-    override def transform(tree: Tree): Tree = tree match {
-      case Ident(n) =>
-        mappings.get(n).getOrElse(super.transform(tree))
-      case _ =>
-        //if (tree.symbol != null && tree.symbol.ownerChain.exists(_.isMethod))
-        //  println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)
-        super.transform(tree)
-    }
+    override def transform(tree: Tree): Tree = //typed {
+      tree match {
+        case Ident(n) =>
+          mappings.get(n).getOrElse(super.transform(tree))
+        case _ =>
+          //if (tree.symbol != null && tree.symbol.ownerChain.exists(_.isMethod))
+          //  println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)
+          super.transform(tree)
+      }
+    //}
   }.transform(tree)
 
   def binOp(a: Tree, op: Symbol, b: Tree) = typed {
@@ -86,14 +75,13 @@ extends MiscMatchers
   def incrementIntVar(sym: Symbol, n: Name, value: Tree): Assign =
     incrementIntVar(() => ident(sym, n), value)
 
-  def incrementIntVar(identGen: () => Ident, value: Tree): Assign =
+  def intAdd(a: => Tree, b: => Tree) =
+    binOp(a, IntClass.tpe.member(nme.PLUS), b)
+
+  def incrementIntVar(identGen: IdentGen, value: Tree) =
     Assign(
       identGen(),
-      binOp(
-        identGen(),
-        IntClass.tpe.member(nme.PLUS),
-        value //Literal(Constant(1))
-      )
+      intAdd(identGen(), value)
     ).setType(UnitClass.tpe)
 
   def whileLoop(owner: Symbol, unit: CompilationUnit, tree: Tree, cond: Tree, body: Tree) = {
@@ -117,15 +105,36 @@ extends MiscMatchers
               Nil
             )
           ),
-          Literal(Constant()).setType(UnitClass.tpe)
+          newUnit
         )
       ).setSymbol(labSym)
     }
   }
-  def newVariable(unit: CompilationUnit, prefix: String, symbolOwner: Symbol, pos: Position, mutable: Boolean, initialValue: Tree) = {
+
+  type IdentGen = () => Ident
+
+  def newInt(v: Int) = 
+    Literal(Constant(v)).setType(IntClass.tpe)
+
+  def newUnit() = 
+    Literal(Constant()).setType(UnitClass.tpe)
+
+  def newVariable(
+    unit: CompilationUnit,
+    prefix: String,
+    symbolOwner: Symbol,
+    pos: Position,
+    mutable: Boolean,
+    initialValue: Tree
+  ): (IdentGen, Symbol, ValDef) = {
     val tpe = initialValue.tpe
     val name = unit.fresh.newName(pos, prefix)
-    val sym = symbolOwner.newVariable(pos, name) setInfo tpe
+    val sym = (
+      //if (mutable)
+        symbolOwner.newVariable(pos, name)
+      /*else
+        symbolOwner.newValue(pos, name)*/
+    ) setInfo tpe
     (() => ident(sym, name), sym, ValDef(Modifiers(if (mutable) MUTABLE else 0), name, TypeTree(tpe), initialValue).setType(tpe).setSymbol(sym))
   }
 }

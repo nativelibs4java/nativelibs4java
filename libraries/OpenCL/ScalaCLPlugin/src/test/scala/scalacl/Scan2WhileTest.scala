@@ -34,35 +34,76 @@ import java.io.File
 import org.junit._
 import Assert._
 
-class ArrayMap2WhileTest extends TestUtils {
+class Scan2WhileTest extends TestUtils {
 
+  /*
   @Test
-  def simplePrimitiveArrayMap = 
-    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
-      simpleArrayMap(p)
-
-  @Test
-  def simpleStringArrayMap =
-    simpleArrayMap("String")
-
-  def simpleArrayMap(typeStr: String) {
-    ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ArrayMap", 
-      """ val a = new Array[""" + typeStr + """](10)
-          val m = a.map(_ + "...")
+  def simpleScanLeft {
+    ensurePluginCompilesSnippetsToSameByteCode("simpleScanLeft", 
+      """ val a = new Array[Double](10)
+          val s = a.scanLeft(0.0)(_ + _ * 0.01)
       """,
-      """ val a = new Array[""" + typeStr + """](10)
-          val m = {
+      """ val a = new Array[Double](10)
+          val s = {
             val aa = a
             val n = aa.length
             var i = 0
-            val mm = new Array[String](n)
-            while (i < n)
-            {
-              val item = aa(i)
-              mm(i) = item + "..."
-              i += 1
+            var t = 0.0
+            val m = new Array[Double](n)
+            while (i < n) {
+                val item = aa(i)
+                m(i) = t
+                t = t + item * 0.01
+                i += 1
             }
-            mm
+            m
+          }
+      """
+    )
+  }
+  */
+
+  @Test
+  def simpleFoldLeft {
+    ensurePluginCompilesSnippetsToSameByteCode("simpleFoldLeft",
+      """ val a = new Array[Double](10)
+          val s = a.foldLeft(0.0)(_ + _)
+      """,
+      """ val a = new Array[Double](10)
+          val s = {
+            val aa = a
+            val n = aa.length
+            var i = 0
+            var t = 0.0
+            while (i < n) {
+                val item = aa(i)
+                t = t + item
+                i += 1
+            }
+            t
+          }
+      """
+    )
+  }
+  
+  @Test
+  def simpleFoldRight {
+    ensurePluginCompilesSnippetsToSameByteCode("simpleFoldRight", 
+      """ val a = new Array[Double](10)
+          val s = a.foldRight(0.0)(_ + _)
+      """,
+      """ val a = new Array[Double](10)
+          val s = {
+            val aa = a
+            var t = 0.0
+            val n = aa.length
+            var i = n
+            while (i > 0) {
+                i += -1
+                val item = aa(i)
+                t = t + item
+            }
+            t
           }
       """
     )

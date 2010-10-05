@@ -11,14 +11,11 @@ import scala.io.Source
 import org.junit.Assert._
 
 trait TestUtils {
-    
-  //def testSameByteCode(originalSource: String)
-  //var nextSnippetId = 0
-  def getSnippetBytecode(source: String, enablePlugin: Boolean)(implicit outDir: File) = {
-    //val normalizedClassName = "Snippet"
-    //val className = normalizedClassName + "$" + nextSnippetId + "$"
-    val className = "Snippet"
-    //nextSnippetId += 1
+
+  implicit val outDir = new File("target/testSnippetsClasses")
+  outDir.mkdirs
+
+  def getSnippetBytecode(className: String, source: String, enablePlugin: Boolean) = {
     val src = "class " + className + " { def invoke(): Unit = {\n" + source + "\n}}"
     val srcFile = new File(outDir, className + ".scala")
     val out = new PrintWriter(srcFile)
@@ -34,12 +31,12 @@ trait TestUtils {
     println("BYTECODE :")
     println("\t" + byteCode.replaceAll("\n", "\n\t"))
     */
-    byteCode
+    byteCode//.replaceAll("#\\d+", "")
   }
-  def ensurePluginCompilesSnippetsToSameByteCode(source: String, reference: String)(implicit outDir: File) = {
-    val expected = getSnippetBytecode(reference, false)
-    val withoutPlugin = getSnippetBytecode(source, false)
-    val withPlugin = getSnippetBytecode(source, true)
+  def ensurePluginCompilesSnippetsToSameByteCode(className: String, source: String, reference: String) = {
+    val expected = getSnippetBytecode(className, reference, false)
+    val withoutPlugin = getSnippetBytecode(className, source, false)
+    val withPlugin = getSnippetBytecode(className, source, true)
 
     assertTrue("Expected result already found without any plugin !!! (was the Scala compiler improved ?)", expected != withoutPlugin)
     if (expected != withPlugin) {
