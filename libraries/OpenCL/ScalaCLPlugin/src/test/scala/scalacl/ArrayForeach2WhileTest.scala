@@ -37,7 +37,7 @@ import Assert._
 class ArrayForeach2WhileTest extends TestUtils {
 
   @Test
-  def simplePrimitiveArrayForeach = 
+  def simplePrimitiveArrayForeach =
     for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
       simpleArrayForeach(p)
 
@@ -45,18 +45,48 @@ class ArrayForeach2WhileTest extends TestUtils {
   def simpleStringArrayForeach =
     simpleArrayForeach("String")
 
+  @Test
+  def inlinePrimitiveArrayForeach =
+    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
+      inlineArrayForeach(p)
+
+  @Test
+  def inlineStringArrayForeach =
+    inlineArrayForeach("String")
+
   def simpleArrayForeach(typeStr: String) {
     ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ArrayForeach",
-      """ val a = new Array[""" + typeStr + """](10)
+      """
+          val a = new Array[""" + typeStr + """](10)
           a.foreach(println(_))
       """,
-      """ val a = new Array[""" + typeStr + """](10)
+      """
+          val a = new Array[""" + typeStr + """](10)
           val aa = a
           val n = aa.length
           var i = 0
           while (i < n)
           {
-            val item = a(i)
+            val item = aa(i)
+            println(item)
+            i += 1
+          }
+      """
+    )
+  }
+
+  def inlineArrayForeach(typeStr: String) {
+    ensurePluginCompilesSnippetsToSameByteCode("inline" + typeStr + "ArrayForeach",
+      """
+          new Array[""" + typeStr + """](10).foreach(println(_))
+      """,
+      """ 
+          val aa = new Array[""" + typeStr + """](10)
+          val n = aa.length
+          var i = 0
+          while (i < n)
+          {
+            val item = aa(i)
             println(item)
             i += 1
           }

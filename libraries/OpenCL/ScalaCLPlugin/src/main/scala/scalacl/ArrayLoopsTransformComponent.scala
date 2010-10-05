@@ -73,7 +73,7 @@ extends PluginComponent
           Select(
             a,
             N("apply")
-          ).setSymbol(getMember(a.symbol, nme.apply)),
+          ).setSymbol(getMember(a.tpe.typeSymbol, nme.apply)),
           List(index)
         )
       }
@@ -191,7 +191,7 @@ extends PluginComponent
                         Select(
                           mIdentGen(),
                           N("update")
-                        ).setSymbol(getMember(array.symbol, nme.update)),
+                        ).setSymbol(getMember(array.tpe.typeSymbol, nme.update)),
                         List(
                           iIdentGen(),
                           replace(

@@ -66,10 +66,12 @@ class Scan2WhileTest extends TestUtils {
   @Test
   def simpleFoldLeft {
     ensurePluginCompilesSnippetsToSameByteCode("simpleFoldLeft",
-      """ val a = new Array[Double](10)
+      """
+          val a = new Array[Double](10)
           val s = a.foldLeft(0.0)(_ + _)
       """,
-      """ val a = new Array[Double](10)
+      """
+          val a = new Array[Double](10)
           val s = {
             val aa = a
             val n = aa.length
@@ -89,10 +91,12 @@ class Scan2WhileTest extends TestUtils {
   @Test
   def simpleFoldRight {
     ensurePluginCompilesSnippetsToSameByteCode("simpleFoldRight", 
-      """ val a = new Array[Double](10)
+      """
+          val a = new Array[Double](10)
           val s = a.foldRight(0.0)(_ + _)
       """,
-      """ val a = new Array[Double](10)
+      """
+          val a = new Array[Double](10)
           val s = {
             val aa = a
             var t = 0.0

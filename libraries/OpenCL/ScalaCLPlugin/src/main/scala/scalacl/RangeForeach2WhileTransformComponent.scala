@@ -59,7 +59,7 @@ extends PluginComponent
 
     override def transform(tree: Tree): Tree =
       tree match {
-      case IntRangeForeach(from, to, by, isUntil, Function(List(ValDef(paramMods, paramName, t1: TypeTree, rhs)), body)) =>
+      case IntRangeForeach(from, to, by, isUntil, Func1(paramName, body)) =>
         val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
         val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
         typed {

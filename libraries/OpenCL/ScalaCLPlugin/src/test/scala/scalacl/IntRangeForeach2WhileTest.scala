@@ -39,11 +39,13 @@ class IntRangeForeach2WhileTest extends TestUtils {
   @Test
   def simpleToLoop {
     ensurePluginCompilesSnippetsToSameByteCode("simpleToLoop", 
-      """ var t = 0
+      """
+          var t = 0
           for (i <- 0 to 100)
             t += 2 * i
       """,
-      """ var t = 0
+      """
+          var t = 0
           var i = 0
           val n = 100
           while (i <= n)

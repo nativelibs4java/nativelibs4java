@@ -37,7 +37,7 @@ import Assert._
 class ArrayMap2WhileTest extends TestUtils {
 
   @Test
-  def simplePrimitiveArrayMap = 
+  def simplePrimitiveArrayMap =
     for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
       simpleArrayMap(p)
 
@@ -45,14 +45,47 @@ class ArrayMap2WhileTest extends TestUtils {
   def simpleStringArrayMap =
     simpleArrayMap("String")
 
+  @Test
+  def inlinePrimitiveArrayMap =
+    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
+      inlineArrayMap(p)
+
+  @Test
+  def inlineStringArrayMap =
+    inlineArrayMap("String")
+
   def simpleArrayMap(typeStr: String) {
     ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ArrayMap", 
-      """ val a = new Array[""" + typeStr + """](10)
+      """
+          val a = new Array[""" + typeStr + """](10)
           val m = a.map(_ + "...")
       """,
-      """ val a = new Array[""" + typeStr + """](10)
+      """
+          val a = new Array[""" + typeStr + """](10)
           val m = {
             val aa = a
+            val n = aa.length
+            var i = 0
+            val mm = new Array[String](n)
+            while (i < n)
+            {
+              val item = aa(i)
+              mm(i) = item + "..."
+              i += 1
+            }
+            mm
+          }
+      """
+    )
+  }
+  def inlineArrayMap(typeStr: String) {
+    ensurePluginCompilesSnippetsToSameByteCode("inline" + typeStr + "ArrayMap",
+      """
+          val m = new Array[""" + typeStr + """](10).map(_ + "...")
+      """,
+      """
+          val m = {
+            val aa = new Array[""" + typeStr + """](10)
             val n = aa.length
             var i = 0
             val mm = new Array[String](n)
