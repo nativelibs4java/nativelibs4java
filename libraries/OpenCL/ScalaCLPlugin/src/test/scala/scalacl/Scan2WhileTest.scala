@@ -49,10 +49,11 @@ class Scan2WhileTest extends TestUtils {
             val n = aa.length
             var i = 0
             var t = 0.0
-            val m = new Array[Double](n)
+            val m = new Array[Double](n + 1)
+            m(0) = t
             while (i < n) {
                 val item = aa(i)
-                m(i) = t
+                m(i + 1) = t
                 t = t + item * 0.01
                 i += 1
             }

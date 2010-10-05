@@ -1,34 +1,12 @@
-#!/bin/bash
-
-mvn package -Dmaven.test.skip=true
-
-TEMP_OUT=target/sbaz_out
-JAR_OUT=$TEMP_OUT/misc/scala-devel/plugins
-
-rm -fR $TEMP_OUT
-
-mkdir -p $JAR_OUT
-
-VERSION="`cat pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'`"
-cp target/scalacl-compiler-plugin-$VERSION.jar $JAR_OUT
-
-sbaz pack scalacl-compiler-plugin $TEMP_OUT \
-	--linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl/ \
-	--version $VERSION \
-	--pack200 \
-	--outdir src/main/sbaz \
-	--description \
-"ScalaCL Plugin is a compiler plugin that optimizes general Scala programs and ScalaCL / OpenCL programs in particular.
+<availablePackage>
+  <package><name>scalacl-compiler-plugin</name><version>1.0-20101005</version><depends></depends><description>ScalaCL Plugin is a compiler plugin that optimizes general Scala programs and ScalaCL / OpenCL programs in particular.
 (see http://scalacl.googlecode.com/)
-Author: Olivier Chafik <olivier.chafik@gmail.com>
+Author: Olivier Chafik &lt;olivier.chafik@gmail.com&gt;
 
 Current general optimizations include :
 - Rewrite of int range foreach loops into faster while loops
 - Rewrite of Array[T].foreach into while loops (for T being primitive or AnyRef)
 - Rewrite of Array[T].map into while loops
-- Rewrite of Array[T].foldLeft / foldRight into while loops
-- Rewrite of Array[T].reduceLeft / reduceRight into while loops
-- Rewrite of Array[T].scanLeft / scanRight into while loops
 
 Current ScalaCL / OpenCL-specific optimizations include :
 - Transforming Scala functions given to CLCol[T].map, foreach and filter into OpenCL kernels (supports only limited inline lambdas)
@@ -41,6 +19,6 @@ More optimizations are scheduled, such as :
 Please use NativeLibs4Java's user group and bug-tracker for feedback or help about ScalaCL and its compiler plugin :
 http://groups.google.fr/group/nativelibs4java/
 http://code.google.com/p/nativelibs4java/issues/list
-"
-
-mv *.advert src/main/sbaz
+</description></package>
+  <link>http://nativelibs4java.sourceforge.net/sbaz/scalacl/scalacl-compiler-plugin-1.0-20101005.sbp</link>
+</availablePackage>

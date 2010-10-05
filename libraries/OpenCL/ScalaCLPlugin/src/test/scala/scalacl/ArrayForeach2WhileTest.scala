@@ -46,13 +46,22 @@ class ArrayForeach2WhileTest extends TestUtils {
     simpleArrayForeach("String")
 
   @Test
-  def inlinePrimitiveArrayForeach =
+  def inlinePrimitiveArrayByLengthForeach =
     for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
-      inlineArrayForeach(p)
+      inlineArrayByLengthForeach(p)
 
   @Test
-  def inlineStringArrayForeach =
-    inlineArrayForeach("String")
+  def inlineStringArrayByLengthForeach =
+    inlineArrayByLengthForeach("String")
+
+  @Test
+  def inlinePrimitiveArrayWithElementsForeach =
+    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
+      inlineArrayWithElementsForeach(p, if (p == "Boolean") "true, true, false" else Array(1, 2, 3).map("(" + _ + ": " + p + ")").mkString(", "))
+
+  @Test
+  def inlineStringArrayWithElementsForeach =
+    inlineArrayWithElementsForeach("String", "\"a\", \"b\", \"c\"")
 
   def simpleArrayForeach(typeStr: String) {
     ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ArrayForeach",
@@ -75,13 +84,31 @@ class ArrayForeach2WhileTest extends TestUtils {
     )
   }
 
-  def inlineArrayForeach(typeStr: String) {
+  def inlineArrayByLengthForeach(typeStr: String) {
     ensurePluginCompilesSnippetsToSameByteCode("inline" + typeStr + "ArrayForeach",
       """
           new Array[""" + typeStr + """](10).foreach(println(_))
       """,
       """ 
           val aa = new Array[""" + typeStr + """](10)
+          val n = aa.length
+          var i = 0
+          while (i < n)
+          {
+            val item = aa(i)
+            println(item)
+            i += 1
+          }
+      """
+    )
+  }
+  def inlineArrayWithElementsForeach(typeStr: String, itemsStr: String) {
+    ensurePluginCompilesSnippetsToSameByteCode("inline" + typeStr + "ArrayWithElementsForeach",
+      """
+          Array(""" + itemsStr + """).foreach(println(_))
+      """,
+      """
+          val aa = Array(""" + itemsStr + """)
           val n = aa.length
           var i = 0
           while (i < n)

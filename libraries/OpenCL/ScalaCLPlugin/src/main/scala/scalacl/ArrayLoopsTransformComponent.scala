@@ -66,19 +66,6 @@ extends PluginComponent
   
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
 
-    def arrayApply(array: => Tree, index: => Tree) = {
-      val a = array
-      typed {
-        Apply(
-          Select(
-            a,
-            N("apply")
-          ).setSymbol(getMember(a.tpe.typeSymbol, nme.apply)),
-          List(index)
-        )
-      }
-    }
-
     /// payload is produced by function that creates the outer definitions and passed to the function that creates the inner statements
     def arrayForeach[Payload](
       tree: Tree,
@@ -91,7 +78,7 @@ extends PluginComponent
       val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, pos, false, array)
       val (nIdentGen, _, nDef) = newVariable(unit, "n$", currentOwner, pos, false, Select(aIdentGen(), nme.length).setSymbol(getMember(aSym, nme.length)).setType(IntClass.tpe))
       val (iIdentGen, _, iDef) = newVariable(unit, "i$", currentOwner, pos, true, if (reverseOrder) nIdentGen() else newInt(0))
-      val (itemIdentGen, itemSym, itemDef) = newVariable(unit, "item$", currentOwner, pos, false, arrayApply(aIdentGen(), iIdentGen()))
+      val (itemIdentGen, itemSym, itemDef) = newVariable(unit, "item$", currentOwner, pos, false, newApply(aIdentGen(), iIdentGen()))
       val (outerStatements, returnValue, payload) = 
         outerStatementsReturnAndPayloadFromArrayAndLengthIdent(aIdentGen, nIdentGen)
       
@@ -186,22 +173,15 @@ extends PluginComponent
                 },
                 (iIdentGen, itemIdentGen, mIdentGen) => List(
                   msg(tree.pos, "transformed array map into equivalent while loop.") {
-                    typed {
-                      Apply(
-                        Select(
-                          mIdentGen(),
-                          N("update")
-                        ).setSymbol(getMember(array.tpe.typeSymbol, nme.update)),
-                        List(
-                          iIdentGen(),
-                          replace(
-                            body,
-                            Map(paramName -> itemIdentGen()),
-                            unit
-                          )
-                        )
+                    newUpdate(
+                      mIdentGen(),
+                      iIdentGen(),
+                      replace(
+                        body,
+                        Map(paramName -> itemIdentGen),
+                        unit
                       )
-                    }
+                    )
                   }
                 )
               )
@@ -220,7 +200,7 @@ extends PluginComponent
                   msg(tree.pos, "transformed array foreach into equivalent while loop.") {
                     replace(
                       body,
-                      Map(paramName -> itemIdentGen()),
+                      Map(paramName -> itemIdentGen),
                       unit
                     )
                   }
@@ -242,7 +222,7 @@ extends PluginComponent
                       assert((initialValue == null) == (op == Reduce)) // no initial value for reduce only
                       val (totIdentGen, _, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, 
                         if (initialValue == null)
-                          arrayApply(aIdentGen(), if (isLeft) newInt(0) else intAdd(nIdentGen(), newInt(-1)))
+                          newApply(aIdentGen(), if (isLeft) newInt(0) else intAdd(nIdentGen(), newInt(-1)))
                         else
                           initialValue
                       )
@@ -255,8 +235,8 @@ extends PluginComponent
                           replace(
                             body,
                             Map(
-                              accParamName -> totIdentGen(),
-                              newParamName -> itemIdentGen()
+                              accParamName -> totIdentGen,
+                              newParamName -> itemIdentGen
                             ),
                             unit
                           )
@@ -273,34 +253,30 @@ extends PluginComponent
                     array,
                     !isLeft,
                     (aIdentGen, nIdentGen) => {
-                      val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, nIdentGen()))
+                      val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, intAdd(nIdentGen(), newInt(1))))
                       val (totIdentGen, _, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)//.setType(IntClass.tpe))
-                      (List(totDef, mDef), totIdentGen(), (mIdentGen, totIdentGen))
+                      (
+                        List(
+                          totDef,
+                          mDef,
+                          newUpdate(mIdentGen(), newInt(0), totIdentGen())
+                        ),
+                        totIdentGen(),
+                        (mIdentGen, totIdentGen)
+                      )
                     },
                     {
                       case (iIdentGen, itemIdentGen, (mIdentGen, totIdentGen)) =>
                         msg(tree.pos, "transformed array foldLeft into equivalent while loop.") {
                           List(
-                            Apply(
-                              typed {
-                                val mIdent = mIdentGen()
-                                Select(
-                                  mIdent,
-                                  N("update")
-                                ).setSymbol(getMember(mIdent.symbol, nme.update))
-                              },
-                              List(
-                                iIdentGen(),
-                                totIdentGen()
-                              )
-                            ).setType(UnitClass.tpe),
+                            newUpdate(mIdentGen(), intAdd(iIdentGen(), newInt(1)), totIdentGen()),
                             Assign(
                               totIdentGen(),
                               replace(
                                 body,
                                 Map(
-                                  accParamName -> totIdentGen(),
-                                  newParamName -> itemIdentGen()
+                                  accParamName -> totIdentGen,
+                                  newParamName -> itemIdentGen
                                 ),
                                 unit
                               )
@@ -308,7 +284,8 @@ extends PluginComponent
                           )
                         }
                     }
-                  )*/
+                  )
+                  */
               }
             )
           }

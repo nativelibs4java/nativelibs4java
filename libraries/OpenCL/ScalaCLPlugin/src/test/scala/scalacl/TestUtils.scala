@@ -1,13 +1,25 @@
 package scalacl
 
 import java.io.BufferedReader
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 import java.io.PrintWriter
+import scala.collection.mutable.HashMap
 import scala.concurrent.ops
 import scala.io.Source
 
+import java.net.URI
+import javax.tools.DiagnosticCollector
+import javax.tools.FileObject
+import javax.tools.ForwardingJavaFileManager
+import javax.tools.JavaCompiler
+import javax.tools.JavaFileManager
+import javax.tools.JavaFileObject
+import javax.tools.ToolProvider
 import org.junit.Assert._
 
 trait TestUtils {
@@ -26,11 +38,11 @@ trait TestUtils {
     val byteCodeSource = getClassByteCode(className, outDir.getAbsolutePath)
     val byteCode = byteCodeSource.mkString//("\n")
     /*
-    println("COMPILED :")
-    println("\t" + source.replaceAll("\n", "\n\t"))
-    println("BYTECODE :")
-    println("\t" + byteCode.replaceAll("\n", "\n\t"))
-    */
+     println("COMPILED :")
+     println("\t" + source.replaceAll("\n", "\n\t"))
+     println("BYTECODE :")
+     println("\t" + byteCode.replaceAll("\n", "\n\t"))
+     */
     byteCode//.replaceAll("#\\d+", "")
   }
   def ensurePluginCompilesSnippetsToSameByteCode(className: String, source: String, reference: String) = {

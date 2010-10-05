@@ -49,11 +49,12 @@ extends MiscMatchers
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed, atOwner}    // methods to type trees
 
-  def replace(tree: Tree, mappings: Map[Name, Tree], unit: CompilationUnit) = new TypingTransformer(unit) {
+  type TreeGen = () => Tree
+  def replace(tree: Tree, mappings: Map[Name, TreeGen], unit: CompilationUnit) = new TypingTransformer(unit) {
     override def transform(tree: Tree): Tree = //typed {
       tree match {
         case Ident(n) =>
-          mappings.get(n).getOrElse(super.transform(tree))
+          mappings.get(n).map(_()).getOrElse(super.transform(tree))
         case _ =>
           //if (tree.symbol != null && tree.symbol.ownerChain.exists(_.isMethod))
           //  println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)
@@ -61,6 +62,33 @@ extends MiscMatchers
       }
     //}
   }.transform(tree)
+
+  def newApply(array: => Tree, index: => Tree) = {
+    val a = array
+    assert(a.tpe != null)
+    typed {
+      Apply(
+        Select(
+          a,
+          N("apply")
+        ).setSymbol(getMember(a.tpe.typeSymbol, nme.apply)),
+        List(index)
+      )
+    }
+  }
+  def newUpdate(array: => Tree, index: => Tree, value: => Tree) = {
+    val a = array
+    assert(a.tpe != null)
+    typed {
+      Apply(
+        Select(
+          a,
+          N("update")
+        ).setSymbol(getMember(a.tpe.typeSymbol, nme.update)),
+        List(index, value)
+      )
+    }
+  }
 
   def binOp(a: Tree, op: Symbol, b: Tree) = typed {
     Apply(Select(a, op), List(b))
