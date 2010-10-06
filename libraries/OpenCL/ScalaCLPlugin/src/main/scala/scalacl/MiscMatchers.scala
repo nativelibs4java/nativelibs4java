@@ -30,14 +30,10 @@
  */
 package scalacl
 
-import scala.reflect.AppliedType
-import scala.reflect.generic.{Names, Trees, Types, Constants, Symbols, StandardDefinitions, Universe}
 import scala.tools.nsc.Global
-import scala.tools.nsc.symtab.Definitions
 
 trait MiscMatchers {
-  //this: TreeBuilders =>
-  val global: Universe//Trees with Names with Types with Constants with Definitions with Symbols with StandardDefinitions
+  val global: Global
   import global._
   import definitions._
 
@@ -73,16 +69,6 @@ trait MiscMatchers {
   val reduceRightName = N("reduceRight")
   val scanLeftName = N("scanLeft")
   val scanRightName = N("scanRight")
-  val doubleArrayOpsName = N("doubleArrayOps")
-  val floatArrayOpsName = N("floatArrayOps")
-  val shortArrayOpsName = N("shortArrayOps")
-  val intArrayOpsName = N("intArrayOps")
-  val longArrayOpsName = N("longArrayOps")
-  val byteArrayOpsName = N("byteArrayOps")
-  val charArrayOpsName = N("charArrayOps")
-  val refArrayOpsName = N("refArrayOps")
-  val booleanArrayOpsName = N("booleanArrayOps")
-  // TODO
   val mapName = N("map")
   val canBuildFromName = N("canBuildFrom")
   val filterName = N("filter")
@@ -163,55 +149,24 @@ trait MiscMatchers {
   }
 
   object Predef {
-    def unapply(tree: Tree) = tree match {
-      case Select(This(scalaName()), PredefName()) => true
-      case _ => false
-    }
-  }
-  object PrimitiveArrayOps {
-    def unapply(tree: Tree): Option[Symbol] = tree match {
-      case 
-        Select(
-          Predef(),
-          n
-        ) =>
-        n match {
-          case doubleArrayOpsName() => Some(DoubleClass)
-          case floatArrayOpsName() => Some(FloatClass)
-          case intArrayOpsName() => Some(IntClass)
-          case shortArrayOpsName() => Some(ShortClass)
-          case longArrayOpsName() => Some(LongClass)
-          case byteArrayOpsName() => Some(ByteClass)
-          case charArrayOpsName() => Some(CharClass)
-          case booleanArrayOpsName() => Some(BooleanClass)
-          case _ => None
-        }
-      case _ =>
-        None
-    }
-  }
-  object RefArrayOps {
-    def unapply(tree: Tree) = tree match {
-      case
-        TypeApply(
-          Select(
-            Predef(),
-            refArrayOpsName()),
-          List(tt @ TypeTree())
-        ) =>
-        Some(tt)
-      case _ =>
-        None
-    }
+    def unapply(tree: Tree): Boolean = tree.symbol == PredefModule
   }
   object ArrayOps {
-    def unapply(tree: Tree) = tree match {
-      case PrimitiveArrayOps(componentType) =>
-        Some(componentType)
-      case RefArrayOps(componentType) =>
-        Some(componentType.symbol)
-      case _ =>
-        None
+    lazy val ArrayOpsClass    = definitions.getClass("scala.collection.mutable.ArrayOps")
+    lazy val RefArrayOps      = PredefModule.tpe member "refArrayOps"
+    def inPredef(sym: Symbol) = sym.owner == PredefModule.moduleClass
+
+    def unapply(tree: Tree): Option[Symbol] = tree match {
+      case TypeApply(sel, List(arg))
+        if sel.symbol == RefArrayOps =>
+        Some(arg.tpe.typeSymbol)
+      case _  => tree.symbol.tpe match {
+        case MethodType(_, TypeRef(_, ArrayOpsClass, List(param)))
+          if inPredef(tree.symbol) =>
+          Some(param.typeSymbol)
+        case _ =>
+          None
+      }
     }
   }
 
