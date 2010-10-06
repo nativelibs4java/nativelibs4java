@@ -41,7 +41,7 @@ class Fold2WhileTest extends TestUtils {
     ensurePluginCompilesSnippetsToSameByteCode("simpleFoldLeft",
       """
           val a = new Array[Double](10)
-          val s = a.foldLeft(0.0)(_ + _)
+          val s = a.foldLeft(0.0)(_ + _ * 0.01)
       """,
       """
           val a = new Array[Double](10)
@@ -52,7 +52,7 @@ class Fold2WhileTest extends TestUtils {
             var t = 0.0
             while (i < n) {
                 val item = aa(i)
-                t = t + item
+                t = t + item * 0.01
                 i += 1
             }
             t
@@ -66,7 +66,7 @@ class Fold2WhileTest extends TestUtils {
     ensurePluginCompilesSnippetsToSameByteCode("simpleFoldRight",
       """
           val a = new Array[Double](10)
-          val s = a.foldRight(0.0)(_ + _)
+          val s = a.foldRight(0.0)(_ * 0.01 + _)
       """,
       """
           val a = new Array[Double](10)
@@ -78,7 +78,7 @@ class Fold2WhileTest extends TestUtils {
             while (i > 0) {
                 i -= 1
                 val item = aa(i)
-                t = t + item
+                t = item * 0.01 + t
             }
             t
           }

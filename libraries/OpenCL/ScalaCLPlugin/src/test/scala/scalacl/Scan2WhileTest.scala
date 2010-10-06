@@ -68,7 +68,7 @@ class Scan2WhileTest extends TestUtils {
   def simpleScanRight {
     ensurePluginCompilesSnippetsToSameByteCode("simpleScanRight",
       """ val a = new Array[Double](10)
-          val s = a.scanRight(0.0)(_ + _ * 0.01)
+          val s = a.scanRight(0.0)(_ * 0.01 + _)
       """,
       """ val a = new Array[Double](10)
           val s = {
@@ -81,7 +81,7 @@ class Scan2WhileTest extends TestUtils {
             while (i > 0) {
                 i -= 1
                 val item = aa(i)
-                t = t + item * 0.01
+                t = item * 0.01 + t
                 m(n - i) = t
             }
             m

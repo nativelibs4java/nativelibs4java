@@ -71,17 +71,17 @@ trait TestUtils {
       import scala.util.control.Exception._
       val inputStream = new BufferedReader(new InputStreamReader(p.getErrorStream))
       var str: String = null
-      ignoring(classOf[IOException]) {
+      //ignoring(classOf[IOException]) {
         while ({ str = inputStream.readLine; str != null }) {
-          err.synchronized {
+          //err.synchronized {
             println(str)
             err.append(str).append("\n")
-          }
-        }
+          //}
+        //}
       }
     }
 
-    val out = Source.fromInputStream(p.getInputStream)
+    val out = Source.fromInputStream(p.getInputStream).toList
     if (p.waitFor != 0) {
       Thread.sleep(100)
       error("javap failed with :\n" + err.synchronized { err.toString } + "\nAnd :\n" + out)

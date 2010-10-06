@@ -41,7 +41,7 @@ class Reduce2WhileTest extends TestUtils {
     ensurePluginCompilesSnippetsToSameByteCode("simpleReduceLeft",
       """
           val a = new Array[Double](10)
-          val s = a.reduceLeft(_ + _)
+          val s = a.reduceLeft(_ + _ * 0.01)
       """,
       """
           val a = new Array[Double](10)
@@ -52,7 +52,7 @@ class Reduce2WhileTest extends TestUtils {
             var t = aa(0)
             while (i < n) {
                 val item = aa(i)
-                t = t + item
+                t = t + item * 0.01
                 i += 1
             }
             t
@@ -66,7 +66,7 @@ class Reduce2WhileTest extends TestUtils {
     ensurePluginCompilesSnippetsToSameByteCode("simpleReduceRight",
       """
           val a = new Array[Double](10)
-          val s = a.reduceRight(_ + _)
+          val s = a.reduceRight(_ * 0.01 + _)
       """,
       """
           val a = new Array[Double](10)
@@ -78,7 +78,7 @@ class Reduce2WhileTest extends TestUtils {
             while (i > 0) {
                 i -= 1
                 val item = aa(i)
-                t = t + item
+                t = item * 0.01 + t
             }
             t
           }
