@@ -57,42 +57,60 @@ extends PluginComponent
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     var currentClassName: Name = null
 
-    override def transform(tree: Tree): Tree =
-      tree match {
-      case IntRangeForeach(from, to, by, isUntil, Func1(paramName, body)) =>
-        msg(unit, tree.pos, "transformed int range foreach loop into equivalent while loop.") {
-          val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
-          val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
-          typed {
-            super.transform(
-              treeCopy.Block(
-                tree,
-                List(
-                  iDef,
-                  nDef
-                ),
-                whileLoop(
-                  currentOwner,
-                  unit,
-                  tree,
-                  binOp(
-                    iIdentGen(),
-                    if (isUntil) IntClass.tpe.member(nme.LT) else IntClass.tpe.member(nme.LE),
-                    nIdentGen()
+    override def transform(tree: Tree): Tree = 
+      try {
+        tree match {
+          case Foreach(IntRange(from, to, by, isUntil, filters), Func1(paramName, body)) =>
+            msg(unit, tree.pos, "transformed int range foreach loop into equivalent while loop.") {
+              val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
+              val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
+              typed {
+                val content = Block(
+                  List(
+                    typed { replaceOccurrences(body, Map(paramName -> iIdentGen), unit) }
                   ),
-                  Block(
+                  incrementIntVar(iIdentGen, by.getOrElse(newInt(1)))
+                )
+                super.transform(
+                  treeCopy.Block(
+                    tree,
                     List(
-                      typed { replaceOccurrences(body, Map(paramName -> iIdentGen), unit) }
+                      iDef,
+                      nDef
                     ),
-                    incrementIntVar(iIdentGen, by)
+                    whileLoop(
+                      currentOwner,
+                      unit,
+                      tree,
+                      binOp(
+                        iIdentGen(),
+                        if (isUntil) IntClass.tpe.member(nme.LT) else IntClass.tpe.member(nme.LE),
+                        nIdentGen()
+                      ),
+                      filters match {
+                        case Nil =>
+                          content
+                        case filterFunctions: List[Tree] =>
+                          If(
+                            (filterFunctions.map {
+                              case Func1(filterParamName, filterBody) =>
+                                typed { replaceOccurrences(filterBody, Map(filterParamName -> iIdentGen), unit) }
+                            }).reduceLeft(newLogicAnd),
+                            content,
+                            newUnit
+                          )
+                      }
+                    )
                   )
                 )
-              )
-            )
-          }
-        }
-      case _ =>
-        super.transform(tree)
-    }
+              }
+            }
+          case _ =>
+            super.transform(tree)
+        } 
+     } catch { 
+       case _ => 
+         super.transform(tree) 
+     }
   }
 }

@@ -6,7 +6,7 @@
   <artifactId>scalacl-compiler-plugin</artifactId>
   <name>ScalaCL Compiler Plugin</name>
   <url>http://code.google.com/p/scalacl/</url>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0-20101006-4</version>
   <packaging>jar</packaging>
 
 	  <description>
@@ -67,6 +67,11 @@ For more info, please visit http://code.google.com/p/scalacl
 		<plugin>
 			<groupId>org.scala-tools</groupId>
 			<artifactId>maven-scala-plugin</artifactId>
+			<configuration>
+				<args>
+					<arg>-optimise</arg>
+				</args>
+				</configuration>
 			<executions>
 				<execution>
 					<goals>

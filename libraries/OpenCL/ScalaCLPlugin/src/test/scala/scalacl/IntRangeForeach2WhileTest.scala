@@ -35,7 +35,28 @@ import org.junit._
 import Assert._
 
 class IntRangeForeach2WhileTest extends TestUtils {
-
+  
+  @Test
+  def simpleUntilFilterLoop {
+    ensurePluginCompilesSnippetsToSameByteCode("simpleUntilFilterLoop",
+      """ var t = 0
+          for (i <- 0 until 100; if i < 10)
+            t += 2 * i
+      """,
+      """ var t = 0
+          var i = 0
+          val n = 100
+          while (i < n)
+          {
+            if (i < 10) {
+              t += 2 * i
+              i += 1
+            }
+          }
+      """
+    )
+  }
+  
   @Test
   def simpleToLoop {
     ensurePluginCompilesSnippetsToSameByteCode("simpleToLoop", 
@@ -77,7 +98,7 @@ class IntRangeForeach2WhileTest extends TestUtils {
     )
   }
 
-
+  
   @Test
   def simpleToByLoop {
     ensurePluginCompilesSnippetsToSameByteCode("simpleToByLoop", 
@@ -168,4 +189,5 @@ class IntRangeForeach2WhileTest extends TestUtils {
       """
     )
   }
+
 }

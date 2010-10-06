@@ -64,6 +64,7 @@ trait MiscMatchers {
   val intWrapperName = N("intWrapper")
   val toName = N("to")
   val byName = N("by")
+  val withFilterName = N("withFilter")
   val untilName = N("until")
   val foreachName = N("foreach")
   val foldLeftName = N("foldLeft")
@@ -121,30 +122,41 @@ trait MiscMatchers {
         None
     }
   }
+  object IntRange {
+    def apply(from: Tree, to: Tree, by: Option[Tree], isUntil: Boolean, filters: List[Tree]) = error("not implemented")
 
-  object IntRangeForeach {
-    def apply(from: Tree, to: Tree, by: Tree, isUntil: Boolean, functionReturnType: Tree, function: Tree) =
-      Apply(TypeApply(Select(Apply(Select(Apply(Select(Select(This(scalaName), PredefName), intWrapperName), List(from)), if (isUntil) untilName else toName), List(to)), foreachName), List(functionReturnType)), List(function))
-
-	def unapply(tree: Tree): Option[(Tree, Tree, Tree, Boolean, Tree)] = tree match {
-      case Apply(TypeApply(Select(Apply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), byName()), List(by)), foreachName()), List(fRetType)), List(function)) =>
+	def unapply(tree: Tree): Option[(Tree, Tree, Option[Tree], Boolean, List[Tree])] = tree match {
+      case Apply(Select(Apply(Select(Predef(), intWrapperName()), List(from)), funToName @ (toName() | untilName())), List(to)) =>
         funToName match {
           case toName() =>
-            Some((from, to, by, false, function))
+            Some((from, to, None, false, Nil))
           case untilName() =>
-            Some((from, to, by, true, function))
+            Some((from, to, None, true, Nil))
           case _ =>
             None
         }
-      case Apply(TypeApply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), foreachName()), List(fRetType)), List(function)) =>
-        funToName match {
-          case toName() =>
-            Some((from, to, Literal(Constant(1)).setType(IntClass.tpe), false, function))
-          case untilName() =>
-            Some((from, to, Literal(Constant(1)).setType(IntClass.tpe), true, function))
+      case Apply(Select(tg, n @ (byName() | withFilterName())), List(arg)) =>
+       tg match {
+          case IntRange(from, to, by, isUntil, filters) =>
+            n match {
+                case byName() if by == None =>
+                    Some((from, to, Some(arg), isUntil, filters))
+                case withFilterName() =>
+                    Some((from, to, by, isUntil, filters ++ List(arg)))
+                case _ =>
+                    None
+            }
           case _ =>
             None
         }
+    }
+  }
+  object Foreach {
+    def apply(target: Tree, function: Tree) = error("not implemented")
+
+	def unapply(tree: Tree): Option[(Tree, Tree)] = tree match {
+      case Apply(TypeApply(Select(target, foreachName()), List(fRetType)), List(function)) =>
+        Some((target, function))
       case _ =>
         None
     }

@@ -107,6 +107,9 @@ extends MiscMatchers
   def binOp(a: Tree, op: Symbol, b: Tree) = typed {
     Apply(Select(a, op), List(b))
   }
+  def newLogicAnd(a: Tree, b: Tree) = typed {
+    binOp(a, BooleanClass.tpe.member(nme.AMPAMP), b)
+  } 
   def ident(sym: Symbol, n: Name) = {
     val v = Ident(n)
     v.symbol = sym
