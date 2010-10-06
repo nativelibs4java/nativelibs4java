@@ -1,6 +1,35 @@
 /// USE -optimise when compiling the code : the difference between List.foreach and while is then much bigger !
 /// scalac -optimise TestListForeach.scala && scala TestListForeach
 object TestListForeach {
+    /*
+        import TestUtils._
+        val arrLen = 100
+        val a = Array.tabulate(arrLen) { i => i.toString }
+        val list = a.toList
+        def testListForeach = {
+            var tot = 0
+            for (v <- list)
+                tot += v.length
+            tot
+        }
+        def testListWhile = {
+            var tot = 0
+            var l = list
+            while (!l.isEmpty) {
+                val v = l.head
+                tot += v.length
+                l = l.tail
+            }
+            tot
+        }
+        val (coldForeach, warmForeach) = tst(arrLen) { testListForeach }
+        val (coldWhile, warmWhile) = tst(arrLen) { testListWhile }
+        println(Array("Foreach", "Cold", coldForeach).mkString("\t"));
+        println(Array("Foreach", "Warm", warmForeach).mkString("\t"));
+        println(Array("While", "Cold", coldWhile).mkString("\t"));
+        println(Array("While", "Warm", warmWhile).mkString("\t"));
+        
+    */
     def time(loops: Int, n: Int)(b: => Unit): Double = {
         val start = System.nanoTime
         for (i <- 0 until loops)

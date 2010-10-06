@@ -55,7 +55,7 @@ extends MiscMatchers
   def msg[V](unit: CompilationUnit, pos: Position, text: String)(v: => V): V = {
     val r = v
     unit.comment(pos, text)
-    println(new File(pos.source.path).getName + ":" + pos.line + " " + text)
+    println("[scalacl] " + new File(pos.source.path).getName + ":" + pos.line + " " + text)
     r
   }
 
