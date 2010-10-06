@@ -65,12 +65,9 @@ extends PluginComponent
               val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
               val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
               typed {
-                val content = Block(
-                  List(
-                    typed { replaceOccurrences(body, Map(paramName -> iIdentGen), unit) }
-                  ),
-                  incrementIntVar(iIdentGen, by.getOrElse(newInt(1)))
-                )
+                val content = typed { replaceOccurrences(body, Map(paramName -> iIdentGen), unit) }
+                val iIncr = incrementIntVar(iIdentGen, by.getOrElse(newInt(1)))
+                
                 super.transform(
                   treeCopy.Block(
                     tree,
@@ -89,15 +86,18 @@ extends PluginComponent
                       ),
                       filters match {
                         case Nil =>
-                          content
+                          Block(content, iIncr)
                         case filterFunctions: List[Tree] =>
-                          If(
-                            (filterFunctions.map {
-                              case Func1(filterParamName, filterBody) =>
-                                typed { replaceOccurrences(filterBody, Map(filterParamName -> iIdentGen), unit) }
-                            }).reduceLeft(newLogicAnd),
-                            content,
-                            newUnit
+                          Block(
+                            If(
+                              (filterFunctions.map {
+                                case Func1(filterParamName, filterBody) =>
+                                  typed { replaceOccurrences(filterBody, Map(filterParamName -> iIdentGen), unit) }
+                              }).reduceLeft(newLogicAnd),
+                              content,
+                              newUnit
+                            ),
+                            iIncr
                           )
                       }
                     )

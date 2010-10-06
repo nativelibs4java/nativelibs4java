@@ -50,8 +50,8 @@ class IntRangeForeach2WhileTest extends TestUtils {
           {
             if (i < 10) {
               t += 2 * i
-              i += 1
             }
+            i += 1
           }
       """
     )
