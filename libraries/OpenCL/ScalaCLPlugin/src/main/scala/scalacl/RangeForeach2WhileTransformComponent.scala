@@ -39,12 +39,13 @@ object RangeForeach2WhileTransformComponent {
   val runsAfter = List[String]("namer")
   val phaseName = "rangeforeach2whiletransform"
 }
-class RangeForeach2WhileTransformComponent(val global: Global)
+class RangeForeach2WhileTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
 extends PluginComponent
    with Transform
    with TypingTransformers
    with MiscMatchers
    with TreeBuilders
+   with WithOptimizationFilter
 {
   import global._
   import global.definitions._
@@ -59,55 +60,58 @@ extends PluginComponent
 
     override def transform(tree: Tree): Tree = 
       try {
-        tree match {
-          case Foreach(IntRange(from, to, by, isUntil, filters), Func1(paramName, body)) =>
-            msg(unit, tree.pos, "transformed int range foreach loop into equivalent while loop.") {
-              val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
-              val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
-              typed {
-                val content = typed { replaceOccurrences(body, Map(paramName -> iIdentGen), unit) }
-                val iIncr = incrementIntVar(iIdentGen, by.getOrElse(newInt(1)))
-                
-                super.transform(
-                  treeCopy.Block(
-                    tree,
-                    List(
-                      iDef,
-                      nDef
-                    ),
-                    whileLoop(
-                      currentOwner,
-                      unit,
+        if (!shouldOptimize(tree))
+          super.transform(tree)
+        else
+          tree match {
+            case Foreach(IntRange(from, to, by, isUntil, filters), Func1(paramName, body)) =>
+              msg(unit, tree.pos, "transformed int range foreach loop into equivalent while loop.") {
+                val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
+                val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
+                typed {
+                  val content = typed { replaceOccurrences(body, Map(paramName -> iIdentGen), unit) }
+                  val iIncr = incrementIntVar(iIdentGen, by.getOrElse(newInt(1)))
+
+                  super.transform(
+                    treeCopy.Block(
                       tree,
-                      binOp(
-                        iIdentGen(),
-                        if (isUntil) IntClass.tpe.member(nme.LT) else IntClass.tpe.member(nme.LE),
-                        nIdentGen()
+                      List(
+                        iDef,
+                        nDef
                       ),
-                      filters match {
-                        case Nil =>
-                          Block(content, iIncr)
-                        case filterFunctions: List[Tree] =>
-                          Block(
-                            If(
-                              (filterFunctions.map {
-                                case Func1(filterParamName, filterBody) =>
-                                  typed { replaceOccurrences(filterBody, Map(filterParamName -> iIdentGen), unit) }
-                              }).reduceLeft(newLogicAnd),
-                              content,
-                              newUnit
-                            ),
-                            iIncr
-                          )
-                      }
+                      whileLoop(
+                        currentOwner,
+                        unit,
+                        tree,
+                        binOp(
+                          iIdentGen(),
+                          if (isUntil) IntClass.tpe.member(nme.LT) else IntClass.tpe.member(nme.LE),
+                          nIdentGen()
+                        ),
+                        filters match {
+                          case Nil =>
+                            Block(content, iIncr)
+                          case filterFunctions: List[Tree] =>
+                            Block(
+                              If(
+                                (filterFunctions.map {
+                                  case Func1(filterParamName, filterBody) =>
+                                    typed { replaceOccurrences(filterBody, Map(filterParamName -> iIdentGen), unit) }
+                                }).reduceLeft(newLogicAnd),
+                                content,
+                                newUnit
+                              ),
+                              iIncr
+                            )
+                        }
+                      )
                     )
                   )
-                )
+                }
               }
-            }
-          case _ =>
-            super.transform(tree)
-        } 
+            case _ =>
+              super.transform(tree)
+          } 
      } catch { 
        case _ => 
          super.transform(tree) 

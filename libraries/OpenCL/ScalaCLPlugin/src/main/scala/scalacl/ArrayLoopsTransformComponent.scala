@@ -30,7 +30,6 @@
  */
 package scalacl
 
-import java.io.File
 import scala.tools.nsc.Global
 
 import scala.tools.nsc.plugins.PluginComponent
@@ -49,12 +48,13 @@ object ArrayLoopsTransformComponent {
  * - Array[T].foldLeft((x, y) => body) / foldRight
  * - Array[T].scanLeft((x, y) => body) / scanRight
  */
-class ArrayLoopsTransformComponent(val global: Global)
+class ArrayLoopsTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
 extends PluginComponent
    with Transform
    with TypingTransformers
    with MiscMatchers
    with TreeBuilders
+   with WithOptimizationFilter
 {
   import global._
   import global.definitions._
@@ -183,30 +183,58 @@ extends PluginComponent
     def methodStr(componentType: Symbol, name: String) =
       "Array[" + componentType.tpe + "]." + name
 
-    override def transform(tree: Tree): Tree = try {
-      tree match {
-        case ArrayMap(array, componentType, mappedComponentType, paramName, body) =>
-          msg(unit, tree.pos, "transformed " + methodStr(componentType, "map") + " into equivalent while loop.") {
-            array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-            typed {
-              super.transform(
-                arrayForeach[IdentGen](
-                  tree,
-                  array,
-                  false,
-                  false,
-                  env => {
-                    val mappedArrayTpe = appliedType(ArrayClass.tpe, List(mappedComponentType.tpe))
-                    val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, env.nIdentGen()))
-                    new LoopOuters(List(mDef), mIdentGen(), payload = mIdentGen)
-                  },
-                  env => {
-                    val mIdentGen = env.payload
-                    List(
-                      newUpdate(
-                        tree.pos,
-                        mIdentGen(),
-                        env.iIdentGen(),
+    override def transform(tree: Tree): Tree = {
+      if (!shouldOptimize(tree))
+        super.transform(tree)
+      else
+        try {
+          tree match {
+            case ArrayMap(array, componentType, mappedComponentType, paramName, body) =>
+              msg(unit, tree.pos, "transformed " + methodStr(componentType, "map") + " into equivalent while loop.") {
+                array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
+                typed {
+                  super.transform(
+                    arrayForeach[IdentGen](
+                      tree,
+                      array,
+                      false,
+                      false,
+                      env => {
+                        val mappedArrayTpe = appliedType(ArrayClass.tpe, List(mappedComponentType.tpe))
+                        val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, env.nIdentGen()))
+                        new LoopOuters(List(mDef), mIdentGen(), payload = mIdentGen)
+                      },
+                      env => {
+                        val mIdentGen = env.payload
+                        List(
+                          newUpdate(
+                            tree.pos,
+                            mIdentGen(),
+                            env.iIdentGen(),
+                            replaceOccurrences(
+                              body,
+                              Map(paramName -> env.itemIdentGen),
+                              unit
+                            )
+                          )
+                        )
+                      }
+                    )
+                  )
+                }
+              }
+            case ArrayForeach(array, componentType, paramName, body) =>
+              msg(unit, tree.pos, "transformed " + methodStr(componentType, "foreach") + " into equivalent while loop.") {
+                array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
+                typed {
+                  super.transform(
+                    arrayForeach[Unit](
+                      tree,
+                      array,
+                      false,
+                      false,
+                      env => new LoopOuters(Nil, null, payload = ()), // no extra outer statement
+                      env => List(
                         replaceOccurrences(
                           body,
                           Map(paramName -> env.itemIdentGen),
@@ -214,128 +242,105 @@ extends PluginComponent
                         )
                       )
                     )
+                  )
+                }
+              }
+            case TraversalOp(array, componentType, resultType, leftParamName, rightParamName, op, isLeft, body, initialValue) =>
+              val accParamName = if (isLeft) leftParamName else rightParamName
+              val newParamName = if (isLeft) rightParamName else leftParamName
+              msg(unit, tree.pos, "transformed " + methodStr(componentType, op + (if (isLeft) "Left" else "Right")) + " into equivalent while loop.") {
+                array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
+                super.transform(
+                  op match {
+                    case Reduce | Fold =>
+                      arrayForeach[IdentGen](
+                        tree,
+                        array,
+                        !isLeft,
+                        op == Reduce,
+                        env => {
+                          assert((initialValue == null) == (op == Reduce)) // no initial value for reduce only
+                          val (totIdentGen, _, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true,
+                            if (initialValue == null)
+                              newApply(tree.pos, env.aIdentGen(), if (isLeft) newInt(0) else intAdd(env.nIdentGen(), newInt(-1)))
+                            else
+                              initialValue
+                          )
+                          new LoopOuters(List(totDef), totIdentGen(), payload = totIdentGen)
+                        },
+                        env => {
+                          val totIdentGen = env.payload
+                          List(
+                            Assign(
+                              totIdentGen(),
+                              replaceOccurrences(
+                                body,
+                                Map(
+                                  accParamName -> totIdentGen,
+                                  newParamName -> env.itemIdentGen
+                                ),
+                                unit
+                              )
+                            ).setType(UnitClass.tpe)
+                          )
+                        }
+                      )
+                    case Scan =>
+                      val mappedArrayTpe = appliedType(ArrayClass.tpe, List(resultType.tpe))
+                      arrayForeach[(IdentGen, IdentGen, Symbol)](
+                        tree,
+                        array,
+                        !isLeft,
+                        false,
+                        env => {
+                          val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, intAdd(env.nIdentGen(), newInt(1))))
+                          val (totIdentGen, totSym, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)//.setType(IntClass.tpe))
+                          new LoopOuters(
+                            List(
+                              totDef,
+                              mDef,
+                              newUpdate(tree.pos, mIdentGen(), newInt(0), totIdentGen())
+                            ),
+                            mIdentGen(),
+                            payload = (mIdentGen, totIdentGen, totSym)
+                          )
+                        },
+                        env => {
+                          val (mIdentGen, totIdentGen, totSym) = env.payload
+                          List(
+                            Assign(
+                              totIdentGen(),
+                              replaceOccurrences(
+                                body,
+                                Map(
+                                  accParamName -> totIdentGen,
+                                  newParamName -> env.itemIdentGen
+                                ),
+                                unit
+                              )
+                            ).setType(UnitClass.tpe),
+                            newUpdate(
+                              tree.pos,
+                              mIdentGen(),
+                              if (isLeft)
+                                intAdd(env.iIdentGen(), newInt(1))
+                              else
+                                intSub(env.nIdentGen(), env.iIdentGen()),
+                              totIdentGen())
+                          )
+                        }
+                      )
                   }
                 )
-              )
-            }
-          }
-        case ArrayForeach(array, componentType, paramName, body) =>
-          msg(unit, tree.pos, "transformed " + methodStr(componentType, "foreach") + " into equivalent while loop.") {
-            array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-            typed {
-              super.transform(
-                arrayForeach[Unit](
-                  tree,
-                  array,
-                  false,
-                  false,
-                  env => new LoopOuters(Nil, null, payload = ()), // no extra outer statement
-                  env => List(
-                    replaceOccurrences(
-                      body,
-                      Map(paramName -> env.itemIdentGen),
-                      unit
-                    )
-                  )
-                )
-              )
-            }
-          }
-        case TraversalOp(array, componentType, resultType, leftParamName, rightParamName, op, isLeft, body, initialValue) =>
-          val accParamName = if (isLeft) leftParamName else rightParamName
-          val newParamName = if (isLeft) rightParamName else leftParamName
-          msg(unit, tree.pos, "transformed " + methodStr(componentType, op + (if (isLeft) "Left" else "Right")) + " into equivalent while loop.") {
-            array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-            super.transform(
-              op match {
-                case Reduce | Fold =>
-                  arrayForeach[IdentGen](
-                    tree,
-                    array,
-                    !isLeft,
-                    op == Reduce,
-                    env => {
-                      assert((initialValue == null) == (op == Reduce)) // no initial value for reduce only
-                      val (totIdentGen, _, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, 
-                        if (initialValue == null)
-                          newApply(tree.pos, env.aIdentGen(), if (isLeft) newInt(0) else intAdd(env.nIdentGen(), newInt(-1)))
-                        else
-                          initialValue
-                      )
-                      new LoopOuters(List(totDef), totIdentGen(), payload = totIdentGen)
-                    },
-                    env => {
-                      val totIdentGen = env.payload
-                      List(
-                        Assign(
-                          totIdentGen(),
-                          replaceOccurrences(
-                            body,
-                            Map(
-                              accParamName -> totIdentGen,
-                              newParamName -> env.itemIdentGen
-                            ),
-                            unit
-                          )
-                        ).setType(UnitClass.tpe)
-                      )
-                    }
-                  )
-                case Scan =>
-                  val mappedArrayTpe = appliedType(ArrayClass.tpe, List(resultType.tpe))
-                  arrayForeach[(IdentGen, IdentGen, Symbol)](
-                    tree,
-                    array,
-                    !isLeft,
-                    false,
-                    env => {
-                      val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, intAdd(env.nIdentGen(), newInt(1))))
-                      val (totIdentGen, totSym, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)//.setType(IntClass.tpe))
-                      new LoopOuters(
-                        List(
-                          totDef,
-                          mDef,
-                          newUpdate(tree.pos, mIdentGen(), newInt(0), totIdentGen())
-                        ),
-                        mIdentGen(),
-                        payload = (mIdentGen, totIdentGen, totSym)
-                      )
-                    },
-                    env => {
-                      val (mIdentGen, totIdentGen, totSym) = env.payload
-                      List(
-                        Assign(
-                          totIdentGen(),
-                          replaceOccurrences(
-                            body,
-                            Map(
-                              accParamName -> totIdentGen,
-                              newParamName -> env.itemIdentGen
-                            ),
-                            unit
-                          )
-                        ).setType(UnitClass.tpe),
-                        newUpdate(
-                          tree.pos,
-                          mIdentGen(),
-                          if (isLeft)
-                            intAdd(env.iIdentGen(), newInt(1))
-                          else
-                            intSub(env.nIdentGen(), env.iIdentGen()),
-                          totIdentGen())
-                      )
-                    }
-                  )
               }
-            )
+            case _ =>
+              super.transform(tree)
           }
-        case _ =>
-          super.transform(tree)
-      }
-    } catch {
-      case ex =>
-        ex.printStackTrace
-        super.transform(tree)
+        } catch {
+          case ex =>
+            ex.printStackTrace
+            super.transform(tree)
+        }
     }
   }
 }

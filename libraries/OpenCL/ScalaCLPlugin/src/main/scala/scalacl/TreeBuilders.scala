@@ -31,12 +31,8 @@
 package scalacl
 
 import java.io.File
-import scala.reflect.generic.{Constants, Names, Trees, Types, Symbols}
 
-import scala.tools.nsc.CompilationUnits
-import scala.tools.nsc.plugins.Plugin
 import scala.tools.nsc.plugins.PluginComponent
-import scala.tools.nsc.symtab.Definitions
 import scala.tools.nsc.transform.TypingTransformers
 
 trait TreeBuilders
@@ -55,7 +51,9 @@ extends MiscMatchers
   def msg[V](unit: CompilationUnit, pos: Position, text: String)(v: => V): V = {
     val r = v
     unit.comment(pos, text)
-    println("[scalacl] " + new File(pos.source.path).getName + ":" + pos.line + " " + text)
+    val str = "[scalacl] " + new File(pos.source.path).getName + ":" + pos.line + " " + text
+    global.log(str)
+    println(str)
     r
   }
 

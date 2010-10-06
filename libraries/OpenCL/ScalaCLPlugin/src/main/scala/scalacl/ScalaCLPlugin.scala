@@ -30,12 +30,14 @@
  */
 package scalacl
 
+import java.io.File
 import scala.collection.immutable.Stack
 import scala.reflect.generic.Names
 import scala.reflect.generic.Trees
 import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.Plugin
 import scala.tools.nsc.symtab.Definitions
+import scala.util.parsing.input.Position
 
 /**
  * http://www.scala-lang.org/node/140
@@ -58,7 +60,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
   var enabled = !explicitelyDisabled
   var arrayLoopsEnabled = true
   var intRangeForeachEnabled = true
-  override def processOptions(options: List[String], error: String => Unit) {
+  override def processOptions(options: List[String], error: String => Unit) = {
     for (option <- options) {
       println("Found option " + option)
       option match {
@@ -74,29 +76,94 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
   }
   override val optionsHelp: Option[String] = Some(
 """
--P:scalacl:enable                   Enable ScalaCL's Compiler Plugin
--P:scalacl:disable                  Disable ScalaCL's Compiler Plugin
--P:scalacl:arrayLoops:enable        Enable transformation of Array[T].foreach and Array[T].map calls to while loops
--P:scalacl:arrayLoops:disable     Disable transformation of Array[T].foreach and Array[T].map calls to while loops
--P:scalacl:intRangeForeach:enable   Enable transformation of int range foreach loops (in the model of 'for (i <- a to/until b by c) body') to while loops
--P:scalacl:intRangeForeach:disable  Disable transformation of int range foreach loops (in the model of 'for (i <- a to/until b by c) body') to while loops
+  DISABLE_SCALACL_PLUGIN=1            Set this environment variable to disable the plugin
+  SCALACL_SKIP=File1,File2...         Do not optimize any of the listed files (can be absolute paths, file names or file names without the trailing .scala, and may be suffixed with :line)
 """.trim
-  )
+  )/*
+  -P:scalacl:enable                   Enable ScalaCL's Compiler Plugin (enabled by default !)
+  -P:scalacl:disable                  Disable ScalaCL's Compiler Plugin
+  -P:scalacl:skipFiles:File1,File2... Do not optimize any of the listed files (can be absolute paths, file names or file names without the trailing .scala)
+  */
 
+  import ScalaCLPlugin._
+  val fileAndLineOptimizationFilter: (String, Int) => Boolean = {
+    var skip = System.getenv("SCALACL_SKIP")
+    if (skip == null)
+      skip = ""
+    else
+      skip = skip.trim
+    //println("[scalacl] SCALACL_SKIP = " + skip)
+    if (skip == "")
+      (path: String, line: Int) => true
+    else {
+      skip.split(',').map(item => {
+        val s = item.split(':')
+        val f = s(0)
+        val pathFilter: String => Boolean = {
+          val file = new File(f)
+          if (file.exists) {
+            val absFile = file.getAbsolutePath
+            (path: String) => new File(path).getAbsolutePath == absFile
+          } else {
+            val n = file.getName
+            if (!n.toLowerCase.endsWith(".scala")) {
+              val ns = n + ".scala"
+              (path: String) => {
+                val fn = new File(path).getName
+                fn != n && fn != ns
+              }
+            } else {
+              (path: String) => {
+                val fn = new File(path).getName
+                fn != n
+              }
+            }
+          }
+        }
+        if (s.length == 2) {
+          val skippedLine = s(1).toInt
+          (path: String, line: Int) => path == null || line != skippedLine && pathFilter(path)
+        } else {
+          (path: String, line: Int) => path == null || pathFilter(path)
+        }
+      }).reduceLeft[FileAndLineOptimizationFilter] {
+        case (f1: FileAndLineOptimizationFilter, f2: FileAndLineOptimizationFilter) => (path: String, line: Int) => f1(path, line) && f2(path, line)
+      }
+    }
+
+  }
   override val components = if (enabled)
     List(
-      new ScalaCLFunctionsTransformComponent(global),
-      if (intRangeForeachEnabled) new RangeForeach2WhileTransformComponent(global) else null,
-      if (arrayLoopsEnabled) new ArrayLoopsTransformComponent(global) else null
+      new ScalaCLFunctionsTransformComponent(global, fileAndLineOptimizationFilter),
+      if (intRangeForeachEnabled) new RangeForeach2WhileTransformComponent(global, fileAndLineOptimizationFilter) else null,
+      if (arrayLoopsEnabled) new ArrayLoopsTransformComponent(global, fileAndLineOptimizationFilter) else null
     ).filter(_ != null)
   else
     Nil
 }
 
 object ScalaCLPlugin {
-  def components(global: Global) = List(
-    new ScalaCLFunctionsTransformComponent(global),
-    new RangeForeach2WhileTransformComponent(global),
-    new ArrayLoopsTransformComponent(global)
+  type FileAndLineOptimizationFilter = (String, Int) => Boolean
+  def components(global: Global, fileAndLineOptimizationFilter: FileAndLineOptimizationFilter) = List(
+    new ScalaCLFunctionsTransformComponent(global, fileAndLineOptimizationFilter),
+    new RangeForeach2WhileTransformComponent(global, fileAndLineOptimizationFilter),
+    new ArrayLoopsTransformComponent(global, fileAndLineOptimizationFilter)
   )
+}
+
+trait WithOptimizationFilter {
+  val global: Global
+  import global._
+  val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter
+
+  def shouldOptimize(tree: Tree) = {
+    val pos = tree.pos
+    try {
+      !pos.isDefined || fileAndLineOptimizationFilter(pos.source.path, pos.line)
+    } catch {
+      case ex =>
+        ex.printStackTrace
+        true
+    }
+  }
 }

@@ -95,7 +95,7 @@ Copyright Olivier Chafik 2010""")
         override protected def computeInternalPhases() {
           super.computeInternalPhases
           if (enablePlugins)
-            for (phase <- ScalaCLPlugin.components(this))
+            for (phase <- ScalaCLPlugin.components(this, (_, _) => true))
               phasesSet += phase
         }
       }
