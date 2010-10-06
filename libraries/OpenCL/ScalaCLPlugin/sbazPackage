@@ -44,3 +44,4 @@ http://code.google.com/p/nativelibs4java/issues/list
 "
 
 mv *.advert src/main/sbaz
+open src/main/sbaz
