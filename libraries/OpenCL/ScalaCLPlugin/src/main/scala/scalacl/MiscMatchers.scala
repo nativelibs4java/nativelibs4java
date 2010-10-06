@@ -216,7 +216,7 @@ trait MiscMatchers {
               ),
               foreachName()
             ),
-            List(functionReturnType2)
+            List(functionReturnType)
           ),
           List(Func1(paramName, body))
         ) =>
@@ -279,22 +279,19 @@ trait MiscMatchers {
   }
 
   object Func1 {
-    def unapply(tree: Tree) = tree match {
-      case Block(List(), Function(List(ValDef(_, paramName, _, _)), body))
-        if tree.symbol.toString == "trait Function1"
-        => // paramMods, paramName, TypeTree(), rhs
+    def unapply(tree: Tree): Option[(Name, Tree)] = tree match {
+      case Block(List(), Func1(paramName, body)) =>
         Some(paramName, body)
-      case Function(List(ValDef(_, paramName, _, _)), body) => // paramMods, paramName, TypeTree(), rhs
+      case Function(List(ValDef(_, paramName, _, _)), body) =>
         Some(paramName, body)
       case _ =>
         None
     }
   }
   object Func2 {
-    def unapply(tree: Tree) = tree match {
-      case Block(List(), Function(List(ValDef(_, paramName1, _, _), ValDef(_, paramName2, _, _)), body))
-        if tree.symbol.toString == "trait Function2"
-        => // paramMods, paramName, TypeTree(), rhs
+    def unapply(tree: Tree): Option[(Name, Name, Tree)] = tree match {
+      case Block(List(), Func2(paramName1, paramName2, body)) =>
+        //if tree.symbol.toString == "trait Function2"
         Some(paramName1, paramName2, body)
       case Function(List(ValDef(_, paramName1, _, _), ValDef(_, paramName2, _, _)), body) => // paramMods, paramName, TypeTree(), rhs
         Some(paramName1, paramName2, body)
