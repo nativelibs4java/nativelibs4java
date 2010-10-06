@@ -60,40 +60,36 @@ extends PluginComponent
     override def transform(tree: Tree): Tree =
       tree match {
       case IntRangeForeach(from, to, by, isUntil, Func1(paramName, body)) =>
-        val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
-        val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
-        typed {
-          super.transform(
-            treeCopy.Block(
-              tree,
-              List(
-                iDef,
-                nDef
-              ),
-              whileLoop(
-                currentOwner,
-                unit,
+        msg(unit, tree.pos, "transformed int range foreach loop into equivalent while loop.") {
+          val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
+          val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
+          typed {
+            super.transform(
+              treeCopy.Block(
                 tree,
-                binOp(
-                  iIdentGen(),
-                  if (isUntil) IntClass.tpe.member(nme.LT) else IntClass.tpe.member(nme.LE),
-                  nIdentGen()
+                List(
+                  iDef,
+                  nDef
                 ),
-                Block(
-                  List(
-                    {
-                      val r = replace(body, Map(paramName -> iIdentGen), unit)
-                      unit.comment(tree.pos, "ScalaCL plugin transformed int range foreach loop into equivalent while loop.")
-                      println(tree.pos + ": transformed int range foreach loop into equivalent while loop.")
-                      //println("REPLACED <<<\n" + body + "\n>>> by <<<\n" + r + "\n>>>")
-                      typed { r }
-                    }
+                whileLoop(
+                  currentOwner,
+                  unit,
+                  tree,
+                  binOp(
+                    iIdentGen(),
+                    if (isUntil) IntClass.tpe.member(nme.LT) else IntClass.tpe.member(nme.LE),
+                    nIdentGen()
                   ),
-                  incrementIntVar(iIdentGen, by)
+                  Block(
+                    List(
+                      typed { replaceOccurrences(body, Map(paramName -> iIdentGen), unit) }
+                    ),
+                    incrementIntVar(iIdentGen, by)
+                  )
                 )
               )
             )
-          )
+          }
         }
       case _ =>
         super.transform(tree)

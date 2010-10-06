@@ -30,6 +30,7 @@
  */
 package scalacl
 
+import java.io.File
 import scala.reflect.generic.{Constants, Names, Trees, Types, Symbols}
 
 import scala.tools.nsc.CompilationUnits
@@ -49,8 +50,17 @@ extends MiscMatchers
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed, atOwner}    // methods to type trees
 
+
+  /// print a message only if the operation succeeded :
+  def msg[V](unit: CompilationUnit, pos: Position, text: String)(v: => V): V = {
+    val r = v
+    unit.comment(pos, text)
+    println(new File(pos.source.path).getName + ":" + pos.line + " " + text)
+    r
+  }
+
   type TreeGen = () => Tree
-  def replace(tree: Tree, mappings: Map[Name, TreeGen], unit: CompilationUnit) = new TypingTransformer(unit) {
+  def replaceOccurrences(tree: Tree, mappings: Map[Name, TreeGen], unit: CompilationUnit) = new TypingTransformer(unit) {
     override def transform(tree: Tree): Tree = //typed {
       tree match {
         case Ident(n) =>
