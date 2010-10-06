@@ -36,7 +36,7 @@ import Assert._
 
 class Scan2WhileTest extends TestUtils {
 
-  /*
+  
   @Test
   def simpleScanLeft {
     ensurePluginCompilesSnippetsToSameByteCode("simpleScanLeft", 
@@ -53,8 +53,8 @@ class Scan2WhileTest extends TestUtils {
             m(0) = t
             while (i < n) {
                 val item = aa(i)
-                m(i + 1) = t
                 t = t + item * 0.01
+                m(i + 1) = t
                 i += 1
             }
             m
@@ -62,7 +62,33 @@ class Scan2WhileTest extends TestUtils {
       """
     )
   }
-  */
+
+
+  @Test
+  def simpleScanRight {
+    ensurePluginCompilesSnippetsToSameByteCode("simpleScanRight",
+      """ val a = new Array[Double](10)
+          val s = a.scanRight(0.0)(_ + _ * 0.01)
+      """,
+      """ val a = new Array[Double](10)
+          val s = {
+            val aa = a
+            val n = aa.length
+            var i = n
+            var t = 0.0
+            val m = new Array[Double](n + 1)
+            m(0) = t
+            while (i > 0) {
+                i -= 1
+                val item = aa(i)
+                t = t + item * 0.01
+                m(n - i) = t
+            }
+            m
+          }
+      """
+    )
+  }
 
   @Test
   def simpleFoldLeft {
@@ -104,9 +130,8 @@ class Scan2WhileTest extends TestUtils {
             val n = aa.length
             var i = n
             while (i > 0) {
-                i += -1
+                i -= 1
                 val item = aa(i)
-                t = t + item
             }
             t
           }

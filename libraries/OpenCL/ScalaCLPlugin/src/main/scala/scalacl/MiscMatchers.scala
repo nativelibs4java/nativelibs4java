@@ -174,6 +174,31 @@ trait MiscMatchers {
         None
     }
   }
+  object RefArrayOps {
+    def unapply(tree: Tree) = tree match {
+      case
+        TypeApply(
+          Select(
+            Predef(),
+            refArrayOpsName()),
+          List(tt @ TypeTree())
+        ) =>
+        Some(tt)
+      case _ =>
+        None
+    }
+  }
+  object ArrayOps {
+    def unapply(tree: Tree) = tree match {
+      case PrimitiveArrayOps(componentType) =>
+        Some(componentType)
+      case RefArrayOps(componentType) =>
+        Some(componentType.symbol)
+      case _ =>
+        None
+    }
+  }
+
   object ArrayForeach {
     def apply(array: Tree, componentType: Symbol, paramName: Name, body: Tree) = error("not implemented")
     def unapply(tree: Tree): Option[(Tree, Symbol, Name, Tree)] = tree match {
@@ -202,13 +227,7 @@ trait MiscMatchers {
           TypeApply(
             Select(
               Apply(
-                TypeApply(
-                  Select(
-                    Predef(),
-                    refArrayOpsName()
-                  ),
-                  List(functionReturnType)
-                ),
+                RefArrayOps(componentType),
                 List(array)
               ),
               foreachName()
@@ -217,7 +236,7 @@ trait MiscMatchers {
           ),
           List(Func1(paramName, body))
         ) =>
-        Some((array, functionReturnType.symbol, paramName, body))
+        Some((array, componentType.symbol, paramName, body))
       case _ =>
         None
     }
@@ -276,12 +295,7 @@ trait MiscMatchers {
             TypeApply(
               Select(
                 Apply(
-                  TypeApply(
-                    Select(
-                      Predef(),
-                      refArrayOpsName()),
-                    List(TypeTree())
-                  ),
+                  RefArrayOps(componentType0),
                   List(array)
                 ),
                 mapName()
@@ -320,9 +334,15 @@ trait MiscMatchers {
     }
   }
   sealed abstract class TraversalOpType
-  case object Fold extends TraversalOpType
-  case object Scan extends TraversalOpType
-  case object Reduce extends TraversalOpType
+  case object Fold extends TraversalOpType {
+    override def toString = "fold"
+  }
+  case object Scan extends TraversalOpType {
+    override def toString = "scan"
+  }
+  case object Reduce extends TraversalOpType {
+    override def toString = "reduce"
+  }
   object ReduceName {
     def apply(isLeft: Boolean) = error("not implemented")
     def unapply(name: Name) = name match {
@@ -332,7 +352,7 @@ trait MiscMatchers {
     }
   }
   object ScanName {
-    def apply(op: TraversalOpType, isLeft: Boolean) = error("not implemented")
+    def apply(isLeft: Boolean) = error("not implemented")
     def unapply(name: Name) = name match {
       case scanLeftName() => Some(true)
       case scanRightName() => Some(false)
@@ -340,7 +360,7 @@ trait MiscMatchers {
     }
   }
   object FoldName {
-    def apply(op: TraversalOpType, isLeft: Boolean) = error("not implemented")
+    def apply(isLeft: Boolean) = error("not implemented")
     def unapply(name: Name) = name match {
       case foldLeftName() => Some(true)
       case foldRightName() => Some(false)
@@ -352,14 +372,14 @@ trait MiscMatchers {
   object TraversalOp {
     def apply(array: Tree, componentType: Symbol, resultType: Symbol, accParamName: Name, newParamName: Name, op: TraversalOpType, isLeft: Boolean, body: Tree, initialValue: Tree) = error("not implemented")
     def unapply(tree: Tree): Option[(Tree, Symbol, Symbol, Name, Name, TraversalOpType, Boolean, Tree, Tree)] = tree match {
-      case
+      case // PRIMITIVE OR REF SCAN : scala.this.Predef.refArrayOps[A](array: Array[A]).scanLeft[B, Array[B]](initialValue)(function)(canBuildFromArg)
         Apply(
           Apply(
             Apply(
               TypeApply(
                 Select(
                   Apply(
-                    PrimitiveArrayOps(componentType),
+                    ArrayOps(componentType),
                     List(array)
                   ),
                   ScanName(isLeft)
@@ -379,13 +399,13 @@ trait MiscMatchers {
           case _ =>
             None
         }
-      case
+      case // PRIMITIVE OR REF FOLD : scala.this.Predef.refArrayOps[A](array: Array[A]).foldLeft[B](initialValue)(function)
         Apply(
           Apply(
             TypeApply(
               Select(
                 Apply(
-                  PrimitiveArrayOps(componentType),
+                  ArrayOps(componentType),
                   List(array)
                 ),
                 FoldName(isLeft)
@@ -397,12 +417,12 @@ trait MiscMatchers {
           List(Func2(accParamName, newParamName, body))
         ) =>
         Some((array, componentType, functionResultType.symbol, accParamName, newParamName, Fold, isLeft, body, initialValue))
-      case
+      case // PRIMITIVE OR REF REDUCE : scala.this.Predef.refArrayOps[A](array: Array[A]).reduceLeft[B](function)
         Apply(
           TypeApply(
             Select(
               Apply(
-                PrimitiveArrayOps(componentType),
+                ArrayOps(componentType),
                 List(array)
               ),
               ReduceName(isLeft)

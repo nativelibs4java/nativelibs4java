@@ -63,30 +63,34 @@ extends MiscMatchers
     //}
   }.transform(tree)
 
-  def newApply(array: => Tree, index: => Tree) = {
+  def newApply(pos: Position, array: => Tree, index: => Tree) = {
     val a = array
     assert(a.tpe != null)
     typed {
-      Apply(
-        Select(
-          a,
-          N("apply")
-        ).setSymbol(getMember(a.tpe.typeSymbol, nme.apply)),
-        List(index)
-      )
+      atPos(pos) {
+        Apply(
+          Select(
+            a,
+            N("apply")
+          ).setSymbol(getMember(a.tpe.typeSymbol, nme.apply)),
+          List(index)
+        )
+      }
     }
   }
-  def newUpdate(array: => Tree, index: => Tree, value: => Tree) = {
+  def newUpdate(pos: Position, array: => Tree, index: => Tree, value: => Tree) = {
     val a = array
     assert(a.tpe != null)
     typed {
-      Apply(
-        Select(
-          a,
-          N("update")
-        ).setSymbol(getMember(a.tpe.typeSymbol, nme.update)),
-        List(index, value)
-      )
+      atPos(pos) {
+        Apply(
+          Select(
+            a,
+            N("update")
+          ).setSymbol(getMember(a.tpe.typeSymbol, nme.update)),
+          List(index, value)
+        )
+      }
     }
   }
 
@@ -100,16 +104,22 @@ extends MiscMatchers
     v
   }
 
-  def incrementIntVar(sym: Symbol, n: Name, value: Tree): Assign =
-    incrementIntVar(() => ident(sym, n), value)
-
   def intAdd(a: => Tree, b: => Tree) =
     binOp(a, IntClass.tpe.member(nme.PLUS), b)
+
+  def intSub(a: => Tree, b: => Tree) =
+    binOp(a, IntClass.tpe.member(nme.MINUS), b)
 
   def incrementIntVar(identGen: IdentGen, value: Tree) =
     Assign(
       identGen(),
       intAdd(identGen(), value)
+    ).setType(UnitClass.tpe)
+
+  def decrementIntVar(identGen: IdentGen, value: Tree) =
+    Assign(
+      identGen(),
+      intSub(identGen(), value)
     ).setType(UnitClass.tpe)
 
   def whileLoop(owner: Symbol, unit: CompilationUnit, tree: Tree, cond: Tree, body: Tree) = {
@@ -155,13 +165,15 @@ extends MiscMatchers
     mutable: Boolean,
     initialValue: Tree
   ): (IdentGen, Symbol, ValDef) = {
-    val tpe = initialValue.tpe
+    var tpe = initialValue.tpe
+    if (tpe.isInstanceOf[ConstantType])
+      tpe = tpe.widen
     val name = unit.fresh.newName(pos, prefix)
     val sym = (
-      //if (mutable)
+      if (mutable)
         symbolOwner.newVariable(pos, name)
-      /*else
-        symbolOwner.newValue(pos, name)*/
+      else
+        symbolOwner.newValue(pos, name)
     ) setInfo tpe
     (() => ident(sym, name), sym, ValDef(Modifiers(if (mutable) MUTABLE else 0), name, TypeTree(tpe), initialValue).setType(tpe).setSymbol(sym))
   }
