@@ -241,7 +241,9 @@ extends PluginComponent
               )
             }
           }
-        case TraversalOp(array, componentType, resultType, accParamName, newParamName, op, isLeft, body, initialValue) =>
+        case TraversalOp(array, componentType, resultType, leftParamName, rightParamName, op, isLeft, body, initialValue) =>
+          val accParamName = if (isLeft) leftParamName else rightParamName
+          val newParamName = if (isLeft) rightParamName else leftParamName
           msg(unit, tree.pos, "transformed " + methodStr(componentType, op + (if (isLeft) "Left" else "Right")) + " into equivalent while loop.") {
             array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
             super.transform(

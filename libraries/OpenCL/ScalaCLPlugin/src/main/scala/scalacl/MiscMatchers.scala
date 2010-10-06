@@ -336,7 +336,7 @@ trait MiscMatchers {
 
   /// Matches one of the folding/scanning/reducing functions : (reduce|fold|scan)(Left|Right)
   object TraversalOp {
-    def apply(array: Tree, componentType: Symbol, resultType: Symbol, accParamName: Name, newParamName: Name, op: TraversalOpType, isLeft: Boolean, body: Tree, initialValue: Tree) = error("not implemented")
+    def apply(array: Tree, componentType: Symbol, resultType: Symbol, leftParamName: Name, rightParamName: Name, op: TraversalOpType, isLeft: Boolean, body: Tree, initialValue: Tree) = error("not implemented")
     def unapply(tree: Tree): Option[(Tree, Symbol, Symbol, Name, Name, TraversalOpType, Boolean, Tree, Tree)] = tree match {
       case // PRIMITIVE OR REF SCAN : scala.this.Predef.refArrayOps[A](array: Array[A]).scanLeft[B, Array[B]](initialValue)(function)(canBuildFromArg)
         Apply(
@@ -354,14 +354,14 @@ trait MiscMatchers {
               ),
               List(initialValue)
             ),
-            List(Func2(accParamName, newParamName, body))
+            List(Func2(leftParamName, rightParamName, body))
           ),
           List(CanBuildFromArg())
         ) =>
         val tpe = array.tpe
         mappedArrayType.tpe match {
           case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
-            Some((array, componentType, sym, accParamName, newParamName, Scan, isLeft, body, initialValue))
+            Some((array, componentType, sym, leftParamName, rightParamName, Scan, isLeft, body, initialValue))
           case _ =>
             None
         }
@@ -380,9 +380,9 @@ trait MiscMatchers {
             ),
             List(initialValue)
           ),
-          List(Func2(accParamName, newParamName, body))
+          List(Func2(leftParamName, rightParamName, body))
         ) =>
-        Some((array, componentType, functionResultType.symbol, accParamName, newParamName, Fold, isLeft, body, initialValue))
+        Some((array, componentType, functionResultType.symbol, leftParamName, rightParamName, Fold, isLeft, body, initialValue))
       case // PRIMITIVE OR REF REDUCE : scala.this.Predef.refArrayOps[A](array: Array[A]).reduceLeft[B](function)
         Apply(
           TypeApply(
@@ -395,9 +395,9 @@ trait MiscMatchers {
             ),
             List(functionResultType)
           ),
-          List(Func2(accParamName, newParamName, body))
+          List(Func2(leftParamName, rightParamName, body))
         ) =>
-        Some((array, componentType, functionResultType.symbol, accParamName, newParamName, Reduce, isLeft, body, null))
+        Some((array, componentType, functionResultType.symbol, leftParamName, rightParamName, Reduce, isLeft, body, null))
       case _ =>
         None
     }
