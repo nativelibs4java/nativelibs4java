@@ -63,22 +63,16 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
   override def processOptions(options: List[String], error: String => Unit) = {
     for (option <- options) {
       println("Found option " + option)
-      option match {
-        case "disable" => enabled = false
-        case "enable" => enabled = true
-        case "arrayLoops:enable" => arrayLoopsEnabled = true
-        case "arrayLoops:disable" => arrayLoopsEnabled = false
-        case "intRangeForeach:enable" => intRangeForeachEnabled = true
-        case "intRangeForeach:disable" => intRangeForeachEnabled = false
-        case _ => error("Unknown option: " + option)
-      }
+      // WE NEVER PASS HERE, WTF ???
     }
   }
   override val optionsHelp: Option[String] = Some(
 """
   DISABLE_SCALACL_PLUGIN=1            Set this environment variable to disable the plugin
-  SCALACL_SKIP=File1,File2...         Do not optimize any of the listed files (can be absolute paths, file names or file names without the trailing .scala, and may be suffixed with :line)
-""".trim
+  SCALACL_SKIP=File1,File2:line2...   Do not optimize any of the listed files (or specific lines).
+                                      Can contain absolute paths or file names (can omit trailing .scala).
+                                      Each file (name) may be suffixed with :line.
+"""
   )/*
   -P:scalacl:enable                   Enable ScalaCL's Compiler Plugin (enabled by default !)
   -P:scalacl:disable                  Disable ScalaCL's Compiler Plugin
@@ -103,7 +97,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
           val file = new File(f)
           if (file.exists) {
             val absFile = file.getAbsolutePath
-            (path: String) => new File(path).getAbsolutePath == absFile
+            (path: String) => new File(path).getAbsolutePath != absFile
           } else {
             val n = file.getName
             if (!n.toLowerCase.endsWith(".scala")) {

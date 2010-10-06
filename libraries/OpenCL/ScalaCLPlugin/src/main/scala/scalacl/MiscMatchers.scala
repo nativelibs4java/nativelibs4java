@@ -56,8 +56,9 @@ trait MiscMatchers {
   
   val scalaName = N("scala")
   val ArrayName = N("Array")
-  val PredefName = N("Predef")
+  //val PredefName = N("Predef")
   val intWrapperName = N("intWrapper")
+  val tabulateName = N("tabulate")
   val toName = N("to")
   val byName = N("by")
   val withFilterName = N("withFilter")
@@ -262,6 +263,33 @@ trait MiscMatchers {
         Some(paramName1, paramName2, body)
       case Function(List(ValDef(_, paramName1, _, _), ValDef(_, paramName2, _, _)), body) => // paramMods, paramName, TypeTree(), rhs
         Some(paramName1, paramName2, body)
+      case _ =>
+        None
+    }
+  }
+  object ArrayTabulate {
+    def apply(componentType: Tree, length: Tree, paramName: Name, body: Tree) = error("not implemented")
+    def unapply(tree: Tree) = tree match {
+      case Apply(
+          Apply(
+            Apply(
+              TypeApply(
+                Select(
+                  Select(
+                    Ident(scalaName()),
+                    ArrayName()
+                  ),
+                  tabulateName()
+                ),
+                List(componentType)
+              ),
+              List(length)
+            ),
+            List(Func1(paramName, body))
+          ),
+          List(manif)
+        ) =>
+        Some((componentType, length, paramName, body))
       case _ =>
         None
     }

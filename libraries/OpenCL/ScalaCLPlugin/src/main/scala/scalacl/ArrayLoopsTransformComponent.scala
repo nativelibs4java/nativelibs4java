@@ -189,6 +189,55 @@ extends PluginComponent
       else
         try {
           tree match {
+            case ArrayTabulate(componentType, length, paramName, body) =>
+              val tpe = body.tpe
+              val returnType = if (tpe.isInstanceOf[ConstantType]) 
+                tpe.widen
+              else
+                tpe
+              
+              msg(unit, tree.pos, "transformed Array.tabulate[" + returnType + "] into equivalent while loop") {
+                typed {
+                  super.transform {
+                    val pos = tree.pos
+                    val (nIdentGen, _, nDef) = newVariable(unit, "n$", currentOwner, pos, false, length.setType(IntClass.tpe))
+                    val mappedArrayTpe = appliedType(ArrayClass.tpe, List(returnType))
+                    val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, nIdentGen()))
+                    val (iIdentGen, _, iDef) = newVariable(unit, "i$", currentOwner, pos, true, newInt(0))
+                    typed {
+                      treeCopy.Block(
+                        tree,
+                        List(
+                          nDef,
+                          mDef,
+                          iDef,
+                          whileLoop(
+                            currentOwner,
+                            unit,
+                            tree,
+                            binOp(
+                              iIdentGen(),
+                              IntClass.tpe.member(nme.LT),
+                              nIdentGen()
+                            ),
+                            typed {
+                              Block(
+                                newUpdate(tree.pos, mIdentGen(), iIdentGen(), replaceOccurrences(
+                                  body,
+                                  Map(paramName -> iIdentGen),
+                                  unit
+                                )),
+                                incrementIntVar(iIdentGen, newInt(1))
+                              )
+                            }
+                          )
+                        ),
+                        mIdentGen()
+                      )
+                    }
+                  }
+                }
+              }
             case ArrayMap(array, componentType, mappedComponentType, paramName, body) =>
               msg(unit, tree.pos, "transformed " + methodStr(componentType, "map") + " into equivalent while loop.") {
                 array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))

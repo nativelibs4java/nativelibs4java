@@ -49,12 +49,23 @@ extends MiscMatchers
 
   /// print a message only if the operation succeeded :
   def msg[V](unit: CompilationUnit, pos: Position, text: String)(v: => V): V = {
-    val r = v
-    unit.comment(pos, text)
-    val str = "[scalacl] " + new File(pos.source.path).getName + ":" + pos.line + " " + text
-    global.log(str)
-    println(str)
-    r
+    val fileLine = new File(pos.source.path).getName + ":" + pos.line
+    val prefix = "[scalacl] " + fileLine + " "
+    try {
+      val r = v
+      unit.comment(pos, text)
+      val str = prefix + text
+      global.log(str)
+      println(str)
+      r
+    } catch {
+      case ex =>
+        println(prefix + "An unexpected error occurred while attempting an optimization")
+        println(prefix + "\tAttempted optimization : '"+ text + "'")
+        println(prefix + "\tYou can skip this line with SCALACL_SKIP=" + fileLine)
+        println(prefix + "\tError : " + ex)
+        throw ex
+    }
   }
 
   type TreeGen = () => Tree

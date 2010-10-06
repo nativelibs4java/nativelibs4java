@@ -37,6 +37,40 @@ import Assert._
 class ArrayMap2WhileTest extends TestUtils {
 
   @Test
+  def simplePrimitiveArrayTabulate =
+    for ((p, v) <- Seq(("Double", "1.0"), ("Float", "1f"), ("Int", "1"), ("Short", "(1: Short)"), ("Long", "1L"), ("Byte", "(1: Byte)"), ("Char", "'a'"), ("Boolean", "true")))
+      simpleArrayTabulate(p, v)
+
+  @Test
+  def simpleStringArrayTabulate =
+    simpleArrayTabulate("String", "\"Test\"")
+
+  def simpleArrayTabulate(typeStr: String, valStr: String) {
+    ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ArrayTabulate",
+      """
+          val length = 10
+          val a = Array.tabulate(length)(i => """ + valStr + """)
+          println(a)
+      """,
+      """
+          val length = 10
+          val a = {
+            val n = length
+            val m = new Array[""" + typeStr + """](n)
+            var i = 0
+            while (i < n)
+            {
+              m(i) = """ + valStr + """
+              i += 1
+            }
+            m
+          }
+          println(a)
+      """
+    )
+  }
+
+  @Test
   def simplePrimitiveArrayMap =
     for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
       simpleArrayMap(p)
