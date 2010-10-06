@@ -158,7 +158,11 @@ trait MiscMatchers {
   }
   object PrimitiveArrayOps {
     def unapply(tree: Tree): Option[Symbol] = tree match {
-      case Select(Predef(), n) =>
+      case 
+        Select(
+          Predef(),
+          n
+        ) =>
         n match {
           case doubleArrayOpsName() => Some(DoubleClass)
           case floatArrayOpsName() => Some(FloatClass)
@@ -202,32 +206,12 @@ trait MiscMatchers {
   object ArrayForeach {
     def apply(array: Tree, componentType: Symbol, paramName: Name, body: Tree) = error("not implemented")
     def unapply(tree: Tree): Option[(Tree, Symbol, Name, Tree)] = tree match {
-      case Apply(
-          TypeApply(
-            Select(
-              Apply(
-                PrimitiveArrayOps(componentType),
-                List(array)
-              ),
-              foreachName()
-            ),
-            List(functionReturnType)
-          ),
-          List(Func1(paramName, body))
-        ) =>
-        val tpe = array.tpe
-        val sym = tpe.typeSymbol
-        val symStr = sym.toString
-        if (symStr == "class Array")// || symStr == "class ArrayOps")
-          Some((array, componentType, paramName, body))
-        else
-          None
       case
         Apply(
           TypeApply(
             Select(
               Apply(
-                RefArrayOps(componentType),
+                ArrayOps(componentType),
                 List(array)
               ),
               foreachName()
@@ -236,7 +220,7 @@ trait MiscMatchers {
           ),
           List(Func1(paramName, body))
         ) =>
-        Some((array, componentType.symbol, paramName, body))
+        Some((array, componentType, paramName, body))
       case _ =>
         None
     }
@@ -270,7 +254,7 @@ trait MiscMatchers {
             TypeApply(
               Select(
                 Apply(
-                  PrimitiveArrayOps(componentType),
+                  ArrayOps(componentType),
                   List(array)
                 ),
                 mapName()
@@ -289,29 +273,6 @@ trait MiscMatchers {
           case _ =>
             None
         }
-      case
-        Apply(
-          Apply(
-            TypeApply(
-              Select(
-                Apply(
-                  RefArrayOps(componentType0),
-                  List(array)
-                ),
-                mapName()
-              ),
-              List(componentType, mappedArrayType)
-            ),
-            List(Func1(paramName, body))
-          ),
-          List(CanBuildFromArg())
-        ) =>
-        mappedArrayType.tpe match {
-          case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
-            Some((array, componentType.symbol, sym, paramName, body))
-          case _ =>
-            None
-        }
       case _ =>
         None
     }
@@ -319,6 +280,10 @@ trait MiscMatchers {
 
   object Func1 {
     def unapply(tree: Tree) = tree match {
+      case Block(List(), Function(List(ValDef(_, paramName, _, _)), body))
+        if tree.symbol.toString == "trait Function1"
+        => // paramMods, paramName, TypeTree(), rhs
+        Some(paramName, body)
       case Function(List(ValDef(_, paramName, _, _)), body) => // paramMods, paramName, TypeTree(), rhs
         Some(paramName, body)
       case _ =>
@@ -327,6 +292,10 @@ trait MiscMatchers {
   }
   object Func2 {
     def unapply(tree: Tree) = tree match {
+      case Block(List(), Function(List(ValDef(_, paramName1, _, _), ValDef(_, paramName2, _, _)), body))
+        if tree.symbol.toString == "trait Function2"
+        => // paramMods, paramName, TypeTree(), rhs
+        Some(paramName1, paramName2, body)
       case Function(List(ValDef(_, paramName1, _, _), ValDef(_, paramName2, _, _)), body) => // paramMods, paramName, TypeTree(), rhs
         Some(paramName1, paramName2, body)
       case _ =>
