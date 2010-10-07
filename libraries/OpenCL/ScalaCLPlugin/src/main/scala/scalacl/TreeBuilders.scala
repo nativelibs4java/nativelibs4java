@@ -69,11 +69,11 @@ extends MiscMatchers
   }
 
   type TreeGen = () => Tree
-  def replaceOccurrences(tree: Tree, mappings: Map[Name, TreeGen], unit: CompilationUnit) = new TypingTransformer(unit) {
+  def replaceOccurrences(tree: Tree, mappings: Map[Symbol, TreeGen], unit: CompilationUnit) = new TypingTransformer(unit) {
     override def transform(tree: Tree): Tree = //typed {
       tree match {
-        case Ident(n) =>
-          mappings.get(n).map(_()).getOrElse(super.transform(tree))
+        case Ident(n) if tree.symbol != NoSymbol =>
+          mappings.get(tree.symbol).map(_()).getOrElse(super.transform(tree))
         case _ =>
           //if (tree.symbol != null && tree.symbol.ownerChain.exists(_.isMethod))
           //  println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)

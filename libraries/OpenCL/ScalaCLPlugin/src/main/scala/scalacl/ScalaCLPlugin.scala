@@ -53,13 +53,11 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
     "This plugin transforms some Scala functions into OpenCL kernels (for CLCol[T].map and filter's arguments), so they can run on a GPU.\n" +
   "It will also soon feature autovectorization of ScalaCL programs, detecting parallelizable loops and unnecessary collection creations."
 
-  val runsAfter = List[String]("namer")//refchecks")
+  val runsAfter = List[String]("namer")
 
   lazy val explicitelyDisabled = "1".equals(System.getenv("DISABLE_SCALACL_PLUGIN")) || "true".equals(System.getProperty("scalacl.plugin.disable"))
 
   var enabled = !explicitelyDisabled
-  var arrayLoopsEnabled = true
-  var intRangeForeachEnabled = true
   override def processOptions(options: List[String], error: String => Unit) = {
     for (option <- options) {
       println("Found option " + option)
@@ -73,12 +71,8 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
                                       Can contain absolute paths or file names (can omit trailing .scala).
                                       Each file (name) may be suffixed with :line.
 """
-  )/*
-  -P:scalacl:enable                   Enable ScalaCL's Compiler Plugin (enabled by default !)
-  -P:scalacl:disable                  Disable ScalaCL's Compiler Plugin
-  -P:scalacl:skipFiles:File1,File2... Do not optimize any of the listed files (can be absolute paths, file names or file names without the trailing .scala)
-  */
-
+  )
+  
   import ScalaCLPlugin._
   val fileAndLineOptimizationFilter: (String, Int) => Boolean = {
     var skip = System.getenv("SCALACL_SKIP")
@@ -127,11 +121,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 
   }
   override val components = if (enabled)
-    List(
-      new ScalaCLFunctionsTransformComponent(global, fileAndLineOptimizationFilter),
-      if (intRangeForeachEnabled) new RangeForeach2WhileTransformComponent(global, fileAndLineOptimizationFilter) else null,
-      if (arrayLoopsEnabled) new ArrayLoopsTransformComponent(global, fileAndLineOptimizationFilter) else null
-    ).filter(_ != null)
+    ScalaCLPlugin.components(global, fileAndLineOptimizationFilter)
   else
     Nil
 }
@@ -139,10 +129,16 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 object ScalaCLPlugin {
   type FileAndLineOptimizationFilter = (String, Int) => Boolean
   def components(global: Global, fileAndLineOptimizationFilter: FileAndLineOptimizationFilter) = List(
+    /*
+    if (System.getenv("SCALACL_FUSEOPS") == null) null else
+      new OpsFuserTransformComponent(global, fileAndLineOptimizationFilter),
+    if (System.getenv("SCALACL_SEQ2ARRAY") == null) null else
+      new Seq2ArrayTransformComponent(global, fileAndLineOptimizationFilter),
+    */
     new ScalaCLFunctionsTransformComponent(global, fileAndLineOptimizationFilter),
     new RangeForeach2WhileTransformComponent(global, fileAndLineOptimizationFilter),
     new ArrayLoopsTransformComponent(global, fileAndLineOptimizationFilter)
-  )
+  ).filter(_ != null)
 }
 
 trait WithOptimizationFilter {

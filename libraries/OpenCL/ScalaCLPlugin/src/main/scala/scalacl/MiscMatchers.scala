@@ -138,17 +138,7 @@ trait MiscMatchers {
         }
     }
   }
-  object Foreach {
-    def apply(target: Tree, function: Tree) = error("not implemented")
-
-	def unapply(tree: Tree): Option[(Tree, Tree)] = tree match {
-      case Apply(TypeApply(Select(target, foreachName()), List(fRetType)), List(function)) =>
-        Some((target, function))
-      case _ =>
-        None
-    }
-  }
-
+  
   object Predef {
     def unapply(tree: Tree): Boolean = tree.symbol == PredefModule
   }
@@ -171,24 +161,29 @@ trait MiscMatchers {
     }
   }
 
+  object Foreach {
+    def apply(target: Tree, function: Tree) = error("not implemented")
+
+	def unapply(tree: Tree): Option[(Tree, Tree)] = tree match {
+      case Apply(TypeApply(Select(target, foreachName()), List(fRetType)), List(function)) =>
+        Some((target, function))
+      case _ =>
+        None
+    }
+  }
+
   object ArrayForeach {
-    def apply(array: Tree, componentType: Symbol, paramName: Name, body: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[(Tree, Symbol, Name, Tree)] = tree match {
+    def apply(array: Tree, componentType: Symbol, param: ValDef, body: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[(Tree, Symbol, ValDef, Tree)] = tree match {
       case
-        Apply(
-          TypeApply(
-            Select(
-              Apply(
-                ArrayOps(componentType),
-                List(array)
-              ),
-              foreachName()
-            ),
-            List(functionReturnType)
+        Foreach(
+          Apply(
+            ArrayOps(componentType),
+            List(array)
           ),
-          List(Func1(paramName, body))
+          Func1(param, body)
         ) =>
-        Some((array, componentType, paramName, body))
+        Some((array, componentType, param, body))
       case _ =>
         None
     }
@@ -213,31 +208,62 @@ trait MiscMatchers {
     }
   }
 
-  object ArrayMap {
-    def apply(array: Tree, componentType: Symbol, mappedComponentType: Symbol, paramName: Name, body: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[(Tree, Symbol, Symbol, Name, Tree)] = tree match {
-      case 
+  object MapTree {
+    def apply(collection: Tree, function: Tree, functionArgType: Tree, mappedCollectionType: Tree, canBuildFrom: Tree) =
+      Apply(
+        Apply(
+          TypeApply(
+            Select(
+              collection,
+              mapName
+            ),
+            List(functionArgType, mappedCollectionType)
+          ),
+          List(function)
+        ),
+        List(canBuildFrom)
+      )
+
+    def unapply(tree: Tree): Option[(Tree, Tree, Tree, Tree, Tree)] = tree match {
+      case
         Apply(
           Apply(
             TypeApply(
               Select(
-                Apply(
-                  ArrayOps(componentType),
-                  List(array)
-                ),
+                collection,
                 mapName()
               ),
-              List(functionArgType, mappedArrayType)
+              List(functionArgType, mappedCollectionType)
             ),
-            List(Func1(paramName, body))
+            List(function)
           ),
-          List(CanBuildFromArg())
+          List(canBuildFrom @ CanBuildFromArg())
+        ) =>
+        //println("collection = " + collection)
+        Some((collection, function, functionArgType, mappedCollectionType, canBuildFrom))
+      case _ =>
+        None
+    }
+  }
+  object ArrayMap {
+    def apply(array: Tree, componentType: Symbol, mappedComponentType: Symbol, param: ValDef, body: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[(Tree, Symbol, Symbol, ValDef, Tree)] = tree match {
+      case 
+        MapTree(
+          Apply(
+            ArrayOps(componentType),
+            List(array)
+          ),
+          Func1(param, body),
+          functionArgType,
+          mappedCollectionType,
+          canBuildFrom
         ) =>
         val tpe = array.tpe
         val sym = tpe.typeSymbol
-        mappedArrayType.tpe match {
+        mappedCollectionType.tpe match {
           case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
-            Some((array, componentType, sym, paramName, body))
+            Some((array, componentType, sym, param, body))
           case _ =>
             None
         }
@@ -247,28 +273,29 @@ trait MiscMatchers {
   }
 
   object Func1 {
-    def unapply(tree: Tree): Option[(Name, Tree)] = tree match {
-      case Block(List(), Func1(paramName, body)) =>
-        Some(paramName, body)
-      case Function(List(ValDef(_, paramName, _, _)), body) =>
-        Some(paramName, body)
+    def unapply(tree: Tree): Option[(ValDef, Tree)] = tree match {
+      case // method references def f(x: T) = y; col.map(f) (inside the .map = a block((), xx => f(xx))
+        Block(List(), Func1(param, body)) =>
+        Some(param, body)
+      case Function(List(arg: ValDef), body) =>
+        Some(arg, body)
       case _ =>
         None
     }
   }
   object Func2 {
-    def unapply(tree: Tree): Option[(Name, Name, Tree)] = tree match {
-      case Block(List(), Func2(paramName1, paramName2, body)) =>
+    def unapply(tree: Tree): Option[(ValDef, ValDef, Tree)] = tree match {
+      case Block(List(), Func2(param1, param2, body)) =>
         //if tree.symbol.toString == "trait Function2"
-        Some(paramName1, paramName2, body)
-      case Function(List(ValDef(_, paramName1, _, _), ValDef(_, paramName2, _, _)), body) => // paramMods, paramName, TypeTree(), rhs
-        Some(paramName1, paramName2, body)
+        Some(param1, param2, body)
+      case Function(List(arg1: ValDef, arg2: ValDef), body) => // paramMods, param, TypeTree(), rhs
+        Some(arg1, arg2, body)
       case _ =>
         None
     }
   }
   object ArrayTabulate {
-    def apply(componentType: Tree, length: Tree, paramName: Name, body: Tree) = error("not implemented")
+    def apply(componentType: Tree, length: Tree, param: ValDef, body: Tree) = error("not implemented")
     def unapply(tree: Tree) = tree match {
       case Apply(
           Apply(
@@ -285,11 +312,11 @@ trait MiscMatchers {
               ),
               List(length)
             ),
-            List(Func1(paramName, body))
+            List(Func1(param, body))
           ),
           List(manif)
         ) =>
-        Some((componentType, length, paramName, body))
+        Some((componentType, length, param, body))
       case _ =>
         None
     }
@@ -331,8 +358,8 @@ trait MiscMatchers {
 
   /// Matches one of the folding/scanning/reducing functions : (reduce|fold|scan)(Left|Right)
   object TraversalOp {
-    def apply(array: Tree, componentType: Symbol, resultType: Symbol, leftParamName: Name, rightParamName: Name, op: TraversalOpType, isLeft: Boolean, body: Tree, initialValue: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[(Tree, Symbol, Symbol, Name, Name, TraversalOpType, Boolean, Tree, Tree)] = tree match {
+    def apply(array: Tree, componentType: Symbol, resultType: Symbol, leftParam: Symbol, rightParam: Symbol, op: TraversalOpType, isLeft: Boolean, body: Tree, initialValue: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[(Tree, Symbol, Symbol, ValDef, ValDef, TraversalOpType, Boolean, Tree, Tree)] = tree match {
       case // PRIMITIVE OR REF SCAN : scala.this.Predef.refArrayOps[A](array: Array[A]).scanLeft[B, Array[B]](initialValue)(function)(canBuildFromArg)
         Apply(
           Apply(
@@ -349,14 +376,14 @@ trait MiscMatchers {
               ),
               List(initialValue)
             ),
-            List(Func2(leftParamName, rightParamName, body))
+            List(Func2(leftParam, rightParam, body))
           ),
           List(CanBuildFromArg())
         ) =>
         val tpe = array.tpe
         mappedArrayType.tpe match {
           case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
-            Some((array, componentType, sym, leftParamName, rightParamName, Scan, isLeft, body, initialValue))
+            Some((array, componentType, sym, leftParam, rightParam, Scan, isLeft, body, initialValue))
           case _ =>
             None
         }
@@ -375,9 +402,9 @@ trait MiscMatchers {
             ),
             List(initialValue)
           ),
-          List(Func2(leftParamName, rightParamName, body))
+          List(Func2(leftParam, rightParam, body))
         ) =>
-        Some((array, componentType, functionResultType.symbol, leftParamName, rightParamName, Fold, isLeft, body, initialValue))
+        Some((array, componentType, functionResultType.symbol, leftParam, rightParam, Fold, isLeft, body, initialValue))
       case // PRIMITIVE OR REF REDUCE : scala.this.Predef.refArrayOps[A](array: Array[A]).reduceLeft[B](function)
         Apply(
           TypeApply(
@@ -390,9 +417,9 @@ trait MiscMatchers {
             ),
             List(functionResultType)
           ),
-          List(Func2(leftParamName, rightParamName, body))
+          List(Func2(leftParam, rightParam, body))
         ) =>
-        Some((array, componentType, functionResultType.symbol, leftParamName, rightParamName, Reduce, isLeft, body, null))
+        Some((array, componentType, functionResultType.symbol, leftParam, rightParam, Reduce, isLeft, body, null))
       case _ =>
         None
     }

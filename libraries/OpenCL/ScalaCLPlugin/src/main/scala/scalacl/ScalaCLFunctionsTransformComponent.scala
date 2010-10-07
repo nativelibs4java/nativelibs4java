@@ -41,6 +41,7 @@ object ScalaCLFunctionsTransformComponent {
     "namer",
     RangeForeach2WhileTransformComponent.phaseName,
     ArrayLoopsTransformComponent.phaseName
+    //, OpsFuserTransformComponent.phaseName, Seq2ArrayTransformComponent.phaseName
   )
   val phaseName = "scalaclfunctionstransform"
 }
@@ -81,7 +82,7 @@ extends PluginComponent
                   Select(collectionExpr, functionName @ (mapName() | filterName() | updateName())),
                   funTypeArgs @ List(outputType @ TypeTree())
                 ),
-                List(functionExpr @ Func1(List(ValDef(paramMods, paramName, inputType @ TypeTree(), rhs)), body))
+                List(functionExpr @ Func1(List(ValDef(paramMods, param, inputType @ TypeTree(), rhs)), body))
               ),
               implicitArgs @ List(io1, io2)
             ) =>
@@ -92,7 +93,7 @@ extends PluginComponent
              *    "_ * 2.0"
              */
             val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "" + tree.symbol.tag + tree.symbol.pos)) // TODO
-            val functionOpenCLExprString = convertExpr(Map(paramName.toString -> "_"), body).toString
+            val functionOpenCLExprString = convertExpr(Map(param.toString -> "_"), body).toString
             println("Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
             def seqExpr(typeExpr: Tree, values: Tree*) =
               Apply(

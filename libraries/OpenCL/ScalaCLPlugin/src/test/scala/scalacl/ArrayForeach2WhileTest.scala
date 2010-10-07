@@ -37,13 +37,21 @@ import Assert._
 class ArrayForeach2WhileTest extends TestUtils {
 
   @Test
+  def simpleStringArrayForeach =
+    simpleArrayForeach("String")
+
+  @Test
+  def inlineStringArrayByLengthForeach =
+    inlineArrayByLengthForeach("String")
+
+  @Test
+  def inlineStringArrayWithElementsForeach =
+    inlineArrayWithElementsForeach("String", "\"a\", \"b\", \"c\"")
+
+  @Test
   def simplePrimitiveArrayForeach =
     for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
       simpleArrayForeach(p)
-
-  @Test
-  def simpleStringArrayForeach =
-    simpleArrayForeach("String")
 
   @Test
   def inlinePrimitiveArrayByLengthForeach =
@@ -51,17 +59,9 @@ class ArrayForeach2WhileTest extends TestUtils {
       inlineArrayByLengthForeach(p)
 
   @Test
-  def inlineStringArrayByLengthForeach =
-    inlineArrayByLengthForeach("String")
-
-  @Test
   def inlinePrimitiveArrayWithElementsForeach =
     for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
       inlineArrayWithElementsForeach(p, if (p == "Boolean") "true, true, false" else Array(1, 2, 3).map("(" + _ + ": " + p + ")").mkString(", "))
-
-  @Test
-  def inlineStringArrayWithElementsForeach =
-    inlineArrayWithElementsForeach("String", "\"a\", \"b\", \"c\"")
 
   def simpleArrayForeach(typeStr: String) {
     ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ArrayForeach",

@@ -11,5 +11,5 @@ class ScalaCLPluginProject(info: ProjectInfo) extends DefaultProject(info)
   //val BuSwing = "com.nativelibs4java" % "buswing_2.8.0" % "0.1.1-SNAPSHOT"
   val junitInterface = "com.novocode" % "junit-interface" % "0.4" % "test"
   val scalaCompiler = "org.scala-lang" % "scala-compiler" % buildScalaVersion//"2.8.0"
-  val junit = "junit" % "junit" % "4.7" % "test"
+  val junitInterface = "com.novocode" % "junit-interface" % "0.4" % "test"//"test->default"
 }

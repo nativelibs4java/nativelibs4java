@@ -36,7 +36,10 @@ import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.{Transform, TypingTransformers}
 
 object ArrayLoopsTransformComponent {
-  val runsAfter = List[String]("namer")
+  val runsAfter = List[String](
+    "namer"
+    //, OpsFuserTransformComponent.phaseName, Seq2ArrayTransformComponent.phaseName
+  )
   val phaseName = "arrayloopstransform"
 }
 
@@ -189,7 +192,7 @@ extends PluginComponent
       else
         try {
           tree match {
-            case ArrayTabulate(componentType, length, paramName, body) =>
+            case ArrayTabulate(componentType, length, param, body) =>
               val tpe = body.tpe
               val returnType = if (tpe.isInstanceOf[ConstantType]) 
                 tpe.widen
@@ -224,7 +227,7 @@ extends PluginComponent
                               Block(
                                 newUpdate(tree.pos, mIdentGen(), iIdentGen(), replaceOccurrences(
                                   body,
-                                  Map(paramName -> iIdentGen),
+                                  Map(param.symbol -> iIdentGen),
                                   unit
                                 )),
                                 incrementIntVar(iIdentGen, newInt(1))
@@ -238,7 +241,7 @@ extends PluginComponent
                   }
                 }
               }
-            case ArrayMap(array, componentType, mappedComponentType, paramName, body) =>
+            case ArrayMap(array, componentType, mappedComponentType, param, body) =>
               msg(unit, tree.pos, "transformed " + methodStr(componentType, "map") + " into equivalent while loop.") {
                 array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
                 typed {
@@ -262,7 +265,7 @@ extends PluginComponent
                             env.iIdentGen(),
                             replaceOccurrences(
                               body,
-                              Map(paramName -> env.itemIdentGen),
+                              Map(param.symbol -> env.itemIdentGen),
                               unit
                             )
                           )
@@ -272,7 +275,7 @@ extends PluginComponent
                   )
                 }
               }
-            case ArrayForeach(array, componentType, paramName, body) =>
+            case ArrayForeach(array, componentType, param, body) =>
               msg(unit, tree.pos, "transformed " + methodStr(componentType, "foreach") + " into equivalent while loop.") {
                 array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
                 typed {
@@ -286,7 +289,7 @@ extends PluginComponent
                       env => List(
                         replaceOccurrences(
                           body,
-                          Map(paramName -> env.itemIdentGen),
+                          Map(param.symbol -> env.itemIdentGen),
                           unit
                         )
                       )
@@ -294,9 +297,9 @@ extends PluginComponent
                   )
                 }
               }
-            case TraversalOp(array, componentType, resultType, leftParamName, rightParamName, op, isLeft, body, initialValue) =>
-              val accParamName = if (isLeft) leftParamName else rightParamName
-              val newParamName = if (isLeft) rightParamName else leftParamName
+            case TraversalOp(array, componentType, resultType, leftParam, rightParam, op, isLeft, body, initialValue) =>
+              val accParam = if (isLeft) leftParam else rightParam
+              val newParam = if (isLeft) rightParam else leftParam
               msg(unit, tree.pos, "transformed " + methodStr(componentType, op + (if (isLeft) "Left" else "Right")) + " into equivalent while loop.") {
                 array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
                 super.transform(
@@ -325,8 +328,8 @@ extends PluginComponent
                               replaceOccurrences(
                                 body,
                                 Map(
-                                  accParamName -> totIdentGen,
-                                  newParamName -> env.itemIdentGen
+                                  accParam.symbol -> totIdentGen,
+                                  newParam.symbol -> env.itemIdentGen
                                 ),
                                 unit
                               )
@@ -362,8 +365,8 @@ extends PluginComponent
                               replaceOccurrences(
                                 body,
                                 Map(
-                                  accParamName -> totIdentGen,
-                                  newParamName -> env.itemIdentGen
+                                  accParam.symbol -> totIdentGen,
+                                  newParam.symbol -> env.itemIdentGen
                                 ),
                                 unit
                               )

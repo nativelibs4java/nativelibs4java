@@ -30,55 +30,40 @@
  */
 package scalacl
 
-import java.io.BufferedReader
-import java.io.File
-import java.io.IOException
-import java.io.InputStreamReader
-import java.io.PrintWriter
-import scala.concurrent.ops
-import scala.io.Source
-import scala.tools.nsc.CompilerCommand
 import scala.tools.nsc.Global
-import scala.tools.nsc.Settings
-import scala.tools.nsc.reporters.ConsoleReporter
-import scala.tools.nsc.reporters.Reporter
-//import scalacl.ScalaCLPlugin
 
-object Compile {
+import scala.tools.nsc.plugins.PluginComponent
+import scala.tools.nsc.transform.{Transform, TypingTransformers}
 
-  def main(args: Array[String]) {
-    compilerMain(args, true)
-  }
-  lazy val copyrightMessage: Unit = {
-    println("""ScalaCL Compiler Plugin
-Copyright Olivier Chafik 2010""")
-  }
-
-  def compilerMain(args: Array[String], enablePlugins: Boolean) = {
-    copyrightMessage
-    
-    val extraArgs = List(
-      //"-optimise",
-      "-bootclasspath", System.getProperty("java.class.path",".")
-    )
-    val settings = new Settings
-    val runner = new ScalaCLPluginRunner(enablePlugins, settings, new ConsoleReporter(settings))
-    val run = new runner.Run
-    
-    val command = new CompilerCommand((args ++ extraArgs).toList, settings) {
-      override val cmdName = "scalacl"
-    }
-    if (command.ok) {
-      run.compile(command.files)
-    }
-  }
+object Seq2ArrayTransformComponent {
+  val runsAfter = List[String](
+    "namer",
+    OpsFuserTransformComponent.phaseName
+  )
+  val phaseName = "seq2arraytransform"
 }
+class Seq2ArrayTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
+extends PluginComponent
+   with Transform
+   with TypingTransformers
+   with MiscMatchers
+   with TreeBuilders
+   with WithOptimizationFilter
+{
+  import global._
+  import global.definitions._
+  import scala.tools.nsc.symtab.Flags._
+  import typer.{typed, atOwner}    // methods to type trees
 
-class ScalaCLPluginRunner(enablePlugins: Boolean, settings: Settings, reporter: Reporter) extends Global(settings, reporter) {
-  override protected def computeInternalPhases() {
-    super.computeInternalPhases
-    if (enablePlugins)
-      for (phase <- ScalaCLPlugin.components(this, (_, _) => true))
-        phasesSet += phase
+  override val runsAfter = Seq2ArrayTransformComponent.runsAfter
+  override val phaseName = Seq2ArrayTransformComponent.phaseName
+
+  def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
+    var currentClassName: Name = null
+
+    override def transform(tree: Tree): Tree = tree match {
+      case _ =>
+        super.transform(tree)
+    }
   }
 }

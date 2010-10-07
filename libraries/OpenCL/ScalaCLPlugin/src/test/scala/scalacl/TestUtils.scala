@@ -21,20 +21,28 @@ import javax.tools.JavaFileManager
 import javax.tools.JavaFileObject
 import javax.tools.ToolProvider
 import org.junit.Assert._
+import scala.tools.nsc.Settings
 
 trait TestUtils {
 
   implicit val outDir = new File("target/testSnippetsClasses")
   outDir.mkdirs
 
-  def getSnippetBytecode(className: String, source: String, enablePlugin: Boolean) = {
+  def getSnippetBytecode(className: String, source: String, enablePlugin: Boolean, spawnUniqueCompilerInstance: Boolean) = {
     val src = "class " + className + " { def invoke(): Unit = {\n" + source + "\n}}"
     val srcFile = new File(outDir, className + ".scala")
     val out = new PrintWriter(srcFile)
     out.println(src)
     out.close
     new File(outDir, className + ".class").delete
-    Compile.compilerMain(Array("-d", outDir.getAbsolutePath, srcFile.getAbsolutePath), enablePlugin)
+
+    (
+      if (enablePlugin)
+        SharedCompilerWithPlugins
+      else
+        SharedCompilerWithoutPlugins
+    ).compile(spawnUniqueCompilerInstance, Array("-d", outDir.getAbsolutePath, srcFile.getAbsolutePath))
+    
     val byteCodeSource = getClassByteCode(className, outDir.getAbsolutePath)
     val byteCode = byteCodeSource.mkString//("\n")
     /*
@@ -46,19 +54,29 @@ trait TestUtils {
     byteCode//.replaceAll("#\\d+", "")
   }
   def ensurePluginCompilesSnippetsToSameByteCode(className: String, source: String, reference: String) = {
-    val expected = getSnippetBytecode(className, reference, false)
-    val withoutPlugin = getSnippetBytecode(className, source, false)
-    val withPlugin = getSnippetBytecode(className, source, true)
+    def run(spawnUniqueCompilerInstance: Boolean) = {
+      val expected = getSnippetBytecode(className, reference, false, spawnUniqueCompilerInstance)
+      val withoutPlugin = getSnippetBytecode(className, source, false, spawnUniqueCompilerInstance)
+      val withPlugin = getSnippetBytecode(className, source, true, spawnUniqueCompilerInstance)
 
-    assertTrue("Expected result already found without any plugin !!! (was the Scala compiler improved ?)", expected != withoutPlugin)
-    if (expected != withPlugin) {
-      def trans(tit: String, s: String) =
-        println(tit + " :\n\t" + s.replaceAll("\n", "\n\t"))
+      assertTrue("Expected result already found without any plugin !!! (was the Scala compiler improved ?)", expected != withoutPlugin)
+      if (expected != withPlugin) {
+        def trans(tit: String, s: String) =
+          println(tit + " :\n\t" + s.replaceAll("\n", "\n\t"))
 
-      trans("EXPECTED", expected)
-      trans("FOUND", withPlugin)
+        trans("EXPECTED", expected)
+        trans("FOUND", withPlugin)
 
-      assertEquals(expected, withPlugin)
+        assertEquals(expected, withPlugin)
+      }
+    }
+    try {
+      run(false)
+    } catch {
+      case ex =>
+        println("Shared compiler threw an exception, spawning a new one.")
+        //ex.printStackTrace
+        run(true)
     }
     
   }
