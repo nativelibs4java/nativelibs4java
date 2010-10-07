@@ -36,6 +36,20 @@ trait MiscMatchers {
   val global: Global
   import global._
   import definitions._
+  import treeInfo.{ methPart }
+  
+  /** Strips apply nodes looking for type application. */
+  def typeArgs(tree: Tree): List[Tree] = tree match {
+    case Apply(fn, _)              => typeArgs(fn)
+    case TypeApply(fn, args)       => args
+    case AppliedTypeTree(fn, args) => args
+    case _                         => Nil
+  }
+  /** Smashes directly nested applies down to catenate the argument lists. */
+  def flattenApply(tree: Tree): List[Tree] = tree match {
+    case Apply(fn, args)  => flattenApply(fn) ++ args
+    case _                => Nil
+  }
 
   class Ids(start: Long = 1) {
     private var nx = start
@@ -295,30 +309,19 @@ trait MiscMatchers {
     }
   }
   object ArrayTabulate {
+    /** This is the one all the other ones go through. */
+    lazy val tabulateSym = ArrayModule.tpe member "tabulate" filter (_.paramss.flatten.size == 3)
+
     def apply(componentType: Tree, length: Tree, param: ValDef, body: Tree) = error("not implemented")
-    def unapply(tree: Tree) = tree match {
-      case Apply(
-          Apply(
-            Apply(
-              TypeApply(
-                Select(
-                  Select(
-                    Ident(scalaName()),
-                    ArrayName()
-                  ),
-                  tabulateName()
-                ),
-                List(componentType)
-              ),
-              List(length)
-            ),
-            List(Func1(param, body))
-          ),
-          List(manif)
-        ) =>
-        Some((componentType, length, param, body))
-      case _ =>
+    def unapply(tree: Tree): Option[(Tree, Tree, ValDef, Tree)] = {
+      if (methPart(tree).symbol != tabulateSym)
         None
+      else flattenApply(tree) match {
+        case List(length, Func1(param, body), _) =>
+          Some((typeArgs(tree).headOption getOrElse EmptyTree, length, param, body))
+        case _ =>
+          None
+      }
     }
   }
   sealed abstract class TraversalOpType
