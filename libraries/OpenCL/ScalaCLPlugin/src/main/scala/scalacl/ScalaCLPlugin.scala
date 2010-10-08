@@ -70,6 +70,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
   SCALACL_SKIP=File1,File2:line2...   Do not optimize any of the listed files (or specific lines).
                                       Can contain absolute paths or file names (can omit trailing .scala).
                                       Each file (name) may be suffixed with :line.
+  SCALACL_TRACE=1                     Display stack trace of failed optimizations (for debugging purpose).
 """
   )
   
@@ -127,6 +128,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 }
 
 object ScalaCLPlugin {
+  lazy val trace = "1".equals(System.getenv("SCALACL_TRACE"))
   type FileAndLineOptimizationFilter = (String, Int) => Boolean
   def components(global: Global, fileAndLineOptimizationFilter: FileAndLineOptimizationFilter) = List(
     /*

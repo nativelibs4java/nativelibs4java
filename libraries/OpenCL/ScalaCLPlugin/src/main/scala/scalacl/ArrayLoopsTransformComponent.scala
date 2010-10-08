@@ -390,7 +390,8 @@ extends PluginComponent
           }
         } catch {
           case ex =>
-            ex.printStackTrace
+            //if (ScalaCLPlugin.trace)
+            //  ex.printStackTrace
             super.transform(tree)
         }
     }

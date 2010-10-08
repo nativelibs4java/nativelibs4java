@@ -63,7 +63,14 @@ extends MiscMatchers
         println(prefix + "An unexpected error occurred while attempting an optimization")
         println(prefix + "\tAttempted optimization : '"+ text + "'")
         println(prefix + "\tYou can skip this line with SCALACL_SKIP=" + fileLine)
-        println(prefix + "\tError : " + ex)
+        if (ScalaCLPlugin.trace)
+          println(prefix + "\tError : " + ex)
+        else {
+          println(prefix + "\tTo display the error and help debug the ScalaCL compiler plugin, please set the following environment variable :")
+          println(prefix + "\t\tSCALACL_TRACE=1")
+          println(prefix + "\tAnd file bugs here :")
+          println(prefix + "\t\thttp://code.google.com/p/nativelibs4java/issues/entry")
+        }
         throw ex
     }
   }
@@ -102,6 +109,7 @@ extends MiscMatchers
     assert(a.tpe != null)
     typed {
       atPos(pos) {
+        val t =
         Apply(
           Select(
             a,
@@ -109,6 +117,8 @@ extends MiscMatchers
           ).setSymbol(getMember(a.tpe.typeSymbol, nme.update)),
           List(index, value)
         )
+        //treeBrowsers.create.browse(t)
+        t
       }
     }
   }

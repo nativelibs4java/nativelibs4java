@@ -62,12 +62,13 @@ Copyright Olivier Chafik 2010""")
       "-bootclasspath", System.getProperty("java.class.path",".")
     )
     val settings = new Settings
-    val runner = new ScalaCLPluginRunner(enablePlugins, settings, new ConsoleReporter(settings))
-    val run = new runner.Run
     
     val command = new CompilerCommand((args ++ extraArgs).toList, settings) {
       override val cmdName = "scalacl"
     }
+    val runner = new ScalaCLPluginRunner(enablePlugins, settings, new ConsoleReporter(settings))
+    val run = new runner.Run
+
     if (command.ok) {
       run.compile(command.files)
     }

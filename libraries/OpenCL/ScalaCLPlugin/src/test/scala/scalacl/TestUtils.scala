@@ -22,26 +22,29 @@ import javax.tools.JavaFileObject
 import javax.tools.ToolProvider
 import org.junit.Assert._
 import scala.tools.nsc.Settings
+import scala.actors.Futures._
+
+object SharedCompilerWithPlugins extends SharedCompiler(true)
+object SharedCompilerWithoutPlugins extends SharedCompiler(false)
+//object SharedCompilerWithoutPlugins1 extends SharedCompiler(false)
+//object SharedCompilerWithoutPlugins2 extends SharedCompiler(false)
 
 trait TestUtils {
 
-  implicit val outDir = new File("target/testSnippetsClasses")
-  outDir.mkdirs
+  implicit val baseOutDir = new File("target/testSnippetsClasses")
+  baseOutDir.mkdirs
 
-  def getSnippetBytecode(className: String, source: String, enablePlugin: Boolean, spawnUniqueCompilerInstance: Boolean) = {
+  def getSnippetBytecode(className: String, source: String, subDir: String, compiler: SharedCompiler) = {
     val src = "class " + className + " { def invoke(): Unit = {\n" + source + "\n}}"
+    val outDir = new File(baseOutDir, subDir)
+    outDir.mkdirs
     val srcFile = new File(outDir, className + ".scala")
     val out = new PrintWriter(srcFile)
     out.println(src)
     out.close
     new File(outDir, className + ".class").delete
 
-    (
-      if (enablePlugin)
-        SharedCompilerWithPlugins
-      else
-        SharedCompilerWithoutPlugins
-    ).compile(spawnUniqueCompilerInstance, Array("-d", outDir.getAbsolutePath, srcFile.getAbsolutePath))
+    compiler.compile(Array("-d", outDir.getAbsolutePath, srcFile.getAbsolutePath))
     
     val byteCodeSource = getClassByteCode(className, outDir.getAbsolutePath)
     val byteCode = byteCodeSource.mkString//("\n")
@@ -53,32 +56,34 @@ trait TestUtils {
      */
     byteCode//.replaceAll("#\\d+", "")
   }
+
   def ensurePluginCompilesSnippetsToSameByteCode(className: String, source: String, reference: String) = {
-    def run(spawnUniqueCompilerInstance: Boolean) = {
-      val expected = getSnippetBytecode(className, reference, false, spawnUniqueCompilerInstance)
-      val withoutPlugin = getSnippetBytecode(className, source, false, spawnUniqueCompilerInstance)
-      val withPlugin = getSnippetBytecode(className, source, true, spawnUniqueCompilerInstance)
 
-      assertTrue("Expected result already found without any plugin !!! (was the Scala compiler improved ?)", expected != withoutPlugin)
-      if (expected != withPlugin) {
-        def trans(tit: String, s: String) =
-          println(tit + " :\n\t" + s.replaceAll("\n", "\n\t"))
-
-        trans("EXPECTED", expected)
-        trans("FOUND", withPlugin)
-
-        assertEquals(expected, withPlugin)
-      }
-    }
-    try {
-      run(false)
-    } catch {
-      case ex =>
-        println("Shared compiler threw an exception, spawning a new one.")
-        //ex.printStackTrace
-        run(true)
-    }
+    import scala.concurrent.ops._
+    implicit val runner = new scala.concurrent.ThreadRunner
+  
+    /*
+    val expectedFut = future { getSnippetBytecode(className, reference, "expected", SharedCompilerWithoutPlugins1) }
+    val withoutPluginFut = future { getSnippetBytecode(className, source, "withoutPlugin", SharedCompilerWithoutPlugins2) }
+    val withPluginFut = future { getSnippetBytecode(className, source, "withPlugin", SharedCompilerWithPlugins) }//TestUtils.compilerWithPlugin) }
+    val (expected, withoutPlugin, withPlugin) = (expectedFut(), withoutPluginFut(), withPluginFut())
+    */
     
+    val withPluginFut = future { getSnippetBytecode(className, source, "withPlugin", SharedCompilerWithPlugins) }
+    val expected = getSnippetBytecode(className, reference, "expected", SharedCompilerWithoutPlugins)
+    val withoutPlugin = getSnippetBytecode(className, source, "withoutPlugin", SharedCompilerWithoutPlugins)
+    val withPlugin = withPluginFut()
+
+    assertTrue("Expected result already found without any plugin !!! (was the Scala compiler improved ?)", expected != withoutPlugin)
+    if (expected != withPlugin) {
+      def trans(tit: String, s: String) =
+        println(tit + " :\n\t" + s.replaceAll("\n", "\n\t"))
+
+      trans("EXPECTED", expected)
+      trans("FOUND", withPlugin)
+
+      assertEquals(expected, withPlugin)
+    }
   }
   def getClassByteCode(className: String, classpath: String) = {
     val args = Array("-c", "-classpath", classpath, className)
