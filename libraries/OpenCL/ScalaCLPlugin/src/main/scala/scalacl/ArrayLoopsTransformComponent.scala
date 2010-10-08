@@ -192,7 +192,7 @@ extends PluginComponent
       else
         try {
           tree match {
-            case ArrayTabulate(componentType, length, param, body) =>
+            case ArrayTabulate(componentType, List(length), Func(List(param), body)) =>
               val tpe = body.tpe
               val returnType = if (tpe.isInstanceOf[ConstantType]) 
                 tpe.widen
@@ -297,93 +297,106 @@ extends PluginComponent
                   )
                 }
               }
-            case TraversalOp(array, componentType, resultType, leftParam, rightParam, op, isLeft, body, initialValue) =>
+            case TraversalOp(op, collection, resultType, Func(List(leftParam, rightParam), body), isLeft, initialValue) =>
               val accParam = if (isLeft) leftParam else rightParam
               val newParam = if (isLeft) rightParam else leftParam
-              msg(unit, tree.pos, "transformed " + methodStr(componentType, op + (if (isLeft) "Left" else "Right")) + " into equivalent while loop.") {
-                array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-                super.transform(
-                  op match {
-                    case Reduce | Fold =>
-                      arrayForeach[IdentGen](
-                        tree,
-                        array,
-                        !isLeft,
-                        op == Reduce,
-                        env => {
-                          assert((initialValue == null) == (op == Reduce)) // no initial value for reduce only
-                          val (totIdentGen, _, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true,
-                            if (initialValue == null)
-                              newApply(tree.pos, env.aIdentGen(), if (isLeft) newInt(0) else intAdd(env.nIdentGen(), newInt(-1)))
-                            else
-                              initialValue
-                          )
-                          new LoopOuters(List(totDef), totIdentGen(), payload = totIdentGen)
-                        },
-                        env => {
-                          val totIdentGen = env.payload
-                          List(
-                            Assign(
-                              totIdentGen(),
-                              replaceOccurrences(
-                                body,
-                                Map(
-                                  accParam.symbol -> totIdentGen,
-                                  newParam.symbol -> env.itemIdentGen
-                                ),
-                                unit
+              collection match {
+                case Apply(ArrayOps(componentType), List(array)) =>
+                  msg(unit, tree.pos, "transformed " + methodStr(componentType, op + (if (isLeft) "Left" else "Right")) + " into equivalent while loop.") {
+                    array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
+                    super.transform(
+                      op match {
+                        case Reduce | Fold =>
+                          val isReduce = op == Reduce
+                          arrayForeach[IdentGen](
+                            tree,
+                            array,
+                            !isLeft,
+                            isReduce,
+                            env => {
+                              assert((initialValue == null) == isReduce) // no initial value for reduce only
+                              val (totIdentGen, _, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true,
+                                if (initialValue == null)
+                                  newApply(
+                                    tree.pos,
+                                    env.aIdentGen(),
+                                    if (isLeft)
+                                      newInt(0)
+                                    else
+                                      intAdd(env.nIdentGen(), newInt(-1))
+                                  )
+                                else
+                                  initialValue
                               )
-                            ).setType(UnitClass.tpe)
-                          )
-                        }
-                      )
-                    case Scan =>
-                      val mappedArrayTpe = appliedType(ArrayClass.tpe, List(resultType.tpe))
-                      arrayForeach[(IdentGen, IdentGen, Symbol)](
-                        tree,
-                        array,
-                        !isLeft,
-                        false,
-                        env => {
-                          val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, intAdd(env.nIdentGen(), newInt(1))))
-                          val (totIdentGen, totSym, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)//.setType(IntClass.tpe))
-                          new LoopOuters(
-                            List(
-                              totDef,
-                              mDef,
-                              newUpdate(tree.pos, mIdentGen(), newInt(0), totIdentGen())
-                            ),
-                            mIdentGen(),
-                            payload = (mIdentGen, totIdentGen, totSym)
-                          )
-                        },
-                        env => {
-                          val (mIdentGen, totIdentGen, totSym) = env.payload
-                          List(
-                            Assign(
-                              totIdentGen(),
-                              replaceOccurrences(
-                                body,
-                                Map(
-                                  accParam.symbol -> totIdentGen,
-                                  newParam.symbol -> env.itemIdentGen
-                                ),
-                                unit
+                              new LoopOuters(List(totDef), totIdentGen(), payload = totIdentGen)
+                            },
+                            env => {
+                              val totIdentGen = env.payload
+                              List(
+                                Assign(
+                                  totIdentGen(),
+                                  replaceOccurrences(
+                                    body,
+                                    Map(
+                                      accParam.symbol -> totIdentGen,
+                                      newParam.symbol -> env.itemIdentGen
+                                    ),
+                                    unit
+                                  )
+                                ).setType(UnitClass.tpe)
                               )
-                            ).setType(UnitClass.tpe),
-                            newUpdate(
-                              tree.pos,
-                              mIdentGen(),
-                              if (isLeft)
-                                intAdd(env.iIdentGen(), newInt(1))
-                              else
-                                intSub(env.nIdentGen(), env.iIdentGen()),
-                              totIdentGen())
+                            }
                           )
-                        }
-                      )
+                        case Scan =>
+                          val mappedArrayTpe = appliedType(ArrayClass.tpe, List(resultType.tpe))
+                          arrayForeach[(IdentGen, IdentGen, Symbol)](
+                            tree,
+                            array,
+                            !isLeft,
+                            false,
+                            env => {
+                              val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, intAdd(env.nIdentGen(), newInt(1))))
+                              val (totIdentGen, totSym, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)//.setType(IntClass.tpe))
+                              new LoopOuters(
+                                List(
+                                  totDef,
+                                  mDef,
+                                  newUpdate(tree.pos, mIdentGen(), newInt(0), totIdentGen())
+                                ),
+                                mIdentGen(),
+                                payload = (mIdentGen, totIdentGen, totSym)
+                              )
+                            },
+                            env => {
+                              val (mIdentGen, totIdentGen, totSym) = env.payload
+                              List(
+                                Assign(
+                                  totIdentGen(),
+                                  replaceOccurrences(
+                                    body,
+                                    Map(
+                                      accParam.symbol -> totIdentGen,
+                                      newParam.symbol -> env.itemIdentGen
+                                    ),
+                                    unit
+                                  )
+                                ).setType(UnitClass.tpe),
+                                newUpdate(
+                                  tree.pos,
+                                  mIdentGen(),
+                                  if (isLeft)
+                                    intAdd(env.iIdentGen(), newInt(1))
+                                  else
+                                    intSub(env.nIdentGen(), env.iIdentGen()),
+                                  totIdentGen())
+                              )
+                            }
+                          )
+                      }
+                    )
                   }
-                )
+                case _ =>
+                  super.transform(tree)
               }
             case _ =>
               super.transform(tree)

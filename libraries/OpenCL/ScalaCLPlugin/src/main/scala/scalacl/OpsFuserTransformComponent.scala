@@ -74,7 +74,7 @@ extends PluginComponent
               ),
               List(_, mappedCollectionType)
             ),
-            List(g @ Func1(gArg, gBody))
+            List(g @ Func(List(gArg), gBody))
           ),
           List(CanBuildFromArg())
         )
@@ -113,7 +113,7 @@ extends PluginComponent
             val List(f) = ff
             val List(canBuildFrom @ CanBuildFromArg()) = ll
             f match {
-              case Func1(fArg, fBody) =>
+              case Func(List(fArg), fBody) =>
                 val compFuncSym = currentOwner.newMethod(f.pos, freshName("comp$"))
                 val compArgName = freshName("compArg$")
                 val compArgSym = compFuncSym.newValueParameter(f.pos, compArgName)

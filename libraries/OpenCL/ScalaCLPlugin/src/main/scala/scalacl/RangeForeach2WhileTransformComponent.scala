@@ -67,7 +67,7 @@ extends PluginComponent
           super.transform(tree)
         else
           tree match {
-            case Foreach(IntRange(from, to, by, isUntil, filters), Func1(param, body)) =>
+            case Foreach(IntRange(from, to, by, isUntil, filters), Func(List(param), body)) =>
               msg(unit, tree.pos, "transformed int range foreach loop into equivalent while loop.") {
                 val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
                 val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
@@ -98,7 +98,7 @@ extends PluginComponent
                             Block(
                               If(
                                 (filterFunctions.map {
-                                  case Func1(filterParam, filterBody) =>
+                                  case Func(List(filterParam), filterBody) =>
                                     typed { replaceOccurrences(filterBody, Map(filterParam.symbol -> iIdentGen), unit) }
                                 }).reduceLeft(newLogicAnd),
                                 content,

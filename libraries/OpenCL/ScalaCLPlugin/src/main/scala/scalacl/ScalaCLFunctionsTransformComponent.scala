@@ -82,7 +82,7 @@ extends PluginComponent
                   Select(collectionExpr, functionName @ (mapName() | filterName() | updateName())),
                   funTypeArgs @ List(outputType @ TypeTree())
                 ),
-                List(functionExpr @ Func1(List(ValDef(paramMods, param, inputType @ TypeTree(), rhs)), body))
+                List(functionExpr @ Func(List(ValDef(paramMods, param, inputType @ TypeTree(), rhs)), body))
               ),
               implicitArgs @ List(io1, io2)
             ) =>
