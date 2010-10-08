@@ -362,17 +362,14 @@ trait MiscMatchers {
   /// Matches one of the folding/scanning/reducing functions : (reduce|fold|scan)(Left|Right)
   object TraversalOp {
     def apply(array: Tree, componentType: Symbol, resultType: Symbol, leftParam: Symbol, rightParam: Symbol, op: TraversalOpType, isLeft: Boolean, body: Tree, initialValue: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[(Tree, Symbol, Symbol, ValDef, ValDef, TraversalOpType, Boolean, Tree, Tree)] = tree match {
+    def unapply(tree: Tree): Option[(Tree, Symbol, ValDef, ValDef, TraversalOpType, Boolean, Tree, Tree)] = tree match {
       case // PRIMITIVE OR REF SCAN : scala.this.Predef.refArrayOps[A](array: Array[A]).scanLeft[B, Array[B]](initialValue)(function)(canBuildFromArg)
         Apply(
           Apply(
             Apply(
               TypeApply(
                 Select(
-                  Apply(
-                    ArrayOps(componentType),
-                    List(array)
-                  ),
+                  collection,
                   ScanName(isLeft)
                 ),
                 List(functionArgType, mappedArrayType)
@@ -383,10 +380,10 @@ trait MiscMatchers {
           ),
           List(CanBuildFromArg())
         ) =>
-        val tpe = array.tpe
+        val tpe = collection.tpe
         mappedArrayType.tpe match {
           case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
-            Some((array, componentType, sym, leftParam, rightParam, Scan, isLeft, body, initialValue))
+            Some((collection, sym, leftParam, rightParam, Scan, isLeft, body, initialValue))
           case _ =>
             None
         }
@@ -395,10 +392,7 @@ trait MiscMatchers {
           Apply(
             TypeApply(
               Select(
-                Apply(
-                  ArrayOps(componentType),
-                  List(array)
-                ),
+                collection,
                 FoldName(isLeft)
               ),
               List(functionResultType)
@@ -407,22 +401,19 @@ trait MiscMatchers {
           ),
           List(Func2(leftParam, rightParam, body))
         ) =>
-        Some((array, componentType, functionResultType.symbol, leftParam, rightParam, Fold, isLeft, body, initialValue))
+        Some((collection, functionResultType.symbol, leftParam, rightParam, Fold, isLeft, body, initialValue))
       case // PRIMITIVE OR REF REDUCE : scala.this.Predef.refArrayOps[A](array: Array[A]).reduceLeft[B](function)
         Apply(
           TypeApply(
             Select(
-              Apply(
-                ArrayOps(componentType),
-                List(array)
-              ),
+              collection,
               ReduceName(isLeft)
             ),
             List(functionResultType)
           ),
           List(Func2(leftParam, rightParam, body))
         ) =>
-        Some((array, componentType, functionResultType.symbol, leftParam, rightParam, Reduce, isLeft, body, null))
+        Some((collection, functionResultType.symbol, leftParam, rightParam, Reduce, isLeft, body, null))
       case _ =>
         None
     }
