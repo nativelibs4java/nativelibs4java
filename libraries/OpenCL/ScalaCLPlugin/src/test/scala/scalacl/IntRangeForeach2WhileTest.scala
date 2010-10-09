@@ -33,6 +33,7 @@ package scalacl
 import java.io.File
 import org.junit._
 import Assert._
+import TypeUtils._
 
 class IntRangeForeach2WhileTest extends TestUtils {
   

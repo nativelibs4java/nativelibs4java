@@ -30,6 +30,7 @@ class SharedCompiler(enablePlugins: Boolean) {
   /// A compiler and a compiler future
   var instances: (Compiler, () => Compiler) = null
   def newInstances = {
+    //implicit val runner = new scala.concurrent.ThreadRunner
     val fut = future { createCompiler }
     if (instances == null) {
       instances = (createCompiler, fut)
