@@ -63,9 +63,10 @@ extends MiscMatchers
         println(prefix + "An unexpected error occurred while attempting an optimization")
         println(prefix + "\tAttempted optimization : '"+ text + "'")
         println(prefix + "\tYou can skip this line with SCALACL_SKIP=" + fileLine)
-        if (ScalaCLPlugin.trace)
+        if (ScalaCLPlugin.trace) {
           println(prefix + "\tError : " + ex)
-        else {
+          ex.printStackTrace
+        } else {
           println(prefix + "\tTo display the error and help debug the ScalaCL compiler plugin, please set the following environment variable :")
           println(prefix + "\t\tSCALACL_TRACE=1")
           println(prefix + "\tAnd file bugs here :")
@@ -134,6 +135,12 @@ extends MiscMatchers
     v.symbol = sym
     v.tpe = sym.tpe
     v
+  }
+
+  def boolNot(a: => Tree) = {
+    val sym = BooleanClass.tpe.member(nme.UNARY_!)
+    //Apply(
+      Select(a, nme.UNARY_!).setSymbol(sym)//, Nil).setSymbol(sym).setType(BooleanClass.tpe)
   }
 
   def intAdd(a: => Tree, b: => Tree) =

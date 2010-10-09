@@ -128,7 +128,9 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 }
 
 object ScalaCLPlugin {
-  lazy val trace = "1".equals(System.getenv("SCALACL_TRACE"))
+  lazy val trace = //true
+    "1".equals(System.getenv("SCALACL_TRACE"))
+  
   type FileAndLineOptimizationFilter = (String, Int) => Boolean
   def components(global: Global, fileAndLineOptimizationFilter: FileAndLineOptimizationFilter) = List(
     /*
@@ -139,7 +141,7 @@ object ScalaCLPlugin {
     */
     new ScalaCLFunctionsTransformComponent(global, fileAndLineOptimizationFilter),
     new RangeForeach2WhileTransformComponent(global, fileAndLineOptimizationFilter),
-    new ArrayLoopsTransformComponent(global, fileAndLineOptimizationFilter)
+    new LoopsTransformComponent(global, fileAndLineOptimizationFilter)
   ).filter(_ != null)
 }
 

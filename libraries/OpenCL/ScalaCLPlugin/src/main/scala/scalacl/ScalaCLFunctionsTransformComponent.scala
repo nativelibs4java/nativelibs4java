@@ -40,7 +40,7 @@ object ScalaCLFunctionsTransformComponent {
   val runsAfter = List[String](
     "namer",
     RangeForeach2WhileTransformComponent.phaseName,
-    ArrayLoopsTransformComponent.phaseName
+    LoopsTransformComponent.phaseName
     //, OpsFuserTransformComponent.phaseName, Seq2ArrayTransformComponent.phaseName
   )
   val phaseName = "scalaclfunctionstransform"

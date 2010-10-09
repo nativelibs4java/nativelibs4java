@@ -81,6 +81,9 @@ trait MiscMatchers {
   val byName = N("by")
   val withFilterName = N("withFilter")
   val untilName = N("until")
+  val isEmptyName = N("isEmpty")
+  val headName = N("head")
+  val tailName = N("tail")
   val foreachName = N("foreach")
   val foldLeftName = N("foldLeft")
   val foldRightName = N("foldRight")
@@ -197,16 +200,19 @@ trait MiscMatchers {
       case _ => None
     }
   }
-  object ArrayForeach {
-    def apply(array: Tree, componentType: Symbol, param: ValDef, body: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[(Tree, Symbol, ValDef, Tree)] = tree match {
-      case Foreach(ArrayTree(array, componentType), Func(List(param), body)) =>
-        Some((array, componentType, param, body))
+  class ColTree(colClass: Symbol) {
+    def unapply(tree: Tree) = tree.symbol.tpe match {
+      case TypeRef(tp, sym, List(param)) =>
+        if (sym == colClass)
+          Some(param.typeSymbol)
+        else
+          None
       case _ =>
         None
     }
   }
-
+  object ListTree extends ColTree(ListClass)
+  
   object CanBuildFromArg {
     def unapply(tree: Tree) = tree match {
       case
