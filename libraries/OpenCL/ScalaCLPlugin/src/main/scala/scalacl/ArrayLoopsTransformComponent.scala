@@ -391,7 +391,7 @@ extends PluginComponent
               val newParam = if (isLeft) rightParam else leftParam
               collection match {
                 case ColTree(colType, tpe, array, componentType) =>
-                  if (!isLeft && colType.supportsRightVariants)
+                  if (isLeft || colType.supportsRightVariants)
                     msg(unit, tree.pos, "transformed " + tpe + "." + op + (if (isLeft) "Left" else "Right") + " into equivalent while loop.") {
                       array.tpe = tpe
                       super.transform(
