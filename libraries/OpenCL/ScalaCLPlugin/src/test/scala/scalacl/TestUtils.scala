@@ -68,8 +68,19 @@ trait TestUtils {
     val withPluginFut = future { getSnippetBytecode(className, source, "withPlugin", SharedCompilerWithPlugins) }//TestUtils.compilerWithPlugin) }
     val (expected, withoutPlugin, withPlugin) = (expectedFut(), withoutPluginFut(), withPluginFut())
     */
-    
-    val withPluginFut = future { getSnippetBytecode(className, source, "withPlugin", SharedCompilerWithPlugins) }
+    def futEx[V](b: => V): () => V = {
+      val f = future { try { Right(b) } catch { case ex => Left(ex) } }
+      () => f() match {
+        case Left(ex) =>
+          ex.printStackTrace
+          assertTrue(ex.toString, false)
+          error("")
+        case Right(v) =>
+          v
+      }
+    }
+
+    val withPluginFut = futEx { getSnippetBytecode(className, source, "withPlugin", SharedCompilerWithPlugins) }
     val expected = getSnippetBytecode(className, reference, "expected", SharedCompilerWithoutPlugins)
     val withoutPlugin = getSnippetBytecode(className, source, "withoutPlugin", SharedCompilerWithoutPlugins)
     val withPlugin = withPluginFut()
