@@ -118,7 +118,19 @@ extends PluginComponent
                 val compArgName = freshName("compArg$")
                 val compArgSym = compFuncSym.newValueParameter(f.pos, compArgName)
                 val compArgIdentGen = () => ident(compArgSym, compArgName)
-                val (fRetIdentGen, fRetSym, fRetDef) = newVariable(unit, "fRet$", compFuncSym, f.pos, true, replaceOccurrences(fBody, Map(fArg.symbol -> compArgIdentGen), unit))
+                val (fRetIdentGen, fRetSym, fRetDef) = newVariable(
+                  unit,
+                  "fRet$",
+                  compFuncSym,
+                  f.pos,
+                  true,
+                  replaceOccurrences(
+                    fBody,
+                    Map(fArg.symbol -> compArgIdentGen),
+                    Map(f.symbol -> compFuncSym),
+                    unit
+                  )
+                )
                 val comp = treeCopy.Function(
                   tree,
                   List(
@@ -126,7 +138,12 @@ extends PluginComponent
                   ),
                   Block(
                     fRetDef,
-                    replaceOccurrences(gBody, Map(gArg.symbol -> fRetIdentGen), unit)
+                    replaceOccurrences(
+                      gBody,
+                      Map(gArg.symbol -> fRetIdentGen),
+                      Map(g.symbol -> compFuncSym),
+                      unit
+                    )
                   ).setType(gBody.tpe)
                 )
                 println("composed function\nf = " + f + "\ng = " + g + "\ncomp = " + comp)

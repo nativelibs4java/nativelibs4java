@@ -67,12 +67,19 @@ extends PluginComponent
           super.transform(tree)
         else
           tree match {
-            case Foreach(IntRange(from, to, by, isUntil, filters), Func(List(param), body)) =>
+            case Foreach(IntRange(from, to, by, isUntil, filters), f @ Func(List(param), body)) =>
               msg(unit, tree.pos, "transformed int range foreach loop into equivalent while loop.") {
                 val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
                 val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
                 typed {
-                  val content = typed { replaceOccurrences(body, Map(param.symbol -> iIdentGen), unit) }
+                  val content = typed {
+                    replaceOccurrences(
+                      body,
+                      Map(param.symbol -> iIdentGen),
+                      Map(f.symbol -> currentOwner),
+                      unit
+                    )
+                  }
                   val iIncr = incrementIntVar(iIdentGen, by.getOrElse(newInt(1)))
 
                   super.transform(
@@ -99,7 +106,14 @@ extends PluginComponent
                               If(
                                 (filterFunctions.map {
                                   case Func(List(filterParam), filterBody) =>
-                                    typed { replaceOccurrences(filterBody, Map(filterParam.symbol -> iIdentGen), unit) }
+                                    typed {
+                                      replaceOccurrences(
+                                        filterBody,
+                                        Map(filterParam.symbol -> iIdentGen),
+                                        Map(f.symbol -> currentOwner),
+                                        unit
+                                      )
+                                    }
                                 }).reduceLeft(newLogicAnd),
                                 content,
                                 newUnit

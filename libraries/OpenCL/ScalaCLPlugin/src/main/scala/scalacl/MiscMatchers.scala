@@ -270,12 +270,12 @@ trait MiscMatchers {
     }
   }
   object ArrayMap {
-    def apply(array: Tree, componentType: Symbol, mappedComponentType: Symbol, param: ValDef, body: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[(Tree, Symbol, Symbol, ValDef, Tree)] = tree match {
+    def apply(array: Tree, componentType: Symbol, mappedComponentType: Symbol, mappedArrayType: Tree, param: ValDef, body: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[(Tree, Symbol, Symbol, Tree, Tree)] = tree match {
       case 
         MapTree(
           ArrayTree(array, componentType),
-          Func(List(param), body),
+          function,
           functionArgType,
           mappedCollectionType,
           canBuildFrom
@@ -284,7 +284,7 @@ trait MiscMatchers {
         val sym = tpe.typeSymbol
         mappedCollectionType.tpe match {
           case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
-            Some((array, componentType, sym, param, body))
+            Some((array, componentType, sym, mappedCollectionType, function))
           case _ =>
             None
         }

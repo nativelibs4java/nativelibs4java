@@ -273,7 +273,7 @@ extends PluginComponent
       else
         try {
           tree match {
-            case ArrayTabulate(componentType, List(length), Func(List(param), body)) =>
+            case ArrayTabulate(componentType, List(length), f @ Func(List(param), body)) =>
               val tpe = body.tpe
               val returnType = if (tpe.isInstanceOf[ConstantType]) 
                 tpe.widen
@@ -306,11 +306,17 @@ extends PluginComponent
                             ),
                             typed {
                               Block(
-                                newUpdate(tree.pos, mIdentGen(), iIdentGen(), replaceOccurrences(
-                                  body,
-                                  Map(param.symbol -> iIdentGen),
-                                  unit
-                                )),
+                                newUpdate(
+                                  tree.pos,
+                                  mIdentGen(),
+                                  iIdentGen(),
+                                  replaceOccurrences(
+                                    body,
+                                    Map(param.symbol -> iIdentGen),
+                                    Map(f.symbol -> currentOwner),
+                                    unit
+                                  )
+                                ),
                                 incrementIntVar(iIdentGen, newInt(1))
                               )
                             }
@@ -322,42 +328,59 @@ extends PluginComponent
                   }
                 }
               }
-            case ArrayMap(array, componentType, mappedComponentType, param, body) =>
-              msg(unit, tree.pos, "transformed Array.map into equivalent while loop.") {
-                array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-                typed {
-                  super.transform(
-                    ArrayCol.foreach[IdentGen](
-                      tree,
-                      array,
-                      componentType,
-                      false,
-                      false,
-                      env => {
-                        val mappedArrayTpe = appliedType(ArrayClass.tpe, List(mappedComponentType.tpe))
-                        val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, env.nIdentGen()))
-                        new LoopOuters(List(mDef), mIdentGen(), payload = mIdentGen)
-                      },
-                      env => {
-                        val mIdentGen = env.payload
-                        List(
-                          newUpdate(
-                            tree.pos,
-                            mIdentGen(),
-                            env.iIdentGen(),
-                            replaceOccurrences(
-                              body,
-                              Map(param.symbol -> env.itemIdentGen),
-                              unit
+            case ArrayMap(array, componentType, mappedComponentType, mappedArrayType, f) =>
+              f match {
+                case Func(List(param), body) =>
+                  msg(unit, tree.pos, "transformed Array.map into equivalent while loop.") {
+                    array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
+                    typed {
+                      super.transform(
+                        ArrayCol.foreach[IdentGen](
+                          tree,
+                          array,
+                          componentType,
+                          false,
+                          false,
+                          env => {
+                            //val mappedArrayTpe = appliedType(ArrayClass.tpe, List(mappedComponentType.tpe))
+                            val (mIdentGen, _, mDef) = newVariable(
+                              unit,
+                              "m$",
+                              currentOwner,
+                              tree.pos,
+                              false,
+                              newArray(
+                                //mappedArrayTpe,
+                                mappedArrayType.tpe,
+                                env.nIdentGen()
+                              )
                             )
-                          )
+                            new LoopOuters(List(mDef), mIdentGen(), payload = mIdentGen)
+                          },
+                          env => {
+                            val mIdentGen = env.payload
+                            List(
+                              newUpdate(
+                                tree.pos,
+                                mIdentGen(),
+                                env.iIdentGen(),
+                                replaceOccurrences(
+                                  body,
+                                  Map(param.symbol -> env.itemIdentGen),
+                                  Map(f.symbol -> currentOwner),
+                                  unit
+                                )
+                              )
+                            )
+                          }
                         )
-                      }
-                    )
-                  )
-                }
+                      )
+                    }
+                  }
+                case _ =>
+                  super.transform(tree)
               }
-            case Foreach(collection, Func(List(param), body)) =>
+            case Foreach(collection, f @ Func(List(param), body)) =>
               collection match {
                 case ColTree(colType, tpe, array, componentType) =>
                   msg(unit, tree.pos, "transformed " + tpe + ".foreach into equivalent while loop.") {
@@ -375,6 +398,7 @@ extends PluginComponent
                             replaceOccurrences(
                               body,
                               Map(param.symbol -> env.itemIdentGen),
+                              Map(f.symbol -> currentOwner),
                               unit
                             )
                           )
@@ -386,7 +410,7 @@ extends PluginComponent
                   super.transform(tree)
               }
               
-            case TraversalOp(op, collection, resultType, Func(List(leftParam, rightParam), body), isLeft, initialValue) =>
+            case TraversalOp(op, collection, resultType, f @ Func(List(leftParam, rightParam), body), isLeft, initialValue) =>
               val accParam = if (isLeft) leftParam else rightParam
               val newParam = if (isLeft) rightParam else leftParam
               collection match {
@@ -432,6 +456,7 @@ extends PluginComponent
                                         accParam.symbol -> totIdentGen,
                                         newParam.symbol -> env.itemIdentGen
                                       ),
+                                      Map(f.symbol -> currentOwner),
                                       unit
                                     )
                                   ).setType(UnitClass.tpe)
@@ -470,6 +495,7 @@ extends PluginComponent
                                         accParam.symbol -> totIdentGen,
                                         newParam.symbol -> env.itemIdentGen
                                       ),
+                                      Map(f.symbol -> currentOwner),
                                       unit
                                     )
                                   ).setType(UnitClass.tpe),

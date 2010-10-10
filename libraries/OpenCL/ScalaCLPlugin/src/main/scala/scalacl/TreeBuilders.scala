@@ -60,26 +60,56 @@ extends MiscMatchers
       r
     } catch {
       case ex =>
-        println(prefix + "An unexpected error occurred while attempting an optimization")
-        println(prefix + "\tAttempted optimization : '"+ text + "'")
-        println(prefix + "\tYou can skip this line with SCALACL_SKIP=" + fileLine)
+        var str = 
+          """An unexpected error occurred while attempting an optimization
+  Attempted optimization : '"""+ text + """'
+  You can skip this line with the following environment variable :
+    SCALACL_SKIP=""" + fileLine
+
         if (ScalaCLPlugin.trace) {
-          println(prefix + "\tError : " + ex)
-          ex.printStackTrace
+          str += "\n\tError : " + ex
+          
         } else {
-          println(prefix + "\tTo display the error and help debug the ScalaCL compiler plugin, please set the following environment variable :")
-          println(prefix + "\t\tSCALACL_TRACE=1")
-          println(prefix + "\tAnd file bugs here :")
-          println(prefix + "\t\thttp://code.google.com/p/nativelibs4java/issues/entry")
+          str += """
+  To display the error and help debug the ScalaCL compiler plugin, please set the following environment variable :
+    SCALACL_TRACE=1
+  You can help by filing bugs here (with [ScalaCLPlugin] in the title) :
+    http://code.google.com/p/nativelibs4java/issues/entry"""
         }
+        str = prefix + str.replaceAll("\n", "\n" + prefix)
+
+        global.warning(str)
+        println(str)
+
+        if (ScalaCLPlugin.trace)
+          ex.printStackTrace
         throw ex
     }
   }
 
   type TreeGen = () => Tree
-  def replaceOccurrences(tree: Tree, mappings: Map[Symbol, TreeGen], unit: CompilationUnit) = new TypingTransformer(unit) {
-    override def transform(tree: Tree): Tree = //typed {
-      tree match {
+
+  def replaceOwners(sym: Symbol, ownerReplacements: Map[Symbol, Symbol]): Symbol = {
+    if (sym == null || sym == NoSymbol || sym.owner == null || sym.owner == NoSymbol)
+      sym
+    else
+      ownerReplacements.get(sym.owner) match {
+        case Some(replacement) =>
+          if (replacement == NoSymbol)
+            sym
+          else
+            sym.cloneSymbol(replacement)
+        case None =>
+          val p = replaceOwners(sym.owner, ownerReplacements)
+          if (sym.owner != p)
+            sym.cloneSymbol(p)
+          else
+            sym
+      }
+  }
+  def replaceOccurrences(tree: Tree, mappings: Map[Symbol, TreeGen], ownerReplacements: Map[Symbol, Symbol], unit: CompilationUnit) = new TypingTransformer(unit) {
+    override def transform(tree: Tree): Tree = {
+      val rep = tree match {
         case Ident(n) if tree.symbol != NoSymbol =>
           mappings.get(tree.symbol).map(_()).getOrElse(super.transform(tree))
         case _ =>
@@ -87,9 +117,38 @@ extends MiscMatchers
           //  println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)
           super.transform(tree)
       }
-    //}
+      val sym = rep.symbol
+      if (true) {
+        val repSym = replaceOwners(sym, ownerReplacements)
+        try {
+          if (repSym != sym)
+            rep.setSymbol(repSym)
+        } catch {
+          case ex =>
+            ex.printStackTrace
+            print("ERROR failed to replace occurrence's symbol : " + ex)
+        }
+      }
+
+      /*
+      val sym = rep.symbol
+      if (sym != null) {
+        val symOwnerChain = sym.ownerChain
+
+        //println("symOwnerChain = " + symOwnerChain)
+        for ((disappearing, replacement) <- ownerReplacements) {
+          if (sym.owner == disappearing)
+            rep.setSymbol(sym.cloneSymbol(replacement))
+          else if (symOwnerChain.contains(disappearing)) {
+            println("[scalacl] We've got a problem with symbol " + sym + " for tree " + tree + ": ownerChain = " + symOwnerChain.toSeq + ", replacing " + mappings.keys.toSeq)
+          }
+        }
+      }*/
+      rep
+    }
   }.transform(tree)
 
+  
   def newApply(pos: Position, array: => Tree, index: => Tree) = {
     val a = array
     assert(a.tpe != null)
@@ -108,6 +167,7 @@ extends MiscMatchers
   def newUpdate(pos: Position, array: => Tree, index: => Tree, value: => Tree) = {
     val a = array
     assert(a.tpe != null)
+    val sym = getMember(a.tpe.typeSymbol, nme.update)//getMember(a.symbol, nme.update)
     typed {
       atPos(pos) {
         val t =
@@ -115,9 +175,10 @@ extends MiscMatchers
           Select(
             a,
             N("update")
-          ).setSymbol(getMember(a.tpe.typeSymbol, nme.update)),
+          ).setSymbol(sym),
           List(index, value)
-        )
+        )//.setSymbol(sym).setType(UnitClass.tpe)
+        //println(nodeToString(t))
         //treeBrowsers.create.browse(t)
         t
       }
@@ -165,6 +226,7 @@ extends MiscMatchers
     val lab = unit.fresh.newName(body.pos, "while$")
     val labTyp = MethodType(Nil, UnitClass.tpe)
     val labSym = owner.newLabel(tree.pos, N(lab)) setInfo labTyp
+    //labSym.setFlag(SYNTHETIC)
 
     typed {
       LabelDef(
