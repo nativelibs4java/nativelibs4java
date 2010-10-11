@@ -58,7 +58,7 @@ extends PluginComponent
   import global._
   import global.definitions._
   import scala.tools.nsc.symtab.Flags._
-  import typer.{typed, atOwner}    // methods to type trees
+  import typer.{typed}    // methods to type trees
 
   override val runsAfter = ScalaCLFunctionsTransformComponent.runsAfter
   override val phaseName = ScalaCLFunctionsTransformComponent.phaseName

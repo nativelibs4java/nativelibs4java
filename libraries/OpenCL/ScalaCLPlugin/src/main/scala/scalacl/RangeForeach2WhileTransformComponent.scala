@@ -53,7 +53,7 @@ extends PluginComponent
   import global._
   import global.definitions._
   import scala.tools.nsc.symtab.Flags._
-  import typer.{typed, atOwner}    // methods to type trees
+  import typer.{typed}    // methods to type trees
 
   override val runsAfter = RangeForeach2WhileTransformComponent.runsAfter
   override val phaseName = RangeForeach2WhileTransformComponent.phaseName
@@ -127,7 +127,10 @@ extends PluginComponent
                 }
               }
             case _ =>
-              super.transform(tree)
+              if (tree == null)
+                tree
+              else
+                super.transform(tree)
           } 
      } catch { 
        case _ => 
