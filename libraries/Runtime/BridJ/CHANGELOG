@@ -1,4 +1,8 @@
-Current version : BridJ 0.2-SNAPSHOT
+Current version : BridJ 0.3-SNAPSHOT
+
+...
+
+BridJ 0.2 (r1330, 20101011):
 
 - Renamed package com.bridj to org.bridj
 - Vastly improved JNAerator support : now decent and complete :-)
