@@ -308,13 +308,13 @@ trait MiscMatchers {
     /** This is the one all the other ones go through. */
     lazy val tabulateSyms = (ArrayModule.tpe member "tabulate" alternatives).toSet//filter (_.paramss.flatten.size == 3)
 
-    def apply(componentType: Tree, lengths: List[Tree], function: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[(Tree, List[Tree], Tree)] = {
+    def apply(componentType: Tree, lengths: List[Tree], function: Tree, manifest: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[(Tree, List[Tree], Tree, Tree)] = {
       if (!tabulateSyms.contains(methPart(tree).symbol))
         None
       else flattenApplyGroups(tree) match {
-        case List(lengths, List(function), _) =>
-          Some((typeArgs(tree).headOption getOrElse EmptyTree, lengths, function))
+        case List(lengths, List(function), List(manifest)) =>
+          Some((typeArgs(tree).headOption getOrElse EmptyTree, lengths, function, manifest))
         case _ =>
           None
       }

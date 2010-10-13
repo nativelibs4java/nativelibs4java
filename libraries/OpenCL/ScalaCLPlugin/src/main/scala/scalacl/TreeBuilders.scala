@@ -259,6 +259,7 @@ extends MiscMatchers
   def newUnit() = 
     Literal(Constant()).setType(UnitClass.tpe)
 
+    
   def newVariable(
     unit: CompilationUnit,
     prefix: String,

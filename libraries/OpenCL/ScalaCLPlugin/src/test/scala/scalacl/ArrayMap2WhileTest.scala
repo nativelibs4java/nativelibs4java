@@ -69,7 +69,7 @@ class ArrayMap2WhileTest extends TestUtils {
           val length = 10
           val a = {
             val n = length
-            val m = new Array[""" + typeStr + """](n)
+            val m = Array.ofDim[""" + typeStr + """](n)
             var i = 0
             while (i < n)
             {
@@ -95,23 +95,22 @@ class ArrayMap2WhileTest extends TestUtils {
           val a = {
             val n1 = length
             val n2 = length * 2
-            val m1 = new Array[Array[""" + typeStr + """]](n1)
+            val multiArray = Array.ofDim[""" + typeStr + """](n1, n2)
             var i1 = 0
             while (i1 < n1)
             {
-              m1(i1) = {
-                val m2 = new Array[""" + typeStr + """](n2)
+              val subArray1 = multiArray(i1);
+              {
                 var i2 = 0
                 while (i2 < n2)
                 {
-                  m2(i2) = """ + valStr + """
+                  subArray1(i2) = """ + valStr + """
                   i2 += 1
                 }
-                m2
               }
               i1 += 1
             }
-            m1
+            multiArray
           }
           println(a)
       """

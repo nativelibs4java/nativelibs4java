@@ -254,26 +254,52 @@ extends PluginComponent
         }
       }
     }
+    def getMappedArrayType(lengths: Int, returnType: Type): Type = lengths match {
+        case 1 => 
+            appliedType(ArrayClass.tpe, List(returnType))
+        case _ =>
+            assert(lengths > 1)
+            appliedType(ArrayClass.tpe, List(getMappedArrayType(lengths - 1, returnType)))
+    }
+    
+    def newArrayMulti(arrayType: Type, componentTpe: Type, lengths: => List[Tree], manifest: Tree) =
+      typed {
+        val sym = (ArrayModule.tpe member "ofDim" alternatives).filter(_.paramss.flatten.size == lengths.size + 1).head
+        Apply(
+          Apply(
+            TypeApply(
+              Select(
+                Ident(
+                  ArrayModule
+                ),
+                N("ofDim")
+              ).setSymbol(sym),
+              List(TypeTree(componentTpe))
+            ),
+           lengths
+          ).setSymbol(sym),
+          List(manifest)
+        ).setSymbol(sym)
+      }
+
     def newArray(arrayType: Type, length: => Tree) =
       typed {
         Apply(
-          localTyper.typedOperator {
-            Select(
-              New(TypeTree(arrayType)),
-              arrayType.typeSymbol.primaryConstructor
-            )
-          },
+          Select(
+            New(TypeTree(arrayType)),
+            arrayType.typeSymbol.primaryConstructor
+          ),
           List(length)
         )
       }
-
+      
     override def transform(tree: Tree): Tree = {
       if (!shouldOptimize(tree))
         super.transform(tree)
       else
         try {
           tree match {
-            case ArrayTabulate(componentType, lengths @ (firstLength :: otherLengths), f @ Func(params, body)) =>
+            case ArrayTabulate(componentType, lengths @ (firstLength :: otherLengths), f @ Func(params, body), manifest) =>
               val tpe = body.tpe
               val returnType = if (tpe.isInstanceOf[ConstantType]) 
                 tpe.widen
@@ -281,9 +307,10 @@ extends PluginComponent
                 tpe
               
               val lengthDefs = lengths.map(length => newVariable(unit, "n$", currentOwner, tree.pos, false, length.setType(IntClass.tpe)))
-              
+                  
               msg(unit, tree.pos, "transformed Array.tabulate[" + returnType + "] into equivalent while loop") {
-                def replaceTabulates(lengthDefs: List[(TreeGen, Symbol, ValDef)], defineLengths: Boolean, params: List[ValDef], mappings: Map[Symbol, TreeGen]): (Tree, Type) = {
+                  
+                def replaceTabulates(lengthDefs: List[(TreeGen, Symbol, ValDef)], parentArrayIdentGen: TreeGen, params: List[ValDef], mappings: Map[Symbol, TreeGen]): (Tree, Type) = {
               
                   val param = params.head
                   val pos = tree.pos
@@ -291,6 +318,19 @@ extends PluginComponent
                   val (iIdentGen, _, iDef) = newVariable(unit, "i$", currentOwner, pos, true, newInt(0))
                   
                   val newMappings = mappings + (param.symbol -> iIdentGen)
+                  
+                  val mappedArrayTpe = getMappedArrayType(lengthDefs.size, returnType)
+                  
+                  val (arrayIdentGen: TreeGen, arraySym, arrayDef) = if (parentArrayIdentGen == null)
+                    newVariable(unit, "m$", currentOwner, tree.pos, false, newArrayMulti(mappedArrayTpe, returnType, lengthDefs.map(_._1()), manifest))
+                  else
+                    (parentArrayIdentGen, null, null)
+                  
+                  val (subArrayIdentGen, _, subArrayDef) =  if (lengthDefs.tail == Nil)
+                    (null, null, null)
+                  else
+                    newVariable(unit, "subArray$", currentOwner, tree.pos, false, newApply(tree.pos, arrayIdentGen(), iIdentGen()))
+                                    
                   val (newBody, bodyType) = if (lengthDefs.tail == Nil)
                       (
                           replaceOccurrences(
@@ -304,28 +344,25 @@ extends PluginComponent
                   else
                       replaceTabulates(
                         lengthDefs.tail,
-                        false,
+                        subArrayIdentGen,
                         params.tail,
                         newMappings
                       )
                   
                   newBody.setType(bodyType)
                   
-                  val mappedArrayTpe = appliedType(ArrayClass.tpe, List(bodyType))
-                  val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, nIdentGen()))
                   (
                     super.transform {
                       typed {
                         treeCopy.Block(
                           tree,
                           (
-                            if (defineLengths) 
-                                lengthDefs.map(_._3) 
+                            if (parentArrayIdentGen == null) 
+                                lengthDefs.map(_._3) ++ List(arrayDef) 
                             else 
                                 Nil
                           ) ++
                           List(
-                            mDef,
                             iDef,
                             whileLoop(
                               currentOwner,
@@ -336,27 +373,39 @@ extends PluginComponent
                                 IntClass.tpe.member(nme.LT),
                                 nIdentGen()
                               ),
-                              //typed {
-                                Block(
-                                  newUpdate(
-                                    tree.pos,
-                                    mIdentGen(),
-                                    iIdentGen(),
-                                    newBody
-                                  ),
-                                  incrementIntVar(iIdentGen, newInt(1))
-                                )
-                              //}
+                              Block(
+                                (
+                                  if (lengthDefs.tail == Nil)
+                                    List(
+                                      newUpdate(
+                                        tree.pos,
+                                        arrayIdentGen(),
+                                        iIdentGen(),
+                                        newBody
+                                      )
+                                    )
+                                  else {
+                                    List(
+                                      subArrayDef,
+                                      newBody
+                                    )
+                                  }
+                                ),
+                                incrementIntVar(iIdentGen, newInt(1))
+                              )
                             )
                           ),
-                          mIdentGen()
+                          if (parentArrayIdentGen == null)
+                            arrayIdentGen()
+                          else
+                            newUnit
                         )
                       }
                     },
                     mappedArrayTpe
                   )
                 }
-                replaceTabulates(lengthDefs, true, params, Map())._1
+                replaceTabulates(lengthDefs, null, params, Map())._1
               }
             case ArrayMap(array, componentType, mappedComponentType, mappedArrayType, f) =>
               f match {
