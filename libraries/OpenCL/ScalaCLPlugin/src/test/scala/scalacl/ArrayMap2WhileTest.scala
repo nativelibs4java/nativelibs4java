@@ -41,6 +41,10 @@ class ArrayMap2WhileTest extends TestUtils {
     simpleArrayTabulate("String", "\"Test\"")
 
   @Test
+  def nestedStringArrayTabulate =
+    nestedArrayTabulate("String", "\"Test\"")
+
+  @Test
   def simpleStringArrayMap =
     simpleArrayMap("String")
 
@@ -48,6 +52,11 @@ class ArrayMap2WhileTest extends TestUtils {
   def simplePrimitiveArrayTabulate =
     for ((p, v) <- Seq(("Double", "1.0"), ("Float", "1f"), ("Int", "1"), ("Short", "(1: Short)"), ("Long", "1L"), ("Byte", "(1: Byte)"), ("Char", "'a'"), ("Boolean", "true")))
       simpleArrayTabulate(p, v)
+
+  @Test
+  def nestedPrimitiveArrayTabulate =
+    for ((p, v) <- Seq(("Double", "1.0"), ("Float", "1f"), ("Int", "1"), ("Short", "(1: Short)"), ("Long", "1L"), ("Byte", "(1: Byte)"), ("Char", "'a'"), ("Boolean", "true")))
+      nestedArrayTabulate(p, v)
 
   def simpleArrayTabulate(typeStr: String, valStr: String) {
     ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ArrayTabulate",
@@ -68,6 +77,41 @@ class ArrayMap2WhileTest extends TestUtils {
               i += 1
             }
             m
+          }
+          println(a)
+      """
+    )
+  }
+  
+  def nestedArrayTabulate(typeStr: String, valStr: String) {
+    ensurePluginCompilesSnippetsToSameByteCode("nested" + typeStr + "ArrayTabulate",
+      """
+          val length = 10
+          val a = Array.tabulate(length, length * 2)((i, j) => """ + valStr + """)
+          println(a)
+      """,
+      """
+          val length = 10
+          val a = {
+            val n1 = length
+            val n2 = length * 2
+            val m1 = new Array[Array[""" + typeStr + """]](n1)
+            var i1 = 0
+            while (i1 < n1)
+            {
+              m1(i1) = {
+                val m2 = new Array[""" + typeStr + """](n2)
+                var i2 = 0
+                while (i2 < n2)
+                {
+                  m2(i2) = """ + valStr + """
+                  i2 += 1
+                }
+                m2
+              }
+              i1 += 1
+            }
+            m1
           }
           println(a)
       """

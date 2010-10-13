@@ -117,8 +117,8 @@ extends MiscMatchers
           //  println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)
           super.transform(tree)
       }
-      val sym = rep.symbol
-      if (true) {
+      if (false) {
+        val sym = rep.symbol
         val repSym = replaceOwners(sym, ownerReplacements)
         try {
           if (repSym != sym)
@@ -158,7 +158,7 @@ extends MiscMatchers
           Select(
             a,
             N("apply")
-          ).setSymbol(getMember(a.tpe.typeSymbol, nme.apply)),
+          ).setSymbol(getMember(a.symbol, nme.apply)),
           List(index)
         )
       }
@@ -167,7 +167,8 @@ extends MiscMatchers
   def newUpdate(pos: Position, array: => Tree, index: => Tree, value: => Tree) = {
     val a = array
     assert(a.tpe != null)
-    val sym = getMember(a.tpe.typeSymbol, nme.update)//getMember(a.symbol, nme.update)
+    val sym = getMember(a.symbol, nme.update)//
+        //getMember(a.tpe.typeSymbol, nme.update)
     typed {
       atPos(pos) {
         val t =
@@ -177,7 +178,7 @@ extends MiscMatchers
             N("update")
           ).setSymbol(sym),
           List(index, value)
-        )//.setSymbol(sym).setType(UnitClass.tpe)
+        ).setSymbol(sym)
         //println(nodeToString(t))
         //treeBrowsers.create.browse(t)
         t

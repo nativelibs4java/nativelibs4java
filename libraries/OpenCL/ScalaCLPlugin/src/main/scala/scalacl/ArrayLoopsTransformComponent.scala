@@ -273,60 +273,90 @@ extends PluginComponent
       else
         try {
           tree match {
-            case ArrayTabulate(componentType, List(length), f @ Func(List(param), body)) =>
+            case ArrayTabulate(componentType, lengths @ (firstLength :: otherLengths), f @ Func(params, body)) =>
               val tpe = body.tpe
               val returnType = if (tpe.isInstanceOf[ConstantType]) 
                 tpe.widen
               else
                 tpe
               
+              val lengthDefs = lengths.map(length => newVariable(unit, "n$", currentOwner, tree.pos, false, length.setType(IntClass.tpe)))
+              
               msg(unit, tree.pos, "transformed Array.tabulate[" + returnType + "] into equivalent while loop") {
-                typed {
-                  super.transform {
-                    val pos = tree.pos
-                    val (nIdentGen, _, nDef) = newVariable(unit, "n$", currentOwner, pos, false, length.setType(IntClass.tpe))
-                    val mappedArrayTpe = appliedType(ArrayClass.tpe, List(returnType))
-                    val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, nIdentGen()))
-                    val (iIdentGen, _, iDef) = newVariable(unit, "i$", currentOwner, pos, true, newInt(0))
-                    typed {
-                      treeCopy.Block(
-                        tree,
-                        List(
-                          nDef,
-                          mDef,
-                          iDef,
-                          whileLoop(
-                            currentOwner,
-                            unit,
-                            tree,
-                            binOp(
-                              iIdentGen(),
-                              IntClass.tpe.member(nme.LT),
-                              nIdentGen()
-                            ),
-                            typed {
-                              Block(
-                                newUpdate(
-                                  tree.pos,
-                                  mIdentGen(),
-                                  iIdentGen(),
-                                  replaceOccurrences(
-                                    body,
-                                    Map(param.symbol -> iIdentGen),
-                                    Map(f.symbol -> currentOwner),
-                                    unit
-                                  )
-                                ),
-                                incrementIntVar(iIdentGen, newInt(1))
-                              )
-                            }
-                          )
-                        ),
-                        mIdentGen()
+                def replaceTabulates(lengthDefs: List[(TreeGen, Symbol, ValDef)], defineLengths: Boolean, params: List[ValDef], mappings: Map[Symbol, TreeGen]): (Tree, Type) = {
+              
+                  val param = params.head
+                  val pos = tree.pos
+                  val (nIdentGen, _, nDef) = lengthDefs.head
+                  val (iIdentGen, _, iDef) = newVariable(unit, "i$", currentOwner, pos, true, newInt(0))
+                  
+                  val newMappings = mappings + (param.symbol -> iIdentGen)
+                  val (newBody, bodyType) = if (lengthDefs.tail == Nil)
+                      (
+                          replaceOccurrences(
+                            body,
+                            newMappings,
+                            Map(f.symbol -> currentOwner),
+                            unit
+                          ),
+                          returnType
                       )
-                    }
-                  }
+                  else
+                      replaceTabulates(
+                        lengthDefs.tail,
+                        false,
+                        params.tail,
+                        newMappings
+                      )
+                  
+                  newBody.setType(bodyType)
+                  
+                  val mappedArrayTpe = appliedType(ArrayClass.tpe, List(bodyType))
+                  val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(mappedArrayTpe, nIdentGen()))
+                  (
+                    super.transform {
+                      typed {
+                        treeCopy.Block(
+                          tree,
+                          (
+                            if (defineLengths) 
+                                lengthDefs.map(_._3) 
+                            else 
+                                Nil
+                          ) ++
+                          List(
+                            mDef,
+                            iDef,
+                            whileLoop(
+                              currentOwner,
+                              unit,
+                              tree,
+                              binOp(
+                                iIdentGen(),
+                                IntClass.tpe.member(nme.LT),
+                                nIdentGen()
+                              ),
+                              //typed {
+                                Block(
+                                  newUpdate(
+                                    tree.pos,
+                                    mIdentGen(),
+                                    iIdentGen(),
+                                    newBody
+                                  ),
+                                  incrementIntVar(iIdentGen, newInt(1))
+                                )
+                              //}
+                            )
+                          ),
+                          mIdentGen()
+                        )
+                      }
+                    },
+                    mappedArrayTpe
+                  )
                 }
+                replaceTabulates(lengthDefs, true, params, Map())._1
               }
             case ArrayMap(array, componentType, mappedComponentType, mappedArrayType, f) =>
               f match {

@@ -44,6 +44,9 @@ import scala.tools.nsc.reporters.ConsoleReporter
 import scala.tools.nsc.reporters.Reporter
 //import scalacl.ScalaCLPlugin
 
+/*
+mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=t.scala|-Xprint:loopstransform|-Ybrowse:loopstransform"
+*/
 object Compile {
 
   def main(args: Array[String]) {
