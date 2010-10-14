@@ -54,6 +54,17 @@ trait MiscMatchers {
     case Apply(fn, args)  => flattenApplyGroups(fn) ++ List(args)
     case _                => Nil
   }
+  /** Smashes directly nested selects down to the inner tree and a list of names. */
+  def flattenSelect(tree: Tree): (Tree, List[Name]) = tree match {
+    case Select(qual, name) => flattenSelect(qual) match { case (t, xs) => (t, xs :+ name) }
+    case _                  => (tree, Nil)
+  }
+  /** Creates an Ident or Select from a list of names. */
+  def mkSelect(names: Name*): Tree = names.toList match {
+    case Nil        => EmptyTree
+    case x :: Nil   => Ident(x)
+    case x :: xs    => xs.foldLeft(Ident(x): Tree)(Select(_, _))
+  }
 
   class Ids(start: Long = 1) {
     private var nx = start
@@ -74,7 +85,6 @@ trait MiscMatchers {
   
   val scalaName = N("scala")
   val ArrayName = N("Array")
-  //val PredefName = N("Predef")
   val intWrapperName = N("intWrapper")
   val tabulateName = N("tabulate")
   val toName = N("to")
@@ -107,8 +117,11 @@ trait MiscMatchers {
   val packageName = N("package")
     
   object ScalaMathFunction {
+    /** I'm all for avoiding "magic strings" but in this case it's hard to
+     *  see the twice-as-long identifiers as much improvement.
+     */
     def apply(functionName: String, args: List[Tree]) =
-      Apply(Select(Select(Select(Ident(scalaName), mathName), packageName), N(functionName)), args)
+      Apply(mkSelect("scala", "math", "package", functionName), args)
         
     def unapply(tree: Tree): Option[(Name, List[Tree])] = tree match {
       case
@@ -161,20 +174,23 @@ trait MiscMatchers {
   }
   
   object Predef {
+    lazy val RefArrayOps = this("refArrayOps")
+    lazy val IntWrapper  = this("intWrapper")
+    
+    def contains(sym: Symbol)        = sym.owner == PredefModule.moduleClass
+    def apply(name: String): Symbol  = PredefModule.tpe member name
     def unapply(tree: Tree): Boolean = tree.symbol == PredefModule
   }
   object ArrayOps {
     lazy val ArrayOpsClass    = definitions.getClass("scala.collection.mutable.ArrayOps")
-    lazy val RefArrayOps      = PredefModule.tpe member "refArrayOps"
-    def inPredef(sym: Symbol) = sym.owner == PredefModule.moduleClass
 
     def unapply(tree: Tree): Option[Symbol] = tree match {
       case TypeApply(sel, List(arg))
-        if sel.symbol == RefArrayOps =>
+        if sel.symbol == Predef.RefArrayOps =>
         Some(arg.tpe.typeSymbol)
       case _  => tree.symbol.tpe match {
         case MethodType(_, TypeRef(_, ArrayOpsClass, List(param)))
-          if inPredef(tree.symbol) =>
+          if Predef contains tree.symbol =>
           Some(param.typeSymbol)
         case _ =>
           None
@@ -200,15 +216,12 @@ trait MiscMatchers {
       case _ => None
     }
   }
-  class ColTree(colClass: Symbol) {
-    def unapply(tree: Tree) = tree.symbol.tpe match {
-      case TypeRef(tp, sym, List(param)) =>
-        if (sym == colClass)
-          Some(param.typeSymbol)
-        else
-          None
-      case _ =>
-        None
+  /** This method submitted in case you like this sort of thing:
+   *  not everyone does.  I'm a tireless advocate for brevity.
+   */
+  class ColTree(ColClass: Symbol) {
+    def unapply(tree: Tree) = Some(tree.symbol.tpe) collect {
+      case TypeRef(_, ColClass, List(param)) => param.typeSymbol
     }
   }
   object ListTree extends ColTree(ListClass)
