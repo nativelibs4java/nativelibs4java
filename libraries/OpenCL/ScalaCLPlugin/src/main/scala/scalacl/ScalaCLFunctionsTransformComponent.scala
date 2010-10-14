@@ -39,7 +39,7 @@ import scala.tools.nsc.transform.{Transform, TypingTransformers}
 object ScalaCLFunctionsTransformComponent {
   val runsAfter = List[String](
     "namer",
-    RangeForeach2WhileTransformComponent.phaseName,
+    RangesTransformComponent.phaseName,
     LoopsTransformComponent.phaseName
     //, OpsFuserTransformComponent.phaseName, Seq2ArrayTransformComponent.phaseName
   )

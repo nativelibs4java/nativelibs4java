@@ -35,14 +35,14 @@ import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.{Transform, TypingTransformers}
 
-object RangeForeach2WhileTransformComponent { 
+object RangesTransformComponent { 
   val runsAfter = List[String](
     "namer"
     //, OpsFuserTransformComponent.phaseName, Seq2ArrayTransformComponent.phaseName
   )
   val phaseName = "scalacl-rangestransform"
 }
-class RangeForeach2WhileTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
+class RangesTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
 extends PluginComponent
    with Transform
    with TypingTransformers
@@ -55,8 +55,8 @@ extends PluginComponent
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed}    // methods to type trees
 
-  override val runsAfter = RangeForeach2WhileTransformComponent.runsAfter
-  override val phaseName = RangeForeach2WhileTransformComponent.phaseName
+  override val runsAfter = RangesTransformComponent.runsAfter
+  override val phaseName = RangesTransformComponent.phaseName
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     var currentClassName: Name = null
