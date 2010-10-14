@@ -34,7 +34,7 @@ import java.io.File
 import org.junit._
 import Assert._
 
-class PendingBugsTest extends TestUtils {
+class PastBugsTest extends TestUtils {
 
   @Test
   def yieldTuplesInMap {
