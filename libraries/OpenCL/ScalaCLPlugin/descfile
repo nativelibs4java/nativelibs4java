@@ -12,12 +12,13 @@ Author:
 
 Current general optimizations include :
 - Rewrite of int range foreach loops into faster while loops
-- Rewrite of List/Array[T].foreach into while loops (for T being primitive or AnyRef)
-- Rewrite of Array[T].map into while loops
-- Rewrite of List[T].foldLeft and Array[T].foldLeft/foldRight into while loops
-- Rewrite of List[T].reduceLeft and Array[T].reduceLeft/reduceRight into while loops
-- Rewrite of List[T].scanLeft and Array[T].scanLeft/scanRight into while loops
-- Rewrite of Array.tabulate(m, n, ...)((i, j, ...) => body) into while loops
+- Rewrite of List[T]/Array[T].foreach calls into while loops (for T being primitive or AnyRef)
+- Rewrite of List[T]/Array[T].sum calls into while loops
+- Rewrite of Array[T].map calls into while loops
+- Rewrite of List[T].foldLeft and Array[T].foldLeft/foldRight calls into while loops
+- Rewrite of List[T].reduceLeft and Array[T].reduceLeft/reduceRight calls into while loops
+- Rewrite of List[T].scanLeft and Array[T].scanLeft/scanRight calls into while loops
+- Rewrite of Array.tabulate(m, n, ...)((i, j, ...) => body) calls into while loops
 
 Current ScalaCL / OpenCL-specific optimizations include :
 - Transforming Scala functions given to CLCol[T].map, foreach and filter into OpenCL kernels (supports only limited inline lambdas)
