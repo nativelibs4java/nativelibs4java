@@ -39,7 +39,7 @@ object OpsFuserTransformComponent {
   val runsAfter = List[String](
     "namer"
   )
-  val phaseName = "opsfuser"
+  val phaseName = "scalacl-opsfuser"
 }
 class OpsFuserTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
 extends PluginComponent

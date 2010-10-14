@@ -40,7 +40,7 @@ object RangeForeach2WhileTransformComponent {
     "namer"
     //, OpsFuserTransformComponent.phaseName, Seq2ArrayTransformComponent.phaseName
   )
-  val phaseName = "rangeforeach2whiletransform"
+  val phaseName = "scalacl-rangestransform"
 }
 class RangeForeach2WhileTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
 extends PluginComponent

@@ -41,7 +41,7 @@ object LoopsTransformComponent {
     //, OpsFuserTransformComponent.phaseName, Seq2ArrayTransformComponent.phaseName
   )
   val runsBefore = List[String]("refchecks")
-  val phaseName = "loopstransform"
+  val phaseName = "scalacl-loopstransform"
 }
 
 

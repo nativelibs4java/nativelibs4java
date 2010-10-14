@@ -46,17 +46,15 @@ class PendingBugsTest extends TestUtils {
       """
           val a = Array(1, 2);
           {
-            val aa = a
-            val n = aa.length
-            val m = new Array[(Int, Int)](n)
+            val array = a
+            val n = array.length
             var i = 0
-            while (i < n)
-            {
-              val item = aa(i)
+            val m = new Array[(Int, Int)](n)
+            while (i < n) {
+              val item = array(i)
               m(i) = (item, item)
               i += 1
             }
-            m
           }
       """
     )
@@ -72,23 +70,24 @@ class PendingBugsTest extends TestUtils {
       """
           val a = Array(1, 2);
           {
-            val aa1 = a
-            val n1 = aa1.length
-            val m1 = new Array[Array[Int]](n1)
+            val array1 = a
+            val n1 = array1.length
             var i1 = 0
-            while (i1 < n1)
-            {
-              val item1 = aa1(i1)
+            val m1 = new Array[Array[Int]](n1)
+            while (i1 < n1) {
+              val item1 = array1(i1)
               m1(i1) = {
-                val aa2 = aa1
-                val n2 = aa2.length
-                val m2 = new Array[Int](n2)
+                val array2 = a
+                val n2 = array2.length
                 var i2 = 0
-                while (i2 < n2)
-                {
-                    val item2 = aa2(i2)
-                    def f = item
-                    m2(i2) = f
+                val m2 = new Array[Int](n2)
+                while (i2 < n2) {
+                  val item2 = array2(i2)
+                  m2(i2) = {
+                    def f = item2
+                    f
+                  }
+                  i2 += 1
                 }
                 m2
               }

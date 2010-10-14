@@ -40,7 +40,7 @@ object Seq2ArrayTransformComponent {
     "namer",
     OpsFuserTransformComponent.phaseName
   )
-  val phaseName = "seq2arraytransform"
+  val phaseName = "scalacl-seqs2arrays"
 }
 class Seq2ArrayTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
 extends PluginComponent

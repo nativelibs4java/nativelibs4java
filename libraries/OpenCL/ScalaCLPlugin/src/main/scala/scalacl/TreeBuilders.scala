@@ -44,7 +44,7 @@ extends MiscMatchers
   import global._
   import global.definitions._
   import scala.tools.nsc.symtab.Flags._
-  import typer.{typed, atOwner}    // methods to type trees
+  import typer.{typed}    // methods to type trees
 
 
   /// print a message only if the operation succeeded :
@@ -67,8 +67,8 @@ extends MiscMatchers
     SCALACL_SKIP=""" + fileLine
 
         if (ScalaCLPlugin.trace) {
+          ex.printStackTrace
           str += "\n\tError : " + ex
-          
         } else {
           str += """
   To display the error and help debug the ScalaCL compiler plugin, please set the following environment variable :
@@ -81,8 +81,6 @@ extends MiscMatchers
         global.warning(str)
         println(str)
 
-        if (ScalaCLPlugin.trace)
-          ex.printStackTrace
         throw ex
     }
   }
@@ -117,6 +115,7 @@ extends MiscMatchers
           //  println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)
           super.transform(tree)
       }
+      /*
       if (false) {
         val sym = rep.symbol
         val repSym = replaceOwners(sym, ownerReplacements)
@@ -128,22 +127,28 @@ extends MiscMatchers
             ex.printStackTrace
             print("ERROR failed to replace occurrence's symbol : " + ex)
         }
-      }
+      }*/
 
       /*
       val sym = rep.symbol
-      if (sym != null) {
-        val symOwnerChain = sym.ownerChain
-
-        //println("symOwnerChain = " + symOwnerChain)
-        for ((disappearing, replacement) <- ownerReplacements) {
-          if (sym.owner == disappearing)
-            rep.setSymbol(sym.cloneSymbol(replacement))
-          else if (symOwnerChain.contains(disappearing)) {
-            println("[scalacl] We've got a problem with symbol " + sym + " for tree " + tree + ": ownerChain = " + symOwnerChain.toSeq + ", replacing " + mappings.keys.toSeq)
+      val symRep = replaceOwners(sym, ownerReplacements)
+        try {
+          if (symRep != sym) {
+            try {
+              rep.setSymbol(symRep)
+              println("Replaced symbol " + sym + " by " + symRep + " on " + rep + " : " + nodeToString(rep))
+            } catch { case ex =>
+              ex.printStackTrace
+              println("DID NOT replace symbol " + sym + " on " + rep + " : " + nodeToString(rep))
+            }
           }
+        } catch {
+          case ex =>
+            ex.printStackTrace
+            //print("ERROR failed to replace occurrence's symbol : " + ex)
         }
-      }*/
+        rep
+      */
       rep
     }
   }.transform(tree)
@@ -167,8 +172,7 @@ extends MiscMatchers
   def newUpdate(pos: Position, array: => Tree, index: => Tree, value: => Tree) = {
     val a = array
     assert(a.tpe != null)
-    val sym = getMember(a.symbol, nme.update)//
-        //getMember(a.tpe.typeSymbol, nme.update)
+    val sym = getMember(a.symbol, nme.update)
     typed {
       atPos(pos) {
         val t =
@@ -226,9 +230,8 @@ extends MiscMatchers
   def whileLoop(owner: Symbol, unit: CompilationUnit, tree: Tree, cond: Tree, body: Tree) = {
     val lab = unit.fresh.newName(body.pos, "while$")
     val labTyp = MethodType(Nil, UnitClass.tpe)
-    val labSym = owner.newLabel(tree.pos, N(lab)) setInfo labTyp
-    //labSym.setFlag(SYNTHETIC)
-
+    val labSym = owner.newLabel(tree.pos, N(lab)).setInfo(labTyp).setFlag(SYNTHETIC | LOCAL)
+   
     typed {
       LabelDef(
         N(lab),
@@ -277,7 +280,7 @@ extends MiscMatchers
         symbolOwner.newVariable(pos, name)
       else
         symbolOwner.newValue(pos, name)
-    ) setInfo tpe
+    ).setInfo(tpe).setFlag(SYNTHETIC | LOCAL)
     (() => ident(sym, name), sym, ValDef(Modifiers(if (mutable) MUTABLE else 0), name, TypeTree(tpe), initialValue).setType(tpe).setSymbol(sym))
   }
 }

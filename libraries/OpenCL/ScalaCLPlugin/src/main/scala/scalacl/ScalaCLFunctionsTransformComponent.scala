@@ -43,7 +43,7 @@ object ScalaCLFunctionsTransformComponent {
     LoopsTransformComponent.phaseName
     //, OpsFuserTransformComponent.phaseName, Seq2ArrayTransformComponent.phaseName
   )
-  val phaseName = "scalaclfunctionstransform"
+  val phaseName = "scalacl-functionstransform"
 }
 
 class ScalaCLFunctionsTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)

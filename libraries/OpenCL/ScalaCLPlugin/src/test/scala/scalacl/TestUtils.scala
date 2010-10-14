@@ -54,7 +54,7 @@ trait TestUtils {
      println("BYTECODE :")
      println("\t" + byteCode.replaceAll("\n", "\n\t"))
      */
-    byteCode//.replaceAll("#\\d+", "")
+    byteCode.replaceAll("#\\d+", "")
   }
 
   def ensurePluginCompilesSnippetsToSameByteCode(className: String, source: String, reference: String) = {
@@ -68,7 +68,9 @@ trait TestUtils {
     val withPluginFut = future { getSnippetBytecode(className, source, "withPlugin", SharedCompilerWithPlugins) }//TestUtils.compilerWithPlugin) }
     val (expected, withoutPlugin, withPlugin) = (expectedFut(), withoutPluginFut(), withPluginFut())
     */
-    def futEx[V](b: => V): () => V = {
+    val enableFuture = true
+
+    def futEx[V](b: => V): () => V = if (!enableFuture) () => b else {
       val f = future { try { Right(b) } catch { case ex => Left(ex) } }
       () => f() match {
         case Left(ex) =>
