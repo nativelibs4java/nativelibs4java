@@ -489,37 +489,56 @@ extends PluginComponent
                   super.transform(tree)
               }
               
-            case TraversalOp(op, collection, resultType, f @ Func(List(leftParam, rightParam), body), isLeft, initialValue) =>
+            case TraversalOp(op, collection, resultType, f, isLeft, initialValue) =>
+              var leftParam: ValDef = null
+              var rightParam: ValDef = null
+              var body: Tree = null
+              if (f != null) {
+                  f match { 
+                      case Func(List(leftParamExtr, rightParamExtr), bodyExtr) =>
+                        leftParam = leftParamExtr
+                        rightParam = rightParamExtr
+                        body = bodyExtr
+                      case _ =>
+                        return super.transform(tree)
+                  }
+              }
+               
               val accParam = if (isLeft) leftParam else rightParam
               val newParam = if (isLeft) rightParam else leftParam
+              
               collection match {
                 case ColTree(colType, tpe, array, componentType) =>
                   if (isLeft || colType.supportsRightVariants)
-                    msg(unit, tree.pos, "transformed " + tpe + "." + op + (if (isLeft) "Left" else "Right") + " into equivalent while loop.") {
+                    msg(unit, tree.pos, "transformed " + tpe + "." + op.methodName(isLeft) + " into equivalent while loop.") {
                       array.tpe = tpe
                       super.transform(
                         op match {
-                          case Reduce | Fold =>
-                            val isReduce = op == Reduce
+                          case Reduce | Fold | Sum =>
+                            val skipFirst = op == Reduce
                             colType.foreach[IdentGen](
                               tree,
                               array,
                               componentType,
                               !isLeft,
-                              isReduce,
+                              skipFirst,
                               env => {
-                                assert((initialValue == null) == isReduce) // no initial value for reduce only
+                                assert((initialValue == null) == (op == Reduce || op == Sum)) // no initial value for reduce only
                                 val (totIdentGen, _, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true,
-                                  if (initialValue == null)
-                                    newApply(
-                                      tree.pos,
-                                      env.aIdentGen(),
-                                      if (isLeft)
-                                        newInt(0)
-                                      else
-                                        intAdd(env.nIdentGen(), newInt(-1))
-                                    )
-                                  else
+                                  if (initialValue == null) {
+                                    if (op == Sum) {
+                                      Literal(Constant(0: Byte)).setType(componentType.tpe)  
+                                    } else {
+                                      newApply(
+                                        tree.pos,
+                                        env.aIdentGen(),
+                                        if (isLeft)
+                                          newInt(0)
+                                        else
+                                          intAdd(env.nIdentGen(), newInt(-1))
+                                      )
+                                    }
+                                  } else
                                     initialValue
                                 )
                                 new LoopOuters(List(totDef), totIdentGen(), payload = totIdentGen)
@@ -529,15 +548,21 @@ extends PluginComponent
                                 List(
                                   Assign(
                                     totIdentGen(),
-                                    replaceOccurrences(
-                                      body,
-                                      Map(
-                                        accParam.symbol -> totIdentGen,
-                                        newParam.symbol -> env.itemIdentGen
-                                      ),
-                                      Map(f.symbol -> currentOwner),
-                                      unit
-                                    )
+                                    if (body == null) {
+                                      assert(op == Sum)
+                                      val totIdent = totIdentGen()
+                                      binOp(totIdent, totIdent.tpe.member(nme.PLUS), env.itemIdentGen())
+                                    } else {
+                                      replaceOccurrences(
+                                        body,
+                                        Map(
+                                          accParam.symbol -> totIdentGen,
+                                          newParam.symbol -> env.itemIdentGen
+                                        ),
+                                        Map(f.symbol -> currentOwner),
+                                        unit
+                                      )
+                                    }
                                   ).setType(UnitClass.tpe)
                                 )
                               }

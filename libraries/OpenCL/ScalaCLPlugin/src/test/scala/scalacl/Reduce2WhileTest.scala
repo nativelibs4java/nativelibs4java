@@ -85,4 +85,39 @@ class Reduce2WhileTest extends TestUtils {
       """
     )
   }
+  @Test
+  def simpleSum {
+    ensurePluginCompilesSnippetsToSameByteCode("simpleSum",
+      """
+          val s1 = Array(1, 2, 3).sum
+          val s2 = Array(1.0, 2.0, 3.0).sum
+      """,
+      """
+          val s1 = {
+            val a = Array(1, 2, 3)
+            val n = a.length
+            var i = 0
+            var tot = 0
+            while (i < n) {
+                val item = a(i)
+                tot += item
+                i += 1
+            }
+            tot
+          };
+          val s2 = {
+            val a = Array(1.0, 2.0, 3.0)
+            val n = a.length
+            var i = 0
+            var tot = 0.0
+            while (i < n) {
+                val item = a(i)
+                tot += item
+                i += 1
+            }
+            tot
+          }
+      """
+    )
+  }
 }

@@ -92,6 +92,7 @@ trait MiscMatchers {
   val withFilterName = N("withFilter")
   val untilName = N("until")
   val isEmptyName = N("isEmpty")
+  val sumName = N("sum")
   val headName = N("head")
   val tailName = N("tail")
   val foreachName = N("foreach")
@@ -333,15 +334,20 @@ trait MiscMatchers {
       }
     }
   }
-  sealed abstract class TraversalOpType
+  sealed abstract class TraversalOpType {
+    def methodName(isLeft: Boolean): String   
+  }
   case object Fold extends TraversalOpType {
-    override def toString = "fold"
+    override def methodName(isLeft: Boolean) = "fold" + (if (isLeft) "Left" else "Right")
   }
   case object Scan extends TraversalOpType {
-    override def toString = "scan"
+    override def methodName(isLeft: Boolean) = "scan" + (if (isLeft) "Left" else "Right")
   }
   case object Reduce extends TraversalOpType {
-    override def toString = "reduce"
+    override def methodName(isLeft: Boolean) = "reduce" + (if (isLeft) "Left" else "Right")
+  }
+  case object Sum extends TraversalOpType {
+    override def methodName(isLeft: Boolean) = "sum"
   }
   object ReduceName {
     def apply(isLeft: Boolean) = error("not implemented")
@@ -405,6 +411,15 @@ trait MiscMatchers {
           List(function)
         ) =>
         Some((Fold, collection, functionResultType.symbol, function, isLeft, initialValue))
+      case // PRIMITIVE OR REF SUM : scala.this.Predef.refArrayOps[A](array: Array[A]).sum[A](isNumeric)
+        Apply(
+          TypeApply(
+            Select(collection, sumName()),
+            List(functionResultType)
+          ),
+          List(isNumeric)
+        ) =>
+        Some((Sum, collection, functionResultType.symbol, null, true, null))
       case // PRIMITIVE OR REF REDUCE : scala.this.Predef.refArrayOps[A](array: Array[A]).reduceLeft[B](function)
         Apply(
           TypeApply(
