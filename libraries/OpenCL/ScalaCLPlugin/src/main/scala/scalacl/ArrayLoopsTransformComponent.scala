@@ -92,7 +92,7 @@ extends PluginComponent
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
   
-    abstract sealed class ColTree {
+    abstract sealed class CollectionRewriter {
       val supportsRightVariants: Boolean
       def foreach[Payload](
         tree: Tree,
@@ -104,16 +104,16 @@ extends PluginComponent
         innerStatements: LoopInnersEnv[Payload] => List[Tree]
       ): Tree
     }
-    object ColTree {
-      def unapply(tree: Tree): Option[(ColTree, Type, Tree, Symbol)] = tree match {
+    object CollectionRewriter {
+      def unapply(tree: Tree): Option[(CollectionRewriter, Type, Tree, Symbol)] = tree match {
         case ArrayTree(array, componentType) =>
-          Some((ArrayCol, appliedType(ArrayClass.tpe, List(componentType.tpe)), array, componentType))
+          Some((ArrayRewriter, appliedType(ArrayClass.tpe, List(componentType.tpe)), array, componentType))
         case ListTree(componentType) =>
-          Some((ListCol, appliedType(ListClass.tpe, List(componentType.tpe)), tree, componentType))
+          Some((ListRewriter, appliedType(ListClass.tpe, List(componentType.tpe)), tree, componentType))
       }
     }
 
-    case object ArrayCol extends ColTree {
+    case object ArrayRewriter extends CollectionRewriter {
       override val supportsRightVariants = true
       override def foreach[Payload](
         tree: Tree,
@@ -198,7 +198,7 @@ extends PluginComponent
         }
       }
     }
-    case object ListCol extends ColTree {
+    case object ListRewriter extends CollectionRewriter {
       override val supportsRightVariants = false
       override def foreach[Payload](
         tree: Tree,
@@ -414,7 +414,7 @@ extends PluginComponent
                     array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
                     typed {
                       super.transform(
-                        ArrayCol.foreach[IdentGen](
+                        ArrayRewriter.foreach[IdentGen](
                           tree,
                           array,
                           componentType,
@@ -461,7 +461,7 @@ extends PluginComponent
               }
             case Foreach(collection, f @ Func(List(param), body)) =>
               collection match {
-                case ColTree(colType, tpe, array, componentType) =>
+                case CollectionRewriter(colType, tpe, array, componentType) =>
                   msg(unit, tree.pos, "transformed " + tpe + ".foreach into equivalent while loop.") {
                     array.tpe = tpe
                     typed {
@@ -508,7 +508,7 @@ extends PluginComponent
               val newParam = if (isLeft) rightParam else leftParam
               
               collection match {
-                case ColTree(colType, tpe, array, componentType) =>
+                case CollectionRewriter(colType, tpe, array, componentType) =>
                   if (isLeft || colType.supportsRightVariants)
                     msg(unit, tree.pos, "transformed " + tpe + "." + op.methodName(isLeft) + " into equivalent while loop.") {
                       array.tpe = tpe
