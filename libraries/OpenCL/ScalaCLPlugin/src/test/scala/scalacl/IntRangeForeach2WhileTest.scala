@@ -120,6 +120,25 @@ class IntRangeForeach2WhileTest extends TestUtils {
   }
 
   @Test
+  def reverseToByLoop {
+    ensurePluginCompilesSnippetsToSameByteCode("reverseToByLoop",
+      """ var t = 0
+          for (j <- 200 to 50 by -3)
+            t += j / 2
+      """,
+      """ var t = 0
+          var j = 200
+          val m = 50
+          while (j >= m)
+          {
+            t += j / 2
+            j += -3
+          }
+      """
+    )
+  }
+
+  @Test
   def simpleUntilByLoop {
     ensurePluginCompilesSnippetsToSameByteCode("simpleUntilByLoop", 
       """ var t = 0

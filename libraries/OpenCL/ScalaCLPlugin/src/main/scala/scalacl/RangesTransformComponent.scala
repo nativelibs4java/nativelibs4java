@@ -68,69 +68,87 @@ extends PluginComponent
         else
           tree match {
             case Foreach(IntRange(from, to, by, isUntil, filters), f @ Func(List(param), body)) =>
-              msg(unit, tree.pos, "transformed int range foreach loop into equivalent while loop.") {
-                val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
-                val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
-                typed {
-                  val content = typed {
-                    replaceOccurrences(
-                      body,
-                      Map(param.symbol -> iIdentGen),
-                      Map(f.symbol -> currentOwner),
-                      unit
-                    )
-                  }
-                  val iIncr = incrementIntVar(iIdentGen, by.getOrElse(newInt(1)))
-
-                  super.transform(
-                    treeCopy.Block(
-                      tree,
-                      List(
-                        iDef,
-                        nDef
-                      ),
-                      whileLoop(
-                        currentOwner,
-                        unit,
-                        tree,
-                        binOp(
-                          iIdentGen(),
-                          if (isUntil) IntClass.tpe.member(nme.LT) else IntClass.tpe.member(nme.LE),
-                          nIdentGen()
-                        ),
-                        filters match {
-                          case Nil =>
-                            Block(content, iIncr)
-                          case filterFunctions: List[Tree] =>
-                            Block(
-                              If(
-                                (filterFunctions.map {
-                                  case Func(List(filterParam), filterBody) =>
-                                    typed {
-                                      replaceOccurrences(
-                                        filterBody,
-                                        Map(filterParam.symbol -> iIdentGen),
-                                        Map(f.symbol -> currentOwner),
-                                        unit
-                                      )
-                                    }
-                                }).reduceLeft(newLogicAnd),
-                                content,
-                                newUnit
-                              ),
-                              iIncr
-                            )
-                        }
-                      )
-                    )
-                  )
+              (
+                by match {
+                  case None =>
+                    Some(1)
+                  case Some(Literal(Constant(v: Int))) =>
+                    Some(v)
+                  case _ =>
+                    None
                 }
+              ) match {
+                case Some(byValue) =>
+                  msg(unit, tree.pos, "transformed int range foreach loop into equivalent while loop.") {
+                    val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
+                    val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
+                    typed {
+                      val content = typed {
+                        replaceOccurrences(
+                          body,
+                          Map(param.symbol -> iIdentGen),
+                          Map(f.symbol -> currentOwner),
+                          unit
+                        )
+                      }
+
+                      val iIncr = incrementIntVar(iIdentGen, newInt(byValue))
+
+                      super.transform(
+                        treeCopy.Block(
+                          tree,
+                          List(
+                            iDef,
+                            nDef
+                          ),
+                          whileLoop(
+                            currentOwner,
+                            unit,
+                            tree,
+                            binOp(
+                              iIdentGen(),
+                              IntClass.tpe.member(
+                                if (isUntil) {
+                                  if (byValue < 0) nme.GT else nme.LT
+                                } else {
+                                  if (byValue < 0) nme.GE else nme.LE
+                                }
+                              ),
+                              nIdentGen()
+                            ),
+                            filters match {
+                              case Nil =>
+                                Block(content, iIncr)
+                              case filterFunctions: List[Tree] =>
+                                Block(
+                                  If(
+                                    (filterFunctions.map {
+                                      case Func(List(filterParam), filterBody) =>
+                                        typed {
+                                          replaceOccurrences(
+                                            filterBody,
+                                            Map(filterParam.symbol -> iIdentGen),
+                                            Map(f.symbol -> currentOwner),
+                                            unit
+                                          )
+                                        }
+                                    }).reduceLeft(newLogicAnd),
+                                    content,
+                                    newUnit
+                                  ),
+                                  iIncr
+                                )
+                            }
+                          )
+                        )
+                      )
+                    }
+                  }
+                case _ =>
+                  super.transform(tree)
               }
             case _ =>
-              if (tree == null)
-                tree
-              else
-                super.transform(tree)
+              super.transform(tree)
           } 
      } catch { 
        case _ => 
