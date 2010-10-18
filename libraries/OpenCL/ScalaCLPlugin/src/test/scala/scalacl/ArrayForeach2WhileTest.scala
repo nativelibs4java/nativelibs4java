@@ -121,3 +121,89 @@ class ArrayForeach2WhileTest extends TestUtils {
     )
   }
 }
+
+/*
+  @Test
+  def inlineStringArrayByLengthForeach =
+    ensurePluginCompilesSnippetsToSameByteCode("inlineStringArrayByLengthForeach", Seq(inlineArrayByLengthForeach("String")))
+
+  @Test
+  def inlinePrimitiveArrayByLengthForeach =
+    ensurePluginCompilesSnippetsToSameByteCode("inlinePrimitiveArrayByLengthForeach", primTypeNames.map(inlineArrayByLengthForeach))
+
+  @Test
+  def simpleStringArrayForeach =
+    ensurePluginCompilesSnippetsToSameByteCode("simpleStringArrayForeach", Seq(simpleArrayForeach("String")))
+
+  @Test
+  def simplePrimitiveArrayForeach =
+    ensurePluginCompilesSnippetsToSameByteCode("simplePrimitiveArrayForeach", primTypeNames.map(simpleArrayForeach))
+
+  @Test
+  def inlineStringArrayWithElementsForeach =
+    ensurePluginCompilesSnippetsToSameByteCode("inlineStringArrayWithElementsForeach", Seq(inlineArrayWithElementsForeach("String", "\"a\", \"b\", \"c\"")))
+
+  @Test
+  def inlinePrimitiveArrayWithElementsForeach =
+    ensurePluginCompilesSnippetsToSameByteCode("inlinePrimitiveArrayWithElementsForeach",
+      primTypeNames.map(p => inlineArrayWithElementsForeach(p, if (p == "Boolean") "true, true, false" else Array(1, 2, 3).map("(" + _ + ": " + p + ")").mkString(", ")))
+    )
+
+  def simpleArrayForeach(typeStr: String) = {
+    (
+      """
+          val a = new Array[""" + typeStr + """](10)
+          a.foreach(println(_))
+      """,
+      """
+          val a = new Array[""" + typeStr + """](10)
+          val aa = a
+          val n = aa.length
+          var i = 0
+          while (i < n)
+          {
+            val item = aa(i)
+            println(item)
+            i += 1
+          }
+      """
+    )
+  }
+
+  def inlineArrayByLengthForeach(typeStr: String) = {
+    (
+      """
+          new Array[""" + typeStr + """](10).foreach(println(_))
+      """,
+      """
+          val aa = new Array[""" + typeStr + """](10)
+          val n = aa.length
+          var i = 0
+          while (i < n)
+          {
+            val item = aa(i)
+            println(item)
+            i += 1
+          }
+      """
+    )
+  }
+  def inlineArrayWithElementsForeach(typeStr: String, itemsStr: String) = {
+    (
+      """
+          Array(""" + itemsStr + """).foreach(println(_))
+      """,
+      """
+          val aa = Array(""" + itemsStr + """)
+          val n = aa.length
+          var i = 0
+          while (i < n)
+          {
+            val item = aa(i)
+            println(item)
+            i += 1
+          }
+      """
+    )
+  }
+ */

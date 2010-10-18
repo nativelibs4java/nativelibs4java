@@ -17,7 +17,7 @@ sbaz pack scalacl-compiler-plugin $TEMP_OUT \
 	--version $VERSION \
 	--pack200 \
 	--outdir src/main/sbaz \
-	--descfile descfile
+	--descfile ABOUT
 
 mv *.advert src/main/sbaz
 open src/main/sbaz

@@ -155,7 +155,7 @@ trait WithOptimizationFilter {
       !pos.isDefined || fileAndLineOptimizationFilter(pos.source.path, pos.line)
     } catch {
       case ex =>
-        ex.printStackTrace
+        //ex.printStackTrace
         true
     }
   }

@@ -56,7 +56,8 @@ extends MiscMatchers
       val r = v
       unit.comment(pos, text)
       val str = prefix + text
-      global.log(str)
+      // Global.log(String) was removed or modified in Scala's trunk version... too bad !
+      //global.log(str)
       println(str)
       r
     } catch {

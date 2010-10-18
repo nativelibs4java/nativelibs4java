@@ -6,7 +6,8 @@
 package scalacl
 
 object TypeUtils {
-  val primValues = Map(
+
+  lazy val primValues = Map(
     "Double" -> "1.0",
     "Float" -> "1f",
     "Int" -> "1",
@@ -16,10 +17,14 @@ object TypeUtils {
     "Char" -> "'a'",
     "Boolean" -> "true")
   
-  val refValues = Map(
+  lazy val refValues = Map(
     "String" -> "\"hello\"",
     "(Int, Int)" -> "(1, 1)"
   )
 
-  val typeValues = primValues ++ refValues
+  lazy val typeValues = primValues ++ refValues
+
+  lazy val primTypeNames = primValues.keys
+
+
 }

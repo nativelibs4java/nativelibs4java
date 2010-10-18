@@ -10,5 +10,5 @@ mkdir %TEMP_OUT%\misc
 mkdir %TEMP_OUT%\misc\scala-devel
 mkdir %TEMP_OUT%\misc\scala-devel\plugins
 copy target\scalacl-compiler-plugin-%VERSION%.jar %TEMP_OUT%\misc\scala-devel\plugins 
-call sbaz pack scalacl-compiler-plugin %TEMP_OUT% --linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl/ --version %VERSION% --pack200 --outdir src/main/sbaz --descfile descfile
+call sbaz pack scalacl-compiler-plugin %TEMP_OUT% --linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl/ --version %VERSION% --pack200 --outdir src/main/sbaz --descfile ABOUT
 explorer src\main\sbaz

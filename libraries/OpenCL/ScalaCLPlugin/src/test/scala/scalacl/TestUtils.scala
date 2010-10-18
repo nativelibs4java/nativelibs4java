@@ -60,6 +60,10 @@ trait TestUtils {
   def ensurePluginCompilesSnippet(className: String, source: String) = {
     assertNotNull(getSnippetBytecode(className, source, "temp", SharedCompilerWithPlugins))
   }
+  def ensurePluginCompilesSnippetsToSameByteCode(className: String, sourcesAndReferences: Traversable[(String, String)]): Unit = {
+    def flatten(s: Traversable[String]) = s.map("{\n" + _ + "\n};").mkString("\n")
+    ensurePluginCompilesSnippetsToSameByteCode(className, flatten(sourcesAndReferences.map(_._1)), flatten(sourcesAndReferences.map(_._2)))
+  }
   def ensurePluginCompilesSnippetsToSameByteCode(className: String, source: String, reference: String) = {
 
     import scala.concurrent.ops._
