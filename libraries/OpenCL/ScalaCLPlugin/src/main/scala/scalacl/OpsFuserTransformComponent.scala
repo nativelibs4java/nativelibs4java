@@ -147,7 +147,7 @@ extends PluginComponent
                   ).setType(gBody.tpe)
                 )
                 println("composed function\nf = " + f + "\ng = " + g + "\ncomp = " + comp)
-                val m = MapTree(collection, comp, fArgType, mappedCollectionType, canBuildFrom)
+                val m = MapTree(collection, comp, fArgType, null, mappedCollectionType, canBuildFrom)
                 val tm = typed {
                   m
                 }

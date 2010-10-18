@@ -36,6 +36,18 @@ import Assert._
 
 class PastBugsTest extends TestUtils {
 
+  /// http://code.google.com/p/nativelibs4java/issues/detail?id=34
+  @Test
+  def optimInTrait {
+    ensurePluginCompilesSnippet("optimInTrait", """
+      trait Bug {
+        for (i <- 0 to 10) {
+          val crash = i
+        }
+      }
+    """)
+  }
+  
   @Test
   def yieldTuplesInMap {
     ensurePluginCompilesSnippetsToSameByteCode("yieldTuplesInMap",
@@ -65,7 +77,7 @@ class PastBugsTest extends TestUtils {
     ensurePluginCompilesSnippetsToSameByteCode("lambdaLiftNestedMap",
       """
           val a = Array(1, 2)
-          a.map(xx => { a.map(x => { def f = x ; f }) })
+          a.map(xx => a.map(x => { def f = x ; f }))
       """,
       """
           val a = Array(1, 2);

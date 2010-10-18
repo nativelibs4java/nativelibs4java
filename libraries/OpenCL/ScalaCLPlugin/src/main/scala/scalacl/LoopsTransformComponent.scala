@@ -59,6 +59,7 @@ extends PluginComponent
    with TypingTransformers
    with MiscMatchers
    with TreeBuilders
+   with RewritingPluginComponent
    with WithOptimizationFilter
 {
   import global._
@@ -70,190 +71,10 @@ extends PluginComponent
   override val runsBefore = LoopsTransformComponent.runsBefore
   override val phaseName = LoopsTransformComponent.phaseName
 
-  /// describes the outside of the loop (before - statements - and after - final return value)
-  class LoopOutersEnv(
-    val aIdentGen: IdentGen,
-    val nIdentGen: IdentGen
-  )
-  /// describes the outside of the loop (before - statements - and after - final return value). Includes payload that will be visible from the inside
-  class LoopOuters[Payload](
-    val statements: List[Tree],
-    val finalReturnValue: Tree,
-    val payload: Payload
-  )
-  /// describes the environment available to the inside of the loop
-  class LoopInnersEnv[Payload](
-    val aIdentGen: IdentGen,
-    val nIdentGen: IdentGen,
-    val iIdentGen: IdentGen,
-    val itemIdentGen: IdentGen,
-    val payload: Payload
-  )
+  def newTransformer(compilationUnit: CompilationUnit) = new TypingTransformer(compilationUnit) with CollectionRewriters {
 
-  def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
-  
-    abstract sealed class CollectionRewriter {
-      val supportsRightVariants: Boolean
-      def foreach[Payload](
-        tree: Tree,
-        array: Tree,
-        componentType: Symbol,
-        reverseOrder: Boolean,
-        skipFirst: Boolean,
-        outerStatements: LoopOutersEnv => LoopOuters[Payload],
-        innerStatements: LoopInnersEnv[Payload] => List[Tree]
-      ): Tree
-    }
-    object CollectionRewriter {
-      def unapply(tree: Tree): Option[(CollectionRewriter, Type, Tree, Symbol)] = tree match {
-        case ArrayTree(array, componentType) =>
-          Some((ArrayRewriter, appliedType(ArrayClass.tpe, List(componentType.tpe)), array, componentType))
-        case ListTree(componentType) =>
-          Some((ListRewriter, appliedType(ListClass.tpe, List(componentType.tpe)), tree, componentType))
-      }
-    }
-
-    case object ArrayRewriter extends CollectionRewriter {
-      override val supportsRightVariants = true
-      override def foreach[Payload](
-        tree: Tree,
-        collection: Tree,
-        componentType: Symbol,
-        reverseOrder: Boolean,
-        skipFirst: Boolean,
-        outerStatements: LoopOutersEnv => LoopOuters[Payload],
-        innerStatements: LoopInnersEnv[Payload] => List[Tree]
-      ): Tree = {
-        val pos = tree.pos
-        val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, pos, false, collection)
-        val (nIdentGen, _, nDef) = newVariable(unit, "n$", currentOwner, pos, false, Select(aIdentGen(), nme.length).setSymbol(getMember(aSym, nme.length)).setType(IntClass.tpe))
-        val (iIdentGen, _, iDef) = newVariable(unit, "i$", currentOwner, pos, true,
-          if (reverseOrder) {
-            if (skipFirst)
-              intSub(nIdentGen(), newInt(1))
-            else
-              nIdentGen()
-          } else {
-            if (skipFirst)
-              newInt(1)
-            else
-              newInt(0)
-          }
-        )
-        val (itemIdentGen, itemSym, itemDef) = newVariable(unit, "item$", currentOwner, pos, false, newApply(tree.pos, aIdentGen(), iIdentGen()))
-        val loopOuters = outerStatements(new LoopOutersEnv(aIdentGen, nIdentGen))
-        val loopInners = new LoopInnersEnv[Payload](aIdentGen, nIdentGen, iIdentGen, itemIdentGen, loopOuters.payload)
-        typed {
-          treeCopy.Block(
-            tree,
-            List(
-              aDef,
-              nDef,
-              iDef
-            ) ++
-            loopOuters.statements ++
-            List(
-              whileLoop(
-                currentOwner,
-                unit,
-                tree,
-                (
-                  if (reverseOrder) // while (i > 0) { i--; statements }
-                    binOp(
-                      iIdentGen(),
-                      IntClass.tpe.member(nme.GT),
-                      newInt(0)
-                    )
-                  else // while (i < n) { statements; i++ }
-                    binOp(
-                      iIdentGen(),
-                      IntClass.tpe.member(nme.LT),
-                      nIdentGen()
-                    )
-                ),
-                typed {
-                  val itemAndInnerStats =
-                    List(itemDef) ++
-                    innerStatements(loopInners)
-
-                  if (reverseOrder)
-                    Block(
-                      List(decrementIntVar(iIdentGen, newInt(1))) ++
-                      itemAndInnerStats,
-                      newUnit
-                    )
-                  else
-                    Block(
-                      itemAndInnerStats,
-                      incrementIntVar(iIdentGen, newInt(1))
-                    )
-                }
-              )
-            ),
-            if (loopOuters.finalReturnValue == null)
-              newUnit
-            else
-              loopOuters.finalReturnValue
-          )
-        }
-      }
-    }
-    case object ListRewriter extends CollectionRewriter {
-      override val supportsRightVariants = false
-      override def foreach[Payload](
-        tree: Tree,
-        collection: Tree,
-        componentType: Symbol,
-        reverseOrder: Boolean,
-        skipFirst: Boolean,
-        outerStatements: LoopOutersEnv => LoopOuters[Payload],
-        innerStatements: LoopInnersEnv[Payload] => List[Tree]
-      ): Tree = {
-        assert(!reverseOrder)
-        val pos = tree.pos
-        val colTpe = collection.tpe
-        val (aIdentGen, aSym, aDef) = newVariable(unit, "list$", currentOwner, pos, true, collection)
-        val (itemIdentGen, itemSym, itemDef) = newVariable(unit, "item$", currentOwner, pos, false, typed { 
-            Select(aIdentGen(), headName).setSymbol(colTpe.member(headName)).setType(componentType.tpe)
-        })
-        val loopOuters = outerStatements(new LoopOutersEnv(aIdentGen, null))
-        val loopInners = new LoopInnersEnv[Payload](aIdentGen, null, null, itemIdentGen, loopOuters.payload)
-        typed {
-          treeCopy.Block(
-            tree,
-            List(
-              aDef
-            ) ++
-            loopOuters.statements ++
-            List(
-              whileLoop(
-                currentOwner,
-                unit,
-                tree,
-                boolNot(Select(aIdentGen(), isEmptyName).setSymbol(colTpe.member(isEmptyName)).setType(BooleanClass.tpe)),
-                typed {
-                  val itemAndInnerStats =
-                    List(itemDef) ++
-                    innerStatements(loopInners)
-
-                  Block(
-                    itemAndInnerStats,
-                    Assign(
-                      aIdentGen(),
-                      Select(aIdentGen(), tailName).setSymbol(colTpe.member(tailName)).setType(colTpe)
-                    ).setType(UnitClass.tpe)
-                  )
-                }
-              )
-            ),
-            if (loopOuters.finalReturnValue == null)
-              newUnit
-            else
-              loopOuters.finalReturnValue
-          )
-        }
-      }
-    }
+    override val unit = compilationUnit
+    
     def getMappedArrayType(lengths: Int, returnType: Type): Type = lengths match {
         case 1 => 
             appliedType(ArrayClass.tpe, List(returnType))
@@ -310,14 +131,15 @@ extends PluginComponent
                   
               msg(unit, tree.pos, "transformed Array.tabulate[" + returnType + "] into equivalent while loop") {
                   
-                def replaceTabulates(lengthDefs: List[(TreeGen, Symbol, ValDef)], parentArrayIdentGen: TreeGen, params: List[ValDef], mappings: Map[Symbol, TreeGen]): (Tree, Type) = {
+                def replaceTabulates(lengthDefs: List[(TreeGen, Symbol, ValDef)], parentArrayIdentGen: TreeGen, params: List[ValDef], mappings: Map[Symbol, TreeGen], symbolReplacements: Map[Symbol, Symbol]): (Tree, Type) = {
               
                   val param = params.head
                   val pos = tree.pos
                   val (nIdentGen, _, nDef) = lengthDefs.head
-                  val (iIdentGen, _, iDef) = newVariable(unit, "i$", currentOwner, pos, true, newInt(0))
+                  val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, pos, true, newInt(0))
                   
                   val newMappings = mappings + (param.symbol -> iIdentGen)
+                  val newReplacements = symbolReplacements ++ Map(param.symbol -> iSym, f.symbol -> currentOwner)
                   
                   val mappedArrayTpe = getMappedArrayType(lengthDefs.size, returnType)
                   
@@ -336,7 +158,7 @@ extends PluginComponent
                           replaceOccurrences(
                             body,
                             newMappings,
-                            Map(f.symbol -> currentOwner),
+                            newReplacements,
                             unit
                           ),
                           returnType
@@ -346,7 +168,8 @@ extends PluginComponent
                         lengthDefs.tail,
                         subArrayIdentGen,
                         params.tail,
-                        newMappings
+                        newMappings,
+                        newReplacements
                       )
                   
                   newBody.setType(bodyType)
@@ -405,56 +228,94 @@ extends PluginComponent
                     mappedArrayTpe
                   )
                 }
-                replaceTabulates(lengthDefs, null, params, Map())._1
+                replaceTabulates(lengthDefs, null, params, Map(), Map())._1
               }
-            case ArrayMap(array, componentType, mappedComponentType, mappedArrayType, f) =>
+            case
+              MapTree(
+                collection,//ArrayTree(array, componentType),
+                f,
+                functionArgType,
+                mappedComponentType,
+                mappedArrayType,
+                canBuildFrom
+              ) =>
               f match {
                 case Func(List(param), body) =>
-                  msg(unit, tree.pos, "transformed Array.map into equivalent while loop.") {
-                    array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-                    typed {
-                      super.transform(
-                        ArrayRewriter.foreach[IdentGen](
-                          tree,
-                          array,
-                          componentType,
-                          false,
-                          false,
-                          env => {
-                            //val mappedArrayTpe = appliedType(ArrayClass.tpe, List(mappedComponentType.tpe))
-                            val (mIdentGen, _, mDef) = newVariable(
-                              unit,
-                              "m$",
-                              currentOwner,
-                              tree.pos,
+                  collection match {
+                    case CollectionRewriter(colType @ ArrayRewriter, tpe, array, componentType) =>
+                      array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
+                      msg(unit, tree.pos, "transformed " + tpe + ".map into equivalent while loop.") {
+                        typed {
+                          super.transform(
+                            colType.foreach[IdentGen](
+                              tree,
+                              array,
+                              componentType,
                               false,
-                              newArray(
-                                //mappedArrayTpe,
-                                mappedArrayType.tpe,
-                                env.nIdentGen()
-                              )
-                            )
-                            new LoopOuters(List(mDef), mIdentGen(), payload = mIdentGen)
-                          },
-                          env => {
-                            val mIdentGen = env.payload
-                            List(
-                              newUpdate(
-                                tree.pos,
-                                mIdentGen(),
-                                env.iIdentGen(),
-                                replaceOccurrences(
+                              false,
+                              env => {
+                                //val mappedArrayTpe = appliedType(ArrayClass.tpe, List(mappedComponentType.tpe))
+                                val (mIdentGen, _, mDef) = newVariable(
+                                  unit,
+                                  "m$",
+                                  currentOwner,
+                                  tree.pos,
+                                  false,
+                                  newArray(
+                                    //mappedArrayTpe,
+                                    mappedArrayType.tpe,
+                                    env.nIdentGen()
+                                  )
+                                )
+                                new LoopOuters(List(mDef), mIdentGen(), payload = mIdentGen)
+                              },
+                              env => {
+                                val mIdentGen = env.payload
+                                val content = replaceOccurrences(
                                   body,
                                   Map(param.symbol -> env.itemIdentGen),
-                                  Map(f.symbol -> currentOwner),
+                                  Map(
+                                    param.symbol -> env.itemSym,
+                                    f.symbol -> currentOwner),
                                   unit
                                 )
-                              )
+                                List(
+                                  newUpdate(
+                                    tree.pos,
+                                    mIdentGen(),
+                                    env.iIdentGen(),
+                                    colType.filters match {
+                                      case Nil =>
+                                        content
+                                      case filterFunctions: List[Tree] =>
+                                        If(
+                                          (filterFunctions.map {
+                                            case Func(List(filterParam), filterBody) =>
+                                              typed {
+                                                replaceOccurrences(
+                                                  filterBody,
+                                                  Map(filterParam.symbol -> env.itemIdentGen),
+                                                  Map(
+                                                    filterParam.symbol -> env.itemSym,
+                                                    f.symbol -> currentOwner
+                                                  ),
+                                                  unit
+                                                )
+                                              }
+                                          }).reduceLeft(newLogicAnd),
+                                          content,
+                                          newUnit
+                                        )
+                                    }
+                                  )
+                                )
+                              }
                             )
-                          }
-                        )
-                      )
-                    }
+                          )
+                        }
+                      }
+                    case _ =>
+                      super.transform(tree)
                   }
                 case _ =>
                   super.transform(tree)
@@ -463,7 +324,9 @@ extends PluginComponent
               collection match {
                 case CollectionRewriter(colType, tpe, array, componentType) =>
                   msg(unit, tree.pos, "transformed " + tpe + ".foreach into equivalent while loop.") {
-                    array.tpe = tpe
+                    if (array != null)
+                      array.tpe = tpe
+
                     typed {
                       super.transform(
                         colType.foreach[Unit](
@@ -473,14 +336,39 @@ extends PluginComponent
                           false,
                           false,
                           env => new LoopOuters(Nil, null, payload = ()), // no extra outer statement
-                          env => List(
-                            replaceOccurrences(
+                          env => {
+                            val content = replaceOccurrences(
                               body,
                               Map(param.symbol -> env.itemIdentGen),
                               Map(f.symbol -> currentOwner),
                               unit
                             )
-                          )
+                            List(
+                              colType.filters match {
+                                case Nil =>
+                                  content
+                                case filterFunctions: List[Tree] =>
+                                  If(
+                                    (filterFunctions.map {
+                                      case Func(List(filterParam), filterBody) =>
+                                        typed {
+                                          replaceOccurrences(
+                                            filterBody,
+                                            Map(filterParam.symbol -> env.itemIdentGen),
+                                            Map(
+                                              filterParam.symbol -> env.itemSym,
+                                              f.symbol -> currentOwner
+                                            ),
+                                            unit
+                                          )
+                                        }
+                                    }).reduceLeft(newLogicAnd),
+                                    content,
+                                    newUnit
+                                  )
+                              }
+                            )
+                          }
                         )
                       )
                     }

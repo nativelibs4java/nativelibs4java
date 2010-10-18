@@ -2,7 +2,7 @@ import sbt._
 
 class ScalaCLPluginProject(info: ProjectInfo) extends DefaultProject(info)
 { 
-  override def filterScalaJars = false
+  //override def filterScalaJars = false
   override def compileOptions = super.compileOptions ++
      compileOptions("-optimise")
      

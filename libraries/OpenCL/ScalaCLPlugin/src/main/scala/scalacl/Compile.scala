@@ -50,6 +50,14 @@ mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=t.scala|-Xprint:loopstransf
 object Compile {
 
   def main(args: Array[String]) {
+    /*val args = Array(
+      "-cp",
+      "/Users/ochafik/src/Scalala/target/scala_2.8.0/scalala_2.8.0-0.4.1-SNAPSHOT.jar",
+      "/Users/ochafik/src/Scalala/src/main/scala/scalala/library/Bug.scala",
+      "-Xprint:" + LoopsTransformComponent.phaseName,
+      "-optimise"
+      //,"-Yshow-trees"
+    )*/
     compilerMain(args, true)
   }
   lazy val copyrightMessage: Unit = {
@@ -81,7 +89,8 @@ Copyright Olivier Chafik 2010""")
 class ScalaCLPluginRunner(enablePlugins: Boolean, settings: Settings, reporter: Reporter) extends Global(settings, reporter) {
   override protected def computeInternalPhases() {
     super.computeInternalPhases
-    if (enablePlugins)
+    if (//false)//
+      enablePlugins)
       for (phase <- ScalaCLPlugin.components(this, (_, _) => true))
         phasesSet += phase
   }

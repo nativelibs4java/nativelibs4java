@@ -45,8 +45,8 @@ class IntRangeForeach2WhileTest extends TestUtils {
             t += 2 * i
       """,
       """ var t = 0
-          var i = 0
           val n = 100
+          var i = 0
           while (i < n)
           {
             if (i < 10) {
@@ -68,8 +68,8 @@ class IntRangeForeach2WhileTest extends TestUtils {
       """,
       """
           var t = 0
-          var i = 0
           val n = 100
+          var i = 0
           while (i <= n)
           {
             t += 2 * i
@@ -88,8 +88,8 @@ class IntRangeForeach2WhileTest extends TestUtils {
             t += 2 * i
       """,
       """ var t = 0
-          var i = 0
           val n = 100
+          var i = 0
           while (i < n)
           {
             t += 2 * i
@@ -108,8 +108,8 @@ class IntRangeForeach2WhileTest extends TestUtils {
             t += j / 2
       """,
       """ var t = 0
-          var j = 50
           val m = 200
+          var j = 50
           while (j <= m)
           {
             t += j / 2
@@ -127,8 +127,8 @@ class IntRangeForeach2WhileTest extends TestUtils {
             t += j / 2
       """,
       """ var t = 0
-          var j = 200
           val m = 50
+          var j = 200
           while (j >= m)
           {
             t += j / 2
@@ -146,8 +146,8 @@ class IntRangeForeach2WhileTest extends TestUtils {
             t += j / 2
       """,
       """ var t = 0
-          var j = 50
           val m = 200
+          var j = 50
           while (j < m)
           {
             t += j / 2
@@ -164,12 +164,12 @@ class IntRangeForeach2WhileTest extends TestUtils {
             t += 2 * (i + j)
       """,
       """ var t = 0
-          var i = 0
           val n = 100
+          var i = 0
           while (i <= n)
           {
-              var j = 0
               val m = 1000
+              var j = 0
               while (j < m)
               {
                 t += 2 * (i + j)
@@ -192,13 +192,13 @@ class IntRangeForeach2WhileTest extends TestUtils {
       """,
       """ var t = 0
           def f(x: Int) = x + 1
-          var i = 0
           val n = 100
+          var i = 0
           while (i <= n)
           {
               def g(x: Int) = x - 1
-              var j = 0
               val m = 1000
+              var j = 0
               while (j < m)
               {
                 t += 2 * (f(i) + g(j))

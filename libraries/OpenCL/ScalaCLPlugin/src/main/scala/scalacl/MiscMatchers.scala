@@ -173,6 +173,21 @@ trait MiscMatchers {
         }
     }
   }
+
+  object FilteredCol {
+    def apply(col: Tree, filters: List[Tree]) = error("not implemented")
+	def unapply(tree: Tree): Option[(Tree, List[Tree])] = tree match {
+      case Apply(Select(tg, filterName()), a @ List(arg)) =>
+       tg match {
+          case FilteredCol(col, filters) =>
+            Some(col, filters ++ a)
+          case _ =>
+            Some(tree, Nil)
+        }
+      case _ =>
+        Some(tree, Nil)
+    }
+  }
   
   object Predef {
     lazy val RefArrayOps = this("refArrayOps")
@@ -247,7 +262,7 @@ trait MiscMatchers {
   }
 
   object MapTree {
-    def apply(collection: Tree, function: Tree, functionArgType: Tree, mappedCollectionType: Tree, canBuildFrom: Tree) =
+    def apply(collection: Tree, function: Tree, functionArgType: Tree, mappedComponentType: Symbol, mappedCollectionType: Tree, canBuildFrom: Tree) =
       Apply(
         Apply(
           TypeApply(
@@ -262,7 +277,7 @@ trait MiscMatchers {
         List(canBuildFrom)
       )
 
-    def unapply(tree: Tree): Option[(Tree, Tree, Tree, Tree, Tree)] = tree match {
+    def unapply(tree: Tree): Option[(Tree, Tree, Tree, Symbol, Tree, Tree)] = tree match {
       case
         Apply(
           Apply(
@@ -277,28 +292,9 @@ trait MiscMatchers {
           ),
           List(canBuildFrom @ CanBuildFromArg())
         ) =>
-        //println("collection = " + collection)
-        Some((collection, function, functionArgType, mappedCollectionType, canBuildFrom))
-      case _ =>
-        None
-    }
-  }
-  object ArrayMap {
-    def apply(array: Tree, componentType: Symbol, mappedComponentType: Symbol, mappedArrayType: Tree, param: ValDef, body: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[(Tree, Symbol, Symbol, Tree, Tree)] = tree match {
-      case 
-        MapTree(
-          ArrayTree(array, componentType),
-          function,
-          functionArgType,
-          mappedCollectionType,
-          canBuildFrom
-        ) =>
-        val tpe = array.tpe
-        val sym = tpe.typeSymbol
         mappedCollectionType.tpe match {
           case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
-            Some((array, componentType, sym, mappedCollectionType, function))
+            Some((collection, function, functionArgType, sym, mappedCollectionType, canBuildFrom))
           case _ =>
             None
         }

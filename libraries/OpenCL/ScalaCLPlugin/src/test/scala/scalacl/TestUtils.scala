@@ -57,6 +57,9 @@ trait TestUtils {
     byteCode.replaceAll("#\\d+", "")
   }
 
+  def ensurePluginCompilesSnippet(className: String, source: String) = {
+    assertNotNull(getSnippetBytecode(className, source, "temp", SharedCompilerWithPlugins))
+  }
   def ensurePluginCompilesSnippetsToSameByteCode(className: String, source: String, reference: String) = {
 
     import scala.concurrent.ops._

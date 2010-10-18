@@ -34,12 +34,13 @@ import java.io.File
 
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.TypingTransformers
+import Function.tupled
 
 trait TreeBuilders
 extends MiscMatchers
    with TypingTransformers
 {
-  this: PluginComponent =>
+  //this: PluginComponent =>
   
   import global._
   import global.definitions._
@@ -87,71 +88,25 @@ extends MiscMatchers
 
   type TreeGen = () => Tree
 
-  def replaceOwners(sym: Symbol, ownerReplacements: Map[Symbol, Symbol]): Symbol = {
-    if (sym == null || sym == NoSymbol || sym.owner == null || sym.owner == NoSymbol)
-      sym
-    else
-      ownerReplacements.get(sym.owner) match {
-        case Some(replacement) =>
-          if (replacement == NoSymbol)
-            sym
-          else
-            sym.cloneSymbol(replacement)
-        case None =>
-          val p = replaceOwners(sym.owner, ownerReplacements)
-          if (sym.owner != p)
-            sym.cloneSymbol(p)
-          else
-            sym
-      }
-  }
-  def replaceOccurrences(tree: Tree, mappings: Map[Symbol, TreeGen], ownerReplacements: Map[Symbol, Symbol], unit: CompilationUnit) = new TypingTransformer(unit) {
-    override def transform(tree: Tree): Tree = {
-      val rep = tree match {
-        case Ident(n) if tree.symbol != NoSymbol =>
-          mappings.get(tree.symbol).map(_()).getOrElse(super.transform(tree))
-        case _ =>
-          //if (tree.symbol != null && tree.symbol.ownerChain.exists(_.isMethod))
-          //  println("Found method symbol that's suspect: " + tree.symbol.ownerChain + " for " + tree)
-          super.transform(tree)
-      }
-      /*
-      if (false) {
-        val sym = rep.symbol
-        val repSym = replaceOwners(sym, ownerReplacements)
-        try {
-          if (repSym != sym)
-            rep.setSymbol(repSym)
-        } catch {
-          case ex =>
-            ex.printStackTrace
-            print("ERROR failed to replace occurrence's symbol : " + ex)
-        }
-      }*/
+  def key(s: Symbol) = s.ownerChain.map(_.toString)
 
-      /*
-      val sym = rep.symbol
-      val symRep = replaceOwners(sym, ownerReplacements)
-        try {
-          if (symRep != sym) {
-            try {
-              rep.setSymbol(symRep)
-              println("Replaced symbol " + sym + " by " + symRep + " on " + rep + " : " + nodeToString(rep))
-            } catch { case ex =>
-              ex.printStackTrace
-              println("DID NOT replace symbol " + sym + " on " + rep + " : " + nodeToString(rep))
-            }
-          }
-        } catch {
-          case ex =>
-            ex.printStackTrace
-            //print("ERROR failed to replace occurrence's symbol : " + ex)
+  def replaceOccurrences(tree: Tree, mappingsSym: Map[Symbol, TreeGen], symbolReplacements: Map[Symbol, Symbol], unit: CompilationUnit) = {
+    val mappings = mappingsSym.map({ case (k, v) => (key(k), (k, v)) })
+    val result = new TypingTransformer(unit) {
+      override def transform(tree: Tree): Tree = {
+        val rep = tree match {
+          case Ident(n) if tree.symbol != NoSymbol =>
+            mappings.get(key(tree.symbol)).map(_._2()).getOrElse(super.transform(tree))
+          case _ =>
+            super.transform(tree)
         }
         rep
-      */
-      rep
-    }
-  }.transform(tree)
+      }
+    }.transform(tree)
+
+    symbolReplacements.map { tupled { new ChangeOwnerTraverser(_, _) } }.foreach(c => c.traverse(result))
+    result
+  }
 
   
   def newApply(pos: Position, array: => Tree, index: => Tree) = {

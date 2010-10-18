@@ -140,7 +140,6 @@ object ScalaCLPlugin {
       new Seq2ArrayTransformComponent(global, fileAndLineOptimizationFilter),
     */
     new ScalaCLFunctionsTransformComponent(global, fileAndLineOptimizationFilter),
-    new RangesTransformComponent(global, fileAndLineOptimizationFilter),
     new LoopsTransformComponent(global, fileAndLineOptimizationFilter)
   ).filter(_ != null)
 }
