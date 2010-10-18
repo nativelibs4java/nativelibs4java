@@ -81,7 +81,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		super(evt, false);
 	}
 
-    private CLEvent() {
+    CLEvent() {
 		super(null, true);
 	}
 
