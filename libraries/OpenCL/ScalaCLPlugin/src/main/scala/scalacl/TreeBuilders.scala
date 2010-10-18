@@ -151,10 +151,11 @@ extends MiscMatchers
   def newLogicAnd(a: Tree, b: Tree) = typed {
     binOp(a, BooleanClass.tpe.member(nme.AMPAMP), b)
   } 
-  def ident(sym: Symbol, n: Name) = {
+  def ident(sym: Symbol, n: Name, pos: Position) = {
     val v = Ident(n)
     v.symbol = sym
     v.tpe = sym.tpe
+    v.pos = pos
     v
   }
 
@@ -199,7 +200,7 @@ extends MiscMatchers
             else
               List(body),
             Apply(
-              ident(labSym, lab),
+              ident(labSym, lab, tree.pos),
               Nil
             )
           ),
@@ -236,7 +237,7 @@ extends MiscMatchers
       else
         symbolOwner.newValue(pos, name)
     ).setInfo(tpe).setFlag(SYNTHETIC | LOCAL)
-    (() => ident(sym, name), sym, ValDef(Modifiers(if (mutable) MUTABLE else 0), name, TypeTree(tpe), initialValue).setType(tpe).setSymbol(sym))
+    (() => ident(sym, name, pos), sym, ValDef(Modifiers(if (mutable) MUTABLE else 0), name, TypeTree(tpe), initialValue).setType(tpe).setSymbol(sym))
   }
 }
 

@@ -117,7 +117,7 @@ extends PluginComponent
                 val compFuncSym = currentOwner.newMethod(f.pos, freshName("comp$"))
                 val compArgName = freshName("compArg$")
                 val compArgSym = compFuncSym.newValueParameter(f.pos, compArgName)
-                val compArgIdentGen = () => ident(compArgSym, compArgName)
+                val compArgIdentGen = () => ident(compArgSym, compArgName, f.pos)
                 val (fRetIdentGen, fRetSym, fRetDef) = newVariable(
                   unit,
                   "fRet$",
