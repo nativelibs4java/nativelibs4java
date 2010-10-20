@@ -35,6 +35,8 @@ import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.{Transform, TypingTransformers}
 
+import scalacl._
+
 /*
 set SCALACL_INSTRUMENT=1
 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=t.scala|-Xprint:scalacl-instrument"
