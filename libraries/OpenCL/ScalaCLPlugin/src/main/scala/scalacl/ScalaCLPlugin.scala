@@ -139,6 +139,8 @@ object ScalaCLPlugin {
     if (System.getenv("SCALACL_SEQ2ARRAY") == null) null else
       new Seq2ArrayTransformComponent(global, fileAndLineOptimizationFilter),
     */
+    if (System.getenv("SCALACL_INSTRUMENT") == null) null else
+      new instrumentation.InstrumentationTransformComponent(global, fileAndLineOptimizationFilter),
     new ScalaCLFunctionsTransformComponent(global, fileAndLineOptimizationFilter),
     new LoopsTransformComponent(global, fileAndLineOptimizationFilter)
   ).filter(_ != null)

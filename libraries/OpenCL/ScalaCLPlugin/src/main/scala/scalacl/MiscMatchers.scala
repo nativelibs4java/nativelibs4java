@@ -192,6 +192,7 @@ trait MiscMatchers {
   object Predef {
     lazy val RefArrayOps = this("refArrayOps")
     lazy val IntWrapper  = this("intWrapper")
+    lazy val println  = this("println")
     
     def contains(sym: Symbol)        = sym.owner == PredefModule.moduleClass
     def apply(name: String): Symbol  = PredefModule.tpe member name

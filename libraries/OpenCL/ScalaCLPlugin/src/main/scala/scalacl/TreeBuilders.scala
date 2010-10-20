@@ -216,6 +216,9 @@ extends MiscMatchers
   def newInt(v: Int) = 
     Literal(Constant(v)).setType(IntClass.tpe)
 
+  def newLong(v: Long) = 
+    Literal(Constant(v)).setType(LongClass.tpe)
+
   def newUnit() = 
     Literal(Constant()).setType(UnitClass.tpe)
 
