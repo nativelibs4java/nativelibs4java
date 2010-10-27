@@ -80,34 +80,28 @@ trait RewritingPluginComponent {
       }
     }
 
-    val initialArrayBufferSize = 16
-    
     trait HasBufferBuilder {
-      val bufferType: Symbol
+      def getBuilderType(componentType: Symbol): Type
       def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol): Tree
-      val initialBufferSize: Option[Int]
       def newBuilder(collection: Tree, componentType: Symbol, manifestGetter: Type => Tree): (Tree, TreeGen => Tree) = {
-        val builderType = appliedType(bufferType.tpe, List(componentType.tpe))
+        val builderType = getBuilderType(componentType)
         val builderCreation = Apply(
           Select(
             New(TypeTree(builderType)),
             builderType.typeSymbol.primaryConstructor
           ),
-          if (initialBufferSize == None)
-            Nil
-          else
-            List(newInt(initialBufferSize.get))
+          Nil
         )
         (builderCreation, bufferIdentGenToCol(_, manifestGetter, componentType))
       }
     }
-    case class IntRangeRewriter(from: Tree, to: Tree, byValue: Int, isUntil: Boolean, filtersList: List[Tree]) extends CollectionRewriter with HasBufferBuilder {
+    case class IntRangeRewriter(from: Tree, to: Tree, byValue: Int, isUntil: Boolean, filtersList: List[Tree]) 
+    extends CollectionRewriter 
+       with HasBufferBuilder 
+       with ArrayBuilderTargetRewriter {
       //IntRange(from, to, by, isUntil, filters), f @ Func(List(param), body))
       override val supportsRightVariants = true
       override def filters: List[Tree] = filtersList
-      override val bufferType = ArrayBufferClass
-      override def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol) = arrayBufferIdentGenToCol(bufferIdentGen, manifestGetter, componentType)
-      override val initialBufferSize = Some(initialArrayBufferSize)
       
       override def foreach[Payload](
         tree: Tree,
@@ -168,26 +162,33 @@ trait RewritingPluginComponent {
         }
       }
     }
-    def arrayBufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol): Tree = {
+    trait ArrayBuilderTargetRewriter {
+      def getBuilderType(componentType: Symbol) = primArrayBuilderClasses.get(componentType) match {
+        case Some(t) =>
+          t.tpe
+        case None =>
+          appliedType(ArrayBuilderClass.tpe, List(componentType.tpe))
+      }
+      def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol) = {
         val bufferIdent = bufferIdentGen()
-        val sym = bufferIdent.tpe member toArrayName
+        val sym = bufferIdent.tpe member resultName
+        //Apply(
+        //  TypeApply(
         Apply(
-          TypeApply(
             Select(
               bufferIdentGen(),
-              toArrayName
+              resultName
             ).setSymbol(sym),
-            List(TypeTree(componentType.tpe))
-          ).setSymbol(sym),
-          List(manifestGetter(componentType.tpe))
+            Nil
         ).setSymbol(sym)
+          //  List(TypeTree(componentType.tpe))
+          //).setSymbol(sym),
+          //List(manifestGetter(componentType.tpe))
+        //).setSymbol(sym)
       }
-    case object ArrayRewriter extends CollectionRewriter with HasBufferBuilder {
+    }
+    case object ArrayRewriter extends CollectionRewriter with HasBufferBuilder with ArrayBuilderTargetRewriter {
       override val supportsRightVariants = true
-      override val bufferType = ArrayBufferClass
-      override def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol) = arrayBufferIdentGenToCol(bufferIdentGen, manifestGetter, componentType)
-      override val initialBufferSize = Some(initialArrayBufferSize)
-      
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,
@@ -275,15 +276,14 @@ trait RewritingPluginComponent {
     }
     case object ListRewriter extends CollectionRewriter with HasBufferBuilder {
       override val supportsRightVariants = false
-      override val bufferType = ListBufferClass
+      override def getBuilderType(componentType: Symbol) = appliedType(ListBufferClass.tpe, List(componentType.tpe))
       override def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol): Tree = {
         val bufferIdent = bufferIdentGen()
         Select(
           bufferIdent,
-          toListName
-        ).setSymbol(bufferIdent.tpe member toListName)
+          resultName
+        ).setSymbol(bufferIdent.tpe member resultName)
       }
-      override val initialBufferSize = None
       
       override def foreach[Payload](
         tree: Tree,

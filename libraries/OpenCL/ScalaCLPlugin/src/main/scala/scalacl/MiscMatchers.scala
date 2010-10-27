@@ -87,6 +87,7 @@ trait MiscMatchers {
   val addAssignName = N(NameTransformer.encode("+="))
   val toArrayName = N("toArray")
   val toListName = N("toList")
+  val resultName = N("result")
   val scalaName = N("scala")
   val ArrayName = N("Array")
   val intWrapperName = N("intWrapper")
@@ -129,7 +130,18 @@ trait MiscMatchers {
   val mathName = N("math")
   val packageName = N("package")
   lazy val ArrayBufferClass = definitions.getClass("scala.collection.mutable.ArrayBuffer")
+  lazy val ArrayBuilderClass = definitions.getClass("scala.collection.mutable.ArrayBuilder")
   lazy val ListBufferClass = definitions.getClass("scala.collection.mutable.ListBuffer")
+  lazy val primArrayBuilderClasses = Array(
+    (IntClass, "ofInt"),
+    (LongClass, "ofLong"),
+    (ShortClass, "ofShort"),
+    (ByteClass, "ofByte"),
+    (CharClass, "ofChar"),
+    (BooleanClass, "ofBoolean"),
+    (FloatClass, "ofFloat"),
+    (DoubleClass, "ofDouble")
+  ).map { case (sym, n) => (sym, definitions.getClass("scala.collection.mutable.ArrayBuilder." + n)) } toMap
 
   object ScalaMathFunction {
     /** I'm all for avoiding "magic strings" but in this case it's hard to

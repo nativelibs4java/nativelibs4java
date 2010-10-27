@@ -49,7 +49,7 @@ class Filter2WhileTest extends TestUtils {
             val array1 = a
             val n1 = array1.length
             var i1 = 0
-            var builder1 = new scala.collection.mutable.ArrayBuffer[Int](16)
+            var builder1 = new scala.collection.mutable.ArrayBuilder.ofInt
             while (i1 < n1)
             {
               val item1: Int = array1.apply(i1)
@@ -57,7 +57,7 @@ class Filter2WhileTest extends TestUtils {
                 builder1 += item1
               i1 += 1
             }
-            builder1.toArray
+            builder1.result
           }
       """
     )
@@ -80,7 +80,7 @@ class Filter2WhileTest extends TestUtils {
                 builder1 += item1
                 list1 = list1.tail
             }
-            builder1.toList
+            builder1.result
           }
       """
     )
