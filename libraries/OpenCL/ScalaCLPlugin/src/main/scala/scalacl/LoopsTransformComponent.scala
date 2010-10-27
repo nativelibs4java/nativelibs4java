@@ -34,6 +34,8 @@ import scala.tools.nsc.Global
 
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.{Transform, TypingTransformers}
+import scala.tools.nsc.typechecker.Analyzer
+import scala.tools.nsc.typechecker.Implicits
 
 object LoopsTransformComponent {
   val runsAfter = List[String](
@@ -279,34 +281,36 @@ extends PluginComponent
                                     f.symbol -> currentOwner),
                                   unit
                                 )
-                                List(
-                                  newUpdate(
-                                    tree.pos,
-                                    mIdentGen(),
-                                    env.iIdentGen(),
-                                    colType.filters match {
-                                      case Nil =>
-                                        content
-                                      case filterFunctions: List[Tree] =>
-                                        If(
-                                          (filterFunctions.map {
-                                            case Func(List(filterParam), filterBody) =>
-                                              typed {
-                                                replaceOccurrences(
-                                                  filterBody,
-                                                  Map(filterParam.symbol -> env.itemIdentGen),
-                                                  Map(
-                                                    filterParam.symbol -> env.itemSym,
-                                                    f.symbol -> currentOwner
-                                                  ),
-                                                  unit
-                                                )
-                                              }
-                                          }).reduceLeft(newLogicAnd),
-                                          content,
-                                          newUnit
-                                        )
-                                    }
+                                LoopInners(
+                                  List(
+                                    newUpdate(
+                                      tree.pos,
+                                      mIdentGen(),
+                                      env.iIdentGen(),
+                                      colType.filters match {
+                                        case Nil =>
+                                          content
+                                        case filterFunctions: List[Tree] =>
+                                          If(
+                                            (filterFunctions.map {
+                                              case Func(List(filterParam), filterBody) =>
+                                                typed {
+                                                  replaceOccurrences(
+                                                    filterBody,
+                                                    Map(filterParam.symbol -> env.itemIdentGen),
+                                                    Map(
+                                                      filterParam.symbol -> env.itemSym,
+                                                      f.symbol -> currentOwner
+                                                    ),
+                                                    unit
+                                                  )
+                                                }
+                                            }).reduceLeft(newLogicAnd),
+                                            content,
+                                            newUnit
+                                          )
+                                      }
+                                    )
                                   )
                                 )
                               }
@@ -343,30 +347,32 @@ extends PluginComponent
                               Map(f.symbol -> currentOwner),
                               unit
                             )
-                            List(
-                              colType.filters match {
-                                case Nil =>
-                                  content
-                                case filterFunctions: List[Tree] =>
-                                  If(
-                                    (filterFunctions.map {
-                                      case Func(List(filterParam), filterBody) =>
-                                        typed {
-                                          replaceOccurrences(
-                                            filterBody,
-                                            Map(filterParam.symbol -> env.itemIdentGen),
-                                            Map(
-                                              filterParam.symbol -> env.itemSym,
-                                              f.symbol -> currentOwner
-                                            ),
-                                            unit
-                                          )
-                                        }
-                                    }).reduceLeft(newLogicAnd),
-                                    content,
-                                    newUnit
-                                  )
-                              }
+                            LoopInners(
+                              List(
+                                colType.filters match {
+                                  case Nil =>
+                                    content
+                                  case filterFunctions: List[Tree] =>
+                                    If(
+                                      (filterFunctions.map {
+                                        case Func(List(filterParam), filterBody) =>
+                                          typed {
+                                            replaceOccurrences(
+                                              filterBody,
+                                              Map(filterParam.symbol -> env.itemIdentGen),
+                                              Map(
+                                                filterParam.symbol -> env.itemSym,
+                                                f.symbol -> currentOwner
+                                              ),
+                                              unit
+                                            )
+                                          }
+                                      }).reduceLeft(newLogicAnd),
+                                      content,
+                                      newUnit
+                                    )
+                                }
+                              )
                             )
                           }
                         )
@@ -387,6 +393,9 @@ extends PluginComponent
                         leftParam = leftParamExtr
                         rightParam = rightParamExtr
                         body = bodyExtr
+                      case Func(List(uniqueParam), bodyExtr) =>
+                        leftParam = uniqueParam
+                        body = bodyExtr
                       case _ =>
                         return super.transform(tree)
                   }
@@ -399,11 +408,12 @@ extends PluginComponent
                 case CollectionRewriter(colType, tpe, array, componentType) =>
                   if (isLeft || colType.supportsRightVariants)
                     msg(unit, tree.pos, "transformed " + tpe + "." + op.methodName(isLeft) + " into equivalent while loop.") {
-                      array.tpe = tpe
+                      if (array != null)
+                        array.tpe = tpe
                       super.transform(
                         op match {
-                          case Reduce | Fold | Sum =>
-                            val skipFirst = op == Reduce
+                          case TraversalOp.Reduce | TraversalOp.Fold | TraversalOp.Sum | TraversalOp.Min | TraversalOp.Max =>
+                            val skipFirst = op.loopSkipsFirst
                             colType.foreach[IdentGen](
                               tree,
                               array,
@@ -411,20 +421,23 @@ extends PluginComponent
                               !isLeft,
                               skipFirst,
                               env => {
-                                assert((initialValue == null) == (op == Reduce || op == Sum)) // no initial value for reduce only
-                                val (totIdentGen, _, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true,
+                                assert((initialValue == null) == !op.needsInitialValue) // no initial value for reduce-like ops only
+                                val (totIdentGen, _, totDef) = newVariable(unit, op + "$", currentOwner, tree.pos, true,
                                   if (initialValue == null) {
-                                    if (op == Sum) {
-                                      Literal(Constant(0: Byte)).setType(componentType.tpe)  
-                                    } else {
-                                      newApply(
-                                        tree.pos,
-                                        env.aIdentGen(),
-                                        if (isLeft)
-                                          newInt(0)
-                                        else
-                                          intAdd(env.nIdentGen(), newInt(-1))
-                                      )
+                                    op match {
+                                      case TraversalOp.Sum =>
+                                        Literal(Constant(0: Byte)).setType(componentType.tpe)
+                                      case _ =>
+                                        // Take first or last value for Reduce, Min, Max
+                                        assert(skipFirst)
+                                        newApply(
+                                          tree.pos,
+                                          env.aIdentGen(),
+                                          if (isLeft)
+                                            newInt(0)
+                                          else
+                                            intAdd(env.nIdentGen(), newInt(-1))
+                                        )
                                     }
                                   } else
                                     initialValue
@@ -433,29 +446,48 @@ extends PluginComponent
                               },
                               env => {
                                 val totIdentGen = env.payload
-                                List(
-                                  Assign(
-                                    totIdentGen(),
+                                LoopInners(
+                                  List(
                                     if (body == null) {
-                                      assert(op == Sum)
+                                      assert(!op.needsFunction)
                                       val totIdent = totIdentGen()
-                                      binOp(totIdent, totIdent.tpe.member(nme.PLUS), env.itemIdentGen())
+                                      op match {
+                                        case TraversalOp.Sum =>
+                                          Assign(totIdentGen(), binOp(totIdent, totIdent.tpe.member(nme.PLUS), env.itemIdentGen())).setType(UnitClass.tpe)
+                                        case TraversalOp.Min =>
+                                          If(
+                                            binOp(env.itemIdentGen(), totIdent.tpe.member(nme.LT), totIdent),
+                                            Assign(totIdentGen(), env.itemIdentGen()).setType(UnitClass.tpe),
+                                            newUnit
+                                          )
+                                        case TraversalOp.Max =>
+                                          If(
+                                            binOp(env.itemIdentGen(), totIdent.tpe.member(nme.GT), totIdent),
+                                            Assign(totIdentGen(), env.itemIdentGen()).setType(UnitClass.tpe),
+                                            newUnit
+                                          )
+                                        case _ =>
+                                          throw new RuntimeException("unexpected op : " + op)
+                                      }
                                     } else {
-                                      replaceOccurrences(
-                                        body,
-                                        Map(
-                                          accParam.symbol -> totIdentGen,
-                                          newParam.symbol -> env.itemIdentGen
-                                        ),
-                                        Map(f.symbol -> currentOwner),
-                                        unit
+                                      Assign(
+                                        totIdentGen(),
+                                        replaceOccurrences(
+                                          body,
+                                          Map(
+                                            accParam.symbol -> totIdentGen,
+                                            newParam.symbol -> env.itemIdentGen
+                                          ),
+                                          Map(f.symbol -> currentOwner),
+                                          unit
+                                        )
                                       )
                                     }
-                                  ).setType(UnitClass.tpe)
+                                  )
                                 )
                               }
                             )
-                          case Scan =>
+                          case TraversalOp.Scan =>
                             val mappedArrayTpe = appliedType(ArrayClass.tpe, List(resultType.tpe))
                             colType.foreach[(IdentGen, IdentGen, Symbol)](
                               tree,
@@ -478,30 +510,101 @@ extends PluginComponent
                               },
                               env => {
                                 val (mIdentGen, totIdentGen, totSym) = env.payload
-                                List(
-                                  Assign(
-                                    totIdentGen(),
-                                    replaceOccurrences(
-                                      body,
-                                      Map(
-                                        accParam.symbol -> totIdentGen,
-                                        newParam.symbol -> env.itemIdentGen
-                                      ),
-                                      Map(f.symbol -> currentOwner),
-                                      unit
-                                    )
-                                  ).setType(UnitClass.tpe),
-                                  newUpdate(
-                                    tree.pos,
-                                    mIdentGen(),
-                                    if (isLeft)
-                                      intAdd(env.iIdentGen(), newInt(1))
-                                    else
-                                      intSub(env.nIdentGen(), env.iIdentGen()),
-                                    totIdentGen())
+                                LoopInners(
+                                  List(
+                                    Assign(
+                                      totIdentGen(),
+                                      replaceOccurrences(
+                                        body,
+                                        Map(
+                                          accParam.symbol -> totIdentGen,
+                                          newParam.symbol -> env.itemIdentGen
+                                        ),
+                                        Map(f.symbol -> currentOwner),
+                                        unit
+                                      )
+                                    ).setType(UnitClass.tpe),
+                                    newUpdate(
+                                      tree.pos,
+                                      mIdentGen(),
+                                      if (isLeft)
+                                        intAdd(env.iIdentGen(), newInt(1))
+                                      else
+                                        intSub(env.nIdentGen(), env.iIdentGen()),
+                                      totIdentGen())
+                                  )
                                 )
                               }
                             )
+                          case TraversalOp.Filter(not) =>
+                            //val componentType = collection.tpe.typeArgs.head
+                            val mappedArrayTpe = appliedType(ArrayClass.tpe, List(resultType.tpe))
+                            val (builderCreation, builderIdentGenToCol) = colType.newBuilder(collection, componentType, tpe => localTyper.findManifest(tpe, false).tree)
+                            colType.foreach[(IdentGen, Symbol)](
+                              tree,
+                              array,
+                              componentType,
+                              false,
+                              false,
+                              env => {
+
+                                val (builderIdentGen, builderSym, builderDef) = newVariable(
+                                  unit,
+                                  "builder$",
+                                  currentOwner,
+                                  tree.pos,
+                                  true,
+                                  typed {
+                                    builderCreation
+                                  }
+                                )
+                                new LoopOuters(
+                                  List(
+                                    typed { 
+                                      builderDef 
+                                    }
+                                  ),
+                                  typed {
+                                    builderIdentGenToCol(builderIdentGen)
+                                  },
+                                  payload = (builderIdentGen, builderSym)
+                                )
+                              },
+                              env => {
+                                val (builderIdentGen, builderSym) = env.payload
+                                val addAssignMethod = builderSym.tpe member addAssignName
+                                val cond = replaceOccurrences(
+                                  super.transform(body),
+                                  Map(
+                                    leftParam.symbol -> env.itemIdentGen
+                                  ),
+                                  Map(f.symbol -> currentOwner),
+                                  unit
+                                )
+                                LoopInners(
+                                  List(
+                                    If(
+                                      if (not) 
+                                        boolNot(cond) 
+                                      else 
+                                        cond,
+                                      Apply(
+                                        Select(
+                                          builderIdentGen(),
+                                          addAssignName
+                                        ).setSymbol(addAssignMethod),
+                                        List(env.itemIdentGen())
+                                      ).setSymbol(addAssignMethod),
+                                      newUnit
+                                    )
+                                  )
+                                )
+                              }
+                            )
+                          case _ =>
+                            msg(unit, tree.pos, "INFO: will soon optimize this " + tpe + "." + op.methodName(isLeft) + " call") {
+                              super.transform(tree)
+                            }
                         }
                       )
                     }

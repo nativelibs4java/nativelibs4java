@@ -9,7 +9,7 @@
             <properties>
                 <exec.workingdir>/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/branches/OpenCL-BridJ/libraries/OpenCL/ScalaCLPlugin</exec.workingdir>
                 <exec.classpathScope>runtime</exec.classpathScope>
-                <exec.args>-classpath %classpath scalacl.Compile -cp ../ScalaCL2/target/scala_2.8.0/classes -d out Test.scala -Xprint:loopstransform -Ydebug -Ybrowse:loopstransform</exec.args>
+                <exec.args>-classpath %classpath scalacl.Compile -cp ../ScalaCL2/target/scala_2.8.0/classes -d out Test.scala -Xprint:scalacl-loopstransform</exec.args>
                 <exec.executable>java</exec.executable>
             </properties>
         </action>
@@ -22,7 +22,7 @@
             <properties>
                 <exec.workingdir>/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/branches/OpenCL-BridJ/libraries/OpenCL/ScalaCLPlugin</exec.workingdir>
                 <exec.classpathScope>runtime</exec.classpathScope>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath scalacl.Compile -cp ../ScalaCL2/target/scala_2.8.0/classes -d out Test.scala -Xprint:loopstransform -Ydebug -Ybrowse:loopstransform</exec.args>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath scalacl.Compile -cp ../ScalaCL2/target/scala_2.8.0/classes -d out Test.scala -Xprint:scalacl-loopstransform</exec.args>
                 <jpda.listen>true</jpda.listen>
                 <exec.executable>java</exec.executable>
             </properties>
@@ -35,7 +35,7 @@
             </goals>
             <properties>
                 <exec.workingdir>/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/branches/OpenCL-BridJ/libraries/OpenCL/ScalaCLPlugin</exec.workingdir>
-                <exec.args>${profiler.args} -classpath %classpath scalacl.Compile -cp ../ScalaCL2/target/scala_2.8.0/classes -d out Test.scala -Xprint:loopstransform -Ydebug -Ybrowse:loopstransform</exec.args>
+                <exec.args>${profiler.args} -classpath %classpath scalacl.Compile -cp ../ScalaCL2/target/scala_2.8.0/classes -d out Test.scala -Xprint:scalacl-loopstransform</exec.args>
                 <profiler.action>profile</profiler.action>
                 <exec.executable>${profiler.java}</exec.executable>
             </properties>

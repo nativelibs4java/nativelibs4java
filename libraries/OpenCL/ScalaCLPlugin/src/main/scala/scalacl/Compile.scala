@@ -45,11 +45,22 @@ import scala.tools.nsc.reporters.Reporter
 //import scalacl.ScalaCLPlugin
 
 /*
-mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=t.scala|-Xprint:loopstransform|-Ybrowse:loopstransform"
+SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=Test.scala|-Xprint:scalacl-loopstransform|-Ybrowse:scalacl-loopstransform"
 */
 object Compile {
 
   def main(args: Array[String]) {
+    /*val args = Array(
+      "-bootclasspath",
+      "/Users/ochafik/src/scala-2.8.x/build/quick/classes/library",
+      "-cp",
+      Array(
+        "/Users/ochafik/src/scala-2.8.x/build/quick/classes/compiler"
+      ).mkString(java.io.File.separator),
+      "/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/symtab/Types.scala",
+      "-Xprint:" + LoopsTransformComponent.phaseName,
+      "-optimise"
+    )*/
     /*val args = Array(
       "-cp",
       "/Users/ochafik/src/Scalala/target/scala_2.8.0/scalala_2.8.0-0.4.1-SNAPSHOT.jar",

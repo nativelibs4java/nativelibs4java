@@ -120,4 +120,42 @@ class Reduce2WhileTest extends TestUtils {
       """
     )
   }
+
+  @Test
+  def simpleMinMax {
+    ensurePluginCompilesSnippetsToSameByteCode("simpleMinMax",
+      """
+          val s1 = Array(1, 2, 3).min
+          val s2 = Array(1.0, 2.0, 3.0).max
+      """,
+      """
+          val s1 = {
+            val a = Array(1, 2, 3)
+            val n = a.length
+            var i = 1
+            var tot = a(0)
+            while (i < n) {
+                val item = a(i)
+                if (item < tot)
+                  tot = item
+                i += 1
+            }
+            tot
+          };
+          val s2 = {
+            val a = Array(1.0, 2.0, 3.0)
+            val n = a.length
+            var i = 1
+            var tot = a(0)
+            while (i < n) {
+                val item = a(i)
+                if (item > tot)
+                  tot = item
+                i += 1
+            }
+            tot
+          }
+      """
+    )
+  }
 }

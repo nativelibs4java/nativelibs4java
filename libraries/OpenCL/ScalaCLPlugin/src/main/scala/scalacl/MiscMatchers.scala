@@ -30,6 +30,7 @@
  */
 package scalacl
 
+import scala.reflect.NameTransformer
 import scala.tools.nsc.Global
 
 trait MiscMatchers {
@@ -82,7 +83,10 @@ trait MiscMatchers {
     def apply(s: String) = new N(s)
   }
   implicit def N2Name(n: N) = newTermName(n.s)
-  
+
+  val addAssignName = N(NameTransformer.encode("+="))
+  val toArrayName = N("toArray")
+  val toListName = N("toList")
   val scalaName = N("scala")
   val ArrayName = N("Array")
   val intWrapperName = N("intWrapper")
@@ -93,6 +97,8 @@ trait MiscMatchers {
   val untilName = N("until")
   val isEmptyName = N("isEmpty")
   val sumName = N("sum")
+  val minName = N("min")
+  val maxName = N("max")
   val headName = N("head")
   val tailName = N("tail")
   val foreachName = N("foreach")
@@ -105,6 +111,12 @@ trait MiscMatchers {
   val mapName = N("map")
   val canBuildFromName = N("canBuildFrom")
   val filterName = N("filter")
+  val filterNotName = N("filterNot")
+  val takeWhileName = N("takeWhile")
+  val dropWhileName = N("dropWhile")
+  val forallName = N("forall")
+  val existsName = N("exists")
+  val findName = N("find")
   val updateName = N("update")
   val toSizeTName = N("toSizeT")
   val toLongName = N("toLong")
@@ -116,7 +128,9 @@ trait MiscMatchers {
   val toFloatName = N("toFloat")
   val mathName = N("math")
   val packageName = N("package")
-    
+  lazy val ArrayBufferClass = definitions.getClass("scala.collection.mutable.ArrayBuffer")
+  lazy val ListBufferClass = definitions.getClass("scala.collection.mutable.ListBuffer")
+
   object ScalaMathFunction {
     /** I'm all for avoiding "magic strings" but in this case it's hard to
      *  see the twice-as-long identifiers as much improvement.
@@ -225,8 +239,6 @@ trait MiscMatchers {
         None
     }
   }
-
-
   object ArrayTree {
     def unapply(tree: Tree) = tree match {
       case Apply(ArrayOps(componentType), List(array)) => Some(array, componentType)
@@ -332,20 +344,12 @@ trait MiscMatchers {
     }
   }
   sealed abstract class TraversalOpType {
-    def methodName(isLeft: Boolean): String   
+    def methodName(isLeft: Boolean): String
+    val needsInitialValue = false
+    val needsFunction = false
+    val loopSkipsFirst = false
   }
-  case object Fold extends TraversalOpType {
-    override def methodName(isLeft: Boolean) = "fold" + (if (isLeft) "Left" else "Right")
-  }
-  case object Scan extends TraversalOpType {
-    override def methodName(isLeft: Boolean) = "scan" + (if (isLeft) "Left" else "Right")
-  }
-  case object Reduce extends TraversalOpType {
-    override def methodName(isLeft: Boolean) = "reduce" + (if (isLeft) "Left" else "Right")
-  }
-  case object Sum extends TraversalOpType {
-    override def methodName(isLeft: Boolean) = "sum"
-  }
+  
   object ReduceName {
     def apply(isLeft: Boolean) = error("not implemented")
     def unapply(name: Name) = name match {
@@ -373,6 +377,51 @@ trait MiscMatchers {
 
   /// Matches one of the folding/scanning/reducing functions : (reduce|fold|scan)(Left|Right)
   object TraversalOp {
+
+    case object Fold extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "fold" + (if (isLeft) "Left" else "Right")
+      override val needsInitialValue = true
+      override val needsFunction: Boolean = true
+    }
+    case object Scan extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "scan" + (if (isLeft) "Left" else "Right")
+      override val needsInitialValue = true
+      override val needsFunction: Boolean = true
+    }
+    case object Reduce extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "reduce" + (if (isLeft) "Left" else "Right")
+      override val needsFunction: Boolean = true
+      override val loopSkipsFirst = true
+    }
+    case object Sum extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "sum"
+    }
+    case object Min extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "min"
+      override val loopSkipsFirst = true
+    }
+    case object Max extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "max"
+      override val loopSkipsFirst = true
+    }
+    case class Filter(not: Boolean) extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = if (not) "filterNot" else "filter"
+    }
+    case object TakeWhile extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "takeWhile"
+    }
+    case object DropWhile extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "dropWhile"
+    }
+    case object Forall extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "forall"
+    }
+    case object Exists extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "exists"
+    }
+    case object Find extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "find"
+    }
     def apply(op: TraversalOpType, array: Tree, resultType: Symbol, function: Tree, isLeft: Boolean, initialValue: Tree) = error("not implemented")
     def unapply(tree: Tree): Option[(TraversalOpType, Tree, Symbol, Tree, Boolean, Tree)] = tree match {
       case // PRIMITIVE OR REF SCAN : scala.this.Predef.refArrayOps[A](array: Array[A]).scanLeft[B, Array[B]](initialValue)(function)(canBuildFromArg)
@@ -392,7 +441,7 @@ trait MiscMatchers {
         val tpe = collection.tpe
         mappedArrayType.tpe match {
           case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
-            Some((Scan, collection, sym, function, isLeft, initialValue))
+            Some((TraversalOp.Scan, collection, sym, function, isLeft, initialValue))
           case _ =>
             None
         }
@@ -407,16 +456,32 @@ trait MiscMatchers {
           ),
           List(function)
         ) =>
-        Some((Fold, collection, functionResultType.symbol, function, isLeft, initialValue))
+        Some((TraversalOp.Fold, collection, functionResultType.symbol, function, isLeft, initialValue))
       case // PRIMITIVE OR REF SUM : scala.this.Predef.refArrayOps[A](array: Array[A]).sum[A](isNumeric)
         Apply(
           TypeApply(
-            Select(collection, sumName()),
+            Select(collection, n @ (sumName() | minName() | maxName())),
             List(functionResultType)
           ),
           List(isNumeric)
         ) =>
-        Some((Sum, collection, functionResultType.symbol, null, true, null))
+        (
+          n match {
+            case sumName() =>
+              Some(TraversalOp.Sum)
+            case minName() =>
+              Some(TraversalOp.Min)
+            case maxName() =>
+              Some(TraversalOp.Max)
+            case _ =>
+              None
+          }
+        ) match {
+          case Some(op) =>
+            Some((op, collection, functionResultType.symbol, null, true, null))
+          case _ =>
+            None
+        }
       case // PRIMITIVE OR REF REDUCE : scala.this.Predef.refArrayOps[A](array: Array[A]).reduceLeft[B](function)
         Apply(
           TypeApply(
@@ -426,6 +491,30 @@ trait MiscMatchers {
           List(function)
         ) =>
         Some((Reduce, collection, functionResultType.symbol, function, isLeft, null))
+      case Apply(Select(collection, n), List(function @ Func(List(param), body))) =>
+        (
+          n match {
+            case filterName() =>
+              Some(Filter(false), collection.tpe.typeSymbol)
+            case filterNotName() =>
+              Some(Filter(true), collection.tpe.typeSymbol)
+            case takeWhileName() =>
+              Some(TakeWhile, collection.tpe.typeSymbol)
+            case dropWhileName() =>
+              Some(DropWhile, collection.tpe.typeSymbol)
+            case forallName() =>
+              Some(Forall, BooleanClass)
+            case existsName() =>
+              Some(Exists, BooleanClass)
+            case _ =>
+              None
+          }
+        ) match {
+          case Some((op, resType)) =>
+            Some((op, collection, resType, function, true, null))
+          case None =>
+            None
+        }
       case _ =>
         None
     }

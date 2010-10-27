@@ -150,7 +150,12 @@ extends MiscMatchers
     Apply(Select(a, op), List(b))
   }
   def newLogicAnd(a: Tree, b: Tree) = typed {
-    binOp(a, BooleanClass.tpe.member(nme.AMPAMP), b)
+    if (a == null)
+      b
+    else if (b == null)
+      a
+    else
+      binOp(a, BooleanClass.tpe.member(nme.AMPAMP), b)
   } 
   def ident(sym: Symbol, n: Name, pos: Position) = {
     val v = Ident(n)

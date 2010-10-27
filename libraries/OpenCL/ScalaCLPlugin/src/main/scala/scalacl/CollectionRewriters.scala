@@ -12,24 +12,29 @@ trait RewritingPluginComponent {
 
 
   /// describes the outside of the loop (before - statements - and after - final return value)
-  class LoopOutersEnv(
-    val aIdentGen: IdentGen,
-    val nIdentGen: IdentGen
+  case class LoopOutersEnv(
+    aIdentGen: IdentGen,
+    aSym: Symbol,
+    nIdentGen: IdentGen
   )
   /// describes the outside of the loop (before - statements - and after - final return value). Includes payload that will be visible from the inside
-  class LoopOuters[Payload](
-    val statements: List[Tree],
-    val finalReturnValue: Tree,
-    val payload: Payload
+  case class LoopOuters[Payload](
+    statements: List[Tree],
+    finalReturnValue: Tree,
+    payload: Payload
   )
   /// describes the environment available to the inside of the loop
-  class LoopInnersEnv[Payload](
-    val aIdentGen: IdentGen,
-    val nIdentGen: IdentGen,
-    val iIdentGen: IdentGen,
-    val itemIdentGen: IdentGen,
-    val itemSym: Symbol,
-    val payload: Payload
+  case class LoopInnersEnv[Payload](
+    aIdentGen: IdentGen,
+    nIdentGen: IdentGen,
+    iIdentGen: IdentGen,
+    itemIdentGen: IdentGen,
+    itemSym: Symbol,
+    payload: Payload
+  )
+  case class LoopInners(
+    statements: List[Tree],
+    extraLoopTest: Tree = null
   )
 
   trait CollectionRewriters {
@@ -39,6 +44,7 @@ trait RewritingPluginComponent {
     abstract sealed class CollectionRewriter {
       val supportsRightVariants: Boolean
       def filters: List[Tree] = Nil
+      def newBuilder(collection: Tree, componentType: Symbol, manifestGetter: Type => Tree): (Tree, TreeGen => Tree)
       def foreach[Payload](
         tree: Tree,
         array: Tree,
@@ -46,7 +52,7 @@ trait RewritingPluginComponent {
         reverseOrder: Boolean,
         skipFirst: Boolean,
         outerStatements: LoopOutersEnv => LoopOuters[Payload],
-        innerStatements: LoopInnersEnv[Payload] => List[Tree]
+        innerStatements: LoopInnersEnv[Payload] => LoopInners
       ): Tree
     }
     object CollectionRewriter {
@@ -74,10 +80,35 @@ trait RewritingPluginComponent {
       }
     }
 
-    case class IntRangeRewriter(from: Tree, to: Tree, byValue: Int, isUntil: Boolean, filtersList: List[Tree]) extends CollectionRewriter {
+    val initialArrayBufferSize = 16
+    
+    trait HasBufferBuilder {
+      val bufferType: Symbol
+      def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol): Tree
+      val initialBufferSize: Option[Int]
+      def newBuilder(collection: Tree, componentType: Symbol, manifestGetter: Type => Tree): (Tree, TreeGen => Tree) = {
+        val builderType = appliedType(bufferType.tpe, List(componentType.tpe))
+        val builderCreation = Apply(
+          Select(
+            New(TypeTree(builderType)),
+            builderType.typeSymbol.primaryConstructor
+          ),
+          if (initialBufferSize == None)
+            Nil
+          else
+            List(newInt(initialBufferSize.get))
+        )
+        (builderCreation, bufferIdentGenToCol(_, manifestGetter, componentType))
+      }
+    }
+    case class IntRangeRewriter(from: Tree, to: Tree, byValue: Int, isUntil: Boolean, filtersList: List[Tree]) extends CollectionRewriter with HasBufferBuilder {
       //IntRange(from, to, by, isUntil, filters), f @ Func(List(param), body))
       override val supportsRightVariants = true
       override def filters: List[Tree] = filtersList
+      override val bufferType = ArrayBufferClass
+      override def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol) = arrayBufferIdentGenToCol(bufferIdentGen, manifestGetter, componentType)
+      override val initialBufferSize = Some(initialArrayBufferSize)
+      
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,
@@ -85,14 +116,15 @@ trait RewritingPluginComponent {
         reverseOrder: Boolean,
         skipFirst: Boolean,
         outerStatements: LoopOutersEnv => LoopOuters[Payload],
-        innerStatements: LoopInnersEnv[Payload] => List[Tree]
+        innerStatements: LoopInnersEnv[Payload] => LoopInners
       ): Tree = {
         val pos = tree.pos
         assert(!reverseOrder)
         val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
         val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
-        val loopOuters = outerStatements(new LoopOutersEnv(null, nIdentGen))
+        val loopOuters = outerStatements(new LoopOutersEnv(null, null /* TODO */, nIdentGen))
         val loopInners = new LoopInnersEnv[Payload](null, nIdentGen, iIdentGen, iIdentGen, iSym, loopOuters.payload)
+        val LoopInners(statements, extraTest) = innerStatements(loopInners)
         typed {
           treeCopy.Block(
             tree,
@@ -106,20 +138,23 @@ trait RewritingPluginComponent {
                 currentOwner,
                 unit,
                 tree,
-                binOp(
-                  iIdentGen(),
-                  IntClass.tpe.member(
-                    if (isUntil) {
-                      if (byValue < 0) nme.GT else nme.LT
-                    } else {
-                      if (byValue < 0) nme.GE else nme.LE
-                    }
+                newLogicAnd(
+                  binOp(
+                    iIdentGen(),
+                    IntClass.tpe.member(
+                      if (isUntil) {
+                        if (byValue < 0) nme.GT else nme.LT
+                      } else {
+                        if (byValue < 0) nme.GE else nme.LE
+                      }
+                    ),
+                    nIdentGen()
                   ),
-                  nIdentGen()
+                  extraTest
                 ),
                 typed {
                   Block(
-                    innerStatements(loopInners),
+                    statements,
                     incrementIntVar(iIdentGen, newInt(byValue))
                   )
                 }
@@ -133,8 +168,26 @@ trait RewritingPluginComponent {
         }
       }
     }
-    case object ArrayRewriter extends CollectionRewriter {
+    def arrayBufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol): Tree = {
+        val bufferIdent = bufferIdentGen()
+        val sym = bufferIdent.tpe member toArrayName
+        Apply(
+          TypeApply(
+            Select(
+              bufferIdentGen(),
+              toArrayName
+            ).setSymbol(sym),
+            List(TypeTree(componentType.tpe))
+          ).setSymbol(sym),
+          List(manifestGetter(componentType.tpe))
+        ).setSymbol(sym)
+      }
+    case object ArrayRewriter extends CollectionRewriter with HasBufferBuilder {
       override val supportsRightVariants = true
+      override val bufferType = ArrayBufferClass
+      override def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol) = arrayBufferIdentGenToCol(bufferIdentGen, manifestGetter, componentType)
+      override val initialBufferSize = Some(initialArrayBufferSize)
+      
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,
@@ -142,7 +195,7 @@ trait RewritingPluginComponent {
         reverseOrder: Boolean,
         skipFirst: Boolean,
         outerStatements: LoopOutersEnv => LoopOuters[Payload],
-        innerStatements: LoopInnersEnv[Payload] => List[Tree]
+        innerStatements: LoopInnersEnv[Payload] => LoopInners
       ): Tree = {
         val pos = tree.pos
         val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, pos, false, collection)
@@ -161,8 +214,9 @@ trait RewritingPluginComponent {
           }
         )
         val (itemIdentGen, itemSym, itemDef) = newVariable(unit, "item$", currentOwner, pos, false, newApply(tree.pos, aIdentGen(), iIdentGen()))
-        val loopOuters = outerStatements(new LoopOutersEnv(aIdentGen, nIdentGen))
+        val loopOuters = outerStatements(new LoopOutersEnv(aIdentGen, aSym, nIdentGen))
         val loopInners = new LoopInnersEnv[Payload](aIdentGen, nIdentGen, iIdentGen, itemIdentGen, itemSym, loopOuters.payload)
+        val LoopInners(statements, extraTest) = innerStatements(loopInners)
         typed {
           treeCopy.Block(
             tree,
@@ -177,7 +231,7 @@ trait RewritingPluginComponent {
                 currentOwner,
                 unit,
                 tree,
-                (
+                newLogicAnd(
                   if (reverseOrder) // while (i > 0) { i--; statements }
                     binOp(
                       iIdentGen(),
@@ -189,12 +243,13 @@ trait RewritingPluginComponent {
                       iIdentGen(),
                       IntClass.tpe.member(nme.LT),
                       nIdentGen()
-                    )
+                    ),
+                  extraTest
                 ),
                 typed {
                   val itemAndInnerStats =
                     List(itemDef) ++
-                    innerStatements(loopInners)
+                    statements
 
                   if (reverseOrder)
                     Block(
@@ -218,8 +273,18 @@ trait RewritingPluginComponent {
         }
       }
     }
-    case object ListRewriter extends CollectionRewriter {
+    case object ListRewriter extends CollectionRewriter with HasBufferBuilder {
       override val supportsRightVariants = false
+      override val bufferType = ListBufferClass
+      override def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol): Tree = {
+        val bufferIdent = bufferIdentGen()
+        Select(
+          bufferIdent,
+          toListName
+        ).setSymbol(bufferIdent.tpe member toListName)
+      }
+      override val initialBufferSize = None
+      
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,
@@ -227,7 +292,7 @@ trait RewritingPluginComponent {
         reverseOrder: Boolean,
         skipFirst: Boolean,
         outerStatements: LoopOutersEnv => LoopOuters[Payload],
-        innerStatements: LoopInnersEnv[Payload] => List[Tree]
+        innerStatements: LoopInnersEnv[Payload] => LoopInners
       ): Tree = {
         assert(!reverseOrder)
         val pos = tree.pos
@@ -236,8 +301,9 @@ trait RewritingPluginComponent {
         val (itemIdentGen, itemSym, itemDef) = newVariable(unit, "item$", currentOwner, pos, false, typed {
             Select(aIdentGen(), headName).setSymbol(colTpe.member(headName)).setType(componentType.tpe)
         })
-        val loopOuters = outerStatements(new LoopOutersEnv(aIdentGen, null))
+        val loopOuters = outerStatements(new LoopOutersEnv(aIdentGen, aSym, null))
         val loopInners = new LoopInnersEnv[Payload](aIdentGen, null, null, itemIdentGen, itemSym, loopOuters.payload)
+        val LoopInners(statements, extraTest) = innerStatements(loopInners)
         typed {
           treeCopy.Block(
             tree,
@@ -250,18 +316,18 @@ trait RewritingPluginComponent {
                 currentOwner,
                 unit,
                 tree,
-                boolNot(Select(aIdentGen(), isEmptyName).setSymbol(colTpe.member(isEmptyName)).setType(BooleanClass.tpe)),
+                newLogicAnd(boolNot(Select(aIdentGen(), isEmptyName).setSymbol(colTpe.member(isEmptyName)).setType(BooleanClass.tpe)), extraTest),
                 typed {
                   val itemAndInnerStats =
                     List(itemDef) ++
-                    innerStatements(loopInners)
-
+                    statements
+                  val sym = colTpe member tailName
                   Block(
                     itemAndInnerStats,
                     Assign(
                       aIdentGen(),
-                      Select(aIdentGen(), tailName).setSymbol(colTpe.member(tailName)).setType(colTpe)
-                    ).setType(UnitClass.tpe)
+                      Select(aIdentGen(), tailName).setSymbol(sym)//.setType(colTpe)
+                    )//.setType(UnitClass.tpe)
                   )
                 }
               )
