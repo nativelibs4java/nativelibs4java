@@ -425,11 +425,8 @@ trait MiscMatchers {
     case object DropWhile extends TraversalOpType {
       override def methodName(isLeft: Boolean) = "dropWhile"
     }
-    case object Forall extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "forall"
-    }
-    case object Exists extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "exists"
+    case class AllOrSome(all: Boolean) extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = if (all) "forall" else "exists"
     }
     case object Find extends TraversalOpType {
       override def methodName(isLeft: Boolean) = "find"
@@ -515,9 +512,9 @@ trait MiscMatchers {
             case dropWhileName() =>
               Some(DropWhile, collection.tpe.typeSymbol)
             case forallName() =>
-              Some(Forall, BooleanClass)
+              Some(AllOrSome(true), BooleanClass)
             case existsName() =>
-              Some(Exists, BooleanClass)
+              Some(AllOrSome(false), BooleanClass)
             case _ =>
               None
           }

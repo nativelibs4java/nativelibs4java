@@ -218,6 +218,9 @@ extends MiscMatchers
 
   type IdentGen = () => Ident
 
+  def newBool(v: Boolean) = 
+    Literal(Constant(v)).setType(BooleanClass.tpe)
+
   def newInt(v: Int) = 
     Literal(Constant(v)).setType(IntClass.tpe)
 

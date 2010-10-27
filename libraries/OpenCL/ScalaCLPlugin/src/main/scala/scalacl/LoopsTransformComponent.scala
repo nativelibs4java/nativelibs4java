@@ -536,6 +536,53 @@ extends PluginComponent
                                 )
                               }
                             )
+                          case TraversalOp.AllOrSome(all) =>
+                            colType.foreach[IdentGen](
+                              tree,
+                              array,
+                              componentType,
+                              false,
+                              false,
+                              env => {
+                                val (hasTrueIdentGen, hasTrueSym, hasTrueDef) = newVariable(
+                                  unit,
+                                  "hasTrue$",
+                                  currentOwner,
+                                  tree.pos,
+                                  true,
+                                  newBool(all)
+                                )
+                                new LoopOuters(
+                                  List(
+                                    hasTrueDef
+                                  ),
+                                  hasTrueIdentGen(),
+                                  payload = hasTrueIdentGen
+                                )
+                              },
+                              env => {
+                                val hasTrueIdentGen = env.payload
+                                LoopInners(
+                                  List(
+                                    Assign(
+                                        hasTrueIdentGen(),
+                                        replaceOccurrences(
+                                          super.transform(body),
+                                          Map(
+                                            leftParam.symbol -> env.itemIdentGen
+                                          ),
+                                          Map(f.symbol -> currentOwner),
+                                          unit
+                                        )
+                                    )
+                                  ),
+                                  if (all)
+                                    hasTrueIdentGen()
+                                  else
+                                    boolNot(hasTrueIdentGen())
+                                )
+                              }
+                            )
                           case TraversalOp.Filter(not) =>
                             //val componentType = collection.tpe.typeArgs.head
                             val mappedArrayTpe = appliedType(ArrayClass.tpe, List(resultType.tpe))
@@ -547,7 +594,6 @@ extends PluginComponent
                               false,
                               false,
                               env => {
-
                                 val (builderIdentGen, builderSym, builderDef) = newVariable(
                                   unit,
                                   "builder$",
