@@ -167,7 +167,7 @@ trait RewritingPluginComponent {
         case Some(t) =>
           t.tpe
         case None =>
-          appliedType(ArrayBuilderClass.tpe, List(componentType.tpe))
+          appliedType(RefArrayBuilderClass.tpe, List(componentType.tpe))
       }
       def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol) = {
         val bufferIdent = bufferIdentGen()

@@ -130,7 +130,7 @@ trait MiscMatchers {
   val mathName = N("math")
   val packageName = N("package")
   lazy val ArrayBufferClass = definitions.getClass("scala.collection.mutable.ArrayBuffer")
-  lazy val ArrayBuilderClass = definitions.getClass("scala.collection.mutable.ArrayBuilder")
+  lazy val RefArrayBuilderClass = definitions.getClass("scala.collection.mutable.ArrayBuilder.ofRef")
   lazy val ListBufferClass = definitions.getClass("scala.collection.mutable.ListBuffer")
   lazy val primArrayBuilderClasses = Array(
     (IntClass, "ofInt"),
