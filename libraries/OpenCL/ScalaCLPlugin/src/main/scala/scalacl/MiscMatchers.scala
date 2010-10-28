@@ -261,7 +261,7 @@ trait MiscMatchers {
    *  not everyone does.  I'm a tireless advocate for brevity.
    */
   class ColTree(ColClass: Symbol) {
-    def unapply(tree: Tree) = Some(tree.symbol.tpe) collect {
+    def unapply(tree: Tree) = Some(tree.tpe.dealias.deconst.widen) collect {
       case TypeRef(_, ColClass, List(param)) => param.typeSymbol
     }
   }
