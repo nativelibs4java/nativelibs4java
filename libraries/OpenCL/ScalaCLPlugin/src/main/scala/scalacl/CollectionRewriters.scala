@@ -169,6 +169,7 @@ trait RewritingPluginComponent {
       //IntRange(from, to, by, isUntil, filters), f @ Func(List(param), body))
       override val supportsRightVariants = true
       override def filters: List[Tree] = filtersList
+      override def toString = "Range"
       
       override def foreach[Payload](
         tree: Tree,
@@ -236,7 +237,8 @@ trait RewritingPluginComponent {
     }
     case object ArrayRewriter extends CollectionRewriter with HasBufferBuilder with ArrayBuilderTargetRewriter {
       override val supportsRightVariants = true
-
+      override def toString = "Array"
+      
       override def newBuilder(pos: Position, componentType: Symbol, collectionType: Symbol, knownSize: TreeGen) = {
         if (knownSize != null && collectionType != null) {
           CollectionBuilder(
@@ -345,6 +347,7 @@ trait RewritingPluginComponent {
     case object ListRewriter extends CollectionRewriter with HasBufferBuilder {
       override val supportsRightVariants = false
       override def getBuilderType(componentType: Symbol) = appliedType(ListBufferClass.tpe, List(componentType.tpe))
+      override def toString = "List"
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,

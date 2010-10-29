@@ -204,7 +204,7 @@ extends PluginComponent
             case Foreach(collection, f @ Func(List(param), body)) =>
               collection match {
                 case CollectionRewriter(colType, tpe, array, componentType) =>
-                  msg(unit, tree.pos, "transformed " + tpe + ".foreach into equivalent while loop.") {
+                  msg(unit, tree.pos, "transformed " + colType + ".foreach into equivalent while loop.") {
                     if (array != null)
                       array.tpe = tpe
 
@@ -280,7 +280,7 @@ extends PluginComponent
               collection match {
                 case CollectionRewriter(colType, tpe, array, componentType) =>
                   if (isLeft || colType.supportsRightVariants)
-                    msg(unit, tree.pos, "transformed " + tpe + "." + op.methodName(isLeft) + " into equivalent while loop.") {
+                    msg(unit, tree.pos, "transformed " + colType + "." + op.methodName(isLeft) + " into equivalent while loop.") {
                       //if (array != null)
                       //  array.tpe = tpe
                       super.transform(
