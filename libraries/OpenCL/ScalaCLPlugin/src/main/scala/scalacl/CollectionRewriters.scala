@@ -240,18 +240,19 @@ trait RewritingPluginComponent {
         (
           builderType,
           typed {
+            val sym = builderType.typeSymbol.primaryConstructor
             val n = Apply(
               Select(
                 New(TypeTree(builderType)),
-                builderType.typeSymbol.primaryConstructor
-              ),
+                sym
+              ).setSymbol(sym),
               Nil
-            )
+            ).setSymbol(sym)
             if (needsManifest)
               Apply(
                 n,
                 List(localTyper.findManifest(componentType.tpe, false).tree)
-              )
+              ).setSymbol(sym)
             else
               n
           }
@@ -375,13 +376,14 @@ trait RewritingPluginComponent {
         (
           builderType,
           typed {
+            val sym = builderType.typeSymbol.primaryConstructor
             Apply(
               Select(
                 New(TypeTree(builderType)),
                 builderType.typeSymbol.primaryConstructor
-              ),
+              ).setSymbol(sym),
               Nil
-            )
+            ).setSymbol(sym)
           }
         )
       } 
