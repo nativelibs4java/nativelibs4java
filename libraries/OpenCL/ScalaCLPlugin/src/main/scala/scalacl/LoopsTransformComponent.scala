@@ -362,7 +362,7 @@ extends PluginComponent
                             )
                           case TraversalOp.Scan =>
                             //val mappedArrayTpe = appliedType(ArrayClass.tpe, List(resultType.tpe))
-                            colType.foreach[(IdentGen, IdentGen, Symbol)](
+                            colType.foreach[(CollectionBuilder, IdentGen, IdentGen, Symbol)](
                               tree,
                               array,
                               componentType,
@@ -370,20 +370,37 @@ extends PluginComponent
                               false,
                               env => {
                                 //val mappedArrayType = appliedType(ArrayClass.tpe, List(componentType))
-                                val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(componentType.tpe, intAdd(env.nIdentGen(), newInt(1))))
+                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(
+                                  collection.pos,
+                                  componentType,
+                                  mappedCollectionType,
+                                  () => intAdd(env.nIdentGen(), newInt(1)),
+                                  localTyper
+                                )
+                                val (builderIdentGen, builderSym, builderDef) = newVariable(
+                                  unit,
+                                  "builder$",
+                                  currentOwner,
+                                  tree.pos,
+                                  true,
+                                  builderCreation
+                                )
+                                //val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(componentType.tpe, intAdd(env.nIdentGen(), newInt(1))))
                                 val (totIdentGen, totSym, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)//.setType(IntClass.tpe))
                                 new LoopOuters(
                                   List(
                                     totDef,
-                                    mDef,
-                                    newUpdate(tree.pos, mIdentGen(), newInt(0), totIdentGen())
+                                    builderDef,
+                                    cb.setOrAdd(builderIdentGen, () => newInt(0), totIdentGen)//, index, value)
+                                    //newUpdate(tree.pos, builderIdentGen(), newInt(0), totIdentGen())
                                   ),
-                                  mIdentGen(),
-                                  payload = (mIdentGen, totIdentGen, totSym)
+                                  //builderIdentGen(),
+                                  builderResult(builderIdentGen),
+                                  payload = (cb, builderIdentGen, totIdentGen, totSym)
                                 )
                               },
                               env => {
-                                val (mIdentGen, totIdentGen, totSym) = env.payload
+                                val (cb, builderIdentGen, totIdentGen, totSym) = env.payload
                                 LoopInners(
                                   List(
                                     Assign(
@@ -398,14 +415,14 @@ extends PluginComponent
                                         unit
                                       )
                                     ).setType(UnitClass.tpe),
-                                    newUpdate(
-                                      tree.pos,
-                                      mIdentGen(),
-                                      if (isLeft)
+                                    cb.setOrAdd(
+                                      builderIdentGen,
+                                      () => if (isLeft)
                                         intAdd(env.iIdentGen(), newInt(1))
                                       else
                                         intSub(env.nIdentGen(), env.iIdentGen()),
-                                      totIdentGen())
+                                      totIdentGen
+                                    )
                                   )
                                 )
                               }
@@ -610,12 +627,7 @@ extends PluginComponent
                                   unit
                                 )
                                 LoopInners(
-                                  List(
-                                    if (cb.set != null)
-                                      cb.set(builderIdentGen, env.iIdentGen, () => content)
-                                    else
-                                      cb.add(builderIdentGen, () => content)
-                                  )
+                                  List(cb.setOrAdd(builderIdentGen, env.iIdentGen, () => content))
                                 )
                               }
                             )

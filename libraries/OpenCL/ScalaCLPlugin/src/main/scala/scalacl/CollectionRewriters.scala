@@ -79,7 +79,13 @@ trait RewritingPluginComponent {
     set: (TreeGen, TreeGen, TreeGen) => Tree,
     add: (TreeGen, TreeGen) => Tree,
     result: TreeGen => Tree
-  )
+  ) {
+    def setOrAdd(builder: TreeGen, index: TreeGen, value: TreeGen) =
+      if (set != null && index != null)
+        set(builder, index, value)
+      else
+        add(builder, value)
+  }
 
   trait CollectionRewriters {
     protected var currentOwner: Symbol
@@ -257,7 +263,7 @@ trait RewritingPluginComponent {
       override def colToString(tpe: Type) = tpe.toString
       
       override def newBuilder(pos: Position, componentType: Symbol, collectionType: Symbol, knownSize: TreeGen, localTyper: analyzer.Typer) = {
-        if (knownSize != null && collectionType != null) {
+        if (knownSize != null) {//} && collectionType != null) {
           CollectionBuilder(
             builder = newArray(//WithArrayType(
               //collectionType.tpe,

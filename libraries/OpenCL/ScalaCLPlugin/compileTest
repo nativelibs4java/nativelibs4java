@@ -1,1 +1,1 @@
-SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=Test.scala" || exit 1
+SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=Test.scala|-Xprint:scalacl-loopstransform" || exit 1
