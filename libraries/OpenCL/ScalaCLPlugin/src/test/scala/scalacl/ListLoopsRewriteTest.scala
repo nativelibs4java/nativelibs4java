@@ -65,4 +65,35 @@ class ListLoopsRewriteTest extends TestUtils {
     )
   }
 
+  @Test
+  def simpleStringListMap =
+    simpleListMap("String")
+
+  @Test
+  def simplePrimitiveListMap =
+    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
+      simpleListMap(p)
+
+  def simpleListMap(typeStr: String) {
+    ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ListMap",
+      """
+          val a = List[""" + typeStr + """]()
+          val m = a.map(_ + "...")
+      """,
+      """
+          val a = List[""" + typeStr + """]();
+          val m = {
+            var list = a
+            val builder = new scala.collection.mutable.ListBuffer[String]
+            while (!list.isEmpty) {
+                val item = list.head
+                builder += item + "..."
+                list = list.tail
+            }
+            builder.result
+          }
+      """
+    )
+  }
+
 }

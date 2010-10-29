@@ -38,7 +38,8 @@ trait MiscMatchers {
   import global._
   import definitions._
   import treeInfo.{ methPart }
-  
+  import typer.typed
+
   /** Strips apply nodes looking for type application. */
   def typeArgs(tree: Tree): List[Tree] = tree match {
     case Apply(fn, _)              => typeArgs(fn)
@@ -261,6 +262,7 @@ trait MiscMatchers {
    *  not everyone does.  I'm a tireless advocate for brevity.
    */
   class ColTree(ColClass: Symbol) {
+    //def unapply(tree: Tree) = Some(tree.tpe.dealias.deconst.widen) collect {
     def unapply(tree: Tree) = Some(tree.tpe.dealias.deconst.widen) collect {
       case TypeRef(_, ColClass, List(param)) => param.typeSymbol
     }
@@ -281,50 +283,17 @@ trait MiscMatchers {
           zzz
         ) =>
         true
+      case
+        TypeApply(
+          Select(
+            xxx,
+            canBuildFromName()
+          ),
+          yyy
+        ) =>
+        true
       case _ =>
         false
-    }
-  }
-
-  object MapTree {
-    def apply(collection: Tree, function: Tree, functionArgType: Tree, mappedComponentType: Symbol, mappedCollectionType: Tree, canBuildFrom: Tree) =
-      Apply(
-        Apply(
-          TypeApply(
-            Select(
-              collection,
-              mapName
-            ),
-            List(functionArgType, mappedCollectionType)
-          ),
-          List(function)
-        ),
-        List(canBuildFrom)
-      )
-
-    def unapply(tree: Tree): Option[(Tree, Tree, Tree, Symbol, Tree, Tree)] = tree match {
-      case
-        Apply(
-          Apply(
-            TypeApply(
-              Select(
-                collection,
-                mapName()
-              ),
-              List(functionArgType, mappedCollectionType)
-            ),
-            List(function)
-          ),
-          List(canBuildFrom @ CanBuildFromArg())
-        ) =>
-        mappedCollectionType.tpe match {
-          case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
-            Some((collection, function, functionArgType, sym, mappedCollectionType, canBuildFrom))
-          case _ =>
-            None
-        }
-      case _ =>
-        None
     }
   }
 
@@ -419,6 +388,9 @@ trait MiscMatchers {
     case class Filter(not: Boolean) extends TraversalOpType {
       override def methodName(isLeft: Boolean) = if (not) "filterNot" else "filter"
     }
+    case object Map extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "map"
+    }
     case object TakeWhile extends TraversalOpType {
       override def methodName(isLeft: Boolean) = "takeWhile"
     }
@@ -431,15 +403,44 @@ trait MiscMatchers {
     case object Find extends TraversalOpType {
       override def methodName(isLeft: Boolean) = "find"
     }
-    def apply(op: TraversalOpType, array: Tree, resultType: Symbol, function: Tree, isLeft: Boolean, initialValue: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[(TraversalOpType, Tree, Symbol, Tree, Boolean, Tree)] = tree match {
-      case // PRIMITIVE OR REF SCAN : scala.this.Predef.refArrayOps[A](array: Array[A]).scanLeft[B, Array[B]](initialValue)(function)(canBuildFromArg)
+    def refineComponentType(componentType: Symbol, collectionTree: Tree): Symbol = {
+      collectionTree.tpe match {
+        case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
+          sym
+        case _ =>
+          componentType
+      }
+    }
+    def apply(op: TraversalOpType, array: Tree, resultType: Symbol, mappedCollectionType: Symbol, function: Tree, isLeft: Boolean, initialValue: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[(TraversalOpType, Tree, Symbol, Symbol, Tree, Boolean, Tree)] = tree match {
+      case // map[B, That](f)(canBuildFrom)
+        Apply(
+          Apply(
+            TypeApply(
+              Select(collection, mapName()),
+              List(mappedComponentType, mappedCollectionType)
+            ),
+            List(function)
+          ),
+          List(canBuildFrom @ CanBuildFromArg())
+        ) =>
+        Some((Map, collection, refineComponentType(mappedComponentType.symbol, tree), mappedCollectionType.symbol, function, true, null))
+      case // map[B](f)
+        Apply(
+          TypeApply(
+            Select(collection, mapName()),
+            List(mappedComponentType)
+          ),
+          List(function)
+        ) =>
+        Some((Map, collection, refineComponentType(mappedComponentType.symbol, tree), null, function, true, null))
+      case // scanLeft, scanRight
         Apply(
           Apply(
             Apply(
               TypeApply(
                 Select(collection, ScanName(isLeft)),
-                List(functionArgType, mappedArrayType)
+                List(functionResultType, mappedArrayType)
               ),
               List(initialValue)
             ),
@@ -447,14 +448,8 @@ trait MiscMatchers {
           ),
           List(CanBuildFromArg())
         ) =>
-        val tpe = collection.tpe
-        mappedArrayType.tpe match {
-          case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
-            Some((TraversalOp.Scan, collection, sym, function, isLeft, initialValue))
-          case _ =>
-            None
-        }
-      case // PRIMITIVE OR REF FOLD : scala.this.Predef.refArrayOps[A](array: Array[A]).foldLeft[B](initialValue)(function)
+        Some((Scan, collection, functionResultType.symbol, null, function, isLeft, initialValue))
+      case // foldLeft, foldRight
         Apply(
           Apply(
             TypeApply(
@@ -465,8 +460,8 @@ trait MiscMatchers {
           ),
           List(function)
         ) =>
-        Some((TraversalOp.Fold, collection, functionResultType.symbol, function, isLeft, initialValue))
-      case // PRIMITIVE OR REF SUM : scala.this.Predef.refArrayOps[A](array: Array[A]).sum[A](isNumeric)
+        Some((Fold, collection, functionResultType.symbol, null, function, isLeft, initialValue))
+      case // sum, min, max
         Apply(
           TypeApply(
             Select(collection, n @ (sumName() | minName() | maxName())),
@@ -474,24 +469,11 @@ trait MiscMatchers {
           ),
           List(isNumeric)
         ) =>
-        (
-          n match {
-            case sumName() =>
-              Some(TraversalOp.Sum)
-            case minName() =>
-              Some(TraversalOp.Min)
-            case maxName() =>
-              Some(TraversalOp.Max)
-            case _ =>
-              None
-          }
-        ) match {
-          case Some(op) =>
-            Some((op, collection, functionResultType.symbol, null, true, null))
-          case _ =>
-            None
-        }
-      case // PRIMITIVE OR REF REDUCE : scala.this.Predef.refArrayOps[A](array: Array[A]).reduceLeft[B](function)
+        reductionFunctionOp(n).collect { case op => (op, collection, functionResultType.symbol, null, null, true, null) }
+      case // sum, min, max
+        Select(collection, n @ (sumName() | minName() | maxName())) =>
+        reductionFunctionOp(n).collect { case op => (op, collection, null, null, null, true, null) }
+      case // reduceLeft, reduceRight
         Apply(
           TypeApply(
             Select(collection, ReduceName(isLeft)),
@@ -499,8 +481,9 @@ trait MiscMatchers {
           ),
           List(function)
         ) =>
-        Some((Reduce, collection, functionResultType.symbol, function, isLeft, null))
-      case Apply(Select(collection, n), List(function @ Func(List(param), body))) =>
+        Some((Reduce, collection, functionResultType.symbol, null, function, isLeft, null))
+      case // filter, filterNot, takeWhile, dropWhile, forall, exists
+        Apply(Select(collection, n), List(function @ Func(List(param), body))) =>
         (
           n match {
             case filterName() =>
@@ -520,13 +503,22 @@ trait MiscMatchers {
           }
         ) match {
           case Some((op, resType)) =>
-            Some((op, collection, resType, function, true, null))
+            Some((op, collection, resType, null, function, true, null))
           case None =>
             None
         }
       case _ =>
         None
     }
+    def reductionFunctionOp(n: Name) = n match {
+      case sumName() =>
+        Some(Sum)
+      case minName() =>
+        Some(Min)
+      case maxName() =>
+        Some(Max)
+      case _ =>
+        None
+    }
   }
-
 }

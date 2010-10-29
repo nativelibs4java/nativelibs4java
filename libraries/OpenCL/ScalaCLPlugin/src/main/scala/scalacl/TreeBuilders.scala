@@ -89,9 +89,8 @@ extends MiscMatchers
 
   type TreeGen = () => Tree
 
-  def key(s: Symbol) = s.ownerChain.map(_.toString)
-
   def replaceOccurrences(tree: Tree, mappingsSym: Map[Symbol, TreeGen], symbolReplacements: Map[Symbol, Symbol], unit: CompilationUnit) = {
+    def key(s: Symbol) = s.ownerChain.map(_.toString)
     val mappings = mappingsSym.map({ case (k, v) => (key(k), (k, v)) })
     val result = new TypingTransformer(unit) {
       override def transform(tree: Tree): Tree = {
@@ -106,7 +105,9 @@ extends MiscMatchers
     }.transform(tree)
 
     symbolReplacements.map { tupled { new ChangeOwnerTraverser(_, _) } }.foreach(c => c.traverse(result))
-    result
+    typed {
+      result
+    }
   }
 
   
@@ -125,6 +126,42 @@ extends MiscMatchers
       }
     }
   }
+
+  def newArrayMulti(arrayType: Type, componentTpe: Type, lengths: => List[Tree], manifest: Tree) =
+      typed {
+        val sym = (ArrayModule.tpe member "ofDim" alternatives).filter(_.paramss.flatten.size == lengths.size + 1).head
+        Apply(
+          Apply(
+            TypeApply(
+              Select(
+                Ident(
+                  ArrayModule
+                ),
+                N("ofDim")
+              ).setSymbol(sym),
+              List(TypeTree(componentTpe))
+            ),
+           lengths
+          ).setSymbol(sym),
+          List(manifest)
+        ).setSymbol(sym)
+      }
+
+    def newArray(componentType: Type, length: => Tree) =
+      newArrayWithArrayType(appliedType(ArrayClass.tpe, List(componentType)), length)
+
+    def newArrayWithArrayType(arrayType: Type, length: => Tree) =
+      typed {
+        Apply(
+          Select(
+            New(TypeTree(arrayType)),
+            arrayType.typeSymbol.primaryConstructor
+          ),
+          List(length)
+        )
+      }
+
+    
   def newUpdate(pos: Position, array: => Tree, index: => Tree, value: => Tree) = {
     val a = array
     assert(a.tpe != null)
@@ -136,9 +173,9 @@ extends MiscMatchers
           Select(
             a,
             N("update")
-          ).setSymbol(sym),
-          List(index, value)
-        ).setSymbol(sym)
+          ).setSymbol(sym).setType(sym.tpe),
+          List(index, typed { value })
+        ).setSymbol(sym).setType(UnitClass.tpe)
         //println(nodeToString(t))
         //treeBrowsers.create.browse(t)
         t
@@ -149,6 +186,10 @@ extends MiscMatchers
   def binOp(a: Tree, op: Symbol, b: Tree) = typed {
     Apply(Select(a, op), List(b))
   }
+
+  def newArrayLength(a: Tree) =
+    Select(a, nme.length).setSymbol(getMember(a.symbol, nme.length)).setType(IntClass.tpe)
+  
   def newLogicAnd(a: Tree, b: Tree) = typed {
     if (a == null)
       b
@@ -239,6 +280,7 @@ extends MiscMatchers
     mutable: Boolean,
     initialValue: Tree
   ): (IdentGen, Symbol, ValDef) = {
+    typed { initialValue }
     var tpe = initialValue.tpe
     if (tpe.isInstanceOf[ConstantType])
       tpe = tpe.widen

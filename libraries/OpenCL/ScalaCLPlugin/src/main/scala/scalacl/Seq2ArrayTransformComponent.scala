@@ -37,8 +37,7 @@ import scala.tools.nsc.transform.{Transform, TypingTransformers}
 
 object Seq2ArrayTransformComponent {
   val runsAfter = List[String](
-    "namer",
-    OpsFuserTransformComponent.phaseName
+    "namer"
   )
   val phaseName = "scalacl-seqs2arrays"
 }

@@ -1,3 +1,33 @@
+/*
+ * ScalaCL - putting Scala on the GPU with JavaCL / OpenCL
+ * http://scalacl.googlecode.com/
+ *
+ * Copyright (c) 2009-2010, Olivier Chafik (http://ochafik.free.fr/)
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of Olivier Chafik nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY OLIVIER CHAFIK AND CONTRIBUTORS ``AS IS'' AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 package scalacl
 
 import scala.tools.nsc.plugins.PluginComponent
@@ -22,7 +52,14 @@ trait RewritingPluginComponent {
     statements: List[Tree],
     finalReturnValue: Tree,
     payload: Payload
-  )
+  ) {
+    def typedStatements = statements.map(typed)
+    def finalReturnValueOrUnit =
+      if (finalReturnValue == null)
+        newUnit
+      else
+        typed { finalReturnValue }
+  }
   /// describes the environment available to the inside of the loop
   case class LoopInnersEnv[Payload](
     aIdentGen: IdentGen,
@@ -37,6 +74,13 @@ trait RewritingPluginComponent {
     extraLoopTest: Tree = null
   )
 
+  case class CollectionBuilder(
+    builder: Tree,
+    set: (TreeGen, TreeGen, TreeGen) => Tree,
+    add: (TreeGen, TreeGen) => Tree,
+    result: TreeGen => Tree
+  )
+
   trait CollectionRewriters {
     protected var currentOwner: Symbol
     val unit: CompilationUnit
@@ -44,7 +88,7 @@ trait RewritingPluginComponent {
     abstract sealed class CollectionRewriter {
       val supportsRightVariants: Boolean
       def filters: List[Tree] = Nil
-      def newBuilder(collection: Tree, componentType: Symbol, manifestGetter: Type => Tree): (Tree, TreeGen => Tree)
+      def newBuilder(pos: Position, componentType: Symbol, collectionType: Symbol = null, knownSize: TreeGen = null): CollectionBuilder
       def foreach[Payload](
         tree: Tree,
         array: Tree,
@@ -77,22 +121,45 @@ trait RewritingPluginComponent {
             case _ =>
               None
           }
+        case _ =>
+          None
       }
     }
 
     trait HasBufferBuilder {
       def getBuilderType(componentType: Symbol): Type
-      def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol): Tree
-      def newBuilder(collection: Tree, componentType: Symbol, manifestGetter: Type => Tree): (Tree, TreeGen => Tree) = {
-        val builderType = getBuilderType(componentType)
-        val builderCreation = Apply(
-          Select(
-            New(TypeTree(builderType)),
-            builderType.typeSymbol.primaryConstructor
+      def newBuilder(pos: Position, componentType: Symbol, collectionType: Symbol, knownSize: TreeGen) = {
+        val builderTpe = getBuilderType(componentType)
+        CollectionBuilder(
+          builder = Apply(
+            Select(
+              New(TypeTree(builderTpe)),
+              builderTpe.typeSymbol.primaryConstructor
+            ),
+            Nil
           ),
-          Nil
+          set = null,//(bufferIdentGen, indexIdentGen) => null,
+          add = (bufferIdentGen, itemIdentGen) => {
+            val addAssignMethod = builderTpe member addAssignName
+            Apply(
+              Select(
+                bufferIdentGen(),
+                addAssignName
+              ).setSymbol(addAssignMethod),
+              List(itemIdentGen())
+            ).setSymbol(addAssignMethod)
+          },
+          result = bufferIdentGen => {
+            val resultMethod = builderTpe member resultName
+            Apply(
+              Select(
+                bufferIdentGen(),
+                resultName
+              ).setSymbol(resultMethod),
+              Nil
+            ).setSymbol(resultMethod)
+          }
         )
-        (builderCreation, bufferIdentGenToCol(_, manifestGetter, componentType))
       }
     }
     case class IntRangeRewriter(from: Tree, to: Tree, byValue: Int, isUntil: Boolean, filtersList: List[Tree]) 
@@ -126,7 +193,7 @@ trait RewritingPluginComponent {
               nDef,
               iDef
             ) ++
-            loopOuters.statements ++
+            loopOuters.typedStatements ++
             List(
               whileLoop(
                 currentOwner,
@@ -154,10 +221,7 @@ trait RewritingPluginComponent {
                 }
               )
             ),
-            if (loopOuters.finalReturnValue == null)
-              newUnit
-            else
-              loopOuters.finalReturnValue
+            loopOuters.finalReturnValueOrUnit
           )
         }
       }
@@ -169,26 +233,33 @@ trait RewritingPluginComponent {
         case None =>
           appliedType(RefArrayBuilderClass.tpe, List(componentType.tpe))
       }
-      def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol) = {
-        val bufferIdent = bufferIdentGen()
-        val sym = bufferIdent.tpe member resultName
-        //Apply(
-        //  TypeApply(
-        Apply(
-            Select(
-              bufferIdentGen(),
-              resultName
-            ).setSymbol(sym),
-            Nil
-        ).setSymbol(sym)
-          //  List(TypeTree(componentType.tpe))
-          //).setSymbol(sym),
-          //List(manifestGetter(componentType.tpe))
-        //).setSymbol(sym)
-      }
     }
     case object ArrayRewriter extends CollectionRewriter with HasBufferBuilder with ArrayBuilderTargetRewriter {
       override val supportsRightVariants = true
+
+      override def newBuilder(pos: Position, componentType: Symbol, collectionType: Symbol, knownSize: TreeGen) = {
+        if (knownSize != null && collectionType != null) {
+          CollectionBuilder(
+            builder = newArray(//WithArrayType(
+              //collectionType.tpe,
+              componentType.tpe,
+              knownSize()
+            ),
+            set = (bufferIdentGen, indexIdentGen, contentGen) => {
+              newUpdate(
+                pos,
+                bufferIdentGen(),
+                indexIdentGen(),
+                contentGen()
+              )
+            },
+            add = null,
+            result = bufferIdentGen => bufferIdentGen()
+          )
+        } else
+          super.newBuilder(pos, componentType, collectionType, knownSize)
+      }
+
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,
@@ -200,7 +271,7 @@ trait RewritingPluginComponent {
       ): Tree = {
         val pos = tree.pos
         val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, pos, false, collection)
-        val (nIdentGen, _, nDef) = newVariable(unit, "n$", currentOwner, pos, false, Select(aIdentGen(), nme.length).setSymbol(getMember(aSym, nme.length)).setType(IntClass.tpe))
+        val (nIdentGen, _, nDef) = newVariable(unit, "n$", currentOwner, pos, false, newArrayLength(aIdentGen()))
         val (iIdentGen, _, iDef) = newVariable(unit, "i$", currentOwner, pos, true,
           if (reverseOrder) {
             if (skipFirst)
@@ -226,7 +297,7 @@ trait RewritingPluginComponent {
               nDef,
               iDef
             ) ++
-            loopOuters.statements ++
+            loopOuters.typedStatements ++
             List(
               whileLoop(
                 currentOwner,
@@ -266,10 +337,7 @@ trait RewritingPluginComponent {
                 }
               )
             ),
-            if (loopOuters.finalReturnValue == null)
-              newUnit
-            else
-              loopOuters.finalReturnValue
+            loopOuters.finalReturnValueOrUnit
           )
         }
       }
@@ -277,14 +345,6 @@ trait RewritingPluginComponent {
     case object ListRewriter extends CollectionRewriter with HasBufferBuilder {
       override val supportsRightVariants = false
       override def getBuilderType(componentType: Symbol) = appliedType(ListBufferClass.tpe, List(componentType.tpe))
-      override def bufferIdentGenToCol(bufferIdentGen: TreeGen, manifestGetter: Type => Tree, componentType: Symbol): Tree = {
-        val bufferIdent = bufferIdentGen()
-        Select(
-          bufferIdent,
-          resultName
-        ).setSymbol(bufferIdent.tpe member resultName)
-      }
-      
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,
@@ -310,7 +370,7 @@ trait RewritingPluginComponent {
             List(
               aDef
             ) ++
-            loopOuters.statements ++
+            loopOuters.typedStatements ++
             List(
               whileLoop(
                 currentOwner,
@@ -326,16 +386,13 @@ trait RewritingPluginComponent {
                     itemAndInnerStats,
                     Assign(
                       aIdentGen(),
-                      Select(aIdentGen(), tailName).setSymbol(sym)//.setType(colTpe)
-                    )//.setType(UnitClass.tpe)
+                      Select(aIdentGen(), tailName).setSymbol(sym).setType(colTpe)
+                    ).setType(UnitClass.tpe)
                   )
                 }
               )
             ),
-            if (loopOuters.finalReturnValue == null)
-              newUnit
-            else
-              loopOuters.finalReturnValue
+            loopOuters.finalReturnValueOrUnit
           )
         }
       }
