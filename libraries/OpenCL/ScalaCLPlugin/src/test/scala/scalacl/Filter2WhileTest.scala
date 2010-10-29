@@ -37,8 +37,8 @@ import Assert._
 class Filter2WhileTest extends TestUtils {
 
   @Test
-  def simpleArrayFilter {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleArrayFilter",
+  def simplePrimitiveArrayFilter {
+    ensurePluginCompilesSnippetsToSameByteCode("simplePrimitiveArrayFilter",
       """
           val a = Array(1, 2, 3, 4)
           val m = a.filter(_ != 0)
@@ -52,8 +52,35 @@ class Filter2WhileTest extends TestUtils {
             var builder1 = new scala.collection.mutable.ArrayBuilder.ofInt
             while (i1 < n1)
             {
-              val item1: Int = array1.apply(i1)
+              val item1 = array1(i1)
               if (item1 != 0)
+                builder1 += item1
+              i1 += 1
+            }
+            builder1.result
+          }
+      """
+    )
+  }
+  
+  @Test
+  def simpleRefArrayFilter {
+    ensurePluginCompilesSnippetsToSameByteCode("simpleRefArrayFilter",
+      """
+          val a = Array("1", "2", "3", "4")
+          val m = a.filter(_ != "")
+      """,
+      """
+          val a = Array("1", "2", "3", "4")
+          val m = {
+            val array1 = a
+            val n1 = array1.length
+            var i1 = 0
+            var builder1 = new scala.collection.mutable.ArrayBuilder.ofRef[String]
+            while (i1 < n1)
+            {
+              val item1 = array1(i1)
+              if (item1 != "")
                 builder1 += item1
               i1 += 1
             }

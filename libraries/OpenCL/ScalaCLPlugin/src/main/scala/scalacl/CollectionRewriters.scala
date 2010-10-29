@@ -88,7 +88,9 @@ trait RewritingPluginComponent {
     abstract sealed class CollectionRewriter {
       val supportsRightVariants: Boolean
       def filters: List[Tree] = Nil
-      def newBuilder(pos: Position, componentType: Symbol, collectionType: Symbol = null, knownSize: TreeGen = null): CollectionBuilder
+      def colToString(tpe: Type): String
+      def newBuilderInstance(componentType: Symbol, localTyper: analyzer.Typer): (Type, Tree)
+      def newBuilder(pos: Position, componentType: Symbol, collectionType: Symbol, knownSize: TreeGen, localTyper: analyzer.Typer): CollectionBuilder
       def foreach[Payload](
         tree: Tree,
         array: Tree,
@@ -127,17 +129,11 @@ trait RewritingPluginComponent {
     }
 
     trait HasBufferBuilder {
-      def getBuilderType(componentType: Symbol): Type
-      def newBuilder(pos: Position, componentType: Symbol, collectionType: Symbol, knownSize: TreeGen) = {
-        val builderTpe = getBuilderType(componentType)
+      def newBuilderInstance(componentType: Symbol, localTyper: analyzer.Typer): (Type, Tree)
+      def newBuilder(pos: Position, componentType: Symbol, collectionType: Symbol, knownSize: TreeGen, localTyper: analyzer.Typer) = {
+        val (builderTpe, builderInstance) = newBuilderInstance(componentType, localTyper)
         CollectionBuilder(
-          builder = Apply(
-            Select(
-              New(TypeTree(builderTpe)),
-              builderTpe.typeSymbol.primaryConstructor
-            ),
-            Nil
-          ),
+          builder = builderInstance,
           set = null,//(bufferIdentGen, indexIdentGen) => null,
           add = (bufferIdentGen, itemIdentGen) => {
             val addAssignMethod = builderTpe member addAssignName
@@ -167,9 +163,9 @@ trait RewritingPluginComponent {
        with HasBufferBuilder 
        with ArrayBuilderTargetRewriter {
       //IntRange(from, to, by, isUntil, filters), f @ Func(List(param), body))
-      override val supportsRightVariants = true
+      override val supportsRightVariants = false
       override def filters: List[Tree] = filtersList
-      override def toString = "Range"
+      override def colToString(tpe: Type) = "Range"
       
       override def foreach[Payload](
         tree: Tree,
@@ -228,18 +224,39 @@ trait RewritingPluginComponent {
       }
     }
     trait ArrayBuilderTargetRewriter {
-      def getBuilderType(componentType: Symbol) = primArrayBuilderClasses.get(componentType) match {
-        case Some(t) =>
-          t.tpe
-        case None =>
-          appliedType(RefArrayBuilderClass.tpe, List(componentType.tpe))
+      def newBuilderInstance(componentType: Symbol, localTyper: analyzer.Typer): (Type, Tree) = {
+        val (builderType, needsManifest) = primArrayBuilderClasses.get(componentType) match {
+          case Some(t) =>
+            (t.tpe, false)
+          case None =>
+            (appliedType(RefArrayBuilderClass.tpe, List(componentType.tpe)), true)
+        };
+        (
+          builderType,
+          typed {
+            val n = Apply(
+              Select(
+                New(TypeTree(builderType)),
+                builderType.typeSymbol.primaryConstructor
+              ),
+              Nil
+            )
+            if (needsManifest)
+              Apply(
+                n,
+                List(localTyper.findManifest(componentType.tpe, false).tree)
+              )
+            else
+              n
+          }
+        )
       }
     }
     case object ArrayRewriter extends CollectionRewriter with HasBufferBuilder with ArrayBuilderTargetRewriter {
       override val supportsRightVariants = true
-      override def toString = "Array"
+      override def colToString(tpe: Type) = tpe.toString
       
-      override def newBuilder(pos: Position, componentType: Symbol, collectionType: Symbol, knownSize: TreeGen) = {
+      override def newBuilder(pos: Position, componentType: Symbol, collectionType: Symbol, knownSize: TreeGen, localTyper: analyzer.Typer) = {
         if (knownSize != null && collectionType != null) {
           CollectionBuilder(
             builder = newArray(//WithArrayType(
@@ -259,7 +276,7 @@ trait RewritingPluginComponent {
             result = bufferIdentGen => bufferIdentGen()
           )
         } else
-          super.newBuilder(pos, componentType, collectionType, knownSize)
+          super.newBuilder(pos, componentType, collectionType, knownSize, localTyper)
       }
 
       override def foreach[Payload](
@@ -346,8 +363,22 @@ trait RewritingPluginComponent {
     }
     case object ListRewriter extends CollectionRewriter with HasBufferBuilder {
       override val supportsRightVariants = false
-      override def getBuilderType(componentType: Symbol) = appliedType(ListBufferClass.tpe, List(componentType.tpe))
-      override def toString = "List"
+      override def colToString(tpe: Type) = tpe.toString
+      override def newBuilderInstance(componentType: Symbol, localTyper: analyzer.Typer): (Type, Tree) = {
+        val builderType = appliedType(ListBufferClass.tpe, List(componentType.tpe))
+        (
+          builderType,
+          typed {
+            Apply(
+              Select(
+                New(TypeTree(builderType)),
+                builderType.typeSymbol.primaryConstructor
+              ),
+              Nil
+            )
+          }
+        )
+      } 
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,
@@ -386,7 +417,7 @@ trait RewritingPluginComponent {
                     statements
                   val sym = colTpe member tailName
                   Block(
-                    itemAndInnerStats,
+                    itemAndInnerStats,//.map(typed),
                     Assign(
                       aIdentGen(),
                       Select(aIdentGen(), tailName).setSymbol(sym).setType(colTpe)

@@ -204,7 +204,7 @@ extends PluginComponent
             case Foreach(collection, f @ Func(List(param), body)) =>
               collection match {
                 case CollectionRewriter(colType, tpe, array, componentType) =>
-                  msg(unit, tree.pos, "transformed " + colType + ".foreach into equivalent while loop.") {
+                  msg(unit, tree.pos, "transformed " + colType.colToString(tpe) + ".foreach into equivalent while loop.") {
                     if (array != null)
                       array.tpe = tpe
 
@@ -280,7 +280,7 @@ extends PluginComponent
               collection match {
                 case CollectionRewriter(colType, tpe, array, componentType) =>
                   if (isLeft || colType.supportsRightVariants)
-                    msg(unit, tree.pos, "transformed " + colType + "." + op.methodName(isLeft) + " into equivalent while loop.") {
+                    msg(unit, tree.pos, "transformed " + colType.colToString(tpe) + "." + op.methodName(isLeft) + " into equivalent while loop.") {
                       //if (array != null)
                       //  array.tpe = tpe
                       super.transform(
@@ -465,7 +465,7 @@ extends PluginComponent
                               false,
                               false,
                               env => {
-                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType)
+                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType, null, null, localTyper)
                                 val (builderIdentGen, builderSym, builderDef) = newVariable(
                                   unit,
                                   "builder$",
@@ -507,6 +507,72 @@ extends PluginComponent
                                 )
                               }
                             )
+                            /*
+                          case TraversalOp.FilterWhile(take) =>
+                            colType.foreach[(CollectionBuilder, IdentGen, Symbol)](
+                              tree,
+                              array,
+                              componentType,
+                              false,
+                              false,
+                              env => {
+                                val (passedIdentGen, passedSym, passedDef) = newVariable(
+                                  unit,
+                                  "passed$",
+                                  currentOwner,
+                                  tree.pos,
+                                  true,
+                                  newBool(false)
+                                )
+                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType, null, null, localTyper)
+                                val (builderIdentGen, builderSym, builderDef) = newVariable(
+                                  unit,
+                                  "builder$",
+                                  currentOwner,
+                                  tree.pos,
+                                  true,
+                                  builderCreation
+                                )
+                                new LoopOuters(
+                                  List(
+                                    builderDef
+                                  ),
+                                  builderResult(builderIdentGen),
+                                  payload = (cb, builderIdentGen, builderSym)
+                                )
+                              },
+                              env => {
+                                val (cb, builderIdentGen, builderSym) = env.payload
+                                //val addAssignMethod = builderSym.tpe member addAssignName
+                                val cond = replaceOccurrences(
+                                  super.transform(body),
+                                  Map(
+                                    leftParam.symbol -> env.itemIdentGen
+                                  ),
+                                  Map(f.symbol -> currentOwner),
+                                  unit
+                                )
+                                LoopInners(
+                                  List(
+                                    If(
+                                      if (take)
+                                        cond
+                                      else
+
+                                        boolNot(cond)
+                                      else
+                                        cond,
+                                      cb.add(builderIdentGen, env.itemIdentGen),
+                                      newUnit
+                                    )
+                                  ),
+                                  if (take)
+                                    boolNot(passedIdentGen())
+                                  else
+                                    null
+                                )
+                              }
+                            )*/
                           case TraversalOp.Map =>
                             //array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
                             colType.foreach[(CollectionBuilder, IdentGen, Symbol)](
@@ -516,7 +582,7 @@ extends PluginComponent
                               false,
                               false,
                               env => {
-                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, mappedCollectionType, env.nIdentGen)
+                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, mappedCollectionType, env.nIdentGen, localTyper)
                                 val (builderIdentGen, builderSym, builderDef) = newVariable(
                                   unit,
                                   "builder$",

@@ -116,6 +116,7 @@ trait MiscMatchers {
   val filterNotName = N("filterNot")
   val takeWhileName = N("takeWhile")
   val dropWhileName = N("dropWhile")
+  val countName = N("count")
   val forallName = N("forall")
   val existsName = N("exists")
   val findName = N("find")
@@ -388,14 +389,14 @@ trait MiscMatchers {
     case class Filter(not: Boolean) extends TraversalOpType {
       override def methodName(isLeft: Boolean) = if (not) "filterNot" else "filter"
     }
+    case class FilterWhile(take: Boolean) extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = if (take) "takeWhile" else "dropWhile"
+    }
+    case object Count extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "count"
+    }
     case object Map extends TraversalOpType {
       override def methodName(isLeft: Boolean) = "map"
-    }
-    case object TakeWhile extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "takeWhile"
-    }
-    case object DropWhile extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "dropWhile"
     }
     case class AllOrSome(all: Boolean) extends TraversalOpType {
       override def methodName(isLeft: Boolean) = if (all) "forall" else "exists"
@@ -490,14 +491,19 @@ trait MiscMatchers {
               Some(Filter(false), collection.tpe.typeSymbol)
             case filterNotName() =>
               Some(Filter(true), collection.tpe.typeSymbol)
+
             case takeWhileName() =>
-              Some(TakeWhile, collection.tpe.typeSymbol)
+              Some(FilterWhile(true), collection.tpe.typeSymbol)
             case dropWhileName() =>
-              Some(DropWhile, collection.tpe.typeSymbol)
+              Some(FilterWhile(false), collection.tpe.typeSymbol)
+
             case forallName() =>
               Some(AllOrSome(true), BooleanClass)
             case existsName() =>
               Some(AllOrSome(false), BooleanClass)
+
+            case countName() =>
+              Some(Count, IntClass)
             case _ =>
               None
           }
