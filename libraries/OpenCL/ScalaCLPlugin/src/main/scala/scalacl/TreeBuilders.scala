@@ -96,7 +96,7 @@ extends MiscMatchers
       override def transform(tree: Tree): Tree = {
         val rep = tree match {
           case Ident(n) if tree.symbol != NoSymbol =>
-            mappings.get(key(tree.symbol)).map(_._2()).getOrElse(super.transform(tree))
+            mappings.get(key(tree.symbol)).map(_._2().setType(tree.symbol.tpe)).getOrElse(super.transform(tree))
           case _ =>
             super.transform(tree)
         }
@@ -190,14 +190,22 @@ extends MiscMatchers
   def newArrayLength(a: Tree) =
     Select(a, nme.length).setSymbol(getMember(a.symbol, nme.length)).setType(IntClass.tpe)
   
-  def newLogicAnd(a: Tree, b: Tree) = typed {
+  def boolAnd(a: Tree, b: Tree) = typed {
     if (a == null)
       b
     else if (b == null)
       a
     else
       binOp(a, BooleanClass.tpe.member(nme.AMPAMP), b)
-  } 
+  }
+  def boolOr(a: Tree, b: Tree) = typed {
+    if (a == null)
+      b
+    else if (b == null)
+      a
+    else
+      binOp(a, BooleanClass.tpe.member(nme.ZOR), b)
+  }
   def ident(sym: Symbol, n: Name, pos: Position) = {
     val v = Ident(n)
     v.symbol = sym
@@ -209,7 +217,7 @@ extends MiscMatchers
   def boolNot(a: => Tree) = {
     val sym = BooleanClass.tpe.member(nme.UNARY_!)
     //Apply(
-      Select(a, nme.UNARY_!).setSymbol(sym)//, Nil).setSymbol(sym).setType(BooleanClass.tpe)
+    Select(a, nme.UNARY_!).setSymbol(sym).setType(BooleanClass.tpe)//, Nil).setSymbol(sym).setType(BooleanClass.tpe)
   }
 
   def intAdd(a: => Tree, b: => Tree) =

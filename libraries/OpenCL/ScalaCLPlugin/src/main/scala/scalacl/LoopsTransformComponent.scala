@@ -241,7 +241,7 @@ extends PluginComponent
                                           ),
                                           unit
                                         )
-                                    }).reduceLeft(newLogicAnd),
+                                    }).reduceLeft(boolAnd),
                                     content,
                                     newUnit
                                   )
@@ -524,9 +524,8 @@ extends PluginComponent
                                 )
                               }
                             )
-                            /*
                           case TraversalOp.FilterWhile(take) =>
-                            colType.foreach[(CollectionBuilder, IdentGen, Symbol)](
+                            colType.foreach[(CollectionBuilder, IdentGen, IdentGen, Symbol)](
                               tree,
                               array,
                               componentType,
@@ -552,44 +551,66 @@ extends PluginComponent
                                 )
                                 new LoopOuters(
                                   List(
-                                    builderDef
+                                    builderDef,
+                                    passedDef
                                   ),
                                   builderResult(builderIdentGen),
-                                  payload = (cb, builderIdentGen, builderSym)
+                                  payload = (cb, passedIdentGen, builderIdentGen, builderSym)
                                 )
                               },
                               env => {
-                                val (cb, builderIdentGen, builderSym) = env.payload
+                                val (cb, passedIdentGen, builderIdentGen, builderSym) = env.payload
                                 //val addAssignMethod = builderSym.tpe member addAssignName
-                                val cond = replaceOccurrences(
-                                  super.transform(body),
-                                  Map(
-                                    leftParam.symbol -> env.itemIdentGen
-                                  ),
-                                  Map(f.symbol -> currentOwner),
-                                  unit
+                                val cond = boolNot(
+                                  replaceOccurrences(
+                                    super.transform(body),
+                                    Map(
+                                      leftParam.symbol -> env.itemIdentGen
+                                    ),
+                                    Map(f.symbol -> currentOwner),
+                                    unit
+                                  )
                                 )
                                 LoopInners(
-                                  List(
-                                    If(
-                                      if (take)
+                                  if (take) {
+                                    List(
+                                      Assign(
+                                        passedIdentGen(),
                                         cond
-                                      else
-
-                                        boolNot(cond)
-                                      else
-                                        cond,
-                                      cb.add(builderIdentGen, env.itemIdentGen),
-                                      newUnit
+                                      ).setType(UnitClass.tpe),
+                                      If(
+                                        boolNot(passedIdentGen()),
+                                        cb.add(builderIdentGen, env.itemIdentGen),
+                                        newUnit
+                                      )
                                     )
-                                  ),
+                                  } else {
+                                    List(
+                                      If(
+                                        boolOr(
+                                          passedIdentGen(),
+                                          Block(
+                                            List(
+                                              Assign(
+                                                passedIdentGen(),
+                                                cond
+                                              ).setType(UnitClass.tpe)
+                                            ),
+                                            passedIdentGen()
+                                          ).setType(BooleanClass.tpe)
+                                        ),
+                                        cb.add(builderIdentGen, env.itemIdentGen),
+                                        newUnit
+                                      )
+                                    )
+                                  },
                                   if (take)
                                     boolNot(passedIdentGen())
                                   else
                                     null
                                 )
                               }
-                            )*/
+                            )
                           case TraversalOp.Map =>
                             //array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
                             colType.foreach[(CollectionBuilder, IdentGen, Symbol)](

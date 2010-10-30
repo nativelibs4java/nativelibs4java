@@ -59,8 +59,10 @@ object Compile {
       ).mkString(java.io.File.separator),
       "/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/symtab/Types.scala",
       "-Xprint:" + LoopsTransformComponent.phaseName,
+      "-Ydebug",
       "-optimise"
     )*/
+    //*/
     /*val args = Array(
       "-cp",
       "/Users/ochafik/src/Scalala/target/scala_2.8.0/scalala_2.8.0-0.4.1-SNAPSHOT.jar",

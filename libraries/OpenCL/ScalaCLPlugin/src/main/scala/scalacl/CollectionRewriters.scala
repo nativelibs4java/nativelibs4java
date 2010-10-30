@@ -202,7 +202,7 @@ trait RewritingPluginComponent {
                 currentOwner,
                 unit,
                 tree,
-                newLogicAnd(
+                boolAnd(
                   binOp(
                     iIdentGen(),
                     IntClass.tpe.member(
@@ -231,11 +231,14 @@ trait RewritingPluginComponent {
     }
     trait ArrayBuilderTargetRewriter {
       def newBuilderInstance(componentType: Symbol, localTyper: analyzer.Typer): (Type, Tree) = {
-        val (builderType, needsManifest) = primArrayBuilderClasses.get(componentType) match {
+        val (builderType, mainArgs, needsManifest) = primArrayBuilderClasses.get(componentType) match {
           case Some(t) =>
-            (t.tpe, false)
+            (t.tpe, Nil, false)
           case None =>
-            (appliedType(RefArrayBuilderClass.tpe, List(componentType.tpe)), true)
+            if (componentType.tpe <:< AnyRefClass.tpe)
+              (appliedType(RefArrayBuilderClass.tpe, List(componentType.tpe)), Nil, true)
+            else
+              (appliedType(ArrayBufferClass.tpe, List(componentType.tpe)), List(newInt(16)), false)
         };
         (
           builderType,
@@ -246,7 +249,7 @@ trait RewritingPluginComponent {
                 New(TypeTree(builderType)),
                 sym
               ).setSymbol(sym),
-              Nil
+              mainArgs
             ).setSymbol(sym)
             if (needsManifest)
               Apply(
@@ -329,7 +332,7 @@ trait RewritingPluginComponent {
                 currentOwner,
                 unit,
                 tree,
-                newLogicAnd(
+                boolAnd(
                   if (reverseOrder) // while (i > 0) { i--; statements }
                     binOp(
                       iIdentGen(),
@@ -401,7 +404,7 @@ trait RewritingPluginComponent {
         val colTpe = collection.tpe
         val (aIdentGen, aSym, aDef) = newVariable(unit, "list$", currentOwner, pos, true, collection)
         val (itemIdentGen, itemSym, itemDef) = newVariable(unit, "item$", currentOwner, pos, false, typed {
-            Select(aIdentGen(), headName).setSymbol(colTpe.member(headName)).setType(componentType.tpe)
+            Select(aIdentGen(), headName).setSymbol(colTpe.member(headName))//.setType(componentType.tpe)
         })
         val loopOuters = outerStatements(new LoopOutersEnv(aIdentGen, aSym, null))
         val loopInners = new LoopInnersEnv[Payload](aIdentGen, null, null, itemIdentGen, itemSym, loopOuters.payload)
@@ -418,7 +421,7 @@ trait RewritingPluginComponent {
                 currentOwner,
                 unit,
                 tree,
-                newLogicAnd(boolNot(Select(aIdentGen(), isEmptyName).setSymbol(colTpe.member(isEmptyName)).setType(BooleanClass.tpe)), extraTest),
+                boolAnd(boolNot(Select(aIdentGen(), isEmptyName).setSymbol(colTpe.member(isEmptyName)).setType(BooleanClass.tpe)), extraTest),
                 typed {
                   val itemAndInnerStats =
                     List(itemDef) ++
@@ -428,7 +431,7 @@ trait RewritingPluginComponent {
                     itemAndInnerStats,//.map(typed),
                     Assign(
                       aIdentGen(),
-                      Select(aIdentGen(), tailName).setSymbol(sym).setType(colTpe)
+                      Select(aIdentGen(), tailName).setSymbol(sym).setType(sym.tpe)//.setType(colTpe)
                     ).setType(UnitClass.tpe)
                   )
                 }
