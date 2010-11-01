@@ -372,7 +372,7 @@ extends PluginComponent
                                 //val mappedArrayType = appliedType(ArrayClass.tpe, List(componentType))
                                 val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(
                                   collection.pos,
-                                  componentType,
+                                  componentType.tpe,
                                   mappedCollectionType,
                                   () => intAdd(env.nIdentGen(), newInt(1)),
                                   localTyper
@@ -482,7 +482,7 @@ extends PluginComponent
                               false,
                               false,
                               env => {
-                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType, null, null, localTyper)
+                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType.tpe, null, null, localTyper)
                                 val (builderIdentGen, builderSym, builderDef) = newVariable(
                                   unit,
                                   "builder$",
@@ -540,7 +540,7 @@ extends PluginComponent
                                   true,
                                   newBool(false)
                                 )
-                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType, null, null, localTyper)
+                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType.tpe, null, null, localTyper)
                                 val (builderIdentGen, builderSym, builderDef) = newVariable(
                                   unit,
                                   "builder$",
@@ -620,7 +620,8 @@ extends PluginComponent
                               false,
                               false,
                               env => {
-                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, mappedCollectionType, env.nIdentGen, localTyper)
+                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, tree.tpe, env.nIdentGen, localTyper)
+                                //val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, mappedCollectionType, env.nIdentGen, localTyper)
                                 val (builderIdentGen, builderSym, builderDef) = newVariable(
                                   unit,
                                   "builder$",

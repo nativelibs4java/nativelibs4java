@@ -135,14 +135,14 @@ trait MiscMatchers {
   lazy val RefArrayBuilderClass = definitions.getClass("scala.collection.mutable.ArrayBuilder.ofRef")
   lazy val ListBufferClass = definitions.getClass("scala.collection.mutable.ListBuffer")
   lazy val primArrayBuilderClasses = Array(
-    (IntClass, "ofInt"),
-    (LongClass, "ofLong"),
-    (ShortClass, "ofShort"),
-    (ByteClass, "ofByte"),
-    (CharClass, "ofChar"),
-    (BooleanClass, "ofBoolean"),
-    (FloatClass, "ofFloat"),
-    (DoubleClass, "ofDouble")
+    (IntClass.tpe, "ofInt"),
+    (LongClass.tpe, "ofLong"),
+    (ShortClass.tpe, "ofShort"),
+    (ByteClass.tpe, "ofByte"),
+    (CharClass.tpe, "ofChar"),
+    (BooleanClass.tpe, "ofBoolean"),
+    (FloatClass.tpe, "ofFloat"),
+    (DoubleClass.tpe, "ofDouble")
   ).map { case (sym, n) => (sym, definitions.getClass("scala.collection.mutable.ArrayBuilder." + n)) } toMap
 
   object ScalaMathFunction {
@@ -406,16 +406,16 @@ trait MiscMatchers {
     case object Find extends TraversalOpType {
       override def methodName(isLeft: Boolean) = "find"
     }
-    def refineComponentType(componentType: Symbol, collectionTree: Tree): Symbol = {
+    def refineComponentType(componentType: Type, collectionTree: Tree): Type = {
       collectionTree.tpe match {
-        case TypeRef(_, _, List(TypeRef(_, sym, args))) =>
-          sym
+        case TypeRef(_, _, List(t)) =>
+          t
         case _ =>
           componentType
       }
     }
-    def apply(op: TraversalOpType, array: Tree, resultType: Symbol, mappedCollectionType: Symbol, function: Tree, isLeft: Boolean, initialValue: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[(TraversalOpType, Tree, Symbol, Symbol, Tree, Boolean, Tree)] = tree match {
+    def apply(op: TraversalOpType, array: Tree, resultType: Type, mappedCollectionType: Type, function: Tree, isLeft: Boolean, initialValue: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[(TraversalOpType, Tree, Type, Type, Tree, Boolean, Tree)] = tree match {
       case // map[B, That](f)(canBuildFrom)
         Apply(
           Apply(
@@ -427,7 +427,7 @@ trait MiscMatchers {
           ),
           List(canBuildFrom @ CanBuildFromArg())
         ) =>
-        Some((Map, collection, refineComponentType(mappedComponentType.symbol, tree), mappedCollectionType.symbol, function, true, null))
+        Some((Map, collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, function, true, null))
       case // map[B](f)
         Apply(
           TypeApply(
@@ -436,7 +436,7 @@ trait MiscMatchers {
           ),
           List(function)
         ) =>
-        Some((Map, collection, refineComponentType(mappedComponentType.symbol, tree), null, function, true, null))
+        Some((Map, collection, refineComponentType(mappedComponentType.tpe, tree), null, function, true, null))
       case // scanLeft, scanRight
         Apply(
           Apply(
@@ -451,7 +451,7 @@ trait MiscMatchers {
           ),
           List(CanBuildFromArg())
         ) =>
-        Some((Scan, collection, functionResultType.symbol, null, function, isLeft, initialValue))
+        Some((Scan, collection, functionResultType.tpe, null, function, isLeft, initialValue))
       case // foldLeft, foldRight
         Apply(
           Apply(
@@ -463,7 +463,7 @@ trait MiscMatchers {
           ),
           List(function)
         ) =>
-        Some((Fold, collection, functionResultType.symbol, null, function, isLeft, initialValue))
+        Some((Fold, collection, functionResultType.tpe, null, function, isLeft, initialValue))
       case // sum, min, max
         Apply(
           TypeApply(
@@ -472,7 +472,7 @@ trait MiscMatchers {
           ),
           List(isNumeric)
         ) =>
-        reductionFunctionOp(n).collect { case op => (op, collection, functionResultType.symbol, null, null, true, null) }
+        reductionFunctionOp(n).collect { case op => (op, collection, functionResultType.tpe, null, null, true, null) }
       case // sum, min, max
         Select(collection, n @ (sumName() | minName() | maxName())) =>
         reductionFunctionOp(n).collect { case op => (op, collection, null, null, null, true, null) }
@@ -484,28 +484,28 @@ trait MiscMatchers {
           ),
           List(function)
         ) =>
-        Some((Reduce, collection, functionResultType.symbol, null, function, isLeft, null))
+        Some((Reduce, collection, functionResultType.tpe, null, function, isLeft, null))
       case // filter, filterNot, takeWhile, dropWhile, forall, exists
         Apply(Select(collection, n), List(function @ Func(List(param), body))) =>
         (
           n match {
             case filterName() =>
-              Some(Filter(false), collection.tpe.typeSymbol)
+              Some(Filter(false), collection.tpe)
             case filterNotName() =>
-              Some(Filter(true), collection.tpe.typeSymbol)
+              Some(Filter(true), collection.tpe)
 
             case takeWhileName() =>
-              Some(FilterWhile(true), collection.tpe.typeSymbol)
+              Some(FilterWhile(true), collection.tpe)
             case dropWhileName() =>
-              Some(FilterWhile(false), collection.tpe.typeSymbol)
+              Some(FilterWhile(false), collection.tpe)
 
             case forallName() =>
-              Some(AllOrSome(true), BooleanClass)
+              Some(AllOrSome(true), BooleanClass.tpe)
             case existsName() =>
-              Some(AllOrSome(false), BooleanClass)
+              Some(AllOrSome(false), BooleanClass.tpe)
 
             case countName() =>
-              Some(Count, IntClass)
+              Some(Count, IntClass.tpe)
             case _ =>
               None
           }
