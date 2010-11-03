@@ -16,7 +16,7 @@ class SharedCompiler(enablePlugins: Boolean) {
   def createCompiler = {
     lazy val extraArgs = Array(
       "-optimise",
-      "-bootclasspath", System.getProperty("java.class.path",".")
+      "-bootclasspath", Compile.bootClassPath
     )
     lazy val settings = new Settings
     lazy val runner = new ScalaCLPluginRunner(enablePlugins, settings, new ConsoleReporter(settings))

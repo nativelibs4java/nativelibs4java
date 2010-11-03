@@ -50,7 +50,8 @@ SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=Test.scala|
 object Compile {
 
   def main(args: Array[String]) {
-    /*val args = Array(
+    //val args = Array("/Users/ochafik/ScalaCLPlugin/Test.scala", "-Ydebug")
+    /*val args = if (args0.length != 0) args0 else Array(
       "-bootclasspath",
       "/Users/ochafik/src/scala-2.8.x/build/quick/classes/library",
       "-cp",
@@ -59,9 +60,9 @@ object Compile {
       ).mkString(java.io.File.separator),
       "/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/symtab/Types.scala",
       "-Xprint:" + LoopsTransformComponent.phaseName,
-      "-Ydebug",
+      //"-Ydebug",
       "-optimise"
-    )*/
+    ) */
     //*/
     /*val args = Array(
       "-cp",
@@ -78,12 +79,26 @@ object Compile {
 Copyright Olivier Chafik 2010""")
   }
 
+  lazy val bootClassPath = {
+    import java.io.File
+    val scalaHomeEnv = System.getenv("SCALA_HOME")
+    if (scalaHomeEnv == null)
+        error("SCALA_HOME is not defined !")
+    val scalaHome = new File(System.getenv("SCALA_HOME"))
+    val scalaLib = new File(scalaHome, "lib")
+    val scalaLibraryJar = new File(scalaLib, "scala-library.jar")
+    Array(
+      System.getProperty("java.class.path","."),
+      scalaLibraryJar.getAbsolutePath
+    ).mkString(File.pathSeparator)
+  }
   def compilerMain(args: Array[String], enablePlugins: Boolean) = {
     copyrightMessage
     
     val extraArgs = List(
       //"-optimise",
-      "-bootclasspath", System.getProperty("java.class.path",".")
+      "-usejavacp",
+      "-bootclasspath", bootClassPath
     )
     val settings = new Settings
     

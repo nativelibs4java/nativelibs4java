@@ -142,24 +142,31 @@ trait RewritingPluginComponent {
           builder = builderInstance,
           set = null,//(bufferIdentGen, indexIdentGen) => null,
           add = (bufferIdentGen, itemIdentGen) => {
-            val addAssignMethod = builderTpe member addAssignName
-            Apply(
-              Select(
-                bufferIdentGen(),
-                addAssignName
-              ).setSymbol(addAssignMethod),
-              List(itemIdentGen())
-            ).setSymbol(addAssignMethod)
+            val addAssignMethod = (builderTpe member addAssignName).alternatives.head// filter (_.paramss.size == 1)
+            typed {
+              val bufferIdent = bufferIdentGen()
+              val t = Apply(
+                Select(
+                  bufferIdent,
+                  addAssignName
+                ).setSymbol(addAssignMethod),//.setType(bufferIdent.tpe),
+                List(itemIdentGen())
+              ).setSymbol(addAssignMethod)//.setType(bufferIdent.tpe)
+              //println(nodeToString(t))
+              t
+            }
           },
           result = bufferIdentGen => {
             val resultMethod = builderTpe member resultName
-            Apply(
-              Select(
-                bufferIdentGen(),
-                resultName
-              ).setSymbol(resultMethod),
-              Nil
-            ).setSymbol(resultMethod)
+            typed {
+              Apply(
+                Select(
+                  bufferIdentGen(),
+                  resultName
+                ).setSymbol(resultMethod),//.setType(resultMethod.tpe),//.setType(UnitClass.tpe),
+                Nil
+              ).setSymbol(resultMethod)//.setType(collectionType)//.setType(collectionType)//.setType(UnitClass.tpe)
+            }
           }
         )
       }
@@ -172,7 +179,12 @@ trait RewritingPluginComponent {
       override val supportsRightVariants = false
       override def filters: List[Tree] = filtersList
       override def colToString(tpe: Type) = "Range"
-      
+
+      override def newBuilderInstance(componentType: Type, localTyper: analyzer.Typer): (Type, Tree) = {
+        throw new UnsupportedOperationException("[scalacl] Unsupported operation : Range.newBuilder")
+        //val (typ, tree) = super.newBuilderInstance(componentType, localTyper)
+        //(typ)
+      }
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,

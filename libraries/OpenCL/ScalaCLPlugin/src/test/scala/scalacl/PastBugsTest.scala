@@ -47,6 +47,15 @@ class PastBugsTest extends TestUtils {
       }
     """)
   }
+
+  @Test
+  def yieldTuplesFromTuplesList {
+    ensurePluginCompilesSnippet("yieldTuplesFromTuplesList", """
+      val l1 = (1 to 5).toList.zipWithIndex
+      for ((a, b) <- l1)
+          yield (a, b)
+    """)
+  }
   
   @Test
   def yieldTuplesInMap {
