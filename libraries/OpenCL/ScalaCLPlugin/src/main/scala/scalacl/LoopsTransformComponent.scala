@@ -524,6 +524,51 @@ extends PluginComponent
                                 )
                               }
                             )
+                          case TraversalOp.Count =>
+                            colType.foreach[(IdentGen, Symbol)](
+                              tree,
+                              array,
+                              componentType,
+                              false,
+                              false,
+                              env => {
+                                val (countIdentGen, countSym, countDef) = newVariable(
+                                  unit,
+                                  "count$",
+                                  currentOwner,
+                                  tree.pos,
+                                  true,
+                                  newInt(0)
+                                )
+                                new LoopOuters(
+                                  List(
+                                    countDef
+                                  ),
+                                  countIdentGen(),
+                                  payload = (countIdentGen, countSym)
+                                )
+                              },
+                              env => {
+                                val (countIdentGen, countSym) = env.payload
+                                val cond = replaceOccurrences(
+                                  super.transform(body),
+                                  Map(
+                                    leftParam.symbol -> env.itemIdentGen
+                                  ),
+                                  Map(f.symbol -> currentOwner),
+                                  unit
+                                )
+                                LoopInners(
+                                  List(
+                                    If(
+                                      cond,
+                                      incrementIntVar(countIdentGen, newInt(1)),
+                                      newUnit
+                                    )
+                                  )
+                                )
+                              }
+                            )
                           case TraversalOp.FilterWhile(take) =>
                             colType.foreach[(CollectionBuilder, IdentGen, IdentGen, Symbol)](
                               tree,

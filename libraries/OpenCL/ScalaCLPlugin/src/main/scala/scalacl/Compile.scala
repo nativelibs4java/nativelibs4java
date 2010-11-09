@@ -50,7 +50,10 @@ SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=Test.scala|
 object Compile {
 
   def main(args: Array[String]) {
-    //val args = Array("/Users/ochafik/ScalaCLPlugin/Test.scala", "-Ydebug")
+    /*val args = Array("/Users/ochafik/ScalaCLPlugin/Test.scala",
+        "-Xprint:scalacl-loopstransform"
+        //"-Ydebug"
+        )*/
     /*val args = if (args0.length != 0) args0 else Array(
       "-bootclasspath",
       "/Users/ochafik/src/scala-2.8.x/build/quick/classes/library",

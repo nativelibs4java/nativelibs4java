@@ -61,6 +61,8 @@ extends MiscMatchers
       println(str)
       r
     } catch {
+      case ex: UnsupportedOperationException =>
+        throw ex
       case ex =>
         var str = 
           """An unexpected error occurred while attempting an optimization

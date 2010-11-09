@@ -128,8 +128,8 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 }
 
 object ScalaCLPlugin {
-  lazy val trace = true
-    //"1".equals(System.getenv("SCALACL_TRACE"))
+  lazy val trace = //true
+    "1".equals(System.getenv("SCALACL_TRACE"))
   
   type FileAndLineOptimizationFilter = (String, Int) => Boolean
   def components(global: Global, fileAndLineOptimizationFilter: FileAndLineOptimizationFilter) = List(

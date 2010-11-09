@@ -76,11 +76,38 @@ class PastBugsTest extends TestUtils {
               m(i) = (item, item)
               i += 1
             }
+            m
           }
       """
     )
   }
   
+  @Test
+  def yieldCaseClassFromTuples {
+    ensurePluginCompilesSnippet("yieldCaseClassFromTuples",
+      """
+          case class T(a: Int, b: Int)
+          for ((a, b) <- Array((1, 2), (2, 3))) yield T(a, b)
+      """
+    )/*,
+      """
+          case class T(a: Int, b: Int);
+          {
+            val array = Array((1, 2), (2, 3))
+            val n = array.length
+            var i = 0
+            val m = new Array[T](n)
+            while (i < n) {
+              val item = array(i)
+              m(i) = item match { case (a, b) => T(a, b) }
+              i += 1
+            }
+            m
+          }
+      """
+    )*/
+  }
+        
   @Test
   def lambdaLiftNestedMap {
     ensurePluginCompilesSnippetsToSameByteCode("lambdaLiftNestedMap",

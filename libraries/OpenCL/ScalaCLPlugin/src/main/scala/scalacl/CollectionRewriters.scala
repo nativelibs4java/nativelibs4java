@@ -149,9 +149,9 @@ trait RewritingPluginComponent {
                 Select(
                   bufferIdent,
                   addAssignName
-                ).setSymbol(addAssignMethod),//.setType(bufferIdent.tpe),
+                ).setSymbol(addAssignMethod).setType(addAssignMethod.tpe),//.setType(bufferIdent.tpe),
                 List(itemIdentGen())
-              ).setSymbol(addAssignMethod)//.setType(bufferIdent.tpe)
+              ).setSymbol(addAssignMethod).setType(UnitClass.tpe)//.setType(bufferIdent.tpe)
               //println(nodeToString(t))
               t
             }
@@ -163,9 +163,9 @@ trait RewritingPluginComponent {
                 Select(
                   bufferIdentGen(),
                   resultName
-                ).setSymbol(resultMethod),//.setType(resultMethod.tpe),//.setType(UnitClass.tpe),
+                ).setSymbol(resultMethod).setType(resultMethod.tpe),//.setType(UnitClass.tpe),
                 Nil
-              ).setSymbol(resultMethod)//.setType(collectionType)//.setType(collectionType)//.setType(UnitClass.tpe)
+              ).setSymbol(resultMethod).setType(collectionType)//.setType(collectionType)//.setType(UnitClass.tpe)
             }
           }
         )
@@ -181,6 +181,7 @@ trait RewritingPluginComponent {
       override def colToString(tpe: Type) = "Range"
 
       override def newBuilderInstance(componentType: Type, localTyper: analyzer.Typer): (Type, Tree) = {
+        // TODO wrap arrays in final return !!!
         throw new UnsupportedOperationException("[scalacl] Unsupported operation : Range.newBuilder")
         //val (typ, tree) = super.newBuilderInstance(componentType, localTyper)
         //(typ)
@@ -396,9 +397,9 @@ trait RewritingPluginComponent {
               Select(
                 New(TypeTree(builderType)),
                 builderType.typeSymbol.primaryConstructor
-              ).setSymbol(sym),
+              ).setSymbol(sym),//.setType(sym.tpe),
               Nil
-            ).setSymbol(sym)
+            ).setSymbol(sym)//.setType(builderType)
           }
         )
       } 

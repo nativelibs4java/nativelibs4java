@@ -222,6 +222,49 @@ trait MiscMatchers {
     lazy val GenericArrayOps = this("genericArrayOps")
     lazy val IntWrapper  = this("intWrapper")
     lazy val println  = this("println")
+    /*lazy val wrapArray = {
+      val hm = new scala.collection.mutable.HashMap[Type, (Tree, analyzer.Typer) => Tree]() {
+        override def default(key: Type) = (t: Tree, localTyper: analyzer.Typer) =>
+          typed {
+            val sym = Predef("wrapRefArray")
+            Apply(
+              Apply(
+                TypeApply(
+                  Select(
+                    TypeTree(PredefModule.tpe).setSymbol(PredefModule),
+                    sym
+                  ),
+                  List(TypeTree(key))
+                ),
+                List(t)
+              ),
+              List(localTyper.findManifest(key, false).tree)
+            )
+          }
+      }
+      hm ++= Map(
+        IntClass -> "wrapIntArray",
+        ShortClass -> "wrapShortArray",
+        ByteClass -> "wrapByteArray",
+        LongClass -> "wrapLongArray",
+        CharClass -> "wrapCharArray",
+        DoubleClass -> "wrapDoubleArray",
+        FloatClass -> "wrapFloatArray",
+        DoubleClass -> "wrapDoubleArray"
+      ).map { case (s, n) =>
+        (
+          s.tpe,
+          (t: Tree, localTyper: analyzer.Typer) =>
+            typed {
+              Apply(
+                Select(TypeTree(PredefModule.tpe), Predef(n)),
+                List(t)
+              )
+            }
+        )
+       }
+      hm
+    }*/
     
     def contains(sym: Symbol)        = sym.owner == PredefModule.moduleClass
     def apply(name: String): Symbol  = PredefModule.tpe member name
@@ -380,6 +423,10 @@ trait MiscMatchers {
     case object Sum extends TraversalOpType {
       override def methodName(isLeft: Boolean) = "sum"
     }
+    case object Count extends TraversalOpType {
+      override def methodName(isLeft: Boolean) = "count"
+      override val needsFunction: Boolean = true
+    }
     case object Min extends TraversalOpType {
       override def methodName(isLeft: Boolean) = "min"
       override val loopSkipsFirst = true
@@ -393,9 +440,6 @@ trait MiscMatchers {
     }
     case class FilterWhile(take: Boolean) extends TraversalOpType {
       override def methodName(isLeft: Boolean) = if (take) "takeWhile" else "dropWhile"
-    }
-    case object Count extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "count"
     }
     case object Map extends TraversalOpType {
       override def methodName(isLeft: Boolean) = "map"
