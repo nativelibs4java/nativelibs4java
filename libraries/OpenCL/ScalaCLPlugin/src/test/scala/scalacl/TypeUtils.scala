@@ -26,8 +26,10 @@ trait TypeUtils {
     "(Int, Int)" -> "(1, 1), (2, 2), (3, 3)"
   )
 
-  lazy val refValues = Array(
-    "String" -> "\"hello\"",
+  lazy val trivialRefValues = Array(
+    "String" -> "\"hello\""
+  )
+  lazy val refValues = trivialRefValues ++ Array(
     "List[Int]" -> "List(1)",
     "(Int, Int)" -> "(1, 1)"
   )

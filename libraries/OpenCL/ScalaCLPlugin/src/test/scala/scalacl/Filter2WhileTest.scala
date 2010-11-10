@@ -90,6 +90,33 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
       """
     )
   }
+
+
+  def simpleArrayFilter(typeStr: String, valueStr: String) = {
+    (
+      """
+          val a = Array(""" + valueStr + """)
+          val m = a.filter(_ != """ + valueStr + """)
+      """,
+      """
+          val m = {
+            val array1 = a
+            val n1 = array1.length
+            var i1 = 0
+            var builder1 = new scala.collection.mutable.ArrayBuilder.of""" + (if (primTypeNames.contains(typeStr)) typeStr else "Ref[" + typeStr + "]") + """
+            while (i1 < n1)
+            {
+              val item1 = array1(i1)
+              if (item1 != """ + valueStr + """)
+                builder1 += item1
+              i1 += 1
+            }
+            builder1.result
+          }
+      """
+    )
+  }
+
   @Test
   def simpleListFilter {
     ensurePluginCompilesSnippetsToSameByteCode("simpleListFilter",

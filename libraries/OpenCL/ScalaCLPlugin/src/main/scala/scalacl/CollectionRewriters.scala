@@ -45,9 +45,9 @@ trait RewritingPluginComponent {
 
   /// describes the outside of the loop (before - statements - and after - final return value)
   case class LoopOutersEnv(
-    aIdentGen: IdentGen,
-    aSym: Symbol,
-    nIdentGen: IdentGen
+    aVar: VarDef,
+    nVar: VarDef,
+    outputSizeVar: VarDef
   )
   /// describes the outside of the loop (before - statements - and after - final return value). Includes payload that will be visible from the inside
   case class LoopOuters[Payload](
@@ -64,11 +64,11 @@ trait RewritingPluginComponent {
   }
   /// describes the environment available to the inside of the loop
   case class LoopInnersEnv[Payload](
-    aIdentGen: IdentGen,
-    nIdentGen: IdentGen,
-    iIdentGen: IdentGen,
-    itemIdentGen: IdentGen,
-    itemSym: Symbol,
+    aVar: VarDef,
+    nVar: VarDef,
+    iVar: VarDef,
+    outputIndexVar: VarDef,
+    itemVar: VarDef,
     payload: Payload
   )
   case class LoopInners(
@@ -97,7 +97,7 @@ trait RewritingPluginComponent {
       val supportsRightVariants: Boolean
       def filters: List[Tree] = Nil
       def colToString(tpe: Type): String
-      def newBuilderInstance(componentType: Type, localTyper: analyzer.Typer): (Type, Tree)
+      def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree)
       def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): CollectionBuilder
       def foreach[Payload](
         tree: Tree,
@@ -137,9 +137,9 @@ trait RewritingPluginComponent {
     }
 
     trait HasBufferBuilder {
-      def newBuilderInstance(componentType: Type, localTyper: analyzer.Typer): (Type, Tree)
+      def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree)
       def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer) = {
-        val (builderTpe, builderInstance) = newBuilderInstance(componentType, localTyper)
+        val (builderTpe, builderInstance) = newBuilderInstance(componentType, knownSize, localTyper)
         CollectionBuilder(
           builder = builderInstance,
           set = null,//(bufferIdentGen, indexIdentGen) => null,
@@ -182,18 +182,31 @@ trait RewritingPluginComponent {
       override def filters: List[Tree] = filtersList
       override def colToString(tpe: Type) = "Range"
 
-      override def newArrayBuilderInfo(componentType: Type) = (appliedType(WrappedArrayBuilderClass.tpe, List(componentType)), Nil, true)
-      /*override def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer) = {
-        val cb = super.newBuilder(pos, componentType, collectionType, knownSize, localTyper)
+      override def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen) =
+        if (knownSize == null)
+          (appliedType(WrappedArrayBuilderClass.tpe, List(componentType)), Nil, true, true)
+        else
+          super.newArrayBuilderInfo(componentType, knownSize)
+
+      override def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer) = {
+        val cb = if (knownSize != null)
+          ArrayRewriter.newBuilder(pos, componentType, collectionType, knownSize, localTyper)
+        else
+          super.newBuilder(pos, componentType, collectionType, knownSize, localTyper)
+        
         cb.copy(result = bufferIdentGen => {
           val r = cb.result(bufferIdentGen)
-          //r.setType()
-          val outType = appliedType(collectionType, List(componentType))
           typed {
-            mkWrapArray(mkCast(r, appliedType(ArrayClass.tpe, List(componentType))), componentType).DOT(N("toIndexedSeq"))
+            (
+              if (knownSize == null)
+                r
+              else
+                mkWrapArray(mkCast(r, appliedType(ArrayClass.tpe, List(componentType))), componentType)
+            ).DOT(N("toIndexedSeq"))
           }
         })
-      }*/
+      }
+     
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,
@@ -204,19 +217,31 @@ trait RewritingPluginComponent {
         innerStatements: LoopInnersEnv[Payload] => LoopInners
       ): Tree = {
         val pos = tree.pos
-        assert(!reverseOrder)
-        val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
-        val (nIdentGen, nSym, nDef) = newVariable(unit, "n$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
-        val loopOuters = outerStatements(new LoopOutersEnv(null, null /* TODO */, nIdentGen))
-        val loopInners = new LoopInnersEnv[Payload](null, nIdentGen, iIdentGen, iIdentGen, iSym, loopOuters.payload)
+        //assert(!reverseOrder)
+        val fromVar = newVariable(unit, "from$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
+        val toVar = newVariable(unit, "to$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
+        val iVar = newVariable(unit, "i$", currentOwner, tree.pos, true, fromVar())
+        val nVar = newVariable(unit, "n$", currentOwner, tree.pos, false, toVar())
+        val outputSizeVar = newVariable(unit, "outputSize$", currentOwner, tree.pos, false, intDiv(intSub(toVar(), fromVar()), newInt(byValue)))
+        val outputIndexVar = newVariable(unit, "outputIndex$", currentOwner, tree.pos, true, if (reverseOrder) intSub(outputSizeVar(), newInt(1)) else newInt(0))
+        val loopOuters = outerStatements(new LoopOutersEnv(
+          null,
+          nVar,
+          outputSizeVar
+        ))
+        val loopInners = new LoopInnersEnv[Payload](null, nVar, iVar, outputIndexVar, iVar, loopOuters.payload)
         val LoopInners(statements, extraTest) = innerStatements(loopInners)
         typed {
           treeCopy.Block(
             tree,
-            List(
-              nDef,
-              iDef
+            List[Tree](
+              fromVar.definition,
+              toVar.definition,
+              nVar.definition,
+              iVar.definition
             ) ++
+            outputSizeVar.defIfUsed ++
+            outputIndexVar.defIfUsed ++
             loopOuters.typedStatements ++
             List(
               whileLoop(
@@ -225,7 +250,7 @@ trait RewritingPluginComponent {
                 tree,
                 boolAnd(
                   binOp(
-                    iIdentGen(),
+                    iVar(),
                     IntClass.tpe.member(
                       if (isUntil) {
                         if (byValue < 0) nme.GT else nme.LT
@@ -233,14 +258,15 @@ trait RewritingPluginComponent {
                         if (byValue < 0) nme.GE else nme.LE
                       }
                     ),
-                    nIdentGen()
+                    nVar()
                   ),
                   extraTest
                 ),
                 typed {
                   Block(
-                    statements,
-                    incrementIntVar(iIdentGen, newInt(byValue))
+                    statements ++
+                    outputIndexVar.ifUsed(incrementIntVar(outputIndexVar, newInt(if (reverseOrder) -1 else 1))),
+                    incrementIntVar(iVar, newInt(byValue))
                   )
                 }
               )
@@ -251,32 +277,36 @@ trait RewritingPluginComponent {
       }
     }
     trait ArrayBuilderTargetRewriter {
-      def newArrayBuilderInfo(componentType: Type) = primArrayBuilderClasses.get(componentType) match {
+      def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen) = primArrayBuilderClasses.get(componentType) match {
         case Some(t) =>
-          (t.tpe, Nil, false)
+          (t.tpe, Nil, false, false)
         case None =>
           if (componentType <:< AnyRefClass.tpe)
-            (appliedType(RefArrayBuilderClass.tpe, List(componentType)), Nil, true)
+            (appliedType(RefArrayBuilderClass.tpe, List(componentType)), Nil, true, false)
           else
-            (appliedType(ArrayBufferClass.tpe, List(componentType)), List(newInt(16)), false)
+            (appliedType(ArrayBufferClass.tpe, List(componentType)), List(newInt(16)), false, false)
       }
-      def newBuilderInstance(componentType: Type, localTyper: analyzer.Typer): (Type, Tree) = {
-        val (builderType, mainArgs, needsManifest) = newArrayBuilderInfo(componentType);
+      def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree) = {
+        val (builderType, mainArgs, needsManifest, manifestIsInMain) = newArrayBuilderInfo(componentType, knownSize);
         (
           builderType,
           typed {
+            val manifestList = if (needsManifest) List(localTyper.findManifest(componentType, false).tree) else null
             val sym = builderType.typeSymbol.primaryConstructor
             val n = Apply(
               Select(
                 New(TypeTree(builderType)),
                 sym
               ).setSymbol(sym),
-              mainArgs
+              if (needsManifest && manifestIsInMain)
+                manifestList
+              else
+                mainArgs
             ).setSymbol(sym)
-            if (needsManifest)
+            if (needsManifest && !manifestIsInMain)
               Apply(
                 n,
-                List(localTyper.findManifest(componentType, false).tree)
+                manifestList
               ).setSymbol(sym)
             else
               n
@@ -320,14 +350,14 @@ trait RewritingPluginComponent {
         innerStatements: LoopInnersEnv[Payload] => LoopInners
       ): Tree = {
         val pos = tree.pos
-        val (aIdentGen, aSym, aDef) = newVariable(unit, "array$", currentOwner, pos, false, collection)
-        val (nIdentGen, _, nDef) = newVariable(unit, "n$", currentOwner, pos, false, newArrayLength(aIdentGen()))
-        val (iIdentGen, _, iDef) = newVariable(unit, "i$", currentOwner, pos, true,
+        val aVar = newVariable(unit, "array$", currentOwner, pos, false, collection)
+        val nVar = newVariable(unit, "n$", currentOwner, pos, false, newArrayLength(aVar()))
+        val iVar = newVariable(unit, "i$", currentOwner, pos, true,
           if (reverseOrder) {
             if (skipFirst)
-              intSub(nIdentGen(), newInt(1))
+              intSub(nVar(), newInt(1))
             else
-              nIdentGen()
+              nVar()
           } else {
             if (skipFirst)
               newInt(1)
@@ -335,17 +365,18 @@ trait RewritingPluginComponent {
               newInt(0)
           }
         )
-        val (itemIdentGen, itemSym, itemDef) = newVariable(unit, "item$", currentOwner, pos, false, newApply(tree.pos, aIdentGen(), iIdentGen()))
-        val loopOuters = outerStatements(new LoopOutersEnv(aIdentGen, aSym, nIdentGen))
-        val loopInners = new LoopInnersEnv[Payload](aIdentGen, nIdentGen, iIdentGen, itemIdentGen, itemSym, loopOuters.payload)
+        val itemVar = newVariable(unit, "item$", currentOwner, pos, false, newApply(tree.pos, aVar(), iVar()))
+        //val outputIndexVar = newVariable(unit, "outputIndex$", currentOwner, tree.pos, false, if (reverseOrder) intSub(outputSizeVar(), newInt(1)) else newInt(0))
+        val loopOuters = outerStatements(new LoopOutersEnv(aVar, nVar, nVar))
+        val loopInners = new LoopInnersEnv[Payload](aVar, nVar, iVar, outputIndexVar = null, itemVar, loopOuters.payload)
         val LoopInners(statements, extraTest) = innerStatements(loopInners)
         typed {
           treeCopy.Block(
             tree,
             List(
-              aDef,
-              nDef,
-              iDef
+              aVar.definition,
+              nVar.definition,
+              iVar.definition
             ) ++
             loopOuters.typedStatements ++
             List(
@@ -356,33 +387,33 @@ trait RewritingPluginComponent {
                 boolAnd(
                   if (reverseOrder) // while (i > 0) { i--; statements }
                     binOp(
-                      iIdentGen(),
+                      iVar(),
                       IntClass.tpe.member(nme.GT),
                       newInt(0)
                     )
                   else // while (i < n) { statements; i++ }
                     binOp(
-                      iIdentGen(),
+                      iVar(),
                       IntClass.tpe.member(nme.LT),
-                      nIdentGen()
+                      nVar()
                     ),
                   extraTest
                 ),
                 typed {
                   val itemAndInnerStats =
-                    List(itemDef) ++
+                    List(itemVar.definition) ++
                     statements
 
                   if (reverseOrder)
                     Block(
-                      List(decrementIntVar(iIdentGen, newInt(1))) ++
+                      List(decrementIntVar(iVar, newInt(1))) ++
                       itemAndInnerStats,
                       newUnit
                     )
                   else
                     Block(
                       itemAndInnerStats,
-                      incrementIntVar(iIdentGen, newInt(1))
+                      incrementIntVar(iVar, newInt(1))
                     )
                 }
               )
@@ -395,7 +426,7 @@ trait RewritingPluginComponent {
     case object ListRewriter extends CollectionRewriter with HasBufferBuilder {
       override val supportsRightVariants = false
       override def colToString(tpe: Type) = tpe.toString
-      override def newBuilderInstance(componentType: Type, localTyper: analyzer.Typer): (Type, Tree) = {
+      override def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree) = {
         val builderType = appliedType(ListBufferClass.tpe, List(componentType))
         (
           builderType,
@@ -423,18 +454,18 @@ trait RewritingPluginComponent {
         assert(!reverseOrder)
         val pos = tree.pos
         val colTpe = collection.tpe
-        val (aIdentGen, aSym, aDef) = newVariable(unit, "list$", currentOwner, pos, true, collection)
-        val (itemIdentGen, itemSym, itemDef) = newVariable(unit, "item$", currentOwner, pos, false, typed {
-            Select(aIdentGen(), headName).setSymbol(colTpe.member(headName))//.setType(componentType.tpe)
+        val aVar = newVariable(unit, "list$", currentOwner, pos, true, collection)
+        val itemVar = newVariable(unit, "item$", currentOwner, pos, false, typed {
+            Select(aVar(), headName).setSymbol(colTpe.member(headName))//.setType(componentType.tpe)
         })
-        val loopOuters = outerStatements(new LoopOutersEnv(aIdentGen, aSym, null))
-        val loopInners = new LoopInnersEnv[Payload](aIdentGen, null, null, itemIdentGen, itemSym, loopOuters.payload)
+        val loopOuters = outerStatements(new LoopOutersEnv(aVar, null, null))
+        val loopInners = new LoopInnersEnv[Payload](aVar, null, null, null, itemVar, loopOuters.payload)
         val LoopInners(statements, extraTest) = innerStatements(loopInners)
         typed {
           treeCopy.Block(
             tree,
             List(
-              aDef
+              aVar.definition
             ) ++
             loopOuters.typedStatements ++
             List(
@@ -442,17 +473,17 @@ trait RewritingPluginComponent {
                 currentOwner,
                 unit,
                 tree,
-                boolAnd(boolNot(Select(aIdentGen(), isEmptyName).setSymbol(colTpe.member(isEmptyName)).setType(BooleanClass.tpe)), extraTest),
+                boolAnd(boolNot(Select(aVar(), isEmptyName).setSymbol(colTpe.member(isEmptyName)).setType(BooleanClass.tpe)), extraTest),
                 typed {
                   val itemAndInnerStats =
-                    List(itemDef) ++
+                    List(itemVar.definition) ++
                     statements
                   val sym = colTpe member tailName
                   Block(
                     itemAndInnerStats,//.map(typed),
                     Assign(
-                      aIdentGen(),
-                      Select(aIdentGen(), tailName).setSymbol(sym).setType(sym.tpe)//.setType(colTpe)
+                      aVar(),
+                      Select(aVar(), tailName).setSymbol(sym).setType(sym.tpe)//.setType(colTpe)
                     ).setType(UnitClass.tpe)
                   )
                 }

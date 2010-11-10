@@ -113,7 +113,6 @@ extends MiscMatchers
       result
     }
   }
-
   
   def newApply(pos: Position, array: => Tree, index: => Tree) = {
     val a = array
@@ -121,13 +120,14 @@ extends MiscMatchers
     typed {
       atPos(pos) {
         //a.DOT(N("apply"))(index)
+        val sym = getMember(a.symbol, nme.apply).filter(_.paramss.size == 1)
         Apply(
           Select(
             a,
             N("apply")
-          ).setSymbol(getMember(a.symbol, nme.apply)),
+          ).setSymbol(sym),
           List(index)
-        )
+        ).setSymbol(sym)
       }
     }
   }
@@ -158,13 +158,14 @@ extends MiscMatchers
     def newArrayWithArrayType(arrayType: Type, length: => Tree) =
       typed {
         //NEW(TypeTree(arrayType), length)
+        val sym = arrayType.typeSymbol.primaryConstructor
         Apply(
           Select(
             New(TypeTree(arrayType)),
-            arrayType.typeSymbol.primaryConstructor
-          ),
+            sym
+          ).setSymbol(sym),
           List(length)
-        )
+        ).setSymbol(sym)
       }
 
     
@@ -229,6 +230,9 @@ extends MiscMatchers
   def intAdd(a: => Tree, b: => Tree) =
     binOp(a, IntClass.tpe.member(nme.PLUS), b)
 
+  def intDiv(a: => Tree, b: => Tree) =
+    binOp(a, IntClass.tpe.member(nme.DIV), b)
+
   def intSub(a: => Tree, b: => Tree) =
     binOp(a, IntClass.tpe.member(nme.MINUS), b)
 
@@ -287,7 +291,19 @@ extends MiscMatchers
   def newUnit() = 
     Literal(Constant()).setType(UnitClass.tpe)
 
-    
+  case class VarDef(rawIdentGen: IdentGen, symbol: Symbol, definition: ValDef) {
+    var identUsed = false
+    val identGen: IdentGen = () => {
+      identUsed = true
+      rawIdentGen()
+    }
+    def apply() = identGen()
+
+    def defIfUsed = if (identUsed) Some(definition) else None
+    def ifUsed[V](v: => V) = if (identUsed) Some(v) else None
+  }
+  implicit def VarDev2IdentGen(vd: VarDef) = vd.identGen
+  
   def newVariable(
     unit: CompilationUnit,
     prefix: String,
@@ -295,7 +311,7 @@ extends MiscMatchers
     pos: Position,
     mutable: Boolean,
     initialValue: Tree
-  ): (IdentGen, Symbol, ValDef) = {
+  ) = {
     typed { initialValue }
     var tpe = initialValue.tpe
     if (tpe.isInstanceOf[ConstantType])
@@ -307,7 +323,7 @@ extends MiscMatchers
       else
         symbolOwner.newValue(pos, name)
     ).setInfo(tpe).setFlag(SYNTHETIC | LOCAL)
-    (() => ident(sym, name, pos), sym, ValDef(Modifiers(if (mutable) MUTABLE else 0), name, TypeTree(tpe), initialValue).setType(tpe).setSymbol(sym))
+    VarDef(() => ident(sym, name, pos), sym, ValDef(Modifiers(if (mutable) MUTABLE else 0), name, TypeTree(tpe), initialValue).setType(tpe).setSymbol(sym))
   }
 }
 

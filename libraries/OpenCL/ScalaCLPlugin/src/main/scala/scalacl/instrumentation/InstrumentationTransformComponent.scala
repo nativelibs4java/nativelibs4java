@@ -80,7 +80,7 @@ extends PluginComponent
         val logId = LogId(currentOwner.ownerChain.mkString(","), pos.source.file.path, pos.line, pos.offset.getOrElse(-1))
         msg(unit, pos, "instrumented " + logId) {
             val id = ids(logId)
-            val (logIdentGen, logSym, logDef) = newVariable(unit, "log", currentOwner, tree.pos, false, 
+            val logVar = newVariable(unit, "log", currentOwner, tree.pos, false,
                 Apply(
                   Select(
                      TypeTree(LogModule.tpe),
@@ -93,10 +93,10 @@ extends PluginComponent
               treeCopy.Block(
                 tree,
                 List(
-                    logDef,
+                    logVar.definition,
                     Apply(
                         typed { Select( // sym=method enter, sym.owner=class Log, sym.tpe=(id: Long)Unit, tpe=(id: Long)Unit, tpe.sym=<none>
-                          logIdentGen(),
+                          logVar(),
                           N("enter")
                         ).setSymbol(logEnterMethod) },
                         List(newLong(id))
@@ -107,7 +107,7 @@ extends PluginComponent
                     Nil,
                     Apply(
                         typed { Select( // sym=method enter, sym.owner=class Log, sym.tpe=(id: Long)Unit, tpe=(id: Long)Unit, tpe.sym=<none>
-                          logIdentGen(),
+                          logVar(),
                           N("exit")
                         ).setSymbol(logExitMethod) },
                         List(newLong(id))

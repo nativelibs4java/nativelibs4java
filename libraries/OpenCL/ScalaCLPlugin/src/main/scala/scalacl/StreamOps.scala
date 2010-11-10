@@ -131,13 +131,13 @@ trait StreamOps extends TreeBuilders {
       if (zippedIndexGen != null) {
         StreamOpResult(Nil, Nil, Nil, resultsIdentGens(zippedIndexGen), zippedIndexGen)
       } else {
-        val (indexIdentGen, indexSym, indexDef) = newVariable(unit, "index$", currentOwner, NoPosition, true, newInt(0))
+        val indexVar = newVariable(unit, "index$", currentOwner, NoPosition, true, newInt(0))
         StreamOpResult(
-          List(indexDef),
+          List(indexVar.definition),
           Nil,
-          List(incrementIntVar(indexIdentGen, newInt(1))),
-          resultsIdentGens(indexIdentGen),
-          indexIdentGen
+          List(incrementIntVar(indexVar, newInt(1))),
+          resultsIdentGens(indexVar),
+          indexVar
         )
       }
     }

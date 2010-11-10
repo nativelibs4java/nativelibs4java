@@ -102,27 +102,27 @@ extends PluginComponent
                   
               msg(unit, tree.pos, "transformed Array.tabulate[" + returnType + "] into equivalent while loop") {
                   
-                def replaceTabulates(lengthDefs: List[(TreeGen, Symbol, ValDef)], parentArrayIdentGen: TreeGen, params: List[ValDef], mappings: Map[Symbol, TreeGen], symbolReplacements: Map[Symbol, Symbol]): (Tree, Type) = {
+                def replaceTabulates(lengthDefs: List[VarDef], parentArrayIdentGen: IdentGen, params: List[ValDef], mappings: Map[Symbol, TreeGen], symbolReplacements: Map[Symbol, Symbol]): (Tree, Type) = {
               
                   val param = params.head
                   val pos = tree.pos
-                  val (nIdentGen, _, nDef) = lengthDefs.head
-                  val (iIdentGen, iSym, iDef) = newVariable(unit, "i$", currentOwner, pos, true, newInt(0))
+                  val nVar = lengthDefs.head
+                  val iVar = newVariable(unit, "i$", currentOwner, pos, true, newInt(0))
                   
-                  val newMappings = mappings + (param.symbol -> iIdentGen)
-                  val newReplacements = symbolReplacements ++ Map(param.symbol -> iSym, f.symbol -> currentOwner)
+                  val newMappings: Map[Symbol, TreeGen] = mappings + (param.symbol -> iVar)
+                  val newReplacements = symbolReplacements ++ Map(param.symbol -> iVar.symbol, f.symbol -> currentOwner)
                   
                   val mappedArrayTpe = getMappedArrayType(lengthDefs.size, returnType)
                   
-                  val (arrayIdentGen: TreeGen, arraySym, arrayDef) = if (parentArrayIdentGen == null)
-                    newVariable(unit, "m$", currentOwner, tree.pos, false, newArrayMulti(mappedArrayTpe, returnType, lengthDefs.map(_._1()), manifest))
+                  val arrayVar = if (parentArrayIdentGen == null)
+                    newVariable(unit, "m$", currentOwner, tree.pos, false, newArrayMulti(mappedArrayTpe, returnType, lengthDefs.map(_.identGen()), manifest))
                   else
-                    (parentArrayIdentGen, null, null)
+                    VarDef(parentArrayIdentGen, null, null)
                   
-                  val (subArrayIdentGen, _, subArrayDef) =  if (lengthDefs.tail == Nil)
-                    (null, null, null)
+                  val subArrayVar =  if (lengthDefs.tail == Nil)
+                    null
                   else
-                    newVariable(unit, "subArray$", currentOwner, tree.pos, false, newApply(tree.pos, arrayIdentGen(), iIdentGen()))
+                    newVariable(unit, "subArray$", currentOwner, tree.pos, false, newApply(tree.pos, arrayVar(), iVar()))
                                     
                   val (newBody, bodyType) = if (lengthDefs.tail == Nil)
                       (
@@ -137,7 +137,7 @@ extends PluginComponent
                   else
                       replaceTabulates(
                         lengthDefs.tail,
-                        subArrayIdentGen,
+                        subArrayVar,
                         params.tail,
                         newMappings,
                         newReplacements
@@ -152,20 +152,20 @@ extends PluginComponent
                           tree,
                           (
                             if (parentArrayIdentGen == null) 
-                                lengthDefs.map(_._3) ++ List(arrayDef) 
+                              lengthDefs.map(_.definition) ++ List(arrayVar.definition)
                             else 
-                                Nil
+                              Nil
                           ) ++
                           List(
-                            iDef,
+                            iVar.definition,
                             whileLoop(
                               currentOwner,
                               unit,
                               tree,
                               binOp(
-                                iIdentGen(),
+                                iVar(),
                                 IntClass.tpe.member(nme.LT),
-                                nIdentGen()
+                                nVar()
                               ),
                               Block(
                                 (
@@ -173,24 +173,24 @@ extends PluginComponent
                                     List(
                                       newUpdate(
                                         tree.pos,
-                                        arrayIdentGen(),
-                                        iIdentGen(),
+                                        arrayVar(),
+                                        iVar(),
                                         newBody
                                       )
                                     )
                                   else {
                                     List(
-                                      subArrayDef,
+                                      subArrayVar.definition,
                                       newBody
                                     )
                                   }
                                 ),
-                                incrementIntVar(iIdentGen, newInt(1))
+                                incrementIntVar(iVar, newInt(1))
                               )
                             )
                           ),
                           if (parentArrayIdentGen == null)
-                            arrayIdentGen()
+                            arrayVar()
                           else
                             newUnit
                         )
@@ -219,7 +219,7 @@ extends PluginComponent
                         env => {
                           val content = replaceOccurrences(
                             body,
-                            Map(param.symbol -> env.itemIdentGen),
+                            Map(param.symbol -> env.itemVar),
                             Map(f.symbol -> currentOwner),
                             unit
                           )
@@ -234,9 +234,9 @@ extends PluginComponent
                                       case Func(List(filterParam), filterBody) =>
                                         replaceOccurrences(
                                           filterBody,
-                                          Map(filterParam.symbol -> env.itemIdentGen),
+                                          Map(filterParam.symbol -> env.itemVar),
                                           Map(
-                                            filterParam.symbol -> env.itemSym,
+                                            filterParam.symbol -> env.itemVar.symbol,
                                             f.symbol -> currentOwner
                                           ),
                                           unit
@@ -287,7 +287,7 @@ extends PluginComponent
                         op match {
                           case TraversalOp.Reduce | TraversalOp.Fold | TraversalOp.Sum | TraversalOp.Min | TraversalOp.Max =>
                             val skipFirst = op.loopSkipsFirst
-                            colType.foreach[IdentGen](
+                            colType.foreach[VarDef](
                               tree,
                               array,
                               componentType,
@@ -295,7 +295,7 @@ extends PluginComponent
                               skipFirst,
                               env => {
                                 assert((initialValue == null) == !op.needsInitialValue) // no initial value for reduce-like ops only
-                                val (totIdentGen, _, totDef) = newVariable(unit, op + "$", currentOwner, tree.pos, true,
+                                val totVar = newVariable(unit, op + "$", currentOwner, tree.pos, true,
                                   if (initialValue == null) {
                                     op match {
                                       case TraversalOp.Sum =>
@@ -305,38 +305,38 @@ extends PluginComponent
                                         assert(skipFirst)
                                         newApply(
                                           tree.pos,
-                                          env.aIdentGen(),
+                                          env.aVar(),
                                           if (isLeft)
                                             newInt(0)
                                           else
-                                            intAdd(env.nIdentGen(), newInt(-1))
+                                            intAdd(env.nVar(), newInt(-1))
                                         )
                                     }
                                   } else
                                     initialValue
                                 )
-                                new LoopOuters(List(totDef), totIdentGen(), payload = totIdentGen)
+                                new LoopOuters(List(totVar.definition), totVar(), payload = totVar)
                               },
                               env => {
-                                val totIdentGen = env.payload
+                                val totVar = env.payload
                                 LoopInners(
                                   List(
                                     if (body == null) {
                                       assert(!op.needsFunction)
-                                      val totIdent = totIdentGen()
+                                      val totIdent = totVar()
                                       op match {
                                         case TraversalOp.Sum =>
-                                          Assign(totIdentGen(), binOp(totIdent, totIdent.tpe.member(nme.PLUS), env.itemIdentGen())).setType(UnitClass.tpe)
+                                          Assign(totVar(), binOp(totIdent, totIdent.tpe.member(nme.PLUS), env.itemVar())).setType(UnitClass.tpe)
                                         case TraversalOp.Min =>
                                           If(
-                                            binOp(env.itemIdentGen(), totIdent.tpe.member(nme.LT), totIdent),
-                                            Assign(totIdentGen(), env.itemIdentGen()).setType(UnitClass.tpe),
+                                            binOp(env.itemVar(), totIdent.tpe.member(nme.LT), totIdent),
+                                            Assign(totVar(), env.itemVar()).setType(UnitClass.tpe),
                                             newUnit
                                           )
                                         case TraversalOp.Max =>
                                           If(
-                                            binOp(env.itemIdentGen(), totIdent.tpe.member(nme.GT), totIdent),
-                                            Assign(totIdentGen(), env.itemIdentGen()).setType(UnitClass.tpe),
+                                            binOp(env.itemVar(), totIdent.tpe.member(nme.GT), totIdent),
+                                            Assign(totVar(), env.itemVar()).setType(UnitClass.tpe),
                                             newUnit
                                           )
                                         case _ =>
@@ -344,12 +344,12 @@ extends PluginComponent
                                       }
                                     } else {
                                       Assign(
-                                        totIdentGen(),
+                                        totVar(),
                                         replaceOccurrences(
                                           body,
                                           Map(
-                                            accParam.symbol -> totIdentGen,
-                                            newParam.symbol -> env.itemIdentGen
+                                            accParam.symbol -> totVar,
+                                            newParam.symbol -> env.itemVar
                                           ),
                                           Map(f.symbol -> currentOwner),
                                           unit
@@ -362,7 +362,7 @@ extends PluginComponent
                             )
                           case TraversalOp.Scan =>
                             //val mappedArrayTpe = appliedType(ArrayClass.tpe, List(resultType.tpe))
-                            colType.foreach[(CollectionBuilder, IdentGen, IdentGen, Symbol)](
+                            colType.foreach[(CollectionBuilder, VarDef, VarDef)](
                               tree,
                               array,
                               componentType,
@@ -374,10 +374,10 @@ extends PluginComponent
                                   collection.pos,
                                   componentType.tpe,
                                   mappedCollectionType,
-                                  () => intAdd(env.nIdentGen(), newInt(1)),
+                                  () => intAdd(env.nVar(), newInt(1)),
                                   localTyper
                                 )
-                                val (builderIdentGen, builderSym, builderDef) = newVariable(
+                                val builderVar = newVariable(
                                   unit,
                                   "builder$",
                                   currentOwner,
@@ -386,56 +386,56 @@ extends PluginComponent
                                   builderCreation
                                 )
                                 //val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(componentType.tpe, intAdd(env.nIdentGen(), newInt(1))))
-                                val (totIdentGen, totSym, totDef) = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)//.setType(IntClass.tpe))
+                                val totVar = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)//.setType(IntClass.tpe))
                                 new LoopOuters(
                                   List(
-                                    totDef,
-                                    builderDef,
-                                    cb.setOrAdd(builderIdentGen, () => newInt(0), totIdentGen)//, index, value)
+                                    totVar.definition,
+                                    builderVar.definition,
+                                    cb.setOrAdd(builderVar, () => newInt(0), totVar)//, index, value)
                                     //newUpdate(tree.pos, builderIdentGen(), newInt(0), totIdentGen())
                                   ),
                                   //builderIdentGen(),
-                                  builderResult(builderIdentGen),
-                                  payload = (cb, builderIdentGen, totIdentGen, totSym)
+                                  builderResult(builderVar),
+                                  payload = (cb, builderVar, totVar)
                                 )
                               },
                               env => {
-                                val (cb, builderIdentGen, totIdentGen, totSym) = env.payload
+                                val (cb, builderVar, totVar) = env.payload
                                 LoopInners(
                                   List(
                                     Assign(
-                                      totIdentGen(),
+                                      totVar(),
                                       replaceOccurrences(
                                         body,
                                         Map(
-                                          accParam.symbol -> totIdentGen,
-                                          newParam.symbol -> env.itemIdentGen
+                                          accParam.symbol -> totVar,
+                                          newParam.symbol -> env.itemVar
                                         ),
                                         Map(f.symbol -> currentOwner),
                                         unit
                                       )
                                     ).setType(UnitClass.tpe),
                                     cb.setOrAdd(
-                                      builderIdentGen,
+                                      builderVar,
                                       () => if (isLeft)
-                                        intAdd(env.iIdentGen(), newInt(1))
+                                        intAdd(env.iVar(), newInt(1))
                                       else
-                                        intSub(env.nIdentGen(), env.iIdentGen()),
-                                      totIdentGen
+                                        intSub(env.nVar(), env.iVar()),
+                                      totVar
                                     )
                                   )
                                 )
                               }
                             )
                           case TraversalOp.AllOrSome(all) =>
-                            colType.foreach[IdentGen](
+                            colType.foreach[VarDef](
                               tree,
                               array,
                               componentType,
                               false,
                               false,
                               env => {
-                                val (hasTrueIdentGen, hasTrueSym, hasTrueDef) = newVariable(
+                                val hasTrueVar = newVariable(
                                   unit,
                                   "hasTrue$",
                                   currentOwner,
@@ -445,22 +445,22 @@ extends PluginComponent
                                 )
                                 new LoopOuters(
                                   List(
-                                    hasTrueDef
+                                    hasTrueVar.definition
                                   ),
-                                  hasTrueIdentGen(),
-                                  payload = hasTrueIdentGen
+                                  hasTrueVar(),
+                                  payload = hasTrueVar
                                 )
                               },
                               env => {
-                                val hasTrueIdentGen = env.payload
+                                val hasTrueVar = env.payload
                                 LoopInners(
                                   List(
                                     Assign(
-                                        hasTrueIdentGen(),
+                                        hasTrueVar(),
                                         replaceOccurrences(
                                           super.transform(body),
                                           Map(
-                                            leftParam.symbol -> env.itemIdentGen
+                                            leftParam.symbol -> env.itemVar
                                           ),
                                           Map(f.symbol -> currentOwner),
                                           unit
@@ -468,14 +468,14 @@ extends PluginComponent
                                     )
                                   ),
                                   if (all)
-                                    hasTrueIdentGen()
+                                    hasTrueVar()
                                   else
-                                    boolNot(hasTrueIdentGen())
+                                    boolNot(hasTrueVar())
                                 )
                               }
                             )
                           case TraversalOp.Filter(not) =>
-                            colType.foreach[(CollectionBuilder, IdentGen, Symbol)](
+                            colType.foreach[(CollectionBuilder, VarDef)](
                               tree,
                               array,
                               componentType,
@@ -483,7 +483,7 @@ extends PluginComponent
                               false,
                               env => {
                                 val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType.tpe, null, null, localTyper)
-                                val (builderIdentGen, builderSym, builderDef) = newVariable(
+                                val builderVar = newVariable(
                                   unit,
                                   "builder$",
                                   currentOwner,
@@ -493,19 +493,19 @@ extends PluginComponent
                                 )
                                 new LoopOuters(
                                   List(
-                                    builderDef
+                                    builderVar.definition
                                   ),
-                                  builderResult(builderIdentGen),
-                                  payload = (cb, builderIdentGen, builderSym)
+                                  builderResult(builderVar),
+                                  payload = (cb, builderVar)
                                 )
                               },
                               env => {
-                                val (cb, builderIdentGen, builderSym) = env.payload
+                                val (cb, builderVar) = env.payload
                                 //val addAssignMethod = builderSym.tpe member addAssignName
                                 val cond = replaceOccurrences(
                                   super.transform(body),
                                   Map(
-                                    leftParam.symbol -> env.itemIdentGen
+                                    leftParam.symbol -> env.itemVar
                                   ),
                                   Map(f.symbol -> currentOwner),
                                   unit
@@ -517,7 +517,7 @@ extends PluginComponent
                                         boolNot(cond)
                                       else
                                         cond,
-                                      cb.add(builderIdentGen, env.itemIdentGen),
+                                      cb.add(builderVar, env.itemVar),
                                       newUnit
                                     )
                                   )
@@ -525,14 +525,14 @@ extends PluginComponent
                               }
                             )
                           case TraversalOp.Count =>
-                            colType.foreach[(IdentGen, Symbol)](
+                            colType.foreach[(VarDef)](
                               tree,
                               array,
                               componentType,
                               false,
                               false,
                               env => {
-                                val (countIdentGen, countSym, countDef) = newVariable(
+                                val countVar = newVariable(
                                   unit,
                                   "count$",
                                   currentOwner,
@@ -542,18 +542,18 @@ extends PluginComponent
                                 )
                                 new LoopOuters(
                                   List(
-                                    countDef
+                                    countVar.definition
                                   ),
-                                  countIdentGen(),
-                                  payload = (countIdentGen, countSym)
+                                  countVar(),
+                                  payload = countVar
                                 )
                               },
                               env => {
-                                val (countIdentGen, countSym) = env.payload
+                                val countVar = env.payload
                                 val cond = replaceOccurrences(
                                   super.transform(body),
                                   Map(
-                                    leftParam.symbol -> env.itemIdentGen
+                                    leftParam.symbol -> env.itemVar
                                   ),
                                   Map(f.symbol -> currentOwner),
                                   unit
@@ -562,7 +562,7 @@ extends PluginComponent
                                   List(
                                     If(
                                       cond,
-                                      incrementIntVar(countIdentGen, newInt(1)),
+                                      incrementIntVar(countVar, newInt(1)),
                                       newUnit
                                     )
                                   )
@@ -570,14 +570,14 @@ extends PluginComponent
                               }
                             )
                           case TraversalOp.FilterWhile(take) =>
-                            colType.foreach[(CollectionBuilder, IdentGen, IdentGen, Symbol)](
+                            colType.foreach[(CollectionBuilder, VarDef, VarDef)](
                               tree,
                               array,
                               componentType,
                               false,
                               false,
                               env => {
-                                val (passedIdentGen, passedSym, passedDef) = newVariable(
+                                val passedVar = newVariable(
                                   unit,
                                   "passed$",
                                   currentOwner,
@@ -586,7 +586,7 @@ extends PluginComponent
                                   newBool(false)
                                 )
                                 val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType.tpe, null, null, localTyper)
-                                val (builderIdentGen, builderSym, builderDef) = newVariable(
+                                val builderVar = newVariable(
                                   unit,
                                   "builder$",
                                   currentOwner,
@@ -596,21 +596,21 @@ extends PluginComponent
                                 )
                                 new LoopOuters(
                                   List(
-                                    builderDef,
-                                    passedDef
+                                    builderVar.definition,
+                                    passedVar.definition
                                   ),
-                                  builderResult(builderIdentGen),
-                                  payload = (cb, passedIdentGen, builderIdentGen, builderSym)
+                                  builderResult(builderVar),
+                                  payload = (cb, passedVar, builderVar)
                                 )
                               },
                               env => {
-                                val (cb, passedIdentGen, builderIdentGen, builderSym) = env.payload
+                                val (cb, passedVar, builderVar) = env.payload
                                 //val addAssignMethod = builderSym.tpe member addAssignName
                                 val cond = boolNot(
                                   replaceOccurrences(
                                     super.transform(body),
                                     Map(
-                                      leftParam.symbol -> env.itemIdentGen
+                                      leftParam.symbol -> env.itemVar
                                     ),
                                     Map(f.symbol -> currentOwner),
                                     unit
@@ -620,12 +620,12 @@ extends PluginComponent
                                   if (take) {
                                     List(
                                       Assign(
-                                        passedIdentGen(),
+                                        passedVar(),
                                         cond
                                       ).setType(UnitClass.tpe),
                                       If(
-                                        boolNot(passedIdentGen()),
-                                        cb.add(builderIdentGen, env.itemIdentGen),
+                                        boolNot(passedVar()),
+                                        cb.add(builderVar, env.itemVar),
                                         newUnit
                                       )
                                     )
@@ -633,24 +633,24 @@ extends PluginComponent
                                     List(
                                       If(
                                         boolOr(
-                                          passedIdentGen(),
+                                          passedVar(),
                                           Block(
                                             List(
                                               Assign(
-                                                passedIdentGen(),
+                                                passedVar(),
                                                 cond
                                               ).setType(UnitClass.tpe)
                                             ),
-                                            passedIdentGen()
+                                            passedVar()
                                           ).setType(BooleanClass.tpe)
                                         ),
-                                        cb.add(builderIdentGen, env.itemIdentGen),
+                                        cb.add(builderVar, env.itemVar),
                                         newUnit
                                       )
                                     )
                                   },
                                   if (take)
-                                    boolNot(passedIdentGen())
+                                    boolNot(passedVar())
                                   else
                                     null
                                 )
@@ -658,16 +658,16 @@ extends PluginComponent
                             )
                           case TraversalOp.Map =>
                             //array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
-                            colType.foreach[(CollectionBuilder, IdentGen, Symbol)](
+                            colType.foreach[(CollectionBuilder, VarDef)](
                               tree,
                               array,
                               componentType,
                               false,
                               false,
                               env => {
-                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, tree.tpe, env.nIdentGen, localTyper)
-                                //val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, mappedCollectionType, env.nIdentGen, localTyper)
-                                val (builderIdentGen, builderSym, builderDef) = newVariable(
+                                // TODO !!! val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, tree.tpe, env.outputSizeVar, localTyper)
+                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, tree.tpe, null, localTyper)
+                                val builderVar = newVariable(
                                   unit,
                                   "builder$",
                                   currentOwner,
@@ -677,24 +677,25 @@ extends PluginComponent
                                 )
                                 new LoopOuters(
                                   List(
-                                    builderDef
+                                    builderVar.definition
                                   ),
-                                  builderResult(builderIdentGen),
-                                  payload = (cb, builderIdentGen, builderSym)
+                                  builderResult(builderVar),
+                                  payload = (cb, builderVar)
                                 )
                               },
                               env => {
-                                val (cb, builderIdentGen, builderSym) = env.payload
+                                val (cb, builderVar) = env.payload
                                 val content = replaceOccurrences(
                                   super.transform(body),
                                   Map(
-                                    leftParam.symbol -> env.itemIdentGen
+                                    leftParam.symbol -> env.itemVar
                                   ),
                                   Map(f.symbol -> currentOwner),
                                   unit
                                 )
                                 LoopInners(
-                                  List(cb.setOrAdd(builderIdentGen, env.iIdentGen, () => content))
+                                  // TODO !!! List(cb.setOrAdd(builderVar, env.outputIndexVar, () => content))
+                                  List(cb.setOrAdd(builderVar, env.iVar, () => content))
                                 )
                               }
                             )

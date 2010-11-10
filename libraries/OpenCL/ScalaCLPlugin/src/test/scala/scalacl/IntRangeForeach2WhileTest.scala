@@ -33,6 +33,7 @@ package scalacl
 import java.io.File
 import org.junit._
 import Assert._
+import Function.{tupled, untupled}
 
 class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
   
@@ -52,6 +53,44 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
               t += 2 * i
             }
             i += 1
+          }
+      """
+    )
+  }
+  
+  @Test
+  def simpleRange2PrimitiveMap =
+    ensurePluginCompilesSnippetsToSameByteCode("simpleRange2PrimitiveMap", primValues map tupled { simpleRangeMap })
+
+  @Test
+  def simpleRange2RefMap =
+    ensurePluginCompilesSnippetsToSameByteCode("simpleRange2RefMap", trivialRefValues map tupled { simpleRangeMap })
+
+  def simpleRangeMap(typeStr: String, valueStr: String) = {
+    (
+      """
+          val m =
+            for (i <- 0 until 100)
+              yield """ + valueStr + """
+      """,
+      """
+          val m = {
+            val n = 100
+            var i = 0
+            var builder1 = new scala.collection.mutable.WrappedArrayBuilder[""" + typeStr + """](
+              """ + (
+              if (primTypeNames.contains(typeStr))
+                "scala.reflect.Manifest." + typeStr
+              else
+                "scala.reflect.ClassManifest.classType[" + typeStr + "](classOf[" + typeStr + "])"
+              ) + """
+            )
+            while (i < n)
+            {
+              builder1 +=(""" + valueStr + """)
+              i += 1
+            }
+            builder1.result.toIndexedSeq
           }
       """
     )
