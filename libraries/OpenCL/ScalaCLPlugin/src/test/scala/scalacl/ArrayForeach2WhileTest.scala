@@ -38,114 +38,12 @@ import Function.{tupled, untupled}
 class ArrayForeach2WhileTest extends TestUtils with TypeUtils {
 
   @Test
-  def simpleStringArrayForeach =
-    simpleArrayForeach("String")
-
-  @Test
-  def inlineStringArrayByLengthForeach =
-    inlineArrayByLengthForeach("String")
-
-  @Test
-  def inlineStringArrayWithElementsForeach =
-    inlineArrayWithElementsForeach("String", "\"a\", \"b\", \"c\"")
+  def simpleRefArrayForeach =
+    ensurePluginCompilesSnippetsToSameByteCode("simpleRefArrayForeach", refTypeNames map simpleArrayForeach)
 
   @Test
   def simplePrimitiveArrayForeach =
-    primTypeNames foreach simpleArrayForeach
-
-  @Test
-  def inlinePrimitiveArrayByLengthForeach =
-    primTypeNames foreach inlineArrayByLengthForeach
-
-  @Test
-  def inlinePrimitiveArrayWithElementsForeach =
-    primValuesList foreach tupled { inlineArrayWithElementsForeach }
-
-  def simpleArrayForeach(typeStr: String) {
-    ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ArrayForeach",
-      """
-          val a = new Array[""" + typeStr + """](10)
-          a.foreach(println(_))
-      """,
-      """
-          val a = new Array[""" + typeStr + """](10)
-          val aa = a
-          val n = aa.length
-          var i = 0
-          while (i < n)
-          {
-            val item = aa(i)
-            println(item)
-            i += 1
-          }
-      """
-    )
-  }
-
-  def inlineArrayByLengthForeach(typeStr: String) {
-    ensurePluginCompilesSnippetsToSameByteCode("inline" + typeStr + "ArrayForeach",
-      """
-          new Array[""" + typeStr + """](10).foreach(println(_))
-      """,
-      """ 
-          val aa = new Array[""" + typeStr + """](10)
-          val n = aa.length
-          var i = 0
-          while (i < n)
-          {
-            val item = aa(i)
-            println(item)
-            i += 1
-          }
-      """
-    )
-  }
-  def inlineArrayWithElementsForeach(typeStr: String, itemsStr: String) {
-    ensurePluginCompilesSnippetsToSameByteCode("inline" + typeStr + "ArrayWithElementsForeach",
-      """
-          Array(""" + itemsStr + """).foreach(println(_))
-      """,
-      """
-          val aa = Array(""" + itemsStr + """)
-          val n = aa.length
-          var i = 0
-          while (i < n)
-          {
-            val item = aa(i)
-            println(item)
-            i += 1
-          }
-      """
-    )
-  }
-}
-
-/*
-  @Test
-  def inlineStringArrayByLengthForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("inlineStringArrayByLengthForeach", Seq(inlineArrayByLengthForeach("String")))
-
-  @Test
-  def inlinePrimitiveArrayByLengthForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("inlinePrimitiveArrayByLengthForeach", primTypeNames.map(inlineArrayByLengthForeach))
-
-  @Test
-  def simpleStringArrayForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("simpleStringArrayForeach", Seq(simpleArrayForeach("String")))
-
-  @Test
-  def simplePrimitiveArrayForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("simplePrimitiveArrayForeach", primTypeNames.map(simpleArrayForeach))
-
-  @Test
-  def inlineStringArrayWithElementsForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("inlineStringArrayWithElementsForeach", Seq(inlineArrayWithElementsForeach("String", "\"a\", \"b\", \"c\"")))
-
-  @Test
-  def inlinePrimitiveArrayWithElementsForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("inlinePrimitiveArrayWithElementsForeach",
-      primTypeNames.map(p => inlineArrayWithElementsForeach(p, if (p == "Boolean") "true, true, false" else Array(1, 2, 3).map("(" + _ + ": " + p + ")").mkString(", ")))
-    )
+    ensurePluginCompilesSnippetsToSameByteCode("simplePrimitiveArrayForeach", primTypeNames map simpleArrayForeach)
 
   def simpleArrayForeach(typeStr: String) = {
     (
@@ -168,12 +66,20 @@ class ArrayForeach2WhileTest extends TestUtils with TypeUtils {
     )
   }
 
+  @Test
+  def inlineRefArrayByLengthForeach =
+    ensurePluginCompilesSnippetsToSameByteCode("inlineRefArrayByLengthForeach", refTypeNames map inlineArrayByLengthForeach)
+
+  @Test
+  def inlinePrimitiveArrayByLengthForeach =
+    ensurePluginCompilesSnippetsToSameByteCode("inlinePrimitiveArrayByLengthForeach", primTypeNames map inlineArrayByLengthForeach)
+
   def inlineArrayByLengthForeach(typeStr: String) = {
     (
       """
           new Array[""" + typeStr + """](10).foreach(println(_))
       """,
-      """
+      """ 
           val aa = new Array[""" + typeStr + """](10)
           val n = aa.length
           var i = 0
@@ -186,6 +92,15 @@ class ArrayForeach2WhileTest extends TestUtils with TypeUtils {
       """
     )
   }
+
+  @Test
+  def inlineRefArrayWithElementsForeach =
+    ensurePluginCompilesSnippetsToSameByteCode("inlineRefArrayWithElementsForeach", refValuesList map tupled { inlineArrayWithElementsForeach })
+
+  @Test
+  def inlinePrimitiveArrayWithElementsForeach =
+    ensurePluginCompilesSnippetsToSameByteCode("inlinePrimitiveArrayWithElementsForeach", primValuesList map tupled { inlineArrayWithElementsForeach })
+
   def inlineArrayWithElementsForeach(typeStr: String, itemsStr: String) = {
     (
       """
@@ -204,4 +119,4 @@ class ArrayForeach2WhileTest extends TestUtils with TypeUtils {
       """
     )
   }
- */
+}

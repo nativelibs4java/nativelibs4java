@@ -37,15 +37,15 @@ import Assert._
 class ListLoopsRewriteTest extends TestUtils with TypeUtils {
 
   @Test
-  def simpleStringListForeach =
-    simpleListForeach("String")
+  def simpleRefListForeach =
+    ensurePluginCompilesSnippetsToSameByteCode("simpleRefListForeach", refTypeNames map simpleListForeach)
 
   @Test
   def simplePrimitiveListForeach =
-    primTypeNames.foreach(simpleListForeach)
+    ensurePluginCompilesSnippetsToSameByteCode("simplePrimitiveListForeach", primTypeNames map simpleListForeach)
   
-  def simpleListForeach(typeStr: String) {
-    ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ListForeach",
+  def simpleListForeach(typeStr: String) = {
+    (
       """
           val a = List[""" + typeStr + """]()
           a.foreach(println(_))
@@ -65,15 +65,15 @@ class ListLoopsRewriteTest extends TestUtils with TypeUtils {
   }
 
   @Test
-  def simpleStringListMap =
-    simpleListMap("String")
+  def simpleRefListMap =
+    ensurePluginCompilesSnippetsToSameByteCode("simpleRefListMap", refTypeNames map simpleListMap)
 
   @Test
   def simplePrimitiveListMap =
-    primTypeNames.foreach(simpleListMap)
+    ensurePluginCompilesSnippetsToSameByteCode("simplePrimitiveListMap", primTypeNames map simpleListMap)
 
-  def simpleListMap(typeStr: String) {
-    ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ListMap",
+  def simpleListMap(typeStr: String) = {
+    (
       """
           val a = List[""" + typeStr + """]()
           val m = a.map(_ + "...")
