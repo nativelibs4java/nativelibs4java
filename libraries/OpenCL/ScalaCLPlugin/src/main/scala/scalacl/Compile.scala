@@ -84,10 +84,15 @@ Copyright Olivier Chafik 2010""")
 
   lazy val bootClassPath = {
     import java.io.File
-    val scalaHomeEnv = System.getenv("SCALA_HOME")
-    if (scalaHomeEnv == null)
+    var scalaHomeEnv = System.getenv("SCALA_HOME")
+    if (scalaHomeEnv == null) {
+      val f = "/Users/ochafik/bin/scala-2.8.0.final"
+      if (new File(f).exists)
+        scalaHomeEnv = f
+      else
         error("SCALA_HOME is not defined !")
-    val scalaHome = new File(System.getenv("SCALA_HOME"))
+    }
+    val scalaHome = new File(scalaHomeEnv)
     val scalaLib = new File(scalaHome, "lib")
     val scalaLibraryJar = new File(scalaLib, "scala-library.jar")
     Array(

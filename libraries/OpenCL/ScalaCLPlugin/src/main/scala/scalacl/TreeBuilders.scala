@@ -33,12 +33,14 @@ package scalacl
 import java.io.File
 
 import scala.tools.nsc.plugins.PluginComponent
+import scala.tools.nsc.ast.TreeDSL
 import scala.tools.nsc.transform.TypingTransformers
 import Function.tupled
 
 trait TreeBuilders
 extends MiscMatchers
    with TypingTransformers
+   with TreeDSL
 {
   //this: PluginComponent =>
   
@@ -46,7 +48,7 @@ extends MiscMatchers
   import global.definitions._
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed}    // methods to type trees
-
+  import CODE._
 
   /// print a message only if the operation succeeded :
   def msg[V](unit: CompilationUnit, pos: Position, text: String)(v: => V): V = {
@@ -118,6 +120,7 @@ extends MiscMatchers
     assert(a.tpe != null)
     typed {
       atPos(pos) {
+        //a.DOT(N("apply"))(index)
         Apply(
           Select(
             a,
@@ -154,6 +157,7 @@ extends MiscMatchers
 
     def newArrayWithArrayType(arrayType: Type, length: => Tree) =
       typed {
+        //NEW(TypeTree(arrayType), length)
         Apply(
           Select(
             New(TypeTree(arrayType)),
@@ -170,7 +174,7 @@ extends MiscMatchers
     val sym = getMember(a.symbol, nme.update)
     typed {
       atPos(pos) {
-        val t =
+        //a.DOT(N("update"))(index, value)
         Apply(
           Select(
             a,
@@ -180,7 +184,6 @@ extends MiscMatchers
         ).setSymbol(sym).setType(UnitClass.tpe)
         //println(nodeToString(t))
         //treeBrowsers.create.browse(t)
-        t
       }
     }
   }
@@ -190,6 +193,7 @@ extends MiscMatchers
   }
 
   def newArrayLength(a: Tree) =
+    //a.DOT(nme.length)
     Select(a, nme.length).setSymbol(getMember(a.symbol, nme.length)).setType(IntClass.tpe)
   
   def boolAnd(a: Tree, b: Tree) = typed {
@@ -229,12 +233,14 @@ extends MiscMatchers
     binOp(a, IntClass.tpe.member(nme.MINUS), b)
 
   def incrementIntVar(identGen: IdentGen, value: Tree) =
+    //identGen() === intSub(identGen(), value)
     Assign(
       identGen(),
       intAdd(identGen(), value)
     ).setType(UnitClass.tpe)
 
   def decrementIntVar(identGen: IdentGen, value: Tree) =
+    //identGen() === intSub(identGen(), value)
     Assign(
       identGen(),
       intSub(identGen(), value)

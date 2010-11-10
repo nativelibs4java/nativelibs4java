@@ -61,7 +61,7 @@ class SharedCompiler(enablePlugins: Boolean) {
       run
     } catch {
       case _ =>
-        println("Compilation failed, retrying with a new compiler instance")
+        //println("Compilation failed, retrying with a new compiler instance")
         newInstances
         run
     }

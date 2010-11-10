@@ -33,8 +33,9 @@ package scalacl
 import java.io.File
 import org.junit._
 import Assert._
+import Function.{tupled, untupled}
 
-class ArrayForeach2WhileTest extends TestUtils {
+class ArrayForeach2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def simpleStringArrayForeach =
@@ -50,18 +51,15 @@ class ArrayForeach2WhileTest extends TestUtils {
 
   @Test
   def simplePrimitiveArrayForeach =
-    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
-      simpleArrayForeach(p)
+    primTypeNames foreach simpleArrayForeach
 
   @Test
   def inlinePrimitiveArrayByLengthForeach =
-    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
-      inlineArrayByLengthForeach(p)
+    primTypeNames foreach inlineArrayByLengthForeach
 
   @Test
   def inlinePrimitiveArrayWithElementsForeach =
-    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
-      inlineArrayWithElementsForeach(p, if (p == "Boolean") "true, true, false" else Array(1, 2, 3).map("(" + _ + ": " + p + ")").mkString(", "))
+    primValuesList foreach tupled { inlineArrayWithElementsForeach }
 
   def simpleArrayForeach(typeStr: String) {
     ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ArrayForeach",

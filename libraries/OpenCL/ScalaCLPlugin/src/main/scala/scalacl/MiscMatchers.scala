@@ -133,6 +133,7 @@ trait MiscMatchers {
   val packageName = N("package")
   lazy val ArrayBufferClass = definitions.getClass("scala.collection.mutable.ArrayBuffer")
   lazy val RefArrayBuilderClass = definitions.getClass("scala.collection.mutable.ArrayBuilder.ofRef")
+  lazy val WrappedArrayBuilderClass = definitions.getClass("scala.collection.mutable.WrappedArrayBuilder")
   lazy val ListBufferClass = definitions.getClass("scala.collection.mutable.ListBuffer")
   lazy val primArrayBuilderClasses = Array(
     (IntClass.tpe, "ofInt"),
@@ -222,50 +223,7 @@ trait MiscMatchers {
     lazy val GenericArrayOps = this("genericArrayOps")
     lazy val IntWrapper  = this("intWrapper")
     lazy val println  = this("println")
-    /*lazy val wrapArray = {
-      val hm = new scala.collection.mutable.HashMap[Type, (Tree, analyzer.Typer) => Tree]() {
-        override def default(key: Type) = (t: Tree, localTyper: analyzer.Typer) =>
-          typed {
-            val sym = Predef("wrapRefArray")
-            Apply(
-              Apply(
-                TypeApply(
-                  Select(
-                    TypeTree(PredefModule.tpe).setSymbol(PredefModule),
-                    sym
-                  ),
-                  List(TypeTree(key))
-                ),
-                List(t)
-              ),
-              List(localTyper.findManifest(key, false).tree)
-            )
-          }
-      }
-      hm ++= Map(
-        IntClass -> "wrapIntArray",
-        ShortClass -> "wrapShortArray",
-        ByteClass -> "wrapByteArray",
-        LongClass -> "wrapLongArray",
-        CharClass -> "wrapCharArray",
-        DoubleClass -> "wrapDoubleArray",
-        FloatClass -> "wrapFloatArray",
-        DoubleClass -> "wrapDoubleArray"
-      ).map { case (s, n) =>
-        (
-          s.tpe,
-          (t: Tree, localTyper: analyzer.Typer) =>
-            typed {
-              Apply(
-                Select(TypeTree(PredefModule.tpe), Predef(n)),
-                List(t)
-              )
-            }
-        )
-       }
-      hm
-    }*/
-    
+
     def contains(sym: Symbol)        = sym.owner == PredefModule.moduleClass
     def apply(name: String): Symbol  = PredefModule.tpe member name
     def unapply(tree: Tree): Boolean = tree.symbol == PredefModule

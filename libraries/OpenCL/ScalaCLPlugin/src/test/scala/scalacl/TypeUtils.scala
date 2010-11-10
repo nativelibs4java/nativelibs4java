@@ -5,7 +5,7 @@
 
 package scalacl
 
-object TypeUtils {
+trait TypeUtils {
 
   lazy val primValues = Map(
     "Double" -> "1.0",
@@ -16,7 +16,10 @@ object TypeUtils {
     "Byte" -> "(1: Byte)",
     "Char" -> "'a'",
     "Boolean" -> "true")
-  
+
+  lazy val primValuesList =
+    primTypeNames.map(p => (p, if (p == "Boolean") "true, true, false" else Array(1, 2, 3).map("(" + _ + ": " + p + ")").mkString(", ")))
+
   lazy val refValues = Map(
     "String" -> "\"hello\"",
     "(Int, Int)" -> "(1, 1)"

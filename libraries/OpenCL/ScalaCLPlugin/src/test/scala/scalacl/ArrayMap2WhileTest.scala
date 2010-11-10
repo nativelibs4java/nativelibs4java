@@ -33,8 +33,9 @@ package scalacl
 import java.io.File
 import org.junit._
 import Assert._
+import Function.{tupled, untupled}
 
-class ArrayMap2WhileTest extends TestUtils {
+class ArrayMap2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def simpleStringArrayTabulate =
@@ -50,13 +51,11 @@ class ArrayMap2WhileTest extends TestUtils {
 
   @Test
   def simplePrimitiveArrayTabulate =
-    for ((p, v) <- Seq(("Double", "1.0"), ("Float", "1f"), ("Int", "1"), ("Short", "(1: Short)"), ("Long", "1L"), ("Byte", "(1: Byte)"), ("Char", "'a'"), ("Boolean", "true")))
-      simpleArrayTabulate(p, v)
+    primValues foreach tupled { simpleArrayTabulate }
 
   @Test
   def nestedPrimitiveArrayTabulate =
-    for ((p, v) <- Seq(("Double", "1.0"), ("Float", "1f"), ("Int", "1"), ("Short", "(1: Short)"), ("Long", "1L"), ("Byte", "(1: Byte)"), ("Char", "'a'"), ("Boolean", "true")))
-      nestedArrayTabulate(p, v)
+    primValues foreach tupled { nestedArrayTabulate }
 
   def simpleArrayTabulate(typeStr: String, valStr: String) {
     ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ArrayTabulate",
@@ -119,13 +118,11 @@ class ArrayMap2WhileTest extends TestUtils {
 
   @Test
   def simplePrimitiveArrayMap =
-    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
-      simpleArrayMap(p)
+    primTypeNames foreach simpleArrayMap
 
   @Test
   def inlinePrimitiveArrayMap =
-    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
-      inlineArrayMap(p)
+    primTypeNames foreach inlineArrayMap
 
   @Test
   def inlineStringArrayMap =

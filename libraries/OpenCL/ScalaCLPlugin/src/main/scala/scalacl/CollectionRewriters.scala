@@ -30,6 +30,7 @@
  */
 package scalacl
 
+import scala.tools.nsc.ast.TreeDSL
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.TypingTransformers
 
@@ -37,9 +38,10 @@ trait RewritingPluginComponent {
 
   this: PluginComponent with TreeBuilders =>
   import global._
+  import gen._
   import definitions._
   import typer.typed
-
+  import CODE._
 
   /// describes the outside of the loop (before - statements - and after - final return value)
   case class LoopOutersEnv(
@@ -149,9 +151,9 @@ trait RewritingPluginComponent {
                 Select(
                   bufferIdent,
                   addAssignName
-                ).setSymbol(addAssignMethod).setType(addAssignMethod.tpe),//.setType(bufferIdent.tpe),
+                ).setSymbol(addAssignMethod).setType(addAssignMethod.tpe),
                 List(itemIdentGen())
-              ).setSymbol(addAssignMethod).setType(UnitClass.tpe)//.setType(bufferIdent.tpe)
+              ).setSymbol(addAssignMethod).setType(UnitClass.tpe)
               //println(nodeToString(t))
               t
             }
@@ -174,18 +176,24 @@ trait RewritingPluginComponent {
     case class IntRangeRewriter(from: Tree, to: Tree, byValue: Int, isUntil: Boolean, filtersList: List[Tree]) 
     extends CollectionRewriter 
        with HasBufferBuilder 
-       with ArrayBuilderTargetRewriter {
-      //IntRange(from, to, by, isUntil, filters), f @ Func(List(param), body))
+       with ArrayBuilderTargetRewriter
+    {
       override val supportsRightVariants = false
       override def filters: List[Tree] = filtersList
       override def colToString(tpe: Type) = "Range"
 
-      override def newBuilderInstance(componentType: Type, localTyper: analyzer.Typer): (Type, Tree) = {
-        // TODO wrap arrays in final return !!!
-        throw new UnsupportedOperationException("[scalacl] Unsupported operation : Range.newBuilder")
-        //val (typ, tree) = super.newBuilderInstance(componentType, localTyper)
-        //(typ)
-      }
+      override def newArrayBuilderInfo(componentType: Type) = (appliedType(WrappedArrayBuilderClass.tpe, List(componentType)), Nil, true)
+      /*override def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer) = {
+        val cb = super.newBuilder(pos, componentType, collectionType, knownSize, localTyper)
+        cb.copy(result = bufferIdentGen => {
+          val r = cb.result(bufferIdentGen)
+          //r.setType()
+          val outType = appliedType(collectionType, List(componentType))
+          typed {
+            mkWrapArray(mkCast(r, appliedType(ArrayClass.tpe, List(componentType))), componentType).DOT(N("toIndexedSeq"))
+          }
+        })
+      }*/
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,
@@ -243,16 +251,17 @@ trait RewritingPluginComponent {
       }
     }
     trait ArrayBuilderTargetRewriter {
+      def newArrayBuilderInfo(componentType: Type) = primArrayBuilderClasses.get(componentType) match {
+        case Some(t) =>
+          (t.tpe, Nil, false)
+        case None =>
+          if (componentType <:< AnyRefClass.tpe)
+            (appliedType(RefArrayBuilderClass.tpe, List(componentType)), Nil, true)
+          else
+            (appliedType(ArrayBufferClass.tpe, List(componentType)), List(newInt(16)), false)
+      }
       def newBuilderInstance(componentType: Type, localTyper: analyzer.Typer): (Type, Tree) = {
-        val (builderType, mainArgs, needsManifest) = primArrayBuilderClasses.get(componentType) match {
-          case Some(t) =>
-            (t.tpe, Nil, false)
-          case None =>
-            if (componentType <:< AnyRefClass.tpe)
-              (appliedType(RefArrayBuilderClass.tpe, List(componentType)), Nil, true)
-            else
-              (appliedType(ArrayBufferClass.tpe, List(componentType)), List(newInt(16)), false)
-        };
+        val (builderType, mainArgs, needsManifest) = newArrayBuilderInfo(componentType);
         (
           builderType,
           typed {
@@ -280,10 +289,9 @@ trait RewritingPluginComponent {
       override def colToString(tpe: Type) = tpe.toString
       
       override def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer) = {
-        if (knownSize != null) {//} && collectionType != null) {
+        if (knownSize != null) {
           CollectionBuilder(
-            builder = newArray(//WithArrayType(
-              //collectionType.tpe,
+            builder = newArray(
               componentType,
               knownSize()
             ),

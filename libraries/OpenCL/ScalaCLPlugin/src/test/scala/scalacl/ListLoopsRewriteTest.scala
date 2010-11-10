@@ -34,7 +34,7 @@ import java.io.File
 import org.junit._
 import Assert._
 
-class ListLoopsRewriteTest extends TestUtils {
+class ListLoopsRewriteTest extends TestUtils with TypeUtils {
 
   @Test
   def simpleStringListForeach =
@@ -42,8 +42,7 @@ class ListLoopsRewriteTest extends TestUtils {
 
   @Test
   def simplePrimitiveListForeach =
-    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
-      simpleListForeach(p)
+    primTypeNames.foreach(simpleListForeach)
   
   def simpleListForeach(typeStr: String) {
     ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ListForeach",
@@ -71,8 +70,7 @@ class ListLoopsRewriteTest extends TestUtils {
 
   @Test
   def simplePrimitiveListMap =
-    for (p <- Seq("Double", "Float", "Int", "Short", "Long", "Byte", "Char", "Boolean"))
-      simpleListMap(p)
+    primTypeNames.foreach(simpleListMap)
 
   def simpleListMap(typeStr: String) {
     ensurePluginCompilesSnippetsToSameByteCode("simple" + typeStr + "ListMap",

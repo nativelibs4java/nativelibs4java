@@ -33,8 +33,9 @@ package scalacl
 import java.io.File
 import org.junit._
 import Assert._
+import Function.{tupled, untupled}
 
-class Filter2WhileTest extends TestUtils {
+class Filter2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def simplePrimitiveArrayFilter {
