@@ -302,7 +302,7 @@ extends MiscMatchers
     def defIfUsed = if (identUsed) Some(definition) else None
     def ifUsed[V](v: => V) = if (identUsed) Some(v) else None
   }
-  implicit def VarDev2IdentGen(vd: VarDef) = vd.identGen
+  implicit def VarDev2IdentGen(vd: VarDef) = if (vd == null) null else vd.identGen
   
   def newVariable(
     unit: CompilationUnit,
