@@ -665,8 +665,8 @@ extends PluginComponent
                               false,
                               false,
                               env => {
-                                // TODO !!! val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, tree.tpe, env.outputSizeVar, localTyper)
-                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, tree.tpe, null, localTyper)
+                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, tree.tpe, env.outputSizeVar, localTyper)
+                                //val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, tree.tpe, null, localTyper)
                                 val builderVar = newVariable(
                                   unit,
                                   "builder$",

@@ -189,22 +189,25 @@ trait RewritingPluginComponent {
           super.newArrayBuilderInfo(componentType, knownSize)
 
       override def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer) = {
-        val cb = if (knownSize != null)
-          ArrayRewriter.newBuilder(pos, componentType, collectionType, knownSize, localTyper)
-        else
+        val cb = // TODO !!! if (knownSize != null)
+          //ArrayRewriter.newBuilder(pos, componentType, collectionType, knownSize, localTyper)
+        //else
           super.newBuilder(pos, componentType, collectionType, knownSize, localTyper)
-        
-        cb.copy(result = bufferIdentGen => {
-          val r = cb.result(bufferIdentGen)
-          typed {
-            (
-              if (knownSize == null)
-                r
-              else
-                mkWrapArray(mkCast(r, appliedType(ArrayClass.tpe, List(componentType))), componentType)
-            ).DOT(N("toIndexedSeq"))
-          }
-        })
+
+        //if (knownSize != null)
+          //cb
+        //else
+          cb.copy(result = bufferIdentGen => {
+            val r = cb.result(bufferIdentGen)
+            typed {
+              (
+                if (knownSize == null)
+                  r
+                else
+                  mkWrapArray(mkCast(r, appliedType(ArrayClass.tpe, List(componentType))), componentType)
+              ).DOT(N("toIndexedSeq"))
+            }
+          })
       }
      
       override def foreach[Payload](
