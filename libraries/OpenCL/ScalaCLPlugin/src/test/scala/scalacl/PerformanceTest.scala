@@ -65,7 +65,7 @@ class PerformanceTest extends TestUtils {
   /*********
    * Array *
    *********/
-  @Test def simpleArrayTabulate = ensureFasterCodeWithSameResult(null, "Array.tabulate(n)(i => i).toSeq")
+  @Test def simpleArrayTabulate =  if (!skip) ensureFasterCodeWithSameResult(null, "Array.tabulate(n)(i => i).toSeq")
   @Test def simpleArrayFilter = testFilter(arr)           
   @Test def simpleArrayFilterNot = testFilterNot(arr)     
   @Test def simpleArrayCount = testCount(arr)             
@@ -85,7 +85,7 @@ class PerformanceTest extends TestUtils {
   @Test def simpleArrayReduceLeft = testReduceLeft(arr)   
   @Test def simpleArrayReduceRight = testReduceRight(arr) 
   
-  @Test def simpleMatrixTest = ensureFasterCodeWithSameResult(
+  @Test def simpleMatrixTest = if (!skip) ensureFasterCodeWithSameResult(
   """
     val a = Array.tabulate[Double](n, n)(_ + _)
     val b = Array.tabulate[Double](n, n)(_ + _)
@@ -108,58 +108,58 @@ class PerformanceTest extends TestUtils {
   val firstHalfPred = "x => x < n / 2"
   val midPred = "x => x == n / 2"
   
-  def testFilter(cc: (String, String)) = 
+  def testFilter(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".filter(" + oddPred + ").toSeq")
 
-  def testFilterNot(cc: (String, String)) = 
+  def testFilterNot(cc: (String, String)) = if (!skip) 
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".filterNot(" + oddPred + ").toSeq")
 
-  def testCount(cc: (String, String)) = 
+  def testCount(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".count(" + oddPred + ")")
 
-  def testForeach(cc: (String, String)) = 
+  def testForeach(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, "var tot = 0L; for (v <- " + cc._2 + ") { tot += v }; tot")
 
-  def testMap(cc: (String, String)) = 
+  def testMap(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".map(_ + 1).toSeq")
 
-  def testTakeWhile(cc: (String, String)) = 
+  def testTakeWhile(cc: (String, String)) = if (!skip) 
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".takeWhile(" + firstHalfPred + ").toSeq")
 
-  def testDropWhile(cc: (String, String)) = 
+  def testDropWhile(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".dropWhile(" + firstHalfPred + ").toSeq")
 
-  def testExists(cc: (String, String)) = 
+  def testExists(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".exists(" + midPred + ")")
 
-  def testForall(cc: (String, String)) = 
+  def testForall(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".forall(" + firstHalfPred + ")")
 
-  def testSum(cc: (String, String)) = 
+  def testSum(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".sum")
 
-  def testMin(cc: (String, String)) = 
+  def testMin(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".min")
 
-  def testMax(cc: (String, String)) = 
+  def testMax(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".max")
 
-  def testReduceLeft(cc: (String, String)) = 
+  def testReduceLeft(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".reduceLeft(_ + _)")
 
-  def testReduceRight(cc: (String, String)) = 
+  def testReduceRight(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".reduceRight(_ + _)")
 
-  def testFoldLeft(cc: (String, String)) = 
+  def testFoldLeft(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".foldLeft(0)(_ + _)")
 
-  def testFoldRight(cc: (String, String)) = 
+  def testFoldRight(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".foldRight(0)(_ + _)")
 
-  def testScanLeft(cc: (String, String)) = 
+  def testScanLeft(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".scanLeft(0)(_ + _).toSeq")
 
-  def testScanRight(cc: (String, String)) = 
+  def testScanRight(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".scanRight(0)(_ + _).toSeq")
 
 }

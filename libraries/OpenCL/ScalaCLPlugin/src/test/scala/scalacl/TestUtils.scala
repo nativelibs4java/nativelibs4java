@@ -30,7 +30,7 @@ object SharedCompilerWithoutPlugins extends SharedCompiler(false)
 //object SharedCompilerWithoutPlugins1 extends SharedCompiler(false)
 //object SharedCompilerWithoutPlugins2 extends SharedCompiler(false)
 
-object TestResults {
+object Results {
   import java.io._
   import java.util.Properties
   def getPropertiesFileName(n: String) = n + ".perf.properties"
@@ -179,7 +179,7 @@ trait TestUtils {
 
   import java.io._
 
-  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(100000, 1000, 10, 3), nRuns: Int = 10) = {
+  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(100000, 1000, 10), nRuns: Int = 30) = {
     val packageName = "tests"
 
     val testTrace = new RuntimeException().getStackTrace.filter(se => se.getClassName.endsWith("Test")).last
@@ -269,7 +269,7 @@ trait TestUtils {
       else
         (a == null) || a.equals(b)
     }
-    val (logName, log, properties) = TestResults.getLog(testClassName)
+    val (logName, log, properties) = Results.getLog(testClassName)
     
     def fail(msg: String) = {
       println(msg)
