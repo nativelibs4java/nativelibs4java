@@ -75,16 +75,11 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
       """,
       """
           val m = {
-            val n = 100
-            var i = 0
-            var builder1 = new scala.collection.mutable.WrappedArrayBuilder[""" + typeStr + """](
-              """ + (
-              if (primTypeNames.contains(typeStr))
-                "scala.reflect.Manifest." + typeStr
-              else
-                "scala.reflect.ClassManifest.classType[" + typeStr + "](classOf[" + typeStr + "])"
-              ) + """
-            )
+            val from = 0
+            val to = 100
+            val n = to
+            var i = from
+            var builder1 = new Array[""" + typeStr + """](to - from)
             while (i < n)
             {
               builder1 +=(""" + valueStr + """)
@@ -95,7 +90,32 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
       """
     )
   }
-  
+
+  @Test
+  def simpleRangeFilter = {
+    (
+      """
+          (0 until 100).filter(_ != 50)
+      """,
+      """
+          {
+            val from = 0
+            val to = 100
+            val n = to
+            var i = from
+            var builder1 = new scala.collection.immutable.VectorBuilder[Int]
+            while (i < n)
+            {
+              if (i != 50)
+                builder1 += i
+              i += 1
+            }
+            builder1.result
+          }
+      """
+    )
+  }
+
   @Test
   def simpleToLoop {
     ensurePluginCompilesSnippetsToSameByteCode("simpleToLoop", 

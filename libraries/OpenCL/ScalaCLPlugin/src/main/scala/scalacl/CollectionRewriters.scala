@@ -185,11 +185,13 @@ trait RewritingPluginComponent {
       override def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen) = {
         //if (knownSize == null)
         //error("should not pass here now !");
-          (appliedType(WrappedArrayBuilderClass.tpe, List(componentType)), Nil, true, true)
+          //(appliedType(WrappedArrayBuilderClass.tpe, List(componentType)), Nil, true, true)
+          (appliedType(VectorBuilderClass.tpe, List(componentType)), Nil, false, false)
         //else
         //  super.newArrayBuilderInfo(componentType, knownSize)
       }
 
+      /*
       override def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer) = {
         val cb = if (knownSize != null)
           ArrayRewriter.newBuilder(pos, componentType, collectionType, knownSize, localTyper)
@@ -206,11 +208,12 @@ trait RewritingPluginComponent {
                 if (knownSize == null)
                   r
                 else
-                  mkWrapArray(mkCast(r, appliedType(ArrayClass.tpe, List(componentType))), componentType)
+                  //mkWrapArray(mkCast(r, appliedType(ArrayClass.tpe, List(componentType))), componentType)
+                  mkWrapArray(r, componentType)
               ).DOT(N("toIndexedSeq"))
             }
           })
-      }
+      }*/
      
       override def foreach[Payload](
         tree: Tree,
@@ -227,7 +230,20 @@ trait RewritingPluginComponent {
         val toVar = newVariable(unit, "to$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
         val iVar = newVariable(unit, "i$", currentOwner, tree.pos, true, fromVar())
         val nVar = newVariable(unit, "n$", currentOwner, tree.pos, false, toVar())
-        val outputSizeVar = newVariable(unit, "outputSize$", currentOwner, tree.pos, false, intDiv(intSub(toVar(), fromVar()), newInt(byValue)))
+
+        val outputSize = {
+          val span = intSub(toVar(), fromVar())
+          val width = if (isUntil) 
+            span
+          else
+            intAdd(span, newInt(1))
+          
+          if (byValue == 1)
+            width
+          else
+            intDiv(width, newInt(byValue))
+        }
+        val outputSizeVar = newVariable(unit, "outputSize$", currentOwner, tree.pos, false, outputSize)
         val outputIndexVar = newVariable(unit, "outputIndex$", currentOwner, tree.pos, true, if (reverseOrder) intSub(outputSizeVar(), newInt(1)) else newInt(0))
         val loopOuters = outerStatements(new LoopOutersEnv(
           null,

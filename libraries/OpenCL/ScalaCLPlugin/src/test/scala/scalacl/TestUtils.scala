@@ -157,7 +157,7 @@ trait TestUtils {
     println(msg)
     error(msg)
   }
-  def ensureFasterCodeWithSameResult(code: String, fasterFactor: Float, nRuns: Int = 10, params: Seq[Int] = Array(100000, 10)) = {
+  def ensureFasterCodeWithSameResult(code: String, fasterFactor: Float, params: Seq[Int] = Array(10, 100000), nRuns: Int = 10) = {
     val packageName = "tests"
 
     val methodName = new RuntimeException().getStackTrace.filter(se => se.getClassName.endsWith("Test")).last.getMethodName
@@ -173,9 +173,16 @@ trait TestUtils {
       }"""
 
       val outputDirectory = new File("tmpTestClasses")
+      def del(dir: File): Unit = {
+        val fs = dir.listFiles
+        if (fs != null)
+          fs foreach del
+        
+        dir.delete
+      }
+
+      del(outputDirectory)
       outputDirectory.mkdirs
-      def delOutputs = outputDirectory.listFiles.foreach(_.delete)
-      delOutputs
       val loader = new URLClassLoader(Array(outputDirectory.toURI.toURL))
 
       compileSource(src, withPlugin, outputDirectory)
@@ -196,7 +203,7 @@ trait TestUtils {
         var times = for (i <- 0 until nRuns) yield run._2 // skip first run, compute average on other runs
         (param, o, times.sum / times.size.toFloat)
       }
-      delOutputs
+      del(outputDirectory)
       ret
     }
     def eq(a: AnyRef, b: AnyRef) = {

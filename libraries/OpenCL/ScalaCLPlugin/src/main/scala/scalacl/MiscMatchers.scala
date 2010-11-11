@@ -134,6 +134,7 @@ trait MiscMatchers {
   lazy val ArrayBufferClass = definitions.getClass("scala.collection.mutable.ArrayBuffer")
   lazy val RefArrayBuilderClass = definitions.getClass("scala.collection.mutable.ArrayBuilder.ofRef")
   lazy val WrappedArrayBuilderClass = definitions.getClass("scala.collection.mutable.WrappedArrayBuilder")
+  lazy val VectorBuilderClass = definitions.getClass("scala.collection.immutable.VectorBuilder")
   lazy val ListBufferClass = definitions.getClass("scala.collection.mutable.ListBuffer")
   lazy val primArrayBuilderClasses = Array(
     (IntClass.tpe, "ofInt"),
