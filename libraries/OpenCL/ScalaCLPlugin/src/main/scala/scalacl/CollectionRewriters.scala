@@ -96,6 +96,7 @@ trait RewritingPluginComponent {
     abstract sealed class CollectionRewriter {
       val supportsRightVariants: Boolean
       def filters: List[Tree] = Nil
+      def isSafeRewrite(op: TraversalOpType) = true
       def colToString(tpe: Type): String
       def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree)
       def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): CollectionBuilder
@@ -181,6 +182,18 @@ trait RewritingPluginComponent {
       override val supportsRightVariants = false
       override def filters: List[Tree] = filtersList
       override def colToString(tpe: Type) = "Range"
+      override def isSafeRewrite(op: TraversalOpType) = {
+        import TraversalOp._
+        op match {
+          case Reduce(_) | Min | Max =>
+            false
+          case _: FilterWhile =>
+            // dropWhile
+            false
+          case _ =>
+            true
+        }
+      }
 
       override def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen) = {
         //if (knownSize == null)
@@ -447,6 +460,19 @@ trait RewritingPluginComponent {
     case object ListRewriter extends CollectionRewriter with HasBufferBuilder {
       override val supportsRightVariants = false
       override def colToString(tpe: Type) = tpe.toString
+
+      override def isSafeRewrite(op: TraversalOpType) = {
+        import TraversalOp._
+        op match {
+          //case Map | Sum | Fold | _: AllOrSome =>
+          //  true
+          case _: FilterWhile =>
+            false
+          case _ =>
+            true
+        }
+      }
+
       override def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree) = {
         val builderType = appliedType(ListBufferClass.tpe, List(componentType))
         (

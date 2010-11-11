@@ -266,11 +266,36 @@ trait MiscMatchers {
    *  not everyone does.  I'm a tireless advocate for brevity.
    */
   class ColTree(ColClass: Symbol) {
-    //def unapply(tree: Tree) = Some(tree.tpe.dealias.deconst.widen) collect {
-    //def unapply(tree: Tree) = Some(tree.tpe.dealias.deconst.widen) collect {
     //def unapply(tree: Tree) = Some(tree.symbol.tpe.dealias.deconst.widen) collect {
-    def unapply(tree: Tree) = Some(tree.tpe.dealias.deconst.widen) collect {
-      case TypeRef(_, ColClass, List(param)) => param.typeSymbol
+    //def unapply(tree: Tree) = Some(tree.tpe.dealias.deconst.widen) collect {
+    //  case TypeRef(_, ColClass, List(param)) => param.typeSymbol
+    //}
+    def unapply(tree: Tree) = {
+      def sub(cc: Symbol, param: Type) = {        
+        //println("OK cc = " + cc + ", cc.tpe = " + cc.tpe + ", cc.tpe.typeSymbol = " + cc.tpe.typeSymbol + ", ColClass = " + ColClass + ", ColClass.tpe = " + ColClass.tpe)
+        if (cc.tpe == ColClass.tpe || cc.tpe.toString == ColClass.tpe.toString)
+          Some(param.typeSymbol)
+        else
+          None
+      }
+          
+      def unap(t: Type) = t.dealias.deconst.widen match {
+        case TypeRef(_, ColClass, List(param)) => 
+          Some(param.typeSymbol)
+        case TypeRef(_, cc, List(param)) => 
+          sub(cc, param)
+        case PolyType(Nil, TypeRef(_, cc, List(param))) =>
+          sub(cc, param)
+        case tt =>
+          //println("! " + tt + ": " + tt.getClass.getName)
+          None
+      }
+      unap(tree.tpe) match {
+        case Some(s) =>
+          Some(s)
+        case None =>
+          unap(tree.symbol.tpe)
+      }
     }
   }
   object ListTree extends ColTree(ListClass)
@@ -331,7 +356,6 @@ trait MiscMatchers {
     }
   }
   sealed abstract class TraversalOpType {
-    def methodName(isLeft: Boolean): String
     val needsInitialValue = false
     val needsFunction = false
     val loopSkipsFirst = false
@@ -365,50 +389,50 @@ trait MiscMatchers {
   /// Matches one of the folding/scanning/reducing functions : (reduce|fold|scan)(Left|Right)
   object TraversalOp {
 
-    case object Fold extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "fold" + (if (isLeft) "Left" else "Right")
+    case class Fold(isLeft: Boolean) extends TraversalOpType {
+      override def toString = "fold" + (if (isLeft) "Left" else "Right")
       override val needsInitialValue = true
       override val needsFunction: Boolean = true
     }
-    case object Scan extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "scan" + (if (isLeft) "Left" else "Right")
+    case class Scan(isLeft: Boolean) extends TraversalOpType {
+      override def toString = "scan" + (if (isLeft) "Left" else "Right")
       override val needsInitialValue = true
       override val needsFunction: Boolean = true
     }
-    case object Reduce extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "reduce" + (if (isLeft) "Left" else "Right")
+    case class Reduce(isLeft: Boolean) extends TraversalOpType {
+      override def toString = "reduce" + (if (isLeft) "Left" else "Right")
       override val needsFunction: Boolean = true
       override val loopSkipsFirst = true
     }
     case object Sum extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "sum"
+      override def toString = "sum"
     }
     case object Count extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "count"
+      override def toString = "count"
       override val needsFunction: Boolean = true
     }
     case object Min extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "min"
+      override def toString = "min"
       override val loopSkipsFirst = true
     }
     case object Max extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "max"
+      override def toString = "max"
       override val loopSkipsFirst = true
     }
     case class Filter(not: Boolean) extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = if (not) "filterNot" else "filter"
+      override def toString = if (not) "filterNot" else "filter"
     }
     case class FilterWhile(take: Boolean) extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = if (take) "takeWhile" else "dropWhile"
+      override def toString = if (take) "takeWhile" else "dropWhile"
     }
     case object Map extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "map"
+      override def toString = "map"
     }
     case class AllOrSome(all: Boolean) extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = if (all) "forall" else "exists"
+      override def toString = if (all) "forall" else "exists"
     }
     case object Find extends TraversalOpType {
-      override def methodName(isLeft: Boolean) = "find"
+      override def toString = "find"
     }
     def refineComponentType(componentType: Type, collectionTree: Tree): Type = {
       collectionTree.tpe match {
@@ -455,7 +479,7 @@ trait MiscMatchers {
           ),
           List(CanBuildFromArg())
         ) =>
-        Some((Scan, collection, functionResultType.tpe, null, function, isLeft, initialValue))
+        Some((Scan(isLeft), collection, functionResultType.tpe, null, function, isLeft, initialValue))
       case // foldLeft, foldRight
         Apply(
           Apply(
@@ -467,7 +491,7 @@ trait MiscMatchers {
           ),
           List(function)
         ) =>
-        Some((Fold, collection, functionResultType.tpe, null, function, isLeft, initialValue))
+        Some((Fold(isLeft), collection, functionResultType.tpe, null, function, isLeft, initialValue))
       case // sum, min, max
         Apply(
           TypeApply(
@@ -488,7 +512,7 @@ trait MiscMatchers {
           ),
           List(function)
         ) =>
-        Some((Reduce, collection, functionResultType.tpe, null, function, isLeft, null))
+        Some((Reduce(isLeft), collection, functionResultType.tpe, null, function, isLeft, null))
       case // filter, filterNot, takeWhile, dropWhile, forall, exists
         Apply(Select(collection, n), List(function @ Func(List(param), body))) =>
         (

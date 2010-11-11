@@ -30,6 +30,32 @@ object SharedCompilerWithoutPlugins extends SharedCompiler(false)
 //object SharedCompilerWithoutPlugins1 extends SharedCompiler(false)
 //object SharedCompilerWithoutPlugins2 extends SharedCompiler(false)
 
+object TestResults {
+  import java.io._
+  import java.util.Properties
+  def getPropertiesFileName(n: String) = n + ".perf.properties"
+  val logs = new scala.collection.mutable.HashMap[String, (String, PrintStream, Properties)]
+  def getLog(key: String) = {
+    logs.getOrElseUpdate(key, {
+      val logName = getPropertiesFileName(key)
+      //println("Opening performance log file : " + logName)
+      
+      val logRes = getClass.getClassLoader.getResourceAsStream(logName)
+      val properties = new java.util.Properties
+      if (logRes != null) {
+        println("Reading " + logName)
+        properties.load(logRes)
+      }
+      (logName, new PrintStream(logName), properties)
+    })
+  } 
+  Runtime.getRuntime.addShutdownHook(new Thread { override def run {
+    for ((_, (logName, out, _)) <- logs) {
+      println("Wrote " + logName)
+      out.close
+    }
+  }})
+}
 trait TestUtils {
 
   implicit val baseOutDir = new File("target/testSnippetsClasses")
@@ -153,22 +179,20 @@ trait TestUtils {
 
   import java.io._
 
-  def fail(msg: String) = {
-    println(msg)
-    println()
-    assertTrue(msg, false)
-  }
-  def ensureFasterCodeWithSameResult(code: String, fasterFactor: Float, params: Seq[Int] = Array(100000), nRuns: Int = 10) = {
+  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(100000, 1000, 10, 3), nRuns: Int = 10) = {
     val packageName = "tests"
 
-    val methodName = new RuntimeException().getStackTrace.filter(se => se.getClassName.endsWith("Test")).last.getMethodName
+    val testTrace = new RuntimeException().getStackTrace.filter(se => se.getClassName.endsWith("Test")).last
+    val testClassName = testTrace.getClassName
+    val methodName = testTrace.getMethodName
     //val methodName = name.replace(' ', '_')
 
     def test(withPlugin: Boolean) = {
-      val className = "Test_" + methodName + "_" + (if (withPlugin) "_Optimized" else "_Normal")
+      val className = "Test_" + methodName + "_" + (if (withPlugin) "Optimized" else "Normal")
 
-      val src = "package " + packageName + "\nclass " + className + """ {
-        def """ + methodName + """(n: Int) = {
+      val src = "package " + packageName + "\nclass " + className + """(n: Int) {
+        """ + (if (decls == null) "" else decls) + """
+        def """ + methodName + """ = {
         """ + code + """
         }
       }"""
@@ -186,17 +210,40 @@ trait TestUtils {
       outputDirectory.mkdirs
       val loader = new URLClassLoader(Array(outputDirectory.toURI.toURL))
 
-      compileSource(src, withPlugin, outputDirectory)
-      val c = loader.loadClass(packageName + "." + className)
-      val m = c.getMethod(methodName, classOf[Int])
-      val i = c.newInstance
+      var tmpFile = new File(outputDirectory, methodName + ".scala")
+      val pout = new PrintStream(tmpFile)
+      pout.println(src)
+      pout.close
+      //println(src)
+      (
+        if (withPlugin) 
+          SharedCompilerWithPlugins 
+        else 
+          SharedCompilerWithoutPlugins
+      ).compile(Array("-d", outputDirectory.getAbsolutePath, tmpFile.getAbsolutePath))
+      
+      //compileFile(tmpFile, withPlugin, outputDirectory)
+      
+      val testClass = loader.loadClass(packageName + "." + className)
+      val testMethod = testClass.getMethod(methodName)//, classOf[Int])
+      val testConstructor = testClass.getConstructors.first
+      def instance(n: Int): AnyRef = testConstructor.newInstance(n.asInstanceOf[AnyRef]).asInstanceOf[AnyRef]
+      def invoke(i: AnyRef) = testMethod.invoke(i)
+      
+      // Warm up the code being benchmarked :
+      {
+        val i = instance(5)
+        (0 until 2500).foreach(_ => invoke(i))
+      };
+      
       val ret = for (param <- params) yield {
+        val i = instance(param)
         def run = {
           System.gc
           Thread.sleep(50)
           val start = System.nanoTime
-          val o = m.invoke(i, param.asInstanceOf[AnyRef])
-          val time: Float = System.nanoTime - start
+          val o = invoke(i)
+          val time: Double = System.nanoTime - start
           (o, time)
         }
 
@@ -207,7 +254,7 @@ trait TestUtils {
             run._1, // take first output
             {
               var times = for (i <- 0 until nRuns) yield run._2 // skip first run, compute average on other runs
-              times.sum / times.size.toFloat
+              times.sum / times.size.toDouble
             }
           )
           
@@ -222,51 +269,55 @@ trait TestUtils {
       else
         (a == null) || a.equals(b)
     }
-    test(false).zip(test(true)).map {
-      case ((param, normalOutput, normalTime), (_, optimizedOutput, optimizedTime)) =>
+    val (logName, log, properties) = TestResults.getLog(testClassName)
+    
+    def fail(msg: String) = {
+      println(msg)
+      println()
+      assertTrue(msg, false)
+    }
+    
+    val errors = test(true).zip(test(false)).flatMap {
+      case ((param, optimizedOutput, optimizedTime), (_, normalOutput, normalTime)) =>
         val pref = "[" + methodName + ", n = " + param + "] "
         if (!eq(normalOutput, optimizedOutput)) {
           fail(pref + "ERROR: Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
         }
-        val actualFasterFactor = normalTime / optimizedTime.toFloat
-        if (actualFasterFactor < fasterFactor)
-          fail(pref + "ERROR: Code is only " + actualFasterFactor + "x faster, expected > " + fasterFactor + "x !")
-
-        println(pref + "  OK: Code is " + actualFasterFactor + "x faster (expected > " + fasterFactor + "x)")
+        val actualFasterFactor = normalTime / optimizedTime.toDouble
+        
+        def printFact(f: Double) = log.println(methodName + "\\:" + param + "=" + ((f * 10).toInt / 10.0))
+        
+        val expectedFactor = {
+          val p = properties.getProperty(methodName + ":" + param)
+          val fac = if (p != null) {
+            val f = p.toDouble
+            log.print("# Test result (" + (if (actualFasterFactor >= f) "succeeded" else "failed") + "): ")
+            printFact(actualFasterFactor)
+            printFact(f)
+            f
+          } else {
+            printFact(actualFasterFactor - 0.1)
+            1.0
+          }
+          
+          fac
+        }
+        
+        if (actualFasterFactor >= expectedFactor) {
+          println(pref + "  OK (" + actualFasterFactor + "x faster, expected > " + expectedFactor + "x)")
+          None
+        } else {
+          val msg = "ERROR: only " + actualFasterFactor + "x faster (expected >= " + expectedFactor + "x)"
+          println(pref + msg)
+          Some(msg)
+        }
     }
-    println()
-  }
-  def compileSource(src: String, withPlugin: Boolean, outputDirectory: File) {
-    var tmpFile = File.createTempFile("test", ".scala")
-    val pout = new PrintStream(tmpFile)
-    pout.println(src)
-    pout.close
-
-    (if (withPlugin) SharedCompilerWithPlugins else SharedCompilerWithoutPlugins).compile(Array("-d", outputDirectory.getAbsolutePath, tmpFile.getAbsolutePath))
-    //tmpFile.deleteOnExit
-    /*val p = Runtime.getRuntime.exec(
-      Array(
-        """d:\Program Files\scala-2.8.0.final\bin\scalac.bat""",
-        //"scalac",
-        "-d", outputDirectory.toString,
-        tmpFile.toString
-      ) ++ (
-        if (withPlugin)
-          Array("-Xplugin:scalacl-compiler-plugin-1.0-SNAPSHOT.jar")
-        else
-          Array[String]()
-      )
-    )
-    def recopy(in: InputStream) = scala.concurrent.ops.spawn {
-      var line = ""
-      var rin = new BufferedReader(new InputStreamReader(in))
-      while ({ line = rin.readLine; line != null })
-        println(line)
+    try {
+      if (!errors.isEmpty)
+        assertTrue(errors.mkString("\n"), false)
+    } finally {
+      println()
     }
-    recopy(p.getInputStream)
-    recopy(p.getErrorStream)
-    assert(p.waitFor == 0)
-    */
   }
 
 }

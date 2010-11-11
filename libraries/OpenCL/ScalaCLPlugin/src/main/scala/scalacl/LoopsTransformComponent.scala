@@ -279,13 +279,13 @@ extends PluginComponent
               
               collection match {
                 case CollectionRewriter(colType, tpe, array, componentType) =>
-                  if (isLeft || colType.supportsRightVariants)
-                    msg(unit, tree.pos, "transformed " + colType.colToString(tpe) + "." + op.methodName(isLeft) + " into equivalent while loop.") {
+                  if ((isLeft || colType.supportsRightVariants) && (ScalaCLPlugin.experimental || colType.isSafeRewrite(op)))
+                    msg(unit, tree.pos, "transformed " + colType.colToString(tpe) + "." + op + " into equivalent while loop.") {
                       //if (array != null)
                       //  array.tpe = tpe
                       super.transform(
                         op match {
-                          case TraversalOp.Reduce | TraversalOp.Fold | TraversalOp.Sum | TraversalOp.Min | TraversalOp.Max =>
+                          case TraversalOp.Reduce(_) | TraversalOp.Fold(_) | TraversalOp.Sum | TraversalOp.Min | TraversalOp.Max =>
                             val skipFirst = op.loopSkipsFirst
                             colType.foreach[VarDef](
                               tree,
@@ -360,7 +360,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.Scan =>
+                          case TraversalOp.Scan(_) =>
                             //val mappedArrayTpe = appliedType(ArrayClass.tpe, List(resultType.tpe))
                             colType.foreach[(CollectionBuilder, VarDef, VarDef)](
                               tree,
@@ -700,7 +700,7 @@ extends PluginComponent
                               }
                             )
                           case _ =>
-                            msg(unit, tree.pos, "INFO: will soon optimize this " + tpe + "." + op.methodName(isLeft) + " call") {
+                            msg(unit, tree.pos, "INFO: will soon optimize this " + tpe + "." + op + " call") {
                               super.transform(tree)
                             }
                         }

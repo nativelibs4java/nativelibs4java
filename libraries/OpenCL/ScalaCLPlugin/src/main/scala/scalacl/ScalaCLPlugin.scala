@@ -71,6 +71,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
                                       Can contain absolute paths or file names (can omit trailing .scala).
                                       Each file (name) may be suffixed with :line.
   SCALACL_TRACE=1                     Display stack trace of failed optimizations (for debugging purpose).
+  SCALACL_EXPERIMENTAL=1              Perform experimental rewrites (often slower and buggier, use only when debugging ScalaCLPlugin).
 """
   )
   
@@ -130,6 +131,9 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 object ScalaCLPlugin {
   lazy val trace = //true
     "1".equals(System.getenv("SCALACL_TRACE"))
+    
+  lazy val experimental = 
+    "1".equals(System.getenv("SCALACL_EXPERIMENTAL"))
   
   type FileAndLineOptimizationFilter = (String, Int) => Boolean
   def components(global: Global, fileAndLineOptimizationFilter: FileAndLineOptimizationFilter) = List(
