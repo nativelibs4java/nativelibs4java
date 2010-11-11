@@ -79,21 +79,21 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
             val to = 100
             val n = to
             var i = from
-            var builder1 = new Array[""" + typeStr + """](to - from)
+            var builder1 = new scala.collection.immutable.VectorBuilder[""" + typeStr + """]
             while (i < n)
             {
               builder1 +=(""" + valueStr + """)
               i += 1
             }
-            builder1.result.toIndexedSeq
+            builder1.result
           }
       """
     )
   }
 
   @Test
-  def simpleRangeFilter = {
-    (
+  def simpleRangeFilter: Unit = {
+    ensurePluginCompilesSnippetsToSameByteCode("simpleRangeFilter", 
       """
           (0 until 100).filter(_ != 50)
       """,

@@ -155,9 +155,10 @@ trait TestUtils {
 
   def fail(msg: String) = {
     println(msg)
-    error(msg)
+    println()
+    assertTrue(msg, false)
   }
-  def ensureFasterCodeWithSameResult(code: String, fasterFactor: Float, params: Seq[Int] = Array(10, 100000), nRuns: Int = 10) = {
+  def ensureFasterCodeWithSameResult(code: String, fasterFactor: Float, params: Seq[Int] = Array(100000), nRuns: Int = 10) = {
     val packageName = "tests"
 
     val methodName = new RuntimeException().getStackTrace.filter(se => se.getClassName.endsWith("Test")).last.getMethodName
@@ -195,13 +196,22 @@ trait TestUtils {
           Thread.sleep(50)
           val start = System.nanoTime
           val o = m.invoke(i, param.asInstanceOf[AnyRef])
-          val time = System.nanoTime - start
+          val time: Float = System.nanoTime - start
           (o, time)
         }
 
-        val o = run._1 // take first output
-        var times = for (i <- 0 until nRuns) yield run._2 // skip first run, compute average on other runs
-        (param, o, times.sum / times.size.toFloat)
+        val (o, time) = if (nRuns == 1)
+          run
+        else
+          (
+            run._1, // take first output
+            {
+              var times = for (i <- 0 until nRuns) yield run._2 // skip first run, compute average on other runs
+              times.sum / times.size.toFloat
+            }
+          )
+          
+        (param, o, time)
       }
       del(outputDirectory)
       ret
@@ -216,13 +226,13 @@ trait TestUtils {
       case ((param, normalOutput, normalTime), (_, optimizedOutput, optimizedTime)) =>
         val pref = "[" + methodName + ", n = " + param + "] "
         if (!eq(normalOutput, optimizedOutput)) {
-          fail(pref + "Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
+          fail(pref + "ERROR: Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
         }
         val actualFasterFactor = normalTime / optimizedTime.toFloat
         if (actualFasterFactor < fasterFactor)
-          fail(pref + "Expected optimized code to be at least " + fasterFactor + "x faster, but it is only " + actualFasterFactor + "x faster !")
+          fail(pref + "ERROR: Code is only " + actualFasterFactor + "x faster, expected > " + fasterFactor + "x !")
 
-        println(pref + "Optimized code is " + actualFasterFactor + "x faster ! (expected at least " + fasterFactor + "x factor)")
+        println(pref + "  OK: Code is " + actualFasterFactor + "x faster (expected > " + fasterFactor + "x)")
     }
     println()
   }

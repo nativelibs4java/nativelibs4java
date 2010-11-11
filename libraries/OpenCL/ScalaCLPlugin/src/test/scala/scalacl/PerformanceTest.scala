@@ -10,9 +10,60 @@ import Assert._
 
 class PerformanceTest extends TestUtils {
 
-  @Test def simpleRangeFilter = testFilter(rng)
-  @Test def simpleRangeForeach = testForeach(rng)
-  @Test def simpleRangeMap = testMap(rng)
+  val arr = ("Array", "Array.tabulate(n)(i => i)")
+  val lis = ("List", "(0 to n).toList")
+  val rng = ("Range", "(0 to n)")
+
+  @Test def simpleListFilter = testFilter(lis)              ()
+  @Test def simpleListFilterNot = testFilterNot(lis)        ()
+  @Test def simpleListCount = testCount(lis)                ()
+  @Test def simpleListExists = testExists(lis)              ()
+  @Test def simpleListForall = testForall(lis)              ()
+  @Test def simpleListTakeWhile = testTakeWhile(lis)        ()
+  @Test def simpleListDropWhile = testDropWhile(lis)        ()
+  @Test def simpleListForeach = testForeach(lis)            ()
+  @Test def simpleListMap = testMap(lis)                    ()
+  @Test def simpleListSum = testSum(lis)                    ()
+  @Test def simpleListMin = testMin(lis)                    ()
+  @Test def simpleListMax = testMax(lis)                    ()
+  @Test def simpleListScanLeft = testScanLeft(lis)          ()
+  @Test def simpleListFoldLeft = testFoldLeft(lis)          ()
+  @Test def simpleListReduceLeft = testReduceLeft(lis)      ()
+
+  @Test def simpleRangeFilter = testFilter(rng)             (3)
+  @Test def simpleRangeFilterNot = testFilterNot(rng)       (3)
+  @Test def simpleRangeCount = testCount(rng)               (3)
+  @Test def simpleRangeExists = testExists(rng)             (3)
+  @Test def simpleRangeForall = testForall(rng)             (3)
+  @Test def simpleRangeTakeWhile = testTakeWhile(rng)       (3)
+  @Test def simpleRangeDropWhile = testDropWhile(rng)       (3)
+  @Test def simpleRangeForeach = testForeach(rng)           (5)
+  @Test def simpleRangeMap = testMap(rng)                   (1.5f)
+  //@Test def simpleRangeSum = testSum(rng)                 ()
+  //@Test def simpleRangeMin = testMin(rng)                 ()
+  //@Test def simpleRangeMax = testMax(rng)                 ()
+  @Test def simpleRangeScanLeft = testScanLeft(rng)         (1.5f)
+  @Test def simpleRangeFoldLeft = testFoldLeft(rng)         (15)
+  //@Test def simpleRangeReduceLeft = testReduceLeft(rng)   ()
+  
+  @Test def simpleArrayFilter = testFilter(arr)           (3)
+  @Test def simpleArrayFilterNot = testFilterNot(arr)     (3)
+  @Test def simpleArrayCount = testCount(arr)             (3)
+  @Test def simpleArrayExists = testExists(arr)           (3)
+  @Test def simpleArrayForall = testForall(arr)           (3)
+  @Test def simpleArrayTakeWhile = testTakeWhile(arr)     (3)
+  @Test def simpleArrayDropWhile = testDropWhile(arr)     (3)
+  @Test def simpleArrayForeach = testForeach(arr)         (10)
+  @Test def simpleArrayMap = testMap(arr)                 (10)
+  @Test def simpleArraySum = testSum(arr)                 (10)
+  @Test def simpleArrayMin = testMin(arr)                 (10)
+  @Test def simpleArrayMax = testMax(arr)                 (10)
+  @Test def simpleArrayScanLeft = testScanLeft(arr)       (10)
+  @Test def simpleArrayScanRight = testScanRight(arr)     (10)
+  @Test def simpleArrayFoldLeft = testFoldLeft(arr)       (10)
+  @Test def simpleArrayFoldRight = testFoldRight(arr)     (10)
+  @Test def simpleArrayReduceLeft = testReduceLeft(arr)   (10)
+  @Test def simpleArrayReduceRight = testReduceRight(arr) (8)
 
   @Test def simpleMatrixTest = ensureFasterCodeWithSameResult("""
     val a = Array.tabulate[Double](n, n)(_ + _)
@@ -30,27 +81,62 @@ class PerformanceTest extends TestUtils {
     //(0 until n).map(k => a(i)(k) * b(k)(j)).sum
   """, 2f, Seq(100))
 
-  val arr = ("Array", "Array.tabulate(n)(i => i)")
-  val lis = ("List", "(0 to n).toList")
-  val rng = ("Range", "(0 to n)")
-
-  @Test def simpleArrayFilter = testFilter(arr)
-  @Test def simpleListFilter = testFilter(lis)
+  val oddPred = "x => (x % 2) != 0"
+  val firstHalfPred = "x => x < n / 2"
+  val midPred = "x => x == n / 2"
   
-  def testFilter(colNameAndExpr: (String, String), f: Float = 1.1f) =
-    // name = "Simple " + colNameAndExpr._1  + " Filter",
-    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".filter(x => (x % 2) != 0).size", f)
+  def testFilter(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".filter(" + oddPred + ").size", f)
 
-  @Test def simpleArrayForeach = testForeach(arr)
-  @Test def simpleListForeach = testForeach(lis)
+  def testFilterNot(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".filterNot(" + oddPred + ").size", f)
 
-  def testForeach(colNameAndExpr: (String, String), f: Float = 1.1f) =
+  def testCount(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".count(" + oddPred + ")", f)
+
+  def testForeach(colNameAndExpr: (String, String))(f: Float = 1.1f) =
     ensureFasterCodeWithSameResult("""var tot = 0L; for (v <- """ + colNameAndExpr._2 + ") { tot += v }; tot", f)
 
-  @Test def simpleArrayMap = testMap(arr)
-  @Test def simpleListMap = testMap(lis)
-
-  def testMap(colNameAndExpr: (String, String), f: Float = 1.1f) =
+  def testMap(colNameAndExpr: (String, String))(f: Float = 1.1f) =
     ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".map(_ + 1).toSeq", f)
+
+  def testTakeWhile(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".takeWhile(" + firstHalfPred + ").toSeq", f)
+
+  def testDropWhile(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".dropWhile(" + firstHalfPred + ").toSeq", f)
+
+  def testExists(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".exists(" + midPred + ")", f)
+
+  def testForall(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".forall(" + firstHalfPred + ")", f)
+
+  def testSum(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".sum", f)
+
+  def testMin(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".min", f)
+
+  def testMax(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".max", f)
+
+  def testReduceLeft(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".reduceLeft(_ + _)", f)
+
+  def testReduceRight(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".reduceRight(_ + _)", f)
+
+  def testFoldLeft(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".foldLeft(0)(_ + _)", f)
+
+  def testFoldRight(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".foldRight(0)(_ + _)", f)
+
+  def testScanLeft(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".scanLeft(0)(_ + _).toSeq", f)
+
+  def testScanRight(colNameAndExpr: (String, String))(f: Float = 1.1f) =
+    ensureFasterCodeWithSameResult(colNameAndExpr._2 + ".scanRight(0)(_ + _).toSeq", f)
 
 }
