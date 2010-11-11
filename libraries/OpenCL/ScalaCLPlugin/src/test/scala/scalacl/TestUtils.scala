@@ -13,6 +13,7 @@ import scala.concurrent.ops
 import scala.io.Source
 
 import java.net.URI
+import java.net.URLClassLoader
 import javax.tools.DiagnosticCollector
 import javax.tools.FileObject
 import javax.tools.ForwardingJavaFileManager
@@ -34,6 +35,16 @@ trait TestUtils {
   implicit val baseOutDir = new File("target/testSnippetsClasses")
   baseOutDir.mkdirs
 
+  /*def compile(src: String, outDir: String) = {
+    outDir.mkdirs
+
+    val srcFile = File.createTempFile("temp", ".scala")
+    val out = new PrintWriter(srcFile)
+    out.println(src)
+    out.close
+    //srcFile.delete
+
+  }*/
   def getSnippetBytecode(className: String, source: String, subDir: String, compiler: SharedCompiler) = {
     val src = "class " + className + " { def invoke(): Unit = {\n" + source + "\n}}"
     val outDir = new File(baseOutDir, subDir)
@@ -130,5 +141,115 @@ trait TestUtils {
       error("javap failed with :\n" + err.synchronized { err.toString } + "\nAnd :\n" + out)
     }
     out
-  }   
+  }
+
+  import java.io.File
+  /*val outputDirectory = {
+    val f = new File(".")//target/classes")
+    if (!f.exists)
+      f.mkdirs
+    f
+  }*/
+
+  import java.io._
+
+  def fail(msg: String) = {
+    println(msg)
+    error(msg)
+  }
+  def ensureFasterCodeWithSameResult(code: String, fasterFactor: Float, nRuns: Int = 10, params: Seq[Int] = Array(100000, 10)) = {
+    val packageName = "tests"
+
+    val methodName = new RuntimeException().getStackTrace.filter(se => se.getClassName.endsWith("Test")).last.getMethodName
+    //val methodName = name.replace(' ', '_')
+
+    def test(withPlugin: Boolean) = {
+      val className = "Test_" + methodName + "_" + (if (withPlugin) "_Optimized" else "_Normal")
+
+      val src = "package " + packageName + "\nclass " + className + """ {
+        def """ + methodName + """(n: Int) = {
+        """ + code + """
+        }
+      }"""
+
+      val outputDirectory = new File("tmpTestClasses")
+      outputDirectory.mkdirs
+      def delOutputs = outputDirectory.listFiles.foreach(_.delete)
+      delOutputs
+      val loader = new URLClassLoader(Array(outputDirectory.toURI.toURL))
+
+      compileSource(src, withPlugin, outputDirectory)
+      val c = loader.loadClass(packageName + "." + className)
+      val m = c.getMethod(methodName, classOf[Int])
+      val i = c.newInstance
+      val ret = for (param <- params) yield {
+        def run = {
+          System.gc
+          Thread.sleep(50)
+          val start = System.nanoTime
+          val o = m.invoke(i, param.asInstanceOf[AnyRef])
+          val time = System.nanoTime - start
+          (o, time)
+        }
+
+        val o = run._1 // take first output
+        var times = for (i <- 0 until nRuns) yield run._2 // skip first run, compute average on other runs
+        (param, o, times.sum / times.size.toFloat)
+      }
+      delOutputs
+      ret
+    }
+    def eq(a: AnyRef, b: AnyRef) = {
+      if ((a == null) != (b == null))
+        false
+      else
+        (a == null) || a.equals(b)
+    }
+    test(false).zip(test(true)).map {
+      case ((param, normalOutput, normalTime), (_, optimizedOutput, optimizedTime)) =>
+        val pref = "[" + methodName + ", n = " + param + "] "
+        if (!eq(normalOutput, optimizedOutput)) {
+          fail(pref + "Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
+        }
+        val actualFasterFactor = normalTime / optimizedTime.toFloat
+        if (actualFasterFactor < fasterFactor)
+          fail(pref + "Expected optimized code to be at least " + fasterFactor + "x faster, but it is only " + actualFasterFactor + "x faster !")
+
+        println(pref + "Optimized code is " + actualFasterFactor + "x faster ! (expected at least " + fasterFactor + "x factor)")
+    }
+    println()
+  }
+  def compileSource(src: String, withPlugin: Boolean, outputDirectory: File) {
+    var tmpFile = File.createTempFile("test", ".scala")
+    val pout = new PrintStream(tmpFile)
+    pout.println(src)
+    pout.close
+
+    (if (withPlugin) SharedCompilerWithPlugins else SharedCompilerWithoutPlugins).compile(Array("-d", outputDirectory.getAbsolutePath, tmpFile.getAbsolutePath))
+    //tmpFile.deleteOnExit
+    /*val p = Runtime.getRuntime.exec(
+      Array(
+        """d:\Program Files\scala-2.8.0.final\bin\scalac.bat""",
+        //"scalac",
+        "-d", outputDirectory.toString,
+        tmpFile.toString
+      ) ++ (
+        if (withPlugin)
+          Array("-Xplugin:scalacl-compiler-plugin-1.0-SNAPSHOT.jar")
+        else
+          Array[String]()
+      )
+    )
+    def recopy(in: InputStream) = scala.concurrent.ops.spawn {
+      var line = ""
+      var rin = new BufferedReader(new InputStreamReader(in))
+      while ({ line = rin.readLine; line != null })
+        println(line)
+    }
+    recopy(p.getInputStream)
+    recopy(p.getErrorStream)
+    assert(p.waitFor == 0)
+    */
+  }
+
 }

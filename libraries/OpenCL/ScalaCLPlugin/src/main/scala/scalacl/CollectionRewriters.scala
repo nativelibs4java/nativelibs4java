@@ -182,21 +182,23 @@ trait RewritingPluginComponent {
       override def filters: List[Tree] = filtersList
       override def colToString(tpe: Type) = "Range"
 
-      override def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen) =
-        if (knownSize == null)
+      override def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen) = {
+        //if (knownSize == null)
+        //error("should not pass here now !");
           (appliedType(WrappedArrayBuilderClass.tpe, List(componentType)), Nil, true, true)
-        else
-          super.newArrayBuilderInfo(componentType, knownSize)
+        //else
+        //  super.newArrayBuilderInfo(componentType, knownSize)
+      }
 
       override def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer) = {
-        val cb = // TODO !!! if (knownSize != null)
-          //ArrayRewriter.newBuilder(pos, componentType, collectionType, knownSize, localTyper)
-        //else
+        val cb = if (knownSize != null)
+          ArrayRewriter.newBuilder(pos, componentType, collectionType, knownSize, localTyper)
+        else
           super.newBuilder(pos, componentType, collectionType, knownSize, localTyper)
 
-        //if (knownSize != null)
-          //cb
-        //else
+        if (knownSize == null)
+          cb
+        else
           cb.copy(result = bufferIdentGen => {
             val r = cb.result(bufferIdentGen)
             typed {
