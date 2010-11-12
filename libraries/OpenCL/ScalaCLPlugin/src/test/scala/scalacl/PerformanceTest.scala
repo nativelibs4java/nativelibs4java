@@ -34,7 +34,7 @@ class PerformanceTest extends TestUtils {
   @Test def simpleListCount = testCount(lis)                
   @Test def simpleListExists = testExists(lis)              
   @Test def simpleListForall = testForall(lis)              
-  @Test def simpleListTakeWhile = testTakeWhile(lis)        
+  // TODO: Must be implemented differently : @Test def simpleListTakeWhile = testTakeWhile(lis)        
   // TODO: Must be implemented differently : @Test def simpleListDropWhile = testDropWhile(lis)        
   @Test def simpleListForeach = testForeach(lis)            
   @Test def simpleListMap = testMap(lis)                    

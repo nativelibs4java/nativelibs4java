@@ -208,7 +208,7 @@ trait TestUtils {
 
       del(outputDirectory)
       outputDirectory.mkdirs
-      val loader = new URLClassLoader(Array(outputDirectory.toURI.toURL))
+      val loader = new URLClassLoader(Array(outputDirectory.toURI.toURL, new File(Compile.bootClassPath).toURI.toURL))
 
       var tmpFile = new File(outputDirectory, methodName + ".scala")
       val pout = new PrintStream(tmpFile)
