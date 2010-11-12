@@ -325,7 +325,11 @@ trait RewritingPluginComponent {
         (
           builderType,
           typed {
-            val manifestList = if (needsManifest) List(localTyper.findManifest(componentType, false).tree) else null
+            val manifestList = if (needsManifest) 
+              List(localTyper.findManifest(componentType, true).tree)
+            else
+              null
+
             val sym = builderType.typeSymbol.primaryConstructor
             val n = Apply(
               Select(
