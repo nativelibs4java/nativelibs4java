@@ -24,11 +24,13 @@ class PerformanceTest extends TestUtils {
   val rng = (null, "(0 until n)")
 
   import ScalaCLPlugin.experimental // SCALACL_EXPERIMENTAL
+  
   /********
    * List *
    ********/
   @Test def simpleListFilter = testFilter(lis)              
-  @Test def simpleListFilterNot = testFilterNot(lis)        
+  @Test def simpleListFilterNot = testFilterNot(lis) 
+  // TODO: not working well, no speedup :
   @Test def simpleListCount = testCount(lis)                
   @Test def simpleListExists = testExists(lis)              
   @Test def simpleListForall = testForall(lis)              

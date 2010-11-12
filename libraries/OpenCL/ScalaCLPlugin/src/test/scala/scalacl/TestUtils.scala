@@ -179,7 +179,7 @@ trait TestUtils {
 
   import java.io._
 
-  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(100000, 1000, 10), nRuns: Int = 30) = {
+  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(100000, 1000, 10), nRuns: Int = 10) = {
     val packageName = "tests"
 
     val testTrace = new RuntimeException().getStackTrace.filter(se => se.getClassName.endsWith("Test")).last

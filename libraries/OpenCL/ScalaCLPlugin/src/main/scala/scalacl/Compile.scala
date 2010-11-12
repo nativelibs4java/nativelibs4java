@@ -30,6 +30,7 @@
  */
 package scalacl
 
+import scala.collection.JavaConversions._
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
@@ -82,16 +83,17 @@ object Compile {
 Copyright Olivier Chafik 2010""")
   }
 
+  
+  val fileJarURLRx = "jar:file:([^!]+)!.*".r
   lazy val bootClassPath = {
+    val fileJarURLRx(scalaLibraryJar) = getClass.getClassLoader.getResource("scala/collection/immutable/List.class").toString
+    scalaLibraryJar
+    /*
     import java.io.File
     var scalaHomeEnv = System.getenv("SCALA_HOME")
-    if (scalaHomeEnv == null) {
-      val f = "/Users/ochafik/bin/scala-2.8.0.final"
-      if (new File(f).exists)
-        scalaHomeEnv = f
-      else
-        error("SCALA_HOME is not defined !")
-    }
+    if (scalaHomeEnv == null)
+      error("SCALA_HOME is not defined !")
+    
     val scalaHome = new File(scalaHomeEnv)
     val scalaLib = new File(scalaHome, "lib")
     val scalaLibraryJar = new File(scalaLib, "scala-library.jar")
@@ -99,13 +101,14 @@ Copyright Olivier Chafik 2010""")
       System.getProperty("java.class.path","."),
       scalaLibraryJar.getAbsolutePath
     ).mkString(File.pathSeparator)
+    */
   }
   def compilerMain(args: Array[String], enablePlugins: Boolean) = {
     copyrightMessage
     
     val extraArgs = List(
-      //"-optimise",
-      "-usejavacp",
+      "-optimise",
+      //"-usejavacp",
       "-bootclasspath", bootClassPath
     )
     val settings = new Settings
