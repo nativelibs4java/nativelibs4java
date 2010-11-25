@@ -114,6 +114,16 @@ extends MiscMatchers
     }
   }
   
+  // TreeGen.mkIsInstanceOf adds an extra Apply (and does not set all symbols), which makes it apparently useless in our case(s)
+  def newIsInstanceOf(tree: Tree, tpe: Type) = {
+    TypeApply(
+      Select(
+        tree,
+        N("isInstanceOf")
+      ).setSymbol(Any_isInstanceOf),
+      List(TypeTree(tpe))
+    ).setSymbol(Any_isInstanceOf)
+  }
   def newApply(pos: Position, array: => Tree, index: => Tree) = {
     val a = array
     assert(a.tpe != null)

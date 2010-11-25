@@ -55,18 +55,29 @@ object Compile {
         "-Xprint:scalacl-loopstransform"
         //"-Ydebug"
         )*/
-    /*val args = if (args0.length != 0) args0 else Array(
+    /*val base = new File("/Users/ochafik/src/scala-2.8.x/src/compiler/")
+    def list(f: File): Array[File] = {
+      if (f.isDirectory)
+        f.listFiles.flatMap(list)
+      else
+        Array(f)
+    }
+    val args = //if (args0.length != 0) args0 else
+    Array(
       "-bootclasspath",
-      "/Users/ochafik/src/scala-2.8.x/build/quick/classes/library",
+      "/Users/ochafik/src/scala-2.8.x/build/locker/classes/library",
       "-cp",
       Array(
-        "/Users/ochafik/src/scala-2.8.x/build/quick/classes/compiler"
+        "/Users/ochafik/src/scala-2.8.x/build/locker/classes/compiler"
       ).mkString(java.io.File.separator),
       "/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/symtab/Types.scala",
-      "-Xprint:" + LoopsTransformComponent.phaseName,
-      //"-Ydebug",
+      "/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/typechecker/Typers.scala"
+    ) ++ //list(base).filter(_.getName.endsWith(".scala")).map(_.toString) ++
+    Array(
+      //"-Xprint:" + LoopsTransformComponent.phaseName,
+      "-Ydebug",
       "-optimise"
-    ) */
+    )*/
     //*/
     /*val args = Array(
       "-cp",

@@ -525,6 +525,8 @@ trait RewritingPluginComponent {
                 unit,
                 tree,
                 boolAnd(boolNot(Select(aVar(), isEmptyName).setSymbol(colTpe.member(isEmptyName)).setType(BooleanClass.tpe)), extraTest),
+                //boolAnd(newIsInstanceOf(aVar(), NonEmptyListClass.tpe),extraTest),
+                //boolAnd(typed { aVar().IS(NonEmptyListClass.tpe) }/*.setType(BooleanClass.tpe)*/, extraTest),
                 typed {
                   val itemAndInnerStats =
                     List(itemVar.definition) ++

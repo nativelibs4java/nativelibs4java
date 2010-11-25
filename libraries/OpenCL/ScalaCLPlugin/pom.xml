@@ -68,6 +68,13 @@ For more info, please visit http://code.google.com/p/scalacl
 			<groupId>org.scala-tools</groupId>
 			<artifactId>maven-scala-plugin</artifactId>
 			<configuration>
+				<!--<compilerPlugins>
+				  <compilerPlugin>
+					<groupId>com.nativelibs4java</groupId>
+					<artifactId>scalacl-compiler-plugin</artifactId>
+					<version>1.0-SNAPSHOT</version>
+				  </compilerPlugin>
+				</compilerPlugins>-->
 				<args>
 					<arg>-optimise</arg>
 				</args>
