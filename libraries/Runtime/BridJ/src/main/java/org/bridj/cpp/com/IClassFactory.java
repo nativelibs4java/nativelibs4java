@@ -33,4 +33,4 @@ public class IClassFactory extends IUnknown
 	
 	@Virtual(1)
 	public native int LockServer(boolean fLock);
-};
+}
