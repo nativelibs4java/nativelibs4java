@@ -10,7 +10,7 @@ import java.nio.charset.Charset;
 import static org.bridj.SizeT.safeIntCast;
 
 /**
- * Pointer to a native memory location.<br/>
+ * Pointer to a native memory location.<br>
  * Pointer is the entry point of any pointer-related operation in BridJ.
  * <p>
  * <u><b>Manipulating memory</b></u>
@@ -18,34 +18,34 @@ import static org.bridj.SizeT.safeIntCast;
  * <ul>
  *	<li>Wrapping a memory address as a pointer : {@link Pointer#pointerToAddress(long)}
  *  </li>
- *	<li>Reading / writing a primitive from / to the pointed memory location :<br/>
+ *	<li>Reading / writing a primitive from / to the pointed memory location :<br>
 #foreach ($prim in $primitives)
- *		{@link Pointer#get${prim.CapName}()} / {@link Pointer#set${prim.CapName}(${prim.Name})} ; With an offset : {@link Pointer#get${prim.CapName}(long)} / {@link Pointer#set${prim.CapName}(long, ${prim.Name})}<br/>
+ *		{@link Pointer#get${prim.CapName}()} / {@link Pointer#set${prim.CapName}(${prim.Name})} ; With an offset : {@link Pointer#get${prim.CapName}(long)} / {@link Pointer#set${prim.CapName}(long, ${prim.Name})}<br>
 #end
 #foreach ($sizePrim in ["SizeT", "CLong"])
- *		{@link Pointer#get${sizePrim}()} / {@link Pointer#set${sizePrim}(long)} ; With an offset : {@link Pointer#get${sizePrim}(long)} / {@link Pointer#set${sizePrim}(long, long)} <br/>
+ *		{@link Pointer#get${sizePrim}()} / {@link Pointer#set${sizePrim}(long)} ; With an offset : {@link Pointer#get${sizePrim}(long)} / {@link Pointer#set${sizePrim}(long, long)} <br>
 #end
  *  </li>
- *	<li>Reading / writing an array of primitives from / to the pointed memory location :<br/>
+ *	<li>Reading / writing an array of primitives from / to the pointed memory location :<br>
 #foreach ($prim in $primitives)
- *		{@link Pointer#get${prim.CapName}s(int)} / {@link Pointer#set${prim.CapName}s(${prim.Name}[])} ; With an offset : {@link Pointer#get${prim.CapName}s(long, int)} / {@link Pointer#set${prim.CapName}s(long, ${prim.Name}[])}<br/>
+ *		{@link Pointer#get${prim.CapName}s(int)} / {@link Pointer#set${prim.CapName}s(${prim.Name}[])} ; With an offset : {@link Pointer#get${prim.CapName}s(long, int)} / {@link Pointer#set${prim.CapName}s(long, ${prim.Name}[])}<br>
 #end
 #foreach ($sizePrim in ["SizeT", "CLong"])
- *		{@link Pointer#get${sizePrim}s(int)} / {@link Pointer#set${sizePrim}s(long[])} ; With an offset : {@link Pointer#get${sizePrim}s(long, int)} / {@link Pointer#set${sizePrim}s(long, long[])}<br/>
+ *		{@link Pointer#get${sizePrim}s(int)} / {@link Pointer#set${sizePrim}s(long[])} ; With an offset : {@link Pointer#get${sizePrim}s(long, int)} / {@link Pointer#set${sizePrim}s(long, long[])}<br>
 #end
  *  </li>
- *	<li>Reading / writing an NIO buffer of primitives from / to the pointed memory location :<br/>
+ *	<li>Reading / writing an NIO buffer of primitives from / to the pointed memory location :<br>
 #foreach ($prim in $primitivesNoBool)
-*		{@link Pointer#get${prim.BufferName}(long)} (can be used for writing as well) / {@link Pointer#set${prim.CapName}s(${prim.BufferName})}<br/>
+*		{@link Pointer#get${prim.BufferName}(long)} (can be used for writing as well) / {@link Pointer#set${prim.CapName}s(${prim.BufferName})}<br>
 #end
  *  </li>
- *  <li>Reading / writing a String from / to the pointed memory location using the default charset :<br/>
+ *  <li>Reading / writing a String from / to the pointed memory location using the default charset :<br>
 #foreach ($string in ["C", "WideC"])
-*		{@link Pointer#get${string}String()} / {@link Pointer#set${string}String(String)} ; With an offset : {@link Pointer#get${string}String(long)} / {@link Pointer#set${string}String(long, String)}<br/>
+*		{@link Pointer#get${string}String()} / {@link Pointer#set${string}String(String)} ; With an offset : {@link Pointer#get${string}String(long)} / {@link Pointer#set${string}String(long, String)}<br>
 #end
  *  </li>
- *  <li>Reading / writing a String with control on the charset :<br/>
- *		{@link Pointer#getString(long, Charset, StringType)} / {@link Pointer#setString(long, String, Charset, StringType)}<br/>
+ *  <li>Reading / writing a String with control on the charset :<br>
+ *		{@link Pointer#getString(long, Charset, StringType)} / {@link Pointer#setString(long, String, Charset, StringType)}<br>
  * </ul>
  * <p>
  * <u><b>Allocating memory</b></u>
@@ -54,28 +54,28 @@ import static org.bridj.SizeT.safeIntCast;
  *	<li>Getting the pointer to a struct / a C++ class / a COM object :
  *		{@link Pointer#pointerTo(NativeObject)}
  *  </li>
- *	<li>Allocating a primitive with / without an initial value (zero-initialized) :<br/>
+ *	<li>Allocating a primitive with / without an initial value (zero-initialized) :<br>
 #foreach ($prim in $primitives)
- *		{@link Pointer#pointerTo${prim.CapName}(${prim.Name})} / {@link Pointer#allocate${prim.CapName}()}<br/>
+ *		{@link Pointer#pointerTo${prim.CapName}(${prim.Name})} / {@link Pointer#allocate${prim.CapName}()}<br>
 #end
 #foreach ($sizePrim in ["SizeT", "CLong"])
- *		{@link Pointer#pointerTo${sizePrim}(long)} / {@link Pointer#allocate${sizePrim}()}<br/>
+ *		{@link Pointer#pointerTo${sizePrim}(long)} / {@link Pointer#allocate${sizePrim}()}<br>
 #end
  *  </li>
- *	<li>Allocating an array of primitives with / without initial values (zero-initialized) :<br/>
+ *	<li>Allocating an array of primitives with / without initial values (zero-initialized) :<br>
 #foreach ($prim in $primitives)
- *		{@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])} or {@link Pointer#pointerTo${prim.CapName}s(${prim.BufferName})} / {@link Pointer#allocate${prim.CapName}s(long)}<br/>
+ *		{@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])} or {@link Pointer#pointerTo${prim.CapName}s(${prim.BufferName})} / {@link Pointer#allocate${prim.CapName}s(long)}<br>
 #end
 #foreach ($sizePrim in ["SizeT", "CLong"])
- *		{@link Pointer#pointerTo${sizePrim}s(long[])} / {@link Pointer#allocate${sizePrim}s(long)}<br/>
+ *		{@link Pointer#pointerTo${sizePrim}s(long[])} / {@link Pointer#allocate${sizePrim}s(long)}<br>
 #end
- *		{@link Pointer#pointerToBuffer(Buffer)} / n/a<br/>
+ *		{@link Pointer#pointerToBuffer(Buffer)} / n/a<br>
  *  </li>
- *  <li>Allocating a native String :<br/>
+ *  <li>Allocating a native String :<br>
 #foreach ($string in ["C", "WideC", "Pascal", "WidePascal"])
-*		{@link Pointer#pointerTo${string}String(String)} (default charset)<br/>
+*		{@link Pointer#pointerTo${string}String(String)} (default charset)<br>
 #end
- *		{@link Pointer#pointerToString(String, Charset, StringType)}<br/>
+ *		{@link Pointer#pointerToString(String, Charset, StringType)}<br>
  *  </li>
  * </ul>
  */
@@ -85,18 +85,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
 #macro (docAllocateCopy $cPrimName $primWrapper)
 	/**
-     * Allocate enough memory for a single $cPrimName value, copy the value provided in argument into it and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
+     * Allocate enough memory for a single $cPrimName value, copy the value provided in argument into it and return a pointer to that memory.<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @param value initial value for the created memory location
      * @return pointer to a new memory location that initially contains the $cPrimName value given in argument
      */
 #end
 #macro (docAllocateArrayCopy $cPrimName $primWrapper)
 	/**
-     * Allocate enough memory for values.length $cPrimName values, copy the values provided as argument into it and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
+     * Allocate enough memory for values.length $cPrimName values, copy the values provided as argument into it and return a pointer to that memory.<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon :
      <pre>{@code
      for (float f : pointerTo(1f, 2f, 3.3f))
@@ -107,53 +107,53 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 #end
 #macro (docAllocateArray2DCopy $cPrimName $primWrapper)
     /**
-     * Allocate enough memory for all the values in the 2D $cPrimName array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br/>
-     * Assumes that all of the subarrays of the provided array are non null and have the same size.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
+     * Allocate enough memory for all the values in the 2D $cPrimName array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br>
+     * Assumes that all of the subarrays of the provided array are non null and have the same size.<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @param values initial values for the created memory location
      * @return pointer to a new memory location that initially contains the $cPrimName values provided in argument packed as a 2D C array would be
      */
 #end
 #macro (docAllocateArray3DCopy $cPrimName $primWrapper)
     /**
-     * Allocate enough memory for all the values in the 3D $cPrimName array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br/>
-     * Assumes that all of the subarrays of the provided array are non null and have the same size.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
+     * Allocate enough memory for all the values in the 3D $cPrimName array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br>
+     * Assumes that all of the subarrays of the provided array are non null and have the same size.<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @param values initial values for the created memory location
      * @return pointer to a new memory location that initially contains the $cPrimName values provided in argument packed as a 3D C array would be
      */
 #end
 #macro (docAllocate $cPrimName $primWrapper)
 	/**
-     * Allocate enough memory for a $cPrimName value and return a pointer to it.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
+     * Allocate enough memory for a $cPrimName value and return a pointer to it.<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
      * @return pointer to a single zero-initialized $cPrimName value
      */
 #end
 #macro (docAllocateArray $cPrimName $primWrapper)
 	/**
-     * Allocate enough memory for arrayLength $cPrimName values and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br/>
+     * Allocate enough memory for arrayLength $cPrimName values and return a pointer to that memory.<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon.
      * @return pointer to arrayLength zero-initialized $cPrimName consecutive values
      */
 #end
 #macro (docAllocateArray2D $cPrimName $primWrapper)
 	/**
-     * Allocate enough memory for dim1 * dim2 $cPrimName values in a packed multi-dimensional C array and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br/>
+     * Allocate enough memory for dim1 * dim2 $cPrimName values in a packed multi-dimensional C array and return a pointer to that memory.<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @return pointer to dim1 * dim2 zero-initialized $cPrimName consecutive values
      */
 #end
 #macro (docAllocateArray3D $cPrimName $primWrapper)
 	/**
-     * Allocate enough memory for dim1 * dim2 * dim3 $cPrimName values in a packed multi-dimensional C array and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br/>
+     * Allocate enough memory for dim1 * dim2 * dim3 $cPrimName values in a packed multi-dimensional C array and return a pointer to that memory.<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @return pointer to dim1 * dim2 * dim3 zero-initialized $cPrimName consecutive values
      */
 #end
@@ -261,7 +261,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
 	/**
 	 * Manually release the memory pointed by this pointer if it was allocated on the Java side.<br>
-	 * If the pointer is an offset version of another pointer (using {@link Pointer#share(long)} or {@link Pointer#next(long)}, for instance), this method tries to release the original pointer.<br>
+	 * If the pointer is an offset version of another pointer (using {@link Pointer#offset(long)} or {@link Pointer#next(long)}, for instance), this method tries to release the original pointer.<br>
 	 * If the memory was not allocated from the Java side, this method does nothing either.<br>
 	 * If the memory was already successfully released, this throws a RuntimeException.
 	 * @throws RuntimeException if the pointer was already released
@@ -323,7 +323,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
 
     /**
-	 * Returns a pointer which address value was obtained by this pointer's by adding a byte offset.<br/>
+	 * Returns a pointer which address value was obtained by this pointer's by adding a byte offset.<br>
 	 * The returned pointer will prevent the memory associated to this pointer from being automatically reclaimed as long as it lives, unless Pointer.release() is called on the originally-allocated pointer.
 	 * @param byteOffset offset in bytes of the new pointer vs. this pointer. The expression {@code p.offset(byteOffset).getPeer() - p.getPeer() == byteOffset} is always true.
 	 */
@@ -376,8 +376,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }   
 	
 	/**
-	 * Returns a pointer to this pointer.<br/>
-	 * It will only succeed if this pointer was dereferenced from another pointer.<br/>
+	 * Returns a pointer to this pointer.<br>
+	 * It will only succeed if this pointer was dereferenced from another pointer.<br>
 	 * Let's take the following C++ code :
 	 * <pre>{@code
 	int** pp = ...;
@@ -488,8 +488,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Pointer<U> pointerU = pointerT.as(U.class); // or pointerT.asPointerTo(U.class);
      * }</code><br>
      * @param <U>
-     * @param newIO
-     * @return
+     * @param type type of the elements pointed by the returned pointer
+     * @return pointer to type U elements at the same address as this pointer
      */
     public <U> Pointer<U> asPointerTo(Type type) {
     	PointerIO<U> pio = PointerIO.getInstance(type);
@@ -510,16 +510,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * }</code><br>
      * {@link Pointer#asPointerTo(Type)}
      * @param <U>
-     * @param newIO
-     * @return
+     * @param type type of the elements pointed by the returned pointer
+     * @return pointer to type U elements at the same address as this pointer
      */
     public <U> Pointer<U> as(Class<U> type) {
     	return asPointerTo(type);
     }
 
     /**
-     * Get the amount of memory known to be valid from this pointer, or -1 if it is unknown.<br/>
-     * Memory validity information is available when the pointer was created out of another pointer (with {@link #offset(long)}, {@link #next()}, {@link #next(long)}) or from a direct NIO buffer ({@link #pointerToBuffer(Buffer)}, {@link #pointerToInts(IntBuffer)}...)
+     * Get the amount of memory known to be valid from this pointer, or -1 if it is unknown.<br>
+     * Memory validity information is available when the pointer was created out of another pointer (with {@link Pointer#offset(long)}, {@link Pointer#next()}, {@link Pointer#next(long)}) or from a direct NIO buffer ({@link Pointer#pointerToBuffer(Buffer)}, {@link Pointer#pointerToInts(IntBuffer)}...)
      * @return amount of bytes that can be safely read or written from this pointer, or -1 if this amount is unknown
      */
     public long getValidBytes() {
@@ -528,8 +528,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     /**
-    * Get the amount of memory known to be valid from this pointer (expressed in elements of the target type, see {@link #getTargetType()}) or -1 if it is unknown.<br/>
-     * Memory validity information is available when the pointer was created out of another pointer (with {@link #offset(long)}, {@link #next()}, {@link #next(long)}) or from a direct NIO buffer ({@link #pointerToBuffer(Buffer)}, {@link #pointerToInts(IntBuffer)}...)
+    * Get the amount of memory known to be valid from this pointer (expressed in elements of the target type, see {@link Pointer#getTargetType()}) or -1 if it is unknown.<br>
+     * Memory validity information is available when the pointer was created out of another pointer (with {@link Pointer#offset(long)}, {@link Pointer#next()}, {@link Pointer#next(long)}) or from a direct NIO buffer ({@link Pointer#pointerToBuffer(Buffer)}, {@link Pointer#pointerToInts(IntBuffer)}...)
      * @return amount of elements that can be safely read or written from this pointer, or -1 if this amount is unknown
      */
     public long getValidElements() {
@@ -541,8 +541,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     /**
-     * Returns an iterator over the elements pointed by this pointer.<br/>
-     * If this pointer was allocated from Java with the allocateXXX, pointerToXXX methods (or is a view or a clone of such a pointer), the iteration is safely bounded.<br/>
+     * Returns an iterator over the elements pointed by this pointer.<br>
+     * If this pointer was allocated from Java with the allocateXXX, pointerToXXX methods (or is a view or a clone of such a pointer), the iteration is safely bounded.<br>
      * If this iterator is just a wrapper for a native-allocated pointer (or a view / clone of such a pointer), iteration will go forever (until illegal areas of memory are reached and cause a JVM crash).
      */
     public ListIterator<T> iterator() {
@@ -606,14 +606,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     		return pointerTo(instance, null);
     }
     /**
-     * Get a pointer to a native object, specifying the type of the pointer's target.<br/>
+     * Get a pointer to a native object, specifying the type of the pointer's target.<br>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */
     public static <R extends NativeObject> Pointer<R> pointerTo(NativeObject instance, Class<R> targetType) {
 		return instance == null ? null : (Pointer<R>)instance.peer;
     }
     /**
-    * Get the address of a native object, specifying the type of the pointer's target (same as {@code pointerTo(instance, targetType).getPeer()}, see {@link pointerTo(NativeObject, Class)}).<br/>
+    * Get the address of a native object, specifying the type of the pointer's target (same as {@code pointerTo(instance, targetType).getPeer()}, see {@link Pointer#pointerTo(NativeObject, Class)}).<br>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */
     public static long getAddress(NativeObject instance, Class targetType) {
@@ -640,7 +640,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
 	/**
 	 * Check that the pointer's peer is aligned to the target type alignment.
-	 * @throw RuntimeException If the target type of this pointer is unknown
+	 * @throws RuntimeException If the target type of this pointer is unknown
 	 * @return getPeer() % alignment == 0
 	 */
 	public boolean isAligned() {
@@ -686,7 +686,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
-	 * Dereference this pointer (*ptr).<br/>
+	 * Dereference this pointer (*ptr).<br>
      Take the following C++ code fragment :
      <pre>{@code
      int* array = new int[10];
@@ -718,8 +718,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     /**
-     Gets the n-th element from this pointer.<br/>
-     This is equivalent to the C/C++ square bracket syntax.<br/>
+     Gets the n-th element from this pointer.<br>
+     This is equivalent to the C/C++ square bracket syntax.<br>
      Take the following C++ code fragment :
      <pre>{@code
 	int* array = new int[10];
@@ -746,7 +746,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     /**
-	 Assign a value to the pointed memory location.<br/>
+	 Assign a value to the pointed memory location.<br>
      Take the following C++ code fragment :
      <pre>{@code
 	int* array = new int[10];
@@ -779,8 +779,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     	throw new RuntimeException("Unexpected error", ex);
     }
 	/**
-     Sets the n-th element from this pointer.<br/>
-     This is equivalent to the C/C++ square bracket assignment syntax.<br/>
+     Sets the n-th element from this pointer.<br>
+     This is equivalent to the C/C++ square bracket assignment syntax.<br>
      Take the following C++ code fragment :
      <pre>{@code
      float* array = new float[10];
@@ -875,7 +875,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
 	/**
      * Create a pointer out of a native memory address
-     * @param address native memory address that is to be converted to a pointer
+     * @param peer native memory address that is to be converted to a pointer
 	 * @return a pointer with the provided address : {@code pointer.getPeer() == address }
      */
     @Deprecated
@@ -1096,6 +1096,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return allocateArray(elementClass, 1);
     }
     
+    /**
+     * Create a memory area large enough to hold one item of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
+     * @param io PointerIO instance able to store and retrieve the element
+     * @return a pointer to a new memory area large enough to hold one item of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
+     */
     public static <V> Pointer<V> allocate(PointerIO<V> io) {
     	long targetSize = io.getTargetSize();
     	if (targetSize < 0)
@@ -1104,7 +1109,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     /**
      * Create a memory area large enough to hold arrayLength items of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
-     * @param elementClass type of the array elements
+     * @param io PointerIO instance able to store and retrieve elements of the array
      * @param arrayLength length of the array in elements
      * @return a pointer to a new memory area large enough to hold arrayLength items of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
      */
@@ -1116,7 +1121,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     /**
      * Create a memory area large enough to hold arrayLength items of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
-     * @param elementClass type of the array elements
+     * @param io PointerIO instance able to store and retrieve elements of the array
      * @param arrayLength length of the array in elements
      * @param beforeDeallocation fake releaser that should be run just before the memory is actually released, for instance in order to call some object destructor
      * @return a pointer to a new memory area large enough to hold arrayLength items of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
@@ -1129,8 +1134,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     /**
      * Create a memory area large enough to hold byteSize consecutive bytes and return a pointer to elements of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
-     * @param elementClass type of the array elements
-     * @param arrayLength length of the array in elements
+     * @param io PointerIO instance able to store and retrieve elements of the array
+     * @param byteSize length of the array in bytes
      * @param beforeDeallocation fake releaser that should be run just before the memory is actually released, for instance in order to call some object destructor
      * @return a pointer to a new memory area large enough to hold byteSize consecutive bytes
      */
@@ -1194,8 +1199,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
 
     /**
-     * Create a pointer to the memory location used by a direct NIO buffer.<br/>
-     * The returned pointer (and its subsequent clones returned by {@link #clone()}, {@link #offset(long)} or {@link #next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
+     * Create a pointer to the memory location used by a direct NIO buffer.<br>
+     * The returned pointer (and its subsequent clones returned by {@link Pointer#clone()}, {@link Pointer#offset(long)} or {@link Pointer#next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
      * @throws UnsupportedOperationException if the buffer is not direct
      */
     public static Pointer<?> pointerToBuffer(Buffer buffer) {
@@ -1290,8 +1295,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 #foreach ($prim in $primitivesNoBool)
 
 	/**
-     * Create a pointer to the memory location used by a direct NIO ${prim.BufferName}}.<br/>
-     * The returned pointer (and its subsequent clones returned by {@link #clone()}, {@link #offset(long)} or {@link #next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
+     * Create a pointer to the memory location used by a direct NIO ${prim.BufferName}}.<br>
+     * The returned pointer (and its subsequent clones returned by {@link Pointer#clone()}, {@link Pointer#offset(long)} or {@link Pointer#next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
      * @throws UnsupportedOperationException if the buffer is not direct
      */
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.BufferName} buffer) {
@@ -1362,7 +1367,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     
     /**
 	 * Read a pointer value from the pointed memory location shifted by a byte offset
-	 * @param c class of the elements pointed by the resulting pointer 
+	 * @param t type of the elements pointed by the resulting pointer 
 	 */
     public <U> Pointer<U> getPointer(long byteOffset, Type t) {
         return getPointer(byteOffset, t == null ? null : (PointerIO<U>)PointerIO.getInstance(t));
@@ -1485,12 +1490,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
-     * Allocate enough memory for array.length values, copy the values of the array provided as argument into it and return a pointer to that memory.<br/>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br/>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link #clone()}, {@link #offset(long)}, {@link #next(long)}, {@link #next()}).<br/>
+     * Allocate enough memory for array.length values, copy the values of the array provided as argument into it and return a pointer to that memory.<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * For pointers to primitive types (e.g. {@code Pointer<Integer> }), this method accepts primitive arrays (e.g. {@code int[] }) instead of arrays of boxed primitives (e.g. {@code Integer[] })
 	 * @param array primitive array containing the initial values for the created memory area
-     * @return pointer to a new memory location that initially contains the $cPrimName consecutive values provided in argument
+     * @return pointer to a new memory location that initially contains the consecutive values provided in argument
      */
 	public static <T> Pointer<T> pointerToArray(Object array) {
 		if (array == null)
@@ -1687,7 +1692,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 
     /**
      * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the memcpy C function.<br>
-     * If the destination and source memory locations are likely to overlap, {@link #moveTo(long, Pointer, long, long)} must be used instead.
+     * If the destination and source memory locations are likely to overlap, {@link Pointer#moveBytesTo(long, Pointer, long, long)} must be used instead.
      */
     public void copyBytesTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
     		JNI.memcpy(destination.getCheckedPeer(byteOffsetInDestination, byteCount), getCheckedPeer(byteOffset, byteCount), byteCount);
@@ -1702,7 +1707,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     /**
-    * Copy remaining bytes from this pointer to a destination (see {@link #copyTo(long, Pointer, long, long)}, {@link #getValidBytes})
+    * Copy remaining bytes from this pointer to a destination (see {@link Pointer#copyBytesTo(long, Pointer, long, long)}, {@link Pointer#getValidBytes})
      */
     public void copyTo(Pointer<?> destination) {
     		copyBytesTo(0, destination, 0, getValidBytes());
@@ -1910,39 +1915,39 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		 * They are stored with a first byte that indicates the length of the string, followed by the ascii or extended ascii chars of the string (no support for multibyte encoding).<br>
 		 * They are often used in very old Mac OS programs and / or Pascal programs.<br>
 		 * Usual corresponding C types : {@code unsigned char* } and {@code const unsigned char* }<br>
-		 * Corresponding Pascal type : {@code ShortString } (see {@link http://www.codexterity.com/delphistrings.htm})<br>
-		 * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
+		 * Corresponding Pascal type : {@code ShortString } (see @see <a href="http://www.codexterity.com/delphistrings.htm">http://www.codexterity.com/delphistrings.htm</a>)<br>
+		 * See {@link Pointer#pointerToString(String, Charset, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
         PascalShort(false, true),
 		/**
 		 * Wide Pascal strings are ref-counted unicode strings that look like WideC strings but are prepended with a ref count and length (both 32 bits ints).<br>
 		 * They are the current default in Delphi (2010).<br>
-		 * Corresponding Pascal type : {@code WideString } (see {@link http://www.codexterity.com/delphistrings.htm})<br>
-		 * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
+		 * Corresponding Pascal type : {@code WideString } (see @see <a href="http://www.codexterity.com/delphistrings.htm">http://www.codexterity.com/delphistrings.htm</a>)<br>
+		 * See {@link Pointer#pointerToString(String, Charset, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
         PascalWide(true, true),
         /**
 		 * Pascal ANSI strings are ref-counted single-byte strings that look like C strings but are prepended with a ref count and length (both 32 bits ints).<br>
-		 * Corresponding Pascal type : {@code AnsiString } (see {@link http://www.codexterity.com/delphistrings.htm})<br>
-		 * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
+		 * Corresponding Pascal type : {@code AnsiString } (see @see <a href="http://www.codexterity.com/delphistrings.htm">http://www.codexterity.com/delphistrings.htm</a>)<br>
+		 * See {@link Pointer#pointerToString(String, Charset, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
         PascalAnsi(false, true),
         /**
          * Microsoft's BSTR strings, used in COM, OLE, MS.NET Interop and MS.NET Automation functions.<br>
-         * See {@link http://msdn.microsoft.com/en-us/library/ms221069.aspx} for more details.<br>
-         * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
+         * See @see <a href="http://msdn.microsoft.com/en-us/library/ms221069.aspx">http://msdn.microsoft.com/en-us/library/ms221069.aspx</a> for more details.<br>
+         * See {@link Pointer#pointerToString(String, Charset, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
         BSTR(true, true),
         /**
          * STL strings have compiler- and STL library-specific implementations and memory layouts.<br>
          * BridJ support reading and writing to / from pointers to most implementation's STL strings, though.
-         * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
+         * See {@link Pointer#pointerToString(String, Charset, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
 		STL(false, false),
         /**
          * STL wide strings have compiler- and STL library-specific implementations and memory layouts.<br>
          * BridJ supports reading and writing to / from pointers to most implementation's STL strings, though.
-         * See {@link Pointer#pointerToString(String, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
+         * See {@link Pointer#pointerToString(String, Charset, StringType)}, {@link Pointer#getString(StringType)}, {@link Pointer#setString(String, StringType)}, 
 		 */
 		WideSTL(true, false);
         //MFCCString,
@@ -2220,10 +2225,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
 	
     /**
-     * Allocate memory and write a ${string} string to it, using the system's default charset to convert the string.  (see {@link StringType#${string}}).<br>
+     * Allocate memory and write a string to it, using the system's default charset to convert the string (See {@link StringType} for details on the supported types).<br>
 	 * See {@link Pointer#setString(String, StringType)}, {@link Pointer#getString(StringType)}.
 	 * @param charset Character set used to convert String characters to bytes. If null, {@link Charset#defaultCharset()} will be used
-	 * @param type Type of the native String to create. See {@link StringType} for details on the supported types.
+	 * @param type Type of the native String to create.
 	 */
 	public static Pointer<?> pointerToString(String string, Charset charset, StringType type) {
 		return setString(null, 0, string, charset, type);
@@ -2293,14 +2298,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
 	/**
 	 * Write a ${string} string using the default charset to the pointed memory location (see {@link StringType#${string}}).<br>
-	 * See {@link Pointer#set${string}String(long, String)} and {@link Pointer#setString(long, Charset, StringType)} for more options
+	 * See {@link Pointer#set${string}String(long, String)} and {@link Pointer#setString(long, String, Charset, StringType)} for more options
 	 */
 	public Pointer<T> set${string}String(String s) {
         return set${string}String(0, s);
     }
     /**
 	 * Write a ${string} string using the default charset to the pointed memory location shifted by a byte offset (see {@link StringType#${string}}).<br>
-	 * See {@link Pointer#setString(long, Charset, StringType)} for more options
+	 * See {@link Pointer#setString(long, String, Charset, StringType)} for more options
 	 */
 	public Pointer<T> set${string}String(long byteOffset, String s) {
         return setString(byteOffset, s, null, StringType.${string});
@@ -2418,7 +2423,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
-	 * Alias for {@link #get(long)} defined for more natural use from the Scala language.
+	 * Alias for {@link Pointer#get(long)} defined for more natural use from the Scala language.
 	 */
     public final T apply(long index) {
 		return get(index);
@@ -2500,7 +2505,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
     /**
-	 * Implementation of {@link List\#set(int, T)}
+	 * Implementation of {@link List\#set(int, Object)}
 	 */
 	public final T set(int index, T element) {
 		set((long)index, element);

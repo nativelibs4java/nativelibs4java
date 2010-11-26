@@ -122,7 +122,7 @@ public class BridJ {
 	/**
 	 * Registers the native methods of the caller class and all its inner types.
 	 * <pre>{@code
-	 	@Library("mylib")
+	 	\@Library("mylib")
 	 	public class MyLib {
 	 		static {
 	 			BridJ.register();
@@ -207,7 +207,7 @@ public class BridJ {
 	/**
 	 * Registers the native method of a type (and all its inner types).
 	 * <pre>{@code
-	 	@Library("mylib")
+	 	\@Library("mylib")
 	 	public class MyLib {
 	 		static {
 	 			BridJ.register(MyLib.class);
@@ -345,11 +345,11 @@ public class BridJ {
 
     static Map<String, String> libraryActualNames = new HashMap<String, String>();
     /**
-     * Define the actual name of a library.<br/>
-     * Works only before the library is loaded.<br/>
+     * Define the actual name of a library.<br>
+     * Works only before the library is loaded.<br>
      * For instance, library "OpenGL" is actually named "OpenGL32" on Windows : BridJ.setNativeLibraryActualName("OpenGL", "OpenGL32");
-     * @param alias
      * @param name
+     * @param actualName
      */
     public static void setNativeLibraryActualName(String name, String actualName) {
         libraryActualNames.put(name, actualName);

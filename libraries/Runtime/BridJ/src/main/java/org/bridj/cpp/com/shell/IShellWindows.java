@@ -10,7 +10,7 @@ import org.bridj.cpp.com.IDispatch;
 import org.bridj.cpp.com.IID;
 
 /**
- * IShellWindows provides access to the collection of open Shell windows (see {@link http://msdn.microsoft.com/en-us/library/cc836570(VS.85).aspx})
+ * IShellWindows provides access to the collection of open Shell windows (see @see <a href="http://msdn.microsoft.com/en-us/library/cc836570(VS.85).aspx">http://msdn.microsoft.com/en-us/library/cc836570(VS.85).aspx</a>)
  * @author Olivier
  */
 @IID("85CB6900-4D95-11CF-960C-0080C7F4EE85")

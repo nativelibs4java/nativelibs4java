@@ -4,7 +4,7 @@
   <groupId>com.nativelibs4java</groupId>
   <artifactId>TestLibraries</artifactId>
   <packaging>jar</packaging>
-  <version>0.2</version>
+  <version>0.3-SNAPSHOT</version>
   <name>TestLibraries</name>
   <url>http://maven.apache.org</url>
   <description>This project is here to test that all NativeLibs4Java projects are accessible from Maven.</description>
@@ -20,7 +20,7 @@
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>Mono4Java</artifactId>
-	  <version>0.2</version>
+	  <version>0.1-SNAPSHOT</version>
 	  <scope>compile</scope>
 	</dependency>
 	

@@ -5,8 +5,6 @@ import org.bridj.Pointer;
 /**
  * Implementing the IDispatch Interface : http://msdn.microsoft.com/en-us/library/ms221037.aspx
  * Simulating COM Interfaces : http://msdn.microsoft.com/en-us/library/111chfb8.aspx
- * @param object
- * @return
  */
 public class COMCallableWrapper extends IDispatch {
 	Object instance;
