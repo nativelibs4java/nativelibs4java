@@ -501,11 +501,24 @@ trait MiscMatchers {
         Apply(
           TypeApply(
             Select(collection, n @ (sumName() | minName() | maxName())),
-            List(functionResultType)
+            List(functionResultType @ TypeTree())
           ),
           List(isNumeric)
         ) =>
-        reductionFunctionOp(n).collect { case op => (op, collection, functionResultType.tpe, null, null, true, null) }
+        isNumeric.toString match {
+          case
+            "math.this.Ordering.Int" |
+            "math.this.Ordering.Short" |
+            "math.this.Ordering.Long" |
+            "math.this.Ordering.Byte" |
+            "math.this.Ordering.Char" |
+            "math.this.Ordering.Double" |
+            "math.this.Ordering.Float"
+            =>
+            reductionFunctionOp(n).collect { case op => (op, collection, functionResultType.tpe, null, null, true, null) }
+          case _ =>
+            None
+        }
       case // sum, min, max
         Select(collection, n @ (sumName() | minName() | maxName())) =>
         reductionFunctionOp(n).collect { case op => (op, collection, null, null, null, true, null) }
