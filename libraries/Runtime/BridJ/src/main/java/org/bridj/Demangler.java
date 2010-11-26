@@ -10,8 +10,30 @@ import org.bridj.ann.CLong;
 import org.bridj.ann.Constructor;
 import org.bridj.ann.Ptr;
 import org.bridj.util.DefaultParameterizedType;
+import org.bridj.cpp.GCC4Demangler;
+import org.bridj.cpp.VC9Demangler;
 
+/*
+mvn exec:java -Dexec.mainClass=org.bridj.Demangler "-Dexec.args=?method_name@class_name@@QAEPAPADPAD0@Z"
+
+*/
 public abstract class Demangler {
+	
+	public static void main(String[] args) {
+		for (String arg : args) {
+			try {
+				System.out.println("VC9: " + new VC9Demangler(null, arg).parseSymbol());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			try {
+				System.out.println("GCC4: " + new GCC4Demangler(null, arg).parseSymbol());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
 	interface Annotations {
 		<A extends Annotation> A getAnnotation(Class<A> c);	
 	}
