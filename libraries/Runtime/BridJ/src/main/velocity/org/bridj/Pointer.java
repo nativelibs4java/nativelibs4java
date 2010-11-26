@@ -287,7 +287,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
-	* Compare the byteCount bytes at the memory location pointed by this pointer to the byteCount bytes at the memory location pointer by other using the C {@see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcmp/">memcmp</a>} function.<br>
+	* Compare the byteCount bytes at the memory location pointed by this pointer to the byteCount bytes at the memory location pointer by other using the C @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcmp/">memcmp</a> function.<br>
 	 * @return 0 if the two memory blocks are equal, -1 if this pointer's memory is "less" than the other and 1 otherwise.
 	 */
 	public int compareBytes(Pointer<?> other, long byteCount) {
@@ -295,7 +295,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
-	 * Compare the byteCount bytes at the memory location pointed by this pointer shifted by byteOffset to the byteCount bytes at the memory location pointer by other shifted by otherByteOffset using the C {@see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcmp/">memcmp</a>} function.<br>
+	 * Compare the byteCount bytes at the memory location pointed by this pointer shifted by byteOffset to the byteCount bytes at the memory location pointer by other shifted by otherByteOffset using the C @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcmp/">memcmp</a> function.<br>
 	 * @return 0 if the two memory blocks are equal, -1 if this pointer's memory is "less" than the other and 1 otherwise.
 	 */
 	public int compareBytes(long byteOffset, Pointer<?> other, long otherByteOffset, long byteCount) {
@@ -477,7 +477,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 
     /**
      * Cast this pointer to another pointer type<br>
-     * Synonym of {@link Pointer#as(Type)}<br>
+     * Synonym of {@link Pointer#as(Class)}<br>
      * The following C code :<br>
      * <code>{@code 
      * T* pointerT = ...;
@@ -1692,7 +1692,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
 
     /**
-     * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the {@see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a>} C function.<br>
+     * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function.<br>
      * If the destination and source memory locations are likely to overlap, {@link Pointer#moveBytesTo(long, Pointer, long, long)} must be used instead.
      */
     public void copyBytesTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
@@ -1700,7 +1700,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     /**
-     * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the {@see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memmove/">memmove</a>} C function.<br>
+     * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memmove/">memmove</a> C function.<br>
      * Works even if the destination and source memory locations are overlapping.
      */
     public void moveBytesTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
@@ -1708,7 +1708,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     
     /**
-    * Copy remaining bytes from this pointer to a destination using the {@see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a>} C function (see {@link Pointer#copyBytesTo(long, Pointer, long, long)}, {@link Pointer#getValidBytes})
+    * Copy remaining bytes from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesTo(long, Pointer, long, long)}, {@link Pointer#getValidBytes})
      */
     public void copyTo(Pointer<?> destination) {
     		copyBytesTo(0, destination, 0, getValidBytes());
