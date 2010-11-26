@@ -547,7 +547,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      */
     public ListIterator<T> iterator() {
     	return new ListIterator<T>() {
-    		Pointer<T> next = Pointer.this.getValidElements() > 0 ? Pointer.this : null;
+    		Pointer<T> next = Pointer.this.getValidElements() != 0 ? Pointer.this : null;
     		Pointer<T> previous;
     		@Override
 			public T next() {
@@ -555,7 +555,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 					throw new NoSuchElementException();
                 T value = next.get();
                 previous = next;
-				next = next.getValidElements() > 1 ? next.next(1) : null;
+                long valid = next.getValidElements();
+				next = valid < 0 || valid > 1 ? next.next(1) : null;
 				return value;
 			}
 			@Override
