@@ -86,7 +86,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 #macro (docAllocateCopy $cPrimName $primWrapper)
 	/**
      * Allocate enough memory for a single $cPrimName value, copy the value provided in argument into it and return a pointer to that memory.<br>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
      * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @param value initial value for the created memory location
      * @return pointer to a new memory location that initially contains the $cPrimName value given in argument
@@ -95,7 +95,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 #macro (docAllocateArrayCopy $cPrimName $primWrapper)
 	/**
      * Allocate enough memory for values.length $cPrimName values, copy the values provided as argument into it and return a pointer to that memory.<br>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
      * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon :
      <pre>{@code
@@ -109,7 +109,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     /**
      * Allocate enough memory for all the values in the 2D $cPrimName array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br>
      * Assumes that all of the subarrays of the provided array are non null and have the same size.<br>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
      * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @param values initial values for the created memory location
      * @return pointer to a new memory location that initially contains the $cPrimName values provided in argument packed as a 2D C array would be
@@ -119,7 +119,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     /**
      * Allocate enough memory for all the values in the 3D $cPrimName array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br>
      * Assumes that all of the subarrays of the provided array are non null and have the same size.<br>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
      * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @param values initial values for the created memory location
      * @return pointer to a new memory location that initially contains the $cPrimName values provided in argument packed as a 3D C array would be
@@ -128,14 +128,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 #macro (docAllocate $cPrimName $primWrapper)
 	/**
      * Allocate enough memory for a $cPrimName value and return a pointer to it.<br>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
      * @return pointer to a single zero-initialized $cPrimName value
      */
 #end
 #macro (docAllocateArray $cPrimName $primWrapper)
 	/**
      * Allocate enough memory for arrayLength $cPrimName values and return a pointer to that memory.<br>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
      * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon.
      * @return pointer to arrayLength zero-initialized $cPrimName consecutive values
@@ -144,7 +144,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 #macro (docAllocateArray2D $cPrimName $primWrapper)
 	/**
      * Allocate enough memory for dim1 * dim2 $cPrimName values in a packed multi-dimensional C array and return a pointer to that memory.<br>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
      * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @return pointer to dim1 * dim2 zero-initialized $cPrimName consecutive values
      */
@@ -152,7 +152,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 #macro (docAllocateArray3D $cPrimName $primWrapper)
 	/**
      * Allocate enough memory for dim1 * dim2 * dim3 $cPrimName values in a packed multi-dimensional C array and return a pointer to that memory.<br>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
      * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @return pointer to dim1 * dim2 * dim3 zero-initialized $cPrimName consecutive values
      */
@@ -1491,7 +1491,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
 	/**
      * Allocate enough memory for array.length values, copy the values of the array provided as argument into it and return a pointer to that memory.<br>
-     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to Pointer.release().<br>
+     * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
      * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * For pointers to primitive types (e.g. {@code Pointer<Integer> }), this method accepts primitive arrays (e.g. {@code int[] }) instead of arrays of boxed primitives (e.g. {@code Integer[] })
 	 * @param array primitive array containing the initial values for the created memory area
