@@ -1,6 +1,7 @@
 Current version : BridJ 0.3-SNAPSHOT
 
-...
+- fixed iteration on unbound native-allocated pointers (issue 37). 
+- fixed Visual C++ demangling (issue 36 : bad handling of back-references).
 
 BridJ 0.2 (r1330, 20101011):
 
