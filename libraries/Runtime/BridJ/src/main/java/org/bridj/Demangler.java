@@ -16,6 +16,11 @@ import org.bridj.cpp.VC9Demangler;
 /*
 mvn exec:java -Dexec.mainClass=org.bridj.Demangler "-Dexec.args=?method_name@class_name@@QAEPAPADPAD0@Z"
 
+??4Class1@TestLib@@QAEAAV01@ABV01@@Z
+?f@Class1@TestLib@@QAEPADPAD0@Z
+
+class TestLib::Class1 & TestLib::Class1::operator=(class TestLib::Class1 const &)
+char * TestLib::Class1::f(char *,char *)
 */
 public abstract class Demangler {
 	
@@ -327,6 +332,10 @@ public abstract class Demangler {
         @Override
         public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
             return b.append("org.bridj.Pointer");
+        }
+        @Override
+        public String toString() {
+        		return pointedType + "*";
         }
     }
 

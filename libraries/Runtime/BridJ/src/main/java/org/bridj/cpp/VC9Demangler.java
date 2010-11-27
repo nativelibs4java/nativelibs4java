@@ -123,6 +123,7 @@ public class VC9Demangler extends Demangler {
     private void parseFunctionProperty(MemberRef mr) throws DemanglingException {
         mr.callingConvention = parseCallingConvention();
         TypeRef returnType = consumeCharIf('@') ? classType(Void.TYPE) : parseType(true);
+        allQualifiedNames.clear();
         List<TypeRef> paramTypes = parseParams();
         mr.paramTypes = paramTypes.toArray(new TypeRef[paramTypes.size()]);
         if (!consumeCharIf('Z')) {
@@ -363,12 +364,14 @@ public class VC9Demangler extends Demangler {
                     for (int i = 0; i < dimensions; i++)
                         indices[i] = parseNumber(false);
                 }
-                return pointerType(parseType(true));
+                tr = pointerType(parseType(true));
             } else {
                 MemberRef mr = new MemberRef();
                 parseFunctionProperty(mr);
-                return pointerType(new FunctionTypeRef(mr));
+                tr = pointerType(new FunctionTypeRef(mr));
             }
+            allQualifiedNames.add(Collections.singletonList(tr));
+            return tr;
         case 'V': // class
         case 'U': // struct
         case 'T': // union
