@@ -11,8 +11,9 @@ import java.util.List;
  */
 public class Primitive {
     private final Class<?> type, wrapper, bufferType;
-    private final int size;
+    private final String size;
     private final String name, capName, wrapperName, bufferName;
+    private final String v1, v2, v3;
 
     public String getCapName() {
         return capName;
@@ -26,7 +27,19 @@ public class Primitive {
         return name;
     }
 
-    public int getSize() {
+    public String getV1() {
+        return       v1;
+    }
+
+    public String getV2() {
+        return       v2;
+    }
+
+    public String getV3() {
+        return       v3;
+    }
+
+    public String getSize() {
         return size;
     }
 
@@ -46,40 +59,79 @@ public class Primitive {
         return bufferName;
     }
 
+    public Primitive(String integralClassName) {
+        this.type = null;
+		wrapper = null;
+		bufferType = null;
+		size = integralClassName + ".SIZE";
+		v1 = "new " + integralClassName + "(1)";
+		v2 = "new " + integralClassName + "(2)";
+		v3 = "new " + integralClassName + "(3)";
+		
+		name = integralClassName;
+        capName = integralClassName;
+        wrapperName = integralClassName;
+        bufferName = null;
+	}
+    
     public Primitive(Class<?> type) {
         this.type = type;
         if (type == Integer.TYPE) {
             wrapper = Integer.class;
             bufferType = IntBuffer.class;
-            size = 4;
+            size = "4";
+            v1 = "1";
+            v2 = "2";
+            v3 = "3";
         } else if (type == Long.TYPE) {
             wrapper = Long.class;
             bufferType = LongBuffer.class;
-            size = 8;
+            size = "8";
+            v1 = "1L";
+            v2 = "2L";
+            v3 = "3L";
         } else if (type == Short.TYPE) {
             wrapper = Short.class;
             bufferType = ShortBuffer.class;
-            size = 2;
+            size = "2";
+            v1 = "(short)1";
+            v2 = "(short)2";
+            v3 = "(short)3";
         } else if (type == Byte.TYPE) {
             wrapper = Byte.class;
             bufferType = ByteBuffer.class;
-            size = 1;
+            size = "1";
+            v1 = "(byte)1";
+            v2 = "(byte)2";
+            v3 = "(byte)3";
         } else if (type == Character.TYPE) {
             wrapper = Character.class;
             bufferType = CharBuffer.class;
-            size = 2;
+            size = "2";
+            v1 = "'a'";
+            v2 = "'b'";
+            v3 = "'c'";
         } else if (type == Float.TYPE) {
             wrapper = Float.class;
             bufferType = FloatBuffer.class;
-            size = 4;
+            size = "4";
+            v1 = "1f";
+            v2 = "2f";
+            v3 = "3f";
         } else if (type == Double.TYPE) {
             wrapper = Double.class;
             bufferType = DoubleBuffer.class;
-            size = 8;
+            size = "8";
+            v1 = "1.0";
+            v2 = "2.0";
+            v3 = "3.0";
         } else if (type == Boolean.TYPE) {
             wrapper = Boolean.class;
             bufferType = ByteBuffer.class;
-            size = 1;
+            size = "1";
+            v1 = "true";
+            v2 = "false";
+            v3 = "true";
         } else
             throw new IllegalArgumentException();
 
@@ -89,17 +141,23 @@ public class Primitive {
         bufferName = bufferType.getSimpleName();
     }
 
+    static List<Primitive> bridJPrimitives;
+    public static synchronized List<Primitive> getBridJPrimitives() {
+        if (bridJPrimitives == null) {
+            bridJPrimitives = new ArrayList<Primitive>();
+            bridJPrimitives.addAll(getPrimitives());
+            bridJPrimitives.add(new Primitive("CLong"));
+            bridJPrimitives.add(new Primitive("SizeT"));
+            bridJPrimitives = Collections.unmodifiableList(bridJPrimitives);
+        }
+        return bridJPrimitives;
+    }
+
     static List<Primitive> primitives;
     public static synchronized List<Primitive> getPrimitives() {
         if (primitives == null) {
             primitives = new ArrayList<Primitive>();
-            primitives.add(new Primitive(Integer.TYPE));
-            primitives.add(new Primitive(Long.TYPE));
-            primitives.add(new Primitive(Short.TYPE));
-            primitives.add(new Primitive(Byte.TYPE));
-            primitives.add(new Primitive(Character.TYPE));
-            primitives.add(new Primitive(Float.TYPE));
-            primitives.add(new Primitive(Double.TYPE));
+            primitives.addAll(getPrimitivesNoBool());
             primitives.add(new Primitive(Boolean.TYPE));
             primitives = Collections.unmodifiableList(primitives);
         }

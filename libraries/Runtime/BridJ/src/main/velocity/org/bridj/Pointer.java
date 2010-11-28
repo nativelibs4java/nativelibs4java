@@ -1309,6 +1309,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		
 		long address = JNI.getDirectBufferAddress(buffer);
 		long size = JNI.getDirectBufferCapacity(buffer);
+		
+		// HACK (TODO?) the JNI spec says size is in bytes, but in practice on mac os x it's in elements !!!
+		size *= ${prim.Size};
+		//System.out.println("Buffer capacity = " + size);
+		
 		if (address == 0 || size == 0)
 			return null;
 		
@@ -1527,6 +1532,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		p.set${sizePrim}(0, value);
 		return p;
 	}
+#docAllocateCopy($sizePrim $sizePrim)
+    public static Pointer<${sizePrim}> pointerTo${sizePrim}(${sizePrim} value) {
+		Pointer<${sizePrim}> p = allocate(PointerIO.get${sizePrim}Instance());
+		p.set${sizePrim}(0, value);
+		return p;
+	}
 #docAllocateArrayCopy($sizePrim $sizePrim)
     public static Pointer<${sizePrim}> pointerTo${sizePrim}s(long... values) {
 		if (values == null)
@@ -1534,7 +1545,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return allocateArray(PointerIO.get${sizePrim}Instance(), values.length).set${sizePrim}s(0, values);
 	}
 #docAllocateArrayCopy($sizePrim $sizePrim)
-    public static Pointer<${sizePrim}> pointerTo${sizePrim}s(${sizePrim}[] values) {
+    public static Pointer<${sizePrim}> pointerTo${sizePrim}s(${sizePrim}... values) {
 		if (values == null)
 			return null;
 		return allocateArray(PointerIO.get${sizePrim}Instance(), values.length).set${sizePrim}s(0, values);
@@ -1630,7 +1641,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     public Pointer<T> set${sizePrim}s(long byteOffset, ${sizePrim}... values) {
 		if (values == null)
 			throw new IllegalArgumentException("Null values");
-		int n = values.length, s = 4;
+		int n = values.length, s = ${sizePrim}.SIZE;
 		for (int i = 0; i < n; i++)
 			set${sizePrim}(i * s, values[i].longValue());
 		return this;
@@ -1669,6 +1680,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return p;
 	}
 	
+	/*
 	static Class<?> getPrimitiveType(Buffer buffer) {
 
         #foreach ($prim in $primitivesNoBool)
@@ -1676,7 +1688,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 			return ${prim.WrapperName}.TYPE;
 		#end
         throw new UnsupportedOperationException();
-    }
+    }*/
     
     /**
      * Copy length values from an NIO buffer (beginning at element at valuesOffset index) to the pointed memory location shifted by a byte offset
@@ -1685,6 +1697,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         #foreach ($prim in $primitivesNoBool)
         if (values instanceof ${prim.BufferName}) {
             set${prim.CapName}s(byteOffset, (${prim.BufferName})values, valuesOffset, length);
+            return;
+        }
+        #end
+        throw new UnsupportedOperationException();
+    }
+    
+    /**
+     * Copy values from an NIO buffer to the pointed memory location
+     */
+    public void setValues(Buffer values) {
+    		#foreach ($prim in $primitivesNoBool)
+        if (values instanceof ${prim.BufferName}) {
+            set${prim.CapName}s((${prim.BufferName})values);
             return;
         }
         #end
