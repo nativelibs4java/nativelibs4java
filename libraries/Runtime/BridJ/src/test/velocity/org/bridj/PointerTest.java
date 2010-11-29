@@ -308,6 +308,11 @@ public class PointerTest {
 		assertEquals(${prim.value("1")}, (${prim.Name})p.get(0)$precisionArg);
 		assertEquals(${prim.value("2")}, (${prim.Name})p.get(1)$precisionArg);
 		assertEquals(${prim.value("3")}, (${prim.Name})p.get(2)$precisionArg);
+		
+		p = Pointer.pointerTo${prim.CapName}s(${prim.rawValue("1")}, ${prim.rawValue("2")}, ${prim.rawValue("3")});
+		assertEquals(${prim.rawValue("1")}, p.get${prim.CapName}(0)$precisionArg);
+		assertEquals(${prim.rawValue("2")}, p.get${prim.CapName}(1)$precisionArg);
+		assertEquals(${prim.rawValue("3")}, p.get${prim.CapName}(2)$precisionArg);
 	}
 	@Test 
     public void testPointerTo_${prim.Name}_Value() {
