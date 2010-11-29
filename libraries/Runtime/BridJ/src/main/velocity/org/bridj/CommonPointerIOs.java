@@ -1,6 +1,7 @@
 package org.bridj;
 import org.bridj.util.*;
 import java.util.*;
+import java.nio.*;
 import java.lang.reflect.Type;
 import com.ochafik.util.string.StringUtils;
 import static org.bridj.util.DefaultParameterizedType.*;
@@ -39,7 +40,7 @@ class CommonPointerIOs {
 		final PointerIO<T> underlyingIO;
 
 		public PointerPointerIO(PointerIO<T> underlyingIO) {
-			super(underlyingIO == null ? null : paramType(Pointer.class, new Type[] {underlyingIO.getTargetType()}), Pointer.SIZE, null);
+			super(underlyingIO == null ? Pointer.class : paramType(Pointer.class, new Type[] {underlyingIO.getTargetType()}), Pointer.SIZE, null);
 			this.underlyingIO = underlyingIO;
 		}
 		
@@ -183,6 +184,11 @@ class CommonPointerIOs {
 		@Override
 		public void set(Pointer<${prim.WrapperName}> pointer, long index, ${prim.WrapperName} value) {
 			pointer.set${prim.CapName}(index * ${prim.Size}, value);
+		}
+		
+		@Override
+		public <B extends Buffer> B getBuffer(Pointer<${prim.WrapperName}> pointer, long byteOffset, int length) {
+			return (B)pointer.get${prim.BufferName}(byteOffset, length);
 		}
 		
 		@Override

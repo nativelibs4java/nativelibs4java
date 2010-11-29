@@ -169,12 +169,17 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 #end
 #macro (docGetArray $cPrimName $primWrapper)
 	/**
-     * Read an array of $cPrimName values of the specified size from the pointed memory location
+     * Read an array of $cPrimName values of the specified length from the pointed memory location
+     */
+#end
+#macro (docGetRemainingArray $cPrimName $primWrapper)
+	/**
+     * Read the array of remaining $cPrimName values from the pointed memory location
      */
 #end
 #macro (docGetArrayOffset $cPrimName $primWrapper)
 	/**
-     * Read an array of $cPrimName values of the specified size from the pointed memory location shifted by a byte offset
+     * Read an array of $cPrimName values of the specified length from the pointed memory location shifted by a byte offset
      */
 #end
 #macro (docSet $cPrimName $primWrapper)
@@ -1178,6 +1183,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		if (arrayLength == 0)
 			return null;
 		
+		PointerIO pio = PointerIO.getInstance(elementClass);
+		if (pio == null)
+			throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());
+		return (Pointer<V>)allocateArray(pio, arrayLength);
+		/*
         #foreach ($prim in $primitives)
         if (elementClass == ${prim.WrapperName}.TYPE || elementClass == ${prim.WrapperName}.class)
             return (Pointer<V>)allocateArray(PointerIO.get${prim.CapName}Instance(), arrayLength);
@@ -1196,7 +1206,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         }
         //if (CLong.class.isAssignableFrom(elementClass))
         //    return (Pointer<V>)allocate(PointerIO.getPointerInstance(), Pointer.SIZE * arrayLength); // TODO
-        throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());
+        throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());*/
     }
 
     /**
@@ -1414,6 +1424,25 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return getPointers(byteOffset, arrayLength, (PointerIO)null);
     }
     /**
+	 * Read the array of remaining untyped pointer values from the pointed memory location
+	 * @deprecated Use a typed version instead : {@link Pointer#getPointers(long, int, Type)}, {@link Pointer#getPointers(long, int, Class)} or {@link Pointer#getPointers(long, int, PointerIO)}
+	 */
+    @Deprecated
+	public Pointer<?>[] getPointers() {
+        long rem = getValidElements();
+    		if (rem < 0)
+    			throwBecauseUntyped("Cannot create array if remaining length is not known. Please use getPointers(int length) instead.");
+		return getPointers(0L, (int)rem);
+    }
+    /**
+	 * Read an array of untyped pointer values from the pointed memory location
+	 * @deprecated Use a typed version instead : {@link Pointer#getPointers(long, int, Type)}, {@link Pointer#getPointers(long, int, Class)} or {@link Pointer#getPointers(long, int, PointerIO)}
+	 */
+    @Deprecated
+	public Pointer<?>[] getPointers(int arrayLength) {
+        return getPointers(0, arrayLength);
+    }
+    /**
 	 * Read an array of pointer values from the pointed memory location shifted by a byte offset
 	 * @param t type of the elements pointed by the resulting pointer 
 	 */
@@ -1436,19 +1465,33 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     	Pointer<U>[] values = (Pointer<U>[])new Pointer[arrayLength];
 		int s = JNI.POINTER_SIZE;
 		for (int i = 0; i < arrayLength; i++)
-			values[i] = getPointer(i * s, pio);
+			values[i] = getPointer(byteOffset + i * s, pio);
 		return values;
 	}
 	/**
 	 * Write an array of pointer values to the pointed memory location shifted by a byte offset
 	 */
-    public Pointer<T> setPointers(long byteOffset, Pointer<?>... values) {
+    public Pointer<T> setPointers(long byteOffset, Pointer<?>[] values) {
+    		return setPointers(byteOffset, values, 0, values.length);
+	}
+	
+	/**
+	 * Write length pointer values from the given array (starting at the given value offset) to the pointed memory location shifted by a byte offset
+	 */
+    public Pointer<T> setPointers(long byteOffset, Pointer<?>[] values, int valuesOffset, int length) {
 		if (values == null)
 			throw new IllegalArgumentException("Null values");
-		int n = values.length, s = JNI.POINTER_SIZE;
+		int n = length, s = JNI.POINTER_SIZE;
 		for (int i = 0; i < n; i++)
-			setPointer(i * s, values[i]);
+			setPointer(byteOffset + i * s, values[valuesOffset + i]);
 		return this;
+	}
+	
+	/**
+	 * Write an array of pointer values to the pointed memory location
+	 */
+    public Pointer<T> setPointers(Pointer<?>[] values) {
+    		return setPointers(0, values);
 	}
 	
 	/**
@@ -1479,7 +1522,38 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * @return an array of values of the requested length. The array is an array of primitives if the pointer's target type is a primitive or a boxed primitive type
 	 */
 	public Object getArray() {
-		return getArray(0L, (int)getValidElements());	
+		return getArray((int)getValidElements());	
+	}
+	
+	/**
+	 * Read an NIO {@link Buffer} of elements from the pointed memory location shifted by a byte offset.<br>
+	 * @return an NIO {@link Buffer} of values of the requested length.
+	 * @throws UnsupportedOperationException if this pointer's target type is not a Java primitive type with a corresponding NIO {@link Buffer} class.
+	 */
+	public <B extends Buffer> B getBuffer(long byteOffset, int length) {
+		PointerIO<T> io = getIO();
+        if (io == null)
+            throwBecauseUntyped("Cannot create Buffer");
+
+        return (B)io.getBuffer(this, byteOffset, length);	
+	}
+	
+	/**
+	 * Read an NIO {@link Buffer} of elements from the pointed memory location.<br>
+	 * @return an NIO {@link Buffer} of values of the requested length.
+	 * @throws UnsupportedOperationException if this pointer's target type is not a Java primitive type with a corresponding NIO {@link Buffer} class.
+	 */
+	public <B extends Buffer> B getBuffer(int length) {
+		return (B)getBuffer(0L, length);	
+	}
+	
+	/**
+	 * Read the NIO {@link Buffer} of remaining elements from the pointed memory location.<br>
+	 * @return an array of values of the requested length.
+	 * @throws UnsupportedOperationException if this pointer's target type is not a Java primitive type with a corresponding NIO {@link Buffer} class.
+	 */
+	public <B extends Buffer> B getBuffer() {
+		return (B)getBuffer((int)getValidElements());	
 	}
 	
 	/**
@@ -1575,6 +1649,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     public long get${sizePrim}(long byteOffset) {
 		return ${sizePrim}.SIZE == 8 ? getLong(byteOffset) : 0xffffffffL & getInt(byteOffset);
 	}
+#docGetRemainingArray($sizePrim $sizePrim)
+    public long[] get${sizePrim}s() {
+    		long rem = getValidElements();
+    		if (rem < 0)
+    			throwBecauseUntyped("Cannot create array if remaining length is not known. Please use get${sizePrim}s(int length) instead.");
+		return get${sizePrim}s(0, (int)rem);
+	}
 #docGetArray($sizePrim $sizePrim)
     public long[] get${sizePrim}s(int arrayLength) {
 		return get${sizePrim}s(0, arrayLength);
@@ -1596,11 +1677,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     public Pointer<T> set${sizePrim}(long value) {
 		return set${sizePrim}(0, value);
 	}
-    #docSet($sizePrim $sizePrim)
+#docSet($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}(${sizePrim} value) {
 		return set${sizePrim}(0, value);
 	}
-    #docSetOffset($sizePrim $sizePrim)
+#docSetOffset($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}(long byteOffset, long value) {
 		if (${sizePrim}.SIZE == 8)
 			setLong(byteOffset, value);
@@ -1610,7 +1691,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return this;
 	}
 	
-    #docSetOffset($sizePrim $sizePrim)
+#docSetOffset($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}(long byteOffset, ${sizePrim} value) {
 		return set${sizePrim}(byteOffset, value.longValue());
 	}
@@ -1628,12 +1709,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 #docSetArrayOffset($sizePrim $sizePrim)
     public Pointer<T> set${sizePrim}s(long byteOffset, long[] values) {
+    		return set${sizePrim}s(byteOffset, values, 0, values.length);
+	}
+#docSetArrayOffset($sizePrim $sizePrim)
+    public Pointer<T> set${sizePrim}s(long byteOffset, long[] values, int valuesOffset, int length) {
+		if (values == null)
+			throw new IllegalArgumentException("Null values");
 		if (${sizePrim}.SIZE == 8) {
-			setLongs(byteOffset, values);
+			setLongs(byteOffset, values, valuesOffset, length);
 		} else {
-			int n = values.length, s = 4;
+			int n = length, s = 4;
 			for (int i = 0; i < n; i++)
-				setInt(i * s, (int)values[i]);
+				setInt(byteOffset + i * s, (int)values[valuesOffset + i]);
 		}
 		return this;
 	}
@@ -1643,7 +1730,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 			throw new IllegalArgumentException("Null values");
 		int n = values.length, s = ${sizePrim}.SIZE;
 		for (int i = 0; i < n; i++)
-			set${sizePrim}(i * s, values[i].longValue());
+			set${sizePrim}(byteOffset + i * s, values[i].longValue());
 		return this;
 	}
 #docSetArrayOffset($sizePrim $sizePrim)
@@ -1689,6 +1776,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		#end
         throw new UnsupportedOperationException();
     }*/
+    
+    /**
+     * Copy length values from an NIO buffer to the pointed memory location shifted by a byte offset
+     */
+    public void setValues(long byteOffset, Buffer values) {
+        #foreach ($prim in $primitivesNoBool)
+        if (values instanceof ${prim.BufferName}) {
+            set${prim.CapName}s(byteOffset, (${prim.BufferName})values);
+            return;
+        }
+        #end
+        throw new UnsupportedOperationException();
+    }
     
     /**
      * Copy length values from an NIO buffer (beginning at element at valuesOffset index) to the pointed memory location shifted by a byte offset
@@ -1791,16 +1891,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return this;
 	}
 	
-    /**
-	 * Read a ${prim.Name} value from the pointed memory location
-	 */
+#docGet(${prim.Name} ${prim.WrapperName})
     public ${prim.Name} get${prim.CapName}() {
 		return get${prim.CapName}(0);
     }
     
-    /**
-	 * Read a ${prim.Name} value from the pointed memory location shifted by a byte offset
-	 */
+#docGetOffset(${prim.Name} ${prim.WrapperName})
     public ${prim.Name} get${prim.CapName}(long byteOffset) {
         #if ($prim.Name != "byte" && $prim.Name != "boolean")
         if (!isOrdered())
@@ -1809,26 +1905,21 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         return JNI.get_${prim.Name}(getCheckedPeer(byteOffset, ${prim.Size}));
     }
     
-	/**
-	 * Read an array of ${prim.Name} values of the specified length from the pointed memory location
-	 */
-    public ${prim.Name}[] get${prim.CapName}s(int length) {
-    	return get${prim.CapName}s(0, length);
+#docGetArray(${prim.Name} ${prim.WrapperName})
+	public ${prim.Name}[] get${prim.CapName}s(int length) {
+    		return get${prim.CapName}s(0, length);
     }
     
-    /**
-	 * Read the array of remaining ${prim.Name} values
-	 */
+  
+#docGetRemainingArray(${prim.Name} ${prim.WrapperName})
     public ${prim.Name}[] get${prim.CapName}s() {
     		long rem = getValidElements();
     		if (rem < 0)
     			throwBecauseUntyped("Cannot create array if remaining length is not known. Please use get${prim.CapName}s(int length) instead.");
 		return get${prim.CapName}s(0, (int)rem);
     }
-    
-    /**
-	 * Read an array of ${prim.Name} values of the specified length from the pointed memory location shifted by a byte offset
-	 */
+
+#docGetArrayOffset(${prim.Name} ${prim.WrapperName})
     public ${prim.Name}[] get${prim.CapName}s(long byteOffset, int length) {
         #if ($prim.Name != "byte" && $prim.Name != "boolean")
         if (!isOrdered())
@@ -1859,6 +1950,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 */
     public Pointer<T> set${prim.CapName}s(${prim.BufferName} values) {
 		return set${prim.CapName}s(0, values, 0, values.capacity());
+	}
+
+    /**
+	 * Write a buffer of ${prim.Name} values of the specified length to the pointed memory location shifted by a byte offset
+	 */
+    public Pointer<T> set${prim.CapName}s(long byteOffset, ${prim.BufferName} values) {
+		return set${prim.CapName}s(byteOffset, values, 0, values.capacity());
 	}
 
     /**
@@ -2582,7 +2680,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	T[] toArray(int length) {
-		Class<?> c = Utils.getClass(io.getTargetType());
+		if (io == null)
+            throwBecauseUntyped("Cannot create array");
+        Class<?> c = Utils.getClass(io.getTargetType());
+		if (c == null)
+			throw new RuntimeException("Unable to get the target type's class (target type = " + io.getTargetType() + ")");
         return (T[])toArray((Object[])Array.newInstance(c, length));
 	}
 	
