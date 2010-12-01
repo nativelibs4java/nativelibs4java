@@ -197,29 +197,32 @@ public class ReductionUtils {
                     int depth = 0;
 					CLBuffer<B> currentOutput = null;
 					CLEvent[] eventsArr = new CLEvent[1];
-					int[] inputLengthArr = new int[1];
+					int[] blockCountArr = new int[1];
 
                     int maxWIS = (int)queue.getDevice().getMaxWorkItemSizes()[0];
 
                     while (inputLength > 1) {
-                        int nInCurrentDepth = inputLength / maxReductionSize;
-						if (inputLength > nInCurrentDepth * maxReductionSize)
-							nInCurrentDepth++;
+                        int blocksInCurrentDepth = inputLength / maxReductionSize;
+						if (inputLength > blocksInCurrentDepth * maxReductionSize)
+							blocksInCurrentDepth++;
                         
 						int iOutput = depth & 1;
                         CLBuffer<? extends Buffer> currentInput = depth == 0 ? input : tempBuffers[iOutput ^ 1];
                         currentOutput = (CLBuffer<B>)tempBuffers[iOutput];
                         if (currentOutput == null)
-                            currentOutput = (CLBuffer<B>)(tempBuffers[iOutput] = context.createBuffer(CLMem.Usage.InputOutput, maxReductionSize * valueChannels, outputClass));
+                            currentOutput = (CLBuffer<B>)(tempBuffers[iOutput] = context.createBuffer(CLMem.Usage.InputOutput, blocksInCurrentDepth * valueChannels, outputClass));
 						
                         synchronized (kernel) {
-                            kernel.setArgs(currentInput, (long)inputLength, (long)maxReductionSize, currentOutput);
-                            inputLengthArr[0] = inputLength;
+                            kernel.setArgs(currentInput, (long)blocksInCurrentDepth, (long)inputLength, (long)maxReductionSize, currentOutput);
+                            int workgroupSize = getNextPowerOfTwo(blocksInCurrentDepth);
+                            if (workgroupSize == 1)
+                            		workgroupSize = 2;
+                            blockCountArr[0] = workgroupSize;
                             int wis = (inputLength & 1) == 0 && maxWIS > 1 ? 2 : 1;
-                            eventsArr[0] = kernel.enqueueNDRange(queue, inputLengthArr, new int[] { wis }, eventsToWaitFor);
+                            eventsArr[0] = kernel.enqueueNDRange(queue, blockCountArr, new int[] { wis }, eventsToWaitFor);
                         }
 						eventsToWaitFor = eventsArr;
-						inputLength = nInCurrentDepth;
+						inputLength = blocksInCurrentDepth;
                         depth++;
                     }
                     return new Pair<CLBuffer<B>, CLEvent[]>(currentOutput, eventsToWaitFor);
