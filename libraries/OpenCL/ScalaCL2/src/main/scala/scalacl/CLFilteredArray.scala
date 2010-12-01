@@ -30,7 +30,7 @@ extends CLCol[T]
     initialPresence
 
   lazy val buffersList = buffers.toList
-  lazy val presencePrefixSum = new CLGuardedBuffer[Long](buffersSize)
+  lazy val presencePrefixSum = new CLGuardedBuffer[Int](buffersSize)
 
   def this(buffers: Array[CLGuardedBuffer[Any]])(implicit dataIO: CLDataIO[T], context: ScalaCLContext) = this(
     buffers, null)
@@ -40,10 +40,10 @@ extends CLCol[T]
   override def clone =
     new CLFilteredArray[T](buffers.map(_.clone), presence.clone)
   
-  def clone(newStart: Long, newEnd: Long) =
+  def clone(newStart: Int, newEnd: Int) =
     new CLFilteredArray[T](buffers.map(_.clone(newStart, newEnd)), presence.clone(newStart, newEnd))
 
-  override def slice(from: Long, to: Long): CLCol[T] = notImp
+  override def slice(from: Int, to: Int): CLCol[T] = notImp
   
   def toCLArray: CLArray[T] = {
     val prefixSum = updatedPresencePrefixSum
@@ -63,8 +63,8 @@ extends CLCol[T]
     }
     presencePrefixSum
   }
-  def buffersSize = buffers(0).size
-  def sizeFuture: CLFuture[Long] = {
+  def buffersSize: Int = buffers(0).size.toInt
+  def sizeFuture: CLFuture[Int] = {
     //error("Filtered array size not implemented yet, needs prefix sum implementation")
     val ps = updatedPresencePrefixSum
     ps(buffersSize - 1)
@@ -88,7 +88,7 @@ extends CLCol[T]
       else
         buffers.map(b => allocateArray(b.t.erasure.asInstanceOf[Class[Any]], buffersSize).order(context.order))
 
-      var i = 0L
+      var i = 0
       while (i < buffersSize) {
         if (presencePtr.get(i).booleanValue) {
           val x = dataIO.extract(ptrs, i)
@@ -159,7 +159,7 @@ extends CLCol[T]
     val presencePtr = presence.toPointer
     val newPresencePtr = allocateBooleans(buffersSize).order(context.order)
 
-    var i = 0L
+    var i = 0
     while (i < buffersSize) {
       val v = dataIO.extract(ptrs, i)
       newPresencePtr.set(i, presencePtr.get(i).booleanValue && f(v))

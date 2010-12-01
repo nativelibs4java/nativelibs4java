@@ -30,16 +30,16 @@ trait CLCol[T] extends CLEventBound {
   def toMap[K <: StructObject, V <: StructObject](implicit kvi: T =:= (K, V)) = notImp
   
   def view: CLView[T, ThisCol[T]] = notImp
-  def slice(from: Long, to: Long): CLCol[T]
-  def take(n: Long): CLCol[T] = slice(n, size)
-  def drop(n: Long): CLCol[T] = slice(0, size - n)
+  def slice(from: Int, to: Int): CLCol[T]
+  def take(n: Int): CLCol[T] = slice(n, size)
+  def drop(n: Int): CLCol[T] = slice(0, size - n)
   
   def zip[V](other: CLCol[V])(implicit dataIO: CLDataIO[T], vIO: CLDataIO[V]): ThisCol[(T, V)] = notImp
-  def zipWithIndex(implicit dataIO: CLDataIO[T]): CLCol[(T, Long)] = zip(new CLLongRange(0, size, 1))
+  def zipWithIndex(implicit dataIO: CLDataIO[T]): CLCol[(T, Int)] = zip(new CLIntRange(0 until size))
   
-  def sizeFuture: CLFuture[Long]
-  def size = sizeFuture.get.toInt
-  def isEmpty = size == 0L
+  def sizeFuture: CLFuture[Int]
+  def size =  sizeFuture.get
+  def isEmpty = size == 0
 
   def copyToArray(a: CLArray[T], start: Int, len: Int): Unit = notImp
   def copyToArray(a: CLArray[T]): Unit = copyToArray(a, 0, size.toInt)

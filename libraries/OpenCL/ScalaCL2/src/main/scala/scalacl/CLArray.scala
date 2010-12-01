@@ -39,7 +39,7 @@ class CLArray[T](
 extends CLCol[T]
    with CLUpdatableCol[T]
 {
-  def this(length: Long)(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) =
+  def this(length: Int)(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) =
     this(dataIO.createBuffers(length))
 
   type ThisCol[T] = CLArray[T]
@@ -50,10 +50,10 @@ extends CLCol[T]
 
   val elementClasses = buffers.map(_.elementClass)//t.erasure.asInstanceOf[Class[T]]
   
-  def apply(index: Long): CLFuture[T] = dataIO.extract(buffers, index)
+  def apply(index: Int): CLFuture[T] = dataIO.extract(buffers, index)
   override def toArray = dataIO.toArray(buffers)
 
-  override def sizeFuture = new CLInstantFuture(buffers(0).size)
+  override def sizeFuture = new CLInstantFuture(buffers(0).size.toInt)
   override def toCLArray = this
   
   private val localSizes = Array(1)
@@ -77,7 +77,7 @@ extends CLCol[T]
       else
         buffers.map(b => allocateArray(b.t.erasure.asInstanceOf[Class[Any]], size).order(context.order))
       
-      var i = 0L
+      var i = 0
       while (i < size) {
         val x = dataIO.extract(ptrs, i)
         val y = f(x)
@@ -135,7 +135,7 @@ extends CLCol[T]
       val ptrs = buffers.map(_.toPointer)
       val newPtr = allocateBooleans(size).order(context.order)
 
-      var i = 0L
+      var i = 0
       while (i < size) {
         val x = dataIO.extract(ptrs, i)
         val b = f(x)
@@ -169,9 +169,9 @@ extends CLCol[T]
     }
   }
 
-  override def slice(from: Long, to: Long) = new CLArray(buffers.map(_.clone(from, to)))
-  override def take(n: Long) = new CLArray(buffers.map(_.clone(0, n)))
-  override def drop(n: Long) = new CLArray(buffers.map(_.clone(n, size)))
+  override def slice(from: Int, to: Int) = new CLArray(buffers.map(_.clone(from, to)))
+  override def take(n: Int) = new CLArray(buffers.map(_.clone(0, n)))
+  override def drop(n: Int) = new CLArray(buffers.map(_.clone(n, size)))
 
   override def view: CLView[T, ThisCol[T]] = new CLArrayView[T, T, CLArray[T]](this, 0, size, null, null, null, null)
 

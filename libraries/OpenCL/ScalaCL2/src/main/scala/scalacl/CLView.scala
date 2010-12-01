@@ -18,8 +18,8 @@ trait CLView[T, C] extends CLCol[T] {
 
 class CLArrayView[A, T, C](
   col: CLArray[A],
-  start: Long,
-  end: Long,
+  start: Int,
+  end: Int,
   filter: CLFunction[A, Boolean],
   map: CLFunction[A, T],
   filterFun: A => Boolean,
@@ -34,7 +34,7 @@ extends CLView[T, C]
 {
   type ThisCol[T] = CLArrayView[A, T, C]
   
-  override def slice(from: Long, to: Long) = {
+  override def slice(from: Int, to: Int) = {
     if (filter == null) {
       new CLArrayView(col, start + from, start + to, filter, map, filterFun, mapFun)
     } else
@@ -77,7 +77,7 @@ extends CLView[T, C]
   }
 
   override def view: CLView[T, CLArrayView[A, T, C]] = notImp // view view !
-  override def sizeFuture: CLFuture[Long] = new CLInstantFuture(col.size)
+  override def sizeFuture: CLFuture[Int] = new CLInstantFuture(col.size)
 
   override def force = {
     if (filter != null) {

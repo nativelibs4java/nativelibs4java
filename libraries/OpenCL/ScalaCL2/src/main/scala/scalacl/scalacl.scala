@@ -184,15 +184,13 @@ package object scalacl {
   def CLFun[K, V](expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
     new CLFunction[K, V](null, null, Seq(), expressions, Seq())
 
-  implicit def Range2CLLongRange(r: Range)(implicit context: ScalaCLContext) =
-    new CLLongRange(r.start, if (r.isInclusive) r.end + 1 else r.end, r.step)
+  implicit def Range2CLIntRange(r: Range)(implicit context: ScalaCLContext) =
+    new CLIntRange(r)//.start, if (r.isInclusive) r.end + 1 else r.end, r.step)
 
-  implicit def IntNumericRange2CLLongRange(r: NumericRange[Int])(implicit context: ScalaCLContext) =
-    new CLLongRange(r.start, if (r.isInclusive) r.end + 1 else r.end, r.step)
-
-  implicit def LongNumericRange2CLLongRange(r: NumericRange[Long])(implicit context: ScalaCLContext) =
-    new CLLongRange(r.start, if (r.isInclusive) r.end + 1 else r.end, r.step)
-
+    /*
+  implicit def IntNumericRange2CLIntRange(r: NumericRange[Int])(implicit context: ScalaCLContext) =
+    new CLIntRange(r.start, if (r.isInclusive) r.end + 1 else r.end, r.step)
+    */
   implicit def Expression2CLFunction[K, V](function: K => V, expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
     new CLFunction[K, V](null, function, Seq(), expressions, Seq())
 
@@ -202,26 +200,13 @@ package object scalacl {
   implicit def CLFullFun[K, V](uniqueSignature: String, function: K => V, declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
     new CLFunction[K, V](uniqueSignature, function, declarations, expressions, Seq())
 
-  class RichIntRangeCL(c: NumericRange[Int])(implicit context: ScalaCLContext) {
-    def toCLRange: CLLongRange = c
-    def toCLArray = toCLRange.toCLArray
-    def toCL = toCLRange
-  }
-  class RichLongRangeCL(c: NumericRange[Long])(implicit context: ScalaCLContext) {
-    def toCLRange: CLLongRange = c
-    def toCLArray = toCLRange.toCLArray
-    def toCL = toCLRange
-  }
   class RichIndexedSeqCL[T](c: IndexedSeq[T])(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) {
     def toCLArray = CLArray[T](c.toArray(dataIO.t):_*)
     def toCL = toCLArray
   }
-  implicit def IntNumericRange2RichIntRangeCL(c: NumericRange[Int])(implicit context: ScalaCLContext) =
-    new RichIntRangeCL(c)
-
-  implicit def IntNumericRange2RichLongRangeCL(c: NumericRange[Long])(implicit context: ScalaCLContext) =
-    new RichLongRangeCL(c)
-
-  implicit def IndexedSeq2RichIndexedSeqCL[T](c: IndexedSeq[T])(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) =
-    new RichIndexedSeqCL(c)
+  implicit def IntNumericRange2RichIntRangeCL(c: Range)(implicit context: ScalaCLContext) = new {
+    def toCLRange: CLIntRange = c
+    def toCLArray = toCLRange.toCLArray
+    def toCL = toCLRange
+  }
 }

@@ -26,7 +26,7 @@ class CLEmptyCol[T](implicit val context: ScalaCLContext, dataIO: CLDataIO[T]) e
   override def toIndexedSeq = scala.collection.immutable.IndexedSeq[T]()
 
   //override def view: CLView[T, CLEmptyCol[T]] = notImp//new CLEmptyView[T]
-  override def slice(from: Long, to: Long): CLCol[T] = {
+  override def slice(from: Int, to: Int): CLCol[T] = {
     if (from != 0 || to != 0)
       error("Invalid slice for empty collection : " + (from, to))
     this
@@ -37,7 +37,7 @@ class CLEmptyCol[T](implicit val context: ScalaCLContext, dataIO: CLDataIO[T]) e
       new CLEmptyCol[(T, V)].asInstanceOf[ThisCol[(T, V)]] // TODO !!!
   }
 
-  override def sizeFuture: CLFuture[Long] = new CLInstantFuture(0L)
+  override def sizeFuture: CLFuture[Int] = new CLInstantFuture(0)
 }
 /*
 class CLEmptyView[T](implicit context: ScalaCLContext, dataIO: CLDataIO[T]) extends CLEmptyCol[T] with CLView[T, CLEmptyCol[T]] {

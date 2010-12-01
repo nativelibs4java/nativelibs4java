@@ -14,7 +14,7 @@ trait CLDataIO[T] {
   val pointerIO: PointerIO[T]
   def elements: Seq[CLDataIO[Any]]
   def clType: String
-  def createBuffers(length: Long)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]]
+  def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]]
 
   def openCLKernelArgDeclarations(input: Boolean, offset: Int): Seq[String]
   def openCLKernelNthItemExprs(input: Boolean, offset: Int, n: String): Seq[(String, List[Int])]
@@ -24,41 +24,41 @@ trait CLDataIO[T] {
   def openCLIthTupleElementNthItemExpr(input: Boolean, offset: Int, indexes: List[Int], n: String): String
   //def openCLTupleShuffleNthFieldExprs(input: Boolean, offset: Int, i: String, shuffleExpr: String): Seq[String]
 
-  def extract(arrays: Array[CLGuardedBuffer[Any]], index: Long): CLFuture[T] = {
+  def extract(arrays: Array[CLGuardedBuffer[Any]], index: Int): CLFuture[T] = {
     assert(elementCount == arrays.length)
     extract(arrays, 0, index)
   }
-  def store(v: T, arrays: Array[CLGuardedBuffer[Any]], index: Long): Unit = {
+  def store(v: T, arrays: Array[CLGuardedBuffer[Any]], index: Int): Unit = {
     assert(elementCount == arrays.length)
     store(v, arrays, 0, index)
   }
-  def extract(pointers: Array[Pointer[Any]], index: Long): T = {
+  def extract(pointers: Array[Pointer[Any]], index: Int): T = {
     assert(elementCount == pointers.length)
     extract(pointers, 0, index)
   }
-  def store(v: T, pointers: Array[Pointer[Any]], index: Long): Unit = {
+  def store(v: T, pointers: Array[Pointer[Any]], index: Int): Unit = {
     assert(elementCount == pointers.length)
     store(v, pointers, 0, index)
   }
 
   private[scalacl]
-  def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Long): CLFuture[T]
+  def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): CLFuture[T]
   
   private[scalacl]
-  def store(v: T, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Long): Unit
+  def store(v: T, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): Unit
   
   private[scalacl]
-  def extract(pointers: Array[Pointer[Any]], offset: Int, index: Long): T
+  def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): T
   
   private[scalacl]
-  def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Long): Unit
+  def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit
   
   private[scalacl]
   def exprs(arrayExpr: String): Seq[String]
   //def toArray(arrays: Array[CLGuardedBuffer[Any]], offset: Int): Array[T]
 
   def toArray(arrays: Array[CLGuardedBuffer[Any]]): Array[T] = toArray(arrays, null)
-  def toArray(arrays: Array[CLGuardedBuffer[Any]], out: Array[T], start: Long = 0, length: Long = -1L): Array[T] = {
+  def toArray(arrays: Array[CLGuardedBuffer[Any]], out: Array[T], start: Int = 0, length: Int = -1): Array[T] = {
     assert(elementCount == arrays.length)
     val pointers = arrays.map(_.toPointer)
     val size = pointers(0).getValidElements.toInt
@@ -144,7 +144,7 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
       "struct { " + types.reduceLeft(_ + "; " + _) + "; }"
   }
 
-  override def createBuffers(length: Long)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
+  override def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
     ios.flatMap(_.createBuffers(length))
 
   lazy val (iosAndOffsets, elementCount) = {
@@ -159,16 +159,16 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
     )
   }
     
-  override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Long): CLFuture[T] =
+  override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): CLFuture[T] =
     new CLTupleFuture(iosAndOffsets.map { case (io, ioOffset) => io.extract(arrays, offset + ioOffset, index) }, tuple)
   
-  override def store(v: T, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Long): Unit =
+  override def store(v: T, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): Unit =
     iosAndOffsets.zip(values(v)).foreach { case ((io, ioOffset), vi) => io.store(vi, arrays, offset + ioOffset, index) }
 
-  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Long): T =
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): T =
     tuple(iosAndOffsets.map { case (io, ioOffset) => io.extract(pointers, offset + ioOffset, index) })
 
-  override def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Long): Unit =
+  override def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
     iosAndOffsets.zip(values(v)).foreach { case ((io, ioOffset), vi) => io.store(vi, pointers, offset + ioOffset, index) }
 
   override def exprs(arrayExpr: String): Seq[String] =
@@ -214,19 +214,19 @@ class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extend
 
   override def toString = t.erasure.getSimpleName + " /* " + clType + "*/"
 
-  override def createBuffers(length: Long)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
+  override def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
     Array(new CLGuardedBuffer[T](length).asInstanceOf[CLGuardedBuffer[Any]])
 
-  override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Long): CLFuture[T] =
+  override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): CLFuture[T] =
     arrays(offset).asInstanceOf[CLGuardedBuffer[T]](index)
 
-  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Long): T =
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): T =
     pointers(offset).asInstanceOf[Pointer[T]].get(index)
 
-  override def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Long): Unit =
+  override def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
     pointers(offset).asInstanceOf[Pointer[T]].set(index, v)
 
-  override def store(v: T, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Long): Unit =
+  override def store(v: T, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): Unit =
     arrays(offset).asInstanceOf[CLGuardedBuffer[T]](index) = v
 
   override def exprs(arrayExpr: String): Seq[String] =
@@ -240,11 +240,11 @@ class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extend
 
 
 
-class CLLongRangeDataIO(implicit val t: ClassManifest[Long]) extends CLDataIO[Long] {
+class CLIntRangeDataIO(implicit val t: ClassManifest[Int]) extends CLDataIO[Int] {
 
   override val elementCount = 1
 
-  override lazy val pointerIO: PointerIO[Long] =
+  override lazy val pointerIO: PointerIO[Int] =
     PointerIO.getInstance(t.erasure)
 
   override def elements: Seq[CLDataIO[Any]] =
@@ -271,27 +271,30 @@ class CLLongRangeDataIO(implicit val t: ClassManifest[Long]) extends CLDataIO[Lo
 
   override def toString = "int range"
 
-  override def createBuffers(length: Long)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
-    Array(new CLGuardedBuffer[Long](2).asInstanceOf[CLGuardedBuffer[Any]])
+  override def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
+    Array(new CLGuardedBuffer[Int](2).asInstanceOf[CLGuardedBuffer[Any]])
 
-  override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Long): CLFuture[Long] =
-    new CLInstantFuture[Long](arrays(offset).asInstanceOf[CLGuardedBuffer[Long]](0).get + index)
+  override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): CLFuture[Int] = {
+    val arr = arrays(offset).asInstanceOf[CLGuardedBuffer[Int]]
+    val range = CLIntRange.toRange(arr)
+    new CLInstantFuture[Int](range.start + range.step * index.toInt)
+  }
 
-  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Long): Long =
-    pointers(offset).asInstanceOf[Pointer[Long]].get(0) + index
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Int =
+    pointers(offset).asInstanceOf[Pointer[Int]].get(0) + index.toInt
 
-  override def store(v: Long, pointers: Array[Pointer[Any]], offset: Int, index: Long): Unit =
-    error("Long ranges are immutable !")
+  override def store(v: Int, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
+    error("Int ranges are immutable !")
 
-  override def store(v: Long, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Long): Unit =
-    error("Long ranges are immutable !")
+  override def store(v: Int, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): Unit =
+    error("Int ranges are immutable !")
 
   override def exprs(arrayExpr: String): Seq[String] =
     Seq(arrayExpr)
 
-  override def toArray(arrays: Array[CLGuardedBuffer[Any]]): Array[Long] = {
+  override def toArray(arrays: Array[CLGuardedBuffer[Any]]): Array[Int] = {
     assert(elementCount == arrays.length)
-    val Array(low, length) = arrays(0).asInstanceOf[CLGuardedBuffer[Long]].toArray
-    (low.toInt until length.toInt).toArray.map(_.toLong)
+    val Array(low, length, by) = arrays(0).asInstanceOf[CLGuardedBuffer[Int]].toArray
+    (low.toInt until length.toInt).toArray
   }
 }
