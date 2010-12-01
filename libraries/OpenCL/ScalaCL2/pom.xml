@@ -58,7 +58,33 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   
   <build>
   	<plugins>
-	
+        <!--
+    		<plugin>
+          <groupId>org.scala-tools</groupId>
+          <artifactId>maven-scala-plugin</artifactId>
+			<executions>
+				<execution>
+					<goals>
+						<goal>compile</goal>
+						<goal>testCompile</goal>
+					</goals>
+				</execution>
+			</executions>
+          <configuration>
+            <compilerPlugins>
+              <compilerPlugin>
+                <groupId>com.nativelibs4java</groupId>
+                <artifactId>scalacl-compiler-plugin</artifactId>
+                <version>0.1</version>
+              </compilerPlugin>
+            </compilerPlugins>
+		   <args>
+		   	<arg>-optimize</arg>
+		   </args>
+          </configuration>
+          
+        </plugin>
+		-->
   	
 		<plugin>
 			<groupId>org.scala-tools</groupId>
