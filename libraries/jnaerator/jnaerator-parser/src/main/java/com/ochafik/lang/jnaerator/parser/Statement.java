@@ -24,7 +24,10 @@ import java.util.Collections;
 import java.util.List;
 
 public abstract class Statement extends Element {
-	
+    @Override
+	public Statement clone() {
+        return (Statement)super.clone();
+    }
 	public static class Throw extends Statement {
 		Expression expression;
 		public Expression getExpression() {
@@ -191,6 +194,135 @@ public abstract class Statement extends Element {
 			return false;
 		}
 	}
+	
+	public static class For extends Statement {
+		public For() {}
+		public For(List<Statement> initStatements, Expression condition, List<Statement> postStatements, Statement body) {
+			setInitStatements(initStatements);
+			setCondition(condition);
+			setPostStatements(postStatements);
+			setBody(body);
+		}
+		Expression condition;
+		Statement body;
+		final List<Statement> initStatements = new ArrayList<Statement>(), postStatements = new ArrayList<Statement>();
+		
+		public void setPostStatements(List<Statement> postStatements) {
+			changeValue(this, this.postStatements, postStatements);
+		}
+		public List<Statement> getPostStatements() {
+			return unmodifiableList(postStatements);
+		}
+		public void setInitStatements(List<Statement> initStatements) {
+			changeValue(this, this.initStatements, initStatements);
+		}
+		public List<Statement> getInitStatements() {
+			return unmodifiableList(initStatements);
+		}
+		
+		public void setCondition(Expression condition) {
+			this.condition = changeValue(this, this.condition, condition);
+		}
+		public void setBody(Statement body) {
+			this.body = changeValue(this, this.body, body);
+		}
+		public Statement getBody() {
+			return body;
+		}
+		public Expression getCondition() {
+			return condition;
+		}
+		@Override
+		public void accept(Visitor visitor) {
+			visitor.visitFor(this);
+		}
+		@Override
+		public Element getNextChild(Element child) {
+			Element e = getNextSibling(initStatements, child);
+			if (e != null)
+				return e;
+			return getNextSibling(postStatements, child);
+		}
+		@Override
+		public Element getPreviousChild(Element child) {
+			Element e = getPreviousSibling(initStatements, child);
+			if (e != null)
+				return e;
+			return getPreviousSibling(postStatements, child);
+		}
+		@Override
+		public boolean replaceChild(Element child, Element by) {
+			if (child == getCondition()) {
+				setCondition((Expression)by);
+				return true;
+			}
+			if (child == getBody()) {
+				setBody((Statement)by);
+				return true;
+			}
+			return 
+				replaceChild(initStatements, Statement.class, this, child, by) ||
+				replaceChild(postStatements, Statement.class, this, child, by);
+		}
+	}
+    
+	public static class While extends Statement {
+		public While() {}
+		public While(Expression condition, Statement body) {
+			setCondition(condition);
+			setBody(body);
+		}
+		Expression condition;
+		Statement body;
+		
+		public void setCondition(Expression condition) {
+			this.condition = changeValue(this, this.condition, condition);
+		}
+		public void setBody(Statement body) {
+			this.body = changeValue(this, this.body, body);
+		}
+		public Statement getBody() {
+			return body;
+		}
+		public Expression getCondition() {
+			return condition;
+		}
+		@Override
+		public void accept(Visitor visitor) {
+			visitor.visitWhile(this);
+		}
+		@Override
+		public Element getNextChild(Element child) {
+			return null;
+		}
+		@Override
+		public Element getPreviousChild(Element child) {
+			return null;
+		}
+		@Override
+		public boolean replaceChild(Element child, Element by) {
+			if (child == getCondition()) {
+				setCondition((Expression)by);
+				return true;
+			}
+			if (child == getBody()) {
+				setBody((Statement)by);
+				return true;
+			}
+			return false;
+		}
+	}
+    public static class DoWhile extends While {
+        public DoWhile() {}
+		public DoWhile(Expression condition, Statement body) {
+            super(condition, body);
+		}
+		
+		@Override
+		public void accept(Visitor visitor) {
+			visitor.visitDoWhile(this);
+		}
+    }
 	public static class ExpressionStatement extends Statement {
 
 		public ExpressionStatement() {}

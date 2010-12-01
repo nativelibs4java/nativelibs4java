@@ -13,7 +13,7 @@ import org.bridj.cs.CSharpRuntime;
 import java.lang.reflect.Type;
 
 /**
- * {@link http://msdn.microsoft.com/en-us/library/system.runtime.interopservices.marshal.getdelegateforfunctionpointer(VS.80).aspx}
+ * @see <a href="http://msdn.microsoft.com/en-us/library/system.runtime.interopservices.marshal.getdelegateforfunctionpointer(VS.80).aspx">http://msdn.microsoft.com/en-us/library/system.runtime.interopservices.marshal.getdelegateforfunctionpointer(VS.80).aspx</a>
  * @author Olivier
  */
 public class DotNetRuntime extends AbstractBridJRuntime implements CSharpRuntime {

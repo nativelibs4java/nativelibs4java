@@ -20,6 +20,7 @@ package com.ochafik.lang.jnaerator.parser;
 
 import com.ochafik.lang.jnaerator.parser.Statement.Catch;
 import com.ochafik.lang.jnaerator.parser.Statement.Try;
+import com.ochafik.lang.jnaerator.parser.Statement.While;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -50,8 +51,10 @@ import com.ochafik.lang.jnaerator.parser.Identifier.QualifiedIdentifier;
 import com.ochafik.lang.jnaerator.parser.Identifier.SimpleIdentifier;
 import com.ochafik.lang.jnaerator.parser.Statement.Block;
 import com.ochafik.lang.jnaerator.parser.Statement.DeclarationStatement;
+import com.ochafik.lang.jnaerator.parser.Statement.DoWhile;
 import com.ochafik.lang.jnaerator.parser.Statement.ExpressionStatement;
 import com.ochafik.lang.jnaerator.parser.Statement.If;
+import com.ochafik.lang.jnaerator.parser.Statement.For;
 import com.ochafik.lang.jnaerator.parser.Statement.Return;
 import com.ochafik.lang.jnaerator.parser.Statement.Throw;
 import com.ochafik.lang.jnaerator.parser.StoredDeclarations.TypeDef;
@@ -324,6 +327,7 @@ public class Scanner implements Visitor {
 		visitExpression(newArray);
 		visit(newArray.getType());
 		visit(newArray.getDimensions());
+        visit(newArray.getInitialValues());
 	}
 
 	public void visitArrayDeclarator(ArrayDeclarator arrayDeclarator) {
@@ -376,7 +380,7 @@ public class Scanner implements Visitor {
 	}
 
 	public void visitIf(If if1) {
-		visitStatement(if1);
+		visitControlStructure(if1);
 		visit(if1.getCondition());
 		visit(if1.getThenBranch());
 		visit(if1.getElseBranch());
@@ -389,11 +393,6 @@ public class Scanner implements Visitor {
 	public void visitReturn(Return return1) {
 		visitStatement(return1);
 		visit(return1.getValue());
-	}
-
-	public void visitExternDeclarations(ExternDeclarations externDeclarations) {
-		visitDeclaration(externDeclarations);
-		visit(externDeclarations.getDeclarations());
 	}
 
 	public void visitOpaqueExpression(OpaqueExpression opaqueExpression) {
@@ -483,15 +482,25 @@ public class Scanner implements Visitor {
 		visit(friendDeclaration.getFriend());
 	}
 
-    public void visitTry(Try tr) {
+	public void visitControlStructure(Statement tr) {
         visitStatement(tr);
+    }
+	
+    public void visitTry(Try tr) {
+        visitControlStructure(tr);
 		visit(tr.getTryStatement());
         visit(tr.getFinallyStatement());
         visit(tr.getCatches());
     }
-
+    public void visitFor(For aFor) {
+    		visitControlStructure(aFor);
+    		visit(aFor.getInitStatements());
+    		visit(aFor.getCondition());
+    		visit(aFor.getPostStatements());
+    		visit(aFor.getBody());
+    }
     public void visitCatch(Catch ca) {
-        visitStatement(ca);
+        visitControlStructure(ca);
 		visit(ca.getDeclaration());
         visit(ca.getBody());
     }
@@ -502,4 +511,31 @@ public class Scanner implements Visitor {
 		visit(template.getDeclaration());
 	}
 
+    @Override
+    public void visitWhile(While whileStat) {
+    		visitControlStructure(whileStat);
+		visit(whileStat.getCondition());
+		visit(whileStat.getBody());
+	}
+
+    @Override
+    public void visitDoWhile(DoWhile doWhileStat) {
+        visitWhile(doWhileStat);
+	}
+    
+    public void visitDeclarations(Declarations declarations) {
+		visitDeclaration(declarations);
+		visit(declarations.getDeclarations());
+	}
+
+	
+    public void visitExternDeclarations(ExternDeclarations externDeclarations) {
+		visitDeclarations(externDeclarations);
+	}
+    
+    @Override
+    public void visitNamespace(Namespace ns) {
+        visit(ns.getName());
+        visitDeclarations(ns);
+    }
 }

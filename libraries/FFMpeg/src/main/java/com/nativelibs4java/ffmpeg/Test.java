@@ -15,6 +15,7 @@ import com.nativelibs4java.ffmpeg.swscale.*;
 
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
+import org.bridj.ValuedEnum;
 
 /**
  * Converted to Java+BridJ from this post: http://dranger.com/ffmpeg/tutorial01.html
@@ -57,10 +58,16 @@ public class Test {
             if (pStream == null)
                 continue;
             pStream = pStream.as(AVStream.class); // TODO FIX BRIDJ AND REMOVE THIS LINE
-            Pointer<AVCodecContext> pCodec = pStream.get().codec();
+            AVStream stream = pStream.get();
+            Pointer<AVCodecContext> pCodec = stream.codec();
             if (pCodec == null)
                 continue;
-            if (pCodec.get().codec_type() == AVMediaType.AVMEDIA_TYPE_VIDEO) {
+
+            //String codecName = pCodec.get().codec_name().getCString();
+            //System.out.println("Codec Name = " + codecName);
+            AVCodecContext codec = pCodec.get();
+            ValuedEnum<AVMediaType> codec_type = codec.codec_type();
+            if (codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO) {
                 videoStream = i;
                 break;
             }

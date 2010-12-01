@@ -40,6 +40,9 @@ public class CLUserEvent extends CLEvent {
 	CLUserEvent(cl_event evt) { 
 		super(evt);
 	}
+	CLUserEvent() { 
+		super();
+	}
 	/**
 	 * Sets the execution status of a this event object.
 	 * NOTE: Enqueued commands that specify user events in the event_wait_list argument of clEnqueue*** commands must ensure that the status of these user events being waited on are set using clSetUserEventStatus before any OpenCL APIs that release OpenCL objects except for event objects are called; otherwise the behavior is undefined. More details in the OpenCL specifications at section 5.9.

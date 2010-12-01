@@ -18,9 +18,8 @@ public class CObject extends MFCObject {
 	public native Pointer<CRuntimeClass> GetRuntimeClass();
 
 	/**
-	 * {@link http://msdn.microsoft.com/en-us/library/b7tsah76(VS.80).aspx}
+	 * @see <a href="http://msdn.microsoft.com/en-us/library/b7tsah76(VS.80).aspx">http://msdn.microsoft.com/en-us/library/b7tsah76(VS.80).aspx</a>
 	 * @param pClass
-	 * @return
 	 */
 	@Virtual
 	public native boolean IsKindOf(Pointer<CRuntimeClass> pClass); 

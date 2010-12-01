@@ -49,4 +49,21 @@ public class SizeT extends Number {
     public double doubleValue() {
         return value;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+    		if (o == null || !(o instanceof SizeT))
+    			return false;
+        return value == ((SizeT)o).value;
+    }
+    
+    @Override
+    public int hashCode() {
+    		return ((Long)value).hashCode();
+    }
+    
+    @Override
+    public String toString() {
+    		return "SizeT(" + value + ")";
+    }
 }

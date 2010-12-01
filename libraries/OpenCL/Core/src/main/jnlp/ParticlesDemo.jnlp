@@ -22,7 +22,7 @@
 		<!--<extension name="JavaCL" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL/JavaCL.jnlp"/>
 		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT.jar"/-->
 		
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT-shaded.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-opengl-demos/1.0-SNAPSHOT/javacl-opengl-demos-1.0-SNAPSHOT-shaded.jar"/>
 		
 		<property name="sun.java2d.noddraw" value="true"/>
       	<extension name="jogl-all-awt" href="http://download.java.net/media/jogl/jsr-231-2.x-webstart/jogl-all-awt.jnlp" />

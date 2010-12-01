@@ -57,9 +57,10 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         return new FlagSet<EE>(value, null, enumValue);
     }
     /**
-     * TODO
+     * Isolate bits that are set in the value.<br>
+     * For instance, {@code getBits(0xf)} yields {@literal 0x1, 0x2, 0x4, 0x8}
      * @param value
-     * @return
+     * @return split bits, which give the value back if OR-ed all together.
      */
     public static List<Long> getBits(final long value) {
         List<Long> list = new ArrayList<Long>();
@@ -72,8 +73,8 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
     }
 
     /**
-     * TODO
-     * @return
+     * Get the integral value of this FlagSet.
+     * @return value of the flag set
      */
     @Override
     public long value() {

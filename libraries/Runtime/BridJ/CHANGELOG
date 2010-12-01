@@ -1,4 +1,11 @@
-Current version : BridJ 0.2-SNAPSHOT
+Current version : BridJ 0.3-SNAPSHOT
+
+- Fixed iteration on unbound native-allocated pointers (issue 37). 
+- Fixed Visual C++ demangling (issue 36 : bad handling of back-references).
+- Added Pointer.getBuffer(), getSizeTs(), getCLongs() and other missing methods.
+- Fixed byteOffset-related issues in CLong and SizeT pointer read/write methods.
+
+BridJ 0.2 (r1330, 20101011):
 
 - Renamed package com.bridj to org.bridj
 - Vastly improved JNAerator support : now decent and complete :-)
@@ -22,6 +29,7 @@ Current version : BridJ 0.2-SNAPSHOT
 			Pointer<Pointer<Float>> array = pointerToFloats(width, height);
 			float value = array.get(i).get(j);
 	- More consistent read/write methods, added variants for CLong, SizeT, Boolean, CString, WideCString, PascalString, WidePascalString...
+	- Renamed getRemainingElements to getValidElements, getRemainingBytes to getValidBytes 
 	- Added standard bounds-checked util methods : 
 		- Pointer.copyTo (memcpy)
 		- moveTo (memmov)

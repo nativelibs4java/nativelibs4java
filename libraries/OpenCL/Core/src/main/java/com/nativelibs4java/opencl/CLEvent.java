@@ -77,7 +77,7 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
 		super(evt, false);
 	}
 
-    private CLEvent() {
+    CLEvent() {
 		super(null, true);
 	}
 
@@ -122,12 +122,26 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
     public static void setNoEvents(boolean noEvents) {
         CLEvent.noEvents = noEvents;
     }
-	static CLEvent createEvent(final CLQueue queue, cl_event evt) {
+    static CLEvent createEvent(final CLQueue queue, cl_event evt) {
+    		return createEvent(queue, evt, false);
+    }
+	static CLEvent createEvent(final CLQueue queue, cl_event evt, boolean isUserEvent) {
 		if (noEvents && queue != null) {
             if (evt != null)
                 CL.clReleaseEvent(evt);
             evt = null;
 
+            if (isUserEvent)
+            		return new CLUserEvent() {
+					volatile boolean waited = false;
+					@Override
+					public synchronized void waitFor() {
+						if (!waited) {
+							queue.finish();
+							waited = true;
+						}
+					}
+				};	
             return new CLEvent() {
                 volatile boolean waited = false;
                 @Override
@@ -142,7 +156,9 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
         if (evt == null)
 			return null;
 
-        return new CLEvent(evt);
+        return isUserEvent ? 
+        		new CLUserEvent(evt) : 
+        		new CLEvent(evt);
 	}
 
     static CLEvent createEventFromPointer(CLQueue queue, Pointer<cl_event> evt1) {

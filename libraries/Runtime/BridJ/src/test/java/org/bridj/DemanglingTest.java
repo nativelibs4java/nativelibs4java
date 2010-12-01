@@ -39,6 +39,38 @@ public class DemanglingTest {
         );
     }
     @Test
+    public void testPtrsBackRef() {
+        demangle(
+			"?f@@YAPADPADPAF1@Z",
+			null,
+			"byte* f(byte*, short*, short*)"
+        );
+    }
+    @Test
+    public void testPrimsBackRef() {
+        demangle(
+			"?f@@YADDFF@Z",
+			null,
+			"byte f(byte, short, short)"
+        );
+    }
+    @Test
+    public void testPrimPtrs() {
+        demangle(
+			"?f@@YAPADPADPAFPAHPAJPA_JPAMPAN@Z",
+			null,
+			"byte* f(byte*, short*, int*, CLong*, long*, float*, double*)"
+        );
+    }
+    @Test
+    public void testPrims() {
+        demangle(
+			"?ff@@YAFDFHJ_JMN@Z",
+			null,
+			"short ff(byte, short, int, CLong, long, float, double)"
+        );
+    }
+    @Test
 	public void parameterlessFunction() {
 		demangle(
 			null, // TODO
@@ -86,14 +118,26 @@ public class DemanglingTest {
 
     private void demangle(String vc9, String gcc4, Class enclosingType, Object memberName, Class returnType, Object... paramTypes) {
         try {
-        	if (vc9 != null)
-        		checkSymbol(vc9, new VC9Demangler(null, vc9).parseSymbol(), enclosingType, memberName, returnType, paramTypes, null, null);
-        	if (gcc4 != null)
-        		checkSymbol(gcc4, new GCC4Demangler(null, gcc4).parseSymbol(), enclosingType, memberName, returnType, paramTypes,null, null);
-        } catch (DemanglingException ex) {
-            Logger.getLogger(DemanglingTest.class.getName()).log(Level.SEVERE, null, ex);
-            throw new AssertionError(ex.toString());
-        }
+			if (vc9 != null)
+				checkSymbol(vc9, new VC9Demangler(null, vc9).parseSymbol(), enclosingType, memberName, returnType, paramTypes, null, null);
+			if (gcc4 != null)
+				checkSymbol(gcc4, new GCC4Demangler(null, gcc4).parseSymbol(), enclosingType, memberName, returnType, paramTypes,null, null);
+		} catch (DemanglingException ex) {
+			Logger.getLogger(DemanglingTest.class.getName()).log(Level.SEVERE, null, ex);
+			throw new AssertionError(ex.toString());
+		}
+    }
+    
+    private void demangle(String vc9, String gcc4, String toString) {
+		try {
+			if (vc9 != null)
+				assertEquals(new VC9Demangler(null, vc9).parseSymbol().toString(), toString);
+			if (gcc4 != null)
+				assertEquals(new GCC4Demangler(null, gcc4).parseSymbol().toString(), toString);
+		} catch (DemanglingException ex) {
+			Logger.getLogger(DemanglingTest.class.getName()).log(Level.SEVERE, null, ex);
+			throw new AssertionError(ex.toString());
+		}
     }
 
     private void checkSymbol(String str, MemberRef symbol, Class enclosingType, Object memberName, Class returnType, Object[] paramTypes, Annotation[][] paramAnns, AnnotatedElement element) {

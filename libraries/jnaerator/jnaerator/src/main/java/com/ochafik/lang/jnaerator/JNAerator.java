@@ -122,6 +122,8 @@ import static com.ochafik.lang.jnaerator.nativesupport.NativeExportUtils.*;
 
 
 /**
+
+mvn -o compile exec:java -Dexec.mainClass=com.ochafik.lang.jnaerator.JNAerator
  * java -Xmx2000m -jar ../bin/jnaerator.jar `for F in /System/Library/Frameworks/*.framework ; do echo $F| sed -E 's/^.*\/([^/]+)\.framework$/-framework \1/' ; done` -out apple-frameworks.jar
  */
 
@@ -335,6 +337,9 @@ public class JNAerator {
 						return Arrays.asList(propValue.matches(regex) ? thenCmd : elseCmd);
                     case AddRootDir:
                         config.addRootDir(a.getFileParam("dir"));
+                        break;
+                    case ConvertBodies:
+                        config.convertBodies = true;
                         break;
                     case NoAutoImports:
                         config.noAutoImports = true;
@@ -642,8 +647,8 @@ public class JNAerator {
 					Set<String> libraries = config.getLibraries();
 					String entry = 
 						config.entryName != null ? config.entryName :
-						!libraries.isEmpty() ? libraries.iterator().next() : 
-						RegexUtils.findFirst(firstFileName, fileRadixPattern, 1); 
+						libraries.size() == 1 ? libraries.iterator().next() : 
+						null;//RegexUtils.findFirst(firstFileName, fileRadixPattern, 1); 
 					//if (entry != null)
 					//	entry = config.result.typeConversion.getValidJavaIdentifier(ident(entry)).toString();
 
@@ -889,11 +894,11 @@ public class JNAerator {
 							dem + ";";
 						ObjCppParser parser = JNAeratorParser.newObjCppParser(result.typeConverter, text, false);//config.verbose);
 						parser.setupSymbolsStack();
-						List<Declaration> decls = parser.declarationEOF();
-						if (decls == null)
+						Declaration decl = parser.declarationEOF();
+						if (decl == null)
 							continue;
 						
-						for (Declaration decl : decls) {
+						//for (Declaration decl : decls) {
 							if (decl instanceof VariablesDeclaration && decl.getValueType() != null)
 								decl.getValueType().addModifiers(Modifier.Extern);
 							decl.addModifiers(Modifier.parseModifier(pub));
@@ -935,7 +940,7 @@ public class JNAerator {
 								s.addDeclaration(f);
 							} else
 								sf.addDeclaration(decl);
-						}
+						//}
 					}
 					if (!sf.getDeclarations().isEmpty()) {
 						sourceFiles.add(sf);
@@ -1714,6 +1719,7 @@ public class JNAerator {
 			}
 		}
 		
+		result.symbols = Symbols.resolveSymbols(sourceFiles);
 		generateLibraryFiles(sourceFiles, result);
 
 		if (config.verbose)

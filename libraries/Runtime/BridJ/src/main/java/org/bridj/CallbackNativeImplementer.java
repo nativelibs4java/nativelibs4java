@@ -24,7 +24,6 @@ public class CallbackNativeImplementer extends ClassLoader implements Opcodes {
 	/**
 	 * The class created here is to be used to cast a pointer to a callback
 	 * @param callbackType
-	 * @return
 	 */
 	public synchronized <T extends Callback> Class<? extends T> getCallbackImplType(Class<T> callbackType) {
 		Class<?> callbackImplType = implClasses.get(callbackType);

@@ -191,7 +191,7 @@ public class StructTest {
     @Test
     public void arrayCast() {
         Pointer<ArrStruct> formats = allocateArray(ArrStruct.class, 10);
-        assertEquals(10, formats.getRemainingElements());
+        assertEquals(10, formats.getValidElements());
         for (ArrStruct s : formats) {
             assertNotNull(s);
             assertEquals(0, s.a());

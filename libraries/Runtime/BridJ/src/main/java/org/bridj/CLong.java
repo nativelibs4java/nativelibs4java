@@ -38,4 +38,22 @@ public class CLong extends Number {
     public double doubleValue() {
         return value;
     }
+    
+    @Override
+    public boolean equals(Object o) {
+    		if (o == null || !(o instanceof CLong))
+    			return false;
+        return value == ((CLong)o).value;
+    }
+    
+    @Override
+    public int hashCode() {
+    		return ((Long)value).hashCode();
+    }
+    
+    @Override
+    public String toString() {
+    		return "CLong(" + value + ")";
+    }
+    
 }

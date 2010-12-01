@@ -212,6 +212,7 @@ public class VelocityMojo
                 VelocityContext context = new VelocityContext();//execution.getParameters());
                 context.put("primitives", Primitive.getPrimitives());
                 context.put("primitivesNoBool", Primitive.getPrimitivesNoBool());
+                context.put("bridJPrimitives", Primitive.getBridJPrimitives());
                 
                 StringWriter out = new StringWriter();
                 template.merge(context, out);

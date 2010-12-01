@@ -24,6 +24,9 @@ public abstract class PointerIO<T> {
 	public Object getArray(Pointer<T> pointer, long byteOffset, int length) {
 		return pointer.offset(byteOffset).toArray(length);
 	}
+	public <B extends Buffer> B getBuffer(Pointer<T> pointer, long byteOffset, int length) {
+		throw new UnsupportedOperationException("Cannot create a Buffer instance of elements of type " + getTargetType());
+	}
 	public void setArray(Pointer<T> pointer, long byteOffset, Object array) {
 		Object[] a = (Object[])array;
 		for (int i = 0, n = a.length; i < n; i++)

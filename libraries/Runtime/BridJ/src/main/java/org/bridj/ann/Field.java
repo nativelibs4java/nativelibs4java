@@ -14,8 +14,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD, ElementType.METHOD})
 public @interface Field {
     /**
+     * Index of the field in a struct (first field has index 0).<br>
+     * Fields of parent structures must be taken into account (if parent struct has 2 fields, first field of sub-struct has index 2).<br>
      * If more than one field are given the same index, this will produce an union at that index.
-     * @return
      */
     int value();
 

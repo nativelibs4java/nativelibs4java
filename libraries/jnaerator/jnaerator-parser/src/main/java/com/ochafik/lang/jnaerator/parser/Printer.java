@@ -49,11 +49,14 @@ import com.ochafik.lang.jnaerator.parser.Identifier.SimpleIdentifier;
 import com.ochafik.lang.jnaerator.parser.Statement.Block;
 import com.ochafik.lang.jnaerator.parser.Statement.Catch;
 import com.ochafik.lang.jnaerator.parser.Statement.DeclarationStatement;
+import com.ochafik.lang.jnaerator.parser.Statement.DoWhile;
 import com.ochafik.lang.jnaerator.parser.Statement.ExpressionStatement;
 import com.ochafik.lang.jnaerator.parser.Statement.If;
 import com.ochafik.lang.jnaerator.parser.Statement.Return;
 import com.ochafik.lang.jnaerator.parser.Statement.Throw;
+import com.ochafik.lang.jnaerator.parser.Statement.For;
 import com.ochafik.lang.jnaerator.parser.Statement.Try;
+import com.ochafik.lang.jnaerator.parser.Statement.While;
 import com.ochafik.lang.jnaerator.parser.StoredDeclarations.TypeDef;
 import com.ochafik.lang.jnaerator.parser.TypeRef.ArrayRef;
 import com.ochafik.lang.jnaerator.parser.TypeRef.FunctionSignature;
@@ -606,6 +609,8 @@ public class Printer implements Visitor {
     public void visitNewArray(NewArray e) {
         expressionPre(e);
         append("new ").append(e.getType()).append("[").implode(e.getDimensions(), "][").append("]");
+        if (e.getDimensions().isEmpty() && !e.getInitialValues().isEmpty())
+            append("{").implode(e.getInitialValues(), ", ").append("}");
         expressionPost(e);
     }
 
@@ -692,7 +697,7 @@ public class Printer implements Visitor {
     }
 
     public void visitExternDeclarations(ExternDeclarations e) {
-        append("extern \"", e.getLanguage(), "\" {");
+        append("extern \"", e.getLanguage(), "\" {\n");
         indent();
         implode(e.getDeclarations(), "\n" + indent);
         deindent();
@@ -1039,4 +1044,47 @@ public class Printer implements Visitor {
 		append(template.getDeclaration());        
 	}
 
+    @Override
+    public void visitWhile(While whileStat) {
+        append("while (").append(whileStat.getCondition()).append("{\n");
+        indent();
+        append(whileStat.getBody());
+        deindent();
+        append("\n", indent, "}");
+	}
+
+    
+
+    @Override
+    public void visitDoWhile(DoWhile doWhileStat) {
+        append("do {\n");
+        indent();
+        append(doWhileStat.getBody());
+        deindent();
+        append("\n", indent, "} while (").append(doWhileStat.getCondition()).append(");");
+	}
+    
+    
+    @Override
+    public void visitNamespace(Namespace ns) {
+        append("namespace ").append(ns.getName()).append(" {\n");
+        indent();
+        implode(ns.getDeclarations(), "\n" + indent);
+        deindent();
+        append("\n", indent, "}");
+    }
+
+    @Override
+    public void visitDeclarations(Declarations decls) {
+        implode(decls.getDeclarations(), "\n" + indent);
+    }
+    
+    @Override
+    public void visitFor(For aFor) {
+    		append("for (").implode(aFor.getInitStatements(), ", ").append(";").append(aFor.getCondition()).append(";").implode(aFor.getPostStatements(), ", ").append(") {\n");
+    		indent();
+        append(aFor.getBody());
+        deindent();
+        append("\n", indent, "}");
+    }
 }

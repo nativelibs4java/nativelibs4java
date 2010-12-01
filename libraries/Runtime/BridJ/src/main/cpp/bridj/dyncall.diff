@@ -1,6 +1,6 @@
 Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	(working copy)
 @@ -95,21 +95,25 @@
  
@@ -40,7 +40,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S
 +  	ret
 Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	(working copy)
 @@ -93,16 +93,19 @@
    mov  ebp, [ebp]                    ; EBP = parent frame
@@ -78,7 +78,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.
  END
 Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	(working copy)
 @@ -44,10 +44,12 @@
  frame_DCArgs       = -24
@@ -131,7 +131,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple
 +	ret
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n64.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n64.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n64.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n64.c	(working copy)
 @@ -190,6 +190,7 @@
  , &dc_callvm_argFloat_mips_n64
@@ -151,7 +151,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n64.c
  DCCallVM_vt gVT_mips_n64_ellipsis =
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_vector.c	(working copy)
 @@ -22,14 +22,31 @@
  
@@ -389,7 +389,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_struct.c
 +}
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_eabi.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_eabi.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_eabi.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_eabi.c	(working copy)
 @@ -152,6 +152,7 @@
  , &dc_callvm_argFloat_mips_eabi
@@ -478,7 +478,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_struct.h
 +
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/GNUmakefile
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/GNUmakefile	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/GNUmakefile	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/GNUmakefile	(working copy)
 @@ -37,6 +37,7 @@
  INSTALL_LIB = 1
@@ -490,7 +490,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/GNUmakefile
  ifdef BUILD_TOOL_pcc
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_api.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_api.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_api.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_api.c	(working copy)
 @@ -85,6 +85,12 @@
    vm->mVTpointer->argPointer(vm,x); 
@@ -519,7 +519,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_api.c
    return vm->mError;
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x64.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x64.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x64.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x64.c	(working copy)
 @@ -23,8 +23,8 @@
  
@@ -566,7 +566,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x64.c
  
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_arm32_arm.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_arm32_arm.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_arm32_arm.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_arm32_arm.c	(working copy)
 @@ -163,6 +163,7 @@
  , &dc_callvm_argFloat_arm32_arm
@@ -602,7 +602,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_arm32_arm.c
  
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm.h
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm.h	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm.h	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm.h	(working copy)
 @@ -49,6 +49,7 @@
    void         (*argFloat)       (DCCallVM* vm,DCfloat         f);
@@ -622,7 +622,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm.h
  typedef DCvoid       (DCvoidvmfunc)      (DCCallVM* vm,DCpointer funcptr); 
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_ppc32.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_ppc32.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_ppc32.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_ppc32.c	(working copy)
 @@ -302,6 +302,7 @@
  , &dc_callvm_argFloat_ppc32_darwin
@@ -658,7 +658,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_ppc32.c
  void dc_callvm_mode_ppc32(DCCallVM* in_self, DCint mode)
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n32.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n32.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n32.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n32.c	(working copy)
 @@ -190,6 +190,7 @@
  , &dc_callvm_argFloat_mips_n32
@@ -694,7 +694,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n32.c
  static void dc_callvm_mode_mips_n32(DCCallVM* self,DCint mode)
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_o32.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_o32.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_o32.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_o32.c	(working copy)
 @@ -199,6 +199,7 @@
  , &dc_callvm_argFloat_mips_o32
@@ -714,7 +714,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_o32.c
  DCCallVM* dcNewCallVM_mips_o32(DCsize size) 
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_signature.h
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_signature.h	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_signature.h	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_signature.h	(working copy)
 @@ -51,7 +51,9 @@
  #define DC_SIGCHAR_DOUBLE       'd'
@@ -729,9 +729,9 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_signature.h
  
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c	(working copy)
-@@ -150,6 +150,7 @@
+@@ -210,6 +210,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86
@@ -739,7 +739,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_cdecl
  , (DCboolvmfunc*)       &dc_callvm_call_x86_cdecl
  , (DCcharvmfunc*)       &dc_callvm_call_x86_cdecl
-@@ -160,6 +161,7 @@
+@@ -220,6 +221,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_cdecl
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_cdecl
  , (DCpointervmfunc*)    &dc_callvm_call_x86_cdecl
@@ -747,7 +747,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  DCCallVM* dcNewCallVM_x86_cdecl(DCsize size) 
-@@ -193,6 +195,7 @@
+@@ -255,6 +257,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86
@@ -755,7 +755,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_win32_std
  , (DCboolvmfunc*)       &dc_callvm_call_x86_win32_std
  , (DCcharvmfunc*)       &dc_callvm_call_x86_win32_std
-@@ -203,6 +206,7 @@
+@@ -265,6 +268,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_win32_std
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_win32_std
  , (DCpointervmfunc*)    &dc_callvm_call_x86_win32_std
@@ -763,7 +763,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  /* win32/std callvm allocator */
-@@ -302,6 +306,7 @@
+@@ -364,6 +368,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86_win32_fast_ms
@@ -771,7 +771,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_win32_fast
  , (DCboolvmfunc*)       &dc_callvm_call_x86_win32_fast
  , (DCcharvmfunc*)       &dc_callvm_call_x86_win32_fast
-@@ -312,6 +317,7 @@
+@@ -374,6 +379,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_win32_fast
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_win32_fast
  , (DCpointervmfunc*)    &dc_callvm_call_x86_win32_fast
@@ -779,7 +779,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  DCCallVM* dcNewCallVM_x86_win32_fast_ms(DCsize size) 
-@@ -398,6 +404,7 @@
+@@ -460,6 +466,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86_win32_fast_gnu
@@ -787,7 +787,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_win32_fast
  , (DCboolvmfunc*)       &dc_callvm_call_x86_win32_fast
  , (DCcharvmfunc*)       &dc_callvm_call_x86_win32_fast
-@@ -408,6 +415,7 @@
+@@ -470,6 +477,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_win32_fast
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_win32_fast
  , (DCpointervmfunc*)    &dc_callvm_call_x86_win32_fast
@@ -795,7 +795,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  DCCallVM* dcNewCallVM_x86_win32_fast_gnu(DCsize size) 
-@@ -441,6 +449,7 @@
+@@ -503,6 +511,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86
@@ -803,7 +803,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_win32_this_ms
  , (DCboolvmfunc*)       &dc_callvm_call_x86_win32_this_ms
  , (DCcharvmfunc*)       &dc_callvm_call_x86_win32_this_ms
-@@ -451,6 +460,7 @@
+@@ -513,6 +522,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_win32_this_ms
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_win32_this_ms
  , (DCpointervmfunc*)    &dc_callvm_call_x86_win32_this_ms
@@ -813,7 +813,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
  /* win32/this/ms callvm allocator */
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall.h
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall.h	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall.h	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall.h	(working copy)
 @@ -44,6 +44,7 @@
  #endif
@@ -823,7 +823,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall.h
  
  /* Supported Calling Convention Modes */
  
-@@ -92,6 +93,7 @@
+@@ -93,6 +94,7 @@
  DC_API void       dcArgFloat      (DCCallVM* vm, DCfloat    value);
  DC_API void       dcArgDouble     (DCCallVM* vm, DCdouble   value);
  DC_API void       dcArgPointer    (DCCallVM* vm, DCpointer  value);
@@ -831,7 +831,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall.h
  
  DC_API void       dcCallVoid      (DCCallVM* vm, DCpointer funcptr);
  DC_API DCbool     dcCallBool      (DCCallVM* vm, DCpointer funcptr);
-@@ -103,9 +105,25 @@
+@@ -104,9 +106,25 @@
  DC_API DCfloat    dcCallFloat     (DCCallVM* vm, DCpointer funcptr);
  DC_API DCdouble   dcCallDouble    (DCCallVM* vm, DCpointer funcptr);
  DC_API DCpointer  dcCallPointer   (DCCallVM* vm, DCpointer funcptr);
@@ -859,7 +859,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall.h
  #endif
 Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	(working copy)
 @@ -49,8 +49,8 @@
  
@@ -874,7 +874,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
  
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c	(working copy)
 @@ -27,7 +27,10 @@
  
@@ -897,7 +897,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_darwin.c
    return dlsym(libHandle && libHandle->handle ? libHandle->handle : RTLD_DEFAULT, symbol);
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h	(working copy)
 @@ -24,6 +24,9 @@
  #ifndef DYNLOAD_H
@@ -934,7 +934,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.h
  
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_windows.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_windows.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_windows.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_windows.c	(working copy)
 @@ -32,7 +32,8 @@
  
@@ -948,7 +948,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_windows.c
  void* dlFindSymbol(DLLib* libHandle, const char* symbol)
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c	(working copy)
 @@ -17,12 +17,15 @@
  
@@ -969,7 +969,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms.c
  #    include "dynload_syms_elf.c"
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	(working copy)
 @@ -33,9 +33,11 @@
  
@@ -1017,7 +1017,7 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c
  	const struct NLIST_TYPE* nl;
 Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(revision 745)
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(revision 791)
 +++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c	(working copy)
 @@ -18,11 +18,14 @@
  */
@@ -1035,16 +1035,12 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload.c
  #    include "dynload_darwin.c"
  #  else
  #    include "dynload_unix.c"
-Index: /Users/ochafik/src/dyncall/dyncall/buildsys/gmake/prolog.gmake
+Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
 ===================================================================
---- /Users/ochafik/src/dyncall/dyncall/buildsys/gmake/prolog.gmake	(revision 745)
-+++ /Users/ochafik/src/dyncall/dyncall/buildsys/gmake/prolog.gmake	(working copy)
-@@ -28,7 +28,7 @@
+--- /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(revision 791)
++++ /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c	(working copy)
+@@ -20,6 +20,7 @@
  
  # config settings
  
--$(if $(wildcard "${TOP}/ConfigVars"),$(error hmm),$(error File 'ConfigVars' not found at top directory. Run 'configure' - or, if you use CMake, run 'make -f Makefile' please.))
-+#$(if $(wildcard "${TOP}/ConfigVars"),$(error hmm),$(error File 'ConfigVars' not found at top directory. Run 'configure' - or, if you use CMake, run 'make -f Makefile' please.))
- include $(TOP)/ConfigVars
- 
- 
+ /*

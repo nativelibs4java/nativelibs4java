@@ -101,6 +101,15 @@ public abstract class Expression extends Element {
 		this.parenthesis = parenthesis;
 		return this;
 	}
+    public Expression setParenthesisIfNeeded() {
+        setParenthesis(!(
+            this instanceof VariableRef ||
+            this instanceof FunctionCall ||
+            this instanceof MemberRef ||
+            this instanceof ArrayAccess
+        ));
+        return this; 
+    }
 	public boolean getParenthesis() {
 		return parenthesis;
 	}
@@ -253,18 +262,34 @@ public abstract class Expression extends Element {
 	public static class NewArray extends Expression {
 		TypeRef type;
 		List<Expression> dimensions = new ArrayList<Expression>();
+		List<Expression> initialValues = new ArrayList<Expression>();
 		
 		public NewArray() {}
 		
-		public NewArray(TypeRef type, Expression... dimensions) {
+		public NewArray(TypeRef type, Expression[] dimensions, Expression[] initialValues) {
 			setType(type);
 			setDimensions(Arrays.asList(dimensions));
+            setInitialValues(Arrays.asList(initialValues));
 		}
 		public List<Expression> getDimensions() {
 			return unmodifiableList(dimensions);
 		}
+        public void addDimension(Expression dimension) {
+			if (dimension == null)
+				return;
+			
+			dimension.setParentElement(this);
+			dimensions.add(dimension);
+		}
+		
 		public void setDimensions(List<Expression> dimensions) {
 			changeValue(this, this.dimensions, dimensions);
+		}
+		public List<Expression> getInitialValues() {
+			return unmodifiableList(initialValues);
+		}
+		public void setInitialValues(List<Expression> initialValues) {
+			changeValue(this, this.initialValues, initialValues);
 		}
 		public TypeRef getType() {
 			return type;
@@ -279,12 +304,18 @@ public abstract class Expression extends Element {
 
 		@Override
 		public Element getNextChild(Element child) {
-			return getNextSibling(dimensions, child);
+            Element e = getNextSibling(dimensions, child);
+            if (e == null)
+                e = getNextSibling(initialValues, child);
+			return e;
 		}
 
 		@Override
 		public Element getPreviousChild(Element child) {
-			return getPreviousSibling(dimensions, child);
+            Element e = getPreviousSibling(dimensions, child);
+            if (e == null)
+                e = getPreviousSibling(initialValues, child);
+			return e;
 		}
 
 		@Override
@@ -293,7 +324,9 @@ public abstract class Expression extends Element {
 				setType((TypeRef)by);
 				return true;
 			}
-			return replaceChild(dimensions, Expression.class, this, child, by);
+            return 
+                replaceChild(initialValues, Expression.class, this, child, by) ||
+                replaceChild(dimensions, Expression.class, this, child, by);
 		}
 
 	}
@@ -311,6 +344,9 @@ public abstract class Expression extends Element {
 		public New(TypeRef type, Expression... arguments) {
 			setType(type);
 			setConstruction(new FunctionCall(null, arguments));
+		}
+		public New(TypeRef type, List<Expression> arguments) {
+            this(type, arguments.toArray(new Expression[arguments.size()]));
 		}
 		public New() {}
 		public void setType(TypeRef type) {
@@ -582,33 +618,40 @@ public abstract class Expression extends Element {
 		
 	}
 	public enum AssignmentOperator implements Operator {
-		Equal("="),
-		MultiplyEqual("*="),
-		DivideEqual("/="),
-		ModuloEqual("%="),
-		PlusEqual("+="),
-		MinusEqual("-="),
-		LeftShiftEqual("<<="),
-		RightShiftEqual(">>="),
-		SignedRightShiftEqual(">>>="),
-		BitAndEqual("&="),
-		XOREqual("^="),
-		ComplementEqual("~="),
-		BitOrEqual("|=");
+		Equal("=", null),
+		MultiplyEqual("*=", BinaryOperator.Multiply),
+		DivideEqual("/=", BinaryOperator.Divide),
+		ModuloEqual("%=", BinaryOperator.Modulo),
+		PlusEqual("+=", BinaryOperator.Plus),
+		MinusEqual("-=", BinaryOperator.Minus),
+		LeftShiftEqual("<<=", BinaryOperator.LeftShift),
+		RightShiftEqual(">>=", BinaryOperator.RightShift),
+		SignedRightShiftEqual(">>>=", BinaryOperator.SignedRightShift),
+		BitAndEqual("&=", BinaryOperator.BitAnd),
+		XOREqual("^=", BinaryOperator.XOR),
+		//ComplementEqual("~=", BinaryOperator.C),
+		BitOrEqual("|=", BinaryOperator.BitOr);
 		
 		String s;
-		AssignmentOperator(String s) {
+		AssignmentOperator(String s, BinaryOperator correspondingBinaryOp) {
 			this.s = s;
+            this.correspondingBinaryOp = correspondingBinaryOp;
 		}
 		@Override
 		public String toString() {
 			return s;
 		}
+        BinaryOperator correspondingBinaryOp;
+        public BinaryOperator getCorrespondingBinaryOp() {
+            return correspondingBinaryOp;
+        }
 	}
 	public enum UnaryOperator  implements Operator {
 		Not("!"), 
 		Parenthesis("()"),
 		Complement("~"),
+		Reference("&"),
+		Dereference("*"),
 		PreIncr("++"), 
 		PreDecr("--"),
 		PostIncr("++"), 
@@ -1331,10 +1374,10 @@ public abstract class Expression extends Element {
 
 		public static Constant parseOctal(String string, boolean negate) {
 			string = string.trim().toLowerCase();
-			if (!string.startsWith("\\"))
+			if (!string.startsWith("0"))
 				throw new IllegalArgumentException("Expected octal literal, got " + string);
 			
-			return parseDecimal(string.substring(2), 8, IntForm.Octal, negate);
+			return parseDecimal(string.substring(1), 8, IntForm.Octal, negate);
 		}
 
 		public static Constant parseFloat(String string) {

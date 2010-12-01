@@ -122,7 +122,7 @@ public class BridJ {
 	/**
 	 * Registers the native methods of the caller class and all its inner types.
 	 * <pre>{@code
-	 	@Library("mylib")
+	 	\@Library("mylib")
 	 	public class MyLib {
 	 		static {
 	 			BridJ.register();
@@ -207,7 +207,7 @@ public class BridJ {
 	/**
 	 * Registers the native method of a type (and all its inner types).
 	 * <pre>{@code
-	 	@Library("mylib")
+	 	\@Library("mylib")
 	 	public class MyLib {
 	 		static {
 	 			BridJ.register(MyLib.class);
@@ -234,9 +234,16 @@ public class BridJ {
 		}
 	}
 
+    static final boolean verbose = "true".equals(System.getProperty("bridj.verbose"));
+    static final int minLogLevel = Level.WARNING.intValue();
+	static boolean shouldLog(Level level) {
+        return verbose || level.intValue() >= minLogLevel;
+    }
 	static boolean log(Level level, String message, Throwable ex) {
+        if (!shouldLog(level))
+            return true;
 		Logger.getLogger(BridJ.class.getName()).log(level, message, ex);
-		return true;
+        return true;
 	}
 
 	static boolean log(Level level, String message) {
@@ -338,11 +345,11 @@ public class BridJ {
 
     static Map<String, String> libraryActualNames = new HashMap<String, String>();
     /**
-     * Define the actual name of a library.<br/>
-     * Works only before the library is loaded.<br/>
+     * Define the actual name of a library.<br>
+     * Works only before the library is loaded.<br>
      * For instance, library "OpenGL" is actually named "OpenGL32" on Windows : BridJ.setNativeLibraryActualName("OpenGL", "OpenGL32");
-     * @param alias
      * @param name
+     * @param actualName
      */
     public static void setNativeLibraryActualName(String name, String actualName) {
         libraryActualNames.put(name, actualName);
@@ -435,7 +442,7 @@ public class BridJ {
             String prop = System.getProperty("bridj.direct");
             String env = System.getenv("BRIDJ_DIRECT");
             directModeEnabled = !"false".equalsIgnoreCase(prop) && !"false".equalsIgnoreCase(env) && !"0".equals(env) && !"no".equalsIgnoreCase(env);
-            System.out.println("directModeEnabled = " + directModeEnabled + " (" + System.getProperty("bridj.direct") + ")");
+            log(Level.INFO, "directModeEnabled = " + directModeEnabled + " (" + System.getProperty("bridj.direct") + ")");
         }
         return directModeEnabled;
     }

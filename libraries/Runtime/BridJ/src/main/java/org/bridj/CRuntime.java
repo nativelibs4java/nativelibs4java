@@ -25,6 +25,7 @@ import org.bridj.ann.Virtual;
 import org.bridj.cpp.CPPObject;
 import org.bridj.util.AutoHashMap;
 import java.lang.reflect.Type;
+import org.bridj.ann.Optional;
 
 public class CRuntime extends AbstractBridJRuntime {
 
@@ -281,7 +282,8 @@ public class CRuntime extends AbstractBridJRuntime {
 //                    }
 //                }
 //                if (address == null) {
-                    log(Level.SEVERE, "Failed to get address of method " + method);
+                boolean isOptional = method.getAnnotation(Optional.class) != null;
+                    log(isOptional ? Level.INFO : Level.SEVERE, "Failed to get address of method " + method);
                     return;
 //                }
             }

@@ -10,11 +10,11 @@
 	
 	<properties>
 		<scala.version>2.8.0</scala.version>
-		<rococoa.version>0.5</rococoa.version>
-		<jnaerator.version>0.9.5-SNAPSHOT</jnaerator.version>
+		<rococoa.version>0.5.1-NL4J</rococoa.version>
+		<jnaerator.version>0.9.6-SNAPSHOT</jnaerator.version>
 		<nativelibs4java.version>1.1-SNAPSHOT</nativelibs4java.version>
 		<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
-		<nl4j-runtime.version>0.2-SNAPSHOT</nl4j-runtime.version>
+		<nl4j-runtime.version>0.3-SNAPSHOT</nl4j-runtime.version>
 		<jarsigner.skip>true</jarsigner.skip>
 		<junit.version>4.8.1</junit.version>
 		<jna.version>3.2.7</jna.version>

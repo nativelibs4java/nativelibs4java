@@ -15,8 +15,10 @@ import java.util.logging.Logger;
  * @author Olivier
  */
 public abstract class AbstractBridJRuntime implements BridJRuntime {
-
-	protected boolean log(Level level, String message, Throwable ex) {
+    protected boolean log(Level level, String message, Throwable ex) {
+        if (!BridJ.shouldLog(level))
+            return true;
+        
 		Logger.getLogger(getClass().getName()).log(level, message, ex);
 		return true;
 	}

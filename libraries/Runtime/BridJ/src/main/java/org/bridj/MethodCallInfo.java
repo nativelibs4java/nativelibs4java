@@ -399,7 +399,7 @@ public class MethodCallInfo {
 
 	/**
 	 * Used for C++ virtual indexes and for struct fields ids
-	 * @param index
+	 * @param virtualIndex
 	 */
 	public void setVirtualIndex(int virtualIndex) {
 		//new RuntimeException("Setting virtualIndex of " + getMethod().getName() + " = " + virtualIndex).printStackTrace();

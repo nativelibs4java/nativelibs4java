@@ -105,7 +105,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			Pointer<Integer> pErr = allocateInt();
 			cl_event evt = CL.clCreateUserEvent(getEntity(), pErr);
 			error(pErr.get());
-			return CLEvent.createEvent(null, evt);
+			return CLEvent.createEvent(null, evt, true);
 		} catch (Throwable th) {
 			// TODO throw if supposed to handle OpenCL 1.1
     		return null;

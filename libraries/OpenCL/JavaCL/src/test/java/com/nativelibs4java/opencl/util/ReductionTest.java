@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
+import java.util.Arrays;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -28,7 +29,9 @@ public class ReductionTest {
 
     @Before
     public void init() {
+        //context = createBestContext(CLPlatform.DeviceEvaluationStrategy.BestDoubleSupportThenBiggestMaxComputeUnits);//
         context = createBestContext();
+        System.out.println("Context = " + Arrays.asList(context.getDevices()));
         queue = context.createDefaultQueue();
     }
     
