@@ -6,6 +6,7 @@ import static com.nativelibs4java.opencl.JavaCL.createBestContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.nio.IntBuffer;
 import java.nio.FloatBuffer;
 
@@ -28,7 +29,9 @@ public class ReductionTest {
 
     @Before
     public void init() {
+        //context = createBestContext(CLPlatform.DeviceEvaluationStrategy.BestDoubleSupportThenBiggestMaxComputeUnits);//
         context = createBestContext();
+        System.out.println("Context = " + Arrays.asList(context.getDevices()));
         queue = context.createDefaultQueue();
     }
     

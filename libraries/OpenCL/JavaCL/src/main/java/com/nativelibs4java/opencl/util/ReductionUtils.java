@@ -214,7 +214,7 @@ public class ReductionUtils {
 						
                         synchronized (kernel) {
                             kernel.setArgs(currentInput, (long)blocksInCurrentDepth, (long)inputLength, (long)maxReductionSize, currentOutput);
-                            int workgroupSize = getNextPowerOfTwo(blocksInCurrentDepth);
+                            int workgroupSize = blocksInCurrentDepth;
                             if (workgroupSize == 1)
                             		workgroupSize = 2;
                             blockCountArr[0] = workgroupSize;
