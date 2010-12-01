@@ -25,7 +25,7 @@
   	<dependency>
 		<groupId>asm</groupId>
 		<artifactId>asm</artifactId>
-		<version>3.2</version>
+		<version>3.3</version>
 	</dependency>
 	
 	<dependency>
