@@ -212,9 +212,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
          */
         ImageSupport {
             Comparable extractValue(CLDevice device) {
-                if (!device.hasImageSupport())
-                    return 0;
-                return (Integer)JavaCL.createContext(null, device).getSupportedImageFormats(CLMem.Flags.ReadWrite, CLMem.ObjectType.Image2D).length;
+                return device.hasImageSupport() ? 1 : 0;
             }
         },
         /**
