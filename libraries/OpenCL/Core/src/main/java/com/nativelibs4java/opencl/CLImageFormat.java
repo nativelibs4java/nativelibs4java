@@ -278,4 +278,6 @@ public class CLImageFormat {
 		public long value() { return value; }
 		public static ChannelDataType getEnum(long v) { return EnumValues.getEnum(v, ChannelDataType.class); }
 	}
+
+    static CLImageFormat INT_ARGB_FORMAT = new CLImageFormat(ChannelOrder.BGRA, ChannelDataType.UNormInt8);
 }

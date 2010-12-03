@@ -57,6 +57,7 @@ import java.util.List;
 import com.nativelibs4java.opencl.CLDevice.QueueProperties;
 import com.nativelibs4java.opencl.CLSampler.AddressingMode;
 import com.nativelibs4java.opencl.CLSampler.FilterMode;
+import com.nativelibs4java.opencl.ImageIOUtils.ImageInfo;
 import com.nativelibs4java.opencl.library.OpenGLContextUtils;
 import com.nativelibs4java.opencl.library.cl_image_format;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_context;
@@ -396,17 +397,13 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	public CLImage2D createImage2D(CLMem.Usage usage, Image image, boolean allowUnoptimizingDirectRead) {
 		int width = image.getWidth(null), height = image.getHeight(null);
-		int[] data = getImageIntPixels(image, 0, 0, width, height, allowUnoptimizingDirectRead);
-		IntBuffer directData = NIOUtils.directInts(data.length, getKernelsDefaultByteOrder());
-		directData.put(IntBuffer.wrap(data));
-		directData.rewind();
-
-		return createImage2D(
+		ImageInfo info = ImageIOUtils.getImageInfo(image);
+        return createImage2D(
 				usage,
-				new CLImageFormat(CLImageFormat.ChannelOrder.RGBA, CLImageFormat.ChannelDataType.UnsignedInt8),
+				info.clImageFormat,
 				width, height,
 				0,
-				directData,
+				info.dataGetter.getData(image, null, true, allowUnoptimizingDirectRead, getByteOrder()),
 				true);
 	}
 

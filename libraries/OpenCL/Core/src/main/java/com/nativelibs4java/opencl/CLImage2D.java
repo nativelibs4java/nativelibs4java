@@ -29,11 +29,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nativelibs4java.opencl;
+import com.nativelibs4java.opencl.ImageIOUtils.ImageInfo;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_HEIGHT;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_ROW_PITCH;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_IMAGE_WIDTH;
-import static com.nativelibs4java.util.ImageUtils.getImageIntPixels;
-import static com.nativelibs4java.util.ImageUtils.setImageIntPixels;
 import static com.nativelibs4java.util.JNAUtils.toNS;
 import static com.nativelibs4java.util.NIOUtils.directInts;
 
@@ -44,6 +43,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
+import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.util.listenable.Pair;
 
 /**
@@ -93,18 +93,27 @@ public class CLImage2D extends CLImage {
 	}
 
 	public BufferedImage read(CLQueue queue) {
-		BufferedImage im = new BufferedImage((int)getWidth(), (int)getHeight(), BufferedImage.TYPE_INT_ARGB);
+        ImageInfo info = ImageIOUtils.getBufferedImageInfo(getFormat());
+        int imageType = info == null ? 0 : info.bufferedImageType;
+        if (imageType == 0)
+            throw new UnsupportedOperationException("Cannot convert image of format " + getFormat() + " to a BufferedImage.");
+            //imageType = BufferedImage.TYPE_INT_ARGB;
+        
+		BufferedImage im = new BufferedImage((int)getWidth(), (int)getHeight(), imageType);
 		read(queue, im, false);
 		return im;
 	}
 	public void read(CLQueue queue, BufferedImage imageOut, boolean allowDeoptimizingDirectWrite, CLEvent... eventsToWaitFor) {
-		if (!getFormat().isIntBased())
-			throw new IllegalArgumentException("Image-read only supports int-based RGBA images");
+		//if (!getFormat().isIntBased())
+		//	throw new IllegalArgumentException("Image-read only supports int-based RGBA images");
+        ImageInfo info = ImageIOUtils.getBufferedImageInfo(getFormat());
+        int width = imageOut.getWidth(null), height = imageOut.getHeight(null);
 
-		int width = imageOut.getWidth(null), height = imageOut.getHeight(null);
-		IntBuffer dataOut = directInts(width * height, getContext().getByteOrder());
+        Buffer dataOut = NIOUtils.directBuffer(width * height * info.channelCount, getContext().getByteOrder(), info.bufferClass);
+		//Buffer dataOut = info.createBuffer(width, height, true);
+		//IntBuffer dataOut = directInts(width * height, getContext().getByteOrder());
 		read(queue, 0, 0, width, height, 0, dataOut, true, eventsToWaitFor);
-		setImageIntPixels(imageOut, allowDeoptimizingDirectWrite, dataOut);
+        info.dataSetter.setData(imageOut, dataOut, allowDeoptimizingDirectWrite);
 	}
 	public CLEvent write(CLQueue queue, Image image, CLEvent... eventsToWaitFor) {
 		return write(queue, image, 0, 0, image.getWidth(null), image.getHeight(null), false, false, eventsToWaitFor);
@@ -114,15 +123,16 @@ public class CLImage2D extends CLImage {
 	}
 	public CLEvent write(CLQueue queue, Image image, int destX, int destY, int width, int height, boolean allowDeoptimizingDirectRead, boolean blocking, CLEvent... eventsToWaitFor) {
 		//int imWidth = image.getWidth(null), height = image.getHeight(null);
-		return write(queue, 0, 0, width, height, width * 4, IntBuffer.wrap(getImageIntPixels(image, allowDeoptimizingDirectRead)), blocking, eventsToWaitFor);
+        ImageInfo info = ImageIOUtils.getBufferedImageInfo(getFormat());
+		return write(queue, 0, 0, width, height, width * 4, info.dataGetter.getData(image, null, false, allowDeoptimizingDirectRead, getContext().getByteOrder()), blocking, eventsToWaitFor);
 	}
 	public void write(CLQueue queue, BufferedImage imageIn, boolean allowDeoptimizingDirectRead, CLEvent... eventsToWaitFor) {
-		if (!getFormat().isIntBased())
-			throw new IllegalArgumentException("Image read only supports int-based RGBA images");
+		//if (!getFormat().isIntBased())
+		//	throw new IllegalArgumentException("Image read only supports int-based RGBA images");
 
 		int width = imageIn.getWidth(null), height = imageIn.getHeight(null);
-		int[] pixels = getImageIntPixels(imageIn, allowDeoptimizingDirectRead);
-		write(queue, 0, 0, width, height, 0, IntBuffer.wrap(pixels), true, eventsToWaitFor);
+		ImageInfo<BufferedImage> info = ImageIOUtils.getBufferedImageInfo(getFormat());
+		write(queue, 0, 0, width, height, 0, info.dataGetter.getData(imageIn, null, false, allowDeoptimizingDirectRead, getContext().getByteOrder()), true, eventsToWaitFor);
 	}
 	public void write(CLQueue queue, BufferedImage im) {
 		write(queue, im, false);

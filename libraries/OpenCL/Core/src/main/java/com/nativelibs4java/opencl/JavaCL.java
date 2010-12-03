@@ -31,6 +31,7 @@
 package com.nativelibs4java.opencl;
 
 import static com.nativelibs4java.opencl.CLException.error;
+import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,19 +102,19 @@ public class JavaCL {
 	}
 
     public static CLDevice getBestDevice() {
-        return getBestDevice(CLPlatform.DeviceEvaluationStrategy.BiggestMaxComputeUnits);
+        return getBestDevice(CLPlatform.DeviceFeature.MaxComputeUnits);
     }
-	public static CLDevice getBestDevice(CLPlatform.DeviceEvaluationStrategy strategy) {
+	public static CLDevice getBestDevice(CLPlatform.DeviceFeature... strategy) {
         List<CLDevice> devices = new ArrayList<CLDevice>();
 		for (CLPlatform platform : listPlatforms())
 			devices.addAll(Arrays.asList(platform.listAllDevices(true)));
-        return CLPlatform.getBestDevice(strategy, devices);
+        return CLPlatform.getBestDevice(Arrays.asList(strategy), devices);
     }
 	public static CLContext createBestContext() {
-        return createBestContext(CLPlatform.DeviceEvaluationStrategy.BiggestMaxComputeUnits);
+        return createBestContext(DeviceFeature.MaxComputeUnits);
 	}
 
-    public static CLContext createBestContext(CLPlatform.DeviceEvaluationStrategy strategy) {
+    public static CLContext createBestContext(CLPlatform.DeviceFeature... strategy) {
 		CLDevice device = getBestDevice(strategy);
 		return device.getPlatform().createContext(null, device);
 	}

@@ -5,6 +5,8 @@
 
 package com.nativelibs4java.opencl;
 
+import com.nativelibs4java.opencl.CLImageFormat.ChannelDataType;
+import com.nativelibs4java.opencl.CLImageFormat.ChannelOrder;
 import static org.junit.Assert.assertEquals;
 
 import java.awt.image.BufferedImage;
@@ -46,24 +48,66 @@ public class ImageTest extends AbstractCommon {
         assertEquals(format, im.getFormat());
     }
 
+    int someARGBPixelValue = 0xff123456;
+    int someARGBGrayPixelValue = 0xffababab;
+    int someShortGrayPixelValue = 0xf1f1;
+
+            
     @Test
-    public void testReadWrite() {
-        if (false) {
-            CLImageFormat fmt = new CLImageFormat(CLImageFormat.ChannelOrder.RGBA, CLImageFormat.ChannelDataType.UnsignedInt8);
-            CLImage2D clim = context.createImage2D(CLMem.Usage.InputOutput, fmt, 128, 128);
-            BufferedImage im = clim.read(queue);
-            queue.finish();
-            int valPix = 0xff123456;
-            int x = 1, y = 1;
-            im.setRGB(x, y, valPix);
-            clim.write(queue, im, false, true);//.waitFor();
-            queue.finish();
-            im = clim.read(queue);
-            int[] pixs = ImageUtils.getImageIntPixels(im, false);
-            int retrievedPix = im.getRGB(x, y);
-            assertEquals(valPix, retrievedPix);
-        }
+    public void testCreateARGBFromImage() {
+        int width = 2, height = 2;
+        BufferedImage im = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+        im.setRGB(1, 0, someARGBPixelValue);
+
+        CLImage2D clim = context.createImage2D(CLMem.Usage.InputOutput, im, true);
+        assertEquals(width, clim.getWidth());
+        assertEquals(height, clim.getHeight());
+        assertEquals(CLImageFormat.INT_ARGB_FORMAT, clim.getFormat());
+        assertSameImage(im, clim.read(queue));
     }
+
+    static void assertSameImage(BufferedImage expected, BufferedImage real) {
+        int width = expected.getWidth(), height = expected.getHeight();
+        assertEquals("Bad width", width, real.getWidth());
+        assertEquals("Bad height", height, real.getHeight());
+
+        for (int x = 0; x < width; x++)
+            for (int y = 0; y < height; y++)
+                assertEquals("Different value for pixel x = " + x + ", y = " + y, expected.getRGB(x, y), real.getRGB(x, y));
+    }
+
+    @Test
+    public void testARGBReadWrite() {
+        int width = 2, height = 2;
+        CLImage2D clim = context.createImage2D(CLMem.Usage.InputOutput, CLImageFormat.INT_ARGB_FORMAT, width, height);
+        assertEquals(width, clim.getWidth());
+        assertEquals(height, clim.getHeight());
+
+        BufferedImage im = clim.read(queue);
+        assertEquals(BufferedImage.TYPE_INT_ARGB, im.getType());
+        int x = 0, y = 1;
+        im.setRGB(x, y, someARGBPixelValue);
+        clim.write(queue, im, false, true);
+
+        assertSameImage(im, clim.read(queue));
+    }
+
+    @Test
+    public void testARGBShortGrayReadWrite() {
+        int width = 2, height = 2;
+        CLImage2D clim = context.createImage2D(CLMem.Usage.InputOutput, new CLImageFormat(ChannelOrder.RGBA, ChannelDataType.UnsignedInt16), width, height);
+        assertEquals(width, clim.getWidth());
+        assertEquals(height, clim.getHeight());
+
+        BufferedImage im = clim.read(queue);
+        assertEquals(BufferedImage.TYPE_USHORT_GRAY, im.getType());
+        int x = 0, y = 1;
+        im.setRGB(x, y, someARGBGrayPixelValue);
+        clim.write(queue, im, false, true);
+
+        assertSameImage(im, clim.read(queue));
+    }
+
 
 
     @Test
@@ -131,9 +175,9 @@ public class ImageTest extends AbstractCommon {
 			BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 			for (int i = 0; i < width; i++)
                 //for (int j = 0; j < height; j++)
-                //    image.setRGB(i, j, i);
-				//image.setRGB(i, 0, i);
-                image.setRGB(i, height - 1, i);
+                //    image.setRGB(i, j, i + j);
+				image.setRGB(i, 0, i);
+                //image.setRGB(i, height - 1, i);
 			
             CLProgram program = context.createProgram(src).build();
 			CLIntBuffer cloutput = context.createIntBuffer(CLMem.Usage.Output, width);
