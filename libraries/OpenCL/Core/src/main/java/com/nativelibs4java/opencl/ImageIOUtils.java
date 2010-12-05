@@ -32,13 +32,15 @@ class ImageIOUtils {
 		public final ImageDataSetter<I> dataSetter;
         public final Class<? extends Buffer> bufferClass;
         public final int channelCount;
+        public final int pixelByteSize;
 		public ImageInfo(
 			int bufferedImageType,
 			CLImageFormat clImageFormat,
 			ImageDataGetter dataGetter,
 			ImageDataSetter dataSetter,
             Class<? extends Buffer> bufferClass,
-            int channelCount)
+            int channelCount,
+            int pixelByteSize)
 		{
 			this.bufferedImageType = bufferedImageType;
 			this.clImageFormat     = clImageFormat;
@@ -46,6 +48,7 @@ class ImageIOUtils {
 			this.dataSetter        = dataSetter;
             this.bufferClass       = bufferClass;
             this.channelCount      = channelCount;
+            this.pixelByteSize     = pixelByteSize;
 		}
 
 		public interface ImageDataGetter<I extends Image> {
@@ -113,7 +116,8 @@ class ImageIOUtils {
 				}
 			},
             IntBuffer.class,
-            1
+            1,
+            4
 		);
 	}
 	
@@ -202,7 +206,8 @@ class ImageIOUtils {
 				}
 			},
             ShortBuffer.class,
-            1
+            1,
+            2
 		);
 	}
 
@@ -266,7 +271,8 @@ class ImageIOUtils {
 				}
 			},
             ShortBuffer.class,
-            4
+            4,
+            4 * 2
 		);
 	}
 	
@@ -325,6 +331,7 @@ class ImageIOUtils {
 				}
 			},
             ByteBuffer.class,
+            1,
             1
 		);
 	}
@@ -399,7 +406,8 @@ class ImageIOUtils {
 				}
 			},
             IntBuffer.class,
-            1
+            1,
+            4
 		);
 	}
 	

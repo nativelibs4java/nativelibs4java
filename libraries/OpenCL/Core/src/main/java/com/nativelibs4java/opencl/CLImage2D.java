@@ -124,7 +124,7 @@ public class CLImage2D extends CLImage {
 	public CLEvent write(CLQueue queue, Image image, int destX, int destY, int width, int height, boolean allowDeoptimizingDirectRead, boolean blocking, CLEvent... eventsToWaitFor) {
 		//int imWidth = image.getWidth(null), height = image.getHeight(null);
         ImageInfo info = ImageIOUtils.getBufferedImageInfo(getFormat());
-		return write(queue, 0, 0, width, height, width * 4, info.dataGetter.getData(image, null, false, allowDeoptimizingDirectRead, getContext().getByteOrder()), blocking, eventsToWaitFor);
+		return write(queue, 0, 0, width, height, width * info.pixelByteSize, info.dataGetter.getData(image, null, false, allowDeoptimizingDirectRead, getContext().getByteOrder()), blocking, eventsToWaitFor);
 	}
 	public void write(CLQueue queue, BufferedImage imageIn, boolean allowDeoptimizingDirectRead, CLEvent... eventsToWaitFor) {
 		//if (!getFormat().isIntBased())
