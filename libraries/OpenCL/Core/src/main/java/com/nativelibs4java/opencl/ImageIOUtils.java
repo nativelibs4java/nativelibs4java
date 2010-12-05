@@ -463,7 +463,9 @@ class ImageIOUtils {
 			default:
                 return 0;
 			}
+		case ARGB:
 		case BGRA:
+		case RGBA:
             switch (imageFormat.getChannelDataType()) {
             case UNormInt8:
             case UnsignedInt8:
@@ -482,7 +484,6 @@ class ImageIOUtils {
 				return 0;
             }
 		case RGBx:
-		case ARGB:
 		default:
 			return 0;
 		}

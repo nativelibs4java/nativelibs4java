@@ -280,4 +280,5 @@ public class CLImageFormat {
 	}
 
     static CLImageFormat INT_ARGB_FORMAT = new CLImageFormat(ChannelOrder.BGRA, ChannelDataType.UNormInt8);
+    //static CLImageFormat INT_ARGB_FORMAT = new CLImageFormat(ChannelOrder.RGBA, ChannelDataType.UNormInt8);
 }
