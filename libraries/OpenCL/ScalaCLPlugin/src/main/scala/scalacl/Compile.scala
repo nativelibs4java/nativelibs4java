@@ -77,7 +77,7 @@ object Compile {
       //"-Xprint:" + LoopsTransformComponent.phaseName,
       "-Ydebug",
       "-optimise"
-    )*/
+    )
     //*/
     /*val args = Array(
       "-cp",

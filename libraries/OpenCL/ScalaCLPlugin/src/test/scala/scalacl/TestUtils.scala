@@ -24,6 +24,7 @@ import javax.tools.ToolProvider
 import org.junit.Assert._
 import scala.tools.nsc.Settings
 import scala.actors.Futures._
+import Function.{tupled, untupled}
 
 object SharedCompilerWithPlugins extends SharedCompiler(true)
 object SharedCompilerWithoutPlugins extends SharedCompiler(false)
@@ -91,7 +92,10 @@ trait TestUtils {
      println("BYTECODE :")
      println("\t" + byteCode.replaceAll("\n", "\n\t"))
      */
-    byteCode.replaceAll("#\\d+", "")
+    
+    byteCode.
+      replaceAll("scala/reflect/ClassManifest", "scala/reflect/Manifest").
+      replaceAll("#\\d+", "")
   }
 
   def ensurePluginCompilesSnippet(className: String, source: String) = {
@@ -179,7 +183,7 @@ trait TestUtils {
 
   import java.io._
 
-  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(100000, 1000, 10), nRuns: Int = 10) = {
+  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(2, 20, 2000)/*10000, 100, 20, 2)*/, nRuns: Int = 10) = {
     val packageName = "tests"
 
     val testTrace = new RuntimeException().getStackTrace.filter(se => se.getClassName.endsWith("Test")).last
@@ -187,6 +191,103 @@ trait TestUtils {
     val methodName = testTrace.getMethodName
     //val methodName = name.replace(' ', '_')
 
+    case class Res(withPlugin: Boolean, output: AnyRef, time: Double)
+    type TesterGen = Int => (Boolean => Res)
+    
+    def getTesterGen(withPlugin: Boolean) = {
+      val suffixPlugin = (if (withPlugin) "Optimized" else "Normal")
+      val className = "Test_" + methodName + "_" + suffixPlugin
+      val src = "package " + packageName + "\nclass " + className + """(n: Int) {
+        """ + (if (decls == null) "" else decls) + """
+        def """ + methodName + """ = {
+        """ + code + """
+        }
+      }"""
+
+      val outputDirectory = new File("tmpTestClasses" + suffixPlugin)
+      def del(dir: File): Unit = {
+        val fs = dir.listFiles
+        if (fs != null)
+          fs foreach del
+        
+        dir.delete
+      }
+
+      del(outputDirectory)
+      outputDirectory.mkdirs
+      val loader = new URLClassLoader(Array(outputDirectory.toURI.toURL, new File(Compile.bootClassPath).toURI.toURL))
+
+      var tmpFile = new File(outputDirectory, methodName + ".scala")
+      val pout = new PrintStream(tmpFile)
+      pout.println(src)
+      pout.close
+      //println(src)
+      (
+        if (withPlugin) 
+          SharedCompilerWithPlugins 
+        else 
+          SharedCompilerWithoutPlugins
+      ).compile(Array("-d", outputDirectory.getAbsolutePath, tmpFile.getAbsolutePath))
+      
+      //compileFile(tmpFile, withPlugin, outputDirectory)
+      
+      val testClass = loader.loadClass(packageName + "." + className)
+      val testMethod = testClass.getMethod(methodName)//, classOf[Int])
+      val testConstructor = testClass.getConstructors.first
+      def instance(n: Int): AnyRef = testConstructor.newInstance(n.asInstanceOf[AnyRef]).asInstanceOf[AnyRef]
+      def invoke(i: AnyRef) = testMethod.invoke(i)
+      
+      (n: Int) => {
+        val i = instance(n)
+        (isWarmup: Boolean) => {
+          if (isWarmup) {
+            invoke(i)
+            null
+          } else {
+            System.gc
+            Thread.sleep(50)
+            val start = System.nanoTime
+            val o = invoke(i)
+            val time: Double = System.nanoTime - start
+            Res(withPlugin, o, time)
+          }
+        }
+      }
+    }
+    
+    val gens @ Array(genWith, genWithout) = Array(true, false) map getTesterGen
+      
+    def fail(msg: String) = {
+      println(msg)
+      println()
+      assertTrue(msg, false)
+    }
+    
+    def run = params.toList.sorted.map(param => {
+      //println("Running with param " + param)
+      val testers @ Array(testerWith, testerWithout) = gens.map(_(param))
+      
+      val firstRun = testers.map(_(false))
+      val Array(optimizedOutput, normalOutput) = firstRun.map(_.output)
+      
+      val pref = "[" + methodName + ", n = " + param + "] "
+      if (!eq(normalOutput, optimizedOutput)) {
+        fail(pref + "ERROR: Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
+      }
+      
+      val runs: List[Res] = firstRun.toList ++ (1 until nRuns).toList.flatMap(_ => testers.map(_(false)))
+      
+      def calcTime(list: List[Res]) = {
+        val times = list.map(_.time)
+        times.sum / times.size.toDouble
+      }
+      val (runsWithPlugin, runsWithoutPlugin) = runs.partition(_.withPlugin)
+      val (timeWithPlugin, timeWithoutPlugin) = (calcTime(runsWithPlugin), calcTime(runsWithoutPlugin))
+      
+      (param, timeWithoutPlugin / timeWithPlugin)
+    }).toMap
+    
+    /*
     def test(withPlugin: Boolean) = {
       val className = "Test_" + methodName + "_" + (if (withPlugin) "Optimized" else "Normal")
 
@@ -262,7 +363,8 @@ trait TestUtils {
       }
       del(outputDirectory)
       ret
-    }
+    }*/
+    
     def eq(a: AnyRef, b: AnyRef) = {
       if ((a == null) != (b == null))
         false
@@ -271,15 +373,66 @@ trait TestUtils {
     }
     val (logName, log, properties) = Results.getLog(testClassName)
     
-    def fail(msg: String) = {
-      println(msg)
-      println()
-      assertTrue(msg, false)
-    }
+    //println("Cold run...")
+    val coldRun = run
     
-    val errors = test(true).zip(test(false)).flatMap {
+    //println("Warming up...");
+    // Warm up the code being benchmarked :
+    {
+      val testers = gens.map(_(5))
+      (0 until 2500).foreach(_ => testers.foreach(_(true)))
+    };
+    
+    //println("Warm run...")
+    val warmRun = run
+    
+    
+    val errors = coldRun.map { case (param, coldFactor) =>
+      val warmFactor = warmRun(param)
+      //println("coldFactor = " + coldFactor + ", warmFactor = " + warmFactor)
+      
+      def f2s(f: Double) = ((f * 10).toInt / 10.0) + ""
+      def printFacts(warmFactor: Double, coldFactor: Double) = {
+        val txt = methodName + "\\:" + param + "=" + Array(warmFactor, coldFactor).map(f2s).mkString(";")
+        //println(txt)
+        log.println(txt)
+      }
+      //def printFact(factor: Double) = log.println(methodName + "\\:" + param + "=" + f2s(factor))
+      val (expectedWarmFactor, expectedColdFactor) = {
+      //val expectedColdFactor = {
+        val p = Option(properties.getProperty(methodName + ":" + param)).map(_.split(";")).orNull
+        if (p != null && p.length == 2) {
+          //val Array(c) = p.map(_.toDouble)
+          //val c = p.toDouble; printFact(c); c
+          //log.print("# Test result (" + (if (actualFasterFactor >= f) "succeeded" else "failed") + "): ")
+          val Array(w, c) = p.map(_.toDouble)
+          printFacts(w, c)
+          (w, c)
+        } else {
+          //printFact(coldFactor - 0.1); 1.0
+          printFacts(warmFactor - 0.1, coldFactor - 0.1)
+          (1.0, 1.0)
+        }
+      }
+      
+      def check(warm: Boolean, factor: Double, expectedFactor: Double) = {
+        val pref = "[" + methodName + ", n = " + param + ", " + (if (warm) "warm" else "cold") + "] "
+        
+        if (factor >= expectedFactor) {
+          println(pref + "  OK (" + factor + "x faster, expected > " + expectedFactor + "x)")
+          Nil
+        } else {
+          val msg = "ERROR: only " + factor + "x faster (expected >= " + expectedFactor + "x)"
+          println(pref + msg)
+          List(msg)
+        }
+      }
+      
+      check(false, coldFactor, expectedColdFactor) ++
+      check(true, warmFactor, expectedWarmFactor)
+    }
+    /*val errors = test(true).zip(test(false)).flatMap {
       case ((param, optimizedOutput, optimizedTime), (_, normalOutput, normalTime)) =>
-        val pref = "[" + methodName + ", n = " + param + "] "
         if (!eq(normalOutput, optimizedOutput)) {
           fail(pref + "ERROR: Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
         }
@@ -311,7 +464,7 @@ trait TestUtils {
           println(pref + msg)
           Some(msg)
         }
-    }
+    }*/
     try {
       if (!errors.isEmpty)
         assertTrue(errors.mkString("\n"), false)

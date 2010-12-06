@@ -143,6 +143,8 @@ object ScalaCLPlugin {
     */
     if (System.getenv("SCALACL_INSTRUMENT") == null) null else
       new instrumentation.InstrumentationTransformComponent(global, fileAndLineOptimizationFilter),
+    if (System.getenv("SCALACL_LIST_STREAMOPS") == null) null else
+      new StreamOpsTransformComponent(global, fileAndLineOptimizationFilter),
     new ScalaCLFunctionsTransformComponent(global, fileAndLineOptimizationFilter),
     new LoopsTransformComponent(global, fileAndLineOptimizationFilter)
   ).filter(_ != null)

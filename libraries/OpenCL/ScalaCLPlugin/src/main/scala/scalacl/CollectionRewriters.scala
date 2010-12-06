@@ -93,7 +93,7 @@ trait RewritingPluginComponent {
     protected var currentOwner: Symbol
     val unit: CompilationUnit
 
-    abstract sealed class CollectionRewriter {
+    abstract sealed class CollectionType {
       val supportsRightVariants: Boolean
       def filters: List[Tree] = Nil
       def isSafeRewrite(op: TraversalOpType) = true
@@ -110,12 +110,19 @@ trait RewritingPluginComponent {
         innerStatements: LoopInnersEnv[Payload] => LoopInners
       ): Tree
     }
+    class CollectionRewriter(
+      val colType: CollectionType, 
+      val tpe: Type, 
+      val array: Tree, 
+      val componentType: Symbol
+    )
+    
     object CollectionRewriter {
-      def unapply(tree: Tree): Option[(CollectionRewriter, Type, Tree, Symbol)] = tree match {
+      def unapply(tree: Tree): Option[CollectionRewriter] = tree match {
         case ArrayTree(array, componentType) =>
-          Some((ArrayRewriter, appliedType(ArrayClass.tpe, List(componentType.tpe)), array, componentType))
+          Some(new CollectionRewriter(ArrayRewriter, appliedType(ArrayClass.tpe, List(componentType.tpe)), array, componentType))
         case ListTree(componentType) =>
-          Some((ListRewriter, appliedType(ListClass.tpe, List(componentType.tpe)), tree, componentType))
+          Some(new CollectionRewriter(ListRewriter, appliedType(ListClass.tpe, List(componentType.tpe)), tree, componentType))
         case IntRange(from, to, by, isUntil, filters) =>
           (
             by match {
@@ -128,7 +135,7 @@ trait RewritingPluginComponent {
             }
           ) match {
             case Some(byValue) =>
-              Some((IntRangeRewriter(from, to, byValue, isUntil, filters), appliedType(ArrayClass.tpe, List(IntClass.tpe)), null, IntClass))
+              Some(new CollectionRewriter(IntRangeRewriter(from, to, byValue, isUntil, filters), appliedType(ArrayClass.tpe, List(IntClass.tpe)), null, IntClass))
             case _ =>
               None
           }
@@ -143,7 +150,7 @@ trait RewritingPluginComponent {
         val (builderTpe, builderInstance) = newBuilderInstance(componentType, knownSize, localTyper)
         CollectionBuilder(
           builder = builderInstance,
-          set = null,//(bufferIdentGen, indexIdentGen) => null,
+          set = null,
           add = (bufferIdentGen, itemIdentGen) => {
             val addAssignMethod = (builderTpe member addAssignName).alternatives.head// filter (_.paramss.size == 1)
             typed {
@@ -175,7 +182,7 @@ trait RewritingPluginComponent {
       }
     }
     case class IntRangeRewriter(from: Tree, to: Tree, byValue: Int, isUntil: Boolean, filtersList: List[Tree]) 
-    extends CollectionRewriter 
+    extends CollectionType 
        with HasBufferBuilder 
        with ArrayBuilderTargetRewriter
     {
@@ -185,7 +192,7 @@ trait RewritingPluginComponent {
       override def isSafeRewrite(op: TraversalOpType) = {
         import TraversalOp._
         op match {
-          case Reduce(_) | Min | Max =>
+          case Reduce(_, _) | Min | Max =>
             false
           case _: FilterWhile =>
             // dropWhile
@@ -352,7 +359,7 @@ trait RewritingPluginComponent {
         )
       }
     }
-    case object ArrayRewriter extends CollectionRewriter with HasBufferBuilder with ArrayBuilderTargetRewriter {
+    case object ArrayRewriter extends CollectionType with HasBufferBuilder with ArrayBuilderTargetRewriter {
       override val supportsRightVariants = true
       override def colToString(tpe: Type) = tpe.toString
       
@@ -461,7 +468,7 @@ trait RewritingPluginComponent {
         }
       }
     }
-    case object ListRewriter extends CollectionRewriter with HasBufferBuilder {
+    case object ListRewriter extends CollectionType with HasBufferBuilder {
       override val supportsRightVariants = false
       override def colToString(tpe: Type) = tpe.toString
 

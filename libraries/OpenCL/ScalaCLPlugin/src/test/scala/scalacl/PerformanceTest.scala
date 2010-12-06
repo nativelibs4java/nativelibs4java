@@ -10,10 +10,10 @@ import Assert._
 
 object PerformanceTest {
   lazy val skip = {
-    val s = "1" == System.getenv("SCALACL_SKIP_PERF")
-    if (!s)
-      println("You can skip " + getClass.getName + " by setting the environment variable SCALACL_SKIP_PERF=1")
-    s
+    val test = "1" == System.getenv("SCALACL_TEST_PERF")
+    if (!test)
+      println("You can run " + getClass.getName + " by setting the environment variable SCALACL_TEST_PERF=1")
+    !test
   } 
 }
 class PerformanceTest extends TestUtils {

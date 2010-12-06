@@ -206,7 +206,8 @@ extends PluginComponent
               }
             case Foreach(collection, f @ Func(List(param), body)) =>
               collection match {
-                case CollectionRewriter(colType, tpe, array, componentType) =>
+                case CollectionRewriter(colRewriter) =>
+                  import colRewriter._
                   msg(unit, tree.pos, "transformed " + colType.colToString(tpe) + ".foreach into equivalent while loop.") {
                     if (array != null)
                       array.tpe = tpe
@@ -259,12 +260,15 @@ extends PluginComponent
                   super.transform(tree)
               }
               
-            case TraversalOp(op, collection, resultType, mappedCollectionType, f, isLeft, initialValue) =>
+            case TraversalOp(traversalOp) =>
+              
+              import traversalOp._
+              
               var leftParam: ValDef = null
               var rightParam: ValDef = null
               var body: Tree = null
-              if (f != null) {
-                  f match { 
+              if (op.f != null) {
+                  op.f match { 
                       case Func(List(leftParamExtr, rightParamExtr), bodyExtr) =>
                         leftParam = leftParamExtr
                         rightParam = rightParamExtr
@@ -276,19 +280,18 @@ extends PluginComponent
                         return super.transform(tree)
                   }
               }
-               
+              
               val accParam = if (isLeft) leftParam else rightParam
               val newParam = if (isLeft) rightParam else leftParam
               
               collection match {
-                case CollectionRewriter(colType, tpe, array, componentType) =>
+                case CollectionRewriter(colRewriter) =>
+                  import colRewriter._
                   if ((isLeft || colType.supportsRightVariants) && (ScalaCLPlugin.experimental || colType.isSafeRewrite(op)))
                     msg(unit, tree.pos, "transformed " + colType.colToString(tpe) + "." + op + " into equivalent while loop.") {
-                      //if (array != null)
-                      //  array.tpe = tpe
                       super.transform(
                         op match {
-                          case TraversalOp.Reduce(_) | TraversalOp.Fold(_) | TraversalOp.Sum | TraversalOp.Min | TraversalOp.Max =>
+                          case TraversalOp.Reduce(_, _) | TraversalOp.Fold(_, _) | TraversalOp.Sum | TraversalOp.Min | TraversalOp.Max =>
                             val skipFirst = op.loopSkipsFirst
                             colType.foreach[VarDef](
                               tree,
@@ -354,7 +357,7 @@ extends PluginComponent
                                             accParam.symbol -> totVar,
                                             newParam.symbol -> env.itemVar
                                           ),
-                                          Map(f.symbol -> currentOwner),
+                                          Map(op.f.symbol -> currentOwner),
                                           unit
                                         )
                                       )
@@ -363,8 +366,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.Scan(_) =>
-                            //val mappedArrayTpe = appliedType(ArrayClass.tpe, List(resultType.tpe))
+                          case TraversalOp.Scan(f, _) =>
                             colType.foreach[(CollectionBuilder, VarDef, VarDef)](
                               tree,
                               array,
@@ -372,7 +374,6 @@ extends PluginComponent
                               !isLeft,
                               false,
                               env => {
-                                //val mappedArrayType = appliedType(ArrayClass.tpe, List(componentType))
                                 val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(
                                   collection.pos,
                                   componentType.tpe,
@@ -388,16 +389,13 @@ extends PluginComponent
                                   true,
                                   builderCreation
                                 )
-                                //val (mIdentGen, _, mDef) = newVariable(unit, "m$", currentOwner, tree.pos, false, newArray(componentType.tpe, intAdd(env.nIdentGen(), newInt(1))))
-                                val totVar = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)//.setType(IntClass.tpe))
+                                val totVar = newVariable(unit, "tot$", currentOwner, tree.pos, true, initialValue)
                                 new LoopOuters(
                                   List(
                                     totVar.definition,
                                     builderVar.definition,
-                                    cb.setOrAdd(builderVar, () => newInt(0), totVar)//, index, value)
-                                    //newUpdate(tree.pos, builderIdentGen(), newInt(0), totIdentGen())
+                                    cb.setOrAdd(builderVar, () => newInt(0), totVar)
                                   ),
-                                  //builderIdentGen(),
                                   builderResult(builderVar),
                                   payload = (cb, builderVar, totVar)
                                 )
@@ -430,7 +428,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.AllOrSome(all) =>
+                          case TraversalOp.AllOrSome(f, all) =>
                             colType.foreach[VarDef](
                               tree,
                               array,
@@ -477,7 +475,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.Filter(not) =>
+                          case TraversalOp.Filter(f, not) =>
                             colType.foreach[(CollectionBuilder, VarDef)](
                               tree,
                               array,
@@ -504,7 +502,6 @@ extends PluginComponent
                               },
                               env => {
                                 val (cb, builderVar) = env.payload
-                                //val addAssignMethod = builderSym.tpe member addAssignName
                                 val cond = replaceOccurrences(
                                   super.transform(body),
                                   Map(
@@ -527,7 +524,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.Count =>
+                          case TraversalOp.Count(f) =>
                             colType.foreach[(VarDef)](
                               tree,
                               array,
@@ -572,7 +569,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.FilterWhile(take) =>
+                          case TraversalOp.FilterWhile(f, take) =>
                             colType.foreach[(CollectionBuilder, VarDef, VarDef)](
                               tree,
                               array,
@@ -608,7 +605,6 @@ extends PluginComponent
                               },
                               env => {
                                 val (cb, passedVar, builderVar) = env.payload
-                                //val addAssignMethod = builderSym.tpe member addAssignName
                                 val cond = boolNot(
                                   replaceOccurrences(
                                     super.transform(body),
@@ -659,8 +655,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.Map =>
-                            //array.tpe = appliedType(ArrayClass.tpe, List(componentType.tpe))
+                          case TraversalOp.Map(f) =>
                             colType.foreach[(CollectionBuilder, VarDef)](
                               tree,
                               array,
@@ -669,7 +664,6 @@ extends PluginComponent
                               false,
                               env => {
                                 val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, tree.tpe, env.outputSizeVar, localTyper)
-                                //val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, resultType, tree.tpe, null, localTyper)
                                 val builderVar = newVariable(
                                   unit,
                                   "builder$",

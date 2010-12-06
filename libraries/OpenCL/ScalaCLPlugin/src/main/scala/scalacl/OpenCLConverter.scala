@@ -92,7 +92,7 @@ extends MiscMatchers
         }
         out(argNames.getOrElse(
           ns,
-          error("Unknown identifier : '" + name + "' (expected any of " + argNames.keys.map("'" + _ + "'").mkString(", ") + ")")
+          error("Unknown identifier : '" + name + "' (expected any of " + argNames.keys.map("'" + _ + "'").mkString(", ") + ") in : \n" + body + "\n")
         ))
       case Assign(lhs, rhs) =>
         out(lhs, " = ", rhs, ";\n")

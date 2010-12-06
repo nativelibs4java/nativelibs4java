@@ -39,7 +39,7 @@ object TestListForeach {
         nsPerItem
     }
     def main(args: Array[String]): Unit = {
-        for (n <- Array(10000, 1000, 100, 10, 5, 4, 3, 2, 1).toList) {
+        for (n <- Array(100000, 10000, 1000, 100, 10, 5, 4, 3, 2, 1).toList) {
             val list = (0 until n).toList
             
             def testForeach = {
@@ -52,6 +52,8 @@ object TestListForeach {
             def testWhile = {
                 var tot = 0L
                 var l = list
+                
+                //while (l.isInstanceOf[::[_]]) {
                 while (!l.isEmpty) {
                     val item = l.head
                     tot += item
@@ -59,21 +61,27 @@ object TestListForeach {
                 }
                 tot
             }
-            
-            def tst(loops: Int, n: Int) = {
-                val wh = time(loops, n) { testWhile }
+            def tst(loops: Int, n: Int, runs: Int) = {
+              val res = for (i <- 0 until runs) yield {
                 val fe = time(loops, n) { testForeach }
+                val wh = time(loops, n) { testWhile }
                 (wh, fe)
+              }
+              val whs = res.map(_._1)
+              val fes = res.map(_._2)
+              (whs.sum / whs.size, fes.sum / fes.size)
             }
-            val coldLoops = 1000
+            
+            val nRuns = 20
+            val coldLoops = 500
             assert(testForeach == testWhile)
-            val (coldWhile, coldForeach) = tst(coldLoops, n)
+            val (coldWhile, coldForeach) = tst(coldLoops, n, nRuns)
             
-            val warmupLoops = 2000
-            tst(warmupLoops, n)
+            val warmupLoops = 2500
+            tst(warmupLoops, n, 1)
             
-            val warmLoops = 10000
-            val (warmWhile, warmForeach) = tst(warmLoops, n)
+            val warmLoops = 500
+            val (warmWhile, warmForeach) = tst(warmLoops, n, nRuns)
             
             println("Foreach (n = " + n + ")\t: \tCold = " + coldForeach + " ns \t\t\tWarm = " +warmForeach + " ns")
             println("  While (n = " + n + ")\t: \tCold = " + coldWhile + " ns \t\t\tWarm = " +warmWhile + " ns")

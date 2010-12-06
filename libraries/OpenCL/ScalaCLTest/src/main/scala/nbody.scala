@@ -3,10 +3,15 @@
    The Computer Language Benchmarks Game 
    http://shootout.alioth.debian.org/ 
    contributed by Isaac Gouy 
-   modified by Meiko Rachimow 
+   modified by Meiko Rachimow
+   modified by Olivier Chafik
    updated for 2.8 by Rex Kerr 
 */ 
+/*
+sbt clean compile && JAVA_OPTS="-Xmx3G" scala -cp target/scala_2.8.0/classes/ nbody
+DISABLE_SCALACL_PLUGIN=1 sbt clean compile && JAVA_OPTS="-Xmx3G" scala -cp target/scala_2.8.0/classes/ nbody
 
+*/
 import math._ 
 
 object nbody { 
@@ -97,17 +102,19 @@ abstract class NBodySystem {
 
   def advanceLimit(dt: Double) = { 
     for (i <- 0 until bodies.length ; j <- i+1 until bodies.length) { 
-      val dx = bodies(i).x - bodies(j).x 
-      val dy = bodies(i).y - bodies(j).y 
-      val dz = bodies(i).z - bodies(j).z 
+      val bi = bodies(i)
+      val bj = bodies(j)
+      val dx = bi.x - bj.x 
+      val dy = bi.y - bj.y 
+      val dz = bi.z - bj.z 
 
       val distance = sqrt(dx*dx + dy*dy + dz*dz) 
       val mag = dt / (distance * distance * distance) 
 
-      bodies(i).advance(dx,dy,dz,-bodies(j).mass*mag) 
-      bodies(j).advance(dx,dy,dz,bodies(i).mass*mag) 
+      bi.advance(dx,dy,dz,-bj.mass*mag) 
+      bj.advance(dx,dy,dz,bi.mass*mag) 
     } 
-    for (i <- 0 until bodies.length) { bodies(i).move(dt) } 
+    bodies.foreach(_.move(dt)) 
   } 
 
   def advanceRange(dt: Double) = { 
@@ -135,12 +142,12 @@ abstract class NBodySystem {
     var vx,vy,vz = 0.0 
     var mass = 0.0 
     def speedSq = vx*vx + vy*vy + vz*vz 
-    def move(dt: Double) { 
+    @inline def move(dt: Double) { 
       x += dt*vx 
       y += dt*vy 
       z += dt*vz 
     } 
-    def advance(dx: Double, dy: Double, dz: Double, delta: Double) { 
+    @inline def advance(dx: Double, dy: Double, dz: Double, delta: Double) { 
       vx += dx*delta 
       vy += dy*delta 
       vz += dz*delta 

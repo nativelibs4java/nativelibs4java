@@ -106,6 +106,9 @@ trait MiscMatchers {
   val foreachName = N("foreach")
   val foldLeftName = N("foldLeft")
   val foldRightName = N("foldRight")
+  val zipWithIndexName = N("zipWithIndex")
+  val zipName = N("zip")
+  val reverseName = N("reverse")
   val reduceLeftName = N("reduceLeft")
   val reduceRightName = N("reduceRight")
   val scanLeftName = N("scanLeft")
@@ -182,7 +185,7 @@ trait MiscMatchers {
   object IntRange {
     def apply(from: Tree, to: Tree, by: Option[Tree], isUntil: Boolean, filters: List[Tree]) = error("not implemented")
 
-	def unapply(tree: Tree): Option[(Tree, Tree, Option[Tree], Boolean, List[Tree])] = tree match {
+    def unapply(tree: Tree): Option[(Tree, Tree, Option[Tree], Boolean, List[Tree])] = tree match {
       case Apply(Select(Apply(Select(Predef(), intWrapperName()), List(from)), funToName @ (toName() | untilName())), List(to)) =>
         funToName match {
           case toName() =>
@@ -206,24 +209,10 @@ trait MiscMatchers {
           case _ =>
             None
         }
+      case _ => 
+        None
     }
   }
-
-  object FilteredCol {
-    def apply(col: Tree, filters: List[Tree]) = error("not implemented")
-	def unapply(tree: Tree): Option[(Tree, List[Tree])] = tree match {
-      case Apply(Select(tg, filterName()), a @ List(arg)) =>
-       tg match {
-          case FilteredCol(col, filters) =>
-            Some(col, filters ++ a)
-          case _ =>
-            Some(tree, Nil)
-        }
-      case _ =>
-        Some(tree, Nil)
-    }
-  }
-  
   object Predef {
     lazy val RefArrayOps = this("refArrayOps")
     lazy val GenericArrayOps = this("genericArrayOps")
@@ -267,9 +256,6 @@ trait MiscMatchers {
       case _ => None
     }
   }
-  /** This method submitted in case you like this sort of thing:
-   *  not everyone does.  I'm a tireless advocate for brevity.
-   */
   class ColTree(ColClass: Symbol) {
     //def unapply(tree: Tree) = Some(tree.symbol.tpe.dealias.deconst.widen) collect {
     //def unapply(tree: Tree) = Some(tree.tpe.dealias.deconst.widen) collect {
@@ -284,7 +270,7 @@ trait MiscMatchers {
           None
       }
           
-      def unap(t: Type) = t.dealias.deconst.widen match {
+      def unap(t: Type) = if (t == null) None else t.dealias.deconst.widen match {
         case TypeRef(_, ColClass, List(param)) => 
           Some(param.typeSymbol)
         case TypeRef(_, cc, List(param)) => 
@@ -299,7 +285,10 @@ trait MiscMatchers {
         case Some(s) =>
           Some(s)
         case None =>
-          unap(tree.symbol.tpe)
+          if (tree != null && tree.symbol != null)
+            unap(tree.symbol.tpe)
+          else
+            None
       }
     }
   }
@@ -364,6 +353,7 @@ trait MiscMatchers {
     val needsInitialValue = false
     val needsFunction = false
     val loopSkipsFirst = false
+    val f: Tree
   }
   
   object ReduceName {
@@ -391,53 +381,77 @@ trait MiscMatchers {
     }
   }
 
+  class TraversalOp(
+    val op: TraversalOpType, 
+    val collection: Tree, 
+    val resultType: Type, 
+    val mappedCollectionType: Type, 
+    val isLeft: Boolean, 
+    val initialValue: Tree
+  )
+    
   /// Matches one of the folding/scanning/reducing functions : (reduce|fold|scan)(Left|Right)
   object TraversalOp {
 
-    case class Fold(isLeft: Boolean) extends TraversalOpType {
+    case class Fold(f: Tree, isLeft: Boolean) extends TraversalOpType {
       override def toString = "fold" + (if (isLeft) "Left" else "Right")
       override val needsInitialValue = true
       override val needsFunction: Boolean = true
     }
-    case class Scan(isLeft: Boolean) extends TraversalOpType {
+    case class Scan(f: Tree, isLeft: Boolean) extends TraversalOpType {
       override def toString = "scan" + (if (isLeft) "Left" else "Right")
       override val needsInitialValue = true
       override val needsFunction: Boolean = true
     }
-    case class Reduce(isLeft: Boolean) extends TraversalOpType {
+    case class Reduce(f: Tree, isLeft: Boolean) extends TraversalOpType {
       override def toString = "reduce" + (if (isLeft) "Left" else "Right")
       override val needsFunction: Boolean = true
       override val loopSkipsFirst = true
     }
     case object Sum extends TraversalOpType {
       override def toString = "sum"
+      override val f = null
     }
-    case object Count extends TraversalOpType {
+    case class Count(f: Tree) extends TraversalOpType {
       override def toString = "count"
       override val needsFunction: Boolean = true
     }
     case object Min extends TraversalOpType {
       override def toString = "min"
       override val loopSkipsFirst = true
+      override val f = null
     }
     case object Max extends TraversalOpType {
       override def toString = "max"
       override val loopSkipsFirst = true
+      override val f = null
     }
-    case class Filter(not: Boolean) extends TraversalOpType {
+    case class Filter(f: Tree, not: Boolean) extends TraversalOpType {
       override def toString = if (not) "filterNot" else "filter"
     }
-    case class FilterWhile(take: Boolean) extends TraversalOpType {
+    case class FilterWhile(f: Tree, take: Boolean) extends TraversalOpType {
       override def toString = if (take) "takeWhile" else "dropWhile"
     }
-    case object Map extends TraversalOpType {
+    case class Map(f: Tree) extends TraversalOpType {
       override def toString = "map"
     }
-    case class AllOrSome(all: Boolean) extends TraversalOpType {
+    case class AllOrSome(f: Tree, all: Boolean) extends TraversalOpType {
       override def toString = if (all) "forall" else "exists"
     }
-    case object Find extends TraversalOpType {
+    case class Find(f: Tree) extends TraversalOpType {
       override def toString = "find"
+    }
+    case object Reverse extends TraversalOpType {
+      override def toString = "reverse"
+      override val f = null
+    }
+    case class Zip(zippedCollection: Tree) extends TraversalOpType {
+      override def toString = "zip"
+      override val f = null
+    }
+    case object ZipWithIndex extends TraversalOpType {
+      override def toString = "zipWithIndex"
+      override val f = null
     }
     def refineComponentType(componentType: Type, collectionTree: Tree): Type = {
       collectionTree.tpe match {
@@ -447,8 +461,8 @@ trait MiscMatchers {
           componentType
       }
     }
-    def apply(op: TraversalOpType, array: Tree, resultType: Type, mappedCollectionType: Type, function: Tree, isLeft: Boolean, initialValue: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[(TraversalOpType, Tree, Type, Type, Tree, Boolean, Tree)] = tree match {
+    //def apply(op: TraversalOpType, array: Tree, resultType: Type, mappedCollectionType: Type, function: Tree, isLeft: Boolean, initialValue: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[TraversalOp] = tree match {
       case // map[B, That](f)(canBuildFrom)
         Apply(
           Apply(
@@ -460,7 +474,7 @@ trait MiscMatchers {
           ),
           List(canBuildFrom @ CanBuildFromArg())
         ) =>
-        Some((Map, collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, function, true, null))
+        Some(new TraversalOp(Map(function), collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
       case // map[B](f)
         Apply(
           TypeApply(
@@ -469,7 +483,7 @@ trait MiscMatchers {
           ),
           List(function)
         ) =>
-        Some((Map, collection, refineComponentType(mappedComponentType.tpe, tree), null, function, true, null))
+        Some(new TraversalOp(Map(function), collection, refineComponentType(mappedComponentType.tpe, tree), null, true, null))
       case // scanLeft, scanRight
         Apply(
           Apply(
@@ -484,7 +498,7 @@ trait MiscMatchers {
           ),
           List(CanBuildFromArg())
         ) =>
-        Some((Scan(isLeft), collection, functionResultType.tpe, null, function, isLeft, initialValue))
+        Some(new TraversalOp(Scan(function, isLeft), collection, functionResultType.tpe, null, isLeft, initialValue))
       case // foldLeft, foldRight
         Apply(
           Apply(
@@ -496,7 +510,7 @@ trait MiscMatchers {
           ),
           List(function)
         ) =>
-        Some((Fold(isLeft), collection, functionResultType.tpe, null, function, isLeft, initialValue))
+        Some(new TraversalOp(Fold(function, isLeft), collection, functionResultType.tpe, null, isLeft, initialValue))
       case // sum, min, max
         Apply(
           TypeApply(
@@ -507,6 +521,14 @@ trait MiscMatchers {
         ) =>
         isNumeric.toString match {
           case
+            "math.this.Numeric.IntIsIntegral" |
+            "math.this.Numeric.ShortIsIntegral" |
+            "math.this.Numeric.LongIsIntegral" |
+            "math.this.Numeric.ByteIsIntegral" |
+            "math.this.Numeric.CharIsIntegral" |
+            "math.this.Numeric.FloatIsFractional" |
+            "math.this.Numeric.DoubleIsFractional" |
+            "math.this.Numeric.DoubleAsIfIntegral" |
             "math.this.Ordering.Int" |
             "math.this.Ordering.Short" |
             "math.this.Ordering.Long" |
@@ -515,13 +537,16 @@ trait MiscMatchers {
             "math.this.Ordering.Double" |
             "math.this.Ordering.Float"
             =>
-            reductionFunctionOp(n).collect { case op => (op, collection, functionResultType.tpe, null, null, true, null) }
+            traversalOpWithoutArg(n).collect { case op => new TraversalOp(op, collection, functionResultType.tpe, null, true, null) }
           case _ =>
             None
         }
-      case // sum, min, max
-        Select(collection, n @ (sumName() | minName() | maxName())) =>
-        reductionFunctionOp(n).collect { case op => (op, collection, null, null, null, true, null) }
+      //case // sum, min, max, reverse
+      //  Select(collection, n @ (sumName() | minName() | maxName() | reverseName())) =>
+      //  traversalOpWithoutArg(n).collect { case op => new TraversalOp(op, collection, null, null, true, null) }
+      case // reverse
+        Select(collection, reverseName()) =>
+        Some(new TraversalOp(Reverse, collection, null, null, true, null))
       case // reduceLeft, reduceRight
         Apply(
           TypeApply(
@@ -530,41 +555,64 @@ trait MiscMatchers {
           ),
           List(function)
         ) =>
-        Some((Reduce(isLeft), collection, functionResultType.tpe, null, function, isLeft, null))
+        Some(new TraversalOp(Reduce(function, isLeft), collection, functionResultType.tpe, null, isLeft, null))
+      case // zip(col)(canBuildFrom)
+        Apply(
+          Apply(
+            TypeApply(
+              Select(collection, mapName()),
+              List(mappedComponentType, otherComponentType, mappedCollectionType)
+            ),
+            List(zippedCollection)
+          ),
+          List(canBuildFrom @ CanBuildFromArg())
+        ) =>
+        Some(new TraversalOp(Zip(zippedCollection), collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
+      case // zipWithIndex(canBuildFrom)
+        Apply(
+          TypeApply(
+            Select(collection, zipWithIndexName()),
+            List(mappedComponentType, mappedCollectionType)
+          ),
+          List(canBuildFrom @ CanBuildFromArg())
+        ) =>
+        Some(new TraversalOp(ZipWithIndex, collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
       case // filter, filterNot, takeWhile, dropWhile, forall, exists
         Apply(Select(collection, n), List(function @ Func(List(param), body))) =>
         (
           n match {
             case filterName() =>
-              Some(Filter(false), collection.tpe)
+              Some(Filter(function, false), collection.tpe)
             case filterNotName() =>
-              Some(Filter(true), collection.tpe)
+              Some(Filter(function, true), collection.tpe)
 
             case takeWhileName() =>
-              Some(FilterWhile(true), collection.tpe)
+              Some(FilterWhile(function, true), collection.tpe)
             case dropWhileName() =>
-              Some(FilterWhile(false), collection.tpe)
+              Some(FilterWhile(function, false), collection.tpe)
 
             case forallName() =>
-              Some(AllOrSome(true), BooleanClass.tpe)
+              Some(AllOrSome(function, true), BooleanClass.tpe)
             case existsName() =>
-              Some(AllOrSome(false), BooleanClass.tpe)
+              Some(AllOrSome(function, false), BooleanClass.tpe)
 
             case countName() =>
-              Some(Count, IntClass.tpe)
+              Some(Count(function), IntClass.tpe)
             case _ =>
               None
           }
         ) match {
           case Some((op, resType)) =>
-            Some((op, collection, resType, null, function, true, null))
+            Some(new TraversalOp(op, collection, resType, null, true, null))
           case None =>
             None
         }
       case _ =>
         None
     }
-    def reductionFunctionOp(n: Name) = n match {
+    def traversalOpWithoutArg(n: Name) = n match {
+      case reverseName() =>
+        Some(Reverse)
       case sumName() =>
         Some(Sum)
       case minName() =>
