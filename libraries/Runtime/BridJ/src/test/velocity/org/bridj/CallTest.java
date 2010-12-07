@@ -36,24 +36,34 @@ public class CallTest {
 		}
 	}
 	
-	/*
+	public static abstract class MyCallback_${prim.Name} extends Callback {
+		public abstract ${prim.Name} apply(${prim.Name} value);
+	}
+	///*
 	/// Returns cb.apply(value)
-	public static native ${prim.Name} test_callback_${prim.Name}_${prim.Name}(Func1<${prim.WrapperName}, ${prim.WrapperName}> cb, ${prim.Name} value);
+	//public static native ${prim.Name} test_callback_${prim.Name}_${prim.Name}(Func1<${prim.WrapperName}, ${prim.WrapperName}> cb, ${prim.Name} value);
+	public static native ${prim.Name} test_callback_${prim.Name}_${prim.Name}(Pointer<MyCallback_${prim.Name}> cb, ${prim.Name} value);
 	
 	@Test
 	public void testCallback_${prim.Name}() {
-		Func1<${prim.WrapperName}, ${prim.WrapperName}> cb = new Func1<${prim.WrapperName}, ${prim.WrapperName}>() {
-			public ${prim.WrapperName} apply(${prim.WrapperName} value) {
+		MyCallback_${prim.Name} cb = new MyCallback_${prim.Name}() {
+			public ${prim.Name} apply(${prim.Name} value) {
 				return (${prim.Name})(value + 1);
 			}
 		};
+		/*
+		Func1<${prim.WrapperName}, ${prim.WrapperName}> cb = new Func1<${prim.WrapperName}, ${prim.WrapperName}>() {
+			public ${prim.Name} apply(${prim.Name} value) {
+				return (${prim.Name})(value + 1);
+			}
+		};*/
 		for (${prim.Name} value : new ${prim.Name}[] { (${prim.Name})0, (${prim.Name})1, (${prim.Name})-1 }) {
-			${prim.Name} ret = test_callback_${prim.Name}_${prim.Name}(cb, value);
+			${prim.Name} ret = test_callback_${prim.Name}_${prim.Name}(cb.toPointer(), value);
 			${prim.Name} incr = (${prim.Name})(value + 1);
 			assertEquals(incr, ret#if($prim.Name == "float" || $prim.Name == "double"), 0#end);
 		}
 	}
-	*/
+	//*/
 
 	
 #foreach ($n in [9..9])
