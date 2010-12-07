@@ -49,12 +49,7 @@ object StreamOpsTransformComponent {
 
 
 /**
- * Transforms the following constructs into their equivalent while loops :
- * - Array[T].foreach(x => body)
- * - Array[T].map(x => body)
- * - Array[T].reduceLeft((x, y) => body) / reduceRight
- * - Array[T].foldLeft((x, y) => body) / foldRight
- * - Array[T].scanLeft((x, y) => body) / scanRight
+ * Lists streamed operations that initiate from a rewritable collection
  */
 class StreamOpsTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
 extends PluginComponent
@@ -76,36 +71,57 @@ extends PluginComponent
 
   def newTransformer(compilationUnit: CompilationUnit) = new TypingTransformer(compilationUnit) with CollectionRewriters {
 
+    class OpsStream(val colRewriter: CollectionRewriter, val colTree: Tree, val ops: List[TraversalOp])
+    object OpsStream {
+      def unapply(tree: Tree) = {
+        var ops = List[TraversalOp]()
+        var colTree = tree
+        var colRewriter: CollectionRewriter = null
+        var finished = false
+        while (!finished) {
+          colTree match {
+            case TraversalOp(traversalOp) =>
+              ops = traversalOp :: ops
+              colTree = traversalOp.collection
+            case CollectionRewriter(cr) =>
+              colRewriter = cr
+              if (colTree != cr.array)
+                colTree = cr.array
+              else
+                finished = true
+            case _ =>
+              finished = true
+          }
+        }
+        if (ops.isEmpty)
+          None
+        else
+          Some(new OpsStream(colRewriter, colTree, ops))
+      }
+    }
+    
     override val unit = compilationUnit
+    
+    var matchedColTreeIds = Set[Long]()
     
     override def transform(tree: Tree): Tree = {
       if (!shouldOptimize(tree))
         super.transform(tree)
       else
         try {
-          var ops = List[TraversalOp]()
-          var toMatch = tree
-          var colRewriter: CollectionRewriter = null
-          var finished = false
-          while (!finished) {
-            toMatch match {
-              case TraversalOp(traversalOp) =>//(op, collection, resultType, mappedCollectionType, f, isLeft, initialValue) =>
-                ops = traversalOp :: ops
-                toMatch = traversalOp.collection
-              case CollectionRewriter(cr) =>
-                colRewriter = cr
-                finished = true
-              case _ =>
-                finished = true
-            }
+          tree match {
+            case OpsStream(opsStream) if !matchedColTreeIds.contains(opsStream.colTree.id) =>
+              import opsStream._
+              
+              val txt = "Streamed ops on " + (if (colRewriter == null) "UNKNOWN COL" else colRewriter.colType) + " : " + ops.map(_.op).mkString(", ")
+              matchedColTreeIds += colTree.id
+              msg(unit, tree.pos, "# " + txt) {
+                //super.transform(toMatch)
+                super.transform(tree)
+              }
+            case _ =>
+              super.transform(tree)//toMatch)
           }
-          if (!ops.isEmpty) {
-            val txt = "Streamed ops on " + (if (colRewriter == null) "UNKNOWN COL" else colRewriter.colType) + " : " + ops.map(_.op).mkString(", ")
-            msg(unit, tree.pos, "# " + txt) {
-              super.transform(toMatch)
-            }
-          } else
-            super.transform(toMatch)
         } catch {
           case ex =>
             ex.printStackTrace

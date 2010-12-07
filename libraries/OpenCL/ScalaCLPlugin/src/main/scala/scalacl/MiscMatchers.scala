@@ -88,6 +88,10 @@ trait MiscMatchers {
   val addAssignName = N(NameTransformer.encode("+="))
   val toArrayName = N("toArray")
   val toListName = N("toList")
+  val toSeqName = N("toSeq")
+  val toSetName = N("toSet")
+  val toIndexedSeqName = N("toIndexedSeq")
+  val toMapName = N("toMap")
   val resultName = N("result")
   val scalaName = N("scala")
   val ArrayName = N("Array")
@@ -388,7 +392,9 @@ trait MiscMatchers {
     val mappedCollectionType: Type, 
     val isLeft: Boolean, 
     val initialValue: Tree
-  )
+  ) {
+    override def toString = "TraversalOp(" + Array(op, collection, resultType, mappedCollectionType, isLeft, initialValue).mkString(", ") + ")"
+  }
     
   /// Matches one of the folding/scanning/reducing functions : (reduce|fold|scan)(Left|Right)
   object TraversalOp {
@@ -447,6 +453,20 @@ trait MiscMatchers {
     }
     case class Zip(zippedCollection: Tree) extends TraversalOpType {
       override def toString = "zip"
+      override val f = null
+    }
+    
+    abstract sealed class CollectionType(name: String) {
+      override def toString = name
+    }
+    case object SeqType extends CollectionType("Seq")
+    case object SetType extends CollectionType("Set")
+    case object ListType extends CollectionType("List")
+    case object ArrayType extends CollectionType("Array")
+    case object IndexedSeqType extends CollectionType("IndexedSeq")
+    case object MapType extends CollectionType("Map")
+    case class ToCollection(collectionType: CollectionType, tpe: Type) extends TraversalOpType {
+      override def toString = "to" + collectionType
       override val f = null
     }
     case object ZipWithIndex extends TraversalOpType {
@@ -537,16 +557,17 @@ trait MiscMatchers {
             "math.this.Ordering.Double" |
             "math.this.Ordering.Float"
             =>
-            traversalOpWithoutArg(n).collect { case op => new TraversalOp(op, collection, functionResultType.tpe, null, true, null) }
+            traversalOpWithoutArg(n, tree).collect { case op => new TraversalOp(op, collection, functionResultType.tpe, null, true, null) }
           case _ =>
             None
         }
       //case // sum, min, max, reverse
       //  Select(collection, n @ (sumName() | minName() | maxName() | reverseName())) =>
       //  traversalOpWithoutArg(n).collect { case op => new TraversalOp(op, collection, null, null, true, null) }
-      case // reverse
-        Select(collection, reverseName()) =>
-        Some(new TraversalOp(Reverse, collection, null, null, true, null))
+      case // reverse, toList, toArray, toSeq, toIndexedSeq
+        Select(collection, n @ (reverseName() | toListName() | toArrayName() | toSeqName() | toSetName() | toIndexedSeqName())) =>
+        traversalOpWithoutArg(n, tree).collect { case op => new TraversalOp(op, collection, null, null, true, null) }
+        //Some(new TraversalOp(Reverse, collection, null, null, true, null))
       case // reduceLeft, reduceRight
         Apply(
           TypeApply(
@@ -610,7 +631,20 @@ trait MiscMatchers {
       case _ =>
         None
     }
-    def traversalOpWithoutArg(n: Name) = n match {
+    def traversalOpWithoutArg(n: Name, tree: Tree) = n match {
+      
+      case toListName() =>
+        Some(ToCollection(ListType, tree.tpe))
+      case toArrayName() =>
+        Some(ToCollection(ArrayType, tree.tpe))
+      case toSeqName() =>
+        Some(ToCollection(SeqType, tree.tpe))
+      case toSetName() =>
+        Some(ToCollection(SetType, tree.tpe))
+      case toIndexedSeqName() =>
+        Some(ToCollection(IndexedSeqType, tree.tpe))
+      case toMapName() =>
+        Some(ToCollection(MapType, tree.tpe))
       case reverseName() =>
         Some(Reverse)
       case sumName() =>
