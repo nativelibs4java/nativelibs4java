@@ -63,6 +63,7 @@ extends PluginComponent
    with TreeBuilders
    with RewritingPluginComponent
    with WithOptimizationFilter
+   with WorkaroundsForOtherPhases
 {
   import global._
   import global.definitions._

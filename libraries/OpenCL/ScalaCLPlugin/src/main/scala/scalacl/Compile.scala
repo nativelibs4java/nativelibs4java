@@ -75,7 +75,7 @@ object Compile {
     ) ++ //list(base).filter(_.getName.endsWith(".scala")).map(_.toString) ++
     Array(
       //"-Xprint:" + LoopsTransformComponent.phaseName,
-      "-Ydebug",
+      //"-Ydebug",
       "-optimise"
     )
     //*/

@@ -36,7 +36,7 @@ import scala.tools.nsc.transform.TypingTransformers
 
 trait RewritingPluginComponent {
 
-  this: PluginComponent with TreeBuilders =>
+  this: PluginComponent with TreeBuilders with WorkaroundsForOtherPhases =>
   import global._
   import gen._
   import definitions._
@@ -331,10 +331,13 @@ trait RewritingPluginComponent {
         val (builderType, mainArgs, needsManifest, manifestIsInMain) = newArrayBuilderInfo(componentType, knownSize);
         (
           builderType,
-          typed {
-            val manifestList = if (needsManifest) 
-              List(localTyper.findManifest(componentType, true).tree)
-            else
+          localTyper.typed {
+            val manifestList = if (needsManifest) {
+              val manifest = localTyper.findManifest(componentType, true).tree
+              // TODO: REMOVE THIS UGLY WORKAROUND !!!
+              assertNoThisWithNoSymbolOuterRef(manifest, localTyper)
+              List(manifest)
+            } else
               null
 
             val sym = builderType.typeSymbol.primaryConstructor

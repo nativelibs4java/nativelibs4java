@@ -233,7 +233,8 @@ trait MiscMatchers {
     def unapply(tree: Tree): Option[Symbol] = tree match {
       case TypeApply(sel, List(arg))
         if sel.symbol == Predef.RefArrayOps || sel.symbol == Predef.GenericArrayOps =>
-        Some(arg.tpe.typeSymbol)
+        Some(arg.symbol)
+        //Some(arg.tpe.typeSymbol)
       case _  => tree.symbol.tpe match {
         case MethodType(_, TypeRef(_, ArrayOpsClass, List(param)))
           if Predef contains tree.symbol =>

@@ -58,6 +58,7 @@ extends PluginComponent
    with MiscMatchers
    with TreeBuilders
    with RewritingPluginComponent
+   with WorkaroundsForOtherPhases
    with WithOptimizationFilter
 {
   import global._
