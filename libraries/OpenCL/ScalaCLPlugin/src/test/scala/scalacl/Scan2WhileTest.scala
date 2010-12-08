@@ -78,7 +78,7 @@ class Scan2WhileTest extends TestUtils {
             var t = 0.0
             val builder = new scala.collection.mutable.ListBuffer[Double]
             builder += t
-            while (list1.isInstanceOf[::[Int]]) {
+            while (list.isInstanceOf[::[Int]]) {
             //while (!list.isEmpty) {
                 val item = list.head
                 t = t + item * 0.01
