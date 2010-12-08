@@ -129,7 +129,8 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
           val m = {
             var list1 = a
             var builder1 = new scala.collection.mutable.ListBuffer[Int]
-            while (!list1.isEmpty) {
+            //while (!list1.isEmpty) {
+            while (list1.isInstanceOf[::[Int]]) {
                 val item1 = list1.head
                 if (item1 != 0)
                 builder1 += item1

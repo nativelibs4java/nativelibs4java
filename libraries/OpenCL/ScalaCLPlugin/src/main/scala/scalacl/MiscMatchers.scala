@@ -143,7 +143,8 @@ trait MiscMatchers {
   lazy val WrappedArrayBuilderClass = definitions.getClass("scala.collection.mutable.WrappedArrayBuilder")
   lazy val VectorBuilderClass = definitions.getClass("scala.collection.immutable.VectorBuilder")
   lazy val CollectionImmutableModule = definitions.getModule("scala.collection.immutable")
-  lazy val NonEmptyListClass = definitions.getClass2("scala.$colon$colon$", "scala.collection.immutable.$colon$colon$")
+  //lazy val NonEmptyListClass = definitions.getClass2("scala.$colon$colon$", "scala.collection.immutable.$colon$colon$")
+  lazy val NonEmptyListClass = definitions.getClass2("scala.$colon$colon", "scala.collection.immutable.$colon$colon")
   //lazy val NonEmptyListClass = definitions.getMember(CollectionImmutableModule, "::")
   //lazy val NonEmptyListClass = definitions.getClass2("scala.::", "scala.collection.immutable.::")
   //lazy val NonEmptyListClass = definitions.getMember(ScalaPackageClass, "::")
@@ -266,7 +267,7 @@ trait MiscMatchers {
     //def unapply(tree: Tree) = Some(tree.tpe.dealias.deconst.widen) collect {
     //  case TypeRef(_, ColClass, List(param)) => param.typeSymbol
     //}
-    def unapply(tree: Tree) = {
+    def unapply(tree: Tree) = if (tree == null) None else {
       def sub(cc: Symbol, param: Type) = {        
         //println("OK cc = " + cc + ", cc.tpe = " + cc.tpe + ", cc.tpe.typeSymbol = " + cc.tpe.typeSymbol + ", ColClass = " + ColClass + ", ColClass.tpe = " + ColClass.tpe)
         if (cc.tpe == ColClass.tpe || cc.tpe.toString == ColClass.tpe.toString)
@@ -290,7 +291,7 @@ trait MiscMatchers {
         case Some(s) =>
           Some(s)
         case None =>
-          if (tree != null && tree.symbol != null)
+          if ((tree ne null) && (tree.symbol ne null))
             unap(tree.symbol.tpe)
           else
             None

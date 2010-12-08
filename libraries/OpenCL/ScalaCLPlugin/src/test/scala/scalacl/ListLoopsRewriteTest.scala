@@ -54,7 +54,8 @@ class ListLoopsRewriteTest extends TestUtils with TypeUtils {
           val a = List[""" + typeStr + """]();
           {
             var list = a
-            while (!list.isEmpty) {
+            while (list1.isInstanceOf[::[Int]]) {
+            //while (!list.isEmpty) {
                 val item = list.head
                 println(item)
                 list = list.tail
@@ -83,7 +84,8 @@ class ListLoopsRewriteTest extends TestUtils with TypeUtils {
           val m = {
             var list = a
             val builder = new scala.collection.mutable.ListBuffer[String]
-            while (!list.isEmpty) {
+            while (list1.isInstanceOf[::[Int]]) {
+            //while (!list.isEmpty) {
                 val item = list.head
                 builder += item + "..."
                 list = list.tail

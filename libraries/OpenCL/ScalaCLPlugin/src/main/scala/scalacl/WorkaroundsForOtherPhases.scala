@@ -54,7 +54,7 @@ trait WorkaroundsForOtherPhases extends TreeDSL with MiscMatchers {
   /**
    * This code was copied from the following source from the Scala Compiler : scala-2.8.0.final-sources/src/compiler/scala/tools/nsc/transform/ExplicitOuter.scala
    * To trigger the targetted "no-symbol has no owner" bug, try compiling Types.scala and Typers.scala :
-   * SCALACL_NO_WORKAROUND_FOR_THIS_OUTERREF_NOSYMBOL=1 scalac -bootclasspath /Users/ochafik/src/scala-2.8.x/build/locker/classes/library -cp /Users/ochafik/src/scala-2.8.x/build/locker/classes/compiler /Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/symtab/Types.scala /Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/typechecker/Typers.scala
+   * SCALACL_NO_WORKAROUND_FOR_THIS_OUTERREF_NOSYMBOL=1 SRCS=/Users/ochafik/src/scala-2.8.x scalac -bootclasspath $SRCS/build/locker/classes/library -cp $SRCS/build/locker/classes/compiler $SRCS/src/compiler/scala/tools/nsc/symtab/Types.scala $SRCS/src/compiler/scala/tools/nsc/typechecker/Typers.scala
    */
   def assertNoThisWithNoSymbolOuterRef(tree: Tree, localTyper: analyzer.Typer): Unit = if (System.getenv("SCALACL_NO_WORKAROUND_FOR_THIS_OUTERREF_NOSYMBOL") == null) new Transformer {
     protected def outerPath(base: Tree, from: Symbol, to: Symbol): Tree = {

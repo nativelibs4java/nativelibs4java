@@ -92,9 +92,9 @@ extends PluginComponent
       else
         try {
           tree match {
-            /*case TypeTree() =>
-              println(nodeToString(tree.symbol.tpt))
-              super.transform(tree)*/
+            //case TypeTree() =>
+            //  println(nodeToString(tree.symbol.tpt))
+            //  super.transform(tree)
             case ArrayTabulate(componentType, lengths @ (firstLength :: otherLengths), f @ Func(params, body), manifest) =>
               val tpe = body.tpe
               val returnType = if (tpe.isInstanceOf[ConstantType]) 

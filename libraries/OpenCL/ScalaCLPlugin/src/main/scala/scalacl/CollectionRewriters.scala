@@ -333,7 +333,7 @@ trait RewritingPluginComponent {
           builderType,
           localTyper.typed {
             val manifestList = if (needsManifest) {
-              val manifest = localTyper.findManifest(componentType, true).tree
+              val manifest = localTyper.findManifest(componentType/*.asSeenFrom(currentOwner?, currentOwner?)*/, true).tree
               // TODO: REMOVE THIS UGLY WORKAROUND !!!
               assertNoThisWithNoSymbolOuterRef(manifest, localTyper)
               List(manifest)
@@ -534,9 +534,12 @@ trait RewritingPluginComponent {
                 currentOwner,
                 unit,
                 tree,
-                boolAnd(boolNot(Select(aVar(), isEmptyName).setSymbol(colTpe.member(isEmptyName)).setType(BooleanClass.tpe)), extraTest),
-                //boolAnd(newIsInstanceOf(aVar(), NonEmptyListClass.tpe),extraTest),
-                //boolAnd(typed { aVar().IS(NonEmptyListClass.tpe) }/*.setType(BooleanClass.tpe)*/, extraTest),
+                if ("1" == System.getenv("SCALACL_LIST_TEST_ISEMPTY")) // Safer, but 10% slower
+                  boolAnd(boolNot(Select(aVar(), isEmptyName).setSymbol(colTpe.member(isEmptyName)).setType(BooleanClass.tpe)), extraTest)
+                else
+                  boolAnd(newIsInstanceOf(aVar(), appliedType(NonEmptyListClass.typeConstructor, List(componentType.tpe))),extraTest)
+                  //boolAnd(typed { aVar().IS(NonEmptyListClass.tpe) }/*.setType(BooleanClass.tpe)*/, extraTest),
+                ,
                 typed {
                   val itemAndInnerStats =
                     List(itemVar.definition) ++
