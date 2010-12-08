@@ -130,10 +130,10 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 
 object ScalaCLPlugin {
   lazy val trace = //true
-    "1".equals(System.getenv("SCALACL_TRACE"))
+    "1" == System.getenv("SCALACL_TRACE")
     
   lazy val experimental = 
-    "1".equals(System.getenv("SCALACL_EXPERIMENTAL"))
+    "1" == System.getenv("SCALACL_EXPERIMENTAL")
   
   type FileAndLineOptimizationFilter = (String, Int) => Boolean
   def components(global: Global, fileAndLineOptimizationFilter: FileAndLineOptimizationFilter) = List(
@@ -141,10 +141,14 @@ object ScalaCLPlugin {
     if (System.getenv("SCALACL_SEQ2ARRAY") == null) null else
       new Seq2ArrayTransformComponent(global, fileAndLineOptimizationFilter),
     */
-    if (System.getenv("SCALACL_INSTRUMENT") == null) null else
-      new instrumentation.InstrumentationTransformComponent(global, fileAndLineOptimizationFilter),
-    if (System.getenv("SCALACL_LIST_STREAMOPS") == null) null else
-      new StreamOpsTransformComponent(global, fileAndLineOptimizationFilter),
+    if ("1" == System.getenv("SCALACL_INSTRUMENT"))
+      new instrumentation.InstrumentationTransformComponent(global, fileAndLineOptimizationFilter)
+    else
+      null,
+    if ("1" == System.getenv("SCALACL_LIST_STREAMOPS"))
+      new StreamOpsTransformComponent(global, fileAndLineOptimizationFilter)
+    else
+      null,
     new ScalaCLFunctionsTransformComponent(global, fileAndLineOptimizationFilter),
     new LoopsTransformComponent(global, fileAndLineOptimizationFilter)
   ).filter(_ != null)

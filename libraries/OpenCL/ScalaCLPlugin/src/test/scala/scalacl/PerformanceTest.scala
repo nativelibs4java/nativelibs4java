@@ -25,6 +25,15 @@ class PerformanceTest extends TestUtils {
 
   import ScalaCLPlugin.experimental // SCALACL_EXPERIMENTAL
   
+  /**************************
+   * Collection conversions *
+   **************************/
+  @Test def simpleRangeToArray = testToArray(rng)              
+  //@Test def simpleRangeToList = testToList(rng) 
+  @Test def simpleListToArray = testToArray(lis)              
+  @Test def simpleArrayToList = testToList(arr) 
+  
+  
   /********
    * List *
    ********/
@@ -110,6 +119,12 @@ class PerformanceTest extends TestUtils {
   val firstHalfPred = "x => x < n / 2"
   val midPred = "x => x == n / 2"
   
+  def testToList(cc: (String, String)) = if (!skip)
+    ensureFasterCodeWithSameResult(cc._1, cc._2 + ".toList")
+
+  def testToArray(cc: (String, String)) = if (!skip)
+    ensureFasterCodeWithSameResult(cc._1, cc._2 + ".toArray.toSeq")
+
   def testFilter(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".filter(" + oddPred + ").toSeq")
 

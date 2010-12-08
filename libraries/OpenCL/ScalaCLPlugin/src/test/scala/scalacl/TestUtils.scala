@@ -183,7 +183,7 @@ trait TestUtils {
 
   import java.io._
 
-  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(2, 20, 2000)/*10000, 100, 20, 2)*/, nRuns: Int = 10) = {
+  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(2, 10, 1000, 100000)/*10000, 100, 20, 2)*/, nRuns: Int = 10) = {
     val packageName = "tests"
 
     val testTrace = new RuntimeException().getStackTrace.filter(se => se.getClassName.endsWith("Test")).last

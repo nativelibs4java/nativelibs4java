@@ -33,6 +33,17 @@ package scalacl
 import scala.reflect.NameTransformer
 import scala.tools.nsc.Global
 
+abstract sealed class ColType(name: String) {
+  override def toString = name
+}
+case object SeqType extends ColType("Seq")
+case object SetType extends ColType("Set")
+case object ListType extends ColType("List")
+case object ArrayType extends ColType("Array")
+case object IndexedSeqType extends ColType("IndexedSeq")
+case object MapType extends ColType("Map")
+
+
 trait MiscMatchers {
   val global: Global
   import global._
@@ -458,17 +469,8 @@ trait MiscMatchers {
       override val f = null
     }
     
-    abstract sealed class CollectionType(name: String) {
-      override def toString = name
-    }
-    case object SeqType extends CollectionType("Seq")
-    case object SetType extends CollectionType("Set")
-    case object ListType extends CollectionType("List")
-    case object ArrayType extends CollectionType("Array")
-    case object IndexedSeqType extends CollectionType("IndexedSeq")
-    case object MapType extends CollectionType("Map")
-    case class ToCollection(collectionType: CollectionType, tpe: Type) extends TraversalOpType {
-      override def toString = "to" + collectionType
+    case class ToCollection(colType: ColType, tpe: Type) extends TraversalOpType {
+      override def toString = "to" + colType
       override val f = null
     }
     case object ZipWithIndex extends TraversalOpType {
@@ -533,6 +535,15 @@ trait MiscMatchers {
           List(function)
         ) =>
         Some(new TraversalOp(Fold(function, isLeft), collection, functionResultType.tpe, null, isLeft, initialValue))
+      case // toArray
+        Apply(
+          TypeApply(
+            Select(collection, toArrayName()),
+            List(functionResultType @ TypeTree())
+          ),
+          List(manifest)
+        ) =>
+        Some(new TraversalOp(new ToCollection(ArrayType, tree.tpe), collection, functionResultType.tpe, null, true, null))
       case // sum, min, max
         Apply(
           TypeApply(
@@ -566,8 +577,8 @@ trait MiscMatchers {
       //case // sum, min, max, reverse
       //  Select(collection, n @ (sumName() | minName() | maxName() | reverseName())) =>
       //  traversalOpWithoutArg(n).collect { case op => new TraversalOp(op, collection, null, null, true, null) }
-      case // reverse, toList, toArray, toSeq, toIndexedSeq
-        Select(collection, n @ (reverseName() | toListName() | toArrayName() | toSeqName() | toSetName() | toIndexedSeqName())) =>
+      case // reverse, toList, toSeq, toIndexedSeq
+        Select(collection, n @ (reverseName() | toListName() | toSeqName() | toSetName() | toIndexedSeqName())) =>
         traversalOpWithoutArg(n, tree).collect { case op => new TraversalOp(op, collection, null, null, true, null) }
         //Some(new TraversalOp(Reverse, collection, null, null, true, null))
       case // reduceLeft, reduceRight

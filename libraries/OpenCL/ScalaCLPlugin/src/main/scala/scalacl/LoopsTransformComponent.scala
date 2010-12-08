@@ -476,6 +476,51 @@ extends PluginComponent
                                 )
                               }
                             )
+                          case TraversalOp.ToCollection(ct, _) =>
+                            (
+                              ct match {
+                                case ListType => Some(ListRewriter)
+                                case ArrayType => Some(ArrayRewriter)
+                                case _ => None
+                              }
+                            ) match {
+                              case Some(rewriter) =>
+                                colType.foreach[(CollectionBuilder, VarDef)](
+                                  tree,
+                                  array,
+                                  componentType,
+                                  false,
+                                  false,
+                                  env => {
+                                    val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = rewriter.newBuilder(collection.pos, componentType.tpe, null, null/*env.outputSizeVar*/, localTyper)
+                                    val builderVar = newVariable(
+                                      unit,
+                                      "builder$",
+                                      currentOwner,
+                                      tree.pos,
+                                      true,
+                                      builderCreation
+                                    )
+                                    new LoopOuters(
+                                      List(
+                                        builderVar.definition
+                                      ),
+                                      builderResult(builderVar),
+                                      payload = (cb, builderVar)
+                                    )
+                                  },
+                                  env => {
+                                    val (cb, builderVar) = env.payload
+                                    LoopInners(
+                                      List(
+                                        cb.add(builderVar, env.itemVar)
+                                      )
+                                    )
+                                  }
+                                )
+                              case _ =>
+                                super.transform(tree)
+                            }
                           case TraversalOp.Filter(f, not) =>
                             colType.foreach[(CollectionBuilder, VarDef)](
                               tree,
@@ -699,6 +744,7 @@ extends PluginComponent
                             )
                           case _ =>
                             msg(unit, tree.pos, "INFO: will soon optimize this " + tpe + "." + op + " call") {
+                              throw new UnsupportedOperationException("not supported yet")
                               super.transform(tree)
                             }
                         }

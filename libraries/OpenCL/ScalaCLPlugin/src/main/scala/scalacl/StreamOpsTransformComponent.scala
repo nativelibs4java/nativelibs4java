@@ -114,7 +114,7 @@ extends PluginComponent
             case OpsStream(opsStream) if !matchedColTreeIds.contains(opsStream.colTree.id) =>
               import opsStream._
               
-              val txt = "Streamed ops on " + (if (colRewriter == null) "UNKNOWN COL" else colRewriter.colType) + " : " + ops.map(_.op).mkString(", ")
+              val txt = "Streamed ops on " + (if (colRewriter == null) "UNKNOWN COL (" + colTree.tpe + ")" else colRewriter.colType) + " : " + ops.map(_.op).mkString(", ")
               matchedColTreeIds += colTree.id
               msg(unit, tree.pos, "# " + txt) {
                 //super.transform(toMatch)

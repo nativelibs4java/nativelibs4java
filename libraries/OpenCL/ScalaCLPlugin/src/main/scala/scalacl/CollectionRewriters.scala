@@ -192,6 +192,13 @@ trait RewritingPluginComponent {
       override def isSafeRewrite(op: TraversalOpType) = {
         import TraversalOp._
         op match {
+          case ToCollection(colType, _) =>
+            colType match { 
+              case ArrayType =>
+                true
+              case _ =>
+                false
+            }
           case Reduce(_, _) | Min | Max =>
             false
           case _: FilterWhile =>
@@ -365,7 +372,20 @@ trait RewritingPluginComponent {
     case object ArrayRewriter extends CollectionType with HasBufferBuilder with ArrayBuilderTargetRewriter {
       override val supportsRightVariants = true
       override def colToString(tpe: Type) = tpe.toString
-      
+      override def isSafeRewrite(op: TraversalOpType) = {
+        import TraversalOp._
+        op match {
+          case ToCollection(colType, _) =>
+            colType match { 
+              case ListType =>
+                true
+              case _ =>
+                false
+            }
+          case _ =>
+            true
+        }
+      }
       override def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer) = {
         if (knownSize != null) {
           CollectionBuilder(
@@ -478,6 +498,13 @@ trait RewritingPluginComponent {
       override def isSafeRewrite(op: TraversalOpType) = {
         import TraversalOp._
         op match {
+          case ToCollection(colType, _) =>
+            colType match { 
+              case ArrayType =>
+                true
+              case _ =>
+                false
+            }
           //case Map | Sum | Fold | _: AllOrSome =>
           //  true
           case _: FilterWhile =>

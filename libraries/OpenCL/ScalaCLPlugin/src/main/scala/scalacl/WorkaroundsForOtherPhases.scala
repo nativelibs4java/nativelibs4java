@@ -56,7 +56,7 @@ trait WorkaroundsForOtherPhases extends TreeDSL with MiscMatchers {
    * To trigger the targetted "no-symbol has no owner" bug, try compiling Types.scala and Typers.scala :
    * SCALACL_NO_WORKAROUND_FOR_THIS_OUTERREF_NOSYMBOL=1 SRCS=/Users/ochafik/src/scala-2.8.x scalac -bootclasspath $SRCS/build/locker/classes/library -cp $SRCS/build/locker/classes/compiler $SRCS/src/compiler/scala/tools/nsc/symtab/Types.scala $SRCS/src/compiler/scala/tools/nsc/typechecker/Typers.scala
    */
-  def assertNoThisWithNoSymbolOuterRef(tree: Tree, localTyper: analyzer.Typer): Unit = if (System.getenv("SCALACL_NO_WORKAROUND_FOR_THIS_OUTERREF_NOSYMBOL") == null) new Transformer {
+  def assertNoThisWithNoSymbolOuterRef(tree: Tree, localTyper: analyzer.Typer): Unit = if ("1" == System.getenv("SCALACL_NO_WORKAROUND_FOR_THIS_OUTERREF_NOSYMBOL")) new Transformer {
     protected def outerPath(base: Tree, from: Symbol, to: Symbol): Tree = {
       //Console.println("outerPath from "+from+" to "+to+" at "+base+":"+base.tpe)
       //assert(base.tpe.widen.baseType(from.toInterface) != NoType, ""+base.tpe.widen+" "+from.toInterface)//DEBUG
