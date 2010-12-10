@@ -19,11 +19,16 @@ public class LibCTest {
 			BridJ.register();
 	}
 	public static native double fabs(double x);
+	public static native int abs(int x);
 	public static native int getpid();
 	
 	@Test
 	public void testFabs() {
 		assertEquals(10.0, fabs(-10.0), 0.000001);
+	}
+	@Test
+	public void testAbs() {
+		assertEquals(10, abs(-10));
 	}
 }
 	

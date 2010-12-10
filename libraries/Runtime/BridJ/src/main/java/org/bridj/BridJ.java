@@ -323,6 +323,18 @@ public class BridJ {
             paths.add(null);
             paths.add(".");
 			String env;
+			
+			/*
+			String bitsSuffix = JNI.is64Bits() ? "64" : "32";
+			if (JNI.isUnix() && !JNI.isMacOSX()) {
+				paths.add("/usr/lib" + bitsSuffix);
+				paths.add("/lib" + bitsSuffix);
+			}
+			if (!JNI.isLinux() || !JNI.is64Bits()) {
+				paths.add("/usr/lib");
+				paths.add("/lib");
+			}
+			*/
 			env = System.getenv("LD_LIBRARY_PATH");
             if (env != null) {
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
@@ -338,10 +350,6 @@ public class BridJ {
             env = System.getProperty("java.library.path");
             if (env != null) {
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
-                
-            if (new File("/usr/lib").exists()) {
-            		paths.add("/usr/lib");
-            }
         }
         }
         return paths;
@@ -370,13 +378,7 @@ public class BridJ {
         if (actualName != null)
             name = actualName;
         for (String path : getNativeLibraryPaths()) {
-            File pathFile;
-            try {
-                pathFile = path == null ? null : new File(path).getCanonicalFile();
-            } catch (IOException ex) {
-                log(Level.SEVERE, null, ex);
-                continue;
-            }
+            File pathFile = path == null ? null : new File(path);
             File f = new File(name);
             if (pathFile != null) {
 				if (JNI.isWindows()) {
@@ -406,7 +408,6 @@ public class BridJ {
 			}
 
             if (!f.exists()) {
-            	//System.err.println("File '" + f + "' does not exist");
                 continue;
             }
 
@@ -474,9 +475,9 @@ public class BridJ {
         }
 
         File f = getNativeLibraryFile(name);
-        if (f == null) {
-        	throw new FileNotFoundException("Couldn't find library file for library '" + name + "'");
-        }
+        //if (f == null) {
+        //	throw new FileNotFoundException("Couldn't find library file for library '" + name + "'");
+        //}
 
         return getNativeLibrary(name, f);
     }
@@ -485,9 +486,16 @@ public class BridJ {
      * Loads the shared library file under the provided name. Any subsequent call to {@link #getNativeLibrary(String)} will return this library.
 	 */
     public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
-		NativeLibrary ll = NativeLibrary.load(f.toString());
+		NativeLibrary ll;
+		if ("c".equals(name) && JNI.isLinux())
+			ll = new NativeLibrary(null, 0, 0);
+		else
+			ll = NativeLibrary.load(f == null ? name : f.toString());
+			
+		//if (ll == null && f != null)
+		//	ll = NativeLibrary.load(f.getName());
         if (ll == null) {
-            throw new FileNotFoundException("Library '" + name + "' was not found in path '" + getNativeLibraryPaths() + "'" + (f.exists() ? " (failed to load " + f + ")" : ""));
+            throw new FileNotFoundException("Library '" + name + "' was not found in path '" + getNativeLibraryPaths() + "'" + (f != null && f.exists() ? " (failed to load " + f + ")" : ""));
         }
         libHandles.put(name, ll);
         return ll;
