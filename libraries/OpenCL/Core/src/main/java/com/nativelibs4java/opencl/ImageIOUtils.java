@@ -154,7 +154,7 @@ class ImageIOUtils {
 	public static ImageInfo<BufferedImage> getShortGrayImageInfo() {
 		return new ImageInfo<BufferedImage>(
 			BufferedImage.TYPE_USHORT_GRAY,
-			new CLImageFormat(CLImageFormat.ChannelOrder.LUMINANCE, CLImageFormat.ChannelDataType.UnsignedInt16),
+			new CLImageFormat(CLImageFormat.ChannelOrder.LUMINANCE, CLImageFormat.ChannelDataType.UNormInt16),
 			new ImageDataGetter<BufferedImage>() {
 				public Buffer getData(BufferedImage image, Buffer optionalExistingOutput, boolean directBuffer, boolean allowDeoptimizingDirectRead, ByteOrder byteOrder) {
 					int width = image.getWidth(), height = image.getHeight();
