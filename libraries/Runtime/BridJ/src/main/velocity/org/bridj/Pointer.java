@@ -1647,7 +1647,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 #docGetOffset($sizePrim $sizePrim)
     public long get${sizePrim}(long byteOffset) {
-		return ${sizePrim}.SIZE == 8 ? getLong(byteOffset) : 0xffffffffL & getInt(byteOffset);
+		return ${sizePrim}.SIZE == 8 ? 
+			getLong(byteOffset) : 
+			//0xffffffffL & 
+			getInt(byteOffset);
 	}
 #docGetRemainingArray($sizePrim $sizePrim)
     public long[] get${sizePrim}s() {
@@ -1668,7 +1671,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		int[] values = getInts(byteOffset, arrayLength);
 		long[] ret = new long[arrayLength];
 		for (int i = 0; i < arrayLength; i++) {
-			ret[i] = 0xffffffffL & values[i];
+			ret[i] = //0xffffffffL & 
+				values[i];
 		}
 		return ret;
 	}
