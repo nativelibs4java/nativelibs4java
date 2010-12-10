@@ -338,6 +338,10 @@ public class BridJ {
             env = System.getProperty("java.library.path");
             if (env != null) {
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
+                
+            if (new File("/usr/lib").exists()) {
+            		paths.add("/usr/lib");
+            }
         }
         }
         return paths;
