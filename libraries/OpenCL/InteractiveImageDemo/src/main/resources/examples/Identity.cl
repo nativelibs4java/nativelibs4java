@@ -1,16 +1,13 @@
 /**
-	Identity example : do nothing
-	(written by Olivier Chafik, no right reserved :-)) */	
+	Identity example : simply copy the input image into the output image.
+	Written by Olivier Chafik, no right reserved :-) */	
 
 // See http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/sampler_t.html
-const sampler_t sampler =
-	CLK_NORMALIZED_COORDS_FALSE |
-	CLK_FILTER_NEAREST |
-	CLK_ADDRESS_CLAMP;
+const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
 
 __kernel void test(
-	__read_only image2d_t inputImage,
-	__write_only image2d_t outputImage)
+	read_only image2d_t inputImage,
+	write_only image2d_t outputImage)
 {
 	// See http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/get_image_dim.html
 	int2 dimensions = get_image_dim(inputImage);

@@ -1,24 +1,21 @@
 /**
-	Blur example : naive square blur
-	(written by Olivier Chafik, no right reserved :-)) */	
+	Blur example : naive square blur.
+	This example also demonstrates the chaining of multiple kernels (see commented code at the end).
+	Written by Olivier Chafik, no right reserved :-) */	
 
 // See http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/sampler_t.html
-const sampler_t sampler =
-	CLK_NORMALIZED_COORDS_FALSE |
-	CLK_FILTER_NEAREST |
-	CLK_ADDRESS_CLAMP_TO_EDGE;
+const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
 
-__kernel void test(
-	__read_only image2d_t inputImage,
-	__write_only image2d_t outputImage)
+void performBlur(
+	int blurSize,
+	read_only image2d_t inputImage,
+	write_only image2d_t outputImage)
 {
 	// See http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/get_image_dim.html
 	int2 dimensions = get_image_dim(inputImage);
 	int width = dimensions.x, height = dimensions.y;
 	
 	int x = get_global_id(0), y = get_global_id(1);
-	
-	const int blurSize = 10;
 	
 	float4 transformedPixel = (float4)0;
 	
@@ -39,4 +36,18 @@ __kernel void test(
 	// See http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/write_image.html
 	write_imagef(outputImage, (int2)(x, y), transformedPixel);
 }
-                    
+
+// Perform a blur
+__kernel void pass1(read_only image2d_t inputImage, write_only image2d_t outputImage) {
+	performBlur(10, inputImage, outputImage);
+}
+
+/**
+	You can chain as many kernel calls as you want : 
+	each new kernel takes the output of the previous one as input image. 
+*/
+/*
+__kernel void pass2(read_only image2d_t inputImage, write_only image2d_t outputImage) {
+	performBlur(10, inputImage, outputImage);
+}
+//*/

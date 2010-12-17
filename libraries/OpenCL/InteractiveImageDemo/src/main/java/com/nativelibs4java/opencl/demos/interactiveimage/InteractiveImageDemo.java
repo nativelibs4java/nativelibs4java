@@ -1,7 +1,21 @@
 package com.nativelibs4java.opencl.demos.interactiveimage;
 
+import java.awt.dnd.DropTarget;
+import java.net.MalformedURLException;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.Image;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+import java.awt.dnd.DnDConstants;
+import java.awt.datatransfer.Transferable;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetListener;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.nativelibs4java.opencl.*;
@@ -77,26 +91,31 @@ public class InteractiveImageDemo extends JPanel {
 							throw new RuntimeException("No kernels found in the source code ! (please mark a function with __kernel)");
 						
 						setProgress("Creating OpenCL images...");
-						CLKernel kernel = kernels[0]; // taking first kernel...
 						int width = bufferedImage.getWidth(), height = bufferedImage.getHeight(); 
+						CLImage2D imageIn = context.createImage2D(CLMem.Usage.InputOutput, bufferedImage, false);
+						CLImage2D imageOut = context.createImage2D(CLMem.Usage.InputOutput, imageIn.getFormat(), width, height);
 						
-						CLImage2D imageIn = context.createImage2D(CLMem.Usage.Input, bufferedImage, false);
-						System.out.println("Image format = " + imageIn.getFormat());
-						CLImage2D imageOut = context.createImage2D(CLMem.Usage.Output, imageIn.getFormat(), width, height);
-						
-						setProgress("Running the kernel...");
-						kernel.setArgs(imageIn, imageOut);
 						long startTimeNanos = System.nanoTime();
-						kernel.enqueueNDRange(queue, new int[] { width, height }, null).waitFor();
+                        CLEvent lastEvent = null;
+                        CLImage2D finalImageOut = null;
+                        for (CLKernel kernel : kernels) {
+                            setProgress("Running kernel '" + kernel.getFunctionName() + "'...");
+                            kernel.setArgs(imageIn, imageOut);
+                            finalImageOut = imageOut;
+                            imageOut = imageIn;
+                            imageIn = finalImageOut;
+                            lastEvent = kernel.enqueueNDRange(queue, new int[] { width, height }, null, lastEvent);
+                        }
+                        lastEvent.waitFor();
 						elapsedTimeNanos[0] = System.nanoTime() - startTimeNanos;
 						
 						setProgress("Reading the image output...");
-						result = imageOut.read(queue);
-						System.out.println("result = " + result);
+						result = finalImageOut.read(queue);
 						
 						imageIn.release();
 						imageOut.release();
-						kernel.release();
+                        for (CLKernel kernel : kernels)
+                            kernel.release();
 						program.release();
 						queue.release();
 						
@@ -134,6 +153,8 @@ public class InteractiveImageDemo extends JPanel {
 	}
 	
 	String runKeyStroke = "F5";
+    
+    int spacing = 10;
 	
     class Example {
         public Example(String name) {
@@ -210,12 +231,12 @@ public class InteractiveImageDemo extends JPanel {
 			toolbar.add(runButton);
 			toolbar.add(devicesCombo);
 			toolbar.add(createLinkLabel("Khronos OpenCL Documentation", "http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/"));
-			toolbar.add(Box.createHorizontalStrut(5));
+			toolbar.add(Box.createHorizontalStrut(spacing));
 			toolbar.add(createLinkLabel("JavaCL FAQ", "http://code.google.com/p/javacl/wiki/FAQ"));
-			toolbar.add(Box.createHorizontalStrut(5));
+			toolbar.add(Box.createHorizontalStrut(spacing));
 			toolbar.add(Box.createHorizontalGlue());
 			toolbar.add(progressLabel = new JLabel());
-			toolbar.add(Box.createHorizontalStrut(5));
+			toolbar.add(Box.createHorizontalStrut(spacing));
 			toolbar.add(progressBar = new JProgressBar());
             progressBar.putClientProperty("JProgressBar.style", "circular");
 			toolbar.add(timeLabel = new JLabel());
@@ -227,10 +248,15 @@ public class InteractiveImageDemo extends JPanel {
 		}
         origImgScroll = new JScrollPane(origImgLab = new JLabel());
         resultImgScroll = new JScrollPane(resultImgLab = new JLabel());
+        for (JScrollPane sp : Arrays.asList(origImgScroll, resultImgScroll)) {
+            sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+            sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        }
         resultVertScrollModel = resultImgScroll.getVerticalScrollBar().getModel();
         resultHorzScrollModel = resultImgScroll.getHorizontalScrollBar().getModel();
             
-        
+        origImgLab.setDropTarget(new DropTarget(origImgLab, DnDConstants.ACTION_COPY, imgDropTargetListener));
+		
         add("Center", imgSrcSplitPane = new JSplitPane(
 			JSplitPane.VERTICAL_SPLIT, 
 			imgsSplitPane = new JSplitPane(
@@ -271,27 +297,85 @@ public class InteractiveImageDemo extends JPanel {
 		}
 	}
 	
+    protected DropTargetListener imgDropTargetListener = new DropTargetListener() {
+        
+		public void dragEnter(DropTargetDragEvent dtde) {
+            try {
+                if (
+                    dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor) ||
+                    dtde.isDataFlavorSupported(DataFlavor.stringFlavor) ||
+                    dtde.isDataFlavorSupported(DataFlavor.imageFlavor))
+                    dtde.acceptDrag(DnDConstants.ACTION_COPY);
+                else
+                    dtde.rejectDrag();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            dtde.acceptDrag(DnDConstants.ACTION_COPY);
+		}
+		public void dragExit(DropTargetEvent dte) {}
+		public void dragOver(DropTargetDragEvent dtde) {}
+		public void dropActionChanged(DropTargetDragEvent dtde) {}
+		public void drop(DropTargetDropEvent dtde) {
+			try {
+                if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
+                    dtde.acceptDrop(DnDConstants.ACTION_COPY);
+                    java.util.List<File> files = (java.util.List<File>)dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    if (files != null && !files.isEmpty()) {
+                        readImage(files.get(0).toURI().toURL());
+                    }
+                    dtde.dropComplete(true);
+                } else if (dtde.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+                    try {
+                        dtde.acceptDrop(DnDConstants.ACTION_COPY);
+                        readImage(new URL((String)dtde.getTransferable().getTransferData(DataFlavor.stringFlavor)));
+                        dtde.dropComplete(true);
+                        return ;
+                    } catch (MalformedURLException ex) {}
+                } else if (dtde.isDataFlavorSupported(DataFlavor.imageFlavor)) {
+                    dtde.acceptDrop(DnDConstants.ACTION_COPY);
+                    Image image = (Image)dtde.getTransferable().getTransferData(DataFlavor.imageFlavor);
+                    if (image instanceof BufferedImage)
+                        setImage((BufferedImage)image);
+                    dtde.dropComplete(true);
+                    return;
+                }
+                dtde.rejectDrop();
+            } catch (Exception ex) {
+                origImgLab.setToolTipText(traceToHTML(ex));
+            }
+		}
+	};
 	BufferedImage getImage() {
 		if (image == null)
 			chooseImage();
 		return image;
 	}
-	void readImageResource(String name) {
+	void readImage(URL url) {
 		try {
-			origImgLab.setText(null);
-			origImgLab.setIcon(null);
+            setImage(null);
 			
-			InputStream in = getClass().getClassLoader().getResourceAsStream("images/" + name);
+			InputStream in = url.openStream();
 			if (in == null)
 				return;
 			
-            lastOpenedFile = new File(name);
-			image = ImageIO.read(in);
-			origImgLab.setIcon(image == null ? null : new ImageIcon(image));
+            lastOpenedFile = new File(url.getFile());
+			setImage(ImageIO.read(in));
+            
+            in.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			origImgLab.setText(traceToHTML(ex));
 		}
+	}
+    void setImage(BufferedImage image) {
+        this.image = image;
+		origImgLab.setText(null);
+		origIcon(image == null ? null : new ImageIcon(image));
+	}
+	void readImageResource(String name) {
+		readImage(getClass().getClassLoader().getResource("images/" + name));
 	}
 	
 	void chooseImage() {
@@ -300,12 +384,7 @@ public class InteractiveImageDemo extends JPanel {
 			if (f == null)
 				return;
 			
-            lastOpenedFile = f;
-			origImgLab.setText(null);
-			origImgLab.setIcon(null);
-			
-			image = ImageIO.read(f);
-			origImgLab.setIcon(image == null ? null : new ImageIcon(image));
+            readImage(f.toURI().toURL());
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			origImgLab.setText(traceToHTML(ex));
@@ -358,6 +437,7 @@ public class InteractiveImageDemo extends JPanel {
 		return context;
 	}
 	void setProgress(final String caption) {
+        System.out.println(caption);
 		SwingUtilities.invokeLater(new Runnable() { public void run() {
 			//progressLabel.setVisible(caption != null);
 			//progressLabel.setText(caption);
@@ -378,6 +458,18 @@ public class InteractiveImageDemo extends JPanel {
             resultImgScroll.getHorizontalScrollBar().setModel(origImgScroll.getHorizontalScrollBar().getModel());
         }
         resultImgLab.setIcon(icon);
+    }
+    void origIcon(Icon icon) {
+        origImgLab.setIcon(icon);
+        SwingUtilities.invokeLater(new Runnable() { public void run() {
+            JScrollBar bar;
+            BoundedRangeModel model;
+            model = (bar = origImgScroll.getVerticalScrollBar()).getModel();
+            model.setValue((model.getMinimum() + model.getMaximum()) / 2);
+            model = (bar = origImgScroll.getHorizontalScrollBar()).getModel();
+            model.setValue((model.getMinimum() + model.getMaximum()) / 2);
+            
+        }});
     }
 	void resultError(Exception ex) {
 		String html = traceToHTML(ex);
