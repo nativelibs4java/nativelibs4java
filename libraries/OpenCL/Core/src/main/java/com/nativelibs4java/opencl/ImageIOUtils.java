@@ -65,32 +65,16 @@ class ImageIOUtils {
 			CLImageFormat.INT_ARGB_FORMAT,
 			new ImageDataGetter<Image>() {
 				public Buffer getData(Image image, Buffer optionalExistingOutput, boolean directBuffer, boolean allowDeoptimizingDirectRead, ByteOrder byteOrder) {
-					IntBuffer output = null;
 					int[] intData = null;
 					int width = image.getWidth(null), height = image.getHeight(null);
-                    if (image instanceof BufferedImage) {
-						BufferedImage bufferedImage = (BufferedImage)image;
-                        WritableRaster raster = checkWritableRaster(bufferedImage);
-						if (optionalExistingOutput instanceof IntBuffer) {
-							output = (IntBuffer)optionalExistingOutput;
-							if (output != null && !output.isDirect() && output.array().length == width * height)
-								intData = output.array();
-							else
-								output = null;
-						}
-						intData = raster.getPixels(0, 0, width, height, intData);
-						
-					} else {
-						PixelGrabber grabber = new PixelGrabber(image, 0, 0, width, height, true);
-						try {
-							grabber.grabPixels();
-							intData = (int[])grabber.getPixels();
-						} catch (InterruptedException ex) {
-							throw new RuntimeException("Pixel read operation was interrupted", ex);
-						}
-					}
-					if (output == null)
-						output = IntBuffer.wrap(intData);
+                    PixelGrabber grabber = new PixelGrabber(image, 0, 0, width, height, true);
+                    try {
+                        grabber.grabPixels();
+                        intData = (int[])grabber.getPixels();
+                    } catch (InterruptedException ex) {
+                        throw new RuntimeException("Pixel read operation was interrupted", ex);
+                    }
+					IntBuffer output = IntBuffer.wrap(intData);
 					if (directBuffer)
 						return NIOUtils.directCopy(output, byteOrder);
 					else

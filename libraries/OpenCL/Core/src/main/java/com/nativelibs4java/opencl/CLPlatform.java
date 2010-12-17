@@ -259,7 +259,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         }
         
     }
-	static CLDevice getBestDevice(List<DeviceFeature> evals, Collection<CLDevice> devices) {
+	public static CLDevice getBestDevice(List<DeviceFeature> evals, Collection<CLDevice> devices) {
         List<CLDevice> list = new ArrayList<CLDevice>(devices);
         Collections.sort(list, new DeviceComparator(evals));
         return !list.isEmpty() ? list.get(list.size() - 1) : null;
