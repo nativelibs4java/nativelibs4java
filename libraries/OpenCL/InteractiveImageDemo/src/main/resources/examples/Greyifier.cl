@@ -40,6 +40,6 @@ __kernel void pass(
 	read_only image2d_t inputImage,
 	write_only image2d_t outputImage)
 {
-	desaturate(0.5f);
+	desaturate(0.5f, inputImage, outputImage);
 }
 
