@@ -1,5 +1,6 @@
 Current version : BridJ 0.3-SNAPSHOT
 
+- Fixed binding of "c" library on Unix
 - Fixed iteration on unbound native-allocated pointers (issue 37). 
 - Fixed Visual C++ demangling (issue 36 : bad handling of back-references).
 - Added Pointer.getBuffer(), getSizeTs(), getCLongs() and other missing methods.
