@@ -3,14 +3,14 @@
 	See http://en.wikipedia.org/wiki/Sobel_operator
 	Written by Olivier Chafik, no right reserved :-) */	
 
-// See http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/sampler_t.html
-const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
-
 __kernel void test(
 	read_only image2d_t inputImage,
 	write_only image2d_t outputImage)
 {
 	int x = get_global_id(0), y = get_global_id(1);
+
+	// See http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/sampler_t.html
+	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
 	
 #define PIXEL_CONTRIB(dx, dy, coefX, coefY) \
 	{\

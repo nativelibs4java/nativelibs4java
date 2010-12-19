@@ -30,6 +30,11 @@
 	  <scope>compile</scope>
 	</dependency>
 	<dependency>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>libcl</artifactId>
+	  <version>${opencl4java.version}</version>
+	</dependency>
+	<dependency>
 	  <groupId>com.ochafik</groupId>
 	  <artifactId>ochafik-swing</artifactId>
 	  <version>${jnaerator.version}</version>

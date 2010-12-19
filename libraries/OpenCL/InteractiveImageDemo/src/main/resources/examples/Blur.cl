@@ -37,6 +37,18 @@ void performBlur(
 	write_imagef(outputImage, (int2)(x, y), transformedPixel);
 }
 
+__kernel void test(
+	read_only image2d_t inputImage,
+	write_only image2d_t outputImage)
+{
+	const float matrix[] = {
+		3.f, 0.f, -3.f,
+		10.f, 0.f, -10.f,
+		3.f, 0.f, -3.f,
+	};
+	convolveImage(inputImage, matrix, 3, outputImage);
+}
+
 // Perform a blur
 __kernel void pass1(read_only image2d_t inputImage, write_only image2d_t outputImage) {
 	performBlur(10, inputImage, outputImage);

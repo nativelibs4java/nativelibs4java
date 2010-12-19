@@ -37,6 +37,9 @@ import com.ochafik.util.SystemUtils;
 
 import static com.nativelibs4java.opencl.demos.interactiveimage.Utils.*;
 
+/**
+mvn exec:java -Dexec.mainClass=com.nativelibs4java.opencl.demos.interactiveimage
+*/
 public class InteractiveImageDemo extends JPanel {
 	JSplitPane imgSrcSplitPane, imgsSplitPane;
 	JLabel origImgLab, resultImgLab, instructionsLabel, timeLabel, progressLabel;
@@ -195,7 +198,14 @@ public class InteractiveImageDemo extends JPanel {
 			final String signature = "__kernel void transform(__global read_only image2d inputImage, __global write_only image2d outputImage)";
 			
 			examplesCombo.setToolTipText("Kernel samples in the form of :\n'" + signature + "'"); 
-			for (String example : new String[] { "Greyifier", "Blur", "SobelFilter", "Identity", "QueryFormat" }) {
+			for (String example : new String[] { 
+				//"Blur", 
+				"Convolution", 
+				"SobelFilter", 
+				"DesaturateColors", 
+				"Identity", 
+				"QueryFormat" 
+			}) {
                 examplesCombo.addItem(new Example(example));
 			}
 			examplesCombo.addMouseListener(new MouseAdapter() { public void mouseClicked(MouseEvent e) {
@@ -497,6 +507,6 @@ public class InteractiveImageDemo extends JPanel {
 		
 		demo.getContext();
 		demo.readImageResource("lena.jpg");
-		demo.loadExample("Blur");
+		demo.loadExample("Convolution");
 	}
 }
