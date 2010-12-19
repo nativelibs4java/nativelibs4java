@@ -7,19 +7,22 @@
 // See sources here : http://code.google.com/p/nativelibs4java/source/browse/trunk/libraries/OpenCL/LibCL/src/main/resources#resources%2FLibCL
 #include "LibCL/ImageConvolution.cl"
 
-__constant const float gaussian5x5Matrix[] = {
-	1 / 273.f,	 4 / 273.f,	 7 / 273.f,	 4 / 273.f,	 1 / 273.f,
-	4 / 273.f,	 16 / 273.f,	 26 / 273.f,	 16 / 273.f,	 4 / 273.f,
-	7 / 273.f,	 26 / 273.f,	 41 / 273.f,	 26 / 273.f,	 7 / 273.f,
-	4 / 273.f,	 16 / 273.f,	 26 / 273.f,	 16 / 273.f,	 4 / 273.f,
-	1 / 273.f,	 4 / 273.f,	 7 / 273.f,	 4 / 273.f,	 1 / 273.f
+// Matrix values taken from http://en.wikipedia.org/wiki/Gaussian_blur :
+__constant const float gaussian7x7Matrix[] = {
+	0.00000067,	0.00002292,	0.00019117,	0.00038771,	0.00019117,	0.00002292,	0.00000067,
+	0.00002292,	0.00078633,	0.00655965,	0.01330373,	0.00655965,	0.00078633,	0.00002292,
+	0.00019117,	0.00655965,	0.05472157,	0.11098164,	0.05472157,	0.00655965,	0.00019117,
+	0.00038771,	0.01330373,	0.11098164,	0.22508352,	0.11098164,	0.01330373,	0.00038771,
+	0.00019117,	0.00655965,	0.05472157,	0.11098164,	0.05472157,	0.00655965,	0.00019117,
+	0.00002292,	0.00078633,	0.00655965,	0.01330373,	0.00655965,	0.00078633,	0.00002292,
+	0.00000067,	0.00002292,	0.00019117,	0.00038771,	0.00019117,	0.00002292,	0.00000067
 };
 
 __kernel void convolve(
 	read_only image2d_t inputImage,
 	write_only image2d_t outputImage)
 {
-	convolveFloatImage(inputImage, gaussian5x5Matrix, 5 /* matrixSize */, outputImage);
+	convolveFloatImage(inputImage, gaussian7x7Matrix, 7 /* matrixSize */, outputImage);
 }
 
 // Uncomment this kernel to add a pass that transforms the image from color to gray levels :

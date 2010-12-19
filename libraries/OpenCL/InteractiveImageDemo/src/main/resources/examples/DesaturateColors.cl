@@ -1,6 +1,5 @@
 /**
-	Greyifier example : desaturate an image's colors
-	See http://en.wikipedia.org/wiki/Sobel_operator
+	Color Desaturation example : make an image look more gray
 	Written by Olivier Chafik, no right reserved :-) */	
 
 void desaturate(

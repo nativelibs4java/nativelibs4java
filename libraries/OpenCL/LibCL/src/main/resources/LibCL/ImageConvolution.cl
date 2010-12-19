@@ -7,6 +7,7 @@
  * @param y Y coordinate of the resulting convolved pixel
  * @param matrix Pointer to the convolution matrix
  * @param matrixSize Width and height of the convolution matrix (3 for a 3x3 matrix)
+ * @returns Convolution result
  */
 float4 convolveFloatImagePixel(
 	read_only image2d_t inputImage,
@@ -39,6 +40,7 @@ float4 convolveFloatImagePixel(
  * @param matrixZ Pointer to the convolution matrix for channel z
  * @param matrixW Pointer to the convolution matrix for channel w
  * @param matrixSize Width and height of the convolution matrices (3 for a 3x3 matrix)
+ * @returns Convolution result
  */
 float4 convolveFloatImagePixelChannels(
 	read_only image2d_t inputImage,
@@ -71,6 +73,7 @@ float4 convolveFloatImagePixelChannels(
  * @param y Y coordinate of the resulting convolved pixel
  * @param matrix Pointer to the convolution matrix
  * @param matrixSize Width and height of the convolution matrix (3 for a 3x3 matrix)
+ * @returns Convolution result
  */
 float convolveFloatImagePixelX(
 	read_only image2d_t inputImage,
@@ -106,7 +109,6 @@ void convolveFloatImage(
 	int matrixSize,
 	write_only image2d_t outputImage)
 {
-	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
 	int x = get_global_id(0), y = get_global_id(1);
 	
 	float4 total = convolveFloatImagePixel(inputImage, x, y, matrix, matrixSize);
@@ -133,7 +135,6 @@ void convolveFloatImageChannels(
 	int matrixSize,
 	write_only image2d_t outputImage)
 {
-	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
 	int x = get_global_id(0), y = get_global_id(1);
 	
 	float4 total = convolveFloatImagePixelChannels(inputImage, x, y, matrixX, matrixY, matrixZ, matrixW, matrixSize);

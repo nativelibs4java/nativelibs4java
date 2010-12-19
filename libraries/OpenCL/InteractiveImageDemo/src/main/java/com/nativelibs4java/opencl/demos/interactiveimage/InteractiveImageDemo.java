@@ -19,6 +19,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.nativelibs4java.opencl.*;
+import com.ochafik.io.ReadText;
+import com.ochafik.io.WriteText;
 import javax.swing.*;
 import java.awt.event.*;
 import javax.imageio.*;
@@ -56,102 +58,132 @@ public class InteractiveImageDemo extends JPanel {
 	JComponent[] toDisable;
     File lastOpenedFile;
 	
-	static final String RUN_ACTION = "run";
+	static final String RUN_ACTION = "run", SAVE_ACTION = "save";
+	File persistentFile = new File(new File(new File(System.getProperty("user.home"), ".javacl"), getClass().getSimpleName()), "Test.cl");
+	
+    boolean load() {
+        if (!persistentFile.exists())
+            return false;
+        
+        sourceTextArea.setText(ReadText.readText(persistentFile));
+        return true;
+    }
+    void save() {
+        try {
+            WriteText.writeText(sourceTextArea.getText(), persistentFile);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, traceToHTML(ex), "Failed to save file", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    class SaveAction extends AbstractAction {
+		public void actionPerformed(ActionEvent e) {
+			save();
+        }
+    }
+    void run() {
+        save();
+        try {
+            final BufferedImage bufferedImage = getImage();
+                if (bufferedImage == null)
+                    return;
+
+            // Could just be this : final CLContext context = JavaCL.createBestContext();
+            final CLContext context = getContext();
+            if (context == null)
+                return;
+
+            final Point initialViewPosition = origImgScroll.getViewport().getViewPosition();
+
+            for (JComponent c : toDisable)
+                c.setEnabled(false);
+            resultImgLab.setText(null);
+            resultIcon(null);
+            resultImgLab.setToolTipText(null);
+            result = null;
+            timeLabel.setVisible(false);
+            progressBar.setIndeterminate(true);
+            progressBar.setVisible(true);
+            setProgress("Initializing...");
+
+            final long[] elapsedTimeNanos = new long[] { -1L }; 
+            new Thread() { public void run() {
+                try {
+                    setProgress("Creating OpenCL queue...");
+                    CLQueue queue = context.createDefaultQueue();
+                    setProgress("Compiling program...");
+                    CLProgram program = context.createProgram(sourceTextArea.getText());
+                    CLKernel[] kernels = program.createKernels();
+                    if (kernels.length == 0)
+                        throw new RuntimeException("No kernels found in the source code ! (please mark a function with __kernel)");
+
+                    setProgress("Creating OpenCL images...");
+                    int width = bufferedImage.getWidth(), height = bufferedImage.getHeight(); 
+                    CLImage2D imageIn = context.createImage2D(CLMem.Usage.InputOutput, bufferedImage, false);
+                    CLImage2D imageOut = context.createImage2D(CLMem.Usage.InputOutput, imageIn.getFormat(), width, height);
+
+                    long startTimeNanos = System.nanoTime();
+                    CLEvent lastEvent = null;
+                    CLImage2D finalImageOut = null;
+                    for (CLKernel kernel : kernels) {
+                        setProgress("Running kernel '" + kernel.getFunctionName() + "'...");
+                        try {
+							kernel.setArgs(imageIn, imageOut);
+							finalImageOut = imageOut;
+							imageOut = imageIn;
+							imageIn = finalImageOut;
+							lastEvent = kernel.enqueueNDRange(queue, new int[] { width, height }, null, lastEvent);
+						} catch (CLException ex) {
+							throw new RuntimeException("Error occurred while running kernel '" + kernel.getFunctionName() + "': " + ex, ex);
+						}
+                    }
+                    lastEvent.waitFor();
+                    elapsedTimeNanos[0] = System.nanoTime() - startTimeNanos;
+
+                    setProgress("Reading the image output...");
+                    result = finalImageOut.read(queue);
+
+                    imageIn.release();
+                    imageOut.release();
+                    for (CLKernel kernel : kernels)
+                        kernel.release();
+                    program.release();
+                    queue.release();
+
+                    SwingUtilities.invokeLater(new Runnable() { public void run() {
+                        resultIcon(result == null ? null : new ImageIcon(result));
+                        resultImgLab.setToolTipText(result == null ? null : "Click to save this image");
+
+                        SwingUtilities.invokeLater(new Runnable() { public void run() {
+                            origImgScroll.getViewport().setViewPosition(initialViewPosition);
+                        }});
+                    }});
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    resultError(ex);
+                } finally {
+                    SwingUtilities.invokeLater(new Runnable() { public void run() {
+                            setProgress(null);
+
+                            for (JComponent c : toDisable)
+                                c.setEnabled(true);
+                            progressBar.setIndeterminate(false);
+                            progressBar.setVisible(false);
+                            if (elapsedTimeNanos[0] >= 0) {
+                                timeLabel.setText("Completed in " + (elapsedTimeNanos[0] / 1000000.0) + " msecs");
+                                timeLabel.setVisible(true);
+                            }
+                    }});
+                }
+            }}.start();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            resultError(ex);
+        }
+    }
 	class RunAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
-			try {
-				final BufferedImage bufferedImage = getImage();
-					if (bufferedImage == null)
-						return;
-					
-                // Could just be this : final CLContext context = JavaCL.createBestContext();
-				final CLContext context = getContext();
-				if (context == null)
-					return;
-				
-                final Point initialViewPosition = origImgScroll.getViewport().getViewPosition();
-				
-				for (JComponent c : toDisable)
-					c.setEnabled(false);
-				resultImgLab.setText(null);
-				resultIcon(null);
-				resultImgLab.setToolTipText(null);
-				result = null;
-				timeLabel.setVisible(false);
-				progressBar.setIndeterminate(true);
-				progressBar.setVisible(true);
-				setProgress("Initializing...");
-                
-                final long[] elapsedTimeNanos = new long[] { -1L }; 
-				new Thread() { public void run() {
-					try {
-						setProgress("Creating OpenCL queue...");
-						CLQueue queue = context.createDefaultQueue();
-						setProgress("Compiling program...");
-						CLProgram program = context.createProgram(sourceTextArea.getText());
-						CLKernel[] kernels = program.createKernels();
-						if (kernels.length == 0)
-							throw new RuntimeException("No kernels found in the source code ! (please mark a function with __kernel)");
-						
-						setProgress("Creating OpenCL images...");
-						int width = bufferedImage.getWidth(), height = bufferedImage.getHeight(); 
-						CLImage2D imageIn = context.createImage2D(CLMem.Usage.InputOutput, bufferedImage, false);
-						CLImage2D imageOut = context.createImage2D(CLMem.Usage.InputOutput, imageIn.getFormat(), width, height);
-						
-						long startTimeNanos = System.nanoTime();
-                        CLEvent lastEvent = null;
-                        CLImage2D finalImageOut = null;
-                        for (CLKernel kernel : kernels) {
-                            setProgress("Running kernel '" + kernel.getFunctionName() + "'...");
-                            kernel.setArgs(imageIn, imageOut);
-                            finalImageOut = imageOut;
-                            imageOut = imageIn;
-                            imageIn = finalImageOut;
-                            lastEvent = kernel.enqueueNDRange(queue, new int[] { width, height }, null, lastEvent);
-                        }
-                        lastEvent.waitFor();
-						elapsedTimeNanos[0] = System.nanoTime() - startTimeNanos;
-						
-						setProgress("Reading the image output...");
-						result = finalImageOut.read(queue);
-						
-						imageIn.release();
-						imageOut.release();
-                        for (CLKernel kernel : kernels)
-                            kernel.release();
-						program.release();
-						queue.release();
-						
-						SwingUtilities.invokeLater(new Runnable() { public void run() {
-							resultIcon(result == null ? null : new ImageIcon(result));
-							resultImgLab.setToolTipText(result == null ? null : "Click to save this image");
-                        
-                            SwingUtilities.invokeLater(new Runnable() { public void run() {
-                                origImgScroll.getViewport().setViewPosition(initialViewPosition);
-                            }});
-						}});
-					} catch (Exception ex) {
-						ex.printStackTrace();
-						resultError(ex);
-					} finally {
-						SwingUtilities.invokeLater(new Runnable() { public void run() {
-								setProgress(null);
-						
-                                for (JComponent c : toDisable)
-									c.setEnabled(true);
-								progressBar.setIndeterminate(false);
-								progressBar.setVisible(false);
-								if (elapsedTimeNanos[0] >= 0) {
-									timeLabel.setText("Completed in " + (elapsedTimeNanos[0] / 1000000.0) + " msecs");
-									timeLabel.setVisible(true);
-								}
-						}});
-					}
-				}}.start();
-			} catch (Exception ex) {
-				ex.printStackTrace();
-				resultError(ex);
-			}
+			run();
 		}
 	}
 	
@@ -160,13 +192,14 @@ public class InteractiveImageDemo extends JPanel {
     int spacing = 10;
 	
     class Example {
-        public Example(String name) {
-            this.name = name;
+        public Example(String caption, String fileName) {
+            this.fileName = fileName;
+            this.caption = caption;
         }
-        public final String name;
+        public final String fileName, caption;
         @Override
         public String toString() {
-            return name;
+            return caption;
         }
         
     }
@@ -198,15 +231,16 @@ public class InteractiveImageDemo extends JPanel {
 			final String signature = "__kernel void transform(__global read_only image2d inputImage, __global write_only image2d outputImage)";
 			
 			examplesCombo.setToolTipText("Kernel samples in the form of :\n'" + signature + "'"); 
-			for (String example : new String[] { 
+			for (Example example : new Example[] { 
 				//"Blur", 
-				"Convolution", 
-				"SobelFilter", 
-				"DesaturateColors", 
-				"Identity", 
-				"QueryFormat" 
+				new Example("Convolution", "Convolution"), 
+				new Example("Sobel Operator", "SobelFilter"), 
+				new Example("Desaturate Colors", "DesaturateColors"), 
+				new Example("Richardson-Lucy Deconvolution", "RichardsonLucyDeconvolution"),
+				new Example("Identity", "Identity"), 
+				new Example("Image Info", "QueryFormat") 
 			}) {
-                examplesCombo.addItem(new Example(example));
+                examplesCombo.addItem(example);
 			}
 			examplesCombo.addMouseListener(new MouseAdapter() { public void mouseClicked(MouseEvent e) {
 				String t = sourceTextArea.getText();
@@ -217,7 +251,7 @@ public class InteractiveImageDemo extends JPanel {
             examplesCombo.addItemListener(new ItemListener() { public void itemStateChanged(ItemEvent e) {
                 Object selection = examplesCombo.getSelectedItem();
                 if (selection instanceof Example) {
-                    loadExample(((Example)selection).name);
+                    loadExample(((Example)selection).fileName);
                     examplesCombo.setSelectedIndex(0);
                 }
             }});
@@ -303,7 +337,9 @@ public class InteractiveImageDemo extends JPanel {
 			InputMap im = focusable.getInputMap();
 			ActionMap am = focusable.getActionMap();
 			im.put(KeyStroke.getKeyStroke(runKeyStroke), RUN_ACTION);
+			im.put(KeyStroke.getKeyStroke(KeyEvent.VK_S, isMac() ? KeyEvent.META_MASK : KeyEvent.CTRL_MASK), SAVE_ACTION);
 			am.put(RUN_ACTION, new RunAction());
+            am.put(SAVE_ACTION, new SaveAction());
 		}
 	}
 	
@@ -487,14 +523,14 @@ public class InteractiveImageDemo extends JPanel {
 		resultImgLab.setText(html);
         resultImgLab.setToolTipText(html);
 	}
-	void loadExample(String name) {
+	void loadExample(String fileName) {
 		try {
-			String s = readTextResource("examples/" + name + ".cl");
+			String s = readTextResource("examples/" + fileName + ".cl");
 			sourceTextArea.setText(s);
 			sourceTextArea.setCaretPosition(0);
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			sourceTextArea.setText("Failed to load example '" + name + "' :\n" + traceToString(ex));
+			sourceTextArea.setText("Failed to load example '" + fileName + "' :\n" + traceToString(ex));
 		}
 	}
 	public static void main(String[] args) {
@@ -507,6 +543,7 @@ public class InteractiveImageDemo extends JPanel {
 		
 		demo.getContext();
 		demo.readImageResource("lena.jpg");
-		demo.loadExample("Convolution");
+        if (!demo.load())
+            demo.loadExample("Convolution");
 	}
 }
