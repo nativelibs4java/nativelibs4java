@@ -92,7 +92,7 @@ public class CLImage2D extends CLImage {
 		return write(queue, toNS(minX, minY, 0), toNS(width, height, 1), rowPitch, 0, in, blocking, eventsToWaitFor);
 	}
 
-	public BufferedImage read(CLQueue queue) {
+	public BufferedImage read(CLQueue queue, CLEvent... eventsToWaitFor) {
         ImageInfo info = ImageIOUtils.getBufferedImageInfo(getFormat());
         int imageType = info == null ? 0 : info.bufferedImageType;
         if (imageType == 0)
@@ -100,7 +100,7 @@ public class CLImage2D extends CLImage {
             //imageType = BufferedImage.TYPE_INT_ARGB;
         
 		BufferedImage im = new BufferedImage((int)getWidth(), (int)getHeight(), imageType);
-		read(queue, im, false);
+		read(queue, im, false, eventsToWaitFor);
 		return im;
 	}
 	public void read(CLQueue queue, BufferedImage imageOut, boolean allowDeoptimizingDirectWrite, CLEvent... eventsToWaitFor) {
