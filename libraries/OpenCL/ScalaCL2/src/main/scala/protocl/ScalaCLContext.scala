@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package scalacl
+package protocl
 
 import scala.collection.mutable.HashMap
 import com.nativelibs4java.opencl._

@@ -4,7 +4,7 @@
  */
 
 
-package scalacl
+package protocl
 
 import com.nativelibs4java.opencl.CLContext
 import com.nativelibs4java.opencl.CLKernel

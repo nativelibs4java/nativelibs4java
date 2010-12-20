@@ -5,7 +5,7 @@
 
 import scala.collection.immutable.NumericRange
 
-package object scalacl {
+package object protocl {
   import com.nativelibs4java.opencl._
   
   def writeAll[E <: CLEventBound](f: Array[CLEvent] => CLEvent, buffs: List[E]): CLEvent = buffs match {

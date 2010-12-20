@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package scalacl
+package protocl
 
 import org.bridj.PointerIO
 import org.bridj.SizeT

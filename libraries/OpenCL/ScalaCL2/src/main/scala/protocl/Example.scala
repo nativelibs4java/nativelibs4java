@@ -3,11 +3,11 @@
  * and open the template in the editor.
  */
 
-package scalacl
+package protocl
 
 import com.nativelibs4java.opencl.JavaCL
 
-import scalacl._
+//import scalacl._
 
 object Example {
 

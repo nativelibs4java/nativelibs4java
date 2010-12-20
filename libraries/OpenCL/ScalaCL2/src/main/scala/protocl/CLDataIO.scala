@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package scalacl
+package protocl
 import org.bridj.Pointer
 import org.bridj.PointerIO
 import scala.math._
@@ -41,19 +41,19 @@ trait CLDataIO[T] {
     store(v, pointers, 0, index)
   }
 
-  private[scalacl]
+  private[protocl]
   def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): CLFuture[T]
   
-  private[scalacl]
+  private[protocl]
   def store(v: T, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): Unit
   
-  private[scalacl]
+  private[protocl]
   def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): T
   
-  private[scalacl]
+  private[protocl]
   def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit
   
-  private[scalacl]
+  private[protocl]
   def exprs(arrayExpr: String): Seq[String]
   //def toArray(arrays: Array[CLGuardedBuffer[Any]], offset: Int): Array[T]
 

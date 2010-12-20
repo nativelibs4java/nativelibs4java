@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package scalacl
+package protocl
 
 class CLIntRange(buffer: CLGuardedBuffer[Int])(implicit val context: ScalaCLContext) extends CLCol[Int] {
   //type ThisCol[T] = CLIntRange
