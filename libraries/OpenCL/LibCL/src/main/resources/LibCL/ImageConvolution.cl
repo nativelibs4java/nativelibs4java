@@ -21,10 +21,10 @@ float4 convolveFloatImagePixel(
 	int matrixCenterOffset = matrixSize / 2;
 	
 	for (int dy = 0; dy < matrixSize; dy++) {
+		int offset = dy * matrixSize;
 		for (int dx = 0; dx < matrixSize; dx++) {
 			float4 pixel = read_imagef(inputImage, sampler, (int2)(x + dx - matrixCenterOffset, y + dy - matrixCenterOffset));
-			int offset = dy * matrixSize + dx;
-			float factor = matrix[offset];
+			float factor = matrix[offset + dx];
 			total += factor * pixel;
 		}
 	}
@@ -57,10 +57,11 @@ float4 convolveFloatImagePixelChannels(
 	int matrixCenterOffset = matrixSize / 2;
 	
 	for (int dy = 0; dy < matrixSize; dy++) {
+		int offset = dy * matrixSize;
 		for (int dx = 0; dx < matrixSize; dx++) {
 			float4 pixel = read_imagef(inputImage, sampler, (int2)(x + dx - matrixCenterOffset, y + dy - matrixCenterOffset));
-			int offset = dy * matrixSize + dx;
-			float4 factors = (float4)(matrixX[offset], matrixY[offset], matrixZ[offset], matrixW[offset]);
+			int pos = offset + dx;
+			float4 factors = (float4)(matrixX[pos], matrixY[pos], matrixZ[pos], matrixW[pos]);
 			total += factors * pixel;
 		}
 	}
@@ -87,11 +88,73 @@ float convolveFloatImagePixelX(
 	int matrixCenterOffset = matrixSize / 2;
 	
 	for (int dy = 0; dy < matrixSize; dy++) {
+		int offset = dy * matrixSize;
 		for (int dx = 0; dx < matrixSize; dx++) {
 			float4 pixel = read_imagef(inputImage, sampler, (int2)(x + dx - matrixCenterOffset, y + dy - matrixCenterOffset));
-			int offset = dy * matrixSize + dx;
-			float factor = matrix[offset];
+			float factor = matrix[offset + dx];
 			total += factor * pixel.x;
+		}
+	}
+	return total; 
+}
+
+/**
+ * Compute convolution result for pixel (x, y), using the average of the x, y and z channels as input (luminance, if the pixel is RGBA).
+ * @param x X coordinate of the resulting convolved pixel
+ * @param y Y coordinate of the resulting convolved pixel
+ * @param matrix Pointer to the convolution matrix
+ * @param matrixSize Width and height of the convolution matrix (3 for a 3x3 matrix)
+ * @returns Convolution result
+ */
+float convolveFloatImagePixelGray(
+	read_only image2d_t inputImage,
+	int x, int y,
+	__constant const float* matrix, 
+	int matrixSize)
+{
+	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
+	
+	float total = 0;
+	int matrixCenterOffset = matrixSize / 2;
+	
+	const float4 luminanceDot = (float4)(1/3.f, 1/3.f, 1/3.f, 0);
+	for (int dy = 0; dy < matrixSize; dy++) {
+		int offset = dy * matrixSize;
+		for (int dx = 0; dx < matrixSize; dx++) {
+			float4 pixel = read_imagef(inputImage, sampler, (int2)(x + dx - matrixCenterOffset, y + dy - matrixCenterOffset));
+			float factor = matrix[offset + dx];
+			total += factor * dot(luminanceDot, pixel);
+		}
+	}
+	return total; 
+}
+
+/**
+ * Compute convolution results for pixel (x, y), using the average of the x, y and z channels as input (luminance, if the pixel is RGBA) and two different convolution matrices (interleaved in float2 cells).
+ * @param x X coordinate of the resulting convolved pixel
+ * @param y Y coordinate of the resulting convolved pixel
+ * @param matrix Pointer to the convolution matrices (two matrices are interleaved in this matrix's cell values components)
+ * @param matrixSize Width and height of the convolution matrix (3 for a 3x3 matrix)
+ * @returns Convolution results
+ */
+float2 convolveFloatImagePixelGray2(
+	read_only image2d_t inputImage,
+	int x, int y,
+	__constant const float2* matrix,
+	int matrixSize)
+{
+	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
+	
+	float2 total = (float2)0;
+	int matrixCenterOffset = matrixSize / 2;
+	
+	const float4 luminanceDot = (float4)(1/3.f, 1/3.f, 1/3.f, 0);
+	for (int dy = 0; dy < matrixSize; dy++) {
+		int offset = dy * matrixSize;
+		for (int dx = 0; dx < matrixSize; dx++) {
+			float4 pixel = read_imagef(inputImage, sampler, (int2)(x + dx - matrixCenterOffset, y + dy - matrixCenterOffset));
+			float2 factor = matrix[offset + dx];
+			total += factor * dot(luminanceDot, pixel);
 		}
 	}
 	return total; 
