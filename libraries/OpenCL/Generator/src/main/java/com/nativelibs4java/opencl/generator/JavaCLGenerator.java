@@ -168,7 +168,7 @@ public class JavaCLGenerator extends JNAerator {
                                 return;
 
                             try {
-                                tr = result.typeConverter.resolveTypeDef(tr, libraryClassName, true);
+                                tr = result.typeConverter.resolveTypeDef(tr, libraryClassName, true, false);
                                 List<Modifier> mods = tr.getModifiers();
 
                                 TypeRef convTr;
