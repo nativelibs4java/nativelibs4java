@@ -31,6 +31,12 @@
 	</dependency>
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>javacl-demos</artifactId>
+	  <version>${opencl4java.version}</version>
+	  <scope>compile</scope>
+	</dependency>
+	<dependency>
+	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>libcl</artifactId>
 	  <version>${opencl4java.version}</version>
 	</dependency>
