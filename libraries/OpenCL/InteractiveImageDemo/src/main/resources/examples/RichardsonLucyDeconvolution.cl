@@ -1,5 +1,9 @@
 /**
 	Deconvolution sample that uses the Richardson-Lucy algorithm.
+	Knowing the exact "point-spread function" that made an image blurry, this algorithm tries to restore
+	the original image.
+	If the point-spread function is not well known, the results aren't good !
+	
 	Written by Olivier Chafik, no right reserved :-) */	
 
 // Include some LibCL functions.

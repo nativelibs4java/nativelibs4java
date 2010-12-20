@@ -132,7 +132,7 @@ public class InteractiveImageDemo extends JPanel {
 							finalImageOut = imageOut;
 							imageOut = imageIn;
 							imageIn = finalImageOut;
-							lastEvent = kernel.enqueueNDRange(queue, new int[] { width, height }, null, lastEvent);
+							lastEvent = kernel.enqueueNDRange(queue, new int[] { width, height }, lastEvent);
 						} catch (CLException ex) {
 							throw new RuntimeException("Error occurred while running kernel '" + kernel.getFunctionName() + "': " + ex, ex);
 						}

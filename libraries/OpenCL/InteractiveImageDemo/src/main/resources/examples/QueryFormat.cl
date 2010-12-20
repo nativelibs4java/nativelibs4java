@@ -24,11 +24,12 @@ __kernel void test(
    
    // See http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/read_imagef2d.html
    //float4 pixel = read_imagef(inputImage, sampler, coordinates);
-   int4 pixel = read_imagei(inputImage, sampler, coordinates);
-   int4 transformedPixel = pixel;
+   float4 pixel = read_imagef(inputImage, sampler, coordinates);
+   float4 transformedPixel = pixel;
    //float4 transformedPixel = (float4)(0);//pixel;
    
    // See http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/write_image.html
-   write_imagei(outputImage, coordinates, transformedPixel);
+   write_imagef(outputImage, coordinates, transformedPixel);
 }
                     
+
