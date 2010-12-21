@@ -205,6 +205,11 @@ package object scalacl {
   implicit def CLFullFun[K, V](uniqueSignature: String, function: K => V, declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
     new CLFunction[K, V](uniqueSignature, function, declarations, expressions, Seq())
 
+  implicit def Range2CLIntRangeMethods(r: Range)(implicit context: ScalaCLContext, dataIO: CLDataIO[Int]) = new {
+    def toCLRange = new CLIntRange(r)
+    def toCLArray = toCLRange.toCLArray
+    def toCL = toCLRange
+  }
   implicit def RichIndexedSeqCL[T](c: IndexedSeq[T])(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) = new {
     def toCLArray = CLArray.fromSeq(c)
     def toCL = toCLArray

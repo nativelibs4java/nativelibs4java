@@ -10,12 +10,12 @@ object Test {
     println("Got context " + context.context.getDevices().mkString(", "))
 
     import CLArray._
+
+    val rngarr = (10 until 2000).toCLArray
+    println("Range array " + rngarr)
     
     val a = CLArray(1, 2, 3, 4)
     println("Created array " + a)
-
-    //val b = a.map(_ + 1)
-    //println("Mapped array " + b)
 
     //context.queue.finish
 
@@ -28,6 +28,11 @@ object Test {
     
     println("Filtered array with CL function : " + fclf)
 
-    //println("Filtered array raw " + fa.array)
+    val m = (x: Int) => x * 2
+    val clm: CLFunction[Int, Int] = (m, Seq("_ * 2"))
+    val mm = a.map(m)
+    println("Mapped array with normal function " + mm)
+    val mclm = a.map(clm)
+    println("Mapped array with CL function " + mclm)
   }
 }
