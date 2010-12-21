@@ -26,6 +26,7 @@ class CLFilteredArray[A](
 )
 extends CLCollection[A, CLFilteredArray[A]]
   with IndexedSeqLike[A, CLFilteredArray[A]]
+  with CLIndexedSeq[A, CLFilteredArray[A]]
 {
   def this(array: CLArray[A])(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
       this(array, new CLGuardedBuffer[Boolean](array.length))
@@ -106,6 +107,27 @@ extends CLCollection[A, CLFilteredArray[A]]
         Option(copyPres).foreach(_())
     }
     result.asInstanceOf[That]
+  }
+
+  override def filterFallback[That <: CLCollection[A, _]](p: A => Boolean, out: That)(implicit ff: CLCanFilterFrom[CLFilteredArray[A], A, That]) = {
+    import scala.concurrent.ops._
+
+    out match {
+      case filteredOut: CLFilteredArray[A] =>
+        val copy = if (filteredOut == this) null else future {
+          array.copyTo(filteredOut.array)
+        }
+        val presenceArr = presence.toArray
+        for (i <- 0 until length) {
+          if (presenceArr(i)) {
+            val value = array(i)
+            if (!p(value))
+              presenceArr(i) = false
+          }
+        }
+        filteredOut.presence.update(presenceArr)
+        Option(copy).foreach(_())
+    }
   }
 
   /// Overridden because apply and update are just terribly slow
