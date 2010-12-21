@@ -61,8 +61,8 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[
   def copyTo(out: CLGuardedBuffer[T]): Unit = {
     read(readEvents => {
         out.write(writeEvents => {
-            assert(writeEvents.isEmpty)
-            buffer.copyTo(context.queue, 0, size, out.buffer, 0, readEvents:_*)
+            //assert(writeEvents.isEmpty)
+            buffer.copyTo(context.queue, 0, size, out.buffer, 0, (writeEvents ++ readEvents):_*)
         })
     })
   }
