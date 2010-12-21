@@ -60,54 +60,82 @@ class CLArray[A](
   implicit val context: ScalaCLContext,
   val dataIO: CLDataIO[A]
 )
-  extends IndexedSeqLike[A, CLArray[A]]
-  with CLIndexedSeq[A, CLArray[A]]
-  with IndexedSeqOptimized[A, CLArray[A]]
-  with MappableToCLArray[A, CLArray[A]]
+  extends IndexedSeqLike[A, CLIndexedSeq[A, _]]
+  with IndexedSeqOptimized[A, CLIndexedSeq[A, _]]
+  with CLIndexedSeq[A, CLIndexedSeq[A, _]]
+  with MappableToCLArray[A, CLIndexedSeq[A, _]]
 {
   def this(length: Int)(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
     this(length, dataIO.createBuffers(length))
 
-  assert(buffers.forall(_.buffer.getElementCount == length))
+  type Repr = CLIndexedSeq[A, _]
   
+  assert(buffers.forall(_.buffer.getElementCount == length))
+
+  import CLArray._
+
   override def newBuilder: Builder[A, CLArray[A]] = CLArray.newBuilder[A]
+
+  override def toArray = dataIO.toArray(buffers)
+  override def copyToArray[B >: A](out: Array[B], start: Int, len: Int): Unit = {
+    dataIO.copyToArray(buffers, out, start, len)
+  }
 
   override def toCLArray = this
 
-  override def apply(index: Int): A = dataIO.extract(buffers, index).get
-  override def update(index: Int, value: A): Unit = dataIO.store(value, buffers, index)
+  override def apply(index: Int): A =
+    dataIO.extract(buffers, index).get
+
+  def update(index: Int, value: A): Unit =
+    dataIO.store(value, buffers, index)
 
   def update(f: A => A): CLArray[A] =
-    map(f, this)(new CLCanBuildFrom[CLArray[A], A, CLArray[A]] {
+    map(f, this)/*(new CLCanBuildFrom[Repr, A, CLArray[A]] {
       override def dataIO = CLArray.this.dataIO
       override def apply() = newBuilder
-      override def apply(from: CLArray[A]) = newBuilder
-    })
+      override def apply(from: Repr) = newBuilder
+    })*/
 
-  override def clone: CLArray[A] = error("Not implemented")
+  override def clone: CLArray[A] =
+    new CLArray(length, buffers.map(_.clone)) // TODO map in parallel
+
+  override def size = length
 
   protected override def mapFallback[B](f: A => B, result: CLArray[B]) = {
-    for (i <- 0 until size)
+    for (i <- 0 until length)
       result(i) = f(this(i))
   }
-  
-  /*
-  protected def filterFallback(p: A => Boolean, out: CLFilteredArray[A]): Unit = {
-    for (i <- 0 until length) {
-      val value = this(i)
-      val b = p(value)
-      out.presence(i) = b
-      if (b && out.values != this)
-        out.values(i) = value
+
+  override def foreach[U](f: A => U): Unit =
+    toArray(dataIO.t) foreach f
+
+  override def filter(p: A => Boolean) =
+    filter(p, new CLFilteredArray[A](length))//.toCLArray
+
+  override def filterFallback[That <: CLCollection[A, _]](p: A => Boolean, out: That)(implicit ff: CLCanFilterFrom[Repr, A, That]) = {
+    import scala.concurrent.ops._
+
+    out match {
+      case filteredOut: CLFilteredArray[A] =>
+        val copy = if (filteredOut.array == this) null else future {
+          copyTo(filteredOut.array)
+        }
+
+        val presenceArr = new Array[Boolean](length)
+        for (i <- 0 until length) {
+          val value = this(i)
+          presenceArr(i) = p(value)
+        }
+        filteredOut.presence.update(presenceArr)
+        Option(copy).foreach(_())
     }
   }
-  */
 
-  /*
-  protected def newFiltered(inplace: Boolean): CLFilteredArray[A] = {
-    new CLFilteredArray[A](if (inplace) this else this.clone)
-  }*/
+  def copyTo(other: CLArray[A]) = {
+    import scala.concurrent.ops._
 
-  override def size: Int = length
+    assert(buffers.length == other.buffers.length)
+    buffers.zip(other.buffers).map(p => future { p._1.copyTo(p._2) }).toArray.foreach(_())
+  }
 }
 

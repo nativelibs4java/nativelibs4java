@@ -53,19 +53,23 @@ trait CLDataIO[T] {
   def exprs(arrayExpr: String): Seq[String]
   //def toArray(arrays: Array[CLGuardedBuffer[Any]], offset: Int): Array[T]
 
-  def toArray(arrays: Array[CLGuardedBuffer[Any]]): Array[T] = toArray(arrays, null)
-  def toArray(arrays: Array[CLGuardedBuffer[Any]], out: Array[T], start: Int = 0, length: Int = -1): Array[T] = {
+  def toArray(arrays: Array[CLGuardedBuffer[Any]]): Array[T] = {
+    val size = arrays.head.buffer.getElementCount.toInt
+    val out = new Array[T](size)
+    copyToArray(arrays, out, 0, size)
+    out
+  }
+  def copyToArray[B >: T](arrays: Array[CLGuardedBuffer[Any]], out: Array[B], start: Int = 0, length: Int = -1) = {
     assert(elementCount == arrays.length)
     val pointers = arrays.map(_.toPointer)
     val size = pointers(0).getValidElements.toInt
-    val actualOut = if (out == null) new Array[T](size) else out
+    //val actualOut = if (out == null) new Array[T](size) else out
     var i = start
     val sup = if (length < 0) size else min(size, start + length)
     while (i < sup) {
-      actualOut(i.toInt) = extract(pointers, 0, i)
+      out(i.toInt) = extract(pointers, 0, i)
       i += 1
     }
-    actualOut
   }
   
 }
