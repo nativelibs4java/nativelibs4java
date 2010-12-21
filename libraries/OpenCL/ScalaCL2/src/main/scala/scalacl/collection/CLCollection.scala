@@ -29,13 +29,23 @@ trait CLCollection[A, Repr]
       val result = reuse(out, ff.newFilterResult(this))//new CLFilteredArray[A](length))
 
       p match {
-        case clf: CLFunction =>
-          clf.apply(
+        case clf: CLRunnable =>
+          val filteredOut = result.asInstanceOf[CLFilteredArray[A]]
+          val valuesOut = filteredOut.array
+          val presenceOut = filteredOut.presence
+          val valuesIn = (this: Any) match {
+            case a: CLArray[A] =>
+              a
+            case fa: CLFilteredArray[A] =>
+              fa.array
+          }
+          valuesIn.copyTo(valuesOut)
+          clf.run(
             dims = Array(ff.rawLength(this)),
-            args = Array(result, this),
+            args = Array(this, presenceOut),
             reads = Array(this),
             writes = Array(result)
-          )
+          )(ff.context)
         case _ =>
           filterFallback(p, result)
       }

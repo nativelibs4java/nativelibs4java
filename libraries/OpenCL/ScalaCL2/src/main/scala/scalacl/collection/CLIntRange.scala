@@ -25,7 +25,7 @@ object CLIntRange {
   """)
   def copyToCLArray(range: CLGuardedBuffer[Int], output: CLGuardedBuffer[Int])(implicit context: ScalaCLContext) = {
     val size = output.buffer.getElementCount.toInt
-    val kernel = toCLArrayCode.getKernel(context, range.buffer, output.buffer)
+    val kernel = toCLArrayCode.getKernel(context)
     val globalSizes = Array(size)
     kernel.synchronized {
       kernel.setArgs(size.asInstanceOf[Object], range.buffer, output.buffer)
@@ -38,9 +38,10 @@ object CLIntRange {
   }
 
 
-  implicit def canFilterFrom(implicit context: ScalaCLContext, io: CLDataIO[Int]): CLCanFilterFrom[CLIntRange, Int, CLFilteredArray[Int]] =
+  implicit def canFilterFrom(implicit ctx: ScalaCLContext, io: CLDataIO[Int]): CLCanFilterFrom[CLIntRange, Int, CLFilteredArray[Int]] =
     new CLCanFilterFrom[CLIntRange, Int, CLFilteredArray[Int]] {
       override def dataIO = io
+      override def context = ctx
       def rawLength(from: CLIntRange): Int = from.size
       def newFilterResult(from: CLIntRange) = new CLFilteredArray[Int](from.size)
     }

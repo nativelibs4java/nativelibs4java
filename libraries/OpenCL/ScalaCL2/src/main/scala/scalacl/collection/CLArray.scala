@@ -40,13 +40,13 @@ trait MappableToCLArray[A, Repr] {
     val result = reuse(out, new CLArray[B](length)(context, bf.dataIO))
 
     f match {
-      case clf: CLFunction =>
-        clf.apply(
+      case clf: CLRunnable =>
+        clf.run(
           dims = Array(length),
-          args = Array(result, this),
+          args = Array(this, result),
           reads = Array(this),
           writes = Array(result)
-        )
+        )(context)
       case _ =>
         mapFallback(f, result)
     }
@@ -137,7 +137,8 @@ class CLArray[A](
     import scala.concurrent.ops._
 
     assert(buffers.length == other.buffers.length)
-    buffers.zip(other.buffers).map(p => future { p._1.copyTo(p._2) }).toArray.foreach(_())
+    for ((from, to) <- buffers.zip(other.buffers))
+      from.copyTo(to)
   }
 }
 

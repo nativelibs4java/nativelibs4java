@@ -11,6 +11,7 @@ package object scalacl {
     //def newArray[T](size: Int)(implicit dataIO: CLDataIO[T]) = new CLArray[T](size)(dataIO, this)
   }
 
+  def clType[T](implicit dataIO: CLDataIO[T]) = dataIO.clType
 
   //protected
   def reuse[T](value: Any, create: => T): T =
@@ -35,9 +36,10 @@ package object scalacl {
       override def apply() = CLFilteredArray.newBuilder[A](context, dataIO)
     }
 
-  implicit def canFilterFromIndexedSeq[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
+  implicit def canFilterFromIndexedSeq[A](implicit ctx: ScalaCLContext, io: CLDataIO[A]) =
     new CLCanFilterFrom[CLIndexedSeq[A, _], A, CLFilteredArray[A]] {
       override def dataIO = io
+      override def context = ctx
       def rawLength(from: CLIndexedSeq[A, _]): Int = from match {
         case a: CLArray[A] =>
           a.length
@@ -191,4 +193,21 @@ package object scalacl {
     )
 
   implicit def AnyValCLDataIO[T <: AnyVal](implicit t: ClassManifest[T]) = new CLValDataIO[T]
+
+  implicit def Expression2CLFunction[K, V](fx: (K => V, Seq[String]))(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) = {
+    val (function, expressions) = fx
+    new CLFunction[K, V](null, function, Seq(), expressions, Seq())
+  }
+
+  implicit def CLFunSeq[K, V](declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
+    new CLFunction[K, V](null, null, declarations, expressions, Seq())
+
+  implicit def CLFullFun[K, V](uniqueSignature: String, function: K => V, declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
+    new CLFunction[K, V](uniqueSignature, function, declarations, expressions, Seq())
+
+  implicit def RichIndexedSeqCL[T](c: IndexedSeq[T])(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) = new {
+    def toCLArray = CLArray.fromSeq(c)
+    def toCL = toCLArray
+  }
 }
+

@@ -16,8 +16,7 @@ trait CLCode {
   private lazy val hc = strs.map(_.hashCode).reduceLeft(_ ^ _)
 
   val map = new mutable.HashMap[CLContext, CLKernel]
-  def getKernel(context: ScalaCLContext, in: AnyRef, out: AnyRef, name: String = null) = map.synchronized {
-    // TODO differentiate between collection types !!!
+  def getKernel(context: ScalaCLContext, name: String = null) = map.synchronized {
     map.getOrElseUpdate(
       context.context,
       {

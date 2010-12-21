@@ -12,33 +12,49 @@ trait CLEventBound extends CLEventBoundContainer {
   override def eventBoundComponents = Seq(this)
   
     protected var lastWriteEvent: CLEvent = null
-    protected var lastReadEvent: CLEvent = null
     protected val readEvents = new ArrayBuffer[CLEvent]
 
-    def write(action: Array[CLEvent] => CLEvent): CLEvent = this.synchronized {
-        lastWriteEvent = action(Array(lastWriteEvent, lastReadEvent))
-        lastReadEvent = null
-        lastWriteEvent
-    }
-    def read(action: Array[CLEvent] => CLEvent): CLEvent = this.synchronized {
-        lastReadEvent = action(Array(lastWriteEvent))
-        lastReadEvent
-    }
-    protected def readValue[V](f: Array[CLEvent] => V): V = this.synchronized {
-        val v = f(Array(lastWriteEvent))
-        lastWriteEvent = null
-        v
+    protected def allEvents = this.synchronized {
+      val rea = readEvents.toArray
+      if (lastWriteEvent == null)
+        rea
+      else
+        Array(lastWriteEvent) ++ rea
     }
 
-    protected def readBlock[V](block: => V) = this.synchronized {
-        CLEvent.waitFor(lastWriteEvent)
-        lastWriteEvent = null
+    def write(action: Array[CLEvent] => CLEvent): CLEvent = this.synchronized {
+      val evt = action(allEvents)
+      if (evt != null) {
+        lastWriteEvent = evt
+        readEvents.clear
+      }
+      lastWriteEvent
+    }
+    def read(action: Array[CLEvent] => CLEvent): CLEvent = this.synchronized {
+      val evt = action(if (lastWriteEvent == null) Array() else Array(lastWriteEvent))
+      if (evt != null)
+        readEvents += evt
+
+      evt
+    }
+  
+    protected def readValue[V](f: Array[CLEvent] => V): V = this.synchronized {
+      f(if (lastWriteEvent == null) Array() else Array(lastWriteEvent))
+    }
+
+    def readBlock[V](block: => V) = this.synchronized {
+        waitFor
         block
     }
+
     def waitFor = this.synchronized {
-        CLEvent.waitFor(Array(lastWriteEvent, lastReadEvent):_*)
-        lastWriteEvent = null
-        lastReadEvent = null
+      if (lastWriteEvent != null)
+        readEvents += lastWriteEvent
+
+      CLEvent.waitFor(readEvents.result:_*)
+      lastWriteEvent = null
+      readEvents.clear
+      //lastReadEvent = null
     }
 }
 

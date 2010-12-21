@@ -59,11 +59,9 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[
   }
 
   def copyTo(out: CLGuardedBuffer[T]): Unit = {
-    read(readEvents => {
-        out.write(writeEvents => {
-            //assert(writeEvents.isEmpty)
-            buffer.copyTo(context.queue, 0, size * buffer.getElementSize, out.buffer, 0, (writeEvents ++ readEvents):_*)
-        })
+    assert(buffer.getByteCount == out.buffer.getByteCount)
+    CLEventBound.syncBlock(Array(this), Array(out), evts => {
+      buffer.copyTo(context.queue, 0, size * buffer.getElementSize, out.buffer, 0, evts:_*)
     })
   }
   def clone(start: Long, end: Long): CLGuardedBuffer[T] = {
@@ -72,11 +70,8 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[
     assert(start > 0)
     assert(end <= size)
     val out = new CLGuardedBuffer(context.context.createBuffer(CLMem.Usage.InputOutput, elementClass, newSize))
-    read(readEvents => {
-      out.write(writeEvents => {
-        assert(writeEvents.isEmpty)
-        buffer.copyTo(context.queue, start, newSize, out.buffer, 0, readEvents:_*)
-      })
+    CLEventBound.syncBlock(Array(this), Array(out), evts => {
+      buffer.copyTo(context.queue, start, newSize, out.buffer, 0, readEvents:_*)
     })
     out
   }

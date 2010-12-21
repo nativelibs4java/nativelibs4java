@@ -88,10 +88,10 @@ extends CLCollection[A, CLFilteredArray[A]]
     val result = reuse(out, new CLFilteredArray[B](length, presence.clone))
 
     f match {
-      case clf: CLFunction =>
-        clf.apply(
+      case clf: CLRunnable =>
+        clf.run(
           dims = Array(size),
-          args = Array(result, this),
+          args = Array(this, result),
           reads = Array(this),
           writes = Array(result)
         )

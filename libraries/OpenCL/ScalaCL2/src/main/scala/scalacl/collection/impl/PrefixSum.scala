@@ -22,7 +22,7 @@ object PrefixSum {
     }
   """)
   def prefixSum(bitmap: CLGuardedBuffer[Boolean], output: CLGuardedBuffer[Int])(implicit context: ScalaCLContext) = {
-    val kernel = prefixSumCode.getKernel(context, bitmap, output)
+    val kernel = prefixSumCode.getKernel(context)
     val globalSizes = Array(bitmap.size.asInstanceOf[Int])
     kernel.synchronized {
       kernel.setArgs(new SizeT(bitmap.size), bitmap.buffer, output.buffer)
@@ -55,7 +55,7 @@ object PrefixSum {
     }
   """)
   def copyPrefixed[T](size: Int, presencePrefix: CLGuardedBuffer[Int], in: CLGuardedBuffer[T], out: CLGuardedBuffer[T])(implicit t: ClassManifest[T], context: ScalaCLContext) = {
-    val kernel = copyPrefixedCode.getKernel(context, in, out)
+    val kernel = copyPrefixedCode.getKernel(context)
     val globalSizes = Array(in.size.asInstanceOf[Int])
     val pio = PointerIO.getInstance(t.erasure)
     assert(pio != null)
