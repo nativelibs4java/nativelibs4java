@@ -55,7 +55,7 @@ trait MappableToCLArray[A, Repr] {
 }
 class CLArray[A](
   val length: Int, 
-  protected[collection] val buffers: Array[CLGuardedBuffer[Any]]
+  protected[scalacl] val buffers: Array[CLGuardedBuffer[Any]]
 )(
   implicit val context: ScalaCLContext,
   val dataIO: CLDataIO[A]

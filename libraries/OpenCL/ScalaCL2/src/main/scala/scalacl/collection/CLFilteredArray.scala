@@ -18,8 +18,8 @@ object CLFilteredArray {
     error("Not implemented")
 }
 class CLFilteredArray[A](
-  protected[collection] val array: CLArray[A],
-  protected[collection] val presence: CLGuardedBuffer[Boolean]
+  protected[scalacl] val array: CLArray[A],
+  protected[scalacl] val presence: CLGuardedBuffer[Boolean]
 )(
   implicit val context: ScalaCLContext,
   val dataIO: CLDataIO[A]

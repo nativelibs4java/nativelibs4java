@@ -47,7 +47,7 @@ object CLIntRange {
   
 }
 class CLIntRange(
-  protected[collection] val buffer: CLGuardedBuffer[Int]
+  protected[scalacl] val buffer: CLGuardedBuffer[Int]
 )(
   implicit val context: ScalaCLContext
 )

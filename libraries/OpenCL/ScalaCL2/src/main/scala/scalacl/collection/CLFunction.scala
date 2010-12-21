@@ -9,3 +9,9 @@ import com.nativelibs4java.opencl._
 trait CLFunction {
   def apply(dims: Array[Int], args: Array[Any], reads: Array[CLEventBoundContainer], writes: Array[CLEventBoundContainer]): Unit
 }
+
+class CLDynamicManualFunction extends CLFunction {
+  override def apply(dims: Array[Int], args: Array[Any], reads: Array[CLEventBoundContainer], writes: Array[CLEventBoundContainer]): Unit = {
+    
+  }
+}
