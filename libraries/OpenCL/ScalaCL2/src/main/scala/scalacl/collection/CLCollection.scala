@@ -14,7 +14,7 @@ trait WithScalaCLContext {
 trait CLCollection[A, Repr]
   extends WithScalaCLContext
   with TraversableLike[A, Repr]
-  with CLEventBound
+  with CLEventBoundContainer
 {
   this: Repr =>
   

@@ -62,7 +62,7 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[
     read(readEvents => {
         out.write(writeEvents => {
             //assert(writeEvents.isEmpty)
-            buffer.copyTo(context.queue, 0, size, out.buffer, 0, (writeEvents ++ readEvents):_*)
+            buffer.copyTo(context.queue, 0, size * buffer.getElementSize, out.buffer, 0, (writeEvents ++ readEvents):_*)
         })
     })
   }

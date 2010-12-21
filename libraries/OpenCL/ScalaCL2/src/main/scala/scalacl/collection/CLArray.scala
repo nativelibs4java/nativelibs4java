@@ -55,7 +55,7 @@ trait MappableToCLArray[A, Repr] {
 }
 class CLArray[A](
   val length: Int, 
-  val buffers: Array[CLGuardedBuffer[Any]]
+  protected[collection] val buffers: Array[CLGuardedBuffer[Any]]
 )(
   implicit val context: ScalaCLContext,
   val dataIO: CLDataIO[A]
@@ -68,6 +68,8 @@ class CLArray[A](
   def this(length: Int)(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
     this(length, dataIO.createBuffers(length))
 
+  override def eventBoundComponents = buffers
+  
   type Repr = CLIndexedSeq[A, _]
   
   assert(buffers.forall(_.buffer.getElementCount == length))

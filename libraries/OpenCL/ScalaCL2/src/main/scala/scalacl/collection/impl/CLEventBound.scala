@@ -4,7 +4,12 @@ package impl
 
 import com.nativelibs4java.opencl._
 
-trait CLEventBound {
+trait CLEventBoundContainer {
+  def eventBoundComponents: Seq[CLEventBound]
+}
+trait CLEventBound extends CLEventBoundContainer {
+  override def eventBoundComponents = Seq(this)
+  
     protected var lastWriteEvent: CLEvent = null
     protected var lastReadEvent: CLEvent = null
     def write(action: Array[CLEvent] => CLEvent): CLEvent = this.synchronized {

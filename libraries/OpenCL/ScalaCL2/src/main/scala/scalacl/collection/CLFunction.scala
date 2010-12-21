@@ -7,5 +7,5 @@ import com.nativelibs4java.opencl._
 
 
 trait CLFunction {
-  def apply(dims: Array[Int], args: Array[Any], reads: Array[CLEventBound], writes: Array[CLEventBound]): Unit
+  def apply(dims: Array[Int], args: Array[Any], reads: Array[CLEventBoundContainer], writes: Array[CLEventBoundContainer]): Unit
 }

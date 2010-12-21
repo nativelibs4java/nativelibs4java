@@ -46,7 +46,11 @@ object CLIntRange {
     }
   
 }
-class CLIntRange(buffer: CLGuardedBuffer[Int])(implicit val context: ScalaCLContext)
+class CLIntRange(
+  protected[collection] val buffer: CLGuardedBuffer[Int]
+)(
+  implicit val context: ScalaCLContext
+)
   extends CLCollection[Int, CLIntRange]
   with IndexedSeqLike[Int, CLIntRange]
   with MappableToCLArray[Int, CLIntRange]
@@ -54,6 +58,8 @@ class CLIntRange(buffer: CLGuardedBuffer[Int])(implicit val context: ScalaCLCont
   def this(range: Range)(implicit context: ScalaCLContext) =
     this(new CLGuardedBuffer[Int](Array(range.start, range.end, range.step, if (range.isInclusive) 1 else 0)))
 
+  override def eventBoundComponents = Seq(buffer)
+  
   import CLIntRange._
 
   override def toArray: Array[Int] = toRange.toArray

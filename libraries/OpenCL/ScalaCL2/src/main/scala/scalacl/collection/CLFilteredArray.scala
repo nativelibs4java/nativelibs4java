@@ -18,8 +18,8 @@ object CLFilteredArray {
     error("Not implemented")
 }
 class CLFilteredArray[A](
-  val array: CLArray[A],
-  val presence: CLGuardedBuffer[Boolean]
+  protected[collection] val array: CLArray[A],
+  protected[collection] val presence: CLGuardedBuffer[Boolean]
 )(
   implicit val context: ScalaCLContext,
   val dataIO: CLDataIO[A]
@@ -36,6 +36,8 @@ extends CLCollection[A, CLFilteredArray[A]]
 
   def this(length: Int, presence: CLGuardedBuffer[Boolean])(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
         this(new CLArray[A](length), presence)
+
+  override def eventBoundComponents = array.eventBoundComponents ++ Seq(presence)
 
   import array._
 
