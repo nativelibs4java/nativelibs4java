@@ -29,10 +29,8 @@ object CLIntRange {
     val globalSizes = Array(size)
     kernel.synchronized {
       kernel.setArgs(size.asInstanceOf[Object], range.buffer, output.buffer)
-      range.read(readEvts => {
-          output.write(writeEvts => {
-              kernel.enqueueNDRange(context.queue, globalSizes, null, (readEvts ++ writeEvts):_*)
-          })
+      CLEventBound.syncBlock(Array(range), Array(output), evts => {
+        kernel.enqueueNDRange(context.queue, globalSizes, null, evts:_*)
       })
     }
   }
