@@ -96,7 +96,7 @@ extends (A => B)
   def assignts(i: String) =
     expressions.zip(bIO.openCLKernelNthItemExprs(false, 0, i)).map {
       case (expression, (xOut, indexes)) => xOut + " = " + replaceForFunction(expression, i)
-    }.mkString("\n\t")
+    }.mkString(";\n\t")
 
   val funDecls = declarations.map(replaceForFunction(_, "0")).mkString("\n")
   val functionSource = if (expressions.isEmpty) null else """

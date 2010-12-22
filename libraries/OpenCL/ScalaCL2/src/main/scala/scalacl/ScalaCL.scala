@@ -23,9 +23,9 @@ package object scalacl {
   implicit def ScalaCLContext2Context(sc: ScalaCLContext) = sc.context
 
   implicit def canBuildFromIndexedSeq[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
-    new CLCanBuildFrom[CLIndexedSeq[A, _], A, CLArray[A]] {
+    new CLCanBuildFrom[CLIndexedSeq[_, _], A, CLArray[A]] {
       override def dataIO = io
-      override def apply(from: CLIndexedSeq[A, _]) = CLArray.newBuilder[A](context, dataIO)
+      override def apply(from: CLIndexedSeq[_, _]) = CLArray.newBuilder[A](context, dataIO)
       override def apply() = CLArray.newBuilder[A](context, dataIO)
     }
 
