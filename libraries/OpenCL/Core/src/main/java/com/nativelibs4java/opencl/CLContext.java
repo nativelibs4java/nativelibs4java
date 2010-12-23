@@ -231,7 +231,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
      * @throws IOException
      */
     public CLProgram loadProgram(InputStream in) throws IOException {
-        Map<CLDevice, byte[]> binaries = CLProgram.readBinaries(Arrays.asList(getDevices()), in);
+        Map<CLDevice, byte[]> binaries = CLProgram.readBinaries(Arrays.asList(getDevices()), null, in);
         return createProgram(binaries);
     }
 

@@ -48,6 +48,24 @@ import com.sun.jna.ptr.IntByReference;
  */
 public class JavaCL {
 
+	static boolean cacheBinaries = !"false".equals(System.getProperty("javacl.cacheBinaries") + "");
+	/**
+	 * Change whether program binaries are automatically cached or not.<br>
+	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property.<br>
+	 * Each program can be set to be cached or not using @see CLProgram#setCached(boolean).
+	 */ 
+	public static void setCacheBinaries(boolean cacheBinaries) {
+		JavaCL.cacheBinaries = cacheBinaries;
+	}
+	/**
+	 * Says whether program binaries are automatically cached or not.<br>
+	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property or the @see JavaCL#setCacheBinaries(boolean) method.<br>
+	 * Each program can be set to be cached or not using @see CLProgram#setCached(boolean).
+	 */ 
+	public static boolean getCacheBinaries() {
+		return cacheBinaries;
+	}
+	
     static final OpenCLLibrary CL = OpenCLLibrary.INSTANCE;
 
     public static CLPlatform[] listGPUPoweredPlatforms() {
