@@ -24,9 +24,10 @@ class CLFilteredArray[A](
   implicit val context: ScalaCLContext,
   val dataIO: CLDataIO[A]
 )
-extends CLCollection[A, CLFilteredArray[A]]
-  with IndexedSeqLike[A, CLFilteredArray[A]]
-  with CLIndexedSeq[A, CLFilteredArray[A]]
+extends IndexedSeq[A]
+  with CLIndexedSeq[A]
+  //with IndexedSeqLike[A, CLFilteredArray[A]]
+  with CLIndexedSeqLike[A, CLFilteredArray[A]]
 {
   def this(array: CLArray[A])(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
       this(array, new CLGuardedBuffer[Boolean](array.length))
@@ -41,7 +42,12 @@ extends CLCollection[A, CLFilteredArray[A]]
 
   import array._
 
-  override def length = array.length
+  override def length = sizeFuture.get
+  def sizeFuture = {
+    val ps = updatedPresencePrefixSum
+    ps(array.length - 1)
+    //new CLInstantFuture(ps.toArray.last)
+  }
   
 //  assert(buffers.forall(_.buffer.getElementCount == length))
   assert(array != null)
@@ -50,7 +56,7 @@ extends CLCollection[A, CLFilteredArray[A]]
   override def newBuilder = CLFilteredArray.newBuilder[A]
 
   //lazy val buffersList = buffers.toList
-  lazy val presencePrefixSum = new CLGuardedBuffer[Int](length)
+  lazy val presencePrefixSum = new CLGuardedBuffer[Int](array.length)
 
   override def clone =
     new CLFilteredArray[A](array.clone, presence.clone)
@@ -85,7 +91,7 @@ extends CLCollection[A, CLFilteredArray[A]]
 
   def map[B, That](f: A => B, out: That)(implicit bf: CanBuildFrom[CLFilteredArray[A], B, That]): That = {
     implicit val dataIO = bf.dataIO
-    val result = reuse(out, new CLFilteredArray[B](length, presence.clone))
+    val result = reuse(out, new CLFilteredArray[B](array.length, presence.clone))
 
     f match {
       case clf: CLRunnable =>
@@ -111,7 +117,7 @@ extends CLCollection[A, CLFilteredArray[A]]
     result.asInstanceOf[That]
   }
 
-  override def filterFallback[That <: CLCollection[A, _]](p: A => Boolean, out: That)(implicit ff: CLCanFilterFrom[CLFilteredArray[A], A, That]) = {
+  override def filterFallback[That <: CLCollection[A]](p: A => Boolean, out: That)(implicit ff: CLCanFilterFrom[CLFilteredArray[A], A, That]) = {
     import scala.concurrent.ops._
 
     out match {

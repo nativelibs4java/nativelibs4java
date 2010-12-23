@@ -22,31 +22,45 @@ package object scalacl {
   
   implicit def ScalaCLContext2Context(sc: ScalaCLContext) = sc.context
 
-  implicit def canBuildFromIndexedSeq[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
-    new CLCanBuildFrom[CLIndexedSeq[_, _], A, CLArray[A]] {
+  /*implicit def canBuildArrayFromIndexedSeq[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
+    new CLCanBuildFrom[CLIndexedSeq[_], A, CLArray[A]] {
       override def dataIO = io
-      override def apply(from: CLIndexedSeq[_, _]) = CLArray.newBuilder[A](context, dataIO)
+      override def apply(from: CLIndexedSeq[_]) = CLArray.newBuilder[A](context, dataIO)
       override def apply() = CLArray.newBuilder[A](context, dataIO)
     }
-
+    */
+  implicit def canBuildIndexedSeqFromIndexedSeq[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
+    new CLCanBuildFrom[CLIndexedSeq[_], A, CLIndexedSeq[A]] {
+      override def dataIO = io
+      override def apply(from: CLIndexedSeq[_]) = CLFilteredArray.newBuilder[A](context, dataIO)
+      override def apply() = CLFilteredArray.newBuilder[A](context, dataIO)
+    }
+  implicit def canBuildArrayFromArray[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
+    new CLCanBuildFrom[CLArray[_], A, CLArray[A]] {
+      override def dataIO = io
+      override def apply(from: CLArray[_]) = CLArray.newBuilder[A](context, dataIO)
+      override def apply() = CLArray.newBuilder[A](context, dataIO)
+    }
+/*
   implicit def canBuildFromFilteredArray[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
     new CLCanBuildFrom[CLFilteredArray[_], A, CLFilteredArray[A]] {
       override def dataIO = io
       override def apply(from: CLFilteredArray[_]) = CLFilteredArray.newBuilder[A](context, dataIO)
       override def apply() = CLFilteredArray.newBuilder[A](context, dataIO)
     }
+    */
 
   implicit def canFilterFromIndexedSeq[A](implicit ctx: ScalaCLContext, io: CLDataIO[A]) =
-    new CLCanFilterFrom[CLIndexedSeq[A, _], A, CLFilteredArray[A]] {
+    new CLCanFilterFrom[CLIndexedSeq[A], A, CLFilteredArray[A]] {
       override def dataIO = io
       override def context = ctx
-      def rawLength(from: CLIndexedSeq[A, _]): Int = from match {
+      def rawLength(from: CLIndexedSeq[A]): Int = from match {
         case a: CLArray[A] =>
           a.length
         case fa: CLFilteredArray[A] =>
           fa.array.length
       }
-      def newFilterResult(from: CLIndexedSeq[A, _]) = new CLFilteredArray[A](rawLength(from))
+      def newFilterResult(from: CLIndexedSeq[A]) = new CLFilteredArray[A](rawLength(from))
     }
 
   implicit def CastCanBuildFrom2CL[Repr, B, That](bf: CanBuildFrom[Repr, B, That]): CLCanBuildFrom[Repr, B, That] = bf match {

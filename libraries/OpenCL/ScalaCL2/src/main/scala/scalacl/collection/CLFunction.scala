@@ -169,7 +169,7 @@ extends (A => B)
   }
 
   override def run(dims: Array[Int], args: Array[Any], eventsToWaitFor: Array[CLEvent])(implicit context: ScalaCLContext): CLEvent = {
-    val (kernelName, size, buffers: Array[CLGuardedBuffer[Any]]) = args match {
+    val (kernelName, size: Int, buffers: Array[CLGuardedBuffer[Any]]) = args match {
       case Array(in: CLArray[_], out: CLGuardedBuffer[Any]) =>
         // case of CLArray.filter (output to the presence array of a CLFilteredArray
         ("array_array", in.length, in.buffers ++ Array(out): Array[CLGuardedBuffer[Any]])
@@ -178,7 +178,7 @@ extends (A => B)
         ("array_array", in.length, in.buffers ++ out.buffers: Array[CLGuardedBuffer[Any]])
       case Array(in: CLFilteredArray[_], out: CLFilteredArray[Any]) =>
         // CLFilteredArray.map
-        ("filteredArray_filteredArray", in.array.length, in.array.buffers ++ Array(in.presence.buffer.asInstanceOf[CLGuardedBuffer[Any]]) ++ out.array.buffers: Array[CLGuardedBuffer[Any]])
+        ("filteredArray_filteredArray", in.array.length, in.array.buffers ++ Array(in.presence.asInstanceOf[CLGuardedBuffer[Any]]) ++ out.array.buffers: Array[CLGuardedBuffer[Any]])
       case _ =>
         error("ERROR, args = " + args.mkString(", "))
     }

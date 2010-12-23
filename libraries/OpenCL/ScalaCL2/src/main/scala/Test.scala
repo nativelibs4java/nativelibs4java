@@ -52,7 +52,7 @@ object Test {
     val clm2: CLFunction[Int, (Int, Int)] = (m2, Seq("_", "_ * 2"))
 
     //println("Filtered array with CL function : " + fclf)
-    def same[V](a: CLIndexedSeq[V, _], b: Traversable[V])(implicit v: ClassManifest[V]) {
+    def same[V](a: CLIndexedSeq[V], b: Traversable[V])(implicit v: ClassManifest[V]) {
       assert(a.toArray.take(samples).toSeq == b.toArray.take(samples).toSeq)
     }
 
@@ -62,25 +62,30 @@ object Test {
       v
     }
     
+    val mclm = times("Map in OpenCL", runs) { finished { cla.map(clm) } }
+    val smm = times("Map in Scala", runs) { a.map(m) }
+    //val mm = time("Map in Scala on OpenCL data") { cla.map(m) }
+    same(mclm, smm)
     
     val mclm2 = times("Map2 in OpenCL", runs) { finished { cla.map(clm2) } }
     val smm2 = times("Map2 in Scala", runs) { a.map(m2) }
     //val mm = time("Map in Scala on OpenCL data") { cla.map(m) }
-
     same(mclm2, smm2)
     //assert(mm.toArray.take(samples).toSeq == smm.take(samples).toArray.toSeq)
 
-    val mclm = times("Map in OpenCL", runs) { finished { cla.map(clm) } }
-    val smm = times("Map in Scala", runs) { a.map(m) }
-    //val mm = time("Map in Scala on OpenCL data") { cla.map(m) }
-
-    same(mclm, smm)
-    
-    val fclf = times("Filter in OpenCL", runs) { finished { cla.filter(clf) } }
+    val fclf = times("Filter in OpenCL", runs) { finished { cla.filter(clf).toCLArray } }
     val sff = times("Filter in Scala", runs) { a.filter(f) }
     //val ff = time("Filter in Scala on OpenCL data") { cla.filter(f).toArray }
-
     same(fclf, sff)
+    
+    val fmclfm = times("Filter+Map in OpenCL", runs) { finished { cla.filter(clf).map(clm).toCLArray } }
+    val sfmfm = times("Filter+Map  in Scala", runs) { a.filter(f).map(m) }
+    same(fmclfm, sfmfm)
+    
+    val fmclfm2 = times("Filter+Map2 in OpenCL", runs) { finished { cla.filter(clf).map(clm2).toCLArray } }
+    val sfmfm2 = times("Filter+Map2  in Scala", runs) { a.filter(f).map(m2) }
+    same(fmclfm2, sfmfm2)
+    
     //assert(ff.toArray.take(samples).toSeq == sff.take(samples).toArray.toSeq)
 
   }

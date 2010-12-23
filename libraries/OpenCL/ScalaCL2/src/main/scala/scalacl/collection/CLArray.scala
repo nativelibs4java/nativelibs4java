@@ -31,12 +31,14 @@ object CLArray {
     new ArrayBuffer[A].mapResult(b => fromSeq(b))
 }
 
-trait MappableToCLArray[A, Repr] {
-  this: CLCollection[A, Repr] =>
+trait MappableToCLArray[A, +Repr <: CLCollectionLike[A, Repr] with CLCollection[A]] {
+  //self =>
+  this: Repr =>
+  //this: CLIndexedSeq[A] with CLIndexedSeqLike[A, Repr] => //with WithScalaCLContext with CLEventBoundContainer => // CLIndexedSeqLike[A, Repr] =>
   
   def length: Int
   protected def mapFallback[B](f: A => B, out: CLArray[B]): Unit
-  def map[B, That](f: A => B, out: That)(implicit bf: CanBuildFrom[Repr, B, That]): That = {
+  override def map[B, That](f: A => B, out: That)(implicit bf: CanBuildFrom[Repr, B, That]): That = {
     val result = reuse(out, new CLArray[B](length)(context, bf.dataIO))
 
     f match {
@@ -60,23 +62,24 @@ class CLArray[A](
   implicit val context: ScalaCLContext,
   val dataIO: CLDataIO[A]
 )
-  extends IndexedSeqLike[A, CLIndexedSeq[A, _]]
-  with IndexedSeqOptimized[A, CLIndexedSeq[A, _]]
-  with CLIndexedSeq[A, CLIndexedSeq[A, _]]
-  with MappableToCLArray[A, CLIndexedSeq[A, _]]
+  extends /*IndexedSeq[A]
+  with*/ CLIndexedSeq[A]
+  with IndexedSeqOptimized[A, CLIndexedSeq[A]]
+  with CLIndexedSeqLike[A, CLIndexedSeq[A]]
+  with MappableToCLArray[A, CLIndexedSeq[A]]
 {
   def this(length: Int)(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
     this(length, dataIO.createBuffers(length))
 
   override def eventBoundComponents = buffers
   
-  type Repr = CLIndexedSeq[A, _]
+  type Repr = CLIndexedSeq[A]
   
   assert(buffers.forall(_.buffer.getElementCount == length))
 
   import CLArray._
 
-  override def newBuilder: Builder[A, CLArray[A]] = CLArray.newBuilder[A]
+  override def newBuilder: Builder[A, CLIndexedSeq[A]] = CLArray.newBuilder[A]
 
   override def toArray = dataIO.toArray(buffers)
   override def copyToArray[B >: A](out: Array[B], start: Int, len: Int): Unit = {
@@ -92,11 +95,11 @@ class CLArray[A](
     dataIO.store(value, buffers, index)
 
   def update(f: A => A): CLArray[A] =
-    map(f, this)/*(new CLCanBuildFrom[Repr, A, CLArray[A]] {
+    map(f, this)(new CLCanBuildFrom[Repr, A, CLArray[A]] {
       override def dataIO = CLArray.this.dataIO
-      override def apply() = newBuilder
-      override def apply(from: Repr) = newBuilder
-    })*/
+      override def apply() = newBuilder.asInstanceOf[Builder[A, CLArray[A]]]
+      override def apply(from: Repr) = newBuilder.asInstanceOf[Builder[A, CLArray[A]]]
+    })
 
   override def clone: CLArray[A] =
     new CLArray(length, buffers.map(_.clone)) // TODO map in parallel
@@ -114,7 +117,7 @@ class CLArray[A](
   override def filter(p: A => Boolean) =
     filter(p, new CLFilteredArray[A](length))//.toCLArray
 
-  override def filterFallback[That <: CLCollection[A, _]](p: A => Boolean, out: That)(implicit ff: CLCanFilterFrom[Repr, A, That]) = {
+  override def filterFallback[That <: CLCollection[A]](p: A => Boolean, out: That)(implicit ff: CLCanFilterFrom[Repr, A, That]) = {
     import scala.concurrent.ops._
 
     out match {

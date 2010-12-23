@@ -50,8 +50,9 @@ class CLIntRange(
 )(
   implicit val context: ScalaCLContext
 )
-  extends CLCollection[Int, CLIntRange]
-  with IndexedSeqLike[Int, CLIntRange]
+  extends IndexedSeq[Int]
+  with CLIndexedSeq[Int]
+  with CLIndexedSeqLike[Int, CLIntRange]
   with MappableToCLArray[Int, CLIntRange]
 {
   def this(range: Range)(implicit context: ScalaCLContext) =
@@ -80,7 +81,7 @@ class CLIntRange(
     }
   }
 
-  override def filterFallback[That <: CLCollection[Int, _]](p: Int => Boolean, out: That)(implicit ff: CLCanFilterFrom[CLIntRange, Int, That]) = {
+  override def filterFallback[That <: CLCollection[Int]](p: Int => Boolean, out: That)(implicit ff: CLCanFilterFrom[CLIntRange, Int, That]) = {
     import scala.concurrent.ops._
 
     out match {
@@ -101,7 +102,7 @@ class CLIntRange(
     }
   }
 
-  override def apply(index: Int) =
+  override def apply(index: Int): Int =
     toRange.apply(index)
 
   override def length = toRange.length

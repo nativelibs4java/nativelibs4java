@@ -14,7 +14,7 @@ object Example {
   /**
    * @param args the command line arguments
    */
-  def main(args: Array[String]): Unit = {
+  def main2(args: Array[String]): Unit = {
 
     val a = Array(1, 2, 3)
 
