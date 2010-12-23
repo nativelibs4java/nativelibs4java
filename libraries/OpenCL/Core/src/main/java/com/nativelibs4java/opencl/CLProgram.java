@@ -45,6 +45,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.net.MalformedURLException;
+import java.net.URLConnection;
+import java.net.URL;
 
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -302,7 +304,10 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 	}
     
     static File tempIncludes = new File(new File(System.getProperty("java.io.tmpdir")), "JavaCL");
-    public Runnable copyIncludesToTemporaryDirectory() throws IOException {
+    
+    Map<String, URL> resolvedInclusions;
+        
+    protected Runnable copyIncludesToTemporaryDirectory() throws IOException {
         Map<String, URL> inclusions = resolveInclusions();
         tempIncludes.mkdirs();
         File includesDir = File.createTempFile("includes", "", tempIncludes);
@@ -333,10 +338,12 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         }};
     }
     public Map<String, URL> resolveInclusions() throws IOException {
-        Map<String, URL> ret = new HashMap<String, URL>();
-        for (String source : sources)
-            resolveInclusions(source, ret);
-        return ret;
+        if (resolvedInclusions == null) {
+			resolvedInclusions = new HashMap<String, URL>();
+			for (String source : sources)
+				resolveInclusions(source, resolvedInclusions);
+		}
+        return resolvedInclusions;
     }
     
     static Pattern includePattern = Pattern.compile("#\\s*include\\s*\"([^\"]+)\"");
@@ -365,6 +372,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         String src = ReadText.readText(url);
         return src;
     }
+    
     public URL getIncludedSourceURL(String path) throws MalformedURLException {
         File f = new File(path);
         if (f.exists())
@@ -469,6 +477,10 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
      * Please see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">OpenCL's clBuildProgram documentation</a> for details on supported build options.
      */
     public synchronized void addBuildOption(String option) {
+		if (option.startsWith("-I")) {
+			addInclude(option.substring(2));
+			return;
+		}
     		if (extraBuildOptions == null)
     			extraBuildOptions = new ArrayList<String>();
     		
@@ -505,7 +517,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     		return cached;
     }
 
-    protected String computeCacheSignature() {
+    protected String computeCacheSignature() throws IOException {
     		StringBuilder b = new StringBuilder(1024);
     		for (CLDevice device : getDevices())
     			b.append(device).append("\n");
@@ -523,6 +535,13 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 			for (String source : sources)
 				b.append(source).append("\n");
     		
+		Map<String, URL> inclusions = resolveInclusions();
+        for (Map.Entry<String, URL> e : inclusions.entrySet()) {
+        		URLConnection con = e.getValue().openConnection();
+        		InputStream in = con.getInputStream();
+        		b.append('#').append(e.getKey()).append(con.getLastModified()).append('\n');
+        		in.close();
+        }
     		return b.toString();
     }
     
