@@ -1,7 +1,7 @@
 #ifndef _LIBCL_RGBA_2_HSLA_CL_
 #define _LIBCL_RGBA_2_HSLA_CL_
 
-float4 rgba2hsla(float4 rgba) {
+inline float4 rgba2hsla(float4 rgba) {
 	float 
 		r = rgba.x, 
 		g = rgba.y, 

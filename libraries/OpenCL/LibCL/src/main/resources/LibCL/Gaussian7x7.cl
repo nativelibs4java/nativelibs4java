@@ -2,7 +2,7 @@
 #define _LIBCL_GAUSSIAN_7x7_CL_
 
 // Matrix values taken from http://en.wikipedia.org/wiki/Gaussian_blur :
-__constant const float gaussian7x7Matrix[] = {
+__constant float gaussian7x7Matrix[] = {
 	0.00000067,	0.00002292,	0.00019117,	0.00038771,	0.00019117,	0.00002292,	0.00000067,
 	0.00002292,	0.00078633,	0.00655965,	0.01330373,	0.00655965,	0.00078633,	0.00002292,
 	0.00019117,	0.00655965,	0.05472157,	0.11098164,	0.05472157,	0.00655965,	0.00019117,

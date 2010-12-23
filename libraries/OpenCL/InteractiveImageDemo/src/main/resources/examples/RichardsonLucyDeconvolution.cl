@@ -6,13 +6,13 @@
 	
 	Written by Olivier Chafik, no right reserved :-) */	
 
-// Include some LibCL functions.
-// See sources here : http://code.google.com/p/nativelibs4java/source/browse/trunk/libraries/OpenCL/LibCL/src/main/resources#resources%2FLibCL
+// Import LibCL functions, which sources can be browsed here :
+// http://code.google.com/p/nativelibs4java/source/browse/trunk/libraries/OpenCL/LibCL/src/main/resources#resources%2FLibCL
 #include "LibCL/RichardsonLucyImageDeconvolution.cl"
 
 // Gaussian point-spread function :
 // Matrix values taken from http://en.wikipedia.org/wiki/Gaussian_blur :
-__constant const float pointSpreadFunction7x7[] = {
+__constant float pointSpreadFunction7x7[] = {
 	0.00000067,	0.00002292,	0.00019117,	0.00038771,	0.00019117,	0.00002292,	0.00000067,
 	0.00002292,	0.00078633,	0.00655965,	0.01330373,	0.00655965,	0.00078633,	0.00002292,
 	0.00019117,	0.00655965,	0.05472157,	0.11098164,	0.05472157,	0.00655965,	0.00019117,

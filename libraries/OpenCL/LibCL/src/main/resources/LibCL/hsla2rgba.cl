@@ -15,7 +15,8 @@ inline float hsla2rgba_sub(float x, float y, float z) {
 		return x + (y - x) * ((2.f / 3.f) - z) * 6;
 	return x;
 }
-float4 hsla2rgba(float4 hsla) {
+
+inline float4 hsla2rgba(float4 hsla) {
 	float 
 		h = hsla.x, 
 		s = hsla.y, 

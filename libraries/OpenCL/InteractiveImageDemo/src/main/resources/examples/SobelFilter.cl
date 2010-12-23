@@ -1,58 +1,40 @@
 /**
 	Sobel filter example : naive edge detection
+	This sample includes Sobel and Scharr operators, please see below.
 	See http://en.wikipedia.org/wiki/Sobel_operator
 	Written by Olivier Chafik, no right reserved :-) */	
+
+// Import LibCL functions, which sources can be browsed here :
+// http://code.google.com/p/nativelibs4java/source/browse/trunk/libraries/OpenCL/LibCL/src/main/resources#resources%2FLibCL
+#include "LibCL/ImageConvolution.cl"
+
+__constant float2 sobel3x3MatrixXY[] = {
+	(float2)(-1, -1), (float2)(0, -2), (float2)(1, -1),
+	(float2)(-2, 0), (float2)(0, 0), (float2)(2, 0),
+	(float2)(-1, 1), (float2)(0, 2), (float2)(1, 1)
+};
+__constant float2 scharr3x3MatrixXY[] = {
+	(float2)(3, 3), (float2)(0, 10), (float2)(-3, 3),
+	(float2)(10, 0), (float2)(0, 0), (float2)(-10, 0),
+	(float2)(3, -3), (float2)(0, -10), (float2)(-3, -3)
+};
 
 __kernel void test(
 	read_only image2d_t inputImage,
 	write_only image2d_t outputImage)
 {
 	int x = get_global_id(0), y = get_global_id(1);
-
-	// See http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/sampler_t.html
-	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
 	
-#define PIXEL_CONTRIB(dx, dy, coefX, coefY) \
-	{\
-		float4 pixel = read_imagef(inputImage, sampler, (int2)(x + dx, y + dy)); \
-		total += (float2)(coefX, coefY) * (float2)(((pixel.x + (int)pixel.y + (int)pixel.z) / 3.f) * pixel.w); \
-	}
-
-	float2 total = (float2)0;
+	float scaling = 0.3f; // you can adjust this
 	
-#define MX_NW 	1
-#define MX_N 	2
-#define MX_NE 	1
-#define MX_W 	0
-#define MX_C 	0
-#define MX_E 	0
-#define MX_SW 	-1
-#define MX_S 	-2
-#define MX_SE 	-1
+	// Sobel operator
+	float2 total = scaling * convolveFloatImagePixelGray2(inputImage, x, y, sobel3x3MatrixXY, 3);
+	
+	// Scharr operator (better rotational symmetry) :
+	// float2 total = scaling * convolveFloatImagePixelGray2(inputImage, x, y, scharr3x3MatrixXY, 3);
 
-#define MY_NW 	1
-#define MY_N 	0
-#define MY_NE 	-1
-#define MY_W 	2
-#define MY_C 	0
-#define MY_E 	-2
-#define MY_SW 	1
-#define MY_S 	0
-#define MY_SE 	-1
-
-	PIXEL_CONTRIB(-1, -1, MX_NW, MY_NW);
-	PIXEL_CONTRIB(0, -1, MX_N, MY_N);
-	PIXEL_CONTRIB(1, -1, MX_NE, MY_NE);
-	PIXEL_CONTRIB(-1, 0, MX_W, MY_W);
-	PIXEL_CONTRIB(0, 0, MX_C, MY_C);
-	PIXEL_CONTRIB(1, 0, MX_E, MY_E);
-	PIXEL_CONTRIB(-1, 1, MX_SW, MY_SW);
-	PIXEL_CONTRIB(0, 1, MX_S, MY_S);
-	PIXEL_CONTRIB(1, 1, MX_SE, MY_SE);
-    
-// Change to 'if 0' to get an output map of directions instead of gradients
 #if 1
-    	float gradient = length(total);
+    	float gradient = fast_length(total);
     	float value = gradient;
 #else
     	float direction = atan2(total.y, total.x);

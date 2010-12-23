@@ -25,7 +25,7 @@ void desaturate(
 	// Compute pixel luminance using a dot product, equivalent to the following two lines :
 	// float red = pixel.x, green = pixel.y, blue = pixel.z, alpha = pixel.w;
 	// float luminance = (red + green + blue) / 3;
-	float luminance = dot(pixel, (float4)(1, 1, 1, 0)) / 3;
+	float luminance = dot((float4)(1/3.f, 1/3.f, 1/3.f, 0), pixel);
 	
 	// Lower color saturation of pixel :
 	const float colorFactor = 1.f - greyFactor;

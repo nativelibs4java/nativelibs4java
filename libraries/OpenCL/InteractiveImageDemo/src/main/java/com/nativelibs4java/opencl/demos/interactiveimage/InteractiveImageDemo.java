@@ -1,5 +1,6 @@
 package com.nativelibs4java.opencl.demos.interactiveimage;
 
+import com.nativelibs4java.opencl.demos.SetupUtils;
 import java.awt.dnd.DropTarget;
 import java.net.MalformedURLException;
 import java.awt.datatransfer.DataFlavor;
@@ -40,7 +41,7 @@ import com.ochafik.util.SystemUtils;
 import static com.nativelibs4java.opencl.demos.interactiveimage.Utils.*;
 
 /**
-mvn exec:java -Dexec.mainClass=com.nativelibs4java.opencl.demos.interactiveimage
+mvn compile exec:java -Dexec.mainClass=com.nativelibs4java.opencl.demos.interactiveimage.InteractiveImageDemo
 */
 public class InteractiveImageDemo extends JPanel {
 	JSplitPane imgSrcSplitPane, imgsSplitPane;
@@ -237,6 +238,8 @@ public class InteractiveImageDemo extends JPanel {
 				new Example("Sobel Operator", "SobelFilter"), 
 				new Example("Desaturate Colors", "DesaturateColors"), 
 				new Example("Richardson-Lucy Deconvolution", "RichardsonLucyDeconvolution"),
+				new Example("Luminance Threshold", "LuminanceThreshold"), 
+				new Example("Naive Denoising", "NaiveDenoising"), 
 				new Example("Identity", "Identity"), 
 				new Example("Image Info", "QueryFormat") 
 			}) {
@@ -534,6 +537,8 @@ public class InteractiveImageDemo extends JPanel {
 		}
 	}
 	public static void main(String[] args) {
+		SetupUtils.failWithDownloadProposalsIfOpenCLNotAvailable();
+		
 		JFrame f = new JFrame("JavaCL's Interactive Image Transform Demo");
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		InteractiveImageDemo demo = new InteractiveImageDemo();

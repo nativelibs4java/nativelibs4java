@@ -3,9 +3,6 @@
 	This example also demonstrates the chaining of multiple kernels (see commented code at the end).
 	Written by Olivier Chafik, no right reserved :-) */	
 
-// See http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/sampler_t.html
-const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
-
 void performBlur(
 	int blurSize,
 	read_only image2d_t inputImage,
@@ -18,6 +15,9 @@ void performBlur(
 	int x = get_global_id(0), y = get_global_id(1);
 	
 	float4 transformedPixel = (float4)0;
+
+	// See http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/sampler_t.html
+	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
 	
 	int minDiff = -(blurSize - 1);
 	for (int dx = minDiff; dx < blurSize; dx++) {
@@ -62,4 +62,4 @@ __kernel void pass1(read_only image2d_t inputImage, write_only image2d_t outputI
 __kernel void pass2(read_only image2d_t inputImage, write_only image2d_t outputImage) {
 	performBlur(10, inputImage, outputImage);
 }
-//*/
+*/

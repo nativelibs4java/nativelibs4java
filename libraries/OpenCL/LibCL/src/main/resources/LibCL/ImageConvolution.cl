@@ -12,7 +12,7 @@
 float4 convolveFloatImagePixel(
 	read_only image2d_t inputImage,
 	int x, int y,
-	__constant const float* matrix, 
+	__constant float* matrix, 
 	int matrixSize)
 {
 	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
@@ -45,10 +45,10 @@ float4 convolveFloatImagePixel(
 float4 convolveFloatImagePixelChannels(
 	read_only image2d_t inputImage,
 	int x, int y,
-	__constant const float* matrixX, 
-	__constant const float* matrixY, 
-	__constant const float* matrixZ, 
-	__constant const float* matrixW, 
+	__constant float* matrixX, 
+	__constant float* matrixY, 
+	__constant float* matrixZ, 
+	__constant float* matrixW, 
 	int matrixSize)
 {
 	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
@@ -79,7 +79,7 @@ float4 convolveFloatImagePixelChannels(
 float convolveFloatImagePixelX(
 	read_only image2d_t inputImage,
 	int x, int y,
-	__constant const float* matrix, 
+	__constant float* matrix, 
 	int matrixSize)
 {
 	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
@@ -109,7 +109,7 @@ float convolveFloatImagePixelX(
 float convolveFloatImagePixelGray(
 	read_only image2d_t inputImage,
 	int x, int y,
-	__constant const float* matrix, 
+	__constant float* matrix, 
 	int matrixSize)
 {
 	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
@@ -140,7 +140,7 @@ float convolveFloatImagePixelGray(
 float2 convolveFloatImagePixelGray2(
 	read_only image2d_t inputImage,
 	int x, int y,
-	__constant const float2* matrix,
+	__constant float2* matrix,
 	int matrixSize)
 {
 	const sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_CLAMP_TO_EDGE;
@@ -168,7 +168,7 @@ float2 convolveFloatImagePixelGray2(
  */
 void convolveFloatImage(
 	read_only image2d_t inputImage,
-	__constant const float* matrix, 
+	__constant float* matrix, 
 	int matrixSize,
 	write_only image2d_t outputImage)
 {
@@ -191,10 +191,10 @@ void convolveFloatImage(
  */
 void convolveFloatImageChannels(
 	read_only image2d_t inputImage,
-	__constant const float* matrixX, 
-	__constant const float* matrixY, 
-	__constant const float* matrixZ, 
-	__constant const float* matrixW, 
+	__constant float* matrixX, 
+	__constant float* matrixY, 
+	__constant float* matrixZ, 
+	__constant float* matrixW, 
 	int matrixSize,
 	write_only image2d_t outputImage)
 {

@@ -1,7 +1,7 @@
 #ifndef _LIBCL_IMAGE_CONVERT_CL_
 #define _LIBCL_IMAGE_CONVERT_CL_
 
-__constant const float4 luminanceDot = ((float4)(1 / 3.f, 1 / 3.f, 1 / 3.f, 0));
+__constant float4 luminanceDot = ((float4)(1 / 3.f, 1 / 3.f, 1 / 3.f, 0));
 
 void convertFloatRGBImageToGray(
 	read_only image2d_t inputImage,

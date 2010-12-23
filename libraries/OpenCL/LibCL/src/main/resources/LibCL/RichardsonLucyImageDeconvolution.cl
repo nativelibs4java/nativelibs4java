@@ -11,7 +11,7 @@ void richardsonLucyDeconvolutionPre1(read_only image2d_t inputImage, write_only 
 }
 
 // Put I factors in w (alpha) channel
-void richardsonLucyDeconvolutionPre2(read_only image2d_t inputImage, __constant const float* matrix, int matrixSize, write_only image2d_t outputImage)
+void richardsonLucyDeconvolutionPre2(read_only image2d_t inputImage, __constant float* matrix, int matrixSize, write_only image2d_t outputImage)
 {
 	int x = get_global_id(0), y = get_global_id(1);
 	float conv = convolveFloatImagePixelX(inputImage, x, y, matrix, matrixSize);
@@ -39,7 +39,7 @@ void richardsonLucyDeconvolutionPost(read_only image2d_t inputImage, write_only 
 
 void richardsonLucyDeconvolutionPass(
 	read_only image2d_t inputImage,
-	__constant const float* matrix, 
+	__constant float* matrix, 
 	int matrixSize,
 	write_only image2d_t outputImage)
 {
