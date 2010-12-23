@@ -7,9 +7,19 @@
 // http://code.google.com/p/nativelibs4java/source/browse/trunk/libraries/OpenCL/LibCL/src/main/resources#resources%2FLibCL
 #include "LibCL/ImageConvolution.cl"
 #include "LibCL/SobelOperator.cl"
-#include "LibCL/Gaussian7x7.cl"
 #include "LibCL/rgba2hsla.cl"
 #include "LibCL/hsla2rgba.cl"
+
+// Matrix values taken from http://en.wikipedia.org/wiki/Gaussian_blur :
+__constant float gaussian7x7Matrix[] = {
+	0.00000067,	0.00002292,	0.00019117,	0.00038771,	0.00019117,	0.00002292,	0.00000067,
+	0.00002292,	0.00078633,	0.00655965,	0.01330373,	0.00655965,	0.00078633,	0.00002292,
+	0.00019117,	0.00655965,	0.05472157,	0.11098164,	0.05472157,	0.00655965,	0.00019117,
+	0.00038771,	0.01330373,	0.11098164,	0.22508352,	0.11098164,	0.01330373,	0.00038771,
+	0.00019117,	0.00655965,	0.05472157,	0.11098164,	0.05472157,	0.00655965,	0.00019117,
+	0.00002292,	0.00078633,	0.00655965,	0.01330373,	0.00655965,	0.00078633,	0.00002292,
+	0.00000067,	0.00002292,	0.00019117,	0.00038771,	0.00019117,	0.00002292,	0.00000067
+};
 
 __kernel void imageThreshold(
 	read_only image2d_t inputImage,
