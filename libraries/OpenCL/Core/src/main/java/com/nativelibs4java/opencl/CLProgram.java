@@ -296,6 +296,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         if (includes == null)
             includes = new ArrayList<String>();
         includes.add(path);
+        resolvedInclusions = null;
     }
 	public synchronized void addSource(String src) {
         if (entity != null)
