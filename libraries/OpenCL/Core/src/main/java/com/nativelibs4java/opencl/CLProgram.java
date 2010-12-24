@@ -559,7 +559,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         
         String contentSignature = null;
         File cacheFile = null;
-        
+        boolean readBinaries = false;
         if (isCached()) {
         		try {
         			contentSignature = computeCacheSignature();
@@ -574,6 +574,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 					setBinaries(bins);
 					//createKernels();
 					System.out.println("[JavaCL] Read binaries cache from '" + cacheFile + "'");
+					readBinaries = true;
 				}
         		} catch (Exception ex) {
         			System.err.println("[JavaCL] Failed to load cached program :"); 
@@ -623,7 +624,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         if (deleteTempFiles != null)
         		deleteTempFiles.run();
         
-        	if (isCached()) {
+        	if (isCached() && !readBinaries) {
         		cacheDirectory.mkdirs();
         		try {
         			writeBinaries(getBinaries(), contentSignature, new FileOutputStream(cacheFile));
