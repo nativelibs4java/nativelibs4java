@@ -25,7 +25,7 @@ public class PointerTest {
 		Pointer<Integer> p = allocateInt();
 		assertTrue(p == (Pointer)p.offset(0));
 		assertTrue(p == (Pointer)p.next(0));
-		assertTrue(p == (Pointer)p.withIO(p.getIO()));
+		assertTrue(p == (Pointer)p.as(p.getIO()));
 		assertTrue(p == (Pointer)p.asPointerTo(p.getIO().getTargetType()));
 		assertTrue(p == (Pointer)p.order(p.order()));
 	}
@@ -58,7 +58,7 @@ public class PointerTest {
 	}
 	@Test(expected=RuntimeException.class)
 	public void untypedGet() {
-		allocateBytes(10).as(null).get(0);
+		allocateBytes(10).asUntyped().get(0);
 	}
 	
 	@Test
@@ -430,9 +430,32 @@ public class PointerTest {
 		//TODO slide, slideBytes
 	}
 	
-	@Test(expected=UnsupportedOperationException.class)
+	//@Test(expected=UnsupportedOperationException.class)
 	public void testPointerTo_${prim.Name}_IndirectBuffer() {
-    		pointerTo${prim.CapName}s(${prim.BufferName}.wrap(new ${prim.Name}[3]));
+		${prim.BufferName} b = ${prim.BufferName}.wrap(new ${prim.Name}[3]);
+		b.put(0, ${prim.value("1")});
+		b.put(1, ${prim.value("2")});
+		b.put(2, ${prim.value("3")});
+		
+		Pointer<${prim.typeRef}> p;
+		
+		for (boolean generic : new boolean[] { false, true }) {
+			if (generic)
+				p = (Pointer<${prim.typeRef}>)Pointer.pointerToBuffer(b);
+			else
+				p = Pointer.pointerTo${prim.CapName}s(b);
+			
+			assertEquals(3 * ${prim.Size}, p.getValidBytes());
+			assertEquals(${prim.value("1")}, (${prim.Name})p.get(0)$precisionArg);
+			assertEquals(${prim.value("2")}, (${prim.Name})p.get(1)$precisionArg);
+			assertEquals(${prim.value("3")}, (${prim.Name})p.get(2)$precisionArg);
+		}
+		
+		p = (Pointer<${prim.typeRef}>)Pointer.pointerToBuffer(b);
+		
+		p.set(1, ${prim.value("22")});
+		p.updateBuffer(b);
+		assertEquals(${prim.value("22")}, (${prim.Name})b.get(1)$precisionArg);
 	}
 	
 	@Test 
