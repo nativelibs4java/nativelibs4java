@@ -338,7 +338,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 
     <U> Pointer<U> offset(long byteOffset, PointerIO<U> pio) {
 		if (byteOffset == 0)
-			return pio == this.io ? (Pointer<U>)this : withIO(pio);
+			return pio == this.io ? (Pointer<U>)this : as(pio);
 		
 		long newPeer = getPeer() + byteOffset;
 		
@@ -373,11 +373,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * If the pointer was already bound, the valid bytes must be lower or equal to the current getValidElements() value.
 	 */
 	public Pointer<T> validElements(long elementCount) {
-		PointerIO<T> io = getIO();
-        if (io == null)
-            throwBecauseUntyped("Cannot define elements validity");
-        
-        return validBytes(elementCount * io.getTargetSize());
+		return validBytes(elementCount * getIO("Cannot define elements validity").getTargetSize());
     }   
 	
 	/**
@@ -403,7 +399,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 			throw new UnsupportedOperationException("Cannot get reference to this pointer, it wasn't created from Pointer.getPointer(offset) or from a similar method.");
 		
 		PointerIO io = getIO();
-		return parent.offset(offsetInParent).withIO(io == null ? null : io.getReferenceIO());
+		return parent.offset(offsetInParent).as(io == null ? null : io.getReferenceIO());
 	}
 	
 	/**
@@ -420,7 +416,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Cast this pointer to another pointer type
      * @param newIO
      */
-    public <U> Pointer<U> withIO(PointerIO<U> newIO) {
+    public <U> Pointer<U> as(PointerIO<U> newIO) {
     	return cloneAs(isOrdered(), newIO);
     }
     /**
@@ -499,7 +495,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      */
     public <U> Pointer<U> asPointerTo(Type type) {
     	PointerIO<U> pio = PointerIO.getInstance(type);
-    	return withIO(pio);
+    	return as(pio);
     }
 
     /**
@@ -521,6 +517,26 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      */
     public <U> Pointer<U> as(Class<U> type) {
     	return asPointerTo(type);
+    }
+    
+    /**
+     * Cast this pointer to an untyped pointer.<br>
+     * Synonym of {@code ptr.as((Class<?>)null)}.<br>
+     * See {@link Pointer#as(Class)}<br>
+     * The following C code :<br>
+     * <code>{@code 
+     * T* pointerT = ...;
+     * void* pointer = (void*)pointerT;
+     * }</code><br>
+     * Can be translated to the following Java code :<br>
+     * <code>{@code 
+     * Pointer<T> pointerT = ...;
+     * Pointer<?> pointer = pointerT.asUntyped(); // or pointerT.as((Class<?>)null);
+     * }</code><br>
+     * @return untyped pointer pointing to the same address as this pointer
+     */
+    public Pointer<?> asUntyped() {
+    	return as((Class<?>)null);
     }
 
     /**
@@ -650,11 +666,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * @return getPeer() % alignment == 0
 	 */
 	public boolean isAligned() {
-		PointerIO<T> io = getIO();
-        if (io == null)
-            throwBecauseUntyped("Cannot check alignment");
-
-        return isAligned(io.getTargetAlignment());
+        return isAligned(getIO("Cannot check alignment").getTargetAlignment());
 	}
 	
 	/**
@@ -744,11 +756,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      @throws RuntimeException if called on an untyped {@code Pointer<?>} instance ({@link  Pointer#getTargetType()}) 
 	 */
 	public T get(long index) {
-        PointerIO<T> io = getIO();
-        if (io == null)
-            throwBecauseUntyped("Cannot get pointed value");
-
-        return io.get(this, index);
+        return getIO("Cannot get pointed value").get(this, index);
     }
     
     /**
@@ -808,11 +816,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      @throws RuntimeException if called on an untyped {@code Pointer<?>} instance ({@link  Pointer#getTargetType()}) 
 	 */
 	public T set(long index, T value) {
-        PointerIO<T> io = getIO();
-        if (io == null)
-            throwBecauseUntyped("Cannot set pointed value");
-        
-        io.set(this, index, value);
+        getIO("Cannot set pointed value").set(this, index, value);
         return value;
     }
 	
@@ -828,11 +832,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * @throws RuntimeException if the target type is unknown (see {@link Pointer#getTargetType()})
      */
 	public long getTargetSize() {
-		PointerIO<T> io = getIO();
-        if (io == null)
-            throwBecauseUntyped("Cannot compute target size");
-
-        return io.getTargetSize();
+        return getIO("Cannot compute target size").getTargetSize();
 	}
 	
 	/**
@@ -850,11 +850,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * @return offset(getTargetSize() * delta)
 	 */
 	public Pointer<T> next(long delta) {
-		PointerIO<T> io = getIO();
-        if (io == null)
-            throwBecauseUntyped("Cannot get pointers to next or previous targets");
-
-        return offset(io.getTargetSize() * delta);
+        return offset(getIO("Cannot get pointers to next or previous targets").getTargetSize() * delta);
 	}
 	
 	/**
@@ -1211,6 +1207,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 
     /**
      * Create a pointer to the memory location used by a direct NIO buffer.<br>
+     * If the NIO buffer is not direct, then it's backing Java array is copied to some native memory and will never be updated by changes to the native memory (calls {@link Pointer#pointerToArray(Object)}).<br>
      * The returned pointer (and its subsequent clones returned by {@link Pointer#clone()}, {@link Pointer#offset(long)} or {@link Pointer#next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
      * @throws UnsupportedOperationException if the buffer is not direct
      */
@@ -1222,7 +1219,32 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		if (buffer instanceof ${prim.BufferName})
 			return (Pointer)pointerTo${prim.CapName}s((${prim.BufferName})buffer);
 		#end
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Unhandled buffer type : " + buffer.getClass().getName());
+	}
+	
+	/**
+	 * When a pointer was created with {@link Pointer#pointerToBuffer(Buffer)} on a non-direct buffer, a native copy of the buffer data was made.
+	 * This method updates the original buffer with the native memory, and does nothing if the buffer is direct <b>and</b> points to the same memory location as this pointer.<br>
+	 * @throws IllegalArgumentException if buffer is direct and does not point to the exact same location as this Pointer instance
+     */
+    public void updateBuffer(Buffer buffer) {
+        if (buffer == null)
+			throw new IllegalArgumentException("Cannot update a null Buffer !");
+		
+		if (buffer.isDirect()) {
+			long address = JNI.getDirectBufferAddress(buffer);
+			if (address != getPeer()) {
+				throw new IllegalArgumentException("Direct buffer does not point to the same location as this Pointer instance, updating it makes no sense !");
+			}
+		} else {
+			#foreach ($prim in $primitivesNoBool)
+			if (buffer instanceof ${prim.BufferName}) {
+				((${prim.BufferName})buffer).duplicate().put(get${prim.BufferName}());
+				return;
+			}
+			#end
+			throw new UnsupportedOperationException("Unhandled buffer type : " + buffer.getClass().getName());
+		}
 	}
 
 #foreach ($prim in $primitives)
@@ -1307,6 +1329,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 
 	/**
      * Create a pointer to the memory location used by a direct NIO ${prim.BufferName}}.<br>
+     * If the NIO ${prim.BufferName}} is not direct, then it's backing Java array is copied to some native memory and will never be updated by changes to the native memory (calls {@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])}).<br>
      * The returned pointer (and its subsequent clones returned by {@link Pointer#clone()}, {@link Pointer#offset(long)} or {@link Pointer#next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
      * @throws UnsupportedOperationException if the buffer is not direct
      */
@@ -1314,8 +1337,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         if (buffer == null)
 			return null;
 		
-		if (!buffer.isDirect())
-			throw new UnsupportedOperationException("Cannot create pointers to indirect ${prim.BufferName} buffers");
+		if (!buffer.isDirect()) {
+			return pointerTo${prim.CapName}s(buffer.array());
+			//throw new UnsupportedOperationException("Cannot create pointers to indirect ${prim.BufferName} buffers");
+		}
 		
 		long address = JNI.getDirectBufferAddress(buffer);
 		long size = JNI.getDirectBufferCapacity(buffer);
@@ -1429,9 +1454,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 */
     @Deprecated
 	public Pointer<?>[] getPointers() {
-        long rem = getValidElements();
-    		if (rem < 0)
-    			throwBecauseUntyped("Cannot create array if remaining length is not known. Please use getPointers(int length) instead.");
+        long rem = getValidElements("Cannot create array if remaining length is not known. Please use getPointers(int length) instead.");
 		return getPointers(0L, (int)rem);
     }
     /**
@@ -1500,11 +1523,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * @return an array of values of the requested length. The array is an array of primitives if the pointer's target type is a primitive or a boxed primitive type
 	 */
 	public Object getArray(long byteOffset, int length) {
-		PointerIO<T> io = getIO();
-        if (io == null)
-            throwBecauseUntyped("Cannot create sublist");
-
-        return io.getArray(this, byteOffset, length);	
+        return getIO("Cannot create sublist").getArray(this, byteOffset, length);	
 	}
 	
 	/**
@@ -1531,11 +1550,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * @throws UnsupportedOperationException if this pointer's target type is not a Java primitive type with a corresponding NIO {@link Buffer} class.
 	 */
 	public <B extends Buffer> B getBuffer(long byteOffset, int length) {
-		PointerIO<T> io = getIO();
-        if (io == null)
-            throwBecauseUntyped("Cannot create Buffer");
-
-        return (B)io.getBuffer(this, byteOffset, length);	
+        return (B)getIO("Cannot create Buffer").getBuffer(this, byteOffset, length);	
 	}
 	
 	/**
@@ -1561,11 +1576,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * For pointers to primitive types (e.g. {@code Pointer<Integer> }), this method accepts primitive arrays (e.g. {@code int[] }) instead of arrays of boxed primitives (e.g. {@code Integer[] })
 	 */
 	public Pointer<T> setArray(long byteOffset, Object array) {
-		PointerIO<T> io = getIO();
-        if (io == null)
-            throwBecauseUntyped("Cannot create sublist");
-
-        io.setArray(this, byteOffset, array);
+        getIO("Cannot create sublist").setArray(this, byteOffset, array);
         return this;
 	}
 	
@@ -1654,9 +1665,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 #docGetRemainingArray($sizePrim $sizePrim)
     public long[] get${sizePrim}s() {
-    		long rem = getValidElements();
-    		if (rem < 0)
-    			throwBecauseUntyped("Cannot create array if remaining length is not known. Please use get${sizePrim}s(int length) instead.");
+    		long rem = getValidElements("Cannot create array if remaining length is not known. Please use get${sizePrim}s(int length) instead.");
 		return get${sizePrim}s(0, (int)rem);
 	}
 #docGetArray($sizePrim $sizePrim)
@@ -1791,7 +1800,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
             return;
         }
         #end
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Unhandled buffer type : " + values.getClass().getName());
     }
     
     /**
@@ -1804,7 +1813,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
             return;
         }
         #end
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Unhandled buffer type : " + values.getClass().getName());
     }
     
     /**
@@ -1817,7 +1826,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
             return;
         }
         #end
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Unhandled buffer type : " + values.getClass().getName());
     }
 
     /**
@@ -1836,12 +1845,43 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     		JNI.memmove(destination.getCheckedPeer(byteOffsetInDestination, byteCount), getCheckedPeer(byteOffset, byteCount), byteCount);
     }
     
+    private final long getValidBytes(String error) {
+    		long rem = getValidBytes();
+    		if (rem < 0)
+    		//if (validEnd == UNKNOWN_VALIDITY)
+    			throw new IndexOutOfBoundsException(error);
+
+        return rem;
+    }
+    private final long getValidElements(String error) {
+    		long rem = getValidElements();
+    		if (rem < 0)
+    			throw new IndexOutOfBoundsException(error);
+
+        return rem;
+    }
+    private final PointerIO<T> getIO(String error) {
+    		PointerIO<T> io = getIO();
+        if (io == null)
+            throwBecauseUntyped(error);
+        return io;
+    }
+    
     /**
     * Copy remaining bytes from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesTo(long, Pointer, long, long)}, {@link Pointer#getValidBytes})
      */
     public void copyTo(Pointer<?> destination) {
-    		copyBytesTo(0, destination, 0, getValidBytes());
+    		copyBytesTo(0, destination, 0, getValidBytes("Cannot copy unbounded pointer without element count information. Please use copyTo(destination, elementCount) instead."));
     }
+    
+    /**
+    * Copy remaining elements from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesTo(long, Pointer, long, long)}, {@link Pointer#getValidBytes})
+     */
+    public void copyTo(Pointer<?> destination, long elementCount) {
+    		PointerIO<T> io = getIO("Cannot copy untyped pointer without byte count information. Please use copyTo(offset, destination, destinationOffset, byteCount) instead");
+    		copyBytesTo(0, destination, 0, getValidElements() * io.getTargetSize());
+    }
+
 
 #foreach ($prim in $primitives)
 
@@ -1917,9 +1957,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
   
 #docGetRemainingArray(${prim.Name} ${prim.WrapperName})
     public ${prim.Name}[] get${prim.CapName}s() {
-    		long rem = getValidElements();
-    		if (rem < 0)
-    			throwBecauseUntyped("Cannot create array if remaining length is not known. Please use get${prim.CapName}s(int length) instead.");
+    		long rem = getValidElements("Cannot create array if remaining length is not known. Please use get${prim.CapName}s(int length) instead.");
 		return get${prim.CapName}s(0, (int)rem);
     }
 
@@ -1995,9 +2033,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Read a buffer of ${prim.Name} values of the remaining length from the pointed memory location 
 	 */
     public ${prim.BufferName} get${prim.BufferName}() {
-    		long rem = getValidElements();
-    		if (rem < 0)
-    			throwBecauseUntyped("Cannot create buffer if remaining length is not known. Please use get${prim.BufferName}(long length) instead.");
+    		long rem = getValidElements("Cannot create buffer if remaining length is not known. Please use get${prim.BufferName}(long length) instead.");
 		return get${prim.BufferName}(0, rem);
 	}
 	
@@ -2663,10 +2699,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Implementation of {@link List#subList(int, int)}
 	 */
 	public List<T> subList(int fromIndex, int toIndex) {
-		PointerIO<T> io = getIO();
-        if (io == null)
-            throwBecauseUntyped("Cannot create sublist");
-
+		getIO("Cannot create sublist");
         return next(fromIndex).validElements(toIndex - fromIndex);
 	}
 	
@@ -2674,19 +2707,12 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Implementation of {@link List#toArray()}
 	 */
 	public T[] toArray() {
-		PointerIO<T> io = getIO();
-        if (io == null)
-            throwBecauseUntyped("Cannot create array");
-        if (validEnd == UNKNOWN_VALIDITY)
-        	throw new IndexOutOfBoundsException("Length of pointed memory is unknown, cannot create array out of this pointer");
-
-        return toArray((int)getValidElements());
+		getIO("Cannot create array");
+        return toArray((int)getValidElements("Length of pointed memory is unknown, cannot create array out of this pointer"));
 	}
 	
 	T[] toArray(int length) {
-		if (io == null)
-            throwBecauseUntyped("Cannot create array");
-        Class<?> c = Utils.getClass(io.getTargetType());
+        Class<?> c = Utils.getClass(getIO("Cannot create array").getTargetType());
 		if (c == null)
 			throw new RuntimeException("Unable to get the target type's class (target type = " + io.getTargetType() + ")");
         return (T[])toArray((Object[])Array.newInstance(c, length));
