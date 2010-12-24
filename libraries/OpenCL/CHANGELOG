@@ -2,10 +2,13 @@ Current development version (1.0-SNAPSHOT)
 
 - Experimental BridJ port with same functionality as JNA-powered version, but smaller and faster (JAR weighs 750 kB instead of 1.8 MB, overhead per-function call about 5x smaller)
 - Added LibCL : growing collection of OpenCL functions that can be included from any JavaCL kernel
+- Kernels can now include files that are in the classpath (+ added CLProgram.addInclude that accepts directories and base URLs)
+- Program binaries are now automatically and transparently cached/reused, unless -Djavacl.cacheBinaries=false is set, JavaCL.setCacheBinaries(false) is called or CLProgram.setCached(false) is called.
+- JavaCL.createBestContext now takes an ordered list of CLPlatform.DeviceFeature enums that help prioritize the features considered as "best" (list can be empty or contain any of CPU, GPU, DoubleSupport, MaxComputeUnits, NativeEndianness, ImageSupport, MostImageFormats...). These features are preferences, not requirements : with createBestContext(GPU, MaxComputeUnits) you might end up getting a CPU-based context if there's no GPU available, but you'll have the most powerful GPU (in terms of compute units) if there are two of them.
+- CLKernel.enqueueNDRange has a new overload without localWorkSizes argument (it's then adjusted to a good value by the OpenCL implementation).
+- ScalaCLv2 was rewritten to fit nicely into Scala's collections framework.
 - Added CLContext.createProgram(Map<CLDevice, byte[]>) to create from saved binaries (contribution from Kazo Csaba, issue #30)
 - Added CLProgram.addBuildOption(String)
-- Kernels can now include files that are in the classpath (+ added CLProgram.addInclude that accepts directories and base URLs)
-- 
 
 Version 1.0-beta-5 (r1067, 20100717)
 
