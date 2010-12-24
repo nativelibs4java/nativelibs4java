@@ -207,7 +207,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
         boolean first = true;
-        byte[] b = new byte[1024];
+        byte[] b = new byte[65536];
         while ((ze = zin.getNextEntry()) != null) {
             String signature = ze.getName();
             boolean isSignature = signature.equals(BinariesSignatureZipEntryName);
@@ -302,6 +302,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         if (entity != null)
             throw new IllegalThreadStateException("Program was already allocated : cannot add sources anymore.");
         sources.add(src);
+        resolvedInclusions = null;
 	}
     
     static File tempIncludes = new File(new File(System.getProperty("java.io.tmpdir")), "JavaCL");
@@ -572,7 +573,6 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         			if (cacheFile.exists()) {
 					Map<CLDevice, byte[]> bins = readBinaries(Arrays.asList(getDevices()), contentSignature, new FileInputStream(cacheFile));
 					setBinaries(bins);
-					//createKernels();
 					System.out.println("[JavaCL] Read binaries cache from '" + cacheFile + "'");
 					readBinaries = true;
 				}
@@ -586,11 +586,12 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             allocate();
 
         Runnable deleteTempFiles = null;
-        try {
-        		deleteTempFiles = copyIncludesToTemporaryDirectory();
-        } catch (IOException ex) {
-        		throw new CLBuildException(this, ex.toString(), Collections.EMPTY_LIST);
-        }
+        if (!readBinaries)
+			try {
+				deleteTempFiles = copyIncludesToTemporaryDirectory();
+			} catch (IOException ex) {
+				throw new CLBuildException(this, ex.toString(), Collections.EMPTY_LIST);
+			}
         
         int nDevices = devices.length;
         cl_device_id[] deviceIds = null;
@@ -599,7 +600,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             for (int i = 0; i < nDevices; i++)
                 deviceIds[i] = devices[i].getEntity();
         }
-        int err = CL.clBuildProgram(getEntity(), nDevices, deviceIds, getOptionsString(), null, null);
+        int err = CL.clBuildProgram(getEntity(), nDevices, deviceIds, readBinaries ? null : getOptionsString(), null, null);
         //int err = CL.clBuildProgram(getEntity(), 0, null, getOptionsString(), null, null);
         if (err != CL_SUCCESS) {//BUILD_PROGRAM_FAILURE) {
             NativeSizeByReference len = new NativeSizeByReference();
