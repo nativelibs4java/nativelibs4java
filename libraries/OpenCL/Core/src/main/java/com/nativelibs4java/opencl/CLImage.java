@@ -88,8 +88,10 @@ public abstract class CLImage extends CLMem {
 		return infos.getIntOrLong(getEntity(), CL_IMAGE_ELEMENT_SIZE);
 	}
 
-
 	protected CLEvent read(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
+		return read(queue, origin, region, rowPitch, slicePitch, pointerToBuffer(out), blocking, eventsToWaitFor);
+	}
+	protected CLEvent read(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Pointer<?> out, boolean blocking, CLEvent... eventsToWaitFor) {
 		/*if (!out.isDirect()) {
 
 		}*/
@@ -101,7 +103,7 @@ public abstract class CLImage extends CLMem {
 			region,
 			rowPitch,
 			slicePitch,
-			pointerToBuffer(out),
+			out,
 			evts == null ? 0 : (int)evts.getValidElements(), evts,
 			eventOut
 		));
@@ -109,10 +111,9 @@ public abstract class CLImage extends CLMem {
 	}
 
 	protected CLEvent write(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
-		boolean indirect = !in.isDirect();
-		if (indirect)
-			in = directCopy(in, getContext().getByteOrder());
-
+		return write(queue, origin, region, rowPitch, slicePitch, pointerToBuffer(in), blocking, eventsToWaitFor);
+	}
+	protected CLEvent write(CLQueue queue, Pointer<SizeT> origin, Pointer<SizeT> region, long rowPitch, long slicePitch, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
 		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
 		Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueWriteImage(queue.getEntity(), getEntity(),
@@ -121,18 +122,18 @@ public abstract class CLImage extends CLMem {
 			region,
 			rowPitch,
 			slicePitch,
-			pointerToBuffer(in),
+			in,
 			evts == null ? 0 : (int)evts.getValidElements(), evts,
 			eventOut
 		));
 		CLEvent evt = CLEvent.createEventFromPointer(queue, eventOut);
 
-		if (indirect && !blocking) {
-			final Buffer toHold = in;
+		if (!blocking) {
+			final Pointer<?> toHold = in;
 			evt.invokeUponCompletion(new Runnable() {
 				public void run() {
 					// Make sure the GC held a reference to directData until the write was completed !
-					toHold.rewind();
+					toHold.order();
 				}
 			});
 		}

@@ -31,6 +31,7 @@
 package com.nativelibs4java.opencl;
 
 import static com.nativelibs4java.opencl.CLException.error;
+import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,7 +50,24 @@ import static org.bridj.Pointer.*;
 public class JavaCL {
 
     static final OpenCLLibrary CL = new OpenCLLibrary();
-
+	static boolean cacheBinaries = !"false".equals(System.getProperty("javacl.cacheBinaries") + "");
+	/**
+	 * Change whether program binaries are automatically cached or not.<br>
+	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property.<br>
+	 * Each program can be set to be cached or not using @see CLProgram#setCached(boolean).
+	 */ 
+	public static void setCacheBinaries(boolean cacheBinaries) {
+		JavaCL.cacheBinaries = cacheBinaries;
+	}
+	/**
+	 * Says whether program binaries are automatically cached or not.<br>
+	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property or the @see JavaCL#setCacheBinaries(boolean) method.<br>
+	 * Each program can be set to be cached or not using @see CLProgram#setCached(boolean).
+	 */ 
+	public static boolean getCacheBinaries() {
+		return cacheBinaries;
+	}
+	
     public static CLPlatform[] listGPUPoweredPlatforms() {
         CLPlatform[] platforms = listPlatforms();
         List<CLPlatform> out = new ArrayList<CLPlatform>(platforms.length);
@@ -102,19 +120,19 @@ public class JavaCL {
 	}
 
     public static CLDevice getBestDevice() {
-        return getBestDevice(CLPlatform.DeviceEvaluationStrategy.BiggestMaxComputeUnits);
+        return getBestDevice(CLPlatform.DeviceFeature.MaxComputeUnits);
     }
-	public static CLDevice getBestDevice(CLPlatform.DeviceEvaluationStrategy strategy) {
+	public static CLDevice getBestDevice(CLPlatform.DeviceFeature... strategy) {
         List<CLDevice> devices = new ArrayList<CLDevice>();
 		for (CLPlatform platform : listPlatforms())
 			devices.addAll(Arrays.asList(platform.listAllDevices(true)));
-        return CLPlatform.getBestDevice(strategy, devices);
+        return CLPlatform.getBestDevice(Arrays.asList(strategy), devices);
     }
 	public static CLContext createBestContext() {
-        return createBestContext(CLPlatform.DeviceEvaluationStrategy.BiggestMaxComputeUnits);
+        return createBestContext(DeviceFeature.MaxComputeUnits);
 	}
 
-    public static CLContext createBestContext(CLPlatform.DeviceEvaluationStrategy strategy) {
+    public static CLContext createBestContext(CLPlatform.DeviceFeature... strategy) {
 		CLDevice device = getBestDevice(strategy);
 		return device.getPlatform().createContext(null, device);
 	}

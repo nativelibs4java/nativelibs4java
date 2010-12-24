@@ -163,7 +163,7 @@ public class CLBuffer<B> extends CLMem {
 		);
 		error(pErr.get());
         return new Pair<Pointer<B>, CLEvent>(
-			p.withIO(io).order(queue.getDevice().getKernelsDefaultByteOrder()),
+			p.as(io).validElements(length).order(queue.getDevice().getKernelsDefaultByteOrder()),
 			CLEvent.createEventFromPointer(queue, eventOut)
 		);
     }
@@ -237,11 +237,9 @@ public class CLBuffer<B> extends CLMem {
     }
 
     public CLEvent writeBytes(CLQueue queue, long offset, long length, ByteBuffer in, boolean blocking, CLEvent... eventsToWaitFor) {
-        if (!in.isDirect()) {
-            blocking = true;
-            in = directCopy(in, queue.getDevice().getKernelsDefaultByteOrder());
-        }
-
+    		return writeBytes(queue, offset, length, pointerToBuffer(in), blocking, eventsToWaitFor);
+    }
+    public CLEvent writeBytes(CLQueue queue, long offset, long length, Pointer<?> in, boolean blocking, CLEvent... eventsToWaitFor) {
         Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueWriteBuffer(
@@ -250,7 +248,7 @@ public class CLBuffer<B> extends CLMem {
             blocking ? CL_TRUE : 0,
             offset,
             length,
-            pointerToBuffer(in),
+            in,
             evts == null ? 0 : (int)evts.getValidElements(), evts,
             eventOut
         ));

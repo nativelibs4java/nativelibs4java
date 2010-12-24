@@ -66,7 +66,7 @@ public class NativeLibrary {
 	}*/
 	
 	long getHandle() {
-		if (handle == 0)
+		if (path != null && handle == 0)
 			throw new RuntimeException("Library was released and cannot be used anymore");
 		return handle;
 	}
@@ -172,11 +172,22 @@ public class NativeLibrary {
 	}
 	public Symbol getSymbol(String name) {
 		try {
+			Symbol symbol;
+			long addr;
+			
+			if (nameToSym == null) {// symbols not scanned yet, try without them !
+				addr = JNI.findSymbolInLibrary(getHandle(), name);
+				if (addr != 0) {
+					symbol = new Symbol(name, this);
+					symbol.address = addr;
+					return symbol;		
+				}
+			}
 			scanSymbols();
-			Symbol symbol = nameToSym.get(name);
+			symbol = nameToSym.get(name);
 			if (addrToName == null) {
 				if (symbol == null) {
-					long addr = JNI.findSymbolInLibrary(getHandle(), name);
+					addr = JNI.findSymbolInLibrary(getHandle(), name);
 					if (addr != 0) {
 						symbol = new Symbol(name, this);
 						symbol.address = addr;
@@ -226,7 +237,7 @@ public class NativeLibrary {
 		for (String name : symbs) {
 			if (name == null)
 				continue;
-			
+				
 			long addr = JNI.findSymbolInLibrary(getHandle(), name);
 			if (addr == 0 && name.startsWith("_")) {
 				String n2 = name.substring(1);

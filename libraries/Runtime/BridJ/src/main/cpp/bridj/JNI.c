@@ -6,6 +6,7 @@
 
 #include "bridj.hpp"
 #include <string.h>
+#include <math.h>
 #include "Exceptions.h"
 
 #pragma warning(disable: 4152)
@@ -207,10 +208,19 @@ jlong JNICALL Java_org_bridj_JNI_getObjectPointer(JNIEnv *env, jclass clazz, job
 	return PTR_TO_JLONG(object);
 }
  
+#if defined(DC_UNIX)
+char* dlerror();
+#endif
+
 jlong JNICALL Java_org_bridj_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring pathStr)
 {
 	const char* path = (*env)->GetStringUTFChars(env, pathStr, NULL);
 	jlong ret = PTR_TO_JLONG(dlLoadLibrary(path));
+#if defined(DC_UNIX)
+	if (!ret) {
+		printf("# BridJ: dlopen error = %s\n", dlerror());
+	}
+#endif
 	(*env)->ReleaseStringUTFChars(env, pathStr, path);
 	return ret;
 }

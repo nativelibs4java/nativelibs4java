@@ -980,7 +980,10 @@ public class DeclarationsConverter {
         if (result.config.convertBodies && function.getBody() != null)
         {
             try {
-                convertedBody = (Block)result.bridjer.convertToJava(function.getBody());
+                Pair<Element, List<Declaration>> bodyAndExtraDeclarations = result.bridjer.convertToJava(function.getBody());
+                convertedBody = (Block)bodyAndExtraDeclarations.getFirst();
+                for (Declaration d : bodyAndExtraDeclarations.getSecond())
+                    out.addDeclaration(d);
             } catch (Exception ex) {
                 ex.printStackTrace(System.out);
                 nativeMethod.addToCommentBefore("TRANSLATION OF BODY FAILED: " + ex);
@@ -1392,7 +1395,7 @@ public class DeclarationsConverter {
 		}
 		Struct structJavaClass = publicStaticClass(structName, baseClass, Struct.Type.JavaClass, struct);
 		structJavaClass.addToCommentBefore(preComments);
-		System.out.println("parentFieldsCount(structName = " + structName + ") = " + parentFieldsCount);
+		//System.out.println("parentFieldsCount(structName = " + structName + ") = " + parentFieldsCount);
 		final int iChild[] = new int[] { parentFieldsCount };
 
 		//cl.addDeclaration(new EmptyDeclaration())
@@ -1585,7 +1588,7 @@ public class DeclarationsConverter {
 			TypeConversion.TypeConversionMode.FieldType,
 			callerLibraryName
 		);
-		mutatedType = result.typeConverter.resolveTypeDef(mutatedType, callerLibraryName, true);
+		mutatedType = result.typeConverter.resolveTypeDef(mutatedType, callerLibraryName, true, false);
 		
 		VariablesDeclaration convDecl = new VariablesDeclaration();
 		convDecl.addModifiers(Modifier.Public);

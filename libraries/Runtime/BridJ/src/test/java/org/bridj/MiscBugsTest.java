@@ -9,6 +9,10 @@ import static org.junit.Assert.*;
 
 public class MiscBugsTest {
   
+	/**
+	 * Issue 37 : BridJ: org.bridj.Pointer#iterator for native-allocated pointers is empty
+	 * http://code.google.com/p/nativelibs4java/issues/detail?id=37
+	 */
 	@Test
 	public void emptyIteratorFromUnmanagedPointer() {
 		Pointer<Byte> ptr = allocateBytes(10);

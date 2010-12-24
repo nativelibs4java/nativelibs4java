@@ -246,10 +246,12 @@ public class MethodCallInfo {
         throw new NoSuchElementException("No " + ValueType.class.getSimpleName() + " for class " + c.getName());
     }
     void usesFloats() {
+    		/*
         if (direct && JNI.isMacOSX()) {
             direct = false;
             assert BridJ.log(Level.WARNING, "[unstable direct] FIXME Disable direct call due to float/double usage in " + method);
         }
+        */
     }
 
     public void appendToSignature(int iParam, ValueType type, Class<?> parameterType, Type genericParameterType, StringBuilder javaSig, StringBuilder dcSig, StringBuilder asmSig) {

@@ -34,7 +34,7 @@ public class BinaryKernelTest extends AbstractCommon {
 		program.release();
 		
 		CLProgram binaryProgram = context.createProgram(binaries);
-		CLKernel kernel=binaryProgram.createKernel("copy");
+		CLKernel kernel = binaryProgram.createKernel("copy");
 
 		CLBuffer<Integer> a=context.createBuffer(CLMem.Usage.Input, Integer.class, 4);
 		CLBuffer<Integer> b=context.createBuffer(CLMem.Usage.Output, Integer.class, 4);

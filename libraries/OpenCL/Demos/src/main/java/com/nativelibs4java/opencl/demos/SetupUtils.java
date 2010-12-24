@@ -53,7 +53,7 @@ public class SetupUtils {
         if (option >= 0 && option != 3) {
             String urlString;
             if (option == 0) {
-                String nvidiaVersion = "195.62";
+                /*String nvidiaVersion = "260.99";
                 boolean appendPlatform = true;
                 String sys;
 
@@ -67,8 +67,10 @@ public class SetupUtils {
                     urlString = "http://www.nvidia.fr/object/" + sys + "_" + nvidiaVersion + (appendPlatform ? "_" + (JNI.is64Bits() ? "64" : "32") + "bit" : "") + "_whql.html";
                 } else
                     urlString = "http://developer.nvidia.com/object/opencl-download.html";
+                */
+                urlString = "http://www.nvidia.com/Download/Find.aspx";
             } else
-                urlString = "http://developer.amd.com/GPU/ATISTREAMSDKBETAPROGRAM/Pages/default.aspx";
+                urlString = "http://developer.amd.com/GPU/ATISTREAMSDK/Pages/default.aspx";
 
             try {
                 BridJ.open(new URL(urlString));

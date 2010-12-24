@@ -299,6 +299,7 @@ public class ComparisonTest {
 			for (int i = 0; i < n; i++)
 				new StructTest.MyNIOStruct();
 			
+			System.gc();
 			timeNIO = System.nanoTime() - start;
 		}
         doGC();
@@ -308,6 +309,7 @@ public class ComparisonTest {
 			for (int i = 0; i < n; i++)
 				new StructTest.MyJNAStruct();
 			
+			System.gc();
 			timeJNA = System.nanoTime() - start;
 		}
         doGC();
@@ -317,6 +319,7 @@ public class ComparisonTest {
 			for (int i = 0; i < n; i++)
 				new StructTest.MyOptimalStruct();
 			
+			System.gc();
 			timeOptimal = System.nanoTime() - start;
 		}
         doGC();
@@ -326,6 +329,7 @@ public class ComparisonTest {
 			for (int i = 0; i < n; i++)
 				new StructTest.MyStruct();
 			
+			System.gc();
 			timeBridJ = System.nanoTime() - start;
 		}
         doGC();
@@ -335,6 +339,7 @@ public class ComparisonTest {
 			for (int i = 0; i < n; i++)
 				new StructTest.MyJavolutionStruct().getByteBuffer();
 			
+			System.gc();
 			timeJavolution = System.nanoTime() - start;
 		}
 		double bridJFaster = printResults("Creation of struct", "Creation of BridJ's structs", "create", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
@@ -378,6 +383,7 @@ public class ComparisonTest {
 			for (int i = 0; i < n; i++)
 				new StructTest.MyNIOStruct(pNIO);
 			
+			System.gc();
 			timeNIO = System.nanoTime() - start;
 		}
 		doGC();
@@ -386,6 +392,7 @@ public class ComparisonTest {
 			for (int i = 0; i < n; i++)
 				new StructTest.MyJNAStruct(pJNA);
 			
+			System.gc();
 			timeJNA = System.nanoTime() - start;
 		}
         doGC();
@@ -394,6 +401,7 @@ public class ComparisonTest {
 			for (int i = 0; i < n; i++)
 				new StructTest.MyOptimalStruct(pNIO);
 			
+			System.gc();
 			timeOptimal = System.nanoTime() - start;
 		}
         doGC();
@@ -402,6 +410,7 @@ public class ComparisonTest {
 			for (int i = 0; i < n; i++)
 				new StructTest.MyJavolutionStruct().setByteBuffer(pNIO, 0);
 			
+			System.gc();
 			timeJavolution = System.nanoTime() - start;
 		}
 		//*/
@@ -411,6 +420,7 @@ public class ComparisonTest {
 			for (int i = 0; i < n; i++)
 				new StructTest.MyStruct(pBridJ);
 			
+			System.gc();
 			timeBridJ = System.nanoTime() - start;
 		}
         double bridJFaster = printResults("Cast to struct", "Cast to BridJ's structs", "cast", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
@@ -476,6 +486,7 @@ public class ComparisonTest {
 				}
 			}
 			
+			System.gc();
 			timeNIO = System.nanoTime() - start;
 		}
 		doGC();
@@ -485,6 +496,7 @@ public class ComparisonTest {
 				com.sun.jna.Structure[] a = new StructTest.MyJNAStruct(pJNA).toArray(new StructTest.MyJNAStruct[arraySize]);
 			}
 			
+			System.gc();
 			timeJNA = System.nanoTime() - start;
 		}
         /*doGC();
@@ -502,6 +514,7 @@ public class ComparisonTest {
 				StructTest.MyStruct[] a = pBridJ.toArray(new StructTest.MyStruct[arraySize]);
 			}
 			
+			System.gc();
 			timeBridJ = System.nanoTime() - start;
 		}
         doGC();
@@ -514,6 +527,7 @@ public class ComparisonTest {
 				}
 			}
 			
+			System.gc();
 			timeJavolution = System.nanoTime() - start;
 		}
         double bridJFaster = printResults("Cast to struct array", "Cast to BridJ's struct array", "cast", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);
@@ -575,6 +589,7 @@ public class ComparisonTest {
 				nio.b(nio.a() + nio.b());
 			}
 			
+			System.gc();
 			timeNIO = System.nanoTime() - start;
 		}
         doGC();
@@ -585,6 +600,7 @@ public class ComparisonTest {
 				optim.b(optim.a() + optim.b());
 			}
 			
+			System.gc();
 			timeOptimal = System.nanoTime() - start;
 		}
         doGC();
@@ -595,6 +611,7 @@ public class ComparisonTest {
 				javo.b.set(javo.a.get() + javo.b.get());
 			}
 			
+			System.gc();
 			timeJavolution = System.nanoTime() - start;
 		}
 		doGC();
@@ -608,6 +625,7 @@ public class ComparisonTest {
 				jna.write();
 			}
 			
+			System.gc();
 			timeJNA = System.nanoTime() - start;
 		} // */
 		doGC();
@@ -618,6 +636,7 @@ public class ComparisonTest {
 				bridJ.b(bridJ.a() + bridJ.b());
 			}
 			
+			System.gc();
 			timeBridJ = System.nanoTime() - start;
 		}
         double bridJFaster = printResults("Fields read/write", "Read/write of BridJ's struct fields", "read/write", n, timeJNA, timeOptimal, timeBridJ, timeNIO, timeJavolution);

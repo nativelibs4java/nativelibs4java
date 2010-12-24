@@ -26,7 +26,7 @@ public class CLTestUtils {
         void call(X x, Y y, Z z);
     }
     /// Calculate the average relative error of operations between two result buffers
-    public static double avgError(FloatBuffer a, FloatBuffer b, int dataSize) {
+    public static double avgError(FloatBuffer a, Pointer<Float> b, int dataSize) {
         double tot = 0;
         for (int i = 0; i < dataSize; i++) {
             float va = a.get(i), vb = b.get(i);
@@ -43,7 +43,7 @@ public class CLTestUtils {
         }
         return tot / dataSize;
     }
-    public static double avgError(DoubleBuffer a, DoubleBuffer b, int dataSize) {
+    public static double avgError(DoubleBuffer a, Pointer<Double> b, int dataSize) {
         double tot = 0;
         for (int i = 0; i < dataSize; i++) {
             double va = a.get(i), vb = b.get(i);
@@ -61,6 +61,12 @@ public class CLTestUtils {
         return tot / dataSize;
     }
 
+    public static void fillBuffersWithSomeDataf(FloatBuffer a, FloatBuffer b) {
+        fillBuffersWithSomeDataf((Pointer<Float>)pointerToBuffer(a), (Pointer<Float>)pointerToBuffer(b));
+    }
+    public static void fillBuffersWithSomeDatad(DoubleBuffer a, DoubleBuffer b) {
+        fillBuffersWithSomeDatad((Pointer<Double>)pointerToBuffer(a), (Pointer<Double>)pointerToBuffer(b));
+    }
     public static void fillBuffersWithSomeDataf(Pointer<Float> a, Pointer<Float> b) {
         int s = (int)a.getValidElements();
         for (int i = 0; i < s; i++) {
@@ -91,7 +97,7 @@ public class CLTestUtils {
                 throw new IllegalArgumentException("Unknown target : " + target);
         }
     }
-    public static class ExecResult<B extends Buffer> {
+    public static class ExecResult<B> {
         public B buffer;
         public double unitTimeNano;
         public ExecResult(B buffer, double unitTimeNano) {

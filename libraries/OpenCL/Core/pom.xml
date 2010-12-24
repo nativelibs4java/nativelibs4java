@@ -32,7 +32,6 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <scope>compile</scope>
 	</dependency>
 	
-	
 	<!-- http://jogamp.762907.n3.nabble.com/What-about-Maven-td844816.html
 	<dependency>
 			<groupId>jogamp</groupId>

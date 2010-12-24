@@ -153,43 +153,118 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         return properties;
     }
 
-    public enum DeviceEvaluationStrategy {
-
-        BiggestMaxComputeUnits,
-        BiggestMaxComputeUnitsWithNativeEndianness,
-        BestDoubleSupportThenBiggestMaxComputeUnits
-    }
-
-	static CLDevice getBestDevice(DeviceEvaluationStrategy eval, Iterable<CLDevice> devices) {
-
-        CLDevice bestDevice = null;
-        for (CLDevice device : devices) {
-            if (bestDevice == null) {
-                bestDevice = device;
-            } else {
-                switch (eval) {
-                    case BiggestMaxComputeUnitsWithNativeEndianness:
-                        if (bestDevice.getKernelsDefaultByteOrder() != ByteOrder.nativeOrder() && device.getKernelsDefaultByteOrder() == ByteOrder.nativeOrder()) {
-                            bestDevice = device;
-                            break;
-                        }
-                    case BiggestMaxComputeUnits:
-                        if (bestDevice.getMaxComputeUnits() < device.getMaxComputeUnits()) {
-                            bestDevice = device;
-                        }
-                        break;
-                    case BestDoubleSupportThenBiggestMaxComputeUnits:
-                        if (device.isDoubleSupported() && !bestDevice.isDoubleSupported())
-                            bestDevice = device;
-                        break;
+    /**
+     * Enums used to indicate how to choose the best CLDevice.
+     */
+    public enum DeviceFeature {
+        /**
+         * Prefer CPU devices (see @see CLDevice#getType())
+         */
+        CPU {
+            Comparable extractValue(CLDevice device) {
+                return device.getType().contains(CLDevice.Type.CPU) ? 1 : 0;
+            }
+        },
+        /**
+         * Prefer GPU devices (see @see CLDevice#getType())
+         */
+        GPU {
+            Comparable extractValue(CLDevice device) {
+                return device.getType().contains(CLDevice.Type.GPU) ? 1 : 0;
+            }
+        },
+        /**
+         * Prefer Accelerator devices (see @see CLDevice#getType())
+         */
+        Accelerator {
+            Comparable extractValue(CLDevice device) {
+                return device.getType().contains(CLDevice.Type.Accelerator) ? 1 : 0;
+            }
+        },
+        /**
+         * Prefer devices with the most compute units (see @see CLDevice#getMaxComputeUnits())
+         */
+        MaxComputeUnits {
+            Comparable extractValue(CLDevice device) {
+                return device.getMaxComputeUnits();
+            }
+        },
+        /**
+         * Prefer devices with the same byte ordering as the hosting platform (@see CLDevice#getKernelsDefaultByteOrder())
+         */
+        NativeEndianness {
+            Comparable extractValue(CLDevice device) {
+                return device.getKernelsDefaultByteOrder() == ByteOrder.nativeOrder() ? 1 : 0;
+            }
+        },
+        /**
+         * Prefer devices that support double-precision float computations (@see CLDevice#isDoubleSupported())
+         */
+        DoubleSupport {
+            Comparable extractValue(CLDevice device) {
+                return device.isDoubleSupported() ? 1 : 0;
+            }
+        },
+        /**
+         * Prefer devices that support images and with the most supported image formats (@see CLDevice#hasImageSupport())
+         */
+        ImageSupport {
+            Comparable extractValue(CLDevice device) {
+                return device.hasImageSupport() ? 1 : 0;
+            }
+        },
+        /**
+         * Prefer devices with the greatest variety of supported image formats (@see CLContext#getSupportedImageFormats())
+         */
+        MostImageFormats {
+            Comparable extractValue(CLDevice device) {
+                if (!device.hasImageSupport())
+                    return 0;
+                // TODO: fix that ugly hack ?
+                CLContext context = JavaCL.createContext(null, device);
+                try {
+                    return (Integer)context.getSupportedImageFormats(CLMem.Flags.ReadWrite, CLMem.ObjectType.Image2D).length;
+                } finally {
+                    context.release();
                 }
             }
+        };
+
+        Comparable extractValue(CLDevice device) {
+            throw new RuntimeException();
         }
-        return bestDevice;
+    }
+
+    public static class DeviceComparator implements Comparator<CLDevice> {
+
+        private final List<DeviceFeature> evals;
+        public DeviceComparator(List<DeviceFeature> evals) {
+            this.evals = evals;
+        }
+
+        @Override
+        public int compare(CLDevice a, CLDevice b) {
+            for (DeviceFeature eval : evals) {
+                if (eval == null)
+                    continue;
+                
+                Comparable va = eval.extractValue(a), vb = eval.extractValue(b);
+                int c = va.compareTo(vb);
+                if (c != 0)
+                    return c;
+            }
+            return 0;
+        }
+        
+    }
+	public static CLDevice getBestDevice(List<DeviceFeature> evals, Collection<CLDevice> devices) {
+        List<CLDevice> list = new ArrayList<CLDevice>(devices);
+        Collections.sort(list, new DeviceComparator(evals));
+        return !list.isEmpty() ? list.get(list.size() - 1) : null;
     }
 
     public CLDevice getBestDevice() {
-        return getBestDevice(DeviceEvaluationStrategy.BiggestMaxComputeUnits, Arrays.asList(listGPUDevices(true)));
+        return getBestDevice(Arrays.asList(DeviceFeature.MaxComputeUnits), Arrays.asList(listGPUDevices(true)));
     }
 
     /** Bit values for CL_CONTEXT_PROPERTIES */

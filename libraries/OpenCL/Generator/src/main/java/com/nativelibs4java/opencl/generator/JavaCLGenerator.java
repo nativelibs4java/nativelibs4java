@@ -131,6 +131,8 @@ public class JavaCLGenerator extends JNAerator {
                         
                         if (super.isObjCppPrimitive(s))
                             return true;
+                        
+                        // handle case of "(int|long|short|byte|double|float)\\d"
                         if (len > 1 && Character.isDigit(s.charAt(len - 1))) {
                             String ss = s.substring(0, len - 1);
                             if (ss.charAt(0) == 'u')
@@ -168,7 +170,7 @@ public class JavaCLGenerator extends JNAerator {
                                 return;
 
                             try {
-                                tr = result.typeConverter.resolveTypeDef(tr, libraryClassName, true);
+                                tr = result.typeConverter.resolveTypeDef(tr, libraryClassName, true, false);
                                 List<Modifier> mods = tr.getModifiers();
 
                                 TypeRef convTr;

@@ -41,22 +41,38 @@ import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_SOURCE
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_SUCCESS;
 import static org.bridj.util.DefaultParameterizedType.paramType;
 import java.io.IOException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.net.MalformedURLException;
+import java.net.URLConnection;
+import java.net.URL;
 
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program;
+import com.nativelibs4java.util.IOUtils;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.Process;
+import java.net.URL;
+import java.util.Collection;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -103,6 +119,9 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		super(null, true);
 		this.context = context;
 
+		setBinaries(binaries);
+	}
+	protected void setBinaries(Map<CLDevice, byte[]> binaries) {
         int nDevices = binaries.size();
         devices = new CLDevice[nDevices];
         Pointer<SizeT> lengths = allocateSizeTs(nDevices);
@@ -129,7 +148,6 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		do {
 			entity = CL.clCreateProgramWithBinary(context.getEntity(), nDevices, deviceIds, lengths, binariesArray, statuses, errBuff);
 		} while (failedForLackOfMemory(errBuff.get(), previousAttempts++));
-        
 	}
 
     /**
@@ -139,14 +157,25 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
      * @throws IOException
      */
     public void store(OutputStream out) throws CLBuildException, IOException {
-        writeBinaries(getBinaries(), out);
+        writeBinaries(getBinaries(), null, out);
     }
-    public static void writeBinaries(Map<CLDevice, byte[]> binaries, OutputStream out) throws IOException {
+    
+    private static final String BinariesSignatureZipEntryName = "SIGNATURE";
+    public static void writeBinaries(Map<CLDevice, byte[]> binaries, String contentSignatureString, OutputStream out) throws IOException {
         Map<String, byte[]> binaryBySignature = new HashMap<String, byte[]>();
         for (Map.Entry<CLDevice, byte[]> e : binaries.entrySet())
             binaryBySignature.put(e.getKey().createSignature(), e.getValue()); // Maybe multiple devices will have the same signature : too bad, we don't care and just write one binary per signature.
 
         ZipOutputStream zout = new ZipOutputStream(out);
+        if (contentSignatureString != null) {
+			ZipEntry ze = new ZipEntry(BinariesSignatureZipEntryName);
+			byte[] contentSignatureBytes = contentSignatureString.getBytes("utf-8");
+			ze.setSize(contentSignatureBytes.length);
+			zout.putNextEntry(ze);
+			zout.write(contentSignatureBytes);
+			zout.closeEntry();
+		}
+        
         for (Map.Entry<String, byte[]> e : binaryBySignature.entrySet()) {
             String name = e.getKey();
             byte[] data = e.getValue();
@@ -158,7 +187,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         }
         zout.close();
     }
-    public static Map<CLDevice, byte[]> readBinaries(List<CLDevice> allowedDevices, InputStream in) throws IOException {
+    public static Map<CLDevice, byte[]> readBinaries(List<CLDevice> allowedDevices, String expectedContentSignatureString, InputStream in) throws IOException {
         Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>();
         Map<String, List<CLDevice>> devicesBySignature = CLDevice.getDevicesBySignature(allowedDevices);
 
@@ -166,18 +195,33 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         ZipEntry ze;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
+        boolean first = true;
         byte[] b = new byte[1024];
         while ((ze = zin.getNextEntry()) != null) {
             String signature = ze.getName();
+            boolean isSignature = signature.equals(BinariesSignatureZipEntryName);
+            if (first && !isSignature && expectedContentSignatureString != null ||
+            		!first && isSignature)
+            		throw new IOException("Expected signature to be the first zip entry, got '" + signature + "' instead !");
+            	
+            	first = false;
             bout.reset();
             int len;
             while ((len = zin.read(b)) > 0)
                 bout.write(b, 0, len);
 
             byte[] data = bout.toByteArray();
-            List<CLDevice> devices = devicesBySignature.get(signature);
-            for (CLDevice device : devices)
-                ret.put(device, data);
+            if (isSignature) {
+            		if (expectedContentSignatureString != null) {
+					String contentSignatureString = new String(data, "utf-8");
+					if (!expectedContentSignatureString.equals(contentSignatureString))
+						throw new IOException("Content signature does not match expected one :\nExpected '" + expectedContentSignatureString + "',\nGot '" + contentSignatureString + "'");
+				}
+			} else {
+				List<CLDevice> devices = devicesBySignature.get(signature);
+				for (CLDevice device : devices)
+					ret.put(device, data);
+			}
         }
         zin.close();
         return ret;
@@ -199,7 +243,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
         if (passMacrosAsSources) {
             if (macros != null && !macros.isEmpty()) {
-                StringBuilder b = new StringBuilder();//"-DJAVACL=1 ");
+                StringBuilder b = new StringBuilder();
                 for (Map.Entry<String, Object> m : macros.entrySet())
                     b.append("#define " + m.getKey() + " " + m.getValue() + "\n");
                 this.sources.add(0, b.toString());
@@ -228,11 +272,129 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         return entity;
     }
 	
+    List<String> includes;
+    
+    /**
+     * Add a path (file or URL) to the list of paths searched for included files.<br>
+     * OpenCL kernels may contain <code>#include "subpath/file.cl"</code> statements.<br>
+     * This automatically adds a "-Ipath" argument to the compilator's command line options.<br>
+     * Note that it's not necessary to add include paths for files that are in the classpath.
+     * @param path A file or URL that points to the root path from which includes can be resolved. 
+     */
+    public synchronized void addInclude(String path) {
+        if (includes == null)
+            includes = new ArrayList<String>();
+        includes.add(path);
+    }
 	public synchronized void addSource(String src) {
         if (entity != null)
             throw new IllegalThreadStateException("Program was already allocated : cannot add sources anymore.");
         sources.add(src);
 	}
+    
+    static File tempIncludes = new File(new File(System.getProperty("java.io.tmpdir")), "JavaCL");
+    
+    Map<String, URL> resolvedInclusions;
+        
+    protected Runnable copyIncludesToTemporaryDirectory() throws IOException {
+        Map<String, URL> inclusions = resolveInclusions();
+        tempIncludes.mkdirs();
+        File includesDir = File.createTempFile("includes", "", tempIncludes);
+        includesDir.delete();
+        includesDir.mkdirs();
+        final List<File> filesToDelete = new ArrayList<File>();
+        for (Map.Entry<String, URL> e : inclusions.entrySet()) {
+            System.out.println("[JavaCL] Copying include '" + e.getKey() + "' from '" + e.getValue() + "' to '" + includesDir + "'");
+            File f = new File(includesDir, e.getKey().replace('/', File.separatorChar));
+            File p = f.getParentFile();
+            filesToDelete.add(f);
+            if (p != null) {
+            		p.mkdirs();
+            		filesToDelete.add(p);
+            }
+            InputStream in = e.getValue().openStream();
+            OutputStream out = new FileOutputStream(f);
+            IOUtils.readWrite(in, out);
+            in.close();
+            out.close();
+            f.deleteOnExit();
+        }
+        filesToDelete.add(includesDir);
+        addInclude(includesDir.toString());
+        return new Runnable() { public void run() {
+        		for (File f : filesToDelete) 
+        			f.delete();
+        }};
+    }
+    public Map<String, URL> resolveInclusions() throws IOException {
+        if (resolvedInclusions == null) {
+			resolvedInclusions = new HashMap<String, URL>();
+			for (String source : sources)
+				resolveInclusions(source, resolvedInclusions);
+		}
+        return resolvedInclusions;
+    }
+    
+    static Pattern includePattern = Pattern.compile("#\\s*include\\s*\"([^\"]+)\"");
+    private void resolveInclusions(String source, Map<String, URL> ret) throws IOException {
+    		List<String> includedPaths = new ArrayList<String>();
+    		Matcher m = includePattern.matcher(source);
+    		while (m.find()) {
+    			includedPaths.add(m.group(1));
+    		}
+        for (String includedPath : includedPaths) {
+            if (ret.containsKey(includedPath))
+                continue;
+            URL url = getIncludedSourceURL(includedPath);
+            if (url == null) {
+                System.err.println("[JavaCL] Failed to resolve include '" + includedPath + "'");
+            } else {
+                String s = IOUtils.readText(url);
+                ret.put(includedPath, url);
+                resolveInclusions(s, ret);
+            }
+        }
+    }
+
+    public String getIncludedSourceContent(String path) throws IOException {
+        URL url = getIncludedSourceURL(path);
+        if (url == null)
+            return null;
+        
+        String src = IOUtils.readText(url);
+        return src;
+    }
+    
+    public URL getIncludedSourceURL(String path) throws MalformedURLException {
+        File f = new File(path);
+        if (f.exists())
+            return f.toURI().toURL();
+        URL url = getClass().getClassLoader().getResource(path);        
+        if (url != null)
+        		return url;
+        	
+        	if (includes != null)
+            for (String include : includes) {
+                f = new File(new File(include), path);
+                if (f.exists())
+                    return f.toURI().toURL();
+                
+                url = getClass().getClassLoader().getResource(f.toString());
+                if (url != null)
+                    return url;
+                
+                try {
+                		url = new URL(include + (include.endsWith("/") ? "" : "/") + path);
+                		url.openStream().close();
+                		return url;
+                } catch (IOException ex) {
+                		// Bad URL or impossible to read from the URL
+                }
+                	
+            }
+        
+        return null;
+    }
 	
 	/**
 	 * Get the source code of this program
@@ -301,23 +463,83 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         createMacros();
         this.macros.putAll(macros);
     }
+    List<String> extraBuildOptions;
     
+    /**
+     * Please see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">OpenCL's clBuildProgram documentation</a> for details on supported build options.
+     */
+    public synchronized void addBuildOption(String option) {
+		if (option.startsWith("-I")) {
+			addInclude(option.substring(2));
+			return;
+		}
+    		if (extraBuildOptions == null)
+    			extraBuildOptions = new ArrayList<String>();
+    		
+    		extraBuildOptions.add(option);
+    }
+    	
     protected String getOptionsString() {
-        if ((macros == null || macros.isEmpty()) && (args == null || args.isEmpty()))
-            return null;
-
-        StringBuilder b = new StringBuilder();//"-DJAVACL=1 ");
-        if (macros != null && !passMacrosAsSources)
+        StringBuilder b = new StringBuilder("-DJAVACL=1 ");
+        
+        if (extraBuildOptions != null)
+        		for (String option : extraBuildOptions)
+    				b.append(option).append(' ');
+    			
+        // http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html
+        //b.append("-O2 -cl-no-signed-zeros -cl-unsafe-math-optimizations -cl-finite-math-only -cl-fast-relaxed-math -cl-strict-aliasing ");
+        
+        if (!passMacrosAsSources && macros != null && !macros.isEmpty())
             for (Map.Entry<String, Object> m : macros.entrySet())
                 b.append("-D" + m.getKey() + "=" + m.getValue() + " ");
-        if (args != null)
-            for (String arg : args)
-                b.append(arg).append(" ");
+
+        if (includes != null)
+            for (String path : includes)
+                b.append("-I").append(path).append(' ');
         
-        String s = b.toString().trim();
-        return s.length() == 0 ? null : s;
+            System.out.println("OpenCL build options = " + b);
+        return b.toString();
+    }
+    
+    boolean cached = JavaCL.cacheBinaries;
+    public void setCached(boolean cached) {
+    		this.cached = cached;
+    }
+    public boolean isCached() {
+    		return cached;
     }
 
+    protected String computeCacheSignature() throws IOException {
+    		StringBuilder b = new StringBuilder(1024);
+    		for (CLDevice device : getDevices())
+    			b.append(device).append("\n");
+    		
+    		b.append(getOptionsString()).append('\n');
+    		if (macros != null)
+    			for (Map.Entry<String, Object> m : macros.entrySet())
+                b.append("-D").append(m.getKey()).append("=").append(m.getValue()).append('\n');
+        
+        if (includes != null)
+            for (String path : includes)
+                b.append("-I").append(path).append('\n');
+        
+        if (sources != null)
+			for (String source : sources)
+				b.append(source).append("\n");
+    		
+		Map<String, URL> inclusions = resolveInclusions();
+        for (Map.Entry<String, URL> e : inclusions.entrySet()) {
+        		URLConnection con = e.getValue().openConnection();
+        		InputStream in = con.getInputStream();
+        		b.append('#').append(e.getKey()).append(con.getLastModified()).append('\n');
+        		in.close();
+        }
+    		return b.toString();
+    }
+    
+    //static File cacheDirectory = new File(new File(System.getProperty("user.home"), ".javacl"), "cachedProgramBinaries");
+    static File cacheDirectory = new File(new File(System.getProperty("java.io.tmpdir"), "JavaCL"), "cachedProgramBinaries");
+    
     boolean built;
 	/**
 	 * Returns the context of this program
@@ -325,9 +547,41 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     public synchronized CLProgram build() throws CLBuildException {
         if (built)
             throw new IllegalThreadStateException("Program was already built !");
+        
+        String contentSignature = null;
+        File cacheFile = null;
+        
+        if (isCached()) {
+        		try {
+        			contentSignature = computeCacheSignature();
+        			byte[] sha = java.security.MessageDigest.getInstance("SHA-1").digest(contentSignature.getBytes("utf-8"));
+        			StringBuilder shab = new StringBuilder();
+        			for (byte b : sha)
+        				shab.append(Integer.toHexString(b & 0xff));
+        			String hash = shab.toString();
+        			cacheFile = new File(cacheDirectory, hash);
+        			if (cacheFile.exists()) {
+					Map<CLDevice, byte[]> bins = readBinaries(Arrays.asList(getDevices()), contentSignature, new FileInputStream(cacheFile));
+					setBinaries(bins);
+					//createKernels();
+					System.out.println("[JavaCL] Read binaries cache from '" + cacheFile + "'");
+				}
+        		} catch (Exception ex) {
+        			System.err.println("[JavaCL] Failed to load cached program :"); 
+        			ex.printStackTrace();
+        		}
+        }
+        
         if (entity == null)
             allocate();
 
+        Runnable deleteTempFiles = null;
+        try {
+        		deleteTempFiles = copyIncludesToTemporaryDirectory();
+        } catch (IOException ex) {
+        		throw new CLBuildException(this, ex.toString(), Collections.EMPTY_LIST);
+        }
+        
         int nDevices = devices.length;
         Pointer<cl_device_id> deviceIds = null;
         if (nDevices != 0) {
@@ -357,6 +611,19 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             throw new CLBuildException(this, "Compilation failure : " + errorString(err), errs);
         }
         built = true;
+        if (deleteTempFiles != null)
+        		deleteTempFiles.run();
+        
+        	if (isCached()) {
+        		cacheDirectory.mkdirs();
+        		try {
+        			writeBinaries(getBinaries(), contentSignature, new FileOutputStream(cacheFile));
+        			System.out.println("[JavaCL] Wrote binaries cache to '" + cacheFile + "'"); 
+        		} catch (Exception ex) {
+        			new IOException("[JavaCL] Failed to cache program", ex).printStackTrace();
+        		}
+        	}
+        			
         return this;
     }
 
