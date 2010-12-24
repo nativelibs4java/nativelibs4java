@@ -504,9 +504,9 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
         if (includes != null)
             for (String path : includes)
-                b.append("-I").append(path).append(' ');
+            		if (new File(path).exists()) // path can be an URL as well, in which case it's copied to a local file copyIncludesToTemporaryDirectory()
+            			b.append("-I").append(path).append(' ');
         
-            System.out.println("OpenCL build options = " + b);
         return b.toString();
     }
     
