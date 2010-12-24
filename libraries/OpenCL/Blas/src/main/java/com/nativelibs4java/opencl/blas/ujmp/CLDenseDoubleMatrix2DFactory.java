@@ -6,6 +6,7 @@
 package com.nativelibs4java.opencl.blas.ujmp;
 
 import com.nativelibs4java.opencl.CLPlatform;
+import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import com.nativelibs4java.opencl.JavaCL;
 import com.nativelibs4java.opencl.util.LinearAlgebraUtils;
 import com.nativelibs4java.opencl.util.Primitive;
@@ -23,7 +24,7 @@ public class CLDenseDoubleMatrix2DFactory extends AbstractDoubleMatrix2DFactory 
     static synchronized OpenCLUJMP getOpenCLUJMP() {
         if (OpenCLUJMP == null) {
             try {
-                OpenCLUJMP = new OpenCLUJMP(JavaCL.createBestContext(CLPlatform.DeviceEvaluationStrategy.BestDoubleSupportThenBiggestMaxComputeUnits).createDefaultQueue());
+                OpenCLUJMP = new OpenCLUJMP(JavaCL.createBestContext(DeviceFeature.DoubleSupport, DeviceFeature.MaxComputeUnits).createDefaultQueue());
             } catch (Throwable ex) {
                 throw new RuntimeException(ex);
             }
