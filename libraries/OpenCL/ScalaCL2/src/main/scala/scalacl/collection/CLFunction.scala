@@ -186,7 +186,7 @@ extends (A => B)
     
     kernel.synchronized {
       kernel.setArgs((Array(size.asInstanceOf[Object]) ++ buffers.map(_.buffer: Object)):_*)
-      kernel.enqueueNDRange(context.queue, dims, null, eventsToWaitFor:_*)
+      kernel.enqueueNDRange(context.queue, dims, eventsToWaitFor:_*)
     }
   }
 }

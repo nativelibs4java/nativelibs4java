@@ -30,7 +30,7 @@ object CLIntRange {
     kernel.synchronized {
       kernel.setArgs(size.asInstanceOf[Object], range.buffer, output.buffer)
       CLEventBound.syncBlock(Array(range), Array(output), evts => {
-        kernel.enqueueNDRange(context.queue, globalSizes, null, evts:_*)
+        kernel.enqueueNDRange(context.queue, globalSizes, evts:_*)
       })
     }
   }
