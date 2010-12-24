@@ -98,7 +98,7 @@ class CommonPointerIOs {
 		@Override
 		public Pointer<T> get(Pointer<Pointer<T>> pointer, long index) {
 			long offset = getOffset(index);
-			return pointer.offset(offset * underlyingIO.getTargetSize()).withIO(underlyingIO);
+			return pointer.offset(offset * underlyingIO.getTargetSize()).as(underlyingIO);
 		}
 
 		long getOffset(long index) {
