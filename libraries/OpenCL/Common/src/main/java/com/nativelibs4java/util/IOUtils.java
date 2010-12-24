@@ -5,13 +5,8 @@
 
 package com.nativelibs4java.util;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
+import java.net.*;
 
 /**
  *
@@ -28,6 +23,9 @@ public class IOUtils {
     }
     public static String readText(InputStream in) throws IOException {
         return readText(new InputStreamReader(in));
+    }
+    public static String readText(URL url) throws IOException {
+        return readTextClose(url.openStream());
     }
     public static String readTextClose(InputStream in) throws IOException {
         return readTextClose(new InputStreamReader(in));
@@ -48,5 +46,11 @@ public class IOUtils {
             b.append('\n');
         }
         return b.toString();
+    }
+    public static void readWrite(InputStream in, OutputStream out) throws IOException {
+    		byte[] buf = new byte[1024];
+    		int len;
+    		while ((len = in.read(buf)) > 0)
+    			out.write(buf, 0, len);
     }
 }
