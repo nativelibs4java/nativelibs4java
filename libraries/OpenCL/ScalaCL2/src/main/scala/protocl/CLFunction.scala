@@ -48,7 +48,7 @@ extends CLCode
   val inParams = aIO.openCLKernelArgDeclarations(true, 0).mkString(", ")
   val outParams = bIO.openCLKernelArgDeclarations(false, 0).mkString(", ")
   val varExprs = aIO.openCLIntermediateKernelTupleElementsExprs(inVar).sortBy(-_._1.length).toArray
-  println("varExprs = " + varExprs.toSeq)
+  //println("varExprs = " + varExprs.toSeq)
   def replaceForFunction(s: String,  i: String) = if (s == null) null else {
     var r = s.replaceAll(toRxb(indexVar), "i")
     r = r.replaceAll(toRxb(sizeVar), "size")
@@ -90,8 +90,8 @@ extends CLCode
           """ + assignts("0") + """;
       }
   """
-  println("expressions = " + expressions)
-  println("functionSource = " + functionSource)
+  //println("expressions = " + expressions)
+  //println("functionSource = " + functionSource)
 
   //def replaceForKernel(s: String) = if (s == null) null else replaceAllButIn(s).replaceAll(toRxb(inVar), "in[i]")
   val presenceParam = "__global const char* presence"
@@ -120,7 +120,7 @@ extends CLCode
           """ + assignt + """;
       }
   """
-  println("kernelsSource = " + kernelsSource)
+  //println("kernelsSource = " + kernelsSource)
 
 
   val sourcesToInclude = if (expressions.isEmpty) null else includedSources ++ Seq(functionSource)
