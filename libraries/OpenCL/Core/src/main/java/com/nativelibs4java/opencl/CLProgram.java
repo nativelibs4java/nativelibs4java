@@ -63,6 +63,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_device_id;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_kernel;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_program;
 import com.nativelibs4java.util.IOUtils;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -73,6 +75,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -160,38 +163,38 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         writeBinaries(getBinaries(), null, out);
     }
     
+    private static final void addStoredEntry(ZipOutputStream zout, String name, byte[] data) throws IOException {
+        ZipEntry ze = new ZipEntry(name);
+        ze.setMethod(ZipEntry.STORED);
+        ze.setSize(data.length);
+        CRC32 crc = new CRC32();
+		crc.update(data,0,data.length);
+		ze.setCrc(crc.getValue());
+        zout.putNextEntry(ze);
+        zout.write(data);
+        zout.closeEntry();
+    }
+	
     private static final String BinariesSignatureZipEntryName = "SIGNATURE";
     public static void writeBinaries(Map<CLDevice, byte[]> binaries, String contentSignatureString, OutputStream out) throws IOException {
         Map<String, byte[]> binaryBySignature = new HashMap<String, byte[]>();
         for (Map.Entry<CLDevice, byte[]> e : binaries.entrySet())
             binaryBySignature.put(e.getKey().createSignature(), e.getValue()); // Maybe multiple devices will have the same signature : too bad, we don't care and just write one binary per signature.
 
-        ZipOutputStream zout = new ZipOutputStream(out);
-        if (contentSignatureString != null) {
-			ZipEntry ze = new ZipEntry(BinariesSignatureZipEntryName);
-			byte[] contentSignatureBytes = contentSignatureString.getBytes("utf-8");
-			ze.setSize(contentSignatureBytes.length);
-			zout.putNextEntry(ze);
-			zout.write(contentSignatureBytes);
-			zout.closeEntry();
-		}
+        ZipOutputStream zout = new ZipOutputStream(new BufferedOutputStream(out));
+        if (contentSignatureString != null)
+            addStoredEntry(zout, BinariesSignatureZipEntryName, contentSignatureString.getBytes("utf-8"));
         
-        for (Map.Entry<String, byte[]> e : binaryBySignature.entrySet()) {
-            String name = e.getKey();
-            byte[] data = e.getValue();
-            ZipEntry ze = new ZipEntry(name);
-            ze.setSize(data.length);
-            zout.putNextEntry(ze);
-            zout.write(data);
-            zout.closeEntry();
-        }
+        for (Map.Entry<String, byte[]> e : binaryBySignature.entrySet())
+            addStoredEntry(zout, e.getKey(), e.getValue());
+        
         zout.close();
     }
     public static Map<CLDevice, byte[]> readBinaries(List<CLDevice> allowedDevices, String expectedContentSignatureString, InputStream in) throws IOException {
         Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>();
         Map<String, List<CLDevice>> devicesBySignature = CLDevice.getDevicesBySignature(allowedDevices);
 
-        ZipInputStream zin = new ZipInputStream(in);
+        ZipInputStream zin = new ZipInputStream(new BufferedInputStream(in));
         ZipEntry ze;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
@@ -201,10 +204,10 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             String signature = ze.getName();
             boolean isSignature = signature.equals(BinariesSignatureZipEntryName);
             if (first && !isSignature && expectedContentSignatureString != null ||
-            		!first && isSignature)
-            		throw new IOException("Expected signature to be the first zip entry, got '" + signature + "' instead !");
-            	
-            	first = false;
+                !first && isSignature)
+                throw new IOException("Expected signature to be the first zip entry, got '" + signature + "' instead !");
+
+            first = false;
             bout.reset();
             int len;
             while ((len = zin.read(b)) > 0)
@@ -212,7 +215,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
             byte[] data = bout.toByteArray();
             if (isSignature) {
-            		if (expectedContentSignatureString != null) {
+                if (expectedContentSignatureString != null) {
 					String contentSignatureString = new String(data, "utf-8");
 					if (!expectedContentSignatureString.equals(contentSignatureString))
 						throw new IOException("Content signature does not match expected one :\nExpected '" + expectedContentSignatureString + "',\nGot '" + contentSignatureString + "'");
@@ -555,7 +558,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         if (isCached()) {
         		try {
         			contentSignature = computeCacheSignature();
-        			byte[] sha = java.security.MessageDigest.getInstance("SHA-1").digest(contentSignature.getBytes("utf-8"));
+        			byte[] sha = java.security.MessageDigest.getInstance("MD5").digest(contentSignature.getBytes("utf-8"));
         			StringBuilder shab = new StringBuilder();
         			for (byte b : sha)
         				shab.append(Integer.toHexString(b & 0xff));
