@@ -88,6 +88,8 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.GZIPInputStream;
 
 /**
  * OpenCL program.<br/>
@@ -192,7 +194,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         for (Map.Entry<CLDevice, byte[]> e : binaries.entrySet())
             binaryBySignature.put(e.getKey().createSignature(), e.getValue()); // Maybe multiple devices will have the same signature : too bad, we don't care and just write one binary per signature.
 
-        ZipOutputStream zout = new ZipOutputStream(new BufferedOutputStream(out));
+        ZipOutputStream zout = new ZipOutputStream(new GZIPOutputStream(new BufferedOutputStream(out)));
         if (contentSignatureString != null)
             addStoredEntry(zout, BinariesSignatureZipEntryName, contentSignatureString.getBytes("utf-8"));
         
@@ -205,7 +207,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>();
         Map<String, List<CLDevice>> devicesBySignature = CLDevice.getDevicesBySignature(allowedDevices);
 
-        ZipInputStream zin = new ZipInputStream(new BufferedInputStream(in));
+        ZipInputStream zin = new ZipInputStream(new GZIPInputStream(new BufferedInputStream(in)));
         ZipEntry ze;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
