@@ -79,6 +79,8 @@ import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.GZIPInputStream;
 
 import org.bridj.*;
 import static org.bridj.Pointer.*;
@@ -181,7 +183,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         for (Map.Entry<CLDevice, byte[]> e : binaries.entrySet())
             binaryBySignature.put(e.getKey().createSignature(), e.getValue()); // Maybe multiple devices will have the same signature : too bad, we don't care and just write one binary per signature.
 
-        ZipOutputStream zout = new ZipOutputStream(new BufferedOutputStream(out));
+        ZipOutputStream zout = new ZipOutputStream(new GZIPOutputStream(new BufferedOutputStream(out)));
         if (contentSignatureString != null)
             addStoredEntry(zout, BinariesSignatureZipEntryName, contentSignatureString.getBytes("utf-8"));
         
@@ -194,12 +196,12 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>();
         Map<String, List<CLDevice>> devicesBySignature = CLDevice.getDevicesBySignature(allowedDevices);
 
-        ZipInputStream zin = new ZipInputStream(new BufferedInputStream(in));
+        ZipInputStream zin = new ZipInputStream(new GZIPInputStream(new BufferedInputStream(in)));
         ZipEntry ze;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
         boolean first = true;
-        byte[] b = new byte[1024];
+        byte[] b = new byte[65536];
         while ((ze = zin.getNextEntry()) != null) {
             String signature = ze.getName();
             boolean isSignature = signature.equals(BinariesSignatureZipEntryName);
@@ -294,6 +296,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         if (entity != null)
             throw new IllegalThreadStateException("Program was already allocated : cannot add sources anymore.");
         sources.add(src);
+        resolvedInclusions = null;
 	}
     
     static File tempIncludes = new File(new File(System.getProperty("java.io.tmpdir")), "JavaCL");
@@ -581,11 +584,12 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             allocate();
 
         Runnable deleteTempFiles = null;
-        try {
-        		deleteTempFiles = copyIncludesToTemporaryDirectory();
-        } catch (IOException ex) {
-        		throw new CLBuildException(this, ex.toString(), Collections.EMPTY_LIST);
-        }
+        if (!readBinaries)
+			try {
+					deleteTempFiles = copyIncludesToTemporaryDirectory();
+			} catch (IOException ex) {
+					throw new CLBuildException(this, ex.toString(), Collections.EMPTY_LIST);
+			}
         
         int nDevices = devices.length;
         Pointer<cl_device_id> deviceIds = null;
