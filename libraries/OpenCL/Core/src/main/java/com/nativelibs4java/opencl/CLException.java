@@ -60,7 +60,7 @@ public class CLException extends RuntimeException {
 	}
 
 	public static class CLTypedException extends CLException {
-		String message;
+		protected String message;
 		public CLTypedException() {
 			super("", 0);
 			ErrorCode code = getClass().getAnnotation(ErrorCode.class);
@@ -70,8 +70,18 @@ public class CLException extends RuntimeException {
 
 		@Override
 		public String getMessage() {
-			return message;
+			return message + logSuffix;
 		}
+		
+		void setKernelArg(CLKernel kernel, int argIndex) {
+			message += " (kernel name = " + kernel.getFunctionName() + ", num args = " + kernel.getNumArgs() + ", arg index = " + argIndex;
+			CLProgram program = kernel.getProgram();
+			if (program != null)
+				message += ", source = <<<\n\t" + program.getSource().replaceAll("\n", "\n\t");
+			
+			message += "\n>>> )";
+		}
+	
 	}
 
 	@ErrorCode(CL_MISALIGNED_SUB_BUFFER_OFFSET)
@@ -208,7 +218,8 @@ public class CLException extends RuntimeException {
 			return false;
     	}
     }
-    
+    static final String logSuffix = System.getenv("CL_LOG_ERRORS") == null ? " (make sure to log all errors with environment variable CL_LOG_ERRORS=stdout)" : "";
+        
 	static Map<Integer, Class<? extends CLTypedException>> typedErrorClassesByCode;
     @SuppressWarnings("unchecked")
 	public static void error(int err) {
@@ -236,6 +247,6 @@ public class CLException extends RuntimeException {
                 }
         }
 
-        throw new CLException("OpenCL Error : " + errorString(err), err);
+        throw new CLException("OpenCL Error : " + errorString(err) + logSuffix, err);
     }
 }

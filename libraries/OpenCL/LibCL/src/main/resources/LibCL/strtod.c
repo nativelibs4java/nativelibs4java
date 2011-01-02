@@ -36,11 +36,24 @@
 #define NULL 0
 #endif
 
-const int maxExponent = 511;	/* Largest possible base 10 exponent.  Any
-				 * exponent larger than this will already
-				 * produce underflow or overflow, so there's
-				 * no need to worry about additional digits.
-				 */
+const int _strtod_maxExponent_ = 511;	/* Largest possible base 10 exponent.  Any
+							 * exponent larger than this will already
+							 * produce underflow or overflow, so there's
+							 * no need to worry about additional digits.
+							 */
+
+__constant double _strtod_powersOf10_[] = {	/* Table giving binary powers of 10.  Entry */
+								10.,			/* is 10^2^i.  Used to convert decimal */
+								100.,		/* exponents into floating-point numbers. */
+								1.0e4,
+								1.0e8,
+								1.0e16,
+								1.0e32,
+								1.0e64,
+								1.0e128,
+								1.0e256
+};
+
 
 /*
  *----------------------------------------------------------------------
@@ -80,7 +93,8 @@ strtod(__global CONST char *string,		/* A decimal ASCII floating-point number,
         * address here. */
       ) {
 	int sign, expSign = FALSE;
-	double fraction, dblExp, *d;
+	double fraction, dblExp;
+	__constant double *d;
 	__global CONST char *p;
 	int c;
 	int exp = 0;		/* Exponent read from "EX" field. */
@@ -226,24 +240,12 @@ strtod(__global CONST char *string,		/* A decimal ASCII floating-point number,
 	} else {
 		expSign = FALSE;
 	}
-	if (exp > maxExponent) {
-		exp = maxExponent;
+	if (exp > _strtod_maxExponent_) {
+		exp = _strtod_maxExponent_;
 	}
 	dblExp = 1.0;
 
-	const double powersOf10[] = {	/* Table giving binary powers of 10.  Entry */
-		10.,			/* is 10^2^i.  Used to convert decimal */
-		100.,			/* exponents into floating-point numbers. */
-		1.0e4,
-		1.0e8,
-		1.0e16,
-		1.0e32,
-		1.0e64,
-		1.0e128,
-		1.0e256
-	};
-
-	for (d = powersOf10; exp != 0; exp >>= 1, d += 1) {
+	for (d = _strtod_powersOf10_; exp != 0; exp >>= 1, d += 1) {
 		if (exp & 01) {
 			dblExp *= *d;
 		}

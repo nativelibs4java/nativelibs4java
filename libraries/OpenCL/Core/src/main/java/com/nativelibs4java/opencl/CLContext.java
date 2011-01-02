@@ -29,6 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nativelibs4java.opencl;
+import com.nativelibs4java.util.Pair;
 
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.CLException.failedForLackOfMemory;
@@ -216,12 +217,12 @@ public class CLContext extends CLAbstractEntity<cl_context> {
      * @throws IOException
      */
     public CLProgram loadProgram(InputStream in) throws IOException {
-        Map<CLDevice, byte[]> binaries = CLProgram.readBinaries(Arrays.asList(getDevices()), null, in);
-        return createProgram(binaries);
+        Pair<Map<CLDevice, byte[]>, String> binaries = CLProgram.readBinaries(Arrays.asList(getDevices()), null, in);
+        return createProgram(binaries.getFirst(), binaries.getSecond());
     }
 
-	public CLProgram createProgram(Map<CLDevice, byte[]> binaries) {
-		return new CLProgram(this, binaries);
+	public CLProgram createProgram(Map<CLDevice, byte[]> binaries, String source) {
+		return new CLProgram(this, binaries, source);
 	}
 
 	//cl_queue queue;

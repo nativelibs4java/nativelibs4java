@@ -122,7 +122,6 @@ public class CLBuffer<B> extends CLMem {
 	
 	/**
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
-	 * @param queue
 	 * @param srcOffset
 	 * @param length
 	 * @param destination
@@ -132,15 +131,20 @@ public class CLBuffer<B> extends CLMem {
 	 */
 	public CLEvent copyTo(CLQueue queue, long srcOffset, long length, CLMem destination, long destOffset, CLEvent... eventsToWaitFor) {
 		Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
+		long actualSrcOffset = srcOffset * getElementSize(), actualDestOffset = destOffset * getElementSize(), actualLength = length * getElementSize();
+		assert actualSrcOffset < getByteCount();
+		assert actualSrcOffset + actualLength <= getByteCount();
+		assert actualDestOffset < destination.getByteCount();
+		assert actualDestOffset + actualLength <= destination.getByteCount();
 		
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueCopyBuffer(
 			queue.getEntity(),
 			getEntity(),
 			destination.getEntity(),
-			srcOffset * getElementSize(),
-			destOffset * getElementSize(),
-			length,
+			actualSrcOffset,
+			actualDestOffset,
+			actualLength,
 			evts == null ? 0 : (int)evts.getValidElements(), evts,
 			eventOut
 		));

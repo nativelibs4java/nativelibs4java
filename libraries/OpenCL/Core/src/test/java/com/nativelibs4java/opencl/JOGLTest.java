@@ -132,7 +132,7 @@ public class JOGLTest {
                             float expected = 10;
                             try {
                                 CLKernel kernel = context.createProgram("__kernel void fill(__global float* out) { out[get_global_id(0)] = (float)" + expected + ";}").build().createKernel("fill", clbuf);
-                                kernel.enqueueNDRange(queue, new int[]{bufferSize}, new int[]{1}).waitFor();
+                                kernel.enqueueNDRange(queue, new int[]{bufferSize}).waitFor();
                             } catch (CLException.InvalidKernelArgs ex) {
                                 assertTrue("GL-converted buffer was refused as kernel argument", false);
                             } catch (Throwable ex) {

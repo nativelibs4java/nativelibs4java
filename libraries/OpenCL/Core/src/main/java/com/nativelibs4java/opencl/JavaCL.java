@@ -50,10 +50,11 @@ import static org.bridj.Pointer.*;
 public class JavaCL {
 
     static final OpenCLLibrary CL = new OpenCLLibrary();
-	static boolean cacheBinaries = !"false".equals(System.getProperty("javacl.cacheBinaries") + "");
+	static boolean cacheBinaries = !"false".equals(System.getProperty("javacl.cacheBinaries") + "") && !"1".equals(System.getenv("JAVACL_CACHE_BINARIES"));
+	
 	/**
 	 * Change whether program binaries are automatically cached or not.<br>
-	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property.<br>
+	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property or the "JAVACL_CACHE_BINARIES" environment variable (when set to "0").<br>
 	 * Each program can be set to be cached or not using @see CLProgram#setCached(boolean).
 	 */ 
 	public static void setCacheBinaries(boolean cacheBinaries) {
@@ -61,7 +62,7 @@ public class JavaCL {
 	}
 	/**
 	 * Says whether program binaries are automatically cached or not.<br>
-	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property or the @see JavaCL#setCacheBinaries(boolean) method.<br>
+	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property, the "JAVACL_CACHE_BINARIES" environment variable (when set to "0") or the @see JavaCL#setCacheBinaries(boolean) method.<br>
 	 * Each program can be set to be cached or not using @see CLProgram#setCached(boolean).
 	 */ 
 	public static boolean getCacheBinaries() {

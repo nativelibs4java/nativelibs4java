@@ -55,9 +55,6 @@ public class LinearAlgebraUtils {
         return queue;
     }
 	
-	private static final int[] unitIntArr = new int[] { 1 };
-    private static final int[] unitInt2Arr = new int[] { 1, 1 };
-
 	public synchronized CLEvent multiplyDouble(
             CLBuffer<Double> a, long aRows, long aColumns, 
             CLBuffer<Double> b, long bRows, long bColumns, 
@@ -71,7 +68,7 @@ public class LinearAlgebraUtils {
             b, (int)bColumns,
             out,
             new int[] { (int)outRows, (int)outColumns },
-            unitInt2Arr,
+            null,
             eventsToWaitFor
         );
     }
@@ -88,7 +85,7 @@ public class LinearAlgebraUtils {
             b, (int)bColumns,
             out,
             new int[] { (int)outRows, (int)outColumns },
-            unitInt2Arr,
+            null,
             eventsToWaitFor
         );
     }
@@ -110,7 +107,7 @@ public class LinearAlgebraUtils {
             a, aRows, aColumns,
             out,
             new int[] { (int)aColumns, (int)aRows },
-            unitInt2Arr,
+            null,
             eventsToWaitFor
         );
     }
@@ -132,7 +129,7 @@ public class LinearAlgebraUtils {
             a, aRows, aColumns,
             out,
             new int[] { (int)aColumns, (int)aRows },
-            unitInt2Arr,
+            null,
             eventsToWaitFor
         );
     }

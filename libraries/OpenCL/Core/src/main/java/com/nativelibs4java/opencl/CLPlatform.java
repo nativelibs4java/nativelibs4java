@@ -37,6 +37,7 @@ import com.nativelibs4java.util.EnumValues;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 
 import org.bridj.*;
+import org.bridj.ann.*;
 import static org.bridj.Pointer.*;
 
 import java.nio.ByteOrder;
@@ -351,10 +352,21 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 
         long[] props = getContextProps(contextProperties);
         Pointer<SizeT> propsRef = props == null ? null : pointerToSizeTs(props);
+        //Pointer<clCreateContext_arg1_callback> errCb = null;//pointerTo(errorCallback);
+        //System.out.println("ERROR CALLBACK " + Long.toHexString(errCb.getPeer()));
         cl_context context = CL.clCreateContext(propsRef, nDevs, ids, null, null, errRef);
         error(errRef.get());
         return new CLContext(this, ids, context);
     }
+    /*
+    public static final clCreateContext_arg1_callback errorCallback = new clCreateContext_arg1_callback() {
+		public void apply(Pointer<java.lang.Byte > errInfo, Pointer<? > private_info, @Ptr long cb, Pointer<? > user_data) {
+			//new RuntimeException().printStackTrace();
+			String log = errInfo.getCString();
+			System.out.println("[JavaCL] " + log);
+			throw new CLException(log, -1);
+		}
+	};*/
 
     /**
      * List all the devices of the specified types, with only the ones declared as available if onlyAvailable is true.

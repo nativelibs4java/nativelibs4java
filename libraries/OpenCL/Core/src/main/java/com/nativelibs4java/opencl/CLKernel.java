@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nativelibs4java.opencl;
-import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.CLException.*;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 
@@ -162,6 +162,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     }
     
     public void setArgs(Object... args) {
+    		//assert getNumArgs() == args.length;
         for (int i = 0; i < args.length; i++) {
             setObjectArg(i, args[i]);
         }
@@ -238,7 +239,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         setLocalArg(i, arg.size);
     }
     public void setLocalArg(int argIndex, long localArgByteLength) {
-        error(CL.clSetKernelArg(getEntity(), argIndex, localArgByteLength, null));
+        setKernelArg(argIndex, localArgByteLength, null);
     }
 
     //public void setArg(int i, NativeLong arg) {
@@ -271,23 +272,31 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     public void setArg(int i, Buffer arg) {
 		Pointer<?> ptr = pointerToBuffer(arg);
 		long size = ptr.getValidElements();
-        error(CL.clSetKernelArg(getEntity(), i, size, ptr));
+        setKernelArg(i, size, ptr);
     }
     public <T> void setArg(int i, Pointer<T> arg) {
 		long size = arg.getValidBytes();
-        error(CL.clSetKernelArg(getEntity(), i, size, arg));
+        setKernelArg(i, size, arg);
     }
 
+    protected void setKernelArg(int i, long size, Pointer<?> ptr) {
+    		try {
+    			error(CL.clSetKernelArg(getEntity(), i, size, ptr));
+    		} catch (CLTypedException ex) {
+    			ex.setKernelArg(this, i);
+    			throw ex;
+    		}
+    }
     public void setArg(int i, SizeT arg) {
         switch (getProgram().getContext().getAddressBits()) {
             case 32:
-                error(CL.clSetKernelArg(getEntity(), i, 4, pointerToInts(arg.intValue())));
+                setKernelArg(i, 4, pointerToInts(arg.intValue()));
                 break;
             case 64:
-                error(CL.clSetKernelArg(getEntity(), i, 8, pointerToLongs(arg.longValue())));
+                setKernelArg(i, 8, pointerToLongs(arg.longValue()));
                 break;
             default:
-                error(CL.clSetKernelArg(getEntity(), i, SizeT.SIZE, pointerToSizeT(arg.longValue())));
+                setKernelArg(i, SizeT.SIZE, pointerToSizeT(arg.longValue()));
                 break;
         }
     }
@@ -298,39 +307,39 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         test(12);
     }
     public void setArg(int i, int arg) {
-        error(CL.clSetKernelArg(getEntity(), i, 4, pointerToInts(arg)));
+        setKernelArg(i, 4, pointerToInts(arg));
     }
 
     public void setArg(int i, long arg) {
-        error(CL.clSetKernelArg(getEntity(), i, 8, pointerToLongs(arg)));
+        setKernelArg(i, 8, pointerToLongs(arg));
     }
 
     public void setArg(int i, short arg) {
-        error(CL.clSetKernelArg(getEntity(), i, 2, pointerToShorts(arg)));
+        setKernelArg(i, 2, pointerToShorts(arg));
     }
 
     public void setArg(int i, byte arg) {
-        error(CL.clSetKernelArg(getEntity(), i, 1, pointerToBytes(arg)));
+        setKernelArg(i, 1, pointerToBytes(arg));
     }
 
     public void setArg(int i, float arg) {
-        error(CL.clSetKernelArg(getEntity(), i, 4, pointerToFloats(arg)));
+        setKernelArg(i, 4, pointerToFloats(arg));
     }
 
     public void setArg(int i, double arg) {
-        error(CL.clSetKernelArg(getEntity(), i, 8, pointerToDoubles(arg)));
+        setKernelArg(i, 8, pointerToDoubles(arg));
     }
 
     public void setArg(int index, CLMem mem) {
-        error(CL.clSetKernelArg(getEntity(), index, Pointer.SIZE, pointerToPointer(mem.getEntity())));
+        setKernelArg(index, Pointer.SIZE, pointerToPointer(mem.getEntity()));
     }
 
     public void setArg(int index, CLEvent event) {
-        error(CL.clSetKernelArg(getEntity(), index, Pointer.SIZE, pointerToPointer(event.getEntity())));
+        setKernelArg(index, Pointer.SIZE, pointerToPointer(event.getEntity()));
     }
 
     public void setArg(int index, CLSampler sampler) {
-        error(CL.clSetKernelArg(getEntity(), index, Pointer.SIZE, pointerToPointer(sampler.getEntity())));
+        setKernelArg(index, Pointer.SIZE, pointerToPointer(sampler.getEntity()));
     }
 
     @Override
@@ -414,7 +423,9 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
 	 */
     @InfoName("CL_KERNEL_NUM_ARGS")
     public int getNumArgs() {
-        return infos.getInt(getEntity(), CL_KERNEL_NUM_ARGS);
+    		int numArgs = infos.getInt(getEntity(), CL_KERNEL_NUM_ARGS);
+    		//System.out.println("numArgs = " + numArgs);
+        return numArgs;
     }
 
     /**
@@ -426,6 +437,4 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
             name = infos.getString(getEntity(), CL_KERNEL_FUNCTION_NAME);
         return name;
     }
-
-	
 }

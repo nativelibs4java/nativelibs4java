@@ -65,7 +65,7 @@ public class OpenCL4JavaBasicTest {
 
             // Ask for execution of the kernel with global size = dataSize
             //   and workgroup size = 1
-            kernel.enqueueNDRange(queue, new int[]{dataSize}, new int[]{1});
+            kernel.enqueueNDRange(queue, new int[]{dataSize});
 
             // Wait for all operations to be performed
             queue.finish();

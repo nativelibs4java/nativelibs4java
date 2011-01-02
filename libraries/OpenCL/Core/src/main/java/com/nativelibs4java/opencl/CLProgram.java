@@ -30,6 +30,7 @@
  */
 package com.nativelibs4java.opencl;
 import java.util.Arrays;
+import com.nativelibs4java.util.Pair;
 import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.CLException.errorString;
 import static com.nativelibs4java.opencl.CLException.failedForLackOfMemory;
@@ -120,9 +121,10 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         this.context = context;
         this.devices = devices == null || devices.length == 0 ? context.getDevices() : devices;
     }
-	CLProgram(CLContext context, Map<CLDevice, byte[]> binaries) {
+	CLProgram(CLContext context, Map<CLDevice, byte[]> binaries, String source) {
 		super(null, true);
 		this.context = context;
+		this.source = source;
 
 		setBinaries(binaries);
 	}
@@ -162,7 +164,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
      * @throws IOException
      */
     public void store(OutputStream out) throws CLBuildException, IOException {
-        writeBinaries(getBinaries(), null, out);
+        writeBinaries(getBinaries(), getSource(), null, out);
     }
     
     private static final void addStoredEntry(ZipOutputStream zout, String name, byte[] data) throws IOException {
@@ -177,22 +179,25 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         zout.closeEntry();
     }
 	
-    private static final String BinariesSignatureZipEntryName = "SIGNATURE";
-    public static void writeBinaries(Map<CLDevice, byte[]> binaries, String contentSignatureString, OutputStream out) throws IOException {
+    private static final String BinariesSignatureZipEntryName = "SIGNATURE", SourceZipEntryName = "SOURCE", textEncoding = "utf-8";
+    public static void writeBinaries(Map<CLDevice, byte[]> binaries, String source, String contentSignatureString, OutputStream out) throws IOException {
         Map<String, byte[]> binaryBySignature = new HashMap<String, byte[]>();
         for (Map.Entry<CLDevice, byte[]> e : binaries.entrySet())
             binaryBySignature.put(e.getKey().createSignature(), e.getValue()); // Maybe multiple devices will have the same signature : too bad, we don't care and just write one binary per signature.
 
         ZipOutputStream zout = new ZipOutputStream(new GZIPOutputStream(new BufferedOutputStream(out)));
         if (contentSignatureString != null)
-            addStoredEntry(zout, BinariesSignatureZipEntryName, contentSignatureString.getBytes("utf-8"));
+            addStoredEntry(zout, BinariesSignatureZipEntryName, contentSignatureString.getBytes(textEncoding));
         
+        if (source != null)
+        		addStoredEntry(zout, SourceZipEntryName, source.getBytes(textEncoding));
+        			
         for (Map.Entry<String, byte[]> e : binaryBySignature.entrySet())
             addStoredEntry(zout, e.getKey(), e.getValue());
         
         zout.close();
     }
-    public static Map<CLDevice, byte[]> readBinaries(List<CLDevice> allowedDevices, String expectedContentSignatureString, InputStream in) throws IOException {
+    public static Pair<Map<CLDevice, byte[]>, String> readBinaries(List<CLDevice> allowedDevices, String expectedContentSignatureString, InputStream in) throws IOException {
         Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>();
         Map<String, List<CLDevice>> devicesBySignature = CLDevice.getDevicesBySignature(allowedDevices);
 
@@ -200,6 +205,8 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         ZipEntry ze;
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
 
+        String source = null;
+        
         boolean first = true;
         byte[] b = new byte[65536];
         while ((ze = zin.getNextEntry()) != null) {
@@ -218,10 +225,12 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             byte[] data = bout.toByteArray();
             if (isSignature) {
                 if (expectedContentSignatureString != null) {
-					String contentSignatureString = new String(data, "utf-8");
+					String contentSignatureString = new String(data, textEncoding);
 					if (!expectedContentSignatureString.equals(contentSignatureString))
 						throw new IOException("Content signature does not match expected one :\nExpected '" + expectedContentSignatureString + "',\nGot '" + contentSignatureString + "'");
 				}
+			} else if (signature.equals(SourceZipEntryName)) {
+				source = new String(data, textEncoding);
 			} else {
 				List<CLDevice> devices = devicesBySignature.get(signature);
 				for (CLDevice device : devices)
@@ -229,7 +238,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 			}
         }
         zin.close();
-        return ret;
+        return new Pair<Map<CLDevice, byte[]>, String>(ret, source);
     }
     
 	List<String> sources = new ArrayList<String>();
@@ -403,11 +412,15 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         return null;
     }
 	
+    String source;
 	/**
 	 * Get the source code of this program
 	 */
-	public String getSource() {
-		return infos.getString(getEntity(), CL_PROGRAM_SOURCE);
+	public synchronized String getSource() {
+		if (source == null)
+			source = infos.getString(getEntity(), CL_PROGRAM_SOURCE);
+		
+		return source;
 	}
 
 	/**
@@ -561,15 +574,16 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         if (isCached()) {
         		try {
         			contentSignature = computeCacheSignature();
-        			byte[] sha = java.security.MessageDigest.getInstance("MD5").digest(contentSignature.getBytes("utf-8"));
+        			byte[] sha = java.security.MessageDigest.getInstance("MD5").digest(contentSignature.getBytes(textEncoding));
         			StringBuilder shab = new StringBuilder();
         			for (byte b : sha)
         				shab.append(Integer.toHexString(b & 0xff));
         			String hash = shab.toString();
         			cacheFile = new File(cacheDirectory, hash);
         			if (cacheFile.exists()) {
-					Map<CLDevice, byte[]> bins = readBinaries(Arrays.asList(getDevices()), contentSignature, new FileInputStream(cacheFile));
-					setBinaries(bins);
+					Pair<Map<CLDevice, byte[]>, String> bins = readBinaries(Arrays.asList(getDevices()), contentSignature, new FileInputStream(cacheFile));
+					setBinaries(bins.getFirst());
+					this.source = bins.getSecond();
 					//createKernels();
 					System.out.println("[JavaCL] Read binaries cache from '" + cacheFile + "'");
 					readBinaries = true;
@@ -626,7 +640,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         	if (isCached() && !readBinaries) {
         		cacheDirectory.mkdirs();
         		try {
-        			writeBinaries(getBinaries(), contentSignature, new FileOutputStream(cacheFile));
+        			writeBinaries(getBinaries(), getSource(), contentSignature, new FileOutputStream(cacheFile));
         			System.out.println("[JavaCL] Wrote binaries cache to '" + cacheFile + "'"); 
         		} catch (Exception ex) {
         			new IOException("[JavaCL] Failed to cache program", ex).printStackTrace();
@@ -683,12 +697,5 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         CLKernel kn = new CLKernel(this, name, kernel);
         kn.setArgs(args);
         return kn;
-    }
-
-    List<String> args;
-    public void addArgs(String... as) {
-        if (args == null)
-            args = new ArrayList<String>();
-        args.addAll(Arrays.asList(as));
     }
 }
