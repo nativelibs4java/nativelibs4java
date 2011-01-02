@@ -15,23 +15,27 @@ trait CLCode {
   lazy val strs = sources ++ macros.map(flatten)// ++ compilerArguments ++ templateParameters.toSeq.map(flatten)
   private lazy val hc = strs.map(_.hashCode).reduceLeft(_ ^ _)
 
-  val map = new mutable.HashMap[CLContext, CLKernel]
+  val map = new mutable.HashMap[(CLContext, String), CLKernel]
+  var kernels: Map[String, CLKernel] = _
+  
   def getKernel(context: ScalaCLContext, name: String = null) = map.synchronized {
     map.getOrElseUpdate(
-      context.context,
+      (context.context, name),
       {
-        val program = context.context.createProgram(sources.map(s => """
-            #pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable
-        """ + s):_*)
-        for ((key, value) <- macros)
-          program.defineMacro(key, value)
+        if (kernels == null) {
+          val program = context.context.createProgram(sources.map(s => """
+              #pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable
+          """ + s):_*)
+          for ((key, value) <- macros)
+            program.defineMacro(key, value)
 
-        println("Creating kernel")
-        program.addArgs(compilerArguments:_*)
-        if (name != null)
-          program.createKernel(name)
+          compilerArguments.foreach(program.addBuildOption(_))
+          kernels = program.createKernels.map(k => (k.getFunctionName, k)).toMap
+        }
+        if (name == null)
+          kernels.values.head
         else
-          program.createKernels.last
+          kernels(name)
       }
     )
   }

@@ -26,7 +26,7 @@ object PrefixSum {
     kernel.synchronized {
       kernel.setArgs(bitmap.size.toInt.asInstanceOf[Object], bitmap.buffer, output.buffer)
       CLEventBound.syncBlock(Array(bitmap), Array(output), evts => {
-        kernel.enqueueNDRange(context.queue, Array(bitmap.size.toInt), null, evts:_*)
+        kernel.enqueueNDRange(context.queue, Array(bitmap.size.toInt), evts:_*)
       })
     }
   }
@@ -58,8 +58,9 @@ object PrefixSum {
     kernel.synchronized {
       kernel.setArgs(in.size.toInt.asInstanceOf[Object], presencePrefix.buffer, in.buffer, pio.getTargetSize.toInt.asInstanceOf[Object], out.buffer)
       CLEventBound.syncBlock(Array(in, presencePrefix), Array(out), evts => {
-        kernel.enqueueNDRange(context.queue, Array(in.size.toInt), null, evts:_*)
+        kernel.enqueueNDRange(context.queue, Array(in.size.toInt), evts:_*)
       })
     }
   }
 }
+

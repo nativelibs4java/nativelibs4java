@@ -22,11 +22,10 @@ case class CLInstantFuture[T](value: T) extends CLFuture[T] {
   override def get = value
 }
 case class CLPointerFuture[T](ptr: Pointer[T], evt: CLEvent) extends CLEventFuture[T] {
+  //evt.waitFor
+  
   lastWriteEvent = evt
-  /*write(evts => {
-    assert(evts.forall(_ == null))
-    evt
-  })*/
+  
   protected override def doGet = ptr.get
 }
 

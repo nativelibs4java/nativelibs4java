@@ -59,6 +59,7 @@ class CLIntRange(
     this(new CLGuardedBuffer[Int](Array(range.start, range.end, range.step, if (range.isInclusive) 1 else 0)))
 
   override def eventBoundComponents = Seq(buffer)
+  override def release = buffer.release
   
   import CLIntRange._
 

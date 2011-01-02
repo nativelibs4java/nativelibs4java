@@ -38,6 +38,6 @@ class ScalaCL2Project(info: ProjectInfo) extends DefaultProject(info)
   
   val nativelibs4javaRepo = "NativeLibs4Java Repository" at "http://nativelibs4java.sourceforge.net/maven/"
   //val BuSwing = "com.nativelibs4java" % "buswing_2.8.0" % "0.1.1-SNAPSHOT"
-  val JavaCLBridJ = "com.nativelibs4java" % "javacl-bridj" % "1.0-SNAPSHOT"
+  //val JavaCLBridJ = "com.nativelibs4java" % "javacl-bridj" % "1.0-SNAPSHOT"
   val junitInterface = "com.novocode" % "junit-interface" % "0.4" % "test"//"test->default" 
 }

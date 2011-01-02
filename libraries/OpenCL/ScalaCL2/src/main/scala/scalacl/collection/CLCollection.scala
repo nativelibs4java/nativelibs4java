@@ -28,6 +28,8 @@ trait CLCollectionLike[A, +Repr]
   this: Repr =>
   //self =>
   
+  def release: Unit
+  
   def toArray: Array[A] = toCLArray.toArray
   override def copyToArray[B >: A](a: Array[B], start: Int, len: Int): Unit = toCLArray.copyToArray(a, start, len)
     override def toArray[B >: A](implicit b: ClassManifest[B]) = {

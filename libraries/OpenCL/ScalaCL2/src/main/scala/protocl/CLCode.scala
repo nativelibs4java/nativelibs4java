@@ -39,8 +39,7 @@ trait CLCode {
         for ((key, value) <- macros)
           program.defineMacro(key, value)
 
-        println("Creating kernel")
-        program.addArgs(compilerArguments:_*)
+        compilerArguments.foreach(program.addBuildOption(_))
         if (name != null)
           program.createKernel(name)
         else

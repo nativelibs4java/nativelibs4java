@@ -7,55 +7,56 @@ import scala.collection.mutable.{ArrayBuilder, ListBuffer, ArrayBuffer}
 
 trait CLEventBoundContainer {
   def eventBoundComponents: Seq[CLEventBound]
+  def waitFor: Unit = eventBoundComponents.foreach(_.waitFor)
 }
 trait CLEventBound extends CLEventBoundContainer {
   override def eventBoundComponents = Seq(this)
   
-    protected var lastWriteEvent: CLEvent = null
-    protected val readEvents = new ArrayBuffer[CLEvent]
+  protected var lastWriteEvent: CLEvent = null
+  protected val readEvents = new ArrayBuffer[CLEvent]
 
-    protected def allEvents = this.synchronized {
-      val rea = readEvents.toArray
-      if (lastWriteEvent == null)
-        rea
-      else
-        Array(lastWriteEvent) ++ rea
-    }
+  protected def allEvents = this.synchronized {
+    val rea = readEvents.toArray
+    if (lastWriteEvent == null)
+      rea
+    else
+      Array(lastWriteEvent) ++ rea
+  }
 
-    def write(action: Array[CLEvent] => CLEvent): CLEvent = this.synchronized {
-      val evt = action(allEvents)
-      if (evt != null) {
-        lastWriteEvent = evt
-        readEvents.clear
-      }
-      lastWriteEvent
-    }
-    def read(action: Array[CLEvent] => CLEvent): CLEvent = this.synchronized {
-      val evt = action(if (lastWriteEvent == null) Array() else Array(lastWriteEvent))
-      if (evt != null)
-        readEvents += evt
-
-      evt
-    }
-  
-    protected def readValue[V](f: Array[CLEvent] => V): V = this.synchronized {
-      f(if (lastWriteEvent == null) Array() else Array(lastWriteEvent))
-    }
-
-    def readBlock[V](block: => V) = this.synchronized {
-        waitFor
-        block
-    }
-
-    def waitFor = this.synchronized {
-      if (lastWriteEvent != null)
-        readEvents += lastWriteEvent
-
-      CLEvent.waitFor(readEvents.result:_*)
-      lastWriteEvent = null
+  def write(action: Array[CLEvent] => CLEvent): CLEvent = this.synchronized {
+    val evt = action(allEvents)
+    if (evt != null) {
+      lastWriteEvent = evt
       readEvents.clear
-      //lastReadEvent = null
     }
+    lastWriteEvent
+  }
+  def read(action: Array[CLEvent] => CLEvent): CLEvent = this.synchronized {
+    val evt = action(if (lastWriteEvent == null) Array() else Array(lastWriteEvent))
+    if (evt != null)
+      readEvents += evt
+
+    evt
+  }
+
+  protected def readValue[V](f: Array[CLEvent] => V): V = this.synchronized {
+    f(if (lastWriteEvent == null) Array() else Array(lastWriteEvent))
+  }
+
+  def readBlock[V](block: => V) = this.synchronized {
+      waitFor
+      block
+  }
+
+  override def waitFor = this.synchronized {
+    if (lastWriteEvent != null)
+      readEvents += lastWriteEvent
+
+    CLEvent.waitFor(readEvents.result:_*)
+    lastWriteEvent = null
+    readEvents.clear
+    //lastReadEvent = null
+  }
 }
 
 object CLEventBound {

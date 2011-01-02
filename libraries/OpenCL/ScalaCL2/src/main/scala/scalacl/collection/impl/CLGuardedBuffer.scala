@@ -26,6 +26,8 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[
     ))
   }
 
+  def release = buffer.release
+  
   def args = Seq(buffer)
 
   def apply(index: Long): CLFuture[T] = {
@@ -61,7 +63,7 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[
   def copyTo(out: CLGuardedBuffer[T]): Unit = {
     assert(buffer.getByteCount == out.buffer.getByteCount)
     CLEventBound.syncBlock(Array(this), Array(out), evts => {
-      buffer.copyTo(context.queue, 0, size * buffer.getElementSize, out.buffer, 0, evts:_*)
+      buffer.copyTo(context.queue, 0, size /* * buffer.getElementSize*/, out.buffer, 0, evts:_*)
     })
   }
   def clone(start: Long, end: Long): CLGuardedBuffer[T] = {

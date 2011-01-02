@@ -69,30 +69,39 @@ class CLArray[A](
   with MappableToCLArray[A, CLIndexedSeq[A]]
 {
   def this(length: Int)(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
-    this(length, dataIO.createBuffers(length))
+    this(length, if (length > 0) dataIO.createBuffers(length) else null)
 
-  override def eventBoundComponents = buffers
+  override def release = if (length > 0) buffers.foreach(_.release)
+  
+  override def eventBoundComponents = if (length > 0) buffers else Seq()
   
   type Repr = CLIndexedSeq[A]
   
-  assert(buffers.forall(_.buffer.getElementCount == length))
+  assert(length == 0 || buffers.forall(_.buffer.getElementCount == length))
 
   import CLArray._
+  import dataIO.t
 
   override def newBuilder: Builder[A, CLIndexedSeq[A]] = CLArray.newBuilder[A]
 
-  override def toArray = dataIO.toArray(buffers)
-  override def copyToArray[B >: A](out: Array[B], start: Int, len: Int): Unit = {
+  override def toArray = if (length > 0) dataIO.toArray(buffers) else Array[A]()
+  override def copyToArray[B >: A](out: Array[B], start: Int, len: Int): Unit = if (length > 0) {
     dataIO.copyToArray(buffers, out, start, len)
   }
 
   override def toCLArray = this
 
   override def apply(index: Int): A =
-    dataIO.extract(buffers, index).get
+    if (length > 0) 
+      dataIO.extract(buffers, index).get
+    else
+      throw new ArrayIndexOutOfBoundsException("Empty CLArray !")
 
   def update(index: Int, value: A): Unit =
-    dataIO.store(value, buffers, index)
+    if (length > 0)
+      dataIO.store(value, buffers, index)
+    else
+      throw new ArrayIndexOutOfBoundsException("Empty CLArray !")
 
   def update(f: A => A): CLArray[A] =
     map(f, this)(new CLCanBuildFrom[Repr, A, CLArray[A]] {
@@ -102,7 +111,7 @@ class CLArray[A](
     })
 
   override def clone: CLArray[A] =
-    new CLArray(length, buffers.map(_.clone)) // TODO map in parallel
+    new CLArray(length, if (length > 0) buffers.map(_.clone) else null) // TODO map in parallel
 
   override def size = length
 
@@ -139,9 +148,12 @@ class CLArray[A](
   def copyTo(other: CLArray[A]) = {
     import scala.concurrent.ops._
 
-    assert(buffers.length == other.buffers.length)
-    for ((from, to) <- buffers.zip(other.buffers))
-      from.copyTo(to)
+    assert(length == other.length)
+    if (length > 0) {
+      assert(buffers.length == other.buffers.length)
+      for ((from, to) <- buffers.zip(other.buffers))
+        from.copyTo(to)
+    }
   }
 }
 

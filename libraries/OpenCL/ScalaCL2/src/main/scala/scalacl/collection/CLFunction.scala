@@ -12,9 +12,10 @@ trait CLRunnable {
   def run(dims: Array[Int], args: Array[Any], eventsToWaitFor: Array[CLEvent])(implicit context: ScalaCLContext): CLEvent
 
   def run(dims: Array[Int], args: Array[Any], reads: Array[CLEventBoundContainer], writes: Array[CLEventBoundContainer])(implicit context: ScalaCLContext): Unit = {
-    CLEventBound.syncBlock(reads.flatMap(_.eventBoundComponents), writes.flatMap(_.eventBoundComponents), evts => {
-      run(dims, args, evts)
-    })
+    if (dims.sum > 0)
+      CLEventBound.syncBlock(reads.flatMap(_.eventBoundComponents), writes.flatMap(_.eventBoundComponents), evts => {
+        run(dims, args, evts)
+      })
   }
 }
 
@@ -67,7 +68,7 @@ extends (A => B)
   val inParams = aIO.openCLKernelArgDeclarations(true, 0).mkString(", ")
   val outParams = bIO.openCLKernelArgDeclarations(false, 0).mkString(", ")
   val varExprs = aIO.openCLIntermediateKernelTupleElementsExprs(inVar).sortBy(-_._1.length).toArray
-  println("varExprs = " + varExprs.toSeq)
+  //println("varExprs = " + varExprs.toSeq)
   def replaceForFunction(s: String,  i: String) = if (s == null) null else {
     var r = s.replaceAll(toRxb(indexVar), "i")
     r = r.replaceAll(toRxb(sizeVar), "size")
@@ -109,15 +110,15 @@ extends (A => B)
           """ + assignts("0") + """;
       }
   """
-  println("expressions = " + expressions)
-  println("functionSource = " + functionSource)
+  //println("expressions = " + expressions)
+  //println("functionSource = " + functionSource)
 
   //def replaceForKernel(s: String) = if (s == null) null else replaceAllButIn(s).replaceAll(toRxb(inVar), "in[i]")
   val presenceParam = "__global const char* presence"
   val kernDecls = declarations.map(replaceForFunction(_, "i")).reduceLeftOption(_ + "\n" + _).getOrElse("")
   val assignt = assignts("i")
   val kernelsSource = if (expressions.isEmpty) null else """
-      __kernel void array_array(
+      __kernel void array_array""" + uid + """(
           int size,
           """ + inParams + """,
           """ + outParams + """
@@ -126,7 +127,7 @@ extends (A => B)
           """ + kernDecls + """
           """ + assignt + """;
       }
-      __kernel void filteredArray_filteredArray(
+      __kernel void filteredArray_filteredArray""" + uid + """(
           int size,
           """ + inParams + """,
           """ + presenceParam + """,
@@ -139,7 +140,7 @@ extends (A => B)
           """ + assignt + """;
       }
   """
-  println("kernelsSource = " + kernelsSource)
+  //println("kernelsSource = " + kernelsSource)
 
 
   val sourcesToInclude = if (expressions.isEmpty) null else includedSources ++ Seq(functionSource)
@@ -172,21 +173,30 @@ extends (A => B)
     val (kernelName, size: Int, buffers: Array[CLGuardedBuffer[Any]]) = args match {
       case Array(in: CLArray[_], out: CLGuardedBuffer[Any]) =>
         // case of CLArray.filter (output to the presence array of a CLFilteredArray
-        ("array_array", in.length, in.buffers ++ Array(out): Array[CLGuardedBuffer[Any]])
+        ("array_array" + uid, in.length, in.buffers ++ Array(out): Array[CLGuardedBuffer[Any]])
       case Array(in: CLArray[_], out: CLArray[_]) =>
         // CLArray.map
-        ("array_array", in.length, in.buffers ++ out.buffers: Array[CLGuardedBuffer[Any]])
+        ("array_array" + uid, in.length, in.buffers ++ out.buffers: Array[CLGuardedBuffer[Any]])
       case Array(in: CLFilteredArray[_], out: CLFilteredArray[Any]) =>
         // CLFilteredArray.map
-        ("filteredArray_filteredArray", in.array.length, in.array.buffers ++ Array(in.presence.asInstanceOf[CLGuardedBuffer[Any]]) ++ out.array.buffers: Array[CLGuardedBuffer[Any]])
+        ("filteredArray_filteredArray" + uid, in.array.length, in.array.buffers ++ Array(in.presence.asInstanceOf[CLGuardedBuffer[Any]]) ++ out.array.buffers: Array[CLGuardedBuffer[Any]])
       case _ =>
         error("ERROR, args = " + args.mkString(", "))
     }
     val kernel = getKernel(context, kernelName)
+    assert(kernel.getFunctionName() == kernelName, "not getting the expected kernel !")
     
     kernel.synchronized {
-      kernel.setArgs((Array(size.asInstanceOf[Object]) ++ buffers.map(_.buffer: Object)):_*)
-      kernel.enqueueNDRange(context.queue, dims, eventsToWaitFor:_*)
+      val args = Array(size.asInstanceOf[Object]) ++ buffers.map(_.buffer: Object)
+      //println("kernelName = " + kernelName + ", args = " + args.toSeq + ", kernelsSource = " + kernelsSource)
+      try {
+        kernel.setArgs(args:_*)
+        //println("dims = " + dims.toSeq)
+        kernel.enqueueNDRange(context.queue, dims, eventsToWaitFor:_*)
+      } catch { case ex =>
+        ex.printStackTrace(System.out)
+        throw ex
+      }
     }
   }
 }
