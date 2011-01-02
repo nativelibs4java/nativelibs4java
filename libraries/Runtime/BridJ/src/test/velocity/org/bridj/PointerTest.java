@@ -141,7 +141,7 @@ public class PointerTest {
 				if (!type.canCreate)
 					continue;
 				
-				Pointer<?> p = pointerToString(s, charset, type);
+				Pointer<?> p = pointerToString(s, type, charset);
 				assertEquals("Failed alloc / set of string type " + type, s, p.getString(type));
 				
 				p.setString(s2, type);
