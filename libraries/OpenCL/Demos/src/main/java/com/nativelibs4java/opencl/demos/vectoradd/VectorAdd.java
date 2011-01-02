@@ -46,7 +46,7 @@ public class VectorAdd {
 		CLFloatBuffer outBuf = context.createFloatBuffer(CLMem.Usage.Output, n);
 		kernel.setArgs(aBuf, bBuf, outBuf);
 		
-		kernel.enqueueNDRange(queue, new int[]{n}, new int[] { 1 });
+		kernel.enqueueNDRange(queue, new int[]{n});
 		queue.finish();
 	
 		return outBuf.read(queue);

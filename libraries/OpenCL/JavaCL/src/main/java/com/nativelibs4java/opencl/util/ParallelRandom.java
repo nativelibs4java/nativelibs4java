@@ -34,7 +34,7 @@ public class ParallelRandom {
     protected final CLQueue queue;
     protected final CLContext context;
     protected final int parallelSize;
-    protected final int[] globalWorkSizes, localWorkSizes;
+    protected final int[] globalWorkSizes;
 	
 	protected int consumedInts = 0;
 
@@ -64,10 +64,10 @@ public class ParallelRandom {
             //int iterationsByWorkItem = parallelCount / (generatedNumbersByWorkItemIteration * scheduledWorkItems);
             globalWorkSizes = new int[] { scheduledWorkItems };
 
-            int lws = 1;//(int)queue.getDevice().getMaxWorkGroupSize();
-            if (lws > 32)
-                lws = 32;
-            localWorkSizes = new int[] { lws };
+            //int lws = 1;//(int)queue.getDevice().getMaxWorkGroupSize();
+            //if (lws > 32)
+            //    lws = 32;
+            //localWorkSizes = new int[] { lws };
 
             randomProgram.getProgram().defineMacro("NUMBERS_COUNT", parallelSize);
             randomProgram.getProgram().defineMacro("WORK_ITEMS_COUNT", scheduledWorkItems);
@@ -99,21 +99,21 @@ public class ParallelRandom {
 		this.preload = preload;
 		if (preload && preloadEvent == null) {
 			if (lastData == null) {
-				preloadEvent = randomProgram.gen_numbers(queue, seeds, output, globalWorkSizes, localWorkSizes);
+				preloadEvent = randomProgram.gen_numbers(queue, seeds, output, globalWorkSizes, null);
 			} else if (consumedInts > 0) {
 				preload();
 			}
 		}
 	}
 	private synchronized CLEvent preload() throws CLBuildException {
-		return preloadEvent = randomProgram.gen_numbers(queue, seeds, output, globalWorkSizes, localWorkSizes, preloadEvent);
+		return preloadEvent = randomProgram.gen_numbers(queue, seeds, output, globalWorkSizes, null, preloadEvent);
 	}
 	private synchronized void waitForData(int n) {
 		try {
 			if (lastData == null) {
 				//lastOutputData = NIOUtils.directInts(parallelSize, context.getKernelsDefaultByteOrder());
 				if (preloadEvent == null)
-					preloadEvent = randomProgram.gen_numbers(queue, seeds, output, globalWorkSizes, localWorkSizes);
+					preloadEvent = randomProgram.gen_numbers(queue, seeds, output, globalWorkSizes, null);
 					
 				readLastOutputData();
 			}
@@ -189,7 +189,7 @@ public class ParallelRandom {
             //    mappedOutputBuffer = null;
             //}
             return randomProgram.gen_numbers(queue, seeds, //parallelSize,
-                    output, globalWorkSizes, localWorkSizes);
+                    output, globalWorkSizes, null);
         } catch (CLBuildException ex) {
             Logger.getLogger(ParallelRandom.class.getName()).log(Level.SEVERE, null, ex);
             throw new RuntimeException("Failed to compile the random number generation routine", ex);

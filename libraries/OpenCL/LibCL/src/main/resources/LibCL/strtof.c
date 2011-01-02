@@ -36,6 +36,15 @@
 #define NULL 0
 #endif
 
+const float _strtof_powersOf10_[] = {	// Table giving binary powers of 10.  Entry 
+					10.0f,			// is 10^2^i.  Used to convert decimal 
+					100.0f,			// exponents into floating-point numbers. 
+					1.0e4f,
+					1.0e8f,
+					1.0e16f,
+					1.0e32f
+};
+
 /*
  *----------------------------------------------------------------------
  *
@@ -75,7 +84,7 @@ strtof(__global CONST char *string,		/* A decimal ASCII floating-point number,
       ) {
 	int sign, expSign = FALSE;
 	float fraction, dblExp;
-	const float *d;
+	__constant float *d;
 	__global CONST char *p;
 	int c;
 	int exp = 0;		/* Exponent read from "EX" field. */
@@ -232,16 +241,7 @@ strtof(__global CONST char *string,		/* A decimal ASCII floating-point number,
 	}
 	dblExp = 1.0f;
 	
-	
-	const float powersOf10[] = {	// Table giving binary powers of 10.  Entry 
-		10.0f,			// is 10^2^i.  Used to convert decimal 
-		100.0f,			// exponents into floating-point numbers. 
-		1.0e4f,
-		1.0e8f,
-		1.0e16f,
-		1.0e32f
-	};
-	for (d = powersOf10; exp != 0; exp >>= 1, d += 1) {
+	for (d = _strtof_powersOf10_; exp != 0; exp >>= 1, d += 1) {
 		if (exp & 01) {
 			dblExp *= *d;
 		}

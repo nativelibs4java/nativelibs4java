@@ -218,8 +218,7 @@ public class ReductionUtils {
                             if (workgroupSize == 1)
                             		workgroupSize = 2;
                             blockCountArr[0] = workgroupSize;
-                            int wis = (inputLength & 1) == 0 && maxWIS > 1 ? 2 : 1;
-                            eventsArr[0] = kernel.enqueueNDRange(queue, blockCountArr, new int[] { wis }, eventsToWaitFor);
+                            eventsArr[0] = kernel.enqueueNDRange(queue, blockCountArr, null, eventsToWaitFor);
                         }
 						eventsToWaitFor = eventsArr;
 						inputLength = blocksInCurrentDepth;

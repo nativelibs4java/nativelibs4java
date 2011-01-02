@@ -29,7 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.nativelibs4java.opencl;
-import static com.nativelibs4java.opencl.CLException.error;
+import static com.nativelibs4java.opencl.CLException.*;
 import static com.nativelibs4java.opencl.JavaCL.CL;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.*;
 import static com.nativelibs4java.util.JNAUtils.toNS;
@@ -246,7 +246,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         setLocalArg(i, arg.size);
     }
     public void setLocalArg(int argIndex, long localArgByteLength) {
-        error(CL.clSetKernelArg(getEntity(), argIndex, toNS(localArgByteLength), null));
+        setKernelArg(argIndex, toNS(localArgByteLength), null);
     }
 
     //public void setArg(int i, NativeLong arg) {
@@ -280,57 +280,66 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
 		if (!arg.isDirect())
 			arg = NIOUtils.directCopy(arg, getProgram().getContext().getByteOrder());
 		long size = NIOUtils.getSizeInBytes(arg);
-        error(CL.clSetKernelArg(getEntity(), i, toNS(size), Native.getDirectBufferPointer(arg)));
+        setKernelArg(i, toNS(size), Native.getDirectBufferPointer(arg));
+    }
+
+    protected void setKernelArg(int i, NativeSize size, Pointer ptr) {
+    		try {
+    			error(CL.clSetKernelArg(getEntity(), i, size, ptr));
+    		} catch (CLTypedException ex) {
+    			ex.setKernelArg(this, i);
+    			throw ex;
+    		}
     }
 
     public void setArg(int i, NativeSize arg) {
         switch (getProgram().getContext().getAddressBits()) {
             case 32:
-                error(CL.clSetKernelArg(getEntity(), i, toNS(4), new IntByReference(arg.intValue()).getPointer()));
+                setKernelArg(i, toNS(4), new IntByReference(arg.intValue()).getPointer());
                 break;
             case 64:
-                error(CL.clSetKernelArg(getEntity(), i, toNS(8), new LongByReference(arg.longValue()).getPointer()));
+                setKernelArg(i, toNS(8), new LongByReference(arg.longValue()).getPointer());
                 break;
             default:
-                error(CL.clSetKernelArg(getEntity(), i, toNS(NativeSize.SIZE), new NativeSizeByReference(arg).getPointer()));
+                setKernelArg(i, toNS(NativeSize.SIZE), new NativeSizeByReference(arg).getPointer());
                 break;
         }
     }
 
     public void setArg(int i, int arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(4), new IntByReference(arg).getPointer()));
+        setKernelArg(i, toNS(4), new IntByReference(arg).getPointer());
     }
 
     public void setArg(int i, long arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(8), new LongByReference(arg).getPointer()));
+        setKernelArg(i, toNS(8), new LongByReference(arg).getPointer());
     }
 
     public void setArg(int i, short arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(2), new ShortByReference(arg).getPointer()));
+        setKernelArg(i, toNS(2), new ShortByReference(arg).getPointer());
     }
 
     public void setArg(int i, byte arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(1), new ByteByReference(arg).getPointer()));
+        setKernelArg(i, toNS(1), new ByteByReference(arg).getPointer());
     }
 
     public void setArg(int i, float arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(4), new FloatByReference(arg).getPointer()));
+        setKernelArg(i, toNS(4), new FloatByReference(arg).getPointer());
     }
 
     public void setArg(int i, double arg) {
-        error(CL.clSetKernelArg(getEntity(), i, toNS(8), new DoubleByReference(arg).getPointer()));
+        setKernelArg(i, toNS(8), new DoubleByReference(arg).getPointer());
     }
 
     public void setArg(int index, CLMem mem) {
-        error(CL.clSetKernelArg(getEntity(), index, toNS(Pointer.SIZE), new PointerByReference(mem.getEntity().getPointer()).getPointer()));
+        setKernelArg(index, toNS(Pointer.SIZE), new PointerByReference(mem.getEntity().getPointer()).getPointer());
     }
 
     public void setArg(int index, CLEvent event) {
-        error(CL.clSetKernelArg(getEntity(), index, toNS(Pointer.SIZE), new PointerByReference(event.getEntity().getPointer()).getPointer()));
+        setKernelArg(index, toNS(Pointer.SIZE), new PointerByReference(event.getEntity().getPointer()).getPointer());
     }
 
     public void setArg(int index, CLSampler sampler) {
-        error(CL.clSetKernelArg(getEntity(), index, toNS(Pointer.SIZE), new PointerByReference(sampler.getEntity().getPointer()).getPointer()));
+        setKernelArg(index, toNS(Pointer.SIZE), new PointerByReference(sampler.getEntity().getPointer()).getPointer());
     }
 
     @Override

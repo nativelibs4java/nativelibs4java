@@ -216,7 +216,7 @@ public class ImageTest extends AbstractCommon {
                     cloutput
                 );
 
-                kernel.enqueueNDRange(queue, new int[] {width, height}, new int[]{1, 1}).waitFor();
+                kernel.enqueueNDRange(queue, new int[] {width, height}).waitFor();
 
                 //IntBuffer output = cloutput.read(queue);
                 //IntBuffer output = cloutput.readBytes(queue, 0, width * height * 4 * 4).order(ByteOrder.BIG_ENDIAN).asIntBuffer();
@@ -353,7 +353,7 @@ public class ImageTest extends AbstractCommon {
                     cloutput
                 );
 
-                kernel.enqueueNDRange(queue, new int[] {width, height}, new int[]{1, 1}).waitFor();
+                kernel.enqueueNDRange(queue, new int[] {width, height}).waitFor();
 
                 //IntBuffer output = cloutput.read(queue);
                 //IntBuffer output = cloutput.readBytes(queue, 0, width * height * 4 * 4).order(ByteOrder.BIG_ENDIAN).asIntBuffer();

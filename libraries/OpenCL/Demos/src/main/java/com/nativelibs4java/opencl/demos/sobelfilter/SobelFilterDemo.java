@@ -146,7 +146,7 @@ public class SobelFilterDemo {
             gradients,
             directions,
             new int[] { width, height },
-            new int[] { 1, 1 }
+            null//new int[] { 1, 1 }
         );
 
         //queue.finish();

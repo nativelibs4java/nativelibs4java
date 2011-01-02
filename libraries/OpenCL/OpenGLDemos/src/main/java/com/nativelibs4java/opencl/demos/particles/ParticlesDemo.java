@@ -625,11 +625,6 @@ public class ParticlesDemo implements GLEventListener {
             interleavedColorAndPositionsMem.acquireGLObject(queue);
 
         try {
-            long maxwgs = queue.getDevice().getMaxWorkGroupSize();
-            long wgs = 32;
-            if (wgs > maxwgs)
-                wgs = maxwgs;
-
             CLEvent evt = particlesProgram.updateParticle(
                 queue,
                 massesMem,
@@ -642,7 +637,7 @@ public class ParticlesDemo implements GLEventListener {
                 slowDownFactor,
                 hasMouse ? mouseWeight : 0,
                 (byte)(limitToScreen ? 1 : 0),
-                new int[] { particlesCount }, new int[] { (int)wgs }
+                new int[] { particlesCount }, null
             );
             evt.release(); // the gc might be to slow to reclaim the event, so do manual memory management here
 

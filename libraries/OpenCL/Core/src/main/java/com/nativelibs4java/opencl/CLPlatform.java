@@ -355,11 +355,20 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         Memory propsMem = toNSArray(props);
         NativeSizeByReference propsRef = new NativeSizeByReference();
         propsRef.setPointer(propsMem);
-        cl_context context = CL.clCreateContext(propsRef, ids.length, ids, null, null, errRef);
+        cl_context context = CL.clCreateContext(propsRef, ids.length, ids, null/*errorCallback.getPointer()*/, null, errRef);
         error(errRef.getValue());
         return new CLContext(this, ids, context);
     }
-
+    /*
+    public static final clCreateContext_arg1_callback errorCallback = new clCreateContext_arg1_callback() {
+		public void apply(Pointer<java.lang.Byte > errInfo, Pointer<? > private_info, @Ptr long cb, Pointer<? > user_data) {
+			String log = errInfo.getCString();
+			System.out.println("[JavaCL] " + log);
+			throw new CLException(log);
+		}
+	};
+	*/
+    
     /**
      * List all the devices of the specified types, with only the ones declared as available if onlyAvailable is true.
      */

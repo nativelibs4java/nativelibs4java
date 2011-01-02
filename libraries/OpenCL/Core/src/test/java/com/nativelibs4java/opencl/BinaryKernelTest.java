@@ -34,7 +34,7 @@ public class BinaryKernelTest extends AbstractCommon {
 		Map<CLDevice, byte[]> binaries = program.getBinaries();
 		program.release();
 		
-		CLProgram binaryProgram = context.createProgram(binaries);
+		CLProgram binaryProgram = context.createProgram(binaries, null);
 		CLKernel kernel = binaryProgram.createKernel("copy");
 
 		CLIntBuffer a=context.createIntBuffer(CLMem.Usage.Input, 4);
@@ -47,7 +47,7 @@ public class BinaryKernelTest extends AbstractCommon {
 		a.write(queue, source, true);
 
 		kernel.setArgs(a, b);
-		kernel.enqueueNDRange(queue, new int[]{4}, new int[]{1}).waitFor();
+		kernel.enqueueNDRange(queue, new int[]{4}).waitFor();
 
 		IntBuffer target = b.read(queue);
 
