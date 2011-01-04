@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.*;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id;
@@ -69,6 +70,23 @@ public class JavaCL {
 		return cacheBinaries;
 	}
 	
+	static final boolean verbose = "true".equals(System.getProperty("javacl.verbose")) || "1".equals(System.getenv("JAVACL_VERBOSE"));
+    static final int minLogLevel = Level.WARNING.intValue();
+	static boolean shouldLog(Level level) {
+        return verbose || level.intValue() >= minLogLevel;
+    }
+	static boolean log(Level level, String message, Throwable ex) {
+        if (!shouldLog(level))
+            return true;
+		Logger.getLogger(JavaCL.class.getName()).log(level, message, ex);
+        return true;
+	}
+	
+	static boolean log(Level level, String message) {
+		log(level, message, null);
+		return true;
+	}
+
     public static CLPlatform[] listGPUPoweredPlatforms() {
         CLPlatform[] platforms = listPlatforms();
         List<CLPlatform> out = new ArrayList<CLPlatform>(platforms.length);
