@@ -34,6 +34,8 @@ import static com.nativelibs4java.opencl.CLException.error;
 import static com.nativelibs4java.opencl.CLException.errorString;
 import static com.nativelibs4java.opencl.CLException.failedForLackOfMemory;
 import static com.nativelibs4java.opencl.JavaCL.CL;
+import static com.nativelibs4java.opencl.JavaCL.log;
+import java.util.logging.Level;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BINARIES;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BINARY_SIZES;
 import static com.nativelibs4java.opencl.library.OpenCLLibrary.CL_PROGRAM_BUILD_LOG;
@@ -331,7 +333,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         includesDir.mkdirs();
         final List<File> filesToDelete = new ArrayList<File>();
         for (Map.Entry<String, URL> e : inclusions.entrySet()) {
-            System.out.println("[JavaCL] Copying include '" + e.getKey() + "' from '" + e.getValue() + "' to '" + includesDir + "'");
+            assert log(Level.INFO, "Copying include '" + e.getKey() + "' from '" + e.getValue() + "' to '" + includesDir + "'");
             File f = new File(includesDir, e.getKey().replace('/', File.separatorChar));
             File p = f.getParentFile();
             filesToDelete.add(f);
@@ -371,7 +373,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                 continue;
             URL url = getIncludedSourceURL(includedPath);
             if (url == null) {
-                System.err.println("[JavaCL] Failed to resolve include '" + includedPath + "'");
+                assert log(Level.SEVERE, "Failed to resolve include '" + includedPath + "'");
             } else {
                 String s = ReadText.readText(url);
                 ret.put(includedPath, url);
@@ -592,12 +594,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 					Pair<Map<CLDevice, byte[]>, String> bins = readBinaries(Arrays.asList(getDevices()), contentSignature, new FileInputStream(cacheFile));
 					setBinaries(bins.getFirst());
 					this.source = bins.getSecond();
-					System.out.println("[JavaCL] Read binaries cache from '" + cacheFile + "'");
+					assert log(Level.INFO, "Read binaries cache from '" + cacheFile + "'");
 					readBinaries = true;
 				}
         		} catch (Exception ex) {
-        			System.err.println("[JavaCL] Failed to load cached program :"); 
-        			ex.printStackTrace();
+        			assert log(Level.WARNING, "Failed to load cached program", ex);
         		}
         }
         
@@ -648,7 +649,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         		cacheDirectory.mkdirs();
         		try {
         			writeBinaries(getBinaries(), getSource(), contentSignature, new FileOutputStream(cacheFile));
-        			System.out.println("[JavaCL] Wrote binaries cache to '" + cacheFile + "'"); 
+        			assert log(Level.INFO, "Wrote binaries cache to '" + cacheFile + "'"); 
         		} catch (Exception ex) {
         			new IOException("[JavaCL] Failed to cache program", ex).printStackTrace();
         		}

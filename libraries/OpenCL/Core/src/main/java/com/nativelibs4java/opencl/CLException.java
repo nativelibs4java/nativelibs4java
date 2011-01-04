@@ -36,6 +36,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.*;
 import java.lang.reflect.*;
+import static com.nativelibs4java.opencl.JavaCL.log;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -236,17 +237,22 @@ public class CLException extends RuntimeException {
                         typedErrorClassesByCode.put(c.getAnnotation(ErrorCode.class).value(), (Class<? extends CLTypedException>)c);
                 }
         }
+        CLException toThrow = null;
         Class<? extends CLTypedException> c = typedErrorClassesByCode.get(err);
         if (c != null) {
-                try {
-                        throw c.newInstance();
-                } catch (InstantiationException ex) {
-                        Logger.getLogger(CLException.class.getName()).log(Level.SEVERE, null, ex);
-                } catch (IllegalAccessException ex) {
-                        Logger.getLogger(CLException.class.getName()).log(Level.SEVERE, null, ex);
-                }
+			try {
+				toThrow = c.newInstance();
+			} catch (InstantiationException ex) {
+				assert log(Level.SEVERE, null, ex);
+			} catch (IllegalAccessException ex) {
+				assert log(Level.SEVERE, null, ex);
+			}
         }
-
-        throw new CLException("OpenCL Error : " + errorString(err) + logSuffix, err);
+        if (toThrow == null)
+        		toThrow = new CLException("OpenCL Error : " + errorString(err) + logSuffix, err);
+        	
+        	assert log(Level.SEVERE, null, toThrow);
+        	
+        	throw toThrow;
     }
 }
