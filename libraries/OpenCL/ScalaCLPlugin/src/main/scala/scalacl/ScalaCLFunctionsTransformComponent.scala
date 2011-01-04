@@ -103,7 +103,7 @@ extends PluginComponent
           // Transform inline functions into OpenCL mixed functions / expression code
           case TraversalOp(traversalOp) if traversalOp.op.f != null =>
             import traversalOp._
-            println("FOUND TRAVERSAL OP " + traversalOp)
+            //println("FOUND TRAVERSAL OP " + traversalOp)
             try {
               collection.tpe = null
               typed(collection)
@@ -124,7 +124,7 @@ extends PluginComponent
                     //println("sourceDataIOTpe = " + sourceDataIOTpe)
                     //println("mappedDataIOTpe = " + mappedDataIOTpe)
                     
-                    println("SCALACL PLUGIN : found map with " + f + " and implicits :")
+                    //println("SCALACL PLUGIN : found map with " + f + " and implicits :")
                     //val applicableViews: List[SearchResult] = 
                     val Array(
                       sourceDataIO, 
@@ -137,8 +137,8 @@ extends PluginComponent
                       analyzer.inferImplicit(tree, dataIOTpe, false, false, context).tree
                       //new ImplicitSearch(tree, tpe, isView = false, context.makeImplicit(reportAmbiguousErrors = false)).bestImplicit//.allImplicits
                     })
-                    println("sourceDataIO = " + sourceDataIO)
-                    println("mappedDataIO = " + mappedDataIO)
+                    //println("sourceDataIO = " + sourceDataIO)
+                    //println("mappedDataIO = " + mappedDataIO)
                     
                     val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "|" + tree.symbol.tag + "|" + tree.symbol.pos)) // TODO
                     val uniqueId = uniqueSignature.hashCode // TODO !!!
@@ -177,9 +177,10 @@ extends PluginComponent
                       
                     val rep = replaceOccurrences(super.transform(tree), Map(), Map(), Map(f -> (() => clFunction)), unit)
                     println("REP = " + rep)
-                    //println("REP = " + nodeToString(rep))
                     typed { rep }
-                    //rep
+                    println("TYPED REP NODES = " + nodeToString(rep))
+                    //typed { rep }
+                    rep
                   case _ =>
                     super.transform(tree)
                 }
