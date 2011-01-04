@@ -5,6 +5,7 @@
 
 package scalacl
 import collection._
+import impl._
 
 import com.nativelibs4java.opencl._
 import org.bridj.Pointer

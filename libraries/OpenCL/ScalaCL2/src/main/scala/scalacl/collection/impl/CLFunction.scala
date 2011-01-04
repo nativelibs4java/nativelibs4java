@@ -1,6 +1,6 @@
 package scalacl
 package collection
-import impl._
+package impl
 
 import scala.collection._
 
@@ -31,7 +31,6 @@ object CLFunction {
 }
 
 class CLFunction[A, B](
-  val uniqueKey: String,
   val function: A => B,
   declarations: Seq[String],
   val expressions: Seq[String],
@@ -155,7 +154,7 @@ extends (A => B)
     compositions.synchronized {
       compositions.getOrElseUpdate((uid, f.uid), {
         // TODO FIXME !
-        new CLFunction[C, B](null, function.compose(f.function), Seq(), Seq(functionName + "(" + f.functionName + "(_))"), sourcesToInclude ++ f.sourcesToInclude).asInstanceOf[CLFunction[_, _]]
+        new CLFunction[C, B](function.compose(f.function), Seq(), Seq(functionName + "(" + f.functionName + "(_))"), sourcesToInclude ++ f.sourcesToInclude).asInstanceOf[CLFunction[_, _]]
       }).asInstanceOf[CLFunction[C, B]]
     }
   }
@@ -164,7 +163,7 @@ extends (A => B)
     ands.synchronized {
       ands.getOrElseUpdate((uid, f.uid), {
         // TODO FIXME !
-        new CLFunction[A, B](null, a => (function(a) && f.function(a)).asInstanceOf[B], Seq(), Seq("(" + functionName + "(_) && " + f.functionName + "(_))"), sourcesToInclude ++ f.sourcesToInclude).asInstanceOf[CLFunction[_, _]]
+        new CLFunction[A, B](a => (function(a) && f.function(a)).asInstanceOf[B], Seq(), Seq("(" + functionName + "(_) && " + f.functionName + "(_))"), sourcesToInclude ++ f.sourcesToInclude).asInstanceOf[CLFunction[_, _]]
       }).asInstanceOf[CLFunction[A, B]]
     }
   }

@@ -4,13 +4,14 @@ import com.nativelibs4java.opencl._
 import scalacl.collection._
 import scalacl.collection.impl._
 
-package object scalacl {
+package scalacl {
   class ScalaCLContext(val context: CLContext, val queue: CLQueue) {
     def this(context: CLContext) = this(context, context.createDefaultQueue())
     def this() = this(JavaCL.createBestContext())
     //def newArray[T](size: Int)(implicit dataIO: CLDataIO[T]) = new CLArray[T](size)(dataIO, this)
   }
-
+}
+package object scalacl {
   def clType[T](implicit dataIO: CLDataIO[T]) = dataIO.clType
 
   //protected
@@ -210,14 +211,22 @@ package object scalacl {
 
   implicit def Expression2CLFunction[K, V](fx: (K => V, Seq[String]))(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) = {
     val (function, expressions) = fx
-    new CLFunction[K, V](null, function, Seq(), expressions, Seq())
+    new CLFunction[K, V](function, Seq(), expressions, Seq())
   }
 
+  private val functionsCache = scala.collection.mutable.HashMap[Long, CLFunction[_, _]]()
+  
+  def getCachedFunction[K, V](uid: Long, function: K => V, declarations: => Seq[String], expressions: => Seq[String], extraArgs: => Seq[Any])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
+    functionsCache synchronized {
+      functionsCache.getOrElseUpdate(uid, new CLFunction[K, V](function, declarations, expressions, Seq()).asInstanceOf[CLFunction[_, _]]).asInstanceOf[CLFunction[K, V]]
+    }
+  }
+  
   implicit def CLFunSeq[K, V](declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
-    new CLFunction[K, V](null, null, declarations, expressions, Seq())
+    new CLFunction[K, V](null, declarations, expressions, Seq())
 
-  implicit def CLFullFun[K, V](uniqueSignature: String, function: K => V, declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
-    new CLFunction[K, V](uniqueSignature, function, declarations, expressions, Seq())
+  implicit def CLFullFun[K, V](function: K => V, declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
+    new CLFunction[K, V](function, declarations, expressions, Seq())
 
   implicit def Range2CLIntRangeMethods(r: Range)(implicit context: ScalaCLContext, dataIO: CLDataIO[Int]) = new {
     def toCLRange = new CLIntRange(r)

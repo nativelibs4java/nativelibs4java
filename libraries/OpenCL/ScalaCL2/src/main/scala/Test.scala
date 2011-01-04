@@ -1,8 +1,11 @@
 package scalacl
 //import scalacl._
 import collection._
+import impl._
 
-// In IntelliJ, launch with : Ctrl + Shift + F10
+/**
+ * mvn exec:java -Dexec.mainClass=Test
+ */
 object Test {
   def times[V](caption: String, n: Int)(block: => V): V = {
     val v = time(caption)(block)
