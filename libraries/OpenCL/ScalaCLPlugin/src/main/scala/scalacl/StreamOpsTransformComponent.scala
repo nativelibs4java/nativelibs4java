@@ -82,9 +82,11 @@ extends PluginComponent
         while (!finished) {
           colTree match {
             case TraversalOp(traversalOp) =>
+              //println("found op " + traversalOp)
               ops = traversalOp :: ops
               colTree = traversalOp.collection
             case CollectionRewriter(cr) =>
+              //println("found cr " + cr)
               colRewriter = cr
               if (colTree != cr.array)
                 colTree = cr.array
@@ -94,7 +96,7 @@ extends PluginComponent
               finished = true
           }
         }
-        if (ops.isEmpty)
+        if (ops.isEmpty && colRewriter == null)
           None
         else
           Some(new OpsStream(colRewriter, colTree, ops))
@@ -111,7 +113,7 @@ extends PluginComponent
       else
         try {
           tree match {
-            case OpsStream(opsStream) if !matchedColTreeIds.contains(opsStream.colTree.id) =>
+            case OpsStream(opsStream) if (opsStream ne null) && (opsStream.colTree ne null) && !matchedColTreeIds.contains(opsStream.colTree.id) =>
               import opsStream._
               
               val txt = "Streamed ops on " + (if (colRewriter == null) "UNKNOWN COL (" + colTree.tpe + ")" else colRewriter.colType) + " : " + ops.map(_.op).mkString(", ")

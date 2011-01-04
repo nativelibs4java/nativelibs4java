@@ -340,7 +340,10 @@ trait RewritingPluginComponent {
           builderType,
           localTyper.typed {
             val manifestList = if (needsManifest) {
-              val manifest = localTyper.findManifest(componentType/*.asSeenFrom(currentOwner?, currentOwner?)*/, true).tree
+              var t = componentType
+              t = t.dealias.deconst.widen
+              /*t = t.asSeenFrom(currentOwner?, currentOwner?)*/
+              val manifest = localTyper.findManifest(t, true).tree
               // TODO: REMOVE THIS UGLY WORKAROUND !!!
               assertNoThisWithNoSymbolOuterRef(manifest, localTyper)
               List(manifest)

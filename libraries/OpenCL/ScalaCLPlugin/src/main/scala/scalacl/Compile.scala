@@ -46,7 +46,9 @@ import scala.tools.nsc.reporters.Reporter
 //import scalacl.ScalaCLPlugin
 
 /*
-SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=Test.scala|-Xprint:scalacl-loopstransform|-Ybrowse:scalacl-loopstransform"
+SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=Test.scala|-Xprint:scalacl-loopstransform|-Ybrowse:scalacl-loopstransform|-classpath|../ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar"
+SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=Test.scala|-classpath|../ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar"
+SCALACL_TRACE=1 sbt 'run Test.scala -classpath ../ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar'
 */
 object Compile {
 
@@ -55,7 +57,8 @@ object Compile {
         "-Xprint:scalacl-loopstransform"
         //"-Ydebug"
         )*/
-    /*val base = new File("/Users/ochafik/src/scala-2.8.x/src/compiler/")
+    /*
+    val base = new File("/Users/ochafik/src/scala-2.8.x/src/compiler/")
     def list(f: File): Array[File] = {
       if (f.isDirectory)
         f.listFiles.flatMap(list)
@@ -71,7 +74,8 @@ object Compile {
         "/Users/ochafik/src/scala-2.8.x/build/locker/classes/compiler"
       ).mkString(java.io.File.separator),
       "/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/symtab/Types.scala",
-      "/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/typechecker/Typers.scala"
+      "/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/typechecker/Typers.scala",
+      "/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/typechecker/Namers.scala"
     ) ++ //list(base).filter(_.getName.endsWith(".scala")).map(_.toString) ++
     Array(
       //"-Xprint:" + LoopsTransformComponent.phaseName,

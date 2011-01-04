@@ -149,6 +149,7 @@ trait MiscMatchers {
   val toFloatName = N("toFloat")
   val mathName = N("math")
   val packageName = N("package")
+  val CanBuildFromClass = definitions.getClass("scala.collection.generic.CanBuildFrom")
   lazy val ArrayBufferClass = definitions.getClass("scala.collection.mutable.ArrayBuffer")
   lazy val RefArrayBuilderClass = definitions.getClass("scala.collection.mutable.ArrayBuilder.ofRef")
   lazy val WrappedArrayBuilderClass = definitions.getClass("scala.collection.mutable.WrappedArrayBuilder")
@@ -312,30 +313,12 @@ trait MiscMatchers {
   object ListTree extends ColTree(ListClass)
   
   object CanBuildFromArg {
-    def unapply(tree: Tree) = tree match {
-      case
-        Apply(
-          TypeApply(
-            Select(
-              xxx,
-              canBuildFromName()
-            ),
-            yyy
-          ),
-          zzz
-        ) =>
-        true
-      case
-        TypeApply(
-          Select(
-            xxx,
-            canBuildFromName()
-          ),
-          yyy
-        ) =>
-        true
-      case _ =>
-        false
+    def unapply(tree: Tree) = {
+      val tpe = tree.tpe
+      tpe != null && (
+        //tpe.dealias.deconst <:< CanBuildFromClass.tpe ||
+        tpe.dealias.matches(CanBuildFromClass.tpe)
+      )
     }
   }
 
@@ -451,7 +434,7 @@ trait MiscMatchers {
     case class FilterWhile(f: Tree, take: Boolean) extends TraversalOpType {
       override def toString = if (take) "takeWhile" else "dropWhile"
     }
-    case class Map(f: Tree) extends TraversalOpType {
+    case class Map(f: Tree, canBuildFrom: Tree) extends TraversalOpType {
       override def toString = "map"
     }
     case class AllOrSome(f: Tree, all: Boolean) extends TraversalOpType {
@@ -498,7 +481,7 @@ trait MiscMatchers {
           ),
           List(canBuildFrom @ CanBuildFromArg())
         ) =>
-        Some(new TraversalOp(Map(function), collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
+        Some(new TraversalOp(Map(function, canBuildFrom), collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
       case // map[B](f)
         Apply(
           TypeApply(
@@ -507,7 +490,7 @@ trait MiscMatchers {
           ),
           List(function)
         ) =>
-        Some(new TraversalOp(Map(function), collection, refineComponentType(mappedComponentType.tpe, tree), null, true, null))
+        Some(new TraversalOp(Map(function, null), collection, refineComponentType(mappedComponentType.tpe, tree), null, true, null))
       case // scanLeft, scanRight
         Apply(
           Apply(
@@ -615,6 +598,16 @@ trait MiscMatchers {
         Apply(Select(collection, n), List(function @ Func(List(param), body))) =>
         (
           n match {
+            case withFilterName() =>
+              //println("FOUND WITHFILTER")
+              collection match {
+                case IntRange(_, _, _, _, _) =>
+                  //println("FOUND IntRange")
+                  Some(Filter(function, false), collection.tpe)
+                case _ =>
+                  //println("FOUND None")
+                  None
+              }   
             case filterName() =>
               Some(Filter(function, false), collection.tpe)
             case filterNotName() =>

@@ -93,18 +93,19 @@ extends MiscMatchers
 
   type TreeGen = () => Tree
 
-  def replaceOccurrences(tree: Tree, mappingsSym: Map[Symbol, TreeGen], symbolReplacements: Map[Symbol, Symbol], unit: CompilationUnit) = {
+  def replaceOccurrences(tree: Tree, mappingsSym: Map[Symbol, TreeGen], symbolReplacements: Map[Symbol, Symbol], treeReplacements: Map[Tree, TreeGen], unit: CompilationUnit) = {
     def key(s: Symbol) = s.ownerChain.map(_.toString)
     val mappings = mappingsSym.map({ case (k, v) => (key(k), (k, v)) })
     val result = new TypingTransformer(unit) {
       override def transform(tree: Tree): Tree = {
-        val rep = tree match {
-          case Ident(n) if tree.symbol != NoSymbol =>
-            mappings.get(key(tree.symbol)).map(_._2().setType(tree.symbol.tpe)).getOrElse(super.transform(tree))
-          case _ =>
-            super.transform(tree)
-        }
-        rep
+        treeReplacements.get(tree).map(_()).getOrElse(
+          tree match {
+            case Ident(n) if tree.symbol != NoSymbol =>
+              mappings.get(key(tree.symbol)).map(_._2().setType(tree.symbol.tpe)).getOrElse(super.transform(tree))
+            case _ =>
+              super.transform(tree)
+          }
+        )
       }
     }.transform(tree)
 
@@ -148,6 +149,17 @@ extends MiscMatchers
       }
     }
   }
+  def newSeqApply(typeExpr: Tree, values: Tree*) =
+    Apply(
+      TypeApply(
+        Select(
+          Select(Select(Ident(N("scala")), N("collection")), N("Seq")),
+          N("apply")
+        ),
+        List(typeExpr)
+      ),
+      values.toList
+    )
 
   def newArrayMulti(arrayType: Type, componentTpe: Type, lengths: => List[Tree], manifest: Tree) =
       typed {
@@ -230,7 +242,7 @@ extends MiscMatchers
     else
       binOp(a, BooleanClass.tpe.member(nme.ZOR), b)
   }
-  def ident(sym: Symbol, n: Name, pos: Position) = {
+  def ident(sym: Symbol, n: Name, pos: Position = NoPosition) = {
     val v = Ident(n)
     v.symbol = sym
     v.tpe = sym.tpe

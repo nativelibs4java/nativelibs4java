@@ -105,7 +105,7 @@ trait TestUtils {
     def flatten(s: Traversable[String]) = s.map("{\n" + _ + "\n};").mkString("\n")
     ensurePluginCompilesSnippetsToSameByteCode(className, flatten(sourcesAndReferences.map(_._1)), flatten(sourcesAndReferences.map(_._2)))
   }
-  def ensurePluginCompilesSnippetsToSameByteCode(className: String, source: String, reference: String) = {
+  def ensurePluginCompilesSnippetsToSameByteCode(className: String, source: String, reference: String, allowSameResult: Boolean = false) = {
 
     import scala.concurrent.ops._
     implicit val runner = new scala.concurrent.ThreadRunner
@@ -132,10 +132,12 @@ trait TestUtils {
 
     val withPluginFut = futEx { getSnippetBytecode(className, source, "withPlugin", SharedCompilerWithPlugins) }
     val expected = getSnippetBytecode(className, reference, "expected", SharedCompilerWithoutPlugins)
-    val withoutPlugin = getSnippetBytecode(className, source, "withoutPlugin", SharedCompilerWithoutPlugins)
+    val withoutPlugin = if (allowSameResult) null else getSnippetBytecode(className, source, "withoutPlugin", SharedCompilerWithoutPlugins)
     val withPlugin = withPluginFut()
 
-    assertTrue("Expected result already found without any plugin !!! (was the Scala compiler improved ?)", expected != withoutPlugin)
+    if (!allowSameResult)
+      assertTrue("Expected result already found without any plugin !!! (was the Scala compiler improved ?)", expected != withoutPlugin)
+      
     if (expected != withPlugin) {
       def trans(tit: String, s: String) =
         println(tit + " :\n\t" + s.replaceAll("\n", "\n\t"))

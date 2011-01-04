@@ -110,7 +110,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
             }
           }
         }
-        if (s.length == 2) {
+        if (s.length == 2 && (s(1) ne null)) {
           val skippedLine = s(1).toInt
           (path: String, line: Int) => path == null || line != skippedLine && pathFilter(path)
         } else {

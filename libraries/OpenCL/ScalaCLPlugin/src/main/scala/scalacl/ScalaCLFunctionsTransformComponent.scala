@@ -32,13 +32,18 @@ package scalacl
 
 import scala.tools.nsc.Global
 
-import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.{Transform, TypingTransformers}
+import scala.tools.nsc.typechecker.Analyzer
+import scala.tools.nsc.typechecker.Contexts
+//import scala.tools.nsc.typechecker.Contexts._
 
 object ScalaCLFunctionsTransformComponent {
   val runsAfter = List[String](
-    "namer",
+    "namer"
+  )
+  val runsBefore = List[String](
+    "refchecks",
     LoopsTransformComponent.phaseName
   )
   val phaseName = "scalacl-functionstransform"
@@ -50,6 +55,7 @@ extends PluginComponent
    with TypingTransformers
    with MiscMatchers
    with TreeBuilders
+  //with Analyzer
    with OpenCLConverter
    with WithOptimizationFilter
 {
@@ -57,22 +63,133 @@ extends PluginComponent
   import global.definitions._
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed}    // methods to type trees
+  import analyzer.{SearchResult, ImplicitSearch}
 
   override val runsAfter = ScalaCLFunctionsTransformComponent.runsAfter
+  override val runsBefore = ScalaCLFunctionsTransformComponent.runsBefore
   override val phaseName = ScalaCLFunctionsTransformComponent.phaseName
 
+  val getCachedFunctionName = N("getCachedFunction")
+  lazy val ScalaCLModule = definitions.getModule("scalacl")
+  lazy val CLDataIOClass = definitions.getClass("scalacl.collection.impl.CLDataIO")
+  lazy val CLArrayClass = definitions.getClass("scalacl.collection.CLArray")
+  lazy val CLIntRangeClass = definitions.getClass("scalacl.collection.CLIntRangeArray")
+  lazy val CLCollectionClass = definitions.getClass("scalacl.collection.CLCollection")
+  lazy val CLFilteredArrayClass = definitions.getClass("scalacl.collection.CLFilteredArray")
+  
+  
   def nodeToStringNoComment(tree: Tree) =
     nodeToString(tree).replaceAll("\\s*//.*\n", "\n").replaceAll("\\s*\n\\s*", " ").replaceAll("\\(\\s+", "(").replaceAll("\\s+\\)", "")
 
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     var currentClassName: Name = null
 
+    def createImplicitDataIO(context: analyzer.Context, tree: Tree, tpe: Type) = {
+      val applicableViews: List[SearchResult] = 
+        new ImplicitSearch(tree, tpe, isView = false, context.makeImplicit(reportAmbiguousErrors = false)).allImplicits
+      for (view <- applicableViews) {
+
+      }
+      null: Tree
+    }
+
     override def transform(tree: Tree): Tree = {
+      //println(".")
       if (!shouldOptimize(tree))
         super.transform(tree)
-      else
+      else {
+        //println("tree = " + nodeToString(tree))
         tree match {
           // Transform inline functions into OpenCL mixed functions / expression code
+          case TraversalOp(traversalOp) if traversalOp.op.f != null =>
+            import traversalOp._
+            println("FOUND TRAVERSAL OP " + traversalOp)
+            try {
+              collection.tpe = null
+              typed(collection)
+              val colTpeStr = collection.tpe.toString
+              //println("colTpeStr = " + colTpeStr)
+              //println("subtype = " + (collection.tpe.widen.deconst.matches(CLCollectionClass.tpe)))
+              
+              //if (collection.tpe.widen.matches(CLCollectionClass.tpe)) {
+              if (colTpeStr.startsWith("scalacl.")) {
+                op match {
+                  case TraversalOp.Map(f, canBuildFrom) =>
+                    val Func(List(uniqueParam), body) = op.f
+                    val context = localTyper.context1// doLocateContext(tree.pos)
+                    val sourceTpe = uniqueParam.symbol.tpe
+                    val mappedTpe = body.tpe
+                    //val sourceDataIOTpe = appliedType(CLDataIOClass.tpe, List(sourceTpe))
+                    //val mappedDataIOTpe = appliedType(CLDataIOClass.tpe, List(mappedTpe))
+                    //println("sourceDataIOTpe = " + sourceDataIOTpe)
+                    //println("mappedDataIOTpe = " + mappedDataIOTpe)
+                    
+                    println("SCALACL PLUGIN : found map with " + f + " and implicits :")
+                    //val applicableViews: List[SearchResult] = 
+                    val Array(
+                      sourceDataIO, 
+                      mappedDataIO
+                    ) = Array(
+                      sourceTpe, 
+                      mappedTpe
+                    ).map(tpe => {
+                      val dataIOTpe = appliedType(CLDataIOClass.tpe, List(tpe))
+                      analyzer.inferImplicit(tree, dataIOTpe, false, false, context).tree
+                      //new ImplicitSearch(tree, tpe, isView = false, context.makeImplicit(reportAmbiguousErrors = false)).bestImplicit//.allImplicits
+                    })
+                    println("sourceDataIO = " + sourceDataIO)
+                    println("mappedDataIO = " + mappedDataIO)
+                    
+                    val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "|" + tree.symbol.tag + "|" + tree.symbol.pos)) // TODO
+                    val uniqueId = uniqueSignature.hashCode // TODO !!!
+                    val functionOpenCLExprString = convertExpr(Map(uniqueParam.name.toString -> "_"), body).toString
+                    println("Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
+                    println("op.f.tpe = " + op.f.tpe)
+                    val getCachedFunctionSym = ScalaCLModule.tpe member getCachedFunctionName
+                    val clFunction = 
+                      Apply(
+                        Apply(
+                          TypeApply(
+                            Select(
+                              //ident(ScalaCLModule, "scalacl"),
+                              Select(
+                                Ident(N("scalacl")),
+                                nme.PACKAGEkw
+                              ).setSymbol(ScalaCLModule),
+                              //Ident(JavaCLModule),
+                              getCachedFunctionName
+                            ),
+                            List(TypeTree(sourceTpe), TypeTree(mappedTpe))
+                          ),
+                          List(
+                            newInt(uniqueId),
+                            op.f,
+                            newSeqApply(TypeTree(StringClass.tpe)), // statements TODO
+                            newSeqApply(TypeTree(StringClass.tpe), Literal(Constant(functionOpenCLExprString))), // expressions TODO
+                            newSeqApply(TypeTree(AnyClass.tpe)) // args TODO
+                          )
+                        ).setSymbol(getCachedFunctionSym).setType(op.f.tpe),
+                        List(
+                          sourceDataIO, 
+                          mappedDataIO
+                        )
+                      ).setSymbol(getCachedFunctionSym).setType(op.f.tpe)
+                      
+                    val rep = replaceOccurrences(super.transform(tree), Map(), Map(), Map(f -> (() => clFunction)), unit)
+                    println("REP = " + rep)
+                    //println("REP = " + nodeToString(rep))
+                    typed { rep }
+                    //rep
+                  case _ =>
+                    super.transform(tree)
+                }
+              } else {
+                super.transform(tree)
+              }
+            } catch { case ex => 
+              ex.printStackTrace
+              super.transform(tree)
+            }
           case
             Apply(
               Apply(
@@ -90,21 +207,10 @@ extends PluginComponent
              * functionOpenCLExprString will be :
              *    "_ * 2.0"
              */
-            val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "" + tree.symbol.tag + tree.symbol.pos)) // TODO
+            val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "|" + tree.symbol.tag + "|" + tree.symbol.pos)) // TODO
             val functionOpenCLExprString = convertExpr(Map(param.toString -> "_"), body).toString
             println("Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
-            def seqExpr(typeExpr: Tree, values: Tree*) =
-              Apply(
-                TypeApply(
-                  Select(
-                    Select(Select(Ident(N("scala")), N("collection")), N("Seq")),
-                    N("apply")
-                  ),
-                  List(typeExpr)
-                ),
-                values.toList
-              )
-
+            
             val newArg =
               Apply(
                 Apply(
@@ -112,7 +218,7 @@ extends PluginComponent
                     Select(
                       Select(
                         Ident(N("scalacl")),
-                        N("package")
+                        nme.PACKAGEkw//N("package")
                       ),
                       N("CLFullFun")
                     ),
@@ -121,8 +227,8 @@ extends PluginComponent
                   List(
                     uniqueSignature,
                     functionExpr,
-                    seqExpr(TypeTree(StringClass.tpe)), // statements TODO
-                    seqExpr(TypeTree(StringClass.tpe), Literal(Constant(functionOpenCLExprString))) // expressions TODO
+                    newSeqApply(TypeTree(StringClass.tpe)), // statements TODO
+                    newSeqApply(TypeTree(StringClass.tpe), Literal(Constant(functionOpenCLExprString))) // expressions TODO
                   )
                 ),
                 implicitArgs
@@ -141,5 +247,6 @@ extends PluginComponent
             super.transform(tree)
         }
       }
+    }
   }
 }

@@ -134,6 +134,7 @@ extends PluginComponent
                             body,
                             newMappings,
                             newReplacements,
+                            Map(),
                             unit
                           ),
                           returnType
@@ -226,6 +227,7 @@ extends PluginComponent
                             body,
                             Map(param.symbol -> env.itemVar),
                             Map(f.symbol -> currentOwner),
+                            Map(),
                             unit
                           )
                           LoopInners(
@@ -244,6 +246,7 @@ extends PluginComponent
                                             filterParam.symbol -> env.itemVar.symbol,
                                             f.symbol -> currentOwner
                                           ),
+                                          Map(),
                                           unit
                                         )
                                     }).reduceLeft(boolAnd),
@@ -359,6 +362,7 @@ extends PluginComponent
                                             newParam.symbol -> env.itemVar
                                           ),
                                           Map(op.f.symbol -> currentOwner),
+                                          Map(),
                                           unit
                                         )
                                       )
@@ -414,6 +418,7 @@ extends PluginComponent
                                           newParam.symbol -> env.itemVar
                                         ),
                                         Map(f.symbol -> currentOwner),
+                                        Map(),
                                         unit
                                       )
                                     ).setType(UnitClass.tpe),
@@ -465,6 +470,7 @@ extends PluginComponent
                                             leftParam.symbol -> env.itemVar
                                           ),
                                           Map(f.symbol -> currentOwner),
+                                          Map(),
                                           unit
                                         )
                                     )
@@ -554,6 +560,7 @@ extends PluginComponent
                                     leftParam.symbol -> env.itemVar
                                   ),
                                   Map(f.symbol -> currentOwner),
+                                  Map(),
                                   unit
                                 )
                                 LoopInners(
@@ -602,6 +609,7 @@ extends PluginComponent
                                     leftParam.symbol -> env.itemVar
                                   ),
                                   Map(f.symbol -> currentOwner),
+                                  Map(),
                                   unit
                                 )
                                 LoopInners(
@@ -658,6 +666,7 @@ extends PluginComponent
                                       leftParam.symbol -> env.itemVar
                                     ),
                                     Map(f.symbol -> currentOwner),
+                                    Map(),
                                     unit
                                   )
                                 )
@@ -701,7 +710,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.Map(f) =>
+                          case TraversalOp.Map(f, canBuildFrom) =>
                             colType.foreach[(CollectionBuilder, VarDef)](
                               tree,
                               array,
@@ -734,6 +743,7 @@ extends PluginComponent
                                     leftParam.symbol -> env.itemVar
                                   ),
                                   Map(f.symbol -> currentOwner),
+                                  Map(),
                                   unit
                                 )
                                 LoopInners(
