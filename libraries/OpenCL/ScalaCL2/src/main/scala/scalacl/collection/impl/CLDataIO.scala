@@ -67,7 +67,7 @@ trait CLDataIO[T] {
     var i = start
     val sup = if (length < 0) size else min(size, start + length)
     while (i < sup) {
-      out(i.toInt) = extract(pointers, 0, i)
+      out(i) = extract(pointers, 0, i)
       i += 1
     }
   }
@@ -75,7 +75,7 @@ trait CLDataIO[T] {
 }
 
 object CLTupleDataIO {
-  lazy val builtInArities = Set(1, 2, 4, 8)
+  val builtInArities = Set(1, 2, 4, 8)
 }
 class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple: Array[Any] => T)(implicit override val t: ClassManifest[T]) extends CLDataIO[T] {
 
@@ -129,10 +129,10 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
   override def elements: Seq[CLDataIO[Any]] =
     ios.flatMap(_.elements)
 
-  lazy val types = ios.map(_.clType)
-  lazy val uniqTypes = types.toSet
+  val types = ios.map(_.clType)
+  val uniqTypes = types.toSet
 
-  lazy val isOpenCLTuple = {
+  val isOpenCLTuple = {
     uniqTypes.size == 1 && 
     CLTupleDataIO.builtInArities.contains(ios.size) &&
     ios(0).isInstanceOf[CLValDataIO[_]]
@@ -147,7 +147,7 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
   override def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
     ios.flatMap(_.createBuffers(length))
 
-  lazy val (iosAndOffsets, elementCount) = {
+  val (iosAndOffsets, elementCount) = {
     var off = 0
     (
       ios.map(io => {
@@ -160,16 +160,48 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
   }
     
   override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): CLFuture[T] =
-    new CLTupleFuture(iosAndOffsets.map { case (io, ioOffset) => io.extract(arrays, offset + ioOffset, index) }, tuple)
+    new CLTupleFuture(
+      iosAndOffsets.map(p => {
+        val (io, ioOffset) = p
+        io.extract(arrays, offset + ioOffset, index) 
+      }), 
+      tuple
+    )
   
   override def store(v: T, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): Unit =
     iosAndOffsets.zip(values(v)).foreach { case ((io, ioOffset), vi) => io.store(vi, arrays, offset + ioOffset, index) }
 
-  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): T =
-    tuple(iosAndOffsets.map { case (io, ioOffset) => io.extract(pointers, offset + ioOffset, index) })
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): T = {
+    var i = 0
+    val length = iosAndOffsets.length
+    val data = new Array[Any](length)
+    
+    while (i < length) {
+      val (io, ioOffset) = iosAndOffsets(i)
+      data(i) = io.extract(pointers, offset + ioOffset, index)
+      i += 1
+    }
+    tuple(data)
+    /*
+    tuple(iosAndOffsets.map(p => {
+      val (io, ioOffset) = p
+      io.extract(pointers, offset + ioOffset, index) 
+    }))
+    */
+  }
 
-  override def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
-    iosAndOffsets.zip(values(v)).foreach { case ((io, ioOffset), vi) => io.store(vi, pointers, offset + ioOffset, index) }
+  override def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit = {
+    var i = 0
+    val length = iosAndOffsets.length
+    val vals = values(v)
+    while (i < length) {
+      val (io, ioOffset) = iosAndOffsets(i)
+      val vi = vals(i)
+      io.store(vi, pointers, offset + ioOffset, index)
+      i += 1
+    }
+    //iosAndOffsets.zip(values(v)).foreach { case ((io, ioOffset), vi) => io.store(vi, pointers, offset + ioOffset, index) }
+  }
 
   override def exprs(arrayExpr: String): Seq[String] =
     ios.zipWithIndex.flatMap { case (io, i) => io.exprs(arrayExpr + "._" + (i + 1)) }
@@ -181,7 +213,7 @@ class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extend
 
   override val elementCount = 1
   
-  override lazy val pointerIO: PointerIO[T] =
+  override val pointerIO: PointerIO[T] =
     PointerIO.getInstance(t.erasure)
   
   override def elements: Seq[CLDataIO[Any]] =
@@ -238,13 +270,45 @@ class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extend
   }
 }
 
+object CLIntDataIO extends CLValDataIO[Int] {
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Int =
+    pointers(offset).getInt(index * 4)
+
+  override def store(v: Int, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
+    pointers(offset).setInt(index * 4, v)
+}
+
+object CLLongDataIO extends CLValDataIO[Long] {
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Long =
+    pointers(offset).getLong(index * 8)
+
+  override def store(v: Long, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
+    pointers(offset).setLong(index * 8, v)
+}
+
+object CLFloatDataIO extends CLValDataIO[Float] {
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Float =
+    pointers(offset).getFloat(index * 4)
+
+  override def store(v: Float, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
+    pointers(offset).setFloat(index * 4, v)
+}
+
+object CLDoubleDataIO extends CLValDataIO[Double] {
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Double =
+    pointers(offset).getDouble(index * 8)
+
+  override def store(v: Double, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
+    pointers(offset).setDouble(index * 8, v)
+}
+
 
 
 class CLIntRangeDataIO(implicit val t: ClassManifest[Int]) extends CLDataIO[Int] {
 
   override val elementCount = 1
 
-  override lazy val pointerIO: PointerIO[Int] =
+  override val pointerIO: PointerIO[Int] =
     PointerIO.getInstance(t.erasure)
 
   override def elements: Seq[CLDataIO[Any]] =

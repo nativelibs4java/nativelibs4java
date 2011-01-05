@@ -6,8 +6,21 @@ import scala.collection.generic.CanBuildFrom
 import com.nativelibs4java.opencl._
 import scala.collection.IndexedSeqLike
 import scala.collection.mutable.{ArrayBuffer, IndexedSeqOptimized, Builder}
+import scala.collection.generic._
+import scala.annotation.unchecked.uncheckedVariance
 
 object CLArray {
+  
+  lazy val indexCode = new CLSimpleCode("""
+    __kernel void indexCode(int size, __global int* out) {
+      int i = get_global_id(0);
+      if (i >= size)
+        return;
+
+      out[i] = i;
+    }
+  """)
+  
   def apply[A](values: A*)(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
     fromSeq(values)
 
@@ -62,8 +75,8 @@ class CLArray[A](
   implicit val context: ScalaCLContext,
   val dataIO: CLDataIO[A]
 )
-  extends /*IndexedSeq[A]
-  with*/ CLIndexedSeq[A]
+  extends CLIndexedSeq[A]//IndexedSeq[A]
+  with GenericTraversableTemplate[A, CLArray]
   with IndexedSeqOptimized[A, CLIndexedSeq[A]]
   with CLIndexedSeqLike[A, CLIndexedSeq[A]]
   with MappableToCLArray[A, CLIndexedSeq[A]]
@@ -71,6 +84,11 @@ class CLArray[A](
   def this(length: Int)(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
     this(length, if (length > 0) dataIO.createBuffers(length) else null)
 
+  override def companion: GenericCompanion[CLArray] = new SeqFactory[CLArray] {
+    def newBuilder[AA]: Builder[AA, CLArray[AA]] =
+      CLArray.newBuilder[AA](context, dataIO.asInstanceOf[CLDataIO[AA]])
+  }
+  
   override def release = if (length > 0) buffers.foreach(_.release)
   
   override def eventBoundComponents = if (length > 0) buffers else Seq()
@@ -82,7 +100,7 @@ class CLArray[A](
   import CLArray._
   import dataIO.t
 
-  override def newBuilder: Builder[A, CLIndexedSeq[A]] = CLArray.newBuilder[A]
+  override def newBuilder: Builder[A, CLArray[A]] = CLArray.newBuilder[A]
 
   override def toArray = if (length > 0) dataIO.toArray(buffers) else Array[A]()
   override def copyToArray[B >: A](out: Array[B], start: Int, len: Int): Unit = if (length > 0) {
@@ -110,8 +128,38 @@ class CLArray[A](
       override def apply(from: Repr) = newBuilder.asInstanceOf[Builder[A, CLArray[A]]]
     })
 
+  override def zip[A1 >: A, B, That](that: Iterable[B])(implicit bf: CanBuildFrom[Repr, (A1, B), That]): That = {
+    if (!that.isInstanceOf[CLArray[_]])
+      super.zip(that)
+    else {
+      val thatArray = that.asInstanceOf[CLArray[B]]
+      //val result = reuse(out, new CLArray[B](length)(context, bf.dataIO))
+      /*
+      val result = new CLArray[(A1, B)](length)(context, bf.dataIO)
+      assert(result.buffers.length == buffers.length + thatArray.length)
+      buffers.zip(result.buffers.take(buffers.length)).map(p => p._1.copyTo(p._2))
+      thatArray.buffers.zip(result.buffers.drop(buffers.length)).map(p => p._1.copyTo(p._2))
+      result.asInstanceOf[That]
+      */
+      new CLArray[(A1, B)](length, (buffers ++ thatArray.buffers).map(_.clone))(context, bf.dataIO).asInstanceOf[That]
+    }
+  }
+  
+  override def zipWithIndex[A1 >: A, That](implicit bf: CanBuildFrom[Repr, (A1, Int), That]): That = {
+    val indexBuffer = new CLGuardedBuffer[Int](length)
+    val kernel = indexCode.getKernel(context)
+    val globalSizes = 
+    kernel.synchronized {
+      kernel.setArgs(length.asInstanceOf[Object], indexBuffer.buffer)
+      CLEventBound.syncBlock(Array(), Array(indexBuffer), evts => {
+        kernel.enqueueNDRange(context.queue, Array(size), evts:_*)
+      })
+    }
+    new CLArray[(A, Int)](length, buffers.map(_.clone) ++ Array(indexBuffer.asInstanceOf[CLGuardedBuffer[Any]])).asInstanceOf[That]
+  }
+    
   override def clone: CLArray[A] =
-    new CLArray(length, if (length > 0) buffers.map(_.clone) else null) // TODO map in parallel
+    new CLArray[A](length, if (length > 0) buffers.map(_.clone) else null) // TODO map in parallel
 
   override def size = length
 

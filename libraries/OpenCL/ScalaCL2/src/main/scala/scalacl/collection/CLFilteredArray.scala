@@ -6,6 +6,7 @@ import scala.collection.generic.CanBuildFrom
 import com.nativelibs4java.opencl._
 import scala.collection.IndexedSeqLike
 import scala.collection.mutable.Builder
+import scala.collection.generic._
 
 import com.nativelibs4java.opencl._
 import org.bridj.Pointer
@@ -13,8 +14,8 @@ import org.bridj.Pointer._
 import scala.collection.JavaConversions._
 
 object CLFilteredArray {
-  def newBuilder[A](implicit context: ScalaCLContext, dataIO: CLDataIO[A]): Builder[A, CLFilteredArray[A]] =
-    error("Not implemented")
+  def newBuilder[A](implicit context: ScalaCLContext, dataIO: CLDataIO[A]): Builder[A, CLFilteredArray[A]] = 
+    error("Not implemented") // TODO
 }
 class CLFilteredArray[A](
   protected[scalacl] val array: CLArray[A],
@@ -24,6 +25,7 @@ class CLFilteredArray[A](
   val dataIO: CLDataIO[A]
 )
 extends IndexedSeq[A]
+  with GenericTraversableTemplate[A, CLFilteredArray]
   with CLIndexedSeq[A]
   //with IndexedSeqLike[A, CLFilteredArray[A]]
   with CLIndexedSeqLike[A, CLFilteredArray[A]]
@@ -37,6 +39,10 @@ extends IndexedSeq[A]
   def this(length: Int, presence: CLGuardedBuffer[Boolean])(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
         this(new CLArray[A](length), presence)
 
+  override def companion: GenericCompanion[CLFilteredArray] = new SeqFactory[CLFilteredArray] {
+    def newBuilder[AA]: Builder[AA, CLFilteredArray[AA]] = 
+      CLFilteredArray.newBuilder[AA](context, dataIO.asInstanceOf[CLDataIO[AA]]) // TODO fix this hack !
+  }
   override def eventBoundComponents = array.eventBoundComponents ++ (if (presence == null) Seq() else Seq(presence))
 
   import array._
@@ -82,7 +88,7 @@ extends IndexedSeq[A]
   def toCLArray: CLArray[A] = {
     val prefixSum = updatedPresencePrefixSum
     val size = this.size
-    new CLArray(size, if (size == 0) null else buffers.map(b => {
+    new CLArray[A](size, if (size == 0) null else buffers.map(b => {
       val out = new CLGuardedBuffer[Any](size)(b.dataIO, context)
       PrefixSum.copyPrefixed(size, prefixSum, b, out)(b.t, context)
       out

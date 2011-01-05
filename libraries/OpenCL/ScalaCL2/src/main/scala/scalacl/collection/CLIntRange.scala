@@ -41,7 +41,7 @@ object CLIntRange {
       override def dataIO = io
       override def context = ctx
       def rawLength(from: CLIntRange): Int = from.size
-      def newFilterResult(from: CLIntRange) = new CLFilteredArray[Int](from.size)
+      def newFilterResult(from: CLIntRange) = new CLFilteredArray[Int](from.size)(context, io)
     }
   
 }

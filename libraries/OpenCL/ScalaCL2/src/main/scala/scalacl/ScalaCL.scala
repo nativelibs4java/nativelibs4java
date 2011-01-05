@@ -10,6 +10,12 @@ package scalacl {
     def this() = this(JavaCL.createBestContext())
     //def newArray[T](size: Int)(implicit dataIO: CLDataIO[T]) = new CLArray[T](size)(dataIO, this)
   }
+  object ScalaCLContext {
+    def apply() = new ScalaCLContext()
+    def apply(preferredFeatures: DeviceFeature*) = {
+      new ScalaCLContext(JavaCL.createBestContext(preferredFeatures:_*))
+    }
+  }
 }
 package object scalacl {
   def clType[T](implicit dataIO: CLDataIO[T]) = dataIO.clType
@@ -33,8 +39,8 @@ package object scalacl {
   implicit def canBuildIndexedSeqFromIndexedSeq[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
     new CLCanBuildFrom[CLIndexedSeq[_], A, CLIndexedSeq[A]] {
       override def dataIO = io
-      override def apply(from: CLIndexedSeq[_]) = CLFilteredArray.newBuilder[A](context, dataIO)
-      override def apply() = CLFilteredArray.newBuilder[A](context, dataIO)
+      override def apply(from: CLIndexedSeq[_]) = CLFilteredArray.newBuilder[A]//(context, dataIO)
+      override def apply() = CLFilteredArray.newBuilder[A]//(context, dataIO)
     }
   implicit def canBuildArrayFromArray[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
     new CLCanBuildFrom[CLArray[_], A, CLArray[A]] {
@@ -207,6 +213,10 @@ package object scalacl {
       )
     )
 
+  implicit val IntCLDataIO = CLIntDataIO
+  implicit val LongCLDataIO = CLLongDataIO
+  implicit val FloatCLDataIO = CLFloatDataIO
+  implicit val DoubleCLDataIO = CLDoubleDataIO
   implicit def AnyValCLDataIO[T <: AnyVal](implicit t: ClassManifest[T]) = new CLValDataIO[T]
 
   implicit def Expression2CLFunction[K, V](fx: (K => V, Seq[String]))(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) = {
