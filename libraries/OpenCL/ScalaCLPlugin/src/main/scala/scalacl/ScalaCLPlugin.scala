@@ -132,6 +132,9 @@ object ScalaCLPlugin {
   lazy val trace = //true
     "1" == System.getenv("SCALACL_TRACE")
     
+  lazy val verbose = //true
+    "1" == System.getenv("SCALACL_VERBOSE")
+    
   lazy val experimental = 
     "1" == System.getenv("SCALACL_EXPERIMENTAL")
   

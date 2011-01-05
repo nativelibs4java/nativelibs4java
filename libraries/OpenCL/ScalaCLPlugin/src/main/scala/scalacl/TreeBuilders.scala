@@ -51,16 +51,19 @@ extends MiscMatchers
   import CODE._
 
   /// print a message only if the operation succeeded :
-  def msg[V](unit: CompilationUnit, pos: Position, text: String)(v: => V): V = {
+  
+  def msg[V](unit: CompilationUnit, pos: Position, text: => String)(v: => V): V = {
     val fileLine = new File(pos.source.path).getName + ":" + pos.line
     val prefix = "[scalacl] " + fileLine + " "
     try {
       val r = v
-      unit.comment(pos, text)
-      val str = prefix + text
-      // Global.log(String) was removed or modified in Scala's trunk version... too bad !
-      //global.log(str)
-      println(str)
+      //unit.comment(pos, text)
+      if (ScalaCLPlugin.verbose) {
+        val str = prefix + text
+        // Global.log(String) was removed or modified in Scala's trunk version... too bad !
+        //global.log(str)
+        println(str)
+      }
       r
     } catch {
       case ex: UnsupportedOperationException =>
