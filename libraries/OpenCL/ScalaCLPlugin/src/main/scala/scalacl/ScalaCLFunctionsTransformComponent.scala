@@ -71,11 +71,11 @@ extends PluginComponent
 
   val getCachedFunctionName = N("getCachedFunction")
   lazy val ScalaCLModule = definitions.getModule("scalacl")
-  lazy val CLDataIOClass = definitions.getClass("scalacl.collection.impl.CLDataIO")
-  lazy val CLArrayClass = definitions.getClass("scalacl.collection.CLArray")
-  lazy val CLIntRangeClass = definitions.getClass("scalacl.collection.CLIntRangeArray")
-  lazy val CLCollectionClass = definitions.getClass("scalacl.collection.CLCollection")
-  lazy val CLFilteredArrayClass = definitions.getClass("scalacl.collection.CLFilteredArray")
+  lazy val CLDataIOClass = definitions.getClass("scalacl.impl.CLDataIO")
+  lazy val CLArrayClass = definitions.getClass("scalacl.CLArray")
+  lazy val CLIntRangeClass = definitions.getClass("scalacl.CLIntRangeArray")
+  lazy val CLCollectionClass = definitions.getClass("scalacl.CLCollection")
+  lazy val CLFilteredArrayClass = definitions.getClass("scalacl.CLFilteredArray")
   
   
   def nodeToStringNoComment(tree: Tree) =

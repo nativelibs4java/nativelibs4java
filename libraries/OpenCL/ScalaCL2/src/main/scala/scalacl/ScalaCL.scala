@@ -1,8 +1,7 @@
 import scala.collection.generic.CanBuildFrom
 import com.nativelibs4java.opencl._
 
-import scalacl.collection._
-import scalacl.collection.impl._
+import scalacl.impl._
 
 package scalacl {
   class ScalaCLContext(val context: CLContext, val queue: CLQueue) {

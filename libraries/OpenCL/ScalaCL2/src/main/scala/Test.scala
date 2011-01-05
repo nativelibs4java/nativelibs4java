@@ -1,6 +1,6 @@
 package scalacl
 //import scalacl._
-import collection._
+
 import impl._
 
 /**

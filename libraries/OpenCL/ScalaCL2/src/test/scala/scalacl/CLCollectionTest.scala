@@ -4,7 +4,7 @@
  */
 
 package scalacl
-import collection._
+
 import impl._
 
 import com.nativelibs4java.opencl._

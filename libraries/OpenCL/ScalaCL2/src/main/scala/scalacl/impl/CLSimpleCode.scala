@@ -1,5 +1,5 @@
 package scalacl
-package collection
+
 package impl
 
 class CLSimpleCode(

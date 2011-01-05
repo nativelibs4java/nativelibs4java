@@ -1,5 +1,5 @@
 package scalacl
-package collection
+
 import impl._
 import scala.collection.IndexedSeqLike
 import scala.collection.generic.CanBuildFrom
