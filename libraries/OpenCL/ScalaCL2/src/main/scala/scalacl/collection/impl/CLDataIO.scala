@@ -6,6 +6,7 @@ import scalacl._
 
 import scala.collection.generic.CanBuildFrom
 import com.nativelibs4java.opencl._
+import com.nativelibs4java.opencl.util._
 
 import org.bridj.Pointer
 import org.bridj.PointerIO
@@ -17,6 +18,9 @@ trait CLDataIO[T] {
   val pointerIO: PointerIO[T]
   def elements: Seq[CLDataIO[Any]]
   def clType: String
+  
+  def reductionType: (ReductionUtils.Type, Int) = error("Not a reductible type : " + this)
+  
   def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]]
 
   def openCLKernelArgDeclarations(input: Boolean, offset: Int): Seq[String]
@@ -25,15 +29,21 @@ trait CLDataIO[T] {
   
   def openCLIthTupleElementNthItemExpr(input: Boolean, offset: Int, indexes: List[Int], n: String): String
   
+  def extract(arrays: Array[Array[Any]], index: Int): T = {
+    assert(elementCount == arrays.length)
+    extract(arrays, 0, index)
+  }
   def extract(arrays: Array[CLGuardedBuffer[Any]], index: Int): CLFuture[T] = {
     assert(elementCount == arrays.length)
     extract(arrays, 0, index)
+    //CLInstantFuture(extract(arrays.map(_.toArray.asInstanceOf[Array[Any]]), index))
   }
   def store(v: T, arrays: Array[CLGuardedBuffer[Any]], index: Int): Unit = {
     assert(elementCount == arrays.length)
     store(v, arrays, 0, index)
   }
   def extract(pointers: Array[Pointer[Any]], index: Int): T = {
+    //extract(pointers.map(_.toArray.asInstanceOf[Array[Any]]), index)
     assert(elementCount == pointers.length)
     extract(pointers, 0, index)
   }
@@ -47,27 +57,30 @@ trait CLDataIO[T] {
   def store(v: T, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): Unit
 
   def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): T
+  def extract(arrays: Array[Array[Any]], offset: Int, index: Int): T
   
   def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit
   
   def exprs(arrayExpr: String): Seq[String]
-  //def toArray(arrays: Array[CLGuardedBuffer[Any]], offset: Int): Array[T]
 
   def toArray(arrays: Array[CLGuardedBuffer[Any]]): Array[T] = {
     val size = arrays.head.buffer.getElementCount.toInt
-    val out = new Array[T](size)
-    copyToArray(arrays, out, 0, size)
-    out
+    if (arrays.length == 1) {
+      arrays.first.withReadablePointer(p => p.toArray.asInstanceOf[Array[T]]) 
+    } else {
+      val out = new Array[T](size)
+      copyToArray(arrays, out, 0, size)
+      out
+    }
   }
   def copyToArray[B >: T](arrays: Array[CLGuardedBuffer[Any]], out: Array[B], start: Int = 0, length: Int = -1) = {
     assert(elementCount == arrays.length)
     val pointers = arrays.map(_.toPointer)
     val size = pointers(0).getValidElements.toInt
-    //val actualOut = if (out == null) new Array[T](size) else out
     var i = start
     val sup = if (length < 0) size else min(size, start + length)
     while (i < sup) {
-      out(i) = extract(pointers, 0, i)
+      out(i) = extract(pointers, i)
       i += 1
     }
   }
@@ -135,7 +148,7 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
   val isOpenCLTuple = {
     uniqTypes.size == 1 && 
     CLTupleDataIO.builtInArities.contains(ios.size) &&
-    ios(0).isInstanceOf[CLValDataIO[_]]
+    ios.first.isInstanceOf[CLValDataIO[_]]
   }
   override def clType = {
     if (isOpenCLTuple)
@@ -143,6 +156,11 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
     else
       "struct { " + types.reduceLeft(_ + "; " + _) + "; }"
   }
+  
+  override def reductionType = if (isOpenCLTuple)
+    (ios.first.reductionType._1, ios.size)
+  else
+    super.reductionType
 
   override def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
     ios.flatMap(_.createBuffers(length))
@@ -189,6 +207,19 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
     }))
     */
   }
+  
+  override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): T = {
+    var i = 0
+    val length = iosAndOffsets.length
+    val data = new Array[Any](length)
+    
+    while (i < length) {
+      val (io, ioOffset) = iosAndOffsets(i)
+      data(i) = io.extract(arrays, offset + ioOffset, index)
+      i += 1
+    }
+    tuple(data)
+  }
 
   override def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit = {
     var i = 0
@@ -209,7 +240,7 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
   override def toString = "(" + ios.map(_.toString).reduceLeft(_ + ", " + _) + ")"
 }
 
-class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extends CLDataIO[T] {
+abstract class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extends CLDataIO[T] {
 
   override val elementCount = 1
   
@@ -247,16 +278,16 @@ class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extend
   override def toString = t.erasure.getSimpleName + " /* " + clType + "*/"
 
   override def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
-    Array(new CLGuardedBuffer[T](length).asInstanceOf[CLGuardedBuffer[Any]])
+    Array(new CLGuardedBuffer[T](length)(context, this).asInstanceOf[CLGuardedBuffer[Any]])
 
   override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): CLFuture[T] =
     arrays(offset).asInstanceOf[CLGuardedBuffer[T]].apply(index)
 
-  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): T =
-    pointers(offset).asInstanceOf[Pointer[T]].get(index)
+  //override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): T =
+  //  pointers(offset).asInstanceOf[Pointer[T]].get(index)
 
-  override def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
-    pointers(offset).asInstanceOf[Pointer[T]].set(index, v)
+  //override def store(v: T, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
+  //  pointers(offset).asInstanceOf[Pointer[T]].set(index, v)
 
   override def store(v: T, arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): Unit =
     arrays(offset).asInstanceOf[CLGuardedBuffer[T]].update(index, v)
@@ -271,32 +302,104 @@ class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T]) extend
 }
 
 object CLIntDataIO extends CLValDataIO[Int] {
+  override def reductionType = (ReductionUtils.Type.Int, 1)
+  
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Int =
     pointers(offset).getInt(index * 4)
+
+  override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Int =
+    arrays(offset).asInstanceOf[Array[Int]](index)
 
   override def store(v: Int, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
     pointers(offset).setInt(index * 4, v)
 }
 
+object CLShortDataIO extends CLValDataIO[Short] {
+  override def reductionType = (ReductionUtils.Type.Short, 1)
+  
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Short =
+    pointers(offset).getShort(index * 2)
+
+  override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Short =
+    arrays(offset).asInstanceOf[Array[Short]](index)
+
+  override def store(v: Short, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
+    pointers(offset).setShort(index * 2, v)
+}
+
+object CLByteDataIO extends CLValDataIO[Byte] {
+  override def reductionType = (ReductionUtils.Type.Byte, 1)
+  
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Byte =
+    pointers(offset).getByte(index * 1)
+
+  override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Byte =
+    arrays(offset).asInstanceOf[Array[Byte]](index)
+
+  override def store(v: Byte, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
+    pointers(offset).setByte(index * 1, v)
+}
+
+object CLBooleanDataIO extends CLValDataIO[Boolean] {
+  override def reductionType = (ReductionUtils.Type.Byte, 1)
+  
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Boolean =
+    pointers(offset).getByte(index * 1) != 0
+
+  override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Boolean =
+    arrays(offset).asInstanceOf[Array[Boolean]](index)
+
+  override def store(v: Boolean, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
+    pointers(offset).setByte(index * 1, if (v) 1 else 0)
+}
+
+object CLCharDataIO extends CLValDataIO[Char] {
+  override def reductionType = (ReductionUtils.Type.Char, 1)
+  
+  override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Char =
+    pointers(offset).getChar(index * 2)
+
+  override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Char =
+    arrays(offset).asInstanceOf[Array[Char]](index)
+
+  override def store(v: Char, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
+    pointers(offset).setChar(index * 2, v)
+}
+
 object CLLongDataIO extends CLValDataIO[Long] {
+  override def reductionType = (ReductionUtils.Type.Long, 1)
+  
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Long =
     pointers(offset).getLong(index * 8)
+
+  override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Long =
+    arrays(offset).asInstanceOf[Array[Long]](index)
 
   override def store(v: Long, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
     pointers(offset).setLong(index * 8, v)
 }
 
 object CLFloatDataIO extends CLValDataIO[Float] {
+  override def reductionType = (ReductionUtils.Type.Float, 1)
+  
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Float =
     pointers(offset).getFloat(index * 4)
+
+  override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Float =
+    arrays(offset).asInstanceOf[Array[Float]](index)
 
   override def store(v: Float, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
     pointers(offset).setFloat(index * 4, v)
 }
 
 object CLDoubleDataIO extends CLValDataIO[Double] {
+  override def reductionType = (ReductionUtils.Type.Double, 1)
+  
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Double =
     pointers(offset).getDouble(index * 8)
+
+  override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Double =
+    arrays(offset).asInstanceOf[Array[Double]](index)
 
   override def store(v: Double, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
     pointers(offset).setDouble(index * 8, v)
@@ -349,6 +452,9 @@ class CLIntRangeDataIO(implicit val t: ClassManifest[Int]) extends CLDataIO[Int]
 
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Int =
     pointers(offset).asInstanceOf[Pointer[Int]].get(0) + index.toInt
+
+  override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Int =
+    arrays(offset).asInstanceOf[Array[Int]](0) + index.toInt
 
   override def store(v: Int, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
     error("Int ranges are immutable !")

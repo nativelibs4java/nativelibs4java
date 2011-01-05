@@ -47,6 +47,24 @@ trait CLCollectionLike[A, +Repr]
 
   def toCLArray: CLArray[A]
   
+  def zip$into[A1 >: A, B, That](that: Iterable[B], out: That)(implicit bf: CanBuildFrom[Repr, (A1, B), That]): That = 
+    toCLArray.zip$into[A1, B, That](that, out)(bf.asInstanceOf[CanBuildFrom[CLIndexedSeq[A],(A1, B),That]])
+  
+  def zipWithIndex$into[A1 >: A, That](out: That)(implicit bf: CanBuildFrom[Repr, (A1, Int), That]): That = 
+    toCLArray.zipWithIndex$into[A1, That](out)(bf.asInstanceOf[CanBuildFrom[CLIndexedSeq[A],(A1, Int),That]])
+    
+  override def zip[A1 >: A, B, That](that: Iterable[B])(implicit bf: CanBuildFrom[Repr, (A1, B), That]): That =  
+    zip$into[A1, B, That](that, null.asInstanceOf[That])(bf)
+  
+  override def zipWithIndex[A1 >: A, That](implicit bf: CanBuildFrom[Repr, (A1, Int), That]): That =
+    zipWithIndex$into[A1, That](null.asInstanceOf[That])(bf)
+    
+  def zip$shareBuffers[A1 >: A, B, That](that: Iterable[B])(implicit bf: CanBuildFrom[Repr, (A1, B), That]): That = 
+    toCLArray.zip$shareBuffers[A1, B, That](that)(bf.asInstanceOf[CanBuildFrom[CLIndexedSeq[A],(A1, B),That]])
+  
+  def zipWithIndex$shareBuffers[A1 >: A, That](implicit bf: CanBuildFrom[Repr, (A1, Int), That]): That =
+    toCLArray.zipWithIndex$shareBuffers[A1, That](bf.asInstanceOf[CanBuildFrom[CLIndexedSeq[A],(A1, Int),That]])
+  
   def map[B, That](f: A => B, out: That)(implicit bf: CanBuildFrom[Repr, B, That]): That
 
   override def map[B, That](f: A => B)(implicit bf: CanBuildFrom[Repr, B, That]): That =

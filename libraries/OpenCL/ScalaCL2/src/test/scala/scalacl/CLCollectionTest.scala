@@ -27,7 +27,7 @@ object CLCollectionTest {
   var f: Int => Boolean = _
   var m: Int => Int = _
   var m2: Int => (Int, Int) = _
-  var m2a: ((Int, Int)) => Int = _
+  var m2join: ((Int, Int)) => Int = _
   
   val n = 10
   val samples = n
@@ -65,7 +65,7 @@ object CLCollectionTest {
       Seq("_", "_ * 2")
     ): CLFunction[Int, (Int, Int)]
  
-    m2a = (
+    m2join = (
       (p: (Int, Int)) => p._1 + 2 * p._2, 
       Seq("_._1 + 2 * _._2")
     ): CLFunction[(Int, Int), Int]
@@ -112,7 +112,7 @@ class CLCollectionTest {
   
   @Test
   def testFilterMapTuple2Arg {
-    same(a.filter(f).map(m2).map(m2a), cla.filter(f).map(m2).map(m2a))
+    same(a.filter(f).map(m2).map(m2join), cla.filter(f).map(m2).map(m2join))
     context.queue.finish
   }
 }

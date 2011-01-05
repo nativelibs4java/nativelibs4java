@@ -9,14 +9,14 @@ import com.nativelibs4java.opencl._
 import org.bridj.Pointer
 import org.bridj.Pointer._
 
-class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[T], context: ScalaCLContext) extends CLEventBound {
+class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val context: ScalaCLContext, val dataIO: CLDataIO[T]) extends CLEventBound {
   implicit val t = dataIO.t
   lazy val elementClass = t.erasure.asInstanceOf[Class[T]]
   
-  def this(size: Long)(implicit dataIO: CLDataIO[T], context: ScalaCLContext) =
+  def this(size: Long)(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) =
     this(context.context.createBuffer(CLMem.Usage.InputOutput, dataIO.pointerIO, size))
     
-  def this(values: Array[T])(implicit dataIO: CLDataIO[T], context: ScalaCLContext) = {
+  def this(values: Array[T])(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) = {
     this(context.context.createBuffer(CLMem.Usage.InputOutput, {
         val ptr = allocateArray(dataIO.pointerIO, values.length)
         ptr.setArray(values)
@@ -41,6 +41,45 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[
     this
   }
 
+  def withReadablePointer[V](f: Pointer[T] => V): V = withPointer(CLMem.MapFlags.Read, f)
+  def withWritablePointer[V](f: Pointer[T] => V): V = withPointer(CLMem.MapFlags.Write, f)
+  def withReadableWritablePointer[V](f: Pointer[T] => V): V = withPointer(CLMem.MapFlags.ReadWrite, f)
+  
+  def withReadableMappedPointer[V](f: Pointer[T] => V): Option[V] = withMappedPointer(CLMem.MapFlags.Read, f)
+  def withWritableMappedPointer[V](f: Pointer[T] => V): Option[V] = withMappedPointer(CLMem.MapFlags.Write, f)
+  def withReadableWritableMappedPointer[V](f: Pointer[T] => V): Option[V] = withMappedPointer(CLMem.MapFlags.ReadWrite, f)
+  
+  protected def withPointer[V](usage: CLMem.MapFlags, f: Pointer[T] => V): V = this synchronized {
+    withMappedPointer(usage, f).getOrElse {
+      var copied = toPointer
+      try {
+        f(copied)
+      } finally {
+        copied.release
+      }
+    }
+  }
+  
+  protected def withMappedPointer[V](usage: CLMem.MapFlags, f: Pointer[T] => V): Option[V] = this synchronized {
+    var mapped: Pointer[T] = null
+    try {
+      //println("Map...")
+      CLEventBound.syncBlock(Array(this), Array(), evts => {
+        mapped = buffer.map(context.queue, usage, evts:_*)
+        null
+      })
+      //println("Map succeeded !")
+      Some(f(mapped))
+    } catch {
+      case ex: CLException.MapFailure =>
+        //println("Map failed !")
+        None
+    } finally {
+      if (mapped != null)
+        buffer.unmap(context.queue, mapped)
+    }
+  }
+  
   def update(index: Long, value: T): Unit = {
     val b: Pointer[T] = allocate(elementClass)
     b.set(value)
@@ -60,7 +99,7 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val dataIO: CLDataIO[
     out
   }
 
-  def copyTo(out: CLGuardedBuffer[T]): Unit = {
+  def copyTo(out: CLGuardedBuffer[T]): Unit = if (this ne out) {
     assert(buffer.getByteCount == out.buffer.getByteCount)
     CLEventBound.syncBlock(Array(this), Array(out), evts => {
       buffer.copyTo(context.queue, 0, size /* * buffer.getElementSize*/, out.buffer, 0, evts:_*)

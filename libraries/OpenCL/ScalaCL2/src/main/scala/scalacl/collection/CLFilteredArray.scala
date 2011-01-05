@@ -24,6 +24,7 @@ class CLFilteredArray[A](
   implicit val context: ScalaCLContext,
   val dataIO: CLDataIO[A]
 )
+
 extends IndexedSeq[A]
   with GenericTraversableTemplate[A, CLFilteredArray]
   with CLIndexedSeq[A]
@@ -89,7 +90,7 @@ extends IndexedSeq[A]
     val prefixSum = updatedPresencePrefixSum
     val size = this.size
     new CLArray[A](size, if (size == 0) null else buffers.map(b => {
-      val out = new CLGuardedBuffer[Any](size)(b.dataIO, context)
+      val out = new CLGuardedBuffer[Any](size)(context, b.dataIO)
       PrefixSum.copyPrefixed(size, prefixSum, b, out)(b.t, context)
       out
     }))
@@ -105,6 +106,9 @@ extends IndexedSeq[A]
     presencePrefixSum
   }
 
+  override def sum[B >: A](implicit num: Numeric[B]): B =
+    toCLArray.sum[B] // TODO !
+    
   def map[B, That](f: A => B, out: That)(implicit bf: CanBuildFrom[CLFilteredArray[A], B, That]): That = {
     implicit val dataIO = bf.dataIO
     val result = reuse(out, new CLFilteredArray[B](array.length, if (presence == null) null else presence.clone))

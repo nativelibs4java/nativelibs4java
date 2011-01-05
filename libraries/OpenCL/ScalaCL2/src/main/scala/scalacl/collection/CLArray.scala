@@ -4,12 +4,14 @@ import impl._
 
 import scala.collection.generic.CanBuildFrom
 import com.nativelibs4java.opencl._
+import com.nativelibs4java.opencl.util._
 import scala.collection.IndexedSeqLike
 import scala.collection.mutable.{ArrayBuffer, IndexedSeqOptimized, Builder}
 import scala.collection.generic._
 import scala.annotation.unchecked.uncheckedVariance
 
 object CLArray {
+  val MaxReductionSize = Option(System.getenv("SCALACL_MAX_REDUCTION_SIZE")).getOrElse("32").toInt
   
   lazy val indexCode = new CLSimpleCode("""
     __kernel void indexCode(int size, __global int* out) {
@@ -75,9 +77,9 @@ class CLArray[A](
   implicit val context: ScalaCLContext,
   val dataIO: CLDataIO[A]
 )
-  extends CLIndexedSeq[A]//IndexedSeq[A]
+  extends IndexedSeqOptimized[A, CLIndexedSeq[A]]
+  with CLIndexedSeq[A]//IndexedSeq[A]
   with GenericTraversableTemplate[A, CLArray]
-  with IndexedSeqOptimized[A, CLIndexedSeq[A]]
   with CLIndexedSeqLike[A, CLIndexedSeq[A]]
   with MappableToCLArray[A, CLIndexedSeq[A]]
 {
@@ -128,34 +130,54 @@ class CLArray[A](
       override def apply(from: Repr) = newBuilder.asInstanceOf[Builder[A, CLArray[A]]]
     })
 
-  override def zip[A1 >: A, B, That](that: Iterable[B])(implicit bf: CanBuildFrom[Repr, (A1, B), That]): That = {
+  override def zip$into[A1 >: A, B, That](that: Iterable[B], out: That)(implicit bf: CanBuildFrom[Repr, (A1, B), That]): That = {
     if (!that.isInstanceOf[CLArray[_]])
       super.zip(that)
     else {
       val thatArray = that.asInstanceOf[CLArray[B]]
-      //val result = reuse(out, new CLArray[B](length)(context, bf.dataIO))
-      /*
-      val result = new CLArray[(A1, B)](length)(context, bf.dataIO)
-      assert(result.buffers.length == buffers.length + thatArray.length)
-      buffers.zip(result.buffers.take(buffers.length)).map(p => p._1.copyTo(p._2))
-      thatArray.buffers.zip(result.buffers.drop(buffers.length)).map(p => p._1.copyTo(p._2))
+      
+      val result = reuse(out, new CLArray[(A1, B)](length)(context, bf.dataIO))
+      (buffers ++ thatArray.buffers).zip(result.buffers).map(p => p._1.copyTo(p._2))
       result.asInstanceOf[That]
-      */
-      new CLArray[(A1, B)](length, (buffers ++ thatArray.buffers).map(_.clone))(context, bf.dataIO).asInstanceOf[That]
     }
   }
   
-  override def zipWithIndex[A1 >: A, That](implicit bf: CanBuildFrom[Repr, (A1, Int), That]): That = {
-    val indexBuffer = new CLGuardedBuffer[Int](length)
+  def zip$ShareBuffers[A1 >: A, B, That](that: Iterable[B])(implicit bf: CanBuildFrom[Repr, (A1, B), That]): That = 
+    zip$into[A1, B, That](that, new CLArray[(A1, B)](length, buffers ++ that.asInstanceOf[CLArray[B]].buffers)(context, bf.dataIO).asInstanceOf[That])
+  
+  override def zipWithIndex$into[A1 >: A, That](out: That)(implicit bf: CanBuildFrom[Repr, (A1, Int), That]): That = {
+    val result = reuse(out, new CLArray[(A1, Int)](length)(context, bf.dataIO))
+    val indexBuffer = result.buffers.last.asInstanceOf[CLGuardedBuffer[Int]]
+    buffers.zip(result.buffers.take(buffers.size)).map(p => p._1.copyTo(p._2))
+    
     val kernel = indexCode.getKernel(context)
-    val globalSizes = 
     kernel.synchronized {
       kernel.setArgs(length.asInstanceOf[Object], indexBuffer.buffer)
       CLEventBound.syncBlock(Array(), Array(indexBuffer), evts => {
-        kernel.enqueueNDRange(context.queue, Array(size), evts:_*)
+        kernel.enqueueNDRange(context.queue, Array(length), evts:_*)
       })
     }
-    new CLArray[(A, Int)](length, buffers.map(_.clone) ++ Array(indexBuffer.asInstanceOf[CLGuardedBuffer[Any]])).asInstanceOf[That]
+    result.asInstanceOf[That]
+  }
+  
+  def zipWithIndex$ShareBuffers[A1 >: A, That](implicit bf: CanBuildFrom[Repr, (A1, Int), That]): That =
+    zipWithIndex$into[A1, That](new CLArray[(A1, Int)](length, buffers ++ Array(new CLGuardedBuffer[Int](length).asInstanceOf[CLGuardedBuffer[Any]]))(context, bf.dataIO).asInstanceOf[That])
+    
+  override def sum[B >: A](implicit num: Numeric[B]): B = {
+    assert(buffers.length == 1)
+    val buffer = buffers.first.asInstanceOf[CLGuardedBuffer[A]]
+    val (reductionType, channels) = dataIO.reductionType
+    val reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, reductionType, channels).asInstanceOf[ReductionUtils.Reductor[A]]
+    
+    val reduction = org.bridj.Pointer.allocate(dataIO.pointerIO)
+    CLEventBound.syncBlock(Array(buffer), Array(), evts => {
+      reductor.reduce(context.queue, buffer.buffer, length: Long, reduction, MaxReductionSize, evts: _*).waitFor
+      null
+    })
+    /*val reduction = CLEventBound.syncBlock(Array(buffer), Array(), evts => {
+      reductor.reduce(context.queue, buffer.buffer, length: Long, MaxReductionSize, evts: _*)
+    })*/
+    reduction.get
   }
     
   override def clone: CLArray[A] =

@@ -6,13 +6,16 @@ import scalacl.collection.impl._
 
 package scalacl {
   class ScalaCLContext(val context: CLContext, val queue: CLQueue) {
-    def this(context: CLContext) = this(context, context.createDefaultQueue())
-    def this() = this(JavaCL.createBestContext())
+    def this(context: CLContext) = this(context, context.createDefaultOutOfOrderQueueIfPossible())
+    def this() = this(JavaCL.createBestContext(CLPlatform.DeviceFeature.OutOfOrderQueueSupport, CLPlatform.DeviceFeature.MaxComputeUnits))
+    
+    //println("Is out of order queue : " + queue.getProperties.contains(CLDevice.QueueProperties.OutOfOrderExecModeEnable))
+    
     //def newArray[T](size: Int)(implicit dataIO: CLDataIO[T]) = new CLArray[T](size)(dataIO, this)
   }
   object ScalaCLContext {
     def apply() = new ScalaCLContext()
-    def apply(preferredFeatures: DeviceFeature*) = {
+    def apply(preferredFeatures: CLPlatform.DeviceFeature*) = {
       new ScalaCLContext(JavaCL.createBestContext(preferredFeatures:_*))
     }
   }
@@ -214,10 +217,14 @@ package object scalacl {
     )
 
   implicit val IntCLDataIO = CLIntDataIO
+  implicit val ShortCLDataIO = CLShortDataIO
+  implicit val ByteCLDataIO = CLByteDataIO
+  implicit val CharCLDataIO = CLCharDataIO
   implicit val LongCLDataIO = CLLongDataIO
+  implicit val BooleanCLDataIO = CLBooleanDataIO
   implicit val FloatCLDataIO = CLFloatDataIO
   implicit val DoubleCLDataIO = CLDoubleDataIO
-  implicit def AnyValCLDataIO[T <: AnyVal](implicit t: ClassManifest[T]) = new CLValDataIO[T]
+  //implicit def AnyValCLDataIO[T <: AnyVal](implicit t: ClassManifest[T]) = new CLValDataIO[T]
 
   implicit def Expression2CLFunction[K, V](fx: (K => V, Seq[String]))(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) = {
     val (function, expressions) = fx
