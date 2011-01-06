@@ -71,6 +71,9 @@ object Test {
     //implicit val context = new ScalaCLContext(clContext, clQueue)//CLPlatform.DeviceFeature.GPU)
     println("Got context " + context.context.getDevices().mkString(", "))
 
+    val aaa = (1 to 100000).cl
+    val bbb = Array(1, 2, 3).cl
+    
     import CLArray._
     import scala.math._
     
@@ -161,21 +164,25 @@ object Test {
       times("Map2+MapJoin2 in OpenCL", runs) { finished { cla.map(m2).map(m2join2).toArray } },
       times("Map2+MapJoin2 in Scala", runs) { a.map(m2).map(m2join2) }
     )
+    times("Map2+MapJoin2 in Scala+views", runs) { a.view.map(m2).map(m2join2).toArray }
 
     same(
       times("Map2+MapJoin1 in OpenCL", runs) { finished { cla.map(m2).map(m2join).toArray } },
       times("Map2+MapJoin1 in Scala", runs) { a.map(m2).map(m2join) }
     )
+    times("Map2+MapJoin1 in Scala+views", runs) { a.view.map(m2).map(m2join).toArray }
 
     same(
       times("Zip in OpenCL", runs) { finished { cla.zip(cla).toArray } },
       times("Zip in Scala", runs) { finished { a.zip(a) } }
     )
+    times("Zip in Scala+views", runs) { finished { a.view.zip(a).toArray } }
     
     same(
       times("Zip+MapJoin1 in OpenCL", runs) { finished { cla.zip(cla).map(m2join).toArray } },
       times("Zip+MapJoin1 in Scala", runs) { finished { a.zip(a).map(m2join) } }
     )
+    times("Zip+MapJoin1 in Scala+views", runs) { finished { a.view.zip(a).map(m2join).toArray } }
     
     same(
       times("ZipWithIndex in OpenCL", runs) { finished { cla.zipWithIndex.toArray } },
@@ -186,6 +193,7 @@ object Test {
       times("ZipWithIndex+MapJoin1 in OpenCL", runs) { finished { cla.zipWithIndex.map(m2join).toArray } },
       times("ZipWithIndex+MapJoin1 in Scala", runs) { finished { a.zipWithIndex.map(m2join) } }
     )
+    times("ZipWithIndex+MapJoin1 in Scala+views", runs) { finished { a.view.zipWithIndex.map(m2join).toArray } }
     
     /*val smmOpt = times("Map in Scala optimized", runs) { 
       val length = a.length
@@ -212,6 +220,7 @@ object Test {
       times("Map+Map2 in OpenCL", runs) { finished { cla.map(m).map(m2).toArray } }, 
       times("Map+Map2 in Scala", runs) { a.map(m).map(m2) }
     )
+    times("Map+Map2 in Scala+views", runs) { a.view.map(m).map(m2).toArray }
     
     same(
       times("Filter in OpenCL", runs) { finished { cla.filter(f).toArray } },
@@ -219,14 +228,22 @@ object Test {
     )
     
     same(
-      times("Filter+Map+Map2+MapJoin1 in OpenCL", runs) { finished { cla.filter(f).map(m).map(m2).map(m2join).toArray } },
-      times("Filter+Map+Map2+MapJoin1  in Scala", runs) { a.filter(f).map(m).map(m2).map(m2join) }
+      times("Map+Map2+MapJoin1 in OpenCL", runs) { finished { cla.map(m).map(m2).map(m2join).toArray } },
+      times("Map+Map2+MapJoin1 in Scala", runs) { a.map(m).map(m2).map(m2join) }
     )
+    times("Map+Map2+MapJoin1 in Scala+views", runs) { a.view.map(m).map(m2).map(m2join).toArray }
+    
+    same(
+      times("Filter+Map+Map2+MapJoin1 in OpenCL", runs) { finished { cla.filter(f).map(m).map(m2).map(m2join).toArray } },
+      times("Filter+Map+Map2+MapJoin1 in Scala", runs) { a.filter(f).map(m).map(m2).map(m2join) }
+    )
+    times("Filter+Map+Map2+MapJoin1 in Scala+views", runs) { a.view.filter(f).map(m).map(m2).map(m2join).toArray }
     
     same(
       times("Filter+Map in OpenCL", runs) { finished { cla.filter(f).map(m).toArray } },
       times("Filter+Map  in Scala", runs) { a.filter(f).map(m) }
     )
+    times("Filter+Map  in Scala+views", runs) { a.view.filter(f).map(m).toArray }
     
     same(
       times("Sum in OpenCL", runs) { finished { Array(cla.sum) } },
@@ -237,7 +254,6 @@ object Test {
       times("Filtered Sum in OpenCL", runs) { finished { Array(cla.filter(f).sum) } },
       times("Filtered Sum in Scala", runs) { Array(a.filter(f).sum) }
     )
-    
     
     //}
     //assert(ff.toArray.take(samples).toSeq == sff.take(samples).toArray.toSeq)

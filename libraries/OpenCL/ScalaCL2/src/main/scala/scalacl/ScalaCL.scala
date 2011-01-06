@@ -31,6 +31,21 @@ package object scalacl {
   
   implicit def ScalaCLContext2Context(sc: ScalaCLContext) = sc.context
 
+  class CLTransformableSeq[T](seq: Seq[T])(implicit context: ScalaCLContext, io: CLDataIO[T]) {
+    def cl = CLArray.fromSeq(seq)
+  }
+  class CLTransformableRange(rng: Range)(implicit context: ScalaCLContext) {
+    def cl = new CLIntRange(rng)
+  }
+  implicit def Range2CLTransformableRange(rng: Range)(implicit context: ScalaCLContext) = 
+    new CLTransformableRange(rng)
+    
+  implicit def Seq2CLTransformableSeq[T](seq: Seq[T])(implicit context: ScalaCLContext, io: CLDataIO[T]) = 
+    new CLTransformableSeq(seq)
+  
+  implicit def Array2CLTransformableSeq[T](arr: Array[T])(implicit context: ScalaCLContext, io: CLDataIO[T]) = 
+    new CLTransformableSeq(arr)
+  
   /*implicit def canBuildArrayFromIndexedSeq[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
     new CLCanBuildFrom[CLIndexedSeq[_], A, CLArray[A]] {
       override def dataIO = io
