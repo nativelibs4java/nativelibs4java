@@ -70,6 +70,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
   SCALACL_SKIP=File1,File2:line2...   Do not optimize any of the listed files (or specific lines).
                                       Can contain absolute paths or file names (can omit trailing .scala).
                                       Each file (name) may be suffixed with :line.
+  SCALACL_VERBOSE=1                   Print details about each successful code transformation to the standard output.
   SCALACL_TRACE=1                     Display stack trace of failed optimizations (for debugging purpose).
   SCALACL_EXPERIMENTAL=1              Perform experimental rewrites (often slower and buggier, use only when debugging ScalaCLPlugin).
 """
