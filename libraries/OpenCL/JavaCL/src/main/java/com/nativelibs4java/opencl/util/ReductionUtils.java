@@ -42,7 +42,7 @@ public class ReductionUtils {
         Max;
     }
     public enum Type {
-        Int(Integer.class), Long(Long.class), Short(Short.class), Byte(Byte.class), Double(Double.class), Float(Float.class), Half(null);
+        Int(Integer.class), Char(Character.class), Long(Long.class), Short(Short.class), Byte(Byte.class), Double(Double.class), Float(Float.class), Half(null);
         
         Type(Class<?> type) {
         		this.type = type;
@@ -51,24 +51,27 @@ public class ReductionUtils {
         public String toCType() {
             if (this == Byte)
                 return "char";
+            if (this == Char)
+                return "short";
             return name().toLowerCase();
         }
         public static Type fromClass(Class<? extends Number> valueType) {
+            if (valueType == Integer.TYPE || valueType == Integer.class)
+                return Int;
+            if (valueType == java.lang.Long.TYPE || valueType == Long.class)
+                return Long;
+            if (valueType == java.lang.Short.TYPE || valueType == Short.class)
+                return Short;
+            if (valueType == java.lang.Double.TYPE || valueType == Double.class)
+                return Double;
+            if (valueType == java.lang.Float.TYPE || valueType == Float.class)
+                return Float;
+            if (valueType == java.lang.Byte.TYPE || valueType == Byte.class)
+                return Byte;
+            
             if (!valueType.isPrimitive())
                 throw new IllegalArgumentException("Reduction value type is not a primitive: '" + valueType.getName() + "' !");
 
-            if (valueType == Integer.TYPE)
-                return Int;
-            if (valueType == java.lang.Long.TYPE)
-                return Long;
-            if (valueType == java.lang.Short.TYPE)
-                return Short;
-            if (valueType == java.lang.Double.TYPE)
-                return Double;
-            if (valueType == java.lang.Float.TYPE)
-                return Float;
-            if (valueType == java.lang.Byte.TYPE)
-                return Byte;
             throw new IllegalArgumentException("Primitive type not handled: '" + valueType.getName() + "' !");
         }
     }

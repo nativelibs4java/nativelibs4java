@@ -1,5 +1,6 @@
 Current development version (1.0-SNAPSHOT)
 
+- New interactive image kernel demo : lets you edit and test image kernels in a snap (bundled with a few samples) 
 - Experimental BridJ port with same functionality as JNA-powered version, but smaller and faster (JAR weighs 750 kB instead of 1.8 MB, overhead per-function call about 5x smaller)
 - Added LibCL : growing collection of OpenCL functions that can be included from any JavaCL kernel
 - Kernels can now include files that are in the classpath (+ added CLProgram.addInclude that accepts directories and base URLs)
@@ -9,6 +10,7 @@ Current development version (1.0-SNAPSHOT)
 - ScalaCLv2 was rewritten to fit nicely into Scala's collections framework.
 - Added CLContext.createProgram(Map<CLDevice, byte[]>) to create from saved binaries (contribution from Kazo Csaba, issue #30)
 - Added CLProgram.addBuildOption(String)
+- Fixed CLBuffer.copyTo
 
 Version 1.0-beta-5 (r1067, 20100717)
 

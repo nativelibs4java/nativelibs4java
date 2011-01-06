@@ -251,7 +251,7 @@ public class CLException extends RuntimeException {
         if (toThrow == null)
         		toThrow = new CLException("OpenCL Error : " + errorString(err) + logSuffix, err);
         	
-        	assert log(Level.SEVERE, null, toThrow);
+        	//assert log(Level.SEVERE, null, toThrow);
         	
         	throw toThrow;
     }

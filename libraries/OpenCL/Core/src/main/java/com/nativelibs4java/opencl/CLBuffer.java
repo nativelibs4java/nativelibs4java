@@ -131,11 +131,22 @@ public class CLBuffer<B> extends CLMem {
 	 */
 	public CLEvent copyTo(CLQueue queue, long srcOffset, long length, CLMem destination, long destOffset, CLEvent... eventsToWaitFor) {
 		Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
-		long actualSrcOffset = srcOffset * getElementSize(), actualDestOffset = destOffset * getElementSize(), actualLength = length * getElementSize();
-		assert actualSrcOffset < getByteCount();
-		assert actualSrcOffset + actualLength <= getByteCount();
-		assert actualDestOffset < destination.getByteCount();
-		assert actualDestOffset + actualLength <= destination.getByteCount();
+		long 
+			byteCount = getByteCount(),
+			destByteCount = destination.getByteCount(),
+			eltSize = getElementSize(),
+			actualSrcOffset = srcOffset * eltSize, 
+			actualDestOffset = destOffset * eltSize, 
+			actualLength = length * eltSize;
+		
+		if (	actualSrcOffset < 0 ||
+			actualSrcOffset >= byteCount ||
+			actualSrcOffset + actualLength > byteCount ||
+			actualDestOffset < 0 ||
+			actualDestOffset >= destByteCount ||
+			actualDestOffset + actualLength > destByteCount
+		)
+			throw new IndexOutOfBoundsException("Invalid copy parameters : srcOffset = " + srcOffset + ", destOffset = " + destOffset + ", length = " + length + " (element size = " + eltSize + ", source byte count = " + byteCount + ", destination byte count = " + destByteCount + ")"); 
 		
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueCopyBuffer(
