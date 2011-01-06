@@ -216,6 +216,14 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             }
         },
         /**
+         * Prefer devices that support out of order queues (@see CLDevice#hasOutOfOrderQueueSupport())
+         */
+        OutOfOrderQueueSupport {
+            Comparable extractValue(CLDevice device) {
+                return device.hasOutOfOrderQueueSupport() ? 1 : 0;
+            }
+        },
+        /**
          * Prefer devices with the greatest variety of supported image formats (@see CLContext#getSupportedImageFormats())
          */
         MostImageFormats {

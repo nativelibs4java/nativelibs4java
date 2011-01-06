@@ -139,6 +139,14 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		return new CLDevice(platform, deviceIds[0]).createOutOfOrderQueue(this);
 	}
 
+	public CLQueue createDefaultOutOfOrderQueueIfPossible() {
+    		try {
+    			return createDefaultOutOfOrderQueue();
+    		} catch (CLException.InvalidQueueProperties ex) {
+    			return createDefaultQueue();
+    		}
+    }
+
 	/**
 	 * Create an profiling-enabled OpenCL queue on the first device of this context.<br/>
 	 * Equivalent to calling <code>getDevices()[0].createProfilingQueue(context)</code>

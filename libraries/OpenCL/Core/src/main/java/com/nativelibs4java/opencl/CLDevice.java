@@ -593,6 +593,22 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     public boolean hasErrorCorrectionSupport() {
         return infos.getBool(getEntity(), CL_DEVICE_ERROR_CORRECTION_SUPPORT);
     }
+    
+    @InfoName("Out of order queues support")
+    public boolean hasOutOfOrderQueueSupport() {
+    		CLContext context = getPlatform().createContext(null, this);
+    		CLQueue queue = null;
+    		try {
+    			queue = createOutOfOrderQueue(context);
+    			return true;
+    		} catch (CLException.InvalidQueueProperties ex) {
+    			return false;
+    		} finally {
+    			if (queue != null)
+    				queue.release();
+    			context.release();
+    		}
+    }
 
     /**
      * Describes the resolution of device timer. <br/>
