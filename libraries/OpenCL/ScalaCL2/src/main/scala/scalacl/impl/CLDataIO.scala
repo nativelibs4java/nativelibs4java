@@ -66,7 +66,7 @@ trait CLDataIO[T] {
   def toArray(arrays: Array[CLGuardedBuffer[Any]]): Array[T] = {
     val size = arrays.head.buffer.getElementCount.toInt
     if (arrays.length == 1) {
-      arrays.first.withReadablePointer(p => p.toArray.asInstanceOf[Array[T]]) 
+      arrays.head.withReadablePointer(p => p.toArray.asInstanceOf[Array[T]]) 
     } else {
       val out = new Array[T](size)
       copyToArray(arrays, out, 0, size)
@@ -148,7 +148,7 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
   val isOpenCLTuple = {
     uniqTypes.size == 1 && 
     CLTupleDataIO.builtInArities.contains(ios.size) &&
-    ios.first.isInstanceOf[CLValDataIO[_]]
+    ios.head.isInstanceOf[CLValDataIO[_]]
   }
   override def clType = {
     if (isOpenCLTuple)
@@ -158,7 +158,7 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
   }
   
   override def reductionType = if (isOpenCLTuple)
-    (ios.first.reductionType._1, ios.size)
+    (ios.head.reductionType._1, ios.size)
   else
     super.reductionType
 

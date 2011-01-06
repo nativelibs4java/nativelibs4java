@@ -165,7 +165,7 @@ class CLArray[A](
     
   override def sum[B >: A](implicit num: Numeric[B]): B = {
     assert(buffers.length == 1)
-    val buffer = buffers.first.asInstanceOf[CLGuardedBuffer[A]]
+    val buffer = buffers.head.asInstanceOf[CLGuardedBuffer[A]]
     val (reductionType, channels) = dataIO.reductionType
     val reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, reductionType, channels).asInstanceOf[ReductionUtils.Reductor[A]]
     
