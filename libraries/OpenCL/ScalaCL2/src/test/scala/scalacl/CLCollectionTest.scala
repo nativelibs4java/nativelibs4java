@@ -118,7 +118,7 @@ class CLCollectionTest {
   
   @Test
   def testToString {
-    assertEquals("CLArray()", CLArray().toString)
+    assertEquals("CLArray()", CLArray[Int]().toString)
     assertEquals("CLArray(1, 2)", CLArray(1, 2).toString)
     assertEquals("CLFilteredArray()", CLArray(1, 2).filter(_ => false).toString)
     assertEquals("CLFilteredArray(1, 2)", CLArray(1, 2).filter(_ => true).toString)

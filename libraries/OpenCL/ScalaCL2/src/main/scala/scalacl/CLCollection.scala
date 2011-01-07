@@ -39,8 +39,8 @@ trait CLCollectionLike[A, +Repr]
   
   def toArray: Array[A] = toCLArray.toArray
   override def toSeq = toArray.toSeq
-  def toSet = toArray.toSet
-  def toIndexedSeq = toArray.toIndexedSeq
+  override def toSet[B >: A] = toArray.toSet[B]
+  override def toIndexedSeq[B >: A] = toArray.toIndexedSeq[B]
   
   override def copyToArray[B >: A](a: Array[B], start: Int, len: Int): Unit = toCLArray.copyToArray(a, start, len)
     override def toArray[B >: A](implicit b: ClassManifest[B]) = {

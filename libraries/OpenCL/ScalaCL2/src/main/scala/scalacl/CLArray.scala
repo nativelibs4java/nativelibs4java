@@ -31,7 +31,7 @@ object CLArray {
     val valuesArray = values.toArray
     val length = valuesArray.length
     if (t.erasure.isPrimitive) {
-      new CLArray[A](length, Array(new CLGuardedBuffer[A](length).update(valuesArray).asInstanceOf[CLGuardedBuffer[Any]]))
+      new CLArray[A](length, if (length == 0) null else Array(new CLGuardedBuffer[A](length).update(valuesArray).asInstanceOf[CLGuardedBuffer[Any]]))
     } else {
       val a = new CLArray[A](length)
       // TODO find a faster way to handle initial copy of complex types !!!
