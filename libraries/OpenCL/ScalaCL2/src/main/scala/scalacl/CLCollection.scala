@@ -38,6 +38,10 @@ trait CLCollectionLike[A, +Repr]
   def release: Unit
   
   def toArray: Array[A] = toCLArray.toArray
+  override def toSeq = toArray.toSeq
+  def toSet = toArray.toSet
+  def toIndexedSeq = toArray.toIndexedSeq
+  
   override def copyToArray[B >: A](a: Array[B], start: Int, len: Int): Unit = toCLArray.copyToArray(a, start, len)
     override def toArray[B >: A](implicit b: ClassManifest[B]) = {
     val out = new Array[B](size)
@@ -46,6 +50,8 @@ trait CLCollectionLike[A, +Repr]
   }
 
   def toCLArray: CLArray[A]
+  
+  override def toString = getClass.getSimpleName + "(" + toArray.mkString(", ") + ")"
   
   def zip$into[A1 >: A, B, That](that: Iterable[B], out: That)(implicit bf: CanBuildFrom[Repr, (A1, B), That]): That = 
     toCLArray.zip$into[A1, B, That](that, out)(bf.asInstanceOf[CanBuildFrom[CLIndexedSeq[A],(A1, B),That]])
