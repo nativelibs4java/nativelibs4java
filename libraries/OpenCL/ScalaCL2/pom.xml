@@ -9,6 +9,10 @@
   <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
+  <properties>
+  	<scala.version>2.8.0</scala.version>
+  </properties>
+  
 	  <description>
 ScalaCL is a Domain Specific Language (DSL) that makes it trivial to write parallel expressions that evaluate on the GPU in Scala.
 It is based on JavaCL for the Java/OpenCL interop.
@@ -97,6 +101,12 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 					</goals>
 				</execution>
 			</executions>
+			<configuration>
+			  <jvmArgs>
+				<jvmArg>-Xms64m</jvmArg>
+				<jvmArg>-Xmx1024m</jvmArg>
+			  </jvmArgs>
+			</configuration>
 		</plugin>
 		
 	</plugins>
