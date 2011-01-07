@@ -55,7 +55,7 @@ extends IndexedSeq[A]
   }
   
   override def length = sizeFuture.get
-  def sizeFuture = {
+  protected def sizeFuture = {
     if (presence == null)
       new CLInstantFuture(0)
     else {

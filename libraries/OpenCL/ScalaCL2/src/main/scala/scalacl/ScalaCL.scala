@@ -21,16 +21,13 @@ package scalacl {
 }
 package object scalacl {
   
-  lazy val verbose = //true
+  var verbose =
     "1" == System.getenv("SCALACL_VERBOSE")
   
-  lazy val useScalaFunctions = //true
+  var useScalaFunctions =
     "1" == System.getenv("SCALACL_USE_SCALA_FUNCTIONS")
   
-  def clType[T](implicit dataIO: CLDataIO[T]) = dataIO.clType
-
-  //protected
-  def reuse[T](value: Any, create: => T): T =
+  private[scalacl] def reuse[T](value: Any, create: => T): T =
     if (value != null && value.isInstanceOf[T])
       value.asInstanceOf[T]
     else

@@ -1,6 +1,6 @@
 package scalacl
 
-import impl._
+package impl
 
 import com.nativelibs4java.opencl._
 

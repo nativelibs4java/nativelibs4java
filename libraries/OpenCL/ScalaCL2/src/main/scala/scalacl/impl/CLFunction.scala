@@ -28,6 +28,7 @@ object CLFunction {
     nextuid += 1
     uid
   }
+  def clType[T](implicit dataIO: CLDataIO[T]) = dataIO.clType
 }
 
 class CLFunction[A, B](
@@ -47,7 +48,9 @@ extends (A => B)
    with CLCode
    with CLRunnable
 {
-  lazy val uid = CLFunction.newuid
+  import CLFunction._
+  
+  lazy val uid = newuid
   lazy val functionName = "f" + uid
 
   def apply(arg: A): B =
@@ -149,7 +152,6 @@ extends (A => B)
 
   def isOnlyInScalaSpace = expressions.isEmpty
 
-  import CLFunction._
   def compose[C](f: CLFunction[C, A])(implicit cIO: CLDataIO[C]): CLFunction[C, B] = {
     compositions.synchronized {
       compositions.getOrElseUpdate((uid, f.uid), {
