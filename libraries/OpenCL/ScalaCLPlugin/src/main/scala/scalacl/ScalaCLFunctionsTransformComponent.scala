@@ -121,57 +121,59 @@ extends PluginComponent
               //if (collection.tpe.widen.matches(CLCollectionClass.tpe)) {
               if (colTpeStr.startsWith("scalacl.")) { // TODO
                 op match {
-                  case TraversalOp.Map(f, canBuildFrom) =>
-                    val Func(List(uniqueParam), body) = op.f
-                    val context = localTyper.context1
-                    val sourceTpe = uniqueParam.symbol.tpe
-                    val mappedTpe = body.tpe
-                    val Array(
-                      sourceDataIO, 
-                      mappedDataIO
-                    ) = Array(
-                      sourceTpe, 
-                      mappedTpe
-                    ).map(tpe => {
-                      val dataIOTpe = appliedType(CLDataIOClass.tpe, List(tpe))
-                      analyzer.inferImplicit(tree, dataIOTpe, false, false, context).tree
-                    })
-                    
-                    val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "|" + tree.symbol.tag + "|" + tree.symbol.pos)) // TODO
-                    val uniqueId = uniqueSignature.hashCode // TODO !!!
-                    val functionOpenCLExprString = convertExpr(Map(uniqueParam.name.toString -> "_"), body).toString
-                    if (ScalaCLPlugin.verbose)
-                    println("[ScalaCL] Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
-                    val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
-                    val clFunction = 
-                      typed {
-                        Apply(
+                  case opType @ (TraversalOp.Map(_, _) | TraversalOp.Filter(_, false)) =>
+                    msg(unit, tree.pos, "transformed " + colTpeStr + "." + op + " into equivalent while loop.") {
+                      val Func(List(uniqueParam), body) = op.f
+                      val context = localTyper.context1
+                      val sourceTpe = uniqueParam.symbol.tpe
+                      val mappedTpe = body.tpe
+                      val Array(
+                        sourceDataIO, 
+                        mappedDataIO
+                      ) = Array(
+                        sourceTpe, 
+                        mappedTpe
+                      ).map(tpe => {
+                        val dataIOTpe = appliedType(CLDataIOClass.tpe, List(tpe))
+                        analyzer.inferImplicit(tree, dataIOTpe, false, false, context).tree
+                      })
+                      
+                      val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "|" + tree.symbol.tag + "|" + tree.symbol.pos)) // TODO
+                      val uniqueId = uniqueSignature.hashCode // TODO !!!
+                      val functionOpenCLExprString = convertExpr(Map(uniqueParam.name.toString -> "_"), body).toString
+                      if (ScalaCLPlugin.verbose)
+                      println("[ScalaCL] Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
+                      val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
+                      val clFunction = 
+                        typed {
                           Apply(
-                            TypeApply(
-                              Select(
-                                Ident(scalacl_) setSymbol ScalaCLPackage,
-                                getCachedFunctionName
-                              ),
-                              List(TypeTree(sourceTpe), TypeTree(mappedTpe))
+                            Apply(
+                              TypeApply(
+                                Select(
+                                  Ident(scalacl_) setSymbol ScalaCLPackage,
+                                  getCachedFunctionName
+                                ),
+                                List(TypeTree(sourceTpe), TypeTree(mappedTpe))
+                              ).setSymbol(getCachedFunctionSym),
+                              List(
+                                newInt(uniqueId),
+                                op.f,
+                                newSeqApply(TypeTree(StringClass.tpe)), // statements TODO
+                                newSeqApply(TypeTree(StringClass.tpe), Literal(Constant(functionOpenCLExprString))), // expressions TODO
+                                newSeqApply(TypeTree(AnyClass.tpe)) // args TODO
+                              )
                             ).setSymbol(getCachedFunctionSym),
                             List(
-                              newInt(uniqueId),
-                              op.f,
-                              newSeqApply(TypeTree(StringClass.tpe)), // statements TODO
-                              newSeqApply(TypeTree(StringClass.tpe), Literal(Constant(functionOpenCLExprString))), // expressions TODO
-                              newSeqApply(TypeTree(AnyClass.tpe)) // args TODO
+                              sourceDataIO,
+                              mappedDataIO
                             )
-                          ).setSymbol(getCachedFunctionSym),
-                          List(
-                            sourceDataIO,
-                            mappedDataIO
-                          )
-                        ).setSymbol(getCachedFunctionSym)
-                      }
-
-                    val rep = replaceOccurrences(super.transform(tree), Map(), Map(), Map(f -> (() => clFunction)), unit)
-                    //println("REP = " + nodeToString(rep))
-                    rep
+                          ).setSymbol(getCachedFunctionSym)
+                        }
+  
+                      val rep = replaceOccurrences(super.transform(tree), Map(), Map(), Map(op.f -> (() => clFunction)), unit)
+                      //println("REP = " + nodeToString(rep))
+                      rep
+                    }
                   case _ =>
                     super.transform(tree)
                 }

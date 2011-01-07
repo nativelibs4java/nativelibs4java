@@ -158,11 +158,11 @@ extends MiscMatchers
         }
       case Apply(s @ Select(left, name), args) =>
         NameTransformer.decode(name.toString) match {
-          case op @ ("+" | "-" | "*" | "/" | "%" | "^" | "^^" | "&" | "&&" | "|" | "||" | "<<" | ">>") =>
+          case op @ ("+" | "-" | "*" | "/" | "%" | "^" | "^^" | "&" | "&&" | "|" | "||" | "<<" | ">>" | "==" | "<" | ">" | "<=" | ">=" | "!=") =>
             out(left, " ", op, " ", args(0))
           case n =>
             println(nodeToStringNoComment(body))
-            error("Unhandled method name : " + name)
+            error("[ScalaCL] Unhandled method name in Scala -> OpenCL conversion : " + name)
         }
       case _ =>
         println("Failed to convert " + body.getClass.getName + ": " + body)
