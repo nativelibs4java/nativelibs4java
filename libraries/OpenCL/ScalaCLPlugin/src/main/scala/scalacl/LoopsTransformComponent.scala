@@ -55,14 +55,14 @@ object LoopsTransformComponent {
  * - Array[T].foldLeft((x, y) => body) / foldRight
  * - Array[T].scanLeft((x, y) => body) / scanRight
  */
-class LoopsTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
+class LoopsTransformComponent(val global: Global, val options: ScalaCLPlugin.PluginOptions)
 extends PluginComponent
    with Transform
    with TypingTransformers
    with MiscMatchers
    with TreeBuilders
    with RewritingPluginComponent
-   with WithOptimizationFilter
+   with WithOptions
    with WorkaroundsForOtherPhases
 {
   import global._
@@ -291,7 +291,7 @@ extends PluginComponent
               collection match {
                 case CollectionRewriter(colRewriter) =>
                   import colRewriter._
-                  if ((isLeft || colType.supportsRightVariants) && (ScalaCLPlugin.experimental || colType.isSafeRewrite(op)))
+                  if ((isLeft || colType.supportsRightVariants) && (options.experimental || colType.isSafeRewrite(op)))
                     msg(unit, tree.pos, "transformed " + colType.colToString(tpe) + "." + op + " into equivalent while loop.") {
                       super.transform(
                         op match {
@@ -770,7 +770,7 @@ extends PluginComponent
           }
         } catch {
           case ex =>
-            //if (ScalaCLPlugin.trace)
+            //if (options.trace)
             //  ex.printStackTrace
             super.transform(tree)
         }

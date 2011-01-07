@@ -51,7 +51,7 @@ object StreamOpsTransformComponent {
 /**
  * Lists streamed operations that initiate from a rewritable collection
  */
-class StreamOpsTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
+class StreamOpsTransformComponent(val global: Global, val options: ScalaCLPlugin.PluginOptions)
 extends PluginComponent
    with Transform
    with TypingTransformers
@@ -59,7 +59,7 @@ extends PluginComponent
    with TreeBuilders
    with RewritingPluginComponent
    with WorkaroundsForOtherPhases
-   with WithOptimizationFilter
+   with WithOptions
 {
   import global._
   import global.definitions._

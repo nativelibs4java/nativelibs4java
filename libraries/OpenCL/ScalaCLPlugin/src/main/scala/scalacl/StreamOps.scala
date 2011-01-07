@@ -30,9 +30,13 @@
  */
 package scalacl
 
+import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.Global
 
+@deprecated("Not tested for long, please re-read")
 trait StreamOps extends TreeBuilders {
+  this: PluginComponent with WithOptions =>
+  
   val global: Global
   import global._
 

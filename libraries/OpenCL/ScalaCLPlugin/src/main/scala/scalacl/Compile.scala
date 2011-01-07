@@ -132,7 +132,8 @@ Copyright Olivier Chafik 2010""")
     val command = new CompilerCommand((args ++ extraArgs).toList, settings) {
       override val cmdName = "scalacl"
     }
-    val runner = new ScalaCLPluginRunner(enablePlugins, settings, new ConsoleReporter(settings))
+    val pluginOptions = new ScalaCLPlugin.PluginOptions
+    val runner = new ScalaCLPluginRunner(enablePlugins, settings, new ConsoleReporter(settings), pluginOptions)
     val run = new runner.Run
 
     if (command.ok) {
@@ -141,12 +142,12 @@ Copyright Olivier Chafik 2010""")
   }
 }
 
-class ScalaCLPluginRunner(enablePlugins: Boolean, settings: Settings, reporter: Reporter) extends Global(settings, reporter) {
+class ScalaCLPluginRunner(enablePlugins: Boolean, settings: Settings, reporter: Reporter, options: ScalaCLPlugin.PluginOptions) extends Global(settings, reporter) {
   override protected def computeInternalPhases() {
     super.computeInternalPhases
     if (//false)//
       enablePlugins)
-      for (phase <- ScalaCLPlugin.components(this, (_, _) => true))
+      for (phase <- ScalaCLPlugin.components(this, options))
         phasesSet += phase
   }
 }

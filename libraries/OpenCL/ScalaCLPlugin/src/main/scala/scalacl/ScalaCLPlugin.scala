@@ -58,6 +58,8 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
   lazy val explicitelyDisabled = "1".equals(System.getenv("DISABLE_SCALACL_PLUGIN")) || "true".equals(System.getProperty("scalacl.plugin.disable"))
 
   var enabled = !explicitelyDisabled
+  
+  val pluginOptions = new ScalaCLPlugin.PluginOptions 
   override def processOptions(options: List[String], error: String => Unit) = {
     for (option <- options) {
       println("Found option " + option)
@@ -76,97 +78,103 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 """
   )
   
-  import ScalaCLPlugin._
-  val fileAndLineOptimizationFilter: (String, Int) => Boolean = {
-    var skip = System.getenv("SCALACL_SKIP")
-    if (skip == null)
-      skip = ""
-    else
-      skip = skip.trim
-    //println("[scalacl] SCALACL_SKIP = " + skip)
-    if (skip == "")
-      (path: String, line: Int) => true
-    else {
-      skip.split(',').map(item => {
-        val s = item.split(':')
-        val f = s(0)
-        val pathFilter: String => Boolean = {
-          val file = new File(f)
-          if (file.exists) {
-            val absFile = file.getAbsolutePath
-            (path: String) => new File(path).getAbsolutePath != absFile
-          } else {
-            val n = file.getName
-            if (!n.toLowerCase.endsWith(".scala")) {
-              val ns = n + ".scala"
-              (path: String) => {
-                val fn = new File(path).getName
-                fn != n && fn != ns
-              }
-            } else {
-              (path: String) => {
-                val fn = new File(path).getName
-                fn != n
-              }
-            }
-          }
-        }
-        if (s.length == 2 && (s(1) ne null)) {
-          val skippedLine = s(1).toInt
-          (path: String, line: Int) => path == null || line != skippedLine && pathFilter(path)
-        } else {
-          (path: String, line: Int) => path == null || pathFilter(path)
-        }
-      }).reduceLeft[FileAndLineOptimizationFilter] {
-        case (f1: FileAndLineOptimizationFilter, f2: FileAndLineOptimizationFilter) => (path: String, line: Int) => f1(path, line) && f2(path, line)
-      }
-    }
-
-  }
   override val components = if (enabled)
-    ScalaCLPlugin.components(global, fileAndLineOptimizationFilter)
+    ScalaCLPlugin.components(global, pluginOptions)
   else
     Nil
 }
 
 object ScalaCLPlugin {
-  lazy val trace = //true
-    "1" == System.getenv("SCALACL_TRACE")
+  class PluginOptions {
+    var trace =
+      "1" == System.getenv("SCALACL_TRACE")
+      
+    var verbose =
+      "1" == System.getenv("SCALACL_VERBOSE")
+      
+    var experimental = 
+      "1" == System.getenv("SCALACL_EXPERIMENTAL")
     
-  lazy val verbose = //true
-    "1" == System.getenv("SCALACL_VERBOSE")
-    
-  lazy val experimental = 
-    "1" == System.getenv("SCALACL_EXPERIMENTAL")
+    var skip = System.getenv("SCALACL_SKIP")
+      
+    type FileAndLineOptimizationFilter = (String, Int) => Boolean
   
-  type FileAndLineOptimizationFilter = (String, Int) => Boolean
-  def components(global: Global, fileAndLineOptimizationFilter: FileAndLineOptimizationFilter) = List(
+    lazy val fileAndLineOptimizationFilter: FileAndLineOptimizationFilter = {
+      var skip = System.getenv("SCALACL_SKIP")
+      if (skip == null)
+        skip = ""
+      else
+        skip = skip.trim
+      println("[scalacl] SCALACL_SKIP = " + skip)
+      if (skip == "")
+        (path: String, line: Int) => true
+      else {
+        skip.split(',').map(item => {
+          val s = item.split(':')
+          val f = s(0)
+          val pathFilter: String => Boolean = {
+            val file = new File(f)
+            if (file.exists) {
+              val absFile = file.getAbsolutePath
+              (path: String) => new File(path).getAbsolutePath != absFile
+            } else {
+              val n = file.getName
+              if (!n.toLowerCase.endsWith(".scala")) {
+                val ns = n + ".scala"
+                (path: String) => {
+                  val fn = new File(path).getName
+                  fn != n && fn != ns
+                }
+              } else {
+                (path: String) => {
+                  val fn = new File(path).getName
+                  fn != n
+                }
+              }
+            }
+          }
+          if (s.length == 2 && (s(1) ne null)) {
+            val skippedLine = s(1).toInt
+            (path: String, line: Int) => path == null || line != skippedLine && pathFilter(path)
+          } else {
+            (path: String, line: Int) => path == null || pathFilter(path)
+          }
+        }).reduceLeft[FileAndLineOptimizationFilter] {
+          case (f1: FileAndLineOptimizationFilter, f2: FileAndLineOptimizationFilter) => (path: String, line: Int) => f1(path, line) && f2(path, line)
+        }
+      }
+    }
+  }
+  
+  def components(global: Global, options: PluginOptions) = List(
     /*
     if (System.getenv("SCALACL_SEQ2ARRAY") == null) null else
       new Seq2ArrayTransformComponent(global, fileAndLineOptimizationFilter),
     */
     if ("1" == System.getenv("SCALACL_INSTRUMENT"))
-      new instrumentation.InstrumentationTransformComponent(global, fileAndLineOptimizationFilter)
+      new instrumentation.InstrumentationTransformComponent(global, options)
     else
       null,
     if ("1" == System.getenv("SCALACL_LIST_STREAMOPS"))
-      new StreamOpsTransformComponent(global, fileAndLineOptimizationFilter)
+      new StreamOpsTransformComponent(global, options)
     else
       null,
-    new ScalaCLFunctionsTransformComponent(global, fileAndLineOptimizationFilter),
-    new LoopsTransformComponent(global, fileAndLineOptimizationFilter)
+    new ScalaCLFunctionsTransformComponent(global, options),
+    new LoopsTransformComponent(global, options)
   ).filter(_ != null)
 }
 
-trait WithOptimizationFilter {
+trait WithOptions 
+{
   val global: Global
   import global._
-  val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter
-
+  
+  val options: ScalaCLPlugin.PluginOptions
+  
   def shouldOptimize(tree: Tree) = {
     val pos = tree.pos
     try {
-      !pos.isDefined || fileAndLineOptimizationFilter(pos.source.path, pos.line)
+      !pos.isDefined || options.fileAndLineOptimizationFilter(pos.source.path, pos.line)
     } catch {
       case ex =>
         //ex.printStackTrace

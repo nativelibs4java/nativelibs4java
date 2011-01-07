@@ -49,7 +49,7 @@ object ScalaCLFunctionsTransformComponent {
   val phaseName = "scalacl-functionstransform"
 }
 
-class ScalaCLFunctionsTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
+class ScalaCLFunctionsTransformComponent(val global: Global, val options: ScalaCLPlugin.PluginOptions)
 extends PluginComponent
    with Transform
    with TypingTransformers
@@ -57,7 +57,7 @@ extends PluginComponent
    with TreeBuilders
   //with Analyzer
    with OpenCLConverter
-   with WithOptimizationFilter
+   with WithOptions
 {
   import global._
   import global.definitions._
@@ -113,16 +113,12 @@ extends PluginComponent
             import traversalOp._
             //println("FOUND TRAVERSAL OP " + traversalOp)
             try {
-              collection.tpe = null
-              typed(collection)
-              val colTpeStr = collection.tpe.toString
-              //println("colTpeStr = " + colTpeStr)
-              //println("subtype = " + (collection.tpe.widen.deconst.matches(CLCollectionClass.tpe)))
-              //if (collection.tpe.widen.matches(CLCollectionClass.tpe)) {
-              if (colTpeStr.startsWith("scalacl.")) { // TODO
+              val colTpe = collection.tpe.widen.dealias.deconst
+              if (colTpe.matches(CLCollectionClass.tpe)) {
+              //if (colTpe.toString.startsWith("scalacl.")) { // TODO
                 op match {
                   case opType @ (TraversalOp.Map(_, _) | TraversalOp.Filter(_, false)) =>
-                    msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpeStr + "." + op + "'s function argument.") {
+                    msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpe + "." + op + "'s function argument.") {
                       val Func(List(uniqueParam), body) = op.f
                       val context = localTyper.context1
                       val sourceTpe = uniqueParam.symbol.tpe
@@ -147,7 +143,7 @@ extends PluginComponent
                       ))
                       val uniqueId = uniqueSignature.hashCode // TODO !!!
                       
-                      if (ScalaCLPlugin.verbose)
+                      if (options.verbose)
                         println("[scalacl] Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
                       val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
                       val clFunction = 

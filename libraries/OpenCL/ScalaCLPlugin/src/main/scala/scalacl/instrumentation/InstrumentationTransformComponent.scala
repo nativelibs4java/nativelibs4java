@@ -47,13 +47,13 @@ object InstrumentationTransformComponent {
   )
   val phaseName = "scalacl-instrument"
 }
-class InstrumentationTransformComponent(val global: Global, val fileAndLineOptimizationFilter: ScalaCLPlugin.FileAndLineOptimizationFilter)
+class InstrumentationTransformComponent(val global: Global, val options: ScalaCLPlugin.PluginOptions)
 extends PluginComponent
    with Transform
    with TypingTransformers
    with MiscMatchers
    with TreeBuilders
-   with WithOptimizationFilter
+   with WithOptions
 {
   import global._
   import global.definitions._

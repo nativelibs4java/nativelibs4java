@@ -36,7 +36,7 @@ import scala.tools.nsc.transform.TypingTransformers
 
 trait RewritingPluginComponent {
 
-  this: PluginComponent with TreeBuilders with WorkaroundsForOtherPhases =>
+  this: PluginComponent with TreeBuilders with WorkaroundsForOtherPhases with WithOptions =>
   import global._
   import gen._
   import definitions._

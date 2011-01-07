@@ -42,7 +42,7 @@ extends MiscMatchers
    with TypingTransformers
    with TreeDSL
 {
-  //this: PluginComponent =>
+  this: PluginComponent with WithOptions =>
   
   import global._
   import global.definitions._
@@ -58,7 +58,7 @@ extends MiscMatchers
     try {
       val r = v
       //unit.comment(pos, text)
-      if (ScalaCLPlugin.verbose) {
+      if (options.verbose) {
         val str = prefix + text
         // Global.log(String) was removed or modified in Scala's trunk version... too bad !
         //global.log(str)
@@ -75,7 +75,7 @@ extends MiscMatchers
   You can skip this line with the following environment variable :
     SCALACL_SKIP=""" + fileLine
 
-        if (ScalaCLPlugin.trace) {
+        if (options.trace) {
           ex.printStackTrace
           str += "\n\tError : " + ex
         } else {

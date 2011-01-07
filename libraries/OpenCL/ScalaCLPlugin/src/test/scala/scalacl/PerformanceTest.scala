@@ -23,7 +23,8 @@ class PerformanceTest extends TestUtils {
   val lis = ("val col = (0 to n).toList", "col")
   val rng = (null, "(0 until n)")
 
-  import ScalaCLPlugin.experimental // SCALACL_EXPERIMENTAL
+  val options = new ScalaCLPlugin.PluginOptions
+  import options.experimental // SCALACL_EXPERIMENTAL
   
   /**************************
    * Collection conversions *
