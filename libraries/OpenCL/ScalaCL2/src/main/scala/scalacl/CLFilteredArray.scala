@@ -115,7 +115,7 @@ extends IndexedSeq[A]
 
     if (presence != null)
       f match {
-        case clf: CLRunnable =>
+        case clf: CLRunnable if !useScalaFunctions =>
           clf.run(
             dims = Array(array.length),
             args = Array(this, result),

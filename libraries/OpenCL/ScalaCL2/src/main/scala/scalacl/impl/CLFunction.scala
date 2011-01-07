@@ -117,7 +117,7 @@ extends (A => B)
   val kernDecls = declarations.map(replaceForFunction(_, "i")).reduceLeftOption(_ + "\n" + _).getOrElse("")
   val assignt = assignts("i")
   val kernelsSource = if (expressions.isEmpty) null else """
-      __kernel void array_array""" + uid + """(
+      __kernel void array_array(
           int size,
           """ + inParams + """,
           """ + outParams + """
@@ -126,7 +126,7 @@ extends (A => B)
           """ + kernDecls + """
           """ + assignt + """;
       }
-      __kernel void filteredArray_filteredArray""" + uid + """(
+      __kernel void filteredArray_filteredArray(
           int size,
           """ + inParams + """,
           """ + presenceParam + """,
@@ -172,13 +172,13 @@ extends (A => B)
     val (kernelName, size: Int, buffers: Array[CLGuardedBuffer[Any]]) = args match {
       case Array(in: CLArray[_], out: CLGuardedBuffer[Any]) =>
         // case of CLArray.filter (output to the presence array of a CLFilteredArray
-        ("array_array" + uid, in.length, in.buffers ++ Array(out): Array[CLGuardedBuffer[Any]])
+        ("array_array", in.length, in.buffers ++ Array(out): Array[CLGuardedBuffer[Any]])
       case Array(in: CLArray[_], out: CLArray[_]) =>
         // CLArray.map
-        ("array_array" + uid, in.length, in.buffers ++ out.buffers: Array[CLGuardedBuffer[Any]])
+        ("array_array", in.length, in.buffers ++ out.buffers: Array[CLGuardedBuffer[Any]])
       case Array(in: CLFilteredArray[_], out: CLFilteredArray[Any]) =>
         // CLFilteredArray.map
-        ("filteredArray_filteredArray" + uid, in.array.length, in.array.buffers ++ Array(in.presence.asInstanceOf[CLGuardedBuffer[Any]]) ++ out.array.buffers: Array[CLGuardedBuffer[Any]])
+        ("filteredArray_filteredArray", in.array.length, in.array.buffers ++ Array(in.presence.asInstanceOf[CLGuardedBuffer[Any]]) ++ out.array.buffers: Array[CLGuardedBuffer[Any]])
       case _ =>
         error("ERROR, args = " + args.mkString(", "))
     }

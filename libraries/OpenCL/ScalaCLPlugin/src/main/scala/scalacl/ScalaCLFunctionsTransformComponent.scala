@@ -122,7 +122,7 @@ extends PluginComponent
               if (colTpeStr.startsWith("scalacl.")) { // TODO
                 op match {
                   case opType @ (TraversalOp.Map(_, _) | TraversalOp.Filter(_, false)) =>
-                    msg(unit, tree.pos, "transformed " + colTpeStr + "." + op + " into equivalent while loop.") {
+                    msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpeStr + "." + op + "'s function argument.") {
                       val Func(List(uniqueParam), body) = op.f
                       val context = localTyper.context1
                       val sourceTpe = uniqueParam.symbol.tpe
@@ -138,11 +138,17 @@ extends PluginComponent
                         analyzer.inferImplicit(tree, dataIOTpe, false, false, context).tree
                       })
                       
-                      val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "|" + tree.symbol.tag + "|" + tree.symbol.pos)) // TODO
-                      val uniqueId = uniqueSignature.hashCode // TODO !!!
                       val functionOpenCLExprString = convertExpr(Map(uniqueParam.name.toString -> "_"), body).toString
+                      val uniqueSignature = Literal(Constant(
+                        Array(
+                          tree.symbol.outerSource, tree.symbol.tag + "|" + tree.symbol.pos,
+                          sourceTpe, mappedTpe, functionOpenCLExprString // TODO
+                        ).map(_.toString).mkString("|")
+                      ))
+                      val uniqueId = uniqueSignature.hashCode // TODO !!!
+                      
                       if (ScalaCLPlugin.verbose)
-                      println("[ScalaCL] Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
+                        println("[scalacl] Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
                       val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
                       val clFunction = 
                         typed {

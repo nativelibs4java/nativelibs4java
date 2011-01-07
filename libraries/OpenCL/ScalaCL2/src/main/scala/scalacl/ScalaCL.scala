@@ -24,6 +24,9 @@ package object scalacl {
   lazy val verbose = //true
     "1" == System.getenv("SCALACL_VERBOSE")
   
+  lazy val useScalaFunctions = //true
+    "1" == System.getenv("SCALACL_USE_SCALA_FUNCTIONS")
+  
   def clType[T](implicit dataIO: CLDataIO[T]) = dataIO.clType
 
   //protected

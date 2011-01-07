@@ -57,7 +57,7 @@ trait MappableToCLArray[A, +Repr <: CLCollectionLike[A, Repr] with CLCollection[
     val result = reuse(out, new CLArray[B](length)(context, bf.dataIO))
 
     f match {
-      case clf: CLRunnable =>
+      case clf: CLRunnable if !useScalaFunctions =>
         clf.run(
           dims = Array(length),
           args = Array(this, result),
