@@ -152,18 +152,21 @@ extends MiscMatchers
       }
     }
   }
-  def newSeqApply(typeExpr: Tree, values: Tree*) =
-    Apply(
-      TypeApply(
-        Select(
-          Select(Select(Ident(N("scala")), N("collection")), N("Seq")),
-          N("apply")
-        ),
-        List(typeExpr)
-      ),
-      values.toList
-    )
-
+  def newSeqApply(typeExpr: Tree, values: Tree*) = {
+    val applySym = SeqModule.tpe member applyName
+    typed {
+      Apply(
+        TypeApply(
+          Select(
+            Select(Select(Ident(N("scala")) setSymbol(ScalaPackage), N("collection")).setSymbol(ScalaCollectionPackage), N("Seq")).setSymbol(SeqModule),
+            N("apply")
+          ).setSymbol(applySym),
+          List(typeExpr)
+        ).setSymbol(applySym),
+        values.toList
+      )
+    }
+  }
   def newArrayMulti(arrayType: Type, componentTpe: Type, lengths: => List[Tree], manifest: Tree) =
       typed {
         val sym = (ArrayModule.tpe member "ofDim" alternatives).filter(_.paramss.flatten.size == lengths.size + 1).head

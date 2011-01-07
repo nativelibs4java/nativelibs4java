@@ -61,6 +61,7 @@ extends PluginComponent
 {
   import global._
   import global.definitions._
+  import gen._
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed}    // methods to type trees
   import analyzer.{SearchResult, ImplicitSearch}
@@ -69,8 +70,15 @@ extends PluginComponent
   override val runsBefore = ScalaCLFunctionsTransformComponent.runsBefore
   override val phaseName = ScalaCLFunctionsTransformComponent.phaseName
 
+  val scalacl_ = N("scalacl")
+
+  def rootScalaCLDot(name: Name) = Select(rootId(scalacl_) setSymbol ScalaCLPackage, name)
+
   val getCachedFunctionName = N("getCachedFunction")
-  lazy val ScalaCLModule = definitions.getModule("scalacl")
+  lazy val ScalaCLPackage       = getModule("scalacl")
+  lazy val ScalaCLPackageClass  = ScalaCLPackage.tpe.typeSymbol
+  //lazy val ScalaCLModule = definitions.getModule(N("scalacl"))
+
   lazy val CLDataIOClass = definitions.getClass("scalacl.impl.CLDataIO")
   lazy val CLArrayClass = definitions.getClass("scalacl.CLArray")
   lazy val CLIntRangeClass = definitions.getClass("scalacl.CLIntRangeArray")
@@ -110,22 +118,14 @@ extends PluginComponent
               val colTpeStr = collection.tpe.toString
               //println("colTpeStr = " + colTpeStr)
               //println("subtype = " + (collection.tpe.widen.deconst.matches(CLCollectionClass.tpe)))
-              
               //if (collection.tpe.widen.matches(CLCollectionClass.tpe)) {
-              if (colTpeStr.startsWith("scalacl.")) {
+              if (colTpeStr.startsWith("scalacl.")) { // TODO
                 op match {
                   case TraversalOp.Map(f, canBuildFrom) =>
                     val Func(List(uniqueParam), body) = op.f
-                    val context = localTyper.context1// doLocateContext(tree.pos)
+                    val context = localTyper.context1
                     val sourceTpe = uniqueParam.symbol.tpe
                     val mappedTpe = body.tpe
-                    //val sourceDataIOTpe = appliedType(CLDataIOClass.tpe, List(sourceTpe))
-                    //val mappedDataIOTpe = appliedType(CLDataIOClass.tpe, List(mappedTpe))
-                    //println("sourceDataIOTpe = " + sourceDataIOTpe)
-                    //println("mappedDataIOTpe = " + mappedDataIOTpe)
-                    
-                    //println("SCALACL PLUGIN : found map with " + f + " and implicits :")
-                    //val applicableViews: List[SearchResult] = 
                     val Array(
                       sourceDataIO, 
                       mappedDataIO
@@ -135,51 +135,42 @@ extends PluginComponent
                     ).map(tpe => {
                       val dataIOTpe = appliedType(CLDataIOClass.tpe, List(tpe))
                       analyzer.inferImplicit(tree, dataIOTpe, false, false, context).tree
-                      //new ImplicitSearch(tree, tpe, isView = false, context.makeImplicit(reportAmbiguousErrors = false)).bestImplicit//.allImplicits
                     })
-                    //println("sourceDataIO = " + sourceDataIO)
-                    //println("mappedDataIO = " + mappedDataIO)
                     
                     val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "|" + tree.symbol.tag + "|" + tree.symbol.pos)) // TODO
                     val uniqueId = uniqueSignature.hashCode // TODO !!!
                     val functionOpenCLExprString = convertExpr(Map(uniqueParam.name.toString -> "_"), body).toString
-                    println("Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
-                    println("op.f.tpe = " + op.f.tpe)
-                    val getCachedFunctionSym = ScalaCLModule.tpe member getCachedFunctionName
+                    if (ScalaCLPlugin.verbose)
+                    println("[ScalaCL] Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
+                    val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
                     val clFunction = 
-                      Apply(
+                      typed {
                         Apply(
-                          TypeApply(
-                            Select(
-                              //ident(ScalaCLModule, "scalacl"),
+                          Apply(
+                            TypeApply(
                               Select(
-                                Ident(N("scalacl")),
-                                nme.PACKAGEkw
-                              ).setSymbol(ScalaCLModule),
-                              //Ident(JavaCLModule),
-                              getCachedFunctionName
-                            ),
-                            List(TypeTree(sourceTpe), TypeTree(mappedTpe))
-                          ),
+                                Ident(scalacl_) setSymbol ScalaCLPackage,
+                                getCachedFunctionName
+                              ),
+                              List(TypeTree(sourceTpe), TypeTree(mappedTpe))
+                            ).setSymbol(getCachedFunctionSym),
+                            List(
+                              newInt(uniqueId),
+                              op.f,
+                              newSeqApply(TypeTree(StringClass.tpe)), // statements TODO
+                              newSeqApply(TypeTree(StringClass.tpe), Literal(Constant(functionOpenCLExprString))), // expressions TODO
+                              newSeqApply(TypeTree(AnyClass.tpe)) // args TODO
+                            )
+                          ).setSymbol(getCachedFunctionSym),
                           List(
-                            newInt(uniqueId),
-                            op.f,
-                            newSeqApply(TypeTree(StringClass.tpe)), // statements TODO
-                            newSeqApply(TypeTree(StringClass.tpe), Literal(Constant(functionOpenCLExprString))), // expressions TODO
-                            newSeqApply(TypeTree(AnyClass.tpe)) // args TODO
+                            sourceDataIO,
+                            mappedDataIO
                           )
-                        ).setSymbol(getCachedFunctionSym).setType(op.f.tpe),
-                        List(
-                          sourceDataIO, 
-                          mappedDataIO
-                        )
-                      ).setSymbol(getCachedFunctionSym).setType(op.f.tpe)
-                      
+                        ).setSymbol(getCachedFunctionSym)
+                      }
+
                     val rep = replaceOccurrences(super.transform(tree), Map(), Map(), Map(f -> (() => clFunction)), unit)
-                    println("REP = " + rep)
-                    typed { rep }
-                    println("TYPED REP NODES = " + nodeToString(rep))
-                    //typed { rep }
+                    //println("REP = " + nodeToString(rep))
                     rep
                   case _ =>
                     super.transform(tree)
@@ -191,59 +182,6 @@ extends PluginComponent
               ex.printStackTrace
               super.transform(tree)
             }
-          case
-            Apply(
-              Apply(
-                TypeApply(
-                  Select(collectionExpr, functionName @ (mapName() | filterName() | updateName())),
-                  funTypeArgs @ List(outputType @ TypeTree())
-                ),
-                List(functionExpr @ Func(List(ValDef(paramMods, param, inputType @ TypeTree(), rhs)), body))
-              ),
-              implicitArgs @ List(io1, io2)
-            ) =>
-            /*
-             * if functionExpr is :
-             *    ((x$1: Int) => (x$1: Int).*(2.0)),
-             * functionOpenCLExprString will be :
-             *    "_ * 2.0"
-             */
-            val uniqueSignature = Literal(Constant(tree.symbol.outerSource + "|" + tree.symbol.tag + "|" + tree.symbol.pos)) // TODO
-            val functionOpenCLExprString = convertExpr(Map(param.toString -> "_"), body).toString
-            println("Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
-            
-            val newArg =
-              Apply(
-                Apply(
-                  TypeApply(
-                    Select(
-                      Select(
-                        Ident(N("scalacl")),
-                        nme.PACKAGEkw//N("package")
-                      ),
-                      N("CLFullFun")
-                    ),
-                    List(inputType, outputType)
-                  ),
-                  List(
-                    uniqueSignature,
-                    functionExpr,
-                    newSeqApply(TypeTree(StringClass.tpe)), // statements TODO
-                    newSeqApply(TypeTree(StringClass.tpe), Literal(Constant(functionOpenCLExprString))) // expressions TODO
-                  )
-                ),
-                implicitArgs
-              )
-            Apply(
-              Apply(
-                TypeApply(
-                  Select(collectionExpr, N("mapFun")),
-                  funTypeArgs
-                ),
-                List(newArg)
-              ),
-              implicitArgs
-            )
           case _ =>
             super.transform(tree)
         }

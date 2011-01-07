@@ -48,7 +48,8 @@ import scala.tools.nsc.reporters.Reporter
 /*
 SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=Test.scala|-Xprint:scalacl-loopstransform|-Ybrowse:scalacl-loopstransform|-classpath|../ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar"
 SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=Test.scala|-classpath|../ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar"
-SCALACL_TRACE=1 sbt 'run Test.scala -classpath ../ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar'
+rm Test*.class ; SCALACL_TRACE=1 sbt 'run Test.scala -classpath ../ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar -Xprint:scalacl-functionstransform -Yshow-trees'
+scala -cp ../ScalaCL2/target/scalacl2-bridj-1.0-SNAPSHOT-shaded.jar:. Test
 */
 object Compile {
 
