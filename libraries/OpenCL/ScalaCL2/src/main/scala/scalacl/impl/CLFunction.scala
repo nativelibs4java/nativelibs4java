@@ -139,8 +139,8 @@ extends (A => B)
           """ + assignt + """;
       }
   """
-  //println("kernelsSource = " + kernelsSource)
-
+  if (verbose)
+    println("[ScalaCL] Creating kernel with source <<<\n\t" + kernelsSource.replaceAll("\n", "\n\t") + "\n>>>")
 
   val sourcesToInclude = if (expressions.isEmpty) null else includedSources ++ Seq(functionSource)
   override val sources = if (expressions.isEmpty) null else sourcesToInclude ++ Seq(kernelsSource)
@@ -191,6 +191,8 @@ extends (A => B)
       try {
         kernel.setArgs(args:_*)
         //println("dims = " + dims.toSeq)
+        if (verbose)
+          println("[ScalaCL] Enqueuing kernel " + kernelName + " with dims " + dims.mkString(", "))
         kernel.enqueueNDRange(context.queue, dims, eventsToWaitFor:_*)
       } catch { case ex =>
         ex.printStackTrace(System.out)
