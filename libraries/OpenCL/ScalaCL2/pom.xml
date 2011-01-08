@@ -6,13 +6,9 @@
   <artifactId>scalacl</artifactId>
   <name>ScalaCL Collections</name>
   <url>http://code.google.com/p/scalacl/</url>
-  <version>0.2.RC1</version>
+  <version>0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <properties>
-  	<scala.version>2.8.0</scala.version>
-  </properties>
-  
 	  <description>
 ScalaCL is a Domain Specific Language (DSL) that makes it trivial to write parallel expressions that evaluate on the GPU in Scala.
 It is based on JavaCL for the Java/OpenCL interop.
@@ -46,6 +42,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 		<groupId>org.scala-lang</groupId>
 		<artifactId>scala-library</artifactId>
 		<version>${scala.version}</version>
+		<scope>provided</scope>
 	</dependency>
 	
   </dependencies>
@@ -102,6 +99,9 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 				</execution>
 			</executions>
 			<configuration>
+				<args>
+					<arg>-optimise</arg>
+				</args>
 			  <jvmArgs>
 				<jvmArg>-Xms64m</jvmArg>
 				<jvmArg>-Xmx1024m</jvmArg>

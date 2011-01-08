@@ -9,10 +9,12 @@
 	<inceptionYear>2009</inceptionYear>
 	<url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
      
-	<!--<properties>
+	<properties>
 		<jnaerator.version>0.9.5</jnaerator.version>
-	</properties>-->
-
+	  	<scala.version>2.8.1</scala.version>
+	  	<scalacl.version>0.2-SNAPSHOT</scalacl.version>
+	</properties>
+	
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>

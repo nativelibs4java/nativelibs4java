@@ -172,12 +172,15 @@ object ScalaCLPlugin {
       null,
     try {
       new ScalaCLFunctionsTransformComponent(global, options)
-    } catch { case ex: scala.tools.nsc.MissingRequirementError =>
-      if (options.verbose)
-        println("[scalacl] ScalaCL Collections library not in the classpath : won't perform Scala -> OpenCL transforms.")
-      if (options.trace)
-        ex.printStackTrace
-      null
+    } catch { 
+      case ex: scala.tools.nsc.MissingRequirementError =>
+        if (options.verbose)
+          println("[scalacl] ScalaCL Collections library not in the classpath : won't perform Scala -> OpenCL transforms.")
+        if (options.trace)
+          ex.printStackTrace
+        null
+      case _ =>
+        null // TODO
     },
     new LoopsTransformComponent(global, options)
   ).filter(_ != null)

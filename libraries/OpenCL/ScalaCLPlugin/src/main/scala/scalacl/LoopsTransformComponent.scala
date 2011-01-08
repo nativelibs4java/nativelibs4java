@@ -247,8 +247,8 @@ extends PluginComponent
                             TraversalOp.Max 
                             if {
                               val envvar = "SCALACL_TRANSFORM_" + op.toString.toUpperCase
-                              if (options.verbose)
-                                println("[scalacl] env var = " + envvar)
+                              //if (options.verbose)
+                              //  println("[scalacl] env var = " + envvar)
                               "0" != getenv(envvar)
                             }
                           =>

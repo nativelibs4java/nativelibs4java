@@ -3,14 +3,14 @@
 mvn package -Dmaven.test.skip=true
 
 TEMP_OUT=target/sbaz_out
-JAR_OUT=$TEMP_OUT/misc/scala-devel/plugins
+PLUGIN_JAR_OUT=$TEMP_OUT/misc/scala-devel/plugins
 
 rm -fR $TEMP_OUT
 
-mkdir -p $JAR_OUT
+mkdir -p $PLUGIN_JAR_OUT
 
 VERSION="`cat pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'`"
-cp target/scalacl-compiler-plugin-$VERSION.jar $JAR_OUT
+cp target/scalacl-compiler-plugin-$VERSION.jar $PLUGIN_JAR_OUT
 
 sbaz pack scalacl-compiler-plugin $TEMP_OUT \
 	--linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl/ \
