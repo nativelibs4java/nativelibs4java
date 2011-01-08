@@ -70,21 +70,15 @@ extends PluginComponent
   override val runsBefore = ScalaCLFunctionsTransformComponent.runsBefore
   override val phaseName = ScalaCLFunctionsTransformComponent.phaseName
 
+  val ScalaCLPackage       = getModule("scalacl")
+  val ScalaCLPackageClass  = ScalaCLPackage.tpe.typeSymbol
+  val CLDataIOClass = definitions.getClass("scalacl.impl.CLDataIO")
+  val CLArrayClass = definitions.getClass("scalacl.CLArray")
+  val CLIntRangeClass = definitions.getClass("scalacl.CLIntRange")
+  val CLCollectionClass = definitions.getClass("scalacl.CLCollection")
+  val CLFilteredArrayClass = definitions.getClass("scalacl.CLFilteredArray")
   val scalacl_ = N("scalacl")
-
-  def rootScalaCLDot(name: Name) = Select(rootId(scalacl_) setSymbol ScalaCLPackage, name)
-
   val getCachedFunctionName = N("getCachedFunction")
-  lazy val ScalaCLPackage       = getModule("scalacl")
-  lazy val ScalaCLPackageClass  = ScalaCLPackage.tpe.typeSymbol
-  //lazy val ScalaCLModule = definitions.getModule(N("scalacl"))
-
-  lazy val CLDataIOClass = definitions.getClass("scalacl.impl.CLDataIO")
-  lazy val CLArrayClass = definitions.getClass("scalacl.CLArray")
-  lazy val CLIntRangeClass = definitions.getClass("scalacl.CLIntRangeArray")
-  lazy val CLCollectionClass = definitions.getClass("scalacl.CLCollection")
-  lazy val CLFilteredArrayClass = definitions.getClass("scalacl.CLFilteredArray")
-  
   
   def nodeToStringNoComment(tree: Tree) =
     nodeToString(tree).replaceAll("\\s*//.*\n", "\n").replaceAll("\\s*\n\\s*", " ").replaceAll("\\(\\s+", "(").replaceAll("\\s+\\)", "")
@@ -106,16 +100,13 @@ extends PluginComponent
       if (!shouldOptimize(tree))
         super.transform(tree)
       else {
-        //println("tree = " + nodeToString(tree))
         tree match {
-          // Transform inline functions into OpenCL mixed functions / expression code
           case TraversalOp(traversalOp) if traversalOp.op.f != null =>
             import traversalOp._
-            //println("FOUND TRAVERSAL OP " + traversalOp)
             try {
               val colTpe = collection.tpe.widen.dealias.deconst
-              if (colTpe.matches(CLCollectionClass.tpe)) {
-              //if (colTpe.toString.startsWith("scalacl.")) { // TODO
+              //if (colTpe.matches(CLCollectionClass.tpe)) {
+              if (colTpe.toString.startsWith("scalacl.")) { // TODO
                 op match {
                   case opType @ (TraversalOp.Map(_, _) | TraversalOp.Filter(_, false)) =>
                     msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpe + "." + op + "'s function argument.") {

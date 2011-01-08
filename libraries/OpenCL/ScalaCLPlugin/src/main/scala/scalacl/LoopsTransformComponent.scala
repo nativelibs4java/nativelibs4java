@@ -37,6 +37,8 @@ import scala.tools.nsc.transform.{Transform, TypingTransformers}
 import scala.tools.nsc.typechecker.Analyzer
 import scala.tools.nsc.typechecker.Implicits
 
+import System.getenv
+
 object LoopsTransformComponent {
   val runsAfter = List[String](
     "namer"
@@ -95,7 +97,7 @@ extends PluginComponent
             //case TypeTree() =>
             //  println(nodeToString(tree.symbol.tpt))
             //  super.transform(tree)
-            case ArrayTabulate(componentType, lengths @ (firstLength :: otherLengths), f @ Func(params, body), manifest) =>
+            case ArrayTabulate(componentType, lengths @ (firstLength :: otherLengths), f @ Func(params, body), manifest) if "0" != getenv("SCALACL_TRANSFORM_TABULATE") =>
               val tpe = body.tpe
               val returnType = if (tpe.isInstanceOf[ConstantType]) 
                 tpe.widen
@@ -206,64 +208,6 @@ extends PluginComponent
                 }
                 replaceTabulates(lengthDefs, null, params, Map(), Map())._1
               }
-            case Foreach(collection, f @ Func(List(param), body)) =>
-              collection match {
-                case CollectionRewriter(colRewriter) =>
-                  import colRewriter._
-                  msg(unit, tree.pos, "transformed " + colType.colToString(tpe) + ".foreach into equivalent while loop.") {
-                    if (array != null)
-                      array.tpe = tpe
-
-                    super.transform(
-                      colType.foreach[Unit](
-                        tree,
-                        array,
-                        componentType,
-                        false,
-                        false,
-                        env => new LoopOuters(Nil, null, payload = ()), // no extra outer statement
-                        env => {
-                          val content = replaceOccurrences(
-                            body,
-                            Map(param.symbol -> env.itemVar),
-                            Map(f.symbol -> currentOwner),
-                            Map(),
-                            unit
-                          )
-                          LoopInners(
-                            List(
-                              colType.filters match {
-                                case Nil =>
-                                  content
-                                case filterFunctions: List[Tree] =>
-                                  If(
-                                    (filterFunctions.map {
-                                      case Func(List(filterParam), filterBody) =>
-                                        replaceOccurrences(
-                                          filterBody,
-                                          Map(filterParam.symbol -> env.itemVar),
-                                          Map(
-                                            filterParam.symbol -> env.itemVar.symbol,
-                                            f.symbol -> currentOwner
-                                          ),
-                                          Map(),
-                                          unit
-                                        )
-                                    }).reduceLeft(boolAnd),
-                                    content,
-                                    newUnit
-                                  )
-                              }
-                            )
-                          )
-                        }
-                      )
-                    )
-                  }
-                case _ =>
-                  super.transform(tree)
-              }
-              
             case TraversalOp(traversalOp) =>
               
               import traversalOp._
@@ -295,7 +239,19 @@ extends PluginComponent
                     msg(unit, tree.pos, "transformed " + colType.colToString(tpe) + "." + op + " into equivalent while loop.") {
                       super.transform(
                         op match {
-                          case TraversalOp.Reduce(_, _) | TraversalOp.Fold(_, _) | TraversalOp.Sum | TraversalOp.Min | TraversalOp.Max =>
+                          case 
+                            TraversalOp.Reduce(_, _) | 
+                            TraversalOp.Fold(_, _) | 
+                            TraversalOp.Sum | 
+                            TraversalOp.Min | 
+                            TraversalOp.Max 
+                            if {
+                              val envvar = "SCALACL_TRANSFORM_" + op.toString.toUpperCase
+                              if (options.verbose)
+                                println("[scalacl] env var = " + envvar)
+                              "0" != getenv(envvar)
+                            }
+                          =>
                             val skipFirst = op.loopSkipsFirst
                             colType.foreach[VarDef](
                               tree,
@@ -371,7 +327,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.Scan(f, _) =>
+                          case TraversalOp.Scan(f, _) if "0" != getenv("SCALACL_TRANSFORM_SCAN") =>
                             colType.foreach[(CollectionBuilder, VarDef, VarDef)](
                               tree,
                               array,
@@ -434,7 +390,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.AllOrSome(f, all) =>
+                          case TraversalOp.AllOrSome(f, all) if "0" != getenv("SCALACL_TRANSFORM_FORALL_EXISTS") =>
                             colType.foreach[VarDef](
                               tree,
                               array,
@@ -482,7 +438,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.ToCollection(ct, _) =>
+                          case TraversalOp.ToCollection(ct, _) if "0" != getenv("SCALACL_TRANSFORM_TOCOLLECTION") =>
                             (
                               ct match {
                                 case ListType => Some(ListRewriter)
@@ -527,7 +483,7 @@ extends PluginComponent
                               case _ =>
                                 super.transform(tree)
                             }
-                          case TraversalOp.Filter(f, not) =>
+                          case TraversalOp.Filter(f, not) if "0" != getenv("SCALACL_TRANSFORM_FILTER") =>
                             colType.foreach[(CollectionBuilder, VarDef)](
                               tree,
                               array,
@@ -577,7 +533,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.Count(f) =>
+                          case TraversalOp.Count(f) if "0" != getenv("SCALACL_TRANSFORM_COUNT") =>
                             colType.foreach[(VarDef)](
                               tree,
                               array,
@@ -623,7 +579,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.FilterWhile(f, take) =>
+                          case TraversalOp.FilterWhile(f, take) if "0" != getenv("SCALACL_TRANSFORM_TAKEWHILE") =>
                             colType.foreach[(CollectionBuilder, VarDef, VarDef)](
                               tree,
                               array,
@@ -710,7 +666,36 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.Map(f, canBuildFrom) =>
+                          
+                          case TraversalOp.Foreach(f) if "0" != getenv("SCALACL_TRANSFORM_FOREACH") =>
+                            val rep = super.transform(
+                              colType.foreach[Unit](
+                                tree,
+                                array,
+                                componentType,
+                                false,
+                                false,
+                                env => new LoopOuters(Nil, null, payload = ()), // no extra outer statement
+                                env => {
+                                  val content = replaceOccurrences(
+                                    body,
+                                    Map(leftParam.symbol -> env.itemVar),
+                                    Map(f.symbol -> currentOwner),
+                                    Map(),
+                                    unit
+                                  )
+                                  LoopInners(
+                                    List(
+                                      content
+                                    )
+                                  )
+                                }
+                              )
+                            )
+                            //println("REP = " + rep)
+                            //println("REP NODES = " + nodeToString(rep))
+                            rep
+                          case TraversalOp.Map(f, canBuildFrom) if "0" != getenv("SCALACL_TRANSFORM_MAP") =>
                             colType.foreach[(CollectionBuilder, VarDef)](
                               tree,
                               array,

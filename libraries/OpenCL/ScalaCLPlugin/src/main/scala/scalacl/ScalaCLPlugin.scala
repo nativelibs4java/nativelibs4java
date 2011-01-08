@@ -50,7 +50,7 @@ import scala.util.parsing.input.Position
 class ScalaCLPlugin(val global: Global) extends Plugin {
   override val name = "ScalaCL Optimizer"
   override val description =
-    "This plugin transforms some Scala functions into OpenCL kernels (for CLCol[T].map and filter's arguments), so they can run on a GPU.\n" +
+    "This plugin transforms some Scala functions into OpenCL kernels (for CLCollection[T].map and filter's arguments), so they can run on a GPU.\n" +
   "It will also soon feature autovectorization of ScalaCL programs, detecting parallelizable loops and unnecessary collection creations."
 
   val runsAfter = List[String]("namer")
@@ -89,7 +89,7 @@ object ScalaCLPlugin {
     var trace =
       "1" == System.getenv("SCALACL_TRACE")
       
-    var verbose =
+    var verbose = 
       "1" == System.getenv("SCALACL_VERBOSE")
       
     var experimental = 
@@ -100,16 +100,16 @@ object ScalaCLPlugin {
     type FileAndLineOptimizationFilter = (String, Int) => Boolean
   
     lazy val fileAndLineOptimizationFilter: FileAndLineOptimizationFilter = {
-      var skip = System.getenv("SCALACL_SKIP")
-      if (skip == null)
-        skip = ""
+      var skipVar = skip
+      if (skipVar == null)
+        skipVar = ""
       else
-        skip = skip.trim
-      println("[scalacl] SCALACL_SKIP = " + skip)
-      if (skip == "")
+        skipVar = skip.trim
+      //println("[scalacl] SCALACL_SKIP = " + skipVar)
+      if (skipVar == "")
         (path: String, line: Int) => true
       else {
-        skip.split(',').map(item => {
+        skipVar.split(',').map(item => {
           val s = item.split(':')
           val f = s(0)
           val pathFilter: String => Boolean = {
@@ -135,12 +135,23 @@ object ScalaCLPlugin {
           }
           if (s.length == 2 && (s(1) ne null)) {
             val skippedLine = s(1).toInt
-            (path: String, line: Int) => path == null || line != skippedLine && pathFilter(path)
+            (path: String, line: Int) => { 
+              val v = path == null || !(line == skippedLine && !pathFilter(path))
+              //println(path + ":" + line + " = " + v)
+              v
+            }
           } else {
-            (path: String, line: Int) => path == null || pathFilter(path)
+            (path: String, line: Int) => { 
+              val v = path == null || pathFilter(path)
+              //println(path + ":" + line + " = " + v)
+              v
+            }
           }
         }).reduceLeft[FileAndLineOptimizationFilter] {
-          case (f1: FileAndLineOptimizationFilter, f2: FileAndLineOptimizationFilter) => (path: String, line: Int) => f1(path, line) && f2(path, line)
+          case (f1: FileAndLineOptimizationFilter, f2: FileAndLineOptimizationFilter) => 
+            (path: String, line: Int) => {
+              f1(path, line) && f2(path, line)
+            }
         }
       }
     }
@@ -159,7 +170,15 @@ object ScalaCLPlugin {
       new StreamOpsTransformComponent(global, options)
     else
       null,
-    new ScalaCLFunctionsTransformComponent(global, options),
+    try {
+      new ScalaCLFunctionsTransformComponent(global, options)
+    } catch { case ex: scala.tools.nsc.MissingRequirementError =>
+      if (options.verbose)
+        println("[scalacl] ScalaCL Collections library not in the classpath : won't perform Scala -> OpenCL transforms.")
+      if (options.trace)
+        ex.printStackTrace
+      null
+    },
     new LoopsTransformComponent(global, options)
   ).filter(_ != null)
 }

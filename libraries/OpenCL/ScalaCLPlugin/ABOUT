@@ -10,20 +10,20 @@ Author:
 	http://ochafik.free.fr/blog/
 	http://twitter.com/ochafik
 
-Current general optimizations include :
-- Rewrite of int range foreach loops into faster while loops
-- Rewrite of List[T]/Array[T].foreach calls into while loops (for T being primitive or AnyRef)
-- Rewrite of List[T]/Array[T].sum calls into while loops
-- Rewrite of Array[T].map calls into while loops
-- Rewrite of List[T].foldLeft and Array[T].foldLeft/foldRight calls into while loops
-- Rewrite of List[T].reduceLeft and Array[T].reduceLeft/reduceRight calls into while loops
-- Rewrite of List[T].scanLeft and Array[T].scanLeft/scanRight calls into while loops
-- Rewrite of Array.tabulate(m, n, ...)((i, j, ...) => body) calls into while loops
+Current general optimizations include rewrites of inline ranges, List[T] and Array[T] instances into equivalent while loops :
+- Array.tabulate
+- foldLeft / reduceLeft / scanLeft (and for Array[T], also the -right variants)
+- sum, min, max
+- map
+- forall, exists, count
+- filter, filterNot
+- takeWhile, dropWhile (except for Range)
 
 Current ScalaCL / OpenCL-specific optimizations include :
-- Transforming Scala functions given to CLCol[T].map, foreach and filter into OpenCL kernels (supports only limited inline lambdas)
+- Transforming Scala functions given to CLCollection[T].map and filter into OpenCL kernels (supports only limited inline lambdas)
 
 More optimizations are scheduled, such as :
+- CLCollection.foreach
 - Autovectorization of ScalaCL loops
 - Auto-ScalaCL-ization of general code (upon explicit demand via a compiler option, as this introduces runtime dependency on ScalaCL)
 - Support for external references in ScalaCL functions, including external calls (when target is invariant and can be converted to OpenCL)

@@ -109,6 +109,39 @@ trait RewritingPluginComponent {
         outerStatements: LoopOutersEnv => LoopOuters[Payload],
         innerStatements: LoopInnersEnv[Payload] => LoopInners
       ): Tree
+      
+      def filteredContent(content: List[Tree], itemVar: VarDef): List[Tree] = {
+        filters match {
+          case Nil =>
+            content
+          case filterFunctions: List[Tree] =>
+            List(
+              If(
+                (filterFunctions.map {
+                  case Func(List(filterParam), filterBody) =>
+                    replaceOccurrences(
+                      filterBody,
+                      Map(filterParam.symbol -> itemVar),
+                      Map(
+                        filterParam.symbol -> itemVar.symbol/*,
+                        f.symbol -> currentOwner*/
+                      ),
+                      Map(),
+                      unit
+                    )
+                }).reduceLeft(boolAnd),
+                content match {
+                  case a :: Nil =>
+                    a
+                  case _ =>
+                    Block(content.dropRight(1), content.last)
+                },
+                newUnit
+              )
+            )
+        }
+      }
+      
     }
     class CollectionRewriter(
       val colType: CollectionType, 
@@ -181,6 +214,7 @@ trait RewritingPluginComponent {
         )
       }
     }
+    
     case class IntRangeRewriter(from: Tree, to: Tree, byValue: Int, isUntil: Boolean, filtersList: List[Tree]) 
     extends CollectionType 
        with HasBufferBuilder 
@@ -312,7 +346,7 @@ trait RewritingPluginComponent {
                 ),
                 typed {
                   Block(
-                    statements ++
+                    filteredContent(statements, loopInners.itemVar) ++
                     outputIndexVar.ifUsed(incrementIntVar(outputIndexVar, newInt(if (reverseOrder) -1 else 1))),
                     incrementIntVar(iVar, newInt(byValue))
                   )
@@ -473,7 +507,7 @@ trait RewritingPluginComponent {
                 typed {
                   val itemAndInnerStats =
                     List(itemVar.definition) ++
-                    statements
+                    filteredContent(statements, loopInners.itemVar)
 
                   if (reverseOrder)
                     Block(
@@ -501,6 +535,8 @@ trait RewritingPluginComponent {
       override def isSafeRewrite(op: TraversalOpType) = {
         import TraversalOp._
         op match {
+          case Foreach(_) =>
+            options.experimental
           case ToCollection(colType, _) =>
             colType match { 
               case ArrayType =>
@@ -573,7 +609,7 @@ trait RewritingPluginComponent {
                 typed {
                   val itemAndInnerStats =
                     List(itemVar.definition) ++
-                    statements
+                    filteredContent(statements, loopInners.itemVar)
                   val sym = colTpe member tailName
                   Block(
                     itemAndInnerStats,//.map(typed),

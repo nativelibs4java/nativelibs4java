@@ -262,16 +262,16 @@ trait MiscMatchers {
     }
   }
 
-  object Foreach {
+  /*object Foreach {
     def apply(target: Tree, function: Tree) = error("not implemented")
 
-	def unapply(tree: Tree): Option[(Tree, Tree)] = tree match {
+    def unapply(tree: Tree): Option[(Tree, Tree)] = tree match {
       case Apply(TypeApply(Select(target, foreachName()), List(fRetType)), List(function)) =>
         Some((target, function))
       case _ =>
         None
     }
-  }
+  }*/
   object ArrayTree {
     def unapply(tree: Tree) = tree match {
       case Apply(ArrayOps(componentType), List(array)) => Some(array, componentType)
@@ -441,6 +441,9 @@ trait MiscMatchers {
     case class Map(f: Tree, canBuildFrom: Tree) extends TraversalOpType {
       override def toString = "map"
     }
+    case class Foreach(f: Tree) extends TraversalOpType {
+      override def toString = "foreach"
+    }
     case class AllOrSome(f: Tree, all: Boolean) extends TraversalOpType {
       override def toString = if (all) "forall" else "exists"
     }
@@ -495,6 +498,8 @@ trait MiscMatchers {
           List(function)
         ) =>
         Some(new TraversalOp(Map(function, null), collection, refineComponentType(mappedComponentType.tpe, tree), null, true, null))
+      case Apply(TypeApply(Select(collection, foreachName()), List(fRetType)), List(function)) =>
+        Some(new TraversalOp(Foreach(function), collection, null, null, true, null))
       case // scanLeft, scanRight
         Apply(
           Apply(

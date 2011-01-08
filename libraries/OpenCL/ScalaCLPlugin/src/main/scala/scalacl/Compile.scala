@@ -74,8 +74,8 @@ object Compile {
       Array(
         "/Users/ochafik/src/scala-2.8.x/build/locker/classes/compiler"
       ).mkString(java.io.File.separator),
-      "/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/symtab/Types.scala",
-      "/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/typechecker/Typers.scala",
+      //"/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/symtab/Types.scala",
+      //"/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/typechecker/Typers.scala",
       "/Users/ochafik/src/scala-2.8.x/src/compiler/scala/tools/nsc/typechecker/Namers.scala"
     ) ++ //list(base).filter(_.getName.endsWith(".scala")).map(_.toString) ++
     Array(

@@ -9,6 +9,7 @@
 
   <properties>
   	<scala.version>2.8.0</scala.version>
+  	<scalacl.version>0.2.RC1</scalacl.version>
   </properties>
   
   
@@ -24,6 +25,11 @@
   		<groupId>org.scala-lang</groupId>
   		<artifactId>scala-library</artifactId>
   		<version>${scala.version}</version>
+    </dependency>
+  	<dependency>
+  		<groupId>com.nativelibs4java</groupId>
+  		<artifactId>scalacl</artifactId>
+  		<version>${scalacl.version}</version>
     </dependency>
   </dependencies>
   <repositories>
