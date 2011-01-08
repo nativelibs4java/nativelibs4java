@@ -1,0 +1,21 @@
+
+	ScalaCL Collections are Scala-compliant collections that are implemented using the OpenCL API (thanks to the JavaCL bindings).
+	Data can hence be stored and processed directly on a GPU, providing a very easy to use GPGPU framework.
+	These collections work in conjunction with the ScalaCL Plugin (scalacl-compiler-plugin package), which converts Scala functions into OpenCL kernels during compilation.
+	
+Website:
+	http://scalacl.googlecode.com/
+	
+Author: 
+	Olivier Chafik <olivier.chafik@gmail.com>
+	http://ochafik.free.fr/blog/
+	http://twitter.com/ochafik
+
+Current implementations include :
+- CLIntRange ((_: Range).cl creates such an OpenCL range) 
+- CLArray[T] with accelerated .zip, .zipWithIndex, .map and .filter (which function arguments must be converted to OpenCL functions by the ScalaCL Plugin during compilation). Can be created with (_: Seq[T]).cl, CLArray(...) or CLArray.fromSeq(...).
+- Default non-accelerated operations (used when the functions weren't converted to OpenCL kernels by the plugin or when the SCALACL_USE_SCALA_FUNCTIONS=1 environment variable is set)
+
+Please use NativeLibs4Java's user group and bug-tracker for feedback or help about ScalaCL and its compiler plugin :
+http://groups.google.fr/group/nativelibs4java/
+http://code.google.com/p/nativelibs4java/issues/list

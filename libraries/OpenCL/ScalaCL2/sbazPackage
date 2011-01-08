@@ -1,0 +1,24 @@
+#!/bin/bash
+
+mvn package -Dmaven.test.skip=true
+
+TEMP_OUT=target/sbaz_out
+JAR_OUT=$TEMP_OUT/lib
+
+rm -fR $TEMP_OUT
+
+mkdir -p $JAR_OUT
+
+VERSION="`cat pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'`"
+cp target/scalacl-$VERSION-shaded.jar $JAR_OUT
+
+sbaz pack scalacl $TEMP_OUT \
+	--linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl/ \
+	--version $VERSION \
+	--pack200 \
+	--outdir src/main/sbaz \
+	--descfile ABOUT
+
+mkdir -p src/main/sbaz
+mv *.advert src/main/sbaz
+open src/main/sbaz
