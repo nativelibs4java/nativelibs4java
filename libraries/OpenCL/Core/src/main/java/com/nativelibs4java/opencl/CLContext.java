@@ -258,7 +258,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         if (pCount.get().intValue() != Pointer.SIZE)
             throw new RuntimeException("Not a device : len = " + pCount.get().intValue());
 
-        Pointer p = mem.getPointer(0);
+        Pointer p = mem.getPointer();
         if (p.equals(Pointer.NULL))
             return null;
         return new CLDevice(null, new cl_device_id(p));

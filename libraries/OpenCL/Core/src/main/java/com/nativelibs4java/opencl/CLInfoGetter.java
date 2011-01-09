@@ -47,21 +47,21 @@ abstract class CLInfoGetter<T extends Pointer> {
         Pointer<SizeT> pLen = allocate(SizeT.class);
         error(getInfo(entity, infoName, 0, null, pLen));
 
-        int len = (int)pLen.getSizeT(0);
+        int len = (int)pLen.getSizeT();
         if (len == 0) {
             return "";
         }
         Pointer<?> buffer = allocateBytes(len + 1);
         error(getInfo(entity, infoName, pLen.get().intValue(), buffer, null));
 
-        return buffer.getCString(0);
+        return buffer.getCString();
     }
 
     public Pointer getPointer(T entity, int infoName) {
         Pointer<SizeT> pLen = allocate(SizeT.class);
         Pointer<Pointer<?>> mem = allocatePointer();
         error(getInfo(entity, infoName, Pointer.SIZE, mem, pLen));
-        if (pLen.getSizeT(0) != Pointer.SIZE) {
+        if (pLen.getSizeT() != Pointer.SIZE) {
             throw new RuntimeException("Not a pointer : len = " + pLen.get());
         }
         return mem.get();
@@ -87,7 +87,7 @@ abstract class CLInfoGetter<T extends Pointer> {
         if (pLen.get().longValue() != nBytes) {
             throw new RuntimeException("Not a Size[" + n + "] : len = " + pLen.get());
         }
-        return mem.getSizeTs(0, n);
+        return mem.getSizeTs(n);
     }
 
     public int getOptionalFeatureInt(T entity, int infoName) {
@@ -130,9 +130,9 @@ abstract class CLInfoGetter<T extends Pointer> {
 
         switch (pLen.get().intValue()) {
             case 4:
-                return mem.getInt(0);
+                return mem.getInt();
             case 8:
-                return mem.getLong(0);
+                return mem.getLong();
             default:
                 throw new RuntimeException("Not a native long : len = " + pLen.get());
         }

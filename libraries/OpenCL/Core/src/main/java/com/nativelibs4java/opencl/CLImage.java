@@ -165,7 +165,7 @@ public abstract class CLImage extends CLMem {
 		);
 		error(pErr.get());
         return new Pair<ByteBuffer, CLEvent>(
-			p.getByteBuffer(0, getByteCount()),
+			p.getByteBuffer(getByteCount()),
 			CLEvent.createEventFromPointer(queue, eventOut)
 		);
     }

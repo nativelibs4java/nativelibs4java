@@ -69,7 +69,7 @@ abstract class CLAbstractEntity<T extends TypedPointer> {
 
     public static <E extends TypedPointer, A extends CLAbstractEntity<E>> Pointer<E> getEntities(A[] objects, Pointer<E> out) {
         for (int i = 0, len = objects.length; i < len; i++)
-            out.setPointer(i * Pointer.SIZE, objects[i].getEntity());
+            out.setPointerAtOffset(i * Pointer.SIZE, objects[i].getEntity());
         return out;
     }
     synchronized T getEntity() {

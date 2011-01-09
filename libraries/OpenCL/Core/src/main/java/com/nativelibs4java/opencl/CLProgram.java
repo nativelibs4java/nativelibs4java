@@ -437,7 +437,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         
 		Pointer<?> s = infos.getMemory(getEntity(), CL_PROGRAM_BINARY_SIZES);
 		int n = (int)s.getValidBytes() / JNI.SIZE_T_SIZE;
-		long[] sizes = s.getSizeTs(0, n);
+		long[] sizes = s.getSizeTs(n);
 		//int[] sizes = new int[n];
 		//for (int i = 0; i < n; i++) {
 		//	sizes[i] = s.getNativeLong(i * Native.LONG_SIZE).intValue();
@@ -454,7 +454,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         for (int i = 0; i < n; i++) {
             CLDevice device = devices[i];
 			Pointer<?> bytes = binMems[i];
-            ret.put(device, bytes.getBytes(0, (int)sizes[i]));
+            ret.put(device, bytes.getBytes((int)sizes[i]));
 		}
 		return ret;
 	}
@@ -622,12 +622,12 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
             HashSet<String> errs = new HashSet<String>();
             if (deviceIds == null) {
                 error(CL.clGetProgramBuildInfo(getEntity(), null, CL_PROGRAM_BUILD_LOG, bufLen, buffer, len));
-                String s = buffer.getCString(0);
+                String s = buffer.getCString();
                 errs.add(s);
             } else
                 for (cl_device_id device : deviceIds) {
                     error(CL.clGetProgramBuildInfo(getEntity(), device, CL_PROGRAM_BUILD_LOG, bufLen, buffer, len));
-                    String s = buffer.getCString(0);
+                    String s = buffer.getCString();
                     errs.add(s);
                 }
                 
