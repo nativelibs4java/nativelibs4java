@@ -21,6 +21,9 @@ object CLCollectionTest {
 
   implicit var context: ScalaCLContext = _
   
+  def rng = (0 until n).cl
+  def clrng = (0 until n).cl
+  
   def cla = (0 until n).toCLArray
   def a = (0 until n).toArray
   
@@ -80,35 +83,35 @@ class CLCollectionTest {
   @Test
   def testSimpleFilter {
     same(a.filter(f), cla.filter(f).toCLArray)
-    context.queue.finish
+    //context.queue.finish
   }
   @Test
   def testSimpleMap {
     same(a.map(m), cla.map(m))
-    context.queue.finish
+    //context.queue.finish
   }
   
   @Test
   def testTupleMap {
     same(a.map(m2), cla.map(m2))
-    context.queue.finish
+    //context.queue.finish
   }
   
   @Test
   def testFilterMap {
     same(a.filter(f).map(m), cla.filter(f).map(m))
-    context.queue.finish
+    //context.queue.finish
   }
   @Test
   def testFilterMapTuple2Result {
     same(a.filter(f).map(m2), cla.filter(f).map(m2))
-    context.queue.finish
+    //context.queue.finish
   }
   
   @Test
   def testFilterMapTuple2Arg {
     same(a.filter(f).map(m2).map(m2join), cla.filter(f).map(m2).map(m2join))
-    context.queue.finish
+    //context.queue.finish
   }
   
   @Test
@@ -117,6 +120,12 @@ class CLCollectionTest {
     assertEquals("CLArray(1, 2)", CLArray(1, 2).toString)
     assertEquals("CLFilteredArray()", CLArray(1, 2).filter(_ => false).toString)
     assertEquals("CLFilteredArray(1, 2)", CLArray(1, 2).filter(_ => true).toString)
+  }
+  
+  @Test
+  def testRangeMap {
+    same(rng.map(m), clrng.map(m))
+    //context.queue.finish
   }
   
   /*

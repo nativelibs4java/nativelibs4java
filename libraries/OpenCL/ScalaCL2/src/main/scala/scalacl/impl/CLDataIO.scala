@@ -12,6 +12,13 @@ import org.bridj.Pointer
 import org.bridj.PointerIO
 import scala.math._
 
+object CLDataIO {
+  abstract sealed class ArgType
+  object Value extends ArgType
+  object InputPointer extends ArgType
+  object OutputPointer extends ArgType
+}
+
 trait CLDataIO[T] {
   implicit val t: ClassManifest[T]
   val elementCount: Int
@@ -23,11 +30,11 @@ trait CLDataIO[T] {
   
   def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]]
 
-  def openCLKernelArgDeclarations(input: Boolean, offset: Int): Seq[String]
-  def openCLKernelNthItemExprs(input: Boolean, offset: Int, n: String): Seq[(String, List[Int])]
+  def openCLKernelArgDeclarations(argType: CLDataIO.ArgType, offset: Int): Seq[String]
+  def openCLKernelNthItemExprs(argType: CLDataIO.ArgType, offset: Int, n: String): Seq[(String, List[Int])]
   def openCLIntermediateKernelTupleElementsExprs(expr: String): Seq[(String, List[Int])]
   
-  def openCLIthTupleElementNthItemExpr(input: Boolean, offset: Int, indexes: List[Int], n: String): String
+  def openCLIthTupleElementNthItemExpr(argType: CLDataIO.ArgType, offset: Int, indexes: List[Int], n: String): String
   
   def extract(arrays: Array[Array[Any]], index: Int): T = {
     assert(elementCount == arrays.length)
@@ -95,21 +102,21 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
   override lazy val pointerIO: PointerIO[T] =
     error("Cannot create PointerIO for tuples !")
 
-  override def openCLKernelArgDeclarations(input: Boolean, offset: Int): Seq[String] =
-    iosAndOffsets.flatMap { case (io, ioOffset) => io.openCLKernelArgDeclarations(input, offset + ioOffset) }
+  override def openCLKernelArgDeclarations(argType: CLDataIO.ArgType, offset: Int): Seq[String] =
+    iosAndOffsets.flatMap { case (io, ioOffset) => io.openCLKernelArgDeclarations(argType, offset + ioOffset) }
 
-  override def openCLKernelNthItemExprs(input: Boolean, offset: Int, n: String): Seq[(String, List[Int])] =
+  override def openCLKernelNthItemExprs(argType: CLDataIO.ArgType, offset: Int, n: String): Seq[(String, List[Int])] =
     iosAndOffsets.zipWithIndex.flatMap {
       case ((io, ioOffset), i) =>
-        io.openCLKernelNthItemExprs(input, offset + ioOffset, n).map {
+        io.openCLKernelNthItemExprs(argType, offset + ioOffset, n).map {
           case (s, indexes) => (s, i :: indexes)
         }
     }
 
-  //override def openCLIntermediateKernelNthItemExprs(input: Boolean, offset: Int, n: String): Seq[String] =
-  //  iosAndOffsets.flatMap { case (io, ioOffset) => io.openCLIntermediateKernelNthItemExprs(input, offset + ioOffset, n) }
+  //override def openCLIntermediateKernelNthItemExprs(argType: CLDataIO.ArgType, offset: Int, n: String): Seq[String] =
+  //  iosAndOffsets.flatMap { case (io, ioOffset) => io.openCLIntermediateKernelNthItemExprs(argType, offset + ioOffset, n) }
 
-  /*override def openCLTupleShuffleNthFieldExprs(input: Boolean, offset: Int, n: String, shuffleExpr: String): Seq[String] =
+  /*override def openCLTupleShuffleNthFieldExprs(argType: CLDataIO.ArgType, offset: Int, n: String, shuffleExpr: String): Seq[String] =
     if (!isOpenCLTuple)
       error("Type " + this + " is not an OpenCL tuple !")
     else
@@ -120,12 +127,12 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
         case 'w' => 3
       }).flatMap(i => {
         val (io, ioOffset) = iosAndOffsets(i)
-        io.openCLKernelNthItemExprs(input, offset + ioOffset, n).map(_._1)
+        io.openCLKernelNthItemExprs(argType, offset + ioOffset, n).map(_._1)
       })
   */
-  override def openCLIthTupleElementNthItemExpr(input: Boolean, offset: Int, indexes: List[Int], n: String): String = {
+  override def openCLIthTupleElementNthItemExpr(argType: CLDataIO.ArgType, offset: Int, indexes: List[Int], n: String): String = {
     val (io, ioOffset) = iosAndOffsets(indexes.head)
-    io.openCLIthTupleElementNthItemExpr(input, offset + ioOffset, indexes.tail, n)
+    io.openCLIthTupleElementNthItemExpr(argType, offset + ioOffset, indexes.tail, n)
   }
 
   override def openCLIntermediateKernelTupleElementsExprs(expr: String): Seq[(String, List[Int])] = {
@@ -250,22 +257,46 @@ abstract class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T
   override def elements: Seq[CLDataIO[Any]] =
     Seq(this.asInstanceOf[CLDataIO[Any]])
 
-  /*override def openCLTupleShuffleNthFieldExprs(input: Boolean, offset: Int, n: String, shuffleExpr: String): Seq[String] =
+  /*override def openCLTupleShuffleNthFieldExprs(argType: CLDataIO.ArgType, offset: Int, n: String, shuffleExpr: String): Seq[String] =
     error("Calling tuple shuffle field '" + shuffleExpr + "' on scalar type " + this)*/
   
-  override def openCLKernelArgDeclarations(input: Boolean, offset: Int): Seq[String] =
-    Seq("__global " + (if (input) " const " + clType + "* in" else clType + "* out") + offset)
+  override def openCLKernelArgDeclarations(argType: CLDataIO.ArgType, offset: Int): Seq[String] = {
+    Seq(
+      (
+        argType match {
+          case CLDataIO.InputPointer =>
+            "__global const " + clType + "* in"
+          case CLDataIO.OutputPointer =>
+            "__global " + clType + "* out"
+          case CLDataIO.Value =>
+            "const " + clType + " in"
+        }
+      ) + offset
+    )
+  }
 
-  override def openCLKernelNthItemExprs(input: Boolean, offset: Int, n: String) =
-    Seq(("(" + (if (input) "in" else "out") + offset + "[" + n + "])", List(0)))
+  override def openCLKernelNthItemExprs(argType: CLDataIO.ArgType, offset: Int, n: String) =
+    Seq(
+      (
+        argType match {
+          case CLDataIO.Value =>
+            "in" + offset
+          case CLDataIO.InputPointer =>
+            "in" + offset + "[" + n + "]"
+          case CLDataIO.OutputPointer =>
+            "out" + offset + "[" + n + "]"
+        },
+        List(0)
+      )
+    )
 
   override def openCLIntermediateKernelTupleElementsExprs(expr: String): Seq[(String, List[Int])] = 
     Seq((expr, List(0)))
 
-  override def openCLIthTupleElementNthItemExpr(input: Boolean, offset: Int, indexes: List[Int], n: String): String = {
+  override def openCLIthTupleElementNthItemExpr(argType: CLDataIO.ArgType, offset: Int, indexes: List[Int], n: String): String = {
     if (indexes != List(0))
         error("There is only one item in this array of " + this + " (trying to access item " + indexes + ")")
-    openCLKernelNthItemExprs(input, offset, n)(0)._1
+    openCLKernelNthItemExprs(argType, offset, n)(0)._1
   }
   
   override def clType = t.erasure.getSimpleName.toLowerCase match {
@@ -305,108 +336,107 @@ object CLIntDataIO extends CLValDataIO[Int] {
   override def reductionType = (ReductionUtils.Type.Int, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Int =
-    pointers(offset).getInt(index * 4)
+    pointers(offset).getIntAtOffset(index * 4)
 
   override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Int =
     arrays(offset).asInstanceOf[Array[Int]](index)
 
   override def store(v: Int, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
-    pointers(offset).setInt(index * 4, v)
+    pointers(offset).setIntAtOffset(index * 4, v)
 }
 
 object CLShortDataIO extends CLValDataIO[Short] {
   override def reductionType = (ReductionUtils.Type.Short, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Short =
-    pointers(offset).getShort(index * 2)
+    pointers(offset).getShortAtOffset(index * 2)
 
   override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Short =
     arrays(offset).asInstanceOf[Array[Short]](index)
 
   override def store(v: Short, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
-    pointers(offset).setShort(index * 2, v)
+    pointers(offset).setShortAtOffset(index * 2, v)
 }
 
 object CLByteDataIO extends CLValDataIO[Byte] {
   override def reductionType = (ReductionUtils.Type.Byte, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Byte =
-    pointers(offset).getByte(index * 1)
+    pointers(offset).getByteAtOffset(index * 1)
 
   override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Byte =
     arrays(offset).asInstanceOf[Array[Byte]](index)
 
   override def store(v: Byte, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
-    pointers(offset).setByte(index * 1, v)
+    pointers(offset).setByteAtOffset(index * 1, v)
 }
 
 object CLBooleanDataIO extends CLValDataIO[Boolean] {
   override def reductionType = (ReductionUtils.Type.Byte, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Boolean =
-    pointers(offset).getByte(index * 1) != 0
+    pointers(offset).getByteAtOffset(index * 1) != 0
 
   override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Boolean =
     arrays(offset).asInstanceOf[Array[Boolean]](index)
 
   override def store(v: Boolean, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
-    pointers(offset).setByte(index * 1, if (v) 1 else 0)
+    pointers(offset).setByteAtOffset(index * 1, if (v) 1 else 0)
 }
 
 object CLCharDataIO extends CLValDataIO[Char] {
   override def reductionType = (ReductionUtils.Type.Char, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Char =
-    pointers(offset).getChar(index * 2)
+    pointers(offset).getCharAtOffset(index * 2)
 
   override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Char =
     arrays(offset).asInstanceOf[Array[Char]](index)
 
   override def store(v: Char, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
-    pointers(offset).setChar(index * 2, v)
+    pointers(offset).setCharAtOffset(index * 2, v)
 }
 
 object CLLongDataIO extends CLValDataIO[Long] {
   override def reductionType = (ReductionUtils.Type.Long, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Long =
-    pointers(offset).getLong(index * 8)
+    pointers(offset).getLongAtOffset(index * 8)
 
   override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Long =
     arrays(offset).asInstanceOf[Array[Long]](index)
 
   override def store(v: Long, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
-    pointers(offset).setLong(index * 8, v)
+    pointers(offset).setLongAtOffset(index * 8, v)
 }
 
 object CLFloatDataIO extends CLValDataIO[Float] {
   override def reductionType = (ReductionUtils.Type.Float, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Float =
-    pointers(offset).getFloat(index * 4)
+    pointers(offset).getFloatAtOffset(index * 4)
 
   override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Float =
     arrays(offset).asInstanceOf[Array[Float]](index)
 
   override def store(v: Float, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
-    pointers(offset).setFloat(index * 4, v)
+    pointers(offset).setFloatAtOffset(index * 4, v)
 }
 
 object CLDoubleDataIO extends CLValDataIO[Double] {
   override def reductionType = (ReductionUtils.Type.Double, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Double =
-    pointers(offset).getDouble(index * 8)
+    pointers(offset).getDoubleAtOffset(index * 8)
 
   override def extract(arrays: Array[Array[Any]], offset: Int, index: Int): Double =
     arrays(offset).asInstanceOf[Array[Double]](index)
 
   override def store(v: Double, pointers: Array[Pointer[Any]], offset: Int, index: Int): Unit =
-    pointers(offset).setDouble(index * 8, v)
+    pointers(offset).setDoubleAtOffset(index * 8, v)
 }
 
-
-
+/*
 class CLRangeDataIO(implicit val t: ClassManifest[Int]) extends CLDataIO[Int] {
 
   override val elementCount = 1
@@ -417,21 +447,21 @@ class CLRangeDataIO(implicit val t: ClassManifest[Int]) extends CLDataIO[Int] {
   override def elements: Seq[CLDataIO[Any]] =
     Seq(this.asInstanceOf[CLDataIO[Any]])
 
-  override def openCLKernelArgDeclarations(input: Boolean, offset: Int): Seq[String] = {
-    assert(input)
+  override def openCLKernelArgDeclarations(argType: CLDataIO.ArgType, offset: Int): Seq[String] = {
+    assert(argType != )
     Seq("int rangeLow" + offset)
   }
 
-  override def openCLKernelNthItemExprs(input: Boolean, offset: Int, n: String) =
+  override def openCLKernelNthItemExprs(argType: CLDataIO.ArgType, offset: Int, n: String) =
     Seq(("(rangeLow" + offset + " + " + n + ")", List(0)))
 
   override def openCLIntermediateKernelTupleElementsExprs(expr: String): Seq[(String, List[Int])] =
     Seq((expr, List(0))) // TODO ?
 
-  override def openCLIthTupleElementNthItemExpr(input: Boolean, offset: Int, indexes: List[Int], n: String): String = {
+  override def openCLIthTupleElementNthItemExpr(argType: CLDataIO.ArgType, offset: Int, indexes: List[Int], n: String): String = {
     if (indexes != List(0))
         error("There is only one item in this array of " + this + " (trying to access item " + indexes + ")")
-    openCLKernelNthItemExprs(input, offset, n)(0)._1
+    openCLKernelNthItemExprs(argType, offset, n)(0)._1
   }
 
   override def clType = "int"
@@ -444,10 +474,7 @@ class CLRangeDataIO(implicit val t: ClassManifest[Int]) extends CLDataIO[Int] {
   override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): CLFuture[Int] = {
     val arr = arrays(offset).asInstanceOf[CLGuardedBuffer[Int]]
     error("not implemented")
-    /* TODO
-    val range = CLRange.toRange(arr)
-    new CLInstantFuture[Int](range.start + range.step * index.toInt)
-    */
+    
   }
 
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Int =
@@ -471,3 +498,4 @@ class CLRangeDataIO(implicit val t: ClassManifest[Int]) extends CLDataIO[Int] {
     (low.toInt until length.toInt).toArray
   }
 }
+*/

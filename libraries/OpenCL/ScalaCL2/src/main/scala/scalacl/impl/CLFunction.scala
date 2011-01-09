@@ -67,11 +67,12 @@ extends (A => B)
   val ta = clType[A]
   val tb = clType[B]
 
-  val inParams = aIO.openCLKernelArgDeclarations(true, 0).mkString(", ")
-  val outParams = bIO.openCLKernelArgDeclarations(false, 0).mkString(", ")
+  val inParams = aIO.openCLKernelArgDeclarations(CLDataIO.InputPointer, 0).mkString(", ")
+  val inValueParams = aIO.openCLKernelArgDeclarations(CLDataIO.Value, 0).mkString(", ")
+  val outParams = bIO.openCLKernelArgDeclarations(CLDataIO.OutputPointer, 0).mkString(", ")
   val varExprs = aIO.openCLIntermediateKernelTupleElementsExprs(inVar).sortBy(-_._1.length).toArray
   //println("varExprs = " + varExprs.toSeq)
-  def replaceForFunction(s: String,  i: String) = if (s == null) null else {
+  def replaceForFunction(argType: CLDataIO.ArgType, s: String,  i: String, isRange: Boolean) = if (s == null) null else {
     var r = s.replaceAll(toRxb(indexVar), "i")
     r = r.replaceAll(toRxb(sizeVar), "size")
 
@@ -79,7 +80,11 @@ extends (A => B)
     val nExprs = varExprs.length
     while (iExpr < nExprs) {
       val (expr, tupleIndexes) = varExprs(iExpr)
-      val x = aIO.openCLIthTupleElementNthItemExpr(true, 0, tupleIndexes, i)
+      def rawith(i: String) = aIO.openCLIthTupleElementNthItemExpr(argType, 0, tupleIndexes, i) 
+      val x = if (isRange)
+        "(" + rawith("0") + " + (" + i + ") * " + rawith("2") + ")" // buffer contains (from, to, by, inclusive). Value is (from + i * by)  
+      else
+        rawith(i)
       r = r.replaceAll(toRxb(expr), x)
       iExpr += 1
     }
@@ -96,20 +101,21 @@ extends (A => B)
           return;
   """
 
-  def assignts(i: String) =
-    expressions.zip(bIO.openCLKernelNthItemExprs(false, 0, i)).map {
-      case (expression, (xOut, indexes)) => xOut + " = " + replaceForFunction(expression, i)
+  def assignts(argType: CLDataIO.ArgType, i: String, isRange: Boolean) =
+    expressions.zip(bIO.openCLKernelNthItemExprs(CLDataIO.OutputPointer, 0, i)).map {
+      case (expression, (xOut, indexes)) => xOut + " = " + replaceForFunction(argType, expression, i, isRange)
     }.mkString(";\n\t")
 
-  val funDecls = declarations.map(replaceForFunction(_, "0")).mkString("\n")
+  val funDecls = declarations.map(replaceForFunction(CLDataIO.Value, _, "0", false)).mkString("\n")
+  lazy val funDeclsRange = declarations.map(replaceForFunction(CLDataIO.Value, _, "0", true)).mkString("\n")
   val functionSource = if (expressions.isEmpty) null else """
       inline void """ + functionName + """(
-          """ + inParams + """,
+          """ + inValueParams + """,
           """ + outParams + """
       ) {
           """ + indexHeader + """
           """ + funDecls + """
-          """ + assignts("0") + """;
+          """ + assignts(CLDataIO.Value, "0", false) + """;
       }
   """
   //println("expressions = " + expressions)
@@ -117,9 +123,11 @@ extends (A => B)
 
   //def replaceForKernel(s: String) = if (s == null) null else replaceAllButIn(s).replaceAll(toRxb(inVar), "in[i]")
   val presenceParam = "__global const char* presence"
-  val kernDecls = declarations.map(replaceForFunction(_, "i")).reduceLeftOption(_ + "\n" + _).getOrElse("")
-  val assignt = assignts("i")
-  val kernelsSource = if (expressions.isEmpty) null else """
+  val kernDecls = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, "i", false)).reduceLeftOption(_ + "\n" + _).getOrElse("")
+  lazy val kernDeclsRange = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, "i", true)).reduceLeftOption(_ + "\n" + _).getOrElse("")
+  val assignt = assignts(CLDataIO.InputPointer, "i", false)
+  lazy val assigntRange = assignts(CLDataIO.InputPointer, "i", true)
+  var kernelsSource = if (expressions.isEmpty) null else """
       __kernel void array_array(
           int size,
           """ + inParams + """,
@@ -142,6 +150,20 @@ extends (A => B)
           """ + assignt + """;
       }
   """
+  
+  if (!expressions.isEmpty && aIO.t.erasure == classOf[Int]) {// || aIO.t.erasure == classOf[Integer])) {
+    kernelsSource += """
+      __kernel void range_array(
+          int size,
+          """ + inParams + """,
+          """ + outParams + """
+      ) {
+          """ + sizeHeader + """
+          """ + kernDeclsRange + """
+          """ + assigntRange + """;
+      }
+    """
+  }
   if (verbose)
     println("[ScalaCL] Creating kernel with source <<<\n\t" + kernelsSource.replaceAll("\n", "\n\t") + "\n>>>")
 
@@ -180,9 +202,7 @@ extends (A => B)
         ("array_array", in.length, in.buffers ++ out.buffers: Array[CLGuardedBuffer[Any]])
       case Array(in: CLRange, out: CLArray[_]) =>
         // CLRange.map 
-        // TODO: use dedicated kernel !!!
-        val inArr = in.toCLArray
-        ("array_array", inArr.length, inArr.buffers ++ out.buffers: Array[CLGuardedBuffer[Any]])
+        ("range_array", out.length, Array(in.buffer.asInstanceOf[CLGuardedBuffer[Any]]) ++ out.buffers: Array[CLGuardedBuffer[Any]])
       case Array(in: CLFilteredArray[_], out: CLFilteredArray[Any]) =>
         // CLFilteredArray.map
         ("filteredArray_filteredArray", in.array.length, in.array.buffers ++ Array(in.presence.asInstanceOf[CLGuardedBuffer[Any]]) ++ out.array.buffers: Array[CLGuardedBuffer[Any]])
