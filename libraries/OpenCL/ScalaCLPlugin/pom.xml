@@ -16,13 +16,19 @@ It will also soon feature some limited OpenCL-backed autovectorization.
 For more info, please visit http://code.google.com/p/scalacl
 	</description>
 	
+	
+	<properties>
+	  	<scala.version>2.8.1</scala.version>
+	  	<scalacl.version>0.2.Beta1</scalacl.version>
+	</properties>
+	<!--
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>opencl4java-parent-bridj</artifactId>
 	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
-
+  -->
   <dependencies>
 	<dependency>
 		<groupId>junit</groupId>
@@ -31,11 +37,12 @@ For more info, please visit http://code.google.com/p/scalacl
 		<scope>test</scope>
 	</dependency>
 	
-  	<dependency>
+  	<!--<dependency>
   		<groupId>com.nativelibs4java</groupId>
   		<artifactId>scalacl</artifactId>
   		<version>${scalacl.version}</version>
     </dependency>
+    -->
   	<dependency>
 		<groupId>org.scala-lang</groupId>
 		<artifactId>scala-compiler</artifactId>

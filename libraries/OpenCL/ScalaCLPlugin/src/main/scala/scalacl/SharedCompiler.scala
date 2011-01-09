@@ -19,7 +19,7 @@ class SharedCompiler(enablePlugins: Boolean) {
       "-bootclasspath", Compile.bootClassPath
     )
     lazy val settings = new Settings
-    lazy val pluginOptions = new ScalaCLPlugin.PluginOptions
+    lazy val pluginOptions = new ScalaCLPlugin.PluginOptions(settings)
     lazy val runner = new ScalaCLPluginRunner(enablePlugins, settings, new ConsoleReporter(settings), pluginOptions)
 
     Compiler(extraArgs, settings, runner)

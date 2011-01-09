@@ -125,17 +125,19 @@ extends PluginComponent
                         analyzer.inferImplicit(tree, dataIOTpe, false, false, context).tree
                       })
                       
-                      val functionOpenCLExprString = convertExpr(Map(uniqueParam.name.toString -> "_"), body).toString
+                      val (statements, values) = convertExpr(Map(uniqueParam.name.toString -> "_"), body)
                       val uniqueSignature = Literal(Constant(
-                        Array(
-                          tree.symbol.outerSource, tree.symbol.tag + "|" + tree.symbol.pos,
-                          sourceTpe, mappedTpe, functionOpenCLExprString // TODO
+                        (
+                          Array(
+                            tree.symbol.outerSource, tree.symbol.tag + "|" + tree.symbol.pos,
+                            sourceTpe, mappedTpe, statements
+                          ) ++ values
                         ).map(_.toString).mkString("|")
                       ))
                       val uniqueId = uniqueSignature.hashCode // TODO !!!
                       
                       if (options.verbose)
-                        println("[scalacl] Converted <<< " + body + " >>> to <<< \"" + functionOpenCLExprString + "\" >>>")
+                        println("[scalacl] Converted <<< " + body + " >>> to <<< \"" + statements + "\n(" + values.mkString(", ") + ")\" >>>")
                       val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
                       val clFunction = 
                         typed {
@@ -151,8 +153,8 @@ extends PluginComponent
                               List(
                                 newInt(uniqueId),
                                 op.f,
-                                newSeqApply(TypeTree(StringClass.tpe)), // statements TODO
-                                newSeqApply(TypeTree(StringClass.tpe), Literal(Constant(functionOpenCLExprString))), // expressions TODO
+                                newSeqApply(TypeTree(StringClass.tpe), Literal(Constant(statements))),
+                                newSeqApply(TypeTree(StringClass.tpe), values.map(value => Literal(Constant(value))):_*),
                                 newSeqApply(TypeTree(AnyClass.tpe)) // args TODO
                               )
                             ).setSymbol(getCachedFunctionSym),

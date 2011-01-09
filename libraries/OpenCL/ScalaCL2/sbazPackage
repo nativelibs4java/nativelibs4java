@@ -1,11 +1,11 @@
 #!/bin/bash
 
 SCALACL_HOME="`pwd`"
-mvn clean install -DskipTests
+#mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests
 
-cd ../ScalaCLPlugin
-mvn clean install -DskipTests
-cd $SCALACL_HOME
+#cd ../ScalaCLPlugin
+#mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests
+#cd $SCALACL_HOME
 
 
 TEMP_OUT=target/sbaz_out
@@ -22,15 +22,19 @@ VERSION="`cat pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\
 echo "ScalaCL version = $VERSION"
 
 cp target/scalacl-$VERSION-shaded.jar $LIB_JAR_OUT
-cp ../ScalaCLPlugin/target/scalacl-compiler-plugin-$VERSION-shaded.jar $PLUGIN_JAR_OUT
+cp ../ScalaCLPlugin/target/scalacl-compiler-plugin-$VERSION.jar $PLUGIN_JAR_OUT
 
 sbaz pack scalacl $TEMP_OUT \
 	--linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl/ \
 	--version $VERSION \
-	--pack200 \
 	--outdir src/main/sbaz \
 	--descfile ABOUT
 
 mkdir -p src/main/sbaz
+
+sbaz remove scalacl
+sbaz compact
+sbaz retract scalacl/$VERSION
+sbaz share *.advert
 mv *.advert src/main/sbaz
 open src/main/sbaz

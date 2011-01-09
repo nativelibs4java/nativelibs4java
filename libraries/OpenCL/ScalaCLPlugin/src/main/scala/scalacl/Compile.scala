@@ -132,7 +132,7 @@ Copyright Olivier Chafik 2010""")
     val command = new CompilerCommand((args ++ extraArgs).toList, settings) {
       override val cmdName = "scalacl"
     }
-    val pluginOptions = new ScalaCLPlugin.PluginOptions
+    val pluginOptions = new ScalaCLPlugin.PluginOptions(settings)
     val runner = new ScalaCLPluginRunner(enablePlugins, settings, new ConsoleReporter(settings), pluginOptions)
     val run = new runner.Run
 

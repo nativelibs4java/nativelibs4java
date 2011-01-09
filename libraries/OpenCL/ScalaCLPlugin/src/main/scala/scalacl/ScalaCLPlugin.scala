@@ -34,6 +34,8 @@ import java.io.File
 import scala.collection.immutable.Stack
 import scala.reflect.generic.Names
 import scala.reflect.generic.Trees
+
+import scala.tools.nsc.Settings
 import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.Plugin
 import scala.tools.nsc.symtab.Definitions
@@ -59,7 +61,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 
   var enabled = !explicitelyDisabled
   
-  val pluginOptions = new ScalaCLPlugin.PluginOptions 
+  val pluginOptions = new ScalaCLPlugin.PluginOptions(global.settings)
   override def processOptions(options: List[String], error: String => Unit) = {
     for (option <- options) {
       println("Found option " + option)
@@ -85,11 +87,13 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 }
 
 object ScalaCLPlugin {
-  class PluginOptions {
+  class PluginOptions(settings: Settings) {
     var trace =
+      settings.debug.value ||
       "1" == System.getenv("SCALACL_TRACE")
       
     var verbose = 
+      settings.verbose.value ||
       "1" == System.getenv("SCALACL_VERBOSE")
       
     var experimental = 

@@ -234,6 +234,12 @@ trait MiscMatchers {
         None
     }
   }
+  object TupleObject {
+    def unapply(tree: Tree) = {
+      val tpe = tree.tpe
+      tpe != null && tpe.toString.matches(""".*scala\.Tuple\d+""")
+    }
+  }
   object Predef {
     lazy val RefArrayOps = this("refArrayOps")
     lazy val GenericArrayOps = this("genericArrayOps")

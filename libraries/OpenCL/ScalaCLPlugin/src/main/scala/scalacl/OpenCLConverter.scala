@@ -40,6 +40,7 @@ extends MiscMatchers
 {
   val global: Global
   import global._
+  import definitions._
 
   def nodeToStringNoComment(tree: Tree): String
   
@@ -47,12 +48,23 @@ extends MiscMatchers
   
   var placeHolderRefs = new Stack[String]
 
-  def convertExpr(argNames: Map[String, String], body: Tree, b: StringBuilder = new StringBuilder): StringBuilder = {
+  def convertExpr(argNames: Map[String, String], body: Tree): (String, Seq[String]) = { 
+    val (sb, vals) = doConvertExpr(argNames, body, true)
+    if (vals == null)
+      ("", Seq(sb.toString))
+    else
+      (sb.toString, vals.map(_.toString))
+  }
+
+  def doConvertExpr(argNames: Map[String, String], body: Tree, isTopLevel: Boolean, b: StringBuilder = new StringBuilder): (StringBuilder, Seq[StringBuilder]) = {
+    
+    var retExprsBuilders: Seq[StringBuilder] = null
+    
     def out(args: Any*): Unit = args.foreach(_ match {
       case t: Tree =>
-        convertExpr(argNames, t, b)
+        doConvertExpr(argNames, t, false, b)._1
       case items: List[_] =>
-        var first = false
+        var first = true
         for (item <- items) {
           if (first)
             first = false
@@ -75,10 +87,13 @@ extends MiscMatchers
         out("int ", iVar, ";\n")
         out("const int ", nVal, " = ", to, ";\n")
         out("for (", iVar, " = ", from, "; ", iVar, " ", if (isUntil) "<" else "<=", " ", nVal, "; ", iVar, " += ", by, ") {\n")
-        convertExpr(argNames + (paramName.toString -> iVar), body, b)
+        doConvertExpr(argNames + (paramName.toString -> iVar), body, false, b)._1
         out("\n}")
     }
+    
     body match {
+      case Apply(TypeApply(Select(_/*TupleObject()*/, applyName()), tupleTypes), tupleArgs) if isTopLevel =>
+        retExprsBuilders = tupleArgs.map(arg => doConvertExpr(argNames, arg, false)._1)
       case Literal(Constant(value)) =>
         out(value)
       case Ident(name) =>
@@ -121,17 +136,17 @@ extends MiscMatchers
         //}
         //Match(Ident("x0$1"), List(CaseDef(Apply(TypeTree(), List(Bind(i, Ident("_")), Bind(c, Ident("_"))), EmptyTree Apply(Select(Ident("i"), "$plus"), List(Ident("c")
 
-        convertExpr(argNames + (matchName.toString + "._1" -> "?"), body, b)
-      case Apply(Select(expr, toSizeTName()), Nil) => cast(expr, "size_t")
-      case Apply(Select(expr, toLongName()), Nil) => cast(expr, "long")
-      case Apply(Select(expr, toIntName()), Nil) => cast(expr, "int")
-      case Apply(Select(expr, toShortName()), Nil) => cast(expr, "short")
-      case Apply(Select(expr, toByteName()), Nil) => cast(expr, "char")
-      case Apply(Select(expr, toCharName()), Nil) => cast(expr, "short")
-      case Apply(Select(expr, toDoubleName()), Nil) => cast(expr, "double")
-      case Apply(Select(expr, toFloatName()), Nil) => cast(expr, "float")
+        doConvertExpr(argNames + (matchName.toString + "._1" -> "?"), body, false, b)._1
+      case Select(expr, toSizeTName()) => cast(expr, "size_t")
+      case Select(expr, toLongName()) => cast(expr, "long")
+      case Select(expr, toIntName()) => cast(expr, "int")
+      case Select(expr, toShortName()) => cast(expr, "short")
+      case Select(expr, toByteName()) => cast(expr, "char")
+      case Select(expr, toCharName()) => cast(expr, "short")
+      case Select(expr, toDoubleName()) => cast(expr, "double")
+      case Select(expr, toFloatName()) => cast(expr, "float")
       case Apply(
-        Select(
+        f @ Select(
           Select(
             Select(
               Ident(scalaName()),
@@ -143,19 +158,18 @@ extends MiscMatchers
         ),
         args
       ) =>
-        out(funName, "(", args, ")")
+        f.tpe match {
+          case MethodType(List(param), resultType) if param.tpe == DoubleClass.tpe =>
+            out(funName, "((float)", args, ")")
+          case _ =>
+            out(funName, "(", args, ")")
+        }
       case Apply(TypeApply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), foreachName()), List(fRetType)), List(f: Function)) =>
         convertForeach(from, to, funToName.toString == "until", Literal(Constant(1)), f)
       //case IntRangeForeach(from, to, by, isUntil, Function(List(ValDef(paramMods, paramName, tpt, rhs)), body)) =>
       case Apply(TypeApply(Select(Apply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), byName()), List(by)), foreachName()), List(fRetType)), List(f: Function)) =>
         convertForeach(from, to, funToName.toString == "until", by, f)
-      case Apply(s @ Select(expr, fun), Nil) =>
-        val fn = fun.toString
-        if (fn.matches("_\\d+")) {
-          out(expr, ".", fn)
-        } else {
-          error("Unknown function " + s)
-        }
+      //case Apply(s @ Select(expr, fun), Nil) =>
       case Apply(s @ Select(left, name), args) =>
         NameTransformer.decode(name.toString) match {
           case op @ ("+" | "-" | "*" | "/" | "%" | "^" | "^^" | "&" | "&&" | "|" | "||" | "<<" | ">>" | "==" | "<" | ">" | "<=" | ">=" | "!=") =>
@@ -164,11 +178,18 @@ extends MiscMatchers
             println(nodeToStringNoComment(body))
             error("[ScalaCL] Unhandled method name in Scala -> OpenCL conversion : " + name)
         }
+      case s @ Select(expr, fun) =>
+        val fn = fun.toString
+        if (fn.matches("_\\d+")) {
+          out(expr, ".", fn)
+        } else {
+          error("Unknown function " + s)
+        }
       case _ =>
         println("Failed to convert " + body.getClass.getName + ": " + body)
         println(nodeToStringNoComment(body))
     }
-    b
+    (b, retExprsBuilders)
   }
   def convertTpt(tpt: TypeTree) = tpt.toString match {
     case "Int" => "int"
