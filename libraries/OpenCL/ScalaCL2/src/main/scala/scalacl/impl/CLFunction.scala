@@ -178,8 +178,8 @@ extends (A => B)
       case Array(in: CLArray[_], out: CLArray[_]) =>
         // CLArray.map
         ("array_array", in.length, in.buffers ++ out.buffers: Array[CLGuardedBuffer[Any]])
-      case Array(in: CLIntRange, out: CLArray[_]) =>
-        // CLIntRange.map 
+      case Array(in: CLRange, out: CLArray[_]) =>
+        // CLRange.map 
         // TODO: use dedicated kernel !!!
         val inArr = in.toCLArray
         ("array_array", inArr.length, inArr.buffers ++ out.buffers: Array[CLGuardedBuffer[Any]])

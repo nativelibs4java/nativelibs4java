@@ -407,7 +407,7 @@ object CLDoubleDataIO extends CLValDataIO[Double] {
 
 
 
-class CLIntRangeDataIO(implicit val t: ClassManifest[Int]) extends CLDataIO[Int] {
+class CLRangeDataIO(implicit val t: ClassManifest[Int]) extends CLDataIO[Int] {
 
   override val elementCount = 1
 
@@ -445,7 +445,7 @@ class CLIntRangeDataIO(implicit val t: ClassManifest[Int]) extends CLDataIO[Int]
     val arr = arrays(offset).asInstanceOf[CLGuardedBuffer[Int]]
     error("not implemented")
     /* TODO
-    val range = CLIntRange.toRange(arr)
+    val range = CLRange.toRange(arr)
     new CLInstantFuture[Int](range.start + range.step * index.toInt)
     */
   }

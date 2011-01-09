@@ -74,7 +74,7 @@ extends PluginComponent
   val ScalaCLPackageClass  = ScalaCLPackage.tpe.typeSymbol
   val CLDataIOClass = definitions.getClass("scalacl.impl.CLDataIO")
   val CLArrayClass = definitions.getClass("scalacl.CLArray")
-  val CLIntRangeClass = definitions.getClass("scalacl.CLIntRange")
+  val CLIntRangeClass = definitions.getClass("scalacl.CLRange")
   val CLCollectionClass = definitions.getClass("scalacl.CLCollection")
   val CLFilteredArrayClass = definitions.getClass("scalacl.CLFilteredArray")
   val scalacl_ = N("scalacl")

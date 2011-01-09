@@ -39,7 +39,7 @@ package object scalacl {
     def cl = CLArray.fromSeq(seq)
   }
   class CLTransformableRange(rng: Range)(implicit context: ScalaCLContext) {
-    def cl = new CLIntRange(rng)
+    def cl = new CLRange(rng)
   }
   implicit def Range2CLTransformableRange(rng: Range)(implicit context: ScalaCLContext) = 
     new CLTransformableRange(rng)
@@ -263,8 +263,8 @@ package object scalacl {
   implicit def CLFullFun[K, V](function: K => V, declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
     new CLFunction[K, V](function, declarations, expressions, Seq())
 
-  implicit def Range2CLIntRangeMethods(r: Range)(implicit context: ScalaCLContext, dataIO: CLDataIO[Int]) = new {
-    def toCLRange = new CLIntRange(r)
+  implicit def Range2CLRangeMethods(r: Range)(implicit context: ScalaCLContext, dataIO: CLDataIO[Int]) = new {
+    def toCLRange = new CLRange(r)
     def toCLArray = toCLRange.toCLArray
     def toCL = toCLRange
   }

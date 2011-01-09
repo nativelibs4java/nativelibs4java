@@ -89,11 +89,11 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 object ScalaCLPlugin {
   class PluginOptions(settings: Settings) {
     var trace =
-      settings.debug.value ||
+      settings != null && settings.debug.value ||
       "1" == System.getenv("SCALACL_TRACE")
       
     var verbose = 
-      settings.verbose.value ||
+      settings != null && settings.verbose.value ||
       "1" == System.getenv("SCALACL_VERBOSE")
       
     var experimental = 
