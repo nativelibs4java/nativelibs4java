@@ -166,7 +166,7 @@ public class COMRuntime extends CPPRuntime {
                 throw new ClassNotFoundException("COM class is not registered : " + instanceClass.getSimpleName() + " (clsid = " + clsid.getCString() + ")");
             error(ret);
 
-            Pointer<?> inst = p.getPointer(0);
+            Pointer<?> inst = p.getPointer();
             if (inst == null)
                 throw new RuntimeException("Serious low-level issue : CoCreateInstance executed fine but we only retrieved a null pointer !");
 

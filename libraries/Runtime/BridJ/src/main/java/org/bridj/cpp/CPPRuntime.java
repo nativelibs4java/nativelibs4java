@@ -376,7 +376,7 @@ public class CPPRuntime extends CRuntime {
 ////    		vptr = vptr.offset(16);
 //    		vptr = vptr.next(2);
         if (vtable != 0)
-            peer.setSizeT(0, vtable);
+            peer.setSizeT(vtable);
         return vtable != 0;
     }
 

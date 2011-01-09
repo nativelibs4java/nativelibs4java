@@ -407,7 +407,7 @@ public class StructIO {
 		long[] offsets = solidRanges.offsets, lengths = solidRanges.lengths;
 		for (int i = 0, n = offsets.length; i < n; i++) {
 			long offset = offsets[i], length = lengths[i];
-			int cmp = pA.compareBytes(offset, pB, offset, length);
+			int cmp = pA.compareBytesAtOffset(offset, pB, offset, length);
 			if (cmp != 0)
 				return cmp;	
 		}
@@ -416,7 +416,7 @@ public class StructIO {
 	
 	public final <T> Pointer<T> getPointerField(StructObject struct, int fieldIndex) {
         FieldDesc fd = fields[fieldIndex];
-		Pointer<T> p = struct.peer.getPointer(fd.byteOffset, fd.nativeTypeOrPointerTargetType);
+		Pointer<T> p = struct.peer.getPointerAtOffset(fd.byteOffset, fd.nativeTypeOrPointerTargetType);
         if (fd.arrayLength != 1)
             p = p.validElements(fd.arrayLength);
         return p;
@@ -424,48 +424,48 @@ public class StructIO {
 	
 	public final <T> void setPointerField(StructObject struct, int fieldIndex, Pointer<T> value) {
 		FieldDesc fd = fields[fieldIndex];
-		struct.peer.setPointer(fd.byteOffset, value);
+		struct.peer.setPointerAtOffset(fd.byteOffset, value);
 	}
 	
 	public final <T extends TypedPointer> T getTypedPointerField(StructObject struct, int fieldIndex) {
 		FieldDesc fd = fields[fieldIndex];
 		PointerIO<T> pio = PointerIO.getInstance(fd.nativeTypeOrPointerTargetType);
-		return pio.castTarget(struct.peer.getSizeT(fd.byteOffset));
+		return pio.castTarget(struct.peer.getSizeTAtOffset(fd.byteOffset));
 	}
 	public final <O extends NativeObject> O getNativeObjectField(StructObject struct, int fieldIndex) {
 		FieldDesc fd = fields[fieldIndex];
-		return (O)struct.peer.getNativeObject(fd.byteOffset, fd.nativeTypeOrPointerTargetType);
+		return (O)struct.peer.getNativeObjectAtOffset(fd.byteOffset, fd.nativeTypeOrPointerTargetType);
 	}
 
 	public final <E extends Enum<E>> ValuedEnum<E> getEnumField(StructObject struct, int fieldIndex) {
         FieldDesc fd = fields[fieldIndex];
-		return FlagSet.fromValue(struct.peer.getInt(fd.byteOffset), (Class<E>)fd.nativeTypeOrPointerTargetType);
+		return FlagSet.fromValue(struct.peer.getIntAtOffset(fd.byteOffset), (Class<E>)fd.nativeTypeOrPointerTargetType);
 	}
 	
 	public final void setEnumField(StructObject struct, int fieldIndex, ValuedEnum<?> value) {
 		FieldDesc fd = fields[fieldIndex];
-		struct.peer.setInt(fd.byteOffset, (int)value.value());
+		struct.peer.setIntAtOffset(fd.byteOffset, (int)value.value());
 	}
 	
 #foreach ($prim in $primitives)
     public final void set${prim.CapName}Field(StructObject struct, int fieldIndex, ${prim.Name} value) {
 		FieldDesc fd = fields[fieldIndex];
-		struct.peer.set${prim.CapName}(fd.byteOffset, value);
+		struct.peer.set${prim.CapName}AtOffset(fd.byteOffset, value);
 	}
 	public final ${prim.Name} get${prim.CapName}Field(StructObject struct, int fieldIndex) {
 		FieldDesc fd = fields[fieldIndex];
-		return struct.peer.get${prim.CapName}(fd.byteOffset);
+		return struct.peer.get${prim.CapName}AtOffset(fd.byteOffset);
 	}
 #end	
 
 #foreach ($sizePrim in ["SizeT", "CLong"])
     public final void set${sizePrim}Field(StructObject struct, int fieldIndex, long value) {
 		FieldDesc fd = fields[fieldIndex];
-		struct.peer.set${sizePrim}(fd.byteOffset, value);
+		struct.peer.set${sizePrim}AtOffset(fd.byteOffset, value);
 	}
 	public final long get${sizePrim}Field(StructObject struct, int fieldIndex) {
 		FieldDesc fd = fields[fieldIndex];
-		return struct.peer.get${sizePrim}(fd.byteOffset);
+		return struct.peer.get${sizePrim}AtOffset(fd.byteOffset);
 	}
 #end
 }

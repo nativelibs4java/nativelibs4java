@@ -23,12 +23,12 @@ class CommonPointerIOs {
 		
 		@Override
 		public S get(Pointer<S> pointer, long index) {
-			return (S)pointer.getNativeObject(index * getTargetSize(), structIO.getStructType());
+			return (S)pointer.getNativeObjectAtOffset(index * getTargetSize(), structIO.getStructType());
 		}
 		@Override
 		public void set(Pointer<S> pointer, long index, S value) {
 			Pointer<S> ps = Pointer.pointerTo(value);
-			pointer.getByteBuffer(index * getTargetSize()).put(ps.getByteBuffer(0));
+			pointer.getByteBufferAtOffset(index * getTargetSize(), structIO.getStructSize()).put(ps.getByteBuffer());
 		}
 		@Override
 		public int getTargetAlignment() {
@@ -46,12 +46,12 @@ class CommonPointerIOs {
 		
 		@Override
 		public Pointer<T> get(Pointer<Pointer<T>> pointer, long index) {
-			return pointer.getPointer(index * Pointer.SIZE, underlyingIO);
+			return pointer.getPointerAtOffset(index * Pointer.SIZE, underlyingIO);
 		}
 
 		@Override
 		public void set(Pointer<Pointer<T>> pointer, long index, Pointer<T> value) {
-			pointer.setPointer(index * Pointer.SIZE, value);
+			pointer.setPointerAtOffset(index * Pointer.SIZE, value);
 		}
 	}
 	
@@ -123,8 +123,8 @@ class CommonPointerIOs {
 		public T get(Pointer<T> pointer, long index) {
 			if (index != 0)
 				throw new UnsupportedOperationException("Cannot get function pointer at index different from 0");
-			//return pointer.getPointer(index * Pointer.SIZE, (Class<T>)null).getNativeObject(0, callbackClass);
-			return pointer.getNativeObject(0, callbackClass);
+			//return pointer.getPointerAtOffset(index * Pointer.SIZE, (Class<T>)null).getNativeObject(0, callbackClass);
+			return pointer.getNativeObjectAtOffset(0, callbackClass);
 		}
 
 		@Override
@@ -161,7 +161,7 @@ class CommonPointerIOs {
 		@Override
 		public P get(Pointer<P> pointer, long index) {
 			try {
-				return (P)cons.newInstance(pointer.getSizeT(index * Pointer.SIZE));
+				return (P)cons.newInstance(pointer.getSizeTAtOffset(index * Pointer.SIZE));
 			} catch (Exception ex) {
 				throw new RuntimeException("Cannot create pointer of type " + pointerClass.getName(), ex);
 			}
@@ -169,7 +169,7 @@ class CommonPointerIOs {
 
 		@Override
 		public void set(Pointer<P> pointer, long index, P value) {
-			pointer.setPointer(index * Pointer.SIZE, value);
+			pointer.setPointerAtOffset(index * Pointer.SIZE, value);
 		}
 	}
 	
@@ -178,28 +178,28 @@ class CommonPointerIOs {
 	public static final PointerIO<${prim.WrapperName}> ${prim.Name}IO = new PointerIO<${prim.WrapperName}>(${prim.WrapperName}.class, ${prim.Size}, null) {
 		@Override
 		public ${prim.WrapperName} get(Pointer<${prim.WrapperName}> pointer, long index) {
-			return pointer.get${prim.CapName}(index * ${prim.Size});
+			return pointer.get${prim.CapName}AtOffset(index * ${prim.Size});
 		}
 
 		@Override
 		public void set(Pointer<${prim.WrapperName}> pointer, long index, ${prim.WrapperName} value) {
-			pointer.set${prim.CapName}(index * ${prim.Size}, value);
+			pointer.set${prim.CapName}AtOffset(index * ${prim.Size}, value);
 		}
 		
 		@Override
 		public <B extends Buffer> B getBuffer(Pointer<${prim.WrapperName}> pointer, long byteOffset, int length) {
-			return (B)pointer.get${prim.BufferName}(byteOffset, length);
+			return (B)pointer.get${prim.BufferName}AtOffset(byteOffset, length);
 		}
 		
 		@Override
 		public Object getArray(Pointer<${prim.WrapperName}> pointer, long byteOffset, int length) {
-			return pointer.get${prim.CapName}s(byteOffset, length);
+			return pointer.get${prim.CapName}sAtOffset(byteOffset, length);
 		}
 		
 		@Override
 		public void setArray(Pointer<${prim.WrapperName}> pointer, long byteOffset, Object array) {
 			if (array instanceof ${prim.Name}[])
-				pointer.set${prim.CapName}s(byteOffset, (${prim.Name}[])array);
+				pointer.set${prim.CapName}sAtOffset(byteOffset, (${prim.Name}[])array);
 			else
 				super.setArray(pointer, byteOffset, array);
 		}
@@ -211,22 +211,22 @@ class CommonPointerIOs {
 	public static final PointerIO<SizeT> sizeTIO = new PointerIO<SizeT>(SizeT.class, SizeT.SIZE, null) {
 		@Override
 		public SizeT get(Pointer<SizeT> pointer, long index) {
-			return new SizeT(pointer.getSizeT(index * SizeT.SIZE));
+			return new SizeT(pointer.getSizeTAtOffset(index * SizeT.SIZE));
 		}
 		@Override
 		public void set(Pointer<SizeT> pointer, long index, SizeT value) {
-			pointer.setSizeT(index * SizeT.SIZE, value == null ? 0 : value.longValue());
+			pointer.setSizeTAtOffset(index * SizeT.SIZE, value == null ? 0 : value.longValue());
 		}		
 	};
 	
 	public static final PointerIO<CLong> clongIO = new PointerIO<CLong>(CLong.class, CLong.SIZE, null) {
 		@Override
 		public CLong get(Pointer<CLong> pointer, long index) {
-			return new CLong(pointer.getCLong(index * CLong.SIZE));
+			return new CLong(pointer.getCLongAtOffset(index * CLong.SIZE));
 		}
 		@Override
 		public void set(Pointer<CLong> pointer, long index, CLong value) {
-			pointer.setCLong(index * CLong.SIZE, value == null ? 0 : value.longValue());
+			pointer.setCLongAtOffset(index * CLong.SIZE, value == null ? 0 : value.longValue());
 		}		
 	};
 	
@@ -235,12 +235,12 @@ class CommonPointerIOs {
 	/*public static final PointerIO<Integer> intIO = new PointerIO<Integer>(Integer.class, 4, null) {
 		@Override
 		public Integer get(Pointer<Integer> pointer, long index) {
-			return pointer.getInt(index * 4);
+			return pointer.getIntAtOffset(index * 4);
 		}
 
 		@Override
 		public void set(Pointer<Integer> pointer, long index, Integer value) {
-			pointer.setInt(index * 4, value);
+			pointer.setIntAtOffset(index * 4, value);
 		}		
 	};*/
 

@@ -310,9 +310,9 @@ public class PointerTest {
 		assertEquals(${prim.value("3")}, (${prim.Name})p.get(2)$precisionArg);
 		
 		p = Pointer.pointerTo${prim.CapName}s(${prim.rawValue("1")}, ${prim.rawValue("2")}, ${prim.rawValue("3")});
-		assertEquals(${prim.rawValue("1")}, p.get${prim.CapName}(0 * ${prim.Size})$precisionArg);
-		assertEquals(${prim.rawValue("2")}, p.get${prim.CapName}(1 * ${prim.Size})$precisionArg);
-		assertEquals(${prim.rawValue("3")}, p.get${prim.CapName}(2 * ${prim.Size})$precisionArg);
+		assertEquals(${prim.rawValue("1")}, p.get${prim.CapName}AtOffset(0 * ${prim.Size})$precisionArg);
+		assertEquals(${prim.rawValue("2")}, p.get${prim.CapName}AtOffset(1 * ${prim.Size})$precisionArg);
+		assertEquals(${prim.rawValue("3")}, p.get${prim.CapName}AtOffset(2 * ${prim.Size})$precisionArg);
 	}
 	@Test 
     public void testPointerTo_${prim.Name}_Value() {
@@ -320,7 +320,7 @@ public class PointerTest {
 		assertEquals(${prim.value("1")}, (${prim.Name})p.get(0)$precisionArg);
 		
 		p = Pointer.pointerTo${prim.CapName}(${prim.rawValue("1")});
-		assertEquals(${prim.rawValue("1")}, p.get${prim.CapName}(0)$precisionArg);
+		assertEquals(${prim.rawValue("1")}, p.get${prim.CapName}()$precisionArg);
 	}
 
 	
@@ -338,12 +338,12 @@ public class PointerTest {
 				values = p.get${prim.CapName}s();
 				break;
 			case 1:
-				p.set${prim.CapName}s(0, expected);
+				p.set${prim.CapName}sAtOffset(0, expected);
 				values = p.get${prim.CapName}s();
 				break;
 			case 2:
-				p.set${prim.CapName}s(0, expected, 0, expected.length);
-				values = p.get${prim.CapName}s(0, expected.length);
+				p.set${prim.CapName}sAtOffset(0, expected, 0, expected.length);
+				values = p.get${prim.CapName}sAtOffset(0, expected.length);
 				break;
 			case 3:
 				values = new $rawType[n];
@@ -360,8 +360,8 @@ public class PointerTest {
 			case 4:
 				values = new $rawType[n];
 				for (int i = 0; i < n; i++) {
-					p.set${prim.CapName}(i * ${prim.Size}, expected[i]);
-					values[i] = p.get${prim.CapName}(i * ${prim.Size}); 
+					p.set${prim.CapName}AtOffset(i * ${prim.Size}, expected[i]);
+					values[i] = p.get${prim.CapName}AtOffset(i * ${prim.Size}); 
 				}
 				break;
 			}
@@ -380,16 +380,16 @@ public class PointerTest {
 			p.set${prim.CapName}(${prim.value("1")});
 			assertEquals(${prim.rawValue("1")}, ($rawType)p.get${prim.CapName}()$precisionArg);
 			
-			p.set${prim.CapName}(${prim.Size}, ${prim.value("-2")});
-			assertEquals(${prim.rawValue("-2")}, ($rawType)p.get${prim.CapName}(${prim.Size})$precisionArg);
+			p.set${prim.CapName}AtOffset(${prim.Size}, ${prim.value("-2")});
+			assertEquals(${prim.rawValue("-2")}, ($rawType)p.get${prim.CapName}AtOffset(${prim.Size})$precisionArg);
 			
 			p.set(2, ${prim.value("3")});
 			assertEquals(${prim.value("3")}, (${prim.Name})p.get(2)$precisionArg);
 			
-			p.set${prim.CapName}s(${prim.Size}, new ${prim.Name}[] { ${prim.value("5")}, ${prim.value("6")} });
+			p.set${prim.CapName}sAtOffset(${prim.Size}, new ${prim.Name}[] { ${prim.value("5")}, ${prim.value("6")} });
 			assertEquals(${prim.value("5")}, (${prim.Name})p.get(1)$precisionArg);
 			assertEquals(${prim.value("6")}, (${prim.Name})p.get(2)$precisionArg);
-			$rawType[] a = p.get${prim.CapName}s(${prim.Size}, 2);
+			$rawType[] a = p.get${prim.CapName}sAtOffset(${prim.Size}, 2);
 			assertEquals(2, a.length);
 			assertEquals(${prim.rawValue("5")}, a[0]$precisionArg);
 			assertEquals(${prim.rawValue("6")}, a[1]$precisionArg);
@@ -473,24 +473,24 @@ public class PointerTest {
 				values = (${prim.BufferName})p.getBuffer();
 				break;
 			case 1:
-				p.setValues(0, buf);
+				p.setValuesAtOffset(0, buf);
 				values = (${prim.BufferName})p.getBuffer();
 				break;
 			case 2:
-				p.setValues(0, buf, 0, n);
-				values = (${prim.BufferName})p.getBuffer(0, n);
+				p.setValuesAtOffset(0, buf, 0, n);
+				values = (${prim.BufferName})p.getBufferAtOffset(0, n);
 				break;
 			case 3:
 				p.set${prim.CapName}s(buf);
 				values = p.get${prim.BufferName}();
 				break;
 			case 4:
-				p.set${prim.CapName}s(0, buf);
+				p.set${prim.CapName}sAtOffset(0, buf);
 				values = p.get${prim.BufferName}();
 				break;
 			case 5:
-				p.set${prim.CapName}s(0, buf, 0, n);
-				values = p.get${prim.BufferName}(0, n);
+				p.set${prim.CapName}sAtOffset(0, buf, 0, n);
+				values = p.get${prim.BufferName}AtOffset(0, n);
 				break;
 			}
 			assertEquals("approach " + type + " failed", n, values.capacity());
@@ -620,9 +620,9 @@ public class PointerTest {
 		Pointer<${prim.typeRef}> p = Pointer.allocate${prim.CapName}().order(order);
 		p.set(value);
         assertEquals(order, p.order());
-        assertEquals(order, p.get${prim.BufferName}(0, 1).order());
-		assertEquals(value, (${prim.Name})p.get${prim.BufferName}(0, 1).get()$precisionArg); // check that the NIO buffer was created with the correct order by default
-		assertEquals(value, p.getByteBuffer(0, ${prim.Size}).order(order).as${prim.BufferName}().get()$precisionArg);
+        assertEquals(order, p.get${prim.BufferName}AtOffset(0, 1).order());
+		assertEquals(value, (${prim.Name})p.get${prim.BufferName}AtOffset(0, 1).get()$precisionArg); // check that the NIO buffer was created with the correct order by default
+		assertEquals(value, p.getByteBufferAtOffset(0, ${prim.Size}).order(order).as${prim.BufferName}().get()$precisionArg);
 	}
 	#end
 

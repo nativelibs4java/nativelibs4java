@@ -64,7 +64,7 @@ public class CPPTest {
 		//long peer = Pointer.getAddress(test, Ctest.class);
 		
 		//TestCPP.print(instance.getClass().getSimpleName(), pointerTo(instance).getPeer(), 10, 2);
-		//TestCPP.print(instance.getClass().getSimpleName() + "'s vtable", pointerTo(instance).getSizeT(0), 10, 2);
+		//TestCPP.print(instance.getClass().getSimpleName() + "'s vtable", pointerTo(instance).getSizeT(), 10, 2);
                 
 		int c = instance.testVirtualAdd(a, b);
 		assertEquals(res, c);
