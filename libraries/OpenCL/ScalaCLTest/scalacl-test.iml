@@ -5,9 +5,13 @@
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
         <option name="compilerLibraryName" value="Maven: org.scala-lang:scala-compiler-bundle:2.8.1" />
-        <option name="maximumHeapSize" value="1024" />
-        <option name="optimiseBytecode" value="true" />
-        <option name="vmOptions" value="-Xms64m" />
+        <option name="compilerOptions" value="-optimize" />
+        <option name="pluginPaths">
+          <array>
+            <option value="$MAVEN_REPOSITORY$/com/nativelibs4java/scalacl-compiler-plugin/1.0-SNAPSHOT/scalacl-compiler-plugin-1.0-SNAPSHOT.jar" />
+          </array>
+        </option>
+        <option name="vmOptions" value="" />
       </configuration>
     </facet>
   </component>
@@ -23,9 +27,14 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.7" level="project" />
-    <orderEntry type="library" name="Maven: org.scala-lang:scala-compiler:2.8.1" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.8.1" level="project" />
+    <orderEntry type="module" module-name="scalacl" />
+    <orderEntry type="module" module-name="javacl-bridj" />
+    <orderEntry type="module" module-name="javacl-core-bridj" />
+    <orderEntry type="module" module-name="opencl4java-bridj" />
+    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:0.3-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: asm:asm:3.3" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.7" level="project" />
   </component>
 </module>
 

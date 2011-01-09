@@ -1,0 +1,19 @@
+VERSION="`cat pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'`"
+#VERSION="0.2.Beta1"
+
+LIB_JAR_OUT="$SCALA_HOME/lib"
+PLUGIN_JAR_OUT="$SCALA_HOME/misc/scala-devel/plugins"
+
+LIB_JAR_IN="target"
+PLUGIN_JAR_IN="../ScalaCLPlugin/target"
+
+LIB_JAR="scalacl-$VERSION-shaded.jar"
+PLUGIN_JAR="scalacl-compiler-plugin-$VERSION.jar"
+
+rm $LIB_JAR_OUT/scalacl*.jar
+rm $PLUGIN_JAR_OUT/scalacl*.jar
+
+if [[ "$NO_COPY" != "1" ]] ; then
+	cp $LIB_JAR_IN/$LIB_JAR         $LIB_JAR_OUT
+	cp $PLUGIN_JAR_IN/$PLUGIN_JAR   $PLUGIN_JAR_OUT ;
+fi
