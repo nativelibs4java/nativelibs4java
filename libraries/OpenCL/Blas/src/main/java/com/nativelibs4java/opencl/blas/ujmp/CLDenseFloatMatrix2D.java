@@ -235,7 +235,7 @@ public class CLDenseFloatMatrix2D extends AbstractDenseFloatMatrix2D implements 
         Pointer<Float> b = impl.read();
         float[][] ret = new float[(int)impl.rows][];
         for (int i = 0; i < impl.rows; i++) {
-            ret[i] = b.getFloats(i * impl.columns, (int)impl.columns);
+            ret[i] = b.getFloatsAtOffset(i * impl.columns, (int)impl.columns);
         }
         return ret;
     }
@@ -245,7 +245,7 @@ public class CLDenseFloatMatrix2D extends AbstractDenseFloatMatrix2D implements 
         Pointer<Float> b = impl.read();
         double[][] ret = new double[(int)impl.rows][(int)impl.columns];
         for (int i = 0; i < impl.rows; i++) {
-            float[] floats = b.getFloats(i * impl.columns, (int) impl.columns);
+            float[] floats = b.getFloatsAtOffset(i * impl.columns, (int) impl.columns);
             double[] doubles = ret[i];
             for (int j = 0; j < floats.length; j++)
                 doubles[j] = floats[j];

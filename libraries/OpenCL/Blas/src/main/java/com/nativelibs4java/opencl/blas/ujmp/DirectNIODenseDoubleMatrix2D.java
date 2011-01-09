@@ -61,12 +61,12 @@ public class DirectNIODenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
 
     @Override
     public double getDouble(long row, long column) {
-        return data.getDouble((row * columns + column) << 3);
+        return data.getDoubleAtOffset((row * columns + column) << 3);
     }
 
     @Override
     public void setDouble(double value, long row, long column) {
-        data.setDouble((row * columns + column) << 3, value);
+        data.setDoubleAtOffset((row * columns + column) << 3, value);
     }
 
     @Override

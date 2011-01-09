@@ -273,7 +273,7 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implement
         Pointer<Double> b = impl.read();
         double[][] ret = new double[(int)impl.rows][];
         for (int i = 0; i < impl.rows; i++) {
-            ret[i] = b.getDoubles(i * impl.columns, (int)impl.columns);
+            ret[i] = b.getDoublesAtOffset(i * impl.columns, (int)impl.columns);
         }
         return ret;
     }
