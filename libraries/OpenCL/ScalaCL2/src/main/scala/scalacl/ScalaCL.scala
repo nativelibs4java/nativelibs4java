@@ -20,8 +20,6 @@ package scalacl {
   }
 }
 package object scalacl {
-
-  import scalacl._
   
   var verbose =
     "1" == System.getenv("SCALACL_VERBOSE")
