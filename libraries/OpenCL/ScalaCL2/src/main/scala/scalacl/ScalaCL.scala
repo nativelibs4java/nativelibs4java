@@ -20,6 +20,8 @@ package scalacl {
   }
 }
 package object scalacl {
+
+  import scalacl._
   
   var verbose =
     "1" == System.getenv("SCALACL_VERBOSE")
@@ -271,6 +273,10 @@ package object scalacl {
   implicit def RichIndexedSeqCL[T](c: IndexedSeq[T])(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) = new {
     def toCLArray = CLArray.fromSeq(c)
     def toCL = toCLArray
+  }
+
+  implicit def RichCLKernel(k: CLKernel) = new {
+    def setArgs(args: Any*) = k.setArgs(args.map(_.asInstanceOf[Object]):_*)
   }
 }
 
