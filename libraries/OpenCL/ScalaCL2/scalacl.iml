@@ -28,7 +28,7 @@
     <orderEntry type="library" name="Maven: com.nativelibs4java:opencl4java-bridj:1.0-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:0.3-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: asm:asm:3.3" level="project" />
-    <orderEntry type="library" scope="PROVIDED" name="Maven: org.scala-lang:scala-library:2.8.1" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.8.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.7" level="project" />
   </component>
 </module>

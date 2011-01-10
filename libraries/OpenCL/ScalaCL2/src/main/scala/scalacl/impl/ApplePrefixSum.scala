@@ -1,6 +1,7 @@
 package scalacl
 package impl
 
+// Ported from http://developer.apple.com/library/mac/#samplecode/OpenCL_Parallel_Prefix_Sum_Example/
 //
 // File:       scan.c
 //
@@ -66,7 +67,7 @@ object ApplePrefixSum {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  val FLOAT_SIZE = 4
+  val dataSize = 4
   
   val DEBUG_INFO =      (0)
   var	GROUP_SIZE      = 256
@@ -268,7 +269,7 @@ object ApplePrefixSum {
 
       var k = ComputeKernels(UNIFORM_ADD)
     
-      k.setArgs(output_data, partial_sums, 0: Float, group_offset, base_index, n)
+      k.setArgs(output_data, partial_sums, new CLKernel.LocalSize(dataSize), group_offset, base_index, n)
       k.enqueueNDRange(ComputeCommands, global, local)
   }
 
@@ -322,7 +323,7 @@ object ApplePrefixSum {
       var padding = element_count_per_group / NUM_BANKS
       var shared = 4L/*sizeof(float)*/ * (element_count_per_group + padding)
 
-      var partial_sums = ScanPartialSums(level)
+      var partial_sums = if (level >= LevelsAllocated) null else ScanPartialSums(level)
 
       if (group_count > 1)
       {
@@ -471,7 +472,7 @@ object ApplePrefixSum {
       //
       val t = (t2 - t1) / 1000000000.0
       printf("Exec Time:  %.2f ms\n", 1000.0 * t / iterations)
-      printf("Throughput: %.2f GB/sec\n", 1e-9 * (count * FLOAT_SIZE) * iterations / t)
+      printf("Throughput: %.2f GB/sec\n", 1e-9 * (count * dataSize) * iterations / t)
       printf(SEPARATOR)
 
       // Read back the results that were computed on the device
