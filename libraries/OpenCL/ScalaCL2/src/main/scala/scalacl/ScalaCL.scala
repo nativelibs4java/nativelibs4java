@@ -4,13 +4,17 @@ import com.nativelibs4java.opencl._
 import scalacl.impl._
 
 package scalacl {
-  class ScalaCLContext(val context: CLContext, val queue: CLQueue) {
+  class ScalaCLContext(val context: CLContext, val queue: CLQueue) extends Product {
     def this(context: CLContext) = this(context, context.createDefaultOutOfOrderQueueIfPossible())
     def this() = this(JavaCL.createBestContext(CLPlatform.DeviceFeature.OutOfOrderQueueSupport, CLPlatform.DeviceFeature.MaxComputeUnits))
-    
+
+    def values = Array(context, queue)
+    override def productArity = values.length
+    override def productElement(n: Int) = values(n)
+    override def productIterator = values.toIterator
+    override def canEqual(that: Any) = that.isInstanceOf[ScalaCLContext]// && that.asInstanceOf[ScalaCLContext]
+
     //println("Is out of order queue : " + queue.getProperties.contains(CLDevice.QueueProperties.OutOfOrderExecModeEnable))
-    
-    //def newArray[T](size: Int)(implicit dataIO: CLDataIO[T]) = new CLArray[T](size)(dataIO, this)
   }
   object ScalaCLContext {
     def apply() = new ScalaCLContext()
@@ -275,6 +279,11 @@ package object scalacl {
 
   implicit def RichCLKernel(k: CLKernel) = new {
     def setArgs(args: Any*) = k.setArgs(args.map(_.asInstanceOf[Object]):_*)
+
+    def enqueueNDRange(global: Array[Int], local: Array[Int] = null)(args: Any*)(implicit context: ScalaCLContext) = k synchronized {
+      setArgs(args: _*)
+      k.enqueueNDRange(context.queue, global, local)
+    }
   }
 }
 

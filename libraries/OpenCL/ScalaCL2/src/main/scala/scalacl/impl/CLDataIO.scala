@@ -23,6 +23,7 @@ trait CLDataIO[T] {
   implicit val t: ClassManifest[T]
   val elementCount: Int
   val pointerIO: PointerIO[T]
+  def elementSize: Int
   def elements: Seq[CLDataIO[Any]]
   def clType: String
   
@@ -145,7 +146,7 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
     }
   }
 
-  
+  override def elementSize = ios.map(_.elementSize).sum
   override def elements: Seq[CLDataIO[Any]] =
     ios.flatMap(_.elements)
 
@@ -254,6 +255,7 @@ abstract class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T
   override val pointerIO: PointerIO[T] =
     PointerIO.getInstance(t.erasure)
   
+  override def elementSize = pointerIO.getTargetSize.toInt
   override def elements: Seq[CLDataIO[Any]] =
     Seq(this.asInstanceOf[CLDataIO[Any]])
 
