@@ -26,7 +26,24 @@ trait CLDataIO[T] {
   def elementSize: Int
   def elements: Seq[CLDataIO[Any]]
   def clType: String
-  
+
+  lazy val clearSource = new CLSimpleCode("""
+    __kernel void clearKernel(int size, __global """ + clType + """* buffer) {
+      int i = get_global_id(0);
+      if (i >= size)
+        return;
+
+      buffer[i] = (""" + clType + """)0;
+    }
+  """)
+  def clear(buffer: CLBuffer[T], evts: CLEvent*)(implicit context: ScalaCLContext): CLEvent = {
+    val kernel = clearSource.getKernel(context)
+    kernel.synchronized {
+      val size = buffer.getElementCount.toInt
+      kernel.setArgs(size, buffer)
+      kernel.enqueueNDRange(context.queue, Array(size), evts:_*)
+    }
+  }
   def reductionType: (ReductionUtils.Type, Int) = error("Not a reductible type : " + this)
   
   def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]]

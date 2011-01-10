@@ -45,6 +45,7 @@ object CLArray {
   def newBuilder[A](implicit context: ScalaCLContext, dataIO: CLDataIO[A]): Builder[A, CLArray[A]] =
     new ArrayBuffer[A].mapResult(b => fromSeq(b))
 }
+import CLFilteredArray.{PresenceType, toBool, toPresence}
 
 trait MappableToCLArray[A, +Repr <: CLCollectionLike[A, Repr] with CLCollection[A]] {
   //self =>
@@ -205,10 +206,10 @@ class CLArray[A](
           copyTo(filteredOut.array)
         }
 
-        val presenceArr = new Array[Boolean](length)
+        val presenceArr = new Array[PresenceType](length)
         for (i <- 0 until length) {
           val value = this(i)
-          presenceArr(i) = p(value)
+          presenceArr(i) = toPresence(p(value))
         }
         filteredOut.presence.update(presenceArr)
         Option(copy).foreach(_())

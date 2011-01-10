@@ -3,9 +3,15 @@
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="b8c91894-95fa-46c7-9fb2-25d90efeb87c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scalacl.iws" afterPath="$PROJECT_DIR$/scalacl.iws" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/scalacl/ScalaCL.scala" afterPath="$PROJECT_DIR$/src/main/scala/scalacl/ScalaCL.scala" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" afterPath="$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/scalacl/CLArray.scala" afterPath="$PROJECT_DIR$/src/main/scala/scalacl/CLArray.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/scalacl/CLFilteredArray.scala" afterPath="$PROJECT_DIR$/src/main/scala/scalacl/CLFilteredArray.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/scalacl/CLRange.scala" afterPath="$PROJECT_DIR$/src/main/scala/scalacl/CLRange.scala" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLDataIO.scala" afterPath="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLDataIO.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLFunction.scala" afterPath="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLFunction.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLGuardedBuffer.scala" afterPath="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLGuardedBuffer.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/scalacl/impl/GroupedPrefixSum.scala" afterPath="$PROJECT_DIR$/src/main/scala/scalacl/impl/GroupedPrefixSum.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/scalacl/impl/PrefixSum.scala" afterPath="$PROJECT_DIR$/src/main/scala/scalacl/impl/PrefixSum.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/test/scala/scalacl/CLCollectionTest.scala" afterPath="$PROJECT_DIR$/src/test/scala/scalacl/CLCollectionTest.scala" />
     </list>
     <ignored path="scalacl.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -55,7 +61,7 @@
   </component>
   <component name="DebuggerManager">
     <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="303" class="Class at ApplePrefixSum.scala:311" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="295" class="Class at ApplePrefixSum.scala:295" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -68,7 +74,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="304" class="Class at ApplePrefixSum.scala:312" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="296" class="Class at ApplePrefixSum.scala:296" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -81,7 +87,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="313" class="Class at ApplePrefixSum.scala:321" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="305" class="Class at ApplePrefixSum.scala:305" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -94,7 +100,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="312" class="Class at ApplePrefixSum.scala:320" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="304" class="Class at ApplePrefixSum.scala:304" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -107,7 +113,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="315" class="Class at ApplePrefixSum.scala:323" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="307" class="Class at ApplePrefixSum.scala:307" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -120,7 +126,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="316" class="Class at ApplePrefixSum.scala:324" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="308" class="Class at ApplePrefixSum.scala:308" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -133,7 +139,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="317" class="Class at ApplePrefixSum.scala:325" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="309" class="Class at ApplePrefixSum.scala:309" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -146,7 +152,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="320" class="Class at ApplePrefixSum.scala:328" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="312" class="Class at ApplePrefixSum.scala:312" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -159,7 +165,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="333" class="Class at ApplePrefixSum.scala:341" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="325" class="Class at ApplePrefixSum.scala:325" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -172,7 +178,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="348" class="Class at ApplePrefixSum.scala:356" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="340" class="Class at ApplePrefixSum.scala:340" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -185,7 +191,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="327" class="Class at ApplePrefixSum.scala:335" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="319" class="Class at ApplePrefixSum.scala:319" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -198,7 +204,7 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="299" class="Class at ApplePrefixSum.scala:307" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="291" class="Class at ApplePrefixSum.scala:291" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -211,7 +217,20 @@
         <option name="CONDITION" value="" />
         <option name="LOG_MESSAGE" value="" />
       </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="292" class="Class at ApplePrefixSum.scala:300" package="">
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" line="284" class="Class at ApplePrefixSum.scala:284" package="">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+      <breakpoint url="file://$PROJECT_DIR$/src/main/scala/scalacl/CLFilteredArray.scala" line="110" class="Class at CLFilteredArray.scala:107" package="">
         <option name="ENABLED" value="true" />
         <option name="LOG_ENABLED" value="false" />
         <option name="LOG_EXPRESSION_ENABLED" value="false" />
@@ -268,34 +287,79 @@
       <file leaf-file-name="ApplePrefixSum.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="134" column="3" selection-start="5694" selection-end="5820" vertical-scroll-proportion="0.0">
+            <state line="126" column="3" selection-start="5531" selection-end="5657" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="GroupedPrefixSum.scala" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="GroupedPrefixSum.scala" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/GroupedPrefixSum.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="18" column="12" selection-start="600" selection-end="600" vertical-scroll-proportion="0.22495274">
+            <state line="252" column="29" selection-start="7608" selection-end="7608" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CLCollectionTest.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/test/scala/scalacl/CLCollectionTest.scala">
+      <file leaf-file-name="CLRange.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/CLRange.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="21" column="24" selection-start="366" selection-end="366" vertical-scroll-proportion="0.0">
+            <state line="95" column="9" selection-start="3071" selection-end="3071" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ScalaCL.scala" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/ScalaCL.scala">
+      <file leaf-file-name="CLArray.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/CLArray.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="17" column="0" selection-start="874" selection-end="874" vertical-scroll-proportion="0.0">
+            <state line="208" column="23" selection-start="7937" selection-end="7948" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CLFilteredArray.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/CLFilteredArray.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="101" column="34" selection-start="3301" selection-end="3301" vertical-scroll-proportion="-23.5">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CLFunction.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/CLFunction.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="114" column="9" selection-start="3726" selection-end="3726" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PrefixSum.scala" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/PrefixSum.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="35" column="5" selection-start="750" selection-end="750" vertical-scroll-proportion="0.30126584">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CLGuardedBuffer.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/CLGuardedBuffer.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="21" column="42" selection-start="747" selection-end="747" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CLDataIO.scala" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/CLDataIO.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="21" column="19" selection-start="425" selection-end="425" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -322,7 +386,14 @@
       <list>
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/ScalaCL.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLFunction.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/scalacl/CLArray.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/scalacl/CLRange.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/impl/GroupedPrefixSum.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/scalacl/impl/PrefixSum.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLGuardedBuffer.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLDataIO.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/scalacl/CLFilteredArray.scala" />
       </list>
     </option>
   </component>
@@ -426,6 +497,50 @@
             <PATH_ELEMENT>
               <option name="myItemId" value="impl" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="impl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="CLFunction.scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.ClassesTreeStructureProvider$PsiClassOwnerTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="impl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="CLDataIO.scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.ClassesTreeStructureProvider$PsiClassOwnerTreeNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
@@ -780,9 +895,9 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.2488889" sideWeight="0.6701878" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.21111111" sideWeight="0.600939" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3298122" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3298122" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
@@ -863,14 +978,7 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/src/test/scala/scalacl/CLCollectionTest.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="21" column="24" selection-start="366" selection-end="366" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.8.1/scala-library-2.8.1.jar!/scala/Product.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="3" column="6" selection-start="156" selection-end="156" vertical-scroll-proportion="0.0">
+        <state line="34" column="12" selection-start="651" selection-end="651" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
@@ -884,14 +992,70 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="134" column="3" selection-start="5694" selection-end="5820" vertical-scroll-proportion="0.0">
+        <state line="126" column="3" selection-start="5531" selection-end="5657" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/CLArray.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="208" column="23" selection-start="7937" selection-end="7948" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/CLRange.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="95" column="9" selection-start="3071" selection-end="3071" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.8.1/scala-library-2.8.1.jar!/scala/Product.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="3" column="6" selection-start="156" selection-end="156" vertical-scroll-proportion="0.0">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/GroupedPrefixSum.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="12" selection-start="600" selection-end="600" vertical-scroll-proportion="0.22495274">
+        <state line="252" column="29" selection-start="7608" selection-end="7608" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/CLGuardedBuffer.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="21" column="42" selection-start="747" selection-end="747" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/CLDataIO.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="21" column="19" selection-start="425" selection-end="425" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/CLFilteredArray.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="101" column="34" selection-start="3301" selection-end="3301" vertical-scroll-proportion="-23.5">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/CLFunction.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="114" column="9" selection-start="3726" selection-end="3726" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/PrefixSum.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="35" column="5" selection-start="750" selection-end="750" vertical-scroll-proportion="0.30126584">
           <folding />
         </state>
       </provider>

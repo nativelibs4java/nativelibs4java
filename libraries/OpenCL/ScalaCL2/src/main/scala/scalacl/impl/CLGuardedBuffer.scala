@@ -13,8 +13,10 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val context: ScalaCLC
   implicit val t = dataIO.t
   lazy val elementClass = t.erasure.asInstanceOf[Class[T]]
   
-  def this(size: Long)(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) =
+  def this(size: Long)(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) = {
     this(context.context.createBuffer(CLMem.Usage.InputOutput, dataIO.pointerIO, size))
+    //clear
+  }
     
   def this(values: Array[T])(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) = {
     this(context.context.createBuffer(CLMem.Usage.InputOutput, {
@@ -26,6 +28,9 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val context: ScalaCLC
     ))
   }
 
+  def clear = {
+    write(evts => dataIO.clear(buffer, evts:_*))
+  }
   def release = buffer.release
   
   def args = Seq(buffer)

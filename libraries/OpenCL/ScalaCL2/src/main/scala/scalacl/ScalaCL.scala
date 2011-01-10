@@ -4,16 +4,19 @@ import com.nativelibs4java.opencl._
 import scalacl.impl._
 
 package scalacl {
-  class ScalaCLContext(val context: CLContext, val queue: CLQueue) extends Product {
+  trait AbstractProduct extends Product {
+    def productValues: Array[Any]
+    override def productArity = productValues.length
+    override def productElement(n: Int) = productValues(n)
+    override def productIterator = productValues.toIterator
+    override def canEqual(that: Any) = getClass.isInstance(that.asInstanceOf[AnyRef])
+  }
+  class ScalaCLContext(val context: CLContext, val queue: CLQueue) extends AbstractProduct {
     def this(context: CLContext) = this(context, context.createDefaultOutOfOrderQueueIfPossible())
     def this() = this(JavaCL.createBestContext(CLPlatform.DeviceFeature.OutOfOrderQueueSupport, CLPlatform.DeviceFeature.MaxComputeUnits))
 
-    def values = Array(context, queue)
-    override def productArity = values.length
-    override def productElement(n: Int) = values(n)
-    override def productIterator = values.toIterator
-    override def canEqual(that: Any) = that.isInstanceOf[ScalaCLContext]// && that.asInstanceOf[ScalaCLContext]
-
+    override def productValues = Array(context, queue)
+    
     //println("Is out of order queue : " + queue.getProperties.contains(CLDevice.QueueProperties.OutOfOrderExecModeEnable))
   }
   object ScalaCLContext {

@@ -46,6 +46,9 @@ object CLRange {
     }
   
 }
+
+import CLFilteredArray.{PresenceType, toBool, toPresence}
+
 class CLRange(
   protected[scalacl] val buffer: CLGuardedBuffer[Int]
 )(
@@ -92,11 +95,11 @@ class CLRange(
           copyToCLArray(buffer, filteredOut.array.buffers.head.asInstanceOf[CLGuardedBuffer[Int]])
         }
         val range = toRange
-        val presenceArr = new Array[Boolean](range.size)
+        val presenceArr = new Array[PresenceType](range.size)
         var offset = 0
         for (i <- range) {
           if (p(i))
-            presenceArr(offset) = true
+            presenceArr(offset) = toPresence(true)
           offset += 1
         }
         filteredOut.presence.update(presenceArr)

@@ -122,7 +122,7 @@ extends (A => B)
   //println("functionSource = " + functionSource)
 
   //def replaceForKernel(s: String) = if (s == null) null else replaceAllButIn(s).replaceAll(toRxb(inVar), "in[i]")
-  val presenceParam = "__global const char* presence"
+  val presenceParam = "__global const " + CLFilteredArray.presenceCLType + "* presence"
   val kernDecls = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, "i", false)).reduceLeftOption(_ + "\n" + _).getOrElse("")
   lazy val kernDeclsRange = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, "i", true)).reduceLeftOption(_ + "\n" + _).getOrElse("")
   val assignt = assignts(CLDataIO.InputPointer, "i", false)

@@ -16,10 +16,25 @@ import scala.collection.JavaConversions._
 object CLFilteredArray {
   def newBuilder[A](implicit context: ScalaCLContext, dataIO: CLDataIO[A]): Builder[A, CLFilteredArray[A]] = 
     error("Not implemented") // TODO
+
+  //*
+  type PresenceType = Boolean
+  val presenceCLType = "char"
+  @inline def toBool(p: PresenceType) = p
+  @inline def toPresence(b: Boolean) = b
+  //*/
+  /*
+  type PresenceType = Int
+  val presenceCLType = "int"
+  @inline def toBool(p: PresenceType) = p != 0
+  @inline def toPresence(b: Boolean) = if (b) 1 else 0
+  //*/
 }
+import CLFilteredArray.{PresenceType, toBool, toPresence}
+
 class CLFilteredArray[A](
   protected[scalacl] val array: CLArray[A],
-  protected[scalacl] val presence: CLGuardedBuffer[Boolean]
+  protected[scalacl] val presence: CLGuardedBuffer[PresenceType]
 )(
   implicit val context: ScalaCLContext,
   val dataIO: CLDataIO[A]
@@ -32,12 +47,12 @@ extends IndexedSeq[A]
   with CLIndexedSeqLike[A, CLFilteredArray[A]]
 {
   def this(array: CLArray[A])(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
-      this(array, if (array.length > 0) new CLGuardedBuffer[Boolean](array.length) else null)
+      this(array, if (array.length > 0) new CLGuardedBuffer[PresenceType](array.length) else null)
 
   def this(length: Int)(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
         this(new CLArray[A](length))
 
-  def this(length: Int, presence: CLGuardedBuffer[Boolean])(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
+  def this(length: Int, presence: CLGuardedBuffer[PresenceType])(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
         this(new CLArray[A](length), presence)
 
   override def companion: GenericCompanion[CLFilteredArray] = new SeqFactory[CLFilteredArray] {
@@ -60,6 +75,7 @@ extends IndexedSeq[A]
       new CLInstantFuture(0)
     else {
       val ps = updatedPresencePrefixSum
+      //println("updatedPresencePrefixSum = " + ps.toArray.toSeq)
       ps(array.length - 1)
       //new CLInstantFuture(ps.toArray.last)
     }
@@ -89,6 +105,9 @@ extends IndexedSeq[A]
   def toCLArray: CLArray[A] = {
     val prefixSum = updatedPresencePrefixSum
     val size = this.size
+    //println("SIZE = " + size)
+    //println("presence = " + presence.toArray.toSeq)
+    //println("updatedPresencePrefixSum = " + updatedPresencePrefixSum.toArray.toSeq)
     new CLArray[A](size, if (size == 0) null else buffers.map(b => {
       val out = new CLGuardedBuffer[Any](size)(context, b.dataIO)
       PrefixSum.copyPrefixed(size, prefixSum, b, out)(b.t, context)
@@ -100,7 +119,8 @@ extends IndexedSeq[A]
   def updatedPresencePrefixSum = this.synchronized {
     if (!prefixSumUpToDate) {
       if (presence != null)
-        PrefixSum.prefixSum(presence, presencePrefixSum)
+        PrefixSum.prefixSumByte(presence, presencePrefixSum)
+        //PrefixSum.prefixSumInt(presence, presencePrefixSum)
       prefixSumUpToDate = true
     }
     presencePrefixSum
@@ -130,7 +150,7 @@ extends IndexedSeq[A]
           }
           val presenceArr = presence.toArray
           for (i <- 0 until length) {
-            if (presenceArr(i))
+            if (toBool(presenceArr(i)))
               result.array(i) = f(array(i))
           }
           Option(copyPres).foreach(_())
@@ -148,10 +168,10 @@ extends IndexedSeq[A]
           }
           val presenceArr = presence.toArray
           for (i <- 0 until length) {
-            if (presenceArr(i)) {
+            if (toBool(presenceArr(i))) {
               val value = array(i)
               if (!p(value))
-                presenceArr(i) = false
+                presenceArr(i) = toPresence(false)
             }
           }
           filteredOut.presence.update(presenceArr)
@@ -163,7 +183,7 @@ extends IndexedSeq[A]
   override def foreach[U](f: A =>  U): Unit = if (presence != null) {
     val presenceArr = presence.toArray
     for (i <- 0 until length) {
-      if (presenceArr(i))
+      if (toBool(presenceArr(i)))
         f(array(i))
     }
   }

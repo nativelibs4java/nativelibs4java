@@ -7,7 +7,7 @@ import org.bridj.SizeT
 
 object PrefixSum {
 
-  lazy val prefixSumCode = new CLSimpleCode("""
+  lazy val prefixSumCodeByte = new CLSimpleCode("""
     __kernel void prefSum(int size, __global const char* in, __global int* out) {
       int i = get_global_id(0);
       int j;
@@ -21,14 +21,49 @@ object PrefixSum {
       out[i] = total;
     }
   """)
-  def prefixSum(bitmap: CLGuardedBuffer[Boolean], output: CLGuardedBuffer[Int])(implicit context: ScalaCLContext) = {
-    val kernel = prefixSumCode.getKernel(context)
+  lazy val prefixSumCodeInt = new CLSimpleCode("""
+    __kernel void prefSum(int size, __global const int* in, __global int* out) {
+      int i = get_global_id(0);
+      int j;
+      if (i >= size)
+        return;
+
+      int total = 0;
+      for (j = 0; j <= i; j++)
+        total += in[j];
+
+      out[i] = total;
+    }
+  """)
+  def prefixSumByte(bitmap: CLGuardedBuffer[Boolean], output: CLGuardedBuffer[Int])(implicit context: ScalaCLContext) = {
+    val kernel = prefixSumCodeByte.getKernel(context)
     kernel.synchronized {
       kernel.setArgs(bitmap.size.toInt.asInstanceOf[Object], bitmap.buffer, output.buffer)
       CLEventBound.syncBlock(Array(bitmap), Array(output), evts => {
         kernel.enqueueNDRange(context.queue, Array(bitmap.size.toInt), evts:_*)
       })
     }
+  }
+  def prefixSumInt(bitmap: CLGuardedBuffer[Int], output: CLGuardedBuffer[Int])(implicit context: ScalaCLContext) = {
+    /*try {
+      CLEventBound.syncBlock(Array(bitmap), Array(output), evts => {
+        GroupedPrefixSum[Int].prefixSum(bitmap.buffer, output.buffer, evts:_*)
+        context.queue.finish // TODO
+        null
+      })
+      println("Prefix sum bitmap = " + bitmap.toArray.toSeq)
+      println("Prefix sum output = " + output.toArray.toSeq)
+    } catch {
+      case ex =>
+        ex.printStackTrace*/
+        val kernel = prefixSumCodeInt.getKernel(context)
+        kernel.synchronized {
+          kernel.setArgs(bitmap.size.toInt.asInstanceOf[Object], bitmap.buffer, output.buffer)
+          CLEventBound.syncBlock(Array(bitmap), Array(output), evts => {
+            kernel.enqueueNDRange(context.queue, Array(bitmap.size.toInt), evts:_*)
+          })
+        }
+    //}
   }
   lazy val copyPrefixedCode = new CLSimpleCode("""
     __kernel void copyPrefixed(

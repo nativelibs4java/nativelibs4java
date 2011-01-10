@@ -38,7 +38,20 @@ object CLCollectionTest {
   def same[V](b: Traversable[V], a: CLIndexedSeq[V])(implicit v: ClassManifest[V]) {
     val aa = a.toArray.take(samples).toSeq
     val bb = b.toArray.take(samples).toSeq
-    assertEquals(aa, bb)
+    
+    if (!(aa == bb)) {
+      println("aa = " + aa)
+      //println("a = " + a)
+      a match { 
+        case fa: CLFilteredArray[V] =>
+          println("aa.presence = " + fa.presence.toArray.take(samples).toSeq)
+        case _ =>
+      }
+      println("bb = " + bb)
+      assert(false)
+    }
+    
+    assertEquals(bb, aa)
   }
   
   @BeforeClass

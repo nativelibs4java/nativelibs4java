@@ -2,7 +2,7 @@ package scalacl
 package impl
 
 // Ported from http://developer.apple.com/library/mac/#samplecode/OpenCL_Parallel_Prefix_Sum_Example/
-
+import scala.collection._
 import com.nativelibs4java.opencl._
 import scala.math._
 import org.bridj._
@@ -213,8 +213,11 @@ class GroupedPrefixSum[A](
     }
   }
 
-  def prefixSum(input_buffer: CLBuffer[A], output_buffer: CLBuffer[A] = null): CLBuffer[A] =
+  def prefixSum(input_buffer: CLBuffer[A], output_buffer: CLBuffer[A], evtsToWaitFor: CLEvent*): CLBuffer[A] =
   {
+    CLEvent.waitFor(evtsToWaitFor:_*)
+    context.queue.finish
+    
     val count = input_buffer.getElementCount.toInt
     val actual_output: CLBuffer[A] = if (output_buffer != null) {
       assert(output_buffer.getElementCount == count)
@@ -240,11 +243,18 @@ class GroupedPrefixSum[A](
 
     ScanPartialSums.map(_.release)
 
+    context.queue.finish
     actual_output
   }
 }
 
 object GroupedPrefixSum {
+
+  private val cache = new mutable.HashMap[(ScalaCLContext, Class[_]), GroupedPrefixSum[_]]
+  def apply[A](implicit context: ScalaCLContext, dataIO: CLDataIO[A]) = cache synchronized {
+    cache.getOrElseUpdate((context, dataIO.t.erasure), new GroupedPrefixSum[A]).asInstanceOf[GroupedPrefixSum[A]]
+  }
+
   def main(args: Array[String]) {
     implicit val context = ScalaCLContext(CLPlatform.DeviceFeature.CPU)
     val n = 10
@@ -252,9 +262,9 @@ object GroupedPrefixSum {
     for (i <- 0 until n)
       inputValues(i) = i
 
-    val scanner = new GroupedPrefixSum[Int]
+    val scanner = GroupedPrefixSum[Int]
     val inputBuffer = context.createBuffer(CLMem.Usage.InputOutput, inputValues, true)
-    val outputBuffer = scanner.prefixSum(inputBuffer)
+    val outputBuffer = scanner.prefixSum(inputBuffer, null)
     context.queue.finish
 
     val expectedValues = (0 until n).scanLeft(0)(_ + _)
