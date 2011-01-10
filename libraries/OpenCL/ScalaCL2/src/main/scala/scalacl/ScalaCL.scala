@@ -42,21 +42,6 @@ package object scalacl {
   
   implicit def ScalaCLContext2Context(sc: ScalaCLContext) = sc.context
 
-  class CLTransformableSeq[T](seq: Seq[T])(implicit context: ScalaCLContext, io: CLDataIO[T]) {
-    def cl = CLArray.fromSeq(seq)
-  }
-  class CLTransformableRange(rng: Range)(implicit context: ScalaCLContext) {
-    def cl = new CLRange(rng)
-  }
-  implicit def Range2CLTransformableRange(rng: Range)(implicit context: ScalaCLContext) = 
-    new CLTransformableRange(rng)
-    
-  implicit def Seq2CLTransformableSeq[T](seq: Seq[T])(implicit context: ScalaCLContext, io: CLDataIO[T]) = 
-    new CLTransformableSeq(seq)
-  
-  implicit def Array2CLTransformableSeq[T](arr: Array[T])(implicit context: ScalaCLContext, io: CLDataIO[T]) = 
-    new CLTransformableSeq(arr)
-  
   /*implicit def canBuildArrayFromIndexedSeq[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
     new CLCanBuildFrom[CLIndexedSeq[_], A, CLArray[A]] {
       override def dataIO = io
@@ -270,15 +255,33 @@ package object scalacl {
   implicit def CLFullFun[K, V](function: K => V, declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
     new CLFunction[K, V](function, declarations, expressions, Seq())
 
-  implicit def Range2CLRangeMethods(r: Range)(implicit context: ScalaCLContext, dataIO: CLDataIO[Int]) = new {
+  class CLTransformableRange(r: Range)(implicit context: ScalaCLContext) {
     def toCLRange = new CLRange(r)
     def toCLArray = toCLRange.toCLArray
     def toCL = toCLRange
+    def cl = toCLRange
   }
-  implicit def RichIndexedSeqCL[T](c: IndexedSeq[T])(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) = new {
+  implicit def Range2CLRangeMethods(r: Range)(implicit context: ScalaCLContext) =
+    new CLTransformableRange(r)
+    
+  /*implicit def RichIndexedSeqCL[T](c: IndexedSeq[T])(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) = new {
     def toCLArray = CLArray.fromSeq(c)
     def toCL = toCLArray
+    def cl = toCLArray
+  }*/
+  class CLTransformableSeq[T](seq: Seq[T])(implicit context: ScalaCLContext, io: CLDataIO[T]) {
+    def toCLArray = CLArray.fromSeq(seq)
+    def toCL = toCLArray
+    def cl = toCLArray
   }
+  
+  implicit def Seq2CLTransformableSeq[T](seq: Seq[T])(implicit context: ScalaCLContext, io: CLDataIO[T]) = 
+    new CLTransformableSeq(seq)
+  
+  implicit def Array2CLTransformableSeq[T](arr: Array[T])(implicit context: ScalaCLContext, io: CLDataIO[T]) = 
+    new CLTransformableSeq(arr)
+  
+  
 
   implicit def RichCLKernel(k: CLKernel) = new {
     def setArgs(args: Any*) = k.setArgs(args.map(_.asInstanceOf[Object]):_*)

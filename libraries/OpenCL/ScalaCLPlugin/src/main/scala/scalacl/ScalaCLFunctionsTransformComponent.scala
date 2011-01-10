@@ -125,7 +125,7 @@ extends PluginComponent
                         analyzer.inferImplicit(tree, dataIOTpe, false, false, context).tree
                       })
                       
-                      val (statements, values) = convertExpr(Map(uniqueParam.name.toString -> "_"), body)
+                      val (statements, values) = convertExpr(Map(uniqueParam.symbol -> "_"), body)
                       val uniqueSignature = Literal(Constant(
                         (
                           Array(

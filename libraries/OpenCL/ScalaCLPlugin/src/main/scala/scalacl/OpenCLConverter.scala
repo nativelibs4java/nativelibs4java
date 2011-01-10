@@ -48,7 +48,7 @@ extends MiscMatchers
   
   var placeHolderRefs = new Stack[String]
 
-  def convertExpr(argNames: Map[String, String], body: Tree): (String, Seq[String]) = { 
+  def convertExpr(argNames: Map[Symbol, String], body: Tree): (String, Seq[String]) = { 
     val (sb, vals) = doConvertExpr(argNames, body, true)
     if (vals == null)
       ("", Seq(sb.toString))
@@ -56,7 +56,7 @@ extends MiscMatchers
       (sb.toString, vals.map(_.toString))
   }
 
-  def doConvertExpr(argNames: Map[String, String], body: Tree, isTopLevel: Boolean, b: StringBuilder = new StringBuilder): (StringBuilder, Seq[StringBuilder]) = {
+  def doConvertExpr(argNames: Map[Symbol, String], body: Tree, isTopLevel: Boolean, b: StringBuilder = new StringBuilder): (StringBuilder, Seq[StringBuilder]) = {
     
     var retExprsBuilders: Seq[StringBuilder] = null
     
@@ -79,7 +79,7 @@ extends MiscMatchers
       out("((", clType, ")", expr, ")")
 
     def convertForeach(from: Tree, to: Tree, isUntil: Boolean, by: Tree, function: Tree) = {
-        val Function(List(ValDef(paramMods, paramName, tpt, rhs)), body) = function
+        val Function(List(vd @ ValDef(paramMods, paramName, tpt, rhs)), body) = function
         val id = openclLabelIds.next
         val iVar = "iVar$" + id
         val nVal = "nVal$" + id
@@ -87,7 +87,7 @@ extends MiscMatchers
         out("int ", iVar, ";\n")
         out("const int ", nVal, " = ", to, ";\n")
         out("for (", iVar, " = ", from, "; ", iVar, " ", if (isUntil) "<" else "<=", " ", nVal, "; ", iVar, " += ", by, ") {\n")
-        doConvertExpr(argNames + (paramName.toString -> iVar), body, false, b)._1
+        doConvertExpr(argNames + (vd.symbol/*paramName.toString*/ -> iVar), body, false, b)._1
         out("\n}")
     }
     
@@ -106,9 +106,11 @@ extends MiscMatchers
           out(ph)
         }
         out(argNames.getOrElse(
-          ns,
+          body.symbol,
           error("Unknown identifier : '" + name + "' (expected any of " + argNames.keys.map("'" + _ + "'").mkString(", ") + ") in : \n" + body + "\n")
         ))
+      case If(condition, then: Tree, thenElse: Tree) =>
+        out("((", condition, ") ? (", then, ") : (", thenElse, "))")
       case Assign(lhs, rhs) =>
         out(lhs, " = ", rhs, ";\n")
       case Block(statements, expression) =>
@@ -129,14 +131,14 @@ extends MiscMatchers
         }
       //case Typed(expr, tpe) =>
       //  out(expr)
-      case Match(Ident(matchName), List(CaseDef(pat, guard, body))) =>
+      case Match(ma @ Ident(matchName), List(CaseDef(pat, guard, body))) =>
         //for ()
         //x0$1 match {
         //  case (_1: Long,_2: Float)(Long, Float)((i @ _), (c @ _)) => i.+(c)
         //}
         //Match(Ident("x0$1"), List(CaseDef(Apply(TypeTree(), List(Bind(i, Ident("_")), Bind(c, Ident("_"))), EmptyTree Apply(Select(Ident("i"), "$plus"), List(Ident("c")
 
-        doConvertExpr(argNames + (matchName.toString + "._1" -> "?"), body, false, b)._1
+        doConvertExpr(argNames + (ma.symbol /*matchName.toString*/-> "?"), body, false, b)._1
       case Select(expr, toSizeTName()) => cast(expr, "size_t")
       case Select(expr, toLongName()) => cast(expr, "long")
       case Select(expr, toIntName()) => cast(expr, "int")
@@ -173,7 +175,7 @@ extends MiscMatchers
       case Apply(s @ Select(left, name), args) =>
         NameTransformer.decode(name.toString) match {
           case op @ ("+" | "-" | "*" | "/" | "%" | "^" | "^^" | "&" | "&&" | "|" | "||" | "<<" | ">>" | "==" | "<" | ">" | "<=" | ">=" | "!=") =>
-            out(left, " ", op, " ", args(0))
+            out("(", left, " ", op, " ", args(0), ")")
           case n =>
             println(nodeToStringNoComment(body))
             error("[ScalaCL] Unhandled method name in Scala -> OpenCL conversion : " + name)
