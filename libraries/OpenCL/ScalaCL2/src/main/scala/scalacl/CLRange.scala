@@ -5,7 +5,7 @@ import scala.collection.IndexedSeqLike
 import scala.collection.generic.CanBuildFrom
 
 
-object CLIntRange {
+object CLRange {
   def convertToRange(buf: CLGuardedBuffer[Int]): Range = {
     val Array(from, to, by, inclusive) = buf.toArray
     if (inclusive == 0)
@@ -19,6 +19,7 @@ object CLIntRange {
       if (i >= size)
         return;
 
+      // from, to, by, inclusive
       int from = range[0], by = range[2];
       out[i] = from + by * i;
     }
@@ -36,24 +37,24 @@ object CLIntRange {
   }
 
 
-  implicit def canFilterFrom(implicit ctx: ScalaCLContext, io: CLDataIO[Int]): CLCanFilterFrom[CLIntRange, Int, CLFilteredArray[Int]] =
-    new CLCanFilterFrom[CLIntRange, Int, CLFilteredArray[Int]] {
+  implicit def canFilterFrom(implicit ctx: ScalaCLContext, io: CLDataIO[Int]): CLCanFilterFrom[CLRange, Int, CLFilteredArray[Int]] =
+    new CLCanFilterFrom[CLRange, Int, CLFilteredArray[Int]] {
       override def dataIO = io
       override def context = ctx
-      def rawLength(from: CLIntRange): Int = from.size
-      def newFilterResult(from: CLIntRange) = new CLFilteredArray[Int](from.size)(context, io)
+      def rawLength(from: CLRange): Int = from.size
+      def newFilterResult(from: CLRange) = new CLFilteredArray[Int](from.size)(context, io)
     }
   
 }
-class CLIntRange(
+class CLRange(
   protected[scalacl] val buffer: CLGuardedBuffer[Int]
 )(
   implicit val context: ScalaCLContext
 )
   extends IndexedSeq[Int]
   with CLIndexedSeq[Int]
-  with CLIndexedSeqLike[Int, CLIntRange]
-  with MappableToCLArray[Int, CLIntRange]
+  with CLIndexedSeqLike[Int, CLRange]
+  with MappableToCLArray[Int, CLRange]
 {
   def this(range: Range)(implicit context: ScalaCLContext) =
     this(new CLGuardedBuffer[Int](Array(range.start, range.end, range.step, if (range.isInclusive) 1 else 0)))
@@ -61,7 +62,7 @@ class CLIntRange(
   override def eventBoundComponents = Seq(buffer)
   override def release = buffer.release
   
-  import CLIntRange._
+  import CLRange._
 
   override def toArray: Array[Int] = toRange.toArray
 
@@ -82,7 +83,7 @@ class CLIntRange(
     }
   }
 
-  override def filterFallback[That <: CLCollection[Int]](p: Int => Boolean, out: That)(implicit ff: CLCanFilterFrom[CLIntRange, Int, That]) = {
+  override def filterFallback[That <: CLCollection[Int]](p: Int => Boolean, out: That)(implicit ff: CLCanFilterFrom[CLRange, Int, That]) = {
     import scala.concurrent.ops._
 
     out match {
@@ -114,7 +115,7 @@ class CLIntRange(
   override def foreach[U](f: Int => U): Unit =
     toRange foreach f
 
-  override def slice(from: Int, to: Int) = new CLIntRange(toRange.slice(from, to))
+  override def slice(from: Int, to: Int) = new CLRange(toRange.slice(from, to))
   //override def sizeFuture: CLFuture[Int] = new CLInstantFuture[Int](toRange.size)
 }
 
