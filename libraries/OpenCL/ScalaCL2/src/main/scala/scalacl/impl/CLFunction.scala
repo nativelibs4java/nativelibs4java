@@ -72,8 +72,11 @@ extends (A => B)
   val outParams = bIO.openCLKernelArgDeclarations(CLDataIO.OutputPointer, 0).mkString(", ")
   val varExprs = aIO.openCLIntermediateKernelTupleElementsExprs(inVar).sortBy(-_._1.length).toArray
   //println("varExprs = " + varExprs.toSeq)
+  
+  val indexVarName = "__cl_i"
+  
   def replaceForFunction(argType: CLDataIO.ArgType, s: String,  i: String, isRange: Boolean) = if (s == null) null else {
-    var r = s.replaceAll(toRxb(indexVar), "i")
+    var r = s.replaceAll(toRxb(indexVar), indexVarName)
     r = r.replaceAll(toRxb(sizeVar), "size")
 
     var iExpr = 0
@@ -93,11 +96,11 @@ extends (A => B)
   }
 
   val indexHeader = """
-      int i = get_global_id(0);
+      int """ + indexVarName + """ = get_global_id(0);
   """
   val sizeHeader =
       indexHeader + """
-      if (i >= size)
+      if (""" + indexVarName + """ >= size)
           return;
   """
 
@@ -123,10 +126,10 @@ extends (A => B)
 
   //def replaceForKernel(s: String) = if (s == null) null else replaceAllButIn(s).replaceAll(toRxb(inVar), "in[i]")
   val presenceParam = "__global const " + CLFilteredArray.presenceCLType + "* presence"
-  val kernDecls = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, "i", false)).reduceLeftOption(_ + "\n" + _).getOrElse("")
-  lazy val kernDeclsRange = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, "i", true)).reduceLeftOption(_ + "\n" + _).getOrElse("")
-  val assignt = assignts(CLDataIO.InputPointer, "i", false)
-  lazy val assigntRange = assignts(CLDataIO.InputPointer, "i", true)
+  val kernDecls = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, indexVarName, false)).reduceLeftOption(_ + "\n" + _).getOrElse("")
+  lazy val kernDeclsRange = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, indexVarName, true)).reduceLeftOption(_ + "\n" + _).getOrElse("")
+  val assignt = assignts(CLDataIO.InputPointer, indexVarName, false)
+  lazy val assigntRange = assignts(CLDataIO.InputPointer, indexVarName, true)
   var kernelsSource = if (expressions.isEmpty) null else """
       __kernel void array_array(
           int size,
@@ -144,7 +147,7 @@ extends (A => B)
           """ + outParams + """
       ) {
           """ + sizeHeader + """
-          if (!presence[i])
+          if (!presence[""" + indexVarName + """])
               return;
           """ + kernDecls + """
           """ + assignt + """;

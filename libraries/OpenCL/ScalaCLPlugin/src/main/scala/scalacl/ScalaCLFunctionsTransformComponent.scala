@@ -288,7 +288,7 @@ extends PluginComponent
 
       var sliceReplacements = new scala.collection.mutable.HashMap[TupleSlice, (String, Symbol)]()
 
-      def flattenTuplesAndBlocks(tree: Tree)(implicit symbolOwner: Symbol): (Seq[Tree], Seq[Tree]) = {
+      def flattenTuplesAndBlocks(tree: Tree)(implicit symbolOwner: Symbol): (/*Seq[DefDef], */Seq[Tree], Seq[Tree]) = {
         // If the tree is mapped to a slice and that slice is mapped to a replacement, then replace the tree by an ident to the corresponding name+symbol
         getSlice(tree).flatMap(sliceReplacements.get).map { case (name, symbol) => (Seq(), Seq(ident(symbol, name))) } getOrElse
         tree match {

@@ -1,11 +1,11 @@
 #!/bin/bash
 
 SCALACL_HOME="`pwd`"
-#mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests
+mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests
 
-#cd ../ScalaCLPlugin
-#mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests
-#cd $SCALACL_HOME
+cd ../ScalaCLPlugin
+mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests
+cd $SCALACL_HOME
 
 
 TEMP_OUT=target/sbaz_out
