@@ -234,10 +234,70 @@ trait MiscMatchers {
         None
     }
   }
-  object TupleObject {
-    def unapply(tree: Tree) = {
-      val tpe = tree.tpe
-      tpe != null && tpe.toString.matches(""".*scala\.Tuple\d+""")
+
+  object TupleComponent {
+    val rx = "_(\\d+)".r
+    def unapply(tree: Tree) = tree match {
+      case Select(target, fieldName) =>
+        fieldName.toString match {
+          case rx(n) =>
+            if (target.symbol.owner.toString.matches("class Tuple\\d+"))
+              Some(target, n.toInt - 1)
+            else
+              None
+          case _ =>
+            None
+        }
+      case _ =>
+        None
+    }
+  }
+  object WhileLoop {
+    def unapply(tree: Tree) = tree match {
+      case
+        LabelDef(
+          lab,
+          List(),
+          If(
+            condition,
+            Block(
+              content,
+              Apply(
+                Ident(lab2),
+                List()
+              )
+            ),
+            Literal(Constant(()))
+          )
+        ) if (lab == lab2) =>
+        Some(condition, content)
+    }
+  }
+  object TupleSelect {
+    def unapply(tree: Tree) = tree match {
+      case Select(Ident(nme.scala_), name) if name.toString.matches(""".*Tuple\d+""") =>
+        true
+      case _ =>
+        false
+      //name.toString.matches("""(_root_\.)?scala\.Tuple\d+""")
+    }
+  }
+  object TupleTyped {
+    def unapply(tree: Tree): Option[List[Type]] = if (tree.tpe.toString.matches(""".*scala.Tuple\d+""")) {
+        Some(Nil)
+        /*
+      case AppliedTypeTree(TupleSelect(), args) =>
+        Some(args.map(_.tpe))
+      case _ =>
+        None*/
+    } else None
+  }
+  object TupleCreation {
+    def unapply(tree: Tree): Option[List[Tree]] = tree match {
+      case Apply(TypeApply(Select(TupleSelect(), applyName()), types), components) =>
+        Some(components)
+      case _ =>
+        None
     }
   }
   object Predef {
