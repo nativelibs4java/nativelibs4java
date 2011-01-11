@@ -296,6 +296,10 @@ trait MiscMatchers {
     def unapply(tree: Tree): Option[List[Tree]] = tree match {
       case Apply(TypeApply(Select(TupleSelect(), applyName()), types), components) =>
         Some(components)
+      case Apply(tt @ TypeTree(), components) if tt.tpe.typeSymbol.toString.matches("class Tuple\\d+") => 
+        // TODO fix this hackish match !
+        // This form is used in case matching of tuples
+        Some(components)
       case _ =>
         None
     }

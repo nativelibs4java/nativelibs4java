@@ -153,6 +153,7 @@ extends PluginComponent
         }
       }.transform(tree)
     }
+
     class TupleAnalysis(tree: Tree) {
       case class TupleSlice(baseSymbol: Symbol, sliceOffset: Int, sliceLength: Int) {
         def subSlice(offset: Int, length: Int) =
@@ -165,6 +166,34 @@ extends PluginComponent
       def getSlice(tree: Tree) =
         symbolTupleSlices.get(tree.symbol).orElse(treeTupleSlices.get(tree.id))
 
+      class BoundTuple(rootSlice: TupleSlice) {
+        def unapply(tree: Tree): Option[Seq[(Symbol, TupleSlice)]] = tree match {
+          case Bind(name, Ident(_)) =>
+            Some(Seq(tree.symbol -> rootSlice))
+          case TupleCreation(components) =>
+            var currentOffset = 0
+            val ret = new scala.collection.mutable.ArrayBuffer[(Symbol, TupleSlice)]
+            for ((component, i) <- components.zipWithIndex) {
+              val compTpes = flattenTypes(component.tpe)
+              val compSize = compTpes.size
+              val subMatcher = new BoundTuple(rootSlice.subSlice(currentOffset, compSize))
+              currentOffset += compSize
+              component match {
+                case subMatcher(m) =>
+                  ret ++= m
+                case _ =>
+                  return None // strict binding
+              }
+            }
+            Some(ret)
+          case _ =>
+            None
+        }
+      }
+
+      private def setSlice(sym: Symbol, slice: TupleSlice) =
+        symbolTupleSlices(sym) = slice
+        
       private def setSlice(tree: Tree, slice: TupleSlice) = {
         treeTupleSlices(tree.id) = slice
         tree match {
@@ -174,10 +203,24 @@ extends PluginComponent
         }
       }
 
+      // Identify trees and symbols that represent tuple slices
       new Traverser {
         override def traverse(tree: Tree): Unit = {
           super.traverse(tree)
           tree match {
+            case Match(selector, cases) =>
+              for (slice <- getSlice(selector)) {
+                val subMatcher = new BoundTuple(slice)
+                for (CaseDef(pat, _, _) <- cases) {
+                  pat match {
+                    case subMatcher(m) =>
+                      for ((sym, subSlice) <- m)
+                        setSlice(sym, subSlice)
+                    case _ =>
+                      error("Case matching only supports tuples for now (TODO: add (CL)Array(...) case).")
+                  }
+                }
+              }
             case TupleComponent(target, i) =>
               getSlice(target).map(slice => {
                 val length = flattenTypes(tree.tpe).size

@@ -123,8 +123,12 @@ extends MiscMatchers
         out(lhs, " = ", rhs, ";\n")
       case Block(statements, expression) =>
         out(statements.flatMap(List(_, "\n")):_*)
-        if (expression != EmptyTree)
-          out(expression, "\n")
+        if (expression != EmptyTree) {
+          val sub = doConvertExpr(argNames, expression, true, conversion)
+          out(sub._1.toString, "\n")
+          retExprsBuilders = sub._2
+          //out(expression, "\n")
+        }
       case vd @ ValDef(paramMods, paramName, tpt: TypeTree, rhs) =>
         conversion.internalSymbols += vd.symbol //-> None
         out(convertTpt(tpt), " ", paramName)
