@@ -15,11 +15,11 @@ trait CLCode {
   lazy val strs = sources ++ macros.map(flatten)// ++ compilerArguments ++ templateParameters.toSeq.map(flatten)
   private lazy val hc = strs.map(_.hashCode).reduceLeft(_ ^ _)
 
-  val map = new mutable.HashMap[(CLContext, String), Map[String, CLKernel]]
+  val map = new mutable.HashMap[CLContext, Map[String, CLKernel]]
   
   def getKernel(context: ScalaCLContext, name: String = null) = map.synchronized {
     val kernels = map.getOrElseUpdate(
-      (context.context, name),
+      context.context,
       {
         val program = context.context.createProgram(sources.map(s => """
             #pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable

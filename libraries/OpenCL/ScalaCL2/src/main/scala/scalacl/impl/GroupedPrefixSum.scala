@@ -46,7 +46,7 @@ class GroupedPrefixSum[A](
     /*
   private def floorPow2(n: Int) = {
     var v = n
-    var ret = -1
+    var ret = 0
     while (v != 0) {
       v = v >> 1
       ret += 1
