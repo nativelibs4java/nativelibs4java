@@ -88,6 +88,13 @@ public class CLQueue extends CLAbstractEntity<cl_command_queue> {
 	public CLDevice getDevice() {
 		return device;
 	}
+	
+	volatile Boolean outOfOrder;
+	public synchronized boolean isOutOfOrder() {
+		if (outOfOrder == null)
+			outOfOrder = getProperties().contains(CLDevice.QueueProperties.OutOfOrderExecModeEnable);
+		return outOfOrder;
+	}
 
 	@InfoName("CL_QUEUE_PROPERTIES")
 	public EnumSet<CLDevice.QueueProperties> getProperties() {
