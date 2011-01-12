@@ -320,7 +320,7 @@ abstract class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T
   
   override def clType = t.erasure.getSimpleName.toLowerCase match {
     case "sizet" => "size_t"
-    case "boolean" => "char"
+    case "boolean" => CLFilteredArray.presenceCLType
     case "character" => "short"
     case n => n
   }

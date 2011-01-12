@@ -15,29 +15,26 @@ trait CLCode {
   lazy val strs = sources ++ macros.map(flatten)// ++ compilerArguments ++ templateParameters.toSeq.map(flatten)
   private lazy val hc = strs.map(_.hashCode).reduceLeft(_ ^ _)
 
-  val map = new mutable.HashMap[(CLContext, String), CLKernel]
-  var kernels: Map[String, CLKernel] = _
+  val map = new mutable.HashMap[(CLContext, String), Map[String, CLKernel]]
   
   def getKernel(context: ScalaCLContext, name: String = null) = map.synchronized {
-    map.getOrElseUpdate(
+    val kernels = map.getOrElseUpdate(
       (context.context, name),
       {
-        if (kernels == null) {
-          val program = context.context.createProgram(sources.map(s => """
-              #pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable
-          """ + s):_*)
-          for ((key, value) <- macros)
-            program.defineMacro(key, value)
+        val program = context.context.createProgram(sources.map(s => """
+            #pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable
+        """ + s):_*)
+        for ((key, value) <- macros)
+          program.defineMacro(key, value)
 
-          compilerArguments.foreach(program.addBuildOption(_))
-          kernels = program.createKernels.map(k => (k.getFunctionName, k)).toMap
-        }
-        if (name == null)
-          kernels.values.head
-        else
-          kernels(name)
+        compilerArguments.foreach(program.addBuildOption(_))
+        program.createKernels.map(k => (k.getFunctionName, k)).toMap
       }
     )
+    if (name == null)
+      kernels.values.head
+    else
+      kernels(name)
   }
 
   override def hashCode = hc

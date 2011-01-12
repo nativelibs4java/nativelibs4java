@@ -43,15 +43,31 @@ class GroupedPrefixSum[A](
   private def IsPowerOfTwo(n: Int) =
     ((n & (n - 1)) == 0)
 
+    /*
   private def floorPow2(n: Int) = {
     var v = n
-    var ret = 0
+    var ret = -1
     while (v != 0) {
       v = v >> 1
       ret += 1
     }
     ret
+  } //*/
+  //*
+  // http://graphics.stanford.edu/~seander/bithacks.html#IntegerLogObvious
+  private def floorLog2(n: Int) = {
+    var x = n
+    var ret = 0
+    if ((x & 0xffff0000) != 0) { ret += 16; x >>= 16; }
+    if ((x & 0x0000ff00) != 0) { ret +=  8; x >>=  8; }
+    if ((x & 0x000000f0) != 0) { ret +=  4; x >>=  4; }
+    if ((x & 0x0000000c) != 0) { ret +=  2; x >>=  2; }
+    if ((x & 0x00000002) != 0) { ret +=  1; }
+    ret
   }
+  private def floorPow2(n: Int) = 
+    1 << floorLog2(n)
+  //*/
 
   @inline private def ceilFunc(elementCount: Int, groupSize: Int) =
     max(1, ceil(elementCount / (2.0f * groupSize)).toInt)
@@ -213,27 +229,31 @@ class GroupedPrefixSum[A](
     }
   }
 
-  def prefixSum(input_buffer: CLBuffer[A], output_buffer: CLBuffer[A], evtsToWaitFor: CLEvent*): CLBuffer[A] =
+  def prefixSum(input_buffer: CLBuffer[A], evtsToWaitFor: CLEvent*): (CLBuffer[A], CLEvent) =
   {
-    CLEvent.waitFor(evtsToWaitFor:_*)
-    context.queue.finish
+    val count = input_buffer.getElementCount.toInt
+    val output_buffer = context.createBuffer(CLMem.Usage.InputOutput, dataClass, count)
+    (output_buffer, prefixSum(input_buffer, output_buffer, evtsToWaitFor:_*))
+  }
+  def prefixSum(input_buffer: CLBuffer[A], output_buffer: CLBuffer[A], evtsToWaitFor: CLEvent*): CLEvent =
+  {
+    assert(input_buffer != null, "null input buffer")
+    assert(output_buffer != null, "null output buffer")
     
     val count = input_buffer.getElementCount.toInt
-    val actual_output: CLBuffer[A] = if (output_buffer != null) {
-      assert(output_buffer.getElementCount == count)
-      output_buffer
-    } else {
-      context.createBuffer(CLMem.Usage.InputOutput, dataClass, count)
-    }
-
+    assert(output_buffer.getElementCount == count, "invalid output buffer size (expected " + count + ", got " + output_buffer.getElementCount + ")")
+    
+    if (context.queue.isOutOfOrder)
+      CLEvent.waitFor(evtsToWaitFor:_*) // TODO use these events
+    
     // TODO remove this
-    actual_output.write(context.queue, allocateArray(dataClass, count), true)
+    //output_buffer.write(context.queue, allocateArray(dataClass, count), true)
 
     var ScanPartialSums = CreatePartialSumBuffers(count)
 
     PreScanBufferRecursive(
       ScanPartialSums,
-      actual_output,
+      output_buffer,
       input_buffer,
       GROUP_SIZE,
       GROUP_SIZE,
@@ -243,8 +263,9 @@ class GroupedPrefixSum[A](
 
     ScanPartialSums.map(_.release)
 
-    context.queue.finish
-    actual_output
+    if (context.queue.isOutOfOrder)
+      context.queue.finish // TODO return events !
+    null
   }
 }
 
@@ -264,8 +285,8 @@ object GroupedPrefixSum {
 
     val scanner = GroupedPrefixSum[Int]
     val inputBuffer = context.createBuffer(CLMem.Usage.InputOutput, inputValues, true)
-    val outputBuffer = scanner.prefixSum(inputBuffer, null)
-    context.queue.finish
+    val (outputBuffer, evt) = scanner.prefixSum(inputBuffer)
+    CLEvent.waitFor(evt)
 
     val expectedValues = (0 until n).scanLeft(0)(_ + _)
     val outputValues = outputBuffer.read(context.queue)

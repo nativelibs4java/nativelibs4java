@@ -15,7 +15,6 @@ import org.junit._
 import Assert._
 
 import scala.math._
-import com.nativelibs4java.opencl._
 
 object CLCollectionTest {
 
@@ -45,6 +44,7 @@ object CLCollectionTest {
       a match { 
         case fa: CLFilteredArray[V] =>
           println("aa.presence = " + fa.presence.toArray.take(samples).toSeq)
+          println("aa.updatedPresencePrefixSum = " + fa.updatedPresencePrefixSum.toArray.take(samples).toSeq)
         case _ =>
       }
       println("bb = " + bb)

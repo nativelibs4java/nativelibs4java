@@ -97,7 +97,7 @@ trait CLCollectionLike[A, +Repr]
             dims = Array(ff.rawLength(this.asInstanceOf[Repr])),
             args = Array(this, presenceOut),
             reads = Array(this),
-            writes = Array(result)
+            writes = Array(result, presenceOut)
           )(ff.context)
         case _ =>
           filterFallback(p, result)

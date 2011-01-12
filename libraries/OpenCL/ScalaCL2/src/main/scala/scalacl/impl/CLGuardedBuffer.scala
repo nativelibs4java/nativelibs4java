@@ -99,6 +99,7 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val context: ScalaCLC
   val size = buffer.getElementCount
 
   override def clone: CLGuardedBuffer[T] = {
+    // TODO allocate and copy on write, with value groups !
     val out = new CLGuardedBuffer(context.context.createBuffer(CLMem.Usage.InputOutput, elementClass, size))
     copyTo(out)
     out

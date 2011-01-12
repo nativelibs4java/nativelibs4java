@@ -2,7 +2,8 @@ package scalacl
 //import scalacl._
 
 import impl._
-
+import scala.math._
+    
 /**
  * mvn exec:java -Dexec.mainClass=scalacl.Test
  */
@@ -64,21 +65,41 @@ object Test {
     )*/
     //val clQueue = clContext.createDefaultOutOfOrderQueueIfPossible
     implicit val context = ScalaCLContext(
-      //CLPlatform.DeviceFeature.CPU,
+      CLPlatform.DeviceFeature.CPU,
       CLPlatform.DeviceFeature.OutOfOrderQueueSupport, 
       CLPlatform.DeviceFeature.MaxComputeUnits
     )
     //implicit val context = new ScalaCLContext(clContext, clQueue)//CLPlatform.DeviceFeature.GPU)
-    println("Got context " + context.context.getDevices().mkString(", "))
+    println("Got context " + context.context.getDevices().mkString(", "));
 
+    if (System.getenv("TEST") != null)
+    {
+      val filt = (
+        (x: Int) => (x % 2) == 0, 
+        Seq("(_ % 2) == 0")
+      ): CLFunction[Int, Boolean]
+      
+      for (dim <- 1 until 1000) {
+        for (offset <- 0 to 1) {
+          val opencl = (0 until dim).toCLArray.filter(filt).toArray.toSeq
+          val scala = (0 until dim).toArray.filter(filt).toArray.toSeq
+          
+          if (opencl != scala) {
+            println("ERROR dim = " + dim + ", offset = " + offset + " !")
+            println("\tExpected : " + scala)
+            println("\t   Found : " + opencl)
+          } //else println("OK dim = " + dim)
+        }
+      }
+      System.exit(0)
+    }
     val aaa = (1 to 100000).cl
     val bbb = Array(1, 2, 3).cl
     
     import CLArray._
-    import scala.math._
     
     val n = if (args.length >= 1) args.last.toInt else 100000
-    val runs = 4;
+    val runs = 5;
     
     /*if (false)
     {
@@ -157,9 +178,25 @@ object Test {
       v
     }
     
-    println("Zipped : " + cla.zip(cla.map(m)).toArray.take(10).toSeq)//.asInstanceOf[Iterable[Int]]))
-    //if (false) {
+    //println("Zipped : " + cla.zip(cla.map(m)).toArray.take(10).toSeq)//.asInstanceOf[Iterable[Int]]))
       
+    same(
+      times("Filter in OpenCL", runs) { finished { cla.filter(f).toArray } },
+      times("Filter in Scala", runs) { a.filter(f) }
+    )
+    
+    same(
+      times("Filter+Map+Map2+MapJoin1 in OpenCL", runs) { finished { cla.filter(f).map(m).map(m2).map(m2join).toArray } },
+      times("Filter+Map+Map2+MapJoin1 in Scala", runs) { a.filter(f).map(m).map(m2).map(m2join) }
+    )
+    times("Filter+Map+Map2+MapJoin1 in Scala+views", runs) { a.view.filter(f).map(m).map(m2).map(m2join).toArray }
+    
+    same(
+      times("Filter+Map in OpenCL", runs) { finished { cla.filter(f).map(m).toArray } },
+      times("Filter+Map  in Scala", runs) { a.filter(f).map(m) }
+    )
+    times("Filter+Map  in Scala+views", runs) { a.view.filter(f).map(m).toArray }
+    
     same(
       times("Map2+MapJoin2 in OpenCL", runs) { finished { cla.map(m2).map(m2join2).toArray } },
       times("Map2+MapJoin2 in Scala", runs) { a.map(m2).map(m2join2) }
@@ -223,27 +260,10 @@ object Test {
     times("Map+Map2 in Scala+views", runs) { a.view.map(m).map(m2).toArray }
     
     same(
-      times("Filter in OpenCL", runs) { finished { cla.filter(f).toArray } },
-      times("Filter in Scala", runs) { a.filter(f) }
-    )
-    
-    same(
       times("Map+Map2+MapJoin1 in OpenCL", runs) { finished { cla.map(m).map(m2).map(m2join).toArray } },
       times("Map+Map2+MapJoin1 in Scala", runs) { a.map(m).map(m2).map(m2join) }
     )
     times("Map+Map2+MapJoin1 in Scala+views", runs) { a.view.map(m).map(m2).map(m2join).toArray }
-    
-    same(
-      times("Filter+Map+Map2+MapJoin1 in OpenCL", runs) { finished { cla.filter(f).map(m).map(m2).map(m2join).toArray } },
-      times("Filter+Map+Map2+MapJoin1 in Scala", runs) { a.filter(f).map(m).map(m2).map(m2join) }
-    )
-    times("Filter+Map+Map2+MapJoin1 in Scala+views", runs) { a.view.filter(f).map(m).map(m2).map(m2join).toArray }
-    
-    same(
-      times("Filter+Map in OpenCL", runs) { finished { cla.filter(f).map(m).toArray } },
-      times("Filter+Map  in Scala", runs) { a.filter(f).map(m) }
-    )
-    times("Filter+Map  in Scala+views", runs) { a.view.filter(f).map(m).toArray }
     
     same(
       times("Sum in OpenCL", runs) { finished { Array(cla.sum) } },

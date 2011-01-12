@@ -17,13 +17,13 @@ object CLFilteredArray {
   def newBuilder[A](implicit context: ScalaCLContext, dataIO: CLDataIO[A]): Builder[A, CLFilteredArray[A]] = 
     error("Not implemented") // TODO
 
-  //*
+  /*
   type PresenceType = Boolean
   val presenceCLType = "char"
   @inline def toBool(p: PresenceType) = p
   @inline def toPresence(b: Boolean) = b
   //*/
-  /*
+  //*
   type PresenceType = Int
   val presenceCLType = "int"
   @inline def toBool(p: PresenceType) = p != 0
@@ -39,7 +39,6 @@ class CLFilteredArray[A](
   implicit val context: ScalaCLContext,
   val dataIO: CLDataIO[A]
 )
-
 extends IndexedSeq[A]
   with GenericTraversableTemplate[A, CLFilteredArray]
   with CLIndexedSeq[A]
@@ -47,7 +46,7 @@ extends IndexedSeq[A]
   with CLIndexedSeqLike[A, CLFilteredArray[A]]
 {
   def this(array: CLArray[A])(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
-      this(array, if (array.length > 0) new CLGuardedBuffer[PresenceType](array.length) else null)
+      this(array, if (array.length > 0) new CLGuardedBuffer[PresenceType](array.length + 1) else null)
 
   def this(length: Int)(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
         this(new CLArray[A](length))
@@ -55,6 +54,8 @@ extends IndexedSeq[A]
   def this(length: Int, presence: CLGuardedBuffer[PresenceType])(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
         this(new CLArray[A](length), presence)
 
+  assert(presence.size == array.length + 1)
+  
   override def companion: GenericCompanion[CLFilteredArray] = new SeqFactory[CLFilteredArray] {
     def newBuilder[AA]: Builder[AA, CLFilteredArray[AA]] = 
       CLFilteredArray.newBuilder[AA](context, dataIO.asInstanceOf[CLDataIO[AA]]) // TODO fix this hack !
@@ -75,9 +76,7 @@ extends IndexedSeq[A]
       new CLInstantFuture(0)
     else {
       val ps = updatedPresencePrefixSum
-      //println("updatedPresencePrefixSum = " + ps.toArray.toSeq)
-      ps(array.length - 1)
-      //new CLInstantFuture(ps.toArray.last)
+      ps(array.length) // presence prefix sum buffer is of length array.length + 1
     }
   }
   
@@ -88,7 +87,7 @@ extends IndexedSeq[A]
   override def newBuilder = CLFilteredArray.newBuilder[A]
 
   //lazy val buffersList = buffers.toList
-  lazy val presencePrefixSum = if (presence == null) null else new CLGuardedBuffer[Int](array.length)
+  lazy val presencePrefixSum = if (presence == null) null else new CLGuardedBuffer[Int](array.length + 1)
 
   override def clone =
     new CLFilteredArray[A](array.clone, if (presence == null) null else presence.clone)
@@ -119,8 +118,8 @@ extends IndexedSeq[A]
   def updatedPresencePrefixSum = this.synchronized {
     if (!prefixSumUpToDate) {
       if (presence != null)
-        PrefixSum.prefixSumByte(presence, presencePrefixSum)
-        //PrefixSum.prefixSumInt(presence, presencePrefixSum)
+        //PrefixSum.prefixSumByte(presence, presencePrefixSum)
+        PrefixSum.prefixSumInt(presence, presencePrefixSum)
       prefixSumUpToDate = true
     }
     presencePrefixSum
