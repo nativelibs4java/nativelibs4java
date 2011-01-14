@@ -137,7 +137,7 @@ extends MiscMatchers
         }
       case vd @ ValDef(paramMods, paramName, tpt: TypeTree, rhs) =>
         //conversion.internalSymbols += vd.symbol //-> None
-        println("vd " + vd + " : " + vd.tpe + " (sym = " + vd.symbol + ")")
+        //println("vd " + vd + " : " + vd.tpe + " (sym = " + vd.symbol + ")")
         out(convertTpt(tpt), " ", paramName)
         rhs match {
           case Block(statements, expression) =>

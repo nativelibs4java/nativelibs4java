@@ -231,7 +231,7 @@ extends MiscMatchers
       symbolTupleSlices(sym) = slice
 
     def setSlice(tree: Tree, slice: TupleSlice) = {
-      println("Setting slice " + slice + " for tree " + tree)
+      //println("Setting slice " + slice + " for tree " + tree)
       treeTupleSlices((tree.id, tree)) = slice
       tree match {
         case vd: ValDef =>
@@ -246,7 +246,7 @@ extends MiscMatchers
         tree match {
           case ValDef(mods, name, tpt, rhs) =>
             super.traverse(tree)
-            println("Got valdef " + name)
+            //println("Got valdef " + name)
             val tupleInfo = getTupleInfo(rhs.tpe)
             if (tupleInfo == null) {
               error("No tuple info !")
@@ -254,13 +254,13 @@ extends MiscMatchers
             }
             setSlice(tree.symbol, TupleSlice(tree.symbol, 0, tupleInfo.componentSize))
             for (slice <- getTreeSlice(rhs)) {
-              println("\tvaldef has slice " + slice)
+              //println("\tvaldef has slice " + slice)
               setSlice(tree.symbol, slice)
             }
           case Match(selector, cases) =>
-            println("Found match") 
+            //println("Found match") 
             for (slice <- getTreeSlice(selector)) {
-              println("\tMatch has slice " + slice)
+              //println("\tMatch has slice " + slice)
               val subMatcher = new BoundTuple(slice)
               for (CaseDef(pat, _, _) <- cases) {
                 pat match {
@@ -277,14 +277,14 @@ extends MiscMatchers
             super.traverse(tree)
             val (componentsOffset, componentCount) = getComponentOffsetAndSizeOfIthMember(target.tpe, i)
             
-            println("Identified tuple component " + i + " of " + target)
+            //println("Identified tuple component " + i + " of " + target)
             getTreeSlice(target) match {
               case Some(slice) =>
-                println("\ttarget got slice " + slice)
+                //println("\ttarget got slice " + slice)
                 setSlice(tree, TupleSlice(slice.baseSymbol, componentsOffset, componentCount))
               case _ =>
-                println("No tuple slice symbol info for tuple component i = " + i + " : " + target + "\n\t-> " + nodeToStringNoComment(target))
-                println("\ttree : " + nodeToStringNoComment(tree))
+                //println("No tuple slice symbol info for tuple component i = " + i + " : " + target + "\n\t-> " + nodeToStringNoComment(target))
+                //println("\ttree : " + nodeToStringNoComment(tree))
             }
           case _ =>
             super.traverse(tree)

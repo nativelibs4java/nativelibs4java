@@ -93,7 +93,11 @@ extends PluginComponent
       null: Tree
     }
     
-    def removeSymbolsExceptParamSymbolAsUnderscore(paramSymbol: Symbol, t: Tree) = { 
+    /**
+     * Remove all symbols from the trees, because old symbols from before the unique renaming will preempt on renamed Ident names when printing the tree out to C code.
+     * Hit Java verifier exceptions (Scala compiler bug) when letting this function definition where it's used, so lifted it up manually :-S
+     */
+    private def removeSymbolsExceptParamSymbolAsUnderscore(paramSymbol: Symbol, t: Tree) = { 
       val trans = new Transformer { 
         override def transform(tree: Tree) = tree match {
           case Ident(name) if tree.hasSymbol =>
@@ -112,11 +116,6 @@ extends PluginComponent
     
     private lazy val duplicator = new Transformer {
       override val treeCopy = new StrictTreeCopier
-      /*override def transform(t: Tree) = {
-        val t1 = super.transform(t)
-        if ((t1 ne t) && t1.pos.isRange) t1 setPos t.pos.focus
-        t1
-      }*/
     }
     override def transform(tree: Tree): Tree = {
       //println(".")
@@ -128,8 +127,8 @@ extends PluginComponent
             import traversalOp._
             try {
               val colTpe = collection.tpe.widen.dealias.deconst
-              //if (colTpe.matches(CLCollectionClass.tpe)) {
-              if (colTpe.toString.startsWith("scalacl.")) { // TODO
+              if (colTpe <:< CLCollectionClass.tpe) {
+              //if (colTpe.toString.startsWith("scalacl.")) { // TODO
                 op match {
                   case opType @ (TraversalOp.Map(_, _) | TraversalOp.Filter(_, false)) =>
                     msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpe + "." + op + "'s function argument.") {
@@ -141,18 +140,15 @@ extends PluginComponent
                       val flattener = new TuplesAndBlockFlattener(tupleAnalysis)
                       val flattened = flattener.flattenTuplesAndBlocks(renamed)(currentOwner, unit)
                       
-                      // Remove all symbols from the trees, because old symbols from before the unique renaming will preempt on renamed Ident names when printing the tree out to C code. 
-                      
-                      
-                      //(flattened.outerDefinitions ++ flattened.statements ++ flattened.values).foreach(t =>
-                      //  removeSymbolsExceptParamSymbolAsUnderscore(uniqueParam.symbol, t)
-                      //)
-                      println("Flattened tuples and blocks : \n\t" + 
-                        flattened.statements.mkString("\n").replaceAll("\n", "\n\t") + 
-                        "\n\t(\n\t\t" + 
-                          flattened.values.mkString("\n").replaceAll("\n", "\n\t\t") + 
-                        "\n\t)"
-                      )
+                      /*
+                      if (options.verbose)
+                        println("Flattened tuples and blocks : \n\t" + 
+                          flattened.statements.mkString("\n").replaceAll("\n", "\n\t") + 
+                          "\n\t(\n\t\t" + 
+                            flattened.values.mkString("\n").replaceAll("\n", "\n\t\t") + 
+                          "\n\t)"
+                        )
+                      */
                       def convert(tree: Tree) = 
                         convertExpr(removeSymbolsExceptParamSymbolAsUnderscore(uniqueParam.symbol, tree))
                       
@@ -165,9 +161,9 @@ extends PluginComponent
                         assert(d._1.isEmpty)
                         d.*/
                       val statements: Seq[String] = Seq(convStats.map(_._1), convStats.flatMap(_._2), convVals.map(_._1)).flatten
-                      println("statements = " + statements)
+                      //println("statements = " + statements)
                       val values: Seq[String] = convVals.flatMap(_._2)
-                      println("values = " + values)
+                      //println("values = " + values)
                       System.in.read
                       
                       //println("Renamed defined symbols uniquely : " + renamed)
@@ -241,7 +237,6 @@ extends PluginComponent
               }
             } catch { case ex => 
               ex.printStackTrace
-              System.exit(0) // TODO REMOVE ME !!!
               super.transform(tree)
             }
           case _ =>
