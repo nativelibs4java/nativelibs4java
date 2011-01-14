@@ -58,13 +58,14 @@ extends PluginComponent
   //with Analyzer
    with OpenCLConverter
    with WithOptions
+  with CodeFlattening
 {
   import global._
   import global.definitions._
   import gen._
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed}    // methods to type trees
-  import analyzer.{SearchResult, ImplicitSearch}
+  import analyzer.{SearchResult, ImplicitSearch, UnTyper}
 
   override val runsAfter = ScalaCLFunctionsTransformComponent.runsAfter
   override val runsBefore = ScalaCLFunctionsTransformComponent.runsBefore
@@ -80,9 +81,6 @@ extends PluginComponent
   val scalacl_ = N("scalacl")
   val getCachedFunctionName = N("getCachedFunction")
   
-  def nodeToStringNoComment(tree: Tree) =
-    nodeToString(tree).replaceAll("\\s*//.*\n", "\n").replaceAll("\\s*\n\\s*", " ").replaceAll("\\(\\s+", "(").replaceAll("\\s+\\)", "")
-
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     var currentClassName: Name = null
 
@@ -95,262 +93,6 @@ extends PluginComponent
       null: Tree
     }
 
-    def flattenTypes(tpe: Type): Seq[Type] = {
-      error("not implemented")
-      null
-    }
-    /**
-     * Phases :
-     * - unique renaming
-     * - tuple cartography (map symbols and treeId to TupleSlices : x._2 will be checked against x ; if is x's symbol is mapped, the resulting slice will be composed and flattened
-     * - tuple + block flattening (gives (Seq[Tree], Seq[Tree]) result)
-     */
-
-    def renameDefinedSymbolsUniquely(tree: Tree) = {
-
-      var definedSymbols = new scala.collection.mutable.ArrayBuffer[(Symbol, Name)]()
-      new Traverser {
-        override def traverse(tree: Tree): Unit = {
-          tree match {
-            // TODO handle defs
-            case Bind(name, rhs) =>
-              error("weird, shouldn't be here at this phase !")
-            case ValDef(_, name, _, _) =>
-              definedSymbols += tree.symbol -> name
-            case DefDef(mods, name, tparams, vparams, tpt, rhs) =>
-              definedSymbols += tree.symbol -> name
-            case _ =>
-          }
-          super.traverse(tree)
-        }
-      }.traverse(tree)
-
-      val collisions = definedSymbols.groupBy(_._2).filter(_._2.size > 1)
-      val renames = collisions.flatMap(_._2).map({ case (sym, name) =>
-          val newName: Name = N(unit.fresh.newName(tree.pos, name.toString))
-          (sym, newName)
-      }).toMap
-
-      new Transformer {
-        override def transform(tree: Tree): Tree = tree match {
-          case ValDef(mods, name, tpt, rhs) =>
-            renames.get(tree.symbol).map(newName => {
-              println("Renaming " + name + " to " + newName)
-              ValDef(mods, name, super.transform(tpt), super.transform(rhs))
-            }).getOrElse(super.transform(tree))
-          case DefDef(mods, name, tparams, vparams, tpt, rhs) =>
-            renames.get(tree.symbol).map(newName => {
-              println("Renaming " + name + " to " + newName)
-              DefDef(mods, newName, tparams, vparams, super.transform(tpt), super.transform(rhs))
-            }).getOrElse(super.transform(tree))
-          case Ident(name) =>
-            renames.get(tree.symbol).map(newName => {
-              println("Renaming " + name + " to " + newName)
-              ident(tree.symbol, newName)
-            }).getOrElse(super.transform(tree))
-          case _ =>
-            super.transform(tree)
-        }
-      }.transform(tree)
-    }
-
-    class TupleAnalysis(tree: Tree) {
-      case class TupleSlice(baseSymbol: Symbol, sliceOffset: Int, sliceLength: Int) {
-        def subSlice(offset: Int, length: Int) =
-          TupleSlice(baseSymbol, sliceOffset + offset, length)
-      }
-
-      private var treeTupleSlices = new scala.collection.mutable.HashMap[Int, TupleSlice]()
-      private var symbolTupleSlices = new scala.collection.mutable.HashMap[Symbol, TupleSlice]()
-      
-      def getSlice(tree: Tree) =
-        symbolTupleSlices.get(tree.symbol).orElse(treeTupleSlices.get(tree.id))
-
-      class BoundTuple(rootSlice: TupleSlice) {
-        def unapply(tree: Tree): Option[Seq[(Symbol, TupleSlice)]] = tree match {
-          case Bind(name, Ident(_)) =>
-            Some(Seq(tree.symbol -> rootSlice))
-          case TupleCreation(components) =>
-            var currentOffset = 0
-            val ret = new scala.collection.mutable.ArrayBuffer[(Symbol, TupleSlice)]
-            for ((component, i) <- components.zipWithIndex) {
-              val compTpes = flattenTypes(component.tpe)
-              val compSize = compTpes.size
-              val subMatcher = new BoundTuple(rootSlice.subSlice(currentOffset, compSize))
-              currentOffset += compSize
-              component match {
-                case subMatcher(m) =>
-                  ret ++= m
-                case _ =>
-                  return None // strict binding
-              }
-            }
-            Some(ret)
-          case _ =>
-            None
-        }
-      }
-
-      private def setSlice(sym: Symbol, slice: TupleSlice) =
-        symbolTupleSlices(sym) = slice
-        
-      private def setSlice(tree: Tree, slice: TupleSlice) = {
-        treeTupleSlices(tree.id) = slice
-        tree match {
-          case vd: ValDef =>
-            symbolTupleSlices(tree.symbol) = slice
-          case _ =>
-        }
-      }
-
-      // Identify trees and symbols that represent tuple slices
-      new Traverser {
-        override def traverse(tree: Tree): Unit = {
-          super.traverse(tree)
-          tree match {
-            case Match(selector, cases) =>
-              for (slice <- getSlice(selector)) {
-                val subMatcher = new BoundTuple(slice)
-                for (CaseDef(pat, _, _) <- cases) {
-                  pat match {
-                    case subMatcher(m) =>
-                      for ((sym, subSlice) <- m)
-                        setSlice(sym, subSlice)
-                    case _ =>
-                      error("Case matching only supports tuples for now (TODO: add (CL)Array(...) case).")
-                  }
-                }
-              }
-            case TupleComponent(target, i) =>
-              getSlice(target).map(slice => {
-                val length = flattenTypes(tree.tpe).size
-                setSlice(tree, slice.subSlice(i, length))
-              })
-            case _ =>
-          }
-        }
-      }.traverse(tree)
-
-      // 1) Create unique names for unique symbols !
-      // 2) Detect external references, lift them up in arguments.
-      // 3) Annotate code with usage :
-      //    - symbol to Array and CLArray val : read, written, both ?
-      //    - extern vars : forbidden
-      //    -
-      // 4) Flatten tuples and blocks, function definitions arg lists, function calls args
-      //
-      // Symbol => TupleSlice
-      // Tree => TupleSlice
-      // e.g. x: ((Double, Float), Int) ; x._1._2 => TupleSlice(x, 1, 1)
-      //
-      // Tuples flattening :
-      // - list tuple definitions
-      // - explode each definition unless it's an OpenCL intrinsic :
-      //    -> create a new symbol for each split component,
-      //    -> map resulting TupleSlice => componentSymbol
-      //    -> splitSymbolsTable = Map[Symbol, Seq[(TupleSlice, componentSymbol, componentName)]]
-      // - given a Tree, we get an exploded Seq[Tree] + pre-definitions
-      //    e.g.:
-      //      val a: (Int, Int) = (1, 3)
-      //        -> val a1 = 1
-      //           val a2 = 3
-      //      val a: (Int, Int) = f(x) // special case for int2 : no change
-      // We need to propagate slices that are of length > 1 :
-      // - arr1.zip(arr2).zipWithIndex.map { case r @ (p @ (a1, a2), i) => p } map { p => p._1 }
-      //    -> p => TupleSlice(mapArg, 0, 2)
-      // - val (a, b) = p // p is mapped
-      //    -> val a = p1 // using splitSymbolsTable
-      //       val b = p2
-      // Jump over blocks :
-      // val p = {
-      //  val x = 10
-      //  (x, x + 2)
-      // }
-      // ->
-      // val x = 10
-      // val p1 = x
-      // val p2 = x + 2
-      //
-      // Each Tree gives a list of statements + a list of split value components :
-      // convertTree(tree: Tree): (Seq[Tree], Seq[Tree])
-      //
-      //
-      var splitMap = Map[Symbol, Symbol]()
-      
-      def isOpenCLIntrinsicTuple(components: List[Type]) = {
-        components.size match {
-          case 2 | 4 | 8 | 16 =>
-            components.distinct.size == 1
-          case _ =>
-            false
-        }
-      }
-
-      var sliceReplacements = new scala.collection.mutable.HashMap[TupleSlice, (String, Symbol)]()
-
-      def flattenTuplesAndBlocks(tree: Tree)(implicit symbolOwner: Symbol): (/*Seq[DefDef], */Seq[Tree], Seq[Tree]) = {
-        // If the tree is mapped to a slice and that slice is mapped to a replacement, then replace the tree by an ident to the corresponding name+symbol
-        getSlice(tree).flatMap(sliceReplacements.get).map { case (name, symbol) => (Seq(), Seq(ident(symbol, name))) } getOrElse
-        tree match {
-          case Block(statements, value) =>
-            // Flatten blocks up
-            val (stats, flattenedValues) = flattenTuplesAndBlocks(value)
-            (
-              statements.flatMap(s => {
-                val (stats, flattenedValues) = flattenTuplesAndBlocks(s)
-                stats ++ flattenedValues
-              }) ++
-              stats,
-              flattenedValues
-            )
-          case If(condition, then, otherwise) =>
-            // val (a, b) = if ({ val d = 0 ; d != 0 }) (1, d) else (2, 0)
-            // ->
-            // val d = 0
-            // val condition = d != 0
-            // val a = if (condition) 1 else 2
-            // val b = if (condition) d else 0
-            val (sc, Seq(vc)) = flattenTuplesAndBlocks(condition)
-            val conditionVar = newVariable(unit, "condition", currentOwner, tree.pos, false, vc)
-            (
-              sc ++ Seq(conditionVar.definition),
-              (flattenTuplesAndBlocks(then), flattenTuplesAndBlocks(otherwise)) match {
-                case ((Seq(), vt), (Seq(), vo)) =>
-                  vt.zip(vo).map { case (t, o) => If(conditionVar(), t, o) } // pure (cond ? then : otherwise) form, possibly with tuple values
-                case ((st, vt), (so, vo)) =>
-                  Seq(
-                    If(conditionVar(), Block(vt.toList, newUnit), Block(vo.toList, newUnit))
-                  )
-              }
-            )
-          case ValDef(paramMods, paramName, tpt, rhs) =>
-            // val p = {
-            //   val x = 10
-            //   (x, x + 2)
-            // }
-            // ->
-            // val x = 10
-            // val p_1 = x
-            // val p_2 = x + 2
-            val flattenedTypes = flattenTypes(tree.tpe)
-            val splitSyms: Map[TupleSlice, (String, Symbol)] = flattenedTypes.zipWithIndex.map({ case (tpe, i) =>
-              val name = unit.fresh.newName(tree.pos, paramName + "_" + (i + 1))
-              val sym = symbolOwner.newVariable(tree.pos, name)
-              (TupleSlice(tree.symbol, i, 1), (name, sym))
-            }).toMap
-
-            sliceReplacements ++= splitSyms
-
-            val (stats, flattenedValues) = flattenTuplesAndBlocks(rhs)
-            (
-              stats,
-              splitSyms.zip(flattenedValues).zip(flattenedTypes).map({ case (((slice, (name, sym)), value), tpe) =>
-                ValDef(Modifiers(MUTABLE), name, TypeTree(tpe), value).setSymbol(sym).setType(tpe): Tree
-              }).toSeq
-            )
-        }
-      }
-    }
     override def transform(tree: Tree): Tree = {
       //println(".")
       if (!shouldOptimize(tree))
@@ -366,6 +108,11 @@ extends PluginComponent
                 op match {
                   case opType @ (TraversalOp.Map(_, _) | TraversalOp.Filter(_, false)) =>
                     msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpe + "." + op + "'s function argument.") {
+                      var f = op.f
+                      val tupleAnalysis = new TupleAnalysis(f)
+                      f = renameDefinedSymbolsUniquely(f, unit)
+                      //UnTyper.traverse(uniqued)
+                      println("Renamed defined symbols uniquely : " + f)
                       val Func(List(uniqueParam), body) = op.f
                       val context = localTyper.context1
                       val sourceTpe = uniqueParam.symbol.tpe

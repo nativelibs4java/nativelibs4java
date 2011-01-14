@@ -50,8 +50,10 @@ extends MiscMatchers
   import typer.{typed}    // methods to type trees
   import CODE._
 
+  def nodeToStringNoComment(tree: Tree) =
+    nodeToString(tree).replaceAll("\\s*//.*\n", "\n").replaceAll("\\s*\n\\s*", " ").replaceAll("\\(\\s+", "(").replaceAll("\\s+\\)", "")
+
   /// print a message only if the operation succeeded :
-  
   def msg[V](unit: CompilationUnit, pos: Position, text: => String)(v: => V): V = {
     val fileLine = new File(pos.source.path).getName + ":" + pos.line
     val prefix = "[scalacl] " + fileLine + " "

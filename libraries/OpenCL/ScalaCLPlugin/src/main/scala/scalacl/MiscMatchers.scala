@@ -241,10 +241,12 @@ trait MiscMatchers {
       case Select(target, fieldName) =>
         fieldName.toString match {
           case rx(n) =>
-            if (target.symbol.owner.toString.matches("class Tuple\\d+"))
+            if (target.symbol.owner.toString.matches("class Tuple\\d+") || target.tpe.typeSymbol.toString.matches("class Tuple\\d+")) {
               Some(target, n.toInt - 1)
-            else
+            } else {
+              println("ISSUE with tuple target symbol \n\t" + target.symbol + "\n\t" + target.tpe.typeSymbol)
               None
+            }
           case _ =>
             None
         }
@@ -271,6 +273,8 @@ trait MiscMatchers {
           )
         ) if (lab == lab2) =>
         Some(condition, content)
+      case _ =>
+        None
     }
   }
   object TupleSelect {
@@ -292,11 +296,14 @@ trait MiscMatchers {
         None*/
     } else None
   }
+  def isTupleSymbol(sym: Symbol) =
+    sym.toString.matches("class Tuple\\d+")
+    
   object TupleCreation {
     def unapply(tree: Tree): Option[List[Tree]] = tree match {
       case Apply(TypeApply(Select(TupleSelect(), applyName()), types), components) =>
         Some(components)
-      case Apply(tt @ TypeTree(), components) if tt.tpe.typeSymbol.toString.matches("class Tuple\\d+") => 
+      case Apply(tt @ TypeTree(), components) if isTupleSymbol(tt.tpe.typeSymbol) => 
         // TODO fix this hackish match !
         // This form is used in case matching of tuples
         Some(components)
