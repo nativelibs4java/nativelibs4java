@@ -34,10 +34,14 @@ import scala.collection.immutable.Stack
 import scala.reflect.NameTransformer
 import scala.reflect.generic.{Names, Trees, Types, Constants, Universe}
 import scala.tools.nsc.Global
+import tools.nsc.plugins.PluginComponent
 
 trait OpenCLConverter
-extends MiscMatchers
+extends MiscMatchers 
+   with CodeFlattening 
 {
+  this: PluginComponent with WithOptions =>
+  
   val global: Global
   import global._
   import definitions._
@@ -51,20 +55,20 @@ extends MiscMatchers
   class Conversion {
     var internalSymbols = new scala.collection.mutable.HashSet[Symbol]
   }
-  def convertExpr(argNames: Map[Symbol, String], body: Tree): (String, Seq[String]) = { 
-    val (sb, vals) = doConvertExpr(argNames, body, true, new Conversion)
+  def convertExpr(body: Tree): (String, Seq[String]) = { 
+    val (sb, vals) = doConvertExpr(body, true, new Conversion)
     if (vals == null)
       ("", Seq(sb.toString))
     else
       (sb.toString, vals.map(_.toString))
   }
-  def doConvertExpr(argNames: Map[Symbol, String], body: Tree, isTopLevel: Boolean, conversion: Conversion, b: StringBuilder = new StringBuilder): (StringBuilder, Seq[StringBuilder]) = {
+  def doConvertExpr(body: Tree, isTopLevel: Boolean, conversion: Conversion, b: StringBuilder = new StringBuilder): (StringBuilder, Seq[StringBuilder]) = {
     
     var retExprsBuilders: Seq[StringBuilder] = null
     
     def out(args: Any*): Unit = args.foreach(_ match {
       case t: Tree =>
-        doConvertExpr(argNames, t, false, conversion, b)._1
+        doConvertExpr(t, false, conversion, b)._1
       case items: List[_] =>
         var first = true
         for (item <- items) {
@@ -80,6 +84,7 @@ extends MiscMatchers
     def cast(expr: Tree, clType: String) =
       out("((", clType, ")", expr, ")")
 
+      /*
     def convertForeach(from: Tree, to: Tree, isUntil: Boolean, by: Tree, function: Tree) = {
         val Function(List(vd @ ValDef(paramMods, paramName, tpt, rhs)), body) = function
         val id = openclLabelIds.next
@@ -89,17 +94,18 @@ extends MiscMatchers
         out("int ", iVar, ";\n")
         out("const int ", nVal, " = ", to, ";\n")
         out("for (", iVar, " = ", from, "; ", iVar, " ", if (isUntil) "<" else "<=", " ", nVal, "; ", iVar, " += ", by, ") {\n")
-        doConvertExpr(argNames + (vd.symbol/*paramName.toString*/ -> iVar), body, false, conversion, b)._1
+        doConvertExpr(argNames + (vd.symbol -> iVar), body, false, conversion, b)._1
         out("\n}")
-    }
+    }*/
     
     body match {
       case TupleCreation(tupleArgs) =>//Apply(TypeApply(Select(TupleObject(), applyName()), tupleTypes), tupleArgs) if isTopLevel =>
-        retExprsBuilders = tupleArgs.map(arg => doConvertExpr(argNames, arg, false, conversion)._1)
+        retExprsBuilders = tupleArgs.map(arg => doConvertExpr(arg, false, conversion)._1)
       case Literal(Constant(value)) =>
         if (value != ())
           out(value)
       case Ident(name) =>
+        out(name)/*
         val ns = name.toString
         if (ns == "_") {
           if (placeHolderRefs.isEmpty)
@@ -114,7 +120,7 @@ extends MiscMatchers
             else
               error("Unknown identifier : '" + name + "' (expected any of " + argNames.keys.map("'" + _ + "'").mkString(", ") + ") in : \n" + body + "\n")
           ))
-        }
+        }*/
       case If(condition, then: Tree, thenElse: Tree) =>
         out("((", condition, ") ? (", then, ") : (", thenElse, "))")
       case Apply(Select(target, applyName()), List(singleArg)) =>
@@ -124,13 +130,14 @@ extends MiscMatchers
       case Block(statements, expression) =>
         out(statements.flatMap(List(_, "\n")):_*)
         if (expression != EmptyTree) {
-          val sub = doConvertExpr(argNames, expression, true, conversion)
+          val sub = doConvertExpr(expression, true, conversion)
           out(sub._1.toString, "\n")
           retExprsBuilders = sub._2
           //out(expression, "\n")
         }
       case vd @ ValDef(paramMods, paramName, tpt: TypeTree, rhs) =>
-        conversion.internalSymbols += vd.symbol //-> None
+        //conversion.internalSymbols += vd.symbol //-> None
+        println("vd " + vd + " : " + vd.tpe + " (sym = " + vd.symbol + ")")
         out(convertTpt(tpt), " ", paramName)
         rhs match {
           case Block(statements, expression) =>
@@ -151,7 +158,7 @@ extends MiscMatchers
         //}
         //Match(Ident("x0$1"), List(CaseDef(Apply(TypeTree(), List(Bind(i, Ident("_")), Bind(c, Ident("_"))), EmptyTree Apply(Select(Ident("i"), "$plus"), List(Ident("c")
 
-        doConvertExpr(argNames + (ma.symbol /*matchName.toString*/-> "?"), body, false, conversion, b)._1
+        doConvertExpr(body, false, conversion, b)._1
       case Select(expr, toSizeTName()) => cast(expr, "size_t")
       case Select(expr, toLongName()) => cast(expr, "long")
       case Select(expr, toIntName()) => cast(expr, "int")
@@ -179,12 +186,12 @@ extends MiscMatchers
           case _ =>
             out(funName, "(", args, ")")
         }
-      case Apply(TypeApply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), foreachName()), List(fRetType)), List(f @ List(vd @ ValDef(paramMods, paramName, tpt, rhs)), body)) =>
-        conversion.internalSymbols += vd.symbol //-> None
-        convertForeach(from, to, funToName.toString == "until", Literal(Constant(1)), f)
+      //case Apply(TypeApply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), foreachName()), List(fRetType)), List(f @ List(vd @ ValDef(paramMods, paramName, tpt, rhs)), body)) =>
+        //conversion.internalSymbols += vd.symbol //-> None
+        //convertForeach(from, to, funToName.toString == "until", Literal(Constant(1)), f)
       //case IntRangeForeach(from, to, by, isUntil, Function(List(ValDef(paramMods, paramName, tpt, rhs)), body)) =>
-      case Apply(TypeApply(Select(Apply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), byName()), List(by)), foreachName()), List(fRetType)), List(f: Function)) =>
-        convertForeach(from, to, funToName.toString == "until", by, f)
+      //case Apply(TypeApply(Select(Apply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), byName()), List(by)), foreachName()), List(fRetType)), List(f: Function)) =>
+      //  convertForeach(from, to, funToName.toString == "until", by, f)
       //case Apply(s @ Select(expr, fun), Nil) =>
       case Apply(s @ Select(left, name), args) =>
         NameTransformer.decode(name.toString) match {
@@ -202,6 +209,7 @@ extends MiscMatchers
           error("Unknown function " + s)
         }
       case WhileLoop(condition, content) =>
+        // all the foreach, map and reduce-like operations should have been converted to while loops already
         out("while (", condition, ") {\n")
         content.foreach(s => out(s))
         out("\n}")

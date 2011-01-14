@@ -1,7 +1,16 @@
 #!/bin/bash
+MVN_VERSION="`cat pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'`"
+SBAZ_VERSION="`echo $MVN_VERSION | sed -e "s/-SNAPSHOT/-SNAPSHOT-\`date '+%Y%m%d'\`/g"`"
 
 SCALACL_HOME="`pwd`"
-mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests
+
+echo "###################################################"
+echo "# ScalaCL : "
+echo "#     Maven version = $MVN_VERSION"
+echo "#      sbaz version = $SBAZ_VERSION"
+echo "###################################################"
+
+mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests                    
 
 cd ../ScalaCLPlugin
 mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests
@@ -17,16 +26,18 @@ rm -fR $TEMP_OUT
 mkdir -p $LIB_JAR_OUT
 mkdir -p $PLUGIN_JAR_OUT
 
-VERSION="`cat pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'`"
+cp target/scalacl-$MVN_VERSION-shaded.jar $LIB_JAR_OUT
+cp ../ScalaCLPlugin/target/scalacl-compiler-plugin-$MVN_VERSION.jar $PLUGIN_JAR_OUT
 
-echo "ScalaCL version = $VERSION"
-
-cp target/scalacl-$VERSION-shaded.jar $LIB_JAR_OUT
-cp ../ScalaCLPlugin/target/scalacl-compiler-plugin-$VERSION.jar $PLUGIN_JAR_OUT
-
+echo sbaz pack scalacl $TEMP_OUT \
+	--linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl/ \
+	--version $SBAZ_VERSION \
+	--outdir src/main/sbaz \
+	--descfile ABOUT
+	
 sbaz pack scalacl $TEMP_OUT \
 	--linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl/ \
-	--version $VERSION \
+	--version $SBAZ_VERSION \
 	--outdir src/main/sbaz \
 	--descfile ABOUT
 
@@ -34,7 +45,7 @@ mkdir -p src/main/sbaz
 
 sbaz remove scalacl
 sbaz compact
-sbaz retract scalacl/$VERSION
+sbaz retract scalacl/$SBAZ_VERSION
 sbaz share *.advert
 mv *.advert src/main/sbaz
 open src/main/sbaz

@@ -92,7 +92,32 @@ extends PluginComponent
       }
       null: Tree
     }
-
+    
+    def removeSymbolsExceptParamSymbolAsUnderscore(paramSymbol: Symbol, t: Tree) = { 
+      val trans = new Transformer { 
+        override def transform(tree: Tree) = tree match {
+          case Ident(name) if tree.hasSymbol =>
+            if (tree.symbol == paramSymbol)
+              treeCopy.Ident(tree, N("_"))
+            else {
+              tree.setSymbol(NoSymbol) // to make renaming effective
+              tree
+            }
+          case _ =>
+            super.transform(tree)
+        }
+      }
+      trans transform t
+    }
+    
+    private lazy val duplicator = new Transformer {
+      override val treeCopy = new StrictTreeCopier
+      /*override def transform(t: Tree) = {
+        val t1 = super.transform(t)
+        if ((t1 ne t) && t1.pos.isRange) t1 setPos t.pos.focus
+        t1
+      }*/
+    }
     override def transform(tree: Tree): Tree = {
       //println(".")
       if (!shouldOptimize(tree))
@@ -108,12 +133,45 @@ extends PluginComponent
                 op match {
                   case opType @ (TraversalOp.Map(_, _) | TraversalOp.Filter(_, false)) =>
                     msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpe + "." + op + "'s function argument.") {
-                      var f = op.f
-                      val tupleAnalysis = new TupleAnalysis(f)
-                      f = renameDefinedSymbolsUniquely(f, unit)
-                      //UnTyper.traverse(uniqued)
-                      println("Renamed defined symbols uniquely : " + f)
-                      val Func(List(uniqueParam), body) = op.f
+                      val f = duplicator transform op.f
+                      assert(f.id != op.f.id)
+                      var Function(List(uniqueParam), body) = f
+                      val renamed = renameDefinedSymbolsUniquely(body, unit)
+                      val tupleAnalysis = new TupleAnalysis(renamed)
+                      val flattener = new TuplesAndBlockFlattener(tupleAnalysis)
+                      val flattened = flattener.flattenTuplesAndBlocks(renamed)(currentOwner, unit)
+                      
+                      // Remove all symbols from the trees, because old symbols from before the unique renaming will preempt on renamed Ident names when printing the tree out to C code. 
+                      
+                      
+                      //(flattened.outerDefinitions ++ flattened.statements ++ flattened.values).foreach(t =>
+                      //  removeSymbolsExceptParamSymbolAsUnderscore(uniqueParam.symbol, t)
+                      //)
+                      println("Flattened tuples and blocks : \n\t" + 
+                        flattened.statements.mkString("\n").replaceAll("\n", "\n\t") + 
+                        "\n\t(\n\t\t" + 
+                          flattened.values.mkString("\n").replaceAll("\n", "\n\t\t") + 
+                        "\n\t)"
+                      )
+                      def convert(tree: Tree) = 
+                        convertExpr(removeSymbolsExceptParamSymbolAsUnderscore(uniqueParam.symbol, tree))
+                      
+                      val symsMap = Map(uniqueParam.symbol -> "_")
+                      val convDefs: Seq[(String, Seq[String])] = flattened.outerDefinitions map convert
+                      val convStats: Seq[(String, Seq[String])] = flattened.statements map convert
+                      val convVals: Seq[(String, Seq[String])] = flattened.values map convert
+                      
+                      val outerDefinitions = Seq[String]()/*convDefs.map(d => d._1)
+                        assert(d._1.isEmpty)
+                        d.*/
+                      val statements: Seq[String] = Seq(convStats.map(_._1), convStats.flatMap(_._2), convVals.map(_._1)).flatten
+                      println("statements = " + statements)
+                      val values: Seq[String] = convVals.flatMap(_._2)
+                      println("values = " + values)
+                      System.in.read
+                      
+                      //println("Renamed defined symbols uniquely : " + renamed)
+                      //val Func(List(uniqueParam), body) = op.f
                       val context = localTyper.context1
                       val sourceTpe = uniqueParam.symbol.tpe
                       val mappedTpe = body.tpe
@@ -128,13 +186,16 @@ extends PluginComponent
                         analyzer.inferImplicit(tree, dataIOTpe, false, false, context).tree
                       })
                       
-                      val (statements, values) = convertExpr(Map(uniqueParam.symbol -> "_"), body)
+                      //val (statements, values) = convertExpr(Map(uniqueParam.symbol -> "_"), body)
                       val uniqueSignature = Literal(Constant(
                         (
                           Array(
                             tree.symbol.outerSource, tree.symbol.tag + "|" + tree.symbol.pos,
-                            sourceTpe, mappedTpe, statements
-                          ) ++ values
+                            sourceTpe, mappedTpe
+                          ) ++
+                          outerDefinitions ++
+                          statements ++
+                          values
                         ).map(_.toString).mkString("|")
                       ))
                       val uniqueId = uniqueSignature.hashCode // TODO !!!
@@ -156,7 +217,7 @@ extends PluginComponent
                               List(
                                 newInt(uniqueId),
                                 op.f,
-                                newSeqApply(TypeTree(StringClass.tpe), Literal(Constant(statements))),
+                                newSeqApply(TypeTree(StringClass.tpe), statements.map(s => Literal(Constant(s))):_*),
                                 newSeqApply(TypeTree(StringClass.tpe), values.map(value => Literal(Constant(value))):_*),
                                 newSeqApply(TypeTree(AnyClass.tpe)) // args TODO
                               )
@@ -180,6 +241,7 @@ extends PluginComponent
               }
             } catch { case ex => 
               ex.printStackTrace
+              System.exit(0) // TODO REMOVE ME !!!
               super.transform(tree)
             }
           case _ =>

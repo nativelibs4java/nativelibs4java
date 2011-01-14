@@ -53,6 +53,15 @@ extends MiscMatchers
   import scala.tools.nsc.symtab.Flags._
   import analyzer.{SearchResult, ImplicitSearch}
   
+  case class FlatCode[T](
+    /// External functions that are referenced by statements and / or values 
+    outerDefinitions: Seq[T], 
+    /// List of variable definitions and other instructions (if statements, do / while loops...)
+    statements: Seq[T], 
+    /// Final values of the code in a "flattened tuple" style
+    values: Seq[T]
+  )
+  
   case class TupleInfo(tpe: Type, components: Seq[TupleInfo]) {
     def flattenTypes: Seq[Type] = {
       components match {
@@ -147,17 +156,17 @@ extends MiscMatchers
         // TODO rename the symbols themselves ??
         override def transform(tree: Tree): Tree = {
           def setAttrs(newTree: Tree) =
-            newTree
-            //newTree.setSymbol(tree.symbol).setType(tree.tpe)
+            //newTree
+            newTree.setSymbol(tree.symbol).setType(tree.tpe)
             
           renamings.get(tree.symbol).map(newName => {
             tree match {
               case ValDef(mods, name, tpt, rhs) =>
-                setAttrs(ValDef(mods, newName, super.transform(tpt), super.transform(rhs)))
+                setAttrs(treeCopy.ValDef(tree, mods, newName, super.transform(tpt), super.transform(rhs)))
               case DefDef(mods, name, tparams, vparams, tpt, rhs) =>
-                setAttrs(DefDef(mods, newName, tparams, vparams, super.transform(tpt), super.transform(rhs)))
+                setAttrs(treeCopy.DefDef(tree, mods, newName, tparams, vparams, super.transform(tpt), super.transform(rhs)))
               case Ident(name) =>
-                setAttrs(Ident(newName)) 
+                setAttrs(treeCopy.Ident(tree, newName)) 
               case _ =>
                 super.transform(tree)
             }
@@ -172,13 +181,27 @@ extends MiscMatchers
         TupleSlice(baseSymbol, sliceOffset + offset, length)
     }
 
-    private var treeTupleSlices = new scala.collection.mutable.HashMap[(Int, Tree), TupleSlice]()
+    var treeTupleSlices = new scala.collection.mutable.HashMap[(Int, Tree), TupleSlice]()
     //private var symbolTupleSlices = new scala.collection.mutable.HashMap[Symbol, TupleSlice]()
-    private var symbolTupleSlices = new scala.collection.mutable.HashMap[Symbol, TupleSlice]()
+    var symbolTupleSlices = new scala.collection.mutable.HashMap[Symbol, TupleSlice]()
 
-    def getSlice(tree: Tree) =
-      symbolTupleSlices.get(tree.symbol).orElse(treeTupleSlices.get((tree.id, tree)))
-
+    def getSymbolSlice(sym: Symbol, recursive: Boolean = false): Option[TupleSlice] = {
+      val direct = symbolTupleSlices.get(sym)
+      direct match {
+        case Some(directSlice) if recursive && directSlice.sliceLength > 1 =>
+          getSymbolSlice(directSlice.baseSymbol, recursive)
+        case _ =>
+          direct
+      }
+    }
+    def getTreeSlice(tree: Tree, recursive: Boolean = false): Option[TupleSlice] = {
+      val direct = symbolTupleSlices.get(tree.symbol).orElse(treeTupleSlices.get((tree.id, tree)))
+      if (recursive && direct != None)
+        getSymbolSlice(direct.get.baseSymbol, recursive)
+      else
+        direct
+    }
+    
     class BoundTuple(rootSlice: TupleSlice) {
       def unapply(tree: Tree): Option[Seq[(Symbol, TupleSlice)]] = tree match {
         case Bind(name, Ident(_)) =>
@@ -204,10 +227,10 @@ extends MiscMatchers
       }
     }
 
-    private def setSlice(sym: Symbol, slice: TupleSlice) =
+    def setSlice(sym: Symbol, slice: TupleSlice) =
       symbolTupleSlices(sym) = slice
 
-    private def setSlice(tree: Tree, slice: TupleSlice) = {
+    def setSlice(tree: Tree, slice: TupleSlice) = {
       println("Setting slice " + slice + " for tree " + tree)
       treeTupleSlices((tree.id, tree)) = slice
       tree match {
@@ -230,13 +253,13 @@ extends MiscMatchers
               System.exit(0)
             }
             setSlice(tree.symbol, TupleSlice(tree.symbol, 0, tupleInfo.componentSize))
-            for (slice <- getSlice(rhs)) {
+            for (slice <- getTreeSlice(rhs)) {
               println("\tvaldef has slice " + slice)
               setSlice(tree.symbol, slice)
             }
           case Match(selector, cases) =>
             println("Found match") 
-            for (slice <- getSlice(selector)) {
+            for (slice <- getTreeSlice(selector)) {
               println("\tMatch has slice " + slice)
               val subMatcher = new BoundTuple(slice)
               for (CaseDef(pat, _, _) <- cases) {
@@ -254,9 +277,8 @@ extends MiscMatchers
             super.traverse(tree)
             val (componentsOffset, componentCount) = getComponentOffsetAndSizeOfIthMember(target.tpe, i)
             
-            // getTupleChainRootSymbol(e
             println("Identified tuple component " + i + " of " + target)
-            getSlice(target) match {
+            getTreeSlice(target) match {
               case Some(slice) =>
                 println("\ttarget got slice " + slice)
                 setSlice(tree, TupleSlice(slice.baseSymbol, componentsOffset, componentCount))
@@ -270,8 +292,9 @@ extends MiscMatchers
       }
     }.traverse(tree)
 
-    println("treeTupleSlices = \n\t" + treeTupleSlices.mkString("\n\t"))
-    println("symbolTupleSlices = \n\t" + symbolTupleSlices.mkString("\n\t"))
+    //println("treeTupleSlices = \n\t" + treeTupleSlices.mkString("\n\t"))
+    //println("symbolTupleSlices = \n\t" + symbolTupleSlices.mkString("\n\t"))
+    
     // 1) Create unique names for unique symbols !
     // 2) Detect external references, lift them up in arguments.
     // 3) Annotate code with usage :
@@ -316,8 +339,11 @@ extends MiscMatchers
     // convertTree(tree: Tree): (Seq[Tree], Seq[Tree])
     //
     //
-    var splitMap = Map[Symbol, Symbol]()
-
+  }
+  class TuplesAndBlockFlattener(tupleAnalysis: TupleAnalysis) 
+  {
+    import tupleAnalysis._
+    
     def isOpenCLIntrinsicTuple(components: List[Type]) = {
       components.size match {
         case 2 | 4 | 8 | 16 =>
@@ -327,68 +353,130 @@ extends MiscMatchers
       }
     }
 
-    var sliceReplacements = new scala.collection.mutable.HashMap[TupleSlice, (String, Symbol)]()
+    private var sliceReplacements = new scala.collection.mutable.HashMap[TupleSlice, (String, Symbol)]()
 
-    def flattenTuplesAndBlocks(tree: Tree)(implicit symbolOwner: Symbol, unit: CompilationUnit): (/*Seq[DefDef], */Seq[Tree], Seq[Tree]) = {
+    def flattenTuplesAndBlocks(tree: Tree)(implicit symbolOwner: Symbol, unit: CompilationUnit): FlatCode[Tree] = {
       // If the tree is mapped to a slice and that slice is mapped to a replacement, then replace the tree by an ident to the corresponding name+symbol
-      getSlice(tree).flatMap(sliceReplacements.get).map { case (name, symbol) => (Seq(), Seq(ident(symbol, name))) } getOrElse
-      tree match {
-        case Block(statements, value) =>
-          // Flatten blocks up
-          val (stats, flattenedValues) = flattenTuplesAndBlocks(value)
-          (
-            statements.flatMap(s => {
-              val (stats, flattenedValues) = flattenTuplesAndBlocks(s)
-              stats ++ flattenedValues
-            }) ++
-            stats,
-            flattenedValues
-          )
-        case If(condition, then, otherwise) =>
-          // val (a, b) = if ({ val d = 0 ; d != 0 }) (1, d) else (2, 0)
-          // ->
-          // val d = 0
-          // val condition = d != 0
-          // val a = if (condition) 1 else 2
-          // val b = if (condition) d else 0
-          val (sc, Seq(vc)) = flattenTuplesAndBlocks(condition)
-          val conditionVar = newVariable(unit, "condition", symbolOwner, tree.pos, false, vc)
-          (
-            sc ++ Seq(conditionVar.definition),
-            (flattenTuplesAndBlocks(then), flattenTuplesAndBlocks(otherwise)) match {
-              case ((Seq(), vt), (Seq(), vo)) =>
-                vt.zip(vo).map { case (t, o) => If(conditionVar(), t, o) } // pure (cond ? then : otherwise) form, possibly with tuple values
-              case ((st, vt), (so, vo)) =>
-                Seq(
-                  If(conditionVar(), Block(vt.toList, newUnit), Block(vo.toList, newUnit))
-                )
+      getTreeSlice(tree, true).flatMap(sliceReplacements.get).map { case (name, symbol) => 
+        FlatCode[Tree](Seq(), Seq(), Seq(ident(symbol, name))) 
+      } getOrElse {
+        tree match {
+          case Block(statements, value) =>
+            // Flatten blocks up
+            val FlatCode(defs, stats, flattenedValues) = flattenTuplesAndBlocks(value)
+            val sub = statements.map(flattenTuplesAndBlocks(_))
+            FlatCode(
+              sub.flatMap(_.outerDefinitions),
+              sub.flatMap(_.statements) ++
+              sub.flatMap(_.values) ++ 
+              stats,
+              flattenedValues
+            )
+          case TupleCreation(components) =>
+            val sub = components.map(flattenTuplesAndBlocks(_))
+            // TODO reorder BUG HERE WITH ORDER OF EVALUATION IF THERE ARE SIDE EFFECTS !
+            val varDefs = sub.zipWithIndex map { case (v, iVar) =>
+              v.values.zipWithIndex map { case (value, iValue) =>
+                newVariable(unit, "comp_" + iVar + "_" + iValue, symbolOwner, tree.pos, false, value)
+              }
             }
-          )
-        case ValDef(paramMods, paramName, tpt, rhs) =>
-          // val p = {
-          //   val x = 10
-          //   (x, x + 2)
-          // }
-          // ->
-          // val x = 10
-          // val p_1 = x
-          // val p_2 = x + 2
-          val flattenedTypes = flattenTypes(tree.tpe)
-          val splitSyms: Map[TupleSlice, (String, Symbol)] = flattenedTypes.zipWithIndex.map({ case (tpe, i) =>
-            val name = unit.fresh.newName(tree.pos, paramName + "_" + (i + 1))
-            val sym = symbolOwner.newVariable(tree.pos, name)
-            (TupleSlice(tree.symbol, i, 1), (name, sym))
-          }).toMap
-
-          sliceReplacements ++= splitSyms
-
-          val (stats, flattenedValues) = flattenTuplesAndBlocks(rhs)
-          (
-            stats,
-            splitSyms.zip(flattenedValues).zip(flattenedTypes).map({ case (((slice, (name, sym)), value), tpe) =>
-              ValDef(Modifiers(MUTABLE), name, TypeTree(tpe), value).setSymbol(sym).setType(tpe): Tree
-            }).toSeq
-          )
+            FlatCode(
+              sub.flatMap(_.outerDefinitions),
+              sub.zip(varDefs).flatMap { case (v, vdefs) =>
+                v.statements ++ vdefs.map(_.definition)
+              },
+              varDefs.flatMap(vdefs => vdefs.map(_()))
+            )
+            /*
+            FlatCode(
+              Seq(),
+              sub.flatMap(_.statements),
+              sub.flatMap(_.values)
+            )
+            */
+          case Ident(_) | Literal(_) =>
+            // this ident has no known replacement !
+            FlatCode(Seq(), Seq(), Seq(tree))
+          case Select(target, name) =>
+            val FlatCode(defs, stats, vals) = flattenTuplesAndBlocks(target)
+            FlatCode(
+              defs,
+              stats,
+              vals.map(v => Select(v, name))
+            )
+          case Apply(target, List(arg)) =>
+            val FlatCode(defs1, stats1, vals1) = flattenTuplesAndBlocks(target)
+            val FlatCode(defs2, stats2, vals2) = flattenTuplesAndBlocks(arg)
+            FlatCode(
+              defs1 ++ defs1,
+              stats1 ++ stats2,
+              vals1.zip(vals2).map { case (v1, v2) => Apply(v1, List(v2)) }
+            )
+          case f: Function =>
+            FlatCode(Seq(f), Seq(), Seq())
+          case If(condition, then, otherwise) =>
+            // val (a, b) = if ({ val d = 0 ; d != 0 }) (1, d) else (2, 0)
+            // ->
+            // val d = 0
+            // val condition = d != 0
+            // val a = if (condition) 1 else 2
+            // val b = if (condition) d else 0
+            val FlatCode(dc, sc, Seq(vc)) = flattenTuplesAndBlocks(condition)
+            val conditionVar = newVariable(unit, "condition", symbolOwner, tree.pos, false, vc)
+            FlatCode(
+              dc,
+              sc ++ Seq(conditionVar.definition),
+              (flattenTuplesAndBlocks(then), flattenTuplesAndBlocks(otherwise)) match {
+                case (FlatCode(Seq(), Seq(), vt), FlatCode(Seq(), Seq(), vo)) =>
+                  vt.zip(vo).map { case (t, o) => If(conditionVar(), t, o) } // pure (cond ? then : otherwise) form, possibly with tuple values
+                case (FlatCode(Seq(), st, vt), FlatCode(Seq(), so, vo)) =>
+                  Seq(
+                    If(conditionVar(), Block(vt.toList, newUnit), Block(vo.toList, newUnit))
+                  )
+              }
+            )
+          case ValDef(paramMods, paramName, tpt, rhs) =>
+            // val p = {
+            //   val x = 10
+            //   (x, x + 2)
+            // }
+            // ->
+            // val x = 10
+            // val p_1 = x
+            // val p_2 = x + 2
+            val flattenedTypes = flattenTypes(tree.tpe)
+            if (flattenedTypes.size == 1) {
+              val FlatCode(defs, stats, Seq(value)) = flattenTuplesAndBlocks(rhs)
+              FlatCode(
+                defs,
+                stats,
+                Seq(ValDef(paramMods, paramName, tpt, value).setSymbol(tree.symbol).setType(tree.tpe))
+              )
+            } else {
+              val splitSyms: Map[TupleSlice, (String, Symbol)] = 
+                flattenedTypes.zipWithIndex.map({ case (tpe, i) =>
+                  val name = unit.fresh.newName(tree.pos, paramName + "_" + (i + 1))
+                  val sym = symbolOwner.newVariable(tree.pos, name)
+                  (TupleSlice(tree.symbol, i, 1), (name, sym))
+                }).toMap
+    
+              if (splitSyms.size != 1)
+                sliceReplacements ++= splitSyms
+  
+              val FlatCode(defs, stats, flattenedValues) = flattenTuplesAndBlocks(rhs)
+              FlatCode(
+                defs,
+                stats,
+                splitSyms.zip(flattenedValues).zip(flattenedTypes).map({ case (((slice, (name, sym)), value), tpe) =>
+                  ValDef(Modifiers(0), name, TypeTree(tpe), value).setSymbol(sym).setType(tpe): Tree
+                }).toSeq
+              )
+            }
+          case _ =>
+            error("Case not handled in tuples and blocks flattening : " + tree + " (" + tree.getClass.getName + ")")
+            System.exit(1)
+            FlatCode[Tree](Seq(), Seq(), Seq())
+        }
       }
     }
   }
