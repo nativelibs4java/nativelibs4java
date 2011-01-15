@@ -105,7 +105,7 @@ extends PluginComponent
               treeCopy.Ident(tree, N("_"))
             else {
               tree.setSymbol(NoSymbol) // to make renaming effective
-              tree
+              super.transform(tree)
             }
           case _ =>
             super.transform(tree)
@@ -127,8 +127,8 @@ extends PluginComponent
             import traversalOp._
             try {
               val colTpe = collection.tpe.widen.dealias.deconst
-              if (colTpe <:< CLCollectionClass.tpe) {
-              //if (colTpe.toString.startsWith("scalacl.")) { // TODO
+              //if (colTpe <:< CLCollectionClass.tpe) {
+              if (colTpe.toString.startsWith("scalacl.")) { // TODO
                 op match {
                   case opType @ (TraversalOp.Map(_, _) | TraversalOp.Filter(_, false)) =>
                     msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpe + "." + op + "'s function argument.") {
@@ -138,17 +138,19 @@ extends PluginComponent
                       val renamed = renameDefinedSymbolsUniquely(body, unit)
                       val tupleAnalysis = new TupleAnalysis(renamed)
                       val flattener = new TuplesAndBlockFlattener(tupleAnalysis)
-                      val flattened = flattener.flattenTuplesAndBlocks(renamed)(currentOwner, unit)
+                      val flattened = flattener.flattenTuplesAndBlocks(renamed, true, currentOwner)(unit)
                       
-                      /*
+                      
                       if (options.verbose)
                         println("Flattened tuples and blocks : \n\t" + 
-                          flattened.statements.mkString("\n").replaceAll("\n", "\n\t") + 
-                          "\n\t(\n\t\t" + 
-                            flattened.values.mkString("\n").replaceAll("\n", "\n\t\t") + 
-                          "\n\t)"
+                          flattened.outerDefinitions.mkString("\n").replaceAll("\n", "\n\t") + 
+                          "\n\t" + uniqueParam + " => {\n\t\t" +
+                          flattened.statements.mkString("\n").replaceAll("\n", "\n\t\t") + 
+                          "\n\t\t(\n\t\t\t" + 
+                            flattened.values.mkString("\n").replaceAll("\n", "\n\t\t\t") + 
+                          "\n\t\t)\n\t}"
                         )
-                      */
+                        
                       def convert(tree: Tree) = 
                         convertExpr(removeSymbolsExceptParamSymbolAsUnderscore(uniqueParam.symbol, tree))
                       
@@ -157,14 +159,12 @@ extends PluginComponent
                       val convStats: Seq[(String, Seq[String])] = flattened.statements map convert
                       val convVals: Seq[(String, Seq[String])] = flattened.values map convert
                       
-                      val outerDefinitions = Seq[String]()/*convDefs.map(d => d._1)
-                        assert(d._1.isEmpty)
-                        d.*/
+                      val outerDefinitions: Seq[String] = convDefs.flatMap(d => Option(d._1) ++ d._2)
                       val statements: Seq[String] = Seq(convStats.map(_._1), convStats.flatMap(_._2), convVals.map(_._1)).flatten
                       //println("statements = " + statements)
                       val values: Seq[String] = convVals.flatMap(_._2)
                       //println("values = " + values)
-                      System.in.read
+                      //System.in.read
                       
                       //println("Renamed defined symbols uniquely : " + renamed)
                       //val Func(List(uniqueParam), body) = op.f
@@ -197,7 +197,7 @@ extends PluginComponent
                       val uniqueId = uniqueSignature.hashCode // TODO !!!
                       
                       if (options.verbose)
-                        println("[scalacl] Converted <<< " + body + " >>> to <<< \"" + statements + "\n(" + values.mkString(", ") + ")\" >>>")
+                        println("[scalacl] Converted <<< " + body + " >>> to <<< \"" + outerDefinitions + "\n" + statements + "\n(" + values.mkString(", ") + ")\" >>>")
                       val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
                       val clFunction = 
                         typed {
@@ -213,6 +213,7 @@ extends PluginComponent
                               List(
                                 newInt(uniqueId),
                                 op.f,
+                                newSeqApply(TypeTree(StringClass.tpe), outerDefinitions.map(d => Literal(Constant(d))):_*),
                                 newSeqApply(TypeTree(StringClass.tpe), statements.map(s => Literal(Constant(s))):_*),
                                 newSeqApply(TypeTree(StringClass.tpe), values.map(value => Literal(Constant(value))):_*),
                                 newSeqApply(TypeTree(AnyClass.tpe)) // args TODO

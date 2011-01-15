@@ -34,7 +34,8 @@ import scala.collection.immutable.Stack
 import scala.reflect.NameTransformer
 import scala.reflect.generic.{Names, Trees, Types, Constants, Universe}
 import scala.tools.nsc.Global
-import tools.nsc.plugins.PluginComponent
+import scala.tools.nsc.symtab.Flags._
+import scala.tools.nsc.plugins.PluginComponent
 
 trait OpenCLConverter
 extends MiscMatchers 
@@ -105,22 +106,7 @@ extends MiscMatchers
         if (value != ())
           out(value)
       case Ident(name) =>
-        out(name)/*
-        val ns = name.toString
-        if (ns == "_") {
-          if (placeHolderRefs.isEmpty)
-            error("Not expecting a placeholder here !")
-          val ph = placeHolderRefs.top
-          placeHolderRefs = placeHolderRefs.pop
-          out(ph)
-        } else {
-          out(argNames.get(body.symbol).getOrElse(
-            if (conversion.internalSymbols.contains(body.symbol))
-              name
-            else
-              error("Unknown identifier : '" + name + "' (expected any of " + argNames.keys.map("'" + _ + "'").mkString(", ") + ") in : \n" + body + "\n")
-          ))
-        }*/
+        out(name)
       case If(condition, then: Tree, thenElse: Tree) =>
         out("((", condition, ") ? (", then, ") : (", thenElse, "))")
       case Apply(Select(target, applyName()), List(singleArg)) =>
@@ -135,10 +121,31 @@ extends MiscMatchers
           retExprsBuilders = sub._2
           //out(expression, "\n")
         }
+      case DefDef(mods, name, tparams, vparamss, tpt, body) =>
+        out(convertTpe(body.tpe), " ", name, "(")
+        var first = true
+        for (param <- vparamss.flatten) {
+          if (first)
+            first = false
+          else
+            out(", ")
+          out(constPref(param.mods) + convertTpe(param.tpt.tpe), " ", param.name)
+        }
+        out(") {\n")
+        body match {
+          case block: Block =>
+            block.stats.foreach(s => out(s, ";"))
+            out("return ", block.expr, ";")
+          case _ =>
+            out("return ", body, ";")
+        }
+        out("\n}\n")
       case vd @ ValDef(paramMods, paramName, tpt: TypeTree, rhs) =>
-        //conversion.internalSymbols += vd.symbol //-> None
-        //println("vd " + vd + " : " + vd.tpe + " (sym = " + vd.symbol + ")")
-        out(convertTpt(tpt), " ", paramName)
+        out(
+          constPref(paramMods) + convertTpe(if (tpt.tpe == null) rhs.tpe else tpt.tpe), // TODO fix this ! 
+          " ", 
+          paramName
+        )
         rhs match {
           case Block(statements, expression) =>
             out(";\n{\n")
@@ -186,13 +193,6 @@ extends MiscMatchers
           case _ =>
             out(funName, "(", args, ")")
         }
-      //case Apply(TypeApply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), foreachName()), List(fRetType)), List(f @ List(vd @ ValDef(paramMods, paramName, tpt, rhs)), body)) =>
-        //conversion.internalSymbols += vd.symbol //-> None
-        //convertForeach(from, to, funToName.toString == "until", Literal(Constant(1)), f)
-      //case IntRangeForeach(from, to, by, isUntil, Function(List(ValDef(paramMods, paramName, tpt, rhs)), body)) =>
-      //case Apply(TypeApply(Select(Apply(Select(Apply(Select(Apply(Select(predef, intWrapperName()), List(from)), funToName), List(to)), byName()), List(by)), foreachName()), List(fRetType)), List(f: Function)) =>
-      //  convertForeach(from, to, funToName.toString == "until", by, f)
-      //case Apply(s @ Select(expr, fun), Nil) =>
       case Apply(s @ Select(left, name), args) =>
         NameTransformer.decode(name.toString) match {
           case op @ ("+" | "-" | "*" | "/" | "%" | "^" | "^^" | "&" | "&&" | "|" | "||" | "<<" | ">>" | "==" | "<" | ">" | "<=" | ">=" | "!=") =>
@@ -213,18 +213,35 @@ extends MiscMatchers
         out("while (", condition, ") {\n")
         content.foreach(s => out(s))
         out("\n}")
+      case Apply(target, args) =>
+        out(target, "(", args, ")")
       case _ =>
         println("Failed to convert " + body.getClass.getName + ": " + body)
         println(nodeToStringNoComment(body))
     }
     (b, retExprsBuilders)
   }
-  def convertTpt(tpt: TypeTree) = tpt.toString match {
-    case "Int" => "int"
-    case "Long" => "long"
-    case "org.bridj.SizeT" => "size_t"
-    case "Float" => "float"
-    case "Double" => "double"
-    case _ => error("Cannot convert unknown type " + tpt + " to OpenCL")
+  def constPref(mods: Modifiers) =
+    (if (mods.hasFlag(MUTABLE)) "" else "const ") 
+      
+  def convertTpt(tpt: TypeTree) = convertTpe(tpt.tpe)
+  def convertTpe(tpe: Type) = {
+    if (tpe == null)
+      error("Null type cannot be converted to OpenCL !")
+    else if (tpe == NoType) 
+      "void" 
+    else 
+      tpe.toString match {
+        case "Int" => "int"
+        case "Long" => "long"
+        case "Short" => "short"
+        case "Char" => "short"
+        case "Byte" => "char"
+        case "Float" => "float"
+        case "Double" => "double"
+        case "Boolean" => "char"
+        case "org.bridj.SizeT" => "size_t"
+        case _ => error("Cannot convert unknown type " + tpe + " to OpenCL")
+      }
   }
 }

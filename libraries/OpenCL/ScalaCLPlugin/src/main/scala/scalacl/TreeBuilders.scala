@@ -253,7 +253,8 @@ extends MiscMatchers
   def ident(sym: Symbol, n: Name, pos: Position = NoPosition) = {
     val v = Ident(n)
     v.symbol = sym
-    v.tpe = sym.tpe
+    if (sym.hasRawInfo)
+      v.tpe = sym.tpe
     v.pos = pos
     v
   }
@@ -359,7 +360,9 @@ extends MiscMatchers
         symbolOwner.newVariable(pos, name)
       else
         symbolOwner.newValue(pos, name)
-    ).setInfo(tpe).setFlag(SYNTHETIC | LOCAL)
+    ).setFlag(SYNTHETIC | LOCAL)
+    if (tpe != null && tpe != NoType)
+      sym.setInfo(tpe)
     VarDef(() => ident(sym, name, pos), sym, ValDef(Modifiers(if (mutable) MUTABLE else 0), name, TypeTree(tpe), initialValue).setType(tpe).setSymbol(sym))
   }
 }

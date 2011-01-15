@@ -33,6 +33,7 @@ object CLFunction {
 
 class CLFunction[A, B](
   val function: A => B,
+  val outerDeclarations: Seq[String],
   declarations: Seq[String],
   val expressions: Seq[String],
   includedSources: Seq[String],
@@ -130,7 +131,9 @@ extends (A => B)
   lazy val kernDeclsRange = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, indexVarName, true)).reduceLeftOption(_ + "\n" + _).getOrElse("")
   val assignt = assignts(CLDataIO.InputPointer, indexVarName, false)
   lazy val assigntRange = assignts(CLDataIO.InputPointer, indexVarName, true)
-  var kernelsSource = if (expressions.isEmpty) null else """
+  var kernelsSource = outerDeclarations.mkString("\n")
+  if (!expressions.isEmpty) 
+    kernelsSource += """
       __kernel void array_array(
           int size,
           """ + inParams + """,
@@ -181,7 +184,13 @@ extends (A => B)
     compositions.synchronized {
       compositions.getOrElseUpdate((uid, f.uid), {
         // TODO FIXME !
-        new CLFunction[C, B](function.compose(f.function), Seq(), Seq(functionName + "(" + f.functionName + "(_))"), sourcesToInclude ++ f.sourcesToInclude).asInstanceOf[CLFunction[_, _]]
+        new CLFunction[C, B](
+          function.compose(f.function), 
+          outerDeclarations ++ f.outerDeclarations, 
+          Seq(), 
+          Seq(functionName + "(" + f.functionName + "(_))"), 
+          sourcesToInclude ++ f.sourcesToInclude
+        ).asInstanceOf[CLFunction[_, _]]
       }).asInstanceOf[CLFunction[C, B]]
     }
   }
@@ -190,7 +199,13 @@ extends (A => B)
     ands.synchronized {
       ands.getOrElseUpdate((uid, f.uid), {
         // TODO FIXME !
-        new CLFunction[A, B](a => (function(a) && f.function(a)).asInstanceOf[B], Seq(), Seq("(" + functionName + "(_) && " + f.functionName + "(_))"), sourcesToInclude ++ f.sourcesToInclude).asInstanceOf[CLFunction[_, _]]
+        new CLFunction[A, B](
+          a => (function(a) && f.function(a)).asInstanceOf[B],
+          Seq(),  
+          Seq(), 
+          Seq("(" + functionName + "(_) && " + f.functionName + "(_))"), 
+          sourcesToInclude ++ f.sourcesToInclude
+        ).asInstanceOf[CLFunction[_, _]]
       }).asInstanceOf[CLFunction[A, B]]
     }
   }

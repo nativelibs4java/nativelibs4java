@@ -236,25 +236,19 @@ package object scalacl {
   implicit val DoubleCLDataIO = CLDoubleDataIO
   //implicit def AnyValCLDataIO[T <: AnyVal](implicit t: ClassManifest[T]) = new CLValDataIO[T]
 
-  implicit def Expression2CLFunction[K, V](fx: (K => V, Seq[String]))(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) = {
+  implicit def Expression2CLFunction[K, V](fx: (K => V, Seq[String]))(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
     val (function, expressions) = fx
-    new CLFunction[K, V](function, Seq(), expressions, Seq())
+    new CLFunction[K, V](function, Seq(), Seq(), expressions, Seq())
   }
 
   private val functionsCache = scala.collection.mutable.HashMap[Long, CLFunction[_, _]]()
   
-  def getCachedFunction[K, V](uid: Long, function: K => V, declarations: => Seq[String], expressions: => Seq[String], extraArgs: => Seq[Any])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
+  def getCachedFunction[K, V](uid: Long, function: K => V, outerDeclarations: => Seq[String], declarations: => Seq[String], expressions: => Seq[String], extraArgs: => Seq[Any])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
     functionsCache synchronized {
-      functionsCache.getOrElseUpdate(uid, new CLFunction[K, V](function, declarations, expressions, Seq()).asInstanceOf[CLFunction[_, _]]).asInstanceOf[CLFunction[K, V]]
+      functionsCache.getOrElseUpdate(uid, new CLFunction[K, V](function, outerDeclarations, declarations, expressions, Seq()).asInstanceOf[CLFunction[_, _]]).asInstanceOf[CLFunction[K, V]]
     }
   }
   
-  implicit def CLFunSeq[K, V](declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
-    new CLFunction[K, V](null, declarations, expressions, Seq())
-
-  implicit def CLFullFun[K, V](function: K => V, declarations: Seq[String], expressions: Seq[String])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]) =
-    new CLFunction[K, V](function, declarations, expressions, Seq())
-
   class CLTransformableRange(r: Range)(implicit context: ScalaCLContext) {
     def toCLRange = new CLRange(r)
     def toCLArray = toCLRange.toCLArray
