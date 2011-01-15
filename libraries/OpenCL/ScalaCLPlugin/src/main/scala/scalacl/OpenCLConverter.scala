@@ -53,37 +53,11 @@ extends MiscMatchers
   
   var placeHolderRefs = new Stack[String]
 
-  class Conversion {
-    var internalSymbols = new scala.collection.mutable.HashSet[Symbol]
-  }
-  def convertExpr(body: Tree): (String, Seq[String]) = { 
-    val (sb, vals) = doConvertExpr(body, true, new Conversion)
-    if (vals == null)
-      ("", Seq(sb.toString))
-    else
-      (sb.toString, vals.map(_.toString))
-  }
-  def doConvertExpr(body: Tree, isTopLevel: Boolean, conversion: Conversion, b: StringBuilder = new StringBuilder): (StringBuilder, Seq[StringBuilder]) = {
-    
-    var retExprsBuilders: Seq[StringBuilder] = null
-    
-    def out(args: Any*): Unit = args.foreach(_ match {
-      case t: Tree =>
-        doConvertExpr(t, false, conversion, b)._1
-      case items: List[_] =>
-        var first = true
-        for (item <- items) {
-          if (first)
-            first = false
-          else
-            b.append(", ")
-          out(item)
-        }
-      case s: Any =>
-        b.append(s)
-    })
+  def valueCode(v: String) = FlatCode[String](Seq(), Seq(), Seq(v))
+  def statementCode(s: String) = FlatCode[String](Seq(), Seq(s), Seq())
+  def convert(body: Tree): FlatCode[String] = {
     def cast(expr: Tree, clType: String) =
-      out("((", clType, ")", expr, ")")
+      convert(expr).mapEachValue(v => Seq("((" + clType + ")" + v + ")"))
 
       /*
     def convertForeach(from: Tree, to: Tree, isUntil: Boolean, by: Tree, function: Tree) = {
@@ -101,61 +75,78 @@ extends MiscMatchers
     
     body match {
       case TupleCreation(tupleArgs) =>//Apply(TypeApply(Select(TupleObject(), applyName()), tupleTypes), tupleArgs) if isTopLevel =>
-        retExprsBuilders = tupleArgs.map(arg => doConvertExpr(arg, false, conversion)._1)
+        tupleArgs.map(convert).reduceLeft(_ ++ _)
       case Literal(Constant(value)) =>
-        if (value != ())
-          out(value)
+        assert(value != ())
+        valueCode(value.toString)
       case Ident(name) =>
-        out(name)
+        valueCode(name.toString)
       case If(condition, then: Tree, thenElse: Tree) =>
-        out("((", condition, ") ? (", then, ") : (", thenElse, "))")
+        val Seq(c, t, e) = Seq(condition, then, thenElse).map(convert)
+        val Seq(condValue) = c.values
+        FlatCode[String](
+          c.outerDefinitions ++ t.outerDefinitions ++ e.outerDefinitions,
+          c.statements ++
+          Seq(
+            "if (" + condValue + ") {\n" + t.statements.mkString("\n") + "\n} else {\n" + e.statements.mkString("\n") + "\n}\n"
+          ),
+          Seq()
+        )
+        //out("((", condition, ") ? (", then, ") : (", thenElse, "))")
       case Apply(Select(target, applyName()), List(singleArg)) =>
-        out(target, "[", singleArg, "]")
+        merge(Seq(target, singleArg).map(convert):_*) { case Seq(t, a) => Seq(t + "[" + a + "]") }
       case Assign(lhs, rhs) =>
-        out(lhs, " = ", rhs, ";\n")
-      case Block(statements, expression) =>
+        merge(Seq(lhs, rhs).map(convert):_*) { case Seq(l, r) => Seq(l + " = " + r + ";") }
+      //case Block(statements, expression) =>
+      //  assert(false)
+        /*
         out(statements.flatMap(List(_, "\n")):_*)
         if (expression != EmptyTree) {
-          val sub = doConvertExpr(expression, true, conversion)
+          val sub = doConvertExpr(expression, true, conversion, outer)
           out(sub._1.toString, "\n")
           retExprsBuilders = sub._2
           //out(expression, "\n")
-        }
+        }*/
       case DefDef(mods, name, tparams, vparamss, tpt, body) =>
-        out(convertTpe(body.tpe), " ", name, "(")
+        val b = new StringBuilder
+        b ++= convertTpe(body.tpe) + " " + name + "("
         var first = true
         for (param <- vparamss.flatten) {
           if (first)
             first = false
           else
-            out(", ")
-          out(constPref(param.mods) + convertTpe(param.tpt.tpe), " ", param.name)
+            b ++= ", "
+          b ++= constPref(param.mods) + convertTpe(param.tpt.tpe) + " " + param.name
         }
-        out(") {\n")
-        body match {
-          case block: Block =>
-            block.stats.foreach(s => out(s, ";"))
-            out("return ", block.expr, ";")
-          case _ =>
-            out("return ", body, ";")
+        b ++= ") {\n"
+        val convBody = convert(body)
+        convBody.statements.foreach(b ++= _)
+        if (!convBody.values.isEmpty) {
+          val Seq(ret) = convBody.values
+          b ++= "return " + ret + ";"
         }
-        out("\n}\n")
-      case vd @ ValDef(paramMods, paramName, tpt: TypeTree, rhs) =>
-        out(
-          constPref(paramMods) + convertTpe(if (tpt.tpe == null) rhs.tpe else tpt.tpe), // TODO fix this ! 
-          " ", 
-          paramName
+        b ++= "\n}"
+        FlatCode[String](
+          convBody.outerDefinitions ++ Seq(b.toString),
+          Seq(),
+          Seq()
         )
-        rhs match {
-          case Block(statements, expression) =>
-            out(";\n{\n")
-            out(Block(statements, EmptyTree))
-            out(paramName, " = ", expression, ";\n")
-            out("}\n")
-          case tt: Tree =>
-            if (tt != EmptyTree)
-              out(" = ", tt, ";\n")
-        }
+      case vd @ ValDef(paramMods, paramName, tpt: TypeTree, rhs) =>
+        val convValue = convert(rhs)
+        FlatCode[String](
+          convValue.outerDefinitions,
+          convValue.statements ++
+          Seq(
+            constPref(paramMods) + convertTpt(tpt) + " " + paramName + (
+              if (rhs != EmptyTree) {
+                val Seq(value) = convValue.values
+                " = " + value
+              } else 
+                ""
+            ) + ";"
+          ),
+          Seq()
+        )
       //case Typed(expr, tpe) =>
       //  out(expr)
       case Match(ma @ Ident(matchName), List(CaseDef(pat, guard, body))) =>
@@ -164,8 +155,7 @@ extends MiscMatchers
         //  case (_1: Long,_2: Float)(Long, Float)((i @ _), (c @ _)) => i.+(c)
         //}
         //Match(Ident("x0$1"), List(CaseDef(Apply(TypeTree(), List(Bind(i, Ident("_")), Bind(c, Ident("_"))), EmptyTree Apply(Select(Ident("i"), "$plus"), List(Ident("c")
-
-        doConvertExpr(body, false, conversion, b)._1
+        convert(body)
       case Select(expr, toSizeTName()) => cast(expr, "size_t")
       case Select(expr, toLongName()) => cast(expr, "long")
       case Select(expr, toIntName()) => cast(expr, "int")
@@ -187,48 +177,89 @@ extends MiscMatchers
         ),
         args
       ) =>
-        f.tpe match {
-          case MethodType(List(param), resultType) if param.tpe == DoubleClass.tpe =>
-            out(funName, "((float)", args, ")")
-          case _ =>
-            out(funName, "(", args, ")")
-        }
+        var outers = Seq[String]()//"#include <math.h>")
+        val hasDoubleParam = args.exists(_.tpe == DoubleClass.tpe)
+        if (hasDoubleParam)
+          outers ++= Seq("#pragma OPENCL EXTENSION cl_khr_fp64: enable")
+        
+        val convArgs = args.map(arg => convert(arg match {
+          case Select(a, toDoubleName()) => a
+          case _ => arg
+        }))
+        
+        assert(convArgs.forall(_.statements.isEmpty), convArgs)
+        FlatCode[String](
+          convArgs.flatMap(_.outerDefinitions) ++ outers,
+          convArgs.flatMap(_.statements),
+          Seq(
+            funName + "(" +
+            convArgs.map(convArg => {
+              assert(convArg.statements.isEmpty, convArg)
+              val Seq(value) = convArg.values
+              f.tpe match {
+                case MethodType(List(param), resultType) =>
+                  if (param.tpe != DoubleClass.tpe)
+                    "(float)" + value
+                  else {
+                    value
+                  }
+                case _ =>
+                  value
+              }
+            }).mkString(", ") +
+            ")"
+          )
+        )
       case Apply(s @ Select(left, name), args) =>
+        val List(right) = args
         NameTransformer.decode(name.toString) match {
           case op @ ("+" | "-" | "*" | "/" | "%" | "^" | "^^" | "&" | "&&" | "|" | "||" | "<<" | ">>" | "==" | "<" | ">" | "<=" | ">=" | "!=") =>
-            out("(", left, " ", op, " ", args(0), ")")
+            merge(Seq(left, right).map(convert):_*) { case Seq(l, r) => Seq("(" + l + " " + op + " " + r + ")") }
           case n =>
             println(nodeToStringNoComment(body))
             error("[ScalaCL] Unhandled method name in Scala -> OpenCL conversion : " + name)
+            valueCode("/* Error: failed to convert " + body + " */")
         }
       case s @ Select(expr, fun) =>
-        val fn = fun.toString
-        if (fn.matches("_\\d+")) {
-          out(expr, ".", fn)
-        } else {
-          error("Unknown function " + s)
-        }
+        convert(expr).mapEachValue(v => {
+          val fn = fun.toString
+          if (fn.matches("_\\d+")) {
+            Seq(v + "." + fn)
+          } else {
+            error("Unknown function " + s)
+            Seq("/* Error: failed to convert " + body + " */")
+          }
+        })
       case WhileLoop(condition, content) =>
-        // all the foreach, map and reduce-like operations should have been converted to while loops already
-        out("while (", condition, ") {\n")
-        content.foreach(s => out(s))
-        out("\n}")
+        val cs = content.map(convert)
+        convert(condition).mapEachValue(v => {
+          assert(cs.forall(_.values.isEmpty), cs)
+          Seq(
+            "while (" + v + ") {\n" +
+              cs.flatMap(_.statements).mkString("\n") + "\n" +
+            "}"
+          )
+        }).addOuters(cs.flatMap(_.outerDefinitions))
       case Apply(target, args) =>
-        out(target, "(", args, ")")
+        merge((target :: args).map(convert):_*)(seq => {
+          val t :: a = seq.toList
+          Seq(t + "(" + a.mkString(", ") + ")") 
+        })
       case _ =>
-        println("Failed to convert " + body.getClass.getName + ": " + body)
-        println(nodeToStringNoComment(body))
+        //println(nodeToStringNoComment(body))
+        error("Failed to convert " + body.getClass.getName + ": \n" + body + " : \n" + nodeToStringNoComment(body))
+        valueCode("/* Error: failed to convert " + body + " */")
     }
-    (b, retExprsBuilders)
   }
   def constPref(mods: Modifiers) =
     (if (mods.hasFlag(MUTABLE)) "" else "const ") 
       
   def convertTpt(tpt: TypeTree) = convertTpe(tpt.tpe)
   def convertTpe(tpe: Type) = {
-    if (tpe == null)
+    if (tpe == null) {
       error("Null type cannot be converted to OpenCL !")
-    else if (tpe == NoType) 
+      "?"
+    } else if (tpe == NoType) 
       "void" 
     else 
       tpe.toString match {

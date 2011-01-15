@@ -151,18 +151,23 @@ extends PluginComponent
                           "\n\t\t)\n\t}"
                         )
                         
-                      def convert(tree: Tree) = 
-                        convertExpr(removeSymbolsExceptParamSymbolAsUnderscore(uniqueParam.symbol, tree))
+                      def convertCode(tree: Tree) = 
+                        convert(removeSymbolsExceptParamSymbolAsUnderscore(uniqueParam.symbol, tree))
                       
                       val symsMap = Map(uniqueParam.symbol -> "_")
-                      val convDefs: Seq[(String, Seq[String])] = flattened.outerDefinitions map convert
-                      val convStats: Seq[(String, Seq[String])] = flattened.statements map convert
-                      val convVals: Seq[(String, Seq[String])] = flattened.values map convert
+                      val convDefs: Seq[FlatCode[String]] = flattened.outerDefinitions map convertCode
+                      val convStats: Seq[FlatCode[String]] = flattened.statements map convertCode
+                      val convVals: Seq[FlatCode[String]] = flattened.values map convertCode
                       
-                      val outerDefinitions: Seq[String] = convDefs.flatMap(d => Option(d._1) ++ d._2)
-                      val statements: Seq[String] = Seq(convStats.map(_._1), convStats.flatMap(_._2), convVals.map(_._1)).flatten
+                      val outerDefinitions = 
+                        Seq(convDefs, convStats, convVals).flatMap(_.flatMap(_.outerDefinitions)).distinct.toArray.sortBy(_.startsWith("#"))
+                      
+                      val statements = 
+                        Seq(convStats, convVals).flatMap(_.flatMap(_.statements))
                       //println("statements = " + statements)
-                      val values: Seq[String] = convVals.flatMap(_._2)
+                      
+                      val values: Seq[String] = 
+                        convVals.flatMap(_.values)
                       //println("values = " + values)
                       //System.in.read
                       

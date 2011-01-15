@@ -53,6 +53,7 @@ extends MiscMatchers
   import scala.tools.nsc.symtab.Flags._
   import analyzer.{SearchResult, ImplicitSearch}
   
+  
   case class FlatCode[T](
     /// External functions that are referenced by statements and / or values 
     outerDefinitions: Seq[T], 
@@ -60,7 +61,24 @@ extends MiscMatchers
     statements: Seq[T], 
     /// Final values of the code in a "flattened tuple" style
     values: Seq[T]
-  )
+  ) {
+    def mapEachValue(f: T => Seq[T]): FlatCode[T] = {
+      copy(values = values.flatMap(f))
+    }
+    def mapValues(f: Seq[T] => Seq[T]): FlatCode[T] = {
+      copy(values = f(values))
+    }
+    def ++(fc: FlatCode[T]) = {
+      FlatCode(outerDefinitions ++ fc.outerDefinitions, statements ++ fc.statements, values ++ fc.values)
+    }
+    def addOuters(outerDefs: Seq[T]) = 
+      copy(outerDefinitions = outerDefinitions ++ outerDefs)
+  }
+  
+  def merge[T](fcs: FlatCode[T]*)(f: Seq[T] => Seq[T]) = {
+    fcs.reduceLeft(_ ++ _).mapValues(f)
+  }
+  def EmptyFlatCode[T] = FlatCode[T](Seq(), Seq(), Seq())
   
   case class TupleInfo(tpe: Type, components: Seq[TupleInfo]) {
     def flattenTypes: Seq[Type] = {
@@ -360,7 +378,7 @@ extends MiscMatchers
       var hasNewStatements = false
       val vals = for (value <- code.values) yield {
         value match {
-          case Ident(_) | Select(_, _) =>
+          case Ident(_) | Select(_, _) | ValDef(_, _, _, _) =>
             // already side-effect-free (?)
             (Seq(), value)
           case _ =>

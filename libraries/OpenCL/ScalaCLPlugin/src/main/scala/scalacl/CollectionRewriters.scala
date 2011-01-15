@@ -385,15 +385,18 @@ trait RewritingPluginComponent {
               null
 
             val sym = builderType.typeSymbol.primaryConstructor
+            val args = if (needsManifest && manifestIsInMain)
+              manifestList
+            else
+              mainArgs
+              
+            println("builder args = " + args)
             val n = Apply(
               Select(
                 New(TypeTree(builderType)),
                 sym
               ).setSymbol(sym),
-              if (needsManifest && manifestIsInMain)
-                manifestList
-              else
-                mainArgs
+              args
             ).setSymbol(sym)
             if (needsManifest && !manifestIsInMain)
               Apply(
