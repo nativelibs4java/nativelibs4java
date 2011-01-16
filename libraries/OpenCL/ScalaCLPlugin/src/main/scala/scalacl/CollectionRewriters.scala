@@ -363,10 +363,10 @@ trait RewritingPluginComponent {
         case Some(t) =>
           (t.tpe, Nil, false, false)
         case None =>
-          //if (componentType <:< AnyRefClass.tpe)
+          if (componentType <:< AnyRefClass.tpe)
             (appliedType(RefArrayBuilderClass.tpe, List(componentType)), Nil, true, false)
-          //else
-          //  (appliedType(ArrayBufferClass.tpe, List(componentType)), List(newInt(16)), false, false)
+          else
+            (appliedType(ArrayBufferClass.tpe, List(componentType)), List(newInt(16)), false, false)
       }
       def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree) = {
         val (builderType, mainArgs, needsManifest, manifestIsInMain) = newArrayBuilderInfo(componentType, knownSize);
@@ -377,14 +377,22 @@ trait RewritingPluginComponent {
               var t = componentType
               /*t = t.asSeenFrom(currentOwner?, currentOwner?)*/
               var manifest = localTyper.findManifest(t, false).tree
+              if (manifest == EmptyTree) {
+                manifest = localTyper.findManifest(t, true).tree
+                if (manifest == EmptyTree) {
+                  t = t.dealias.deconst.widen
+                  manifest = localTyper.findManifest(t, false).tree
+                  if (manifest == EmptyTree)
+                    manifest = localTyper.findManifest(t, true).tree
+                }
+              }
               //val manifest = analyzer.inferImplicit(someTree, appliedType(manifestClass.typeConstructor, List(t)), true, false, localTyper.context1).tree
           
-              if (manifest == EmptyTree) {
+              /*if (manifest == EmptyTree) {
                 if (options.verbose)
                   println("[ScalaCL] issue with manifest for type " + t.dealias.deconst.widen + " ?")
                 manifest = localTyper.findManifest(t.dealias.deconst.widen, false).tree
-              }
-              //t = t.dealias.deconst.widen
+              }*/
               
               assert(manifest != EmptyTree, "Empty manifest for type : " + t)
               // TODO: REMOVE THIS UGLY WORKAROUND !!!

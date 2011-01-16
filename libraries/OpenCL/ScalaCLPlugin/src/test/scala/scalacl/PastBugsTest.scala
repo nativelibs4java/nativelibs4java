@@ -38,7 +38,7 @@ class PastBugsTest extends TestUtils {
 
   /// http://code.google.com/p/nativelibs4java/issues/detail?id=34
   @Test
-  def optimInTrait {
+  def issue34_optimInTrait {
     ensurePluginCompilesSnippet("optimInTrait", """
       trait Bug {
         for (i <- 0 to 10) {
@@ -55,6 +55,28 @@ class PastBugsTest extends TestUtils {
       for ((a, b) <- l1)
           yield (a, b)
     """)
+  }
+  
+  /// http://code.google.com/p/nativelibs4java/issues/detail?id=40
+  @Test
+  def issue40_tuplesArrayFilteredForeach {
+    ensureCodeWithSameResult(
+      "",
+      """
+          (for ((i, j) <- Array(1 -> 1, 2 -> 2)) yield (i, j)).toSeq
+      """
+    )
+  }
+  
+  /// http://code.google.com/p/nativelibs4java/issues/detail?id=41
+  @Test
+  def issue41_arrayListToArray {
+    ensureCodeWithSameResult(
+      "",
+      """
+          List(Array(1,2), Array(3,4)).toArray.map(_.toSeq).toSeq
+      """
+    )
   }
   
   @Test

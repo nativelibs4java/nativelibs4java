@@ -185,86 +185,107 @@ trait TestUtils {
 
   import java.io._
 
-  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(2, 10, 1000, 100000)/*10000, 100, 20, 2)*/, nRuns: Int = 10) = {
-    val packageName = "tests"
+  val packageName = "tests"
 
+  case class Res(withPlugin: Boolean, output: AnyRef, time: Double)
+  type TesterGen = Int => (Boolean => Res)
+  
+  def fail(msg: String) = {
+    println(msg)
+    println()
+    assertTrue(msg, false)
+  }
+  
+  private def getTesterGen(withPlugin: Boolean, decls: String, code: String) = {
+    val (testClassName, testMethodName) = testClassInfo
+    
+    val suffixPlugin = (if (withPlugin) "Optimized" else "Normal")
+    val className = "Test_" + testMethodName + "_" + suffixPlugin
+    val src = "package " + packageName + "\nclass " + className + """(n: Int) {
+      """ + (if (decls == null) "" else decls) + """
+      def """ + testMethodName + """ = {
+      """ + code + """
+      }
+    }"""
+
+    val outputDirectory = new File("tmpTestClasses" + suffixPlugin)
+    def del(dir: File): Unit = {
+      val fs = dir.listFiles
+      if (fs != null)
+        fs foreach del
+      
+      dir.delete
+    }
+
+    del(outputDirectory)
+    outputDirectory.mkdirs
+    val loader = new URLClassLoader(Array(outputDirectory.toURI.toURL, new File(Compile.bootClassPath).toURI.toURL))
+
+    var tmpFile = new File(outputDirectory, testMethodName + ".scala")
+    val pout = new PrintStream(tmpFile)
+    pout.println(src)
+    pout.close
+    //println(src)
+    (
+      if (withPlugin) 
+        SharedCompilerWithPlugins 
+      else 
+        SharedCompilerWithoutPlugins
+    ).compile(Array("-d", outputDirectory.getAbsolutePath, tmpFile.getAbsolutePath))
+    
+    //compileFile(tmpFile, withPlugin, outputDirectory)
+    
+    val testClass = loader.loadClass(packageName + "." + className)
+    val testMethod = testClass.getMethod(testMethodName)//, classOf[Int])
+    val testConstructor = testClass.getConstructors.first
+    def instance(n: Int): AnyRef = testConstructor.newInstance(n.asInstanceOf[AnyRef]).asInstanceOf[AnyRef]
+    def invoke(i: AnyRef) = testMethod.invoke(i)
+    
+    (n: Int) => {
+      val i = instance(n)
+      (isWarmup: Boolean) => {
+        if (isWarmup) {
+          invoke(i)
+          null
+        } else {
+          System.gc
+          Thread.sleep(50)
+          val start = System.nanoTime
+          val o = invoke(i)
+          val time: Double = System.nanoTime - start
+          Res(withPlugin, o, time)
+        }
+      }
+    }
+  }
+  def testClassInfo = {
     val testTrace = new RuntimeException().getStackTrace.filter(se => se.getClassName.endsWith("Test")).last
     val testClassName = testTrace.getClassName
     val methodName = testTrace.getMethodName
-    //val methodName = name.replace(' ', '_')
-
-    case class Res(withPlugin: Boolean, output: AnyRef, time: Double)
-    type TesterGen = Int => (Boolean => Res)
+    (testClassName, methodName)
+  }
+  
+  def ensureCodeWithSameResult(decls: String, code: String): Unit = {
+    val (testClassName, testMethodName) = testClassInfo
     
-    def getTesterGen(withPlugin: Boolean) = {
-      val suffixPlugin = (if (withPlugin) "Optimized" else "Normal")
-      val className = "Test_" + methodName + "_" + suffixPlugin
-      val src = "package " + packageName + "\nclass " + className + """(n: Int) {
-        """ + (if (decls == null) "" else decls) + """
-        def """ + methodName + """ = {
-        """ + code + """
-        }
-      }"""
-
-      val outputDirectory = new File("tmpTestClasses" + suffixPlugin)
-      def del(dir: File): Unit = {
-        val fs = dir.listFiles
-        if (fs != null)
-          fs foreach del
-        
-        dir.delete
-      }
-
-      del(outputDirectory)
-      outputDirectory.mkdirs
-      val loader = new URLClassLoader(Array(outputDirectory.toURI.toURL, new File(Compile.bootClassPath).toURI.toURL))
-
-      var tmpFile = new File(outputDirectory, methodName + ".scala")
-      val pout = new PrintStream(tmpFile)
-      pout.println(src)
-      pout.close
-      //println(src)
-      (
-        if (withPlugin) 
-          SharedCompilerWithPlugins 
-        else 
-          SharedCompilerWithoutPlugins
-      ).compile(Array("-d", outputDirectory.getAbsolutePath, tmpFile.getAbsolutePath))
+    val gens @ Array(genWith, genWithout) = Array(getTesterGen(true, decls, code), getTesterGen(false, decls, code))
       
-      //compileFile(tmpFile, withPlugin, outputDirectory)
+    val testers @ Array(testerWith, testerWithout) = gens.map(_(-1))
       
-      val testClass = loader.loadClass(packageName + "." + className)
-      val testMethod = testClass.getMethod(methodName)//, classOf[Int])
-      val testConstructor = testClass.getConstructors.first
-      def instance(n: Int): AnyRef = testConstructor.newInstance(n.asInstanceOf[AnyRef]).asInstanceOf[AnyRef]
-      def invoke(i: AnyRef) = testMethod.invoke(i)
-      
-      (n: Int) => {
-        val i = instance(n)
-        (isWarmup: Boolean) => {
-          if (isWarmup) {
-            invoke(i)
-            null
-          } else {
-            System.gc
-            Thread.sleep(50)
-            val start = System.nanoTime
-            val o = invoke(i)
-            val time: Double = System.nanoTime - start
-            Res(withPlugin, o, time)
-          }
-        }
-      }
+    val firstRun = testers.map(_(false))
+    val Array(optimizedOutput, normalOutput) = firstRun.map(_.output)
+    
+    val pref = "[" + testMethodName + "] "
+    if (normalOutput != optimizedOutput) {
+      fail(pref + "ERROR: Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
     }
+  }
+  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(2, 10, 1000, 100000)/*10000, 100, 20, 2)*/, nRuns: Int = 10, minFaster: Double = 1.0): Unit = {
     
-    val gens @ Array(genWith, genWithout) = Array(true, false) map getTesterGen
+    val (testClassName, methodName) = testClassInfo
+    
+    val gens @ Array(genWith, genWithout) = Array(getTesterGen(true, decls, code), getTesterGen(true, decls, code))
       
-    def fail(msg: String) = {
-      println(msg)
-      println()
-      assertTrue(msg, false)
-    }
-    
     def run = params.toList.sorted.map(param => {
       //println("Running with param " + param)
       val testers @ Array(testerWith, testerWithout) = gens.map(_(param))
@@ -273,7 +294,7 @@ trait TestUtils {
       val Array(optimizedOutput, normalOutput) = firstRun.map(_.output)
       
       val pref = "[" + methodName + ", n = " + param + "] "
-      if (!eq(normalOutput, optimizedOutput)) {
+      if (normalOutput != optimizedOutput) {
         fail(pref + "ERROR: Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
       }
       
@@ -289,90 +310,6 @@ trait TestUtils {
       (param, timeWithoutPlugin / timeWithPlugin)
     }).toMap
     
-    /*
-    def test(withPlugin: Boolean) = {
-      val className = "Test_" + methodName + "_" + (if (withPlugin) "Optimized" else "Normal")
-
-      val src = "package " + packageName + "\nclass " + className + """(n: Int) {
-        """ + (if (decls == null) "" else decls) + """
-        def """ + methodName + """ = {
-        """ + code + """
-        }
-      }"""
-
-      val outputDirectory = new File("tmpTestClasses")
-      def del(dir: File): Unit = {
-        val fs = dir.listFiles
-        if (fs != null)
-          fs foreach del
-        
-        dir.delete
-      }
-
-      del(outputDirectory)
-      outputDirectory.mkdirs
-      val loader = new URLClassLoader(Array(outputDirectory.toURI.toURL, new File(Compile.bootClassPath).toURI.toURL))
-
-      var tmpFile = new File(outputDirectory, methodName + ".scala")
-      val pout = new PrintStream(tmpFile)
-      pout.println(src)
-      pout.close
-      //println(src)
-      (
-        if (withPlugin) 
-          SharedCompilerWithPlugins 
-        else 
-          SharedCompilerWithoutPlugins
-      ).compile(Array("-d", outputDirectory.getAbsolutePath, tmpFile.getAbsolutePath))
-      
-      //compileFile(tmpFile, withPlugin, outputDirectory)
-      
-      val testClass = loader.loadClass(packageName + "." + className)
-      val testMethod = testClass.getMethod(methodName)//, classOf[Int])
-      val testConstructor = testClass.getConstructors.first
-      def instance(n: Int): AnyRef = testConstructor.newInstance(n.asInstanceOf[AnyRef]).asInstanceOf[AnyRef]
-      def invoke(i: AnyRef) = testMethod.invoke(i)
-      
-      // Warm up the code being benchmarked :
-      {
-        val i = instance(5)
-        (0 until 2500).foreach(_ => invoke(i))
-      };
-      
-      val ret = for (param <- params) yield {
-        val i = instance(param)
-        def run = {
-          System.gc
-          Thread.sleep(50)
-          val start = System.nanoTime
-          val o = invoke(i)
-          val time: Double = System.nanoTime - start
-          (o, time)
-        }
-
-        val (o, time) = if (nRuns == 1)
-          run
-        else
-          (
-            run._1, // take first output
-            {
-              var times = for (i <- 0 until nRuns) yield run._2 // skip first run, compute average on other runs
-              times.sum / times.size.toDouble
-            }
-          )
-          
-        (param, o, time)
-      }
-      del(outputDirectory)
-      ret
-    }*/
-    
-    def eq(a: AnyRef, b: AnyRef) = {
-      if ((a == null) != (b == null))
-        false
-      else
-        (a == null) || a.equals(b)
-    }
     val (logName, log, properties) = Results.getLog(testClassName)
     
     //println("Cold run...")
@@ -433,40 +370,6 @@ trait TestUtils {
       check(false, coldFactor, expectedColdFactor) ++
       check(true, warmFactor, expectedWarmFactor)
     }
-    /*val errors = test(true).zip(test(false)).flatMap {
-      case ((param, optimizedOutput, optimizedTime), (_, normalOutput, normalTime)) =>
-        if (!eq(normalOutput, optimizedOutput)) {
-          fail(pref + "ERROR: Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
-        }
-        val actualFasterFactor = normalTime / optimizedTime.toDouble
-        
-        def printFact(f: Double) = log.println(methodName + "\\:" + param + "=" + ((f * 10).toInt / 10.0))
-        
-        val expectedFactor = {
-          val p = properties.getProperty(methodName + ":" + param)
-          val fac = if (p != null) {
-            val f = p.toDouble
-            log.print("# Test result (" + (if (actualFasterFactor >= f) "succeeded" else "failed") + "): ")
-            printFact(actualFasterFactor)
-            printFact(f)
-            f
-          } else {
-            printFact(actualFasterFactor - 0.1)
-            1.0
-          }
-          
-          fac
-        }
-        
-        if (actualFasterFactor >= expectedFactor) {
-          println(pref + "  OK (" + actualFasterFactor + "x faster, expected > " + expectedFactor + "x)")
-          None
-        } else {
-          val msg = "ERROR: only " + actualFasterFactor + "x faster (expected >= " + expectedFactor + "x)"
-          println(pref + msg)
-          Some(msg)
-        }
-    }*/
     try {
       if (!errors.isEmpty)
         assertTrue(errors.mkString("\n"), false)
