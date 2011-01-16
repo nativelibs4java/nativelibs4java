@@ -151,6 +151,7 @@ trait MiscMatchers {
   val packageName = N("package")
   val applyName = N("apply")
   lazy val ScalaCollectionPackage = definitions.getModule(N("scala.collection"))
+  lazy val ScalaReflectPackage = definitions.getModule(N("scala.reflect"))
   lazy val SeqClass = definitions.getClass(N("scala.collection.Seq"))
   lazy val SeqModule = definitions.getModule(N("scala.collection.Seq"))
   lazy val CanBuildFromClass = definitions.getClass("scala.collection.generic.CanBuildFrom")
@@ -324,31 +325,20 @@ trait MiscMatchers {
   object ArrayOps {
     lazy val ArrayOpsClass    = definitions.getClass("scala.collection.mutable.ArrayOps")
 
-    def unapply(tree: Tree): Option[Symbol] = tree match {
+    def unapply(tree: Tree): Option[Type] = tree match {
       case TypeApply(sel, List(arg))
         if sel.symbol == Predef.RefArrayOps || sel.symbol == Predef.GenericArrayOps =>
-        Some(arg.symbol)
-        //Some(arg.tpe.typeSymbol)
+        Some(arg.tpe)
       case _  => tree.symbol.tpe match {
         case MethodType(_, TypeRef(_, ArrayOpsClass, List(param)))
           if Predef contains tree.symbol =>
-          Some(param.typeSymbol)
+          Some(param)
         case _ =>
           None
       }
     }
   }
 
-  /*object Foreach {
-    def apply(target: Tree, function: Tree) = error("not implemented")
-
-    def unapply(tree: Tree): Option[(Tree, Tree)] = tree match {
-      case Apply(TypeApply(Select(target, foreachName()), List(fRetType)), List(function)) =>
-        Some((target, function))
-      case _ =>
-        None
-    }
-  }*/
   object ArrayTree {
     def unapply(tree: Tree) = tree match {
       case Apply(ArrayOps(componentType), List(array)) => Some(array, componentType)
@@ -356,30 +346,22 @@ trait MiscMatchers {
     }
   }
   class ColTree(ColClass: Symbol) {
-    //def unapply(tree: Tree) = Some(tree.symbol.tpe.dealias.deconst.widen) collect {
-    //def unapply(tree: Tree) = Some(tree.tpe.dealias.deconst.widen) collect {
-    //  case TypeRef(_, ColClass, List(param)) => param.typeSymbol
-    //}
     def unapply(tree: Tree) = if (tree == null) None else {
-      def sub(cc: Symbol, param: Type) = {        
-        //println("OK cc = " + cc + ", cc.tpe = " + cc.tpe + ", cc.tpe.typeSymbol = " + cc.tpe.typeSymbol + ", ColClass = " + ColClass + ", ColClass.tpe = " + ColClass.tpe)
-        if (cc.tpe == ColClass.tpe || cc.tpe.toString == ColClass.tpe.toString)
-          Some(param.typeSymbol)
-        else
-          None
-      }
-          
-      def unap(t: Type) = if (t == null) None else t.dealias.deconst.widen match {
-        case TypeRef(_, ColClass, List(param)) => 
-          Some(param.typeSymbol)
-        case TypeRef(_, cc, List(param)) => 
-          sub(cc, param)
-        case PolyType(Nil, TypeRef(_, cc, List(param))) =>
-          sub(cc, param)
-        case tt =>
-          //println("! " + tt + ": " + tt.getClass.getName)
-          None
-      }
+      def isCol(cc: Symbol) = 
+        cc.tpe == ColClass.tpe || cc.tpe.toString == ColClass.tpe.toString
+       
+      def unap(tpe: Type) =
+        tpe match {
+          case TypeRef(_, ColClass, List(param)) =>
+            Some(param)
+          case TypeRef(_, cc, List(param)) if isCol(cc) || isCol(tree.symbol)  => 
+            Some(param)
+          case PolyType(Nil, TypeRef(_, cc, List(param))) if isCol(cc) || isCol(tree.symbol) =>
+            Some(param)
+          case _ =>
+            None
+        }
+      
       unap(tree.tpe) match {
         case Some(s) =>
           Some(s)

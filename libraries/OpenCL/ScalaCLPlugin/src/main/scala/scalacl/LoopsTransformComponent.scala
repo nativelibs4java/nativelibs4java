@@ -89,6 +89,15 @@ extends PluginComponent
     }
     
     override def transform(tree: Tree): Tree = {
+      /*
+      Coding style checker example:
+      tree match { 
+        case DefDef(mods, name, _, _, tpt: TypeTree, body) 
+        if tpt.pos == tree.pos && name != nme.CONSTRUCTOR && !mods.hasFlag(SYNTHETIC) =>
+          unit.error(body.pos, "Method return type must be defined explicitely (inferred " + tpt + ")")
+        case _ =>
+      }
+      */
       if (!shouldOptimize(tree))
         super.transform(tree)
       else
@@ -265,7 +274,7 @@ extends PluginComponent
                                   if (initialValue == null) {
                                     op match {
                                       case TraversalOp.Sum =>
-                                        Literal(Constant(0: Byte)).setType(componentType.tpe)
+                                        Literal(Constant(0: Byte)).setType(componentType)
                                       case _ =>
                                         // Take first or last value for Reduce, Min, Max
                                         assert(skipFirst)
@@ -337,7 +346,7 @@ extends PluginComponent
                               env => {
                                 val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(
                                   collection.pos,
-                                  componentType.tpe,
+                                  componentType,
                                   mappedCollectionType,
                                   () => intAdd(env.nVar(), newInt(1)),
                                   localTyper
@@ -454,7 +463,7 @@ extends PluginComponent
                                   false,
                                   false,
                                   env => {
-                                    val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = rewriter.newBuilder(collection.pos, componentType.tpe, null, null/*env.outputSizeVar*/, localTyper)
+                                    val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = rewriter.newBuilder(collection.pos, componentType, null, null/*env.outputSizeVar*/, localTyper)
                                     val builderVar = newVariable(
                                       unit,
                                       "builder$",
@@ -491,7 +500,7 @@ extends PluginComponent
                               false,
                               false,
                               env => {
-                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType.tpe, null, null, localTyper)
+                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType, null, null, localTyper)
                                 val builderVar = newVariable(
                                   unit,
                                   "builder$",
@@ -595,7 +604,7 @@ extends PluginComponent
                                   true,
                                   newBool(false)
                                 )
-                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType.tpe, null, null, localTyper)
+                                val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = colType.newBuilder(collection.pos, componentType, null, null, localTyper)
                                 val builderVar = newVariable(
                                   unit,
                                   "builder$",

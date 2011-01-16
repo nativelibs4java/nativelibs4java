@@ -103,7 +103,7 @@ trait RewritingPluginComponent {
       def foreach[Payload](
         tree: Tree,
         array: Tree,
-        componentType: Symbol,
+        componentType: Type,
         reverseOrder: Boolean,
         skipFirst: Boolean,
         outerStatements: LoopOutersEnv => LoopOuters[Payload],
@@ -147,15 +147,15 @@ trait RewritingPluginComponent {
       val colType: CollectionType, 
       val tpe: Type, 
       val array: Tree, 
-      val componentType: Symbol
+      val componentType: Type
     )
     
     object CollectionRewriter {
       def unapply(tree: Tree): Option[CollectionRewriter] = tree match {
         case ArrayTree(array, componentType) =>
-          Some(new CollectionRewriter(ArrayRewriter, appliedType(ArrayClass.tpe, List(componentType.tpe)), array, componentType))
+          Some(new CollectionRewriter(ArrayRewriter, appliedType(ArrayClass.tpe, List(componentType)), array, componentType))
         case ListTree(componentType) =>
-          Some(new CollectionRewriter(ListRewriter, appliedType(ListClass.tpe, List(componentType.tpe)), tree, componentType))
+          Some(new CollectionRewriter(ListRewriter, appliedType(ListClass.tpe, List(componentType)), tree, componentType))
         case IntRange(from, to, by, isUntil, filters) =>
           (
             by match {
@@ -168,7 +168,7 @@ trait RewritingPluginComponent {
             }
           ) match {
             case Some(byValue) =>
-              Some(new CollectionRewriter(IntRangeRewriter(from, to, byValue, isUntil, filters), appliedType(ArrayClass.tpe, List(IntClass.tpe)), null, IntClass))
+              Some(new CollectionRewriter(IntRangeRewriter(from, to, byValue, isUntil, filters), appliedType(ArrayClass.tpe, List(IntClass.tpe)), null, IntClass.tpe))
             case _ =>
               None
           }
@@ -279,7 +279,7 @@ trait RewritingPluginComponent {
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,
-        componentType: Symbol,
+        componentType: Type,
         reverseOrder: Boolean,
         skipFirst: Boolean,
         outerStatements: LoopOutersEnv => LoopOuters[Payload],
@@ -358,6 +358,57 @@ trait RewritingPluginComponent {
         }
       }
     }
+    /*
+    def getManifest(tpe: Type, localTyper: analyzer.Typer): Tree = {
+      var t = tpe//.dealias.deconst.widen
+      //t = t.dealias.deconst//.widen
+      var manifest = localTyper.findManifest(t, false).tree
+      if (manifest == EmptyTree) {
+        manifest = t match {
+          case TypeRef(tt, cc, List(param)) =>
+            if (cc == ArrayClass) {
+              val arrayTypeName = N("arrayType")
+              val sym = PartialManifestModule.tpe member arrayTypeName
+              typed {
+                Apply(
+                  TypeApply(
+                    Select(
+                      Select(
+                        Select(
+                          Ident(
+                            N("scala")
+                          ) setSymbol(ScalaPackage), 
+                          N("reflect")
+                        ).setSymbol(ScalaReflectPackage), 
+                        N("PartialManifest")
+                      ).setSymbol(PartialManifestModule),
+                      arrayTypeName
+                    ).setSymbol(sym),
+                    List(TypeTree(param))
+                  ),
+                  List(
+                    //localTyper.findManifest(param, false).tree
+                    getManifest(param, localTyper)
+                  )
+                )
+              }
+            } else {
+              println("cc = " + cc)
+              println("cc = " + ArrayClass)
+              EmptyTree
+            }
+            //cc.typeConstructor//param//.typeSymbol
+          //case PolyType(Nil, TypeRef(tt, cc, List(param))) => 
+          //  tt//param//.typeSymbol
+          case _ =>
+            println("UNKNOWN TYPE t = " + t + " (" + t.getClass.getName + ")")
+            EmptyTree
+        }
+        println("MANIFEST = " + manifest)
+      }
+      assert(manifest != EmptyTree, "Empty manifest for type : " + tpe + " = " + t)
+      manifest 
+    }*/
     trait ArrayBuilderTargetRewriter {
       def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen) = primArrayBuilderClasses.get(componentType) match {
         case Some(t) =>
@@ -375,30 +426,14 @@ trait RewritingPluginComponent {
           localTyper.typed {
             val manifestList = if (needsManifest) {
               var t = componentType
-              /*t = t.asSeenFrom(currentOwner?, currentOwner?)*/
-              var manifest = localTyper.findManifest(t, false).tree
-              if (manifest == EmptyTree) {
-                manifest = localTyper.findManifest(t, true).tree
-                if (manifest == EmptyTree) {
-                  t = t.dealias.deconst.widen
-                  manifest = localTyper.findManifest(t, false).tree
-                  if (manifest == EmptyTree)
-                    manifest = localTyper.findManifest(t, true).tree
-                }
-              }
-              //val manifest = analyzer.inferImplicit(someTree, appliedType(manifestClass.typeConstructor, List(t)), true, false, localTyper.context1).tree
-          
-              /*if (manifest == EmptyTree) {
-                if (options.verbose)
-                  println("[ScalaCL] issue with manifest for type " + t.dealias.deconst.widen + " ?")
-                manifest = localTyper.findManifest(t.dealias.deconst.widen, false).tree
-              }*/
               
-              assert(manifest != EmptyTree, "Empty manifest for type : " + t)
+              var manifest = localTyper.findManifest(t, false).tree
+              if (manifest == EmptyTree)
+                manifest = localTyper.findManifest(t.dealias.deconst.widen, false).tree // TODO remove me ?
+              assert(manifest != EmptyTree, "Empty manifest for type : " + t + " = " + t.dealias.deconst.widen)
+          
               // TODO: REMOVE THIS UGLY WORKAROUND !!!
               assertNoThisWithNoSymbolOuterRef(manifest, localTyper)
-              //println("builder manifest = " + manifest + " = " + nodeToString(manifest))
-            
               List(manifest)
             } else
               null
@@ -409,7 +444,6 @@ trait RewritingPluginComponent {
             else
               mainArgs
               
-            //println("builder args = " + args)
             val n = Apply(
               Select(
                 New(TypeTree(builderType)),
@@ -470,7 +504,7 @@ trait RewritingPluginComponent {
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,
-        componentType: Symbol,
+        componentType: Type,
         reverseOrder: Boolean,
         skipFirst: Boolean,
         outerStatements: LoopOutersEnv => LoopOuters[Payload],
@@ -594,7 +628,7 @@ trait RewritingPluginComponent {
       override def foreach[Payload](
         tree: Tree,
         collection: Tree,
-        componentType: Symbol,
+        componentType: Type,
         reverseOrder: Boolean,
         skipFirst: Boolean,
         outerStatements: LoopOutersEnv => LoopOuters[Payload],
@@ -605,7 +639,7 @@ trait RewritingPluginComponent {
         val colTpe = collection.tpe
         val aVar = newVariable(unit, "list$", currentOwner, pos, true, collection)
         val itemVar = newVariable(unit, "item$", currentOwner, pos, false, typed {
-            Select(aVar(), headName).setSymbol(colTpe.member(headName))//.setType(componentType.tpe)
+            Select(aVar(), headName).setSymbol(colTpe.member(headName))//.setType(componentType)
         })
         val loopOuters = outerStatements(new LoopOutersEnv(aVar, null, null))
         val loopInners = new LoopInnersEnv[Payload](aVar, null, null, null, itemVar, loopOuters.payload)
@@ -625,7 +659,7 @@ trait RewritingPluginComponent {
                 if ("1" == System.getenv("SCALACL_LIST_TEST_ISEMPTY")) // Safer, but 10% slower
                   boolAnd(boolNot(Select(aVar(), isEmptyName).setSymbol(colTpe.member(isEmptyName)).setType(BooleanClass.tpe)), extraTest)
                 else
-                  boolAnd(newIsInstanceOf(aVar(), appliedType(NonEmptyListClass.typeConstructor, List(componentType.tpe))),extraTest)
+                  boolAnd(newIsInstanceOf(aVar(), appliedType(NonEmptyListClass.typeConstructor, List(componentType))),extraTest)
                   //boolAnd(typed { aVar().IS(NonEmptyListClass.tpe) }/*.setType(BooleanClass.tpe)*/, extraTest),
                 ,
                 typed {
