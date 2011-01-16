@@ -183,10 +183,10 @@ trait MiscMatchers {
     def apply(functionName: String, args: List[Tree]) =
       Apply(mkSelect("scala", "math", "package", functionName), args)
         
-    def unapply(tree: Tree): Option[(Name, List[Tree])] = tree match {
+    def unapply(tree: Tree): Option[(Type, Name, List[Tree])] = tree match {
       case
         Apply(
-          Select(
+          f @ Select(
             Select(
               Select(
                 Ident(scalaName()),
@@ -198,7 +198,7 @@ trait MiscMatchers {
           ),
           args
         ) =>
-        Some((funName, args))
+        Some((f.tpe, funName, args))
       case _ =>
         None
     }

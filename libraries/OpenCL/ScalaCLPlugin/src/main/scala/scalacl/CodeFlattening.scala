@@ -378,11 +378,17 @@ extends MiscMatchers
       var hasNewStatements = false
       val vals = for (value <- code.values) yield {
         value match {
+          case Select(ScalaMathFunction(_, _, _), toFloatName()) =>
+            // special case for non-double math :
+            // exp(20: Float).toFloat
+            (Seq(), value)
           case Ident(_) | Select(_, _) | ValDef(_, _, _, _) =>
             // already side-effect-free (?)
             (Seq(), value)
           case _ =>
             assert(value.tpe != null, value + " (" + value.getClass.getName + " = " + nodeToString(value) + ")")
+            if (options.verbose)
+              println("Creating a temp variable for " + value)
             val tempVar = newVariable(unit, "tmp", symbolOwner, value.pos, false, value)
             hasNewStatements = true
             (Seq(tempVar.definition), tempVar())

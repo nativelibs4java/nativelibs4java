@@ -180,8 +180,8 @@ object ScalaCLPlugin {
       case ex: scala.tools.nsc.MissingRequirementError =>
         if (options.verbose)
           println("[scalacl] ScalaCL Collections library not in the classpath : won't perform Scala -> OpenCL transforms.")
-        if (options.trace)
-          ex.printStackTrace
+        //if (options.trace)
+        //  ex.printStackTrace
         null
       case _ =>
         null // TODO

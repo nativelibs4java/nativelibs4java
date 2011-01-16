@@ -164,19 +164,7 @@ extends MiscMatchers
       case Select(expr, toCharName()) => cast(expr, "short")
       case Select(expr, toDoubleName()) => cast(expr, "double")
       case Select(expr, toFloatName()) => cast(expr, "float")
-      case Apply(
-        f @ Select(
-          Select(
-            Select(
-              Ident(scalaName()),
-              mathName()
-            ),
-            packageName()
-          ),
-          funName
-        ),
-        args
-      ) =>
+      case ScalaMathFunction(functionType, funName, args) =>
         var outers = Seq[String]()//"#include <math.h>")
         val hasDoubleParam = args.exists(_.tpe == DoubleClass.tpe)
         if (hasDoubleParam)
@@ -196,7 +184,7 @@ extends MiscMatchers
             convArgs.map(convArg => {
               assert(convArg.statements.isEmpty, convArg)
               val Seq(value) = convArg.values
-              f.tpe match {
+              functionType match {
                 case MethodType(List(param), resultType) =>
                   if (param.tpe != DoubleClass.tpe)
                     "(float)" + value
