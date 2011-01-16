@@ -90,6 +90,33 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
       """
     )
   }
+  
+  @Test
+  def tupleArrayFilter {
+    ensurePluginCompilesSnippetsToSameByteCode("tupleArrayFilter",
+      """
+          val a = Array((1, 2), (10, 20), (100, 200))
+          val m = a.filter(_._1 < 30)
+      """,
+      """
+          val a = Array((1, 2), (10, 20), (100, 200))
+          val m = {
+            val array1 = a
+            val n1 = array1.length
+            var i1 = 0
+            var builder1 = new scala.collection.mutable.ArrayBuilder.ofRef[(Int, Int)]
+            while (i1 < n1)
+            {
+              val item1 = array1(i1)
+              if (item1._1 < 30)
+                builder1 += item1
+              i1 += 1
+            }
+            builder1.result
+          }
+      """
+    )
+  }
 
 
   def simpleArrayFilter(typeStr: String, valueStr: String) = {

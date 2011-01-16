@@ -29,12 +29,6 @@ mkdir -p $PLUGIN_JAR_OUT
 cp target/scalacl-$MVN_VERSION-shaded.jar $LIB_JAR_OUT
 cp ../ScalaCLPlugin/target/scalacl-compiler-plugin-$MVN_VERSION.jar $PLUGIN_JAR_OUT
 
-echo sbaz pack scalacl $TEMP_OUT \
-	--linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl/ \
-	--version $SBAZ_VERSION \
-	--outdir src/main/sbaz \
-	--descfile ABOUT
-	
 sbaz pack scalacl $TEMP_OUT \
 	--linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl/ \
 	--version $SBAZ_VERSION \

@@ -389,7 +389,7 @@ trait TestUtils {
     val warmRun = run
     
     
-    val errors = coldRun.map { case (param, coldFactor) =>
+    val errors = coldRun.flatMap { case (param, coldFactor) =>
       val warmFactor = warmRun(param)
       //println("coldFactor = " + coldFactor + ", warmFactor = " + warmFactor)
       
