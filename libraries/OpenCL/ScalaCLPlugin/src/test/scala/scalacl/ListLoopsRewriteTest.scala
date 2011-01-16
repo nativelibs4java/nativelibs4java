@@ -38,11 +38,11 @@ class ListLoopsRewriteTest extends TestUtils with TypeUtils {
 
   @Test
   def simpleRefListForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("simpleRefListForeach", refTypeNames map simpleListForeach)
+    ensurePluginCompilesSnippetsToSameByteCode(refTypeNames map simpleListForeach)
 
   @Test
   def simplePrimitiveListForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("simplePrimitiveListForeach", primTypeNames map simpleListForeach)
+    ensurePluginCompilesSnippetsToSameByteCode(primTypeNames map simpleListForeach)
   
   def simpleListForeach(typeStr: String) = {
     (
@@ -67,11 +67,11 @@ class ListLoopsRewriteTest extends TestUtils with TypeUtils {
 
   @Test
   def simpleRefListMap =
-    ensurePluginCompilesSnippetsToSameByteCode("simpleRefListMap", refTypeNames map simpleListMap)
+    ensurePluginCompilesSnippetsToSameByteCode(refTypeNames map simpleListMap)
 
   @Test
   def simplePrimitiveListMap =
-    ensurePluginCompilesSnippetsToSameByteCode("simplePrimitiveListMap", primTypeNames map simpleListMap)
+    ensurePluginCompilesSnippetsToSameByteCode(primTypeNames map simpleListMap)
 
   def simpleListMap(typeStr: String) = {
     (

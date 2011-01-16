@@ -37,11 +37,11 @@ import Function.{tupled, untupled}
 
 class NoChangeTest extends TestUtils with TypeUtils {
 
-  def ensureUnchanged(name: String, source: String) = 
-    ensurePluginCompilesSnippetsToSameByteCode(name, source, source, allowSameResult = true)
+  def ensureUnchanged(source: String) = 
+    ensurePluginCompilesSnippetsToSameByteCode(source, source, allowSameResult = true)
   
-  def unchangedCol(name: String, col: String) =
-    ensureUnchanged(name,
+  def unchangedCol(col: String) =
+    ensureUnchanged(
       """
           val a = """ + col + """
           val filter = a.filter(_ != 0)
@@ -54,10 +54,10 @@ class NoChangeTest extends TestUtils with TypeUtils {
       """
     )
   
-  @Test def simpleUnchangedSeq = unchangedCol("simpleUnchangedSeq", "Seq(1, 2, 3, 4)")
-  @Test def simpleUnchangedIndexedSeq = unchangedCol("simpleUnchangedIndexedSeq", "IndexedSeq(1, 2, 3, 4)")
-  @Test def simpleUnchangedSet = unchangedCol("simpleUnchangedSet", "Set(1, 2, 3, 4)")
-  @Test def simpleUnchangedTraversable = unchangedCol("simpleUnchangedTraversable", "Traversable(1, 2, 3, 4)")
-  @Test def simpleUnchangedIterable = unchangedCol("simpleUnchangedIterable", "Iterable(1, 2, 3, 4)")
+  @Test def simpleUnchangedSeq = unchangedCol("Seq(1, 2, 3, 4)")
+  @Test def simpleUnchangedIndexedSeq = unchangedCol("IndexedSeq(1, 2, 3, 4)")
+  @Test def simpleUnchangedSet = unchangedCol("Set(1, 2, 3, 4)")
+  @Test def simpleUnchangedTraversable = unchangedCol("Traversable(1, 2, 3, 4)")
+  @Test def simpleUnchangedIterable = unchangedCol("Iterable(1, 2, 3, 4)")
   
 }

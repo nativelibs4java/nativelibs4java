@@ -39,11 +39,11 @@ class ArrayMap2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def simplePrimitiveArrayTabulate =
-    ensurePluginCompilesSnippetsToSameByteCode("simplePrimitiveArrayTabulate", primValues map tupled { simpleArrayTabulate })
+    ensurePluginCompilesSnippetsToSameByteCode(primValues map tupled { simpleArrayTabulate })
   
   @Test
   def simpleRefArrayTabulate =
-    ensurePluginCompilesSnippetsToSameByteCode("simpleRefArrayTabulate", refValues map tupled { simpleArrayTabulate })
+    ensurePluginCompilesSnippetsToSameByteCode(refValues map tupled { simpleArrayTabulate })
   
   def simpleArrayTabulate(typeStr: String, valStr: String) = {
     (
@@ -72,11 +72,11 @@ class ArrayMap2WhileTest extends TestUtils with TypeUtils {
   
   @Test
   def nestedRefArrayTabulate =
-    ensurePluginCompilesSnippetsToSameByteCode("nestedRefArrayTabulate", refValues map tupled { nestedArrayTabulate })
+    ensurePluginCompilesSnippetsToSameByteCode(refValues map tupled { nestedArrayTabulate })
 
   @Test
   def nestedPrimitiveArrayTabulate =
-    ensurePluginCompilesSnippetsToSameByteCode("nestedPrimitiveArrayTabulate", primValues map tupled { nestedArrayTabulate })
+    ensurePluginCompilesSnippetsToSameByteCode(primValues map tupled { nestedArrayTabulate })
 
   def nestedArrayTabulate(typeStr: String, valStr: String) = {
     (
@@ -114,11 +114,11 @@ class ArrayMap2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def simplePrimitiveArrayMap =
-    ensurePluginCompilesSnippetsToSameByteCode("simplePrimitiveArrayMap", primTypeNames map simpleArrayMap)
+    ensurePluginCompilesSnippetsToSameByteCode(primTypeNames map simpleArrayMap)
 
   @Test
   def simpleRefArrayMap =
-    ensurePluginCompilesSnippetsToSameByteCode("simpleRefArrayMap", refTypeNames map simpleArrayMap)
+    ensurePluginCompilesSnippetsToSameByteCode(refTypeNames map simpleArrayMap)
 
   def simpleArrayMap(typeStr: String) = {
     (
@@ -147,11 +147,11 @@ class ArrayMap2WhileTest extends TestUtils with TypeUtils {
   
   @Test
   def inlinePrimitiveArrayMap =
-    ensurePluginCompilesSnippetsToSameByteCode("inlinePrimitiveArrayMap", primTypeNames map inlineArrayMap)
+    ensurePluginCompilesSnippetsToSameByteCode(primTypeNames map inlineArrayMap)
 
   @Test
   def inlineRefArrayMap =
-    ensurePluginCompilesSnippetsToSameByteCode("inlineRefArrayMap", refTypeNames map inlineArrayMap)
+    ensurePluginCompilesSnippetsToSameByteCode(refTypeNames map inlineArrayMap)
 
   def inlineArrayMap(typeStr: String) = {
     (

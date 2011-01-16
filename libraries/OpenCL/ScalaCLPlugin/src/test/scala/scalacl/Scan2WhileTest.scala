@@ -39,7 +39,7 @@ class Scan2WhileTest extends TestUtils {
   
   @Test
   def simpleArrayScanLeft {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleArrayScanLeft",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """ val a = new Array[Double](10)
           val s = a.scanLeft(0.0)(_ + _ * 0.01)
       """,
@@ -66,7 +66,7 @@ class Scan2WhileTest extends TestUtils {
 
   @Test
   def simpleListScanLeft {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleListScanLeft",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = List(1.0, 2.0)
           val s = a.scanLeft(0.0)(_ + _ * 0.01)
@@ -94,7 +94,7 @@ class Scan2WhileTest extends TestUtils {
 
   @Test
   def simpleArrayScanRight {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleArrayScanRight",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """ val a = new Array[Double](10)
           val s = a.scanRight(0.0)(_ * 0.01 + _)
       """,

@@ -39,7 +39,7 @@ class AllOrSome2WhileTest extends TestUtils {
   
   @Test
   def simpleForall {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleForall", 
+    ensurePluginCompilesSnippetsToSameByteCode( 
       """ val a = new Array[Double](10)
           val s = a.forall(_ != 3)
       """,
@@ -64,7 +64,7 @@ class AllOrSome2WhileTest extends TestUtils {
   
   @Test
   def simpleExists {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleExists", 
+    ensurePluginCompilesSnippetsToSameByteCode( 
       """ val a = new Array[Double](10)
           val s = a.exists(_ != 3)
       """,

@@ -38,7 +38,7 @@ class Reduce2WhileTest extends TestUtils {
 
   @Test
   def simpleReduceLeft {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleReduceLeft",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = new Array[Double](10)
           val s = a.reduceLeft(_ + _ * 0.01)
@@ -63,7 +63,7 @@ class Reduce2WhileTest extends TestUtils {
 
   @Test
   def simpleReduceRight {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleReduceRight",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = new Array[Double](10)
           val s = a.reduceRight(_ * 0.01 + _)
@@ -87,7 +87,7 @@ class Reduce2WhileTest extends TestUtils {
   }
   @Test
   def simpleSum {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleSum",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val s1 = Array(1, 2, 3).sum
           val s2 = Array(1.0, 2.0, 3.0).sum
@@ -123,7 +123,7 @@ class Reduce2WhileTest extends TestUtils {
 
   @Test
   def simpleMinMax {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleMinMax",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val s1 = Array(1, 2, 3).min
           val s2 = Array(1.0, 2.0, 3.0).max

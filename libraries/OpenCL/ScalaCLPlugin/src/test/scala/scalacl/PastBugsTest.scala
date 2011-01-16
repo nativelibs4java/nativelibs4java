@@ -39,7 +39,7 @@ class PastBugsTest extends TestUtils {
   /// http://code.google.com/p/nativelibs4java/issues/detail?id=34
   @Test
   def issue34_optimInTrait {
-    ensurePluginCompilesSnippet("optimInTrait", """
+    ensurePluginCompilesSnippet("""
       trait Bug {
         for (i <- 0 to 10) {
           val crash = i
@@ -50,7 +50,7 @@ class PastBugsTest extends TestUtils {
 
   @Test
   def yieldTuplesFromTuplesList {
-    ensurePluginCompilesSnippet("yieldTuplesFromTuplesList", """
+    ensurePluginCompilesSnippet("""
       val l1 = (1 to 5).toList.zipWithIndex
       for ((a, b) <- l1)
           yield (a, b)
@@ -60,28 +60,22 @@ class PastBugsTest extends TestUtils {
   /// http://code.google.com/p/nativelibs4java/issues/detail?id=40
   @Test
   def issue40_tuplesArrayFilteredForeach {
-    ensureCodeWithSameResult(
-      "",
-      """
-          (for ((i, j) <- Array(1 -> 1, 2 -> 2)) yield (i, j)).toSeq
-      """
-    )
+    ensureCodeWithSameResult("""
+      (for ((i, j) <- Array(1 -> 1, 2 -> 2)) yield (i, j)).toSeq
+    """)
   }
   
   /// http://code.google.com/p/nativelibs4java/issues/detail?id=41
   @Test
   def issue41_arrayListToArray {
-    ensureCodeWithSameResult(
-      "",
-      """
-          List(Array(1,2), Array(3,4)).toArray.map(_.toSeq).toSeq
-      """
-    )
+    ensureCodeWithSameResult("""
+        List(Array(1,2), Array(3,4)).toArray.map(_.toSeq).toSeq
+    """)
   }
   
   @Test
   def yieldTuplesInMap {
-    ensurePluginCompilesSnippetsToSameByteCode("yieldTuplesInMap",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = Array(1, 2)
           for (v <- a) yield (v, v)
@@ -106,33 +100,17 @@ class PastBugsTest extends TestUtils {
   
   @Test
   def yieldCaseClassFromTuples {
-    ensurePluginCompilesSnippet("yieldCaseClassFromTuples",
+    ensurePluginCompilesSnippet(
       """
           case class T(a: Int, b: Int)
           for ((a, b) <- Array((1, 2), (2, 3))) yield T(a, b)
       """
-    )/*,
-      """
-          case class T(a: Int, b: Int);
-          {
-            val array = Array((1, 2), (2, 3))
-            val n = array.length
-            var i = 0
-            val m = new Array[T](n)
-            while (i < n) {
-              val item = array(i)
-              m(i) = item match { case (a, b) => T(a, b) }
-              i += 1
-            }
-            m
-          }
-      """
-    )*/
+    )
   }
         
   @Test
   def lambdaLiftNestedMap {
-    ensurePluginCompilesSnippetsToSameByteCode("lambdaLiftNestedMap",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = Array(1, 2)
           a.map(xx => a.map(x => { def f = x ; f }))

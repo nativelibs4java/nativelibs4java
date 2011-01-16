@@ -39,7 +39,7 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
   
   @Test
   def simpleUntilFilterLoop {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleUntilFilterLoop",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """ var t = 0
           for (i <- 0 until 100; if i < 10)
             t += 2 * i
@@ -60,11 +60,11 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
   
   @Test
   def simpleRange2PrimitiveMap =
-    ensurePluginCompilesSnippetsToSameByteCode("simpleRange2PrimitiveMap", primValues map tupled { simpleRangeMap })
+    ensurePluginCompilesSnippetsToSameByteCode(primValues map tupled { simpleRangeMap })
 
   @Test
   def simpleRange2RefMap =
-    ensurePluginCompilesSnippetsToSameByteCode("simpleRange2RefMap", trivialRefValues map tupled { simpleRangeMap })
+    ensurePluginCompilesSnippetsToSameByteCode(trivialRefValues map tupled { simpleRangeMap })
 
   def simpleRangeMap(typeStr: String, valueStr: String) = {
     (
@@ -93,7 +93,7 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def simpleRangeFilter: Unit = {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleRangeFilter", 
+    ensurePluginCompilesSnippetsToSameByteCode( 
       """
           (0 until 100).filter(_ != 50)
       """,
@@ -118,7 +118,7 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def simpleToLoop {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleToLoop", 
+    ensurePluginCompilesSnippetsToSameByteCode( 
       """
           var t = 0
           for (i <- 0 to 100)
@@ -140,7 +140,7 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def simpleUntilLoop {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleUntilLoop",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """ var t = 0
           for (i <- 0 until 100)
             t += 2 * i
@@ -160,7 +160,7 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
   
   @Test
   def simpleToByLoop {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleToByLoop", 
+    ensurePluginCompilesSnippetsToSameByteCode( 
       """ var t = 0
           for (j <- 50 to 200 by 3)
             t += j / 2
@@ -179,7 +179,7 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def reverseToByLoop {
-    ensurePluginCompilesSnippetsToSameByteCode("reverseToByLoop",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """ var t = 0
           for (j <- 200 to 50 by -3)
             t += j / 2
@@ -198,7 +198,7 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def simpleUntilByLoop {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleUntilByLoop", 
+    ensurePluginCompilesSnippetsToSameByteCode( 
       """ var t = 0
           for (j <- 50 until 200 by 3)
             t += j / 2
@@ -216,7 +216,7 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
   }
   @Test
   def testNestedLoop {
-    ensurePluginCompilesSnippetsToSameByteCode("testNestedLoop", 
+    ensurePluginCompilesSnippetsToSameByteCode( 
       """ var t = 0
           for (i <- 0 to 100 by 5; j <- 0 until 1000)
             t += 2 * (i + j)
@@ -241,7 +241,7 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
   
   @Test
   def testNestedLoopWithExtRefs {
-    ensurePluginCompilesSnippetsToSameByteCode("testNestedLoopWithExtRefs", 
+    ensurePluginCompilesSnippetsToSameByteCode( 
       """ var t = 0
           def f(x: Int) = x + 1
           def g(x: Int) = x - 1

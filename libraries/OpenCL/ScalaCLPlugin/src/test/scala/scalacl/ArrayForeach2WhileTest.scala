@@ -39,11 +39,11 @@ class ArrayForeach2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def simpleRefArrayForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("simpleRefArrayForeach", refTypeNames map simpleArrayForeach)
+    ensurePluginCompilesSnippetsToSameByteCode(refTypeNames map simpleArrayForeach)
 
   @Test
   def simplePrimitiveArrayForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("simplePrimitiveArrayForeach", primTypeNames map simpleArrayForeach)
+    ensurePluginCompilesSnippetsToSameByteCode(primTypeNames map simpleArrayForeach)
 
   def simpleArrayForeach(typeStr: String) = {
     (
@@ -68,11 +68,11 @@ class ArrayForeach2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def inlineRefArrayByLengthForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("inlineRefArrayByLengthForeach", refTypeNames map inlineArrayByLengthForeach)
+    ensurePluginCompilesSnippetsToSameByteCode(refTypeNames map inlineArrayByLengthForeach)
 
   @Test
   def inlinePrimitiveArrayByLengthForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("inlinePrimitiveArrayByLengthForeach", primTypeNames map inlineArrayByLengthForeach)
+    ensurePluginCompilesSnippetsToSameByteCode(primTypeNames map inlineArrayByLengthForeach)
 
   def inlineArrayByLengthForeach(typeStr: String) = {
     (
@@ -95,11 +95,11 @@ class ArrayForeach2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def inlineRefArrayWithElementsForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("inlineRefArrayWithElementsForeach", refValuesList map tupled { inlineArrayWithElementsForeach })
+    ensurePluginCompilesSnippetsToSameByteCode(refValuesList map tupled { inlineArrayWithElementsForeach })
 
   @Test
   def inlinePrimitiveArrayWithElementsForeach =
-    ensurePluginCompilesSnippetsToSameByteCode("inlinePrimitiveArrayWithElementsForeach", primValuesList map tupled { inlineArrayWithElementsForeach })
+    ensurePluginCompilesSnippetsToSameByteCode(primValuesList map tupled { inlineArrayWithElementsForeach })
 
   def inlineArrayWithElementsForeach(typeStr: String, itemsStr: String) = {
     (

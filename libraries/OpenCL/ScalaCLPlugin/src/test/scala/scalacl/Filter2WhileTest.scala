@@ -39,7 +39,7 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def simplePrimitiveArrayFilter {
-    ensurePluginCompilesSnippetsToSameByteCode("simplePrimitiveArrayFilter",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = Array(1, 2, 3, 4)
           val m = a.filter(_ != 0)
@@ -66,7 +66,7 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
   
   @Test
   def simpleRefArrayFilter {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleRefArrayFilter",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = Array("1", "2", "3", "4")
           val m = a.filter(_ != "")
@@ -93,7 +93,7 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
   
   @Test
   def tupleArrayFilter {
-    ensurePluginCompilesSnippetsToSameByteCode("tupleArrayFilter",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = Array((1, 2), (10, 20), (100, 200))
           val m = a.filter(_._1 < 30)
@@ -146,7 +146,7 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
 
   @Test
   def simpleListFilter {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleListFilter",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = List(1, 2, 3, 4)
           val m = a.filter(_ != 0)

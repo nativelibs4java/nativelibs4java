@@ -38,7 +38,7 @@ class Fold2WhileTest extends TestUtils {
 
   @Test
   def simpleFoldLeft {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleFoldLeft",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = new Array[Double](10)
           val s = a.foldLeft(0.0)(_ + _ * 0.01)
@@ -63,7 +63,7 @@ class Fold2WhileTest extends TestUtils {
 
   @Test
   def simpleFoldRight {
-    ensurePluginCompilesSnippetsToSameByteCode("simpleFoldRight",
+    ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = new Array[Double](10)
           val s = a.foldRight(0.0)(_ * 0.01 + _)

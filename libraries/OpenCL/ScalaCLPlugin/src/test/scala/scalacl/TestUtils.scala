@@ -98,15 +98,17 @@ trait TestUtils {
       replaceAll("#\\d+", "")
   }
 
-  def ensurePluginCompilesSnippet(className: String, source: String) = {
-    assertNotNull(getSnippetBytecode(className, source, "temp", SharedCompilerWithPlugins))
+  def ensurePluginCompilesSnippet(source: String) = {
+    val (_, testMethodName) = testClassInfo
+    assertNotNull(getSnippetBytecode(testMethodName, source, "temp", SharedCompilerWithPlugins))
   }
-  def ensurePluginCompilesSnippetsToSameByteCode(className: String, sourcesAndReferences: Traversable[(String, String)]): Unit = {
+  def ensurePluginCompilesSnippetsToSameByteCode(sourcesAndReferences: Traversable[(String, String)]): Unit = {
     def flatten(s: Traversable[String]) = s.map("{\n" + _ + "\n};").mkString("\n")
-    ensurePluginCompilesSnippetsToSameByteCode(className, flatten(sourcesAndReferences.map(_._1)), flatten(sourcesAndReferences.map(_._2)))
+    ensurePluginCompilesSnippetsToSameByteCode(flatten(sourcesAndReferences.map(_._1)), flatten(sourcesAndReferences.map(_._2)))
   }
-  def ensurePluginCompilesSnippetsToSameByteCode(className: String, source: String, reference: String, allowSameResult: Boolean = false) = {
-
+  def ensurePluginCompilesSnippetsToSameByteCode(source: String, reference: String, allowSameResult: Boolean = false) = {
+    val (_, testMethodName) = testClassInfo
+    
     import scala.concurrent.ops._
     implicit val runner = new scala.concurrent.ThreadRunner
   
@@ -130,9 +132,9 @@ trait TestUtils {
       }
     }
 
-    val withPluginFut = futEx { getSnippetBytecode(className, source, "withPlugin", SharedCompilerWithPlugins) }
-    val expected = getSnippetBytecode(className, reference, "expected", SharedCompilerWithoutPlugins)
-    val withoutPlugin = if (allowSameResult) null else getSnippetBytecode(className, source, "withoutPlugin", SharedCompilerWithoutPlugins)
+    val withPluginFut = futEx { getSnippetBytecode(testMethodName, source, "withPlugin", SharedCompilerWithPlugins) }
+    val expected = getSnippetBytecode(testMethodName, reference, "expected", SharedCompilerWithoutPlugins)
+    val withoutPlugin = if (allowSameResult) null else getSnippetBytecode(testMethodName, source, "withoutPlugin", SharedCompilerWithoutPlugins)
     val withPlugin = withPluginFut()
 
     if (!allowSameResult)
@@ -265,10 +267,10 @@ trait TestUtils {
     (testClassName, methodName)
   }
   
-  def ensureCodeWithSameResult(decls: String, code: String): Unit = {
+  def ensureCodeWithSameResult(code: String): Unit = {
     val (testClassName, testMethodName) = testClassInfo
     
-    val gens @ Array(genWith, genWithout) = Array(getTesterGen(true, decls, code), getTesterGen(false, decls, code))
+    val gens @ Array(genWith, genWithout) = Array(getTesterGen(true, "", code), getTesterGen(false, "", code))
       
     val testers @ Array(testerWith, testerWithout) = gens.map(_(-1))
       
