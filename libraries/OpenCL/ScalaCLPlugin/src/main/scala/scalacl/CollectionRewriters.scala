@@ -620,15 +620,25 @@ trait RewritingPluginComponent {
           case ToCollection(colType, _) =>
             colType match { 
               case ArrayType =>
-                //options.experimental
-                true
+                options.experimental // slow in some cases !
+                //true
               case _ =>
                 false
             }
           //case Map | Sum | Fold | _: AllOrSome =>
           //  true
+          case _: Reduce =>
+            options.experimental // slow in some cases !
+          case _: Fold =>
+            options.experimental // slow in some cases !
+          case _: Foreach =>
+            options.experimental // slow in some cases !
+          case _: Filter =>
+            options.experimental // slow in some cases !
           case _: FilterWhile =>
-            false
+            options.experimental // slow in some cases !
+          case _: AllOrSome =>
+            options.experimental // slow in some cases !
           case _ =>
             true
         }
