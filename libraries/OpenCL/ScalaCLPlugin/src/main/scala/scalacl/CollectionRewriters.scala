@@ -220,8 +220,8 @@ trait RewritingPluginComponent {
           case ToCollection(colType, _) =>
             colType match { 
               case ArrayType =>
-                //options.experimental
-                true
+                options.experimental
+                //true
               case _ =>
                 false
             }
@@ -494,8 +494,8 @@ trait RewritingPluginComponent {
           case ToCollection(colType, _) =>
             colType match { 
               case ListType =>
-                //options.experimental
-                true
+                options.experimental
+                //true
               case _ =>
                 false
             }

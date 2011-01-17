@@ -267,7 +267,8 @@ trait TestUtils {
     (testClassName, methodName)
   }
   
-  val defaultExpectedFasterFactor = 0.95
+  val defaultExpectedFasterFactor = Option(System.getenv("SCALACL_MIN_PERF")).map(_.toDouble).getOrElse(0.95)
+  val perfRuns = Option(System.getenv("SCALACL_PERF_RUNS")).map(_.toInt).getOrElse(4)
   
   def ensureCodeWithSameResult(code: String): Unit = {
     val (testClassName, testMethodName) = testClassInfo
@@ -284,7 +285,7 @@ trait TestUtils {
       fail(pref + "ERROR: Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
     }
   }
-  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(2, 10, 1000, 100000)/*10000, 100, 20, 2)*/, nRuns: Int = 4, minFaster: Double = 1.0): Unit = {
+  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(2, 10, 1000, 100000)/*10000, 100, 20, 2)*/, nRuns: Int = perfRuns, minFaster: Double = 1.0): Unit = {
     
     val (testClassName, methodName) = testClassInfo
     
