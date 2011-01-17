@@ -73,6 +73,15 @@ class PastBugsTest extends TestUtils {
     """)
   }
   
+  /// http://code.google.com/p/nativelibs4java/issues/detail?id=42
+  @Test
+  def issue42_anyListToArray {
+    ensureCodeWithSameResult("""
+        def f(a: List[Any]) = a.toArray
+        f(List(1, 2, 3)).toSeq
+    """)
+  }
+  
   @Test
   def yieldTuplesInMap {
     ensurePluginCompilesSnippetsToSameByteCode(

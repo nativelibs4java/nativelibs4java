@@ -98,7 +98,7 @@ trait RewritingPluginComponent {
       def filters: List[Tree] = Nil
       def isSafeRewrite(op: TraversalOpType) = true
       def colToString(tpe: Type): String
-      def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree)
+      def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree, Tree => Tree)
       def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): CollectionBuilder
       def foreach[Payload](
         tree: Tree,
@@ -178,9 +178,9 @@ trait RewritingPluginComponent {
     }
 
     trait HasBufferBuilder {
-      def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree)
+      def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree, Tree => Tree)
       def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer) = {
-        val (builderTpe, builderInstance) = newBuilderInstance(componentType, knownSize, localTyper)
+        val (builderTpe, builderInstance, builderResultGetter) = newBuilderInstance(componentType, knownSize, localTyper)
         CollectionBuilder(
           builder = builderInstance,
           set = null,
@@ -200,16 +200,7 @@ trait RewritingPluginComponent {
             }
           },
           result = bufferIdentGen => {
-            val resultMethod = builderTpe member resultName
-            typed {
-              Apply(
-                Select(
-                  bufferIdentGen(),
-                  resultName
-                ).setSymbol(resultMethod).setType(resultMethod.tpe),//.setType(UnitClass.tpe),
-                Nil
-              ).setSymbol(resultMethod).setType(collectionType)//.setType(collectionType)//.setType(UnitClass.tpe)
-            }
+            builderResultGetter(bufferIdentGen()).setType(collectionType)
           }
         )
       }
@@ -229,6 +220,7 @@ trait RewritingPluginComponent {
           case ToCollection(colType, _) =>
             colType match { 
               case ArrayType =>
+                //options.experimental
                 true
               case _ =>
                 false
@@ -243,11 +235,11 @@ trait RewritingPluginComponent {
         }
       }
 
-      override def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen) = {
+      override def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer) = {
         //if (knownSize == null)
         //error("should not pass here now !");
           //(appliedType(WrappedArrayBuilderClass.tpe, List(componentType)), Nil, true, true)
-          (appliedType(VectorBuilderClass.tpe, List(componentType)), Nil, false, false)
+          (appliedType(VectorBuilderClass.tpe, List(componentType)), Nil, false, false, simpleBuilderResult _)
         //else
         //  super.newArrayBuilderInfo(componentType, knownSize)
       }
@@ -409,18 +401,48 @@ trait RewritingPluginComponent {
       assert(manifest != EmptyTree, "Empty manifest for type : " + tpe + " = " + t)
       manifest 
     }*/
+    def simpleBuilderResult(builder: Tree): Tree = {
+      val resultMethod = builder.tpe member resultName
+      Apply(
+        Select(
+          builder,
+          resultName
+        ).setSymbol(resultMethod).setType(resultMethod.tpe),
+        Nil
+      ).setSymbol(resultMethod)
+    }
+    def toArray(tree: Tree, componentType: Type, localTyper: analyzer.Typer) = {
+      val manifest = localTyper.findManifest(componentType, false).tree
+      assert(manifest != EmptyTree, "Failed to get manifest for " + componentType)
+      
+      val method = tree.tpe member toArrayName
+      Apply(
+        TypeApply(
+          Select(
+            tree,
+            toArrayName
+          ).setSymbol(method).setType(method.tpe),
+          List(TypeTree(componentType))
+        ),
+        List(manifest)
+      ).setSymbol(method)
+    }
+    
     trait ArrayBuilderTargetRewriter {
-      def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen) = primArrayBuilderClasses.get(componentType) match {
-        case Some(t) =>
-          (t.tpe, Nil, false, false)
-        case None =>
-          if (componentType <:< AnyRefClass.tpe)
-            (appliedType(RefArrayBuilderClass.tpe, List(componentType)), Nil, true, false)
-          else
-            (appliedType(ArrayBufferClass.tpe, List(componentType)), List(newInt(16)), false, false)
-      }
-      def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree) = {
-        val (builderType, mainArgs, needsManifest, manifestIsInMain) = newArrayBuilderInfo(componentType, knownSize);
+      def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, List[Tree], Boolean, Boolean, Tree => Tree) = 
+        primArrayBuilderClasses.get(componentType) match {
+          case Some(t) =>
+            (t.tpe, Nil, false, false, simpleBuilderResult _)
+          case None =>
+            if (componentType <:< AnyRefClass.tpe)
+              (appliedType(RefArrayBuilderClass.tpe, List(componentType)), Nil, true, false, simpleBuilderResult _)
+            else
+              (appliedType(ArrayBufferClass.tpe, List(componentType)), List(newInt(16)), false, false, (tree: Tree) => {
+                toArray(tree, componentType, localTyper)
+              })
+        }
+      def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree, Tree => Tree) = {
+        val (builderType, mainArgs, needsManifest, manifestIsInMain, builderResultGetter) = newArrayBuilderInfo(componentType, knownSize, localTyper);
         (
           builderType,
           localTyper.typed {
@@ -458,7 +480,8 @@ trait RewritingPluginComponent {
               ).setSymbol(sym)
             else
               n
-          }
+          },
+          builderResultGetter
         )
       }
     }
@@ -471,6 +494,7 @@ trait RewritingPluginComponent {
           case ToCollection(colType, _) =>
             colType match { 
               case ListType =>
+                //options.experimental
                 true
               case _ =>
                 false
@@ -596,6 +620,7 @@ trait RewritingPluginComponent {
           case ToCollection(colType, _) =>
             colType match { 
               case ArrayType =>
+                //options.experimental
                 true
               case _ =>
                 false
@@ -609,7 +634,7 @@ trait RewritingPluginComponent {
         }
       }
 
-      override def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree) = {
+      override def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree, Tree => Tree) = {
         val builderType = appliedType(ListBufferClass.tpe, List(componentType))
         (
           builderType,
@@ -622,7 +647,8 @@ trait RewritingPluginComponent {
               ).setSymbol(sym),//.setType(sym.tpe),
               Nil
             ).setSymbol(sym)//.setType(builderType)
-          }
+          },
+          simpleBuilderResult _
         )
       } 
       override def foreach[Payload](
