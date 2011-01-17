@@ -267,6 +267,8 @@ trait TestUtils {
     (testClassName, methodName)
   }
   
+  val defaultExpectedFasterFactor = 0.95
+  
   def ensureCodeWithSameResult(code: String): Unit = {
     val (testClassName, testMethodName) = testClassInfo
     
@@ -286,7 +288,7 @@ trait TestUtils {
     
     val (testClassName, methodName) = testClassInfo
     
-    val gens @ Array(genWith, genWithout) = Array(getTesterGen(true, decls, code), getTesterGen(true, decls, code))
+    val gens @ Array(genWith, genWithout) = Array(getTesterGen(true, decls, code), getTesterGen(false, decls, code))
       
     def run = params.toList.sorted.map(param => {
       //println("Running with param " + param)
@@ -301,7 +303,6 @@ trait TestUtils {
       }
       
       val runs: List[Res] = firstRun.toList ++ (1 until nRuns).toList.flatMap(_ => testers.map(_(false)))
-      
       def calcTime(list: List[Res]) = {
         val times = list.map(_.time)
         times.sum / times.size.toDouble
@@ -352,7 +353,7 @@ trait TestUtils {
         } else {
           //printFact(coldFactor - 0.1); 1.0
           printFacts(warmFactor - 0.1, coldFactor - 0.1)
-          (1.0, 1.0)
+          (defaultExpectedFasterFactor, defaultExpectedFasterFactor)
         }
       }
       
