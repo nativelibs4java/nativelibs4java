@@ -69,7 +69,7 @@ class PastBugsTest extends TestUtils {
   @Test
   def issue41_arrayListToArray {
     ensureCodeWithSameResult("""
-        List(Array(1,2), Array(3,4)).toArray.map(_.toSeq).toSeq
+      List(Array(1,2), Array(3,4)).toArray.map(_.toSeq).toSeq
     """)
   }
   
@@ -77,10 +77,24 @@ class PastBugsTest extends TestUtils {
   @Test
   def issue42_anyListToArray {
     ensureCodeWithSameResult("""
-        def f(a: List[Any]) = a.toArray
-        f(List(1, 2, 3)).toSeq
+      def f(a: List[Any]) = a.toArray
+      f(List(1, 2, 3)).toSeq
     """)
   }
+  
+  /// http://code.google.com/p/nativelibs4java/issues/detail?id=43
+  @Test
+  def issue43_mapWithBreakOut {
+    ensureCodeWithSameResult("""
+      (
+        Array(1).map(_ + 1)(collection.breakOut): Set[Int],
+        List(1).map(_ + 1)(collection.breakOut): Set[Int],
+        (0 until 10).map(_ + 1)(collection.breakOut): Set[Int]
+      )
+    """)
+  }
+  
+  val a: Set[Int] = List(1).map(_ + 1)(collection.breakOut)
   
   @Test
   def yieldTuplesInMap {

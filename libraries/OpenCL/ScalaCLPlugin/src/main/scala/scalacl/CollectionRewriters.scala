@@ -151,6 +151,10 @@ trait RewritingPluginComponent {
     )
     
     object CollectionRewriter {
+      
+      //TODO def unapply(tpe: Type): Option[CollectionRewriter] = tpe.dealias.deconst match {
+      //  case ListTree(componentType)
+      //}
       def unapply(tree: Tree): Option[CollectionRewriter] = tree match {
         case ArrayTree(array, componentType) =>
           Some(new CollectionRewriter(ArrayRewriter, appliedType(ArrayClass.tpe, List(componentType)), array, componentType))

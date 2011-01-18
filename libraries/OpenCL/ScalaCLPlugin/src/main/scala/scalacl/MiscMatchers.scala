@@ -209,24 +209,20 @@ trait MiscMatchers {
 
     def unapply(tree: Tree): Option[(Tree, Tree, Option[Tree], Boolean, List[Tree])] = tree match {
       case Apply(Select(Apply(Select(Predef(), intWrapperName()), List(from)), funToName @ (toName() | untilName())), List(to)) =>
-        funToName match {
+        Option(funToName) collect {
           case toName() =>
-            Some((from, to, None, false, Nil))
+            (from, to, None, false, Nil)
           case untilName() =>
-            Some((from, to, None, true, Nil))
-          case _ =>
-            None
+            (from, to, None, true, Nil)
         }
       case Apply(Select(tg, n @ (byName() | withFilterName())), List(arg)) =>
        tg match {
           case IntRange(from, to, by, isUntil, filters) =>
-            n match {
+            Option(n) collect {
                 case byName() if by == None =>
-                    Some((from, to, Some(arg), isUntil, filters))
+                    (from, to, Some(arg), isUntil, filters)
                 case withFilterName() =>
-                    Some((from, to, by, isUntil, filters ++ List(arg)))
-                case _ =>
-                    None
+                    (from, to, by, isUntil, filters ++ List(arg))
             }
           case _ =>
             None
@@ -329,7 +325,7 @@ trait MiscMatchers {
       case TypeApply(sel, List(arg))
         if sel.symbol == Predef.RefArrayOps || sel.symbol == Predef.GenericArrayOps =>
         Some(arg.tpe)
-      case _  => tree.symbol.tpe match {
+      case _  => tree.tpe match {
         case MethodType(_, TypeRef(_, ArrayOpsClass, List(param)))
           if Predef contains tree.symbol =>
           Some(param)
@@ -345,55 +341,63 @@ trait MiscMatchers {
       case _ => None
     }
   }
-  class ColTree(ColClass: Symbol) {
-    def unapply(tree: Tree) = if (tree == null) None else {
-      def isCol(cc: Symbol) = 
-        cc.tpe == ColClass.tpe || cc.tpe.toString == ColClass.tpe.toString
-       
-      def unap(tpe: Type) =
-        tpe match {
-          case TypeRef(_, ColClass, List(param)) =>
-            Some(param)
-          case TypeRef(_, cc, List(param)) if isCol(cc) || isCol(tree.symbol)  => 
-            Some(param)
-          case PolyType(Nil, TypeRef(_, cc, List(param))) if isCol(cc) || isCol(tree.symbol) =>
-            Some(param)
-          case _ =>
-            None
-        }
-      
-      unap(tree.tpe) match {
+  object ArrayTyped extends HigherTypeParameterExtractor(ArrayClass)
+  
+  class HigherTypeParameterExtractor(ColClass: Symbol) {
+    private def isCol(s: Symbol) = 
+      s.tpe == ColClass.tpe || s.tpe.toString == ColClass.tpe.toString
+    private def isCol2(s: Symbol) =
+      isCol(s) || isCol(s.tpe.typeSymbol)
+    
+    def unapply(tpe: Type): Option[Type] = Option(tpe) collect {
+      case TypeRef(_, ColClass, List(param)) =>
+        param
+      case TypeRef(_, cc, List(param)) if isCol2(cc) =>//tree.symbol)  => 
+        param
+      case PolyType(Nil, TypeRef(_, cc, List(param))) if isCol2(cc) =>
+        param
+    }
+    //class ColTree(ColClass: Symbol) {
+    
+    def unapply(tree: Tree): Option[Type] = if (tree == null) None else {
+      unapply(tree.tpe) match {
         case Some(s) =>
           Some(s)
         case None =>
           if ((tree ne null) && (tree.symbol ne null))
-            unap(tree.symbol.tpe)
+            unapply(tree.symbol.tpe)
           else
             None
       }
     }
   }
-  object ListTree extends ColTree(ListClass)
+  object ListTree extends HigherTypeParameterExtractor(ListClass)
   
-  object CanBuildFromArg {
-    def unapply(tree: Tree) = {
-      val tpe = tree.tpe
-      tpe != null && (
-        //tpe.dealias.deconst <:< CanBuildFromClass.tpe ||
-        tpe.dealias.matches(CanBuildFromClass.tpe)
-      )
+  object TrivialCanBuildFromArg {
+    private def isCanBuildFrom(tpe: Type) = 
+      tpe != null && tpe.dealias.matches(CanBuildFromClass.tpe)
+      //tpe.dealias.deconst <:< CanBuildFromClass.tpe
+      
+    def unapply(tree: Tree) = if (!isCanBuildFrom(tree.tpe)) None else Option(tree) collect {
+      case Apply(TypeApply(Select(comp, canBuildFromName()), List(resultType)), List(_)) =>
+        (comp.symbol.companionClass, resultType)
+      case TypeApply(Select(comp, canBuildFromName()), List(resultType)) =>
+        (comp.symbol.companionClass, resultType)
     }
   }
-
+  object CanBuildFromArg {
+    def unapply(tree: Tree) = tree match {
+      case TrivialCanBuildFromArg(_, _) => true
+      case _ => false
+    }
+  }
   object Func {
-    def unapply(tree: Tree): Option[(List[ValDef], Tree)] = tree match {
-      case // method references def f(x: T) = y; col.map(f) (inside the .map = a block((), xx => f(xx))
-        Block(List(), Func(params, body)) =>
-        Some(params, body)
+    def unapply(tree: Tree): Option[(List[ValDef], Tree)] = Option(tree) collect {
+      case Block(List(), Func(params, body)) =>
+        // method references def f(x: T) = y; col.map(f) (inside the .map = a block((), xx => f(xx))
+        (params, body)
       case Function(params, body) =>
-        Some(params, body)
-      case _ =>
-        None
+        (params, body)
     }
   }
   object ArrayTabulate {
@@ -421,26 +425,23 @@ trait MiscMatchers {
   
   object ReduceName {
     def apply(isLeft: Boolean) = error("not implemented")
-    def unapply(name: Name) = name match {
-      case reduceLeftName() => Some(true)
-      case reduceRightName() => Some(false)
-      case _ => None
+    def unapply(name: Name) = Option(name) collect {
+      case reduceLeftName() => true
+      case reduceRightName() => false
     }
   }
   object ScanName {
     def apply(isLeft: Boolean) = error("not implemented")
-    def unapply(name: Name) = name match {
-      case scanLeftName() => Some(true)
-      case scanRightName() => Some(false)
-      case _ => None
+    def unapply(name: Name) = Option(name) collect {
+      case scanLeftName() => true
+      case scanRightName() => false
     }
   }
   object FoldName {
     def apply(isLeft: Boolean) = error("not implemented")
-    def unapply(name: Name) = name match {
-      case foldLeftName() => Some(true)
-      case foldRightName() => Some(false)
-      case _ => None
+    def unapply(name: Name) = Option(name) collect {
+      case foldLeftName() => true
+      case foldRightName() => false
     }
   }
 
@@ -547,6 +548,13 @@ trait MiscMatchers {
           ),
           List(canBuildFrom @ CanBuildFromArg())
         ) =>
+        //println("collection.tpe = " + collection.tpe)
+        //println("collection.tpe.typeSymbol = " + collection.tpe.typeSymbol)
+        //println("trivialCollectionSymbol = " + trivialCollectionSymbol)
+        //println("mappedCollectionType = " + mappedCollectionType)
+        //println("trivialResultType = " + trivialResultType)
+        //println("mappedComponentType = " + mappedComponentType)
+        //println("\t-> " + (collection.tpe.typeSymbol == trivialCollectionSymbol))
         Some(new TraversalOp(Map(function, canBuildFrom), collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
       case // map[B](f)
         Apply(
@@ -705,30 +713,27 @@ trait MiscMatchers {
       case _ =>
         None
     }
-    def traversalOpWithoutArg(n: Name, tree: Tree) = n match {
-      
+    def traversalOpWithoutArg(n: Name, tree: Tree) = Option(n) collect {
       case toListName() =>
-        Some(ToCollection(ListType, tree.tpe))
+        ToCollection(ListType, tree.tpe)
       case toArrayName() =>
-        Some(ToCollection(ArrayType, tree.tpe))
+        ToCollection(ArrayType, tree.tpe)
       case toSeqName() =>
-        Some(ToCollection(SeqType, tree.tpe))
+        ToCollection(SeqType, tree.tpe)
       case toSetName() =>
-        Some(ToCollection(SetType, tree.tpe))
+        ToCollection(SetType, tree.tpe)
       case toIndexedSeqName() =>
-        Some(ToCollection(IndexedSeqType, tree.tpe))
+        ToCollection(IndexedSeqType, tree.tpe)
       case toMapName() =>
-        Some(ToCollection(MapType, tree.tpe))
+        ToCollection(MapType, tree.tpe)
       case reverseName() =>
-        Some(Reverse)
+        Reverse
       case sumName() =>
-        Some(Sum)
+        Sum
       case minName() =>
-        Some(Min)
+        Min
       case maxName() =>
-        Some(Max)
-      case _ =>
-        None
+        Max
     }
   }
 }

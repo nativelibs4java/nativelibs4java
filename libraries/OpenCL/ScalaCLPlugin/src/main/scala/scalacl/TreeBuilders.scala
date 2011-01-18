@@ -106,7 +106,11 @@ extends MiscMatchers
         treeReplacements.get(tree).map(_()).getOrElse(
           tree match {
             case Ident(n) if tree.symbol != NoSymbol =>
-              mappings.get(key(tree.symbol)).map(_._2().setType(tree.symbol.tpe)).getOrElse(super.transform(tree))
+              mappings.get(key(tree.symbol)).map(p => {
+                val res = p._2().setType(tree.symbol.tpe)
+                assert(res.symbol != NoSymbol, res)
+                res
+              }).getOrElse(super.transform(tree))
             case _ =>
               super.transform(tree)
           }

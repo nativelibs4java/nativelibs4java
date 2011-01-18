@@ -221,9 +221,9 @@ extends MiscMatchers
     }
     
     class BoundTuple(rootSlice: TupleSlice) {
-      def unapply(tree: Tree): Option[Seq[(Symbol, TupleSlice)]] = tree match {
+      def unapply(tree: Tree): Option[Seq[(Symbol, TupleSlice)]] = Option(tree) collect {
         case Bind(name, Ident(_)) =>
-          Some(Seq(tree.symbol -> rootSlice))
+          Seq(tree.symbol -> rootSlice)
         case TupleCreation(components) =>
           var currentOffset = 0
           val ret = new scala.collection.mutable.ArrayBuffer[(Symbol, TupleSlice)]
@@ -239,9 +239,7 @@ extends MiscMatchers
                 return None // strict binding
             }
           }
-          Some(ret)
-        case _ =>
-          None
+          ret
       }
     }
 
