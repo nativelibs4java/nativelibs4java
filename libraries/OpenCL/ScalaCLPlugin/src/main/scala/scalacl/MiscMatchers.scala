@@ -200,6 +200,8 @@ trait MiscMatchers {
           args
         ) =>
         Some((f.tpe, funName, args))
+      case Apply(f @ Select(left, name), args) if left.toString == "scala.math.package" =>
+        Some((f.tpe, name, args))
       case _ =>
         None
     }
@@ -297,15 +299,13 @@ trait MiscMatchers {
     sym.toString.matches("class Tuple\\d+")
     
   object TupleCreation {
-    def unapply(tree: Tree): Option[List[Tree]] = tree match {
+    def unapply(tree: Tree): Option[List[Tree]] = Option(tree) collect {
       case Apply(TypeApply(Select(TupleSelect(), applyName()), types), components) =>
-        Some(components)
-      case Apply(tt @ TypeTree(), components) if isTupleSymbol(tt.tpe.typeSymbol) => 
-        // TODO fix this hackish match !
-        // This form is used in case matching of tuples
-        Some(components)
-      case _ =>
-        None
+        components
+      case Apply(tt @ TypeTree(), components) if isTupleSymbol(tree.tpe.typeSymbol) =>
+        // TODO FIX THIS BROAD HACK !!! (test tt)
+        println("tt.tpe = (" + tt.tpe + ": " + tt.tpe.getClass.getName + ")")
+        components
     }
   }
   object Predef {
@@ -378,8 +378,12 @@ trait MiscMatchers {
       tpe != null && tpe.dealias.matches(CanBuildFromClass.tpe)
       //tpe.dealias.deconst <:< CanBuildFromClass.tpe
       
+    val n1 = N("canBuildIndexedSeqFromIndexedSeq") // ScalaCL
+    val n2 = N("canBuildArrayFromArray") // ScalaCL
     def unapply(tree: Tree) = if (!isCanBuildFrom(tree.tpe)) None else Option(tree) collect {
       case Apply(TypeApply(Select(comp, canBuildFromName()), List(resultType)), List(_)) =>
+        (comp.symbol.companionClass, resultType)
+      case Apply(TypeApply(Select(comp, n1() | n2()), List(resultType)), _) =>
         (comp.symbol.companionClass, resultType)
       case TypeApply(Select(comp, canBuildFromName()), List(resultType)) =>
         (comp.symbol.companionClass, resultType)
