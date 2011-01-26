@@ -92,18 +92,22 @@ object Compile {
       "-optimise"
       //,"-Yshow-trees"
     )*/
-    compilerMain(args, true)
-    /*compilerMain(
-      if (args.isEmpty) 
+
+    //compilerMain(args, true)
+    //*
+    compilerMain(
+      if (args.isEmpty)
         Array(
           "Test.scala", 
-          //"-Xprint:scalacl-functionstransform",
+          "-Xprint:scalacl-functionstransform",
+          "-Xprint:typer",
           "-classpath", "../ScalaCL2/target/scalacl-0.2-SNAPSHOT-shaded.jar"
         ) 
       else 
         args, 
       true
-    )*/
+    )
+    //*/
   }
   lazy val copyrightMessage: Unit = {
     println("""ScalaCL Compiler Plugin

@@ -39,7 +39,7 @@ mkdir -p src/main/sbaz
 
 sbaz remove scalacl
 sbaz compact
-sbaz retract scalacl/$SBAZ_VERSION
+#sbaz retract scalacl/$SBAZ_VERSION
 sbaz share *.advert
 mv *.advert src/main/sbaz
 open src/main/sbaz

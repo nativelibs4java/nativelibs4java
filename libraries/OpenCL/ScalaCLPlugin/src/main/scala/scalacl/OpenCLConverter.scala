@@ -165,47 +165,18 @@ extends MiscMatchers
       case Select(expr, toDoubleName()) => cast(expr, "double")
       case Select(expr, toFloatName()) => cast(expr, "float")
       case ScalaMathFunction(functionType, funName, args) =>
-        var outers = Seq[String]()//"#include <math.h>")
-        val hasDoubleParam = args.exists(_.tpe == DoubleClass.tpe)
-        if (hasDoubleParam)
-          outers ++= Seq("#pragma OPENCL EXTENSION cl_khr_fp64: enable")
-        
-        val convArgs = args.map(arg => convert(arg match {
-          case Select(a, toDoubleName()) => a
-          case _ => arg
-        }))
-        
-        assert(convArgs.forall(_.statements.isEmpty), convArgs)
-        FlatCode[String](
-          convArgs.flatMap(_.outerDefinitions) ++ outers,
-          convArgs.flatMap(_.statements),
-          Seq(
-            funName + "(" +
-            convArgs.map(convArg => {
-              assert(convArg.statements.isEmpty, convArg)
-              val Seq(value) = convArg.values
-              functionType match {
-                case MethodType(List(param), resultType) =>
-                  if (param.tpe != DoubleClass.tpe)
-                    "(float)" + value
-                  else {
-                    value
-                  }
-                case _ =>
-                  value
-              }
-            }).mkString(", ") +
-            ")"
-          )
-        )
+        convertMathFunction(functionType, funName, args)
       case Apply(s @ Select(left, name), args) =>
         val List(right) = args
         NameTransformer.decode(name.toString) match {
           case op @ ("+" | "-" | "*" | "/" | "%" | "^" | "^^" | "&" | "&&" | "|" | "||" | "<<" | ">>" | "==" | "<" | ">" | "<=" | ">=" | "!=") =>
             merge(Seq(left, right).map(convert):_*) { case Seq(l, r) => Seq("(" + l + " " + op + " " + r + ")") }
+          case n if left.toString == "scala.math.package" =>
+            convertMathFunction(s.tpe, name, args)
+            //merge(Seq(right).map(convert):_*) { case Seq(v) => Seq(n + "(" + v + ")") }
           case n =>
             println(nodeToStringNoComment(body))
-            error("[ScalaCL] Unhandled method name in Scala -> OpenCL conversion : " + name)
+            error("[ScalaCL] Unhandled method name in Scala -> OpenCL conversion : " + name + "\n\tleft = " + left + ",\n\targs = " + args)
             valueCode("/* Error: failed to convert " + body + " */")
         }
       case s @ Select(expr, fun) =>
@@ -238,6 +209,40 @@ extends MiscMatchers
         error("Failed to convert " + body.getClass.getName + ": \n" + body + " : \n" + nodeToStringNoComment(body))
         valueCode("/* Error: failed to convert " + body + " */")
     }
+  }
+  def convertMathFunction(functionType: Type, funName: Name, args: List[Tree]) = {
+    var outers = Seq[String]()//"#include <math.h>")
+    val hasDoubleParam = args.exists(_.tpe == DoubleClass.tpe)
+    if (hasDoubleParam)
+      outers ++= Seq("#pragma OPENCL EXTENSION cl_khr_fp64: enable")
+
+    val normalizedArgs = args.map(_ match {
+      case Select(a, toDoubleName()) => a
+      case arg => arg
+    })
+    val convArgs = normalizedArgs.map(convert)
+
+    assert(convArgs.forall(_.statements.isEmpty), convArgs)
+    FlatCode[String](
+      convArgs.flatMap(_.outerDefinitions) ++ outers,
+      convArgs.flatMap(_.statements),
+      Seq(
+        funName + "(" +
+        convArgs.zip(normalizedArgs).map({ case (convArg, normalizedArg) =>
+          assert(convArg.statements.isEmpty, convArg)
+          val Seq(value) = convArg.values
+          //"(" + convertTpe(normalizedArg.tpe) + ")" + value
+          functionType match {
+            case _ //MethodType(List(param), resultType) 
+            if normalizedArg.tpe != DoubleClass.tpe =>
+              "(float)" + value
+            case _ =>
+              "(" + convertTpe(normalizedArg.tpe) + ")" + value
+          }
+        }).mkString(", ") +
+        ")"
+      )
+    )
   }
   def constPref(mods: Modifiers) =
     (if (mods.hasFlag(MUTABLE)) "" else "const ") 

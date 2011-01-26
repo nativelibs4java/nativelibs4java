@@ -88,7 +88,32 @@ trait RewritingPluginComponent {
       else
         add(builder, value)
   }
-
+  
+  /*
+  class CollectionBuilder(
+    newBuilder: TreeGen,
+    set: (TreeGen, TreeGen, TreeGen) => Tree,
+    add: (TreeGen, TreeGen) => Tree,
+    result: TreeGen => Tree
+  ) {
+    def setOrAdd(builder: TreeGen, index: TreeGen, value: TreeGen) =
+      if (set != null && index != null)
+        set(builder, index, value)
+      else
+        add(builder, value)
+  }
+  def arrayBuilder(componentType: Type) = {
+    
+    new CollectionBuilder(...)
+  }
+  object CollectionBuilder {
+    def unapply(tpe: Type) = null
+    def unapply(
+    def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree, Tree => Tree)
+    def newBuilder(pos: Position, componentType: Type, collectionType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): CollectionBuilder
+    
+  }
+  */
   trait CollectionRewriters {
     protected var currentOwner: Symbol
     val unit: CompilationUnit

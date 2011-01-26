@@ -185,7 +185,12 @@ trait MiscMatchers {
       Apply(mkSelect("scala", "math", "package", functionName), args)
         
     def unapply(tree: Tree): Option[(Type, Name, List[Tree])] = tree match {
-      case
+      case Apply(f @ Select(left, name), args) =>
+        if (left.toString == "scala.math.package")
+          Some((f.tpe, name, args))
+        else
+          None
+      /*case
         Apply(
           f @ Select(
             Select(
@@ -199,9 +204,7 @@ trait MiscMatchers {
           ),
           args
         ) =>
-        Some((f.tpe, funName, args))
-      case Apply(f @ Select(left, name), args) if left.toString == "scala.math.package" =>
-        Some((f.tpe, name, args))
+        Some((f.tpe, funName, args))*/
       case _ =>
         None
     }
@@ -251,6 +254,26 @@ trait MiscMatchers {
         }
       case _ =>
         None
+    }
+  }
+  object TuplePath {
+    def unapply(tree: Tree) = {
+      var lastTarget: Tree = tree
+      var path: List[Int] = Nil
+      var finished = false
+      while (!finished) {
+        lastTarget match {
+          case TupleComponent(target, i) =>
+            path = i :: path
+            lastTarget = target
+          case _ =>
+            finished = true
+        }
+      }
+      if (path.isEmpty)
+        None
+      else
+        Some((lastTarget, path))
     }
   }
   object WhileLoop {

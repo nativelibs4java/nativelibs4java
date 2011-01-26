@@ -65,7 +65,7 @@ object Test {
     )*/
     //val clQueue = clContext.createDefaultOutOfOrderQueueIfPossible
     implicit val context = ScalaCLContext(
-      CLPlatform.DeviceFeature.CPU,
+      //CLPlatform.DeviceFeature.CPU,
       CLPlatform.DeviceFeature.OutOfOrderQueueSupport, 
       CLPlatform.DeviceFeature.MaxComputeUnits
     )
@@ -181,23 +181,6 @@ object Test {
     //println("Zipped : " + cla.zip(cla.map(m)).toArray.take(10).toSeq)//.asInstanceOf[Iterable[Int]]))
       
     same(
-      times("Filter in OpenCL", runs) { finished { cla.filter(f).toArray } },
-      times("Filter in Scala", runs) { a.filter(f) }
-    )
-    
-    same(
-      times("Filter+Map+Map2+MapJoin1 in OpenCL", runs) { finished { cla.filter(f).map(m).map(m2).map(m2join).toArray } },
-      times("Filter+Map+Map2+MapJoin1 in Scala", runs) { a.filter(f).map(m).map(m2).map(m2join) }
-    )
-    times("Filter+Map+Map2+MapJoin1 in Scala+views", runs) { a.view.filter(f).map(m).map(m2).map(m2join).toArray }
-    
-    same(
-      times("Filter+Map in OpenCL", runs) { finished { cla.filter(f).map(m).toArray } },
-      times("Filter+Map  in Scala", runs) { a.filter(f).map(m) }
-    )
-    times("Filter+Map  in Scala+views", runs) { a.view.filter(f).map(m).toArray }
-    
-    same(
       times("Map2+MapJoin2 in OpenCL", runs) { finished { cla.map(m2).map(m2join2).toArray } },
       times("Map2+MapJoin2 in Scala", runs) { a.map(m2).map(m2join2) }
     )
@@ -274,6 +257,23 @@ object Test {
       times("Filtered Sum in OpenCL", runs) { finished { Array(cla.filter(f).sum) } },
       times("Filtered Sum in Scala", runs) { Array(a.filter(f).sum) }
     )
+    
+    same(
+      times("Filter in OpenCL", runs) { finished { cla.filter(f).toArray } },
+      times("Filter in Scala", runs) { a.filter(f) }
+    )
+    
+    same(
+      times("Filter+Map+Map2+MapJoin1 in OpenCL", runs) { finished { cla.filter(f).map(m).map(m2).map(m2join).toArray } },
+      times("Filter+Map+Map2+MapJoin1 in Scala", runs) { a.filter(f).map(m).map(m2).map(m2join) }
+    )
+    times("Filter+Map+Map2+MapJoin1 in Scala+views", runs) { a.view.filter(f).map(m).map(m2).map(m2join).toArray }
+    
+    same(
+      times("Filter+Map in OpenCL", runs) { finished { cla.filter(f).map(m).toArray } },
+      times("Filter+Map  in Scala", runs) { a.filter(f).map(m) }
+    )
+    times("Filter+Map  in Scala+views", runs) { a.view.filter(f).map(m).toArray }
     
     //}
     //assert(ff.toArray.take(samples).toSeq == sff.take(samples).toArray.toSeq)

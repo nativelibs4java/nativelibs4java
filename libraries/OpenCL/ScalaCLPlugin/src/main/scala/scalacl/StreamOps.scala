@@ -65,11 +65,11 @@ trait StreamOps extends TreeBuilders {
     def prependPath(prePath: List[Int]) = new IntPath[T](target, prePath ++ path)
     def map[V](f: T => V) = new IntPath[V](f(target), path)
   }
-  object TuplePath {
+  object TuplePath2 {
     def unapply(tree: Tree): Option[IntPath[Tree]] = tree match {
       case TupleField(tf) =>
         tf.tuple match {
-          case TuplePath(IntPath(originalTuple, path)) =>
+          case TuplePath2(IntPath(originalTuple, path)) =>
             Some(new IntPath[Tree](originalTuple, path ++ List(tf.fieldIndex)))
           case _ =>
             Some(new IntPath[Tree](tf.tuple, List(tf.fieldIndex)))
@@ -81,7 +81,7 @@ trait StreamOps extends TreeBuilders {
   class ArgTuplePathsHarvester(var defs: Map[Symbol, ArgTuplePath]) extends Traverser {
     override def traverse(tree: Tree) = {
       tree match {
-        case ValDef(mods, name, tpt, TuplePath(IntPath(target, subPath))) =>
+        case ValDef(mods, name, tpt, TuplePath2(IntPath(target, subPath))) =>
           defs.get(target.symbol) match {
             case Some(path) =>
               defs += target.symbol -> path.appendPath(subPath)

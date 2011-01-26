@@ -58,7 +58,8 @@ extends PluginComponent
   //with Analyzer
    with OpenCLConverter
    with WithOptions
-  with CodeFlattening
+   with CodeFlattening
+   with TupleAnalysis
 {
   import global._
   import global.definitions._
@@ -136,12 +137,12 @@ extends PluginComponent
                       assert(f.id != op.f.id)
                       var Function(List(uniqueParam), body) = f
                       val renamed = renameDefinedSymbolsUniquely(body, unit)
-                      val tupleAnalysis = new TupleAnalysis(renamed)
-                      val flattener = new TuplesAndBlockFlattener(tupleAnalysis)
-                      val flattened = flattener.flattenTuplesAndBlocks(renamed, true, currentOwner)(unit)
-                      
-                      
-                      if (options.verbose)
+                      val tupleAnalyzer = new TupleAnalyzer(renamed)
+                      val flattener = new TuplesAndBlockFlattener(tupleAnalyzer)
+                      val flattened = flattener.flattenTuplesAndBlocksWithInputSymbol(renamed, uniqueParam.symbol, uniqueParam.name, currentOwner)(unit)
+                      //println("flattener.sliceReplacements = \n\t" + flattener.sliceReplacements.map({case (a, b) => (a, b())}).mkString("\n\t"))
+              
+                      /*if (options.verbose)
                         println("Flattened tuples and blocks : \n\t" + 
                           flattened.outerDefinitions.mkString("\n").replaceAll("\n", "\n\t") + 
                           "\n\t" + uniqueParam + " => {\n\t\t" +
@@ -150,7 +151,7 @@ extends PluginComponent
                             flattened.values.mkString("\n").replaceAll("\n", "\n\t\t\t") + 
                           "\n\t\t)\n\t}"
                         )
-                        
+                       */ 
                       def convertCode(tree: Tree) = 
                         convert(removeSymbolsExceptParamSymbolAsUnderscore(uniqueParam.symbol, tree))
                       
@@ -201,8 +202,26 @@ extends PluginComponent
                       ))
                       val uniqueId = uniqueSignature.hashCode // TODO !!!
                       
-                      if (options.verbose)
-                        println("[scalacl] Converted <<< " + body + " >>> to <<< \"" + outerDefinitions + "\n" + statements + "\n(" + values.mkString(", ") + ")\" >>>")
+                      if (options.verbose) {
+                        def indent(t: Any) =
+                          "\t" + t.toString.replaceAll("\n", "\n\t")
+
+                        println(
+                          (
+                            Array(
+                              "[scalacl] Converted <<<",
+                              indent(body),
+                              ">>> to <<<"
+                            ) ++
+                            outerDefinitions.map(indent) ++
+                            statements.map(indent) ++
+                            Array(
+                              indent("(" + values.mkString(", ") + ")"),
+                              ">>>"
+                            )
+                          ).mkString("\n")
+                        )
+                      }
                       val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
                       val clFunction = 
                         typed {
