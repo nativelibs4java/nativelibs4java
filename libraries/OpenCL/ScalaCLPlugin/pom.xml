@@ -6,7 +6,7 @@
   <artifactId>scalacl-compiler-plugin</artifactId>
   <name>ScalaCL Compiler Plugin</name>
   <url>http://code.google.com/p/scalacl/</url>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.2.Beta7</version>
   <packaging>jar</packaging>
 
 	  <description>

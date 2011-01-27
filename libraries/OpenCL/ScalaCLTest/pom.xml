@@ -4,7 +4,7 @@
   <groupId>com.nativelibs4java</groupId>
   <artifactId>scalacl-test</artifactId>
   <packaging>jar</packaging>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.2.Beta7</version>
   <name>ScalaCLv2 Test</name>
 
 	<parent>

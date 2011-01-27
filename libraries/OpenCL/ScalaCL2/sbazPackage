@@ -1,6 +1,8 @@
 #!/bin/bash
 MVN_VERSION="`cat pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'`"
 SBAZ_VERSION="`echo $MVN_VERSION | sed -e "s/-SNAPSHOT/-SNAPSHOT-\`date '+%Y%m%d'\`/g"`"
+#LINK_BASE="http://nativelibs4java.sourceforge.net/sbaz/scalacl/"
+LINK_BASE="http://ochafik.com/sbaz/scalacl/"
 
 SCALACL_HOME="`pwd`"
 
@@ -30,7 +32,7 @@ cp target/scalacl-$MVN_VERSION-shaded.jar $LIB_JAR_OUT
 cp ../ScalaCLPlugin/target/scalacl-compiler-plugin-$MVN_VERSION.jar $PLUGIN_JAR_OUT
 
 sbaz pack scalacl $TEMP_OUT \
-	--linkbase http://nativelibs4java.sourceforge.net/sbaz/scalacl/ \
+	--linkbase $LINK_BASE \
 	--version $SBAZ_VERSION \
 	--outdir src/main/sbaz \
 	--descfile ABOUT
