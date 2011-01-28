@@ -114,9 +114,166 @@ extends PluginComponent
       }
       trans transform t
     }
-    
+  
+    /*
+    lazy val scalaCLContexts = {
+      import com.nativelibs4java.opencl._
+      JavaCL.listPlatforms.flatMap(_.listAllDevices(true).flatMap(device => {
+        try {
+          Some(new ScalaCLContext(JavaCL.createContext(null, device)))
+        } catch {
+          case ex =>
+            ex.printStackTrace
+            None
+        }
+      }))
+    }.toArray
+    */
+
     private lazy val duplicator = new Transformer {
       override val treeCopy = new StrictTreeCopier
+    }
+    
+    def convertFunctionToCLFunction(originalFunction: Tree): Tree = {
+      
+      val f = duplicator transform originalFunction
+      assert(f.id != originalFunction.id)
+      var Function(List(uniqueParam), body) = f
+      val renamed = renameDefinedSymbolsUniquely(body, unit)
+      val tupleAnalyzer = new TupleAnalyzer(renamed)
+      val flattener = new TuplesAndBlockFlattener(tupleAnalyzer)
+      val flattened = flattener.flattenTuplesAndBlocksWithInputSymbol(renamed, uniqueParam.symbol, uniqueParam.name, currentOwner)(unit)
+      //println("flattener.sliceReplacements = \n\t" + flattener.sliceReplacements.map({case (a, b) => (a, b())}).mkString("\n\t"))
+
+      /*if (options.verbose)
+        println("Flattened tuples and blocks : \n\t" + 
+          flattened.outerDefinitions.mkString("\n").replaceAll("\n", "\n\t") + 
+          "\n\t" + uniqueParam + " => {\n\t\t" +
+          flattened.statements.mkString("\n").replaceAll("\n", "\n\t\t") + 
+          "\n\t\t(\n\t\t\t" + 
+            flattened.values.mkString("\n").replaceAll("\n", "\n\t\t\t") + 
+          "\n\t\t)\n\t}"
+        )
+       */ 
+      def convertCode(tree: Tree) = 
+        convert(removeSymbolsExceptParamSymbolAsUnderscore(uniqueParam.symbol, tree))
+      
+      val symsMap = Map(uniqueParam.symbol -> "_")
+      val convDefs: Seq[FlatCode[String]] = flattened.outerDefinitions map convertCode
+      val convStats: Seq[FlatCode[String]] = flattened.statements map convertCode
+      val convVals: Seq[FlatCode[String]] = flattened.values map convertCode
+      
+      val outerDefinitions = 
+        Seq(convDefs, convStats, convVals).flatMap(_.flatMap(_.outerDefinitions)).distinct.toArray.sortBy(_.startsWith("#"))
+      
+      val statements = 
+        Seq(convStats, convVals).flatMap(_.flatMap(_.statements))
+      //println("statements = " + statements)
+      
+      val values: Seq[String] = 
+        convVals.flatMap(_.values)
+      //println("values = " + values)
+      //System.in.read
+      
+      //println("Renamed defined symbols uniquely : " + renamed)
+      //val Func(List(uniqueParam), body) = op.f
+      val context = localTyper.context1
+      val sourceTpe = uniqueParam.symbol.tpe
+      val mappedTpe = body.tpe
+      val Array(
+        sourceDataIO, 
+        mappedDataIO
+      ) = Array(
+        sourceTpe, 
+        mappedTpe
+      ).map(tpe => {
+        val dataIOTpe = appliedType(CLDataIOClass.tpe, List(tpe))
+        analyzer.inferImplicit(originalFunction, dataIOTpe, false, false, context).tree
+      })
+      
+      //val (statements, values) = convertExpr(Map(uniqueParam.symbol -> "_"), body)
+      val uniqueSignature = Literal(Constant(
+        (
+          Array(
+            originalFunction.symbol.outerSource, originalFunction.symbol.tag + "|" + originalFunction.pos,
+            sourceTpe, mappedTpe
+          ) ++
+          outerDefinitions ++
+          statements ++
+          values
+        ).map(_.toString).mkString("|")
+      ))
+      val uniqueId = uniqueSignature.hashCode // TODO !!!
+      
+      if (options.verbose) {
+        def indent(t: Any) =
+          "\t" + t.toString.replaceAll("\n", "\n\t")
+
+        println(
+          (
+            Array(
+              "[scalacl] Converted <<<",
+              indent(body),
+              ">>> to <<<"
+            ) ++
+            outerDefinitions.map(indent) ++
+            statements.map(indent) ++
+            Array(
+              indent("(" + values.mkString(", ") + ")"),
+              ">>>"
+            )
+          ).mkString("\n")
+        )
+      }
+      
+      /*
+      if (System.getenv("SCALACL_VERIFY") != "0") {
+        val errors = scalaCLContexts.flatMap(context => {
+          try {
+            val f = new impl.CLFunction[Int, Int](null, outerDefinitions, statements, values, Seq())
+            f.compile(context)
+            // TODO illegal access : f.release(context)
+            None
+          } catch { case ex => Some((context.context.getDevices()(0), ex)) }
+        })
+        
+                                
+        if (errors.length > 0)
+          throw new RuntimeException("Failed to compile the OpenCL kernel with some of the available devices :\n" + (errors.map { case (device, ex) => "Device " + device + " : " + ex }).mkString("\n"))
+        else if (options.verbose)
+          println("Program successfully compiled on " + scalaCLContexts.size + " available device(s)") 
+      }
+      */
+      
+      val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
+      val clFunction = 
+        typed {
+          Apply(
+            Apply(
+              TypeApply(
+                Select(
+                  Ident(scalacl_) setSymbol ScalaCLPackage,
+                  getCachedFunctionName
+                ),
+                List(TypeTree(sourceTpe), TypeTree(mappedTpe))
+              ).setSymbol(getCachedFunctionSym),
+              List(
+                newInt(uniqueId),
+                originalFunction,
+                newSeqApply(TypeTree(StringClass.tpe), outerDefinitions.map(d => Literal(Constant(d))):_*),
+                newSeqApply(TypeTree(StringClass.tpe), statements.map(s => Literal(Constant(s))):_*),
+                newSeqApply(TypeTree(StringClass.tpe), values.map(value => Literal(Constant(value))):_*),
+                newSeqApply(TypeTree(AnyClass.tpe)) // args TODO
+              )
+            ).setSymbol(getCachedFunctionSym),
+            List(
+              sourceDataIO,
+              mappedDataIO
+            )
+          ).setSymbol(getCachedFunctionSym)
+        }
+
+      clFunction
     }
     override def transform(tree: Tree): Tree = {
       //println(".")
@@ -133,126 +290,8 @@ extends PluginComponent
                 op match {
                   case opType @ (TraversalOp.Map(_, _) | TraversalOp.Filter(_, false)) =>
                     msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpe + "." + op + "'s function argument.") {
-                      val f = duplicator transform op.f
-                      assert(f.id != op.f.id)
-                      var Function(List(uniqueParam), body) = f
-                      val renamed = renameDefinedSymbolsUniquely(body, unit)
-                      val tupleAnalyzer = new TupleAnalyzer(renamed)
-                      val flattener = new TuplesAndBlockFlattener(tupleAnalyzer)
-                      val flattened = flattener.flattenTuplesAndBlocksWithInputSymbol(renamed, uniqueParam.symbol, uniqueParam.name, currentOwner)(unit)
-                      //println("flattener.sliceReplacements = \n\t" + flattener.sliceReplacements.map({case (a, b) => (a, b())}).mkString("\n\t"))
-              
-                      /*if (options.verbose)
-                        println("Flattened tuples and blocks : \n\t" + 
-                          flattened.outerDefinitions.mkString("\n").replaceAll("\n", "\n\t") + 
-                          "\n\t" + uniqueParam + " => {\n\t\t" +
-                          flattened.statements.mkString("\n").replaceAll("\n", "\n\t\t") + 
-                          "\n\t\t(\n\t\t\t" + 
-                            flattened.values.mkString("\n").replaceAll("\n", "\n\t\t\t") + 
-                          "\n\t\t)\n\t}"
-                        )
-                       */ 
-                      def convertCode(tree: Tree) = 
-                        convert(removeSymbolsExceptParamSymbolAsUnderscore(uniqueParam.symbol, tree))
-                      
-                      val symsMap = Map(uniqueParam.symbol -> "_")
-                      val convDefs: Seq[FlatCode[String]] = flattened.outerDefinitions map convertCode
-                      val convStats: Seq[FlatCode[String]] = flattened.statements map convertCode
-                      val convVals: Seq[FlatCode[String]] = flattened.values map convertCode
-                      
-                      val outerDefinitions = 
-                        Seq(convDefs, convStats, convVals).flatMap(_.flatMap(_.outerDefinitions)).distinct.toArray.sortBy(_.startsWith("#"))
-                      
-                      val statements = 
-                        Seq(convStats, convVals).flatMap(_.flatMap(_.statements))
-                      //println("statements = " + statements)
-                      
-                      val values: Seq[String] = 
-                        convVals.flatMap(_.values)
-                      //println("values = " + values)
-                      //System.in.read
-                      
-                      //println("Renamed defined symbols uniquely : " + renamed)
-                      //val Func(List(uniqueParam), body) = op.f
-                      val context = localTyper.context1
-                      val sourceTpe = uniqueParam.symbol.tpe
-                      val mappedTpe = body.tpe
-                      val Array(
-                        sourceDataIO, 
-                        mappedDataIO
-                      ) = Array(
-                        sourceTpe, 
-                        mappedTpe
-                      ).map(tpe => {
-                        val dataIOTpe = appliedType(CLDataIOClass.tpe, List(tpe))
-                        analyzer.inferImplicit(tree, dataIOTpe, false, false, context).tree
-                      })
-                      
-                      //val (statements, values) = convertExpr(Map(uniqueParam.symbol -> "_"), body)
-                      val uniqueSignature = Literal(Constant(
-                        (
-                          Array(
-                            tree.symbol.outerSource, tree.symbol.tag + "|" + tree.symbol.pos,
-                            sourceTpe, mappedTpe
-                          ) ++
-                          outerDefinitions ++
-                          statements ++
-                          values
-                        ).map(_.toString).mkString("|")
-                      ))
-                      val uniqueId = uniqueSignature.hashCode // TODO !!!
-                      
-                      if (options.verbose) {
-                        def indent(t: Any) =
-                          "\t" + t.toString.replaceAll("\n", "\n\t")
-
-                        println(
-                          (
-                            Array(
-                              "[scalacl] Converted <<<",
-                              indent(body),
-                              ">>> to <<<"
-                            ) ++
-                            outerDefinitions.map(indent) ++
-                            statements.map(indent) ++
-                            Array(
-                              indent("(" + values.mkString(", ") + ")"),
-                              ">>>"
-                            )
-                          ).mkString("\n")
-                        )
-                      }
-                      val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
-                      val clFunction = 
-                        typed {
-                          Apply(
-                            Apply(
-                              TypeApply(
-                                Select(
-                                  Ident(scalacl_) setSymbol ScalaCLPackage,
-                                  getCachedFunctionName
-                                ),
-                                List(TypeTree(sourceTpe), TypeTree(mappedTpe))
-                              ).setSymbol(getCachedFunctionSym),
-                              List(
-                                newInt(uniqueId),
-                                op.f,
-                                newSeqApply(TypeTree(StringClass.tpe), outerDefinitions.map(d => Literal(Constant(d))):_*),
-                                newSeqApply(TypeTree(StringClass.tpe), statements.map(s => Literal(Constant(s))):_*),
-                                newSeqApply(TypeTree(StringClass.tpe), values.map(value => Literal(Constant(value))):_*),
-                                newSeqApply(TypeTree(AnyClass.tpe)) // args TODO
-                              )
-                            ).setSymbol(getCachedFunctionSym),
-                            List(
-                              sourceDataIO,
-                              mappedDataIO
-                            )
-                          ).setSymbol(getCachedFunctionSym)
-                        }
-  
-                      val rep = replaceOccurrences(super.transform(tree), Map(), Map(), Map(op.f -> (() => clFunction)), unit)
-                      //println("REP = " + nodeToString(rep))
-                      rep
+                      val clFunction = convertFunctionToCLFunction(op.f)
+                      replaceOccurrences(super.transform(tree), Map(), Map(), Map(op.f -> (() => clFunction)), unit)
                     }
                   case _ =>
                     super.transform(tree)
@@ -263,6 +302,27 @@ extends PluginComponent
             } catch { case ex => 
               ex.printStackTrace
               super.transform(tree)
+            }
+          case 
+            Apply(
+              Apply(
+                TypeApply(
+                  Select(
+                    tg,
+                    Function2CLFunctionName()
+                  ),
+                  List(typeFrom, typeTo)
+                ),
+                List(f)
+              ),
+              List(ioFrom, ioTo)
+            ) if tg.toString == "scalacl.package" =>
+            println("tg = " + tg)
+            msg(unit, tree.pos, "transformed Scala function to a CLFunction.") {
+              val clFunction = convertFunctionToCLFunction(f)
+              clFunction.tpe = tree.tpe
+              clFunction
+              //replaceOccurrences(super.transform(tree), Map(), Map(), Map(f -> (() => clFunction)), unit)
             }
           case _ =>
             super.transform(tree)

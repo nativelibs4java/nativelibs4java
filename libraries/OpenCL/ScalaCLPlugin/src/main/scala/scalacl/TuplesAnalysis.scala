@@ -168,9 +168,19 @@ extends MiscMatchers
   }
   class BoundTuple(rootSlice: TupleSlice) {
     def unapply(tree: Tree): Option[Seq[(Symbol, TupleSlice)]] = tree match {
-      case Bind(name, Ident(_)) =>
-        //println("Found bind with name " + name)
-        Some(Seq(tree.symbol -> rootSlice))
+      case Bind(name, what) =>
+        val sub = this
+        what match {
+          case Ident(_) =>
+            //println("Found bind with name " + name)
+            Some(Seq(tree.symbol -> rootSlice))
+          case sub(m) =>
+            Some(m ++ Seq(tree.symbol -> rootSlice))
+          case _ =>
+            throw new RuntimeException("Not a bound tuple : " + tree + " (" + tree.getClass.getName + ")\n\tnodes = " + nodeToString(tree))
+            //System.exit(1)
+            None
+        }
       case TupleCreation(components) =>
         //println("Found tuple creation with components " + components)
         var currentOffset = 0

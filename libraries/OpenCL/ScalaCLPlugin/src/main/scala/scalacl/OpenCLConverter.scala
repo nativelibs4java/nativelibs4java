@@ -54,6 +54,7 @@ extends MiscMatchers
   var placeHolderRefs = new Stack[String]
 
   def valueCode(v: String) = FlatCode[String](Seq(), Seq(), Seq(v))
+  def emptyCode = FlatCode[String](Seq(), Seq(), Seq())
   def statementCode(s: String) = FlatCode[String](Seq(), Seq(s), Seq())
   def convert(body: Tree): FlatCode[String] = {
     def cast(expr: Tree, clType: String) =
@@ -77,8 +78,10 @@ extends MiscMatchers
       case TupleCreation(tupleArgs) =>//Apply(TypeApply(Select(TupleObject(), applyName()), tupleTypes), tupleArgs) if isTopLevel =>
         tupleArgs.map(convert).reduceLeft(_ ++ _)
       case Literal(Constant(value)) =>
-        assert(value != ())
-        valueCode(value.toString)
+        if (value == ())
+          emptyCode
+        else
+          valueCode(value.toString)
       case Ident(name) =>
         valueCode(name.toString)
       case If(condition, then: Tree, thenElse: Tree) =>
@@ -107,6 +110,9 @@ extends MiscMatchers
           retExprsBuilders = sub._2
           //out(expression, "\n")
         }*/
+      case Typed(expr, tpt) =>
+        val t = convertTpe(tpt.tpe)
+        convert(expr).mapValues(_.map(v => "((" + t + ")" + v + ")")) 
       case DefDef(mods, name, tparams, vparamss, tpt, body) =>
         val b = new StringBuilder
         b ++= convertTpe(body.tpe) + " " + name + "("
@@ -192,10 +198,10 @@ extends MiscMatchers
       case WhileLoop(condition, content) =>
         val cs = content.map(convert)
         convert(condition).mapEachValue(v => {
-          assert(cs.forall(_.values.isEmpty), cs)
+          //assert(cs.forall(_.values.isEmpty), cs)
           Seq(
             "while (" + v + ") {\n" +
-              cs.flatMap(_.statements).mkString("\n") + "\n" +
+              cs.flatMap(c => c.statements ++ c.values).mkString("\n") + "\n" +
             "}"
           )
         }).addOuters(cs.flatMap(_.outerDefinitions))

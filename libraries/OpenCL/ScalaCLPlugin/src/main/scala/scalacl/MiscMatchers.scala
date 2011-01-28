@@ -150,6 +150,8 @@ trait MiscMatchers {
   val mathName = N("math")
   val packageName = N("package")
   val applyName = N("apply")
+  val Function2CLFunctionName = N("Function2CLFunction")
+  
   lazy val ScalaCollectionPackage = definitions.getModule(N("scala.collection"))
   lazy val ScalaReflectPackage = definitions.getModule(N("scala.reflect"))
   lazy val SeqClass = definitions.getClass(N("scala.collection.Seq"))
@@ -327,7 +329,7 @@ trait MiscMatchers {
         components
       case Apply(tt @ TypeTree(), components) if isTupleSymbol(tree.tpe.typeSymbol) =>
         // TODO FIX THIS BROAD HACK !!! (test tt)
-        println("tt.tpe = (" + tt.tpe + ": " + tt.tpe.getClass.getName + ")")
+        //println("tt.tpe = (" + tt.tpe + ": " + tt.tpe.getClass.getName + ")")
         components
     }
   }
