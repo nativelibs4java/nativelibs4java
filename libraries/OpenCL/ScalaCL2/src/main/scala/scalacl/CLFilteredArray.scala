@@ -129,12 +129,15 @@ extends IndexedSeq[A]
     toCLArray.sum[B] // TODO !
     
   def map[B, That](f: A => B, out: That)(implicit bf: CanBuildFrom[CLFilteredArray[A], B, That]): That = {
+    if (!bf.isInstanceOf[CLCanBuildFrom[Repr, B, That]])
+      return toSeq.map(f)(bf.asInstanceOf[CanBuildFrom[Seq[A], B, That]])
+      
     implicit val dataIO = bf.dataIO
     val result = reuse(out, new CLFilteredArray[B](array.length, if (presence == null) null else presence.clone))
 
     if (presence != null)
       f match {
-        case clf: CLRunnable if !useScalaFunctions =>
+        case clf: CLRunnable if !clf.isOnlyInScalaSpace && !useScalaFunctions =>
           clf.run(
             dims = Array(array.length),
             args = Array(this, result),

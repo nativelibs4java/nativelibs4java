@@ -7,18 +7,20 @@ import _root_.scala.collection._
 import com.nativelibs4java.opencl._
 
 trait CLCode {
-  val sources: Seq[String]
-  val macros: Map[String, String]
-  val compilerArguments: Seq[String]
+  protected val sources: Seq[String]
+  protected val macros: Map[String, String]
+  protected val compilerArguments: Seq[String]
 
   private val flatten: ((String, String)) => String = { case ((a: String, b: String)) => a + b }
-  lazy val strs = sources ++ macros.map(flatten)// ++ compilerArguments ++ templateParameters.toSeq.map(flatten)
+  private lazy val strs = sources ++ macros.map(flatten)// ++ compilerArguments ++ templateParameters.toSeq.map(flatten)
   private lazy val hc = strs.map(_.hashCode).reduceLeft(_ ^ _)
 
-  val map = new mutable.HashMap[CLContext, Map[String, CLKernel]]
+  private val map = new mutable.HashMap[CLContext, (CLProgram, Map[String, CLKernel])]
   
-  def getKernel(context: ScalaCLContext, name: String = null) = map.synchronized {
-    val kernels = map.getOrElseUpdate(
+  def compile(context: ScalaCLContext): Unit = getProgramAndKernels(context)
+  
+  private[impl] def getProgramAndKernels(context: ScalaCLContext) = map.synchronized {
+    map.getOrElseUpdate(
       context.context,
       {
         val program = context.context.createProgram(sources.map(s => """
@@ -28,9 +30,20 @@ trait CLCode {
           program.defineMacro(key, value)
 
         compilerArguments.foreach(program.addBuildOption(_))
-        program.createKernels.map(k => (k.getFunctionName, k)).toMap
+        (program, program.createKernels.map(k => (k.getFunctionName, k)).toMap)
       }
     )
+  }
+
+  def release(context: ScalaCLContext): Unit = map.synchronized {
+    for ((program, kernels) <- map.get(context.context)) {
+      kernels.values.foreach(_.release)
+      program.release
+      map.remove(context.context)
+    }
+  }
+  def getKernel(context: ScalaCLContext, name: String = null) = {
+    val kernels = getProgramAndKernels(context)._2
     if (name == null)
       kernels.values.head
     else

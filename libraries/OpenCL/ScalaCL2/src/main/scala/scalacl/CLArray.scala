@@ -55,10 +55,13 @@ trait MappableToCLArray[A, +Repr <: CLCollectionLike[A, Repr] with CLCollection[
   def length: Int
   protected def mapFallback[B](f: A => B, out: CLArray[B]): Unit
   override def map[B, That](f: A => B, out: That)(implicit bf: CanBuildFrom[Repr, B, That]): That = {
+    if (!bf.isInstanceOf[CLCanBuildFrom[Repr, B, That]])
+      return toSeq.map(f)(bf.asInstanceOf[CanBuildFrom[Seq[A], B, That]])
+      
     val result = reuse(out, new CLArray[B](length)(context, bf.dataIO))
 
     f match {
-      case clf: CLRunnable if !useScalaFunctions =>
+      case clf: CLRunnable if !clf.isOnlyInScalaSpace && !useScalaFunctions =>
         clf.run(
           dims = Array(length),
           args = Array(this, result),

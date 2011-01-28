@@ -82,7 +82,7 @@ trait CLCollectionLike[A, +Repr]
       val result = reuse(out, ff.newFilterResult(this.asInstanceOf[Repr]))//new CLFilteredArray[A](length))
 
       p match {
-        case clf: CLRunnable if !useScalaFunctions =>
+        case clf: CLRunnable if !clf.isOnlyInScalaSpace && !useScalaFunctions =>
           val filteredOut = result.asInstanceOf[CLFilteredArray[A]]
           val valuesOut = filteredOut.array
           val presenceOut = filteredOut.presence

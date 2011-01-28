@@ -241,6 +241,13 @@ package object scalacl {
     new CLFunction[K, V](function, Seq(), Seq(), expressions, Seq())
   }
 
+  /**
+   * This MUST be transformed by the ScalaCL compiler plugin to be usable in an OpenCL context (otherwise operations will happen in Scala land
+   */
+  implicit def Function2CLFunction[K, V](f: K => V)(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
+    new CLFunction[K, V](f, Seq(), Seq(), Seq(), Seq())
+  }
+
   private val functionsCache = scala.collection.mutable.HashMap[Long, CLFunction[_, _]]()
   
   def getCachedFunction[K, V](uid: Long, function: K => V, outerDeclarations: => Seq[String], declarations: => Seq[String], expressions: => Seq[String], extraArgs: => Seq[Any])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
