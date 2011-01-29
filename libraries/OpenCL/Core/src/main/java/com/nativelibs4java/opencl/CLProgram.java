@@ -276,7 +276,17 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                 this.sources.add(0, b.toString());
             }
         }
-
+        
+		if (!"false".equals(System.getProperty("javacl.adjustDoubleExtension")) && !"0".equals(System.getenv("JAVACL_ADJUST_DOUBLE_EXTENSION"))) {
+			for (int i = 0, len = sources.size(); i < len; i++) {
+				String source = sources.get(i);
+				for (CLDevice device : getDevices())
+					source = device.replaceDoubleExtensionByExtensionActuallyAvailable(source);
+				sources.set(i, source);
+				// TODO keep different sources for each device !!!
+			}
+		}
+        
         String[] sources = this.sources.toArray(new String[this.sources.size()]);
         NativeSize[] lengths = new NativeSize[sources.length];
         for (int i = 0; i < sources.length; i++) {

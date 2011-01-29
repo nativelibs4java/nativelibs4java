@@ -874,10 +874,40 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
         return false;
     }
 
+    /**
+     * Whether this device support any double-precision number extension (cl_khr_fp64 or cl_amd_fp64)
+     */
     public boolean isDoubleSupported() {
-        return hasExtension("cl_khr_fp64") || hasExtension("cl_amd_fp64");
+        return isDoubleSupportedKHR() || isDoubleSupportedAMD();
     }
 
+    /**
+     * Whether this device support the cl_khr_fp64 double-precision number extension
+     */
+    public boolean isDoubleSupportedKHR() {
+        return hasExtension("cl_khr_fp64");
+    }
+
+    /**
+     * Whether this device support the cl_amd_fp64 double-precision number extension
+     */
+    public boolean isDoubleSupportedAMD() {
+        return hasExtension("cl_amd_fp64");
+    }
+
+    /**
+     * If this device supports the extension cl_amd_fp64 but not cl_khr_fp64, replace any OpenCL source code pragma of the style <code>#pragma OPENCL EXTENSION cl_khr_fp64 : enable</code> by <code>#pragma OPENCL EXTENSION cl_amd_fp64 : enable</code>.<br>
+     * Also works the other way around (if the KHR extension is available but the source code refers to the AMD extension).<br>
+     * This method is called automatically by CLProgram unless the javacl.adjustDoubleExtension property is set to false or the JAVACL_ADJUST_DOUBLE_EXTENSION is set to 0.
+     */
+    public String replaceDoubleExtensionByExtensionActuallyAvailable(String kernelSource) {
+    	boolean hasKHR = isDoubleSupportedKHR(), hasAMD = isDoubleSupportedAMD();
+    	if (hasAMD && !hasKHR)
+			kernelSource = kernelSource.replaceAll("#pragma\\s+OPENCL\\s+EXTENSION\\s+cl_khr_fp64\\s*:\\s*enable", "#pragma OPENCL EXTENSION cl_amd_fp64 : enable");
+		else if (!hasAMD && hasKHR)
+			kernelSource = kernelSource.replaceAll("#pragma\\s+OPENCL\\s+EXTENSION\\s+cl_amd_fp64\\s*:\\s*enable", "#pragma OPENCL EXTENSION cl_khr_fp64 : enable");
+		return kernelSource;
+    }
     public boolean isHalfSupported() {
         return hasExtension("cl_khr_fp16");
     }

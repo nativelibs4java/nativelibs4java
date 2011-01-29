@@ -174,7 +174,7 @@ public class OpenCL4JavaBenchmarkTest {
 
     static CLKernel setupASinB(Prim nativeType, CLContext context) throws CLBuildException {
         String src = "\n"
-                + "#pragma OPENCL EXTENSION cl_khr_fp16 : enable\n"
+                //+ "#pragma OPENCL EXTENSION cl_khr_fp16 : enable\n"
                 + "#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n"
                 + (nativeType == Prim.Double ? "#pragma OPENCL EXTENSION cl_khr_fp64 : enable\n" : "")
                 + "__kernel void aSinB(                                                  \n"
