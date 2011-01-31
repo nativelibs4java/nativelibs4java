@@ -49,7 +49,7 @@ import com.sun.jna.ptr.IntByReference;
  */
 public class JavaCL {
 
-	static boolean cacheBinaries = !"false".equals(System.getProperty("javacl.cacheBinaries") + "") && !"1".equals(System.getenv("JAVACL_CACHE_BINARIES"));
+	static boolean cacheBinaries = !"false".equals(System.getProperty("javacl.cacheBinaries") + "") && !"0".equals(System.getenv("JAVACL_CACHE_BINARIES"));
 	/**
 	 * Change whether program binaries are automatically cached or not.<br>
 	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property or the "JAVACL_CACHE_BINARIES" environment variable (when set to "0").<br>
