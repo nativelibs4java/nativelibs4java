@@ -42,6 +42,8 @@ import java.util.logging.*;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.Native;
 
 /**
  * Entry point class for the OpenCL4Java Object-oriented wrappers around the OpenCL API.<br/>
@@ -49,24 +51,6 @@ import com.sun.jna.ptr.IntByReference;
  */
 public class JavaCL {
 
-	static boolean cacheBinaries = !"false".equals(System.getProperty("javacl.cacheBinaries") + "") && !"0".equals(System.getenv("JAVACL_CACHE_BINARIES"));
-	/**
-	 * Change whether program binaries are automatically cached or not.<br>
-	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property or the "JAVACL_CACHE_BINARIES" environment variable (when set to "0").<br>
-	 * Each program can be set to be cached or not using @see CLProgram#setCached(boolean).
-	 */ 
-	public static void setCacheBinaries(boolean cacheBinaries) {
-		JavaCL.cacheBinaries = cacheBinaries;
-	}
-	/**
-	 * Says whether program binaries are automatically cached or not.<br>
-	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property, the "JAVACL_CACHE_BINARIES" environment variable (when set to "0") or the @see JavaCL#setCacheBinaries(boolean) method.<br>
-	 * Each program can be set to be cached or not using @see CLProgram#setCached(boolean).
-	 */ 
-	public static boolean getCacheBinaries() {
-		return cacheBinaries;
-	}
-	
 	static final boolean verbose = "true".equals(System.getProperty("javacl.verbose")) || "1".equals(System.getenv("JAVACL_VERBOSE"));
     static final int minLogLevel = Level.WARNING.intValue();
 	static boolean shouldLog(Level level) {
@@ -84,7 +68,34 @@ public class JavaCL {
 		return true;
 	}
 
-    static final OpenCLLibrary CL = OpenCLLibrary.INSTANCE;
+	private static int getPlatformIDs(OpenCLLibrary lib, int count, cl_platform_id[] out, IntByReference pCount) {
+		try {
+			return lib.clIcdGetPlatformIDsKHR(count, out, pCount);
+		} catch (Throwable th) {
+			return lib.clGetPlatformIDs(count, out, pCount);
+		}
+	}
+    static final OpenCLLibrary CL;
+	static {
+		OpenCLLibrary lib = (OpenCLLibrary)Native.loadLibrary("OpenCL", OpenCLLibrary.class);
+		//if (Platform.isWindows())
+		try {
+			IntByReference pCount = new IntByReference();
+			int err = getPlatformIDs(lib, 0, null, pCount);
+			if (err != OpenCLLibrary.CL_SUCCESS) {
+				OpenCLLibrary atiLib = (OpenCLLibrary)Native.loadLibrary("atiocl", OpenCLLibrary.class);
+				if (atiLib != null) {
+					err = getPlatformIDs(atiLib, 0, null, pCount);
+					if (err == OpenCLLibrary.CL_SUCCESS) {
+						System.out.println("[JavaCL] Hacking around ATI's weird driver bugs (using atiocl library instead of OpenCL)"); 
+						lib = atiLib;
+					}
+				}
+			}
+		} catch (Throwable th) {}
+		
+		CL = (OpenCLLibrary)Native.synchronizedLibrary(lib);
+	}
 
     /**
      * List the OpenCL implementations that contain at least one GPU device.
@@ -103,7 +114,7 @@ public class JavaCL {
 	 */
     public static CLPlatform[] listPlatforms() {
         IntByReference pCount = new IntByReference();
-        error(CL.clGetPlatformIDs(0, (cl_platform_id[])null, pCount));
+        error(getPlatformIDs(CL, 0, null, pCount));
 
         int nPlats = pCount.getValue();
         if (nPlats == 0)
@@ -111,7 +122,7 @@ public class JavaCL {
 
         cl_platform_id[] ids = new cl_platform_id[nPlats];
 
-        error(CL.clGetPlatformIDs(nPlats, ids, null));
+        error(getPlatformIDs(CL, nPlats, ids, null));
         CLPlatform[] platforms = new CLPlatform[nPlats];
 
         for (int i = 0; i < nPlats; i++) {

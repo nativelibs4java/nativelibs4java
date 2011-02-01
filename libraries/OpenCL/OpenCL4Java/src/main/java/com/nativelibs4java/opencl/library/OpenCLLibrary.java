@@ -6,6 +6,7 @@ import com.ochafik.lang.jnaerator.runtime.NativeSizeByReference;
 import com.ochafik.lang.jnaerator.runtime.globals.GlobalCallback;
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
+import com.sun.jna.win32.StdCallLibrary;
 import com.sun.jna.Native;
 import com.sun.jna.NativeLibrary;
 import com.sun.jna.Pointer;
@@ -21,10 +22,7 @@ import java.nio.LongBuffer;
  * a tool written by <a href="http://ochafik.free.fr/">Olivier Chafik</a> that <a href="http://code.google.com/p/jnaerator/wiki/CreditsAndLicense">uses a few opensource projects.</a>.<br>
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a> , <a href="http://rococoa.dev.java.net/">Rococoa</a>, or <a href="http://jna.dev.java.net/">JNA</a>.
  */
-public interface OpenCLLibrary extends Library {
-	public static final java.lang.String JNA_LIBRARY_NAME = LibraryExtractor.getLibraryPath("OpenCL", true, com.nativelibs4java.opencl.library.OpenCLLibrary.class);
-	public static final NativeLibrary JNA_NATIVE_LIB = NativeLibrary.getInstance(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_LIBRARY_NAME, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS);
-	public static final OpenCLLibrary INSTANCE = (OpenCLLibrary)Native.synchronizedLibrary((Library)Native.loadLibrary(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_LIBRARY_NAME, com.nativelibs4java.opencl.library.OpenCLLibrary.class, com.ochafik.lang.jnaerator.runtime.MangledFunctionMapper.DEFAULT_OPTIONS));
+public interface OpenCLLibrary extends StdCallLibrary {
 	public static final int CL_DEVICE_TYPE_CPU = (1 << 1);
 	public static final int CL_SCHAR_MAX = 127;
 	public static final int CL_FP_INF_NAN = (1 << 1);
@@ -1403,7 +1401,7 @@ public interface OpenCLLibrary extends Library {
 	int clCreateSubDevicesEXT(OpenCLLibrary.cl_device_id cl_device_id1, LongBuffer cl_device_partition_property_extPtr1, int cl_uint1, OpenCLLibrary.cl_device_id cl_device_idPtr1[], IntBuffer cl_uintPtr1);
 	/// Original signature : <code>cl_int clCreateSubDevicesEXT(cl_device_id, const cl_device_partition_property_ext*, cl_uint, cl_device_id*, cl_uint*)</code>
 	int clCreateSubDevicesEXT(OpenCLLibrary.cl_device_id cl_device_id1, LongByReference cl_device_partition_property_extPtr1, int cl_uint1, OpenCLLibrary.cl_device_id cl_device_idPtr1[], IntByReference cl_uintPtr1);
-	public static final GlobalCallback<clCreateSubDevicesEXT_fn_callback > clCreateSubDevicesEXT_fn = new GlobalCallback<clCreateSubDevicesEXT_fn_callback >(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_NATIVE_LIB, clCreateSubDevicesEXT_fn_callback.class, "clCreateSubDevicesEXT_fn");
+	//public static final GlobalCallback<clCreateSubDevicesEXT_fn_callback > clCreateSubDevicesEXT_fn = new GlobalCallback<clCreateSubDevicesEXT_fn_callback >(com.nativelibs4java.opencl.library.OpenCLLibrary.JNA_NATIVE_LIB, clCreateSubDevicesEXT_fn_callback.class, "clCreateSubDevicesEXT_fn");
 	/// Pointer to unknown (opaque) type
 	public static class __GLsync extends PointerType {
 		public __GLsync(Pointer address) {
