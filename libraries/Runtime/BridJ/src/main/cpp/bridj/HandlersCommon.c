@@ -14,7 +14,14 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				dcArgInt(call->vm, dcbArgInt(args));
 				break;
 			case eCLongValue:
-				dcArgLong(call->vm, (long)dcbArgLongLong(args));
+				if (sizeof(long) == 4) {
+					if (toJava)
+						dcArgLongLong(call->vm, dcbArgLong(args));
+					else
+						dcArgLong(call->vm, (int)dcbArgLongLong(args));
+				}
+				else
+					dcArgLong(call->vm, (long)dcbArgLongLong(args));
 				break;
 			case eSizeTValue:
 				if (sizeof(size_t) == 4) {
@@ -145,7 +152,7 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 			throwException(env, "Invalid return value type !");
 			return JNI_FALSE;
 	}
-	if ((*env)->ExceptionCheck(env))
+	if (bCallingJava && (*env)->ExceptionCheck(env))
 		return JNI_FALSE;
 	return JNI_TRUE;
 }
