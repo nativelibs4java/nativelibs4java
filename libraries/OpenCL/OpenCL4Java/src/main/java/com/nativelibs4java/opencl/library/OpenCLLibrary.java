@@ -6,6 +6,7 @@ import org.bridj.SizeT;
 import org.bridj.TypedPointer;
 import org.bridj.ann.Library;
 import org.bridj.ann.Optional;
+import org.bridj.ann.Convention;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Runtime;
 import org.bridj.cpp.CPPRuntime;
@@ -17,6 +18,7 @@ import org.bridj.cpp.CPPRuntime;
  */
 @Library("OpenCL") 
 @Runtime(CPPRuntime.class) 
+@Convention(Convention.Style.StdCall)
 public class OpenCLLibrary {
 	static {
 		BridJ.register();
