@@ -64,7 +64,7 @@ import com.sun.jna.ptr.IntByReference;
 public abstract class CLMem extends CLAbstractEntity<cl_mem> {
 
     protected final CLContext context;
-    protected long byteCount;
+    protected long byteCount = -1;
     boolean isGL;
 
 	protected static CLInfoGetter<cl_mem> infos = new CLInfoGetter<cl_mem>() {
