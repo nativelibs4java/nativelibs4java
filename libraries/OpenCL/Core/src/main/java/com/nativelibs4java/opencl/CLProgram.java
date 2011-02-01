@@ -137,27 +137,29 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		setBinaries(binaries);
 	}
 	protected void setBinaries(Map<CLDevice, byte[]> binaries) {
-        int nDevices = binaries.size();
-        this.devices = new CLDevice[nDevices];
+        if (this.devices == null) {
+        		this.devices = new CLDevice[binaries.size()];
+        		int iDevice = 0;
+        		for (CLDevice device : binaries.keySet())
+        			this.devices[iDevice++] = device;
+        }
+        int nDevices = this.devices.length;
         NativeSize[] lengths = new NativeSize[nDevices];
 		cl_device_id[] deviceIds = new cl_device_id[nDevices];
 		Memory binariesArray = new Memory(Pointer.SIZE * nDevices);
 		Memory[] binariesMems = new Memory[nDevices];
 
-        int iDevice = 0;
-        for (Map.Entry<CLDevice, byte[]> e : binaries.entrySet())
+        for (int iDevice = 0; iDevice < nDevices; iDevice++)
         {
-            CLDevice device = e.getKey();
-            byte[] binary = e.getValue();
+            CLDevice device = devices[iDevice];
+            byte[] binary = binaries.get(device);
 
             Memory binaryMem = binariesMems[iDevice] = new Memory(binary.length);
 			binaryMem.write(0, binary, 0, binary.length);
 			binariesArray.setPointer(iDevice * Pointer.SIZE, binaryMem);
 
             lengths[iDevice] = toNS(binary.length);
-			deviceIds[iDevice] = (devices[iDevice] = device).getEntity();
-
-            iDevice++;
+			deviceIds[iDevice] = device.getEntity();
         }
 		PointerByReference binariesPtr = new PointerByReference();
         binariesPtr.setPointer(binariesArray);
@@ -609,6 +611,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 				}
         		} catch (Exception ex) {
         			assert log(Level.WARNING, "Failed to load cached program", ex);
+        			entity = null;
         		}
         }
         
