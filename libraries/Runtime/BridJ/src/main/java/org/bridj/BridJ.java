@@ -234,7 +234,7 @@ public class BridJ {
 		}
 	}
 
-    static final boolean verbose = "true".equals(System.getProperty("bridj.verbose"));
+    static final boolean verbose = "true".equals(System.getProperty("bridj.verbose")) || "1".equals(System.getenv("BRIDJ_VERBOSE"));
     static final int minLogLevel = Level.WARNING.intValue();
 	static boolean shouldLog(Level level) {
         return verbose || level.intValue() >= minLogLevel;
