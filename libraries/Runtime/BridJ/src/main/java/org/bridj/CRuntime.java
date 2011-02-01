@@ -22,6 +22,7 @@ import org.bridj.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Struct;
 import org.bridj.ann.Virtual;
+import org.bridj.ann.Convention;
 import org.bridj.cpp.CPPObject;
 import org.bridj.util.AutoHashMap;
 import java.lang.reflect.Type;
@@ -288,7 +289,12 @@ public class CRuntime extends AbstractBridJRuntime {
 //                }
             }
             mci.setForwardedPointer(symbol.getAddress());
-            builder.addFunction(mci);
+			if (!mci.hasCallingConvention()) {
+				Convention.Style cc = symbol.getInferredCallingConvention();
+				if (cc != null)
+					mci.setCallingConvention(cc);
+			}			
+			builder.addFunction(mci);
             log(Level.INFO, "Registering " + method + " as C function " + symbol.getName());
         }
 	}

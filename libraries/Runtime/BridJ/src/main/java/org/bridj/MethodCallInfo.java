@@ -82,13 +82,18 @@ public class MethodCallInfo {
         asmSig.append('(');
         dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
+		boolean verb = false;//methodName.contains("GetPlatformI");
+		if (verb)
+			System.out.println("Analyzing " + methodName);
         for (int iParam = 0; iParam < nParams; iParam++) {
 //            Options paramOptions = paramsOptions[iParam] = new Options();
             Class<?> parameterType = parameterTypes[iParam];
             Type genericParameterType = genericParameterTypes[iParam];
 
             ValueType paramValueType = getValueType(iParam, nParams, parameterType, genericParameterType, null, paramsAnnotations[iParam]);
-            paramsValueTypes[iParam] = paramValueType.ordinal();
+            if (verb)
+				System.out.println("\tparam " + paramValueType);
+        	paramsValueTypes[iParam] = paramValueType.ordinal();
             //GetOptions(paramOptions, method, paramsAnnotations[iParam]);
 
             appendToSignature(iParam, paramValueType, parameterType, genericParameterType, javaSig, dcSig, asmSig);
@@ -98,7 +103,9 @@ public class MethodCallInfo {
         dcSig.append(')');
 
         ValueType retType = getValueType(-1, nParams, method.getReturnType(), method.getGenericReturnType(), method);
-        appendToSignature(-1, retType, method.getReturnType(), method.getGenericReturnType(), javaSig, dcSig, asmSig);
+        if (verb)
+			System.out.println("\treturns " + retType);
+		appendToSignature(-1, retType, method.getReturnType(), method.getGenericReturnType(), javaSig, dcSig, asmSig);
         returnValueType = retType.ordinal();
 
         javaSignature = javaSig.toString();
@@ -124,20 +131,7 @@ public class MethodCallInfo {
         Convention cc = BridJ.getAnnotation(Convention.class, true, method);
         if (cc != null) {
             if (JNI.isWindows() && !JNI.is64Bits()) {
-                switch (cc.value()) {
-                case FastCall:
-                    this.direct = false;
-                    setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_DEFAULT); // TODO allow GCC-compiled C++ libs on windows
-                    break;
-                case Pascal:
-                case StdCall:
-                    this.direct = false;
-                    setDcCallingConvention(DC_CALL_C_X86_WIN32_STD);
-                    break;
-                case ThisCall:
-                    this.direct = false;
-                    setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_THIS_GNU : DC_CALL_C_DEFAULT);
-                }
+				setCallingConvention(cc.value());
             }
         }
 
@@ -148,8 +142,37 @@ public class MethodCallInfo {
         if (!BridJ.isDirectModeEnabled())
         		this.direct = false; // TODO remove me !
         
+		if (verb) {
+			System.out.println("\t-> direct " + direct);
+			System.out.println("\t-> javaSignature " + javaSignature);
+			System.out.println("\t-> asmSignature " + asmSignature);
+			System.out.println("\t-> dcSignature " + dcSignature);
+		}
+		
         assert BridJ.log(Level.INFO, (direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
     }
+	boolean hasCC;
+	public boolean hasCallingConvention() {
+		return hasCC;
+	}
+	public void setCallingConvention(Convention.Style style) {
+		//System.out.println("Setting CC " + style + " for " + methodName);
+		switch (style) {
+		case FastCall:
+			this.direct = false;
+			setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_DEFAULT); // TODO allow GCC-compiled C++ libs on windows
+			break;
+		case Pascal:
+		case StdCall:
+			this.direct = false;
+			setDcCallingConvention(DC_CALL_C_X86_WIN32_STD);
+			break;
+		case ThisCall:
+			this.direct = false;
+			setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_THIS_GNU : DC_CALL_C_DEFAULT);
+		}
+
+	}
 	void addCallIO(CallIO handler) {
 		if (callIOs == null)
 			callIOs = new ArrayList<CallIO>();
@@ -420,6 +443,7 @@ public class MethodCallInfo {
 		this.symbolName = symbolName;
 	}
 	public void setDcCallingConvention(int dcCallingConvention) {
+		hasCC = true;
 		this.dcCallingConvention = dcCallingConvention;
 	}
 

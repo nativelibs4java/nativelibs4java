@@ -24,6 +24,10 @@ public class BinaryKernelTest extends AbstractCommon {
 
     @Test
     public void simpleTest() throws CLBuildException {
+		if (!context.getCacheBinaries()) {
+			System.out.println("Skipping binaries caching test");
+			return;
+		}
 		CLProgram program = context.createProgram(
 				  "__kernel void copy(__global int* a, __global int* b) {\n" +
 				  "   int i = get_global_id(0);\n" +

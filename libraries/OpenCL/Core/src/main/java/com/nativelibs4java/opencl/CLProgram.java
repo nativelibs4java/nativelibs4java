@@ -535,12 +535,14 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         return b.toString();
     }
     
-    boolean cached = JavaCL.cacheBinaries;
-    public void setCached(boolean cached) {
+    private volatile Boolean cached;
+    public synchronized void setCached(boolean cached) {
     		this.cached = cached;
     }
-    public boolean isCached() {
-    		return cached;
+    public synchronized boolean isCached() {
+		if (cached == null)
+			cached = context.getCacheBinaries();
+		return cached;
     }
 
     protected String computeCacheSignature() throws IOException {

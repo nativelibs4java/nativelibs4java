@@ -42,6 +42,7 @@ import java.util.logging.*;
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id;
 import org.bridj.*;
+
 import static org.bridj.Pointer.*;
 
 /**
@@ -50,26 +51,6 @@ import static org.bridj.Pointer.*;
  */
 public class JavaCL {
 
-    static final OpenCLLibrary CL = new OpenCLLibrary();
-	static boolean cacheBinaries = !"false".equals(System.getProperty("javacl.cacheBinaries") + "") && !"0".equals(System.getenv("JAVACL_CACHE_BINARIES"));
-	
-	/**
-	 * Change whether program binaries are automatically cached or not.<br>
-	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property or the "JAVACL_CACHE_BINARIES" environment variable (when set to "0").<br>
-	 * Each program can be set to be cached or not using @see CLProgram#setCached(boolean).
-	 */ 
-	public static void setCacheBinaries(boolean cacheBinaries) {
-		JavaCL.cacheBinaries = cacheBinaries;
-	}
-	/**
-	 * Says whether program binaries are automatically cached or not.<br>
-	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property, the "JAVACL_CACHE_BINARIES" environment variable (when set to "0") or the @see JavaCL#setCacheBinaries(boolean) method.<br>
-	 * Each program can be set to be cached or not using @see CLProgram#setCached(boolean).
-	 */ 
-	public static boolean getCacheBinaries() {
-		return cacheBinaries;
-	}
-	
 	static final boolean verbose = "true".equals(System.getProperty("javacl.verbose")) || "1".equals(System.getenv("JAVACL_VERBOSE"));
     static final int minLogLevel = Level.WARNING.intValue();
 	static boolean shouldLog(Level level) {
@@ -87,6 +68,58 @@ public class JavaCL {
 		return true;
 	}
 
+	private static int getPlatformIDs(int count, Pointer<cl_platform_id> out, Pointer<Integer> pCount) {
+		try {
+			return CL.clIcdGetPlatformIDsKHR(count, out, pCount);
+		} catch (Throwable th) {
+			return CL.clGetPlatformIDs(count, out, pCount);
+		}
+	}
+	
+	@org.bridj.ann.Library("OpenCLProbe") 
+	@org.bridj.ann.Runtime(org.bridj.cpp.CPPRuntime.class) 
+	@org.bridj.ann.Convention(org.bridj.ann.Convention.Style.StdCall)
+	public static class OpenCLProbeLibrary {
+		static {
+			BridJ.setNativeLibraryActualName("OpenCLProbe", "OpenCL");
+			BridJ.register();
+		}
+		public native static synchronized int clGetPlatformIDs(int cl_uint1, Pointer<OpenCLLibrary.cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1);
+		@org.bridj.ann.Optional
+		public native static synchronized int clIcdGetPlatformIDsKHR(int cl_uint1, Pointer<OpenCLLibrary.cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1);
+		
+		public boolean isValid() {
+			Pointer<Integer> pCount = allocateInt();
+			int err;
+			try {
+				err = clIcdGetPlatformIDsKHR(0, null, pCount);
+			} catch (Throwable th) {
+				err = clGetPlatformIDs(0, null, pCount);
+			}
+			return err == OpenCLLibrary.CL_SUCCESS && pCount.get() > 0;
+		}
+	}	
+
+    static final OpenCLLibrary CL;
+	static {
+		{
+			OpenCLProbeLibrary probe = new OpenCLProbeLibrary();
+			try {
+				if (!probe.isValid()) {
+					if (BridJ.getNativeLibraryFile("atiocl") != null) {
+						log(Level.INFO, "[JavaCL] Hacking around ATI's weird driver bugs (using atiocl library instead of OpenCL)", null); 
+						BridJ.setNativeLibraryActualName("OpenCL", "atiocl");
+					}
+				}
+			} finally {
+				probe = null;
+				BridJ.unregister(OpenCLProbeLibrary.class);
+			}
+		}
+		
+		CL = new OpenCLLibrary();
+	}
+	
     /**
      * List the OpenCL implementations that contain at least one GPU device.
      */
@@ -104,7 +137,7 @@ public class JavaCL {
 	 */
     public static CLPlatform[] listPlatforms() {
         Pointer<Integer> pCount = allocateInt();
-        error(CL.clGetPlatformIDs(0, null, pCount));
+        error(getPlatformIDs(0, null, pCount));
 
         int nPlats = pCount.get();
         if (nPlats == 0)
@@ -112,7 +145,7 @@ public class JavaCL {
 
         Pointer<cl_platform_id> ids = allocateTypedPointers(cl_platform_id.class, nPlats);
 
-        error(CL.clGetPlatformIDs(nPlats, ids, null));
+        error(getPlatformIDs(nPlats, ids, null));
         CLPlatform[] platforms = new CLPlatform[nPlats];
 
         for (int i = 0; i < nPlats; i++) {

@@ -9,6 +9,7 @@ import org.bridj.Pointer;
 import org.bridj.ann.CLong;
 import org.bridj.ann.Constructor;
 import org.bridj.ann.Ptr;
+import org.bridj.ann.Convention;
 import org.bridj.util.DefaultParameterizedType;
 import org.bridj.cpp.GCC4Demangler;
 import org.bridj.cpp.VC9Demangler;
@@ -188,6 +189,24 @@ public abstract class Demangler {
                 address = library.getSymbolAddress(symbol);
             return address;
         }
+		
+		private Convention.Style style;
+		public Convention.Style getInferredCallingConvention() {
+			if (style == null) {
+				//System.out.println("Symbol " + symbol + " stdcall = " + symbol.matches("_.*?@\\d+"));
+				if (symbol.matches("_.*?@\\d+"))
+					style = Convention.Style.StdCall;
+				else if (symbol.matches("@.*?@\\d+"))
+					style = Convention.Style.FastCall;
+				else if (JNI.isWindows() && symbol.contains("@"))
+					try {
+						MemberRef mr = getParsedRef();
+						if (mr != null)
+							style = mr.callingConvention;
+					} catch (Throwable th) {}
+			}
+			return style;
+		}
 		public boolean matches(Method method) {
 			if (!symbol.contains(method.getName()))
 				return false;

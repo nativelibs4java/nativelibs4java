@@ -81,6 +81,41 @@ import java.util.Map;
  */
 public class CLContext extends CLAbstractEntity<cl_context> {
 
+	volatile Boolean cacheBinaries;
+	
+	/**
+	 * Change whether program binaries are automatically cached or not.<br>
+	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property or the "JAVACL_CACHE_BINARIES" environment variable (when set to "0").<br>
+	 * Each program can be set to be cached or not using @see CLProgram#setCached(boolean).<br>
+	 * Caching of binaries might be disabled by default on some platforms (ATI Stream, for instance).
+	 */ 
+	public synchronized void setCacheBinaries(boolean cacheBinaries) {
+		this.cacheBinaries = cacheBinaries;
+	}
+	/**
+	 * Says whether program binaries are automatically cached or not.<br>
+	 * By default it is true, it can be set to false with the "javacl.cacheBinaries" Java property, the "JAVACL_CACHE_BINARIES" environment variable (when set to "0") or the @see JavaCL#setCacheBinaries(boolean) method.<br>
+	 * Each program can be set to be cached or not using @see CLProgram#setCached(boolean).<br>
+	 * Caching of binaries might be disabled by default on some platforms (ATI Stream, for instance).
+	 */ 
+	public synchronized boolean getCacheBinaries() {
+		if (cacheBinaries == null) {
+			String prop = System.getProperty("javacl.cacheBinaries"), env = System.getenv("JAVACL_CACHE_BINARIES");
+			if ("true".equals(prop) || "1".equals(env))
+				cacheBinaries = true;
+			else if ("false".equals(prop) || "0".equals(env))
+				cacheBinaries = false;
+			else {
+				String plat = getPlatform().getName();
+				cacheBinaries = 
+					!"ATI Stream".equals(plat) &&
+					true;
+			}
+			//System.out.println("CACHE BINARIES = " + cacheBinaries);
+		}
+		return cacheBinaries;
+	}
+	
 	private static CLInfoGetter<cl_context> infos = new CLInfoGetter<cl_context>() {
 
 		@Override

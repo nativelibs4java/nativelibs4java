@@ -234,7 +234,7 @@ public class BridJ {
 		}
 	}
 
-    static final boolean verbose = "true".equals(System.getProperty("bridj.verbose"));
+    static final boolean verbose = "true".equals(System.getProperty("bridj.verbose")) || "1".equals(System.getenv("BRIDJ_VERBOSE"));
     static final int minLogLevel = Level.WARNING.intValue();
 	static boolean shouldLog(Level level) {
         return verbose || level.intValue() >= minLogLevel;
@@ -363,77 +363,101 @@ public class BridJ {
      * @param name
      * @param actualName
      */
-    public static void setNativeLibraryActualName(String name, String actualName) {
+    public static synchronized void setNativeLibraryActualName(String name, String actualName) {
         libraryActualNames.put(name, actualName);
+    }
+	
+	
+    static Map<String, List<String>> libraryAliases = new HashMap<String, List<String>>();
+    /**
+     * Add a possible alias for a library.<br>
+	 * Aliases are prioritary over the library (or its actual name, see @see BridJ#setNativeLibraryActualName(String, String)), in the order they are defined.<br>
+	 * Works only before the library is loaded.<br>
+     * @param name
+     * @param alias
+     */
+    public static synchronized void addNativeLibraryAlias(String name, String alias) {
+        List<String> list = libraryAliases.get(name);
+		if (list == null)
+			libraryAliases.put(name, list = new ArrayList<String>());
+		if (!list.contains(alias))
+			list.add(alias);
     }
     /**
      * Given a library name (e.g. "test"), finds the shared library file in the system-specific path ("/usr/bin/libtest.so", "./libtest.dylib", "c:\\windows\\system\\test.dll"...)
 	 */
-    public static File getNativeLibraryFile(String name) {
-        if (name == null)
+    public static File getNativeLibraryFile(String libraryName) {
+        if (libraryName == null)
             return null;
         
         //System.out.println("Getting file of '" + name + "'");
-        String actualName = libraryActualNames.get(name);
-        if (actualName != null)
-            name = actualName;
-        for (String path : getNativeLibraryPaths()) {
-            File pathFile = path == null ? null : new File(path);
-            File f = new File(name);
-            if (pathFile != null) {
-				if (JNI.isWindows()) {
-					if (!f.exists()) {
-						f = new File(pathFile, name + ".dll");
-					}
-					if (!f.exists()) {
-						f = new File(pathFile, name + ".drv");
-					}
-				} else if (JNI.isUnix()) {
-					if (JNI.isMacOSX()) {
+        String actualName = libraryActualNames.get(libraryName);
+		List<String> aliases = libraryAliases.get(libraryName);
+		List<String> possibleNames = new ArrayList<String>();
+		if (aliases != null)
+			possibleNames.addAll(aliases);
+		possibleNames.add(actualName == null ? libraryName : actualName);
+		
+		//System.out.println("Possible names = " + possibleNames);
+		for (String name : possibleNames) {
+			for (String path : getNativeLibraryPaths()) {
+				File pathFile = path == null ? null : new File(path);
+				File f = new File(name);
+				if (pathFile != null) {
+					if (JNI.isWindows()) {
 						if (!f.exists()) {
-							f = new File(pathFile, "lib" + name + ".dylib");
+							f = new File(pathFile, name + ".dll");
+						}
+						if (!f.exists()) {
+							f = new File(pathFile, name + ".drv");
+						}
+					} else if (JNI.isUnix()) {
+						if (JNI.isMacOSX()) {
+							if (!f.exists()) {
+								f = new File(pathFile, "lib" + name + ".dylib");
+					}
+						} else {
+							if (!f.exists()) {
+								f = new File(pathFile, "lib" + name + ".so");
+							}
+							if (!f.exists()) {
+								f = new File(pathFile, name + ".so");
+							}
+						}
+						if (!f.exists()) {
+							f = new File(pathFile, "lib" + name + ".jnilib");
+						}
+					}
 				}
-					} else {
-						if (!f.exists()) {
-							f = new File(pathFile, "lib" + name + ".so");
-						}
-						if (!f.exists()) {
-							f = new File(pathFile, name + ".so");
-						}
-					}
-					if (!f.exists()) {
-						f = new File(pathFile, "lib" + name + ".jnilib");
-					}
+	
+				if (!f.exists()) {
+					continue;
+				}
+	
+				try {
+					return f.getCanonicalFile();
+				} catch (IOException ex) {
+					log(Level.SEVERE, null, ex);
 				}
 			}
-
-            if (!f.exists()) {
-                continue;
-            }
-
-            try {
-                return f.getCanonicalFile();
-            } catch (IOException ex) {
-                log(Level.SEVERE, null, ex);
-            }
-        }
-        if (JNI.isMacOSX()) {
-            for (String s : new String[]{"/System/Library/Frameworks", new File(System.getProperty("user.home"), "Library/Frameworks").toString()}) {
-        		try {
-					File f = new File(new File(s, name + ".framework"), name);
-                    if (f.exists() && !f.isDirectory()) {
-						return f.getCanonicalFile();
-                    }
-        		} catch (IOException ex) {
-					return null;
-        	}
-        }
-        }
-        try {
-        	return JNI.extractEmbeddedLibraryResource(name);
-        } catch (IOException ex) {
-        	return null;
-        }
+			if (JNI.isMacOSX()) {
+				for (String s : new String[]{"/System/Library/Frameworks", new File(System.getProperty("user.home"), "Library/Frameworks").toString()}) {
+					try {
+						File f = new File(new File(s, name + ".framework"), name);
+						if (f.exists() && !f.isDirectory()) {
+							return f.getCanonicalFile();
+						}
+					} catch (IOException ex) {
+						return null;
+				}
+			}
+			}
+			try {
+				return JNI.extractEmbeddedLibraryResource(name);
+			} catch (IOException ex) {
+			}
+		}
+		return null;
     }
     static Boolean directModeEnabled;
 
@@ -478,8 +502,8 @@ public class BridJ {
         //if (f == null) {
         //	throw new FileNotFoundException("Couldn't find library file for library '" + name + "'");
         //}
-
-        return getNativeLibrary(name, f);
+		
+		return getNativeLibrary(name, f);
     }
 
     /**
