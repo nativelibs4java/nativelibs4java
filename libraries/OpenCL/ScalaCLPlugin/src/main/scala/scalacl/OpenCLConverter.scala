@@ -87,8 +87,10 @@ extends MiscMatchers
       case If(condition, then: Tree, thenElse: Tree) =>
         val Seq(c, t, e) = Seq(condition, then, thenElse).map(convert)
         val Seq(condValue) = c.values
+        val outerDefinitions = c.outerDefinitions ++ t.outerDefinitions ++ e.outerDefinitions
+        //assert(t.statements.isEmpty && e.statements.isEmpty, "then and otherwise branches of it statement must")
         FlatCode[String](
-          c.outerDefinitions ++ t.outerDefinitions ++ e.outerDefinitions,
+          outerDefinitions,
           c.statements ++
           Seq(
             "if (" + condValue + ") {\n" + t.statements.mkString("\n") + "\n} else {\n" + e.statements.mkString("\n") + "\n}\n"
@@ -182,7 +184,7 @@ extends MiscMatchers
             //merge(Seq(right).map(convert):_*) { case Seq(v) => Seq(n + "(" + v + ")") }
           case n =>
             println(nodeToStringNoComment(body))
-            error("[ScalaCL] Unhandled method name in Scala -> OpenCL conversion : " + name + "\n\tleft = " + left + ",\n\targs = " + args)
+            throw new RuntimeException("[ScalaCL] Unhandled method name in Scala -> OpenCL conversion : " + name + "\n\tleft = " + left + ",\n\targs = " + args)
             valueCode("/* Error: failed to convert " + body + " */")
         }
       case s @ Select(expr, fun) =>
@@ -191,7 +193,7 @@ extends MiscMatchers
           if (fn.matches("_\\d+")) {
             Seq(v + "." + fn)
           } else {
-            error("Unknown function " + s)
+            throw new RuntimeException("Unknown function " + s)
             Seq("/* Error: failed to convert " + body + " */")
           }
         })
@@ -210,9 +212,12 @@ extends MiscMatchers
           val t :: a = seq.toList
           Seq(t + "(" + a.mkString(", ") + ")") 
         })
+      case Block(statements, Literal(Constant(empty))) =>
+        assert(empty == (), "Valued blocks should have been flattened in a previous phase !")
+        statements.map(convert).reduceLeft(_ >> _.noValues)
       case _ =>
         //println(nodeToStringNoComment(body))
-        error("Failed to convert " + body.getClass.getName + ": \n" + body + " : \n" + nodeToStringNoComment(body))
+        throw new RuntimeException("Failed to convert " + body.getClass.getName + ": \n" + body + " : \n" + nodeToStringNoComment(body))
         valueCode("/* Error: failed to convert " + body + " */")
     }
   }
@@ -256,7 +261,7 @@ extends MiscMatchers
   def convertTpt(tpt: TypeTree) = convertTpe(tpt.tpe)
   def convertTpe(tpe: Type) = {
     if (tpe == null) {
-      error("Null type cannot be converted to OpenCL !")
+      throw new RuntimeException("Null type cannot be converted to OpenCL !")
       "?"
     } else if (tpe == NoType) 
       "void" 
@@ -271,7 +276,7 @@ extends MiscMatchers
         case "Double" => "double"
         case "Boolean" => "char"
         case "org.bridj.SizeT" => "size_t"
-        case _ => error("Cannot convert unknown type " + tpe + " to OpenCL")
+        case _ => throw new RuntimeException("Cannot convert unknown type " + tpe + " to OpenCL")
       }
   }
 }

@@ -35,7 +35,7 @@ class UndefinedContent extends Stat {
 }
 abstract class Program(context: Context, var dimensions: Dim*)
 {
-  def this(dimensions: Dim*) = this(Context.BEST, dimensions: _*)
+  def this(dimensions: Dim*) = this(new Context, dimensions: _*)
 
   private var contentStat: Stat = new UndefinedContent
   def content = contentStat

@@ -10,9 +10,9 @@ import com.nativelibs4java.opencl._
 
 trait CLRunnable {
   def isOnlyInScalaSpace: Boolean 
-  def run(dims: Array[Int], args: Array[Any], eventsToWaitFor: Array[CLEvent])(implicit context: ScalaCLContext): CLEvent
+  def run(dims: Array[Int], args: Array[Any], eventsToWaitFor: Array[CLEvent])(implicit context: Context): CLEvent
 
-  def run(dims: Array[Int], args: Array[Any], reads: Array[CLEventBoundContainer], writes: Array[CLEventBoundContainer])(implicit context: ScalaCLContext): Unit = {
+  def run(dims: Array[Int], args: Array[Any], reads: Array[CLEventBoundContainer], writes: Array[CLEventBoundContainer])(implicit context: Context): Unit = {
     if (dims.sum > 0)
       CLEventBound.syncBlock(reads.flatMap(_.eventBoundComponents), writes.flatMap(_.eventBoundComponents), evts => {
         run(dims, args, evts)
@@ -227,7 +227,7 @@ extends (A => B)
     }
   }
 
-  override def run(dims: Array[Int], args: Array[Any], eventsToWaitFor: Array[CLEvent])(implicit context: ScalaCLContext): CLEvent = {
+  override def run(dims: Array[Int], args: Array[Any], eventsToWaitFor: Array[CLEvent])(implicit context: Context): CLEvent = {
     val (kernelName, size: Int, buffers: Array[CLGuardedBuffer[Any]]) = args match {
       case Array(in: CLArray[_], out: CLGuardedBuffer[Any]) =>
         // case of CLArray.filter (output to the presence array of a CLFilteredArray

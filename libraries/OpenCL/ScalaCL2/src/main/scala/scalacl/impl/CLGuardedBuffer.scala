@@ -9,16 +9,19 @@ import com.nativelibs4java.opencl._
 import org.bridj.Pointer
 import org.bridj.Pointer._
 
-class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val context: ScalaCLContext, val dataIO: CLDataIO[T]) extends CLEventBound {
+object CLGuardedBuffer {
+  val debugFakeClone = System.getenv("SCALACL_DEBUG_FAKE_CLONE") == "1"
+}
+class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val context: Context, val dataIO: CLDataIO[T]) extends CLEventBound {
   implicit val t = dataIO.t
   lazy val elementClass = t.erasure.asInstanceOf[Class[T]]
   
-  def this(size: Long)(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) = {
+  def this(size: Long)(implicit context: Context, dataIO: CLDataIO[T]) = {
     this(context.context.createBuffer(CLMem.Usage.InputOutput, dataIO.pointerIO, size))
     //clear
   }
     
-  def this(values: Array[T])(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) = {
+  def this(values: Array[T])(implicit context: Context, dataIO: CLDataIO[T]) = {
     this(context.context.createBuffer(CLMem.Usage.InputOutput, {
         val ptr = allocateArray(dataIO.pointerIO, values.length)
         ptr.setArray(values)
@@ -98,11 +101,16 @@ class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val context: ScalaCLC
   
   val size = buffer.getElementCount
 
+  
   override def clone: CLGuardedBuffer[T] = {
     // TODO allocate and copy on write, with value groups !
-    val out = new CLGuardedBuffer(context.context.createBuffer(CLMem.Usage.InputOutput, elementClass, size))
-    copyTo(out)
-    out
+    if (CLGuardedBuffer.debugFakeClone)
+      this
+    else {
+      val out = new CLGuardedBuffer(context.context.createBuffer(CLMem.Usage.InputOutput, elementClass, size))
+      copyTo(out)
+      out
+    }
   }
 
   def copyTo(out: CLGuardedBuffer[T]): Unit = if (this ne out) {

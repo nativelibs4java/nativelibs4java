@@ -24,7 +24,7 @@ object CLRange {
       out[i] = from + by * i;
     }
   """)
-  def copyToCLArray(range: CLGuardedBuffer[Int], output: CLGuardedBuffer[Int])(implicit context: ScalaCLContext) = {
+  def copyToCLArray(range: CLGuardedBuffer[Int], output: CLGuardedBuffer[Int])(implicit context: Context) = {
     val size = output.buffer.getElementCount.toInt
     val kernel = toCLArrayCode.getKernel(context)
     val globalSizes = Array(size)
@@ -37,7 +37,7 @@ object CLRange {
   }
 
 
-  implicit def canFilterFrom(implicit ctx: ScalaCLContext, io: CLDataIO[Int]): CLCanFilterFrom[CLRange, Int, CLFilteredArray[Int]] =
+  implicit def canFilterFrom(implicit ctx: Context, io: CLDataIO[Int]): CLCanFilterFrom[CLRange, Int, CLFilteredArray[Int]] =
     new CLCanFilterFrom[CLRange, Int, CLFilteredArray[Int]] {
       override def dataIO = io
       override def context = ctx
@@ -52,14 +52,14 @@ import CLFilteredArray.{PresenceType, toBool, toPresence}
 class CLRange(
   protected[scalacl] val buffer: CLGuardedBuffer[Int]
 )(
-  implicit val context: ScalaCLContext
+  implicit val context: Context
 )
   extends IndexedSeq[Int]
   with CLIndexedSeq[Int]
   with CLIndexedSeqLike[Int, CLRange]
   with MappableToCLArray[Int, CLRange]
 {
-  def this(range: Range)(implicit context: ScalaCLContext) =
+  def this(range: Range)(implicit context: Context) =
     this(new CLGuardedBuffer[Int](Array(range.start, range.end, range.step, if (range.isInclusive) 1 else 0)))
 
   override def eventBoundComponents = Seq(buffer)

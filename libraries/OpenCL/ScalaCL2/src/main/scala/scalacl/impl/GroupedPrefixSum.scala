@@ -11,7 +11,7 @@ import com.nativelibs4java.util.IOUtils.readText
 import scala.collection.JavaConversions._
 
 class GroupedPrefixSum[A](
-  implicit val context: ScalaCLContext,
+  implicit val context: Context,
   val dataIO: CLDataIO[A]
 ) {
   lazy val source: String = readText(classOf[CLCollection[_]].getClassLoader.getResourceAsStream("scalacl/impl/scan_kernel.cl"))
@@ -271,13 +271,13 @@ class GroupedPrefixSum[A](
 
 object GroupedPrefixSum {
 
-  private val cache = new mutable.HashMap[(ScalaCLContext, Class[_]), GroupedPrefixSum[_]]
-  def apply[A](implicit context: ScalaCLContext, dataIO: CLDataIO[A]) = cache synchronized {
+  private val cache = new mutable.HashMap[(Context, Class[_]), GroupedPrefixSum[_]]
+  def apply[A](implicit context: Context, dataIO: CLDataIO[A]) = cache synchronized {
     cache.getOrElseUpdate((context, dataIO.t.erasure), new GroupedPrefixSum[A]).asInstanceOf[GroupedPrefixSum[A]]
   }
-
+/*
   def main(args: Array[String]) {
-    implicit val context = ScalaCLContext(CLPlatform.DeviceFeature.CPU)
+    implicit val context = Context.best(CPU)
     val n = 10
     val inputValues = allocateInts(n).as(classOf[Int])
     for (i <- 0 until n)
@@ -293,4 +293,5 @@ object GroupedPrefixSum {
     for (i <- 0 until n)
       println("At " + i + ", expected " + expectedValues(i) + ", got " + outputValues(i))
   }
+*/
 }

@@ -22,7 +22,7 @@ private[scalacl] object PrefixSum {
     }
   """)
   @deprecated("Does not perform the same sum as prefixSumInt : at position i, counts values <= i (whereas prefixSumInt counts < i)")
-  private[scalacl] def prefixSumByte(bitmap: CLGuardedBuffer[Boolean], output: CLGuardedBuffer[Int])(implicit context: ScalaCLContext) = {
+  private[scalacl] def prefixSumByte(bitmap: CLGuardedBuffer[Boolean], output: CLGuardedBuffer[Int])(implicit context: Context) = {
     val kernel = prefixSumCodeByte.getKernel(context)
     kernel.synchronized {
       kernel.setArgs(bitmap.size.toInt.asInstanceOf[Object], bitmap.buffer, output.buffer)
@@ -31,7 +31,7 @@ private[scalacl] object PrefixSum {
       })
     }
   }
-  private[scalacl] def prefixSumInt(bitmap: CLGuardedBuffer[Int], output: CLGuardedBuffer[Int])(implicit context: ScalaCLContext) = {
+  private[scalacl] def prefixSumInt(bitmap: CLGuardedBuffer[Int], output: CLGuardedBuffer[Int])(implicit context: Context) = {
     CLEventBound.syncBlock(Array(bitmap), Array(output), evts => {
       GroupedPrefixSum[Int].prefixSum(bitmap.buffer, output.buffer, evts:_*)
     })
@@ -57,7 +57,7 @@ private[scalacl] object PrefixSum {
       }
     }
   """)
-  private[scalacl] def copyPrefixed[T](size: Int, presencePrefix: CLGuardedBuffer[Int], in: CLGuardedBuffer[T], out: CLGuardedBuffer[T])(implicit t: ClassManifest[T], context: ScalaCLContext) = {
+  private[scalacl] def copyPrefixed[T](size: Int, presencePrefix: CLGuardedBuffer[Int], in: CLGuardedBuffer[T], out: CLGuardedBuffer[T])(implicit t: ClassManifest[T], context: Context) = {
     val kernel = copyPrefixedCode.getKernel(context)
     val pio = PointerIO.getInstance(t.erasure)
     assert(pio != null)

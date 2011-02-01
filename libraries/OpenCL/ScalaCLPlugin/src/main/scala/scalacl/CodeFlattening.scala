@@ -71,8 +71,14 @@ extends MiscMatchers
     
     def ++(fc: FlatCode[T]) =
       FlatCode(outerDefinitions ++ fc.outerDefinitions, statements ++ fc.statements, values ++ fc.values)
-    
-    def addOuters(outerDefs: Seq[T]) = 
+
+    def >>(fc: FlatCode[T]) =
+          FlatCode(outerDefinitions ++ fc.outerDefinitions, statements ++ fc.statements ++ values, fc.values)
+
+    def noValues =
+          FlatCode(outerDefinitions, statements ++ values, Seq())
+
+    def addOuters(outerDefs: Seq[T]) =
       copy(outerDefinitions = outerDefinitions ++ outerDefs)
       
     def addStatements(stats: Seq[T]) = 
@@ -192,7 +198,8 @@ extends MiscMatchers
       }
     }
     def makeValuesSideEffectFree(code: FlatCode[Tree], unit: CompilationUnit, symbolOwner: Symbol) = 
-    { 
+    {
+      //code /*
       var hasNewStatements = false
       val vals = for (value <- code.values) yield {
         value match {
@@ -203,16 +210,25 @@ extends MiscMatchers
           case ScalaMathFunction(_, _, _) =>//Apply(f @ Select(left, name), args) if left.toString == "scala.math.package" =>
             // TODO this is not fair : ScalaMathFunction should have worked here !!!
             (Seq(), value)
-          case Ident(_) | Select(_, _) | ValDef(_, _, _, _) | Literal(_) | NumberConversion(_, _) | Typed(_, _) =>
+          /*case Apply(s @ Select(left, name), args) if NameTransformer.decode(name.toString) match {
+              case op @ ("+" | "-" | "*" | "/" | "%" | "^" | "^^" | "&" | "&&" | "|" | "||" | "<<" | ">>" | "==" | "<" | ">" | "<=" | ">=" | "!=") =>
+                true
+              case n if left.toString == "scala.math.package" =>
+                true
+              case _ =>
+                false
+          } =>
+            (Seq(), value)*/
+          case Ident(_) | Select(_, _) | ValDef(_, _, _, _) | Literal(_) | NumberConversion(_, _) | Typed(_, _) | Apply(_, List(_)) =>
             // already side-effect-free (?)
             (Seq(), value)
-          case _ if value.tpe == null =>
+          case _ if value.tpe == null || value.tpe == NoType || value.tpe == UnitClass.tpe =>
             (Seq(), value)
           case _ =>
             assert(value.tpe != null, value + " (" + value.getClass.getName + " = " + nodeToString(value) + ")")
-            //if (options.verbose)
-            //  println("Creating a temp variable for " + value)
             val tempVar = newVariable(unit, "tmp", symbolOwner, value.pos, false, value)
+            if (options.verbose)
+              println("Creating temp variable " + tempVar.symbol + " for " + value)
             hasNewStatements = true
             for (slice <- getTreeSlice(value))
               setSlice(tempVar.definition, slice)
@@ -320,12 +336,12 @@ extends MiscMatchers
           // Flatten blocks up
           val FlatCode(defs, stats, flattenedValues) = flattenTuplesAndBlocks(value, sideEffectFree = true, symbolOwner)
           val sub = statements.map(flattenTuplesAndBlocks(_, sideEffectFree = true, symbolOwner))
-          //sub.foreach(_.printDebug("sub"))
+          sub.foreach(_.printDebug("sub"))
           FlatCode[Tree](
             defs ++ sub.flatMap(_.outerDefinitions),
             sub.flatMap(_.statements) ++
-            sub.flatMap(_.values) ++
-            stats,
+            stats ++
+            sub.flatMap(_.values),
             flattenedValues
           )
         case TupleCreation(components) =>
@@ -391,7 +407,7 @@ extends MiscMatchers
         case WhileLoop(condition, content) =>
           // TODO clean this up !!!
           val flatCondition = flattenTuplesAndBlocks(condition, sideEffectFree = true, symbolOwner)
-          val flatContent = flattenTuplesAndBlocks(Block(content, newUnit), sideEffectFree = true, symbolOwner)
+          val flatContent = content.map(flattenTuplesAndBlocks(_, sideEffectFree = true, symbolOwner)).reduceLeft(_ >> _)
           val Seq(flatConditionValue) = flatCondition.values
           FlatCode[Tree](
             flatCondition.outerDefinitions ++ flatContent.outerDefinitions, 
@@ -419,13 +435,17 @@ extends MiscMatchers
           val FlatCode(dc, sc, Seq(vc)) = flattenTuplesAndBlocks(condition, sideEffectFree = true, symbolOwner)
           assert(vc.tpe != null, vc)
           val conditionVar = newVariable(unit, "condition", symbolOwner, tree.pos, false, vc)
+
+          val fct @ FlatCode(Seq(), st, vt) = flattenTuplesAndBlocks(then, sideEffectFree = true, symbolOwner)
+          val fco @ FlatCode(Seq(), so, vo) = flattenTuplesAndBlocks(otherwise, sideEffectFree = true, symbolOwner)
+
           FlatCode[Tree](
             dc,
             sc ++ Seq(conditionVar.definition),
-            (flattenTuplesAndBlocks(then, sideEffectFree = true, symbolOwner), flattenTuplesAndBlocks(otherwise, sideEffectFree = true, symbolOwner)) match {
-              case (FlatCode(Seq(), Seq(), vt), FlatCode(Seq(), Seq(), vo)) =>
+            (st, so) match {
+              case (Seq(), Seq()) =>
                 vt.zip(vo).map { case (t, o) => If(conditionVar(), t, o) } // pure (cond ? then : otherwise) form, possibly with tuple values
-              case (FlatCode(Seq(), st, vt), FlatCode(Seq(), so, vo)) =>
+              case _ =>
                 Seq(
                   If(conditionVar(), Block(vt.toList, newUnit), Block(vo.toList, newUnit))
                 )
@@ -553,7 +573,7 @@ extends MiscMatchers
           assert(false, "Case not handled in tuples and blocks flattening : " + tree + " (" + tree.getClass.getName + ") :\n\t" + nodeToString(tree))
           FlatCode[Tree](Seq(), Seq(), Seq())
       }
-      //res.printDebug()
+      //res.printDebug("res")
       val ret = if (sideEffectFree)
         makeValuesSideEffectFree(
           res,
@@ -563,12 +583,14 @@ extends MiscMatchers
       else
         res
 
-      //ret.printDebug()
+      //ret.printDebug("ret")
       //println("tree = \n\t" + tree.toString.replaceAll("\n", "\n\t"))
       //println("res = \n\t" + res.toString.replaceAll("\n", "\n\t"))
       //println("ret = \n\t" + ret.toString.replaceAll("\n", "\n\t"))
       
-      ret.mapValues(s => s.flatMap(replaceValues))
+      val out = ret.mapValues(s => s.flatMap(replaceValues))
+      //out.printDebug("out")
+      out
     }
   }
 }

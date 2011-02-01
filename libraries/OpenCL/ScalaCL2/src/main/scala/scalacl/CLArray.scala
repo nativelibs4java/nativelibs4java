@@ -23,10 +23,10 @@ object CLArray {
     }
   """)
   
-  def apply[A](values: A*)(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
+  def apply[A](values: A*)(implicit context: Context, dataIO: CLDataIO[A]) =
     fromSeq(values)
 
-  def fromSeq[A](values: Seq[A])(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) = {
+  def fromSeq[A](values: Seq[A])(implicit context: Context, dataIO: CLDataIO[A]) = {
     implicit val t = dataIO.t
     val valuesArray = values.toArray
     val length = valuesArray.length
@@ -42,7 +42,7 @@ object CLArray {
     }
   }
 
-  def newBuilder[A](implicit context: ScalaCLContext, dataIO: CLDataIO[A]): Builder[A, CLArray[A]] =
+  def newBuilder[A](implicit context: Context, dataIO: CLDataIO[A]): Builder[A, CLArray[A]] =
     new ArrayBuffer[A].mapResult(b => fromSeq(b))
 }
 import CLFilteredArray.{PresenceType, toBool, toPresence}
@@ -50,7 +50,7 @@ import CLFilteredArray.{PresenceType, toBool, toPresence}
 trait MappableToCLArray[A, +Repr <: CLCollectionLike[A, Repr] with CLCollection[A]] {
   //self =>
   this: Repr =>
-  //this: CLIndexedSeq[A] with CLIndexedSeqLike[A, Repr] => //with WithScalaCLContext with CLEventBoundContainer => // CLIndexedSeqLike[A, Repr] =>
+  //this: CLIndexedSeq[A] with CLIndexedSeqLike[A, Repr] => //with WithContext with CLEventBoundContainer => // CLIndexedSeqLike[A, Repr] =>
   
   def length: Int
   protected def mapFallback[B](f: A => B, out: CLArray[B]): Unit
@@ -78,7 +78,7 @@ class CLArray[A](
   val length: Int, 
   protected[scalacl] val buffers: Array[CLGuardedBuffer[Any]]
 )(
-  implicit val context: ScalaCLContext,
+  implicit val context: Context,
   val dataIO: CLDataIO[A]
 )
   extends IndexedSeqOptimized[A, CLIndexedSeq[A]]
@@ -87,7 +87,7 @@ class CLArray[A](
   with CLIndexedSeqLike[A, CLIndexedSeq[A]]
   with MappableToCLArray[A, CLIndexedSeq[A]]
 {
-  def this(length: Int)(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
+  def this(length: Int)(implicit context: Context, dataIO: CLDataIO[A]) =
     this(length, if (length > 0) dataIO.createBuffers(length) else null)
 
   override def companion: GenericCompanion[CLArray] = new SeqFactory[CLArray] {
@@ -135,10 +135,10 @@ class CLArray[A](
     })
 
   override def zip$into[A1 >: A, B, That](that: Iterable[B], out: That)(implicit bf: CanBuildFrom[Repr, (A1, B), That]): That = {
-    if (!that.isInstanceOf[CLArray[_]])
+    if (!that.isInstanceOf[CLCollection[_]])
       super.zip(that)
     else {
-      val thatArray = that.asInstanceOf[CLArray[B]]
+      val thatArray = that.asInstanceOf[CLCollection[B]].toCLArray
       
       val result = reuse(out, new CLArray[(A1, B)](length)(context, bf.dataIO))
       (buffers ++ thatArray.buffers).zip(result.buffers).map(p => p._1.copyTo(p._2))

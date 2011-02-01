@@ -18,7 +18,7 @@ import scala.math._
 
 object CLCollectionTest {
 
-  implicit var context: ScalaCLContext = _
+  implicit var context: Context = _
   
   def rng = (0 until n).cl
   def clrng = (0 until n).cl
@@ -56,7 +56,7 @@ object CLCollectionTest {
   
   @BeforeClass
   def setUp: Unit = {
-    context = new ScalaCLContext
+    context = new Context
     
     //cla = (0 until n).toCLArray
     //a = (0 until n).toArray
@@ -147,7 +147,7 @@ class CLCollectionTest {
   
     val a = Array(1, 2, 3)
 
-    implicit val context = new ScalaCLContext(JavaCL.createBestContext)
+    implicit val context = new Context(JavaCL.createBestContext)
 
     val tup2 = new CLArray[(Float, Float)](3)
     var i = 0

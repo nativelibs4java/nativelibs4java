@@ -8,8 +8,8 @@ import scala.collection._
 import scala.collection.mutable.Builder
 import scala.collection.generic._
 
-trait WithScalaCLContext {
-  def context: ScalaCLContext
+trait WithContext {
+  def context: Context
 
 }
 
@@ -27,7 +27,7 @@ extends Seq[A]
 }
   
 trait CLCollectionLike[A, +Repr]
-  extends WithScalaCLContext
+  extends WithContext
   with CLEventBoundContainer
   //with Traversable[A]
   with IterableLike[A, Repr]

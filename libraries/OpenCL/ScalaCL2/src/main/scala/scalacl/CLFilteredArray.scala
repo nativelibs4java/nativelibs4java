@@ -14,7 +14,7 @@ import org.bridj.Pointer._
 import scala.collection.JavaConversions._
 
 object CLFilteredArray {
-  def newBuilder[A](implicit context: ScalaCLContext, dataIO: CLDataIO[A]): Builder[A, CLFilteredArray[A]] = 
+  def newBuilder[A](implicit context: Context, dataIO: CLDataIO[A]): Builder[A, CLFilteredArray[A]] = 
     error("Not implemented") // TODO
 
   /*
@@ -36,7 +36,7 @@ class CLFilteredArray[A](
   protected[scalacl] val array: CLArray[A],
   protected[scalacl] val presence: CLGuardedBuffer[PresenceType]
 )(
-  implicit val context: ScalaCLContext,
+  implicit val context: Context,
   val dataIO: CLDataIO[A]
 )
 extends IndexedSeq[A]
@@ -45,13 +45,13 @@ extends IndexedSeq[A]
   //with IndexedSeqLike[A, CLFilteredArray[A]]
   with CLIndexedSeqLike[A, CLFilteredArray[A]]
 {
-  def this(array: CLArray[A])(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
+  def this(array: CLArray[A])(implicit context: Context, dataIO: CLDataIO[A]) =
       this(array, if (array.length > 0) new CLGuardedBuffer[PresenceType](array.length + 1) else null)
 
-  def this(length: Int)(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
+  def this(length: Int)(implicit context: Context, dataIO: CLDataIO[A]) =
         this(new CLArray[A](length))
 
-  def this(length: Int, presence: CLGuardedBuffer[PresenceType])(implicit context: ScalaCLContext, dataIO: CLDataIO[A]) =
+  def this(length: Int, presence: CLGuardedBuffer[PresenceType])(implicit context: Context, dataIO: CLDataIO[A]) =
         this(new CLArray[A](length), presence)
 
   assert(presence.size == array.length + 1)

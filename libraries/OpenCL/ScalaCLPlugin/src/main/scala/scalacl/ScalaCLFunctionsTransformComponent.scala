@@ -120,7 +120,7 @@ extends PluginComponent
       import com.nativelibs4java.opencl._
       JavaCL.listPlatforms.flatMap(_.listAllDevices(true).flatMap(device => {
         try {
-          Some(new ScalaCLContext(JavaCL.createContext(null, device)))
+          Some(new Context(JavaCL.createContext(null, device)))
         } catch {
           case ex =>
             ex.printStackTrace
@@ -290,8 +290,14 @@ extends PluginComponent
                 op match {
                   case opType @ (TraversalOp.Map(_, _) | TraversalOp.Filter(_, false)) =>
                     msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpe + "." + op + "'s function argument.") {
-                      val clFunction = convertFunctionToCLFunction(op.f)
-                      replaceOccurrences(super.transform(tree), Map(), Map(), Map(op.f -> (() => clFunction)), unit)
+                      try {
+                        val clFunction = convertFunctionToCLFunction(op.f)
+                        replaceOccurrences(super.transform(tree), Map(), Map(), Map(op.f -> (() => clFunction)), unit)
+                      } catch { case ex =>
+                        //ex.fillInStackTrace
+                        unit.error(op.f.pos, "Failed to convert this function to an OpenCL kernel. Reason : " + ex)
+                        throw ex
+                      }
                     }
                   case _ =>
                     super.transform(tree)

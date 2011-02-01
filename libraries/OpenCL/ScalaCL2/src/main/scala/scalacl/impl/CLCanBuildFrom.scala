@@ -17,7 +17,7 @@ trait CLCanBuildFrom[-From, Elem, +To] extends CanBuildFrom[From, Elem, To] {
 }
 
 trait CLCanFilterFrom[-From, Elem, +To] {
-  def context: ScalaCLContext
+  def context: Context
   def dataIO: CLDataIO[Elem]
 
   def rawLength(from: From): Int

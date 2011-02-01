@@ -36,7 +36,7 @@ trait CLDataIO[T] {
       buffer[i] = (""" + clType + """)0;
     }
   """)
-  def clear(buffer: CLBuffer[T], evts: CLEvent*)(implicit context: ScalaCLContext): CLEvent = {
+  def clear(buffer: CLBuffer[T], evts: CLEvent*)(implicit context: Context): CLEvent = {
     val kernel = clearSource.getKernel(context)
     kernel.synchronized {
       val size = buffer.getElementCount.toInt
@@ -46,7 +46,7 @@ trait CLDataIO[T] {
   }
   def reductionType: (ReductionUtils.Type, Int) = error("Not a reductible type : " + this)
   
-  def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]]
+  def createBuffers(length: Int)(implicit context: Context): Array[CLGuardedBuffer[Any]]
 
   def openCLKernelArgDeclarations(argType: CLDataIO.ArgType, offset: Int): Seq[String]
   def openCLKernelNthItemExprs(argType: CLDataIO.ArgType, offset: Int, n: String): Seq[(String, List[Int])]
@@ -187,7 +187,7 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
   else
     super.reductionType
 
-  override def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
+  override def createBuffers(length: Int)(implicit context: Context): Array[CLGuardedBuffer[Any]] =
     ios.flatMap(_.createBuffers(length))
 
   val (iosAndOffsets, elementCount) = {
@@ -327,7 +327,7 @@ abstract class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T
 
   override def toString = t.erasure.getSimpleName + " /* " + clType + "*/"
 
-  override def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
+  override def createBuffers(length: Int)(implicit context: Context): Array[CLGuardedBuffer[Any]] =
     Array(new CLGuardedBuffer[T](length)(context, this).asInstanceOf[CLGuardedBuffer[Any]])
 
   override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): CLFuture[T] =
@@ -487,7 +487,7 @@ class CLRangeDataIO(implicit val t: ClassManifest[Int]) extends CLDataIO[Int] {
 
   override def toString = "int range"
 
-  override def createBuffers(length: Int)(implicit context: ScalaCLContext): Array[CLGuardedBuffer[Any]] =
+  override def createBuffers(length: Int)(implicit context: Context): Array[CLGuardedBuffer[Any]] =
     Array(new CLGuardedBuffer[Int](2).asInstanceOf[CLGuardedBuffer[Any]])
 
   override def extract(arrays: Array[CLGuardedBuffer[Any]], offset: Int, index: Int): CLFuture[Int] = {

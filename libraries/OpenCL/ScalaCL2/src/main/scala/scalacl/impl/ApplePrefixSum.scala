@@ -185,9 +185,10 @@ object ApplePrefixSum {
            n: Int,
            group_index: Int,
            base_index: Int) {
+    /*
     printf("PreScan: Global[%4d] Local[%4d] Shared[%4d] BlockIndex[%4d] BaseIndex[%4d] Entries[%d]\n",
       global(0).toInt, local(0).toInt, shared.toInt, group_index, base_index, n)
-
+    */
     var k = ComputeKernels(PRESCAN)
 
     k.setArgs(output_data, input_data, new CLKernel.LocalSize(shared), group_index, base_index, n)
@@ -205,9 +206,10 @@ object ApplePrefixSum {
                    n: Int,
                    group_index: Int,
                    base_index: Int) {
+    /*
     printf("PreScan: Global[%4d] Local[%4d] Shared[%4d] BlockIndex[%4d] BaseIndex[%4d] Entries[%d]\n",
       global(0).toInt, local(0).toInt, shared.toInt, group_index, base_index, n)
-
+    */
     var k = ComputeKernels(PRESCAN_STORE_SUM)
 
     k.setArgs(output_data, input_data, partial_sums, new CLKernel.LocalSize(shared), group_index, base_index, n)
@@ -225,9 +227,10 @@ object ApplePrefixSum {
                                 n: Int,
                                 group_index: Int,
                                 base_index: Int) {
+    /*
     printf("PreScanStoreSumNonPowerOfTwo: Global[%4d] Local[%4d] BlockIndex[%4d] BaseIndex[%4d] Entries[%d]\n",
       global(0).toInt, local(0).toInt, shared.toInt, group_index, base_index, n)
-
+    */
     var k = ComputeKernels(PRESCAN_STORE_SUM_NON_POWER_OF_TWO)
     k.setArgs(output_data, input_data, partial_sums, new CLKernel.LocalSize(shared), group_index, base_index, n)
     k.enqueueNDRange(ComputeCommands, global, local)
@@ -243,9 +246,10 @@ object ApplePrefixSum {
                         n: Int,
                         group_index: Int,
                         base_index: Int) {
+    /*
     printf("PreScanNonPowerOfTwo: Global[%4d] Local[%4d] BlockIndex[%4d] BaseIndex[%4d] Entries[%d]\n",
       global(0).toInt, local(0).toInt, shared.toInt, group_index, base_index, n)
-
+    */
     var k = ComputeKernels(PRESCAN_NON_POWER_OF_TWO)
     k.setArgs(output_data, input_data, new CLKernel.LocalSize(shared), group_index, base_index, n)
     k.enqueueNDRange(ComputeCommands, global, local)
@@ -260,9 +264,10 @@ object ApplePrefixSum {
               n: Int,
               group_offset: Int,
               base_index: Int) {
+    /*
     printf("UniformAdd: Global[%4d] Local[%4d] BlockOffset[%4d] BaseIndex[%4d] Entries[%d]\n",
       global(0).toInt, local(0).toInt, group_offset, base_index, n)
-
+    */
     var k = ComputeKernels(UNIFORM_ADD)
 
     k.setArgs(output_data, partial_sums, new CLKernel.LocalSize(dataSize), group_offset, base_index, n)
@@ -383,7 +388,7 @@ object ApplePrefixSum {
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  def main(args: Array[String]): Unit = {
+  def main2(args: Array[String]): Unit = {
     var t0 = 0L
     var t1 = 0L
     var t2 = 0L

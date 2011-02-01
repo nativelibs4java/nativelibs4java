@@ -1,6 +1,6 @@
 import scala.collection.generic.CanBuildFrom
 import com.nativelibs4java.opencl._
-
+import scala.collection.JavaConversions._
 import scalacl.impl._
 
 package scalacl {
@@ -11,19 +11,38 @@ package scalacl {
     override def productIterator = productValues.toIterator
     override def canEqual(that: Any) = getClass.isInstance(that.asInstanceOf[AnyRef])
   }
-  class ScalaCLContext(val context: CLContext, val queue: CLQueue) extends AbstractProduct {
+  class Context(val context: CLContext, val queue: CLQueue) extends AbstractProduct {
     def this(context: CLContext) = this(context, context.createDefaultOutOfOrderQueueIfPossible())
     def this() = this(JavaCL.createBestContext(CLPlatform.DeviceFeature.OutOfOrderQueueSupport, CLPlatform.DeviceFeature.MaxComputeUnits))
 
+    def release = {
+      queue.release
+      context.release
+    }
     override def productValues = Array(context, queue)
-    
     //println("Is out of order queue : " + queue.getProperties.contains(CLDevice.QueueProperties.OutOfOrderExecModeEnable))
   }
-  object ScalaCLContext {
-    def apply() = new ScalaCLContext()
-    def apply(preferredFeatures: CLPlatform.DeviceFeature*) = {
-      new ScalaCLContext(JavaCL.createBestContext(preferredFeatures:_*))
-    }
+  object Context {
+    def best = new Context()
+    def best(preferredFeatures: CLPlatform.DeviceFeature*) = {
+      new Context(JavaCL.createBestContext(preferredFeatures:_*))
+    } 
+    
+    def apply = best
+    def apply(devices: CLDevice*) = new Context(JavaCL.createContext(null, devices:_*))
+    
+    def platforms = JavaCL.listPlatforms.map(Platform)
+  }
+  case class Platform(platform: CLPlatform) {
+    def name = platform.getName
+    def vendor = platform.getVendor
+    def devices = platform.listAllDevices(true)
+    def bestDevice = platform.getBestDevice
+    def bestDevice(preferredFeatures: CLPlatform.DeviceFeature*) = 
+      CLPlatform.getBestDevice(
+        java.util.Arrays.asList(preferredFeatures:_*), 
+        java.util.Arrays.asList(devices:_*)
+      )
   }
 }
 package object scalacl {
@@ -34,35 +53,47 @@ package object scalacl {
   var useScalaFunctions =
     "1" == System.getenv("SCALACL_USE_SCALA_FUNCTIONS")
   
+  type ScalaCLContext = Context
+  type Device = CLDevice
+  
+  val GPU = CLPlatform.DeviceFeature.GPU
+  val CPU = CLPlatform.DeviceFeature.CPU
+  val DoubleSupport = CLPlatform.DeviceFeature.DoubleSupport
+  val MaxComputeUnits = CLPlatform.DeviceFeature.MaxComputeUnits
+  val NativeEndianness = CLPlatform.DeviceFeature.NativeEndianness
+  val ImageSupport = CLPlatform.DeviceFeature.ImageSupport
+  val OutOfOrderQueueSupport = CLPlatform.DeviceFeature.OutOfOrderQueueSupport
+  val MostImageFormats = CLPlatform.DeviceFeature.MostImageFormats
+  
   private[scalacl] def reuse[T](value: Any, create: => T): T =
     if (value != null && value.isInstanceOf[T])
       value.asInstanceOf[T]
     else
       create
   
-  implicit def ScalaCLContext2Context(sc: ScalaCLContext) = sc.context
+  implicit def Context2Context(sc: Context) = sc.context
 
-  /*implicit def canBuildArrayFromIndexedSeq[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
+  /*implicit def canBuildArrayFromIndexedSeq[A](implicit context: Context, io: CLDataIO[A]) =
     new CLCanBuildFrom[CLIndexedSeq[_], A, CLArray[A]] {
       override def dataIO = io
       override def apply(from: CLIndexedSeq[_]) = CLArray.newBuilder[A](context, dataIO)
       override def apply() = CLArray.newBuilder[A](context, dataIO)
     }
     */
-  implicit def canBuildIndexedSeqFromIndexedSeq[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
+  implicit def canBuildIndexedSeqFromIndexedSeq[A](implicit context: Context, io: CLDataIO[A]) =
     new CLCanBuildFrom[CLIndexedSeq[_], A, CLIndexedSeq[A]] {
       override def dataIO = io
       override def apply(from: CLIndexedSeq[_]) = CLFilteredArray.newBuilder[A]//(context, dataIO)
       override def apply() = CLFilteredArray.newBuilder[A]//(context, dataIO)
     }
-  implicit def canBuildArrayFromArray[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
+  implicit def canBuildArrayFromArray[A](implicit context: Context, io: CLDataIO[A]) =
     new CLCanBuildFrom[CLArray[_], A, CLArray[A]] {
       override def dataIO = io
       override def apply(from: CLArray[_]) = CLArray.newBuilder[A](context, dataIO)
       override def apply() = CLArray.newBuilder[A](context, dataIO)
     }
 /*
-  implicit def canBuildFromFilteredArray[A](implicit context: ScalaCLContext, io: CLDataIO[A]) =
+  implicit def canBuildFromFilteredArray[A](implicit context: Context, io: CLDataIO[A]) =
     new CLCanBuildFrom[CLFilteredArray[_], A, CLFilteredArray[A]] {
       override def dataIO = io
       override def apply(from: CLFilteredArray[_]) = CLFilteredArray.newBuilder[A](context, dataIO)
@@ -70,7 +101,7 @@ package object scalacl {
     }
     */
 
-  implicit def canFilterFromIndexedSeq[A](implicit ctx: ScalaCLContext, io: CLDataIO[A]) =
+  implicit def canFilterFromIndexedSeq[A](implicit ctx: Context, io: CLDataIO[A]) =
     new CLCanFilterFrom[CLIndexedSeq[A], A, CLFilteredArray[A]] {
       override def dataIO = io
       override def context = ctx
@@ -256,30 +287,30 @@ package object scalacl {
     }
   }
   
-  class CLTransformableRange(r: Range)(implicit context: ScalaCLContext) {
+  class CLTransformableRange(r: Range)(implicit context: Context) {
     def toCLRange = new CLRange(r)
     def toCLArray = toCLRange.toCLArray
     def toCL = toCLRange
     def cl = toCLRange
   }
-  implicit def Range2CLRangeMethods(r: Range)(implicit context: ScalaCLContext) =
+  implicit def Range2CLRangeMethods(r: Range)(implicit context: Context) =
     new CLTransformableRange(r)
     
-  /*implicit def RichIndexedSeqCL[T](c: IndexedSeq[T])(implicit context: ScalaCLContext, dataIO: CLDataIO[T]) = new {
+  /*implicit def RichIndexedSeqCL[T](c: IndexedSeq[T])(implicit context: Context, dataIO: CLDataIO[T]) = new {
     def toCLArray = CLArray.fromSeq(c)
     def toCL = toCLArray
     def cl = toCLArray
   }*/
-  class CLTransformableSeq[T](seq: Seq[T])(implicit context: ScalaCLContext, io: CLDataIO[T]) {
+  class CLTransformableSeq[T](seq: Seq[T])(implicit context: Context, io: CLDataIO[T]) {
     def toCLArray = CLArray.fromSeq(seq)
     def toCL = toCLArray
     def cl = toCLArray
   }
   
-  implicit def Seq2CLTransformableSeq[T](seq: Seq[T])(implicit context: ScalaCLContext, io: CLDataIO[T]) = 
+  implicit def Seq2CLTransformableSeq[T](seq: Seq[T])(implicit context: Context, io: CLDataIO[T]) = 
     new CLTransformableSeq(seq)
   
-  implicit def Array2CLTransformableSeq[T](arr: Array[T])(implicit context: ScalaCLContext, io: CLDataIO[T]) = 
+  implicit def Array2CLTransformableSeq[T](arr: Array[T])(implicit context: Context, io: CLDataIO[T]) = 
     new CLTransformableSeq(arr)
   
   
@@ -287,7 +318,7 @@ package object scalacl {
   implicit def RichCLKernel(k: CLKernel) = new {
     def setArgs(args: Any*) = k.setArgs(args.map(_.asInstanceOf[Object]):_*)
 
-    def enqueueNDRange(global: Array[Int], local: Array[Int] = null)(args: Any*)(implicit context: ScalaCLContext) = k synchronized {
+    def enqueueNDRange(global: Array[Int], local: Array[Int] = null)(args: Any*)(implicit context: Context) = k synchronized {
       setArgs(args: _*)
       k.enqueueNDRange(context.queue, global, local)
     }

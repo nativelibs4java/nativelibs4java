@@ -98,7 +98,7 @@ object Compile {
     compilerMain(
       if (args.isEmpty)
         Array(
-          "Test.scala", 
+          "Toto.scala",
           "-Xprint:scalacl-functionstransform",
           "-Xprint:typer",
           "-classpath", "../ScalaCL2/target/scalacl-0.2-SNAPSHOT-shaded.jar"

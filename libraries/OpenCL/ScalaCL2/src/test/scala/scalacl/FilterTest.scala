@@ -12,13 +12,13 @@ class FilterTest {
   
   @Test
   def testFilterPreferablyOnCPU = 
-      testFilter(ScalaCLContext(CLPlatform.DeviceFeature.CPU))
+      testFilter(Context.best(CPU))
   
   @Test
   def testFilterPreferablyOnGPU = 
-      testFilter(ScalaCLContext(CLPlatform.DeviceFeature.GPU))
+      testFilter(Context.best(GPU))
   
-  def testFilter(implicit context: ScalaCLContext) = {
+  def testFilter(implicit context: Context) = {
     val filt = (
       (x: Int) => (x % 2) == 0, 
       Seq("(_ % 2) == 0")

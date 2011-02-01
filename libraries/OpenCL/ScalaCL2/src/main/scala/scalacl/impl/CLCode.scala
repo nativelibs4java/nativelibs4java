@@ -17,9 +17,9 @@ trait CLCode {
 
   private val map = new mutable.HashMap[CLContext, (CLProgram, Map[String, CLKernel])]
   
-  def compile(context: ScalaCLContext): Unit = getProgramAndKernels(context)
+  def compile(context: Context): Unit = getProgramAndKernels(context)
   
-  private[impl] def getProgramAndKernels(context: ScalaCLContext) = map.synchronized {
+  private[impl] def getProgramAndKernels(context: Context) = map.synchronized {
     map.getOrElseUpdate(
       context.context,
       {
@@ -35,14 +35,14 @@ trait CLCode {
     )
   }
 
-  def release(context: ScalaCLContext): Unit = map.synchronized {
+  def release(context: Context): Unit = map.synchronized {
     for ((program, kernels) <- map.get(context.context)) {
       kernels.values.foreach(_.release)
       program.release
       map.remove(context.context)
     }
   }
-  def getKernel(context: ScalaCLContext, name: String = null) = {
+  def getKernel(context: Context, name: String = null) = {
     val kernels = getProgramAndKernels(context)._2
     if (name == null)
       kernels.values.head
