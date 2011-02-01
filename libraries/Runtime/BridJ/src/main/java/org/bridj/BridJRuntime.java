@@ -28,6 +28,7 @@ public interface BridJRuntime {
 	}
 	
 	void register(Type type);
+	void unregister(Type type);
 	<T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type);
 
     boolean isAvailable();

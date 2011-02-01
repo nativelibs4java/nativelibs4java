@@ -221,6 +221,10 @@ public class BridJ {
 		runtime.register(type);
 		return runtime;
 	}
+    public static void unregister(Class<?> type) {
+        BridJRuntime runtime = getRuntime(type);
+		runtime.unregister(type);
+	}
     static Map<Type, TypeInfo<?>> typeInfos = new HashMap<Type, TypeInfo<?>>();
 
 	static <T extends NativeObject> TypeInfo<T> getTypeInfo(Type t) {
