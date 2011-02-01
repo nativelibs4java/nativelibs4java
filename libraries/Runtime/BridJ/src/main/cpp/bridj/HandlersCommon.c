@@ -1,6 +1,6 @@
 #include "HandlersCommon.h"
 
-jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes) 
+jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes, jboolean toJava) 
 {	
 	JNIEnv* env = call->env;
 	int iParam;
@@ -17,8 +17,12 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				dcArgLong(call->vm, (long)dcbArgLongLong(args));
 				break;
 			case eSizeTValue:
-				if (sizeof(size_t) == 4)
-					dcArgInt(call->vm, (int)dcbArgLong(args));
+				if (sizeof(size_t) == 4) {
+					if (toJava)
+						dcArgLongLong(call->vm, dcbArgInt(args));
+					else
+						dcArgInt(call->vm, (int)dcbArgLongLong(args));
+				}
 				else
 					dcArgLongLong(call->vm, dcbArgLongLong(args));
 				break;

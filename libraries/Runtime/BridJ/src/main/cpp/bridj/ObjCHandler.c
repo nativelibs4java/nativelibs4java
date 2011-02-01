@@ -27,7 +27,7 @@ char __cdecl doJavaToObjCCallHandler(DCArgs* args, DCValue* result, JavaToObjCCa
 	dcArgPointer(call->vm, targetId);
 	dcArgPointer(call->vm, info->fSelector);
 	
-	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes) 
+	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE) 
 	&&
 	followCall(call, ePointerValue/*info->fInfo.fReturnType*/, result, callback, JNI_FALSE, JNI_FALSE);
 
