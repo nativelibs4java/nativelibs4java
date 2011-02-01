@@ -51,7 +51,7 @@ import static org.bridj.Pointer.*;
 public class JavaCL {
 
     static final OpenCLLibrary CL = new OpenCLLibrary();
-	static boolean cacheBinaries = !"false".equals(System.getProperty("javacl.cacheBinaries") + "") && !"1".equals(System.getenv("JAVACL_CACHE_BINARIES"));
+	static boolean cacheBinaries = !"false".equals(System.getProperty("javacl.cacheBinaries") + "") && !"0".equals(System.getenv("JAVACL_CACHE_BINARIES"));
 	
 	/**
 	 * Change whether program binaries are automatically cached or not.<br>
@@ -87,6 +87,9 @@ public class JavaCL {
 		return true;
 	}
 
+    /**
+     * List the OpenCL implementations that contain at least one GPU device.
+     */
     public static CLPlatform[] listGPUPoweredPlatforms() {
         CLPlatform[] platforms = listPlatforms();
         List<CLPlatform> out = new ArrayList<CLPlatform>(platforms.length);
@@ -138,25 +141,45 @@ public class JavaCL {
 		error(CL.clUnloadCompiler());
 	}
 
+	/**
+	 * Returns the "best" OpenCL device (currently, the one that has the largest amount of compute units).<br>
+	 * For more control on what is to be considered a better device, please use the @see JavaCL#getBestDevice(CLPlatform.DeviceFeature[]) variant.<br>
+	 * This is currently equivalent to <code>getBestDevice(MaxComputeUnits)</code>
+	 */
     public static CLDevice getBestDevice() {
         return getBestDevice(CLPlatform.DeviceFeature.MaxComputeUnits);
     }
-	public static CLDevice getBestDevice(CLPlatform.DeviceFeature... strategy) {
+	/**
+	 * Returns the "best" OpenCL device based on the comparison of the provided prioritized device feature.<br>
+	 * The returned device does not necessarily exhibit the features listed in preferredFeatures, but it has the best ordered composition of them.<br>
+	 * For instance on a system with a GPU and a CPU device, <code>JavaCL.getBestDevice(CPU, MaxComputeUnits)</code> will return the CPU device, but on another system with two GPUs and no CPU device it will return the GPU that has the most compute units.
+	 */
+    public static CLDevice getBestDevice(CLPlatform.DeviceFeature... preferredFeatures) {
         List<CLDevice> devices = new ArrayList<CLDevice>();
 		for (CLPlatform platform : listPlatforms())
 			devices.addAll(Arrays.asList(platform.listAllDevices(true)));
-        return CLPlatform.getBestDevice(Arrays.asList(strategy), devices);
+        return CLPlatform.getBestDevice(Arrays.asList(preferredFeatures), devices);
     }
+    /**
+     * Creates an OpenCL context with the "best" device (see @see JavaCL#getBestDevice())
+     */
 	public static CLContext createBestContext() {
         return createBestContext(DeviceFeature.MaxComputeUnits);
 	}
 
-    public static CLContext createBestContext(CLPlatform.DeviceFeature... strategy) {
-		CLDevice device = getBestDevice(strategy);
+    /**
+     * Creates an OpenCL context with the "best" device based on the comparison of the provided prioritized device feature (see @see JavaCL#getBestDevice(CLPlatform.DeviceFeature))
+     */
+	public static CLContext createBestContext(CLPlatform.DeviceFeature... preferredFeatures) {
+		CLDevice device = getBestDevice(preferredFeatures);
 		return device.getPlatform().createContext(null, device);
 	}
 
-    public static CLContext createContextFromCurrentGL() {
+    /**
+     * Creates an OpenCL context able to share entities with the current OpenGL context.
+     * @throws RuntimeException if JavaCL is unable to create an OpenGL-shared OpenCL context.
+     */
+	public static CLContext createContextFromCurrentGL() {
         RuntimeException first = null;
         for (CLPlatform platform : listPlatforms()) {
             try {

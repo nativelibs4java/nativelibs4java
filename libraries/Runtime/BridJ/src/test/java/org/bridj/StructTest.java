@@ -42,7 +42,7 @@ public class StructTest {
 		long len = sizeOf(x);
 		int a = 10;
 		double b = 12.0;
-		pointerTo(x).clearBytes(0, len, (byte)0xff);
+		pointerTo(x).clearBytesAtOffset(0, len, (byte)0xff);
 		for (MyStruct s : new MyStruct[] { x, y })
 			s.a(a).b(b);
 		

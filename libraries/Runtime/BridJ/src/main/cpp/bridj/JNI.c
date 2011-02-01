@@ -331,7 +331,7 @@ char getDCReturnType(JNIEnv* env, ValueType returnType)
 		case eCLongValue:
 			return DC_SIGCHAR_LONGLONG;
 		case eSizeTValue:
-			return DC_SIGCHAR_LONGLONG;
+			return sizeof(size_t) == 4 ? DC_SIGCHAR_INT : DC_SIGCHAR_LONGLONG;
 		case eVoidValue:
 			return DC_SIGCHAR_VOID;
 		case ePointerValue:

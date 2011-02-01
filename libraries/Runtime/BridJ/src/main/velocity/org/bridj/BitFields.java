@@ -61,7 +61,7 @@ class BitFields {
 			this.wide = wide;
 		}
 		public Object readObject(Pointer p, long offset) {
-			p = p.getPointer(offset);
+			p = p.getPointerAtOffset(offset);
 			return p != null ? wide ? (Object)p.getWideCString() : (Object)p.getCString() : null;
 		}
 		public int size() {
@@ -70,17 +70,17 @@ class BitFields {
 
 
 		public void writeObject(Pointer pointer, long offset, Object value) {
-			pointer.setPointer(offset, (Pointer)value);
+			pointer.setPointerAtOffset(offset, (Pointer)value);
 		}
 
 	}
 	private static final PrimHandler
 	INT_HANDLER = new PrimHandler() {
 		public void writeLong(Pointer p, long offset, long value) {
-			p.setInt(offset, (int)value);
+			p.setIntAtOffset(offset, (int)value);
 		}
 		public long readLong(Pointer p, long offset) {
-			return p.getInt(offset);
+			return p.getIntAtOffset(offset);
 		}
 		public Object objectValue(long value) {
 			return Integer.valueOf((int)value);
@@ -89,10 +89,10 @@ class BitFields {
 			return ((Integer)value).longValue();
 		}
 		public void writeObject(Pointer p, long offset, Object value) {
-			p.setInt(offset, value == null ? 0 : ((Integer)value).intValue());
+			p.setIntAtOffset(offset, value == null ? 0 : ((Integer)value).intValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return Integer.valueOf(p.getInt(offset));
+			return Integer.valueOf(p.getIntAtOffset(offset));
 		}
 		public int size() {
 			return 4;
@@ -100,10 +100,10 @@ class BitFields {
 	},
 	LONG_HANDLER = new PrimHandler() {
 		public void writeLong(Pointer p, long offset, long value) {
-			p.setLong(offset, value);
+			p.setLongAtOffset(offset, value);
 		}
 		public long readLong(Pointer p, long offset) {
-			return p.getLong(offset);
+			return p.getLongAtOffset(offset);
 		}
 		public Object objectValue(long value) {
 			return Long.valueOf(value);
@@ -112,10 +112,10 @@ class BitFields {
 			return ((Long)value).longValue();
 		}
 		public void writeObject(Pointer p, long offset, Object value) {
-			p.setLong(offset, value == null ? 0 : ((Long)value).longValue());
+			p.setLongAtOffset(offset, value == null ? 0 : ((Long)value).longValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return Long.valueOf(p.getLong(offset));
+			return Long.valueOf(p.getLongAtOffset(offset));
 		}
 		public int size() {
 			return 8;
@@ -123,10 +123,10 @@ class BitFields {
 	},
 	SHORT_HANDLER = new PrimHandler() {
 		public void writeLong(Pointer p, long offset, long value) {
-			p.setShort(offset, (short)value);
+			p.setShortAtOffset(offset, (short)value);
 		}
 		public long readLong(Pointer p, long offset) {
-			return p.getShort(offset);
+			return p.getShortAtOffset(offset);
 		}
 		public Object objectValue(long value) {
 			return Short.valueOf((short)value);
@@ -135,10 +135,10 @@ class BitFields {
 			return ((Short)value).longValue();
 		}
 		public void writeObject(Pointer p, long offset, Object value) {
-			p.setShort(offset, value == null ? 0 : ((Short)value).shortValue());
+			p.setShortAtOffset(offset, value == null ? 0 : ((Short)value).shortValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return Short.valueOf(p.getShort(offset));
+			return Short.valueOf(p.getShortAtOffset(offset));
 		}
 		public int size() {
 			return 2;
@@ -146,10 +146,10 @@ class BitFields {
 	},
 	BYTE_HANDLER = new PrimHandler() {
 		public void writeLong(Pointer p, long offset, long value) {
-			p.setByte(offset, (byte)value);
+			p.setByteAtOffset(offset, (byte)value);
 		}
 		public long readLong(Pointer p, long offset) {
-			return p.getByte(offset);
+			return p.getByteAtOffset(offset);
 		}
 		public Object objectValue(long value) {
 			return Byte.valueOf((byte)value);
@@ -158,10 +158,10 @@ class BitFields {
 			return ((Byte)value).longValue();
 		}
 		public void writeObject(Pointer p, long offset, Object value) {
-			p.setByte(offset, value == null ? 0 : ((Byte)value).byteValue());
+			p.setByteAtOffset(offset, value == null ? 0 : ((Byte)value).byteValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return Byte.valueOf(p.getByte(offset));
+			return Byte.valueOf(p.getByteAtOffset(offset));
 		}
 		public int size() {
 			return 1;
@@ -169,10 +169,10 @@ class BitFields {
 	},
 	CHAR_HANDLER = new PrimHandler() {
 		public void writeLong(Pointer p, long offset, long value) {
-			p.setChar(offset, (char)value);
+			p.setCharAtOffset(offset, (char)value);
 		}
 		public long readLong(Pointer p, long offset) {
-			return p.getChar(offset);
+			return p.getCharAtOffset(offset);
 		}
 		public Object objectValue(long value) {
 			return Character.valueOf((char)value);
@@ -181,10 +181,10 @@ class BitFields {
 			return ((Character)value).charValue();
 		}
 		public void writeObject(Pointer p, long offset, Object value) {
-			p.setChar(offset, value == null ? (char)0 : ((Character)value).charValue());
+			p.setCharAtOffset(offset, value == null ? (char)0 : ((Character)value).charValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return Character.valueOf(p.getChar(offset));
+			return Character.valueOf(p.getCharAtOffset(offset));
 		}
 		public int size() {
 			return 2;
@@ -192,10 +192,10 @@ class BitFields {
 	},
 	BOOL_HANDLER = new PrimHandler() {
 		public void writeLong(Pointer p, long offset, long value) {
-			p.setByte(offset, (byte)value);
+			p.setByteAtOffset(offset, (byte)value);
 		}
 		public long readLong(Pointer p, long offset) {
-			return p.getByte(offset);
+			return p.getByteAtOffset(offset);
 		}
 		public Object objectValue(long value) {
 			return ((byte)value) == 0 ? Boolean.FALSE : Boolean.TRUE;
@@ -204,10 +204,10 @@ class BitFields {
 			return ((Boolean)value).booleanValue() ? -1 : 0;
 		}
 		public void writeObject(Pointer p, long offset, Object value) {
-			p.setByte(offset, value == null ? 0 : (byte)(Boolean.TRUE.equals(value) ? -1 : 0));
+			p.setByteAtOffset(offset, value == null ? 0 : (byte)(Boolean.TRUE.equals(value) ? -1 : 0));
 		}
 		public Object readObject(Pointer p, long offset) {
-			return p.getByte(offset) == 0 ? Boolean.FALSE : Boolean.TRUE;
+			return p.getByteAtOffset(offset) == 0 ? Boolean.FALSE : Boolean.TRUE;
 		}
 		public int size() {
 			return 1;
@@ -215,10 +215,10 @@ class BitFields {
 	},
 	DOUBLE_HANDLER = new NonIntHandler() {
 		public long readLong(Pointer p, long offset) {
-			return p.getLong(offset);
+			return p.getLongAtOffset(offset);
 		}
 		public void writeLong(Pointer p, long offset, long value) {
-			p.setLong(offset, value);
+			p.setLongAtOffset(offset, value);
 		}
 		public long longValue(Object value) {
 			return Double.doubleToRawLongBits(((Double)value).doubleValue());
@@ -227,10 +227,10 @@ class BitFields {
 			return Double.valueOf(Double.longBitsToDouble((long)value));
 		}
 		public void writeObject(Pointer p, long offset, Object value) {
-			p.setDouble(offset, value == null ? 0 : ((Double)value).doubleValue());
+			p.setDoubleAtOffset(offset, value == null ? 0 : ((Double)value).doubleValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return Double.valueOf(p.getDouble(offset));
+			return Double.valueOf(p.getDoubleAtOffset(offset));
 		}
 		public int size() {
 			return 8;
@@ -238,10 +238,10 @@ class BitFields {
 	},
 	FLOAT_HANDLER = new NonIntHandler() {
 		public long readLong(Pointer p, long offset) {
-			return p.getInt(offset);
+			return p.getIntAtOffset(offset);
 		}
 		public void writeLong(Pointer p, long offset, long value) {
-			p.setInt(offset, (int)value);
+			p.setIntAtOffset(offset, (int)value);
 		}
 		public long longValue(Object value) {
 			return Float.floatToRawIntBits(((Float)value).floatValue());
@@ -250,10 +250,10 @@ class BitFields {
 			return Float.valueOf(Float.intBitsToFloat((int)value));
 		}
 		public void writeObject(Pointer p, long offset, Object value) {
-			p.setFloat(offset, value == null ? 0 : ((Float)value).floatValue());
+			p.setFloatAtOffset(offset, value == null ? 0 : ((Float)value).floatValue());
 		}
 		public Object readObject(Pointer p, long offset) {
-			return Float.valueOf(p.getFloat(offset));
+			return Float.valueOf(p.getFloatAtOffset(offset));
 		}
 		public int size() {
 			return 4;
@@ -261,10 +261,10 @@ class BitFields {
 	},
 //	POINTER_HANDLER = new NonIntHandler() {
 //	public void writeObject(Pointer p, long offset, Object value) {
-//	p.setPointer(offset, ((Pointer)value));
+//	p.setPointerAtOffset(offset, ((Pointer)value));
 //}
 //public Object readObject(Pointer p, long offset) {
-//	return p.getPointer(offset);
+//	return p.getPointerAtOffset(offset);
 //}
 //public int size() {
 //	return Native.POINTER_SIZE;
@@ -361,7 +361,7 @@ class BitFields {
 	}
 
 	private static byte[] getBigEndianByteArray(Pointer pointer, long offset, int bytesToFetch) {
-		byte[] bs = pointer.getBytes(offset, bytesToFetch);
+		byte[] bs = pointer.getBytesAtOffset(offset, bytesToFetch);
 		if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN)
 			revert(bs);
 		return bs;
@@ -369,7 +369,7 @@ class BitFields {
 	private static void setBigEndianByteArray(Pointer pointer, long offset, byte[] bs) {
 		if (ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN)
 			revert(bs);
-		pointer.setBytes(offset, bs, 0, bs.length);
+		pointer.setBytesAtOffset(offset, bs, 0, bs.length);
 	}
 	private static void revert(byte[] bs) {
 		for (int i = 0, len = bs.length, sup = len >>> 1; i < sup; i++) {

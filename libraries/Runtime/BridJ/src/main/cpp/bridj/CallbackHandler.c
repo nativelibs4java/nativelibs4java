@@ -20,7 +20,7 @@ char __cdecl doNativeToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJa
 	dcArgPointer(call->vm, info->fCallbackInstance);
 	dcArgPointer(call->vm, info->fMethod);
 	
-	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes)
+	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_TRUE)
 	&&
 	followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction, JNI_TRUE, JNI_FALSE);
 
@@ -45,7 +45,7 @@ char __cdecl doJavaToNativeCallHandler(DCArgs* args, DCValue* result, JavaToNati
 	dcMode(call->vm, info->fInfo.fDCMode);
 	callback = getNativeObjectPointer(call->env, instance, NULL);
 	
-	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes)
+	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE)
 	&&
 	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE, JNI_FALSE);
 

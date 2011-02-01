@@ -201,12 +201,12 @@ public class TestCPP {
                 return;
 
             long crea = Ctest.createTest();
-            crea = Pointer.pointerToAddress(crea).getPointer(0).getPeer();
+            crea = Pointer.pointerToAddress(crea).getPointer().getPeer();
             print("Ctest.createTest()", crea, 10, 0);
             Ctest test = new Ctest();
             //long thisPtr = test.$this.getPeer();
             //System.out.println(hex(thisPtr));
-            print("Ctest.this", Pointer.pointerTo(test, Ctest.class).getPointer(0).getPeer(), 10, 2);
+            print("Ctest.this", Pointer.pointerTo(test, Ctest.class).getPointer().getPeer(), 10, 2);
             int res = test.testAdd(1, 2);
             System.out.println("res = " + res);
             res = test.testVirtualAdd(1, 2);
@@ -231,10 +231,10 @@ public class TestCPP {
                 MyStruct s = new MyStruct();
                 s.a(10);
                 System.out.println("Created MyStruct and set it to 10");
-                int a = Pointer.pointerTo(s).getInt(0);
+                int a = Pointer.pointerTo(s).getInt();
                 a = s.a();
-                Pointer.pointerTo(s).setInt(0, 10);
-                a = Pointer.pointerTo(s).getInt(0);
+                Pointer.pointerTo(s).setInt(10);
+                a = Pointer.pointerTo(s).getInt();
                 a = s.a();
                 if (s.a() != 10)
                     throw new RuntimeException("invalid value = " + a);
@@ -318,7 +318,7 @@ public class TestCPP {
         
 //		public int testAdd(int a, int b) {
 //			//print("this", Pointer.getAddress(this, Ctest.class), 10, 10);
-//			//print("*this", $this.getPointer(0).getPeer(), 10, 10);
+//			//print("*this", $this.getPointer().getPeer(), 10, 10);
 //			return testAdd(Pointer.getAddress(this, Ctest.class), a, b);
 //		}
 	}
@@ -333,7 +333,7 @@ public class TestCPP {
 	}
 	static long getPtr(long peer) {
 		Pointer<?> ptr = Pointer.pointerToAddress(peer);
-		return ptr.getSizeT(0);
+		return ptr.getSizeT();
 	}
 	
 	

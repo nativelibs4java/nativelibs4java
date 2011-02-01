@@ -27,11 +27,11 @@ public class GUID {
         if (descriptor.length() != 32)
             throw throwBad(descriptor);
 
-        out.setInt(0, (int)Long.parseLong(descriptor.substring(0, 8), 16));
-        out.setShort(4, (short)Long.parseLong(descriptor.substring(8, 12), 16));
-        out.setShort(6, (short)Long.parseLong(descriptor.substring(12, 16), 16));
+        out.setIntAtOffset(0, (int)Long.parseLong(descriptor.substring(0, 8), 16));
+        out.setShortAtOffset(4, (short)Long.parseLong(descriptor.substring(8, 12), 16));
+        out.setShortAtOffset(6, (short)Long.parseLong(descriptor.substring(12, 16), 16));
         for (int i = 0; i < 8; i++)
-            out.setByte(8 + i, (byte)Long.parseLong(descriptor.substring(16 + i * 2, 16 + i * 2 + 2), 16));
+            out.setByteAtOffset(8 + i, (byte)Long.parseLong(descriptor.substring(16 + i * 2, 16 + i * 2 + 2), 16));
 
         return out;
     }

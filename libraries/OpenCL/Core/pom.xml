@@ -51,7 +51,17 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	 -->
 	
   </dependencies>
-
+  
+  <reporting>
+    <plugins>
+		<plugin>
+		  <groupId>org.codehaus.mojo</groupId>
+		  <artifactId>cobertura-maven-plugin</artifactId>
+		  <version>2.4</version>
+		</plugin>
+    </plugins>
+  </reporting>
+  
 </project>
 
 

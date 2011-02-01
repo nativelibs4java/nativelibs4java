@@ -40,7 +40,7 @@ public class TypedPointersTest {
 	@Test
 	public void test_Ctest_testAdd() {
 		Pointer<MyPtr> ptrs = Pointer.allocateTypedPointers(MyPtr.class, 10);
-		ptrs.setSizeT(0, 10);
+		ptrs.setSizeT(10);
 		MyPtr ptr = ptrs.get();
 		assertTrue(ptr instanceof MyPtr);
 		assertEquals(10, ptr.getPeer());
@@ -50,7 +50,7 @@ public class TypedPointersTest {
 	public void testStructTypedPtrField() {
 		MyStruct s = new MyStruct();
 		Pointer<MyStruct> ps = Pointer.pointerTo(s);
-		ps.setSizeT(0, 10);
+		ps.setSizeT(10);
 		MyPtr ptr = s.a();
 		assertTrue(ptr instanceof MyPtr);
 		assertEquals(10, ptr.getPeer());

@@ -25,11 +25,11 @@ public class MyStruct extends StructObject {
         MyStruct s = new MyStruct();
         s.toto(10);
         s.values(Pointer.pointerToInts(new int[] { 1, 2, 3}));
-        int[] out = s.values().getInts(0, 3);
+        int[] out = s.values().getIntsAtOffset(0, 3);
         System.out.println(Arrays.toString(out));
 
         MyStruct ns = (MyStruct) s.clone();
-        out = s.values().getInts(0, 3);
+        out = s.values().getIntsAtOffset(0, 3);
         System.out.println(Arrays.toString(out));
 
         System.out.println(s.toto());

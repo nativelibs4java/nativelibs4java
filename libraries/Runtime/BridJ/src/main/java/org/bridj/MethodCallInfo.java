@@ -203,7 +203,7 @@ public class MethodCallInfo {
         if (c == Integer.class || c == Integer.TYPE)
             return ValueType.eIntValue;
         if (c == Long.class || c == Long.TYPE) {
-        	return ValueType.eLongValue;
+        	return sz == null || JNI.is64Bits() ? ValueType.eLongValue : ValueType.eIntValue;
         }
         if (c == Short.class || c == Short.TYPE)
             return ValueType.eShortValue;

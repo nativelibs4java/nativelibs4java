@@ -27,10 +27,27 @@ public abstract class AbstractCommon {
         MiscTestUtils.protectJNI();
     }
     
+    static String chosenPlatformName = System.getProperty("javacl.test.platform", System.getenv("JAVACL_TEST_PLATFORM"));
+    static boolean listedPlatforms;
+    
     @Before
     public void setUp() {
-		context = JavaCL.createBestContext();
-		platform = context.getPlatform();
+    	CLPlatform chosenPlatform = null;
+    	for (CLPlatform platform : JavaCL.listPlatforms()) {
+    		if (!listedPlatforms)
+    			System.out.println("Platform Detected : \"" + platform.getName() + "\"");
+    		if (chosenPlatformName != null && platform.getName().contains(chosenPlatformName)) {
+    			chosenPlatform = platform;
+    		}
+    	}
+    	listedPlatforms = true;
+    	if (chosenPlatform != null) {
+    		platform = chosenPlatform;
+    		context = platform.createContext(null, platform.getBestDevice());
+		} else {
+			context = JavaCL.createBestContext();
+			platform = context.getPlatform();
+		}
 		queue = context.createDefaultQueue();
 		device = context.getDevices()[0];
 		formatsRead2D = context.getSupportedImageFormats(CLMem.Flags.ReadOnly, CLMem.ObjectType.Image2D);
