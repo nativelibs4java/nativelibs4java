@@ -28,7 +28,21 @@ rm -fR $TEMP_OUT
 mkdir -p $LIB_JAR_OUT
 mkdir -p $PLUGIN_JAR_OUT
 
-cp target/scalacl-$MVN_VERSION-shaded.jar $LIB_JAR_OUT
+if [[ "$USE_SHADED" == "1" ]] ; then
+	cp target/scalacl-$MVN_VERSION-shaded.jar $LIB_JAR_OUT ;
+else
+	NL4J_BASE="/Users/ochafik/.m2/repository/com/nativelibs4java"
+	cp target/scalacl-$MVN_VERSION.jar $LIB_JAR_OUT
+	cp $NL4J_BASE/bridj/0.3-SNAPSHOT/bridj-0.3-SNAPSHOT-shaded.jar $LIB_JAR_OUT
+	cp $NL4J_BASE/opencl4java-bridj/1.0-SNAPSHOT/opencl4java-bridj-1.0-SNAPSHOT.jar $LIB_JAR_OUT
+	cp $NL4J_BASE/javacl-core-bridj/1.0-SNAPSHOT/javacl-core-bridj-1.0-SNAPSHOT.jar $LIB_JAR_OUT
+	cp $NL4J_BASE/javacl-bridj/1.0-SNAPSHOT/javacl-bridj-1.0-SNAPSHOT.jar $LIB_JAR_OUT
+	cp $NL4J_BASE/libcl-bridj/1.0-SNAPSHOT/libcl-bridj-1.0-SNAPSHOT.jar $LIB_JAR_OUT ;
+fi
+
+echo "Copied the following libraries :"
+ls -l $LIB_JAR_OUT
+
 cp ../ScalaCLPlugin/target/scalacl-compiler-plugin-$MVN_VERSION.jar $PLUGIN_JAR_OUT
 
 sbaz pack scalacl $TEMP_OUT \
@@ -42,6 +56,11 @@ mkdir -p src/main/sbaz
 sbaz remove scalacl
 sbaz compact
 #sbaz retract scalacl/$SBAZ_VERSION
-sbaz share *.advert
+if [[ "$SHARE" == "1" ]] ; then
+	sbaz share *.advert ;
+else 
+	echo "Not sharing the package (use SHARE=1 to share)"
+	echo src/main/sbaz/scalacl-$SBAZ_VERSION.sbp ;
+fi
 mv *.advert src/main/sbaz
 open src/main/sbaz
