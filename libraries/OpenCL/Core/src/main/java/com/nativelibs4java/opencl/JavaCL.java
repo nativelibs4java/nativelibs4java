@@ -41,6 +41,7 @@ import java.util.logging.*;
 
 import com.nativelibs4java.opencl.library.OpenCLLibrary;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_platform_id;
+import com.sun.jna.Platform;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.Native;
@@ -75,15 +76,20 @@ public class JavaCL {
 			return lib.clGetPlatformIDs(count, out, pCount);
 		}
 	}
+	public interface OpenCLStdCallLibrary extends com.nativelibs4java.opencl.library.OpenCLLibrary, com.sun.jna.win32.StdCallLibrary {
+	
+	}
+	
     static final OpenCLLibrary CL;
 	static {
-		OpenCLLibrary lib = (OpenCLLibrary)Native.loadLibrary("OpenCL", OpenCLLibrary.class);
+		Class<?> libClass = Platform.isWindows() && !Platform.is64Bit() ? OpenCLStdCallLibrary.class : OpenCLLibrary.class;
+		OpenCLLibrary lib = (OpenCLLibrary)Native.loadLibrary("OpenCL", libClass);
 		//if (Platform.isWindows())
 		try {
 			IntByReference pCount = new IntByReference();
 			int err = getPlatformIDs(lib, 0, null, pCount);
 			if (err != OpenCLLibrary.CL_SUCCESS) {
-				OpenCLLibrary atiLib = (OpenCLLibrary)Native.loadLibrary("atiocl", OpenCLLibrary.class);
+				OpenCLLibrary atiLib = (OpenCLLibrary)Native.loadLibrary("atiocl", libClass);
 				if (atiLib != null) {
 					err = getPlatformIDs(atiLib, 0, null, pCount);
 					if (err == OpenCLLibrary.CL_SUCCESS) {

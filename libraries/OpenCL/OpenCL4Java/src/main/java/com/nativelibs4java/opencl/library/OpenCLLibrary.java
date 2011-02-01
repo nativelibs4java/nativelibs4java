@@ -22,7 +22,7 @@ import java.nio.LongBuffer;
  * a tool written by <a href="http://ochafik.free.fr/">Olivier Chafik</a> that <a href="http://code.google.com/p/jnaerator/wiki/CreditsAndLicense">uses a few opensource projects.</a>.<br>
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a> , <a href="http://rococoa.dev.java.net/">Rococoa</a>, or <a href="http://jna.dev.java.net/">JNA</a>.
  */
-public interface OpenCLLibrary extends StdCallLibrary {
+public interface OpenCLLibrary extends Library {
 	public static final int CL_DEVICE_TYPE_CPU = (1 << 1);
 	public static final int CL_SCHAR_MAX = 127;
 	public static final int CL_FP_INF_NAN = (1 << 1);
