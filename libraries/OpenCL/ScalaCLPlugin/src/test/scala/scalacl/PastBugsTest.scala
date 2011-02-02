@@ -94,6 +94,16 @@ class PastBugsTest extends TestUtils {
     """)
   }
   
+  /// http://code.google.com/p/nativelibs4java/issues/detail?id=44
+  @Test
+  def issue44_capturingAVarInClosuresThatEvaluateLater {
+    ensureCodeWithSameResult("""
+      (1 to 10).map {i => j: Int => i + j}.map(_(10))
+    """)
+  }
+  
+  
+  
   val a: Set[Int] = List(1).map(_ + 1)(collection.breakOut)
   
   @Test

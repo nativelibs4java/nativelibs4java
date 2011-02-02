@@ -311,6 +311,7 @@ trait RewritingPluginComponent {
         val fromVar = newVariable(unit, "from$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
         val toVar = newVariable(unit, "to$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
         val iVar = newVariable(unit, "i$", currentOwner, tree.pos, true, fromVar())
+        val iVal = newVariable(unit, "i$val$", currentOwner, tree.pos, false, iVar())
         val nVar = newVariable(unit, "n$", currentOwner, tree.pos, false, toVar())
 
         val outputSize = {
@@ -332,7 +333,7 @@ trait RewritingPluginComponent {
           nVar,
           outputSizeVar
         ))
-        val loopInners = new LoopInnersEnv[Payload](null, nVar, iVar, outputIndexVar, iVar, loopOuters.payload)
+        val loopInners = new LoopInnersEnv[Payload](null, nVar, iVal, outputIndexVar, iVal, loopOuters.payload)
         val LoopInners(statements, extraTest) = innerStatements(loopInners)
         typed {
           treeCopy.Block(
@@ -367,6 +368,7 @@ trait RewritingPluginComponent {
                 ),
                 typed {
                   Block(
+                    List(iVal.definition) ++
                     filteredContent(statements, loopInners.itemVar) ++
                     outputIndexVar.ifUsed(incrementIntVar(outputIndexVar, newInt(if (reverseOrder) -1 else 1))),
                     incrementIntVar(iVar, newInt(byValue))
