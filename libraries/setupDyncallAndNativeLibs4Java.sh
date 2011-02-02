@@ -17,7 +17,15 @@ fi
 
 cd dyncall/dyncall
 export DYNCALL_HOME="`pwd`"
-patch -p5 < ../../nativelibs4java/Runtime/BridJ/src/main/cpp/bridj/dyncall.diff 
+
+svn revert --depth infinity .
+for newFile in dyncall/dyncall_struct.c dyncall/dyncall_struct.h ; do
+	rm $DYNCALL_HOME/$newFile
+	touch $DYNCALL_HOME/$newFile
+	svn add $DYNCALL_HOME/$newFile ;
+done
+
+cat ../../nativelibs4java/Runtime/BridJ/src/main/cpp/bridj/dyncall.diff | sed "s/~/${HOME//\//\\/}/" | patch -p6  
 
 ./configure
 
