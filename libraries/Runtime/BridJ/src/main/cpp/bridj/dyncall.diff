@@ -193,7 +193,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.c
 ===================================================================
 --- ~/src/dyncall/dyncall/dyncall/dyncall_struct.c	
 +++ ~/src/dyncall/dyncall/dyncall/dyncall_struct.c	
-@@ -0,0 +1,193 @@
+@@ -0,0 +1,194 @@
 +/*
 + Package: dyncall
 + File: dyncall/dyncall_struct.c
@@ -387,6 +387,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.c
 +	dcCloseStruct(s);
 +	return s;
 +}
++
 Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_eabi.c
 ===================================================================
 --- ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_eabi.c	
@@ -411,7 +412,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.h
 ===================================================================
 --- ~/src/dyncall/dyncall/dyncall/dyncall_struct.h	
 +++ ~/src/dyncall/dyncall/dyncall/dyncall_struct.h	
-@@ -0,0 +1,64 @@
+@@ -0,0 +1,65 @@
 +/*
 + Package: dyncall
 + File: dyncall/dyncall_struct.h
@@ -475,6 +476,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.h
 +#endif
 +
 +#endif /* DYNCALL_H */
++
 +
 Index: ~/src/dyncall/dyncall/dyncall/GNUmakefile
 ===================================================================
@@ -1068,3 +1070,15 @@ Index: ~/src/dyncall/dyncall/dynload/dynload_syms_elf.c
    } else {
      return pSyms->pHash->nchain;
    }
+Index: ~/src/dyncall/dyncall/buildsys/gmake/prolog.gmake
+===================================================================
+--- ~/src/dyncall/dyncall/buildsys/gmake/prolog.gmake	
++++ ~/src/dyncall/dyncall/buildsys/gmake/prolog.gmake	
+@@ -28,6 +28,7 @@
+ 
+ # config settings
+ 
++#$(if $(wildcard "${TOP}/ConfigVars"),$(error hmm),$(error File 'ConfigVars' not found at top directory. Run 'configure' - or, if you use CMake, run 'make -f Makefile' please.))
+ ifeq ($(wildcard $(TOP)/ConfigVars),)
+ $(error File 'ConfigVars' not found at top directory. Run 'configure' - or, if you use CMake, run 'make -f Makefile' please.)
+ else
