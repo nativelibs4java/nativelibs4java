@@ -23,7 +23,7 @@
     <module>Demos</module>
     <module>JavaCL</module>
     <module>Core</module>
-    <module>ScalaCL</module>
+    <!--<module>ScalaCL</module>-->
     <module>Blas</module>
     <module>Parent</module>
     <module>OpenGLDemos</module>
