@@ -6,7 +6,7 @@
   <artifactId>scalacl-compiler-plugin</artifactId>
   <name>ScalaCL Compiler Plugin</name>
   <url>http://code.google.com/p/scalacl/</url>
-  <version>0.2.Beta9</version>
+  <version>0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
 	  <description>
@@ -19,7 +19,7 @@ For more info, please visit http://code.google.com/p/scalacl
 	
 	<properties>
 	  	<scala.version>2.8.1</scala.version>
-	  	<scalacl.version>0.2.Beta9</scalacl.version>
+	  	<scalacl.version>0.2-SNAPSHOT</scalacl.version>
 	</properties>
 	<!--
   <parent>
@@ -41,7 +41,7 @@ For more info, please visit http://code.google.com/p/scalacl
   	<dependency>
   		<groupId>com.nativelibs4java</groupId>
   		<artifactId>scalacl</artifactId>
-  		<version>0.2.Beta9</version>
+  		<version>0.2-SNAPSHOT</version>
     </dependency>
     -->
   	<!--<scope>provided</scope>-->
