@@ -308,7 +308,7 @@ trait RewritingPluginComponent {
       ): Tree = {
         val pos = tree.pos
         //assert(!reverseOrder)
-        val fromVar = newVariable(unit, "from$", currentOwner, tree.pos, true, from.setType(IntClass.tpe))
+        val fromVar = newVariable(unit, "from$", currentOwner, tree.pos, false, from.setType(IntClass.tpe))
         val toVar = newVariable(unit, "to$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
         val iVar = newVariable(unit, "i$", currentOwner, tree.pos, true, fromVar())
         val iVal = newVariable(unit, "i$val$", currentOwner, tree.pos, false, iVar())
