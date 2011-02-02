@@ -12,9 +12,11 @@ echo "#     Maven version = $MVN_VERSION"
 echo "#      sbaz version = $SBAZ_VERSION"
 echo "###################################################"
 
+echo "# Building ScalaCL Collections"
 mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests                    
 
 cd ../ScalaCLPlugin
+echo "# Building ScalaCL Compiler Plugin"
 mvn -Djarsigner.skip=false -Dstorepass=$KEYSTORE_PASS package -DskipTests
 cd $SCALACL_HOME
 
@@ -28,9 +30,11 @@ rm -fR $TEMP_OUT
 mkdir -p $LIB_JAR_OUT
 mkdir -p $PLUGIN_JAR_OUT
 
+echo "# Copying libraries"
 if [[ "$USE_SHADED" == "1" ]] ; then
 	cp target/scalacl-$MVN_VERSION-shaded.jar $LIB_JAR_OUT ;
 else
+	export SBAZ_VERSION="$SBAZ_VERSION-devel"
 	NL4J_BASE="/Users/ochafik/.m2/repository/com/nativelibs4java"
 	cp target/scalacl-$MVN_VERSION.jar $LIB_JAR_OUT
 	cp $NL4J_BASE/bridj/0.3-SNAPSHOT/bridj-0.3-SNAPSHOT-shaded.jar $LIB_JAR_OUT
@@ -40,11 +44,13 @@ else
 	cp $NL4J_BASE/libcl-bridj/1.0-SNAPSHOT/libcl-bridj-1.0-SNAPSHOT.jar $LIB_JAR_OUT ;
 fi
 
-echo "Copied the following libraries :"
+echo "# Copied the following libraries :"
 ls -l $LIB_JAR_OUT
 
+echo "# Copying compiler plugin libraries"
 cp ../ScalaCLPlugin/target/scalacl-compiler-plugin-$MVN_VERSION.jar $PLUGIN_JAR_OUT
 
+echo "# Packing for sbaz"
 sbaz pack scalacl $TEMP_OUT \
 	--linkbase $LINK_BASE \
 	--version $SBAZ_VERSION \
