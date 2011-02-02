@@ -225,8 +225,11 @@ public class NativeLibrary {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-		if (symbs == null)
+		if (symbs == null) {
+			//System.out.println("Calling getLibrarySymbols");
 			symbs = JNI.getLibrarySymbols(getHandle(), getSymbolsHandle());
+			//System.out.println("Got " + symbs + " (" + (symbs == null ? "null" : symbs.length + "") + ")");
+		}
 		
 		if (symbs == null)
 			return;
@@ -265,6 +268,10 @@ public class NativeLibrary {
 			//nameToAddr.put(name, addr);
 			//System.out.println("'" + name + "' = \t" + TestCPP.hex(addr) + "\n\t" + sym.getParsedRef());
 		}
+		System.out.println("Symbols found : " + nameToSym.size());
+		//for (Symbol sym : nameToSym.values()) {
+		//	System.out.println("Symbol '" + sym + "' = " + sym.getParsedRef());
+		//}
 	}
 
 	MemberRef parseSymbol(String symbol) throws DemanglingException {

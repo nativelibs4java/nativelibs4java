@@ -1047,3 +1047,21 @@ Index: /Users/ochafik/src/dyncall/dyncall/dynload/dynload_syms_elf.c
  #endif
  
  /*
+@@ -193,11 +194,15 @@
+ 
+ int dlSymsCount(DLSyms* pSyms)
+ {
+-  if (!pSyms || !pSyms->pHash)
++  if (!pSyms || (!pSyms->pHash && !pSyms->pGNUHash))
+     return 0;
+ 
+   if (pSyms->pGNUHash) {
+-    return pSyms->pHash->nchain - pSyms->pGNUHash->symndx;
++	// ld option : --hash-style
++	// see http://sourceware.org/ml/binutils/2006-06/msg00418.html
++    return pSyms->pHash ? 
++	pSyms->pHash->nchain - pSyms->pGNUHash->symndx :
++	pSyms->pGNUHash->symndx;
+   } else {
+     return pSyms->pHash->nchain;
+   }
