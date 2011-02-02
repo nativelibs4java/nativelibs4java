@@ -96,6 +96,8 @@ public class JavaCL {
 				if (Platform.is64Bit())
 					atiLib = (OpenCLLibrary)Native.loadLibrary("atiocl64", libClass);
 				if (atiLib == null)
+					atiLib = (OpenCLLibrary)Native.loadLibrary("atiocl32", libClass);
+				if (atiLib == null)
 					atiLib = (OpenCLLibrary)Native.loadLibrary("atiocl", libClass);
 				if (atiLib != null) {
 					int err = getPlatformIDs(atiLib, 0, null, pCount);
