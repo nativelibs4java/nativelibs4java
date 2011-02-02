@@ -403,8 +403,17 @@ public class BridJ {
 		possibleNames.add(actualName == null ? libraryName : actualName);
 		
 		//System.out.println("Possible names = " + possibleNames);
+		List<String> paths = getNativeLibraryPaths();
+		log(Level.INFO, "Looking for library '" + libraryName + "' " + (actualName != null ? "('" + actualName + "') " : "") + "in paths " + paths, null);
+		
 		for (String name : possibleNames) {
-			for (String path : getNativeLibraryPaths()) {
+			String env = System.getenv("BRIDJ_" + name.toUpperCase() + "_LIBRARY");
+			if (env != null) {
+				File f = new File(env);
+				if (f.exists())
+					return f;
+			}
+			for (String path : paths) {
 				File pathFile = path == null ? null : new File(path);
 				File f = new File(name);
 				if (pathFile != null) {
@@ -457,7 +466,9 @@ public class BridJ {
 			}
 			}
 			try {
-				return JNI.extractEmbeddedLibraryResource(name);
+				File f = JNI.extractEmbeddedLibraryResource(name);
+				if (f != null && f.exists())
+					return f;
 			} catch (IOException ex) {
 			}
 		}
@@ -515,9 +526,10 @@ public class BridJ {
 	 */
     public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
 		NativeLibrary ll;
-		if ("c".equals(name))// && JNI.isLinux())
+		if ("c".equals(name)) {// && JNI.isLinux())
 			ll = new NativeLibrary(null, 0, 0);
-		else
+			f = null;
+		} else
 			ll = NativeLibrary.load(f == null ? name : f.toString());
 			
 		//if (ll == null && f != null)
@@ -525,6 +537,8 @@ public class BridJ {
         if (ll == null) {
             throw new FileNotFoundException("Library '" + name + "' was not found in path '" + getNativeLibraryPaths() + "'" + (f != null && f.exists() ? " (failed to load " + f + ")" : ""));
         }
+        log(Level.INFO, "Loaded library '" + name + "' from '" + f + "'", null);
+        
         libHandles.put(name, ll);
         return ll;
     }
