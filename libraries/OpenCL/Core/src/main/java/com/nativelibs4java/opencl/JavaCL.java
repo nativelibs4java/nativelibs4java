@@ -94,7 +94,11 @@ public class JavaCL {
 			try {
 				err = clIcdGetPlatformIDsKHR(0, null, pCount);
 			} catch (Throwable th) {
-				err = clGetPlatformIDs(0, null, pCount);
+				try {
+					err = clGetPlatformIDs(0, null, pCount);
+				} catch (Throwable th2) {
+					return false;
+				}
 			}
 			return err == OpenCLLibrary.CL_SUCCESS && pCount.get() > 0;
 		}
@@ -106,9 +110,12 @@ public class JavaCL {
 			OpenCLProbeLibrary probe = new OpenCLProbeLibrary();
 			try {
 				if (!probe.isValid()) {
-					if (BridJ.getNativeLibraryFile("atiocl") != null) {
+					String alt;
+					if (JNI.is64Bits() && BridJ.getNativeLibraryFile(alt = "atiocl64") != null ||
+						BridJ.getNativeLibraryFile(alt = "atiocl") != null) 
+					{
 						log(Level.INFO, "[JavaCL] Hacking around ATI's weird driver bugs (using atiocl library instead of OpenCL)", null); 
-						BridJ.setNativeLibraryActualName("OpenCL", "atiocl");
+						BridJ.setNativeLibraryActualName("OpenCL", alt);
 					}
 				}
 			} finally {
