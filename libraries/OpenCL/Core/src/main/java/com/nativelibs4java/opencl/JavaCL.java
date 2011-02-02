@@ -87,11 +87,18 @@ public class JavaCL {
 		//if (Platform.isWindows())
 		try {
 			IntByReference pCount = new IntByReference();
-			int err = getPlatformIDs(lib, 0, null, pCount);
-			if (err != OpenCLLibrary.CL_SUCCESS) {
-				OpenCLLibrary atiLib = (OpenCLLibrary)Native.loadLibrary("atiocl", libClass);
+			boolean success = false;
+			try {
+				success = getPlatformIDs(lib, 0, null, pCount) == OpenCLLibrary.CL_SUCCESS;
+			} catch (Throwable th) {}
+			if (!success) {
+				OpenCLLibrary atiLib = null;
+				if (Platform.is64Bit())
+					atiLib = (OpenCLLibrary)Native.loadLibrary("atiocl64", libClass);
+				if (atiLib == null)
+					atiLib = (OpenCLLibrary)Native.loadLibrary("atiocl", libClass);
 				if (atiLib != null) {
-					err = getPlatformIDs(atiLib, 0, null, pCount);
+					int err = getPlatformIDs(atiLib, 0, null, pCount);
 					if (err == OpenCLLibrary.CL_SUCCESS) {
 						System.out.println("[JavaCL] Hacking around ATI's weird driver bugs (using atiocl library instead of OpenCL)"); 
 						lib = atiLib;
