@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
-  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL/"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/"
   href="ParticlesDemo.jnlp"
 >
 	<information>
-	  <title>JavaCL Particles Demos</title>
+	  <title>JavaCL-BridJ Particles Demos</title>
 	  <vendor>Olivier Chafik</vendor>
 	  <homepage href="http://code.google.com/p/javacl/" />
 	  <description>Demos for JavaCL (Object-Oriented OpenCL Library for Java)</description>
@@ -19,13 +19,16 @@
 	</security>
 	<update check="background" policy="prompt-update"/>
 	<resources>
-		<!--<extension name="JavaCL" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL/JavaCL.jnlp"/>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT.jar"/-->
-		
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-opengl-demos/1.0-SNAPSHOT/javacl-opengl-demos-1.0-SNAPSHOT-shaded.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-opengl-demos-bridj/1.0-SNAPSHOT/javacl-opengl-demos-bridj-1.0-SNAPSHOT-shaded.jar"/>
+		<!--
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos-bridj/1.0-SNAPSHOT/javacl-demos-bridj-1.0-SNAPSHOT.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-opengl-demos-bridj/1.0-SNAPSHOT/javacl-opengl-demos-bridj-1.0-SNAPSHOT.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/webstart/thirdparty/swing-layout-1.0.3.jar"/>
 		
 		<property name="sun.java2d.noddraw" value="true"/>
-      	<extension name="jogl-all-awt" href="http://download.java.net/media/jogl/jsr-231-2.x-webstart/jogl-all-awt.jnlp" />
+      	<extension name="JavaCL-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/JavaCL.jnlp"/>
+      	-->
+		<extension name="jogl-all-awt" href="http://download.java.net/media/jogl/jsr-231-2.x-webstart/jogl-all-awt.jnlp" />
       	<j2se version="1.6+" java-vm-args="-Xmx1g -XX:MaxDirectMemorySize=1g"/>
 	</resources>
 	<application-desc 

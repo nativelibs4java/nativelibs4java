@@ -118,7 +118,11 @@ abstract class CLInfoGetter<T extends Pointer> {
         		return mem.getInt() != 0;
         	case 8:
         		return mem.getLong() != 0;
-        	default:
+        	case 0:
+        		// HACK to accommodate ATI Stream on Linux 32 bits (CLPlatform.isAvailable())
+        		//if (JNI.isLinux())
+        		return true;
+        default:
             throw new RuntimeException("Not a BOOL : len = " + len);
         }
     }

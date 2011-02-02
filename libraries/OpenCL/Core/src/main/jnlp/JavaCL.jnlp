@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
-  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL/"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/"
   href="JavaCL.jnlp"
 >
 	<information>
-	  <title>JavaCL</title>
+	  <title>JavaCL-BridJ</title>
 	  <vendor>Olivier Chafik</vendor>
 	  <homepage href="http://code.google.com/p/javacl/" />
-	  <description>Object-Oriented OpenCL Library for Java</description>
+	  <description>Object-Oriented OpenCL-BridJ Library for Java</description>
 	</information>
 	<security>
 	  <all-permissions/>
 	</security>
 	<resources>
 		<j2se version="1.5+"/>
-		<extension name="OpenCL4Java" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL/OpenCL4Java.jnlp"/>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl/1.0-SNAPSHOT/javacl-1.0-SNAPSHOT.jar"/>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-utils/1.0-SNAPSHOT/javacl-utils-1.0-SNAPSHOT.jar"/>
+		<extension name="OpenCL4Java-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/OpenCL4Java.jnlp"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-bridj/1.0-SNAPSHOT/javacl-bridj-1.0-SNAPSHOT.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-core-bridj/1.0-SNAPSHOT/javacl-core-bridj-1.0-SNAPSHOT.jar"/>
+		
+		<!--<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-utils-bridj/1.0-SNAPSHOT/javacl-bridj-utils-1.0-SNAPSHOT.jar"/>-->
 	</resources>
 	
 	<component-desc/>

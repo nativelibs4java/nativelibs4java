@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp spec="1.0+"
-  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL/"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/"
   href="HardwareReport.jnlp"
 >
 	<information>
-	  <title>JavaCL HardwareReport</title>
+	  <title>JavaCL-BridJ HardwareReport</title>
 	  <vendor>Olivier Chafik</vendor>
 	  <homepage href="http://code.google.com/p/nativelibs4java/wiki/OpenCL" />
-	  <description>JavaCL HardwareReport</description>
-	  <description kind='tooltip'>JavaCL HardwareReport</description>
+	  <description>JavaCL-BridJ HardwareReport</description>
+	  <description kind='tooltip'>JavaCL-BridJ HardwareReport</description>
 	  <offline-allowed/>
 	  <shortcut online="false">
 		  <desktop/>
-		  <menu submenu="JavaCL (OpenCL for Java)"/>
+		  <menu submenu="JavaCL-BridJ (OpenCL for Java)"/>
 	  </shortcut>
 	</information>
 	<security>
@@ -20,8 +20,13 @@
 	</security>
 	<update check="always" policy="prompt-update"/>
 	<resources>
-		<extension name="JavaCL" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL/JavaCL.jnlp"/>
-		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos/1.0-SNAPSHOT/javacl-demos-1.0-SNAPSHOT.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos-bridj/1.0-SNAPSHOT/javacl-demos-bridj-1.0-SNAPSHOT-shaded.jar"/>
+		
+		<!--
+		<extension name="JavaCL-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/JavaCL.jnlp"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-demos-bridj/1.0-SNAPSHOT/javacl-demos-bridj-1.0-SNAPSHOT.jar"/>
+		<jar href="http://nativelibs4java.sourceforge.net/webstart/thirdparty/swing-layout-1.0.3.jar"/>
+		-->
 		<j2se version="1.6+"/>
 	</resources>
 	<application-desc 
