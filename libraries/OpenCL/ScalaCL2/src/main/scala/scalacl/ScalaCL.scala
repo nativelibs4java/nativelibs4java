@@ -19,6 +19,8 @@ package scalacl {
       queue.release
       context.release
     }
+    override def toString = "Context(platform = " + context.getPlatform.getName + ", devices = " + context.getDevices.mkString(", ") + ")"
+    
     override def productValues = Array(context, queue)
     //println("Is out of order queue : " + queue.getProperties.contains(CLDevice.QueueProperties.OutOfOrderExecModeEnable))
   }
