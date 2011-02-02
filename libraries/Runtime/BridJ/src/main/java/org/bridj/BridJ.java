@@ -408,6 +408,8 @@ public class BridJ {
 		
 		for (String name : possibleNames) {
 			String env = System.getenv("BRIDJ_" + name.toUpperCase() + "_LIBRARY");
+			if (env == null)
+				env = System.getProperty("bridj." + name + ".library");
 			if (env != null) {
 				File f = new File(env);
 				if (f.exists())
