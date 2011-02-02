@@ -22,7 +22,8 @@ BUILD_DIR=
 
 #echo $DYNCALL_HOME/dyncall/$BUILD_DIR
 
-svn diff ~/src/dyncall/dyncall > dyncall.diff
+#svn diff ~/src/dyncall/dyncall > dyncall.diff
+svn diff ~/src/dyncall/dyncall | sed "s/${HOME//\//\\/}/~/" | sed -E 's/\((revision [0-9]+|working copy)\)//' > dyncall.diff
 
 echo "# Making dyncall"
 cd "$DYNCALL_HOME"
