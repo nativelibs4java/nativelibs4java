@@ -10,8 +10,8 @@
 #define alignmentMask	1
 #define TEMP_REORDER_VAR_TYPE jshort
 
-#ifndef BIG_ENDIAN
-#define REORDER_VALUE_BYTES(peer) REORDER_VALUE_BYTES_jshort(peer, 0, 1)
-#else
+//#ifdef BIG_ENDIAN
+//#define REORDER_VALUE_BYTES(peer) REORDER_VALUE_BYTES_jshort(peer, 0, 1)
+//#else
 #define REORDER_VALUE_BYTES(peer) REORDER_VALUE_BYTES_jshort(peer, 1, 0)
-#endif
+//#endif

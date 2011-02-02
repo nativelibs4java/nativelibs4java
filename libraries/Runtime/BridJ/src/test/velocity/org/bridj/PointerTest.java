@@ -37,7 +37,46 @@ public class PointerTest {
 		assertEquals(10.0f, b.order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().get(0), 0);	
 	}*/
 	@Test
-	public void testFloatEndian() {
+	public void assumptionsOnDoubleBuffers() {
+		double v = 13579000030.5336163;
+		ByteBuffer b = ByteBuffer.allocateDirect(8);
+		DoubleBuffer d1 = b.order(ByteOrder.BIG_ENDIAN).asDoubleBuffer();
+		DoubleBuffer d2 = b.order(ByteOrder.BIG_ENDIAN).asDoubleBuffer();
+		DoubleBuffer d3 = b.order(ByteOrder.LITTLE_ENDIAN).asDoubleBuffer();
+		
+		d1.put(0, v);
+		
+		LongBuffer l1 = b.order(ByteOrder.BIG_ENDIAN).asLongBuffer();
+		LongBuffer l3 = b.order(ByteOrder.LITTLE_ENDIAN).asLongBuffer();
+	
+		System.out.println("ORDER 1 = " + Long.toHexString(l1.get(0)));
+		System.out.println("ORDER 2 = " + Long.toHexString(l3.get(0)));
+
+		assertTrue(d1.get(0) == d2.get(0));
+		assertTrue(d1.get(0) != d3.get(0));
+	}
+	@Test
+	public void assumptionsOnDoublePointers() {
+		double v = 13579000030.5336163;
+		Pointer<Double> b = allocateDouble();
+		Pointer<Double> d1 = b.order(ByteOrder.BIG_ENDIAN);
+		Pointer<Double> d2 = b.order(ByteOrder.BIG_ENDIAN);
+		Pointer<Double> d3 = b.order(ByteOrder.LITTLE_ENDIAN);
+		
+		d1.set(v);
+
+		Pointer<Long> l1 = b.order(ByteOrder.BIG_ENDIAN).as(Long.class);
+		Pointer<Long> l3 = b.order(ByteOrder.LITTLE_ENDIAN).as(Long.class);
+	
+		System.out.println("Ptr ORDER 1 = " + Long.toHexString(l1.get(0)));
+		System.out.println("Ptr ORDER 2 = " + Long.toHexString(l3.get(0)));
+
+		assertEquals("d1 = " + d1.get(0) + ", d2 = " + d2.get(0), d1.get(0), d2.get(0), 0.0);
+		assertTrue("d1 = " + d1.get(0) + ", d3 = " + d3.get(0), d1.get(0) != d3.get(0));		
+	}
+	@Test
+	public void manualTestDoubleEndian() {
+	
 		Pointer<Double> b = allocateDouble();
 		for (ByteOrder bo : new ByteOrder[] { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN }) {
 			b.order(bo).setDouble(10.0);
@@ -373,18 +412,19 @@ public class PointerTest {
 		}
 	}
 	
+	#foreach ($order in [ "LITTLE_ENDIAN", "BIG_ENDIAN"])
 	@Test 
-    public void simpleSetGet${prim.CapName}s_ENDIAN() {
-    	for (ByteOrder order : new ByteOrder[] { ByteOrder.LITTLE_ENDIAN, ByteOrder.BIG_ENDIAN }) {
-			Pointer<${prim.typeRef}> p = allocate${prim.CapName}s(3).order(order);
+    public void simpleSetGet${prim.CapName}s_$order() {
+    		Pointer<${prim.typeRef}> p = allocate${prim.CapName}s(3).order(ByteOrder.$order);
+
+			p.set(2, ${prim.value("3")});
+			assertEquals(${prim.value("3")}, (${prim.Name})p.get(2)$precisionArg);
+			
 			p.set${prim.CapName}(${prim.value("1")});
 			assertEquals(${prim.rawValue("1")}, ($rawType)p.get${prim.CapName}()$precisionArg);
 			
 			p.set${prim.CapName}AtOffset(${prim.Size}, ${prim.value("-2")});
 			assertEquals(${prim.rawValue("-2")}, ($rawType)p.get${prim.CapName}AtOffset(${prim.Size})$precisionArg);
-			
-			p.set(2, ${prim.value("3")});
-			assertEquals(${prim.value("3")}, (${prim.Name})p.get(2)$precisionArg);
 			
 			p.set${prim.CapName}sAtOffset(${prim.Size}, new ${prim.Name}[] { ${prim.value("5")}, ${prim.value("6")} });
 			assertEquals(${prim.value("5")}, (${prim.Name})p.get(1)$precisionArg);
@@ -393,8 +433,8 @@ public class PointerTest {
 			assertEquals(2, a.length);
 			assertEquals(${prim.rawValue("5")}, a[0]$precisionArg);
 			assertEquals(${prim.rawValue("6")}, a[1]$precisionArg);
-		}
 	}
+	#end
 	
 	@Test
 	public void testPointerToArray_${prim.Name}() {
@@ -598,6 +638,7 @@ public class PointerTest {
     public void testAllocateBounds_${prim.Name}_failBefore() throws IndexOutOfBoundsException {
 		Pointer.allocate${prim.CapName}().get(-1);
 	}
+	
 
 	@Test
     public void test${prim.CapName}Order() {
@@ -609,22 +650,23 @@ public class PointerTest {
     	}
     }
     #if (($prim.Name == "short") || ($prim.Name == "int") || ($prim.Name == "long") || ($prim.Name == "double") || ($prim.Name == "float"))
+    
+   	#foreach ($order in [ "LITTLE_ENDIAN", "BIG_ENDIAN"])
+
 	@Test
-	public void test${prim.CapName}Endianness() {
+	public void test${prim.CapName}_Endianness_$order() {
 		for (${prim.Name} value : new ${prim.Name}[] { ${prim.value("0")}, ${prim.value("1")}, ${prim.value("-1")} }) {
-			test${prim.CapName}Endianness(ByteOrder.LITTLE_ENDIAN, value);
-			test${prim.CapName}Endianness(ByteOrder.BIG_ENDIAN, value);
+			Pointer<${prim.typeRef}> p = Pointer.allocate${prim.CapName}().order(ByteOrder.$order);
+			p.set(value);
+		    assertEquals(ByteOrder.$order, p.order());
+		    assertEquals(ByteOrder.$order, p.get${prim.BufferName}AtOffset(0, 1).order());
+		    assertEquals((${prim.Name})p.get${prim.BufferName}AtOffset(0, 1).get(), p.getByteBufferAtOffset(0, ${prim.Size}).order(ByteOrder.$order).as${prim.BufferName}().get()$precisionArg); // always true (?) : NIO consistency
+		    
+			assertEquals(value, (${prim.Name})p.get${prim.BufferName}AtOffset(0, 1).get()$precisionArg); // check that the NIO buffer was created with the correct order by default
+			assertEquals(value, p.getByteBufferAtOffset(0, ${prim.Size}).order(ByteOrder.$order).as${prim.BufferName}().get()$precisionArg);
 		}
 	}
-	void test${prim.CapName}Endianness(ByteOrder order, ${prim.Name} value) {
-		Pointer<${prim.typeRef}> p = Pointer.allocate${prim.CapName}().order(order);
-		p.set(value);
-        assertEquals(order, p.order());
-        assertEquals(order, p.get${prim.BufferName}AtOffset(0, 1).order());
-		assertEquals(value, (${prim.Name})p.get${prim.BufferName}AtOffset(0, 1).get()$precisionArg); // check that the NIO buffer was created with the correct order by default
-		assertEquals(value, p.getByteBufferAtOffset(0, ${prim.Size}).order(order).as${prim.BufferName}().get()$precisionArg);
-	}
 	#end
-
+	#end
 #end
 }
