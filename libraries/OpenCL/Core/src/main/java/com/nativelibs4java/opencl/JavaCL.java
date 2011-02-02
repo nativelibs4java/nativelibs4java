@@ -84,6 +84,7 @@ public class JavaCL {
 			BridJ.setNativeLibraryActualName("OpenCLProbe", "OpenCL");
 			BridJ.register();
 		}
+		@org.bridj.ann.Optional
 		public native static synchronized int clGetPlatformIDs(int cl_uint1, Pointer<OpenCLLibrary.cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1);
 		@org.bridj.ann.Optional
 		public native static synchronized int clIcdGetPlatformIDsKHR(int cl_uint1, Pointer<OpenCLLibrary.cl_platform_id > cl_platform_idPtr1, Pointer<Integer > cl_uintPtr1);
@@ -112,6 +113,7 @@ public class JavaCL {
 				if (!probe.isValid()) {
 					String alt;
 					if (JNI.is64Bits() && BridJ.getNativeLibraryFile(alt = "atiocl64") != null ||
+						BridJ.getNativeLibraryFile(alt = "atiocl32") != null ||
 						BridJ.getNativeLibraryFile(alt = "atiocl") != null) 
 					{
 						log(Level.INFO, "[JavaCL] Hacking around ATI's weird driver bugs (using atiocl library instead of OpenCL)", null); 
