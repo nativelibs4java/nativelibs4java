@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
     <artifactId>opencl4java-root</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-beta-6</version>
 	<packaging>pom</packaging>
 	<name>OpenCL4Java Root Project</name>
    
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>opencl4java-parent</artifactId>
-	  <version>1.0-SNAPSHOT</version>
+	  <version>1.0-beta-6</version>
 	  <relativePath>Parent</relativePath>
   </parent>
 
