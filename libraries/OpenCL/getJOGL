@@ -1,0 +1,27 @@
+
+BASE_URL="http://jogamp.org/deployment/webstart"
+
+mkdir jogl
+cd jogl
+
+for OS_NAME in macosx-universal linux-i586 linux-amd64 windows-i586 windows-amd64 ; do 
+	mkdir $OS_NAME
+	cd $OS_NAME
+	
+	for N in gluegen-rt jogl.all nativewindow.all ; do
+		wget $BASE_URL/$N.jar.gz
+		gzip -d $N.jar.gz ;
+	done
+	
+	for N in gluegen-rt jogl nativewindow ; do
+		wget $BASE_URL/$N-natives-$OS_NAME.jar ;
+	done
+	
+	zip ../jogl-$OS_NAME.zip *.jar
+	
+	cd .. 
+	rm -fR $OS_NAME 
+	
+	cp jogl-$OS_NAME.zip jogl-$OS_NAME-`date '+%Y%m%d'`.zip
+	mv jogl-$OS_NAME.zip jogl-$OS_NAME-latest.zip ;
+done
