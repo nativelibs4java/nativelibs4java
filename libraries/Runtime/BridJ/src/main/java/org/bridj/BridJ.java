@@ -192,15 +192,18 @@ public class BridJ {
             BridJRuntime runtime = classRuntimes.get(type);
             if (runtime == null) {
                 org.bridj.ann.Runtime runtimeAnn = getAnnotation(org.bridj.ann.Runtime.class, true, type);
-                if (runtimeAnn == null) //return getCRuntime();
-                {
+                Class<? extends BridJRuntime> runtimeClass = null;
+                if (runtimeAnn != null)
+                		runtimeClass = runtimeAnn.value();
+                else	
+                		runtimeClass = CRuntime.class;
+                if (runtimeAnn == null) {
                     throw new IllegalArgumentException("Class " + type.getName() + " has no " + org.bridj.ann.Runtime.class.getName() + " annotation. Unable to guess the corresponding " + BridJRuntime.class.getName() + " implementation.");
-    }
-
-                runtime = getRuntimeByRuntimeClass(runtimeAnn.value());
+                }
+                runtime = getRuntimeByRuntimeClass(runtimeClass);
                 classRuntimes.put(type, runtime);
             }
-                return runtime;
+			return runtime;
         }
     }
 
