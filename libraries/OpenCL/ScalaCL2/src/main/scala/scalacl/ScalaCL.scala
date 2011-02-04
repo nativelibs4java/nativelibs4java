@@ -55,8 +55,12 @@ package object scalacl {
   var useScalaFunctions =
     "1" == System.getenv("SCALACL_USE_SCALA_FUNCTIONS")
   
-  type ScalaCLContext = Context
   type Device = CLDevice
+  
+  // backward compatibility
+  @deprecated
+  type ScalaCLContext = Context
+  
   
   val GPU = CLPlatform.DeviceFeature.GPU
   val CPU = CLPlatform.DeviceFeature.CPU
@@ -317,7 +321,7 @@ package object scalacl {
   
   
 
-  implicit def RichCLKernel(k: CLKernel) = new {
+  class RichCLKernel(k: CLKernel) {
     def setArgs(args: Any*) = k.setArgs(args.map(_.asInstanceOf[Object]):_*)
 
     def enqueueNDRange(global: Array[Int], local: Array[Int] = null)(args: Any*)(implicit context: Context) = k synchronized {
@@ -325,5 +329,7 @@ package object scalacl {
       k.enqueueNDRange(context.queue, global, local)
     }
   }
+  implicit def CLKernel2RichCLKernel(k: CLKernel) = new RichCLKernel(k)
+  
 }
 
