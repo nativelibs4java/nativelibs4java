@@ -123,9 +123,10 @@ extends PluginComponent
                   val pos = tree.pos
                   val nVar = lengthDefs.head
                   val iVar = newVariable(unit, "i$", currentOwner, pos, true, newInt(0))
+                  val iVal = newVariable(unit, "i$val$", currentOwner, pos, false, iVar())
                   
-                  val newMappings: Map[Symbol, TreeGen] = mappings + (param.symbol -> iVar)
-                  val newReplacements = symbolReplacements ++ Map(param.symbol -> iVar.symbol, f.symbol -> currentOwner)
+                  val newMappings: Map[Symbol, TreeGen] = mappings + (param.symbol -> iVal)
+                  val newReplacements = symbolReplacements ++ Map(param.symbol -> iVal.symbol, f.symbol -> currentOwner)
                   
                   val mappedArrayTpe = getMappedArrayType(lengthDefs.size, returnType)
                   
@@ -137,7 +138,7 @@ extends PluginComponent
                   val subArrayVar =  if (lengthDefs.tail == Nil)
                     null
                   else
-                    newVariable(unit, "subArray$", currentOwner, tree.pos, false, newApply(tree.pos, arrayVar(), iVar()))
+                    newVariable(unit, "subArray$", currentOwner, tree.pos, false, newApply(tree.pos, arrayVar(), iVal()))
                                     
                   val (newBody, bodyType) = if (lengthDefs.tail == Nil)
                       (
@@ -187,6 +188,7 @@ extends PluginComponent
                                 (
                                   if (lengthDefs.tail == Nil)
                                     List(
+                                      iVal.definition,
                                       newUpdate(
                                         tree.pos,
                                         arrayVar(),
@@ -196,6 +198,7 @@ extends PluginComponent
                                     )
                                   else {
                                     List(
+                                      iVal.definition,
                                       subArrayVar.definition,
                                       newBody
                                     )
