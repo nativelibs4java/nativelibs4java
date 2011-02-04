@@ -1,10 +1,11 @@
 
 BASE_URL="http://jogamp.org/deployment/webstart"
+OS_NAMES="macosx-universal linux-i586 linux-amd64 windows-i586 windows-amd64"
 
 mkdir jogl
 cd jogl
 
-for OS_NAME in macosx-universal linux-i586 linux-amd64 windows-i586 windows-amd64 ; do 
+for OS_NAME in $OS_NAMES ; do 
 	mkdir $OS_NAME
 	cd $OS_NAME
 	
@@ -14,14 +15,23 @@ for OS_NAME in macosx-universal linux-i586 linux-amd64 windows-i586 windows-amd6
 	done
 	
 	for N in gluegen-rt jogl nativewindow ; do
-		wget $BASE_URL/$N-natives-$OS_NAME.jar ;
+		wget $BASE_URL/$N-natives-$OS_NAME.jar
+		unzip $N-natives-$OS_NAME.jar
+		rm $N-natives-$OS_NAME.jar
+		rm -fR META-INF ;
 	done
 	
-	zip ../jogl-$OS_NAME.zip *.jar
+	zip ../jogl-$OS_NAME.zip *
 	
 	cd .. 
 	rm -fR $OS_NAME 
 	
 	cp jogl-$OS_NAME.zip jogl-$OS_NAME-`date '+%Y%m%d'`.zip
 	mv jogl-$OS_NAME.zip jogl-$OS_NAME-latest.zip ;
+done
+
+for OS_NAME in $OS_NAMES ; do 
+	echo "Platform $OS_NAME :"
+	unzip -l jogl-$OS_NAME-latest.zip 
+	echo "" ;
 done

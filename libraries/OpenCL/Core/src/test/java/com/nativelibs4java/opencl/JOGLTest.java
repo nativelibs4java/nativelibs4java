@@ -14,7 +14,6 @@ import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.media.opengl.*;
 import javax.swing.JFrame;
 
 import org.junit.BeforeClass;
@@ -22,8 +21,14 @@ import org.junit.Test;
 
 import com.nativelibs4java.opencl.CLMem.GLObjectInfo;
 import com.nativelibs4java.util.NIOUtils;
-import com.sun.opengl.util.BufferUtil;
-import com.sun.opengl.util.FPSAnimator;
+
+import javax.media.opengl.*;
+import static javax.media.opengl.GL.*;
+import javax.media.opengl.awt.*;
+
+import com.jogamp.opengl.util.*;
+import com.jogamp.common.nio.*;
+
 
 import com.sun.jna.Memory;
 import com.sun.jna.PointerUtils;
@@ -77,13 +82,13 @@ public class JOGLTest {
                             int[] VBO = new int[1];
                             int[] Texture = new int[1];
                             GL gl = drawable.getGL();
-                            buffer = BufferUtil.newFloatBuffer(bufferSize);
+                            buffer = NIOUtils.directFloats(bufferSize, ByteOrder.nativeOrder());
                             gl.glGenBuffers(1, VBO, 0); // Get A Valid Name
                             gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]); // Bind The Buffer
-                            gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * BufferUtil.SIZEOF_FLOAT, buffer, GL.GL_DYNAMIC_READ);
+                            gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * 4 /*SIZEOF_FLOAT*/, buffer, GL2.GL_DYNAMIC_READ);
 
                             gl.glGenTextures(1, Texture, 0);
-                            gl.glBindTexture(GL.GL_TEXTURE_2D, Texture[0]);
+                            gl.glBindTexture(GL2.GL_TEXTURE_2D, Texture[0]);
                             int width = 2, height = 2, border = 0;
                             byte bZero = (byte)0, bMin1 = (byte)0xFF;
                             ByteBuffer texData = NIOUtils.directCopy(ByteBuffer.wrap(new byte[] {
@@ -91,14 +96,14 @@ public class JOGLTest {
                                 bMin1,bMin1,bMin1,bMin1, bMin1,bMin1,bMin1,bMin1
                             }), queue.getDevice().getByteOrder());
                             gl.glTexImage2D (
-                                GL.GL_TEXTURE_2D,
+                                GL2.GL_TEXTURE_2D,
                                 0, // no mipmap
                                 4, // 4 colours
                                 width,
                                 height,
                                 border,
                                 GL.GL_RGBA,
-                                GL.GL_UNSIGNED_INT_8_8_8_8,
+                                GL2.GL_UNSIGNED_INT_8_8_8_8,
                                 texData
                             );
 						
@@ -142,7 +147,7 @@ public class JOGLTest {
                             queue.finish();
 
                             gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]); // Bind The Buffer
-                            ByteBuffer mb = gl.glMapBuffer(GL.GL_ARRAY_BUFFER, GL.GL_READ_ONLY);
+                            ByteBuffer mb = gl.glMapBuffer(GL.GL_ARRAY_BUFFER, GL2.GL_READ_ONLY);
                             if (mb != null) {
                                 buffer = mb.asFloatBuffer();
                                 float val = buffer.get(0);
@@ -183,7 +188,7 @@ public class JOGLTest {
             f.setVisible(true);
 
             FPSAnimator animator = new FPSAnimator(canvas, 60);
-            animator.setRunAsFastAsPossible(true);
+            //animator.setRunAsFastAsPossible(true);
             animator.start();
 
             System.out.println("Acquiring...");

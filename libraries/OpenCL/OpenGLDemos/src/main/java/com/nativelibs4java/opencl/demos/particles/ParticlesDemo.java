@@ -41,12 +41,17 @@ import com.ochafik.util.SystemUtils;
 import com.sun.jna.Platform;
 import java.io.IOException;
 import java.util.logging.*;
-import javax.media.opengl.*;
 
 import javax.swing.*;
 import java.nio.FloatBuffer;
 
-import com.sun.opengl.util.FPSAnimator;
+import javax.media.opengl.*;
+import static javax.media.opengl.GL.*;
+import javax.media.opengl.awt.*;
+
+import com.jogamp.opengl.util.*;
+import com.jogamp.common.nio.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -312,7 +317,7 @@ public class ParticlesDemo implements GLEventListener {
                 animator = new FPSAnimator(((GLJPanel)canvas), 30);
             }
 
-            animator.setRunAsFastAsPossible(true);
+            //animator.setRunAsFastAsPossible(true);
             animator.start();
         } catch (Exception ex) {
             exception(ex);
@@ -485,7 +490,7 @@ public class ParticlesDemo implements GLEventListener {
             gl.glClear(GL_COLOR_BUFFER_BIT);
             //gl.glViewport(0, 0, (int)width, (int)height);
             gl.glEnable(GL_BLEND);
-            gl.glEnable(GL_POINT_SMOOTH);
+            gl.glEnable(GL2.GL_POINT_SMOOTH);
 
             try {
                 if (useOpenGLContext) {
@@ -542,7 +547,7 @@ public class ParticlesDemo implements GLEventListener {
             gl.glGenBuffers(1, vbo, 0);
             gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
             gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-            gl.glBufferData(GL_ARRAY_BUFFER, (int) NIOUtils.getSizeInBytes(interleavedColorAndPositionsTemp), interleavedColorAndPositionsTemp, GL_DYNAMIC_COPY);
+            gl.glBufferData(GL_ARRAY_BUFFER, (int) NIOUtils.getSizeInBytes(interleavedColorAndPositionsTemp), interleavedColorAndPositionsTemp, GL2.GL_DYNAMIC_COPY);
             gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
 
             if (useOpenGLContext) {
@@ -603,7 +608,7 @@ public class ParticlesDemo implements GLEventListener {
         //gl.glEnableClientState(GL_COLOR_ARRAY);
 
         //gl.glColorPointer(4, GL_UNSIGNED_BYTE, elementSize,
-        gl.glInterleavedArrays(GL_C4UB_V2F, elementSize, 0);
+        gl.glInterleavedArrays(GL2.GL_C4UB_V2F, elementSize, 0);
         
         gl.glDrawArrays(GL_POINTS, 0, particlesCount);
         gl.glBindBuffer(GL_ARRAY_BUFFER, 0);
