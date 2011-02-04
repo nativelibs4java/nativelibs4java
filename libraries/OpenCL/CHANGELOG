@@ -1,5 +1,9 @@
 Current development version (1.0-SNAPSHOT)
 
+...
+
+Version 1.0-beta-6 (r, 20100204)
+
 - Fixed support of ATI Stream 2.3 (CPU)
 - New interactive image kernel demo : lets you edit and test image kernels in a snap (bundled with a few samples) 
 - Experimental BridJ port with same functionality as JNA-powered version, but smaller and faster (JAR weighs 750 kB instead of 1.8 MB, overhead per-function call about 10x smaller)
@@ -17,6 +21,7 @@ Current development version (1.0-SNAPSHOT)
 - Added CLContext.createProgram(Map<CLDevice, byte[]>) to create from saved binaries (contribution from Kazo Csaba, issue #30)
 - Added CLProgram.addBuildOption(String)
 - Fixed CLBuffer.copyTo
+- Demos now use the latest jogamp JOGL binaries (see the updated build instructions : http://code.google.com/p/javacl/wiki/Build)
 
 Version 1.0-beta-5 (r1067, 20100717)
 

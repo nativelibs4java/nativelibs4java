@@ -4,19 +4,12 @@
   <groupId>com.nativelibs4java</groupId>
   <artifactId>TestLibraries</artifactId>
   <packaging>jar</packaging>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.3</version>
   <name>TestLibraries</name>
   <url>http://maven.apache.org</url>
   <description>This project is here to test that all NativeLibs4Java projects are accessible from Maven.</description>
   <dependencies>
   
-    <dependency>
-	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>ScalaCL</artifactId>
-	  <version>1.0-SNAPSHOT</version>
-	  <scope>compile</scope>
-	</dependency>
-	
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>Mono4Java</artifactId>
