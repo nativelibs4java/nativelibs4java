@@ -1,6 +1,6 @@
 Current development version (1.0-SNAPSHOT)
 
-...
+- added simple Discreet Fourier Transform (DFT) in the util package (this is NOT an FFT) 
 
 Version 1.0-beta-6 (r, 20100204)
 
