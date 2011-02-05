@@ -90,7 +90,7 @@ public class LinearAlgebraUtils {
 	synchronized Reductor<DoubleBuffer> getAddReductor() {
 		if (addReductor == null) {
 			try {
-				addReductor = ReductionUtils.createReductor(getContext(), ReductionUtils.Operation.Add, ReductionUtils.Type.Double, 1);
+				addReductor = ReductionUtils.createReductor(getContext(), ReductionUtils.Operation.Add, OpenCLType.Double, 1);
 			} catch (CLBuildException ex) {
 				Logger.getLogger(LinearAlgebraUtils.class.getName()).log(Level.SEVERE, null, ex);
 				throw new RuntimeException("Failed to create an addition reductor !", ex);

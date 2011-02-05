@@ -6,14 +6,14 @@ import com.nativelibs4java.util.*;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
 
-public class DiscreetFourierTransform {
-    final DiscreetFourierTransformKernel dft;
+public class DiscreteFourierTransform {
+    final DiscreteFourierTransformKernel dft;
     final CLQueue queue;
     final CLContext context;
-	public DiscreetFourierTransform(CLQueue queue) throws IOException, CLBuildException {
+	public DiscreteFourierTransform(CLQueue queue) throws IOException, CLBuildException {
         this.queue = queue;
         this.context = queue.getContext();
-        dft = new DiscreetFourierTransformKernel(context);
+        dft = new DiscreteFourierTransformKernel(context);
 	}
     public double[] transform(double[] complexValues) throws CLBuildException {
         return dft(complexValues, true);

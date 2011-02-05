@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
  *
  * @author ochafik
  */
-public class DiscreetFourierTransformTest {
+public class DiscreteFourierTransformTest {
 
     static Collection<double[]> createTestDoubleInputs() {
         int n = 32;
@@ -36,7 +36,7 @@ public class DiscreetFourierTransformTest {
         CLContext context = JavaCL.createBestContext(DeviceFeature.DoubleSupport);
         CLQueue queue = context.createDefaultOutOfOrderQueueIfPossible();
 
-        DiscreetFourierTransform dft = new DiscreetFourierTransform(queue);
+        DiscreteFourierTransform dft = new DiscreteFourierTransform(queue);
         
         for (double[] in : createTestDoubleInputs()) {
 
