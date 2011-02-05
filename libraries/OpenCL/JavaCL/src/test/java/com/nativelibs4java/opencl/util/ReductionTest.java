@@ -45,12 +45,12 @@ public class ReductionTest {
             int maxReductionSize = 2;
             IntBuffer result = NIOUtils.directInts(1, context.getByteOrder());
             
-            Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Min, ReductionUtils.Type.Int, 1);
+            Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Min, OpenCLType.Int, 1);
             reductor.reduce(queue, input, input.getElementCount(), result, maxReductionSize);
             queue.finish();
             assertEquals(1, result.get(0));
 
-            reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Max, ReductionUtils.Type.Int, 1);
+            reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Max, OpenCLType.Int, 1);
             reductor.reduce(queue, input, input.getElementCount(), result, maxReductionSize);
             queue.finish();
             assertEquals(35535, result.get(0));
@@ -74,7 +74,7 @@ public class ReductionTest {
 			ReductionUtils.Reductor<FloatBuffer> reductor = ReductionUtils.createReductor(
 				context, 
 				ReductionUtils.Operation.Add, 
-				ReductionUtils.Type.Float, 
+				OpenCLType.Float,
 				1
 			);
 			FloatBuffer result = reductor.reduce(queue, clBufferInput, 4097, 64);
@@ -109,7 +109,7 @@ public class ReductionTest {
             
             IntBuffer out = NIOUtils.directInts(channels, context.getByteOrder());
             
-            Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, ReductionUtils.Type.Int, channels);
+            Reductor<IntBuffer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, OpenCLType.Int, channels);
 
             //CLEvent evt = 
         	reductor.reduce(queue, in, dataSize, out, maxReductionSize);

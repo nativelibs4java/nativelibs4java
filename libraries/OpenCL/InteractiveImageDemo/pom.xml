@@ -6,18 +6,18 @@
   <artifactId>javacl-interactive-image-demo</artifactId>
   <name>JavaCL Interactive Image Demo</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>1.0-beta-6</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   
 	<!--<properties>
 		<jnaerator.version>0.9.5</jnaerator.version>
-		<opencl4java.version>1.0-beta-6</opencl4java.version>
+		<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
 	</properties>-->
 	
 	<parent>
   	  <groupId>com.nativelibs4java</groupId>
   	  <artifactId>opencl4java-parent</artifactId>
-  	  <version>1.0-beta-6</version>
+  	  <version>1.0-SNAPSHOT</version>
   	  <relativePath>../Parent</relativePath>
     </parent>
 
