@@ -4,6 +4,7 @@
  */
 package com.nativelibs4java.opencl;
 
+import com.jogamp.opengl.util.FPSAnimator;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -28,8 +29,8 @@ import org.junit.Test;
 
 import com.nativelibs4java.opencl.CLMem.GLObjectInfo;
 import com.nativelibs4java.util.NIOUtils;
-import com.sun.opengl.util.BufferUtil;
-import com.sun.opengl.util.FPSAnimator;
+//import com.sun.opengl.util.BufferUtil;
+//import com.sun.opengl.util.FPSAnimator;
 
 import java.nio.ByteOrder;
 
@@ -81,10 +82,10 @@ public class JOGLTest {
                             int[] VBO = new int[1];
                             int[] Texture = new int[1];
                             GL gl = drawable.getGL();
-                            buffer = BufferUtil.newFloatBuffer(bufferSize);
+                            buffer = NIOUtils.directFloats(bufferSize, ByteOrder.nativeOrder());
                             gl.glGenBuffers(1, VBO, 0); // Get A Valid Name
                             gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]); // Bind The Buffer
-                            gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * BufferUtil.SIZEOF_FLOAT, buffer, GL2.GL_DYNAMIC_READ);
+                            gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * 4/*SIZEOF_FLOAT*/, buffer, GL2.GL_DYNAMIC_READ);
 
                             gl.glGenTextures(1, Texture, 0);
                             gl.glBindTexture(GL2.GL_TEXTURE_2D, Texture[0]);
@@ -187,7 +188,7 @@ public class JOGLTest {
             f.setVisible(true);
 
             FPSAnimator animator = new FPSAnimator(canvas, 60);
-            animator.setRunAsFastAsPossible(true);
+            //animator.setRunAsFastAsPossible(true);
             animator.start();
 
             System.out.println("Acquiring...");
