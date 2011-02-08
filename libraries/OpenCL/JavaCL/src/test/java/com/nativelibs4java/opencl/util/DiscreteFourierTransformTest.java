@@ -8,9 +8,8 @@ import com.nativelibs4java.opencl.util.fft.*;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-
+import java.util.*;
+import java.nio.*;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -30,21 +29,42 @@ public class DiscreteFourierTransformTest {
         }
         return Arrays.asList(in);
     }
+    static Collection<float[]> createTestFloatInputs() {
+    		Collection<float[]> ret = new ArrayList<float[]>();
+    		for (double[] in : createTestDoubleInputs()) {
+    			float[] ff = new float[in.length];
+    			for (int i = 0; i < in.length; i++)
+    				ff[i] = (float)in[i];
+    			ret.add(ff);
+    		}
+    		return ret;
+    }
+    
     @Test
-    public void testDoubleDFT() throws IOException, CLBuildException {
-        
-        
-        CLContext context = JavaCL.createBestContext(DeviceFeature.DoubleSupport);
-        CLQueue queue = context.createDefaultOutOfOrderQueueIfPossible();
+    public void testDoubleDFT() throws IOException, CLException {
+        testDoubleTransformer(new DoubleDFT(JavaCL.createBestContext(DeviceFeature.DoubleSupport)));
+    }
+    @Test
+    public void testFloatDFT() throws IOException, CLException {
+        testFloatTransformer(new FloatDFT(JavaCL.createBestContext()));
+    }
+    @Test
+    public void testDoubleFFT() throws IOException, CLException {
+        testDoubleTransformer(new DoubleFFTPow2(JavaCL.createBestContext(DeviceFeature.DoubleSupport)));
+    }
+    @Test
+    public void testFloatFFT() throws IOException, CLException {
+        testFloatTransformer(new FloatFFTPow2(JavaCL.createBestContext()));
+    }
+    void testDoubleTransformer(Transformer<DoubleBuffer, double[]> t) throws IOException, CLException {
+        CLQueue queue = t.getContext().createDefaultOutOfOrderQueueIfPossible();
 
-        DoubleDFT dft = new DoubleDFT(context);
-        
         for (double[] in : createTestDoubleInputs()) {
 
-            double[] out = dft.transform(queue, in, false);
+            double[] out = t.transform(queue, in, false);
             assertEquals(in.length, out.length);
             assertTrue(Math.abs(out[0] - in[0]) > 0.1);
-            double[] back = dft.transform(queue, out, true);
+            double[] back = t.transform(queue, out, true);
             assertEquals(back.length, out.length);
             
             double precision = 1e-5;
@@ -54,28 +74,22 @@ public class DiscreteFourierTransformTest {
         }
     }
     
-    
-    @Test
-    public void testDoubleFFT() throws IOException, CLBuildException {
-        
-        
-        CLContext context = JavaCL.createBestContext(DeviceFeature.DoubleSupport);
-        CLQueue queue = context.createDefaultOutOfOrderQueueIfPossible();
+    void testFloatTransformer(Transformer<FloatBuffer, float[]> t) throws IOException, CLException {
+        CLQueue queue = t.getContext().createDefaultOutOfOrderQueueIfPossible();
 
-        DoubleFFTPow2 dft = new DoubleFFTPow2(context);
-        
-        for (double[] in : createTestDoubleInputs()) {
+        for (float[] in : createTestFloatInputs()) {
 
-            double[] out = dft.transform(queue, in, false);
+            float[] out = t.transform(queue, in, false);
             assertEquals(in.length, out.length);
             assertTrue(Math.abs(out[0] - in[0]) > 0.1);
-            double[] back = dft.transform(queue, out, true);
+            float[] back = t.transform(queue, out, true);
             assertEquals(back.length, out.length);
             
-            double precision = 1e-5;
+            float precision = 1e-5f;
             for (int i = 0; i < in.length; i++) {
                 assertEquals(in[i], back[i], precision);
             }
         }
     }
+    
 }

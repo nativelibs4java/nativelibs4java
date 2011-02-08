@@ -24,6 +24,7 @@ import java.nio.FloatBuffer;
  * @param <A> primitive array class that represents the data consumed and produced by this transformer
  */
 public interface Transformer<B extends Buffer, A> {
+	CLContext getContext();
     A transform(CLQueue queue, A input, boolean inverse);
     B transform(CLQueue queue, B input, boolean inverse);
     CLEvent transform(CLQueue queue, CLBuffer<B> input, CLBuffer<B> output, boolean inverse, CLEvent... eventsToWaitFor) throws CLException;
@@ -36,6 +37,8 @@ public interface Transformer<B extends Buffer, A> {
             this.bufferClass = bufferClass;
             this.context = context;
         }
+        
+        public CLContext getContext() { return context; }
 
         public A transform(CLQueue queue, A input, boolean inverse) {
             return (A)NIOUtils.getArray(transform(queue, (B)NIOUtils.wrapArray(input), inverse));
