@@ -36,6 +36,7 @@ import com.ochafik.util.listenable.Pair;
 import com.ochafik.util.string.RegexUtils;
 import com.ochafik.util.string.StringUtils;
 import java.io.File;
+import java.nio.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -212,7 +213,8 @@ public class JavaCLGenerator extends JNAerator {
 
                         String functionName = function.getName().toString();
                         String kernelVarName = functionName + "_kernel";
-                        out.addDeclaration(new VariablesDeclaration(typeRef(CLKernel.class), new Declarator.DirectDeclarator(kernelVarName)));
+                        if (signatures.variablesSignatures.add(kernelVarName))
+                        		out.addDeclaration(new VariablesDeclaration(typeRef(CLKernel.class), new Declarator.DirectDeclarator(kernelVarName)));
                         Function method = new Function(Function.Type.JavaMethod, ident(functionName), typeRef(CLEvent.class));
                         method.addModifiers(Modifier.Public, Modifier.Synchronized);
                         method.addThrown(typeRef(CLBuildException.class));
@@ -255,7 +257,8 @@ public class JavaCLGenerator extends JNAerator {
                             ))
                         );
                         method.setBody(block(statements.toArray(new Statement[statements.size()])));
-                        out.addDeclaration(method);
+                        if (signatures.methodsSignatures.add(method.computeSignature(false)))
+                        		out.addDeclaration(method);
                     }
                 };
                 globalsGenerator = new GlobalsGenerator(this);
@@ -311,13 +314,13 @@ public class JavaCLGenerator extends JNAerator {
     static Map<String, Pair<Integer, Class<?>>> arraysAndArityByType = new HashMap<String, Pair<Integer, Class<?>>>();
     static {
         Object[] data = new Object[] {
-            "char", Byte.TYPE, byte[].class, CLByteBuffer.class,
-            "long", Long.TYPE, long[].class, CLLongBuffer.class,
-            "int", Integer.TYPE, int[].class, CLIntBuffer.class,
-            "short", Short.TYPE, short[].class, CLShortBuffer.class,
-            "wchar_t", Character.TYPE, char[].class, CLShortBuffer.class,
-            "double", Double.TYPE, double[].class, CLDoubleBuffer.class,
-            "float", Float.TYPE, float[].class, CLFloatBuffer.class,
+            "char", Byte.TYPE, byte[].class, ByteBuffer.class,
+            "long", Long.TYPE, long[].class, LongBuffer.class,
+            "int", Integer.TYPE, int[].class, IntBuffer.class,
+            "short", Short.TYPE, short[].class, ShortBuffer.class,
+            "wchar_t", Character.TYPE, char[].class, ShortBuffer.class,
+            "double", Double.TYPE, double[].class, DoubleBuffer.class,
+            "float", Float.TYPE, float[].class, FloatBuffer.class,
             "bool", Boolean.TYPE, boolean[].class, null
         };
         for (int arity : new int[] { 1, 2, 4, 8, 16 }) {
@@ -351,7 +354,7 @@ public class JavaCLGenerator extends JNAerator {
 
                 Pair<Integer, Class<?>> pair = buffersAndArityByType.get(starget.getName().toString());
                 if (pair != null) {
-                    ret.outerJavaTypeRef = typeRef(pair.getSecond());
+                    ret.outerJavaTypeRef = typeRef(ident(CLBuffer.class, expr(typeRef(pair.getSecond()))));
                     return ret;
                 }
             }
@@ -520,13 +523,13 @@ public class JavaCLGenerator extends JNAerator {
     public static void main(String[] args) {
         JNAerator.main(new JavaCLGenerator(new JNAeratorConfig()),
             new String[] {
-                "-o", "C:/Prog/nativelibs4java/trunk/libraries/OpenCL/Blas/target/generated-sources/main/java",
+                "-o", "target/generated-sources/main/java",
                 //"-o", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/generated-sources/main/java",
                 "-noJar",
                 "-noComp",
                 "-v",
-                "-addRootDir", "C:/Prog/nativelibs4java/trunk/libraries/OpenCL/Blas/src/main/opencl",
-                "C:/Prog/nativelibs4java/trunk/libraries/OpenCL/Blas/src/main/opencl/com/nativelibs4java/opencl/blas/LinearAlgebraKernels.c",
+                "-addRootDir", "src/main/opencl",
+                "src/main/opencl",
                 //"-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Blas/target/../src/main/opencl",
                 //"/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Blas/src/main/opencl/com/nativelibs4java/opencl/blas/LinearAlgebraKernels.c"
                 //"-addRootDir", "/Users/ochafik/Prog/Java/versionedSources/nativelibs4java/trunk/libraries/OpenCL/Demos/target/../src/main/opencl",
