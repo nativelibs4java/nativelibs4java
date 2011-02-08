@@ -9,6 +9,10 @@
   <version>1.0-beta-6</version>
   <packaging>jar</packaging>
   
+  <properties>
+  	<scala.version>2.8.1</scala.version>
+  </properties>
+  
   <repositories>
     <repository>
       <id>nativelibs4java</id>
@@ -22,7 +26,16 @@
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl</artifactId>
 	  <version>1.0-beta-6</version>
-	  <scope>compile</scope>
+	</dependency>
+	<dependency>
+	  <groupId>org.apache.commons</groupId>
+	  <artifactId>commons-math</artifactId>
+	  <version>2.1</version>
+	</dependency>
+	<dependency>
+		<groupId>org.scala-lang</groupId>
+		<artifactId>scala-library</artifactId>
+		<version>${scala.version}</version>
 	</dependency>
   </dependencies>
 
@@ -32,6 +45,9 @@
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>javacl-generator</artifactId>
 			<version>1.0-beta-6</version>
+			<!--configuration>
+				<javaOutputDirectory>${project.build.directory}/../src/main/java</javaOutputDirectory>
+			</configuration-->
 			<executions>
 			  <execution>
 				<phase>generate-sources</phase>
@@ -50,8 +66,57 @@
 				<target>1.6</target>
 			</configuration>
 		</plugin>
+		<plugin>
+			<groupId>org.scala-tools</groupId>
+			<artifactId>maven-scala-plugin</artifactId>
+			<executions>
+				<execution>
+					<goals>
+						<goal>compile</goal>
+						<goal>testCompile</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
+			<version>1.3.3</version>
+			<executions>
+			  <execution>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+				<configuration>
+					  <filters>
+						<filter>
+						  <artifact>*:*</artifact>
+						  <excludes>
+							<exclude>META-INF/*.SF</exclude>
+							<exclude>META-INF/*.DSA</exclude>
+							<exclude>META-INF/*.RSA</exclude>
+							<exclude>META-INF/maven/**</exclude>
+						  </excludes>
+						</filter>
+					</filters>
+				</configuration>
+			  </execution>
+			</executions>
+		</plugin>
 	</plugins>
   </build>
+  
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.scala-tools</groupId>
+        <artifactId>maven-scala-plugin</artifactId>
+			<version>${scala.version}</version>
+      </plugin>
+    </plugins>
+  </reporting>
+  
 </project>
 
 

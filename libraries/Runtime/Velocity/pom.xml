@@ -6,12 +6,12 @@
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nl4j-runtime-parent</artifactId>
-	  <version>0.3</version>
+	  <version>0.3-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
   <groupId>com.nativelibs4java</groupId>
   <artifactId>maven-velocity-plugin</artifactId>
-  <version>0.3</version>
+  <version>0.3-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
   <url>http://maven.apache.org</url>
   
