@@ -58,7 +58,8 @@ public class DiscreteFourierTransformTest {
     }
     void testDoubleTransformer(Transformer<DoubleBuffer, double[]> t) throws IOException, CLException {
         CLQueue queue = t.getContext().createDefaultOutOfOrderQueueIfPossible();
-
+        System.out.println("Context: " + t.getContext()); 
+        
         for (double[] in : createTestDoubleInputs()) {
 
             double[] out = t.transform(queue, in, false);
@@ -76,7 +77,7 @@ public class DiscreteFourierTransformTest {
     
     void testFloatTransformer(Transformer<FloatBuffer, float[]> t) throws IOException, CLException {
         CLQueue queue = t.getContext().createDefaultOutOfOrderQueueIfPossible();
-
+        System.out.println("Context: " + t.getContext()); 
         for (float[] in : createTestFloatInputs()) {
 
             float[] out = t.transform(queue, in, false);
