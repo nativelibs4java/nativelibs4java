@@ -1,20 +1,17 @@
 package com.nativelibs4java.opencl.util.fft;
 
 import com.nativelibs4java.opencl.*;
+import com.nativelibs4java.opencl.util.Transformer.DoubleTransformer;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
 
-public class DoubleDFT extends AbstractDFT<DoubleBuffer> {
+public class DoubleDFT extends AbstractDFT<DoubleBuffer, double[]> implements DoubleTransformer {
 
     final DoubleDFTProgram program;
 
     public DoubleDFT(CLQueue queue) throws IOException, CLBuildException {
         super(queue, DoubleBuffer.class);
         this.program = new DoubleDFTProgram(context);
-    }
-
-	public double[] dft(double[] complexValues, boolean inverse) throws CLBuildException {
-        return (double[])dftArray(complexValues, inverse);
     }
 
     @Override

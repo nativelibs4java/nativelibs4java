@@ -1,17 +1,18 @@
 package com.nativelibs4java.opencl.util.fft;
 
 import com.nativelibs4java.opencl.*;
-import com.nativelibs4java.util.NIOUtils;
+import com.nativelibs4java.opencl.util.Transformer.AbstractTransformer;
 import java.io.IOException;
 import java.nio.Buffer;
 
-public abstract class AbstractDFT<B extends Buffer> {
+public abstract class AbstractDFT<B extends Buffer, A> extends AbstractTransformer<B, A> {
 
     final CLQueue queue;
     final CLContext context;
     final Class<B> bufferClass;
 
-    public AbstractDFT(CLQueue queue, Class<B> bufferClass) throws IOException, CLBuildException {
+    // package-private constructor 
+    AbstractDFT(CLQueue queue, Class<B> bufferClass) throws IOException, CLBuildException {
         this.queue = queue;
         this.context = queue.getContext();
         this.bufferClass = bufferClass;
@@ -32,37 +33,21 @@ public abstract class AbstractDFT<B extends Buffer> {
         int length = (int)inBuf.getElementCount() / 2;
         return dft(inBuf, outBuf, length, inverse ? -1 : 1, new int[]{length}, eventsToWaitFor);
     }
-	protected Object dftArray(Object complexValues, boolean inverse) throws CLBuildException {
-        return NIOUtils.getArray(dft((B)NIOUtils.wrapArray(complexValues), inverse));
+    
+    @Override
+    public B transform(B complexValues) {
+        try {
+            return dft(complexValues, false);
+        } catch (CLBuildException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    @Override
+    public B inversetransform(B complexValues) {
+        try {
+            return dft(complexValues, true);
+        } catch (CLBuildException ex) {
+            throw new RuntimeException(ex);
+        }
     }
  }
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 

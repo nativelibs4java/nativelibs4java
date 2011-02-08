@@ -41,10 +41,10 @@ public class DiscreteFourierTransformTest {
         
         for (double[] in : createTestDoubleInputs()) {
 
-            double[] out = dft.dft(in, false);
+            double[] out = dft.transform(in);
             assertEquals(in.length, out.length);
             assertTrue(Math.abs(out[0] - in[0]) > 0.1);
-            double[] back = dft.dft(out, true);
+            double[] back = dft.inversetransform(out);
             assertEquals(back.length, out.length);
             
             double precision = 1e-5;
@@ -66,10 +66,10 @@ public class DiscreteFourierTransformTest {
         
         for (double[] in : createTestDoubleInputs()) {
 
-            double[] out = dft.fft(in, false);
+            double[] out = dft.transform(in);
             assertEquals(in.length, out.length);
             assertTrue(Math.abs(out[0] - in[0]) > 0.1);
-            double[] back = dft.fft(out, true);
+            double[] back = dft.inversetransform(out);
             assertEquals(back.length, out.length);
             
             double precision = 1e-5;

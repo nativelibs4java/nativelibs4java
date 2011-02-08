@@ -1,20 +1,23 @@
 package com.nativelibs4java.opencl.util.fft;
 
 import com.nativelibs4java.opencl.*;
+import com.nativelibs4java.opencl.util.Transformer.AbstractTransformer;
 import com.nativelibs4java.util.NIOUtils;
 import java.nio.Buffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 // TODO implement something like http://locklessinc.com/articles/non_power_of_2_fft/
-public abstract class AbstractFFTPow2<B extends Buffer> {
+public abstract class AbstractFFTPow2<B extends Buffer, A> extends AbstractTransformer<B, A> {
 
     protected final CLQueue queue;
     protected final CLContext context;
     protected final Class<B> bufferClass;
 
-    public AbstractFFTPow2(CLQueue queue, Class<B> bufferClass) {
+    AbstractFFTPow2(CLQueue queue, Class<B> bufferClass) {
         this.queue = queue;
         this.context = queue.getContext();
         this.bufferClass = bufferClass;
@@ -66,6 +69,23 @@ public abstract class AbstractFFTPow2<B extends Buffer> {
         CLEvent dftEvt = fft(inBuf, outBuf, inverse);
         return outBuf.read(queue, dftEvt);
     }
+    @Override
+    public B transform(B in) {
+        try {
+            return fft(in, false);
+        } catch (CLBuildException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    @Override
+    public B inversetransform(B in) {
+        try {
+            return fft(in, true);
+        } catch (CLBuildException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
 	
     public CLEvent fft(CLBuffer<B> inBuf, CLBuffer<B> outBuf, boolean inverse, CLEvent... eventsToWaitFor) throws CLBuildException {
         int length = (int)inBuf.getElementCount() / 2;
@@ -97,9 +117,6 @@ public abstract class AbstractFFTPow2<B extends Buffer> {
 			return cooleyTukeyFFT(Y, N, getTwiddleFactorsBuf(N), inverse, new int[] { halfN, blocks }, evts);
 		}
 	}
-    protected Object fftArray(Object complexValues, boolean inverse) throws CLBuildException {
-        return NIOUtils.getArray(fft((B)NIOUtils.wrapArray(complexValues), inverse));
-    }
 
  }
 

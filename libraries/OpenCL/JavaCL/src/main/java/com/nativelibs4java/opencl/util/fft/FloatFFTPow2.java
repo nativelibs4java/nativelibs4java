@@ -1,10 +1,11 @@
 package com.nativelibs4java.opencl.util.fft;
 
 import com.nativelibs4java.opencl.*;
+import com.nativelibs4java.opencl.util.Transformer.FloatTransformer;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
-public class FloatFFTPow2 extends AbstractFFTPow2<FloatBuffer> {
+public class FloatFFTPow2 extends AbstractFFTPow2<FloatBuffer, float[]> implements FloatTransformer {
 
     final FloatFFTProgram program;
 
@@ -21,9 +22,6 @@ public class FloatFFTPow2 extends AbstractFFTPow2<FloatBuffer> {
     }
     protected CLEvent cooleyTukeyFFT(CLBuffer<FloatBuffer> Y, int N, CLBuffer<FloatBuffer> twiddleFactors, int inverse, int[] dims, CLEvent... evts) throws CLBuildException {
         return program.cooleyTukeyFFT(queue, (CLFloatBuffer)Y, N, (CLFloatBuffer)twiddleFactors, inverse, dims, null, evts);
-    }
-	public float[] fft(float[] complexValues, boolean inverse) throws CLBuildException {
-        return (float[])fftArray(complexValues, inverse);
     }
  }
 
