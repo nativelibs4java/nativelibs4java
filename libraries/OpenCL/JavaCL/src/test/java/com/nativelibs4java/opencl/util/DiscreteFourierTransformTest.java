@@ -4,6 +4,7 @@
  */
 
 package com.nativelibs4java.opencl.util;
+import com.nativelibs4java.opencl.util.fft.DoubleDFT;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import java.io.IOException;
@@ -36,14 +37,14 @@ public class DiscreteFourierTransformTest {
         CLContext context = JavaCL.createBestContext(DeviceFeature.DoubleSupport);
         CLQueue queue = context.createDefaultOutOfOrderQueueIfPossible();
 
-        DiscreteFourierTransform dft = new DiscreteFourierTransform(queue);
+        DoubleDFT dft = new DoubleDFT(queue);
         
         for (double[] in : createTestDoubleInputs()) {
 
-            double[] out = dft.transform(in);
+            double[] out = dft.dft(in, false);
             assertEquals(in.length, out.length);
             assertTrue(Math.abs(out[0] - in[0]) > 0.1);
-            double[] back = dft.reverseTransform(out);
+            double[] back = dft.dft(out, true);
             assertEquals(back.length, out.length);
             
             double precision = 1e-5;

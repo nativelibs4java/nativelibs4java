@@ -1,6 +1,8 @@
 Current development version (1.0-SNAPSHOT)
 
-- added simple Discreet Fourier Transform (DFT) in the util package (this is NOT an FFT) 
+- added simple Fourier-analysis classes (package com.nativelibs4java.opencl.util.fft), with double and float variants, usable with primitive arrays or OpenCL buffers :
+	- naive Discrete Fourier Transform (DFT) 
+	- Fast Fourier Transform (FFT) for power-of-two arrays / buffers (performs better than Apache Commons on a CPU) 
 
 Version 1.0-beta-6 (r, 20100204)
 

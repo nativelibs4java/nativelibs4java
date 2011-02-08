@@ -231,4 +231,51 @@ public class NIOUtils
         else
             throw new UnsupportedOperationException();
     }
+
+    @SuppressWarnings("unchecked")
+	public static <B extends Buffer> Object getArray(B buffer) {
+        int length = buffer.capacity();
+        if (buffer instanceof IntBuffer) {
+            int[] a = new int[length];
+            ((IntBuffer)buffer).duplicate().get(a);
+            return a;
+        } else if (buffer instanceof LongBuffer) {
+            long[] a = new long[length];
+            ((LongBuffer)buffer).duplicate().get(a);
+            return a;
+        } else if (buffer instanceof ShortBuffer) {
+            short[] a = new short[length];
+            ((ShortBuffer)buffer).duplicate().get(a);
+            return a;
+        } else if (buffer instanceof ByteBuffer) {
+            byte[] a = new byte[length];
+            ((ByteBuffer)buffer).duplicate().get(a);
+            return a;
+        } else if (buffer instanceof DoubleBuffer) {
+            double[] a = new double[length];
+            ((DoubleBuffer)buffer).duplicate().get(a);
+            return a;
+        } else if (buffer instanceof FloatBuffer) {
+            float[] a = new float[length];
+            ((FloatBuffer)buffer).duplicate().get(a);
+            return a;
+        } else
+            throw new UnsupportedOperationException();
+    }
+    public static <B extends Buffer> B wrapArray(Object a) {
+        if (a instanceof int[])
+            return (B)IntBuffer.wrap((int[])a);
+		if (a instanceof long[])
+            return (B)LongBuffer.wrap((long[])a);
+		if (a instanceof short[])
+            return (B)ShortBuffer.wrap((short[])a);
+		if (a instanceof byte[])
+            return (B)ByteBuffer.wrap((byte[])a);
+		if (a instanceof float[])
+            return (B)FloatBuffer.wrap((float[])a);
+		if (a instanceof double[])
+            return (B)DoubleBuffer.wrap((double[])a);
+        throw new UnsupportedOperationException("Cannot wrap primitive arrays of type " + a.getClass().getName());
+	}
+
 }
