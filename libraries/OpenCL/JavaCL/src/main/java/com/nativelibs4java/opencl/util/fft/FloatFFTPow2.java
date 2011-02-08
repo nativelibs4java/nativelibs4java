@@ -20,7 +20,7 @@ public class FloatFFTPow2 extends AbstractFFTPow2<FloatBuffer, float[]> {
         return program.cooleyTukeyFFTTwiddleFactors(queue, N, buf, new int[] { N / 2 }, null, evts);
     }
     protected CLEvent cooleyTukeyFFTCopy(CLQueue queue, CLBuffer<FloatBuffer> inBuf, CLBuffer<FloatBuffer> outBuf, int length, CLIntBuffer offsetsBuf, boolean inverse, CLEvent... evts) throws CLException {
-        return program.cooleyTukeyFFTCopy(queue, inBuf, outBuf, length, offsetsBuf, inverse ? 1 : 1.0f / length, new int[] { length }, null, evts);
+        return program.cooleyTukeyFFTCopy(queue, inBuf, outBuf, length, offsetsBuf, inverse ? 1.0f / length : 1, new int[] { length }, null, evts);
     }
     protected CLEvent cooleyTukeyFFT(CLQueue queue, CLBuffer<FloatBuffer> Y, int N, CLBuffer<FloatBuffer> twiddleFactors, int inverse, int[] dims, CLEvent... evts) throws CLException {
         return program.cooleyTukeyFFT(queue, Y, N, twiddleFactors, inverse, dims, null, evts);

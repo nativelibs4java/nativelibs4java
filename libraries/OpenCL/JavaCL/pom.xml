@@ -31,6 +31,12 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <version>${opencl4java.version}</version>
 	  <scope>compile</scope>
 	</dependency>
+	<dependency>
+	  <groupId>org.apache.commons</groupId>
+	  <artifactId>commons-math</artifactId>
+	  <version>2.1</version>
+	  <scope>test</scope>
+	</dependency>
 	
   </dependencies>
 
