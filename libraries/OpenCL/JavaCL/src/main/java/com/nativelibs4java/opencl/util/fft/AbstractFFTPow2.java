@@ -13,14 +13,8 @@ import java.util.logging.Logger;
 // TODO implement something like http://locklessinc.com/articles/non_power_of_2_fft/
 public abstract class AbstractFFTPow2<B extends Buffer, A> extends AbstractTransformer<B, A> {
 
-    protected final CLQueue queue;
-    protected final CLContext context;
-    protected final Class<B> bufferClass;
-
-    AbstractFFTPow2(CLQueue queue, Class<B> bufferClass) {
-        this.queue = queue;
-        this.context = queue.getContext();
-        this.bufferClass = bufferClass;
+    AbstractFFTPow2(CLContext context, Class<B> bufferClass) {
+        super(context, bufferClass);
     }
 
     private Map<Integer, CLIntBuffer> cachedOffsetsBufs = new HashMap<Integer, CLIntBuffer>();
@@ -35,17 +29,17 @@ public abstract class AbstractFFTPow2<B extends Buffer, A> extends AbstractTrans
         }
         return offsetsBuf;
     }
-    protected abstract CLEvent cooleyTukeyFFTTwiddleFactors(int N, CLBuffer<B> buf, CLEvent... evts) throws CLBuildException ;
-    protected abstract CLEvent cooleyTukeyFFTCopy(CLBuffer<B> inBuf, CLBuffer<B> outBuf, int length, CLIntBuffer offsetsBuf, boolean inverse, CLEvent... evts) throws CLBuildException;
-    protected abstract CLEvent cooleyTukeyFFT(CLBuffer<B> Y, int N, CLBuffer<B> twiddleFactors, int inverse, int[] dims, CLEvent... evts) throws CLBuildException;
+    protected abstract CLEvent cooleyTukeyFFTTwiddleFactors(CLQueue queue, int N, CLBuffer<B> buf, CLEvent... evts) throws CLException ;
+    protected abstract CLEvent cooleyTukeyFFTCopy(CLQueue queue, CLBuffer<B> inBuf, CLBuffer<B> outBuf, int length, CLIntBuffer offsetsBuf, boolean inverse, CLEvent... evts) throws CLException;
+    protected abstract CLEvent cooleyTukeyFFT(CLQueue queue, CLBuffer<B> Y, int N, CLBuffer<B> twiddleFactors, int inverse, int[] dims, CLEvent... evts) throws CLException;
 
     Map<Integer, CLBuffer<B>> cachedTwiddleFactors = new HashMap<Integer, CLBuffer<B>>();
-    protected synchronized CLBuffer<B> getTwiddleFactorsBuf(int N) throws CLBuildException {
+    protected synchronized CLBuffer<B> getTwiddleFactorsBuf(CLQueue queue, int N) throws CLException {
         CLBuffer<B> buf = cachedTwiddleFactors.get(N);
         if (buf == null) {
             int halfN = N / 2;
             buf = context.createBuffer(CLMem.Usage.InputOutput, N, bufferClass);
-            CLEvent.waitFor(cooleyTukeyFFTTwiddleFactors(N, buf));
+            CLEvent.waitFor(cooleyTukeyFFTTwiddleFactors(queue, N, buf));
             cachedTwiddleFactors.put(N, buf);
         }
         return buf;
@@ -60,44 +54,19 @@ public abstract class AbstractFFTPow2<B extends Buffer, A> extends AbstractTrans
 			fft_compute_offsetsX(offsetsX, halfN, twiceS, offsetX + s, offsetY + halfN);
         }
     }
-    
-    public B fft(B in, boolean inverse) throws CLBuildException {
-        int length = in.capacity() / 2;
 
-        CLBuffer<B> inBuf = context.createBuffer(CLMem.Usage.Input, in, true); // true = copy
-        CLBuffer<B> outBuf = context.createBuffer(CLMem.Usage.InputOutput, length * 2, bufferClass);
-        CLEvent dftEvt = fft(inBuf, outBuf, inverse);
-        return outBuf.read(queue, dftEvt);
-    }
     @Override
-    public B transform(B in) {
-        try {
-            return fft(in, false);
-        } catch (CLBuildException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-    @Override
-    public B inversetransform(B in) {
-        try {
-            return fft(in, true);
-        } catch (CLBuildException ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-	
-    public CLEvent fft(CLBuffer<B> inBuf, CLBuffer<B> outBuf, boolean inverse, CLEvent... eventsToWaitFor) throws CLBuildException {
+    public CLEvent transform(CLQueue queue, CLBuffer<B> inBuf, CLBuffer<B> outBuf, boolean inverse, CLEvent... eventsToWaitFor) throws CLException {
         int length = (int)inBuf.getElementCount() / 2;
         if (Integer.bitCount(length) != 1)
             throw new UnsupportedOperationException("Only supports FFTs of power-of-two arrays (was given array of length " + length + ")");
         
         CLIntBuffer offsetsBuf = getOffsetsBuf(length);
-        CLEvent copyEvt = cooleyTukeyFFTCopy(inBuf, outBuf, length, offsetsBuf, inverse, eventsToWaitFor);
-        CLEvent dftEvt = fft(inBuf, length, 1, inverse ? 1 : 0, 1, outBuf, copyEvt);
+        CLEvent copyEvt = cooleyTukeyFFTCopy(queue, inBuf, outBuf, length, offsetsBuf, inverse, eventsToWaitFor);
+        CLEvent dftEvt = fft(queue, inBuf, length, 1, inverse ? 1 : 0, 1, outBuf, copyEvt);
         return dftEvt;
     }
-	private CLEvent fft(CLBuffer<B> X, int N, int s, int inverse, int blocks, CLBuffer<B> Y, CLEvent... eventsToWaitFor) throws CLBuildException {
+	private CLEvent fft(CLQueue queue, CLBuffer<B> X, int N, int s, int inverse, int blocks, CLBuffer<B> Y, CLEvent... eventsToWaitFor) throws CLException {
 		if (N == 1) {
             return null;
 		} else {
@@ -106,7 +75,7 @@ public abstract class AbstractFFTPow2<B extends Buffer, A> extends AbstractTrans
 
 			CLEvent[] evts;
             if (halfN > 1) {
-                evts = new CLEvent[] { fft(X, halfN, twiceS, inverse, blocks * 2, Y, eventsToWaitFor) };
+                evts = new CLEvent[] { fft(queue, X, halfN, twiceS, inverse, blocks * 2, Y, eventsToWaitFor) };
             } else {
                 evts = eventsToWaitFor;
             }
@@ -114,7 +83,7 @@ public abstract class AbstractFFTPow2<B extends Buffer, A> extends AbstractTrans
 			// The following call is type-safe, thanks to the JavaCL Maven generator :
 			// (if the OpenCL function signature changes, the generated Java definition will be updated and compilation will fail)
             //int n = totalN / N;
-			return cooleyTukeyFFT(Y, N, getTwiddleFactorsBuf(N), inverse, new int[] { halfN, blocks }, evts);
+			return cooleyTukeyFFT(queue, Y, N, getTwiddleFactorsBuf(queue, N), inverse, new int[] { halfN, blocks }, evts);
 		}
 	}
 

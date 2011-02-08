@@ -37,14 +37,14 @@ public class DiscreteFourierTransformTest {
         CLContext context = JavaCL.createBestContext(DeviceFeature.DoubleSupport);
         CLQueue queue = context.createDefaultOutOfOrderQueueIfPossible();
 
-        DoubleDFT dft = new DoubleDFT(queue);
+        DoubleDFT dft = new DoubleDFT(context);
         
         for (double[] in : createTestDoubleInputs()) {
 
-            double[] out = dft.transform(in);
+            double[] out = dft.transform(queue, in, false);
             assertEquals(in.length, out.length);
             assertTrue(Math.abs(out[0] - in[0]) > 0.1);
-            double[] back = dft.inversetransform(out);
+            double[] back = dft.transform(queue, out, true);
             assertEquals(back.length, out.length);
             
             double precision = 1e-5;
@@ -62,14 +62,14 @@ public class DiscreteFourierTransformTest {
         CLContext context = JavaCL.createBestContext(DeviceFeature.DoubleSupport);
         CLQueue queue = context.createDefaultOutOfOrderQueueIfPossible();
 
-        DoubleFFTPow2 dft = new DoubleFFTPow2(queue);
+        DoubleFFTPow2 dft = new DoubleFFTPow2(context);
         
         for (double[] in : createTestDoubleInputs()) {
 
-            double[] out = dft.transform(in);
+            double[] out = dft.transform(queue, in, false);
             assertEquals(in.length, out.length);
             assertTrue(Math.abs(out[0] - in[0]) > 0.1);
-            double[] back = dft.inversetransform(out);
+            double[] back = dft.transform(queue, out, true);
             assertEquals(back.length, out.length);
             
             double precision = 1e-5;

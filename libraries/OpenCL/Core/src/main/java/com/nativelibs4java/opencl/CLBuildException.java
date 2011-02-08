@@ -38,10 +38,10 @@ import java.util.Collection;
  * @author ochafik
  */
 @SuppressWarnings("serial")
-public class CLBuildException extends Exception {
+public class CLBuildException extends CLException {
 	final CLProgram program;
 	CLBuildException(CLProgram program, String string, Collection<String> errors) {
-		super(string + "\n" + StringUtils.implode(errors, "\n"));
+		super(string + "\n" + StringUtils.implode(errors, "\n"), -1);
 		this.program = program;
 	}
 	public CLProgram getProgram() {

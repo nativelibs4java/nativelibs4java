@@ -1,27 +1,26 @@
 package com.nativelibs4java.opencl.util.fft;
 
 import com.nativelibs4java.opencl.*;
-import com.nativelibs4java.opencl.util.Transformer.FloatTransformer;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
-public class FloatFFTPow2 extends AbstractFFTPow2<FloatBuffer, float[]> implements FloatTransformer {
+public class FloatFFTPow2 extends AbstractFFTPow2<FloatBuffer, float[]> {
 
     final FloatFFTProgram program;
 
-    public FloatFFTPow2(CLQueue queue) throws IOException, CLBuildException {
-        super(queue, FloatBuffer.class);
+    public FloatFFTPow2(CLContext context) throws IOException, CLException {
+        super(context, FloatBuffer.class);
         this.program = new FloatFFTProgram(context);
     }
 
-    protected CLEvent cooleyTukeyFFTTwiddleFactors(int N, CLBuffer<FloatBuffer> buf, CLEvent... evts) throws CLBuildException {
-        return program.cooleyTukeyFFTTwiddleFactors(queue, N, (CLFloatBuffer)buf, new int[] { N / 2 }, null, evts);
+    protected CLEvent cooleyTukeyFFTTwiddleFactors(CLQueue queue, int N, CLBuffer<FloatBuffer> buf, CLEvent... evts) throws CLException {
+        return program.cooleyTukeyFFTTwiddleFactors(queue, N, buf, new int[] { N / 2 }, null, evts);
     }
-    protected CLEvent cooleyTukeyFFTCopy(CLBuffer<FloatBuffer> inBuf, CLBuffer<FloatBuffer> outBuf, int length, CLIntBuffer offsetsBuf, boolean inverse, CLEvent... evts) throws CLBuildException {
-        return program.cooleyTukeyFFTCopy(queue, (CLFloatBuffer)inBuf, (CLFloatBuffer)outBuf, length, offsetsBuf, inverse ? 1 : 1.0f / length, new int[] { length }, null, evts);
+    protected CLEvent cooleyTukeyFFTCopy(CLQueue queue, CLBuffer<FloatBuffer> inBuf, CLBuffer<FloatBuffer> outBuf, int length, CLIntBuffer offsetsBuf, boolean inverse, CLEvent... evts) throws CLException {
+        return program.cooleyTukeyFFTCopy(queue, inBuf, outBuf, length, offsetsBuf, inverse ? 1 : 1.0f / length, new int[] { length }, null, evts);
     }
-    protected CLEvent cooleyTukeyFFT(CLBuffer<FloatBuffer> Y, int N, CLBuffer<FloatBuffer> twiddleFactors, int inverse, int[] dims, CLEvent... evts) throws CLBuildException {
-        return program.cooleyTukeyFFT(queue, (CLFloatBuffer)Y, N, (CLFloatBuffer)twiddleFactors, inverse, dims, null, evts);
+    protected CLEvent cooleyTukeyFFT(CLQueue queue, CLBuffer<FloatBuffer> Y, int N, CLBuffer<FloatBuffer> twiddleFactors, int inverse, int[] dims, CLEvent... evts) throws CLException {
+        return program.cooleyTukeyFFT(queue, Y, N, twiddleFactors, inverse, dims, null, evts);
     }
  }
 
