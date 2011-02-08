@@ -50,7 +50,11 @@ public interface Transformer<B extends Buffer, A> {
             CLBuffer<B> outBuf = context.createBuffer(CLMem.Usage.Output, length * 2, bufferClass);
 
             CLEvent dftEvt = transform(queue, inBuf, outBuf, inverse);
-            return outBuf.read(queue, dftEvt);
+            inBuf.release();
+            
+            B out = outBuf.read(queue, dftEvt);
+            outBuf.release();
+            return out;
         }
 
     }

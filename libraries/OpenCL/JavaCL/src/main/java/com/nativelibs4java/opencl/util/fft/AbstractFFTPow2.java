@@ -59,7 +59,7 @@ public abstract class AbstractFFTPow2<B extends Buffer, A> extends AbstractTrans
     public CLEvent transform(CLQueue queue, CLBuffer<B> inBuf, CLBuffer<B> outBuf, boolean inverse, CLEvent... eventsToWaitFor) throws CLException {
         int length = (int)inBuf.getElementCount() / 2;
         if (Integer.bitCount(length) != 1)
-            throw new UnsupportedOperationException("Only supports FFTs of power-of-two arrays (was given array of length " + length + ")");
+            throw new UnsupportedOperationException("Only supports FFTs of power-of-two-sized arrays (was given array of length " + length + ")");
         
         CLIntBuffer offsetsBuf = getOffsetsBuf(length);
         CLEvent copyEvt = cooleyTukeyFFTCopy(queue, inBuf, outBuf, length, offsetsBuf, inverse, eventsToWaitFor);
@@ -80,9 +80,6 @@ public abstract class AbstractFFTPow2<B extends Buffer, A> extends AbstractTrans
                 evts = eventsToWaitFor;
             }
 
-			// The following call is type-safe, thanks to the JavaCL Maven generator :
-			// (if the OpenCL function signature changes, the generated Java definition will be updated and compilation will fail)
-            //int n = totalN / N;
 			return cooleyTukeyFFT(queue, Y, N, getTwiddleFactorsBuf(queue, N), inverse, new int[] { halfN, blocks }, evts);
 		}
 	}

@@ -1,6 +1,7 @@
 package com.nativelibs4java.opencl.util.fft;
 
 import com.nativelibs4java.opencl.*;
+import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
 
@@ -11,6 +12,9 @@ public class DoubleFFTPow2 extends AbstractFFTPow2<DoubleBuffer, double[]> {
     public DoubleFFTPow2(CLContext context) throws IOException, CLException {
         super(context, DoubleBuffer.class);
         this.program = new DoubleFFTProgram(context);
+    }
+    public DoubleFFTPow2() throws IOException {
+        this(JavaCL.createBestContext(DeviceFeature.DoubleSupport));
     }
 
     protected CLEvent cooleyTukeyFFTTwiddleFactors(CLQueue queue, int N, CLBuffer<DoubleBuffer> buf, CLEvent... evts) throws CLException {

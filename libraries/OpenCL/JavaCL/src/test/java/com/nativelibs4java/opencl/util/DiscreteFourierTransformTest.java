@@ -42,19 +42,19 @@ public class DiscreteFourierTransformTest {
     
     @Test
     public void testDoubleDFT() throws IOException, CLException {
-        testDoubleTransformer(new DoubleDFT(JavaCL.createBestContext(DeviceFeature.DoubleSupport)));
+        testDoubleTransformer(new DoubleDFT());
     }
     @Test
     public void testFloatDFT() throws IOException, CLException {
-        testFloatTransformer(new FloatDFT(JavaCL.createBestContext()));
+        testFloatTransformer(new FloatDFT());
     }
     @Test
     public void testDoubleFFT() throws IOException, CLException {
-        testDoubleTransformer(new DoubleFFTPow2(JavaCL.createBestContext(DeviceFeature.DoubleSupport)));
+        testDoubleTransformer(new DoubleFFTPow2());
     }
     @Test
     public void testFloatFFT() throws IOException, CLException {
-        testFloatTransformer(new FloatFFTPow2(JavaCL.createBestContext()));
+        testFloatTransformer(new FloatFFTPow2());
     }
     void testDoubleTransformer(Transformer<DoubleBuffer, double[]> t) throws IOException, CLException {
         CLQueue queue = t.getContext().createDefaultOutOfOrderQueueIfPossible();

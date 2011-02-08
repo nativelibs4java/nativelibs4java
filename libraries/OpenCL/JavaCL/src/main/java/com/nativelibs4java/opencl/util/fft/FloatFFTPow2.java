@@ -8,9 +8,12 @@ public class FloatFFTPow2 extends AbstractFFTPow2<FloatBuffer, float[]> {
 
     final FloatFFTProgram program;
 
-    public FloatFFTPow2(CLContext context) throws IOException, CLException {
+    public FloatFFTPow2(CLContext context) throws IOException {
         super(context, FloatBuffer.class);
         this.program = new FloatFFTProgram(context);
+    }
+    public FloatFFTPow2() throws IOException {
+        this(JavaCL.createBestContext());
     }
 
     protected CLEvent cooleyTukeyFFTTwiddleFactors(CLQueue queue, int N, CLBuffer<FloatBuffer> buf, CLEvent... evts) throws CLException {
