@@ -31,7 +31,7 @@ public class ReductionTest {
     public void init() {
         //context = createBestContext(CLPlatform.DeviceEvaluationStrategy.BestDoubleSupportThenBiggestMaxComputeUnits);//
         context = createBestContext();
-        System.out.println("Context = " + Arrays.asList(context.getDevices()));
+        //System.out.println("Context = " + Arrays.asList(context.getDevices()));
         queue = context.createDefaultQueue();
     }
     

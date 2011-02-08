@@ -28,6 +28,7 @@ public interface Transformer<B extends Buffer, A> {
     A transform(CLQueue queue, A input, boolean inverse);
     B transform(CLQueue queue, B input, boolean inverse);
     CLEvent transform(CLQueue queue, CLBuffer<B> input, CLBuffer<B> output, boolean inverse, CLEvent... eventsToWaitFor) throws CLException;
+    int computeOutputSize(int inputSize);
     
     public abstract class AbstractTransformer<B extends Buffer, A> implements Transformer<B, A> {
         protected final Class<B> bufferClass;
@@ -40,14 +41,19 @@ public interface Transformer<B extends Buffer, A> {
         
         public CLContext getContext() { return context; }
 
+        public int computeOutputSize(int inputSize) {
+            return inputSize;
+        }
+
         public A transform(CLQueue queue, A input, boolean inverse) {
             return (A)NIOUtils.getArray(transform(queue, (B)NIOUtils.wrapArray(input), inverse));
         }
         public B transform(CLQueue queue, B in, boolean inverse) {
-            int length = in.capacity() / 2;
+            int inputSize = in.capacity();
+            int length = inputSize / 2;
 
             CLBuffer<B> inBuf = context.createBuffer(CLMem.Usage.Input, in, true); // true = copy
-            CLBuffer<B> outBuf = context.createBuffer(CLMem.Usage.Output, length * 2, bufferClass);
+            CLBuffer<B> outBuf = context.createBuffer(CLMem.Usage.Output, computeOutputSize(inputSize), bufferClass);
 
             CLEvent dftEvt = transform(queue, inBuf, outBuf, inverse);
             inBuf.release();
