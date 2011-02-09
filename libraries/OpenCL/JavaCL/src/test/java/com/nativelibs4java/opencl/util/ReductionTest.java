@@ -31,7 +31,7 @@ public class ReductionTest {
     public void init() {
         //context = createBestContext(CLPlatform.DeviceEvaluationStrategy.BestDoubleSupportThenBiggestMaxComputeUnits);//
         context = createBestContext();
-        System.out.println("Context = " + Arrays.asList(context.getDevices()));
+        //System.out.println("Context = " + Arrays.asList(context.getDevices()));
         queue = context.createDefaultQueue();
     }
     
@@ -45,12 +45,12 @@ public class ReductionTest {
             int maxReductionSize = 2;
             Pointer<Integer> result = allocateInt().order(context.getByteOrder());
             
-            Reductor<Integer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Min, ReductionUtils.Type.Int, 1);
+            Reductor<Integer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Min, OpenCLType.Int, 1);
             reductor.reduce(queue, input, input.getElementCount(), result, maxReductionSize);
             queue.finish();
             assertEquals(1, (int)result.get());
 
-            reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Max, ReductionUtils.Type.Int, 1);
+            reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Max, OpenCLType.Int, 1);
             reductor.reduce(queue, input, input.getElementCount(), result, maxReductionSize);
             queue.finish();
             assertEquals(35535, (int)result.get());
@@ -74,7 +74,7 @@ public class ReductionTest {
 			ReductionUtils.Reductor<Float> reductor = ReductionUtils.createReductor(
 				context, 
 				ReductionUtils.Operation.Add, 
-				ReductionUtils.Type.Float, 
+				OpenCLType.Float,
 				1
 			);
 			Pointer<Float> result = reductor.reduce(queue, clBufferInput, 4097, 64);
@@ -109,7 +109,7 @@ public class ReductionTest {
             
             Pointer<Integer> out = allocateInts(channels).order(context.getByteOrder());
             
-            Reductor<Integer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, ReductionUtils.Type.Int, channels);
+            Reductor<Integer> reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, OpenCLType.Int, channels);
 
             //CLEvent evt = 
         	reductor.reduce(queue, in, dataSize, out, maxReductionSize);

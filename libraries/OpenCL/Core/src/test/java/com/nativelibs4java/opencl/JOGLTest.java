@@ -15,13 +15,6 @@ import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.media.opengl.GL;
-import javax.media.opengl.GL2;
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLCapabilities;
-import javax.media.opengl.GLEventListener;
-import javax.media.opengl.GLProfile;
-import javax.media.opengl.awt.GLCanvas;
 import javax.swing.JFrame;
 
 import org.junit.BeforeClass;
@@ -29,8 +22,13 @@ import org.junit.Test;
 
 import com.nativelibs4java.opencl.CLMem.GLObjectInfo;
 import com.nativelibs4java.util.NIOUtils;
-//import com.sun.opengl.util.BufferUtil;
-//import com.sun.opengl.util.FPSAnimator;
+
+import javax.media.opengl.*;
+import static javax.media.opengl.GL.*;
+import javax.media.opengl.awt.*;
+
+import com.jogamp.opengl.util.*;
+import com.jogamp.common.nio.*;
 
 import java.nio.ByteOrder;
 
@@ -44,7 +42,7 @@ public class JOGLTest {
     
     public GLCanvas createGLCanvas(int width, int height) {
         //GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        GLCanvas glCanvas = new GLCanvas(new GLCapabilities(GLProfile.get(GLProfile.GL2)));
+        GLCanvas glCanvas = new GLCanvas();//new GLCapabilities(GLProfile.get(GLProfile.GL)));
         glCanvas.setSize( width, height );
         glCanvas.setIgnoreRepaint( true );
 
@@ -85,7 +83,7 @@ public class JOGLTest {
                             buffer = NIOUtils.directFloats(bufferSize, ByteOrder.nativeOrder());
                             gl.glGenBuffers(1, VBO, 0); // Get A Valid Name
                             gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]); // Bind The Buffer
-                            gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * 4/*SIZEOF_FLOAT*/, buffer, GL2.GL_DYNAMIC_READ);
+                            gl.glBufferData(GL.GL_ARRAY_BUFFER, bufferSize * 4 /*SIZEOF_FLOAT*/, buffer, GL2.GL_DYNAMIC_READ);
 
                             gl.glGenTextures(1, Texture, 0);
                             gl.glBindTexture(GL2.GL_TEXTURE_2D, Texture[0]);
@@ -102,7 +100,7 @@ public class JOGLTest {
                                 width,
                                 height,
                                 border,
-                                GL2.GL_RGBA,
+                                GL.GL_RGBA,
                                 GL2.GL_UNSIGNED_INT_8_8_8_8,
                                 texData
                             );

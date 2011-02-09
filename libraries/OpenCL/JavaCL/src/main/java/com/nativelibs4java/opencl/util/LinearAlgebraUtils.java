@@ -93,7 +93,7 @@ public class LinearAlgebraUtils {
 	synchronized Reductor<Double> getAddReductorDouble() {
 		if (addReductorDouble == null) {
 			try {
-				addReductorDouble = ReductionUtils.createReductor(getContext(), ReductionUtils.Operation.Add, ReductionUtils.Type.Double, 1);
+				addReductorDouble = ReductionUtils.createReductor(getContext(), ReductionUtils.Operation.Add, OpenCLType.Double, 1);
 			} catch (CLBuildException ex) {
 				Logger.getLogger(LinearAlgebraUtils.class.getName()).log(Level.SEVERE, null, ex);
 				throw new RuntimeException("Failed to create an addition reductor !", ex);
@@ -115,7 +115,7 @@ public class LinearAlgebraUtils {
 	synchronized Reductor<Float> getAddReductorFloat() {
 		if (addReductorFloat == null) {
 			try {
-				addReductorFloat = ReductionUtils.createReductor(getContext(), ReductionUtils.Operation.Add, ReductionUtils.Type.Float, 1);
+				addReductorFloat = ReductionUtils.createReductor(getContext(), ReductionUtils.Operation.Add, OpenCLType.Float, 1);
 			} catch (CLBuildException ex) {
 				Logger.getLogger(LinearAlgebraUtils.class.getName()).log(Level.SEVERE, null, ex);
 				throw new RuntimeException("Failed to create an addition reductor !", ex);

@@ -24,6 +24,7 @@ import com.nativelibs4java.opencl.CLMem.MapFlags;
 import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.util.Fun1;
 import com.nativelibs4java.opencl.util.Fun2;
+import com.nativelibs4java.opencl.util.OpenCLType;
 import com.nativelibs4java.opencl.util.Primitive;
 import com.nativelibs4java.opencl.util.ReductionUtils;
 import com.nativelibs4java.opencl.util.ReductionUtils.Reductor;
@@ -356,7 +357,7 @@ public class CLDenseMatrix2DImpl<V> {
     public CLDenseMatrix2DImpl<V> min() throws CLBuildException {
         synchronized (this) {
             if (minReductor == null)
-                minReductor = ReductionUtils.createReductor(clUJMP.getContext(), ReductionUtils.Operation.Min, ReductionUtils.Type.Double, 1);
+                minReductor = ReductionUtils.createReductor(clUJMP.getContext(), ReductionUtils.Operation.Min, OpenCLType.Double, 1);
         }
         Pointer<V> reduce = minReductor.reduce(clUJMP.getQueue(), buffer, length, MAX_REDUCTION_SIZE, eventsBeforeReading());
         return new CLDenseMatrix2DImpl<V>(primitive, clUJMP.getContext().createBuffer(Usage.InputOutput, reduce, true), 1, 1, clUJMP);
@@ -365,7 +366,7 @@ public class CLDenseMatrix2DImpl<V> {
     public CLDenseMatrix2DImpl<V> max() throws CLBuildException {
         synchronized (this) {
             if (maxReductor == null)
-                maxReductor = ReductionUtils.createReductor(clUJMP.getContext(), ReductionUtils.Operation.Max, ReductionUtils.Type.Double, 1);
+                maxReductor = ReductionUtils.createReductor(clUJMP.getContext(), ReductionUtils.Operation.Max, OpenCLType.Double, 1);
         }
         Pointer<V> reduce = maxReductor.reduce(clUJMP.getQueue(), buffer, length, MAX_REDUCTION_SIZE, eventsBeforeReading());
         return new CLDenseMatrix2DImpl<V>(primitive, clUJMP.getContext().createBuffer(Usage.InputOutput, reduce, true), 1, 1, clUJMP);

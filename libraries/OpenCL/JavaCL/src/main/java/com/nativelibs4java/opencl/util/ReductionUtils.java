@@ -41,41 +41,8 @@ public class ReductionUtils {
         Min,
         Max;
     }
-    public enum Type {
-        Int(Integer.class), Char(Character.class), Long(Long.class), Short(Short.class), Byte(Byte.class), Double(Double.class), Float(Float.class), Half(null);
-        
-        Type(Class<?> type) {
-        		this.type = type;
-        }
-        public final Class<?> type;
-        public String toCType() {
-            if (this == Byte)
-                return "char";
-            if (this == Char)
-                return "short";
-            return name().toLowerCase();
-        }
-        public static Type fromClass(Class<? extends Number> valueType) {
-            if (valueType == Integer.TYPE || valueType == Integer.class)
-                return Int;
-            if (valueType == java.lang.Long.TYPE || valueType == Long.class)
-                return Long;
-            if (valueType == java.lang.Short.TYPE || valueType == Short.class)
-                return Short;
-            if (valueType == java.lang.Double.TYPE || valueType == Double.class)
-                return Double;
-            if (valueType == java.lang.Float.TYPE || valueType == Float.class)
-                return Float;
-            if (valueType == java.lang.Byte.TYPE || valueType == Byte.class)
-                return Byte;
-            
-            if (!valueType.isPrimitive())
-                throw new IllegalArgumentException("Reduction value type is not a primitive: '" + valueType.getName() + "' !");
-
-            throw new IllegalArgumentException("Primitive type not handled: '" + valueType.getName() + "' !");
-        }
-    }
-    public static Pair<String, Map<String, Object>> getReductionCodeAndMacros(Operation op, Type valueType, int channels) throws IOException {
+    
+    public static Pair<String, Map<String, Object>> getReductionCodeAndMacros(Operation op, OpenCLType valueType, int channels) throws IOException {
         Map<String, Object> macros = new LinkedHashMap<String, Object>();
         String cType = valueType.toCType() + (channels == 1 ? "" : channels);
         macros.put("OPERAND_TYPE", cType);
@@ -167,7 +134,7 @@ public class ReductionUtils {
         }
     }
 
-    public static <B> Reductor<B> createReductor(final CLContext context, Operation op, final Type valueType, final int valueChannels) throws CLBuildException {
+    public static <B> Reductor<B> createReductor(final CLContext context, Operation op, final OpenCLType valueType, final int valueChannels) throws CLBuildException {
         try {
 
 

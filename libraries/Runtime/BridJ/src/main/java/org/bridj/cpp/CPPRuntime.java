@@ -272,6 +272,8 @@ public class CPPRuntime extends CRuntime {
                         throw new RuntimeException("Cannot find the default constructor for type " + typeClass.getName());
                 }
                 installVTablePtr(type, lib, peer);
+		if (defaultConstructor == null || defaultConstructor.longValue() == 0L)
+			throw new RuntimeException("Constructor not found !");
                 JNI.callSinglePointerArgVoidFunction(defaultConstructor, peer.getPeer(), getDefaultDyncallCppConvention());// TODO use right call convention
                 //TestCPP.print(typeClass.getSimpleName(), peer.getPeer(), 10, 5);
                 //TestCPP.print(typeClass.getSimpleName() + "'s vtable", peer.getSizeT(0), 10, 5);

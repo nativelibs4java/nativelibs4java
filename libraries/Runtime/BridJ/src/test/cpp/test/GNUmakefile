@@ -40,6 +40,8 @@ endif
 ifdef BUILD_OS_linux
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux
+CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/
+CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/linux
 #LDFLAGS		+= -ljni
 endif
 

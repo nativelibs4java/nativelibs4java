@@ -24,7 +24,7 @@ import org.bridj.ValuedEnum;
 public class Test {
 
     public static void main(String[] args) throws FileNotFoundException {
-        String file = "/Users/ochafik/Movies/Existenz.avi";
+        String file = "/Users/ochafik/Movies/Films/Existenz.avi";
 
         BridJ.getNativeLibrary("avcodec", new File("/usr/local/lib/libavcodec.dylib"));
         BridJ.getNativeLibrary("avdevice", new File("/usr/local/lib/libavdevice.dylib"));

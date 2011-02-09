@@ -120,7 +120,7 @@ public class SobelFilterDemo {
         context = JavaCL.createBestContext();
         queue = context.createDefaultQueue();
         sobel = new SimpleSobel(context);
-        floatMinReductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Max, ReductionUtils.Type.Float, 1);
+        floatMinReductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Max, OpenCLType.Float, 1);
 
     }
 

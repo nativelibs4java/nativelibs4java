@@ -1,6 +1,8 @@
 import sbt._
+import reaktor.scct.ScctProject
 
 class ScalaCLPluginProject(info: ProjectInfo) extends DefaultProject(info)
+with ScctProject
 { 
   //override def name = "scalacl-compiler-plugin"
   

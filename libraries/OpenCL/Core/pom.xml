@@ -32,23 +32,12 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <scope>compile</scope>
 	</dependency>
 	
-	<!-- http://jogamp.762907.n3.nabble.com/What-about-Maven-td844816.html
-	<dependency>
-			<groupId>jogamp</groupId>
-			<artifactId>gluegen-rt</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>jogamp</groupId>
-			<artifactId>nativewindow.all</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>jogamp</groupId>
-			<artifactId>jogl.all</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-	 -->
+	<!--dependency>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>nativelibs4java-utils</artifactId>
+	  <version>${nativelibs4java.version}</version>
+	  <scope>compile</scope>
+	</dependency-->
 	
   </dependencies>
   

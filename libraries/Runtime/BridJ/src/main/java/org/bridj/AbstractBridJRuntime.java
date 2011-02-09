@@ -25,7 +25,10 @@ public abstract class AbstractBridJRuntime implements BridJRuntime {
 	protected boolean log(Level level, String message) {
 		return log(level, message, null);
 	}
-	
+	@Override
+	public void unregister(Type type) {
+		// TODO !!!
+	}
     protected Method getConstructor(Class<?> type, int constructorId, Object[] args) throws SecurityException, NoSuchMethodException {
 		for (Method c : type.getDeclaredMethods()) {
 			org.bridj.ann.Constructor ca = c.getAnnotation(org.bridj.ann.Constructor.class);

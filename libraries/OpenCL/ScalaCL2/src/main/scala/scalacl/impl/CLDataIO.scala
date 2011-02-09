@@ -44,7 +44,7 @@ trait CLDataIO[T] {
       kernel.enqueueNDRange(context.queue, Array(size), evts:_*)
     }
   }
-  def reductionType: (ReductionUtils.Type, Int) = error("Not a reductible type : " + this)
+  def reductionType: (OpenCLType, Int) = error("Not a reductible type : " + this)
   
   def createBuffers(length: Int)(implicit context: Context): Array[CLGuardedBuffer[Any]]
 
@@ -352,7 +352,7 @@ abstract class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T
 }
 
 object CLIntDataIO extends CLValDataIO[Int] {
-  override def reductionType = (ReductionUtils.Type.Int, 1)
+  override def reductionType = (OpenCLType.Int, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Int =
     pointers(offset).getIntAtOffset(index * 4)
@@ -365,7 +365,7 @@ object CLIntDataIO extends CLValDataIO[Int] {
 }
 
 object CLShortDataIO extends CLValDataIO[Short] {
-  override def reductionType = (ReductionUtils.Type.Short, 1)
+  override def reductionType = (OpenCLType.Short, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Short =
     pointers(offset).getShortAtOffset(index * 2)
@@ -378,7 +378,7 @@ object CLShortDataIO extends CLValDataIO[Short] {
 }
 
 object CLByteDataIO extends CLValDataIO[Byte] {
-  override def reductionType = (ReductionUtils.Type.Byte, 1)
+  override def reductionType = (OpenCLType.Byte, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Byte =
     pointers(offset).getByteAtOffset(index * 1)
@@ -391,7 +391,7 @@ object CLByteDataIO extends CLValDataIO[Byte] {
 }
 
 object CLBooleanDataIO extends CLValDataIO[Boolean] {
-  override def reductionType = (ReductionUtils.Type.Byte, 1)
+  override def reductionType = (OpenCLType.Byte, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Boolean =
     pointers(offset).getByteAtOffset(index * 1) != 0
@@ -404,7 +404,7 @@ object CLBooleanDataIO extends CLValDataIO[Boolean] {
 }
 
 object CLCharDataIO extends CLValDataIO[Char] {
-  override def reductionType = (ReductionUtils.Type.Char, 1)
+  override def reductionType = (OpenCLType.Char, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Char =
     pointers(offset).getCharAtOffset(index * 2)
@@ -417,7 +417,7 @@ object CLCharDataIO extends CLValDataIO[Char] {
 }
 
 object CLLongDataIO extends CLValDataIO[Long] {
-  override def reductionType = (ReductionUtils.Type.Long, 1)
+  override def reductionType = (OpenCLType.Long, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Long =
     pointers(offset).getLongAtOffset(index * 8)
@@ -430,7 +430,7 @@ object CLLongDataIO extends CLValDataIO[Long] {
 }
 
 object CLFloatDataIO extends CLValDataIO[Float] {
-  override def reductionType = (ReductionUtils.Type.Float, 1)
+  override def reductionType = (OpenCLType.Float, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Float =
     pointers(offset).getFloatAtOffset(index * 4)
@@ -443,7 +443,7 @@ object CLFloatDataIO extends CLValDataIO[Float] {
 }
 
 object CLDoubleDataIO extends CLValDataIO[Double] {
-  override def reductionType = (ReductionUtils.Type.Double, 1)
+  override def reductionType = (OpenCLType.Double, 1)
   
   override def extract(pointers: Array[Pointer[Any]], offset: Int, index: Int): Double =
     pointers(offset).getDoubleAtOffset(index * 8)

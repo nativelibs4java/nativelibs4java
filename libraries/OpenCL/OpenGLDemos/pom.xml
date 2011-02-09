@@ -24,30 +24,6 @@
 	  <version>${opencl4java.version}</version>
 	  <scope>compile</scope>
 	</dependency>
-	
-	<dependency>
-		<groupId>net.java.jogl.nl4j</groupId>
-		<artifactId>jogl</artifactId>
-		<version>2.x-SNAPSHOT</version>
-	    <scope>provided</scope>
-	</dependency>
-
-	<!-- <dependency>
-			<groupId>jogamp</groupId>
-			<artifactId>gluegen-rt</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>jogamp</groupId>
-			<artifactId>nativewindow.all</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-		<dependency>
-			<groupId>jogamp</groupId>
-			<artifactId>jogl.all</artifactId>
-			<version>0.0.1</version>
-		</dependency>
-	-->
 
     <dependency>
       <groupId>org.swinglabs</groupId>

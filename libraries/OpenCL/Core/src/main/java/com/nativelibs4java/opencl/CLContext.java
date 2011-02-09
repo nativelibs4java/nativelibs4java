@@ -167,6 +167,20 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		return new CLDevice(platform, deviceIds.get(0)).createOutOfOrderQueue(this);
 	}
 
+	
+    public String toString() {
+        StringBuilder b = new StringBuilder("CLContext(platform = ").append(getPlatform().getName()).append("; devices = ");
+        boolean first = true;
+        for (CLDevice d : getDevices()) {
+            if (first)
+                first = false;
+            else
+                b.append(", ");
+            b.append(d.getName());
+        }
+        b.append(")");
+        return b.toString();
+    }
 	public CLQueue createDefaultOutOfOrderQueueIfPossible() {
     		try {
     			return createDefaultOutOfOrderQueue();
@@ -607,6 +621,4 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 				return false;
 		return true;
 	}
-
-
 }
