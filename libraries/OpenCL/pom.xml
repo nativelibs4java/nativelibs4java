@@ -17,16 +17,16 @@
   <modules>
 	<module>Common</module>
     <module>LibCL</module>
-    <module>InteractiveImageDemo</module>
+    <!--module>InteractiveImageDemo</module-->
     <module>Generator</module>
     <module>OpenCL4Java</module>
-    <module>Demos</module>
+    <!--module>Demos</module-->
     <module>JavaCL</module>
     <module>Core</module>
     <!--<module>ScalaCL</module>-->
     <module>Blas</module>
     <module>Parent</module>
-    <module>OpenGLDemos</module>
+    <!--module>OpenGLDemos</module-->
   </modules>
   
   
