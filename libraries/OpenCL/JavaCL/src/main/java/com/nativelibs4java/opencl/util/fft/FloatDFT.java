@@ -7,12 +7,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
-public class FloatDFT extends AbstractDFT<FloatBuffer, float[]> {
+public class FloatDFT extends AbstractDFT<Float, FloatBuffer, float[]> {
 
     final FloatDFTProgram program;
 
     public FloatDFT(CLContext context) throws IOException, CLException {
-        super(context, FloatBuffer.class);
+        super(context, Float.class, FloatBuffer.class);
         program = new FloatDFTProgram(context);
     }
     public FloatDFT() throws IOException {

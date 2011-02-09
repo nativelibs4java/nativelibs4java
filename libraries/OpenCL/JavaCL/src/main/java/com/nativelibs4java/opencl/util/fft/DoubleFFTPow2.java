@@ -5,12 +5,12 @@ import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
 
-public class DoubleFFTPow2 extends AbstractFFTPow2<DoubleBuffer, double[]> {
+public class DoubleFFTPow2 extends AbstractFFTPow2<Double, DoubleBuffer, double[]> {
 
     final DoubleFFTProgram program;
 
     public DoubleFFTPow2(CLContext context) throws IOException, CLException {
-        super(context, DoubleBuffer.class);
+        super(context, Double.class, DoubleBuffer.class);
         this.program = new DoubleFFTProgram(context);
     }
     public DoubleFFTPow2() throws IOException {

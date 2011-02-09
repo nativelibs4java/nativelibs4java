@@ -11,10 +11,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 // TODO implement something like http://locklessinc.com/articles/non_power_of_2_fft/
-public abstract class AbstractFFTPow2<B extends Buffer, A> extends AbstractTransformer<B, A> {
+public abstract class AbstractFFTPow2<T, B extends Buffer, A> extends AbstractTransformer<T, B, A> {
 
-    AbstractFFTPow2(CLContext context, Class<B> bufferClass) {
-        super(context, bufferClass);
+    AbstractFFTPow2(CLContext context, Class<T> primitiveClass, Class<B> bufferClass) {
+        super(context, primitiveClass, bufferClass);
     }
 
     private Map<Integer, CLIntBuffer> cachedOffsetsBufs = new HashMap<Integer, CLIntBuffer>();

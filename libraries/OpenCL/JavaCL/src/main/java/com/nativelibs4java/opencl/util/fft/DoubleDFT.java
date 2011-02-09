@@ -5,12 +5,12 @@ import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
 
-public class DoubleDFT extends AbstractDFT<DoubleBuffer, double[]> {
+public class DoubleDFT extends AbstractDFT<Double, DoubleBuffer, double[]> {
 
     final DoubleDFTProgram program;
 
     public DoubleDFT(CLContext context) throws IOException {
-        super(context, DoubleBuffer.class);
+        super(context, Double.class, DoubleBuffer.class);
         this.program = new DoubleDFTProgram(context);
     }
     public DoubleDFT() throws IOException {

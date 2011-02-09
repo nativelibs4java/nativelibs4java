@@ -23,19 +23,21 @@ import java.nio.FloatBuffer;
  * @param <B> NIO buffer class that represents the data consumed and produced by this transformer
  * @param <A> primitive array class that represents the data consumed and produced by this transformer
  */
-public interface Transformer<B extends Buffer, A> {
+public interface Transformer<T, B extends Buffer, A> {
 	CLContext getContext();
     A transform(CLQueue queue, A input, boolean inverse);
     B transform(CLQueue queue, B input, boolean inverse);
     CLEvent transform(CLQueue queue, CLBuffer<B> input, CLBuffer<B> output, boolean inverse, CLEvent... eventsToWaitFor) throws CLException;
     int computeOutputSize(int inputSize);
     
-    public abstract class AbstractTransformer<B extends Buffer, A> implements Transformer<B, A> {
+    public abstract class AbstractTransformer<T, B extends Buffer, A> implements Transformer<T, B, A> {
+        protected final Class<T> primitiveClass;
         protected final Class<B> bufferClass;
         protected final CLContext context;
 
-        public AbstractTransformer(CLContext context, Class<B> bufferClass) {
+        public AbstractTransformer(CLContext context, Class<T> primitiveClass, Class<B> bufferClass) {
             this.bufferClass = bufferClass;
+            this.primitiveClass = primitiveClass;
             this.context = context;
         }
         

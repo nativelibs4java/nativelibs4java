@@ -4,12 +4,12 @@ import com.nativelibs4java.opencl.*;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
-public class FloatFFTPow2 extends AbstractFFTPow2<FloatBuffer, float[]> {
+public class FloatFFTPow2 extends AbstractFFTPow2<Float, FloatBuffer, float[]> {
 
     final FloatFFTProgram program;
 
     public FloatFFTPow2(CLContext context) throws IOException {
-        super(context, FloatBuffer.class);
+        super(context, Float.class, FloatBuffer.class);
         this.program = new FloatFFTProgram(context);
     }
     public FloatFFTPow2() throws IOException {
