@@ -94,10 +94,11 @@ trait CLCollectionLike[A, +Repr]
           }
           valuesIn.copyTo(valuesOut)
           clf.run(
-            dims = Array(ff.rawLength(this.asInstanceOf[Repr])),
             args = Array(this, presenceOut),
             reads = Array(this),
             writes = Array(result, presenceOut)
+          )(
+            dims = Array(ff.rawLength(this.asInstanceOf[Repr]))
           )(ff.context)
         case _ =>
           filterFallback(p, result)

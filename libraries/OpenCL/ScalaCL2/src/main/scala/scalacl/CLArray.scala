@@ -63,10 +63,11 @@ trait MappableToCLArray[A, +Repr <: CLCollectionLike[A, Repr] with CLCollection[
     f match {
       case clf: CLRunnable if !clf.isOnlyInScalaSpace && !useScalaFunctions =>
         clf.run(
-          dims = Array(length),
           args = Array(this, result),
           reads = Array(this),
           writes = Array(result)
+        )(
+          dims = Array(length)
         )(context)
       case _ =>
         mapFallback(f, result)

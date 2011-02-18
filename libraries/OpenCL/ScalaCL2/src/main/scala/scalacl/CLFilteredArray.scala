@@ -139,10 +139,11 @@ extends IndexedSeq[A]
       f match {
         case clf: CLRunnable if !clf.isOnlyInScalaSpace && !useScalaFunctions =>
           clf.run(
-            dims = Array(array.length),
             args = Array(this, result),
             reads = Array(this),
             writes = Array(result)
+          )(
+            dims = Array(array.length)
           )
         case _ =>
           import scala.concurrent.ops._

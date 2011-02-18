@@ -9,14 +9,28 @@ import com.nativelibs4java.opencl._
 
 
 trait CLRunnable {
-  def isOnlyInScalaSpace: Boolean 
+  def isOnlyInScalaSpace: Boolean
+  
   def run(dims: Array[Int], args: Array[Any], eventsToWaitFor: Array[CLEvent])(implicit context: Context): CLEvent
 
+  /*
   def run(dims: Array[Int], args: Array[Any], reads: Array[CLEventBoundContainer], writes: Array[CLEventBoundContainer])(implicit context: Context): Unit = {
     if (dims.sum > 0)
       CLEventBound.syncBlock(reads.flatMap(_.eventBoundComponents), writes.flatMap(_.eventBoundComponents), evts => {
-        run(dims, args, evts)
+        run(dims = dims, args = args, eventsToWaitFor = evts)
       })
+  }*/
+  def run(args: Array[Any], reads: Array[CLEventBoundContainer] = null, writes: Array[CLEventBoundContainer] = null)(dims: Array[Int], groupSizes: Array[Int] = null)(implicit context: Context): Unit = {
+    if (dims.sum > 0) {
+      lazy val defaultContainers = args collect { case c: CLEventBoundContainer => c }
+      CLEventBound.syncBlock(
+        Option(reads).getOrElse(defaultContainers).flatMap(_.eventBoundComponents), 
+        Option(writes).getOrElse(defaultContainers).flatMap(_.eventBoundComponents), 
+        evts => {
+          run(dims = dims, args = args, eventsToWaitFor = evts)
+        }
+      )
+    }
   }
 }
 
