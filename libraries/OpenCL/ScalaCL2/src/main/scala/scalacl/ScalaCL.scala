@@ -52,6 +52,9 @@ package object scalacl {
   var verbose =
     "1" == System.getenv("SCALACL_VERBOSE")
   
+  var useFastRelaxedMath =
+    "0" != System.getenv("SCALACL_STRICT_MATH")
+  
   var useScalaFunctions =
     "1" == System.getenv("SCALACL_USE_SCALA_FUNCTIONS")
   

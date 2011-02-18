@@ -26,6 +26,8 @@ trait CLCode {
         val program = context.context.createProgram(sources.map(s => """
             #pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable
         """ + s):_*)
+        if (useFastRelaxedMath)
+          program.setFastRelaxedMath
         for ((key, value) <- macros)
           program.defineMacro(key, value)
 
