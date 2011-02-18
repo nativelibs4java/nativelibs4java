@@ -73,7 +73,6 @@ extends MiscMatchers
         doConvertExpr(argNames + (vd.symbol -> iVar), body, false, conversion, b)._1
         out("\n}")
     }*/
-    
     body match {
       case TupleCreation(tupleArgs) =>//Apply(TypeApply(Select(TupleObject(), applyName()), tupleTypes), tupleArgs) if isTopLevel =>
         tupleArgs.map(convert).reduceLeft(_ ++ _)
@@ -84,34 +83,45 @@ extends MiscMatchers
           valueCode(value.toString)
       case Ident(name) =>
         valueCode(name.toString)
-      case If(condition, then: Tree, thenElse: Tree) =>
-        val Seq(c, t, e) = Seq(condition, then, thenElse).map(convert)
-        val Seq(condValue) = c.values
-        val outerDefinitions = c.outerDefinitions ++ t.outerDefinitions ++ e.outerDefinitions
-        //assert(t.statements.isEmpty && e.statements.isEmpty, "then and otherwise branches of it statement must")
+
+      case If(condition, then, otherwise) =>
+        // val (a, b) = if ({ val d = 0 ; d != 0 }) (1, d) else (2, 0)
+        // ->
+        // val d = 0
+        // val condition = d != 0
+        // val a = if (condition) 1 else 2
+        // val b = if (condition) d else 0
+        val FlatCode(dc, sc, Seq(vc)) = convert(condition)
+        val fct @ FlatCode(Seq(), st, vt) = convert(then)
+        val fco @ FlatCode(Seq(), so, vo) = convert(otherwise)
+
+        def newIf(t: String, o: String, isValue: Boolean) =
+          if (isValue)
+            "((" + vc + ") ? (" + t + ") : (" + o + "))"
+          else
+            "if (" + vc + ") {\n" + t + "\n} else {\n" + o + "\n}\n"
+
+        val (rs, rv) = (st, so) match {
+          case (Seq(), Seq()) if !vt.isEmpty && !vo.isEmpty =>
+            (
+              Seq(),
+              vt.zip(vo).map { case (t, o) => newIf(t, o, true) } // pure (cond ? then : otherwise) form, possibly with tuple values
+            )
+          case _ =>
+            (
+              Seq(newIf((st ++ vt).mkString("\n"), (so ++ vo).mkString("\n"), false)),
+              Seq()
+            )
+        }
         FlatCode[String](
-          outerDefinitions,
-          c.statements ++
-          Seq(
-            "if (" + condValue + ") {\n" + t.statements.mkString("\n") + "\n} else {\n" + e.statements.mkString("\n") + "\n}\n"
-          ),
-          Seq()
+          dc,
+          sc ++ rs,
+          rv
         )
-        //out("((", condition, ") ? (", then, ") : (", thenElse, "))")
       case Apply(Select(target, applyName()), List(singleArg)) =>
         merge(Seq(target, singleArg).map(convert):_*) { case Seq(t, a) => Seq(t + "[" + a + "]") }
       case Assign(lhs, rhs) =>
         merge(Seq(lhs, rhs).map(convert):_*) { case Seq(l, r) => Seq(l + " = " + r + ";") }
-      //case Block(statements, expression) =>
-      //  assert(false)
-        /*
-        out(statements.flatMap(List(_, "\n")):_*)
-        if (expression != EmptyTree) {
-          val sub = doConvertExpr(expression, true, conversion, outer)
-          out(sub._1.toString, "\n")
-          retExprsBuilders = sub._2
-          //out(expression, "\n")
-        }*/
       case Typed(expr, tpt) =>
         val t = convertTpe(tpt.tpe)
         convert(expr).mapValues(_.map(v => "((" + t + ")" + v + ")")) 
@@ -178,7 +188,11 @@ extends MiscMatchers
         val List(right) = args
         NameTransformer.decode(name.toString) match {
           case op @ ("+" | "-" | "*" | "/" | "%" | "^" | "^^" | "&" | "&&" | "|" | "||" | "<<" | ">>" | "==" | "<" | ">" | "<=" | ">=" | "!=") =>
-            merge(Seq(left, right).map(convert):_*) { case Seq(l, r) => Seq("(" + l + " " + op + " " + r + ")") }
+            merge(Seq(left, right).map(convert):_*) {
+              case Seq(l, r) => Seq("(" + l + " " + op + " " + r + ")")
+              //case e =>
+              //  throw new RuntimeException("ugh : " + e + ", op = " + op + ", body = " + body + ", left = " + left + ", right = " + right)
+            }
           case n if left.toString == "scala.math.package" =>
             convertMathFunction(s.tpe, name, args)
             //merge(Seq(right).map(convert):_*) { case Seq(v) => Seq(n + "(" + v + ")") }
@@ -198,15 +212,18 @@ extends MiscMatchers
           }
         })
       case WhileLoop(condition, content) =>
-        val cs = content.map(convert)
-        convert(condition).mapEachValue(v => {
-          //assert(cs.forall(_.values.isEmpty), cs)
+        val FlatCode(dcont, scont, vcont) = content.map(convert).reduceLeft(_ >> _)
+        val FlatCode(dcond, scond, Seq(vcond)) = convert(condition)
+        FlatCode[String](
+          dcond ++ dcont,
+          scond ++
           Seq(
-            "while (" + v + ") {\n" +
-              cs.flatMap(c => c.statements ++ c.values).mkString("\n") + "\n" +
+            "while (" + vcond + ") {\n" +
+              (scont ++ vcont).mkString("\n") + "\n" +
             "}"
-          )
-        }).addOuters(cs.flatMap(_.outerDefinitions))
+          ),
+          Seq()
+        )
       case Apply(target, args) =>
         merge((target :: args).map(convert):_*)(seq => {
           val t :: a = seq.toList
@@ -214,7 +231,7 @@ extends MiscMatchers
         })
       case Block(statements, Literal(Constant(empty))) =>
         assert(empty == (), "Valued blocks should have been flattened in a previous phase !")
-        statements.map(convert).reduceLeft(_ >> _.noValues)
+        statements.map(convert).map(_.noValues).reduceLeft(_ >> _)
       case _ =>
         //println(nodeToStringNoComment(body))
         throw new RuntimeException("Failed to convert " + body.getClass.getName + ": \n" + body + " : \n" + nodeToStringNoComment(body))

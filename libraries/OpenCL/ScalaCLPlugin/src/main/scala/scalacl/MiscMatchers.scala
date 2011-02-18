@@ -153,7 +153,9 @@ trait MiscMatchers {
   val Function2CLFunctionName = N("Function2CLFunction")
   
   lazy val ScalaCollectionPackage = definitions.getModule(N("scala.collection"))
+  lazy val ScalaMathPackage = definitions.getModule(N("scala.math"))
   lazy val ScalaReflectPackage = definitions.getModule(N("scala.reflect"))
+  lazy val ScalaMathCommonClass = definitions.getClass(N("scala.MathCommon"))
   lazy val SeqClass = definitions.getClass(N("scala.collection.Seq"))
   lazy val SeqModule = definitions.getModule(N("scala.collection.Seq"))
   lazy val CanBuildFromClass = definitions.getClass("scala.collection.generic.CanBuildFrom")

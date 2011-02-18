@@ -96,9 +96,10 @@ object Compile {
     //compilerMain(args, true)
     //*
     compilerMain(
-      if (args.isEmpty)
+      if (true || args.isEmpty)
         Array(
-          "Toto.scala",
+          "examples/Toto.scala",
+          "-d", "examples/classes",
           "-Xprint:scalacl-functionstransform",
           "-Xprint:typer",
           "-classpath", "../ScalaCL2/target/scalacl-0.2-SNAPSHOT-shaded.jar"
