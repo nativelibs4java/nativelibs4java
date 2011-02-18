@@ -20,6 +20,7 @@ import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.CLContext;
 import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLBuffer;
+import com.nativelibs4java.opencl.JavaCL;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.CLMem.Usage;
 
@@ -45,6 +46,9 @@ public class ParallelRandom {
 	Pointer<Integer> lastData;
 	boolean isDataFresh;
 	
+	public ParallelRandom() throws IOException {
+		this(JavaCL.createBestContext().createDefaultQueue(), 32 * 1024, System.currentTimeMillis());
+	}
     public ParallelRandom(CLQueue queue, int parallelSize, final long seed) throws IOException {
         try {
             this.queue = queue;

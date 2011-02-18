@@ -4,7 +4,7 @@
   <groupId>com.nativelibs4java</groupId>
   <artifactId>scalacl-test</artifactId>
   <packaging>jar</packaging>
-  <version>0.2.Beta10</version>
+  <version>0.2-SNAPSHOT</version>
   <name>ScalaCLv2 Test</name>
 
 	<parent>
@@ -23,7 +23,7 @@
   	<dependency>
   		<groupId>com.nativelibs4java</groupId>
   		<artifactId>scalacl</artifactId>
-  		<version>${scalacl.version}</version>
+  		<version>0.2-SNAPSHOT</version>
     </dependency>
   </dependencies>
   <repositories>

@@ -102,8 +102,9 @@ import static org.bridj.Pointer.*;
  * </ul>
  *
  * A program can be compiled on the fly (costly) but its binaries can be stored and
- * loaded back in subsequent executions to avoid recompilation.
- * @see CLContext#createProgram(java.lang.String[]) 
+ * loaded back in subsequent executions to avoid recompilation.<br>
+ * By default, program binaries are automatically cached on stable platforms (which currently exclude ATI Stream), but the caching can be forced on/off with * @see CLContext#setCached(boolean).<br>
+ * To create a program from sources, please use @see CLContext#createProgram(java.lang.String[]) 
  * @author Olivier Chafik
  */
 public class CLProgram extends CLAbstractEntity<cl_program> {
@@ -498,6 +499,53 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         this.macros.putAll(macros);
     }
     List<String> extraBuildOptions;
+    
+    /**
+     * Add the -cl-fast-relaxed-math compile option.<br>
+     * Sets the optimization options -cl-finite-math-only and -cl-unsafe-math-optimizations. 
+     * This allows optimizations for floating-point arithmetic that may violate the IEEE 754 standard and the OpenCL numerical compliance requirements defined in the specification in section 7.4 for single-precision floating-point, section 9.3.9 for double-precision floating-point, and edge case behavior in section 7.5. 
+     * This option causes the preprocessor macro __FAST_RELAXED_MATH__ to be defined in the OpenCL program. <br>
+     * Also see : <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">Khronos' documentation for clBuildProgram</a>.
+     */
+    public void setFastRelaxedMath() {
+    		addBuildOption("-cl-fast-relaxed-math");
+    }
+    
+    /**
+     * Add the -cl-no-signed-zero compile option.<br>
+     * Allow optimizations for floating-point arithmetic that ignore the signedness of zero. 
+     * IEEE 754 arithmetic specifies the behavior of distinct +0.0 and -0.0 values, which then prohibits simplification of expressions such as x+0.0 or 0.0*x (even with -clfinite-math only). 
+     * This option implies that the sign of a zero result isn't significant. <br>
+     * Also see : <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">Khronos' documentation for clBuildProgram</a>.
+     */
+    public void setNoSignedZero() {
+    		addBuildOption("-cl-no-signed-zero");
+    }
+    
+    /**
+     * Add the -cl-mad-enable compile option.<br>
+     * Allow a * b + c to be replaced by a mad. The mad computes a * b + c with reduced accuracy. For example, some OpenCL devices implement mad as truncate the result of a * b before adding it to c.<br>
+     * Also see : <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">Khronos' documentation for clBuildProgram</a>.
+     */
+    public void setMadEnable() {
+    		addBuildOption("-cl-mad-enable");
+    }
+    /**
+     * Add the -cl-finite-math-only compile option.<br>
+     * Allow optimizations for floating-point arithmetic that assume that arguments and results are not NaNs or ±°. This option may violate the OpenCL numerical compliance requirements defined in in section 7.4 for single-precision floating-point, section 9.3.9 for double-precision floating-point, and edge case behavior in section 7.5.<br>
+     * Also see : <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">Khronos' documentation for clBuildProgram</a>.
+     */
+    public void setFiniteMathOnly() {
+    		addBuildOption("-cl-finite-math-only");
+    }
+    /**
+     * Add the -cl-unsafe-math-optimizations option.<br>
+     * Allow optimizations for floating-point arithmetic that (a) assume that arguments and results are valid, (b) may violate IEEE 754 standard and (c) may violate the OpenCL numerical compliance requirements as defined in section 7.4 for single-precision floating-point, section 9.3.9 for double-precision floating-point, and edge case behavior in section 7.5. This option includes the -cl-no-signed-zeros and -cl-mad-enable options.<br>
+     * Also see : <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">Khronos' documentation for clBuildProgram</a>.
+     */
+    public void setUnsafeMathOptimizations() {
+    		addBuildOption("-cl-unsafe-math-optimizations");
+    }
     
     /**
      * Please see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">OpenCL's clBuildProgram documentation</a> for details on supported build options.

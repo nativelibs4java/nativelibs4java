@@ -171,23 +171,4 @@ public class DiscreteFourierTransformTest {
             assertArrayEquals(title + " (n = " + (in.length / 2) + ")", in, back, precisionInverseFloat);
         }
     }
-/*
-    void testFloatTransformer(Transformer<Float, FloatBuffer, float[]> t) throws IOException, CLException {
-        CLQueue queue = t.getContext().createDefaultOutOfOrderQueueIfPossible();
-        System.out.println("Context: " + t.getContext()); 
-        for (float[] in : createTestFloatInputs()) {
-
-            float[] out = t.transform(queue, in, false);
-            assertEquals(in.length, out.length);
-            assertTrue(Math.abs(out[0] - in[0]) > 0.1);
-            float[] back = t.transform(queue, out, true);
-            assertEquals(back.length, out.length);
-            
-            float precision = 1e-5f;
-            for (int i = 0; i < in.length; i++) {
-                assertEquals(in[i], back[i], precision);
-            }
-        }
-    }
-    */
 }
