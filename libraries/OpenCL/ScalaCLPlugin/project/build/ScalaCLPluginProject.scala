@@ -5,6 +5,7 @@ class ScalaCLPluginProject(info: ProjectInfo) extends DefaultProject(info)
 with ScctProject
 { 
   //override def name = "scalacl-compiler-plugin"
+  override def watchPaths = super.watchPaths +++ Path.fromFile("examples")
   
   override def filterScalaJars = false
   override def compileOptions = super.compileOptions ++
