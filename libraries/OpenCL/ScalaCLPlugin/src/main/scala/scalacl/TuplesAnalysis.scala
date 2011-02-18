@@ -268,7 +268,7 @@ extends MiscMatchers
     new Traverser {
       override def traverse(tree: Tree): Unit = {
         tree match {
-          case ValDef(mods, name, tpt, rhs) =>
+          case ValDef(mods, name, tpt, rhs) if !mods.hasFlag(MUTABLE) =>
             super.traverse(tree)
             //println("Got valdef " + name)
             val tupleInfo = getTupleInfo(rhs.tpe)
