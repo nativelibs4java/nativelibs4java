@@ -37,6 +37,11 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <version>2.1</version>
 	  <scope>test</scope>
 	</dependency>
+  	<dependency>
+	  <groupId>velocity</groupId>
+	  <artifactId>velocity</artifactId>
+	  <version>1.5</version>
+	</dependency>
 	
   </dependencies>
 
