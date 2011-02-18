@@ -11,6 +11,7 @@ public class FloatFFTPow2 extends AbstractFFTPow2<Float, FloatBuffer, float[]> {
     public FloatFFTPow2(CLContext context) throws IOException {
         super(context, Float.class, FloatBuffer.class);
         this.program = new FloatFFTProgram(context);
+        program.getProgram().setFastRelaxedMath();
     }
     public FloatFFTPow2() throws IOException {
         this(JavaCL.createBestContext());
