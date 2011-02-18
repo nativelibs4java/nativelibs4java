@@ -55,9 +55,10 @@ class CLRange(
   implicit val context: Context
 )
   extends IndexedSeq[Int]
+  with CopiableToCLArray[Int]
   with CLIndexedSeq[Int]
-  with CLIndexedSeqLike[Int, CLRange]
-  with MappableToCLArray[Int, CLRange]
+  with CLIndexedSeqLike[Int, CLIndexedSeq[Int]]
+  with MappableToCLArray[Int, CLIndexedSeq[Int]]
 {
   def this(range: Range)(implicit context: Context) =
     this(new CLGuardedBuffer[Int](Array(range.start, range.end, range.step, if (range.isInclusive) 1 else 0)))
@@ -77,6 +78,12 @@ class CLRange(
     copyToCLArray(buffer, outBuffer)
     out
   }
+  
+  def copyTo(a: CLArray[Int]) = {
+    assert(a.length == length)
+    val Array(outBuffer) = a.buffers
+    copyToCLArray(buffer, outBuffer.asInstanceOf[CLGuardedBuffer[Int]])
+  }
 
   protected override def mapFallback[B](f: Int => B, result: CLArray[B]) = {
     var offset = 0
@@ -86,7 +93,10 @@ class CLRange(
     }
   }
 
-  override def filterFallback[That <: CLCollection[Int]](p: Int => Boolean, out: That)(implicit ff: CLCanFilterFrom[CLRange, Int, That]) = {
+  override def filter(p: Int => Boolean): CLFilteredArray[Int] = // TODO ? toCLArray.filter(p)
+    filter(p, new CLFilteredArray[Int](length))//.toCLArray
+
+  override def filterFallback[That <: CLCollection[Int]](p: Int => Boolean, out: That)(implicit ff: CLCanFilterFrom[CLIndexedSeq[Int], Int, That]) = {
     import scala.concurrent.ops._
 
     out match {

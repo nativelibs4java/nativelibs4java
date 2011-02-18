@@ -115,6 +115,8 @@ package object scalacl {
       override def dataIO = io
       override def context = ctx
       def rawLength(from: CLIndexedSeq[A]): Int = from match {
+        case r: CLRange =>
+          r.length
         case a: CLArray[A] =>
           a.length
         case fa: CLFilteredArray[A] =>

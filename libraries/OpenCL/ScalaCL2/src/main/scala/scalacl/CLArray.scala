@@ -75,6 +75,8 @@ trait MappableToCLArray[A, +Repr <: CLCollectionLike[A, Repr] with CLCollection[
     result.asInstanceOf[That]
   }
 }
+
+
 class CLArray[A](
   val length: Int, 
   protected[scalacl] val buffers: Array[CLGuardedBuffer[Any]]
@@ -83,6 +85,7 @@ class CLArray[A](
   val dataIO: CLDataIO[A]
 )
   extends IndexedSeqOptimized[A, CLIndexedSeq[A]]
+  with CopiableToCLArray[A]
   with CLIndexedSeq[A]//IndexedSeq[A]
   with GenericTraversableTemplate[A, CLArray]
   with CLIndexedSeqLike[A, CLIndexedSeq[A]]

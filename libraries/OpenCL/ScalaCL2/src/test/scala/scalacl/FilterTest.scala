@@ -26,13 +26,16 @@ class FilterTest {
     
     for (dim <- 1 until 1000) {
       for (offset <- 0 to 1) {
-        val opencl = (0 until dim).toCLArray.filter(filt).toArray.toSeq
+        val openclArray = (0 until dim).toCLArray.filter(filt).toArray.toSeq
+        val openclRangePre: CLIndexedSeq[Int] = (0 until dim).cl.filter(filt)
+        val openclRange = openclRangePre.toArray.toSeq
         val scala = (0 until dim).toArray.filter(filt).toArray.toSeq
-        if (opencl != scala) {
+        if (openclArray != scala) {
           //println("\tExpected : " + scala)
           //println("\t   Found : " + opencl)
-          assertEquals("Different result for dim = " + dim + ", offset = " + offset + " !", scala, opencl)
+          assertEquals("Different result for dim = " + dim + ", offset = " + offset + " !", scala, openclArray)
         }
+        assertEquals("Different result between range and array filters for dim = " + dim + ", offset = " + offset + " !", openclArray, openclRange)
       }
     }
   }

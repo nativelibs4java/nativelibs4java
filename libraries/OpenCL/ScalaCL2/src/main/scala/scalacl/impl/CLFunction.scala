@@ -252,10 +252,13 @@ extends (A => B)
       case Array(in: CLRange, out: CLArray[_]) =>
         // CLRange.map 
         ("range_array", out.length, Array(in.buffer.asInstanceOf[CLGuardedBuffer[Any]]) ++ out.buffers: Array[CLGuardedBuffer[Any]])
+      case Array(in: CLRange, out: CLGuardedBuffer[_]) =>
+        // CLRange.map 
+        ("range_array", in.length, Array(in.buffer.asInstanceOf[CLGuardedBuffer[Any]]) ++ Array(out.asInstanceOf[CLGuardedBuffer[Any]]))
       case Array(in: CLFilteredArray[_], out: CLFilteredArray[Any]) =>
         // CLFilteredArray.map
         ("filteredArray_filteredArray", in.array.length, in.array.buffers ++ Array(in.presence.asInstanceOf[CLGuardedBuffer[Any]]) ++ out.array.buffers: Array[CLGuardedBuffer[Any]])
-      case _ =>
+      case _ => 
         error("ERROR, args = " + args.mkString(", "))
     }
     val kernel = getKernel(context, kernelName)

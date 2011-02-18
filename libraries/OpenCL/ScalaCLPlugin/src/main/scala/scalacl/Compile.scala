@@ -93,10 +93,10 @@ object Compile {
       //,"-Yshow-trees"
     )*/
 
-    //compilerMain(args, true)
-    //*
+    compilerMain(args, true)
+    /*
     compilerMain(
-      if (true || args.isEmpty)
+      if (args.isEmpty)
         Array(
           "examples/Toto.scala",
           "-d", "examples/classes",
@@ -108,7 +108,7 @@ object Compile {
         args, 
       true
     )
-    //*/
+    */
   }
   lazy val copyrightMessage: Unit = {
     println("""ScalaCL Compiler Plugin

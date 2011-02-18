@@ -87,6 +87,8 @@ trait CLCollectionLike[A, +Repr]
           val valuesOut = filteredOut.array
           val presenceOut = filteredOut.presence
           val valuesIn = (this: Any) match {
+            case r: CLRange =>
+              r.asInstanceOf[CopiableToCLArray[A]]
             case a: CLArray[A] =>
               a
             case fa: CLFilteredArray[A] =>

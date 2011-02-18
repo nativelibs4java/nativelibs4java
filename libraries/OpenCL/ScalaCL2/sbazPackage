@@ -1,8 +1,8 @@
 #!/bin/bash
 MVN_VERSION="`cat pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'`"
 SBAZ_VERSION="`echo $MVN_VERSION | sed -e "s/-SNAPSHOT/-SNAPSHOT-\`date '+%Y%m%d'\`/g"`"
-LINK_BASE="http://nativelibs4java.sourceforge.net/sbaz/scalacl/"
-#LINK_BASE="http://ochafik.com/sbaz/scalacl/"
+#LINK_BASE="http://nativelibs4java.sourceforge.net/sbaz/scalacl/"
+LINK_BASE="http://ochafik.com/sbaz/scalacl/"
 
 SCALACL_HOME="`pwd`"
 
@@ -31,9 +31,7 @@ mkdir -p $LIB_JAR_OUT
 mkdir -p $PLUGIN_JAR_OUT
 
 echo "# Copying libraries"
-if [[ "$USE_SHADED" == "1" ]] ; then
-	cp target/scalacl-$MVN_VERSION-shaded.jar $LIB_JAR_OUT ;
-else
+if [[ "$DONT_USE_SHADED" == "1" ]] ; then
 	export SBAZ_VERSION="$SBAZ_VERSION-devel"
 	NL4J_BASE="/Users/ochafik/.m2/repository/com/nativelibs4java"
 	cp target/scalacl-$MVN_VERSION.jar $LIB_JAR_OUT
@@ -42,6 +40,8 @@ else
 	cp $NL4J_BASE/javacl-core-bridj/1.0-SNAPSHOT/javacl-core-bridj-1.0-SNAPSHOT.jar $LIB_JAR_OUT
 	cp $NL4J_BASE/javacl-bridj/1.0-SNAPSHOT/javacl-bridj-1.0-SNAPSHOT.jar $LIB_JAR_OUT
 	cp $NL4J_BASE/libcl-bridj/1.0-SNAPSHOT/libcl-bridj-1.0-SNAPSHOT.jar $LIB_JAR_OUT ;
+else
+	cp target/scalacl-$MVN_VERSION-shaded.jar $LIB_JAR_OUT ;
 fi
 
 echo "# Copied the following libraries :"
@@ -62,11 +62,11 @@ mkdir -p src/main/sbaz
 sbaz remove scalacl
 sbaz compact
 #sbaz retract scalacl/$SBAZ_VERSION
-if [[ "$SHARE" == "1" ]] ; then
-	sbaz share *.advert ;
-else 
+if [[ "$DONT_SHARE" == "1" ]] ; then
 	echo "Not sharing the package (use SHARE=1 to share)"
 	echo src/main/sbaz/scalacl-$SBAZ_VERSION.sbp ;
+else 
+	sbaz share *.advert ;
 fi
 mv *.advert src/main/sbaz
 open src/main/sbaz

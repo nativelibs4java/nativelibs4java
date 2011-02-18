@@ -12,7 +12,13 @@ import org.bridj.Pointer._
 object CLGuardedBuffer {
   val debugFakeClone = System.getenv("SCALACL_DEBUG_FAKE_CLONE") == "1"
 }
-class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val context: Context, val dataIO: CLDataIO[T]) extends CLEventBound {
+
+trait CopiableToCLArray[A] {
+  def copyTo(other: CLArray[A]): Unit 
+}
+class CLGuardedBuffer[T](val buffer: CLBuffer[T])(implicit val context: Context, val dataIO: CLDataIO[T]) 
+extends CLEventBound
+{
   implicit val t = dataIO.t
   lazy val elementClass = t.erasure.asInstanceOf[Class[T]]
   

@@ -146,7 +146,15 @@ extends PluginComponent
       val unknownSymbols = getUnknownSymbols(f, t => t.symbol != NoSymbol && {
         t.symbol match {
           case s: MethodSymbol =>
-            !primitiveTypeSymbols.contains(s.owner) && s.owner != ScalaMathCommonClass
+            /*if (s.owner != null) {
+              println("s.owner = " + s.owner)
+              println("s = " + s)
+            }*/
+            !primitiveTypeSymbols.contains(s.owner) && 
+            s.owner != ScalaMathCommonClass &&
+            !s.toString.matches("value _\\d+") &&
+            !s.toString.matches("method to(Double|Int|Float|Long|Short|Byte|Boolean|Char)") &&
+            !(s.toString == "method apply" && s.owner != null && s.owner.toString.matches("object Tuple\\d+")) // TODO cleanup hack
           case s: ModuleSymbol =>
             false
           case s: TermSymbol =>
@@ -159,7 +167,7 @@ extends PluginComponent
         case _: MethodSymbol =>
           unit.error(s.pos, "Cannot capture externals methods yet")
         case _ =>
-          unit.error(s.pos, "Cannot capture externals symbols yet")
+          unit.error(s.pos, "Cannot capture externals symbols yet (symbol = " + s.symbol + ")")
       }
 
       if (!unknownSymbols.isEmpty)
