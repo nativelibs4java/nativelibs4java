@@ -10,7 +10,7 @@ import java.util.*;
 
 mvn package -DskipTests=true -o && java -cp target/bridj-0.4-SNAPSHOT-shaded.jar org.bridj.examples.MyTemplate
 
-template <int n, type T>
+template <int n, typename T>
 class MyTemplate {
 public:
 	MyTemplate(int arg);
@@ -35,7 +35,7 @@ public class MyTemplate<T> extends CPPObject {
 	public native T someMethod();
 
     public static void main(String[] args) throws CloneNotSupportedException {
-    		Type cppt = CPPType.getCPPType(MyTemplate.class, 10, String.class);
+    		Type cppt = CPPType.getCPPType(new Object[] { MyTemplate.class, 10, String.class });
     		System.out.println("type = " + cppt);
         MyTemplate<String> t = new MyTemplate<String>(10, String.class, 4);
         System.out.println(t);

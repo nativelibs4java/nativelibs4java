@@ -47,6 +47,14 @@ public:
 	const std::string& toString();
 };
 
+template <int n, typename T>
+class TEST_API InvisibleSourcesTemplate {
+public:
+	InvisibleSourcesTemplate(int arg);
+	T* createSome();
+	void deleteSome(T* pValue);
+};
+
 extern TEST_API int ntest;
 TEST_API Ctest* createTest();
 

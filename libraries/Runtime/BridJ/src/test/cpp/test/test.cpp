@@ -204,6 +204,25 @@ int Ctest2::testAdd(int a, int b) {
 	return ret;
 }
 
+template<int n, typename T>
+InvisibleSourcesTemplate<n, T>::InvisibleSourcesTemplate(int arg) {
+	cout << "Instantiating invisible sources template with arg " << arg << "\n";	
+}
+template<int n, typename T>
+T* InvisibleSourcesTemplate<n, T>::createSome() {
+	cout << "Creating some T\n";
+	return new T();	
+}
+template<int n, typename T>
+void InvisibleSourcesTemplate<n, T>::deleteSome(T* pValue) {
+	cout << "Deleting some T\n";
+	delete pValue;	
+}
+
+template class InvisibleSourcesTemplate<10, int>;
+template class InvisibleSourcesTemplate<10, std::string>;
+
+
 TEST_API void* test_pvoid() { return NULL; }
 TEST_API int* test_pint() { return NULL; }
 TEST_API int test_int() { return 0; }
