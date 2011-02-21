@@ -48,6 +48,19 @@ public class GCC4Demangler extends Demangler {
         return res;
     }
 
+    public TemplateArg parseTemplateArg() throws DemanglingException {
+    		if (consumeCharIf('L')) {
+    			TypeRef tr = parseType();
+    			StringBuffer b = new StringBuffer();
+    			char c;
+			while (Character.isDigit(c = peekChar())) {
+				consumeChar();
+				b.append(c);
+			}
+			return new Constant(Integer.parseInt(b.toString()));
+    		} else
+    			return parseType();
+    }
 	public TypeRef parseType() throws DemanglingException {
 		if (Character.isDigit(peekChar())) {
                     String name = parseName();
@@ -152,6 +165,15 @@ public class GCC4Demangler extends Demangler {
 				mr.setEnclosingType(parent);
 			} else {
 				switch (peekChar()) {
+				case 'I':
+					List<TemplateArg> args = new ArrayList<TemplateArg>();
+					consumeChar();
+					while (!consumeCharIf('E')) {
+						args.add(parseTemplateArg());
+					}
+					//System.out.println("HEHEHEHEHEHEHE args = " + args);
+					mr.setTemplateArguments(args.toArray(new TemplateArg[args.size()]));
+					break;
 				case 'C':
 					consumeChar();
 					mr.setEnclosingType(new ClassRef((String)mr.getMemberName()));
@@ -181,6 +203,8 @@ public class GCC4Demangler extends Demangler {
 			//mr.type = SpecialName.CFunction;
 			mr.setMemberName(parseName());
 		}
+		//System.out.println("mr = " + mr + ", peekChar = " + peekChar());
+					
 		//mr.isStatic =
 		boolean isMethod = consumeCharIf('E');
 		

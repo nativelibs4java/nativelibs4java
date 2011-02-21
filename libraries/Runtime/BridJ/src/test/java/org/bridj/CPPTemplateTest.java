@@ -38,12 +38,12 @@ import static org.bridj.Pointer.*;
 @Library("test")
 @Runtime(CPPRuntime.class)
 public class CPPTemplateTest {
-	
+	static {
+		BridJ.register();
+	}
+
 	@Template({ Integer.class, Class.class })
 	public static class InvisibleSourcesTemplate<T> extends CPPObject {
-		static {
-			BridJ.register();
-		}
 		public final int n;
 		@Constructor(0)
 		public InvisibleSourcesTemplate(int n, Type t, int arg) {
@@ -53,6 +53,14 @@ public class CPPTemplateTest {
 		public native Pointer<T> createSome();
 		public native void deleteSome(Pointer<T> pValue);
 	}
+	@Template({ Class.class })
+	public static class Temp1<T> extends CPPObject { }
+	
+	@Template({ Class.class, Class.class })
+	public static class Temp2<T1, T2> extends CPPObject { }
+	
+	@Template({ Class.class, Integer.class })
+	public static class TempV<T> extends CPPObject { }
 	
 	@Test
 	public void invisibleSourcesTemplateIntegerTest() {

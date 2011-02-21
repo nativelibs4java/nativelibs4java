@@ -10,10 +10,12 @@ import org.bridj.Demangler.DemanglingException;
 import org.bridj.Demangler.MemberRef;
 import org.bridj.cpp.GCC4Demangler;
 import org.bridj.cpp.VC9Demangler;
+import org.bridj.cpp.CPPType;
 import org.bridj.Demangler.SpecialName;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Type;
 import java.lang.annotation.Annotation;
 import org.junit.Test;
 
@@ -99,6 +101,19 @@ public class DemanglingTest {
     	
     }
 
+    
+    @Test
+	public void template() {
+		demangle(
+			null, 
+			"__ZN5Temp2IiiE4tempEii", 
+			CPPType.getCPPType(new Object[] { CPPTemplateTest.Temp1.class, Integer.class }),
+			"temp", 
+			void.class,
+			int.class
+		);
+	}
+
     @Test
 	public void simpleFunctions() {
 		demangle("?sinInt@@YANH@Z", "_Z6sinInti", null,
@@ -116,7 +131,7 @@ public class DemanglingTest {
         demangle(null, "_Z14pointerAliasesPPvS_PS0_PPi", null, "pointerAliases", null, "**Void", "*Void", "***Void", "**Integer");
     }
 
-    private void demangle(String vc9, String gcc4, Class enclosingType, Object memberName, Class returnType, Object... paramTypes) {
+    private void demangle(String vc9, String gcc4, Type enclosingType, Object memberName, Class returnType, Object... paramTypes) {
         try {
 			if (vc9 != null)
 				checkSymbol(vc9, new VC9Demangler(null, vc9).parseSymbol(), enclosingType, memberName, returnType, paramTypes, null, null);
@@ -140,14 +155,14 @@ public class DemanglingTest {
 		}
     }
 
-    private void checkSymbol(String str, MemberRef symbol, Class enclosingType, Object memberName, Class returnType, Object[] paramTypes, Annotation[][] paramAnns, AnnotatedElement element) {
+    private void checkSymbol(String str, MemberRef symbol, Type enclosingType, Object memberName, Class returnType, Object[] paramTypes, Annotation[][] paramAnns, AnnotatedElement element) {
         if (symbol == null)
         		assertTrue("Symbol not successfully parsed \"" + str + "\"", false);
     		if (memberName != null)
             assertEquals("Bad name", memberName, symbol.getMemberName());
         if (enclosingType != null) {
         	assertNotNull("Null enclosing type : " + symbol, symbol.getEnclosingType());
-            assertTrue("Bad enclosing type (got " + symbol.getEnclosingType() + ", expected " + enclosingType.getName() + ")", symbol.getEnclosingType().matches(enclosingType, Demangler.annotations(enclosingType)));
+            assertTrue("Bad enclosing type (got " + symbol.getEnclosingType() + ", expected " + (enclosingType instanceof Class ? ((Class)enclosingType).getName() : enclosingType.toString()) + ")", symbol.getEnclosingType().matches(enclosingType, Demangler.annotations(Utils.getClass(enclosingType))));
         }
         if (returnType != null && symbol.getValueType() != null)
             assertTrue("Bad return type", symbol.getValueType().matches(returnType, Demangler.annotations(element)));

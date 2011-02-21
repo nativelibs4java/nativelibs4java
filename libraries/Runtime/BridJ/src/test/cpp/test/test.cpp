@@ -223,6 +223,26 @@ template class InvisibleSourcesTemplate<10, int>;
 template class InvisibleSourcesTemplate<10, std::string>;
 
 
+
+
+template <typename T>
+void Temp1<T>::temp(T) {}
+
+template <typename T1, typename T2>
+void Temp2<T1, T2>::temp(T1, T2) {}
+
+template <typename T, int V>
+void TempV<T, V>::temp(T) {}
+
+template class Temp1<int>;
+template class Temp1<double>;
+
+template class Temp2<int, int>;
+template class Temp2<double, double>;
+
+template class TempV<int, 66>;
+template class TempV<double, 33>;
+
 TEST_API void* test_pvoid() { return NULL; }
 TEST_API int* test_pint() { return NULL; }
 TEST_API int test_int() { return 0; }

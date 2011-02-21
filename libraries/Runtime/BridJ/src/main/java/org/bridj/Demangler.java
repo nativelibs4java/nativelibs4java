@@ -161,7 +161,7 @@ public abstract class Demangler {
 	}
 	
 	public interface TemplateArg {
-		
+		boolean matchesParam(Object param, Annotations annotations);
 	}
 
 
@@ -302,8 +302,12 @@ public abstract class Demangler {
 
 	}
 
+	
 	public static abstract class TypeRef implements TemplateArg {
 		public abstract StringBuilder getQualifiedName(StringBuilder b, boolean generic);
+		public boolean matchesParam(Object param, Annotations annotations) {
+			return (param instanceof Type) && matches((Type)param, annotations);
+		}
 		public boolean matches(Type type, Annotations annotations) {
 			return getQualifiedName(new StringBuilder(), false).toString().equals(getTypeClass(type).getName());
 		}
@@ -316,7 +320,9 @@ public abstract class Demangler {
         public Constant(Object value) {
             this.value = value;
         }
-
+        public boolean matchesParam(Object param, Annotations annotations) {
+			return value.equals(param);
+		}
 
         @Override
         public String toString() {
@@ -661,6 +667,10 @@ public abstract class Demangler {
 		TemplateArg[] templateArguments;
         public Style callingConvention;
 
+        public void setTemplateArguments(TemplateArg[] templateArguments) {
+            this.templateArguments = templateArguments;
+        }
+
         public Integer getArgumentsStackSize() {
             return argumentsStackSize;
         }
@@ -811,6 +821,7 @@ public abstract class Demangler {
             if (hasThisAsFirstArgument)
             	totalArgs++;
             
+            
             for (int i = 0, n = paramTypes == null ? 0 : paramTypes.length; i < n; i++) {
                 if (totalArgs >= parameterTypes.length)
                     return false;
@@ -820,8 +831,11 @@ public abstract class Demangler {
 
                 totalArgs++;
             }
-            if (totalArgs != parameterTypes.length)
+            
+            if (totalArgs != parameterTypes.length) {
+            		System.err.println("Not enough args for " + this);
                 return false;
+            }
 
             return true;
 		}

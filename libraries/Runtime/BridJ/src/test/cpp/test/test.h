@@ -55,6 +55,27 @@ public:
 	void deleteSome(T* pValue);
 };
 
+template <typename T>
+class TEST_API Temp1 {
+public:
+	virtual ~Temp1() {}
+	void temp(T);
+};
+
+template <typename T1, typename T2>
+class TEST_API Temp2 {
+public:
+	virtual ~Temp2() {}
+	void temp(T1, T2);
+};
+
+template <typename T, int V>
+class TEST_API TempV {
+public:
+	virtual ~TempV() {}
+	void temp(T);
+};
+
 extern TEST_API int ntest;
 TEST_API Ctest* createTest();
 
