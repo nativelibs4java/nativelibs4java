@@ -33,6 +33,7 @@ import org.bridj.util.AutoHashMap;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 import static org.bridj.Pointer.*;
 
 /**
@@ -238,6 +239,7 @@ public class CPPRuntime extends CRuntime {
             NativeLibrary lib = BridJ.getNativeLibrary(typeClass);
             Pointer.Releaser releaser = null;
 
+            System.out.println("Creating C++ instance of type " + type + " with args " + Arrays.asList(args));
             if (enableDestructors()) {
 				Long destructor = destructors.get(type);
 				if (destructor == null) {
@@ -398,7 +400,13 @@ public class CPPRuntime extends CRuntime {
             public void initialize(T instance, int constructorId, Object... args) {
                 if (instance instanceof CPPObject) {
                     //instance.peer = allocate(instance.getClass(), constructorId, args);
-                    setNativeObjectPeer(instance, newCPPInstance((Class<? extends CPPObject>) typeClass, constructorId, args));
+                    int[] position = new int[] { 0 };
+    		            Type cppType = CPPType.parseCPPType(CPPType.cons((Class<? extends CPPObject>)typeClass, args), position);
+    		            int actualArgsOffset = position[0] - 1, nActualArgs = args.length - actualArgsOffset;
+    		            //System.out.println("actualArgsOffset = " + actualArgsOffset);
+    		            Object[] actualArgs = new Object[nActualArgs];
+    		            System.arraycopy(args, actualArgsOffset, actualArgs, 0, nActualArgs);
+                    setNativeObjectPeer(instance, newCPPInstance(cppType, constructorId, actualArgs));
                 } else {
                     super.initialize(instance, constructorId, args);
                 }
