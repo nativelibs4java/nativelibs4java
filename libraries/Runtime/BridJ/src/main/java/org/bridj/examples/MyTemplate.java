@@ -8,14 +8,15 @@ import java.util.*;
 
 /**
 
+mvn package -DskipTests=true -o && java -cp target/bridj-0.4-SNAPSHOT-shaded.jar org.bridj.examples.MyTemplate
+
 template <int n, type T>
 class MyTemplate {
 public:
 	MyTemplate(int arg);
 	T someMethod();
 }
-
-mvn 
+ 
  */ 
 @Template({ Integer.class, Class.class })
 public class MyTemplate<T> extends CPPObject {

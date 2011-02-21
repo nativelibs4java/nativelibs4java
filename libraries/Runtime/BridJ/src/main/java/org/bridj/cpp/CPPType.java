@@ -90,7 +90,7 @@ public class CPPType implements ParameterizedType {
     			notEOF("expecting param " + iParam + " for template " + c.getName(), flattenedClassesAndParams, position);
     			Object param = flattenedClassesAndParams[position[0]];
     			Type paramType = paramTypes[iParam];
-    			if (paramType.equals(Class.class))
+    			if (paramType.equals(Class.class) && param.getClass().equals(Class.class))
     				param = parseCPPType(flattenedClassesAndParams, position);
     			else {
     				if (!((Class)paramType).isInstance(param))
