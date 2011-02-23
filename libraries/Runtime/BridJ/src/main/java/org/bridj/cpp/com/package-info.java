@@ -1,4 +1,4 @@
 /**
 BridJ COM support (Windows-only, working but under-tested).
 */
-package org.bridj.com;
+package org.bridj.cpp.com;
