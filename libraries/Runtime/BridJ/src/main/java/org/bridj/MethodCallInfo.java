@@ -112,7 +112,9 @@ public class MethodCallInfo {
         asmSignature = asmSig.toString();
         dcSignature = dcSig.toString();
         
-        
+        if (BridJ.getAnnotation(DisableDirect.class, false, method) != null)
+        		direct = false;
+        	
         Virtual virtual = BridJ.getAnnotation(Virtual.class, false, method);
         isCPlusPlus = isCPlusPlus || virtual != null;
         

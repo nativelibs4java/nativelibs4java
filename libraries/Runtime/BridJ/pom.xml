@@ -100,6 +100,51 @@
 		  </executions>
 		</plugin>
 		-->
+		<plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-javadoc-plugin</artifactId>
+		  <version>2.7</version>
+		  <configuration>
+			  <executions>
+				<execution>
+				  <id>attach-javadocs</id>
+				  <goals>
+					<goal>jar</goal>
+				  </goals>
+				</execution>
+		      </executions>
+		  	<aggregate>true</aggregate>
+		  	<minmemory>128m</minmemory>
+		  	<maxmemory>512</maxmemory>
+		  	<breakiterator>true</breakiterator>
+		  	<quiet>true</quiet>
+		  	<source>1.5</source>
+		  	<verbose>false</verbose>
+		  	<linksource>true</linksource>
+		  	<show>public</show>
+		  	<links>
+		  	  <link>http://java.sun.com/javase/6/docs/api/</link>
+		  	</links>
+		  	<groups>
+		  	  <group>
+		  		<title>Core Packages</title>
+		  		<packages>org.bridj:org.bridj.cpp:org.bridj.jawt:org.bridj.ann</packages>
+		  	  </group>
+		  	  <group>
+		  		<title>Extension Packages</title>
+		  		<packages>org.bridj.cs*:org.bridj.objc*:org.bridj.cpp.*</packages>
+		  	  </group>
+		  	  <group>
+		  		<title>Demos Packages</title>
+		  		<packages>org.bridj.demos</packages>
+		  	  </group>
+		  	  <group>
+		  		<title>Shouldn't-be-there-really Packages</title>
+		  		<packages>org.bridj.examples:org.bridj.func:org.bridj.util</packages>
+		  	  </group>
+		  	</groups>
+		  </configuration>
+		</plugin>
   	 </plugins>
 
   </build>
@@ -112,54 +157,43 @@
 		  <version>2.4</version>
 		</plugin>
 		
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-javadoc-plugin</artifactId>
-			<version>2.5</version>
 		
-			<configuration>
-				<aggregate>true</aggregate>
-				<minmemory>128m</minmemory>
-				<maxmemory>512</maxmemory>
-				<breakiterator>true</breakiterator>
-				<quiet>true</quiet>
-				<source>1.5</source>
-				<verbose>false</verbose>
-				<linksource>true</linksource>
-				<show>public</show>
-				<links>
-					<link>http://java.sun.com/javase/6/docs/api/</link>
-					<link>https://jna.dev.java.net/javadoc</link>
-					<link>http://jnaerator.sourceforge.net/sites/jnaerator/apidocs</link>
-					<link>http://jnaerator.sourceforge.net/sites/jna-jnaerator/apidocs</link>
-					<link>http://jnaerator.sourceforge.net/sites/jnaerator-runtime/apidocs</link>
-				
-					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/opencl4java/apidocs/</link>
-					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl/apidocs/</link>
-					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-blas/apidocs/</link>
-					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-utils/apidocs/</link>
-					<link>http://nativelibs4java.sourceforge.net/sites/OpenCL/javacl-demos/apidocs/</link>
-			
-				</links>
-				<groups>
-				  <group>
-					<title>Core Packages</title>
-					<packages>org.bridj:org.bridj.cpp:org.bridj.jawt:org.bridj.ann</packages>
-				  </group>
-				  <group>
-					<title>Extension Packages</title>
-					<packages>org.bridj.cs*:org.bridj.objc*:org.bridj.cpp.*</packages>
-				  </group>
-				  <group>
-					<title>Demos Packages</title>
-					<packages>org.bridj.demos</packages>
-				  </group>
-				  <group>
-					<title>Shouldn't-be-there-really Packages</title>
-					<packages>org.bridj.examples:org.bridj.func:org.bridj.util</packages>
-				  </group>
-				</groups>
-			</configuration>
+		<plugin>
+		  <groupId>org.apache.maven.plugins</groupId>
+		  <artifactId>maven-javadoc-plugin</artifactId>
+		  <version>2.7</version>
+		  <configuration>
+		  	<aggregate>true</aggregate>
+		  	<minmemory>128m</minmemory>
+		  	<maxmemory>512</maxmemory>
+		  	<breakiterator>true</breakiterator>
+		  	<quiet>true</quiet>
+		  	<source>1.5</source>
+		  	<verbose>false</verbose>
+		  	<linksource>true</linksource>
+		  	<show>public</show>
+		  	<links>
+		  	  <link>http://java.sun.com/javase/6/docs/api/</link>
+		  	</links>
+		  	<groups>
+		  	  <group>
+		  		<title>Core Packages</title>
+		  		<packages>org.bridj:org.bridj.cpp:org.bridj.jawt:org.bridj.ann</packages>
+		  	  </group>
+		  	  <group>
+		  		<title>Extension Packages</title>
+		  		<packages>org.bridj.cs*:org.bridj.objc*:org.bridj.cpp.*</packages>
+		  	  </group>
+		  	  <group>
+		  		<title>Demos Packages</title>
+		  		<packages>org.bridj.demos</packages>
+		  	  </group>
+		  	  <group>
+		  		<title>Shouldn't-be-there-really Packages</title>
+		  		<packages>org.bridj.examples:org.bridj.func:org.bridj.util</packages>
+		  	  </group>
+		  	</groups>
+		  </configuration>
 		</plugin>
     </plugins>
   </reporting>

@@ -9,7 +9,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- *
+ * Default implementation of {@link java.lang.reflect.ParameterizedType}
  * @author Olivier
  */
 public class DefaultParameterizedType implements ParameterizedType {

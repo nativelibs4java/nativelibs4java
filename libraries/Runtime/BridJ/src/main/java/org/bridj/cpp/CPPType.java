@@ -4,7 +4,6 @@
  */
 
 package org.bridj.cpp;
-import org.bridj.util.DefaultParameterizedType;
 
 import java.util.Stack;
 import java.util.Arrays;
@@ -23,7 +22,7 @@ import org.bridj.BridJ;
 
 
 /**
- *
+ * Representation of a C++ type (including template parameters)
  * @author Olivier
  */
 public class CPPType implements ParameterizedType {
