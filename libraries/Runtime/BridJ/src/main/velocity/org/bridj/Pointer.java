@@ -909,7 +909,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
      */
     public static Pointer<?> pointerToAddress(long peer, Class<?> targetClass, final Releaser releaser) {
-        return newPointer(PointerIO.getInstance(targetClass), peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, null, null);
+        return newPointer(PointerIO.getInstance(targetClass), peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, releaser, null);
     }
     /**
      * Create a pointer out of a native memory address
