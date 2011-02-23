@@ -317,17 +317,17 @@ JNIEXPORT jint JNICALL Java_org_bridj_JNI_getMaxDirectMappingArgCount(JNIEnv *en
 char getDCReturnType(JNIEnv* env, ValueType returnType) 
 {
 	switch (returnType) {
-#define CALL_CASE(valueType, capCase, hiCase, uni) \
+#define RET_TYPE_CASE(valueType, hiCase) \
 		case valueType: \
 			return DC_SIGCHAR_ ## hiCase;
 		case eIntFlagSet:
-		CALL_CASE(eIntValue, Int, INT, i)
-		CALL_CASE(eLongValue, Long, LONGLONG, l)
-		CALL_CASE(eShortValue, Short, SHORT, s)
-		CALL_CASE(eFloatValue, Float, FLOAT, f)
-		CALL_CASE(eDoubleValue, Double, DOUBLE, d)
+		RET_TYPE_CASE(eIntValue, INT)
+		RET_TYPE_CASE(eLongValue, LONGLONG)
+		RET_TYPE_CASE(eShortValue, SHORT)
+		RET_TYPE_CASE(eFloatValue, FLOAT)
+		RET_TYPE_CASE(eDoubleValue, DOUBLE)
 		case eBooleanValue:
-		CALL_CASE(eByteValue, Char, CHAR, c)
+		RET_TYPE_CASE(eByteValue, CHAR)
 		case eCLongValue:
 			return DC_SIGCHAR_LONGLONG;
 		case eSizeTValue:
