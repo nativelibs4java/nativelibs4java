@@ -11,6 +11,10 @@ import org.bridj.ann.Runtime;
 import static org.junit.Assert.*;
 import static org.bridj.Pointer.*;
 
+#set($v1 = "(1 << 32 | 1)")
+#set($v2 = "(2 << 32 | 2)")
+#set($v3 = "(3 << 32 | 3)")
+
 @Library("test")
 @Runtime(CPPRuntime.class)
 public class PointerTest {
@@ -314,9 +318,9 @@ public class PointerTest {
 
 	static ${prim.Name}[] createExpected${prim.CapName}s(int n) {
 		${prim.Name}[] expected = new ${prim.Name}[n];
-		expected[0] = ${prim.value("1")};
-		expected[1] = ${prim.value("2")};
-		expected[2] = ${prim.value("3")};
+		expected[0] = ${prim.value($v1)};
+		expected[1] = ${prim.value($v2)};
+		expected[2] = ${prim.value($v3)};
 		//for (int i = 0; i < n; i++)
 		//	expected[i] = (${prim.Name})(i + 1);
 		return expected;
@@ -343,23 +347,23 @@ public class PointerTest {
 	@Test 
     public void testPointerTo_${prim.Name}_Values() {
 		// Test pointerToInts(int...)
-		Pointer<${prim.typeRef}> p = Pointer.pointerTo${prim.CapName}s(${prim.value("1")}, ${prim.value("2")}, ${prim.value("3")});
-		assertEquals(${prim.value("1")}, (${prim.Name})p.get(0)$precisionArg);
-		assertEquals(${prim.value("2")}, (${prim.Name})p.get(1)$precisionArg);
-		assertEquals(${prim.value("3")}, (${prim.Name})p.get(2)$precisionArg);
+		Pointer<${prim.typeRef}> p = Pointer.pointerTo${prim.CapName}s(${prim.value($v1)}, ${prim.value($v2)}, ${prim.value($v3)});
+		assertEquals(${prim.value($v1)}, (${prim.Name})p.get(0)$precisionArg);
+		assertEquals(${prim.value($v2)}, (${prim.Name})p.get(1)$precisionArg);
+		assertEquals(${prim.value($v3)}, (${prim.Name})p.get(2)$precisionArg);
 		
-		p = Pointer.pointerTo${prim.CapName}s(${prim.rawValue("1")}, ${prim.rawValue("2")}, ${prim.rawValue("3")});
-		assertEquals(${prim.rawValue("1")}, p.get${prim.CapName}AtOffset(0 * ${prim.Size})$precisionArg);
-		assertEquals(${prim.rawValue("2")}, p.get${prim.CapName}AtOffset(1 * ${prim.Size})$precisionArg);
-		assertEquals(${prim.rawValue("3")}, p.get${prim.CapName}AtOffset(2 * ${prim.Size})$precisionArg);
+		p = Pointer.pointerTo${prim.CapName}s(${prim.rawValue($v1)}, ${prim.rawValue($v2)}, ${prim.rawValue($v3)});
+		assertEquals(${prim.rawValue($v1)}, p.get${prim.CapName}AtOffset(0 * ${prim.Size})$precisionArg);
+		assertEquals(${prim.rawValue($v2)}, p.get${prim.CapName}AtOffset(1 * ${prim.Size})$precisionArg);
+		assertEquals(${prim.rawValue($v3)}, p.get${prim.CapName}AtOffset(2 * ${prim.Size})$precisionArg);
 	}
 	@Test 
     public void testPointerTo_${prim.Name}_Value() {
-		Pointer<${prim.typeRef}> p = Pointer.pointerTo${prim.CapName}(${prim.value("1")});
-		assertEquals(${prim.value("1")}, (${prim.Name})p.get(0)$precisionArg);
+		Pointer<${prim.typeRef}> p = Pointer.pointerTo${prim.CapName}(${prim.value($v1)});
+		assertEquals(${prim.value($v1)}, (${prim.Name})p.get(0)$precisionArg);
 		
-		p = Pointer.pointerTo${prim.CapName}(${prim.rawValue("1")});
-		assertEquals(${prim.rawValue("1")}, p.get${prim.CapName}()$precisionArg);
+		p = Pointer.pointerTo${prim.CapName}(${prim.rawValue($v1)});
+		assertEquals(${prim.rawValue($v1)}, p.get${prim.CapName}()$precisionArg);
 	}
 
 	
@@ -417,11 +421,11 @@ public class PointerTest {
     public void simpleSetGet${prim.CapName}s_$order() {
     		Pointer<${prim.typeRef}> p = allocate${prim.CapName}s(3).order(ByteOrder.$order);
 
-			p.set(2, ${prim.value("3")});
-			assertEquals(${prim.value("3")}, (${prim.Name})p.get(2)$precisionArg);
+			p.set(2, ${prim.value($v3)});
+			assertEquals(${prim.value($v3)}, (${prim.Name})p.get(2)$precisionArg);
 			
-			p.set${prim.CapName}(${prim.value("1")});
-			assertEquals(${prim.rawValue("1")}, ($rawType)p.get${prim.CapName}()$precisionArg);
+			p.set${prim.CapName}(${prim.value($v1)});
+			assertEquals(${prim.rawValue($v1)}, ($rawType)p.get${prim.CapName}()$precisionArg);
 			
 			p.set${prim.CapName}AtOffset(${prim.Size}, ${prim.value("-2")});
 			assertEquals(${prim.rawValue("-2")}, ($rawType)p.get${prim.CapName}AtOffset(${prim.Size})$precisionArg);
@@ -438,12 +442,12 @@ public class PointerTest {
 	
 	@Test
 	public void testPointerToArray_${prim.Name}() {
-		${prim.Name}[] original = new ${prim.Name}[] { ${prim.value("1")}, ${prim.value("2")}, ${prim.value("3")} };
+		${prim.Name}[] original = new ${prim.Name}[] { ${prim.value($v1)}, ${prim.value($v2)}, ${prim.value($v3)} };
 		Pointer<${prim.typeRef}> p = pointerToArray(original);
 		assertEquals(3, p.getValidElements());
-		assertEquals(${prim.value("1")}, (${prim.Name})p.get(0)$precisionArg);
-		assertEquals(${prim.value("2")}, (${prim.Name})p.get(1)$precisionArg);
-		assertEquals(${prim.value("3")}, (${prim.Name})p.get(2)$precisionArg);
+		assertEquals(${prim.value($v1)}, (${prim.Name})p.get(0)$precisionArg);
+		assertEquals(${prim.value($v2)}, (${prim.Name})p.get(1)$precisionArg);
+		assertEquals(${prim.value($v3)}, (${prim.Name})p.get(2)$precisionArg);
 		
 		${prim.Name}[] values = (${prim.Name}[])p.getArray();
 		assertEquals(original.length, values.length);
@@ -473,9 +477,9 @@ public class PointerTest {
 	//@Test(expected=UnsupportedOperationException.class)
 	public void testPointerTo_${prim.Name}_IndirectBuffer() {
 		${prim.BufferName} b = ${prim.BufferName}.wrap(new ${prim.Name}[3]);
-		b.put(0, ${prim.value("1")});
-		b.put(1, ${prim.value("2")});
-		b.put(2, ${prim.value("3")});
+		b.put(0, ${prim.value($v1)});
+		b.put(1, ${prim.value($v2)});
+		b.put(2, ${prim.value($v3)});
 		
 		Pointer<${prim.typeRef}> p;
 		
@@ -486,9 +490,9 @@ public class PointerTest {
 				p = Pointer.pointerTo${prim.CapName}s(b);
 			
 			assertEquals(3 * ${prim.Size}, p.getValidBytes());
-			assertEquals(${prim.value("1")}, (${prim.Name})p.get(0)$precisionArg);
-			assertEquals(${prim.value("2")}, (${prim.Name})p.get(1)$precisionArg);
-			assertEquals(${prim.value("3")}, (${prim.Name})p.get(2)$precisionArg);
+			assertEquals(${prim.value($v1)}, (${prim.Name})p.get(0)$precisionArg);
+			assertEquals(${prim.value($v2)}, (${prim.Name})p.get(1)$precisionArg);
+			assertEquals(${prim.value($v3)}, (${prim.Name})p.get(2)$precisionArg);
 		}
 		
 		p = (Pointer<${prim.typeRef}>)Pointer.pointerToBuffer(b);
@@ -545,9 +549,9 @@ public class PointerTest {
     public void testPointerTo_${prim.Name}_DirectBuffer() {
     		Pointer<${prim.typeRef}> p = Pointer.allocate${prim.CapName}s(3);
     		assertEquals(3 * ${prim.Size}, p.getValidBytes());
-		p.set(0, ${prim.value("1")});
-		p.set(1, ${prim.value("2")});
-		p.set(2, ${prim.value("3")});
+		p.set(0, ${prim.value($v1)});
+		p.set(1, ${prim.value($v2)});
+		p.set(2, ${prim.value($v3)});
 		${prim.BufferName} b = p.get${prim.BufferName}();
 		assertEquals(3, b.capacity());
 		
@@ -558,18 +562,18 @@ public class PointerTest {
 				p = Pointer.pointerTo${prim.CapName}s(b);
 			
 			assertEquals(3 * ${prim.Size}, p.getValidBytes());
-			assertEquals(${prim.value("1")}, (${prim.Name})p.get(0)$precisionArg);
-			assertEquals(${prim.value("2")}, (${prim.Name})p.get(1)$precisionArg);
-			assertEquals(${prim.value("3")}, (${prim.Name})p.get(2)$precisionArg);
+			assertEquals(${prim.value($v1)}, (${prim.Name})p.get(0)$precisionArg);
+			assertEquals(${prim.value($v2)}, (${prim.Name})p.get(1)$precisionArg);
+			assertEquals(${prim.value($v3)}, (${prim.Name})p.get(2)$precisionArg);
 		}
 	}
 	
 	@Test 
     public void testPointerTo_${prim.Name}_Values2D() {
 		${prim.Name}[][] values = new ${prim.Name}[][] {
-				{${prim.value("1")}, ${prim.value("2")}},
-				{${prim.value("1")}, ${prim.value("2")}},
-				{${prim.value("1")}, ${prim.value("2")}}
+				{${prim.value($v1)}, ${prim.value($v2)}},
+				{${prim.value($v1)}, ${prim.value($v2)}},
+				{${prim.value($v1)}, ${prim.value($v2)}}
 		};
 		Pointer<Pointer<${prim.typeRef}>> p = Pointer.pointerTo${prim.CapName}s(values);
 		int dim2 = values[0].length;
@@ -583,14 +587,14 @@ public class PointerTest {
     public void testPointerTo_${prim.Name}_Values3D() {
 		${prim.Name}[][][] values = new ${prim.Name}[][][] {
 			{
-				{${prim.value("1")}, ${prim.value("2")}},
-				{${prim.value("1")}, ${prim.value("2")}},
-				{${prim.value("1")}, ${prim.value("2")}}
+				{${prim.value($v1)}, ${prim.value($v2)}},
+				{${prim.value($v1)}, ${prim.value($v2)}},
+				{${prim.value($v1)}, ${prim.value($v2)}}
 			},
 			{
-				{${prim.value("1")}, ${prim.value("2")}},
-				{${prim.value("1")}, ${prim.value("2")}},
-				{${prim.value("1")}, ${prim.value("2")}}
+				{${prim.value($v1)}, ${prim.value($v2)}},
+				{${prim.value($v1)}, ${prim.value($v2)}},
+				{${prim.value($v1)}, ${prim.value($v2)}}
 			}
 		};
 		Pointer<Pointer<Pointer<${prim.typeRef}>>> p = Pointer.pointerTo${prim.CapName}s(values);
@@ -655,7 +659,7 @@ public class PointerTest {
 
 	@Test
 	public void test${prim.CapName}_Endianness_$order() {
-		for (${prim.Name} value : new ${prim.Name}[] { ${prim.value("0")}, ${prim.value("1")}, ${prim.value("-1")} }) {
+		for (${prim.Name} value : new ${prim.Name}[] { ${prim.value("0")}, ${prim.value($v1)}, ${prim.value("-1")} }) {
 			Pointer<${prim.typeRef}> p = Pointer.allocate${prim.CapName}().order(ByteOrder.$order);
 			p.set(value);
 		    assertEquals(ByteOrder.$order, p.order());
