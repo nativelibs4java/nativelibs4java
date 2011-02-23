@@ -23,6 +23,9 @@ mvn exec:java -Dexec.mainClass=org.bridj.Demangler "-Dexec.args=?method_name@cla
 class TestLib::Class1 & TestLib::Class1::operator=(class TestLib::Class1 const &)
 char * TestLib::Class1::f(char *,char *)
 */
+/**
+ * Base class and core structures for symbol demanglers (typically, for C++ symbols).
+ */
 public abstract class Demangler {
 	
 	public static void main(String[] args) {

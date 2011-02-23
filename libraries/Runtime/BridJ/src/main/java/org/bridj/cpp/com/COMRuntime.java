@@ -117,6 +117,10 @@ public class COMRuntime extends CPPRuntime {
                 throw new RuntimeException("Unexpected COM error code : " + err);
         }
     }
+    /** 
+     * Get the IID declared for a class using the {@link IID} annotation.
+     * @throws RuntimeException if the class isn't annotated with IID
+     */
 	public static <I extends IUnknown> Pointer<Byte> getIID(Class<I> type) {
 		IID id = type.getAnnotation(IID.class);
 		if (id == null)
@@ -125,6 +129,10 @@ public class COMRuntime extends CPPRuntime {
         return (Pointer)GUID.parseGUID128Bits(id.value());
 	}
 	
+	/** 
+     * Get the CLSID declared for a class using the {@link CLSID} annotation.
+     * @throws RuntimeException if the class isn't annotated with CLSID
+     */
 	public static <I extends IUnknown> Pointer<Byte> getCLSID(Class<I> type) {
 		CLSID id = type.getAnnotation(CLSID.class);
 		if (id == null)

@@ -21,11 +21,11 @@ import org.bridj.BridJ;
  */
 @Runtime(CPPRuntime.class)
 public class CPPObject extends StructObject {
-	public CPPObject() {}
-    public CPPObject(Pointer<? extends CPPObject> peer) {
+	protected CPPObject() {}
+    protected CPPObject(Pointer<? extends CPPObject> peer) {
         super(peer);
     }
-    public CPPObject(int constructorId, Object... args) {
+    protected CPPObject(int constructorId, Object... args) {
         super(constructorId, args);
     }
     /*

@@ -15,15 +15,15 @@ public class NativeObject {
     protected Pointer<? extends NativeObject> peer;
     protected BridJRuntime.TypeInfo typeInfo;
 
-    public NativeObject(Pointer<? extends NativeObject> peer) {
+    protected NativeObject(Pointer<? extends NativeObject> peer) {
         BridJ.initialize(this, peer);
     }
 
-    public NativeObject() {
+    protected NativeObject() {
         BridJ.initialize(this);
     }
 
-    public NativeObject(int constructorId, Object... args) {
+    protected NativeObject(int constructorId, Object... args) {
         BridJ.initialize(this, constructorId, args);
     }
     /*

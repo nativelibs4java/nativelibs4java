@@ -5,13 +5,13 @@ public class StructObject extends NativeObject {
 	protected StructIO io;
 	Object[] refreshableFields;
 
-    public StructObject() {
+    protected StructObject() {
 		super();
 	}
-    public StructObject(int constructorId, Object[] args) {
+    protected StructObject(int constructorId, Object[] args) {
     	super(constructorId, args);
     }
-    public StructObject(Pointer<? extends StructObject> peer) {
+    protected StructObject(Pointer<? extends StructObject> peer) {
     	super(peer);
     }
 }
