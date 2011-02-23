@@ -57,6 +57,7 @@ public class GCC4Demangler extends Demangler {
 				consumeChar();
 				b.append(c);
 			}
+			// TODO switch on type !
 			return new Constant(Integer.parseInt(b.toString()));
     		} else
     			return parseType();

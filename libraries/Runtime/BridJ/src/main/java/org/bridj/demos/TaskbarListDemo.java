@@ -25,7 +25,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 /**
- *
+ * On Windows 7, demonstrate the use of the ITaskbarList3 interface to control the taskbar progression visual indicator.
  * @author Olivier
  */
 public class TaskbarListDemo extends JFrame implements ActionListener, ChangeListener {

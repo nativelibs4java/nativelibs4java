@@ -20,18 +20,18 @@ import static org.bridj.SizeT.safeIntCast;
  *  </li>
  *	<li>Reading / writing a primitive from / to the pointed memory location :<br>
 #foreach ($prim in $primitives)
- *		{@link Pointer#get${prim.CapName}()} / {@link Pointer#set${prim.CapName}(${prim.Name})} ; With an offset : {@link Pointer#get${prim.CapName}(long)} / {@link Pointer#set${prim.CapName}(long, ${prim.Name})}<br>
+ *		{@link Pointer#get${prim.CapName}()} / {@link Pointer#set${prim.CapName}(${prim.Name})} ; With an offset : {@link Pointer#get${prim.CapName}AtOffset(long)} / {@link Pointer#set${prim.CapName}AtOffset(long, ${prim.Name})}<br>
 #end
 #foreach ($sizePrim in ["SizeT", "CLong"])
- *		{@link Pointer#get${sizePrim}()} / {@link Pointer#set${sizePrim}(long)} ; With an offset : {@link Pointer#get${sizePrim}(long)} / {@link Pointer#set${sizePrim}(long, long)} <br>
+ *		{@link Pointer#get${sizePrim}()} / {@link Pointer#set${sizePrim}(long)} ; With an offset : {@link Pointer#get${sizePrim}AtOffset(long)} / {@link Pointer#set${sizePrim}AtOffset(long, long)} <br>
 #end
  *  </li>
  *	<li>Reading / writing an array of primitives from / to the pointed memory location :<br>
 #foreach ($prim in $primitives)
- *		{@link Pointer#get${prim.CapName}s(int)} / {@link Pointer#set${prim.CapName}s(${prim.Name}[])} ; With an offset : {@link Pointer#get${prim.CapName}s(long, int)} / {@link Pointer#set${prim.CapName}s(long, ${prim.Name}[])}<br>
+ *		{@link Pointer#get${prim.CapName}s(int)} / {@link Pointer#set${prim.CapName}s(${prim.Name}[])} ; With an offset : {@link Pointer#get${prim.CapName}sAtOffset(long, int)} / {@link Pointer#set${prim.CapName}sAtOffset(long, ${prim.Name}[])}<br>
 #end
 #foreach ($sizePrim in ["SizeT", "CLong"])
- *		{@link Pointer#get${sizePrim}s(int)} / {@link Pointer#set${sizePrim}s(long[])} ; With an offset : {@link Pointer#get${sizePrim}s(long, int)} / {@link Pointer#set${sizePrim}s(long, long[])}<br>
+ *		{@link Pointer#get${sizePrim}s(int)} / {@link Pointer#set${sizePrim}s(long[])} ; With an offset : {@link Pointer#get${sizePrim}sAtOffset(long, int)} / {@link Pointer#set${sizePrim}sAtOffset(long, long[])}<br>
 #end
  *  </li>
  *	<li>Reading / writing an NIO buffer of primitives from / to the pointed memory location :<br>
@@ -41,11 +41,11 @@ import static org.bridj.SizeT.safeIntCast;
  *  </li>
  *  <li>Reading / writing a String from / to the pointed memory location using the default charset :<br>
 #foreach ($string in ["C", "WideC"])
-*		{@link Pointer#get${string}String()} / {@link Pointer#set${string}String(String)} ; With an offset : {@link Pointer#get${string}String(long)} / {@link Pointer#set${string}String(long, String)}<br>
+*		{@link Pointer#get${string}String()} / {@link Pointer#set${string}String(String)} ; With an offset : {@link Pointer#get${string}StringAtOffset(long)} / {@link Pointer#set${string}StringAtOffset(long, String)}<br>
 #end
  *  </li>
  *  <li>Reading / writing a String with control on the charset :<br>
- *		{@link Pointer#getString(long, StringType, Charset)} / {@link Pointer#setString(long, String, StringType, Charset)}<br>
+ *		{@link Pointer#getStringAtOffset(long, StringType, Charset)} / {@link Pointer#setStringAtOffset(long, String, StringType, Charset)}<br>
  * </ul>
  * <p>
  * <u><b>Allocating memory</b></u>
@@ -1448,14 +1448,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     
     /**
 	 * Read an array of untyped pointer values from the pointed memory location shifted by a byte offset
-	 * @deprecated Use a typed version instead : {@link Pointer#getPointersAtOffset(long, int, Type)}, {@link Pointer#getPointers(long, int, Class)} or {@link Pointer#getPointersAtOffset(long, int, PointerIO)}
+	 * @deprecated Use a typed version instead : {@link Pointer#getPointersAtOffset(long, int, Type)}, {@link Pointer#getPointersAtOffset(long, int, Class)} or {@link Pointer#getPointersAtOffset(long, int, PointerIO)}
 	 */
 	public Pointer<?>[] getPointersAtOffset(long byteOffset, int arrayLength) {
         return getPointersAtOffset(byteOffset, arrayLength, (PointerIO)null);
     }
     /**
 	 * Read the array of remaining untyped pointer values from the pointed memory location
-	 * @deprecated Use a typed version instead : {@link Pointer#getPointersAtOffset(long, int, Type)}, {@link Pointer#getPointers(long, int, Class)} or {@link Pointer#getPointersAtOffset(long, int, PointerIO)}
+	 * @deprecated Use a typed version instead : {@link Pointer#getPointersAtOffset(long, int, Type)}, {@link Pointer#getPointersAtOffset(long, int, Class)} or {@link Pointer#getPointersAtOffset(long, int, PointerIO)}
 	 */
     @Deprecated
 	public Pointer<?>[] getPointers() {
@@ -1464,7 +1464,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     /**
 	 * Read an array of untyped pointer values from the pointed memory location
-	 * @deprecated Use a typed version instead : {@link Pointer#getPointersAtOffset(long, int, Type)}, {@link Pointer#getPointers(long, int, Class)} or {@link Pointer#getPointersAtOffset(long, int, PointerIO)}
+	 * @deprecated Use a typed version instead : {@link Pointer#getPointersAtOffset(long, int, Type)}, {@link Pointer#getPointersAtOffset(long, int, Class)} or {@link Pointer#getPointersAtOffset(long, int, PointerIO)}
 	 */
     @Deprecated                     
 	public Pointer<?>[] getPointers(int arrayLength) {
@@ -2065,7 +2065,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
 	 * Type of a native character string.<br>
 	 * In the native world, there are several ways to represent a string.<br>
-	 * See {@link Pointer#getString(long, StringType, Charset)} and {@link Pointer#setString(long, String, StringType, Charset)}
+	 * See {@link Pointer#getStringAtOffset(long, StringType, Charset)} and {@link Pointer#setStringAtOffset(long, String, StringType, Charset)}
 	 */
     public enum StringType {
         /**
@@ -2147,7 +2147,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     
 	/**
 	 * Read a native string from the pointed memory location using the default charset.<br>
-	 * See {@link Pointer#getString(long, StringType, Charset)} for more options.
+	 * See {@link Pointer#getStringAtOffset(long, StringType, Charset)} for more options.
 	 * @param type Type of the native String to read. See {@link StringType} for details on the supported types.
 	 * @return string read from native memory
 	 */
@@ -2157,7 +2157,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	
 	/**
 	 * Read a native string from the pointed memory location, using the provided charset or the system's default if not provided.
-	 * See {@link Pointer#getString(long, StringType, Charset)} for more options.
+	 * See {@link Pointer#getStringAtOffset(long, StringType, Charset)} for more options.
 	 * @param type Type of the native String to read. See {@link StringType} for details on the supported types.
 	 * @param charset Character set used to convert String characters to bytes. If null, {@link Charset#defaultCharset()} will be used
 	 * @return string read from native memory

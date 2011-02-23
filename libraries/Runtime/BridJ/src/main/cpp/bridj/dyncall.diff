@@ -193,7 +193,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.c
 ===================================================================
 --- ~/src/dyncall/dyncall/dyncall/dyncall_struct.c	
 +++ ~/src/dyncall/dyncall/dyncall/dyncall_struct.c	
-@@ -0,0 +1,194 @@
+@@ -0,0 +1,193 @@
 +/*
 + Package: dyncall
 + File: dyncall/dyncall_struct.c
@@ -387,7 +387,6 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.c
 +	dcCloseStruct(s);
 +	return s;
 +}
-+
 Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_eabi.c
 ===================================================================
 --- ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_eabi.c	
@@ -412,7 +411,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.h
 ===================================================================
 --- ~/src/dyncall/dyncall/dyncall/dyncall_struct.h	
 +++ ~/src/dyncall/dyncall/dyncall/dyncall_struct.h	
-@@ -0,0 +1,65 @@
+@@ -0,0 +1,64 @@
 +/*
 + Package: dyncall
 + File: dyncall/dyncall_struct.h
@@ -476,7 +475,6 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.h
 +#endif
 +
 +#endif /* DYNCALL_H */
-+
 +
 Index: ~/src/dyncall/dyncall/dyncall/GNUmakefile
 ===================================================================

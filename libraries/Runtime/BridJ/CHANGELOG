@@ -1,12 +1,27 @@
-Current version : BridJ 0.3-SNAPSHOT
+Current version : BridJ 0.4-SNAPSHOT
+
+...
+
+BridJ 0.3 (r1638, 20110204):
 
 - Fixed binding of "c" library on Unix
 - Fixed iteration on unbound native-allocated pointers (issue 37). 
 - Fixed Visual C++ demangling (issue 36 : bad handling of back-references).
 - Added Pointer.getBuffer(), getSizeTs(), getCLongs() and other missing methods.
 - Fixed byteOffset-related issues in CLong and SizeT pointer read/write methods.
-- Deprecated most byteOffset methods with proper link to preferred alternatives in JavaDoc.
-- Inverted charset and StringType arguments in get/setString methods
+- Renamed most pointer byteOffset methods with an -AtOffset suffix (for instance, Pointer.getInt(long) becomes getIntAtOffset(long))
+- Inverted charset and StringType arguments in Pointer.getString / .setString methods
+- Renamed Pointer.withIO(PointerIO<U>) to Pointer.as(PointerIO<U>)
+- Added Pointer.asUntyped() (equiv. to Pointer.as((Class<?>)null))
+- Allow pointerToBuffer on a non-direct buffer (and added Pointer.updateBuffer
+to copy data back to non-direct buffer if needed)
+- Assume @Runtime(CRuntime.class) by default
+- Autodetect calling convention on Windows (based on name mangling), unless convention is explicitely specified with @Convention(Style.X)
+- Added BRIDJ_<LIBNAME>_LIBRARY environment variables to hard-code the shared library path in priority
+- Added library alias mechanism : BridJ.setNativeLibraryActualName, .addNativeLibraryAlias
+- Fixed callbacks-related Win32 crashes
+- Fixed super-critical bug on Windows 32 bits with size_t arguments !
+- Fixed some Pointer endianness bugs
 
 BridJ 0.2 (r1330, 20101011):
 

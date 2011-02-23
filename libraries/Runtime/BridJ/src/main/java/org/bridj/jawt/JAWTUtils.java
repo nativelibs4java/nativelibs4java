@@ -14,6 +14,9 @@ import org.bridj.cpp.CPPRuntime;
 import java.awt.*;
 import java.io.File;
 
+/**
+ * Contains a method that returns the native peer handle of an AWT component.
+ */
 public class JAWTUtils {
     static {
         try {
