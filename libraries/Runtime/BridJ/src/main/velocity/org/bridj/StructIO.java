@@ -50,7 +50,7 @@ public class StructIO {
 		Type valueType;
         Class<?> valueClass;
         Class<?> declaringClass;
-        boolean isBitField, isWide;
+        boolean isBitField;
     }
 	
     static class SolidRanges {
@@ -220,7 +220,6 @@ public class StructIO {
                 length *= dim;
             field.desc.arrayLength = length;
         }
-        field.isWide = getter.getAnnotation(Wide.class) != null;
         return field;
     }
 
@@ -250,7 +249,7 @@ public class StructIO {
         Class<?> c = structClass;
         do {
             classes.add(c = c.getSuperclass());
-        } while (Struct.class.isAssignableFrom(c));
+        } while (StructObject.class.isAssignableFrom(c));
         Collections.reverse(classes);
         for (Class<?> cl : classes) {
             for (java.lang.reflect.Field field : structClass.getDeclaredFields()) {

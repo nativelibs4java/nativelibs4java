@@ -82,13 +82,4 @@ public class Dyncall {
 	        DC_SIGCHAR_CC_FASTCALL_GNU  = 'f',
 	        DC_SIGCHAR_CC_FASTCALL_MS   = 'F';
     }
-    public static class Options {
-        boolean bIsWideChar;
-        boolean bIsConst;
-        boolean bIsPointer;
-        boolean bIsByValue;
-        boolean bIsSizeT;
-        boolean bIsCLong;
-        int virtualIndex;
-    }
 }

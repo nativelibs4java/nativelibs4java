@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * C++ template informations
+ * C++ template parameters metadata
  * @author ochafik
  */
 @Retention(RetentionPolicy.RUNTIME)

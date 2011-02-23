@@ -2,10 +2,8 @@ package org.bridj.cpp.mfc;
 
 import org.bridj.Pointer;
 import org.bridj.ann.Field;
-import org.bridj.ann.Struct;
 import org.bridj.func.Fun0;
 
-@Struct
 public class CRuntimeClass extends MFCObject {
 	// Attributes
 	@Field(0)

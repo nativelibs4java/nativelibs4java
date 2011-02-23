@@ -7,7 +7,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 /**
- *
+ * Force the method call convention to some value.<br>
+ * Without this annotation, BridJ will do its best to infer the call convention from the context (C++ method, symbol decoration...)
  * @author Olivier Chafik
  */
 @Retention(RetentionPolicy.RUNTIME)

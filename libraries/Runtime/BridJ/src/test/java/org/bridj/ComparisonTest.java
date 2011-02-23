@@ -43,13 +43,13 @@ public class ComparisonTest {
         public native void voidTest();
         
         static class Struct1 {
-            @Wide String ws;
+            String ws;
             String s;
             
         }
         static class Struct2 extends StructObject {
             Struct1 s1;
-            @Wide @Array(10) Pointer<Character> s;
+            @Array(10) Pointer<Character> s;
         }
     }
     /**

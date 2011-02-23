@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Size in bits of a bit field
+ * Applies to native methods that might not be present to avoid polluting error logs (useful for "optional" methods in many libraries). 
  * @author ochafik
  */
 @Retention(RetentionPolicy.RUNTIME)

@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Size in bits of a bit field
+ * Size in bits of a struct's bit field
  * @author ochafik
  */
 @Retention(RetentionPolicy.RUNTIME)

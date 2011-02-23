@@ -14,7 +14,9 @@ import java.lang.annotation.Target;
 import org.bridj.BridJRuntime;
 
 /**
- *
+* Specify the runtime that should be used to bind native methods (default is {@link org.bridj.CRuntime} if no annotation is provided).
+<br>
+Also see @see org.bridj.Bridj.register().
  * @author Olivier
  */
 @Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})

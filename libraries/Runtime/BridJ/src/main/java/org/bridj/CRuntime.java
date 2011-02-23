@@ -20,7 +20,6 @@ import org.bridj.NativeObject;
 import org.bridj.Pointer;
 import org.bridj.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;
-import org.bridj.ann.Struct;
 import org.bridj.ann.Virtual;
 import org.bridj.ann.Convention;
 import org.bridj.cpp.CPPObject;

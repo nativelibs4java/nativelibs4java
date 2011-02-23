@@ -40,7 +40,7 @@ public abstract class Demangler {
 		}
 	}
 	
-	interface Annotations {
+	public interface Annotations {
 		<A extends Annotation> A getAnnotation(Class<A> c);	
 	}
 	static Annotations annotations(final Annotation[] aa) {
@@ -161,7 +161,7 @@ public abstract class Demangler {
 	}
 	
 	public interface TemplateArg {
-		boolean matchesParam(Object param, Annotations annotations);
+		public boolean matchesParam(Object param, Annotations annotations);
 	}
 
 

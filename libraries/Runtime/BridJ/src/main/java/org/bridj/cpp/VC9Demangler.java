@@ -19,7 +19,6 @@ import org.bridj.Demangler.SpecialName;
 import org.bridj.Dyncall.CallingConvention;
 import org.bridj.ann.CLong;
 import org.bridj.ann.Convention;
-import org.bridj.ann.Wide;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
@@ -140,6 +139,10 @@ public class VC9Demangler extends Demangler {
         }
         String v;
 
+        @Override
+        public boolean matchesParam(Object param, Annotations annotations) {
+        		return true; // TODO wtf ?
+        }
         @Override
         public String toString() {
             return v;
@@ -309,7 +312,7 @@ public class VC9Demangler extends Demangler {
                 tr = classType(Object[].class);
 				break;
 			case 'W':
-				tr = classType(Character.TYPE, Wide.class);
+				tr = classType(Character.TYPE);//, Wide.class);
 				break;
 			default:
 				throw error(-1);
