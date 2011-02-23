@@ -1,7 +1,7 @@
 package org.bridj;
 import static org.bridj.Pointer.*;
 import org.bridj.ann.*;
-import static org.bridj.Functional.*;
+//import static org.bridj.Functional.*;
 import java.util.*;
 import org.junit.*;
 import static org.junit.Assert.*;
