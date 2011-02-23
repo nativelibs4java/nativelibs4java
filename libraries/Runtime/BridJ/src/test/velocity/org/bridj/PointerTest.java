@@ -659,7 +659,7 @@ public class PointerTest {
 
 	@Test
 	public void test${prim.CapName}_Endianness_$order() {
-		for (${prim.Name} value : new ${prim.Name}[] { ${prim.value("0")}, ${prim.value($v1)}, ${prim.value("-1")} }) {
+		for (${prim.Name} value : new ${prim.Name}[] { ${prim.value("0")}, ${prim.value($v1)}, ${prim.value("-1"), ${prim.value("-2")} }) {
 			Pointer<${prim.typeRef}> p = Pointer.allocate${prim.CapName}().order(ByteOrder.$order);
 			p.set(value);
 		    assertEquals(ByteOrder.$order, p.order());
