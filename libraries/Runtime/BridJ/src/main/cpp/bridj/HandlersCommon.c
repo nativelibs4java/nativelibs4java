@@ -93,7 +93,7 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 			result->uni = dcCall ## capCase(call->vm, callback); \
 			break;
 		CALL_CASE(eIntValue, Int, INT, i)
-		CALL_CASE(eLongValue, Long, LONGLONG, l)
+		CALL_CASE(eLongValue, LongLong, LONGLONG, l)
 		CALL_CASE(eShortValue, Short, SHORT, s)
 		CALL_CASE(eFloatValue, Float, FLOAT, f)
 		CALL_CASE(eDoubleValue, Double, DOUBLE, d)
@@ -152,6 +152,9 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 			throwException(env, "Invalid return value type !");
 			return JNI_FALSE;
 	}
+	if (returnType == eLongValue)
+		printf("RETURN eLongValue = %ld\n", result->l);
+	
 	if (bCallingJava && (*env)->ExceptionCheck(env))
 		return JNI_FALSE;
 	return JNI_TRUE;
