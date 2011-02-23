@@ -152,9 +152,6 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 			throwException(env, "Invalid return value type !");
 			return JNI_FALSE;
 	}
-	if (returnType == eLongValue)
-		printf("RETURN eLongValue = %ld\n", result->l);
-	
 	if (bCallingJava && (*env)->ExceptionCheck(env))
 		return JNI_FALSE;
 	return JNI_TRUE;
