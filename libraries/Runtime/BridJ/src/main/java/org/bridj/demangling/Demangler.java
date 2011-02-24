@@ -1,18 +1,26 @@
-package org.bridj;
+package org.bridj.demangling;
 
 import org.bridj.ann.Convention.Style;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
 import java.util.Arrays;
+import org.bridj.BridJ;
+import org.bridj.CRuntime;
+import org.bridj.FlagSet;
+import org.bridj.JNI;
+import org.bridj.NativeLibrary;
+import org.bridj.NativeObject;
+import org.bridj.Platform;
 
 import org.bridj.Pointer;
+import org.bridj.Pointer;
+import org.bridj.SizeT;
+import org.bridj.ValuedEnum;
 import org.bridj.ann.CLong;
 import org.bridj.ann.Constructor;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Convention;
 import org.bridj.util.DefaultParameterizedType;
-import org.bridj.cpp.GCC4Demangler;
-import org.bridj.cpp.VC9Demangler;
 
 /*
 mvn exec:java -Dexec.mainClass=org.bridj.Demangler "-Dexec.args=?method_name@class_name@@QAEPAPADPAD0@Z"
@@ -46,7 +54,7 @@ public abstract class Demangler {
 	public interface Annotations {
 		<A extends Annotation> A getAnnotation(Class<A> c);	
 	}
-	static Annotations annotations(final Annotation[] aa) {
+	public static Annotations annotations(final Annotation[] aa) {
 		return new Annotations() {
 			@Override
 			public <A extends Annotation> A getAnnotation(Class<A> c) {
@@ -57,7 +65,7 @@ public abstract class Demangler {
 			}
 		};
 	}
-	static Annotations annotations(final AnnotatedElement e) {
+	public static Annotations annotations(final AnnotatedElement e) {
 		return new Annotations() {
 			@Override
 			public <A extends Annotation> A getAnnotation(Class<A> c) {
@@ -181,6 +189,22 @@ public abstract class Demangler {
 			
 		}
 
+        public NativeLibrary getLibrary() {
+            return library;
+        }
+
+        public MemberRef getRef() {
+            return ref;
+        }
+
+        public Style getStyle() {
+            return style;
+        }
+
+        public String getSymbol() {
+            return symbol;
+        }
+
         @Override
         public String toString() {
             return symbol + (ref == null ? "" : " (" + ref + ")");
@@ -192,6 +216,10 @@ public abstract class Demangler {
                 address = library.getSymbolAddress(symbol);
             return address;
         }
+
+        public void setAddress(long address) {
+            this.address = address;
+        }
 		
 		private Convention.Style style;
 		public Convention.Style getInferredCallingConvention() {
@@ -201,7 +229,7 @@ public abstract class Demangler {
 					style = Convention.Style.StdCall;
 				else if (symbol.matches("@.*?@\\d+"))
 					style = Convention.Style.FastCall;
-				else if (JNI.isWindows() && symbol.contains("@"))
+				else if (Platform.isWindows() && symbol.contains("@"))
 					try {
 						MemberRef mr = getParsedRef();
 						if (mr != null)
@@ -432,10 +460,10 @@ public abstract class Demangler {
 					return true;
 			}
             if (tc == CLong.class) {
-                if ((typec == int.class || typec == Integer.class) && (JNI.CLONG_SIZE == 4) || typec == long.class || typec == Long.class)
+                if ((typec == int.class || typec == Integer.class) && (Platform.CLONG_SIZE == 4) || typec == long.class || typec == Long.class)
                     return true;
             } else if (tc == SizeT.class) {
-                if ((typec == int.class || typec == Integer.class) && (JNI.SIZE_T_SIZE == 4) || typec == long.class || typec == Long.class)
+                if ((typec == int.class || typec == Integer.class) && (Platform.SIZE_T_SIZE == 4) || typec == long.class || typec == Long.class)
                     return true;
             }
             if ((tc == Character.TYPE || tc == Character.class || tc == short.class || tc == Short.class) && (typec == Short.class || typec == short.class || typec == char.class || typec == Character.class))
@@ -732,7 +760,7 @@ public abstract class Demangler {
                 else if (paramType == byte.class)
                     total += 1;
                 else if (paramType == char.class)
-                    total += JNI.WCHAR_T_SIZE;
+                    total += Platform.WCHAR_T_SIZE;
                 else if (paramType == short.class)
                     total += 2;
                 else if (paramType == boolean.class)
@@ -768,9 +796,9 @@ public abstract class Demangler {
 			Annotation[][] anns = method.getParameterAnnotations();
 //            Class<?>[] methodArgTypes = method.getParameterTypes();
             Type[] parameterTypes = method.getGenericParameterTypes();
-            boolean hasThisAsFirstArgument = BridJ.hasThisAsFirstArgument(method);//methodArgTypes, anns, true);
+            //boolean hasThisAsFirstArgument = BridJ.hasThisAsFirstArgument(method);//methodArgTypes, anns, true);
             
-            if (!matchesArgs(parameterTypes, anns, hasThisAsFirstArgument))
+            if (!matchesArgs(parameterTypes, anns, false))///*, hasThisAsFirstArgument*/))
             	return false;
             
             
@@ -823,7 +851,6 @@ public abstract class Demangler {
             
             if (hasThisAsFirstArgument)
             	totalArgs++;
-            
             
             for (int i = 0, n = paramTypes == null ? 0 : paramTypes.length; i < n; i++) {
                 if (totalArgs >= parameterTypes.length)

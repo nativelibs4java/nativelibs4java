@@ -17,7 +17,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.bridj.BridJRuntime.TypeInfo;
-import org.bridj.Demangler.Symbol;
+import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.ann.Library;
 import java.util.Stack;
 import java.io.PrintWriter;
@@ -25,6 +25,22 @@ import java.lang.reflect.Type;
 import java.net.URL;
 
 /// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
+/**
+ * BridJ's central class.<br>
+ * <ul>
+ * <li>To register a class with native methods (which can be in inner classes), just add the following static block to your class :
+ * <pre>{@code
+ *      static {
+ *          BridJ.register();
+ *      }
+ * }</pre>
+ * </li><li>You can also register a class explicitely with {@link BridJ#register(java.lang.Class)}
+ * </li><li>To alter the name of a library, use {@link BridJ#setNativeLibraryActualName(String, String)} and {@link BridJ#addNativeLibraryAlias(String, String)}
+ * </li><li>To open files and URLs in a platform-specific way, use {@link BridJ#open(File)}, {@link BridJ#open(URL)}, {@link BridJ#show(File)}
+ * </li>
+ * </ul>
+ * @author ochafik
+ */
 public class BridJ {
 
     static final Map<AnnotatedElement, NativeLibrary> librariesByClass = new HashMap<AnnotatedElement, NativeLibrary>();
@@ -74,45 +90,28 @@ public class BridJ {
         strongNativeObjects.remove(peer);
     }
 
-    public static synchronized void protectFromGC(NativeObject ob) {
+    /**
+     * Keep a hard reference to a native object to avoid its garbage collection.<br>
+     * See {@link BridJ#unprotectFromGC(NativeObject)} to remove the GC protection.
+     */
+    public static synchronized <T extends NativeObject> T protectFromGC(T ob) {
         long peer = Pointer.getAddress(ob, null);
         if (weakNativeObjects.remove(peer) != null) {
             strongNativeObjects.put(peer, ob);
         }
+        return ob;
     }
 
-	public static synchronized void unprotectFromGC(NativeObject ob) {
+	/**
+     * Drop the hard reference created with {@link BridJ#protectFromGC(NativeObject)}.
+     */
+    public static synchronized <T extends NativeObject> T unprotectFromGC(T ob) {
 		long peer = Pointer.getAddress(ob, null);
         if (strongNativeObjects.remove(peer) != null) {
 			weakNativeObjects.put(peer, ob);
-	}
+		}
+		return ob;
     }
-
-	static boolean hasThisAsFirstArgument(Method method) {//, boolean checkConsistency) {
-		return method.getAnnotation(org.bridj.ann.Constructor.class) != null;
-//		return hasThisAsFirstArgument(method.getParameterTypes(), method.getParameterAnnotations(), checkConsistency);
-	}
-//	static boolean hasThisAsFirstArgument(Class<?>[] paramTypes, Annotation[][] anns, boolean checkConsistency) {
-//		boolean hasThis = false;
-//		int len = anns.length;
-//        if (len > 0) {
-//        	for (int i = 0; i < len; i++) {
-//        		for (Annotation ann : anns[i]) {
-//	        		if (ann instanceof This) {
-//	        			hasThis = true;
-//	        			if (!checkConsistency)
-//	        				return true;
-//	        			if (paramTypes[0] != Long.TYPE)
-//	        				throw new RuntimeException("First parameter with annotation " + This.class.getName() + " must be of type long, but is of type " + paramTypes[0].getName() + ".");
-//	        		}
-//	    		}
-//        		if (i == 0 && !checkConsistency)
-//        			return false;
-//        	}
-//        }
-//        return hasThis;
-//	}
-//	
 
 	public static void delete(NativeObject nativeObject) {
 		unregisterNativeObject(nativeObject);
@@ -122,7 +121,7 @@ public class BridJ {
 	/**
 	 * Registers the native methods of the caller class and all its inner types.
 	 * <pre>{@code
-	 	\@Library("mylib")
+	 	@Library("mylib")
 	 	public class MyLib {
 	 		static {
 	 			BridJ.register();
@@ -187,7 +186,10 @@ public class BridJ {
     	return r;
     }
 
-    static BridJRuntime getRuntime(Class<?> type) {
+    /**
+     * Get the runtime associated with a class (using the {@link org.bridj.ann.Runtime} annotation, if any, looking up parents and defaulting to {@link org.bridj.CRuntime}).
+     */
+    public static BridJRuntime getRuntime(Class<?> type) {
         synchronized (classRuntimes) {
             BridJRuntime runtime = classRuntimes.get(type);
             if (runtime == null) {
@@ -332,12 +334,12 @@ public class BridJ {
 			String env;
 			
 			/*
-			String bitsSuffix = JNI.is64Bits() ? "64" : "32";
-			if (JNI.isUnix() && !JNI.isMacOSX()) {
+			String bitsSuffix = Platform.is64Bits() ? "64" : "32";
+			if (Platform.isUnix() && !Platform.isMacOSX()) {
 				paths.add("/usr/lib" + bitsSuffix);
 				paths.add("/lib" + bitsSuffix);
 			}
-			if (!JNI.isLinux() || !JNI.is64Bits()) {
+			if (!Platform.isLinux() || !Platform.is64Bits()) {
 				paths.add("/usr/lib");
 				paths.add("/lib");
 			}
@@ -378,7 +380,7 @@ public class BridJ {
     static Map<String, List<String>> libraryAliases = new HashMap<String, List<String>>();
     /**
      * Add a possible alias for a library.<br>
-	 * Aliases are prioritary over the library (or its actual name, see @see BridJ#setNativeLibraryActualName(String, String)), in the order they are defined.<br>
+	 * Aliases are prioritary over the library (or its actual name, see {@link BridJ#setNativeLibraryActualName(String, String)}), in the order they are defined.<br>
 	 * Works only before the library is loaded.<br>
      * @param name
      * @param alias
@@ -422,15 +424,15 @@ public class BridJ {
 				File pathFile = path == null ? null : new File(path);
 				File f = new File(name);
 				if (pathFile != null) {
-					if (JNI.isWindows()) {
+					if (Platform.isWindows()) {
 						if (!f.exists()) {
 							f = new File(pathFile, name + ".dll");
 						}
 						if (!f.exists()) {
 							f = new File(pathFile, name + ".drv");
 						}
-					} else if (JNI.isUnix()) {
-						if (JNI.isMacOSX()) {
+					} else if (Platform.isUnix()) {
+						if (Platform.isMacOSX()) {
 							if (!f.exists()) {
 								f = new File(pathFile, "lib" + name + ".dylib");
 					}
@@ -458,7 +460,7 @@ public class BridJ {
 					log(Level.SEVERE, null, ex);
 				}
 			}
-			if (JNI.isMacOSX()) {
+			if (Platform.isMacOSX()) {
 				for (String s : new String[]{"/System/Library/Frameworks", new File(System.getProperty("user.home"), "Library/Frameworks").toString()}) {
 					try {
 						File f = new File(new File(s, name + ".framework"), name);
@@ -471,7 +473,7 @@ public class BridJ {
 			}
 			}
 			try {
-				File f = JNI.extractEmbeddedLibraryResource(name);
+				File f = Platform.extractEmbeddedLibraryResource(name);
 				if (f != null && f.exists())
 					return f;
 			} catch (IOException ex) {
@@ -531,7 +533,7 @@ public class BridJ {
 	 */
     public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
 		NativeLibrary ll;
-		if ("c".equals(name)) {// && JNI.isLinux())
+		if ("c".equals(name)) {// && Platform.isLinux())
 			ll = new NativeLibrary(null, 0, 0);
 			f = null;
 		} else
@@ -655,15 +657,15 @@ public class BridJ {
         if (url.getProtocol().equals("file")) {
             open(new File(url.getFile()));
         } else {
-            if (JNI.isMacOSX()) {
+            if (Platform.isMacOSX()) {
                 execArgs("open", url.toString());
-            } else if (JNI.isWindows()) {
+            } else if (Platform.isWindows()) {
                 execArgs("rundll32", "url.dll,FileProtocolHandler", url.toString());
-            } else if (JNI.isUnix() && hasUnixCommand("gnome-open")) {
+            } else if (Platform.isUnix() && hasUnixCommand("gnome-open")) {
                 execArgs("gnome-open", url.toString());
-            } else if (JNI.isUnix() && hasUnixCommand("konqueror")) {
+            } else if (Platform.isUnix() && hasUnixCommand("konqueror")) {
                 execArgs("konqueror", url.toString());
-            } else if (JNI.isUnix() && hasUnixCommand("mozilla")) {
+            } else if (Platform.isUnix() && hasUnixCommand("mozilla")) {
                 execArgs("mozilla", url.toString());
             } else {
                 throw new NoSuchMethodException("Cannot open urls on this platform");
@@ -677,20 +679,20 @@ public class BridJ {
      * @throws NoSuchMethodException if opening a file on the current platform is not supported
      */
 	public static final void open(File file) throws NoSuchMethodException {
-        if (JNI.isMacOSX()) {
+        if (Platform.isMacOSX()) {
 			execArgs("open", file.getAbsolutePath());
-        } else if (JNI.isWindows()) {
+        } else if (Platform.isWindows()) {
             if (file.isDirectory()) {
                 execArgs("explorer", file.getAbsolutePath());
             } else {
                 execArgs("start", file.getAbsolutePath());
         }
         }
-        if (JNI.isUnix() && hasUnixCommand("gnome-open")) {
+        if (Platform.isUnix() && hasUnixCommand("gnome-open")) {
             execArgs("gnome-open", file.toString());
-        } else if (JNI.isUnix() && hasUnixCommand("konqueror")) {
+        } else if (Platform.isUnix() && hasUnixCommand("konqueror")) {
             execArgs("konqueror", file.toString());
-        } else if (JNI.isSolaris() && file.isDirectory()) {
+        } else if (Platform.isSolaris() && file.isDirectory()) {
             execArgs("/usr/dt/bin/dtfile", "-folder", file.getAbsolutePath());
         } else {
             throw new NoSuchMethodException("Cannot open files on this platform");
@@ -703,7 +705,7 @@ public class BridJ {
      * @throws NoSuchMethodException if showing a file on the current platform is not supported
      */
 	public static final void show(File file) throws NoSuchMethodException, IOException {
-        if (JNI.isWindows()) {
+        if (Platform.isWindows()) {
 			exec("explorer /e,/select,\"" + file.getCanonicalPath() + "\"");
         } else {
             open(file.getAbsoluteFile().getParentFile());

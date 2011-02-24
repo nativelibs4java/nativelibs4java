@@ -18,7 +18,7 @@ import org.bridj.NativeEntities;
 import org.bridj.NativeLibrary;
 import org.bridj.NativeObject;
 import org.bridj.Pointer;
-import org.bridj.Demangler.Symbol;
+import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Virtual;
 import org.bridj.ann.Convention;
@@ -320,7 +320,7 @@ public class CRuntime extends AbstractBridJRuntime {
 	    	}
     	return defaultObjectSize;
 	}
-	protected int sizeOf(Type structType, StructIO io) {
+	public int sizeOf(Type structType, StructIO io) {
 		if (io == null)
 			io = StructIO.getInstance(Utils.getClass(structType), structType);
 		int size;

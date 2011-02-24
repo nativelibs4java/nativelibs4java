@@ -122,17 +122,17 @@ public class MethodCallInfo {
         	if (!startsWithThis)
         		direct = false;
         	bNeedsThisPointer = true;
-			if (JNI.isWindows()) {
-				if (!JNI.is64Bits())
+			if (Platform.isWindows()) {
+				if (!Platform.is64Bits())
 					setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
 			} else {
-				//if (!JNI.is64Bits())
+				//if (!Platform.is64Bits())
 				//	setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_GNU);
 			}
         }
         Convention cc = BridJ.getAnnotation(Convention.class, true, method);
         if (cc != null) {
-            if (JNI.isWindows() && !JNI.is64Bits()) {
+            if (Platform.isWindows() && !Platform.is64Bits()) {
 				setCallingConvention(cc.value());
             }
         }
@@ -162,7 +162,7 @@ public class MethodCallInfo {
 		switch (style) {
 		case FastCall:
 			this.direct = false;
-			setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_DEFAULT); // TODO allow GCC-compiled C++ libs on windows
+			setDcCallingConvention(Platform.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_DEFAULT); // TODO allow GCC-compiled C++ libs on windows
 			break;
 		case Pascal:
 		case StdCall:
@@ -171,7 +171,7 @@ public class MethodCallInfo {
 			break;
 		case ThisCall:
 			this.direct = false;
-			setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_THIS_GNU : DC_CALL_C_DEFAULT);
+			setDcCallingConvention(Platform.isWindows() ? DC_CALL_C_X86_WIN32_THIS_GNU : DC_CALL_C_DEFAULT);
 		}
 
 	}
@@ -210,10 +210,10 @@ public class MethodCallInfo {
     			throw new RuntimeException("Annotation should only be used on a long parameter, not on a " + c.getName());
     		
     		if (sz != null) {
-                if (!JNI.is64Bits())
+                if (!Platform.is64Bits())
                     direct = false;
             } else if (cl != null) {
-                if (JNI.CLONG_SIZE != 8)
+                if (Platform.CLONG_SIZE != 8)
                     direct = false;
             } else if (cons != null) {
             	isCPlusPlus = true;
@@ -228,7 +228,7 @@ public class MethodCallInfo {
         if (c == Integer.class || c == Integer.TYPE)
             return ValueType.eIntValue;
         if (c == Long.class || c == Long.TYPE) {
-        	return sz == null || JNI.is64Bits() ? ValueType.eLongValue : ValueType.eIntValue;
+        	return sz == null || Platform.is64Bits() ? ValueType.eLongValue : ValueType.eIntValue;
         }
         if (c == Short.class || c == Short.TYPE)
             return ValueType.eShortValue;
@@ -241,7 +241,7 @@ public class MethodCallInfo {
             return ValueType.eFloatValue;
         }
         if (c == char.class || c == Character.TYPE) {
-            if (JNI.WCHAR_T_SIZE != 2)
+            if (Platform.WCHAR_T_SIZE != 2)
                 direct = false;
             return ValueType.eWCharValue;
         }
@@ -272,7 +272,7 @@ public class MethodCallInfo {
     }
     void usesFloats() {
     		/*
-        if (direct && JNI.isMacOSX()) {
+        if (direct && Platform.isMacOSX()) {
             direct = false;
             assert BridJ.log(Level.WARNING, "[unstable direct] FIXME Disable direct call due to float/double usage in " + method);
         }
@@ -297,7 +297,7 @@ public class MethodCallInfo {
                 break;
             case eSizeTValue:
                 javaChar = "J";
-				if (JNI.SIZE_T_SIZE == 8) {
+				if (Platform.SIZE_T_SIZE == 8) {
                     dcChar = DC_SIGCHAR_LONGLONG;
                 } else {
                     dcChar = DC_SIGCHAR_INT;
@@ -325,7 +325,7 @@ public class MethodCallInfo {
             	javaChar = "Z";
             	break;
             case eWCharValue:
-                switch (JNI.WCHAR_T_SIZE) {
+                switch (Platform.WCHAR_T_SIZE) {
                 case 1:
                     dcChar = DC_SIGCHAR_CHAR;
                     direct = false;
@@ -338,7 +338,7 @@ public class MethodCallInfo {
                     direct = false;
                     break;
                 default:
-                    throw new RuntimeException("Unhandled sizeof(wchar_t) in GetJavaTypeSignature: " + JNI.WCHAR_T_SIZE);
+                    throw new RuntimeException("Unhandled sizeof(wchar_t) in GetJavaTypeSignature: " + Platform.WCHAR_T_SIZE);
                 }
                 javaChar = "C";
                 break;

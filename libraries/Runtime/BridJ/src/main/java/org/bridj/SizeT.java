@@ -11,7 +11,7 @@ package org.bridj;
  */
 public class SizeT extends Number {
     
-	public static final int SIZE = JNI.SIZE_T_SIZE;
+	public static final int SIZE = Platform.SIZE_T_SIZE;
 	
 	private static final long serialVersionUID = 1547942367767922396L;
 	private final long value;

@@ -13,6 +13,7 @@ import org.bridj.ann.Runtime;
 import org.bridj.cpp.CPPRuntime;
 import java.awt.*;
 import java.io.File;
+import org.bridj.Platform;
 
 /**
  * Contains a method that returns the native peer handle of an AWT component.
@@ -21,7 +22,7 @@ public class JAWTUtils {
     static {
         try {
             File jawtDll = null;
-            if (JNI.isWindows())
+            if (Platform.isWindows())
                 jawtDll = new File(new File(System.getProperty("java.home")), "bin\\jawt.dll");
             if (jawtDll != null && jawtDll.exists()) {
                 jawtDll = jawtDll.getCanonicalFile();
@@ -71,7 +72,7 @@ public class JAWTUtils {
                         pInfo = pInfo.as(JAWT_DrawingSurfaceInfo.class);
 					Pointer<?> platformInfo = pInfo.get().platformInfo();
                     return platformInfo.getSizeT(); // on win, mac, x11 platforms, the relevant field is the first in the struct !
-					/*if (JNI.isWindows())
+					/*if (Platform.isWindows())
 					{
                         @Library("jawt") 
                         public static class JAWT_Win32DrawingSurfaceInfo extends StructObject {
@@ -86,11 +87,11 @@ public class JAWTUtils {
                         }
 						JAWT_Win32DrawingSurfaceInfo wdsi = new JAWT_Win32DrawingSurfaceInfo(platformInfo);
 						return wdsi.hwnd().getPeer();
-					} else if (JNI.isMacOSX())
+					} else if (Platform.isMacOSX())
 					{
 						return 0;//JAWT_MacOSXDrawingSurfaceInfo mdsi = new JAWT_MacOSXDrawingSurfaceInfo(platformInfo); 
 						//return mdsi.cocoaViewRef();
-					} else if (JNI.isUnix())
+					} else if (Platform.isUnix())
 					{
 						return 0;//JAWT_X11DrawingSurfaceInfo xdsi = new JAWT_X11DrawingSurfaceInfo(platformInfo);	
 						//return xdsi.drawable();

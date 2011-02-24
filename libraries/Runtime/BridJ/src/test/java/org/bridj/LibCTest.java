@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 @org.bridj.ann.Runtime(CRuntime.class)
 public class LibCTest {
 	static {
-		if (JNI.isWindows())
+		if (Platform.isWindows())
 			BridJ.setNativeLibraryActualName("c", "msvc");
 		if ("1".equals(System.getenv("JNA")))
 			com.sun.jna.Native.register("c");

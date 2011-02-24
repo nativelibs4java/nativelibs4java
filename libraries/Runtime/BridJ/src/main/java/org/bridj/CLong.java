@@ -11,7 +11,7 @@ package org.bridj;
  */
 public class CLong extends Number {
     
-	public static final int SIZE = JNI.CLONG_SIZE;
+	public static final int SIZE = Platform.CLONG_SIZE;
 	
 	private static final long serialVersionUID = 1542942327767932396L;
 	private final long value;

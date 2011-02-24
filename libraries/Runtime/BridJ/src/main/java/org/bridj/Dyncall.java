@@ -6,10 +6,11 @@
 package org.bridj;
 
 /**
- *
+ * Constants used in <a href="http://dyncall.org/">dyncall</a> and in BridJ's native library.
  * @author Olivier
  */
 public class Dyncall {
+    /// BridJ constants
     public enum ValueType {
         eVoidValue,
         eWCharValue,
@@ -28,6 +29,7 @@ public class Dyncall {
         eNativeObjectValue
     }
     
+    /// BridJ constants
     public enum CallbackType {
     	eJavaCallbackToNativeFunction,
     	eNativeToJavaCallback,
@@ -35,6 +37,7 @@ public class Dyncall {
     	eJavaToVirtualMethod
     }    
     
+    /// dyncall constants
     public static class CallingConvention {
     	public static final int
 	    	DC_CALL_C_DEFAULT            =   0,
@@ -57,6 +60,7 @@ public class Dyncall {
 	    	DC_CALL_C_ARM_ARM            =  14,
 	    	DC_CALL_C_ARM_THUMB          =  15;
     }
+    /// dyncall constants
     public static class SignatureChars {
 	    public static final char
 	        DC_SIGCHAR_VOID         = 'v',

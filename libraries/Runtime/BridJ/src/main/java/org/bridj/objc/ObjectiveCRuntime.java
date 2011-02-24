@@ -21,6 +21,7 @@ import org.bridj.ann.Ptr;
 import org.bridj.ann.Runtime;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import org.bridj.Platform;
 
 /// http://developer.apple.com/mac/library/documentation/Cocoa/Reference/ObjCRuntimeRef/Reference/reference.html
 @Library("/usr/lib/libobjc.A.dylib")
@@ -28,7 +29,7 @@ import java.lang.reflect.Type;
 public class ObjectiveCRuntime extends CRuntime {
 
     public boolean isAvailable() {
-        return JNI.isMacOSX();
+        return Platform.isMacOSX();
     }
     Map<String, Id> nativeClassesByObjCName = new HashMap<String, Id>();
 

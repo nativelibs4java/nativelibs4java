@@ -5,13 +5,14 @@
 
 package org.bridj;
 
-import org.bridj.Demangler.TypeRef;
-import org.bridj.Demangler.DemanglingException;
-import org.bridj.Demangler.MemberRef;
-import org.bridj.cpp.GCC4Demangler;
-import org.bridj.cpp.VC9Demangler;
+import org.bridj.demangling.Demangler;
+import org.bridj.demangling.Demangler.TypeRef;
+import org.bridj.demangling.Demangler.DemanglingException;
+import org.bridj.demangling.Demangler.MemberRef;
+import org.bridj.demangling.GCC4Demangler;
+import org.bridj.demangling.VC9Demangler;
 import org.bridj.cpp.CPPType;
-import org.bridj.Demangler.SpecialName;
+import org.bridj.demangling.Demangler.SpecialName;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.lang.reflect.AnnotatedElement;

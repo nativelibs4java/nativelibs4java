@@ -4,6 +4,7 @@
  */
 package org.bridj.cpp;
 
+import org.bridj.Platform;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -22,7 +23,7 @@ import org.bridj.TestCPP;
 
 import static org.bridj.Dyncall.CallingConvention.*;
 
-import org.bridj.Demangler.Symbol;
+import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Virtual;
 import org.bridj.CRuntime;
@@ -137,7 +138,7 @@ public class CPPRuntime extends CRuntime {
                 builder.addFunction(mci);
                 assert log(Level.INFO, "Registering " + method + " as function or static C++ method " + symbol.getName());
             } else {
-                //if (!JNI.is64Bits() && JNI.isWindows())
+                //if (!Platform.is64Bits() && Platform.isWindows())
                 //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
                 //builder.addMethodFunction(mci);
                 builder.addFunction(mci);
@@ -175,7 +176,7 @@ public class CPPRuntime extends CRuntime {
             int absoluteVirtualIndex = isNewVirtual ? virtualOffset + virtualIndex : virtualIndex;
             mci.setVirtualIndex(absoluteVirtualIndex);
             log(Level.INFO, "Registering " + method.toGenericString() + " as virtual C++ method with relative virtual index = " + virtualIndex + ", absolute index = " + absoluteVirtualIndex);
-            //if (!JNI.is64Bits() && JNI.isWindows())
+            //if (!Platform.is64Bits() && Platform.isWindows())
             //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
             builder.addVirtualMethod(mci);
         }
@@ -214,7 +215,7 @@ public class CPPRuntime extends CRuntime {
 
     static int getDefaultDyncallCppConvention() {
         int convention = DC_CALL_C_DEFAULT;
-        if (!JNI.is64Bits() && JNI.isWindows()) {
+        if (!Platform.is64Bits() && Platform.isWindows()) {
             convention = DC_CALL_C_X86_WIN32_THIS_MS;
         }
         return convention;
@@ -226,7 +227,7 @@ public class CPPRuntime extends CRuntime {
 			String prop = System.getProperty("bridj.destructors"), env = System.getenv("BRIDJ_DESTRUCTORS"); 
 			boolean forceTrue = "true".equals(prop) || "1".equals(env);
 			boolean forceFalse = "false".equals(prop) || "0".equals(env);
-			boolean shouldBeStable = true;//JNI.isWindows();
+			boolean shouldBeStable = true;//Platform.isWindows();
 			enableDestructors = forceTrue || shouldBeStable && !forceFalse;
 		}
 		return enableDestructors;
@@ -332,7 +333,7 @@ public class CPPRuntime extends CRuntime {
 			// TODO ask for real template name
 			String className = typeClass.getSimpleName();
 			String vtableSymbol;
-            if (JNI.isWindows())
+            if (Platform.isWindows())
                 vtableSymbol = "??_7" + className + "@@6B@";
             else
                 vtableSymbol = "_ZTV" + className.length() + className;
@@ -356,7 +357,7 @@ public class CPPRuntime extends CRuntime {
             if (false) {
 	            String className = typeClass.getSimpleName();
 				String vtableSymbol;
-	            if (JNI.isWindows())
+	            if (Platform.isWindows())
 	                vtableSymbol = "??_7" + className + "@@6B@";
 	            else
 	                vtableSymbol = "_ZTV" + className.length() + className;

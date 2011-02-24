@@ -9,6 +9,12 @@ import org.bridj.cpp.mfc.CObject;
 import org.bridj.cpp.mfc.CRuntimeClass;
 import java.lang.reflect.Type;
 
+/**
+ * Interface that each specific pluggable native runtime must implement.<br>
+ * A runtime is attached to a class via the {@link org.bridj.ann.Runtime} annotation, so any runtime can be added in thirdparty libraries.<br>
+ * A runtime typically defines NativeObject subclasses and deals with their instances lifecycle through the type information metadata {@link TypeInfo} class.<br>
+ * @author ochafik
+ */
 public interface BridJRuntime {
 
 	

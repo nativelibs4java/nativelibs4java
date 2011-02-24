@@ -215,7 +215,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * This is 4 bytes in a 32 bits environment and 8 bytes in a 64 bits environment.<br>
      * Note that some 64 bits environments allow for 32 bits JVM execution (using the -d32 command line argument for Sun's JVM, for instance). In that case, Java programs will believe they're executed in a 32 bits environment. 
      */
-    public static final int SIZE = JNI.POINTER_SIZE;
+    public static final int SIZE = Platform.POINTER_SIZE;
     
 	static {
         JNI.initLibrary();
@@ -1491,7 +1491,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 */
 	public <U> Pointer<U>[] getPointersAtOffset(long byteOffset, int arrayLength, PointerIO pio) {
     	Pointer<U>[] values = (Pointer<U>[])new Pointer[arrayLength];
-		int s = JNI.POINTER_SIZE;
+		int s = Platform.POINTER_SIZE;
 		for (int i = 0; i < arrayLength; i++)
 			values[i] = getPointerAtOffset(byteOffset + i * s, pio);
 		return values;
@@ -1509,7 +1509,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	public Pointer<T> setPointersAtOffset(long byteOffset, Pointer<?>[] values, int valuesOffset, int length) {
 		if (values == null)
 			throw new IllegalArgumentException("Null values");
-		int n = length, s = JNI.POINTER_SIZE;
+		int n = length, s = Platform.POINTER_SIZE;
 		for (int i = 0; i < n; i++)
 			setPointerAtOffset(byteOffset + i * s, values[valuesOffset + i]);
 		return this;

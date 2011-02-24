@@ -1,19 +1,20 @@
-package org.bridj.cpp;
+package org.bridj.demangling;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bridj.Demangler;
+import org.bridj.demangling.Demangler;
 import org.bridj.JNI;
 import org.bridj.NativeLibrary;
-import org.bridj.Demangler.ClassRef;
-import org.bridj.Demangler.DemanglingException;
-import org.bridj.Demangler.MemberRef;
-import org.bridj.Demangler.NamespaceRef;
-import org.bridj.Demangler.TypeRef;
-import org.bridj.Demangler.SpecialName;
+import org.bridj.demangling.Demangler.ClassRef;
+import org.bridj.demangling.Demangler.DemanglingException;
+import org.bridj.demangling.Demangler.MemberRef;
+import org.bridj.demangling.Demangler.NamespaceRef;
+import org.bridj.demangling.Demangler.TypeRef;
+import org.bridj.demangling.Demangler.SpecialName;
 import java.util.HashMap;
 import java.util.Map;
+import org.bridj.Platform;
 
 public class GCC4Demangler extends Demangler {
 	
@@ -33,7 +34,8 @@ public class GCC4Demangler extends Demangler {
             return shortcuts.get(Character.toString(consumeChar()));
         }
         String id = "";
-        while (peekChar() != '_') {
+        char c;
+        while ((c = peekChar()) != '_' && c != 0) {
             id += consumeChar();
         }
         id += consumeChar();
@@ -93,7 +95,7 @@ public class GCC4Demangler extends Demangler {
 			return classType(Boolean.TYPE);
 		case 'l':
 		case 'm': // unsigned
-			return classType(JNI.is64Bits() ? Long.TYPE : Integer.TYPE);
+			return classType(Platform.is64Bits() ? Long.TYPE : Integer.TYPE);
 		case 'x':
 		case 'y': // unsigned
 			return classType(Long.TYPE);

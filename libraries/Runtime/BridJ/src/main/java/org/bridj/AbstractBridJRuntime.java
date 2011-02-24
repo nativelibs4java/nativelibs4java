@@ -11,7 +11,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
+ * Base class for implementation of runtimes
  * @author Olivier
  */
 public abstract class AbstractBridJRuntime implements BridJRuntime {

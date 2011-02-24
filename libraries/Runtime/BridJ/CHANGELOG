@@ -1,6 +1,8 @@
 Current version : BridJ 0.4-SNAPSHOT
 
-...
+- Moved all the is64Bits(), isWindows()... methods and SIZE_T_SIZE constants out of JNI class into new Platform class
+- Moved the C++ symbols demanglers to package org.bridj.demangling
+- ...
 
 BridJ 0.3 (r1638, 20110204):
 

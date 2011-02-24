@@ -259,7 +259,7 @@ public class ComparisonTest {
             if (test != null)
                 test.voidTest();
         }
-        System.out.println(JNI.SIZE_T_SIZE);
+        System.out.println(Platform.SIZE_T_SIZE);
         try {
             //System.in.read();
         } catch (Exception ex) {

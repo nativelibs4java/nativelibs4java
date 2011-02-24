@@ -12,7 +12,7 @@ import org.bridj.cpp.com.shell.IShellWindows;
 
 public class COMTest {
 
-	boolean skip = !JNI.isWindows() || !JNI.is64Bits();
+	boolean skip = !Platform.isWindows() || !Platform.is64Bits();
 	
 	@Test
 	public void shellFolder() {

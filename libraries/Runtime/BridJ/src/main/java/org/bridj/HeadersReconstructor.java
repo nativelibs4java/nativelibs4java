@@ -1,7 +1,7 @@
 package org.bridj;
 import java.util.*;
 import java.io.*;
-import static org.bridj.Demangler.*;
+import static org.bridj.demangling.Demangler.*;
 public class HeadersReconstructor {
 	
 	public static void reconstructHeaders(Iterable<NativeLibrary> libraries, PrintWriter out) {

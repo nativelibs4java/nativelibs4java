@@ -3,12 +3,12 @@ package org.bridj;
 import org.bridj.BridJ;
 import org.bridj.CRuntime;
 import org.bridj.Callback;
-import org.bridj.Demangler;
+import org.bridj.demangling.Demangler;
 import org.bridj.JNI;
 import org.bridj.NativeLibrary;
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
-import org.bridj.Demangler.Symbol;
+import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.ann.Array;
 import org.bridj.ann.Convention;
 import org.bridj.ann.Field;
@@ -18,7 +18,7 @@ import org.bridj.ann.Name;
 import org.bridj.ann.Virtual;
 import org.bridj.cpp.CPPObject;
 import org.bridj.cpp.CPPRuntime;
-import org.bridj.cpp.VC9Demangler;
+import org.bridj.demangling.VC9Demangler;
 import org.bridj.cpp.com.COMRuntime;
 import org.bridj.cpp.com.IUnknown;
 import org.bridj.cpp.com.shell.IShellFolder;
@@ -49,7 +49,7 @@ import javax.swing.event.ChangeListener;
 @org.bridj.ann.Runtime(CPPRuntime.class)
 public class TestCPP {
 //	static String libraryPath = //BridJ.getNativeLibraryFile("test").toString()
-//		JNI.isMacOSX() ? 
+//		Platform.isMacOSX() ? 
 //				//"/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/resources/darwin_universal/libtest.dylib"
 //				"/Users/ochafik/nativelibs4java/Runtime/BridJ/src/test/cpp/test/build_out/darwin_universal_gcc_debug/libtest.dylib" :
 //		//"F:\\Experiments\\tmp\\key\\svn\\nativelibs4java\\Runtime\\BridJ\\src\\test\\resources\\win32\\test.dll" +
@@ -173,7 +173,7 @@ public class TestCPP {
                     throw new RuntimeException();
             }
             testSetGetIntBuffer(10);
-//			if (JNI.isMacOSX()) {
+//			if (Platform.isMacOSX()) {
 //				new NSCalendar();
 //				new NSAutoReleasePool();
 //			}
@@ -268,7 +268,7 @@ public class TestCPP {
                     System.out.println("'" + name + "'");
             }
 
-            boolean is64 = JNI.is64Bits();
+            boolean is64 = Platform.is64Bits();
 
         } catch (Throwable ex) {
             ex.printStackTrace();

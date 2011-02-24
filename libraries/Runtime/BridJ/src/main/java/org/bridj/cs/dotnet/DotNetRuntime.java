@@ -11,6 +11,7 @@ import org.bridj.NativeObject;
 import org.bridj.Pointer;
 import org.bridj.cs.CSharpRuntime;
 import java.lang.reflect.Type;
+import org.bridj.Platform;
 
 /**
  * @see <a href="http://msdn.microsoft.com/en-us/library/system.runtime.interopservices.marshal.getdelegateforfunctionpointer(VS.80).aspx">http://msdn.microsoft.com/en-us/library/system.runtime.interopservices.marshal.getdelegateforfunctionpointer(VS.80).aspx</a>
@@ -20,7 +21,7 @@ public class DotNetRuntime extends AbstractBridJRuntime implements CSharpRuntime
 
     @Override
     public boolean isAvailable() {
-        return JNI.isWindows();
+        return Platform.isWindows();
     }
 
     @Override
