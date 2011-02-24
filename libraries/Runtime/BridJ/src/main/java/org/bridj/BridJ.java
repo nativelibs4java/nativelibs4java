@@ -121,7 +121,7 @@ public class BridJ {
 	/**
 	 * Registers the native methods of the caller class and all its inner types.
 	 * <pre>{@code
-	 	@Library("mylib")
+	 	\@Library("mylib")
 	 	public class MyLib {
 	 		static {
 	 			BridJ.register();
