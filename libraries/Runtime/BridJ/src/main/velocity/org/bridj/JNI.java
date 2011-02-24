@@ -12,6 +12,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.bridj.Platform.*;
 
+/**
+ * Low-level calls to JNI and to BridJ's native library.
+ * @author ochafik
+ * @deprecated These methods can cause serious issues (segmentation fault, system crashes) if used without care : there are little to no checks performed on the arguments.
+ */
+@Deprecated
 public class JNI {
     private static boolean inited;
     static final String BridJLibraryName = "bridj";
@@ -61,15 +67,38 @@ public class JNI {
     static native long findSymbolInLibrary(long libHandle, String name);
     static native String[] getLibrarySymbols(long libHandle, long symbolsHandle);
     static native String findSymbolName(long libHandle, long symbolsHandle, long address);
-    
+
+    /**
+     * Create a JNI global reference to a Java object : long value that can be safely passed to C programs and stored, which prevent the object from being garbage-collected and which validity runs until {@link JNI#deleteGlobalRef(long)} is called
+     */
 	public static native long newGlobalRef(Object object);
+	/**
+     * Delete a global reference created by {@link JNI#newGlobalRef(java.lang.Object)}
+     */
 	public static native void deleteGlobalRef(long reference);
     
+	/**
+     * Create a JNI weak global reference to a Java object : long value that can be safely passed to C programs and stored, which validity runs until {@link JNI#deleteWeakGlobalRef(long)} is called.<br>
+     * Unlike global references, weak global references don't prevent objects from being garbage-collected.
+     */
 	public static native long newWeakGlobalRef(Object object);
+	/**
+     * Delete a weak global reference created by {@link JNI#newWeakGlobalRef(java.lang.Object)}
+     */
 	public static native void deleteWeakGlobalRef(long reference);
-    
+
+    /**
+     * Wrap a native address as a direct byte buffer of the specified byte capacity.<br>
+     * Memory is not reclaimed when the buffer is garbage-collected.
+     */
     public static native ByteBuffer newDirectByteBuffer(long address, long capacity);
+    /**
+     * Get the native address pointed to by a direct buffer.
+     */
     public static native long getDirectBufferAddress(Buffer b);
+    /**
+     * Get the capacity in bytes of a direct buffer.
+     */
     public static native long getDirectBufferCapacity(Buffer b);
 
 #foreach ($prim in $primitives)

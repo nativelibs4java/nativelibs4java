@@ -15,14 +15,30 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD, ElementType.PACKAGE, ElementType.PARAMETER, ElementType.CONSTRUCTOR})
 @Inherited
 public @interface Convention {
+    /**
+     * Calling convention enums
+     */
     public enum Style {
-        //Auto,
+        /**
+         * __stdcall convention (specific to Windows x86)
+         */
         StdCall,
-        //ThisCall,
+        /**
+         * __fastcall convention
+         */
         FastCall,
-        CDecl, 
+        /**
+         * __cdecl convention (default for regular C functions)
+         */
+        CDecl,
         Pascal,
+        /**
+         * __clrcall convention (not supported, specific to Windows .NET mixed-mode assemblies)
+         */
         CLRCall,
+        /**
+         * __thiscall convention (default for regular C++ methods)
+         */
         ThisCall
     }
     Style value();

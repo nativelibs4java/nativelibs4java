@@ -10,7 +10,7 @@ import org.bridj.ann.Library;
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a> or <a href="http://bridj.googlecode.com/">BridJ</a> .
  */
 @Library("jawt") 
-public class JAWT_DrawingSurfaceInfo extends StructObject {
+class JAWT_DrawingSurfaceInfo extends StructObject {
 	public JAWT_DrawingSurfaceInfo() {
 		super();
 	}

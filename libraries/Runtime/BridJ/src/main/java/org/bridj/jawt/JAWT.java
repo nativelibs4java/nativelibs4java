@@ -12,7 +12,7 @@ import org.bridj.jawt.JawtLibrary.JNIEnv;
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a> or <a href="http://bridj.googlecode.com/">BridJ</a> .
  */
 @Library("jawt") 
-public class JAWT extends StructObject {
+class JAWT extends StructObject {
 	public JAWT() {
 		super();
 	}

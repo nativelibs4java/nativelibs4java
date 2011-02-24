@@ -10,7 +10,7 @@ import java.io.File;
 import org.bridj.Platform;
 
 /**
- * Contains a method that returns the native peer handle of an AWT component.
+ * Contains a method that returns the native peer handle of an AWT component : BridJ JAWT utilities {@link org.bridj.jawt.JAWTUtils#getNativePeerHandle(java.awt.Component)}
  */
 public class JAWTUtils {
     static {
