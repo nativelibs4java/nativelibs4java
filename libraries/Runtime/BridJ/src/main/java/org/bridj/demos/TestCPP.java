@@ -1,4 +1,4 @@
-package org.bridj;
+package org.bridj.demos;
 
 import org.bridj.BridJ;
 import org.bridj.CRuntime;
@@ -42,6 +42,16 @@ import javax.swing.JLabel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.bridj.BridJ;
+import org.bridj.CRuntime;
+import org.bridj.Callback;
+import org.bridj.FlagSet;
+import org.bridj.IntValuedEnum;
+import org.bridj.NativeLibrary;
+import org.bridj.Platform;
+import org.bridj.Pointer;
+import org.bridj.StructObject;
+import org.bridj.ValuedEnum;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 //@Library("C:\\Users\\Olivier\\Prog\\nativelibs4java\\Runtime\\BridJ\\src\\test\\resources\\win64\\test.dll")
@@ -376,7 +386,7 @@ public class TestCPP {
 			System.out.println("Returned non null getAdder_pvoid, cool (" + Long.toHexString(getAdder_pvoid) + ") !");
 		else
 			System.out.println("Returned null getAdder_pvoid !");
-		Pointer<org.bridj.TestCPP.MyCallback> ptr = getAdder();
+		Pointer<org.bridj.demos.TestCPP.MyCallback> ptr = getAdder();
         if (ptr == null)
             throw new RuntimeException("getAdder returned null adder !!!");
 		MyCallback adder = ptr.getNativeObject(MyCallback.class);

@@ -1,7 +1,11 @@
 package org.bridj;
 
+/**
+ * Base class for C structs.
+ * @author Olivier
+ */
 @org.bridj.ann.Runtime(CRuntime.class)
-public class StructObject extends NativeObject {
+public abstract class StructObject extends NativeObject {
 	protected StructIO io;
 	Object[] refreshableFields;
 

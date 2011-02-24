@@ -7,6 +7,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Collection of handles to natively-bound classes and methods (which native resources can be released all at once).
+ * @author ochafik
+ */
 public class NativeEntities {
 	static class CBInfo {
 		long handle;

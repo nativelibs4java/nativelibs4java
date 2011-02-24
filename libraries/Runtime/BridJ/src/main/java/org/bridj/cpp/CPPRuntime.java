@@ -19,7 +19,6 @@ import org.bridj.NativeLibrary;
 import org.bridj.NativeObject;
 import org.bridj.Pointer;
 import org.bridj.PointerIO;
-import org.bridj.TestCPP;
 
 import static org.bridj.Dyncall.CallingConvention.*;
 
@@ -27,10 +26,8 @@ import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Virtual;
 import org.bridj.CRuntime;
-import org.bridj.Dyncall;
 import org.bridj.NativeLibrary.SymbolAccepter;
 import org.bridj.Utils;
-import org.bridj.util.AutoHashMap;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;

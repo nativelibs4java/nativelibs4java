@@ -1,22 +1,22 @@
 package org.bridj;
-import org.bridj.objc.ObjCClass;
 import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import java.util.logging.Level;
 import static org.bridj.Dyncall.*;
 import static org.bridj.Dyncall.CallingConvention.*;
 
-import org.bridj.ann.Constructor;
-import org.bridj.ann.Convention;
 import static org.bridj.Dyncall.SignatureChars.*;
-import org.bridj.*;
-import org.bridj.ann.*;
+import org.bridj.ann.Constructor;
 import org.bridj.cpp.CPPObject;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.bridj.ann.Convention;
+import org.bridj.ann.DisableDirect;
+import org.bridj.ann.Ptr;
+import org.bridj.ann.Virtual;
 /**
  *
  * @author Olivier
@@ -112,7 +112,7 @@ public class MethodCallInfo {
         asmSignature = asmSig.toString();
         dcSignature = dcSig.toString();
         
-        if (BridJ.getAnnotation(DisableDirect.class, false, method) != null)
+        if (BridJ.getAnnotation(DisableDirect.class, true, method) != null)
         		direct = false;
         	
         Virtual virtual = BridJ.getAnnotation(Virtual.class, false, method);

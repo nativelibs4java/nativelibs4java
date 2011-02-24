@@ -12,6 +12,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.bridj.JNI.*;
 
+/**
+ * Methods that give information about the execution platform (OS, architecture, native sizes...)
+ * @author ochafik
+ */
 public class Platform {
     static final String osName = System.getProperty("os.name", "");
 

@@ -32,6 +32,11 @@ import java.lang.reflect.Type;
 import java.util.Collection;
 import org.bridj.demangling.Demangler;
 
+/**
+ * Representation of a native shared library, with symbols retrieval / matching facilities.<br>
+ * This class is not meant to be used by end users, it's used by pluggable runtimes instead.
+ * @author ochafik
+ */
 public class NativeLibrary {
 	long handle, symbols;
 	String path;

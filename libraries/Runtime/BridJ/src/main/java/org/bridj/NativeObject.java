@@ -7,10 +7,10 @@ package org.bridj;
 import java.util.Stack;
 
 /**
- *
+ * Base class for native objects.
  * @author Olivier
  */
-public class NativeObject {
+public abstract class NativeObject {
 
     protected Pointer<? extends NativeObject> peer;
     protected BridJRuntime.TypeInfo typeInfo;

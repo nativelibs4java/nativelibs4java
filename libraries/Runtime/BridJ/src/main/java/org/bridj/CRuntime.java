@@ -1,8 +1,6 @@
 package org.bridj;
 
-import org.bridj.AbstractBridJRuntime;
 import java.io.FileNotFoundException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
@@ -10,19 +8,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 
-import org.bridj.BridJ;
-import org.bridj.BridJRuntime;
-import org.bridj.Callback;
-import org.bridj.MethodCallInfo;
-import org.bridj.NativeEntities;
-import org.bridj.NativeLibrary;
-import org.bridj.NativeObject;
-import org.bridj.Pointer;
 import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;
-import org.bridj.ann.Virtual;
 import org.bridj.ann.Convention;
-import org.bridj.cpp.CPPObject;
 import org.bridj.util.AutoHashMap;
 import java.lang.reflect.Type;
 import org.bridj.ann.Optional;
@@ -282,7 +270,7 @@ public class CRuntime extends AbstractBridJRuntime {
 //                    }
 //                }
 //                if (address == null) {
-                boolean isOptional = method.getAnnotation(Optional.class) != null;
+                boolean isOptional = BridJ.getAnnotation(Optional.class, true, method) != null;
                     log(isOptional ? Level.INFO : Level.SEVERE, "Failed to get address of method " + method);
                     return;
 //                }

@@ -1,12 +1,5 @@
 package org.bridj;
 
-import java.lang.reflect.Method;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.bridj.cpp.CPPObject;
-import org.bridj.cpp.mfc.CObject;
-import org.bridj.cpp.mfc.CRuntimeClass;
 import java.lang.reflect.Type;
 
 /**
