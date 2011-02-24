@@ -18,7 +18,7 @@ import org.bridj.ann.DisableDirect;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Virtual;
 /**
- *
+ * Internal class that encapsulate all the knowledge about a native method call : signatures (ASM, dyncall and Java), calling convention, context...
  * @author Olivier
  */
 public class MethodCallInfo {

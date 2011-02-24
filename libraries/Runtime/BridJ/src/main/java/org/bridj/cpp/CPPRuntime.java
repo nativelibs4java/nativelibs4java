@@ -35,8 +35,9 @@ import java.util.Arrays;
 import static org.bridj.Pointer.*;
 
 /**
- *
- * @author Olivier
+ * C++ runtime (derives from the C runtime).<br>
+ * Deals with registration and lifecycle of C++ classes and methods (virtual or not).
+ * @author ochafik
  */
 public class CPPRuntime extends CRuntime {
 

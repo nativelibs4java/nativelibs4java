@@ -15,6 +15,11 @@ import org.bridj.util.AutoHashMap;
 import java.lang.reflect.Type;
 import org.bridj.ann.Optional;
 
+/**
+ * C runtime (used by default when no {@link org.bridj.ann.Runtime} annotation is found).<br>
+ * Deals with registration and lifecycle of structs, functions, callbacks.
+ * @author ochafik
+ */
 public class CRuntime extends AbstractBridJRuntime {
 
 	final Set<Type> registeredTypes = new HashSet<Type>();

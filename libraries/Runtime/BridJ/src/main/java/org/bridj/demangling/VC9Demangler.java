@@ -6,20 +6,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.bridj.Callback;
-import org.bridj.demangling.Demangler;
 import org.bridj.NativeLibrary;
-import org.bridj.Pointer;
 import org.bridj.demangling.Demangler.ClassRef;
 import org.bridj.demangling.Demangler.DemanglingException;
 import org.bridj.demangling.Demangler.MemberRef;
 import org.bridj.demangling.Demangler.NamespaceRef;
 import org.bridj.demangling.Demangler.TypeRef;
 import org.bridj.demangling.Demangler.SpecialName;
-import org.bridj.Dyncall.CallingConvention;
 import org.bridj.ann.CLong;
 import org.bridj.ann.Convention;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 

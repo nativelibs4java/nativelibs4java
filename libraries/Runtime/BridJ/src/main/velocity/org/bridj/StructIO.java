@@ -1,6 +1,5 @@
 package org.bridj;
 import org.bridj.CallIO.NativeObjectHandler;
-import org.bridj.ann.*;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Method;
@@ -17,7 +16,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bridj.ann.Virtual;
+import org.bridj.ann.Array;
+import org.bridj.ann.Bits;
+import org.bridj.ann.Field;
+import org.bridj.ann.Alignment;
 
+/**
+ * Representation of a C struct's memory layout, built thanks to the annotations found in the Java bindings.<br>
+ * End-users should not use this class, it's used by runtimes.<br>
+ * Annotations currently used are {@link org.bridj.ann.Virtual}, {@link org.bridj.ann.Array}, {@link org.bridj.ann.Bits}, {@link org.bridj.ann.Field}, {@link org.bridj.ann.Alignment} and soon {@link org.bridj.ann.Struct}
+ * @author ochafik
+ */
 public class StructIO {
 
     static Map<Type, StructIO> structIOs = new HashMap<Type, StructIO>();
@@ -36,6 +46,9 @@ public class StructIO {
         return io;
     }
 
+    /**
+     * Internal metadata on a struct field
+     */
     public static class FieldDesc {
         public int byteOffset, byteLength;
 		public int bitOffset, bitLength = -1;

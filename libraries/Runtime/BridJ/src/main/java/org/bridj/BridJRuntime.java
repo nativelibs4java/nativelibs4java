@@ -10,7 +10,10 @@ import java.lang.reflect.Type;
  */
 public interface BridJRuntime {
 
-	
+	/**
+     * Type information metadata + lifecycle management methods.<br>
+     * This class is not meant to be used by end users, it's used by runtimes.
+     */
 	public interface TypeInfo<T extends NativeObject> {
 		T cast(Pointer peer);
 		void initialize(T instance);

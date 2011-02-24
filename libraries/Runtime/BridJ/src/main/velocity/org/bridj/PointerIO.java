@@ -6,7 +6,8 @@ import java.util.*;
 import java.nio.*;
 
 /**
- *
+ * Helper class that knows how to read/write data from/to a {@link Pointer}.<br>
+ * End users don't need to use this class directly as ({@link Pointer} lets you work with {@link java.lang.reflect.Type} and {@link Class}).
  * @author Olivier
  */
 public abstract class PointerIO<T> {

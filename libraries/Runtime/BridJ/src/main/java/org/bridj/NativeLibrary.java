@@ -142,6 +142,7 @@ public class NativeLibrary {
 	public boolean isMSVC() {
 		return Platform.isWindows();
 	}
+    /** Filter for symbols */
 	public interface SymbolAccepter {
         boolean accept(Symbol symbol);
     }
