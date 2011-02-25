@@ -5,6 +5,7 @@
 
 package org.bridj;
 
+import org.bridj.util.Utils;
 import org.bridj.demangling.Demangler;
 import org.bridj.demangling.Demangler.TypeRef;
 import org.bridj.demangling.Demangler.DemanglingException;

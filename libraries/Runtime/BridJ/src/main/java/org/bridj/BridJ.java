@@ -1,5 +1,6 @@
 package org.bridj;
 
+import org.bridj.util.Utils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -1,5 +1,6 @@
 package org.bridj;
 
+import org.bridj.util.Utils;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

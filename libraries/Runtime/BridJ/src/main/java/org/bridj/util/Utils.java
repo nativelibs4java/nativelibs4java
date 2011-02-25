@@ -3,13 +3,13 @@
  * and open the template in the editor.
  */
 
-package org.bridj;
+package org.bridj.util;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- *
+ * Miscellaneous utility methods.
  * @author ochafik
  */
 public class Utils {

@@ -11,7 +11,7 @@ import org.bridj.NativeEntities.Builder;
 import org.objectweb.asm.signature.SignatureWriter;
 
 //import org.objectweb.asm.attrs.*;
-public class CallbackNativeImplementer extends ClassLoader implements Opcodes {
+class CallbackNativeImplementer extends ClassLoader implements Opcodes {
 
 	Map<Class<? extends Callback>, Class<?>> implClasses = new HashMap<Class<? extends Callback>, Class<?>>();
 	String implNameSuffix = "_NativeImpl";

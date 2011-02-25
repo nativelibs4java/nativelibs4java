@@ -13,7 +13,7 @@ import org.bridj.ann.Runtime;
  */
 @Library("jawt") 
 @Runtime(CRuntime.class) 
-public class JawtLibrary {
+class JawtLibrary {
 	static {
 		BridJ.register();
 	}

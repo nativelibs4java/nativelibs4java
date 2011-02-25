@@ -9,7 +9,7 @@ import org.bridj.BridJ;
 import org.bridj.Callback;
 import org.bridj.NativeObject;
 import org.bridj.Pointer;
-import org.bridj.Utils;
+import org.bridj.util.Utils;
 import org.bridj.cpp.CPPRuntime;
 
 import java.lang.reflect.Method;

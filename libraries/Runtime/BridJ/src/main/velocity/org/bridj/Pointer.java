@@ -1,5 +1,5 @@
 package org.bridj;
-
+import org.bridj.util.*;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.Array;

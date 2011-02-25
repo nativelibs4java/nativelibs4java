@@ -29,7 +29,10 @@ public class NativeEntities {
 		javaToNativeCallbacks = new HashMap<Class<?>, CBInfo>(),
 		//cppMethods = new HashMap<Class<?>, CBInfo>(),
 		objcMethodInfos = new HashMap<Class<?>, CBInfo>();
-	
+
+    /**
+     * Helper class to build a NativeEntities instance easily.
+     */
 	public static class Builder {
 		List<MethodCallInfo> 
 			functionInfos = new ArrayList<MethodCallInfo>(),
@@ -63,7 +66,10 @@ public class NativeEntities {
 		}
 	}
 	
-	
+	/**
+     * Free everything (native callbacks, bindings, etc...).<br>
+     * Called automatically by {@link NativeEntities#finalize()} upon garbage collection.
+     */
 	public void release() {
 		for (CBInfo callbacks : functions.values())
 		    JNI.freeCFunctionBindings(callbacks.handle, callbacks.size);

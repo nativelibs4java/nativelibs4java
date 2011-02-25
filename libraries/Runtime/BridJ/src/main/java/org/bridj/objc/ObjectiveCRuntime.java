@@ -15,7 +15,7 @@ import org.bridj.NativeObject;
 import org.bridj.Pointer;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.TypedPointer;
-import org.bridj.Utils;
+import org.bridj.util.Utils;
 import org.bridj.ann.Library;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Runtime;

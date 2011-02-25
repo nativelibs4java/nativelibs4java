@@ -27,7 +27,7 @@ import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Virtual;
 import org.bridj.CRuntime;
 import org.bridj.NativeLibrary.SymbolAccepter;
-import org.bridj.Utils;
+import org.bridj.util.Utils;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
