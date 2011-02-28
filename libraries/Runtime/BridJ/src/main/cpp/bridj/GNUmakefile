@@ -22,6 +22,8 @@
 LD=gcc
 CXX=gcc
 
+COMPILE_PIC = 1
+
 TOP =	$(DYNCALL_HOME)
 include $(DYNCALL_HOME)/buildsys/gmake/prolog.gmake
 
@@ -71,6 +73,15 @@ CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/linux
 #LDFLAGS		+= -ljni
 endif
+
+ifdef BUILD_OS_sunos
+# http://gcc.gnu.org/onlinedocs/gcc/Solaris-2-Options.html
+CPPFLAGS	+=	-I/usr/jdk/instances/jdk1.5.0/include
+CPPFLAGS	+=	-I/usr/jdk/instances/jdk1.5.0/include/solaris
+LDFLAGS		+= 	-mimpure-text
+LDFLAGS		+=	-L/opt/csw/gcc4/lib
+endif                 
+
 
 ifdef BUILD_OS_darwin
 CPPFLAGS += -O3

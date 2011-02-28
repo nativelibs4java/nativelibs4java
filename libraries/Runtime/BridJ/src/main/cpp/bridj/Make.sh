@@ -1,6 +1,11 @@
 #!/bin/bash
 
 #BUILD_CONFIG=debug sh MakeAll.sh clean 
+export MAKE_CMD=make
+if [[ "`which gmake`" != "" ]] ; then
+	export MAKE_CMD=gmake ;
+fi
+
 
 if [[ "$DYNCALL_HOME" == "" ]] ; then
 	export DYNCALL_HOME=~/src/dyncall/dyncall ;
@@ -14,7 +19,7 @@ fi
 	
 CURR="`pwd`"
 LD=gcc
-
+COMPILE_PIC=1
 BUILD_DIR=
 #echo BUILD_DIR = $BUILD_DIR
 #echo BUILD_CONFIG = $BUILD_CONFIG
@@ -29,15 +34,15 @@ echo "# Making dyncall"
 cd "$DYNCALL_HOME"
 if [[ -d /System/Library/Frameworks/ ]] ; then sh ./configure --target-universal ; 
 else sh ./configure ; fi
-make $@ || exit 1
+$MAKE_CMD $@ || exit 1
 
 echo "# Making bridj"
 cd "$CURR"
-make $@ || exit 1
+$MAKE_CMD $@ || exit 1
 
 echo "# Making test library"
 cd "../../../test/cpp/test"
-make $@ || exit 1
+$MAKE_CMD $@ || exit 1
 
 cd "$CURR"
 

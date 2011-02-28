@@ -65,10 +65,23 @@ public class Platform {
     public static boolean isWindows7() {
     	return osName.equals("Windows 7");
     }
+	private static volatile String arch;
+	private static synchronized String getArch() {
+		if (arch == null) {
+			arch = System.getProperty("sun.arch.data.model");
+			if (arch == null)
+				arch = System.getProperty("os.arch");
+		}
+		return arch;
+	}
+	public static boolean isSparc() {
+    	String arch = getArch();
+		return 
+			"sparc".equals(arch) ||
+			"sparcv9".equals(arch);
+	}
     public static boolean is64Bits() {
-    	String arch = System.getProperty("sun.arch.data.model");
-        if (arch == null)
-            arch = System.getProperty("os.arch");
+    	String arch = getArch();
         return
     		arch.contains("64") ||
     		arch.equalsIgnoreCase("sparcv9");
@@ -81,11 +94,18 @@ public class Platform {
     		return "darwin_universal/lib" + name + ".dylib";
     	if (isLinux())
     		return (is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so";
-
+    	if (isSolaris()) {
+    		if (isSparc()) {	
+    			return (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/") + name + ".so";
+    		} else {
+    			return (is64Bits() ? "sunos_x64/" : "sunos_x86/") + name + ".so";
+    		}	
+		}
     	throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
     }
     public static File extractEmbeddedLibraryResource(String name) throws IOException {
     	String libraryResource = getEmbeddedLibraryResource(name);
+		System.out.println("RESOURCE = " + libraryResource);
         int i = libraryResource.lastIndexOf('.');
         String ext = i < 0 ? "" : libraryResource.substring(i);
         int len;

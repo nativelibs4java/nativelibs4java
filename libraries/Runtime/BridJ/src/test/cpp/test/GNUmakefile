@@ -45,6 +45,14 @@ CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/linux
 #LDFLAGS		+= -ljni
 endif
 
+ifdef BUILD_OS_sunos
+# http://gcc.gnu.org/onlinedocs/gcc/Solaris-2-Options.html
+CPPFLAGS	+=	-I/usr/jdk/instances/jdk1.5.0/include
+CPPFLAGS	+=	-I/usr/jdk/instances/jdk1.5.0/include/solaris
+LDFLAGS		+=	-mimpure-text
+LDFLAGS		+=	-L/opt/csw/gcc4/lib
+endif                 
+
 LINK_LIBS	+= stdc++
 
 include $(DYNCALL_HOME)/buildsys/gmake/epilog.gmake
