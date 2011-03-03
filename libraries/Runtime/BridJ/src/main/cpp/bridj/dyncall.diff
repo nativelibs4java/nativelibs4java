@@ -932,6 +932,62 @@ Index: ~/src/dyncall/dyncall/dynload/dynload.h
  
  /* symbol table enumeration */
  
+Index: ~/src/dyncall/dyncall/dynload/dynload_unix.h
+===================================================================
+--- ~/src/dyncall/dyncall/dynload/dynload_unix.h	
++++ ~/src/dyncall/dyncall/dynload/dynload_unix.h	
+@@ -0,0 +1,51 @@
++/*
++ Package: dynload
++ File: include/dynload_unix.h
++ Description: Unix-specific header file for dynload
++ License:
++
++ Copyright (c) 2011      Olivier Chafik <olivier.chafik@gmail.com>
++
++ Permission to use, copy, modify, and distribute this software for any
++ purpose with or without fee is hereby granted, provided that the above
++ copyright notice and this permission notice appear in all copies.
++
++ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++ WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++ MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++#ifndef DYNLOAD_UNIX_H
++#define DYNLOAD_UNIX_H
++
++
++#if !defined(DC__OS_SunOS)
++/*
++ * On some platforms (all but Solaris, or so it seems), dlopen returns a struct { Elf_Ehdr* } straight away.
++ * This behaviour is undocumented but allows us to get our hands on the ELF structures easily.
++ * On the platforms that don't have this undocumented behaviour, we need to memory-map the file to inspect the ELF metadata. 
++ */
++#  define DC_DLOPEN_HACK
++#endif
++
++struct DLLib_
++{
++  // Pointer to ELF header (might or might not be the same as libHandle
++  void* pElf_Ehdr; 
++  // Library handle returned by dlopen
++  void* libHandle;
++  
++#if !defined(DC_DLOPEN_HACK)
++  // File handle of the library, as returned by open
++  int file;
++  // Size of the library file, in bytes
++  size_t fileSize;
++#endif
++};
++
++#endif // DYNLOAD_UNIX_H
 Index: ~/src/dyncall/dyncall/dynload/dynload_windows.c
 ===================================================================
 --- ~/src/dyncall/dyncall/dynload/dynload_windows.c	
@@ -1047,7 +1103,109 @@ Index: ~/src/dyncall/dyncall/dynload/dynload_syms_elf.c
  #endif
  
  /*
-@@ -193,11 +194,15 @@
+@@ -30,11 +31,15 @@
+ 
+ #include "dynload.h"
+ #include "dynload_macros.h"
++#include "dynload_unix.h"
+ #if defined(DC__OS_OpenBSD)
+ #	include <elf_abi.h>
+ #else
+ #	include <elf.h>
+ #endif
++#if defined(DC__OS_SunOS)
++#   include <link.h>
++#endif
+ #include <assert.h>
+ #include <dlfcn.h>
+ #include <stdio.h>
+@@ -44,6 +49,7 @@
+ #ifdef DL__BinaryFormat_elf64
+ typedef Elf64_Ehdr   Elf_Ehdr;
+ typedef Elf64_Phdr   Elf_Phdr;
++typedef Elf64_Shdr   Elf_Shdr;
+ typedef Elf64_Sym    Elf_Sym;
+ typedef Elf64_Dyn    Elf_Dyn;
+ typedef Elf64_Sxword Elf_tag;
+@@ -51,19 +57,13 @@
+ #else
+ typedef Elf32_Ehdr   Elf_Ehdr;
+ typedef Elf32_Phdr   Elf_Phdr;
++typedef Elf32_Shdr   Elf_Shdr;
+ typedef Elf32_Sym    Elf_Sym;
+ typedef Elf32_Dyn    Elf_Dyn;
+ typedef Elf32_Sword  Elf_tag;
+ typedef Elf32_Addr   Elf_Addr;
+ #endif
+ 
+-
+-struct DLLib_
+-{
+-  Elf_Ehdr* pElf_Ehdr;
+-};
+-
+-
+ typedef struct 
+ {
+   uint32_t nbucket;        
+@@ -112,6 +112,9 @@
+   Elf_Sym*    pSymTab;
+   Elf_GNU_Hash* pGNUHash;
+   uint32_t*     pGNUHashChain;
++#if !defined(DC_DLOPEN_HACK)
++  DLLib*      pLib;
++#endif
+ };
+ 
+ 
+@@ -128,6 +131,10 @@
+   pSyms->pGNUHash = 0;
+   pSyms->pGNUHashChain = 0;
+ 
++#if !defined(DC_DLOPEN_HACK)
++  pSyms->pLib     = pLib;
++#endif
++
+   Elf_Ehdr* pH   = pLib->pElf_Ehdr;
+ #ifdef DL__BinaryFormat_elf32
+   assert( pH->e_ident[EI_CLASS] == ELFCLASS32 );
+@@ -181,6 +188,35 @@
+     uint32_t* pchain   = (uint32_t*) &pbuckets[p->nbuckets];
+     pSyms->pGNUHashChain = pchain;
+   }
++  
++  if (!pSyms->pHash) {
++  	/* traverse section headers */
++    Elf_Shdr* pS = (Elf_Shdr*) ( pMem + pH->e_shoff );
++    /* skip section 0 which is always zero due to the Elf standard. */
++    
++    for (i=1;i<pH->e_shnum;++i) 
++    {
++      Elf_Shdr* pSection = &pS[i];
++      
++      void* pSectionContent = ((char*)pMem) + pSection->sh_offset;
++      
++      switch( pSection->sh_type )
++      {
++        case SHT_HASH:
++          pSyms->pHash = (Elf_Hash*)pSectionContent;
++          break;
++        case SHT_DYNSYM: // only the dynamic symbols
++        //case SHT_SYMTAB: // all symbols
++          pSyms->pSymTab  = (Elf_Sym*)pSectionContent;
++          break;
++        case SHT_STRTAB:
++          // Do not trust pH->e_shstrndx !
++          if (!pSyms->pStrTab)
++          	  pSyms->pStrTab  = (const char*)pSectionContent;
++          break;
++      }
++    }  
++  }
+   return pSyms;
+ }
+ 
+@@ -193,11 +229,15 @@
  
  int dlSymsCount(DLSyms* pSyms)
  {
@@ -1068,6 +1226,82 @@ Index: ~/src/dyncall/dyncall/dynload/dynload_syms_elf.c
    } else {
      return pSyms->pHash->nchain;
    }
+@@ -226,12 +266,16 @@
+   if(!pSyms || !pSyms->pSymTab)
+     return NULL;
+ 
++#if defined(DC_DLOPEN_HACK)
+   if (pSyms->pGNUHash) {
+     export_base = pSyms->pGNUHash->symndx;
+   } else {
+     export_base = 0;
+   }
+   return (void*) pSyms->pSymTab[ export_base + index ].st_value;
++#else
++  return dlFindSymbol(pSyms->pLib, dlSymsName(pSyms, index));
++#endif
+ }
+ 
+ 
+Index: ~/src/dyncall/dyncall/dynload/dynload_unix.c
+===================================================================
+--- ~/src/dyncall/dyncall/dynload/dynload_unix.c	
++++ ~/src/dyncall/dyncall/dynload/dynload_unix.c	
+@@ -27,21 +27,49 @@
+ 
+ 
+ #include "dynload.h"
++#include "dynload_unix.h"
+ 
+ #include <dlfcn.h>
++#if !defined(DC_DLOPEN_HACK)
++#  include <sys/mman.h>
++#  include <stdio.h>
++#  include <sys/stat.h>
++#  include <sys/fcntl.h>
++#endif
+ 
+ DLLib* dlLoadLibrary(const char* libPath)
+ {
+-  return (DLLib*) dlopen(libPath,RTLD_NOW);
++  DLLib* pLib = (DLLib*)malloc(sizeof(DLLib));
++  pLib->libHandle = dlopen(libPath, RTLD_NOW);
++  
++#if !defined(DC_DLOPEN_HACK)
++  {  
++    struct stat st;
++    pLib->file = open(libPath, O_RDONLY);
++    stat(libPath, &st);
++    pLib->fileSize = st.st_size;
++    pLib->pElf_Ehdr = mmap(NULL, pLib->fileSize, PROT_READ, MAP_SHARED, pLib->file, 0);
++  }
++#else
++  pLib->pElf_Ehdr = pLib->libHandle;
++#endif
++
++  return pLib;
+ }
+ 
+-void* dlFindSymbol(DLLib* libHandle, const char* symbol)
++void* dlFindSymbol(DLLib* pLib, const char* symbol)
+ {
+-  return dlsym( (void*) libHandle, symbol);
++  return dlsym(pLib ? pLib->libHandle : RTLD_DEFAULT, symbol);
+ }
+ 
+-void  dlFreeLibrary(DLLib* libHandle)
++void  dlFreeLibrary(DLLib* pLib)
+ {
+-  dlclose( (void*) libHandle);
++#if !defined(DC_DLOPEN_HACK)
++  munmap(pLib->pElf_Ehdr, pLib->fileSize);
++  close(pLib->file);
++#endif
++
++  dlclose(pLib->libHandle);
++  free(pLib);
+ }
+ 
 Index: ~/src/dyncall/dyncall/buildsys/gmake/prolog.gmake
 ===================================================================
 --- ~/src/dyncall/dyncall/buildsys/gmake/prolog.gmake	
