@@ -534,7 +534,7 @@ public class BridJ {
 	 */
     public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
 		NativeLibrary ll;
-		if ("c".equals(name)) {// && Platform.isLinux())
+		if ("c".equals(name)) {// && !Platform.isSolaris())
 			ll = new NativeLibrary(null, 0, 0);
 			f = null;
 		} else

@@ -11,10 +11,10 @@ if [[ "$DYNCALL_HOME" == "" ]] ; then
 	export DYNCALL_HOME=~/src/dyncall/dyncall ;
 fi
 
-if [[ "$DEBUG" == "" ]] ; then
-	export OUT_PATTERN=release ;
-else
+if [[ "$DEBUG" == "1" ]] ; then
 	export OUT_PATTERN=debug ;
+else
+	export OUT_PATTERN=release ;
 fi
 	
 CURR="`pwd`"
@@ -67,7 +67,8 @@ if [[ -d build_out ]] ; then
 		fi 
 		
 		nm $TEST_OUT/*.so > $TEST_OUT/test.so.nm
-		nm $TEST_OUT/*.dylib > $TEST_OUT/test.dylib.nm ;
+		nm $TEST_OUT/*.dylib > $TEST_OUT/test.dylib.nm
+		echo "Done for $D" ;
 	#	svn add $MAIN_OUT
 	#	svn add $TEST_OUT ;
 	done ;

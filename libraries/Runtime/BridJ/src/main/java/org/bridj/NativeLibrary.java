@@ -275,10 +275,11 @@ public class NativeLibrary {
 			//nameToAddr.put(name, addr);
 			//System.out.println("'" + name + "' = \t" + TestCPP.hex(addr) + "\n\t" + sym.getParsedRef());
 		}
-		System.out.println("Symbols found : " + nameToSym.size());
-		//for (Symbol sym : nameToSym.values()) {
-		//	System.out.println("Symbol '" + sym + "' = " + sym.getParsedRef());
-		//}
+		if ("1".equals(System.getenv("BRIDJ_PRINT_SYMBOLS"))) {
+			System.out.println("Symbols found in '" + path + "' : " + nameToSym.size());
+			for (Symbol sym : nameToSym.values())
+				System.out.println("Symbol '" + sym + "' = " + sym.getParsedRef());
+		}
 	}
 
 	public MemberRef parseSymbol(String symbol) throws DemanglingException {
