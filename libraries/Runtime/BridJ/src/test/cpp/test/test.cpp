@@ -238,6 +238,7 @@ template class Temp1<int>;
 template class Temp1<double>;
 
 template class Temp2<int, int>;
+template class Temp2<int, short>;
 template class Temp2<double, double>;
 
 template class TempV<int, 66>;
