@@ -63,7 +63,7 @@ import static org.bridj.SizeT.safeIntCast;
 #end
  *  </li>
  *	<li>Allocating an array of primitives with / without initial values (zero-initialized) :<br>
-#foreach ($prim in $primitives)
+#foreach ($prim in $primitivesNoBool)
  *		{@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])} or {@link Pointer#pointerTo${prim.CapName}s(${prim.BufferName})} / {@link Pointer#allocate${prim.CapName}s(long)}<br>
 #end
 #foreach ($sizePrim in ["SizeT", "CLong"])
@@ -72,10 +72,10 @@ import static org.bridj.SizeT.safeIntCast;
  *		{@link Pointer#pointerToBuffer(Buffer)} / n/a<br>
  *  </li>
  *  <li>Allocating a native String :<br>
-#foreach ($string in ["C", "WideC", "Pascal", "WidePascal"])
-*		{@link Pointer#pointerTo${string}String(String)} (default charset)<br>
+#foreach ($string in ["C", "WideC"])
+*		{@link Pointer#pointerTo${string}String(String) } (default charset)<br>
 #end
- *		{@link Pointer#pointerToString(String, StringType, Charset)}<br>
+ *		{@link Pointer#pointerToString(String, StringType, Charset) }<br>
  *  </li>
  * </ul>
  */
@@ -522,6 +522,24 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      */
     public <U> Pointer<U> as(Class<U> type) {
     	return asPointerTo(type);
+    }
+    
+    /**
+     * Cast this pointer as a function pointer to a function that returns the specified return type and takes the specified parameter types.<br>
+     * See for instance the following C code that uses a function pointer :
+     * <pre>{@code
+     *	  double (*ptr)(int, const char*) = someAddress;
+     *    double result = ptr(10, "hello");
+     * }</pre>
+     * Its Java equivalent with BridJ is the following :
+     * <pre>{@code
+     *	  DynamicFunction ptr = someAddress.asDynamicFunction(double.class, int.class, Pointer.class);
+     *    double result = (Double)ptr.apply(10, pointerToCString("hello"));
+     * }</pre>
+     * Also see {@link CRuntime#getDynamicFunctionFactory(org.bridj.NativeLibrary, org.bridj.ann.Convention.Style, java.lang.reflect.Type, java.lang.reflect.Type[])  } for more options.
+     */
+    public DynamicFunction asDynamicFunction(org.bridj.ann.Convention.Style callingConvention, Type returnType, Type... parameterTypes) {
+    		return BridJ.getCRuntime().getDynamicFunctionFactory(null, callingConvention, returnType, parameterTypes).newInstance(this);
     }
     
     /**

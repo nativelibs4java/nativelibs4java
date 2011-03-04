@@ -4,20 +4,27 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.objectweb.asm.*;
+//import org.objectweb.asm.*;
+import static org.objectweb.asm.Opcodes.*;
 
 import org.bridj.*;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Convention;
 import org.bridj.util.Pair;
+import org.bridj.util.Utils;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.signature.SignatureWriter;
 
 //import org.objectweb.asm.attrs.*;
-class CallbackNativeImplementer extends ClassLoader implements Opcodes {
+class CallbackNativeImplementer extends ClassLoader {
 
 	Map<Class<? extends Callback>, Class<?>> implClasses = new HashMap<Class<? extends Callback>, Class<?>>();
 	String implNameSuffix = "_NativeImpl";
@@ -74,21 +81,21 @@ class CallbackNativeImplementer extends ClassLoader implements Opcodes {
 		}
 		return (Class)callbackImplType;
 	}
-    protected Map<Pair<NativeLibrary, List<Class<?>>>, DynamicFunctionFactory> dynamicCallbacks = new HashMap<Pair<NativeLibrary, List<Class<?>>>, DynamicFunctionFactory>();
-    public synchronized DynamicFunctionFactory getDynamicCallback(NativeLibrary library, Convention.Style callingConvention, Class<?> returnType, Class<?>... paramTypes) {
-        List<Class<?>> list = new ArrayList<Class<?>>(paramTypes.length + 1);
+    protected Map<Pair<NativeLibrary, List<Type>>, DynamicFunctionFactory> dynamicCallbacks = new HashMap<Pair<NativeLibrary, List<Type>>, DynamicFunctionFactory>();
+    public synchronized DynamicFunctionFactory getDynamicCallback(NativeLibrary library, Convention.Style callingConvention, Type returnType, Type... paramTypes) {
+        List<Type> list = new ArrayList<Type>(paramTypes.length + 1);
         list.add(returnType);
         list.addAll(Arrays.asList(paramTypes));
-        Pair<NativeLibrary, List<Class<?>>> key = new Pair<NativeLibrary, List<Class<?>>>(library, list);
+        Pair<NativeLibrary, List<Type>> key = new Pair<NativeLibrary, List<Type>>(library, list);
         DynamicFunctionFactory cb = dynamicCallbacks.get(key);
         if (cb == null) {
             try {
                 StringBuilder javaSig = new StringBuilder("("), desc = new StringBuilder();
-                for (Class<?> paramType : paramTypes) {
-                    javaSig.append(classSig(paramType));
+                for (Type paramType : paramTypes) {
+                    javaSig.append(classSig(Utils.getClass(paramType)));
                     desc.append(typeDesc(paramType));
                 }
-                javaSig.append(")").append(classSig(returnType));
+                javaSig.append(")").append(classSig(Utils.getClass(returnType)));
                 desc.append("To").append(typeDesc(returnType));
 
                 String callbackTypeImplName = "org/bridj/dyncallbacks/" + desc;
@@ -97,7 +104,11 @@ class CallbackNativeImplementer extends ClassLoader implements Opcodes {
                 byte[] byteArray = emitBytes("<anonymous>", DynamicFunction.class.getName().replace(".", "/"), callbackTypeImplName, methodName, javaSig.toString());
                 Class<? extends DynamicFunction> callbackImplType = (Class)defineClass(callbackTypeImplName.replace('/', '.'), byteArray, 0, byteArray.length);
                 runtime.register(callbackImplType);
-                cb = new DynamicFunctionFactory(callbackImplType, callbackImplType.getMethod(methodName, paramTypes), callingConvention);
+
+                Class<?>[] paramClasses = new Class[paramTypes.length];
+                for (int i = 0, n = paramTypes.length; i < n; i++)
+                    paramClasses[i] = Utils.getClass(paramTypes[i]);
+                cb = new DynamicFunctionFactory(callbackImplType, callbackImplType.getMethod(methodName, paramClasses), callingConvention);
                 dynamicCallbacks.put(key, cb);
             } catch (Throwable th) {
                 throw new RuntimeException("Failed to create callback for " + list + " : " + th, th);
@@ -131,14 +142,23 @@ class CallbackNativeImplementer extends ClassLoader implements Opcodes {
         }
         return "L" + c.getName().replace('.', '/') + ";";
     }
-    static String typeDesc(Class c) {
-        if (c.isPrimitive()) {
-            String s = c.getSimpleName();
-            return Character.toUpperCase(s.charAt(0)) + s.substring(1);
-        } else if (c.isArray()) {
-            return typeDesc(c.getComponentType()) + "Array";
+    static String typeDesc(Type t) {
+        if (t instanceof Class) {
+            Class c = (Class)t;
+            if (c.isPrimitive()) {
+                String s = c.getSimpleName();
+                return Character.toUpperCase(s.charAt(0)) + s.substring(1);
+            } else if (c.isArray()) {
+                return typeDesc(c.getComponentType()) + "Array";
+            }
+            return c.getName().replace('.', '_');
+        } else {
+            ParameterizedType p = (ParameterizedType)t;
+            StringBuilder b = new StringBuilder(typeDesc(p.getRawType()));
+            for (Type pp : p.getActualTypeArguments())
+                b.append("_").append(typeDesc(pp));
+            return b.toString();
         }
-        return c.getName().replace('.', '_');
     }
 	private byte[] emitBytes(String sourceFile, String callbackTypeName,
 			String callbackTypeImplName, String methodName,

@@ -22,7 +22,7 @@ import org.bridj.BridJ;
 
 
 /**
- * Representation of a C++ type (including template parameters)
+ * Representation of a C++ type (including template parameters, which can be types or constants).
  * @author Olivier
  */
 public class CPPType implements ParameterizedType {
