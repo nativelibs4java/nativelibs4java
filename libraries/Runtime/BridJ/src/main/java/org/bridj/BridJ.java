@@ -174,6 +174,9 @@ public class BridJ {
 	}
     private static Map<Class<? extends BridJRuntime>, BridJRuntime> runtimes = new HashMap<Class<? extends BridJRuntime>, BridJRuntime>();
 
+    public static CRuntime getCRuntime() {
+        return getRuntimeByRuntimeClass(CRuntime.class);
+    }
     public static synchronized <R extends BridJRuntime> R getRuntimeByRuntimeClass(Class<R> runtimeClass) {
         R r = (R) runtimes.get(runtimeClass);
         if (r == null) {
@@ -200,9 +203,9 @@ public class BridJ {
                 		runtimeClass = runtimeAnn.value();
                 else	
                 		runtimeClass = CRuntime.class;
-                if (runtimeAnn == null) {
-                    throw new IllegalArgumentException("Class " + type.getName() + " has no " + org.bridj.ann.Runtime.class.getName() + " annotation. Unable to guess the corresponding " + BridJRuntime.class.getName() + " implementation.");
-                }
+                //if (runtimeC == null) {
+                //    throw new IllegalArgumentException("Class " + type.getName() + " has no " + org.bridj.ann.Runtime.class.getName() + " annotation. Unable to guess the corresponding " + BridJRuntime.class.getName() + " implementation.");
+                //}
                 runtime = getRuntimeByRuntimeClass(runtimeClass);
                 classRuntimes.put(type, runtime);
             }

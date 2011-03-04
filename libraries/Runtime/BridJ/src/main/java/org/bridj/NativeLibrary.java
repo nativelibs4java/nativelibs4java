@@ -28,6 +28,7 @@ import org.bridj.ann.Virtual;
 import org.bridj.demangling.GCC4Demangler;
 import org.bridj.demangling.VC9Demangler;
 import java.lang.reflect.Type;
+import static org.bridj.Pointer.*;
 
 import java.util.Collection;
 import org.bridj.demangling.Demangler;
@@ -90,6 +91,9 @@ public class NativeLibrary {
 		JNI.freeLibrarySymbols(symbols);
 		handle = 0;
 	}
+    public Pointer<?> getSymbolPointer(String name) {
+        return pointerToAddress(getSymbolAddress(name));
+    }
 	public long getSymbolAddress(String name) {
 		if (nameToSym != null) {
 			Symbol addr = nameToSym.get(name);

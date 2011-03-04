@@ -105,7 +105,6 @@ public class Platform {
     }
     public static File extractEmbeddedLibraryResource(String name) throws IOException {
     	String libraryResource = getEmbeddedLibraryResource(name);
-		System.out.println("RESOURCE = " + libraryResource);
         int i = libraryResource.lastIndexOf('.');
         String ext = i < 0 ? "" : libraryResource.substring(i);
         int len;
