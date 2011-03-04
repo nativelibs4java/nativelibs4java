@@ -25,7 +25,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.*;
 public class DemanglingTest {
-/*
+
 	@Test
 	public void gcc() {
 		demangle(
@@ -144,8 +144,6 @@ public class DemanglingTest {
 		);
 	}
 
-*/
-
     @Test
 	public void templateHardConstructor1() {
 		demangle(
@@ -168,7 +166,7 @@ public class DemanglingTest {
             int.class
 		);
 	}
-/*
+
     @Test
 	public void simpleFunctions() {
 		demangle("?sinInt@@YANH@Z", "_Z6sinInti", null,
@@ -185,7 +183,7 @@ public class DemanglingTest {
         demangle(null, "_Z14pointerAliasesPPvS_PS0_PPi", null, ident("pointerAliases"), null, Pointer.class, Pointer.class, Pointer.class, Pointer.class);
         demangle(null, "_Z14pointerAliasesPPvS_PS0_PPi", null, ident("pointerAliases"), null, "**Void", "*Void", "***Void", "**Integer");
     }
-*/
+
     static IdentLike ident(String name) {
         return new Ident(name);
     }
