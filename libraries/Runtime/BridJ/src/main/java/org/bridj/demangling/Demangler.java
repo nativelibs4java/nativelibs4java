@@ -20,6 +20,7 @@ import org.bridj.ann.CLong;
 import org.bridj.ann.Constructor;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Convention;
+import org.bridj.ann.Template;
 import org.bridj.util.DefaultParameterizedType;
 import org.bridj.util.Utils;
 
@@ -749,19 +750,6 @@ public abstract class Demangler {
             this.argumentsStackSize = argumentsStackSize;
         }
        
-        public boolean matchesSingleThisPointerVoidMethod(Type type) {
-			if (getEnclosingType() != null && !getEnclosingType().matches(type, annotations(type)))
-				return false;
-			
-			if (getValueType() != null && !getValueType().matches(Void.TYPE, null))
-				return false;
-			
-            Type[] methodArgTypes = new Type[] { Long.TYPE };
-            if (!matchesArgs(methodArgTypes, null))
-            	return false;
-            
-			return true;
-		}
         protected boolean matchesEnclosingType(Type type) {
 			return getEnclosingType() != null && getEnclosingType().matches(type, annotations(type));
 		}
@@ -776,10 +764,11 @@ public abstract class Demangler {
             if (!matchesEnclosingType(type))
                 return false;
 
+            Template temp = Utils.getClass(type).getAnnotation(Template.class);
             Annotation[][] anns = constr.getParameterAnnotations();
             Type[] parameterTypes = constr.getGenericParameterTypes();
             
-            if (!matchesArgs(parameterTypes, anns))
+            if (!matchesArgs(parameterTypes, anns, temp == null ? 0 : temp.value().length))
             	return false;
 
             return true;
@@ -847,12 +836,13 @@ public abstract class Demangler {
 			if (getValueType() != null && !getValueType().matches(method.getReturnType(), annotations(method)))
 				return false;
 			
-			Annotation[][] anns = method.getParameterAnnotations();
+			Template temp = method.getAnnotation(Template.class);
+            Annotation[][] anns = method.getParameterAnnotations();
 //            Class<?>[] methodArgTypes = method.getParameterTypes();
             Type[] parameterTypes = method.getGenericParameterTypes();
             //boolean hasThisAsFirstArgument = BridJ.hasThisAsFirstArgument(method);//methodArgTypes, anns, true);
             
-            if (!matchesArgs(parameterTypes, anns))///*, hasThisAsFirstArgument*/))
+            if (!matchesArgs(parameterTypes, anns, temp == null ? 0 : temp.value().length))///*, hasThisAsFirstArgument*/))
             	return false;
             
             
@@ -881,13 +871,13 @@ public abstract class Demangler {
             
             return true;
 		}
-		private boolean matchesArgs(Type[] parameterTypes, Annotation[][] anns) {
-			int totalArgs = 0;
+		private boolean matchesArgs(Type[] parameterTypes, Annotation[][] anns, int offset) {
+			int totalArgs = offset;
             for (int i = 0, n = templateArguments == null ? 0 : templateArguments.length; i < n; i++) {
                 if (totalArgs >= parameterTypes.length)
                     return false;
 
-                Type paramType = parameterTypes[i];
+                Type paramType = parameterTypes[offset + i];
 
                 TemplateArg arg = templateArguments[i];
                 if (arg instanceof TypeRef) {

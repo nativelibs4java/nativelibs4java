@@ -364,7 +364,7 @@ public class CRuntime extends AbstractBridJRuntime {
      * @param callingConvention calling convention used by the functions (if null, default is typically {@link org.bridj.ann.Convention.Style#CDecl})
      * @param returnType return type of the functions
      * @param paramTypes parameter type of the functions
-     * Also see {@link DynamicFunction} and {@link Pointer#asDynamicFunction(java.lang.reflect.Type, java.lang.reflect.Type[]) }.
+     * Also see {@link DynamicFunction} and {@link Pointer#asDynamicFunction(org.bridj.ann.Convention.Style, java.lang.reflect.Type, java.lang.reflect.Type[]) }.
      */
     public DynamicFunctionFactory getDynamicFunctionFactory(NativeLibrary library, Convention.Style callingConvention, Type returnType, Type... paramTypes) {
         return callbackNativeImplementer.getDynamicCallback(library, callingConvention, returnType, paramTypes);
