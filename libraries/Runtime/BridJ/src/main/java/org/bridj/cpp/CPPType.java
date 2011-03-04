@@ -51,13 +51,13 @@ public class CPPType implements ParameterizedType {
 		return ret.toArray(new Type[ret.size()]);
 	}
     
-	public static Object[] cons(Class firstClass, Object... flattenedClassesAndParams) {
+	static Object[] cons(Class firstClass, Object... flattenedClassesAndParams) {
 		Object[] a = new Object[flattenedClassesAndParams.length + 1];
 		a[0] = firstClass;
 		System.arraycopy(flattenedClassesAndParams, 0, a, 1, flattenedClassesAndParams.length);
 		return a;
 	}
-    public static Type getCPPType(Object[] flattenedClassesAndParams) {
+    public static Type getCPPType(Object... flattenedClassesAndParams) {
     		int[] position = new int[] { 0 };
     		Type t = parseCPPType(flattenedClassesAndParams, position);
     		if (position[0] < flattenedClassesAndParams.length)

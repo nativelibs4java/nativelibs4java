@@ -311,7 +311,7 @@ public class CPPRuntime extends CRuntime {
 			}
             // TODO handle templates here
             long size = sizeOf(type, null);
-            peer = (Pointer) Pointer.allocateBytes(PointerIO.getInstance(type), size, releaser).asPointerTo(type);
+            peer = (Pointer) Pointer.allocateBytes(PointerIO.getInstance(type), size, releaser).as(type);
             
             DynamicFunction constructor = getConstructor(typeClass, type, lib, constructorId);
             

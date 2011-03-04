@@ -30,7 +30,7 @@ public class PointerTest {
 		assertTrue(p == (Pointer)p.offset(0));
 		assertTrue(p == (Pointer)p.next(0));
 		assertTrue(p == (Pointer)p.as(p.getIO()));
-		assertTrue(p == (Pointer)p.asPointerTo(p.getIO().getTargetType()));
+		assertTrue(p == (Pointer)p.as(p.getIO().getTargetType()));
 		assertTrue(p == (Pointer)p.order(p.order()));
 	}
 	/*
