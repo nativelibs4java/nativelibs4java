@@ -97,7 +97,8 @@ TEST_API double __cdecl testASinB(int a, int b)
 Ctest::Ctest()
 {
 	cout << "Constructing Ctest instance\n";
-	
+	firstField = -123456;
+	secondField = 12;
 	
 #if defined(DC__Arch_Intel_x86)
 /*
@@ -111,6 +112,10 @@ Ctest::Ctest()
 #endif
 
 	//printf("Ctest::Ctest() (this = %ld)\n", (long int)(size_t)this);
+}
+Ctest::Ctest(int firstField) {
+	this->firstField = firstField;
+	this->secondField = 0;
 }
 Ctest::~Ctest()
 {

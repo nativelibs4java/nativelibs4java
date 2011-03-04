@@ -28,7 +28,7 @@ public class MyTemplate<T> extends CPPObject {
     
 	@Constructor(0)
 	public MyTemplate(int n, Type t, int arg) {
-		super(0, n, t, arg);
+		super(null, 0, n, t, arg);
 		this.n = n;
 	}
 	

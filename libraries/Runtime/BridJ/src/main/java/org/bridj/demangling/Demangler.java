@@ -303,7 +303,7 @@ public abstract class Demangler {
             }
             return false;
 		}
-		public boolean matchesConstructor(Type type) {
+		public boolean matchesConstructor(Type type, java.lang.reflect.Constructor<?> constr) {
 			if (!symbol.contains(Utils.getClass(type).getSimpleName()))
 				return false;
 		
@@ -311,7 +311,7 @@ public abstract class Demangler {
 
             try {
                 if (ref != null) {
-                	return ref.matchesConstructor(type);
+                	return ref.matchesConstructor(type, constr);
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -769,8 +769,20 @@ public abstract class Demangler {
 		protected boolean matchesVirtualTable(Type type) {
 			return memberName == SpecialName.VFTable && matchesEnclosingType(type);
 		}
-        protected boolean matchesConstructor(Type type) {
-			return memberName == SpecialName.Constructor && matchesEnclosingType(type);
+        protected boolean matchesConstructor(Type type, java.lang.reflect.Constructor<?> constr) {
+            if (memberName != SpecialName.Constructor)
+                return false;
+
+            if (!matchesEnclosingType(type))
+                return false;
+
+            Annotation[][] anns = constr.getParameterAnnotations();
+            Type[] parameterTypes = constr.getGenericParameterTypes();
+            
+            if (!matchesArgs(parameterTypes, anns))
+            	return false;
+
+            return true;
 		}
         protected boolean matchesDestructor(Type type) {
         		return memberName == SpecialName.Destructor && matchesEnclosingType(type);

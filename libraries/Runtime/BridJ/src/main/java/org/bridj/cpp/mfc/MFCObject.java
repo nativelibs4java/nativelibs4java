@@ -17,7 +17,7 @@ public class MFCObject extends CPPObject {
     protected MFCObject(Pointer<? extends MFCObject> peer) {
         super(peer);
     }
-    protected MFCObject(int constructorId, Object... args) {
-        super(constructorId, args);
+    protected MFCObject(Void voidArg, int constructorId, Object... args) {
+        super(voidArg, constructorId, args);
     }
 }

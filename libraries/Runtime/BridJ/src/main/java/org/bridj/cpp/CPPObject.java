@@ -25,8 +25,8 @@ public abstract class CPPObject extends StructObject {
     protected CPPObject(Pointer<? extends CPPObject> peer) {
         super(peer);
     }
-    protected CPPObject(int constructorId, Object... args) {
-        super(constructorId, args);
+    protected CPPObject(Void voidArg, int constructorId, Object... args) {
+        super(voidArg, constructorId, args);
     }
     /*
     @Override

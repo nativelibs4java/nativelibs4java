@@ -246,14 +246,15 @@ public class CPPRuntime extends CRuntime {
         Pair<Type, Integer> key = new Pair<Type, Integer>(type, constructorId);
         DynamicFunction constructor = constructors.get(key);
         if (constructor == null) {
-            Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
-                return symbol.matchesConstructor(type);
-            }});
-            if (symbol == null)
-                throw new RuntimeException("No matching constructor for " + typeClass.getName() + " (" + constructor + ")");
-
             try {
-                Constructor<?> constr = findConstructor(typeClass, constructorId);
+                final Constructor<?> constr = findConstructor(typeClass, constructorId);
+                Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
+                    return symbol.matchesConstructor(type, constr);
+                }});
+                if (symbol == null)
+                    throw new RuntimeException("No matching constructor for " + typeClass.getName() + " (" + constructor + ")");
+
+
 
                 if (symbol != null)
                     log(Level.INFO, "Registering constructor " + constr + " as " + symbol.getName());
@@ -416,12 +417,15 @@ public class CPPRuntime extends CRuntime {
                 if (instance instanceof CPPObject) {
                     //instance.peer = allocate(instance.getClass(), constructorId, args);
                     int[] position = new int[] { 0 };
-    		            Type cppType = CPPType.parseCPPType(CPPType.cons((Class<? extends CPPObject>)typeClass, args), position);
-    		            int actualArgsOffset = position[0] - 1, nActualArgs = args.length - actualArgsOffset;
-    		            //System.out.println("actualArgsOffset = " + actualArgsOffset);
-    		            Object[] actualArgs = new Object[nActualArgs];
-    		            System.arraycopy(args, actualArgsOffset, actualArgs, 0, nActualArgs);
+
+                    Type cppType = CPPType.parseCPPType(CPPType.cons((Class<? extends CPPObject>)typeClass, args), position);
+                    int actualArgsOffset = position[0] - 1, nActualArgs = args.length - actualArgsOffset;
+                    //System.out.println("actualArgsOffset = " + actualArgsOffset);
+                    Object[] actualArgs = new Object[nActualArgs];
+                    System.arraycopy(args, actualArgsOffset, actualArgs, 0, nActualArgs);
+                    
                     setNativeObjectPeer(instance, newCPPInstance(cppType, constructorId, actualArgs));
+                    super.initialize(instance, -1);
                 } else {
                     super.initialize(instance, constructorId, args);
                 }

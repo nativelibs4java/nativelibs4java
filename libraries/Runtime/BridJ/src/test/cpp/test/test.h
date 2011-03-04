@@ -23,6 +23,7 @@ public:
 	int firstField;
 	int secondField;
 	Ctest();
+	Ctest(int firstField);
 	//virtual 
 	~Ctest();
 	virtual int testVirtualAdd(int a, int b);

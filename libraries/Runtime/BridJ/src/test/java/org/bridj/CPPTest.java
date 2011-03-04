@@ -45,6 +45,14 @@ public class CPPTest {
 	}
 	
 	@Test
+	public void test_Ctest_constructors() {
+        Ctest ct =  new Ctest();
+        Pointer<Ctest> p = pointerTo(ct);
+        int[] ints = p.getInts(4);
+		assertEquals(-123456, ct.firstField());
+		assertEquals(-33, new Ctest(-33).firstField());
+	}
+	@Test
 	public void test_Ctest_testAdd() {
 		testAdd(new Ctest(), 1, 2, 3, 3);
 //		testAdd(Ctest.createTest().get(), 1, 2, 3);
@@ -95,11 +103,19 @@ public class CPPTest {
 	
 	//@Library("test")
 	public static class Ctest extends CPPObject {
+        @Constructor(0)
 		public Ctest() {
-			super();
+			super((Void)null, 0);
+		}
+		@Constructor(1)
+		public Ctest(int firstField) {
+			super((Void)null, 1, firstField);
 		}
 		public Ctest(Pointer pointer) {
 			super(pointer);
+		}
+		public Ctest(Void voidArg, int constructorId, Object... args) {
+			super(voidArg, constructorId, args);
 		}
 		
 		@Field(0) 
@@ -142,8 +158,9 @@ public class CPPTest {
 	};
 	/// <i>native declaration : line 18</i>
 	public static class Ctest2 extends Ctest {
+        @Constructor(0)
 		public Ctest2() {
-			super();
+			super((Void)null, 0);
 		}
 		public Ctest2(Pointer pointer) {
 			super(pointer);

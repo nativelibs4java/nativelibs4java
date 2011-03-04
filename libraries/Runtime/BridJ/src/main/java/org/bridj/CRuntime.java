@@ -138,8 +138,9 @@ public class CRuntime extends AbstractBridJRuntime {
         public void initialize(T instance, int constructorId, Object... args) {
             StructObject s = (StructObject)instance;
             if (constructorId < 0) {
-                s.io = structIO; 
-                instance.peer = Pointer.allocate(pointerIO);
+                s.io = structIO;
+                if (instance.peer == null)
+                    instance.peer = Pointer.allocate(pointerIO);
             } else
                 throw new UnsupportedOperationException("TODO implement structs constructors !");
         }

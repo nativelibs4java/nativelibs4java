@@ -47,7 +47,7 @@ public class CPPTemplateTest {
 		public final int n;
 		@Constructor(0)
 		public InvisibleSourcesTemplate(int n, Type t, int arg) {
-			super(0, n, t, arg);
+			super(null, 0, n, t, arg);
 			this.n = n;
 		}
 		public native Pointer<T> createSome();
