@@ -363,11 +363,11 @@ public class CRuntime extends AbstractBridJRuntime {
      * @param library library to which the allocated native thunks will be bound (can be null, in which case the native allocations will be bound to {@link BridJ#getOrphanEntities() })
      * @param callingConvention calling convention used by the functions (if null, default is typically {@link org.bridj.ann.Convention.Style#CDecl})
      * @param returnType return type of the functions
-     * @param paramTypes parameter type of the functions
+     * @param parameterTypes parameter types of the functions
      * Also see {@link DynamicFunction} and {@link Pointer#asDynamicFunction(org.bridj.ann.Convention.Style, java.lang.reflect.Type, java.lang.reflect.Type[]) }.
      */
-    public DynamicFunctionFactory getDynamicFunctionFactory(NativeLibrary library, Convention.Style callingConvention, Type returnType, Type... paramTypes) {
-        return callbackNativeImplementer.getDynamicCallback(library, callingConvention, returnType, paramTypes);
+    public DynamicFunctionFactory getDynamicFunctionFactory(NativeLibrary library, Convention.Style callingConvention, Type returnType, Type... parameterTypes) {
+        return callbackNativeImplementer.getDynamicCallback(library, callingConvention, returnType, parameterTypes);
     }
 
     private <T extends Callback<?>> Pointer<T> registerCallbackInstance(T instance) {

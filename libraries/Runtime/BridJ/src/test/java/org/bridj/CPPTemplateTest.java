@@ -70,7 +70,6 @@ public class CPPTemplateTest {
 		InvisibleSourcesTemplate<T> ii = new InvisibleSourcesTemplate(10, t, 4);
 		Pointer<T> p = ii.createSome();
         T v = p.as(t).get();
-		//T v = p.asPointerTo.get();
 		System.out.println("Template created value : " + v);
 		ii.deleteSome(p);
 	}
