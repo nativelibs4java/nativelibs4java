@@ -4,6 +4,7 @@
  */
 package org.bridj.cpp;
 
+import org.bridj.ann.Template;
 import org.bridj.DynamicFunction;
 import org.bridj.util.Pair;
 import java.lang.reflect.Constructor;
@@ -123,7 +124,7 @@ public class CPPRuntime extends CRuntime {
 
         Virtual va = method.getAnnotation(Virtual.class);
         if (va == null) {
-            methodLibrary.getSymbol(method);
+            //methodLibrary.getSymbol(method);
             Symbol symbol = methodLibrary.getSymbol(method);
             mci.setForwardedPointer(symbol == null ? 0 : symbol.getAddress());
             if (mci.getForwardedPointer() == 0) {
@@ -241,25 +242,30 @@ public class CPPRuntime extends CRuntime {
     }
 
     Map<Pair<Type, Integer>, DynamicFunction> constructors = new HashMap<Pair<Type, Integer>, DynamicFunction>();
-    DynamicFunction getConstructor(final Class<?> typeClass, Type type, NativeLibrary lib, int constructorId) {
+    DynamicFunction getConstructor(final Class<?> typeClass, final Type type, NativeLibrary lib, int constructorId) {
         Pair<Type, Integer> key = new Pair<Type, Integer>(type, constructorId);
         DynamicFunction constructor = constructors.get(key);
         if (constructor == null) {
             Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
-                return symbol.matchesConstructor(typeClass);
+                return symbol.matchesConstructor(type);
             }});
-            if (symbol != null)
-                log(Level.INFO, "Registering default constructor of " + typeClass.getName() + " as " + symbol.getName());
-
             if (symbol == null)
                 throw new RuntimeException("No matching constructor for " + typeClass.getName() + " (" + constructor + ")");
 
             try {
                 Constructor<?> constr = findConstructor(typeClass, constructorId);
+
+                if (symbol != null)
+                    log(Level.INFO, "Registering constructor " + constr + " as " + symbol.getName());
+
+                Template t = typeClass.getAnnotation(Template.class);
+                // TODO do something with these args !
+                int templateArgCount = t == null ? 0 : t.value().length;
+
                 Class<?>[] consParamTypes = constr.getParameterTypes();
-                Class<?>[] consThisParamTypes = new Class[consParamTypes.length + 1];
+                Class<?>[] consThisParamTypes = new Class[consParamTypes.length + 1 - templateArgCount];
                 consThisParamTypes[0] = Pointer.class;
-                System.arraycopy(consParamTypes, 0, consThisParamTypes, 1, consParamTypes.length);
+                System.arraycopy(consParamTypes, templateArgCount, consThisParamTypes, 1, consParamTypes.length - templateArgCount);
 
                 DynamicFunctionFactory constructorFactory = getDynamicFunctionFactory(lib, Style.ThisCall, void.class, consThisParamTypes);
 
@@ -303,7 +309,8 @@ public class CPPRuntime extends CRuntime {
                     }};
 			}
             // TODO handle templates here
-            peer = (Pointer) Pointer.allocateBytes(PointerIO.getInstance(type), sizeOf(type, null), releaser);
+            long size = sizeOf(type, null);
+            peer = (Pointer) Pointer.allocateBytes(PointerIO.getInstance(type), size, releaser).asPointerTo(type);
             
             DynamicFunction constructor = getConstructor(typeClass, type, lib, constructorId);
             

@@ -306,7 +306,7 @@ public class CRuntime extends AbstractBridJRuntime {
         throw new RuntimeException("Cannot allocate instance of type " + type.getName() + " (unhandled NativeObject subclass)");
 	}
 	
-	static final int defaultObjectSize = 128;
+	static final int defaultObjectSize = Platform.is64Bits() ? 8 : 4;
 	public static final String PROPERTY_bridj_c_defaultObjectSize = "bridj.c.defaultObjectSize";
 	
 	public int getDefaultStructSize() {
@@ -323,7 +323,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		if (io == null)
 			io = StructIO.getInstance(Utils.getClass(structType), structType);
 		int size;
-		if (io == null || (size = io.getStructSize()) == 0)
+		if (io == null || (size = io.getStructSize()) <= 0)
 			return getDefaultStructSize();
 		return size;	
     }

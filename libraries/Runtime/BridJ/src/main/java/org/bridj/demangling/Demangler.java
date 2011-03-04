@@ -21,6 +21,7 @@ import org.bridj.ann.Constructor;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Convention;
 import org.bridj.util.DefaultParameterizedType;
+import org.bridj.util.Utils;
 
 /*
 mvn exec:java -Dexec.mainClass=org.bridj.Demangler "-Dexec.args=?method_name@class_name@@QAEPAPADPAD0@Z"
@@ -58,12 +59,19 @@ public abstract class Demangler {
 		return new Annotations() {
 			@Override
 			public <A extends Annotation> A getAnnotation(Class<A> c) {
+                if (aa == null)
+                    return null;
+                
 				for (Annotation a : aa)
 					if (c.isInstance(a))
 						return (A)a;
 				return null;
 			}
 		};
+	}
+
+	public static Annotations annotations(final Type e) {
+        return annotations((AnnotatedElement)Utils.getClass(e));
 	}
 	public static Annotations annotations(final AnnotatedElement e) {
 		return new Annotations() {
@@ -269,8 +277,8 @@ public abstract class Demangler {
 				try {
 					ref = library.parseSymbol(symbol);
 				} catch (DemanglingException ex) {
+					ex.printStackTrace();
                     System.err.println(ex);
-					//ex.printStackTrace();
 				}
 				refParsed = true;
 			}
@@ -295,8 +303,8 @@ public abstract class Demangler {
             }
             return false;
 		}
-		public boolean matchesConstructor(Class<?> type) {
-			if (!symbol.contains(type.getSimpleName()))
+		public boolean matchesConstructor(Type type) {
+			if (!symbol.contains(Utils.getClass(type).getSimpleName()))
 				return false;
 		
 			parse();
@@ -411,8 +419,11 @@ public abstract class Demangler {
 		tr.annotations = annotations;
 		return tr;
 	}
-    protected static TypeRef simpleType(String name) {
-		return new ClassRef(name);
+    protected static TypeRef simpleType(String name, TemplateArg... args) {
+		return new ClassRef(new Ident(name, args));
+	}
+    protected static TypeRef simpleType(Ident ident) {
+		return new ClassRef(ident);
 	}
     static Class<?> getTypeClass(Type type) {
 		
@@ -485,16 +496,56 @@ public abstract class Demangler {
         }
 		
 	}
-	public static class ClassRef extends TypeRef {
-		private TypeRef enclosingType;
-		private Object simpleName;
+    public interface IdentLike {
+
+    }
+    public static class Ident implements IdentLike {
+		Object simpleName;
 		TemplateArg[] templateArguments;
 
-		public ClassRef() {
-			
+		public Ident(String simpleName, TemplateArg... templateArguments) {
+            this.simpleName = simpleName;
+            this.templateArguments = templateArguments;
 		}
-		public ClassRef(String simpleName) {
-			this.simpleName = simpleName;
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || !(o instanceof Ident))
+                return false;
+
+            Ident ident = (Ident)o;
+            if (!simpleName.equals(ident.simpleName))
+                return false;
+
+            int n = templateArguments.length;
+            if (ident.templateArguments.length != n)
+                return false;
+
+            for (int i = 0; i < n; i++)
+                if (!templateArguments[i].equals(ident.templateArguments[i]))
+                    return false;
+
+            return true;
+        }
+
+
+        @Override
+        public String toString() {
+            StringBuilder b = new StringBuilder();
+
+            b.append(simpleName);
+            appendTemplateArgs(b, templateArguments);
+            return b.toString();
+        }
+    }
+	public static class ClassRef extends TypeRef {
+		private TypeRef enclosingType;
+		//private Object simpleName;
+		//TemplateArg[] templateArguments;
+        final Ident ident;
+
+		public ClassRef(Ident ident) {
+            this.ident = ident;
 		}
 		public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
 			if (getEnclosingType() instanceof ClassRef) {
@@ -502,11 +553,11 @@ public abstract class Demangler {
 			} else if (getEnclosingType() instanceof NamespaceRef) {
 				getEnclosingType().getQualifiedName(b, generic).append('.');
 			}
-			b.append(getSimpleName());
-			if (generic && templateArguments != null) {
+			b.append(ident.simpleName);
+			if (generic && ident.templateArguments != null) {
 				int args = 0;
-				for (int i = 0, n = templateArguments.length; i < n; i++) {
-					TemplateArg arg = templateArguments[i];
+				for (int i = 0, n = ident.templateArguments.length; i < n; i++) {
+					TemplateArg arg = ident.templateArguments[i];
 					if (!(arg instanceof TypeRef))
 						continue;
 					
@@ -523,13 +574,10 @@ public abstract class Demangler {
 			return b;
 		}
 
-		public void setSimpleName(Object simpleName) {
-			this.simpleName = simpleName;
-		}
+        public Ident getIdent() {
+            return ident;
+        }
 
-		public Object getSimpleName() {
-			return simpleName;
-		}
 
 		public void setEnclosingType(TypeRef enclosingType) {
 			this.enclosingType = enclosingType;
@@ -539,17 +587,9 @@ public abstract class Demangler {
 			return enclosingType;
 		}
 
-        public void setTemplateArguments(TemplateArg[] templateArguments) {
-            this.templateArguments = templateArguments;
-        }
-
-        public TemplateArg[] getTemplateArguments() {
-            return templateArguments;
-        }
-
         @Override
         public boolean matches(Type type, Annotations annotations) {
-            if (!getTypeClass(type).getSimpleName().equals(simpleName))
+            if (!getTypeClass(type).getSimpleName().equals(ident.simpleName))
                 return false;
             
             return true;
@@ -564,8 +604,7 @@ public abstract class Demangler {
             if (enclosingType != null)
                 b.append(enclosingType).append('.');
 
-            b.append(simpleName);
-            appendTemplateArgs(b, templateArguments);
+            b.append(ident);
             return b.toString();
         }
 
@@ -604,7 +643,7 @@ public abstract class Demangler {
             return function.toString();
         }
 	}
-    public enum SpecialName {
+    public enum SpecialName implements IdentLike {
         Constructor("", true, true),
         SpecialConstructor("", true, true),
         Destructor("", true, true),
@@ -691,7 +730,7 @@ public abstract class Demangler {
         private Integer argumentsStackSize;
 		private TypeRef enclosingType;
 		private TypeRef valueType;
-		private Object memberName;
+		private IdentLike memberName;
 		Boolean isStatic, isProtected, isPrivate;
 		public int modifiers;
 		public TypeRef[] paramTypes, throwTypes;
@@ -710,7 +749,7 @@ public abstract class Demangler {
             this.argumentsStackSize = argumentsStackSize;
         }
        
-        public boolean matchesSingleThisPointerVoidMethod(Class<?> type) {
+        public boolean matchesSingleThisPointerVoidMethod(Type type) {
 			if (getEnclosingType() != null && !getEnclosingType().matches(type, annotations(type)))
 				return false;
 			
@@ -718,20 +757,23 @@ public abstract class Demangler {
 				return false;
 			
             Type[] methodArgTypes = new Type[] { Long.TYPE };
-            if (!matchesArgs(methodArgTypes, null, true))
+            if (!matchesArgs(methodArgTypes, null))
             	return false;
             
 			return true;
 		}
-        
-		protected boolean matchesVirtualTable(Class<?> type) {
-			return memberName == SpecialName.VFTable && getEnclosingType() != null && getEnclosingType().matches(type, annotations(type));
+        protected boolean matchesEnclosingType(Type type) {
+			return getEnclosingType() != null && getEnclosingType().matches(type, annotations(type));
 		}
-        protected boolean matchesConstructor(Class<?> type) {
-			return memberName == SpecialName.Constructor && matchesSingleThisPointerVoidMethod(type);
+
+		protected boolean matchesVirtualTable(Type type) {
+			return memberName == SpecialName.VFTable && matchesEnclosingType(type);
 		}
-        protected boolean matchesDestructor(Class<?> type) {
-        		return memberName == SpecialName.Destructor && matchesSingleThisPointerVoidMethod(type);
+        protected boolean matchesConstructor(Type type) {
+			return memberName == SpecialName.Constructor && matchesEnclosingType(type);
+		}
+        protected boolean matchesDestructor(Type type) {
+        		return memberName == SpecialName.Destructor && matchesEnclosingType(type);
 		}
         static boolean hasInstance(Object[] array, Class<?>... cs) {
             for (Object o : array)
@@ -787,7 +829,7 @@ public abstract class Demangler {
 			if (getEnclosingType() != null && !getEnclosingType().matches(method.getDeclaringClass(), annotations(method)))
 				return false;
 			
-			if (getMemberName() != null && !getMemberName().equals(method.getName()))
+			if (getMemberName() != null && !getMemberName().toString().equals(method.getName()))
 				return false;
 			
 			if (getValueType() != null && !getValueType().matches(method.getReturnType(), annotations(method)))
@@ -798,7 +840,7 @@ public abstract class Demangler {
             Type[] parameterTypes = method.getGenericParameterTypes();
             //boolean hasThisAsFirstArgument = BridJ.hasThisAsFirstArgument(method);//methodArgTypes, anns, true);
             
-            if (!matchesArgs(parameterTypes, anns, false))///*, hasThisAsFirstArgument*/))
+            if (!matchesArgs(parameterTypes, anns))///*, hasThisAsFirstArgument*/))
             	return false;
             
             
@@ -827,7 +869,7 @@ public abstract class Demangler {
             
             return true;
 		}
-		private boolean matchesArgs(Type[] parameterTypes, Annotation[][] anns, boolean hasThisAsFirstArgument) {
+		private boolean matchesArgs(Type[] parameterTypes, Annotation[][] anns) {
 			int totalArgs = 0;
             for (int i = 0, n = templateArguments == null ? 0 : templateArguments.length; i < n; i++) {
                 if (totalArgs >= parameterTypes.length)
@@ -849,14 +891,13 @@ public abstract class Demangler {
                 totalArgs++;
             }
             
-            if (hasThisAsFirstArgument)
-            	totalArgs++;
-            
             for (int i = 0, n = paramTypes == null ? 0 : paramTypes.length; i < n; i++) {
                 if (totalArgs >= parameterTypes.length)
                     return false;
 
-                if (!paramTypes[i].matches(parameterTypes[totalArgs], annotations(anns[i])))
+                TypeRef paramType = paramTypes[i];
+                Type parameterType = parameterTypes[totalArgs];
+                if (!paramType.matches(parameterType, annotations(anns == null ? null : anns[i])))
                     return false;
 
                 totalArgs++;
@@ -884,7 +925,7 @@ public abstract class Demangler {
                         case Destructor:
                             b.append('~');
                         case Constructor:
-                            b.append(((ClassRef)enclosingType).simpleName);
+                            b.append(((ClassRef)enclosingType).ident.simpleName);
                             nameWritten = true;
                             break;
                     }
@@ -898,10 +939,10 @@ public abstract class Demangler {
             return b.toString();
         }
         
-		public void setMemberName(Object memberName) {
+		public void setMemberName(IdentLike memberName) {
 			this.memberName = memberName;
 		}
-		public Object getMemberName() {
+		public IdentLike getMemberName() {
 			return memberName;
 		}
 		public void setValueType(TypeRef valueType) {
