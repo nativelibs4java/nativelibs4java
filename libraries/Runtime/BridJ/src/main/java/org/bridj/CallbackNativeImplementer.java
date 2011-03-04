@@ -1,6 +1,5 @@
 package org.bridj;
 
-import com.sun.tools.javac.util.Pair;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -13,6 +12,8 @@ import org.objectweb.asm.*;
 
 import org.bridj.*;
 import org.bridj.NativeEntities.Builder;
+import org.bridj.ann.Convention;
+import org.bridj.util.Pair;
 import org.objectweb.asm.signature.SignatureWriter;
 
 //import org.objectweb.asm.attrs.*;
@@ -74,7 +75,7 @@ class CallbackNativeImplementer extends ClassLoader implements Opcodes {
 		return (Class)callbackImplType;
 	}
     protected Map<Pair<NativeLibrary, List<Class<?>>>, DynamicFunctionFactory> dynamicCallbacks = new HashMap<Pair<NativeLibrary, List<Class<?>>>, DynamicFunctionFactory>();
-    public synchronized DynamicFunctionFactory getDynamicCallback(NativeLibrary library, Class<?> returnType, Class<?>... paramTypes) {
+    public synchronized DynamicFunctionFactory getDynamicCallback(NativeLibrary library, Convention.Style callingConvention, Class<?> returnType, Class<?>... paramTypes) {
         List<Class<?>> list = new ArrayList<Class<?>>(paramTypes.length + 1);
         list.add(returnType);
         list.addAll(Arrays.asList(paramTypes));
@@ -96,7 +97,7 @@ class CallbackNativeImplementer extends ClassLoader implements Opcodes {
                 byte[] byteArray = emitBytes("<anonymous>", DynamicFunction.class.getName().replace(".", "/"), callbackTypeImplName, methodName, javaSig.toString());
                 Class<? extends DynamicFunction> callbackImplType = (Class)defineClass(callbackTypeImplName.replace('/', '.'), byteArray, 0, byteArray.length);
                 runtime.register(callbackImplType);
-                cb = new DynamicFunctionFactory(callbackImplType, callbackImplType.getMethod(methodName, paramTypes));
+                cb = new DynamicFunctionFactory(callbackImplType, callbackImplType.getMethod(methodName, paramTypes), callingConvention);
                 dynamicCallbacks.put(key, cb);
             } catch (Throwable th) {
                 throw new RuntimeException("Failed to create callback for " + list + " : " + th, th);

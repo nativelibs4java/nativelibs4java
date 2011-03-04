@@ -33,10 +33,6 @@ public class CRuntime extends AbstractBridJRuntime {
         return true;
     }
     
-    public DynamicFunction getDynamicCallback(Pointer<?> functionAddress, Class<?> returnType, Class<?>... paramTypes) {
-        return BridJ.getRuntimeByRuntimeClass(CRuntime.class).getDynamicFunctionFactory(null, returnType, paramTypes).newInstance(functionAddress);
-
-    }
 	@Override
 	public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType) {
 		return Utils.getClass(officialType);
@@ -126,7 +122,7 @@ public class CRuntime extends AbstractBridJRuntime {
                     if (!(instance instanceof DynamicFunction))
                         setNativeObjectPeer(instance, registerCallbackInstance((Callback<?>)instance));
                 } else
-                    initialize(instance, -1, structIO);
+                    initialize(instance, -1);
             } else if (instance instanceof StructObject) {
                 ((StructObject)instance).io = structIO;
             }
@@ -360,11 +356,13 @@ public class CRuntime extends AbstractBridJRuntime {
             return (Class<? extends T>)typeClass;
     }
 
-    public DynamicFunctionFactory getDynamicFunctionFactory(NativeLibrary library, Class<?> returnType, Class<?>... paramTypes) {
-        return callbackNativeImplementer.getDynamicCallback(library, returnType, paramTypes);
+    public DynamicFunctionFactory getDynamicFunctionFactory(NativeLibrary library, Convention.Style callingConvention, Class<?> returnType, Class<?>... paramTypes) {
+        return callbackNativeImplementer.getDynamicCallback(library, callingConvention, returnType, paramTypes);
     }
-    public DynamicFunction newFunction(Pointer<?> functionPointer, Class<?> returnType, Class<?>... paramTypes) {
-        return getDynamicFunctionFactory(null, returnType, paramTypes).newInstance(functionPointer);
+    public DynamicFunction newFunction(Pointer<?> functionPointer, Convention.Style callingConvention, Class<?> returnType, Class<?>... paramTypes) {
+        if (functionPointer == null)
+            return null;
+        return getDynamicFunctionFactory(null, callingConvention, returnType, paramTypes).newInstance(functionPointer);
     }
 
     private <T extends Callback<?>> Pointer<T> registerCallbackInstance(T instance) {

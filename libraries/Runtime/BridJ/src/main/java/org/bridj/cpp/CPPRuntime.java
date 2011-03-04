@@ -4,6 +4,12 @@
  */
 package org.bridj.cpp;
 
+import org.bridj.DynamicFunction;
+import org.bridj.util.Pair;
+import java.lang.reflect.Constructor;
+import org.bridj.DynamicFunctionFactory;
+import org.bridj.ann.Convention;
+import org.bridj.Callback;
 import org.bridj.Platform;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
@@ -32,6 +38,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import org.bridj.ann.Convention.Style;
 import static org.bridj.Pointer.*;
 
 /**
@@ -208,9 +215,6 @@ public class CPPRuntime extends CRuntime {
 		}
 		return -1;
 	}
-    Map<Type, Long> defaultConstructors = new HashMap<Type, Long>();
-    Map<Type, Long> destructors = new HashMap<Type, Long>();
-
     static int getDefaultDyncallCppConvention() {
         int convention = DC_CALL_C_DEFAULT;
         if (!Platform.is64Bits() && Platform.isWindows()) {
@@ -231,6 +235,57 @@ public class CPPRuntime extends CRuntime {
 		return enableDestructors;
     }
 
+    public abstract static class CPPDestructor extends Callback {
+        @Convention(Style.ThisCall)
+        public abstract void destroy(long peer);
+    }
+
+    Map<Pair<Type, Integer>, DynamicFunction> constructors = new HashMap<Pair<Type, Integer>, DynamicFunction>();
+    DynamicFunction getConstructor(final Class<?> typeClass, Type type, NativeLibrary lib, int constructorId) {
+        Pair<Type, Integer> key = new Pair<Type, Integer>(type, constructorId);
+        DynamicFunction constructor = constructors.get(key);
+        if (constructor == null) {
+            Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
+                return symbol.matchesConstructor(typeClass);
+            }});
+            if (symbol != null)
+                log(Level.INFO, "Registering default constructor of " + typeClass.getName() + " as " + symbol.getName());
+
+            if (symbol == null)
+                throw new RuntimeException("No matching constructor for " + typeClass.getName() + " (" + constructor + ")");
+
+            try {
+                Constructor<?> constr = findConstructor(typeClass, constructorId);
+                Class<?>[] consParamTypes = constr.getParameterTypes();
+                Class<?>[] consThisParamTypes = new Class[consParamTypes.length + 1];
+                consThisParamTypes[0] = Pointer.class;
+                System.arraycopy(consParamTypes, 0, consThisParamTypes, 1, consParamTypes.length);
+
+                DynamicFunctionFactory constructorFactory = getDynamicFunctionFactory(lib, Style.ThisCall, void.class, consThisParamTypes);
+
+                constructor = constructorFactory.newInstance(pointerToAddress(symbol.getAddress()));
+                constructors.put(key, constructor);
+            } catch (Throwable th) {
+                throw new RuntimeException("Unable to create constructor " + constructorId + " for " + type + " : " + th, th);
+            }
+        }
+        return constructor;
+    }
+    Map<Type, CPPDestructor> destructors = new HashMap<Type, CPPDestructor>();
+    CPPDestructor getDestructor(final Class<?> typeClass, Type type, NativeLibrary lib) {
+        CPPDestructor destructor = destructors.get(type);
+        if (destructor == null) {
+            Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
+                return symbol.matchesDestructor(typeClass);
+            }});
+            if (symbol != null)
+                log(Level.INFO, "Registering destructor of " + typeClass.getName() + " as " + symbol.getName());
+
+            if (symbol != null)
+                destructors.put(type, destructor = pointerToAddress(symbol.getAddress(), CPPDestructor.class).get());
+        }
+        return destructor;
+    }
     protected <T extends CPPObject> Pointer<T> newCPPInstance(final Type type, int constructorId, Object... args) {
         Pointer<T> peer = null;
         try {
@@ -238,76 +293,30 @@ public class CPPRuntime extends CRuntime {
             NativeLibrary lib = BridJ.getNativeLibrary(typeClass);
             Pointer.Releaser releaser = null;
 
-            System.out.println("Creating C++ instance of type " + type + " with args " + Arrays.asList(args));
+            log(Level.INFO, "Creating C++ instance of type " + type + " with args " + Arrays.asList(args));
             if (enableDestructors()) {
-				Long destructor = destructors.get(type);
-				if (destructor == null) {
-					Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
-						return symbol.matchesDestructor(typeClass);
-					}});
-					if (symbol != null)
-						log(Level.INFO, "Registering destructor of " + typeClass.getName() + " as " + symbol.getName());
-					destructors.put(type, destructor = symbol == null ? 0 : symbol.getAddress());
-				}
-				final long destructorAddr = destructor;
-				if (destructorAddr != 0) {
-					releaser = new Pointer.Releaser() { @Override public void release(Pointer<?> p) {
+                final CPPDestructor destructor = getDestructor(typeClass, type, lib);
+                if (destructor != null)
+                    releaser = new Pointer.Releaser() { @Override public void release(Pointer<?> p) {
 						//System.out.println("Destructing instance of C++ type " + type + "...");
-						JNI.callSinglePointerArgVoidFunction(destructorAddr, p.getPeer(), getDefaultDyncallCppConvention());
-					}};
-				}
+                        destructor.destroy(p.getPeer());
+                    }};
 			}
             // TODO handle templates here
-            peer = (Pointer) Pointer.allocateBytes(PointerIO.getInstance(type), sizeOf(type, null), releaser); 
-
-            if (constructorId < 0) {
-                Long defaultConstructor = defaultConstructors.get(type);
-                if (defaultConstructor == null) {
-                    Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
-                    return symbol.matchesConstructor(typeClass);
-                }});
-                    if (symbol != null)
-                        log(Level.INFO, "Registering default constructor of " + typeClass.getName() + " as " + symbol.getName());
-                    defaultConstructors.put(type, defaultConstructor = symbol == null ? 0 : symbol.getAddress());
-                    if (defaultConstructor.longValue() == 0)
-                        throw new RuntimeException("Cannot find the default constructor for type " + typeClass.getName());
-                }
-                installVTablePtr(type, lib, peer);
-		if (defaultConstructor == null || defaultConstructor.longValue() == 0L)
-			throw new RuntimeException("Constructor not found !");
-                JNI.callSinglePointerArgVoidFunction(defaultConstructor, peer.getPeer(), getDefaultDyncallCppConvention());// TODO use right call convention
-                //TestCPP.print(typeClass.getSimpleName(), peer.getPeer(), 10, 5);
-                //TestCPP.print(typeClass.getSimpleName() + "'s vtable", peer.getSizeT(0), 10, 5);
-                return peer;
-            }
-            Method meth = getConstructor(typeClass, constructorId, args);
-            Object[] consArgs = new Object[args.length + 1];
+            peer = (Pointer) Pointer.allocateBytes(PointerIO.getInstance(type), sizeOf(type, null), releaser);
+            
+            DynamicFunction constructor = getConstructor(typeClass, type, lib, constructorId);
+            
             if (CPPObject.class.isAssignableFrom(typeClass)) {
-                if (meth.getReturnType() != Void.TYPE) {
-                    throw new RuntimeException("Constructor-mapped methods must return void, but " + meth.getName() + " returns " + meth.getReturnType().getName());
-                }
-                if (!Modifier.isStatic(meth.getModifiers())) {
-                    throw new RuntimeException("Constructor-mapped methods must be static, but " + meth.getName() + " is not.");
-                }
-                if (!meth.getName().equals(typeClass.getSimpleName())) {
-                    throw new RuntimeException("Constructor methods must have the same name as their class : " + meth.getName() + " is not " + typeClass.getSimpleName());
-                }
                 installVTablePtr(type, lib, peer);
             } else {
                 // TODO ObjCObject : call alloc on class type !!
             }
-            consArgs[0] = peer.getPeer();
-            System.arraycopy(args, 0, consArgs, 1, args.length);
-            boolean acc = meth.isAccessible();
-            try {
-                meth.setAccessible(true);
-                meth.invoke(null, consArgs);
-            } finally {
-                try {
-                    meth.setAccessible(acc);
-                } catch (Exception ex) {
-                }
-            }
+            Object[] consThisArgs = new Object[args.length + 1];
+            consThisArgs[0] = peer;
+            System.arraycopy(args, 0, consThisArgs, 1, args.length);
+
+            constructor.apply(consThisArgs);
             return peer;
         } catch (Exception ex) {
             ex.printStackTrace();

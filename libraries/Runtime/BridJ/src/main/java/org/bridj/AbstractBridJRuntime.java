@@ -29,37 +29,16 @@ public abstract class AbstractBridJRuntime implements BridJRuntime {
 	public void unregister(Type type) {
 		// TODO !!!
 	}
-    protected Method getConstructor(Class<?> type, int constructorId, Object[] args) throws SecurityException, NoSuchMethodException {
-		for (Method c : type.getDeclaredMethods()) {
-			org.bridj.ann.Constructor ca = c.getAnnotation(org.bridj.ann.Constructor.class);
+    protected java.lang.reflect.Constructor findConstructor(Class<?> type, int constructorId) throws SecurityException, NoSuchMethodException {
+		for (java.lang.reflect.Constructor<?> c : type.getDeclaredConstructors()) {
+            org.bridj.ann.Constructor ca = c.getAnnotation(org.bridj.ann.Constructor.class);
 			if (ca == null)
 				continue;
-			if (constructorId < 0) {
-				Class<?>[] params = c.getParameterTypes();
-				int n = params.length;
-				if (n == args.length + 1) {
-					boolean matches = true;
-					for (int i = 0; i < n; i++) {
-						Class<?> param = params[i];
-						if (i == 0) {
-							if (param != Long.TYPE) {
-								matches = false;
-								break;
-							}
-							continue;
-						}
-						Object arg = args[i - 1];
-						if (arg == null && param.isPrimitive() || !param.isInstance(arg)) {
-							matches = false;
-							break;
-						}
-					}
-					if (matches)
-						return c;
-				}
-			} else if (ca != null && ca.value() == constructorId)
-				return c;
-		}
+            if (ca.value() == constructorId)
+                return c;
+        }
+        if (constructorId < 0)// && args.length == 0)
+            return type.getConstructor();
 		throw new NoSuchMethodException("Cannot find constructor with index " + constructorId);
 	}
 

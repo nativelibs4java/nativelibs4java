@@ -28,7 +28,7 @@ public class DynamicCallbackTest {
     @Test
     public void testSimpleDynamicAdd() throws FileNotFoundException {
         NativeLibrary lib = BridJ.getNativeLibrary("test");
-        DynamicFunction i = BridJ.getCRuntime().newFunction(lib.getSymbolPointer("testAddDyncall"), int.class, int.class, int.class);
+        DynamicFunction i = BridJ.getCRuntime().newFunction(lib.getSymbolPointer("testAddDyncall"), null, int.class, int.class, int.class);
         int res = (Integer)i.apply(1, 2);
         assertEquals(3, res);
     }
