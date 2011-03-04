@@ -178,7 +178,7 @@
 		  	<groups>
 		  	  <group>
 		  		<title>Core Packages</title>
-		  		<packages>org.bridj:org.bridj.cpp:org.bridj.jawt:org.bridj.ann</packages>
+		  		<packages>org.bridj:org.bridj.cpp:org.bridj.jawt:org.bridj.demangling:org.bridj.ann</packages>
 		  	  </group>
 		  	  <group>
 		  		<title>Extension Packages</title>
