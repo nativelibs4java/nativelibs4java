@@ -82,6 +82,12 @@ class CallbackNativeImplementer extends ClassLoader {
 		return (Class)callbackImplType;
 	}
     protected Map<Pair<NativeLibrary, List<Type>>, DynamicFunctionFactory> dynamicCallbacks = new HashMap<Pair<NativeLibrary, List<Type>>, DynamicFunctionFactory>();
+
+    private static volatile long nextDynamicCallbackId = 0;
+    private static synchronized long getNextDynamicCallbackId() {
+        return nextDynamicCallbackId++;
+    }
+
     public synchronized DynamicFunctionFactory getDynamicCallback(NativeLibrary library, Convention.Style callingConvention, Type returnType, Type... paramTypes) {
         List<Type> list = new ArrayList<Type>(paramTypes.length + 1);
         list.add(returnType);
@@ -96,21 +102,24 @@ class CallbackNativeImplementer extends ClassLoader {
                     desc.append(typeDesc(paramType));
                 }
                 javaSig.append(")").append(classSig(Utils.getClass(returnType)));
-                desc.append("To").append(typeDesc(returnType));
+                desc.append("To").append(typeDesc(returnType)).append("_").append(getNextDynamicCallbackId());
 
                 String callbackTypeImplName = "org/bridj/dyncallbacks/" + desc;
                 String methodName = "apply";
 
                 byte[] byteArray = emitBytes("<anonymous>", DynamicFunction.class.getName().replace(".", "/"), callbackTypeImplName, methodName, javaSig.toString());
                 Class<? extends DynamicFunction> callbackImplType = (Class)defineClass(callbackTypeImplName.replace('/', '.'), byteArray, 0, byteArray.length);
-                runtime.register(callbackImplType);
-
+                
                 Class<?>[] paramClasses = new Class[paramTypes.length];
                 for (int i = 0, n = paramTypes.length; i < n; i++)
                     paramClasses[i] = Utils.getClass(paramTypes[i]);
                 cb = new DynamicFunctionFactory(callbackImplType, callbackImplType.getMethod(methodName, paramClasses), callingConvention);
                 dynamicCallbacks.put(key, cb);
+
+                runtime.register(callbackImplType);
+
             } catch (Throwable th) {
+                th.printStackTrace();
                 throw new RuntimeException("Failed to create callback for " + list + " : " + th, th);
             }
         }
@@ -145,6 +154,8 @@ class CallbackNativeImplementer extends ClassLoader {
     static String typeDesc(Type t) {
         if (t instanceof Class) {
             Class c = (Class)t;
+            if (c == Pointer.class)
+                return "Pointer";
             if (c.isPrimitive()) {
                 String s = c.getSimpleName();
                 return Character.toUpperCase(s.charAt(0)) + s.substring(1);

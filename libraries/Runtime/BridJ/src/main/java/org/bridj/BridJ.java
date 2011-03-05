@@ -159,6 +159,15 @@ public class BridJ {
 	static boolean isCastingNativeObjectInCurrentThread() {
 		return currentlyCastingNativeObject.get().peek();
 	}
+
+    private static WeakHashMap<Long, NativeObject> knownNativeObjects = new WeakHashMap<Long, NativeObject>();
+    static synchronized <O extends NativeObject> void setJavaObjectFromNativePeer(long peer, O object) {
+        knownNativeObjects.put(peer, object);
+    }
+    static <O extends NativeObject> O getJavaObjectFromNativePeer(long peer) {
+        return (O)knownNativeObjects.get(peer);
+    }
+    
 	public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type) {
 		Stack<Boolean> s = currentlyCastingNativeObject.get();
 		s.push(true);

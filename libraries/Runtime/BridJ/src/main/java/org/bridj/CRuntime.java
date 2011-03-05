@@ -218,7 +218,7 @@ public class CRuntime extends AbstractBridJRuntime {
 			}*/
 			
 			if (Callback.class.isAssignableFrom(typeClass)) {
-				if (Callback.class == type)
+				if (Callback.class == type || DynamicFunction.class == type)
 					return;
 				
 				if (Modifier.isAbstract(typeModifiers))
