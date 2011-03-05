@@ -4,7 +4,7 @@ package org.bridj.cpp.com;
  * Common GUID definitions from Microsoft SDK v6.0A (uuids.h)<br>
  * Contains the GUIDs for the MediaType type, subtype fields and format types for standard media types, and also class ids for well-known components.
  */
-public class GUIDs {
+public class UUIDs {
 	/*
 	 * Obtained with a regexp replace (jEdit) on C:\Program Files\Microsoft SDKs\Windows\v6.0A\Include\\uuids.h :
 	 *   (?m)OUR_GUID_ENTRY\(\s*(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*\)
