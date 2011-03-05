@@ -40,6 +40,16 @@ public class GUID {
     private static RuntimeException throwBad(String descriptor) {
         return new RuntimeException("Expected something like :\n" + model + "\nBut got instead :\n" +descriptor);
     }
+    
+    /*
+    // 4315D437-5B8C-11d0-BD3B-00A0C911CE86
+    OUR_GUID_ENTRY(CLSID_CDeviceMoniker, 0x4315D437,0x5B8C,0x11d0,0xBD,0x3B,0x00,0xA0,0xC9,0x11,0xCE,0x86)
+                             1                2        3      4     5     6    7   8    9    10   11   12
+                                              
+    Regexp replace (jEdit) on C:\Program Files\Microsoft SDKs\Windows\v6.0A\Include\uuids.h :
+    (?m)OUR_GUID_ENTRY\(\s*(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*,\s*0x(\w+)\s*\)
+    "public static final String " + _1 + " = \"" + _2 + "-" + _3 + "-" + _4 + "-" + _5 + _6 + "-" + _7 + _8 + _9 + _10 + _11 + _12
+    */
     /*
      * public GUID() {
         super();

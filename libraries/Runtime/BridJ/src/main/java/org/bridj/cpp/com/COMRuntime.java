@@ -64,6 +64,7 @@ public class COMRuntime extends CPPRuntime {
      CLSCTX_SERVER           = (CLSCTX_INPROC_SERVER|CLSCTX_LOCAL_SERVER|CLSCTX_REMOTE_SERVER);
     
 	public static final int S_OK = 0,
+			S_FALSE = 1,
             REGDB_E_CLASSNOTREG = 0x80040154,
             CLASS_E_NOAGGREGATION = 0x80040110,
             CO_E_NOTINITIALIZED = 0x800401F0;
