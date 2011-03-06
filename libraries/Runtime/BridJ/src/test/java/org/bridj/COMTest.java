@@ -14,7 +14,7 @@ import org.bridj.cpp.com.shell.IShellWindows;
 @Library("test")
 public class COMTest {
 
-	boolean skip = !Platform.isWindows() || !Platform.is64Bits();
+	boolean hasCOM = Platform.isWindows();// || !Platform.is64Bits();
 	static {
 		BridJ.register();
 	}
@@ -23,13 +23,16 @@ public class COMTest {
 	
 	@Test
 	public void variantSize() {
-		if (skip) return;
-		assertEquals(sizeOfVARIANT(), BridJ.sizeOf(new VARIANT()));
+		if (hasCOM)
+            assertEquals(sizeOfVARIANT(), BridJ.sizeOf(new VARIANT()));
+        else
+            assertEquals(24, BridJ.sizeOf(new VARIANT()));
 	}
 	
 	@Test
 	public void shellFolder() {
-		if (skip) return;
+		if (!hasCOM)
+            return;
         try {
             IShellWindows win = COMRuntime.newInstance(IShellWindows.class);
             assertNotNull(win);

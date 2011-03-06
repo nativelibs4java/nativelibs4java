@@ -44,8 +44,8 @@ public abstract class PointerIO<T> {
 	public long getTargetSize() {
 		return targetSize;
 	}
-	public int getTargetAlignment() { 
-		return targetAlignment < 0 ? (int)getTargetSize() : targetAlignment;
+	public long getTargetAlignment() { 
+		return targetAlignment < 0 ? getTargetSize() : targetAlignment;
 	}
 	public boolean isTypedPointer() {
 		return typedPointerClass != null;

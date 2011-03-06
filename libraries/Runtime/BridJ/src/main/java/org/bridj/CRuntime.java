@@ -328,10 +328,10 @@ public class CRuntime extends AbstractBridJRuntime {
 	    	}
     	return defaultObjectSize;
 	}
-	public int sizeOf(Type structType, StructIO io) {
+	public long sizeOf(Type structType, StructIO io) {
 		if (io == null)
 			io = StructIO.getInstance(Utils.getClass(structType), structType);
-		int size;
+		long size;
 		if (io == null || (size = io.getStructSize()) <= 0)
 			return getDefaultStructSize();
 		return size;	

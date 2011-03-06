@@ -31,7 +31,7 @@ class CommonPointerIOs {
 			pointer.getByteBufferAtOffset(index * getTargetSize(), structIO.getStructSize()).put(ps.getByteBuffer());
 		}
 		@Override
-		public int getTargetAlignment() {
+		public long getTargetAlignment() {
 			return structIO.getStructAlignment();
 		}
 	}

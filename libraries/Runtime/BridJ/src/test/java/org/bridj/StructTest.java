@@ -103,7 +103,7 @@ public class StructTest {
     public static class MyOptimalStruct {
         //protected final com.sun.jna.Pointer pointer;
         ByteBuffer pointer;
-        private static final int aOffset, bOffset;
+        private static final long aOffset, bOffset;
         static {
             StructIO io = StructIO.getInstance(MyOptimalStruct.class, MyOptimalStruct.class);
             io.build();
@@ -120,18 +120,18 @@ public class StructTest {
         }
         @Field(0)
 		public int a() {
-			return pointer.getInt(aOffset);
+			return pointer.getInt((int)aOffset);
         }
         public void a(int a) {
-            pointer.putInt(aOffset, aOffset);
+            pointer.putInt((int)aOffset, a);
         }
         
         @Field(1)
 		public double b() {
-			return pointer.getDouble(bOffset);
+			return pointer.getDouble((int)bOffset);
         }
         public void b(double b) {
-            pointer.putDouble(bOffset, bOffset);
+            pointer.putDouble((int)bOffset, b);
         }
 	}
 	

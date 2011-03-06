@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,8 +51,8 @@ public class StructIO {
      * Internal metadata on a struct field
      */
     public static class FieldDesc {
-        public int byteOffset, byteLength;
-		public int bitOffset, bitLength = -1;
+        public long byteOffset, byteLength;
+		public long bitOffset, bitLength = -1;
         public long arrayLength = 1;
         public Type nativeTypeOrPointerTargetType;
 	}
@@ -59,7 +60,7 @@ public class StructIO {
 		final FieldDesc desc = new FieldDesc();
 		Method getter, setter;
 		String name;
-		int index = -1;
+		long index = -1, unionWith = -1, byteOffset = -1;
 		Type valueType;
         Class<?> valueClass;
         Class<?> declaringClass;
@@ -103,8 +104,8 @@ public class StructIO {
     }
 	protected PointerIO<?> pointerIO;
 	protected volatile FieldDesc[] fields;
-	private int structSize = -1;
-    private int structAlignment = -1;
+	private long structSize = -1;
+    private long structAlignment = -1;
 	protected final Class<?> structClass;
 	protected final Type structType;
 
@@ -135,9 +136,9 @@ public class StructIO {
 		return pointerIO;
 	}
 
-    protected int alignSize(int size, int alignment) {
+    protected long alignSize(long size, long alignment) {
         if (alignment != 1) {
-            int r = size % alignment;
+            long r = size % alignment;
             if (r != 0)
                 size += alignment - r;
         }
@@ -160,12 +161,12 @@ public class StructIO {
         return new Object[fields.length];
     }
 	
-	public final int getStructSize() {
+	public final long getStructSize() {
 //		build();
 		return structSize;
 	}
 
-    public final int getStructAlignment() {
+    public final long getStructAlignment() {
 //		build();
 		return structAlignment;
 	}
@@ -178,9 +179,9 @@ public class StructIO {
 
             @Override
             public int compare(FieldDecl o1, FieldDecl o2) {
-                int d = o1.index - o2.index;
+                long d = o1.index - o2.index;
                 if (d != 0)
-                    return d;
+                    return d < 0 ? -1 : d == 0 ? 0 : 1;
 
                 if (o1.declaringClass.isAssignableFrom(o2.declaringClass))
                     return -1;
@@ -223,8 +224,11 @@ public class StructIO {
         Field fil = getter.getAnnotation(Field.class);
         Bits bits = getter.getAnnotation(Bits.class);
         Array arr = getter.getAnnotation(Array.class);
-        if (fil != null)
+        if (fil != null) {
             field.index = fil.value();
+            field.byteOffset = fil.offset();
+            field.unionWith = fil.unionWith();
+        }
         if (bits != null)
             field.desc.bitLength = bits.value();
         if (arr != null) {
@@ -295,11 +299,21 @@ public class StructIO {
 		List<FieldDecl> list = listFields();
 		orderFields(list);
 		
-		Alignment alignment = structClass.getAnnotation(Alignment.class);
+		Map<Long, List<FieldDecl>> fieldsMap = new TreeMap<Long, List<FieldDecl>>();
+        for (FieldDecl field : list) {
+        		if (field.index < 0)
+        			throw new RuntimeException("Negative field index not allowed for field " + field.name);
+        		
+        		long index = field.unionWith >= 0 ? field.unionWith : field.index;
+        		List<FieldDecl> siblings = fieldsMap.get(index);
+        		if (siblings == null)
+        			fieldsMap.put(index, siblings = new ArrayList<FieldDecl>());
+        		siblings.add(field);
+        }
+        	
+        	Alignment alignment = structClass.getAnnotation(Alignment.class);
         structAlignment = alignment != null ? alignment.value() : 1; //TODO get platform default alignment
 
-        //int fieldCount = 0;
-        int refreshableFieldCount = 0;
         structSize = 0;
         if (isVirtual()) {
         	structSize += Pointer.SIZE;
@@ -311,81 +325,102 @@ public class StructIO {
 		}
 
         int cumulativeBitOffset = 0;
-        for (FieldDecl field : list) {
-            field.desc.byteOffset = structSize;
-            if (field.valueClass.isPrimitive()) {
-				field.desc.byteLength = primTypeLength(field.valueClass);
-            } else if (StructObject.class.isAssignableFrom(field.valueClass)) {
-            	field.desc.nativeTypeOrPointerTargetType = field.valueType;
-                StructIO io = StructIO.getInstance(field.valueClass, field.valueType);		
-                field.desc.byteLength = io.getStructSize();		
-                //field.refreshableFieldIndex = refreshableFieldCount++;		
-            } else if (ValuedEnum.class.isAssignableFrom(field.valueClass)) {
-                field.desc.nativeTypeOrPointerTargetType = (field.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType)field.valueType).getActualTypeArguments()[0]) : null;
-                Class c = PointerIO.getClass(field.desc.nativeTypeOrPointerTargetType);
-                if (IntValuedEnum.class.isAssignableFrom(c))
-                    field.desc.byteLength = 4;
-                else
-                    throw new RuntimeException("Enum type unknown : " + c);
-                //field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
-            } else if (TypedPointer.class.isAssignableFrom(field.valueClass)) {
-                field.desc.nativeTypeOrPointerTargetType = field.valueType;
-                field.desc.byteLength = Pointer.SIZE;
-                //field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
-            } else if (Pointer.class.isAssignableFrom(field.valueClass)) {
-                field.desc.nativeTypeOrPointerTargetType = (field.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.valueType).getActualTypeArguments()[0] : null;
-                field.desc.byteLength = Pointer.SIZE;
-                //field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
-            } else if (Buffer.class.isAssignableFrom(field.valueClass)) {
-                if (field.valueClass == IntBuffer.class)
-                    field.desc.byteLength = 4;
-                else if (field.valueClass == LongBuffer.class)
-                    field.desc.byteLength = 8;
-                else if (field.valueClass == ShortBuffer.class)
-                    field.desc.byteLength = 2;
-                else if (field.valueClass == ByteBuffer.class)
-                    field.desc.byteLength = 1;
-                else if (field.valueClass == FloatBuffer.class)
-                    field.desc.byteLength = 4;
-                else if (field.valueClass == DoubleBuffer.class)
-                    field.desc.byteLength = 8;
-                else
-                    throw new UnsupportedOperationException("Field array type " + field.valueClass.getName() + " not supported yet");
-                
-                //field.refreshableFieldIndex = refreshableFieldCount++;
-            } else if (field.valueClass.isArray() && field.valueClass.getComponentType().isPrimitive()) {
-				field.desc.byteLength = primTypeLength(field.valueClass.getComponentType());
-			} else {
-                //throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
-				StructIO io = StructIO.getInstance(field.valueClass, field.valueType);
-				int s = io.getStructSize();
-				if (s > 0)
-					field.desc.byteLength = s;
-				else
-					throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
-            }   
+        
+        for (List<FieldDecl> fieldGroup : fieldsMap.values()) {
+        		long fieldByteLength = -1, fieldBitLength = -1, fieldAlignment = -1;
+        		for (FieldDecl field : fieldGroup) {
+				if (field.valueClass.isPrimitive()) {
+					field.desc.byteLength = primTypeLength(field.valueClass);
+				} else if (StructObject.class.isAssignableFrom(field.valueClass)) {
+					field.desc.nativeTypeOrPointerTargetType = field.valueType;
+					StructIO io = StructIO.getInstance(field.valueClass, field.valueType);		
+					field.desc.byteLength = io.getStructSize();		
+				} else if (ValuedEnum.class.isAssignableFrom(field.valueClass)) {
+					field.desc.nativeTypeOrPointerTargetType = (field.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType)field.valueType).getActualTypeArguments()[0]) : null;
+					Class c = PointerIO.getClass(field.desc.nativeTypeOrPointerTargetType);
+					if (IntValuedEnum.class.isAssignableFrom(c))
+						field.desc.byteLength = 4;
+					else
+						throw new RuntimeException("Enum type unknown : " + c);
+					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
+				} else if (TypedPointer.class.isAssignableFrom(field.valueClass)) {
+					field.desc.nativeTypeOrPointerTargetType = field.valueType;
+					field.desc.byteLength = Pointer.SIZE;
+					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
+				} else if (Pointer.class.isAssignableFrom(field.valueClass)) {
+					field.desc.nativeTypeOrPointerTargetType = (field.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.valueType).getActualTypeArguments()[0] : null;
+					field.desc.byteLength = Pointer.SIZE;
+					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
+				} else if (Buffer.class.isAssignableFrom(field.valueClass)) {
+					if (field.valueClass == IntBuffer.class)
+						field.desc.byteLength = 4;
+					else if (field.valueClass == LongBuffer.class)
+						field.desc.byteLength = 8;
+					else if (field.valueClass == ShortBuffer.class)
+						field.desc.byteLength = 2;
+					else if (field.valueClass == ByteBuffer.class)
+						field.desc.byteLength = 1;
+					else if (field.valueClass == FloatBuffer.class)
+						field.desc.byteLength = 4;
+					else if (field.valueClass == DoubleBuffer.class)
+						field.desc.byteLength = 8;
+					else
+						throw new UnsupportedOperationException("Field array type " + field.valueClass.getName() + " not supported yet");
+					
+				} else if (field.valueClass.isArray() && field.valueClass.getComponentType().isPrimitive()) {
+					field.desc.byteLength = primTypeLength(field.valueClass.getComponentType());
+				} else {
+					//throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
+					StructIO io = StructIO.getInstance(field.valueClass, field.valueType);
+					long s = io.getStructSize();
+					if (s > 0)
+						field.desc.byteLength = s;
+					else
+						throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
+				}
+				
+				long length = field.desc.arrayLength * field.desc.byteLength;
+				if (length >= fieldByteLength)
+					fieldByteLength = length;
+				
+				if (field.desc.byteLength >= fieldAlignment)
+					fieldAlignment = field.desc.byteLength;
+				
+				if (field.desc.bitLength >= 0) {
+					if (fieldGroup.size() != 1)
+						throw new RuntimeException("No support for bit fields unions yet !");
+					fieldBitLength = field.desc.bitLength;
+				}
+			}
 
-            if (field.desc.bitLength < 0) {
+            if (fieldBitLength < 0) {
 				// Align fields as appropriate
 				if (cumulativeBitOffset != 0) {
 					cumulativeBitOffset = 0;
 					structSize++;
 				}
-                int fieldAlignment = field.desc.byteLength;
-				structAlignment = Math.max(structAlignment, fieldAlignment);
+                structAlignment = Math.max(structAlignment, fieldAlignment);
                 structSize = alignSize(structSize, fieldAlignment);
 			}
-			field.desc.byteOffset = structSize;
-            field.desc.bitOffset = cumulativeBitOffset;
-            //field.index = fieldCount++;
+			long 
+				fieldByteOffset = structSize, 
+				fieldBitOffset = cumulativeBitOffset;
+			
+			//field.index = fieldCount++;
 
-			if (field.desc.bitLength >= 0) {
-				field.desc.byteLength = (field.desc.bitLength >>> 3) + ((field.desc.bitLength & 7) != 0 ? 1 : 0);
-                cumulativeBitOffset += field.desc.bitLength;
+			if (fieldBitLength >= 0) {
+				fieldByteLength = (fieldBitLength >>> 3) + ((fieldBitLength & 7) != 0 ? 1 : 0);
+                cumulativeBitOffset += fieldBitLength;
 				structSize += cumulativeBitOffset >>> 3;
 				cumulativeBitOffset &= 7;
 			} else {
-                structSize += field.desc.arrayLength * field.desc.byteLength;
+                structSize += fieldByteLength;
+			}
+			
+			for (FieldDecl field : fieldGroup) {
+				field.desc.byteLength = fieldByteLength;
+				field.desc.byteOffset = fieldByteOffset;
+				field.desc.bitOffset = fieldBitOffset;
 			}
         }
         if (cumulativeBitOffset > 0)

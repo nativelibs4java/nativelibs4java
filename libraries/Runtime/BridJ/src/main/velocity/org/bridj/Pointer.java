@@ -714,7 +714,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * If the pointer has no peer, this method returns true.
 	 * @return getPeer() % alignment == 0
 	 */
-	public boolean isAligned(int alignment) {
+	public boolean isAligned(long alignment) {
 		return isAligned(getPeer(), alignment);
 	}
 	
@@ -722,8 +722,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * Check that the provided address is aligned to the given alignment.
 	 * @return address % alignment == 0
 	 */
-	protected static boolean isAligned(long address, int alignment) {
-		switch (alignment) {
+	protected static boolean isAligned(long address, long alignment) {
+		switch ((int)alignment) {
 		case 1:
 			return true;
 		case 2:

@@ -15,4 +15,6 @@ import java.lang.annotation.Target;
 public @interface Struct {
 	boolean packed() default false;
 	int padding() default -1;
+	int fieldCount() default -1;
+	int size() default -1;
 }
