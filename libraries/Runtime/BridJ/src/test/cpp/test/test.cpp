@@ -344,5 +344,8 @@ TEST_API const wchar_t* wstringCStr(std::wstring* s) {
 TEST_API size_t __cdecl sizeOfVARIANT() {
 	return sizeof(VARIANT);
 }
+TEST_API size_t __cdecl sizeOfDECIMAL() {
+	return sizeof(DECIMAL);
+}
 
 #endif

@@ -443,7 +443,7 @@ public class VC9Demangler extends Demangler {
     		names = parseNames();
     	}*/
 
-        ClassRef tr = new ClassRef(new Ident((String)names.get(0)));
+        ClassRef tr = new ClassRef((Ident)names.get(0));
         names.remove(0);
         tr.setEnclosingType(reverseNamespace(names));
         return tr;

@@ -214,10 +214,10 @@ public class COMRuntime extends CPPRuntime {
     }
 
     static ValuedEnum<VARENUM> getType(VARIANT v) {
-        return v.__VARIANT_NAME_1().__VARIANT_NAME_2().vt();
+        return FlagSet.fromValue(v.__VARIANT_NAME_1().__VARIANT_NAME_2().vt(), VARENUM.class);
     }
     static VARIANT setType(VARIANT v, ValuedEnum<VARENUM> vt) {
-        v.__VARIANT_NAME_1().__VARIANT_NAME_2().vt(vt );
+		v.__VARIANT_NAME_1().__VARIANT_NAME_2().vt((short)vt.value());
         return v;
     }
     static VARIANT.__VARIANT_NAME_1_union.__tagVARIANT.__VARIANT_NAME_3_union getValues(VARIANT v) {

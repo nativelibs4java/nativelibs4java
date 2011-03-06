@@ -10,6 +10,7 @@ import static org.junit.Assert.*;
 import org.bridj.cpp.com.COMRuntime;
 import org.bridj.cpp.com.IUnknown;
 import org.bridj.cpp.com.VARIANT;
+import org.bridj.cpp.com.DECIMAL;
 import org.bridj.cpp.com.shell.IShellFolder;
 import org.bridj.cpp.com.shell.IShellWindows;
 
@@ -22,12 +23,23 @@ public class COMTest {
 	}
 	
 	public static native @Ptr long sizeOfVARIANT();
+	public static native @Ptr long sizeOfDECIMAL();
 
 	@Test
 	public void variantSize() {
         long s = BridJ.sizeOf(VARIANT.class);
 		if (hasCOM)
             assertEquals(sizeOfVARIANT(), s);
+        else
+            assertEquals(24, s);
+	}
+	
+	
+	@Test
+	public void decimalSize() {
+        long s = BridJ.sizeOf(DECIMAL.class);
+		if (hasCOM)
+            assertEquals(sizeOfDECIMAL(), s);
         else
             assertEquals(24, s);
 	}

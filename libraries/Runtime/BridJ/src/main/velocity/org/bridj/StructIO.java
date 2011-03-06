@@ -56,6 +56,11 @@ public class StructIO {
 		public long bitOffset, bitLength = -1;
         public long arrayLength = 1;
         public Type nativeTypeOrPointerTargetType;
+
+        @Override
+        public String toString() {
+			return "Field(byteOffset = " + byteOffset + ", byteLength = " + byteLength + ", bitOffset = " + bitOffset + ", bitLength = " + bitLength + (nativeTypeOrPointerTargetType == null ? "" : ", ttype = " + nativeTypeOrPointerTargetType) + ")";
+        }
 	}
 	protected static class FieldDecl {
 		final FieldDesc desc = new FieldDesc();
@@ -69,7 +74,7 @@ public class StructIO {
 
         @Override
         public String toString() {
-            return name + " (index = " + index + (unionWith < 0 ? "" : ", unionWith = " + unionWith) + ")";
+            return name + " (index = " + index + (unionWith < 0 ? "" : ", unionWith = " + unionWith) + ", desc = " + desc + ")";
         }
     }
 	
@@ -436,7 +441,7 @@ public class StructIO {
 			}
 			
 			for (FieldDecl field : fieldGroup) {
-				field.desc.byteLength = fieldByteLength;
+				//field.desc.byteLength = fieldByteLength;
 				field.desc.byteOffset = fieldByteOffset;
 				field.desc.bitOffset = fieldBitOffset;
 			}
@@ -456,6 +461,10 @@ public class StructIO {
             		b.add(f);
             	
             	solidRanges = b.toSolidRanges();
+		/*System.out.println();
+		System.out.println("FILTERED(" + structClass.getName() + ") = ");
+		for (FieldDecl field : list)
+			System.out.println("\t" + field);*/
 		return filtered.toArray(new FieldDesc[filtered.size()]);
 	}
 

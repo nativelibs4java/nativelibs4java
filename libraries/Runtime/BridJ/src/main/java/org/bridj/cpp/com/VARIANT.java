@@ -57,17 +57,17 @@ public class VARIANT extends StructObject {
 			}
 			/// C type : VARTYPE
 			@Field(0)
-			public ValuedEnum<VARENUM > vt() {
-				return this.io.getEnumField(this, 0);
+			public short vt() {
+				return this.io.getShortField(this, 0);
 			}
 			/// C type : VARTYPE
 			@Field(0)
-			public __tagVARIANT vt(ValuedEnum<VARENUM > vt) {
-				this.io.setEnumField(this, 0, vt);
+			public __tagVARIANT vt(short vt) {
+				this.io.setShortField(this, 0, vt);
 				return this;
 			}
 			/// C type : VARTYPE
-			public final ValuedEnum<VARENUM > vt_$eq(ValuedEnum<VARENUM > vt) {
+			public final short vt_$eq(short vt) {
 				vt(vt);
 				return vt;
 			}
