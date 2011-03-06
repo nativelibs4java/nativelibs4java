@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.WeakHashMap;
 
 /**
@@ -51,10 +52,25 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
     public Iterator<E> iterator() {
         return getMatchingEnums().iterator();
     }
+    public E toEnum() {
+        Iterator<E> it = iterator();
+        if (!it.hasNext())
+            throw new NoSuchElementException("No enum value corresponding to " + this);
+        E e = it.next();
+        if (it.hasNext())
+            throw new NoSuchElementException("More than one enum value corresponding to " + this + " : " + e + " and " + it.next() + "...");
+        return e;
+    }
     public static <EE extends Enum<EE>> FlagSet<EE> fromValue(long value, Class<EE> enumClass) {
         return new FlagSet<EE>(value, enumClass, null);
     }
-    public static <EE extends Enum<EE>> FlagSet<EE> fromValue(long value, EE[] enumValue) {
+    public static <EE extends Enum<EE>> FlagSet<EE> fromValue(ValuedEnum<EE> value) {
+        if (value instanceof Enum)
+            return FlagSet.fromValue(value.value(), (EE)value);
+        else 
+            return (FlagSet<EE>)value;
+    }
+    public static <EE extends Enum<EE>> FlagSet<EE> fromValue(long value, EE... enumValue) {
         return new FlagSet<EE>(value, null, enumValue);
     }
     /**
