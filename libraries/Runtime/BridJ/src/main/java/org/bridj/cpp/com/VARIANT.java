@@ -11,8 +11,13 @@ import java.util.Collections;
  */
 public class VARIANT extends StructObject {
 	@Field(0)
-	public native FlagSet<VARENUM> vt();
-	public native void vt(FlagSet<VARENUM> vt);
+	public ValuedEnum<VARENUM> vt() {
+        return io.getEnumField(this, 0);
+    }
+	public VARIANT vt(FlagSet<VARENUM> vt) {
+        io.setEnumField(this, 0, vt);
+        return this;
+    }
 	
 	public enum VARENUM implements IntValuedEnum<VARENUM>
     {	
@@ -129,66 +134,66 @@ public class VARIANT extends StructObject {
 	public native short wReserved3();
 	@Field(4)
 	public native long llVal();
-	@Field(4)
+	@Field(value = 5, unionWith = 4)
 	public native int lVal();
-	@Field(4)
+	@Field(value = 6, unionWith = 4)
 	public native byte bVal();
-	@Field(4)
+	@Field(value = 7, unionWith = 4)
 	public native short iVal();
-	@Field(4)
+	@Field(value = 8, unionWith = 4)
 	public native float fltVal();
-	@Field(4)
+	@Field(value = 9, unionWith = 4)
 	public native double dblVal();
-	@Field(4)
+	@Field(value = 10, unionWith = 4)
 	public native Pointer<Byte> bstrVal();
-	@Field(4)
+	@Field(value = 11, unionWith = 4)
 	public native Pointer<Pointer<Byte>> pbstrVal();
-	@Field(4)
+	@Field(value = 12, unionWith = 4)
 	public native Pointer<IUnknown> punkVal();
-	@Field(4)
+	@Field(value = 13, unionWith = 4)
 	public native Pointer<IDispatch> pdispVal();
-	@Field(4)
+	@Field(value = 14, unionWith = 4)
 	public native Pointer<Byte> pbVal();
-	@Field(4)
+	@Field(value = 15, unionWith = 4)
 	public native Pointer<Short> piVal();
-	@Field(4)
+	@Field(value = 16, unionWith = 4)
 	public native Pointer<Integer> plVal();
-	@Field(4)
+	@Field(value = 17, unionWith = 4)
 	public native Pointer<Long> pllVal();
-	@Field(4)
+	@Field(value = 18, unionWith = 4)
 	public native Pointer<Float> pfltVal();
-	@Field(4)
+	@Field(value = 19, unionWith = 4)
 	public native Pointer<Double> pdblVal();
-	@Field(4)
+	@Field(value = 20, unionWith = 4)
 	public native Pointer<Pointer<IUnknown>> ppunkVal();
-	@Field(4)
+	@Field(value = 21, unionWith = 4)
 	public native Pointer<Pointer<IDispatch>> ppdispVal();
-	@Field(4)
+	@Field(value = 22, unionWith = 4)
 	public native Pointer<VARIANT> pvarVal();
-	@Field(4)
+	@Field(value = 23, unionWith = 4)
 	public native Pointer<?> byref();
-	@Field(4)
+	@Field(value = 24, unionWith = 4)
 	public native short uiVal();
-	@Field(4)
+	@Field(value = 25, unionWith = 4)
 	public native int ulVal();
-	@Field(4)
+	@Field(value = 26, unionWith = 4)
 	public native long ullVal();
-	@Field(4)
+	@Field(value = 27, unionWith = 4)
 	public native int intVal();
-	@Field(4)
+	@Field(value = 28, unionWith = 4)
 	public native int uintVal();
-	@Field(4)
+	@Field(value = 29, unionWith = 4)
 	public native Pointer<Short> puiVal();
-	@Field(4)
+	@Field(value = 30, unionWith = 4)
 	public native Pointer<Integer> pulVal();
-	@Field(4)
+	@Field(value = 31, unionWith = 4)
 	public native Pointer<Long> pullVal();
-	@Field(4)
+	@Field(value = 32, unionWith = 4)
 	public native Pointer<Integer> pintVal();
-	@Field(4)
+	@Field(value = 33, unionWith = 4)
 	public native Pointer<Integer> puintVal();
 	
-	@Field(4)
+	@Field(34)
 	public native BRECORD __VARIANT_NAME_3();
 	
 	public static class BRECORD extends StructObject {
@@ -198,7 +203,7 @@ public class VARIANT extends StructObject {
 		public native Pointer<?>/*IRecordInfo*/ pRecInfo();
 	}
 	
-	@Field(5)
+	@Field(35)
 	public native DECIMAL decVal();
 	
 	public static class DECIMAL extends StructObject {
@@ -254,9 +259,9 @@ public class VARIANT extends StructObject {
 	 * @throws RuntimeException if the VARIANT is invalid
 	 */
 	public Object getValue() {
-		FlagSet<VARENUM> vt = vt();
+		FlagSet<VARENUM> vt = FlagSet.fromValue(vt());
 		if (vt.has(VT_BYREF)) {
-			switch (vt().without(VT_BYREF).iterator().next()) {
+			switch (vt.without(VT_BYREF).toEnum()) {
 				case VT_DISPATCH:
 					return ppdispVal();
 				case VT_UNKNOWN:
@@ -297,13 +302,7 @@ public class VARIANT extends StructObject {
 					return byref();
 			}
 		}
-		Iterator<VARENUM> varEnumIt = vt.iterator();
-		if (!varEnumIt.hasNext())
-			throw new RuntimeException("Invalid VARIANT : no VARENUM value !");
-		VARENUM varEnum = varEnumIt.next();
-		if (varEnumIt.hasNext())
-			throw new RuntimeException("Invalid VARIANT : ambiguous VARENUM value : " + vt.value() + " !");
-		switch (varEnum) {	
+		switch (vt.toEnum()) {
 			/* UINT8         */                    
 			case VT_I1       : 	
 			case VT_UI1      : 	
@@ -333,7 +332,7 @@ public class VARIANT extends StructObject {
 			case VT_UINT_PTR:
 				return piVal();
 			default:
-				throw new UnsupportedOperationException("Conversion not implemented yet from VARIANT type " + varEnum + " to Java !"); 
+				throw new UnsupportedOperationException("Conversion not implemented yet from VARIANT type " + vt + " to Java !");
 		}
 	}
 }

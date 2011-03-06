@@ -23,7 +23,7 @@ public @interface Field {
     /**
      * Absolute index of the field from the start of the struct
      */
-    int offset() default Integer.MIN_VALUE;
+    //int offset() default Integer.MIN_VALUE;
     
     /**
      * Declare that this field shares its space with another (the two or more fields are in an union).<br>
