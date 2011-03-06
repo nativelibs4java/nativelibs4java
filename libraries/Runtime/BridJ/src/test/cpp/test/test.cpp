@@ -137,6 +137,11 @@ int Ctest::testVirtualAdd(int a, int b) {
 	//printf("Ctest::testVirtualAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
 	return a + b;
 }
+
+int testIndirectVirtualAdd(Ctest* pTest, int a, int b) {
+	return pTest->testVirtualAdd(a, b);
+}
+
 int Ctest::testAdd(int a, int b) {
 	//printf("Ctest::testAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
 	return a + b;
@@ -332,9 +337,12 @@ TEST_API const wchar_t* wstringCStr(std::wstring* s) {
 
 #include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"
 
+#ifdef _WIN32
+
 #include "OAIdl.h" // for VARIANT
 
 TEST_API size_t __cdecl sizeOfVARIANT() {
 	return sizeof(VARIANT);
 }
 
+#endif

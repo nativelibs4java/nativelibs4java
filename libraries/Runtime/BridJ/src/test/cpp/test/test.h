@@ -34,6 +34,8 @@ public:
 	static void static_void();
 };
 
+int testIndirectVirtualAdd(Ctest* pTest, int a, int b);
+
 class TEST_API Ctest2 : public Ctest {
 	int* fState;
 	int fDestructedState;

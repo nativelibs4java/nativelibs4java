@@ -66,6 +66,11 @@ public class StructIO {
         Class<?> valueClass;
         Class<?> declaringClass;
         boolean isBitField;
+
+        @Override
+        public String toString() {
+            return name + " (index = " + index + (unionWith < 0 ? "" : ", unionWith = " + unionWith) + ")";
+        }
     }
 	
     static class SolidRanges {
@@ -128,6 +133,11 @@ public class StructIO {
 	}
 	public Type getStructType() {
 		return structType;
+	}
+	
+	@Override
+	public String toString() {
+		return "StructIO(" + (structType instanceof Class ? structClass.getName() : structType.toString()) + ")";
 	}
 	
 	public synchronized PointerIO<?> getPointerIO() {
