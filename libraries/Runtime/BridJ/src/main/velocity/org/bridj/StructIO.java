@@ -163,12 +163,12 @@ public class StructIO {
     }
 	
 	public final long getStructSize() {
-//		build();
+		build();
 		return structSize;
 	}
 
     public final long getStructAlignment() {
-//		build();
+		build();
 		return structAlignment;
 	}
 	
@@ -281,21 +281,25 @@ public class StructIO {
 	}
 	
 	protected int primTypeLength(Class<?> primType) {
-		if (primType == Integer.TYPE)
-			return 4;
-		else if (primType == Long.TYPE)
-			return 8;
-		else if (primType == Short.TYPE)
-			return 2;
-		else if (primType == Byte.TYPE)
-			return 1;
-		else if (primType == Float.TYPE)
-			return 4;
-		else if (primType == Double.TYPE)
-			return 8;
-		else if (Pointer.class.isAssignableFrom(primType))
-			return 8;
-		else
+        if (primType == Integer.class || primType == int.class)
+            return 4;
+        else if(primType == Long.class || primType == long.class)
+            return 8;
+        else if(primType == Short.class || primType == short.class)
+            return 2;
+        else if(primType == Byte.class || primType == byte.class)
+            return 1;
+        else if(primType == Character.class || primType == char.class)
+            return 2;
+        else if(primType == Boolean.class || primType == boolean.class)
+            return 1;
+        else if(primType == Float.class || primType == float.class)
+            return 4;
+        else if(primType == Double.class || primType == double.class)
+            return 8;
+        else if(Pointer.class.isAssignableFrom(primType))
+            return Pointer.SIZE;
+        else
 			throw new UnsupportedOperationException("Field type " + primType.getName() + " not supported yet");
 
 	}

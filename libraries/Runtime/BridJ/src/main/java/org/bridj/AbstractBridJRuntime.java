@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bridj.util.Utils;
 
 /**
  * Base class for implementation of runtimes
@@ -29,6 +30,14 @@ public abstract class AbstractBridJRuntime implements BridJRuntime {
 	public void unregister(Type type) {
 		// TODO !!!
 	}
+
+	@Override
+    public Type getType(NativeObject instance) {
+        if (instance == null)
+            return null;
+        return Utils.getClass(instance.getClass());
+    }
+
     protected java.lang.reflect.Constructor findConstructor(Class<?> type, int constructorId) throws SecurityException, NoSuchMethodException {
 		for (java.lang.reflect.Constructor<?> c : type.getDeclaredConstructors()) {
             org.bridj.ann.Constructor ca = c.getAnnotation(org.bridj.ann.Constructor.class);

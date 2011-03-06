@@ -60,7 +60,7 @@ public class UnionTest {
 	}
     @Test
     public void unionSize() {
-        assertEquals(16, BridJ.sizeOf(new MyUnionStruct()));
+        assertEquals(16, BridJ.sizeOf(MyUnionStruct.class));
     }
     @Test
     public void unionValues() {

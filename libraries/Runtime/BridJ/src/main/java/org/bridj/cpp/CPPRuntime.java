@@ -406,9 +406,9 @@ public class CPPRuntime extends CRuntime {
         return new CTypeInfo<T>(type) {
 
             @Override
-            public long sizeOf(T instance) {
-                // TODO handle template size here (depends on template args)
-                return super.sizeOf(instance);
+            public long sizeOf(Type type) {
+                // TODO handle template size here ? (depends on template args)
+                return super.sizeOf(type);
             }
 
             @SuppressWarnings("unchecked")

@@ -170,6 +170,8 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
 		long value = 0;
 		Class cl = null;
 		for (E enumValue : enumValues) {
+            if (enumValue == null)
+                continue;
 			if (cl == null)
 				cl = enumValue.getClass();
 			value |= ((ValuedEnum)enumValue).value();

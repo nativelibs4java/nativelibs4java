@@ -38,8 +38,8 @@ public class CPPTest {
 	
 	@Test
 	public void testSize() {
-		assertEquals("Invalid size for class Ctest", sizeOfCtest(), BridJ.sizeOf(new Ctest()));
-		assertEquals("Invalid size for class Ctest2", sizeOfCtest2(), BridJ.sizeOf(new Ctest2()));
+		assertEquals("Invalid size for class Ctest", sizeOfCtest(), BridJ.sizeOf(Ctest.class));
+		assertEquals("Invalid size for class Ctest2", sizeOfCtest2(), BridJ.sizeOf(Ctest2.class));
 		assertTrue("sizeOfCtest() = " + sizeOfCtest(), sizeOfCtest() >= 12 && sizeOfCtest() <= 20);
 		assertTrue("sizeOfCtest2() = " + sizeOfCtest2(), sizeOfCtest2() >= 16 && sizeOfCtest() <= 30);
 	}

@@ -39,7 +39,7 @@ public class StructTest {
 	@Test
 	public void testEquality() {
 		MyStruct x = new MyStruct(), y = new MyStruct(), z = new MyStruct();
-		long len = sizeOf(x);
+		long len = sizeOf(MyStruct.class);
 		int a = 10;
 		double b = 12.0;
 		pointerTo(x).clearBytesAtOffset(0, len, (byte)0xff);

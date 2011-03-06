@@ -63,14 +63,13 @@ public class BridJ {
         });
     }
     
-    public static long sizeOf(Object o) {
-        if (o == null)
-            return 0;
-        if (o instanceof NativeObject) {
+    public static long sizeOf(Type type) {
+        return getRuntime(Utils.getClass(type)).getTypeInfo(type).sizeOf(type);
+        /*if (o instanceof NativeObject) {
             NativeObject no = (NativeObject)o;
             return no.typeInfo.sizeOf(no);
-        }
-        throw new RuntimeException("Unable to compute size for object " + o + " of type " + o.getClass().getName());
+        }*/
+        //throw new RuntimeException("Unable to compute size for object " + o + " of type " + o.getClass().getName());
     }
     static synchronized void registerNativeObject(NativeObject ob) {
         weakNativeObjects.put(Pointer.getAddress(ob, null), ob);

@@ -26,9 +26,10 @@ public interface BridJRuntime {
 
 		boolean equal(T instance, T other);
 		int compare(T instance, T other);
-        long sizeOf(T instance);
+        long sizeOf(Type type);
 	}
-	
+	Type getType(NativeObject instance);
+
 	void register(Type type);
 	void unregister(Type type);
 	<T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type);

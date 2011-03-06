@@ -57,7 +57,7 @@ public class CRuntime extends AbstractBridJRuntime {
         protected Class<?> castClass;
 
         @Override
-        public long sizeOf(T instance) {
+        public long sizeOf(Type type) {
             return structIO.getStructSize();
         }
 		@Override

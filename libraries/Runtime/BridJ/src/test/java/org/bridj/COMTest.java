@@ -1,6 +1,7 @@
 package org.bridj;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.bridj.CPPTest.Ctest;
 import org.junit.Test;
 
 import org.bridj.ann.*;
@@ -20,15 +21,26 @@ public class COMTest {
 	}
 	
 	public static native @Ptr long sizeOfVARIANT();
-	
+
 	@Test
 	public void variantSize() {
+        StructIO structIO = StructIO.getInstance(VARIANT.class, VARIANT.class);
+        structIO.build();
+        long s = structIO.getStructSize();
 		if (hasCOM)
-            assertEquals(sizeOfVARIANT(), BridJ.sizeOf(new VARIANT()));
+            assertEquals(sizeOfVARIANT(), s);
         else
-            assertEquals(24, BridJ.sizeOf(new VARIANT()));
+            assertEquals(24, s);
 	}
-	
+
+	@Test
+	public void ctestSize() {
+        StructIO structIO = StructIO.getInstance(Ctest.class, Ctest.class);
+        structIO.build();
+        long s = structIO.getStructSize();
+		assertEquals(32, s);
+	}
+
 	@Test
 	public void shellFolder() {
 		if (!hasCOM)

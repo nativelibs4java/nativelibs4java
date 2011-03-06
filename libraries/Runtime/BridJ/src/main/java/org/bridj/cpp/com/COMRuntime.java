@@ -1,13 +1,21 @@
 package org.bridj.cpp.com;
 
+import java.lang.reflect.Type;
+import org.bridj.ValuedEnum;
+import org.bridj.FlagSet;
 import org.bridj.BridJ;
 import org.bridj.Pointer;
 import org.bridj.CRuntime;
+import org.bridj.Platform;
+import org.bridj.Pointer.StringType;
 import org.bridj.ann.Convention;
 import org.bridj.ann.Library;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Runtime;
 import org.bridj.cpp.CPPRuntime;
+import static org.bridj.cpp.com.VARENUM.*;
+import org.bridj.cpp.com.VARIANT.__VARIANT_NAME_1_union.__tagVARIANT.__VARIANT_NAME_3_union;
+import org.bridj.util.Utils;
 
 /**
  * Adding Icons, Previews and Shortcut Menus :
@@ -29,7 +37,8 @@ import org.bridj.cpp.CPPRuntime;
 @Convention(Convention.Style.StdCall)
 public class COMRuntime extends CPPRuntime {
 	static {
-		BridJ.register();
+		if (Platform.isWindows())
+			BridJ.register();
 	}
 	public static final int 
 	  CLSCTX_INPROC_SERVER            = 0x1,
@@ -127,7 +136,7 @@ public class COMRuntime extends CPPRuntime {
 		if (id == null)
 			throw new RuntimeException("No " + IID.class.getName() + " annotation set on type " + type.getName() + " !");
 
-        return (Pointer)GUID.parseGUID128Bits(id.value());
+        return (Pointer)parseGUID(id.value());
 	}
 	
 	/** 
@@ -139,7 +148,7 @@ public class COMRuntime extends CPPRuntime {
 		if (id == null)
 			throw new RuntimeException("No " + CLSID.class.getName() + " annotation set on type " + type.getName() + " !");
         
-		return (Pointer)GUID.parseGUID128Bits(id.value());
+		return (Pointer)parseGUID(id.value());
 	}
     static ThreadLocal<Object> comInitializer = new ThreadLocal<Object>() {
         @Override
@@ -185,4 +194,196 @@ public class COMRuntime extends CPPRuntime {
             Pointer.release(p, clsid, uuid);
         }
 	}
+
+    private static final String model = "00000000-0000-0000-0000-000000000000";
+
+    // Need to parse as (int, short, short, char[8])
+    public static Pointer<?> parseGUID(String descriptor) {
+        Pointer<?> out = Pointer.allocateBytes(16 + 4);
+        descriptor = descriptor.replaceAll("-", "");
+        if (descriptor.length() != 32)
+            throw new RuntimeException("Expected something like :\n" + model + "\nBut got instead :\n" +descriptor);
+
+        out.setIntAtOffset(0, (int)Long.parseLong(descriptor.substring(0, 8), 16));
+        out.setShortAtOffset(4, (short)Long.parseLong(descriptor.substring(8, 12), 16));
+        out.setShortAtOffset(6, (short)Long.parseLong(descriptor.substring(12, 16), 16));
+        for (int i = 0; i < 8; i++)
+            out.setByteAtOffset(8 + i, (byte)Long.parseLong(descriptor.substring(16 + i * 2, 16 + i * 2 + 2), 16));
+
+        return out;
+    }
+
+    static ValuedEnum<VARENUM> getType(VARIANT v) {
+        return v.__VARIANT_NAME_1().__VARIANT_NAME_2().vt();
+    }
+    static VARIANT setType(VARIANT v, ValuedEnum<VARENUM> vt) {
+        v.__VARIANT_NAME_1().__VARIANT_NAME_2().vt(vt );
+        return v;
+    }
+    static VARIANT.__VARIANT_NAME_1_union.__tagVARIANT.__VARIANT_NAME_3_union getValues(VARIANT v) {
+        return v.__VARIANT_NAME_1().__VARIANT_NAME_2().__VARIANT_NAME_3();
+    }
+
+    /**
+	 * Convert the VARIANT value to an equivalent Java value.
+	 * @throws UnsupportedOperationException if the VARIANT type is not handled yet
+	 * @throws RuntimeException if the VARIANT is invalid
+	 */
+	public static Object getValue(VARIANT v) {
+
+		FlagSet<VARENUM> vt = FlagSet.fromValue(getType(v));
+        __VARIANT_NAME_3_union values = getValues(v);
+		if (vt.has(VT_BYREF)) {
+			switch (vt.without(VT_BYREF).toEnum()) {
+				case VT_DISPATCH:
+					return values.ppdispVal();
+				case VT_UNKNOWN:
+					return values.ppunkVal();
+				case VT_VARIANT:
+					return values.pvarVal();
+				case VT_I1       :
+				case VT_UI1      :
+					return values.pbVal();
+				/* UINT16        */
+				case VT_I2      :
+				case VT_UI2      :
+					return values.piVal();
+				/* UINT32        */
+				case VT_I4      :
+				case VT_UI4      :
+					return values.plVal();
+				case VT_R4:
+					return values.pfltVal();
+				case VT_R8:
+					return values.pdblVal();
+				/* UINT64        */
+				case VT_I8      :
+				case VT_UI8      :
+					return values.pllVal();
+				/* BOOL          */
+				case VT_BOOL     :
+					return values.pbVal().as(Boolean.class);
+
+				case VT_BSTR:
+					return values.pbstrVal();
+				case VT_LPSTR:
+					return values.byref().getCString();
+				case VT_LPWSTR:
+					return values.byref().getWideCString();
+				case VT_PTR:
+				default:
+					return values.byref();
+			}
+		}
+		switch (vt.toEnum()) {
+			/* UINT8         */
+			case VT_I1       :
+			case VT_UI1      :
+				return values.bVal();
+			/* UINT16        */
+			case VT_I2      :
+			case VT_UI2      :
+				return values.uiVal();
+			/* UINT32        */
+			case VT_I4      :
+			case VT_UI4      :
+				return values.ulVal();
+			/* UINT64        */
+			case VT_I8      :
+			case VT_UI8      :
+				return values.ullVal();
+			/* BOOL          */
+			case VT_BOOL     :
+				return values.bVal() != 0;
+			case VT_R4:
+				return values.fltVal();
+			case VT_R8:
+				return values.dblVal();
+			case VT_BSTR:
+				return values.bstrVal().getString(StringType.BSTR);
+			default:
+				throw new UnsupportedOperationException("Conversion not implemented yet from VARIANT type " + vt + " to Java !");
+		}
+	}
+
+    public static VARIANT setValue(VARIANT v, Object value) {
+        ValuedEnum<VARENUM> vt;
+        __VARIANT_NAME_3_union values = getValues(v);
+        if (value == null) {
+            values.byref(null);
+            vt = VT_EMPTY;
+        } else if (value instanceof Integer) {
+            values.lVal((Integer)value);
+            vt = VT_I4;
+        } else if (value instanceof Long) {
+            values.llval((Long)value);
+            vt = VT_I8;
+        } else if (value instanceof Short) {
+            values.iVal((Short)value);
+            vt = VT_I2;
+        } else if (value instanceof Byte) {
+            values.bVal((Byte)value);
+            vt = VT_I1;
+        } else if (value instanceof Float) {
+            values.fltVal((Float)value);
+            vt = VT_R4;
+        } else if (value instanceof Double) {
+            values.dblVal((Double)value);
+            vt = VT_I8;
+        } else if (value instanceof Character) {
+            values.iVal((short)((Character)value).charValue());
+            vt = VT_I2;
+        } else if (value instanceof String) {
+            values.bstrVal().setString((String)value, StringType.BSTR);
+            vt = VT_BSTR;
+        } else if (value instanceof Pointer) {
+            Pointer ptr = (Pointer)value;
+            values.byref(ptr);
+            Type targetType = ptr.getTargetType();
+            Class targetClass = Utils.getClass(targetType);
+            if (targetClass == null)
+                vt = VT_PTR;
+            else {
+                VARENUM ve;
+                if (targetClass == Integer.class || targetClass == int.class)
+                    ve = VT_I4;
+                else if(targetClass == Long.class || targetClass == long.class)
+                    ve = VT_I8;
+                else if(targetClass == Short.class || targetClass == short.class)
+                    ve = VT_I2;
+                else if(targetClass == Byte.class || targetClass == byte.class)
+                    ve = VT_I1;
+                else if(targetClass == Character.class || targetClass == char.class)
+                    ve = VT_LPWSTR; // TODO
+                else if(targetClass == Boolean.class || targetClass == boolean.class)
+                    ve = VT_BOOL;
+                else if(targetClass == Float.class || targetClass == float.class)
+                    ve = VT_R4;
+                else if(targetClass == Double.class || targetClass == double.class)
+                    ve = VT_R8;
+                else if(Pointer.class.isAssignableFrom(targetClass))
+                    ve = VT_PTR;
+                else
+                    ve = null; // TODO
+
+                vt = FlagSet.fromValues(VT_BYREF, ve);
+            }
+        } else
+            throw new UnsupportedOperationException("Unable to convert an object of type " + value.getClass().getName() + " to a COM VARIANT object !");
+
+        setType(v, vt);
+        return v;
+    }
+
+    public static String toString(VARIANT v) {
+        StringBuilder b = new StringBuilder("Variant(value = ");
+        try {
+            b.append(getValue(v));
+        } catch (Throwable th) {
+            b.append("?");
+        }
+        b.append(", type = ").append(getType(v)).append(")");
+
+        return b.toString();
+    }
 }
