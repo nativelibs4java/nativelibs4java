@@ -1,5 +1,6 @@
 package org.bridj;
 
+import java.io.FileNotFoundException;
 import org.bridj.ann.*; // annotations such as Library...
 
 
@@ -26,6 +27,13 @@ public class LibCTest {
 	@Test
 	public void testFabs() {
 		assertEquals(10.0, fabs(-10.0), 0.000001);
+	}
+	@Test
+	public void testErrno() throws FileNotFoundException {
+		if (!Platform.isUnix())
+			return;
+		
+		assertNotNull(BridJ.getNativeLibrary("c").getSymbolPointer("errno"));
 	}
 	@Test
 	public void testAbs() {
