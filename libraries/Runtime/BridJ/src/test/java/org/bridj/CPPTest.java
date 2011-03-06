@@ -94,6 +94,23 @@ public class CPPTest {
 			assertEquals("testAddStdCall", 0, c);
         }
 	}
+
+    public static native int testIndirectVirtualAdd(Pointer<Ctest> pTest, int a, int b);
+    
+    @Test
+    public void testJavaVirtualOverride() {
+        int a = 1, b = 2;
+        Ctest test = new Ctest();
+        assertEquals(3, testIndirectVirtualAdd(pointerTo(test), 1, 2));
+
+        test = new Ctest() {
+            @Override
+            public int testVirtualAdd(int a, int b) {
+                return a * 10 + b * 100;//super.testVirtualAdd(a, b) * 2;
+            }
+        };
+        assertEquals(a * 10 + b * 100, testIndirectVirtualAdd(pointerTo(test), a, b));
+    }
 	
 	static {
 		BridJ.register();
