@@ -53,6 +53,10 @@ LDFLAGS		+=	-mimpure-text
 LDFLAGS		+=	-L/opt/csw/gcc4/lib
 endif                 
 
+ifdef BUILD_OS_windows
+CPPFLAGS	+=	"-IC:\Program Files\Microsoft SDKs\Windows\v6.0A\Include"
+endif
+
 LINK_LIBS	+= stdc++
 
 include $(DYNCALL_HOME)/buildsys/gmake/epilog.gmake

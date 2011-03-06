@@ -331,3 +331,10 @@ TEST_API const wchar_t* wstringCStr(std::wstring* s) {
 }
 
 #include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"
+
+#include "OAIdl.h" // for VARIANT
+
+TEST_API size_t __cdecl sizeOfVARIANT() {
+	return sizeof(VARIANT);
+}
+

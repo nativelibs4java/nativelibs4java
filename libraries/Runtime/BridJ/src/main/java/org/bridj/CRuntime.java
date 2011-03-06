@@ -268,7 +268,14 @@ public class CRuntime extends AbstractBridJRuntime {
 		return BridJ.getNativeLibrary(type);
 	}
 	protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder) throws FileNotFoundException {
-        MethodCallInfo mci = new MethodCallInfo(method);
+		MethodCallInfo mci;
+		try {
+			mci = new MethodCallInfo(method);
+		} catch (Throwable th) {
+			log(Level.SEVERE, "Unable to register " + method + " : " + th);
+            th.printStackTrace();
+			return;
+		}
 		if (Callback.class.isAssignableFrom(type)) {
             log(Level.INFO, "Registering java -> native callback : " + method);
             builder.addJavaToNativeCallback(mci);
