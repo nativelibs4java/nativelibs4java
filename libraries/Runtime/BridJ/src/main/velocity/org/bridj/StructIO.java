@@ -19,6 +19,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bridj.ann.Virtual;
 import org.bridj.ann.Array;
+import org.bridj.ann.Union;
 import org.bridj.ann.Bits;
 import org.bridj.ann.Field;
 import org.bridj.ann.Alignment;
@@ -60,7 +61,7 @@ public class StructIO {
 		final FieldDesc desc = new FieldDesc();
 		Method getter, setter;
 		String name;
-		long index = -1, unionWith = -1, byteOffset = -1;
+		long index = -1, unionWith = -1;//, byteOffset = -1;
 		Type valueType;
         Class<?> valueClass;
         Class<?> declaringClass;
@@ -226,9 +227,12 @@ public class StructIO {
         Array arr = getter.getAnnotation(Array.class);
         if (fil != null) {
             field.index = fil.value();
-            field.byteOffset = fil.offset();
+            //field.byteOffset = fil.offset();
             field.unionWith = fil.unionWith();
         }
+        if (field.unionWith < 0 && field.declaringClass.getAnnotation(Union.class) != null)
+        		field.unionWith = 0;
+        	
         if (bits != null)
             field.desc.bitLength = bits.value();
         if (arr != null) {
