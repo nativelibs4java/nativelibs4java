@@ -85,6 +85,7 @@ char __cdecl doJavaToCCallHandler(DCArgs* args, DCValue* result, JavaToNativeCal
 	dcMode(call->vm, info->fInfo.fDCMode);
 	callback = getNativeObjectPointer(call->env, instance, NULL);
 	
+	// printf("doJavaToCCallHandler(callback = %d) !!!\n", callback);
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE)
 	&&
 	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE, JNI_FALSE);
@@ -112,6 +113,7 @@ char __cdecl JavaToCCallHandler(DCCallback* callback, DCArgs* args, DCValue* res
 {
 	JavaToNativeCallbackCallInfo* info = (JavaToNativeCallbackCallInfo*)userdata;
 	BEGIN_TRY();
+	// printf("JavaToCCallHandler !!!\n");
 	return doJavaToCCallHandler(args, result, info);
 	END_TRY_RET(info->fInfo.fEnv, 0);
 }

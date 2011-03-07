@@ -82,16 +82,15 @@ public class MethodCallInfo {
         asmSig.append('(');
         dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
-		boolean verb = false;//methodName.contains("GetPlatformI");
-		if (verb)
-			System.out.println("Analyzing " + methodName);
+		if (veryVerbose)
+			System.out.println("Analyzing " + declaringClass.getName() + "." + methodName);
         for (int iParam = 0; iParam < nParams; iParam++) {
 //            Options paramOptions = paramsOptions[iParam] = new Options();
             Class<?> parameterType = parameterTypes[iParam];
             Type genericParameterType = genericParameterTypes[iParam];
 
             ValueType paramValueType = getValueType(iParam, nParams, parameterType, genericParameterType, null, paramsAnnotations[iParam]);
-            if (verb)
+            if (veryVerbose)
 				System.out.println("\tparam " + paramValueType);
         	paramsValueTypes[iParam] = paramValueType.ordinal();
             //GetOptions(paramOptions, method, paramsAnnotations[iParam]);
@@ -103,7 +102,7 @@ public class MethodCallInfo {
         dcSig.append(')');
 
         ValueType retType = getValueType(-1, nParams, method.getReturnType(), method.getGenericReturnType(), method);
-        if (verb)
+        if (veryVerbose)
 			System.out.println("\treturns " + retType);
 		appendToSignature(-1, retType, method.getReturnType(), method.getGenericReturnType(), javaSig, dcSig, asmSig);
         returnValueType = retType.ordinal();
@@ -144,7 +143,7 @@ public class MethodCallInfo {
         if (!BridJ.isDirectModeEnabled())
         		this.direct = false; // TODO remove me !
         
-		if (verb) {
+		if (veryVerbose) {
 			System.out.println("\t-> direct " + direct);
 			System.out.println("\t-> javaSignature " + javaSignature);
 			System.out.println("\t-> asmSignature " + asmSignature);
@@ -153,12 +152,15 @@ public class MethodCallInfo {
 		
         assert BridJ.log(Level.INFO, (direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
     }
+    static boolean veryVerbose = System.getenv("BRIDJ_VERY_VERBOSE") != null;//methodName.contains("GetPlatformI");
+		
 	boolean hasCC;
 	public boolean hasCallingConvention() {
 		return hasCC;
 	}
 	public void setCallingConvention(Convention.Style style) {
-		//System.out.println("Setting CC " + style + " for " + methodName);
+		if (veryVerbose)
+			System.out.println("Setting CC " + style + " for " + methodName);
 		switch (style) {
 		case FastCall:
 			this.direct = false;
