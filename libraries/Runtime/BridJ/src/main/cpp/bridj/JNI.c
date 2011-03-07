@@ -32,6 +32,7 @@ jmethodID gAddressMethod = NULL;
 jmethodID gGetPeerMethod = NULL;
 jmethodID gCreatePeerMethod = NULL;
 jmethodID gGetValuedEnumValueMethod = NULL;
+jmethodID gGetJavaObjectFromNativePeerMethod = NULL;
 jmethodID gNewFlagSetMethod = NULL;
 jmethodID gGetCallIOsMethod = NULL;
 //jmethodID gGetTempCallStruct = NULL;
@@ -75,7 +76,8 @@ void initMethods(JNIEnv* env) {
 		
 		//gGetTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "getTempCallStruct", "()J"); 
 		//gReleaseTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "releaseTempCallStruct", "(J)V"); 
-		gGetValuedEnumValueMethod = (*env)->GetMethodID(env, gValuedEnumClass, "value", "()J"); 
+		gGetValuedEnumValueMethod = (*env)->GetMethodID(env, gValuedEnumClass, "value", "()J");
+		gGetJavaObjectFromNativePeerMethod = (*env)->GetStaticMethodID(env, gBridJClass, "getJavaObjectFromNativePeer", "(J)Ljava/lang/Object;");
 		gNewFlagSetMethod = (*env)->GetStaticMethodID(env, gFlagSetClass, "fromValue", "(JLjava/lang/Class;)Lorg/bridj/FlagSet;"); 
 		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lorg/bridj/NativeObject;Ljava/lang/Class;)J");
 		gGetPeerMethod = (*env)->GetMethodID(env, gPointerClass, "getPeer", "()J");
@@ -154,6 +156,12 @@ void* getPointerPeer(JNIEnv *env, jobject pointer) {
 void* getNativeObjectPointer(JNIEnv *env, jobject instance, jclass targetClass) {
 	initMethods(env);
 	return JLONG_TO_PTR((*env)->CallStaticLongMethod(env, gPointerClass, gAddressMethod, instance, targetClass));
+}
+
+
+jobject getJavaObjectForNativePointer(JNIEnv *env, void* nativeObject) {
+	initMethods(env);
+	return (*env)->CallStaticObjectMethod(env, gBridJClass, gGetJavaObjectFromNativePeerMethod, PTR_TO_JLONG(nativeObject));
 }
 
 void JNICALL Java_org_bridj_JNI_init(JNIEnv *env, jclass clazz)
@@ -598,7 +606,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 			dcSig = (*env)->GetStringUTFChars(env, dcSignature, NULL);
 			methName = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
 
-			info->fInfo.fDCCallback = dcbNewCallback(dcSig, NativeToJavaCallHandler, info);
+			info->fInfo.fDCCallback = dcbNewCallback(dcSig, CToJavaCallHandler, info);
 			info->fCallbackInstance = (*env)->NewGlobalRef(env, javaCallback);
 			info->fMethod = GetMethodIDOrFail(env, declaringClass, methName, javaSig);
 			
@@ -665,7 +673,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaToCCallbacks(
 		
 		// TODO DIRECT C++ virtual thunk
 		dcSig = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-		info->fInfo.fDCCallback = dcbNewCallback(dcSig, JavaToNativeCallHandler/* NativeToJavaCallHandler*/, info);
+		info->fInfo.fDCCallback = dcbNewCallback(dcSig, JavaToCCallHandler/* NativeToJavaCallHandler*/, info);
 		(*env)->ReleaseStringUTFChars(env, dcSignature, dcSig);
 			
 		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
