@@ -24,24 +24,39 @@ class JAWT extends StructObject {
 	 * calling JAWT_GetAWT()
 	 */
 	@Field(0) 
-	public native int version();
+	public int version() {
+		return this.io.getIntField(this, 0);
+	}
 	/**
 	 * Version of this structure.  This must always be set before<br>
 	 * calling JAWT_GetAWT()
 	 */
 	@Field(0) 
-	public native JAWT version(int version);
+	public JAWT version(int version) {
+		this.io.setIntField(this, 0, version);
+		return this;
+	}
     
     @Field(1)
-    public native Pointer<GetDrawingSurface_callback> GetDrawingSurface();
+    public Pointer<GetDrawingSurface_callback> GetDrawingSurface() {
+		return this.io.getPointerField(this, 1);
+	}
     @Field(2)
-    public native Pointer<FreeDrawingSurface_callback> FreeDrawingSurface();
+    public Pointer<FreeDrawingSurface_callback> FreeDrawingSurface() {
+		return this.io.getPointerField(this, 2);
+	}
     @Field(3)
-    public native Pointer<Lock_callback> Lock();
+    public Pointer<Lock_callback> Lock() {
+		return this.io.getPointerField(this, 3);
+	}
     @Field(4)
-    public native Pointer<Unlock_callback> Unlock();
+    public Pointer<Unlock_callback> Unlock() {
+		return this.io.getPointerField(this, 4);
+	}
     @Field(5)
-    public native Pointer<GetComponent_callback> GetComponent();
+    public Pointer<GetComponent_callback> GetComponent() {
+		return this.io.getPointerField(this, 5);
+	}
     
 	public static abstract class GetDrawingSurface_callback extends Callback {
 		public abstract Pointer<org.bridj.jawt.JAWT_DrawingSurface > invoke(Pointer<JNIEnv > env, Pointer<? > target);

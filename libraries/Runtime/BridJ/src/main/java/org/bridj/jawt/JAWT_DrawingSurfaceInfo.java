@@ -10,7 +10,7 @@ import org.bridj.ann.Library;
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a> or <a href="http://bridj.googlecode.com/">BridJ</a> .
  */
 @Library("jawt") 
-class JAWT_DrawingSurfaceInfo extends StructObject {
+public class JAWT_DrawingSurfaceInfo extends StructObject {
 	public JAWT_DrawingSurfaceInfo() {
 		super();
 	}
@@ -61,16 +61,7 @@ class JAWT_DrawingSurfaceInfo extends StructObject {
 	 */
 	@Field(2) 
 	public org.bridj.jawt.JAWT_Rectangle bounds() {
-		return this.io.getStructField(this, 2);
-	}
-	/**
-	 * Bounding rectangle of the drawing surface<br>
-	 * C type : JAWT_Rectangle
-	 */
-	@Field(2) 
-	public JAWT_DrawingSurfaceInfo bounds(org.bridj.jawt.JAWT_Rectangle bounds) {
-		this.io.setStructField(this, 2, bounds);
-		return this;
+		return this.io.getNativeObjectField(this, 2);
 	}
 	/// Number of rectangles in the clip
 	@Field(3) 
@@ -83,6 +74,6 @@ class JAWT_DrawingSurfaceInfo extends StructObject {
 	 */
 	@Field(4) 
 	public org.bridj.jawt.JAWT_Rectangle clip() {
-		return this.io.getStructField(this, 4);
+		return this.io.getNativeObjectField(this, 4);
 	}
 }
