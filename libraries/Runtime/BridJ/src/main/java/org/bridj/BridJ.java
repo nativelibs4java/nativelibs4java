@@ -163,8 +163,8 @@ public class BridJ {
     static synchronized <O extends NativeObject> void setJavaObjectFromNativePeer(long peer, O object) {
         knownNativeObjects.put(peer, object);
     }
-    static <O extends NativeObject> O getJavaObjectFromNativePeer(long peer) {
-        return (O)knownNativeObjects.get(peer);
+    public static Object getJavaObjectFromNativePeer(long peer) {
+        return knownNativeObjects.get(peer);
     }
     
 	public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type) {
@@ -338,9 +338,15 @@ public class BridJ {
     static Map<String, NativeLibrary> libHandles = new HashMap<String, NativeLibrary>();
     static List<String> paths;
 
+    static List<String> additionalPaths = new ArrayList<String>();
+    public static synchronized void addLibraryPath(String path) {
+    		additionalPaths.add(path);
+    		paths = null; // invalidate cached paths
+    }
     static synchronized List<String> getNativeLibraryPaths() {
         if (paths == null) {
             paths = new ArrayList<String>();
+            paths.addAll(additionalPaths);
             paths.add(null);
             paths.add(".");
 			String env;
@@ -447,6 +453,7 @@ public class BridJ {
 						if (Platform.isMacOSX()) {
 							if (!f.exists()) {
 								f = new File(pathFile, "lib" + name + ".dylib");
+								System.out.println("TESTING " + f);
 					}
 						} else {
 							if (!f.exists()) {

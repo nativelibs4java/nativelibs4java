@@ -15,19 +15,10 @@ import org.bridj.Platform;
 public class JAWTUtils {
     static {
         try {
-            File jawtDll = null;
-            String forcedDll = System.getenv("BRIDJ_JAWT_LIBRARY");
-            if (forcedDll != null)
-            		jawtDll = new File(forcedDll);
-            else if (Platform.isWindows())
-                jawtDll = new File(new File(System.getProperty("java.home")), "bin\\jawt.dll");
-            
-            if (jawtDll != null && jawtDll.exists()) {
-                jawtDll = jawtDll.getCanonicalFile();
-                //new File("C:\\Program Files (x86)\\Java\\jdk1.6.0_16\\jre\\bin\\jawt.dll");
-                NativeLibrary lib = BridJ.getNativeLibrary("jawt", jawtDll);
-                System.out.println("Found library " + lib + " in " + jawtDll);
-            }
+            File javaHome = new File(System.getProperty("java.home"));
+            BridJ.addLibraryPath(new File(javaHome, "lib").toString());
+            if (Platform.isMacOSX())
+            		BridJ.addLibraryPath(new File(javaHome, "../Libraries").toString());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
