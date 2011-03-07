@@ -22,5 +22,6 @@ public class JAWTTest {
 		f.setVisible(true);
 		long p = JAWTUtils.getNativePeerHandle(f);
 		assertTrue(p != 0);
+		f.setVisible(false);
 	}
 }
