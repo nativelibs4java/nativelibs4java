@@ -16,7 +16,7 @@ public class JAWTUtils {
     static {
         try {
             File javaHome = new File(System.getProperty("java.home"));
-            BridJ.addLibraryPath(new File(javaHome, "lib").toString());
+            BridJ.addLibraryPath(new File(javaHome, "bin").toString());
             if (Platform.isMacOSX())
             		BridJ.addLibraryPath(new File(javaHome, "../Libraries").toString());
         } catch (Exception ex) {

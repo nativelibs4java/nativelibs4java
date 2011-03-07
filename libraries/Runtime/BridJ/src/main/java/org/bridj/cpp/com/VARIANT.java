@@ -19,9 +19,13 @@ public class VARIANT extends StructObject {
 	}
 	public VARIANT() {
 		super();
+        COMRuntime.setValue(this, null);
 	}
 	public VARIANT(Pointer pointer) {
 		super(pointer);
+	}
+	public VARIANT clone() {
+		return COMRuntime.clone(this);
 	}
 	/// C type : __VARIANT_NAME_1_union
 	@Field(0)

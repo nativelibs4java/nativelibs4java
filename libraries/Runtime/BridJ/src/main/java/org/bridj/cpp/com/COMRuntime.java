@@ -16,6 +16,7 @@ import org.bridj.cpp.CPPRuntime;
 import static org.bridj.cpp.com.VARENUM.*;
 import org.bridj.cpp.com.VARIANT.__VARIANT_NAME_1_union.__tagVARIANT.__VARIANT_NAME_3_union;
 import org.bridj.util.Utils;
+import static org.bridj.Pointer.*;
 
 /**
  * Adding Icons, Previews and Shortcut Menus :
@@ -88,6 +89,26 @@ public class COMRuntime extends CPPRuntime {
     public static final int E_ABORT                         = 0x80004004;
     public static final int E_FAIL                          = 0x80004005;
     public static final int E_ACCESSDENIED                  = 0x80070005;
+    
+    
+	public static final int DISP_E_BADVARTYPE = -2147352568;
+	public static final int DISP_E_NOTACOLLECTION = -2147352559;
+	public static final int DISP_E_MEMBERNOTFOUND = -2147352573;
+	public static final int DISP_E_ARRAYISLOCKED = -2147352563;
+	public static final int DISP_E_EXCEPTION = -2147352567;
+	public static final int DISP_E_TYPEMISMATCH = -2147352571;
+	public static final int DISP_E_BADINDEX = -2147352565;
+	public static final int DISP_E_BADCALLEE = -2147352560;
+	public static final int DISP_E_OVERFLOW = -2147352566;
+	public static final int DISP_E_UNKNOWNINTERFACE = -2147352575;
+	public static final int DISP_E_DIVBYZERO = -2147352558;
+	public static final int DISP_E_UNKNOWNLCID = -2147352564;
+	public static final int DISP_E_PARAMNOTOPTIONAL = -2147352561;
+	public static final int DISP_E_PARAMNOTFOUND = -2147352572;
+	public static final int DISP_E_BADPARAMCOUNT = -2147352562;
+	public static final int DISP_E_BUFFERTOOSMALL = -2147352557;
+	public static final int DISP_E_UNKNOWNNAME = -2147352570;
+	public static final int DISP_E_NONAMEDARGS = -2147352569;
 
     public static interface COINIT {
         public final int
@@ -96,6 +117,9 @@ public class COMRuntime extends CPPRuntime {
             COINIT_DISABLE_OLE1DDE    = 0x4,      // Don't use DDE for Ole1 support.
             COINIT_SPEED_OVER_MEMORY  = 0x8;
     }
+    
+    static native int VariantCopy(Pointer<VARIANT> pvargDest, Pointer<VARIANT> pvargSrc);
+    
 	@Deprecated
 	public static native int CoCreateInstance(
 		Pointer<Byte> rclsid,
@@ -386,4 +410,23 @@ public class COMRuntime extends CPPRuntime {
 
         return b.toString();
     }
+    public static VARIANT clone(VARIANT v) {
+		VARIANT c = new VARIANT();
+		int res = VariantCopy(pointerTo(v), pointerTo(c));
+		switch (res) {
+		case S_OK:
+			break;
+		case DISP_E_ARRAYISLOCKED:
+			throw new RuntimeException("The variant contains an array that is locked.");
+		case DISP_E_BADVARTYPE:
+			throw new RuntimeException("The source and destination have an invalid variant type (usually uninitialized).");
+		case E_OUTOFMEMORY:
+			throw new RuntimeException("Memory could not be allocated for the copy.");
+		case E_INVALIDARG:
+			throw new RuntimeException("One of the arguments is invalid.");
+		default:
+			throw new RuntimeException("Grave error : unexpected error code for VariantCopy : " + res);
+		}
+		return c;
+	}
 }
