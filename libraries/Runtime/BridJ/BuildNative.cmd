@@ -39,14 +39,14 @@ copy %CONFIG%\test.dll ..\..\..\..\test\resources\win32
 copy x64\%CONFIG%\bridj.dll ..\..\..\resources\win64
 copy x64\%CONFIG%\test.dll ..\..\..\..\test\resources\win64
 
-if "%CONFIG%" == "Debug" (
+rem if "%CONFIG%" == "Debug" (
 
 	copy %CONFIG%\bridj.pdb ..\..\..\resources\win32
 	copy %CONFIG%\test.pdb ..\..\..\..\test\resources\win32
 	
 	copy x64\%CONFIG%\bridj.pdb ..\..\..\resources\win64
 	copy x64\%CONFIG%\test.pdb ..\..\..\..\test\resources\win64
-)
+rem )
 
 popd
 

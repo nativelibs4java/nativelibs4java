@@ -271,6 +271,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		MethodCallInfo mci;
 		try {
 			mci = new MethodCallInfo(method);
+			//System.out.println("method.dcCallingConvention = " + mci.dcCallingConvention + " (for method " + type.getName() + ", method " + method + ", type = " + type.getName() + ", enclosingClass = " + method.getDeclaringClass().getName() + ")");
 		} catch (Throwable th) {
 			log(Level.SEVERE, "Unable to register " + method + " : " + th);
             th.printStackTrace();

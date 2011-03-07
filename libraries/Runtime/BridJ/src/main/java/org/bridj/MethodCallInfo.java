@@ -146,6 +146,7 @@ public class MethodCallInfo {
 		if (veryVerbose) {
 			System.out.println("\t-> direct " + direct);
 			System.out.println("\t-> javaSignature " + javaSignature);
+			System.out.println("\t-> callIOs " + callIOs);
 			System.out.println("\t-> asmSignature " + asmSignature);
 			System.out.println("\t-> dcSignature " + dcSignature);
 		}
@@ -159,8 +160,6 @@ public class MethodCallInfo {
 		return hasCC;
 	}
 	public void setCallingConvention(Convention.Style style) {
-		if (veryVerbose)
-			System.out.println("Setting CC " + style + " for " + methodName);
 		switch (style) {
 		case FastCall:
 			this.direct = false;
@@ -175,7 +174,9 @@ public class MethodCallInfo {
 			this.direct = false;
 			setDcCallingConvention(Platform.isWindows() ? DC_CALL_C_X86_WIN32_THIS_GNU : DC_CALL_C_DEFAULT);
 		}
-
+		if (veryVerbose)
+			System.out.println("Setting CC " + style + " (-> " + dcCallingConvention + ") for " + methodName);
+		
 	}
 	void addCallIO(CallIO handler) {
 		if (callIOs == null)

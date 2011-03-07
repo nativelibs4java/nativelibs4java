@@ -602,9 +602,17 @@ public class BridJ {
             if (m instanceof Member) {
                 return getAnnotation(ac, inherit, ((Member) m).getDeclaringClass());
             }
+            
+            if (m instanceof Class<?>) {
+            	Class<?> c = (Class<?>) m, dc = c.getDeclaringClass();
+                Class p = c.getSuperclass();
+				while (p != null) {
+					a = getAnnotation(ac, true, p);
+					if (a != null)
+						return a;
+					p = p.getSuperclass();
+				}
 
-	        if (m instanceof Class<?>) {
-                Class<?> c = (Class<?>) m, dc = c.getDeclaringClass();
                 if (dc != null) {
 	                return getAnnotation(ac, inherit, dc);
 	        }
