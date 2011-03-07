@@ -363,9 +363,9 @@ public class BridJ {
 			}
 			*/
 			env = System.getenv("LD_LIBRARY_PATH");
-            if (env != null) {
+            if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
-            }
+            
             env = System.getenv("DYLD_LIBRARY_PATH");
             if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
