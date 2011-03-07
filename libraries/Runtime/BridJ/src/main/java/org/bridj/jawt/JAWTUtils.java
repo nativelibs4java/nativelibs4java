@@ -14,17 +14,7 @@ import org.bridj.ann.Convention;
  * Contains a method that returns the native peer handle of an AWT component : BridJ JAWT utilities {@link org.bridj.jawt.JAWTUtils#getNativePeerHandle(java.awt.Component)}
  */
 public class JAWTUtils {
-    static {
-        try {
-            File javaHome = new File(System.getProperty("java.home"));
-            BridJ.addLibraryPath(new File(javaHome, "bin").toString());
-            if (Platform.isMacOSX())
-            		BridJ.addLibraryPath(new File(javaHome, "../Libraries").toString());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        
-    }
+    
 	/**
 	 * 
 	 */

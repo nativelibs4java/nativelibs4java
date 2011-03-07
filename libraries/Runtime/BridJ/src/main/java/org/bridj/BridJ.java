@@ -367,17 +367,22 @@ public class BridJ {
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
             }
             env = System.getenv("DYLD_LIBRARY_PATH");
-            if (env != null) {
+            if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
-            }
-            env = System.getenv("PATH");
-            if (env != null) {
+            
+			env = System.getenv("PATH");
+            if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
-            }
+            
             env = System.getProperty("java.library.path");
-            if (env != null) {
+            if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
-        }
+                
+            File javaHome = new File(System.getProperty("java.home"));
+            paths.add(new File(javaHome, "bin").toString());
+            if (Platform.isMacOSX()) {
+            		paths.add(new File(javaHome, "../Libraries").toString());
+            }
         }
         return paths;
     }
