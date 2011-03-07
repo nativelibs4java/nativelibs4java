@@ -26,7 +26,9 @@ class JAWT_DrawingSurface extends StructObject {
 	 * C type : JNIEnv*
 	 */
 	@Field(0) 
-	public native Pointer env();
+	public Pointer env() {
+		return this.io.getPointerField(this, 0);
+	}
 	/**
 	 * Cached reference to the Java environment of the calling thread.<br>
 	 * If Lock(), Unlock(), GetDrawingSurfaceInfo() or<br>
@@ -35,28 +37,44 @@ class JAWT_DrawingSurface extends StructObject {
 	 * C type : JNIEnv*
 	 */
 	@Field(0) 
-	public native JAWT_DrawingSurface env(Pointer env);
+	public JAWT_DrawingSurface env(Pointer env) {
+		this.io.setPointerField(this, 0, env);
+		return this;
+	}
 	/**
 	 * Cached reference to the target object<br>
 	 * C type : void*
 	 */
 	@Field(1) 
-	public native Pointer target();
+	public Pointer target() {
+		return this.io.getPointerField(this, 1);
+	}
 	/**
 	 * Cached reference to the target object<br>
 	 * C type : void*
 	 */
 	@Field(1) 
-	public native JAWT_DrawingSurface target(Pointer target);
+	public JAWT_DrawingSurface target(Pointer target) {
+		this.io.setPointerField(this, 1, target);
+		return this;
+	}
     
     @Field(2)
-    public native Pointer<Lock_callback> Lock();
+    public Pointer<Lock_callback> Lock() {
+		return this.io.getPointerField(this, 2);
+	}
     @Field(3)
-    public native Pointer<GetDrawingSurfaceInfo_callback> GetDrawingSurfaceInfo();
+    public Pointer<GetDrawingSurfaceInfo_callback> GetDrawingSurfaceInfo() {
+		return this.io.getPointerField(this, 3);
+	}
     @Field(4)
-    public native Pointer<FreeDrawingSurfaceInfo_callback> FreeDrawingSurfaceInfo();
+    public Pointer<FreeDrawingSurfaceInfo_callback> FreeDrawingSurfaceInfo() {
+		return this.io.getPointerField(this, 4);
+	}
     @Field(5)
-    public native Pointer<Unlock_callback> Unlock();
+    public Pointer<Unlock_callback> Unlock() {
+		return this.io.getPointerField(this, 5);
+	}
     
 	/// Conversion Error : Lock_callback (Unsupported type)
 	/// Conversion Error : GetDrawingSurfaceInfo_callback (Unsupported type)
