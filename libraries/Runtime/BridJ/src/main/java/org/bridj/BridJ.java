@@ -458,7 +458,6 @@ public class BridJ {
 						if (Platform.isMacOSX()) {
 							if (!f.exists()) {
 								f = new File(pathFile, "lib" + name + ".dylib");
-								System.out.println("TESTING " + f);
 					}
 						} else {
 							if (!f.exists()) {

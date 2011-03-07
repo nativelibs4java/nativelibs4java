@@ -253,7 +253,10 @@ public class MethodCallInfo {
         }
         if (Pointer.class.isAssignableFrom(c)) {
             direct = false;
-            addCallIO(CallIO.Utils.createPointerCallIO(c, t));
+            CallIO cio = CallIO.Utils.createPointerCallIO(c, t);
+            if (veryVerbose)
+            		System.out.println("CallIO : " + cio);
+            addCallIO(cio);
         		return ValueType.ePointerValue;
         }
         if (c.isArray() && iParam == nParams - 1) {
