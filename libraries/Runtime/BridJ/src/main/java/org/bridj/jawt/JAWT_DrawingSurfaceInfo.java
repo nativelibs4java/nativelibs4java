@@ -28,32 +28,12 @@ public class JAWT_DrawingSurfaceInfo extends StructObject {
 		return this.io.getPointerField(this, 0);
 	}
 	/**
-	 * Pointer to the platform-specific information.  This can be safely<br>
-	 * cast to a JAWT_Win32DrawingSurfaceInfo on Windows or a<br>
-	 * JAWT_X11DrawingSurfaceInfo on Solaris.  See jawt_md.h for details.<br>
-	 * C type : void*
-	 */
-	@Field(0) 
-	public JAWT_DrawingSurfaceInfo platformInfo(Pointer platformInfo) {
-		this.io.setPointerField(this, 0, platformInfo);
-		return this;
-	}
-	/**
 	 * Cached pointer to the underlying drawing surface<br>
 	 * C type : jawt_DrawingSurface*
 	 */
 	@Field(1) 
 	public Pointer ds() {
 		return this.io.getPointerField(this, 1);
-	}
-	/**
-	 * Cached pointer to the underlying drawing surface<br>
-	 * C type : jawt_DrawingSurface*
-	 */
-	@Field(1) 
-	public JAWT_DrawingSurfaceInfo ds(Pointer ds) {
-		this.io.setPointerField(this, 1, ds);
-		return this;
 	}
 	/**
 	 * Bounding rectangle of the drawing surface<br>

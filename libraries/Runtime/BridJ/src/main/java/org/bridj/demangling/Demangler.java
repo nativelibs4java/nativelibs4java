@@ -842,9 +842,8 @@ public abstract class Demangler {
             Type[] parameterTypes = method.getGenericParameterTypes();
             //boolean hasThisAsFirstArgument = BridJ.hasThisAsFirstArgument(method);//methodArgTypes, anns, true);
             
-            if (!matchesArgs(parameterTypes, anns, temp == null ? 0 : temp.value().length))///*, hasThisAsFirstArgument*/))
+            if (paramTypes != null && !matchesArgs(parameterTypes, anns, temp == null ? 0 : temp.value().length))///*, hasThisAsFirstArgument*/))
             	return false;
-            
             
             //int thisDirac = hasThisAsFirstArgument ? 1 : 0;
             /*

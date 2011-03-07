@@ -16,6 +16,12 @@ public class JAWTTest {
 	
 	@Test
 	public void testWindowPeer() {
+		assertEquals(6 * Pointer.SIZE, BridJ.sizeOf(JAWT_DrawingSurface.class));
+		assertEquals(4 * 4, BridJ.sizeOf(JAWT_Rectangle.class));
+		assertEquals(4 + 5 * Pointer.SIZE, BridJ.sizeOf(JAWT.class));
+		//assertEquals(2 * 4 * 4 + 4 + Pointer.SIZE, BridJ.sizeOf(JAWT_DrawingSurfaceInfo.class));
+		 
+		
 		Frame f = new Frame();
 		f.pack();
 		
