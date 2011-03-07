@@ -41,7 +41,7 @@ public class COMTest {
 		if (hasCOM)
             assertEquals(sizeOfDECIMAL(), s);
         else
-            assertEquals(24, s);
+            assertEquals(16, s);
 	}
 
 
