@@ -479,6 +479,22 @@ public class StructTest {
             io.setIntField(this, 0, a);
             return this;
         }
+        @Field(1)
+        public SubStruct sub() {
+        		return io.getNativeObjectField(this, 1);
+        }
+
+	}
+	public static class SubStruct extends StructObject {
+
+		@Field(0)
+		public int a() {
+            return io.getIntField(this, 0);
+        }
+		public SubStruct a(int a) {
+            io.setIntField(this, 0, a);
+            return this;
+        }
 
 	}
     @Test
@@ -488,6 +504,14 @@ public class StructTest {
         assertTrue(s == o);
         int a = s.a();
         assertEquals(10, a);
+    }
+    @Test
+    public void testThisSubStruct() {
+        ThisStruct s = new ThisStruct();
+        assertEquals(2 * 4, BridJ.sizeOf(ThisStruct.class));
+        SubStruct sub = s.sub();
+        assertEquals("Invalid sub-struct !", pointerTo(s).offset(4), pointerTo(sub));
+        
     }
 }
 

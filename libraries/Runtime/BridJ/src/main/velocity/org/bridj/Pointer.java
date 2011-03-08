@@ -365,7 +365,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		if (validStart == UNKNOWN_VALIDITY)
 			return newPointer(pio, newPeer, ordered, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, NO_PARENT, null, newSibling);	
 		if (newPeer >= validEnd || newPeer < validStart)
-			throw new IndexOutOfBoundsException("Invalid pointer offset !");
+			throw new IndexOutOfBoundsException("Invalid pointer offset : " + byteOffset + " (validBytes = " + getValidBytes() + ") !");
 		
 		return newPointer(pio, newPeer, ordered, validStart, validEnd, null, NO_PARENT, null, newSibling);	
 	}
