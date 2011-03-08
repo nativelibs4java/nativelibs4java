@@ -53,14 +53,45 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         return getMatchingEnums().iterator();
     }
     public E toEnum() {
-        Iterator<E> it = iterator();
-        if (!it.hasNext())
-            throw new NoSuchElementException("No enum value corresponding to " + this);
-        E e = it.next();
-        if (it.hasNext())
-            throw new NoSuchElementException("More than one enum value corresponding to " + this + " : " + e + " and " + it.next() + "...");
-        return e;
+        E nullMatch = null;
+        E match = null;
+        for (E e : getMatchingEnums()) {
+            if (((ValuedEnum)e).value() == 0)
+                nullMatch = e;
+            else if (match == null)
+                match = e;
+            else
+                throw new NoSuchElementException("More than one enum value corresponding to " + this + " : " + e + " and " + match + "...");
+        }
+        if (match != null)
+            return match;
+
+        if (value() == 0)
+            return nullMatch;
+
+        throw new NoSuchElementException("No enum value corresponding to " + this);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append(enumClass.getSimpleName()).append("(").append(value()).append(" = ");
+        try {
+            boolean first = true;
+            for (E e : this.getMatchingEnums()) {
+                if (first)
+                    first = false;
+                else
+                    b.append(" | ");
+                b.append(e);
+            }
+        } catch (Throwable th) {
+            b.append("?");
+        }
+        b.append(")");
+        return b.toString();
+    }
+
     public static <EE extends Enum<EE>> FlagSet<EE> fromValue(long value, Class<EE> enumClass) {
         return new FlagSet<EE>(value, enumClass, null);
     }

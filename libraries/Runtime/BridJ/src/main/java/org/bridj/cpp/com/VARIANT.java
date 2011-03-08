@@ -15,11 +15,10 @@ import org.bridj.ann.Runtime;
 public class VARIANT extends StructObject {
 	public VARIANT(Object value) {
 		super();
-        COMRuntime.setValue(this, value);
+                COMRuntime.setValue(this, value);
 	}
 	public VARIANT() {
 		super();
-        COMRuntime.setValue(this, null);
 	}
 	public VARIANT(Pointer pointer) {
 		super(pointer);

@@ -14,6 +14,8 @@ import org.bridj.ann.Ptr;
 import org.bridj.ann.Runtime;
 import org.bridj.cpp.CPPRuntime;
 import static org.bridj.cpp.com.VARENUM.*;
+import org.bridj.cpp.com.VARIANT.__VARIANT_NAME_1_union;
+import org.bridj.cpp.com.VARIANT.__VARIANT_NAME_1_union.__tagVARIANT;
 import org.bridj.cpp.com.VARIANT.__VARIANT_NAME_1_union.__tagVARIANT.__VARIANT_NAME_3_union;
 import org.bridj.util.Utils;
 import static org.bridj.Pointer.*;
@@ -238,14 +240,22 @@ public class COMRuntime extends CPPRuntime {
     }
 
     static ValuedEnum<VARENUM> getType(VARIANT v) {
-        return FlagSet.fromValue(v.__VARIANT_NAME_1().__VARIANT_NAME_2().vt(), VARENUM.class);
+        __VARIANT_NAME_1_union v1 = v.__VARIANT_NAME_1();
+        __tagVARIANT v2 = v1.__VARIANT_NAME_2();
+        short vt = v2.vt();
+        return FlagSet.fromValue(vt, VARENUM.class);
     }
     static VARIANT setType(VARIANT v, ValuedEnum<VARENUM> vt) {
-		v.__VARIANT_NAME_1().__VARIANT_NAME_2().vt((short)vt.value());
+        __VARIANT_NAME_1_union v1 = v.__VARIANT_NAME_1();
+        __tagVARIANT v2 = v1.__VARIANT_NAME_2();
+        v2.vt((short)vt.value());
         return v;
     }
     static VARIANT.__VARIANT_NAME_1_union.__tagVARIANT.__VARIANT_NAME_3_union getValues(VARIANT v) {
-        return v.__VARIANT_NAME_1().__VARIANT_NAME_2().__VARIANT_NAME_3();
+        __VARIANT_NAME_1_union v1 = v.__VARIANT_NAME_1();
+        __tagVARIANT v2 = v1.__VARIANT_NAME_2();
+        __VARIANT_NAME_3_union v3 = v2.__VARIANT_NAME_3();
+        return v3;
     }
 
     /**
@@ -325,6 +335,8 @@ public class COMRuntime extends CPPRuntime {
 				return values.dblVal();
 			case VT_BSTR:
 				return values.bstrVal().getString(StringType.BSTR);
+                        case VT_EMPTY:
+                                return null;
 			default:
 				throw new UnsupportedOperationException("Conversion not implemented yet from VARIANT type " + vt + " to Java !");
 		}
