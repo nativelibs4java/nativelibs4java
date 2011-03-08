@@ -361,7 +361,8 @@ public class StructIO {
 				} else if (StructObject.class.isAssignableFrom(field.valueClass)) {
 					field.desc.nativeTypeOrPointerTargetType = field.valueType;
 					StructIO io = StructIO.getInstance(field.valueClass, field.valueType);		
-					field.desc.byteLength = io.getStructSize();		
+					field.desc.byteLength = io.getStructSize();				
+					field.desc.alignment = io.getStructAlignment();		
 				} else if (ValuedEnum.class.isAssignableFrom(field.valueClass)) {
 					field.desc.nativeTypeOrPointerTargetType = (field.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType)field.valueType).getActualTypeArguments()[0]) : null;
 					Class c = PointerIO.getClass(field.desc.nativeTypeOrPointerTargetType);

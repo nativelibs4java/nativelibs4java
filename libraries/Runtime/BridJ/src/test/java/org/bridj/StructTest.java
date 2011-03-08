@@ -188,6 +188,65 @@ public class StructTest {
 				assertEquals(28, BridJ.sizeOf(CAPDRIVERCAPS.class));
 		}
 	}
+	public class Simple extends StructObject {
+		public Simple() {
+			super();
+		}
+		public Simple(Pointer pointer) {
+			super(pointer);
+		}
+		@Field(0) 
+		public boolean a() {
+			return this.io.getBooleanField(this, 0);
+		}
+		@Field(0) 
+		public Simple a(boolean a) {
+			this.io.setBooleanField(this, 0, a);
+			return this;
+		}
+		public final boolean a_$eq(boolean a) {
+			a(a);
+			return a;
+		}
+		@Field(1) 
+		public boolean b() {
+			return this.io.getBooleanField(this, 1);
+		}
+		@Field(1) 
+		public Simple b(boolean b) {
+			this.io.setBooleanField(this, 1, b);
+			return this;
+		}
+		public final boolean b_$eq(boolean b) {
+			b(b);
+			return b;
+		}
+		/// C type : void*
+		@Field(2) 
+		public Pointer<? > i() {
+			return this.io.getPointerField(this, 2);
+		}
+		/// C type : void*
+		@Field(2) 
+		public Simple i(Pointer<? > i) {
+			this.io.setPointerField(this, 2, i);
+			return this;
+		}
+		/// C type : void*
+		public final Pointer<? > i_$eq(Pointer<? > i) {
+			i(i);
+			return i;
+		}
+	}
+	
+	@Test
+	public void testSizeOfSimple() {
+		if (Platform.is64Bits())
+			assertEquals(16, BridJ.sizeOf(Simple.class));
+		else
+			assertEquals(8, BridJ.sizeOf(Simple.class));
+	}
+
 	public static class MyStruct extends StructObject {
         public MyStruct(Pointer<MyStruct> p) { super(p); }
         public MyStruct() { super(); }
