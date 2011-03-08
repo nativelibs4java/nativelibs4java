@@ -549,7 +549,7 @@ public class StructIO {
 	}
 	public final <O extends NativeObject> O getNativeObjectField(StructObject struct, int fieldIndex) {
 		FieldDesc fd = fields[fieldIndex];
-		return (O)struct.peer.getNativeObjectAtOffset(fd.byteOffset, fd.nativeTypeOrPointerTargetType);
+		return (O)struct.peer.offset(fd.byteOffset).getNativeObject(fd.nativeTypeOrPointerTargetType);
 	}
 
 	public final <E extends Enum<E>> ValuedEnum<E> getEnumField(StructObject struct, int fieldIndex) {
