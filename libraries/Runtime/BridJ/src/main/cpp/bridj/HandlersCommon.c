@@ -86,9 +86,8 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 }
 
 jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback, jboolean bCallingJava, jboolean forceVoidReturn) 
-{					
+{
 	JNIEnv* env = call->env;
-	//printf("FOLLOWING CALL WITH returnType %d\n", returnType);
 	switch (returnType) {
 #define CALL_CASE(valueType, capCase, hiCase, uni) \
 		case valueType: \
@@ -102,11 +101,11 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		case eBooleanValue:
 		CALL_CASE(eByteValue, Char, CHAR, c)
 		case eCLongValue:
-			result->l = (jlong)dcCallLong(call->vm, callback);
+			result->L = (jlong)dcCallLong(call->vm, callback);
 			break;
 		case eSizeTValue:
-		    result->l = PTR_TO_JLONG(dcCallPointer(call->vm, callback));
-			break;
+			result->L = (size_t)dcCallPointer(call->vm, callback);
+		    break;
 		case eVoidValue:
 			dcCallVoid(call->vm, callback);
 			break;

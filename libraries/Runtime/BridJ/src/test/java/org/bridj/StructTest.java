@@ -22,9 +22,9 @@ public class StructTest {
 		BridJ.register();
 	}
 	
-	public static native long sizeOfVARIANT();
-	public static native long sizeOfDECIMAL();
-	public static native long sizeOfCAPDRIVERCAPS();
+	public static native @Ptr long sizeOfVARIANT();
+	public static native @Ptr long sizeOfDECIMAL();
+	public static native @Ptr long sizeOfCAPDRIVERCAPS();
 
 	
 	@Test
