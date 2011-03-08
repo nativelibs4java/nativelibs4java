@@ -13,7 +13,181 @@ import javolution.io.*;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 public class StructTest {
-	
+	public class CAPDRIVERCAPS extends StructObject {
+		public CAPDRIVERCAPS() {
+			super();
+		}
+		public CAPDRIVERCAPS(Pointer pointer) {
+			super(pointer);
+		}
+		/// C type : UINT
+		@Field(0) 
+		public int wDeviceIndex() {
+			return this.io.getIntField(this, 0);
+		}
+		/// C type : UINT
+		@Field(0) 
+		public CAPDRIVERCAPS wDeviceIndex(int wDeviceIndex) {
+			this.io.setIntField(this, 0, wDeviceIndex);
+			return this;
+		}
+		/// C type : UINT
+		public final int wDeviceIndex_$eq(int wDeviceIndex) {
+			wDeviceIndex(wDeviceIndex);
+			return wDeviceIndex;
+		}
+		@Field(1) 
+		public boolean fHasOverlay() {
+			return this.io.getBooleanField(this, 1);
+		}
+		@Field(1) 
+		public CAPDRIVERCAPS fHasOverlay(boolean fHasOverlay) {
+			this.io.setBooleanField(this, 1, fHasOverlay);
+			return this;
+		}
+		public final boolean fHasOverlay_$eq(boolean fHasOverlay) {
+			fHasOverlay(fHasOverlay);
+			return fHasOverlay;
+		}
+		@Field(2) 
+		public boolean fHasDlgVideoSource() {
+			return this.io.getBooleanField(this, 2);
+		}
+		@Field(2) 
+		public CAPDRIVERCAPS fHasDlgVideoSource(boolean fHasDlgVideoSource) {
+			this.io.setBooleanField(this, 2, fHasDlgVideoSource);
+			return this;
+		}
+		public final boolean fHasDlgVideoSource_$eq(boolean fHasDlgVideoSource) {
+			fHasDlgVideoSource(fHasDlgVideoSource);
+			return fHasDlgVideoSource;
+		}
+		@Field(3) 
+		public boolean fHasDlgVideoFormat() {
+			return this.io.getBooleanField(this, 3);
+		}
+		@Field(3) 
+		public CAPDRIVERCAPS fHasDlgVideoFormat(boolean fHasDlgVideoFormat) {
+			this.io.setBooleanField(this, 3, fHasDlgVideoFormat);
+			return this;
+		}
+		public final boolean fHasDlgVideoFormat_$eq(boolean fHasDlgVideoFormat) {
+			fHasDlgVideoFormat(fHasDlgVideoFormat);
+			return fHasDlgVideoFormat;
+		}
+		@Field(4) 
+		public boolean fHasDlgVideoDisplay() {
+			return this.io.getBooleanField(this, 4);
+		}
+		@Field(4) 
+		public CAPDRIVERCAPS fHasDlgVideoDisplay(boolean fHasDlgVideoDisplay) {
+			this.io.setBooleanField(this, 4, fHasDlgVideoDisplay);
+			return this;
+		}
+		public final boolean fHasDlgVideoDisplay_$eq(boolean fHasDlgVideoDisplay) {
+			fHasDlgVideoDisplay(fHasDlgVideoDisplay);
+			return fHasDlgVideoDisplay;
+		}
+		@Field(5) 
+		public boolean fCaptureInitialized() {
+			return this.io.getBooleanField(this, 5);
+		}
+		@Field(5) 
+		public CAPDRIVERCAPS fCaptureInitialized(boolean fCaptureInitialized) {
+			this.io.setBooleanField(this, 5, fCaptureInitialized);
+			return this;
+		}
+		public final boolean fCaptureInitialized_$eq(boolean fCaptureInitialized) {
+			fCaptureInitialized(fCaptureInitialized);
+			return fCaptureInitialized;
+		}
+		@Field(6) 
+		public boolean fDriverSuppliesPalettes() {
+			return this.io.getBooleanField(this, 6);
+		}
+		@Field(6) 
+		public CAPDRIVERCAPS fDriverSuppliesPalettes(boolean fDriverSuppliesPalettes) {
+			this.io.setBooleanField(this, 6, fDriverSuppliesPalettes);
+			return this;
+		}
+		public final boolean fDriverSuppliesPalettes_$eq(boolean fDriverSuppliesPalettes) {
+			fDriverSuppliesPalettes(fDriverSuppliesPalettes);
+			return fDriverSuppliesPalettes;
+		}
+		/// C type : HANDLE
+		@Field(7) 
+		public Pointer<? > hVideoIn() {
+			return this.io.getPointerField(this, 7);
+		}
+		/// C type : HANDLE
+		@Field(7) 
+		public CAPDRIVERCAPS hVideoIn(Pointer<? > hVideoIn) {
+			this.io.setPointerField(this, 7, hVideoIn);
+			return this;
+		}
+		/// C type : HANDLE
+		public final Pointer<? > hVideoIn_$eq(Pointer<? > hVideoIn) {
+			hVideoIn(hVideoIn);
+			return hVideoIn;
+		}
+		/// C type : HANDLE
+		@Field(8) 
+		public Pointer<? > hVideoOut() {
+			return this.io.getPointerField(this, 8);
+		}
+		/// C type : HANDLE
+		@Field(8) 
+		public CAPDRIVERCAPS hVideoOut(Pointer<? > hVideoOut) {
+			this.io.setPointerField(this, 8, hVideoOut);
+			return this;
+		}
+		/// C type : HANDLE
+		public final Pointer<? > hVideoOut_$eq(Pointer<? > hVideoOut) {
+			hVideoOut(hVideoOut);
+			return hVideoOut;
+		}
+		/// C type : HANDLE
+		@Field(9) 
+		public Pointer<? > hVideoExtIn() {
+			return this.io.getPointerField(this, 9);
+		}
+		/// C type : HANDLE
+		@Field(9) 
+		public CAPDRIVERCAPS hVideoExtIn(Pointer<? > hVideoExtIn) {
+			this.io.setPointerField(this, 9, hVideoExtIn);
+			return this;
+		}
+		/// C type : HANDLE
+		public final Pointer<? > hVideoExtIn_$eq(Pointer<? > hVideoExtIn) {
+			hVideoExtIn(hVideoExtIn);
+			return hVideoExtIn;
+		}
+		/// C type : HANDLE
+		@Field(10) 
+		public Pointer<? > hVideoExtOut() {
+			return this.io.getPointerField(this, 10);
+		}
+		/// C type : HANDLE
+		@Field(10) 
+		public CAPDRIVERCAPS hVideoExtOut(Pointer<? > hVideoExtOut) {
+			this.io.setPointerField(this, 10, hVideoExtOut);
+			return this;
+		}
+		/// C type : HANDLE
+		public final Pointer<? > hVideoExtOut_$eq(Pointer<? > hVideoExtOut) {
+			hVideoExtOut(hVideoExtOut);
+			return hVideoExtOut;
+		}
+	}
+	@Test
+	public void testSizeOfCAPDRIVERCAPS() {
+		if (Platform.isMacOSX()) {
+			if (Platform.is64Bits())
+				assertEquals(48, BridJ.sizeOf(CAPDRIVERCAPS.class));
+			else
+				assertEquals(28, BridJ.sizeOf(CAPDRIVERCAPS.class));
+		}
+	}
 	public static class MyStruct extends StructObject {
         public MyStruct(Pointer<MyStruct> p) { super(p); }
         public MyStruct() { super(); }

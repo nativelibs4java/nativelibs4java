@@ -52,7 +52,8 @@ public class StructIO {
      * Internal metadata on a struct field
      */
     public static class FieldDesc {
-        public long byteOffset, byteLength;
+    		public long alignment = -1;
+        public long byteOffset = -1, byteLength = -1;
 		public long bitOffset, bitLength = -1;
         public long arrayLength = 1;
         public Type nativeTypeOrPointerTargetType;
@@ -349,8 +350,11 @@ public class StructIO {
 
         int cumulativeBitOffset = 0;
         
+        List<FieldDesc> aggregatedDescs = new ArrayList<FieldDesc>(); 
         for (List<FieldDecl> fieldGroup : fieldsMap.values()) {
-        		long fieldByteLength = -1, fieldBitLength = -1, fieldAlignment = -1;
+        		FieldDesc aggregatedDesc = new FieldDesc();
+        		aggregatedDescs.add(aggregatedDesc);
+        		//long fieldByteLength = -1, fieldBitLength = -1, fieldAlignment = -1; 
         		for (FieldDecl field : fieldGroup) {
 				if (field.valueClass.isPrimitive()) {
 					field.desc.byteLength = primTypeLength(field.valueClass);
@@ -403,27 +407,39 @@ public class StructIO {
 				}
 				
 				long length = field.desc.arrayLength * field.desc.byteLength;
-				if (length >= fieldByteLength)
-					fieldByteLength = length;
+				if (length >= aggregatedDesc.byteLength)
+					aggregatedDesc.byteLength = length;
 				
-				if (field.desc.byteLength >= fieldAlignment)
-					fieldAlignment = field.desc.byteLength;
+				aggregatedDesc.alignment = Math.max(
+					aggregatedDesc.alignment, 
+					field.desc.alignment >= 0 ?
+						field.desc.alignment :
+						field.desc.byteLength
+				);
+				
+				structAlignment = Math.max(structAlignment, aggregatedDesc.alignment);
 				
 				if (field.desc.bitLength >= 0) {
 					if (fieldGroup.size() != 1)
 						throw new RuntimeException("No support for bit fields unions yet !");
-					fieldBitLength = field.desc.bitLength;
+					aggregatedDesc.bitLength = field.desc.bitLength;
+					aggregatedDesc.byteLength = (aggregatedDesc.bitLength >>> 3) + ((aggregatedDesc.bitLength & 7) != 0 ? 1 : 0);
 				}
 			}
+		}
+		int iAggregatedDesc = 0;
+		for (List<FieldDecl> fieldGroup : fieldsMap.values()) {
+			FieldDesc aggregatedDesc = aggregatedDescs.get(iAggregatedDesc++);
+		//for (FieldDesc aggregatedDesc : aggregatedDescs) {
 
-            if (fieldBitLength < 0) {
+            if (aggregatedDesc.bitLength < 0) {
 				// Align fields as appropriate
 				if (cumulativeBitOffset != 0) {
 					cumulativeBitOffset = 0;
 					structSize++;
 				}
-                structAlignment = Math.max(structAlignment, fieldAlignment);
-                structSize = alignSize(structSize, fieldAlignment);
+                //structAlignment = Math.max(structAlignment, aggregatedDesc.alignment);
+                structSize = alignSize(structSize, aggregatedDesc.alignment);
 			}
 			long 
 				fieldByteOffset = structSize, 
@@ -431,13 +447,13 @@ public class StructIO {
 			
 			//field.index = fieldCount++;
 
-			if (fieldBitLength >= 0) {
-				fieldByteLength = (fieldBitLength >>> 3) + ((fieldBitLength & 7) != 0 ? 1 : 0);
-                cumulativeBitOffset += fieldBitLength;
+			if (aggregatedDesc.bitLength >= 0) {
+				//fieldByteLength = (aggregatedDesc.bitLength >>> 3) + ((aggregatedDesc.bitLength & 7) != 0 ? 1 : 0);
+                cumulativeBitOffset += aggregatedDesc.bitLength;
 				structSize += cumulativeBitOffset >>> 3;
 				cumulativeBitOffset &= 7;
 			} else {
-                structSize += fieldByteLength;
+                structSize += aggregatedDesc.byteLength;
 			}
 			
 			for (FieldDecl field : fieldGroup) {
