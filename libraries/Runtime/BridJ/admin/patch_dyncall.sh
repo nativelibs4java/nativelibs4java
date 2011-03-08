@@ -1,3 +1,9 @@
+#!/bin/bash
+#
+# This script checkouts dyncall (http://dyncall.org/), applies BridJ-specific patches to it and builds it.
+# Usage : patch_dyncall.sh directory
+#
+
 if [[ -z "$1" ]] ; then
 	echo "Please provide a name for the dyncall checkout directory as first and unique argument"
 	exit 1 ;
