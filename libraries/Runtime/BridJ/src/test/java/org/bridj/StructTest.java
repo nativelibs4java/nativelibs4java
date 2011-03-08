@@ -51,9 +51,9 @@ public class StructTest {
 		long s = BridJ.sizeOf(CAPDRIVERCAPS.class);
 		if (Platform.isMacOSX()) {
 			if (Platform.is64Bits())
-				assertEquals(48, s);
+				assertEquals(64, s);
 			else
-				assertEquals(28, s);
+				assertEquals(44, s);
 		} else
 			assertEquals(sizeOfCAPDRIVERCAPS(), s); 
 	}
