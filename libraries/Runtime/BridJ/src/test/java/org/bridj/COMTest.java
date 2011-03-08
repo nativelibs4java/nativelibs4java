@@ -14,36 +14,10 @@ import org.bridj.cpp.com.DECIMAL;
 import org.bridj.cpp.com.shell.IShellFolder;
 import org.bridj.cpp.com.shell.IShellWindows;
 
-@Library("test")
 public class COMTest {
 
-	boolean hasCOM = Platform.isWindows();// || !Platform.is64Bits();
-	static {
-		BridJ.register();
-	}
+	static boolean hasCOM = Platform.isWindows();// || !Platform.is64Bits();
 	
-	public static native @Ptr long sizeOfVARIANT();
-	public static native @Ptr long sizeOfDECIMAL();
-
-	@Test
-	public void variantSize() {
-        long s = BridJ.sizeOf(VARIANT.class);
-		if (hasCOM)
-            assertEquals(sizeOfVARIANT(), s);
-        else
-            assertEquals(24, s);
-	}
-	
-	
-	@Test
-	public void decimalSize() {
-        long s = BridJ.sizeOf(DECIMAL.class);
-		if (hasCOM)
-            assertEquals(sizeOfDECIMAL(), s);
-        else
-            assertEquals(16, s);
-	}
-
 
 	@Test
 	public void shellFolder() {

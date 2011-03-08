@@ -340,12 +340,16 @@ TEST_API const wchar_t* wstringCStr(std::wstring* s) {
 #ifdef _WIN32
 
 #include "OAIdl.h" // for VARIANT
+#include "Vfw.h" // for CAPDRIVERCAPS
 
-TEST_API size_t __cdecl sizeOfVARIANT() {
+TEST_API long long __cdecl sizeOfVARIANT() {
 	return sizeof(VARIANT);
 }
-TEST_API size_t __cdecl sizeOfDECIMAL() {
+TEST_API long long __cdecl sizeOfDECIMAL() {
 	return sizeof(DECIMAL);
+}
+TEST_API long long __cdecl sizeOfCAPDRIVERCAPS() {
+	return sizeof(CAPDRIVERCAPS);
 }
 
 #endif

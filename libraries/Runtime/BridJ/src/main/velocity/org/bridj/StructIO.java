@@ -308,9 +308,15 @@ public class StructIO {
             return 1;
         else if(primType == Character.class || primType == char.class)
             return 2;
-        else if(primType == Boolean.class || primType == boolean.class)
-            return 1;
-        else if(primType == Float.class || primType == float.class)
+        else if(primType == Boolean.class || primType == boolean.class) {
+            /*
+            BOOL is int, not C++'s bool !
+            if (Platform.isWindows())
+				return 4;
+			else
+			*/ 
+			return 1;
+        } else if(primType == Float.class || primType == float.class)
             return 4;
         else if(primType == Double.class || primType == double.class)
             return 8;

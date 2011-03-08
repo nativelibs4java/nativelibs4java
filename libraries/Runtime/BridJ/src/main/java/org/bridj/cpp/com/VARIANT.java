@@ -246,36 +246,36 @@ public class VARIANT extends StructObject {
 				 * C type : VARIANT_BOOL
 				 */
 				@Field(6)
-				public boolean boolVal() {
-					return this.io.getBooleanField(this, 6);
+				public int boolVal() {
+					return this.io.getIntField(this, 6);
 				}
 				/**
 				 * VT_BOOL<br>
 				 * C type : VARIANT_BOOL
 				 */
 				@Field(6)
-				public __VARIANT_NAME_3_union boolVal(boolean boolVal) {
-					this.io.setBooleanField(this, 6, boolVal);
+				public __VARIANT_NAME_3_union boolVal(int boolVal) {
+					this.io.setIntField(this, 6, boolVal);
 					return this;
 				}
 				/// C type : VARIANT_BOOL
-				public final boolean boolVal_$eq(boolean boolVal) {
+				public final int boolVal_$eq(int boolVal) {
 					boolVal(boolVal);
 					return boolVal;
 				}
 				/// C type : _VARIANT_BOOL
 				@Field(7)
-				public boolean bool() {
-					return this.io.getBooleanField(this, 7);
+				public int bool() {
+					return this.io.getIntField(this, 7);
 				}
 				/// C type : _VARIANT_BOOL
 				@Field(7)
-				public __VARIANT_NAME_3_union bool(boolean bool) {
-					this.io.setBooleanField(this, 7, bool);
+				public __VARIANT_NAME_3_union bool(int bool) {
+					this.io.setIntField(this, 7, bool);
 					return this;
 				}
 				/// C type : _VARIANT_BOOL
-				public final boolean bool_$eq(boolean bool) {
+				public final int bool_$eq(int bool) {
 					bool(bool);
 					return bool;
 				}
@@ -556,7 +556,7 @@ public class VARIANT extends StructObject {
 				 * C type : VARIANT_BOOL*
 				 */
 				@Field(21)
-				public Pointer<Boolean > pboolVal() {
+				public Pointer<Integer> pboolVal() {
 					return this.io.getPointerField(this, 21);
 				}
 				/**
@@ -564,28 +564,28 @@ public class VARIANT extends StructObject {
 				 * C type : VARIANT_BOOL*
 				 */
 				@Field(21)
-				public __VARIANT_NAME_3_union pboolVal(Pointer<Boolean > pboolVal) {
+				public __VARIANT_NAME_3_union pboolVal(Pointer<Integer > pboolVal) {
 					this.io.setPointerField(this, 21, pboolVal);
 					return this;
 				}
 				/// C type : VARIANT_BOOL*
-				public final Pointer<Boolean > pboolVal_$eq(Pointer<Boolean > pboolVal) {
+				public final Pointer<Integer > pboolVal_$eq(Pointer<Integer > pboolVal) {
 					pboolVal(pboolVal);
 					return pboolVal;
 				}
 				/// C type : _VARIANT_BOOL*
 				@Field(22)
-				public Pointer<Boolean > pbool() {
+				public Pointer<Integer > pbool() {
 					return this.io.getPointerField(this, 22);
 				}
 				/// C type : _VARIANT_BOOL*
 				@Field(22)
-				public __VARIANT_NAME_3_union pbool(Pointer<Boolean > pbool) {
+				public __VARIANT_NAME_3_union pbool(Pointer<Integer > pbool) {
 					this.io.setPointerField(this, 22, pbool);
 					return this;
 				}
 				/// C type : _VARIANT_BOOL*
-				public final Pointer<Boolean > pbool_$eq(Pointer<Boolean > pbool) {
+				public final Pointer<Integer > pbool_$eq(Pointer<Integer > pbool) {
 					pbool(pbool);
 					return pbool;
 				}

@@ -6,13 +6,58 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.bridj.ann.Field;
+import org.bridj.ann.Library;
+import org.bridj.ann.Ptr;
+import org.bridj.cpp.com.*;
 import static org.bridj.Pointer.*;
 import static org.bridj.BridJ.*;
 
 import javolution.io.*;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
+
+@Library("test")
 public class StructTest {
+	static {
+		BridJ.register();
+	}
+	
+	public static native long sizeOfVARIANT();
+	public static native long sizeOfDECIMAL();
+	public static native long sizeOfCAPDRIVERCAPS();
+
+	
+	@Test
+	public void variantSize() {
+        long s = BridJ.sizeOf(VARIANT.class);
+		if (Platform.isWindows())
+            assertEquals(sizeOfVARIANT(), s);
+        else
+            assertEquals(24, s);
+	}
+	
+	
+	@Test
+	public void decimalSize() {
+        long s = BridJ.sizeOf(DECIMAL.class);
+		if (Platform.isWindows())
+            assertEquals(sizeOfDECIMAL(), s);
+        else
+            assertEquals(16, s);
+	}
+	
+	@Test
+	public void testSizeOfCAPDRIVERCAPS() {
+		long s = BridJ.sizeOf(CAPDRIVERCAPS.class);
+		if (Platform.isMacOSX()) {
+			if (Platform.is64Bits())
+				assertEquals(48, s);
+			else
+				assertEquals(28, s);
+		} else
+			assertEquals(sizeOfCAPDRIVERCAPS(), s); 
+	}
+
 	public class CAPDRIVERCAPS extends StructObject {
 		public CAPDRIVERCAPS() {
 			super();
@@ -37,80 +82,80 @@ public class StructTest {
 			return wDeviceIndex;
 		}
 		@Field(1) 
-		public boolean fHasOverlay() {
-			return this.io.getBooleanField(this, 1);
+		public int fHasOverlay() {
+			return this.io.getIntField(this, 1);
 		}
 		@Field(1) 
-		public CAPDRIVERCAPS fHasOverlay(boolean fHasOverlay) {
-			this.io.setBooleanField(this, 1, fHasOverlay);
+		public CAPDRIVERCAPS fHasOverlay(int fHasOverlay) {
+			this.io.setIntField(this, 1, fHasOverlay);
 			return this;
 		}
-		public final boolean fHasOverlay_$eq(boolean fHasOverlay) {
+		public final int fHasOverlay_$eq(int fHasOverlay) {
 			fHasOverlay(fHasOverlay);
 			return fHasOverlay;
 		}
 		@Field(2) 
-		public boolean fHasDlgVideoSource() {
-			return this.io.getBooleanField(this, 2);
+		public int fHasDlgVideoSource() {
+			return this.io.getIntField(this, 2);
 		}
 		@Field(2) 
-		public CAPDRIVERCAPS fHasDlgVideoSource(boolean fHasDlgVideoSource) {
-			this.io.setBooleanField(this, 2, fHasDlgVideoSource);
+		public CAPDRIVERCAPS fHasDlgVideoSource(int fHasDlgVideoSource) {
+			this.io.setIntField(this, 2, fHasDlgVideoSource);
 			return this;
 		}
-		public final boolean fHasDlgVideoSource_$eq(boolean fHasDlgVideoSource) {
+		public final int fHasDlgVideoSource_$eq(int fHasDlgVideoSource) {
 			fHasDlgVideoSource(fHasDlgVideoSource);
 			return fHasDlgVideoSource;
 		}
 		@Field(3) 
-		public boolean fHasDlgVideoFormat() {
-			return this.io.getBooleanField(this, 3);
+		public int fHasDlgVideoFormat() {
+			return this.io.getIntField(this, 3);
 		}
 		@Field(3) 
-		public CAPDRIVERCAPS fHasDlgVideoFormat(boolean fHasDlgVideoFormat) {
-			this.io.setBooleanField(this, 3, fHasDlgVideoFormat);
+		public CAPDRIVERCAPS fHasDlgVideoFormat(int fHasDlgVideoFormat) {
+			this.io.setIntField(this, 3, fHasDlgVideoFormat);
 			return this;
 		}
-		public final boolean fHasDlgVideoFormat_$eq(boolean fHasDlgVideoFormat) {
+		public final int fHasDlgVideoFormat_$eq(int fHasDlgVideoFormat) {
 			fHasDlgVideoFormat(fHasDlgVideoFormat);
 			return fHasDlgVideoFormat;
 		}
 		@Field(4) 
-		public boolean fHasDlgVideoDisplay() {
-			return this.io.getBooleanField(this, 4);
+		public int fHasDlgVideoDisplay() {
+			return this.io.getIntField(this, 4);
 		}
 		@Field(4) 
-		public CAPDRIVERCAPS fHasDlgVideoDisplay(boolean fHasDlgVideoDisplay) {
-			this.io.setBooleanField(this, 4, fHasDlgVideoDisplay);
+		public CAPDRIVERCAPS fHasDlgVideoDisplay(int fHasDlgVideoDisplay) {
+			this.io.setIntField(this, 4, fHasDlgVideoDisplay);
 			return this;
 		}
-		public final boolean fHasDlgVideoDisplay_$eq(boolean fHasDlgVideoDisplay) {
+		public final int fHasDlgVideoDisplay_$eq(int fHasDlgVideoDisplay) {
 			fHasDlgVideoDisplay(fHasDlgVideoDisplay);
 			return fHasDlgVideoDisplay;
 		}
 		@Field(5) 
-		public boolean fCaptureInitialized() {
-			return this.io.getBooleanField(this, 5);
+		public int fCaptureInitialized() {
+			return this.io.getIntField(this, 5);
 		}
 		@Field(5) 
-		public CAPDRIVERCAPS fCaptureInitialized(boolean fCaptureInitialized) {
-			this.io.setBooleanField(this, 5, fCaptureInitialized);
+		public CAPDRIVERCAPS fCaptureInitialized(int fCaptureInitialized) {
+			this.io.setIntField(this, 5, fCaptureInitialized);
 			return this;
 		}
-		public final boolean fCaptureInitialized_$eq(boolean fCaptureInitialized) {
+		public final int fCaptureInitialized_$eq(int fCaptureInitialized) {
 			fCaptureInitialized(fCaptureInitialized);
 			return fCaptureInitialized;
 		}
 		@Field(6) 
-		public boolean fDriverSuppliesPalettes() {
-			return this.io.getBooleanField(this, 6);
+		public int fDriverSuppliesPalettes() {
+			return this.io.getIntField(this, 6);
 		}
 		@Field(6) 
-		public CAPDRIVERCAPS fDriverSuppliesPalettes(boolean fDriverSuppliesPalettes) {
-			this.io.setBooleanField(this, 6, fDriverSuppliesPalettes);
+		public CAPDRIVERCAPS fDriverSuppliesPalettes(int fDriverSuppliesPalettes) {
+			this.io.setIntField(this, 6, fDriverSuppliesPalettes);
 			return this;
 		}
-		public final boolean fDriverSuppliesPalettes_$eq(boolean fDriverSuppliesPalettes) {
+		public final int fDriverSuppliesPalettes_$eq(int fDriverSuppliesPalettes) {
 			fDriverSuppliesPalettes(fDriverSuppliesPalettes);
 			return fDriverSuppliesPalettes;
 		}
@@ -177,15 +222,6 @@ public class StructTest {
 		public final Pointer<? > hVideoExtOut_$eq(Pointer<? > hVideoExtOut) {
 			hVideoExtOut(hVideoExtOut);
 			return hVideoExtOut;
-		}
-	}
-	@Test
-	public void testSizeOfCAPDRIVERCAPS() {
-		if (Platform.isMacOSX()) {
-			if (Platform.is64Bits())
-				assertEquals(48, BridJ.sizeOf(CAPDRIVERCAPS.class));
-			else
-				assertEquals(28, BridJ.sizeOf(CAPDRIVERCAPS.class));
 		}
 	}
 	public class Simple extends StructObject {
