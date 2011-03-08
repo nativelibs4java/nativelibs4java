@@ -1,6 +1,6 @@
 package org.bridj;
 import org.bridj.CallIO.NativeObjectHandler;
-
+import org.bridj.util.*;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -323,15 +324,16 @@ public class StructIO {
 		List<FieldDecl> list = listFields();
 		orderFields(list);
 		
-		Map<Long, List<FieldDecl>> fieldsMap = new TreeMap<Long, List<FieldDecl>>();
+		Map<Pair<Class<?>, Long>, List<FieldDecl>> fieldsMap = new LinkedHashMap<Pair<Class<?>, Long>, List<FieldDecl>>();
         for (FieldDecl field : list) {
         		if (field.index < 0)
         			throw new RuntimeException("Negative field index not allowed for field " + field.name);
         		
         		long index = field.unionWith >= 0 ? field.unionWith : field.index;
-        		List<FieldDecl> siblings = fieldsMap.get(index);
+        		Pair<Class<?>, Long> key = new Pair<Class<?>, Long>(field.declaringClass, index);
+        		List<FieldDecl> siblings = fieldsMap.get(key);
         		if (siblings == null)
-        			fieldsMap.put(index, siblings = new ArrayList<FieldDecl>());
+        			fieldsMap.put(key, siblings = new ArrayList<FieldDecl>());
         		siblings.add(field);
         }
         	
@@ -340,7 +342,9 @@ public class StructIO {
 
         structSize = 0;
         if (isVirtual()) {
-        	structSize += Pointer.SIZE;
+        		structSize += Pointer.SIZE;
+        		if (Pointer.SIZE >= structAlignment)
+        			structAlignment = Pointer.SIZE;
 			/*FieldDecl d = new FieldDecl();
 			d.byteLength = Pointer.SIZE;
 			d.valueType = d.valueClass = Pointer.class;
@@ -350,10 +354,12 @@ public class StructIO {
 
         int cumulativeBitOffset = 0;
         
-        List<FieldDesc> aggregatedDescs = new ArrayList<FieldDesc>(); 
+        List<FieldDesc> aggregatedDescs = new ArrayList<FieldDesc>();
+        //List<Type> declaringTypes = new ArrayList<Type>();
         for (List<FieldDecl> fieldGroup : fieldsMap.values()) {
         		FieldDesc aggregatedDesc = new FieldDesc();
         		aggregatedDescs.add(aggregatedDesc);
+        		//Type fieldDeclaringType = null;
         		//long fieldByteLength = -1, fieldBitLength = -1, fieldAlignment = -1; 
         		for (FieldDecl field : fieldGroup) {
 				if (field.valueClass.isPrimitive()) {
@@ -426,13 +432,25 @@ public class StructIO {
 					aggregatedDesc.bitLength = field.desc.bitLength;
 					aggregatedDesc.byteLength = (aggregatedDesc.bitLength >>> 3) + ((aggregatedDesc.bitLength & 7) != 0 ? 1 : 0);
 				}
+				//if (fieldDeclaringType == null)
+				//	fieldDeclaringType = field.declaringClass;
+				//else if (!fieldDeclaringType.equals(field.declaringClass))
+				//	throw new RuntimeException("Fields in the same field group must pertain to the same declaring class : " + fieldGroup);
+				
 			}
+			//declaringTypes.add(fieldDeclaringType);
 		}
 		int iAggregatedDesc = 0;
+		//Type lastFieldDeclaringType = null;
 		for (List<FieldDecl> fieldGroup : fieldsMap.values()) {
+			//Type fieldDeclaringType = declaringTypes.get(iAggregatedDesc);
 			FieldDesc aggregatedDesc = aggregatedDescs.get(iAggregatedDesc++);
-		//for (FieldDesc aggregatedDesc : aggregatedDescs) {
 
+			//if (lastFieldDeclaringType != null && !fieldDeclaringType.equals(lastFieldDeclaringType)) {
+			//	StructIO io = StructIO.getInstance(Utils.getClass(lastFieldDeclaringType), lastFieldDeclaringType);
+			//	structSize = alignSize(structSize, io.getStructSize());
+			//}
+			//lastFieldDeclaringType = fieldDeclaringType;
             if (aggregatedDesc.bitLength < 0) {
 				// Align fields as appropriate
 				if (cumulativeBitOffset != 0) {
