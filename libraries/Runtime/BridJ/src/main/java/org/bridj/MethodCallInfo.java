@@ -172,7 +172,7 @@ public class MethodCallInfo {
 			break;
 		case ThisCall:
 			this.direct = false;
-			setDcCallingConvention(Platform.isWindows() ? DC_CALL_C_X86_WIN32_THIS_GNU : DC_CALL_C_DEFAULT);
+			setDcCallingConvention(Platform.isWindows() ? DC_CALL_C_X86_WIN32_THIS_MS : DC_CALL_C_DEFAULT);
 		}
 		if (veryVerbose)
 			System.out.println("Setting CC " + style + " (-> " + dcCallingConvention + ") for " + methodName);

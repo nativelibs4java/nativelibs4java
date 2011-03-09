@@ -24,7 +24,7 @@ import org.bridj.ann.Optional;
  */
 public class CRuntime extends AbstractBridJRuntime {
 
-	final Set<Type> registeredTypes = new HashSet<Type>();
+	final static Set<Type> registeredTypes = new HashSet<Type>();
 	final CallbackNativeImplementer callbackNativeImplementer;
 
     public CRuntime() {
@@ -175,13 +175,23 @@ public class CRuntime extends AbstractBridJRuntime {
 	}
 	@Override
 	public void register(Type type) {
-        register(type, null);
+        register(type, null, null);
     }
-	void register(Type type, NativeLibrary forcedLibrary) {
-		if (!registeredTypes.add(type))
-			return;
-
-        Class typeClass = Utils.getClass(type);
+    public static class MethodCallInfoBuilder {
+    	public MethodCallInfo apply(Method method) throws Exception {
+			return new MethodCallInfo(method);
+		}
+    }
+	synchronized void register(Type type, NativeLibrary forcedLibrary, MethodCallInfoBuilder methodCallInfoBuilder) {
+		Class typeClass = Utils.getClass(type);
+                synchronized (registeredTypes) {
+                    if (!registeredTypes.add(typeClass))
+                                    return;
+                }
+		
+		if (methodCallInfoBuilder == null)
+			methodCallInfoBuilder = new MethodCallInfoBuilder();
+        	
         assert log(Level.INFO, "Registering type " + typeClass.getName());
         
 		int typeModifiers = typeClass.getModifiers();
@@ -230,8 +240,9 @@ public class CRuntime extends AbstractBridJRuntime {
 			try {
 				NativeLibrary typeLibrary = forcedLibrary == null ? getNativeLibrary(typeClass) : forcedLibrary;
 				for (Method method : typeClass.getDeclaredMethods()) {
-                    if (handledMethods.contains(method))
+                    if (!handledMethods.add(method))
                         continue;
+					
 					try {
 						int modifiers = method.getModifiers();
 						if (!Modifier.isNative(modifiers))
@@ -241,10 +252,7 @@ public class CRuntime extends AbstractBridJRuntime {
                         NativeEntities nativeEntities = methodLibrary == null ? BridJ.getOrphanEntities() : methodLibrary.getNativeEntities();
                         NativeEntities.Builder builder = builders.get(nativeEntities);
 						
-						
-						registerNativeMethod(typeClass, typeLibrary, method, methodLibrary, builder);
-
-                        handledMethods.add(method);
+						registerNativeMethod(typeClass, typeLibrary, method, methodLibrary, builder, methodCallInfoBuilder);
 					} catch (Exception ex) {
 						assert log(Level.SEVERE, "Method " + method.toGenericString() + " cannot be mapped : " + ex, ex);
 					}
@@ -260,17 +268,19 @@ public class CRuntime extends AbstractBridJRuntime {
 			
 			typeClass = typeClass.getSuperclass();
 			if (typeClass != null && typeClass != Object.class)
-				register(typeClass, forcedLibrary);
+				register(typeClass, forcedLibrary, methodCallInfoBuilder);
 		}
 	}
 
 	protected NativeLibrary getNativeLibrary(Class<?> type) throws FileNotFoundException {
 		return BridJ.getNativeLibrary(type);
 	}
-	protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder) throws FileNotFoundException {
+	protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder, MethodCallInfoBuilder methodCallInfoBuilder) throws FileNotFoundException {
 		MethodCallInfo mci;
 		try {
-			mci = new MethodCallInfo(method);
+			mci = methodCallInfoBuilder.apply(method);
+			if (mci == null)
+				return;
 			//System.out.println("method.dcCallingConvention = " + mci.dcCallingConvention + " (for method " + type.getName() + ", method " + method + ", type = " + type.getName() + ", enclosingClass = " + method.getDeclaringClass().getName() + ")");
 		} catch (Throwable th) {
 			log(Level.SEVERE, "Unable to register " + method + " : " + th);

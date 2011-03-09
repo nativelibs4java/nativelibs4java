@@ -75,7 +75,7 @@ class CallbackNativeImplementer extends ClassLoader {
 				//builder.addJavaToNativeCallback(mci);
 				//nativeEntities.addDefinitions(callbackType, builder);
                 implClasses.put(callbackType, callbackImplType);
-				runtime.register(callbackImplType, forcedLibrary);
+				runtime.register(callbackImplType, forcedLibrary, null);
 			} catch (Exception ex) {
 				throw new RuntimeException("Failed to create implementation class for callback type " + callbackType.getName() + " : " + ex, ex);
 			}
@@ -89,7 +89,7 @@ class CallbackNativeImplementer extends ClassLoader {
         return nextDynamicCallbackId++;
     }
 
-    public synchronized DynamicFunctionFactory getDynamicCallback(NativeLibrary library, Convention.Style callingConvention, Type returnType, Type... paramTypes) {
+    public synchronized DynamicFunctionFactory getDynamicCallback(NativeLibrary library, final Convention.Style callingConvention, Type returnType, Type... paramTypes) {
         List<Type> list = new ArrayList<Type>(paramTypes.length + 1);
         list.add(returnType);
         list.addAll(Arrays.asList(paramTypes));
@@ -117,7 +117,13 @@ class CallbackNativeImplementer extends ClassLoader {
                 cb = new DynamicFunctionFactory(callbackImplType, callbackImplType.getMethod(methodName, paramClasses), callingConvention);
                 dynamicCallbacks.put(key, cb);
 
-                runtime.register(callbackImplType);
+                runtime.register(callbackImplType, null, new CRuntime.MethodCallInfoBuilder() {
+					public MethodCallInfo apply(Method method) throws Exception {
+						MethodCallInfo mci = super.apply(method);
+						mci.setCallingConvention(callingConvention);
+						return mci;
+					}
+                });
 
             } catch (Throwable th) {
                 th.printStackTrace();
