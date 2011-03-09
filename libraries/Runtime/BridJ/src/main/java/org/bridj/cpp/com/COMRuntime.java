@@ -341,43 +341,55 @@ public class COMRuntime extends CPPRuntime {
 		}
 	}
 
+	static void change(VARIANT v, ValuedEnum<VARENUM> vt) {
+		Pointer<VARIANT> pv = pointerTo(v);
+        int res = VariantChangeType(pv, pv, (short)0, (short)vt.value());
+		assert res == S_OK;
+	}
     public static VARIANT setValue(VARIANT v, Object value) {
-        ValuedEnum<VARENUM> vt;
+    		//ValuedEnum<VARENUM> vt;
         __VARIANT_NAME_3_union values = getValues(v);
         if (value == null) {
-            values.byref(null);
-            vt = VT_EMPTY;
+        		change(v, VT_EMPTY);
+            //values.byref(null);
         } else if (value instanceof Integer) {
+            change(v, VT_I4);
             values.lVal((Integer)value);
-            vt = VT_I4;
         } else if (value instanceof Long) {
+            change(v, VT_I8);
             values.llval((Long)value);
-            vt = VT_I8;
         } else if (value instanceof Short) {
+            change(v, VT_I2);
             values.iVal((Short)value);
-            vt = VT_I2;
         } else if (value instanceof Byte) {
+            change(v, VT_I1);
             values.bVal((Byte)value);
-            vt = VT_I1;
         } else if (value instanceof Float) {
+            change(v, VT_R4);
             values.fltVal((Float)value);
-            vt = VT_R4;
         } else if (value instanceof Double) {
+            change(v, VT_I8);
             values.dblVal((Double)value);
-            vt = VT_I8;
         } else if (value instanceof Character) {
+            change(v, VT_I2);
             values.iVal((short)((Character)value).charValue());
-            vt = VT_I2;
         } else if (value instanceof String) {
+            change(v, VT_BSTR);
+            /*String str = (String)value;
+            int len = str.length();
+            int capacity = SysStringLen(values.bstrVal());
+            /Pointer<Character> chars = 
+            if (len > capacity)
+            		SysReAllocStringLen values.bstrVal()
+            	SysReAllocString(values.bstrVal().getReference(),
+            	*/
             values.bstrVal().setString((String)value, StringType.BSTR);
-            vt = VT_BSTR;
         } else if (value instanceof Pointer) {
             Pointer ptr = (Pointer)value;
-            values.byref(ptr);
             Type targetType = ptr.getTargetType();
             Class targetClass = Utils.getClass(targetType);
             if (targetClass == null)
-                vt = VT_PTR;
+                change(v, VT_PTR);
             else {
                 VARENUM ve;
                 if (targetClass == Integer.class || targetClass == int.class)
@@ -401,12 +413,12 @@ public class COMRuntime extends CPPRuntime {
                 else
                     ve = null; // TODO
 
-                vt = FlagSet.fromValues(VT_BYREF, ve);
+                change(v, FlagSet.fromValues(VT_BYREF, ve));
             }
         } else
             throw new UnsupportedOperationException("Unable to convert an object of type " + value.getClass().getName() + " to a COM VARIANT object !");
 
-        setType(v, vt);
+        //setType(v, vt);
         return v;
     }
 
