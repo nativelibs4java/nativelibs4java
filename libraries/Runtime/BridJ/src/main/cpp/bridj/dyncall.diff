@@ -129,6 +129,240 @@ Index: ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s
 +
 +.return_void:
 +	ret
+Index: ~/src/dyncall/dyncall/test/plain/test_main.c
+===================================================================
+--- ~/src/dyncall/dyncall/test/plain/test_main.c	
++++ ~/src/dyncall/dyncall/test/plain/test_main.c	
+@@ -284,6 +284,7 @@
+ DC_DEFINE_TEST_FUNC_END
+ #endif
+ 
++int testCallStructs();
+ 
+ int main(int argc, char* argv[])
+ {
+@@ -293,6 +294,12 @@
+   b = b && testCallC();
+   printf("C:%d\n",b);
+ 
++  b = b && testStructSizes();
++  printf("Struct Sizes:%d\n",b);
++
++  b = b && testCallStructs();
++  printf("Call Structs:%d\n",b);
++
+ #if defined(DC__OS_Win32)
+   
+   b = b && testCallStd();
+Index: ~/src/dyncall/dyncall/test/plain/GNUmakefile
+===================================================================
+--- ~/src/dyncall/dyncall/test/plain/GNUmakefile	
++++ ~/src/dyncall/dyncall/test/plain/GNUmakefile	
+@@ -24,7 +24,7 @@
+ include $(TOP)/buildsys/gmake/prolog.gmake
+ 
+ TARGET_APP	= plain
+-UNITS		= test_main
++UNITS		= test_main test_structs
+ CPPFLAGS	+= -I$(TOP)/dyncall
+ LINK_DIRS	= $(TOP)/dyncall/$(BUILD_DIR)
+ LINK_LIBS       = dyncall_s
+Index: ~/src/dyncall/dyncall/test/plain/test_structs.c
+===================================================================
+--- ~/src/dyncall/dyncall/test/plain/test_structs.c	
++++ ~/src/dyncall/dyncall/test/plain/test_structs.c	
+@@ -0,0 +1,191 @@
++/*
++
++ Copyright (c) 2010-2011 Olivier Chafik <olivier.chafik@gmail.com>
++
++ Permission to use, copy, modify, and distribute this software for any
++ purpose with or without fee is hereby granted, provided that the above
++ copyright notice and this permission notice appear in all copies.
++
++ THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
++ WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
++ MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
++ ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
++ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
++ ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
++ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
++
++*/
++
++
++//#include "../common/platformInit.h"
++#include "test_framework.h"
++#include "../../dyncall/dyncall.h"
++#include "../../dyncall/dyncall_signature.h"
++#include "../../dyncall/dyncall_struct.h"
++#include <stdio.h>
++
++#define DC_TEST_INT_EQUAL(expected, computed) { \
++	if (expected != computed) \
++		printf("expected = %d, computed = %d\n\n", (int)expected, (int)computed); \
++  	DC_TEST(expected == computed); \
++}
++#define DC_TEST_STRUCT_SIZE(type, s) {\ 
++	DCsize expected = sizeof(type), computed = dcStructSize(s);\
++	DC_TEST_INT_EQUAL(expected, computed); \
++}
++  	
++typedef struct {
++  char a, b;
++  double p[10];
++} SomeValues;
++
++DCstruct* describe_SomeValues() {
++	DCstruct* s = dcNewStruct(3, DEFAULT_ALIGNMENT);
++  	dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 10);
++  	dcCloseStruct(s);
++  	return s;
++}
++double sum_SomeValues(SomeValues* values) {
++	return ((double)values->a) + ((double)values->b) + values->p[0] + values->p[1] + values->p[2];
++}
++
++DC_DEFINE_TEST_FUNC_BEGIN(testStructSizes)
++
++  {
++  	typedef struct _S {
++  	  double a, b, c, d;  
++  	} S;
++  	
++  	size_t size;
++  	DCstruct* s = dcNewStruct(4, DEFAULT_ALIGNMENT);
++  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 1);
++  	dcCloseStruct(s);
++  	
++  	DC_TEST_STRUCT_SIZE(S, s);
++  	dcFreeStruct(s);
++  }{
++  	typedef struct _S {
++  	  double a, b, c, d;  
++  	} S;
++  	
++  	size_t size;
++  	DCstruct* s = dcNewStruct(4, DEFAULT_ALIGNMENT);
++  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 1);
++  	dcCloseStruct(s);
++  	
++  	DC_TEST_STRUCT_SIZE(S, s);
++  	dcFreeStruct(s);
++  }
++  {
++  	typedef struct _S {
++  	  char a, b;
++  	  void* p[3];
++  	} S;
++  	
++  	size_t size;
++  	DCstruct* s = dcNewStruct(3, DEFAULT_ALIGNMENT);
++  	dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_POINTER, DEFAULT_ALIGNMENT, 3);
++  	dcCloseStruct(s);
++  	
++  	DC_TEST_STRUCT_SIZE(S, s);
++  	dcFreeStruct(s);
++  }
++  {
++  	typedef struct _S {
++  	  short a;
++  	  struct {
++  	    char a, b;
++  	    void* p[3];
++  	  } sub;
++  	  short b;
++  	} S;
++  	
++  	size_t size;
++  	DCstruct* s = dcNewStruct(3, DEFAULT_ALIGNMENT);
++  	dcStructField(s, DC_SIGCHAR_SHORT, DEFAULT_ALIGNMENT, 1);
++  	dcSubStruct(s, 3, DEFAULT_ALIGNMENT, 1); 
++		dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
++		dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
++		dcStructField(s, DC_SIGCHAR_POINTER, DEFAULT_ALIGNMENT, 3);
++	dcCloseStruct(s);
++	dcStructField(s, DC_SIGCHAR_SHORT, DEFAULT_ALIGNMENT, 1);
++  	dcCloseStruct(s);
++  	
++  	DC_TEST_STRUCT_SIZE(S, s);
++  	dcFreeStruct(s);
++  }
++  
++#define TEST_MONO_STRUCT(type, sig) \
++  { \
++  	typedef struct _S { \
++  	  type v;  \
++  	} S; \
++  	 \
++  	DCstruct* s = dcNewStruct(1, DEFAULT_ALIGNMENT); \
++  	dcStructField(s, sig, DEFAULT_ALIGNMENT, 1); \
++  	dcCloseStruct(s); \
++  	 \
++  	DC_TEST_STRUCT_SIZE(S, s); \
++  	dcFreeStruct(s); \
++  }
++  
++  TEST_MONO_STRUCT(char, DC_SIGCHAR_CHAR);
++  TEST_MONO_STRUCT(unsigned char, DC_SIGCHAR_UCHAR);
++  TEST_MONO_STRUCT(short, DC_SIGCHAR_SHORT);
++  TEST_MONO_STRUCT(unsigned short, DC_SIGCHAR_USHORT);
++  TEST_MONO_STRUCT(int, DC_SIGCHAR_INT);
++  TEST_MONO_STRUCT(unsigned int, DC_SIGCHAR_UINT);
++  TEST_MONO_STRUCT(long, DC_SIGCHAR_LONG);
++  TEST_MONO_STRUCT(unsigned long, DC_SIGCHAR_ULONG);
++  TEST_MONO_STRUCT(long long, DC_SIGCHAR_LONGLONG);
++  TEST_MONO_STRUCT(unsigned long long, DC_SIGCHAR_ULONGLONG);
++  TEST_MONO_STRUCT(void*, DC_SIGCHAR_POINTER);
++  TEST_MONO_STRUCT(float, DC_SIGCHAR_FLOAT);
++  TEST_MONO_STRUCT(double, DC_SIGCHAR_DOUBLE); 
++  
++DC_DEFINE_TEST_FUNC_END
++
++DC_DEFINE_TEST_FUNC_BEGIN(testCallStructs)
++
++  DCCallVM* pc = dcNewCallVM(4096);
++  
++  #if 1
++  // Test struct argument :
++  {
++  	SomeValues values;
++  	double calledSum, expectedSum;
++  	DCstruct* s = describe_SomeValues();
++  	
++  	DC_TEST_STRUCT_SIZE(SomeValues, s);
++  	
++  	values.a = 1;
++	values.b = 2;
++	values.p[0] = 10;
++	values.p[1] = 11;
++	values.p[2] = 12;
++	
++    dcReset(pc);
++    dcMode(pc, DC_CALL_C_DEFAULT);
++	dcArgStruct(pc, s, &values);
++    calledSum = dcCallDouble(pc, (DCpointer) &sum_SomeValues);
++    expectedSum = sum_SomeValues(&values);
++    
++	DC_TEST_INT_EQUAL(expectedSum, calledSum);
++  	dcFreeStruct(s);
++  }
++  #endif
++  
++  dcFree(pc);
++
++DC_DEFINE_TEST_FUNC_END
++
 Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n64.c
 ===================================================================
 --- ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n64.c	
@@ -193,7 +427,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.c
 ===================================================================
 --- ~/src/dyncall/dyncall/dyncall/dyncall_struct.c	
 +++ ~/src/dyncall/dyncall/dyncall/dyncall_struct.c	
-@@ -0,0 +1,193 @@
+@@ -0,0 +1,220 @@
 +/*
 + Package: dyncall
 + File: dyncall/dyncall_struct.c
@@ -219,24 +453,32 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.c
 +#include "dyncall_signature.h"
 +#include "dyncall_struct.h"
 +#include "dyncall_alloc.h"
++#include <stdio.h>
++#include <assert.h>
 +
-+#define ASSERT(x)
-+#define UNKNOWN_SIZE -1
++#define ASSERT(x) assert(x)
 +
 +DCstruct*  dcNewStruct(DCsize fieldCount, DCint alignment) {
 +	DCstruct* s = (DCstruct*)dcAllocMem(sizeof(DCstruct));
 +	s->pCurrentStruct = s;
 +	s->pLastStruct = NULL;
-+	s->currentField = 0;
++	s->nextField = 0;
 +	s->fieldCount = fieldCount;
 +	s->alignment = alignment;
-+	s->size = UNKNOWN_SIZE;
++	s->size = 0;
 +	s->pFields = (DCfield*)dcAllocMem(fieldCount * sizeof(DCfield));
 +	return s;
 +}
 +void dcStructField(DCstruct* s, DCint type, DCint alignment, DCsize arrayLength) {
-+	DCfield *f = s->pCurrentStruct->pFields + (s->pCurrentStruct->currentField++);
++	if (type == DC_SIGCHAR_STRING) {
++		ASSERT(!"Use dcSubStruct instead !!!");
++		return;
++	}
++	ASSERT(s && s->pCurrentStruct);
++	ASSERT(s->pCurrentStruct->nextField <= s->pCurrentStruct->fieldCount - 1);
++	DCfield *f = s->pCurrentStruct->pFields + (s->pCurrentStruct->nextField++);
 +	f->type = type;
++	f->alignment = alignment;
 +	f->arrayLength = arrayLength;
 +	f->pSubStruct = NULL;
 +	switch (type) {
@@ -259,47 +501,63 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.c
 +	}
 +}
 +void dcSubStruct(DCstruct* s, DCsize fieldCount, DCint alignment, DCsize arrayLength) {
-+	DCfield *f = s->pCurrentStruct->pFields + (s->pCurrentStruct->currentField++);
++	DCfield *f = s->pCurrentStruct->pFields + (s->pCurrentStruct->nextField++);
 +	f->type = DC_SIGCHAR_STRUCT;
 +	f->arrayLength = arrayLength;
++	f->alignment = alignment;
 +	f->pSubStruct = dcNewStruct(fieldCount, alignment);
 +	f->pSubStruct->pLastStruct = s->pCurrentStruct;
 +	s->pCurrentStruct = f->pSubStruct;
 +}  	
 +void dcAlign(DCsize *size, DCsize alignment) {
-+	DCsize rest = alignment - ((*size) % alignment);
-+	(*size) += rest;
++	DCsize mod = (*size) % alignment;
++	if (mod) {
++		DCsize rest = alignment - mod;
++		(*size) += rest;
++	}
 +}
 +void dcComputeStructSize(DCstruct* s) {
 +	ASSERT(s);
-+	DCsize i, size = 0;
-+	DCsize alignment = s->alignment;
++	DCsize i;
 +	for (i = 0; i < s->fieldCount; i++) {
 +		DCfield *f = s->pFields + i;
++		DCsize fieldAlignment;
 +		if (f->type == DC_SIGCHAR_STRUCT) {
 +			dcComputeStructSize(f->pSubStruct);
 +			f->size = f->pSubStruct->size;
++			fieldAlignment = f->pSubStruct->alignment;
++		} else {
++			fieldAlignment = f->size;
 +		}
-+		if (f->size > alignment)
-+			alignment = f->size;
++		if (!f->alignment)
++			f->alignment = fieldAlignment;
 +		
-+		dcAlign(&size, f->alignment);
-+		size += f->size * f->arrayLength;
++		if (f->alignment > s->alignment)
++			s->alignment = f->alignment;
++		
++		f->size *= f->arrayLength;
++		
++		//printf("FIELD %d, size = %d, alignment = %d\n", (int)i, (int)f->size, (int)f->alignment);
 +	}
-+	ASSERT(s->alignment == DEFAULT_ALIGNMENT || s->alignment == alignment);
-+	s->alignment = alignment;
++	for (i = 0; i < s->fieldCount; i++) {
++		DCfield *f = s->pFields + i;
++		dcAlign(&s->size, f->alignment);
++		s->size += f->size;
++	}
++	dcAlign(&s->size, s->alignment);
 +	
-+	dcAlign(&size, alignment);
-+	s->size = size;
++	//printf("STRUCT size = %d, alignment = %d\n", (int)s->size, (int)s->alignment);
 +}
 +
 +// Each dcNewStruct or dcSubStruct call must be paired with a dcCloseStruct
 +void dcCloseStruct(DCstruct* s) {
-+	ASSERT(s->pCurrentStruct->currentField == s->pCurrentStruct->fieldCount);
-+	ASSERT(s->pCurrentStruct->pLastStruct);
++	ASSERT(s);
++	ASSERT(s->pCurrentStruct);
++	ASSERT(s->pCurrentStruct->nextField == s->pCurrentStruct->fieldCount);
++	if (!s->pCurrentStruct->pLastStruct) {
++		dcComputeStructSize(s->pCurrentStruct);
++	}
 +	s->pCurrentStruct = s->pCurrentStruct->pLastStruct;
-+	if (!s->pLastStruct)
-+		dcComputeStructSize(s);
 +}
 +
 +void dcFreeStruct(DCstruct* s) {
@@ -313,7 +571,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.c
 +	free(s->pFields);
 +	free(s);
 +}
-+
++DCsize dcStructSize(DCstruct* s) {
++	ASSERT(!s->pCurrentStruct && "Struct was not closed");
++	return s->size;
++}
 +void dcArgStructUnroll(DCCallVM* vm, DCstruct* s, DCpointer  value) {
 +	ASSERT(s && value);
 +	DCsize i;
@@ -466,7 +727,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.h
 +	DCsize size, alignment, fieldCount;
 +	
 +	// struct building uses a state machine :
-+	DCint currentField;       // == -1 if struct is closed
++	DCint nextField;       // == -1 if struct is closed
 +	DCstruct *pCurrentStruct, *pLastStruct; // == this, unless we're in a sub struct
 +};
 +
@@ -839,7 +1100,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall.h
  
  DC_API DCint      dcGetError      (DCCallVM* vm);
  
-+#define DEFAULT_ALIGNMENT -1
++#define DEFAULT_ALIGNMENT 0
 +DC_API DCstruct*  dcNewStruct     (DCsize fieldCount, DCint alignment);
 +DC_API void       dcStructField   (DCstruct* s, DCint type, DCint alignment, DCsize arrayLength);
 +DC_API void       dcSubStruct     (DCstruct* s, DCsize fieldCount, DCint alignment, DCsize arrayLength);  	
