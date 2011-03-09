@@ -19,6 +19,7 @@ import org.bridj.cpp.com.VARIANT.__VARIANT_NAME_1_union.__tagVARIANT;
 import org.bridj.cpp.com.VARIANT.__VARIANT_NAME_1_union.__tagVARIANT.__VARIANT_NAME_3_union;
 import org.bridj.util.Utils;
 import static org.bridj.Pointer.*;
+import static org.bridj.cpp.com.OLEAutomationLibrary.*;
 
 /**
  * Adding Icons, Previews and Shortcut Menus :
@@ -120,9 +121,7 @@ public class COMRuntime extends CPPRuntime {
             COINIT_SPEED_OVER_MEMORY  = 0x8;
     }
     
-    static native int VariantCopy(Pointer<VARIANT> pvargDest, Pointer<VARIANT> pvargSrc);
-    
-	@Deprecated
+    @Deprecated
 	public static native int CoCreateInstance(
 		Pointer<Byte> rclsid,
 		Pointer<IUnknown> pUnkOuter,
