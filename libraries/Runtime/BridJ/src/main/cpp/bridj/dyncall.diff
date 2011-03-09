@@ -1,7 +1,7 @@
-Index: ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S
+Index: dyncall/dyncallback/dyncall_callback_x86_gas.S
 ===================================================================
---- ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	
-+++ ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S	
+--- dyncall/dyncallback/dyncall_callback_x86_gas.S	
++++ dyncall/dyncallback/dyncall_callback_x86_gas.S	
 @@ -95,21 +95,25 @@
  
  	// handle return value
@@ -38,10 +38,10 @@ Index: ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_gas.S
 +
 +.return_void:
 +  	ret
-Index: ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm
+Index: dyncall/dyncallback/dyncall_callback_x86_masm.asm
 ===================================================================
---- ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	
-+++ ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm	
+--- dyncall/dyncallback/dyncall_callback_x86_masm.asm	
++++ dyncall/dyncallback/dyncall_callback_x86_masm.asm	
 @@ -93,16 +93,19 @@
    mov  ebp, [ebp]                    ; EBP = parent frame
  
@@ -76,10 +76,10 @@ Index: ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_masm.asm
  _dcCallbackThunkEntry ENDP
  
  END
-Index: ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s
+Index: dyncall/dyncallback/dyncall_callback_x86_apple.s
 ===================================================================
---- ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	
-+++ ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s	
+--- dyncall/dyncallback/dyncall_callback_x86_apple.s	
++++ dyncall/dyncallback/dyncall_callback_x86_apple.s	
 @@ -44,10 +44,12 @@
  frame_DCArgs       = -24
  frame_DCValue      = -32
@@ -129,10 +129,10 @@ Index: ~/src/dyncall/dyncall/dyncallback/dyncall_callback_x86_apple.s
 +
 +.return_void:
 +	ret
-Index: ~/src/dyncall/dyncall/test/plain/test_main.c
+Index: dyncall/test/plain/test_main.c
 ===================================================================
---- ~/src/dyncall/dyncall/test/plain/test_main.c	
-+++ ~/src/dyncall/dyncall/test/plain/test_main.c	
+--- dyncall/test/plain/test_main.c	
++++ dyncall/test/plain/test_main.c	
 @@ -284,6 +284,7 @@
  DC_DEFINE_TEST_FUNC_END
  #endif
@@ -154,10 +154,10 @@ Index: ~/src/dyncall/dyncall/test/plain/test_main.c
  #if defined(DC__OS_Win32)
    
    b = b && testCallStd();
-Index: ~/src/dyncall/dyncall/test/plain/GNUmakefile
+Index: dyncall/test/plain/GNUmakefile
 ===================================================================
---- ~/src/dyncall/dyncall/test/plain/GNUmakefile	
-+++ ~/src/dyncall/dyncall/test/plain/GNUmakefile	
+--- dyncall/test/plain/GNUmakefile	
++++ dyncall/test/plain/GNUmakefile	
 @@ -24,7 +24,7 @@
  include $(TOP)/buildsys/gmake/prolog.gmake
  
@@ -167,11 +167,11 @@ Index: ~/src/dyncall/dyncall/test/plain/GNUmakefile
  CPPFLAGS	+= -I$(TOP)/dyncall
  LINK_DIRS	= $(TOP)/dyncall/$(BUILD_DIR)
  LINK_LIBS       = dyncall_s
-Index: ~/src/dyncall/dyncall/test/plain/test_structs.c
+Index: dyncall/test/plain/test_structs.c
 ===================================================================
---- ~/src/dyncall/dyncall/test/plain/test_structs.c	
-+++ ~/src/dyncall/dyncall/test/plain/test_structs.c	
-@@ -0,0 +1,191 @@
+--- dyncall/test/plain/test_structs.c	
++++ dyncall/test/plain/test_structs.c	
+@@ -0,0 +1,212 @@
 +/*
 +
 + Copyright (c) 2010-2011 Olivier Chafik <olivier.chafik@gmail.com>
@@ -203,46 +203,14 @@ Index: ~/src/dyncall/dyncall/test/plain/test_structs.c
 +		printf("expected = %d, computed = %d\n\n", (int)expected, (int)computed); \
 +  	DC_TEST(expected == computed); \
 +}
-+#define DC_TEST_STRUCT_SIZE(type, s) {\ 
++#define DC_TEST_STRUCT_SIZE(type, s) { \
 +	DCsize expected = sizeof(type), computed = dcStructSize(s);\
 +	DC_TEST_INT_EQUAL(expected, computed); \
-+}
-+  	
-+typedef struct {
-+  char a, b;
-+  double p[10];
-+} SomeValues;
-+
-+DCstruct* describe_SomeValues() {
-+	DCstruct* s = dcNewStruct(3, DEFAULT_ALIGNMENT);
-+  	dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
-+  	dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
-+  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 10);
-+  	dcCloseStruct(s);
-+  	return s;
-+}
-+double sum_SomeValues(SomeValues* values) {
-+	return ((double)values->a) + ((double)values->b) + values->p[0] + values->p[1] + values->p[2];
 +}
 +
 +DC_DEFINE_TEST_FUNC_BEGIN(testStructSizes)
 +
 +  {
-+  	typedef struct _S {
-+  	  double a, b, c, d;  
-+  	} S;
-+  	
-+  	size_t size;
-+  	DCstruct* s = dcNewStruct(4, DEFAULT_ALIGNMENT);
-+  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 1);
-+  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 1);
-+  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 1);
-+  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 1);
-+  	dcCloseStruct(s);
-+  	
-+  	DC_TEST_STRUCT_SIZE(S, s);
-+  	dcFreeStruct(s);
-+  }{
 +  	typedef struct _S {
 +  	  double a, b, c, d;  
 +  	} S;
@@ -329,12 +297,66 @@ Index: ~/src/dyncall/dyncall/test/plain/test_structs.c
 +  
 +DC_DEFINE_TEST_FUNC_END
 +
++
++typedef struct {
++  char a, b;
++  double p[10];
++} SomeValues;
++
++DCstruct* describe_SomeValues() {
++	DCstruct* s = dcNewStruct(3, DEFAULT_ALIGNMENT);
++  	dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_DOUBLE, DEFAULT_ALIGNMENT, 10);
++  	dcCloseStruct(s);
++  	return s;
++}
++double sum_SomeValues(SomeValues* values) {
++	return ((double)values->a) + ((double)values->b) + values->p[0] + values->p[1] + values->p[2];
++}
++
++typedef struct {
++  char a, b, c;
++} FewValues;
++
++DCstruct* describe_FewValues() {
++	DCstruct* s = dcNewStruct(3, DEFAULT_ALIGNMENT);
++  	dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
++  	dcStructField(s, DC_SIGCHAR_CHAR, DEFAULT_ALIGNMENT, 1);
++  	dcCloseStruct(s);
++  	return s;
++}
++double sum_FewValues(FewValues* values) {
++	printf("sum_FewValues(a = %d, b = %d, c = %d)\n", (int)values->a, (int)values->b, (int)values->c); 
++	return ((double)values->a) + ((double)values->b) + ((double)values->c);
++}
++
 +DC_DEFINE_TEST_FUNC_BEGIN(testCallStructs)
 +
 +  DCCallVM* pc = dcNewCallVM(4096);
-+  
-+  #if 1
-+  // Test struct argument :
++  {
++  	FewValues values;
++  	double calledSum, expectedSum;
++  	DCstruct* s = describe_FewValues();
++  	
++  	DC_TEST_STRUCT_SIZE(FewValues, s);
++  	
++  	values.a = 1;
++	values.b = 2;
++	values.c = 3;
++	
++    dcReset(pc);
++    dcMode(pc, DC_CALL_C_DEFAULT);
++    printf("BEFORE dcArgStruct\n");
++	dcArgStruct(pc, s, &values);
++    printf("AFTER dcArgStruct\n");
++    calledSum = dcCallDouble(pc, (DCpointer) &sum_FewValues);
++    expectedSum = sum_FewValues(&values);
++    
++	DC_TEST_INT_EQUAL(expectedSum, calledSum);
++  	dcFreeStruct(s);
++  }
 +  {
 +  	SomeValues values;
 +  	double calledSum, expectedSum;
@@ -357,16 +379,15 @@ Index: ~/src/dyncall/dyncall/test/plain/test_structs.c
 +	DC_TEST_INT_EQUAL(expectedSum, calledSum);
 +  	dcFreeStruct(s);
 +  }
-+  #endif
 +  
 +  dcFree(pc);
 +
 +DC_DEFINE_TEST_FUNC_END
 +
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n64.c
+Index: dyncall/dyncall/dyncall_callvm_mips_n64.c
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n64.c	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n64.c	
+--- dyncall/dyncall/dyncall_callvm_mips_n64.c	
++++ dyncall/dyncall/dyncall_callvm_mips_n64.c	
 @@ -190,6 +190,7 @@
  , &dc_callvm_argFloat_mips_n64
  , &dc_callvm_argDouble_mips_n64
@@ -383,10 +404,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n64.c
  };
  
  DCCallVM_vt gVT_mips_n64_ellipsis =
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_vector.c
+Index: dyncall/dyncall/dyncall_vector.c
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_vector.c	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_vector.c	
+--- dyncall/dyncall/dyncall_vector.c	
++++ dyncall/dyncall/dyncall_vector.c	
 @@ -22,14 +22,31 @@
  
  #include "dyncall_vector.h"
@@ -423,11 +444,11 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_vector.c
    } 
  }
  
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.c
+Index: dyncall/dyncall/dyncall_struct.c
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_struct.c	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_struct.c	
-@@ -0,0 +1,220 @@
+--- dyncall/dyncall/dyncall_struct.c	
++++ dyncall/dyncall/dyncall_struct.c	
+@@ -0,0 +1,221 @@
 +/*
 + Package: dyncall
 + File: dyncall/dyncall_struct.c
@@ -576,6 +597,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.c
 +	return s->size;
 +}
 +void dcArgStructUnroll(DCCallVM* vm, DCstruct* s, DCpointer  value) {
++	printf("UNROLLING STRUCT !\n");
 +	ASSERT(s && value);
 +	DCsize i;
 +	for (i = 0; i < s->fieldCount; i++) {
@@ -648,10 +670,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.c
 +	dcCloseStruct(s);
 +	return s;
 +}
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_eabi.c
+Index: dyncall/dyncall/dyncall_callvm_mips_eabi.c
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_eabi.c	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_eabi.c	
+--- dyncall/dyncall/dyncall_callvm_mips_eabi.c	
++++ dyncall/dyncall/dyncall_callvm_mips_eabi.c	
 @@ -152,6 +152,7 @@
  , &dc_callvm_argFloat_mips_eabi
  , &dc_callvm_argDouble_mips_eabi
@@ -668,10 +690,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_eabi.c
  };
  
  DCCallVM* dcNewCallVM_mips_eabi(DCsize size) 
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.h
+Index: dyncall/dyncall/dyncall_struct.h
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_struct.h	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_struct.h	
+--- dyncall/dyncall/dyncall_struct.h	
++++ dyncall/dyncall/dyncall_struct.h	
 @@ -0,0 +1,64 @@
 +/*
 + Package: dyncall
@@ -737,10 +759,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_struct.h
 +
 +#endif /* DYNCALL_H */
 +
-Index: ~/src/dyncall/dyncall/dyncall/GNUmakefile
+Index: dyncall/dyncall/GNUmakefile
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/GNUmakefile	
-+++ ~/src/dyncall/dyncall/dyncall/GNUmakefile	
+--- dyncall/dyncall/GNUmakefile	
++++ dyncall/dyncall/GNUmakefile	
 @@ -37,6 +37,7 @@
  INSTALL_LIB = 1
  
@@ -749,16 +771,17 @@ Index: ~/src/dyncall/dyncall/dyncall/GNUmakefile
  
  # @@@ disable dyncall_callf for pcc support temporarly
  ifdef BUILD_TOOL_pcc
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_api.c
+Index: dyncall/dyncall/dyncall_api.c
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_api.c	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_api.c	
-@@ -85,6 +85,12 @@
+--- dyncall/dyncall/dyncall_api.c	
++++ dyncall/dyncall/dyncall_api.c	
+@@ -85,6 +85,13 @@
    vm->mVTpointer->argPointer(vm,x); 
  }
  
 +void dcArgStruct(DCCallVM* vm, DCstruct* s, DCpointer x) 
 +{ 
++	printf("vm->mVTpointer->argStruct = %p\n", vm->mVTpointer->argStruct);
 +  vm->mVTpointer->argStruct(vm, s, x); 
 +}
 +
@@ -766,7 +789,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_api.c
  void dcCallVoid(DCCallVM* vm, DCpointer funcptr) 
  {        
    vm->mVTpointer->callVoid(vm, funcptr); 
-@@ -135,6 +141,11 @@
+@@ -135,6 +142,11 @@
    return vm->mVTpointer->callPointer(vm, funcptr); 
  }
  
@@ -778,10 +801,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_api.c
  DCint dcGetError(DCCallVM *vm)
  {
    return vm->mError;
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_x64.c
+Index: dyncall/dyncall/dyncall_callvm_x64.c
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_callvm_x64.c	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_callvm_x64.c	
+--- dyncall/dyncall/dyncall_callvm_x64.c	
++++ dyncall/dyncall/dyncall_callvm_x64.c	
 @@ -23,8 +23,8 @@
  
  #include "dyncall_callvm_x64.h"
@@ -792,7 +815,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_x64.c
  static DCCallVM* dc_callvm_new_x64(DCCallVM_vt* vt, DCsize size)
  {
    DCCallVM_x64* self = (DCCallVM_x64*)dcAllocMem(sizeof(DCCallVM_x64)+size);
-@@ -148,7 +148,16 @@
+@@ -148,7 +148,18 @@
      dcVecAppend(&self->mVecHead, &x, sizeof(DCpointer));
  }
  
@@ -800,16 +823,18 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_x64.c
 +{
 +  DCCallVM_x64* self = (DCCallVM_x64*)in_self;
 +  dcVecAppend(&self->mVecHead, x, s->size);
-+  
++  //printf("dc_callvm_argStruct_x64 size = %d\n", (int)s->size);
 +  if (s->size <= 64)
 +  	  dcArgStructUnroll(in_self, s, x);
++  //else
++  //	  dcVecAppend(&self->mVecHead, &x, sizeof(DCpointer));
 +}
  
 +
  /* Call. */
  void dc_callvm_call_x64(DCCallVM* in_self, DCpointer target)
  {
-@@ -183,6 +192,7 @@
+@@ -183,6 +194,7 @@
  , &dc_callvm_argFloat_x64
  , &dc_callvm_argDouble_x64
  , &dc_callvm_argPointer_x64
@@ -817,7 +842,7 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_x64.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x64
  , (DCboolvmfunc*)       &dc_callvm_call_x64
  , (DCcharvmfunc*)       &dc_callvm_call_x64
-@@ -193,6 +203,7 @@
+@@ -193,6 +205,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x64
  , (DCdoublevmfunc*)     &dc_callvm_call_x64
  , (DCpointervmfunc*)    &dc_callvm_call_x64
@@ -825,10 +850,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_x64.c
  };
  
  
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_arm32_arm.c
+Index: dyncall/dyncall/dyncall_callvm_arm32_arm.c
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_callvm_arm32_arm.c	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_callvm_arm32_arm.c	
+--- dyncall/dyncall/dyncall_callvm_arm32_arm.c	
++++ dyncall/dyncall/dyncall_callvm_arm32_arm.c	
 @@ -163,6 +163,7 @@
  , &dc_callvm_argFloat_arm32_arm
  , &dc_callvm_argDouble_arm32_arm
@@ -861,10 +886,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_arm32_arm.c
  };
  
  
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm.h
+Index: dyncall/dyncall/dyncall_callvm.h
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_callvm.h	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_callvm.h	
+--- dyncall/dyncall/dyncall_callvm.h	
++++ dyncall/dyncall/dyncall_callvm.h	
 @@ -49,6 +49,7 @@
    void         (*argFloat)       (DCCallVM* vm,DCfloat         f);
    void         (*argDouble)      (DCCallVM* vm,DCdouble        d);
@@ -881,10 +906,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm.h
  };
  
  typedef DCvoid       (DCvoidvmfunc)      (DCCallVM* vm,DCpointer funcptr); 
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_ppc32.c
+Index: dyncall/dyncall/dyncall_callvm_ppc32.c
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_callvm_ppc32.c	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_callvm_ppc32.c	
+--- dyncall/dyncall/dyncall_callvm_ppc32.c	
++++ dyncall/dyncall/dyncall_callvm_ppc32.c	
 @@ -302,6 +302,7 @@
  , &dc_callvm_argFloat_ppc32_darwin
  , &dc_callvm_argDouble_ppc32_darwin
@@ -917,10 +942,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_ppc32.c
  };
  
  void dc_callvm_mode_ppc32(DCCallVM* in_self, DCint mode)
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n32.c
+Index: dyncall/dyncall/dyncall_callvm_mips_n32.c
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n32.c	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n32.c	
+--- dyncall/dyncall/dyncall_callvm_mips_n32.c	
++++ dyncall/dyncall/dyncall_callvm_mips_n32.c	
 @@ -190,6 +190,7 @@
  , &dc_callvm_argFloat_mips_n32
  , &dc_callvm_argDouble_mips_n32
@@ -953,10 +978,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_n32.c
  };
  
  static void dc_callvm_mode_mips_n32(DCCallVM* self,DCint mode)
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_o32.c
+Index: dyncall/dyncall/dyncall_callvm_mips_o32.c
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_o32.c	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_o32.c	
+--- dyncall/dyncall/dyncall_callvm_mips_o32.c	
++++ dyncall/dyncall/dyncall_callvm_mips_o32.c	
 @@ -199,6 +199,7 @@
  , &dc_callvm_argFloat_mips_o32
  , &dc_callvm_argDouble_mips_o32
@@ -973,10 +998,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_mips_o32.c
  };
  
  DCCallVM* dcNewCallVM_mips_o32(DCsize size) 
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_signature.h
+Index: dyncall/dyncall/dyncall_signature.h
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_signature.h	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_signature.h	
+--- dyncall/dyncall/dyncall_signature.h	
++++ dyncall/dyncall/dyncall_signature.h	
 @@ -51,7 +51,9 @@
  #define DC_SIGCHAR_DOUBLE       'd'
  #define DC_SIGCHAR_POINTER      'p'
@@ -988,10 +1013,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_signature.h
  
  /* callback signatures */
  
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
+Index: dyncall/dyncall/dyncall_callvm_x86.c
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c	
+--- dyncall/dyncall/dyncall_callvm_x86.c	
++++ dyncall/dyncall/dyncall_callvm_x86.c	
 @@ -210,6 +210,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
@@ -1072,10 +1097,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  /* win32/this/ms callvm allocator */
-Index: ~/src/dyncall/dyncall/dyncall/dyncall.h
+Index: dyncall/dyncall/dyncall.h
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall.h	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall.h	
+--- dyncall/dyncall/dyncall.h	
++++ dyncall/dyncall/dyncall.h	
 @@ -44,6 +44,7 @@
  #endif
  
@@ -1118,10 +1143,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall.h
  #ifdef __cplusplus
  }
  #endif
-Index: ~/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
+Index: dyncall/dyncall/dyncall_call_x64_masm.asm
 ===================================================================
---- ~/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	
-+++ ~/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm	
+--- dyncall/dyncall/dyncall_call_x64_masm.asm	
++++ dyncall/dyncall/dyncall_call_x64_masm.asm	
 @@ -49,8 +49,8 @@
  
  	sub			rsp, rcx					; Setup stack frame by subtracting the size of the arguments.
@@ -1133,10 +1158,10 @@ Index: ~/src/dyncall/dyncall/dyncall/dyncall_call_x64_masm.asm
  	and			rax, 15
  	sub			rsp, rax
  
-Index: ~/src/dyncall/dyncall/dynload/dynload_darwin.c
+Index: dyncall/dynload/dynload_darwin.c
 ===================================================================
---- ~/src/dyncall/dyncall/dynload/dynload_darwin.c	
-+++ ~/src/dyncall/dyncall/dynload/dynload_darwin.c	
+--- dyncall/dynload/dynload_darwin.c	
++++ dyncall/dynload/dynload_darwin.c	
 @@ -27,7 +27,10 @@
  
  
@@ -1156,10 +1181,10 @@ Index: ~/src/dyncall/dyncall/dynload/dynload_darwin.c
  void* dlFindSymbol(DLLib* libHandle, const char* symbol)
  {
    return dlsym(libHandle && libHandle->handle ? libHandle->handle : RTLD_DEFAULT, symbol);
-Index: ~/src/dyncall/dyncall/dynload/dynload.h
+Index: dyncall/dynload/dynload.h
 ===================================================================
---- ~/src/dyncall/dyncall/dynload/dynload.h	
-+++ ~/src/dyncall/dyncall/dynload/dynload.h	
+--- dyncall/dynload/dynload.h	
++++ dyncall/dynload/dynload.h	
 @@ -24,6 +24,9 @@
  #ifndef DYNLOAD_H
  #define DYNLOAD_H
@@ -1193,10 +1218,10 @@ Index: ~/src/dyncall/dyncall/dynload/dynload.h
  
  /* symbol table enumeration */
  
-Index: ~/src/dyncall/dyncall/dynload/dynload_unix.h
+Index: dyncall/dynload/dynload_unix.h
 ===================================================================
---- ~/src/dyncall/dyncall/dynload/dynload_unix.h	
-+++ ~/src/dyncall/dyncall/dynload/dynload_unix.h	
+--- dyncall/dynload/dynload_unix.h	
++++ dyncall/dynload/dynload_unix.h	
 @@ -0,0 +1,51 @@
 +/*
 + Package: dynload
@@ -1249,10 +1274,10 @@ Index: ~/src/dyncall/dyncall/dynload/dynload_unix.h
 +};
 +
 +#endif // DYNLOAD_UNIX_H
-Index: ~/src/dyncall/dyncall/dynload/dynload_windows.c
+Index: dyncall/dynload/dynload_windows.c
 ===================================================================
---- ~/src/dyncall/dyncall/dynload/dynload_windows.c	
-+++ ~/src/dyncall/dyncall/dynload/dynload_windows.c	
+--- dyncall/dynload/dynload_windows.c	
++++ dyncall/dynload/dynload_windows.c	
 @@ -32,7 +32,8 @@
  
  DLLib* dlLoadLibrary(const char* libPath)
@@ -1263,10 +1288,10 @@ Index: ~/src/dyncall/dyncall/dynload/dynload_windows.c
  }
  
  void* dlFindSymbol(DLLib* libHandle, const char* symbol)
-Index: ~/src/dyncall/dyncall/dynload/dynload_syms.c
+Index: dyncall/dynload/dynload_syms.c
 ===================================================================
---- ~/src/dyncall/dyncall/dynload/dynload_syms.c	
-+++ ~/src/dyncall/dyncall/dynload/dynload_syms.c	
+--- dyncall/dynload/dynload_syms.c	
++++ dyncall/dynload/dynload_syms.c	
 @@ -17,12 +17,15 @@
  
  */
@@ -1284,10 +1309,10 @@ Index: ~/src/dyncall/dyncall/dynload/dynload_syms.c
  #    include "dynload_syms_mach-o.c"
  #  else
  #    include "dynload_syms_elf.c"
-Index: ~/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c
+Index: dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
---- ~/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	
-+++ ~/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c	
+--- dyncall/dynload/dynload_syms_mach-o.c	
++++ dyncall/dynload/dynload_syms_mach-o.c	
 @@ -33,9 +33,11 @@
  
  #if defined(DC__Arch_AMD64)
@@ -1332,10 +1357,10 @@ Index: ~/src/dyncall/dyncall/dynload/dynload_syms_mach-o.c
  static const struct NLIST_TYPE* get_nlist(DLSyms* pSyms, int index)
  {
  	const struct NLIST_TYPE* nl;
-Index: ~/src/dyncall/dyncall/dynload/dynload.c
+Index: dyncall/dynload/dynload.c
 ===================================================================
---- ~/src/dyncall/dyncall/dynload/dynload.c	
-+++ ~/src/dyncall/dyncall/dynload/dynload.c	
+--- dyncall/dynload/dynload.c	
++++ dyncall/dynload/dynload.c	
 @@ -18,11 +18,14 @@
  */
  
@@ -1352,10 +1377,10 @@ Index: ~/src/dyncall/dyncall/dynload/dynload.c
  #    include "dynload_darwin.c"
  #  else
  #    include "dynload_unix.c"
-Index: ~/src/dyncall/dyncall/dynload/dynload_syms_elf.c
+Index: dyncall/dynload/dynload_syms_elf.c
 ===================================================================
---- ~/src/dyncall/dyncall/dynload/dynload_syms_elf.c	
-+++ ~/src/dyncall/dyncall/dynload/dynload_syms_elf.c	
+--- dyncall/dynload/dynload_syms_elf.c	
++++ dyncall/dynload/dynload_syms_elf.c	
 @@ -20,6 +20,7 @@
  
  #if defined(DC__OS_Linux) && !defined(_GNU_SOURCE)
@@ -1504,10 +1529,10 @@ Index: ~/src/dyncall/dyncall/dynload/dynload_syms_elf.c
  }
  
  
-Index: ~/src/dyncall/dyncall/dynload/dynload_unix.c
+Index: dyncall/dynload/dynload_unix.c
 ===================================================================
---- ~/src/dyncall/dyncall/dynload/dynload_unix.c	
-+++ ~/src/dyncall/dyncall/dynload/dynload_unix.c	
+--- dyncall/dynload/dynload_unix.c	
++++ dyncall/dynload/dynload_unix.c	
 @@ -27,21 +27,49 @@
  
  
@@ -1563,10 +1588,10 @@ Index: ~/src/dyncall/dyncall/dynload/dynload_unix.c
 +  free(pLib);
  }
  
-Index: ~/src/dyncall/dyncall/buildsys/gmake/prolog.gmake
+Index: dyncall/buildsys/gmake/prolog.gmake
 ===================================================================
---- ~/src/dyncall/dyncall/buildsys/gmake/prolog.gmake	
-+++ ~/src/dyncall/dyncall/buildsys/gmake/prolog.gmake	
+--- dyncall/buildsys/gmake/prolog.gmake	
++++ dyncall/buildsys/gmake/prolog.gmake	
 @@ -28,6 +28,7 @@
  
  # config settings

@@ -25,7 +25,7 @@ if [[ "$NO_PATCH" != "1" ]] ; then
 	echo "Retrieving BridJ's dyncall patches..."
 	svn export https://nativelibs4java.googlecode.com/svn/trunk/libraries/Runtime/BridJ/src/main/cpp/bridj/dyncall.diff
 	echo "Applying BridJ's dyncall patches..."
-	cat dyncall.diff | sed 's/~\/src\/dyncall\///' | patch -N -p0 ;
+	cat dyncall.diff | patch -N -p0 ;
 fi
 
 cd dyncall
