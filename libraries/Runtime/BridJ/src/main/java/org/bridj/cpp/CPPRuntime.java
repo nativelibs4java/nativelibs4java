@@ -109,18 +109,18 @@ public class CPPRuntime extends CRuntime {
     }
 
     @Override
-    protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder) throws FileNotFoundException {
+    protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder, MethodCallInfoBuilder methodCallInfoBuilder) throws FileNotFoundException {
 
         int modifiers = method.getModifiers();
         boolean isCPPClass = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
 
 //		Annotation[][] anns = method.getParameterAnnotations();
         if (!isCPPClass) {
-            super.registerNativeMethod(type, typeLibrary, method, methodLibrary, builder);
+            super.registerNativeMethod(type, typeLibrary, method, methodLibrary, builder, methodCallInfoBuilder);
             return;
         }
 
-        MethodCallInfo mci = new MethodCallInfo(method);
+        MethodCallInfo mci = methodCallInfoBuilder.apply(method);
 
         Virtual va = method.getAnnotation(Virtual.class);
         if (va == null) {
@@ -236,8 +236,8 @@ public class CPPRuntime extends CRuntime {
 		return enableDestructors;
     }
 
+    @Convention(Style.ThisCall)
     public abstract static class CPPDestructor extends Callback {
-        @Convention(Style.ThisCall)
         public abstract void destroy(long peer);
     }
 

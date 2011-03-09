@@ -48,8 +48,7 @@ public class CPPTest {
 	public void test_Ctest_constructors() {
         Ctest ct =  new Ctest();
         Pointer<Ctest> p = pointerTo(ct);
-        int[] ints = p.getInts(4);
-		assertEquals(-123456, ct.firstField());
+        assertEquals(-123456, ct.firstField());
 		assertEquals(-33, new Ctest(-33).firstField());
 	}
 	@Test

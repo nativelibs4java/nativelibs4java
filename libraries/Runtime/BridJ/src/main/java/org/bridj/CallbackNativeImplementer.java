@@ -7,6 +7,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.io.FileNotFoundException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -118,7 +119,7 @@ class CallbackNativeImplementer extends ClassLoader {
                 dynamicCallbacks.put(key, cb);
 
                 runtime.register(callbackImplType, null, new CRuntime.MethodCallInfoBuilder() {
-					public MethodCallInfo apply(Method method) throws Exception {
+					public MethodCallInfo apply(Method method) throws FileNotFoundException {
 						MethodCallInfo mci = super.apply(method);
 						mci.setCallingConvention(callingConvention);
 						return mci;

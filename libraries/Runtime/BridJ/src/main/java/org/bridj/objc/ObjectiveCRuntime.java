@@ -153,10 +153,10 @@ public class ObjectiveCRuntime extends CRuntime {
     @Override
     protected void registerNativeMethod(Class<?> type,
             NativeLibrary typeLibrary, Method method,
-            NativeLibrary methodLibrary, Builder builder)
+            NativeLibrary methodLibrary, Builder builder, MethodCallInfoBuilder methodCallInfoBuilder)
             throws FileNotFoundException {
 
-        MethodCallInfo mci = new MethodCallInfo(method);
+        MethodCallInfo mci = methodCallInfoBuilder.apply(method);
         Selector sel = method.getAnnotation(Selector.class);
         if (Modifier.isStatic(method.getModifiers())) {
             mci.setNativeClass(getClass((Class) type).getPeer());

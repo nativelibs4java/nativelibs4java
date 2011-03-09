@@ -178,7 +178,7 @@ public class CRuntime extends AbstractBridJRuntime {
         register(type, null, null);
     }
     public static class MethodCallInfoBuilder {
-    	public MethodCallInfo apply(Method method) throws Exception {
+    	public MethodCallInfo apply(Method method) throws FileNotFoundException {
 			return new MethodCallInfo(method);
 		}
     }
