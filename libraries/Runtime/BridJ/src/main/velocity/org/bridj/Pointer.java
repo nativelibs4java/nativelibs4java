@@ -556,7 +556,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * @param parameterTypes parameter types of the function
      */
     public DynamicFunction asDynamicFunction(org.bridj.ann.Convention.Style callingConvention, Type returnType, Type... parameterTypes) {
-    		return BridJ.getCRuntime().getDynamicFunctionFactory(null, callingConvention, returnType, parameterTypes).newInstance(this);
+    		return CRuntime.getInstance().getDynamicFunctionFactory(null, callingConvention, returnType, parameterTypes).newInstance(this);
     }
     
     /**

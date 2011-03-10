@@ -1,9 +1,12 @@
 package org.bridj;
 
+import java.util.ArrayList;
+import java.lang.reflect.Method;
 import org.bridj.Dyncall.CallingConvention;
 import java.io.FileNotFoundException;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -98,16 +101,19 @@ public class CPPTest {
     
     @Test
     public void testJavaVirtualOverride() {
-        int a = 1, b = 2;
         Ctest test = new Ctest();
         assertEquals(3, testIndirectVirtualAdd(pointerTo(test), 1, 2));
 
-        test = new Ctest() {
+        test = new Ctest(10) {
             @Override
             public int testVirtualAdd(int a, int b) {
                 return a * 10 + b * 100;//super.testVirtualAdd(a, b) * 2;
             }
         };
+        List<Method> virtualMethods = new ArrayList<Method>();
+        CPPRuntime.getInstance().listVirtualMethods(test.getClass(), virtualMethods);
+        System.out.println("virtualMethods = " + virtualMethods);
+        int a = 1, b = 2;
         assertEquals(a * 10 + b * 100, testIndirectVirtualAdd(pointerTo(test), a, b));
     }
 	

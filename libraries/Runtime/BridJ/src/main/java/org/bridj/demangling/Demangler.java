@@ -4,6 +4,7 @@ import org.bridj.ann.Convention.Style;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
 import java.util.Arrays;
+import org.bridj.AbstractBridJRuntime;
 import org.bridj.BridJ;
 import org.bridj.CRuntime;
 import org.bridj.FlagSet;
@@ -767,8 +768,9 @@ public abstract class Demangler {
             Template temp = Utils.getClass(type).getAnnotation(Template.class);
             Annotation[][] anns = constr.getParameterAnnotations();
             Type[] parameterTypes = constr.getGenericParameterTypes();
-            
-            if (!matchesArgs(parameterTypes, anns, temp == null ? 0 : temp.value().length))
+
+            int overrideOffset = Utils.getEnclosedConstructorParametersOffset(constr);
+            if (!matchesArgs(parameterTypes, anns, overrideOffset + (temp == null ? 0 : temp.value().length)))
             	return false;
 
             return true;

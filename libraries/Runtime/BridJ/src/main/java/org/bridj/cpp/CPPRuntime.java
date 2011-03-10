@@ -49,6 +49,9 @@ import static org.bridj.Pointer.*;
  */
 public class CPPRuntime extends CRuntime {
 
+    public static CPPRuntime getInstance() {
+        return BridJ.getRuntimeByRuntimeClass(CPPRuntime.class);
+    }
     @Override
     public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType) {
         //String className = null;
@@ -91,21 +94,42 @@ public class CPPRuntime extends CRuntime {
         return count;
     }
 
+    
     public void listVirtualMethods(Class<?> type, List<Method> out) {
         if (!CPPObject.class.isAssignableFrom(type)) {
             return;
         }
 
-        for (Method m : type.getDeclaredMethods()) {
-            if (m.getAnnotation(Virtual.class) != null) {
-                out.add(m);
+        Class<?> sup = type.getSuperclass();
+        if (sup != CPPObject.class) {
+            listVirtualMethods(sup, out);
+        }
+
+        int nParentMethods = out.size();
+
+        methods:
+        for (Method method : type.getDeclaredMethods()) {
+            String methodName = method.getName();
+            Type[] methodParameterTypes = method.getGenericParameterTypes();
+            for (int iParentMethod = 0; iParentMethod < nParentMethods; iParentMethod++) {
+                Method parentMethod = out.get(iParentMethod);
+                if (parentMethod.getDeclaringClass() == type)
+                    continue; // was just added in the same listVirtualMethods call !
+
+                //if (parentMethod.getAnnotation(Virtual.class) == null)
+                //    continue; // not a virtual method, too bad
+
+                if (parentMethod.getName().equals(methodName) && isOverridenSignature(parentMethod.getGenericParameterTypes(), methodParameterTypes, 0)) {
+                    out.set(iParentMethod, method);
+                    continue methods;
+                }
+            }
+                    
+            if (method.getAnnotation(Virtual.class) != null) {
+                out.add(method);
             }
         }
 
-        type = type.getSuperclass();
-        if (type != CPPObject.class) {
-            listVirtualMethods(type, out);
-        }
     }
 
     @Override
@@ -247,12 +271,12 @@ public class CPPRuntime extends CRuntime {
         DynamicFunction constructor = constructors.get(key);
         if (constructor == null) {
             try {
-                final Constructor<?> constr = findConstructor(typeClass, constructorId);
+                final Constructor<?> constr = findConstructor(typeClass, constructorId, true);
                 Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
-                    return symbol.matchesConstructor(type, constr);
+                    return symbol.matchesConstructor(constr.getDeclaringClass() == Utils.getClass(type) ? type : constr.getDeclaringClass() /* TODO */, constr);
                 }});
                 if (symbol == null)
-                    throw new RuntimeException("No matching constructor for " + typeClass.getName() + " (" + constructor + ")");
+                    throw new RuntimeException("No matching constructor for " + typeClass.getName() + " (" + constr + ")");
 
 
 

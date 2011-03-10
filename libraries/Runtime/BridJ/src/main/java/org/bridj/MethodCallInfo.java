@@ -160,6 +160,9 @@ public class MethodCallInfo {
 		return hasCC;
 	}
 	public void setCallingConvention(Convention.Style style) {
+        if (style == null)
+            return;
+        
 		switch (style) {
 		case FastCall:
 			this.direct = false;

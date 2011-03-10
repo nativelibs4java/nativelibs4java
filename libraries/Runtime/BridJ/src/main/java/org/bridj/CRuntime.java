@@ -27,12 +27,21 @@ public class CRuntime extends AbstractBridJRuntime {
 	final static Set<Type> registeredTypes = new HashSet<Type>();
 	final CallbackNativeImplementer callbackNativeImplementer;
 
+    /**
+     * @deprecated use {@link CRuntime#getInstance() } instead
+     */
+    @Deprecated
     public CRuntime() {
         callbackNativeImplementer = new CallbackNativeImplementer(BridJ.getOrphanEntities(), this);
     }
     public boolean isAvailable() {
         return true;
     }
+
+    public static CRuntime getInstance() {
+        return BridJ.getRuntimeByRuntimeClass(CRuntime.class);
+    }
+    
     
 	@Override
 	public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType) {

@@ -182,9 +182,6 @@ public class BridJ {
 	}
     private static Map<Class<? extends BridJRuntime>, BridJRuntime> runtimes = new HashMap<Class<? extends BridJRuntime>, BridJRuntime>();
 
-    public static CRuntime getCRuntime() {
-        return getRuntimeByRuntimeClass(CRuntime.class);
-    }
     public static synchronized <R extends BridJRuntime> R getRuntimeByRuntimeClass(Class<R> runtimeClass) {
         R r = (R) runtimes.get(runtimeClass);
         if (r == null) {
