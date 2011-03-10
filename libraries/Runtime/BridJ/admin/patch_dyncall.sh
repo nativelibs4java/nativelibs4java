@@ -11,7 +11,7 @@ fi
 
 DYNCALL_HOME=`pwd`/$1
 
-if [[ -d "$$DYNCALL_HOME" ]] ; then
+if [[ -d "$DYNCALL_HOME" ]] ; then
 	echo "Directory $DYNCALL_HOME already exists."
 	echo "Please backup or remove with 'rm -fR $DYNCALL_HOME' and retry (or use a different name)"
 	exit 1 ;
