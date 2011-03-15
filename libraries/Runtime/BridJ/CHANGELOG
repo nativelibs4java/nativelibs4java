@@ -1,8 +1,27 @@
 Current version : BridJ 0.4-SNAPSHOT
 
+- Introduced basic C++ templates support (binding of compiled template classes, not template methods / functions yet)
+- Added dynamic functions support : Pointer.asDynamicFunction(callConv, returnType, argTypes...)
+- Added support for arbitrary C++ constructors
+- Added support for __stdcall callbacks
+- Added COM VARIANT class with very basic data conversion support
+- Added many COM UUID definitions (from uuids.h, codecapi.h, ksuuids.h)
+- Added Solaris x86 support
+- Added @DisableDirect annotation to force-disable raw assembly optimizations (also see BRIDJ_DIRECT=0 or -Dbridj.direct=false for global disable)
+- Fixed long return values (issue #47)
+- Fixed '@Ptr long' return values on 32 bits platforms
+- Fixed structs sub-structs and array fields
+- Fixed unions : 
+	- pure unions can be created with the @Union annotation on the union class (+ fields annotated with @Field(value = uniqueId))
+	- structs with unioned fields can be defined with fields annotated with @Field(value = uniqueId, unionWith = indexOfTheFirstFieldOfTheUnion) 
+- Fixed size computation of unions & structs (issue #51)
+- Fixed JAWTUtils on win32 (issue #52)
+- Fixed Pointer.pointerToAddress(long, Class, Releaser) (issue #48)
 - Moved all the is64Bits(), isWindows()... methods and SIZE_T_SIZE constants out of JNI class into new Platform class
 - Moved the C++ symbols demanglers to package org.bridj.demangling
-- ...
+- Renamed Pointer.asPointerTo(Type) to Pointer.as(Type)
+- Enhanced FlagSet (added toString(), toEnum(), fromValue(ValuedEnum<E>))
+- Greatly enhanced the API Javadoc
 
 BridJ 0.3 (r1638, 20110204):
 
