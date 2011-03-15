@@ -7,6 +7,7 @@ import static org.junit.Assert.*;
 
 import org.bridj.ann.Field;
 import org.bridj.ann.Library;
+import org.bridj.ann.Array;
 import org.bridj.ann.Ptr;
 import org.bridj.cpp.com.*;
 import static org.bridj.Pointer.*;
@@ -512,6 +513,21 @@ public class StructTest {
         SubStruct sub = s.sub();
         assertEquals("Invalid sub-struct !", pointerTo(s).offset(4), pointerTo(sub));
         
+    }
+    
+    public static class StructWithArrays extends StructObject {
+    		@Array(10)
+    		@Field(0)
+    		public Pointer<Integer> ints() {
+    			return io.getPointerField(this, 0);
+    		}
+    }
+    @Test
+    public void testStructWithArrays() {
+        StructWithArrays s = new StructWithArrays();
+        Pointer<Integer> pInts = s.ints();
+        assertEquals("Invalid array field pointer type", Integer.class, pInts.getTargetType());
+        assertEquals("Invalid sub array", pointerTo(s).getPeer(), pInts.getPeer());
     }
 }
 

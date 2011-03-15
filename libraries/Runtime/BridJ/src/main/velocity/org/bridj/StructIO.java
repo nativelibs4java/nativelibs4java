@@ -57,6 +57,7 @@ public class StructIO {
         public long byteOffset = -1, byteLength = -1;
 		public long bitOffset, bitLength = -1;
         public long arrayLength = 1;
+        public boolean isArray = false;
         public Type nativeTypeOrPointerTargetType;
 
         @Override
@@ -257,6 +258,7 @@ public class StructIO {
             for (long dim : arr.value())
                 length *= dim;
             field.desc.arrayLength = length;
+            field.desc.isArray = true;
         }
         return field;
     }
@@ -531,10 +533,14 @@ public class StructIO {
 	
 	public final <T> Pointer<T> getPointerField(StructObject struct, int fieldIndex) {
         FieldDesc fd = fields[fieldIndex];
-		Pointer<T> p = struct.peer.getPointerAtOffset(fd.byteOffset, fd.nativeTypeOrPointerTargetType);
-        if (fd.arrayLength != 1)
-            p = p.validElements(fd.arrayLength);
-        return p;
+        Pointer<T> p;
+        if (fd.isArray) {
+        		p = struct.peer.offset(fd.byteOffset).as(fd.nativeTypeOrPointerTargetType);
+        		p = p.validElements(fd.arrayLength);
+        } else {
+        		p = struct.peer.getPointerAtOffset(fd.byteOffset, fd.nativeTypeOrPointerTargetType);
+        }
+		return p;
 	}
 	
 	public final <T> void setPointerField(StructObject struct, int fieldIndex, Pointer<T> value) {
