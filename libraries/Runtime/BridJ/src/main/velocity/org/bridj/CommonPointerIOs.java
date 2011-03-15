@@ -3,7 +3,7 @@ import org.bridj.util.*;
 import java.util.*;
 import java.nio.*;
 import java.lang.reflect.Type;
-import com.ochafik.util.string.StringUtils;
+import org.ochafik.util.string.StringUtils;
 import static org.bridj.util.DefaultParameterizedType.*;
 
 class CommonPointerIOs {
