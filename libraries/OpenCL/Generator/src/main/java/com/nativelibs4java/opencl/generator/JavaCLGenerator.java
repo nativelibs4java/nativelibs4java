@@ -25,6 +25,7 @@ import com.ochafik.lang.jnaerator.parser.Expression;
 import com.ochafik.lang.jnaerator.parser.Function;
 import com.ochafik.lang.jnaerator.parser.Identifier;
 import com.ochafik.lang.jnaerator.parser.Modifier;
+import com.ochafik.lang.jnaerator.parser.ModifierType;
 import com.ochafik.lang.jnaerator.parser.SourceFile;
 import com.ochafik.lang.jnaerator.parser.Statement;
 import com.ochafik.lang.jnaerator.parser.Struct;
@@ -75,12 +76,12 @@ public class JavaCLGenerator extends JNAerator {
             @Override
             public Boolean adapt(Function value) {
                 List<Modifier> mods = value.getModifiers();
-                if (Modifier.__kernel.isContainedBy(mods))
+                if (ModifierType.__kernel.isContainedBy(mods))
                     return true;
                 if (value.getValueType() == null)
                     return null;
                 mods = value.getValueType().getModifiers();
-                return Modifier.__kernel.isContainedBy(mods);
+                return ModifierType.__kernel.isContainedBy(mods);
             }
         };
 	}
@@ -178,7 +179,7 @@ public class JavaCLGenerator extends JNAerator {
                                 String argName = arg.getName() == null ? "arg" + iArg : arg.getName();
                                 Expression argExpr;
                                     
-                                if (Modifier.__local.isContainedBy(mods)) {
+                                if (ModifierType.__local.isContainedBy(mods)) {
                                     argName += "LocalByteSize";
                                     //convTr = typeRef(Long.TYPE);
                                     //argExpr = new Expression.New(typeRef(CLKernel.LocalSize.class), varRef(argName));
@@ -216,7 +217,7 @@ public class JavaCLGenerator extends JNAerator {
                         if (signatures.variablesSignatures.add(kernelVarName))
                         		out.addDeclaration(new VariablesDeclaration(typeRef(CLKernel.class), new Declarator.DirectDeclarator(kernelVarName)));
                         Function method = new Function(Function.Type.JavaMethod, ident(functionName), typeRef(CLEvent.class));
-                        method.addModifiers(Modifier.Public, Modifier.Synchronized);
+                        method.addModifiers(ModifierType.Public, ModifierType.Synchronized);
                         method.addThrown(typeRef(CLBuildException.class));
 
                         method.setArgs(convArgs);
@@ -417,7 +418,7 @@ public class JavaCLGenerator extends JNAerator {
 
             Struct interf = new Struct();
 			interf.addToCommentBefore("Wrapper around the OpenCL program " + name);
-			interf.addModifiers(Modifier.Public);
+			interf.addModifiers(ModifierType.Public);
 			interf.setTag(ident(name));
 			interf.addParent(ident(CLAbstractUserProgram.class));
 			interf.setType(Struct.Type.JavaClass);
@@ -428,7 +429,7 @@ public class JavaCLGenerator extends JNAerator {
                 String argName = constrArgNames[i];
 
                 Function constr = new Function(Function.Type.JavaMethod, ident(name), null, new Arg(argName, typeRef(constrArgTypes[i])));
-                constr.addModifiers(Modifier.Public);
+                constr.addModifiers(ModifierType.Public);
                 constr.addThrown(typeRef(IOException.class));
                 constr.setBody(
                     block(
