@@ -42,6 +42,7 @@ case object ListType extends ColType("List")
 case object ArrayType extends ColType("Array")
 case object IndexedSeqType extends ColType("IndexedSeq")
 case object MapType extends ColType("Map")
+case object OptionType extends ColType("Option")
 
 
 trait MiscMatchers {
@@ -129,6 +130,7 @@ trait MiscMatchers {
   val scanLeftName = N("scanLeft")
   val scanRightName = N("scanRight")
   val mapName = N("map")
+  val collectName = N("collect")
   val canBuildFromName = N("canBuildFrom")
   val filterName = N("filter")
   val filterNotName = N("filterNot")
@@ -158,6 +160,8 @@ trait MiscMatchers {
   lazy val ScalaMathCommonClass = definitions.getClass(N("scala.MathCommon"))
   lazy val SeqClass = definitions.getClass(N("scala.collection.Seq"))
   lazy val SeqModule = definitions.getModule(N("scala.collection.Seq"))
+  lazy val OptionClass = definitions.getClass(N("scala.Option"))
+  lazy val OptionModule = definitions.getModule(N("scala.Option"))
   lazy val CanBuildFromClass = definitions.getClass("scala.collection.generic.CanBuildFrom")
   lazy val ArrayBufferClass = definitions.getClass("scala.collection.mutable.ArrayBuffer")
   lazy val RefArrayBuilderClass = definitions.getClass("scala.collection.mutable.ArrayBuilder.ofRef")
@@ -333,6 +337,12 @@ trait MiscMatchers {
         // TODO FIX THIS BROAD HACK !!! (test tt)
         //println("tt.tpe = (" + tt.tpe + ": " + tt.tpe.getClass.getName + ")")
         components
+    }
+  }
+  object OptionCreation {
+    def unapply(tree: Tree): Option[List[Tree]] = Option(tree) collect {
+      case Apply(TypeApply(Select(optionObject, applyName()), List(tpe)), List(component)) if optionObject.symbol == OptionModule =>
+        List(component)
     }
   }
   object Predef {
@@ -531,6 +541,9 @@ trait MiscMatchers {
     }
     case class Map(f: Tree, canBuildFrom: Tree) extends TraversalOpType {
       override def toString = "map"
+    }
+    case class Collect(f: Tree, canBuildFrom: Tree) extends TraversalOpType {
+      override def toString = "collect"
     }
     case class Foreach(f: Tree) extends TraversalOpType {
       override def toString = "foreach"

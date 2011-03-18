@@ -381,57 +381,7 @@ trait RewritingPluginComponent {
         }
       }
     }
-    /*
-    def getManifest(tpe: Type, localTyper: analyzer.Typer): Tree = {
-      var t = tpe//.dealias.deconst.widen
-      //t = t.dealias.deconst//.widen
-      var manifest = localTyper.findManifest(t, false).tree
-      if (manifest == EmptyTree) {
-        manifest = t match {
-          case TypeRef(tt, cc, List(param)) =>
-            if (cc == ArrayClass) {
-              val arrayTypeName = N("arrayType")
-              val sym = PartialManifestModule.tpe member arrayTypeName
-              typed {
-                Apply(
-                  TypeApply(
-                    Select(
-                      Select(
-                        Select(
-                          Ident(
-                            N("scala")
-                          ) setSymbol(ScalaPackage), 
-                          N("reflect")
-                        ).setSymbol(ScalaReflectPackage), 
-                        N("PartialManifest")
-                      ).setSymbol(PartialManifestModule),
-                      arrayTypeName
-                    ).setSymbol(sym),
-                    List(TypeTree(param))
-                  ),
-                  List(
-                    //localTyper.findManifest(param, false).tree
-                    getManifest(param, localTyper)
-                  )
-                )
-              }
-            } else {
-              println("cc = " + cc)
-              println("cc = " + ArrayClass)
-              EmptyTree
-            }
-            //cc.typeConstructor//param//.typeSymbol
-          //case PolyType(Nil, TypeRef(tt, cc, List(param))) => 
-          //  tt//param//.typeSymbol
-          case _ =>
-            println("UNKNOWN TYPE t = " + t + " (" + t.getClass.getName + ")")
-            EmptyTree
-        }
-        println("MANIFEST = " + manifest)
-      }
-      assert(manifest != EmptyTree, "Empty manifest for type : " + tpe + " = " + t)
-      manifest 
-    }*/
+    
     def simpleBuilderResult(builder: Tree): Tree = {
       val resultMethod = builder.tpe member resultName
       Apply(
@@ -672,6 +622,108 @@ trait RewritingPluginComponent {
             options.experimental // slow in some cases !
           case _ =>
             true
+        }
+      }
+
+      override def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree, Tree => Tree) = {
+        val builderType = appliedType(ListBufferClass.tpe, List(componentType))
+        (
+          builderType,
+          typed {
+            val sym = builderType.typeSymbol.primaryConstructor
+            Apply(
+              Select(
+                New(TypeTree(builderType)),
+                builderType.typeSymbol.primaryConstructor
+              ).setSymbol(sym),//.setType(sym.tpe),
+              Nil
+            ).setSymbol(sym)//.setType(builderType)
+          },
+          simpleBuilderResult _
+        )
+      } 
+      override def foreach[Payload](
+        tree: Tree,
+        collection: Tree,
+        componentType: Type,
+        reverseOrder: Boolean,
+        skipFirst: Boolean,
+        outerStatements: LoopOutersEnv => LoopOuters[Payload],
+        innerStatements: LoopInnersEnv[Payload] => LoopInners
+      ): Tree = {
+        assert(!reverseOrder)
+        val pos = tree.pos
+        val colTpe = collection.tpe
+        val aVar = newVariable(unit, "list$", currentOwner, pos, true, collection)
+        val itemVar = newVariable(unit, "item$", currentOwner, pos, false, typed {
+            Select(aVar(), headName).setSymbol(colTpe.member(headName))//.setType(componentType)
+        })
+        val loopOuters = outerStatements(new LoopOutersEnv(aVar, null, null))
+        val loopInners = new LoopInnersEnv[Payload](aVar, null, null, null, itemVar, loopOuters.payload)
+        val LoopInners(statements, extraTest) = innerStatements(loopInners)
+        typed {
+          treeCopy.Block(
+            tree,
+            List(
+              aVar.definition
+            ) ++
+            loopOuters.typedStatements ++
+            List(
+              whileLoop(
+                currentOwner,
+                unit,
+                tree,
+                if ("1" == System.getenv("SCALACL_LIST_TEST_ISEMPTY")) // Safer, but 10% slower
+                  boolAnd(boolNot(Select(aVar(), isEmptyName).setSymbol(colTpe.member(isEmptyName)).setType(BooleanClass.tpe)), extraTest)
+                else
+                  boolAnd(newIsInstanceOf(aVar(), appliedType(NonEmptyListClass.typeConstructor, List(componentType))),extraTest)
+                  //boolAnd(typed { aVar().IS(NonEmptyListClass.tpe) }/*.setType(BooleanClass.tpe)*/, extraTest),
+                ,
+                typed {
+                  val itemAndInnerStats =
+                    List(itemVar.definition) ++
+                    filteredContent(statements, loopInners.itemVar)
+                  val sym = colTpe member tailName
+                  Block(
+                    itemAndInnerStats,//.map(typed),
+                    Assign(
+                      aVar(),
+                      Select(aVar(), tailName).setSymbol(sym).setType(sym.tpe)//.setType(colTpe)
+                    ).setType(UnitClass.tpe)
+                  )
+                }
+              )
+            ),
+            loopOuters.finalReturnValueOrUnit
+          )
+        }
+      }
+    }
+    case object OptionRewriter extends CollectionType with HasBufferBuilder {
+      override val supportsRightVariants = false
+      override def colToString(tpe: Type) = tpe.toString
+
+      override def isSafeRewrite(op: TraversalOpType) = {
+        import TraversalOp._
+        op match {
+          //case Foreach(_) =>
+          //  options.experimental
+          case ToCollection(colType, _) =>
+            true
+          //case Map | Sum | Fold | _: AllOrSome =>
+          //  true
+          case Reduce(_, _) | Fold(_, _) | Scan(_, _) =>
+            false
+          case _: Foreach =>
+            options.experimental // slow in some cases !
+          case _: Filter =>
+            options.experimental // slow in some cases !
+          case _: Map =>
+            options.experimental // slow in some cases !
+          case _: Collect =>
+            options.experimental // slow in some cases !
+          case _ =>
+            false
         }
       }
 
