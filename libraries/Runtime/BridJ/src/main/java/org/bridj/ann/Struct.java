@@ -6,10 +6,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Struct details such as explicit fields packing and padding.
+ */
 @Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface Struct {
 	boolean packed() default false;
 	int padding() default -1;
+	int fieldCount() default -1;
+	int size() default -1;
 }

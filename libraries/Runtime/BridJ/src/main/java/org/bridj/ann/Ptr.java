@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- *
+ * Indicate that a Java long value is represented by a natively-sized integer ('size_t' and pointer types).
  * @author Olivier Chafik
  */
 @Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})

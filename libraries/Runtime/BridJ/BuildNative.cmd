@@ -11,7 +11,11 @@ pushd ..
 call GenerateJNIStubs.cmd
 popd
 
-for %%C in (Release Debug) do (
+if "%CONFIG%" == "" set CONFIGS=Release Debug
+if not "%CONFIG%" == "" set CONFIGS=%CONFIG%
+if "%CONFIG%" == "" set CONFIG=Release
+
+for %%C in (%CONFIGS%) do (
 	REM if exists "c:\Program Files (x86)" 
 	call "c:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
 	REM if not exists "c:\Program Files (x86)" call "c:\Program Files\Microsoft Visual Studio 9.0\VC\vcvarsall.bat" x86
@@ -31,7 +35,7 @@ for %%T in (win32 win64) do (
 )
 
 rem set CONFIG=Debug
-set CONFIG=Release
+rem set CONFIG=Release
 
 copy %CONFIG%\bridj.dll ..\..\..\resources\win32
 copy %CONFIG%\test.dll ..\..\..\..\test\resources\win32
@@ -39,14 +43,17 @@ copy %CONFIG%\test.dll ..\..\..\..\test\resources\win32
 copy x64\%CONFIG%\bridj.dll ..\..\..\resources\win64
 copy x64\%CONFIG%\test.dll ..\..\..\..\test\resources\win64
 
-if "%CONFIG%" == "Debug" (
+rem if "%CONFIG%" == "Debug" (
 
 	copy %CONFIG%\bridj.pdb ..\..\..\resources\win32
 	copy %CONFIG%\test.pdb ..\..\..\..\test\resources\win32
 	
 	copy x64\%CONFIG%\bridj.pdb ..\..\..\resources\win64
 	copy x64\%CONFIG%\test.pdb ..\..\..\..\test\resources\win64
-)
+rem )
+rem echo Copied files from %CONFIG% :
+rem dir %CONFIG%\bridj.dll x64\%CONFIG%\bridj.dll
+
 
 popd
 

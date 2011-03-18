@@ -28,7 +28,7 @@
 		<property name="sun.java2d.noddraw" value="true"/>
       	<extension name="JavaCL-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/JavaCL.jnlp"/>
       	-->
-		<extension name="jogl-all-awt" href="http://download.java.net/media/jogl/jsr-231-2.x-webstart/jogl-all-awt.jnlp" />
+      	<extension name="jogl-all-awt" href="http://jogamp.org/deployment/webstart/jogl-all-awt.jnlp" />
       	<j2se version="1.6+" java-vm-args="-Xmx1g -XX:MaxDirectMemorySize=1g"/>
 	</resources>
 	<application-desc 

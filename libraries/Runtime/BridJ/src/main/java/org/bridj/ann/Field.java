@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates the index of a structure field.
- * For C++ structs, the index is relative to the struct's declared class, not to the parent structure(s).
+ * Indicate the index of a structure field (in Java, the order of methods and fields is unspecified so you need to order them explicitely).<br>
+ * For C++ structs, the index is absolute : it must take into account the fields in parent classes (unlike {@link Virtual}, which virtual table offset is relative to the declared class).
  * @author ochafik
  */
 @Retention(RetentionPolicy.RUNTIME)
@@ -20,4 +20,14 @@ public @interface Field {
      */
     int value();
 
+    /**
+     * Absolute index of the field from the start of the struct
+     */
+    //int offset() default Integer.MIN_VALUE;
+    
+    /**
+     * Declare that this field shares its space with another (the two or more fields are in an union).<br>
+     * The unionWith index must be the index of the first field of the union.
+     */
+    int unionWith() default -1;
 }

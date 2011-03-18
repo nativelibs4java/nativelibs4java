@@ -112,7 +112,7 @@ public class JavaCL {
 			try {
 				if (!probe.isValid()) {
 					String alt;
-					if (JNI.is64Bits() && BridJ.getNativeLibraryFile(alt = "atiocl64") != null ||
+					if (Platform.is64Bits() && BridJ.getNativeLibraryFile(alt = "atiocl64") != null ||
 						BridJ.getNativeLibraryFile(alt = "atiocl32") != null ||
 						BridJ.getNativeLibraryFile(alt = "atiocl") != null) 
 					{

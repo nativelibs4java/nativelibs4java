@@ -54,6 +54,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 					jobject jptr = (jobject)dcbArgPointer(args);
 					void* ptr = jptr ? getPointerPeer(env, (void*)jptr) : NULL;
 					call->pCallIOs++;
+					// printf("ARG POINTER = %d\n", ptr);
 					dcArgPointer(call->vm, ptr);
 				}
 				break;
@@ -93,18 +94,18 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 			result->uni = dcCall ## capCase(call->vm, callback); \
 			break;
 		CALL_CASE(eIntValue, Int, INT, i)
-		CALL_CASE(eLongValue, Long, LONGLONG, l)
+		CALL_CASE(eLongValue, LongLong, LONGLONG, l)
 		CALL_CASE(eShortValue, Short, SHORT, s)
 		CALL_CASE(eFloatValue, Float, FLOAT, f)
 		CALL_CASE(eDoubleValue, Double, DOUBLE, d)
 		case eBooleanValue:
 		CALL_CASE(eByteValue, Char, CHAR, c)
 		case eCLongValue:
-			result->l = (jlong)dcCallLong(call->vm, callback);
+			result->L = (jlong)dcCallLong(call->vm, callback);
 			break;
 		case eSizeTValue:
-		    result->l = PTR_TO_JLONG(dcCallPointer(call->vm, callback));
-			break;
+			result->L = (size_t)dcCallPointer(call->vm, callback);
+		    break;
 		case eVoidValue:
 			dcCallVoid(call->vm, callback);
 			break;
@@ -122,6 +123,7 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 				else
 				{
 					jobject callIO = *call->pCallIOs;
+					//printf("RETURNED POINTER = %d\n", ptr);
 					result->p = createPointerFromIO(env, ptr, callIO);
 				}
 				call->pCallIOs++;

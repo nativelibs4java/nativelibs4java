@@ -16,17 +16,17 @@ import org.bridj.BridJ;
 
 
 /**
- *
+ * Base class for C++ structs and classes.
  * @author Olivier
  */
 @Runtime(CPPRuntime.class)
-public class CPPObject extends StructObject {
-	public CPPObject() {}
-    public CPPObject(Pointer<? extends CPPObject> peer) {
+public abstract class CPPObject extends StructObject {
+	protected CPPObject() {}
+    protected CPPObject(Pointer<? extends CPPObject> peer) {
         super(peer);
     }
-    public CPPObject(int constructorId, Object... args) {
-        super(constructorId, args);
+    protected CPPObject(Void voidArg, int constructorId, Object... args) {
+        super(voidArg, constructorId, args);
     }
     /*
     @Override

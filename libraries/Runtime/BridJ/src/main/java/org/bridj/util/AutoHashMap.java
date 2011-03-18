@@ -3,6 +3,9 @@ package org.bridj.util;
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
+/**
+ * HashMap that creates its missing values automatically, using the value class' default constructor (override @see AutoHashMap#newInstance(Object) to call another constructor)
+ */
 public class AutoHashMap<K, V> extends HashMap<K, V> {
 	private static final long serialVersionUID = 1693618702345072811L;
 	public AutoHashMap(Class<V> valueClass) {
@@ -21,7 +24,7 @@ public class AutoHashMap<K, V> extends HashMap<K, V> {
 		}
 	}
 	@SuppressWarnings("unchecked")
-	public V get(Object key) {
+	public synchronized V get(Object key) {
 		V v = super.get(key);
 		if (v == null)
 			put((K)key, v = newInstance((K)key));

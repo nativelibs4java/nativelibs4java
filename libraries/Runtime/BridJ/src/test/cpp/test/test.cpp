@@ -97,7 +97,8 @@ TEST_API double __cdecl testASinB(int a, int b)
 Ctest::Ctest()
 {
 	cout << "Constructing Ctest instance\n";
-	
+	firstField = -123456;
+	secondField = 12;
 	
 #if defined(DC__Arch_Intel_x86)
 /*
@@ -111,6 +112,10 @@ Ctest::Ctest()
 #endif
 
 	//printf("Ctest::Ctest() (this = %ld)\n", (long int)(size_t)this);
+}
+Ctest::Ctest(int firstField) {
+	this->firstField = firstField;
+	this->secondField = 0;
 }
 Ctest::~Ctest()
 {
@@ -132,6 +137,11 @@ int Ctest::testVirtualAdd(int a, int b) {
 	//printf("Ctest::testVirtualAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
 	return a + b;
 }
+
+int testIndirectVirtualAdd(Ctest* pTest, int a, int b) {
+	return pTest->testVirtualAdd(a, b);
+}
+
 int Ctest::testAdd(int a, int b) {
 	//printf("Ctest::testAdd(%d, %d) (this = %ld)\n", a, b, (long int)(size_t)this);
 	return a + b;
@@ -203,6 +213,46 @@ int Ctest2::testAdd(int a, int b) {
 	//printf("Ctest2::testAdd(%d, %d) = %d (this = %ld)\n", a, b, ret, (long int)(size_t)this);
 	return ret;
 }
+
+template<int n, typename T>
+InvisibleSourcesTemplate<n, T>::InvisibleSourcesTemplate(int arg) {
+	cout << "Instantiating invisible sources template with arg " << arg << "\n";	
+}
+template<int n, typename T>
+T* InvisibleSourcesTemplate<n, T>::createSome() {
+	cout << "Creating some T\n";
+	return new T();	
+}
+template<int n, typename T>
+void InvisibleSourcesTemplate<n, T>::deleteSome(T* pValue) {
+	cout << "Deleting some T\n";
+	delete pValue;	
+}
+
+template class InvisibleSourcesTemplate<10, int>;
+template class InvisibleSourcesTemplate<10, std::string>;
+
+
+
+
+template <typename T>
+void Temp1<T>::temp(T) {}
+
+template <typename T1, typename T2>
+void Temp2<T1, T2>::temp(T1, T2) {}
+
+template <typename T, int V>
+void TempV<T, V>::temp(T) {}
+
+template class Temp1<int>;
+template class Temp1<double>;
+
+template class Temp2<int, int>;
+template class Temp2<int, short>;
+template class Temp2<double, double>;
+
+template class TempV<int, 66>;
+template class TempV<double, 33>;
 
 TEST_API void* test_pvoid() { return NULL; }
 TEST_API int* test_pint() { return NULL; }
@@ -286,3 +336,20 @@ TEST_API const wchar_t* wstringCStr(std::wstring* s) {
 }
 
 #include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"
+
+#ifdef _WIN32
+
+#include "OAIdl.h" // for VARIANT
+#include "Vfw.h" // for CAPDRIVERCAPS
+
+TEST_API size_t __cdecl sizeOfVARIANT() {
+	return sizeof(VARIANT);
+}
+TEST_API size_t __cdecl sizeOfDECIMAL() {
+	return sizeof(DECIMAL);
+}
+TEST_API size_t __cdecl sizeOfCAPDRIVERCAPS() {
+	return sizeof(CAPDRIVERCAPS);
+}
+
+#endif

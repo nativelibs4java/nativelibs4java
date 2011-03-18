@@ -3,7 +3,7 @@ import org.bridj.util.*;
 import java.util.*;
 import java.nio.*;
 import java.lang.reflect.Type;
-import com.ochafik.util.string.StringUtils;
+import org.ochafik.util.string.StringUtils;
 import static org.bridj.util.DefaultParameterizedType.*;
 
 class CommonPointerIOs {
@@ -31,7 +31,7 @@ class CommonPointerIOs {
 			pointer.getByteBufferAtOffset(index * getTargetSize(), structIO.getStructSize()).put(ps.getByteBuffer());
 		}
 		@Override
-		public int getTargetAlignment() {
+		public long getTargetAlignment() {
 			return structIO.getStructAlignment();
 		}
 	}

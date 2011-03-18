@@ -1,6 +1,7 @@
--package com.nativelibs4java.mono.library
+-package com.nativelibs4java.mono.bridj
 -gccLong
 -limitComments
+-runtime BridJ
 
 -library mono
 //-root com.nativelibs4java

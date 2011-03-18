@@ -13,11 +13,11 @@ import org.bridj.cpp.CPPObject;
 @Library(value="mfc90u.dll", versionPattern = "mfc(?:(\\d)(\\d))?u")
 @Runtime(MFCRuntime.class)
 public class MFCObject extends CPPObject {
-	public MFCObject() {}
-    public MFCObject(Pointer<? extends MFCObject> peer) {
+	protected MFCObject() {}
+    protected MFCObject(Pointer<? extends MFCObject> peer) {
         super(peer);
     }
-    public MFCObject(int constructorId, Object... args) {
-        super(constructorId, args);
+    protected MFCObject(Void voidArg, int constructorId, Object... args) {
+        super(voidArg, constructorId, args);
     }
 }

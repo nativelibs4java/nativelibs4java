@@ -240,7 +240,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	 */
 	public synchronized CLDevice[] getDevices() {
 		if (deviceIds == null) {
-			deviceIds = infos.getMemory(getEntity(), CL_CONTEXT_DEVICES).asPointerTo(cl_device_id.class);
+			deviceIds = infos.getMemory(getEntity(), CL_CONTEXT_DEVICES).as(cl_device_id.class);
 		}
         int n = (int)deviceIds.getValidElements();
 
@@ -297,7 +297,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         
         Pointer<SizeT> pCount = allocateSizeT();
         Pointer<Pointer<?>> mem = allocatePointer();
-        if (JNI.isMacOSX())
+        if (Platform.isMacOSX())
             error(CL.clGetGLContextInfoAPPLE(getEntity(), OpenGLContextUtils.CGLGetCurrentContext(),
                     //CL_CURRENT_DEVICE_FOR_GL_CONTEXT_KHR,
                     Pointer.SIZE, mem, pCount));

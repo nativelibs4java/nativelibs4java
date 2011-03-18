@@ -24,55 +24,36 @@ public class JAWT_DrawingSurfaceInfo extends StructObject {
 	 * C type : void*
 	 */
 	@Field(0) 
-	public native Pointer platformInfo();
-	/**
-	 * Pointer to the platform-specific information.  This can be safely<br>
-	 * cast to a JAWT_Win32DrawingSurfaceInfo on Windows or a<br>
-	 * JAWT_X11DrawingSurfaceInfo on Solaris.  See jawt_md.h for details.<br>
-	 * C type : void*
-	 */
-	@Field(0) 
-	public native JAWT_DrawingSurfaceInfo platformInfo(Pointer platformInfo);
+	public Pointer platformInfo() {
+		return this.io.getPointerField(this, 0);
+	}
 	/**
 	 * Cached pointer to the underlying drawing surface<br>
 	 * C type : jawt_DrawingSurface*
 	 */
 	@Field(1) 
-	public native Pointer ds();
-	/**
-	 * Cached pointer to the underlying drawing surface<br>
-	 * C type : jawt_DrawingSurface*
-	 */
-	@Field(1) 
-	public native JAWT_DrawingSurfaceInfo ds(Pointer ds);
+	public Pointer ds() {
+		return this.io.getPointerField(this, 1);
+	}
 	/**
 	 * Bounding rectangle of the drawing surface<br>
 	 * C type : JAWT_Rectangle
 	 */
 	@Field(2) 
-	public native org.bridj.jawt.JAWT_Rectangle bounds();
-	/**
-	 * Bounding rectangle of the drawing surface<br>
-	 * C type : JAWT_Rectangle
-	 */
-	@Field(2) 
-	public native JAWT_DrawingSurfaceInfo bounds(org.bridj.jawt.JAWT_Rectangle bounds);
+	public org.bridj.jawt.JAWT_Rectangle bounds() {
+		return this.io.getNativeObjectField(this, 2);
+	}
 	/// Number of rectangles in the clip
 	@Field(3) 
-	public native int clipSize();
-	/// Number of rectangles in the clip
-	@Field(3) 
-	public native JAWT_DrawingSurfaceInfo clipSize(int clipSize);
+	public int clipSize() {
+		return this.io.getIntField(this, 3);
+	}
 	/**
 	 * Clip rectangle array<br>
 	 * C type : JAWT_Rectangle*
 	 */
 	@Field(4) 
-	public native org.bridj.jawt.JAWT_Rectangle clip();
-	/**
-	 * Clip rectangle array<br>
-	 * C type : JAWT_Rectangle*
-	 */
-	@Field(4) 
-	public native JAWT_DrawingSurfaceInfo clip(org.bridj.jawt.JAWT_Rectangle clip);
+	public org.bridj.jawt.JAWT_Rectangle clip() {
+		return this.io.getNativeObjectField(this, 4);
+	}
 }

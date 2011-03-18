@@ -16,7 +16,7 @@
 	You should have received a copy of the GNU General Public License
 	along with JNAerator.  If not, see <http://www.gnu.org/licenses/>.
 */
-package com.ochafik.util.string;
+package org.ochafik.util.string;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;

@@ -6,12 +6,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Array length
+ * C++ template parameters metadata
  * @author ochafik
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER})
-public @interface EnumValue {
-    Class<?> type();
-    String name();
+@Target({ElementType.METHOD, ElementType.TYPE})
+public @interface Template {
+    Class<?>[] value();
+    String[] paramNames() default {};
 }

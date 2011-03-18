@@ -1,9 +1,12 @@
 package org.bridj;
 
+import java.util.ArrayList;
+import java.lang.reflect.Method;
 import org.bridj.Dyncall.CallingConvention;
 import java.io.FileNotFoundException;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -38,12 +41,19 @@ public class CPPTest {
 	
 	@Test
 	public void testSize() {
-		assertEquals("Invalid size for class Ctest", sizeOfCtest(), BridJ.sizeOf(new Ctest()));
-		assertEquals("Invalid size for class Ctest2", sizeOfCtest2(), BridJ.sizeOf(new Ctest2()));
+		assertEquals("Invalid size for class Ctest", sizeOfCtest(), BridJ.sizeOf(Ctest.class));
+		assertEquals("Invalid size for class Ctest2", sizeOfCtest2(), BridJ.sizeOf(Ctest2.class));
 		assertTrue("sizeOfCtest() = " + sizeOfCtest(), sizeOfCtest() >= 12 && sizeOfCtest() <= 20);
 		assertTrue("sizeOfCtest2() = " + sizeOfCtest2(), sizeOfCtest2() >= 16 && sizeOfCtest() <= 30);
 	}
 	
+	@Test
+	public void test_Ctest_constructors() {
+        Ctest ct =  new Ctest();
+        Pointer<Ctest> p = pointerTo(ct);
+        assertEquals(-123456, ct.firstField());
+		assertEquals(-33, new Ctest(-33).firstField());
+	}
 	@Test
 	public void test_Ctest_testAdd() {
 		testAdd(new Ctest(), 1, 2, 3, 3);
@@ -72,7 +82,7 @@ public class CPPTest {
         c = Pointer.pointerTo(instance).getNativeObject(Ctest.class).testAdd(a, b);
         assertEquals(baseRes, c);
 
-        if (JNI.isWindows()) {
+        if (Platform.isWindows()) {
 	        c = instance.testVirtualAddStdCall(null, a, b);
 			assertEquals("testVirtualAddStdCall", baseRes, c);
 	
@@ -86,6 +96,26 @@ public class CPPTest {
 			assertEquals("testAddStdCall", 0, c);
         }
 	}
+
+    public static native int testIndirectVirtualAdd(Pointer<Ctest> pTest, int a, int b);
+    
+    @Test
+    public void testJavaVirtualOverride() {
+        Ctest test = new Ctest();
+        assertEquals(3, testIndirectVirtualAdd(pointerTo(test), 1, 2));
+
+        test = new Ctest(10) {
+            @Override
+            public int testVirtualAdd(int a, int b) {
+                return a * 10 + b * 100;//super.testVirtualAdd(a, b) * 2;
+            }
+        };
+        List<Method> virtualMethods = new ArrayList<Method>();
+        CPPRuntime.getInstance().listVirtualMethods(test.getClass(), virtualMethods);
+        System.out.println("virtualMethods = " + virtualMethods);
+        int a = 1, b = 2;
+        assertEquals(a * 10 + b * 100, testIndirectVirtualAdd(pointerTo(test), a, b));
+    }
 	
 	static {
 		BridJ.register();
@@ -95,11 +125,19 @@ public class CPPTest {
 	
 	//@Library("test")
 	public static class Ctest extends CPPObject {
+        @Constructor(0)
 		public Ctest() {
-			super();
+			super((Void)null, 0);
+		}
+		@Constructor(1)
+		public Ctest(int firstField) {
+			super((Void)null, 1, firstField);
 		}
 		public Ctest(Pointer pointer) {
 			super(pointer);
+		}
+		public Ctest(Void voidArg, int constructorId, Object... args) {
+			super(voidArg, constructorId, args);
 		}
 		
 		@Field(0) 
@@ -142,8 +180,9 @@ public class CPPTest {
 	};
 	/// <i>native declaration : line 18</i>
 	public static class Ctest2 extends Ctest {
+        @Constructor(0)
 		public Ctest2() {
-			super();
+			super((Void)null, 0);
 		}
 		public Ctest2(Pointer pointer) {
 			super(pointer);

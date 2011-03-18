@@ -23,9 +23,10 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import org.bridj.Platform;
 
 /**
- *
+ * On Windows 7, demonstrate the use of the ITaskbarList3 interface to control the taskbar progression visual indicator.
  * @author Olivier
  */
 public class TaskbarListDemo extends JFrame implements ActionListener, ChangeListener {
@@ -37,7 +38,7 @@ public class TaskbarListDemo extends JFrame implements ActionListener, ChangeLis
     Pointer<?> hwnd;
 
     public TaskbarListDemo() throws ClassNotFoundException {
-        super("TaskbarList Demo (" + (JNI.is64Bits() ? "64 bits" : "32 bits") + ")");
+        super("TaskbarList Demo (" + (Platform.is64Bits() ? "64 bits" : "32 bits") + ")");
 
         list = COMRuntime.newInstance(ITaskbarList3.class);
         

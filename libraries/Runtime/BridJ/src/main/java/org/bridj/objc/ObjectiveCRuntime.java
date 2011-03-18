@@ -15,12 +15,13 @@ import org.bridj.NativeObject;
 import org.bridj.Pointer;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.TypedPointer;
-import org.bridj.Utils;
+import org.bridj.util.Utils;
 import org.bridj.ann.Library;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Runtime;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
+import org.bridj.Platform;
 
 /// http://developer.apple.com/mac/library/documentation/Cocoa/Reference/ObjCRuntimeRef/Reference/reference.html
 @Library("/usr/lib/libobjc.A.dylib")
@@ -28,7 +29,7 @@ import java.lang.reflect.Type;
 public class ObjectiveCRuntime extends CRuntime {
 
     public boolean isAvailable() {
-        return JNI.isMacOSX();
+        return Platform.isMacOSX();
     }
     Map<String, Id> nativeClassesByObjCName = new HashMap<String, Id>();
 
@@ -152,10 +153,10 @@ public class ObjectiveCRuntime extends CRuntime {
     @Override
     protected void registerNativeMethod(Class<?> type,
             NativeLibrary typeLibrary, Method method,
-            NativeLibrary methodLibrary, Builder builder)
+            NativeLibrary methodLibrary, Builder builder, MethodCallInfoBuilder methodCallInfoBuilder)
             throws FileNotFoundException {
 
-        MethodCallInfo mci = new MethodCallInfo(method);
+        MethodCallInfo mci = methodCallInfoBuilder.apply(method);
         Selector sel = method.getAnnotation(Selector.class);
         if (Modifier.isStatic(method.getModifiers())) {
             mci.setNativeClass(getClass((Class) type).getPeer());

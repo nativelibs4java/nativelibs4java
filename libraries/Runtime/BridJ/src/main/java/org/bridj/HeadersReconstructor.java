@@ -1,7 +1,13 @@
 package org.bridj;
 import java.util.*;
 import java.io.*;
-import static org.bridj.Demangler.*;
+import static org.bridj.demangling.Demangler.*;
+
+/**
+ * Unfinished experiment to (partially) reconstruct a header out of parsed shared libraries symbols.<br>
+ * Beware: GCC does not add return types to mangled C++ signatures, so this will be left as '?' in the resulting sources.
+ * @author ochafik
+ */
 public class HeadersReconstructor {
 	
 	public static void reconstructHeaders(Iterable<NativeLibrary> libraries, PrintWriter out) {

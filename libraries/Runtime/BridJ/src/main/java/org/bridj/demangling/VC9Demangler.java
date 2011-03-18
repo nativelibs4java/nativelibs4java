@@ -1,4 +1,4 @@
-package org.bridj.cpp;
+package org.bridj.demangling;
 
 import org.bridj.ann.Convention.Style;
 import java.lang.reflect.*;
@@ -6,21 +6,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.bridj.Callback;
-import org.bridj.Demangler;
 import org.bridj.NativeLibrary;
-import org.bridj.Pointer;
-import org.bridj.Demangler.ClassRef;
-import org.bridj.Demangler.DemanglingException;
-import org.bridj.Demangler.MemberRef;
-import org.bridj.Demangler.NamespaceRef;
-import org.bridj.Demangler.TypeRef;
-import org.bridj.Demangler.SpecialName;
-import org.bridj.Dyncall.CallingConvention;
+import org.bridj.demangling.Demangler.ClassRef;
+import org.bridj.demangling.Demangler.DemanglingException;
+import org.bridj.demangling.Demangler.MemberRef;
+import org.bridj.demangling.Demangler.NamespaceRef;
+import org.bridj.demangling.Demangler.Ident;
+import org.bridj.demangling.Demangler.IdentLike;
+import org.bridj.demangling.Demangler.TypeRef;
+import org.bridj.demangling.Demangler.SpecialName;
 import org.bridj.ann.CLong;
 import org.bridj.ann.Convention;
-import org.bridj.ann.Wide;
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 
@@ -97,7 +93,7 @@ public class VC9Demangler extends Demangler {
         return ac;
     }
 
-    private Object parseTemplateType() throws DemanglingException {
+    private ClassRef parseTemplateType() throws DemanglingException {
         List<TypeRef> br = backReferences;
         backReferences = new ArrayList<TypeRef>();
 
@@ -111,10 +107,8 @@ public class VC9Demangler extends Demangler {
         //String ns = parseNameFragment();
         
         //System.out.println("parseTemplateParams() = " + args + ", ns = " + names);
-        ClassRef tr = new ClassRef();
+        ClassRef tr = new ClassRef(new Ident(name, args.toArray(new TemplateArg[args.size()])));
         tr.setEnclosingType(reverseNamespace(names));
-        tr.setSimpleName(name);
-        tr.setTemplateArguments(args.toArray(new TemplateArg[args.size()]));
 
         backReferences = br;
         return tr;
@@ -140,6 +134,10 @@ public class VC9Demangler extends Demangler {
         }
         String v;
 
+        @Override
+        public boolean matchesParam(Object param, Annotations annotations) {
+        		return true; // TODO wtf ?
+        }
         @Override
         public String toString() {
             return v;
@@ -187,7 +185,7 @@ public class VC9Demangler extends Demangler {
         int iAt = str.indexOf('@');
         if (iAt >= 0 && consumeCharIf('_')) {
             if (iAt > 0) {
-                mr.setMemberName(str.substring(1, iAt));
+                mr.setMemberName(new Ident(str.substring(1, iAt)));
                 mr.setArgumentsStackSize(Integer.parseInt(str.substring(iAt + 1)));
                 return mr;
             }
@@ -195,7 +193,7 @@ public class VC9Demangler extends Demangler {
 		if (consumeCharIf('?')) {
             consumeCharsIf('@', '?');
 
-            Object memberName = parseFirstQualifiedTypeNameComponent();
+            IdentLike memberName = parseFirstQualifiedTypeNameComponent();
             if (memberName instanceof SpecialName) {
                 SpecialName specialName = (SpecialName)memberName;
                 if (!specialName.isFunction())
@@ -216,8 +214,8 @@ public class VC9Demangler extends Demangler {
             allQualifiedNames.clear(); // TODO fix this !!
             parseFunctionProperty(mr);
             if (cvMod != null && (cvMod.isMember || (memberName instanceof SpecialName) || Modifier.isPublic(ac.modifiers))) {
-                ClassRef tr = new ClassRef();
-                tr.setSimpleName(qNames.get(0));
+                ClassRef tr = new ClassRef(new Ident((String)qNames.get(0)));
+                //tr.setSimpleName(qNames.get(0));
                 qNames.remove(0);
                 tr.setEnclosingType(reverseNamespace(qNames));
                 mr.setEnclosingType(tr);
@@ -227,7 +225,7 @@ public class VC9Demangler extends Demangler {
             if (position != length)
                 error("Failed to demangle the whole symbol");
 		} else {
-            mr.setMemberName(str);
+            mr.setMemberName(new Ident(str));
         }
 		return mr;
 	}
@@ -309,7 +307,7 @@ public class VC9Demangler extends Demangler {
                 tr = classType(Object[].class);
 				break;
 			case 'W':
-				tr = classType(Character.TYPE, Wide.class);
+				tr = classType(Character.TYPE);//, Wide.class);
 				break;
 			default:
 				throw error(-1);
@@ -414,15 +412,15 @@ public class VC9Demangler extends Demangler {
     List<TypeRef> backReferences = new ArrayList<TypeRef>();
     List<List> allQualifiedNames = new ArrayList<List>();
 
-    Object parseFirstQualifiedTypeNameComponent() throws DemanglingException {
+    IdentLike parseFirstQualifiedTypeNameComponent() throws DemanglingException {
         if (consumeCharIf('?')) {
             if (consumeCharIf('$'))
-                return parseTemplateType();
+                return parseTemplateType().getIdent();
             else
                 return parseSpecialName();
         }
         else
-            return parseNameFragment();
+            return new Ident(parseNameFragment());
     }
     TypeRef parseQualifiedTypeName() throws DemanglingException {
         char c = peekChar();
@@ -445,14 +443,13 @@ public class VC9Demangler extends Demangler {
     		names = parseNames();
     	}*/
 
-        ClassRef tr = new ClassRef();
-        tr.setSimpleName(names.get(0));
+        ClassRef tr = new ClassRef((Ident)names.get(0));
         names.remove(0);
         tr.setEnclosingType(reverseNamespace(names));
         return tr;
     }
 
-    public Object parseSpecialName() throws DemanglingException {
+    public IdentLike parseSpecialName() throws DemanglingException {
         switch (consumeChar()) {
         case '0':
             return SpecialName.Constructor;

@@ -43,13 +43,13 @@ public class ComparisonTest {
         public native void voidTest();
         
         static class Struct1 {
-            @Wide String ws;
+            String ws;
             String s;
             
         }
         static class Struct2 extends StructObject {
             Struct1 s1;
-            @Wide @Array(10) Pointer<Character> s;
+            @Array(10) Pointer<Character> s;
         }
     }
     /**
@@ -259,7 +259,7 @@ public class ComparisonTest {
             if (test != null)
                 test.voidTest();
         }
-        System.out.println(JNI.SIZE_T_SIZE);
+        System.out.println(Platform.SIZE_T_SIZE);
         try {
             //System.in.read();
         } catch (Exception ex) {

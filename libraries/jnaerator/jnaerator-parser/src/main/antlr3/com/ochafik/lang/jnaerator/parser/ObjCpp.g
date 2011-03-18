@@ -268,7 +268,7 @@ import static com.ochafik.lang.jnaerator.parser.StoredDeclarations.*;
 		return input.LT(i).getText();
 	}
 	protected Modifier parseModifier(String s, ModifierKind... anyModKind) {
-		Modifier mod = Modifier.parseModifier(next(), anyModKind);
+		Modifier mod = ModifierType.parseModifier(next(), anyModKind);
 		if (mod == null)
 			return null;
 		if (mod.isAllOf(ModifierKind.ObjectiveC, ModifierKind.OnlyInArgDef) && !isObjCArgDef())
@@ -685,7 +685,7 @@ scope ModContext;
 		}
 		tk=(
 			tp='+' { 
-				$function.addModifiers(Modifier.Static); 
+				$function.addModifiers(ModifierType.Static); 
 				$function = mark($function, getLine($tp)); 
 				$function.setCommentBefore(getCommentBefore($tp.getTokenIndex()));
 			} | 
@@ -918,18 +918,19 @@ modifier returns [List<Modifier> modifiers, String asmName]
 		
 		{ next("__pragma") }?=> pragmaContent | 
 		{ next("extern") }?=> IDENTIFIER ex=STRING {
-			$modifiers.add(Modifier.Extern); // TODO
+			$modifiers.add(ModifierType.Extern); // TODO
 		} |
 		{ parseModifier(next()) != null }? m=IDENTIFIER {
-			$modifiers.add(Modifier.parseModifier($m.text));
+			$modifiers.add(ModifierType.parseModifier($m.text));
 		} |
 		{ next("__success") }?=>
 		IDENTIFIER '(' 'return' binaryOp expression  ')' |
 		
 		// TODO handle it properly @see http://blogs.msdn.com/staticdrivertools/archive/2008/11/06/annotating-for-success.aspx
 		{ next(ModifierKind.VCAnnotation1Arg, ModifierKind.VCAnnotation2Args) }?=>
-		IDENTIFIER '(' expression ')' |
-		
+		m=IDENTIFIER '(' x=expression ')' {
+			$modifiers.add(new ValuedModifier(ModifierType.parseModifier($m.text), $x.expr));
+		} |
 		{ next("__declspec", "__attribute__", "__asm") }?=>
 		IDENTIFIER
 		'(' (
@@ -955,7 +956,7 @@ scope ModContext;
 			{ next(ModifierKind.Extended) }? m=IDENTIFIER
 			(
 				{
-					$modifiers.add(Modifier.parseModifier($m.text));
+					$modifiers.add(ModifierType.parseModifier($m.text));
 				}/* |
 				{ $IDENTIFIER.text.equals("align") }? DECIMAL_NUMBER |
 				{ $IDENTIFIER.text.equals("allocate") }?  '(' STRING ')' |
@@ -1059,28 +1060,40 @@ templateArgDecl returns [Arg arg]
 	;	
 	
 functionSignatureSuffix returns [FunctionSignature signature]
-	:	tk='(' m1=modifiers? pt=('*' | '^') m2=modifiers? IDENTIFIER? ')' { 
-			$signature = mark(new FunctionSignature(new Function(Function.Type.CFunction, $IDENTIFIER.text == null ? null : new SimpleIdentifier($IDENTIFIER.text), null)), getLine($tk));
-			if ($pt.text.equals("^"))
-				$signature.setType(FunctionSignature.Type.ObjCBlock);
+	:	tk='(' {
+			$signature = mark(new FunctionSignature(new Function(Function.Type.CFunction, null, null)), getLine($tk));
 			$signature.getFunction().setType(Function.Type.CFunction);
+		}
+		m1=modifiers? {
 			if ($m1.modifiers != null)
 				$signature.getFunction().addModifiers($m1.modifiers);
-			if ($m2.modifiers != null)
-				$signature.getFunction().addModifiers($m2.modifiers);
-			if ($IDENTIFIER.text != null && isTypeDef()) {
-				addTypeIdent($IDENTIFIER.text);
-			}
 		}
+		(
+			pt=('*' | '^') 
+			m2=modifiers? {
+				if ($m2.modifiers != null)
+					$signature.getFunction().addModifiers($m2.modifiers);
+				if ($pt.text != null && $pt.text.equals("^"))
+					$signature.setType(FunctionSignature.Type.ObjCBlock);
+			}
+		)?
+		(
+			ii=IDENTIFIER {
+				if (isTypeDef())
+					addTypeIdent($ii.text);
+				$signature.getFunction().setName(new SimpleIdentifier($IDENTIFIER.text));
+			}
+		)?
+		')'
 		'(' (
 			a1=argDef { 
 				if (!$a1.text.equals("void"))
-					((FunctionSignature)$signature).getFunction().addArg($a1.arg); 
+					$signature.getFunction().addArg($a1.arg); 
 			}
 			(
 				',' 
 				ax=argDef { 
-					((FunctionSignature)$signature).getFunction().addArg($ax.arg); 
+					$signature.getFunction().addArg($ax.arg); 
 				}
 			)*
 		)? ')'

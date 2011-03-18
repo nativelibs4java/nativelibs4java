@@ -1,19 +1,21 @@
-package org.bridj.cpp;
+package org.bridj.demangling;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.bridj.Demangler;
+import org.bridj.demangling.Demangler;
 import org.bridj.JNI;
 import org.bridj.NativeLibrary;
-import org.bridj.Demangler.ClassRef;
-import org.bridj.Demangler.DemanglingException;
-import org.bridj.Demangler.MemberRef;
-import org.bridj.Demangler.NamespaceRef;
-import org.bridj.Demangler.TypeRef;
-import org.bridj.Demangler.SpecialName;
+import org.bridj.demangling.Demangler.ClassRef;
+import org.bridj.demangling.Demangler.DemanglingException;
+import org.bridj.demangling.Demangler.Ident;
+import org.bridj.demangling.Demangler.MemberRef;
+import org.bridj.demangling.Demangler.NamespaceRef;
+import org.bridj.demangling.Demangler.TypeRef;
+import org.bridj.demangling.Demangler.SpecialName;
 import java.util.HashMap;
 import java.util.Map;
+import org.bridj.Platform;
 
 public class GCC4Demangler extends Demangler {
 	
@@ -33,10 +35,16 @@ public class GCC4Demangler extends Demangler {
             return shortcuts.get(Character.toString(consumeChar()));
         }
         String id = "";
-        while (peekChar() != '_') {
+        char c;
+        while ((c = peekChar()) != '_' && c != 'E' && c != 0) {
             id += consumeChar();
         }
-        id += consumeChar();
+        if (c != 'E')
+            id += consumeChar();
+
+        if (id.equals("s"))
+            return classType(StdString.class);
+
         TypeRef res = shortcuts.get(id);
         return res;
     }
@@ -48,16 +56,32 @@ public class GCC4Demangler extends Demangler {
         return res;
     }
 
+    public TemplateArg parseTemplateArg() throws DemanglingException {
+    		if (consumeCharIf('L')) {
+    			TypeRef tr = parseType();
+    			StringBuffer b = new StringBuffer();
+    			char c;
+                while (Character.isDigit(c = peekChar())) {
+                    consumeChar();
+                    b.append(c);
+                }
+                expectChars('E');
+			// TODO switch on type !
+			return new Constant(Integer.parseInt(b.toString()));
+    		} else
+    			return parseType();
+    }
 	public TypeRef parseType() throws DemanglingException {
 		if (Character.isDigit(peekChar())) {
-                    String name = parseName();
+                    Ident name = parseIdent();
                     String id = nextShortcutId();
                     TypeRef res = simpleType(name);
                     shortcuts.put(id, res);
                     return res;
                 }
-		
-		switch (consumeChar()) {
+
+        char c = consumeChar();
+		switch (c) {
 		case 'S':
 			return parseShortcutType();
 		case 'P':
@@ -79,7 +103,7 @@ public class GCC4Demangler extends Demangler {
 			return classType(Boolean.TYPE);
 		case 'l':
 		case 'm': // unsigned
-			return classType(JNI.is64Bits() ? Long.TYPE : Integer.TYPE);
+			return classType(Platform.is64Bits() ? Long.TYPE : Integer.TYPE);
 		case 'x':
 		case 'y': // unsigned
 			return classType(Long.TYPE);
@@ -93,10 +117,11 @@ public class GCC4Demangler extends Demangler {
 			return classType(Float.TYPE);
 		case 'd':
 			return classType(Double.TYPE);
-		default:
-			throw error(-1);
+        default:
+			throw error("Unexpected type char '" + c + "'", -1);
 		}
 	}
+    public static class StdString {}
 
 	String parseName() throws DemanglingException {
 		StringBuilder b = new StringBuilder();
@@ -116,11 +141,20 @@ public class GCC4Demangler extends Demangler {
 			b.append(consumeChar());
 		return b.toString();
 	}
+    Ident parseIdent() throws DemanglingException {
+        String n = parseName();
+        List<TemplateArg> args = new ArrayList<TemplateArg>();
+        if (consumeCharIf('I')) {
+            while (!consumeCharIf('E'))
+                args.add(parseTemplateArg());
+        }
+        return new Ident(n, args.toArray(new TemplateArg[args.size()]));
+    }
 	@Override
 	public MemberRef parseSymbol() throws DemanglingException {
 		MemberRef mr = new MemberRef();
 		if (!consumeCharIf('_')) {
-			mr.setMemberName(str);
+			mr.setMemberName(new Ident(str));
 			return mr;
 		}
 		consumeCharIf('_');
@@ -128,33 +162,43 @@ public class GCC4Demangler extends Demangler {
 		
 		if (consumeCharIf('T')) {
 			if (consumeCharIf('V')) {
-				mr.setEnclosingType(new ClassRef(parseName()));
+				mr.setEnclosingType(new ClassRef(parseIdent()));
 				mr.setMemberName(SpecialName.VFTable);
 				return mr;
 			}
 			return null; // can be a type info, a virtual table or strange things like that
 		}
 		
-		List<String> ns = new ArrayList<String>();
+		List<Ident> ns = new ArrayList<Ident>();
 		if (consumeCharIf('N')) {
 			do {
                             // TODO better than simple increment
                             nextShortcutId++;
-				ns.add(parseName());
+				ns.add(parseIdent());
 			} while (Character.isDigit(peekChar()));
 			nextShortcutId--; // correct the fact that we parsed one too much
 			mr.setMemberName(ns.remove(ns.size() - 1));
 			if (!ns.isEmpty()) {
-				ClassRef parent = new ClassRef();
-				parent.setSimpleName(ns.remove(ns.size() - 1));
+				ClassRef parent = new ClassRef(ns.remove(ns.size() - 1));
 				if (!ns.isEmpty())
-					parent.setEnclosingType(new NamespaceRef(ns.toArray(new String[ns.size()])));
+					parent.setEnclosingType(new NamespaceRef(ns.toArray(new Ident[ns.size()])));
 				mr.setEnclosingType(parent);
 			} else {
-				switch (peekChar()) {
+                // for templates, for instance "_ZN24InvisibleSourcesTemplateILi10ESsEC1Ei"
+                char c = peekChar();
+				switch (c) {
+				/*case 'I':
+					List<TemplateArg> args = new ArrayList<TemplateArg>();
+					consumeChar();
+					while (!consumeCharIf('E')) {
+						args.add(parseTemplateArg());
+					}
+					//System.out.println("HEHEHEHEHEHEHE args = " + args);
+					mr.setTemplateArguments(args.toArray(new TemplateArg[args.size()]));
+					break;*/
 				case 'C':
 					consumeChar();
-					mr.setEnclosingType(new ClassRef((String)mr.getMemberName()));
+					mr.setEnclosingType(new ClassRef((Ident)mr.getMemberName()));
 					if (consumeCharIf('1'))
 						mr.setMemberName(SpecialName.Constructor);
 					else if (consumeCharIf('2'))
@@ -164,7 +208,7 @@ public class GCC4Demangler extends Demangler {
 					break;
 				case 'D':
 					consumeChar();
-					mr.setEnclosingType(new ClassRef((String)mr.getMemberName()));
+					mr.setEnclosingType(new ClassRef((Ident)mr.getMemberName()));
                     // see http://zedcode.blogspot.com/2007/02/gcc-c-link-problems-on-small-embedded.html
 					if (consumeCharIf('0'))
 						mr.setMemberName(SpecialName.DeletingDestructor);
@@ -179,8 +223,10 @@ public class GCC4Demangler extends Demangler {
 			}
 		} else {
 			//mr.type = SpecialName.CFunction;
-			mr.setMemberName(parseName());
+			mr.setMemberName(parseIdent());
 		}
+		//System.out.println("mr = " + mr + ", peekChar = " + peekChar());
+					
 		//mr.isStatic =
 		boolean isMethod = consumeCharIf('E');
 		
@@ -190,7 +236,7 @@ public class GCC4Demangler extends Demangler {
 			mr.paramTypes = new TypeRef[0];
 		} else {
 			List<TypeRef> paramTypes = new ArrayList<TypeRef>();
-			while (position < length) {
+			while (position < length) {// && !consumeCharIf('E')) {
 				paramTypes.add(parseType());
 			}
 			mr.paramTypes = paramTypes.toArray(new TypeRef[paramTypes.size()]);

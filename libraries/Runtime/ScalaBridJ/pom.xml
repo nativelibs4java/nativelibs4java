@@ -1,0 +1,129 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+ <modelVersion>4.0.0</modelVersion>
+  <name>Scala BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
+  <url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
+  <groupId>com.nativelibs4java</groupId>
+  <artifactId>bridj-scala</artifactId>
+  <version>0.4-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <!--
+  Local site:
+  mvn clean site site:deploy -Dsite.url=file://`pwd`/target/site-deployed
+  -->
+  
+  <properties>
+  	<maven.compiler.debug>true</maven.compiler.debug>
+  </properties>
+  
+  <parent>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>nl4j-runtime-parent</artifactId>
+	  <version>0.4-SNAPSHOT</version>
+	  <relativePath>../Parent</relativePath>
+  </parent>
+
+  <dependencies>
+
+  	<dependency>
+  	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>bridj</artifactId>
+	  <version>0.4-SNAPSHOT</version>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.scala-lang</groupId>
+		<artifactId>scala-library</artifactId>
+		<version>${scala.version}</version>
+	</dependency>
+	
+  </dependencies>
+
+  <build>
+  	<plugins>
+  		<!--
+		<plugin>
+			<groupId>com.jnaerator</groupId>
+			<artifactId>maven-jnaerator-plugin</artifactId>
+			<version>${jnaerator.version}</version>
+			<configuration>
+				<javaOutputDirectory>src/main/java</javaOutputDirectory>
+				<scalaOutputDirectory>src/main/scala</scalaOutputDirectory>
+			</configuration>
+		</plugin>
+		-->
+		<plugin>
+			<groupId>org.scala-tools</groupId>
+			<artifactId>maven-scala-plugin</artifactId>
+			<executions>
+				<execution>
+					<goals>
+						<goal>compile</goal>
+						<goal>testCompile</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+		<plugin>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>maven-velocity-plugin</artifactId>
+			<version>${nl4j-runtime.version}</version>
+			<executions>
+			  <execution>
+				<phase>generate-sources</phase>
+				<goals>
+				  <goal>compile</goal>
+				</goals>
+			  </execution>
+			</executions>
+		</plugin>
+		<!--
+		<plugin>
+		  <groupId>org.codehaus.mojo</groupId>
+		  <artifactId>cobertura-maven-plugin</artifactId>
+		  <version>2.4</version>
+		  <executions>
+		  	<execution>
+		  		<id>clean</id>
+		  		<phase>pre-site</phase>
+		  		<goals>
+		  			<goal>clean</goal>
+		  		</goals>
+		  	</execution>
+		  	<execution>
+		  		<id>instrument</id>
+		  		<phase>site</phase>
+		  		<goals>
+		  			<goal>instrument</goal>
+		  			<goal>cobertura</goal>
+		  			<goal>check</goal>
+		  		</goals>
+		  	</execution>
+		  </executions>
+		</plugin>
+		-->
+  	 </plugins>
+
+  </build>
+  
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.scala-tools</groupId>
+        <artifactId>maven-scala-plugin</artifactId>
+		<version>${scala.version}</version>
+      </plugin>
+	  <plugin>
+	    <groupId>org.codehaus.mojo</groupId>
+	    <artifactId>cobertura-maven-plugin</artifactId>
+	    <version>2.4</version>
+	  </plugin>
+    </plugins>
+  </reporting>
+</project>
+
+
+
+

@@ -308,17 +308,17 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     static Map<ContextProperties, Object> getGLContextProperties(CLPlatform platform) {
         Map<ContextProperties, Object> out = new LinkedHashMap<ContextProperties, Object>();
 
-        if (JNI.isMacOSX()) {
+        if (Platform.isMacOSX()) {
             Pointer<?> context = OpenGLContextUtils.CGLGetCurrentContext();
             Pointer<?> shareGroup = OpenGLContextUtils.CGLGetShareGroup(context);
             out.put(ContextProperties.GLContext, context.getPeer());
             out.put(ContextProperties.CGLShareGroup, shareGroup.getPeer());
-        } else if (JNI.isWindows()) {
+        } else if (Platform.isWindows()) {
             Pointer<?> context = OpenGLContextUtils.wglGetCurrentContext();
             Pointer<?> dc = OpenGLContextUtils.wglGetCurrentDC();
             out.put(ContextProperties.GLContext, context.getPeer());
             out.put(ContextProperties.WGLHDC, dc.getPeer());
-        } else if (JNI.isUnix()) {
+        } else if (Platform.isUnix()) {
             Pointer<?> context = OpenGLContextUtils.glXGetCurrentContext();
             Pointer<?> dc = OpenGLContextUtils.glXGetCurrentDisplay();
             out.put(ContextProperties.GLContext, context.getPeer());

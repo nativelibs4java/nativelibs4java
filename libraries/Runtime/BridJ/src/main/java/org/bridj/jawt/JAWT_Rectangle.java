@@ -18,19 +18,19 @@ public class JAWT_Rectangle extends StructObject {
 		super(pointer);
 	}
 	@Field(0) 
-	public native int x();
-	@Field(0) 
-	public native JAWT_Rectangle x(int x);
+	public int x() {
+		return this.io.getIntField(this, 0);
+	}
 	@Field(1) 
-	public native int y();
-	@Field(1) 
-	public native JAWT_Rectangle y(int y);
+	public int y() {
+		return this.io.getIntField(this, 1);
+	}
 	@Field(2) 
-	public native int width();
-	@Field(2) 
-	public native JAWT_Rectangle width(int width);
+	public int width() {
+		return this.io.getIntField(this, 2);
+	}
 	@Field(3) 
-	public native int height();
-	@Field(3) 
-	public native JAWT_Rectangle height(int height);
+	public int height() {
+		return this.io.getIntField(this, 3);
+	}
 }

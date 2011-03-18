@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Array length
+ * Mono- or multi-dimensional array length (used on Pointer types).
  * @author ochafik
  */
 @Retention(RetentionPolicy.RUNTIME)

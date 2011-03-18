@@ -137,13 +137,15 @@ typedef struct JavaToNativeCallbackCallInfo {
 char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl JavaToCPPMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
-char __cdecl JavaToNativeCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
-char __cdecl NativeToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
+char __cdecl JavaToCCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
+char __cdecl CToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
+char __cdecl CPPToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl StructHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 
 
 void* getNativeObjectPointer(JNIEnv* env, jobject instance, jclass targetClass);
 void* getPointerPeer(JNIEnv *env, jobject pointer);
+jobject getJavaObjectForNativePointer(JNIEnv *env, void* nativeObject);
 //jobject createPointer(JNIEnv *env, void* ptr, jclass targetType);
 jobject createPointerFromIO(JNIEnv *env, void* ptr, jobject callIO);
 

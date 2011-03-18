@@ -23,6 +23,7 @@ public:
 	int firstField;
 	int secondField;
 	Ctest();
+	Ctest(int firstField);
 	//virtual 
 	~Ctest();
 	virtual int testVirtualAdd(int a, int b);
@@ -32,6 +33,8 @@ public:
 	
 	static void static_void();
 };
+
+int testIndirectVirtualAdd(Ctest* pTest, int a, int b);
 
 class TEST_API Ctest2 : public Ctest {
 	int* fState;
@@ -45,6 +48,35 @@ public:
 	virtual int testVirtualAdd(int a, int b);
 	int testAdd(int a, int b);
 	const std::string& toString();
+};
+
+template <int n, typename T>
+class TEST_API InvisibleSourcesTemplate {
+public:
+	InvisibleSourcesTemplate(int arg);
+	T* createSome();
+	void deleteSome(T* pValue);
+};
+
+template <typename T>
+class TEST_API Temp1 {
+public:
+	virtual ~Temp1() {}
+	void temp(T);
+};
+
+template <typename T1, typename T2>
+class TEST_API Temp2 {
+public:
+	virtual ~Temp2() {}
+	void temp(T1, T2);
+};
+
+template <typename T, int V>
+class TEST_API TempV {
+public:
+	virtual ~TempV() {}
+	void temp(T);
 };
 
 extern TEST_API int ntest;

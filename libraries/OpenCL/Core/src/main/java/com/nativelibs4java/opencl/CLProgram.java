@@ -449,7 +449,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         }
         
 		Pointer<?> s = infos.getMemory(getEntity(), CL_PROGRAM_BINARY_SIZES);
-		int n = (int)s.getValidBytes() / JNI.SIZE_T_SIZE;
+		int n = (int)s.getValidBytes() / Platform.SIZE_T_SIZE;
 		long[] sizes = s.getSizeTs(n);
 		//int[] sizes = new int[n];
 		//for (int i = 0; i < n; i++) {

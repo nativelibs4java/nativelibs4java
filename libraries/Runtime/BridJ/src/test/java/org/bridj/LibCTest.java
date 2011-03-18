@@ -1,5 +1,6 @@
 package org.bridj;
 
+import java.io.FileNotFoundException;
 import org.bridj.ann.*; // annotations such as Library...
 
 
@@ -12,7 +13,7 @@ import static org.junit.Assert.*;
 @org.bridj.ann.Runtime(CRuntime.class)
 public class LibCTest {
 	static {
-		if (JNI.isWindows())
+		if (Platform.isWindows())
 			BridJ.setNativeLibraryActualName("c", "msvc");
 		if ("1".equals(System.getenv("JNA")))
 			com.sun.jna.Native.register("c");
@@ -26,6 +27,13 @@ public class LibCTest {
 	@Test
 	public void testFabs() {
 		assertEquals(10.0, fabs(-10.0), 0.000001);
+	}
+	@Test
+	public void testErrno() throws FileNotFoundException {
+		if (!Platform.isUnix())
+			return;
+		
+		assertNotNull(BridJ.getNativeLibrary("c").getSymbolPointer("errno"));
 	}
 	@Test
 	public void testAbs() {

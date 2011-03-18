@@ -119,7 +119,7 @@ public class FFTBench {
         }
 
         A trans = null;
-        if (hasReverse) {
+        if (hasReverse && !"1".equals(System.getenv("NO_REVERSE"))) {
             System.out.print("[" + title + "] Checking consistency of inverse...");
             trans = tr.transform(queue, data, false);
             A back = tr.transform(queue, trans, true);

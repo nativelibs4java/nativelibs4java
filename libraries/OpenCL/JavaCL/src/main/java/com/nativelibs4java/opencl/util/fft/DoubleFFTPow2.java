@@ -12,6 +12,7 @@ public class DoubleFFTPow2 extends AbstractFFTPow2<Double, DoubleBuffer, double[
     public DoubleFFTPow2(CLContext context) throws IOException, CLException {
         super(context, Double.class, DoubleBuffer.class);
         this.program = new DoubleFFTProgram(context);
+        program.getProgram().setFastRelaxedMath();
     }
     public DoubleFFTPow2() throws IOException {
         this(JavaCL.createBestContext(DeviceFeature.DoubleSupport));

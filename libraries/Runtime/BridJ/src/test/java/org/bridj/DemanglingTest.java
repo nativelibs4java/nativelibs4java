@@ -5,15 +5,21 @@
 
 package org.bridj;
 
-import org.bridj.Demangler.TypeRef;
-import org.bridj.Demangler.DemanglingException;
-import org.bridj.Demangler.MemberRef;
-import org.bridj.cpp.GCC4Demangler;
-import org.bridj.cpp.VC9Demangler;
-import org.bridj.Demangler.SpecialName;
+import org.bridj.util.Utils;
+import org.bridj.demangling.Demangler;
+import org.bridj.demangling.Demangler.TypeRef;
+import org.bridj.demangling.Demangler.Ident;
+import org.bridj.demangling.Demangler.IdentLike;
+import org.bridj.demangling.Demangler.DemanglingException;
+import org.bridj.demangling.Demangler.MemberRef;
+import org.bridj.demangling.GCC4Demangler;
+import org.bridj.demangling.VC9Demangler;
+import org.bridj.cpp.CPPType;
+import org.bridj.demangling.Demangler.SpecialName;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Type;
 import java.lang.annotation.Annotation;
 import org.junit.Test;
 
@@ -25,7 +31,8 @@ public class DemanglingTest {
 		demangle(
                         null,
 			"__Z17testInPlaceSquarePdj", 
-			null, "testInPlaceSquare", 
+			null, 
+            ident("testInPlaceSquare"),
 			void.class, Pointer.class, int.class
 		);
 	}
@@ -34,7 +41,8 @@ public class DemanglingTest {
         demangle(
             "?test_add9_long@@YA_J_J00000000@Z",
             "_Z14test_add9_longlllllllll",
-            null, "test_add9_long",
+            null, 
+            ident("test_add9_long"),
             long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class
         );
     }
@@ -44,6 +52,15 @@ public class DemanglingTest {
 			"?f@@YAPADPADPAF1@Z",
 			null,
 			"byte* f(byte*, short*, short*)"
+        );
+    }
+
+    @Test
+    public void simpleCppFun() {
+        demangle(
+            null,
+            "__Z11sizeOfCtestv",
+            "null sizeOfCtest()"
         );
     }
     @Test
@@ -75,7 +92,8 @@ public class DemanglingTest {
 		demangle(
 			null, // TODO
 			"_Z14test_no_paramsv",
-			null, "test_no_params",
+			null, 
+            ident("test_no_params"),
 			null
 		);
 	}
@@ -84,7 +102,8 @@ public class DemanglingTest {
 		demangle(
 			"??0Ctest@@QEAA@XZ",
 			"_ZN5CtestC1Ev",
-			CPPTest.Ctest.class, SpecialName.Constructor,
+			CPPTest.Ctest.class,
+            SpecialName.Constructor,
 			null
 		);
 	}
@@ -93,18 +112,67 @@ public class DemanglingTest {
     	demangle(
 			null, 
 			"_ZN5Ctest7testAddEii", 
-			CPPTest.Ctest.class, "testAdd", 
+			CPPTest.Ctest.class, 
+            ident("testAdd"),
 			int.class, int.class, int.class
 		);
     	
     }
 
     @Test
+	public void template1() {
+		demangle(
+			null,
+			"__ZN5Temp1IdE4tempEd",
+			CPPType.getCPPType(new Object[] { CPPTemplateTest.Temp1.class, Double.class }),
+			ident("temp"),
+			void.class,
+			double.class
+		);
+	}
+    
+    @Test
+	public void template2() {
+		demangle(
+			null,
+			"__ZN5Temp2IisE4tempEis",
+			CPPType.getCPPType(new Object[] { CPPTemplateTest.Temp2.class, int.class, short.class }),
+			ident("temp"),
+			void.class,
+			int.class,
+            short.class
+		);
+	}
+
+    @Test
+	public void templateHardConstructor1() {
+		demangle(
+			null,
+			"_ZN24InvisibleSourcesTemplateILi10ESsEC1Ei",
+            CPPType.getCPPType(new Object[] { CPPTemplateTest.InvisibleSourcesTemplate.class, 10, int.class }),
+            SpecialName.Constructor,
+			void.class,
+            int.class
+		);
+	}
+    @Test
+	public void templateHardConstructor2() {
+		demangle(
+			null,
+			"_ZN24InvisibleSourcesTemplateILi10EiEC2Ei",
+            CPPType.getCPPType(new Object[] { CPPTemplateTest.InvisibleSourcesTemplate.class, 10, int.class }),
+            SpecialName.SpecialConstructor,
+			void.class,
+            int.class
+		);
+	}
+
+    @Test
 	public void simpleFunctions() {
 		demangle("?sinInt@@YANH@Z", "_Z6sinInti", null,
-				"sinInt", 
+				ident("sinInt"),
 				double.class, int.class);
-		demangle("?forwardCall@@YAHP6AHHH@ZHH@Z", "_Z11forwardCallPvii", null, "forwardCall", int.class, Pointer.class, int.class, int.class);
+		demangle("?forwardCall@@YAHP6AHHH@ZHH@Z", "_Z11forwardCallPvii", null, ident("forwardCall"), int.class, Pointer.class, int.class, int.class);
                 // NB: the forwardCall test for gcc is written with a "void*" as first parameter (I could not get the pointer type from the VC6 mangled name
 	}
 
@@ -112,11 +180,14 @@ public class DemanglingTest {
     public void complexPointerTypeParameters() {
         // TODO VC versions
         // NB: with gcc, we have no info about the return type (don't know about VC6)
-        demangle(null, "_Z14pointerAliasesPPvS_PS0_PPi", null, "pointerAliases", null, Pointer.class, Pointer.class, Pointer.class, Pointer.class);
-        demangle(null, "_Z14pointerAliasesPPvS_PS0_PPi", null, "pointerAliases", null, "**Void", "*Void", "***Void", "**Integer");
+        demangle(null, "_Z14pointerAliasesPPvS_PS0_PPi", null, ident("pointerAliases"), null, Pointer.class, Pointer.class, Pointer.class, Pointer.class);
+        demangle(null, "_Z14pointerAliasesPPvS_PS0_PPi", null, ident("pointerAliases"), null, "**Void", "*Void", "***Void", "**Integer");
     }
 
-    private void demangle(String vc9, String gcc4, Class enclosingType, Object memberName, Class returnType, Object... paramTypes) {
+    static IdentLike ident(String name) {
+        return new Ident(name);
+    }
+    private void demangle(String vc9, String gcc4, Type enclosingType, IdentLike memberName, Class returnType, Object... paramTypes) {
         try {
 			if (vc9 != null)
 				checkSymbol(vc9, new VC9Demangler(null, vc9).parseSymbol(), enclosingType, memberName, returnType, paramTypes, null, null);
@@ -140,14 +211,14 @@ public class DemanglingTest {
 		}
     }
 
-    private void checkSymbol(String str, MemberRef symbol, Class enclosingType, Object memberName, Class returnType, Object[] paramTypes, Annotation[][] paramAnns, AnnotatedElement element) {
+    private void checkSymbol(String str, MemberRef symbol, Type enclosingType, IdentLike memberName, Class returnType, Object[] paramTypes, Annotation[][] paramAnns, AnnotatedElement element) {
         if (symbol == null)
         		assertTrue("Symbol not successfully parsed \"" + str + "\"", false);
     		if (memberName != null)
             assertEquals("Bad name", memberName, symbol.getMemberName());
         if (enclosingType != null) {
         	assertNotNull("Null enclosing type : " + symbol, symbol.getEnclosingType());
-            assertTrue("Bad enclosing type (got " + symbol.getEnclosingType() + ", expected " + enclosingType.getName() + ")", symbol.getEnclosingType().matches(enclosingType, Demangler.annotations(enclosingType)));
+            assertTrue("Bad enclosing type (got " + symbol.getEnclosingType() + ", expected " + (enclosingType instanceof Class ? ((Class)enclosingType).getName() : enclosingType.toString()) + ")", symbol.getEnclosingType().matches(enclosingType, Demangler.annotations(enclosingType)));
         }
         if (returnType != null && symbol.getValueType() != null)
             assertTrue("Bad return type", symbol.getValueType().matches(returnType, Demangler.annotations(element)));
@@ -185,6 +256,5 @@ public class DemanglingTest {
             }
         }
     }
-
 
 }

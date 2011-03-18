@@ -5,32 +5,16 @@ import org.bridj.JNI;
 import org.bridj.NativeLibrary;
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
-import org.bridj.StructObject;
-import org.bridj.TypedPointer;
-import org.bridj.ann.Field;
-import org.bridj.ann.Library;
-import org.bridj.ann.Runtime;
-import org.bridj.cpp.CPPRuntime;
 import java.awt.*;
 import java.io.File;
+import org.bridj.Platform;
 
+import org.bridj.ann.Convention;
+/**
+ * Contains a method that returns the native peer handle of an AWT component : BridJ JAWT utilities {@link org.bridj.jawt.JAWTUtils#getNativePeerHandle(java.awt.Component)}
+ */
 public class JAWTUtils {
-    static {
-        try {
-            File jawtDll = null;
-            if (JNI.isWindows())
-                jawtDll = new File(new File(System.getProperty("java.home")), "bin\\jawt.dll");
-            if (jawtDll != null && jawtDll.exists()) {
-                jawtDll = jawtDll.getCanonicalFile();
-                //new File("C:\\Program Files (x86)\\Java\\jdk1.6.0_16\\jre\\bin\\jawt.dll");
-                NativeLibrary lib = BridJ.getNativeLibrary("jawt", jawtDll);
-                System.out.println("Found library " + lib);
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        
-    }
+    
 	/**
 	 * 
 	 */
@@ -52,52 +36,59 @@ public class JAWTUtils {
 				throw new RuntimeException("Failed to get JAWT pointer !");
 				
 			Pointer<?> componentPointer = pointerToAddress(JNI.newGlobalRef(component));
-			Pointer<JAWT_DrawingSurface> pSurface = awt.GetDrawingSurface().as(JAWT.GetDrawingSurface_callback.class).get().invoke(env, componentPointer).as(JAWT_DrawingSurface.class);
-			if (pSurface == null)
-				throw new RuntimeException("Cannot get drawing surface from " + component);
-            JAWT_DrawingSurface surface = pSurface.get();
-  
 			try {
-				int lock = surface.Lock().get().invoke(pSurface);
-				if ((lock & JAWT_LOCK_ERROR) != 0)
-					throw new RuntimeException("Cannot lock drawing surface of " + component);
+				//Pointer<JAWT_DrawingSurface> pSurface = pointerToAddress((int)((Integer)awt.GetDrawingSurface().
+				//	asDynamicFunction(Convention.Style.StdCall, int.class, int.class, int.class).apply((int)env.getPeer(), (int)componentPointer.getPeer()))).as(JAWT_DrawingSurface.class);
+				Pointer<JAWT_DrawingSurface> pSurface = awt.GetDrawingSurface().as(JAWT.GetDrawingSurface_callback.class).get().invoke(env, componentPointer).as(JAWT_DrawingSurface.class);
+				if (pSurface == null)
+					throw new RuntimeException("Cannot get drawing surface from " + component);
+				
+				JAWT_DrawingSurface surface = pSurface.get();
+	  
 				try {
-                    Pointer<JAWT_DrawingSurface.GetDrawingSurfaceInfo_callback> cb = surface.GetDrawingSurfaceInfo().as(JAWT_DrawingSurface.GetDrawingSurfaceInfo_callback.class);
-                    Pointer<org.bridj.jawt.JAWT_DrawingSurfaceInfo > pInfo = cb.get().invoke(pSurface);
-                    if (pInfo != null)
-                        pInfo = pInfo.as(JAWT_DrawingSurfaceInfo.class);
-					Pointer<?> platformInfo = pInfo.get().platformInfo();
-                    return platformInfo.getSizeT(); // on win, mac, x11 platforms, the relevant field is the first in the struct !
-					/*if (JNI.isWindows())
-					{
-                        @Library("jawt") 
-                        public static class JAWT_Win32DrawingSurfaceInfo extends StructObject {
-                            public JAWT_Win32DrawingSurfaceInfo() {
-                                super();
-                            }
-                            public JAWT_Win32DrawingSurfaceInfo(Pointer pointer) {
-                                super(pointer);
-                            }
-                            @Field(0)
-                            public static native Pointer<?> hwnd();
-                        }
-						JAWT_Win32DrawingSurfaceInfo wdsi = new JAWT_Win32DrawingSurfaceInfo(platformInfo);
-						return wdsi.hwnd().getPeer();
-					} else if (JNI.isMacOSX())
-					{
-						return 0;//JAWT_MacOSXDrawingSurfaceInfo mdsi = new JAWT_MacOSXDrawingSurfaceInfo(platformInfo); 
-						//return mdsi.cocoaViewRef();
-					} else if (JNI.isUnix())
-					{
-						return 0;//JAWT_X11DrawingSurfaceInfo xdsi = new JAWT_X11DrawingSurfaceInfo(platformInfo);	
-						//return xdsi.drawable();
-					} else 
-						throw new UnsupportedOperationException("Native peer can only be fetched on Windows, MacOS X and X11-powered platforms");*/
+					int lock = surface.Lock().get().invoke(pSurface);
+					if ((lock & JAWT_LOCK_ERROR) != 0)
+						throw new RuntimeException("Cannot lock drawing surface of " + component);
+					try {
+						Pointer<JAWT_DrawingSurface.GetDrawingSurfaceInfo_callback> cb = surface.GetDrawingSurfaceInfo().as(JAWT_DrawingSurface.GetDrawingSurfaceInfo_callback.class);
+						Pointer<org.bridj.jawt.JAWT_DrawingSurfaceInfo > pInfo = cb.get().invoke(pSurface);
+						if (pInfo != null)
+							pInfo = pInfo.as(JAWT_DrawingSurfaceInfo.class);
+						Pointer<?> platformInfo = pInfo.get().platformInfo();
+						return platformInfo.getSizeT(); // on win, mac, x11 platforms, the relevant field is the first in the struct !
+						/*if (Platform.isWindows())
+						{
+							@Library("jawt") 
+							public static class JAWT_Win32DrawingSurfaceInfo extends StructObject {
+								public JAWT_Win32DrawingSurfaceInfo() {
+									super();
+								}
+								public JAWT_Win32DrawingSurfaceInfo(Pointer pointer) {
+									super(pointer);
+								}
+								@Field(0)
+								public static native Pointer<?> hwnd();
+							}
+							JAWT_Win32DrawingSurfaceInfo wdsi = new JAWT_Win32DrawingSurfaceInfo(platformInfo);
+							return wdsi.hwnd().getPeer();
+						} else if (Platform.isMacOSX())
+						{
+							return 0;//JAWT_MacOSXDrawingSurfaceInfo mdsi = new JAWT_MacOSXDrawingSurfaceInfo(platformInfo); 
+							//return mdsi.cocoaViewRef();
+						} else if (Platform.isUnix())
+						{
+							return 0;//JAWT_X11DrawingSurfaceInfo xdsi = new JAWT_X11DrawingSurfaceInfo(platformInfo);	
+							//return xdsi.drawable();
+						} else 
+							throw new UnsupportedOperationException("Native peer can only be fetched on Windows, MacOS X and X11-powered platforms");*/
+					} finally {
+						surface.Unlock().get().invoke(pSurface);
+					}
 				} finally {
-					surface.Unlock().get().invoke(pSurface);
+					awt.FreeDrawingSurface().get().invoke(pSurface);
 				}
 			} finally {
-				awt.FreeDrawingSurface().get().invoke(pSurface);
+				JNI.deleteGlobalRef(componentPointer.getPeer());
 			}
 		} catch (Throwable ex) {
 			ex.printStackTrace();

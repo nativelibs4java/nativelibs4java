@@ -4,6 +4,14 @@
  */
 package org.bridj.cpp;
 
+import org.bridj.ann.Template;
+import org.bridj.DynamicFunction;
+import org.bridj.util.Pair;
+import java.lang.reflect.Constructor;
+import org.bridj.DynamicFunctionFactory;
+import org.bridj.ann.Convention;
+import org.bridj.Callback;
+import org.bridj.Platform;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -18,29 +26,32 @@ import org.bridj.NativeLibrary;
 import org.bridj.NativeObject;
 import org.bridj.Pointer;
 import org.bridj.PointerIO;
-import org.bridj.TestCPP;
 
 import static org.bridj.Dyncall.CallingConvention.*;
 
-import org.bridj.Demangler.Symbol;
+import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Virtual;
 import org.bridj.CRuntime;
-import org.bridj.Dyncall;
 import org.bridj.NativeLibrary.SymbolAccepter;
-import org.bridj.Utils;
-import org.bridj.util.AutoHashMap;
+import org.bridj.util.Utils;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
+import org.bridj.ann.Convention.Style;
 import static org.bridj.Pointer.*;
 
 /**
- *
- * @author Olivier
+ * C++ runtime (derives from the C runtime).<br>
+ * Deals with registration and lifecycle of C++ classes and methods (virtual or not).
+ * @author ochafik
  */
 public class CPPRuntime extends CRuntime {
 
+    public static CPPRuntime getInstance() {
+        return BridJ.getRuntimeByRuntimeClass(CPPRuntime.class);
+    }
     @Override
     public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType) {
         //String className = null;
@@ -83,40 +94,61 @@ public class CPPRuntime extends CRuntime {
         return count;
     }
 
+    
     public void listVirtualMethods(Class<?> type, List<Method> out) {
         if (!CPPObject.class.isAssignableFrom(type)) {
             return;
         }
 
-        for (Method m : type.getDeclaredMethods()) {
-            if (m.getAnnotation(Virtual.class) != null) {
-                out.add(m);
+        Class<?> sup = type.getSuperclass();
+        if (sup != CPPObject.class) {
+            listVirtualMethods(sup, out);
+        }
+
+        int nParentMethods = out.size();
+
+        methods:
+        for (Method method : type.getDeclaredMethods()) {
+            String methodName = method.getName();
+            Type[] methodParameterTypes = method.getGenericParameterTypes();
+            for (int iParentMethod = 0; iParentMethod < nParentMethods; iParentMethod++) {
+                Method parentMethod = out.get(iParentMethod);
+                if (parentMethod.getDeclaringClass() == type)
+                    continue; // was just added in the same listVirtualMethods call !
+
+                //if (parentMethod.getAnnotation(Virtual.class) == null)
+                //    continue; // not a virtual method, too bad
+
+                if (parentMethod.getName().equals(methodName) && isOverridenSignature(parentMethod.getGenericParameterTypes(), methodParameterTypes, 0)) {
+                    out.set(iParentMethod, method);
+                    continue methods;
+                }
+            }
+                    
+            if (method.getAnnotation(Virtual.class) != null) {
+                out.add(method);
             }
         }
 
-        type = type.getSuperclass();
-        if (type != CPPObject.class) {
-            listVirtualMethods(type, out);
-        }
     }
 
     @Override
-    protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder) throws FileNotFoundException {
+    protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder, MethodCallInfoBuilder methodCallInfoBuilder) throws FileNotFoundException {
 
         int modifiers = method.getModifiers();
         boolean isCPPClass = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
 
 //		Annotation[][] anns = method.getParameterAnnotations();
         if (!isCPPClass) {
-            super.registerNativeMethod(type, typeLibrary, method, methodLibrary, builder);
+            super.registerNativeMethod(type, typeLibrary, method, methodLibrary, builder, methodCallInfoBuilder);
             return;
         }
 
-        MethodCallInfo mci = new MethodCallInfo(method);
+        MethodCallInfo mci = methodCallInfoBuilder.apply(method);
 
         Virtual va = method.getAnnotation(Virtual.class);
         if (va == null) {
-            methodLibrary.getSymbol(method);
+            //methodLibrary.getSymbol(method);
             Symbol symbol = methodLibrary.getSymbol(method);
             mci.setForwardedPointer(symbol == null ? 0 : symbol.getAddress());
             if (mci.getForwardedPointer() == 0) {
@@ -136,7 +168,7 @@ public class CPPRuntime extends CRuntime {
                 builder.addFunction(mci);
                 assert log(Level.INFO, "Registering " + method + " as function or static C++ method " + symbol.getName());
             } else {
-                //if (!JNI.is64Bits() && JNI.isWindows())
+                //if (!Platform.is64Bits() && Platform.isWindows())
                 //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
                 //builder.addMethodFunction(mci);
                 builder.addFunction(mci);
@@ -174,7 +206,7 @@ public class CPPRuntime extends CRuntime {
             int absoluteVirtualIndex = isNewVirtual ? virtualOffset + virtualIndex : virtualIndex;
             mci.setVirtualIndex(absoluteVirtualIndex);
             log(Level.INFO, "Registering " + method.toGenericString() + " as virtual C++ method with relative virtual index = " + virtualIndex + ", absolute index = " + absoluteVirtualIndex);
-            //if (!JNI.is64Bits() && JNI.isWindows())
+            //if (!Platform.is64Bits() && Platform.isWindows())
             //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
             builder.addVirtualMethod(mci);
         }
@@ -208,12 +240,9 @@ public class CPPRuntime extends CRuntime {
 		}
 		return -1;
 	}
-    Map<Type, Long> defaultConstructors = new HashMap<Type, Long>();
-    Map<Type, Long> destructors = new HashMap<Type, Long>();
-
     static int getDefaultDyncallCppConvention() {
         int convention = DC_CALL_C_DEFAULT;
-        if (!JNI.is64Bits() && JNI.isWindows()) {
+        if (!Platform.is64Bits() && Platform.isWindows()) {
             convention = DC_CALL_C_X86_WIN32_THIS_MS;
         }
         return convention;
@@ -225,12 +254,69 @@ public class CPPRuntime extends CRuntime {
 			String prop = System.getProperty("bridj.destructors"), env = System.getenv("BRIDJ_DESTRUCTORS"); 
 			boolean forceTrue = "true".equals(prop) || "1".equals(env);
 			boolean forceFalse = "false".equals(prop) || "0".equals(env);
-			boolean shouldBeStable = true;//JNI.isWindows();
+			boolean shouldBeStable = true;//Platform.isWindows();
 			enableDestructors = forceTrue || shouldBeStable && !forceFalse;
 		}
 		return enableDestructors;
     }
 
+    @Convention(Style.ThisCall)
+    public abstract static class CPPDestructor extends Callback {
+        public abstract void destroy(long peer);
+    }
+
+    Map<Pair<Type, Integer>, DynamicFunction> constructors = new HashMap<Pair<Type, Integer>, DynamicFunction>();
+    DynamicFunction getConstructor(final Class<?> typeClass, final Type type, NativeLibrary lib, int constructorId) {
+        Pair<Type, Integer> key = new Pair<Type, Integer>(type, constructorId);
+        DynamicFunction constructor = constructors.get(key);
+        if (constructor == null) {
+            try {
+                final Constructor<?> constr = findConstructor(typeClass, constructorId, true);
+                Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
+                    return symbol.matchesConstructor(constr.getDeclaringClass() == Utils.getClass(type) ? type : constr.getDeclaringClass() /* TODO */, constr);
+                }});
+                if (symbol == null)
+                    throw new RuntimeException("No matching constructor for " + typeClass.getName() + " (" + constr + ")");
+
+
+
+                if (symbol != null)
+                    log(Level.INFO, "Registering constructor " + constr + " as " + symbol.getName());
+
+                Template t = typeClass.getAnnotation(Template.class);
+                // TODO do something with these args !
+                int templateArgCount = t == null ? 0 : t.value().length;
+
+                Class<?>[] consParamTypes = constr.getParameterTypes();
+                Class<?>[] consThisParamTypes = new Class[consParamTypes.length + 1 - templateArgCount];
+                consThisParamTypes[0] = Pointer.class;
+                System.arraycopy(consParamTypes, templateArgCount, consThisParamTypes, 1, consParamTypes.length - templateArgCount);
+
+                DynamicFunctionFactory constructorFactory = getDynamicFunctionFactory(lib, Style.ThisCall, void.class, consThisParamTypes);
+
+                constructor = constructorFactory.newInstance(pointerToAddress(symbol.getAddress()));
+                constructors.put(key, constructor);
+            } catch (Throwable th) {
+                throw new RuntimeException("Unable to create constructor " + constructorId + " for " + type + " : " + th, th);
+            }
+        }
+        return constructor;
+    }
+    Map<Type, CPPDestructor> destructors = new HashMap<Type, CPPDestructor>();
+    CPPDestructor getDestructor(final Class<?> typeClass, Type type, NativeLibrary lib) {
+        CPPDestructor destructor = destructors.get(type);
+        if (destructor == null) {
+            Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
+                return symbol.matchesDestructor(typeClass);
+            }});
+            if (symbol != null)
+                log(Level.INFO, "Registering destructor of " + typeClass.getName() + " as " + symbol.getName());
+
+            if (symbol != null)
+                destructors.put(type, destructor = pointerToAddress(symbol.getAddress(), CPPDestructor.class).get());
+        }
+        return destructor;
+    }
     protected <T extends CPPObject> Pointer<T> newCPPInstance(final Type type, int constructorId, Object... args) {
         Pointer<T> peer = null;
         try {
@@ -238,75 +324,31 @@ public class CPPRuntime extends CRuntime {
             NativeLibrary lib = BridJ.getNativeLibrary(typeClass);
             Pointer.Releaser releaser = null;
 
+            log(Level.INFO, "Creating C++ instance of type " + type + " with args " + Arrays.asList(args));
             if (enableDestructors()) {
-				Long destructor = destructors.get(type);
-				if (destructor == null) {
-					Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
-						return symbol.matchesDestructor(typeClass);
-					}});
-					if (symbol != null)
-						log(Level.INFO, "Registering destructor of " + typeClass.getName() + " as " + symbol.getName());
-					destructors.put(type, destructor = symbol == null ? 0 : symbol.getAddress());
-				}
-				final long destructorAddr = destructor;
-				if (destructorAddr != 0) {
-					releaser = new Pointer.Releaser() { @Override public void release(Pointer<?> p) {
+                final CPPDestructor destructor = getDestructor(typeClass, type, lib);
+                if (destructor != null)
+                    releaser = new Pointer.Releaser() { @Override public void release(Pointer<?> p) {
 						//System.out.println("Destructing instance of C++ type " + type + "...");
-						JNI.callSinglePointerArgVoidFunction(destructorAddr, p.getPeer(), getDefaultDyncallCppConvention());
-					}};
-				}
+                        destructor.destroy(p.getPeer());
+                    }};
 			}
             // TODO handle templates here
-            peer = (Pointer) Pointer.allocateBytes(PointerIO.getInstance(type), sizeOf(type, null), releaser); 
-
-            if (constructorId < 0) {
-                Long defaultConstructor = defaultConstructors.get(type);
-                if (defaultConstructor == null) {
-                    Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
-                    return symbol.matchesConstructor(typeClass);
-                }});
-                    if (symbol != null)
-                        log(Level.INFO, "Registering default constructor of " + typeClass.getName() + " as " + symbol.getName());
-                    defaultConstructors.put(type, defaultConstructor = symbol == null ? 0 : symbol.getAddress());
-                    if (defaultConstructor.longValue() == 0)
-                        throw new RuntimeException("Cannot find the default constructor for type " + typeClass.getName());
-                }
-                installVTablePtr(type, lib, peer);
-		if (defaultConstructor == null || defaultConstructor.longValue() == 0L)
-			throw new RuntimeException("Constructor not found !");
-                JNI.callSinglePointerArgVoidFunction(defaultConstructor, peer.getPeer(), getDefaultDyncallCppConvention());// TODO use right call convention
-                //TestCPP.print(typeClass.getSimpleName(), peer.getPeer(), 10, 5);
-                //TestCPP.print(typeClass.getSimpleName() + "'s vtable", peer.getSizeT(0), 10, 5);
-                return peer;
-            }
-            Method meth = getConstructor(typeClass, constructorId, args);
-            Object[] consArgs = new Object[args.length + 1];
+            long size = sizeOf(type, null);
+            peer = (Pointer) Pointer.allocateBytes(PointerIO.getInstance(type), size, releaser).as(type);
+            
+            DynamicFunction constructor = getConstructor(typeClass, type, lib, constructorId);
+            
             if (CPPObject.class.isAssignableFrom(typeClass)) {
-                if (meth.getReturnType() != Void.TYPE) {
-                    throw new RuntimeException("Constructor-mapped methods must return void, but " + meth.getName() + " returns " + meth.getReturnType().getName());
-                }
-                if (!Modifier.isStatic(meth.getModifiers())) {
-                    throw new RuntimeException("Constructor-mapped methods must be static, but " + meth.getName() + " is not.");
-                }
-                if (!meth.getName().equals(typeClass.getSimpleName())) {
-                    throw new RuntimeException("Constructor methods must have the same name as their class : " + meth.getName() + " is not " + typeClass.getSimpleName());
-                }
                 installVTablePtr(type, lib, peer);
             } else {
                 // TODO ObjCObject : call alloc on class type !!
             }
-            consArgs[0] = peer.getPeer();
-            System.arraycopy(args, 0, consArgs, 1, args.length);
-            boolean acc = meth.isAccessible();
-            try {
-                meth.setAccessible(true);
-                meth.invoke(null, consArgs);
-            } finally {
-                try {
-                    meth.setAccessible(acc);
-                } catch (Exception ex) {
-                }
-            }
+            Object[] consThisArgs = new Object[args.length + 1];
+            consThisArgs[0] = peer;
+            System.arraycopy(args, 0, consThisArgs, 1, args.length);
+
+            constructor.apply(consThisArgs);
             return peer;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -330,7 +372,7 @@ public class CPPRuntime extends CRuntime {
 			// TODO ask for real template name
 			String className = typeClass.getSimpleName();
 			String vtableSymbol;
-            if (JNI.isWindows())
+            if (Platform.isWindows())
                 vtableSymbol = "??_7" + className + "@@6B@";
             else
                 vtableSymbol = "_ZTV" + className.length() + className;
@@ -354,7 +396,7 @@ public class CPPRuntime extends CRuntime {
             if (false) {
 	            String className = typeClass.getSimpleName();
 				String vtableSymbol;
-	            if (JNI.isWindows())
+	            if (Platform.isWindows())
 	                vtableSymbol = "??_7" + className + "@@6B@";
 	            else
 	                vtableSymbol = "_ZTV" + className.length() + className;
@@ -388,9 +430,9 @@ public class CPPRuntime extends CRuntime {
         return new CTypeInfo<T>(type) {
 
             @Override
-            public long sizeOf(T instance) {
-                // TODO handle template size here (depends on template args)
-                return super.sizeOf(instance);
+            public long sizeOf(Type type) {
+                // TODO handle template size here ? (depends on template args)
+                return super.sizeOf(type);
             }
 
             @SuppressWarnings("unchecked")
@@ -398,7 +440,16 @@ public class CPPRuntime extends CRuntime {
             public void initialize(T instance, int constructorId, Object... args) {
                 if (instance instanceof CPPObject) {
                     //instance.peer = allocate(instance.getClass(), constructorId, args);
-                    setNativeObjectPeer(instance, newCPPInstance((Class<? extends CPPObject>) typeClass, constructorId, args));
+                    int[] position = new int[] { 0 };
+
+                    Type cppType = CPPType.parseCPPType(CPPType.cons((Class<? extends CPPObject>)typeClass, args), position);
+                    int actualArgsOffset = position[0] - 1, nActualArgs = args.length - actualArgsOffset;
+                    //System.out.println("actualArgsOffset = " + actualArgsOffset);
+                    Object[] actualArgs = new Object[nActualArgs];
+                    System.arraycopy(args, actualArgsOffset, actualArgs, 0, nActualArgs);
+                    
+                    setNativeObjectPeer(instance, newCPPInstance(cppType, constructorId, actualArgs));
+                    super.initialize(instance, -1);
                 } else {
                     super.initialize(instance, constructorId, args);
                 }

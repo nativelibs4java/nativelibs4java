@@ -21,16 +21,23 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.bridj.Demangler.DemanglingException;
-import org.bridj.Demangler.MemberRef;
-import org.bridj.Demangler.Symbol;
+import org.bridj.demangling.Demangler.DemanglingException;
+import org.bridj.demangling.Demangler.MemberRef;
+import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.ann.Virtual;
-import org.bridj.cpp.GCC4Demangler;
-import org.bridj.cpp.VC9Demangler;
+import org.bridj.demangling.GCC4Demangler;
+import org.bridj.demangling.VC9Demangler;
 import java.lang.reflect.Type;
+import static org.bridj.Pointer.*;
 
 import java.util.Collection;
+import org.bridj.demangling.Demangler;
 
+/**
+ * Representation of a native shared library, with symbols retrieval / matching facilities.<br>
+ * This class is not meant to be used by end users, it's used by pluggable runtimes instead.
+ * @author ochafik
+ */
 public class NativeLibrary {
 	long handle, symbols;
 	String path;
@@ -84,6 +91,9 @@ public class NativeLibrary {
 		JNI.freeLibrarySymbols(symbols);
 		handle = 0;
 	}
+    public Pointer<?> getSymbolPointer(String name) {
+        return pointerToAddress(getSymbolAddress(name));
+    }
 	public long getSymbolAddress(String name) {
 		if (nameToSym != null) {
 			Symbol addr = nameToSym.get(name);
@@ -134,8 +144,9 @@ public class NativeLibrary {
     }
 	
 	public boolean isMSVC() {
-		return JNI.isWindows();
+		return Platform.isWindows();
 	}
+    /** Filter for symbols */
 	public interface SymbolAccepter {
         boolean accept(Symbol symbol);
     }
@@ -154,11 +165,11 @@ public class NativeLibrary {
 		return Collections.unmodifiableCollection(nameToSym.values());
 	}
 	public String getSymbolName(long address) {
-		if (addrToName == null && getSymbolsHandle() != 0)//JNI.isUnix())
+		if (addrToName == null && getSymbolsHandle() != 0)//Platform.isUnix())
 			return JNI.findSymbolName(getHandle(), getSymbolsHandle(), address);
 	
 		Demangler.Symbol symbol = getSymbol(address);
-		return symbol == null ? null : symbol.symbol;
+		return symbol == null ? null : symbol.getSymbol();
 	}
 	
 	public Symbol getSymbol(long address) {
@@ -179,7 +190,7 @@ public class NativeLibrary {
 				addr = JNI.findSymbolInLibrary(getHandle(), name);
 				if (addr != 0) {
 					symbol = new Symbol(name, this);
-					symbol.address = addr;
+					symbol.setAddress(addr);
 					return symbol;		
 				}
 			}
@@ -190,7 +201,7 @@ public class NativeLibrary {
 					addr = JNI.findSymbolInLibrary(getHandle(), name);
 					if (addr != 0) {
 						symbol = new Symbol(name, this);
-						symbol.address = addr;
+						symbol.setAddress(addr);
 						nameToSym.put(name, symbol);
 					}
 				}
@@ -212,7 +223,7 @@ public class NativeLibrary {
 		String[] symbs = null;
 		if (false) // TODO turn to false !!!
 		try {
-			if (JNI.isMacOSX()) {
+			if (Platform.isMacOSX()) {
 				Process process = java.lang.Runtime.getRuntime().exec(new String[] {"nm", "-gj", path});
 				BufferedReader rin = new BufferedReader(new InputStreamReader(process.getInputStream()));
 				String line;
@@ -236,7 +247,7 @@ public class NativeLibrary {
 		
 		addrToName = new HashMap<Long, Demangler.Symbol>();
 		
-		boolean is32 = !JNI.is64Bits();
+		boolean is32 = !Platform.is64Bits();
 		for (String name : symbs) {
 			if (name == null)
 				continue;
@@ -262,21 +273,22 @@ public class NativeLibrary {
 			//System.out.println("Symbol " + Long.toHexString(addr) + " = '" + name + "'");
 			
 			Symbol sym = new Demangler.Symbol(name, this);
-			sym.address = addr;
+			sym.setAddress(addr);
 			addrToName.put(addr, sym);
 			nameToSym.put(name, sym);
 			//nameToAddr.put(name, addr);
 			//System.out.println("'" + name + "' = \t" + TestCPP.hex(addr) + "\n\t" + sym.getParsedRef());
 		}
-		System.out.println("Symbols found : " + nameToSym.size());
-		//for (Symbol sym : nameToSym.values()) {
-		//	System.out.println("Symbol '" + sym + "' = " + sym.getParsedRef());
-		//}
+		if ("1".equals(System.getenv("BRIDJ_PRINT_SYMBOLS"))) {
+			System.out.println("Symbols found in '" + path + "' : " + nameToSym.size());
+			for (Symbol sym : nameToSym.values())
+				System.out.println("Symbol '" + sym + "' = " + sym.getParsedRef());
+		}
 	}
 
-	MemberRef parseSymbol(String symbol) throws DemanglingException {
+	public MemberRef parseSymbol(String symbol) throws DemanglingException {
 		Demangler demangler;
-		if (JNI.isWindows())
+		if (Platform.isWindows())
 			demangler = new VC9Demangler(this, symbol);
 		else
 			demangler = new GCC4Demangler(this, symbol);

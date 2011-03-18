@@ -10,10 +10,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.WeakHashMap;
 
 /**
- *
+ * Set of int-valued enum values that is itself int-valued (bitwise OR of all the values).<br>
+ * This helps use Java enums (that implement {@link ValuedEnum}) as combinable C flags (see {@link FlagSet#fromValues(E[]) }).
  * @author ochafik
  */
 public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
@@ -50,10 +52,56 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
     public Iterator<E> iterator() {
         return getMatchingEnums().iterator();
     }
+    public E toEnum() {
+        E nullMatch = null;
+        E match = null;
+        for (E e : getMatchingEnums()) {
+            if (((ValuedEnum)e).value() == 0)
+                nullMatch = e;
+            else if (match == null)
+                match = e;
+            else
+                throw new NoSuchElementException("More than one enum value corresponding to " + this + " : " + e + " and " + match + "...");
+        }
+        if (match != null)
+            return match;
+
+        if (value() == 0)
+            return nullMatch;
+
+        throw new NoSuchElementException("No enum value corresponding to " + this);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder b = new StringBuilder();
+        b.append(enumClass.getSimpleName()).append("(").append(value()).append(" = ");
+        try {
+            boolean first = true;
+            for (E e : this.getMatchingEnums()) {
+                if (first)
+                    first = false;
+                else
+                    b.append(" | ");
+                b.append(e);
+            }
+        } catch (Throwable th) {
+            b.append("?");
+        }
+        b.append(")");
+        return b.toString();
+    }
+
     public static <EE extends Enum<EE>> FlagSet<EE> fromValue(long value, Class<EE> enumClass) {
         return new FlagSet<EE>(value, enumClass, null);
     }
-    public static <EE extends Enum<EE>> FlagSet<EE> fromValue(long value, EE[] enumValue) {
+    public static <EE extends Enum<EE>> FlagSet<EE> fromValue(ValuedEnum<EE> value) {
+        if (value instanceof Enum)
+            return FlagSet.fromValue(value.value(), (EE)value);
+        else 
+            return (FlagSet<EE>)value;
+    }
+    public static <EE extends Enum<EE>> FlagSet<EE> fromValue(long value, EE... enumValue) {
         return new FlagSet<EE>(value, null, enumValue);
     }
     /**
@@ -84,6 +132,57 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
     protected E[] getEnumClassValues() {
         return enumClassValues == null ? enumClassValues = getValues(enumClass) : enumClassValues;
     }
+    
+    /**
+     * Tests if the flagset value is equal to the OR combination of all the given values combined with bitwise OR operations.<br>
+     * The following C code :
+     * <pre>{@code
+     * E v = ...; // E is an enum type
+     * if (v == (E_V1 | E_V2)) { ... }
+     * }</pre>
+     * Can be translated to the following Java + BridJ code :
+     * <pre>{@code
+     * FlagSet<E> v = ...;
+     * if (v.is(E_V1, E_V2)) { ... }
+     * }</pre>
+     */
+    public boolean is(E... valuesToBeCombinedWithOR) {
+    	return value() == orValue(valuesToBeCombinedWithOR);
+    }
+    
+    /**
+     * Tests if the flagset value is contains the OR combination of all the given values combined with bitwise OR operations.<br>
+     * The following C code :
+     * <pre>{@code
+     * E v = ...; // E is an enum type
+     * if (v & (E_V1 | E_V2)) { ... }
+     * }</pre>
+     * Can be translated to the following Java + BridJ code :
+     * <pre>{@code
+     * FlagSet<E> v = ...;
+     * if (v.has(E_V1, E_V2)) { ... }
+     * }</pre>
+     */
+    public boolean has(E... valuesToBeCombinedWithOR) {
+    	return (value() & orValue(valuesToBeCombinedWithOR)) != 0;
+    }
+    
+    public FlagSet<E> or(E... valuesToBeCombinedWithOR) {
+    	return new FlagSet(value() | orValue(valuesToBeCombinedWithOR), enumClass, null);
+    }
+    
+    static <E extends Enum<E>> long orValue(E... valuesToBeCombinedWithOR) {
+    	long value = 0;
+    	for (E v : valuesToBeCombinedWithOR)
+    		value |= ((ValuedEnum)v).value();
+    	return value;
+    }
+    public FlagSet<E> without(E... valuesToBeCombinedWithOR) {
+    	return new FlagSet(value() & ~orValue(valuesToBeCombinedWithOR), enumClass, null);
+    }
+    public FlagSet<E> and(E... valuesToBeCombinedWithOR) {
+    	return new FlagSet(value() & orValue(valuesToBeCombinedWithOR), enumClass, null);
+    }
 
     protected List<E> getMatchingEnums() {
         List<E> ret = new ArrayList<E>();
@@ -102,6 +201,8 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
 		long value = 0;
 		Class cl = null;
 		for (E enumValue : enumValues) {
+            if (enumValue == null)
+                continue;
 			if (cl == null)
 				cl = enumValue.getClass();
 			value |= ((ValuedEnum)enumValue).value();

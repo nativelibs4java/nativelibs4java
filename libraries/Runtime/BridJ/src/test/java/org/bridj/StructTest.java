@@ -6,14 +6,284 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.bridj.ann.Field;
+import org.bridj.ann.Library;
+import org.bridj.ann.Array;
+import org.bridj.ann.Ptr;
+import org.bridj.cpp.com.*;
 import static org.bridj.Pointer.*;
 import static org.bridj.BridJ.*;
 
 import javolution.io.*;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
+
+@Library("test")
 public class StructTest {
+	static {
+		BridJ.register();
+	}
 	
+	public static native @Ptr long sizeOfVARIANT();
+	public static native @Ptr long sizeOfDECIMAL();
+	public static native @Ptr long sizeOfCAPDRIVERCAPS();
+
+	
+	@Test
+	public void variantSize() {
+        long s = BridJ.sizeOf(VARIANT.class);
+		if (Platform.isWindows())
+            assertEquals(sizeOfVARIANT(), s);
+        else
+            assertEquals(24, s);
+	}
+	
+	
+	@Test
+	public void decimalSize() {
+        long s = BridJ.sizeOf(DECIMAL.class);
+		if (Platform.isWindows())
+            assertEquals(sizeOfDECIMAL(), s);
+        else
+            assertEquals(16, s);
+	}
+	
+	@Test
+	public void testSizeOfCAPDRIVERCAPS() {
+		long s = BridJ.sizeOf(CAPDRIVERCAPS.class);
+		if (Platform.isMacOSX()) {
+			if (Platform.is64Bits())
+				assertEquals(64, s);
+			else
+				assertEquals(44, s);
+		} else
+			assertEquals(sizeOfCAPDRIVERCAPS(), s); 
+	}
+
+	public class CAPDRIVERCAPS extends StructObject {
+		public CAPDRIVERCAPS() {
+			super();
+		}
+		public CAPDRIVERCAPS(Pointer pointer) {
+			super(pointer);
+		}
+		/// C type : UINT
+		@Field(0) 
+		public int wDeviceIndex() {
+			return this.io.getIntField(this, 0);
+		}
+		/// C type : UINT
+		@Field(0) 
+		public CAPDRIVERCAPS wDeviceIndex(int wDeviceIndex) {
+			this.io.setIntField(this, 0, wDeviceIndex);
+			return this;
+		}
+		/// C type : UINT
+		public final int wDeviceIndex_$eq(int wDeviceIndex) {
+			wDeviceIndex(wDeviceIndex);
+			return wDeviceIndex;
+		}
+		@Field(1) 
+		public int fHasOverlay() {
+			return this.io.getIntField(this, 1);
+		}
+		@Field(1) 
+		public CAPDRIVERCAPS fHasOverlay(int fHasOverlay) {
+			this.io.setIntField(this, 1, fHasOverlay);
+			return this;
+		}
+		public final int fHasOverlay_$eq(int fHasOverlay) {
+			fHasOverlay(fHasOverlay);
+			return fHasOverlay;
+		}
+		@Field(2) 
+		public int fHasDlgVideoSource() {
+			return this.io.getIntField(this, 2);
+		}
+		@Field(2) 
+		public CAPDRIVERCAPS fHasDlgVideoSource(int fHasDlgVideoSource) {
+			this.io.setIntField(this, 2, fHasDlgVideoSource);
+			return this;
+		}
+		public final int fHasDlgVideoSource_$eq(int fHasDlgVideoSource) {
+			fHasDlgVideoSource(fHasDlgVideoSource);
+			return fHasDlgVideoSource;
+		}
+		@Field(3) 
+		public int fHasDlgVideoFormat() {
+			return this.io.getIntField(this, 3);
+		}
+		@Field(3) 
+		public CAPDRIVERCAPS fHasDlgVideoFormat(int fHasDlgVideoFormat) {
+			this.io.setIntField(this, 3, fHasDlgVideoFormat);
+			return this;
+		}
+		public final int fHasDlgVideoFormat_$eq(int fHasDlgVideoFormat) {
+			fHasDlgVideoFormat(fHasDlgVideoFormat);
+			return fHasDlgVideoFormat;
+		}
+		@Field(4) 
+		public int fHasDlgVideoDisplay() {
+			return this.io.getIntField(this, 4);
+		}
+		@Field(4) 
+		public CAPDRIVERCAPS fHasDlgVideoDisplay(int fHasDlgVideoDisplay) {
+			this.io.setIntField(this, 4, fHasDlgVideoDisplay);
+			return this;
+		}
+		public final int fHasDlgVideoDisplay_$eq(int fHasDlgVideoDisplay) {
+			fHasDlgVideoDisplay(fHasDlgVideoDisplay);
+			return fHasDlgVideoDisplay;
+		}
+		@Field(5) 
+		public int fCaptureInitialized() {
+			return this.io.getIntField(this, 5);
+		}
+		@Field(5) 
+		public CAPDRIVERCAPS fCaptureInitialized(int fCaptureInitialized) {
+			this.io.setIntField(this, 5, fCaptureInitialized);
+			return this;
+		}
+		public final int fCaptureInitialized_$eq(int fCaptureInitialized) {
+			fCaptureInitialized(fCaptureInitialized);
+			return fCaptureInitialized;
+		}
+		@Field(6) 
+		public int fDriverSuppliesPalettes() {
+			return this.io.getIntField(this, 6);
+		}
+		@Field(6) 
+		public CAPDRIVERCAPS fDriverSuppliesPalettes(int fDriverSuppliesPalettes) {
+			this.io.setIntField(this, 6, fDriverSuppliesPalettes);
+			return this;
+		}
+		public final int fDriverSuppliesPalettes_$eq(int fDriverSuppliesPalettes) {
+			fDriverSuppliesPalettes(fDriverSuppliesPalettes);
+			return fDriverSuppliesPalettes;
+		}
+		/// C type : HANDLE
+		@Field(7) 
+		public Pointer<? > hVideoIn() {
+			return this.io.getPointerField(this, 7);
+		}
+		/// C type : HANDLE
+		@Field(7) 
+		public CAPDRIVERCAPS hVideoIn(Pointer<? > hVideoIn) {
+			this.io.setPointerField(this, 7, hVideoIn);
+			return this;
+		}
+		/// C type : HANDLE
+		public final Pointer<? > hVideoIn_$eq(Pointer<? > hVideoIn) {
+			hVideoIn(hVideoIn);
+			return hVideoIn;
+		}
+		/// C type : HANDLE
+		@Field(8) 
+		public Pointer<? > hVideoOut() {
+			return this.io.getPointerField(this, 8);
+		}
+		/// C type : HANDLE
+		@Field(8) 
+		public CAPDRIVERCAPS hVideoOut(Pointer<? > hVideoOut) {
+			this.io.setPointerField(this, 8, hVideoOut);
+			return this;
+		}
+		/// C type : HANDLE
+		public final Pointer<? > hVideoOut_$eq(Pointer<? > hVideoOut) {
+			hVideoOut(hVideoOut);
+			return hVideoOut;
+		}
+		/// C type : HANDLE
+		@Field(9) 
+		public Pointer<? > hVideoExtIn() {
+			return this.io.getPointerField(this, 9);
+		}
+		/// C type : HANDLE
+		@Field(9) 
+		public CAPDRIVERCAPS hVideoExtIn(Pointer<? > hVideoExtIn) {
+			this.io.setPointerField(this, 9, hVideoExtIn);
+			return this;
+		}
+		/// C type : HANDLE
+		public final Pointer<? > hVideoExtIn_$eq(Pointer<? > hVideoExtIn) {
+			hVideoExtIn(hVideoExtIn);
+			return hVideoExtIn;
+		}
+		/// C type : HANDLE
+		@Field(10) 
+		public Pointer<? > hVideoExtOut() {
+			return this.io.getPointerField(this, 10);
+		}
+		/// C type : HANDLE
+		@Field(10) 
+		public CAPDRIVERCAPS hVideoExtOut(Pointer<? > hVideoExtOut) {
+			this.io.setPointerField(this, 10, hVideoExtOut);
+			return this;
+		}
+		/// C type : HANDLE
+		public final Pointer<? > hVideoExtOut_$eq(Pointer<? > hVideoExtOut) {
+			hVideoExtOut(hVideoExtOut);
+			return hVideoExtOut;
+		}
+	}
+	public class Simple extends StructObject {
+		public Simple() {
+			super();
+		}
+		public Simple(Pointer pointer) {
+			super(pointer);
+		}
+		@Field(0) 
+		public boolean a() {
+			return this.io.getBooleanField(this, 0);
+		}
+		@Field(0) 
+		public Simple a(boolean a) {
+			this.io.setBooleanField(this, 0, a);
+			return this;
+		}
+		public final boolean a_$eq(boolean a) {
+			a(a);
+			return a;
+		}
+		@Field(1) 
+		public boolean b() {
+			return this.io.getBooleanField(this, 1);
+		}
+		@Field(1) 
+		public Simple b(boolean b) {
+			this.io.setBooleanField(this, 1, b);
+			return this;
+		}
+		public final boolean b_$eq(boolean b) {
+			b(b);
+			return b;
+		}
+		/// C type : void*
+		@Field(2) 
+		public Pointer<? > i() {
+			return this.io.getPointerField(this, 2);
+		}
+		/// C type : void*
+		@Field(2) 
+		public Simple i(Pointer<? > i) {
+			this.io.setPointerField(this, 2, i);
+			return this;
+		}
+		/// C type : void*
+		public final Pointer<? > i_$eq(Pointer<? > i) {
+			i(i);
+			return i;
+		}
+	}
+	
+	@Test
+	public void testSizeOfSimple() {
+		if (Platform.is64Bits())
+			assertEquals(16, BridJ.sizeOf(Simple.class));
+		else
+			assertEquals(8, BridJ.sizeOf(Simple.class));
+	}
+
 	public static class MyStruct extends StructObject {
         public MyStruct(Pointer<MyStruct> p) { super(p); }
         public MyStruct() { super(); }
@@ -39,7 +309,7 @@ public class StructTest {
 	@Test
 	public void testEquality() {
 		MyStruct x = new MyStruct(), y = new MyStruct(), z = new MyStruct();
-		long len = sizeOf(x);
+		long len = sizeOf(MyStruct.class);
 		int a = 10;
 		double b = 12.0;
 		pointerTo(x).clearBytesAtOffset(0, len, (byte)0xff);
@@ -103,7 +373,7 @@ public class StructTest {
     public static class MyOptimalStruct {
         //protected final com.sun.jna.Pointer pointer;
         ByteBuffer pointer;
-        private static final int aOffset, bOffset;
+        private static final long aOffset, bOffset;
         static {
             StructIO io = StructIO.getInstance(MyOptimalStruct.class, MyOptimalStruct.class);
             io.build();
@@ -120,18 +390,18 @@ public class StructTest {
         }
         @Field(0)
 		public int a() {
-			return pointer.getInt(aOffset);
+			return pointer.getInt((int)aOffset);
         }
         public void a(int a) {
-            pointer.putInt(aOffset, aOffset);
+            pointer.putInt((int)aOffset, a);
         }
         
         @Field(1)
 		public double b() {
-			return pointer.getDouble(bOffset);
+			return pointer.getDouble((int)bOffset);
         }
         public void b(double b) {
-            pointer.putDouble(bOffset, bOffset);
+            pointer.putDouble((int)bOffset, b);
         }
 	}
 	
@@ -210,6 +480,22 @@ public class StructTest {
             io.setIntField(this, 0, a);
             return this;
         }
+        @Field(1)
+        public SubStruct sub() {
+        		return io.getNativeObjectField(this, 1);
+        }
+
+	}
+	public static class SubStruct extends StructObject {
+
+		@Field(0)
+		public int a() {
+            return io.getIntField(this, 0);
+        }
+		public SubStruct a(int a) {
+            io.setIntField(this, 0, a);
+            return this;
+        }
 
 	}
     @Test
@@ -219,6 +505,29 @@ public class StructTest {
         assertTrue(s == o);
         int a = s.a();
         assertEquals(10, a);
+    }
+    @Test
+    public void testThisSubStruct() {
+        ThisStruct s = new ThisStruct();
+        assertEquals(2 * 4, BridJ.sizeOf(ThisStruct.class));
+        SubStruct sub = s.sub();
+        assertEquals("Invalid sub-struct !", pointerTo(s).offset(4), pointerTo(sub));
+        
+    }
+    
+    public static class StructWithArrays extends StructObject {
+    		@Array(10)
+    		@Field(0)
+    		public Pointer<Integer> ints() {
+    			return io.getPointerField(this, 0);
+    		}
+    }
+    @Test
+    public void testStructWithArrays() {
+        StructWithArrays s = new StructWithArrays();
+        Pointer<Integer> pInts = s.ints();
+        assertEquals("Invalid array field pointer type", Integer.class, pInts.getTargetType());
+        assertEquals("Invalid sub array", pointerTo(s).getPeer(), pInts.getPeer());
     }
 }
 

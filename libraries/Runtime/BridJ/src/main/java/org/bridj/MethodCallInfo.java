@@ -1,24 +1,24 @@
 package org.bridj;
-import org.bridj.objc.ObjCClass;
 import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import java.util.logging.Level;
 import static org.bridj.Dyncall.*;
 import static org.bridj.Dyncall.CallingConvention.*;
 
-import org.bridj.ann.Constructor;
-import org.bridj.ann.Convention;
 import static org.bridj.Dyncall.SignatureChars.*;
-import org.bridj.*;
-import org.bridj.ann.*;
+import org.bridj.ann.Constructor;
 import org.bridj.cpp.CPPObject;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.bridj.ann.Convention;
+import org.bridj.ann.DisableDirect;
+import org.bridj.ann.Ptr;
+import org.bridj.ann.Virtual;
 /**
- *
+ * Internal class that encapsulate all the knowledge about a native method call : signatures (ASM, dyncall and Java), calling convention, context...
  * @author Olivier
  */
 public class MethodCallInfo {
@@ -82,16 +82,15 @@ public class MethodCallInfo {
         asmSig.append('(');
         dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
-		boolean verb = false;//methodName.contains("GetPlatformI");
-		if (verb)
-			System.out.println("Analyzing " + methodName);
+		if (veryVerbose)
+			System.out.println("Analyzing " + declaringClass.getName() + "." + methodName);
         for (int iParam = 0; iParam < nParams; iParam++) {
 //            Options paramOptions = paramsOptions[iParam] = new Options();
             Class<?> parameterType = parameterTypes[iParam];
             Type genericParameterType = genericParameterTypes[iParam];
 
             ValueType paramValueType = getValueType(iParam, nParams, parameterType, genericParameterType, null, paramsAnnotations[iParam]);
-            if (verb)
+            if (veryVerbose)
 				System.out.println("\tparam " + paramValueType);
         	paramsValueTypes[iParam] = paramValueType.ordinal();
             //GetOptions(paramOptions, method, paramsAnnotations[iParam]);
@@ -103,7 +102,7 @@ public class MethodCallInfo {
         dcSig.append(')');
 
         ValueType retType = getValueType(-1, nParams, method.getReturnType(), method.getGenericReturnType(), method);
-        if (verb)
+        if (veryVerbose)
 			System.out.println("\treturns " + retType);
 		appendToSignature(-1, retType, method.getReturnType(), method.getGenericReturnType(), javaSig, dcSig, asmSig);
         returnValueType = retType.ordinal();
@@ -112,7 +111,9 @@ public class MethodCallInfo {
         asmSignature = asmSig.toString();
         dcSignature = dcSig.toString();
         
-        
+        if (BridJ.getAnnotation(DisableDirect.class, true, method) != null)
+        		direct = false;
+        	
         Virtual virtual = BridJ.getAnnotation(Virtual.class, false, method);
         isCPlusPlus = isCPlusPlus || virtual != null;
         
@@ -120,17 +121,17 @@ public class MethodCallInfo {
         	if (!startsWithThis)
         		direct = false;
         	bNeedsThisPointer = true;
-			if (JNI.isWindows()) {
-				if (!JNI.is64Bits())
+			if (Platform.isWindows()) {
+				if (!Platform.is64Bits())
 					setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
 			} else {
-				//if (!JNI.is64Bits())
+				//if (!Platform.is64Bits())
 				//	setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_GNU);
 			}
         }
         Convention cc = BridJ.getAnnotation(Convention.class, true, method);
         if (cc != null) {
-            if (JNI.isWindows() && !JNI.is64Bits()) {
+            if (Platform.isWindows() && !Platform.is64Bits()) {
 				setCallingConvention(cc.value());
             }
         }
@@ -142,25 +143,30 @@ public class MethodCallInfo {
         if (!BridJ.isDirectModeEnabled())
         		this.direct = false; // TODO remove me !
         
-		if (verb) {
+		if (veryVerbose) {
 			System.out.println("\t-> direct " + direct);
 			System.out.println("\t-> javaSignature " + javaSignature);
+			System.out.println("\t-> callIOs " + callIOs);
 			System.out.println("\t-> asmSignature " + asmSignature);
 			System.out.println("\t-> dcSignature " + dcSignature);
 		}
 		
         assert BridJ.log(Level.INFO, (direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
     }
+    static boolean veryVerbose = System.getenv("BRIDJ_VERY_VERBOSE") != null;//methodName.contains("GetPlatformI");
+		
 	boolean hasCC;
 	public boolean hasCallingConvention() {
 		return hasCC;
 	}
 	public void setCallingConvention(Convention.Style style) {
-		//System.out.println("Setting CC " + style + " for " + methodName);
+        if (style == null)
+            return;
+        
 		switch (style) {
 		case FastCall:
 			this.direct = false;
-			setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_DEFAULT); // TODO allow GCC-compiled C++ libs on windows
+			setDcCallingConvention(Platform.isWindows() ? DC_CALL_C_X86_WIN32_FAST_MS : DC_CALL_C_DEFAULT); // TODO allow GCC-compiled C++ libs on windows
 			break;
 		case Pascal:
 		case StdCall:
@@ -169,9 +175,11 @@ public class MethodCallInfo {
 			break;
 		case ThisCall:
 			this.direct = false;
-			setDcCallingConvention(JNI.isWindows() ? DC_CALL_C_X86_WIN32_THIS_GNU : DC_CALL_C_DEFAULT);
+			setDcCallingConvention(Platform.isWindows() ? DC_CALL_C_X86_WIN32_THIS_MS : DC_CALL_C_DEFAULT);
 		}
-
+		if (veryVerbose)
+			System.out.println("Setting CC " + style + " (-> " + dcCallingConvention + ") for " + methodName);
+		
 	}
 	void addCallIO(CallIO handler) {
 		if (callIOs == null)
@@ -208,10 +216,10 @@ public class MethodCallInfo {
     			throw new RuntimeException("Annotation should only be used on a long parameter, not on a " + c.getName());
     		
     		if (sz != null) {
-                if (!JNI.is64Bits())
+                if (!Platform.is64Bits())
                     direct = false;
             } else if (cl != null) {
-                if (JNI.CLONG_SIZE != 8)
+                if (Platform.CLONG_SIZE != 8)
                     direct = false;
             } else if (cons != null) {
             	isCPlusPlus = true;
@@ -226,7 +234,7 @@ public class MethodCallInfo {
         if (c == Integer.class || c == Integer.TYPE)
             return ValueType.eIntValue;
         if (c == Long.class || c == Long.TYPE) {
-        	return sz == null || JNI.is64Bits() ? ValueType.eLongValue : ValueType.eIntValue;
+        	return sz == null || Platform.is64Bits() ? ValueType.eLongValue : ValueType.eIntValue;
         }
         if (c == Short.class || c == Short.TYPE)
             return ValueType.eShortValue;
@@ -239,7 +247,7 @@ public class MethodCallInfo {
             return ValueType.eFloatValue;
         }
         if (c == char.class || c == Character.TYPE) {
-            if (JNI.WCHAR_T_SIZE != 2)
+            if (Platform.WCHAR_T_SIZE != 2)
                 direct = false;
             return ValueType.eWCharValue;
         }
@@ -249,7 +257,10 @@ public class MethodCallInfo {
         }
         if (Pointer.class.isAssignableFrom(c)) {
             direct = false;
-            addCallIO(CallIO.Utils.createPointerCallIO(c, t));
+            CallIO cio = CallIO.Utils.createPointerCallIO(c, t);
+            if (veryVerbose)
+            		System.out.println("CallIO : " + cio);
+            addCallIO(cio);
         		return ValueType.ePointerValue;
         }
         if (c.isArray() && iParam == nParams - 1) {
@@ -270,7 +281,7 @@ public class MethodCallInfo {
     }
     void usesFloats() {
     		/*
-        if (direct && JNI.isMacOSX()) {
+        if (direct && Platform.isMacOSX()) {
             direct = false;
             assert BridJ.log(Level.WARNING, "[unstable direct] FIXME Disable direct call due to float/double usage in " + method);
         }
@@ -295,7 +306,7 @@ public class MethodCallInfo {
                 break;
             case eSizeTValue:
                 javaChar = "J";
-				if (JNI.SIZE_T_SIZE == 8) {
+				if (Platform.SIZE_T_SIZE == 8) {
                     dcChar = DC_SIGCHAR_LONGLONG;
                 } else {
                     dcChar = DC_SIGCHAR_INT;
@@ -323,7 +334,7 @@ public class MethodCallInfo {
             	javaChar = "Z";
             	break;
             case eWCharValue:
-                switch (JNI.WCHAR_T_SIZE) {
+                switch (Platform.WCHAR_T_SIZE) {
                 case 1:
                     dcChar = DC_SIGCHAR_CHAR;
                     direct = false;
@@ -336,7 +347,7 @@ public class MethodCallInfo {
                     direct = false;
                     break;
                 default:
-                    throw new RuntimeException("Unhandled sizeof(wchar_t) in GetJavaTypeSignature: " + JNI.WCHAR_T_SIZE);
+                    throw new RuntimeException("Unhandled sizeof(wchar_t) in GetJavaTypeSignature: " + Platform.WCHAR_T_SIZE);
                 }
                 javaChar = "C";
                 break;
