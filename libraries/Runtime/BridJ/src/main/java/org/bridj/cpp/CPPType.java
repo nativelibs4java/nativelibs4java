@@ -130,15 +130,22 @@ public class CPPType implements ParameterizedType {
 		return h;
 	}
 	
+	static boolean eq(Object a, Object b) {
+		if ((a == null) != (b == null))
+			return false;
+		if (a != null && !a.equals(b))
+			return false;
+		return true;
+	}
 	@Override
 	public boolean equals(Object o) {
 		if (o == null || !(o instanceof CPPType))
 			return false;
 		
 		CPPType t = (CPPType)o;
-		if (!getRawType().equals(t.getRawType()))
+		if (!eq(getRawType(), t.getRawType()))
 			return false;
-		if (!getOwnerType().equals(t.getOwnerType()))
+		if (!eq(getOwnerType(), t.getOwnerType()))
 			return false;
 		
 		Object[] tp = t.templateParameters;
@@ -146,7 +153,7 @@ public class CPPType implements ParameterizedType {
 			return false;
 		
 		for (int i = 0, n = templateParameters.length; i < n; i++)
-			if (!templateParameters[i].equals(tp[i]))
+			if (!eq(templateParameters[i], tp[i]))
 				return false;
 			
 		return true;

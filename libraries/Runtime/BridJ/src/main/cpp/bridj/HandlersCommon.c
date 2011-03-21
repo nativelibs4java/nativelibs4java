@@ -122,11 +122,10 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 					result->p = ptr;
 				else
 				{
-					jobject callIO = *call->pCallIOs;
+					jobject callIO = call && call->pCallIOs ? *(call->pCallIOs++) : NULL;
 					//printf("RETURNED POINTER = %d\n", ptr);
 					result->p = createPointerFromIO(env, ptr, callIO);
 				}
-				call->pCallIOs++;
 			}
 			break;
 		case eWCharValue:

@@ -56,15 +56,22 @@ public class DefaultParameterizedType implements ParameterizedType {
 		return h;
 	}
 	
+	static boolean eq(Object a, Object b) {
+		if ((a == null) != (b == null))
+			return false;
+		if (a != null && !a.equals(b))
+			return false;
+		return true;
+	}
 	@Override
 	public boolean equals(Object o) {
 		if (o == null || !(o instanceof DefaultParameterizedType))
 			return false;
 		
 		DefaultParameterizedType t = (DefaultParameterizedType)o;
-		if (!getRawType().equals(t.getRawType()))
+		if (!eq(getRawType(), t.getRawType()))
 			return false;
-		if (!getOwnerType().equals(t.getOwnerType()))
+		if (!eq(getOwnerType(), t.getOwnerType()))
 			return false;
 		
 		Object[] tp = t.actualTypeArguments;
@@ -72,7 +79,7 @@ public class DefaultParameterizedType implements ParameterizedType {
 			return false;
 		
 		for (int i = 0, n = actualTypeArguments.length; i < n; i++)
-			if (!actualTypeArguments[i].equals(tp[i]))
+			if (!eq(actualTypeArguments[i], tp[i]))
 				return false;
 			
 		return true;
