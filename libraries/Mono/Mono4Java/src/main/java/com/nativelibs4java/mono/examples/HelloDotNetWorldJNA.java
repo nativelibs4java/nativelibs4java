@@ -14,7 +14,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.PointerByReference;
 
-public class HelloDotNetWorld {
+public class HelloDotNetWorldJNA {
 	public static void main(String[] args) {
 		try {
 			String path = "C:\\Program Files\\Mono-2.4.2.3\\bin\\mono.dll";

@@ -1,7 +1,10 @@
 "$(DIR)/Mono.base.jnaerator"
 
 "-I/Library/Frameworks/Mono.framework/Headers/mono-2.0"
+"-I/Library/Frameworks/Mono.framework/Versions/2.6.4/include/glib-2.0"
+"-I/Library/Frameworks/Mono.framework/Versions/2.10/lib/glib-2.0/include"
 //"-I/Library/Frameworks/Mono.framework/Headers/glib-2.0"
 
+"/Library/Frameworks/Mono.framework/Headers/mono-2.0/mono/metadata/object.h"
 "/Library/Frameworks/Mono.framework/Headers/mono-2.0/mono"
 
