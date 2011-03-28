@@ -453,7 +453,7 @@ public class JavaCLGenerator extends JNAerator {
 			result.typeConverter.allowFakePointers = true;
             String library = name;
             Identifier fullLibraryClassName = ident(className);
-			result.declarationsConverter.convertStructs(result.structsByLibrary.get(library), signatures, interf, fullLibraryClassName);
+			result.declarationsConverter.convertStructs(result.structsByLibrary.get(library), signatures, interf, fullLibraryClassName, library);
 			//result.declarationsConverter.convertCallbacks(result.callbacksByLibrary.get(library), signatures, interf, fullLibraryClassName);
 
             int declCount = interf.getDeclarations().size();
