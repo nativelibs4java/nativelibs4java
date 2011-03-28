@@ -24,6 +24,13 @@
 	  <version>${jnaerator.version}</version>
 	  <scope>compile</scope>
 	</dependency>
+  	
+	<dependency>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>bridj</artifactId>
+	  <version>${nl4j-runtime.version}</version>
+	  <scope>compile</scope>
+	</dependency>
 	
   </dependencies>
 
@@ -33,7 +40,7 @@
 		<plugin>
 			<groupId>com.jnaerator</groupId>
 			<artifactId>maven-jnaerator-plugin</artifactId>
-			<version>${jnaerator.version}</version>
+			<version>0.9.8-SNAPSHOT</version> <!-- ${jnaerator.version} -->
 			<configuration>
 				<javaOutputDirectory>src/main/java</javaOutputDirectory>
 			</configuration>
