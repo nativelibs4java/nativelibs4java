@@ -252,20 +252,20 @@ public class BridJ {
 		}
 	}
 
-    static final boolean verbose = "true".equals(System.getProperty("bridj.verbose")) || "1".equals(System.getenv("BRIDJ_VERBOSE"));
-    static final boolean debug = "true".equals(System.getProperty("bridj.debug")) || "1".equals(System.getenv("BRIDJ_DEBUG"));
+    public static final boolean verbose = "true".equals(System.getProperty("bridj.verbose")) || "1".equals(System.getenv("BRIDJ_VERBOSE"));
+    public static final boolean debug = "true".equals(System.getProperty("bridj.debug")) || "1".equals(System.getenv("BRIDJ_DEBUG"));
     static final int minLogLevel = Level.WARNING.intValue();
 	static boolean shouldLog(Level level) {
         return verbose || level.intValue() >= minLogLevel;
     }
-	static boolean log(Level level, String message, Throwable ex) {
+	public static boolean log(Level level, String message, Throwable ex) {
         if (!shouldLog(level))
             return true;
 		Logger.getLogger(BridJ.class.getName()).log(level, message, ex);
         return true;
 	}
 
-	static boolean log(Level level, String message) {
+	public static boolean log(Level level, String message) {
 		log(level, message, null);
 		return true;
 	}

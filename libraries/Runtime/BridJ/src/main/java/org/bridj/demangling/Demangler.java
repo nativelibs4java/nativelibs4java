@@ -4,6 +4,7 @@ import org.bridj.ann.Convention.Style;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
 import java.util.Arrays;
+import java.util.logging.Level;
 import org.bridj.AbstractBridJRuntime;
 import org.bridj.BridJ;
 import org.bridj.CRuntime;
@@ -278,8 +279,9 @@ public abstract class Demangler {
 				try {
 					ref = library.parseSymbol(symbol);
 				} catch (DemanglingException ex) {
-					ex.printStackTrace();
-                    System.err.println(ex);
+					if (BridJ.verbose)
+						ex.printStackTrace();
+					BridJ.log(Level.WARNING, "Symbol parsing failed : " + ex.getMessage(), ex);
 				}
 				refParsed = true;
 			}
