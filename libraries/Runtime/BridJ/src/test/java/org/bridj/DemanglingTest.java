@@ -4,7 +4,7 @@
  */
 
 package org.bridj;
-
+import static org.bridj.util.DefaultParameterizedType.*;
 import org.bridj.util.Utils;
 import org.bridj.demangling.Demangler;
 import org.bridj.demangling.Demangler.TypeRef;
@@ -36,6 +36,7 @@ public class DemanglingTest {
 			void.class, Pointer.class, int.class
 		);
 	}
+    static Type clongType = CLong.class;//CPPType.getCPPType(new Object[] { CLong.class });
     @Test
     public void testLongLongBackReference() {
         demangle(
@@ -43,9 +44,21 @@ public class DemanglingTest {
             "_Z14test_add9_longlllllllll",
             null, 
             ident("test_add9_long"),
-            long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class
+            clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType
         );
     }
+    @Test
+    public void testSimple() {
+        demangle(
+            null,
+            "_Z17test_incr_int_outiPi",
+            null, 
+            ident("test_incr_int_out"),
+            null, int.class, paramType(Pointer.class, int.class)
+        );
+    }
+    
+    
     @Test
     public void testPtrsBackRef() {
         demangle(
@@ -187,7 +200,7 @@ public class DemanglingTest {
     static IdentLike ident(String name) {
         return new Ident(name);
     }
-    private void demangle(String vc9, String gcc4, Type enclosingType, IdentLike memberName, Class returnType, Object... paramTypes) {
+    private void demangle(String vc9, String gcc4, Type enclosingType, IdentLike memberName, Type returnType, Object... paramTypes) {
         try {
 			if (vc9 != null)
 				checkSymbol(vc9, new VC9Demangler(null, vc9).parseSymbol(), enclosingType, memberName, returnType, paramTypes, null, null);
@@ -211,7 +224,7 @@ public class DemanglingTest {
 		}
     }
 
-    private void checkSymbol(String str, MemberRef symbol, Type enclosingType, IdentLike memberName, Class returnType, Object[] paramTypes, Annotation[][] paramAnns, AnnotatedElement element) {
+    private void checkSymbol(String str, MemberRef symbol, Type enclosingType, IdentLike memberName, Type returnType, Object[] paramTypes, Annotation[][] paramAnns, AnnotatedElement element) {
         if (symbol == null)
         		assertTrue("Symbol not successfully parsed \"" + str + "\"", false);
     		if (memberName != null)
@@ -221,14 +234,14 @@ public class DemanglingTest {
             assertTrue("Bad enclosing type (got " + symbol.getEnclosingType() + ", expected " + (enclosingType instanceof Class ? ((Class)enclosingType).getName() : enclosingType.toString()) + ")", symbol.getEnclosingType().matches(enclosingType, Demangler.annotations(enclosingType)));
         }
         if (returnType != null && symbol.getValueType() != null)
-            assertTrue("Bad return type", symbol.getValueType().matches(returnType, Demangler.annotations(element)));
+	    assertTrue("Bad return type : expected " + returnType + ", got " + symbol.getValueType() + " (got class " + symbol.getValueType().getClass().getName() + ")", symbol.getValueType().matches(returnType, Demangler.annotations(element)));
 
         int nArgs = symbol.paramTypes.length;
         assertEquals("Bad number of parameters", paramTypes.length, nArgs);
 
         for (int iArg = 0; iArg < nArgs; iArg++) {
-            if (paramTypes[iArg] instanceof Class) {
-                assertTrue("Bad type for " + (iArg + 1) + "th param", symbol.paramTypes[iArg].matches((Class) paramTypes[iArg], paramAnns == null ? null : Demangler.annotations(paramAnns[iArg])));
+            if (paramTypes[iArg] instanceof Type) {
+            	 assertTrue("Bad type for " + (iArg + 1) + "th param : (symbol = " + symbol + ", expecting " + paramTypes[iArg] + " and demangled " + symbol.paramTypes[iArg], symbol.paramTypes[iArg].matches((Type) paramTypes[iArg], paramAnns == null ? null : Demangler.annotations(paramAnns[iArg])));
             } else if (paramTypes[iArg] instanceof String) {
                 String targetType = (String) paramTypes[iArg];
                 TypeRef currentType = symbol.paramTypes[iArg];
