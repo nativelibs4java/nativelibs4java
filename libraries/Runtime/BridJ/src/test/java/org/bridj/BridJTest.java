@@ -24,7 +24,7 @@ public class BridJTest {
 		if (!Platform.isUnix())
 			return;
 		
-		BridJ.getNativeLibrary("pthread");
+		assertNotNull(BridJ.getNativeLibrary("pthread"));
 	}
 	@Test
 	public void symbolsTest() throws Exception {
