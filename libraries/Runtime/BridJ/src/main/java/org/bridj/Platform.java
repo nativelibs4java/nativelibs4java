@@ -1,6 +1,7 @@
 package org.bridj;
 
 import java.io.*;
+import java.net.URL;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -13,7 +14,12 @@ import java.util.logging.Logger;
 import static org.bridj.JNI.*;
 
 /**
- * Methods that give information about the execution platform (OS, architecture, native sizes...)
+ * Information about the execution platform (OS, architecture, native sizes...) and platform-specific actions.
+ * <ul>
+ * <li>To know if the JVM platform is 32 bits or 64 bits, use {@link Platform#is64Bits()}
+ * </li><li>To know if the OS is an Unix-like system, use {@link Platform#isUnix()}
+ * </li><li>To open files and URLs in a platform-specific way, use {@link Platform#open(File)}, {@link Platform#open(URL)}, {@link Platform#show(File)}
+ * </li></ul>
  * @author ochafik
  */
 public class Platform {
@@ -103,7 +109,7 @@ public class Platform {
 		}
     	throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
     }
-    public static File extractEmbeddedLibraryResource(String name) throws IOException {
+    static File extractEmbeddedLibraryResource(String name) throws IOException {
     	String libraryResource = getEmbeddedLibraryResource(name);
         int i = libraryResource.lastIndexOf('.');
         String ext = i < 0 ? "" : libraryResource.substring(i);
@@ -131,4 +137,97 @@ public class Platform {
 
         return libFile;
     }
+    
+    
+    /**
+     * Opens an URL with the default system action.
+     * @param url url to open
+     * @throws NoSuchMethodException if opening an URL on the current platform is not supported
+     */
+	public static final void open(URL url) throws NoSuchMethodException {
+        if (url.getProtocol().equals("file")) {
+            open(new File(url.getFile()));
+        } else {
+            if (Platform.isMacOSX()) {
+                execArgs("open", url.toString());
+            } else if (Platform.isWindows()) {
+                execArgs("rundll32", "url.dll,FileProtocolHandler", url.toString());
+            } else if (Platform.isUnix() && hasUnixCommand("gnome-open")) {
+                execArgs("gnome-open", url.toString());
+            } else if (Platform.isUnix() && hasUnixCommand("konqueror")) {
+                execArgs("konqueror", url.toString());
+            } else if (Platform.isUnix() && hasUnixCommand("mozilla")) {
+                execArgs("mozilla", url.toString());
+            } else {
+                throw new NoSuchMethodException("Cannot open urls on this platform");
+		}
+	}
+    }
+
+    /**
+     * Opens a file with the default system action.
+     * @param file file to open
+     * @throws NoSuchMethodException if opening a file on the current platform is not supported
+     */
+	public static final void open(File file) throws NoSuchMethodException {
+        if (Platform.isMacOSX()) {
+			execArgs("open", file.getAbsolutePath());
+        } else if (Platform.isWindows()) {
+            if (file.isDirectory()) {
+                execArgs("explorer", file.getAbsolutePath());
+            } else {
+                execArgs("start", file.getAbsolutePath());
+        }
+        }
+        if (Platform.isUnix() && hasUnixCommand("gnome-open")) {
+            execArgs("gnome-open", file.toString());
+        } else if (Platform.isUnix() && hasUnixCommand("konqueror")) {
+            execArgs("konqueror", file.toString());
+        } else if (Platform.isSolaris() && file.isDirectory()) {
+            execArgs("/usr/dt/bin/dtfile", "-folder", file.getAbsolutePath());
+        } else {
+            throw new NoSuchMethodException("Cannot open files on this platform");
+	}
+    }
+
+    /**
+     * Show a file in its parent directory, if possible selecting the file (not possible on all platforms).
+     * @param file file to show in the system's default file navigator
+     * @throws NoSuchMethodException if showing a file on the current platform is not supported
+     */
+	public static final void show(File file) throws NoSuchMethodException, IOException {
+        if (Platform.isWindows()) {
+			exec("explorer /e,/select,\"" + file.getCanonicalPath() + "\"");
+        } else {
+            open(file.getAbsoluteFile().getParentFile());
+    }
+    }
+
+    static final void execArgs(String... cmd) throws NoSuchMethodException {
+		try {
+			Runtime.getRuntime().exec(cmd);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw new NoSuchMethodException(ex.toString());
+		}
+	}
+
+	static final void exec(String cmd) throws NoSuchMethodException {
+		try {
+			Runtime.getRuntime().exec(cmd).waitFor();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw new NoSuchMethodException(ex.toString());
+		}
+	}
+
+    static final boolean hasUnixCommand(String name) {
+		try {
+            Process p = Runtime.getRuntime().exec(new String[]{"which", name});
+			return p.waitFor() == 0;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return false;
+		}
+	}
 }

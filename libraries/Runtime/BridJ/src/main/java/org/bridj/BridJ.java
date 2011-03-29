@@ -37,7 +37,6 @@ import java.net.URL;
  * }</pre>
  * </li><li>You can also register a class explicitely with {@link BridJ#register(java.lang.Class)}
  * </li><li>To alter the name of a library, use {@link BridJ#setNativeLibraryActualName(String, String)} and {@link BridJ#addNativeLibraryAlias(String, String)}
- * </li><li>To open files and URLs in a platform-specific way, use {@link BridJ#open(File)}, {@link BridJ#open(URL)}, {@link BridJ#show(File)}
  * </li>
  * </ul>
  * @author ochafik
@@ -679,98 +678,6 @@ public class BridJ {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.exit(1);
-		}
-	}
-
-    /**
-     * Opens an URL with the default system action.
-     * @param url url to open
-     * @throws NoSuchMethodException if opening an URL on the current platform is not supported
-     */
-	public static final void open(URL url) throws NoSuchMethodException {
-        if (url.getProtocol().equals("file")) {
-            open(new File(url.getFile()));
-        } else {
-            if (Platform.isMacOSX()) {
-                execArgs("open", url.toString());
-            } else if (Platform.isWindows()) {
-                execArgs("rundll32", "url.dll,FileProtocolHandler", url.toString());
-            } else if (Platform.isUnix() && hasUnixCommand("gnome-open")) {
-                execArgs("gnome-open", url.toString());
-            } else if (Platform.isUnix() && hasUnixCommand("konqueror")) {
-                execArgs("konqueror", url.toString());
-            } else if (Platform.isUnix() && hasUnixCommand("mozilla")) {
-                execArgs("mozilla", url.toString());
-            } else {
-                throw new NoSuchMethodException("Cannot open urls on this platform");
-		}
-	}
-    }
-
-    /**
-     * Opens a file with the default system action.
-     * @param file file to open
-     * @throws NoSuchMethodException if opening a file on the current platform is not supported
-     */
-	public static final void open(File file) throws NoSuchMethodException {
-        if (Platform.isMacOSX()) {
-			execArgs("open", file.getAbsolutePath());
-        } else if (Platform.isWindows()) {
-            if (file.isDirectory()) {
-                execArgs("explorer", file.getAbsolutePath());
-            } else {
-                execArgs("start", file.getAbsolutePath());
-        }
-        }
-        if (Platform.isUnix() && hasUnixCommand("gnome-open")) {
-            execArgs("gnome-open", file.toString());
-        } else if (Platform.isUnix() && hasUnixCommand("konqueror")) {
-            execArgs("konqueror", file.toString());
-        } else if (Platform.isSolaris() && file.isDirectory()) {
-            execArgs("/usr/dt/bin/dtfile", "-folder", file.getAbsolutePath());
-        } else {
-            throw new NoSuchMethodException("Cannot open files on this platform");
-	}
-    }
-
-    /**
-     * Show a file in its parent directory, if possible selecting the file (not possible on all platforms).
-     * @param file file to show in the system's default file navigator
-     * @throws NoSuchMethodException if showing a file on the current platform is not supported
-     */
-	public static final void show(File file) throws NoSuchMethodException, IOException {
-        if (Platform.isWindows()) {
-			exec("explorer /e,/select,\"" + file.getCanonicalPath() + "\"");
-        } else {
-            open(file.getAbsoluteFile().getParentFile());
-    }
-    }
-
-    static final void execArgs(String... cmd) throws NoSuchMethodException {
-		try {
-			Runtime.getRuntime().exec(cmd);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			throw new NoSuchMethodException(ex.toString());
-		}
-	}
-
-	static final void exec(String cmd) throws NoSuchMethodException {
-		try {
-			Runtime.getRuntime().exec(cmd).waitFor();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			throw new NoSuchMethodException(ex.toString());
-		}
-	}
-
-    static final boolean hasUnixCommand(String name) {
-		try {
-            Process p = Runtime.getRuntime().exec(new String[]{"which", name});
-			return p.waitFor() == 0;
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return false;
 		}
 	}
 }

@@ -260,8 +260,8 @@ public abstract class Demangler {
             try {
                 if (ref != null) {
                 	boolean res = ref.matches(method);
-                	if (!res) {
-                		System.err.println("Symbol " + symbol + " was a good candidate but expected demangled signature " + ref + " did not match the method " + method); 	
+                	if (!res && BridJ.debug) {
+                		System.err.println("Symbol " + symbol + " was a good candidate but expected demangled signature " + ref + " did not match the method " + method);
                 	}
                     return res;
                 }
@@ -281,7 +281,7 @@ public abstract class Demangler {
 				} catch (DemanglingException ex) {
 					if (BridJ.verbose)
 						ex.printStackTrace();
-					BridJ.log(Level.WARNING, "Symbol parsing failed : " + ex.getMessage(), ex);
+					BridJ.log(Level.WARNING, "Symbol parsing failed : " + ex.getMessage());
 				}
 				refParsed = true;
 			}
