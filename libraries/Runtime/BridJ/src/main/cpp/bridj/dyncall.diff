@@ -1533,8 +1533,14 @@ Index: dyncall/dynload/dynload_unix.c
 ===================================================================
 --- dyncall/dynload/dynload_unix.c	
 +++ dyncall/dynload/dynload_unix.c	
-@@ -27,21 +27,51 @@
+@@ -25,23 +25,63 @@
  
+ */
+ 
++#if defined(DC__OS_Linux) && !defined(_GNU_SOURCE)
++#define _GNU_SOURCE
++#define __USE_GNU
++#endif
  
  #include "dynload.h"
 +#include "dynload_unix.h"
@@ -1547,9 +1553,15 @@ Index: dyncall/dynload/dynload_unix.c
 +#  include <sys/fcntl.h>
 +#endif
  
++typedef struct DLOpenHandle_
++{
++  Elf_Ehdr* pElf_Ehdr;
++} DLOpenHandle;
++
  DLLib* dlLoadLibrary(const char* libPath)
  {
 -  return (DLLib*) dlopen(libPath,RTLD_NOW);
++  DLOpenHandle *pHandle;
 +  DLLib* pLib = (DLLib*)malloc(sizeof(DLLib));
 +  pLib->libHandle = dlopen(libPath, RTLD_NOW);
 +  if (!pLib->libHandle)
@@ -1564,7 +1576,7 @@ Index: dyncall/dynload/dynload_unix.c
 +    pLib->pElf_Ehdr = mmap(NULL, pLib->fileSize, PROT_READ, MAP_SHARED, pLib->file, 0);
 +  }
 +#else
-+  pLib->pElf_Ehdr = pLib->libHandle;
++  pLib->pElf_Ehdr = ((DLOpenHandle*)pLib->libHandle)->pElf_Ehdr;
 +#endif
 +
 +  return pLib;
