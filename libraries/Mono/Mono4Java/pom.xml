@@ -40,7 +40,7 @@
 		<plugin>
 			<groupId>com.jnaerator</groupId>
 			<artifactId>maven-jnaerator-plugin</artifactId>
-			<version>0.9.7</version> <!-- ${jnaerator.version} -->
+			<version>0.9.8-SNAPSHOT</version> <!-- ${jnaerator.version} -->
 			<configuration>
 				<javaOutputDirectory>src/main/java</javaOutputDirectory>
 			</configuration>
