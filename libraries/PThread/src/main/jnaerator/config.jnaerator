@@ -1,0 +1,11 @@
+-package com.nativelibs4java.pthread
+-gccLong
+-runtime BridJ
+
+-library pthread
+	/usr/include/pthread.h
+	
+-noComp
+-noJar
+//-o $(DIR)/../java
+
