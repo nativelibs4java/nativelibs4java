@@ -1563,9 +1563,9 @@ Index: dyncall/dynload/dynload_unix.c
 -  return (DLLib*) dlopen(libPath,RTLD_NOW);
 +  DLOpenHandle *pHandle;
 +  DLLib* pLib = (DLLib*)malloc(sizeof(DLLib));
-+  pLib->libHandle = dlopen(libPath, RTLD_NOW);
-+  if (!pLib->libHandle)
-+  	  pLib->libHandle = dlopen(libPath, RTLD_LAZY);
++  pLib->libHandle = dlopen(libPath, RTLD_LAZY|RTLD_GLOBAL);
++  //if (!pLib->libHandle)
++  //	  pLib->libHandle = dlopen(libPath, RTLD_LAZY);
 +  
 +#if !defined(DC_DLOPEN_HACK)
 +  {  
