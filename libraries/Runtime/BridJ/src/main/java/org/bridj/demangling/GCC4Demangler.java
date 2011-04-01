@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bridj.demangling.Demangler;
 import org.bridj.JNI;
+import org.bridj.CLong;
 import org.bridj.NativeLibrary;
 import org.bridj.demangling.Demangler.ClassRef;
 import org.bridj.demangling.Demangler.DemanglingException;
@@ -103,7 +104,8 @@ public class GCC4Demangler extends Demangler {
 			return classType(Boolean.TYPE);
 		case 'l':
 		case 'm': // unsigned
-			return classType(Platform.is64Bits() ? Long.TYPE : Integer.TYPE);
+			return classType(CLong.class);
+			//return classType(Platform.is64Bits() ? Long.TYPE : Integer.TYPE);
 		case 'x':
 		case 'y': // unsigned
 			return classType(Long.TYPE);

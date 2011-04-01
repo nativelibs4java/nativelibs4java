@@ -251,7 +251,7 @@ void JNICALL Java_org_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jl
 
 jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle, jlong symbolsHandle)
 {
-	jclass stringClass;
+    jclass stringClass;
     jarray ret;
     DLSyms* pSyms = (DLSyms*)symbolsHandle;
 	int count, i;
