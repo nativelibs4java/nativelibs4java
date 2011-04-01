@@ -1,5 +1,10 @@
 Current version : BridJ 0.4-SNAPSHOT
 
+- Added parsing of GNU LD scripts (issue #61)
+- Fixed demangling of size_t / long C types with GCC
+
+BridJ 0.3.1 (r1817, 20110329)
+
 - Introduced basic C++ templates support (binding of compiled template classes, not template methods / functions yet)
 - Added dynamic functions support : Pointer.asDynamicFunction(callConv, returnType, argTypes...)
 - Added support for arbitrary C++ constructors
@@ -17,10 +22,12 @@ Current version : BridJ 0.4-SNAPSHOT
 - Fixed size computation of unions & structs (issue #51)
 - Fixed JAWTUtils on win32 (issue #52)
 - Fixed Pointer.pointerToAddress(long, Class, Releaser) (issue #48)
+- Fixed incomplete refactoring (issue #58)
 - Moved all the is64Bits(), isWindows()... methods and SIZE_T_SIZE constants out of JNI class into new Platform class
 - Moved the C++ symbols demanglers to package org.bridj.demangling
 - Renamed Pointer.asPointerTo(Type) to Pointer.as(Type)
 - Enhanced FlagSet (added toString(), toEnum(), fromValue(ValuedEnum<E>))
+- Enhanced Pointer (added allocate(Type), allocateArray(Type, long))
 - Greatly enhanced the API Javadoc
 
 BridJ 0.3 (r1638, 20110204):

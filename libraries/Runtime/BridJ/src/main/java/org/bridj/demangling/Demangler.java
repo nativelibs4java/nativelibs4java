@@ -4,6 +4,7 @@ import org.bridj.ann.Convention.Style;
 import java.lang.reflect.*;
 import java.lang.annotation.*;
 import java.util.Arrays;
+import java.util.logging.Level;
 import org.bridj.AbstractBridJRuntime;
 import org.bridj.BridJ;
 import org.bridj.CRuntime;
@@ -14,10 +15,9 @@ import org.bridj.NativeObject;
 import org.bridj.Platform;
 
 import org.bridj.Pointer;
-import org.bridj.Pointer;
 import org.bridj.SizeT;
+import org.bridj.CLong;
 import org.bridj.ValuedEnum;
-import org.bridj.ann.CLong;
 import org.bridj.ann.Constructor;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Convention;
@@ -260,8 +260,8 @@ public abstract class Demangler {
             try {
                 if (ref != null) {
                 	boolean res = ref.matches(method);
-                	if (!res) {
-                		System.err.println("Symbol " + symbol + " was a good candidate but expected demangled signature " + ref + " did not match the method " + method); 	
+                	if (!res && BridJ.debug) {
+                		System.err.println("Symbol " + symbol + " was a good candidate but expected demangled signature " + ref + " did not match the method " + method);
                 	}
                     return res;
                 }
@@ -279,8 +279,9 @@ public abstract class Demangler {
 				try {
 					ref = library.parseSymbol(symbol);
 				} catch (DemanglingException ex) {
-					ex.printStackTrace();
-                    System.err.println(ex);
+					if (BridJ.verbose)
+						ex.printStackTrace();
+					BridJ.log(Level.WARNING, "Symbol parsing failed : " + ex.getMessage());
 				}
 				refParsed = true;
 			}
@@ -468,15 +469,23 @@ public abstract class Demangler {
 			if (type == Long.TYPE && annotations != null) {
 				boolean 
 					isPtr = annotations.getAnnotation(Ptr.class) != null,
-					isCLong = annotations.getAnnotation(CLong.class) != null;
+					isCLong = annotations.getAnnotation(org.bridj.ann.CLong.class) != null;
 				if (isPtr || isCLong)
 					return true;
 			}
-            if (tc == CLong.class) {
-                if ((typec == int.class || typec == Integer.class) && (Platform.CLONG_SIZE == 4) || typec == long.class || typec == Long.class)
+            if (tc == int.class) {
+            	 //System.out.println("tc = " + tc + ", typec = " + typec + ", this = " + this);
+                if ((Platform.CLONG_SIZE == 4 && typec == CLong.class) || (Platform.SIZE_T_SIZE == 4 && typec == SizeT.class))
+                    return true;
+            } else if (tc == long.class) {
+            	 //System.out.println("tc = " + tc + ", typec = " + typec + ", this = " + this);
+                if ((Platform.CLONG_SIZE == 8 && typec == CLong.class) || (Platform.SIZE_T_SIZE == 8 && typec == SizeT.class))
+                    return true;
+            } else if (tc == CLong.class) {
+                if (typec == CLong.class || (typec == int.class || typec == Integer.class) && (Platform.CLONG_SIZE == 4) || typec == long.class || typec == Long.class)
                     return true;
             } else if (tc == SizeT.class) {
-                if ((typec == int.class || typec == Integer.class) && (Platform.SIZE_T_SIZE == 4) || typec == long.class || typec == Long.class)
+                if (typec == SizeT.class || (typec == int.class || typec == Integer.class) && (Platform.SIZE_T_SIZE == 4) || typec == long.class || typec == Long.class)
                     return true;
             }
             if ((tc == Character.TYPE || tc == Character.class || tc == short.class || tc == Short.class) && (typec == Short.class || typec == short.class || typec == char.class || typec == Character.class))

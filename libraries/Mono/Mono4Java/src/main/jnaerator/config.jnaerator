@@ -6,5 +6,6 @@
 	
 	-noJar -noComp
 	//-o "$(DIR)/../../../target/generated-sources/java"
+	-o "$(DIR)/../java"
 	
 -choicesOut "$(DIR)/Mono.choices"

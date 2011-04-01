@@ -17,6 +17,10 @@ import java.io.File;
 @Runtime(CRuntime.class) 
 class JawtLibrary {
 	static {
+		try {
+			//if (Platform.isLinux()) 
+			//	SystemBridJ.getNativeLibrary("headless/libmawt");
+		} catch (Throwable th) {}
 		BridJ.register();
 	}
 	/// <i>native declaration : jawt.h</i>

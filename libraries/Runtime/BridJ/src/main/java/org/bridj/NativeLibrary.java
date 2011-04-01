@@ -3,9 +3,8 @@
  */
 package org.bridj;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.util.regex.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Constructor;
@@ -60,8 +59,44 @@ public class NativeLibrary {
 	NativeEntities getNativeEntities() {
 		return nativeEntities;
 	}
+	static String followGNULDScript(String path) {
+		try {
+			Reader r = new FileReader(path);
+			try {
+				char c;
+				while ((c = (char)r.read()) == ' ' || c == '\t' || c == '\n') {}
+				if (c == '/' && r.read() == '*') {
+					BufferedReader br = new BufferedReader(r);
+					r = br;
+					String line;
+					StringBuilder b = new StringBuilder("/*");
+					while ((line = br.readLine()) != null)
+						b.append(line).append('\n');
+					String src = b.toString();
+					Pattern ldGroupPattern = Pattern.compile("GROUP\\s*\\(\\s*([^\\s)]+)[^)]*\\)");
+					Matcher m = ldGroupPattern.matcher(src);
+					if (m.find()) {
+						String actualPath = m.group(1);
+						BridJ.log(Level.INFO, "Parsed LD script '" + path + "', found absolute reference to '" + actualPath + "'");
+						return actualPath;
+					} else {
+						BridJ.log(Level.SEVERE, "Failed to parse LD script '" + path + "' !");
+					}
+				}
+			} finally {
+				r.close();
+			}
+		} catch (Throwable th) {
+			BridJ.log(Level.SEVERE, "Unexpected error: " + th, th);
+		}
+		return path;
+	}
 	public static NativeLibrary load(String path) {
-		long handle = JNI.loadLibrary(path);
+		long handle = 0;
+		if (Platform.isUnix() && new File(path).exists())
+			path = followGNULDScript(path);
+		
+		handle = JNI.loadLibrary(path);
 		if (handle == 0)
 			return null;
 		long symbols = JNI.loadLibrarySymbols(handle);
@@ -279,10 +314,14 @@ public class NativeLibrary {
 			//nameToAddr.put(name, addr);
 			//System.out.println("'" + name + "' = \t" + TestCPP.hex(addr) + "\n\t" + sym.getParsedRef());
 		}
-		if ("1".equals(System.getenv("BRIDJ_PRINT_SYMBOLS"))) {
-			System.out.println("Symbols found in '" + path + "' : " + nameToSym.size());
+		if (BridJ.debug) {//"1".equals(System.getenv("BRIDJ_PRINT_SYMBOLS"))) {
+			System.out.println("Found " + nameToSym.size() + " symbols in '" + path + "' :");
+			
 			for (Symbol sym : nameToSym.values())
-				System.out.println("Symbol '" + sym + "' = " + sym.getParsedRef());
+				System.out.println("DEBUG(BridJ): library=\"" + path + "\", symbol=\"" + sym.getSymbol() + "\", address=" + Long.toHexString(sym.getAddress()) + ", demangled=\"" + sym.getParsedRef() + "\""); 
+			
+			//for (Symbol sym : nameToSym.values())
+			//	System.out.println("Symbol '" + sym + "' = " + sym.getParsedRef());
 		}
 	}
 

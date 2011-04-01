@@ -1135,9 +1135,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * @return a pointer to a new memory area large enough to hold a single item of type elementClass.
      */
     public static <V> Pointer<V> allocate(Class<V> elementClass) {
+        return allocate((Type)elementClass);
+    }
+
+    /**
+     * Create a memory area large enough to a single items of type elementClass.
+     * @param elementClass type of the array elements
+     * @return a pointer to a new memory area large enough to hold a single item of type elementClass.
+     */
+    public static <V> Pointer<V> allocate(Type elementClass) {
         return allocateArray(elementClass, 1);
     }
-    
+
     /**
      * Create a memory area large enough to hold one item of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
      * @param io PointerIO instance able to store and retrieve the element
@@ -1216,12 +1225,21 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * @return a pointer to a new memory area large enough to hold arrayLength items of type elementClass.  
      */
     public static <V> Pointer<V> allocateArray(Class<V> elementClass, long arrayLength) {
+        return allocateArray((Type)elementClass, arrayLength);
+    }
+    /**
+     * Create a memory area large enough to hold arrayLength items of type elementClass.
+     * @param elementClass type of the array elements
+     * @param arrayLength length of the array in elements
+     * @return a pointer to a new memory area large enough to hold arrayLength items of type elementClass.
+     */
+    public static <V> Pointer<V> allocateArray(Type elementClass, long arrayLength) {
 		if (arrayLength == 0)
 			return null;
 		
 		PointerIO pio = PointerIO.getInstance(elementClass);
 		if (pio == null)
-			throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());
+			throw new UnsupportedOperationException("Cannot allocate memory for type " + (elementClass instanceof Class ? ((Class)elementClass).getName() : elementClass.toString()));
 		return (Pointer<V>)allocateArray(pio, arrayLength);
 		/*
         #foreach ($prim in $primitives)

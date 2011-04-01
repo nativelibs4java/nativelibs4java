@@ -20,6 +20,13 @@ public class BridJTest {
 		}
 	}
 	@Test
+	public void loadPthread() throws Exception {
+		if (!Platform.isUnix())
+			return;
+		
+		assertNotNull(BridJ.getNativeLibrary("pthread"));
+	}
+	@Test
 	public void symbolsTest() throws Exception {
 		NativeLibrary lib = BridJ.getNativeLibrary("test");
 		Collection<Demangler.Symbol> symbols = lib.getSymbols();
