@@ -38,7 +38,10 @@ import static org.bridj.Pointer.*;
 @Library("test")
 @Runtime(CPPRuntime.class)
 public class CPPTest {
-	
+    static {
+		BridJ.register();
+	}
+    ///*
 	@Test
 	public void testSize() {
 		assertEquals("Invalid size for class Ctest", sizeOfCtest(), BridJ.sizeOf(Ctest.class));
@@ -46,7 +49,7 @@ public class CPPTest {
 		assertTrue("sizeOfCtest() = " + sizeOfCtest(), sizeOfCtest() >= 12 && sizeOfCtest() <= 20);
 		assertTrue("sizeOfCtest2() = " + sizeOfCtest2(), sizeOfCtest2() >= 16 && sizeOfCtest() <= 30);
 	}
-	
+
 	@Test
 	public void test_Ctest_constructors() {
         Ctest ct =  new Ctest();
@@ -69,7 +72,20 @@ public class CPPTest {
 	public void test_Ctest2_testAdd() {
 		testAdd(new Ctest2(), 1, 2, 5, 3);
 	}
-	
+
+    @Test
+    public void testDestruction() throws InterruptedException {
+        Pointer<Integer> pState = allocateInt();
+        Ctest2 t = new Ctest2();
+        t.setState(pState);
+        int destructedState = 10;
+        t.setDestructedState(destructedState);
+        t = null;
+        GC();
+        assertEquals(destructedState, pState.getInt());
+    }
+    //*/
+	///*
 	void testAdd(Ctest instance, int a, int b, int res, int baseRes) {
 		//long peer = Pointer.getAddress(test, Ctest.class);
 		
@@ -96,7 +112,7 @@ public class CPPTest {
 			assertEquals("testAddStdCall", 0, c);
         }
 	}
-
+    //*/
     public static native int testIndirectVirtualAdd(Pointer<Ctest> pTest, int a, int b);
     
     @Test
@@ -110,16 +126,16 @@ public class CPPTest {
                 return a * 10 + b * 100;//super.testVirtualAdd(a, b) * 2;
             }
         };
+        /*
         List<Method> virtualMethods = new ArrayList<Method>();
         CPPRuntime.getInstance().listVirtualMethods(test.getClass(), virtualMethods);
         System.out.println("virtualMethods = " + virtualMethods);
+        //*/
         int a = 1, b = 2;
-        assertEquals(a * 10 + b * 100, testIndirectVirtualAdd(pointerTo(test), a, b));
+        int ind = testIndirectVirtualAdd(pointerTo(test), a, b);
+        assertEquals(a * 10 + b * 100, ind);
     }
 	
-	static {
-		BridJ.register();
-	}
 	@Ptr public static native long sizeOfCtest();
 	@Ptr public static native long sizeOfCtest2();
 	
@@ -223,19 +239,7 @@ public class CPPTest {
 		public native int testVirtualAdd(int a, int b);
 		public native int testAdd(int a, int b);
 	};
-	
-    @Test
-    public void testDestruction() throws InterruptedException {
-        Pointer<Integer> pState = allocateInt();
-        Ctest2 t = new Ctest2();
-        t.setState(pState);
-        int destructedState = 10;
-        t.setDestructedState(destructedState);
-        t = null;
-        GC();
-        assertEquals(destructedState, pState.getInt());
-    }
-    
+
     @After
     public void GC() throws InterruptedException {
         System.gc();

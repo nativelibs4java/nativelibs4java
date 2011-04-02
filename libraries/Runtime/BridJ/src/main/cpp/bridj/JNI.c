@@ -593,6 +593,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 		//GetField_direct()               ;
 		//GetField_startsWithThis()       ;
 		//GetField_bNeedsThisPointer()    ;
+		GetField_isCPlusPlus()          ;
 		GetField_declaringClass()       ;
 		GetField_nParams()              ;
 		GetField_callIOs()              ;
@@ -606,7 +607,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 			dcSig = (*env)->GetStringUTFChars(env, dcSignature, NULL);
 			methName = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
 
-			info->fInfo.fDCCallback = dcbNewCallback(dcSig, CToJavaCallHandler, info);
+			info->fInfo.fDCCallback = dcbNewCallback(dcSig, isCPlusPlus ? CPPToJavaCallHandler : CToJavaCallHandler, info);
 			info->fCallbackInstance = (*env)->NewGlobalRef(env, javaCallback);
 			info->fMethod = GetMethodIDOrFail(env, declaringClass, methName, javaSig);
 			

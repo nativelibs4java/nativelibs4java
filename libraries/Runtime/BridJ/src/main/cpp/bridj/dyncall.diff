@@ -1378,7 +1378,7 @@ Index: dyncall/dynload/dynload_syms_elf.c
  #endif
  
  /*
-@@ -30,11 +31,15 @@
+@@ -30,20 +31,26 @@
  
  #include "dynload.h"
  #include "dynload_macros.h"
@@ -1394,7 +1394,10 @@ Index: dyncall/dynload/dynload_syms_elf.c
  #include <assert.h>
  #include <dlfcn.h>
  #include <stdio.h>
-@@ -44,6 +49,7 @@
++#include <string.h>
+ 
+ /* run-time configuration 64/32 */
+ 
  #ifdef DL__BinaryFormat_elf64
  typedef Elf64_Ehdr   Elf_Ehdr;
  typedef Elf64_Phdr   Elf_Phdr;
@@ -1402,7 +1405,7 @@ Index: dyncall/dynload/dynload_syms_elf.c
  typedef Elf64_Sym    Elf_Sym;
  typedef Elf64_Dyn    Elf_Dyn;
  typedef Elf64_Sxword Elf_tag;
-@@ -51,70 +57,22 @@
+@@ -51,368 +58,107 @@
  #else
  typedef Elf32_Ehdr   Elf_Ehdr;
  typedef Elf32_Phdr   Elf_Phdr;
@@ -1477,7 +1480,8 @@ Index: dyncall/dynload/dynload_syms_elf.c
  DLSyms* dlSymsInit(DLLib* pLib)
  {
    DLSyms* pSyms;
-@@ -122,11 +80,8 @@
++  Elf_Ehdr* pH;
+   if(!pLib)
      return NULL;
     
    pSyms = (DLSyms*)dcAllocMem(sizeof(DLSyms));
@@ -1489,9 +1493,10 @@ Index: dyncall/dynload/dynload_syms_elf.c
 +  memset(pSyms, 0, sizeof(DLSyms));
 +  pSyms->pLib     = pLib;
  
-   Elf_Ehdr* pH   = pLib->pElf_Ehdr;
+-  Elf_Ehdr* pH   = pLib->pElf_Ehdr;
++  pH   = (Elf_Ehdr*)pLib->pElf_Ehdr;
  #ifdef DL__BinaryFormat_elf32
-@@ -134,285 +89,74 @@
+   assert( pH->e_ident[EI_CLASS] == ELFCLASS32 );
  #else
    assert( pH->e_ident[EI_CLASS] == ELFCLASS64 );
  #endif

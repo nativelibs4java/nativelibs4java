@@ -159,10 +159,13 @@ public class BridJ {
 	}
 
     private static WeakHashMap<Long, NativeObject> knownNativeObjects = new WeakHashMap<Long, NativeObject>();
-    static synchronized <O extends NativeObject> void setJavaObjectFromNativePeer(long peer, O object) {
-        knownNativeObjects.put(peer, object);
+    public static synchronized <O extends NativeObject> void setJavaObjectFromNativePeer(long peer, O object) {
+        if (object == null)
+            knownNativeObjects.remove(peer);
+        else
+            knownNativeObjects.put(peer, object);
     }
-    public static Object getJavaObjectFromNativePeer(long peer) {
+    public static synchronized Object getJavaObjectFromNativePeer(long peer) {
         return knownNativeObjects.get(peer);
     }
     
@@ -251,8 +254,8 @@ public class BridJ {
 		}
 	}
 
-    public static final boolean verbose = "true".equals(System.getProperty("bridj.verbose")) || "1".equals(System.getenv("BRIDJ_VERBOSE"));
     public static final boolean debug = "true".equals(System.getProperty("bridj.debug")) || "1".equals(System.getenv("BRIDJ_DEBUG"));
+    public static final boolean verbose = debug || "true".equals(System.getProperty("bridj.verbose")) || "1".equals(System.getenv("BRIDJ_VERBOSE"));
     static final int minLogLevel = Level.WARNING.intValue();
 	static boolean shouldLog(Level level) {
         return verbose || level.intValue() >= minLogLevel;

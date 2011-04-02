@@ -300,7 +300,8 @@ public class NativeLibrary {
 
 			}
 			if (addr == 0) {
-				System.err.println("Symbol '" + name + "' not found.");
+				if (BridJ.verbose)
+					BridJ.log(Level.WARNING, "Symbol '" + name + "' not found.");
 				continue;
 			}
 			//if (is32)

@@ -96,7 +96,7 @@ TEST_API double __cdecl testASinB(int a, int b)
 
 Ctest::Ctest()
 {
-	cout << "Constructing Ctest instance\n";
+	//cout << "Constructing Ctest instance\n";
 	firstField = -123456;
 	secondField = 12;
 	
@@ -119,7 +119,7 @@ Ctest::Ctest(int firstField) {
 }
 Ctest::~Ctest()
 {
-	cout << "Destructor of Ctest is called !\n";
+	//cout << "Destructor of Ctest is called !\n";
 }
 
 const string& Ctest2::toString() {
@@ -185,7 +185,7 @@ Ctest* createTest() {
 
 Ctest2::Ctest2() : Ctest(), fState(NULL), fDestructedState(0)
 {
-	cout << "Constructing Ctest2 instance\n";
+	//cout << "Constructing Ctest2 instance\n";
 	//printf("Ctest2::Ctest2() (this = %ld)\n", (long int)(size_t)this);
 }
 Ctest2::~Ctest2()
@@ -193,7 +193,7 @@ Ctest2::~Ctest2()
 	if (fState)
 		*fState = fDestructedState;
 	
-	cout << "Destructing Ctest2 instance\n";
+	//cout << "Destructing Ctest2 instance\n";
 	
 }
 void Ctest2::setState(int* pState) {

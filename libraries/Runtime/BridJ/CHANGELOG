@@ -2,6 +2,9 @@ Current version : BridJ 0.4-SNAPSHOT
 
 - Added parsing of GNU LD scripts (issue #61)
 - Fixed demangling of size_t / long C types with GCC
+- Fixed Linux x86 symbols
+- Added simple C++ virtual overrides
+- TODO fix float callbacks tests !
 
 BridJ 0.3.1 (r1817, 20110329)
 

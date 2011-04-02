@@ -22,7 +22,7 @@ char __cdecl doCPPToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaC
 	cppObject = dcbArgPointer(args);
 	javaObject = getJavaObjectForNativePointer(env, cppObject);
 	dcArgPointer(call->vm, (DCpointer)call->env);
-	dcArgPointer(call->vm, info->fCallbackInstance);
+	dcArgPointer(call->vm, javaObject);
 	dcArgPointer(call->vm, info->fMethod);
 	
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_TRUE)

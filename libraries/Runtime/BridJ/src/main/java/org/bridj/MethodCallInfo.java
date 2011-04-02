@@ -70,7 +70,7 @@ public class MethodCallInfo {
         paramsValueTypes = new int[nParams];
 
         direct = true; // TODO on native side : test number of parameters (on 64 bits win : must be <= 4)
-        isCPlusPlus = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
+        isCPlusPlus = !isStatic && CPPObject.class.isAssignableFrom(method.getDeclaringClass());
 
         //GetOptions(methodOptions, method);
 

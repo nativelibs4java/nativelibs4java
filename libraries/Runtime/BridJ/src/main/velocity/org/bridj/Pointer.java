@@ -943,8 +943,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * @param peer native memory address that is to be converted to a pointer
 	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
      */
-    public static Pointer<?> pointerToAddress(long peer, Class<?> targetClass, final Releaser releaser) {
-        return newPointer(PointerIO.getInstance(targetClass), peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, releaser, null);
+    public static <P> Pointer<P> pointerToAddress(long peer, Class<P> targetClass, final Releaser releaser) {
+        return pointerToAddress(peer, (Type)targetClass, releaser);
+    }
+    /**
+     * Create a pointer out of a native memory address
+     * @param targetType type of the elements pointed by the resulting pointer 
+	 * @param releaser object responsible for reclaiming the native memory once whenever the returned pointer is garbage-collected 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    public static <P> Pointer<P> pointerToAddress(long peer, Type targetType, final Releaser releaser) {
+    		PointerIO<P> pio = PointerIO.getInstance(targetType);
+        return newPointer(pio, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, releaser, null);
     }
     /**
      * Create a pointer out of a native memory address
@@ -996,7 +1007,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      */
     @Deprecated
     public static <P> Pointer<P> pointerToAddress(long peer, Class<P> targetClass) {
-    	return newPointer((PointerIO<P>)PointerIO.getInstance(targetClass), peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, null, null);
+    		return pointerToAddress(peer, (Type)targetClass);
+    }
+    
+	/**
+     * Create a pointer out of a native memory address
+     * @param targetType type of the elements pointed by the resulting pointer 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    @Deprecated
+    public static <P> Pointer<P> pointerToAddress(long peer, Type targetType) {
+    	return newPointer((PointerIO<P>)PointerIO.getInstance(targetType), peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, null, null);
     }
     
 	/**

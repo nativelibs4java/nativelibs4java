@@ -4,6 +4,7 @@
  */
 package org.bridj.cpp;
 
+import java.util.Set;
 import org.bridj.ann.Template;
 import org.bridj.DynamicFunction;
 import org.bridj.util.Pair;
@@ -39,6 +40,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.TreeMap;
 import org.bridj.ann.Convention.Style;
 import static org.bridj.Pointer.*;
 
@@ -107,6 +110,8 @@ public class CPPRuntime extends CRuntime {
 
         int nParentMethods = out.size();
 
+        Map<Integer, Method> newVirtuals = new TreeMap<Integer, Method>();
+
         methods:
         for (Method method : type.getDeclaredMethods()) {
             String methodName = method.getName();
@@ -124,12 +129,13 @@ public class CPPRuntime extends CRuntime {
                     continue methods;
                 }
             }
-                    
-            if (method.getAnnotation(Virtual.class) != null) {
-                out.add(method);
+
+            Virtual virtual = method.getAnnotation(Virtual.class);
+            if (virtual != null) {
+                newVirtuals.put(virtual.value(), method);
             }
         }
-
+        out.addAll(newVirtuals.values());
     }
 
     @Override
@@ -148,29 +154,16 @@ public class CPPRuntime extends CRuntime {
 
         Virtual va = method.getAnnotation(Virtual.class);
         if (va == null) {
-            //methodLibrary.getSymbol(method);
             Symbol symbol = methodLibrary.getSymbol(method);
             mci.setForwardedPointer(symbol == null ? 0 : symbol.getAddress());
             if (mci.getForwardedPointer() == 0) {
-//				for (Demangler.Symbol symbol : methodLibrary.getSymbols()) {
-//					if (symbol.matches(method)) {
-//						mci.setForwardedPointer(symbol.getAddress());
-//						if (mci.getForwardedPointer() != 0)
-//							break;
-//					}
-//				}
-//				if (mci.getForwardedPointer() == 0) {
                 assert log(Level.SEVERE, "Method " + method.toGenericString() + " is not virtual but its address could not be resolved in the library.");
                 return;
-//				}
             }
             if (Modifier.isStatic(modifiers)) {
                 builder.addFunction(mci);
                 assert log(Level.INFO, "Registering " + method + " as function or static C++ method " + symbol.getName());
             } else {
-                //if (!Platform.is64Bits() && Platform.isWindows())
-                //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
-                //builder.addMethodFunction(mci);
                 builder.addFunction(mci);
                 log(Level.INFO, "Registering " + method + " as C++ method " + symbol.getName());
             }
@@ -206,8 +199,6 @@ public class CPPRuntime extends CRuntime {
             int absoluteVirtualIndex = isNewVirtual ? virtualOffset + virtualIndex : virtualIndex;
             mci.setVirtualIndex(absoluteVirtualIndex);
             log(Level.INFO, "Registering " + method.toGenericString() + " as virtual C++ method with relative virtual index = " + virtualIndex + ", absolute index = " + absoluteVirtualIndex);
-            //if (!Platform.is64Bits() && Platform.isWindows())
-            //    mci.setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_MS);
             builder.addVirtualMethod(mci);
         }
     }
@@ -260,11 +251,98 @@ public class CPPRuntime extends CRuntime {
 		return enableDestructors;
     }
 
+    private String ptrToString(Pointer<?> ptr, NativeLibrary library) {
+        return ptr == null ? "null" : Long.toHexString(ptr.getPeer()) + " (" + library.getSymbolName(ptr.getPeer()) + ")";
+    }
+
     @Convention(Style.ThisCall)
     public abstract static class CPPDestructor extends Callback {
         public abstract void destroy(long peer);
     }
 
+    Set<Type> typesThatDontNeedASyntheticVirtualTable = new HashSet<Type>();
+    Map<Type, VTable> syntheticVirtualTables = new HashMap<Type, VTable>();
+
+    protected boolean installRegularVTablePtr(Type type, NativeLibrary library, Pointer<?> peer) {
+        long vtablePtr = getVirtualTable(type, library);
+        if (vtablePtr != 0) {
+            peer.setSizeT(vtablePtr);
+            return true;
+        }
+        return false;
+    }
+    protected boolean installSyntheticVTablePtr(Type type, NativeLibrary library, Pointer<?> peer) {
+        synchronized (syntheticVirtualTables) {
+            VTable vtable = syntheticVirtualTables.get(type);
+            if (vtable == null) {
+                if (!typesThatDontNeedASyntheticVirtualTable.contains(type)) {
+                    List<Method> methods = new ArrayList<Method>();
+                    listVirtualMethods(Utils.getClass(type), methods);
+                    boolean needsASyntheticVirtualTable = false;
+                    for (Method method : methods)
+                        if (!Modifier.isNative(method.getModifiers())) {
+                            needsASyntheticVirtualTable = true;
+                            break;
+                        }
+                    if (needsASyntheticVirtualTable) {
+                        Type parentType = Utils.getParent(type);
+                        Pointer<Pointer> parentVTablePtr = null;
+                        if (CPPObject.class.isAssignableFrom(Utils.getClass(parentType))) {
+                            parentVTablePtr = peer.getPointer(Pointer.class);
+                            if (BridJ.debug) {
+                                BridJ.log(Level.INFO, "Found parent virtual table pointer = " + ptrToString(parentVTablePtr, library));
+                                /*Pointer<Pointer> expectedParentVTablePtr = pointerToAddress(getVirtualTable(parentType, library), Pointer.class);
+                                if (expectedParentVTablePtr != null && !Utils.eq(parentVTablePtr, expectedParentVTablePtr))
+                                    BridJ.log(Level.WARNING, "Weird parent virtual table pointer : expected " + ptrToString(expectedParentVTablePtr, library) + ", got " + ptrToString(parentVTablePtr, library));
+                                */
+
+                            }
+                            //parentVTablePtr = pointerToAddress(getVirtualTable(parentType, library), Pointer.class);
+                        }
+                        syntheticVirtualTables.put(type, vtable = synthetizeVirtualTable(type, parentVTablePtr, methods, library));
+                    } else {
+                        typesThatDontNeedASyntheticVirtualTable.add(type);
+                    }
+                }
+            }
+            if (vtable != null) {
+                peer.setPointer(vtable.ptr);
+                return vtable.ptr != null;
+            } else
+                return false;
+        }
+    }
+    static class VTable {
+        Pointer<Pointer<?>> ptr;
+        Map<Method, Pointer<?>> callbacks = new HashMap<Method, Pointer<?>>();
+    }
+    protected VTable synthetizeVirtualTable(Type type, Pointer<Pointer> parentVTablePtr, List<Method> methods, NativeLibrary library) {
+        int nMethods = methods.size();
+        //Pointer<Pointer> parentVTablePtr = pointerToAddress(getVirtualTable(Utils.getParent(type), library), Pointer.class);
+        VTable vtable = new VTable();
+        vtable.ptr = allocatePointers(nMethods + 2).next(2); // leave two null pointers at index -2 and -1, to say there's no runtime type information available.
+
+        Class<?> c = Utils.getClass(type);
+        for (int iMethod = 0; iMethod < nMethods; iMethod++) {
+            Method method = methods.get(iMethod);
+            Pointer<?> pMethod;
+            if (Modifier.isNative(method.getModifiers())) {
+                pMethod = parentVTablePtr == null ? null : parentVTablePtr.get(iMethod);
+            } else {
+                try {
+                    MethodCallInfo mci = new MethodCallInfo(method);
+                    mci.setDeclaringClass(method.getDeclaringClass());
+                    pMethod = createCToJavaCallback(mci, c);
+                    vtable.callbacks.put(method, pMethod);
+                } catch (Throwable th) {
+                    BridJ.log(Level.SEVERE, "Failed to register overridden method " + method + " for type " + type, th);
+                    pMethod = null;
+                }
+            }
+            vtable.ptr.set(iMethod, (Pointer)pMethod);
+        }
+        return vtable;
+    }
     Map<Pair<Type, Integer>, DynamicFunction> constructors = new HashMap<Pair<Type, Integer>, DynamicFunction>();
     DynamicFunction getConstructor(final Class<?> typeClass, final Type type, NativeLibrary lib, int constructorId) {
         Pair<Type, Integer> key = new Pair<Type, Integer>(type, constructorId);
@@ -317,7 +395,7 @@ public class CPPRuntime extends CRuntime {
         }
         return destructor;
     }
-    protected <T extends CPPObject> Pointer<T> newCPPInstance(final Type type, int constructorId, Object... args) {
+    protected <T extends CPPObject> Pointer<T> newCPPInstance(T instance, final Type type, int constructorId, Object... args) {
         Pointer<T> peer = null;
         try {
             final Class<T> typeClass = Utils.getClass(type);
@@ -330,7 +408,9 @@ public class CPPRuntime extends CRuntime {
                 if (destructor != null)
                     releaser = new Pointer.Releaser() { @Override public void release(Pointer<?> p) {
 						//System.out.println("Destructing instance of C++ type " + type + "...");
-                        destructor.destroy(p.getPeer());
+                        long peer = p.getPeer();
+                        BridJ.setJavaObjectFromNativePeer(peer, null);
+                        destructor.destroy(peer);
                     }};
 			}
             // TODO handle templates here
@@ -340,7 +420,7 @@ public class CPPRuntime extends CRuntime {
             DynamicFunction constructor = getConstructor(typeClass, type, lib, constructorId);
             
             if (CPPObject.class.isAssignableFrom(typeClass)) {
-                installVTablePtr(type, lib, peer);
+                installRegularVTablePtr(type, lib, peer);
             } else {
                 // TODO ObjCObject : call alloc on class type !!
             }
@@ -349,6 +429,12 @@ public class CPPRuntime extends CRuntime {
             System.arraycopy(args, 0, consThisArgs, 1, args.length);
 
             constructor.apply(consThisArgs);
+            if (CPPObject.class.isAssignableFrom(typeClass)) {
+                if (installSyntheticVTablePtr(type, lib, peer))
+                    BridJ.setJavaObjectFromNativePeer(peer.getPeer(), instance);
+            } else {
+                // TODO ObjCObject : call alloc on class type !!
+            }
             return peer;
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -413,17 +499,6 @@ public class CPPRuntime extends CRuntime {
         }
         return vtable;
     }
-    boolean installVTablePtr(Type type, NativeLibrary lib, Pointer<?> peer) {
-        long vtable = getVirtualTable(type, lib);
-        //Pointer<Pointer<?>> vptr = lib.getVirtualTable(type);
-//    	if (!lib.isMSVC());
-////    		vptr = vptr.offset(16);
-//    		vptr = vptr.next(2);
-        if (vtable != 0)
-            peer.setSizeT(vtable);
-        return vtable != 0;
-    }
-
     /// Needs not be fast : TypeInfo will be cached in BridJ anyway !
     @Override
     public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
@@ -448,7 +523,7 @@ public class CPPRuntime extends CRuntime {
                     Object[] actualArgs = new Object[nActualArgs];
                     System.arraycopy(args, actualArgsOffset, actualArgs, 0, nActualArgs);
                     
-                    setNativeObjectPeer(instance, newCPPInstance(cppType, constructorId, actualArgs));
+                    setNativeObjectPeer(instance, newCPPInstance((CPPObject)instance, cppType, constructorId, actualArgs));
                     super.initialize(instance, -1);
                 } else {
                     super.initialize(instance, constructorId, args);
