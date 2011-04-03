@@ -161,15 +161,27 @@ int Ctest::testVirtualAddStdCall(void* ptr, int a, int b) {
 	return a + b;
 }
 
-ETest testEnum(ETest e)
+TEST_API ETest testEnum(ETest e)
 {
 	return e;	
 }
-ETest testVoidEnum()
+TEST_API ETest testEnumRetSecond()
+{
+	return eSecond;	
+}
+TEST_API int testEnumArgSecond(ETest e)
+{
+	return e == eSecond;	
+}
+TEST_API int testEnumArgs(ETest e, ETest f)
+{
+	return e == f;	
+}
+TEST_API ETest testVoidEnum()
 {
 	return (ETest)0;	
 }
-ETest testIntEnum(int i, ETest e)
+TEST_API ETest testIntEnum(int i, ETest e)
 {
 	return e;	
 }
@@ -178,7 +190,7 @@ void Ctest::static_void() {
 	
 }
 
-Ctest* createTest() {
+TEST_API Ctest* createTest() {
 	Ctest* test = new Ctest();
 	return test;
 }

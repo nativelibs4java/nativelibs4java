@@ -94,11 +94,9 @@ public class VC9Demangler extends Demangler {
     }
 
     private ClassRef parseTemplateType() throws DemanglingException {
-        List<TypeRef> br = backReferences;
-        backReferences = new ArrayList<TypeRef>();
-
         //System.out.println("# START OF parseTemplateParams()");
         String name = parseNameFragment();
+        //return withEmptyQualifiedNames(new DemanglingOp<ClassRef>() { public ClassRef run() throws DemanglingException {
         List<TemplateArg> args = parseTemplateParams();
         
         List<Object> names = new ArrayList<Object>();
@@ -110,14 +108,15 @@ public class VC9Demangler extends Demangler {
         ClassRef tr = new ClassRef(new Ident(name, args.toArray(new TemplateArg[args.size()])));
         tr.setEnclosingType(reverseNamespace(names));
 
-        backReferences = br;
         return tr;
+		//}});
     }
 
     private void parseFunctionProperty(MemberRef mr) throws DemanglingException {
         mr.callingConvention = parseCallingConvention();
         TypeRef returnType = consumeCharIf('@') ? classType(Void.TYPE) : parseType(true);
         allQualifiedNames.clear();
+        //withEmptyQualifiedNames(new DemanglingRunnable() { public void run() throws DemanglingException {
         List<TypeRef> paramTypes = parseParams();
         mr.paramTypes = paramTypes.toArray(new TypeRef[paramTypes.size()]);
         if (!consumeCharIf('Z')) {
@@ -126,6 +125,7 @@ public class VC9Demangler extends Demangler {
         }
 
         mr.setValueType(returnType);
+		//}});
     }
 
     static class AnonymousTemplateArg implements TemplateArg {
@@ -233,10 +233,7 @@ public class VC9Demangler extends Demangler {
 
 
     TypeRef parseReturnType() throws DemanglingException {
-        List<TypeRef> br = backReferences;
-        backReferences = new ArrayList<TypeRef>();
         TypeRef tr = parseType(true);
-        backReferences = br;
         return tr;
     }
     int parseNumber(boolean allowSign) throws DemanglingException {
@@ -411,8 +408,19 @@ public class VC9Demangler extends Demangler {
         Collections.reverse(names);
         return new NamespaceRef(names.toArray(new Object[names.size()]));
     }
-    List<TypeRef> backReferences = new ArrayList<TypeRef>();
     List<List> allQualifiedNames = new ArrayList<List>();
+    interface DemanglingOp<T> {
+    	T run() throws DemanglingException;
+    }
+	<T> T withEmptyQualifiedNames(DemanglingOp<T> action) throws DemanglingException {
+		List<List> list = allQualifiedNames;
+    	try {
+    		allQualifiedNames = new ArrayList<List>();
+    		return action.run();
+    	} finally {
+    		allQualifiedNames = list;
+    	}
+    }
 
     IdentLike parseFirstQualifiedTypeNameComponent() throws DemanglingException {
         if (consumeCharIf('?')) {

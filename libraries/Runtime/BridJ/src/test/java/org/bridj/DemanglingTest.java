@@ -4,6 +4,7 @@
  */
 
 package org.bridj;
+import org.bridj.FunctionTest.ETest;
 import static org.bridj.util.DefaultParameterizedType.*;
 import org.bridj.util.Utils;
 import org.bridj.demangling.Demangler;
@@ -44,9 +45,54 @@ public class DemanglingTest {
             "_Z14test_add9_longlllllllll",
             null, 
             ident("test_add9_long"),
-            clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType
+            long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class, long.class
+            //clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType
         );
     }
+    static Type etestEnumType = paramType(ValuedEnum.class, ETest.class);
+    @Test
+    public void testEnumArgAndRet() {
+        demangle(
+            "?testEnum@@YA?AW4ETest@@W41@@Z",
+            null,
+            null, 
+            ident("testEnum"),
+            etestEnumType, etestEnumType
+        );
+    }
+    @Test
+    public void testEnumArg() {
+        demangle(
+            "?testEnumArgSecond@@YAHW4ETest@@@Z",
+            null,
+            null, 
+            ident("testEnumArgSecond"),
+            int.class, etestEnumType
+        );
+    }
+    @Test
+    public void testEnumRet() {
+        demangle(
+            "?testEnumRetSecond@@YA?AW4ETest@@XZ",
+            null,
+            null, 
+            ident("testEnumRetSecond"),
+            etestEnumType
+        );
+    }
+    @Test
+    public void testEnumArgs() {
+        demangle(
+            "?testEnumArgs@@YAHW4ETest@@0@Z",
+            null,
+            null, 
+            ident("testEnumArgs"),
+            int.class, etestEnumType, etestEnumType
+        );
+    }
+    //
+    //
+	
     @Test
     public void testSimple() {
         demangle(
