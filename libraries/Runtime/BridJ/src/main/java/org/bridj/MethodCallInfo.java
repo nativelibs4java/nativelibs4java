@@ -31,7 +31,7 @@ public class MethodCallInfo {
 	private Class<?> declaringClass;
         long nativeClass;
     int returnValueType, paramsValueTypes[];
-	private Method method;
+	private Method method, definition;
 	String methodName, symbolName;
 	private long forwardedPointer;
     String dcSignature;
@@ -49,16 +49,20 @@ public class MethodCallInfo {
 	boolean startsWithThis;
 	boolean bNeedsThisPointer;
 
-	public MethodCallInfo(Method method) throws FileNotFoundException {
+    public MethodCallInfo(Method method) throws FileNotFoundException {
+        this(method, method);
+    }
+	public MethodCallInfo(Method method, Method definition) throws FileNotFoundException {
         isVarArgs = false;
         this.setMethod(method);
+        this.setDefinition(definition);
 		this.setDeclaringClass(method.getDeclaringClass());
 		this.methodName = method.getName();
         
         Class<?>[] parameterTypes = method.getParameterTypes();
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         
-        Annotation[][] paramsAnnotations = method.getParameterAnnotations();
+        Annotation[][] paramsAnnotations = definition.getParameterAnnotations();
         /*genericInfo.returnType = method.getGenericReturnType();
         genericInfo.paramsTypes = method.getGenericParameterTypes();*/
         
@@ -111,10 +115,10 @@ public class MethodCallInfo {
         asmSignature = asmSig.toString();
         dcSignature = dcSig.toString();
         
-        if (BridJ.getAnnotation(DisableDirect.class, true, method) != null)
+        if (BridJ.getAnnotation(DisableDirect.class, true, definition) != null)
         		direct = false;
         	
-        Virtual virtual = BridJ.getAnnotation(Virtual.class, false, method);
+        Virtual virtual = BridJ.getAnnotation(Virtual.class, false, definition);
         isCPlusPlus = isCPlusPlus || virtual != null;
         
         if (isCPlusPlus && !isStatic) {
@@ -129,7 +133,7 @@ public class MethodCallInfo {
 				//	setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_GNU);
 			}
         }
-        Convention cc = BridJ.getAnnotation(Convention.class, true, method);
+        Convention cc = BridJ.getAnnotation(Convention.class, true, definition);
         if (cc != null) {
             if (Platform.isWindows() && !Platform.is64Bits()) {
 				setCallingConvention(cc.value());
@@ -401,6 +405,15 @@ public class MethodCallInfo {
         if (dcSig != null)
             dcSig.append(dcChar);
     }
+
+    public void setDefinition(Method definition) {
+        this.definition = definition;
+    }
+
+    public Method getDefinition() {
+        return definition;
+    }
+
 
 
 	public void setMethod(Method method) {

@@ -88,7 +88,7 @@ public class CPPRuntime extends CRuntime {
     public int getVirtualMethodsCount(Class<?> type) {
         Integer count = virtualMethodsCounts.get(type);
         if (count == null) {
-            List<Method> mets = new ArrayList<Method>();
+            List<VirtMeth> mets = new ArrayList<VirtMeth>();
             listVirtualMethods(type, mets);
 
             // TODO unify this !
@@ -97,8 +97,10 @@ public class CPPRuntime extends CRuntime {
         return count;
     }
 
-    
-    public void listVirtualMethods(Class<?> type, List<Method> out) {
+    protected static class VirtMeth {
+        Method implementation, definition;
+    }
+    protected void listVirtualMethods(Class<?> type, List<VirtMeth> out) {
         if (!CPPObject.class.isAssignableFrom(type)) {
             return;
         }
@@ -110,14 +112,15 @@ public class CPPRuntime extends CRuntime {
 
         int nParentMethods = out.size();
 
-        Map<Integer, Method> newVirtuals = new TreeMap<Integer, Method>();
+        Map<Integer, VirtMeth> newVirtuals = new TreeMap<Integer, VirtMeth>();
 
         methods:
         for (Method method : type.getDeclaredMethods()) {
             String methodName = method.getName();
             Type[] methodParameterTypes = method.getGenericParameterTypes();
             for (int iParentMethod = 0; iParentMethod < nParentMethods; iParentMethod++) {
-                Method parentMethod = out.get(iParentMethod);
+                VirtMeth pvm = out.get(iParentMethod);
+                Method parentMethod = pvm.definition;
                 if (parentMethod.getDeclaringClass() == type)
                     continue; // was just added in the same listVirtualMethods call !
 
@@ -125,14 +128,19 @@ public class CPPRuntime extends CRuntime {
                 //    continue; // not a virtual method, too bad
 
                 if (parentMethod.getName().equals(methodName) && isOverridenSignature(parentMethod.getGenericParameterTypes(), methodParameterTypes, 0)) {
-                    out.set(iParentMethod, method);
+                    VirtMeth vm = new VirtMeth();
+                    vm.definition = pvm.definition;
+                    vm.implementation = method;
+                    out.set(iParentMethod, vm);
                     continue methods;
                 }
             }
 
             Virtual virtual = method.getAnnotation(Virtual.class);
             if (virtual != null) {
-                newVirtuals.put(virtual.value(), method);
+                VirtMeth vm = new VirtMeth();
+                vm.definition = vm.implementation = method;
+                newVirtuals.put(virtual.value(), vm);
             }
         }
         out.addAll(newVirtuals.values());
@@ -276,11 +284,11 @@ public class CPPRuntime extends CRuntime {
             VTable vtable = syntheticVirtualTables.get(type);
             if (vtable == null) {
                 if (!typesThatDontNeedASyntheticVirtualTable.contains(type)) {
-                    List<Method> methods = new ArrayList<Method>();
+                    List<VirtMeth> methods = new ArrayList<VirtMeth>();
                     listVirtualMethods(Utils.getClass(type), methods);
                     boolean needsASyntheticVirtualTable = false;
-                    for (Method method : methods)
-                        if (!Modifier.isNative(method.getModifiers())) {
+                    for (VirtMeth method : methods)
+                        if (!Modifier.isNative(method.implementation.getModifiers())) {
                             needsASyntheticVirtualTable = true;
                             break;
                         }
@@ -316,7 +324,7 @@ public class CPPRuntime extends CRuntime {
         Pointer<Pointer<?>> ptr;
         Map<Method, Pointer<?>> callbacks = new HashMap<Method, Pointer<?>>();
     }
-    protected VTable synthetizeVirtualTable(Type type, Pointer<Pointer> parentVTablePtr, List<Method> methods, NativeLibrary library) {
+    protected VTable synthetizeVirtualTable(Type type, Pointer<Pointer> parentVTablePtr, List<VirtMeth> methods, NativeLibrary library) {
         int nMethods = methods.size();
         //Pointer<Pointer> parentVTablePtr = pointerToAddress(getVirtualTable(Utils.getParent(type), library), Pointer.class);
         VTable vtable = new VTable();
@@ -324,18 +332,18 @@ public class CPPRuntime extends CRuntime {
 
         Class<?> c = Utils.getClass(type);
         for (int iMethod = 0; iMethod < nMethods; iMethod++) {
-            Method method = methods.get(iMethod);
+            VirtMeth vm = methods.get(iMethod);
             Pointer<?> pMethod;
-            if (Modifier.isNative(method.getModifiers())) {
+            if (Modifier.isNative(vm.implementation.getModifiers())) {
                 pMethod = parentVTablePtr == null ? null : parentVTablePtr.get(iMethod);
             } else {
                 try {
-                    MethodCallInfo mci = new MethodCallInfo(method);
-                    mci.setDeclaringClass(method.getDeclaringClass());
+                    MethodCallInfo mci = new MethodCallInfo(vm.implementation, vm.definition);
+                    mci.setDeclaringClass(vm.implementation.getDeclaringClass());
                     pMethod = createCToJavaCallback(mci, c);
-                    vtable.callbacks.put(method, pMethod);
+                    vtable.callbacks.put(vm.implementation, pMethod);
                 } catch (Throwable th) {
-                    BridJ.log(Level.SEVERE, "Failed to register overridden method " + method + " for type " + type, th);
+                    BridJ.log(Level.SEVERE, "Failed to register overridden method " + vm.implementation + " for type " + type + " (original method = " + vm.definition + ")", th);
                     pMethod = null;
                 }
             }
