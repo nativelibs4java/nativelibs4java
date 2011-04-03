@@ -214,7 +214,8 @@ public class VC9Demangler extends Demangler {
             allQualifiedNames.clear(); // TODO fix this !!
             parseFunctionProperty(mr);
             if (cvMod != null && (cvMod.isMember || (memberName instanceof SpecialName) || Modifier.isPublic(ac.modifiers))) {
-                ClassRef tr = new ClassRef(new Ident((String)qNames.get(0)));
+            	Object r = qNames.get(0);
+				ClassRef tr = r instanceof ClassRef ? (ClassRef)r : new ClassRef(new Ident((String)r));
                 //tr.setSimpleName(qNames.get(0));
                 qNames.remove(0);
                 tr.setEnclosingType(reverseNamespace(qNames));
@@ -253,9 +254,10 @@ public class VC9Demangler extends Demangler {
         while (((c = consumeChar()) >= 'A' && c <= 'P') && c != '@')
             n += 16 * (c - 'A');
         
-        if (c != '@')
+        String s = b.toString().trim();
+        if (c != '@' || s.length() == 0)
             throw error("Expected a number here", -b.length());
-        return sign * Integer.parseInt(b.toString(), 16);
+        return sign * Integer.parseInt(s, 16);
     }
 	TypeRef parseType(boolean allowVoid) throws DemanglingException {
         char c = consumeChar();
