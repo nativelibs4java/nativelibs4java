@@ -261,9 +261,9 @@ public class DemanglingTest {
     private void demangle(String vc9, String gcc4, String toString) {
 		try {
 			if (vc9 != null)
-				assertEquals(new VC9Demangler(null, vc9).parseSymbol().toString(), toString);
+				assertEquals(toString, new VC9Demangler(null, vc9).parseSymbol().toString());
 			if (gcc4 != null)
-				assertEquals(new GCC4Demangler(null, gcc4).parseSymbol().toString(), toString);
+				assertEquals(toString, new GCC4Demangler(null, gcc4).parseSymbol().toString());
 		} catch (DemanglingException ex) {
 			Logger.getLogger(DemanglingTest.class.getName()).log(Level.SEVERE, null, ex);
 			throw new AssertionError(ex.toString());

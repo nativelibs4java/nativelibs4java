@@ -260,17 +260,7 @@ public class VC9Demangler extends Demangler {
         char c = consumeChar();
         if (Character.isDigit(c)) {
             int iBack = (int)(c - '0');
-            if (iBack >= allQualifiedNames.size())
-            //if (iBack >= backReferences.size())
-                throw error("Invalid back reference", -1);
-            List l = allQualifiedNames.get(iBack);
-            if (l.size() == 1) {
-                Object o = l.get(0);
-                if (o instanceof TypeRef)
-                    return (TypeRef)o;
-            }
-            throw error("Invalid back reference", -1);
-            //return backReferences.get(iBack);
+            return getBackRef(iBack);
         }
 		switch (c) {
 		case '_':
@@ -311,7 +301,7 @@ public class VC9Demangler extends Demangler {
 			default:
 				throw error(-1);
 			}
-			allQualifiedNames.add(Collections.singletonList(tr));
+			allQualifiedNames.add(tr);
 			return tr;
         //case 'Z':
         //    return classType(Object[].class); // TODO ellipsis
@@ -367,7 +357,7 @@ public class VC9Demangler extends Demangler {
                 parseFunctionProperty(mr);
                 tr = pointerType(new FunctionTypeRef(mr));
             }
-            allQualifiedNames.add(Collections.singletonList(tr));
+            allQualifiedNames.add(tr);
             return tr;
         case 'V': // class
         case 'U': // struct
@@ -396,7 +386,8 @@ public class VC9Demangler extends Demangler {
                 default:
                     throw error("Unfinished enum", -1);
             }
-            parseNameQualifications(new ArrayList<Object>());
+            TypeRef qn = parseQualifiedTypeName();
+            allQualifiedNames.add(qn);
             return classType(cl);
 		default:
 			throw error(-1);
@@ -408,14 +399,14 @@ public class VC9Demangler extends Demangler {
         Collections.reverse(names);
         return new NamespaceRef(names.toArray(new Object[names.size()]));
     }
-    List<List> allQualifiedNames = new ArrayList<List>();
+    List<TypeRef> allQualifiedNames = new ArrayList<TypeRef>();
     interface DemanglingOp<T> {
     	T run() throws DemanglingException;
     }
 	<T> T withEmptyQualifiedNames(DemanglingOp<T> action) throws DemanglingException {
-		List<List> list = allQualifiedNames;
+		List<TypeRef> list = allQualifiedNames;
     	try {
-    		allQualifiedNames = new ArrayList<List>();
+    		allQualifiedNames = new ArrayList<TypeRef>();
     		return action.run();
     	} finally {
     		allQualifiedNames = list;
@@ -587,17 +578,19 @@ public class VC9Demangler extends Demangler {
         return paramTypes;
     }
     private List<TemplateArg> parseTemplateParams() throws DemanglingException {
-        List<TemplateArg> paramTypes = new ArrayList<TemplateArg>();
-        if (!consumeCharIf('X')) {
-            char c;
-            while ((c = peekChar()) != '@' && c != 0) {
-                TemplateArg tr = parseTemplateParameter();
-                if (tr == null)
-                    continue;
-                paramTypes.add(tr);
+        return withEmptyQualifiedNames(new DemanglingOp<List<TemplateArg>>() { public List<TemplateArg> run() throws DemanglingException {
+            List<TemplateArg> paramTypes = new ArrayList<TemplateArg>();
+            if (!consumeCharIf('X')) {
+                char c;
+                while ((c = peekChar()) != '@' && c != 0) {
+                    TemplateArg tr = parseTemplateParameter();
+                    if (tr == null)
+                        continue;
+                    paramTypes.add(tr);
+                }
             }
-        }
-        return paramTypes;
+            return paramTypes;
+        }});
     }
 
     String parseNameFragment() {
@@ -608,17 +601,23 @@ public class VC9Demangler extends Demangler {
 			b.append(c);
 
 		String name = b.toString();
-		allQualifiedNames.add(Collections.singletonList(name));
+		//allQualifiedNames.add(Collections.singletonList(name));
 		return name;
 	}
 
+    TypeRef getBackRef(int i) throws DemanglingException {
+        if (i == allQualifiedNames.size())
+            i--; // TODO fix this !!!
+
+        if (i < 0 || i >= allQualifiedNames.size())
+            throw error("Invalid back references in name qualifications", -1);
+        return allQualifiedNames.get(i);
+    }
     private void parseNameQualifications(List<Object> names) throws DemanglingException {
         if (Character.isDigit(peekChar())) {
             try {
                 int i = consumeChar() - '0';
-                if (i == allQualifiedNames.size())
-                    i--; // TODO fix this !!!
-                names.add(((Collection)allQualifiedNames.get(i)).iterator().next());
+                names.add(getBackRef(i));
                 expectChars('@');
                 return;
             } catch (Exception ex) {
