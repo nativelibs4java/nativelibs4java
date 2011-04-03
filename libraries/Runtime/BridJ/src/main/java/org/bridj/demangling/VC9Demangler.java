@@ -15,7 +15,7 @@ import org.bridj.demangling.Demangler.Ident;
 import org.bridj.demangling.Demangler.IdentLike;
 import org.bridj.demangling.Demangler.TypeRef;
 import org.bridj.demangling.Demangler.SpecialName;
-import org.bridj.ann.CLong;
+import org.bridj.CLong;
 import org.bridj.ann.Convention;
 import java.math.BigInteger;
 import java.util.Collection;
