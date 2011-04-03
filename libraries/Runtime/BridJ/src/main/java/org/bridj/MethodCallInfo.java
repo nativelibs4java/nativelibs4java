@@ -84,7 +84,8 @@ public class MethodCallInfo {
             dcSig = new StringBuilder(16);
         javaSig.append('(');
         asmSig.append('(');
-        dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
+        if (!isCPlusPlus)
+        	dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
 		if (veryVerbose)
 			System.out.println("Analyzing " + declaringClass.getName() + "." + methodName);
@@ -196,6 +197,13 @@ public class MethodCallInfo {
 		return callIOs.toArray(new CallIO[callIOs.size()]);
 	}
 
+	public void prependCallbackCC() {
+		char cc = getDcCallbackConvention(getDcCallingConvention());
+		if (cc == 0)
+			return;
+		
+		dcSignature = String.valueOf(DC_SIGCHAR_CC_PREFIX) + String.valueOf(cc) + dcSignature;
+	}
 	public String getDcSignature() {
 		return dcSignature;
 	}
@@ -466,6 +474,22 @@ public class MethodCallInfo {
 	public void setSymbolName(String symbolName) {
 		this.symbolName = symbolName;
 	}
+	
+	static char getDcCallbackConvention(int dcCallingConvention) {
+		switch (dcCallingConvention) {
+	    	case DC_CALL_C_X86_WIN32_STD      :
+	    		return DC_SIGCHAR_CC_STDCALL;
+	    	case DC_CALL_C_X86_WIN32_FAST_MS  :
+	        	return DC_SIGCHAR_CC_FASTCALL_MS;
+	    	case DC_CALL_C_X86_WIN32_FAST_GNU :
+	    		return DC_SIGCHAR_CC_FASTCALL_GNU;
+	    	case DC_CALL_C_X86_WIN32_THIS_MS  :
+	        	return DC_SIGCHAR_CC_THISCALL_MS;
+	        default:
+	        	return 0;
+	    }
+	}
+	    
 	public void setDcCallingConvention(int dcCallingConvention) {
 		hasCC = true;
 		this.dcCallingConvention = dcCallingConvention;

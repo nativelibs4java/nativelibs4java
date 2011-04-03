@@ -398,7 +398,8 @@ public class CRuntime extends AbstractBridJRuntime {
     }
 
     protected static <T> Pointer<T> createCToJavaCallback(MethodCallInfo mci, Type t) {
-    		final long handle = JNI.createCToJavaCallback(mci);
+    	mci.prependCallbackCC();
+    	final long handle = JNI.createCToJavaCallback(mci);
 		long peer = JNI.getActualCToJavaCallback(handle);
 		return (Pointer)Pointer.pointerToAddress(peer, t, new Pointer.Releaser() {
 
