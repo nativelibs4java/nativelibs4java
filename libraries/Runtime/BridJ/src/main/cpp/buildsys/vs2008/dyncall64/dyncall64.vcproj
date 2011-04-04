@@ -326,18 +326,6 @@
 				>
 			</File>
 			<File
-				RelativePath="$(DYNCALL_HOME)\dyncall\dyncall\dyncall_call_x64_masm.asm"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					ExcludedFromBuild="true"
-					>
-					<Tool
-						Name="MASM64"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="$(DYNCALL_HOME)\dyncall\dyncall\dyncall_call_x64_generic_masm.asm"
 				>
 				<FileConfiguration

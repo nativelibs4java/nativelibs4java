@@ -327,10 +327,6 @@
 				>
 			</File>
 			<File
-				RelativePath="$(DYNCALL_HOME)\dyncall\dyncall\dyncall_call_x86_masm.asm"
-				>
-			</File>
-			<File
 				RelativePath="$(DYNCALL_HOME)\dyncall\dyncall\dyncall_call_x86_generic_masm.asm"
 				>
 			</File>
