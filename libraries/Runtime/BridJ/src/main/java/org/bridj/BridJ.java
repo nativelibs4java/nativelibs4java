@@ -51,17 +51,6 @@ public class BridJ {
     static final Map<Long, NativeObject> strongNativeObjects = new HashMap<Long, NativeObject>(),
             weakNativeObjects = new WeakHashMap<Long, NativeObject>();
 
-    static {
-        java.lang.Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            public void run() {
-                // The JVM being shut down doesn't mean the process is about to exit, so we need to clean our JNI mess
-                //runShutdownHooks();
-                releaseAll();
-            }
-        });
-    }
-    
     public static long sizeOf(Type type) {
         return getRuntime(Utils.getClass(type)).getTypeInfo(type).sizeOf(type);
         /*if (o instanceof NativeObject) {
