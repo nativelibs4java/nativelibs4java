@@ -4,6 +4,7 @@ Current version : BridJ 0.4-SNAPSHOT
 - Fixed demangling of size_t / long C types with GCC
 - Fixed Linux x86 symbols
 - Added simple C++ virtual overrides
+- Fixed crash in C++ destructors at the JVM shutdown (issue #60)
 - TODO fix float callbacks tests !
 
 BridJ 0.3.1 (r1817, 20110329)
