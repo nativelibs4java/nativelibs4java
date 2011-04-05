@@ -274,6 +274,8 @@ public class CPPRuntime extends CRuntime {
     protected boolean installRegularVTablePtr(Type type, NativeLibrary library, Pointer<?> peer) {
         long vtablePtr = getVirtualTable(type, library);
         if (vtablePtr != 0) {
+            if (BridJ.debug)
+                BridJ.log(Level.INFO, "Installing regular vtable pointer " + Pointer.pointerToAddress(vtablePtr) + " to instance at " + peer + " (type = " + Utils.toString(type) + ")");
             peer.setSizeT(vtablePtr);
             return true;
         }
@@ -314,6 +316,8 @@ public class CPPRuntime extends CRuntime {
                 }
             }
             if (vtable != null) {
+                if (BridJ.debug)
+                    BridJ.log(Level.INFO, "Installing synthetic vtable pointer " + vtable.ptr + " to instance at " + peer + " (type = " + Utils.toString(type) + ")");
                 peer.setPointer(vtable.ptr);
                 return vtable.ptr != null;
             } else
@@ -504,7 +508,9 @@ public class CPPRuntime extends CRuntime {
 					return symbol.matchesVirtualTable(typeClass);
 				}});
 				if (symbol != null)
-					log(Level.INFO, "Registering vtable of " + typeClass.getName() + " as " + symbol.getName());
+					log(Level.INFO, "Registering vtable of " + Utils.toString(type) + " as " + symbol.getName());
+                else if (getVirtualMethodsCount(typeClass) > 0)
+                    log(Level.SEVERE, "Failed to find a vtable for type " + Utils.toString(type));
 				vtables.put(type, vtable = symbol == null ? 0 : symbol.getAddress());//*/
 			}
         }
