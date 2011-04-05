@@ -548,7 +548,7 @@ Index: dyncall/dyncall/dyncall_struct.c
 ===================================================================
 --- dyncall/dyncall/dyncall_struct.c	
 +++ dyncall/dyncall/dyncall_struct.c	
-@@ -0,0 +1,221 @@
+@@ -0,0 +1,222 @@
 +/*
 + Package: dyncall
 + File: dyncall/dyncall_struct.c
@@ -591,13 +591,14 @@ Index: dyncall/dyncall/dyncall_struct.c
 +	return s;
 +}
 +void dcStructField(DCstruct* s, DCint type, DCint alignment, DCsize arrayLength) {
++	DCfield *f;
 +	if (type == DC_SIGCHAR_STRING) {
 +		ASSERT(!"Use dcSubStruct instead !!!");
 +		return;
 +	}
 +	ASSERT(s && s->pCurrentStruct);
-+	ASSERT(s->pCurrentStruct->nextField <= s->pCurrentStruct->fieldCount - 1);
-+	DCfield *f = s->pCurrentStruct->pFields + (s->pCurrentStruct->nextField++);
++	ASSERT(s->pCurrentStruct->nextField <= (DCint)s->pCurrentStruct->fieldCount - 1);
++	f = s->pCurrentStruct->pFields + (s->pCurrentStruct->nextField++);
 +	f->type = type;
 +	f->alignment = alignment;
 +	f->arrayLength = arrayLength;
@@ -638,8 +639,8 @@ Index: dyncall/dyncall/dyncall_struct.c
 +	}
 +}
 +void dcComputeStructSize(DCstruct* s) {
-+	ASSERT(s);
 +	DCsize i;
++	ASSERT(s);
 +	for (i = 0; i < s->fieldCount; i++) {
 +		DCfield *f = s->pFields + i;
 +		DCsize fieldAlignment;
@@ -682,8 +683,8 @@ Index: dyncall/dyncall/dyncall_struct.c
 +}
 +
 +void dcFreeStruct(DCstruct* s) {
-+	ASSERT(s);
 +	DCsize i;
++	ASSERT(s);
 +	for (i = 0; i < s->fieldCount; i++) {
 +		DCfield *f = s->pFields + i;
 +		if (f->type == DC_SIGCHAR_STRUCT)
@@ -697,12 +698,12 @@ Index: dyncall/dyncall/dyncall_struct.c
 +	return s->size;
 +}
 +void dcArgStructUnroll(DCCallVM* vm, DCstruct* s, DCpointer  value) {
-+	printf("UNROLLING STRUCT !\n");
-+	ASSERT(s && value);
 +	DCsize i;
++	//printf("UNROLLING STRUCT !\n");
++	ASSERT(s && value);
 +	for (i = 0; i < s->fieldCount; i++) {
 +		DCfield *f = s->pFields + i;
-+		DCpointer p = value + f->offset;
++		DCpointer p = (char*)value + f->offset;
 +		switch(f->type) {
 +		  case DC_SIGCHAR_STRUCT:
 +		  	dcArgStruct(vm, f->pSubStruct, p);
@@ -750,7 +751,7 @@ Index: dyncall/dyncall/dyncall_struct.c
 +	return c >= '0' && c <= '9';
 +}
 +DCint readInt(const char** ptr) {
-+	return strtol(*ptr, ptr, 10);
++	return strtol(*ptr, (char**)ptr, 10);
 +}
 +
 +DCstruct*  dcDefineStruct(const char* signature) {
@@ -881,7 +882,7 @@ Index: dyncall/dyncall/dyncall_api.c
  
 +void dcArgStruct(DCCallVM* vm, DCstruct* s, DCpointer x) 
 +{ 
-+	printf("vm->mVTpointer->argStruct = %p\n", vm->mVTpointer->argStruct);
++//	printf("vm->mVTpointer->argStruct = %p\n", vm->mVTpointer->argStruct);
 +  vm->mVTpointer->argStruct(vm, s, x); 
 +}
 +
@@ -1125,7 +1126,17 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
 ===================================================================
 --- dyncall/dyncall/dyncall_callvm_x86.c	
 +++ dyncall/dyncall/dyncall_callvm_x86.c	
-@@ -210,6 +210,7 @@
+@@ -23,6 +23,9 @@
+ 
+ #include "dyncall_callvm_x86.h"
+ #include "dyncall_alloc.h"
++#pragma warning(disable: 4113)
++#pragma warning(disable: 4133)
++#pragma warning(disable: 4047)
+ 
+ void dc_callvm_mode_x86(DCCallVM* in_self, DCint mode);
+ 
+@@ -210,6 +213,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86
@@ -1133,7 +1144,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_cdecl
  , (DCboolvmfunc*)       &dc_callvm_call_x86_cdecl
  , (DCcharvmfunc*)       &dc_callvm_call_x86_cdecl
-@@ -220,6 +221,7 @@
+@@ -220,6 +224,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_cdecl
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_cdecl
  , (DCpointervmfunc*)    &dc_callvm_call_x86_cdecl
@@ -1141,7 +1152,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  DCCallVM* dcNewCallVM_x86_cdecl(DCsize size) 
-@@ -255,6 +257,7 @@
+@@ -255,6 +260,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86
@@ -1149,7 +1160,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_win32_std
  , (DCboolvmfunc*)       &dc_callvm_call_x86_win32_std
  , (DCcharvmfunc*)       &dc_callvm_call_x86_win32_std
-@@ -265,6 +268,7 @@
+@@ -265,6 +271,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_win32_std
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_win32_std
  , (DCpointervmfunc*)    &dc_callvm_call_x86_win32_std
@@ -1157,7 +1168,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  /* win32/std callvm allocator */
-@@ -364,6 +368,7 @@
+@@ -364,6 +371,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86_win32_fast_ms
@@ -1165,7 +1176,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_win32_fast
  , (DCboolvmfunc*)       &dc_callvm_call_x86_win32_fast
  , (DCcharvmfunc*)       &dc_callvm_call_x86_win32_fast
-@@ -374,6 +379,7 @@
+@@ -374,6 +382,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_win32_fast
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_win32_fast
  , (DCpointervmfunc*)    &dc_callvm_call_x86_win32_fast
@@ -1173,7 +1184,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  DCCallVM* dcNewCallVM_x86_win32_fast_ms(DCsize size) 
-@@ -460,6 +466,7 @@
+@@ -460,6 +469,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86_win32_fast_gnu
@@ -1181,7 +1192,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_win32_fast
  , (DCboolvmfunc*)       &dc_callvm_call_x86_win32_fast
  , (DCcharvmfunc*)       &dc_callvm_call_x86_win32_fast
-@@ -470,6 +477,7 @@
+@@ -470,6 +480,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_win32_fast
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_win32_fast
  , (DCpointervmfunc*)    &dc_callvm_call_x86_win32_fast
@@ -1189,7 +1200,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  DCCallVM* dcNewCallVM_x86_win32_fast_gnu(DCsize size) 
-@@ -503,6 +511,7 @@
+@@ -503,6 +514,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86
@@ -1197,7 +1208,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_win32_this_ms
  , (DCboolvmfunc*)       &dc_callvm_call_x86_win32_this_ms
  , (DCcharvmfunc*)       &dc_callvm_call_x86_win32_this_ms
-@@ -513,6 +522,7 @@
+@@ -513,6 +525,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_win32_this_ms
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_win32_this_ms
  , (DCpointervmfunc*)    &dc_callvm_call_x86_win32_this_ms
