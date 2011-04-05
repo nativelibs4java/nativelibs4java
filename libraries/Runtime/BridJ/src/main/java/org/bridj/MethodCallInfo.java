@@ -69,6 +69,7 @@ public class MethodCallInfo {
         int modifiers = method.getModifiers();
         isStatic = Modifier.isStatic(modifiers);
         isVarArgs = method.isVarArgs();
+        boolean isNative = Modifier.isNative(modifiers);
 
         int nParams = parameterTypes.length;
         paramsValueTypes = new int[nParams];
@@ -84,7 +85,7 @@ public class MethodCallInfo {
             dcSig = new StringBuilder(16);
         javaSig.append('(');
         asmSig.append('(');
-        if (!isCPlusPlus)
+        if (isNative)//!isCPlusPlus)
         	dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
 		if (veryVerbose)

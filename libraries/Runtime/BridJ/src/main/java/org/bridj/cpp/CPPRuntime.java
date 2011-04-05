@@ -415,10 +415,13 @@ public class CPPRuntime extends CRuntime {
                 final CPPDestructor destructor = getDestructor(typeClass, type, lib);
                 if (destructor != null)
                     releaser = new Pointer.Releaser() { @Override public void release(Pointer<?> p) {
+                    	   if (BridJ.debug)
+                    	   	   BridJ.log(Level.INFO, "Destructing instance of C++ type " + Utils.toString(type) + " (address = " + p + ", destructor = " + pointerTo(destructor) + ")");
+    		
 						//System.out.println("Destructing instance of C++ type " + type + "...");
                         long peer = p.getPeer();
-                        BridJ.setJavaObjectFromNativePeer(peer, null);
                         destructor.destroy(peer);
+                        BridJ.setJavaObjectFromNativePeer(peer, null);
                     }};
 			}
             // TODO handle templates here

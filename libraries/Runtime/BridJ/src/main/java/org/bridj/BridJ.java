@@ -175,6 +175,8 @@ public class BridJ {
 		try {
         		TypeInfo<O> typeInfo = getTypeInfo(type);
         		O instance = typeInfo.cast(pointer);
+                if (BridJ.debug)
+                    BridJ.log(Level.INFO, "Created native object from pointer " + pointer);
 			return instance;
 		} catch (Exception ex) {
             throw new RuntimeException("Failed to cast pointer to native object of type " + Utils.getClass(type).getName(), ex);

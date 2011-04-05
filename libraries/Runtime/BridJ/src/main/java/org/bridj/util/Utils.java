@@ -8,6 +8,7 @@ package org.bridj.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.io.*;
 
 /**
  * Miscellaneous utility methods.
@@ -21,6 +22,20 @@ public class Utils {
         return overrideOffset;
     }
 
+    public static String toString(Type t) {
+    		if (t == null)
+    			return "?";
+    		if (t instanceof Class)
+			return ((Class)t).getName();
+		return t.toString();
+	}
+    public static String toString(Throwable th) {
+    		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		th.printStackTrace(pw);
+		return sw.toString();
+	}
+			
     public static boolean eq(Object a, Object b) {
         if ((a == null) != (b == null))
             return false;
