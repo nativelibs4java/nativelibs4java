@@ -32,8 +32,52 @@ void fOneDouble(double a) {
 	printf("i = %f\n", a);
 }
 
+float forwardFloatCall(void* a, void* b, float (*adder)(void*, void*, void*, int, int, float, float), float value) {
+	return adder(NULL, NULL, NULL, 1, 1, -3, value);
+}
+float floatIncr(float value) {
+	return value * 8;
+}
+
+char floatCbHandler(DCCallback* pcb, DCArgs* args, DCValue* result, void* userdata) {
+	dcbArgPointer(args);
+	dcbArgPointer(args);
+	dcbArgPointer(args);
+	dcbArgInt(args);
+	dcbArgInt(args);
+	dcbArgFloat(args);
+	float value = dcbArgFloat(args);
+
+
+	{
+		DCCallVM* vm = dcNewCallVM(1024);
+		dcReset(vm);
+		dcArgFloat(vm, value);
+		float res = dcCallFloat(vm, floatIncr);
+		result->f = res;
+	}
+	return DC_SIGCHAR_FLOAT;
+}
+float forwardCaller(void* cb, float value) {
+	DCCallVM* vm = dcNewCallVM(1024);
+	dcReset(vm);
+
+	dcArgPointer(vm, NULL);
+	dcArgPointer(vm, NULL);
+	dcArgPointer(vm, cb);
+	dcArgFloat(vm, value);
+	float res = dcCallFloat(vm, forwardFloatCall);
+	dcFree(vm);
+	return res;
+}
 int _tmain(int argc, _TCHAR* argv[])
 {
+	DCCallback* cb = dcbNewCallback("pppiif)f", floatCbHandler, NULL);
+	float value = 1;
+	float incr = forwardCaller(cb, value);
+	//float incr = forwardFloatCall((float (*)(void*, void*, void*, int, int, float, float))cb, value);
+	printf("incr = %d\n", incr);
+	/*
 	int (*fSkipped)(void*, void*, int);
 	DCAdapterCallback* cb = dcRawCallAdapterSkipTwoArgs((void (*)())test_incr_int, DC_CALL_C_DEFAULT);
 	fSkipped = (int (*)(void*, void*, int))cb;
@@ -67,7 +111,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	dcMode(vm, DC_CALL_C_X86_WIN32_STD);
 	dcArgPointer(vm, NULL);
 	ret = dcCallInt(vm, fCoInitialize);
-	
+	*/
 	return 0;
 }
 

@@ -1,3 +1,4 @@
+#pragma warning(disable: 4244)
 
 #foreach ($prim in $primitivesNoBool)
 
@@ -13,6 +14,9 @@ TEST_API j${prim.Name} test_callback_${prim.Name}_${prim.Name}(j${prim.Name} (*c
 	return ret;
 }
 
+TEST_API jdouble test_callback_${prim.Name}_${prim.Name}_asDouble(j${prim.Name} (*cb)(j${prim.Name}), j${prim.Name} value) {
+	return (jdouble)test_callback_${prim.Name}_${prim.Name}(cb, value);
+}
 
 #foreach ($n in [9..9])
 

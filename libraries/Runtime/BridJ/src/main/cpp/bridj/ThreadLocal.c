@@ -15,11 +15,15 @@ typedef struct CallTempStructNode {
 	jboolean fUsed;
 } CallTempStructNode;
 
+void InitCallTempStruct(CallTempStruct* s) {
+	s->vm = dcNewCallVM(1024);
+}
 CallTempStructNode* NewNode(CallTempStructNode* pPrevious) {
 	//printf("### Creating new temp node...\n");
 	CallTempStructNode* pNode = MALLOC_STRUCT(CallTempStructNode);
 	memset(pNode, 0, sizeof(CallTempStructNode));
-	pNode->fCallTempStruct.vm = dcNewCallVM(1024);
+	InitCallTempStruct(&pNode->fCallTempStruct);
+	//pNode->fCallTempStruct.vm = dcNewCallVM(1024);
 	if (pPrevious) {
 		pPrevious->fNext = pNode;
 		pNode->fPrevious = pPrevious;
@@ -27,10 +31,15 @@ CallTempStructNode* NewNode(CallTempStructNode* pPrevious) {
 	return pNode;
 }
 
+void FreeCallTempStruct(CallTempStruct* s) {
+	dcFree(s->vm);
+}
+
 
 void FreeNodes(CallTempStructNode* pNode) {
 	while (pNode) {
 		CallTempStructNode* pNext = pNode->fNext;
+		FreeCallTempStruct(&pNode->fCallTempStruct);
 		free(pNode);
 		pNode = pNext;
 	}
@@ -106,7 +115,7 @@ void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
 
 #endif
 
-
+#if 1
 CallTempStruct* getTempCallStruct(JNIEnv* env) {
 	CallTempStructNode* pNode = (CallTempStructNode*)GET_THREAD_LOCAL_DATA();
 	if (!pNode) {
@@ -141,3 +150,19 @@ void freeCurrentThreadLocalData() {
 	FreeNodes(pNode);
 	SET_THREAD_LOCAL_DATA(NULL);
 }
+#else
+
+CallTempStruct* getTempCallStruct(JNIEnv* env) {
+	CallTempStruct* s = MALLOC_STRUCT(CallTempStruct);
+	InitCallTempStruct(s);
+	return s;
+}
+
+void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
+	FreeCallTempStruct(s);
+	free(s);
+}
+
+void freeCurrentThreadLocalData() {
+}
+#endif
