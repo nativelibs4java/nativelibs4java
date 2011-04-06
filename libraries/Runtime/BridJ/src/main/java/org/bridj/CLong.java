@@ -18,6 +18,10 @@ public class CLong extends Number {
     public CLong(long value) {
         this.value = value;
     }
+    
+    public static CLong valueOf(long value) {
+    		return new CLong(value);
+    }
 
     @Override
     public int intValue() {

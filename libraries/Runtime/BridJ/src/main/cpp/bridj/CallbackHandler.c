@@ -60,10 +60,16 @@ char __cdecl doCToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaCal
 	dcArgPointer(call->vm, info->fCallbackInstance);
 	dcArgPointer(call->vm, info->fMethod);
 	
-	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_TRUE)
-	&&
-	followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction, JNI_TRUE, JNI_FALSE);
-
+	if (info->fIsGenericCallback) {
+		followArgsGenericJavaCallback(call, args, info->fInfo.nParams, info->fInfo.fParamTypes)
+		&&
+		followCallGenericJavaCallback(call, info->fInfo.fReturnType, result, (*env)->CallObjectMethod);
+	} else {
+		followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_TRUE)
+		&&
+		followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction, JNI_TRUE, JNI_FALSE);
+	}
+	
 	exc = (*env)->ExceptionOccurred(env);
 	if (exc) {
 		(*env)->ExceptionDescribe(env);

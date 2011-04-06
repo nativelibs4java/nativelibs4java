@@ -4,6 +4,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 {	
 	JNIEnv* env = call->env;
 	int iParam;
+	//printf("ARGS : %d args\n", (int)nTypes);
 	for (iParam = 0; iParam < nTypes; iParam++) {
 		ValueType type = pTypes[iParam];
 		switch (type) {
@@ -74,6 +75,63 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 					return JNI_FALSE;
 				}
 				break;
+			case eEllipsis: {
+				if (toJava) {
+					throwException(env, "Calling Java ellipsis is not supported yet !");
+					return JNI_FALSE;
+				} else {
+					//if (1)
+					//	return JNI_FALSE;
+					//printf("BEFORE GET ELLIPSIS\n");
+					jobjectArray arr = (jobjectArray)dcbArgPointer(args);
+					//printf("AFTER GET ELLIPSIS = %p\n", arr);
+					jsize n = (*env)->GetArrayLength(env, arr), i;
+					//printf("ELLIPSIS :  %d args\n", (int)n);
+					
+					for (i = 0; i < n; i++) {
+						//printf("BEFORE GET ELEMENT\n");
+						jobject arg = (*env)->GetObjectArrayElement(env, arr, i);
+						//printf("AFTER GET ELEMENT %p\n", arg);
+						#define TEST_INSTANCEOF(cl, st) \
+							if ((*env)->IsInstanceOf(env, arg, cl)) st;
+					
+						/*if ((*env)->IsInstanceOf(env, arg, gIntClass)) {
+							printf("BEFORE CallIntMethod\n");
+							int i = (*env)->CallIntMethod(env, arg,
+								(*env)->GetMethodID(env, gIntClass, "intValue", "()I"));
+								//gIntValueMethod);
+							//int i = UnboxInt(env, arg);
+							printf("GOT INT ARG : %d\n", (int)i);
+						}*/
+						TEST_INSTANCEOF(gIntClass, dcArgInt(call->vm, UnboxInt(env, arg)))
+						else
+						TEST_INSTANCEOF(gLongClass, dcArgLongLong(call->vm, UnboxLong(env, arg)))
+						else
+						TEST_INSTANCEOF(gShortClass, dcArgShort(call->vm, UnboxShort(env, arg)))
+						else
+						TEST_INSTANCEOF(gByteClass, dcArgChar(call->vm, UnboxByte(env, arg)))
+						else
+						TEST_INSTANCEOF(gBooleanClass, dcArgChar(call->vm, (char)UnboxBoolean(env, arg)))
+						else
+						TEST_INSTANCEOF(gCharClass, dcArgShort(call->vm, (short)UnboxChar(env, arg)))
+						else
+						TEST_INSTANCEOF(gDoubleClass, dcArgDouble(call->vm, UnboxDouble(env, arg)))
+						else
+						TEST_INSTANCEOF(gFloatClass, dcArgFloat(call->vm, UnboxFloat(env, arg)))
+						else
+						TEST_INSTANCEOF(gCLongClass, dcArgLong(call->vm, (long)UnboxCLong(env, arg)))
+						else
+						TEST_INSTANCEOF(gSizeTClass, sizeof(size_t) == 4 ? dcArgInt(call->vm, (int)UnboxSizeT(env, arg)) : dcArgLongLong(call->vm, UnboxSizeT(env, arg)))
+						else
+						TEST_INSTANCEOF(gPointerClass, dcArgPointer(call->vm, getPointerPeer(env, (void*)arg)))
+						else {
+							throwException(env, "Invalid value type in ellipsis");
+							return JNI_FALSE;
+						}
+					}
+				}
+				break;
+			}
 			default:
 				throwException(env, "Invalid argument value type !");
 				return JNI_FALSE;

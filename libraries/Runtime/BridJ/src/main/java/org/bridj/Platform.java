@@ -9,6 +9,9 @@ import java.nio.Buffer;
 import static org.bridj.Dyncall.*;
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Collections;
+import java.util.Collection;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.bridj.JNI.*;
@@ -74,9 +77,9 @@ public class Platform {
 	private static volatile String arch;
 	private static synchronized String getArch() {
 		if (arch == null) {
-			arch = System.getProperty("sun.arch.data.model");
+			arch = System.getProperty("os.arch");
 			if (arch == null)
-				arch = System.getProperty("os.arch");
+				arch = System.getProperty("sun.arch.data.model");
 		}
 		return arch;
 	}
@@ -92,52 +95,65 @@ public class Platform {
     		arch.contains("64") ||
     		arch.equalsIgnoreCase("sparcv9");
     }
+    public static boolean isAmd64Arch() {
+    		String arch = getArch();
+        return arch.equals("x86_64");
+    }
 
-    static String getEmbeddedLibraryResource(String name) {
+    static Collection<String> getEmbeddedLibraryResource(String name) {
     	if (isWindows())
-    		return (is64Bits() ? "win64/" : "win32/") + name + ".dll";
-    	if (isMacOSX())
-    		return "darwin_universal/lib" + name + ".dylib";
+    		return Collections.singletonList((is64Bits() ? "win64/" : "win32/") + name + ".dll");
+    	if (isMacOSX()) {
+    		String generic = "darwin_universal/lib" + name + ".dylib";
+    		if (isAmd64Arch())
+    			return Arrays.asList("darwin_x64/lib" + name + ".dylib", generic);
+    		else
+    			return Collections.singletonList(generic);
+    }
     	if (isLinux())
-    		return (is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so";
+    		return Collections.singletonList((is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so");
     	if (isSolaris()) {
     		if (isSparc()) {	
-    			return (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/") + name + ".so";
+    			return Collections.singletonList((is64Bits() ? "sunos_sparc64/" : "sunos_sparc/") + name + ".so");
     		} else {
-    			return (is64Bits() ? "sunos_x64/" : "sunos_x86/") + name + ".so";
+    			return Collections.singletonList((is64Bits() ? "sunos_x64/" : "sunos_x86/") + name + ".so");
     		}	
 		}
     	throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
     }
     static File extractEmbeddedLibraryResource(String name) throws IOException {
-    	String libraryResource = getEmbeddedLibraryResource(name);
-        int i = libraryResource.lastIndexOf('.');
-        String ext = i < 0 ? "" : libraryResource.substring(i);
-        int len;
-        byte[] b = new byte[8196];
-        InputStream in = JNI.class.getClassLoader().getResourceAsStream(libraryResource);
-        if (in == null) {
-        	File f = new File(libraryResource);
-        	if (!f.exists())
-        		f = new File(f.getName());
-        	if (f.exists())
-        		return f.getCanonicalFile();
-        //f = BridJ.getNativeLibraryFile(name);
-        //    if (f.exists())
-        //        return f.getCanonicalFile();
-        	throw new FileNotFoundException(libraryResource);
-        }
-        File libFile = File.createTempFile(new File(libraryResource).getName(), ext);
-        libFile.deleteOnExit();
-        OutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
-        while ((len = in.read(b)) > 0)
-        	out.write(b, 0, len);
-        out.close();
-        in.close();
-
-        return libFile;
+    		String firstLibraryResource = null;
+		for (String libraryResource : getEmbeddedLibraryResource(name)) {
+			if (firstLibraryResource == null)
+				firstLibraryResource = libraryResource;
+			int i = libraryResource.lastIndexOf('.');
+			String ext = i < 0 ? "" : libraryResource.substring(i);
+			int len;
+			byte[] b = new byte[8196];
+			InputStream in = JNI.class.getClassLoader().getResourceAsStream(libraryResource);
+			if (in == null) {
+				File f = new File(libraryResource);
+				if (!f.exists())
+				f = new File(f.getName());
+				if (f.exists())
+				return f.getCanonicalFile();
+				//f = BridJ.getNativeLibraryFile(name);
+				//    if (f.exists())
+				//        return f.getCanonicalFile();
+				continue;
+			}
+			File libFile = File.createTempFile(new File(libraryResource).getName(), ext);
+			libFile.deleteOnExit();
+			OutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
+			while ((len = in.read(b)) > 0)
+			out.write(b, 0, len);
+			out.close();
+			in.close();
+			
+			return libFile;
+		}
+		throw new FileNotFoundException(firstLibraryResource);
     }
-    
     
     /**
      * Opens an URL with the default system action.

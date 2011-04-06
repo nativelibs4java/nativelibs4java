@@ -8,3 +8,6 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 
 jobject initCallHandler(DCArgs* args, CallTempStruct** callOut, JNIEnv* env);
 void cleanupCallHandler(CallTempStruct* call);
+
+jboolean followArgsGenericJavaCallback(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes) ;
+jboolean followCallGenericJavaCallback(CallTempStruct* call, ValueType returnType, DCValue* result, void* callback); 

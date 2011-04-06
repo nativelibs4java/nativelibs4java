@@ -38,6 +38,7 @@ public class MethodCallInfo {
 	String javaSignature;
 	String asmSignature;
 	Callback javaCallback;
+	boolean isGenericCallback;
 	int virtualIndex = -1;
 	int virtualTableOffset = 0;
     private int dcCallingConvention = DC_CALL_C_DEFAULT;
@@ -383,6 +384,10 @@ public class MethodCallInfo {
                     direct = false;
                     break;
                 }
+			case eEllipsis:
+				javaChar = "[Ljava/lang/Object;";
+				dcChar = '?';
+				break;
             default:
                 direct = false;
                 throw new RuntimeException("Unhandled " + ValueType.class.getSimpleName() + ": " + type);
