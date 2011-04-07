@@ -52,7 +52,18 @@ public class BridJ {
             weakNativeObjects = new WeakHashMap<Long, NativeObject>();
 
     public static long sizeOf(Type type) {
-        return getRuntime(Utils.getClass(type)).getTypeInfo(type).sizeOf(type);
+        Class c = Utils.getClass(type);
+        if (c.isPrimitive())
+            return StructIO.primTypeLength(c);
+        else if (c == Integer.class || c == Float.class)
+            return 4;
+        else if (c == Character.class || c == Short.class)
+            return 2;
+        else if (c == Long.class || c == Double.class)
+            return 8;
+        else if (c == Boolean.class || c == Byte.class)
+            return 1;
+        return getRuntime(c).getTypeInfo(type).sizeOf(type);
         /*if (o instanceof NativeObject) {
             NativeObject no = (NativeObject)o;
             return no.typeInfo.sizeOf(no);

@@ -19,18 +19,16 @@ public class GUID extends StructObject {
 	public GUID(Pointer pointer) {
 		super(pointer);
 	}
-	@CLong 
 	@Field(0) 
-	public long Data1() {
-		return this.io.getCLongField(this, 0);
+	public int Data1() {
+		return this.io.getIntField(this, 0);
 	}
-	@CLong 
 	@Field(0) 
-	public GUID Data1(long Data1) {
-		this.io.setCLongField(this, 0, Data1);
+	public GUID Data1(int Data1) {
+		this.io.setIntField(this, 0, Data1);
 		return this;
 	}
-	public final long Data1_$eq(long Data1) {
+	public final int Data1_$eq(int Data1) {
 		Data1(Data1);
 		return Data1;
 	}

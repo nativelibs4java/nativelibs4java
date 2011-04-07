@@ -299,7 +299,7 @@ public class StructIO {
 		return list;
 	}
 	
-	protected int primTypeLength(Class<?> primType) {
+	protected static int primTypeLength(Class<?> primType) {
         if (primType == Integer.class || primType == int.class)
             return 4;
         else if(primType == Long.class || primType == long.class)
@@ -387,11 +387,16 @@ public class StructIO {
 					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
 				} else if (TypedPointer.class.isAssignableFrom(field.valueClass)) {
 					field.desc.nativeTypeOrPointerTargetType = field.valueType;
-					field.desc.byteLength = Pointer.SIZE;
+                    if (field.desc.isArray)
+                        throw new RuntimeException("Typed pointer field cannot be an array : " + field.name);
+                    field.desc.byteLength = Pointer.SIZE;
 					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
 				} else if (Pointer.class.isAssignableFrom(field.valueClass)) {
 					field.desc.nativeTypeOrPointerTargetType = (field.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.valueType).getActualTypeArguments()[0] : null;
-					field.desc.byteLength = Pointer.SIZE;
+                    if (field.desc.isArray)
+                        field.desc.byteLength = BridJ.sizeOf(field.desc.nativeTypeOrPointerTargetType);
+                    else
+                        field.desc.byteLength = Pointer.SIZE;
 					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
 				} else if (Buffer.class.isAssignableFrom(field.valueClass)) {
 					if (field.valueClass == IntBuffer.class)
