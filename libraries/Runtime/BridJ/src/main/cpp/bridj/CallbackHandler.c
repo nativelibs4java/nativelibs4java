@@ -25,7 +25,7 @@ char __cdecl doCPPToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaC
 	dcArgPointer(call->vm, javaObject);
 	dcArgPointer(call->vm, info->fMethod);
 	
-	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_TRUE)
+	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_TRUE, JNI_TRUE)
 	&&
 	followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction, JNI_TRUE, JNI_FALSE);
 
@@ -71,7 +71,7 @@ char __cdecl doCToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaCal
 		&&
 		followCallGenericJavaCallback(call, info->fInfo.fReturnType, result, (void*)(*env)->CallObjectMethod);
 	} else {
-		followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_TRUE)
+		followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_TRUE, JNI_TRUE)
 		&&
 		followCall(call, info->fInfo.fReturnType, result, info->fJNICallFunction, JNI_TRUE, JNI_FALSE);
 	}
@@ -98,7 +98,7 @@ char __cdecl doJavaToCCallHandler(DCArgs* args, DCValue* result, JavaToNativeCal
 	callback = getNativeObjectPointer(call->env, instance, NULL);
 	
 	// printf("doJavaToCCallHandler(callback = %d) !!!\n", callback);
-	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE)
+	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE, JNI_FALSE)
 	&&
 	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE, JNI_FALSE);
 

@@ -1,6 +1,6 @@
 #include "HandlersCommon.h"
 
-jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes, jboolean toJava) 
+jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes, jboolean toJava, jboolean isVarArgs) 
 {	
 	JNIEnv* env = call->env;
 	int iParam;
@@ -9,20 +9,42 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 		ValueType type = pTypes[iParam];
 		switch (type) {
 			case eIntFlagSet:
-				dcArgInt(call->vm, (jint)getFlagValue(env, (jobject)dcbArgPointer(args)));
+				{
+					int arg = (jint)getFlagValue(env, (jobject)dcbArgPointer(args));
+					if (isVarArgs)
+						dcArgPointer(call->vm, (void*)(size_t)arg);
+					else
+						dcArgInt(call->vm, arg);
+				}
 				break;
 			case eIntValue:
-				dcArgInt(call->vm, dcbArgInt(args));
+				{
+					int arg = dcbArgInt(args);
+					if (isVarArgs)
+						dcArgPointer(call->vm, (void*)(size_t)arg);
+					else
+						dcArgInt(call->vm, arg);
+				}
 				break;
 			case eCLongValue:
 				if (sizeof(long) == 4) {
 					if (toJava)
 						dcArgLongLong(call->vm, dcbArgLong(args));
-					else
-						dcArgLong(call->vm, (int)dcbArgLongLong(args));
+					else {
+						jlong arg = dcbArgLongLong(args);
+						if (isVarArgs)
+							dcArgPointer(call->vm, (void*)(size_t)arg);
+						else
+							dcArgLong(call->vm, (int)arg);
+					}
 				}
-				else
-					dcArgLong(call->vm, (long)dcbArgLongLong(args));
+				else {
+					jlong arg = dcbArgLongLong(args);
+					if (isVarArgs)
+						dcArgPointer(call->vm, (void*)(size_t)arg);
+					else
+						dcArgLong(call->vm, (long)arg);
+				}
 				break;
 			case eSizeTValue:
 				if (sizeof(size_t) == 4) {
@@ -38,14 +60,32 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				dcArgLongLong(call->vm, dcbArgLongLong(args));
 				break;
 			case eShortValue:
-				dcArgShort(call->vm, dcbArgShort(args));
+				{
+					short arg = dcbArgShort(args);
+					if (isVarArgs)
+						dcArgPointer(call->vm, (void*)(size_t)arg);
+					else
+						dcArgShort(call->vm, arg);
+				}
 				break;
 			case eBooleanValue:
-			case eByteValue:
-				dcArgChar(call->vm, dcbArgChar(args));
+			case eByteValue: 
+				{
+					char arg = dcbArgChar(args);
+					if (isVarArgs)
+						dcArgPointer(call->vm, (void*)(size_t)arg);
+					else
+						dcArgChar(call->vm, arg);
+				}
 				break;
-			case eFloatValue:
-				dcArgFloat(call->vm, dcbArgFloat(args));
+			case eFloatValue: 
+				{
+					float arg = dcbArgFloat(args);
+					if (isVarArgs)
+						dcArgDouble(call->vm, arg);
+					else
+						dcArgFloat(call->vm, arg);
+				}
 				break;
 			case eDoubleValue:
 				dcArgDouble(call->vm, dcbArgDouble(args));
@@ -80,48 +120,34 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 					throwException(env, "Calling Java ellipsis is not supported yet !");
 					return JNI_FALSE;
 				} else {
-					//if (1)
-					//	return JNI_FALSE;
-					//printf("BEFORE GET ELLIPSIS\n");
 					jobjectArray arr = (jobjectArray)dcbArgPointer(args);
-					//printf("AFTER GET ELLIPSIS = %p\n", arr);
 					jsize n = (*env)->GetArrayLength(env, arr), i;
-					//printf("ELLIPSIS :  %d args\n", (int)n);
 					
 					for (i = 0; i < n; i++) {
-						//printf("BEFORE GET ELEMENT\n");
 						jobject arg = (*env)->GetObjectArrayElement(env, arr, i);
-						//printf("AFTER GET ELEMENT %p\n", arg);
 						#define TEST_INSTANCEOF(cl, st) \
 							if ((*env)->IsInstanceOf(env, arg, cl)) st;
 					
-						/*if ((*env)->IsInstanceOf(env, arg, gIntClass)) {
-							printf("BEFORE CallIntMethod\n");
-							int i = (*env)->CallIntMethod(env, arg,
-								(*env)->GetMethodID(env, gIntClass, "intValue", "()I"));
-								//gIntValueMethod);
-							//int i = UnboxInt(env, arg);
-							printf("GOT INT ARG : %d\n", (int)i);
-						}*/
-						TEST_INSTANCEOF(gIntClass, dcArgInt(call->vm, UnboxInt(env, arg)))
+						// As per the C standard for varargs, all ints are promoted to ptrdiff_t and float is promoted to double : 
+						TEST_INSTANCEOF(gIntClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxInt(env, arg)))
 						else
-						TEST_INSTANCEOF(gLongClass, dcArgLongLong(call->vm, UnboxLong(env, arg)))
+						TEST_INSTANCEOF(gLongClass, dcArgPointer(call->vm, UnboxLong(env, arg)))
 						else
-						TEST_INSTANCEOF(gShortClass, dcArgShort(call->vm, UnboxShort(env, arg)))
+						TEST_INSTANCEOF(gShortClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxShort(env, arg)))
 						else
-						TEST_INSTANCEOF(gByteClass, dcArgChar(call->vm, UnboxByte(env, arg)))
+						TEST_INSTANCEOF(gByteClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxByte(env, arg)))
 						else
-						TEST_INSTANCEOF(gBooleanClass, dcArgChar(call->vm, (char)UnboxBoolean(env, arg)))
+						TEST_INSTANCEOF(gBooleanClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)(char)UnboxBoolean(env, arg)))
 						else
-						TEST_INSTANCEOF(gCharClass, dcArgShort(call->vm, (short)UnboxChar(env, arg)))
+						TEST_INSTANCEOF(gCharClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)(short)UnboxChar(env, arg)))
 						else
 						TEST_INSTANCEOF(gDoubleClass, dcArgDouble(call->vm, UnboxDouble(env, arg)))
 						else
-						TEST_INSTANCEOF(gFloatClass, dcArgFloat(call->vm, UnboxFloat(env, arg)))
+						TEST_INSTANCEOF(gFloatClass, dcArgDouble(call->vm, UnboxFloat(env, arg)))
 						else
-						TEST_INSTANCEOF(gCLongClass, dcArgLong(call->vm, (long)UnboxCLong(env, arg)))
+						TEST_INSTANCEOF(gCLongClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)(long)UnboxCLong(env, arg)))
 						else
-						TEST_INSTANCEOF(gSizeTClass, sizeof(size_t) == 4 ? dcArgInt(call->vm, (int)UnboxSizeT(env, arg)) : dcArgLongLong(call->vm, UnboxSizeT(env, arg)))
+						TEST_INSTANCEOF(gSizeTClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxSizeT(env, arg)))
 						else
 						TEST_INSTANCEOF(gPointerClass, dcArgPointer(call->vm, getPointerPeer(env, (void*)arg)))
 						else {

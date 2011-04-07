@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <string>
+#include <stdarg.h>
 
 using namespace std;
 
@@ -20,7 +21,17 @@ TEST_API double __cdecl sinInt(int d)
 {
 	return d;//sin((double)d);
 }
-
+extern "C" {
+TEST_API void passVarArgs(char* out, bool isInt, ...) {
+	va_list args;
+	va_start(args, isInt);
+	if (isInt)
+		*(long long*)out = va_arg(args, long long);
+	else
+		*(double*)out = va_arg(args, double);
+	va_end(args);
+}
+}
 TEST_API double __cdecl testSum(const double *values, size_t n)
 {
 	double total = 0;

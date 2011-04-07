@@ -26,15 +26,6 @@ public class LibCTest {
 	public static native int getpid();
 	
 	@Test
-	public void testSPrintf() {
-		Pointer<Byte> dest = allocateBytes(100);
-		String fmtString = "Hello %d !";
-		int value = 10;
-		sprintf(dest, pointerToCString(fmtString), value);
-		assertEquals(String.format(fmtString, value), dest.getCString());
-	}
-	
-	@Test
 	public void testFabs() {
 		assertEquals(10.0, fabs(-10.0), 0.000001);
 	}
