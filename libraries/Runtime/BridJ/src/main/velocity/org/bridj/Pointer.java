@@ -2606,6 +2606,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
+	 * Write zero bytes to all of the valid bytes pointed by this pointer
+	 */
+	public void clearValidBytes() {
+		long bytes = getValidBytes();
+    		if (bytes < 0)
+    			throw new UnsupportedOperationException("Number of valid bytes is unknown. Please use clearBytes(long) or validBytes(long).");
+		clearBytes(bytes);	
+	}
+	
+	/**
 	 * Write zero bytes to the first length bytes pointed by this pointer
 	 */
 	public void clearBytes(long length) {
