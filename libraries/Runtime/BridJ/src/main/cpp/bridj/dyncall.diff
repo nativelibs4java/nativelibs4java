@@ -1262,21 +1262,6 @@ Index: dyncall/dyncall/dyncall.h
  #ifdef __cplusplus
  }
  #endif
-Index: dyncall/dyncall/dyncall_call_x64_masm.asm
-===================================================================
---- dyncall/dyncall/dyncall_call_x64_masm.asm	
-+++ dyncall/dyncall/dyncall_call_x64_masm.asm	
-@@ -49,8 +49,8 @@
- 
- 	sub			rsp, rcx					; Setup stack frame by subtracting the size of the arguments.
- 
--	mov			rax, rcx					; Align stack.
--	add			rax, 8
-+	mov         rax, rsp                    ; Align stack.
-+
- 	and			rax, 15
- 	sub			rsp, rax
- 
 Index: dyncall/dynload/dynload_darwin.c
 ===================================================================
 --- dyncall/dynload/dynload_darwin.c	
@@ -1383,13 +1368,11 @@ Index: dyncall/dynload/dynload_windows.c
 ===================================================================
 --- dyncall/dynload/dynload_windows.c	
 +++ dyncall/dynload/dynload_windows.c	
-@@ -33,7 +33,8 @@
- DLLib* dlLoadLibrary(const char* libPath)
+@@ -34,6 +34,7 @@
  {
    if (libPath != NULL) {
--    return (DLLib*) LoadLibraryA(libPath);
-+    //return (DLLib*) LoadLibraryA(libPath);
-+    return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+     return (DLLib*) LoadLibraryA(libPath);
++    //return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
    } else {
      return (DLLib*) GetModuleHandle(NULL);
    }

@@ -33,7 +33,7 @@ public class LibCTest {
 		sprintf(dest, pointerToCString(fmtString), value);
 		assertEquals(String.format(fmtString, value), dest.getCString());
 	}
-	/*
+	
 	@Test
 	public void testFabs() {
 		assertEquals(10.0, fabs(-10.0), 0.000001);
@@ -48,7 +48,7 @@ public class LibCTest {
 	@Test
 	public void testAbs() {
 		assertEquals(10, abs(-10));
-	}*/
+	}
 }
 	
 
