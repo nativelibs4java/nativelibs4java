@@ -56,6 +56,12 @@ char __cdecl doCToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaCal
 		cleanupCallHandler(call);
 		return info->fInfo.fDCReturnType;
 	}
+
+	if (0) {
+		float value = dcbArgFloat(args);
+		float ret = (*call->env)->CallFloatMethod(call->env, info->fCallbackInstance, info->fMethod, value);
+		result->f = ret;
+	} else {
 	dcArgPointer(call->vm, (DCpointer)call->env);
 	dcArgPointer(call->vm, info->fCallbackInstance);
 	dcArgPointer(call->vm, info->fMethod);
@@ -63,7 +69,7 @@ char __cdecl doCToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaCal
 	if (info->fIsGenericCallback) {
 		followArgsGenericJavaCallback(call, args, info->fInfo.nParams, info->fInfo.fParamTypes)
 		&&
-		followCallGenericJavaCallback(call, info->fInfo.fReturnType, result, (*env)->CallObjectMethod);
+		followCallGenericJavaCallback(call, info->fInfo.fReturnType, result, (void*)(*env)->CallObjectMethod);
 	} else {
 		followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_TRUE)
 		&&
@@ -76,7 +82,7 @@ char __cdecl doCToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaCal
         (*env)->ExceptionClear(env);
 		// TODO rethrow in native world ?
 	}
-	
+	}
 	cleanupCallHandler(call);
 	return info->fInfo.fDCReturnType;
 }

@@ -22,7 +22,7 @@ jboolean followArgsGenericJavaCallback(CallTempStruct* call, DCArgs* args, int n
 				arg = BoxInt(env, dcbArgInt(args));
 				break;
 			case eCLongValue: {
-				long v;
+				jlong v;
 				if (sizeof(long) == 4)
 					v = dcbArgLong(args);
 				else
@@ -31,7 +31,7 @@ jboolean followArgsGenericJavaCallback(CallTempStruct* call, DCArgs* args, int n
 				break;
 			}
 			case eSizeTValue: {
-				long v;
+				jlong v;
 				if (sizeof(size_t) == 4)
 					v = dcbArgInt(args);
 				else
