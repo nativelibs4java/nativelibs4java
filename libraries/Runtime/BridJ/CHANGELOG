@@ -3,9 +3,10 @@ Current version : BridJ 0.4-SNAPSHOT
 - Added parsing of GNU LD scripts (issue #61)
 - Fixed demangling of size_t / long C types with GCC
 - Fixed Linux x86 symbols
-- Added simple C++ virtual overrides
+- Added simple C++ virtual overrides : it is now possible to subclass C++ classes from Java, even with anonymous inner classes ! (no support for multiple inheritance yet)
 - Fixed crash in C++ destructors at the JVM shutdown (issue #60)
-- TODO fix float callbacks tests !
+- Fixed callbacks with float args
+- Added support for varargs functions
 
 BridJ 0.3.1 (r1817, 20110329)
 
