@@ -444,7 +444,11 @@ public abstract class Demangler {
 			}
 			return c;
 		}
-		throw new UnsupportedOperationException("Unknown type type : " + type.getClass().getName());
+        if (type instanceof GenericArrayType) {
+            if (Object.class.isAssignableFrom(getTypeClass(((GenericArrayType)type).getGenericComponentType())))
+                return Object[].class;
+        }
+        throw new UnsupportedOperationException("Unknown type type : " + type.getClass().getName());
 	}
 	public static class JavaTypeRef extends TypeRef {
 

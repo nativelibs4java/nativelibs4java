@@ -9,6 +9,7 @@
 00000000000014d0 T __Z10testSumIntPKdi
 0000000000000a80 T __Z10test_pvoidv
 0000000000000bb0 T __Z11forwardCallPFiiiEii
+0000000000001180 T __Z11passVarArgsPcbz
 0000000000000920 T __Z11sizeOfCtestv
 00000000000009e0 T __Z11testIntEnumi5ETest
 0000000000000df0 T __Z11wstringCStrPSbIwSt11char_traitsIwESaIwEE
@@ -211,7 +212,6 @@
 0000000000000000 t __mh_dylib_header
 0000000000004300 D _ntest
 0000000000000870 T _otherFunc
-0000000000001180 T _passVarArgs
                  U _sin
                  U _strlen
 00000000000012d0 T _testASinB
