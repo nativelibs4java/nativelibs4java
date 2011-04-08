@@ -12,7 +12,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				{
 					int arg = (jint)getFlagValue(env, (jobject)dcbArgPointer(args));
 					if (isVarArgs)
-						dcArgPointer(call->vm, (void*)(size_t)arg);
+						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
 					else
 						dcArgInt(call->vm, arg);
 				}
@@ -21,7 +21,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				{
 					int arg = dcbArgInt(args);
 					if (isVarArgs)
-						dcArgPointer(call->vm, (void*)(size_t)arg);
+						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
 					else
 						dcArgInt(call->vm, arg);
 				}
@@ -33,7 +33,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 					else {
 						jlong arg = dcbArgLongLong(args);
 						if (isVarArgs)
-							dcArgPointer(call->vm, (void*)(size_t)arg);
+							dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
 						else
 							dcArgLong(call->vm, (int)arg);
 					}
@@ -41,7 +41,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				else {
 					jlong arg = dcbArgLongLong(args);
 					if (isVarArgs)
-						dcArgPointer(call->vm, (void*)(size_t)arg);
+						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
 					else
 						dcArgLong(call->vm, (long)arg);
 				}
@@ -63,7 +63,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				{
 					short arg = dcbArgShort(args);
 					if (isVarArgs)
-						dcArgPointer(call->vm, (void*)(size_t)arg);
+						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
 					else
 						dcArgShort(call->vm, arg);
 				}
@@ -73,7 +73,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				{
 					char arg = dcbArgChar(args);
 					if (isVarArgs)
-						dcArgPointer(call->vm, (void*)(size_t)arg);
+						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
 					else
 						dcArgChar(call->vm, arg);
 				}
@@ -131,7 +131,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 						// As per the C standard for varargs, all ints are promoted to ptrdiff_t and float is promoted to double : 
 						TEST_INSTANCEOF(gIntClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxInt(env, arg)))
 						else
-						TEST_INSTANCEOF(gLongClass, dcArgPointer(call->vm, UnboxLong(env, arg)))
+						TEST_INSTANCEOF(gLongClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxLong(env, arg)))
 						else
 						TEST_INSTANCEOF(gShortClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxShort(env, arg)))
 						else

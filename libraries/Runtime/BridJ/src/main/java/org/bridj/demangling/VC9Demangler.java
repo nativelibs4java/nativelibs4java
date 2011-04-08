@@ -114,7 +114,7 @@ public class VC9Demangler extends Demangler {
 
     private void parseFunctionProperty(MemberRef mr) throws DemanglingException {
         mr.callingConvention = parseCallingConvention();
-        TypeRef returnType = consumeCharIf('@') ? classType(Void.TYPE) : parseType(true);
+        TypeRef returnType = consumeCharIf('@') ? classType(void.class) : parseType(true);
         allQualifiedNames.clear();
         //withEmptyQualifiedNames(new DemanglingRunnable() { public void run() throws DemanglingException {
         List<TypeRef> paramTypes = parseParams();
@@ -267,28 +267,26 @@ public class VC9Demangler extends Demangler {
 			TypeRef tr;
 			switch (consumeChar()) {
             case 'D': // __int8
-                tr = classType(Byte.TYPE);
-				break;
             case 'E': // unsigned __int8
-                tr = classType(Byte.TYPE);
+                tr = classType(byte.class);
 				break;
             case 'F': // __int16
             case 'G': // unsigned __int16
-                tr = classType(Short.TYPE);
+                tr = classType(short.class);
 				break;
             case 'H': // __int32
             case 'I': // unsigned __int32
-                tr = classType(Integer.TYPE);
+                tr = classType(int.class);
 				break;
             case 'J': // __int64
             case 'K': // unsigned __int64
-                tr = classType(Long.TYPE);
+                tr = classType(long.class);
 				break;
             case 'L': // __int128
                 tr = classType(BigInteger.class);
 				break;
 			case 'N': // bool
-                tr = classType(Boolean.class);
+                tr = classType(boolean.class);
 				break;
 			case '0': // array ??
                 parseCVClassModifier();
@@ -296,41 +294,41 @@ public class VC9Demangler extends Demangler {
                 tr = classType(Object[].class);
 				break;
 			case 'W':
-				tr = classType(Character.TYPE);//, Wide.class);
+				tr = classType(char.class);//, Wide.class);
 				break;
 			default:
 				throw error(-1);
 			}
 			allQualifiedNames.add(tr);
 			return tr;
-        //case 'Z':
-        //    return classType(Object[].class); // TODO ellipsis
+        case 'Z':
+            return classType(Object[].class);
         case 'O':
             throw error("'long double' type cannot be mapped !", -1);
 		case 'C': // signed char
 		case 'D': // char
 		case 'E': // unsigned char
-			return classType(Byte.TYPE);
+			return classType(byte.class);
 		case 'F': // short
 		case 'G': // unsigned short
-			return classType(Short.TYPE);
+			return classType(short.class);
 		case 'H': // int
 		case 'I': // unsigned int
-			return classType(Integer.TYPE);
+			return classType(int.class);
 		case 'J': // long
 		case 'K': // unsigned long
 			return classType(CLong.class);
         case 'M': // float
-            return classType(Float.TYPE);
+            return classType(float.class);
 		case 'N': // double
-			return classType(Double.TYPE);
+			return classType(double.class);
         case 'Y':
             throw error("TODO handle cointerfaces", -1);
 		case 'X':
             // TODO handle coclass case
             if (!allowVoid)
                 return null;
-			return classType(Void.TYPE);
+			return classType(void.class);
         case '?':
             parseCVClassModifier(); // TODO do something with this !
             return parseType(allowVoid);
@@ -369,19 +367,19 @@ public class VC9Demangler extends Demangler {
             switch (consumeChar()) {
                 case '0':
                 case '1':
-                    cl = Byte.class;
+                    cl = byte.class;
                     break;
                 case '2':
                 case '3':
-                    cl = Short.class;
+                    cl = short.class;
                     break;
                 case '4':
                 case '5':
-                    cl = Integer.class;
+                    cl = int.class;
                     break;
                 case '6':
                 case '7': // CLong : int on win32 and win64 !
-                    cl = Integer.class;
+                    cl = int.class;
                     break;
                 default:
                     throw error("Unfinished enum", -1);
@@ -563,7 +561,7 @@ public class VC9Demangler extends Demangler {
         List<TypeRef> paramTypes = new ArrayList<TypeRef>();
         if (!consumeCharIf('X')) {
             char c;
-            while ((c = peekChar()) != '@' && c != 0 && c != 'Z') {
+			while ((c = peekChar()) != '@' && c != 0 && (c != 'Z' || peekChar(2) == 'Z')) {
                 TypeRef tr = parseType(false);
                 if (tr == null)
                     continue;

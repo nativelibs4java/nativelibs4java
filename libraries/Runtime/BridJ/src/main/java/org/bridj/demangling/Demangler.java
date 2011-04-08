@@ -26,7 +26,7 @@ import org.bridj.util.DefaultParameterizedType;
 import org.bridj.util.Utils;
 
 /*
-mvn exec:java -Dexec.mainClass=org.bridj.Demangler "-Dexec.args=?method_name@class_name@@QAEPAPADPAD0@Z"
+mvn compile exec:java -Dexec.mainClass=org.bridj.demangling.Demangler -e "-Dexec.args=?method_name@class_name@@QAEPAPADPAD0@Z"
 
 ??4Class1@TestLib@@QAEAAV01@ABV01@@Z
 ?f@Class1@TestLib@@QAEPADPAD0@Z
@@ -135,7 +135,11 @@ public abstract class Demangler {
 		return b;
 	}
 	protected char peekChar() {
-		return position >= length ? 0 : str.charAt(position);
+		return peekChar(1);
+	}
+	protected char peekChar(int dist) {
+		int p = position + dist - 1;
+		return p >= length ? 0 : str.charAt(p);
 	}
 	protected char lastChar() {
 		return position == 0 ? 0 : str.charAt(position - 1);

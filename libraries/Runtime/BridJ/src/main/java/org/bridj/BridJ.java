@@ -562,13 +562,12 @@ public class BridJ {
      * Loads the shared library file under the provided name. Any subsequent call to {@link #getNativeLibrary(String)} will return this library.
 	 */
     public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
-		NativeLibrary ll;
-		if ("c".equals(name)) {// && !Platform.isSolaris())
+		NativeLibrary ll = NativeLibrary.load(f == null ? name : f.toString());;
+		if (ll == null && "c".equals(name)) {// && !Platform.isSolaris())
 			ll = new NativeLibrary(null, 0, 0);
 			f = null;
-		} else
-			ll = NativeLibrary.load(f == null ? name : f.toString());
-			
+		}
+
 		//if (ll == null && f != null)
 		//	ll = NativeLibrary.load(f.getName());
         if (ll == null) {
