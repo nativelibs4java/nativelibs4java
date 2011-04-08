@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
     <artifactId>nativelibs4java-root</artifactId>
-    <version>1.4</version>
+    <version>1.5-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>NativeLibs4Java Root Project</name>
 
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nativelibs4java-parent</artifactId>
-	  <version>1.4</version>
+	  <version>1.5-SNAPSHOT</version>
 	  <relativePath>Parent</relativePath>
   </parent>
 
