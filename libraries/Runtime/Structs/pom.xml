@@ -6,13 +6,13 @@
   <artifactId>nl4j-runtime-structs-jna</artifactId>
   <name>NativeLibs4Java Structs for JNA</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
-  <version>0.4-SNAPSHOT</version>
+  <version>0.4</version>
   <packaging>jar</packaging>
 
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nl4j-runtime-parent</artifactId>
-	  <version>0.4-SNAPSHOT</version>
+	  <version>0.4</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
 
