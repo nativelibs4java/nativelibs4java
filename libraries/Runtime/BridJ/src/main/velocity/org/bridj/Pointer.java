@@ -342,7 +342,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     
     @Override 
     public String toString() {
-    		return "Pointer(peer = " + Long.toHexString(getPeer()) + ", targetType = " + Utils.toString(getTargetType()) + ")";
+    		return "Pointer(peer = 0x" + Long.toHexString(getPeer()) + ", targetType = " + Utils.toString(getTargetType()) + ")";
     }
     
     private final long getCheckedPeer(long byteOffset, long validityCheckLength) {

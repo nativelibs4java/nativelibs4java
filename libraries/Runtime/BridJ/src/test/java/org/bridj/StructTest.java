@@ -310,6 +310,72 @@ public class StructTest {
             return this;
         }
 	}
+
+    public static class TestStruct extends MyStruct {
+        public TestStruct(Pointer<MyStruct> p) { super(p); }
+        public TestStruct() { super(); }
+
+        @Array(10)
+        @Field(2)
+		public Pointer<Integer> values() {
+			return io.getPointerField(this, 2);
+        }
+
+        @Field(3)
+        public MyStruct sub() {
+			return io.getNativeObjectField(this, 3);
+        }
+    }
+
+	
+	public static class TestStructWithFields extends StructObject {
+        public TestStructWithFields(Pointer p) { super(p); }
+        public TestStructWithFields() { super(); }
+        @Field(0)
+		public int a;
+        
+        @Field(1)
+		public double b;
+
+        @Array(10)
+        @Field(2)
+		public Pointer<Integer> values;
+
+        @Field(3)
+        public MyStruct sub;
+	}
+	
+	@Test
+	public void testJavaFieldStructs() {
+		assertEquals(BridJ.sizeOf(TestStruct.class), BridJ.sizeOf(TestStructWithFields.class));
+		
+		TestStruct s = new TestStruct();
+		
+		s.a(10);
+		s.b(20);
+		
+		TestStructWithFields fs = new TestStructWithFields(pointerTo(s));
+
+        assertEquals(s.a(), 10); // no modification of original struct
+		assertEquals(s.b(), 20, 0);
+		assertEquals(s.a(), fs.a); // read fields upon creation
+		assertEquals(s.b(), fs.b, 0);
+
+		assertEquals(pointerTo(s.sub()), pointerTo(fs.sub));
+
+        assertEquals(s.values(), fs.values);
+
+        fs.a = 100;
+		fs.b = 200;
+		BridJ.writeToNative(fs);
+		assertEquals(s.a(), fs.a); // did write succeed ?
+		assertEquals(s.b(), fs.b, 0);
+		s.a(1000);
+		s.b(2000);
+		BridJ.readFromNative(fs);
+		assertEquals(s.a(), fs.a); // did read succeed ?
+		assertEquals(s.b(), fs.b, 0);
+	}
 	
 	@Test
 	public void testEquality() {

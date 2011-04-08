@@ -664,10 +664,26 @@ public class BridJ {
         typeInfo.initialize(instance, constructorId, args);
     }
 
-	public static <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
+	static <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
         return ((TypeInfo<T>)instance.typeInfo).clone(instance);
 	}
 
+	/**
+	 * Some native object need manual synchronization between Java fields and native memory.<br>
+	 * An example is JNA-style structures.
+	 */
+	public static <T extends NativeObject> T readFromNative(T instance) {
+		((TypeInfo<T>)instance.typeInfo).readFromNative(instance);
+		return instance;
+	}
+	/**
+	 * Some native object need manual synchronization between Java fields and native memory.<br>
+	 * An example is JNA-style structures.
+	 */
+	public static <T extends NativeObject> T writeToNative(T instance) {
+		((TypeInfo<T>)instance.typeInfo).writeToNative(instance);
+		return instance;
+	}
 	public static void main(String[] args) {
 		List<NativeLibrary> libraries = new ArrayList<NativeLibrary>();
 		try {

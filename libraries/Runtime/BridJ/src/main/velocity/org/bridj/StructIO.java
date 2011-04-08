@@ -4,6 +4,8 @@ import org.bridj.util.*;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Member;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Type;
 import java.nio.*;
 import java.util.ArrayList;
@@ -24,6 +26,7 @@ import org.bridj.ann.Union;
 import org.bridj.ann.Bits;
 import org.bridj.ann.Field;
 import org.bridj.ann.Alignment;
+import static org.bridj.Pointer.*;
 
 /**
  * Representation of a C struct's memory layout, built thanks to the annotations found in the Java bindings.<br>
@@ -57,9 +60,11 @@ public class StructIO {
         public long byteOffset = -1, byteLength = -1;
 		public long bitOffset, bitLength = -1;
         public long arrayLength = 1;
-        public boolean isArray = false;
+        public boolean isArray, isNativeObject;
         public Type nativeTypeOrPointerTargetType;
-
+        public java.lang.reflect.Field field;
+        String name;
+		
         @Override
         public String toString() {
 			return "Field(byteOffset = " + byteOffset + ", byteLength = " + byteLength + ", bitOffset = " + bitOffset + ", bitLength = " + bitLength + (nativeTypeOrPointerTargetType == null ? "" : ", ttype = " + nativeTypeOrPointerTargetType) + ")";
@@ -68,7 +73,6 @@ public class StructIO {
 	protected static class FieldDecl {
 		final FieldDesc desc = new FieldDesc();
 		Method getter, setter;
-		String name;
 		long index = -1, unionWith = -1;//, byteOffset = -1;
 		Type valueType;
         Class<?> valueClass;
@@ -77,7 +81,7 @@ public class StructIO {
 
         @Override
         public String toString() {
-            return name + " (index = " + index + (unionWith < 0 ? "" : ", unionWith = " + unionWith) + ", desc = " + desc + ")";
+            return desc.name + " (index = " + index + (unionWith < 0 ? "" : ", unionWith = " + unionWith) + ", desc = " + desc + ")";
         }
     }
 	
@@ -122,6 +126,7 @@ public class StructIO {
     private long structAlignment = -1;
 	protected final Class<?> structClass;
 	protected final Type structType;
+	protected boolean hasFieldFields;
 
     public StructIO(Class<?> structClass, Type structType) {
 		this.structClass = structClass;
@@ -207,39 +212,51 @@ public class StructIO {
                 if (o2.declaringClass.isAssignableFrom(o1.declaringClass))
                     return 1;
                 
-                throw new RuntimeException("Failed to order fields " + o2.name + " and " + o2.name);
+                throw new RuntimeException("Failed to order fields " + o2.desc.name + " and " + o2.desc.name);
             }
 
         });
 	}
 	
-    protected boolean acceptFieldGetter(Method method, boolean getter) {
-        if (method.getParameterTypes().length != (getter ? 0 : 1))
+    protected boolean acceptFieldGetter(Member member, boolean getter) {
+        if ((member instanceof Method) && ((Method)member).getParameterTypes().length != (getter ? 0 : 1))
             return false;
         
-        if (getter && method.getAnnotation(Field.class) == null)
+        if (((AnnotatedElement)member).getAnnotation(Field.class) == null)
             return false;
 
-        int modifiers = method.getModifiers();
+        int modifiers = member.getModifiers();
         
         return //Modifier.isNative(modifiers) && 
                 !Modifier.isStatic(modifiers);// &&
                 //!forbiddenGetterNames.contains(method.getName());
     }
 
+    protected FieldDecl createFieldDecl(java.lang.reflect.Field getter) {
+        FieldDecl field = createFieldDecl((Member)getter);
+        field.desc.field = getter;
+        field.valueType = getter.getGenericType();
+        field.valueClass = getter.getType();
+        return field;
+    }
     protected FieldDecl createFieldDecl(Method getter) {
-        FieldDecl field = new FieldDecl();
+        FieldDecl field = createFieldDecl((Member)getter);
         field.getter = getter;
         field.valueType = getter.getGenericReturnType();
         field.valueClass = getter.getReturnType();
-        field.declaringClass = getter.getDeclaringClass();
+        return field;
+    }
+    	protected FieldDecl createFieldDecl(Member member) {
+        FieldDecl field = new FieldDecl();
+        field.declaringClass = member.getDeclaringClass();
 
-        String name = getter.getName();
+        String name = member.getName();
         if (name.matches("get[A-Z].*"))
             name = Character.toLowerCase(name.charAt(3)) + name.substring(4);
 
-        field.name = name;
+        field.desc.name = name;
 
+        AnnotatedElement getter = (AnnotatedElement)member;
         Field fil = getter.getAnnotation(Field.class);
         Bits bits = getter.getAnnotation(Bits.class);
         Array arr = getter.getAnnotation(Array.class);
@@ -283,19 +300,20 @@ public class StructIO {
                     list.add(io);
             }
         }
-
-
-        List<Class<?>> classes = new ArrayList<Class<?>>();
-        Class<?> c = structClass;
-        do {
-            classes.add(c = c.getSuperclass());
-        } while (StructObject.class.isAssignableFrom(c));
-        Collections.reverse(classes);
-        for (Class<?> cl : classes) {
-            for (java.lang.reflect.Field field : structClass.getDeclaredFields()) {
-
+        
+        int nFieldFields = 0;
+        for (java.lang.reflect.Field field : structClass.getFields()) {
+            if (acceptFieldGetter(field, true)) {
+                FieldDecl io = createFieldDecl(field);
+                if (io != null) {             
+                    list.add(io);
+                    nFieldFields++;
+                }
             }
         }
+		if (nFieldFields > 0)
+			BridJ.log(Level.WARNING, "Struct " + structClass.getName() + " has " + nFieldFields + " struct fields implemented as Java fields, which won't give the best performance and might require counter-intuitive calls to BridJ.readFromNative / .writeToNative. Please consider using JNAerator to generate your struct instead.");
+		
 		return list;
 	}
 	
@@ -335,7 +353,7 @@ public class StructIO {
 		Map<Pair<Class<?>, Long>, List<FieldDecl>> fieldsMap = new LinkedHashMap<Pair<Class<?>, Long>, List<FieldDecl>>();
         for (FieldDecl field : list) {
         		if (field.index < 0)
-        			throw new RuntimeException("Negative field index not allowed for field " + field.name);
+        			throw new RuntimeException("Negative field index not allowed for field " + field.desc.name);
         		
         		long index = field.unionWith >= 0 ? field.unionWith : field.index;
         		Pair<Class<?>, Long> key = new Pair<Class<?>, Long>(field.declaringClass, index);
@@ -367,6 +385,7 @@ public class StructIO {
         for (List<FieldDecl> fieldGroup : fieldsMap.values()) {
         		FieldDesc aggregatedDesc = new FieldDesc();
         		aggregatedDescs.add(aggregatedDesc);
+        		boolean isMultiFields = fieldGroup.size() > 1;
         		//Type fieldDeclaringType = null;
         		//long fieldByteLength = -1, fieldBitLength = -1, fieldAlignment = -1; 
         		for (FieldDecl field : fieldGroup) {
@@ -376,7 +395,8 @@ public class StructIO {
 					field.desc.nativeTypeOrPointerTargetType = field.valueType;
 					StructIO io = StructIO.getInstance(field.valueClass, field.valueType);		
 					field.desc.byteLength = io.getStructSize();				
-					field.desc.alignment = io.getStructAlignment();		
+					field.desc.alignment = io.getStructAlignment();
+					field.desc.isNativeObject = true;
 				} else if (ValuedEnum.class.isAssignableFrom(field.valueClass)) {
 					field.desc.nativeTypeOrPointerTargetType = (field.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType)field.valueType).getActualTypeArguments()[0]) : null;
 					Class c = PointerIO.getClass(field.desc.nativeTypeOrPointerTargetType);
@@ -388,7 +408,7 @@ public class StructIO {
 				} else if (TypedPointer.class.isAssignableFrom(field.valueClass)) {
 					field.desc.nativeTypeOrPointerTargetType = field.valueType;
                     if (field.desc.isArray)
-                        throw new RuntimeException("Typed pointer field cannot be an array : " + field.name);
+                        throw new RuntimeException("Typed pointer field cannot be an array : " + field.desc.name);
                     field.desc.byteLength = Pointer.SIZE;
 					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
 				} else if (Pointer.class.isAssignableFrom(field.valueClass)) {
@@ -440,10 +460,17 @@ public class StructIO {
 				structAlignment = Math.max(structAlignment, aggregatedDesc.alignment);
 				
 				if (field.desc.bitLength >= 0) {
-					if (fieldGroup.size() != 1)
+					if (isMultiFields)
 						throw new RuntimeException("No support for bit fields unions yet !");
 					aggregatedDesc.bitLength = field.desc.bitLength;
 					aggregatedDesc.byteLength = (aggregatedDesc.bitLength >>> 3) + ((aggregatedDesc.bitLength & 7) != 0 ? 1 : 0);
+				}
+				
+				if (!isMultiFields) {
+					aggregatedDesc.isArray = field.desc.isArray;
+					aggregatedDesc.isNativeObject = field.desc.isNativeObject; 
+					aggregatedDesc.nativeTypeOrPointerTargetType = field.desc.nativeTypeOrPointerTargetType;
+					aggregatedDesc.name = field.desc.name;		
 				}
 				//if (fieldDeclaringType == null)
 				//	fieldDeclaringType = field.declaringClass;
@@ -501,12 +528,14 @@ public class StructIO {
 
         List<FieldDesc> filtered = new ArrayList<FieldDesc>();
         for (FieldDecl fio : list)
-            if (fio.declaringClass != null && fio.declaringClass.equals(structClass))
-                filtered.add(fio.desc);
+            //if (fio.declaringClass != null && fio.declaringClass.equals(structClass))
+            filtered.add(fio.desc);
         
             SolidRanges.Builder b = new SolidRanges.Builder();
-            for (FieldDesc f : filtered)
+            for (FieldDesc f : filtered) {
             		b.add(f);
+            		hasFieldFields = hasFieldFields || f.field != null;
+            }
             	
             	solidRanges = b.toSolidRanges();
 		/*System.out.println();
@@ -522,7 +551,7 @@ public class StructIO {
 		return compare(a, b) == 0;	
 	}
 	public int compare(StructObject a, StructObject b) {
-		Pointer<StructObject> pA = Pointer.pointerTo(a), pB = Pointer.pointerTo(b);
+		Pointer<StructObject> pA = pointerTo(a), pB = pointerTo(b);
 		if (pA == null || pB == null)
 			return pA != null ? 1 : pB != null ? -1 : 0;
 		
@@ -536,6 +565,49 @@ public class StructIO {
     		return 0;
 	}
 	
+	public final void writeFieldsToNative(StructObject struct) {
+		if (!hasFieldFields)
+			return;
+		try {
+			for (FieldDesc fd : fields) {
+				if (fd.field == null)
+					continue;
+				
+				if (fd.isArray || fd.isNativeObject)
+					continue;
+				
+				Object value = fd.field.get(struct);
+				Pointer ptr = struct.peer.offset(fd.byteOffset);
+                ptr = ptr.as(fd.nativeTypeOrPointerTargetType == null ? fd.field.getGenericType() : fd.nativeTypeOrPointerTargetType);
+				ptr.set(value);
+			}
+		} catch (Throwable th) {
+			throw new RuntimeException("Unexpected error while writing fields from struct " + Utils.toString(structType) + " (" + pointerTo(struct) + ")", th);
+		}
+	}
+	public final void readFieldsFromNative(StructObject struct) {
+		if (!hasFieldFields)
+			return;
+		try {
+			for (FieldDesc fd : fields) {
+				if (fd.field == null)
+					continue;
+				
+				Pointer ptr = struct.peer.offset(fd.byteOffset);
+                ptr = ptr.as(fd.nativeTypeOrPointerTargetType == null ? fd.field.getGenericType() : fd.nativeTypeOrPointerTargetType);
+				Object value;
+				if (fd.isArray) {
+					ptr.validElements(fd.arrayLength);
+					value = ptr;
+				} else {
+					value = ptr.get();
+				}
+				fd.field.set(struct, value);
+			}
+		} catch (Throwable th) {
+			throw new RuntimeException("Unexpected error while reading fields from struct " + Utils.toString(structType) + " (" + pointerTo(struct) + ") : " + th, th);
+		}
+	}
 	public final <T> Pointer<T> getPointerField(StructObject struct, int fieldIndex) {
         FieldDesc fd = fields[fieldIndex];
         Pointer<T> p;

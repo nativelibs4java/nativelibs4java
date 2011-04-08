@@ -124,6 +124,16 @@ public class CRuntime extends AbstractBridJRuntime {
                 throw new RuntimeException("Failed to cast pointer " + peer + " to instance of type " + typeClass.getName(), ex);
             }
         }
+        @Override
+        public void writeToNative(T instance) {
+        		if (instance instanceof StructObject)
+        			structIO.writeFieldsToNative((StructObject)instance);
+        }
+        @Override
+        public void readFromNative(T instance) {
+        		if (instance instanceof StructObject)
+        			structIO.readFieldsFromNative((StructObject)instance);
+        }
 
         @Override
         public void initialize(T instance) {
@@ -136,12 +146,16 @@ public class CRuntime extends AbstractBridJRuntime {
             } else if (instance instanceof StructObject) {
                 ((StructObject)instance).io = structIO;
             }
+            if (instance instanceof StructObject)
+        			structIO.readFieldsFromNative((StructObject)instance);
         }
         @Override
         public void initialize(T instance, Pointer peer) {
             instance.peer = peer;
-            if (instance instanceof StructObject)
+            if (instance instanceof StructObject) {
                 ((StructObject)instance).io = structIO;
+        			structIO.readFieldsFromNative((StructObject)instance);
+        		}
         }
 
         @Override
