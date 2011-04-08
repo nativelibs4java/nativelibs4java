@@ -1,27 +1,50 @@
 #include "HandlersCommon.h"
 
-jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes, jboolean toJava) 
+jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes, jboolean toJava, jboolean isVarArgs) 
 {	
 	JNIEnv* env = call->env;
 	int iParam;
+	//printf("ARGS : %d args\n", (int)nTypes);
 	for (iParam = 0; iParam < nTypes; iParam++) {
 		ValueType type = pTypes[iParam];
 		switch (type) {
 			case eIntFlagSet:
-				dcArgInt(call->vm, (jint)getFlagValue(env, (jobject)dcbArgPointer(args)));
+				{
+					int arg = (jint)getFlagValue(env, (jobject)dcbArgPointer(args));
+					if (isVarArgs)
+						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
+					else
+						dcArgInt(call->vm, arg);
+				}
 				break;
 			case eIntValue:
-				dcArgInt(call->vm, dcbArgInt(args));
+				{
+					int arg = dcbArgInt(args);
+					if (isVarArgs)
+						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
+					else
+						dcArgInt(call->vm, arg);
+				}
 				break;
 			case eCLongValue:
 				if (sizeof(long) == 4) {
 					if (toJava)
 						dcArgLongLong(call->vm, dcbArgLong(args));
-					else
-						dcArgLong(call->vm, (int)dcbArgLongLong(args));
+					else {
+						jlong arg = dcbArgLongLong(args);
+						if (isVarArgs)
+							dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
+						else
+							dcArgLong(call->vm, (int)arg);
+					}
 				}
-				else
-					dcArgLong(call->vm, (long)dcbArgLongLong(args));
+				else {
+					jlong arg = dcbArgLongLong(args);
+					if (isVarArgs)
+						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
+					else
+						dcArgLong(call->vm, (long)arg);
+				}
 				break;
 			case eSizeTValue:
 				if (sizeof(size_t) == 4) {
@@ -37,14 +60,32 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				dcArgLongLong(call->vm, dcbArgLongLong(args));
 				break;
 			case eShortValue:
-				dcArgShort(call->vm, dcbArgShort(args));
+				{
+					short arg = dcbArgShort(args);
+					if (isVarArgs)
+						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
+					else
+						dcArgShort(call->vm, arg);
+				}
 				break;
 			case eBooleanValue:
-			case eByteValue:
-				dcArgChar(call->vm, dcbArgChar(args));
+			case eByteValue: 
+				{
+					char arg = dcbArgChar(args);
+					if (isVarArgs)
+						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
+					else
+						dcArgChar(call->vm, arg);
+				}
 				break;
-			case eFloatValue:
-				dcArgFloat(call->vm, dcbArgFloat(args));
+			case eFloatValue: 
+				{
+					float arg = dcbArgFloat(args);
+					if (isVarArgs)
+						dcArgDouble(call->vm, arg);
+					else
+						dcArgFloat(call->vm, arg);
+				}
 				break;
 			case eDoubleValue:
 				dcArgDouble(call->vm, dcbArgDouble(args));
@@ -74,6 +115,49 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 					return JNI_FALSE;
 				}
 				break;
+			case eEllipsis: {
+				if (toJava) {
+					throwException(env, "Calling Java ellipsis is not supported yet !");
+					return JNI_FALSE;
+				} else {
+					jobjectArray arr = (jobjectArray)dcbArgPointer(args);
+					jsize n = (*env)->GetArrayLength(env, arr), i;
+					
+					for (i = 0; i < n; i++) {
+						jobject arg = (*env)->GetObjectArrayElement(env, arr, i);
+						#define TEST_INSTANCEOF(cl, st) \
+							if ((*env)->IsInstanceOf(env, arg, cl)) st;
+					
+						// As per the C standard for varargs, all ints are promoted to ptrdiff_t and float is promoted to double : 
+						TEST_INSTANCEOF(gIntClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxInt(env, arg)))
+						else
+						TEST_INSTANCEOF(gLongClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxLong(env, arg)))
+						else
+						TEST_INSTANCEOF(gShortClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxShort(env, arg)))
+						else
+						TEST_INSTANCEOF(gByteClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxByte(env, arg)))
+						else
+						TEST_INSTANCEOF(gBooleanClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)(char)UnboxBoolean(env, arg)))
+						else
+						TEST_INSTANCEOF(gCharClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)(short)UnboxChar(env, arg)))
+						else
+						TEST_INSTANCEOF(gDoubleClass, dcArgDouble(call->vm, UnboxDouble(env, arg)))
+						else
+						TEST_INSTANCEOF(gFloatClass, dcArgDouble(call->vm, UnboxFloat(env, arg)))
+						else
+						TEST_INSTANCEOF(gCLongClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)(long)UnboxCLong(env, arg)))
+						else
+						TEST_INSTANCEOF(gSizeTClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxSizeT(env, arg)))
+						else
+						TEST_INSTANCEOF(gPointerClass, dcArgPointer(call->vm, getPointerPeer(env, (void*)arg)))
+						else {
+							throwException(env, "Invalid value type in ellipsis");
+							return JNI_FALSE;
+						}
+					}
+				}
+				break;
+			}
 			default:
 				throwException(env, "Invalid argument value type !");
 				return JNI_FALSE;

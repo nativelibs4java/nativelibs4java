@@ -3,8 +3,9 @@
 
 cd src/main/cpp/bridj
 
-DEBUG=1 ./Make.sh $@ || exit 1
-
-DEBUG=1 BUILD_CONFIG=debug ./Make.sh $@ || exit 1
-
+if [[ "$DEBUG" == "1" ]] ; then
+	BUILD_CONFIG=debug ./Make.sh $@ || exit 1 ;
+else
+	./Make.sh $@ || exit 1 ;
+fi
 

@@ -92,6 +92,7 @@ public class Dyncall {
 	        DC_SIGCHAR_CC_PREFIX        = '_',
 	        DC_SIGCHAR_CC_STDCALL       = 's',
 	        DC_SIGCHAR_CC_FASTCALL_GNU  = 'f',
-	        DC_SIGCHAR_CC_FASTCALL_MS   = 'F';
+	        DC_SIGCHAR_CC_FASTCALL_MS   = 'F',
+	        DC_SIGCHAR_CC_THISCALL_MS   = '+';
     }
 }

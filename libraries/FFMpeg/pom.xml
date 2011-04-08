@@ -12,7 +12,7 @@
   
   <properties>
   	<maven.compiler.debug>true</maven.compiler.debug>
-  	<bridj.version>0.4-SNAPSHOT</bridj.version>
+  	<bridj.version>0.5-SNAPSHOT</bridj.version>
   	<jnaerator.version>0.9.8-SNAPSHOT</jnaerator.version>
   </properties>
   

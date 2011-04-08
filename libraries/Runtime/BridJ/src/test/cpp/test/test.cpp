@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <string>
+#include <stdarg.h>
 
 using namespace std;
 
@@ -20,7 +21,17 @@ TEST_API double __cdecl sinInt(int d)
 {
 	return d;//sin((double)d);
 }
-
+//extern "C" {
+TEST_API void passVarArgs(char* out, bool isInt, ...) {
+	va_list args;
+	va_start(args, isInt);
+	if (isInt)
+		*(long long*)out = va_arg(args, long long);
+	else
+		*(double*)out = va_arg(args, double);
+	va_end(args);
+}
+//}
 TEST_API double __cdecl testSum(const double *values, size_t n)
 {
 	double total = 0;
@@ -96,7 +107,7 @@ TEST_API double __cdecl testASinB(int a, int b)
 
 Ctest::Ctest()
 {
-	cout << "Constructing Ctest instance\n";
+	//cout << "Constructing Ctest instance\n";
 	firstField = -123456;
 	secondField = 12;
 	
@@ -119,7 +130,7 @@ Ctest::Ctest(int firstField) {
 }
 Ctest::~Ctest()
 {
-	cout << "Destructor of Ctest is called !\n";
+	//cout << "Destructor of Ctest is called !\n";
 }
 
 const string& Ctest2::toString() {
@@ -161,15 +172,27 @@ int Ctest::testVirtualAddStdCall(void* ptr, int a, int b) {
 	return a + b;
 }
 
-ETest testEnum(ETest e)
+TEST_API ETest testEnum(ETest e)
 {
 	return e;	
 }
-ETest testVoidEnum()
+TEST_API ETest testEnumRetSecond()
+{
+	return eSecond;	
+}
+TEST_API int testEnumArgSecond(ETest e)
+{
+	return e == eSecond;	
+}
+TEST_API int testEnumArgs(ETest e, ETest f)
+{
+	return e == f;	
+}
+TEST_API ETest testVoidEnum()
 {
 	return (ETest)0;	
 }
-ETest testIntEnum(int i, ETest e)
+TEST_API ETest testIntEnum(int i, ETest e)
 {
 	return e;	
 }
@@ -178,14 +201,14 @@ void Ctest::static_void() {
 	
 }
 
-Ctest* createTest() {
+TEST_API Ctest* createTest() {
 	Ctest* test = new Ctest();
 	return test;
 }
 
 Ctest2::Ctest2() : Ctest(), fState(NULL), fDestructedState(0)
 {
-	cout << "Constructing Ctest2 instance\n";
+	//cout << "Constructing Ctest2 instance\n";
 	//printf("Ctest2::Ctest2() (this = %ld)\n", (long int)(size_t)this);
 }
 Ctest2::~Ctest2()
@@ -193,7 +216,7 @@ Ctest2::~Ctest2()
 	if (fState)
 		*fState = fDestructedState;
 	
-	cout << "Destructing Ctest2 instance\n";
+	//cout << "Destructing Ctest2 instance\n";
 	
 }
 void Ctest2::setState(int* pState) {

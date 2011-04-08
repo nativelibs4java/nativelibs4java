@@ -23,6 +23,7 @@ JNI_SIZEOF_t(ptrdiff)
 JNI_SIZEOF(long, long)
 
 //jclass gStructFieldsIOClass = NULL;
+jclass gObjectClass = NULL;
 jclass gPointerClass = NULL;
 jclass gFlagSetClass = NULL;
 jclass gValuedEnumClass = NULL;
@@ -35,8 +36,6 @@ jmethodID gGetValuedEnumValueMethod = NULL;
 jmethodID gGetJavaObjectFromNativePeerMethod = NULL;
 jmethodID gNewFlagSetMethod = NULL;
 jmethodID gGetCallIOsMethod = NULL;
-//jmethodID gGetTempCallStruct = NULL;
-//jmethodID gReleaseTempCallStruct = NULL;
 jmethodID gNewCallIOInstance = NULL;
 
 jclass 		gMethodCallInfoClass 		 = NULL;
@@ -48,6 +47,7 @@ jfieldID 	gFieldId_forwardedPointer 	 = NULL;
 jfieldID 	gFieldId_virtualIndex 		 = NULL;
 jfieldID 	gFieldId_virtualTableOffset	 = NULL;
 jfieldID 	gFieldId_javaCallback 		 = NULL;
+jfieldID 	gFieldId_isGenericCallback    = NULL;
 jfieldID 	gFieldId_direct		 		 = NULL;
 jfieldID 	gFieldId_startsWithThis 	     = NULL;
 jfieldID 	gFieldId_isCPlusPlus 	     = NULL;
@@ -59,12 +59,63 @@ jfieldID 	gFieldId_nativeClass			 = NULL;
 jfieldID 	gFieldId_methodName			 = NULL;
 jfieldID 	gFieldId_declaringClass		 = NULL;
 
+/*jclass gCLongClass = NULL;
+jclass gSizeTClass = NULL;
+jmethodID gCLongValueMethod = NULL;
+jmethodID gSizeTValueMethod = NULL;
+jlong UnboxCLong(JNIEnv* env, jobject v) {
+	return (*env)->CallLongMethod(env, v, gCLongValueMethod);
+}
+jlong UnboxSizeT(JNIEnv* env, jobject v) { \
+	return (*env)->CallLongMethod(env, v, gSizeTValueMethod);
+}*/
+
+#define BOX_METHOD_IMPL(prim, shortName, methShort, type, letter) \
+jclass g ## shortName ## Class = NULL; \
+jmethodID g ## shortName ## ValueOfMethod = NULL; \
+jmethodID g ## shortName ## ValueMethod = NULL; \
+jobject Box ## shortName(JNIEnv* env, j ## type v) { \
+	return (*env)->CallStaticObjectMethod(env, g ## shortName ## Class, g ## shortName ## ValueOfMethod, v); \
+} \
+j ## type Unbox ## shortName(JNIEnv* env, jobject v) { \
+	return (*env)->Call ## methShort ## Method(env, v, g ## shortName ## ValueMethod); \
+}
+			
+BOX_METHOD_IMPL("org/bridj/SizeT", SizeT, Long, long, "J");
+BOX_METHOD_IMPL("org/bridj/CLong", CLong, Long, long, "J");
+BOX_METHOD_IMPL("java/lang/Integer", Int, Int, int, "I");
+BOX_METHOD_IMPL("java/lang/Long", Long, Long, long, "J");
+BOX_METHOD_IMPL("java/lang/Short", Short, Short, short, "S");
+BOX_METHOD_IMPL("java/lang/Byte", Byte, Byte, byte, "B");
+BOX_METHOD_IMPL("java/lang/Boolean", Boolean, Boolean, boolean, "Z");
+BOX_METHOD_IMPL("java/lang/Character", Char, Char, char, "C");
+BOX_METHOD_IMPL("java/lang/Float", Float, Float, float, "F");
+BOX_METHOD_IMPL("java/lang/Double", Double, Double, double, "D");    
+		
 int main() {}
 
 void initMethods(JNIEnv* env) {
 	if (!gAddressMethod)
 	{
 		#define FIND_GLOBAL_CLASS(name) (*env)->NewGlobalRef(env, (*env)->FindClass(env, name))
+		
+		gObjectClass = FIND_GLOBAL_CLASS("java/lang/Object");
+		
+		#define INIT_PRIM(prim, shortName, methShort, type, letter) \
+			g ## shortName ## Class = FIND_GLOBAL_CLASS(prim); \
+			g ## shortName ## ValueMethod = (*env)->GetMethodID(env, g ## shortName ## Class, #type "Value", "()" letter); \
+			g ## shortName ## ValueOfMethod = (*env)->GetStaticMethodID(env, g ## shortName ## Class, "valueOf", "(" letter ")L" prim ";");
+			
+		INIT_PRIM("org/bridj/SizeT", SizeT, Long, long, "J");
+		INIT_PRIM("org/bridj/CLong", CLong, Long, long, "J");
+		INIT_PRIM("java/lang/Integer", Int, Int, int, "I");
+		INIT_PRIM("java/lang/Long", Long, Long, long, "J");
+		INIT_PRIM("java/lang/Short", Short, Short, short, "S");
+		INIT_PRIM("java/lang/Byte", Byte, Byte, byte, "B");
+		INIT_PRIM("java/lang/Boolean", Boolean, Boolean, boolean, "Z");
+		INIT_PRIM("java/lang/Character", Char, Char, char, "C");
+		INIT_PRIM("java/lang/Float", Float, Float, float, "F");
+		INIT_PRIM("java/lang/Double", Double, Double, double, "D");    
 		
 		gBridJClass = FIND_GLOBAL_CLASS("org/bridj/BridJ");
 		gFlagSetClass = FIND_GLOBAL_CLASS("org/bridj/FlagSet");
@@ -90,18 +141,19 @@ void initMethods(JNIEnv* env) {
 			throwException(env, "Failed to get the field " #name " in MethodCallInfo !");
 		
 	
-		GETFIELD_ID(javaSignature 		,	"javaSignature"			,	"Ljava/lang/String;"	);
-		GETFIELD_ID(dcSignature 		,	"dcSignature" 			,	"Ljava/lang/String;"	);
-		GETFIELD_ID(symbolName 			,	"symbolName" 			,	"Ljava/lang/String;"	);
-		GETFIELD_ID(nativeClass 			,	"nativeClass" 			,	"J"	);
-		GETFIELD_ID(methodName 			,	"methodName" 			,	"Ljava/lang/String;"	);
-		GETFIELD_ID(declaringClass		,	"declaringClass" 		,	"Ljava/lang/Class;"		);
-		GETFIELD_ID(paramsValueTypes 	,	"paramsValueTypes"		,	"[I"					);
-		GETFIELD_ID(returnValueType 	,	"returnValueType" 		,	"I"						);
-		GETFIELD_ID(forwardedPointer 	,	"forwardedPointer" 		,	"J"						);
-		GETFIELD_ID(virtualIndex 		,	"virtualIndex"			,	"I"						);
+		GETFIELD_ID(javaSignature 		,	"javaSignature"		,	"Ljava/lang/String;"		);
+		GETFIELD_ID(dcSignature 			,	"dcSignature" 		,	"Ljava/lang/String;"		);
+		GETFIELD_ID(symbolName 			,	"symbolName" 		,	"Ljava/lang/String;"		);
+		GETFIELD_ID(nativeClass 			,	"nativeClass" 		,	"J"						);
+		GETFIELD_ID(methodName 			,	"methodName" 		,	"Ljava/lang/String;"		);
+		GETFIELD_ID(declaringClass		,	"declaringClass" 	,	"Ljava/lang/Class;"		);
+		GETFIELD_ID(paramsValueTypes 		,	"paramsValueTypes"	,	"[I"						);
+		GETFIELD_ID(returnValueType 		,	"returnValueType" 	,	"I"						);
+		GETFIELD_ID(forwardedPointer 		,	"forwardedPointer" 	,	"J"						);
+		GETFIELD_ID(virtualIndex 		,	"virtualIndex"		,	"I"						);
 		GETFIELD_ID(virtualTableOffset	,	"virtualTableOffset"	,	"I"						);
-		GETFIELD_ID(javaCallback 		,	"javaCallback" 			,	"Lorg/bridj/Callback;"	);
+		GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Lorg/bridj/Callback;"	);
+		GETFIELD_ID(isGenericCallback 	,	"isGenericCallback"	,	"Z"						);
 		GETFIELD_ID(direct		 		,	"direct"	 			,	"Z"						);
 		GETFIELD_ID(isCPlusPlus	 		,	"isCPlusPlus"		,	"Z"						);
 		GETFIELD_ID(isStatic		 		,	"isStatic"			,	"Z"						);
@@ -543,6 +595,7 @@ void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 #define GetField_methodName()            jstring          methodName           = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_methodName          )
 #define GetField_paramsValueTypes()      jintArray        paramsValueTypes     = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_paramsValueTypes    )
 #define GetField_javaCallback()          jobject          javaCallback         = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_javaCallback        )
+#define GetField_isGenericCallback()     jboolean         isGenericCallback    = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_isGenericCallback   )
 #define GetField_forwardedPointer()      jlong            forwardedPointer     = (*env)->GetLongField(     env, methodCallInfo, gFieldId_forwardedPointer    )
 #define GetField_returnValueType()       jint             returnValueType      = (*env)->GetIntField(      env, methodCallInfo, gFieldId_returnValueType     )
 #define GetField_virtualIndex()          jint             virtualIndex         = (*env)->GetIntField(      env, methodCallInfo, gFieldId_virtualIndex        )
@@ -585,6 +638,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 		GetField_methodName()           ;
 		GetField_paramsValueTypes()     ;
 		GetField_javaCallback()         ;
+		GetField_isGenericCallback()    ;
 		//GetField_forwardedPointer()     ;
 		GetField_returnValueType()      ;
 		//GetField_virtualIndex()         ;
@@ -593,6 +647,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 		//GetField_direct()               ;
 		//GetField_startsWithThis()       ;
 		//GetField_bNeedsThisPointer()    ;
+		GetField_isCPlusPlus()          ;
 		GetField_declaringClass()       ;
 		GetField_nParams()              ;
 		GetField_callIOs()              ;
@@ -606,9 +661,10 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 			dcSig = (*env)->GetStringUTFChars(env, dcSignature, NULL);
 			methName = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
 
-			info->fInfo.fDCCallback = dcbNewCallback(dcSig, CToJavaCallHandler, info);
+			info->fInfo.fDCCallback = dcbNewCallback(dcSig, isCPlusPlus ? CPPToJavaCallHandler : CToJavaCallHandler, info);
 			info->fCallbackInstance = (*env)->NewGlobalRef(env, javaCallback);
 			info->fMethod = GetMethodIDOrFail(env, declaringClass, methName, javaSig);
+			info->fIsGenericCallback = isGenericCallback;
 			
 			info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
 

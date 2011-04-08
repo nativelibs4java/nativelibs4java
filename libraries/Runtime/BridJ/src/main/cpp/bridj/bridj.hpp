@@ -128,6 +128,7 @@ typedef struct NativeToJavaCallbackCallInfo {
 	void* fJNICallFunction;
 	jobject fCallbackInstance;
 	jmethodID fMethod;
+	jboolean fIsGenericCallback;
 } NativeToJavaCallbackCallInfo;
 
 typedef struct JavaToNativeCallbackCallInfo {
@@ -142,7 +143,24 @@ char __cdecl CToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* res
 char __cdecl CPPToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 char __cdecl StructHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata);
 
+extern jclass gPointerClass;
 
+#define BOX_METHOD_DECL(prim, shortName, methShort, type, letter) \
+extern jclass g ## shortName ## Class; \
+jobject Box ## shortName(JNIEnv* env, type v); \
+type Unbox ## shortName(JNIEnv* env, jobject v);
+			
+BOX_METHOD_DECL("org/bridj/SizeT", SizeT, Long, jlong, "J");
+BOX_METHOD_DECL("org/bridj/CLong", CLong, Long, jlong, "J");
+BOX_METHOD_DECL("java/lang/Integer", Int, Int, jint, "I");
+BOX_METHOD_DECL("java/lang/Long", Long, Long, jlong, "J");
+BOX_METHOD_DECL("java/lang/Short", Short, Short, jshort, "S");
+BOX_METHOD_DECL("java/lang/Byte", Byte, Byte, jbyte, "B");
+BOX_METHOD_DECL("java/lang/Boolean", Boolean, Boolean, jboolean, "Z");
+BOX_METHOD_DECL("java/lang/Character", Char, Char, jchar, "C");
+BOX_METHOD_DECL("java/lang/Float", Float, Float, jfloat, "F");
+BOX_METHOD_DECL("java/lang/Double", Double, Double, jdouble, "D");
+	
 void* getNativeObjectPointer(JNIEnv* env, jobject instance, jclass targetClass);
 void* getPointerPeer(JNIEnv *env, jobject pointer);
 jobject getJavaObjectForNativePointer(JNIEnv *env, void* nativeObject);

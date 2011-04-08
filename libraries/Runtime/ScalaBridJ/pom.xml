@@ -6,7 +6,7 @@
   <url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
   <groupId>com.nativelibs4java</groupId>
   <artifactId>bridj-scala</artifactId>
-  <version>0.4-SNAPSHOT</version>
+  <version>0.5-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <!--
@@ -21,7 +21,7 @@
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nl4j-runtime-parent</artifactId>
-	  <version>0.4-SNAPSHOT</version>
+	  <version>0.5-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
 
@@ -30,7 +30,7 @@
   	<dependency>
   	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>bridj</artifactId>
-	  <version>0.4-SNAPSHOT</version>
+	  <version>0.5-SNAPSHOT</version>
 	</dependency>
 	
 	<dependency>

@@ -401,6 +401,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\bridj\GenericJavaCallbackHandlers.c"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\bridj\ObjCHandler.c"
 				>
 			</File>

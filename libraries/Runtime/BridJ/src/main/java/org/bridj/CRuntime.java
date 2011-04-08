@@ -19,7 +19,7 @@ import org.bridj.ann.Optional;
 /**
  * C runtime (used by default when no {@link org.bridj.ann.Runtime} annotation is found).<br>
  * Deals with registration and lifecycle of structs, functions, callbacks.<br>
- * A shared C runtime instance can be retrieved with {@link BridJ#getCRuntime() }.
+ * A shared C runtime instance can be retrieved with {@link CRuntime#getInstance() }.
  * @author ochafik
  */
 public class CRuntime extends AbstractBridJRuntime {
@@ -397,21 +397,25 @@ public class CRuntime extends AbstractBridJRuntime {
         return callbackNativeImplementer.getDynamicCallback(library, callingConvention, returnType, parameterTypes);
     }
 
+    protected static <T> Pointer<T> createCToJavaCallback(MethodCallInfo mci, Type t) {
+    	mci.prependCallbackCC();
+    	final long handle = JNI.createCToJavaCallback(mci);
+		long peer = JNI.getActualCToJavaCallback(handle);
+		return (Pointer)Pointer.pointerToAddress(peer, t, new Pointer.Releaser() {
+
+			@Override
+			public void release(Pointer<?> pointer) {
+				JNI.freeCToJavaCallback(pointer.getPeer());
+			}
+		});
+    }
     private <T extends Callback<?>> Pointer<T> registerCallbackInstance(T instance) {
 		try {
             Class<?> c = instance.getClass();
             MethodCallInfo mci = new MethodCallInfo(getUniqueAbstractCallbackMethod(c));
             mci.setDeclaringClass(c);
             mci.setJavaCallback(instance);
-            final long handle = JNI.createCToJavaCallback(mci);
-            long peer = JNI.getActualCToJavaCallback(handle);
-            return (Pointer)Pointer.pointerToAddress(peer, c, new Pointer.Releaser() {
-
-                @Override
-                public void release(Pointer<?> pointer) {
-                    JNI.freeCToJavaCallback(pointer.getPeer());
-                }
-            });
+            return createCToJavaCallback(mci, c);
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException("Failed to register callback instance of type " + instance.getClass().getName(), e);
 		}

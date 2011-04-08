@@ -120,10 +120,13 @@ public class NativeLibrary {
 		if (handle == 0)
 			return;
 		
+		if (BridJ.verbose)
+			BridJ.log(Level.INFO, "Releasing library '" + path + "'");
+		
 		nativeEntities.release();
 		
-		JNI.freeLibrary(handle);
 		JNI.freeLibrarySymbols(symbols);
+		JNI.freeLibrary(handle);
 		handle = 0;
 	}
     public Pointer<?> getSymbolPointer(String name) {
@@ -300,7 +303,8 @@ public class NativeLibrary {
 
 			}
 			if (addr == 0) {
-				System.err.println("Symbol '" + name + "' not found.");
+				if (BridJ.verbose)
+					BridJ.log(Level.WARNING, "Symbol '" + name + "' not found.");
 				continue;
 			}
 			//if (is32)

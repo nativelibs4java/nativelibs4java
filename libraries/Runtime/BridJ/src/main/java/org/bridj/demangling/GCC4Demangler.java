@@ -119,6 +119,8 @@ public class GCC4Demangler extends Demangler {
 			return classType(Float.TYPE);
 		case 'd':
 			return classType(Double.TYPE);
+		case 'z': // varargs
+			return classType(Object[].class);
         default:
 			throw error("Unexpected type char '" + c + "'", -1);
 		}

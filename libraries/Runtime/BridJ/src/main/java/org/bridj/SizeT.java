@@ -18,6 +18,10 @@ public class SizeT extends Number {
     public SizeT(long value) {
         this.value = value;
     }
+    
+    public static SizeT valueOf(long value) {
+    		return new SizeT(value);
+    }
 
 
 	static final long HIGH_NEG = 0xffffffff00000000L;

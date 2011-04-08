@@ -1,3 +1,103 @@
+Index: dyncall/dyncallback/dyncall_args_x86.c
+===================================================================
+--- dyncall/dyncallback/dyncall_args_x86.c	
++++ dyncall/dyncallback/dyncall_args_x86.c	
+@@ -81,6 +81,20 @@
+ 
+ DCArgsVT dcArgsVT_default   = { default_i32, default_i64, default_f32, default_f64 };
+ 
++// thiscall (microsoft) calling convention :
++
++static int this_i32(DCArgs* args)
++{
++	if (args->fast_data[0]) { // ecx register = this pointer
++		int thisArg = args->fast_data[0];
++		args->fast_data[0] = 0;
++		return thisArg;
++	}
++	return *args->stack_ptr++;
++}
++
++DCArgsVT dcArgsVT_this_ms = { this_i32, default_i64, default_f32, default_f64 };
++
+ // fastcall (microsoft) calling convention:
+ 
+ static int fast_i32(DCArgs* args)
+Index: dyncall/dyncallback/dyncall_callback_x86.c
+===================================================================
+--- dyncall/dyncallback/dyncall_callback_x86.c	
++++ dyncall/dyncallback/dyncall_callback_x86.c	
+@@ -114,6 +114,39 @@
+   return size;
+ }
+ 
++static int dcbCleanupSize_x86_this_ms(const char* signature)
++{
++  const char* ptr = signature;
++  int size = 0;
++  char ch;
++  while( (ch = *ptr++) != DC_SIGCHAR_ENDARG )
++  {
++    switch(ch)
++    {
++    case DC_SIGCHAR_BOOL:
++    case DC_SIGCHAR_CHAR:
++    case DC_SIGCHAR_SHORT:
++    case DC_SIGCHAR_INT:
++    case DC_SIGCHAR_LONG:
++    case DC_SIGCHAR_POINTER:
++    case DC_SIGCHAR_UCHAR:
++    case DC_SIGCHAR_USHORT:
++    case DC_SIGCHAR_UINT:
++    case DC_SIGCHAR_ULONG:
++    case DC_SIGCHAR_STRING:
++    case DC_SIGCHAR_FLOAT:
++      size += 4;
++      break;
++    case DC_SIGCHAR_DOUBLE:
++    case DC_SIGCHAR_LONGLONG:
++    case DC_SIGCHAR_ULONGLONG:
++      size += 8;
++      break;
++    }
++  }
++  return size;
++}
++
+ static int dcbCleanupSize_x86_fast_gnu(const char* signature)
+ {
+   const char* ptr = signature;
+@@ -165,6 +198,7 @@
+       case DC_SIGCHAR_CC_STDCALL:      mode = DC_CALL_C_X86_WIN32_STD;      break;
+       case DC_SIGCHAR_CC_FASTCALL_GNU: mode = DC_CALL_C_X86_WIN32_FAST_GNU; break;
+       case DC_SIGCHAR_CC_FASTCALL_MS:  mode = DC_CALL_C_X86_WIN32_FAST_MS;  break;
++      case DC_SIGCHAR_CC_THISCALL_MS:  mode = DC_CALL_C_X86_WIN32_THIS_MS;  break;
+     }
+   }
+ 
+@@ -183,6 +217,10 @@
+     pcb->args_vt = &dcArgsVT_fast_ms;
+     pcb->stack_cleanup = dcbCleanupSize_x86_fast_ms(ptr);
+     break;
++  case DC_CALL_C_X86_WIN32_THIS_MS:
++    pcb->args_vt = &dcArgsVT_this_ms;
++    pcb->stack_cleanup = dcbCleanupSize_x86_this_ms(ptr);
++    break;
+   case DC_CALL_C_X86_WIN32_FAST_GNU:
+     pcb->args_vt = &dcArgsVT_fast_gnu;
+     pcb->stack_cleanup = dcbCleanupSize_x86_fast_gnu(ptr);
+Index: dyncall/dyncallback/dyncall_args_x86.h
+===================================================================
+--- dyncall/dyncallback/dyncall_args_x86.h	
++++ dyncall/dyncallback/dyncall_args_x86.h	
+@@ -36,6 +36,7 @@
+ 
+ extern DCArgsVT dcArgsVT_default;
+ extern DCArgsVT dcArgsVT_fast_ms;
++extern DCArgsVT dcArgsVT_this_ms;
+ extern DCArgsVT dcArgsVT_fast_gnu;
+ 
+ struct DCArgs
 Index: dyncall/dyncallback/dyncall_callback_x86_gas.S
 ===================================================================
 --- dyncall/dyncallback/dyncall_callback_x86_gas.S	
@@ -159,7 +259,7 @@ Index: dyncall/test/plain/GNUmakefile
 --- dyncall/test/plain/GNUmakefile	
 +++ dyncall/test/plain/GNUmakefile	
 @@ -24,7 +24,7 @@
- include $(TOP)/buildsys/gmake/prolog.gmake
+ include $(GMAKE_TOP)/prolog.gmake
  
  TARGET_APP	= plain
 -UNITS		= test_main
@@ -448,7 +548,7 @@ Index: dyncall/dyncall/dyncall_struct.c
 ===================================================================
 --- dyncall/dyncall/dyncall_struct.c	
 +++ dyncall/dyncall/dyncall_struct.c	
-@@ -0,0 +1,221 @@
+@@ -0,0 +1,222 @@
 +/*
 + Package: dyncall
 + File: dyncall/dyncall_struct.c
@@ -491,13 +591,14 @@ Index: dyncall/dyncall/dyncall_struct.c
 +	return s;
 +}
 +void dcStructField(DCstruct* s, DCint type, DCint alignment, DCsize arrayLength) {
++	DCfield *f;
 +	if (type == DC_SIGCHAR_STRING) {
 +		ASSERT(!"Use dcSubStruct instead !!!");
 +		return;
 +	}
 +	ASSERT(s && s->pCurrentStruct);
-+	ASSERT(s->pCurrentStruct->nextField <= s->pCurrentStruct->fieldCount - 1);
-+	DCfield *f = s->pCurrentStruct->pFields + (s->pCurrentStruct->nextField++);
++	ASSERT(s->pCurrentStruct->nextField <= (DCint)s->pCurrentStruct->fieldCount - 1);
++	f = s->pCurrentStruct->pFields + (s->pCurrentStruct->nextField++);
 +	f->type = type;
 +	f->alignment = alignment;
 +	f->arrayLength = arrayLength;
@@ -538,8 +639,8 @@ Index: dyncall/dyncall/dyncall_struct.c
 +	}
 +}
 +void dcComputeStructSize(DCstruct* s) {
-+	ASSERT(s);
 +	DCsize i;
++	ASSERT(s);
 +	for (i = 0; i < s->fieldCount; i++) {
 +		DCfield *f = s->pFields + i;
 +		DCsize fieldAlignment;
@@ -582,8 +683,8 @@ Index: dyncall/dyncall/dyncall_struct.c
 +}
 +
 +void dcFreeStruct(DCstruct* s) {
-+	ASSERT(s);
 +	DCsize i;
++	ASSERT(s);
 +	for (i = 0; i < s->fieldCount; i++) {
 +		DCfield *f = s->pFields + i;
 +		if (f->type == DC_SIGCHAR_STRUCT)
@@ -597,12 +698,12 @@ Index: dyncall/dyncall/dyncall_struct.c
 +	return s->size;
 +}
 +void dcArgStructUnroll(DCCallVM* vm, DCstruct* s, DCpointer  value) {
-+	printf("UNROLLING STRUCT !\n");
-+	ASSERT(s && value);
 +	DCsize i;
++	//printf("UNROLLING STRUCT !\n");
++	ASSERT(s && value);
 +	for (i = 0; i < s->fieldCount; i++) {
 +		DCfield *f = s->pFields + i;
-+		DCpointer p = value + f->offset;
++		DCpointer p = (char*)value + f->offset;
 +		switch(f->type) {
 +		  case DC_SIGCHAR_STRUCT:
 +		  	dcArgStruct(vm, f->pSubStruct, p);
@@ -650,7 +751,7 @@ Index: dyncall/dyncall/dyncall_struct.c
 +	return c >= '0' && c <= '9';
 +}
 +DCint readInt(const char** ptr) {
-+	return strtol(*ptr, ptr, 10);
++	return strtol(*ptr, (char**)ptr, 10);
 +}
 +
 +DCstruct*  dcDefineStruct(const char* signature) {
@@ -763,14 +864,14 @@ Index: dyncall/dyncall/GNUmakefile
 ===================================================================
 --- dyncall/dyncall/GNUmakefile	
 +++ dyncall/dyncall/GNUmakefile	
-@@ -37,6 +37,7 @@
+@@ -38,6 +38,7 @@
  INSTALL_LIB = 1
  
- UNITS = dyncall_vector dyncall_api 
+ UNITS = dyncall_vector dyncall_api dyncall_callvm dyncall_callvm_base
 +UNITS += dyncall_struct
  
  # @@@ disable dyncall_callf for pcc support temporarly
- ifdef BUILD_TOOL_pcc
+ ifndef BUILD_TOOL_pcc
 Index: dyncall/dyncall/dyncall_api.c
 ===================================================================
 --- dyncall/dyncall/dyncall_api.c	
@@ -781,7 +882,7 @@ Index: dyncall/dyncall/dyncall_api.c
  
 +void dcArgStruct(DCCallVM* vm, DCstruct* s, DCpointer x) 
 +{ 
-+	printf("vm->mVTpointer->argStruct = %p\n", vm->mVTpointer->argStruct);
++//	printf("vm->mVTpointer->argStruct = %p\n", vm->mVTpointer->argStruct);
 +  vm->mVTpointer->argStruct(vm, s, x); 
 +}
 +
@@ -1013,11 +1114,29 @@ Index: dyncall/dyncall/dyncall_signature.h
  
  /* callback signatures */
  
+@@ -59,6 +61,7 @@
+ #define DC_SIGCHAR_CC_STDCALL       's'
+ #define DC_SIGCHAR_CC_FASTCALL_GNU  'f'
+ #define DC_SIGCHAR_CC_FASTCALL_MS   'F'
++#define DC_SIGCHAR_CC_THISCALL_MS   '+'
+ 
+ #endif /* DYNCALL_SIGNATURE_H */
+ 
 Index: dyncall/dyncall/dyncall_callvm_x86.c
 ===================================================================
 --- dyncall/dyncall/dyncall_callvm_x86.c	
 +++ dyncall/dyncall/dyncall_callvm_x86.c	
-@@ -210,6 +210,7 @@
+@@ -23,6 +23,9 @@
+ 
+ #include "dyncall_callvm_x86.h"
+ #include "dyncall_alloc.h"
++#pragma warning(disable: 4113)
++#pragma warning(disable: 4133)
++#pragma warning(disable: 4047)
+ 
+ void dc_callvm_mode_x86(DCCallVM* in_self, DCint mode);
+ 
+@@ -210,6 +213,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86
@@ -1025,7 +1144,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_cdecl
  , (DCboolvmfunc*)       &dc_callvm_call_x86_cdecl
  , (DCcharvmfunc*)       &dc_callvm_call_x86_cdecl
-@@ -220,6 +221,7 @@
+@@ -220,6 +224,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_cdecl
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_cdecl
  , (DCpointervmfunc*)    &dc_callvm_call_x86_cdecl
@@ -1033,7 +1152,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  DCCallVM* dcNewCallVM_x86_cdecl(DCsize size) 
-@@ -255,6 +257,7 @@
+@@ -255,6 +260,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86
@@ -1041,7 +1160,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_win32_std
  , (DCboolvmfunc*)       &dc_callvm_call_x86_win32_std
  , (DCcharvmfunc*)       &dc_callvm_call_x86_win32_std
-@@ -265,6 +268,7 @@
+@@ -265,6 +271,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_win32_std
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_win32_std
  , (DCpointervmfunc*)    &dc_callvm_call_x86_win32_std
@@ -1049,7 +1168,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  /* win32/std callvm allocator */
-@@ -364,6 +368,7 @@
+@@ -364,6 +371,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86_win32_fast_ms
@@ -1057,7 +1176,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_win32_fast
  , (DCboolvmfunc*)       &dc_callvm_call_x86_win32_fast
  , (DCcharvmfunc*)       &dc_callvm_call_x86_win32_fast
-@@ -374,6 +379,7 @@
+@@ -374,6 +382,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_win32_fast
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_win32_fast
  , (DCpointervmfunc*)    &dc_callvm_call_x86_win32_fast
@@ -1065,7 +1184,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  DCCallVM* dcNewCallVM_x86_win32_fast_ms(DCsize size) 
-@@ -460,6 +466,7 @@
+@@ -460,6 +469,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86_win32_fast_gnu
@@ -1073,7 +1192,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_win32_fast
  , (DCboolvmfunc*)       &dc_callvm_call_x86_win32_fast
  , (DCcharvmfunc*)       &dc_callvm_call_x86_win32_fast
-@@ -470,6 +477,7 @@
+@@ -470,6 +480,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_win32_fast
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_win32_fast
  , (DCpointervmfunc*)    &dc_callvm_call_x86_win32_fast
@@ -1081,7 +1200,7 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  };
  
  DCCallVM* dcNewCallVM_x86_win32_fast_gnu(DCsize size) 
-@@ -503,6 +511,7 @@
+@@ -503,6 +514,7 @@
  , &dc_callvm_argFloat_x86
  , &dc_callvm_argDouble_x86
  , &dc_callvm_argPointer_x86
@@ -1089,14 +1208,14 @@ Index: dyncall/dyncall/dyncall_callvm_x86.c
  , (DCvoidvmfunc*)       &dc_callvm_call_x86_win32_this_ms
  , (DCboolvmfunc*)       &dc_callvm_call_x86_win32_this_ms
  , (DCcharvmfunc*)       &dc_callvm_call_x86_win32_this_ms
-@@ -513,6 +522,7 @@
+@@ -513,6 +525,7 @@
  , (DCfloatvmfunc*)      &dc_callvm_call_x86_win32_this_ms
  , (DCdoublevmfunc*)     &dc_callvm_call_x86_win32_this_ms
  , (DCpointervmfunc*)    &dc_callvm_call_x86_win32_this_ms
 +, NULL // argStruct
  };
  
- /* win32/this/ms callvm allocator */
+ /* --- syscall ------------------------------------------------------------- */
 Index: dyncall/dyncall/dyncall.h
 ===================================================================
 --- dyncall/dyncall/dyncall.h	
@@ -1109,7 +1228,7 @@ Index: dyncall/dyncall/dyncall.h
  
  /* Supported Calling Convention Modes */
  
-@@ -93,6 +94,7 @@
+@@ -95,6 +96,7 @@
  DC_API void       dcArgFloat      (DCCallVM* vm, DCfloat    value);
  DC_API void       dcArgDouble     (DCCallVM* vm, DCdouble   value);
  DC_API void       dcArgPointer    (DCCallVM* vm, DCpointer  value);
@@ -1117,7 +1236,7 @@ Index: dyncall/dyncall/dyncall.h
  
  DC_API void       dcCallVoid      (DCCallVM* vm, DCpointer funcptr);
  DC_API DCbool     dcCallBool      (DCCallVM* vm, DCpointer funcptr);
-@@ -104,9 +106,25 @@
+@@ -106,9 +108,25 @@
  DC_API DCfloat    dcCallFloat     (DCCallVM* vm, DCpointer funcptr);
  DC_API DCdouble   dcCallDouble    (DCCallVM* vm, DCpointer funcptr);
  DC_API DCpointer  dcCallPointer   (DCCallVM* vm, DCpointer funcptr);
@@ -1143,37 +1262,19 @@ Index: dyncall/dyncall/dyncall.h
  #ifdef __cplusplus
  }
  #endif
-Index: dyncall/dyncall/dyncall_call_x64_masm.asm
-===================================================================
---- dyncall/dyncall/dyncall_call_x64_masm.asm	
-+++ dyncall/dyncall/dyncall_call_x64_masm.asm	
-@@ -49,8 +49,8 @@
- 
- 	sub			rsp, rcx					; Setup stack frame by subtracting the size of the arguments.
- 
--	mov			rax, rcx					; Align stack.
--	add			rax, 8
-+	mov         rax, rsp                    ; Align stack.
-+
- 	and			rax, 15
- 	sub			rsp, rax
- 
 Index: dyncall/dynload/dynload_darwin.c
 ===================================================================
 --- dyncall/dynload/dynload_darwin.c	
 +++ dyncall/dynload/dynload_darwin.c	
-@@ -27,7 +27,10 @@
- 
+@@ -28,6 +28,7 @@
  
  #include "dynload.h"
-+//#include "dynload_macros.h"
-+//#include "dyncall_macros.h"
- #include "dyncall_alloc.h"
+ #include "../dyncall/dyncall_alloc.h"
 +
  #include <dlfcn.h>
  #include <string.h>
  
-@@ -63,7 +66,6 @@
+@@ -63,7 +64,6 @@
          return lib;
  }
  
@@ -1267,30 +1368,25 @@ Index: dyncall/dynload/dynload_windows.c
 ===================================================================
 --- dyncall/dynload/dynload_windows.c	
 +++ dyncall/dynload/dynload_windows.c	
-@@ -32,7 +32,8 @@
- 
- DLLib* dlLoadLibrary(const char* libPath)
+@@ -34,6 +34,7 @@
  {
--  return (DLLib*) LoadLibraryA(libPath);
-+  //return (DLLib*) LoadLibraryA(libPath);
-+  return (DLLib*) LoadLibraryExA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
- }
- 
- void* dlFindSymbol(DLLib* libHandle, const char* symbol)
+   if (libPath != NULL) {
+     return (DLLib*) LoadLibraryA(libPath);
++    //return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+   } else {
+     return (DLLib*) GetModuleHandle(NULL);
+   }
 Index: dyncall/dynload/dynload_syms.c
 ===================================================================
 --- dyncall/dynload/dynload_syms.c	
 +++ dyncall/dynload/dynload_syms.c	
-@@ -17,12 +17,15 @@
- 
+@@ -18,11 +18,12 @@
  */
  
-+#include "dynload.h"
-+#include "dynload_macros.h"
- #include "dyncall_macros.h"
+ #include "../dyncall/dyncall_macros.h"
 +#include "dyncall_alloc.h"
  
- #if defined(DC_WINDOWS)
+ #if defined(DC__OS_Win32) || defined(DC__OS_Win64) || defined(DC__OS_Cygwin)
  #  include "dynload_syms_pe.c"
  #elif defined(DC_UNIX)
 -#  if defined (DC__OS_Darwin) 
@@ -1350,12 +1446,10 @@ Index: dyncall/dynload/dynload.c
 ===================================================================
 --- dyncall/dynload/dynload.c	
 +++ dyncall/dynload/dynload.c	
-@@ -18,11 +18,14 @@
- */
+@@ -19,10 +19,12 @@
  
  #include "dynload.h"
-+//#include "dynload_macros.h"
- #include "dyncall_macros.h"
+ #include "../dyncall/dyncall_macros.h"
 +//#include "dyncall_alloc.h"
 +
  #if defined(DC_WINDOWS)
@@ -1375,7 +1469,7 @@ Index: dyncall/dynload/dynload_syms_elf.c
  # config settings
  
  /*
-@@ -30,11 +31,15 @@
+@@ -30,21 +31,27 @@
  
  #include "dynload.h"
  #include "dynload_macros.h"
@@ -1388,10 +1482,14 @@ Index: dyncall/dynload/dynload_syms_elf.c
 +#if defined(DC__OS_SunOS)
 +#   include <link.h>
 +#endif
+ #include "../dyncall/dyncall_alloc.h"
  #include <assert.h>
  #include <dlfcn.h>
  #include <stdio.h>
-@@ -44,6 +49,7 @@
++#include <string.h>
+ 
+ /* run-time configuration 64/32 */
+ 
  #ifdef DL__BinaryFormat_elf64
  typedef Elf64_Ehdr   Elf_Ehdr;
  typedef Elf64_Phdr   Elf_Phdr;
@@ -1399,7 +1497,7 @@ Index: dyncall/dynload/dynload_syms_elf.c
  typedef Elf64_Sym    Elf_Sym;
  typedef Elf64_Dyn    Elf_Dyn;
  typedef Elf64_Sxword Elf_tag;
-@@ -51,70 +57,22 @@
+@@ -52,368 +59,107 @@
  #else
  typedef Elf32_Ehdr   Elf_Ehdr;
  typedef Elf32_Phdr   Elf_Phdr;
@@ -1474,7 +1572,8 @@ Index: dyncall/dynload/dynload_syms_elf.c
  DLSyms* dlSymsInit(DLLib* pLib)
  {
    DLSyms* pSyms;
-@@ -122,11 +80,8 @@
++  Elf_Ehdr* pH;
+   if(!pLib)
      return NULL;
     
    pSyms = (DLSyms*)dcAllocMem(sizeof(DLSyms));
@@ -1486,9 +1585,10 @@ Index: dyncall/dynload/dynload_syms_elf.c
 +  memset(pSyms, 0, sizeof(DLSyms));
 +  pSyms->pLib     = pLib;
  
-   Elf_Ehdr* pH   = pLib->pElf_Ehdr;
+-  Elf_Ehdr* pH   = pLib->pElf_Ehdr;
++  pH   = (Elf_Ehdr*)pLib->pElf_Ehdr;
  #ifdef DL__BinaryFormat_elf32
-@@ -134,285 +89,74 @@
+   assert( pH->e_ident[EI_CLASS] == ELFCLASS32 );
  #else
    assert( pH->e_ident[EI_CLASS] == ELFCLASS64 );
  #endif

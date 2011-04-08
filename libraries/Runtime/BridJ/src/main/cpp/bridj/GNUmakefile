@@ -41,7 +41,8 @@ UNITS += Exceptions
 UNITS += JNI
 UNITS += Pointer
 
-UNITS += HandlersCommon
+UNITS += HandlersCommon 
+UNITS += GenericJavaCallbackHandlers
 UNITS += CallbackHandler
 UNITS += CppHandler
 UNITS += FunctionHandler
@@ -57,10 +58,11 @@ UNITS += RawNativeForwardCallback_arch
 #endif
 
 CPPFLAGS += -std=c99
+#CFLAGS += -msse2 -msseregparm
+#CFLAGS += -g
 
 ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
-CPPFLAGS += -O3
 LDFLAGS		+= -ldl -lobjc -all_load
 endif
 
@@ -81,6 +83,7 @@ LDFLAGS		+= 	-mimpure-text
 LDFLAGS		+=	-L/opt/csw/gcc4/lib
 endif                 
 
+#CPPFLAGS += -O0
 
 ifdef BUILD_OS_darwin
 CPPFLAGS += -O3

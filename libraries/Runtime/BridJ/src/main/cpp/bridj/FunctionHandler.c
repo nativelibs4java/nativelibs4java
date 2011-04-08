@@ -9,7 +9,7 @@ char __cdecl doJavaToFunctionCallHandler(DCArgs* args, DCValue* result, Function
 	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	dcMode(call->vm, info->fInfo.fDCMode);
-	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE) 
+	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE, JNI_FALSE) 
 	&&
 	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol, JNI_FALSE, JNI_FALSE);
 

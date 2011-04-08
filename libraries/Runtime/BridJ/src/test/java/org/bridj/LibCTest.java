@@ -3,7 +3,7 @@ package org.bridj;
 import java.io.FileNotFoundException;
 import org.bridj.ann.*; // annotations such as Library...
 
-
+import static org.bridj.Pointer.*;
 import java.util.Collections;
 import java.util.Iterator;
 import org.junit.*;
@@ -14,12 +14,13 @@ import static org.junit.Assert.*;
 public class LibCTest {
 	static {
 		if (Platform.isWindows())
-			BridJ.setNativeLibraryActualName("c", "msvc");
+			BridJ.setNativeLibraryActualName("c", "msvcrt");
 		if ("1".equals(System.getenv("JNA")))
 			com.sun.jna.Native.register("c");
 		else
 			BridJ.register();
 	}
+	public static native void sprintf(Pointer<Byte> dest, Pointer<Byte> format, Object... values);
 	public static native double fabs(double x);
 	public static native int abs(int x);
 	public static native int getpid();

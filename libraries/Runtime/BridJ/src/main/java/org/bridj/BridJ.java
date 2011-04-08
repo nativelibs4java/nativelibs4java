@@ -51,19 +51,19 @@ public class BridJ {
     static final Map<Long, NativeObject> strongNativeObjects = new HashMap<Long, NativeObject>(),
             weakNativeObjects = new WeakHashMap<Long, NativeObject>();
 
-    static {
-        java.lang.Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            public void run() {
-                // The JVM being shut down doesn't mean the process is about to exit, so we need to clean our JNI mess
-                //runShutdownHooks();
-                releaseAll();
-            }
-        });
-    }
-    
     public static long sizeOf(Type type) {
-        return getRuntime(Utils.getClass(type)).getTypeInfo(type).sizeOf(type);
+        Class c = Utils.getClass(type);
+        if (c.isPrimitive())
+            return StructIO.primTypeLength(c);
+        else if (c == Integer.class || c == Float.class)
+            return 4;
+        else if (c == Character.class || c == Short.class)
+            return 2;
+        else if (c == Long.class || c == Double.class)
+            return 8;
+        else if (c == Boolean.class || c == Byte.class)
+            return 1;
+        return getRuntime(c).getTypeInfo(type).sizeOf(type);
         /*if (o instanceof NativeObject) {
             NativeObject no = (NativeObject)o;
             return no.typeInfo.sizeOf(no);
@@ -159,10 +159,13 @@ public class BridJ {
 	}
 
     private static WeakHashMap<Long, NativeObject> knownNativeObjects = new WeakHashMap<Long, NativeObject>();
-    static synchronized <O extends NativeObject> void setJavaObjectFromNativePeer(long peer, O object) {
-        knownNativeObjects.put(peer, object);
+    public static synchronized <O extends NativeObject> void setJavaObjectFromNativePeer(long peer, O object) {
+        if (object == null)
+            knownNativeObjects.remove(peer);
+        else
+            knownNativeObjects.put(peer, object);
     }
-    public static Object getJavaObjectFromNativePeer(long peer) {
+    public static synchronized Object getJavaObjectFromNativePeer(long peer) {
         return knownNativeObjects.get(peer);
     }
     
@@ -172,6 +175,8 @@ public class BridJ {
 		try {
         		TypeInfo<O> typeInfo = getTypeInfo(type);
         		O instance = typeInfo.cast(pointer);
+                if (BridJ.debug)
+                    BridJ.log(Level.INFO, "Created native object from pointer " + pointer);
 			return instance;
 		} catch (Exception ex) {
             throw new RuntimeException("Failed to cast pointer to native object of type " + Utils.getClass(type).getName(), ex);
@@ -251,8 +256,8 @@ public class BridJ {
 		}
 	}
 
-    public static final boolean verbose = "true".equals(System.getProperty("bridj.verbose")) || "1".equals(System.getenv("BRIDJ_VERBOSE"));
     public static final boolean debug = "true".equals(System.getProperty("bridj.debug")) || "1".equals(System.getenv("BRIDJ_DEBUG"));
+    public static final boolean verbose = debug || "true".equals(System.getProperty("bridj.verbose")) || "1".equals(System.getenv("BRIDJ_VERBOSE"));
     static final int minLogLevel = Level.WARNING.intValue();
 	static boolean shouldLog(Level level) {
         return verbose || level.intValue() >= minLogLevel;
@@ -557,13 +562,12 @@ public class BridJ {
      * Loads the shared library file under the provided name. Any subsequent call to {@link #getNativeLibrary(String)} will return this library.
 	 */
     public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
-		NativeLibrary ll;
-		if ("c".equals(name)) {// && !Platform.isSolaris())
+		NativeLibrary ll = NativeLibrary.load(f == null ? name : f.toString());;
+		if (ll == null && "c".equals(name)) {// && !Platform.isSolaris())
 			ll = new NativeLibrary(null, 0, 0);
 			f = null;
-		} else
-			ll = NativeLibrary.load(f == null ? name : f.toString());
-			
+		}
+
 		//if (ll == null && f != null)
 		//	ll = NativeLibrary.load(f.getName());
         if (ll == null) {

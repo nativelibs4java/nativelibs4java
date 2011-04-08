@@ -31,13 +31,14 @@ public class MethodCallInfo {
 	private Class<?> declaringClass;
         long nativeClass;
     int returnValueType, paramsValueTypes[];
-	private Method method;
+	private Method method, definition;
 	String methodName, symbolName;
 	private long forwardedPointer;
     String dcSignature;
 	String javaSignature;
 	String asmSignature;
 	Callback javaCallback;
+	boolean isGenericCallback;
 	int virtualIndex = -1;
 	int virtualTableOffset = 0;
     private int dcCallingConvention = DC_CALL_C_DEFAULT;
@@ -49,28 +50,33 @@ public class MethodCallInfo {
 	boolean startsWithThis;
 	boolean bNeedsThisPointer;
 
-	public MethodCallInfo(Method method) throws FileNotFoundException {
+    public MethodCallInfo(Method method) throws FileNotFoundException {
+        this(method, method);
+    }
+	public MethodCallInfo(Method method, Method definition) throws FileNotFoundException {
         isVarArgs = false;
         this.setMethod(method);
+        this.setDefinition(definition);
 		this.setDeclaringClass(method.getDeclaringClass());
 		this.methodName = method.getName();
         
         Class<?>[] parameterTypes = method.getParameterTypes();
         Type[] genericParameterTypes = method.getGenericParameterTypes();
         
-        Annotation[][] paramsAnnotations = method.getParameterAnnotations();
+        Annotation[][] paramsAnnotations = definition.getParameterAnnotations();
         /*genericInfo.returnType = method.getGenericReturnType();
         genericInfo.paramsTypes = method.getGenericParameterTypes();*/
         
         int modifiers = method.getModifiers();
         isStatic = Modifier.isStatic(modifiers);
         isVarArgs = method.isVarArgs();
+        boolean isNative = Modifier.isNative(modifiers);
 
         int nParams = parameterTypes.length;
         paramsValueTypes = new int[nParams];
 
         direct = true; // TODO on native side : test number of parameters (on 64 bits win : must be <= 4)
-        isCPlusPlus = CPPObject.class.isAssignableFrom(method.getDeclaringClass());
+        isCPlusPlus = !isStatic && CPPObject.class.isAssignableFrom(method.getDeclaringClass());
 
         //GetOptions(methodOptions, method);
 
@@ -80,7 +86,8 @@ public class MethodCallInfo {
             dcSig = new StringBuilder(16);
         javaSig.append('(');
         asmSig.append('(');
-        dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
+        if (isNative)//!isCPlusPlus)
+        	dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
 		if (veryVerbose)
 			System.out.println("Analyzing " + declaringClass.getName() + "." + methodName);
@@ -111,10 +118,10 @@ public class MethodCallInfo {
         asmSignature = asmSig.toString();
         dcSignature = dcSig.toString();
         
-        if (BridJ.getAnnotation(DisableDirect.class, true, method) != null)
+        if (BridJ.getAnnotation(DisableDirect.class, true, definition) != null)
         		direct = false;
         	
-        Virtual virtual = BridJ.getAnnotation(Virtual.class, false, method);
+        Virtual virtual = BridJ.getAnnotation(Virtual.class, false, definition);
         isCPlusPlus = isCPlusPlus || virtual != null;
         
         if (isCPlusPlus && !isStatic) {
@@ -129,7 +136,7 @@ public class MethodCallInfo {
 				//	setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_GNU);
 			}
         }
-        Convention cc = BridJ.getAnnotation(Convention.class, true, method);
+        Convention cc = BridJ.getAnnotation(Convention.class, true, definition);
         if (cc != null) {
             if (Platform.isWindows() && !Platform.is64Bits()) {
 				setCallingConvention(cc.value());
@@ -192,6 +199,13 @@ public class MethodCallInfo {
 		return callIOs.toArray(new CallIO[callIOs.size()]);
 	}
 
+	public void prependCallbackCC() {
+		char cc = getDcCallbackConvention(getDcCallingConvention());
+		if (cc == 0)
+			return;
+		
+		dcSignature = String.valueOf(DC_SIGCHAR_CC_PREFIX) + String.valueOf(cc) + dcSignature;
+	}
 	public String getDcSignature() {
 		return dcSignature;
 	}
@@ -370,6 +384,10 @@ public class MethodCallInfo {
                     direct = false;
                     break;
                 }
+			case eEllipsis:
+				javaChar = "[Ljava/lang/Object;";
+				dcChar = '?';
+				break;
             default:
                 direct = false;
                 throw new RuntimeException("Unhandled " + ValueType.class.getSimpleName() + ": " + type);
@@ -401,6 +419,15 @@ public class MethodCallInfo {
         if (dcSig != null)
             dcSig.append(dcChar);
     }
+
+    public void setDefinition(Method definition) {
+        this.definition = definition;
+    }
+
+    public Method getDefinition() {
+        return definition;
+    }
+
 
 
 	public void setMethod(Method method) {
@@ -453,6 +480,22 @@ public class MethodCallInfo {
 	public void setSymbolName(String symbolName) {
 		this.symbolName = symbolName;
 	}
+	
+	static char getDcCallbackConvention(int dcCallingConvention) {
+		switch (dcCallingConvention) {
+	    	case DC_CALL_C_X86_WIN32_STD      :
+	    		return DC_SIGCHAR_CC_STDCALL;
+	    	case DC_CALL_C_X86_WIN32_FAST_MS  :
+	        	return DC_SIGCHAR_CC_FASTCALL_MS;
+	    	case DC_CALL_C_X86_WIN32_FAST_GNU :
+	    		return DC_SIGCHAR_CC_FASTCALL_GNU;
+	    	case DC_CALL_C_X86_WIN32_THIS_MS  :
+	        	return DC_SIGCHAR_CC_THISCALL_MS;
+	        default:
+	        	return 0;
+	    }
+	}
+	    
 	public void setDcCallingConvention(int dcCallingConvention) {
 		hasCC = true;
 		this.dcCallingConvention = dcCallingConvention;

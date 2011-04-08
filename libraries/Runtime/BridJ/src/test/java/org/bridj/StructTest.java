@@ -27,7 +27,13 @@ public class StructTest {
 	public static native @Ptr long sizeOfDECIMAL();
 	public static native @Ptr long sizeOfCAPDRIVERCAPS();
 
-	
+
+	@Test
+	public void guidSize() {
+        long s = BridJ.sizeOf(GUID.class);
+		assertEquals(16, s);
+	}
+    ///*
 	@Test
 	public void variantSize() {
         long s = BridJ.sizeOf(VARIANT.class);
@@ -36,7 +42,6 @@ public class StructTest {
         else
             assertEquals(24, s);
 	}
-	
 	
 	@Test
 	public void decimalSize() {
@@ -321,23 +326,6 @@ public class StructTest {
 		assertFalse(x.equals(z));
 	}
 	
-	/*
-	public static class MyStruct extends StructObject {
-		public MyStruct(org.bridj.Pointer<MyStruct> p) {
-			super(p);
-		}
-		public MyStruct() {
-			super();
-		}
-		@Field(0)
-		public native int a();
-		public native void a(int a);
-
-        @Field(1)
-		public native double b();
-		public native void b(double a);
-	}*/
-	
 	public static class MyJNAStruct extends com.sun.jna.Structure {
 		public MyJNAStruct(com.sun.jna.Pointer p) {
 			super(p);
@@ -529,5 +517,6 @@ public class StructTest {
         assertEquals("Invalid array field pointer type", Integer.class, pInts.getTargetType());
         assertEquals("Invalid sub array", pointerTo(s).getPeer(), pInts.getPeer());
     }
+    //*/
 }
 

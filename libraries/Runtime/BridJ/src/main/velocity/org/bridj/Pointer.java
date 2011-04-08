@@ -8,6 +8,7 @@ import java.util.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import static org.bridj.SizeT.safeIntCast;
+import java.util.logging.Level;
 
 /**
  * Pointer to a native memory location.<br>
@@ -242,7 +243,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	private final PointerIO<T> io;
 	private final long peer, offsetInParent;
 	private final Pointer<?> parent;
-	private Object sibling;
+	private volatile Object sibling;
 	private final long validStart, validEnd;
 	private final boolean ordered;
 
@@ -265,7 +266,10 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		this.parent = parent;
 		this.offsetInParent = offsetInParent;
 		this.sibling = sibling;
+		if (BridJ.debug)
+			creationTrace = new RuntimeException().fillInStackTrace();
 	}
+	Throwable creationTrace;
 	
 	/**
 	 * Create a {@code Pointer<T>} type. <br>
@@ -289,10 +293,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * If the memory was already successfully released, this throws a RuntimeException.
 	 * @throws RuntimeException if the pointer was already released
 	 */
-	public void release() {
+	public synchronized void release() {
+		Object sibling = this.sibling;
+		this.sibling = null;
 		if (sibling instanceof Pointer)
 			((Pointer)sibling).release();
-		sibling = null;
 	}
 
 	/**
@@ -333,6 +338,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     public int hashCode() {
 		int hc = new Long(getPeer()).hashCode();
 		return hc;
+    }
+    
+    @Override 
+    public String toString() {
+    		return "Pointer(peer = " + Long.toHexString(getPeer()) + ", targetType = " + Utils.toString(getTargetType()) + ")";
     }
     
     private final long getCheckedPeer(long byteOffset, long validityCheckLength) {
@@ -943,8 +953,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * @param peer native memory address that is to be converted to a pointer
 	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
      */
-    public static Pointer<?> pointerToAddress(long peer, Class<?> targetClass, final Releaser releaser) {
-        return newPointer(PointerIO.getInstance(targetClass), peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, releaser, null);
+    public static <P> Pointer<P> pointerToAddress(long peer, Class<P> targetClass, final Releaser releaser) {
+        return pointerToAddress(peer, (Type)targetClass, releaser);
+    }
+    /**
+     * Create a pointer out of a native memory address
+     * @param targetType type of the elements pointed by the resulting pointer 
+	 * @param releaser object responsible for reclaiming the native memory once whenever the returned pointer is garbage-collected 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    public static <P> Pointer<P> pointerToAddress(long peer, Type targetType, final Releaser releaser) {
+    		PointerIO<P> pio = PointerIO.getInstance(targetType);
+        return newPointer(pio, peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, releaser, null);
     }
     /**
      * Create a pointer out of a native memory address
@@ -996,7 +1017,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      */
     @Deprecated
     public static <P> Pointer<P> pointerToAddress(long peer, Class<P> targetClass) {
-    	return newPointer((PointerIO<P>)PointerIO.getInstance(targetClass), peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, null, null);
+    		return pointerToAddress(peer, (Type)targetClass);
+    }
+    
+	/**
+     * Create a pointer out of a native memory address
+     * @param targetType type of the elements pointed by the resulting pointer 
+	 * @param peer native memory address that is to be converted to a pointer
+	 * @return a pointer with the provided address : {@code pointer.getPeer() == peer }
+     */
+    @Deprecated
+    public static <P> Pointer<P> pointerToAddress(long peer, Type targetType) {
+    	return newPointer((PointerIO<P>)PointerIO.getInstance(targetType), peer, true, UNKNOWN_VALIDITY, UNKNOWN_VALIDITY, null, -1, null, null);
     }
     
 	/**
@@ -1041,12 +1073,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		else {
 			assert sibling == null;
 			return new Pointer<U>(io, peer, ordered, validStart, validEnd, parent, offsetInParent, sibling) {
-				private Releaser rel = releaser;
+				private volatile Releaser rel = releaser;
 				@Override
 				public synchronized void release() {
 					if (rel != null) {
+						Releaser rel = this.rel;
+						this.rel = null;
 						rel.release(this);
-						rel = null;
 					}
 				}
 				protected void finalize() {
@@ -1208,12 +1241,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         	}
         }, null);
     }
-    static FreeReleaser freeReleaser = new FreeReleaser();
+    static Releaser freeReleaser = new FreeReleaser();
     static class FreeReleaser implements Releaser {
     	@Override
 		public void release(Pointer<?> p) {
 			assert p.getSibling() == null;
 			assert p.validStart == p.getPeer();
+			
+		if (BridJ.debug)
+			BridJ.log(Level.INFO, "Freeing pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
+		
     		JNI.free(p.getPeer());
     	}
     }
@@ -2566,6 +2603,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		while (getShortAtOffset(byteOffset + len * 2) != 0)
 			len++;
 		return len; //BUGGY: JNI.wcslen(getCheckedPeer(byteOffset, 1));
+	}
+	
+	/**
+	 * Write zero bytes to all of the valid bytes pointed by this pointer
+	 */
+	public void clearValidBytes() {
+		long bytes = getValidBytes();
+    		if (bytes < 0)
+    			throw new UnsupportedOperationException("Number of valid bytes is unknown. Please use clearBytes(long) or validBytes(long).");
+		clearBytes(bytes);	
 	}
 	
 	/**

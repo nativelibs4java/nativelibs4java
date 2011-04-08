@@ -15,7 +15,7 @@ import org.bridj.demangling.Demangler.Ident;
 import org.bridj.demangling.Demangler.IdentLike;
 import org.bridj.demangling.Demangler.TypeRef;
 import org.bridj.demangling.Demangler.SpecialName;
-import org.bridj.ann.CLong;
+import org.bridj.CLong;
 import org.bridj.ann.Convention;
 import java.math.BigInteger;
 import java.util.Collection;
@@ -94,11 +94,9 @@ public class VC9Demangler extends Demangler {
     }
 
     private ClassRef parseTemplateType() throws DemanglingException {
-        List<TypeRef> br = backReferences;
-        backReferences = new ArrayList<TypeRef>();
-
         //System.out.println("# START OF parseTemplateParams()");
         String name = parseNameFragment();
+        //return withEmptyQualifiedNames(new DemanglingOp<ClassRef>() { public ClassRef run() throws DemanglingException {
         List<TemplateArg> args = parseTemplateParams();
         
         List<Object> names = new ArrayList<Object>();
@@ -110,14 +108,15 @@ public class VC9Demangler extends Demangler {
         ClassRef tr = new ClassRef(new Ident(name, args.toArray(new TemplateArg[args.size()])));
         tr.setEnclosingType(reverseNamespace(names));
 
-        backReferences = br;
         return tr;
+		//}});
     }
 
     private void parseFunctionProperty(MemberRef mr) throws DemanglingException {
         mr.callingConvention = parseCallingConvention();
-        TypeRef returnType = consumeCharIf('@') ? classType(Void.TYPE) : parseType(true);
+        TypeRef returnType = consumeCharIf('@') ? classType(void.class) : parseType(true);
         allQualifiedNames.clear();
+        //withEmptyQualifiedNames(new DemanglingRunnable() { public void run() throws DemanglingException {
         List<TypeRef> paramTypes = parseParams();
         mr.paramTypes = paramTypes.toArray(new TypeRef[paramTypes.size()]);
         if (!consumeCharIf('Z')) {
@@ -126,6 +125,7 @@ public class VC9Demangler extends Demangler {
         }
 
         mr.setValueType(returnType);
+		//}});
     }
 
     static class AnonymousTemplateArg implements TemplateArg {
@@ -214,7 +214,8 @@ public class VC9Demangler extends Demangler {
             allQualifiedNames.clear(); // TODO fix this !!
             parseFunctionProperty(mr);
             if (cvMod != null && (cvMod.isMember || (memberName instanceof SpecialName) || Modifier.isPublic(ac.modifiers))) {
-                ClassRef tr = new ClassRef(new Ident((String)qNames.get(0)));
+            	Object r = qNames.get(0);
+				ClassRef tr = r instanceof ClassRef ? (ClassRef)r : new ClassRef(new Ident((String)r));
                 //tr.setSimpleName(qNames.get(0));
                 qNames.remove(0);
                 tr.setEnclosingType(reverseNamespace(qNames));
@@ -232,10 +233,7 @@ public class VC9Demangler extends Demangler {
 
 
     TypeRef parseReturnType() throws DemanglingException {
-        List<TypeRef> br = backReferences;
-        backReferences = new ArrayList<TypeRef>();
         TypeRef tr = parseType(true);
-        backReferences = br;
         return tr;
     }
     int parseNumber(boolean allowSign) throws DemanglingException {
@@ -253,53 +251,42 @@ public class VC9Demangler extends Demangler {
         while (((c = consumeChar()) >= 'A' && c <= 'P') && c != '@')
             n += 16 * (c - 'A');
         
-        if (c != '@')
+        String s = b.toString().trim();
+        if (c != '@' || s.length() == 0)
             throw error("Expected a number here", -b.length());
-        return sign * Integer.parseInt(b.toString(), 16);
+        return sign * Integer.parseInt(s, 16);
     }
 	TypeRef parseType(boolean allowVoid) throws DemanglingException {
         char c = consumeChar();
         if (Character.isDigit(c)) {
             int iBack = (int)(c - '0');
-            if (iBack >= allQualifiedNames.size())
-            //if (iBack >= backReferences.size())
-                throw error("Invalid back reference", -1);
-            List l = allQualifiedNames.get(iBack);
-            if (l.size() == 1) {
-                Object o = l.get(0);
-                if (o instanceof TypeRef)
-                    return (TypeRef)o;
-            }
-            throw error("Invalid back reference", -1);
-            //return backReferences.get(iBack);
+            return getBackRef(iBack);
         }
 		switch (c) {
 		case '_':
 			TypeRef tr;
 			switch (consumeChar()) {
             case 'D': // __int8
-                tr = classType(Byte.TYPE);
-				break;
             case 'E': // unsigned __int8
-                tr = classType(Byte.TYPE);
+                tr = classType(byte.class);
 				break;
             case 'F': // __int16
             case 'G': // unsigned __int16
-                tr = classType(Short.TYPE);
+                tr = classType(short.class);
 				break;
             case 'H': // __int32
             case 'I': // unsigned __int32
-                tr = classType(Integer.TYPE);
+                tr = classType(int.class);
 				break;
             case 'J': // __int64
             case 'K': // unsigned __int64
-                tr = classType(Long.TYPE);
+                tr = classType(long.class);
 				break;
             case 'L': // __int128
                 tr = classType(BigInteger.class);
 				break;
 			case 'N': // bool
-                tr = classType(Boolean.class);
+                tr = classType(boolean.class);
 				break;
 			case '0': // array ??
                 parseCVClassModifier();
@@ -307,41 +294,41 @@ public class VC9Demangler extends Demangler {
                 tr = classType(Object[].class);
 				break;
 			case 'W':
-				tr = classType(Character.TYPE);//, Wide.class);
+				tr = classType(char.class);//, Wide.class);
 				break;
 			default:
 				throw error(-1);
 			}
-			allQualifiedNames.add(Collections.singletonList(tr));
+			allQualifiedNames.add(tr);
 			return tr;
-        //case 'Z':
-        //    return classType(Object[].class); // TODO ellipsis
+        case 'Z':
+            return classType(Object[].class);
         case 'O':
             throw error("'long double' type cannot be mapped !", -1);
 		case 'C': // signed char
 		case 'D': // char
 		case 'E': // unsigned char
-			return classType(Byte.TYPE);
+			return classType(byte.class);
 		case 'F': // short
 		case 'G': // unsigned short
-			return classType(Short.TYPE);
+			return classType(short.class);
 		case 'H': // int
 		case 'I': // unsigned int
-			return classType(Integer.TYPE);
+			return classType(int.class);
 		case 'J': // long
 		case 'K': // unsigned long
 			return classType(CLong.class);
         case 'M': // float
-            return classType(Float.TYPE);
+            return classType(float.class);
 		case 'N': // double
-			return classType(Double.TYPE);
+			return classType(double.class);
         case 'Y':
             throw error("TODO handle cointerfaces", -1);
 		case 'X':
             // TODO handle coclass case
             if (!allowVoid)
                 return null;
-			return classType(Void.TYPE);
+			return classType(void.class);
         case '?':
             parseCVClassModifier(); // TODO do something with this !
             return parseType(allowVoid);
@@ -368,7 +355,7 @@ public class VC9Demangler extends Demangler {
                 parseFunctionProperty(mr);
                 tr = pointerType(new FunctionTypeRef(mr));
             }
-            allQualifiedNames.add(Collections.singletonList(tr));
+            allQualifiedNames.add(tr);
             return tr;
         case 'V': // class
         case 'U': // struct
@@ -380,24 +367,25 @@ public class VC9Demangler extends Demangler {
             switch (consumeChar()) {
                 case '0':
                 case '1':
-                    cl = Byte.class;
+                    cl = byte.class;
                     break;
                 case '2':
                 case '3':
-                    cl = Short.class;
+                    cl = short.class;
                     break;
                 case '4':
                 case '5':
-                    cl = Integer.class;
+                    cl = int.class;
                     break;
                 case '6':
                 case '7': // CLong : int on win32 and win64 !
-                    cl = Integer.class;
+                    cl = int.class;
                     break;
                 default:
                     throw error("Unfinished enum", -1);
             }
-            parseNameQualifications(new ArrayList<Object>());
+            TypeRef qn = parseQualifiedTypeName();
+            allQualifiedNames.add(qn);
             return classType(cl);
 		default:
 			throw error(-1);
@@ -409,8 +397,19 @@ public class VC9Demangler extends Demangler {
         Collections.reverse(names);
         return new NamespaceRef(names.toArray(new Object[names.size()]));
     }
-    List<TypeRef> backReferences = new ArrayList<TypeRef>();
-    List<List> allQualifiedNames = new ArrayList<List>();
+    List<TypeRef> allQualifiedNames = new ArrayList<TypeRef>();
+    interface DemanglingOp<T> {
+    	T run() throws DemanglingException;
+    }
+	<T> T withEmptyQualifiedNames(DemanglingOp<T> action) throws DemanglingException {
+		List<TypeRef> list = allQualifiedNames;
+    	try {
+    		allQualifiedNames = new ArrayList<TypeRef>();
+    		return action.run();
+    	} finally {
+    		allQualifiedNames = list;
+    	}
+    }
 
     IdentLike parseFirstQualifiedTypeNameComponent() throws DemanglingException {
         if (consumeCharIf('?')) {
@@ -562,7 +561,7 @@ public class VC9Demangler extends Demangler {
         List<TypeRef> paramTypes = new ArrayList<TypeRef>();
         if (!consumeCharIf('X')) {
             char c;
-            while ((c = peekChar()) != '@' && c != 0 && c != 'Z') {
+			while ((c = peekChar()) != '@' && c != 0 && (c != 'Z' || peekChar(2) == 'Z')) {
                 TypeRef tr = parseType(false);
                 if (tr == null)
                     continue;
@@ -577,17 +576,19 @@ public class VC9Demangler extends Demangler {
         return paramTypes;
     }
     private List<TemplateArg> parseTemplateParams() throws DemanglingException {
-        List<TemplateArg> paramTypes = new ArrayList<TemplateArg>();
-        if (!consumeCharIf('X')) {
-            char c;
-            while ((c = peekChar()) != '@' && c != 0) {
-                TemplateArg tr = parseTemplateParameter();
-                if (tr == null)
-                    continue;
-                paramTypes.add(tr);
+        return withEmptyQualifiedNames(new DemanglingOp<List<TemplateArg>>() { public List<TemplateArg> run() throws DemanglingException {
+            List<TemplateArg> paramTypes = new ArrayList<TemplateArg>();
+            if (!consumeCharIf('X')) {
+                char c;
+                while ((c = peekChar()) != '@' && c != 0) {
+                    TemplateArg tr = parseTemplateParameter();
+                    if (tr == null)
+                        continue;
+                    paramTypes.add(tr);
+                }
             }
-        }
-        return paramTypes;
+            return paramTypes;
+        }});
     }
 
     String parseNameFragment() {
@@ -598,17 +599,23 @@ public class VC9Demangler extends Demangler {
 			b.append(c);
 
 		String name = b.toString();
-		allQualifiedNames.add(Collections.singletonList(name));
+		//allQualifiedNames.add(Collections.singletonList(name));
 		return name;
 	}
 
+    TypeRef getBackRef(int i) throws DemanglingException {
+        if (i == allQualifiedNames.size())
+            i--; // TODO fix this !!!
+
+        if (i < 0 || i >= allQualifiedNames.size())
+            throw error("Invalid back references in name qualifications", -1);
+        return allQualifiedNames.get(i);
+    }
     private void parseNameQualifications(List<Object> names) throws DemanglingException {
         if (Character.isDigit(peekChar())) {
             try {
                 int i = consumeChar() - '0';
-                if (i == allQualifiedNames.size())
-                    i--; // TODO fix this !!!
-                names.add(((Collection)allQualifiedNames.get(i)).iterator().next());
+                names.add(getBackRef(i));
                 expectChars('@');
                 return;
             } catch (Exception ex) {
