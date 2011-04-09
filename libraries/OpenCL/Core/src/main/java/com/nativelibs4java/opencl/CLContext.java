@@ -116,6 +116,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 				String plat = getPlatform().getName();
 				cacheBinaries = 
 					!"ATI Stream".equals(plat) &&
+					!"AMD Accelerated Parallel Processing".equals(plat) &&
 					true;
 			}
 			//System.out.println("CACHE BINARIES = " + cacheBinaries);
