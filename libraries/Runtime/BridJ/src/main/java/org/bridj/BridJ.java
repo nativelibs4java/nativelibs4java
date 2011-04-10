@@ -55,6 +55,12 @@ public class BridJ {
         Class c = Utils.getClass(type);
         if (c.isPrimitive())
             return StructIO.primTypeLength(c);
+        else if (Pointer.class.isAssignableFrom(c))
+            return Pointer.SIZE;
+        else if (c == CLong.class)
+            return CLong.SIZE;
+        else if (c == SizeT.class)
+            return SizeT.SIZE;
         else if (c == Integer.class || c == Float.class)
             return 4;
         else if (c == Character.class || c == Short.class)
@@ -63,12 +69,13 @@ public class BridJ {
             return 8;
         else if (c == Boolean.class || c == Byte.class)
             return 1;
-        return getRuntime(c).getTypeInfo(type).sizeOf(type);
+        else if (NativeObject.class.isAssignableFrom(c))
+            return getRuntime(c).getTypeInfo(type).sizeOf(type);
         /*if (o instanceof NativeObject) {
             NativeObject no = (NativeObject)o;
             return no.typeInfo.sizeOf(no);
         }*/
-        //throw new RuntimeException("Unable to compute size for object " + o + " of type " + o.getClass().getName());
+        throw new RuntimeException("Unable to compute size of type " + Utils.toString(type));
     }
     static synchronized void registerNativeObject(NativeObject ob) {
         weakNativeObjects.put(Pointer.getAddress(ob, null), ob);
