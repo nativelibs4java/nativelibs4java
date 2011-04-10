@@ -165,7 +165,7 @@ public class StructIO {
 	}
 
     protected long alignSize(long size, long alignment) {
-        if (alignment != 1) {
+        if (alignment > 1) {
             long r = size % alignment;
             if (r != 0)
                 size += alignment - r;
