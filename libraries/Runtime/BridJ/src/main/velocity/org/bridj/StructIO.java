@@ -603,7 +603,7 @@ public class StructIO {
                     ptr = ptr.as(tpe);
                     Object value;
                     if (fd.isArray) {
-                        ptr.validElements(fd.arrayLength);
+                        ptr = ptr.validElements(fd.arrayLength);
                         value = ptr;
                     } else {
                         value = ptr.get();
