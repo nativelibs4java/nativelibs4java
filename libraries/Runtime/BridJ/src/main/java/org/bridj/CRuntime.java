@@ -143,19 +143,20 @@ public class CRuntime extends AbstractBridJRuntime {
                         setNativeObjectPeer(instance, registerCallbackInstance((Callback<?>)instance));
                 } else
                     initialize(instance, -1);
+
+                if (instance instanceof StructObject)
+                    structIO.readFieldsFromNative((StructObject)instance);
             } else if (instance instanceof StructObject) {
                 ((StructObject)instance).io = structIO;
             }
-            if (instance instanceof StructObject)
-        			structIO.readFieldsFromNative((StructObject)instance);
         }
         @Override
         public void initialize(T instance, Pointer peer) {
             instance.peer = peer;
             if (instance instanceof StructObject) {
                 ((StructObject)instance).io = structIO;
-        			structIO.readFieldsFromNative((StructObject)instance);
-        		}
+                structIO.readFieldsFromNative((StructObject)instance);
+            }
         }
 
         @Override

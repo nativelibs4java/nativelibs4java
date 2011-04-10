@@ -1,4 +1,6 @@
 package org.bridj;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import org.bridj.CallIO.NativeObjectHandler;
 import org.bridj.util.*;
 import java.lang.reflect.ParameterizedType;
@@ -383,12 +385,12 @@ public class StructIO {
         List<FieldDesc> aggregatedDescs = new ArrayList<FieldDesc>();
         //List<Type> declaringTypes = new ArrayList<Type>();
         for (List<FieldDecl> fieldGroup : fieldsMap.values()) {
-        		FieldDesc aggregatedDesc = new FieldDesc();
-        		aggregatedDescs.add(aggregatedDesc);
-        		boolean isMultiFields = fieldGroup.size() > 1;
-        		//Type fieldDeclaringType = null;
-        		//long fieldByteLength = -1, fieldBitLength = -1, fieldAlignment = -1; 
-        		for (FieldDecl field : fieldGroup) {
+    		FieldDesc aggregatedDesc = new FieldDesc();
+    		aggregatedDescs.add(aggregatedDesc);
+    		boolean isMultiFields = fieldGroup.size() > 1;
+    		for (FieldDecl field : fieldGroup) {
+                if (field.valueClass.isArray())
+                	throw new RuntimeException("Struct fields cannot be array types : please use a combination of Pointer and @Array (for instance, an int[10] is a @Array(10) Pointer<Integer>).");
 				if (field.valueClass.isPrimitive()) {
 					field.desc.byteLength = primTypeLength(field.valueClass);
 				} else if (StructObject.class.isAssignableFrom(field.valueClass)) {
@@ -412,7 +414,9 @@ public class StructIO {
                     field.desc.byteLength = Pointer.SIZE;
 					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
 				} else if (Pointer.class.isAssignableFrom(field.valueClass)) {
-					field.desc.nativeTypeOrPointerTargetType = (field.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.valueType).getActualTypeArguments()[0] : null;
+					Type tpe = (field.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.valueType).getActualTypeArguments()[0] : null;
+                    if (!(tpe instanceof WildcardType) && !(tpe instanceof TypeVariable))
+                    	field.desc.nativeTypeOrPointerTargetType = tpe;
                     if (field.desc.isArray)
                         field.desc.byteLength = BridJ.sizeOf(field.desc.nativeTypeOrPointerTargetType);
                     else
@@ -566,47 +570,49 @@ public class StructIO {
 	}
 	
 	public final void writeFieldsToNative(StructObject struct) {
-		if (!hasFieldFields)
-			return;
-		try {
-			for (FieldDesc fd : fields) {
-				if (fd.field == null)
-					continue;
+            if (!hasFieldFields)
+                return;
+            try {
+                for (FieldDesc fd : fields) {
+                    if (fd.field == null)
+                        continue;
 				
-				if (fd.isArray || fd.isNativeObject)
-					continue;
-				
-				Object value = fd.field.get(struct);
-				Pointer ptr = struct.peer.offset(fd.byteOffset);
-                ptr = ptr.as(fd.nativeTypeOrPointerTargetType == null ? fd.field.getGenericType() : fd.nativeTypeOrPointerTargetType);
-				ptr.set(value);
-			}
-		} catch (Throwable th) {
-			throw new RuntimeException("Unexpected error while writing fields from struct " + Utils.toString(structType) + " (" + pointerTo(struct) + ")", th);
-		}
+                    if (fd.isArray || fd.isNativeObject)
+                        continue;
+
+                    Object value = fd.field.get(struct);
+                    Pointer ptr = struct.peer.offset(fd.byteOffset);
+                    Type tpe = fd.nativeTypeOrPointerTargetType == null ? fd.field.getGenericType() : fd.nativeTypeOrPointerTargetType;
+                    ptr = ptr.as(tpe);
+                    ptr.set(value);
+                }
+            } catch (Throwable th) {
+                throw new RuntimeException("Unexpected error while writing fields from struct " + Utils.toString(structType) + " (" + pointerTo(struct) + ")", th);
+            }
 	}
 	public final void readFieldsFromNative(StructObject struct) {
-		if (!hasFieldFields)
-			return;
-		try {
-			for (FieldDesc fd : fields) {
-				if (fd.field == null)
-					continue;
-				
-				Pointer ptr = struct.peer.offset(fd.byteOffset);
-                ptr = ptr.as(fd.nativeTypeOrPointerTargetType == null ? fd.field.getGenericType() : fd.nativeTypeOrPointerTargetType);
-				Object value;
-				if (fd.isArray) {
-					ptr.validElements(fd.arrayLength);
-					value = ptr;
-				} else {
-					value = ptr.get();
-				}
-				fd.field.set(struct, value);
-			}
-		} catch (Throwable th) {
-			throw new RuntimeException("Unexpected error while reading fields from struct " + Utils.toString(structType) + " (" + pointerTo(struct) + ") : " + th, th);
-		}
+            if (!hasFieldFields)
+                return;
+            try {
+                for (FieldDesc fd : fields) {
+                    if (fd.field == null)
+                        continue;
+
+                    Pointer ptr = struct.peer.offset(fd.byteOffset);
+                    Type tpe = fd.nativeTypeOrPointerTargetType == null ? fd.field.getGenericType() : fd.nativeTypeOrPointerTargetType;
+                    ptr = ptr.as(tpe);
+                    Object value;
+                    if (fd.isArray) {
+                        ptr.validElements(fd.arrayLength);
+                        value = ptr;
+                    } else {
+                        value = ptr.get();
+                    }
+                    fd.field.set(struct, value);
+                }
+            } catch (Throwable th) {
+                throw new RuntimeException("Unexpected error while reading fields from struct " + Utils.toString(structType) + " (" + pointerTo(struct) + ") : " + th, th);
+            }
 	}
 	public final <T> Pointer<T> getPointerField(StructObject struct, int fieldIndex) {
         FieldDesc fd = fields[fieldIndex];
