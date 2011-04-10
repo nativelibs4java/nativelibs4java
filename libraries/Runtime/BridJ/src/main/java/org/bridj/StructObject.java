@@ -27,6 +27,9 @@ public abstract class StructObject extends NativeObject {
     	super(peer);
     }
     
+    /**
+     * Creates a String out of this struct using BridJ.describe(this) (see {@link BridJ#describe(NativeObject) }).
+     */
     @Override
     public String toString() {
     		return BridJ.describe(this);
