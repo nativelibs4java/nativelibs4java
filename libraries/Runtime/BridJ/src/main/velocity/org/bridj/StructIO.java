@@ -80,6 +80,7 @@ public class StructIO {
         Class<?> valueClass;
         Class<?> declaringClass;
         boolean isBitField;
+        boolean isCLong, isSizeT;
 
         @Override
         public String toString() {
@@ -279,6 +280,8 @@ public class StructIO {
             field.desc.arrayLength = length;
             field.desc.isArray = true;
         }
+        field.isCLong = getter.getAnnotation(org.bridj.ann.CLong.class) != null;
+        field.isSizeT = getter.getAnnotation(org.bridj.ann.Ptr.class) != null;
         return field;
     }
 
@@ -392,7 +395,16 @@ public class StructIO {
                 if (field.valueClass.isArray())
                 	throw new RuntimeException("Struct fields cannot be array types : please use a combination of Pointer and @Array (for instance, an int[10] is a @Array(10) Pointer<Integer>).");
 				if (field.valueClass.isPrimitive()) {
-					field.desc.byteLength = primTypeLength(field.valueClass);
+					if (field.isCLong)
+						field.desc.byteLength = CLong.SIZE;
+					else if (field.isSizeT)
+						field.desc.byteLength = SizeT.SIZE;
+					else
+						field.desc.byteLength = primTypeLength(field.valueClass);
+				} else if (field.valueClass == CLong.class) {
+					field.desc.byteLength = CLong.SIZE;
+				} else if (field.valueClass == SizeT.class) {
+					field.desc.byteLength = SizeT.SIZE;
 				} else if (StructObject.class.isAssignableFrom(field.valueClass)) {
 					field.desc.nativeTypeOrPointerTargetType = field.valueType;
 					StructIO io = StructIO.getInstance(field.valueClass, field.valueType);		

@@ -583,6 +583,27 @@ public class StructTest {
         assertEquals("Invalid array field pointer type", Integer.class, pInts.getTargetType());
         assertEquals("Invalid sub array", pointerTo(s).getPeer(), pInts.getPeer());
     }
+    
+    public static class CLongSize extends StructObject {
+    	@Field(0)
+    	@org.bridj.ann.CLong
+    	public long v;
+    }
+    
+    @Test
+    public void testCLongSize() {
+    	assertEquals(CLong.SIZE, BridJ.sizeOf(CLongSize.class));
+    }
+    public static class SizeTSize extends StructObject {
+    	@Field(0)
+    	@Ptr
+    	public long v;
+    }
+    
+    @Test
+    public void testSizeTSize() {
+    	assertEquals(SizeT.SIZE, BridJ.sizeOf(SizeTSize.class));
+    }
     //*/
 }
 
