@@ -26,4 +26,9 @@ public abstract class StructObject extends NativeObject {
     protected StructObject(Pointer<? extends StructObject> peer) {
     	super(peer);
     }
+    
+    @Override
+    public String toString() {
+    		return BridJ.describe(this);
+    }
 }

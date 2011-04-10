@@ -65,7 +65,10 @@ public class StructIO {
         public boolean isArray, isNativeObject;
         public Type nativeTypeOrPointerTargetType;
         public java.lang.reflect.Field field;
+        Type valueType;
+        Method getter;
         String name;
+        boolean isCLong, isSizeT;
 		
         @Override
         public String toString() {
@@ -74,13 +77,11 @@ public class StructIO {
 	}
 	protected static class FieldDecl {
 		final FieldDesc desc = new FieldDesc();
-		Method getter, setter;
+		Method setter;
 		long index = -1, unionWith = -1;//, byteOffset = -1;
-		Type valueType;
-        Class<?> valueClass;
+		Class<?> valueClass;
         Class<?> declaringClass;
         boolean isBitField;
-        boolean isCLong, isSizeT;
 
         @Override
         public String toString() {
@@ -177,8 +178,11 @@ public class StructIO {
 	void build() {
 		if (fields == null) {
 			synchronized (this) {
-				if (fields == null)
+				if (fields == null) {
 					fields = computeStructLayout();
+					if (BridJ.debug)
+						BridJ.log(Level.INFO, describe());
+				}
 			}
 		}
 	}
@@ -238,14 +242,14 @@ public class StructIO {
     protected FieldDecl createFieldDecl(java.lang.reflect.Field getter) {
         FieldDecl field = createFieldDecl((Member)getter);
         field.desc.field = getter;
-        field.valueType = getter.getGenericType();
+        field.desc.valueType = getter.getGenericType();
         field.valueClass = getter.getType();
         return field;
     }
     protected FieldDecl createFieldDecl(Method getter) {
         FieldDecl field = createFieldDecl((Member)getter);
-        field.getter = getter;
-        field.valueType = getter.getGenericReturnType();
+        field.desc.getter = getter;
+        field.desc.valueType = getter.getGenericReturnType();
         field.valueClass = getter.getReturnType();
         return field;
     }
@@ -280,8 +284,8 @@ public class StructIO {
             field.desc.arrayLength = length;
             field.desc.isArray = true;
         }
-        field.isCLong = getter.getAnnotation(org.bridj.ann.CLong.class) != null;
-        field.isSizeT = getter.getAnnotation(org.bridj.ann.Ptr.class) != null;
+        field.desc.isCLong = getter.getAnnotation(org.bridj.ann.CLong.class) != null;
+        field.desc.isSizeT = getter.getAnnotation(org.bridj.ann.Ptr.class) != null;
         return field;
     }
 
@@ -395,9 +399,9 @@ public class StructIO {
                 if (field.valueClass.isArray())
                 	throw new RuntimeException("Struct fields cannot be array types : please use a combination of Pointer and @Array (for instance, an int[10] is a @Array(10) Pointer<Integer>).");
 				if (field.valueClass.isPrimitive()) {
-					if (field.isCLong)
+					if (field.desc.isCLong)
 						field.desc.byteLength = CLong.SIZE;
-					else if (field.isSizeT)
+					else if (field.desc.isSizeT)
 						field.desc.byteLength = SizeT.SIZE;
 					else
 						field.desc.byteLength = primTypeLength(field.valueClass);
@@ -406,34 +410,34 @@ public class StructIO {
 				} else if (field.valueClass == SizeT.class) {
 					field.desc.byteLength = SizeT.SIZE;
 				} else if (StructObject.class.isAssignableFrom(field.valueClass)) {
-					field.desc.nativeTypeOrPointerTargetType = field.valueType;
-					StructIO io = StructIO.getInstance(field.valueClass, field.valueType);		
+					field.desc.nativeTypeOrPointerTargetType = field.desc.valueType;
+					StructIO io = StructIO.getInstance(field.valueClass, field.desc.valueType);		
 					field.desc.byteLength = io.getStructSize();				
 					field.desc.alignment = io.getStructAlignment();
 					field.desc.isNativeObject = true;
 				} else if (ValuedEnum.class.isAssignableFrom(field.valueClass)) {
-					field.desc.nativeTypeOrPointerTargetType = (field.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType)field.valueType).getActualTypeArguments()[0]) : null;
+					field.desc.nativeTypeOrPointerTargetType = (field.desc.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType)field.desc.valueType).getActualTypeArguments()[0]) : null;
 					Class c = PointerIO.getClass(field.desc.nativeTypeOrPointerTargetType);
 					if (IntValuedEnum.class.isAssignableFrom(c))
 						field.desc.byteLength = 4;
 					else
 						throw new RuntimeException("Enum type unknown : " + c);
-					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
+					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
 				} else if (TypedPointer.class.isAssignableFrom(field.valueClass)) {
-					field.desc.nativeTypeOrPointerTargetType = field.valueType;
+					field.desc.nativeTypeOrPointerTargetType = field.desc.valueType;
                     if (field.desc.isArray)
                         throw new RuntimeException("Typed pointer field cannot be an array : " + field.desc.name);
                     field.desc.byteLength = Pointer.SIZE;
-					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
+					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
 				} else if (Pointer.class.isAssignableFrom(field.valueClass)) {
-					Type tpe = (field.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.valueType).getActualTypeArguments()[0] : null;
+					Type tpe = (field.desc.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.desc.valueType).getActualTypeArguments()[0] : null;
                     if (!(tpe instanceof WildcardType) && !(tpe instanceof TypeVariable))
                     	field.desc.nativeTypeOrPointerTargetType = tpe;
                     if (field.desc.isArray)
                         field.desc.byteLength = BridJ.sizeOf(field.desc.nativeTypeOrPointerTargetType);
                     else
                         field.desc.byteLength = Pointer.SIZE;
-					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.valueType);
+					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
 				} else if (Buffer.class.isAssignableFrom(field.valueClass)) {
 					if (field.valueClass == IntBuffer.class)
 						field.desc.byteLength = 4;
@@ -454,7 +458,7 @@ public class StructIO {
 					field.desc.byteLength = primTypeLength(field.valueClass.getComponentType());
 				} else {
 					//throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
-					StructIO io = StructIO.getInstance(field.valueClass, field.valueType);
+					StructIO io = StructIO.getInstance(field.valueClass, field.desc.valueType);
 					long s = io.getStructSize();
 					if (s > 0)
 						field.desc.byteLength = s;
@@ -482,12 +486,13 @@ public class StructIO {
 					aggregatedDesc.byteLength = (aggregatedDesc.bitLength >>> 3) + ((aggregatedDesc.bitLength & 7) != 0 ? 1 : 0);
 				}
 				
-				if (!isMultiFields) {
-					aggregatedDesc.isArray = field.desc.isArray;
-					aggregatedDesc.isNativeObject = field.desc.isNativeObject; 
-					aggregatedDesc.nativeTypeOrPointerTargetType = field.desc.nativeTypeOrPointerTargetType;
-					aggregatedDesc.name = field.desc.name;		
-				}
+				//if (!isMultiFields) {
+				//aggregatedDesc.isArray = field.desc.isArray;
+				//aggregatedDesc.isNativeObject = field.desc.isNativeObject; 
+				//aggregatedDesc.nativeTypeOrPointerTargetType = field.desc.nativeTypeOrPointerTargetType;
+				//aggregatedDesc.name = field.desc.name;
+				//aggregatedDesc.valueType = field.desc.valueType;
+				//}
 				//if (fieldDeclaringType == null)
 				//	fieldDeclaringType = field.declaringClass;
 				//else if (!fieldDeclaringType.equals(field.declaringClass))
@@ -579,6 +584,80 @@ public class StructIO {
 				return cmp;	
 		}
     		return 0;
+	}
+	
+	public final String describe(StructObject struct) {
+		StringBuilder b = new StringBuilder();
+		b.append(describe(structType)).append(" { ");
+		for (FieldDesc fd : fields) {
+			b.append("\n\t").append(fd.name).append(" = ");
+			try {
+				Object value;
+				if (fd.getter != null)
+					value = fd.getter.invoke(struct);
+				else
+					value = fd.field.get(struct);
+				
+				if (value instanceof String)
+					b.append('"').append(value.toString().replaceAll("\"", "\\\"")).append('"');
+				else if (value instanceof Character)
+					b.append('\'').append(value).append('\'');
+				else if (value instanceof NativeObject) {
+					String d = BridJ.describe((NativeObject)value);
+					b.append(d.replaceAll("\n", "\n\t"));
+				} else
+					b.append(value);
+			} catch (Throwable th) {
+				if (BridJ.debug)
+					th.printStackTrace();
+				b.append("?");
+			}
+			b.append("; ");
+		}
+		b.append("\n}");
+		return b.toString();
+	}
+	static String describe(Type t) {
+		if (t == null)
+    			return "?";
+    		if (t instanceof Class)
+			return ((Class)t).getSimpleName();
+		return t.toString().
+			replaceAll("\\bjava\\.lang\\.", "").
+			replaceAll("\\borg\\.bridj\\.cpp\\.com\\.", "").
+			replaceAll("\\borg\\.bridj\\.Pointer\\b", "Pointer");
+			
+	}
+    
+	public final String describe() {
+		StringBuilder b = new StringBuilder();
+		b.append("// ");
+		b.append("size = ").append(structSize).append(", ");
+		b.append("alignment = ").append(structAlignment);
+		b.append("\nstruct ");
+		b.append(describe(structType)).append(" { ");
+		for (int iField = 0, nFields = fields.length; iField < nFields; iField++) {
+			FieldDesc fd = fields[iField];
+			b.append("\n\t");
+			b.append("@Field(").append(iField).append(") ");
+			if (fd.isCLong)
+				b.append("@CLong ");
+			else if (fd.isSizeT)
+				b.append("@Ptr ");
+			b.append(describe(fd.valueType)).append(" ").append(fd.name).append("; ");
+			
+			b.append("// ");
+			b.append("offset = ").append(fd.byteOffset).append(", ");
+			b.append("length = ").append(fd.byteLength).append(", ");
+			if (fd.bitOffset != 0)
+				b.append("bitOffset = ").append(fd.bitOffset).append(", ");
+			if (fd.bitLength != -1)
+				b.append("bitLength = ").append(fd.bitLength).append(", ");
+			if (fd.arrayLength != 1)
+				b.append("arrayLength = ").append(fd.arrayLength);//.append(", ");
+		}
+		b.append("\n}");
+		return b.toString();
 	}
 	
 	public final void writeFieldsToNative(StructObject struct) {

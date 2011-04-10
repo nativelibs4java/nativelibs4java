@@ -134,6 +134,20 @@ public class CRuntime extends AbstractBridJRuntime {
         		if (instance instanceof StructObject)
         			structIO.readFieldsFromNative((StructObject)instance);
         }
+        @Override
+        public String describe(T instance) {
+        		if (instance instanceof StructObject)
+        			return structIO.describe((StructObject)instance);
+        		else
+        			return instance.toString();
+        }
+        @Override
+        public String describe() {
+        		if (structIO != null)
+        			return structIO.describe();
+        		else
+        			return Utils.toString(typeClass);
+        }
 
         @Override
         public void initialize(T instance) {

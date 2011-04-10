@@ -266,7 +266,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		this.parent = parent;
 		this.offsetInParent = offsetInParent;
 		this.sibling = sibling;
-		if (BridJ.debug)
+		if (BridJ.debugPointers)
 			creationTrace = new RuntimeException().fillInStackTrace();
 	}
 	Throwable creationTrace;
@@ -1248,7 +1248,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 			assert p.getSibling() == null;
 			assert p.validStart == p.getPeer();
 			
-		if (BridJ.debug)
+		if (BridJ.debugPointers)
 			BridJ.log(Level.INFO, "Freeing pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
 		
     		JNI.free(p.getPeer());

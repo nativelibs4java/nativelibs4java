@@ -257,6 +257,7 @@ public class BridJ {
 	}
 
     public static final boolean debug = "true".equals(System.getProperty("bridj.debug")) || "1".equals(System.getenv("BRIDJ_DEBUG"));
+    public static final boolean debugPointers = "true".equals(System.getProperty("bridj.debug.pointers")) || "1".equals(System.getenv("BRIDJ_DEBUG_POINTERS"));
     public static final boolean verbose = debug || "true".equals(System.getProperty("bridj.verbose")) || "1".equals(System.getenv("BRIDJ_VERBOSE"));
     static final int minLogLevel = Level.WARNING.intValue();
 	static boolean shouldLog(Level level) {
@@ -684,6 +685,21 @@ public class BridJ {
 		((TypeInfo<T>)instance.typeInfo).writeToNative(instance);
 		return instance;
 	}
+	/**
+	 * Creates a string that describes the provided native object, printing generally-relevant internal data (for instance for structures, this will typically display the fields values).<br>
+	 * This is primarily useful for debugging purposes.
+	 */
+	public static String describe(NativeObject instance) {
+		return ((TypeInfo)instance.typeInfo).describe(instance);
+	}
+	/**
+	 * Creates a string that describes the provided native object type, printing generally-relevant internal data (for instance for structures, this will typically display name of the fields, their offsets and lengths...).<br>
+	 * This is primarily useful for debugging purposes.
+	 */
+	public static String describe(Type nativeObjectType) {
+		return getTypeInfo(nativeObjectType).describe();
+	}
+	
 	public static void main(String[] args) {
 		List<NativeLibrary> libraries = new ArrayList<NativeLibrary>();
 		try {

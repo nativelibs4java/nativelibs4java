@@ -28,6 +28,8 @@ public interface BridJRuntime {
 		int compare(T instance, T other);
         long sizeOf(Type type);
         void writeToNative(T instance);
+        String describe(T instance);
+        String describe();
         void readFromNative(T instance);
 	}
 	Type getType(NativeObject instance);
