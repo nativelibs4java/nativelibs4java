@@ -697,7 +697,8 @@ public class BridJ {
 	 * This is primarily useful for debugging purposes.
 	 */
 	public static String describe(Type nativeObjectType) {
-		return getTypeInfo(nativeObjectType).describe();
+		TypeInfo typeInfo = getTypeInfo(nativeObjectType);
+		return typeInfo == null ? Utils.toString(nativeObjectType) : typeInfo.describe();
 	}
 	
 	public static void main(String[] args) {
