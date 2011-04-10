@@ -51,7 +51,7 @@ public class Test {
 
 
         // Find the first video stream
-        int videoStream = -1;
+        int iVideoStream = -1;
         AVFormatContext formatCtx = pFormatCtx.get();
         for (int i = 0; i < formatCtx.nb_streams(); i++) {
             Pointer<AVStream> pStream = formatCtx.streams().get(i);
@@ -67,17 +67,18 @@ public class Test {
             //System.out.println("Codec Name = " + codecName);
             AVCodecContext codec = pCodec.get();
             ValuedEnum<AVMediaType> codec_type = codec.codec_type();
-            if (codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO) {
-                videoStream = i;
+            if (codec_type.equals(AVMediaType.AVMEDIA_TYPE_VIDEO)) {
+                iVideoStream = i;
                 break;
             }
         }
-        if (videoStream == -1) {
+        if (iVideoStream == -1) {
             error("Didn't find a video stream");
         }
-
         // Get a pointer to the codec context for the video stream
-        Pointer<AVCodecContext> pCodecCtx = formatCtx.streams().get(videoStream).get().codec();
+        Pointer<AVStream> pVideoStream = formatCtx.streams().get(iVideoStream);
+        AVStream videoStream = pVideoStream.get();
+        Pointer<AVCodecContext> pCodecCtx = videoStream.codec();
         AVCodecContext codecCtx = pCodecCtx.get();
 
         // Find the decoder for the video stream
@@ -116,13 +117,15 @@ public class Test {
             int i = 0;
             while (av_read_frame(pFormatCtx, pPacket) >= 0) {
                 // Is this a packet from the video stream?
-                if (packet.stream_index() == videoStream) {
+                int packetStreamIndex = packet.stream_index();
+                if (packetStreamIndex == iVideoStream) {
                     // Decode video frame
                     avcodec_decode_video(pCodecCtx, pFrame, pFrameFinished, packet.data(), packet.size());
 
                     // Did we get a video frame?
                     if (pFrameFinished.get() != 0) {
                         // Convert the image from its native format to RGB
+                        System.out.println("Got image from video !");
                         //img_convert(pFrameRGB.as(AVPicture.class), PixelFormat.PIX_FMT_RGB24, pFrame.as(AVPicture.class), codecCtx.pix_fmt(),
                         //    codecCtx.width(), codecCtx.height());
                         // Save the frame to disk

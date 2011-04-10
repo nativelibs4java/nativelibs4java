@@ -34,19 +34,19 @@ public class AVCodecContext extends StructObject {
 		return null;
 	}
 	public Pointer<Byte> codec_name() {
-		return peer.getPointer(232, Byte.class);
+		return peer.getPointerAtOffset(232, Byte.class);
 	}
 	public ValuedEnum<AVMediaType > codec_type() {
-		return FlagSet.fromValue(peer.getInt(264), AVMediaType.class);
+		return FlagSet.fromValue(peer.getIntAtOffset(264), AVMediaType.class);
 	}
 	public ValuedEnum<CodecID > codec_id() {
-        return FlagSet.fromValue(peer.getInt(268), CodecID.class);
+        return FlagSet.fromValue(peer.getIntAtOffset(268), CodecID.class);
 	}
     public int width() {
-		return peer.getInt(52);
+		return peer.getIntAtOffset(52);
 	}
 	public int height() {
-		return peer.getInt(56);
+		return peer.getIntAtOffset(56);
 	}
 
 }
