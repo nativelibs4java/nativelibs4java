@@ -103,7 +103,9 @@ public class CPPTemplateTest {
 			}
 
 			public T get(long index) {
-				return _M_start().get(index);
+                // TODO make this unnecessary
+				Pointer<T> p = _M_start().as(T());
+                return p.get(index);
 			}
 			public T get(int index) {
 				return get((long)index);
@@ -155,6 +157,12 @@ public class CPPTemplateTest {
 		//long end = intVector.getSizeTAtOffset(SizeT.SIZE);
 		//long endOfStorage = intVector.getSizeTAtOffset(SizeT.SIZE * 2);
 		assertEquals("Bad size", size, intVector.size());
+
+        for (int i = 0; i < size; i++) {
+            int v = intVector.get(i);
+
+            assertEquals(i, v);
+        }
 		//System.out.println("size = " + (end - start));
 		//System.out.println("capacity = " + (endOfStorage - start));
     }
