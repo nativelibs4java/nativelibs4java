@@ -1398,7 +1398,7 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
 --- dyncall/dynload/dynload_syms_mach-o.c	
 +++ dyncall/dynload/dynload_syms_mach-o.c	
-@@ -33,9 +33,11 @@
+@@ -34,9 +34,11 @@
  
  #if defined(DC__Arch_AMD64)
  #define MACH_HEADER_TYPE mach_header_64
@@ -1410,7 +1410,7 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
  #define NLIST_TYPE nlist
  #endif
  
-@@ -67,8 +69,13 @@
+@@ -68,8 +70,13 @@
  		const char* name = _dyld_get_image_name(iImage);
  		if (name && !strcmp(name, pLib->libPath))
  		{
