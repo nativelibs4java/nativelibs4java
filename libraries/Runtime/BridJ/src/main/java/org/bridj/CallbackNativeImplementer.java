@@ -48,18 +48,7 @@ class CallbackNativeImplementer extends ClassLoader {
 				String callbackTypeImplName = callbackTypeName.replace('$', '_') + implNameSuffix;
 				String sourceFile = callbackType.getSimpleName() + implNameSuffix + ".java";
 				
-				Method callbackMethod = null;
-				for (Method method : callbackType.getDeclaredMethods()) {
-					int modifiers = method.getModifiers();
-					if (Modifier.isAbstract(modifiers)) {
-						if (callbackMethod == null)
-							callbackMethod = method;
-						else
-							throw new RuntimeException("Callback " + callbackType.getName() + " has more than one abstract method (" + callbackMethod + " and " + method + ")");
-					}
-				}
-				if (callbackMethod == null)
-					throw new RuntimeException("Callback " + callbackType.getName() + " doesn't have any abstract method.");
+				Method callbackMethod = runtime.getUniqueAbstractCallbackMethod(callbackType);
 				
 				Class<?>[] parameterTypes = callbackMethod.getParameterTypes();
 				MethodCallInfo mci = new MethodCallInfo(callbackMethod);

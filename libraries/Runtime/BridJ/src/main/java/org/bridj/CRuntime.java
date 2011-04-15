@@ -398,11 +398,14 @@ public class CRuntime extends AbstractBridJRuntime {
     		if (!Modifier.isAbstract(modifiers))
     			continue;
 
-    		method = dm;
-    		break;
+    		if (method == null)
+    			method = dm;
+    		else
+    			throw new RuntimeException("Callback " + type.getName() + " has more than one abstract method (" + dm + " and " + method + ")");
+    		//break;
     	}
     	if (method == null)
-    		throw new RuntimeException("Type doesn't have any abstract method : " + type.getName());
+    		throw new RuntimeException("Type doesn't have any abstract method : " + type.getName() + " (parent = " + parent.getName() + ")");
     	return method;
     }
 
