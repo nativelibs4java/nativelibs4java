@@ -22,7 +22,9 @@ import org.bridj.cpp.CPPObject;
 import org.bridj.BridJ;
 import org.bridj.Pointer;
 import org.bridj.ann.Field;
+import org.bridj.ann.Array;
 import org.bridj.ann.Library;
+import org.bridj.ann.Struct;
 import org.bridj.ann.Name;
 import org.bridj.ann.Runtime;
 import org.bridj.ann.Virtual;
@@ -78,9 +80,20 @@ public class CPPTemplateTest {
 	}
 
 
-	public static final class std {
-
+	public static final class std implements StructIO.Customizer {
+		public StructIO process(StructIO io) {
+			if (Platform.isWindows()) {
+				Class c = io.getStructClass();
+				if (c == vector.class) {
+					// On Windows, vector begins by 3 pointers, before the start+finish+end pointers :
+					io.prependBytes(3 * Pointer.SIZE);
+				}
+			}
+			return io;
+		}
+    
 		@Template({ Type.class })
+		@Struct(customizer = std.class)
 		public static class vector<T> extends CPPObject {
 			@Field(0)
 			public Pointer<T> _M_start() {
@@ -131,17 +144,12 @@ public class CPPTemplateTest {
 	//public static native
     ///*
 	@Test
-	public void testSize() throws Exception {
+	public void testSTLVector() throws Exception {
 		NativeLibrary lib = BridJ.getNativeLibrary("test");
 		Pointer<?> ptr = lib.getSymbolPointer("newIntVector").getPointer();
 		Pointer<?> sptr = lib.getSymbolPointer("sizeofIntVector").getPointer();
-		/*for (Symbol symbol : lib.getSymbols()) {
-			if (symbol.toString().contains("Vector"))
-			System.out.println("\t" + symbol);
-		}*/
 		int sizeofIntVector = (Integer)sptr.asDynamicFunction(null, int.class).apply();
 
-		System.out.println("sizeofIntVector = " + sizeofIntVector);
 		assertEquals("bad vector<int> size !", sizeofIntVector, BridJ.sizeOf(CPPType.getCPPType(vector.class, int.class)));
 
 		vector<Integer> intVector = new vector<Integer>(Integer.class);

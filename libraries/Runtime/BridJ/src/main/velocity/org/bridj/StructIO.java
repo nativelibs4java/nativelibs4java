@@ -27,6 +27,7 @@ import org.bridj.ann.Array;
 import org.bridj.ann.Union;
 import org.bridj.ann.Bits;
 import org.bridj.ann.Field;
+import org.bridj.ann.Struct;
 import org.bridj.ann.Alignment;
 import static org.bridj.Pointer.*;
 
@@ -40,11 +41,42 @@ public class StructIO {
 
     static Map<Type, StructIO> structIOs = new HashMap<Type, StructIO>();
 
+    public interface Customizer {
+    	StructIO process(StructIO io);
+    }
+	static Customizer dummyCustomizer = new Customizer() {
+    	public StructIO process(StructIO io) { return io; }
+    };
+    static Map<Class, Customizer> customizers = new HashMap<Class, Customizer>();
+    static synchronized Customizer getCustomizer(Class<?> structClass) {
+    	Customizer c = customizers.get(structClass);
+    	if (c == null) {
+    		Struct s = structClass.getAnnotation(Struct.class);
+			if (s != null) {
+				Class<? extends Customizer> customizerClass = s.customizer();
+				if (customizerClass != null && customizerClass != Customizer.class) {
+					try {
+						c = customizerClass.newInstance();
+					} catch (Throwable th) {
+						throw new RuntimeException("Failed to create customizer of class " + customizerClass.getName() + " for struct class " + structClass.getName() + " : " + th, th);
+					}
+				}
+			}
+			if (c == null)
+				c = dummyCustomizer;
+			customizers.put(structClass, c);
+    	}
+    	return c;
+    }
     public static StructIO getInstance(Class structClass, Type structType) {
-        synchronized (structIOs) {
+    	synchronized (structIOs) {
             StructIO io = structIOs.get(structType == null ? structClass : structType);
-            if (io == null)
-                registerStructIO(structClass, structType, (StructIO)(io = new StructIO(structClass, structType)));
+            if (io == null) {
+            	io = new StructIO(structClass, structType);
+            	io = getCustomizer(structClass).process(io);
+            	if (io != null)
+            		registerStructIO(structClass, structType, io);
+            }
             return (StructIO)io;
         }
     }
@@ -58,7 +90,7 @@ public class StructIO {
      * Internal metadata on a struct field
      */
     public static class FieldDesc {
-    		public long alignment = -1;
+		public long alignment = -1;
         public long byteOffset = -1, byteLength = -1;
 		public long bitOffset, bitLength = -1;
         public long arrayLength = 1;
@@ -70,6 +102,9 @@ public class StructIO {
         String name;
         boolean isCLong, isSizeT;
 		
+        public void offset(long bytes) {
+			byteOffset += bytes;
+		}
         @Override
         public String toString() {
 			return "Field(byteOffset = " + byteOffset + ", byteLength = " + byteLength + ", bitOffset = " + bitOffset + ", bitLength = " + bitLength + (nativeTypeOrPointerTargetType == null ? "" : ", ttype = " + nativeTypeOrPointerTargetType) + ")";
@@ -132,6 +167,33 @@ public class StructIO {
 	protected final Type structType;
 	protected boolean hasFieldFields;
 
+	public void prependBytes(long bytes) {
+		build();
+		for (FieldDesc field : fields) {
+			field.offset(bytes);
+		}
+		structSize += bytes;
+	}
+	public void appendBytes(long bytes) {
+		build();
+		structSize += bytes;
+	}
+	public void setFieldOffset(String fieldName, long fieldOffset, boolean propagateChanges) {
+		build();
+
+		long propagatedOffset = 0;
+		for (FieldDesc field : fields) {
+			if (field.name.equals(fieldName)) {
+				propagatedOffset = fieldOffset - field.byteOffset;
+				field.offset(propagatedOffset);
+				if (!propagateChanges)
+					return;
+				structSize += propagatedOffset;
+			} else if (propagateChanges)
+				field.offset(propagatedOffset);
+			return;
+		}
+	}
     public StructIO(Class<?> structClass, Type structType) {
 		this.structClass = structClass;
         this.structType = structType;
