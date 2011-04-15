@@ -187,11 +187,6 @@ public class StructIO {
 		}
 	}
     
-    /// TODO only create array for fields that need an object representation. Can even return null if none qualify.
-	Object[] createRefreshableFieldsArray() {
-        return new Object[fields.length];
-    }
-	
 	public final long getStructSize() {
 		build();
 		return structSize;

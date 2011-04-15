@@ -16,6 +16,9 @@ import org.bridj.Platform;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.GenericDeclaration;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -52,9 +55,88 @@ import static org.bridj.Pointer.*;
  */
 public class CPPRuntime extends CRuntime {
 
+	public static final int DEFAULT_CONSTRUCTOR = -1, SKIP_CONSTRUCTOR = -2;
+	
     public static CPPRuntime getInstance() {
         return BridJ.getRuntimeByRuntimeClass(CPPRuntime.class);
     }
+    public Object[] getTemplateParameters(CPPObject object, Class<?> typeClass) {
+    		Object[] params = null;
+    		if (object.templateParameters != null) {
+    			params = object.templateParameters.get(typeClass);
+    		}
+    		return params;// == null ? new Object[0] : params;
+    }
+    protected interface ClassTypeVariableExtractor {
+    		Type extract(CPPObject instance);
+    }
+    protected interface MethodTypeVariableExtractor {
+    		Type extract(CPPObject instance, Object[] methodTemplateParameters);
+    }
+    protected static int getAnnotatedTemplateTypeVariableIndexInArguments(TypeVariable<?> var) {
+    		GenericDeclaration d = var.getGenericDeclaration();
+    		AnnotatedElement e = (AnnotatedElement)d;
+    		
+    		Template t = e.getAnnotation(Template.class);
+    		if (t == null)
+    			throw new RuntimeException(e + " is not a C++ class template (misses the @" + Template.class.getName() + " annotation)");
+    		
+    		int iTypeVar = Arrays.asList(d.getTypeParameters()).indexOf(var);
+    		int nTypes = 0, iParam = -1;
+    		Class<?>[] values = t.value();
+    		for (int i = 0, n = values.length; i < n; i++) {
+    			Class<?> c = values[i];
+    			if (c == Class.class || c == Type.class)
+    				nTypes++;
+    			
+    			if (nTypes == iTypeVar) {
+    				iParam = i;
+    				break;
+    			}
+    		}
+    		if (iParam < 0)
+    		throw new RuntimeException("Couldn't find the type variable " + var + " (offset " + iTypeVar + ") in the @" + Template.class.getName() + " annotation : " + Arrays.asList(values));
+    	
+    		return iParam;
+    }
+    protected ClassTypeVariableExtractor createClassTypeVariableExtractor(TypeVariable<Class<?>> var) {
+    		final Class<?> typeClass = var.getGenericDeclaration();
+    		final int iTypeInParams = getAnnotatedTemplateTypeVariableIndexInArguments(var);
+    		return new ClassTypeVariableExtractor() {
+    			public Type extract(CPPObject instance) {
+    				typeClass.cast(instance);
+    				Object[] params = getTemplateParameters(instance, typeClass);
+    				if (params == null)
+    					throw new RuntimeException("No type parameters found in this instance : " + instance);
+    				
+    				return (Type)params[iTypeInParams];
+    			}
+    		};
+    }
+    protected MethodTypeVariableExtractor createMethodTypeVariableExtractor(TypeVariable<?> var) {
+    		GenericDeclaration d = var.getGenericDeclaration();
+    		if (d instanceof Class) {
+    			final Class<?> typeClass = (Class<?>)d;
+    			final ClassTypeVariableExtractor ce = createClassTypeVariableExtractor((TypeVariable)var);
+    			return new MethodTypeVariableExtractor() {
+				public Type extract(CPPObject instance, Object[] methodTemplateParameters) {
+					return ce.extract(instance);
+				}
+			};
+    		} else {
+    			Method method = (Method)d;
+    			final Class<?> typeClass = method.getDeclaringClass();
+    			
+			final int iTypeInParams = getAnnotatedTemplateTypeVariableIndexInArguments(var);
+			return new MethodTypeVariableExtractor() {
+				public Type extract(CPPObject instance, Object[] methodTemplateParameters) {
+					typeClass.cast(instance);
+					return (Type)methodTemplateParameters[iTypeInParams];
+				}
+			};
+		}
+    }
+    
     @Override
     public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType) {
         //String className = null;
@@ -355,6 +437,12 @@ public class CPPRuntime extends CRuntime {
         }
         return vtable;
     }
+    static int getTemplateParametersCount(Class<?> typeClass) {
+    		Template t = typeClass.getAnnotation(Template.class);
+		// TODO do something with these args !
+		int templateParametersCount = t == null ? 0 : t.value().length;
+		return templateParametersCount;
+    }
     Map<Pair<Type, Integer>, DynamicFunction> constructors = new HashMap<Pair<Type, Integer>, DynamicFunction>();
     DynamicFunction getConstructor(final Class<?> typeClass, final Type type, NativeLibrary lib, int constructorId) {
         Pair<Type, Integer> key = new Pair<Type, Integer>(type, constructorId);
@@ -373,14 +461,13 @@ public class CPPRuntime extends CRuntime {
                 if (symbol != null)
                     log(Level.INFO, "Registering constructor " + constr + " as " + symbol.getName());
 
-                Template t = typeClass.getAnnotation(Template.class);
                 // TODO do something with these args !
-                int templateArgCount = t == null ? 0 : t.value().length;
+                int templateParametersCount = getTemplateParametersCount(typeClass);
 
                 Class<?>[] consParamTypes = constr.getParameterTypes();
-                Class<?>[] consThisParamTypes = new Class[consParamTypes.length + 1 - templateArgCount];
+                Class<?>[] consThisParamTypes = new Class[consParamTypes.length + 1 - templateParametersCount];
                 consThisParamTypes[0] = Pointer.class;
-                System.arraycopy(consParamTypes, templateArgCount, consThisParamTypes, 1, consParamTypes.length - templateArgCount);
+                System.arraycopy(consParamTypes, templateParametersCount, consThisParamTypes, 1, consParamTypes.length - templateParametersCount);
 
                 DynamicFunctionFactory constructorFactory = getDynamicFunctionFactory(lib, Style.ThisCall, void.class, consThisParamTypes);
 
@@ -432,18 +519,35 @@ public class CPPRuntime extends CRuntime {
             long size = sizeOf(type, null);
             peer = (Pointer) Pointer.allocateBytes(PointerIO.getInstance(type), size, releaser).as(type);
             
-            DynamicFunction constructor = getConstructor(typeClass, type, lib, constructorId);
+            DynamicFunction constructor = constructorId == SKIP_CONSTRUCTOR ? null : getConstructor(typeClass, type, lib, constructorId);
             
             if (CPPObject.class.isAssignableFrom(typeClass)) {
                 installRegularVTablePtr(type, lib, peer);
             } else {
                 // TODO ObjCObject : call alloc on class type !!
             }
-            Object[] consThisArgs = new Object[args.length + 1];
-            consThisArgs[0] = peer;
-            System.arraycopy(args, 0, consThisArgs, 1, args.length);
+            
+            // Setting the C++ template parameters in the instance :
+            int templateParametersCount = getTemplateParametersCount(typeClass);
+            if (templateParametersCount > 0) {
+            		Object[] templateArgs = new Object[templateParametersCount];
+            		System.arraycopy(args, 0, templateArgs, 0, templateParametersCount);
+            		if (instance.templateParameters == null) {
+            			instance.templateParameters = new HashMap<Class<?>, Object[]>();
+            		}
+            		instance.templateParameters.put(typeClass, templateArgs);
+            }
+            
+            // Calling the constructor with the non-template parameters :
+            if (constructor != null) {
+				Object[] consThisArgs = new Object[args.length - templateParametersCount + 1];
+				consThisArgs[0] = peer;
+				System.arraycopy(args, templateParametersCount, consThisArgs, 1, args.length - templateParametersCount);
 
-            constructor.apply(consThisArgs);
+				constructor.apply(consThisArgs);
+			}
+			
+			// Install synthetic virtual table and associate the Java instance to the corresponding native pointer : 
             if (CPPObject.class.isAssignableFrom(typeClass)) {
                 if (installSyntheticVTablePtr(type, lib, peer))
                     BridJ.setJavaObjectFromNativePeer(peer.getPeer(), instance);
@@ -516,6 +620,37 @@ public class CPPRuntime extends CRuntime {
         }
         return vtable;
     }
+    
+    class CPPTypeInfo<T extends NativeObject> extends CTypeInfo<T> {
+    		public CPPTypeInfo(Type type) {
+    			super(type);
+    		}
+    		Map<TypeVariable<Class<?>>, ClassTypeVariableExtractor> classTypeVariableExtractors;
+    		Map<TypeVariable<?>, MethodTypeVariableExtractor> methodTypeVariableExtractors;
+    		
+    		public Type resolveClassType(CPPObject instance, TypeVariable<?> var) {
+    			return getClassTypeVariableExtractor((TypeVariable)var).extract(instance);
+    		}
+		public Type resolveMethodType(CPPObject instance, Object[] methodTemplateParameters, TypeVariable<?> var) {
+    			return getMethodTypeVariableExtractor(var).extract(instance, methodTemplateParameters);
+    		}
+		protected synchronized ClassTypeVariableExtractor getClassTypeVariableExtractor(TypeVariable<Class<?>> var) {
+			if (classTypeVariableExtractors == null)
+				classTypeVariableExtractors = new HashMap<TypeVariable<Class<?>>, ClassTypeVariableExtractor>();
+			ClassTypeVariableExtractor e = classTypeVariableExtractors.get(var);
+			if (e == null)
+				classTypeVariableExtractors.put(var, e = createClassTypeVariableExtractor(var));
+			return e;
+    		}
+		protected synchronized MethodTypeVariableExtractor getMethodTypeVariableExtractor(TypeVariable<?> var) {
+			if (methodTypeVariableExtractors == null)
+				methodTypeVariableExtractors = new HashMap<TypeVariable<?>, MethodTypeVariableExtractor>();
+			MethodTypeVariableExtractor e = methodTypeVariableExtractors.get(var);
+			if (e == null)
+				methodTypeVariableExtractors.put(var, e = createMethodTypeVariableExtractor(var));
+			return e;
+    		}
+	}
     /// Needs not be fast : TypeInfo will be cached in BridJ anyway !
     @Override
     public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
@@ -535,13 +670,13 @@ public class CPPRuntime extends CRuntime {
                     int[] position = new int[] { 0 };
 
                     Type cppType = CPPType.parseCPPType(CPPType.cons((Class<? extends CPPObject>)typeClass, args), position);
-                    int actualArgsOffset = position[0] - 1, nActualArgs = args.length - actualArgsOffset;
+                    //int actualArgsOffset = position[0] - 1, nActualArgs = args.length - actualArgsOffset;
                     //System.out.println("actualArgsOffset = " + actualArgsOffset);
-                    Object[] actualArgs = new Object[nActualArgs];
-                    System.arraycopy(args, actualArgsOffset, actualArgs, 0, nActualArgs);
+                    //Object[] actualArgs = new Object[nActualArgs];
+                    //System.arraycopy(args, actualArgsOffset, actualArgs, 0, nActualArgs);
                     
-                    setNativeObjectPeer(instance, newCPPInstance((CPPObject)instance, cppType, constructorId, actualArgs));
-                    super.initialize(instance, -1);
+                    setNativeObjectPeer(instance, newCPPInstance((CPPObject)instance, cppType, constructorId, args));
+                    super.initialize(instance, DEFAULT_CONSTRUCTOR);
                 } else {
                     super.initialize(instance, constructorId, args);
                 }

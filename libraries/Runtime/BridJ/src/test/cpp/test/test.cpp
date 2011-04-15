@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 #include <stdarg.h>
 
 using namespace std;
@@ -376,3 +377,4 @@ TEST_API size_t __cdecl sizeOfCAPDRIVERCAPS() {
 }
 
 #endif
+

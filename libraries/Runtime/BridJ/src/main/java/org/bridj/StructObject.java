@@ -9,7 +9,6 @@ import org.bridj.ann.Constructor;
 @org.bridj.ann.Runtime(CRuntime.class)
 public abstract class StructObject extends NativeObject {
 	protected StructIO io;
-	Object[] refreshableFields;
 
     protected StructObject() {
 		super();
