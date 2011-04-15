@@ -106,14 +106,14 @@ public abstract class PointerIO<T> {
                 io = CommonPointerIOs.${prim.Name}IO;
             #end
             else if (cl != null) {
-            	if (Pointer.class.isAssignableFrom(cl)) {
+            	    if (TypedPointer.class.isAssignableFrom(cl))
+					io = new CommonPointerIOs.TypedPointerPointerIO((Class<? extends TypedPointer>)cl);
+				else if (Pointer.class.isAssignableFrom(cl)) {
 					if (Pointer.class.equals(type) || !(type instanceof ParameterizedType))
 						io = getPointerInstance();
 					else
 						io = getPointerInstance(((ParameterizedType)type).getActualTypeArguments()[0]);
 				}
-				else if (TypedPointer.class.isAssignableFrom(cl))
-					io = new CommonPointerIOs.TypedPointerPointerIO((Class<? extends TypedPointer>)cl);
 				else if (SizeT.class.isAssignableFrom(cl))
 					io = CommonPointerIOs.sizeTIO;
 				else if (CLong.class.isAssignableFrom(cl))
