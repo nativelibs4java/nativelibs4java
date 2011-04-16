@@ -1,4 +1,4 @@
-package org.bridj.cpp.stl;
+package org.bridj.cpp.std;
 
 import org.bridj.ann.Template;
 import org.bridj.cpp.CPPObject;
@@ -21,7 +21,7 @@ import static org.bridj.Pointer.*;
  * @param <T>
  */
 @Template({ Type.class })
-@Struct(customizer = std.class)
+@Struct(customizer = STL.class)
 public class vector<T> extends CPPObject {
 	@Field(0)
 	protected Pointer<T> _M_start() {

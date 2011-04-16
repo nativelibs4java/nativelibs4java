@@ -1,4 +1,4 @@
-package org.bridj.cpp.stl;
+package org.bridj.cpp.std;
 
 import org.bridj.*;
 
@@ -8,7 +8,7 @@ import org.bridj.*;
  * Util methods for STL bindings in BridJ
  * @author ochafik
  */
-public final class std implements StructIO.Customizer {
+public final class STL implements StructIO.Customizer {
     /**
      * Perform platform-dependent structure bindings adjustments
      */

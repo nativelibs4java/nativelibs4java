@@ -9,7 +9,7 @@ import org.bridj.ann.Template;
 import org.bridj.ann.Library;
 import org.bridj.ann.Runtime;
 import org.bridj.cpp.*;
-import org.bridj.cpp.stl.*;
+import org.bridj.cpp.std.*;
 import static org.bridj.Pointer.*;
 
 import java.lang.reflect.Type;
