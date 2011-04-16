@@ -1,43 +1,18 @@
 package org.bridj;
 
-import org.bridj.Dyncall.CallingConvention;
-import java.io.FileNotFoundException;
-
-import java.util.Collection;
-
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import org.bridj.*;
 import org.bridj.ann.Constructor;
-import org.bridj.ann.Convention;
-import org.bridj.ann.Field;
-import org.bridj.ann.Library;
-import org.bridj.ann.Symbol;
 import org.bridj.ann.Template;
-import org.bridj.ann.Ptr;
-import org.bridj.ann.Virtual;
-import org.bridj.cpp.CPPObject;
-
-
-import org.bridj.BridJ;
-import org.bridj.Pointer;
-import org.bridj.ann.Field;
-import org.bridj.ann.Array;
 import org.bridj.ann.Library;
-import org.bridj.ann.Struct;
-import org.bridj.ann.Name;
 import org.bridj.ann.Runtime;
-import org.bridj.ann.Virtual;
-import org.bridj.cpp.CPPRuntime;
-
-import java.lang.reflect.Type;
-
-import org.junit.After;
-import org.junit.Before;
+import org.bridj.cpp.*;
+import org.bridj.cpp.stl.*;
 import static org.bridj.Pointer.*;
 
-import org.bridj.CPPTemplateTest.std.vector;
-import org.bridj.cpp.CPPType;
+import java.lang.reflect.Type;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 @Library("test")
@@ -79,68 +54,6 @@ public class CPPTemplateTest {
 		ii.deleteSome(p);
 	}
 
-
-	public static final class std implements StructIO.Customizer {
-		public StructIO process(StructIO io) {
-			if (Platform.isWindows()) {
-				Class c = io.getStructClass();
-				if (c == vector.class) {
-					// On Windows, vector begins by 3 pointers, before the start+finish+end pointers :
-					io.prependBytes(3 * Pointer.SIZE);
-				}
-			}
-			return io;
-		}
-    
-		@Template({ Type.class })
-		@Struct(customizer = std.class)
-		public static class vector<T> extends CPPObject {
-			@Field(0)
-			public Pointer<T> _M_start() {
-				return io.getPointerField(this, 0);
-			}
-			@Field(1)
-			public Pointer<T> _M_finish() {
-				return io.getPointerField(this, 1);
-			}
-			@Field(2)
-			public Pointer<T> _M_end_of_storage() {
-				return io.getPointerField(this, 2);
-			}
-			//@Constructor(-1)
-			public vector(Type t) {
-				super((Void)null, -2, t);
-			}
-			public vector(Pointer<? extends vector<T>> peer) {
-				super(peer);
-			}
-
-			public T get(long index) {
-                // TODO make this unnecessary
-				Pointer<T> p = _M_start().as(T());
-                return p.get(index);
-			}
-			public T get(int index) {
-				return get((long)index);
-			}
-			public void push_back(T value) {
-				throw new UnsupportedOperationException();
-			}
-			protected Type T() {
-				return (Type)CPPRuntime.getInstance().getTemplateParameters(this, vector.class)[0];
-			}
-			protected long byteSize() {
-				return _M_finish().getPeer() - _M_start().getPeer();
-			}
-
-			public long size() {
-				long byteSize = byteSize();
-				long elementSize = BridJ.sizeOf(T());
-
-				return byteSize / elementSize;
-			}
-		}
-	}
 	//public static native
     ///*
 	@Test
