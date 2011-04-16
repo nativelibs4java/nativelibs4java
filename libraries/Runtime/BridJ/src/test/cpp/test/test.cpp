@@ -359,6 +359,22 @@ TEST_API const wchar_t* wstringCStr(std::wstring* s) {
 	return s->c_str();
 }
 
+TEST_API void crashIllegalAccess() {
+	((char*)NULL)[0];
+}
+class MyException : public std::exception {
+	std::string msg;
+public:
+	MyException(const char* what) : msg(what) {}
+	virtual const char* what() const {
+		return msg.c_str();
+	}
+};
+
+TEST_API void throwCPPException(const char* message) {
+	throw MyException(message);
+}
+
 #include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"
 
 #ifdef _WIN32

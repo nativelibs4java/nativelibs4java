@@ -93,7 +93,15 @@ BOX_METHOD_IMPL("java/lang/Float", Float, Float, float, "F");
 BOX_METHOD_IMPL("java/lang/Double", Double, Double, double, "D");    
 		
 int main() {}
-
+/*
+void printStackTrace(JNIEnv* env) {
+	jclass exClass = (*env)->FindClass(env, "java/lang/RuntimeException");
+	jmethodID initMeth = (*env)->GetMethodID(env, exClass, "<init>", "()V");
+	jmethodID printMeth = (*env)->GetMethodID(env, exClass, "printStackTrace", "()V");
+	jobject ex = (*env)->NewObject(env, exClass, initMeth);
+	(*env)->CallVoidMethod(env, ex, printMeth);
+}
+*/
 void initMethods(JNIEnv* env) {
 	if (!gAddressMethod)
 	{

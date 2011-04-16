@@ -8,11 +8,13 @@
 
 #include <windows.h>
 #include <jni.h>
-#define BEGIN_TRY() __try {
-#define END_TRY(env) } __except (WinExceptionHandler(env, GetExceptionCode())) {}
-#define END_TRY_RET(env, ret) } __except (WinExceptionHandler(env, GetExceptionCode())) { return ret; }
 
-int WinExceptionHandler(JNIEnv* env, int exceptionCode);
+#define BEGIN_TRY() { LPEXCEPTION_POINTERS exceptionPointers = NULL; __try {
+#define END_TRY_BASE(env, ret) } __except ((exceptionPointers = GetExceptionInformation()) ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH) { WinExceptionHandler(env, exceptionPointers); ret; } }
+#define END_TRY_RET(env, ret) END_TRY_BASE(env, return ret)
+#define END_TRY(env) END_TRY_BASE(env, )
+
+void WinExceptionHandler(JNIEnv* env, LPEXCEPTION_POINTERS ex);
 
 #else
 

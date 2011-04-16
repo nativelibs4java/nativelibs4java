@@ -4,6 +4,8 @@
 // http://msdn.microsoft.com/en-us/library/ms679356(VS.85).aspx
 
 void throwException(JNIEnv* env, const char* message) {
+	if ((*env)->ExceptionCheck(env))
+		return; // there is already a pending exception
 	(*env)->ExceptionClear(env);
 	(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), message);
 }
@@ -19,14 +21,29 @@ jboolean assertThrow(JNIEnv* env, jboolean value, const char* message) {
 
 #include <windows.h>
 
-int WinExceptionHandler(JNIEnv* env, int exceptionCode) {
-	switch (exceptionCode) 
+void WinExceptionHandler(JNIEnv* env, LPEXCEPTION_POINTERS ex) {
+	char msg[256];
+	//printStackTrace(env);
+	if (ex->ExceptionRecord)
+		sprintf(msg, "Native exception (code = %llX)", (unsigned long long)ex->ExceptionRecord->ExceptionCode);
+	else
+		sprintf(msg, "Native exception (unknown code)");
+
+	throwException(env, msg);
+	//(*env)->ExceptionClear(env);
+	//(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), msg);
+
+	//if ((*env)->ExceptionOccurred(env)) {
+		(*env)->ExceptionDescribe(env);
+    //}
+	/*
+	switch (ex->ExceptionRecord->ExceptionCode) 
 	{
 #define EX_CASE(name) \
 	case EXCEPTION_ ## name: \
 		(*env)->ExceptionClear(env); \
 		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), #name); \
-		return EXCEPTION_CONTINUE_EXECUTION;
+		break;
     
 	EX_CASE(ACCESS_VIOLATION           );
 	EX_CASE(ARRAY_BOUNDS_EXCEEDED      );
@@ -51,9 +68,7 @@ int WinExceptionHandler(JNIEnv* env, int exceptionCode) {
 	EX_CASE(SINGLE_STEP                );
 	EX_CASE(STACK_OVERFLOW             );
 	//EX_CASE(STATUS_UNWIND_CONSOLIDATE            );
-	}
-	return EXCEPTION_CONTINUE_SEARCH;
-	//return 0;
+	}*/
 }
 
 #endif
