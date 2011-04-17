@@ -437,6 +437,9 @@ public class CRuntime extends AbstractBridJRuntime {
 
 			@Override
 			public void release(Pointer<?> pointer) {
+				if (BridJ.debugNeverFree)
+					return;
+				
 				JNI.freeCToJavaCallback(pointer.getPeer());
 			}
 		});

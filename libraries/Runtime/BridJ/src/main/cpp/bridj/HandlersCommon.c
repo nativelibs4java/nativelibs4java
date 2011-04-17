@@ -10,11 +10,16 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 		switch (type) {
 			case eIntFlagSet:
 				{
-					int arg = (jint)getFlagValue(env, (jobject)dcbArgPointer(args));
-					if (isVarArgs)
-						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
-					else
-						dcArgInt(call->vm, arg);
+					if (toJava) {
+						int flags = dcbArgInt(args);
+						dcArgPointer(call->vm, newFlagSet(env, flags));
+					} else {
+						int arg = (jint)getFlagValue(env, (jobject)dcbArgPointer(args));
+						if (isVarArgs)
+							dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
+						else
+							dcArgInt(call->vm, arg);
+					}
 				}
 				break;
 			case eIntValue:
@@ -92,10 +97,16 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				break;
 			case ePointerValue:
 				{
-					jobject jptr = (jobject)dcbArgPointer(args);
-					void* ptr = jptr ? getPointerPeer(env, (void*)jptr) : NULL;
+					void* ptr = dcbArgPointer(args);
+					if (toJava)
+					{
+						jobject callIO = call && call->pCallIOs ? *(call->pCallIOs++) : NULL;
+						ptr = createPointerFromIO(env, ptr, callIO);
+					} else {
+						ptr = ptr ? getPointerPeer(env, ptr) : NULL;
+						// printf("ARG POINTER = %d\n", ptr);
+					}
 					call->pCallIOs++;
-					// printf("ARG POINTER = %d\n", ptr);
 					dcArgPointer(call->vm, ptr);
 				}
 				break;

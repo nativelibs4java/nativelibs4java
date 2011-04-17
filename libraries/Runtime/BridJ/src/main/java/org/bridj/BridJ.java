@@ -264,6 +264,7 @@ public class BridJ {
 	}
 
     public static final boolean debug = "true".equals(System.getProperty("bridj.debug")) || "1".equals(System.getenv("BRIDJ_DEBUG"));
+    public static final boolean debugNeverFree = "true".equals(System.getProperty("bridj.debug.neverFree")) || "1".equals(System.getenv("BRIDJ_DEBUG_NEVER_FREE"));
     public static final boolean debugPointers = "true".equals(System.getProperty("bridj.debug.pointers")) || "1".equals(System.getenv("BRIDJ_DEBUG_POINTERS"));
     public static final boolean verbose = debug || "true".equals(System.getProperty("bridj.verbose")) || "1".equals(System.getenv("BRIDJ_VERBOSE"));
     static final int minLogLevel = Level.WARNING.intValue();

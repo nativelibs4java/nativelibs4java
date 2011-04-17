@@ -25,7 +25,7 @@ void WinExceptionHandler(JNIEnv* env, LPEXCEPTION_POINTERS ex) {
 	char msg[256];
 	//printStackTrace(env);
 	if (ex->ExceptionRecord)
-		sprintf(msg, "Native exception (code = %llX)", (unsigned long long)ex->ExceptionRecord->ExceptionCode);
+		sprintf(msg, "Native exception (code = 0x%llX)", (unsigned long long)ex->ExceptionRecord->ExceptionCode);
 	else
 		sprintf(msg, "Native exception (unknown code)");
 

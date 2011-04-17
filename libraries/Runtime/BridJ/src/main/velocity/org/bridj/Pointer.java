@@ -1251,7 +1251,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		if (BridJ.debugPointers)
 			BridJ.log(Level.INFO, "Freeing pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
 		
-    		JNI.free(p.getPeer());
+			if (!BridJ.debugNeverFree)
+				JNI.free(p.getPeer());
     	}
     }
     
