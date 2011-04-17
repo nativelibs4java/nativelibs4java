@@ -79,8 +79,8 @@ char __cdecl doCToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaCal
 	exc = (*env)->ExceptionOccurred(env);
 	if (exc) {
 		(*env)->ExceptionDescribe(env);
-        (*env)->ExceptionClear(env);
-		// TODO rethrow in native world ?
+        printStackTrace(env, exc);
+		//(*env)->ExceptionClear(env);
 	}
 	}
 	cleanupCallHandler(call);

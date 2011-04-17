@@ -93,15 +93,18 @@ BOX_METHOD_IMPL("java/lang/Float", Float, Float, float, "F");
 BOX_METHOD_IMPL("java/lang/Double", Double, Double, double, "D");    
 		
 int main() {}
-/*
-void printStackTrace(JNIEnv* env) {
-	jclass exClass = (*env)->FindClass(env, "java/lang/RuntimeException");
-	jmethodID initMeth = (*env)->GetMethodID(env, exClass, "<init>", "()V");
-	jmethodID printMeth = (*env)->GetMethodID(env, exClass, "printStackTrace", "()V");
-	jobject ex = (*env)->NewObject(env, exClass, initMeth);
-	(*env)->CallVoidMethod(env, ex, printMeth);
+
+void printStackTrace(JNIEnv* env, jthrowable ex) {
+	jclass thClass = (*env)->FindClass(env, "java/lang/Throwable");
+	jmethodID printMeth = (*env)->GetMethodID(env, thClass, "printStackTrace", "()V");
+	if (!ex) {
+		jclass exClass = (*env)->FindClass(env, "java/lang/RuntimeException");
+		jmethodID initMeth = (*env)->GetMethodID(env, exClass, "<init>", "()V");
+		ex = (jthrowable)(*env)->NewObject(env, exClass, initMeth);
+	}
+	(*env)->CallVoidMethod(env, (jobject)ex, printMeth);
 }
-*/
+
 void initMethods(JNIEnv* env) {
 	if (!gAddressMethod)
 	{

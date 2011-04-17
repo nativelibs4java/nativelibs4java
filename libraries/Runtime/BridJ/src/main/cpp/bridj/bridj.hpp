@@ -180,7 +180,7 @@ jobject newFlagSet(JNIEnv *env, jlong value);
 
 void throwException(JNIEnv* env, const char* message);
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message);
-
+void printStackTrace(JNIEnv* env, jthrowable ex);
 
 void initThreadLocal(JNIEnv* env);
 CallTempStruct* getTempCallStruct(JNIEnv* env);
