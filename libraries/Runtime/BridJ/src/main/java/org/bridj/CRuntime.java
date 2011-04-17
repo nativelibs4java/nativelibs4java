@@ -66,7 +66,7 @@ public class CRuntime extends AbstractBridJRuntime {
         protected Class<?> castClass;
 
         @Override
-        public long sizeOf(Type type) {
+        public long sizeOf() {
             return structIO.getStructSize();
         }
 		@Override
@@ -108,7 +108,7 @@ public class CRuntime extends AbstractBridJRuntime {
             return type;
         }
         
-        synchronized Class<?> getCastClass() {
+        protected synchronized Class<?> getCastClass() {
             if (castClass == null)
                 castClass = getTypeForCast(typeClass);
             return castClass;
@@ -117,11 +117,22 @@ public class CRuntime extends AbstractBridJRuntime {
         @Override
         public T cast(Pointer peer) {
             try {
-                T instance = (T)getCastClass().newInstance(); // TODO template parameters here !!!
+                T instance = (T)getCastClass().newInstance();
+                // TODO template parameters here !!!
                 initialize(instance, peer);
                 return instance;
             } catch (Exception ex) {
-                throw new RuntimeException("Failed to cast pointer " + peer + " to instance of type " + typeClass.getName(), ex);
+                throw new RuntimeException("Failed to cast pointer " + peer + " to instance of type " + Utils.toString(type), ex);
+            }
+        }
+        @Override
+        public T createReturnInstance() {
+            try {
+                T instance = (T)getCastClass().newInstance();
+                initialize(instance);
+                return instance;
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to create return instance for type " + Utils.toString(type), ex);
             }
         }
         @Override
@@ -230,7 +241,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		if (methodCallInfoBuilder == null)
 			methodCallInfoBuilder = new MethodCallInfoBuilder();
         	
-        assert log(Level.INFO, "Registering type " + typeClass.getName());
+        assert log(Level.INFO, "Registering type " + Utils.toString(type));
         
 		int typeModifiers = typeClass.getModifiers();
 		
@@ -296,7 +307,7 @@ public class CRuntime extends AbstractBridJRuntime {
 					}
 				}
 			} catch (Exception ex) {
-				throw new RuntimeException("Failed to register class " + typeClass.getName(), ex);
+				throw new RuntimeException("Failed to register class " + Utils.toString(type), ex);
 			}
 //		}
 		} finally {

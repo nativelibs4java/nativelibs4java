@@ -13,13 +13,13 @@ public final class STL implements StructIO.Customizer {
      * Perform platform-dependent structure bindings adjustments
      */
 	public StructIO process(StructIO io) {
-		if (Platform.isWindows()) {
-			Class c = io.getStructClass();
-			if (c == vector.class) {
-				// On Windows, vector begins by 3 pointers, before the start+finish+end pointers :
-				io.prependBytes(3 * Pointer.SIZE);
-			}
-		}
+        Class c = io.getStructClass();
+        if (c == vector.class) {
+            if (Platform.isWindows()) {
+                // On Windows, vector begins by 3 pointers, before the start+finish+end pointers :
+                io.prependBytes(3 * Pointer.SIZE);
+            }
+        }
 		return io;
 	}
 }

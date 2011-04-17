@@ -70,7 +70,7 @@ public class BridJ {
         else if (c == Boolean.class || c == Byte.class)
             return 1;
         else if (NativeObject.class.isAssignableFrom(c))
-            return getRuntime(c).getTypeInfo(type).sizeOf(type);
+            return getRuntime(c).getTypeInfo(type).sizeOf();
         /*if (o instanceof NativeObject) {
             NativeObject no = (NativeObject)o;
             return no.typeInfo.sizeOf(no);
@@ -149,20 +149,29 @@ public class BridJ {
     		throw new RuntimeException("Failed to register class " + name, ex);
     	}
     }
-	static ThreadLocal<Stack<Boolean>> currentlyCastingNativeObject = new ThreadLocal<Stack<Boolean>>() {
+    enum CastingType {
+        None, CastingNativeObject, CastingNativeObjectReturnType
+    }
+	static ThreadLocal<Stack<CastingType>> currentlyCastingNativeObject = new ThreadLocal<Stack<CastingType>>() {
 
         @Override
-		protected java.util.Stack<Boolean> initialValue() {
-			Stack<Boolean> s = new Stack<Boolean>();
-			s.push(false);
+		protected java.util.Stack<CastingType> initialValue() {
+			Stack<CastingType> s = new Stack<CastingType>();
+			s.push(CastingType.None);
 			return s;
         }
 
         ;
 		};
 
-	static boolean isCastingNativeObjectInCurrentThread() {
-		return currentlyCastingNativeObject.get().peek();
+    @Deprecated
+	public static boolean isCastingNativeObjectInCurrentThread() {
+		return currentlyCastingNativeObject.get().peek() != CastingType.None;
+	}
+
+    @Deprecated
+	public static boolean isCastingNativeObjectReturnTypeInCurrentThread() {
+		return currentlyCastingNativeObject.get().peek() == CastingType.CastingNativeObjectReturnType;
 	}
 
     private static WeakHashMap<Long, NativeObject> knownNativeObjects = new WeakHashMap<Long, NativeObject>();
@@ -176,9 +185,9 @@ public class BridJ {
         return knownNativeObjects.get(peer);
     }
     
-	public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type) {
-		Stack<Boolean> s = currentlyCastingNativeObject.get();
-		s.push(true);
+	private static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type, CastingType castingType) {
+		Stack<CastingType> s = currentlyCastingNativeObject.get();
+		s.push(castingType);
 		try {
         		TypeInfo<O> typeInfo = getTypeInfo(type);
         		O instance = typeInfo.cast(pointer);
@@ -190,6 +199,12 @@ public class BridJ {
 		} finally {
 			s.pop();
 		}
+	}
+    public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type) {
+        return (O)createNativeObjectFromPointer(pointer, type, CastingType.CastingNativeObject);
+	}
+    public static <O extends NativeObject> O createNativeObjectFromReturnValuePointer(Pointer<? super O> pointer, Type type) {
+        return (O)createNativeObjectFromPointer(pointer, type, CastingType.CastingNativeObjectReturnType);
 	}
     private static Map<Class<? extends BridJRuntime>, BridJRuntime> runtimes = new HashMap<Class<? extends BridJRuntime>, BridJRuntime>();
 

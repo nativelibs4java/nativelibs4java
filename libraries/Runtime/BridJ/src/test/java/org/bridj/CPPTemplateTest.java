@@ -1,5 +1,7 @@
 package org.bridj;
 
+import org.bridj.BridJRuntime.TypeInfo;
+import org.bridj.cpp.CPPRuntime.CPPTypeInfo;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -63,9 +65,12 @@ public class CPPTemplateTest {
 		Pointer<?> sptr = lib.getSymbolPointer("sizeofIntVector").getPointer();
 		int sizeofIntVector = (Integer)sptr.asDynamicFunction(null, int.class).apply();
 
-		assertEquals("bad vector<int> size !", sizeofIntVector, BridJ.sizeOf(CPPType.getCPPType(vector.class, int.class)));
+        Type intVectorType = CPPType.getCPPType(vector.class, int.class);
 
-		vector<Integer> intVector = new vector<Integer>(Integer.class);
+		assertEquals("bad vector<int> size !", sizeofIntVector, BridJ.sizeOf(intVectorType));
+        CPPTypeInfo<vector<Integer>> typeInfo = CPPRuntime.getInstance().getCPPTypeInfo(intVectorType);
+        vector<Integer> intVector = new vector<Integer>(Integer.class);
+        //vector<Integer> intVector = typeInfo.createReturnInstance();
 
 		//Pointer<Byte> intVector = allocateBytes(sizeofIntVector);
 		Pointer intVectorPtr = pointerTo(intVector);

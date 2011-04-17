@@ -20,13 +20,14 @@ public interface BridJRuntime {
 		void initialize(T instance, Pointer peer);
 		void initialize(T instance, int constructorId, Object[] args);
         void destroy(T instance);
-		T clone(T instance) throws CloneNotSupportedException;
+		T createReturnInstance();
+        T clone(T instance) throws CloneNotSupportedException;
 		BridJRuntime getRuntime();
 		Type getType();
 
 		boolean equal(T instance, T other);
 		int compare(T instance, T other);
-        long sizeOf(Type type);
+        long sizeOf();
         void writeToNative(T instance);
         String describe(T instance);
         String describe();

@@ -23,16 +23,19 @@ import static org.bridj.Pointer.*;
 @Template({ Type.class })
 @Struct(customizer = STL.class)
 public class vector<T> extends CPPObject {
+    @Deprecated
 	@Field(0)
-	protected Pointer<T> _M_start() {
+	public Pointer<T> _M_start() {
 		return io.getPointerField(this, 0);
 	}
+	@Deprecated
 	@Field(1)
-	protected Pointer<T> _M_finish() {
+	public Pointer<T> _M_finish() {
 		return io.getPointerField(this, 1);
 	}
+	@Deprecated
 	@Field(2)
-	protected Pointer<T> _M_end_of_storage() {
+	public Pointer<T> _M_end_of_storage() {
 		return io.getPointerField(this, 2);
 	}
 	//@Constructor(-1)
@@ -41,7 +44,18 @@ public class vector<T> extends CPPObject {
 	}
 	public vector(Pointer<? extends vector<T>> peer) {
 		super(peer);
+        if (!isValid())
+            throw new RuntimeException("Invalid vector internal data ! Are you trying to use an unsupported version of the STL ?");
 	}
+
+    protected boolean isValid() {
+        long start = getPeer(_M_start());
+        long finish = getPeer(_M_finish());
+        long eos = getPeer(_M_end_of_storage());
+        if (start == 0 || finish == 0 || eos == 0)
+            return false;
+        return start <= finish && finish <= eos;
+    }
 
 	public T get(long index) {
 		// TODO make this unnecessary

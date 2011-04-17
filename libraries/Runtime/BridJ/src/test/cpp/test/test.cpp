@@ -366,7 +366,8 @@ class MyException : public std::exception {
 	std::string msg;
 public:
 	MyException(const char* what) : msg(what) {}
-	virtual const char* what() const {
+	virtual ~MyException() throw() {}
+	virtual const char* what() const throw() {
 		return msg.c_str();
 	}
 };

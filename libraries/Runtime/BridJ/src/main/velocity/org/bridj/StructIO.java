@@ -41,6 +41,11 @@ public class StructIO {
 
     static Map<Type, StructIO> structIOs = new HashMap<Type, StructIO>();
 
+    /**
+     * Interface for type customizers that can be used to perform platform-specific type adjustments or other hacks.<br>
+     * A type customizer can be specified with {@link Struct#customizer() }.<br>
+     * Each implementation must have a default constructor, and an unique instance of each implementation class will be cached by {@link StructIO#getCustomizer(java.lang.Class) }.
+     */
     public interface Customizer {
     	StructIO process(StructIO io);
     }

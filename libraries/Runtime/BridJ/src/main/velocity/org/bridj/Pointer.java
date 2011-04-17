@@ -1085,6 +1085,20 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 				protected void finalize() {
 					release();
 				}
+				
+				@Deprecated
+				public synchronized Pointer<U> withReleaser(final Releaser beforeDeallocation) {
+					final Releaser thisReleaser = rel;
+					rel = null;
+					return newPointer(getIO(), getPeer(), isOrdered(), getValidStart(), getValidEnd(), null, NO_PARENT, beforeDeallocation == null ? thisReleaser : new Releaser() {
+						@Override
+						public void release(Pointer<?> p) {
+							beforeDeallocation.release(p);
+							if (thisReleaser != null)
+								thisReleaser.release(p);
+						}
+					}, null);
+				}
 			};
 		}
     }
@@ -1240,6 +1254,17 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         		freeReleaser.release(p);
         	}
         }, null);
+    }
+    /**
+     * Create a pointer that depends this pointer and will call a releaser prior to release this pointer, when it is GC'd.<br>
+     * This pointer MUST NOT be used anymore.
+     * @deprecated This method can easily be misused and is reserved to advanced users.
+     * @param beforeDeallocation releaser that should be run before this pointer's releaser (if any).
+     * @return a new pointer to the same memory location as this pointer
+     */
+    @Deprecated
+    public synchronized Pointer<T> withReleaser(final Releaser beforeDeallocation) {
+    		return newPointer(getIO(), getPeer(), isOrdered(), getValidStart(), getValidEnd(), null, NO_PARENT, beforeDeallocation, null);
     }
     static Releaser freeReleaser = new FreeReleaser();
     static class FreeReleaser implements Releaser {
