@@ -214,7 +214,8 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 			{
 				void* ptr = dcCallPointer(call->vm, callback);
 				if (bCallingJava)
-					result->p = ptr;
+					result->p = ptr ? getPointerPeer(env, ptr) : NULL;
+					//result->p = ptr;
 				else
 				{
 					jobject callIO = call && call->pCallIOs ? *(call->pCallIOs++) : NULL;

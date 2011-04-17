@@ -1,5 +1,11 @@
 #include "HandlersCommon.h"
 
+#if defined(DC__OS_Win32) && !defined(DC__OS_Win64)
+#define JNI_CALL_MODE DC_CALL_C_X86_WIN32_STD
+#else
+#define JNI_CALL_MODE DC_CALL_C_DEFAULT
+#endif
+
 char __cdecl doCPPToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaCallbackCallInfo *info)
 {
 	void* cppObject;
@@ -10,7 +16,7 @@ char __cdecl doCPPToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaC
 	initCallHandler(NULL, &call, env);
 	call->pCallIOs = info->fInfo.fCallIOs;
 	
-	dcMode(call->vm, 0);
+	dcMode(call->vm, JNI_CALL_MODE);
 	
 	if (info->fCallbackInstance)
 	{
@@ -48,7 +54,7 @@ char __cdecl doCToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaCal
 	initCallHandler(NULL, &call, env);
 	call->pCallIOs = info->fInfo.fCallIOs;
 	
-	dcMode(call->vm, 0);
+	dcMode(call->vm, JNI_CALL_MODE);
 	
 	if (!info->fCallbackInstance)
 	{
