@@ -77,7 +77,7 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_freeLibrary
  * Signature: (J)J
  */
 JNIEXPORT jlong JNICALL Java_org_bridj_JNI_loadLibrarySymbols
-  (JNIEnv *, jclass, jlong);
+  (JNIEnv *, jclass, jstring);
 
 /*
  * Class:     org_bridj_JNI

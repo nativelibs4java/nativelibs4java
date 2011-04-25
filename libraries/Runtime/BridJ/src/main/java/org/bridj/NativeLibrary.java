@@ -99,7 +99,7 @@ public class NativeLibrary {
 		handle = JNI.loadLibrary(path);
 		if (handle == 0)
 			return null;
-		long symbols = JNI.loadLibrarySymbols(handle);
+		long symbols = JNI.loadLibrarySymbols(path);
 		return new NativeLibrary(path, handle, symbols);
 	}
 	

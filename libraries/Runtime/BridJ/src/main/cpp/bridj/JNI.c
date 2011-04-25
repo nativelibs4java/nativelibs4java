@@ -301,9 +301,15 @@ void JNICALL Java_org_bridj_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong lib
 	dlFreeLibrary((DLLib*)JLONG_TO_PTR(libHandle));
 }
 
-jlong JNICALL Java_org_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, jlong libHandle)
+jlong JNICALL Java_org_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, jstring libPath)
 {
-	return PTR_TO_JLONG(dlSymsInit((DLLib*)libHandle));
+	DLSyms* pSyms;
+	char* libPathStr;
+	libPathStr = (*env)->GetStringUTFChars(env, libPath, NULL);
+	pSyms = dlSymsInit(libPathStr);
+	(*env)->ReleaseStringUTFChars(env, libPath, libPathStr);
+	
+	return PTR_TO_JLONG(pSyms);
 }
 void JNICALL Java_org_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jlong symbolsHandle)
 {
