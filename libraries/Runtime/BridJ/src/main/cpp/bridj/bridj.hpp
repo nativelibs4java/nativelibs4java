@@ -171,6 +171,8 @@ void callSinglePointerArgVoidFunction(JNIEnv *env, void* constructor, void* this
 jlong getFlagValue(JNIEnv *env, jobject flagSet);
 jobject newFlagSet(JNIEnv *env, jlong value);
 
+JNIEnv* GetEnv();
+
 #define THROW_EXCEPTION(env, message, ...) \
 { \
 	char err[256]; \

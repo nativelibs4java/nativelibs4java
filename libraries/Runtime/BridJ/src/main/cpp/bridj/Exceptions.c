@@ -21,6 +21,14 @@ jboolean assertThrow(JNIEnv* env, jboolean value, const char* message) {
 
 #include <windows.h>
 
+int WinExceptionFilter(LPEXCEPTION_POINTERS ex) {
+	switch (ex->ExceptionRecord->ExceptionCode) {
+		case 0x40010005: // Control+C
+		case 0x80000003: // Breakpoint
+			return EXCEPTION_CONTINUE_SEARCH;
+	}
+	return EXCEPTION_EXECUTE_HANDLER;
+}
 void WinExceptionHandler(JNIEnv* env, LPEXCEPTION_POINTERS ex) {
 	char msg[256];
 	//printStackTrace(env);

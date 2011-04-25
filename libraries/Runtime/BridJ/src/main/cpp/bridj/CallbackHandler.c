@@ -12,7 +12,7 @@ char __cdecl doCPPToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaC
 	jobject javaObject;
 	CallTempStruct* call;
 	jthrowable exc;
-	JNIEnv *env = info->fInfo.fEnv;
+	JNIEnv *env = GetEnv();//info->fInfo.fEnv;
 	initCallHandler(NULL, &call, env);
 	call->pCallIOs = info->fInfo.fCallIOs;
 	
@@ -50,7 +50,7 @@ char __cdecl doCToJavaCallHandler(DCArgs* args, DCValue* result, NativeToJavaCal
 {
 	CallTempStruct* call;
 	jthrowable exc;
-	JNIEnv *env = info->fInfo.fEnv;
+	JNIEnv *env = GetEnv();//info->fInfo.fEnv;
 	initCallHandler(NULL, &call, env);
 	call->pCallIOs = info->fInfo.fCallIOs;
 	

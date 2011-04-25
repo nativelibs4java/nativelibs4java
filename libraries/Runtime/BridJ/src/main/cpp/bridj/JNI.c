@@ -110,6 +110,25 @@ void printStackTrace(JNIEnv* env, jthrowable ex) {
 		printStackTrace(env, cause);
 }
 
+JavaVM* gJVM = NULL;
+#define JNI_VERSION JNI_VERSION_1_4
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* jvm, void* x) {
+  gJVM = jvm;
+  return JNI_VERSION;
+}
+
+JNIEnv* GetEnv() {
+  JNIEnv* env = NULL;
+  if ((*gJVM)->GetEnv(gJVM, (void*)&env, JNI_VERSION) != JNI_OK) {
+    if ((*gJVM)->AttachCurrentThread(gJVM, (void*)&env, NULL) != JNI_OK) {
+	  printf("BridJ: Cannot attach current JVM thread !\n");
+      return NULL;
+    }
+  }
+  return env;
+}
+
 void initMethods(JNIEnv* env) {
 	if (!gAddressMethod)
 	{

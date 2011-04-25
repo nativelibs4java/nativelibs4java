@@ -321,6 +321,21 @@ TEST_API int forwardCall(fun_iii f, int a, int b) {
 	return res;
 }
 
+typedef void* (*fun_ppp)(void*, void*);
+void* addPtrs(void* a, void* b) {
+	return (void*)((size_t)a + (size_t)b);
+}
+TEST_API fun_ppp getPtrAdder() {
+	return addPtrs;
+}
+TEST_API fun_ppp getPtrAdder_raw() {
+	return addPtrs;
+}
+TEST_API void* forwardPtrCall(fun_ppp f, void* a, void* b) {
+	void* res = f(a, b);
+	return res;
+}
+
 TEST_API std::string* newString() {
 	return new std::string();
 }
