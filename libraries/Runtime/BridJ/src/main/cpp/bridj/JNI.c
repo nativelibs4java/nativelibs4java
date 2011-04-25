@@ -95,14 +95,19 @@ BOX_METHOD_IMPL("java/lang/Double", Double, Double, double, "D");
 int main() {}
 
 void printStackTrace(JNIEnv* env, jthrowable ex) {
+	jthrowable cause;
 	jclass thClass = (*env)->FindClass(env, "java/lang/Throwable");
 	jmethodID printMeth = (*env)->GetMethodID(env, thClass, "printStackTrace", "()V");
+	jmethodID causeMeth = (*env)->GetMethodID(env, thClass, "getCause", "()Ljava/lang/Throwable;");
 	if (!ex) {
 		jclass exClass = (*env)->FindClass(env, "java/lang/RuntimeException");
 		jmethodID initMeth = (*env)->GetMethodID(env, exClass, "<init>", "()V");
 		ex = (jthrowable)(*env)->NewObject(env, exClass, initMeth);
 	}
 	(*env)->CallVoidMethod(env, (jobject)ex, printMeth);
+	cause = (jthrowable)(*env)->CallObjectMethod(env, ex, causeMeth);
+	if (cause)
+		printStackTrace(env, cause);
 }
 
 void initMethods(JNIEnv* env) {
@@ -304,7 +309,7 @@ void JNICALL Java_org_bridj_JNI_freeLibrary(JNIEnv *env, jclass clazz, jlong lib
 jlong JNICALL Java_org_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, jstring libPath)
 {
 	DLSyms* pSyms;
-	char* libPathStr;
+	const char* libPathStr;
 	libPathStr = (*env)->GetStringUTFChars(env, libPath, NULL);
 	pSyms = dlSymsInit(libPathStr);
 	(*env)->ReleaseStringUTFChars(env, libPath, libPathStr);
