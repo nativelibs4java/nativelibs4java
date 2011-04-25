@@ -1,10 +1,19 @@
 Current version : BridJ 0.5-SNAPSHOT
 
+- Fixed callbacks on Windows x86
+- Fixed multithreaded callbacks ! (callbacks called in a different thread than the one that created them used to hang indefinitely)
+- Fixed Pointer and ValuedEnum arguments and return values in callbacks
+- Improved crash protection and exceptions reporting on Windows
 - Added deprecated support for struct fields implemented as Java fields, to ease up migration from JNA (needs manual calls to BridJ.writeToNative(struct) and BridJ.readFromNative(struct)) (issue #54)
+- Added preliminary support for STL's std::vector<T> C++ type
+- Enhanced C++ templates support
 - Added BRIDJ_DEBUG_POINTERS=1 (or -Dbridj.debug.pointers=true) to display extended pointer allocation / deallocation debug information
 - Added BridJ.describe(Type) to describe structs layouts (automatically logged for each struct type when BRIDJ_DEBUG=1 or -Dbridj.debug=true)
 - Added BridJ.describe(NativeObject).
 - Added StructObject.toString() (calls BridJ.describe(this))
+- Implemented FlagSet.equals
+- Fixed BridJ.sizeOf(Pointer.class), sizeOf(SizeT.class), sizeOf(CLong.class)...
+- Added experimental JNA-like support for Java fields to represent struct fields (deprecated, needs manual calls to BridJ.readFromNative and BridJ.writeToNative)
 ...
 
 BridJ 0.4 (r1869, 20110408)
