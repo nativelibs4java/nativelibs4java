@@ -1,5 +1,6 @@
 #include "bridj.hpp"
 #include "jni.h"
+#include "Exceptions.h"
 
 // http://msdn.microsoft.com/en-us/library/ms679356(VS.85).aspx
 
@@ -16,10 +17,86 @@ jboolean assertThrow(JNIEnv* env, jboolean value, const char* message) {
 	return value;
 }
 
+#if defined(ENABLE_PROTECTED_MODE)
 
-#ifndef __GNUC__
+#ifdef __GNUC__
 
-#include <windows.h>
+Signals gSignals;
+
+void TrapSignals(Signals* s) {
+	#define TRAP_SIG(sig) \
+	if (s->f ## sig != UnixExceptionHandler) \
+		s->f ## sig = signal(sig, UnixExceptionHandler);
+		
+	TRAP_SIG(SIGSEGV);
+	TRAP_SIG(SIGBUS);
+	TRAP_SIG(SIGABRT);
+	TRAP_SIG(SIGFPE);
+	TRAP_SIG(SIGILL);
+}
+void RestoreSignals(Signals* s) {
+	#define UNTRAP_SIG(sig) \
+	if (s->f ## sig != UnixExceptionHandler) \
+		signal(sig, s->f ## sig);
+	
+	UNTRAP_SIG(SIGSEGV);
+	UNTRAP_SIG(SIGBUS);
+	UNTRAP_SIG(SIGABRT);
+	UNTRAP_SIG(SIGFPE);
+	UNTRAP_SIG(SIGILL);
+}
+
+void InitProtection() {
+	//TrapSignals(&gSignals);
+}
+
+void CleanupProtection() {
+	//RestoreSignals(&gSignals);
+}
+
+void UnixExceptionHandler(int sig) {
+  JNIEnv* env;
+  CallTempStruct* call;
+  
+  env = GetEnv();
+  call = getCurrentTempCallStruct(env);
+  
+  printf("IN UnixExceptionHandler (sig = %d, call = %p) !\n", sig, call);
+  
+  //TrapSignals(&gSignals); // reinitialize, in case it was reset
+  
+  const char* msg;
+  //char fmt[256];
+  
+  switch (sig) {
+  case SIGSEGV:
+  	  msg = "Segmentation fault";
+  	  break;
+  case SIGBUS:
+  	  msg = "Bus error";
+  	  break;
+  case SIGABRT:
+  	  msg = "Native exception (call to abort())";
+  	  break;
+  case SIGFPE:
+  	  msg = "Floating point error";
+  	  break;
+  case SIGILL:
+  	  msg = "Illegal instruction";
+  	  break;
+  default:
+  	  msg = "Native error";
+  	  //sprintf(msg, "Native error (signal %d)", sig);
+  	  //msg = fmt;
+  	  break;
+  }
+  call->throwMessage = msg;
+  //throwException(env, msg);
+  if (call)
+  	  longjmp(call->exceptionContext, sig);
+}
+
+#else
 
 int WinExceptionFilter(LPEXCEPTION_POINTERS ex) {
 	switch (ex->ExceptionRecord->ExceptionCode) {
@@ -78,5 +155,7 @@ void WinExceptionHandler(JNIEnv* env, LPEXCEPTION_POINTERS ex) {
 	//EX_CASE(STATUS_UNWIND_CONSOLIDATE            );
 	}*/
 }
+
+#endif
 
 #endif

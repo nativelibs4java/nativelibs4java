@@ -375,7 +375,7 @@ TEST_API const wchar_t* wstringCStr(std::wstring* s) {
 }
 
 TEST_API void crashIllegalAccess() {
-	((char*)NULL)[0];
+	((char*)NULL)[0] = '0';
 }
 class MyException : public std::exception {
 	std::string msg;

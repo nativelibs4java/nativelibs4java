@@ -129,7 +129,11 @@ JNIEnv* GetEnv() {
   return env;
 }
 
+void InitProtection();
+
 void initMethods(JNIEnv* env) {
+	InitProtection();
+	
 	if (!gAddressMethod)
 	{
 		#define FIND_GLOBAL_CLASS(name) (*env)->NewGlobalRef(env, (*env)->FindClass(env, name))
@@ -288,14 +292,14 @@ void JNICALL Java_org_bridj_JNI_callSinglePointerArgVoidFunction(JNIEnv *env, jc
 }
 
 jlong JNICALL Java_org_bridj_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
-	BEGIN_TRY();
+	BEGIN_TRY_CALL(env);
 	return !buffer ? 0 : PTR_TO_JLONG((*env)->GetDirectBufferAddress(env, buffer));
-	END_TRY_RET(env, 0);
+	END_TRY_CALL_RET(env, 0);
 }
 jlong JNICALL Java_org_bridj_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
-	BEGIN_TRY();
+	BEGIN_TRY_CALL(env);
 	return !buffer ? 0 : (*env)->GetDirectBufferCapacity(env, buffer);
-	END_TRY_RET(env, 0);
+	END_TRY_CALL_RET(env, 0);
 }
 
 jlong JNICALL Java_org_bridj_JNI_getObjectPointer(JNIEnv *env, jclass clazz, jobject object)
@@ -385,9 +389,9 @@ jlong JNICALL Java_org_bridj_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, 
 }
 
 jobject JNICALL Java_org_bridj_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthis, jlong peer, jlong length) {
-	BEGIN_TRY();
+	BEGIN_TRY_CALL(env);
 	return (*env)->NewDirectByteBuffer(env, (void*)peer, length);
-	END_TRY_RET(env, NULL);
+	END_TRY_CALL_RET(env, NULL);
 }
 
 JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCallTempStruct(JNIEnv* env, jclass clazz) {
@@ -1001,33 +1005,33 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_freeVirtualMethodBindings(
 #define FUNC_VOID_3(name, t1, t2, t3, nt1, nt2, nt3) \
 void JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1, t2 a2, t3 a3) \
 { \
-	BEGIN_TRY(); \
+	BEGIN_TRY_CALL(env); \
 	name((nt1)a1, (nt2)a2, (nt3)a3); \
-	END_TRY(env); \
+	END_TRY_CALL(env); \
 }
 
 #define FUNC_3(ret, name, t1, t2, t3, nt1, nt2, nt3) \
 ret JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1, t2 a2, t3 a3) \
 { \
-	BEGIN_TRY(); \
+	BEGIN_TRY_CALL(env); \
 	return (ret)name((nt1)a1, (nt2)a2, (nt3)a3); \
-	END_TRY_RET(env, (ret)0); \
+	END_TRY_CALL_RET(env, (ret)0); \
 }
 
 #define FUNC_VOID_1(name, t1, nt1) \
 void JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1) \
 { \
-	BEGIN_TRY(); \
+	BEGIN_TRY_CALL(env); \
 	name((nt1)a1); \
-	END_TRY(env); \
+	END_TRY_CALL(env); \
 }
 
 #define FUNC_1(ret, name, t1, nt1) \
 ret JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1) \
 { \
-	BEGIN_TRY(); \
+	BEGIN_TRY_CALL(env); \
 	return (ret)name((nt1)a1); \
-	END_TRY_RET(env, (ret)0); \
+	END_TRY_CALL_RET(env, (ret)0); \
 }
 
 

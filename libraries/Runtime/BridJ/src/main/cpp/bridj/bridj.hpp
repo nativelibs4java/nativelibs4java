@@ -24,6 +24,11 @@
 #include <jni.h>
 
 
+#if defined(__GNUC__)
+#include <setjmp.h>
+#endif
+
+
 #ifdef _MSC_VER
 #	define THREAD_STATIC __declspec(thread) static
 #else 
@@ -73,6 +78,10 @@ typedef struct CallTempStruct {
 	DCCallVM* vm;
 	JNIEnv *env;
 	jobject* pCallIOs;
+	#if defined(__GNUC__)
+	jmp_buf exceptionContext;
+	const char* throwMessage;
+	#endif
 } CallTempStruct;
 
 typedef struct CommonCallbackInfo {
@@ -186,6 +195,7 @@ void printStackTrace(JNIEnv* env, jthrowable ex);
 
 void initThreadLocal(JNIEnv* env);
 CallTempStruct* getTempCallStruct(JNIEnv* env);
+CallTempStruct* getCurrentTempCallStruct(JNIEnv* env);
 void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s);
 
 #endif
