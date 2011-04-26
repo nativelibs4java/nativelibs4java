@@ -314,11 +314,18 @@ public class CRuntime extends AbstractBridJRuntime {
 			for (Map.Entry<NativeEntities, NativeEntities.Builder> e : builders.entrySet()) {
 				e.getKey().addDefinitions(typeClass, e.getValue());
 			}
-			
-			typeClass = typeClass.getSuperclass();
-			if (typeClass != null && typeClass != Object.class)
-				register(typeClass, forcedLibrary, methodCallInfoBuilder);
+			registerFamily(type, forcedLibrary, methodCallInfoBuilder);
 		}
+	}
+	protected void registerFamily(Type type, NativeLibrary forcedLibrary, MethodCallInfoBuilder methodCallInfoBuilder) {
+		Class typeClass = Utils.getClass(type);
+        
+		for (Class<?> child : typeClass.getClasses())
+			register(child, forcedLibrary, methodCallInfoBuilder);
+		
+		typeClass = typeClass.getSuperclass();
+		if (typeClass != null && typeClass != Object.class)
+			register(typeClass, forcedLibrary, methodCallInfoBuilder);
 	}
 
 	protected NativeLibrary getNativeLibrary(Class<?> type) throws FileNotFoundException {
