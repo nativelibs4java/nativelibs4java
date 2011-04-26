@@ -147,6 +147,10 @@ public class MethodCallInfo {
             this.direct = false;
 
         symbolName = methodName;
+        
+        if (definition.getExceptionTypes().length != 0)
+        		this.direct = false; // there is no crash / exception protection for direct raw calls
+        
         if (!BridJ.isDirectModeEnabled())
         		this.direct = false; // TODO remove me !
         

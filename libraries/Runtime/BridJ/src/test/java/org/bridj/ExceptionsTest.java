@@ -23,8 +23,8 @@ public class ExceptionsTest {
 		BridJ.register();
 	}
 	
-	public static native void crashIllegalAccess();
-	public static native void throwCPPException(Pointer<Byte> message);
+	public static native void crashIllegalAccess() throws RuntimeException;
+	public static native void throwCPPException(Pointer<Byte> message) throws RuntimeException;
 	
 	@Test(expected=RuntimeException.class)
 	public void testCrashIllegalAccess() {
