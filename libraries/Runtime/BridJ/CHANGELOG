@@ -14,6 +14,8 @@ Current version : BridJ 0.5-SNAPSHOT
 - Implemented FlagSet.equals
 - Fixed BridJ.sizeOf(Pointer.class), sizeOf(SizeT.class), sizeOf(CLong.class)...
 - Added experimental JNA-like support for Java fields to represent struct fields (deprecated, needs manual calls to BridJ.readFromNative and BridJ.writeToNative)
+- Fixed loading of libraries that depend on other libraries in the same directory on Windows (issue #65)
+- Added support for Windows APIs Unicode vs. ANSI functions renaming (e.g. SendMessage being one of SendMessageW or SendMessageA, depending on Platform.useUnicodeVersionOfWindowsAPIs)
 ...
 
 BridJ 0.4 (r1869, 20110408)
