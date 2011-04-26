@@ -1,37 +1,15 @@
-Index: dyncall/dyncall/dyncall_callvm_ppc32.c
+Index: dyncall/dynload/dynload_windows.c
 ===================================================================
---- dyncall/dyncall/dyncall_callvm_ppc32.c	
-+++ dyncall/dyncall/dyncall_callvm_ppc32.c	
-@@ -36,6 +36,7 @@
- #include "dyncall_alloc.h"
- #include "dyncall_macros.h"
- #include "dyncall_types.h"
-+#include "dyncall_utils.h"
- 
- /* Support for Mac OS X (Darwin) and Systen V ABI for Power PC 32-bit */
- 
-Index: dyncall/dynload/dynload_syms_pe.c
-===================================================================
---- dyncall/dynload/dynload_syms_pe.c	
-+++ dyncall/dynload/dynload_syms_pe.c	
-@@ -39,8 +39,9 @@
- };
- 
- 
--DLSyms* dlSymsInit(DLLib* pLib)
-+DLSyms* dlSymsInit(const char* libPath)
+--- dyncall/dynload/dynload_windows.c	
++++ dyncall/dynload/dynload_windows.c	
+@@ -33,8 +33,8 @@
+ DLLib* dlLoadLibrary(const char* libPath)
  {
-+  DLLib* pLib = dlLoadLibrary(libPath);
-   DLSyms* pSyms = (DLSyms*)dcAllocMem(sizeof(DLSyms));
-   const char* base = (const char*) pLib;
-   IMAGE_DOS_HEADER*       pDOSHeader      = (IMAGE_DOS_HEADER*) base;  
-@@ -61,7 +62,8 @@
- 
- void dlSymsCleanup(DLSyms* pSyms)
- {
--  /* do nothing. */
-+  dlFreeLibrary(pSyms->pLib);
-+  dcFreeMem(pSyms);
- }
- 
- 
+   if (libPath != NULL) {
+-    return (DLLib*) LoadLibraryA(libPath);
+-    /*return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);*/
++    //return (DLLib*) LoadLibraryA(libPath);
++    return (DLLib*) LoadLibraryExA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
+   } else {
+     return (DLLib*) GetModuleHandle(NULL);
+   }
