@@ -33,7 +33,7 @@ char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, 
 	CallTempStruct* call;
 	jobject instance = initCallHandler(args, &call, NULL);
 	JNIEnv* env = call->env;
-	BEGIN_TRY(env, call);
+	BEGIN_TRY(env, call)
 	
 	void* callback;
 	int nParams = info->fInfo.nParams;
@@ -98,7 +98,7 @@ char __cdecl JavaToCPPMethodCallHandler(DCCallback* callback, DCArgs* args, DCVa
 	void* thisPtr;
 	jobject instance = initCallHandler(args, &call, NULL);
 	JNIEnv* env = call->env;
-	BEGIN_TRY(env, call);
+	BEGIN_TRY(env, call)
 	
 	call->pCallIOs = info->fInfo.fCallIOs;
 	

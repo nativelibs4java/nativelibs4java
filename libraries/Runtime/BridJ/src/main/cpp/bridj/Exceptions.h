@@ -76,7 +76,7 @@ int WinExceptionFilter(LPEXCEPTION_POINTERS ex);
 	}
 	
 #define END_TRY_CALL_RET(env, ret) \
-	END_TRY_CALL_BASE(env, return ret);
+	END_TRY_CALL_BASE(env, return ret;);
 
 
 #else

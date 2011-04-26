@@ -197,6 +197,7 @@ void initThreadLocal(JNIEnv* env);
 CallTempStruct* getTempCallStruct(JNIEnv* env);
 CallTempStruct* getCurrentTempCallStruct(JNIEnv* env);
 void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s);
+void cleanupCallHandler(CallTempStruct* call);
 
 #endif
 

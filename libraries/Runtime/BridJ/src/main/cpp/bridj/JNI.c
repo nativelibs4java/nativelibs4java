@@ -292,14 +292,18 @@ void JNICALL Java_org_bridj_JNI_callSinglePointerArgVoidFunction(JNIEnv *env, jc
 }
 
 jlong JNICALL Java_org_bridj_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
+	jlong ret;
 	BEGIN_TRY_CALL(env);
-	return !buffer ? 0 : PTR_TO_JLONG((*env)->GetDirectBufferAddress(env, buffer));
+	ret = !buffer ? 0 : PTR_TO_JLONG((*env)->GetDirectBufferAddress(env, buffer));
 	END_TRY_CALL_RET(env, 0);
+	return ret;
 }
 jlong JNICALL Java_org_bridj_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
+	jlong ret;
 	BEGIN_TRY_CALL(env);
-	return !buffer ? 0 : (*env)->GetDirectBufferCapacity(env, buffer);
+	ret = !buffer ? 0 : (*env)->GetDirectBufferCapacity(env, buffer);
 	END_TRY_CALL_RET(env, 0);
+	return ret;
 }
 
 jlong JNICALL Java_org_bridj_JNI_getObjectPointer(JNIEnv *env, jclass clazz, jobject object)
@@ -389,9 +393,11 @@ jlong JNICALL Java_org_bridj_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, 
 }
 
 jobject JNICALL Java_org_bridj_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthis, jlong peer, jlong length) {
+	jobject ret;
 	BEGIN_TRY_CALL(env);
-	return (*env)->NewDirectByteBuffer(env, (void*)peer, length);
+	ret = (*env)->NewDirectByteBuffer(env, (void*)peer, length);
 	END_TRY_CALL_RET(env, NULL);
+	return ret;
 }
 
 JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCallTempStruct(JNIEnv* env, jclass clazz) {
@@ -1013,9 +1019,11 @@ void JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1, t2 a2
 #define FUNC_3(ret, name, t1, t2, t3, nt1, nt2, nt3) \
 ret JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1, t2 a2, t3 a3) \
 { \
+	ret r; \
 	BEGIN_TRY_CALL(env); \
-	return (ret)name((nt1)a1, (nt2)a2, (nt3)a3); \
+	r = (ret)name((nt1)a1, (nt2)a2, (nt3)a3); \
 	END_TRY_CALL_RET(env, (ret)0); \
+	return r; \
 }
 
 #define FUNC_VOID_1(name, t1, nt1) \
@@ -1029,9 +1037,11 @@ void JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1) \
 #define FUNC_1(ret, name, t1, nt1) \
 ret JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1) \
 { \
+	ret r; \
 	BEGIN_TRY_CALL(env); \
-	return (ret)name((nt1)a1); \
+	r = (ret)name((nt1)a1); \
 	END_TRY_CALL_RET(env, (ret)0); \
+	return r; \
 }
 
 

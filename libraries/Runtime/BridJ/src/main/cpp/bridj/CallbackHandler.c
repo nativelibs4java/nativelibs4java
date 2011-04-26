@@ -109,7 +109,6 @@ char __cdecl JavaToCCallHandler(DCCallback* callback, DCArgs* args, DCValue* res
 	void* callbackPtr;
 	CallTempStruct* call;
 	JavaToNativeCallbackCallInfo* info = (JavaToNativeCallbackCallInfo*)userdata;
-	JNIEnv *env = GetEnv();
 	jobject instance = initCallHandler(args, &call, NULL);
 	BEGIN_TRY(env, call);
 	
