@@ -730,10 +730,15 @@ public class StructIO {
                     if (fd.field == null)
                         continue;
 				
-                    if (fd.isArray || fd.isNativeObject)
+                    if (fd.isArray)
                         continue;
 
                     Object value = fd.field.get(struct);
+                    if (value instanceof NativeObject) {//fd.isNativeObject) {
+                    		if (value != null) 
+                    			BridJ.writeToNative((NativeObject)value);
+                    		continue;
+                    }
                     Pointer ptr = struct.peer.offset(fd.byteOffset);
                     Type tpe = fd.nativeTypeOrPointerTargetType == null ? fd.field.getGenericType() : fd.nativeTypeOrPointerTargetType;
                     ptr = ptr.as(tpe);
@@ -762,6 +767,11 @@ public class StructIO {
                         value = ptr.get();
                     }
                     fd.field.set(struct, value);
+                    
+                    if (value instanceof NativeObject) {//if (fd.isNativeObject) {
+                    		if (value != null)
+                    			BridJ.readFromNative((NativeObject)value);
+                    }
                 }
             } catch (Throwable th) {
                 throw new RuntimeException("Unexpected error while reading fields from struct " + Utils.toString(structType) + " (" + pointerTo(struct) + ") : " + th, th);

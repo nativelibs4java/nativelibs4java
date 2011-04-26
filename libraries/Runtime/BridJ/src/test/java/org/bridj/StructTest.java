@@ -552,7 +552,8 @@ public class StructTest {
         }
 
 	}
-    @Test
+	
+	@Test
     public void testThisStruct() {
         ThisStruct s = new ThisStruct();
         ThisStruct o = s.a(10);
@@ -567,6 +568,43 @@ public class StructTest {
         SubStruct sub = s.sub();
         assertEquals("Invalid sub-struct !", pointerTo(s).offset(4), pointerTo(sub));
         
+    }
+    
+    public static class ThisStructFields extends StructObject {
+
+		@Field(0)
+		public int a;
+		
+        @Field(1)
+        public SubStructFields sub;
+
+	}
+	public static class SubStructFields extends StructObject {
+
+		@Field(0)
+		public int a;
+	}
+    
+	@Test
+    public void testThisStructFields() {
+        ThisStructFields s = new ThisStructFields();
+        s.a = 10;
+        BridJ.writeToNative(s);
+        s = pointerTo(s).get();
+        int a = s.a;
+        assertEquals(10, a);
+    }
+    @Test
+    public void testThisSubStructFields() {
+        ThisStructFields s = new ThisStructFields();
+        assertEquals(2 * 4, BridJ.sizeOf(ThisStructFields.class));
+        SubStructFields sub = s.sub;
+        assertEquals("Invalid sub-struct !", pointerTo(s).offset(4), pointerTo(sub));
+        sub.a = 100;
+        BridJ.writeToNative(s);
+        
+        s = pointerTo(s).get();
+        assertEquals(100, s.sub.a);
     }
     
     public static class StructWithArrays extends StructObject {
