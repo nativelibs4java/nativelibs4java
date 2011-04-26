@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -153,24 +154,23 @@ public class NativeLibrary {
     	if (member instanceof Member)
             name = ((Member)member).getName();
         
+        List<String> names = new ArrayList<String>();
         if (mg != null)
-            for (String n : mg.value())
-            {
-            	Symbol handle = getSymbol(n);
-                if (handle == null)
-                    handle = getSymbol("_" + n);
-                if (handle != null)
-                    return handle;
-            }
-
-        if (name != null) {
-            Symbol handle = getSymbol(name);
-            if (handle == null)
-                handle = getSymbol("_" + name);
-            if (handle != null)
-                return handle;
-        }
-
+        		names.addAll(Arrays.asList(mg.value()));
+        	if (name != null)
+        		names.add(name);
+        	
+		for (String n : names)
+		{
+			Symbol handle = getSymbol(n);
+			if (handle == null)
+				handle = getSymbol("_" + n);
+			if (handle == null)
+				handle = getSymbol(n + (Platform.useUnicodeVersionOfWindowsAPIs ? "W" : "A"));
+			if (handle != null)
+				return handle;
+		}
+		
         if (member instanceof Method) {
             Method method = (Method)member;
             for (Demangler.Symbol symbol : getSymbols()) {

@@ -74,6 +74,23 @@ public class Platform {
     public static boolean isWindows7() {
     	return osName.equals("Windows 7");
     }
+    
+    /**
+     * Whether to use Unicode versions of Windows APIs rather than ANSI versions (for functions that haven't been bound yet : has no effect on functions that have already been bound).<br>
+     * Some Windows APIs such as SendMessage have two versions : 
+     * <ul>
+     * <li>one that uses single-byte character strings (SendMessageA, with 'A' for ANSI strings)</li>
+     * <li>one that uses unicode character strings (SendMessageW, with 'W' for Wide strings).</li>
+     * </ul>
+     * <br>
+     * In a C/C++ program, this behaviour is controlled by the UNICODE macro definition.<br>
+     * By default, BridJ will use the Unicode versions. Set this field to false, set the bridj.useUnicodeVersionOfWindowsAPIs property to "false" or the BRIDJ_USE_UNICODE_VERSION_OF_WINDOWS_APIS environment variable to "0" to use the ANSI string version instead.
+     */
+    public static boolean useUnicodeVersionOfWindowsAPIs = !(
+    		"false".equals(System.getProperty("bridj.useUnicodeVersionOfWindowsAPIs")) ||
+    		"0".equals(System.getenv("BRIDJ_USE_UNICODE_VERSION_OF_WINDOWS_APIS"))
+	);
+    
 	private static volatile String arch;
 	private static synchronized String getArch() {
 		if (arch == null) {
