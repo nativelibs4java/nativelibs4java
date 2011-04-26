@@ -132,7 +132,7 @@ JNIEnv* GetEnv() {
 void InitProtection();
 
 void initMethods(JNIEnv* env) {
-	InitProtection();
+	//InitProtection();
 	
 	if (!gAddressMethod)
 	{
