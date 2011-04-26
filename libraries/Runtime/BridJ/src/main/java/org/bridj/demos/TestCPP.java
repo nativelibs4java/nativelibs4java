@@ -26,7 +26,7 @@ import org.bridj.cpp.com.shell.IShellWindows;
 import org.bridj.cpp.com.shell.ITaskbarList3;
 import org.bridj.demos.TaskbarListDemo;
 import org.bridj.jawt.JAWTUtils;
-import org.bridj.objc.NSAutoReleasePool;
+import org.bridj.objc.NSAutoreleasePool;
 //import org.bridj.objc.NSCalendar;
 import org.bridj.objc.ObjCObject;
 

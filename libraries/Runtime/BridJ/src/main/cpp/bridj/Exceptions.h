@@ -2,7 +2,9 @@
 #ifndef _BRIDJ_EXCEPTIONS_H
 #define _BRIDJ_EXCEPTIONS_H
 
+#if defined(_WIN32)
 #define ENABLE_PROTECTED_MODE
+#endif
 
 #if defined(ENABLE_PROTECTED_MODE)
 #if defined(__GNUC__)
@@ -81,13 +83,15 @@ int WinExceptionFilter(LPEXCEPTION_POINTERS ex);
 
 #else
 
-#define BEGIN_TRY(env) {
-#define END_TRY(env) }
-#define END_TRY_RET(env, ret) }
+#define BEGIN_TRY(env, call) {
+#define END_TRY(env, call) }
+#define END_TRY_BASE(env, call, ret) }
+#define END_TRY_RET(env, call, ret) }
 
 #define BEGIN_TRY_CALL(env) { 
 #define END_TRY_CALL_BASE(env, ret) } 
-#define END_TRY_CALL_RET(env, ret) } 
+#define END_TRY_CALL_RET(env, ret) }  
+#define END_TRY_CALL(env) } 
 
 
 

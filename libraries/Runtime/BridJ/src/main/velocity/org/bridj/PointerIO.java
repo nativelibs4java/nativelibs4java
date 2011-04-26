@@ -120,6 +120,8 @@ public abstract class PointerIO<T> {
 					io = CommonPointerIOs.clongIO;
 				else if (StructObject.class.isAssignableFrom(cl))
 					io = getInstance(StructIO.getInstance((Class)cl, type));
+				else if (NativeObject.class.isAssignableFrom(cl))
+					io = new CommonPointerIOs.NativeObjectPointerIO(type);
 				else if (Callback.class.isAssignableFrom(cl))
 					io = new CommonPointerIOs.CallbackPointerIO(cl);
 			}

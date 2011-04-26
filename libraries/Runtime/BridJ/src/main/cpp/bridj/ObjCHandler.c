@@ -33,7 +33,7 @@ char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* 
 	
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE, JNI_TRUE)// TODO isVarArgs ?? 
 	&&
-	followCall(call, ePointerValue/*info->fInfo.fReturnType*/, result, callback, JNI_FALSE, JNI_FALSE);
+	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE, JNI_FALSE);
 
 	cleanupCallHandler(call);
 	END_TRY_BASE(info->fInfo.fEnv, call, cleanupCallHandler(call););
