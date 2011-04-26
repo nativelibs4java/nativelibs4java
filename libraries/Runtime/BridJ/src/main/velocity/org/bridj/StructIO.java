@@ -493,11 +493,11 @@ public class StructIO {
 					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
 				} else if (Pointer.class.isAssignableFrom(field.valueClass)) {
 					Type tpe = (field.desc.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.desc.valueType).getActualTypeArguments()[0] : null;
-                    if (!(tpe instanceof WildcardType) && !(tpe instanceof TypeVariable))
-                    	field.desc.nativeTypeOrPointerTargetType = tpe;
-                    if (field.desc.isArray)
+                    if (field.desc.isArray) {
+                        if (!(tpe instanceof WildcardType) && !(tpe instanceof TypeVariable))
+                        		field.desc.nativeTypeOrPointerTargetType = tpe;
                         field.desc.byteLength = BridJ.sizeOf(field.desc.nativeTypeOrPointerTargetType);
-                    else
+                    } else
                         field.desc.byteLength = Pointer.SIZE;
 					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
 				} else if (Buffer.class.isAssignableFrom(field.valueClass)) {

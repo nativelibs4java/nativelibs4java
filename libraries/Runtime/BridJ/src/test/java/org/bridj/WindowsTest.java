@@ -4,6 +4,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.bridj.ann.Library;
+import org.bridj.ann.Optional;
 
 @org.bridj.ann.Runtime(CRuntime.class)
 public class WindowsTest {
@@ -12,6 +13,7 @@ public class WindowsTest {
 	}
 	
 	@Library("user32")
+    @Optional
 	public static native void SendMessage(Pointer<?> hwnd, int Msg, int wParam, Pointer<?> lParam);
 	
 	boolean win = Platform.isWindows();
