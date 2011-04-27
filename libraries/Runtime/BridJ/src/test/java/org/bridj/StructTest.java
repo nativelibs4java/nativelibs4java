@@ -642,6 +642,26 @@ public class StructTest {
     public void testSizeTSize() {
     	assertEquals(SizeT.SIZE, BridJ.sizeOf(SizeTSize.class));
     }
+    
+    public static class NoLoop extends StructObject {
+    	@Field(0)
+    	public int value;
+    	
+    	@Field(1)
+    	public Pointer<NoLoop> next;
+    }
+    
+    @Test
+    public void testNoLoop() {
+    	long s = BridJ.sizeOf(NoLoop.class);
+    	assertEquals(2 * Pointer.SIZE, s);
+    	System.out.println("sizeof = " + s);
+    	NoLoop l = new NoLoop();
+    	Pointer<NoLoop> p = pointerTo(l);
+    	System.out.println("NoLoop = " + p);
+    	System.out.println("valid bytes = " + p.getValidBytes() + ", sizeof = " + s);
+    	l = p.get();
+    }
     //*/
 }
 

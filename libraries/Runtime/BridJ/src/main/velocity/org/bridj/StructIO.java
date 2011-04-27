@@ -493,9 +493,9 @@ public class StructIO {
 					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
 				} else if (Pointer.class.isAssignableFrom(field.valueClass)) {
 					Type tpe = (field.desc.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.desc.valueType).getActualTypeArguments()[0] : null;
-                    if (field.desc.isArray) {
-                        if (!(tpe instanceof WildcardType) && !(tpe instanceof TypeVariable))
-                        		field.desc.nativeTypeOrPointerTargetType = tpe;
+                    if (!(tpe instanceof WildcardType) && !(tpe instanceof TypeVariable))
+							field.desc.nativeTypeOrPointerTargetType = tpe;
+					if (field.desc.isArray) {
                         field.desc.byteLength = BridJ.sizeOf(field.desc.nativeTypeOrPointerTargetType);
                     } else
                         field.desc.byteLength = Pointer.SIZE;
@@ -740,7 +740,7 @@ public class StructIO {
                     		continue;
                     }
                     Pointer ptr = struct.peer.offset(fd.byteOffset);
-                    Type tpe = fd.nativeTypeOrPointerTargetType == null ? fd.field.getGenericType() : fd.nativeTypeOrPointerTargetType;
+                    Type tpe = fd.isNativeObject || fd.isArray ? fd.nativeTypeOrPointerTargetType : fd.field.getGenericType();
                     ptr = ptr.as(tpe);
                     ptr.set(value);
                 }
@@ -757,7 +757,7 @@ public class StructIO {
                         continue;
 
                     Pointer ptr = struct.peer.offset(fd.byteOffset);
-                    Type tpe = fd.nativeTypeOrPointerTargetType == null ? fd.field.getGenericType() : fd.nativeTypeOrPointerTargetType;
+                    Type tpe = fd.isNativeObject || fd.isArray ? fd.nativeTypeOrPointerTargetType : fd.field.getGenericType();
                     ptr = ptr.as(tpe);
                     Object value;
                     if (fd.isArray) {

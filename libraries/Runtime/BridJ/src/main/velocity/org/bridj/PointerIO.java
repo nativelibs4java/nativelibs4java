@@ -120,10 +120,10 @@ public abstract class PointerIO<T> {
 					io = CommonPointerIOs.clongIO;
 				else if (StructObject.class.isAssignableFrom(cl))
 					io = getInstance(StructIO.getInstance((Class)cl, type));
-				else if (NativeObject.class.isAssignableFrom(cl))
-					io = new CommonPointerIOs.NativeObjectPointerIO(type);
 				else if (Callback.class.isAssignableFrom(cl))
 					io = new CommonPointerIOs.CallbackPointerIO(cl);
+				else if (NativeObject.class.isAssignableFrom(cl))
+					io = new CommonPointerIOs.NativeObjectPointerIO(type);
 			}
             //else
             //throw new UnsupportedOperationException("Cannot create pointer io to type " + type + ((type instanceof Class) && ((Class)type).getSuperclass() != null ? " (parent type : " + ((Class)type).getSuperclass().getName() + ")" : ""));
