@@ -71,6 +71,9 @@ public class NativeEntities {
      * Called automatically by {@link NativeEntities#finalize()} upon garbage collection.
      */
 	public void release() {
+		if (BridJ.debugNeverFree)
+			return;
+		
 		for (CBInfo callbacks : functions.values())
 		    JNI.freeCFunctionBindings(callbacks.handle, callbacks.size);
 		

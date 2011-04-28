@@ -134,6 +134,14 @@ CallTempStruct* getTempCallStruct(JNIEnv* env) {
 	return &pNode->fCallTempStruct;
 }
 
+CallTempStruct* getCurrentTempCallStruct(JNIEnv* env) {
+	CallTempStructNode* pNode = (CallTempStructNode*)GET_THREAD_LOCAL_DATA();
+	if (!pNode || !pNode->fUsed)
+		return NULL;
+	
+	return &pNode->fCallTempStruct;
+}
+
 void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s) {
 	CallTempStructNode* pNode = (CallTempStructNode*)GET_THREAD_LOCAL_DATA();
 	if (!pNode || &pNode->fCallTempStruct != s) {

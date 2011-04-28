@@ -66,7 +66,7 @@ public class CRuntime extends AbstractBridJRuntime {
         protected Class<?> castClass;
 
         @Override
-        public long sizeOf(Type type) {
+        public long sizeOf() {
             return structIO.getStructSize();
         }
 		@Override
@@ -108,7 +108,7 @@ public class CRuntime extends AbstractBridJRuntime {
             return type;
         }
         
-        synchronized Class<?> getCastClass() {
+        protected synchronized Class<?> getCastClass() {
             if (castClass == null)
                 castClass = getTypeForCast(typeClass);
             return castClass;
@@ -117,12 +117,47 @@ public class CRuntime extends AbstractBridJRuntime {
         @Override
         public T cast(Pointer peer) {
             try {
-                T instance = (T)getCastClass().newInstance(); // TODO template parameters here !!!
+                T instance = (T)getCastClass().newInstance();
+                // TODO template parameters here !!!
                 initialize(instance, peer);
                 return instance;
             } catch (Exception ex) {
-                throw new RuntimeException("Failed to cast pointer " + peer + " to instance of type " + typeClass.getName(), ex);
+                throw new RuntimeException("Failed to cast pointer " + peer + " to instance of type " + Utils.toString(type), ex);
             }
+        }
+        @Override
+        public T createReturnInstance() {
+            try {
+                T instance = (T)getCastClass().newInstance();
+                initialize(instance);
+                return instance;
+            } catch (Exception ex) {
+                throw new RuntimeException("Failed to create return instance for type " + Utils.toString(type), ex);
+            }
+        }
+        @Override
+        public void writeToNative(T instance) {
+        		if (instance instanceof StructObject)
+        			structIO.writeFieldsToNative((StructObject)instance);
+        }
+        @Override
+        public void readFromNative(T instance) {
+        		if (instance instanceof StructObject)
+        			structIO.readFieldsFromNative((StructObject)instance);
+        }
+        @Override
+        public String describe(T instance) {
+        		if (instance instanceof StructObject)
+        			return structIO.describe((StructObject)instance);
+        		else
+        			return instance.toString();
+        }
+        @Override
+        public String describe() {
+        		if (structIO != null)
+        			return structIO.describe();
+        		else
+        			return Utils.toString(typeClass);
         }
 
         @Override
@@ -133,6 +168,9 @@ public class CRuntime extends AbstractBridJRuntime {
                         setNativeObjectPeer(instance, registerCallbackInstance((Callback<?>)instance));
                 } else
                     initialize(instance, -1);
+
+                if (instance instanceof StructObject)
+                    structIO.readFieldsFromNative((StructObject)instance);
             } else if (instance instanceof StructObject) {
                 ((StructObject)instance).io = structIO;
             }
@@ -140,8 +178,10 @@ public class CRuntime extends AbstractBridJRuntime {
         @Override
         public void initialize(T instance, Pointer peer) {
             instance.peer = peer;
-            if (instance instanceof StructObject)
+            if (instance instanceof StructObject) {
                 ((StructObject)instance).io = structIO;
+                structIO.readFieldsFromNative((StructObject)instance);
+            }
         }
 
         @Override
@@ -201,7 +241,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		if (methodCallInfoBuilder == null)
 			methodCallInfoBuilder = new MethodCallInfoBuilder();
         	
-        assert log(Level.INFO, "Registering type " + typeClass.getName());
+        assert log(Level.INFO, "Registering type " + Utils.toString(type));
         
 		int typeModifiers = typeClass.getModifiers();
 		
@@ -267,18 +307,25 @@ public class CRuntime extends AbstractBridJRuntime {
 					}
 				}
 			} catch (Exception ex) {
-				throw new RuntimeException("Failed to register class " + typeClass.getName(), ex);
+				throw new RuntimeException("Failed to register class " + Utils.toString(type), ex);
 			}
 //		}
 		} finally {
 			for (Map.Entry<NativeEntities, NativeEntities.Builder> e : builders.entrySet()) {
 				e.getKey().addDefinitions(typeClass, e.getValue());
 			}
-			
-			typeClass = typeClass.getSuperclass();
-			if (typeClass != null && typeClass != Object.class)
-				register(typeClass, forcedLibrary, methodCallInfoBuilder);
+			registerFamily(type, forcedLibrary, methodCallInfoBuilder);
 		}
+	}
+	protected void registerFamily(Type type, NativeLibrary forcedLibrary, MethodCallInfoBuilder methodCallInfoBuilder) {
+		Class typeClass = Utils.getClass(type);
+        
+		for (Class<?> child : typeClass.getClasses())
+			register(child, forcedLibrary, methodCallInfoBuilder);
+		
+		typeClass = typeClass.getSuperclass();
+		if (typeClass != null && typeClass != Object.class)
+			register(typeClass, forcedLibrary, methodCallInfoBuilder);
 	}
 
 	protected NativeLibrary getNativeLibrary(Class<?> type) throws FileNotFoundException {
@@ -369,11 +416,14 @@ public class CRuntime extends AbstractBridJRuntime {
     		if (!Modifier.isAbstract(modifiers))
     			continue;
 
-    		method = dm;
-    		break;
+    		if (method == null)
+    			method = dm;
+    		else
+    			throw new RuntimeException("Callback " + type.getName() + " has more than one abstract method (" + dm + " and " + method + ")");
+    		//break;
     	}
     	if (method == null)
-    		throw new RuntimeException("Type doesn't have any abstract method : " + type.getName());
+    		throw new RuntimeException("Type doesn't have any abstract method : " + type.getName() + " (parent = " + parent.getName() + ")");
     	return method;
     }
 
@@ -405,6 +455,9 @@ public class CRuntime extends AbstractBridJRuntime {
 
 			@Override
 			public void release(Pointer<?> pointer) {
+				if (BridJ.debugNeverFree)
+					return;
+				
 				JNI.freeCToJavaCallback(pointer.getPeer());
 			}
 		});

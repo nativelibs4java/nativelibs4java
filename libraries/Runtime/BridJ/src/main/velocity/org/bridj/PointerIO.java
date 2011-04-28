@@ -4,6 +4,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.nio.*;
+import org.bridj.util.Utils;
 
 /**
  * Helper class that knows how to read/write data from/to a {@link Pointer}.<br>
@@ -97,25 +98,33 @@ public abstract class PointerIO<T> {
 	public synchronized static <P> PointerIO<P> getInstance(Type type) {
 		PointerIO io = ios.get(type);
         if (io == null) {
-            final Class<?> cl = (type instanceof Class) ? (Class)type : (type instanceof ParameterizedType) ? (Class)((ParameterizedType)type).getRawType() : null;
+            final Class<?> cl = Utils.getClass(type);
     	
             #foreach ($prim in $primitives)
             #if ($velocityCount > 1) else #end
             if (type == ${prim.WrapperName}.TYPE || type == ${prim.WrapperName}.class)
                 io = CommonPointerIOs.${prim.Name}IO;
             #end
-			else if (cl != null && Pointer.class.equals(cl))
-                io = getPointerInstance();
-            else if (cl != null && TypedPointer.class.isAssignableFrom(cl))
-            	io = new CommonPointerIOs.TypedPointerPointerIO((Class<? extends TypedPointer>)cl);
-            else if (cl != null && SizeT.class.isAssignableFrom(cl))
-                io = CommonPointerIOs.sizeTIO;
-			else if (cl != null && CLong.class.isAssignableFrom(cl))
-                io = CommonPointerIOs.clongIO;
-			else if (cl != null && StructObject.class.isAssignableFrom(cl))
-				io = getInstance(StructIO.getInstance((Class)cl, type));
-            else if (cl != null && Callback.class.isAssignableFrom(cl))
-				io = new CommonPointerIOs.CallbackPointerIO(cl);
+            else if (cl != null) {
+            	    if (TypedPointer.class.isAssignableFrom(cl))
+					io = new CommonPointerIOs.TypedPointerPointerIO((Class<? extends TypedPointer>)cl);
+				else if (Pointer.class.isAssignableFrom(cl)) {
+					if (Pointer.class.equals(type) || !(type instanceof ParameterizedType))
+						io = getPointerInstance();
+					else
+						io = getPointerInstance(((ParameterizedType)type).getActualTypeArguments()[0]);
+				}
+				else if (SizeT.class.isAssignableFrom(cl))
+					io = CommonPointerIOs.sizeTIO;
+				else if (CLong.class.isAssignableFrom(cl))
+					io = CommonPointerIOs.clongIO;
+				else if (StructObject.class.isAssignableFrom(cl))
+					io = getInstance(StructIO.getInstance((Class)cl, type));
+				else if (Callback.class.isAssignableFrom(cl))
+					io = new CommonPointerIOs.CallbackPointerIO(cl);
+				else if (NativeObject.class.isAssignableFrom(cl))
+					io = new CommonPointerIOs.NativeObjectPointerIO(type);
+			}
             //else
             //throw new UnsupportedOperationException("Cannot create pointer io to type " + type + ((type instanceof Class) && ((Class)type).getSuperclass() != null ? " (parent type : " + ((Class)type).getSuperclass().getName() + ")" : ""));
             	//return null; // TODO throw here ?

@@ -1,5 +1,7 @@
 package org.bridj.ann;
 
+import org.bridj.StructIO;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
@@ -17,4 +19,5 @@ public @interface Struct {
 	int padding() default -1;
 	int fieldCount() default -1;
 	int size() default -1;
+	Class<? extends StructIO.Customizer> customizer() default StructIO.Customizer.class;
 }

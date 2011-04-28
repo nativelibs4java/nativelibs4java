@@ -48,6 +48,18 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
         return (EE[])values;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ValuedEnum))
+            return false;
+        return value() == ((ValuedEnum)o).value();
+    }
+
+    @Override
+    public int hashCode() {
+        return ((Long)value()).hashCode();
+    }
+
     //@Override
     public Iterator<E> iterator() {
         return getMatchingEnums().iterator();

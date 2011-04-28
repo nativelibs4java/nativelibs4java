@@ -9,7 +9,6 @@ import org.bridj.ann.Constructor;
 @org.bridj.ann.Runtime(CRuntime.class)
 public abstract class StructObject extends NativeObject {
 	protected StructIO io;
-	Object[] refreshableFields;
 
     protected StructObject() {
 		super();
@@ -25,5 +24,13 @@ public abstract class StructObject extends NativeObject {
     }
     protected StructObject(Pointer<? extends StructObject> peer) {
     	super(peer);
+    }
+    
+    /**
+     * Creates a String out of this struct using BridJ.describe(this) (see {@link BridJ#describe(NativeObject) }).
+     */
+    @Override
+    public String toString() {
+    		return BridJ.describe(this);
     }
 }

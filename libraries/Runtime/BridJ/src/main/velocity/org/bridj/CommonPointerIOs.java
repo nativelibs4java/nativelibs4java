@@ -8,31 +8,61 @@ import static org.bridj.util.DefaultParameterizedType.*;
 
 class CommonPointerIOs {
 
-	static class StructPointerIO<S extends StructObject> extends PointerIO<S> {
-		final StructIO structIO;
-		public StructPointerIO(StructIO structIO) {
-			super(structIO.getStructType(), -1, null);
-			this.structIO = structIO;
+	static class NativeObjectPointerIO<N extends NativeObject> extends PointerIO<N> {
+		Type nativeObjectType;
+		public NativeObjectPointerIO(Type nativeObjectType) {
+			super(nativeObjectType, -1, null);
+			this.nativeObjectType = nativeObjectType;
 		}
 
+
+		protected volatile Long targetSize, targetAlignment;
+		protected long computeTargetSize() {
+			return BridJ.sizeOf(nativeObjectType);
+		}
+		protected long computeTargetAlignment() {
+			return getTargetSize();
+		}
         @Override
-        public long getTargetSize() {
-        	structIO.build();
-            return structIO.getStructSize();
+        public synchronized long getTargetSize() {
+        		if (targetSize == null)
+        			targetSize = computeTargetSize();
+        		return targetSize;
+        }
+        @Override
+        public synchronized long getTargetAlignment() {
+        		if (targetAlignment == null)
+        			targetAlignment = computeTargetAlignment();
+        		return targetAlignment;
         }
 		
 		@Override
-		public S get(Pointer<S> pointer, long index) {
-			return (S)pointer.getNativeObjectAtOffset(index * getTargetSize(), structIO.getStructType());
+		public N get(Pointer<N> pointer, long index) {
+			return (N)pointer.getNativeObjectAtOffset(index * getTargetSize(), nativeObjectType);
 		}
 		@Override
-		public void set(Pointer<S> pointer, long index, S value) {
-			Pointer<S> ps = Pointer.pointerTo(value);
-			pointer.getByteBufferAtOffset(index * getTargetSize(), structIO.getStructSize()).put(ps.getByteBuffer());
+		public void set(Pointer<N> pointer, long index, N value) {
+			Pointer<N> ps = Pointer.pointerTo(value);
+			long s = getTargetSize();
+			pointer.getByteBufferAtOffset(index * s, s).put(ps.getByteBuffer());
+		}
+	}
+	static class StructPointerIO<S extends StructObject> extends NativeObjectPointerIO<S> {
+		final StructIO structIO;
+		public StructPointerIO(StructIO structIO) {
+			super(structIO.getStructType());
+			this.structIO = structIO;
+		}
+		
+		@Override
+        protected long computeTargetSize() {
+			structIO.build();
+            return structIO.getStructSize();
 		}
 		@Override
-		public long getTargetAlignment() {
-			return structIO.getStructAlignment();
+        protected long computeTargetAlignment() {
+			structIO.build();
+            return structIO.getStructAlignment();
 		}
 	}
 	

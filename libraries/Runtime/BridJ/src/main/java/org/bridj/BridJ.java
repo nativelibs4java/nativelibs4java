@@ -55,6 +55,12 @@ public class BridJ {
         Class c = Utils.getClass(type);
         if (c.isPrimitive())
             return StructIO.primTypeLength(c);
+        else if (Pointer.class.isAssignableFrom(c))
+            return Pointer.SIZE;
+        else if (c == CLong.class)
+            return CLong.SIZE;
+        else if (c == SizeT.class)
+            return SizeT.SIZE;
         else if (c == Integer.class || c == Float.class)
             return 4;
         else if (c == Character.class || c == Short.class)
@@ -63,12 +69,13 @@ public class BridJ {
             return 8;
         else if (c == Boolean.class || c == Byte.class)
             return 1;
-        return getRuntime(c).getTypeInfo(type).sizeOf(type);
+        else if (NativeObject.class.isAssignableFrom(c))
+            return getRuntime(c).getTypeInfo(type).sizeOf();
         /*if (o instanceof NativeObject) {
             NativeObject no = (NativeObject)o;
             return no.typeInfo.sizeOf(no);
         }*/
-        //throw new RuntimeException("Unable to compute size for object " + o + " of type " + o.getClass().getName());
+        throw new RuntimeException("Unable to compute size of type " + Utils.toString(type));
     }
     static synchronized void registerNativeObject(NativeObject ob) {
         weakNativeObjects.put(Pointer.getAddress(ob, null), ob);
@@ -142,20 +149,29 @@ public class BridJ {
     		throw new RuntimeException("Failed to register class " + name, ex);
     	}
     }
-	static ThreadLocal<Stack<Boolean>> currentlyCastingNativeObject = new ThreadLocal<Stack<Boolean>>() {
+    enum CastingType {
+        None, CastingNativeObject, CastingNativeObjectReturnType
+    }
+	static ThreadLocal<Stack<CastingType>> currentlyCastingNativeObject = new ThreadLocal<Stack<CastingType>>() {
 
         @Override
-		protected java.util.Stack<Boolean> initialValue() {
-			Stack<Boolean> s = new Stack<Boolean>();
-			s.push(false);
+		protected java.util.Stack<CastingType> initialValue() {
+			Stack<CastingType> s = new Stack<CastingType>();
+			s.push(CastingType.None);
 			return s;
         }
 
         ;
 		};
 
-	static boolean isCastingNativeObjectInCurrentThread() {
-		return currentlyCastingNativeObject.get().peek();
+    @Deprecated
+	public static boolean isCastingNativeObjectInCurrentThread() {
+		return currentlyCastingNativeObject.get().peek() != CastingType.None;
+	}
+
+    @Deprecated
+	public static boolean isCastingNativeObjectReturnTypeInCurrentThread() {
+		return currentlyCastingNativeObject.get().peek() == CastingType.CastingNativeObjectReturnType;
 	}
 
     private static WeakHashMap<Long, NativeObject> knownNativeObjects = new WeakHashMap<Long, NativeObject>();
@@ -169,9 +185,9 @@ public class BridJ {
         return knownNativeObjects.get(peer);
     }
     
-	public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type) {
-		Stack<Boolean> s = currentlyCastingNativeObject.get();
-		s.push(true);
+	private static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type, CastingType castingType) {
+		Stack<CastingType> s = currentlyCastingNativeObject.get();
+		s.push(castingType);
 		try {
         		TypeInfo<O> typeInfo = getTypeInfo(type);
         		O instance = typeInfo.cast(pointer);
@@ -183,6 +199,12 @@ public class BridJ {
 		} finally {
 			s.pop();
 		}
+	}
+    public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type) {
+        return (O)createNativeObjectFromPointer(pointer, type, CastingType.CastingNativeObject);
+	}
+    public static <O extends NativeObject> O createNativeObjectFromReturnValuePointer(Pointer<? super O> pointer, Type type) {
+        return (O)createNativeObjectFromPointer(pointer, type, CastingType.CastingNativeObjectReturnType);
 	}
     private static Map<Class<? extends BridJRuntime>, BridJRuntime> runtimes = new HashMap<Class<? extends BridJRuntime>, BridJRuntime>();
 
@@ -257,6 +279,8 @@ public class BridJ {
 	}
 
     public static final boolean debug = "true".equals(System.getProperty("bridj.debug")) || "1".equals(System.getenv("BRIDJ_DEBUG"));
+    public static final boolean debugNeverFree = "true".equals(System.getProperty("bridj.debug.neverFree")) || "1".equals(System.getenv("BRIDJ_DEBUG_NEVER_FREE"));
+    public static final boolean debugPointers = "true".equals(System.getProperty("bridj.debug.pointers")) || "1".equals(System.getenv("BRIDJ_DEBUG_POINTERS"));
     public static final boolean verbose = debug || "true".equals(System.getProperty("bridj.verbose")) || "1".equals(System.getenv("BRIDJ_VERBOSE"));
     static final int minLogLevel = Level.WARNING.intValue();
 	static boolean shouldLog(Level level) {
@@ -664,10 +688,42 @@ public class BridJ {
         typeInfo.initialize(instance, constructorId, args);
     }
 
-	public static <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
+	static <T extends NativeObject> T clone(T instance) throws CloneNotSupportedException {
         return ((TypeInfo<T>)instance.typeInfo).clone(instance);
 	}
 
+	/**
+	 * Some native object need manual synchronization between Java fields and native memory.<br>
+	 * An example is JNA-style structures.
+	 */
+	public static <T extends NativeObject> T readFromNative(T instance) {
+		((TypeInfo<T>)instance.typeInfo).readFromNative(instance);
+		return instance;
+	}
+	/**
+	 * Some native object need manual synchronization between Java fields and native memory.<br>
+	 * An example is JNA-style structures.
+	 */
+	public static <T extends NativeObject> T writeToNative(T instance) {
+		((TypeInfo<T>)instance.typeInfo).writeToNative(instance);
+		return instance;
+	}
+	/**
+	 * Creates a string that describes the provided native object, printing generally-relevant internal data (for instance for structures, this will typically display the fields values).<br>
+	 * This is primarily useful for debugging purposes.
+	 */
+	public static String describe(NativeObject instance) {
+		return ((TypeInfo)instance.typeInfo).describe(instance);
+	}
+	/**
+	 * Creates a string that describes the provided native object type, printing generally-relevant internal data (for instance for structures, this will typically display name of the fields, their offsets and lengths...).<br>
+	 * This is primarily useful for debugging purposes.
+	 */
+	public static String describe(Type nativeObjectType) {
+		TypeInfo typeInfo = getTypeInfo(nativeObjectType);
+		return typeInfo == null ? Utils.toString(nativeObjectType) : typeInfo.describe();
+	}
+	
 	public static void main(String[] args) {
 		List<NativeLibrary> libraries = new ArrayList<NativeLibrary>();
 		try {

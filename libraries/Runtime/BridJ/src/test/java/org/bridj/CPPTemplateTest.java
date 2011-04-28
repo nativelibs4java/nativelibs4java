@@ -1,38 +1,20 @@
 package org.bridj;
 
-import org.bridj.Dyncall.CallingConvention;
-import java.io.FileNotFoundException;
-
-import java.util.Collection;
-
+import org.bridj.BridJRuntime.TypeInfo;
+import org.bridj.cpp.CPPRuntime.CPPTypeInfo;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+import org.bridj.*;
 import org.bridj.ann.Constructor;
-import org.bridj.ann.Convention;
-import org.bridj.ann.Field;
-import org.bridj.ann.Library;
-import org.bridj.ann.Symbol;
 import org.bridj.ann.Template;
-import org.bridj.ann.Ptr;
-import org.bridj.ann.Virtual;
-import org.bridj.cpp.CPPObject;
-
-
-import org.bridj.BridJ;
-import org.bridj.Pointer;
-import org.bridj.ann.Field;
 import org.bridj.ann.Library;
-import org.bridj.ann.Name;
 import org.bridj.ann.Runtime;
-import org.bridj.ann.Virtual;
-import org.bridj.cpp.CPPRuntime;
+import org.bridj.cpp.*;
+import org.bridj.cpp.std.*;
+import static org.bridj.Pointer.*;
 
 import java.lang.reflect.Type;
-
-import org.junit.After;
-import org.junit.Before;
-import static org.bridj.Pointer.*;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 @Library("test")
@@ -73,5 +55,42 @@ public class CPPTemplateTest {
 		System.out.println("Template created value : " + v);
 		ii.deleteSome(p);
 	}
+
+	//public static native
+    ///*
+	@Test
+	public void testSTLVector() throws Exception {
+		NativeLibrary lib = BridJ.getNativeLibrary("test");
+		Pointer<?> ptr = lib.getSymbolPointer("newIntVector").getPointer();
+		Pointer<?> sptr = lib.getSymbolPointer("sizeofIntVector").getPointer();
+		int sizeofIntVector = (Integer)sptr.asDynamicFunction(null, int.class).apply();
+
+        Type intVectorType = CPPType.getCPPType(vector.class, int.class);
+
+		assertEquals("bad vector<int> size !", sizeofIntVector, BridJ.sizeOf(intVectorType));
+        CPPTypeInfo<vector<Integer>> typeInfo = CPPRuntime.getInstance().getCPPTypeInfo(intVectorType);
+        vector<Integer> intVector = new vector<Integer>(Integer.class);
+        //vector<Integer> intVector = typeInfo.createReturnInstance();
+
+		//Pointer<Byte> intVector = allocateBytes(sizeofIntVector);
+		Pointer intVectorPtr = pointerTo(intVector);
+		DynamicFunction f = ptr.asDynamicFunction(null, void.class, Pointer.class, int.class);
+
+		int size = 10;
+		f.apply(intVectorPtr, size);
+
+		//long start = intVectorPtr.getSizeTAtOffset(0);
+		//long end = intVector.getSizeTAtOffset(SizeT.SIZE);
+		//long endOfStorage = intVector.getSizeTAtOffset(SizeT.SIZE * 2);
+		assertEquals("Bad size", size, intVector.size());
+
+        for (int i = 0; i < size; i++) {
+            int v = intVector.get(i);
+
+            assertEquals(i, v);
+        }
+		//System.out.println("size = " + (end - start));
+		//System.out.println("capacity = " + (endOfStorage - start));
+    }
 }
 

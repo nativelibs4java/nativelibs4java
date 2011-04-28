@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.bridj.BridJ;
 import org.bridj.JNI;
@@ -103,7 +105,7 @@ public class ObjectiveCRuntime extends CRuntime {
 
     protected static native Id class_createInstance(Id cls, @Ptr long extraBytes);
 
-    synchronized Id getClass(String name) {
+    synchronized Id getClass(String name) throws ClassNotFoundException {
         Id c = nativeClassesByObjCName.get(name);
         if (c == null) {
             c = objc_getClass(Pointer.pointerToCString(name));
@@ -112,6 +114,9 @@ public class ObjectiveCRuntime extends CRuntime {
                 nativeClassesByObjCName.put(name, c);
             }
         }
+        if (c == null)
+    			throw new ClassNotFoundException("Objective C class not found : " + name);
+        
         return c;
     }
 
@@ -156,18 +161,31 @@ public class ObjectiveCRuntime extends CRuntime {
             NativeLibrary methodLibrary, Builder builder, MethodCallInfoBuilder methodCallInfoBuilder)
             throws FileNotFoundException {
 
-        MethodCallInfo mci = methodCallInfoBuilder.apply(method);
-        Selector sel = method.getAnnotation(Selector.class);
-        if (Modifier.isStatic(method.getModifiers())) {
-            mci.setNativeClass(getClass((Class) type).getPeer());
-        }
+        if (method == null)
+            return;
 
-        if (sel != null) {
-            mci.setSymbolName(sel.value());
-        } else {
-            mci.setSymbolName(method.getName() + ":");
+        try {
+            MethodCallInfo mci = methodCallInfoBuilder.apply(method);
+            Selector sel = method.getAnnotation(Selector.class);
+            boolean isStatic = Modifier.isStatic(method.getModifiers());
+            if (isStatic) {
+                mci.setNativeClass(getClass((Class) type).getPeer());
+            }
+
+            if (sel != null) {
+                mci.setSymbolName(sel.value());
+            } else {
+                String n = method.getName();
+                if (n.endsWith("_"))
+                    n = n.substring(0, n.length() - 1);
+                if (isStatic && !n.equals("new"))
+                    n += ":";
+                mci.setSymbolName(n);
+            }
+            builder.addObjCMethod(mci);
+        } catch (ClassNotFoundException ex) {
+            throw new RuntimeException("Failed to register method " + method + " : " + ex, ex);
         }
-        builder.addObjCMethod(mci);
     }
 
     @Override
@@ -176,22 +194,29 @@ public class ObjectiveCRuntime extends CRuntime {
 
             @Override
             public void initialize(T instance, int constructorId, Object... args) {
-                Id c = ObjectiveCRuntime.this.getClass(typeClass);
-                if (c == null)
-                    throw new RuntimeException("Failed to get Objective-C class for type " + typeClass.getName());
-                Pointer<ObjCClass> pc = c.as(ObjCClass.class);
-                Pointer<ObjCObject> p = pc.get().new$();//.alloc();
-                if (constructorId == -1) {
-                    p = p.get().create();
-                } else {
-                    throw new UnsupportedOperationException("TODO handle constructors !");
+                try {
+                    Id c = ObjectiveCRuntime.this.getClass(typeClass);
+                    if (c == null) {
+                        throw new RuntimeException("Failed to get Objective-C class for type " + typeClass.getName());
+                    }
+                    Pointer<ObjCClass> pc = c.as(ObjCClass.class);
+                    Pointer<ObjCObject> p = pc.get().new$(); //.alloc();
+                    if (constructorId == -1) {
+                        p = p.get().create();
+                    } else {
+                        throw new UnsupportedOperationException("TODO handle constructors !");
+                    }
+                    setNativeObjectPeer(instance, p);
+                } catch (ClassNotFoundException ex) {
+                    throw new RuntimeException("Failed to initialize instance of type " + Utils.toString(type) + " : " + ex, ex);
                 }
-                setNativeObjectPeer(instance, p);
             }
         };
     }
 
-    private Id getClass(Class<? extends NativeObject> class1) {
-        return getClass(class1.getSimpleName());
+    private Id getClass(Class<? extends NativeObject> class1) throws ClassNotFoundException {
+    		String n = class1.getSimpleName();
+    		Id id = getClass(n);
+    		return id;
     }
 }

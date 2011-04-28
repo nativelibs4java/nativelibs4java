@@ -1,9 +1,12 @@
 #include "bridj.hpp"
 #include "jni.h"
+#include "Exceptions.h"
 
 // http://msdn.microsoft.com/en-us/library/ms679356(VS.85).aspx
 
 void throwException(JNIEnv* env, const char* message) {
+	if ((*env)->ExceptionCheck(env))
+		return; // there is already a pending exception
 	(*env)->ExceptionClear(env);
 	(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), message);
 }
@@ -14,19 +17,118 @@ jboolean assertThrow(JNIEnv* env, jboolean value, const char* message) {
 	return value;
 }
 
+#if defined(ENABLE_PROTECTED_MODE)
 
-#ifndef __GNUC__
+#ifdef __GNUC__
 
-#include <windows.h>
+Signals gSignals;
 
-int WinExceptionHandler(JNIEnv* env, int exceptionCode) {
-	switch (exceptionCode) 
+void TrapSignals(Signals* s) {
+	#define TRAP_SIG(sig) \
+	if (s->f ## sig != UnixExceptionHandler) \
+		s->f ## sig = signal(sig, UnixExceptionHandler);
+		
+	TRAP_SIG(SIGSEGV);
+	TRAP_SIG(SIGBUS);
+	TRAP_SIG(SIGABRT);
+	TRAP_SIG(SIGFPE);
+	TRAP_SIG(SIGILL);
+}
+void RestoreSignals(Signals* s) {
+	#define UNTRAP_SIG(sig) \
+	if (s->f ## sig != UnixExceptionHandler) \
+		signal(sig, s->f ## sig);
+	
+	UNTRAP_SIG(SIGSEGV);
+	UNTRAP_SIG(SIGBUS);
+	UNTRAP_SIG(SIGABRT);
+	UNTRAP_SIG(SIGFPE);
+	UNTRAP_SIG(SIGILL);
+}
+
+void InitProtection() {
+	//TrapSignals(&gSignals);
+}
+
+void CleanupProtection() {
+	//RestoreSignals(&gSignals);
+}
+
+void UnixExceptionHandler(int sig) {
+  JNIEnv* env;
+  CallTempStruct* call;
+  
+  env = GetEnv();
+  call = getCurrentTempCallStruct(env);
+  
+  printf("IN UnixExceptionHandler (sig = %d, call = %p) !\n", sig, call);
+  
+  //TrapSignals(&gSignals); // reinitialize, in case it was reset
+  
+  const char* msg;
+  //char fmt[256];
+  
+  switch (sig) {
+  case SIGSEGV:
+  	  msg = "Segmentation fault";
+  	  break;
+  case SIGBUS:
+  	  msg = "Bus error";
+  	  break;
+  case SIGABRT:
+  	  msg = "Native exception (call to abort())";
+  	  break;
+  case SIGFPE:
+  	  msg = "Floating point error";
+  	  break;
+  case SIGILL:
+  	  msg = "Illegal instruction";
+  	  break;
+  default:
+  	  msg = "Native error";
+  	  //sprintf(msg, "Native error (signal %d)", sig);
+  	  //msg = fmt;
+  	  break;
+  }
+  call->throwMessage = msg;
+  //throwException(env, msg);
+  if (call)
+  	  longjmp(call->exceptionContext, sig);
+}
+
+#else
+
+int WinExceptionFilter(LPEXCEPTION_POINTERS ex) {
+	switch (ex->ExceptionRecord->ExceptionCode) {
+		case 0x40010005: // Control+C
+		case 0x80000003: // Breakpoint
+			return EXCEPTION_CONTINUE_SEARCH;
+	}
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+void WinExceptionHandler(JNIEnv* env, LPEXCEPTION_POINTERS ex) {
+	char msg[256];
+	//printStackTrace(env);
+	if (ex->ExceptionRecord)
+		sprintf(msg, "Native exception (code = 0x%llX)", (unsigned long long)ex->ExceptionRecord->ExceptionCode);
+	else
+		sprintf(msg, "Native exception (unknown code)");
+
+	throwException(env, msg);
+	//(*env)->ExceptionClear(env);
+	//(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), msg);
+
+	//if ((*env)->ExceptionOccurred(env)) {
+		(*env)->ExceptionDescribe(env);
+    //}
+	/*
+	switch (ex->ExceptionRecord->ExceptionCode) 
 	{
 #define EX_CASE(name) \
 	case EXCEPTION_ ## name: \
 		(*env)->ExceptionClear(env); \
 		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), #name); \
-		return EXCEPTION_CONTINUE_EXECUTION;
+		break;
     
 	EX_CASE(ACCESS_VIOLATION           );
 	EX_CASE(ARRAY_BOUNDS_EXCEEDED      );
@@ -51,9 +153,9 @@ int WinExceptionHandler(JNIEnv* env, int exceptionCode) {
 	EX_CASE(SINGLE_STEP                );
 	EX_CASE(STACK_OVERFLOW             );
 	//EX_CASE(STATUS_UNWIND_CONSOLIDATE            );
-	}
-	return EXCEPTION_CONTINUE_SEARCH;
-	//return 0;
+	}*/
 }
+
+#endif
 
 #endif

@@ -439,6 +439,10 @@
 				RelativePath="..\..\..\..\..\test\cpp\test\test.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\..\..\test\cpp\test\templates.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Fichiers d&apos;en-tête"

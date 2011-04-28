@@ -62,7 +62,7 @@ public class JNI {
     public static native long getEnv();
     static native long loadLibrary(String path);
     static native void freeLibrary(long libHandle);
-    static native long loadLibrarySymbols(long libHandle);
+    static native long loadLibrarySymbols(String libPath);
     static native void freeLibrarySymbols(long symbolsHandle);
     static native long findSymbolInLibrary(long libHandle, String name);
     static native String[] getLibrarySymbols(long libHandle, long symbolsHandle);

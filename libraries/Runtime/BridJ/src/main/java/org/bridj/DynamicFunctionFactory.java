@@ -34,7 +34,10 @@ public class DynamicFunctionFactory {
 
     @Override
     protected void finalize() throws Throwable {
-        JNI.freeJavaToCCallbacks(callbackHandle, 1);
+        if (BridJ.debugNeverFree)
+			return;
+		
+		JNI.freeJavaToCCallbacks(callbackHandle, 1);
     }
 
 

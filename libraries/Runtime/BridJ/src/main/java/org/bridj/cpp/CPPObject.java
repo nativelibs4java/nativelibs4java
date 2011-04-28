@@ -14,6 +14,7 @@ import org.bridj.ann.Runtime;
 import org.bridj.cpp.mfc.MFCRuntime;
 import org.bridj.BridJ;
 
+import java.util.Map;
 
 /**
  * Base class for C++ structs and classes.
@@ -21,6 +22,8 @@ import org.bridj.BridJ;
  */
 @Runtime(CPPRuntime.class)
 public abstract class CPPObject extends StructObject {
+	Map<Class<?>, Object[]> templateParameters;
+	
 	protected CPPObject() {}
     protected CPPObject(Pointer<? extends CPPObject> peer) {
         super(peer);

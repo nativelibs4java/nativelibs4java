@@ -310,6 +310,72 @@ public class StructTest {
             return this;
         }
 	}
+
+    public static class TestStruct extends MyStruct {
+        public TestStruct(Pointer<MyStruct> p) { super(p); }
+        public TestStruct() { super(); }
+
+        @Array(10)
+        @Field(2)
+		public Pointer<Integer> values() {
+			return io.getPointerField(this, 2);
+        }
+
+        @Field(3)
+        public MyStruct sub() {
+			return io.getNativeObjectField(this, 3);
+        }
+    }
+
+	
+	public static class TestStructWithFields extends StructObject {
+        public TestStructWithFields(Pointer p) { super(p); }
+        public TestStructWithFields() { super(); }
+        @Field(0)
+		public int a;
+        
+        @Field(1)
+		public double b;
+
+        @Array(10)
+        @Field(2)
+		public Pointer<Integer> values;
+
+        @Field(3)
+        public MyStruct sub;
+	}
+	
+	@Test
+	public void testJavaFieldStructs() {
+		assertEquals(BridJ.sizeOf(TestStruct.class), BridJ.sizeOf(TestStructWithFields.class));
+		
+		TestStruct s = new TestStruct();
+		
+		s.a(10);
+		s.b(20);
+		
+		TestStructWithFields fs = new TestStructWithFields(pointerTo(s));
+
+        assertEquals(s.a(), 10); // no modification of original struct
+		assertEquals(s.b(), 20, 0);
+		assertEquals(s.a(), fs.a); // read fields upon creation
+		assertEquals(s.b(), fs.b, 0);
+
+		assertEquals(pointerTo(s.sub()), pointerTo(fs.sub));
+
+        assertEquals(s.values(), fs.values);
+
+        fs.a = 100;
+		fs.b = 200;
+		BridJ.writeToNative(fs);
+		assertEquals(s.a(), fs.a); // did write succeed ?
+		assertEquals(s.b(), fs.b, 0);
+		s.a(1000);
+		s.b(2000);
+		BridJ.readFromNative(fs);
+		assertEquals(s.a(), fs.a); // did read succeed ?
+		assertEquals(s.b(), fs.b, 0);
+	}
 	
 	@Test
 	public void testEquality() {
@@ -486,7 +552,8 @@ public class StructTest {
         }
 
 	}
-    @Test
+	
+	@Test
     public void testThisStruct() {
         ThisStruct s = new ThisStruct();
         ThisStruct o = s.a(10);
@@ -503,6 +570,43 @@ public class StructTest {
         
     }
     
+    public static class ThisStructFields extends StructObject {
+
+		@Field(0)
+		public int a;
+		
+        @Field(1)
+        public SubStructFields sub;
+
+	}
+	public static class SubStructFields extends StructObject {
+
+		@Field(0)
+		public int a;
+	}
+    
+	@Test
+    public void testThisStructFields() {
+        ThisStructFields s = new ThisStructFields();
+        s.a = 10;
+        BridJ.writeToNative(s);
+        s = pointerTo(s).get();
+        int a = s.a;
+        assertEquals(10, a);
+    }
+    @Test
+    public void testThisSubStructFields() {
+        ThisStructFields s = new ThisStructFields();
+        assertEquals(2 * 4, BridJ.sizeOf(ThisStructFields.class));
+        SubStructFields sub = s.sub;
+        assertEquals("Invalid sub-struct !", pointerTo(s).offset(4), pointerTo(sub));
+        sub.a = 100;
+        BridJ.writeToNative(s);
+        
+        s = pointerTo(s).get();
+        assertEquals(100, s.sub.a);
+    }
+    
     public static class StructWithArrays extends StructObject {
     		@Array(10)
     		@Field(0)
@@ -516,6 +620,47 @@ public class StructTest {
         Pointer<Integer> pInts = s.ints();
         assertEquals("Invalid array field pointer type", Integer.class, pInts.getTargetType());
         assertEquals("Invalid sub array", pointerTo(s).getPeer(), pInts.getPeer());
+    }
+    
+    public static class CLongSize extends StructObject {
+    	@Field(0)
+    	@org.bridj.ann.CLong
+    	public long v;
+    }
+    
+    @Test
+    public void testCLongSize() {
+    	assertEquals(CLong.SIZE, BridJ.sizeOf(CLongSize.class));
+    }
+    public static class SizeTSize extends StructObject {
+    	@Field(0)
+    	@Ptr
+    	public long v;
+    }
+    
+    @Test
+    public void testSizeTSize() {
+    	assertEquals(SizeT.SIZE, BridJ.sizeOf(SizeTSize.class));
+    }
+    
+    public static class NoLoop extends StructObject {
+    	@Field(0)
+    	public int value;
+    	
+    	@Field(1)
+    	public Pointer<NoLoop> next;
+    }
+    
+    @Test
+    public void testNoLoop() {
+    	long s = BridJ.sizeOf(NoLoop.class);
+    	assertEquals(2 * Pointer.SIZE, s);
+    	System.out.println("sizeof = " + s);
+    	NoLoop l = new NoLoop();
+    	Pointer<NoLoop> p = pointerTo(l);
+    	System.out.println("NoLoop = " + p);
+    	System.out.println("valid bytes = " + p.getValidBytes() + ", sizeof = " + s);
+    	l = p.get();
     }
     //*/
 }

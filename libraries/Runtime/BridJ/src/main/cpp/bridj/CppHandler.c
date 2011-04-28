@@ -27,12 +27,14 @@ void* getNthVirtualMethodFromThis(JNIEnv* env, void* thisPtr, size_t virtualTabl
 	
 	return ret;
 }
-
-char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, VirtualMethodCallInfo *info)
+char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {
+	VirtualMethodCallInfo* info = (VirtualMethodCallInfo*)userdata;
 	CallTempStruct* call;
 	jobject instance = initCallHandler(args, &call, NULL);
 	JNIEnv* env = call->env;
+	BEGIN_TRY(env, call)
+	
 	void* callback;
 	int nParams = info->fInfo.nParams;
 	ValueType *pParamTypes = info->fInfo.fParamTypes;
@@ -84,24 +86,20 @@ char __cdecl doJavaToVirtualMethodCallHandler(DCArgs* args, DCValue* result, Vir
 	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE, JNI_FALSE);
 
 	cleanupCallHandler(call);
+	END_TRY_BASE(info->fInfo.fEnv, call, cleanupCallHandler(call););
+	
 	return info->fInfo.fDCReturnType;
 }
 
-
-char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
+char __cdecl JavaToCPPMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
 {
-	VirtualMethodCallInfo* info = (VirtualMethodCallInfo*)userdata;
-	BEGIN_TRY();
-	return doJavaToVirtualMethodCallHandler(args, result, info);
-	END_TRY_RET(info->fInfo.fEnv, 0);
-}
-
-char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, FunctionCallInfo *info)
-{
+	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
 	CallTempStruct* call;
 	void* thisPtr;
 	jobject instance = initCallHandler(args, &call, NULL);
 	JNIEnv* env = call->env;
+	BEGIN_TRY(env, call)
+	
 	call->pCallIOs = info->fInfo.fCallIOs;
 	
 	dcMode(call->vm, info->fInfo.fDCMode);
@@ -119,14 +117,8 @@ char __cdecl doJavaToCPPMethodCallHandler(DCArgs* args, DCValue* result, Functio
 	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol, JNI_FALSE, JNI_FALSE);
 
 	cleanupCallHandler(call);
+	END_TRY_BASE(info->fInfo.fEnv, call, cleanupCallHandler(call););
+	
 	return info->fInfo.fDCReturnType;
-}
-
-char __cdecl JavaToCPPMethodCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)
-{
-	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
-	BEGIN_TRY();
-	return doJavaToCPPMethodCallHandler(args, result, info);
-	END_TRY_RET(info->fInfo.fEnv, 0);
 }
 
