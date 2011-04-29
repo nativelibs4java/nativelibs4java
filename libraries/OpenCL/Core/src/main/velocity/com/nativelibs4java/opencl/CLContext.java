@@ -518,6 +518,26 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		return createImage3D(usage, format, width, height, depth, 0, 0, null, false);
 	}
 
+#foreach ($prim in $primitivesNoBool)
+
+	#if ($prim.Name != "byte")
+	
+	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, ${prim.BufferName} buffer, boolean copy) {
+		return createBuffer(kind, Pointer.pointerTo${prim.CapName}s(buffer), copy);
+	}
+
+	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, Pointer<${prim.WrapperName}> data, boolean copy) {
+		return createBuffer(kind, data, copy);
+	}
+
+	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, long count) {
+		return createBuffer(kind, ${prim.WrapperName}.class, count);
+	}
+	
+	#end
+	
+#end
+
     public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Pointer<T> data, boolean copy) {
         return createBuffer(data.getIO(), data, data.getValidBytes(), kind.getIntFlags() | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), copy);
 	}

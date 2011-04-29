@@ -275,6 +275,14 @@ public class CLBuffer<B> extends CLMem {
         return mem;
     }
 
+    #foreach ($prim in $primitivesNoBool)
+
+	public CLBuffer<${prim.WrapperName}> asCL${prim.BufferName}() {
+		return as(${prim.WrapperName}.class);
+	}
+	
+	#end
+	
 	public <T> CLBuffer<T> as(Class<T> newTargetType) {
 		cl_mem mem = getEntity();
 		CL.clRetainMemObject(mem);
