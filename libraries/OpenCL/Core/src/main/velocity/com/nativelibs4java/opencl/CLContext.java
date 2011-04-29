@@ -533,53 +533,21 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		return createImage3D(usage, format, width, height, depth, 0, 0, null, false);
 	}
 
-	public CLIntBuffer createIntBuffer(CLMem.Usage kind, IntBuffer buffer, boolean copy) {
-		return createByteBuffer(kind, buffer, copy).asCLIntBuffer();
+#foreach ($prim in $primitivesNoBool)
+
+	#if ($prim.Name != "byte")
+	
+	public CL${prim.BufferName} create${prim.BufferName}(CLMem.Usage kind, ${prim.BufferName} buffer, boolean copy) {
+		return createByteBuffer(kind, buffer, copy).asCL${prim.BufferName}();
 	}
 
-	public CLIntBuffer createIntBuffer(CLMem.Usage kind, long count) {
-		return createByteBuffer(kind, count * 4).asCLIntBuffer();
+	public CL${prim.BufferName} create${prim.BufferName}(CLMem.Usage kind, long count) {
+		return createByteBuffer(kind, count * ${prim.Size}).asCL${prim.BufferName}();
 	}
-
-	public CLLongBuffer createLongBuffer(CLMem.Usage kind, LongBuffer buffer, boolean copy) {
-		return createByteBuffer(kind, buffer, copy).asCLLongBuffer();
-	}
-
-	public CLLongBuffer createLongBuffer(CLMem.Usage kind, long count) {
-		return createByteBuffer(kind, count * 8).asCLLongBuffer();
-	}
-
-	public CLShortBuffer createShortBuffer(CLMem.Usage kind, ShortBuffer buffer, boolean copy) {
-		return createByteBuffer(kind, buffer, copy).asCLShortBuffer();
-	}
-
-	public CLShortBuffer createShortBuffer(CLMem.Usage kind, long count) {
-		return createByteBuffer(kind, count * 2).asCLShortBuffer();
-	}
-
-	public CLCharBuffer createCharBuffer(CLMem.Usage kind, CharBuffer buffer, boolean copy) {
-		return createByteBuffer(kind, buffer, copy).asCLCharBuffer();
-	}
-
-	public CLCharBuffer createCharBuffer(CLMem.Usage kind, long count) {
-		return createByteBuffer(kind, count * 2).asCLCharBuffer();
-	}
-
-	public CLFloatBuffer createFloatBuffer(CLMem.Usage kind, FloatBuffer buffer, boolean copy) {
-		return createByteBuffer(kind, buffer, copy).asCLFloatBuffer();
-	}
-
-	public CLFloatBuffer createFloatBuffer(CLMem.Usage kind, long count) {
-		return createByteBuffer(kind, count * 4).asCLFloatBuffer();
-	}
-
-	public CLDoubleBuffer createDoubleBuffer(CLMem.Usage kind, DoubleBuffer buffer, boolean copy) {
-		return createByteBuffer(kind, buffer, copy).asCLDoubleBuffer();
-	}
-
-	public CLDoubleBuffer createDoubleBuffer(CLMem.Usage kind, long count) {
-		return createByteBuffer(kind, count * 8).asCLDoubleBuffer();
-	}
+	
+	#end
+	
+#end
 
 	public CLByteBuffer createByteBuffer(CLMem.Usage kind, long count) {
 		return createBuffer(null, count, kind.getIntFlags(), false);
@@ -587,20 +555,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
     @SuppressWarnings("unchecked")
 	public <B extends Buffer> CLBuffer<B> createBuffer(CLMem.Usage kind, long count, Class<B> bufferClass) {
-        if (IntBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createIntBuffer(kind, count);
-		if (LongBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createLongBuffer(kind, count);
-		if (ShortBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createShortBuffer(kind, count);
-		if (ByteBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createByteBuffer(kind, count);
-		if (CharBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createCharBuffer(kind, count);
-		if (DoubleBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createDoubleBuffer(kind, count);
-		if (FloatBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createFloatBuffer(kind, count);
+		#foreach ($prim in $primitivesNoBool)
+        if (${prim.BufferName}.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)create${prim.BufferName}(kind, count);
+        #end
 
         throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java type " + bufferClass.getName());
 	}
@@ -608,20 +566,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
     @SuppressWarnings("unchecked")
 	public <B extends Buffer> CLBuffer<B> createBuffer(CLMem.Usage kind, B buffer, boolean copy) {
         Class<?> bufferClass = buffer.getClass();
-        if (IntBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createIntBuffer(kind, (IntBuffer)buffer, copy);
-		if (LongBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createLongBuffer(kind, (LongBuffer)buffer, copy);
-		if (ShortBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createShortBuffer(kind, (ShortBuffer)buffer, copy);
-		if (ByteBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createByteBuffer(kind, (ByteBuffer)buffer, copy);
-		if (CharBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createCharBuffer(kind, (CharBuffer)buffer, copy);
-		if (DoubleBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createDoubleBuffer(kind, (DoubleBuffer)buffer, copy);
-		if (FloatBuffer.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)createFloatBuffer(kind, (FloatBuffer)buffer, copy);
+        #foreach ($prim in $primitivesNoBool)
+        if (${prim.BufferName}.class.isAssignableFrom(bufferClass))
+            return (CLBuffer<B>)create${prim.BufferName}(kind, (${prim.BufferName})buffer, copy);
+        #end
 
         throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java type " + bufferClass.getName());
 	}

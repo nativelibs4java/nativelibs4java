@@ -57,13 +57,27 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>
-			<version>${nl4j-runtime.version}</version>
+			<version>0.5-SNAPSHOT<!--${nl4j-runtime.version}--></version>
 			<executions>
 			  <execution>
 				<phase>generate-sources</phase>
 				<goals>
 				  <goal>compile</goal>
 				</goals>
+				<configuration>
+					<templates>
+						<template>
+							<path>toto.vm</path>
+							<executions>
+								<execution>
+									<parameters>
+										<primType>int</primType>
+									</parameters>
+								</execution>
+							</executions>
+						</template>
+					</templates>
+				</configuration>
 			  </execution>
 			</executions>
 		</plugin>

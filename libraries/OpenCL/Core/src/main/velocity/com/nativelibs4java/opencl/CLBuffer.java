@@ -300,39 +300,13 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
         return mem;
     }
 
-	public CLIntBuffer asCLIntBuffer() {
+    #foreach ($prim in $primitivesNoBool)
+
+	public CL${prim.BufferName} asCL${prim.BufferName}() {
 		cl_mem mem = getEntity();
 		CL.clRetainMemObject(getEntity());
-		return copyGLMark(new CLIntBuffer(context, getByteCount(), mem, buffer));
+		return copyGLMark(new CL${prim.BufferName}(context, getByteCount(), mem, buffer));
 	}
-	public CLShortBuffer asCLShortBuffer() {
-		cl_mem mem = getEntity();
-		CL.clRetainMemObject(mem);
-		return copyGLMark(new CLShortBuffer(context, getByteCount(), mem, buffer));
-	}
-	public CLLongBuffer asCLLongBuffer() {
-		cl_mem mem = getEntity();
-		CL.clRetainMemObject(mem);
-		return copyGLMark(new CLLongBuffer(context, getByteCount(), mem, buffer));
-	}
-	public CLByteBuffer asCLByteBuffer() {
-		cl_mem mem = getEntity();
-		CL.clRetainMemObject(mem);
-		return copyGLMark(new CLByteBuffer(context, getByteCount(), mem, buffer));
-	}
-	public CLFloatBuffer asCLFloatBuffer() {
-		cl_mem mem = getEntity();
-		CL.clRetainMemObject(mem);
-		return copyGLMark(new CLFloatBuffer(context, getByteCount(), mem, buffer));
-	}
-	public CLDoubleBuffer asCLDoubleBuffer() {
-		cl_mem mem = getEntity();
-		CL.clRetainMemObject(mem);
-		return copyGLMark(new CLDoubleBuffer(context, getByteCount(), mem, buffer));
-	}
-	public CLCharBuffer asCLCharBuffer() {
-		cl_mem mem = getEntity();
-		CL.clRetainMemObject(mem);
-		return copyGLMark(new CLCharBuffer(context, getByteCount(), mem, buffer));
-	}
+	
+	#end
 }
