@@ -77,6 +77,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
   SCALACL_VERBOSE=1                   Print details about each successful code transformation to the standard output.
   SCALACL_TRACE=1                     Display stack trace of failed optimizations (for debugging purpose).
   SCALACL_EXPERIMENTAL=1              Perform experimental rewrites (often slower and buggier, use only when debugging ScalaCLPlugin).
+  SCALACL_DEPRECATED=1                Perform rewrite that were deprecated (deemed or proved to be slower than the original)
 """
   )
   
@@ -99,6 +100,9 @@ object ScalaCLPlugin {
     var experimental = 
       "1" == System.getenv("SCALACL_EXPERIMENTAL")
     
+    var deprecated = 
+      "1" == System.getenv("SCALACL_DEPRECATED")
+      
     var skip = System.getenv("SCALACL_SKIP")
       
     type FileAndLineOptimizationFilter = (String, Int) => Boolean

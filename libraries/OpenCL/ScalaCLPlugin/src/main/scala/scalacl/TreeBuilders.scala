@@ -244,7 +244,7 @@ extends MiscMatchers
     else if (b == null)
       a
     else
-      binOp(a, BooleanClass.tpe.member(nme.AMPAMP), b)
+      binOp(a, BooleanClass.tpe.member(nme.ZAND /* AMPAMP */), b)
   }
   def boolOr(a: Tree, b: Tree) = typed {
     if (a == null)

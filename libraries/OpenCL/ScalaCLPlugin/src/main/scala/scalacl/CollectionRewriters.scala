@@ -183,7 +183,7 @@ trait RewritingPluginComponent {
       def unapply(tree: Tree): Option[CollectionRewriter] = tree match {
         case ArrayTree(array, componentType) =>
           Some(new CollectionRewriter(ArrayRewriter, appliedType(ArrayClass.tpe, List(componentType)), array, componentType))
-        case ListTree(componentType) =>
+        case ListTree(componentType) if options.deprecated =>
           Some(new CollectionRewriter(ListRewriter, appliedType(ListClass.tpe, List(componentType)), tree, componentType))
         case IntRange(from, to, by, isUntil, filters) =>
           (

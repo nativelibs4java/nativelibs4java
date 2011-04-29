@@ -128,7 +128,9 @@ class CLRange(
   override def foreach[U](f: Int => U): Unit =
     toRange foreach f
 
-  override def slice(from: Int, to: Int) = new CLRange(toRange.slice(from, to))
+  //TODO Changed in Scala 2.9.0 : Range.slice no longer returns a Range !
+  //override def slice(from: Int, to: Int) = new CLRange(toRange.slice(from, to))
+  
   //override def sizeFuture: CLFuture[Int] = new CLInstantFuture[Int](toRange.size)
 }
 
