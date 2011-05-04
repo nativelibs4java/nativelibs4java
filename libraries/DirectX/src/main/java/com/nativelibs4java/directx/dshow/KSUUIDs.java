@@ -1,4 +1,5 @@
-package org.bridj.cpp.com.win;
+package com.nativelibs4java.directx.dshow;
+import org.bridj.*;
 
 /**
  * Common GUID definitions from Microsoft SDK v6.0A (ksuuids.h)<br>
