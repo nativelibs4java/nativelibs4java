@@ -60,24 +60,9 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 			<version>${bridj.version}</version>
 			<executions>
 			  <execution>
-				<phase>generate-sources</phase>
 				<goals>
-				  <goal>compile</goal>
+				  <goal>generate</goal>
 				</goals>
-				<configuration>
-					<templates>
-						<template>
-							<path>toto.vm</path>
-							<executions>
-								<execution>
-									<parameters>
-										<primType>int</primType>
-									</parameters>
-								</execution>
-							</executions>
-						</template>
-					</templates>
-				</configuration>
 			  </execution>
 			</executions>
 		</plugin>
