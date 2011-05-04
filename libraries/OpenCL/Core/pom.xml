@@ -57,7 +57,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>
-			<version>${bridj.version}--></version>
+			<version>${bridj.version}</version>
 			<executions>
 			  <execution>
 				<phase>generate-sources</phase>
