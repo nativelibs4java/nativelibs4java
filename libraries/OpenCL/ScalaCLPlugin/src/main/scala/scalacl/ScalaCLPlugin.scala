@@ -57,7 +57,9 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 
   val runsAfter = List[String]("namer")
 
-  lazy val explicitelyDisabled = "1".equals(System.getenv("DISABLE_SCALACL_PLUGIN")) || "true".equals(System.getProperty("scalacl.plugin.disable"))
+  lazy val explicitelyDisabled =
+    "1".equals(System.getenv("SCALACL_DISABLE")) ||
+    "1".equals(System.getenv("DISABLE_SCALACL_PLUGIN")) || "true".equals(System.getProperty("scalacl.plugin.disable"))
 
   var enabled = !explicitelyDisabled
   
