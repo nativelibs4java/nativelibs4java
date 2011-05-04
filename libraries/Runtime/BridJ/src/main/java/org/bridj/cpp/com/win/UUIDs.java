@@ -1,4 +1,4 @@
-package org.bridj.cpp.com;
+package org.bridj.cpp.com.win;
 
 /**
  * Common GUID definitions from Microsoft SDK v6.0A (uuids.h)<br>

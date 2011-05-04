@@ -1,4 +1,4 @@
-package org.bridj.cpp.com;
+package org.bridj.cpp.com.win;
 
 /**
  * Windows CodecAPI Properties from Microsoft SDK v6.0A<br>
