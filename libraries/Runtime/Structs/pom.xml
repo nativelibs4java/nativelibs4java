@@ -33,7 +33,7 @@
 		<!--plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>
-			<version>${nl4j-runtime.version}</version>
+			<version>${bridj.version}</version>
 			<executions>
 			  <execution>
 				<phase>generate-sources</phase>
@@ -47,7 +47,7 @@
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-nl4j-runtime-templates-plugin</artifactId>
-			<version>${nl4j-runtime.version}</version>
+			<version>${bridj.version}</version>
 			<executions>
 			  <execution>
 				<phase>generate-sources</phase>

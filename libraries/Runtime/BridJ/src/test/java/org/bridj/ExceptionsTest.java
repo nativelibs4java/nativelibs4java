@@ -28,7 +28,7 @@ public class ExceptionsTest {
 	
 	@Test(expected=RuntimeException.class)
 	public void testCrashIllegalAccess() {
-		crashIllegalAccess();
+		//crashIllegalAccess();
 	}
 	
 	/*
