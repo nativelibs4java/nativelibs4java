@@ -170,6 +170,9 @@ public class ReductionUtils {
                 }
                 @SuppressWarnings("unchecked")
 				public Pair<CLBuffer<B>, CLEvent[]> reduceHelper(CLQueue queue, CLBuffer<B> input, int inputLength, int maxReductionSize, CLEvent... eventsToWaitFor) {
+					if (inputLength == 1) {
+						return new Pair<CLBuffer<B>, CLEvent[]>(input, new CLEvent[0]);
+					}
                     CLBuffer<?>[] tempBuffers = new CLBuffer<?>[2];
                     int depth = 0;
 					CLBuffer<B> currentOutput = null;
