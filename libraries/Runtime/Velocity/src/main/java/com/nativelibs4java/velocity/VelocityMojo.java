@@ -32,8 +32,9 @@ import org.apache.velocity.app.Velocity;
 
 /**
  * Generates source code with velocity templates
- * @goal compile
- * @execute phase=generate-sources
+ * @goal generate
+ * @phase generate-sources
+ * @requiresDependencyResolution compile
  * @description Generates source code with velocity templates
  */
 public class VelocityMojo
