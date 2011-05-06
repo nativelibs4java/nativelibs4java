@@ -3,7 +3,7 @@
 #define _BRIDJ_EXCEPTIONS_H
 
 #if defined(_WIN32)
-#define ENABLE_PROTECTED_MODE
+//#define ENABLE_PROTECTED_MODE
 #endif
 
 #if defined(ENABLE_PROTECTED_MODE)
