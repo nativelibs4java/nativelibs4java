@@ -22,22 +22,27 @@ public class ObjectiveCTest {
 	static {
 		BridJ.register();
 	}
+	boolean mac = Platform.isMacOSX();
 	
     protected Pointer<NSAutoreleasePool> pool;
     
     @Before
     public void init() {
+    	if (!mac) return;
         pool = NSAutoreleasePool.new_();
 		assertNotNull(pool);
     }
 
     @After
     public void cleanup() {
+        if (!mac) return;
         pool.get().drain();
     }
     
 	@Test 
 	public void testNSNumber() {
+		if (!mac) return;
+        
 		long n = 13;
 		Pointer<NSNumber> pnn = NSNumber.numberWithLong(n);
 		//System.out.println("pnn = " + pnn);
