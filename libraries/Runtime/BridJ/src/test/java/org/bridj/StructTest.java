@@ -22,7 +22,7 @@ public class StructTest {
 	static {
 		BridJ.register();
 	}
-	
+
 	public static native @Ptr long sizeOfVARIANT();
 	public static native @Ptr long sizeOfDECIMAL();
 	public static native @Ptr long sizeOfCAPDRIVERCAPS();
@@ -33,7 +33,7 @@ public class StructTest {
         long s = BridJ.sizeOf(GUID.class);
 		assertEquals(16, s);
 	}
-    ///*
+
 	@Test
 	public void variantSize() {
         long s = BridJ.sizeOf(VARIANT.class);
@@ -662,6 +662,33 @@ public class StructTest {
     	System.out.println("valid bytes = " + p.getValidBytes() + ", sizeof = " + s);
     	l = p.get();
     }
-    //*/
+
+	/// see vfw.h
+    public static class VIDEOHDR extends StructObject
+    {
+        @Field(0)
+        public Pointer<Byte> lpData;
+        @Field(1)
+        public int dwBufferLength;
+        @Field(2)
+        public int dwBytesUsed;
+        @Field(3)
+        public int dwTimeCaptured;
+        @Field(4)
+        public Pointer<Integer> dwUser;
+        @Field(5)
+        public int dwFlags;
+        @Field(6) @Array(4)
+        public Pointer<Pointer<Integer>> dwReserved;
+    }
+    @Test
+    public void testSizeOfVIDEOHDR() {
+        if (!Platform.isWindows())
+            return;
+
+        long s = BridJ.sizeOf(VIDEOHDR.class);
+        long expected = Platform.is64Bits() ? 72 : 40;
+        assertEquals(expected, s);
+    }
 }
 
