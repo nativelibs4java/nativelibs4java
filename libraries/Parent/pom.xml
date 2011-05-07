@@ -263,6 +263,7 @@ Most of these wrappers are created automatically by JNAerator.
 				  <goal>shade</goal>
 				</goals>
 				<configuration>
+					<shadedArtifactAttached>false</shadedArtifactAttached>
 					<artifactSet>
 						<excludes>
 						  <exclude>org.scala-lang:scala-library</exclude>

@@ -51,18 +51,7 @@
 
   <build>
   	<plugins>
-  		<!--
-		<plugin>
-			<groupId>com.jnaerator</groupId>
-			<artifactId>maven-jnaerator-plugin</artifactId>
-			<version>${jnaerator.version}</version>
-			<configuration>
-				<javaOutputDirectory>src/main/java</javaOutputDirectory>
-				<scalaOutputDirectory>src/main/scala</scalaOutputDirectory>
-			</configuration>
-		</plugin>
-		-->
-		<plugin>
+  		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>maven-velocity-plugin</artifactId>
 			<version>${bridj.version}</version>
@@ -72,6 +61,108 @@
 				  <goal>generate</goal>
 				</goals>
 			  </execution>
+			</executions>
+		</plugin>
+		
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-shade-plugin</artifactId>
+			<version>1.3.3</version>
+			<executions>
+			  
+			  <execution>
+			  	<id>c-package</id>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+				<configuration>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<shadedClassifierName>c-only</shadedClassifierName>
+					<filters>
+					  	<filter>
+							<artifact>com.nativelibs4java:bridj</artifact>
+							<excludes>
+								<exclude>org/bridj/cpp/**</exclude>
+								<exclude>org/bridj/objc/**</exclude>
+								<exclude>org/bridj/cs/**</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
+			  </execution>
+			  
+			  <execution>
+			  	<id>mac-package</id>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+				<configuration>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<shadedClassifierName>macosx-only</shadedClassifierName>
+					<filters>
+					  	<filter>
+							<artifact>com.nativelibs4java:bridj</artifact>
+							<excludes>
+								<exclude>org/bridj/cpp/com/**</exclude>
+								<exclude>org/bridj/cpp/mfc/**</exclude>
+								<exclude>org/bridj/cs/**</exclude>
+								<exclude>linux_*/**</exclude>
+								<exclude>sunos_*/**</exclude>
+								<exclude>win*/**</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
+			  </execution>
+			  
+			  <execution>
+			  	<id>win-package</id>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+				<configuration>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<shadedClassifierName>windows-only</shadedClassifierName>
+					<filters>
+					  	<filter>
+							<artifact>com.nativelibs4java:bridj</artifact>
+							<excludes>
+								<exclude>org/bridj/objc/**</exclude>
+								<exclude>linux_*/**</exclude>
+								<exclude>sunos_*/**</exclude>
+								<exclude>darwin_*/**</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
+			  </execution>
+			  
+			  <execution>
+			  	<id>unix-package</id>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+				<configuration>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<shadedClassifierName>unix-only</shadedClassifierName>
+					<filters>
+					  	<filter>
+							<artifact>com.nativelibs4java:bridj</artifact>
+							<excludes>
+								<exclude>org/bridj/cpp/com/**</exclude>
+								<exclude>org/bridj/cpp/mfc/**</exclude>
+								<exclude>org/bridj/cs/**</exclude>
+								<exclude>win*/**</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
+			  </execution>
+			  
 			</executions>
 		</plugin>
 		<!--
