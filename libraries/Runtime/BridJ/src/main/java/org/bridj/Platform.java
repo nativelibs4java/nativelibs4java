@@ -100,6 +100,10 @@ public class Platform {
 		}
 		return arch;
 	}
+	
+	public static boolean isAndroid() {
+		return "dalvik".equalsIgnoreCase(System.getProperty("java.vm.name")) && isLinux();
+	}
 	public static boolean isSparc() {
     	String arch = getArch();
 		return 
@@ -127,6 +131,8 @@ public class Platform {
     		else
     			return Collections.singletonList(generic);
     }
+    	if (isAndroid())
+    		return Collections.singletonList("android_arm32_arm/" + name + ".so");
     	if (isLinux())
     		return Collections.singletonList((is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so");
     	if (isSolaris()) {

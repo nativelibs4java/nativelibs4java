@@ -252,7 +252,7 @@ Most of these wrappers are created automatically by JNAerator.
 		  
 		  <!--Put this in each project's pom.xml :-->
 		  
-		<plugin>
+		<!--plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-shade-plugin</artifactId>
 			<version>1.3.3</version>
@@ -263,7 +263,6 @@ Most of these wrappers are created automatically by JNAerator.
 				  <goal>shade</goal>
 				</goals>
 				<configuration>
-					<!--shadedArtifactAttached>false</shadedArtifactAttached-->
 					<artifactSet>
 						<excludes>
 						  <exclude>org.scala-lang:scala-library</exclude>
@@ -286,7 +285,7 @@ Most of these wrappers are created automatically by JNAerator.
 				</configuration>
 			  </execution>
 			</executions>
-		</plugin>
+		</plugin-->
 		  <plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-surefire-plugin</artifactId>

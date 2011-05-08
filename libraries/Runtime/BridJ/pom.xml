@@ -71,6 +71,17 @@
 			<executions>
 			  
 			  <execution>
+			  	<id>full-package</id>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+				<configuration>
+					<shadedArtifactAttached>false</shadedArtifactAttached>
+				</configuration>
+			  </execution>
+			  
+			  <execution>
 			  	<id>c-package</id>
 				<phase>package</phase>
 				<goals>
@@ -109,6 +120,7 @@
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
 								<exclude>linux_*/**</exclude>
+								<exclude>android_*/**</exclude>
 								<exclude>sunos_*/**</exclude>
 								<exclude>win*/**</exclude>
 							</excludes>
@@ -132,6 +144,7 @@
 							<excludes>
 								<exclude>org/bridj/objc/**</exclude>
 								<exclude>linux_*/**</exclude>
+								<exclude>android_*/**</exclude>
 								<exclude>sunos_*/**</exclude>
 								<exclude>darwin_*/**</exclude>
 							</excludes>
@@ -156,6 +169,32 @@
 								<exclude>org/bridj/cpp/com/**</exclude>
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
+								<exclude>win*/**</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
+			  </execution>
+			  
+			  <execution>
+			  	<id>android-package</id>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+				<configuration>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<shadedClassifierName>android-only</shadedClassifierName>
+					<filters>
+					  	<filter>
+							<artifact>com.nativelibs4java:bridj</artifact>
+							<excludes>
+								<exclude>org/bridj/cpp/com/**</exclude>
+								<exclude>org/bridj/cpp/mfc/**</exclude>
+								<exclude>org/bridj/cs/**</exclude>
+								<exclude>linux_*/**</exclude>
+								<exclude>sunos_*/**</exclude>
+								<exclude>darwin_*/**</exclude>
 								<exclude>win*/**</exclude>
 							</excludes>
 						</filter>
