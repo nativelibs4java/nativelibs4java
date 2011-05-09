@@ -3,7 +3,6 @@ Current version : BridJ 0.5-SNAPSHOT
 - Fixed callbacks on Windows x86
 - Fixed multithreaded callbacks ! (callbacks called in a different thread than the one that created them used to hang indefinitely)
 - Fixed Pointer and ValuedEnum arguments and return values in callbacks
-- Improved crash protection and exceptions reporting on Windows
 - Added deprecated support for struct fields implemented as Java fields, to ease up migration from JNA (needs manual calls to BridJ.writeToNative(struct) and BridJ.readFromNative(struct)) (issue #54)
 - Added preliminary read-only support for STL's std::vector<T> C++ type
 - Enhanced C++ templates support
@@ -16,7 +15,7 @@ Current version : BridJ 0.5-SNAPSHOT
 - Added experimental JNA-like support for Java fields to represent struct fields (deprecated, needs manual calls to BridJ.readFromNative and BridJ.writeToNative)
 - Fixed loading of libraries that depend on other libraries in the same directory on Windows (issue #65)
 - Added support for Windows APIs Unicode vs. ANSI functions renaming (e.g. SendMessage being one of SendMessageW or SendMessageA, depending on Platform.useUnicodeVersionOfWindowsAPIs)
-- Reorganized Windows COM packages
+- Reorganized Windows COM packages (moved out DirectX code to it own top-level project : com.nativelibs4java:directx4java)
 ...
 
 BridJ 0.4 (r1869, 20110408)
