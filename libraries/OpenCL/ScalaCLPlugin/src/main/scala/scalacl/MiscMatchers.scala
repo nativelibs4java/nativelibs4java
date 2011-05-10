@@ -45,7 +45,7 @@ case object MapType extends ColType("Map")
 case object OptionType extends ColType("Option")
 
 
-trait MiscMatchers {
+trait MiscMatchers extends TraversalOps {
   val global: Global
   import global._
   import definitions._
@@ -88,103 +88,6 @@ trait MiscMatchers {
       v
     }
   }
-  
-  class N(val s: String) {
-    def unapply(n: Name): Boolean = n.toString == s
-  }
-  object N {
-    def apply(s: String) = new N(s)
-  }
-  implicit def N2Name(n: N) = newTermName(n.s)
-
-  val addAssignName = N(NameTransformer.encode("+="))
-  val toArrayName = N("toArray")
-  val toListName = N("toList")
-  val toSeqName = N("toSeq")
-  val toSetName = N("toSet")
-  val toIndexedSeqName = N("toIndexedSeq")
-  val toMapName = N("toMap")
-  val resultName = N("result")
-  val scalaName = N("scala")
-  val ArrayName = N("Array")
-  val intWrapperName = N("intWrapper")
-  val tabulateName = N("tabulate")
-  val toName = N("to")
-  val byName = N("by")
-  val withFilterName = N("withFilter")
-  val untilName = N("until")
-  val isEmptyName = N("isEmpty")
-  val sumName = N("sum")
-  val minName = N("min")
-  val maxName = N("max")
-  val headName = N("head")
-  val tailName = N("tail")
-  val foreachName = N("foreach")
-  val foldLeftName = N("foldLeft")
-  val foldRightName = N("foldRight")
-  val zipWithIndexName = N("zipWithIndex")
-  val zipName = N("zip")
-  val reverseName = N("reverse")
-  val reduceLeftName = N("reduceLeft")
-  val reduceRightName = N("reduceRight")
-  val scanLeftName = N("scanLeft")
-  val scanRightName = N("scanRight")
-  val mapName = N("map")
-  val collectName = N("collect")
-  val canBuildFromName = N("canBuildFrom")
-  val filterName = N("filter")
-  val filterNotName = N("filterNot")
-  val takeWhileName = N("takeWhile")
-  val dropWhileName = N("dropWhile")
-  val countName = N("count")
-  val forallName = N("forall")
-  val existsName = N("exists")
-  val findName = N("find")
-  val updateName = N("update")
-  val toSizeTName = N("toSizeT")
-  val toLongName = N("toLong")
-  val toIntName = N("toInt")
-  val toShortName = N("toShort")
-  val toByteName = N("toByte")
-  val toCharName = N("toChar")
-  val toDoubleName = N("toDouble")
-  val toFloatName = N("toFloat")
-  val mathName = N("math")
-  val packageName = N("package")
-  val applyName = N("apply")
-  val Function2CLFunctionName = N("Function2CLFunction")
-  
-  lazy val ScalaCollectionPackage = definitions.getModule(N("scala.collection"))
-  lazy val ScalaMathPackage = definitions.getModule(N("scala.math"))
-  lazy val ScalaReflectPackage = definitions.getModule(N("scala.reflect"))
-  lazy val ScalaMathCommonClass = definitions.getClass(N("scala.MathCommon"))
-  lazy val SeqClass = definitions.getClass(N("scala.collection.Seq"))
-  lazy val SeqModule = definitions.getModule(N("scala.collection.Seq"))
-  lazy val OptionClass = definitions.getClass(N("scala.Option"))
-  lazy val OptionModule = definitions.getModule(N("scala.Option"))
-  lazy val CanBuildFromClass = definitions.getClass("scala.collection.generic.CanBuildFrom")
-  lazy val ArrayBufferClass = definitions.getClass("scala.collection.mutable.ArrayBuffer")
-  lazy val RefArrayBuilderClass = definitions.getClass("scala.collection.mutable.ArrayBuilder.ofRef")
-  lazy val WrappedArrayBuilderClass = definitions.getClass("scala.collection.mutable.WrappedArrayBuilder")
-  lazy val VectorBuilderClass = definitions.getClass("scala.collection.immutable.VectorBuilder")
-  lazy val CollectionImmutableModule = definitions.getModule("scala.collection.immutable")
-  //lazy val NonEmptyListClass = definitions.getClass2("scala.$colon$colon$", "scala.collection.immutable.$colon$colon$")
-  //lazy val NonEmptyListClass = definitions.getClass2("scala.$colon$colon", "scala.collection.immutable.$colon$colon")
-  lazy val NonEmptyListClass = definitions.getClass("scala.collection.immutable.$colon$colon")
-  //lazy val NonEmptyListClass = definitions.getMember(CollectionImmutableModule, "::")
-  //lazy val NonEmptyListClass = definitions.getClass2("scala.::", "scala.collection.immutable.::")
-  //lazy val NonEmptyListClass = definitions.getMember(ScalaPackageClass, "::")
-  lazy val ListBufferClass = definitions.getClass("scala.collection.mutable.ListBuffer")
-  lazy val primArrayBuilderClasses = Array(
-    (IntClass.tpe, "ofInt"),
-    (LongClass.tpe, "ofLong"),
-    (ShortClass.tpe, "ofShort"),
-    (ByteClass.tpe, "ofByte"),
-    (CharClass.tpe, "ofChar"),
-    (BooleanClass.tpe, "ofBoolean"),
-    (FloatClass.tpe, "ofFloat"),
-    (DoubleClass.tpe, "ofDouble")
-  ).map { case (sym, n) => (sym, definitions.getClass("scala.collection.mutable.ArrayBuilder." + n)) } toMap
 
   object ScalaMathFunction {
     /** I'm all for avoiding "magic strings" but in this case it's hard to
@@ -410,12 +313,31 @@ trait MiscMatchers {
     }
   }
   object ListTree extends HigherTypeParameterExtractor(ListClass)
-  
+
+  object ArrayTabulate {
+    /** This is the one all the other ones go through. */
+    lazy val tabulateSyms = (ArrayModule.tpe member "tabulate" alternatives).toSet//filter (_.paramss.flatten.size == 3)
+
+    def apply(componentType: Tree, lengths: List[Tree], function: Tree, manifest: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[(Tree, List[Tree], Tree, Tree)] = {
+      if (!tabulateSyms.contains(methPart(tree).symbol))
+        None
+      else flattenApplyGroups(tree) match {
+        case List(lengths, List(function), List(manifest)) =>
+          Some((typeArgs(tree).headOption getOrElse EmptyTree, lengths, function, manifest))
+        case _ =>
+          None
+      }
+    }
+  }
+
+
+
   object TrivialCanBuildFromArg {
-    private def isCanBuildFrom(tpe: Type) = 
+    private def isCanBuildFrom(tpe: Type) =
       tpe != null && tpe.dealias.matches(CanBuildFromClass.tpe)
       //tpe.dealias.deconst <:< CanBuildFromClass.tpe
-      
+
     val n1 = N("canBuildIndexedSeqFromIndexedSeq") // ScalaCL
     val n2 = N("canBuildArrayFromArray") // ScalaCL
     def unapply(tree: Tree) = if (!isCanBuildFrom(tree.tpe)) None else Option(tree) collect {
@@ -433,6 +355,7 @@ trait MiscMatchers {
       case _ => false
     }
   }
+
   object Func {
     def unapply(tree: Tree): Option[(List[ValDef], Tree)] = Option(tree) collect {
       case Block(List(), Func(params, body)) =>
@@ -442,29 +365,7 @@ trait MiscMatchers {
         (params, body)
     }
   }
-  object ArrayTabulate {
-    /** This is the one all the other ones go through. */
-    lazy val tabulateSyms = (ArrayModule.tpe member "tabulate" alternatives).toSet//filter (_.paramss.flatten.size == 3)
 
-    def apply(componentType: Tree, lengths: List[Tree], function: Tree, manifest: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[(Tree, List[Tree], Tree, Tree)] = {
-      if (!tabulateSyms.contains(methPart(tree).symbol))
-        None
-      else flattenApplyGroups(tree) match {
-        case List(lengths, List(function), List(manifest)) =>
-          Some((typeArgs(tree).headOption getOrElse EmptyTree, lengths, function, manifest))
-        case _ =>
-          None
-      }
-    }
-  }
-  sealed abstract class TraversalOpType {
-    val needsInitialValue = false
-    val needsFunction = false
-    val loopSkipsFirst = false
-    val f: Tree
-  }
-  
   object ReduceName {
     def apply(isLeft: Boolean) = error("not implemented")
     def unapply(name: Name) = Option(name) collect {
@@ -486,92 +387,10 @@ trait MiscMatchers {
       case foldRightName() => false
     }
   }
-
-  class TraversalOp(
-    val op: TraversalOpType, 
-    val collection: Tree, 
-    val resultType: Type, 
-    val mappedCollectionType: Type, 
-    val isLeft: Boolean, 
-    val initialValue: Tree
-  ) {
-    override def toString = "TraversalOp(" + Array(op, collection, resultType, mappedCollectionType, isLeft, initialValue).mkString(", ") + ")"
-  }
-    
-  /// Matches one of the folding/scanning/reducing functions : (reduce|fold|scan)(Left|Right)
+  
   object TraversalOp {
-
-    case class Fold(f: Tree, isLeft: Boolean) extends TraversalOpType {
-      override def toString = "fold" + (if (isLeft) "Left" else "Right")
-      override val needsInitialValue = true
-      override val needsFunction: Boolean = true
-    }
-    case class Scan(f: Tree, isLeft: Boolean) extends TraversalOpType {
-      override def toString = "scan" + (if (isLeft) "Left" else "Right")
-      override val needsInitialValue = true
-      override val needsFunction: Boolean = true
-    }
-    case class Reduce(f: Tree, isLeft: Boolean) extends TraversalOpType {
-      override def toString = "reduce" + (if (isLeft) "Left" else "Right")
-      override val needsFunction: Boolean = true
-      override val loopSkipsFirst = true
-    }
-    case object Sum extends TraversalOpType {
-      override def toString = "sum"
-      override val f = null
-    }
-    case class Count(f: Tree) extends TraversalOpType {
-      override def toString = "count"
-      override val needsFunction: Boolean = true
-    }
-    case object Min extends TraversalOpType {
-      override def toString = "min"
-      override val loopSkipsFirst = true
-      override val f = null
-    }
-    case object Max extends TraversalOpType {
-      override def toString = "max"
-      override val loopSkipsFirst = true
-      override val f = null
-    }
-    case class Filter(f: Tree, not: Boolean) extends TraversalOpType {
-      override def toString = if (not) "filterNot" else "filter"
-    }
-    case class FilterWhile(f: Tree, take: Boolean) extends TraversalOpType {
-      override def toString = if (take) "takeWhile" else "dropWhile"
-    }
-    case class Map(f: Tree, canBuildFrom: Tree) extends TraversalOpType {
-      override def toString = "map"
-    }
-    case class Collect(f: Tree, canBuildFrom: Tree) extends TraversalOpType {
-      override def toString = "collect"
-    }
-    case class Foreach(f: Tree) extends TraversalOpType {
-      override def toString = "foreach"
-    }
-    case class AllOrSome(f: Tree, all: Boolean) extends TraversalOpType {
-      override def toString = if (all) "forall" else "exists"
-    }
-    case class Find(f: Tree) extends TraversalOpType {
-      override def toString = "find"
-    }
-    case object Reverse extends TraversalOpType {
-      override def toString = "reverse"
-      override val f = null
-    }
-    case class Zip(zippedCollection: Tree) extends TraversalOpType {
-      override def toString = "zip"
-      override val f = null
-    }
+    import TraversalOps._
     
-    case class ToCollection(colType: ColType, tpe: Type) extends TraversalOpType {
-      override def toString = "to" + colType
-      override val f = null
-    }
-    case object ZipWithIndex extends TraversalOpType {
-      override def toString = "zipWithIndex"
-      override val f = null
-    }
     def refineComponentType(componentType: Type, collectionTree: Tree): Type = {
       collectionTree.tpe match {
         case TypeRef(_, _, List(t)) =>
@@ -728,7 +547,7 @@ trait MiscMatchers {
                 case _ =>
                   //println("FOUND None")
                   None
-              }   
+              }
             case filterName() =>
               Some(Filter(function, false), collection.tpe)
             case filterNotName() =>
@@ -781,4 +600,5 @@ trait MiscMatchers {
         Max
     }
   }
+
 }

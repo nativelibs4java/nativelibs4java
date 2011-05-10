@@ -320,7 +320,7 @@ extends PluginComponent
               //if (colTpe <:< CLCollectionClass.tpe) {
               if (colTpe.toString.startsWith("scalacl.")) { // TODO
                 op match {
-                  case opType @ (TraversalOp.Map(_, _) | TraversalOp.Filter(_, false)) =>
+                  case opType @ (TraversalOps.Map(_, _) | TraversalOps.Filter(_, false)) =>
                     msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpe + "." + op + "'s function argument.") {
                       val clFunction = convertFunctionToCLFunction(op.f)
                       replaceOccurrences(super.transform(tree), Map(), Map(), Map(op.f -> (() => clFunction)), unit)

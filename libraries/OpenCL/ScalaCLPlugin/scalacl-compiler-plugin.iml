@@ -4,7 +4,7 @@
     <facet type="scala" name="Scala">
       <configuration>
         <option name="compilerLibraryLevel" value="Project" />
-        <option name="compilerLibraryName" value="Maven: org.scala-lang:scala-compiler-bundle:WrappedArray(2.9.0.RC2)" />
+        <option name="compilerLibraryName" value="Maven: org.scala-lang:scala-compiler-bundle:WrappedArray(2.8.1)" />
         <option name="maximumHeapSize" value="1024" />
         <option name="optimiseBytecode" value="true" />
         <option name="vmOptions" value="-Xms64m" />
@@ -24,8 +24,8 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.7" level="project" />
-    <orderEntry type="library" name="Maven: org.scala-lang:scala-compiler:2.9.0.RC2" level="project" />
-    <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.9.0.RC2" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang:scala-compiler:2.8.1" level="project" />
+    <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.8.1" level="project" />
   </component>
 </module>
 

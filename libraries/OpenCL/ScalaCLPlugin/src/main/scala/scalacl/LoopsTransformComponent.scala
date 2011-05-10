@@ -252,11 +252,11 @@ extends PluginComponent
                       super.transform(
                         op match {
                           case 
-                            TraversalOp.Reduce(_, _) | 
-                            TraversalOp.Fold(_, _) | 
-                            TraversalOp.Sum | 
-                            TraversalOp.Min | 
-                            TraversalOp.Max 
+                            TraversalOps.Reduce(_, _) |
+                            TraversalOps.Fold(_, _) |
+                            TraversalOps.Sum |
+                            TraversalOps.Min |
+                            TraversalOps.Max
                             if {
                               val envvar = "SCALACL_TRANSFORM_" + op.toString.toUpperCase
                               //if (options.verbose)
@@ -276,7 +276,7 @@ extends PluginComponent
                                 val totVar = newVariable(unit, op + "$", currentOwner, tree.pos, true,
                                   if (initialValue == null) {
                                     op match {
-                                      case TraversalOp.Sum =>
+                                      case TraversalOps.Sum =>
                                         Literal(Constant(0: Byte)).setType(componentType)
                                       case _ =>
                                         // Take first or last value for Reduce, Min, Max
@@ -303,15 +303,15 @@ extends PluginComponent
                                       assert(!op.needsFunction)
                                       val totIdent = totVar()
                                       op match {
-                                        case TraversalOp.Sum =>
+                                        case TraversalOps.Sum =>
                                           Assign(totVar(), binOp(totIdent, totIdent.tpe.member(nme.PLUS), env.itemVar())).setType(UnitClass.tpe)
-                                        case TraversalOp.Min =>
+                                        case TraversalOps.Min =>
                                           If(
                                             binOp(env.itemVar(), totIdent.tpe.member(nme.LT), totIdent),
                                             Assign(totVar(), env.itemVar()).setType(UnitClass.tpe),
                                             newUnit
                                           )
-                                        case TraversalOp.Max =>
+                                        case TraversalOps.Max =>
                                           If(
                                             binOp(env.itemVar(), totIdent.tpe.member(nme.GT), totIdent),
                                             Assign(totVar(), env.itemVar()).setType(UnitClass.tpe),
@@ -339,7 +339,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.Scan(f, _) if "0" != getenv("SCALACL_TRANSFORM_SCAN") =>
+                          case TraversalOps.Scan(f, _) if "0" != getenv("SCALACL_TRANSFORM_SCAN") =>
                             colType.foreach[(CollectionBuilder, VarDef, VarDef)](
                               tree,
                               array,
@@ -402,7 +402,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.AllOrSome(f, all) if "0" != getenv("SCALACL_TRANSFORM_FORALL_EXISTS") =>
+                          case TraversalOps.AllOrSome(f, all) if "0" != getenv("SCALACL_TRANSFORM_FORALL_EXISTS") =>
                             colType.foreach[VarDef](
                               tree,
                               array,
@@ -450,7 +450,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.ToCollection(ct, _) if "0" != getenv("SCALACL_TRANSFORM_TOCOLLECTION") =>
+                          case TraversalOps.ToCollection(ct, _) if "0" != getenv("SCALACL_TRANSFORM_TOCOLLECTION") =>
                             (
                               ct match {
                                 case ListType => Some(ListRewriter)
@@ -495,7 +495,7 @@ extends PluginComponent
                               case _ =>
                                 super.transform(tree)
                             }
-                          case TraversalOp.Filter(f, not) if "0" != getenv("SCALACL_TRANSFORM_FILTER") =>
+                          case TraversalOps.Filter(f, not) if "0" != getenv("SCALACL_TRANSFORM_FILTER") =>
                             colType.foreach[(CollectionBuilder, VarDef)](
                               tree,
                               array,
@@ -545,7 +545,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.Count(f) if "0" != getenv("SCALACL_TRANSFORM_COUNT") =>
+                          case TraversalOps.Count(f) if "0" != getenv("SCALACL_TRANSFORM_COUNT") =>
                             colType.foreach[(VarDef)](
                               tree,
                               array,
@@ -591,7 +591,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOp.FilterWhile(f, take) if "0" != getenv("SCALACL_TRANSFORM_TAKEWHILE") =>
+                          case TraversalOps.FilterWhile(f, take) if "0" != getenv("SCALACL_TRANSFORM_TAKEWHILE") =>
                             colType.foreach[(CollectionBuilder, VarDef, VarDef)](
                               tree,
                               array,
@@ -679,7 +679,7 @@ extends PluginComponent
                               }
                             )
                           
-                          case TraversalOp.Foreach(f) if "0" != getenv("SCALACL_TRANSFORM_FOREACH") =>
+                          case TraversalOps.Foreach(f) if "0" != getenv("SCALACL_TRANSFORM_FOREACH") =>
                             val rep = super.transform(
                               colType.foreach[Unit](
                                 tree,
@@ -707,7 +707,7 @@ extends PluginComponent
                             //println("REP = " + rep)
                             //println("REP NODES = " + nodeToString(rep))
                             rep
-                          case TraversalOp.Map(f, canBuildFrom) if "0" != getenv("SCALACL_TRANSFORM_MAP") =>
+                          case TraversalOps.Map(f, canBuildFrom) if "0" != getenv("SCALACL_TRANSFORM_MAP") =>
                             colType.foreach[(CollectionBuilder, VarDef)](
                               tree,
                               array,

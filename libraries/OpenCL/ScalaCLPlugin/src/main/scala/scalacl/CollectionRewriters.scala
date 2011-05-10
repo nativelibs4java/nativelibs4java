@@ -244,7 +244,7 @@ trait RewritingPluginComponent {
       override def filters: List[Tree] = filtersList
       override def colToString(tpe: Type) = "Range"
       override def isSafeRewrite(op: TraversalOpType) = {
-        import TraversalOp._
+        import TraversalOps._
         op match {
           case ToCollection(colType, _) =>
             colType match { 
@@ -462,7 +462,7 @@ trait RewritingPluginComponent {
       override val supportsRightVariants = true
       override def colToString(tpe: Type) = tpe.toString
       override def isSafeRewrite(op: TraversalOpType) = {
-        import TraversalOp._
+        import TraversalOps._
         op match {
           case ToCollection(colType, _) =>
             colType match { 
@@ -586,7 +586,7 @@ trait RewritingPluginComponent {
       override def colToString(tpe: Type) = tpe.toString
 
       override def isSafeRewrite(op: TraversalOpType) = {
-        import TraversalOp._
+        import TraversalOps._
         op match {
           //case Foreach(_) =>
           //  options.experimental
@@ -696,7 +696,7 @@ trait RewritingPluginComponent {
       override def colToString(tpe: Type) = tpe.toString
 
       override def isSafeRewrite(op: TraversalOpType) = {
-        import TraversalOp._
+        import TraversalOps._
         op match {
           //case Foreach(_) =>
           //  options.experimental
