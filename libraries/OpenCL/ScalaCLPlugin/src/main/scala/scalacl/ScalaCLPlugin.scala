@@ -29,6 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scalacl
+import old._
 
 import java.io.File
 import scala.collection.immutable.Stack
@@ -90,20 +91,24 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 }
 
 object ScalaCLPlugin {
+  private def hasEnv(name: String) =
+    "1" == System.getenv(name)
+
   class PluginOptions(settings: Settings) {
+
     var trace =
       settings != null && settings.debug.value ||
-      "1" == System.getenv("SCALACL_TRACE")
+      hasEnv("SCALACL_TRACE")
       
     var verbose = 
       settings != null && settings.verbose.value ||
-      "1" == System.getenv("SCALACL_VERBOSE")
+      hasEnv("SCALACL_VERBOSE")
       
     var experimental = 
-      "1" == System.getenv("SCALACL_EXPERIMENTAL")
+      hasEnv("SCALACL_EXPERIMENTAL")
     
     var deprecated = 
-      "1" == System.getenv("SCALACL_DEPRECATED")
+      hasEnv("SCALACL_DEPRECATED")
       
     var skip = System.getenv("SCALACL_SKIP")
       
@@ -166,20 +171,21 @@ object ScalaCLPlugin {
       }
     }
   }
-  
+
+  private def ifEnv[V <: AnyRef](name: String)(v: => V): V =
+    if (hasEnv(name))
+      v
+    else
+      null.asInstanceOf[V]
+
   def components(global: Global, options: PluginOptions) = List(
     /*
     if (System.getenv("SCALACL_SEQ2ARRAY") == null) null else
       new Seq2ArrayTransformComponent(global, fileAndLineOptimizationFilter),
     */
-    if ("1" == System.getenv("SCALACL_INSTRUMENT"))
-      new instrumentation.InstrumentationTransformComponent(global, options)
-    else
-      null,
-    if ("1" == System.getenv("SCALACL_LIST_STREAMOPS"))
-      new StreamOpsTransformComponent(global, options)
-    else
-      null,
+    ifEnv("SCALACL_INSTRUMENT") { new instrumentation.InstrumentationTransformComponent(global, options) },
+    ifEnv("SCALACL_LIST_STREAMOPS"){ new StreamOpsTransformComponent(global, options) },
+    ifEnv("SCALACL_STREAM"){ new StreamTransformComponent(global, options) },
     try {
       new ScalaCLFunctionsTransformComponent(global, options)
     } catch { 

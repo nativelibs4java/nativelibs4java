@@ -292,10 +292,13 @@ extends MiscMatchers
       intSub(identGen(), value)
     ).setType(UnitClass.tpe)
 
-  def whileLoop(owner: Symbol, unit: CompilationUnit, tree: Tree, cond: Tree, body: Tree) = {
+  def whileLoop(owner: Symbol, unit: CompilationUnit, tree: Tree, cond: Tree, body: Tree): Tree =
+    whileLoop(owner, unit, tree.pos, cond, body)
+    
+  def whileLoop(owner: Symbol, unit: CompilationUnit, pos: Position, cond: Tree, body: Tree): Tree = {
     val lab = unit.fresh.newName(body.pos, "while$")
     val labTyp = MethodType(Nil, UnitClass.tpe)
-    val labSym = owner.newLabel(tree.pos, N(lab)).setInfo(labTyp).setFlag(SYNTHETIC | LOCAL)
+    val labSym = owner.newLabel(pos, N(lab)).setInfo(labTyp).setFlag(SYNTHETIC | LOCAL)
    
     typed {
       LabelDef(
@@ -309,7 +312,7 @@ extends MiscMatchers
             else
               List(body),
             Apply(
-              ident(labSym, lab, tree.pos),
+              ident(labSym, lab, pos),
               Nil
             )
           ),
@@ -345,6 +348,17 @@ extends MiscMatchers
     def ifUsed[V](v: => V) = if (identUsed) Some(v) else None
   }
   implicit def VarDev2IdentGen(vd: VarDef) = if (vd == null) null else vd.identGen
+  
+  def simpleBuilderResult(builder: Tree): Tree = {
+    val resultMethod = builder.tpe member resultName
+    Apply(
+      Select(
+        builder,
+        resultName
+      ).setSymbol(resultMethod).setType(resultMethod.tpe),
+      Nil
+    ).setSymbol(resultMethod)
+  }
   
   def newVariable(
     unit: CompilationUnit,

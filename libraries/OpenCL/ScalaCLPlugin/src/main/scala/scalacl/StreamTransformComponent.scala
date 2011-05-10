@@ -34,50 +34,43 @@ import scala.tools.nsc.Global
 
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.{Transform, TypingTransformers}
-import scala.tools.nsc.typechecker.Analyzer
-import scala.tools.nsc.typechecker.Implicits
-import scala.collection.mutable.ArrayBuilder
 
-object StreamOpsTransformComponent {
+object StreamTransformComponent {
   val runsAfter = List[String](
     "namer"
-    //, OpsFuserTransformComponent.phaseName, Seq2ArrayTransformComponent.phaseName
   )
-  val runsBefore = List[String]("refchecks", LoopsTransformComponent.phaseName)
-  val phaseName = "scalacl-streamtransform"
+  val runsBefore = List[String]("refchecks")
+  val phaseName = "scalacl-stream"
 }
 
-
-/**
- * Lists streamed operations that initiate from a rewritable collection
- */
-class StreamOpsTransformComponent(val global: Global, val options: ScalaCLPlugin.PluginOptions)
+class StreamTransformComponent(val global: Global, val options: ScalaCLPlugin.PluginOptions)
 extends PluginComponent
    with Transform
    with TypingTransformers
    with MiscMatchers
    with TreeBuilders
-   with RewritingPluginComponent
+   with Streams with StreamImpls
+   //with RewritingPluginComponent
    with WorkaroundsForOtherPhases
    with WithOptions
 {
   import global._
   import global.definitions._
   import scala.tools.nsc.symtab.Flags._
-  import typer.{typed}    // methods to type trees
+  import typer.{typed, atOwner}    // methods to type trees
 
-  override val runsAfter = StreamOpsTransformComponent.runsAfter
-  override val runsBefore = StreamOpsTransformComponent.runsBefore
-  override val phaseName = StreamOpsTransformComponent.phaseName
+  override val runsAfter = StreamTransformComponent.runsAfter
+  override val runsBefore = StreamTransformComponent.runsBefore
+  override val phaseName = StreamTransformComponent.phaseName
 
-  def newTransformer(compilationUnit: CompilationUnit) = new TypingTransformer(compilationUnit) with CollectionRewriters {
+  def newTransformer(compilationUnit: CompilationUnit) = new TypingTransformer(compilationUnit) {
 
-    class OpsStream(val colRewriter: CollectionRewriter, val colTree: Tree, val ops: List[TraversalOp])
+    class OpsStream(val colRewriter: StreamSource, val colTree: Tree, val ops: List[TraversalOp])
     object OpsStream {
       def unapply(tree: Tree) = {
         var ops = List[TraversalOp]()
         var colTree = tree
-        var colRewriter: CollectionRewriter = null
+        var colRewriter: StreamSource = null
         var finished = false
         while (!finished) {
           colTree match {
@@ -85,11 +78,11 @@ extends PluginComponent
               //println("found op " + traversalOp)
               ops = traversalOp :: ops
               colTree = traversalOp.collection
-            case CollectionRewriter(cr) =>
+            case StreamSource(cr) =>
               //println("found cr " + cr)
               colRewriter = cr
-              if (colTree != cr.array)
-                colTree = cr.array
+              if (colTree != cr.tree)
+                colTree = cr.tree
               else
                 finished = true
             case _ =>
@@ -102,11 +95,11 @@ extends PluginComponent
           Some(new OpsStream(colRewriter, colTree, ops))
       }
     }
-    
-    override val unit = compilationUnit
-    
+
+    val unit = compilationUnit
+
     var matchedColTreeIds = Set[Long]()
-    
+
     override def transform(tree: Tree): Tree = {
       if (!shouldOptimize(tree))
         super.transform(tree)
@@ -115,8 +108,9 @@ extends PluginComponent
           tree match {
             case OpsStream(opsStream) if (opsStream ne null) && (opsStream.colTree ne null) && !matchedColTreeIds.contains(opsStream.colTree.id) =>
               import opsStream._
-              
-              val txt = "Streamed ops on " + (if (colRewriter == null) "UNKNOWN COL (" + colTree.tpe + ")" else colRewriter.colType) + " : " + ops.map(_.op).mkString(", ")
+
+              //val txt = "Streamed ops on " + (if (colRewriter == null) "UNKNOWN COL (" + colTree.tpe + ")" else colRewriter.colType) + " : " + ops.map(_.op).mkString(", ")
+              val txt = "Streamed ops on " + (if (colRewriter == null) "UNKNOWN COL" else colRewriter.tree.tpe) + " : " + ops.map(_.op).mkString(", ")
               matchedColTreeIds += colTree.id
               msg(unit, tree.pos, "# " + txt) {
                 //super.transform(toMatch)

@@ -29,6 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package scalacl
+package old
 
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.Global

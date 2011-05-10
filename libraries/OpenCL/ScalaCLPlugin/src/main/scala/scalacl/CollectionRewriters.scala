@@ -268,7 +268,7 @@ trait RewritingPluginComponent {
         //if (knownSize == null)
         //error("should not pass here now !");
           //(appliedType(WrappedArrayBuilderClass.tpe, List(componentType)), Nil, true, true)
-          (appliedType(VectorBuilderClass.tpe, List(componentType)), Nil, false, false, simpleBuilderResult _)
+          BuilderInfo(appliedType(VectorBuilderClass.tpe, List(componentType)), Nil, false, false, simpleBuilderResult _)
         //else
         //  super.newArrayBuilderInfo(componentType, knownSize)
       }
@@ -382,16 +382,6 @@ trait RewritingPluginComponent {
       }
     }
     
-    def simpleBuilderResult(builder: Tree): Tree = {
-      val resultMethod = builder.tpe member resultName
-      Apply(
-        Select(
-          builder,
-          resultName
-        ).setSymbol(resultMethod).setType(resultMethod.tpe),
-        Nil
-      ).setSymbol(resultMethod)
-    }
     def toArray(tree: Tree, componentType: Type, localTyper: analyzer.Typer) = {
       val manifest = localTyper.findManifest(componentType, false).tree
       assert(manifest != EmptyTree, "Failed to get manifest for " + componentType)
@@ -409,21 +399,23 @@ trait RewritingPluginComponent {
       ).setSymbol(method)
     }
     
+    case class BuilderInfo(builderType: Type, mainArgs: List[Tree], needsManifest: Boolean, manifestIsInMain: Boolean, builderResultGetter: Tree => Tree)
+    
     trait ArrayBuilderTargetRewriter {
-      def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, List[Tree], Boolean, Boolean, Tree => Tree) = 
+      def newArrayBuilderInfo(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): BuilderInfo = 
         primArrayBuilderClasses.get(componentType) match {
           case Some(t) =>
-            (t.tpe, Nil, false, false, simpleBuilderResult _)
+            BuilderInfo(t.tpe, Nil, false, false, simpleBuilderResult _)
           case None =>
             if (componentType <:< AnyRefClass.tpe)
-              (appliedType(RefArrayBuilderClass.tpe, List(componentType)), Nil, true, false, simpleBuilderResult _)
+              BuilderInfo(appliedType(RefArrayBuilderClass.tpe, List(componentType)), Nil, true, false, simpleBuilderResult _)
             else
-              (appliedType(ArrayBufferClass.tpe, List(componentType)), List(newInt(16)), false, false, (tree: Tree) => {
+              BuilderInfo(appliedType(ArrayBufferClass.tpe, List(componentType)), List(newInt(16)), false, false, (tree: Tree) => {
                 toArray(tree, componentType, localTyper)
               })
         }
       def newBuilderInstance(componentType: Type, knownSize: TreeGen, localTyper: analyzer.Typer): (Type, Tree, Tree => Tree) = {
-        val (builderType, mainArgs, needsManifest, manifestIsInMain, builderResultGetter) = newArrayBuilderInfo(componentType, knownSize, localTyper);
+        val BuilderInfo(builderType, mainArgs, needsManifest, manifestIsInMain, builderResultGetter) = newArrayBuilderInfo(componentType, knownSize, localTyper);
         (
           builderType,
           localTyper.typed {
