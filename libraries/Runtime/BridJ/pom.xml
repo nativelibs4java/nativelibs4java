@@ -71,13 +71,21 @@
 			<executions>
 			  
 			  <execution>
-			  	<id>full-package</id>
+			  	<id>desktop-package</id>
 				<phase>package</phase>
 				<goals>
 				  <goal>shade</goal>
 				</goals>
 				<configuration>
 					<shadedArtifactAttached>false</shadedArtifactAttached>
+					<filters>
+					  	<filter>
+							<artifact>com.nativelibs4java:bridj</artifact>
+							<excludes>
+								<exclude>android_*/**</exclude>
+							</excludes>
+						</filter>
+					</filters>
 				</configuration>
 			  </execution>
 			  
@@ -97,6 +105,7 @@
 								<exclude>org/bridj/cpp/**</exclude>
 								<exclude>org/bridj/objc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
+								<exclude>android_*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -170,6 +179,7 @@
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
 								<exclude>win*/**</exclude>
+								<exclude>android_*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
