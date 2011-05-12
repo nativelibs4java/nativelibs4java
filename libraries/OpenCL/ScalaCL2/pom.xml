@@ -6,7 +6,7 @@
   <artifactId>scalacl</artifactId>
   <name>ScalaCL Collections</name>
   <url>http://code.google.com/p/scalacl/</url>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.2.Beta14</version>
   <packaging>jar</packaging>
 
 	  <description>
