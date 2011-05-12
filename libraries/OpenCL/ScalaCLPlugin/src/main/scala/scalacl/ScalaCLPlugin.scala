@@ -179,7 +179,7 @@ object ScalaCLPlugin {
       null.asInstanceOf[V]
 
   def components(global: Global, options: PluginOptions) = List(
-    ifEnv("SCALACL_INSTRUMENT") { new instrumentation.InstrumentationTransformComponent(global, options) },
+    //ifEnv("SCALACL_INSTRUMENT") { new instrumentation.InstrumentationTransformComponent(global, options) },
     if (hasEnv("SCALACL_STREAM"))
       new StreamTransformComponent(global, options)
     else
