@@ -179,12 +179,7 @@ object ScalaCLPlugin {
       null.asInstanceOf[V]
 
   def components(global: Global, options: PluginOptions) = List(
-    /*
-    if (System.getenv("SCALACL_SEQ2ARRAY") == null) null else
-      new Seq2ArrayTransformComponent(global, fileAndLineOptimizationFilter),
-    */
     ifEnv("SCALACL_INSTRUMENT") { new instrumentation.InstrumentationTransformComponent(global, options) },
-    ifEnv("SCALACL_LIST_STREAMOPS"){ new StreamOpsTransformComponent(global, options) },
     if (hasEnv("SCALACL_STREAM"))
       new StreamTransformComponent(global, options)
     else
