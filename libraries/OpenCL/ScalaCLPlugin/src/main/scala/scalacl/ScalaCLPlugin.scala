@@ -185,7 +185,10 @@ object ScalaCLPlugin {
     */
     ifEnv("SCALACL_INSTRUMENT") { new instrumentation.InstrumentationTransformComponent(global, options) },
     ifEnv("SCALACL_LIST_STREAMOPS"){ new StreamOpsTransformComponent(global, options) },
-    ifEnv("SCALACL_STREAM"){ new StreamTransformComponent(global, options) },
+    if (hasEnv("SCALACL_STREAM"))
+      new StreamTransformComponent(global, options)
+    else
+      new LoopsTransformComponent(global, options),
     try {
       new ScalaCLFunctionsTransformComponent(global, options)
     } catch { 
@@ -197,8 +200,7 @@ object ScalaCLPlugin {
         null
       case _ =>
         null // TODO
-    },
-    new LoopsTransformComponent(global, options)
+    }
   ).filter(_ != null)
 }
 

@@ -3,6 +3,7 @@ import reaktor.scct.ScctProject
 
 class ScalaCLPluginProject(info: ProjectInfo) extends DefaultProject(info)
 with ScctProject
+with IdeaProject
 { 
   //override def name = "scalacl-compiler-plugin"
   override def watchPaths = super.watchPaths +++ Path.fromFile("examples")

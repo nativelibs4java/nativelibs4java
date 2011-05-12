@@ -10,7 +10,7 @@
 	<url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
 	
 	<properties>
-		<scala.version>2.9.0.RC2</scala.version>
+		<scala.version>2.9.0</scala.version>
 	</properties>
 	
 	<parent>

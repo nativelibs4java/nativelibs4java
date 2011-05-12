@@ -39,7 +39,7 @@ object StreamTransformComponent {
   val runsAfter = List[String](
     "namer"
   )
-  val runsBefore = List[String]("refchecks")
+  val runsBefore = List[String]("refchecks", LoopsTransformComponent.phaseName)
   val phaseName = "scalacl-stream"
 }
 
@@ -74,17 +74,17 @@ extends PluginComponent
         var finished = false
         while (!finished) {
           colTree match {
-            case TraversalOp(traversalOp) =>
-              //println("found op " + traversalOp)
-              ops = traversalOp :: ops
-              colTree = traversalOp.collection
             case StreamSource(cr) =>
-              //println("found cr " + cr)
+              //println("found streamSource " + cr + " (ops = " + ops + ")")
               colRewriter = cr
               if (colTree != cr.tree)
                 colTree = cr.tree
               else
                 finished = true
+            case TraversalOp(traversalOp) =>
+              //println("found op " + traversalOp + "\n\twith collection = " + traversalOp.collection)
+              ops = traversalOp :: ops
+              colTree = traversalOp.collection
             case _ =>
               finished = true
           }
@@ -108,8 +108,7 @@ extends PluginComponent
           tree match {
             case OpsStream(opsStream) if (opsStream ne null) && (opsStream.colTree ne null) && !matchedColTreeIds.contains(opsStream.colTree.id) =>
               import opsStream._
-
-              //val txt = "Streamed ops on " + (if (colRewriter == null) "UNKNOWN COL (" + colTree.tpe + ")" else colRewriter.colType) + " : " + ops.map(_.op).mkString(", ")
+              
               val txt = "Streamed ops on " + (if (colRewriter == null) "UNKNOWN COL" else colRewriter.tree.tpe) + " : " + ops.map(_.op).mkString(", ")
               matchedColTreeIds += colTree.id
               msg(unit, tree.pos, "# " + txt) {
