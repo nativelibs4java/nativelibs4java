@@ -11,7 +11,19 @@ Index: dyncall/configure
    echo 
    echo "  --asm-as           use GNU Assembler"
    echo "  --asm-nasm         use NASM Assembler"
-@@ -232,6 +234,15 @@
+@@ -181,8 +183,10 @@
+     CONFIG_ARCH="mips32el"
+   elif [ "$ARCH" = "loongson" ]; then
+     CONFIG_ARCH="mips64el"
++  elif [ "$ARCH" = "sparc" ]; then
++    CONFIG_ARCH="sparc"
+   elif [ "$ARCH" = "sparc64" ]; then
+-    CONFIG_ARCH="sparc"
++    CONFIG_ARCH="sparc64"
+   fi
+   info "guess arch $CONFIG_ARCH"
+ }
+@@ -232,6 +236,15 @@
        --with-macosxsdk=*)
          CONFIG_MACOSXSDK_VERSION=`echo $OPT | cut -c 18-`
          ;;
@@ -27,7 +39,7 @@ Index: dyncall/configure
        --target-universal)
          CONFIG_ARCH=universal
          ;;
-@@ -300,6 +311,11 @@
+@@ -300,6 +313,11 @@
          CONFIG_ASM=as
          CONFIG_PREFIX=`psp-config -P`
          ;;
@@ -39,7 +51,7 @@ Index: dyncall/configure
        --tool-llvm-gcc)
          CONFIG_TOOL=llvm_gcc
          ;;
-@@ -399,9 +415,18 @@
+@@ -399,9 +417,18 @@
    if [ $CONFIG_IPHONESDK_VERSION ]; then
      echo "CONFIG_IPHONESDK_VERSION=$CONFIG_IPHONESDK_VERSION" >>$1
    fi
