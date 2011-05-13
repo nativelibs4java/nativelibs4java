@@ -2,7 +2,7 @@ Current version : BridJ 0.5-SNAPSHOT
 
 ...
 
-Current version : BridJ 0.4.1 (r1989, 20110513)
+Current version : BridJ 0.4.1 (r1990, 20110513)
 
 - Fixed callbacks on Windows x86
 - Fixed multithreaded callbacks ! (callbacks called in a different thread than the one that created them used to hang indefinitely)
