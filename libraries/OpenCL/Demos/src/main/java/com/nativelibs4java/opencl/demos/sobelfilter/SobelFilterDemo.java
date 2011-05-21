@@ -39,6 +39,8 @@ import com.nativelibs4java.opencl.demos.SetupUtils;
 import com.nativelibs4java.util.Pair;
 import java.awt.image.*;
 import java.io.*;
+
+import org.bridj.Platform;
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
 import javax.imageio.ImageIO;
@@ -51,7 +53,7 @@ import java.awt.FileDialog;
 public class SobelFilterDemo {
 
 	static File chooseFile() {
-		if (JNI.isMacOSX()) {
+		if (Platform.isMacOSX()) {
 			FileDialog d = new FileDialog((java.awt.Frame)null);
 			d.setMode(FileDialog.LOAD);
 			d.show();

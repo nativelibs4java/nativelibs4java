@@ -23,7 +23,7 @@
   	<dependency>
   		<groupId>com.nativelibs4java</groupId>
   		<artifactId>scalacl</artifactId>
-  		<version>0.2-SNAPSHOT</version>
+  		<version>0.2.Beta14</version>
     </dependency>
   </dependencies>
   <repositories>
@@ -56,7 +56,7 @@
               <compilerPlugin>
                 <groupId>com.nativelibs4java</groupId>
                 <artifactId>scalacl-compiler-plugin</artifactId>
-                <version>0.2-SNAPSHOT</version>
+                <version>0.2.Beta14</version>
               </compilerPlugin>
             </compilerPlugins>
 		   <args>

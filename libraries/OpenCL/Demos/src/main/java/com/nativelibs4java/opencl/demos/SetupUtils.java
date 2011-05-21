@@ -20,6 +20,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
 import com.nativelibs4java.opencl.JavaCL;
+import org.bridj.Platform;
 
 /**
  *
@@ -36,7 +37,7 @@ public class SetupUtils {
             ex.printStackTrace();
         } //*/
         String title = "JavaCL Error: OpenCL library not found";
-        if (JNI.isMacOSX()) {
+        if (Platform.isMacOSX()) {
             JOptionPane.showMessageDialog(null, "Please upgrade Mac OS X to Snow Leopard (10.6) to be able to use OpenCL.", title, JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -73,7 +74,7 @@ public class SetupUtils {
                 urlString = "http://developer.amd.com/GPU/ATISTREAMSDK/Pages/default.aspx";
 
             try {
-                BridJ.open(new URL(urlString));
+                Platform.open(new URL(urlString));
             } catch (Exception ex1) {
                 exception(ex1);
             }

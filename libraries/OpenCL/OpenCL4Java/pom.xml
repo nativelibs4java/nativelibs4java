@@ -31,7 +31,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>bridj</artifactId>
 	  <!--classifier>shaded</classifier-->
-	  <version>0.5-SNAPSHOT</version>
+	  <version>0.4.1</version>
 	  <!--version>${nl4j-runtime.version}</version-->
 	  <scope>compile</scope>
 	</dependency>

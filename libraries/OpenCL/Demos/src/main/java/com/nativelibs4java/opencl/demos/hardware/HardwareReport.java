@@ -32,6 +32,8 @@ package com.nativelibs4java.opencl.demos.hardware;
 import org.bridj.BridJ;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.demos.SetupUtils;
+import org.bridj.Platform;
+
 import java.awt.BorderLayout;
 import java.awt.FileDialog;
 import java.awt.Frame;
@@ -191,8 +193,6 @@ public class HardwareReport {
         final String fileName = "HardwareReport.html";
         JButton bWrite = new JButton("Save " + fileName + "...");
         bWrite.addActionListener(new ActionListener() {
-
-            @Override
             public void actionPerformed(ActionEvent e) {
                 FileDialog fd = new FileDialog((Frame)null, "Save " + fileName, FileDialog.SAVE);
                 fd.setFile(fileName);
@@ -207,7 +207,7 @@ public class HardwareReport {
                     w.write(html);
                     w.close();
 
-                    BridJ.show(file);
+                    Platform.show(file);
                 } catch (Throwable ex) {
                     SetupUtils.exception(ex);
                 }
