@@ -254,6 +254,8 @@ trait RewritingPluginComponent {
               case _ =>
                 false
             }
+          case Scan(_, false) =>
+            false
           case Reduce(_, _) | Min | Max =>
             false
           case _: FilterWhile =>
@@ -472,6 +474,8 @@ trait RewritingPluginComponent {
               case _ =>
                 false
             }
+          case Scan(_, false) =>
+            false
           case _ =>
             true
         }
@@ -600,6 +604,8 @@ trait RewritingPluginComponent {
             }
           //case Map | Sum | Fold | _: AllOrSome =>
           //  true
+          case Scan(_, false) =>
+            false
           case _: Reduce =>
             options.experimental // slow in some cases !
           case _: Fold =>

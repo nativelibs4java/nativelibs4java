@@ -339,7 +339,7 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case TraversalOps.Scan(f, _) if "0" != getenv("SCALACL_TRANSFORM_SCAN") =>
+                          case TraversalOps.Scan(f, true) if "0" != getenv("SCALACL_TRANSFORM_SCAN") =>
                             colType.foreach[(CollectionBuilder, VarDef, VarDef)](
                               tree,
                               array,
