@@ -7,7 +7,7 @@ import static org.bridj.Dyncall.CallingConvention.*;
 
 import static org.bridj.Dyncall.SignatureChars.*;
 import org.bridj.ann.Constructor;
-import org.bridj.cpp.CPPObject;
+//import org.bridj.cpp.CPPObject;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -53,6 +53,14 @@ public class MethodCallInfo {
     public MethodCallInfo(Method method) throws FileNotFoundException {
         this(method, method);
     }
+    static boolean derivesFrom(Class<?> c, String className) {
+    		while (c != null) {
+    			if (c.getName().equals(className))
+    				return true;
+    			c = c.getSuperclass();	
+    		}
+    		return false;
+    }
 	public MethodCallInfo(Method method, Method definition) throws FileNotFoundException {
         isVarArgs = false;
         this.setMethod(method);
@@ -76,7 +84,7 @@ public class MethodCallInfo {
         paramsValueTypes = new int[nParams];
 
         direct = true; // TODO on native side : test number of parameters (on 64 bits win : must be <= 4)
-        isCPlusPlus = !isStatic && CPPObject.class.isAssignableFrom(method.getDeclaringClass());
+        isCPlusPlus = !isStatic && derivesFrom(method.getDeclaringClass(), "org.bridj.cpp.CPPObject");//CPPObject.class.isAssignableFrom(method.getDeclaringClass());
 
         //GetOptions(methodOptions, method);
 
