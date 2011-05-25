@@ -26,34 +26,36 @@ class PerformanceTest extends TestUtils {
   val options = new ScalaCLPlugin.PluginOptions(null)
   import options.experimental // SCALACL_EXPERIMENTAL
   
+  val testLists = new ScalaCLPlugin.PluginOptions(null).deprecated
+  
   /**************************
    * Collection conversions *
    **************************/
-  @Test def simpleRangeToArray = testToArray(rng)              
+  @Test def simpleRangeToArray = if (experimental) testToArray(rng)              
   //@Test def simpleRangeToList = testToList(rng) 
-  @Test def simpleListToArray = testToArray(lis)              
-  @Test def simpleArrayToList = testToList(arr) 
+  @Test def simpleListToArray = if (testLists) testToArray(lis)              
+  @Test def simpleArrayToList = if (experimental) testToList(arr) 
   
   
   /********
    * List *
    ********/
-  @Test def simpleListFilter = testFilter(lis)              
-  @Test def simpleListFilterNot = testFilterNot(lis) 
+  @Test def simpleListFilter = if (testLists) testFilter(lis)              
+  @Test def simpleListFilterNot = if (testLists) testFilterNot(lis) 
   // TODO: not working well, no speedup :
-  @Test def simpleListCount = testCount(lis)                
-  @Test def simpleListExists = testExists(lis)              
-  @Test def simpleListForall = testForall(lis)              
+  @Test def simpleListCount = if (testLists) testCount(lis)                
+  @Test def simpleListExists = if (testLists) testExists(lis)              
+  @Test def simpleListForall = if (testLists) testForall(lis)              
   // TODO: Must be implemented differently : @Test def simpleListTakeWhile = testTakeWhile(lis)        
   // TODO: Must be implemented differently : @Test def simpleListDropWhile = testDropWhile(lis)        
-  @Test def simpleListForeach = testForeach(lis)            
-  @Test def simpleListMap = testMap(lis)                    
-  @Test def simpleListSum = testSum(lis)                    
-  @Test def simpleListMin = testMin(lis)                    
-  @Test def simpleListMax = testMax(lis)                    
-  @Test def simpleListScanLeft = testScanLeft(lis)          
-  @Test def simpleListFoldLeft = testFoldLeft(lis)          
-  @Test def simpleListReduceLeft = testReduceLeft(lis)      
+  @Test def simpleListForeach = if (testLists) testForeach(lis)            
+  @Test def simpleListMap = if (testLists) testMap(lis)                    
+  @Test def simpleListSum = if (testLists) testSum(lis)                    
+  @Test def simpleListMin = if (testLists) testMin(lis)                    
+  @Test def simpleListMax = if (testLists) testMax(lis)                    
+  @Test def simpleListScanLeft = if (testLists) testScanLeft(lis)          
+  @Test def simpleListFoldLeft = if (testLists) testFoldLeft(lis)          
+  @Test def simpleListReduceLeft = if (testLists) testReduceLeft(lis)      
 
   /*********
    * Range *
