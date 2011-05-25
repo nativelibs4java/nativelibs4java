@@ -406,7 +406,7 @@ object ApplePrefixSum {
     // Connect to a GPU compute device
     //
 
-    val source: String = com.nativelibs4java.util.IOUtils.readText(classOf[CLCollection[_]].getClassLoader.getResourceAsStream("scalacl/impl/scan_kernel.cl"))
+    val source: String = com.nativelibs4java.util.IOUtils.readText(Platform.getClassLoader(classOf[GroupedPrefixSum[_]]).getResourceAsStream("scalacl/impl/scan_kernel.cl"))
 
     // Create a compute ComputeContext
     //

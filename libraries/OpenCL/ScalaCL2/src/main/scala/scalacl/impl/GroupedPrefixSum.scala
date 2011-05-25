@@ -14,7 +14,7 @@ class GroupedPrefixSum[A](
   implicit val context: Context,
   val dataIO: CLDataIO[A]
 ) {
-  val source: String = readText(classOf[CLCollection[_]].getClassLoader.getResourceAsStream("scalacl/impl/scan_kernel.cl"))
+  val source: String = readText(Platform.getClassLoader(classOf[GroupedPrefixSum[_]]).getResourceAsStream("scalacl/impl/scan_kernel.cl"))
   val devices = context.getDevices
   val program = context.createProgram(source)
   program.defineMacro("DATA_TYPE", dataIO.clType)
