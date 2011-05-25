@@ -77,7 +77,6 @@ public class JavaCL {
 	}
 	
 	@org.bridj.ann.Library("OpenCLProbe") 
-	@org.bridj.ann.Runtime(org.bridj.cpp.CPPRuntime.class) 
 	@org.bridj.ann.Convention(org.bridj.ann.Convention.Style.StdCall)
 	public static class OpenCLProbeLibrary {
 		static {

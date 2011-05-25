@@ -1,8 +1,8 @@
 #!/bin/bash
 MVN_VERSION="`cat pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'`"
 SBAZ_VERSION="`echo $MVN_VERSION | sed -e "s/-SNAPSHOT/-SNAPSHOT-\`date '+%Y%m%d'\`/g"`"
-#LINK_BASE="http://nativelibs4java.sourceforge.net/sbaz/scalacl/"
-LINK_BASE="http://ochafik.com/sbaz/scalacl/"
+LINK_BASE="http://nativelibs4java.sourceforge.net/sbaz/scalacl/"
+#LINK_BASE="http://ochafik.com/sbaz/scalacl/"
 
 SCALACL_HOME="`pwd`"
 
