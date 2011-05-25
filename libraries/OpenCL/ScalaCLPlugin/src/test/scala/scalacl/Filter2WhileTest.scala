@@ -145,7 +145,7 @@ class Filter2WhileTest extends TestUtils with TypeUtils {
   }
 
   @Test
-  def simpleListFilter {
+  def simpleListFilter { if (new ScalaCLPlugin.PluginOptions(null).deprecated)
     ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = List(1, 2, 3, 4)

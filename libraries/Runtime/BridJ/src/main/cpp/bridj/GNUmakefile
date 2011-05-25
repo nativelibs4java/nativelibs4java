@@ -66,7 +66,9 @@ CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Heade
 LDFLAGS		+= -ldl -lobjc -all_load
 endif
 
+ifndef BUILD_OS_android
 LDFLAGS		+= -lpthread
+endif
 
 ifdef BUILD_OS_linux
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/
@@ -93,7 +95,8 @@ endif
 
 #LINK_LIBS	+= stdc++
 
-CPPFLAGS += -DJNICALL=__cdecl -DJNIEXPORT=__cdecl
+#CPPFLAGS += -DJNICALL=__cdecl -DJNIEXPORT=__cdecl
+
 #CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
 #LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 
 

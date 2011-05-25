@@ -19,6 +19,7 @@ import com.nativelibs4java.util.IOUtils;
 import com.nativelibs4java.util.Pair;
 
 import org.bridj.Pointer;
+import org.bridj.Platform;
 import static org.bridj.Pointer.*;
 
 /**
@@ -29,7 +30,7 @@ public class ReductionUtils {
     static String source;
     static final String sourcePath = ReductionUtils.class.getPackage().getName().replace('.', '/') + "/" + "Reduction.c";
     static synchronized String getSource() throws IOException {
-        InputStream in = ReductionUtils.class.getClassLoader().getResourceAsStream(sourcePath);
+        InputStream in = Platform.getClassLoader(ReductionUtils.class).getResourceAsStream(sourcePath);
         if (in == null)
             throw new FileNotFoundException(sourcePath);
         return source = IOUtils.readText(in);
@@ -171,6 +172,9 @@ public class ReductionUtils {
                 @SuppressWarnings("unchecked")
 				public Pair<CLBuffer<B>, CLEvent[]> reduceHelper(CLQueue queue, CLBuffer<B> input, int inputLength, int maxReductionSize, CLEvent... eventsToWaitFor) {
 					if (inputLength == 1) {
+						return new Pair<CLBuffer<B>, CLEvent[]>(input, new CLEvent[0]);
+					}
+                    if (inputLength == 1) {
 						return new Pair<CLBuffer<B>, CLEvent[]>(input, new CLEvent[0]);
 					}
                     CLBuffer<?>[] tempBuffers = new CLBuffer<?>[2];

@@ -28,21 +28,54 @@ BUILD_DIR=
 #echo $DYNCALL_HOME/dyncall/$BUILD_DIR
 
 #svn diff ~/src/dyncall/dyncall > dyncall.diff
-svn diff ~/src/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" | sed -E 's/^(---|\+\+\+)(.*)\(([^)]+)\)/\1\2/' > dyncall.diff
+svn diff ~/src/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" > dyncall.diff
+#svn diff ~/src/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" | sed -E 's/^(---|\+\+\+)(.*)\(([^)]+)\)/\1\2/' > dyncall.diff
 
 echo "# Making dyncall"
 cd "$DYNCALL_HOME"
-if [[ -d /System/Library/Frameworks/ ]] ; then sh ./configure --target-universal ; 
-else sh ./configure ; fi
+
+TARGET=${TARGET:-default}
+ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-~/bin/android-ndk-r5b}
+case $TARGET in
+	android)
+		NEEDS_TEST=0
+		SHAREDLIB_SUFFIX=so
+		sh ./configure --with-androidndk=/Users/ochafik/bin/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/darwin-x86/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=/Users/ochafik/bin/android-ndk-r5b/platforms/android-9/arch-arm
+		;;
+	android-emulator)
+		NEEDS_TEST=0
+		sh ./configure --tool-androidndk --target-x86
+		;;
+	default)
+		NEEDS_TEST=1
+		if [[ -d /System/Library/Frameworks/ ]] ; then sh ./configure --target-universal ; 
+		else sh ./configure ; fi
+		;;
+	*)
+		echo "Unknown TARGET : $TARGET
+		Valid targets are android, android-emulator and default" && exit 1
+	;;	
+esac
+
+if [[ -z "$SHAREDLIB_SUFFIX" ]] ; then
+	if [[ -d /System/Library/Frameworks/ ]] ; then
+		SHAREDLIB_SUFFIX=dylib ;
+	else 
+		SHAREDLIB_SUFFIX=so ;
+	fi ;
+fi
+
 $MAKE_CMD $@ || exit 1
 
 echo "# Making bridj"
 cd "$CURR"
 $MAKE_CMD $@ || exit 1
 
-echo "# Making test library"
-cd "../../../test/cpp/test"
-$MAKE_CMD $@ || exit 1
+if [[ "$NEEDS_TEST" == "1" ]] ; then
+	echo "# Making test library"
+	cd "../../../test/cpp/test"
+	$MAKE_CMD $@ || exit 1 ;
+fi
 
 cd "$CURR"
 
@@ -50,7 +83,7 @@ if [[ -d build_out ]] ; then
 	cd build_out
 
 	for D in `ls . | grep _$OUT_PATTERN` ; do
-		ARCH_NAME="`echo $D| sed "s/_gcc_$OUT_PATTERN//"`"
+		ARCH_NAME="`echo $D| sed "s/_gcc_$OUT_PATTERN//"| sed "s/_androidndk_$OUT_PATTERN//"`"
 		MAIN_OUT="../../../resources/$ARCH_NAME"
 	
 		echo ARCH_NAME: $ARCH_NAME ;
@@ -58,13 +91,9 @@ if [[ -d build_out ]] ; then
 	
 		mkdir -p $MAIN_OUT
 		mkdir -p $TEST_OUT
-		if [[ -d /System/Library/Frameworks/ ]] ; then
-			cp $D/*.dylib $MAIN_OUT
-			cp ../../../../test/cpp/test/build_out/$D/*.dylib $TEST_OUT ;
-		else 
-			cp $D/*.so $MAIN_OUT
-			cp ../../../../test/cpp/test/build_out/$D/*.so $TEST_OUT ;
-		fi 
+		
+		cp $D/*.$SHAREDLIB_SUFFIX $MAIN_OUT
+		cp ../../../../test/cpp/test/build_out/$D/*.$SHAREDLIB_SUFFIX $TEST_OUT ;
 		
 		nm $TEST_OUT/*.so > $TEST_OUT/test.so.nm
 		nm $TEST_OUT/*.dylib > $TEST_OUT/test.dylib.nm

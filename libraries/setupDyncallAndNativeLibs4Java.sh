@@ -1,4 +1,4 @@
-sudo apt-get install maven2 subversion patch gcc make openjdk-6-jdk
+sudo apt-get install maven2 subversion vim patch gcc g++ make openjdk-6-jdk
 cd
 mkdir src
 cd src
@@ -33,3 +33,6 @@ cd ../../nativelibs4java
 cd Runtime/BridJ
 
 sh BuildNative
+cd ../..
+
+mvn install -DskipTests -fae

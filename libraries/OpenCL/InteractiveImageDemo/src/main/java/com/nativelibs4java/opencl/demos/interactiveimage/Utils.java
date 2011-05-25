@@ -11,6 +11,7 @@ import java.awt.image.*;
 import java.io.*;
 import java.awt.FileDialog;
 import java.util.*;
+import org.bridj.Platform;
 
 import com.ochafik.swing.UndoRedoUtils;
 import com.ochafik.swing.syntaxcoloring.TokenMarker;
@@ -139,7 +140,7 @@ class Utils {
 		return sout.toString();
 	}
 	public static String readTextResource(String path) throws IOException {
-		InputStream in = Utils.class.getClassLoader().getResourceAsStream(path);
+		InputStream in = Platform.getClassLoader(Utils.class).getResourceAsStream(path);
 		if (in == null)
 			throw new FileNotFoundException(path);
 		

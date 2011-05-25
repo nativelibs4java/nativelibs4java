@@ -1,7 +1,6 @@
 ScalaCL 0.2-SNAPSHOT 
 - ScalaCL Compiler Plugin changes :
 	- runs silently (unless SCALACL_VERBOSE=1 is set)
-	- rewrite List loops as well (some rewrites like foreach, map are disabled by default, set SCALACL_EXPERIMENTAL to 1 to enable them)
 	- added the following rewrites :
 		- filter / filterNot
 		- takeWhile / dropWhile

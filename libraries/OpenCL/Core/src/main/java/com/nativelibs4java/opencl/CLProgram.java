@@ -323,16 +323,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         resolvedInclusions = null;
 	}
     
-    static File tempIncludes = new File(new File(System.getProperty("java.io.tmpdir")), "JavaCL");
-    
     Map<String, URL> resolvedInclusions;
         
     protected Runnable copyIncludesToTemporaryDirectory() throws IOException {
         Map<String, URL> inclusions = resolveInclusions();
-        tempIncludes.mkdirs();
-        File includesDir = File.createTempFile("includes", "", tempIncludes);
-        includesDir.delete();
-        includesDir.mkdirs();
+        File includesDir = JavaCL.createTempDirectory("includes", "", "includes");
         final List<File> filesToDelete = new ArrayList<File>();
         for (Map.Entry<String, URL> e : inclusions.entrySet()) {
             assert log(Level.INFO, "Copying include '" + e.getKey() + "' from '" + e.getValue() + "' to '" + includesDir + "'");
@@ -400,7 +395,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         File f = new File(path);
         if (f.exists())
             return f.toURI().toURL();
-        URL url = getClass().getClassLoader().getResource(path);        
+        URL url = Platform.getClassLoader(getClass()).getResource(path);        
         if (url != null)
         		return url;
         	
@@ -410,7 +405,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
                 if (f.exists())
                     return f.toURI().toURL();
                 
-                url = getClass().getClassLoader().getResource(f.toString());
+                url = Platform.getClassLoader(getClass()).getResource(f.toString());
                 if (url != null)
                     return url;
                 
@@ -621,9 +616,6 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     		return b.toString();
     }
     
-    //static File cacheDirectory = new File(new File(System.getProperty("user.home"), ".javacl"), "cachedProgramBinaries");
-    static File cacheDirectory = new File(new File(System.getProperty("java.io.tmpdir"), "JavaCL"), "cachedProgramBinaries");
-    
     boolean built;
 	/**
 	 * Returns the context of this program
@@ -643,7 +635,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         			for (byte b : sha)
         				shab.append(Integer.toHexString(b & 0xff));
         			String hash = shab.toString();
-        			cacheFile = new File(cacheDirectory, hash);
+        			cacheFile = new File(JavaCL.userCacheDir, hash);
         			if (cacheFile.exists()) {
 					Pair<Map<CLDevice, byte[]>, String> bins = readBinaries(Arrays.asList(getDevices()), contentSignature, new FileInputStream(cacheFile));
 					setBinaries(bins.getFirst());
@@ -701,7 +693,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         		deleteTempFiles.run();
         
         	if (isCached() && !readBinaries) {
-        		cacheDirectory.mkdirs();
+        		JavaCL.userCacheDir.mkdirs();
         		try {
         			writeBinaries(getBinaries(), getSource(), contentSignature, new FileOutputStream(cacheFile));
         			assert log(Level.INFO, "Wrote binaries cache to '" + cacheFile + "'"); 

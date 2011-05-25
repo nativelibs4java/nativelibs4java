@@ -33,6 +33,9 @@ package com.nativelibs4java.opencl;
 import static com.nativelibs4java.opencl.CLException.error;
 import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 
+import java.io.File;
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -234,5 +237,24 @@ public class JavaCL {
             }
         }
         throw new RuntimeException("Failed to create an OpenCL context based on the current OpenGL context", first);
+    }
+    
+    static File userJavaCLDir = new File(new File(System.getProperty("user.home")), ".javacl");
+    static File userCacheDir = new File(userJavaCLDir, "cache");
+    
+    static synchronized File createTempFile(String prefix, String suffix, String category) {
+    		File dir = new File(userJavaCLDir, category);
+    		dir.mkdirs();
+    		try {
+    			return File.createTempFile(prefix, suffix, dir);
+    		} catch (IOException ex) {
+    			throw new RuntimeException("Failed to create a temporary directory for category '" + category + "' in " + userJavaCLDir + ": " + ex.getMessage(), ex);
+    		}
+    }
+    static synchronized File createTempDirectory(String prefix, String suffix, String category) {
+    		File file = createTempFile(prefix, suffix, category);
+		file.delete();
+		file.mkdir();
+    		return file;
     }
 }

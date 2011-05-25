@@ -37,11 +37,11 @@ import Assert._
 class ListLoopsRewriteTest extends TestUtils with TypeUtils {
 
   @Test
-  def simpleRefListForeach =
+  def simpleRefListForeach = if (new ScalaCLPlugin.PluginOptions(null).deprecated)
     ensurePluginCompilesSnippetsToSameByteCode(refTypeNames map simpleListForeach)
 
   @Test
-  def simplePrimitiveListForeach =
+  def simplePrimitiveListForeach = if (new ScalaCLPlugin.PluginOptions(null).deprecated)
     ensurePluginCompilesSnippetsToSameByteCode(primTypeNames map simpleListForeach)
   
   def simpleListForeach(typeStr: String) = {
@@ -66,11 +66,11 @@ class ListLoopsRewriteTest extends TestUtils with TypeUtils {
   }
 
   @Test
-  def simpleRefListMap =
+  def simpleRefListMap = if (new ScalaCLPlugin.PluginOptions(null).deprecated)
     ensurePluginCompilesSnippetsToSameByteCode(refTypeNames map simpleListMap)
 
   @Test
-  def simplePrimitiveListMap =
+  def simplePrimitiveListMap = if (new ScalaCLPlugin.PluginOptions(null).deprecated)
     ensurePluginCompilesSnippetsToSameByteCode(primTypeNames map simpleListMap)
 
   def simpleListMap(typeStr: String) = {

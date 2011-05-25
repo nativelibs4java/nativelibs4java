@@ -37,6 +37,7 @@ import com.ochafik.swing.syntaxcoloring.TokenMarker;
 import com.ochafik.swing.syntaxcoloring.CCTokenMarker;
 import com.ochafik.swing.syntaxcoloring.JEditTextArea;
 import com.ochafik.util.SystemUtils;
+import org.bridj.Platform;
 
 import static com.nativelibs4java.opencl.demos.interactiveimage.Utils.*;
 
@@ -424,7 +425,7 @@ public class InteractiveImageDemo extends JPanel {
 		origIcon(image == null ? null : new ImageIcon(image));
 	}
 	void readImageResource(String name) {
-		readImage(getClass().getClassLoader().getResource("images/" + name));
+		readImage(Platform.getClassLoader(getClass()).getResource("images/" + name));
 	}
 	
 	void chooseImage() {

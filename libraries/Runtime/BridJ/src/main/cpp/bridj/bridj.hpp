@@ -16,6 +16,10 @@
 #define __cdecl
 #endif
 
+#ifdef _WIN32
+#define SUPPORTS_UNALIGNED_ACCESS
+#endif
+
 #if defined(_WIN64) || (!defined (DC__OS_Darwin) && !defined(DC__OS_Linux) && !defined(_WIN32))
 #define NO_DIRECT_CALLS // TODO REMOVE ME !!! (issues with stack alignment on COM calls ?)
 #endif

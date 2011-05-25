@@ -65,7 +65,7 @@ class Scan2WhileTest extends TestUtils {
 
 
   @Test
-  def simpleListScanLeft {
+  def simpleListScanLeft { if (new ScalaCLPlugin.PluginOptions(null).deprecated)
     ensurePluginCompilesSnippetsToSameByteCode(
       """
           val a = List(1.0, 2.0)

@@ -3,26 +3,18 @@
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>ffmpeg4java</artifactId>
-  <name>FFMpeg4Java</name>
-  <url>http://code.google.com/p/nativelibs4java/wiki/FFMpeg</url>
+  <artifactId>directx4java</artifactId>
+  <name>DirectX4Java</name>
+  <url>http://code.google.com/p/nativelibs4java/wiki/DirectX</url>
   <version>0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   
-  
-  <properties>
-  	<maven.compiler.debug>true</maven.compiler.debug>
-  	<!--bridj.version>0.5-SNAPSHOT</bridj.version>
-  	<jnaerator.version>0.9.8-SNAPSHOT</jnaerator.version-->
-  </properties>
-  
-  
-	<parent>
-		<groupId>com.nativelibs4java</groupId>
-		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.5-SNAPSHOT</version>
-		<relativePath>../Parent</relativePath>
-	</parent>
+  <parent>
+	<groupId>com.nativelibs4java</groupId>
+	<artifactId>nativelibs4java-parent</artifactId>
+	<version>1.5-SNAPSHOT</version>
+	<relativePath>../Parent</relativePath>
+  </parent>
 	
   <dependencies>
   	

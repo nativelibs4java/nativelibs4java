@@ -22,17 +22,22 @@ extern void dcRawCallAdapterSkipTwoArgs64();
 extern void dcRawCallAdapterSkipTwoArgs32_cdecl();
 //}
 
+#if (defined(DC__OS_Linux) || defined(DC__OS_Darwin)) && defined(DC__Arch_AMD64) || defined(_WIN64)
+#define DIRECT_SKIP_TWO_ARGS dcRawCallAdapterSkipTwoArgs64
+#elif defined(_WIN32)
+#define DIRECT_SKIP_TWO_ARGS dcRawCallAdapterSkipTwoArgs32_cdecl
+#endif
+
+#ifndef DIRECT_SKIP_TWO_ARGS
+struct DCAdapterCallback
+{
+};
+#else
 struct DCAdapterCallback
 {
 	DCThunk  	         thunk;    // offset 0,  size 24
 	void (*handler)();
 };
-
-
-#if (defined(DC__OS_Linux) || defined(DC__OS_Darwin)) && defined(DC__Arch_AMD64) || defined(_WIN64)
-#define DIRECT_SKIP_TWO_ARGS dcRawCallAdapterSkipTwoArgs64
-#elif defined(_WIN32)
-#define DIRECT_SKIP_TWO_ARGS dcRawCallAdapterSkipTwoArgs32_cdecl
 #endif
 
 DCAdapterCallback* dcRawCallAdapterSkipTwoArgs(void (*handler)(), int callMode)
