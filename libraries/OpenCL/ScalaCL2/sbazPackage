@@ -35,7 +35,7 @@ if [[ "$DONT_USE_SHADED" == "1" ]] ; then
 	export SBAZ_VERSION="$SBAZ_VERSION-devel"
 	NL4J_BASE="/Users/ochafik/.m2/repository/com/nativelibs4java"
 	cp target/scalacl-$MVN_VERSION.jar $LIB_JAR_OUT
-	cp $NL4J_BASE/bridj/0.3-SNAPSHOT/bridj-0.3-SNAPSHOT-shaded.jar $LIB_JAR_OUT
+	cp $NL4J_BASE/bridj/0.4.2/bridj-0.4.2.jar $LIB_JAR_OUT
 	cp $NL4J_BASE/opencl4java-bridj/1.0-SNAPSHOT/opencl4java-bridj-1.0-SNAPSHOT.jar $LIB_JAR_OUT
 	cp $NL4J_BASE/javacl-core-bridj/1.0-SNAPSHOT/javacl-core-bridj-1.0-SNAPSHOT.jar $LIB_JAR_OUT
 	cp $NL4J_BASE/javacl-bridj/1.0-SNAPSHOT/javacl-bridj-1.0-SNAPSHOT.jar $LIB_JAR_OUT
