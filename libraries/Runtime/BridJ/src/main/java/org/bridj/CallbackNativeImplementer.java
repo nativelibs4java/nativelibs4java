@@ -32,7 +32,7 @@ class CallbackNativeImplementer extends ClassLoader {
 	final NativeEntities nativeEntities;
     final CRuntime runtime;
 	public CallbackNativeImplementer(NativeEntities nativeEntities, CRuntime runtime) {
-		super(BridJ.class.getClassLoader());
+		super(Platform.getClassLoader());
 		this.nativeEntities = nativeEntities;
         this.runtime = runtime;
 	}

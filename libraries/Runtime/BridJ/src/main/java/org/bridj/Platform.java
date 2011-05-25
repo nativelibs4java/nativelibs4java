@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.Arrays;
+import java.util.ArrayList;
+import java.net.MalformedURLException;
+import java.net.URLClassLoader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.bridj.JNI.*;
@@ -39,7 +42,48 @@ public class Platform {
             return defaultValue;
         }
     }
+    static final ClassLoader systemClassLoader; 
+    public static ClassLoader getClassLoader() {
+    		return getClassLoader(BridJ.class);
+    }
+    public static ClassLoader getClassLoader(Class<?> cl) {
+    		ClassLoader loader = cl == null ? null : cl.getClassLoader();
+    		return loader == null ? systemClassLoader : loader;
+    }
+    
     static {
+    		{
+			List<URL> urls = new ArrayList<URL>();
+			for (String propName : new String[] { "java.class.path", "sun.boot.class.path" }) {
+				String prop = System.getProperty(propName);
+				if (prop == null)
+					continue;
+				
+				for (String path : prop.split(File.pathSeparator)) {
+					path = path.trim();
+					if (path.length() == 0)
+						continue;
+					
+					URL url;
+					try {
+						url = new URL(path);
+					} catch (MalformedURLException ex) {
+						try {
+							url = new File(path).toURI().toURL();
+						} catch (MalformedURLException ex2) {
+							url = null;
+						}
+					}
+					if (url != null)
+						urls.add(url);
+				}
+			}
+			//System.out.println("URLs for synthetic class loader :");
+			//for (URL url : urls)
+			//	System.out.println("\t" + url);
+			systemClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
+		}
+		
         int p = -1, c = -1, s = -1, l = -1;
         try {
             p = sizeOf_ptrdiff_t();
@@ -127,7 +171,7 @@ public class Platform {
     	if (isMacOSX()) {
     		String generic = "darwin_universal/lib" + name + ".dylib";
     		if (isAmd64Arch())
-    			return Arrays.asList("darwin_x64/lib" + name + ".dylib", generic);
+    			return Arrays.asList(generic, "darwin_x64/lib" + name + ".dylib");
     		else
     			return Collections.singletonList(generic);
     }
@@ -153,7 +197,7 @@ public class Platform {
 			String ext = i < 0 ? "" : libraryResource.substring(i);
 			int len;
 			byte[] b = new byte[8196];
-			InputStream in = JNI.class.getClassLoader().getResourceAsStream(libraryResource);
+			InputStream in = getClassLoader().getResourceAsStream(libraryResource);
 			if (in == null) {
 				File f = new File(libraryResource);
 				if (!f.exists())
