@@ -5,14 +5,29 @@
 
 -I $(FFMPEG_HOME)
 
--library avutil      $(FFMPEG_HOME)/libavutil/rational.h
--library avutil      $(FFMPEG_HOME)/libavutil/avutil.h
+/*
+-library avutil      
+	$(FFMPEG_HOME)/libavutil/rational.h
+	$(FFMPEG_HOME)/libavutil/avutil.h
+	$(FFMPEG_HOME)/libavutil/pixfmt.h
 -library avcodec		$(FFMPEG_HOME)/libavcodec/avcodec.h
 -library avdevice    $(FFMPEG_HOME)/libavdevice/avdevice.h
 -library avfilter    $(FFMPEG_HOME)/libavfilter/avfilter.h
 -library avformat    $(FFMPEG_HOME)/libavformat/avformat.h
 -library postproc	$(FFMPEG_HOME)/libpostproc/postprocess.h
 -library swscale		$(FFMPEG_HOME)/libswscale/swscale.h
+*/
+
+
+-library avcodec		//$(FFMPEG_HOME)/libavcodec/*.h
+	$(FFMPEG_HOME)/libavcodec/avcodec.h
+-library avcore		$(FFMPEG_HOME)/libavcore/*.h
+-library avdevice	$(FFMPEG_HOME)/libavdevice/*.h
+-library avfilter	$(FFMPEG_HOME)/libavfilter/*.h
+-library avformat	$(FFMPEG_HOME)/libavformat/*.h
+-library avutil		$(FFMPEG_HOME)/libavutil/*.h
+-library postproc	$(FFMPEG_HOME)/libpostproc/*.h
+-library swscale		$(FFMPEG_HOME)/libswscale/*.h
 
 -runtime BridJ
 -reification
@@ -20,6 +35,7 @@
 
 -root com.nativelibs4java.ffmpeg
 
--nocpp -noJar -noComp
+//-nocpp 
+-noJar -noComp
 -o src/main/java
 -v

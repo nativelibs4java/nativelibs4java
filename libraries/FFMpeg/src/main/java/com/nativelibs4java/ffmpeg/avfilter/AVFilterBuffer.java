@@ -102,6 +102,51 @@ public class AVFilterBuffer extends StructObject {
 		free(free);
 		return free;
 	}
+	/// < media format
+	@Field(5) 
+	public int format() {
+		return this.io.getIntField(this, 5);
+	}
+	/// < media format
+	@Field(5) 
+	public AVFilterBuffer format(int format) {
+		this.io.setIntField(this, 5, format);
+		return this;
+	}
+	public final int format_$eq(int format) {
+		format(format);
+		return format;
+	}
+	/// < width and height of the allocated buffer
+	@Field(6) 
+	public int w() {
+		return this.io.getIntField(this, 6);
+	}
+	/// < width and height of the allocated buffer
+	@Field(6) 
+	public AVFilterBuffer w(int w) {
+		this.io.setIntField(this, 6, w);
+		return this;
+	}
+	public final int w_$eq(int w) {
+		w(w);
+		return w;
+	}
+	/// < width and height of the allocated buffer
+	@Field(7) 
+	public int h() {
+		return this.io.getIntField(this, 7);
+	}
+	/// < width and height of the allocated buffer
+	@Field(7) 
+	public AVFilterBuffer h(int h) {
+		this.io.setIntField(this, 7, h);
+		return this;
+	}
+	public final int h_$eq(int h) {
+		h(h);
+		return h;
+	}
 	/// <i>native declaration : libavfilter/avfilter.h</i>
 	public static abstract class free_callback extends Callback<free_callback > {
 		public abstract void apply(Pointer<AVFilterBuffer > buf);

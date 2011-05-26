@@ -35,33 +35,33 @@ public class AVBitStreamFilterContext extends StructObject {
 	}
 	/// C type : AVBitStreamFilter*
 	@Field(1) 
-	public Pointer<com.nativelibs4java.ffmpeg.avcodec.AVBitStreamFilter > filter() {
+	public Pointer<AVBitStreamFilter > filter() {
 		return this.io.getPointerField(this, 1);
 	}
 	/// C type : AVBitStreamFilter*
 	@Field(1) 
-	public AVBitStreamFilterContext filter(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVBitStreamFilter > filter) {
+	public AVBitStreamFilterContext filter(Pointer<AVBitStreamFilter > filter) {
 		this.io.setPointerField(this, 1, filter);
 		return this;
 	}
 	/// C type : AVBitStreamFilter*
-	public final Pointer<com.nativelibs4java.ffmpeg.avcodec.AVBitStreamFilter > filter_$eq(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVBitStreamFilter > filter) {
+	public final Pointer<AVBitStreamFilter > filter_$eq(Pointer<AVBitStreamFilter > filter) {
 		filter(filter);
 		return filter;
 	}
 	/// C type : AVCodecParserContext*
 	@Field(2) 
-	public Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext > parser() {
+	public Pointer<AVCodecParserContext > parser() {
 		return this.io.getPointerField(this, 2);
 	}
 	/// C type : AVCodecParserContext*
 	@Field(2) 
-	public AVBitStreamFilterContext parser(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext > parser) {
+	public AVBitStreamFilterContext parser(Pointer<AVCodecParserContext > parser) {
 		this.io.setPointerField(this, 2, parser);
 		return this;
 	}
 	/// C type : AVCodecParserContext*
-	public final Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext > parser_$eq(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext > parser) {
+	public final Pointer<AVCodecParserContext > parser_$eq(Pointer<AVCodecParserContext > parser) {
 		parser(parser);
 		return parser;
 	}

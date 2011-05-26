@@ -36,17 +36,17 @@ public class AVCodecParserContext extends StructObject {
 	}
 	/// C type : AVCodecParser*
 	@Field(1) 
-	public Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParser > parser() {
+	public Pointer<AVCodecParser > parser() {
 		return this.io.getPointerField(this, 1);
 	}
 	/// C type : AVCodecParser*
 	@Field(1) 
-	public AVCodecParserContext parser(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParser > parser) {
+	public AVCodecParserContext parser(Pointer<AVCodecParser > parser) {
 		this.io.setPointerField(this, 1, parser);
 		return this;
 	}
 	/// C type : AVCodecParser*
-	public final Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParser > parser_$eq(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParser > parser) {
+	public final Pointer<AVCodecParser > parser_$eq(Pointer<AVCodecParser > parser) {
 		parser(parser);
 		return parser;
 	}
@@ -238,19 +238,19 @@ public class AVCodecParserContext extends StructObject {
 	/// C type : int64_t[4]
 	@Array({4}) 
 	@Field(13) 
-	public Pointer<java.lang.Long > cur_frame_offset() {
+	public Pointer<Long > cur_frame_offset() {
 		return this.io.getPointerField(this, 13);
 	}
 	/// C type : int64_t[4]
 	@Array({4}) 
 	@Field(14) 
-	public Pointer<java.lang.Long > cur_frame_pts() {
+	public Pointer<Long > cur_frame_pts() {
 		return this.io.getPointerField(this, 14);
 	}
 	/// C type : int64_t[4]
 	@Array({4}) 
 	@Field(15) 
-	public Pointer<java.lang.Long > cur_frame_dts() {
+	public Pointer<Long > cur_frame_dts() {
 		return this.io.getPointerField(this, 15);
 	}
 	@Field(16) 
@@ -284,7 +284,7 @@ public class AVCodecParserContext extends StructObject {
 	/// C type : int64_t[4]
 	@Array({4}) 
 	@Field(18) 
-	public Pointer<java.lang.Long > cur_frame_end() {
+	public Pointer<Long > cur_frame_end() {
 		return this.io.getPointerField(this, 18);
 	}
 	/**
@@ -320,6 +320,8 @@ public class AVCodecParserContext extends StructObject {
 	 * the very first frame or from this keyframe.<br>
 	 * Is AV_NOPTS_VALUE if unknown.<br>
 	 * This field is not the display duration of the current frame.<br>
+	 * This field has no meaning if the packet does not have AV_PKT_FLAG_KEY<br>
+	 * set.<br>
 	 * * The purpose of this field is to allow seeking in streams that have no<br>
 	 * keyframes in the conventional sense. It corresponds to the<br>
 	 * recovery point SEI in H.264 and match_time_delta in NUT. It is also<br>
@@ -338,6 +340,8 @@ public class AVCodecParserContext extends StructObject {
 	 * the very first frame or from this keyframe.<br>
 	 * Is AV_NOPTS_VALUE if unknown.<br>
 	 * This field is not the display duration of the current frame.<br>
+	 * This field has no meaning if the packet does not have AV_PKT_FLAG_KEY<br>
+	 * set.<br>
 	 * * The purpose of this field is to allow seeking in streams that have no<br>
 	 * keyframes in the conventional sense. It corresponds to the<br>
 	 * recovery point SEI in H.264 and match_time_delta in NUT. It is also<br>
@@ -451,7 +455,7 @@ public class AVCodecParserContext extends StructObject {
 	 */
 	@Array({4}) 
 	@Field(24) 
-	public Pointer<java.lang.Long > cur_frame_pos() {
+	public Pointer<Long > cur_frame_pos() {
 		return this.io.getPointerField(this, 24);
 	}
 	/// Byte position of currently parsed frame in stream.

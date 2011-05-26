@@ -1,8 +1,6 @@
 package com.nativelibs4java.ffmpeg.avfilter;
-import com.nativelibs4java.ffmpeg.avutil.AvutilLibrary.AVMediaType;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
-import org.bridj.ValuedEnum;
 import org.bridj.ann.Array;
 import org.bridj.ann.Field;
 import org.bridj.ann.Library;
@@ -127,28 +125,6 @@ public class AVFilterBufferRef extends StructObject {
 	public final int perms_$eq(int perms) {
 		perms(perms);
 		return perms;
-	}
-	/**
-	 * < media type of buffer data<br>
-	 * C type : AVMediaType
-	 */
-	@Field(7) 
-	public ValuedEnum<AVMediaType > type() {
-		return this.io.getEnumField(this, 7);
-	}
-	/**
-	 * < media type of buffer data<br>
-	 * C type : AVMediaType
-	 */
-	@Field(7) 
-	public AVFilterBufferRef type(ValuedEnum<AVMediaType > type) {
-		this.io.setEnumField(this, 7, type);
-		return this;
-	}
-	/// C type : AVMediaType
-	public final ValuedEnum<AVMediaType > type_$eq(ValuedEnum<AVMediaType > type) {
-		type(type);
-		return type;
 	}
 	/**
 	 * < video buffer specific properties<br>

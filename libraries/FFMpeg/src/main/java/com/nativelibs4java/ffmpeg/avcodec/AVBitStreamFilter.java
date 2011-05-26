@@ -20,17 +20,17 @@ public class AVBitStreamFilter extends StructObject {
 	}
 	/// C type : const char*
 	@Field(0) 
-	public Pointer<java.lang.Byte > name() {
+	public Pointer<Byte > name() {
 		return this.io.getPointerField(this, 0);
 	}
 	/// C type : const char*
 	@Field(0) 
-	public AVBitStreamFilter name(Pointer<java.lang.Byte > name) {
+	public AVBitStreamFilter name(Pointer<Byte > name) {
 		this.io.setPointerField(this, 0, name);
 		return this;
 	}
 	/// C type : const char*
-	public final Pointer<java.lang.Byte > name_$eq(Pointer<java.lang.Byte > name) {
+	public final Pointer<Byte > name_$eq(Pointer<Byte > name) {
 		name(name);
 		return name;
 	}
@@ -65,17 +65,17 @@ public class AVBitStreamFilter extends StructObject {
 	}
 	/// C type : close_callback
 	@Field(3) 
-	public Pointer<AVBitStreamFilter.close_callback > close() {
+	public Pointer<com.nativelibs4java.ffmpeg.avformat.RTPDynamicProtocolHandler_s.close_callback > close() {
 		return this.io.getPointerField(this, 3);
 	}
 	/// C type : close_callback
 	@Field(3) 
-	public AVBitStreamFilter close(Pointer<AVBitStreamFilter.close_callback > close) {
+	public AVBitStreamFilter close(Pointer<com.nativelibs4java.ffmpeg.avformat.RTPDynamicProtocolHandler_s.close_callback > close) {
 		this.io.setPointerField(this, 3, close);
 		return this;
 	}
 	/// C type : close_callback
-	public final Pointer<AVBitStreamFilter.close_callback > close_$eq(Pointer<AVBitStreamFilter.close_callback > close) {
+	public final Pointer<com.nativelibs4java.ffmpeg.avformat.RTPDynamicProtocolHandler_s.close_callback > close_$eq(Pointer<com.nativelibs4java.ffmpeg.avformat.RTPDynamicProtocolHandler_s.close_callback > close) {
 		close(close);
 		return close;
 	}
@@ -95,12 +95,12 @@ public class AVBitStreamFilter extends StructObject {
 		next(next);
 		return next;
 	}
-	/// <i>native declaration : libavcodec/avcodec.h:3811</i>
+	/// <i>native declaration : libavcodec/avcodec.h</i>
 	public static abstract class filter_callback extends Callback<filter_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVBitStreamFilterContext > bsfc, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<java.lang.Byte > args, Pointer<Pointer<java.lang.Byte > > poutbuf, Pointer<java.lang.Integer > poutbuf_size, Pointer<java.lang.Byte > buf, int buf_size, int keyframe);
+		public abstract int apply(Pointer<AVBitStreamFilterContext > bsfc, Pointer<AVCodecContext > avctx, Pointer<Byte > args, Pointer<Pointer<Byte > > poutbuf, Pointer<Integer > poutbuf_size, Pointer<Byte > buf, int buf_size, int keyframe);
 	};
-	/// <i>native declaration : libavcodec/avcodec.h:3815</i>
+	/// <i>native declaration : libavcodec/avcodec.h</i>
 	public static abstract class close_callback extends Callback<close_callback > {
-		public abstract void apply(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVBitStreamFilterContext > bsfc);
+		public abstract void apply(Pointer<AVBitStreamFilterContext > bsfc);
 	};
 }

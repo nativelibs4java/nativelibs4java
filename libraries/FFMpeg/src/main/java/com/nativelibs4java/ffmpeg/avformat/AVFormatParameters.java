@@ -1,9 +1,7 @@
 package com.nativelibs4java.ffmpeg.avformat;
-import static com.nativelibs4java.ffmpeg.avcodec.AvcodecLibrary.*;
-import static com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.*;
+import com.nativelibs4java.ffmpeg.avcodec.AvcodecLibrary.CodecID;
 import com.nativelibs4java.ffmpeg.avutil.AVRational;
-import static com.nativelibs4java.ffmpeg.avutil.AvutilLibrary.*;
-import static com.nativelibs4java.ffmpeg.swscale.SwscaleLibrary.*;
+import com.nativelibs4java.ffmpeg.avutil.AvutilLibrary.PixelFormat;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ValuedEnum;
@@ -117,7 +115,7 @@ public class AVFormatParameters extends StructObject {
 	 * C type : const char*
 	 */
 	@Field(7) 
-	public Pointer<java.lang.Byte > standard() {
+	public Pointer<Byte > standard() {
 		return this.io.getPointerField(this, 7);
 	}
 	/**
@@ -125,12 +123,12 @@ public class AVFormatParameters extends StructObject {
 	 * C type : const char*
 	 */
 	@Field(7) 
-	public AVFormatParameters standard(Pointer<java.lang.Byte > standard) {
+	public AVFormatParameters standard(Pointer<Byte > standard) {
 		this.io.setPointerField(this, 7, standard);
 		return this;
 	}
 	/// C type : const char*
-	public final Pointer<java.lang.Byte > standard_$eq(Pointer<java.lang.Byte > standard) {
+	public final Pointer<Byte > standard_$eq(Pointer<Byte > standard) {
 		standard(standard);
 		return standard;
 	}
