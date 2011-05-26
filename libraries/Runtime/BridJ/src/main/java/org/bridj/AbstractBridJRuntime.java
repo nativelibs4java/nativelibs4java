@@ -28,12 +28,12 @@ public abstract class AbstractBridJRuntime implements BridJRuntime {
 	protected boolean log(Level level, String message) {
 		return log(level, message, null);
 	}
-	@Override
+	//@Override
 	public void unregister(Type type) {
 		// TODO !!!
 	}
 
-	@Override
+	//@Override
     public Type getType(NativeObject instance) {
         if (instance == null)
             return null;

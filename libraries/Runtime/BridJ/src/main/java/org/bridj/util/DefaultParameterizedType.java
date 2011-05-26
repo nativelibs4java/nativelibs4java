@@ -30,23 +30,23 @@ public class DefaultParameterizedType implements ParameterizedType {
     	return new DefaultParameterizedType(rawType, actualTypeArguments);
     }
     
-    @Override
+    //@Override
     public Type[] getActualTypeArguments() {
         return actualTypeArguments.clone();
     }
 
-    @Override
+    //@Override
     public java.lang.reflect.Type getOwnerType() {
         return ownerType;
     }
 
-    @Override
+    //@Override
     public java.lang.reflect.Type getRawType() {
         return rawType;
     }
     
     
-	@Override
+	//@Override
 	public int hashCode() {
 		int h = getRawType().hashCode();
 		if (getOwnerType() != null)
@@ -63,7 +63,7 @@ public class DefaultParameterizedType implements ParameterizedType {
 			return false;
 		return true;
 	}
-	@Override
+	//@Override
 	public boolean equals(Object o) {
 		if (o == null || !(o instanceof DefaultParameterizedType))
 			return false;

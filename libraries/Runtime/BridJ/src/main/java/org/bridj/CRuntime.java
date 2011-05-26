@@ -43,7 +43,7 @@ public class CRuntime extends AbstractBridJRuntime {
     }
     
     
-	@Override
+	//@Override
 	public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType) {
 		return Utils.getClass(officialType);
 	}
@@ -65,11 +65,11 @@ public class CRuntime extends AbstractBridJRuntime {
 		protected final PointerIO<T> pointerIO;
         protected Class<?> castClass;
 
-        @Override
+        //@Override
         public long sizeOf() {
             return structIO.getStructSize();
         }
-		@Override
+		//@Override
         public boolean equal(T instance, T other) {
         		if (structIO != null) {
 				if (((StructObject)instance).io != structIO)
@@ -83,7 +83,7 @@ public class CRuntime extends AbstractBridJRuntime {
 				return instance.peer.equals(other.peer);	
 			}
         }
-        @Override
+        //@Override
         public int compare(T instance, T other) {
         		if (structIO != null) {
         			if (((StructObject)instance).io != structIO)
@@ -99,11 +99,11 @@ public class CRuntime extends AbstractBridJRuntime {
         }
 		
         
-        @Override
+        //@Override
         public BridJRuntime getRuntime() {
             return CRuntime.this;
         }
-        @Override
+        //@Override
         public Type getType() {
             return type;
         }
@@ -114,7 +114,7 @@ public class CRuntime extends AbstractBridJRuntime {
             return castClass;
         }
 
-        @Override
+        //@Override
         public T cast(Pointer peer) {
             try {
                 T instance = (T)getCastClass().newInstance();
@@ -125,7 +125,7 @@ public class CRuntime extends AbstractBridJRuntime {
                 throw new RuntimeException("Failed to cast pointer " + peer + " to instance of type " + Utils.toString(type), ex);
             }
         }
-        @Override
+        //@Override
         public T createReturnInstance() {
             try {
                 T instance = (T)getCastClass().newInstance();
@@ -135,24 +135,24 @@ public class CRuntime extends AbstractBridJRuntime {
                 throw new RuntimeException("Failed to create return instance for type " + Utils.toString(type), ex);
             }
         }
-        @Override
+        //@Override
         public void writeToNative(T instance) {
         		if (instance instanceof StructObject)
         			structIO.writeFieldsToNative((StructObject)instance);
         }
-        @Override
+        //@Override
         public void readFromNative(T instance) {
         		if (instance instanceof StructObject)
         			structIO.readFieldsFromNative((StructObject)instance);
         }
-        @Override
+        //@Override
         public String describe(T instance) {
         		if (instance instanceof StructObject)
         			return structIO.describe((StructObject)instance);
         		else
         			return instance.toString();
         }
-        @Override
+        //@Override
         public String describe() {
         		if (structIO != null)
         			return structIO.describe();
@@ -160,7 +160,7 @@ public class CRuntime extends AbstractBridJRuntime {
         			return Utils.toString(typeClass);
         }
 
-        @Override
+        //@Override
         public void initialize(T instance) {
             if (!BridJ.isCastingNativeObjectInCurrentThread()) {
                 if (instance instanceof Callback<?>) {
@@ -175,7 +175,7 @@ public class CRuntime extends AbstractBridJRuntime {
                 ((StructObject)instance).io = structIO;
             }
         }
-        @Override
+        //@Override
         public void initialize(T instance, Pointer peer) {
             instance.peer = peer;
             if (instance instanceof StructObject) {
@@ -184,7 +184,7 @@ public class CRuntime extends AbstractBridJRuntime {
             }
         }
 
-        @Override
+        //@Override
         public void initialize(T instance, int constructorId, Object... args) {
             StructObject s = (StructObject)instance;
             if (constructorId < 0) {
@@ -195,7 +195,7 @@ public class CRuntime extends AbstractBridJRuntime {
                 throw new UnsupportedOperationException("TODO implement structs constructors !");
         }
 
-        @Override
+        //@Override
         public T clone(T instance) throws CloneNotSupportedException {
             if (instance == null)
                 return null;
@@ -211,18 +211,18 @@ public class CRuntime extends AbstractBridJRuntime {
             }
         }
         
-        @Override
+        //@Override
         public void destroy(T instance) {
             if (instance instanceof Callback)
                 return;        
         }
     }
     /// Needs not be fast : TypeInfo will be cached in BridJ anyway !
-	@Override
+	//@Override
 	public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
         return new CTypeInfo(type);
 	}
-	@Override
+	//@Override
 	public void register(Type type) {
         register(type, null, null);
     }
@@ -453,7 +453,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		long peer = JNI.getActualCToJavaCallback(handle);
 		return (Pointer)Pointer.pointerToAddress(peer, t, new Pointer.Releaser() {
 
-			@Override
+			//@Override
 			public void release(Pointer<?> pointer) {
 				if (BridJ.debugNeverFree)
 					return;

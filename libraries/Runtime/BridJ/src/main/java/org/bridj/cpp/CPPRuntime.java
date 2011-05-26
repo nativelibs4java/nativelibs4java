@@ -521,7 +521,8 @@ public class CPPRuntime extends CRuntime {
         if (lib != null && enableDestructors()) {
             final CPPDestructor destructor = getDestructor(typeClass, type, lib);
             if (destructor != null)
-                releaser = new Pointer.Releaser() { @Override public void release(Pointer<?> p) {
+                releaser = new Pointer.Releaser() { //@Override 
+                public void release(Pointer<?> p) {
                        if (BridJ.debug)
                            BridJ.log(Level.INFO, "Destructing instance of C++ type " + Utils.toString(type) + " (address = " + p + ", destructor = " + pointerTo(destructor) + ")");
 

@@ -29,7 +29,7 @@ public class ITaskbarList3 extends ITaskbarList2 {
 			this.value = value;
 		}
 		public final int value;
-        @Override
+        //@Override
 		public long value() {
 			return value;
 		}
@@ -52,7 +52,7 @@ public class ITaskbarList3 extends ITaskbarList2 {
 			this.value = value;
 		}
 		final int value;
-        @Override
+        //@Override
 		public long value() {
 			return value;
 		}
@@ -96,7 +96,7 @@ public class ITaskbarList3 extends ITaskbarList2 {
 			this.value = value;
 		}
 		public final int value;
-		@Override
+		//@Override/
 		public long value() {
 			return value;
 		}

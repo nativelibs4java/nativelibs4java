@@ -8,7 +8,9 @@ package org.bridj.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.Method;
 import java.io.*;
+import java.nio.*;
 
 /**
  * Miscellaneous utility methods.
@@ -20,6 +22,30 @@ public class Utils {
         Class[] params = c.getParameterTypes();
         int overrideOffset = params.length > 0 && enclosingClass != null && enclosingClass == params[0] ? 1 : 0;
         return overrideOffset;
+    }
+    static volatile Method bufferIsDirectMethod;
+    static volatile boolean hasBufferIsDirectMethod = true;
+    public static boolean isDirect(Buffer b) {
+    	if (b instanceof ByteBuffer)
+    		return ((ByteBuffer)b).isDirect();
+    	synchronized (Utils.class) {
+    		if (hasBufferIsDirectMethod) {
+			if (bufferIsDirectMethod == null) {
+				try {
+					bufferIsDirectMethod = Buffer.class.getMethod("isDirect");
+				} catch (Throwable th) {
+					hasBufferIsDirectMethod = false;
+				}
+			}
+			if (bufferIsDirectMethod != null) {
+				try {
+					return (Boolean)bufferIsDirectMethod.invoke(b);
+				} catch (Throwable th) {
+				}
+			}
+		}
+		return false;
+    	}
     }
 
     public static String toString(Type t) {

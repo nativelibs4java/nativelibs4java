@@ -33,17 +33,17 @@ public class MonoRuntime extends AbstractBridJRuntime implements CSharpRuntime {
         }
     }
 
-    @Override
+    //@Override
     public boolean isAvailable() {
         return getMonoLibrary() != null;
     }
 
-    @Override
+    //@Override
     public <T extends NativeObject> Class<? extends T> getActualInstanceClass(Pointer<T> pInstance, Type officialType) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
+    //@Override
     public void register(Type type) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
@@ -62,7 +62,7 @@ public class MonoRuntime extends AbstractBridJRuntime implements CSharpRuntime {
         return monoLibrary;
     }
 
-    @Override
+    //@Override
     public <T extends NativeObject> TypeInfo<T> getTypeInfo(Type type) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

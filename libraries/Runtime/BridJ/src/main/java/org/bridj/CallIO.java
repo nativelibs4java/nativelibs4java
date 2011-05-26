@@ -29,7 +29,7 @@ interface CallIO {
 				throw new RuntimeException("Failed to create " + CallIO.class.getName() + " for type " + type.getName(), ex);
 			}
 		}
-		@Override
+		//@Override
 		public Pointer<?> newInstance(long address) {
 			try {
 				return (Pointer<?>) constructor.newInstance(address);
@@ -37,7 +37,7 @@ interface CallIO {
 				throw new RuntimeException("Failed to instantiate pointer of type " + type.getName(), ex);
 			}
 		}
-		@Override
+		//@Override
 		public void checkArg(Object ptr) {
 			type.cast(ptr);
 		}
@@ -50,11 +50,11 @@ interface CallIO {
 			this.nativeClass = type;
 			this.nativeType = t;
 		}
-		@Override
+		//@Override
 		public NativeObject newInstance(long address) {
 			return Pointer.pointerToAddress(address).getNativeObject(nativeClass);
 		}
-		@Override
+		//@Override
 		public void checkArg(Object ptr) {
 			if (ptr == null)
 				throw new IllegalArgumentException("Native object of type " + nativeClass.getName() + " passed by value cannot be given a null value !");
@@ -68,11 +68,11 @@ interface CallIO {
 			this.targetType = targetType;
 			this.pointerIO = PointerIO.getInstance(targetType);
 		}
-		@Override
+		//@Override
 		public Pointer<?> newInstance(long address) {
 			return Pointer.pointerToAddress(address, pointerIO);
 		}
-		@Override
+		//@Override
 		public void checkArg(Object ptr) {
 			//Pointer<?> pointer = (Pointer<?>)ptr;
 			//if (pointer.getIO() == null)

@@ -68,7 +68,7 @@ public class CPPTemplateTest {
         Type intVectorType = CPPType.getCPPType(vector.class, int.class);
 
 		assertEquals("bad vector<int> size !", sizeofIntVector, BridJ.sizeOf(intVectorType));
-        CPPTypeInfo<vector<Integer>> typeInfo = CPPRuntime.getInstance().getCPPTypeInfo(intVectorType);
+        CPPTypeInfo<vector<Integer>> typeInfo = (CPPTypeInfo)CPPRuntime.getInstance().getCPPTypeInfo(intVectorType);
         vector<Integer> intVector = new vector<Integer>(Integer.class);
         //vector<Integer> intVector = typeInfo.createReturnInstance();
 
