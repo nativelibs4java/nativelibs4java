@@ -2,9 +2,11 @@ Current version : BridJ 0.5-SNAPSHOT
 
 ...
 
-BridJ 0.4.2 (r1998, 20110525)
+BridJ 0.4.2 (r2009, 20110527)
 
 - Fixed behaviour in environments with a null default classloader (as in Scala 2.9.0) 
+- Added support for Java 1.5 (issue #57)
+- Added support for MacOS X 10.4, 10.5 (was previously restricted to 10.6)
 
 BridJ 0.4.1 (r1990, 20110513)
 
