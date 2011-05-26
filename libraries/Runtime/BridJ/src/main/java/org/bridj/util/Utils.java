@@ -23,29 +23,22 @@ public class Utils {
         int overrideOffset = params.length > 0 && enclosingClass != null && enclosingClass == params[0] ? 1 : 0;
         return overrideOffset;
     }
-    static volatile Method bufferIsDirectMethod;
-    static volatile boolean hasBufferIsDirectMethod = true;
     public static boolean isDirect(Buffer b) {
     	if (b instanceof ByteBuffer)
     		return ((ByteBuffer)b).isDirect();
-    	synchronized (Utils.class) {
-    		if (hasBufferIsDirectMethod) {
-			if (bufferIsDirectMethod == null) {
-				try {
-					bufferIsDirectMethod = Buffer.class.getMethod("isDirect");
-				} catch (Throwable th) {
-					hasBufferIsDirectMethod = false;
-				}
-			}
-			if (bufferIsDirectMethod != null) {
-				try {
-					return (Boolean)bufferIsDirectMethod.invoke(b);
-				} catch (Throwable th) {
-				}
-			}
-		}
-		return false;
-    	}
+    	if (b instanceof IntBuffer)
+    		return ((IntBuffer)b).isDirect();
+    	if (b instanceof LongBuffer)
+    		return ((LongBuffer)b).isDirect();
+    	if (b instanceof DoubleBuffer)
+    		return ((DoubleBuffer)b).isDirect();
+    	if (b instanceof FloatBuffer)
+    		return ((FloatBuffer)b).isDirect();
+	if (b instanceof ShortBuffer)
+    		return ((ShortBuffer)b).isDirect();
+    	if (b instanceof CharBuffer)
+    		return ((CharBuffer)b).isDirect();
+    	return false;
     }
 
     public static String toString(Type t) {
