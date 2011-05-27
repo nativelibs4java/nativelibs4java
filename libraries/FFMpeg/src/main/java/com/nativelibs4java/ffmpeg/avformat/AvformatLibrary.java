@@ -1582,7 +1582,7 @@ public class AvformatLibrary {
 	public static native void ff_read_frame_flush(Pointer<AvformatLibrary.AVFormatContext > s);
 	public static native long ff_ntp_time();
 	public static native int ff_probe_input_buffer(Pointer<Pointer<ByteIOContext > > pb, Pointer<Pointer<AvformatLibrary.AVInputFormat > > fmt, Pointer<Byte > filename, Pointer<? > logctx, int offset, int max_probe_size);
-	public static native int ff_url_join(Pointer<Byte > str, int size, Pointer<Byte > proto, Pointer<Byte > authorization, Pointer<Byte > hostname, int port, Pointer<Byte > fmt, void arg1);
+	public static native int ff_url_join(Pointer<Byte > str, int size, Pointer<Byte > proto, Pointer<Byte > authorization, Pointer<Byte > hostname, int port, Pointer<Byte > fmt, Object... arg);
 	public static native void ff_sdp_write_media(Pointer<Byte > buff, int size, Pointer<AVCodecContext > c, Pointer<Byte > dest_addr, Pointer<Byte > dest_type, int port, int ttl);
 	public static native int ff_write_chained(Pointer<AvformatLibrary.AVFormatContext > dst, int dst_stream, Pointer<AVPacket > pkt, Pointer<AvformatLibrary.AVFormatContext > src);
 	public static native int ff_get_v_length(long val);
@@ -1706,7 +1706,7 @@ public class AvformatLibrary {
 	public static native int av_url_read_fpause(Pointer<ByteIOContext > h, int pause);
 	public static native long av_url_read_fseek(Pointer<ByteIOContext > h, int stream_index, long timestamp, int flags);
 	public static native int url_fgetc(Pointer<ByteIOContext > s);
-	public static native int url_fprintf(Pointer<ByteIOContext > s, Pointer<Byte > fmt, void arg1);
+	public static native int url_fprintf(Pointer<ByteIOContext > s, Pointer<Byte > fmt, Object... args);
 	public static native Pointer<Byte > url_fgets(Pointer<ByteIOContext > s, Pointer<Byte > buf, int buf_size);
 	public static native void put_flush_packet(Pointer<ByteIOContext > s);
 	public static native int get_buffer(Pointer<ByteIOContext > s, Pointer<Byte > buf, int size);
