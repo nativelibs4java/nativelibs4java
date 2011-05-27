@@ -8,7 +8,7 @@
         <option name="compilerOptions" value="-optimize" />
         <option name="pluginPaths">
           <array>
-            <option value="$MAVEN_REPOSITORY$/com/nativelibs4java/scalacl-compiler-plugin/0.2-SNAPSHOT/scalacl-compiler-plugin-0.2-SNAPSHOT.jar" />
+            <option value="$MAVEN_REPOSITORY$/com/nativelibs4java/scalacl-compiler-plugin/0.2.Beta14/scalacl-compiler-plugin-0.2.Beta14.jar" />
           </array>
         </option>
         <option name="vmOptions" value="" />
@@ -28,15 +28,11 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.9.0" level="project" />
-    <orderEntry type="library" name="Maven: com.nativelibs4java:scalacl:0.2-SNAPSHOT" level="project" />
+    <orderEntry type="module" module-name="scalacl" />
     <orderEntry type="module" module-name="javacl-bridj" />
     <orderEntry type="module" module-name="javacl-core-bridj" />
     <orderEntry type="module" module-name="opencl4java-bridj" />
-    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:0.4.1" level="project" />
-    <orderEntry type="library" name="Maven: velocity:velocity:1.5" level="project" />
-    <orderEntry type="library" name="Maven: commons-collections:commons-collections:3.1" level="project" />
-    <orderEntry type="library" name="Maven: commons-lang:commons-lang:2.1" level="project" />
-    <orderEntry type="library" name="Maven: oro:oro:2.0.8" level="project" />
+    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:c-only:0.4.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.7" level="project" />
   </component>
 </module>

@@ -15,7 +15,7 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="opencl4java-bridj" />
-    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:0.4.1" level="project" />
+    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:c-only:0.4.2" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.7" level="project" />
   </component>
 </module>

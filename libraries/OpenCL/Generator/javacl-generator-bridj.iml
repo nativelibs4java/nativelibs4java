@@ -31,6 +31,7 @@
     <orderEntry type="library" name="Maven: org.eclipse.jdt.core.compiler:ecj:3.5.1" level="project" />
     <orderEntry type="module" module-name="javacl-core-bridj" />
     <orderEntry type="module" module-name="opencl4java-bridj" />
+    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:c-only:0.4.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-plugin-api:2.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-project:2.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-profile:2.0.2" level="project" />
