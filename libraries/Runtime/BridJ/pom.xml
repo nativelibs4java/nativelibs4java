@@ -182,6 +182,7 @@
 							<excludes>
 								<exclude>org/bridj/cpp/com/**</exclude>
 								<exclude>org/bridj/cpp/mfc/**</exclude>
+								<exclude>org/bridj/objc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
 								<exclude>win*/**</exclude>
 								<exclude>sunos_*/**</exclude>
