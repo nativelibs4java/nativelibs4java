@@ -21,19 +21,27 @@ public class AVInputFormat extends StructObject {
 	public AVInputFormat(Pointer pointer) {
 		super(pointer);
 	}
-	/// C type : const char*
+	/**
+	 * A comma separated list of short names for the format. New names<br>
+	 * may be appended with a minor bump.<br>
+	 * C type : const char*
+	 */
 	@Field(0) 
-	public Pointer<java.lang.Byte > name() {
+	public Pointer<Byte > name() {
 		return this.io.getPointerField(this, 0);
 	}
-	/// C type : const char*
+	/**
+	 * A comma separated list of short names for the format. New names<br>
+	 * may be appended with a minor bump.<br>
+	 * C type : const char*
+	 */
 	@Field(0) 
-	public AVInputFormat name(Pointer<java.lang.Byte > name) {
+	public AVInputFormat name(Pointer<Byte > name) {
 		this.io.setPointerField(this, 0, name);
 		return this;
 	}
 	/// C type : const char*
-	public final Pointer<java.lang.Byte > name_$eq(Pointer<java.lang.Byte > name) {
+	public final Pointer<Byte > name_$eq(Pointer<Byte > name) {
 		name(name);
 		return name;
 	}
@@ -44,7 +52,7 @@ public class AVInputFormat extends StructObject {
 	 * C type : const char*
 	 */
 	@Field(1) 
-	public Pointer<java.lang.Byte > long_name() {
+	public Pointer<Byte > long_name() {
 		return this.io.getPointerField(this, 1);
 	}
 	/**
@@ -54,12 +62,12 @@ public class AVInputFormat extends StructObject {
 	 * C type : const char*
 	 */
 	@Field(1) 
-	public AVInputFormat long_name(Pointer<java.lang.Byte > long_name) {
+	public AVInputFormat long_name(Pointer<Byte > long_name) {
 		this.io.setPointerField(this, 1, long_name);
 		return this;
 	}
 	/// C type : const char*
-	public final Pointer<java.lang.Byte > long_name_$eq(Pointer<java.lang.Byte > long_name) {
+	public final Pointer<Byte > long_name_$eq(Pointer<Byte > long_name) {
 		long_name(long_name);
 		return long_name;
 	}
@@ -135,10 +143,11 @@ public class AVInputFormat extends StructObject {
 	/**
 	 * Read one packet and put it in 'pkt'. pts and flags are also<br>
 	 * set. 'av_new_stream' can be called only if the flag<br>
-	 * AVFMTCTX_NOHEADER is used.<br>
+	 * AVFMTCTX_NOHEADER is used and only in the calling thread (not in a<br>
+	 * background thread).<br>
 	 * @return 0 on success, < 0 on error.<br>
-	 * When returning an error, pkt must not have been allocated<br>
-	 * or must be freed before returning<br>
+	 *         When returning an error, pkt must not have been allocated<br>
+	 *         or must be freed before returning<br>
 	 * C type : read_packet_callback
 	 */
 	@Field(5) 
@@ -148,10 +157,11 @@ public class AVInputFormat extends StructObject {
 	/**
 	 * Read one packet and put it in 'pkt'. pts and flags are also<br>
 	 * set. 'av_new_stream' can be called only if the flag<br>
-	 * AVFMTCTX_NOHEADER is used.<br>
+	 * AVFMTCTX_NOHEADER is used and only in the calling thread (not in a<br>
+	 * background thread).<br>
 	 * @return 0 on success, < 0 on error.<br>
-	 * When returning an error, pkt must not have been allocated<br>
-	 * or must be freed before returning<br>
+	 *         When returning an error, pkt must not have been allocated<br>
+	 *         or must be freed before returning<br>
 	 * C type : read_packet_callback
 	 */
 	@Field(5) 
@@ -266,7 +276,7 @@ public class AVInputFormat extends StructObject {
 	 * C type : const char*
 	 */
 	@Field(10) 
-	public Pointer<java.lang.Byte > extensions() {
+	public Pointer<Byte > extensions() {
 		return this.io.getPointerField(this, 10);
 	}
 	/**
@@ -276,12 +286,12 @@ public class AVInputFormat extends StructObject {
 	 * C type : const char*
 	 */
 	@Field(10) 
-	public AVInputFormat extensions(Pointer<java.lang.Byte > extensions) {
+	public AVInputFormat extensions(Pointer<Byte > extensions) {
 		this.io.setPointerField(this, 10, extensions);
 		return this;
 	}
 	/// C type : const char*
-	public final Pointer<java.lang.Byte > extensions_$eq(Pointer<java.lang.Byte > extensions) {
+	public final Pointer<Byte > extensions_$eq(Pointer<Byte > extensions) {
 		extensions(extensions);
 		return extensions;
 	}
@@ -301,7 +311,7 @@ public class AVInputFormat extends StructObject {
 		return value;
 	}
 	/**
-	 * Starts/resumes playing - only meaningful if using a network-based format<br>
+	 * Start/resume playing - only meaningful if using a network-based format<br>
 	 * (RTSP).<br>
 	 * C type : read_play_callback
 	 */
@@ -310,7 +320,7 @@ public class AVInputFormat extends StructObject {
 		return this.io.getPointerField(this, 12);
 	}
 	/**
-	 * Starts/resumes playing - only meaningful if using a network-based format<br>
+	 * Start/resume playing - only meaningful if using a network-based format<br>
 	 * (RTSP).<br>
 	 * C type : read_play_callback
 	 */
@@ -325,7 +335,7 @@ public class AVInputFormat extends StructObject {
 		return read_play;
 	}
 	/**
-	 * Pauses playing - only meaningful if using a network-based format<br>
+	 * Pause playing - only meaningful if using a network-based format<br>
 	 * (RTSP).<br>
 	 * C type : read_pause_callback
 	 */
@@ -334,7 +344,7 @@ public class AVInputFormat extends StructObject {
 		return this.io.getPointerField(this, 13);
 	}
 	/**
-	 * Pauses playing - only meaningful if using a network-based format<br>
+	 * Pause playing - only meaningful if using a network-based format<br>
 	 * (RTSP).<br>
 	 * C type : read_pause_callback
 	 */
@@ -350,22 +360,22 @@ public class AVInputFormat extends StructObject {
 	}
 	/// C type : AVCodecTag**
 	@Field(14) 
-	public Pointer<AVCodecTag > codec_tag() {
+	public Pointer<Pointer<AVCodecTag > > codec_tag() {
 		return this.io.getPointerField(this, 14);
 	}
 	/// C type : AVCodecTag**
 	@Field(14) 
-	public AVInputFormat codec_tag(Pointer<AVCodecTag > codec_tag) {
+	public AVInputFormat codec_tag(Pointer<Pointer<AVCodecTag > > codec_tag) {
 		this.io.setPointerField(this, 14, codec_tag);
 		return this;
 	}
 	/// C type : AVCodecTag**
-	public final Pointer<AVCodecTag > codec_tag_$eq(Pointer<AVCodecTag > codec_tag) {
+	public final Pointer<Pointer<AVCodecTag > > codec_tag_$eq(Pointer<Pointer<AVCodecTag > > codec_tag) {
 		codec_tag(codec_tag);
 		return codec_tag;
 	}
 	/**
-	 * Seeks to timestamp ts.<br>
+	 * Seek to timestamp ts.<br>
 	 * Seeking will be done so that the point from which all active streams<br>
 	 * can be presented successfully will be closest to ts and within min/max_ts.<br>
 	 * Active streams are all streams that have AVStream.discard < AVDISCARD_ALL.<br>
@@ -376,7 +386,7 @@ public class AVInputFormat extends StructObject {
 		return this.io.getPointerField(this, 15);
 	}
 	/**
-	 * Seeks to timestamp ts.<br>
+	 * Seek to timestamp ts.<br>
 	 * Seeking will be done so that the point from which all active streams<br>
 	 * can be presented successfully will be closest to ts and within min/max_ts.<br>
 	 * Active streams are all streams that have AVStream.discard < AVDISCARD_ALL.<br>
@@ -394,17 +404,17 @@ public class AVInputFormat extends StructObject {
 	}
 	/// C type : const AVMetadataConv*
 	@Field(16) 
-	public AVMetadataConv metadata_conv() {
-		return this.io.getTypedPointerField(this, 16);
+	public Pointer<AVMetadataConv > metadata_conv() {
+		return this.io.getPointerField(this, 16);
 	}
 	/// C type : const AVMetadataConv*
 	@Field(16) 
-	public AVInputFormat metadata_conv(AVMetadataConv metadata_conv) {
+	public AVInputFormat metadata_conv(Pointer<AVMetadataConv > metadata_conv) {
 		this.io.setPointerField(this, 16, metadata_conv);
 		return this;
 	}
 	/// C type : const AVMetadataConv*
-	public final AVMetadataConv metadata_conv_$eq(AVMetadataConv metadata_conv) {
+	public final Pointer<AVMetadataConv > metadata_conv_$eq(Pointer<AVMetadataConv > metadata_conv) {
 		metadata_conv(metadata_conv);
 		return metadata_conv;
 	}
@@ -430,40 +440,40 @@ public class AVInputFormat extends StructObject {
 		next(next);
 		return next;
 	}
-	/// <i>native declaration : libavformat/avformat.h:300</i>
+	/// <i>native declaration : libavformat/avformat.h</i>
 	public static abstract class read_probe_callback extends Callback<read_probe_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avformat.AVProbeData > AVProbeDataPtr1);
+		public abstract int apply(Pointer<AVProbeData > AVProbeDataPtr1);
 	};
-	/// <i>native declaration : libavformat/avformat.h:305</i>
+	/// <i>native declaration : libavformat/avformat.h</i>
 	public static abstract class read_header_callback extends Callback<read_header_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > AVFormatContextPtr1, Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatParameters > ap);
+		public abstract int apply(Pointer<AVFormatContext > AVFormatContextPtr1, Pointer<AVFormatParameters > ap);
 	};
-	/// <i>native declaration : libavformat/avformat.h:313</i>
+	/// <i>native declaration : libavformat/avformat.h</i>
 	public static abstract class read_packet_callback extends Callback<read_packet_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > AVFormatContextPtr1, Pointer<AVPacket > pkt);
+		public abstract int apply(Pointer<AVFormatContext > AVFormatContextPtr1, Pointer<AVPacket > pkt);
 	};
-	/// <i>native declaration : libavformat/avformat.h:316</i>
+	/// <i>native declaration : libavformat/avformat.h</i>
 	public static abstract class read_close_callback extends Callback<read_close_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > AVFormatContextPtr1);
+		public abstract int apply(Pointer<AVFormatContext > AVFormatContextPtr1);
 	};
-	/// <i>native declaration : libavformat/avformat.h:327</i>
+	/// <i>native declaration : libavformat/avformat.h</i>
 	public static abstract class read_seek_callback extends Callback<read_seek_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > AVFormatContextPtr1, int stream_index, long timestamp, int flags);
+		public abstract int apply(Pointer<AVFormatContext > AVFormatContextPtr1, int stream_index, long timestamp, int flags);
 	};
-	/// <i>native declaration : libavformat/avformat.h:334</i>
+	/// <i>native declaration : libavformat/avformat.h</i>
 	public static abstract class read_timestamp_callback extends Callback<read_timestamp_callback > {
-		public abstract long apply(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > s, int stream_index, Pointer<java.lang.Long > pos, long pos_limit);
+		public abstract long apply(Pointer<AVFormatContext > s, int stream_index, Pointer<Long > pos, long pos_limit);
 	};
-	/// <i>native declaration : libavformat/avformat.h:347</i>
+	/// <i>native declaration : libavformat/avformat.h</i>
 	public static abstract class read_play_callback extends Callback<read_play_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > AVFormatContextPtr1);
+		public abstract int apply(Pointer<AVFormatContext > AVFormatContextPtr1);
 	};
-	/// <i>native declaration : libavformat/avformat.h:351</i>
+	/// <i>native declaration : libavformat/avformat.h</i>
 	public static abstract class read_pause_callback extends Callback<read_pause_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > AVFormatContextPtr1);
+		public abstract int apply(Pointer<AVFormatContext > AVFormatContextPtr1);
 	};
-	/// <i>native declaration : libavformat/avformat.h:361</i>
+	/// <i>native declaration : libavformat/avformat.h</i>
 	public static abstract class read_seek2_callback extends Callback<read_seek2_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avformat.AVFormatContext > s, int stream_index, long min_ts, long ts, long max_ts, int flags);
+		public abstract int apply(Pointer<AVFormatContext > s, int stream_index, long min_ts, long ts, long max_ts, int flags);
 	};
 }

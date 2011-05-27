@@ -89,6 +89,11 @@ endif
 
 ifdef BUILD_OS_darwin
 CPPFLAGS += -O3
+CPPFLAGS += -mmacosx-version-min=10.4
+LDFLAGS += -mmacosx-version-min=10.4
+#-DMAC_OS_X_VERSION_MIN_REQUIRED=1040 
+#CPPFLAGS += -mmacosx-version-min=10.4 -DMAC_OS_X_VERSION_MIN_REQUIRED=1040 -isysroot /Developer/SDKs/MacOSX10.4u.sdk
+#CPPFLAGS += -mmacosx-version-min=10.5 -DMAC_OS_X_VERSION_MIN_REQUIRED=1050 -isysroot /Developer/SDKs/MacOSX10.5u.sdk
 else
 CPPFLAGS += -O2
 endif

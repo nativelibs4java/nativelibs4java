@@ -19,33 +19,33 @@ public class AVMetadataTag extends StructObject {
 	}
 	/// C type : char*
 	@Field(0) 
-	public Pointer<java.lang.Byte > key() {
+	public Pointer<Byte > key() {
 		return this.io.getPointerField(this, 0);
 	}
 	/// C type : char*
 	@Field(0) 
-	public AVMetadataTag key(Pointer<java.lang.Byte > key) {
+	public AVMetadataTag key(Pointer<Byte > key) {
 		this.io.setPointerField(this, 0, key);
 		return this;
 	}
 	/// C type : char*
-	public final Pointer<java.lang.Byte > key_$eq(Pointer<java.lang.Byte > key) {
+	public final Pointer<Byte > key_$eq(Pointer<Byte > key) {
 		key(key);
 		return key;
 	}
 	/// C type : char*
 	@Field(1) 
-	public Pointer<java.lang.Byte > value() {
+	public Pointer<Byte > value() {
 		return this.io.getPointerField(this, 1);
 	}
 	/// C type : char*
 	@Field(1) 
-	public AVMetadataTag value(Pointer<java.lang.Byte > value) {
+	public AVMetadataTag value(Pointer<Byte > value) {
 		this.io.setPointerField(this, 1, value);
 		return this;
 	}
 	/// C type : char*
-	public final Pointer<java.lang.Byte > value_$eq(Pointer<java.lang.Byte > value) {
+	public final Pointer<Byte > value_$eq(Pointer<Byte > value) {
 		value(value);
 		return value;
 	}

@@ -23,7 +23,7 @@ public class AVFilter extends StructObject {
 	 * C type : const char*
 	 */
 	@Field(0) 
-	public Pointer<java.lang.Byte > name() {
+	public Pointer<Byte > name() {
 		return this.io.getPointerField(this, 0);
 	}
 	/**
@@ -31,12 +31,12 @@ public class AVFilter extends StructObject {
 	 * C type : const char*
 	 */
 	@Field(0) 
-	public AVFilter name(Pointer<java.lang.Byte > name) {
+	public AVFilter name(Pointer<Byte > name) {
 		this.io.setPointerField(this, 0, name);
 		return this;
 	}
 	/// C type : const char*
-	public final Pointer<java.lang.Byte > name_$eq(Pointer<java.lang.Byte > name) {
+	public final Pointer<Byte > name_$eq(Pointer<Byte > name) {
 		name(name);
 		return name;
 	}
@@ -85,7 +85,7 @@ public class AVFilter extends StructObject {
 	}
 	/**
 	 * Filter uninitialization function. Should deallocate any memory held<br>
-	 * by the filter, release any picture references, etc. This does not need<br>
+	 * by the filter, release any buffer references, etc. This does not need<br>
 	 * to deallocate the AVFilterContext->priv memory itself.<br>
 	 * C type : uninit_callback
 	 */
@@ -95,7 +95,7 @@ public class AVFilter extends StructObject {
 	}
 	/**
 	 * Filter uninitialization function. Should deallocate any memory held<br>
-	 * by the filter, release any picture references, etc. This does not need<br>
+	 * by the filter, release any buffer references, etc. This does not need<br>
 	 * to deallocate the AVFilterContext->priv memory itself.<br>
 	 * C type : uninit_callback
 	 */
@@ -144,7 +144,7 @@ public class AVFilter extends StructObject {
 	 * C type : const AVFilterPad*
 	 */
 	@Field(5) 
-	public Pointer<com.nativelibs4java.ffmpeg.avfilter.AVFilterPad > inputs() {
+	public Pointer<AVFilterPad > inputs() {
 		return this.io.getPointerField(this, 5);
 	}
 	/**
@@ -152,12 +152,12 @@ public class AVFilter extends StructObject {
 	 * C type : const AVFilterPad*
 	 */
 	@Field(5) 
-	public AVFilter inputs(Pointer<com.nativelibs4java.ffmpeg.avfilter.AVFilterPad > inputs) {
+	public AVFilter inputs(Pointer<AVFilterPad > inputs) {
 		this.io.setPointerField(this, 5, inputs);
 		return this;
 	}
 	/// C type : const AVFilterPad*
-	public final Pointer<com.nativelibs4java.ffmpeg.avfilter.AVFilterPad > inputs_$eq(Pointer<com.nativelibs4java.ffmpeg.avfilter.AVFilterPad > inputs) {
+	public final Pointer<AVFilterPad > inputs_$eq(Pointer<AVFilterPad > inputs) {
 		inputs(inputs);
 		return inputs;
 	}
@@ -166,7 +166,7 @@ public class AVFilter extends StructObject {
 	 * C type : const AVFilterPad*
 	 */
 	@Field(6) 
-	public Pointer<com.nativelibs4java.ffmpeg.avfilter.AVFilterPad > outputs() {
+	public Pointer<AVFilterPad > outputs() {
 		return this.io.getPointerField(this, 6);
 	}
 	/**
@@ -174,12 +174,12 @@ public class AVFilter extends StructObject {
 	 * C type : const AVFilterPad*
 	 */
 	@Field(6) 
-	public AVFilter outputs(Pointer<com.nativelibs4java.ffmpeg.avfilter.AVFilterPad > outputs) {
+	public AVFilter outputs(Pointer<AVFilterPad > outputs) {
 		this.io.setPointerField(this, 6, outputs);
 		return this;
 	}
 	/// C type : const AVFilterPad*
-	public final Pointer<com.nativelibs4java.ffmpeg.avfilter.AVFilterPad > outputs_$eq(Pointer<com.nativelibs4java.ffmpeg.avfilter.AVFilterPad > outputs) {
+	public final Pointer<AVFilterPad > outputs_$eq(Pointer<AVFilterPad > outputs) {
 		outputs(outputs);
 		return outputs;
 	}
@@ -189,7 +189,7 @@ public class AVFilter extends StructObject {
 	 * C type : const char*
 	 */
 	@Field(7) 
-	public Pointer<java.lang.Byte > description() {
+	public Pointer<Byte > description() {
 		return this.io.getPointerField(this, 7);
 	}
 	/**
@@ -198,25 +198,25 @@ public class AVFilter extends StructObject {
 	 * C type : const char*
 	 */
 	@Field(7) 
-	public AVFilter description(Pointer<java.lang.Byte > description) {
+	public AVFilter description(Pointer<Byte > description) {
 		this.io.setPointerField(this, 7, description);
 		return this;
 	}
 	/// C type : const char*
-	public final Pointer<java.lang.Byte > description_$eq(Pointer<java.lang.Byte > description) {
+	public final Pointer<Byte > description_$eq(Pointer<Byte > description) {
 		description(description);
 		return description;
 	}
-	/// <i>native declaration : libavfilter/avfilter.h:421</i>
+	/// <i>native declaration : libavfilter/avfilter.h</i>
 	public static abstract class init_callback extends Callback<init_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avfilter.AVFilterContext > ctx, Pointer<java.lang.Byte > args, Pointer<? > opaque);
+		public abstract int apply(Pointer<AVFilterContext > ctx, Pointer<Byte > args, Pointer<? > opaque);
 	};
-	/// <i>native declaration : libavfilter/avfilter.h:428</i>
+	/// <i>native declaration : libavfilter/avfilter.h</i>
 	public static abstract class uninit_callback extends Callback<uninit_callback > {
-		public abstract void apply(Pointer<com.nativelibs4java.ffmpeg.avfilter.AVFilterContext > ctx);
+		public abstract void apply(Pointer<AVFilterContext > ctx);
 	};
-	/// <i>native declaration : libavfilter/avfilter.h:438</i>
+	/// <i>native declaration : libavfilter/avfilter.h</i>
 	public static abstract class query_formats_callback extends Callback<query_formats_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avfilter.AVFilterContext > AVFilterContextPtr1);
+		public abstract int apply(Pointer<AVFilterContext > AVFilterContextPtr1);
 	};
 }

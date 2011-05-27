@@ -270,7 +270,7 @@ public class StructIO {
 	protected void orderFields(List<FieldDecl> fields) {
 		Collections.sort(fields, new Comparator<FieldDecl>() {
 
-            @Override
+            //@Override
             public int compare(FieldDecl o1, FieldDecl o2) {
                 long d = o1.index - o2.index;
                 if (d != 0)

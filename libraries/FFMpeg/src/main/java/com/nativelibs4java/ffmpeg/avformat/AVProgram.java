@@ -1,7 +1,8 @@
 package com.nativelibs4java.ffmpeg.avformat;
-import com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.AVMetadata;
+import com.nativelibs4java.ffmpeg.avcodec.AvcodecLibrary.AVDiscard;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
+import org.bridj.ValuedEnum;
 import org.bridj.ann.Field;
 import org.bridj.ann.Library;
 /**
@@ -36,7 +37,7 @@ public class AVProgram extends StructObject {
 	 * C type : char*
 	 */
 	@Field(1) 
-	public Pointer<java.lang.Byte > provider_name() {
+	public Pointer<Byte > provider_name() {
 		return this.io.getPointerField(this, 1);
 	}
 	/**
@@ -44,12 +45,12 @@ public class AVProgram extends StructObject {
 	 * C type : char*
 	 */
 	@Field(1) 
-	public AVProgram provider_name(Pointer<java.lang.Byte > provider_name) {
+	public AVProgram provider_name(Pointer<Byte > provider_name) {
 		this.io.setPointerField(this, 1, provider_name);
 		return this;
 	}
 	/// C type : char*
-	public final Pointer<java.lang.Byte > provider_name_$eq(Pointer<java.lang.Byte > provider_name) {
+	public final Pointer<Byte > provider_name_$eq(Pointer<Byte > provider_name) {
 		provider_name(provider_name);
 		return provider_name;
 	}
@@ -58,7 +59,7 @@ public class AVProgram extends StructObject {
 	 * C type : char*
 	 */
 	@Field(2) 
-	public Pointer<java.lang.Byte > name() {
+	public Pointer<Byte > name() {
 		return this.io.getPointerField(this, 2);
 	}
 	/**
@@ -66,12 +67,12 @@ public class AVProgram extends StructObject {
 	 * C type : char*
 	 */
 	@Field(2) 
-	public AVProgram name(Pointer<java.lang.Byte > name) {
+	public AVProgram name(Pointer<Byte > name) {
 		this.io.setPointerField(this, 2, name);
 		return this;
 	}
 	/// C type : char*
-	public final Pointer<java.lang.Byte > name_$eq(Pointer<java.lang.Byte > name) {
+	public final Pointer<Byte > name_$eq(Pointer<Byte > name) {
 		name(name);
 		return name;
 	}
@@ -88,30 +89,51 @@ public class AVProgram extends StructObject {
 		flags(flags);
 		return flags;
 	}
-	/// Conversion Error : AVDiscard (Unsupported type)
-	/// C type : unsigned int*
+	/**
+	 * < selects which program to discard and which to feed to the caller<br>
+	 * C type : AVDiscard
+	 */
 	@Field(4) 
-	public Pointer<java.lang.Integer > stream_index() {
-		return this.io.getPointerField(this, 4);
+	public ValuedEnum<AVDiscard > discard() {
+		return this.io.getEnumField(this, 4);
+	}
+	/**
+	 * < selects which program to discard and which to feed to the caller<br>
+	 * C type : AVDiscard
+	 */
+	@Field(4) 
+	public AVProgram discard(ValuedEnum<AVDiscard > discard) {
+		this.io.setEnumField(this, 4, discard);
+		return this;
+	}
+	/// C type : AVDiscard
+	public final ValuedEnum<AVDiscard > discard_$eq(ValuedEnum<AVDiscard > discard) {
+		discard(discard);
+		return discard;
 	}
 	/// C type : unsigned int*
-	@Field(4) 
-	public AVProgram stream_index(Pointer<java.lang.Integer > stream_index) {
-		this.io.setPointerField(this, 4, stream_index);
+	@Field(5) 
+	public Pointer<Integer > stream_index() {
+		return this.io.getPointerField(this, 5);
+	}
+	/// C type : unsigned int*
+	@Field(5) 
+	public AVProgram stream_index(Pointer<Integer > stream_index) {
+		this.io.setPointerField(this, 5, stream_index);
 		return this;
 	}
 	/// C type : unsigned int*
-	public final Pointer<java.lang.Integer > stream_index_$eq(Pointer<java.lang.Integer > stream_index) {
+	public final Pointer<Integer > stream_index_$eq(Pointer<Integer > stream_index) {
 		stream_index(stream_index);
 		return stream_index;
 	}
-	@Field(5) 
+	@Field(6) 
 	public int nb_stream_indexes() {
-		return this.io.getIntField(this, 5);
+		return this.io.getIntField(this, 6);
 	}
-	@Field(5) 
+	@Field(6) 
 	public AVProgram nb_stream_indexes(int nb_stream_indexes) {
-		this.io.setIntField(this, 5, nb_stream_indexes);
+		this.io.setIntField(this, 6, nb_stream_indexes);
 		return this;
 	}
 	public final int nb_stream_indexes_$eq(int nb_stream_indexes) {
@@ -119,18 +141,18 @@ public class AVProgram extends StructObject {
 		return nb_stream_indexes;
 	}
 	/// C type : AVMetadata*
-	@Field(6) 
-	public AVMetadata metadata() {
-		return this.io.getTypedPointerField(this, 6);
+	@Field(7) 
+	public Pointer<AVMetadata > metadata() {
+		return this.io.getPointerField(this, 7);
 	}
 	/// C type : AVMetadata*
-	@Field(6) 
-	public AVProgram metadata(AVMetadata metadata) {
-		this.io.setPointerField(this, 6, metadata);
+	@Field(7) 
+	public AVProgram metadata(Pointer<AVMetadata > metadata) {
+		this.io.setPointerField(this, 7, metadata);
 		return this;
 	}
 	/// C type : AVMetadata*
-	public final AVMetadata metadata_$eq(AVMetadata metadata) {
+	public final Pointer<AVMetadata > metadata_$eq(Pointer<AVMetadata > metadata) {
 		metadata(metadata);
 		return metadata;
 	}

@@ -46,7 +46,7 @@ public class MiscBugsTest {
 		}
 		
 		Releaser releaser = new Releaser() {
-			@Override
+			//@Override
 			public void release(Pointer<?> p) {
 				released[0] = true;
 			}

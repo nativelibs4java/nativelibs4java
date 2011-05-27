@@ -172,7 +172,7 @@ class CallbackNativeImplementer extends ClassLoader {
 			String callbackTypeImplName, String methodName,
 			String methodSignature) {
 		ClassWriter cw = new ClassWriter(0);
-		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER,
+		cw.visit(V1_5, ACC_PUBLIC + ACC_SUPER,
 				callbackTypeImplName, null,
 				callbackTypeName, null);
 

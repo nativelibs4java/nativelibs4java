@@ -1,6 +1,13 @@
 package com.nativelibs4java.ffmpeg.avdevice;
+import com.nativelibs4java.ffmpeg.avcodec.AvcodecLibrary.CodecID;
+import com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.AVFormatContext;
+import java.util.Collections;
+import java.util.Iterator;
 import org.bridj.BridJ;
+import org.bridj.FlagSet;
+import org.bridj.IntValuedEnum;
 import org.bridj.Pointer;
+import org.bridj.ValuedEnum;
 import org.bridj.ann.Library;
 import org.bridj.ann.Runtime;
 import org.bridj.cpp.CPPRuntime;
@@ -16,14 +23,105 @@ public class AvdeviceLibrary {
 	static {
 		BridJ.register();
 	}
+	/// I don't like using 0 as a valid ioctl()
+	public static final int DV1394_INVALID = (int)0;
+	/**
+	 * get the driver ready to transmit video.<br>
+	 * pass a struct dv1394_init* as the parameter (see below),<br>
+	 * or NULL to get default parameters
+	 */
+	public static final int DV1394_INIT = (int)1;
+	/// stop transmitting video and free the ringbuffer
+	public static final int DV1394_SHUTDOWN = (int)2;
+	/**
+	 * submit N new frames to be transmitted, where<br>
+	 * the index of the first new frame is first_clear_buffer,<br>
+	 * and the index of the last new frame is<br>
+	 * (first_clear_buffer + N) % n_frames
+	 */
+	public static final int DV1394_SUBMIT_FRAMES = (int)3;
+	/**
+	 * block until N buffers are clear (pass N as the parameter)<br>
+	 * Because we re-transmit the last frame on underrun, there<br>
+	 * will at most be n_frames - 1 clear frames at any time
+	 */
+	public static final int DV1394_WAIT_FRAMES = (int)4;
+	/**
+	 * capture new frames that have been received, where<br>
+	 * the index of the first new frame is first_clear_buffer,<br>
+	 * and the index of the last new frame is<br>
+	 * (first_clear_buffer + N) % n_frames
+	 */
+	public static final int DV1394_RECEIVE_FRAMES = (int)5;
+	public static final int DV1394_START_RECEIVE = (int)6;
+	/// pass a struct dv1394_status* as the parameter (see below)
+	public static final int DV1394_GET_STATUS = (int)7;
+	public enum pal_or_ntsc implements IntValuedEnum<pal_or_ntsc > {
+		DV1394_NTSC(0),
+		DV1394_PAL(1);
+		pal_or_ntsc(long value) {
+			this.value = value;
+		}
+		public final long value;
+		public long value() {
+			return this.value;
+		}
+		public Iterator<pal_or_ntsc > iterator() {
+			return Collections.singleton(this).iterator();
+		}
+		public static ValuedEnum<pal_or_ntsc > fromValue(long value) {
+			return FlagSet.fromValue(value, values());
+		}
+	};
+	/**
+	 * Conversion Error : a.num<br>
+	 * SKIPPED:<br>
+	 * <i>native declaration : libavutil/rational.h</i><br>
+	 * const int64_t tmp = a.num * (int64_t)b.den - b.num * (int64_t)a.den;
+	 */
 	/// <i>native declaration : libavdevice/avdevice.h</i>
-	public static final int LIBAVDEVICE_VERSION_MINOR = 2;
+	public static final int LIBAVDEVICE_VERSION_MINOR = (int)2;
+	/// <i>native declaration : libavdevice/dv1394.h</i>
+	public static final int DV1394_NTSC_PACKETS_PER_FRAME = (int)250;
+	/// <i>native declaration : libavdevice/dv1394.h</i>
+	public static final int DV1394_PAL_PACKETS_PER_FRAME = (int)300;
+	/// <i>native declaration : libavdevice/dv1394.h</i>
+	public static final int DV1394_WIDTH = (int)720;
+	/// <i>native declaration : libavdevice/dv1394.h</i>
+	public static final int DV1394_NTSC_HEIGHT = (int)480;
+	/// <i>native declaration : libavdevice/dv1394.h</i>
+	public static final int DV1394_PAL_HEIGHT = (int)576;
 	/// <i>native declaration : libavdevice/avdevice.h</i>
-	public static final int LIBAVDEVICE_VERSION_MICRO = 0;
+	public static final int LIBAVDEVICE_VERSION_MICRO = (int)3;
+	/// <i>native declaration : libavdevice/dv1394.h</i>
+	public static final int DV1394_API_VERSION = (int)536940839;
+	/// <i>native declaration : libavdevice/dv1394.h</i>
+	public static final int DV1394_DEFAULT_CARD = (int)0;
+	/// <i>native declaration : libavdevice/dv1394.h</i>
+	public static final int DV1394_RING_FRAMES = (int)20;
+	/// <i>native declaration : libavdevice/dv1394.h</i>
+	public static final int DV1394_DEFAULT_CHANNEL = (int)63;
 	/// <i>native declaration : libavdevice/avdevice.h</i>
-	public static final int LIBAVDEVICE_VERSION_MAJOR = 52;
-	public native static void avdevice_version();
-	public native static Pointer<java.lang.Byte > avdevice_configuration();
-	public native static Pointer<java.lang.Byte > avdevice_license();
-	public native static void avdevice_register_all();
+	public static final int LIBAVDEVICE_VERSION_MAJOR = (int)52;
+	/// <i>native declaration : libavdevice/dv1394.h</i>
+	public static final int DV1394_MAX_FRAMES = (int)32;
+	/// <i>native declaration : libavdevice/dv1394.h</i>
+	public static final int DV1394_PAL_FRAME_SIZE = (int)(480 * AvdeviceLibrary.DV1394_PAL_PACKETS_PER_FRAME);
+	/// <i>native declaration : libavdevice/dv1394.h</i>
+	public static final int DV1394_NTSC_FRAME_SIZE = (int)(480 * AvdeviceLibrary.DV1394_NTSC_PACKETS_PER_FRAME);
+	public static native int ff_alsa_open(Pointer<AVFormatContext > s, AvdeviceLibrary.snd_pcm_stream_t mode, Pointer<Integer > sample_rate, int channels, Pointer<CodecID > codec_id);
+	public static native int ff_alsa_close(Pointer<AVFormatContext > s1);
+	public static native int ff_alsa_xrun_recover(Pointer<AVFormatContext > s1, int err);
+	public static native void avdevice_version();
+	public static native Pointer<Byte > avdevice_configuration();
+	public static native Pointer<Byte > avdevice_license();
+	public static native void avdevice_register_all();
+	/// Undefined type
+	public static interface snd_pcm_stream_t {
+		
+	};
+	/// Undefined type
+	public static interface snd_pcm_t {
+		
+	};
 }

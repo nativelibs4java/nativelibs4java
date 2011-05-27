@@ -21,19 +21,19 @@ public class AVFrame extends StructObject {
 	/// C type : uint8_t*[4]
 	@Array({4}) 
 	@Field(0) 
-	public Pointer<Pointer<java.lang.Byte > > data() {
+	public Pointer<Pointer<Byte > > data() {
 		return this.io.getPointerField(this, 0);
 	}
 	/// C type : int[4]
 	@Array({4}) 
 	@Field(1) 
-	public Pointer<java.lang.Integer > linesize() {
+	public Pointer<Integer > linesize() {
 		return this.io.getPointerField(this, 1);
 	}
 	/// C type : uint8_t*[4]
 	@Array({4}) 
 	@Field(2) 
-	public Pointer<Pointer<java.lang.Byte > > base() {
+	public Pointer<Pointer<Byte > > base() {
 		return this.io.getPointerField(this, 2);
 	}
 	@Field(3) 
@@ -142,17 +142,17 @@ public class AVFrame extends StructObject {
 	}
 	/// C type : int8_t*
 	@Field(11) 
-	public Pointer<java.lang.Byte > qscale_table() {
+	public Pointer<Byte > qscale_table() {
 		return this.io.getPointerField(this, 11);
 	}
 	/// C type : int8_t*
 	@Field(11) 
-	public AVFrame qscale_table(Pointer<java.lang.Byte > qscale_table) {
+	public AVFrame qscale_table(Pointer<Byte > qscale_table) {
 		this.io.setPointerField(this, 11, qscale_table);
 		return this;
 	}
 	/// C type : int8_t*
-	public final Pointer<java.lang.Byte > qscale_table_$eq(Pointer<java.lang.Byte > qscale_table) {
+	public final Pointer<Byte > qscale_table_$eq(Pointer<Byte > qscale_table) {
 		qscale_table(qscale_table);
 		return qscale_table;
 	}
@@ -171,39 +171,39 @@ public class AVFrame extends StructObject {
 	}
 	/// C type : uint8_t*
 	@Field(13) 
-	public Pointer<java.lang.Byte > mbskip_table() {
+	public Pointer<Byte > mbskip_table() {
 		return this.io.getPointerField(this, 13);
 	}
 	/// C type : uint8_t*
 	@Field(13) 
-	public AVFrame mbskip_table(Pointer<java.lang.Byte > mbskip_table) {
+	public AVFrame mbskip_table(Pointer<Byte > mbskip_table) {
 		this.io.setPointerField(this, 13, mbskip_table);
 		return this;
 	}
 	/// C type : uint8_t*
-	public final Pointer<java.lang.Byte > mbskip_table_$eq(Pointer<java.lang.Byte > mbskip_table) {
+	public final Pointer<Byte > mbskip_table_$eq(Pointer<Byte > mbskip_table) {
 		mbskip_table(mbskip_table);
 		return mbskip_table;
 	}
 	/// C type : int16_t[2]*[2]
 	@Array({2}) 
 	@Field(14) 
-	public Pointer<Pointer<Pointer<java.lang.Short > > > motion_val() {
+	public Pointer<Pointer<Pointer<Short > > > motion_val() {
 		return this.io.getPointerField(this, 14);
 	}
 	/// C type : uint32_t*
 	@Field(15) 
-	public Pointer<java.lang.Integer > mb_type() {
+	public Pointer<Integer > mb_type() {
 		return this.io.getPointerField(this, 15);
 	}
 	/// C type : uint32_t*
 	@Field(15) 
-	public AVFrame mb_type(Pointer<java.lang.Integer > mb_type) {
+	public AVFrame mb_type(Pointer<Integer > mb_type) {
 		this.io.setPointerField(this, 15, mb_type);
 		return this;
 	}
 	/// C type : uint32_t*
-	public final Pointer<java.lang.Integer > mb_type_$eq(Pointer<java.lang.Integer > mb_type) {
+	public final Pointer<Integer > mb_type_$eq(Pointer<Integer > mb_type) {
 		mb_type(mb_type);
 		return mb_type;
 	}
@@ -239,7 +239,7 @@ public class AVFrame extends StructObject {
 	/// C type : uint64_t[4]
 	@Array({4}) 
 	@Field(18) 
-	public Pointer<java.lang.Long > error() {
+	public Pointer<Long > error() {
 		return this.io.getPointerField(this, 18);
 	}
 	@Field(19) 
@@ -309,17 +309,17 @@ public class AVFrame extends StructObject {
 	}
 	/// C type : AVPanScan*
 	@Field(24) 
-	public Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPanScan > pan_scan() {
+	public Pointer<AVPanScan > pan_scan() {
 		return this.io.getPointerField(this, 24);
 	}
 	/// C type : AVPanScan*
 	@Field(24) 
-	public AVFrame pan_scan(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPanScan > pan_scan) {
+	public AVFrame pan_scan(Pointer<AVPanScan > pan_scan) {
 		this.io.setPointerField(this, 24, pan_scan);
 		return this;
 	}
 	/// C type : AVPanScan*
-	public final Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPanScan > pan_scan_$eq(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPanScan > pan_scan) {
+	public final Pointer<AVPanScan > pan_scan_$eq(Pointer<AVPanScan > pan_scan) {
 		pan_scan(pan_scan);
 		return pan_scan;
 	}
@@ -351,24 +351,24 @@ public class AVFrame extends StructObject {
 	}
 	/// C type : short*
 	@Field(27) 
-	public Pointer<java.lang.Short > dct_coeff() {
+	public Pointer<Short > dct_coeff() {
 		return this.io.getPointerField(this, 27);
 	}
 	/// C type : short*
 	@Field(27) 
-	public AVFrame dct_coeff(Pointer<java.lang.Short > dct_coeff) {
+	public AVFrame dct_coeff(Pointer<Short > dct_coeff) {
 		this.io.setPointerField(this, 27, dct_coeff);
 		return this;
 	}
 	/// C type : short*
-	public final Pointer<java.lang.Short > dct_coeff_$eq(Pointer<java.lang.Short > dct_coeff) {
+	public final Pointer<Short > dct_coeff_$eq(Pointer<Short > dct_coeff) {
 		dct_coeff(dct_coeff);
 		return dct_coeff;
 	}
 	/// C type : int8_t*[2]
 	@Array({2}) 
 	@Field(28) 
-	public Pointer<Pointer<java.lang.Byte > > ref_index() {
+	public Pointer<Pointer<Byte > > ref_index() {
 		return this.io.getPointerField(this, 28);
 	}
 	@Field(29) 
@@ -399,5 +399,31 @@ public class AVFrame extends StructObject {
 	public final Pointer<? > hwaccel_picture_private_$eq(Pointer<? > hwaccel_picture_private) {
 		hwaccel_picture_private(hwaccel_picture_private);
 		return hwaccel_picture_private;
+	}
+	@Field(31) 
+	public long pkt_pts() {
+		return this.io.getLongField(this, 31);
+	}
+	@Field(31) 
+	public AVFrame pkt_pts(long pkt_pts) {
+		this.io.setLongField(this, 31, pkt_pts);
+		return this;
+	}
+	public final long pkt_pts_$eq(long pkt_pts) {
+		pkt_pts(pkt_pts);
+		return pkt_pts;
+	}
+	@Field(32) 
+	public long pkt_dts() {
+		return this.io.getLongField(this, 32);
+	}
+	@Field(32) 
+	public AVFrame pkt_dts(long pkt_dts) {
+		this.io.setLongField(this, 32, pkt_dts);
+		return this;
+	}
+	public final long pkt_dts_$eq(long pkt_dts) {
+		pkt_dts(pkt_dts);
+		return pkt_dts;
 	}
 }

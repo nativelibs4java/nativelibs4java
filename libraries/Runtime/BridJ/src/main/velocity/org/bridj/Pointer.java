@@ -305,7 +305,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	 * @param p other pointer
 	 * @return 1 if this pointer's address is greater than p's (or if p is null), -1 if the opposite is true, 0 if this and p point to the same memory location.
 	 */
-	@Override
+	//@Override
     public int compareTo(Pointer<?> p) {
 		if (p == null)
 			return 1;
@@ -621,7 +621,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     	return new ListIterator<T>() {
     		Pointer<T> next = Pointer.this.getValidElements() != 0 ? Pointer.this : null;
     		Pointer<T> previous;
-    		@Override
+    		//@Override
 			public T next() {
 				if (next == null)
 					throw new NoSuchElementException();
@@ -631,37 +631,37 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 				next = valid < 0 || valid > 1 ? next.next(1) : null;
 				return value;
 			}
-			@Override
+			//@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
-			@Override
+			//@Override
 			public boolean hasNext() {
 				long rem;
 				return next != null && ((rem = next.getValidBytes()) < 0 || rem > 0);
 			}
-			@Override
+			//@Override
 			public void add(T o) {
 				throw new UnsupportedOperationException();
 			}
-			@Override
+			//@Override
 			public boolean hasPrevious() {
 				return previous != null;
 			}
-			@Override
+			//@Override
 			public int nextIndex() {
 				throw new UnsupportedOperationException();
 			}
-			@Override
+			//@Override
 			public T previous() {
 				//TODO return previous;
 				throw new UnsupportedOperationException();
 			}
-			@Override
+			//@Override
 			public int previousIndex() {
 				throw new UnsupportedOperationException();
 			}
-			@Override
+			//@Override
 			public void set(T o) {
 				if (previous == null)
 					throw new NoSuchElementException("You haven't called next() prior to calling ListIterator.set(E)");
@@ -1074,7 +1074,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 			assert sibling == null;
 			return new Pointer<U>(io, peer, ordered, validStart, validEnd, parent, offsetInParent, sibling) {
 				private volatile Releaser rel = releaser;
-				@Override
+				//@Override
 				public synchronized void release() {
 					if (rel != null) {
 						Releaser rel = this.rel;
@@ -1091,7 +1091,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 					final Releaser thisReleaser = rel;
 					rel = null;
 					return newPointer(getIO(), getPeer(), isOrdered(), getValidStart(), getValidEnd(), null, NO_PARENT, beforeDeallocation == null ? thisReleaser : new Releaser() {
-						@Override
+						//@Override
 						public void release(Pointer<?> p) {
 							beforeDeallocation.release(p);
 							if (thisReleaser != null)
@@ -1248,7 +1248,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         	throw new RuntimeException("Failed to allocate " + byteSize);
 
 		return newPointer(io, address, true, address, address + byteSize, null, NO_PARENT, beforeDeallocation == null ? freeReleaser : new Releaser() {
-        	@Override
+        	//@Override
         	public void release(Pointer<?> p) {
         		beforeDeallocation.release(p);
         		freeReleaser.release(p);
@@ -1268,7 +1268,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     }
     static Releaser freeReleaser = new FreeReleaser();
     static class FreeReleaser implements Releaser {
-    	@Override
+    	//@Override
 		public void release(Pointer<?> p) {
 			assert p.getSibling() == null;
 			assert p.validStart == p.getPeer();
@@ -1352,7 +1352,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         if (buffer == null)
 			throw new IllegalArgumentException("Cannot update a null Buffer !");
 		
-		if (buffer.isDirect()) {
+		if (Utils.isDirect(buffer)) {
 			long address = JNI.getDirectBufferAddress(buffer);
 			if (address != getPeer()) {
 				throw new IllegalArgumentException("Direct buffer does not point to the same location as this Pointer instance, updating it makes no sense !");
@@ -2554,7 +2554,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         final int len = strings.length;
         final Pointer<$eltWrapper>[] pointers = (Pointer<$eltWrapper>[])new Pointer[len];
         Pointer<Pointer<$eltWrapper>> mem = allocateArray((PointerIO<Pointer<$eltWrapper>>)(PointerIO)PointerIO.getPointerInstance(${eltWrapper}.class), len, new Releaser() {
-        	@Override
+        	//@Override
         	public void release(Pointer<?> p) {
         		Pointer<Pointer<$eltWrapper>> mem = (Pointer<Pointer<$eltWrapper>>)p;
         		for (int i = 0; i < len; i++) {

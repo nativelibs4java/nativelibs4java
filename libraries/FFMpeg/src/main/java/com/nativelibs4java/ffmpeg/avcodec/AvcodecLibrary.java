@@ -1,9 +1,6 @@
 package com.nativelibs4java.ffmpeg.avcodec;
-import static com.nativelibs4java.ffmpeg.avcodec.AvcodecLibrary.*;
-import static com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.*;
 import com.nativelibs4java.ffmpeg.avutil.AVRational;
-import static com.nativelibs4java.ffmpeg.avutil.AvutilLibrary.*;
-import static com.nativelibs4java.ffmpeg.swscale.SwscaleLibrary.*;
+import com.nativelibs4java.ffmpeg.swscale.SwscaleLibrary.PixelFormat;
 import java.util.Collections;
 import java.util.Iterator;
 import org.bridj.BridJ;
@@ -11,10 +8,8 @@ import org.bridj.Callback;
 import org.bridj.FlagSet;
 import org.bridj.IntValuedEnum;
 import org.bridj.Pointer;
-import org.bridj.TypedPointer;
 import org.bridj.ValuedEnum;
 import org.bridj.ann.Library;
-import org.bridj.ann.Name;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Runtime;
 import org.bridj.cpp.CPPRuntime;
@@ -30,7 +25,7 @@ public class AvcodecLibrary {
 	static {
 		BridJ.register();
 	}
-	public enum CodecID implements org.bridj.IntValuedEnum<CodecID > {
+	public enum CodecID implements IntValuedEnum<CodecID > {
 		CODEC_ID_NONE(0),
 		CODEC_ID_MPEG1VIDEO(1),
 		CODEC_ID_MPEG2VIDEO(2),
@@ -178,6 +173,13 @@ public class AvcodecLibrary {
 		CODEC_ID_KGV1(144),
 		CODEC_ID_YOP(145),
 		CODEC_ID_VP8(146),
+		CODEC_ID_PICTOR(147),
+		CODEC_ID_ANSI(148),
+		CODEC_ID_A64_MULTI(149),
+		CODEC_ID_A64_MULTI5(150),
+		CODEC_ID_R10K(151),
+		CODEC_ID_MXPEG(152),
+		CODEC_ID_LAGARITH(153),
 		CODEC_ID_PCM_S16LE(0x10000),
 		CODEC_ID_PCM_S16BE(65537),
 		CODEC_ID_PCM_U16LE(65538),
@@ -203,6 +205,7 @@ public class AvcodecLibrary {
 		CODEC_ID_PCM_F64BE(65558),
 		CODEC_ID_PCM_F64LE(65559),
 		CODEC_ID_PCM_BLURAY(65560),
+		CODEC_ID_PCM_LXF(65561),
 		CODEC_ID_ADPCM_IMA_QT(0x11000),
 		CODEC_ID_ADPCM_IMA_WAV(69633),
 		CODEC_ID_ADPCM_IMA_DK3(69634),
@@ -231,6 +234,7 @@ public class AvcodecLibrary {
 		CODEC_ID_ADPCM_EA_XAS(69657),
 		CODEC_ID_ADPCM_EA_MAXIS_XA(69658),
 		CODEC_ID_ADPCM_IMA_ISS(69659),
+		CODEC_ID_ADPCM_G722(69660),
 		CODEC_ID_AMR_NB(0x12000),
 		CODEC_ID_AMR_WB(73729),
 		CODEC_ID_RA_144(0x13000),
@@ -291,6 +295,7 @@ public class AvcodecLibrary {
 		CODEC_ID_ATRAC1(86065),
 		CODEC_ID_BINKAUDIO_RDFT(86066),
 		CODEC_ID_BINKAUDIO_DCT(86067),
+		CODEC_ID_AAC_LATM(86068),
 		CODEC_ID_DVD_SUBTITLE(0x17000),
 		CODEC_ID_DVB_SUBTITLE(94209),
 		CODEC_ID_TEXT(94210),
@@ -299,9 +304,11 @@ public class AvcodecLibrary {
 		CODEC_ID_MOV_TEXT(94213),
 		CODEC_ID_HDMV_PGS_SUBTITLE(94214),
 		CODEC_ID_DVB_TELETEXT(94215),
+		CODEC_ID_SRT(94216),
 		CODEC_ID_TTF(0x18000),
 		CODEC_ID_PROBE(0x19000),
-		CODEC_ID_MPEG2TS(0x20000);
+		CODEC_ID_MPEG2TS(0x20000),
+		CODEC_ID_FFMETADATA(0x21000);
 		CodecID(long value) {
 			this.value = value;
 		}
@@ -316,29 +323,7 @@ public class AvcodecLibrary {
 			return FlagSet.fromValue(value, values());
 		}
 	};
-	public enum SampleFormat implements org.bridj.IntValuedEnum<SampleFormat > {
-		SAMPLE_FMT_NONE(-1),
-		SAMPLE_FMT_U8(0),
-		SAMPLE_FMT_S16(1),
-		SAMPLE_FMT_S32(2),
-		SAMPLE_FMT_FLT(3),
-		SAMPLE_FMT_DBL(4),
-		SAMPLE_FMT_NB(5);
-		SampleFormat(long value) {
-			this.value = value;
-		}
-		public final long value;
-		public long value() {
-			return this.value;
-		}
-		public Iterator<SampleFormat > iterator() {
-			return Collections.singleton(this).iterator();
-		}
-		public static ValuedEnum<SampleFormat > fromValue(long value) {
-			return FlagSet.fromValue(value, values());
-		}
-	};
-	public enum Motion_Est_ID implements org.bridj.IntValuedEnum<Motion_Est_ID > {
+	public enum Motion_Est_ID implements IntValuedEnum<Motion_Est_ID > {
 		ME_ZERO(1),
 		ME_FULL(2),
 		ME_LOG(3),
@@ -363,7 +348,7 @@ public class AvcodecLibrary {
 			return FlagSet.fromValue(value, values());
 		}
 	};
-	public enum AVDiscard implements org.bridj.IntValuedEnum<AVDiscard > {
+	public enum AVDiscard implements IntValuedEnum<AVDiscard > {
 		AVDISCARD_NONE(-16),
 		AVDISCARD_DEFAULT(0),
 		AVDISCARD_NONREF(8),
@@ -384,7 +369,7 @@ public class AvcodecLibrary {
 			return FlagSet.fromValue(value, values());
 		}
 	};
-	public enum AVColorPrimaries implements org.bridj.IntValuedEnum<AVColorPrimaries > {
+	public enum AVColorPrimaries implements IntValuedEnum<AVColorPrimaries > {
 		AVCOL_PRI_BT709(1),
 		AVCOL_PRI_UNSPECIFIED(2),
 		AVCOL_PRI_BT470M(4),
@@ -407,7 +392,7 @@ public class AvcodecLibrary {
 			return FlagSet.fromValue(value, values());
 		}
 	};
-	public enum AVColorTransferCharacteristic implements org.bridj.IntValuedEnum<AVColorTransferCharacteristic > {
+	public enum AVColorTransferCharacteristic implements IntValuedEnum<AVColorTransferCharacteristic > {
 		AVCOL_TRC_BT709(1),
 		AVCOL_TRC_UNSPECIFIED(2),
 		AVCOL_TRC_GAMMA22(4),
@@ -427,7 +412,7 @@ public class AvcodecLibrary {
 			return FlagSet.fromValue(value, values());
 		}
 	};
-	public enum AVColorSpace implements org.bridj.IntValuedEnum<AVColorSpace > {
+	public enum AVColorSpace implements IntValuedEnum<AVColorSpace > {
 		AVCOL_SPC_RGB(0),
 		AVCOL_SPC_BT709(1),
 		AVCOL_SPC_UNSPECIFIED(2),
@@ -450,7 +435,7 @@ public class AvcodecLibrary {
 			return FlagSet.fromValue(value, values());
 		}
 	};
-	public enum AVColorRange implements org.bridj.IntValuedEnum<AVColorRange > {
+	public enum AVColorRange implements IntValuedEnum<AVColorRange > {
 		AVCOL_RANGE_UNSPECIFIED(0),
 		AVCOL_RANGE_MPEG(1),
 		AVCOL_RANGE_JPEG(2),
@@ -469,7 +454,7 @@ public class AvcodecLibrary {
 			return FlagSet.fromValue(value, values());
 		}
 	};
-	public enum AVChromaLocation implements org.bridj.IntValuedEnum<AVChromaLocation > {
+	public enum AVChromaLocation implements IntValuedEnum<AVChromaLocation > {
 		AVCHROMA_LOC_UNSPECIFIED(0),
 		AVCHROMA_LOC_LEFT(1),
 		AVCHROMA_LOC_CENTER(2),
@@ -492,7 +477,28 @@ public class AvcodecLibrary {
 			return FlagSet.fromValue(value, values());
 		}
 	};
-	public enum AVSubtitleType implements org.bridj.IntValuedEnum<AVSubtitleType > {
+	public enum AVLPCType implements IntValuedEnum<AVLPCType > {
+		AV_LPC_TYPE_DEFAULT(-1),
+		AV_LPC_TYPE_NONE(0),
+		AV_LPC_TYPE_FIXED(1),
+		AV_LPC_TYPE_LEVINSON(2),
+		AV_LPC_TYPE_CHOLESKY(3),
+		AV_LPC_TYPE_NB(4);
+		AVLPCType(long value) {
+			this.value = value;
+		}
+		public final long value;
+		public long value() {
+			return this.value;
+		}
+		public Iterator<AVLPCType > iterator() {
+			return Collections.singleton(this).iterator();
+		}
+		public static ValuedEnum<AVLPCType > fromValue(long value) {
+			return FlagSet.fromValue(value, values());
+		}
+	};
+	public enum AVSubtitleType implements IntValuedEnum<AVSubtitleType > {
 		SUBTITLE_NONE(0),
 		SUBTITLE_BITMAP(1),
 		SUBTITLE_TEXT(2),
@@ -511,7 +517,7 @@ public class AvcodecLibrary {
 			return FlagSet.fromValue(value, values());
 		}
 	};
-	public enum AVLockOp implements org.bridj.IntValuedEnum<AVLockOp > {
+	public enum AVLockOp implements IntValuedEnum<AVLockOp > {
 		AV_LOCK_CREATE(0),
 		AV_LOCK_OBTAIN(1),
 		AV_LOCK_RELEASE(2),
@@ -530,790 +536,724 @@ public class AvcodecLibrary {
 			return FlagSet.fromValue(value, values());
 		}
 	};
+	/**
+	 * Conversion Error : a.num<br>
+	 * SKIPPED:<br>
+	 * <i>native declaration : libavutil/rational.h</i><br>
+	 * const int64_t tmp = a.num * (int64_t)b.den - b.num * (int64_t)a.den;
+	 */
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_CLOSED_GOP = -2147483648;
+	public static final int CODEC_FLAG_CLOSED_GOP = (int)-2147483648;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_STRICT_GOP = 2;
+	public static final int CODEC_FLAG2_STRICT_GOP = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_ALTIVEC = 8;
+	public static final int FF_IDCT_ALTIVEC = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_BUFFERS = 32768;
+	public static final int CODEC_FLAG_GRAY = (int)8192;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int X264_PART_I8X8 = 2;
+	public static final int FF_MB_DECISION_BITS = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_AMV = 32;
+	public static final int AVPALETTE_SIZE = (int)1024;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_GRAY = 8192;
+	public static final int X264_PART_P4X4 = (int)32;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_16x8 = 16;
+	public static final int FF_MB_DECISION_SIMPLE = (int)0;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MB_DECISION_BITS = 1;
+	public static final int CODEC_FLAG_SVCD_SCAN_OFFSET = (int)1073741824;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int AVPALETTE_SIZE = 1024;
+	public static final int FF_ER_CAREFUL = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_EMU_EDGE = 16384;
+	public static final int CODEC_FLAG2_AUD = (int)512;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_MLIB = 6;
+	public static final int FF_DTG_AFD_16_9_SP_14_9 = (int)14;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int X264_PART_P4X4 = 32;
+	public static final int MB_TYPE_P0L1 = (int)16384;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MB_DECISION_SIMPLE = 0;
+	public static final int FF_PROFILE_DTS_HD_HRA = (int)50;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_SVCD_SCAN_OFFSET = 1073741824;
+	public static final int CODEC_FLAG_BITEXACT = (int)8388608;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_ER_CAREFUL = 1;
+	public static final int FF_IDCT_INT = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_FRONT_LEFT_OF_CENTER = 64;
+	public static final int CODEC_FLAG_H263P_SLICE_STRUCT = (int)268435456;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_AUD = 512;
+	public static final int MB_TYPE_P0L0 = (int)4096;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DTG_AFD_16_9_SP_14_9 = 14;
+	public static final int FF_LOSS_DEPTH = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_P0L1 = 16384;
+	public static final int FF_IDCT_EA = (int)21;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_H264_HIGH = 100;
+	public static final int FF_QSCALE_TYPE_MPEG1 = (int)0;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int SLICE_FLAG_ALLOW_PLANE = 4;
+	public static final int FF_QSCALE_TYPE_MPEG2 = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_LOSS_RESOLUTION = 1;
+	public static final int FF_IDCT_ARM = (int)7;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_PSNR = 4;
+	public static final int FF_IDCT_IPP = (int)13;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DTG_AFD_14_9 = 11;
+	public static final int FF_IDCT_XVIDMMX = (int)14;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_BITEXACT = 8388608;
+	public static final int MB_TYPE_QUANT = (int)65536;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_LOSS_CHROMA = 32;
+	public static final int FF_CMP_RD = (int)6;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_INT = 1;
+	public static final int X264_PART_I4X4 = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_H263P_SLICE_STRUCT = 268435456;
+	public static final int FF_BUG_TRUNCATED = (int)16384;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_MMX2 = 2;
+	public static final int FF_BUG_XVID_ILACE = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_LOW_DELAY = 524288;
+	public static final int FF_IDCT_CAVS = (int)15;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_P0L0 = 4096;
+	public static final int FF_RC_STRATEGY_XVID = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_INTERLACED_ME = 536870912;
+	public static final int FF_CODER_TYPE_DEFLATE = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_LOSS_DEPTH = 2;
+	public static final int FF_PROFILE_AAC_LTP = (int)3;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_EA = 21;
+	public static final int FF_IDCT_SIMPLEVIS = (int)18;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_QP = 16;
+	public static final int AV_PARSER_PTS_NB = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_QSCALE_TYPE_MPEG1 = 0;
+	public static final int FF_LOSS_ALPHA = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_QSCALE_TYPE_MPEG2 = 1;
+	public static final int FF_PROFILE_AAC_LOW = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_ARM = 7;
+	public static final int CODEC_CAP_SUBFRAMES = (int)256;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_RC = 2;
+	public static final int CODEC_FLAG_EXTERN_HUFF = (int)4096;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_IPP = 13;
+	public static final int FF_DEBUG_VIS_MV_B_BACK = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_XVIDMMX = 14;
+	public static final int FF_CMP_W97 = (int)12;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_QUANT = 65536;
+	public static final int FF_IDCT_SIMPLEARMV6 = (int)17;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_SIDE_LEFT = 512;
+	public static final int FF_CODER_TYPE_AC = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_RD = 6;
+	public static final int FF_COMPLIANCE_INOFFICIAL = (int)-1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_WPRED = 32;
+	public static final int FF_BUG_QPEL_CHROMA = (int)64;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int X264_PART_I4X4 = 1;
+	public static final int PARSER_FLAG_FETCHED_OFFSET = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_CAP_DRAW_HORIZ_BAND = 1;
+	public static final int FF_CMP_W53 = (int)11;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_MMX = 1;
+	public static final int FF_IDCT_WMV2 = (int)19;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_TRUNCATED = 16384;
+	public static final int FF_AA_INT = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_XVID_ILACE = 4;
+	public static final int FF_DTG_AFD_SAME = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_CAVS = 15;
+	public static final int FF_BUFFER_TYPE_USER = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DCT_AUTO = 0;
+	public static final int FF_P_TYPE = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_RC_STRATEGY_XVID = 1;
+	public static final int FF_BUFFER_TYPE_COPY = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_INTRA4x4 = 1;
+	public static final int FF_CMP_DCT = (int)3;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CODER_TYPE_DEFLATE = 4;
+	public static final int FF_LOSS_COLORSPACE = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_AAC_LTP = 3;
+	public static final int FF_ALPHA_SEMI_TRANSP = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_SIMPLEVIS = 18;
+	public static final int FF_DTG_AFD_4_3_SP_14_9 = (int)13;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_ALT_SCAN = 1048576;
+	public static final int FF_DCT_ALTIVEC = (int)5;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int AV_PARSER_PTS_NB = 4;
+	public static final int FF_BUG_AC_VLC = (int)0;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_LOSS_ALPHA = 8;
+	public static final int FF_BUG_NO_PADDING = (int)16;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_AAC_LOW = 1;
+	public static final int FF_CMP_DCTMAX = (int)13;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_TOP_BACK_RIGHT = 131072;
+	public static final int FF_CMP_ZERO = (int)7;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_CAP_SUBFRAMES = 256;
+	public static final int FF_EC_GUESS_MVS = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_EXTERN_HUFF = 4096;
+	public static final int FF_CMP_CHROMA = (int)256;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_CAP_EXPERIMENTAL = 512;
+	public static final int CODEC_FLAG_CBP_RD = (int)67108864;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_INTRA_VLC = 2048;
+	public static final int FF_DEBUG_BUGS = (int)4096;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_VIS_MV_B_BACK = 4;
+	public static final int FF_AA_FLOAT = (int)3;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_IWMMXT = 256;
+	public static final int FF_DEBUG_ER = (int)1024;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_TOP_BACK_CENTER = 65536;
+	public static final int FF_CODER_TYPE_VLC = (int)0;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_ASPECT_EXTENDED = 15;
+	public static final int FF_BUG_QPEL_CHROMA2 = (int)256;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MB_DECISION_RD = 2;
+	public static final int FF_SP_TYPE = (int)6;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_W97 = 12;
+	public static final int FF_COMPLIANCE_VERY_STRICT = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_SIMPLEARMV6 = 17;
+	public static final int FF_BUFFER_TYPE_INTERNAL = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_QP2LAMBDA = 118;
+	public static final int MB_TYPE_8x16 = (int)32;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CODER_TYPE_AC = 1;
+	public static final int FF_PROFILE_H264_HIGH_444 = (int)244;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_COMPLIANCE_INOFFICIAL = -1;
+	public static final int CODEC_FLAG_TRUNCATED = (int)65536;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_NON_LINEAR_QUANT = 65536;
+	public static final int FF_CMP_SSE = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_TOP_CENTER = 2048;
+	public static final int FF_DEBUG_STARTCODE = (int)256;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_CAP_DR1 = 2;
+	public static final int FF_PROFILE_H264_HIGH_422 = (int)122;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_QPEL_CHROMA = 64;
+	public static final int FF_LEVEL_UNKNOWN = (int)-99;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_W53 = 11;
+	public static final int CODEC_FLAG2_NO_OUTPUT = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_STD_QPEL = 128;
+	public static final int FF_INPUT_BUFFER_PADDING_SIZE = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_WMV2 = 19;
+	public static final int FF_DTG_AFD_16_9 = (int)10;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_AA_INT = 2;
+	public static final int FF_DEBUG_MV = (int)32;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_INTRA16x16 = 2;
+	public static final int FF_DEBUG_VIS_MB_TYPE = (int)16384;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_VP3 = 12;
+	public static final int FF_IDCT_SIMPLEARMV5TE = (int)16;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DTG_AFD_SAME = 8;
+	public static final int FF_CMP_NSSE = (int)10;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUFFER_TYPE_USER = 2;
+	public static final int FF_DCT_MMX = (int)3;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_H263P_UMV = 33554432;
+	public static final int FF_CMP_SATD = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_SIMPLEALPHA = 23;
+	public static final int FF_CMP_SAD = (int)0;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_BIT_RESERVOIR = 131072;
+	public static final int FF_DCT_MLIB = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_P_TYPE = 2;
+	public static final int FF_LOSS_COLORQUANT = (int)16;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_QSCALE = 2;
+	public static final int FF_BUFFER_HINTS_REUSABLE = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_ACPRED = 512;
+	public static final int FF_ER_AGGRESSIVE = (int)3;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUFFER_TYPE_COPY = 8;
+	public static final int CODEC_CAP_TRUNCATED = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_INPUT_PRESERVED = 256;
+	public static final int FF_QSCALE_TYPE_VP56 = (int)3;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int AVPALETTE_COUNT = 256;
+	public static final int MB_TYPE_GMC = (int)1024;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_COMPRESSION_DEFAULT = -1;
+	public static final int AVCODEC_MAX_AUDIO_FRAME_SIZE = (int)192000;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_ER_VERY_AGGRESSIVE = 4;
+	public static final int PARSER_FLAG_ONCE = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_H264_EXTENDED = 88;
+	public static final int CODEC_FLAG_4MV = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_LIBMPEG2MMX = 4;
+	public static final int CODEC_FLAG2_LOCAL_HEADER = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_COMPLIANCE_NORMAL = 0;
+	public static final int FF_BUG_OLD_MSMPEG4 = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_FRONT_LEFT = 1;
+	public static final int FF_IDCT_PS2 = (int)5;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_CAP_HWACCEL = 16;
+	public static final int CODEC_FLAG2_BRDO = (int)1024;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_FASTPSKIP = 256;
+	public static final int FF_SI_TYPE = (int)5;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_MMXEXT = 2;
+	public static final int CODEC_FLAG_NORMALIZE_AQP = (int)131072;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_FORCE = -2147483648;
+	public static final int CODEC_FLAG2_PSY = (int)524288;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_TOP_BACK_LEFT = 32768;
+	public static final int SLICE_FLAG_CODED_ORDER = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_DCT = 3;
+	public static final int CODEC_FLAG2_INTRA_REFRESH = (int)2097152;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_SIMPLEARM = 10;
+	public static final int FF_PROFILE_H264_HIGH_10 = (int)110;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_3DNOW = 4;
+	public static final int CODEC_FLAG_MV0 = (int)64;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_GLOBAL_HEADER = 4194304;
+	public static final int MB_TYPE_INTERLACED = (int)128;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int LIBAVCODEC_VERSION_MAJOR = 52;
+	public static final int FF_DEBUG_MMCO = (int)2048;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_CAP_SMALL_LAST_FRAME = 64;
+	public static final int FF_BUG_HPEL_CHROMA = (int)2048;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_LOSS_COLORSPACE = 4;
+	public static final int FF_EC_DEBLOCK = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_H264 = 11;
+	public static final int FF_PROFILE_AAC_MAIN = (int)0;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_ALPHA_SEMI_TRANSP = 2;
+	public static final int FF_BUG_EDGE = (int)1024;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_TOP_FRONT_RIGHT = 16384;
+	public static final int CODEC_FLAG2_CHUNKS = (int)32768;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DTG_AFD_4_3_SP_14_9 = 13;
+	public static final int FF_BUFFER_HINTS_VALID = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DCT_ALTIVEC = 5;
+	public static final int MB_TYPE_DIRECT2 = (int)256;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_AC_VLC = 0;
+	public static final int FF_PRED_LEFT = (int)0;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_NO_PADDING = 16;
+	public static final int FF_BUG_AUTODETECT = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_DCTMAX = 13;
+	public static final int CODEC_FLAG_OBMC = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_SIMPLE = 2;
+	public static final int FF_COMPLIANCE_EXPERIMENTAL = (int)-2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_UNKNOWN = -99;
+	public static final int CODEC_FLAG2_BPYRAMID = (int)16;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_TOP_FRONT_LEFT = 4096;
+	public static final int FF_PROFILE_AAC_SSR = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_INTRA_PCM = 4;
+	public static final int CODEC_FLAG_PSNR = (int)32768;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int X264_PART_B8X8 = 256;
+	public static final int CODEC_FLAG_H263P_AIV = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_ZERO = 7;
+	public static final int FF_DCT_FAAN = (int)6;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_LAMBDA_SHIFT = 7;
+	public static final int FF_CMP_BIT = (int)5;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_GMC = 32;
+	public static final int FF_DEBUG_PTS = (int)512;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_DIRECT_BLOCKSIZE = 512;
+	public static final int FF_DTG_AFD_4_3 = (int)9;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_FRONT_RIGHT_OF_CENTER = 128;
+	public static final int CODEC_FLAG_LOOP_FILTER = (int)2048;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_EC_GUESS_MVS = 1;
+	public static final int CODEC_CAP_PARSE_ONLY = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int LIBAVCODEC_VERSION_MICRO = 2;
+	public static final int CODEC_FLAG2_DROP_FRAME_TIMECODE = (int)8192;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_CHROMA = 256;
+	public static final int FF_DCT_FASTINT = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_CBP_RD = 67108864;
+	public static final int CODEC_FLAG_AC_PRED = (int)16777216;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_BUGS = 4096;
+	public static final int FF_BUG_UMP4 = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_TOP_FRONT_CENTER = 8192;
+	public static final int FF_BI_TYPE = (int)7;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_AA_FLOAT = 3;
+	public static final int FF_ALPHA_TRANSP = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_S_TYPE = 4;
+	public static final int FF_DEBUG_BUFFERS = (int)32768;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_ER = 1024;
+	public static final int X264_PART_I8X8 = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CODER_TYPE_RLE = 3;
+	public static final int FF_BUG_AMV = (int)32;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CODER_TYPE_VLC = 0;
+	public static final int MB_TYPE_16x8 = (int)16;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_QPEL_CHROMA2 = 256;
+	public static final int CODEC_FLAG_EMU_EDGE = (int)16384;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_SP_TYPE = 6;
+	public static final int FF_IDCT_MLIB = (int)6;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_MIXED_REFS = 64;
+	public static final int FF_PROFILE_H264_HIGH = (int)100;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_COMPLIANCE_VERY_STRICT = 2;
+	public static final int SLICE_FLAG_ALLOW_PLANE = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_LAMBDA_MAX = (256 * 128 - 1);
+	public static final int FF_LOSS_RESOLUTION = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUFFER_TYPE_INTERNAL = 1;
+	public static final int FF_CMP_PSNR = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_8x16 = 32;
+	public static final int FF_DTG_AFD_14_9 = (int)11;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_H264_HIGH_444 = 244;
+	public static final int FF_LOSS_CHROMA = (int)32;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_TRUNCATED = 65536;
+	public static final int FF_PROFILE_DTS_ES = (int)30;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_SSE = 1;
+	public static final int CODEC_CAP_CHANNEL_CONF = (int)1024;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_STARTCODE = 256;
+	public static final int CODEC_FLAG_LOW_DELAY = (int)524288;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUFFER_HINTS_PRESERVE = 4;
+	public static final int FF_PROFILE_DTS_96_24 = (int)40;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_PART = 128;
+	public static final int CODEC_FLAG_INTERLACED_ME = (int)536870912;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_H264_HIGH_422 = 122;
+	public static final int FF_DEBUG_QP = (int)16;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_B_TYPE = 3;
+	public static final int FF_DEBUG_RC = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_LEVEL_UNKNOWN = -99;
+	public static final int CODEC_FLAG2_WPRED = (int)32;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_NO_OUTPUT = 4;
+	public static final int CODEC_CAP_DRAW_HORIZ_BAND = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_SH4 = 9;
+	public static final int FF_DCT_AUTO = (int)0;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_INPUT_BUFFER_PADDING_SIZE = 8;
+	public static final int MB_TYPE_INTRA4x4 = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DTG_AFD_16_9 = 10;
+	public static final int CODEC_CAP_NEG_LINESIZES = (int)2048;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_BACK_RIGHT = 32;
+	public static final int CODEC_FLAG_ALT_SCAN = (int)1048576;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_AUTO = 0;
+	public static final int CODEC_CAP_EXPERIMENTAL = (int)512;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_INTERLACED_DCT = 262144;
+	public static final int CODEC_FLAG2_INTRA_VLC = (int)2048;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_MV = 32;
+	public static final int FF_ASPECT_EXTENDED = (int)15;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_ALTIVEC = 1;
+	public static final int FF_MB_DECISION_RD = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_PASS2 = 1024;
+	public static final int CODEC_FLAG2_NON_LINEAR_QUANT = (int)65536;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_PASS1 = 512;
+	public static final int CODEC_CAP_DR1 = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_SIMPLEMMX = 3;
+	public static final int FF_BUG_STD_QPEL = (int)128;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PRED_PLANE = 1;
+	public static final int MB_TYPE_INTRA16x16 = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_VIS_MB_TYPE = 16384;
+	public static final int FF_IDCT_VP3 = (int)12;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_BACK_CENTER = 256;
+	public static final int CODEC_FLAG_H263P_UMV = (int)33554432;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_ER_COMPLIANT = 2;
+	public static final int FF_IDCT_SIMPLEALPHA = (int)23;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_VSSE = 9;
+	public static final int CODEC_FLAG2_BIT_RESERVOIR = (int)131072;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_SIMPLEARMV5TE = 16;
+	public static final int CODEC_FLAG_QSCALE = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_NSSE = 10;
+	public static final int MB_TYPE_ACPRED = (int)512;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_SSE42 = 512;
+	public static final int CODEC_FLAG_INPUT_PRESERVED = (int)256;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DCT_MMX = 3;
+	public static final int AVPALETTE_COUNT = (int)256;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int PARSER_FLAG_COMPLETE_FRAMES = 1;
+	public static final int FF_COMPRESSION_DEFAULT = (int)-1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_SATD = 2;
+	public static final int FF_ER_VERY_AGGRESSIVE = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_FRONT_CENTER = 4;
+	public static final int FF_PROFILE_H264_EXTENDED = (int)88;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_STEREO_RIGHT = 1073741824;
+	public static final int FF_IDCT_LIBMPEG2MMX = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_DCT_COEFF = 64;
+	public static final int FF_COMPLIANCE_NORMAL = (int)0;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_SAD = 0;
+	public static final int CODEC_CAP_HWACCEL = (int)16;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DCT_MLIB = 4;
+	public static final int CODEC_FLAG2_FASTPSKIP = (int)256;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_SKIP_RD = 16384;
+	public static final int FF_IDCT_SIMPLEARM = (int)10;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_LOSS_COLORQUANT = 16;
+	public static final int CODEC_FLAG_GLOBAL_HEADER = (int)4194304;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CODER_TYPE_RAW = 2;
+	public static final int LIBAVCODEC_VERSION_MAJOR = (int)52;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int SLICE_FLAG_ALLOW_FIELD = 2;
+	public static final int CODEC_CAP_SMALL_LAST_FRAME = (int)64;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUFFER_HINTS_REUSABLE = 8;
+	public static final int FF_IDCT_H264 = (int)11;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_MB_TYPE = 8;
+	public static final int FF_IDCT_SIMPLE = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_3DNOWEXT = 32;
+	public static final int FF_PROFILE_UNKNOWN = (int)-99;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_SSIM = 1048576;
+	public static final int MB_TYPE_INTRA_PCM = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_ER_AGGRESSIVE = 3;
+	public static final int X264_PART_B8X8 = (int)256;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_CBP = 131072;
+	public static final int CODEC_FLAG_GMC = (int)32;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int AV_TIME_BASE = 1000000;
+	public static final int FF_BUG_DIRECT_BLOCKSIZE = (int)512;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_CAP_TRUNCATED = 8;
+	public static final int LIBAVCODEC_VERSION_MICRO = (int)0;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_AA_AUTO = 0;
+	public static final int FF_S_TYPE = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_QSCALE_TYPE_VP56 = 3;
+	public static final int FF_CODER_TYPE_RLE = (int)3;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEFAULT_QUANT_BIAS = 999999;
+	public static final int CODEC_FLAG2_MIXED_REFS = (int)64;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_SSSE3 = 128;
+	public static final int FF_BUFFER_HINTS_PRESERVE = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_H264_BASELINE = 66;
+	public static final int CODEC_FLAG_PART = (int)128;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_GMC = 1024;
+	public static final int FF_PROFILE_DTS = (int)20;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_SSE2 = 16;
+	public static final int FF_B_TYPE = (int)3;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_SSE3 = 64;
+	public static final int FF_IDCT_SH4 = (int)9;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_SSE4 = 256;
+	public static final int FF_IDCT_AUTO = (int)0;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_MBTREE = 262144;
+	public static final int CODEC_FLAG_INTERLACED_DCT = (int)262144;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int AVCODEC_MAX_AUDIO_FRAME_SIZE = 192000;
+	public static final int CODEC_FLAG_PASS2 = (int)1024;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_4MV = 4;
+	public static final int CODEC_FLAG_PASS1 = (int)512;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_LOCAL_HEADER = 8;
+	public static final int FF_PROFILE_DTS_HD_MA = (int)60;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_AA_FASTINT = 1;
+	public static final int FF_IDCT_SIMPLEMMX = (int)3;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_OLD_MSMPEG4 = 2;
+	public static final int FF_PRED_PLANE = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_PICT_INFO = 1;
+	public static final int FF_ER_COMPLIANT = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DCT_INT = 2;
+	public static final int FF_CMP_VSSE = (int)9;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_SIMPLENEON = 22;
+	public static final int PARSER_FLAG_COMPLETE_FRAMES = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_PS2 = 5;
+	public static final int FF_DEBUG_DCT_COEFF = (int)64;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_BRDO = 1024;
+	public static final int CODEC_FLAG2_SKIP_RD = (int)16384;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_SI_TYPE = 5;
+	public static final int FF_CODER_TYPE_RAW = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_NORMALIZE_AQP = 131072;
+	public static final int SLICE_FLAG_ALLOW_FIELD = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MAX_B_FRAMES = 16;
+	public static final int FF_DEBUG_MB_TYPE = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int LIBAVCODEC_VERSION_MINOR = 72;
+	public static final int CODEC_FLAG2_SSIM = (int)1048576;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MIN_BUFFER_SIZE = 16384;
+	public static final int MB_TYPE_CBP = (int)131072;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_DC_CLIP = 4096;
+	public static final int FF_AA_AUTO = (int)0;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_8x8 = 64;
+	public static final int FF_DEFAULT_QUANT_BIAS = (int)999999;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_PSY = 524288;
+	public static final int FF_PROFILE_H264_BASELINE = (int)66;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_H264_CAVLC_444 = 44;
+	public static final int CODEC_FLAG2_MBTREE = (int)262144;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int SLICE_FLAG_CODED_ORDER = 1;
+	public static final int FF_AA_FASTINT = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_P1L1 = 32768;
+	public static final int FF_DEBUG_PICT_INFO = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_P1L0 = 8192;
+	public static final int FF_DCT_INT = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_H264_HIGH_10 = 110;
+	public static final int FF_IDCT_SIMPLENEON = (int)22;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final java.lang.String LIBAVCODEC_IDENT = "Lavc";
+	public static final int FF_MAX_B_FRAMES = (int)16;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_BINK = 24;
+	public static final int LIBAVCODEC_VERSION_MINOR = (int)108;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_MV0 = 64;
+	public static final int FF_MIN_BUFFER_SIZE = (int)16384;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_INTERLACED = 128;
+	public static final int FF_BUG_DC_CLIP = (int)4096;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_STEREO_LEFT = 536870912;
+	public static final int MB_TYPE_8x8 = (int)64;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_VIS_MV_B_FOR = 2;
+	public static final int FF_PROFILE_H264_CAVLC_444 = (int)44;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_MM_SSE = 8;
+	public static final int MB_TYPE_P1L1 = (int)32768;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int AV_PKT_FLAG_KEY = 1;
+	public static final int MB_TYPE_P1L0 = (int)8192;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_MEMC_ONLY = 4096;
+	public static final String LIBAVCODEC_IDENT = (String)"Lavc";
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DTG_AFD_SP_4_3 = 15;
+	public static final int FF_IDCT_BINK = (int)24;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_MMCO = 2048;
+	public static final int FF_COMPLIANCE_UNOFFICIAL = (int)-1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_COMPLIANCE_STRICT = 1;
+	public static final int FF_DEBUG_VIS_MV_B_FOR = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_HPEL_CHROMA = 2048;
+	public static final int AV_PKT_FLAG_KEY = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_VIS_QP = 8192;
+	public static final int CODEC_FLAG2_MEMC_ONLY = (int)4096;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_BITSTREAM = 4;
+	public static final int FF_DTG_AFD_SP_4_3 = (int)15;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_DCT264 = 14;
+	public static final int FF_COMPLIANCE_STRICT = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_EC_DEBLOCK = 2;
+	public static final int FF_DEBUG_VIS_QP = (int)8192;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_16x16 = 8;
+	public static final int FF_DEBUG_BITSTREAM = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_AAC_MAIN = 0;
+	public static final int FF_CMP_DCT264 = (int)14;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_EDGE = 1024;
+	public static final int MB_TYPE_16x16 = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_CAP_HWACCEL_VDPAU = 128;
+	public static final int CODEC_CAP_HWACCEL_VDPAU = (int)128;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_FAST = 1;
+	public static final int CODEC_FLAG2_FAST = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_CHUNKS = 32768;
+	public static final int FF_BUG_MS = (int)8192;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_MS = 8192;
+	public static final int CODEC_FLAG_QP_RD = (int)134217728;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_QP_RD = 134217728;
+	public static final int FF_IDCT_FAAN = (int)20;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_IDCT_FAAN = 20;
+	public static final int FF_BUFFER_HINTS_READABLE = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUFFER_HINTS_VALID = 1;
+	public static final int FF_I_TYPE = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_DIRECT2 = 256;
+	public static final int CODEC_FLAG_QPEL = (int)16;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PRED_LEFT = 0;
+	public static final int FF_PROFILE_H264_MAIN = (int)77;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUFFER_HINTS_READABLE = 2;
+	public static final int FF_BUFFER_TYPE_SHARED = (int)4;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_I_TYPE = 1;
+	public static final int CODEC_CAP_DELAY = (int)32;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_QPEL = 16;
+	public static final int FF_DEBUG_VIS_MV_P_FOR = (int)1;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_H264_MAIN = 77;
+	public static final int MB_TYPE_SKIP = (int)2048;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUFFER_TYPE_SHARED = 4;
+	public static final int X264_PART_P8X8 = (int)16;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_CAP_DELAY = 32;
+	public static final int CODEC_FLAG2_8X8DCT = (int)128;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_AUTODETECT = 1;
+	public static final int FF_QSCALE_TYPE_H264 = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_OBMC = 1;
+	public static final int FF_DEBUG_SKIP = (int)128;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_COMPLIANCE_EXPERIMENTAL = -2;
+	public static final int FF_CMP_VSAD = (int)8;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_SIDE_RIGHT = 1024;
+	public static final int FF_PRED_MEDIAN = (int)2;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_VIS_MV_P_FOR = 1;
+	public static final boolean FF_API_SET_STRING_OLD = (boolean)(AvcodecLibrary.LIBAVCODEC_VERSION_MAJOR < 53);
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_BPYRAMID = 16;
+	public static final boolean FF_API_PALETTE_CONTROL = (boolean)(AvcodecLibrary.LIBAVCODEC_VERSION_MAJOR < 54);
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PROFILE_AAC_SSR = 2;
+	public static final int MB_TYPE_L0 = (int)(AvcodecLibrary.MB_TYPE_P0L0 | AvcodecLibrary.MB_TYPE_P1L0);
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_BACK_LEFT = 16;
+	public static final boolean FF_API_SUBTITLE_OLD = (boolean)(AvcodecLibrary.LIBAVCODEC_VERSION_MAJOR < 53);
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_PSNR = 32768;
+	public static final boolean FF_API_AUDIO_OLD = (boolean)(AvcodecLibrary.LIBAVCODEC_VERSION_MAJOR < 53);
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_SKIP = 2048;
+	public static final int MB_TYPE_L1 = (int)(AvcodecLibrary.MB_TYPE_P0L1 | AvcodecLibrary.MB_TYPE_P1L1);
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int X264_PART_P8X8 = 16;
+	public static final boolean FF_API_VIDEO_OLD = (boolean)(AvcodecLibrary.LIBAVCODEC_VERSION_MAJOR < 53);
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_H263P_AIV = 8;
+	public static final boolean FF_API_INOFFICIAL = (boolean)(AvcodecLibrary.LIBAVCODEC_VERSION_MAJOR < 53);
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DCT_FAAN = 6;
+	public static final int PKT_FLAG_KEY = (int)AvcodecLibrary.AV_PKT_FLAG_KEY;
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_FRONT_RIGHT = 2;
+	public static final boolean FF_API_OLD_SAMPLE_FMT = (boolean)(AvcodecLibrary.LIBAVCODEC_VERSION_MAJOR < 53);
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_8X8DCT = 128;
+	public static final boolean FF_API_USE_LPC = (boolean)(AvcodecLibrary.LIBAVCODEC_VERSION_MAJOR < 53);
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_LOW_FREQUENCY = 8;
+	public static final boolean FF_API_OLD_AUDIOCONVERT = (boolean)(AvcodecLibrary.LIBAVCODEC_VERSION_MAJOR < 53);
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_QSCALE_TYPE_H264 = 2;
+	public static final boolean FF_API_MM_FLAGS = (boolean)(AvcodecLibrary.LIBAVCODEC_VERSION_MAJOR < 53);
 	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_SKIP = 128;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_BIT = 5;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DEBUG_PTS = 512;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DTG_AFD_4_3 = 9;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_LOOP_FILTER = 2048;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_CMP_VSAD = 8;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_CAP_PARSE_ONLY = 4;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG2_DROP_FRAME_TIMECODE = 8192;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_DCT_FASTINT = 1;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CODEC_FLAG_AC_PRED = 16777216;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BUG_UMP4 = 8;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_PRED_MEDIAN = 2;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_BI_TYPE = 7;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_ALPHA_TRANSP = 1;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_L0 = (AvcodecLibrary.MB_TYPE_P0L0 | AvcodecLibrary.MB_TYPE_P1L0);
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_LAYOUT_STEREO_DOWNMIX = (AvcodecLibrary.CH_STEREO_LEFT | AvcodecLibrary.CH_STEREO_RIGHT);
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_LAYOUT_MONO = (AvcodecLibrary.CH_FRONT_CENTER);
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int CH_LAYOUT_STEREO = (AvcodecLibrary.CH_FRONT_LEFT | AvcodecLibrary.CH_FRONT_RIGHT);
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int PKT_FLAG_KEY = AvcodecLibrary.AV_PKT_FLAG_KEY;
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int MB_TYPE_L1 = (AvcodecLibrary.MB_TYPE_P0L1 | AvcodecLibrary.MB_TYPE_P1L1);
-	/// <i>native declaration : libavcodec/avcodec.h</i>
-	public static final int FF_LAMBDA_SCALE = (1 << AvcodecLibrary.FF_LAMBDA_SHIFT);
-	/// <i>native declaration : libavcodec/avcodec.h:3341</i>
-	public static abstract class func extends org.bridj.Callback<func > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > c2, Pointer<? > arg2);
+	public static final boolean FF_API_OPT_SHOW = (boolean)(AvcodecLibrary.LIBAVCODEC_VERSION_MAJOR < 53);
+	/// <i>native declaration : libavcodec/avcodec.h:3484</i>
+	public static abstract class avcodec_default_execute_arg1_func_callback extends Callback<avcodec_default_execute_arg1_func_callback > {
+		public abstract int apply(Pointer<AVCodecContext > c2, Pointer<? > arg2);
 	};
-	/// <i>native declaration : libavcodec/avcodec.h:3342</i>
-	public static abstract class func2 extends org.bridj.Callback<func2 > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > c2, Pointer<? > arg2, int int1, int int2);
+	/// <i>native declaration : libavcodec/avcodec.h:3485</i>
+	public static abstract class avcodec_default_execute2_arg1_func_callback extends Callback<avcodec_default_execute2_arg1_func_callback > {
+		public abstract int apply(Pointer<AVCodecContext > c2, Pointer<? > arg2, int int1, int int2);
 	};
-	/// <i>native declaration : libavcodec/avcodec.h:3964</i>
-	public static abstract class cb extends org.bridj.Callback<cb > {
-		public abstract int apply(Pointer<Pointer<? > > mutex, ValuedEnum<AvcodecLibrary.AVLockOp > op);
+	/// <i>native declaration : libavcodec/avcodec.h:4131</i>
+	public static abstract class av_lockmgr_register_arg1_cb_callback extends Callback<av_lockmgr_register_arg1_cb_callback > {
+		public abstract int apply(Pointer<Pointer<? > > mutex, AvcodecLibrary.AVLockOp op);
 	};
-	public native static void av_destruct_packet_nofree(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPacket > pkt);
-	public native static void av_destruct_packet(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPacket > pkt);
-	public native static void av_init_packet(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPacket > pkt);
-	public native static int av_new_packet(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPacket > pkt, int size);
-	public native static void av_shrink_packet(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPacket > pkt, int size);
-	public native static int av_dup_packet(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPacket > pkt);
-	public native static void av_free_packet(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPacket > pkt);
-	public native static AvcodecLibrary.ReSampleContext audio_resample_init(int output_channels, int input_channels, int output_rate, int input_rate);
-	public native static AvcodecLibrary.ReSampleContext av_audio_resample_init(int output_channels, int input_channels, int output_rate, int input_rate, ValuedEnum<AvcodecLibrary.SampleFormat > sample_fmt_out, ValuedEnum<AvcodecLibrary.SampleFormat > sample_fmt_in, int filter_length, int log2_phase_count, int linear, double cutoff);
-	@Name("audio_resample_init")
-	public native static @Ptr long audio_resample_init$direct(int output_channels, int input_channels, int output_rate, int input_rate);
-    @Name("av_audio_resample_init")
-	public native static @Ptr long av_audio_resample_init$direct(int output_channels, int input_channels, int output_rate, int input_rate, ValuedEnum<AvcodecLibrary.SampleFormat > sample_fmt_out, ValuedEnum<AvcodecLibrary.SampleFormat > sample_fmt_in, int filter_length, int log2_phase_count, int linear, double cutoff);
-	public native static int audio_resample(AvcodecLibrary.ReSampleContext s, Pointer<java.lang.Short > output, Pointer<java.lang.Short > input, int nb_samples);
-	public native static void audio_resample_close(AvcodecLibrary.ReSampleContext s);
-	public native static AvcodecLibrary.AVResampleContext av_resample_init(int out_rate, int in_rate, int filter_length, int log2_phase_count, int linear, double cutoff);
-	@Name("av_resample_init")
-	public native static @Ptr long av_resample_init$direct(int out_rate, int in_rate, int filter_length, int log2_phase_count, int linear, double cutoff);
-	public native static int av_resample(AvcodecLibrary.AVResampleContext c, Pointer<java.lang.Short > dst, Pointer<java.lang.Short > src, Pointer<java.lang.Integer > consumed, int src_size, int dst_size, int update_ctx);
-	public native static void av_resample_compensate(AvcodecLibrary.AVResampleContext c, int sample_delta, int compensation_distance);
-	public native static void av_resample_close(AvcodecLibrary.AVResampleContext c);
-	public native static int avpicture_alloc(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > picture, ValuedEnum<PixelFormat > pix_fmt, int width, int height);
-	public native static void avpicture_free(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > picture);
-	public native static int avpicture_fill(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > picture, Pointer<java.lang.Byte > ptr, ValuedEnum<PixelFormat > pix_fmt, int width, int height);
-	public native static int avpicture_layout(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > src, ValuedEnum<PixelFormat > pix_fmt, int width, int height, Pointer<java.lang.Byte > dest, int dest_size);
-	public native static int avpicture_get_size(ValuedEnum<PixelFormat > pix_fmt, int width, int height);
-	public native static void avcodec_get_chroma_sub_sample(ValuedEnum<PixelFormat > pix_fmt, Pointer<java.lang.Integer > h_shift, Pointer<java.lang.Integer > v_shift);
-	public native static Pointer<java.lang.Byte > avcodec_get_pix_fmt_name(ValuedEnum<PixelFormat > pix_fmt);
-	public native static void avcodec_set_dimensions(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > s, int width, int height);
-	public native static ValuedEnum<PixelFormat > avcodec_get_pix_fmt(Pointer<java.lang.Byte > name);
-	public native static int avcodec_pix_fmt_to_codec_tag(ValuedEnum<PixelFormat > pix_fmt);
-	public native static int avcodec_get_pix_fmt_loss(ValuedEnum<PixelFormat > dst_pix_fmt, ValuedEnum<PixelFormat > src_pix_fmt, int has_alpha);
-	public native static ValuedEnum<PixelFormat > avcodec_find_best_pix_fmt(long pix_fmt_mask, ValuedEnum<PixelFormat > src_pix_fmt, int has_alpha, Pointer<java.lang.Integer > loss_ptr);
-	public native static void avcodec_pix_fmt_string(Pointer<java.lang.Byte > buf, int buf_size, ValuedEnum<PixelFormat > pix_fmt);
-	public native static int img_get_alpha_info(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > src, ValuedEnum<PixelFormat > pix_fmt, int width, int height);
-	public native static int avpicture_deinterlace(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > dst, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > src, ValuedEnum<PixelFormat > pix_fmt, int width, int height);
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodec > av_codec_next(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodec > c);
-	public native static void avcodec_version();
-	public native static Pointer<java.lang.Byte > avcodec_configuration();
-	public native static Pointer<java.lang.Byte > avcodec_license();
-	public native static void avcodec_init();
-	public native static void register_avcodec(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodec > codec);
-	public native static void avcodec_register(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodec > codec);
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodec > avcodec_find_encoder(ValuedEnum<CodecID > id);
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodec > avcodec_find_encoder_by_name(Pointer<java.lang.Byte > name);
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodec > avcodec_find_decoder(ValuedEnum<CodecID > id);
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodec > avcodec_find_decoder_by_name(Pointer<java.lang.Byte > name);
-	public native static void avcodec_string(Pointer<java.lang.Byte > buf, int buf_size, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > enc, int encode);
-	public native static void avcodec_get_context_defaults(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > s);
-	public native static void avcodec_get_context_defaults2(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > s, ValuedEnum<AVMediaType > arg1);
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avcodec_alloc_context();
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avcodec_alloc_context2(ValuedEnum<AVMediaType > arg1);
-	public native static int avcodec_copy_context(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > dest, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > src);
-	public native static void avcodec_get_frame_defaults(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVFrame > pic);
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVFrame > avcodec_alloc_frame();
-	public native static int avcodec_default_get_buffer(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > s, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVFrame > pic);
-	public native static void avcodec_default_release_buffer(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > s, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVFrame > pic);
-	public native static int avcodec_default_reget_buffer(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > s, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVFrame > pic);
-	public native static void avcodec_get_edge_width();
-	public native static void avcodec_align_dimensions(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > s, Pointer<java.lang.Integer > width, Pointer<java.lang.Integer > height);
-	public native static void avcodec_align_dimensions2(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > s, Pointer<java.lang.Integer > width, Pointer<java.lang.Integer > height, Pointer<java.lang.Integer > linesize_align);
-	public native static int avcodec_check_dimensions(Pointer<? > av_log_ctx, int w, int h);
-	public native static ValuedEnum<PixelFormat > avcodec_default_get_format(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > s, Pointer<ValuedEnum<PixelFormat > > fmt);
-	public native static int avcodec_thread_init(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > s, int thread_count);
-	public native static void avcodec_thread_free(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > s);
-	public native static int avcodec_default_execute(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > c, Pointer<AvcodecLibrary.func > arg1, Pointer<? > arg, Pointer<java.lang.Integer > ret, int count, int size);
-	public native static int avcodec_default_execute2(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > c, Pointer<AvcodecLibrary.func > arg1, Pointer<? > arg, Pointer<java.lang.Integer > ret, int count);
-	public native static int avcodec_open(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodec > codec);
-	public native static int avcodec_decode_audio2(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<java.lang.Short > samples, Pointer<java.lang.Integer > frame_size_ptr, Pointer<java.lang.Byte > buf, int buf_size);
-	public native static int avcodec_decode_audio3(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<java.lang.Short > samples, Pointer<java.lang.Integer > frame_size_ptr, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPacket > avpkt);
-	public native static int avcodec_decode_video(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVFrame > picture, Pointer<java.lang.Integer > got_picture_ptr, Pointer<java.lang.Byte > buf, int buf_size);
-	public native static int avcodec_decode_video2(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVFrame > picture, Pointer<java.lang.Integer > got_picture_ptr, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPacket > avpkt);
-	public native static int avcodec_decode_subtitle(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVSubtitle > sub, Pointer<java.lang.Integer > got_sub_ptr, Pointer<java.lang.Byte > buf, int buf_size);
-	public native static int avcodec_decode_subtitle2(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVSubtitle > sub, Pointer<java.lang.Integer > got_sub_ptr, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPacket > avpkt);
-	public native static int avcodec_parse_frame(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<Pointer<java.lang.Byte > > pdata, Pointer<java.lang.Integer > data_size_ptr, Pointer<java.lang.Byte > buf, int buf_size);
-	public native static int avcodec_encode_audio(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<java.lang.Byte > buf, int buf_size, Pointer<java.lang.Short > samples);
-	public native static int avcodec_encode_video(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<java.lang.Byte > buf, int buf_size, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVFrame > pict);
-	public native static int avcodec_encode_subtitle(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<java.lang.Byte > buf, int buf_size, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVSubtitle > sub);
-	public native static int avcodec_close(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx);
-	public native static void avcodec_register_all();
-	public native static void avcodec_flush_buffers(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx);
-	public native static void avcodec_default_free_buffers(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > s);
-	public native static byte av_get_pict_type_char(int pict_type);
-	public native static int av_get_bits_per_sample(ValuedEnum<CodecID > codec_id);
-	public native static int av_get_bits_per_sample_format(ValuedEnum<AvcodecLibrary.SampleFormat > sample_fmt);
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParser > av_parser_next(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParser > c);
-	public native static void av_register_codec_parser(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParser > parser);
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext > av_parser_init(int codec_id);
-	public native static int av_parser_parse(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext > s, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<Pointer<java.lang.Byte > > poutbuf, Pointer<java.lang.Integer > poutbuf_size, Pointer<java.lang.Byte > buf, int buf_size, long pts, long dts);
-	public native static int av_parser_parse2(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext > s, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<Pointer<java.lang.Byte > > poutbuf, Pointer<java.lang.Integer > poutbuf_size, Pointer<java.lang.Byte > buf, int buf_size, long pts, long dts, long pos);
-	public native static int av_parser_change(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext > s, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<Pointer<java.lang.Byte > > poutbuf, Pointer<java.lang.Integer > poutbuf_size, Pointer<java.lang.Byte > buf, int buf_size, int keyframe);
-	public native static void av_parser_close(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext > s);
-	public native static void av_register_bitstream_filter(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVBitStreamFilter > bsf);
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVBitStreamFilterContext > av_bitstream_filter_init(Pointer<java.lang.Byte > name);
-	public native static int av_bitstream_filter_filter(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVBitStreamFilterContext > bsfc, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<java.lang.Byte > args, Pointer<Pointer<java.lang.Byte > > poutbuf, Pointer<java.lang.Integer > poutbuf_size, Pointer<java.lang.Byte > buf, int buf_size, int keyframe);
-	public native static void av_bitstream_filter_close(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVBitStreamFilterContext > bsf);
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVBitStreamFilter > av_bitstream_filter_next(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVBitStreamFilter > f);
-	public native static Pointer<? > av_fast_realloc(Pointer<? > ptr, Pointer<java.lang.Integer > size, int min_size);
-	public native static void av_fast_malloc(Pointer<? > ptr, Pointer<java.lang.Integer > size, int min_size);
-	public native static void av_picture_copy(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > dst, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > src, ValuedEnum<PixelFormat > pix_fmt, int width, int height);
-	public native static int av_picture_crop(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > dst, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > src, ValuedEnum<PixelFormat > pix_fmt, int top_band, int left_band);
-	public native static int av_picture_pad(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > dst, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVPicture > src, int height, int width, ValuedEnum<PixelFormat > pix_fmt, int padtop, int padbottom, int padleft, int padright, Pointer<java.lang.Integer > color);
-	public native static int av_xiphlacing(Pointer<java.lang.Byte > s, int v);
-	public native static int av_parse_video_frame_size(Pointer<java.lang.Integer > width_ptr, Pointer<java.lang.Integer > height_ptr, Pointer<java.lang.Byte > str);
-	public native static int av_parse_video_frame_rate(Pointer<AVRational > frame_rate, Pointer<java.lang.Byte > str);
-	public native static void av_log_missing_feature(Pointer<? > avc, Pointer<java.lang.Byte > feature, int want_sample);
-	public native static void av_log_ask_for_sample(Pointer<? > avc, Pointer<java.lang.Byte > msg);
-	public native static void av_register_hwaccel(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVHWAccel > hwaccel);
-	public native static Pointer<com.nativelibs4java.ffmpeg.avcodec.AVHWAccel > av_hwaccel_next(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVHWAccel > hwaccel);
-	public native static int av_lockmgr_register(Pointer<AvcodecLibrary.cb > arg1);
-	/// Pointer to unknown (opaque) type
-	public static class AVResampleContext extends org.bridj.TypedPointer {
-		public AVResampleContext(long address) {
-			super(address);
-		}
-		public AVResampleContext(Pointer address) {
-			super(address);
-		}
-		public static AvcodecLibrary.AVResampleContext av_resample_init(int out_rate, int in_rate, int filter_length, int log2_phase_count, int linear, double cutoff) {
-			long $ = AvcodecLibrary.av_resample_init$direct(out_rate, in_rate, filter_length, log2_phase_count, linear, cutoff);
-			return $ == 0 ? null : new AvcodecLibrary.AVResampleContext($);
-		}
-		public int av_resample(Pointer<java.lang.Short > dst, Pointer<java.lang.Short > src, Pointer<java.lang.Integer > consumed, int src_size, int dst_size, int update_ctx) {
-			return AvcodecLibrary.av_resample(this.getPeer(), dst, src, consumed, src_size, dst_size, update_ctx);
-		}
-		public void av_resample_compensate(int sample_delta, int compensation_distance) {
-			AvcodecLibrary.av_resample_compensate(this.getPeer(), sample_delta, compensation_distance);
-		}
-		public void av_resample_close() {
-			AvcodecLibrary.av_resample_close(this.getPeer());
-		}
+	public static native void av_destruct_packet_nofree(Pointer<AVPacket > pkt);
+	public static native void av_destruct_packet(Pointer<AVPacket > pkt);
+	public static native void av_init_packet(Pointer<AVPacket > pkt);
+	public static native int av_new_packet(Pointer<AVPacket > pkt, int size);
+	public static native void av_shrink_packet(Pointer<AVPacket > pkt, int size);
+	public static native int av_grow_packet(Pointer<AVPacket > pkt, int grow_by);
+	public static native int av_dup_packet(Pointer<AVPacket > pkt);
+	public static native void av_free_packet(Pointer<AVPacket > pkt);
+	public static native Pointer<AvcodecLibrary.ReSampleContext > audio_resample_init(int output_channels, int input_channels, int output_rate, int input_rate);
+	public static native Pointer<AvcodecLibrary.ReSampleContext > av_audio_resample_init(int output_channels, int input_channels, int output_rate, int input_rate, AvcodecLibrary.AVSampleFormat sample_fmt_out, AvcodecLibrary.AVSampleFormat sample_fmt_in, int filter_length, int log2_phase_count, int linear, double cutoff);
+	public static native int audio_resample(Pointer<AvcodecLibrary.ReSampleContext > s, Pointer<Short > output, Pointer<Short > input, int nb_samples);
+	public static native void audio_resample_close(Pointer<AvcodecLibrary.ReSampleContext > s);
+	public static native Pointer<AvcodecLibrary.AVResampleContext > av_resample_init(int out_rate, int in_rate, int filter_length, int log2_phase_count, int linear, double cutoff);
+	public static native int av_resample(Pointer<AvcodecLibrary.AVResampleContext > c, Pointer<Short > dst, Pointer<Short > src, Pointer<Integer > consumed, int src_size, int dst_size, int update_ctx);
+	public static native void av_resample_compensate(Pointer<AvcodecLibrary.AVResampleContext > c, int sample_delta, int compensation_distance);
+	public static native void av_resample_close(Pointer<AvcodecLibrary.AVResampleContext > c);
+	public static native int avpicture_alloc(Pointer<AVPicture > picture, PixelFormat pix_fmt, int width, int height);
+	public static native void avpicture_free(Pointer<AVPicture > picture);
+	public static native int avpicture_fill(Pointer<AVPicture > picture, Pointer<Byte > ptr, PixelFormat pix_fmt, int width, int height);
+	public static native int avpicture_layout(Pointer<AVPicture > src, PixelFormat pix_fmt, int width, int height, Pointer<Byte > dest, int dest_size);
+	public static native int avpicture_get_size(PixelFormat pix_fmt, int width, int height);
+	public static native void avcodec_get_chroma_sub_sample(PixelFormat pix_fmt, Pointer<Integer > h_shift, Pointer<Integer > v_shift);
+	public static native Pointer<Byte > avcodec_get_pix_fmt_name(PixelFormat pix_fmt);
+	public static native void avcodec_set_dimensions(Pointer<AVCodecContext > s, int width, int height);
+	public static native PixelFormat avcodec_get_pix_fmt(Pointer<Byte > name);
+	public static native int avcodec_pix_fmt_to_codec_tag(PixelFormat pix_fmt);
+	@Ptr 
+	public static native long av_get_codec_tag_string(Pointer<Byte > buf, @Ptr long buf_size, int codec_tag);
+	public static native int avcodec_get_pix_fmt_loss(PixelFormat dst_pix_fmt, PixelFormat src_pix_fmt, int has_alpha);
+	public static native PixelFormat avcodec_find_best_pix_fmt(long pix_fmt_mask, PixelFormat src_pix_fmt, int has_alpha, Pointer<Integer > loss_ptr);
+	public static native void avcodec_pix_fmt_string(Pointer<Byte > buf, int buf_size, PixelFormat pix_fmt);
+	public static native int img_get_alpha_info(Pointer<AVPicture > src, PixelFormat pix_fmt, int width, int height);
+	public static native int avpicture_deinterlace(Pointer<AVPicture > dst, Pointer<AVPicture > src, PixelFormat pix_fmt, int width, int height);
+	public static native Pointer<AVCodec > av_codec_next(Pointer<AVCodec > c);
+	public static native void avcodec_version();
+	public static native Pointer<Byte > avcodec_configuration();
+	public static native Pointer<Byte > avcodec_license();
+	public static native void avcodec_init();
+	public static native void register_avcodec(Pointer<AVCodec > codec);
+	public static native void avcodec_register(Pointer<AVCodec > codec);
+	public static native Pointer<AVCodec > avcodec_find_encoder(AvcodecLibrary.CodecID id);
+	public static native Pointer<AVCodec > avcodec_find_encoder_by_name(Pointer<Byte > name);
+	public static native Pointer<AVCodec > avcodec_find_decoder(AvcodecLibrary.CodecID id);
+	public static native Pointer<AVCodec > avcodec_find_decoder_by_name(Pointer<Byte > name);
+	public static native void avcodec_string(Pointer<Byte > buf, int buf_size, Pointer<AVCodecContext > enc, int encode);
+	public static native Pointer<Byte > av_get_profile_name(Pointer<AVCodec > codec, int profile);
+	public static native void avcodec_get_context_defaults(Pointer<AVCodecContext > s);
+	public static native void avcodec_get_context_defaults2(Pointer<AVCodecContext > s, AvcodecLibrary.AVMediaType arg1);
+	public static native int avcodec_get_context_defaults3(Pointer<AVCodecContext > s, Pointer<AVCodec > codec);
+	public static native Pointer<AVCodecContext > avcodec_alloc_context();
+	public static native Pointer<AVCodecContext > avcodec_alloc_context2(AvcodecLibrary.AVMediaType arg1);
+	public static native Pointer<AVCodecContext > avcodec_alloc_context3(Pointer<AVCodec > codec);
+	public static native int avcodec_copy_context(Pointer<AVCodecContext > dest, Pointer<AVCodecContext > src);
+	public static native void avcodec_get_frame_defaults(Pointer<AVFrame > pic);
+	public static native Pointer<AVFrame > avcodec_alloc_frame();
+	public static native int avcodec_default_get_buffer(Pointer<AVCodecContext > s, Pointer<AVFrame > pic);
+	public static native void avcodec_default_release_buffer(Pointer<AVCodecContext > s, Pointer<AVFrame > pic);
+	public static native int avcodec_default_reget_buffer(Pointer<AVCodecContext > s, Pointer<AVFrame > pic);
+	public static native void avcodec_get_edge_width();
+	public static native void avcodec_align_dimensions(Pointer<AVCodecContext > s, Pointer<Integer > width, Pointer<Integer > height);
+	public static native void avcodec_align_dimensions2(Pointer<AVCodecContext > s, Pointer<Integer > width, Pointer<Integer > height, Pointer<Integer > linesize_align);
+	public static native int avcodec_check_dimensions(Pointer<? > av_log_ctx, int w, int h);
+	public static native PixelFormat avcodec_default_get_format(Pointer<AVCodecContext > s, Pointer<PixelFormat > fmt);
+	public static native int avcodec_thread_init(Pointer<AVCodecContext > s, int thread_count);
+	public static native void avcodec_thread_free(Pointer<AVCodecContext > s);
+	public static native int avcodec_default_execute(Pointer<AVCodecContext > c, Pointer<AvcodecLibrary.avcodec_default_execute_arg1_func_callback > arg1, Pointer<? > arg, Pointer<Integer > ret, int count, int size);
+	public static native int avcodec_default_execute2(Pointer<AVCodecContext > c, Pointer<AvcodecLibrary.avcodec_default_execute2_arg1_func_callback > arg1, Pointer<? > arg, Pointer<Integer > ret, int count);
+	public static native int avcodec_open(Pointer<AVCodecContext > avctx, Pointer<AVCodec > codec);
+	public static native int avcodec_decode_audio2(Pointer<AVCodecContext > avctx, Pointer<Short > samples, Pointer<Integer > frame_size_ptr, Pointer<Byte > buf, int buf_size);
+	public static native int avcodec_decode_audio3(Pointer<AVCodecContext > avctx, Pointer<Short > samples, Pointer<Integer > frame_size_ptr, Pointer<AVPacket > avpkt);
+	public static native int avcodec_decode_video(Pointer<AVCodecContext > avctx, Pointer<AVFrame > picture, Pointer<Integer > got_picture_ptr, Pointer<Byte > buf, int buf_size);
+	public static native int avcodec_decode_video2(Pointer<AVCodecContext > avctx, Pointer<AVFrame > picture, Pointer<Integer > got_picture_ptr, Pointer<AVPacket > avpkt);
+	public static native int avcodec_decode_subtitle(Pointer<AVCodecContext > avctx, Pointer<AVSubtitle > sub, Pointer<Integer > got_sub_ptr, Pointer<Byte > buf, int buf_size);
+	public static native int avcodec_decode_subtitle2(Pointer<AVCodecContext > avctx, Pointer<AVSubtitle > sub, Pointer<Integer > got_sub_ptr, Pointer<AVPacket > avpkt);
+	public static native void avsubtitle_free(Pointer<AVSubtitle > sub);
+	public static native int avcodec_parse_frame(Pointer<AVCodecContext > avctx, Pointer<Pointer<Byte > > pdata, Pointer<Integer > data_size_ptr, Pointer<Byte > buf, int buf_size);
+	public static native int avcodec_encode_audio(Pointer<AVCodecContext > avctx, Pointer<Byte > buf, int buf_size, Pointer<Short > samples);
+	public static native int avcodec_encode_video(Pointer<AVCodecContext > avctx, Pointer<Byte > buf, int buf_size, Pointer<AVFrame > pict);
+	public static native int avcodec_encode_subtitle(Pointer<AVCodecContext > avctx, Pointer<Byte > buf, int buf_size, Pointer<AVSubtitle > sub);
+	public static native int avcodec_close(Pointer<AVCodecContext > avctx);
+	public static native void avcodec_register_all();
+	public static native void avcodec_flush_buffers(Pointer<AVCodecContext > avctx);
+	public static native void avcodec_default_free_buffers(Pointer<AVCodecContext > s);
+	public static native byte av_get_pict_type_char(int pict_type);
+	public static native int av_get_bits_per_sample(AvcodecLibrary.CodecID codec_id);
+	public static native int av_get_bits_per_sample_format(AvcodecLibrary.AVSampleFormat sample_fmt);
+	public static native Pointer<AVCodecParser > av_parser_next(Pointer<AVCodecParser > c);
+	public static native void av_register_codec_parser(Pointer<AVCodecParser > parser);
+	public static native Pointer<AVCodecParserContext > av_parser_init(int codec_id);
+	public static native int av_parser_parse(Pointer<AVCodecParserContext > s, Pointer<AVCodecContext > avctx, Pointer<Pointer<Byte > > poutbuf, Pointer<Integer > poutbuf_size, Pointer<Byte > buf, int buf_size, long pts, long dts);
+	public static native int av_parser_parse2(Pointer<AVCodecParserContext > s, Pointer<AVCodecContext > avctx, Pointer<Pointer<Byte > > poutbuf, Pointer<Integer > poutbuf_size, Pointer<Byte > buf, int buf_size, long pts, long dts, long pos);
+	public static native int av_parser_change(Pointer<AVCodecParserContext > s, Pointer<AVCodecContext > avctx, Pointer<Pointer<Byte > > poutbuf, Pointer<Integer > poutbuf_size, Pointer<Byte > buf, int buf_size, int keyframe);
+	public static native void av_parser_close(Pointer<AVCodecParserContext > s);
+	public static native void av_register_bitstream_filter(Pointer<AVBitStreamFilter > bsf);
+	public static native Pointer<AVBitStreamFilterContext > av_bitstream_filter_init(Pointer<Byte > name);
+	public static native int av_bitstream_filter_filter(Pointer<AVBitStreamFilterContext > bsfc, Pointer<AVCodecContext > avctx, Pointer<Byte > args, Pointer<Pointer<Byte > > poutbuf, Pointer<Integer > poutbuf_size, Pointer<Byte > buf, int buf_size, int keyframe);
+	public static native void av_bitstream_filter_close(Pointer<AVBitStreamFilterContext > bsf);
+	public static native Pointer<AVBitStreamFilter > av_bitstream_filter_next(Pointer<AVBitStreamFilter > f);
+	public static native Pointer<? > av_fast_realloc(Pointer<? > ptr, Pointer<Integer > size, int min_size);
+	public static native void av_fast_malloc(Pointer<? > ptr, Pointer<Integer > size, int min_size);
+	public static native void av_picture_data_copy(Pointer<Pointer<Byte > > dst_data, Pointer<Integer > dst_linesize, Pointer<Pointer<Byte > > src_data, Pointer<Integer > src_linesize, PixelFormat pix_fmt, int width, int height);
+	public static native void av_picture_copy(Pointer<AVPicture > dst, Pointer<AVPicture > src, PixelFormat pix_fmt, int width, int height);
+	public static native int av_picture_crop(Pointer<AVPicture > dst, Pointer<AVPicture > src, PixelFormat pix_fmt, int top_band, int left_band);
+	public static native int av_picture_pad(Pointer<AVPicture > dst, Pointer<AVPicture > src, int height, int width, PixelFormat pix_fmt, int padtop, int padbottom, int padleft, int padright, Pointer<Integer > color);
+	public static native int av_xiphlacing(Pointer<Byte > s, int v);
+	public static native int av_parse_video_frame_size(Pointer<Integer > width_ptr, Pointer<Integer > height_ptr, Pointer<Byte > str);
+	public static native int av_parse_video_frame_rate(Pointer<AVRational > frame_rate, Pointer<Byte > str);
+	public static native void av_log_missing_feature(Pointer<? > avc, Pointer<Byte > feature, int want_sample);
+	public static native void av_log_ask_for_sample(Pointer<? > avc, Pointer<Byte > msg);
+	public static native void av_register_hwaccel(Pointer<AVHWAccel > hwaccel);
+	public static native Pointer<AVHWAccel > av_hwaccel_next(Pointer<AVHWAccel > hwaccel);
+	public static native int av_lockmgr_register(Pointer<AvcodecLibrary.av_lockmgr_register_arg1_cb_callback > arg1);
+	/// Undefined type
+	public static interface AVMediaType {
+		
 	};
-	private native static int av_resample(@Ptr long c, Pointer<java.lang.Short > dst, Pointer<java.lang.Short > src, Pointer<java.lang.Integer > consumed, int src_size, int dst_size, int update_ctx);
-	private native static void av_resample_compensate(@Ptr long c, int sample_delta, int compensation_distance);
-	private native static void av_resample_close(@Ptr long c);
-	/// Pointer to unknown (opaque) type
-	public static class ReSampleContext extends org.bridj.TypedPointer {
-		public ReSampleContext(long address) {
-			super(address);
-		}
-		public ReSampleContext(Pointer address) {
-			super(address);
-		}
-		public static AvcodecLibrary.ReSampleContext audio_resample_init(int output_channels, int input_channels, int output_rate, int input_rate) {
-			long $ = AvcodecLibrary.audio_resample_init$direct(output_channels, input_channels, output_rate, input_rate);
-			return $ == 0 ? null : new AvcodecLibrary.ReSampleContext($);
-		}
-		public static AvcodecLibrary.ReSampleContext av_audio_resample_init(int output_channels, int input_channels, int output_rate, int input_rate, ValuedEnum<AvcodecLibrary.SampleFormat > sample_fmt_out, ValuedEnum<AvcodecLibrary.SampleFormat > sample_fmt_in, int filter_length, int log2_phase_count, int linear, double cutoff) {
-			long $ = AvcodecLibrary.av_audio_resample_init$direct(output_channels, input_channels, output_rate, input_rate, sample_fmt_out, sample_fmt_in, filter_length, log2_phase_count, linear, cutoff);
-			return $ == 0 ? null : new AvcodecLibrary.ReSampleContext($);
-		}
-		public int audio_resample(Pointer<java.lang.Short > output, Pointer<java.lang.Short > input, int nb_samples) {
-			return AvcodecLibrary.audio_resample(this.getPeer(), output, input, nb_samples);
-		}
-		public void audio_resample_close() {
-			AvcodecLibrary.audio_resample_close(this.getPeer());
-		}
+	/// Undefined type
+	public static interface AVResampleContext {
+		
 	};
-	private native static int audio_resample(@Ptr long s, Pointer<java.lang.Short > output, Pointer<java.lang.Short > input, int nb_samples);
-	private native static void audio_resample_close(@Ptr long s);
+	/// Undefined type
+	public static interface AVSampleFormat {
+		
+	};
+	/// Undefined type
+	public static interface ReSampleContext {
+		
+	};
 }

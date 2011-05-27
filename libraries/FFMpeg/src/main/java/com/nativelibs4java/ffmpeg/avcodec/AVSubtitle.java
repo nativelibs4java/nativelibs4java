@@ -77,17 +77,17 @@ public class AVSubtitle extends StructObject {
 	}
 	/// C type : AVSubtitleRect**
 	@Field(4) 
-	public Pointer<Pointer<com.nativelibs4java.ffmpeg.avcodec.AVSubtitleRect > > rects() {
+	public Pointer<Pointer<AVSubtitleRect > > rects() {
 		return this.io.getPointerField(this, 4);
 	}
 	/// C type : AVSubtitleRect**
 	@Field(4) 
-	public AVSubtitle rects(Pointer<Pointer<com.nativelibs4java.ffmpeg.avcodec.AVSubtitleRect > > rects) {
+	public AVSubtitle rects(Pointer<Pointer<AVSubtitleRect > > rects) {
 		this.io.setPointerField(this, 4, rects);
 		return this;
 	}
 	/// C type : AVSubtitleRect**
-	public final Pointer<Pointer<com.nativelibs4java.ffmpeg.avcodec.AVSubtitleRect > > rects_$eq(Pointer<Pointer<com.nativelibs4java.ffmpeg.avcodec.AVSubtitleRect > > rects) {
+	public final Pointer<Pointer<AVSubtitleRect > > rects_$eq(Pointer<Pointer<AVSubtitleRect > > rects) {
 		rects(rects);
 		return rects;
 	}

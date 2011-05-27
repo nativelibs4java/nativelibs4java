@@ -1,12 +1,7 @@
 package com.nativelibs4java.ffmpeg.avcodec;
-import static com.nativelibs4java.ffmpeg.avcodec.AvcodecLibrary.*;
-import static com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.*;
-import static com.nativelibs4java.ffmpeg.avutil.AvutilLibrary.*;
-import static com.nativelibs4java.ffmpeg.swscale.SwscaleLibrary.*;
 import org.bridj.Callback;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
-import org.bridj.ValuedEnum;
 import org.bridj.ann.Field;
 import org.bridj.ann.Library;
 /**
@@ -30,7 +25,7 @@ public class AVHWAccel extends StructObject {
 	 * C type : const char*
 	 */
 	@Field(0) 
-	public Pointer<java.lang.Byte > name() {
+	public Pointer<Byte > name() {
 		return this.io.getPointerField(this, 0);
 	}
 	/**
@@ -40,86 +35,14 @@ public class AVHWAccel extends StructObject {
 	 * C type : const char*
 	 */
 	@Field(0) 
-	public AVHWAccel name(Pointer<java.lang.Byte > name) {
+	public AVHWAccel name(Pointer<Byte > name) {
 		this.io.setPointerField(this, 0, name);
 		return this;
 	}
 	/// C type : const char*
-	public final Pointer<java.lang.Byte > name_$eq(Pointer<java.lang.Byte > name) {
+	public final Pointer<Byte > name_$eq(Pointer<Byte > name) {
 		name(name);
 		return name;
-	}
-	/**
-	 * Type of codec implemented by the hardware accelerator.<br>
-	 * * See AVMEDIA_TYPE_xxx<br>
-	 * C type : AVMediaType
-	 */
-	@Field(1) 
-	public ValuedEnum<AVMediaType > type() {
-		return this.io.getEnumField(this, 1);
-	}
-	/**
-	 * Type of codec implemented by the hardware accelerator.<br>
-	 * * See AVMEDIA_TYPE_xxx<br>
-	 * C type : AVMediaType
-	 */
-	@Field(1) 
-	public AVHWAccel type(ValuedEnum<AVMediaType > type) {
-		this.io.setEnumField(this, 1, type);
-		return this;
-	}
-	/// C type : AVMediaType
-	public final ValuedEnum<AVMediaType > type_$eq(ValuedEnum<AVMediaType > type) {
-		type(type);
-		return type;
-	}
-	/**
-	 * Codec implemented by the hardware accelerator.<br>
-	 * * See CODEC_ID_xxx<br>
-	 * C type : CodecID
-	 */
-	@Field(2) 
-	public ValuedEnum<CodecID > id() {
-		return this.io.getEnumField(this, 2);
-	}
-	/**
-	 * Codec implemented by the hardware accelerator.<br>
-	 * * See CODEC_ID_xxx<br>
-	 * C type : CodecID
-	 */
-	@Field(2) 
-	public AVHWAccel id(ValuedEnum<CodecID > id) {
-		this.io.setEnumField(this, 2, id);
-		return this;
-	}
-	/// C type : CodecID
-	public final ValuedEnum<CodecID > id_$eq(ValuedEnum<CodecID > id) {
-		id(id);
-		return id;
-	}
-	/**
-	 * Supported pixel format.<br>
-	 * * Only hardware accelerated formats are supported here.<br>
-	 * C type : PixelFormat
-	 */
-	@Field(3) 
-	public ValuedEnum<PixelFormat > pix_fmt() {
-		return this.io.getEnumField(this, 3);
-	}
-	/**
-	 * Supported pixel format.<br>
-	 * * Only hardware accelerated formats are supported here.<br>
-	 * C type : PixelFormat
-	 */
-	@Field(3) 
-	public AVHWAccel pix_fmt(ValuedEnum<PixelFormat > pix_fmt) {
-		this.io.setEnumField(this, 3, pix_fmt);
-		return this;
-	}
-	/// C type : PixelFormat
-	public final ValuedEnum<PixelFormat > pix_fmt_$eq(ValuedEnum<PixelFormat > pix_fmt) {
-		pix_fmt(pix_fmt);
-		return pix_fmt;
 	}
 	/**
 	 * Hardware accelerated codec capabilities.<br>
@@ -285,16 +208,16 @@ public class AVHWAccel extends StructObject {
 		priv_data_size(priv_data_size);
 		return priv_data_size;
 	}
-	/// <i>native declaration : libavcodec/avcodec.h:2750</i>
+	/// <i>native declaration : libavcodec/avcodec.h</i>
 	public static abstract class start_frame_callback extends Callback<start_frame_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<java.lang.Byte > buf, int buf_size);
+		public abstract int apply(Pointer<AVCodecContext > avctx, Pointer<Byte > buf, int buf_size);
 	};
-	/// <i>native declaration : libavcodec/avcodec.h:2763</i>
+	/// <i>native declaration : libavcodec/avcodec.h</i>
 	public static abstract class decode_slice_callback extends Callback<decode_slice_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<java.lang.Byte > buf, int buf_size);
+		public abstract int apply(Pointer<AVCodecContext > avctx, Pointer<Byte > buf, int buf_size);
 	};
-	/// <i>native declaration : libavcodec/avcodec.h:2774</i>
+	/// <i>native declaration : libavcodec/avcodec.h</i>
 	public static abstract class end_frame_callback extends Callback<end_frame_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx);
+		public abstract int apply(Pointer<AVCodecContext > avctx);
 	};
 }

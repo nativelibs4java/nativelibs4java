@@ -22,7 +22,7 @@ public class SwsVector extends StructObject {
 	 * C type : double*
 	 */
 	@Field(0) 
-	public Pointer<java.lang.Double > coeff() {
+	public Pointer<Double > coeff() {
 		return this.io.getPointerField(this, 0);
 	}
 	/**
@@ -30,12 +30,12 @@ public class SwsVector extends StructObject {
 	 * C type : double*
 	 */
 	@Field(0) 
-	public SwsVector coeff(Pointer<java.lang.Double > coeff) {
+	public SwsVector coeff(Pointer<Double > coeff) {
 		this.io.setPointerField(this, 0, coeff);
 		return this;
 	}
 	/// C type : double*
-	public final Pointer<java.lang.Double > coeff_$eq(Pointer<java.lang.Double > coeff) {
+	public final Pointer<Double > coeff_$eq(Pointer<Double > coeff) {
 		coeff(coeff);
 		return coeff;
 	}

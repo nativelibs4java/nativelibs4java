@@ -85,7 +85,7 @@ public class AVPanScan extends StructObject {
 	 */
 	@Array({3, 2}) 
 	@Field(3) 
-	public Pointer<java.lang.Short > position() {
+	public Pointer<Short > position() {
 		return this.io.getPointerField(this, 3);
 	}
 }

@@ -34,18 +34,18 @@ public class AVFilterBufferRefAudioProps extends StructObject {
 	}
 	/// < number of audio samples
 	@Field(1) 
-	public int samples_nb() {
+	public int nb_samples() {
 		return this.io.getIntField(this, 1);
 	}
 	/// < number of audio samples
 	@Field(1) 
-	public AVFilterBufferRefAudioProps samples_nb(int samples_nb) {
-		this.io.setIntField(this, 1, samples_nb);
+	public AVFilterBufferRefAudioProps nb_samples(int nb_samples) {
+		this.io.setIntField(this, 1, nb_samples);
 		return this;
 	}
-	public final int samples_nb_$eq(int samples_nb) {
-		samples_nb(samples_nb);
-		return samples_nb;
+	public final int nb_samples_$eq(int nb_samples) {
+		nb_samples(nb_samples);
+		return nb_samples;
 	}
 	/// < audio buffer size
 	@Field(2) 

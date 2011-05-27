@@ -21,7 +21,7 @@ public class AVPicture extends StructObject {
 	/// C type : uint8_t*[4]
 	@Array({4}) 
 	@Field(0) 
-	public Pointer<Pointer<java.lang.Byte > > data() {
+	public Pointer<Pointer<Byte > > data() {
 		return this.io.getPointerField(this, 0);
 	}
 	/**
@@ -30,7 +30,7 @@ public class AVPicture extends StructObject {
 	 */
 	@Array({4}) 
 	@Field(1) 
-	public Pointer<java.lang.Integer > linesize() {
+	public Pointer<Integer > linesize() {
 		return this.io.getPointerField(this, 1);
 	}
 }

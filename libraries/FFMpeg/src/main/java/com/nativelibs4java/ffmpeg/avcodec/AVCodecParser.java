@@ -25,7 +25,7 @@ public class AVCodecParser extends StructObject {
 	 */
 	@Array({5}) 
 	@Field(0) 
-	public Pointer<java.lang.Integer > codec_ids() {
+	public Pointer<Integer > codec_ids() {
 		return this.io.getPointerField(this, 0);
 	}
 	@Field(1) 
@@ -121,20 +121,20 @@ public class AVCodecParser extends StructObject {
 		next(next);
 		return next;
 	}
-	/// <i>native declaration : libavcodec/avcodec.h:3734</i>
+	/// <i>native declaration : libavcodec/avcodec.h</i>
 	public static abstract class parser_init_callback extends Callback<parser_init_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext > s);
+		public abstract int apply(Pointer<AVCodecParserContext > s);
 	};
-	/// <i>native declaration : libavcodec/avcodec.h:3735</i>
+	/// <i>native declaration : libavcodec/avcodec.h</i>
 	public static abstract class parser_parse_callback extends Callback<parser_parse_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext > s, Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<Pointer<java.lang.Byte > > poutbuf, Pointer<java.lang.Integer > poutbuf_size, Pointer<java.lang.Byte > buf, int buf_size);
+		public abstract int apply(Pointer<AVCodecParserContext > s, Pointer<AVCodecContext > avctx, Pointer<Pointer<Byte > > poutbuf, Pointer<Integer > poutbuf_size, Pointer<Byte > buf, int buf_size);
 	};
-	/// <i>native declaration : libavcodec/avcodec.h:3739</i>
+	/// <i>native declaration : libavcodec/avcodec.h</i>
 	public static abstract class parser_close_callback extends Callback<parser_close_callback > {
-		public abstract void apply(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecParserContext > s);
+		public abstract void apply(Pointer<AVCodecParserContext > s);
 	};
-	/// <i>native declaration : libavcodec/avcodec.h:3740</i>
+	/// <i>native declaration : libavcodec/avcodec.h</i>
 	public static abstract class split_callback extends Callback<split_callback > {
-		public abstract int apply(Pointer<com.nativelibs4java.ffmpeg.avcodec.AVCodecContext > avctx, Pointer<java.lang.Byte > buf, int buf_size);
+		public abstract int apply(Pointer<AVCodecContext > avctx, Pointer<Byte > buf, int buf_size);
 	};
 }

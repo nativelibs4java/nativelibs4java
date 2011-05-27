@@ -7,11 +7,17 @@ import static com.nativelibs4java.ffmpeg.avcodec.AvcodecLibrary.*;
 import static com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.*;
 import static com.nativelibs4java.ffmpeg.avutil.AvutilLibrary.*;
 import static com.nativelibs4java.ffmpeg.swscale.SwscaleLibrary.*;
+import static com.nativelibs4java.ffmpeg.avcore.AvcoreLibrary.*;
+import static com.nativelibs4java.ffmpeg.avdevice.AvdeviceLibrary.*;
+import static com.nativelibs4java.ffmpeg.avfilter.AvfilterLibrary.*;
 
 import com.nativelibs4java.ffmpeg.avcodec.*;
 import com.nativelibs4java.ffmpeg.avformat.*;
 import com.nativelibs4java.ffmpeg.avutil.*;
 import com.nativelibs4java.ffmpeg.swscale.*;
+import com.nativelibs4java.ffmpeg.avcore.*;
+import com.nativelibs4java.ffmpeg.avdevice.*;
+import com.nativelibs4java.ffmpeg.avfilter.*;
 
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;

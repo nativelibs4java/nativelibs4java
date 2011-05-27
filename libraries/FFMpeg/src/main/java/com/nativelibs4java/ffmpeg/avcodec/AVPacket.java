@@ -74,17 +74,17 @@ public class AVPacket extends StructObject {
 	}
 	/// C type : uint8_t*
 	@Field(2) 
-	public Pointer<java.lang.Byte > data() {
+	public Pointer<Byte > data() {
 		return this.io.getPointerField(this, 2);
 	}
 	/// C type : uint8_t*
 	@Field(2) 
-	public AVPacket data(Pointer<java.lang.Byte > data) {
+	public AVPacket data(Pointer<Byte > data) {
 		this.io.setPointerField(this, 2, data);
 		return this;
 	}
 	/// C type : uint8_t*
-	public final Pointer<java.lang.Byte > data_$eq(Pointer<java.lang.Byte > data) {
+	public final Pointer<Byte > data_$eq(Pointer<Byte > data) {
 		data(data);
 		return data;
 	}
@@ -203,6 +203,8 @@ public class AVPacket extends StructObject {
 	 * the very first frame or from this keyframe.<br>
 	 * Is AV_NOPTS_VALUE if unknown.<br>
 	 * This field is not the display duration of the current packet.<br>
+	 * This field has no meaning if the packet does not have AV_PKT_FLAG_KEY<br>
+	 * set.<br>
 	 * * The purpose of this field is to allow seeking in streams that have no<br>
 	 * keyframes in the conventional sense. It corresponds to the<br>
 	 * recovery point SEI in H.264 and match_time_delta in NUT. It is also<br>
@@ -221,6 +223,8 @@ public class AVPacket extends StructObject {
 	 * the very first frame or from this keyframe.<br>
 	 * Is AV_NOPTS_VALUE if unknown.<br>
 	 * This field is not the display duration of the current packet.<br>
+	 * This field has no meaning if the packet does not have AV_PKT_FLAG_KEY<br>
+	 * set.<br>
 	 * * The purpose of this field is to allow seeking in streams that have no<br>
 	 * keyframes in the conventional sense. It corresponds to the<br>
 	 * recovery point SEI in H.264 and match_time_delta in NUT. It is also<br>
@@ -236,7 +240,7 @@ public class AVPacket extends StructObject {
 		convergence_duration(convergence_duration);
 		return convergence_duration;
 	}
-	/// <i>native declaration : libavcodec/avcodec.h:982</i>
+	/// <i>native declaration : libavcodec/avcodec.h</i>
 	public static abstract class destruct_callback extends Callback<destruct_callback > {
 		public abstract void apply(Pointer<AVPacket > AVPacketPtr1);
 	};

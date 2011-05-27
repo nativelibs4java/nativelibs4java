@@ -1,9 +1,7 @@
 package com.nativelibs4java.ffmpeg.avformat;
 import com.nativelibs4java.ffmpeg.avcodec.AVPacket;
-import static com.nativelibs4java.ffmpeg.avcodec.AvcodecLibrary.*;
-import static com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.*;
-import static com.nativelibs4java.ffmpeg.avutil.AvutilLibrary.*;
-import static com.nativelibs4java.ffmpeg.swscale.SwscaleLibrary.*;
+import com.nativelibs4java.ffmpeg.avcodec.AvcodecLibrary.CodecID;
+import com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.AVMetadata;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ValuedEnum;
@@ -51,7 +49,7 @@ public class AVFormatContext extends StructObject {
 	 * C type : AVInputFormat*
 	 */
 	@Field(1) 
-	public Pointer<com.nativelibs4java.ffmpeg.avformat.AVInputFormat > iformat() {
+	public Pointer<AVInputFormat > iformat() {
 		return this.io.getPointerField(this, 1);
 	}
 	/**
@@ -59,28 +57,28 @@ public class AVFormatContext extends StructObject {
 	 * C type : AVInputFormat*
 	 */
 	@Field(1) 
-	public AVFormatContext iformat(Pointer<com.nativelibs4java.ffmpeg.avformat.AVInputFormat > iformat) {
+	public AVFormatContext iformat(Pointer<AVInputFormat > iformat) {
 		this.io.setPointerField(this, 1, iformat);
 		return this;
 	}
 	/// C type : AVInputFormat*
-	public final Pointer<com.nativelibs4java.ffmpeg.avformat.AVInputFormat > iformat_$eq(Pointer<com.nativelibs4java.ffmpeg.avformat.AVInputFormat > iformat) {
+	public final Pointer<AVInputFormat > iformat_$eq(Pointer<AVInputFormat > iformat) {
 		iformat(iformat);
 		return iformat;
 	}
 	/// C type : AVOutputFormat*
 	@Field(2) 
-	public Pointer<com.nativelibs4java.ffmpeg.avformat.AVOutputFormat > oformat() {
+	public Pointer<AVOutputFormat > oformat() {
 		return this.io.getPointerField(this, 2);
 	}
 	/// C type : AVOutputFormat*
 	@Field(2) 
-	public AVFormatContext oformat(Pointer<com.nativelibs4java.ffmpeg.avformat.AVOutputFormat > oformat) {
+	public AVFormatContext oformat(Pointer<AVOutputFormat > oformat) {
 		this.io.setPointerField(this, 2, oformat);
 		return this;
 	}
 	/// C type : AVOutputFormat*
-	public final Pointer<com.nativelibs4java.ffmpeg.avformat.AVOutputFormat > oformat_$eq(Pointer<com.nativelibs4java.ffmpeg.avformat.AVOutputFormat > oformat) {
+	public final Pointer<AVOutputFormat > oformat_$eq(Pointer<AVOutputFormat > oformat) {
 		oformat(oformat);
 		return oformat;
 	}
@@ -132,7 +130,7 @@ public class AVFormatContext extends StructObject {
 	/// C type : AVStream*[20]
 	@Array({20}) 
 	@Field(6) 
-	public Pointer<Pointer<com.nativelibs4java.ffmpeg.avformat.AVStream > > streams() {
+	public Pointer<Pointer<AVStream > > streams() {
 		return this.io.getPointerField(this, 6);
 	}
 	/**
@@ -141,7 +139,7 @@ public class AVFormatContext extends StructObject {
 	 */
 	@Array({1024}) 
 	@Field(7) 
-	public Pointer<java.lang.Byte > filename() {
+	public Pointer<Byte > filename() {
 		return this.io.getPointerField(this, 7);
 	}
 	/// stream info
@@ -162,31 +160,31 @@ public class AVFormatContext extends StructObject {
 	/// C type : char[512]
 	@Array({512}) 
 	@Field(9) 
-	public Pointer<java.lang.Byte > title() {
+	public Pointer<Byte > title() {
 		return this.io.getPointerField(this, 9);
 	}
 	/// C type : char[512]
 	@Array({512}) 
 	@Field(10) 
-	public Pointer<java.lang.Byte > author() {
+	public Pointer<Byte > author() {
 		return this.io.getPointerField(this, 10);
 	}
 	/// C type : char[512]
 	@Array({512}) 
 	@Field(11) 
-	public Pointer<java.lang.Byte > copyright() {
+	public Pointer<Byte > copyright() {
 		return this.io.getPointerField(this, 11);
 	}
 	/// C type : char[512]
 	@Array({512}) 
 	@Field(12) 
-	public Pointer<java.lang.Byte > comment() {
+	public Pointer<Byte > comment() {
 		return this.io.getPointerField(this, 12);
 	}
 	/// C type : char[512]
 	@Array({512}) 
 	@Field(13) 
-	public Pointer<java.lang.Byte > album() {
+	public Pointer<Byte > album() {
 		return this.io.getPointerField(this, 13);
 	}
 	/// < ID3 year, 0 if none
@@ -225,7 +223,7 @@ public class AVFormatContext extends StructObject {
 	 */
 	@Array({32}) 
 	@Field(16) 
-	public Pointer<java.lang.Byte > genre() {
+	public Pointer<Byte > genre() {
 		return this.io.getPointerField(this, 16);
 	}
 	/// < Format-specific flags, see AVFMTCTX_xx
@@ -250,7 +248,7 @@ public class AVFormatContext extends StructObject {
 	 * C type : AVPacketList*
 	 */
 	@Field(18) 
-	public Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > packet_buffer() {
+	public Pointer<AVPacketList > packet_buffer() {
 		return this.io.getPointerField(this, 18);
 	}
 	/**
@@ -260,12 +258,12 @@ public class AVFormatContext extends StructObject {
 	 * C type : AVPacketList*
 	 */
 	@Field(18) 
-	public AVFormatContext packet_buffer(Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > packet_buffer) {
+	public AVFormatContext packet_buffer(Pointer<AVPacketList > packet_buffer) {
 		this.io.setPointerField(this, 18, packet_buffer);
 		return this;
 	}
 	/// C type : AVPacketList*
-	public final Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > packet_buffer_$eq(Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > packet_buffer) {
+	public final Pointer<AVPacketList > packet_buffer_$eq(Pointer<AVPacketList > packet_buffer) {
 		packet_buffer(packet_buffer);
 		return packet_buffer;
 	}
@@ -360,7 +358,7 @@ public class AVFormatContext extends StructObject {
 	 * C type : AVStream*
 	 */
 	@Field(23) 
-	public Pointer<com.nativelibs4java.ffmpeg.avformat.AVStream > cur_st() {
+	public Pointer<AVStream > cur_st() {
 		return this.io.getPointerField(this, 23);
 	}
 	/**
@@ -368,28 +366,28 @@ public class AVFormatContext extends StructObject {
 	 * C type : AVStream*
 	 */
 	@Field(23) 
-	public AVFormatContext cur_st(Pointer<com.nativelibs4java.ffmpeg.avformat.AVStream > cur_st) {
+	public AVFormatContext cur_st(Pointer<AVStream > cur_st) {
 		this.io.setPointerField(this, 23, cur_st);
 		return this;
 	}
 	/// C type : AVStream*
-	public final Pointer<com.nativelibs4java.ffmpeg.avformat.AVStream > cur_st_$eq(Pointer<com.nativelibs4java.ffmpeg.avformat.AVStream > cur_st) {
+	public final Pointer<AVStream > cur_st_$eq(Pointer<AVStream > cur_st) {
 		cur_st(cur_st);
 		return cur_st;
 	}
 	/// C type : const uint8_t*
 	@Field(24) 
-	public Pointer<java.lang.Byte > cur_ptr_deprecated() {
+	public Pointer<Byte > cur_ptr_deprecated() {
 		return this.io.getPointerField(this, 24);
 	}
 	/// C type : const uint8_t*
 	@Field(24) 
-	public AVFormatContext cur_ptr_deprecated(Pointer<java.lang.Byte > cur_ptr_deprecated) {
+	public AVFormatContext cur_ptr_deprecated(Pointer<Byte > cur_ptr_deprecated) {
 		this.io.setPointerField(this, 24, cur_ptr_deprecated);
 		return this;
 	}
 	/// C type : const uint8_t*
-	public final Pointer<java.lang.Byte > cur_ptr_deprecated_$eq(Pointer<java.lang.Byte > cur_ptr_deprecated) {
+	public final Pointer<Byte > cur_ptr_deprecated_$eq(Pointer<Byte > cur_ptr_deprecated) {
 		cur_ptr_deprecated(cur_ptr_deprecated);
 		return cur_ptr_deprecated;
 	}
@@ -413,7 +411,7 @@ public class AVFormatContext extends StructObject {
 	}
 	/**
 	 * av_seek_frame() support<br>
-	 * offset of the first packet
+	 * < offset of the first packet
 	 */
 	@Field(27) 
 	public long data_offset() {
@@ -421,7 +419,7 @@ public class AVFormatContext extends StructObject {
 	}
 	/**
 	 * av_seek_frame() support<br>
-	 * offset of the first packet
+	 * < offset of the first packet
 	 */
 	@Field(27) 
 	public AVFormatContext data_offset(long data_offset) {
@@ -576,17 +574,17 @@ public class AVFormatContext extends StructObject {
 	}
 	/// C type : const uint8_t*
 	@Field(38) 
-	public Pointer<java.lang.Byte > key() {
+	public Pointer<Byte > key() {
 		return this.io.getPointerField(this, 38);
 	}
 	/// C type : const uint8_t*
 	@Field(38) 
-	public AVFormatContext key(Pointer<java.lang.Byte > key) {
+	public AVFormatContext key(Pointer<Byte > key) {
 		this.io.setPointerField(this, 38, key);
 		return this;
 	}
 	/// C type : const uint8_t*
-	public final Pointer<java.lang.Byte > key_$eq(Pointer<java.lang.Byte > key) {
+	public final Pointer<Byte > key_$eq(Pointer<Byte > key) {
 		key(key);
 		return key;
 	}
@@ -618,17 +616,17 @@ public class AVFormatContext extends StructObject {
 	}
 	/// C type : AVProgram**
 	@Field(41) 
-	public Pointer<Pointer<com.nativelibs4java.ffmpeg.avformat.AVProgram > > programs() {
+	public Pointer<Pointer<AVProgram > > programs() {
 		return this.io.getPointerField(this, 41);
 	}
 	/// C type : AVProgram**
 	@Field(41) 
-	public AVFormatContext programs(Pointer<Pointer<com.nativelibs4java.ffmpeg.avformat.AVProgram > > programs) {
+	public AVFormatContext programs(Pointer<Pointer<AVProgram > > programs) {
 		this.io.setPointerField(this, 41, programs);
 		return this;
 	}
 	/// C type : AVProgram**
-	public final Pointer<Pointer<com.nativelibs4java.ffmpeg.avformat.AVProgram > > programs_$eq(Pointer<Pointer<com.nativelibs4java.ffmpeg.avformat.AVProgram > > programs) {
+	public final Pointer<Pointer<AVProgram > > programs_$eq(Pointer<Pointer<AVProgram > > programs) {
 		programs(programs);
 		return programs;
 	}
@@ -773,17 +771,17 @@ public class AVFormatContext extends StructObject {
 	}
 	/// C type : AVChapter**
 	@Field(48) 
-	public Pointer<Pointer<com.nativelibs4java.ffmpeg.avformat.AVChapter > > chapters() {
+	public Pointer<Pointer<AVChapter > > chapters() {
 		return this.io.getPointerField(this, 48);
 	}
 	/// C type : AVChapter**
 	@Field(48) 
-	public AVFormatContext chapters(Pointer<Pointer<com.nativelibs4java.ffmpeg.avformat.AVChapter > > chapters) {
+	public AVFormatContext chapters(Pointer<Pointer<AVChapter > > chapters) {
 		this.io.setPointerField(this, 48, chapters);
 		return this;
 	}
 	/// C type : AVChapter**
-	public final Pointer<Pointer<com.nativelibs4java.ffmpeg.avformat.AVChapter > > chapters_$eq(Pointer<Pointer<com.nativelibs4java.ffmpeg.avformat.AVChapter > > chapters) {
+	public final Pointer<Pointer<AVChapter > > chapters_$eq(Pointer<Pointer<AVChapter > > chapters) {
 		chapters(chapters);
 		return chapters;
 	}
@@ -810,7 +808,7 @@ public class AVFormatContext extends StructObject {
 	 * C type : AVPacketList*
 	 */
 	@Field(50) 
-	public Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > raw_packet_buffer() {
+	public Pointer<AVPacketList > raw_packet_buffer() {
 		return this.io.getPointerField(this, 50);
 	}
 	/**
@@ -821,60 +819,60 @@ public class AVFormatContext extends StructObject {
 	 * C type : AVPacketList*
 	 */
 	@Field(50) 
-	public AVFormatContext raw_packet_buffer(Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > raw_packet_buffer) {
+	public AVFormatContext raw_packet_buffer(Pointer<AVPacketList > raw_packet_buffer) {
 		this.io.setPointerField(this, 50, raw_packet_buffer);
 		return this;
 	}
 	/// C type : AVPacketList*
-	public final Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > raw_packet_buffer_$eq(Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > raw_packet_buffer) {
+	public final Pointer<AVPacketList > raw_packet_buffer_$eq(Pointer<AVPacketList > raw_packet_buffer) {
 		raw_packet_buffer(raw_packet_buffer);
 		return raw_packet_buffer;
 	}
 	/// C type : AVPacketList*
 	@Field(51) 
-	public Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > raw_packet_buffer_end() {
+	public Pointer<AVPacketList > raw_packet_buffer_end() {
 		return this.io.getPointerField(this, 51);
 	}
 	/// C type : AVPacketList*
 	@Field(51) 
-	public AVFormatContext raw_packet_buffer_end(Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > raw_packet_buffer_end) {
+	public AVFormatContext raw_packet_buffer_end(Pointer<AVPacketList > raw_packet_buffer_end) {
 		this.io.setPointerField(this, 51, raw_packet_buffer_end);
 		return this;
 	}
 	/// C type : AVPacketList*
-	public final Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > raw_packet_buffer_end_$eq(Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > raw_packet_buffer_end) {
+	public final Pointer<AVPacketList > raw_packet_buffer_end_$eq(Pointer<AVPacketList > raw_packet_buffer_end) {
 		raw_packet_buffer_end(raw_packet_buffer_end);
 		return raw_packet_buffer_end;
 	}
 	/// C type : AVPacketList*
 	@Field(52) 
-	public Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > packet_buffer_end() {
+	public Pointer<AVPacketList > packet_buffer_end() {
 		return this.io.getPointerField(this, 52);
 	}
 	/// C type : AVPacketList*
 	@Field(52) 
-	public AVFormatContext packet_buffer_end(Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > packet_buffer_end) {
+	public AVFormatContext packet_buffer_end(Pointer<AVPacketList > packet_buffer_end) {
 		this.io.setPointerField(this, 52, packet_buffer_end);
 		return this;
 	}
 	/// C type : AVPacketList*
-	public final Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > packet_buffer_end_$eq(Pointer<com.nativelibs4java.ffmpeg.avformat.AVPacketList > packet_buffer_end) {
+	public final Pointer<AVPacketList > packet_buffer_end_$eq(Pointer<AVPacketList > packet_buffer_end) {
 		packet_buffer_end(packet_buffer_end);
 		return packet_buffer_end;
 	}
 	/// C type : AVMetadata*
 	@Field(53) 
-	public AVMetadata metadata() {
-		return this.io.getTypedPointerField(this, 53);
+	public Pointer<AVMetadata > metadata() {
+		return this.io.getPointerField(this, 53);
 	}
 	/// C type : AVMetadata*
 	@Field(53) 
-	public AVFormatContext metadata(AVMetadata metadata) {
+	public AVFormatContext metadata(Pointer<AVMetadata > metadata) {
 		this.io.setPointerField(this, 53, metadata);
 		return this;
 	}
 	/// C type : AVMetadata*
-	public final AVMetadata metadata_$eq(AVMetadata metadata) {
+	public final Pointer<AVMetadata > metadata_$eq(Pointer<AVMetadata > metadata) {
 		metadata(metadata);
 		return metadata;
 	}

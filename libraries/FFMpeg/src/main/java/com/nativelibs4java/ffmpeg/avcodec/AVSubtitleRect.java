@@ -1,8 +1,6 @@
 package com.nativelibs4java.ffmpeg.avcodec;
-import com.nativelibs4java.ffmpeg.avcodec.AvcodecLibrary.AVSubtitleType;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
-import org.bridj.ValuedEnum;
 import org.bridj.ann.Field;
 import org.bridj.ann.Library;
 /**
@@ -100,31 +98,15 @@ public class AVSubtitleRect extends StructObject {
 	 * C type : AVPicture
 	 */
 	@Field(5) 
-	public com.nativelibs4java.ffmpeg.avcodec.AVPicture pict() {
+	public AVPicture pict() {
 		return this.io.getNativeObjectField(this, 5);
-	}
-	/// C type : AVSubtitleType
-	@Field(6) 
-	public ValuedEnum<AVSubtitleType > type() {
-		return this.io.getEnumField(this, 6);
-	}
-	/// C type : AVSubtitleType
-	@Field(6) 
-	public AVSubtitleRect type(ValuedEnum<AVSubtitleType > type) {
-		this.io.setEnumField(this, 6, type);
-		return this;
-	}
-	/// C type : AVSubtitleType
-	public final ValuedEnum<AVSubtitleType > type_$eq(ValuedEnum<AVSubtitleType > type) {
-		type(type);
-		return type;
 	}
 	/**
 	 * < 0 terminated plain UTF-8 text<br>
 	 * C type : char*
 	 */
 	@Field(7) 
-	public Pointer<java.lang.Byte > text() {
+	public Pointer<Byte > text() {
 		return this.io.getPointerField(this, 7);
 	}
 	/**
@@ -132,12 +114,12 @@ public class AVSubtitleRect extends StructObject {
 	 * C type : char*
 	 */
 	@Field(7) 
-	public AVSubtitleRect text(Pointer<java.lang.Byte > text) {
+	public AVSubtitleRect text(Pointer<Byte > text) {
 		this.io.setPointerField(this, 7, text);
 		return this;
 	}
 	/// C type : char*
-	public final Pointer<java.lang.Byte > text_$eq(Pointer<java.lang.Byte > text) {
+	public final Pointer<Byte > text_$eq(Pointer<Byte > text) {
 		text(text);
 		return text;
 	}
@@ -148,7 +130,7 @@ public class AVSubtitleRect extends StructObject {
 	 * C type : char*
 	 */
 	@Field(8) 
-	public Pointer<java.lang.Byte > ass() {
+	public Pointer<Byte > ass() {
 		return this.io.getPointerField(this, 8);
 	}
 	/**
@@ -158,12 +140,12 @@ public class AVSubtitleRect extends StructObject {
 	 * C type : char*
 	 */
 	@Field(8) 
-	public AVSubtitleRect ass(Pointer<java.lang.Byte > ass) {
+	public AVSubtitleRect ass(Pointer<Byte > ass) {
 		this.io.setPointerField(this, 8, ass);
 		return this;
 	}
 	/// C type : char*
-	public final Pointer<java.lang.Byte > ass_$eq(Pointer<java.lang.Byte > ass) {
+	public final Pointer<Byte > ass_$eq(Pointer<Byte > ass) {
 		ass(ass);
 		return ass;
 	}

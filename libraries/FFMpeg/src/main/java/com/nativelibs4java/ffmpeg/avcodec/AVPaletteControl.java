@@ -48,7 +48,7 @@ public class AVPaletteControl extends StructObject {
 	 */
 	@Array({256}) 
 	@Field(1) 
-	public Pointer<java.lang.Integer > palette() {
+	public Pointer<Integer > palette() {
 		return this.io.getPointerField(this, 1);
 	}
 }

@@ -59,7 +59,7 @@ public abstract class Demangler {
 	}
 	public static Annotations annotations(final Annotation[] aa) {
 		return new Annotations() {
-			@Override
+			//@Override
 			public <A extends Annotation> A getAnnotation(Class<A> c) {
                 if (aa == null)
                     return null;
@@ -77,7 +77,7 @@ public abstract class Demangler {
 	}
 	public static Annotations annotations(final AnnotatedElement e) {
 		return new Annotations() {
-			@Override
+			//@Override
 			public <A extends Annotation> A getAnnotation(Class<A> c) {
 				return e.getAnnotation(c);
 			}

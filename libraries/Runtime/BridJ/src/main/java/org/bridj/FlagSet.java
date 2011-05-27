@@ -136,7 +136,7 @@ public class FlagSet<E extends Enum<E>> implements ValuedEnum<E> {
      * Get the integral value of this FlagSet.
      * @return value of the flag set
      */
-    @Override
+    //@Override
     public long value() {
         return value;
     }

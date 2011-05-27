@@ -1,5 +1,4 @@
 package com.nativelibs4java.ffmpeg.avformat;
-import com.nativelibs4java.ffmpeg.avformat.AvformatLibrary.AVMetadata;
 import com.nativelibs4java.ffmpeg.avutil.AVRational;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
@@ -77,7 +76,7 @@ public class AVChapter extends StructObject {
 	 * C type : char*
 	 */
 	@Field(4) 
-	public Pointer<java.lang.Byte > title() {
+	public Pointer<Byte > title() {
 		return this.io.getPointerField(this, 4);
 	}
 	/**
@@ -85,28 +84,28 @@ public class AVChapter extends StructObject {
 	 * C type : char*
 	 */
 	@Field(4) 
-	public AVChapter title(Pointer<java.lang.Byte > title) {
+	public AVChapter title(Pointer<Byte > title) {
 		this.io.setPointerField(this, 4, title);
 		return this;
 	}
 	/// C type : char*
-	public final Pointer<java.lang.Byte > title_$eq(Pointer<java.lang.Byte > title) {
+	public final Pointer<Byte > title_$eq(Pointer<Byte > title) {
 		title(title);
 		return title;
 	}
 	/// C type : AVMetadata*
 	@Field(5) 
-	public AVMetadata metadata() {
-		return this.io.getTypedPointerField(this, 5);
+	public Pointer<AVMetadata > metadata() {
+		return this.io.getPointerField(this, 5);
 	}
 	/// C type : AVMetadata*
 	@Field(5) 
-	public AVChapter metadata(AVMetadata metadata) {
+	public AVChapter metadata(Pointer<AVMetadata > metadata) {
 		this.io.setPointerField(this, 5, metadata);
 		return this;
 	}
 	/// C type : AVMetadata*
-	public final AVMetadata metadata_$eq(AVMetadata metadata) {
+	public final Pointer<AVMetadata > metadata_$eq(Pointer<AVMetadata > metadata) {
 		metadata(metadata);
 		return metadata;
 	}

@@ -101,17 +101,17 @@ public class CPPType implements ParameterizedType {
     		return nParams == 0 ? c : new CPPType(c, params);
     }
     
-    @Override
+    //@Override
     public Type[] getActualTypeArguments() {
         return actualTypeArguments.clone();
     }
 
-    @Override
+    //@Override
     public java.lang.reflect.Type getOwnerType() {
         return ownerType;
     }
 
-    @Override
+    //@Override
     public java.lang.reflect.Type getRawType() {
         return rawType;
     }

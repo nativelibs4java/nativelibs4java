@@ -19,17 +19,17 @@ public class AVProbeData extends StructObject {
 	}
 	/// C type : const char*
 	@Field(0) 
-	public Pointer<java.lang.Byte > filename() {
+	public Pointer<Byte > filename() {
 		return this.io.getPointerField(this, 0);
 	}
 	/// C type : const char*
 	@Field(0) 
-	public AVProbeData filename(Pointer<java.lang.Byte > filename) {
+	public AVProbeData filename(Pointer<Byte > filename) {
 		this.io.setPointerField(this, 0, filename);
 		return this;
 	}
 	/// C type : const char*
-	public final Pointer<java.lang.Byte > filename_$eq(Pointer<java.lang.Byte > filename) {
+	public final Pointer<Byte > filename_$eq(Pointer<Byte > filename) {
 		filename(filename);
 		return filename;
 	}
@@ -38,7 +38,7 @@ public class AVProbeData extends StructObject {
 	 * C type : unsigned char*
 	 */
 	@Field(1) 
-	public Pointer<java.lang.Byte > buf() {
+	public Pointer<Byte > buf() {
 		return this.io.getPointerField(this, 1);
 	}
 	/**
@@ -46,12 +46,12 @@ public class AVProbeData extends StructObject {
 	 * C type : unsigned char*
 	 */
 	@Field(1) 
-	public AVProbeData buf(Pointer<java.lang.Byte > buf) {
+	public AVProbeData buf(Pointer<Byte > buf) {
 		this.io.setPointerField(this, 1, buf);
 		return this;
 	}
 	/// C type : unsigned char*
-	public final Pointer<java.lang.Byte > buf_$eq(Pointer<java.lang.Byte > buf) {
+	public final Pointer<Byte > buf_$eq(Pointer<Byte > buf) {
 		buf(buf);
 		return buf;
 	}
