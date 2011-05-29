@@ -2,19 +2,25 @@
 -D_MSC_VER=1300
 -DMIDL_PASS=1
 -DHRESULT=int
+-DDWORD=int
+-DBYTE=char
+-DSIZE_T=size_t
 -D__stdcall=
 -D__cplusplus=1
 "-DMIDL_INTERFACE(x)=struct __declspec(uuid(x)) __declspec(novtable)"
 
 "-IC:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include"
+
+//-library d3d9
+//	"C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include\d3d9*.h"
 -library d3d10
 	"C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include\d3d10.h"
--library d3d11
-	"C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include\d3d11.h"
+//-library d3d11
+//	"C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include\d3d11.h"
 	
 -noJar -noComp
 -o src/main/java
--v
+//-v
 
 -runtime BridJ
--parseInOneChunk
+//-parseInOneChunk
