@@ -11,7 +11,7 @@ import org.bridj.ann.Runtime;
 /**
  * Represents an object that can be interpreted as more than one type.
  */
-@Runtime(COMRuntime.class)
+@Runtime(CRuntime.class) 
 public class VARIANT extends StructObject {
 	public VARIANT(Object value) {
 		super();
