@@ -229,7 +229,8 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
             eventOut
         ));
         if (originalOut != null)
-            put(out, originalOut);
+            //put(out, originalOut);
+            put(originalOut, out);
         return CLEvent.createEvent(queue, eventOut);
     }
 

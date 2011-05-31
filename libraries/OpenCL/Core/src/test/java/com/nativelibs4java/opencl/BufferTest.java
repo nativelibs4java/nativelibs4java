@@ -24,6 +24,7 @@ import org.junit.Test;
 import com.nativelibs4java.test.MiscTestUtils;
 import com.nativelibs4java.util.NIOUtils;
 import com.sun.jna.Native;
+import java.nio.ByteOrder;
 
 /**
  *
@@ -66,12 +67,21 @@ public class BufferTest extends AbstractCommon {
 
         buf.write(queue, zeroOffset, zeroLength, zeroes, true);
 
-        buf.read(queue, retrieved, true);
-        for (int i = 0; i < n; i++) {
-            if (i >= zeroOffset && i < (zeroOffset + zeroLength))
-                assertEquals(bufferClass.getName(), get(zeroes, i), get(retrieved, i));
+        for (boolean direct : new boolean[] { true, false }) {
+            String type = direct ? "read to direct buffer" : "read to indirect buffer";
+            B readBuffer;
+            if (direct)
+                readBuffer = retrieved;
             else
-                assertEquals(bufferClass.getName(), get(initial, i), get(retrieved, i));
+                readBuffer = NIOUtils.indirectBuffer(n, bufferClass);
+            buf.read(queue, readBuffer, true);
+            
+            for (int i = 0; i < n; i++) {
+                if (i >= zeroOffset && i < (zeroOffset + zeroLength))
+                    assertEquals(bufferClass.getName(), get(zeroes, i), get(readBuffer, i));
+                else
+                    assertEquals(bufferClass.getName(), get(initial, i), get(readBuffer, i));
+            }
         }
     }
 
