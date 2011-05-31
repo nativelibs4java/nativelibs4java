@@ -1,4 +1,5 @@
 package org.bridj.cpp.com;
+import org.bridj.CRuntime;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ann.CLong;
