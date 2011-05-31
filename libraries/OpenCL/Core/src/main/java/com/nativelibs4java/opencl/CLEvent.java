@@ -230,6 +230,8 @@ public class CLEvent extends CLAbstractEntity<cl_event> {
     }
     
 	static cl_event[] to_cl_event_array(CLEvent... events) {
+		if (events == null)
+			return null;
         if (noEvents) {
             for (CLEvent evt : events)
                 if (evt != null)
