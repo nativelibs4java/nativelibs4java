@@ -175,6 +175,29 @@ public class NIOUtils
         throw new UnsupportedOperationException("Cannot create direct buffers of type " + bufferClass.getName());
 	}
 	/**
+	 * Creates a indirect buffer of the specified size (in elements) and type..
+	 * @param size size of the buffer in elements
+	 * @param bufferClass type of the buffer. Must be one of IntBuffer.class, LongBuffer.class, ShortBuffer.class, ByteBuffer.class, DoubleBuffer.class, FloatBuffer.class
+	 * @return view on new direct buffer
+	 */
+	 @SuppressWarnings("unchecked")
+	public static <B extends Buffer> B indirectBuffer(int size, Class<B> bufferClass) {
+        if (IntBuffer.class.isAssignableFrom(bufferClass))
+            return (B)IntBuffer.allocate(size);
+		if (LongBuffer.class.isAssignableFrom(bufferClass))
+            return (B)LongBuffer.allocate(size);
+		if (ShortBuffer.class.isAssignableFrom(bufferClass))
+            return (B)ShortBuffer.allocate(size);
+		if (ByteBuffer.class.isAssignableFrom(bufferClass))
+            return (B)ByteBuffer.allocate(size);
+		if (DoubleBuffer.class.isAssignableFrom(bufferClass))
+            return (B)DoubleBuffer.allocate(size);
+		if (FloatBuffer.class.isAssignableFrom(bufferClass))
+            return (B)FloatBuffer.allocate(size);
+
+        throw new UnsupportedOperationException("Cannot create indirect buffers of type " + bufferClass.getName());
+	}
+	/**
 	 * Get the size in bytes of a buffer
 	 */
 	public static long getSizeInBytes(Buffer b) {
