@@ -331,6 +331,9 @@ public class CRuntime extends AbstractBridJRuntime {
 	protected NativeLibrary getNativeLibrary(Class<?> type) throws FileNotFoundException {
 		return BridJ.getNativeLibrary(type);
 	}
+	protected Level getSeverityOfMissingSymbol(Method method) {
+		return BridJ.getAnnotation(Optional.class, true, method) != null ? Level.INFO : Level.SEVERE;
+	}
 	protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder, MethodCallInfoBuilder methodCallInfoBuilder) throws FileNotFoundException {
 		MethodCallInfo mci;
 		try {
@@ -357,8 +360,9 @@ public class CRuntime extends AbstractBridJRuntime {
 //                    }
 //                }
 //                if (address == null) {
-                boolean isOptional = BridJ.getAnnotation(Optional.class, true, method) != null;
-                    log(isOptional ? Level.INFO : Level.SEVERE, "Failed to get address of method " + method);
+                Level severity = getSeverityOfMissingSymbol(method);
+                if (severity != null)
+                    log(severity, "Failed to get address of method " + method);
                     return;
 //                }
             }
