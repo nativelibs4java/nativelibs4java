@@ -23,24 +23,32 @@ public class OpenGLContextUtils {
 	 * * Current context functions<br>
 	 * Original signature : <code>CGLError CGLSetCurrentContext(CGLContextObj)</code>
 	 */
+	@Optional
 	public static native int CGLSetCurrentContext(Pointer<?> ctx);
 	/// Original signature : <code>CGLContextObj CGLGetCurrentContext()</code>
+	@Optional
 	public static native Pointer<?> CGLGetCurrentContext();
 	
 	/**
 	 * * Version numbers<br>
 	 * Original signature : <code>void CGLGetVersion(GLint*, GLint*)</code>
 	 */
+	@Optional
 	public static native void CGLGetVersion(Pointer<Integer> majorvers, Pointer<Integer> minorvers);
 	/**
 	 * * Convert an error code to a string<br>
 	 * Original signature : <code>char* CGLErrorString(CGLError)</code><br>
 	 * @param error @see CGLError
 	 */
+	@Optional
 	public static native Pointer<Byte> CGLErrorString(int error);
 
-    public static native Pointer<?> wglGetCurrentDC();
-    public static native Pointer<?> wglGetCurrentContext();
-    public static native Pointer<?> glXGetCurrentDisplay();
-    public static native Pointer<?> glXGetCurrentContext();
+    @Optional
+	public static native Pointer<?> wglGetCurrentDC();
+    @Optional
+	public static native Pointer<?> wglGetCurrentContext();
+    @Optional
+	public static native Pointer<?> glXGetCurrentDisplay();
+    @Optional
+	public static native Pointer<?> glXGetCurrentContext();
 }
