@@ -467,10 +467,12 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, toNS(ptrs.getSize() * Native.POINTER_SIZE), ptrs, null));
 
 		Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>(devices.length);
+        int iBin = n == devices.length + 1 ? 1 : 0;
         for (int i = 0; i < n; i++) {
             CLDevice device = devices[i];
-			Memory bytes = binMems[i];
-            ret.put(device, bytes.getByteArray(0, sizes[i].intValue()));
+			Memory bytes = binMems[iBin + i];
+			if (bytes != null)
+				ret.put(device, bytes.getByteArray(0, sizes[iBin + i].intValue()));
 		}
 		return ret;
 	}

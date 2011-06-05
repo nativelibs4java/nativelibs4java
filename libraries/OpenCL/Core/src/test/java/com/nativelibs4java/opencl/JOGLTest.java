@@ -24,6 +24,8 @@ import com.nativelibs4java.util.NIOUtils;
 
 import javax.media.opengl.*;
 import static javax.media.opengl.GL.*;
+import static javax.media.opengl.GL2.*;
+
 import javax.media.opengl.awt.*;
 
 import com.jogamp.opengl.util.*;
@@ -81,7 +83,7 @@ public class JOGLTest {
                             FloatBuffer buffer;
                             int[] VBO = new int[1];
                             int[] Texture = new int[1];
-                            GL gl = drawable.getGL();
+                            GL2 gl = (GL2)drawable.getGL();
                             buffer = NIOUtils.directFloats(bufferSize, ByteOrder.nativeOrder());
                             gl.glGenBuffers(1, VBO, 0); // Get A Valid Name
                             gl.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO[0]); // Bind The Buffer
@@ -89,6 +91,12 @@ public class JOGLTest {
 
                             gl.glGenTextures(1, Texture, 0);
                             gl.glBindTexture(GL2.GL_TEXTURE_2D, Texture[0]);
+                            //gl.glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+                            gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                            gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                            gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+                            gl.glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                            
                             int width = 2, height = 2, border = 0;
                             byte bZero = (byte)0, bMin1 = (byte)0xFF;
                             ByteBuffer texData = NIOUtils.directCopy(ByteBuffer.wrap(new byte[] {
@@ -102,11 +110,16 @@ public class JOGLTest {
                                 width,
                                 height,
                                 border,
-                                GL.GL_RGBA,
-                                GL2.GL_UNSIGNED_INT_8_8_8_8,
+                                GL.GL_LUMINANCE, GL2.GL_UNSIGNED_BYTE,
+                                //GL.GL_RGBA, GL2.GL_UNSIGNED_INT_8_8_8_8,
                                 texData
                             );
 						
+                            gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+                            gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+                            
+                            gl.glFlush();
+                            
                             CLFloatBuffer clbuf = context.createBufferFromGLBuffer(CLMem.Usage.Input, VBO[0]).asCLFloatBuffer();
                             CLImage2D climg = context.createImage2DFromGLTexture2D(CLMem.Usage.InputOutput, CLContext.GLTextureTarget.Texture2D, Texture[0], 0);
 
@@ -199,7 +212,7 @@ public class JOGLTest {
             if (err[0] != null) {
                 throw err[0];
             }
-            if (err[0] != null) {
+            if (exx[0] != null) {
                 throw exx[0];
             }
         } catch (AssertionError ex) {
