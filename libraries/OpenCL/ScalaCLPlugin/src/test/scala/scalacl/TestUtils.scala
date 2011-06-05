@@ -62,6 +62,8 @@ trait TestUtils {
   implicit val baseOutDir = new File("target/testSnippetsClasses")
   baseOutDir.mkdirs
 
+  val options = new ScalaCLPlugin.PluginOptions(null)
+  
   /*def compile(src: String, outDir: String) = {
     outDir.mkdirs
 

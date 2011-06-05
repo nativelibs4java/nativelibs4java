@@ -94,11 +94,13 @@ class ArrayMap2WhileTest extends TestUtils with TypeUtils {
             var i1 = 0
             while (i1 < n1)
             {
-              val subArray1 = multiArray(i1);
+              val iVal1 = i1
+              val subArray1 = multiArray(iVal1);
               {
                 var i2 = 0
                 while (i2 < n2)
                 {
+                  val iVal2 = i2
                   subArray1(i2) = """ + valStr + """
                   i2 += 1
                 }

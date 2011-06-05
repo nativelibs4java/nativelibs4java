@@ -44,13 +44,17 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
           for (i <- 0 until 100; if i < 10)
             t += 2 * i
       """,
-      """ var t = 0
-          val n = 100
+      """ 
+          val from = 0
+          val to = 100
+          var t = from
+          val n = to
           var i = 0
           while (i < n)
           {
-            if (i < 10) {
-              t += 2 * i
+            val iVal = i
+            if (iVal < 10) {
+              t += 2 * iVal
             }
             i += 1
           }
@@ -106,8 +110,9 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
             var builder1 = new scala.collection.immutable.VectorBuilder[Int]
             while (i < n)
             {
-              if (i != 50)
-                builder1 += i
+              val iVal = i
+              if (iVal != 50)
+                builder1 += iVal
               i += 1
             }
             builder1.result
@@ -254,12 +259,14 @@ class IntRangeForeach2WhileTest extends TestUtils with TypeUtils {
           var i = 0
           while (i <= n)
           {
+              val iVal = i
               def g(x: Int) = x - 1
               val m = 1000
               var j = 0
               while (j < m)
               {
-                t += 2 * (f(i) + g(j))
+                val jVal = j
+                t += 2 * (f(iVal) + g(jVal))
                 j += 1
               }
               i += 5

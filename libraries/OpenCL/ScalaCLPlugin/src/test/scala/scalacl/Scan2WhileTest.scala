@@ -36,6 +36,7 @@ import Assert._
 
 class Scan2WhileTest extends TestUtils {
 
+  import options.experimental // SCALACL_EXPERIMENTAL
   
   @Test
   def simpleArrayScanLeft {
@@ -93,7 +94,7 @@ class Scan2WhileTest extends TestUtils {
 
 
   @Test
-  def simpleArrayScanRight {
+  def simpleArrayScanRight = if (experimental) {
     ensurePluginCompilesSnippetsToSameByteCode(
       """ val a = new Array[Double](10)
           val s = a.scanRight(0.0)(_ * 0.01 + _)
@@ -108,9 +109,10 @@ class Scan2WhileTest extends TestUtils {
             m(0) = t
             while (i > 0) {
                 i -= 1
-                val item = aa(i)
+                val iVal = i
+                val item = aa(iVal)
                 t = item * 0.01 + t
-                m(n - i) = t
+                m(n - iVal) = t
             }
             m
           }
