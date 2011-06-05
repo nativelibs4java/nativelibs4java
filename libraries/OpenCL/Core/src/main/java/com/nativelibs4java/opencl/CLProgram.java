@@ -459,10 +459,12 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 		error(infos.getInfo(getEntity(), CL_PROGRAM_BINARIES, ptrs.getValidBytes(), ptrs, null));
 
 		Map<CLDevice, byte[]> ret = new HashMap<CLDevice, byte[]>(devices.length);
-        for (int i = 0; i < n; i++) {
+        int iBin = n == devices.length + 1 ? 1 : 0;
+        for (int i = 0; i < devices.length; i++) {
             CLDevice device = devices[i];
-			Pointer<?> bytes = binMems[i];
-            ret.put(device, bytes.getBytes((int)sizes[i]));
+			Pointer<?> bytes = binMems[iBin + i];
+            if (bytes != null)
+                ret.put(device, bytes.getBytes((int)sizes[iBin + i]));
 		}
 		return ret;
 	}
@@ -695,8 +697,11 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         	if (isCached() && !readBinaries) {
         		JavaCL.userCacheDir.mkdirs();
         		try {
-        			writeBinaries(getBinaries(), getSource(), contentSignature, new FileOutputStream(cacheFile));
-        			assert log(Level.INFO, "Wrote binaries cache to '" + cacheFile + "'"); 
+                    Map<CLDevice, byte[]> binaries = getBinaries();
+                    if (!binaries.isEmpty()) {
+                        writeBinaries(getBinaries(), getSource(), contentSignature, new FileOutputStream(cacheFile));
+                        assert log(Level.INFO, "Wrote binaries cache to '" + cacheFile + "'"); 
+                    }
         		} catch (Exception ex) {
         			new IOException("[JavaCL] Failed to cache program", ex).printStackTrace();
         		}
