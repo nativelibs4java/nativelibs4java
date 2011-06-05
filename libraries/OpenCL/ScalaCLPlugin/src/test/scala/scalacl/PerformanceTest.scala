@@ -92,7 +92,7 @@ class PerformanceTest extends TestUtils {
   @Test def simpleArrayMin = testMin(arr)                 
   @Test def simpleArrayMax = testMax(arr)                 
   @Test def simpleArrayScanLeft = testScanLeft(arr)       
-  @Test def simpleArrayScanRight = testScanRight(arr)     
+  //@Test def simpleArrayScanRight = testScanRight(arr)     
   @Test def simpleArrayFoldLeft = testFoldLeft(arr)       
   @Test def simpleArrayFoldRight = testFoldRight(arr)     
   @Test def simpleArrayReduceLeft = testReduceLeft(arr)   
