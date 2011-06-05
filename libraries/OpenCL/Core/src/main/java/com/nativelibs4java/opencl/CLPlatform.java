@@ -138,7 +138,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     static long[] getContextProps(Map<ContextProperties, Object> contextProperties) {
         if (contextProperties == null)
             return null;
-        final long[] properties = new long[contextProperties.size() * 2 + 2];
+        final long[] properties = new long[contextProperties.size() * 2 + 1];
         int iProp = 0;
         for (Map.Entry<ContextProperties, Object> e : contextProperties.entrySet()) {
             //if (!(v instanceof Number)) throw new IllegalArgumentException("Invalid context property value for '" + e.getKey() + ": " + v);
@@ -151,7 +151,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             else
                 throw new IllegalArgumentException("Cannot convert value " + v + " to a context property value !");
         }
-        properties[iProp] = 0;
+        //properties[iProp] = 0;
         return properties;
     }
 
@@ -285,7 +285,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 		GLXDisplay(CL_GLX_DISPLAY_KHR),
 		WGLHDC(CL_WGL_HDC_KHR),
         Platform(CL_CONTEXT_PLATFORM),
-        CGLShareGroupApple(2684354),//CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE),
+        CGLShareGroupApple(CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE),
 		CGLShareGroup(CL_CGL_SHAREGROUP_KHR);
 
 		ContextProperties(long value) { this.value = value; }
@@ -312,18 +312,19 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
         if (Platform.isMac()) {
             NativeSize context = OpenGLContextUtils.INSTANCE.CGLGetCurrentContext();
             NativeSize shareGroup = OpenGLContextUtils.INSTANCE.CGLGetShareGroup(context);
-            out.put(ContextProperties.GLContext, context.longValue());
-            out.put(ContextProperties.CGLShareGroup, shareGroup.longValue());
+            out.put(ContextProperties.CGLShareGroupApple, shareGroup.longValue());
         } else if (Platform.isWindows()) {
             NativeSize context = OpenGLContextUtils.INSTANCE.wglGetCurrentContext();
             NativeSize dc = OpenGLContextUtils.INSTANCE.wglGetCurrentDC();
             out.put(ContextProperties.GLContext, context.longValue());
             out.put(ContextProperties.WGLHDC, dc.longValue());
+            out.put(ContextProperties.Platform, PointerUtils.getAddress(platform.getEntity().getPointer()));
         } else if (Platform.isX11()) {
             NativeSize context = OpenGLContextUtils.INSTANCE.glXGetCurrentContext();
             NativeSize dc = OpenGLContextUtils.INSTANCE.glXGetCurrentDisplay();
             out.put(ContextProperties.GLContext, context.longValue());
             out.put(ContextProperties.GLXDisplay, dc.longValue());
+            out.put(ContextProperties.Platform, PointerUtils.getAddress(platform.getEntity().getPointer()));
         } else
             throw new UnsupportedOperationException("Current GL context retrieval not implemented on this platform !");
         
@@ -333,11 +334,19 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     }
     @Deprecated
     public CLContext createGLCompatibleContext(CLDevice... devices) {
-        for (CLDevice device : devices)
-            if (!device.isGLSharingSupported())
-                throw new UnsupportedOperationException("Device " + device + " does not support CL/GL sharing.");
+        try {
+            return createContext(getGLContextProperties(this), devices);
+        } catch (Throwable th) {}
         
-        return createContext(getGLContextProperties(this), devices);
+        for (CLDevice device : devices) {
+            if (!device.isGLSharingSupported())
+                continue;
+            
+            try {
+                return createContext(getGLContextProperties(this), device);
+            } catch (Throwable th) {}
+        }
+        throw new UnsupportedOperationException("Failed to create an OpenGL-sharing-enabled OpenCL context out of devices " + Arrays.asList(devices));
     }
 
     /**

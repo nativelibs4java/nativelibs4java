@@ -535,7 +535,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     }
     /**
      * Add the -cl-finite-math-only compile option.<br>
-     * Allow optimizations for floating-point arithmetic that assume that arguments and results are not NaNs or ±°. This option may violate the OpenCL numerical compliance requirements defined in in section 7.4 for single-precision floating-point, section 9.3.9 for double-precision floating-point, and edge case behavior in section 7.5.<br>
+     * Allow optimizations for floating-point arithmetic that assume that arguments and results are not NaNs or infinites. This option may violate the OpenCL numerical compliance requirements defined in in section 7.4 for single-precision floating-point, section 9.3.9 for double-precision floating-point, and edge case behavior in section 7.5.<br>
      * Also see : <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clBuildProgram.html">Khronos' documentation for clBuildProgram</a>.
      */
     public void setFiniteMathOnly() {

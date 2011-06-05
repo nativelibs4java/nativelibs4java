@@ -77,6 +77,7 @@ public interface OpenCLLibrary extends Library {
 	public static final int CL_ADDRESS_MIRRORED_REPEAT = 4404;
 	public static final int CL_INVALID_KERNEL_ARGS = -52;
 	public static final int CL_CONTEXT_PLATFORM = 4228;
+	public static final int CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE = 0x10000000;
 	public static final int CL_HAS_HI_LO_VECTOR_FIELDS = 1;
 	public static final int CL_MEM_MAP_COUNT = 4356;
 	public static final int CL_AFFINITY_DOMAIN_NEXT_FISSIONABLE_EXT = 256;
