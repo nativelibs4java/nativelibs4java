@@ -1,6 +1,9 @@
 package org.bridj.cpp.com;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.Method;
+import java.util.logging.Level;
+
 import org.bridj.ValuedEnum;
 import org.bridj.FlagSet;
 import org.bridj.BridJ;
@@ -187,6 +190,11 @@ public class COMRuntime extends CPPRuntime {
             };
         }
     };
+    
+    @Override
+    protected Level getSeverityOfMissingSymbol(Method method) {
+    		return null;
+    }
     
     /**
      * Initialize COM the current thread (uninitialization is done automatically upon thread death)

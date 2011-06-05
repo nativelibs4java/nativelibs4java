@@ -1,4 +1,5 @@
 package org.bridj.cpp.com;
+import org.bridj.CRuntime;
 import org.bridj.Pointer;
 import org.bridj.StructObject;
 import org.bridj.ValuedEnum;
@@ -11,7 +12,7 @@ import org.bridj.ann.Runtime;
 /**
  * Represents an object that can be interpreted as more than one type.
  */
-@Runtime(COMRuntime.class)
+@Runtime(CRuntime.class) 
 public class VARIANT extends StructObject {
 	public VARIANT(Object value) {
 		super();

@@ -76,6 +76,7 @@ public class OpenCLLibrary {
 	public static final int CL_INVALID_KERNEL_ARGS = -52;
 	public static final int CL_INVALID_GL_CONTEXT_APPLE = -1000;
 	public static final int CL_CONTEXT_PLATFORM = 4228;
+	public static final int CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE = 0x10000000;
 	public static final int CL_HAS_HI_LO_VECTOR_FIELDS = 1;
 	public static final int CL_MEM_MAP_COUNT = 4356;
 	public static final int CL_AFFINITY_DOMAIN_NEXT_FISSIONABLE_EXT = 256;

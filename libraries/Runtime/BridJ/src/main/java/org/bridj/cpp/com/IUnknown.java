@@ -8,8 +8,7 @@ import org.bridj.cpp.mfc.MFCRuntime;
 
 import static org.bridj.cpp.com.COMRuntime.*;
 
-//@Runtime(COMRuntime.class)
-@Convention(Convention.Style.StdCall) // TODO make it inheritable
+@Convention(Convention.Style.StdCall)
 @IID("00000000-0000-0000-C000-000000000046")
 @Runtime(COMRuntime.class)
 public class IUnknown extends CPPObject {

@@ -418,8 +418,8 @@ public class AvutilLibrary {
 	public static native com.nativelibs4java.ffmpeg.swscale.SwscaleLibrary.PixelFormat av_get_pix_fmt(Pointer<Byte > name);
 	public static native Pointer<Byte > av_get_pix_fmt_string(Pointer<Byte > buf, int buf_size, com.nativelibs4java.ffmpeg.swscale.SwscaleLibrary.PixelFormat pix_fmt);
 	public static native int av_get_bits_per_pixel(Pointer<AVPixFmtDescriptor > pixdesc);
-	public static native void av_log(Pointer<? > avcl, int level, Pointer<Byte > fmt, void arg1);
-	public static native void av_vlog(Pointer<? > avcl, int level, Pointer<Byte > fmt);
+	public static native void av_log(Pointer<? > avcl, int level, Pointer<Byte > fmt, Object... args);
+	public static native void av_vlog(Pointer<? > avcl, int level, Pointer<Byte > fmt, Object... args);
 	public static native int av_log_get_level();
 	public static native void av_log_set_level(int int1);
 	public static native void av_log_set_callback(Pointer<AvutilLibrary.av_log_set_callback_arg1_callback > arg1);
@@ -464,7 +464,7 @@ public class AvutilLibrary {
 	@Ptr 
 	public static native long av_strlcat(Pointer<Byte > dst, Pointer<Byte > src, @Ptr long size);
 	@Ptr 
-	public static native long av_strlcatf(Pointer<Byte > dst, @Ptr long size, Pointer<Byte > fmt, void arg1);
+	public static native long av_strlcatf(Pointer<Byte > dst, @Ptr long size, Pointer<Byte > fmt, Object... args);
 	public static native Pointer<Byte > av_d2str(double d);
 	public static native Pointer<Byte > av_get_token(Pointer<Pointer<Byte > > buf, Pointer<Byte > term);
 	public static native int av_file_map(Pointer<Byte > filename, Pointer<Pointer<Byte > > bufptr, Pointer<SizeT > size, int log_offset, Pointer<? > log_ctx);

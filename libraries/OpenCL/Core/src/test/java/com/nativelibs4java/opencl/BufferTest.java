@@ -26,6 +26,7 @@ import com.nativelibs4java.util.NIOUtils;
 import org.bridj.*;
 import java.nio.ByteOrder;
 import static org.bridj.Pointer.*;
+import java.nio.ByteOrder;
 
 /**
  *
@@ -84,13 +85,21 @@ public class BufferTest extends AbstractCommon {
 
         buf.write(queue, zeroOffset, zeroLength, zeroes, true);
 
-        buf.read(queue, retrieved, true);
-        for (int i = 0; i < n; i++) {
-            if (i >= zeroOffset && i < (zeroOffset + zeroLength))
-                assertEquals(bufferClass.getName(), zeroes.get(i), retrieved.get(i));
-            else
-                assertEquals(bufferClass.getName(), initial.get(i), retrieved.get(i));
-        }
+        boolean direct = true;
+            String type = direct ? "read to direct buffer" : "read to indirect buffer";
+            Pointer<B> readBuffer;
+            //if (direct)
+                readBuffer = retrieved;
+            //else
+            //    readBuffer = NIOUtils.indirectBuffer(n, bufferClass);
+            buf.read(queue, readBuffer, true);
+            
+            for (int i = 0; i < n; i++) {
+                if (i >= zeroOffset && i < (zeroOffset + zeroLength))
+                    assertEquals(bufferClass.getName(), zeroes.get(i), readBuffer.get(i));
+                else
+                    assertEquals(bufferClass.getName(), initial.get(i), readBuffer.get(i));
+            }
     }
 
     Class<?>[] bufferClasses = new Class[] {

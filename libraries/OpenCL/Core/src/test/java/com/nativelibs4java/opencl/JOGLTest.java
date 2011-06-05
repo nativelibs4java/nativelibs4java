@@ -74,7 +74,7 @@ public class JOGLTest {
                             //int glcontext = gl.glGet.getContext().CONTEXT_CURRENT;
                             CLQueue queue = context.createDefaultQueue();
 
-                            System.err.println("Initializing...");
+                            System.err.println("Initializing with OpenCL context = " + context + "...");
                             int bufferSize = 1024;
                             FloatBuffer buffer;
                             int[] VBO = new int[1];
@@ -104,7 +104,12 @@ public class JOGLTest {
                                 GL2.GL_UNSIGNED_INT_8_8_8_8,
                                 texData
                             );
-						
+                            //gl.glBindBuffer(GL.GL_ARRAY_BUFFER, 0);
+                            //gl.glBindTexture(GL2.GL_TEXTURE_2D, 0);
+                            
+                            //gl.glFlush();
+                            //gl.glFinish();
+                            
                             CLBuffer<Float> clbuf = context.createBufferFromGLBuffer(CLMem.Usage.Input, VBO[0]).as(Float.class);
                             CLImage2D climg = context.createImage2DFromGLTexture2D(CLMem.Usage.InputOutput, CLContext.GLTextureTarget.Texture2D, Texture[0], 0);
 

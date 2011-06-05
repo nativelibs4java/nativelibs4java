@@ -274,7 +274,13 @@ public class CLBuffer<B> extends CLMem {
         mem.isGL = this.isGL;
         return mem;
     }
-
+    
+	@Deprecated
+	public void retain() {
+		cl_mem mem = getEntity();
+		CL.clRetainMemObject(mem);
+	}
+	
     #foreach ($prim in $primitivesNoBool)
 
 	public CLBuffer<${prim.WrapperName}> asCL${prim.BufferName}() {
@@ -285,8 +291,9 @@ public class CLBuffer<B> extends CLMem {
 	
 	public <T> CLBuffer<T> as(Class<T> newTargetType) {
 		cl_mem mem = getEntity();
-		CL.clRetainMemObject(mem);
+		retain();
         PointerIO<T> newIo = PointerIO.getInstance(newTargetType);
 		return copyGLMark(new CLBuffer<T>(context, getByteCount(), mem, owner, newIo));
 	}
+	
 }
