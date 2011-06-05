@@ -51,12 +51,10 @@ public class DirectNIODenseDoubleMatrix2D extends AbstractNIODenseDoubleMatrix2D
         return getData();
     }
 
-    @Override
     public DoubleBuffer getWrappedObject() {
         return data;
     }
 
-    @Override
     public void setWrappedObject(DoubleBuffer object) {
         this.data = object;
     }

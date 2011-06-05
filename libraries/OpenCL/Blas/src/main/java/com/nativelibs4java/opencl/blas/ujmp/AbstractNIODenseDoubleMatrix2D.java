@@ -24,7 +24,6 @@ public abstract class AbstractNIODenseDoubleMatrix2D extends AbstractDenseDouble
     public abstract DoubleBuffer getReadableData();
     public abstract DoubleBuffer getWritableData();
 
-    @Override
     public long[] getSize() {
         return new long[] { rows, columns };
     }
@@ -33,22 +32,18 @@ public abstract class AbstractNIODenseDoubleMatrix2D extends AbstractDenseDouble
         return row * columns + column;
     }
 
-    @Override
     public double getDouble(long row, long column) {
         return getReadableData().get((int)getStorageIndex(row, column));
     }
 
-    @Override
     public void setDouble(double value, long row, long column) {
         getWritableData().get((int)getStorageIndex(row, column));
     }
 
-    @Override
     public double getDouble(int row, int column) {
         return getDouble(row, (long)column);
     }
 
-    @Override
     public void setDouble(double value, int row, int column) {
         setDouble(value, row, (long)column);
     }
