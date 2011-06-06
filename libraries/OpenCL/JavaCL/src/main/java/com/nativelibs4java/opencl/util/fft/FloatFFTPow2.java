@@ -9,7 +9,7 @@ public class FloatFFTPow2 extends AbstractFFTPow2<Float, FloatBuffer, float[]> {
     final FloatFFTProgram program;
 
     public FloatFFTPow2(CLContext context) throws IOException {
-        super(context, Float.class, FloatBuffer.class);
+        super(context, Float.class);
         this.program = new FloatFFTProgram(context);
         program.getProgram().setFastRelaxedMath();
     }

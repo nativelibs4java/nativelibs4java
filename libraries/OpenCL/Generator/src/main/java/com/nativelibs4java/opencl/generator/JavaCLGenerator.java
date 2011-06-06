@@ -322,7 +322,7 @@ public class JavaCLGenerator extends JNAerator {
             "wchar_t", Character.TYPE, char[].class, Short.class,
             "double", Double.TYPE, double[].class, Double.class,
             "float", Float.TYPE, float[].class, Float.class,
-            "bool", Boolean.TYPE, boolean[].class, null
+            "bool", Boolean.TYPE, boolean[].class, Boolean.class
         };
         for (int arity : new int[] { 1, 2, 4, 8, 16 }) {
             String suffix = arity == 1 ? "" : arity +"";

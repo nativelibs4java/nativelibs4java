@@ -43,6 +43,7 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import org.bridj.*;
 import java.nio.ByteOrder;
+import org.bridj.util.Utils;
 import static org.bridj.Pointer.*;
 
 
@@ -53,42 +54,46 @@ import static org.bridj.Pointer.*;
  * @see CLContext
  * @author Olivier Chafik
  */
-public class CLBuffer<B> extends CLMem {
+public class CLBuffer<T> extends CLMem {
 	final Object owner;
-    final PointerIO<B> io;
+    final PointerIO<T> io;
     
-	CLBuffer(CLContext context, long byteCount, cl_mem entity, Object owner, PointerIO<B> io) {
+	CLBuffer(CLContext context, long byteCount, cl_mem entity, Object owner, PointerIO<T> io) {
         super(context, byteCount, entity);
 		this.owner = owner;
         this.io = io;
 	}
+    
+	public Class<T> getElementClass() {
+        return Utils.getClass(io.getTargetType());
+    }
 	public int getElementSize() {
         return (int)io.getTargetSize();
     }
 	public long getElementCount() {
         return getByteCount() / getElementSize();
     }
-	public Pointer<B> map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
+	public Pointer<T> map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, 0, getElementCount(), true, eventsToWaitFor).getFirst();
     }
-	public Pointer<B> map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
+	public Pointer<T> map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, true, eventsToWaitFor).getFirst();
     }
     
-	public Pair<Pointer<B>, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
+	public Pair<Pointer<T>, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, 0, getElementCount(), false, eventsToWaitFor);
     }
-	public Pair<Pointer<B>, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
+	public Pair<Pointer<T>, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, false, eventsToWaitFor);
     }
     
-	public Pointer<B> read(CLQueue queue, CLEvent... eventsToWaitFor) {
-        Pointer<B> out = allocateArray(io, getElementCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
+	public Pointer<T> read(CLQueue queue, CLEvent... eventsToWaitFor) {
+        Pointer<T> out = allocateArray(io, getElementCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
         read(queue, out, true, eventsToWaitFor);
 		return out;
 	}
-	public Pointer<B> read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		Pointer<B> out = allocateArray(io, getElementCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
+	public Pointer<T> read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
+		Pointer<T> out = allocateArray(io, getElementCount()).order(queue.getDevice().getKernelsDefaultByteOrder());
         read(queue, offset, length, out, true, eventsToWaitFor);
 		return out;
 	}
@@ -106,14 +111,14 @@ public class CLBuffer<B> extends CLMem {
 	 * @since OpenCL 1.1
 	 * @return
 	 */
-	public CLBuffer<B> createSubBuffer(Usage usage, long offset, long length) {
+	public CLBuffer<T> createSubBuffer(Usage usage, long offset, long length) {
 		try {
 			int s = getElementSize();
 			cl_buffer_region region = new cl_buffer_region().origin(s * offset).size(s * length);
 			Pointer<Integer> pErr = allocateInt();
 	        cl_mem mem = CL.clCreateSubBuffer(getEntity(), usage.getIntFlags(), CL_BUFFER_CREATE_TYPE_REGION, pointerTo(region), pErr);
 	        error(pErr.get());
-	        return mem == null ? null : new CLBuffer<B>(context, length * s, mem, null, io);
+	        return mem == null ? null : new CLBuffer<T>(context, length * s, mem, null, io);
 		} catch (Throwable th) {
     		// TODO check if supposed to handle OpenCL 1.1
     		throw new UnsupportedOperationException("Cannot create sub-buffer (OpenCL 1.1 feature).", th);
@@ -122,6 +127,20 @@ public class CLBuffer<B> extends CLMem {
 	
 	/**
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
+	 * @param srcOffset
+	 * @param length
+	 * @param destination
+	 * @param destOffset
+	 * @param eventsToWaitFor
+	 * @return
+	 */
+	public CLEvent copyTo(CLQueue queue, CLMem destination, CLEvent... eventsToWaitFor) {
+		return copyTo(queue, 0, getElementCount(), destination, 0, eventsToWaitFor);	
+	}
+	
+	/**
+	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
+	 * @param queue
 	 * @param srcOffset
 	 * @param length
 	 * @param destination
@@ -162,7 +181,7 @@ public class CLBuffer<B> extends CLMem {
 		return CLEvent.createEventFromPointer(queue, eventOut);
 	}
 
-	protected Pair<Pointer<B>, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
+	protected Pair<Pointer<T>, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
 		checkBounds(offset, length);
 		Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
 		Pointer<Integer> pErr = allocateInt();
@@ -177,20 +196,20 @@ public class CLBuffer<B> extends CLMem {
 			pErr
 		);
 		error(pErr.get());
-        return new Pair<Pointer<B>, CLEvent>(
+        return new Pair<Pointer<T>, CLEvent>(
 			p.as(io).validElements(length).order(queue.getDevice().getKernelsDefaultByteOrder()),
 			CLEvent.createEventFromPointer(queue, eventOut)
 		);
     }
 
-    public CLEvent unmap(CLQueue queue, Pointer<B> buffer, CLEvent... eventsToWaitFor) {
+    public CLEvent unmap(CLQueue queue, Pointer<T> buffer, CLEvent... eventsToWaitFor) {
         Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), buffer, evts == null ? 0 : (int)evts.getValidElements(), evts, eventOut));
 		return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
-	public CLEvent read(CLQueue queue, Pointer<B> out, boolean blocking, CLEvent... eventsToWaitFor) {
+	public CLEvent read(CLQueue queue, Pointer<T> out, boolean blocking, CLEvent... eventsToWaitFor) {
         long length = -1;
         if (isGL) {
             length = out.getValidElements();
@@ -204,7 +223,7 @@ public class CLBuffer<B> extends CLMem {
 		return read(queue, 0, length, out, blocking, eventsToWaitFor);
 	}
 
-	public CLEvent read(CLQueue queue, long offset, long length, Pointer<B> out, boolean blocking, CLEvent... eventsToWaitFor) {
+	public CLEvent read(CLQueue queue, long offset, long length, Pointer<T> out, boolean blocking, CLEvent... eventsToWaitFor) {
         //if (out.isReadOnly())
         //    throw new IllegalArgumentException("Output buffer for read operation is read-only !");
         Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
@@ -222,7 +241,7 @@ public class CLBuffer<B> extends CLMem {
         return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
-	public CLEvent write(CLQueue queue, Pointer<B> in, boolean blocking, CLEvent... eventsToWaitFor) {
+	public CLEvent write(CLQueue queue, Pointer<T> in, boolean blocking, CLEvent... eventsToWaitFor) {
         long length = -1;
         if (isGL)
             length = in.getValidElements();
@@ -235,7 +254,7 @@ public class CLBuffer<B> extends CLMem {
 		return write(queue, 0, length, in, blocking, eventsToWaitFor);
 	}
 
-	public CLEvent write(CLQueue queue, long offset, long length, Pointer<B> in, boolean blocking, CLEvent... eventsToWaitFor) {
+	public CLEvent write(CLQueue queue, long offset, long length, Pointer<T> in, boolean blocking, CLEvent... eventsToWaitFor) {
         Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueWriteBuffer(
@@ -274,13 +293,11 @@ public class CLBuffer<B> extends CLMem {
         mem.isGL = this.isGL;
         return mem;
     }
+        
+    public CLBuffer<T> emptyClone(CLMem.Usage usage) {
+    		return (CLBuffer)getContext().createBuffer(usage, io, getElementCount());
+    }
     
-	@Deprecated
-	public void retain() {
-		cl_mem mem = getEntity();
-		CL.clRetainMemObject(mem);
-	}
-	
     #foreach ($prim in $primitivesNoBool)
 
 	public CLBuffer<${prim.WrapperName}> asCL${prim.BufferName}() {
@@ -291,7 +308,7 @@ public class CLBuffer<B> extends CLMem {
 	
 	public <T> CLBuffer<T> as(Class<T> newTargetType) {
 		cl_mem mem = getEntity();
-		retain();
+		CL.clRetainMemObject(mem);
         PointerIO<T> newIo = PointerIO.getInstance(newTargetType);
 		return copyGLMark(new CLBuffer<T>(context, getByteCount(), mem, owner, newIo));
 	}

@@ -16,22 +16,9 @@ import org.ujmp.core.exceptions.MatrixException;
  * @author ochafik
  */
 public class CLDenseFloatMatrix2DFactory extends AbstractFloatMatrix2DFactory {
-	public static volatile OpenCLUJMP OpenCLUJMP;
-
-    static synchronized OpenCLUJMP getOpenCLUJMP() {
-        if (OpenCLUJMP == null) {
-            try {
-                OpenCLUJMP = new OpenCLUJMP();
-            } catch (Throwable ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-        return OpenCLUJMP;
-    }
-
 	public DenseFloatMatrix2D dense(long rows, long columns)
 			throws MatrixException {
-		return new CLDenseFloatMatrix2D(getOpenCLUJMP(), rows, columns);
+		return new CLDenseFloatMatrix2D(rows, columns, OpenCLUJMP.getInstance());
 	}
 
 }

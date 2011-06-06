@@ -6,17 +6,29 @@ package com.nativelibs4java.opencl.blas.ujmp;
 
 import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLContext;
+import com.nativelibs4java.opencl.CLQueue;
+import com.nativelibs4java.opencl.util.Primitive;
 import java.nio.Buffer;
+import org.bridj.Pointer;
 
 /**
  *
  * @author ochafik
  */
 public interface CLMatrix2D<T> {
+    Primitive getPrimitive();
+    Class<T> getPrimitiveClass();
     CLEvents getEvents();
     CLBuffer<T> getBuffer();
     CLContext getContext();
+    CLQueue getQueue();
     long getRowCount();
     long getColumnCount();
     CLMatrix2D<T> blankClone();
+    CLMatrix2D<T> blankMatrix(long rows, long columns);
+    OpenCLUJMP getCLUJMP();
+    
+    void write(final Pointer<T> b);
+    void read(final Pointer<T> b);
+    Pointer<T> read();
 }

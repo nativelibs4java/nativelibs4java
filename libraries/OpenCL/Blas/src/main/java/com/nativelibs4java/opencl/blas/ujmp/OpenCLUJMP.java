@@ -25,6 +25,7 @@ import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLKernel;
 import com.nativelibs4java.opencl.CLMem.MapFlags;
 import com.nativelibs4java.opencl.CLMem.Usage;
+import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.JavaCL;
 import com.nativelibs4java.opencl.util.Fun1;
@@ -47,8 +48,21 @@ public class OpenCLUJMP {
     protected final CLContext context;
     protected final CLQueue queue;
 
+    private static volatile OpenCLUJMP instance;
+
+    public static synchronized OpenCLUJMP getInstance() {
+        if (instance == null) {
+            try {
+                instance = new OpenCLUJMP();
+            } catch (Throwable ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+        return instance;
+    }
+    
     public OpenCLUJMP() throws IOException, CLBuildException {
-        this(JavaCL.createBestContext().createDefaultQueue());
+        this(JavaCL.createBestContext(DeviceFeature.DoubleSupport, DeviceFeature.MaxComputeUnits).createDefaultQueue());
     }
     public OpenCLUJMP(CLQueue queue) throws IOException, CLBuildException {
         kernels = new LinearAlgebraUtils(queue);
@@ -57,42 +71,48 @@ public class OpenCLUJMP {
         this.queue = queue;
     }
 
-    public <T> Pair<CLBuffer<T>, CLEvent> op1(Primitive prim, Fun1 fun, CLBuffer<T> a, long rows, long columns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
+    public <T> CLEvent op1(Primitive prim, Fun1 fun, CLBuffer<T> a, long rows, long columns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
         long length = rows * columns;
-        if (out != null)
-            out = (CLBuffer<T>)context.createBuffer(Usage.Output, prim.primitiveType, length);
+        if (out == null || out.getElementCount() != length)
+            throw new IllegalArgumentException("Expected buffer of length " + length + ", got " + out);
+        //if (out != null)
+        //    out = (CLBuffer<T>)context.createBuffer(Usage.Output, prim.primitiveType, length);
 
         CLKernel kernel = math.getKernel(fun, prim);
         synchronized (kernel) {
             kernel.setArgs(a, out, length);
             CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)length }, new int[] { 1 }, eventsToWaitFor);
-            return new Pair<CLBuffer<T>, CLEvent>(out, evt);
+            return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
         }
     }
 
-    public <T> Pair<CLBuffer<T>, CLEvent> op2(Primitive prim, Fun2 fun, CLBuffer<T> a, CLBuffer<T> b, long rows, long columns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
+    public <T> CLEvent op2(Primitive prim, Fun2 fun, CLBuffer<T> a, CLBuffer<T> b, long rows, long columns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
         long length = rows * columns;
-        if (out != null)
-            out = (CLBuffer<T>)context.createBuffer(Usage.Output, prim.primitiveType, length);
+        if (out == null || out.getElementCount() != length)
+            throw new IllegalArgumentException("Expected buffer of length " + length + ", got " + out);
+        //if (out != null)
+        //    out = (CLBuffer<T>)context.createBuffer(Usage.Output, prim.primitiveType, length);
 
         CLKernel kernel = math.getKernel(fun, prim, false);
         synchronized (kernel) {
             kernel.setArgs(a, b, out, length);
             CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)length }, new int[] { 1 }, eventsToWaitFor);
-            return new Pair<CLBuffer<T>, CLEvent>(out, evt);
+            return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
         }
     }
 
-    public <T> Pair<CLBuffer<T>, CLEvent> op2(Primitive prim, Fun2 fun, CLBuffer<T> a, T b, long rows, long columns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
+    public <T> CLEvent op2(Primitive prim, Fun2 fun, CLBuffer<T> a, T b, long rows, long columns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
         long length = rows * columns;
-        if (out != null)
-            out = (CLBuffer<T>)context.createBuffer(Usage.Output, prim.primitiveType, length);
+        if (out == null || out.getElementCount() != length)
+            throw new IllegalArgumentException("Expected buffer of length " + length + ", got " + out);
+        //if (out != null)
+        //    out = (CLBuffer<T>)context.createBuffer(Usage.Output, prim.primitiveType, length);
 
         CLKernel kernel = math.getKernel(fun, prim, true);
         synchronized (kernel) {
             kernel.setArgs(a, b, out, length);
             CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)length }, new int[] { 1 }, eventsToWaitFor);
-            return new Pair<CLBuffer<T>, CLEvent>(out, evt);
+            return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
         }
     }
 
@@ -156,9 +176,11 @@ public class OpenCLUJMP {
     }
 
     Map<Primitive, CLKernel> matrixMultiplyKernels = new HashMap<Primitive, CLKernel>();
-    public <T> Pair<CLBuffer<T>, CLEvent> matrixMultiply(Primitive prim, CLBuffer<T> a, long aRows, long aColumns, CLBuffer<T> b, long bRows, long bColumns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
-        if (out != null)
-            out = (CLBuffer<T>)context.createBuffer(Usage.Output, prim.primitiveType, aRows * bColumns);
+    public <T> CLEvent matrixMultiply(Primitive prim, CLBuffer<T> a, long aRows, long aColumns, CLBuffer<T> b, long bRows, long bColumns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
+        if (out == null)
+            throw new IllegalArgumentException("Null output matrix !");
+        //if (out != null)
+        //    out = (CLBuffer<T>)context.createBuffer(Usage.Output, prim.primitiveType, aRows * bColumns);
 
         CLKernel kernel;
         synchronized (matrixMultiplyKernels) {
@@ -191,14 +213,16 @@ public class OpenCLUJMP {
         synchronized (kernel) {
             kernel.setArgs(a, aRows, aColumns, b, bColumns, out);
             CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)aRows, (int)bColumns }, new int[] { 1 }, eventsToWaitFor);
-            return new Pair<CLBuffer<T>, CLEvent>(out, evt);
+            return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
         }
     }
 
     Map<Primitive, CLKernel> matrixTransposeKernels = new HashMap<Primitive, CLKernel>();
-    public <T> Pair<CLBuffer<T>, CLEvent> matrixTranspose(Primitive prim, CLBuffer<T> a, long aRows, long aColumns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
-        if (out != null)
-            out = (CLBuffer<T>)context.createBuffer(Usage.Output, prim.primitiveType, aRows * aColumns);
+    public <T> CLEvent matrixTranspose(Primitive prim, CLBuffer<T> a, long aRows, long aColumns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
+        if (out == null)
+            throw new IllegalArgumentException("Null output matrix !");
+        //if (out != null)
+        //    out = (CLBuffer<T>)context.createBuffer(Usage.Output, prim.primitiveType, aRows * aColumns);
 
         CLKernel kernel;
         synchronized (matrixTransposeKernels) {
@@ -234,7 +258,7 @@ public class OpenCLUJMP {
         synchronized (kernel) {
             kernel.setArgs(a, new SizeT(aRows), new SizeT(aColumns), out);
             CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)aRows, (int)aColumns }, new int[] { 1 }, eventsToWaitFor);
-            return new Pair<CLBuffer<T>, CLEvent>(out, evt);
+            return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
         }
     }
 

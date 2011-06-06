@@ -20,5 +20,6 @@ public enum StorageType implements ValuedEnum {
     }
 
     StorageType(long value) { this.value = value; }
-	long value; @Override public long value() { return value; }
+	long value; 
+    public long value() { return value; }
 }

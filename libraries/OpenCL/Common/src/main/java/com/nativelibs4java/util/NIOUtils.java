@@ -12,31 +12,84 @@ import java.nio.*;
 public class NIOUtils
 {
 
+	public static Class<? extends Buffer> getBufferClass(Class<?> primitiveClass) {
+		if (primitiveClass == Byte.class || primitiveClass == byte.class)
+			return ByteBuffer.class;
+		if (primitiveClass == Short.class || primitiveClass == short.class)
+			return ShortBuffer.class;
+		if (primitiveClass == Character.class || primitiveClass == char.class)
+			return CharBuffer.class;
+		if (primitiveClass == Integer.class || primitiveClass == int.class)
+			return IntBuffer.class;
+		if (primitiveClass == Long.class || primitiveClass == long.class)
+			return LongBuffer.class;
+		if (primitiveClass == Float.class || primitiveClass == float.class)
+			return FloatBuffer.class;
+		if (primitiveClass == Double.class || primitiveClass == double.class)
+			return DoubleBuffer.class;
+		throw new UnsupportedOperationException("Unhandled primitive type : " + primitiveClass.getName());
+	}
+	public static Class<?> getPrimitiveClass(Class<? extends Buffer> bufferClass) {
+		if (bufferClass == ByteBuffer.class) return Byte.class;
+		if (bufferClass == ShortBuffer.class) return Short.class;
+		if (bufferClass == CharBuffer.class) return Character.class;
+		if (bufferClass == IntBuffer.class) return Integer.class;
+		if (bufferClass == LongBuffer.class) return Long.class;
+		if (bufferClass == FloatBuffer.class) return Float.class;
+		if (bufferClass == DoubleBuffer.class) return Double.class;
+		throw new UnsupportedOperationException("Unhandled buffer type : " + bufferClass.getName());
+	}
+	
+	/**
+	 * Bulk-copy all of the input buffer into output byte buffer
+	 * @param inputBytes
+	 * @param output
+	 */
+	public static void put(Buffer input, Buffer output) {
+		if (input instanceof ByteBuffer)
+			put((ByteBuffer)input, output);
+		else if (output instanceof ByteBuffer)
+			put(input, (ByteBuffer)output);
+		else if (input instanceof IntBuffer && output instanceof IntBuffer)
+			((IntBuffer)output).duplicate().put((IntBuffer)input);
+		else if (input instanceof LongBuffer && output instanceof LongBuffer)
+			((LongBuffer)output).duplicate().put((LongBuffer)input);
+		else if (input instanceof ShortBuffer && output instanceof ShortBuffer)
+			((ShortBuffer)output).duplicate().put((ShortBuffer)input);
+		else if (input instanceof CharBuffer && output instanceof CharBuffer)
+			((CharBuffer)output).duplicate().put((CharBuffer)input);
+		else if (input instanceof DoubleBuffer && output instanceof DoubleBuffer)
+			((DoubleBuffer)output).duplicate().put((DoubleBuffer)input);
+		else if (input instanceof FloatBuffer && output instanceof FloatBuffer)
+			((FloatBuffer)output).duplicate().put((FloatBuffer)input);
+		else
+			throw new UnsupportedOperationException("Unhandled buffer type : " + input.getClass().getName());
+	}
+		
 	/**
 	 * Bulk-copy all of the input buffer into output byte buffer
 	 * @param inputBytes
 	 * @param output
 	 */
 	public static void put(Buffer input, ByteBuffer outputBytes) {
-
-		if (input instanceof IntBuffer)
-			outputBytes.asIntBuffer().put((IntBuffer)input);
+			
+		if (input instanceof ByteBuffer)
+            outputBytes.duplicate().put(((ByteBuffer)input).duplicate());
+		else if (input instanceof IntBuffer)
+			outputBytes.asIntBuffer().put(((IntBuffer)input).duplicate());
 		else if (input instanceof LongBuffer)
-			outputBytes.asLongBuffer().put((LongBuffer)input);
+			outputBytes.asLongBuffer().put(((LongBuffer)input).duplicate());
 		else if (input instanceof ShortBuffer)
-			outputBytes.asShortBuffer().put((ShortBuffer)input);
+			outputBytes.asShortBuffer().put(((ShortBuffer)input).duplicate());
 		else if (input instanceof CharBuffer)
-			outputBytes.asCharBuffer().put((CharBuffer)input);
-        else if (input instanceof ByteBuffer)
-            outputBytes.put((ByteBuffer)input);
-		else if (input instanceof DoubleBuffer)
-			outputBytes.asDoubleBuffer().put((DoubleBuffer)input);
+			outputBytes.asCharBuffer().put(((CharBuffer)input).duplicate());
+        else if (input instanceof DoubleBuffer)
+			outputBytes.asDoubleBuffer().put(((DoubleBuffer)input).duplicate());
 		else if (input instanceof FloatBuffer)
-			outputBytes.asFloatBuffer().put((FloatBuffer)input);
+			outputBytes.asFloatBuffer().put(((FloatBuffer)input).duplicate());
 		else
 			throw new UnsupportedOperationException("Unhandled buffer type : " + input.getClass().getName());
 
-		outputBytes.rewind();
 	}
 	
 	/**
@@ -60,10 +113,11 @@ public class NIOUtils
 			((DoubleBuffer)output).put(inputBytes.asDoubleBuffer());
 		else if (output instanceof FloatBuffer)
 			((FloatBuffer)output).put(inputBytes.asFloatBuffer());
+		else if (output instanceof CharBuffer)
+			((CharBuffer)output).put(inputBytes.asCharBuffer());
 		else
 			throw new UnsupportedOperationException("Unhandled buffer type : " + output.getClass().getName());
 
-		output.rewind();
 	}
 
         public static IntBuffer directCopy(IntBuffer b, ByteOrder order) {
@@ -141,6 +195,16 @@ public class NIOUtils
     }
 
     /**
+	 * Creates a direct char buffer of the specified size (in elements) and a native byte order
+	 * @param size size of the buffer in elements
+	 * @param order byte order of the direct buffer
+	 * @return view on new direct buffer
+	 */
+	public static CharBuffer directChars(int size, ByteOrder order) {
+        return ByteBuffer.allocateDirect(size * 4).order(order == null ? ByteOrder.nativeOrder() : order).asCharBuffer();
+    }
+
+    /**
 	 * Creates a direct double buffer of the specified size (in elements) and a native byte order
 	 * @param size size of the buffer in elements
 	 * @param order byte order of the direct buffer
@@ -171,6 +235,8 @@ public class NIOUtils
             return (B)directDoubles(size, order);
 		if (FloatBuffer.class.isAssignableFrom(bufferClass))
             return (B)directFloats(size, order);
+        if (CharBuffer.class.isAssignableFrom(bufferClass))
+            return (B)directChars(size, order);
 
         throw new UnsupportedOperationException("Cannot create direct buffers of type " + bufferClass.getName());
 	}
@@ -194,6 +260,8 @@ public class NIOUtils
             return (B)DoubleBuffer.allocate(size);
 		if (FloatBuffer.class.isAssignableFrom(bufferClass))
             return (B)FloatBuffer.allocate(size);
+		if (CharBuffer.class.isAssignableFrom(bufferClass))
+            return (B)CharBuffer.allocate(size);
 
         throw new UnsupportedOperationException("Cannot create indirect buffers of type " + bufferClass.getName());
 	}
@@ -233,6 +301,8 @@ public class NIOUtils
             ((DoubleBuffer)buffer).put(position, ((Number)value).doubleValue());
         else if (buffer instanceof FloatBuffer)
             ((FloatBuffer)buffer).put(position, ((Number)value).floatValue());
+        else if (buffer instanceof CharBuffer)
+            ((CharBuffer)buffer).put(position, (char)((Number)value).shortValue());
         else
             throw new UnsupportedOperationException();
     }
@@ -251,6 +321,8 @@ public class NIOUtils
             return (V)(Double)((DoubleBuffer)buffer).get(position);
         else if (buffer instanceof FloatBuffer)
             return (V)(Float)((FloatBuffer)buffer).get(position);
+        else if (buffer instanceof CharBuffer)
+            return (V)(Character)((CharBuffer)buffer).get(position);
         else
             throw new UnsupportedOperationException();
     }

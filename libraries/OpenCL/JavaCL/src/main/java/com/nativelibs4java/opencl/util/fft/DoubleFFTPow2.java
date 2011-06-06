@@ -10,7 +10,7 @@ public class DoubleFFTPow2 extends AbstractFFTPow2<Double, DoubleBuffer, double[
     final DoubleFFTProgram program;
 
     public DoubleFFTPow2(CLContext context) throws IOException, CLException {
-        super(context, Double.class, DoubleBuffer.class);
+        super(context, Double.class);
         this.program = new DoubleFFTProgram(context);
         program.getProgram().setFastRelaxedMath();
     }

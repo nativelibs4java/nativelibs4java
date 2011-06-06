@@ -10,7 +10,7 @@ public class DoubleDFT extends AbstractDFT<Double, DoubleBuffer, double[]> {
     final DoubleDFTProgram program;
 
     public DoubleDFT(CLContext context) throws IOException {
-        super(context, Double.class, DoubleBuffer.class);
+        super(context, Double.class);
         this.program = new DoubleDFTProgram(context);
     }
     public DoubleDFT() throws IOException {

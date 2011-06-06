@@ -12,7 +12,7 @@ public class FloatDFT extends AbstractDFT<Float, FloatBuffer, float[]> {
     final FloatDFTProgram program;
 
     public FloatDFT(CLContext context) throws IOException, CLException {
-        super(context, Float.class, FloatBuffer.class);
+        super(context, Float.class);
         program = new FloatDFTProgram(context);
     }
     public FloatDFT() throws IOException {

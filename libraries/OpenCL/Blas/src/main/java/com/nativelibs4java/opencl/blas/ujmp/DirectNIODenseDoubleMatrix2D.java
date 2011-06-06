@@ -31,7 +31,7 @@ public class DirectNIODenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
     }
 
     public DirectNIODenseDoubleMatrix2D(long rows, long columns) {
-        this(allocateDoubles(rows * columns).order(CLDenseDoubleMatrix2DFactory.getOpenCLUJMP().getContext().getKernelsDefaultByteOrder()), rows, columns);
+        this(allocateDoubles(rows * columns).order(OpenCLUJMP.getInstance().getContext().getKernelsDefaultByteOrder()), rows, columns);
     }
 
     public DirectNIODenseDoubleMatrix2D(long[] size) {

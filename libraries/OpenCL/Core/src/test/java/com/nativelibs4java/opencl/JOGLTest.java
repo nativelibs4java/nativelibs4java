@@ -24,14 +24,9 @@ import com.nativelibs4java.opencl.CLMem.GLObjectInfo;
 import com.nativelibs4java.util.NIOUtils;
 
 import javax.media.opengl.*;
-import static javax.media.opengl.GL.*;
-<<<<<<< .courant
-import static javax.media.opengl.GL2.*;
-=======
-import static javax.media.opengl.GL2.*;
-
->>>>>>> .fusion-droit.r2042
 import javax.media.opengl.awt.*;
+import static javax.media.opengl.GL.*;
+import static javax.media.opengl.GL2.*;
 
 import com.jogamp.opengl.util.*;
 import com.jogamp.common.nio.*;

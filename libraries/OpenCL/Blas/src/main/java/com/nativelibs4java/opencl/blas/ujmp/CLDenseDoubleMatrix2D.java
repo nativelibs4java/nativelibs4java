@@ -5,73 +5,97 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import com.nativelibs4java.opencl.CLBuildException;
-import com.nativelibs4java.opencl.util.Primitive;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.bridj.Pointer;
+import com.nativelibs4java.opencl.blas.ujmp.CLEvents.Action;
+import java.nio.DoubleBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.ujmp.core.Matrix;
 import org.ujmp.core.calculation.Calculation.Ret;
+import org.ujmp.core.doublematrix.DoubleMatrix2D;
 import org.ujmp.core.exceptions.MatrixException;
 
+import com.nativelibs4java.opencl.CLBuildException;
+import com.nativelibs4java.opencl.CLEvent;
+import com.nativelibs4java.opencl.CLMem.MapFlags;
+import com.nativelibs4java.opencl.CLMem.Usage;
+import com.nativelibs4java.opencl.CLQueue;
+import com.nativelibs4java.opencl.CLBuffer;
+import com.nativelibs4java.opencl.CLContext;
+import com.nativelibs4java.opencl.util.LinearAlgebraUtils;
+import com.nativelibs4java.opencl.util.Primitive;
+import com.nativelibs4java.util.NIOUtils;
+import java.nio.Buffer;
+import org.bridj.Pointer;
 import org.ujmp.core.doublematrix.stub.AbstractDenseDoubleMatrix2D;
 
 /**
  *
  * @author ochafik
  */
-public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implements CLDenseMatrix2D<Double> {
-	private static final long serialVersionUID = -36941159548127670L;
-	protected final CLDenseMatrix2DImpl<Double> impl;
+public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
+	
+    protected final CLDenseMatrix2DImpl<Double> impl;
 
-    public CLDenseDoubleMatrix2D(OpenCLUJMP clUJMP, long rows, long columns) {
-        this(new CLDenseMatrix2DImpl<Double>(Primitive.Double, null, rows, columns, clUJMP));
+    public CLDenseMatrix2DImpl getImpl() {
+        return impl;
     }
-
-    public CLDenseDoubleMatrix2D(long... size) {
-        this(CLDenseDoubleMatrix2DFactory.getOpenCLUJMP(), size[0], size[1]);
-    }
-
-    public CLDenseDoubleMatrix2D(long size) {
-        this(size, size);
-    }
-
-    protected CLDenseDoubleMatrix2D(CLDenseMatrix2DImpl<Double> impl) {
+    CLDenseDoubleMatrix2D(CLDenseMatrix2DImpl impl) {
         this.impl = impl;
     }
-
-    @Override
-    public long[] getSize() {
-        return new long[] { impl.rows, impl.columns };
+    CLDenseDoubleMatrix2D(CLMatrix2D<Double> matrix) {
+        this(new CLDenseMatrix2DImpl<Double>(matrix));
+    }
+    public CLDenseDoubleMatrix2D(long rows, long columns, OpenCLUJMP clUJMP) {
+        this(new CLDefaultMatrix2D(Primitive.Double, null, rows, columns, clUJMP));
+    }
+    public CLDenseDoubleMatrix2D(long... size) {
+        this(size[0], size[1], OpenCLUJMP.getInstance());
+    }
+    
+    public void write(Pointer<Double> p) {
+        getImpl().getMatrix().write(p);
     }
 
-    public void write(Pointer<Double> b) {
-        impl.write(b);
+    public void read(Pointer<Double> p) {
+        getImpl().getMatrix().read(p);
     }
-
-    public void read(Pointer<Double> b) {
-        impl.read(b);
-    }
-
+    
     public Pointer<Double> read() {
-        return impl.read();
+        return getImpl().getMatrix().read();
     }
 
+    static CLDenseDoubleMatrix2D inst(CLMatrix2D<Double> matrix) {
+        return new CLDenseDoubleMatrix2D(matrix);
+    }
+    
+    static CLDenseDoubleMatrix2D inst(CLDenseMatrix2DImpl matrix) {
+        return new CLDenseDoubleMatrix2D(matrix);
+    }
+    
     @Override
-    public double getDouble(int row, int column) {
-        return getDouble((long)row, (long)column);
+    public Matrix mtimes(Ret returnType, boolean ignoreNaN, Matrix matrix) throws MatrixException {
+        if (matrix instanceof DoubleMatrix2D) {
+            OpenCLUJMP clUJMP = getImpl().getMatrix().getCLUJMP();
+            CLMatrix2D<Double> 
+                in1 = getImpl().getMatrix(),
+                in2 = CLWrappedMatrix2D.wrap((DoubleMatrix2D)matrix, clUJMP),
+                out = returnType == Ret.ORIG ? in1 : CLMatrixUtils.createMatrix(in1.getRowCount(), in2.getColumnCount(), Double.class, clUJMP);
+
+            CLMatrixUtils.matrixMultiply(in1, in2, out);
+            return inst(out);
+        } else {
+            return super.mtimes(matrix);
+        }
+    }
+    
+    @Override
+    public Matrix mtimes(Matrix matrix) throws MatrixException {
+        return mtimes(Ret.NEW, true, matrix);
     }
 
-    @Override
-    public void setDouble(double value, int row, int column) {
-        setDouble(value, (long)row, (long)column);
-    }
-
-    @Override
-    public CLDenseMatrix2DImpl<Double> getImpl() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    
 
     @Override
     public Iterable<Object> allValues() {
@@ -136,38 +160,40 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implement
     }
 
     @Override
+    public synchronized Matrix copy() throws MatrixException {
+        return inst(CLMatrixUtils.clone(impl.getMatrix()));
+    }
+
+    @Override
+    public Matrix transpose(Ret returnType) throws MatrixException {
+        return inst(impl.transpose(returnType));
+    }
+    
+    @Override
+    public synchronized Matrix transpose() throws MatrixException {
+        return transpose(Ret.NEW);
+    }
+
+    public long[] getSize() {
+        return impl.getSize();
+    }
+
     public double getDouble(long row, long column) {
         return impl.get(row, column);
     }
-
-    @Override
     public void setDouble(double value, long row, long column) {
         impl.set(value, row, column);
     }
-
-    static CLDenseDoubleMatrix2D inst(CLDenseMatrix2DImpl<Double> impl) {
-        return new CLDenseDoubleMatrix2D(impl);
+    
+    public double getDouble(int row, int column) {
+        return getDouble((long)row, (long)column);
     }
 
-    @Override
-    public Matrix mtimes(Ret returnType, boolean ignoreNaN, Matrix matrix) throws MatrixException {
-        return inst(impl.multiplyMatrix(((CLDenseMatrix2D<Double>)matrix).getImpl()));
+    public void setDouble(double value, int row, int column) {
+        setDouble(value, (long)row, (long)column);
     }
 
-    @Override
-    public synchronized Matrix copy() throws MatrixException {
-        return inst(impl.copy());
-    }
-
-    @Override
-    public Matrix transpose() throws MatrixException {
-        return inst(impl.transpose(Ret.NEW));
-    }
-
-    @Override
-    public Matrix transpose(Ret returnType, int dimension1, int dimension2) throws MatrixException {
-        return inst(impl.transpose(returnType));
-    }
+    
 
     @Override
     public Matrix sin(Ret returnType) throws MatrixException {
@@ -271,13 +297,15 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implement
     @Override
     public double[][] toDoubleArray() throws MatrixException {
         Pointer<Double> b = impl.read();
-        double[][] ret = new double[(int)impl.rows][];
-        for (int i = 0; i < impl.rows; i++) {
-            ret[i] = b.getDoublesAtOffset(i * impl.columns, (int)impl.columns);
+        int rows = (int)impl.rows, columns = (int)impl.columns;
+        double[][] ret = new double[rows][];
+        for (int i = 0; i < rows; i++) {
+            ret[i] = b.getDoublesAtOffset(i * columns, columns);
         }
         return ret;
     }
 
+    
     @Override
     public boolean containsDouble(double v) {
         try {
@@ -297,10 +325,6 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D implement
     }
 
     public void waitFor() {
-        impl.waitFor();
+        impl.getMatrix().getEvents().waitFor();
     }
-
-
-
 }
-

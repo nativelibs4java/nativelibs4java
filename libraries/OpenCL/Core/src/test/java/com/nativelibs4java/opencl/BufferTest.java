@@ -10,13 +10,7 @@ import static com.nativelibs4java.util.NIOUtils.get;
 import static com.nativelibs4java.util.NIOUtils.put;
 import static org.junit.Assert.assertEquals;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
+import java.nio.*;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -108,6 +102,15 @@ public class BufferTest extends AbstractCommon {
         Short.class,
         Byte.class,
         Double.class,
+        Float.class
+    };
+    Class<? extends Buffer>[] primClasses = new Class[] {
+        Integer.class,
+        Long.class,
+        Short.class,
+        Byte.class,
+        Double.class,
+        Character.class,
         Float.class
     };
     @Test

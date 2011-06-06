@@ -36,11 +36,9 @@ public interface Transformer<T, B extends Buffer, A> {
     
     public abstract class AbstractTransformer<T, B extends Buffer, A> implements Transformer<T, B, A> {
         protected final Class<T> primitiveClass;
-        protected final Class<B> bufferClass;
         protected final CLContext context;
 
-        public AbstractTransformer(CLContext context, Class<T> primitiveClass, Class<B> bufferClass) {
-            this.bufferClass = bufferClass;
+        public AbstractTransformer(CLContext context, Class<T> primitiveClass) {
             this.primitiveClass = primitiveClass;
             this.context = context;
         }

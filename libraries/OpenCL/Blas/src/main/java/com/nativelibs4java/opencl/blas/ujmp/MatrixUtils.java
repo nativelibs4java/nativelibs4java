@@ -6,7 +6,11 @@
 package com.nativelibs4java.opencl.blas.ujmp;
 
 import org.ujmp.core.floatmatrix.FloatMatrix2D;
+import com.nativelibs4java.util.NIOUtils;
+import java.nio.Buffer;
+import java.nio.DoubleBuffer;
 import org.ujmp.core.doublematrix.DoubleMatrix2D;
+import org.ujmp.core.matrix.Matrix2D;
 
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
@@ -36,9 +40,15 @@ public class MatrixUtils {
     }
 
     public static Pointer<Double> read(DoubleMatrix2D m) {
-        Pointer<Double> buffer = allocateDoubles(m.getColumnCount() * m.getRowCount()).order(CLDenseDoubleMatrix2DFactory.getOpenCLUJMP().getContext().getKernelsDefaultByteOrder());
+        Pointer<Double> buffer = allocateDoubles(m.getColumnCount() * m.getRowCount()).order(OpenCLUJMP.getInstance().getContext().getKernelsDefaultByteOrder());
         read(m, buffer);
         return buffer;
+    }
+    public static <T> void read(Matrix2D m, Pointer<T> out) {
+        if (m instanceof DoubleMatrix2D)
+            read((DoubleMatrix2D)m, (Pointer<Double>)out);
+        else
+            throw new UnsupportedOperationException("Can only read DoubleMatrix2D into DoubleBuffer for now");
     }
     public static void read(DoubleMatrix2D m, Pointer<Double> out) {
         long rows = m.getRowCount(), columns = m.getColumnCount();
@@ -59,7 +69,7 @@ public class MatrixUtils {
     }
 
     public static Pointer<Float> read(FloatMatrix2D m) {
-        Pointer<Float> buffer = allocateFloats(m.getColumnCount() * m.getRowCount()).order(CLDenseFloatMatrix2DFactory.getOpenCLUJMP().getContext().getKernelsDefaultByteOrder());
+        Pointer<Float> buffer = allocateFloats(m.getColumnCount() * m.getRowCount()).order(OpenCLUJMP.getInstance().getContext().getKernelsDefaultByteOrder());
         read(m, buffer);
         return buffer;
     }

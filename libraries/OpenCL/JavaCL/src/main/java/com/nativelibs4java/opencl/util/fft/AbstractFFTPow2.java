@@ -15,8 +15,8 @@ import static org.bridj.Pointer.*;
 // TODO implement something like http://locklessinc.com/articles/non_power_of_2_fft/
 public abstract class AbstractFFTPow2<T, B extends Buffer, A> extends AbstractTransformer<T, B, A> {
 
-    AbstractFFTPow2(CLContext context, Class<T> primitiveClass, Class<B> bufferClass) {
-        super(context, primitiveClass, bufferClass);
+    AbstractFFTPow2(CLContext context, Class<T> primitiveClass) {
+        super(context, primitiveClass);
     }
 
     private Map<Integer, CLBuffer<Integer>> cachedOffsetsBufs = new HashMap<Integer, CLBuffer<Integer>>();
