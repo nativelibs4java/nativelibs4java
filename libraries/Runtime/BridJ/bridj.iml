@@ -11,9 +11,7 @@
       <sourceFolder url="file://$MODULE_DIR$/target/generated-sources/main" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/target/generated-sources/test" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target/classes" />
-      <excludeFolder url="file://$MODULE_DIR$/target/javadoc-bundle-options" />
       <excludeFolder url="file://$MODULE_DIR$/target/maven-archiver" />
-      <excludeFolder url="file://$MODULE_DIR$/target/site" />
       <excludeFolder url="file://$MODULE_DIR$/target/test-classes" />
     </content>
     <orderEntry type="inheritedJdk" />
@@ -21,7 +19,7 @@
     <orderEntry type="library" name="Maven: asm:asm:3.3" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: net.java.dev.jna:jna:3.2.7" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: javolution:javolution:5.5.1" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.7" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.8.1" level="project" />
   </component>
 </module>
 
