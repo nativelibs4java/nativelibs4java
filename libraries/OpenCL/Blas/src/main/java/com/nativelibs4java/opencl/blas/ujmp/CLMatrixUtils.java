@@ -21,9 +21,6 @@ import com.nativelibs4java.util.NIOUtils;
 import java.nio.Buffer;
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
-import org.ujmp.core.calculation.Calculation.Ret;
-import org.ujmp.core.exceptions.MatrixException;
-import org.ujmp.core.matrix.Matrix2D;
 
 /**
  *
@@ -48,34 +45,30 @@ public class CLMatrixUtils {
             final CLMatrix2D<T> a, 
             final CLMatrix2D<T> b, 
             final CLMatrix2D<T> out) 
-            throws MatrixException 
+            throws CLBuildException
     {
-        final OpenCLUJMP clUJMP = a.getCLUJMP();
-        try {
-            final Primitive primitive = a.getPrimitive();
-            a.getEvents().performRead(new CLEvents.Action() {
-                public CLEvent perform(final CLEvent[] aevents) {
-                    return b.getEvents().performRead(new CLEvents.Action() {
-                        public CLEvent perform(final CLEvent[] bevents) {
-                            return out.getEvents().performWrite(new CLEvents.Action() {
-                                public CLEvent perform(final CLEvent[] cevents) {
-                                    CLEvent evt = clUJMP.matrixMultiply(
-                                        primitive, 
-                                        a.getBuffer(), (int)a.getRowCount(), (int)a.getColumnCount(), 
-                                        b.getBuffer(), (int)b.getRowCount(), (int)b.getColumnCount(), 
-                                        out.getBuffer(), 
-                                        join(aevents, bevents, cevents)
-                                    );
-                                    return evt;
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        } catch (CLBuildException ex) {
-            throw new RuntimeException("Failed to build OpenCL kernels", ex);
-        }
+        final CLKernels kernels = a.getKernels();
+        final Primitive primitive = a.getPrimitive();
+        a.getEvents().performRead(new CLEvents.Action() {
+            public CLEvent perform(final CLEvent[] aevents) {
+                return b.getEvents().performRead(new CLEvents.Action() {
+                    public CLEvent perform(final CLEvent[] bevents) {
+                        return out.getEvents().performWrite(new CLEvents.Action() {
+                            public CLEvent perform(final CLEvent[] cevents) {
+                                CLEvent evt = kernels.matrixMultiply(
+                                    primitive, 
+                                    a.getBuffer(), (int)a.getRowCount(), (int)a.getColumnCount(), 
+                                    b.getBuffer(), (int)b.getRowCount(), (int)b.getColumnCount(), 
+                                    out.getBuffer(), 
+                                    join(aevents, bevents, cevents)
+                                );
+                                return evt;
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
     
     static final int MAX_REDUCTION_SIZE = 32;
@@ -98,29 +91,25 @@ public class CLMatrixUtils {
     public static <T> void matrixTranspose(
             final CLMatrix2D<T> a,
             final CLMatrix2D<T> out) 
-            throws MatrixException
+            throws CLBuildException
     {
         final Primitive primitive = a.getPrimitive();
-        final OpenCLUJMP clUJMP = a.getCLUJMP();
-        try {
-            a.getEvents().performRead(new CLEvents.Action() {
-                public CLEvent perform(final CLEvent[] aevents) {
-                    return out.getEvents().performWrite(new CLEvents.Action() {
-                        public CLEvent perform(final CLEvent[] cevents) {
-                            CLEvent evt = clUJMP.matrixTranspose(
-                                primitive,
-                                a.getBuffer(), (int)a.getRowCount(), (int)a.getColumnCount(), 
-                                out.getBuffer(), 
-                                join(aevents, cevents)
-                            );
-                            return evt;
-                        }
-                    });
-                }
-            });
-        } catch (CLBuildException ex) {
-            throw new RuntimeException("Failed to build OpenCL kernels", ex);
-        }
+        final CLKernels kernels = a.getKernels();
+        a.getEvents().performRead(new CLEvents.Action() {
+            public CLEvent perform(final CLEvent[] aevents) {
+                return out.getEvents().performWrite(new CLEvents.Action() {
+                    public CLEvent perform(final CLEvent[] cevents) {
+                        CLEvent evt = kernels.matrixTranspose(
+                            primitive,
+                            a.getBuffer(), (int)a.getRowCount(), (int)a.getColumnCount(), 
+                            out.getBuffer(), 
+                            join(aevents, cevents)
+                        );
+                        return evt;
+                    }
+                });
+            }
+        });
     }
     
     public static <T> CLMatrix2D<T> clone(final CLMatrix2D<T> matrix) {
@@ -138,38 +127,31 @@ public class CLMatrixUtils {
     }
     
     
-    public static <T> CLMatrix2D<T> createMatrix(long rows, long columns, Class<T> elementClass, OpenCLUJMP clUJMP) {
+    public static <T> CLMatrix2D<T> createMatrix(long rows, long columns, Class<T> elementClass, CLKernels kernels) {
         if (elementClass == Double.class)
-            return (CLMatrix2D<T>)new CLDefaultMatrix2D(Primitive.Double, null, rows, columns, clUJMP);
+            return (CLMatrix2D<T>)new CLDefaultMatrix2D(Primitive.Double, null, rows, columns, kernels);
       
         throw new UnsupportedOperationException("Cannot build buffers of " + elementClass.getName() + " yet");
     }
     
     
-    public static <V> CLMatrix2D<V> op1(final CLMatrix2D<V> in, final Fun1 fun, Ret returnType) throws MatrixException {
-        try {
-            //Pair<CLBuffer<V>, CLEvent> bufEvt = 
-            final CLMatrix2D<V> out = returnType == Ret.ORIG ? in : in.blankClone();
-            in.getEvents().performRead(new CLEvents.Action() {
+    public static <V> CLMatrix2D<V> op1(final CLMatrix2D<V> in, final Fun1 fun, final CLMatrix2D<V> out) throws CLBuildException {
+        in.getEvents().performRead(new CLEvents.Action() {
 
-                public CLEvent perform(final CLEvent[] ievents) {
-                    return out.getEvents().performWrite(new CLEvents.Action() {
+            public CLEvent perform(final CLEvent[] ievents) {
+                return out.getEvents().performWrite(new CLEvents.Action() {
 
-                        public CLEvent perform(CLEvent[] oevents) {
-                            return in.getCLUJMP().op1(in.getPrimitive(), fun, in.getBuffer(), in.getRowCount(), in.getColumnCount(), out.getBuffer(), join(ievents, oevents));
-                        }
-                    });
-                }
-            });
-            return out;
-        } catch (CLBuildException ex) {
-            throw new MatrixException("Failed to compute sinus", ex);
-        }
+                    public CLEvent perform(CLEvent[] oevents) {
+                        return in.getKernels().op1(in.getPrimitive(), fun, in.getBuffer(), in.getRowCount(), in.getColumnCount(), out.getBuffer(), join(ievents, oevents));
+                    }
+                });
+            }
+        });
+        return out;
     }
 
 
-    public static <V> CLMatrix2D<V> op2(final CLMatrix2D<V> in1, final Fun2 fun, final CLMatrix2D<V> in2, Ret returnType) throws MatrixException {
-        final CLMatrix2D<V> out = returnType == Ret.ORIG ? in1 : in1.blankClone();
+    public static <V> CLMatrix2D<V> op2(final CLMatrix2D<V> in1, final Fun2 fun, final CLMatrix2D<V> in2, final CLMatrix2D<V> out) throws CLBuildException {
         in1.getEvents().performRead(new CLEvents.Action() {
 
             public CLEvent perform(final CLEvent[] i1events) {
@@ -179,7 +161,7 @@ public class CLMatrixUtils {
                         return out.getEvents().performWrite(new CLEvents.Action() {
 
                             public CLEvent perform(CLEvent[] oevents) {
-                                return in1.getCLUJMP().op2(in1.getPrimitive(), fun, in1.getBuffer(), in2.getBuffer(), in1.getRowCount(), in1.getColumnCount(), out.getBuffer(), join(i1events, i2events, oevents));
+                                return in1.getKernels().op2(in1.getPrimitive(), fun, in1.getBuffer(), in2.getBuffer(), in1.getRowCount(), in1.getColumnCount(), out.getBuffer(), join(i1events, i2events, oevents));
                             }
                         });
                     }
@@ -188,14 +170,13 @@ public class CLMatrixUtils {
         });
         return out;
     }
-    public static <V> CLMatrix2D<V> op2(final CLMatrix2D<V> in, final Fun2 fun, final V s2, Ret returnType) throws MatrixException {
-        final CLMatrix2D<V> out = returnType == Ret.ORIG ? in : in.blankClone();
+    public static <V> CLMatrix2D<V> op2(final CLMatrix2D<V> in, final Fun2 fun, final V s2, final CLMatrix2D<V> out) throws CLBuildException {
         in.getEvents().performRead(new CLEvents.Action() {
             public CLEvent perform(final CLEvent[] ievents) {
                 return out.getEvents().performWrite(new CLEvents.Action() {
 
                     public CLEvent perform(CLEvent[] oevents) {
-                        return in.getCLUJMP().op2(in.getPrimitive(), fun, in.getBuffer(), s2, in.getRowCount(), in.getColumnCount(), out.getBuffer(), join(ievents, oevents));
+                        return in.getKernels().op2(in.getPrimitive(), fun, in.getBuffer(), s2, in.getRowCount(), in.getColumnCount(), out.getBuffer(), join(ievents, oevents));
                     }
                 });
             }

@@ -22,6 +22,6 @@ public class CLDenseDoubleMatrix2DFactory extends AbstractDoubleMatrix2DFactory 
 	
 	public DenseDoubleMatrix2D dense(long rows, long columns)
 			throws MatrixException {
-		return new CLDenseDoubleMatrix2D(rows, columns, OpenCLUJMP.getInstance());
+		return new CLDenseDoubleMatrix2D(rows, columns);
 	}
 }

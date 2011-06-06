@@ -36,35 +36,35 @@ import com.nativelibs4java.opencl.util.Primitive;
 import com.nativelibs4java.util.Pair;
 import java.util.HashMap;
 import java.util.Map;
-import org.bridj.SizeT;
 
 /**
  *
  * @author ochafik
  */
-public class OpenCLUJMP {
+public class CLKernels {
 	protected final LinearAlgebraUtils kernels;
     protected final ParallelMath math;
     protected final CLContext context;
     protected final CLQueue queue;
 
-    private static volatile OpenCLUJMP instance;
+    private static volatile CLKernels instance;
 
-    public static synchronized OpenCLUJMP getInstance() {
+    public static synchronized CLKernels getInstance() {
         if (instance == null) {
             try {
-                instance = new OpenCLUJMP();
+                instance = new CLKernels();
             } catch (Throwable ex) {
+                ex.printStackTrace();
                 throw new RuntimeException(ex);
             }
         }
         return instance;
     }
     
-    public OpenCLUJMP() throws IOException, CLBuildException {
+    public CLKernels() throws IOException, CLBuildException {
         this(JavaCL.createBestContext(DeviceFeature.DoubleSupport, DeviceFeature.MaxComputeUnits).createDefaultQueue());
     }
-    public OpenCLUJMP(CLQueue queue) throws IOException, CLBuildException {
+    public CLKernels(CLQueue queue) throws IOException, CLBuildException {
         kernels = new LinearAlgebraUtils(queue);
         math = new ParallelMath(queue);
         context = queue.getContext();
@@ -81,7 +81,7 @@ public class OpenCLUJMP {
         CLKernel kernel = math.getKernel(fun, prim);
         synchronized (kernel) {
             kernel.setArgs(a, out, length);
-            CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)length }, new int[] { 1 }, eventsToWaitFor);
+            CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)length }, eventsToWaitFor);
             return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
         }
     }
@@ -96,7 +96,7 @@ public class OpenCLUJMP {
         CLKernel kernel = math.getKernel(fun, prim, false);
         synchronized (kernel) {
             kernel.setArgs(a, b, out, length);
-            CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)length }, new int[] { 1 }, eventsToWaitFor);
+            CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)length }, eventsToWaitFor);
             return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
         }
     }
@@ -111,7 +111,7 @@ public class OpenCLUJMP {
         CLKernel kernel = math.getKernel(fun, prim, true);
         synchronized (kernel) {
             kernel.setArgs(a, b, out, length);
-            CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)length }, new int[] { 1 }, eventsToWaitFor);
+            CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)length }, eventsToWaitFor);
             return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
         }
     }
@@ -125,11 +125,11 @@ public class OpenCLUJMP {
                 kernel = context.createProgram((
                     "__kernel void containsValue(   \n" +
                     "	__global const double* a,   \n" +
-                    "	size_t length,              \n" +
+                    "	int length,              \n" +
                     "	double value,               \n" +
-                    "	__global int* pOut          \n" +
+                    "	__global char* pOut          \n" +
                     ") {                            \n" +
-                    "	size_t i = get_global_id(0);\n" +
+                    "	int i = get_global_id(0);\n" +
                     "	if (i >= length)            \n" +
                     "		return;                 \n" +
                     "		                        \n" +
@@ -141,10 +141,10 @@ public class OpenCLUJMP {
             }
         }
         synchronized(kernel) {
-        		CLBuffer<Integer> pOut = context.createBuffer(Usage.Output, Integer.class, 1);
-            kernel.setArgs(buffer, new SizeT(length), value, pOut);
-            kernel.enqueueNDRange(queue, new int[] { (int)length }, new int[] { 1 }, eventsToWaitFor).waitFor();
-            return pOut.read(queue).getInt() != 0;
+            CLBuffer<Byte> pOut = context.createBuffer(Usage.Output, Byte.class, 1);
+            kernel.setArgs(buffer, (int)length, value, pOut);
+            kernel.enqueueNDRange(queue, new int[] { (int)length }, eventsToWaitFor).waitFor();
+            return pOut.read(queue).getBoolean();
         }
     }
 
@@ -156,12 +156,12 @@ public class OpenCLUJMP {
             if (kernel == null) {
                 kernel = context.createProgram((
                     "__kernel void clear(   \n" +
-                    "	__global const double* a,   \n" +
-                    "	size_t length               \n" +
+                    "	__global double* a,   \n" +
+                    "	int length               \n" +
                     ") {                            \n" +
-                    "	size_t i = get_global_id(0);\n" +
-                    //"	if (i >= length)            \n" +
-                    //"		return;                 \n" +
+                    "	int i = get_global_id(0);\n" +
+                    "	if (i >= length)            \n" +
+                    "		return;                 \n" +
                     "		                        \n" +
                     "	a[i] == (double)0;          \n" +
                     "}                              \n"
@@ -170,8 +170,12 @@ public class OpenCLUJMP {
             }
         }
         synchronized(kernel) {
-            kernel.setArgs(buffer, new SizeT(length));
-            return kernel.enqueueNDRange(queue, new int[] { (int)length }, new int[] { 1 }, eventsToWaitFor);
+            kernel.setArgs(buffer, (int)length);
+            //queue.finish();
+            CLEvent evt = kernel.enqueueNDRange(queue, new int[] { (int)length }, eventsToWaitFor);
+            //queue.finish();
+            //Object array = buffer.read(queue).getArray();
+            return evt;
         }
     }
 
@@ -212,7 +216,7 @@ public class OpenCLUJMP {
         }
         synchronized (kernel) {
             kernel.setArgs(a, aRows, aColumns, b, bColumns, out);
-            CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)aRows, (int)bColumns }, new int[] { 1 }, eventsToWaitFor);
+            CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)aRows, (int)bColumns }, eventsToWaitFor);
             return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
         }
     }
@@ -230,11 +234,11 @@ public class OpenCLUJMP {
             if (kernel == null) {
                 String src =
                     "__kernel void transposeMat_double(                             \n" +
-                    "   __global const double* a, size_t aRows, size_t aColumns,    \n" +
-                    "   __global const double* out                                  \n" +
+                    "   __global const double* a, int aRows, int aColumns,    \n" +
+                    "   __global double* out                                  \n" +
                     ") {                                                            \n" +
-                    "    size_t i = get_global_id(0);                               \n" +
-                    "    size_t j = get_global_id(1);                               \n" +
+                    "    int i = get_global_id(0);                               \n" +
+                    "    int j = get_global_id(1);                               \n" +
                     "                                                               \n" +
                     "    if (i >= aRows || j >= aColumns) return;                   \n" +
                     "                                                               \n" +
@@ -256,8 +260,8 @@ public class OpenCLUJMP {
             }
         }
         synchronized (kernel) {
-            kernel.setArgs(a, new SizeT(aRows), new SizeT(aColumns), out);
-            CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)aRows, (int)aColumns }, new int[] { 1 }, eventsToWaitFor);
+            kernel.setArgs(a, (int)aRows, (int)aColumns, out);
+            CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)aRows, (int)aColumns }, eventsToWaitFor);
             return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
         }
     }

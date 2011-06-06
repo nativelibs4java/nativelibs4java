@@ -40,7 +40,7 @@ public class MatrixUtils {
     }
 
     public static Pointer<Double> read(DoubleMatrix2D m) {
-        Pointer<Double> buffer = allocateDoubles(m.getColumnCount() * m.getRowCount()).order(OpenCLUJMP.getInstance().getContext().getKernelsDefaultByteOrder());
+        Pointer<Double> buffer = allocateDoubles(m.getColumnCount() * m.getRowCount()).order(CLKernels.getInstance().getContext().getKernelsDefaultByteOrder());
         read(m, buffer);
         return buffer;
     }
@@ -69,7 +69,7 @@ public class MatrixUtils {
     }
 
     public static Pointer<Float> read(FloatMatrix2D m) {
-        Pointer<Float> buffer = allocateFloats(m.getColumnCount() * m.getRowCount()).order(OpenCLUJMP.getInstance().getContext().getKernelsDefaultByteOrder());
+        Pointer<Float> buffer = allocateFloats(m.getColumnCount() * m.getRowCount()).order(CLKernels.getInstance().getContext().getKernelsDefaultByteOrder());
         read(m, buffer);
         return buffer;
     }

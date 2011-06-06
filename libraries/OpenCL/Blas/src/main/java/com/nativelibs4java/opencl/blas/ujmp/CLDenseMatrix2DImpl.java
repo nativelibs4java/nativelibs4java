@@ -20,6 +20,7 @@ import com.nativelibs4java.opencl.util.Primitive;
 import com.nativelibs4java.opencl.util.ReductionUtils;
 import com.nativelibs4java.opencl.util.ReductionUtils.Reductor;
 import org.ujmp.core.doublematrix.DoubleMatrix2D;
+import org.ujmp.core.matrix.Matrix2D;
 
 /**
  *
@@ -85,6 +86,16 @@ public class CLDenseMatrix2DImpl<V> {
         return new CLDenseMatrix2DImpl<V>(CLMatrixUtils.clone(matrix));
     }
     
+    public CLDenseMatrix2DImpl<V> multiply(Ret returnType, boolean ignoreNaN, Matrix2D matrix) throws MatrixException {
+        CLKernels clUJMP = getMatrix().getKernels();
+        CLMatrix2D<V> 
+            in1 = getMatrix(),
+            in2 = CLWrappedMatrix2D.wrap(matrix, clUJMP),
+            out = returnType == Ret.ORIG ? in1 : in1.blankMatrix(in1.getRowCount(), in2.getColumnCount());
+
+        CLMatrixUtils.matrixMultiply(in1, in2, out);
+        return new CLDenseMatrix2DImpl(out);
+    }
     public CLDenseMatrix2DImpl<V> transpose(Ret returnType) throws MatrixException {
         CLMatrix2D<V> 
             in = matrix,
@@ -104,7 +115,8 @@ public class CLDenseMatrix2DImpl<V> {
     }
     
     public static <V> CLDenseMatrix2DImpl<V> op1(final CLMatrix2D<V> in, final Fun1 fun, Ret returnType) throws MatrixException {
-        return new CLDenseMatrix2DImpl(CLMatrixUtils.op1(in, fun, returnType));
+        final CLMatrix2D<V> out = returnType == Ret.ORIG ? in : in.blankClone();
+        return new CLDenseMatrix2DImpl(CLMatrixUtils.op1(in, fun, out));
     }
     public CLDenseMatrix2DImpl<V> sin(Ret returnType) throws MatrixException {
         return op1(matrix, Fun1.sin, returnType);
@@ -166,10 +178,12 @@ public class CLDenseMatrix2DImpl<V> {
     }
 
     public static <V> CLDenseMatrix2DImpl<V> op2(CLMatrix2D<V> in1, Fun2 fun, CLMatrix2D<V> in2, Ret returnType) throws MatrixException {
-        return new CLDenseMatrix2DImpl(CLMatrixUtils.op2(in1, fun, in2, returnType));
+        final CLMatrix2D<V> out = returnType == Ret.ORIG ? in1 : in1.blankClone();
+        return new CLDenseMatrix2DImpl(CLMatrixUtils.op2(in1, fun, in2, out));
     }
     public static <V> CLDenseMatrix2DImpl<V> op2(CLMatrix2D<V> in1, Fun2 fun, V in2, Ret returnType) throws MatrixException {
-        return new CLDenseMatrix2DImpl(CLMatrixUtils.op2(in1, fun, in2, returnType));
+        final CLMatrix2D<V> out = returnType == Ret.ORIG ? in1 : in1.blankClone();
+        return new CLDenseMatrix2DImpl(CLMatrixUtils.op2(in1, fun, in2, out));
     }
     
 
@@ -233,7 +247,7 @@ public class CLDenseMatrix2DImpl<V> {
         final boolean ret[] = new boolean[1];
         matrix.getEvents().performRead(new CLEvents.Action() {
             public CLEvent perform(CLEvent[] events) {
-                ret[0] = matrix.getCLUJMP().containsValue(matrix.getPrimitive(), matrix.getBuffer(), matrix.getBuffer().getElementCount(), value, events);
+                ret[0] = matrix.getKernels().containsValue(matrix.getPrimitive(), matrix.getBuffer(), matrix.getBuffer().getElementCount(), value, events);
                 return null;
             }
         });
@@ -243,7 +257,7 @@ public class CLDenseMatrix2DImpl<V> {
     void clear() throws CLBuildException {
         matrix.getEvents().performWrite(new CLEvents.Action() {
             public CLEvent perform(CLEvent[] events) {
-                return matrix.getCLUJMP().clear(matrix.getPrimitive(), matrix.getBuffer(), matrix.getBuffer().getElementCount(), events);
+                return matrix.getKernels().clear(matrix.getPrimitive(), matrix.getBuffer(), matrix.getBuffer().getElementCount(), events);
             }
         });
     }

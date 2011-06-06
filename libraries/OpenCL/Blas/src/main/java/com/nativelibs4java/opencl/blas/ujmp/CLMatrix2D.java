@@ -26,7 +26,7 @@ public interface CLMatrix2D<T> {
     long getColumnCount();
     CLMatrix2D<T> blankClone();
     CLMatrix2D<T> blankMatrix(long rows, long columns);
-    OpenCLUJMP getCLUJMP();
+    CLKernels getKernels();
     
     void write(final Pointer<T> b);
     void read(final Pointer<T> b);

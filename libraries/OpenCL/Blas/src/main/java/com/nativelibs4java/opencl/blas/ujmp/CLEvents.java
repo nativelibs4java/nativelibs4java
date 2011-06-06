@@ -20,18 +20,25 @@ public class CLEvents {
         CLEvent perform(CLEvent[] events);
     }
     
+    static final CLEvent[] EMPTY_EVENTS = new CLEvent[0];
     protected synchronized CLEvent clearEvents(Action action) {
         int nReads = readEvents.size();
-        CLEvent[] evts = readEvents.toArray(new CLEvent[nReads + 1]);
-        evts[nReads] = lastWriteEvent;
+        boolean hasWrite = lastWriteEvent != null;
+        int n = nReads + (hasWrite ? 1 : 0);
+        CLEvent[] evts = n == 0 ? EMPTY_EVENTS : readEvents.toArray(new CLEvent[n]);
+        if (hasWrite)
+            evts[nReads] = lastWriteEvent;
         CLEvent evt = action.perform(evts);
         lastWriteEvent = null;
         readEvents.clear();
         return evt;
     }
     public synchronized CLEvent performRead(Action action) {
-        CLEvent evt = action.perform(new CLEvent[] { lastWriteEvent });
-        readEvents.add(evt);
+        CLEvent evt = action.perform(lastWriteEvent == null ? EMPTY_EVENTS : new CLEvent[] { lastWriteEvent });
+        if (evt != null) {
+            readEvents.add(evt);
+            lastWriteEvent = null; // read completed only if the optional write also completed
+        }
         return evt;
     }
     

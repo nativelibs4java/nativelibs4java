@@ -31,7 +31,7 @@ public class CLMatrixBenchmark extends AbstractMatrix2DBenchmark {
         else {
             DoubleMatrix2D dsource = (DoubleMatrix2D)source;
             long rows = dsource.getRowCount(), columns = dsource.getColumnCount();
-            Pointer<Double> b = allocateDoubles(rows * columns).order(OpenCLUJMP.getInstance().getContext().getKernelsDefaultByteOrder());
+            Pointer<Double> b = allocateDoubles(rows * columns).order(CLKernels.getInstance().getContext().getKernelsDefaultByteOrder());
             for (long i = 0; i < rows; i++) {
             		long offset = i * columns;
                 for (long j = 0; j < columns; j++) {

@@ -29,6 +29,7 @@ import com.nativelibs4java.util.NIOUtils;
 import java.nio.Buffer;
 import org.bridj.Pointer;
 import org.ujmp.core.doublematrix.stub.AbstractDenseDoubleMatrix2D;
+import org.ujmp.core.matrix.Matrix2D;
 
 /**
  *
@@ -41,17 +42,23 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
     public CLDenseMatrix2DImpl getImpl() {
         return impl;
     }
-    CLDenseDoubleMatrix2D(CLDenseMatrix2DImpl impl) {
+    public CLDenseDoubleMatrix2D(CLDenseMatrix2DImpl impl) {
         this.impl = impl;
     }
-    CLDenseDoubleMatrix2D(CLMatrix2D<Double> matrix) {
+    public CLDenseDoubleMatrix2D(CLMatrix2D<Double> matrix) {
         this(new CLDenseMatrix2DImpl<Double>(matrix));
     }
-    public CLDenseDoubleMatrix2D(long rows, long columns, OpenCLUJMP clUJMP) {
-        this(new CLDefaultMatrix2D(Primitive.Double, null, rows, columns, clUJMP));
+    public CLDenseDoubleMatrix2D(long rows, long columns, CLKernels kernels) {
+        this(new CLDefaultMatrix2D(Primitive.Double, null, rows, columns, kernels));
+    }
+    public CLDenseDoubleMatrix2D(long rows, long columns) {
+        this(rows, columns, CLKernels.getInstance());
+    }
+    public CLDenseDoubleMatrix2D(long size) {
+        this(size, size);
     }
     public CLDenseDoubleMatrix2D(long... size) {
-        this(size[0], size[1], OpenCLUJMP.getInstance());
+        this(size[0], size[1], CLKernels.getInstance());
     }
     
     public void write(Pointer<Double> p) {
@@ -76,17 +83,10 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
     
     @Override
     public Matrix mtimes(Ret returnType, boolean ignoreNaN, Matrix matrix) throws MatrixException {
-        if (matrix instanceof DoubleMatrix2D) {
-            OpenCLUJMP clUJMP = getImpl().getMatrix().getCLUJMP();
-            CLMatrix2D<Double> 
-                in1 = getImpl().getMatrix(),
-                in2 = CLWrappedMatrix2D.wrap((DoubleMatrix2D)matrix, clUJMP),
-                out = returnType == Ret.ORIG ? in1 : CLMatrixUtils.createMatrix(in1.getRowCount(), in2.getColumnCount(), Double.class, clUJMP);
-
-            CLMatrixUtils.matrixMultiply(in1, in2, out);
-            return inst(out);
+        if (matrix instanceof Matrix2D) {
+            return inst(getImpl().multiply(returnType, ignoreNaN, (Matrix2D)matrix));
         } else {
-            return super.mtimes(matrix);
+            return super.mtimes(returnType, ignoreNaN, matrix);
         }
     }
     
