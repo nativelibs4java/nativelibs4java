@@ -36,12 +36,12 @@ import static com.nativelibs4java.util.JNAUtils.toNS;
 import static com.nativelibs4java.util.NIOUtils.directBytes;
 import static com.nativelibs4java.util.NIOUtils.directCopy;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
+import java.nio.*;
 
 import com.nativelibs4java.opencl.library.cl_buffer_region;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
+import com.nativelibs4java.util.NIOUtils;
 import com.ochafik.util.listenable.Pair;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -54,39 +54,51 @@ import com.sun.jna.ptr.IntByReference;
  * @see CLContext
  * @author Olivier Chafik
  */
-public abstract class CLBuffer<B extends Buffer> extends CLMem {
+public class CLBuffer<T> extends CLMem {
+    /// Buffer to retain a reference to (because it's being copied asynchronously to the underlying OpenCL buffer)
 	Buffer buffer;
     final int elementSize;
-	CLBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer, int elementSize) {
+    final Class<? extends Buffer> typedBufferClass;
+    final Class<T> elementClass;
+	CLBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer, int elementSize, Class<? extends Buffer> typedBufferClass) {
         super(context, byteCount, entity);
 		this.buffer = buffer;
         this.elementSize = elementSize;
+        this.typedBufferClass = typedBufferClass;
+        this.elementClass = (Class)NIOUtils.getPrimitiveClass(typedBufferClass);
 	}
+    
+    public Class<? extends Buffer> getBufferClass() {
+        return typedBufferClass;
+    }
+	public Class<T> getElementClass() {
+        return elementClass;
+    }
 	public int getElementSize() {
         return elementSize;
     }
 	public long getElementCount() {
         return getByteCount() / getElementSize();
     }
-	public B map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
-		return map(queue, flags, 0, getElementCount(), true, eventsToWaitFor).getFirst();
+	public <B extends Buffer> B map(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
+		return (B)map(queue, flags, 0, getElementCount(), true, eventsToWaitFor).getFirst();
     }
-	public B map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
-		return map(queue, flags, offset, length, true, eventsToWaitFor).getFirst();
+	public <B extends Buffer> B map(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
+		return (B)map(queue, flags, offset, length, true, eventsToWaitFor).getFirst();
     }
-	public Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
+	public <B extends Buffer> Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, 0, getElementCount(), false, eventsToWaitFor);
     }
-	public Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
+	public <B extends Buffer> Pair<B, CLEvent> mapLater(CLQueue queue, MapFlags flags, long offset, long length, CLEvent... eventsToWaitFor) throws CLException.MapFailure {
 		return map(queue, flags, offset, length, false, eventsToWaitFor);
     }
-	public B read(CLQueue queue, CLEvent... eventsToWaitFor) {
-        B out = typedBuffer(directBytes((int)getByteCount(), queue.getDevice().getKernelsDefaultByteOrder()));
+	public <B extends Buffer> B read(CLQueue queue, CLEvent... eventsToWaitFor) {
+        B out = (B)typedBuffer(directBytes((int)getByteCount(), queue.getDevice().getKernelsDefaultByteOrder()));
         read(queue, out, true, eventsToWaitFor);
 		return out;
 	}
-	public B read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
-		B out = typedBuffer(directBytes((int)getByteCount(), queue.getDevice().getKernelsDefaultByteOrder()));
+	public <B extends Buffer> B read(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
+		B out = (B)typedBuffer(directBytes((int)getByteCount(), queue.getDevice().getKernelsDefaultByteOrder()));
         read(queue, offset, length, out, true, eventsToWaitFor);
 		return out;
 	}
@@ -104,7 +116,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	 * @since OpenCL 1.1
 	 * @return
 	 */
-	public CLBuffer<B> createSubBuffer(Usage usage, long offset, long length) {
+	public CLBuffer<T> createSubBuffer(Usage usage, long offset, long length) {
 		try {
 			int s = getElementSize();
 			cl_buffer_region region = new cl_buffer_region(toNS(s * offset), toNS(s * length));
@@ -175,7 +187,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 		return CLEvent.createEvent(queue, eventOut);
 	}
 
-	protected Pair<B, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
+	protected <B extends Buffer> Pair<B, CLEvent> map(CLQueue queue, MapFlags flags, long offset, long length, boolean blocking, CLEvent... eventsToWaitFor) {
 		checkBounds(offset, length);
 		cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
 		IntByReference pErr = new IntByReference();
@@ -191,24 +203,21 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 		);
 		error(pErr.getValue());
         return new Pair<B, CLEvent>(
-			typedBuffer(p.getByteBuffer(0, length * getElementSize()).order(queue.getDevice().getKernelsDefaultByteOrder())),
+			(B)typedBuffer(p.getByteBuffer(0, length * getElementSize()).order(queue.getDevice().getKernelsDefaultByteOrder())),
 			CLEvent.createEvent(queue, eventOut)
 		);
     }
 
-    protected abstract B typedBuffer(ByteBuffer b);
-    public abstract Class<B> typedBufferClass();
-    protected abstract void put(B out, B in);
-    protected abstract CLBuffer<B> createBuffer(cl_mem mem);
-
-    public CLEvent unmap(CLQueue queue, B buffer, CLEvent... eventsToWaitFor) {
+    public <B extends Buffer> CLEvent unmap(CLQueue queue, B buffer, CLEvent... eventsToWaitFor) {
+        typedBufferClass.cast(buffer);
         cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);
         cl_event[] evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueUnmapMemObject(queue.getEntity(), getEntity(), Native.getDirectBufferPointer(buffer), evts == null ? 0 : evts.length, evts, eventOut));
 		return CLEvent.createEvent(queue, eventOut);
     }
 
-	public CLEvent read(CLQueue queue, B out, boolean blocking, CLEvent... eventsToWaitFor) {
+	public <B extends Buffer> CLEvent read(CLQueue queue, B out, boolean blocking, CLEvent... eventsToWaitFor) {
+        typedBufferClass.cast(out);
         long length;
         if (isGL) {
             length = out.capacity();
@@ -221,13 +230,14 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 		return read(queue, 0, length, out, blocking, eventsToWaitFor);
 	}
 
-	public CLEvent read(CLQueue queue, long offset, long length, B out, boolean blocking, CLEvent... eventsToWaitFor) {
+	public <B extends Buffer> CLEvent read(CLQueue queue, long offset, long length, B out, boolean blocking, CLEvent... eventsToWaitFor) {
+        typedBufferClass.cast(out);
         if (out.isReadOnly())
             throw new IllegalArgumentException("Output buffer for read operation is read-only !");
         B originalOut = null;
         if (!out.isDirect()) {
             originalOut = out;
-            out = typedBuffer(directBytes((int)(length * getElementSize()), queue.getDevice().getKernelsDefaultByteOrder()));
+            out = (B)typedBuffer(directBytes((int)(length * getElementSize()), queue.getDevice().getKernelsDefaultByteOrder()));
             blocking = true;
         }
         cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
@@ -243,12 +253,12 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
             eventOut
         ));
         if (originalOut != null)
-            //put(out, originalOut);
-            put(originalOut, out);
+            NIOUtils.put(out, originalOut);
         return CLEvent.createEvent(queue, eventOut);
     }
 
-	public CLEvent write(CLQueue queue, B in, boolean blocking, CLEvent... eventsToWaitFor) {
+	public <B extends Buffer> CLEvent write(CLQueue queue, B in, boolean blocking, CLEvent... eventsToWaitFor) {
+        typedBufferClass.cast(in);
         long length;
         if (isGL) {
             length = in.capacity();
@@ -261,10 +271,12 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 		return write(queue, 0, length, in, blocking, eventsToWaitFor);
 	}
 
-	public CLEvent write(CLQueue queue, long offset, long length, B in, boolean blocking, CLEvent... eventsToWaitFor) {
+	public <B extends Buffer> CLEvent write(CLQueue queue, long offset, long length, B in, boolean blocking, CLEvent... eventsToWaitFor) {
+        typedBufferClass.cast(in);
+        
         if (!in.isDirect()) {
             blocking = true;
-            in = typedBuffer(directCopy(in, queue.getDevice().getKernelsDefaultByteOrder()));
+            in = (B)typedBuffer(directCopy(in, queue.getDevice().getKernelsDefaultByteOrder()));
         }
             
         cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
@@ -305,7 +317,7 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 
 	public ByteBuffer readBytes(CLQueue queue, long offset, long length, CLEvent... eventsToWaitFor) {
 		ByteBuffer out = directBytes((int)getByteCount(), queue.getDevice().getKernelsDefaultByteOrder());
-        B tout = typedBuffer(out);
+        Buffer tout = typedBuffer(out);
 		read(queue, offset, tout.capacity(), tout, true, eventsToWaitFor);
 		return out;
 	}
@@ -315,8 +327,37 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
         return mem;
     }
     
-    public CLBuffer<B> emptyClone(CLMem.Usage usage) {
-    		return getContext().createBuffer(usage, getElementCount(), typedBufferClass());
+    public CLBuffer<T> emptyClone(CLMem.Usage usage) {
+    		return (CLBuffer)getContext().createBuffer(usage, getElementCount(), typedBufferClass);
+    }
+    
+    protected CLBuffer<T> createBuffer(cl_mem mem) {
+        
+        //return new CLBuffer<T>(getContext(), -1, mem, null, getElementSize(), typedBufferClass);
+        
+        #foreach ($prim in $primitivesNoBool)
+        
+        if (typedBufferClass == ${prim.BufferName}.class)
+            return (CLBuffer<T>)new CL${prim.BufferName}(getContext(), -1, mem, null);
+            
+        #end
+                
+        throw new RuntimeException("Unable to create an OpenCL buffer for type " + typedBufferClass.getName());
+    }
+    
+    protected <B extends Buffer> B typedBuffer(ByteBuffer b) {
+        #foreach ($prim in $primitivesNoBool)
+        
+        if (typedBufferClass == ${prim.BufferName}.class)
+            #if ($prim.Name == "byte")
+            return (B)b;
+            #else
+            return (B)b.as${prim.BufferName}();
+            #end
+    
+        #end
+                
+        throw new RuntimeException("Unable to create a typed buffer for type " + typedBufferClass.getName());
     }
 
     #foreach ($prim in $primitivesNoBool)
@@ -328,4 +369,5 @@ public abstract class CLBuffer<B extends Buffer> extends CLMem {
 	}
 	
 	#end
+    
 }

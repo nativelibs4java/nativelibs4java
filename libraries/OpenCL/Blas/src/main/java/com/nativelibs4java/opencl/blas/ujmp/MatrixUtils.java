@@ -6,8 +6,10 @@
 package com.nativelibs4java.opencl.blas.ujmp;
 
 import com.nativelibs4java.util.NIOUtils;
+import java.nio.Buffer;
 import java.nio.DoubleBuffer;
 import org.ujmp.core.doublematrix.DoubleMatrix2D;
+import org.ujmp.core.matrix.Matrix2D;
 
 /**
  *
@@ -39,6 +41,12 @@ public class MatrixUtils {
         DoubleBuffer buffer = NIOUtils.directDoubles((int)(m.getColumnCount() * m.getRowCount()), CLDenseDoubleMatrix2DFactory.LINEAR_ALGEBRA_KERNELS.getContext().getKernelsDefaultByteOrder());
         read(m, buffer);
         return buffer;
+    }
+    public static void read(Matrix2D m, Buffer out) {
+        if (m instanceof DoubleMatrix2D)
+            read((DoubleMatrix2D)m, (DoubleBuffer)out);
+        else
+            throw new UnsupportedOperationException("Can only read DoubleMatrix2D into DoubleBuffer for now");
     }
     public static void read(DoubleMatrix2D m, DoubleBuffer out) {
         long rows = m.getRowCount(), columns = m.getColumnCount();

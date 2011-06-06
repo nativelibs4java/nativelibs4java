@@ -6,6 +6,8 @@
 package com.nativelibs4java.opencl.blas.ujmp;
 
 
+import com.nativelibs4java.opencl.CLBuffer;
+import com.nativelibs4java.opencl.CLQueue;
 import static com.nativelibs4java.opencl.blas.ujmp.MatrixUtils.read;
 import static com.nativelibs4java.opencl.blas.ujmp.MatrixUtils.write;
 import static org.junit.Assert.assertEquals;
@@ -46,7 +48,10 @@ public class UJMPOpenCLTest {
 
         DenseDoubleMatrix2D m = (DenseDoubleMatrix2D)MatrixFactory.dense(3, 3);
         DenseDoubleMatrix2D v = (DenseDoubleMatrix2D)MatrixFactory.dense(3, 1);
-
+        CLBuffer<Double> buffer = ((CLDenseDoubleMatrix2D)m).getBuffer();
+        CLQueue queue = ((CLDenseDoubleMatrix2D)m).getQueue();
+        System.out.println("Context = " + buffer.getContext());
+        
         double[] min = new double[] { 0, 0, 1, 0, 1, 0, 1, 0, 0 };
         write(min, m);
         DoubleBuffer back = read(m);
@@ -54,8 +59,14 @@ public class UJMPOpenCLTest {
             assertEquals(min[i], back.get(i), 0);
             //System.out.println(back.get(i));
         }
+        
+        queue.finish();
         DenseDoubleMatrix2D mout = (DenseDoubleMatrix2D) m.mtimes(m);
-
+        queue.finish();
+        
+        System.out.println("m = \n" + m);
+        System.out.println("mout = \n" + mout);
+        
         //System.out.println(m);
 		//System.out.println(mout);
 

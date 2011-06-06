@@ -554,21 +554,21 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 
     @SuppressWarnings("unchecked")
-	public <B extends Buffer> CLBuffer<B> createBuffer(CLMem.Usage kind, long count, Class<B> bufferClass) {
+	public <N> CLBuffer<N> createBuffer(CLMem.Usage kind, long count, Class<N> elementClass) {
 		#foreach ($prim in $primitivesNoBool)
-        if (${prim.BufferName}.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)create${prim.BufferName}(kind, count);
+        if (${prim.WrapperName}.class.isAssignableFrom(elementClass))
+            return (CLBuffer<N>)create${prim.BufferName}(kind, count);
         #end
 
-        throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java type " + bufferClass.getName());
+        throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java type " + elementClass.getName());
 	}
 
     @SuppressWarnings("unchecked")
-	public <B extends Buffer> CLBuffer<B> createBuffer(CLMem.Usage kind, B buffer, boolean copy) {
+	public <N, B> CLBuffer<N> createBuffer(CLMem.Usage kind, B buffer, boolean copy) {
         Class<?> bufferClass = buffer.getClass();
         #foreach ($prim in $primitivesNoBool)
         if (${prim.BufferName}.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<B>)create${prim.BufferName}(kind, (${prim.BufferName})buffer, copy);
+            return (CLBuffer<N>)create${prim.BufferName}(kind, (${prim.BufferName})buffer, copy);
         #end
 
         throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java type " + bufferClass.getName());

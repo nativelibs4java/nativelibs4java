@@ -42,33 +42,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
  * @see CLContext#createByteBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.ByteBuffer, boolean)
  * @author Olivier Chafik
  */
-public class CLByteBuffer extends CLBuffer<ByteBuffer> {
+public class CLByteBuffer extends CLBuffer<Byte> {
 	CLByteBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer, 1);
+        super(context, byteCount, entity, buffer, 1, ByteBuffer.class);
 	}
-
-	@Override
-	protected CLBuffer<ByteBuffer> createBuffer(cl_mem mem) {
-		return new CLByteBuffer(getContext(), -1, mem, null);
-	}
-
-    @Override 
-    public long getElementCount() {
-        return getByteCount();
-    }
-
-    @Override
-    protected ByteBuffer typedBuffer(ByteBuffer b) {
-        return b;
-    }
-
-    @Override
-    protected void put(ByteBuffer out, ByteBuffer in) {
-        out.put(in);
-    }
-
-    @Override
-    public Class<ByteBuffer> typedBufferClass() {
-        return ByteBuffer.class;
-    }
 }

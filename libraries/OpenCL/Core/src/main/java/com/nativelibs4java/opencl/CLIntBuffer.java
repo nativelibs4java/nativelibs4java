@@ -40,28 +40,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
  * @see CLContext#createIntBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.IntBuffer, boolean)
  * @author Olivier Chafik
  */
-public class CLIntBuffer extends CLBuffer<IntBuffer> {
+public class CLIntBuffer extends CLBuffer<Integer> {
 	CLIntBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer, 4);
+        super(context, byteCount, entity, buffer, 4, IntBuffer.class);
 	}
-	
-	@Override
-	protected CLBuffer<IntBuffer> createBuffer(cl_mem mem) {
-		return new CLIntBuffer(getContext(), -1, mem, null);
-	}
-
-    @Override
-    protected IntBuffer typedBuffer(ByteBuffer b) {
-        return b.asIntBuffer();
-    }
-
-    @Override
-    protected void put(IntBuffer out, IntBuffer in) {
-        out.put(in);
-    }
-
-    @Override
-    public Class<IntBuffer> typedBufferClass() {
-        return IntBuffer.class;
-    }
 }

@@ -6,17 +6,13 @@
 package com.nativelibs4java.opencl;
 
 import static com.nativelibs4java.util.NIOUtils.directBuffer;
+import static com.nativelibs4java.util.NIOUtils.getPrimitiveClass;
+import static com.nativelibs4java.util.NIOUtils.getBufferClass;
 import static com.nativelibs4java.util.NIOUtils.get;
 import static com.nativelibs4java.util.NIOUtils.put;
 import static org.junit.Assert.assertEquals;
 
-import java.nio.Buffer;
-import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
+import java.nio.*;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -40,15 +36,16 @@ public class BufferTest extends AbstractCommon {
 
     @Test
     public void testReadWrite() {
-        for (Class<? extends Buffer> bufferClass : bufferClasses)
-            testReadWrite(bufferClass, 10, 3, 3);
+        for (Class<? extends Buffer> primClass : primClasses)
+            testReadWrite(primClass, 10, 3, 3);
     }
-    public <B extends Buffer> void testReadWrite(Class<B> bufferClass, int n, int zeroOffset, int zeroLength) {
-        CLBuffer<B> buf = context.createBuffer(CLMem.Usage.InputOutput, n, bufferClass);
+    public <N> void testReadWrite(Class<N> primClass, int n, int zeroOffset, int zeroLength) {
+        Class bufferClass = getBufferClass(primClass);
+        CLBuffer<N> buf = context.createBuffer(CLMem.Usage.InputOutput, n, primClass);
         assertEquals(n, buf.getElementCount());
 
-        B initial = directBuffer(n, context.getByteOrder(), bufferClass);
-        B zeroes = directBuffer(n, context.getByteOrder(), bufferClass);
+        Buffer initial = directBuffer(n, context.getByteOrder(), bufferClass);
+        Buffer zeroes = directBuffer(n, context.getByteOrder(), bufferClass);
         for (int i = 0; i < n; i++) {
             put(initial, i, i + 1);
             put(zeroes, i, 0);
@@ -56,7 +53,7 @@ public class BufferTest extends AbstractCommon {
 
         buf.write(queue, initial, true);
 
-        B retrieved = buf.read(queue);
+        Buffer retrieved = buf.read(queue);
         assertEquals(buf.getElementCount(), retrieved.capacity());
 
         retrieved.rewind();
@@ -69,7 +66,7 @@ public class BufferTest extends AbstractCommon {
 
         for (boolean direct : new boolean[] { true, false }) {
             String type = direct ? "read to direct buffer" : "read to indirect buffer";
-            B readBuffer;
+            Buffer readBuffer;
             if (direct)
                 readBuffer = retrieved;
             else
@@ -91,8 +88,17 @@ public class BufferTest extends AbstractCommon {
         ShortBuffer.class,
         ByteBuffer.class,
         DoubleBuffer.class,
-        //CharBuffer.class,
+        CharBuffer.class,
         FloatBuffer.class
+    };
+    Class<? extends Buffer>[] primClasses = new Class[] {
+        Integer.class,
+        Long.class,
+        Short.class,
+        Byte.class,
+        Double.class,
+        Character.class,
+        Float.class
     };
     @Test
     public void testMap() {

@@ -315,14 +315,14 @@ public class JavaCLGenerator extends JNAerator {
     static Map<String, Pair<Integer, Class<?>>> arraysAndArityByType = new HashMap<String, Pair<Integer, Class<?>>>();
     static {
         Object[] data = new Object[] {
-            "char", Byte.TYPE, byte[].class, ByteBuffer.class,
-            "long", Long.TYPE, long[].class, LongBuffer.class,
-            "int", Integer.TYPE, int[].class, IntBuffer.class,
-            "short", Short.TYPE, short[].class, ShortBuffer.class,
-            "wchar_t", Character.TYPE, char[].class, ShortBuffer.class,
-            "double", Double.TYPE, double[].class, DoubleBuffer.class,
-            "float", Float.TYPE, float[].class, FloatBuffer.class,
-            "bool", Boolean.TYPE, boolean[].class, null
+            "char", Byte.TYPE, byte[].class, Byte.class,
+            "long", Long.TYPE, long[].class, Long.class,
+            "int", Integer.TYPE, int[].class, Integer.class,
+            "short", Short.TYPE, short[].class, Short.class,
+            "wchar_t", Character.TYPE, char[].class, Short.class,
+            "double", Double.TYPE, double[].class, Double.class,
+            "float", Float.TYPE, float[].class, Float.class,
+            "bool", Boolean.TYPE, boolean[].class, Boolean.class
         };
         for (int arity : new int[] { 1, 2, 4, 8, 16 }) {
             String suffix = arity == 1 ? "" : arity +"";

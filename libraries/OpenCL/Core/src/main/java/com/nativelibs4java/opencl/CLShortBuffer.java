@@ -40,30 +40,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
  * @see CLContext#createShortBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.ShortBuffer, boolean)
  * @author Olivier Chafik
  */
-public class CLShortBuffer extends CLBuffer<ShortBuffer> {
+public class CLShortBuffer extends CLBuffer<Short> {
 	CLShortBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer, 2);
+        super(context, byteCount, entity, buffer, 2, ShortBuffer.class);
 	}
-
-	@Override
-	protected CLBuffer<ShortBuffer> createBuffer(cl_mem mem) {
-		return new CLShortBuffer(getContext(), -1, mem, null);
-	}
-
-    @Override
-    protected ShortBuffer typedBuffer(ByteBuffer b) {
-        return b.asShortBuffer();
-    }
-
-    @Override
-    protected void put(ShortBuffer out, ShortBuffer in) {
-        out.put(in);
-    }
-
-    @Override
-    public Class<ShortBuffer> typedBufferClass() {
-        return ShortBuffer.class;
-    }
-
-
 }

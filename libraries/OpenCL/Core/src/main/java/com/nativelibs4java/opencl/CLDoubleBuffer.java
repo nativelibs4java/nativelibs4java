@@ -40,30 +40,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
  * @see CLContext#createDoubleBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.DoubleBuffer, boolean)
  * @author Olivier Chafik
  */
-public class CLDoubleBuffer extends CLBuffer<DoubleBuffer> {
+public class CLDoubleBuffer extends CLBuffer<Double> {
 	CLDoubleBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer, 8);
+        super(context, byteCount, entity, buffer, 8, DoubleBuffer.class);
 	}
-
-	@Override
-	protected CLBuffer<DoubleBuffer> createBuffer(cl_mem mem) {
-		return new CLDoubleBuffer(getContext(), -1, mem, null);
-	}
-
-    @Override
-    protected DoubleBuffer typedBuffer(ByteBuffer b) {
-        return b.asDoubleBuffer();
-    }
-
-    @Override
-    protected void put(DoubleBuffer out, DoubleBuffer in) {
-        out.put(in);
-    }
-
-    @Override
-    public Class<DoubleBuffer> typedBufferClass() {
-        return DoubleBuffer.class;
-    }
-
-
 }

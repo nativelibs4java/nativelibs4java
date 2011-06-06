@@ -40,29 +40,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
  * @see CLContext#createLongBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.LongBuffer, boolean)
  * @author Olivier Chafik
  */
-public class CLLongBuffer extends CLBuffer<LongBuffer> {
+public class CLLongBuffer extends CLBuffer<Long> {
 	CLLongBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer, 8);
+        super(context, byteCount, entity, buffer, 8, LongBuffer.class);
 	}
-
-	@Override
-	protected CLBuffer<LongBuffer> createBuffer(cl_mem mem) {
-		return new CLLongBuffer(getContext(), -1, mem, null);
-	}
-
-    @Override
-    protected LongBuffer typedBuffer(ByteBuffer b) {
-        return b.asLongBuffer();
-    }
-
-    @Override
-    protected void put(LongBuffer out, LongBuffer in) {
-        out.put(in);
-    }
-
-    @Override
-    public Class<LongBuffer> typedBufferClass() {
-        return LongBuffer.class;
-    }
-
 }

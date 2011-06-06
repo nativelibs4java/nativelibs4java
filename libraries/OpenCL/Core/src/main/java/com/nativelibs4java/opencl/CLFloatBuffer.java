@@ -41,29 +41,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
  * @see CLContext#createFloatBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.FloatBuffer, boolean)
  * @author Olivier Chafik
  */
-public class CLFloatBuffer extends CLBuffer<FloatBuffer> {
+public class CLFloatBuffer extends CLBuffer<Float> {
 	CLFloatBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer, 4);
+        super(context, byteCount, entity, buffer, 4, FloatBuffer.class);
 	}
-
-	@Override
-	protected CLBuffer<FloatBuffer> createBuffer(cl_mem mem) {
-		return new CLFloatBuffer(getContext(), -1, mem, null);
-	}
-
-    @Override
-    protected FloatBuffer typedBuffer(ByteBuffer b) {
-        return b.asFloatBuffer();
-    }
-
-    @Override
-    protected void put(FloatBuffer out, FloatBuffer in) {
-        out.put(in);
-    }
-
-    @Override
-    public Class<FloatBuffer> typedBufferClass() {
-        return FloatBuffer.class;
-    }
-
 }

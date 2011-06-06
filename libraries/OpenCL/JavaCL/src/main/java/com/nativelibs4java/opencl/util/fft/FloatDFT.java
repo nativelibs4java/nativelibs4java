@@ -12,7 +12,7 @@ public class FloatDFT extends AbstractDFT<Float, FloatBuffer, float[]> {
     final FloatDFTProgram program;
 
     public FloatDFT(CLContext context) throws IOException, CLException {
-        super(context, Float.class, FloatBuffer.class);
+        super(context, Float.class);
         program = new FloatDFTProgram(context);
     }
     public FloatDFT() throws IOException {
@@ -20,7 +20,7 @@ public class FloatDFT extends AbstractDFT<Float, FloatBuffer, float[]> {
     }
 
     @Override
-    protected CLEvent dft(CLQueue queue, CLBuffer<FloatBuffer> inBuf, CLBuffer<FloatBuffer> outBuf, int length, int sign, int[] dims, CLEvent... events) throws CLException {
+    protected CLEvent dft(CLQueue queue, CLBuffer<Float> inBuf, CLBuffer<Float> outBuf, int length, int sign, int[] dims, CLEvent... events) throws CLException {
         return program.dft(queue, inBuf, outBuf, length, sign, dims, null, events);
     }
 }

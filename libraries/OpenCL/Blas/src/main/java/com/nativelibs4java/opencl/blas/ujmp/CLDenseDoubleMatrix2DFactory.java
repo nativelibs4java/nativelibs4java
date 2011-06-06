@@ -5,6 +5,9 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
+import com.nativelibs4java.opencl.CLContext;
+import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
+import com.nativelibs4java.opencl.JavaCL;
 import com.nativelibs4java.opencl.util.LinearAlgebraUtils;
 import org.ujmp.core.doublematrix.DenseDoubleMatrix2D;
 import org.ujmp.core.doublematrix.factory.AbstractDoubleMatrix2DFactory;
@@ -22,7 +25,8 @@ public class CLDenseDoubleMatrix2DFactory extends
     static synchronized LinearAlgebraUtils getLinearAlgebraKernels() {
         if (LINEAR_ALGEBRA_KERNELS == null) {
             try {
-                LINEAR_ALGEBRA_KERNELS = new LinearAlgebraUtils();
+                CLContext context = JavaCL.createBestContext(DeviceFeature.DoubleSupport);
+                LINEAR_ALGEBRA_KERNELS = new LinearAlgebraUtils(context.createDefaultQueue());
             } catch (Throwable ex) {
                 throw new RuntimeException(ex);
             }

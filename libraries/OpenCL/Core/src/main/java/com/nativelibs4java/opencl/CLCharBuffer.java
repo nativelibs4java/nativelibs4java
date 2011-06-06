@@ -40,28 +40,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
  * @see CLContext#createCharBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.CharBuffer, boolean)
  * @author Olivier Chafik
  */
-public class CLCharBuffer extends CLBuffer<CharBuffer> {
+public class CLCharBuffer extends CLBuffer<Character> {
 	CLCharBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
-        super(context, byteCount, entity, buffer, 2);
+        super(context, byteCount, entity, buffer, 2, CharBuffer.class);
 	}
-
-	@Override
-	protected CLBuffer<CharBuffer> createBuffer(cl_mem mem) {
-		return new CLCharBuffer(getContext(), -1, mem, null);
-	}
-
-    @Override
-    protected CharBuffer typedBuffer(ByteBuffer b) {
-        return b.asCharBuffer();
-    }
-
-    @Override
-    protected void put(CharBuffer out, CharBuffer in) {
-        out.put(in);
-    }
-
-    @Override
-    public Class<CharBuffer> typedBufferClass() {
-        return CharBuffer.class;
-    }
 }
