@@ -53,7 +53,7 @@ public interface Transformer<T, B extends Buffer, A> {
             int length = inputSize / 2;
 
             CLBuffer<T> inBuf = context.createBuffer(CLMem.Usage.Input, in, true); // true = copy
-            CLBuffer<T> outBuf = context.createBuffer(CLMem.Usage.Output, computeOutputSize(inputSize), primitiveClass);
+            CLBuffer<T> outBuf = context.createBuffer(CLMem.Usage.Output, primitiveClass, computeOutputSize(inputSize));
 
             CLEvent dftEvt = transform(queue, inBuf, outBuf, inverse);
             inBuf.release();

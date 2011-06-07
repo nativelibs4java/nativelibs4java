@@ -38,7 +38,7 @@ public abstract class AbstractFFTPow2<T, B extends Buffer, A> extends AbstractTr
         CLBuffer<T> buf = cachedTwiddleFactors.get(N);
         if (buf == null) {
             int halfN = N / 2;
-            buf = context.createBuffer(CLMem.Usage.InputOutput, N, primitiveClass);
+            buf = context.createBuffer(CLMem.Usage.InputOutput, primitiveClass, N);
             CLEvent.waitFor(cooleyTukeyFFTTwiddleFactors(queue, N, buf));
             cachedTwiddleFactors.put(N, buf);
         }

@@ -328,7 +328,7 @@ public class CLBuffer<T> extends CLMem {
     }
     
     public CLBuffer<T> emptyClone(CLMem.Usage usage) {
-    		return (CLBuffer)getContext().createBuffer(usage, getElementCount(), typedBufferClass);
+    		return (CLBuffer)getContext().createBuffer(usage, typedBufferClass, getElementCount());
     }
     
     protected CLBuffer<T> createBuffer(cl_mem mem) {

@@ -41,7 +41,7 @@ public class BufferTest extends AbstractCommon {
     }
     public <N> void testReadWrite(Class<N> primClass, int n, int zeroOffset, int zeroLength) {
         Class bufferClass = getBufferClass(primClass);
-        CLBuffer<N> buf = context.createBuffer(CLMem.Usage.InputOutput, n, primClass);
+        CLBuffer<N> buf = context.createBuffer(CLMem.Usage.InputOutput, primClass, n);
         assertEquals(n, buf.getElementCount());
 
         Buffer initial = directBuffer(n, context.getByteOrder(), bufferClass);

@@ -188,7 +188,7 @@ public class ReductionUtils {
                         CLBuffer<?> currentInput = depth == 0 ? input : tempBuffers[iOutput ^ 1];
                         currentOutput = (CLBuffer<P>)tempBuffers[iOutput];
                         if (currentOutput == null)
-                            currentOutput = (CLBuffer<P>)(tempBuffers[iOutput] = context.createBuffer(CLMem.Usage.InputOutput, blocksInCurrentDepth * valueChannels, input.getElementClass()));
+                            currentOutput = (CLBuffer<P>)(tempBuffers[iOutput] = context.createBuffer(CLMem.Usage.InputOutput, input.getElementClass(), blocksInCurrentDepth * valueChannels));
 						
                         synchronized (kernel) {
                             kernel.setArgs(currentInput, (long)blocksInCurrentDepth, (long)inputLength, (long)maxReductionSize, currentOutput);

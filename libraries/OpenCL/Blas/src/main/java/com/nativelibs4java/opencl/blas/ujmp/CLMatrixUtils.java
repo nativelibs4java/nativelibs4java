@@ -138,7 +138,7 @@ public class CLMatrixUtils {
                 
                 // Write data to CLBuffer
                 if (buffer == null)
-                    buffer = context.createBuffer(Usage.Input, length, elementClass);
+                    buffer = context.createBuffer(Usage.Input, elementClass, length);
                 
                 events.performWrite(new CLEvents.Action() {
                     public CLEvent perform(CLEvent[] events) {

@@ -553,25 +553,47 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 		return createBuffer(null, count, kind.getIntFlags(), false);
 	}
 
-    @SuppressWarnings("unchecked")
-	public <N> CLBuffer<N> createBuffer(CLMem.Usage kind, long count, Class<N> elementClass) {
-		#foreach ($prim in $primitivesNoBool)
-        if (${prim.WrapperName}.class.isAssignableFrom(elementClass))
-            return (CLBuffer<N>)create${prim.BufferName}(kind, count);
-        #end
-
-        throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java type " + elementClass.getName());
+    /**
+	 * Create an OpenCL buffer with the provided initial values, in copy mode (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>).
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
+	 * @param data Buffer that contains the initial values. Indirect buffers should be avoided for performance reasons.
+	 */
+    public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Buffer data) {
+		return createBuffer(kind, data, true);
 	}
-
+	
+	/**
+	 * Create an OpenCL buffer with the provided initial values.<br>
+	 * If copy is true (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>), then the buffer will be hosted in OpenCL and will have the best performance, but any change done to the OpenCL buffer won't be propagated to the original data pointer.<br>
+	 * If copy is false (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_USE_HOST_PTR</a>), then the provided data pointer will be used for storage of the OpenCL buffer. OpenCL might still cache the data in the OpenCL land, so careful use of {@link CLBuffer#map(CLQueue, MapFlags, CLEvent[])} is then necessary to ensure the data is properly synchronized. 
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
+	 * @param data Buffer that contains the initial values. It must be direct for the non-copy mode, but indirect buffers should be avoided in all cases for performance reasons.
+	 */
     @SuppressWarnings("unchecked")
-	public <N, B> CLBuffer<N> createBuffer(CLMem.Usage kind, B buffer, boolean copy) {
-        Class<?> bufferClass = buffer.getClass();
+	public <N> CLBuffer<N> createBuffer(CLMem.Usage kind, Buffer data, boolean copy) {
+        Class<?> bufferClass = data.getClass();
         #foreach ($prim in $primitivesNoBool)
         if (${prim.BufferName}.class.isAssignableFrom(bufferClass))
-            return (CLBuffer<N>)create${prim.BufferName}(kind, (${prim.BufferName})buffer, copy);
+            return (CLBuffer<N>)create${prim.BufferName}(kind, (${prim.BufferName})data, copy);
         #end
 
         throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java type " + bufferClass.getName());
+	}
+
+    /**
+	 * Create an OpenCL buffer big enough to hold the provided amount of values of the specified primitive class.
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
+	 * @param elementClass Primitive type of the buffer. For instance a buffer of 'int' values can be created with elementClass being Integer.class or int.class indifferently.
+	 * @param elementCount Length of the buffer expressed in elements (for instance, a CLBuffer<Integer> of length 4 will actually contain 4 * 4 bytes, as ints are 4-bytes-long)
+	 */
+    @SuppressWarnings("unchecked")
+	public <N> CLBuffer<N> createBuffer(CLMem.Usage kind, Class<N> elementClass, long elementCount) {
+		#foreach ($prim in $primitivesNoBool)
+        if (${prim.WrapperName}.class.isAssignableFrom(elementClass))
+            return (CLBuffer<N>)create${prim.BufferName}(kind, elementCount);
+        #end
+
+        throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java primitive type " + elementClass.getName());
 	}
 
     /**
@@ -635,6 +657,9 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         return order;
     }
 
+    /**
+     * Get the endianness common to all devices of this context, or null if the devices have mismatching endiannesses.
+     */
     public ByteOrder getByteOrder() {
         ByteOrder order = null;
         for (CLDevice device : getDevices()) {
@@ -671,13 +696,19 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         return addressBits;
     }
 
-	public boolean isDoubleSupported() {
+	/**
+     * Whether all the devices in this context support any double-precision numbers (see {@link CLDevice#isDoubleSupported()}).
+     */
+    public boolean isDoubleSupported() {
 		for (CLDevice device : getDevices())
 			if (!device.isDoubleSupported())
 				return false;
 		return true;
 	}
-	public boolean isHalfSupported() {
+	/**
+     * Whether all the devices in this context support half-precision numbers (see {@link CLDevice#isHalfSupported()}).
+     */
+    public boolean isHalfSupported() {
 		for (CLDevice device : getDevices())
 			if (!device.isHalfSupported())
 				return false;
