@@ -102,7 +102,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Allocate enough memory for a single $cPrimName value, copy the value provided in argument into it and return a pointer to that memory.<br>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
+     * The pointer won't be garbage-collected until all its views are garbage-collected themselves ({@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @param value initial value for the created memory location
      * @return pointer to a new memory location that initially contains the $cPrimName value given in argument
      */
@@ -111,7 +111,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Allocate enough memory for values.length $cPrimName values, copy the values provided as argument into it and return a pointer to that memory.<br>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
+     * The pointer won't be garbage-collected until all its views are garbage-collected themselves ({@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon :
      <pre>{@code
      for (float f : pointerTo(1f, 2f, 3.3f))
@@ -125,7 +125,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Allocate enough memory for all the values in the 2D $cPrimName array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br>
      * Assumes that all of the subarrays of the provided array are non null and have the same size.<br>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
+     * The pointer won't be garbage-collected until all its views are garbage-collected themselves ({@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @param values initial values for the created memory location
      * @return pointer to a new memory location that initially contains the $cPrimName values provided in argument packed as a 2D C array would be
      */
@@ -135,7 +135,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Allocate enough memory for all the values in the 3D $cPrimName array, copy the values provided as argument into it as packed multi-dimensional C array and return a pointer to that memory.<br>
      * Assumes that all of the subarrays of the provided array are non null and have the same size.<br>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
+     * The pointer won't be garbage-collected until all its views are garbage-collected themselves ({@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @param values initial values for the created memory location
      * @return pointer to a new memory location that initially contains the $cPrimName values provided in argument packed as a 3D C array would be
      */
@@ -151,7 +151,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Allocate enough memory for arrayLength $cPrimName values and return a pointer to that memory.<br>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
+     * The pointer won't be garbage-collected until all its views are garbage-collected themselves ({@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * The returned pointer is also an {@code Iterable<$primWrapper>} instance that can be safely iterated upon.
      * @return pointer to arrayLength zero-initialized $cPrimName consecutive values
      */
@@ -160,7 +160,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Allocate enough memory for dim1 * dim2 $cPrimName values in a packed multi-dimensional C array and return a pointer to that memory.<br>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
+     * The pointer won't be garbage-collected until all its views are garbage-collected themselves ({@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @return pointer to dim1 * dim2 zero-initialized $cPrimName consecutive values
      */
 #end
@@ -168,7 +168,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Allocate enough memory for dim1 * dim2 * dim3 $cPrimName values in a packed multi-dimensional C array and return a pointer to that memory.<br>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
+     * The pointer won't be garbage-collected until all its views are garbage-collected themselves ({@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * @return pointer to dim1 * dim2 * dim3 zero-initialized $cPrimName consecutive values
      */
 #end
@@ -398,7 +398,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
-	* Creates a copy of the pointed memory location (needs valid bytes info, see {@link Pointer#validBytes(long)} or {@link Pointer#validElements(long)}) and returns a pointer to it.
+	* Creates a copy of the pointed memory location (allocates a new area of memory) and returns a pointer to it.<br>
+	* The pointer's bounds must be known (see {@link Pointer#getValidBytes()}, {@link Pointer#validBytes(long)} or {@link Pointer#validElements(long)}).
 	 */
 	public Pointer<T> clone() {
 		long length = getValidElements();
@@ -459,17 +460,17 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * @param newIO
      */
     public <U> Pointer<U> as(PointerIO<U> newIO) {
-    	return cloneAs(isOrdered(), newIO);
+    	return viewAs(isOrdered(), newIO);
     }
     /**
-     * Create a clone of this pointer that has the byte order provided in argument, or return this if this pointer already uses the requested byte order.
+     * Create a view of this pointer that has the byte order provided in argument, or return this if this pointer already uses the requested byte order.
      * @param order byte order (endianness) of the returned pointer
      */
     public Pointer<T> order(ByteOrder order) {
 		if (order.equals(ByteOrder.nativeOrder()) == isOrdered())
 			return this;
 		
-		return cloneAs(!isOrdered(), getIO());
+		return viewAs(!isOrdered(), getIO());
 	}
     
 	/**
@@ -479,7 +480,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return isOrdered() ? ByteOrder.nativeOrder() : ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
     }
 
-    <U> Pointer<U> cloneAs(boolean ordered, PointerIO<U> newIO) {
+    <U> Pointer<U> viewAs(boolean ordered, PointerIO<U> newIO) {
     	if (newIO == io && ordered == isOrdered())
     		return (Pointer<U>)this;
     	else
@@ -1342,7 +1343,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     /**
      * Create a pointer to the memory location used by a direct NIO buffer.<br>
      * If the NIO buffer is not direct, then it's backing Java array is copied to some native memory and will never be updated by changes to the native memory (calls {@link Pointer#pointerToArray(Object)}).<br>
-     * The returned pointer (and its subsequent clones returned by {@link Pointer#clone()}, {@link Pointer#offset(long)} or {@link Pointer#next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
+     * The returned pointer (and its subsequent views returned by {@link Pointer#offset(long)} or {@link Pointer#next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
      * @throws UnsupportedOperationException if the buffer is not direct
      */
     public static Pointer<?> pointerToBuffer(Buffer buffer) {
@@ -1464,7 +1465,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Create a pointer to the memory location used by a direct NIO ${prim.BufferName}}.<br>
      * If the NIO ${prim.BufferName}} is not direct, then it's backing Java array is copied to some native memory and will never be updated by changes to the native memory (calls {@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])}).<br>
-     * The returned pointer (and its subsequent clones returned by {@link Pointer#clone()}, {@link Pointer#offset(long)} or {@link Pointer#next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
+     * The returned pointer (and its subsequent views returned by {@link Pointer#offset(long)} or {@link Pointer#next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
      * @throws UnsupportedOperationException if the buffer is not direct
      */
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.BufferName} buffer) {
@@ -1717,7 +1718,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	/**
      * Allocate enough memory for array.length values, copy the values of the array provided as argument into it and return a pointer to that memory.<br>
      * The memory will be automatically be freed when the pointer is garbage-collected or upon manual calls to {@link Pointer#release()}.<br>
-     * The pointer won't be garbage-collected until all its clones / views are garbage-collected themselves (see {@link Pointer#clone()}, {@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
+     * The pointer won't be garbage-collected until all its views are garbage-collected themselves ({@link Pointer#offset(long)}, {@link Pointer#next(long)}, {@link Pointer#next()}).<br>
      * For pointers to primitive types (e.g. {@code Pointer<Integer> }), this method accepts primitive arrays (e.g. {@code int[] }) instead of arrays of boxed primitives (e.g. {@code Integer[] })
 	 * @param array primitive array containing the initial values for the created memory area
      * @return pointer to a new memory location that initially contains the consecutive values provided in argument
