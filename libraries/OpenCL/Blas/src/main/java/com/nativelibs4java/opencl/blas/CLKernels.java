@@ -147,17 +147,17 @@ public class CLKernels {
             kernel = clearKernels.get(primitive);
             if (kernel == null) {
                 kernel = context.createProgram((
-                    "__kernel void clear(   \n" +
-                    "	__global double* a,   \n" +
-                    "	int length               \n" +
+                    "__kernel void clear_buffer(    \n" +
+                    "	__global double* a,         \n" +
+                    "	int length                  \n" +
                     ") {                            \n" +
-                    "	int i = get_global_id(0);\n" +
+                    "	int i = get_global_id(0);   \n" +
                     "	if (i >= length)            \n" +
                     "		return;                 \n" +
                     "		                        \n" +
-                    "	a[i] == (double)0;          \n" +
+                    "	a[i] = (double)0;           \n" +
                     "}                              \n"
-                ).replaceAll("double", primitive.clTypeName())).createKernel("clear");
+                ).replaceAll("double", primitive.clTypeName())).createKernel("clear_buffer");
                 clearKernels.put(primitive, kernel);
             }
         }
