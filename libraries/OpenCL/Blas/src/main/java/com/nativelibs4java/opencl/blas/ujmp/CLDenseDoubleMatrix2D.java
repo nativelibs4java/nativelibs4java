@@ -5,7 +5,11 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import com.nativelibs4java.opencl.blas.ujmp.CLEvents.Action;
+import com.nativelibs4java.opencl.blas.CLMatrix2D;
+import com.nativelibs4java.opencl.blas.CLMatrixUtils;
+import com.nativelibs4java.opencl.blas.CLDefaultMatrix2D;
+import com.nativelibs4java.opencl.blas.CLKernels;
+import com.nativelibs4java.opencl.blas.CLEvents.Action;
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -257,7 +261,7 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
 
     @Override
     public Matrix minus(Ret returnType, boolean ignoreNaN, Matrix m) throws MatrixException {
-        return inst(impl.minus(returnType, ignoreNaN, ((CLDenseMatrix2D)m).getImpl()));
+        return inst(impl.minus(returnType, ignoreNaN, ((CLDenseFloatMatrix2D)m).getImpl()));
     }
     @Override
     public Matrix minus(Ret returnType, boolean ignoreNaN, double v) throws MatrixException {
@@ -266,7 +270,7 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
 
     @Override
     public Matrix plus(Ret returnType, boolean ignoreNaN, Matrix m) throws MatrixException {
-        return inst(impl.plus(returnType, ignoreNaN, ((CLDenseMatrix2D)m).getImpl()));
+        return inst(impl.plus(returnType, ignoreNaN, ((CLDenseFloatMatrix2D)m).getImpl()));
     }
 
     @Override
@@ -276,7 +280,7 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
 
     @Override
     public Matrix times(Ret returnType, boolean ignoreNaN, Matrix factor) throws MatrixException {
-        return inst(impl.times(returnType, ignoreNaN, ((CLDenseMatrix2D)factor).getImpl()));
+        return inst(impl.times(returnType, ignoreNaN, ((CLDenseFloatMatrix2D)factor).getImpl()));
     }
 
     @Override
@@ -286,7 +290,7 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
 
     @Override
     public Matrix divide(Ret returnType, boolean ignoreNaN, Matrix factor) throws MatrixException {
-        return inst(impl.divide(returnType, ignoreNaN, ((CLDenseMatrix2D)factor).getImpl()));
+        return inst(impl.divide(returnType, ignoreNaN, ((CLDenseFloatMatrix2D)factor).getImpl()));
     }
 
     @Override

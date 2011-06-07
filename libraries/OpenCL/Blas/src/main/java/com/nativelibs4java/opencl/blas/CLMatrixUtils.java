@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.nativelibs4java.opencl.blas.ujmp;
+package com.nativelibs4java.opencl.blas;
 
 import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.CLEvent;

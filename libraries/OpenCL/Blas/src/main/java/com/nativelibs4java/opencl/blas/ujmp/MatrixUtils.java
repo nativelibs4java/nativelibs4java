@@ -5,10 +5,8 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
+import com.nativelibs4java.opencl.blas.CLKernels;
 import org.ujmp.core.floatmatrix.FloatMatrix2D;
-import com.nativelibs4java.util.NIOUtils;
-import java.nio.Buffer;
-import java.nio.DoubleBuffer;
 import org.ujmp.core.doublematrix.DoubleMatrix2D;
 import org.ujmp.core.matrix.Matrix2D;
 

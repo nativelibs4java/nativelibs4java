@@ -5,6 +5,10 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
+import com.nativelibs4java.opencl.blas.CLMatrix2D;
+import com.nativelibs4java.opencl.blas.CLEvents;
+import com.nativelibs4java.opencl.blas.CLMatrixUtils;
+import com.nativelibs4java.opencl.blas.CLKernels;
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
 

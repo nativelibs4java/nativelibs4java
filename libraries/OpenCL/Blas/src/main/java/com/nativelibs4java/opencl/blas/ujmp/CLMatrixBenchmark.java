@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
+import com.nativelibs4java.opencl.blas.CLKernels;
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
 

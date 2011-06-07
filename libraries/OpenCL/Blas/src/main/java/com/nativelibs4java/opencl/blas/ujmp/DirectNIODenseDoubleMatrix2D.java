@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl.blas.ujmp;
 
+import com.nativelibs4java.opencl.blas.CLKernels;
 import org.ujmp.core.doublematrix.stub.AbstractDenseDoubleMatrix2D;
 import org.ujmp.core.interfaces.Wrapper;
 
