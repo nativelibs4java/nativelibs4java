@@ -91,7 +91,7 @@ public class UJMPOpenCLTest {
 	}
 
     @Test
-    public void testContains() {
+    public void testContainsDouble() {
         CLDenseDoubleMatrix2D m = (CLDenseDoubleMatrix2D)MatrixFactory.dense(2, 2);
         int row = 0, column = 1;
         m.setDouble(1.1, row, column);
@@ -106,6 +106,25 @@ public class UJMPOpenCLTest {
         for (double d : m.read())
             System.out.println("VALUE: " + d);
         assertTrue(!m.containsDouble(1.1));
+    }
+
+
+    @Test
+    public void testContainsFloat() {
+        CLDenseFloatMatrix2D m = new CLDenseFloatMatrix2D(2, 2);
+        int row = 0, column = 1;
+        m.setFloat(1.1f, row, column);
+        //m.waitFor();
+        assertEquals(1.1f, m.getFloat(row, column), 0.0);
+        assertTrue(m.containsFloat(1.1f));
+        assertTrue(!m.containsFloat(2.0f));
+        //m.waitFor();
+        m.clear();
+        //m.waitFor();
+        //m.setFloat(0, row, column);
+        for (float d : m.read())
+            System.out.println("VALUE: " + d);
+        assertTrue(!m.containsFloat(1.1f));
     }
 
     static void sleep(long millis) {

@@ -62,7 +62,12 @@ public class CLKernels {
     }
     
     public CLKernels() throws IOException, CLBuildException {
-        this(JavaCL.createBestContext(DeviceFeature.DoubleSupport, DeviceFeature.MaxComputeUnits).createDefaultQueue());
+        this(
+            JavaCL.createBestContext(
+                DeviceFeature.DoubleSupport, 
+                DeviceFeature.MaxComputeUnits
+            ).createDefaultQueue()
+        );
     }
     public CLKernels(CLQueue queue) throws IOException, CLBuildException {
         kernels = new LinearAlgebraUtils(queue);
@@ -171,10 +176,8 @@ public class CLKernels {
         }
         synchronized(kernel) {
             kernel.setArgs(buffer, (int)length);
-            //queue.finish();
             CLEvent evt = kernel.enqueueNDRange(queue, new int[] { (int)length }, eventsToWaitFor);
-            //queue.finish();
-            //Object array = buffer.read(queue).getArray();
+            //Object array = buffer.read(queue, evt).getArray();
             return evt;
         }
     }
@@ -191,26 +194,26 @@ public class CLKernels {
             kernel = matrixMultiplyKernels.get(prim);
             if (kernel == null) {
                 String src =
-                    "__kernel void mulMat_double(                                  " +
-                    "   __global const double* a, size_t aRows, size_t aColumns,   " +
-                    "   __global const double* b, size_t bColumns,                 " +
+                    "__kernel void mulMat(                                  " +
+                    "   __global const double* a, int aRows, int aColumns,   " +
+                    "   __global const double* b, int bColumns,                 " +
                     "   __global double* c                                         " +
                     ") {                                                           " +
-                    "    size_t i = get_global_id(0);                              " +
-                    "    size_t j = get_global_id(1);                              " +
+                    "    int i = get_global_id(0);                              " +
+                    "    int j = get_global_id(1);                              " +
                     "                                                              " +
                     "    if (i >= aRows || j >= bColumns) return;                  " +
                     "    double total = 0;                                         " +
-                    "    long iOff = i * aColumns;                                 " +
+                    "    size_t iOff = i * (size_t)aColumns;                                 " +
                     "    for (long k = 0; k < aColumns; k++) {                     " +
-                    "        total += a[iOff + k] * b[k * bColumns + j];           " +
+                    "        total += a[iOff + k] * b[k * (size_t)bColumns + j];           " +
                     "    }                                                         " +
-                    "    c[i * bColumns + j] = total;                              " +
+                    "    c[i * (size_t)bColumns + j] = total;                              " +
                     "}                                                             "
                 ;
                 String clTypeName = prim.clTypeName();
                 src = src.replaceAll("double", clTypeName);
-                kernel = context.createProgram(src).createKernel("mulMat_" + clTypeName);
+                kernel = context.createProgram(src).createKernel("mulMat");
                 matrixMultiplyKernels.put(prim, kernel);
             }
         }
@@ -233,7 +236,7 @@ public class CLKernels {
             kernel = matrixTransposeKernels.get(prim);
             if (kernel == null) {
                 String src =
-                    "__kernel void transposeMat_double(                             \n" +
+                    "__kernel void transposeMat(                             \n" +
                     "   __global const double* a, int aRows, int aColumns,    \n" +
                     "   __global double* out                                  \n" +
                     ") {                                                            \n" +
@@ -255,7 +258,7 @@ public class CLKernels {
                 ;
                 String clTypeName = prim.clTypeName();
                 src = src.replaceAll("double", clTypeName);
-                kernel = context.createProgram(src).createKernel("mulMat_" + clTypeName);
+                kernel = context.createProgram(src).createKernel("transposeMat");
                 matrixTransposeKernels.put(prim, kernel);
             }
         }
