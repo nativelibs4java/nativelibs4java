@@ -25,6 +25,16 @@ public class PointerTest {
 	static final ByteOrder[] orders = new ByteOrder[] { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
     
 	@Test
+	public void testClone() {
+		Pointer<Integer> p = pointerToInts(1, 2, 3, 4);
+		Pointer<Integer> c = p.clone();
+		assertTrue(p.getPeer() != c.getPeer());
+		for (int i = 0; i < 4; i++)
+			assertEquals(i + 1, (int)c.get(i));
+	
+		assertEquals(0, p.compareBytes(c, p.getValidBytes()));
+	}
+	@Test
 	public void testIdentities() {
 		Pointer<Integer> p = allocateInt();
 		assertTrue(p == (Pointer)p.offset(0));

@@ -398,6 +398,19 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
+	* Creates a copy of the pointed memory location (needs valid bytes info, see {@link Pointer#validBytes(long)} or {@link Pointer#validElements(long)}) and returns a pointer to it.
+	 */
+	public Pointer<T> clone() {
+		long length = getValidElements();
+		if (length < 0)
+			throw new UnsupportedOperationException("Number of bytes unknown, unable to clone memory (use validBytes(long))");
+		
+		Pointer<T> c = allocateArray(getIO(), length);
+		copyTo(c);
+		return c;    	
+	}
+	
+	/**
 	 * Creates a pointer that has the given number of valid elements ahead.<br>
 	 * If the pointer was already bound, the valid bytes must be lower or equal to the current getValidElements() value.
 	 */
