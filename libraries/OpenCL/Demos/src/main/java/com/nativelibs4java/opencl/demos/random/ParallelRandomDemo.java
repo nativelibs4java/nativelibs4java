@@ -68,7 +68,7 @@ public class ParallelRandomDemo {
             int warmupSize = 16;
             ParallelRandom demo = new ParallelRandom(queue, warmupSize, System.currentTimeMillis());
 
-            println(demo.getSeeds().read(queue));
+            println((IntBuffer)demo.getSeeds().read(queue));
             IntBuffer b = demo.next();
             println(b);
             b = demo.next();

@@ -113,7 +113,7 @@ public class SobelFilterDemo {
     CLContext context;
     CLQueue queue;
     SimpleSobel sobel;
-    ReductionUtils.Reductor<FloatBuffer> floatMinReductor;
+    ReductionUtils.Reductor<Float> floatMinReductor;
     
 
     public SobelFilterDemo() throws IOException, CLBuildException {
@@ -154,8 +154,8 @@ public class SobelFilterDemo {
         //float[] test = new float[1000];
         //gradients.read(queue).get(test);
 
-        float gradientMax = floatMinReductor.reduce(queue, gradients, dataSize, 32, evt).get();
-        float dirMax = floatMinReductor.reduce(queue, directions, dataSize, 32, evt).get();
+        float gradientMax = ((FloatBuffer)floatMinReductor.reduce(queue, gradients, dataSize, 32, evt)).get();
+        float dirMax = ((FloatBuffer)floatMinReductor.reduce(queue, directions, dataSize, 32, evt)).get();
 
         //CLEvent.waitFor(evtGradMax, evtDirMax);
 
@@ -178,7 +178,7 @@ public class SobelFilterDemo {
         queue.finish();
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         int[] pixels = pixelsTemp == null ? new int[width * height] : pixelsTemp;
-        buffer.read(queue, eventsToWaitFor).get(pixels);
+        ((IntBuffer)buffer.read(queue, eventsToWaitFor)).get(pixels);
         img.setRGB(0, 0, width,height, pixels, 0, width);
         return img;
     }
