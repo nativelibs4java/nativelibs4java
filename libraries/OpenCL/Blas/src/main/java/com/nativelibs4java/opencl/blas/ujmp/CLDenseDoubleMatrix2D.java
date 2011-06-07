@@ -66,15 +66,15 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
     }
     
     public void write(Pointer<Double> p) {
-        getImpl().getMatrix().write(p);
+        getImpl().write(p);
     }
 
     public void read(Pointer<Double> p) {
-        getImpl().getMatrix().read(p);
+        getImpl().read(p);
     }
     
     public Pointer<Double> read() {
-        return getImpl().getMatrix().read();
+        return getImpl().read();
     }
 
     static CLDenseDoubleMatrix2D inst(CLMatrix2D<Double> matrix) {
@@ -105,6 +105,8 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
     public Iterable<Object> allValues() {
         return (Pointer)impl.read();
     }
+    
+    
 
 
     @Override
@@ -165,7 +167,7 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
 
     @Override
     public synchronized Matrix copy() throws MatrixException {
-        return inst(CLMatrixUtils.clone(impl.getMatrix()));
+        return inst(impl.clone());
     }
 
     @Override
@@ -329,6 +331,6 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
     }
 
     public void waitFor() {
-        impl.getMatrix().getEvents().waitFor();
+        impl.waitFor();
     }
 }

@@ -1,12 +1,17 @@
 package com.nativelibs4java.opencl.blas.ujmp;
 
+import java.io.IOException;
 import org.bridj.Pointer;
 import static org.bridj.Pointer.*;
 
 import com.nativelibs4java.opencl.CLBuffer;
+import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import com.nativelibs4java.opencl.CLQueue;
+import com.nativelibs4java.opencl.JavaCL;
+import com.nativelibs4java.opencl.blas.CLKernels;
 import static com.nativelibs4java.opencl.blas.ujmp.MatrixUtils.read;
 import static com.nativelibs4java.opencl.blas.ujmp.MatrixUtils.write;
+import com.nativelibs4java.util.Pair;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -14,7 +19,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.ujmp.core.Matrix;
 import org.ujmp.core.MatrixFactory;
+import org.ujmp.core.calculation.Calculation.Ret;
 import org.ujmp.core.doublematrix.DenseDoubleMatrix2D;
+import org.ujmp.core.doublematrix.impl.DefaultDenseDoubleMatrix2D;
+import org.ujmp.core.floatmatrix.DenseFloatMatrix2D;
+import org.ujmp.core.floatmatrix.FloatMatrix2D;
+import org.ujmp.core.floatmatrix.impl.DefaultDenseFloatMatrix2D;
 import org.ujmp.core.mapper.MatrixMapper;
 /**
  *
@@ -38,25 +48,27 @@ public class UJMPOpenCLTest {
         Matrix m = MatrixFactory.dense(1, 1);
         assertTrue(m instanceof CLDenseDoubleMatrix2D);
     }
+    
+    
     @Test
-	public void testMult() {
-
-        DenseDoubleMatrix2D m = (DenseDoubleMatrix2D)MatrixFactory.dense(3, 3);
-        DenseDoubleMatrix2D v = (DenseDoubleMatrix2D)MatrixFactory.dense(3, 1);
-        //CLBuffer<Double> buffer = ((CLDenseDoubleMatrix2D)m).getBuffer();
-        CLQueue queue = ((CLDenseDoubleMatrix2D)m).getImpl().getMatrix().getQueue();
+	public void testMultFloat() {
+        
+        DenseFloatMatrix2D m = new CLDenseFloatMatrix2D(3, 3);
+        DenseFloatMatrix2D v = new CLDenseFloatMatrix2D(3, 1);
+        //CLBuffer<Float> buffer = ((CLDenseFloatMatrix2D)m).getBuffer();
+        CLQueue queue = ((CLDenseFloatMatrix2D)m).getImpl().getQueue();
         //System.out.println("Context = " + buffer.getContext());
         
-        double[] min = new double[] { 0, 0, 1, 0, 1, 0, 1, 0, 0 };
+        float[] min = new float[] { 0, 0, 1, 0, 1, 0, 1, 0, 0 };
         write(min, m);
-        Pointer<Double> back = read(m);
+        Pointer<Float> back = read(m);
         for (int i = 0, cap = (int)back.getValidElements(); i < cap; i++) {
             assertEquals(min[i], back.get(i), 0);
             //System.out.println(back.get(i));
         }
         
         queue.finish();
-        DenseDoubleMatrix2D mout = (DenseDoubleMatrix2D) m.mtimes(m);
+        DenseFloatMatrix2D mout = (DenseFloatMatrix2D) m.mtimes(m);
         queue.finish();
         
         //System.out.println("m = \n" + m);
@@ -64,31 +76,34 @@ public class UJMPOpenCLTest {
         
 		//if (la instanceof CLLinearAlgebra)
 		//	((CLLinearAlgebra)la).queue.finish();
-		//dmout.write((DoubleBuffer)mout.read());
+		//dmout.write((FloatBuffer)mout.read());
 
         back = read(mout);
         //for (int i = 0, cap = (int)back.getValidElements(); i < cap; i++)
         //    System.out.println(back.get(i));
 
-		assertEquals(0, mout.getDouble(0, 1), 0);
-		assertEquals(0, mout.getDouble(1, 0), 0);
+		assertEquals(0, mout.getFloat(0, 1), 0);
+		assertEquals(0, mout.getFloat(1, 0), 0);
 
-        assertEquals(1, mout.getDouble(0, 0), 0);
-		assertEquals(1, mout.getDouble(1, 1), 0);
-        assertEquals(1, mout.getDouble(2, 2), 0);
+        assertEquals(1, mout.getFloat(0, 0), 0);
+		assertEquals(1, mout.getFloat(1, 1), 0);
+        assertEquals(1, mout.getFloat(2, 2), 0);
 
-		write(new double[] { 1, 0, 0}, v);
-		DenseDoubleMatrix2D vout = (DenseDoubleMatrix2D)m.mtimes(v);
+		write(new float[] { 1, 0, 0}, v);
+		DenseFloatMatrix2D vout = (DenseFloatMatrix2D)m.mtimes(v);
 		//System.out.println(v);
 		//System.out.println(vout);
 
-		assertEquals(0, vout.getDouble(0, 0), 0);
-        assertEquals(0, vout.getDouble(1, 0), 0);
-		assertEquals(1, vout.getDouble(2, 0), 0);
+		assertEquals(0, vout.getFloat(0, 0), 0);
+        assertEquals(0, vout.getFloat(1, 0), 0);
+		assertEquals(1, vout.getFloat(2, 0), 0);
 	}
 
     @Test
-    public void testContainsDouble() {
+    public void testContainsDouble() throws IOException {
+        
+        CLKernels.setInstance(new CLKernels());
+        
         CLDenseDoubleMatrix2D m = (CLDenseDoubleMatrix2D)MatrixFactory.dense(2, 2);
         int row = 1, column = 1;
         m.setDouble(1.1, row, column);

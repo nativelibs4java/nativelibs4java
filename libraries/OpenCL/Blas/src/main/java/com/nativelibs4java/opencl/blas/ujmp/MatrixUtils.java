@@ -21,6 +21,9 @@ public class MatrixUtils {
     public static void write(double[] b, DoubleMatrix2D out) {
         write(pointerToDoubles(b), out);
     }
+    public static void write(float[] b, FloatMatrix2D out) {
+        write(pointerToFloats(b), out);
+    }
     public static void write(Pointer<Double> b, DoubleMatrix2D out) {
         long rows = out.getRowCount(), columns = out.getColumnCount();
         if (b.getValidElements() < rows * columns)
@@ -36,6 +39,21 @@ public class MatrixUtils {
             }
         }
     }
+    public static void write(Pointer<Float> b, FloatMatrix2D out) {
+        long rows = out.getRowCount(), columns = out.getColumnCount();
+        if (b.getValidElements() < rows * columns)
+            throw new IllegalArgumentException("Not enough data in input buffer to write into " + rows + "x" + columns + " matrix (only has " + b.getValidElements() + ")");
+        if (out instanceof CLDenseFloatMatrix2D) {
+            CLDenseFloatMatrix2D mout = (CLDenseFloatMatrix2D)out;
+            mout.write(b);
+        } else {
+            for (long i = 0; i < rows; i++) {
+            		long offset = i * columns;
+                for (long j = 0; j < columns; j++)
+                    out.setFloat(b.get(offset + j), i, j);
+            }
+        }
+    }
 
     public static Pointer<Double> read(DoubleMatrix2D m) {
         Pointer<Double> buffer = allocateDoubles(m.getColumnCount() * m.getRowCount()).order(CLKernels.getInstance().getContext().getKernelsDefaultByteOrder());
@@ -45,6 +63,8 @@ public class MatrixUtils {
     public static <T> void read(Matrix2D m, Pointer<T> out) {
         if (m instanceof DoubleMatrix2D)
             read((DoubleMatrix2D)m, (Pointer<Double>)out);
+        else if (m instanceof FloatMatrix2D)
+            read((FloatMatrix2D)m, (Pointer<Float>)out);
         else
             throw new UnsupportedOperationException("Can only read DoubleMatrix2D into DoubleBuffer for now");
     }

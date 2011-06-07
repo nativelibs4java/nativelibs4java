@@ -5,6 +5,7 @@
 
 package com.nativelibs4java.opencl.blas;
 
+import com.nativelibs4java.opencl.CLProgram;
 import java.io.IOException;
 
 import com.nativelibs4java.opencl.CLBuildException;
@@ -35,13 +36,15 @@ public class CLKernels {
     protected final CLQueue queue;
 
     private static volatile CLKernels instance;
-
+    
+    public static synchronized void setInstance(CLKernels kernels) {
+        instance = kernels;
+    }
     public static synchronized CLKernels getInstance() {
         if (instance == null) {
             try {
                 instance = new CLKernels();
             } catch (Throwable ex) {
-                ex.printStackTrace();
                 throw new RuntimeException(ex);
             }
         }
@@ -74,7 +77,7 @@ public class CLKernels {
         synchronized (kernel) {
             kernel.setArgs(a, out, length);
             CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)length }, eventsToWaitFor);
-            return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
+            return evt;
         }
     }
 
@@ -89,7 +92,7 @@ public class CLKernels {
         synchronized (kernel) {
             kernel.setArgs(a, b, out, length);
             CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)length }, eventsToWaitFor);
-            return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
+            return evt;
         }
     }
 
@@ -104,7 +107,7 @@ public class CLKernels {
         synchronized (kernel) {
             kernel.setArgs(a, b, out, length);
             CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)length }, eventsToWaitFor);
-            return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
+            return evt;
         }
     }
 
@@ -207,52 +210,67 @@ public class CLKernels {
         synchronized (kernel) {
             kernel.setArgs(a, aRows, aColumns, b, bColumns, out);
             CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)aRows, (int)bColumns }, eventsToWaitFor);
-            return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
+            return evt;
         }
     }
 
-    Map<Primitive, CLKernel> matrixTransposeKernels = new HashMap<Primitive, CLKernel>();
+    Map<Primitive, CLKernel[]> matrixTransposeKernels = new HashMap<Primitive, CLKernel[]>();
     public <T> CLEvent matrixTranspose(Primitive prim, CLBuffer<T> a, long aRows, long aColumns, CLBuffer<T> out, CLEvent... eventsToWaitFor) throws CLBuildException {
         if (out == null)
             throw new IllegalArgumentException("Null output matrix !");
         //if (out != null)
         //    out = (CLBuffer<T>)context.createBuffer(Usage.Output, prim.primitiveType, aRows * aColumns);
 
-        CLKernel kernel;
+        CLKernel[] kernels;
         synchronized (matrixTransposeKernels) {
-            kernel = matrixTransposeKernels.get(prim);
-            if (kernel == null) {
+            kernels = matrixTransposeKernels.get(prim);
+            if (kernels == null) {
                 String src =
-                    "__kernel void transposeMat(                             \n" +
-                    "   __global const double* a, int aRows, int aColumns,    \n" +
-                    "   __global double* out                                  \n" +
+                    "__kernel void transposeSelf(                                   \n" +
+                    "   __global double* a, int aRows, int aColumns                 \n" +
                     ") {                                                            \n" +
-                    "    int i = get_global_id(0);                               \n" +
-                    "    int j = get_global_id(1);                               \n" +
+                    "    int i = get_global_id(0);                                  \n" +
+                    "    int j = get_global_id(1);                                  \n" +
+                    "                                                               \n" +
+                    "    if (i >= aRows || j >= aColumns || j >= i) return;         \n" +
+                    "                                                               \n" +
+                    "    size_t aIndex = i * aColumns + j;                          \n" +
+                    "    size_t outIndex = j * aRows + i;                           \n" +
+                    "    double temp = a[outIndex];                                 \n" +
+                    "    a[outIndex] = a[aIndex];                                   \n" +
+                    "    a[aIndex] = temp;                                          \n" +
+                    "}                                                              \n" +
+                    "__kernel void transposeOther(                                  \n" +
+                    "   __global const double* a, int aRows, int aColumns,          \n" +
+                    "   __global double* out                                        \n" +
+                    ") {                                                            \n" +
+                    "    int i = get_global_id(0);                                  \n" +
+                    "    int j = get_global_id(1);                                  \n" +
                     "                                                               \n" +
                     "    if (i >= aRows || j >= aColumns) return;                   \n" +
                     "                                                               \n" +
                     "    size_t aIndex = i * aColumns + j;                          \n" +
                     "    size_t outIndex = j * aRows + i;                           \n" +
-                    "    if (a == out) {                                            \n" +
-                    "    	double temp = out[outIndex];                            \n" +
-                    "    	out[outIndex] = a[aIndex];                              \n" +
-                    "    	a[aIndex] = temp;                                       \n" +
-                    "	} else {                                                    \n" +
-                    "		out[outIndex] = a[aIndex];                              \n" +
-                    "	}                                                           \n" +
+                    "    out[outIndex] = a[aIndex];                                 \n" +
                     "}                                                              \n"
                 ;
                 String clTypeName = prim.clTypeName();
                 src = src.replaceAll("double", clTypeName);
-                kernel = context.createProgram(src).createKernel("transposeMat");
-                matrixTransposeKernels.put(prim, kernel);
+                CLProgram program = context.createProgram(src);
+                kernels = new CLKernel[] { program.createKernel("transposeSelf"), program.createKernel("transposeOther") };
+                matrixTransposeKernels.put(prim, kernels);
             }
         }
+        boolean self = a.equals(out);
+        CLKernel kernel = kernels[self ? 0 : 1];
         synchronized (kernel) {
-            kernel.setArgs(a, (int)aRows, (int)aColumns, out);
+            if (self)
+                kernel.setArgs(a, (int)aRows, (int)aColumns);
+            else
+                kernel.setArgs(a, (int)aRows, (int)aColumns, out);
+            
             CLEvent evt = kernel.enqueueNDRange(queue, new int [] { (int)aRows, (int)aColumns }, eventsToWaitFor);
-            return evt;//new Pair<CLBuffer<T>, CLEvent>(out, evt);
+            return evt;
         }
     }
 

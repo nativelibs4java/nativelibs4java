@@ -68,15 +68,15 @@ public class CLDenseFloatMatrix2D extends AbstractDenseFloatMatrix2D {
     }
 
     public void write(Pointer<Float> p) {
-        getImpl().getMatrix().write(p);
+        getImpl().write(p);
     }
 
     public void read(Pointer<Float> p) {
-        getImpl().getMatrix().read(p);
+        getImpl().read(p);
     }
 
     public Pointer<Float> read() {
-        return getImpl().getMatrix().read();
+        return getImpl().read();
     }
 
     static CLDenseFloatMatrix2D inst(CLMatrix2D<Float> matrix) {
@@ -166,7 +166,7 @@ public class CLDenseFloatMatrix2D extends AbstractDenseFloatMatrix2D {
 
     @Override
     public synchronized Matrix copy() throws MatrixException {
-        return inst(CLMatrixUtils.clone(impl.getMatrix()));
+        return inst(impl.clone());
     }
 
     @Override
@@ -324,7 +324,7 @@ public class CLDenseFloatMatrix2D extends AbstractDenseFloatMatrix2D {
     }
 
     public void waitFor() {
-        impl.getMatrix().getEvents().waitFor();
+        impl.waitFor();
     }
     
     

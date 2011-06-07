@@ -16,10 +16,22 @@ public class CLEvents {
     CLEvent lastWriteEvent;
     List<CLEvent> readEvents = new ArrayList<CLEvent>();
     
+    List<Listener> listeners = new ArrayList<Listener>();
+    
+    public interface Listener {
+        void writing(CLEvents evts);
+        void reading(CLEvents evts);
+    }
     public interface Action {
         CLEvent perform(CLEvent[] events);
     }
     
+    public synchronized void addListener(Listener l) {
+        listeners.add(l);
+    }
+    public synchronized void removeListener(Listener l) {
+        listeners.remove(l);
+    }
     static final CLEvent[] EMPTY_EVENTS = new CLEvent[0];
     protected synchronized CLEvent clearEvents(Action action) {
         int nReads = readEvents.size();
@@ -34,6 +46,8 @@ public class CLEvents {
         return evt;
     }
     public synchronized CLEvent performRead(Action action) {
+        for (Listener listener : listeners)
+            listener.writing(this);
         CLEvent evt = action.perform(lastWriteEvent == null ? EMPTY_EVENTS : new CLEvent[] { lastWriteEvent });
         if (evt != null) {
             readEvents.add(evt);
@@ -43,6 +57,8 @@ public class CLEvents {
     }
     
     public synchronized void performRead(Runnable action) {
+        for (Listener listener : listeners)
+            listener.reading(this);
         waitForRead();
         action.run();
     }
