@@ -24,7 +24,7 @@ import org.bridj.util.Utils;
 import static org.bridj.Pointer.*;
 import static org.bridj.cpp.com.OLEAutomationLibrary.*;
 
-/**
+/*
  * Adding Icons, Previews and Shortcut Menus :
  * http://msdn.microsoft.com/en-us/library/bb266530(VS.85).aspx
  * 
@@ -38,6 +38,10 @@ import static org.bridj.cpp.com.OLEAutomationLibrary.*;
  * 
  * Registering a Running EXE Server :
  * http://msdn.microsoft.com/en-us/library/ms680076(VS.85).aspx
+ */
+/**
+ * Microsoft COM runtime, along with useful constants and methods.<br>
+ * All COM classes must extends {@link org.bridj.cpp.com.IUnknown} and hence inherit from it the correct {@link org.bridj.ann.Runtime} annotation that references {@link org.bridj.cpp.com.COMRuntime}.
  */
 @Library("Ole32")
 @Runtime(CRuntime.class)

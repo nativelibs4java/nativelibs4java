@@ -5,7 +5,7 @@ import org.bridj.*;
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 
 /**
- * Util methods for STL bindings in BridJ
+ * Util methods for STL bindings in BridJ, <i>intended for internal use only</i>.
  * @author ochafik
  */
 public final class STL implements StructIO.Customizer {

@@ -538,17 +538,48 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	
 #end
 
+	/**
+	 * Create an OpenCL buffer with the provided initial values, in copy mode (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>).
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
+	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer#getValidElements()})
+	 */
+    public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Pointer<T> data) {
+		return createBuffer(kind, data, true);
+	}
+	
+	/**
+	 * Create an OpenCL buffer with the provided initial values.<br>
+	 * If copy is true (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>), then the buffer will be hosted in OpenCL and will have the best performance, but any change done to the OpenCL buffer won't be propagated to the original data pointer.<br>
+	 * If copy is false (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_USE_HOST_PTR</a>), then the provided data pointer will be used for storage of the OpenCL buffer. OpenCL might still cache the data in the OpenCL land, so careful use of {@link CLBuffer#map(CLQueue, MapFlags, CLEvent[])} is then necessary to ensure the data is properly synchronized. 
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
+	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer#getValidElements()})
+	 */
     public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Pointer<T> data, boolean copy) {
         return createBuffer(data.getIO(), data, data.getValidBytes(), kind.getIntFlags() | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), copy);
 	}
-    public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Class<T> type, long elementCount) {
-        PointerIO<T> io = PointerIO.getInstance(type);
+	
+	/**
+	 * Create an OpenCL buffer big enough to hold the provided amount of values of the specified primitive class.
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
+	 * @param elementClass Primitive type of the buffer. For instance a buffer of 'int' values can be created with elementClass being Integer.class or int.class indifferently.
+	 * @param elementCount Length of the buffer expressed in elements (for instance, a CLBuffer<Integer> of length 4 will actually contain 4 * 4 bytes, as ints are 4-bytes-long)
+	 */
+    public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Class<T> elementClass, long elementCount) {
+        PointerIO<T> io = PointerIO.getInstance(elementClass);
         if (io == null)
-        	throw new IllegalArgumentException("Unknown target type : " + type.getName());
+        	throw new IllegalArgumentException("Unknown target type : " + elementClass.getName());
         return createBuffer(kind, io, elementCount);
 	}
 
-	public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, PointerIO<T> io, long elementCount) {
+	/**
+	 * Create an OpenCL buffer big enough to hold the provided amount of values of the specified type.
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
+	 * @param io Delegate responsible for reading and writing values.
+	 * @param elementCount Length of the buffer expressed in elements (for instance, a CLBuffer<Integer> of length 4 will actually contain 4 * 4 bytes, as ints are 4-bytes-long)
+	 * @deprecated Intended for advanced uses in conjunction with BridJ.
+	 */
+    @Deprecated
+    public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, PointerIO<T> io, long elementCount) {
         return createBuffer(io, null, io.getTargetSize() * elementCount, kind.getIntFlags(), false);
 	}
 
@@ -588,6 +619,9 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         return order;
     }
 
+    /**
+     * Get the endianness common to all devices of this context, or null if the devices have mismatching endiannesses.
+     */
     public ByteOrder getByteOrder() {
         ByteOrder order = null;
         for (CLDevice device : getDevices()) {
@@ -624,13 +658,19 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         return addressBits;
     }
 
-	public boolean isDoubleSupported() {
+    /**
+     * Whether all the devices in this context support any double-precision numbers (see {@link CLDevice#isDoubleSupported()}).
+     */
+    public boolean isDoubleSupported() {
 		for (CLDevice device : getDevices())
 			if (!device.isDoubleSupported())
 				return false;
 		return true;
 	}
-	public boolean isHalfSupported() {
+	/**
+     * Whether all the devices in this context support half-precision numbers (see {@link CLDevice#isHalfSupported()}).
+     */
+    public boolean isHalfSupported() {
 		for (CLDevice device : getDevices())
 			if (!device.isHalfSupported())
 				return false;

@@ -863,7 +863,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
     private String[] extensions;
 
-    boolean hasExtension(String name) {
+    public boolean hasExtension(String name) {
         name = name.trim();
         for (String x : getExtensions()) {
             if (name.equals(x.trim())) {
@@ -874,21 +874,21 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     }
 
     /**
-     * Whether this device support any double-precision number extension (cl_khr_fp64 or cl_amd_fp64)
+     * Whether this device support any double-precision number extension (<a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_khr_fp64.html">cl_khr_fp64</a> or <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_amd_fp64.html">cl_amd_fp64</a>)
      */
     public boolean isDoubleSupported() {
         return isDoubleSupportedKHR() || isDoubleSupportedAMD();
     }
 
     /**
-     * Whether this device support the cl_khr_fp64 double-precision number extension
+     * Whether this device support the <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_khr_fp64.html">cl_khr_fp64</a> double-precision number extension
      */
     public boolean isDoubleSupportedKHR() {
         return hasExtension("cl_khr_fp64");
     }
 
     /**
-     * Whether this device support the cl_amd_fp64 double-precision number extension
+     * Whether this device supports the <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_amd_fp64.html">cl_amd_fp64</a> double-precision number extension
      */
     public boolean isDoubleSupportedAMD() {
         return hasExtension("cl_amd_fp64");
@@ -907,28 +907,48 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
 			kernelSource = kernelSource.replaceAll("#pragma\\s+OPENCL\\s+EXTENSION\\s+cl_amd_fp64\\s*:\\s*enable", "#pragma OPENCL EXTENSION cl_khr_fp64 : enable");
 		return kernelSource;
     }
+    
+    /**
+     * Whether this device supports the <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_khr_fp16.html">cl_khr_fp16 extension</a>.
+     */
     public boolean isHalfSupported() {
         return hasExtension("cl_khr_fp16");
     }
 
+    /**
+     * Whether this device supports the <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_khr_byte_addressable_store.html">cl_khr_byte_addressable_store extension</a>.
+     */
     public boolean isByteAddressableStoreSupported() {
         return hasExtension("cl_khr_byte_addressable_store");
     }
 
+    /**
+     * Whether this device supports any OpenGL sharing extension (<a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_khr_gl_sharing.html">cl_khr_gl_sharing</a> or <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_APPLE_gl_sharing.html">cl_APPLE_gl_sharing</a>)
+     */
     public boolean isGLSharingSupported() {
         return hasExtension("cl_khr_gl_sharing") || hasExtension("cl_APPLE_gl_sharing");
     }
-	
-	
+	/**
+     * Whether this device supports the <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_khr_global_int32_base_atomics.html">cl_khr_global_int32_base_atomics extension</a>.
+     */
     public boolean isGlobalInt32BaseAtomicsSupported() {
         return hasExtension("cl_khr_global_int32_base_atomics");
     }
+    /**
+     * Whether this device supports the <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_khr_global_int32_extended_atomics.html">cl_khr_global_int32_extended_atomics extension</a>.
+     */
     public boolean isGlobalInt32ExtendedAtomicsSupported() {
         return hasExtension("cl_khr_global_int32_extended_atomics");
     }
+    /**
+     * Whether this device supports the <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_khr_local_int32_base_atomics.html">cl_khr_local_int32_base_atomics extension</a>.
+     */
     public boolean isLocalInt32BaseAtomicsSupported() {
         return hasExtension("cl_khr_local_int32_base_atomics");
     }
+    /**
+     * Whether this device supports the <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/cl_khr_local_int32_extended_atomics.html">cl_khr_local_int32_extended_atomics extension</a>.
+     */
     public boolean isLocalInt32ExtendedAtomicsSupported() {
         return hasExtension("cl_khr_local_int32_extended_atomics");
     }
