@@ -59,19 +59,16 @@ public class UJMPOpenCLTest {
         DenseDoubleMatrix2D mout = (DenseDoubleMatrix2D) m.mtimes(m);
         queue.finish();
         
-        System.out.println("m = \n" + m);
-        System.out.println("mout = \n" + mout);
+        //System.out.println("m = \n" + m);
+        //System.out.println("mout = \n" + mout);
         
-        //System.out.println(m);
-		//System.out.println(mout);
-
 		//if (la instanceof CLLinearAlgebra)
 		//	((CLLinearAlgebra)la).queue.finish();
 		//dmout.write((DoubleBuffer)mout.read());
 
         back = read(mout);
-        for (int i = 0, cap = (int)back.getValidElements(); i < cap; i++)
-            System.out.println(back.get(i));
+        //for (int i = 0, cap = (int)back.getValidElements(); i < cap; i++)
+        //    System.out.println(back.get(i));
 
 		assertEquals(0, mout.getDouble(0, 1), 0);
 		assertEquals(0, mout.getDouble(1, 0), 0);
