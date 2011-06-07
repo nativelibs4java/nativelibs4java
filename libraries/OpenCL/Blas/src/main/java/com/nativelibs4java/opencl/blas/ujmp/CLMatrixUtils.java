@@ -4,23 +4,12 @@
  */
 package com.nativelibs4java.opencl.blas.ujmp;
 
-import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLBuildException;
-import com.nativelibs4java.opencl.CLContext;
 import com.nativelibs4java.opencl.CLEvent;
-import com.nativelibs4java.opencl.CLMem.Usage;
-import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.util.Fun1;
 import com.nativelibs4java.opencl.util.Fun2;
-import com.nativelibs4java.opencl.util.LinearAlgebraUtils;
 import com.nativelibs4java.opencl.util.Primitive;
 import com.nativelibs4java.opencl.util.ReductionUtils.Reductor;
-import java.nio.DoubleBuffer;
-import org.ujmp.core.doublematrix.DoubleMatrix2D;
-import com.nativelibs4java.util.NIOUtils;
-import java.nio.Buffer;
-import org.bridj.Pointer;
-import static org.bridj.Pointer.*;
 
 /**
  *

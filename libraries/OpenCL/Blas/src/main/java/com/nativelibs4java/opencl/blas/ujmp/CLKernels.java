@@ -6,24 +6,12 @@
 package com.nativelibs4java.opencl.blas.ujmp;
 
 import java.io.IOException;
-import org.bridj.Pointer;
-import static org.bridj.Pointer.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.ujmp.core.Matrix;
-import org.ujmp.core.calculation.Calculation.Ret;
-import org.ujmp.core.doublematrix.DoubleMatrix2D;
-import org.ujmp.core.exceptions.MatrixException;
 
 import com.nativelibs4java.opencl.CLBuildException;
 import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLContext;
 import com.nativelibs4java.opencl.CLEvent;
 import com.nativelibs4java.opencl.CLKernel;
-import com.nativelibs4java.opencl.CLMem.MapFlags;
 import com.nativelibs4java.opencl.CLMem.Usage;
 import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import com.nativelibs4java.opencl.CLQueue;
@@ -33,7 +21,6 @@ import com.nativelibs4java.opencl.util.Fun2;
 import com.nativelibs4java.opencl.util.LinearAlgebraUtils;
 import com.nativelibs4java.opencl.util.ParallelMath;
 import com.nativelibs4java.opencl.util.Primitive;
-import com.nativelibs4java.util.Pair;
 import java.util.HashMap;
 import java.util.Map;
 

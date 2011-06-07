@@ -8,7 +8,6 @@ import com.nativelibs4java.opencl.CLBuffer;
 import com.nativelibs4java.opencl.CLContext;
 import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.util.Primitive;
-import java.nio.Buffer;
 import org.bridj.Pointer;
 
 /**
