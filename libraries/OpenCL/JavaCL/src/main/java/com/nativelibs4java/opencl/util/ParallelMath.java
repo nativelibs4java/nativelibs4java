@@ -62,7 +62,7 @@ public class ParallelMath {
         out.append("__kernel void " + kernelName + "(\n");
         out.append("\t__global const " + t + "* in,\n");
         out.append("\t__global " + t + "* out,\n");
-        out.append("\tlong size_t\n");
+        out.append("\tlong length\n");
         out.append(") {\n");
         out.append("\tint i = get_global_id(0);\n");
         out.append("\tif (i >= length) return;\n");
@@ -84,7 +84,7 @@ public class ParallelMath {
         else
             out.append("\t__global const " + t2 + "* in2,\n");
         out.append("\t__global " + to + "* out,\n");
-        out.append("\tlong size_t\n");
+        out.append("\tlong length\n");
         out.append(") {\n");
         out.append("\tint i = get_global_id(0);\n");
         out.append("\tif (i >= length) return;\n");

@@ -102,6 +102,14 @@ public class PerformanceTest {
             }
         });
         
+        testMillis("add(" + title + ")", new Action<Matrix>() {
+            public Matrix perform() {
+                Matrix mm = m.plus(m);
+                mm.getAsDouble(0, 0);
+                return mm;
+            }
+        });
+        
         testMillis("transpose(" + title + ")", new Action<Matrix>() {
             public Matrix perform() {
                 Matrix sq = m.copy().transpose(Ret.ORIG).transpose(Ret.ORIG).transpose(Ret.ORIG).transpose(Ret.ORIG);

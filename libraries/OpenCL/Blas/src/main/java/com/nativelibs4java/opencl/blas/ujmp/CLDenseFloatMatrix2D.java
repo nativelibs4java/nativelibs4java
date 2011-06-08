@@ -261,6 +261,16 @@ public class CLDenseFloatMatrix2D extends AbstractDenseFloatMatrix2D {
     }
 
     @Override
+    public Matrix minus(Matrix m) throws MatrixException {
+        return minus(Ret.NEW, true, m);
+    }
+    
+    @Override
+    public Matrix minus(double m) throws MatrixException {
+        return minus(Ret.NEW, true, m);
+    }
+    
+    @Override
     public Matrix minus(Ret returnType, boolean ignoreNaN, Matrix m) throws MatrixException {
         return inst(impl.minus(returnType, ignoreNaN, ((CLDenseFloatMatrix2D)m).getImpl()));
     }
@@ -269,6 +279,16 @@ public class CLDenseFloatMatrix2D extends AbstractDenseFloatMatrix2D {
         return inst(impl.minus(returnType, ignoreNaN, (float)v));
     }
 
+    @Override
+    public Matrix plus(Matrix m) throws MatrixException {
+        return plus(Ret.NEW, true, m);
+    }
+    
+    @Override
+    public Matrix plus(double m) throws MatrixException {
+        return plus(Ret.NEW, true, m);
+    }
+    
     @Override
     public Matrix plus(Ret returnType, boolean ignoreNaN, Matrix m) throws MatrixException {
         return inst(impl.plus(returnType, ignoreNaN, ((CLDenseFloatMatrix2D)m).getImpl()));
