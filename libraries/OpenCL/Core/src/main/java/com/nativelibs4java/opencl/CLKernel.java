@@ -211,25 +211,21 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         } else if (arg instanceof Pointer) {
             setArg(iArg, (Pointer)arg);
 		} else if (arg instanceof Buffer) {
-            setArg(iArg, (Buffer) arg);
+            setArg(iArg, pointerToBuffer((Buffer) arg));
 		} else if (arg instanceof int[]) {
-			setArg(iArg, IntBuffer.wrap((int[])arg));
+			setArg(iArg, pointerToArray((int[])arg));
         } else if (arg instanceof long[]) {
-			setArg(iArg, LongBuffer.wrap((long[])arg));
+			setArg(iArg, pointerToArray((long[])arg));
         } else if (arg instanceof short[]) {
-			setArg(iArg, ShortBuffer.wrap((short[])arg));
+			setArg(iArg, pointerToArray((short[])arg));
         } else if (arg instanceof double[]) {
-			setArg(iArg, DoubleBuffer.wrap((double[])arg));
+			setArg(iArg, pointerToArray((double[])arg));
         } else if (arg instanceof float[]) {
-			setArg(iArg, FloatBuffer.wrap((float[])arg));
+			setArg(iArg, pointerToArray((float[])arg));
         } else if (arg instanceof byte[]) {
-			setArg(iArg, ByteBuffer.wrap((byte[])arg));
+			setArg(iArg, pointerToArray((byte[])arg));
         } else if (arg instanceof boolean[]) {
-            boolean[] bools = (boolean[])arg;
-            byte[] bytes = new byte[bools.length];
-            for (int iValue = 0, n = bools.length; iValue < n; iValue++)
-                bytes[iValue] = (byte)(bools[iValue] ? 1 : 0);
-			setArg(iArg, ByteBuffer.wrap(bytes));
+            setArg(iArg, pointerToArray((boolean[])arg));
         } else {
 			throw new IllegalArgumentException("Cannot handle kernel arguments of type " + arg.getClass().getName() + ". Use CLKernel.get() and OpenCL4Java directly.");
         }
@@ -249,34 +245,34 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     //}
 
     public void setArg(int i, float[] arg) {
-        setArg(i, FloatBuffer.wrap(arg));
+        setArg(i, pointerToArray(arg));
     }
     public void setArg(int i, int[] arg) {
-        setArg(i, IntBuffer.wrap(arg));
+        setArg(i, pointerToArray(arg));
     }
     public void setArg(int i, double[] arg) {
-        setArg(i, DoubleBuffer.wrap(arg));
+        setArg(i, pointerToArray(arg));
     }
     public void setArg(int i, long[] arg) {
-        setArg(i, LongBuffer.wrap(arg));
+        setArg(i, pointerToArray(arg));
     }
     public void setArg(int i, short[] arg) {
-        setArg(i, ShortBuffer.wrap(arg));
+        setArg(i, pointerToArray(arg));
     }
     public void setArg(int i, byte[] arg) {
-        setArg(i, ByteBuffer.wrap(arg));
+        setArg(i, pointerToArray(arg));
     }
     public void setArg(int i, char[] arg) {
-        setArg(i, CharBuffer.wrap(arg));
+        setArg(i, pointerToArray(arg));
     }
+    /*
     public void setArg(int i, Buffer arg) {
 		Pointer<?> ptr = pointerToBuffer(arg);
-		long size = ptr.getValidElements();
+		long size = ptr.getValidBytes();
         setKernelArg(i, size, ptr);
-    }
-    public <T> void setArg(int i, Pointer<T> arg) {
-		long size = arg.getValidBytes();
-        setKernelArg(i, size, arg);
+    }*/
+    public void setArg(int i, Pointer<?> ptr) {
+		setKernelArg(i, ptr.getValidBytes(), ptr);
     }
 
     protected void setKernelArg(int i, long size, Pointer<?> ptr) {
