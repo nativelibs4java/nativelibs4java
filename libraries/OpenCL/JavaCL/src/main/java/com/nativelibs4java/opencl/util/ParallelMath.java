@@ -67,8 +67,8 @@ public class ParallelMath {
         out.append("\tint i = get_global_id(0);\n");
         out.append("\tif (i >= length) return;\n");
         out.append("\tout[i] = ");
-        function.expr("in", out);
-        out.append("[i]);\n");
+        function.expr("in[i]", out);
+        out.append(";\n");
         out.append("}\n");
         return kernelName;
     }
@@ -80,7 +80,7 @@ public class ParallelMath {
         out.append("__kernel void " + kernelName + "(\n");
         out.append("\t__global const " + t1 + "* in1,\n");
         if (secondOperandIsScalar)
-            out.append("\t" + t2 + "* in2,\n");
+            out.append("\t" + t2 + " in2,\n");
         else
             out.append("\t__global const " + t2 + "* in2,\n");
         out.append("\t__global " + to + "* out,\n");

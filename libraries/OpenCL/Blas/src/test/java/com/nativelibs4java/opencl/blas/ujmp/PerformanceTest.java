@@ -37,7 +37,6 @@ public class PerformanceTest {
     public static void tearDownClass() throws Exception {
     }
     
-    
     @Test
 	public void testGPUPerfFloat() throws IOException {
         //CLKernels.setInstance(new CLKernels(JavaCL.createBestContext(DeviceFeature.GPU).createDefaultQueue()));
@@ -81,13 +80,14 @@ public class PerformanceTest {
         return new Pair<Double, V>(avg, v);
     }
     
-    private Pair<Double, Matrix> testPerf(String title, final Matrix m) {
+    private Pair<Double, Matrix> testPerf(String title, final Matrix _m) {
         final int pow = 100;
         
         System.out.println();
         testMillis("svd(" + title + ")", new Action<Void>() {
+            final Matrix m = _m.copy();
             public Void perform() {
-                Matrix[] svd = m.copy().svd();
+                Matrix[] svd = m.svd();
                 for (Matrix s : svd)
                     s.getAsDouble(0, 0);
                 return null;
@@ -95,6 +95,7 @@ public class PerformanceTest {
         });
         
         testMillis("sq(" + title + ")", new Action<Matrix>() {
+            final Matrix m = _m.copy();
             public Matrix perform() {
                 Matrix sq = m.mtimes(Ret.NEW, true, m);
                 sq.getAsDouble(0, 0);
@@ -103,24 +104,36 @@ public class PerformanceTest {
         });
         
         testMillis("add(" + title + ")", new Action<Matrix>() {
+            final Matrix m = _m.copy();
             public Matrix perform() {
-                Matrix mm = m.plus(m);
+                Matrix mm = m.plus(Ret.ORIG, true, m).plus(Ret.ORIG, true, m).plus(Ret.ORIG, true, m).plus(Ret.ORIG, true, m);
+                mm.getAsDouble(0, 0);
+                return mm;
+            }
+        });
+        
+        testMillis("sin(" + title + ")", new Action<Matrix>() {
+            final Matrix m = _m.copy();
+            public Matrix perform() {
+                Matrix mm = m.sin(Ret.ORIG);
                 mm.getAsDouble(0, 0);
                 return mm;
             }
         });
         
         testMillis("transpose(" + title + ")", new Action<Matrix>() {
+            final Matrix m = _m.copy();
             public Matrix perform() {
-                Matrix sq = m.copy().transpose(Ret.ORIG).transpose(Ret.ORIG).transpose(Ret.ORIG).transpose(Ret.ORIG);
+                Matrix sq = m.transpose(Ret.ORIG).transpose(Ret.ORIG).transpose(Ret.ORIG).transpose(Ret.ORIG);
                 sq.getAsDouble(0, 0);
                 return sq;
             }
         });
         
         return testMillis("pow(" + title + ", " + pow + ")", new Action<Matrix>() {
+            final Matrix m = _m.copy();
             public Matrix perform() {
-                Matrix power = m.copy();
+                Matrix power = m;
                 for (int i = 1; i < pow; i++)
                     power.mtimes(Ret.ORIG, true, m);
                 //Matrix power = m.power(Ret.NEW, pow);

@@ -299,7 +299,17 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
     public Matrix plus(Ret returnType, boolean ignoreNaN, double v) throws MatrixException {
         return inst(impl.plus(returnType, ignoreNaN, v));
     }
-
+    
+    @Override
+    public Matrix times(Matrix m) throws MatrixException {
+        return times(Ret.NEW, true, m);
+    }
+    
+    @Override
+    public Matrix times(double m) throws MatrixException {
+        return times(Ret.NEW, true, m);
+    }
+    
     @Override
     public Matrix times(Ret returnType, boolean ignoreNaN, Matrix factor) throws MatrixException {
         return inst(impl.times(returnType, ignoreNaN, ((CLDenseFloatMatrix2D)factor).getImpl()));
@@ -310,6 +320,16 @@ public class CLDenseDoubleMatrix2D extends AbstractDenseDoubleMatrix2D {
         return inst(impl.times(returnType, ignoreNaN, factor));
     }
 
+    @Override
+    public Matrix divide(Matrix m) throws MatrixException {
+        return divide(Ret.NEW, true, m);
+    }
+    
+    @Override
+    public Matrix divide(double m) throws MatrixException {
+        return divide(Ret.NEW, true, m);
+    }
+    
     @Override
     public Matrix divide(Ret returnType, boolean ignoreNaN, Matrix factor) throws MatrixException {
         return inst(impl.divide(returnType, ignoreNaN, ((CLDenseFloatMatrix2D)factor).getImpl()));

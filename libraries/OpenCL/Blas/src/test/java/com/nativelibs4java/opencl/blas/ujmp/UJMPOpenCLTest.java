@@ -12,8 +12,9 @@ import com.nativelibs4java.opencl.blas.CLKernels;
 import static com.nativelibs4java.opencl.blas.ujmp.MatrixUtils.read;
 import static com.nativelibs4java.opencl.blas.ujmp.MatrixUtils.write;
 import com.nativelibs4java.util.Pair;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
+import static java.lang.Math.*;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -49,6 +50,34 @@ public class UJMPOpenCLTest {
         assertTrue(m instanceof CLDenseDoubleMatrix2D);
     }
     
+    @Test
+	public void testOp2() {
+        
+        DenseFloatMatrix2D a = new CLDenseFloatMatrix2D(2, 2);
+        DenseFloatMatrix2D b = new CLDenseFloatMatrix2D(2, 2);
+        
+        float[] fa = new float[] { 10, 20, 30, 40 }, fb = new float[] { 1, 2, 3, 4 };
+        write(fa, a);
+        write(fb, b);
+        
+        assertArrayEquals("failed plus", new float[] { 11, 22, 33, 44 }, read((FloatMatrix2D)a.plus(b)).getFloats(), 0);
+        assertArrayEquals("failed minus", new float[] { 9, 18, 27, 36 }, read((FloatMatrix2D)a.minus(b)).getFloats(), 0);
+        assertArrayEquals("failed times", new float[] { 10, 40, 90, 160 }, read((FloatMatrix2D)a.times(b)).getFloats(), 0);
+        assertArrayEquals("failed divide", new float[] { 10, 10, 10, 10 }, read((FloatMatrix2D)a.divide(b)).getFloats(), 0);
+        
+        assertArrayEquals("failed scalar plus", new float[] { 11, 21, 31, 41 }, read((FloatMatrix2D)a.plus(1)).getFloats(), 0);
+        assertArrayEquals("failed scalar minus", new float[] { 9, 19, 29, 39 }, read((FloatMatrix2D)a.minus(1)).getFloats(), 0);
+        assertArrayEquals("failed scalar times", new float[] { 20, 40, 60, 80 }, read((FloatMatrix2D)a.times(2)).getFloats(), 0);
+        assertArrayEquals("failed scalar divide", new float[] { 1, 2, 3, 4 }, read((FloatMatrix2D)a.divide(10)).getFloats(), 0);
+        
+        assertArrayEquals("failed sin", new float[] { (float)sin(fa[0]), (float)sin(fa[1]), (float)sin(fa[2]), (float)sin(fa[3]) }, 
+                read((FloatMatrix2D)a.sin(Ret.NEW)).getFloats(), 0.0001f);
+        assertArrayEquals("failed cos", new float[] { (float)cos(fa[0]), (float)cos(fa[1]), (float)cos(fa[2]), (float)cos(fa[3]) }, 
+                read((FloatMatrix2D)a.cos(Ret.NEW)).getFloats(), 0.0001f);
+        assertArrayEquals("failed tan", new float[] { (float)tan(fa[0]), (float)tan(fa[1]), (float)tan(fa[2]), (float)tan(fa[3]) }, 
+                read((FloatMatrix2D)a.tan(Ret.NEW)).getFloats(), 0.0001f);
+        
+    }
     
     @Test
 	public void testMultFloat() {
