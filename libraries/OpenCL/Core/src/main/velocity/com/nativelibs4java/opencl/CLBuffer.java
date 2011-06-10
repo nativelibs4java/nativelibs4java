@@ -227,7 +227,7 @@ public class CLBuffer<T> extends CLMem {
 		return read(queue, 0, length, out, blocking, eventsToWaitFor);
 	}
 
-	public <B extends Buffer> CLEvent read(CLQueue queue, long offset, long length, B out, boolean blocking, CLEvent... eventsToWaitFor) {
+	public CLEvent read(CLQueue queue, long offset, long length, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
         typedBufferClass.cast(out);
         if (out.isReadOnly())
             throw new IllegalArgumentException("Output buffer for read operation is read-only !");
@@ -254,7 +254,7 @@ public class CLBuffer<T> extends CLMem {
         return CLEvent.createEvent(queue, eventOut);
     }
 
-	public <B extends Buffer> CLEvent write(CLQueue queue, B in, boolean blocking, CLEvent... eventsToWaitFor) {
+	public CLEvent write(CLQueue queue, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
         typedBufferClass.cast(in);
         long length;
         if (isGL) {
@@ -268,7 +268,7 @@ public class CLBuffer<T> extends CLMem {
 		return write(queue, 0, length, in, blocking, eventsToWaitFor);
 	}
 
-	public <B extends Buffer> CLEvent write(CLQueue queue, long offset, long length, B in, boolean blocking, CLEvent... eventsToWaitFor) {
+	public CLEvent write(CLQueue queue, long offset, long length, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
         typedBufferClass.cast(in);
         
         if (!in.isDirect()) {
