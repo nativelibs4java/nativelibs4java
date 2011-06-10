@@ -9,12 +9,12 @@ Current development version (1.0-SNAPSHOT)
 	- setUnsafeMathOptimizations()
 	- setMadEnable()
 	- setNoSignedZero()
-- deprecated CLXXXBuffer in favor of CLBuffer<XXX> (CLIntBuffer becomes CLBuffer<Integer>, etc...)
-- changed CLContext.createBuffer(Usage, length, class) to createBuffer(Usage, class, length) to match the JavaCL/BridJ API (and provoke migration issues : people should now use a primitive class rather than an NIO buffer class !!!
 - added CLContext.createBuffer(Usage, Buffer)
 - added CLBuffer.copyTo(CLQueue, CLMem destination, CLEvent...) and CLBuffer.emptyClone(Usage)
 - added NIOUtils.indirectBuffer(size, bufferClass)
 - added CLContext.toString
+- deprecated CLXXXBuffer in favor of CLBuffer<XXX> (CLIntBuffer becomes CLBuffer<Integer>, etc...)
+- changed CLContext.createBuffer(Usage, length, class) to createBuffer(Usage, class, length) to match the JavaCL/BridJ API (and provoke migration issues : people should now use a primitive class rather than an NIO buffer class !!!
 - complete rewrite of CLBuffer genericity to unify with the BridJ port : CLBuffer<DoubleBuffer> is now CLBuffer<Double>, and CLBuffer.read/write/map are no longer strongly typed (it is implicitely typed with Buffer subclasses for compatibility with existing code). The BridJ port will be favoured, and its read/write/map methods use typed Pointer<T>.
 - complete rewrite of UJMP Matrix implementation, using principles borrowed from ScalaCL
 - fixed issue #66 (create temp files in ~/.javacl subdirectories instead of /tmp)
