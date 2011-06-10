@@ -235,7 +235,7 @@ public class CLBuffer<T> extends CLMem {
 		} else {
 			ptr = (Pointer)pointerToBuffer(out);
         }
-        CLEvent ret = read(queue, offset, length, out, blocking, eventsToWaitFor);
+        CLEvent ret = read(queue, offset, length, ptr, blocking, eventsToWaitFor);
         if (indirect)
             NIOUtils.put(ptr.getBuffer(), out);
         
