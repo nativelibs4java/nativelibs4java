@@ -176,7 +176,7 @@ public abstract class CLImage extends CLMem {
      * @param queue
      * @param buffer
      * @param eventsToWaitFor
-     * @return
+     * @return Event which completion indicates that the OpenCL was unmapped
      */
     public CLEvent unmap(CLQueue queue, ByteBuffer buffer, CLEvent... eventsToWaitFor) {
         Pointer<cl_event> eventOut = CLEvent.new_event_out(eventsToWaitFor);

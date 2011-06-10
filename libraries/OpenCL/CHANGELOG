@@ -3,9 +3,31 @@ Current development version (1.0-SNAPSHOT)
 - added simple Fourier-analysis classes (package com.nativelibs4java.opencl.util.fft), with double and float variants, usable with primitive arrays or OpenCL buffers :
 	- naive Discrete Fourier Transform (DFT) 
 	- Fast Fourier Transform (FFT) for power-of-two arrays / buffers (performs better than Apache Commons on a CPU) 
-- added some compiler options to CLProgram : setFastRelaxedMath() (triggers all the others !), setFiniteMathOnly(), setUnsafeMathOptimizations(), setMadEnable(), setNoSignedZero()
+- added some compiler options to CLProgram :
+	- setFastRelaxedMath() (triggers all the others !)
+	- setFiniteMathOnly()
+	- setUnsafeMathOptimizations()
+	- setMadEnable()
+	- setNoSignedZero()
+- deprecated CLXXXBuffer in favor of CLBuffer<XXX> (CLIntBuffer becomes CLBuffer<Integer>, etc...)
+- changed CLContext.createBuffer(Usage, length, class) to createBuffer(Usage, class, length) to match the JavaCL/BridJ API (and provoke migration issues : people should now use a primitive class rather than an NIO buffer class !!!
+- added CLContext.createBuffer(Usage, Buffer)
+- added CLBuffer.copyTo(CLQueue, CLMem destination, CLEvent...) and CLBuffer.emptyClone(Usage)
+- added NIOUtils.indirectBuffer(size, bufferClass)
+- added CLContext.toString
+- complete rewrite of CLBuffer genericity to unify with the BridJ port : CLBuffer<DoubleBuffer> is now CLBuffer<Double>, and CLBuffer.read/write/map are no longer strongly typed (it is implicitely typed with Buffer subclasses for compatibility with existing code). The BridJ port will be favoured, and its read/write/map methods use typed Pointer<T>.
+- complete rewrite of UJMP Matrix implementation, using principles borrowed from ScalaCL
+- fixed issue #66 (create temp files in ~/.javacl subdirectories instead of /tmp)
+- fixed OpenGL sharing on MacOS X
+- fixed CLProgram.getBinaries() in some cases
+- fixed CLBuffer.read on indirect buffers
+- fixed NPE that happens with null varargs CLEvent[] array
+- fixed length = 1 case in reduction utility
+- fixed ATI detection ("ATI Stream" now replaced by "AMD Accelerated Parallel Processing", cf. Csaba's comment in issue #39)
+- fixed issue #55 : applied Kazo Csaba's patch to fix the bounds of CLBuffer.map's returned buffer
+- fixed inheritance of CLBuildException (now derives from CLException)
 
-Version 1.0-beta-6 (r, 20100204)
+Version 1.0-beta-6 (r1637, 20100204)
 
 - Fixed support of ATI Stream 2.3 (CPU)
 - New interactive image kernel demo : lets you edit and test image kernels in a snap (bundled with a few samples) 

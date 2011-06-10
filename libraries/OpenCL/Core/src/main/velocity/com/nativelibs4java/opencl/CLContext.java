@@ -81,6 +81,27 @@ import java.util.Map;
  */
 public class CLContext extends CLAbstractEntity<cl_context> {
 
+#macro (docCreateBufferCopy $bufferType $details)
+	/**
+	* Create a <code>$bufferType</code> OpenCL buffer $details with the provided initial values.<br>
+	 * If copy is true (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>), then the buffer will be hosted in OpenCL and will have the best performance, but any change done to the OpenCL buffer won't be propagated to the original data pointer.<br>
+	 * If copy is false (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_USE_HOST_PTR</a>), then the provided data pointer will be used for storage of the OpenCL buffer. OpenCL might still cache the data in the OpenCL land, so careful use of {@link CLBuffer#map(CLQueue, MapFlags, CLEvent[])} is then necessary to ensure the data is properly synchronized with the buffer. 
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
+	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer#getValidElements()}).
+	 */
+#end
+#macro (docCreateBuffer $bufferType $type $insertParam $exampleOfLength)
+    /**
+    * Create a <code>$bufferType</code> OpenCL buffer big enough to hold 'length' values of type $type.
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
+	 $insertParam 
+	 * @param elementCount Length of the buffer expressed in elements $exampleOfLength
+	 */
+#end
+#macro (docCreateBufferPrim $bufferType $prim)
+#docCreateBuffer($bufferType, $prim.Name, "", "(for instance, a <code>$bufferType</code> of length 10 will actually contain 10 * ${prim.Size} bytes, as ${prim.Name}s are ${prim.Size}-bytes-long)")
+#end
+
 	volatile Boolean cacheBinaries;
 	
 	/**
@@ -520,50 +541,42 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 #foreach ($prim in $primitivesNoBool)
 
-	#if ($prim.Name != "byte")
-	
-	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, ${prim.BufferName} buffer, boolean copy) {
-		return createBuffer(kind, Pointer.pointerTo${prim.CapName}s(buffer), copy);
+#docCreateBufferCopy("CLBuffer&lt;${prim.WrapperName}&gt;", "")
+	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, #if ($prim.Name == "byte") Buffer #else ${prim.BufferName} #end data, boolean copy) {
+#if ($prim.Name == "byte")
+		return createBuffer(kind, Pointer.pointerToBuffer(data).as(Byte.class), copy);
+#else
+		return createBuffer(kind, Pointer.pointerTo${prim.CapName}s(data), copy);
+#end
 	}
 
+#docCreateBufferCopy("CLBuffer&lt;${prim.WrapperName}&gt;", "")
 	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, Pointer<${prim.WrapperName}> data, boolean copy) {
 		return createBuffer(kind, data, copy);
 	}
-
-	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, long count) {
-		return createBuffer(kind, ${prim.WrapperName}.class, count);
-	}
 	
-	#end
+#docCreateBufferPrim("CLBuffer&lt;${prim.WrapperName}&gt;", $prim)
+	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, long elementCount) {
+		return createBuffer(kind, ${prim.WrapperName}.class, elementCount);
+	}
 	
 #end
 
 	/**
 	 * Create an OpenCL buffer with the provided initial values, in copy mode (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>).
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
 	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer#getValidElements()})
 	 */
     public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Pointer<T> data) {
 		return createBuffer(kind, data, true);
 	}
 	
-	/**
-	 * Create an OpenCL buffer with the provided initial values.<br>
-	 * If copy is true (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>), then the buffer will be hosted in OpenCL and will have the best performance, but any change done to the OpenCL buffer won't be propagated to the original data pointer.<br>
-	 * If copy is false (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_USE_HOST_PTR</a>), then the provided data pointer will be used for storage of the OpenCL buffer. OpenCL might still cache the data in the OpenCL land, so careful use of {@link CLBuffer#map(CLQueue, MapFlags, CLEvent[])} is then necessary to ensure the data is properly synchronized. 
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
-	 * @param data Pointer to the initial values, must have known bounds (see {@link Pointer#getValidElements()})
-	 */
+#docCreateBufferCopy("CLBuffer&lt;N&gt;", "")
     public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Pointer<T> data, boolean copy) {
         return createBuffer(data.getIO(), data, data.getValidBytes(), kind.getIntFlags() | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), copy);
 	}
-	
-	/**
-	 * Create an OpenCL buffer big enough to hold the provided amount of values of the specified primitive class.
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
-	 * @param elementClass Primitive type of the buffer. For instance a buffer of 'int' values can be created with elementClass being Integer.class or int.class indifferently.
-	 * @param elementCount Length of the buffer expressed in elements (for instance, a CLBuffer<Integer> of length 4 will actually contain 4 * 4 bytes, as ints are 4-bytes-long)
-	 */
+
+#docCreateBuffer("CLBuffer&lt;N&gt;", "T", "* @param elementClass Primitive type of the buffer. For instance a buffer of 'int' values can be created with elementClass being Integer.class or int.class indifferently.", "")
     public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Class<T> elementClass, long elementCount) {
         PointerIO<T> io = PointerIO.getInstance(elementClass);
         if (io == null)

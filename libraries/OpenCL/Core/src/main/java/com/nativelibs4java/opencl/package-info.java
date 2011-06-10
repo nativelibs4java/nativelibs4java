@@ -29,8 +29,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 /**
- * Object-oriented wrappers around the OpenCL API, with methods that help creating and managing OpenCL applications.
- * @see OpenCL4Java
- * @see com.nativelibs4java.opencl.library
+ * Object-oriented wrappers around the OpenCL API, with methods that help creating and managing OpenCL applications.<br/>
+ * Also see the low-level bindings : {@link com.nativelibs4java.opencl.library.OpenCL4Java}
  */
 package com.nativelibs4java.opencl;

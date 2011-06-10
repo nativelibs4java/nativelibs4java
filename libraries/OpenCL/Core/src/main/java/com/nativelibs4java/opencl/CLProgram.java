@@ -435,7 +435,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 
 	/**
 	 * Get the binaries of the program (one for each device, in order)
-	 * @return
+	 * @return map from each device the program was compiled for to the corresponding binary data
 	 */
     public Map<CLDevice, byte[]> getBinaries() throws CLBuildException {
         synchronized (this) {
