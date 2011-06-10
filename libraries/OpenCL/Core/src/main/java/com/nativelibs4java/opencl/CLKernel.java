@@ -68,8 +68,7 @@ import com.sun.jna.ptr.ShortByReference;
  * A kernel object encapsulates the specific __kernel function declared in a program and the argument values to be used when executing this __kernel function.</br>
  * </br>
  * Kernels can be queued for execution in a CLQueue (see enqueueTask and enqueueNDRange)
- * @see CLProgram#createKernel(java.lang.String, java.lang.Object[])
- * @see CLProgram#createKernels() 
+ * See {@link CLProgram#createKernel(java.lang.String, java.lang.Object[])} and {@link CLProgram#createKernels()} 
  * @author Olivier Chafik
  */
 public class CLKernel extends CLAbstractEntity<cl_kernel> {
@@ -130,8 +129,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     
     /**
      * This provides a mechanism for the application to query the maximum work-group size that can be used to execute a kernel on a specific device given by device. <br/>
-     * The OpenCL implementation uses the resource requirements of the kernel (register usage etc.) to determine what this work- group size should be.
-     * @see CL_KERNEL_WORK_GROUP_SIZE
+     * The OpenCL implementation uses the resource requirements of the kernel (register usage etc.) to determine what this work- group size should be.<br/>
+     * See <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clGetKernelWorkGroupInfo.html">CL_KERNEL_WORK_GROUP_SIZE</a>
      */
     public Map<CLDevice, Long> getWorkGroupSize() {
         CLDevice[] devices = program.getDevices();
@@ -144,8 +143,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     /**
      * Returns the work-group size specified by the __attribute__((reqd_work_gr oup_size(X, Y, Z))) qualifier.<br/>
      * Refer to section 6.7.2.<br/>
-     * If the work-group size is not specified using the above attribute qualifier (0, 0, 0) is returned.
-     * @see CL_KERNEL_COMPILE_WORK_GROUP_SIZE
+     * If the work-group size is not specified using the above attribute qualifier (0, 0, 0) is returned.<br/>
+     * See <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clGetKernelWorkGroupInfo.html">CL_KERNEL_COMPILE_WORK_GROUP_SIZE</a>
      * @return for each CLDevice, array of 3 longs
      */
     public Map<CLDevice, long[]> getCompileWorkGroupSize() {
@@ -159,8 +158,8 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     /**
      * Returns the amount of local memory in bytes being used by a kernel. <br/>
      * This includes local memory that may be needed by an implementation to execute the kernel, variables declared inside the kernel with the __local address qualifier and local memory to be allocated for arguments to the kernel declared as pointers with the __local address qualifier and whose size is specified with clSetKernelArg.<br/>
-     * If the local memory size, for any pointer argument to the kernel declared with the __local address qualifier, is not specified, its size is assumed to be 0.
-     * @see CL_KERNEL_LOCAL_MEM_SIZE
+     * If the local memory size, for any pointer argument to the kernel declared with the __local address qualifier, is not specified, its size is assumed to be 0.<br/>
+     * See <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clGetKernelWorkGroupInfo.html">CL_KERNEL_LOCAL_MEM_SIZE</a>
      */
     public Map<CLDevice, Long> getLocalMemSize() {
         CLDevice[] devices = program.getDevices();
@@ -363,8 +362,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     }
 
     /**
-     * Enqueues a command to execute a kernel on a device.
-     * @see enqueueNDRange(CLQueue, int[], int[], int[], CLEvent...)
+     * Enqueues a command to execute a kernel on a device (see {@link CLKernel#enqueueNDRange(CLQueue, int[], int[], int[], CLEvent[])})
      * @param globalWorkSizes Each element describes the number of global work-items in a dimension that will execute the kernel function. The total number of global work-items is computed as globalWorkSizes[0] * ... * globalWorkSizes[globalWorkSizes.length - 1].
      * @param localWorkSizes Each element describes the number of work-items that make up a work-group (also referred to as the size of the work-group) that will execute the kernel specified by kernel. The total number of work-items in a work-group is computed as localWorkSizes[0] * ... * localWorkSizes[localWorkSizes.length - 1]. The total number of work-items in the work-group must be less than or equal to the CL_DEVICE_MAX_WORK_GROUP_SIZE value specified in table 4.3 and the number of work- items specified in localWorkSizes[0], ... localWorkSizes[localWorkSizes.length - 1] must be less than or equal to the corresponding values specified by CLDevice.getMaxWorkItemSizes()[dimensionIndex].	The explicitly specified localWorkSize will be used to determine how to break the global work-items specified by global_work_size into appropriate work-group instances. If localWorkSize is specified, the values specified in globalWorkSize[dimensionIndex] must be evenly divisible by the corresponding values specified in localWorkSize[dimensionIndex]. This parameter can be left null, in which case the OpenCL implementation will choose good values.
      * @param queue This kernel will be queued for execution on the device associated with that queue.
@@ -377,7 +375,7 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
     
     /**
      * Enqueues a command to execute a kernel on a device, using local work sizes chosen by the OpenCL implementation.
-     * @see enqueueNDRange(CLQueue, int[], int[], int[], CLEvent...)
+     * See {@link CLKernel#enqueueNDRange(CLQueue, int[], int[], int[], CLEvent[])}
      * @param globalWorkSizes Each element describes the number of global work-items in a dimension that will execute the kernel function. The total number of global work-items is computed as globalWorkSizes[0] * ... * globalWorkSizes[globalWorkSizes.length - 1].
      * @param queue This kernel will be queued for execution on the device associated with that queue.
      * @param eventsToWaitFor Events that need to complete before this particular command can be executed.

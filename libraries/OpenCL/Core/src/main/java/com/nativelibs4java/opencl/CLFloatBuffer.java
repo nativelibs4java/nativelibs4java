@@ -40,7 +40,9 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
  * @see CLContext#createFloatBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
  * @see CLContext#createFloatBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.FloatBuffer, boolean)
  * @author Olivier Chafik
+ * @deprecated Use {@link CLBuffer}&lt;{@link Float}&gt;
  */
+@Deprecated
 public class CLFloatBuffer extends CLBuffer<Float> {
 	CLFloatBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer, 4, FloatBuffer.class);

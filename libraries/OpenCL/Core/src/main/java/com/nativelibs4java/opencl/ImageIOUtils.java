@@ -197,7 +197,6 @@ class ImageIOUtils {
 
     /**
      * Image stored in TYPE_USHORT_GRAY BufferedImages but in ChannelOrder.RGBA/BGRA + ChannelDataType.short
-     * @return
      */
 	public static ImageInfo<BufferedImage> getARGBShortGrayImageInfo(CLImageFormat format) {
 		return new ImageInfo<BufferedImage>(

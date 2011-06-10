@@ -114,7 +114,7 @@ public class CLBuffer<T> extends CLMem {
 	 * @param offset
 	 * @param length
 	 * @since OpenCL 1.1
-	 * @return
+	 * @return sub-buffer that is a "window" of this buffer starting at the provided offset, with the provided length
 	 */
 	public CLBuffer<T> createSubBuffer(Usage usage, long offset, long length) {
 		try {
@@ -133,12 +133,9 @@ public class CLBuffer<T> extends CLMem {
 	/**
 	 * enqueues a command to copy a buffer object identified by src_buffer to another buffer object identified by destination.
 	 * @param queue
-	 * @param srcOffset
-	 * @param length
 	 * @param destination
-	 * @param destOffset
 	 * @param eventsToWaitFor
-	 * @return
+	 * @return event which indicates the copy operation has completed
 	 */
 	public CLEvent copyTo(CLQueue queue, CLMem destination, CLEvent... eventsToWaitFor) {
 		return copyTo(queue, 0, getElementCount(), destination, 0, eventsToWaitFor);	
@@ -152,7 +149,7 @@ public class CLBuffer<T> extends CLMem {
 	 * @param destination
 	 * @param destOffset
 	 * @param eventsToWaitFor
-	 * @return
+	 * @return event which indicates the copy operation has completed
 	 */
 	public CLEvent copyTo(CLQueue queue, long srcOffset, long length, CLMem destination, long destOffset, CLEvent... eventsToWaitFor) {
 		cl_event[] eventOut = CLEvent.new_event_out(eventsToWaitFor);

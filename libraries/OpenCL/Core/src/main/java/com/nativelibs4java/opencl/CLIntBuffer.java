@@ -39,7 +39,9 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
  * @see CLContext#createIntBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
  * @see CLContext#createIntBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.IntBuffer, boolean)
  * @author Olivier Chafik
+ * @deprecated Use {@link CLBuffer}&lt;{@link Integer}&gt;
  */
+@Deprecated
 public class CLIntBuffer extends CLBuffer<Integer> {
 	CLIntBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer, 4, IntBuffer.class);

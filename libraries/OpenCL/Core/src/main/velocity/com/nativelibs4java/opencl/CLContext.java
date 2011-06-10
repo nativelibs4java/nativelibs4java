@@ -88,6 +88,27 @@ import java.util.Map;
  */
 public class CLContext extends CLAbstractEntity<cl_context> {
 
+#macro (docCreateBufferCopy $bufferType $details)
+	/**
+	* Create a <code>$bufferType</code> OpenCL buffer $details with the provided initial values.<br>
+	 * If copy is true (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>), then the buffer will be hosted in OpenCL and will have the best performance, but any change done to the OpenCL buffer won't be propagated to the original data pointer.<br>
+	 * If copy is false (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_USE_HOST_PTR</a>), then the provided data pointer will be used for storage of the OpenCL buffer. OpenCL might still cache the data in the OpenCL land, so careful use of {@link CLBuffer#map(CLQueue, MapFlags, CLEvent[])} is then necessary to ensure the data is properly synchronized with the buffer. 
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
+	 * @param data Buffer that contains the initial values. It must be direct for the non-copy mode, but indirect buffers should be avoided in all cases for performance reasons.
+	 */
+#end
+#macro (docCreateBuffer $bufferType $type $insertParam $exampleOfLength)
+    /**
+    * Create a <code>$bufferType</code> OpenCL buffer big enough to hold 'length' values of type $type.
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
+	 $insertParam 
+	 * @param elementCount Length of the buffer expressed in elements $exampleOfLength
+	 */
+#end
+#macro (docCreateBufferPrim $bufferType $prim)
+#docCreateBuffer($bufferType, $prim.Name, "", "(for instance, a <code>$bufferType</code> of length 10 will actually contain 10 * ${prim.Size} bytes, as ${prim.Name}s are ${prim.Size}-bytes-long)")
+#end
+
 	volatile Boolean cacheBinaries;
 	
 	/**
@@ -535,40 +556,44 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 
 #foreach ($prim in $primitivesNoBool)
 
-	#if ($prim.Name != "byte")
-	
-	public CL${prim.BufferName} create${prim.BufferName}(CLMem.Usage kind, ${prim.BufferName} buffer, boolean copy) {
-		return createByteBuffer(kind, buffer, copy).asCL${prim.BufferName}();
+#docCreateBufferCopy("CLBuffer&lt;${prim.WrapperName}&gt;", " (of concrete type {@link com.nativelibs4java.opencl.CL${prim.BufferName}}) ")
+	public <B extends CLBuffer<${prim.WrapperName}>> B create${prim.BufferName}(CLMem.Usage kind, #if ($prim.Name == "byte") Buffer #else ${prim.BufferName} #end data, boolean copy) {
+		if (!data.isDirect()) {
+			if (!copy)
+				throw new IllegalArgumentException("Cannot create an OpenCL buffer object out of a non-direct NIO buffer without copy.");
+			if (kind == CLMem.Usage.Output)
+				throw new IllegalArgumentException("Output NIO buffers must be direct.");
+			data = NIOUtils.directCopy(data, getKernelsDefaultByteOrder());
+		}
+		CLBuffer<Byte> ret = createBuffer(data, -1, kind.getIntFlags() | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), copy);
+#if ($prim.Name == "byte")
+		return (B)ret;
+#else
+		return (B)ret.asCL${prim.BufferName}();
+#end
 	}
 
-	public CL${prim.BufferName} create${prim.BufferName}(CLMem.Usage kind, long count) {
-		return createByteBuffer(kind, count * ${prim.Size}).asCL${prim.BufferName}();
+#docCreateBufferPrim("CLBuffer&lt;${prim.WrapperName}&gt;", $prim)
+	public <B extends CLBuffer<${prim.WrapperName}>> B create${prim.BufferName}(CLMem.Usage kind, long elementCount) {
+#if ($prim.Name == "byte")
+		return (B)createBuffer(null, elementCount, kind.getIntFlags(), false);
+#else
+		return (B)createByteBuffer(kind, elementCount * ${prim.Size}).asCL${prim.BufferName}();
+#end
 	}
-	
-	#end
-	
+		
 #end
 
-	public CLByteBuffer createByteBuffer(CLMem.Usage kind, long count) {
-		return createBuffer(null, count, kind.getIntFlags(), false);
-	}
-
-    /**
+	/**
 	 * Create an OpenCL buffer with the provided initial values, in copy mode (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>).
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
+	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem.Usage#Input} cannot be written to in a kernel.
 	 * @param data Buffer that contains the initial values. Indirect buffers should be avoided for performance reasons.
 	 */
     public <T> CLBuffer<T> createBuffer(CLMem.Usage kind, Buffer data) {
 		return createBuffer(kind, data, true);
 	}
 	
-	/**
-	 * Create an OpenCL buffer with the provided initial values.<br>
-	 * If copy is true (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_COPY_HOST_PTR</a>), then the buffer will be hosted in OpenCL and will have the best performance, but any change done to the OpenCL buffer won't be propagated to the original data pointer.<br>
-	 * If copy is false (see <a href="http://www.khronos.org/registry/cl/sdk/1.0/docs/man/xhtml/clCreateBuffer.html">CL_MEM_USE_HOST_PTR</a>), then the provided data pointer will be used for storage of the OpenCL buffer. OpenCL might still cache the data in the OpenCL land, so careful use of {@link CLBuffer#map(CLQueue, MapFlags, CLEvent[])} is then necessary to ensure the data is properly synchronized. 
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
-	 * @param data Buffer that contains the initial values. It must be direct for the non-copy mode, but indirect buffers should be avoided in all cases for performance reasons.
-	 */
+#docCreateBufferCopy("CLBuffer&lt;N&gt;", "")
     @SuppressWarnings("unchecked")
 	public <N> CLBuffer<N> createBuffer(CLMem.Usage kind, Buffer data, boolean copy) {
         Class<?> bufferClass = data.getClass();
@@ -580,12 +605,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java type " + bufferClass.getName());
 	}
 
-    /**
-	 * Create an OpenCL buffer big enough to hold the provided amount of values of the specified primitive class.
-	 * @param kind Usage intended for the pointer in OpenCL kernels : a pointer created with {@link CLMem#Usage#Input} cannot be written to in a kernel.
-	 * @param elementClass Primitive type of the buffer. For instance a buffer of 'int' values can be created with elementClass being Integer.class or int.class indifferently.
-	 * @param elementCount Length of the buffer expressed in elements (for instance, a CLBuffer<Integer> of length 4 will actually contain 4 * 4 bytes, as ints are 4-bytes-long)
-	 */
+#docCreateBuffer("CLBuffer&lt;N&gt;", "T", "* @param elementClass Primitive type of the buffer. For instance a buffer of 'int' values can be created with elementClass being Integer.class or int.class indifferently.", "")
     @SuppressWarnings("unchecked")
 	public <N> CLBuffer<N> createBuffer(CLMem.Usage kind, Class<N> elementClass, long elementCount) {
 		#foreach ($prim in $primitivesNoBool)
@@ -594,23 +614,6 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         #end
 
         throw new UnsupportedOperationException("Cannot create OpenCL buffers of Java primitive type " + elementClass.getName());
-	}
-
-    /**
-     * @param kind
-     * @param buffer input/output buffer
-     * @param copy If false, the buffer must be direct and might be used directly as the primary storage of the buffer data by OpenCL, or might be cached. Calling map/unmap is then necessary to make sure the cache is consistent with the buffer value.
-     * @return
-     */
-	public CLByteBuffer createByteBuffer(CLMem.Usage kind, Buffer buffer, boolean copy) {
-            if (!buffer.isDirect()) {
-                if (!copy)
-                    throw new IllegalArgumentException("Cannot create an OpenCL buffer object out of a non-direct NIO buffer without copy.");
-                if (kind == CLMem.Usage.Output)
-                    throw new IllegalArgumentException("Output NIO buffers must be direct.");
-                buffer = NIOUtils.directCopy(buffer, getKernelsDefaultByteOrder());
-            }
-            return createBuffer(buffer, -1, kind.getIntFlags() | (copy ? CL_MEM_COPY_HOST_PTR : CL_MEM_USE_HOST_PTR), copy);
 	}
 
 	@SuppressWarnings("deprecation")

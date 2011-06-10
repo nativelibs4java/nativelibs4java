@@ -39,7 +39,9 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
  * @see CLContext#createShortBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
  * @see CLContext#createShortBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.ShortBuffer, boolean)
  * @author Olivier Chafik
+ * @deprecated Use {@link CLBuffer}&lt;{@link Short}&gt;
  */
+@Deprecated
 public class CLShortBuffer extends CLBuffer<Short> {
 	CLShortBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer, 2, ShortBuffer.class);

@@ -39,7 +39,9 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
  * @see CLContext#createLongBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
  * @see CLContext#createLongBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.LongBuffer, boolean)
  * @author Olivier Chafik
+ * @deprecated Use {@link CLBuffer}&lt;{@link Long}&gt;
  */
+@Deprecated
 public class CLLongBuffer extends CLBuffer<Long> {
 	CLLongBuffer(CLContext context, long byteCount, cl_mem entity, Buffer buffer) {
         super(context, byteCount, entity, buffer, 8, LongBuffer.class);

@@ -115,8 +115,8 @@ public abstract class CLMem extends CLAbstractEntity<cl_mem> {
     }
 
     /**
-     * Return actual size of the memory object in bytes
-     * @return
+     * Get the actual size of the memory object in bytes
+     * @return actual size of the memory object in bytes
      */
     public long getByteCount() {
         if (byteCount < 0) {
