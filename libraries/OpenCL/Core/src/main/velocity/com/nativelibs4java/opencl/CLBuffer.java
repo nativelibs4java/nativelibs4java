@@ -231,10 +231,10 @@ public class CLBuffer<T> extends CLMem {
         typedBufferClass.cast(out);
         if (out.isReadOnly())
             throw new IllegalArgumentException("Output buffer for read operation is read-only !");
-        B originalOut = null;
+        Buffer originalOut = null;
         if (!out.isDirect()) {
             originalOut = out;
-            out = (B)typedBuffer(directBytes((int)(length * getElementSize()), queue.getDevice().getKernelsDefaultByteOrder()));
+            out = typedBuffer(directBytes((int)(length * getElementSize()), queue.getDevice().getKernelsDefaultByteOrder()));
             blocking = true;
         }
         cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
@@ -273,7 +273,7 @@ public class CLBuffer<T> extends CLMem {
         
         if (!in.isDirect()) {
             blocking = true;
-            in = (B)typedBuffer(directCopy(in, queue.getDevice().getKernelsDefaultByteOrder()));
+            in = typedBuffer(directCopy(in, queue.getDevice().getKernelsDefaultByteOrder()));
         }
             
         cl_event[] eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
