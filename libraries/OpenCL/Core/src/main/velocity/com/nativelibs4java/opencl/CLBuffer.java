@@ -43,6 +43,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_event;
 import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 import org.bridj.*;
 import java.nio.ByteOrder;
+import java.nio.Buffer;
+import com.nativelibs4java.util.NIOUtils;
 import org.bridj.util.Utils;
 import static org.bridj.Pointer.*;
 
@@ -206,23 +208,53 @@ public class CLBuffer<T> extends CLMem {
 		return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
+    /**
+     * @deprecated use {@link CLBuffer#read(CLQueue, Pointer, boolean, CLEvent[])} instead
+     */
+    @Deprecated
+	public CLEvent read(CLQueue queue, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
+		return read(queue, 0, -1, out, blocking, eventsToWaitFor);
+    }
+    
 	public CLEvent read(CLQueue queue, Pointer<T> out, boolean blocking, CLEvent... eventsToWaitFor) {
-        long length = -1;
-        if (isGL) {
-            length = out.getValidElements();
-        }
-        if (length < 0) {
-            length = getElementCount();
-            long s = out.getValidElements();
-            if (length > s && s >= 0)
-                length = s;
-        }
-		return read(queue, 0, length, out, blocking, eventsToWaitFor);
+        return read(queue, 0, -1, out, blocking, eventsToWaitFor);
 	}
 
+	/**
+     * @deprecated use {@link CLBuffer#read(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
+     */
+    @Deprecated
+	public CLEvent read(CLQueue queue, long offset, long length, Buffer out, boolean blocking, CLEvent... eventsToWaitFor) {
+		if (out.isReadOnly())
+            throw new IllegalArgumentException("Output buffer for read operation is read-only !");
+        boolean indirect = !out.isDirect();
+        Pointer<T> ptr = null;
+		if (indirect) {
+			ptr = allocateArray(io, length).order(queue.getDevice().getKernelsDefaultByteOrder());
+			blocking = true;
+		} else {
+			ptr = (Pointer)pointerToBuffer(out);
+        }
+        CLEvent ret = read(queue, offset, length, out, blocking, eventsToWaitFor);
+        if (indirect)
+            NIOUtils.put(ptr.getBuffer(), out);
+        
+        return ret;
+	}
+	
 	public CLEvent read(CLQueue queue, long offset, long length, Pointer<T> out, boolean blocking, CLEvent... eventsToWaitFor) {
-        //if (out.isReadOnly())
-        //    throw new IllegalArgumentException("Output buffer for read operation is read-only !");
+		if (length < 0) {
+			if (isGL) {
+				length = out.getValidElements();
+			}
+			if (length < 0) {
+				length = getElementCount();
+				long s = out.getValidElements();
+				if (length > s && s >= 0)
+					length = s;
+			}
+		}
+		
         Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueReadBuffer(
@@ -238,20 +270,49 @@ public class CLBuffer<T> extends CLMem {
         return CLEvent.createEventFromPointer(queue, eventOut);
     }
 
+    
+	/**
+     * @deprecated use {@link CLBuffer#write(CLQueue, Pointer, boolean, CLEvent[])} instead
+     */
+    @Deprecated
+	public CLEvent write(CLQueue queue, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
+		return write(queue, 0, -1, in, blocking, eventsToWaitFor);
+	}
+	
 	public CLEvent write(CLQueue queue, Pointer<T> in, boolean blocking, CLEvent... eventsToWaitFor) {
-        long length = -1;
-        if (isGL)
-            length = in.getValidElements();
-        if (length < 0) {
-            length = getElementCount();
-            long s = in.getValidElements();
-            if (length > s && s >= 0)
-                length = s;
-        }
-		return write(queue, 0, length, in, blocking, eventsToWaitFor);
+		return write(queue, 0, -1, in, blocking, eventsToWaitFor);
 	}
 
+	/**
+     * @deprecated use {@link CLBuffer#write(CLQueue, long, long, Pointer, boolean, CLEvent[])} instead
+     */
+    @Deprecated
+	public CLEvent write(CLQueue queue, long offset, long length, Buffer in, boolean blocking, CLEvent... eventsToWaitFor) {
+		boolean indirect = !in.isDirect();
+        Pointer<T> ptr = null;
+		if (indirect) {
+			ptr = allocateArray(io, length).order(queue.getDevice().getKernelsDefaultByteOrder());
+			ptr.setValues(in);
+			blocking = true;
+		} else {
+			ptr = (Pointer)pointerToBuffer(in);
+        }
+        return write(queue, offset, length, ptr, blocking, eventsToWaitFor);
+	}
+	
+	
 	public CLEvent write(CLQueue queue, long offset, long length, Pointer<T> in, boolean blocking, CLEvent... eventsToWaitFor) {
+		if (length < 0) {
+			if (isGL)
+				length = in.getValidElements();
+			if (length < 0) {
+				length = getElementCount();
+				long s = in.getValidElements();
+				if (length > s && s >= 0)
+					length = s;
+			}
+		}
+		
         Pointer<cl_event> eventOut = blocking ? null : CLEvent.new_event_out(eventsToWaitFor);
         Pointer<cl_event> evts = CLEvent.to_cl_event_array(eventsToWaitFor);
         error(CL.clEnqueueWriteBuffer(
