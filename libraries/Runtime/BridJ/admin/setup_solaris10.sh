@@ -38,6 +38,7 @@ mv .tmp /etc/opt/csw/pkgutil.conf
 #
 
 export USER_LOGIN=ochafik
+export USER_HOME=/export/home/$USER_LOGIN
 export USER_NAME="Olivier Chafik"
 export BIN_DIR="/export/home/$USER_LOGIN/bin"
 
@@ -68,7 +69,7 @@ cd ..
 # Scala & sbt
 #
 export SCALA_HOME=/export/home/$USER_LOGIN/bin/scala
-export SCALA_VERSION=2.8.1.final
+export SCALA_VERSION=2.9.0.1.final
 wget http://www.scala-lang.org/downloads/distrib/files/scala-$SCALA_VERSION.tgz
 mv scala-$SCALA_VERSION.tgz scala-$SCALA_VERSION.tar.gz
 gunzip scala-$SCALA_VERSION.tar.gz
@@ -92,11 +93,11 @@ java -jar jedit${JEDIT_VERSION}install.jar
 # Set paths
 #
 echo "
-export SCALA_HOME=/export/home/$USER_LOGIN/bin/scala
-export DYNCALL_HOME=/export/home/$USER_LOGIN/src/dyncall/dyncall
-export JAVA_HOME=/export/home/$USER_LOGIN/bin/jdk1.6.0_24
+export SCALA_HOME=$USER_HOME/bin/scala
+export DYNCALL_HOME=$USER_HOME/src/dyncall/dyncall
+export JAVA_HOME=$USER_HOME/bin/jdk1.6.0_24
 
-export PATH=/export/home/$USER_LOGIN/bin:\$PATH
+export PATH=$USER_HOME/bin:\$PATH
 export PATH=\$JAVA_HOME/bin:\$PATH
 export PATH=\$SCALA_HOME/bin:\$PATH
 export PATH=/opt/csw/bin:\$PATH
@@ -108,6 +109,6 @@ alias cc=gcc
 alias ar=gar
 alias make=gmake
 alias sed=gsed
-" > .bashrc
+" > ~/.bashrc
 
 
