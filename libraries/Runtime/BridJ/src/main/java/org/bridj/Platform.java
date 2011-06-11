@@ -148,17 +148,21 @@ public class Platform {
 	public static boolean isAndroid() {
 		return "dalvik".equalsIgnoreCase(System.getProperty("java.vm.name")) && isLinux();
 	}
+	public static boolean isArm() {
+    		String arch = getArch();
+		return "arm".equals(arch);	
+	}
 	public static boolean isSparc() {
-    	String arch = getArch();
+    		String arch = getArch();
 		return 
 			"sparc".equals(arch) ||
 			"sparcv9".equals(arch);
 	}
     public static boolean is64Bits() {
-    	String arch = getArch();
+    		String arch = getArch();
         return
-    		arch.contains("64") ||
-    		arch.equalsIgnoreCase("sparcv9");
+			arch.contains("64") ||
+			arch.equalsIgnoreCase("sparcv9");
     }
     public static boolean isAmd64Arch() {
     		String arch = getArch();
@@ -169,11 +173,16 @@ public class Platform {
     	if (isWindows())
     		return Collections.singletonList((is64Bits() ? "win64/" : "win32/") + name + ".dll");
     	if (isMacOSX()) {
-    		String generic = "darwin_universal/lib" + name + ".dylib";
-    		if (isAmd64Arch())
-    			return Arrays.asList(generic, "darwin_x64/lib" + name + ".dylib");
-    		else
-    			return Collections.singletonList(generic);
+    		String pref = "darwin_", suff = "/lib" + name + ".dylib";
+    		if (isArm()) {
+    			return Collections.singletonList(pref + "arm" + suff);
+    		} else {
+			String univ = pref + "universal" + suff;
+			if (isAmd64Arch())
+				return Arrays.asList(univ, pref + "x64" + suff);
+			else
+				return Collections.singletonList(univ);
+		}
     }
     	if (isAndroid())
     		return Collections.singletonList("android_arm32_arm/" + name + ".so");
