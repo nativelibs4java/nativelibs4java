@@ -48,7 +48,7 @@ case $TARGET in
 		;;
 	default)
 		NEEDS_TEST=1
-		if [[ -d /System/Library/Frameworks/ ]] ; then sh ./configure --target-universal ; 
+		if [[ -d /System/Library/Frameworks/ && ! -d /Applications/MobilePhone.app ]] ; then sh ./configure --target-universal ; 
 		else sh ./configure ; fi
 		;;
 	*)

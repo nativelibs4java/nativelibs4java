@@ -1,6 +1,6 @@
 #include "HandlersCommon.h"
 
-#if defined (DC__OS_Darwin)
+#ifdef BRIDJ_OBJC_SUPPORT
 #include <objc/message.h>
 
 char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* result, void* userdata)

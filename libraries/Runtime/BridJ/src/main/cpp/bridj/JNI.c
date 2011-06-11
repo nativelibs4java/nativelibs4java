@@ -879,7 +879,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToObjCMethods(
 	jclass clazz,
 	jobjectArray methodCallInfos
 ) {
-#if defined (DC__OS_Darwin)
+#ifdef BRIDJ_OBJC_SUPPORT
 	BEGIN_INFOS_LOOP(JavaToObjCCallInfo)
 	
 	GetField_javaSignature()        ;
