@@ -273,7 +273,6 @@
 							<artifact>com.nativelibs4java:bridj</artifact>
 							<excludes>
 								<exclude>android_*/**</exclude>
-								<exclude>darwin_arm/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
