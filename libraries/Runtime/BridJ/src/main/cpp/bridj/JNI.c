@@ -933,7 +933,7 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_freeObjCMethodBindings(
 	jlong handle,
 	jint size
 ) {
-#if defined (DC__OS_Darwin)
+#ifdef BRIDJ_OBJC_SUPPORT
 	JavaToObjCCallInfo* infos = (JavaToObjCCallInfo*)JLONG_TO_PTR(handle);
 	jint i;
 	if (!infos)
