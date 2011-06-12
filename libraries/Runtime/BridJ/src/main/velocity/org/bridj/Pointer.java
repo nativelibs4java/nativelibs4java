@@ -456,7 +456,46 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return peer;
 	}
     
+	/**
+	 * Create a native callback which signature corresponds to the provided calling convention, return type and parameter types, and which redirects calls to the provided Java {@link org.bridj.DynamicCallback} handler.<br/>
+	 * For instance, a callback of C signature <code>double (*)(float, int)</code> that adds its two arguments can be created with :<br>
+     * <code>{@code 
+     * Pointer callback = Pointer.allocateDynamicCallback(
+	 *	  new DynamicCallback<Integer>() {
+	 *	      public Double apply(Object... args) {
+	 *	          float a = (Float)args[0];
+	 *	          int b = (Integer)args[1];
+	 *	          return (double)(a + b);
+	 *	      }
+	 *	  }, 
+	 *    null, // Use the platform's default calling convention
+	 *    int.class, // return type
+	 *    float.class, double.class // parameter types
+	 * );
+     * }</code><br>
+     * For the <code>void</code> return type, you can use {@link java.lang.Void} :<br>
+     * <code>{@code 
+     * Pointer callback = Pointer.allocateDynamicCallback(
+	 *	  new DynamicCallback<Void>() {
+	 *	      public Void apply(Object... args) {
+	 *	          ...
+	 *	          return null; // Void cannot be instantiated anyway ;-)
+	 *	      }
+	 *	  }, 
+	 *    null, // Use the platform's default calling convention
+	 *    int.class, // return type
+	 *    float.class, double.class // parameter types
+	 * );
+     * }</code><br>
+	 * @return Pointer to a native callback that redirects calls to the provided Java callback instance, and that will be destroyed whenever the pointer is released (make sure you keep a reference to it !)
+	 */
 	public static <R> Pointer<DynamicFunction<R>> allocateDynamicCallback(DynamicCallback<R> callback, org.bridj.ann.Convention.Style callingConvention, Type returnType, Type... parameterTypes) {
+		if (callback == null)
+			throw new IllegalArgumentException("Java callback handler cannot be null !");
+		if (returnType == null)
+			throw new IllegalArgumentException("Callback return type cannot be null !");
+		if (parameterTypes == null)
+			throw new IllegalArgumentException("Invalid (null) list of parameter types !");
 		try {
 			MethodCallInfo mci = new MethodCallInfo(returnType, parameterTypes, false);
 			Method method = DynamicCallback.class.getMethod("apply", Object[].class);
