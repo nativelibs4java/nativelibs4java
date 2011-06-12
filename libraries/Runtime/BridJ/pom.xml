@@ -133,7 +133,7 @@
 					<shadedClassifierName>c-only</shadedClassifierName>
 					<artifactSet>
 						<excludes>
-						  <exclude>com.google.android:dx</exclude>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 						</excludes>
 					</artifactSet>
 					<filters>
@@ -161,7 +161,7 @@
 					<shadedClassifierName>macosx-only</shadedClassifierName>
 					<artifactSet>
 						<excludes>
-						  <exclude>com.google.android:dx</exclude>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 						</excludes>
 					</artifactSet>
 					<filters>
@@ -192,7 +192,7 @@
 					<shadedClassifierName>ios-only</shadedClassifierName>
 					<artifactSet>
 						<excludes>
-						  <exclude>com.google.android:dx</exclude>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 						</excludes>
 					</artifactSet>
 					<filters>
@@ -223,7 +223,7 @@
 					<shadedClassifierName>without-binaries</shadedClassifierName>
 					<artifactSet>
 						<excludes>
-						  <exclude>com.google.android:dx</exclude>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 						</excludes>
 					</artifactSet>
 					<filters>
@@ -255,7 +255,7 @@
 					<shadedClassifierName>windows-only</shadedClassifierName>
 					<artifactSet>
 						<excludes>
-						  <exclude>com.google.android:dx</exclude>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 						</excludes>
 					</artifactSet>
 					<filters>
@@ -284,7 +284,7 @@
 					<shadedClassifierName>unix-only</shadedClassifierName>
 					<artifactSet>
 						<excludes>
-						  <exclude>com.google.android:dx</exclude>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 						</excludes>
 					</artifactSet>
 					<filters>
@@ -312,7 +312,7 @@
 					<shadedClassifierName>linux-only</shadedClassifierName>
 					<artifactSet>
 						<excludes>
-						  <exclude>com.google.android:dx</exclude>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 						</excludes>
 					</artifactSet>
 					<filters>
@@ -369,7 +369,7 @@
 					<shadedArtifactAttached>false</shadedArtifactAttached>
 					<artifactSet>
 						<excludes>
-						  <exclude>com.google.android:dx</exclude>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
 						</excludes>
 					</artifactSet>
 					<filters>
