@@ -288,6 +288,7 @@
 								<exclude>org/bridj/cpp/com/**</exclude>
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
+								<exclude>org/bridj/objc/**</exclude>
 								<exclude>org/bridj/lib/win*/**</exclude>
 							</excludes>
 						</filter>

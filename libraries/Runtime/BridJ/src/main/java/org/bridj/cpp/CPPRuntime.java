@@ -4,10 +4,13 @@
  */
 package org.bridj.cpp;
 
+import org.bridj.SizeT;
 import java.util.Set;
 import java.util.logging.Logger;
 import org.bridj.ann.Template;
 import org.bridj.DynamicFunction;
+import org.bridj.demangling.Demangler.IdentLike;
+import org.bridj.demangling.Demangler.MemberRef;
 import org.bridj.util.Pair;
 import java.lang.reflect.Constructor;
 import org.bridj.DynamicFunctionFactory;
@@ -47,6 +50,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.TreeMap;
 import org.bridj.ann.Convention.Style;
+import org.bridj.demangling.Demangler.SpecialName;
 import static org.bridj.Pointer.*;
 
 /**
@@ -303,6 +307,59 @@ public class CPPRuntime extends CRuntime {
             builder.addVirtualMethod(mci);
         }
     }
+    public static class MemoryOperators {
+    		protected DynamicFunction<Pointer<?>> newFct;
+    		protected DynamicFunction<Pointer<?>> newArrayFct;
+    		protected DynamicFunction<Void> deleteFct;
+    		protected DynamicFunction<Void> deleteArrayFct;
+    		
+            protected MemoryOperators() {}
+    		public MemoryOperators(NativeLibrary library) {
+    			for (Symbol sym : library.getSymbols()) {
+    				try {
+                        MemberRef parsedRef = sym.getParsedRef();
+                        IdentLike n = parsedRef.getMemberName();
+                        
+                        if (SpecialName.New.equals(n))
+                            newFct = pointerToAddress(sym.getAddress()).asDynamicFunction(null, Pointer.class, SizeT.class);
+                        else if (SpecialName.NewArray.equals(n))
+                            newFct = pointerToAddress(sym.getAddress()).asDynamicFunction(null, Pointer.class, SizeT.class);
+                        else if (SpecialName.Delete.equals(n))
+                            newFct = pointerToAddress(sym.getAddress()).asDynamicFunction(null, Void.class, Pointer.class);
+                        else if (SpecialName.DeleteArray.equals(n))
+                            newFct = pointerToAddress(sym.getAddress()).asDynamicFunction(null, Void.class, Pointer.class);
+                        
+    				} catch (Exception ex) {}
+    			}
+    		}
+            
+            public Pointer<?> cppNew(long size) {
+                return newFct.apply(new SizeT(size));
+            }
+            public Pointer<?> cppNewArray(long size) {
+                return newArrayFct.apply(new SizeT(size));
+            }
+            public void cppDelete(Pointer<?> ptr) {
+                deleteFct.apply(ptr);
+            }
+            public void cppDeleteArray(Pointer<?> ptr) {
+                deleteArrayFct.apply(ptr);
+            }
+    }
+    volatile MemoryOperators memoryOperators;
+
+    public synchronized MemoryOperators getMemoryOperators() {
+        if (memoryOperators == null) {
+            try {
+                NativeLibrary libStdCpp = BridJ.getNativeLibrary("stdc++");
+                memoryOperators = new MemoryOperators(libStdCpp);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(CPPRuntime.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return memoryOperators;
+    }
+    
     int getPositionInVirtualTable(Method method, NativeLibrary library) {
 		Class<?> type = method.getDeclaringClass();
 		Pointer<Pointer<?>> pVirtualTable = (Pointer)pointerToAddress(getVirtualTable(type, library), Pointer.class);
