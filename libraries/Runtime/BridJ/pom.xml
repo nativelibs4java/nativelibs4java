@@ -56,7 +56,10 @@
 	
 	<dependency>
 		<!--
-		Type this to install dx locally :
+		First, download and install the Android SDK :
+		http://developer.android.com/sdk/index.html
+		
+		Then type this to install dx in the local Maven repository :
 		mvn install:install-file -Dversion=10 -Dfile=path/to/android-sdk/platform-tools/lib/dx.jar -DgroupId=com.google.android-DartifactId=dx -Dpackaging=jar
 		-->
 		<groupId>com.google.android</groupId>
@@ -190,6 +193,37 @@
 								<exclude>sunos_*/**</exclude>
 								<exclude>win*/**</exclude>
 								<exclude>darwin_universal/**</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
+			  </execution>
+			  <execution>
+			  	<id>stripped-package</id>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+				<configuration>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<shadedClassifierName>without-binaries</shadedClassifierName>
+					<artifactSet>
+						<excludes>
+						  <exclude>com.google.android:dx</exclude>
+						</excludes>
+					</artifactSet>
+					<filters>
+					  	<filter>
+							<artifact>com.nativelibs4java:bridj</artifact>
+							<excludes>
+								<exclude>org/bridj/cpp/com/**</exclude>
+								<exclude>org/bridj/cpp/mfc/**</exclude>
+								<exclude>org/bridj/cs/**</exclude>
+								<exclude>linux_*/**</exclude>
+								<exclude>android_*/**</exclude>
+								<exclude>sunos_*/**</exclude>
+								<exclude>win*/**</exclude>
+								<exclude>darwin_*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
