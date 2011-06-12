@@ -57,6 +57,9 @@ import java.util.logging.Level;
  *	<li>Getting the pointer to a struct / a C++ class / a COM object :
  *		{@link Pointer#pointerTo(NativeObject)}
  *  </li>
+ *  <li>Allocating a dynamic callback (without a static {@link Callback} definition, which would be the preferred way) :<br>
+ *      {@link Pointer#allocateDynamicCallback(DynamicCallback, org.bridj.ann.Convention.Style, Type, Type[])}
+ *  </li>
  *	<li>Allocating a primitive with / without an initial value (zero-initialized) :<br>
 #foreach ($prim in $primitives)
  *		{@link Pointer#pointerTo${prim.CapName}(${prim.Name})} / {@link Pointer#allocate${prim.CapName}()}<br>
