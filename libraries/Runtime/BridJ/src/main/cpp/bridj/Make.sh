@@ -95,10 +95,10 @@ if [[ -d build_out ]] ; then
 
 	for D in `ls . | grep _$OUT_PATTERN` ; do
 		ARCH_NAME="`echo $D| sed "s/_gcc_$OUT_PATTERN//"| sed "s/_androidndk_$OUT_PATTERN//"`"
-		MAIN_OUT="../../../resources/$ARCH_NAME"
+		MAIN_OUT="../../../resources/org/bridj/lib/$ARCH_NAME"
 	
 		echo ARCH_NAME: $ARCH_NAME ;
-		TEST_OUT="../../../../test/resources/$ARCH_NAME"
+		TEST_OUT="../../../../test/resources/org/bridj/lib/$ARCH_NAME"
 	
 		mkdir -p $MAIN_OUT
 		mkdir -p $TEST_OUT

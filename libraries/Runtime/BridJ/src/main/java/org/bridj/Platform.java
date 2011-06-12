@@ -170,15 +170,15 @@ public class Platform {
     }
 
     static Collection<String> getEmbeddedLibraryResource(String name) {
+    	String root = "org/bridj/lib/";
     	if (isWindows())
-    		return Collections.singletonList((is64Bits() ? "win64/" : "win32/") + name + ".dll");
+    		return Collections.singletonList(root + (is64Bits() ? "win64/" : "win32/") + name + ".dll");
     	if (isMacOSX()) {
     		String suff = "/lib" + name + ".dylib";
     		if (isArm()) {
-    			String pref = "iphoneos_";
-    			return Collections.singletonList(pref + "arm32_arm" + suff);
+    			return Collections.singletonList(root + "iphoneos_arm32_arm" + suff);
     		} else {
-    			String pref = "darwin_";
+    			String pref = root + "darwin_";
 			String univ = pref + "universal" + suff;
 			if (isAmd64Arch())
 				return Arrays.asList(univ, pref + "x64" + suff);
@@ -187,14 +187,14 @@ public class Platform {
 		}
     }
     	if (isAndroid())
-    		return Collections.singletonList("android_arm32_arm/" + name + ".so");
+    		return Collections.singletonList(root + "android_arm32_arm/" + name + ".so");
     	if (isLinux())
-    		return Collections.singletonList((is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so");
+    		return Collections.singletonList(root + (is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so");
     	if (isSolaris()) {
     		if (isSparc()) {	
-    			return Collections.singletonList((is64Bits() ? "sunos_sparc64/" : "sunos_sparc/") + name + ".so");
+    			return Collections.singletonList(root + (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/") + name + ".so");
     		} else {
-    			return Collections.singletonList((is64Bits() ? "sunos_x64/" : "sunos_x86/") + name + ".so");
+    			return Collections.singletonList(root + (is64Bits() ? "sunos_x64/" : "sunos_x86/") + name + ".so");
     		}	
 		}
     	throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");

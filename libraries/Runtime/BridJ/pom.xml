@@ -143,7 +143,7 @@
 								<exclude>org/bridj/cpp/**</exclude>
 								<exclude>org/bridj/objc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
-								<exclude>android_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -171,11 +171,11 @@
 								<exclude>org/bridj/cpp/com/**</exclude>
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
-								<exclude>linux_*/**</exclude>
-								<exclude>android_*/**</exclude>
-								<exclude>sunos_*/**</exclude>
-								<exclude>win*/**</exclude>
-								<exclude>darwin_arm/**</exclude>
+								<exclude>org/bridj/lib/linux_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
+								<exclude>org/bridj/lib/sunos_*/**</exclude>
+								<exclude>org/bridj/lib/win*/**</exclude>
+								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -202,11 +202,11 @@
 								<exclude>org/bridj/cpp/com/**</exclude>
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
-								<exclude>linux_*/**</exclude>
-								<exclude>android_*/**</exclude>
-								<exclude>sunos_*/**</exclude>
-								<exclude>win*/**</exclude>
-								<exclude>darwin_universal/**</exclude>
+								<exclude>org/bridj/lib/linux_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
+								<exclude>org/bridj/lib/sunos_*/**</exclude>
+								<exclude>org/bridj/lib/win*/**</exclude>
+								<exclude>org/bridj/lib/darwin_universal/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -233,11 +233,12 @@
 								<exclude>org/bridj/cpp/com/**</exclude>
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
-								<exclude>linux_*/**</exclude>
-								<exclude>android_*/**</exclude>
-								<exclude>sunos_*/**</exclude>
-								<exclude>win*/**</exclude>
-								<exclude>darwin_*/**</exclude>
+								<exclude>org/bridj/lib/linux_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
+								<exclude>org/bridj/lib/sunos_*/**</exclude>
+								<exclude>org/bridj/lib/win*/**</exclude>
+								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+								<exclude>org/bridj/lib/darwin_*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -263,10 +264,11 @@
 							<artifact>com.nativelibs4java:bridj</artifact>
 							<excludes>
 								<exclude>org/bridj/objc/**</exclude>
-								<exclude>linux_*/**</exclude>
-								<exclude>android_*/**</exclude>
-								<exclude>sunos_*/**</exclude>
-								<exclude>darwin_*/**</exclude>
+								<exclude>org/bridj/lib/linux_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
+								<exclude>org/bridj/lib/sunos_*/**</exclude>
+								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+								<exclude>org/bridj/lib/darwin_*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -294,7 +296,7 @@
 								<exclude>org/bridj/cpp/com/**</exclude>
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
-								<exclude>win*/**</exclude>
+								<exclude>org/bridj/lib/win*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -323,10 +325,11 @@
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/objc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
-								<exclude>win*/**</exclude>
-								<exclude>sunos_*/**</exclude>
-								<exclude>darwin_*/**</exclude>
-								<exclude>android_*/**</exclude>
+								<exclude>org/bridj/lib/win*/**</exclude>
+								<exclude>org/bridj/lib/sunos_*/**</exclude>
+								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+								<exclude>org/bridj/lib/darwin_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -349,10 +352,11 @@
 								<exclude>org/bridj/cpp/com/**</exclude>
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
-								<exclude>linux_*/**</exclude>
-								<exclude>sunos_*/**</exclude>
-								<exclude>darwin_*/**</exclude>
-								<exclude>win*/**</exclude>
+								<exclude>org/bridj/lib/linux_*/**</exclude>
+								<exclude>org/bridj/lib/sunos_*/**</exclude>
+								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+								<exclude>org/bridj/lib/darwin_*/**</exclude>
+								<exclude>org/bridj/lib/win*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -376,7 +380,7 @@
 					  	<filter>
 							<artifact>com.nativelibs4java:bridj</artifact>
 							<excludes>
-								<exclude>android_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
