@@ -191,7 +191,8 @@ void initMethods(JNIEnv* env) {
 		GETFIELD_ID(forwardedPointer 		,	"forwardedPointer" 	,	"J"						);
 		GETFIELD_ID(virtualIndex 		,	"virtualIndex"		,	"I"						);
 		GETFIELD_ID(virtualTableOffset	,	"virtualTableOffset"	,	"I"						);
-		GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Lorg/bridj/Callback;"	);
+		//GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Lorg/bridj/Callback;"	);
+		GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Ljava/lang/Object;"	);
 		GETFIELD_ID(isGenericCallback 	,	"isGenericCallback"	,	"Z"						);
 		GETFIELD_ID(direct		 		,	"direct"	 			,	"Z"						);
 		GETFIELD_ID(isCPlusPlus	 		,	"isCPlusPlus"		,	"Z"						);

@@ -451,7 +451,7 @@ public class CRuntime extends AbstractBridJRuntime {
         return callbackNativeImplementer.getDynamicCallback(library, callingConvention, returnType, parameterTypes);
     }
 
-    protected static <T> Pointer<T> createCToJavaCallback(MethodCallInfo mci, Type t) {
+    public static <T> Pointer<T> createCToJavaCallback(MethodCallInfo mci, Type t) {
     	mci.prependCallbackCC();
     	final long handle = JNI.createCToJavaCallback(mci);
 		long peer = JNI.getActualCToJavaCallback(handle);
@@ -473,7 +473,7 @@ public class CRuntime extends AbstractBridJRuntime {
             mci.setDeclaringClass(c);
             mci.setJavaCallback(instance);
             return createCToJavaCallback(mci, c);
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			throw new RuntimeException("Failed to register callback instance of type " + instance.getClass().getName(), e);
 		}
 	}

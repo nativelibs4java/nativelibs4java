@@ -1,5 +1,4 @@
 package org.bridj;
-import java.io.FileNotFoundException;
 import java.lang.annotation.Annotation;
 import java.util.logging.Level;
 import static org.bridj.Dyncall.*;
@@ -17,6 +16,7 @@ import org.bridj.ann.Convention;
 import org.bridj.ann.DisableDirect;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Virtual;
+import org.bridj.util.Utils;
 /**
  * Internal class that encapsulate all the knowledge about a native method call : signatures (ASM, dyncall and Java), calling convention, context...
  * @author Olivier
@@ -31,13 +31,13 @@ public class MethodCallInfo {
 	private Class<?> declaringClass;
         long nativeClass;
     int returnValueType, paramsValueTypes[];
-	private Method method, definition;
+	private Method method;//, definition;
 	String methodName, symbolName;
 	private long forwardedPointer;
     String dcSignature;
 	String javaSignature;
 	String asmSignature;
-	Callback javaCallback;
+	Object javaCallback;
 	boolean isGenericCallback;
 	int virtualIndex = -1;
 	int virtualTableOffset = 0;
@@ -50,7 +50,7 @@ public class MethodCallInfo {
 	boolean startsWithThis;
 	boolean bNeedsThisPointer;
 
-    public MethodCallInfo(Method method) throws FileNotFoundException {
+    public MethodCallInfo(Method method) {
         this(method, method);
     }
     static boolean derivesFrom(Class<?> c, String className) {
@@ -61,54 +61,80 @@ public class MethodCallInfo {
     		}
     		return false;
     }
-	public MethodCallInfo(Method method, Method definition) throws FileNotFoundException {
-        isVarArgs = false;
+    public MethodCallInfo(Type genericReturnType, Type[] parameterTypes, boolean prependJNIPointers) {
+    		this(genericReturnType, new Annotation[0], parameterTypes, new Annotation[parameterTypes.length][], prependJNIPointers);
+    }
+	public MethodCallInfo(Type genericReturnType, Annotation[] returnAnnotations, Type[] parameterTypes, Annotation[][] paramsAnnotations, boolean prependJNIPointers) {
+        init(null, Utils.getClass(genericReturnType), genericReturnType, returnAnnotations, Utils.getClasses(parameterTypes), parameterTypes, paramsAnnotations, prependJNIPointers, false, true);
+    }
+    public MethodCallInfo(Method method, Method definition) {
         this.setMethod(method);
-        this.setDefinition(definition);
+        //this.setDefinition(definition);
 		this.setDeclaringClass(method.getDeclaringClass());
-		this.methodName = method.getName();
-        
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        Type[] genericParameterTypes = method.getGenericParameterTypes();
-        
-        Annotation[][] paramsAnnotations = definition.getParameterAnnotations();
-        /*genericInfo.returnType = method.getGenericReturnType();
-        genericInfo.paramsTypes = method.getGenericParameterTypes();*/
+		symbolName = methodName;
         
         int modifiers = method.getModifiers();
         isStatic = Modifier.isStatic(modifiers);
         isVarArgs = method.isVarArgs();
         boolean isNative = Modifier.isNative(modifiers);
+        boolean isVirtual = BridJ.getAnnotation(Virtual.class, false, definition) != null;
+        boolean isDirectModeAllowed = 
+            BridJ.getAnnotation(DisableDirect.class, true, definition) == null &&
+            BridJ.isDirectModeEnabled();
+        
+        isCPlusPlus = !isStatic && derivesFrom(method.getDeclaringClass(), "org.bridj.cpp.CPPObject");
 
-        int nParams = parameterTypes.length;
+        init(
+            method, 
+            method.getReturnType(), method.getGenericReturnType(), method.getAnnotations(), 
+            method.getParameterTypes(), method.getGenericParameterTypes(), method.getParameterAnnotations(), 
+            isNative, 
+            isVirtual, 
+            isDirectModeAllowed
+        );
+        
+        Convention cc = BridJ.getAnnotation(Convention.class, true, definition);
+        if (cc != null) {
+            setCallingConvention(cc.value());
+        }
+        if (definition.getExceptionTypes().length != 0)
+            this.direct = false; // there is no crash / exception protection for direct raw calls
+        
+    }
+    protected void init(AnnotatedElement annotatedElement, Class returnType, Type genericReturnType, Annotation[] returnAnnotations, Class[] parameterTypes, Type[] genericParameterTypes, Annotation[][] paramsAnnotations, boolean prependJNIPointers, boolean isVirtual, boolean isDirectModeAllowed) {
+        assert returnType != null;
+        assert genericReturnType != null;
+        assert parameterTypes != null;
+        assert genericParameterTypes != null;
+        assert returnAnnotations != null;
+        assert parameterTypes.length == genericParameterTypes.length;
+        assert paramsAnnotations.length == genericParameterTypes.length;
+        
+        int nParams = genericParameterTypes.length;
         paramsValueTypes = new int[nParams];
 
-        direct = true; // TODO on native side : test number of parameters (on 64 bits win : must be <= 4)
-        isCPlusPlus = !isStatic && derivesFrom(method.getDeclaringClass(), "org.bridj.cpp.CPPObject");//CPPObject.class.isAssignableFrom(method.getDeclaringClass());
-
-        //GetOptions(methodOptions, method);
-
+        direct = isDirectModeAllowed; // TODO on native side : test number of parameters (on 64 bits win : must be <= 4)
+        
         StringBuilder 
             javaSig = new StringBuilder(64), 
             asmSig = new StringBuilder(64), 
             dcSig = new StringBuilder(16);
         javaSig.append('(');
         asmSig.append('(');
-        if (isNative)//!isCPlusPlus)
+        if (prependJNIPointers)//!isCPlusPlus)
         	dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
 		if (veryVerbose)
-			System.out.println("Analyzing " + declaringClass.getName() + "." + methodName);
+			System.out.println("Analyzing " + (declaringClass == null ? "anonymous method" : declaringClass.getName() + "." + methodName));
         for (int iParam = 0; iParam < nParams; iParam++) {
 //            Options paramOptions = paramsOptions[iParam] = new Options();
-            Class<?> parameterType = parameterTypes[iParam];
             Type genericParameterType = genericParameterTypes[iParam];
+            Class<?> parameterType = parameterTypes[iParam];
 
             ValueType paramValueType = getValueType(iParam, nParams, parameterType, genericParameterType, null, paramsAnnotations[iParam]);
             if (veryVerbose)
 				System.out.println("\tparam " + paramValueType);
         	paramsValueTypes[iParam] = paramValueType.ordinal();
-            //GetOptions(paramOptions, method, paramsAnnotations[iParam]);
 
             appendToSignature(iParam, paramValueType, parameterType, genericParameterType, javaSig, dcSig, asmSig);
         }
@@ -116,21 +142,17 @@ public class MethodCallInfo {
         asmSig.append(')');
         dcSig.append(')');
 
-        ValueType retType = getValueType(-1, nParams, method.getReturnType(), method.getGenericReturnType(), method);
+        ValueType retType = getValueType(-1, nParams, returnType, genericReturnType, annotatedElement, returnAnnotations);
         if (veryVerbose)
 			System.out.println("\treturns " + retType);
-		appendToSignature(-1, retType, method.getReturnType(), method.getGenericReturnType(), javaSig, dcSig, asmSig);
+		appendToSignature(-1, retType, returnType, genericReturnType, javaSig, dcSig, asmSig);
         returnValueType = retType.ordinal();
 
         javaSignature = javaSig.toString();
         asmSignature = asmSig.toString();
         dcSignature = dcSig.toString();
         
-        if (BridJ.getAnnotation(DisableDirect.class, true, definition) != null)
-        		direct = false;
-        	
-        Virtual virtual = BridJ.getAnnotation(Virtual.class, false, definition);
-        isCPlusPlus = isCPlusPlus || virtual != null;
+        isCPlusPlus = isCPlusPlus || isVirtual;
         
         if (isCPlusPlus && !isStatic) {
         	if (!startsWithThis)
@@ -144,25 +166,11 @@ public class MethodCallInfo {
 				//	setDcCallingConvention(DC_CALL_C_X86_WIN32_THIS_GNU);
 			}
         }
-        Convention cc = BridJ.getAnnotation(Convention.class, true, definition);
-        if (cc != null) {
-            if (Platform.isWindows() && !Platform.is64Bits()) {
-				setCallingConvention(cc.value());
-            }
-        }
 
         if (nParams > JNI.getMaxDirectMappingArgCount())
             this.direct = false;
 
-        symbolName = methodName;
-        
-        if (definition.getExceptionTypes().length != 0)
-        		this.direct = false; // there is no crash / exception protection for direct raw calls
-        
-        if (!BridJ.isDirectModeEnabled())
-        		this.direct = false; // TODO remove me !
-        
-		if (veryVerbose) {
+        if (veryVerbose) {
 			System.out.println("\t-> direct " + direct);
 			System.out.println("\t-> javaSignature " + javaSignature);
 			System.out.println("\t-> callIOs " + callIOs);
@@ -180,6 +188,9 @@ public class MethodCallInfo {
 	}
 	public void setCallingConvention(Convention.Style style) {
         if (style == null)
+            return;
+    
+        if (!Platform.isWindows() || Platform.is64Bits())
             return;
         
 		switch (style) {
@@ -233,7 +244,7 @@ public class MethodCallInfo {
     }
     public ValueType getValueType(int iParam, int nParams, Class<?> c, Type t, AnnotatedElement element, Annotation... directAnnotations) {
     	Ptr sz = BridJ.getAnnotation(Ptr.class, true, element, directAnnotations);
-    	Constructor cons = this.method.getAnnotation(Constructor.class);
+    	Constructor cons = BridJ.getAnnotation(Constructor.class, false, element, directAnnotations);
     	//This th = BridJ.getAnnotation(This.class, true, element, directAnnotations);
     	org.bridj.ann.CLong cl = BridJ.getAnnotation(org.bridj.ann.CLong.class, true, element, directAnnotations);
         
@@ -389,7 +400,7 @@ public class MethodCallInfo {
                 direct = false;
             	break;
             case eNativeObjectValue:
-                if (parameterType.equals(method.getDeclaringClass())) {
+                if (parameterType.equals(declaringClass)) {
                     dcChar = DC_SIGCHAR_POINTER;
                     javaChar = "L" + parameterType.getName().replace('.', '/') + ";";
                     // javaChar = "Lorg/bridj/Pointer;";
@@ -431,7 +442,7 @@ public class MethodCallInfo {
         if (dcSig != null)
             dcSig.append(dcChar);
     }
-
+/*
     public void setDefinition(Method definition) {
         this.definition = definition;
     }
@@ -439,12 +450,22 @@ public class MethodCallInfo {
     public Method getDefinition() {
         return definition;
     }
-
+*/
 
 
 	public void setMethod(Method method) {
 		this.method = method;
+		if (method != null)
+			this.methodName = method.getName();
+        if (declaringClass == null)
+        		setDeclaringClass(method.getDeclaringClass());
+			
 	}
+
+    public void setJavaSignature(String javaSignature) {
+        this.javaSignature = javaSignature;
+    }
+    
 
 
 	public Method getMethod() {
@@ -518,12 +539,20 @@ public class MethodCallInfo {
 		return dcCallingConvention;
 	}
 
-    public Callback getJavaCallback() {
+    public Object getJavaCallback() {
         return javaCallback;
     }
 
-    public void setJavaCallback(Callback javaCallback) {
+    public void setJavaCallback(Object javaCallback) {
         this.javaCallback = javaCallback;
+    }
+    
+    public void setGenericCallback(boolean genericCallback) {
+    		this.isGenericCallback = genericCallback;
+    }
+    
+    public boolean isGenericCallback() {
+    		return isGenericCallback;
     }
 
     public void setNativeClass(long nativeClass) {

@@ -1,3 +1,5 @@
+# Also see http://www.alexwhittemore.com/?p=398
+
 apt-get install jikes jamvm vim
 
 # Add MacBook Pro key for autologin :
@@ -92,3 +94,4 @@ chmod +x apache-maven-$MAVEN_VERSION/bin/*
 
 # Backup
 # http://www.iphonedownloadblog.com/2010/11/24/how-to-backup-your-cydia-apps/
+ssh root@iphone "dpkg --get-selections" > admin/iphone.pkgs

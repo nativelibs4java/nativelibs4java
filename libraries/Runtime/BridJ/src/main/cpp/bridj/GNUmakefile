@@ -63,8 +63,11 @@ CPPFLAGS += -std=c99
 
 ifdef BUILD_OS_darwin
 ifndef BUILD_ARCH_arm
-CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
-LDFLAGS		+= -ldl -lobjc -all_load
+CPPFLAGS		+= -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
+LDFLAGS		+= -ldl -lobjc
+CPPFLAGS 	+= -DBRIDJ_OBJC_SUPPORT
+endif
+LDFLAGS		+= -all_load
 endif
 
 ifndef BUILD_OS_android

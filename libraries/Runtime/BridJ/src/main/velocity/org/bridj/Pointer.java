@@ -3,7 +3,9 @@ import org.bridj.util.*;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.nio.*;
+import java.lang.annotation.Annotation;
 import java.util.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -454,6 +456,23 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return peer;
 	}
     
+	public static <R> Pointer<DynamicFunction<R>> allocateDynamicCallback(DynamicCallback<R> callback, org.bridj.ann.Convention.Style callingConvention, Type returnType, Type... parameterTypes) {
+		try {
+			MethodCallInfo mci = new MethodCallInfo(returnType, parameterTypes, false);
+			Method method = DynamicCallback.class.getMethod("apply", Object[].class);
+			mci.setMethod(method);
+			mci.setJavaSignature("([Ljava/lang/Object;)Ljava/lang/Object;");
+			mci.setCallingConvention(callingConvention);
+			mci.setGenericCallback(true);
+			mci.setJavaCallback(callback);
+			
+			//System.out.println("Java sig
+			
+			return CRuntime.createCToJavaCallback(mci, DynamicCallback.class);
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to allocate dynamic callback for convention " + callingConvention + ", return type " + Utils.toString(returnType) + " and parameter types " + Arrays.asList(parameterTypes) + " : " + ex, ex);
+		}
+	}
     
     /**
      * Cast this pointer to another pointer type
@@ -579,7 +598,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * @param returnType return type of the function
      * @param parameterTypes parameter types of the function
      */
-    public DynamicFunction asDynamicFunction(org.bridj.ann.Convention.Style callingConvention, Type returnType, Type... parameterTypes) {
+    public <R> DynamicFunction<R> asDynamicFunction(org.bridj.ann.Convention.Style callingConvention, Type returnType, Type... parameterTypes) {
     		return CRuntime.getInstance().getDynamicFunctionFactory(null, callingConvention, returnType, parameterTypes).newInstance(this);
     }
     

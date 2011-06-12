@@ -403,7 +403,11 @@ public class BridJ {
             env = System.getProperty("java.library.path");
             if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
-                
+            
+            env = System.getProperty("gnu.classpath.boot.library.path");
+            if (env != null)
+                paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
+            
             File javaHome = new File(System.getProperty("java.home"));
             paths.add(new File(javaHome, "bin").toString());
             if (Platform.isMacOSX()) {
