@@ -173,10 +173,12 @@ public class Platform {
     	if (isWindows())
     		return Collections.singletonList((is64Bits() ? "win64/" : "win32/") + name + ".dll");
     	if (isMacOSX()) {
-    		String pref = "darwin_", suff = "/lib" + name + ".dylib";
+    		String suff = "/lib" + name + ".dylib";
     		if (isArm()) {
-    			return Collections.singletonList(pref + "arm" + suff);
+    			String pref = "iphoneos_";
+    			return Collections.singletonList(pref + "arm32_arm" + suff);
     		} else {
+    			String pref = "darwin_";
 			String univ = pref + "universal" + suff;
 			if (isAmd64Arch())
 				return Arrays.asList(univ, pref + "x64" + suff);

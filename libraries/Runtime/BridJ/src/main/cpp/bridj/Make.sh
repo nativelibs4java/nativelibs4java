@@ -46,8 +46,19 @@ case $TARGET in
 		NEEDS_TEST=0
 		sh ./configure --tool-androidndk --target-x86
 		;;
+	ios)
+		#export PATH=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin:$PATH
+		#export C_INCLUDE_PATH=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/usr/include
+		#export LIBRARY_PATH=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/usr/lib
+		#export CC="gcc -arch arm"
+		#export CPPFLAGS
+		NEEDS_TEST=1
+		export PATH=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin:$PATH
+		sh ./configure --target-iphoneos --with-iphonesdk=4.3
+		;;
 	default)
 		NEEDS_TEST=1
+		export PATH=/Developer-old/usr/bin:$PATH
 		if [[ -d /System/Library/Frameworks/ && ! -d /Applications/MobilePhone.app ]] ; then sh ./configure --target-universal ; 
 		else sh ./configure ; fi
 		;;

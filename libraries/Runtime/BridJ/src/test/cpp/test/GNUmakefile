@@ -33,11 +33,13 @@ UNITS += test templates
 #LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 
 
 ifdef BUILD_OS_darwin
-ifndef BUILD_ARCH_arm
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 LDFLAGS		+= -lobjc
 endif
-#-shared
+
+ifdef BUILD_OS_iphoneos
+CPPFLAGS		+= -I/Users/ochafik/src/jamvm/src
+LDFLAGS		+= -lobjc
 endif
 
 ifdef BUILD_OS_linux
