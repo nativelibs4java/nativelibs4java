@@ -102,7 +102,8 @@ if [[ -d build_out ]] ; then
 		fi
 		MAIN_OUT="../../../resources/$RES_SUB"
 	
-		echo ARCH_NAME: $ARCH_NAME ;
+		echo ARCH_NAME: $ARCH_NAME
+		echo RES_SUB: $RES_SUB
 		TEST_OUT="../../../../test/resources/$RES_SUB"
 	
 		mkdir -p $MAIN_OUT
