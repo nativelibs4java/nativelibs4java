@@ -95,19 +95,27 @@ if [[ -d build_out ]] ; then
 
 	for D in `ls . | grep _$OUT_PATTERN` ; do
 		ARCH_NAME="`echo $D| sed "s/_gcc_$OUT_PATTERN//"| sed "s/_androidndk_$OUT_PATTERN//"`"
-		MAIN_OUT="../../../resources/org/bridj/lib/$ARCH_NAME"
+		if [[ "$ARCH_NAME" == "android_arm32_arm" ]] ; then
+			RES_SUB="lib/armeabi" ;
+		else
+			RES_SUB="org/bridj/lib/$ARCH_NAME" ;
+		fi
+		MAIN_OUT="../../../resources/$RES_SUB"
 	
 		echo ARCH_NAME: $ARCH_NAME ;
-		TEST_OUT="../../../../test/resources/org/bridj/lib/$ARCH_NAME"
+		TEST_OUT="../../../../test/resources/$RES_SUB"
 	
 		mkdir -p $MAIN_OUT
-		mkdir -p $TEST_OUT
-		
 		cp $D/*.$SHAREDLIB_SUFFIX $MAIN_OUT
-		cp ../../../../test/cpp/test/build_out/$D/*.$SHAREDLIB_SUFFIX $TEST_OUT ;
 		
-		nm $TEST_OUT/*.so > $TEST_OUT/test.so.nm
-		nm $TEST_OUT/*.dylib > $TEST_OUT/test.dylib.nm
+		if [[ "$NEEDS_TEST" == "1" ]] ; then
+			mkdir -p $TEST_OUT 
+			cp ../../../../test/cpp/test/build_out/$D/*.$SHAREDLIB_SUFFIX $TEST_OUT
+		
+			nm $TEST_OUT/*.so > $TEST_OUT/test.so.nm
+			nm $TEST_OUT/*.dylib > $TEST_OUT/test.dylib.nm ;
+		fi
+		
 		echo "Done for $D" ;
 	#	svn add $MAIN_OUT
 	#	svn add $TEST_OUT ;

@@ -475,8 +475,13 @@ public class BridJ {
 				env = System.getProperty("bridj." + name + ".library");
 			if (env != null) {
 				File f = new File(env);
-				if (f.exists())
-					return f;
+				if (f.exists()) {
+					try {
+						return f.getCanonicalFile();
+					} catch (IOException ex) {
+						log(Level.SEVERE, null, ex);
+					}
+				}
 			}
 			for (String path : paths) {
 				File pathFile = path == null ? null : new File(path);
@@ -531,10 +536,16 @@ public class BridJ {
 			}
 			}
 			try {
-				File f = Platform.extractEmbeddedLibraryResource(name);
+				File f;
+				if (Platform.isAndroid())
+					f = new File("lib" + name + ".so");
+				else
+					f = Platform.extractEmbeddedLibraryResource(name);
+				
 				if (f != null && f.exists())
 					return f;
 			} catch (IOException ex) {
+				throw new RuntimeException(ex);
 			}
 		}
 		return null;
@@ -591,9 +602,15 @@ public class BridJ {
 	 */
     public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
 		NativeLibrary ll = NativeLibrary.load(f == null ? name : f.toString());;
-		if (ll == null && "c".equals(name)) {// && !Platform.isSolaris())
-			ll = new NativeLibrary(null, 0, 0);
-			f = null;
+		if (ll == null) {
+			if ("c".equals(name)) {// && !Platform.isSolaris())
+				ll = new NativeLibrary(null, 0, 0);
+				f = null;
+			} else if (Platform.isAndroid()) {
+				System.loadLibrary(name);
+				ll = new NativeLibrary(null, 0, 0);
+				f = null;
+			}
 		}
 
 		//if (ll == null && f != null)

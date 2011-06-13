@@ -169,8 +169,9 @@ public class Platform {
         return arch.equals("x86_64");
     }
 
+    static final String embeddedLibraryResourceRoot = "org/bridj/lib/";
     static Collection<String> getEmbeddedLibraryResource(String name) {
-    	String root = "org/bridj/lib/";
+    	String root = embeddedLibraryResourceRoot;
     	if (isWindows())
     		return Collections.singletonList(root + (is64Bits() ? "win64/" : "win32/") + name + ".dll");
     	if (isMacOSX()) {
@@ -186,8 +187,13 @@ public class Platform {
 				return Collections.singletonList(univ);
 		}
     }
-    	if (isAndroid())
-    		return Collections.singletonList(root + "android_arm32_arm/" + name + ".so");
+    if (isAndroid()) {
+    		String fileName = "lib" + name + ".so";
+    		return Arrays.asList(
+    			root + "android_arm32_arm/" + fileName, // BridJ-style .so embedding
+    			"lib/armeabi/" + fileName // Android SDK + NDK-style .so embedding
+		);
+    }
     	if (isLinux())
     		return Collections.singletonList(root + (is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so");
     	if (isSolaris()) {

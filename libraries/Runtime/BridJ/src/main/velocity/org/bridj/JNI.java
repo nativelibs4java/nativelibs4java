@@ -52,28 +52,16 @@ public class JNI {
         		}
         			
         		if (!loaded) {
-        			if (Platform.isAndroid()) {
-	        			try {
-						System.loadLibrary(lib = "bridj_android");
-						loaded = true;
-					} catch (Throwable ex) {
-						try {
-							System.loadLibrary(lib = "bridj");
-							loaded = true;
-						} catch (Throwable ex2) {}
-					}
-				}
 				if (!loaded) {
-					File libFile = null;
-					try {
-						libFile = extractEmbeddedLibraryResource(BridJLibraryName);
-						BridJ.log(Level.INFO, "Loading library " + libFile);
-						System.load(lib = libFile.toString());
-	        				loaded = true;
-					} catch (IOException ex) {
-						// Failed to extract embedded library resource : just try again in the path...
+					if (!Platform.isAndroid())
+						try {
+							File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
+							BridJ.log(Level.INFO, "Loading library " + libFile);
+							System.load(lib = libFile.toString());
+								loaded = true;
+						} catch (IOException ex) {}
+					if (!loaded)
 						System.loadLibrary("bridj");
-					}
 	        		}
 	        }
 	        BridJ.log(Level.INFO, "Loaded library " + lib);

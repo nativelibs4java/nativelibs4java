@@ -34,18 +34,20 @@ public class HelloJni extends Activity
          * function.
          */
         TextView  tv = new TextView(this);
-        String text = stringFromJNI();
+        StringWriter text = new StringWriter();
+        PrintWriter pout = new PrintWriter(text);
+        pout.println(stringFromJNI());
+        pout.println(HelloJni.class.getClassLoader().getResource("org/bridj/lib/android_arm32_arm/libbridj.so"));
+        pout.println(HelloJni.class.getClassLoader().getResource("org/bridj/lib/android_arm32_arm/libbridj.so_"));
         try {
         		int a = 10, b = 100;
-        		text += "\n" + a + " + " + b + " = " + BridJLib.addTwoInts(a, b) + " (computed in BridJ-bound native function !)";
+        		pout.println(a + " + " + b + " = " + BridJLib.addTwoInts(a, b) + " (computed in BridJ-bound native function !)");
         } catch (Throwable th) {
-        		StringWriter out = new StringWriter();
         		while (th.getCause() != null)
         			th = th.getCause();
-        		th.printStackTrace(new PrintWriter(out));
-        		text += "\n" + out;
+        		th.printStackTrace(pout);
         }
-        tv.setText( text );
+        tv.setText(text.toString());
         setContentView(tv);
     }
 
