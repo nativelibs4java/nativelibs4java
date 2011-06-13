@@ -46,7 +46,7 @@ public class JNI {
         			try {
         				System.load(lib = forceLibFile);
         				loaded = true;
-        			} catch (Exception ex) {
+        			} catch (Throwable ex) {
         				BridJ.log(Level.SEVERE, "Failed to load forced library " + forceLibFile, ex);
         			}
         		}
@@ -56,11 +56,11 @@ public class JNI {
 	        			try {
 						System.loadLibrary(lib = "bridj_android");
 						loaded = true;
-					} catch (Exception ex) {
+					} catch (Throwable ex) {
 						try {
 							System.loadLibrary(lib = "bridj");
 							loaded = true;
-						} catch (Exception ex2) {}
+						} catch (Throwable ex2) {}
 					}
 				}
 				if (!loaded) {

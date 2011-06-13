@@ -40,7 +40,7 @@ case $TARGET in
 	android)
 		NEEDS_TEST=0
 		SHAREDLIB_SUFFIX=so
-		sh ./configure --with-androidndk=/Users/ochafik/bin/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/darwin-x86/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=/Users/ochafik/bin/android-ndk-r5b/platforms/android-9/arch-arm
+		sh ./configure --with-androidndk=$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.4.3/prebuilt/darwin-x86/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=$ANDROID_NDK_HOME/platforms/android-9/arch-arm
 		;;
 	android-emulator)
 		NEEDS_TEST=0
