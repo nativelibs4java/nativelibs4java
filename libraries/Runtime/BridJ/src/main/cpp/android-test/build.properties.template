@@ -9,6 +9,8 @@
 
 # Project target.
 #target=android-11
+
+jar.libs.dir=lib
 key.store=/Users/ochafik/security/ochafik.keystore
 key.alias=ochafik2009
 key.alias.password=
