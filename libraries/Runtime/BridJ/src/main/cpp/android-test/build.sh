@@ -5,7 +5,8 @@ echo "You should ensure an emulator is running : android&"
 
 PROJECT_HOME=../../../..
 MVN_VERSION="`cat $PROJECT_HOME/pom.xml | grep '<version' | head -n 1 | sed -e 's/.*<version>\(.*\)<\/version>.*/\1/g'`"
-BRIDJ_ANDROID_JAR=$PROJECT_HOME/target/bridj-$MVN_VERSION-android.jar
+BRIDJ_ANDROID_JAR_NAME=bridj-$MVN_VERSION-android.jar
+BRIDJ_ANDROID_JAR=$PROJECT_HOME/target/$BRIDJ_ANDROID_JAR_NAME
 ANDROID_PROJECT_HOME=`pwd`
 
 echo "BridJ version = $MVN_VERSION"
@@ -42,6 +43,7 @@ function helpQuit {
 #      release		Build Release Android package
 #      debug		Build Debug Android package
 #      start			Start on emulator
+#      clean			Clean all (BridJ, native builds...)
 #
 # Default build commands = $DEFAULT_BUILD_CMDS
 # Typical debug commands = package emulator start
@@ -57,6 +59,7 @@ else
 	BUILD_CMDS=$* ;
 fi
 	
+rm lib/$BRIDJ_ANDROID_JAR_NAME
 cp -f $BRIDJ_ANDROID_JAR lib
 
 cat build.properties.template > build.properties
@@ -83,6 +86,11 @@ echo "# Provided build commands = $BUILD_CMDS"
 
 for C in $BUILD_CMDS ; do
 	case $C in
+		clean)
+			cd $PROJECT_HOME
+			sh cleanAll
+			cd $ANDROID_PROJECT_HOME
+			;;
 		package)
 			buildBridJ
 			;;

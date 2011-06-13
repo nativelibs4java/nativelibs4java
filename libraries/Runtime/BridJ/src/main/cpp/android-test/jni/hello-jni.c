@@ -33,3 +33,6 @@ Java_com_example_hellojni_HelloJni_stringFromJNI( JNIEnv* env,
 int addTwoInts(int a, int b) {
 	return a + b;
 }
+int passTwoIntsToCallback(int a, int b, int (cb*)(int, int)) {
+	return cb(a, b);
+}

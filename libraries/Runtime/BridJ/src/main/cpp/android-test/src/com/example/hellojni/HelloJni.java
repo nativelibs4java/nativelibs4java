@@ -20,6 +20,8 @@ import android.widget.TextView;
 import android.os.Bundle;
 import java.io.StringWriter;
 import java.io.PrintWriter;
+import org.bridj.*;
+import static org.bridj.Pointer.*;
 
 public class HelloJni extends Activity
 {
@@ -37,10 +39,41 @@ public class HelloJni extends Activity
         StringWriter text = new StringWriter();
         PrintWriter pout = new PrintWriter(text);
         pout.println(stringFromJNI());
-        pout.println(HelloJni.class.getClassLoader().getResource("lib/armeabi/libbridj.so"));
+        //pout.println(HelloJni.class.getClassLoader().getResource("lib/armeabi/libbridj.so"));
         try {
+        	
+        		//BridJ.register(BridJLib.class);
+        		
         		int a = 10, b = 100;
         		pout.println(a + " + " + b + " = " + BridJLib.addTwoInts(a, b) + " (computed in BridJ-bound native function !)");
+        		
+        		final int fa = 2, fb = 3;
+        		Pointer pcb;
+        		/*
+        		final BridJLib.passTwoIntsToCallback_cb cb = new BridJLib.passTwoIntsToCallback_cb() {
+        			public int apply(int a, int b) {
+        				return a * fa + b * fb;	
+        			}
+        		};
+        		pcb = pointerTo(cb);
+        		*/
+        		///*
+        		pcb = allocateDynamicCallback(
+        			new DynamicCallback<Integer>() {
+        				public Integer apply(Object... args) {
+        					int a = (Integer)args[0];
+        					int b = (Integer)args[1];
+        					return a * fa + b * fb;	
+        					//return cb.apply(a, b);
+        				}
+        			},
+        			null,
+        			int.class,
+        			int.class,
+        			int.class
+        		);
+        		pout.println(a + " * " + fa + " + " + b + " * " + fb + " = " + BridJLib.passTwoIntsToCallback(a, b, pcb) + " (through BridJ callback !)");
+        		//*/
         } catch (Throwable th) {
         		while (th.getCause() != null)
         			th = th.getCause();
