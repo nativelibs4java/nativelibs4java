@@ -18,7 +18,8 @@ package com.example.hellojni;
 import android.app.Activity;
 import android.widget.TextView;
 import android.os.Bundle;
-
+import java.io.StringWriter;
+import java.io.PrintWriter;
 
 public class HelloJni extends Activity
 {
@@ -33,7 +34,18 @@ public class HelloJni extends Activity
          * function.
          */
         TextView  tv = new TextView(this);
-        tv.setText( stringFromJNI() );
+        String text = stringFromJNI();
+        try {
+        		int a = 10, b = 100;
+        		text += "\n" + a + " + " + b + " = " + BridJLib.addTwoInts(a, b) + " (computed in BridJ-bound native function !)";
+        } catch (Throwable th) {
+        		StringWriter out = new StringWriter();
+        		while (th.getCause() != null)
+        			th = th.getCause();
+        		th.printStackTrace(new PrintWriter(out));
+        		text += "\n" + out;
+        }
+        tv.setText( text );
         setContentView(tv);
     }
 

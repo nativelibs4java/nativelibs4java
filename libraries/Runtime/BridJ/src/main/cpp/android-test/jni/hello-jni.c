@@ -29,3 +29,7 @@ Java_com_example_hellojni_HelloJni_stringFromJNI( JNIEnv* env,
 {
     return (*env)->NewStringUTF(env, "Hello from JNI !");
 }
+
+int addTwoInts(int a, int b) {
+	return a + b;
+}
