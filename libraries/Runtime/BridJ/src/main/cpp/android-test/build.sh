@@ -12,6 +12,8 @@ echo "BridJ version = $MVN_VERSION"
 
 function buildBridJ {
 	cd $PROJECT_HOME
+	#rm target/*.jar
+	mvn clean
 	mvn package -DskipTests
 	cd $ANDROID_PROJECT_HOME
 }
@@ -106,4 +108,3 @@ for C in $BUILD_CMDS ; do
 	esac ;
 done
 
-echo "adb shell am start -a android.intent.action.MAIN -n com.example.hellojni/com.example.hellojni.HelloJni -W"

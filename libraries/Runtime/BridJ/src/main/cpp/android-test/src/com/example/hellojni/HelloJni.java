@@ -37,8 +37,7 @@ public class HelloJni extends Activity
         StringWriter text = new StringWriter();
         PrintWriter pout = new PrintWriter(text);
         pout.println(stringFromJNI());
-        pout.println(HelloJni.class.getClassLoader().getResource("org/bridj/lib/android_arm32_arm/libbridj.so"));
-        pout.println(HelloJni.class.getClassLoader().getResource("org/bridj/lib/android_arm32_arm/libbridj.so_"));
+        pout.println(HelloJni.class.getClassLoader().getResource("lib/armeabi/libbridj.so"));
         try {
         		int a = 10, b = 100;
         		pout.println(a + " + " + b + " = " + BridJLib.addTwoInts(a, b) + " (computed in BridJ-bound native function !)");

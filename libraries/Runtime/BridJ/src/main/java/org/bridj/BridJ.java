@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.*;
 
 import org.bridj.BridJRuntime.TypeInfo;
 import org.bridj.demangling.Demangler.Symbol;
@@ -457,6 +458,9 @@ public class BridJ {
         if (libraryName == null)
             return null;
         
+        if (Platform.isAndroid())
+        		return null;
+        	
         //System.out.println("Getting file of '" + name + "'");
         String actualName = libraryActualNames.get(libraryName);
 		List<String> aliases = libraryAliases.get(libraryName);
@@ -607,9 +611,30 @@ public class BridJ {
 				ll = new NativeLibrary(null, 0, 0);
 				f = null;
 			} else if (Platform.isAndroid()) {
-				System.loadLibrary(name);
-				ll = new NativeLibrary(null, 0, 0);
-				f = null;
+				String libFileName = "lib" + name + ".so";
+				String resource = "lib/armeabi/" + libFileName;
+				URL url = BridJ.class.getClassLoader().getResource(resource);
+				if (url != null) {
+					String urlString = url.toString();
+					Pattern p = Pattern.compile("jar:file:/data/app/(.*?)\\.apk!.*");
+					Matcher m = p.matcher(urlString);
+					if (m.matches()) {
+						String packageName = m.group(1);
+						if (packageName.matches(".*?-\\d+")) {
+							int i = packageName.lastIndexOf("-");
+							packageName = packageName.substring(0, i);
+						}
+						f = new File("/data/data/" + packageName + "/lib/" + libFileName);
+						if (f.exists()) {
+							ll = NativeLibrary.load(f == null ? name : f.toString());;
+						} else {
+							throw new RuntimeException("File not found : " + f);
+						}
+					} else {
+						throw new RuntimeException("Resource url not recognized : " + url);
+					}
+				} else 
+					throw new RuntimeException("Resource not found : " + resource);
 			}
 		}
 

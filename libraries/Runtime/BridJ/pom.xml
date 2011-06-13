@@ -234,6 +234,7 @@
 							<artifact>com.nativelibs4java:bridj</artifact>
 							<excludes>
 								<exclude>org/bridj/lib/**</exclude>
+								<exclude>lib/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
