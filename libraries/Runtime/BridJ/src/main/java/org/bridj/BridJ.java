@@ -459,9 +459,6 @@ public class BridJ {
         if (libraryName == null)
             return null;
         
-        if (Platform.isAndroid())
-        		return null;
-        	
         //System.out.println("Getting file of '" + name + "'");
         String actualName = libraryActualNames.get(libraryName);
 		List<String> aliases = libraryAliases.get(libraryName);
