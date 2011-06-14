@@ -20,6 +20,7 @@ import java.util.regex.*;
 
 import org.bridj.BridJRuntime.TypeInfo;
 import org.bridj.demangling.Demangler.Symbol;
+import org.bridj.demangling.Demangler.MemberRef;
 import org.bridj.ann.Library;
 import java.util.Stack;
 import java.io.PrintWriter;
@@ -773,12 +774,35 @@ public class BridJ {
 	public static void main(String[] args) {
 		List<NativeLibrary> libraries = new ArrayList<NativeLibrary>();
 		try {
-			for (String arg : args) {
-				NativeLibrary lib = getNativeLibrary(arg);
-				libraries.add(lib);
+			File outputDir = new File(".");
+			for (int iArg = 0, nArgs = args.length; iArg < nArgs; iArg++) {
+				String arg = args[iArg];
+				if (arg.equals("-d")) {
+					outputDir = new File(args[++iArg]);
+					continue;
+				}
+				try {
+					NativeLibrary lib = getNativeLibrary(arg);
+					libraries.add(lib);
+					
+					PrintWriter sout = new PrintWriter(new File(outputDir, new File(arg).getName() + ".symbols.txt"));
+					for (Symbol sym : lib.getSymbols()) {
+						sout.print(sym.getSymbol());
+						sout.print(" // ");
+						try {
+							MemberRef mr = sym.getParsedRef();
+							sout.print(" // " + mr);
+						} catch (Throwable th) {
+							sout.print("?");
+						}
+						sout.println();
+					}
+					sout.close();
+				} catch (Throwable th) {
+					th.printStackTrace();	
+				}
 			}
-			String file = "out.h";
-			PrintWriter out = new PrintWriter(new File(file));
+			PrintWriter out = new PrintWriter(new File(outputDir, "out.h"));
 			HeadersReconstructor.reconstructHeaders(libraries, out);
 			out.close();
 		} catch (Exception ex) {
