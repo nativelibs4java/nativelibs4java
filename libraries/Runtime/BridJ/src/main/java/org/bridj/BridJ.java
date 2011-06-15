@@ -605,10 +605,7 @@ public class BridJ {
     public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
 		NativeLibrary ll = NativeLibrary.load(f == null ? name : f.toString());;
 		if (ll == null) {
-			if ("c".equals(name)) {// && !Platform.isSolaris())
-				ll = new NativeLibrary(null, 0, 0);
-				f = null;
-			} else if (Platform.isAndroid()) {
+			if (Platform.isAndroid()) {
 				String libFileName = "lib" + name + ".so";
 				String resource = "lib/armeabi/" + libFileName;
 				URL url = BridJ.class.getClassLoader().getResource(resource);
@@ -633,6 +630,9 @@ public class BridJ {
 					}
 				} else 
 					throw new RuntimeException("Resource not found : " + resource);
+			} else if ("c".equals(name)) {
+				ll = new NativeLibrary(null, 0, 0);
+				f = null;
 			}
 		}
 

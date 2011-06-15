@@ -27,8 +27,10 @@ import java.util.zip.ZipOutputStream;
  */
 class AndroidClassDefiner implements ClassDefiner {
 
-    File cacheDir;
-    public AndroidClassDefiner() throws IOException {
+    private File cacheDir;
+    private final ClassLoader parentClassLoader;
+    public AndroidClassDefiner(ClassLoader parentClassLoader) throws IOException {
+    		this.parentClassLoader = parentClassLoader;
         String propName = "bridj.android.cacheDir";
         String prop = System.getProperty(propName);
         if (prop != null) {
@@ -89,8 +91,8 @@ class AndroidClassDefiner implements ClassDefiner {
 
             // http://stackoverflow.com/questions/2903260/android-using-dexclassloader-to-load-apk-file
             //PathClassLoader classLoader = new PathClassLoader(apkFile.toString(), getClass().getClassLoader());
-            DexClassLoader classLoader = new DexClassLoader(apkFile.toString(), tempDir.toString(), null, getClass().getClassLoader().getParent());
-            return classLoader.loadClass(className.replace('.', '/'));
+            DexClassLoader classLoader = new DexClassLoader(apkFile.toString(), tempDir.toString(), null, parentClassLoader);
+            return classLoader.loadClass(className);
         } catch (Throwable th) {
             throw new RuntimeException("Failed with tempFile = " + apkFile + " : " + th, th);
         } finally {

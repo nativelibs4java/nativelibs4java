@@ -43,7 +43,7 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
         if (classDefiner == null) {
             if (Platform.isAndroid()) {
                 try {
-                    classDefiner = (ClassDefiner)Class.forName("org.bridj.AndroidClassDefiner").newInstance();
+                    classDefiner = (ClassDefiner)Class.forName("org.bridj.AndroidClassDefiner").getConstructor(ClassLoader.class).newInstance(this);
                 } catch (Exception ex) {
                     throw new RuntimeException("Failed to instantiate the Android class definer... Was the BridJ jar tampered with / trimmed too much ?", ex);
                 }
