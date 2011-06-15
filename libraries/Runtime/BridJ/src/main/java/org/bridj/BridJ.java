@@ -599,6 +599,23 @@ public class BridJ {
 		return getNativeLibrary(name, f);
     }
 
+    static String getAndroidPackageNameFromResourceURL(String url) {
+		Pattern p = Pattern.compile("jar:file:/data/[^/]+/([^/]*?)\\.apk!.*");
+		Matcher m = p.matcher(url);
+		String packageName = null;
+		if (!m.matches()) {
+			p = Pattern.compile("jar:file:/.*?/([^/]+)/pkg\\.apk!.*");
+			m = p.matcher(url);
+		}
+		if (m.matches()) {
+			packageName = m.group(1);
+			if (packageName.matches(".*?-\\d+")) {
+				int i = packageName.lastIndexOf("-");
+				packageName = packageName.substring(0, i);
+			}
+		}
+		return packageName;
+    }
     /**
      * Loads the shared library file under the provided name. Any subsequent call to {@link #getNativeLibrary(String)} will return this library.
 	 */
@@ -610,15 +627,8 @@ public class BridJ {
 				String resource = "lib/armeabi/" + libFileName;
 				URL url = BridJ.class.getClassLoader().getResource(resource);
 				if (url != null) {
-					String urlString = url.toString();
-					Pattern p = Pattern.compile("jar:file:/data/app/(.*?)\\.apk!.*");
-					Matcher m = p.matcher(urlString);
-					if (m.matches()) {
-						String packageName = m.group(1);
-						if (packageName.matches(".*?-\\d+")) {
-							int i = packageName.lastIndexOf("-");
-							packageName = packageName.substring(0, i);
-						}
+					String packageName = getAndroidPackageNameFromResourceURL(url.toString());
+					if (packageName != null) {
 						f = new File("/data/data/" + packageName + "/lib/" + libFileName);
 						if (f.exists()) {
 							ll = NativeLibrary.load(f == null ? name : f.toString());;
