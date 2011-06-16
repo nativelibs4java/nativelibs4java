@@ -66,7 +66,7 @@ public class AndroidSupport extends PlatformSupport {
     String getLibFileName(String libName) {
         return "lib" + libName + ".so";
     }
-    File getNativeLibraryDir(String someBundledNativeLibraryName) throws FileNotFoundException {
+    synchronized File getNativeLibraryDir(String someBundledNativeLibraryName) throws FileNotFoundException {
         //String someKnownResource = 
         File f = null;
         if (app != null) {
@@ -78,8 +78,7 @@ public class AndroidSupport extends PlatformSupport {
         }
         if (f == null) {
             String someKnownResource = "lib/armeabi/" + getLibFileName(someBundledNativeLibraryName);
-            File dataDir = Environment.getDataDirectory(); // "/data/data/"
-		    f = new File(dataDir, getPackageName(someKnownResource) + "/lib");
+            f = new File(getApplicationDataDir(someKnownResource), "lib");
         }
         
         if (f != null && f.isDirectory())
@@ -87,6 +86,14 @@ public class AndroidSupport extends PlatformSupport {
     
         throw new FileNotFoundException("Failed to get the native library directory " + (f != null ? "(" + f + " is not a directory). " : ". ") + adviseToSetApp());
     }
+    
+	synchronized File getApplicationDataDir(String someKnownResource) throws FileNotFoundException {
+		if (app != null)
+			return new File(app.getApplicationInfo().dataDir);
+		else
+			return new File(new File(Environment.getDataDirectory(), "data"), getPackageName(someKnownResource));
+	}
+    
     @Override
     public synchronized NativeLibrary loadNativeLibrary(String name) throws FileNotFoundException {
         File f = new File(getNativeLibraryDir(name), getLibFileName(name));
