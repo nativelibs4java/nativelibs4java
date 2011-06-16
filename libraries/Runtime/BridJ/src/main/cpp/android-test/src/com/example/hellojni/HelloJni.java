@@ -21,6 +21,7 @@ import android.os.Bundle;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import org.bridj.*;
+import org.bridj.demangling.Demangler.Symbol;
 import static org.bridj.Pointer.*;
 
 public class HelloJni extends Activity
@@ -39,6 +40,9 @@ public class HelloJni extends Activity
         StringWriter text = new StringWriter();
         PrintWriter pout = new PrintWriter(text);
         pout.println(stringFromJNI());
+        
+        AndroidSupport.setApplication(getApplication());
+        
         //pout.println(HelloJni.class.getClassLoader().getResource("lib/armeabi/libbridj.so"));
         try {
         	
@@ -46,7 +50,13 @@ public class HelloJni extends Activity
         		
         		int a = 10, b = 100;
         		pout.println(a + " + " + b + " = " + BridJLib.addTwoInts(a, b) + " (computed in BridJ-bound native function !)");
-        		
+        		pout.println("Access(.) = " + BridJLib.access(pointerToCString("."), 0));
+        		/*
+        		for (Symbol sym : BridJ.getNativeLibrary("unistd").getSymbols()) {
+        			if (sym.getSymbol().contains("access"))
+        				pout.println(sym.getSymbol());
+        		}
+        		*/
         		final int fa = 2, fb = 3;
         		Pointer pcb;
         		/*
@@ -56,7 +66,7 @@ public class HelloJni extends Activity
         			}
         		};
         		pcb = pointerTo(cb);
-        		*/
+        		//*/
         		///*
         		pcb = allocateDynamicCallback(
         			new DynamicCallback<Integer>() {
@@ -72,8 +82,9 @@ public class HelloJni extends Activity
         			int.class,
         			int.class
         		);
-        		pout.println(a + " * " + fa + " + " + b + " * " + fb + " = " + BridJLib.passTwoIntsToCallback(a, b, pcb) + " (through BridJ callback !)");
         		//*/
+        		pout.println(a + " * " + fa + " + " + b + " * " + fb + " = " + BridJLib.passTwoIntsToCallback(a, b, pcb) + " (through BridJ callback !)");
+        		
         } catch (Throwable th) {
         		while (th.getCause() != null)
         			th = th.getCause();

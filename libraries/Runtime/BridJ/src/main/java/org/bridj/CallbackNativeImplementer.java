@@ -31,27 +31,20 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
 	String implNameSuffix = "_NativeImpl";
 	final NativeEntities nativeEntities;
     final CRuntime runtime;
+    volatile ClassDefiner classDefiner;
 	public CallbackNativeImplementer(NativeEntities nativeEntities, CRuntime runtime) {
 		super(Platform.getClassLoader());
 		this.nativeEntities = nativeEntities;
         this.runtime = runtime;
 	}
-    
-    volatile ClassDefiner classDefiner;
 
     public synchronized ClassDefiner getClassDefiner() {
         if (classDefiner == null) {
-            if (Platform.isAndroid()) {
-                try {
-                    classDefiner = (ClassDefiner)Class.forName("org.bridj.AndroidClassDefiner").getConstructor(ClassLoader.class).newInstance(this);
-                } catch (Exception ex) {
-                    throw new RuntimeException("Failed to instantiate the Android class definer... Was the BridJ jar tampered with / trimmed too much ?", ex);
-                }
-            } else
-                classDefiner = this;
+            classDefiner = PlatformSupport.getInstance().getClassDefiner(this, this);
         }
         return classDefiner;
     }
+    
     
 	/**
 	 * The class created here is to be used to cast a pointer to a callback

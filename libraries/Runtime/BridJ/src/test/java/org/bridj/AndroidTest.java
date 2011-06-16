@@ -1,14 +1,6 @@
 package org.bridj;
 
-
-import org.bridj.demangling.Demangler;
-import java.io.FileNotFoundException;
-import java.util.Collection;
-import java.util.Set;
-
 import org.junit.Test;
-
-
 import static org.junit.Assert.*;
 
 public class AndroidTest {
@@ -21,6 +13,6 @@ public class AndroidTest {
 			"jar:file:/data/app/com.example.hellojni-1.apk!/lib/armeabi/libhello-jni.so"
 			
 		})
-			assertEquals("URL not recognized : " + url, expected, BridJ.getAndroidPackageNameFromResourceURL(url));
+			assertEquals("URL not recognized : " + url, expected, AndroidSupport.getAndroidPackageNameFromResourceURL(url));
 	}
 }

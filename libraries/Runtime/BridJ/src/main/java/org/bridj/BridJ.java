@@ -599,51 +599,18 @@ public class BridJ {
 		return getNativeLibrary(name, f);
     }
 
-    static String getAndroidPackageNameFromResourceURL(String url) {
-		Pattern p = Pattern.compile("jar:file:/data/[^/]+/([^/]*?)\\.apk!.*");
-		Matcher m = p.matcher(url);
-		String packageName = null;
-		if (!m.matches()) {
-			p = Pattern.compile("jar:file:/.*?/([^/]+)/pkg\\.apk!.*");
-			m = p.matcher(url);
-		}
-		if (m.matches()) {
-			packageName = m.group(1);
-			if (packageName.matches(".*?-\\d+")) {
-				int i = packageName.lastIndexOf("-");
-				packageName = packageName.substring(0, i);
-			}
-		}
-		return packageName;
-    }
     /**
      * Loads the shared library file under the provided name. Any subsequent call to {@link #getNativeLibrary(String)} will return this library.
 	 */
     public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
 		NativeLibrary ll = NativeLibrary.load(f == null ? name : f.toString());;
 		if (ll == null) {
-			if (Platform.isAndroid()) {
-				String libFileName = "lib" + name + ".so";
-				String resource = "lib/armeabi/" + libFileName;
-				URL url = BridJ.class.getClassLoader().getResource(resource);
-				if (url != null) {
-					String packageName = getAndroidPackageNameFromResourceURL(url.toString());
-					if (packageName != null) {
-						f = new File("/data/data/" + packageName + "/lib/" + libFileName);
-						if (f.exists()) {
-							ll = NativeLibrary.load(f == null ? name : f.toString());;
-						} else {
-							throw new RuntimeException("File not found : " + f);
-						}
-					} else {
-						throw new RuntimeException("Resource url not recognized : " + url);
-					}
-				} else 
-					throw new RuntimeException("Resource not found : " + resource);
-			} else if ("c".equals(name)) {
-				ll = new NativeLibrary(null, 0, 0);
-				f = null;
-			}
+            ll = PlatformSupport.getInstance().loadNativeLibrary(name);
+            if (ll == null) {
+                if ("c".equals(name)) {
+                    ll = new NativeLibrary(null, 0, 0);
+                }
+            }
 		}
 
 		//if (ll == null && f != null)

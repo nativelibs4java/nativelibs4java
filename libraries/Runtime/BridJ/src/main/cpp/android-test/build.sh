@@ -59,9 +59,6 @@ else
 	BUILD_CMDS=$* ;
 fi
 	
-rm lib/$BRIDJ_ANDROID_JAR_NAME
-cp -f $BRIDJ_ANDROID_JAR lib
-
 cat build.properties.template > build.properties
 
 if [[  -z "$ANDROID_SDK_HOME" ]] ; then
@@ -93,6 +90,8 @@ for C in $BUILD_CMDS ; do
 			;;
 		package)
 			buildBridJ
+			rm lib/$BRIDJ_ANDROID_JAR_NAME
+			cp -f $BRIDJ_ANDROID_JAR lib
 			;;
 		emulator)
 			compile install
