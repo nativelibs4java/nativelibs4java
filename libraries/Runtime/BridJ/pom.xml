@@ -215,7 +215,7 @@
 					</filters>
 				</configuration>
 			  </execution>
-			  <execution>
+			  <!--execution>
 			  	<id>stripped-package</id>
 				<phase>package</phase>
 				<goals>
@@ -239,7 +239,7 @@
 						</filter>
 					</filters>
 				</configuration>
-			  </execution>
+			  </execution-->
 			  
 			  <execution>
 			  	<id>win-package</id>
