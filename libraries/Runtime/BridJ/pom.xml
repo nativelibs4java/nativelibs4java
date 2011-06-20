@@ -56,29 +56,53 @@
 	
 	<dependency>
 		<!--
-		First, download and install the Android SDK :
+		First, download and install the Android SDK, and install the "Android SDK Platform-tools" from the Android SDK GUI :
 		
 			http://developer.android.com/sdk/index.html
 		
 		Then define some variables :
 		
-			export ANDROID_SDK_HOME=/Users/ochafik/bin/android-sdk-mac_x86
-			export ANDROID_SDK_VERSION=10
+			export ANDROID_SDK_HOME=~/bin/android-sdk-mac_x86
+			export ANDROID_SDK_VERSION=11
 			export ANDROID_DEX_JAR=$ANDROID_SDK_HOME/platform-tools/lib/dx.jar
-			export ANDROID_DEX_GROUP_ID=com.nativelibs4java.thirdparty.com.google.android
+			
+		Write some pom stub :
+		
+			echo "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">
+					 <modelVersion>4.0.0</modelVersion>
+					  <groupId>com.nativelibs4java.thirdparty.com.google.android</groupId>
+					  <artifactId>dx</artifactId>
+					  <name>Android SDK's dx Tool</name>
+					  <url>http://developer.android.com/guide/developing/tools/index.html</url>
+					  <version>$ANDROID_SDK_VERSION</version>
+					  <packaging>jar</packaging>
+					  <description>
+					  dx is an Android SDK platform tool that transforms Java bytecode (and JARs) into Dalvik VM 'DEX' code.
+					  </description> 
+
+					<licenses>
+					  <license>
+						<name>Apache 2</name>
+						<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+						<distribution>repo</distribution>
+						<comments>A business-friendly OSS license</comments>
+					  </license>
+					</licenses>
+				</project>
+			" > android-sdk-dx.pom
 			
 		And finally type this to deploy to the NativeLibs4Java repository :
 		
-			mvn deploy:deploy-file -Dversion=$ANDROID_SDK_VERSION -Dfile=$ANDROID_DEX_JAR -DgroupId=$ANDROID_DEX_GROUP_ID -DartifactId=dx -Dpackaging=jar -DrepositoryId=nativelibs4java-repo -Durl=sftp://frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven
-		
+			mvn deploy:deploy-file -DpomFile=android-sdk-dx.pom -Dfile=$ANDROID_DEX_JAR -DrepositoryId=nativelibs4java-repo -Durl=sftp://frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven
+			
 		Or type this to install dx in the local Maven repository :
 		
-			mvn install:install-file -Dversion=$ANDROID_SDK_VERSION -Dfile=$ANDROID_DEX_JAR -DgroupId=$ANDROID_DEX_GROUP_ID -DartifactId=dx -Dpackaging=jar
-		
+			mvn install:install-file -DpomFile=android-sdk-dx.pom -Dfile=$ANDROID_DEX_JAR 
+			
 		-->
 		<groupId>com.nativelibs4java.thirdparty.com.google.android</groupId>
 		<artifactId>dx</artifactId>
-		<version>10</version>
+		<version>11</version>
 		<scope>compile</scope>
 		<!--
 		<scope>provided</scope>
