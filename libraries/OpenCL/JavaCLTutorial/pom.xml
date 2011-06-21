@@ -3,8 +3,8 @@
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>javacl-tutorial</artifactId>
-  <name>JavaCL Tutorial</name>
+  <artifactId>javacl-tutorial-jna</artifactId>
+  <name>JavaCL Tutorial / JNA</name>
   <url>http://code.google.com/p/javacl/</url>
   <version>1.0.0-RC1</version>
   <packaging>jar</packaging>
@@ -24,7 +24,7 @@
   <dependencies>
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>javacl</artifactId>
+	  <artifactId>javacl-jna</artifactId>
 	  <version>1.0.0-RC1</version>
 	</dependency>
 	<dependency>
@@ -43,7 +43,7 @@
   	<plugins>
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
-			<artifactId>javacl-generator</artifactId>
+			<artifactId>javacl-generator-jna</artifactId>
 			<version>1.0.0-RC1</version>
 			<!--configuration>
 				<javaOutputDirectory>${project.build.directory}/../src/main/java</javaOutputDirectory>

@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nativelibs4java</groupId>
-	<artifactId>opencl4java-parent</artifactId>
+	<artifactId>opencl4java-parent-jna</artifactId>
 	<version>1.0.0-RC1</version>
 	<packaging>pom</packaging>
-	<name>OpenCL4Java Common Configuration</name>
+	<name>OpenCL4Java Common Configuration / JNA</name>
 	<inceptionYear>2009</inceptionYear>
 	<url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
      

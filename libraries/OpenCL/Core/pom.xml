@@ -3,8 +3,8 @@
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>javacl-core</artifactId>
-  <name>JavaCL Core</name>
+  <artifactId>javacl-core-jna</artifactId>
+  <name>JavaCL Core / JNA</name>
   <url>http://code.google.com/p/javacl/</url>
   <version>1.0.0-RC1</version>
   <packaging>jar</packaging>
@@ -18,7 +18,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java-parent</artifactId>
+	  <artifactId>opencl4java-parent-jna</artifactId>
 	  <version>1.0.0-RC1</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
@@ -27,7 +27,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   	
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java</artifactId>
+	  <artifactId>opencl4java-jna</artifactId>
 	  <version>${opencl4java.version}</version>
 	  <scope>compile</scope>
 	</dependency>

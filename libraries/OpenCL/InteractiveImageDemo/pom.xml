@@ -3,15 +3,15 @@
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>javacl-interactive-image-demo</artifactId>
-  <name>JavaCL Interactive Image Demo</name>
+  <artifactId>javacl-interactive-image-demo-jna</artifactId>
+  <name>JavaCL Interactive Image Demo / JNA</name>
   <url>http://code.google.com/p/javacl/</url>
   <version>1.0.0-RC1</version>
   <packaging>jar</packaging>
   
 	<parent>
   	  <groupId>com.nativelibs4java</groupId>
-  	  <artifactId>opencl4java-parent</artifactId>
+  	  <artifactId>opencl4java-parent-jna</artifactId>
   	  <version>1.0.0-RC1</version>
   	  <relativePath>../Parent</relativePath>
     </parent>
@@ -20,19 +20,19 @@
   	
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>javacl-core</artifactId>
+	  <artifactId>javacl-core-jna</artifactId>
 	  <version>${opencl4java.version}</version>
 	  <scope>compile</scope>
 	</dependency>
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>javacl-demos</artifactId>
+	  <artifactId>javacl-demos-jna</artifactId>
 	  <version>${opencl4java.version}</version>
 	  <scope>compile</scope>
 	</dependency>
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>libcl</artifactId>
+	  <artifactId>libcl-jna</artifactId>
 	  <version>${opencl4java.version}</version>
 	</dependency>
 	<dependency>
