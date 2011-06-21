@@ -116,7 +116,7 @@ typedef struct FunctionCallInfo {
 	void* fForwardedSymbol;
 } FunctionCallInfo, CPPMethodCallInfo;
 
-#if defined (DC__OS_Darwin)
+#ifdef BRIDJ_OBJC_SUPPORT
 #include <objc/objc.h>
 
 typedef struct JavaToObjCCallInfo {

@@ -278,7 +278,7 @@ public abstract class Demangler {
 			parse();
 			return ref;
 		}
-		void parse() { 
+		synchronized void parse() { 
 			if (!refParsed) {
 				try {
 					ref = library.parseSymbol(symbol);
@@ -670,6 +670,8 @@ public abstract class Demangler {
         DeletingDestructor("", true, true),
         New("new", true, true),
         Delete("delete", true, true),
+        NewArray("new[]", true, true),
+        DeleteArray("delete[]", true, true),
         VFTable("vftable", false, true),
         VBTable("vbtable", false, true),
         VCall("vcall", false, false), // What is that ???

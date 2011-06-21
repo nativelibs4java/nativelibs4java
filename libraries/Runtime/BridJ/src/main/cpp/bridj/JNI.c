@@ -191,7 +191,8 @@ void initMethods(JNIEnv* env) {
 		GETFIELD_ID(forwardedPointer 		,	"forwardedPointer" 	,	"J"						);
 		GETFIELD_ID(virtualIndex 		,	"virtualIndex"		,	"I"						);
 		GETFIELD_ID(virtualTableOffset	,	"virtualTableOffset"	,	"I"						);
-		GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Lorg/bridj/Callback;"	);
+		//GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Lorg/bridj/Callback;"	);
+		GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Ljava/lang/Object;"	);
 		GETFIELD_ID(isGenericCallback 	,	"isGenericCallback"	,	"Z"						);
 		GETFIELD_ID(direct		 		,	"direct"	 			,	"Z"						);
 		GETFIELD_ID(isCPlusPlus	 		,	"isCPlusPlus"		,	"Z"						);
@@ -879,7 +880,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToObjCMethods(
 	jclass clazz,
 	jobjectArray methodCallInfos
 ) {
-#if defined (DC__OS_Darwin)
+#ifdef BRIDJ_OBJC_SUPPORT
 	BEGIN_INFOS_LOOP(JavaToObjCCallInfo)
 	
 	GetField_javaSignature()        ;
@@ -932,7 +933,7 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_freeObjCMethodBindings(
 	jlong handle,
 	jint size
 ) {
-#if defined (DC__OS_Darwin)
+#ifdef BRIDJ_OBJC_SUPPORT
 	JavaToObjCCallInfo* infos = (JavaToObjCCallInfo*)JLONG_TO_PTR(handle);
 	jint i;
 	if (!infos)

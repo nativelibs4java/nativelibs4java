@@ -1,7 +1,7 @@
 Index: dyncall/configure
 ===================================================================
---- dyncall/configure	(révision 1122)
-+++ dyncall/configure	(copie de travail)
+--- dyncall/configure	(revision 1122)
++++ dyncall/configure	(working copy)
 @@ -84,6 +84,8 @@
    echo "                     with iPhone SDK version (2.0-4.0)"
    echo "  --with-macosxsdk=<version>"
@@ -72,8 +72,8 @@ Index: dyncall/configure
  
 Index: dyncall/dyncallback/GNUmakefile
 ===================================================================
---- dyncall/dyncallback/GNUmakefile	(révision 1122)
-+++ dyncall/dyncallback/GNUmakefile	(copie de travail)
+--- dyncall/dyncallback/GNUmakefile	(revision 1122)
++++ dyncall/dyncallback/GNUmakefile	(working copy)
 @@ -61,6 +61,10 @@
  UNITS += dyncall_callback_arch
  endif
@@ -87,8 +87,8 @@ Index: dyncall/dyncallback/GNUmakefile
  endif
 Index: dyncall/dynload/dynload_windows.c
 ===================================================================
---- dyncall/dynload/dynload_windows.c	(révision 1122)
-+++ dyncall/dynload/dynload_windows.c	(copie de travail)
+--- dyncall/dynload/dynload_windows.c	(revision 1122)
++++ dyncall/dynload/dynload_windows.c	(working copy)
 @@ -33,8 +33,7 @@
  DLLib* dlLoadLibrary(const char* libPath)
  {
@@ -101,8 +101,8 @@ Index: dyncall/dynload/dynload_windows.c
    }
 Index: dyncall/buildsys/gmake/os/android.gmake
 ===================================================================
---- dyncall/buildsys/gmake/os/android.gmake	(révision 0)
-+++ dyncall/buildsys/gmake/os/android.gmake	(révision 0)
+--- dyncall/buildsys/gmake/os/android.gmake	(revision 0)
++++ dyncall/buildsys/gmake/os/android.gmake	(revision 0)
 @@ -0,0 +1,29 @@
 +#//////////////////////////////////////////////////////////////////////////////
 +#
@@ -135,8 +135,8 @@ Index: dyncall/buildsys/gmake/os/android.gmake
 +
 Index: dyncall/buildsys/gmake/tool/androidndk.gmake
 ===================================================================
---- dyncall/buildsys/gmake/tool/androidndk.gmake	(révision 0)
-+++ dyncall/buildsys/gmake/tool/androidndk.gmake	(révision 0)
+--- dyncall/buildsys/gmake/tool/androidndk.gmake	(revision 0)
++++ dyncall/buildsys/gmake/tool/androidndk.gmake	(revision 0)
 @@ -0,0 +1,180 @@
 +#//////////////////////////////////////////////////////////////////////////////
 +#

@@ -17,14 +17,31 @@ vector<T> newVector(int n) {
 	return v;
 }
 template <typename T>
+void push_back(vector<T>& v, const T* value) {
+	v.push_back(*value);
+}
+template <typename T>
+void clear(vector<T>& v) {
+	v.clear();
+}
+template <typename T>
+void resize(vector<T>& v, int n) {
+	v.resize(n);
+}
+
+
+template <typename T>
 int sizeofVector() {
 	return sizeof(vector<T>);
 }
 
-template vector<int> TEST_API newVector<int>(int);
-template vector<long long> TEST_API newVector<long long>(int);
-template vector<double> TEST_API newVector<double>(int);
-template vector<float> TEST_API newVector<float>(int);
+#define VECTOR_OPS(t) \
+template vector<t> TEST_API newVector<t>(int);
+
+VECTOR_OPS(int);
+VECTOR_OPS(long long);
+VECTOR_OPS(double);
+VECTOR_OPS(float);
 
 template int TEST_API sizeofVector<int>();
 template int TEST_API sizeofVector<long long>();

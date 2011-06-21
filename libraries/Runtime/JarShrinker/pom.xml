@@ -6,7 +6,7 @@
   <artifactId>jarshrinker</artifactId>
   <name>JarShrinker</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
-  <version>0.5-SNAPSHOT</version>
+  <version>0.5</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -16,7 +16,7 @@
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nl4j-runtime-parent</artifactId>
-	  <version>0.5-SNAPSHOT</version>
+	  <version>0.5</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
 

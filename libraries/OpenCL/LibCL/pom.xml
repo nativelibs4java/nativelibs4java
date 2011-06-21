@@ -6,7 +6,7 @@
   <artifactId>libcl-bridj</artifactId>
   <name>LibCL</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0-RC1</version>
   <packaging>jar</packaging>
   
   <description>
@@ -16,7 +16,7 @@
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>opencl4java-parent-bridj</artifactId>
-	  <version>1.0-SNAPSHOT</version>
+	  <version>1.0.0-RC1</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
 

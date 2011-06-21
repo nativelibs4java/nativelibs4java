@@ -16,9 +16,11 @@ import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.*;
 
 import org.bridj.BridJRuntime.TypeInfo;
 import org.bridj.demangling.Demangler.Symbol;
+import org.bridj.demangling.Demangler.MemberRef;
 import org.bridj.ann.Library;
 import java.util.Stack;
 import java.io.PrintWriter;
@@ -403,7 +405,11 @@ public class BridJ {
             env = System.getProperty("java.library.path");
             if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
-                
+            
+            env = System.getProperty("gnu.classpath.boot.library.path");
+            if (env != null)
+                paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
+            
             File javaHome = new File(System.getProperty("java.home"));
             paths.add(new File(javaHome, "bin").toString());
             if (Platform.isMacOSX()) {
@@ -471,8 +477,13 @@ public class BridJ {
 				env = System.getProperty("bridj." + name + ".library");
 			if (env != null) {
 				File f = new File(env);
-				if (f.exists())
-					return f;
+				if (f.exists()) {
+					try {
+						return f.getCanonicalFile();
+					} catch (IOException ex) {
+						log(Level.SEVERE, null, ex);
+					}
+				}
 			}
 			for (String path : paths) {
 				File pathFile = path == null ? null : new File(path);
@@ -527,10 +538,16 @@ public class BridJ {
 			}
 			}
 			try {
-				File f = Platform.extractEmbeddedLibraryResource(name);
+				File f;
+				if (Platform.isAndroid())
+					f = new File("lib" + name + ".so");
+				else
+					f = Platform.extractEmbeddedLibraryResource(name);
+				
 				if (f != null && f.exists())
 					return f;
 			} catch (IOException ex) {
+				throw new RuntimeException(ex);
 			}
 		}
 		return null;
@@ -587,9 +604,13 @@ public class BridJ {
 	 */
     public static NativeLibrary getNativeLibrary(String name, File f) throws FileNotFoundException {
 		NativeLibrary ll = NativeLibrary.load(f == null ? name : f.toString());;
-		if (ll == null && "c".equals(name)) {// && !Platform.isSolaris())
-			ll = new NativeLibrary(null, 0, 0);
-			f = null;
+		if (ll == null) {
+            ll = PlatformSupport.getInstance().loadNativeLibrary(name);
+            if (ll == null) {
+                if ("c".equals(name)) {
+                    ll = new NativeLibrary(null, 0, 0);
+                }
+            }
 		}
 
 		//if (ll == null && f != null)
@@ -727,12 +748,35 @@ public class BridJ {
 	public static void main(String[] args) {
 		List<NativeLibrary> libraries = new ArrayList<NativeLibrary>();
 		try {
-			for (String arg : args) {
-				NativeLibrary lib = getNativeLibrary(arg);
-				libraries.add(lib);
+			File outputDir = new File(".");
+			for (int iArg = 0, nArgs = args.length; iArg < nArgs; iArg++) {
+				String arg = args[iArg];
+				if (arg.equals("-d")) {
+					outputDir = new File(args[++iArg]);
+					continue;
+				}
+				try {
+					NativeLibrary lib = getNativeLibrary(arg);
+					libraries.add(lib);
+					
+					PrintWriter sout = new PrintWriter(new File(outputDir, new File(arg).getName() + ".symbols.txt"));
+					for (Symbol sym : lib.getSymbols()) {
+						sout.print(sym.getSymbol());
+						sout.print(" // ");
+						try {
+							MemberRef mr = sym.getParsedRef();
+							sout.print(" // " + mr);
+						} catch (Throwable th) {
+							sout.print("?");
+						}
+						sout.println();
+					}
+					sout.close();
+				} catch (Throwable th) {
+					th.printStackTrace();	
+				}
 			}
-			String file = "out.h";
-			PrintWriter out = new PrintWriter(new File(file));
+			PrintWriter out = new PrintWriter(new File(outputDir, "out.h"));
 			HeadersReconstructor.reconstructHeaders(libraries, out);
 			out.close();
 		} catch (Exception ex) {

@@ -3,7 +3,9 @@ import org.bridj.util.*;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.nio.*;
+import java.lang.annotation.Annotation;
 import java.util.*;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
@@ -54,6 +56,9 @@ import java.util.logging.Level;
  * <ul>
  *	<li>Getting the pointer to a struct / a C++ class / a COM object :
  *		{@link Pointer#pointerTo(NativeObject)}
+ *  </li>
+ *  <li>Allocating a dynamic callback (without a static {@link Callback} definition, which would be the preferred way) :<br>
+ *      {@link Pointer#allocateDynamicCallback(DynamicCallback, org.bridj.ann.Convention.Style, Type, Type[])}
  *  </li>
  *	<li>Allocating a primitive with / without an initial value (zero-initialized) :<br>
 #foreach ($prim in $primitives)
@@ -454,6 +459,62 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 		return peer;
 	}
     
+	/**
+	 * Create a native callback which signature corresponds to the provided calling convention, return type and parameter types, and which redirects calls to the provided Java {@link org.bridj.DynamicCallback} handler.<br/>
+	 * For instance, a callback of C signature <code>double (*)(float, int)</code> that adds its two arguments can be created with :<br>
+     * <code>{@code 
+     * Pointer callback = Pointer.allocateDynamicCallback(
+	 *	  new DynamicCallback<Integer>() {
+	 *	      public Double apply(Object... args) {
+	 *	          float a = (Float)args[0];
+	 *	          int b = (Integer)args[1];
+	 *	          return (double)(a + b);
+	 *	      }
+	 *	  }, 
+	 *    null, // Use the platform's default calling convention
+	 *    int.class, // return type
+	 *    float.class, double.class // parameter types
+	 * );
+     * }</code><br>
+     * For the <code>void</code> return type, you can use {@link java.lang.Void} :<br>
+     * <code>{@code 
+     * Pointer callback = Pointer.allocateDynamicCallback(
+	 *	  new DynamicCallback<Void>() {
+	 *	      public Void apply(Object... args) {
+	 *	          ...
+	 *	          return null; // Void cannot be instantiated anyway ;-)
+	 *	      }
+	 *	  }, 
+	 *    null, // Use the platform's default calling convention
+	 *    int.class, // return type
+	 *    float.class, double.class // parameter types
+	 * );
+     * }</code><br>
+	 * @return Pointer to a native callback that redirects calls to the provided Java callback instance, and that will be destroyed whenever the pointer is released (make sure you keep a reference to it !)
+	 */
+	public static <R> Pointer<DynamicFunction<R>> allocateDynamicCallback(DynamicCallback<R> callback, org.bridj.ann.Convention.Style callingConvention, Type returnType, Type... parameterTypes) {
+		if (callback == null)
+			throw new IllegalArgumentException("Java callback handler cannot be null !");
+		if (returnType == null)
+			throw new IllegalArgumentException("Callback return type cannot be null !");
+		if (parameterTypes == null)
+			throw new IllegalArgumentException("Invalid (null) list of parameter types !");
+		try {
+			MethodCallInfo mci = new MethodCallInfo(returnType, parameterTypes, false);
+			Method method = DynamicCallback.class.getMethod("apply", Object[].class);
+			mci.setMethod(method);
+			mci.setJavaSignature("([Ljava/lang/Object;)Ljava/lang/Object;");
+			mci.setCallingConvention(callingConvention);
+			mci.setGenericCallback(true);
+			mci.setJavaCallback(callback);
+			
+			//System.out.println("Java sig
+			
+			return CRuntime.createCToJavaCallback(mci, DynamicCallback.class);
+		} catch (Exception ex) {
+			throw new RuntimeException("Failed to allocate dynamic callback for convention " + callingConvention + ", return type " + Utils.toString(returnType) + " and parameter types " + Arrays.asList(parameterTypes) + " : " + ex, ex);
+		}
+	}
     
     /**
      * Cast this pointer to another pointer type
@@ -579,7 +640,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * @param returnType return type of the function
      * @param parameterTypes parameter types of the function
      */
-    public DynamicFunction asDynamicFunction(org.bridj.ann.Convention.Style callingConvention, Type returnType, Type... parameterTypes) {
+    public <R> DynamicFunction<R> asDynamicFunction(org.bridj.ann.Convention.Style callingConvention, Type returnType, Type... parameterTypes) {
     		return CRuntime.getInstance().getDynamicFunctionFactory(null, callingConvention, returnType, parameterTypes).newInstance(this);
     }
     

@@ -10,6 +10,10 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.Method;
 import java.io.*;
+import java.lang.reflect.Array;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.nio.*;
 
 /**
@@ -61,11 +65,21 @@ public class Utils {
         return !(a != null && !a.equals(b));
     }
     public static <T> Class<T> getClass(Type type) {
+        if (type == null)
+            return null;
 		if (type instanceof Class<?>)
 			return (Class<T>)type;
 		if (type instanceof ParameterizedType)
 			return getClass(((ParameterizedType)type).getRawType());
-		return null;
+        if (type instanceof GenericArrayType)
+            return (Class)Array.newInstance(getClass(((GenericArrayType)type).getGenericComponentType()), 0).getClass();
+        if (type instanceof WildcardType)
+            return null;
+        if (type instanceof TypeVariable) {
+            Type[] bounds = ((TypeVariable)type).getBounds();
+            return getClass(bounds[0]);
+        }
+		throw new UnsupportedOperationException("Cannot infer class from type " + type);
 	}
 
     public static Type getParent(Type type) {
@@ -74,6 +88,14 @@ public class Utils {
         else
             // TODO handle templates !!!
             return getParent(getClass(type));
+    }
+
+    public static Class[] getClasses(Type[] types) {
+        int n = types.length;
+        Class[] ret = new Class[n];
+        for (int i = 0; i < n; i++)
+            ret[i] = getClass(types[i]);
+        return ret;
     }
 	
 }

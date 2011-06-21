@@ -25,17 +25,27 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.signature.SignatureWriter;
 
 //import org.objectweb.asm.attrs.*;
-class CallbackNativeImplementer extends ClassLoader {
+class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
 
 	Map<Class<? extends Callback>, Class<?>> implClasses = new HashMap<Class<? extends Callback>, Class<?>>();
 	String implNameSuffix = "_NativeImpl";
 	final NativeEntities nativeEntities;
     final CRuntime runtime;
+    volatile ClassDefiner classDefiner;
 	public CallbackNativeImplementer(NativeEntities nativeEntities, CRuntime runtime) {
 		super(Platform.getClassLoader());
 		this.nativeEntities = nativeEntities;
         this.runtime = runtime;
 	}
+
+    public synchronized ClassDefiner getClassDefiner() {
+        if (classDefiner == null) {
+            classDefiner = PlatformSupport.getInstance().getClassDefiner(this, this);
+        }
+        return classDefiner;
+    }
+    
+    
 	/**
 	 * The class created here is to be used to cast a pointer to a callback
 	 * @param callbackType
@@ -56,7 +66,7 @@ class CallbackNativeImplementer extends ClassLoader {
 				String methodSignature = mci.getJavaSignature();//mci.getASMSignature();
 				
 				byte[] byteArray = emitBytes(sourceFile, callbackTypeName, callbackTypeImplName, methodName, methodSignature);
-				callbackImplType = defineClass(callbackTypeImplName.replace('/', '.'), byteArray, 0, byteArray.length);
+				callbackImplType = getClassDefiner().defineClass(callbackTypeImplName.replace('/', '.'), byteArray);
                 //Method[] methods = callbackImplType.getDeclaredMethods();
 				//Method callbackMethodImpl = callbackImplType.getDeclaredMethod(methodName, parameterTypes);
 				//mci.setMethod(callbackMethodImpl);
@@ -99,7 +109,7 @@ class CallbackNativeImplementer extends ClassLoader {
                 String methodName = "apply";
 
                 byte[] byteArray = emitBytes("<anonymous>", DynamicFunction.class.getName().replace(".", "/"), callbackTypeImplName, methodName, javaSig.toString());
-                Class<? extends DynamicFunction> callbackImplType = (Class)defineClass(callbackTypeImplName.replace('/', '.'), byteArray, 0, byteArray.length);
+                Class<? extends DynamicFunction> callbackImplType = (Class)getClassDefiner().defineClass(callbackTypeImplName.replace('/', '.'), byteArray);
                 
                 Class<?>[] paramClasses = new Class[paramTypes.length];
                 for (int i = 0, n = paramTypes.length; i < n; i++)
@@ -208,4 +218,8 @@ class CallbackNativeImplementer extends ClassLoader {
 		
 		return cw.toByteArray();
 	}
+
+    public Class<?> defineClass(String className, byte[] data) throws ClassFormatError {
+        return defineClass(className, data, 0, data.length);
+    }
 }

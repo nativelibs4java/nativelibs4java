@@ -34,16 +34,37 @@ public class JNI {
             return;
 		
         try {
-        		String forceLibFile = System.getenv("FORCE_BRIDJ_LIBRARY");
-	        File libFile = forceLibFile == null ? 
-				extractEmbeddedLibraryResource(BridJLibraryName) :
-				new File(forceLibFile);
-	        //File libFile = new File("C:\\Users\\Olivier\\Prog\\nativelibs4java\\Runtime\\BridJ\\src\\main\\cpp\\buildsys\\vs2008\\x64\\Debug\\bridj.dll");
-	        //File libFile = BridJ.getNativeLibraryFile(BridJLibraryName);
-	        BridJ.log(Level.INFO, "Loading library " + libFile);
-	        System.load(libFile.toString());
-	        //System.load("/Users/ochafik/nativelibs4java/Runtime/BridJ/src/main/cpp/bridj/build_out/darwin_universal_gcc_debug/libbridj.dylib");
-	        
+        		boolean loaded = false;
+	        		
+        		String forceLibFile = System.getenv("BRIDJ_LIBRARY");
+        		if (forceLibFile == null)
+        			forceLibFile = System.getProperty("bridj.library");
+        		
+        		String lib = null;
+        		
+        		if (forceLibFile != null) {
+        			try {
+        				System.load(lib = forceLibFile);
+        				loaded = true;
+        			} catch (Throwable ex) {
+        				BridJ.log(Level.SEVERE, "Failed to load forced library " + forceLibFile, ex);
+        			}
+        		}
+        			
+        		if (!loaded) {
+				if (!loaded) {
+					if (!Platform.isAndroid())
+						try {
+							File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
+							BridJ.log(Level.INFO, "Loading library " + libFile);
+							System.load(lib = libFile.toString());
+								loaded = true;
+						} catch (IOException ex) {}
+					if (!loaded)
+						System.loadLibrary("bridj");
+	        		}
+	        }
+	        BridJ.log(Level.INFO, "Loaded library " + lib);
 	        
 	        init();
 	        inited = true;

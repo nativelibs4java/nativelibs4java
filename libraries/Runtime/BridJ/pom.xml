@@ -6,7 +6,7 @@
   <artifactId>bridj</artifactId>
   <name>BridJ (NativeLibs4Java C/C++ Interop Layer)</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/Runtime</url>
-  <version>0.5-SNAPSHOT</version>
+  <version>0.5</version>
   <packaging>jar</packaging>
 
   <!--
@@ -21,7 +21,7 @@
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nl4j-runtime-parent</artifactId>
-	  <version>0.5-SNAPSHOT</version>
+	  <version>0.5</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
 
@@ -46,7 +46,69 @@
           <version>5.5.1</version>
           <scope>test</scope>
 	</dependency>  
-      
+	
+	<dependency>
+		<groupId>com.google.android</groupId>
+		<artifactId>android</artifactId>
+		<version>2.2.1</version>
+		<scope>provided</scope>
+	</dependency>
+	
+	<dependency>
+		<!--
+		First, download and install the Android SDK, and install the "Android SDK Platform-tools" from the Android SDK GUI :
+		
+			http://developer.android.com/sdk/index.html
+		
+		Then define some variables :
+		
+			export ANDROID_SDK_HOME=~/bin/android-sdk-mac_x86
+			export ANDROID_SDK_VERSION=11
+			export ANDROID_DEX_JAR=$ANDROID_SDK_HOME/platform-tools/lib/dx.jar
+			
+		Write some pom stub :
+		
+			echo "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">
+					 <modelVersion>4.0.0</modelVersion>
+					  <groupId>com.nativelibs4java.thirdparty.com.google.android</groupId>
+					  <artifactId>dx</artifactId>
+					  <name>Android SDK's dx Tool</name>
+					  <url>http://developer.android.com/guide/developing/tools/index.html</url>
+					  <version>$ANDROID_SDK_VERSION</version>
+					  <packaging>jar</packaging>
+					  <description>
+					  dx is an Android SDK platform tool that transforms Java bytecode (and JARs) into Dalvik VM 'DEX' code.
+					  </description> 
+
+					<licenses>
+					  <license>
+						<name>Apache 2</name>
+						<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+						<distribution>repo</distribution>
+						<comments>A business-friendly OSS license</comments>
+					  </license>
+					</licenses>
+				</project>
+			" > android-sdk-dx.pom
+			
+		And finally type this to deploy to the NativeLibs4Java repository :
+		
+			mvn deploy:deploy-file -DpomFile=android-sdk-dx.pom -Dfile=$ANDROID_DEX_JAR -DrepositoryId=nativelibs4java-repo -Durl=sftp://frs.sourceforge.net:/home/groups/n/na/nativelibs4java/htdocs/maven
+			
+		Or type this to install dx in the local Maven repository :
+		
+			mvn install:install-file -DpomFile=android-sdk-dx.pom -Dfile=$ANDROID_DEX_JAR 
+			
+		-->
+		<groupId>com.nativelibs4java.thirdparty.com.google.android</groupId>
+		<artifactId>dx</artifactId>
+		<version>11</version>
+		<scope>compile</scope>
+		<!--
+		<scope>provided</scope>
+		-->
+	</dependency>
+	
   </dependencies>
 
   <build>
@@ -64,6 +126,20 @@
 			</executions>
 		</plugin>
 		
+		<plugin> 
+		  	<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-jar-plugin</artifactId> 
+			<executions> 
+				<execution>
+					<id>test-jar</id> 
+					<phase>package</phase> 
+					<goals> 
+						<goal>test-jar</goal> 
+					</goals> 
+				</execution>
+			</executions> 
+		</plugin> 
+		
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-shade-plugin</artifactId>
@@ -79,6 +155,11 @@
 				<configuration>
 					<shadedArtifactAttached>true</shadedArtifactAttached>
 					<shadedClassifierName>c-only</shadedClassifierName>
+					<artifactSet>
+						<excludes>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+						</excludes>
+					</artifactSet>
 					<filters>
 					  	<filter>
 							<artifact>com.nativelibs4java:bridj</artifact>
@@ -86,7 +167,8 @@
 								<exclude>org/bridj/cpp/**</exclude>
 								<exclude>org/bridj/objc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
-								<exclude>android_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
+								<exclude>lib/armeabi/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -102,6 +184,11 @@
 				<configuration>
 					<shadedArtifactAttached>true</shadedArtifactAttached>
 					<shadedClassifierName>macosx-only</shadedClassifierName>
+					<artifactSet>
+						<excludes>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+						</excludes>
+					</artifactSet>
 					<filters>
 					  	<filter>
 							<artifact>com.nativelibs4java:bridj</artifact>
@@ -109,15 +196,74 @@
 								<exclude>org/bridj/cpp/com/**</exclude>
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
-								<exclude>linux_*/**</exclude>
-								<exclude>android_*/**</exclude>
-								<exclude>sunos_*/**</exclude>
-								<exclude>win*/**</exclude>
+								<exclude>org/bridj/lib/linux_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
+								<exclude>lib/armeabi/**</exclude>
+								<exclude>org/bridj/lib/sunos_*/**</exclude>
+								<exclude>org/bridj/lib/win*/**</exclude>
+								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
 				</configuration>
 			  </execution>
+			  <execution>
+			  	<id>ios-package</id>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+				<configuration>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<shadedClassifierName>ios-only</shadedClassifierName>
+					<artifactSet>
+						<excludes>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+						</excludes>
+					</artifactSet>
+					<filters>
+					  	<filter>
+							<artifact>com.nativelibs4java:bridj</artifact>
+							<excludes>
+								<exclude>org/bridj/cpp/com/**</exclude>
+								<exclude>org/bridj/cpp/mfc/**</exclude>
+								<exclude>org/bridj/cs/**</exclude>
+								<exclude>org/bridj/lib/linux_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
+								<exclude>lib/armeabi/**</exclude>
+								<exclude>org/bridj/lib/sunos_*/**</exclude>
+								<exclude>org/bridj/lib/win*/**</exclude>
+								<exclude>org/bridj/lib/darwin_universal/**</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
+			  </execution>
+			  <!--execution>
+			  	<id>stripped-package</id>
+				<phase>package</phase>
+				<goals>
+				  <goal>shade</goal>
+				</goals>
+				<configuration>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<shadedClassifierName>without-binaries</shadedClassifierName>
+					<artifactSet>
+						<excludes>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+						</excludes>
+					</artifactSet>
+					<filters>
+					  	<filter>
+							<artifact>com.nativelibs4java:bridj</artifact>
+							<excludes>
+								<exclude>org/bridj/lib/**</exclude>
+								<exclude>lib/**</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
+			  </execution-->
 			  
 			  <execution>
 			  	<id>win-package</id>
@@ -128,15 +274,22 @@
 				<configuration>
 					<shadedArtifactAttached>true</shadedArtifactAttached>
 					<shadedClassifierName>windows-only</shadedClassifierName>
+					<artifactSet>
+						<excludes>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+						</excludes>
+					</artifactSet>
 					<filters>
 					  	<filter>
 							<artifact>com.nativelibs4java:bridj</artifact>
 							<excludes>
 								<exclude>org/bridj/objc/**</exclude>
-								<exclude>linux_*/**</exclude>
-								<exclude>android_*/**</exclude>
-								<exclude>sunos_*/**</exclude>
-								<exclude>darwin_*/**</exclude>
+								<exclude>org/bridj/lib/linux_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
+								<exclude>lib/armeabi/**</exclude>
+								<exclude>org/bridj/lib/sunos_*/**</exclude>
+								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+								<exclude>org/bridj/lib/darwin_*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -152,6 +305,11 @@
 				<configuration>
 					<shadedArtifactAttached>true</shadedArtifactAttached>
 					<shadedClassifierName>unix-only</shadedClassifierName>
+					<artifactSet>
+						<excludes>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+						</excludes>
+					</artifactSet>
 					<filters>
 					  	<filter>
 							<artifact>com.nativelibs4java:bridj</artifact>
@@ -159,8 +317,8 @@
 								<exclude>org/bridj/cpp/com/**</exclude>
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
-								<exclude>win*/**</exclude>
-								<exclude>android_*/**</exclude>
+								<exclude>org/bridj/objc/**</exclude>
+								<exclude>org/bridj/lib/win*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -176,6 +334,11 @@
 				<configuration>
 					<shadedArtifactAttached>true</shadedArtifactAttached>
 					<shadedClassifierName>linux-only</shadedClassifierName>
+					<artifactSet>
+						<excludes>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+						</excludes>
+					</artifactSet>
 					<filters>
 					  	<filter>
 							<artifact>com.nativelibs4java:bridj</artifact>
@@ -184,10 +347,12 @@
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/objc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
-								<exclude>win*/**</exclude>
-								<exclude>sunos_*/**</exclude>
-								<exclude>darwin_*/**</exclude>
-								<exclude>android_*/**</exclude>
+								<exclude>org/bridj/lib/win*/**</exclude>
+								<exclude>org/bridj/lib/sunos_*/**</exclude>
+								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+								<exclude>org/bridj/lib/darwin_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
+								<exclude>lib/armeabi/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -210,10 +375,11 @@
 								<exclude>org/bridj/cpp/com/**</exclude>
 								<exclude>org/bridj/cpp/mfc/**</exclude>
 								<exclude>org/bridj/cs/**</exclude>
-								<exclude>linux_*/**</exclude>
-								<exclude>sunos_*/**</exclude>
-								<exclude>darwin_*/**</exclude>
-								<exclude>win*/**</exclude>
+								<exclude>org/bridj/lib/linux_*/**</exclude>
+								<exclude>org/bridj/lib/sunos_*/**</exclude>
+								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
+								<exclude>org/bridj/lib/darwin_*/**</exclude>
+								<exclude>org/bridj/lib/win*/**</exclude>
 							</excludes>
 						</filter>
 					</filters>
@@ -228,11 +394,17 @@
 				</goals>
 				<configuration>
 					<shadedArtifactAttached>false</shadedArtifactAttached>
+					<artifactSet>
+						<excludes>
+						  <exclude>com.nativelibs4java.thirdparty.com.google.android:dx</exclude>
+						</excludes>
+					</artifactSet>
 					<filters>
 					  	<filter>
 							<artifact>com.nativelibs4java:bridj</artifact>
 							<excludes>
-								<exclude>android_*/**</exclude>
+								<exclude>org/bridj/lib/android_*/**</exclude>
+								<exclude>lib/armeabi/**</exclude>
 							</excludes>
 						</filter>
 					</filters>

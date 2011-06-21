@@ -172,6 +172,29 @@ public class GCC4Demangler extends Demangler {
 			}
 			return null; // can be a type info, a virtual table or strange things like that
 		}
+		/*
+			Reverse engineering of C++ operators :
+			delete[] = __ZdaPv
+			delete  = __ZdlPv
+			new[] = __Znam
+			new = __Znwm
+		*/
+		if (consumeCharsIf('d', 'l', 'P', 'v')) {
+			mr.setMemberName(SpecialName.Delete);
+			return mr;
+		}
+		if (consumeCharsIf('d', 'a', 'P', 'v')) {
+			mr.setMemberName(SpecialName.DeleteArray);
+			return mr;
+		}
+		if (consumeCharsIf('n', 'w', 'm')) {
+			mr.setMemberName(SpecialName.New);
+			return mr;
+		}
+		if (consumeCharsIf('n', 'a', 'm')) {
+			mr.setMemberName(SpecialName.NewArray);
+			return mr;
+		}
 		
 		List<Ident> ns = new ArrayList<Ident>();
 		if (consumeCharIf('N')) {

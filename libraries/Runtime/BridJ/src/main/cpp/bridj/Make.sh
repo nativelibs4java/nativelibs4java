@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SRC_HOME=${SRC_HOME:-~/src}
+BIN_HOME=${BIN_HOME:-~/bin}
+
 #BUILD_CONFIG=debug sh MakeAll.sh clean 
 export MAKE_CMD=make
 if [[ "`which gmake`" != "" ]] ; then
@@ -8,7 +11,7 @@ fi
 
 
 if [[ "$DYNCALL_HOME" == "" ]] ; then
-	export DYNCALL_HOME=~/src/dyncall/dyncall ;
+	export DYNCALL_HOME=$SRC_HOME/dyncall/dyncall ;
 fi
 
 if [[ "$DEBUG" == "1" ]] ; then
@@ -27,28 +30,42 @@ BUILD_DIR=
 
 #echo $DYNCALL_HOME/dyncall/$BUILD_DIR
 
-#svn diff ~/src/dyncall/dyncall > dyncall.diff
-svn diff ~/src/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" > dyncall.diff
-#svn diff ~/src/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" | sed -E 's/^(---|\+\+\+)(.*)\(([^)]+)\)/\1\2/' > dyncall.diff
+#svn diff $SRC_HOME/dyncall/dyncall > dyncall.diff
+svn diff $SRC_HOME/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" > dyncall.diff
+#svn diff $SRC_HOME/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" | sed -E 's/^(---|\+\+\+)(.*)\(([^)]+)\)/\1\2/' > dyncall.diff
 
 echo "# Making dyncall"
-cd "$DYNCALL_HOME"
+cd "$DYNCALL_HOME" || ( echo "Please set DYNCALL_HOME" && exit 1 )
 
 TARGET=${TARGET:-default}
-ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-~/bin/android-ndk-r5b}
+ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-$BIN_HOME/android-ndk-r5c}
 case $TARGET in
 	android)
 		NEEDS_TEST=0
 		SHAREDLIB_SUFFIX=so
-		sh ./configure --with-androidndk=/Users/ochafik/bin/android-ndk-r5b/toolchains/arm-linux-androideabi-4.4.3/prebuilt/darwin-x86/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=/Users/ochafik/bin/android-ndk-r5b/platforms/android-9/arch-arm
+		
+		ANDROID_PREBUILT_DIR=$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.4.3/prebuilt
+		
+		sh ./configure --with-androidndk=$ANDROID_PREBUILT_DIR/`ls $ANDROID_PREBUILT_DIR | grep -`/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=$ANDROID_NDK_HOME/platforms/android-9/arch-arm
 		;;
 	android-emulator)
 		NEEDS_TEST=0
 		sh ./configure --tool-androidndk --target-x86
 		;;
+	ios)
+		#export PATH=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin:$PATH
+		#export C_INCLUDE_PATH=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/usr/include
+		#export LIBRARY_PATH=/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS4.3.sdk/usr/lib
+		#export CC="gcc -arch arm"
+		#export CPPFLAGS
+		NEEDS_TEST=1
+		export PATH=/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin:$PATH
+		sh ./configure --target-iphoneos --with-iphonesdk=4.3
+		;;
 	default)
 		NEEDS_TEST=1
-		if [[ -d /System/Library/Frameworks/ ]] ; then sh ./configure --target-universal ; 
+		export PATH=/Developer-old/usr/bin:$PATH
+		if [[ -d /System/Library/Frameworks/ && ! -d /Applications/MobilePhone.app ]] ; then sh ./configure --target-universal ; 
 		else sh ./configure ; fi
 		;;
 	*)
@@ -84,19 +101,28 @@ if [[ -d build_out ]] ; then
 
 	for D in `ls . | grep _$OUT_PATTERN` ; do
 		ARCH_NAME="`echo $D| sed "s/_gcc_$OUT_PATTERN//"| sed "s/_androidndk_$OUT_PATTERN//"`"
-		MAIN_OUT="../../../resources/$ARCH_NAME"
+		if [[ "$ARCH_NAME" == "android_arm32_arm" ]] ; then
+			RES_SUB="lib/armeabi" ;
+		else
+			RES_SUB="org/bridj/lib/$ARCH_NAME" ;
+		fi
+		MAIN_OUT="../../../resources/$RES_SUB"
 	
-		echo ARCH_NAME: $ARCH_NAME ;
-		TEST_OUT="../../../../test/resources/$ARCH_NAME"
+		echo ARCH_NAME: $ARCH_NAME
+		echo RES_SUB: $RES_SUB
+		TEST_OUT="../../../../test/resources/$RES_SUB"
 	
 		mkdir -p $MAIN_OUT
-		mkdir -p $TEST_OUT
-		
 		cp $D/*.$SHAREDLIB_SUFFIX $MAIN_OUT
-		cp ../../../../test/cpp/test/build_out/$D/*.$SHAREDLIB_SUFFIX $TEST_OUT ;
 		
-		nm $TEST_OUT/*.so > $TEST_OUT/test.so.nm
-		nm $TEST_OUT/*.dylib > $TEST_OUT/test.dylib.nm
+		if [[ "$NEEDS_TEST" == "1" ]] ; then
+			mkdir -p $TEST_OUT 
+			cp ../../../../test/cpp/test/build_out/$D/*.$SHAREDLIB_SUFFIX $TEST_OUT
+		
+			nm $TEST_OUT/*.so > $TEST_OUT/test.so.nm
+			nm $TEST_OUT/*.dylib > $TEST_OUT/test.dylib.nm ;
+		fi
+		
 		echo "Done for $D" ;
 	#	svn add $MAIN_OUT
 	#	svn add $TEST_OUT ;

@@ -25,15 +25,24 @@ import org.bridj.ann.Optional;
 public class CRuntime extends AbstractBridJRuntime {
 
 	final static Set<Type> registeredTypes = new HashSet<Type>();
-	final CallbackNativeImplementer callbackNativeImplementer;
+	volatile CallbackNativeImplementer _callbackNativeImplementer;
 
     /**
      * @deprecated use {@link CRuntime#getInstance() } instead
      */
     @Deprecated
     public CRuntime() {
-        callbackNativeImplementer = new CallbackNativeImplementer(BridJ.getOrphanEntities(), this);
+        
     }
+
+    public synchronized CallbackNativeImplementer getCallbackNativeImplementer() {
+        if (_callbackNativeImplementer == null)
+            _callbackNativeImplementer = new CallbackNativeImplementer(BridJ.getOrphanEntities(), this);
+        
+        return _callbackNativeImplementer;
+    }
+    
+    
     public boolean isAvailable() {
         return true;
     }
@@ -281,7 +290,7 @@ public class CRuntime extends AbstractBridJRuntime {
 					return;
 				
 				if (Modifier.isAbstract(typeModifiers))
-	                callbackNativeImplementer.getCallbackImplType((Class) type, forcedLibrary);
+	                getCallbackNativeImplementer().getCallbackImplType((Class) type, forcedLibrary);
 			}
 		
 		
@@ -434,7 +443,7 @@ public class CRuntime extends AbstractBridJRuntime {
     public <T extends NativeObject> Class<? extends T> getTypeForCast(Type type) {
         Class<?> typeClass = Utils.getClass(type);
         if (Callback.class.isAssignableFrom(typeClass))
-            return callbackNativeImplementer.getCallbackImplType((Class) typeClass, null);
+            return getCallbackNativeImplementer().getCallbackImplType((Class) typeClass, null);
         else
             return (Class<? extends T>)typeClass;
     }
@@ -448,10 +457,10 @@ public class CRuntime extends AbstractBridJRuntime {
      * Also see {@link DynamicFunction} and {@link Pointer#asDynamicFunction(org.bridj.ann.Convention.Style, java.lang.reflect.Type, java.lang.reflect.Type[]) }.
      */
     public DynamicFunctionFactory getDynamicFunctionFactory(NativeLibrary library, Convention.Style callingConvention, Type returnType, Type... parameterTypes) {
-        return callbackNativeImplementer.getDynamicCallback(library, callingConvention, returnType, parameterTypes);
+        return getCallbackNativeImplementer().getDynamicCallback(library, callingConvention, returnType, parameterTypes);
     }
 
-    protected static <T> Pointer<T> createCToJavaCallback(MethodCallInfo mci, Type t) {
+    public static <T> Pointer<T> createCToJavaCallback(MethodCallInfo mci, Type t) {
     	mci.prependCallbackCC();
     	final long handle = JNI.createCToJavaCallback(mci);
 		long peer = JNI.getActualCToJavaCallback(handle);
@@ -473,7 +482,7 @@ public class CRuntime extends AbstractBridJRuntime {
             mci.setDeclaringClass(c);
             mci.setJavaCallback(instance);
             return createCToJavaCallback(mci, c);
-		} catch (FileNotFoundException e) {
+		} catch (Exception e) {
 			throw new RuntimeException("Failed to register callback instance of type " + instance.getClass().getName(), e);
 		}
 	}

@@ -269,7 +269,6 @@ public class CLBuffer<T> extends CLMem {
         ));
         return CLEvent.createEventFromPointer(queue, eventOut);
     }
-
     
 	/**
      * @deprecated use {@link CLBuffer#write(CLQueue, Pointer, boolean, CLEvent[])} instead

@@ -148,42 +148,59 @@ public class Platform {
 	public static boolean isAndroid() {
 		return "dalvik".equalsIgnoreCase(System.getProperty("java.vm.name")) && isLinux();
 	}
+	public static boolean isArm() {
+    		String arch = getArch();
+		return "arm".equals(arch);	
+	}
 	public static boolean isSparc() {
-    	String arch = getArch();
+    		String arch = getArch();
 		return 
 			"sparc".equals(arch) ||
 			"sparcv9".equals(arch);
 	}
     public static boolean is64Bits() {
-    	String arch = getArch();
+    		String arch = getArch();
         return
-    		arch.contains("64") ||
-    		arch.equalsIgnoreCase("sparcv9");
+			arch.contains("64") ||
+			arch.equalsIgnoreCase("sparcv9");
     }
     public static boolean isAmd64Arch() {
     		String arch = getArch();
         return arch.equals("x86_64");
     }
 
+    static final String embeddedLibraryResourceRoot = "org/bridj/lib/";
     static Collection<String> getEmbeddedLibraryResource(String name) {
+    	String root = embeddedLibraryResourceRoot;
     	if (isWindows())
-    		return Collections.singletonList((is64Bits() ? "win64/" : "win32/") + name + ".dll");
+    		return Collections.singletonList(root + (is64Bits() ? "win64/" : "win32/") + name + ".dll");
     	if (isMacOSX()) {
-    		String generic = "darwin_universal/lib" + name + ".dylib";
-    		if (isAmd64Arch())
-    			return Arrays.asList(generic, "darwin_x64/lib" + name + ".dylib");
-    		else
-    			return Collections.singletonList(generic);
+    		String suff = "/lib" + name + ".dylib";
+    		if (isArm()) {
+    			return Collections.singletonList(root + "iphoneos_arm32_arm" + suff);
+    		} else {
+    			String pref = root + "darwin_";
+			String univ = pref + "universal" + suff;
+			if (isAmd64Arch())
+				return Arrays.asList(univ, pref + "x64" + suff);
+			else
+				return Collections.singletonList(univ);
+		}
     }
-    	if (isAndroid())
-    		return Collections.singletonList("android_arm32_arm/" + name + ".so");
+    if (isAndroid()) {
+    		String fileName = "lib" + name + ".so";
+    		return Arrays.asList(
+    			root + "android_arm32_arm/" + fileName, // BridJ-style .so embedding
+    			"lib/armeabi/" + fileName // Android SDK + NDK-style .so embedding
+		);
+    }
     	if (isLinux())
-    		return Collections.singletonList((is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so");
+    		return Collections.singletonList(root + (is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so");
     	if (isSolaris()) {
     		if (isSparc()) {	
-    			return Collections.singletonList((is64Bits() ? "sunos_sparc64/" : "sunos_sparc/") + name + ".so");
+    			return Collections.singletonList(root + (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/") + name + ".so");
     		} else {
-    			return Collections.singletonList((is64Bits() ? "sunos_x64/" : "sunos_x86/") + name + ".so");
+    			return Collections.singletonList(root + (is64Bits() ? "sunos_x64/" : "sunos_x86/") + name + ".so");
     		}	
 		}
     	throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");

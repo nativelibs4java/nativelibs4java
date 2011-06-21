@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.nativelibs4java</groupId>
 	<artifactId>nativelibs4java-parent</artifactId>
-	<version>1.5-SNAPSHOT</version>
+	<version>1.5</version>
 	<packaging>pom</packaging>
 	<inceptionYear>2009</inceptionYear>
 	<name>NativeLibs4Java Common Configuration</name>
@@ -11,12 +11,11 @@
 	<properties>
 		<scala.version>2.8.0</scala.version>
 		<rococoa.version>0.5.1-NL4J</rococoa.version>
-		<jnaerator.version>0.9.8-SNAPSHOT</jnaerator.version>
-		<nativelibs4java.version>1.3-SNAPSHOT</nativelibs4java.version>
-		<opencl4java.version>1.0-SNAPSHOT</opencl4java.version>
-		<bridj.version>0.5-SNAPSHOT</bridj.version>
+		<jnaerator.version>0.9.8</jnaerator.version>
+		<opencl4java.version>1.0.0-RC1</opencl4java.version>
+		<bridj.version>0.5</bridj.version>
 		<jarsigner.skip>true</jarsigner.skip>
-		<junit.version>4.8.1</junit.version>
+		<junit.version>4.8.2</junit.version>
 		<jna.version>3.2.7</jna.version>
 		<maven.compiler.debug>true</maven.compiler.debug>
 		<shadedArtifactAttached>true</shadedArtifactAttached>
@@ -59,7 +58,7 @@ Most of these wrappers are created automatically by JNAerator.
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.8.1</version>
+			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
 	
@@ -177,6 +176,20 @@ Most of these wrappers are created automatically by JNAerator.
 		</pluginManagement>
 		
 		<plugins>
+			
+			<plugin> 
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId> 
+				<executions> 
+					<execution>
+						<id>test-jar</id> 
+						<phase>package</phase> 
+						<goals> 
+							<goal>test-jar</goal> 
+						</goals> 
+					</execution>
+				</executions> 
+			</plugin> 
 			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
