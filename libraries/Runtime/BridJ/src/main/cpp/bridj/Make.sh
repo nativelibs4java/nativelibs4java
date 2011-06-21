@@ -1,5 +1,8 @@
 #!/bin/bash
 
+SRC_HOME=${SRC_HOME:-~/src}
+BIN_HOME=${BIN_HOME:-~/bin}
+
 #BUILD_CONFIG=debug sh MakeAll.sh clean 
 export MAKE_CMD=make
 if [[ "`which gmake`" != "" ]] ; then
@@ -8,7 +11,7 @@ fi
 
 
 if [[ "$DYNCALL_HOME" == "" ]] ; then
-	export DYNCALL_HOME=~/src/dyncall/dyncall ;
+	export DYNCALL_HOME=$SRC_HOME/dyncall/dyncall ;
 fi
 
 if [[ "$DEBUG" == "1" ]] ; then
@@ -27,20 +30,23 @@ BUILD_DIR=
 
 #echo $DYNCALL_HOME/dyncall/$BUILD_DIR
 
-#svn diff ~/src/dyncall/dyncall > dyncall.diff
-svn diff ~/src/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" > dyncall.diff
-#svn diff ~/src/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" | sed -E 's/^(---|\+\+\+)(.*)\(([^)]+)\)/\1\2/' > dyncall.diff
+#svn diff $SRC_HOME/dyncall/dyncall > dyncall.diff
+svn diff $SRC_HOME/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" > dyncall.diff
+#svn diff $SRC_HOME/dyncall/dyncall | sed "s/${HOME//\//\\/}\/src\/dyncall\///" | sed -E 's/^(---|\+\+\+)(.*)\(([^)]+)\)/\1\2/' > dyncall.diff
 
 echo "# Making dyncall"
-cd "$DYNCALL_HOME"
+cd "$DYNCALL_HOME" || ( echo "Please set DYNCALL_HOME" && exit 1 )
 
 TARGET=${TARGET:-default}
-ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-~/bin/android-ndk-r5b}
+ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-$BIN_HOME/android-ndk-r5b}
 case $TARGET in
 	android)
 		NEEDS_TEST=0
 		SHAREDLIB_SUFFIX=so
-		sh ./configure --with-androidndk=$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.4.3/prebuilt/darwin-x86/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=$ANDROID_NDK_HOME/platforms/android-9/arch-arm
+		
+		ANDROID_PREBUILT_DIR=$ANDROID_NDK_HOME/toolchains/arm-linux-androideabi-4.4.3/prebuilt
+		
+		sh ./configure --with-androidndk=$ANDROID_PREBUILT_DIR/`ls $ANDROID_PREBUILT_DIR | grep -`/bin/arm-linux-androideabi- --target-arm-arm --with-sysroot=$ANDROID_NDK_HOME/platforms/android-9/arch-arm
 		;;
 	android-emulator)
 		NEEDS_TEST=0
