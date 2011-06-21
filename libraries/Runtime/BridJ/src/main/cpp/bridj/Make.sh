@@ -38,7 +38,7 @@ echo "# Making dyncall"
 cd "$DYNCALL_HOME" || ( echo "Please set DYNCALL_HOME" && exit 1 )
 
 TARGET=${TARGET:-default}
-ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-$BIN_HOME/android-ndk-r5b}
+ANDROID_NDK_HOME=${ANDROID_NDK_HOME:-$BIN_HOME/android-ndk-r5c}
 case $TARGET in
 	android)
 		NEEDS_TEST=0
