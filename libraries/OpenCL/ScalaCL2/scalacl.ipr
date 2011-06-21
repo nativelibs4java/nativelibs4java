@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ASMPluginConfiguration">
+    <asm skipDebug="false" skipFrames="false" skipCode="false" expandFrames="false" />
+    <groovy codeStyle="LEGACY" />
+  </component>
   <component name="Compare Directories">
     <option name="identicalVisible" value="true" />
     <option name="differentVisible" value="true" />
@@ -50,6 +54,7 @@
   <component name="CopyrightManager" default="">
     <module2copyright />
   </component>
+  <component name="CppTools.Loader" reportImplicitCastToBool="false" reportNameReferencedOnce="false" version="3" compilerSelect="AUTO" />
   <component name="DaemonCodeAnalyzer">
     <disable_hints />
   </component>
@@ -106,8 +111,9 @@
     <option name="CHECKOUT_INCLUDE_TAGS" value="false" />
     <option name="UPDATE_CHANGES_POLICY" value="STASH" />
   </component>
+  <component name="IdProvider" IDEtalkID="1D5DADF7075260A493C6C9D3BB543E02" />
   <component name="JavacSettings">
-    <option name="ADDITIONAL_OPTIONS_STRING" value="-target 1.6" />
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-target 1.5" />
   </component>
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />
@@ -389,27 +395,28 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="svn" />
   </component>
+  <component name="WebServicesPlugin" addRequiredLibraries="true" />
   <component name="libraryTable">
-    <library name="Maven: asm:asm:3.3">
+    <library name="Maven: com.nativelibs4java.thirdparty.com.google.android:dx:10">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/asm/asm/3.3/asm-3.3.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/thirdparty/com/google/android/dx/10/dx-10.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/asm/asm/3.3/asm-3.3-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/thirdparty/com/google/android/dx/10/dx-10-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/asm/asm/3.3/asm-3.3-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/thirdparty/com/google/android/dx/10/dx-10-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: com.nativelibs4java:bridj:0.3-SNAPSHOT">
+    <library name="Maven: com.nativelibs4java:bridj:c-only:0.5-SNAPSHOT">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.3-SNAPSHOT/bridj-0.3-SNAPSHOT.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.5-SNAPSHOT/bridj-0.5-SNAPSHOT-c-only.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.3-SNAPSHOT/bridj-0.3-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.5-SNAPSHOT/bridj-0.5-SNAPSHOT-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.3-SNAPSHOT/bridj-0.3-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.5-SNAPSHOT/bridj-0.5-SNAPSHOT-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: com.nativelibs4java:javacl-bridj:1.0-SNAPSHOT">
@@ -445,15 +452,15 @@
         <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/opencl4java-bridj/1.0-SNAPSHOT/opencl4java-bridj-1.0-SNAPSHOT-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: junit:junit:4.7">
+    <library name="Maven: junit:junit:4.8.1">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.7/junit-4.7.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.1/junit-4.8.1.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.7/junit-4.7-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.1/junit-4.8.1-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.7/junit-4.7-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.1/junit-4.8.1-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.scala-lang:scala-compiler-bundle:2.8.1">
@@ -464,15 +471,23 @@
       <JAVADOC />
       <SOURCES />
     </library>
-    <library name="Maven: org.scala-lang:scala-library:2.8.1">
+    <library name="Maven: org.scala-lang:scala-compiler-bundle:2.9.0">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.8.1/scala-library-2.8.1.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-compiler/2.9.0/scala-compiler-2.9.0.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.9.0/scala-library-2.9.0.jar!/" />
+      </CLASSES>
+      <JAVADOC />
+      <SOURCES />
+    </library>
+    <library name="Maven: org.scala-lang:scala-library:2.9.0">
+      <CLASSES>
+        <root url="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.9.0/scala-library-2.9.0.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.8.1/scala-library-2.8.1-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.9.0/scala-library-2.9.0-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.8.1/scala-library-2.8.1-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.9.0/scala-library-2.9.0-sources.jar!/" />
       </SOURCES>
     </library>
   </component>

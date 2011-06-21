@@ -18,13 +18,18 @@ import scala.math._
 
 object CLCollectionTest {
 
-  implicit var context: Context = _
+  implicit var context: Context = Context.best(DoubleSupport)
   
   def rng = (0 until n).cl
   def clrng = (0 until n).cl
   
   def cla = (0 until n).toCLArray
   def a = (0 until n).toArray
+  
+  val rand = new java.util.Random(System.nanoTime)
+  def aRand = (0 until n).map(_ => rand.nextFloat).toArray
+  def claRand = aRand.toCLArray
+  
   
   var f: Int => Boolean = _
   var m: Int => Int = _
@@ -56,7 +61,7 @@ object CLCollectionTest {
   
   @BeforeClass
   def setUp: Unit = {
-    context = new Context
+    //context = new Context
     
     //cla = (0 until n).toCLArray
     //a = (0 until n).toArray
@@ -85,7 +90,7 @@ object CLCollectionTest {
 
   @AfterClass
   def tearDown: Unit = {
-    context.release
+    //context.release
   }
 }
 

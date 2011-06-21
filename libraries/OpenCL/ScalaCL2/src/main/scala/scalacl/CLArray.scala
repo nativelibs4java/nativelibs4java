@@ -170,23 +170,33 @@ class CLArray[A](
   
   def zipWithIndex$ShareBuffers[A1 >: A, That](implicit bf: CanBuildFrom[Repr, (A1, Int), That]): That =
     zipWithIndex$into[A1, That](new CLArray[(A1, Int)](length, buffers ++ Array(new CLGuardedBuffer[Int](length).asInstanceOf[CLGuardedBuffer[Any]]))(context, bf.dataIO).asInstanceOf[That])
+  
     
-  override def sum[B >: A](implicit num: Numeric[B]): B = {
+  protected def reduce[B >: A](op: ReductionUtils.Operation): B = {
     assert(buffers.length == 1)
     val buffer = buffers.head.asInstanceOf[CLGuardedBuffer[A]]
     val (reductionType, channels) = dataIO.reductionType
-    val reductor = ReductionUtils.createReductor(context, ReductionUtils.Operation.Add, reductionType, channels).asInstanceOf[ReductionUtils.Reductor[A]]
+    val reductor = ReductionUtils.createReductor(context, op, reductionType, channels).asInstanceOf[ReductionUtils.Reductor[A]]
     
     val reduction = org.bridj.Pointer.allocate(dataIO.pointerIO)
     CLEventBound.syncBlock(Array(buffer), Array(), evts => {
       reductor.reduce(context.queue, buffer.buffer, length: Long, reduction, MaxReductionSize, evts: _*).waitFor
       null
     })
-    /*val reduction = CLEventBound.syncBlock(Array(buffer), Array(), evts => {
-      reductor.reduce(context.queue, buffer.buffer, length: Long, MaxReductionSize, evts: _*)
-    })*/
     reduction.get
   }
+    
+  override def sum[B >: A](implicit num: Numeric[B]): B =
+    reduce[B](ReductionUtils.Operation.Add)
+    
+  override def product[B >: A](implicit num: Numeric[B]): B =
+    reduce[B](ReductionUtils.Operation.Multiply)
+    
+  override def min[B >: A](implicit cmp: Ordering[B]): A =
+    reduce[A](ReductionUtils.Operation.Min)
+    
+  override def max[B >: A](implicit cmp: Ordering[B]): A =
+    reduce[A](ReductionUtils.Operation.Max)
     
   override def clone: CLArray[A] =
     new CLArray[A](length, if (length > 0) buffers.map(_.clone) else null) // TODO map in parallel

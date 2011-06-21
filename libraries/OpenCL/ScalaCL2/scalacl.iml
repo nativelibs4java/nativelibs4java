@@ -23,12 +23,13 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="javacl-bridj" />
-    <orderEntry type="module" module-name="javacl-core-bridj" />
-    <orderEntry type="module" module-name="opencl4java-bridj" />
-    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:c-only:0.4.2" level="project" />
+    <orderEntry type="library" name="Maven: com.nativelibs4java:javacl-bridj:1.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.nativelibs4java:javacl-core-bridj:1.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.nativelibs4java:opencl4java-bridj:1.0-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:c-only:0.5-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.nativelibs4java.thirdparty.com.google.android:dx:10" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.9.0" level="project" />
-    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.7" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.8.1" level="project" />
   </component>
 </module>
 
