@@ -7,14 +7,14 @@
   <name>PThread4Java</name>
   <description>Java bindings for the Unix pthread library</description>
   <url>http://code.google.com/p/nativelibs4java/wiki</url>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1</version>
   <packaging>jar</packaging>
   
   
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nativelibs4java-parent</artifactId>
-	  <version>1.5-SNAPSHOT</version>
+	  <version>1.5</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
 

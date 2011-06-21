@@ -2,6 +2,14 @@ Current version : BridJ 0.5-SNAPSHOT
 
 ...
 
+BridJ 0.5 (r2128, 20110621)
+
+- Added support for Android(arm) platform
+- Added Pointer.clone() that duplicates the memory (requires a pointer with bounds information)
+- Added various pre-packaged specialized subsets of BridJ : c-only, windows-only, macosx-only, unix-only, linux-only, ios-only, android
+- Added Pointer.allocateDynamicCallback(DynamicCallback<R>, callingConv, returnType, paramTypes...)
+- Added BridJ native library path override : one can set the BRIDJ_LIBRARY environment variable or the "bridj.library" property to the full path of libbridj.so/.dylib/.dll
+
 BridJ 0.4.2 (r2009, 20110527)
 
 - Fixed behaviour in environments with a null default classloader (as in Scala 2.9.0) 

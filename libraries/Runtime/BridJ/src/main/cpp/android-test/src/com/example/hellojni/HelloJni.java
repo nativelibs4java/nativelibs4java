@@ -16,12 +16,12 @@
 package com.example.hellojni;
 
 import android.app.Activity;
+
 import android.widget.TextView;
 import android.os.Bundle;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import org.bridj.*;
-import org.bridj.demangling.Demangler.Symbol;
 import static org.bridj.Pointer.*;
 
 public class HelloJni extends Activity
@@ -58,7 +58,7 @@ public class HelloJni extends Activity
         		}
         		*/
         		final int fa = 2, fb = 3;
-        		Pointer pcb;
+        		Pointer<?> pcb;
         		/*
         		final BridJLib.passTwoIntsToCallback_cb cb = new BridJLib.passTwoIntsToCallback_cb() {
         			public int apply(int a, int b) {

@@ -6,7 +6,7 @@
   <artifactId>javacl</artifactId>
   <name>JavaCL</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0-RC1</version>
   <packaging>jar</packaging>
   
   
@@ -19,7 +19,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>opencl4java-parent</artifactId>
-	  <version>1.0-SNAPSHOT</version>
+	  <version>1.0.0-RC1</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
 
