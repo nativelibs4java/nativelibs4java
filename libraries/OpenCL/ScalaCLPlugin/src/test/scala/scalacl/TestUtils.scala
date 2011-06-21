@@ -57,8 +57,17 @@ object Results {
     }
   }})
 }
+object TestUtils {
+  private var _nextId = 1
+  def nextId = TestUtils synchronized {
+    val id = _nextId
+    _nextId += 1
+    id
+  }
+}
 trait TestUtils {
-
+  import TestUtils._
+  
   implicit val baseOutDir = new File("target/testSnippetsClasses")
   baseOutDir.mkdirs
 
@@ -84,7 +93,12 @@ trait TestUtils {
     out.close
     new File(outDir, className + ".class").delete
 
-    compiler.compile(Array("-d", outDir.getAbsolutePath, srcFile.getAbsolutePath))
+    compiler.compile(Array("-d", outDir.getAbsolutePath, srcFile.getAbsolutePath) ++ getScalaCLCollectionsPath)
+    
+    val f = new File(outDir, className + ".class")
+    if (!f.exists())
+      throw new RuntimeException("Class file " + f + " not found !")
+    
     
     val byteCodeSource = getClassByteCode(className, outDir.getAbsolutePath)
     val byteCode = byteCodeSource.mkString//("\n")
@@ -174,7 +188,7 @@ trait TestUtils {
     val out = Source.fromInputStream(p.getInputStream).toList
     if (p.waitFor != 0) {
       Thread.sleep(100)
-      error("javap failed with :\n" + err.synchronized { err.toString } + "\nAnd :\n" + out)
+      error("javap (args = " + args.mkString(" ") + ") failed with :\n" + err.synchronized { err.toString } + "\nAnd :\n" + out)
     }
     out
   }
@@ -200,14 +214,43 @@ trait TestUtils {
     assertTrue(msg, false)
   }
   
-  private def getTesterGen(withPlugin: Boolean, decls: String, code: String) = {
+  trait RunnableMethod {
+    def apply(args: Any*): Any
+  }
+  trait RunnableCode {
+    def newInstance(constructorArgs: Any*): RunnableMethod
+  }
+  
+  protected def compileCodeWithPlugin(decls: String, code: String) =
+    compileCode(withPlugin = true, "", decls, "", code)
+  
+  lazy val getScalaCLCollectionsPath = {
+    val r = """jar:file:(.*?\.jar)!.*""".r
+    def getPath(c: Class[_]) = {
+      val r(file) = c.getClassLoader.getResource(c.getName.replace('.', '/') + ".class").toString
+      file
+    }
+    
+    Array(
+      "-cp", 
+      Array(
+        getPath(classOf[CLArray[_]])/*,
+        getPath(classOf[com.nativelibs4java.opencl.CLBuffer[_]]),
+        getPath(classOf[com.nativelibs4java.opencl.library.OpenCLLibrary]),
+        getPath(classOf[org.bridj.BridJ]),
+        getPath(classOf[org.objectweb.asm.ClassVisitor])*/
+      ).mkString(File.pathSeparator)
+    )
+    //Array[String]()
+  }
+  protected def compileCode(withPlugin: Boolean, constructorArgsDecls: String, decls: String, methodArgsDecls: String, code: String) = {
     val (testClassName, testMethodName) = testClassInfo
     
     val suffixPlugin = (if (withPlugin) "Optimized" else "Normal")
-    val className = "Test_" + testMethodName + "_" + suffixPlugin
-    val src = "package " + packageName + "\nclass " + className + """(n: Int) {
+    val className = "Test_" + testMethodName + "_" + suffixPlugin + "_" + nextId
+    val src = "package " + packageName + "\nclass " + className + "(" + constructorArgsDecls + """) {
       """ + (if (decls == null) "" else decls) + """
-      def """ + testMethodName + """ = {
+      def """ + testMethodName + "(" + methodArgsDecls + ")" + """ = {
       """ + code + """
       }
     }"""
@@ -223,39 +266,66 @@ trait TestUtils {
 
     del(outputDirectory)
     outputDirectory.mkdirs
-    val loader = new URLClassLoader(Array(outputDirectory.toURI.toURL, new File(Compile.bootClassPath).toURI.toURL))
-
+    
     var tmpFile = new File(outputDirectory, testMethodName + ".scala")
     val pout = new PrintStream(tmpFile)
     pout.println(src)
     pout.close
     //println(src)
+    val compileArgs = Array("-d", outputDirectory.getAbsolutePath, tmpFile.getAbsolutePath) ++ getScalaCLCollectionsPath
+    //println("Compiling '" + tmpFile.getAbsolutePath + "' with args '" + compileArgs.mkString(" ") +"'")
     (
       if (withPlugin) 
         SharedCompilerWithPlugins 
       else 
         SharedCompilerWithoutPlugins
-    ).compile(Array("-d", outputDirectory.getAbsolutePath, tmpFile.getAbsolutePath))
+    ).compile(compileArgs)
+    
+    //println("CLASS LOADER WITH PATH = '" + outputDirectory + "'")
+    val loader = new URLClassLoader(Array(outputDirectory.toURI.toURL, new File(Compile.bootClassPath).toURI.toURL))
+    
+    val parent = 
+      if (packageName == "") 
+        outputDirectory
+      else
+        new File(outputDirectory, packageName.replace('.', File.separatorChar))
+        
+    val f = new File(parent, className + ".class")
+    if (!f.exists())
+      throw new RuntimeException("Class file " + f + " not found !")
     
     //compileFile(tmpFile, withPlugin, outputDirectory)
     
     val testClass = loader.loadClass(packageName + "." + className)
     val testMethod = testClass.getMethod(testMethodName)//, classOf[Int])
     val testConstructor = testClass.getConstructors.first
-    def instance(n: Int): AnyRef = testConstructor.newInstance(n.asInstanceOf[AnyRef]).asInstanceOf[AnyRef]
-    def invoke(i: AnyRef) = testMethod.invoke(i)
+    
+    new RunnableCode {
+      override def newInstance(constructorArgs: Any*) = new RunnableMethod {
+        val inst = 
+          testConstructor.newInstance(constructorArgs.map(_.asInstanceOf[AnyRef]):_*).asInstanceOf[AnyRef]
+        
+        override def apply(args: Any*): Any = 
+          testMethod.invoke(inst, args.map(_.asInstanceOf[AnyRef]):_*)
+      }
+    }
+  }
+  
+  
+  private def getTesterGen(withPlugin: Boolean, decls: String, code: String) = {
+    val runnableCode = compileCode(withPlugin, "n: Int", decls, "", code)
     
     (n: Int) => {
-      val i = instance(n)
+      val i = runnableCode.newInstance(n)
       (isWarmup: Boolean) => {
         if (isWarmup) {
-          invoke(i)
+          i()
           null
         } else {
           System.gc
           Thread.sleep(50)
           val start = System.nanoTime
-          val o = invoke(i)
+          val o = i().asInstanceOf[AnyRef]
           val time: Double = System.nanoTime - start
           Res(withPlugin, o, time)
         }

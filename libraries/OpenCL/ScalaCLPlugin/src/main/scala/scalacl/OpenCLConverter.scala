@@ -193,7 +193,7 @@ extends MiscMatchers
               //case e =>
               //  throw new RuntimeException("ugh : " + e + ", op = " + op + ", body = " + body + ", left = " + left + ", right = " + right)
             }
-          case n if left.toString == "scala.math.package" =>
+          case n if isPackageReference(left, "scala.math") =>
             convertMathFunction(s.tpe, name, args)
             //merge(Seq(right).map(convert):_*) { case Seq(v) => Seq(n + "(" + v + ")") }
           case n =>

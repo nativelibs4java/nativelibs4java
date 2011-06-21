@@ -344,7 +344,7 @@ extends PluginComponent
                   List(f)
                 ),
                 List(ioFrom, ioTo)
-              ) if tg.toString == "scalacl.package" =>
+              ) if isPackageReference(tg, "scalacl") =>
               msg(unit, tree.pos, "transformed Scala function to a CLFunction.") {
                 val clFunction = convertFunctionToCLFunction(f)
                 clFunction.tpe = tree.tpe

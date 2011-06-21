@@ -52,6 +52,10 @@ trait MiscMatchers extends TraversalOps {
   import treeInfo.{ methPart }
   import typer.typed
 
+  def isPackageReference(tree: Tree, packageName: String) = {
+    tree.toString.matches(packageName + ".(package|`package`)")
+  }
+  
   /** Strips apply nodes looking for type application. */
   def typeArgs(tree: Tree): List[Tree] = tree match {
     case Apply(fn, _)              => typeArgs(fn)
@@ -98,7 +102,7 @@ trait MiscMatchers extends TraversalOps {
         
     def unapply(tree: Tree): Option[(Type, Name, List[Tree])] = tree match {
       case Apply(f @ Select(left, name), args) =>
-        if (left.toString == "scala.math.package")
+        if (isPackageReference(left, "scala.math"))
           Some((f.tpe, name, args))
         else
           None

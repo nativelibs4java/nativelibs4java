@@ -45,11 +45,23 @@ class SharedCompiler(enablePlugins: Boolean) {
       newInstances
     instances._1
   }
+  
+  lazy val isAtLeastScala29 = {
+    try {
+      Class.forName("scala.sys.process.Process")
+      true
+    } catch { case _ => false }
+  }
+  
+  def canReuseCompilers = {
+    !isAtLeastScala29 &&
+    System.getenv("SCALACL_DONT_REUSE_COMPILERS") == null
+  }
   def compile(args: Array[String]) = {
     //val (extraArgs, settings, runner) = createRunner
 
     def run {
-      val Compiler(extraArgs, settings, runner) = compiler
+      val Compiler(extraArgs, settings, runner) = if (canReuseCompilers) compiler else createCompiler
       val command = new CompilerCommand((args ++ extraArgs).toList, settings) {
         override val cmdName = "scalacl"
       }
