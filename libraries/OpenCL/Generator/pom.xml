@@ -24,6 +24,7 @@
 	  <artifactId>jnaerator</artifactId>
 	  <version>${jnaerator.version}</version>
 	  <scope>compile</scope>
+	  <classifier>shaded</classifier>
 	</dependency>
 	
 	<dependency>
