@@ -3,7 +3,7 @@
  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>opencl4java-bridj</artifactId>
+  <artifactId>opencl4java</artifactId>
   <name>OpenCL4Java / BridJ</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/OpenCL</url>
   <version>1.0.0-RC1</version>
@@ -20,7 +20,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java-parent-bridj</artifactId>
+	  <artifactId>opencl4java-parent</artifactId>
 	  <version>1.0.0-RC1</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
@@ -31,8 +31,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>bridj</artifactId>
 	  <classifier>c-only</classifier>
-	  <version>0.5-SNAPSHOT</version>
-	  <!--version>${nl4j-runtime.version}</version-->
+	  <version>0.5</version>
 	  <scope>compile</scope>
 	</dependency>
 	

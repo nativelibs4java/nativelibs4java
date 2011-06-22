@@ -6,7 +6,7 @@
   <artifactId>scalacl-compiler-plugin</artifactId>
   <name>ScalaCL Compiler Plugin</name>
   <url>http://code.google.com/p/scalacl/</url>
-  <version>0.2-SNAPSHOT</version>
+  <version>0.2</version>
   <packaging>jar</packaging>
 
 	  <description>
@@ -23,8 +23,8 @@ For more info, please visit http://code.google.com/p/scalacl
 	<!--
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>opencl4java-parent-bridj</artifactId>
-	  <version>1.0-SNAPSHOT</version>
+	  <artifactId>opencl4java-parent</artifactId>
+	  <version>1.0.0-RC1</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
   -->
@@ -39,7 +39,7 @@ For more info, please visit http://code.google.com/p/scalacl
   	<dependency>
   		<groupId>com.nativelibs4java</groupId>
   		<artifactId>scalacl</artifactId>
-  		<version>0.2-SNAPSHOT</version>
+  		<version>0.2</version>
 		<scope>test</scope>
 		<classifier>shaded</classifier>
     </dependency>
@@ -91,7 +91,7 @@ For more info, please visit http://code.google.com/p/scalacl
 				  <compilerPlugin>
 					<groupId>com.nativelibs4java</groupId>
 					<artifactId>scalacl-compiler-plugin</artifactId>
-					<version>1.0-SNAPSHOT</version>
+					<version>1.0.0-RC1</version>
 				  </compilerPlugin>
 				</compilerPlugins>-->
 				<args>
