@@ -4,7 +4,7 @@
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
   <artifactId>javacl-interactive-image-demo</artifactId>
-  <name>JavaCL Interactive Image Demo</name>
+  <name>JavaCL Interactive Image Demo / BridJ</name>
   <url>http://code.google.com/p/javacl/</url>
   <version>1.0.0-RC1</version>
   <packaging>jar</packaging>
