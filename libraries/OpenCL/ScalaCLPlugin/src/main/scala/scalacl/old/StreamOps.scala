@@ -30,6 +30,7 @@
  */
 package scalacl
 package old
+import plugin._
 
 import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.Global

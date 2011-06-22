@@ -1,4 +1,4 @@
 <plugin>
   <name>scalacl</name>
-  <classname>scalacl.ScalaCLPlugin</classname>
+  <classname>scalacl.plugin.ScalaCLPlugin</classname>
 </plugin>
