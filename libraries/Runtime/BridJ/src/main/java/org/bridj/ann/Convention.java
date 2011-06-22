@@ -20,7 +20,7 @@ public @interface Convention {
      */
     public enum Style {
         /**
-         * __stdcall convention (specific to Windows x86)
+         * __stdcall convention (specific to Windows x86, won't have any effect on other platforms)
          */
         StdCall,
         /**

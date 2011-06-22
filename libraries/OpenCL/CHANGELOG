@@ -1,5 +1,10 @@
 Current development version (1.0-SNAPSHOT)
 
+...
+
+Version 1.0.0-RC1 (r2130, 20110621)
+
+- BridJ version now becomes the default : the JNA version is still maintained and available with all Maven artifact ids suffixed with "-jna" (BridJ-based JavaCL's main artifact is now "javacl", while the JNA-based version is "javacl-jna")  
 - added simple Fourier-analysis classes (package com.nativelibs4java.opencl.util.fft), with double and float variants, usable with primitive arrays or OpenCL buffers :
 	- naive Discrete Fourier Transform (DFT) 
 	- Fast Fourier Transform (FFT) for power-of-two arrays / buffers (performs better than Apache Commons on a CPU) 
