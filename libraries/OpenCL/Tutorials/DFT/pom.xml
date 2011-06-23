@@ -13,6 +13,13 @@
   	<scala.version>2.8.1</scala.version>
   </properties>
   
+  <parent>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>opencl4java-parent</artifactId>
+	  <version>1.0.0-RC1</version>
+	  <relativePath>../../Parent</relativePath>
+  </parent>
+
   <repositories>
     <repository>
       <id>nativelibs4java</id>
