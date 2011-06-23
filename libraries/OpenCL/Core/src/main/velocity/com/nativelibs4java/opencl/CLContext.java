@@ -551,6 +551,10 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	}
 
 #docCreateBufferCopy("CLBuffer&lt;${prim.WrapperName}&gt;", "")
+	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, Pointer<${prim.WrapperName}> data) {
+		return create${prim.BufferName}(kind, data, true);
+	}
+#docCreateBufferCopy("CLBuffer&lt;${prim.WrapperName}&gt;", "")
 	public CLBuffer<${prim.WrapperName}> create${prim.BufferName}(CLMem.Usage kind, Pointer<${prim.WrapperName}> data, boolean copy) {
 		return createBuffer(kind, data, copy);
 	}
