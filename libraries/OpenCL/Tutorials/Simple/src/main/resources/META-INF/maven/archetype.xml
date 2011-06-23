@@ -1,0 +1,14 @@
+<archetype>
+  <id>javacl-tutorial</id>
+  <allowPartial>true</allowPartial>
+  <sources>
+	<source>src/main/java/tutorial/JavaCLTutorial1.java</source>
+	<source>src/main/java/tutorial/JavaCLTutorial2.java</source>
+	<source>src/main/java/tutorial/JavaCLTutorial3.java</source>
+  </sources>
+  <resources>
+	<resource>src/main/opencl/tutorial/TutorialKernels.cl</resource>
+  </resources>
+  <!--testSources>
+  </testSources-->
+</archetype>
