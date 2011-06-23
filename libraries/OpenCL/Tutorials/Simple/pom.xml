@@ -1,7 +1,7 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
-  <artifactId>javacl-tutorial</artifactId>
+  <artifactId>javacl-simple-tutorial</artifactId>
   <version>1.0.0-RC1</version>
   <packaging>jar</packaging>
 </project>

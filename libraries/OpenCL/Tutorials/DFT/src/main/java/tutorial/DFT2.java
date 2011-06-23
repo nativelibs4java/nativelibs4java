@@ -3,6 +3,7 @@ package tutorial;
 import com.nativelibs4java.opencl.*;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
+import org.bridj.Pointer;
 
 public class DFT2 {
 
@@ -16,12 +17,12 @@ public class DFT2 {
         this.program = new DiscreteFourierTransformProgram(context);
     }
 
-    public synchronized DoubleBuffer dft(DoubleBuffer in, boolean forward) throws CLBuildException {
-        assert in.capacity() % 2 == 0;
-        int length = in.capacity() / 2;
+    public synchronized Pointer<Double> dft(Pointer<Double> in, boolean forward) throws CLBuildException {
+        assert in.getValidElements() % 2 == 0;
+        int length = (int)in.getValidElements() / 2;
 
-        CLDoubleBuffer inBuf = context.createDoubleBuffer(CLMem.Usage.Input, in, true); // true = copy
-        CLDoubleBuffer outBuf = context.createDoubleBuffer(CLMem.Usage.Output, length * 2);
+        CLBuffer<Double> inBuf = context.createDoubleBuffer(CLMem.Usage.Input, in, true); // true = copy
+        CLBuffer<Double> outBuf = context.createDoubleBuffer(CLMem.Usage.Output, length * 2);
 
         // The following call is type-safe, thanks to the JavaCL Maven generator :
         // (if the OpenCL function signature changes, the generated Java definition will be updated and compilation will fail) 
@@ -30,9 +31,7 @@ public class DFT2 {
     }
     
 	public double[] dft(double[] complexValues, boolean forward) throws CLBuildException {
-        DoubleBuffer outBuffer = dft(DoubleBuffer.wrap(complexValues), forward);
-        double[] out = new double[complexValues.length];
-        outBuffer.get(out);
-        return out;
+        Pointer<Double> outBuffer = dft(Pointer.pointerToDoubles(complexValues), forward);
+        return outBuffer.getDoubles();
     }
  }

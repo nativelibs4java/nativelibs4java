@@ -5,6 +5,7 @@ import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import com.nativelibs4java.util.*;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
+import org.bridj.Pointer;
 
 public class DFT {
 
@@ -27,15 +28,15 @@ public class DFT {
      * returns the Discrete Fourier Transform of these values if forward == true or the inverse
      * transform if forward == false.
      */
-    public synchronized DoubleBuffer dft(DoubleBuffer in, boolean forward) {
-        assert in.capacity() % 2 == 0;
-        int length = in.capacity() / 2;
+    public synchronized Pointer<Double> dft(Pointer<Double> in, boolean forward) {
+        assert in.getValidElements() % 2 == 0;
+        int length = (int)in.getValidElements() / 2;
 
         // Create an input CLBuffer that will be a copy of the NIO buffer :
-        CLDoubleBuffer inBuf = context.createDoubleBuffer(CLMem.Usage.Input, in, true); // true = copy
+        CLBuffer<Double> inBuf = context.createDoubleBuffer(CLMem.Usage.Input, in, true); // true = copy
         
         // Create an output CLBuffer :
-        CLDoubleBuffer outBuf = context.createDoubleBuffer(CLMem.Usage.Output, length * 2);
+        CLBuffer<Double> outBuf = context.createDoubleBuffer(CLMem.Usage.Output, length * 2);
 
         // Set the args of the kernel :
         kernel.setArgs(inBuf, outBuf, length, forward ? 1 : -1);
@@ -49,10 +50,8 @@ public class DFT {
 
     /// Wrapper method that takes and returns double arrays
     public double[] dft(double[] complexValues, boolean forward) {
-        DoubleBuffer outBuffer = dft(DoubleBuffer.wrap(complexValues), forward);
-        double[] out = new double[complexValues.length];
-        outBuffer.get(out);
-        return out;
+        Pointer<Double> outBuffer = dft(Pointer.pointerToDoubles(complexValues), forward);
+        return outBuffer.getDoubles();
     }
 
     public static void main(String[] args) throws IOException, CLBuildException {

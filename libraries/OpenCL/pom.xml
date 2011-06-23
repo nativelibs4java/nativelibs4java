@@ -29,6 +29,7 @@
     <module>Blas</module>
     <module>Parent</module>
     <module>OpenGLDemos</module>
+    <module>Tutorials</module>
   </modules>
   
   

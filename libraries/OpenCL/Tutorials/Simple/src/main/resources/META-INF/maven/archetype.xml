@@ -1,5 +1,5 @@
 <archetype>
-  <id>javacl-tutorial</id>
+  <id>javacl-simple-tutorial</id>
   <allowPartial>true</allowPartial>
   <sources>
 	<source>src/main/java/tutorial/JavaCLTutorial1.java</source>
