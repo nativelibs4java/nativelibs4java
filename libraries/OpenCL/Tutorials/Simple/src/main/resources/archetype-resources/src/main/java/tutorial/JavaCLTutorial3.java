@@ -1,4 +1,4 @@
-package tutorial;
+package ${package};
 
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.CLMem.Usage;
