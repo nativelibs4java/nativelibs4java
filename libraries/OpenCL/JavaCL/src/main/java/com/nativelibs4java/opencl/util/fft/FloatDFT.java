@@ -7,7 +7,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
-public class FloatDFT extends AbstractDFT<Float, FloatBuffer, float[]> {
+/**
+ * Slow OpenCL Fourier Transform that works in all cases (simple precision floating point numbers)
+ */
+public class FloatDFT extends AbstractDFT<Float, float[]> {
 
     final FloatDFTProgram program;
 

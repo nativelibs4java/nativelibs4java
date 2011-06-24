@@ -3,8 +3,6 @@ package com.nativelibs4java.opencl.util.fft;
 import com.nativelibs4java.opencl.*;
 import com.nativelibs4java.opencl.util.Transformer.AbstractTransformer;
 import com.nativelibs4java.util.NIOUtils;
-import java.nio.Buffer;
-import java.nio.IntBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -13,7 +11,7 @@ import org.bridj.*;
 import static org.bridj.Pointer.*;
 
 // TODO implement something like http://locklessinc.com/articles/non_power_of_2_fft/
-public abstract class AbstractFFTPow2<T, B extends Buffer, A> extends AbstractTransformer<T, B, A> {
+abstract class AbstractFFTPow2<T, A> extends AbstractTransformer<T, A> {
 
     AbstractFFTPow2(CLContext context, Class<T> primitiveClass) {
         super(context, primitiveClass);

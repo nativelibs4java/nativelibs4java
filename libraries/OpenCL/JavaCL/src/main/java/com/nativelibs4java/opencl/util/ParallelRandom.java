@@ -25,7 +25,18 @@ import com.nativelibs4java.opencl.CLQueue;
 import com.nativelibs4java.opencl.CLMem.Usage;
 
 /**
- *
+ * Parallel Random numbers generator (<a href="http://en.wikipedia.org/wiki/Xorshift">Xorshift</a> adapted to work in parallel).<br>
+ * This class was designed as a drop-in replacement for java.util.Random (albeit with a more limited API) :
+ * <pre>{@code
+ * ParallelRandom r = new ParallelRandom();
+ * r.setPreload(true); // faster
+ * while (true) {
+ *     System.out.println(r.nextDouble());
+ * }
+ * }</pre>
+ * <br>
+ * It is also possible to get entire batches of random integers with {@link ParallelRandom#next()} or {@link ParallelRandom#next(Pointer)}.<br>
+ * The preload feature precomputes a new batch in background as soon as one starts to consume numbers from the current batch.
  * @author ochafik
  */
 public class ParallelRandom {
@@ -100,6 +111,15 @@ public class ParallelRandom {
 		return lastData.get(consumedInts++);		
 	}
 	
+	/**
+	 * If true, a new batch of parallel random numbers is automatically precomputed in background as soon as one starts to consume numbers from the current batch (this gives faster random numbers, at the risk of computing more values than needed)
+	 */
+	public synchronized boolean isPreload() {
+		return preload;
+	}
+	/**
+	 * If true, a new batch of parallel random numbers is automatically precomputed in background as soon as one starts to consume numbers from the current batch (this gives faster random numbers, at the risk of computing more values than needed)
+	 */
 	public synchronized void setPreload(boolean preload) throws CLBuildException {
 		this.preload = preload;
 		if (preload && preloadEvent == null) {

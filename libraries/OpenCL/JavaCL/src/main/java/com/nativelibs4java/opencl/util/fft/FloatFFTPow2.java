@@ -4,7 +4,10 @@ import com.nativelibs4java.opencl.*;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 
-public class FloatFFTPow2 extends AbstractFFTPow2<Float, FloatBuffer, float[]> {
+/**
+ * OpenCL Fast Fourier Transform for array sizes that are powers of two (simple precision floating point numbers)
+ */
+public class FloatFFTPow2 extends AbstractFFTPow2<Float, float[]> {
 
     final FloatFFTProgram program;
 

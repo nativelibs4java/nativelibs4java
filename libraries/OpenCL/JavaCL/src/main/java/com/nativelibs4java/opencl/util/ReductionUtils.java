@@ -23,10 +23,12 @@ import org.bridj.Platform;
 import static org.bridj.Pointer.*;
 
 /**
- *
+ * Parallel reduction utils (max, min, sum and product computations on OpenCL buffers of any type)
  * @author Olivier
  */
 public class ReductionUtils {
+	static final int DEFAULT_MAX_REDUCTION_SIZE = 4;
+	
     static String source;
     static final String sourcePath = ReductionUtils.class.getPackage().getName().replace('.', '/') + "/" + "Reduction.c";
     static synchronized String getSource() throws IOException {
@@ -110,9 +112,16 @@ public class ReductionUtils {
         return new Pair<String, Map<String, Object>>(getSource(), macros);
     }
     public interface Reductor<B> {
-        public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, Pointer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor);
-        public Pointer<B> reduce(CLQueue queue, CLBuffer<B> input, long inputLength, int maxReductionSize, CLEvent... eventsToWaitFor);
+        /** Number of independent channels of the reductor */
+        public int getChannels();
         public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, CLBuffer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor);
+        public Pointer<B> reduce(CLQueue queue, CLBuffer<B> input, long inputLength, int maxReductionSize, CLEvent... eventsToWaitFor);
+        public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, Pointer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor);
+        /** 
+         * Return the result of the reduction operation (with one value per channel).
+         */
+        public Pointer<B> reduce(CLQueue queue, CLBuffer<B> input, CLEvent... eventsToWaitFor);
+        
     }
     /*public interface WeightedReductor<B extends Buffer, W extends Buffer> {
         public CLEvent reduce(CLQueue queue, CLBuffer<B> input, CLBuffer<W> weights, long inputLength, B output, int maxReductionSize, CLEvent... eventsToWaitFor);
@@ -135,6 +144,10 @@ public class ReductionUtils {
         }
     }
 
+    /**
+     * Create a reductor for the provided operation and primitive type (on the provided number of independent channels).<br>
+     * Channels are reduced independently, so that with 2 channels the max of elements { (1, 30), (2, 20), (3, 10) } would be (3, 30).
+     */
     public static <B> Reductor<B> createReductor(final CLContext context, Operation op, final OpenCLType valueType, final int valueChannels) throws CLBuildException {
         try {
 
@@ -148,21 +161,27 @@ public class ReductionUtils {
                 throw new RuntimeException("Expected 1 kernel, found : " + kernels.length);
             final CLKernel kernel = kernels[0];
             return new Reductor<B>() {
+                @Override
+                public int getChannels() {
+                		return valueChannels;
+                }
 				@SuppressWarnings("unchecked")
-				@Override
                 public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, Pointer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor) {
                     Pair<CLBuffer<B>, CLEvent[]> outAndEvts = reduceHelper(queue, input, (int)inputLength, maxReductionSize, eventsToWaitFor);
                     return outAndEvts.getFirst().read(queue, 0, valueChannels, output, false, outAndEvts.getSecond());
                 }
                 @Override
                 public Pointer<B> reduce(CLQueue queue, CLBuffer<B> input, long inputLength, int maxReductionSize, CLEvent... eventsToWaitFor) {
-                    Pointer<B> output = Pointer.allocateArray((Class)valueType.type, inputLength);
-                    output = output.order(context.getByteOrder());
+                    Pointer<B> output = Pointer.allocateArray((Class)valueType.type, valueChannels).order(context.getByteOrder());
                     CLEvent evt = reduce(queue, input, inputLength, output, maxReductionSize, eventsToWaitFor);
                     //queue.finish();
                     //TODO
                     evt.waitFor();
                     return output;
+                }
+                @Override
+                public Pointer<B> reduce(CLQueue queue, CLBuffer<B> input, CLEvent... eventsToWaitFor) {
+                		return reduce(queue, input, input.getElementCount(), DEFAULT_MAX_REDUCTION_SIZE, eventsToWaitFor);
                 }
                 @Override
                 public CLEvent reduce(CLQueue queue, CLBuffer<B> input, long inputLength, CLBuffer<B> output, int maxReductionSize, CLEvent... eventsToWaitFor) {

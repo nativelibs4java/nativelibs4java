@@ -103,7 +103,7 @@ public class DiscreteFourierTransformTest {
         return out;
     }
 
-    public void testDoubleValues(String title, Transformer<Double, DoubleBuffer, double[]> tr) {
+    public void testDoubleValues(String title, Transformer<Double, double[]> tr) {
         FastFourierTransformer apache = new FastFourierTransformer();
         CLQueue queue = tr.getContext() == null ? null : tr.getContext().createDefaultOutOfOrderQueueIfPossible();
         for (double[] data : createTestDoubleInputs()) {
@@ -111,7 +111,7 @@ public class DiscreteFourierTransformTest {
             assertArrayEquals(title + " (n = " + (data.length / 2) + ")", expected, tr.transform(queue, data, false), precisionDouble);
         }
     }
-    public void testFloatValues(String title, Transformer<Float, FloatBuffer, float[]> tr) {
+    public void testFloatValues(String title, Transformer<Float, float[]> tr) {
         FastFourierTransformer apache = new FastFourierTransformer();
         CLQueue queue = tr.getContext() == null ? null : tr.getContext().createDefaultOutOfOrderQueueIfPossible();
         for (double[] data : createTestDoubleInputs()) {
@@ -153,7 +153,7 @@ public class DiscreteFourierTransformTest {
     public void testFloatFFTInverse() throws IOException, CLException {
         testFloatTransformer("Float FFT Inverse", new FloatFFTPow2());
     }
-    void testDoubleTransformer(String title, Transformer<Double, DoubleBuffer, double[]> t) throws IOException, CLException {
+    void testDoubleTransformer(String title, Transformer<Double, double[]> t) throws IOException, CLException {
         CLQueue queue = t.getContext().createDefaultOutOfOrderQueueIfPossible();
         //System.out.println("Context: " + t.getContext());
         for (double[] in : createTestDoubleInputs()) {
@@ -162,7 +162,7 @@ public class DiscreteFourierTransformTest {
             assertArrayEquals(title + " (n = " + (in.length / 2) + ")", in, back, precisionInverseDouble);
         }
     }
-    void testFloatTransformer(String title, Transformer<Float, FloatBuffer, float[]> t) throws IOException, CLException {
+    void testFloatTransformer(String title, Transformer<Float, float[]> t) throws IOException, CLException {
         CLQueue queue = t.getContext().createDefaultOutOfOrderQueueIfPossible();
         //System.out.println("Context: " + t.getContext());
         for (float[] in : createTestFloatInputs()) {

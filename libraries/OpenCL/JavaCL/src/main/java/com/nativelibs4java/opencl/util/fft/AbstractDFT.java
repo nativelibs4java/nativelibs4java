@@ -5,7 +5,7 @@ import com.nativelibs4java.opencl.util.Transformer.AbstractTransformer;
 import java.io.IOException;
 import java.nio.Buffer;
 
-public abstract class AbstractDFT<T, B extends Buffer, A> extends AbstractTransformer<T, B, A> {
+abstract class AbstractDFT<T, A> extends AbstractTransformer<T, A> {
 
     // package-private constructor 
     AbstractDFT(CLContext context, Class<T> primitiveClass) throws IOException, CLException {

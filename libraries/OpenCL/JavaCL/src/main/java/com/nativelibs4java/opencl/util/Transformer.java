@@ -21,20 +21,19 @@ import org.bridj.*;
 import static org.bridj.Pointer.*;
 
 /**
- * Generic homogen transformer class
+ * Generic homogeneous transformer class
  * @author ochafik
- * @param <B> NIO buffer class that represents the data consumed and produced by this transformer
  * @param <A> primitive array class that represents the data consumed and produced by this transformer
  */
-public interface Transformer<T, B extends Buffer, A> {
+public interface Transformer<T, A> {
 	CLContext getContext();
     A transform(CLQueue queue, A input, boolean inverse);
-    B transform(CLQueue queue, B input, boolean inverse);
+    //B transform(CLQueue queue, B input, boolean inverse);
     Pointer<T> transform(CLQueue queue, Pointer<T> input, boolean inverse);
     CLEvent transform(CLQueue queue, CLBuffer<T> input, CLBuffer<T> output, boolean inverse, CLEvent... eventsToWaitFor) throws CLException;
     long computeOutputSize(long inputSize);
     
-    public abstract class AbstractTransformer<T, B extends Buffer, A> implements Transformer<T, B, A> {
+    public abstract class AbstractTransformer<T, A> implements Transformer<T, A> {
         protected final Class<T> primitiveClass;
         protected final CLContext context;
 
@@ -50,12 +49,8 @@ public interface Transformer<T, B extends Buffer, A> {
         }
 
         
-        public B transform(CLQueue queue, B in, boolean inverse) {
-        		throw new UnsupportedOperationException("use the Pointer<T> variant instead");
-        }
         public A transform(CLQueue queue, A input, boolean inverse) {
         		return (A)transform(queue, (Pointer<T>)pointerToArray(input), inverse).getArray();
-            //return (A)NIOUtils.getArray(transform(queue, (B)NIOUtils.wrapArray(input), inverse));
         }
         public Pointer<T> transform(CLQueue queue, Pointer<T> in, boolean inverse) {
             long inputSize = (int)in.getValidElements();

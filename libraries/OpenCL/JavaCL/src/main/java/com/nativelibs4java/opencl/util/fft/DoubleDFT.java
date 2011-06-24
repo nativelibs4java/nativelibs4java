@@ -5,7 +5,10 @@ import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
 
-public class DoubleDFT extends AbstractDFT<Double, DoubleBuffer, double[]> {
+/**
+ * Slow OpenCL Fourier Transform that works in all cases (double precision floating point numbers)
+ */
+public class DoubleDFT extends AbstractDFT<Double, double[]> {
 
     final DoubleDFTProgram program;
 
@@ -20,10 +23,5 @@ public class DoubleDFT extends AbstractDFT<Double, DoubleBuffer, double[]> {
     @Override
     protected CLEvent dft(CLQueue queue, CLBuffer<Double> inBuf, CLBuffer<Double> outBuf, int length, int sign, int[] dims, CLEvent... events) throws CLException {
         return program.dft(queue, (CLBuffer<Double>)inBuf, (CLBuffer<Double>)outBuf, length, sign, dims, null, events);
-    }
-
-    @Override
-    public double[] transform(CLQueue queue, double[] input, boolean inverse) {
-        return super.transform(queue, input, inverse);
     }
  }

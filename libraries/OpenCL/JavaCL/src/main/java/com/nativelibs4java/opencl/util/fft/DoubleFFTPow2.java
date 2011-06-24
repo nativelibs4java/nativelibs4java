@@ -5,7 +5,10 @@ import com.nativelibs4java.opencl.CLPlatform.DeviceFeature;
 import java.io.IOException;
 import java.nio.DoubleBuffer;
 
-public class DoubleFFTPow2 extends AbstractFFTPow2<Double, DoubleBuffer, double[]> {
+/**
+ * OpenCL Fast Fourier Transform for array sizes that are powers of two (double precision floating point numbers)
+ */
+public class DoubleFFTPow2 extends AbstractFFTPow2<Double, double[]> {
 
     final DoubleFFTProgram program;
 
