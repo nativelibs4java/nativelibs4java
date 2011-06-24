@@ -5,6 +5,8 @@ import org.junit.Test;
 import java.nio.charset.Charset;
 import java.nio.*;
 import java.util.Iterator;
+import java.util.Arrays;
+import static java.util.Arrays.asList;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Library;
 import org.bridj.ann.Runtime;
@@ -62,7 +64,16 @@ public class PointerTest {
 	}
 	@Test
 	public void testList() {
-			
+		NativeList<Integer> list = allocateList(int.class, 10);
+		assertEquals(asList(), list);
+		list.add(10);
+		list.add(20);
+		assertEquals(asList(10, 20), list);
+		list.remove(0);
+		assertEquals(asList(20), list);
+		list.clear();
+		assertEquals(asList(), list);
+		
 	}
 	
 	/*

@@ -83,6 +83,13 @@ import java.util.logging.Level;
 #end
  *		{@link Pointer#pointerToString(String, StringType, Charset) }<br>
  *  </li>
+ *  <li>Allocating a {@link ListType#Dynamic} Java {@link java.util.List} that uses native memory storage  (think of getting back the pointer with {@link NativeList#getPointer()} when you're done mutating the list):<br>
+ *		{@link Pointer#allocateList(Class, long) }
+ *  </li>
+ *  <li>Transforming a pointer to a Java {@link java.util.List} that uses the pointer as storage (think of getting back the pointer with {@link NativeList#getPointer()} when you're done mutating the list, if it's {@link ListType#Dynamic}) :<br>
+ *		{@link Pointer#toList(ListType) }<br>
+ *		{@link Pointer#toList() }<br>
+ *  </li>
  * </ul>
  * <p>
  * <u><b>Casting pointers</b></u>
@@ -2842,24 +2849,43 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
 	/**
-	 * Create a fixed-capacity native list that uses this pointer as storage (and has this pointer's pointed valid elements as initial content).<br> 
+	 * Create a {@link ListType#FixedCapacity} native list that uses this pointer as storage (and has this pointer's pointed valid elements as initial content).<br> 
 	 * Same as {@link Pointer#toList(ListType)}({@link ListType#FixedCapacity}).
 	 */
 	public NativeList<T> toList() {
 		return toList(ListType.FixedCapacity);
 	}
 	/**
-	 * Create a native list that uses this pointer as storage (and has this pointer's pointed valid elements as initial content). 
+	 * Create a native list that uses this pointer as <b>initial</b> storage (and has this pointer's pointed valid elements as initial content).<br>
+	 * If the list is {@link ListType#Dynamic} and if its capacity is grown at some point, this pointer will probably no longer point to the native memory storage of the list, so you need to get back the pointer with {@link NativeList#getPointer()} when you're done mutating the list.
 	 */
 	public NativeList<T> toList(ListType type) {
 		return new DefaultNativeList(this, type);
 	}
 	/**
-     * Create a dynamic list with the provided initial capacity (see {@link ListType#Dynamic}).
+     * Create a {@link ListType#Dynamic} list with the provided initial capacity (see {@link ListType#Dynamic}).
      * @param io Type of the elements of the list
      * @param capacity Initial capacity of the list
      */
     public static <E> NativeList<E> allocateList(PointerIO<E> io, long capacity) {
-        return new DefaultNativeList(allocateArray(io, capacity), ListType.Dynamic);
+        NativeList<E> list = new DefaultNativeList(allocateArray(io, capacity), ListType.Dynamic);
+        list.clear();
+        return list;
+    }
+	/**
+     * Create a {@link ListType#Dynamic} list with the provided initial capacity (see {@link ListType#Dynamic}).
+     * @param type Type of the elements of the list
+     * @param capacity Initial capacity of the list
+     */
+    public static <E> NativeList<E> allocateList(Class<E> type, long capacity) {
+        return allocateList((PointerIO)PointerIO.getInstance(type), capacity);
+    }
+	/**
+     * Create a {@link ListType#Dynamic} list with the provided initial capacity (see {@link ListType#Dynamic}).
+     * @param type Type of the elements of the list
+     * @param capacity Initial capacity of the list
+     */
+    public static <E> NativeList<E> allocateList(Type type, long capacity) {
+        return (NativeList)allocateList(PointerIO.getInstance(type), capacity);
     }
 }

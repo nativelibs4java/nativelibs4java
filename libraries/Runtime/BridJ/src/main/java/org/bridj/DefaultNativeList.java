@@ -6,6 +6,7 @@ package org.bridj;
 
 import java.util.RandomAccess;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -63,11 +64,11 @@ class DefaultNativeList<T> implements NativeList<T> {
     }
 
     public Object[] toArray() {
-        return pointer.toArray();
+        return pointer.validElements(size).toArray();
     }
 
     public <T> T[] toArray(T[] ts) {
-        return pointer.toArray(ts);
+        return pointer.validElements(size).toArray(ts);
     }
 
     protected void requireSize(long newSize) {
@@ -206,7 +207,9 @@ class DefaultNativeList<T> implements NativeList<T> {
         if (i >= size || i < 0)
             throw new IndexOutOfBoundsException("Invalid index : " + i + " (list has size " + size +")");
         T old = pointer.get(i);
-        pointer.moveBytesAtOffsetTo(i + 1, pointer, i, 1);
+        long targetSize = io.getTargetSize();
+        pointer.moveBytesAtOffsetTo((i + 1) * targetSize, pointer, i * targetSize, targetSize);
+        size--;
         return old;
     }
 
@@ -241,6 +244,8 @@ class DefaultNativeList<T> implements NativeList<T> {
     }
 
     public ListIterator<T> listIterator(int i) {
+        if (size == 0)
+            return Collections.EMPTY_LIST.listIterator(0); // TODO fix this...
         return pointer.next(i).validElements(size).iterator();
     }
 
@@ -274,11 +279,11 @@ class DefaultNativeList<T> implements NativeList<T> {
         }
 
         public Object[] toArray() {
-            return pointer.next(fromIndex).toArray();
+            return pointer.next(fromIndex).validElements(size()).toArray();
         }
 
         public <T> T[] toArray(T[] ts) {
-            return pointer.next(fromIndex).toArray(ts);
+            return pointer.next(fromIndex).validElements(size()).toArray(ts);
         }
 
         public boolean add(T e) {
@@ -424,4 +429,11 @@ class DefaultNativeList<T> implements NativeList<T> {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return getClass().getName() + "{ " + Arrays.asList(toArray()) + "}";
+    }
+    
+    
 }
