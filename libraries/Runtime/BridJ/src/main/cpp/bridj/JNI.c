@@ -18,6 +18,7 @@ jint JNICALL Java_org_bridj_JNI_sizeOf_1 ## escType(JNIEnv *env, jclass clazz) {
 #define JNI_SIZEOF_t(type) JNI_SIZEOF(type ## _t, type ## _1t)
 
 JNI_SIZEOF_t(size)
+JNI_SIZEOF_t(time)
 JNI_SIZEOF_t(wchar)
 JNI_SIZEOF_t(ptrdiff)
 JNI_SIZEOF(long, long)
@@ -1068,6 +1069,59 @@ FUNC_VOID_3(memmove, jlong, jlong, jlong, void*, void*, size_t)
 FUNC_3(jlong, memchr, jlong, jbyte, jlong, void*, unsigned char, size_t)
 FUNC_3(jint, memcmp, jlong, jlong, jlong, void*, void*, size_t)
 FUNC_VOID_3(memset, jlong, jbyte, jlong, void*, unsigned char, size_t)
+
+jlong JNICALL Java_org_bridj_JNI_memmem(JNIEnv *env, jclass clazz, jlong haystack, jlong haystackLength, jlong needle, jlong needleLength) 
+{
+	const char* pHaystack = JLONG_TO_PTR(haystack);
+	const char* pNeedle = JLONG_TO_PTR(needle);
+	
+	if (needleLength > haystackLength)
+		return 0;
+	if (!pHaystack || !pNeedle)
+		return 0;
+	
+#ifndef memmem
+	{
+		jlong n = haystackLength - needleLength;
+		char needleStart = *pNeedle;
+		for (size_t i = 0; i <= n; i++) {
+			const char* position = pHaystack + i;
+			if (*position == needleStart) {
+				if (memcmp(position, pNeedle, (size_t)needleLength) == 0)
+					return PTR_TO_JLONG(position);
+			}
+		}
+		return 0;
+	}
+#else
+	return memmem(pHaystack, (size_t)haystackLength, pNeedle, (size_t)needleLength);
+#endif
+}
+
+
+jlong JNICALL Java_org_bridj_JNI_memmem_1last(JNIEnv *env, jclass clazz, jlong haystack, jlong haystackLength, jlong needle, jlong needleLength) 
+{
+	const char* pHaystack = JLONG_TO_PTR(haystack);
+	const char* pNeedle = JLONG_TO_PTR(needle);
+	
+	if (needleLength > haystackLength)
+		return 0;
+	if (!pHaystack || !pNeedle)
+		return 0;
+	
+	{
+		jlong n = haystackLength - needleLength;
+		char needleStart = *pNeedle;
+		for (size_t i = n; i >= n; i--) {
+			const char* position = pHaystack + i;
+			if (*position == needleStart) {
+				if (memcmp(position, pNeedle, (size_t)needleLength) == 0)
+					return PTR_TO_JLONG(position);
+			}
+		}
+		return 0;
+	}
+}
 
 #include "PrimDefs_int.h"
 #include "JNI_prim.h"

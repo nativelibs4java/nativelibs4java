@@ -43,6 +43,28 @@ public class PointerTest {
 		assertTrue(p == (Pointer)p.as(p.getIO().getTargetType()));
 		assertTrue(p == (Pointer)p.order(p.order()));
 	}
+	
+	@Test
+	public void testFind() {
+		Pointer<Integer> p = pointerToInts(1, 2, 3, 4);
+		assertEquals(null, p.find(null));
+		assertEquals(null, p.find(pointerToInts(1, 4)));
+		assertEquals(p, p.find(p));
+		assertEquals(p.next(2), p.find(pointerToInts(3, 4)));
+	}
+	@Test
+	public void testFindLast() {
+		Pointer<Integer> p = pointerToInts(1, 2, 3, 4, 1, 2);
+		assertEquals(null, p.findLast(null));
+		assertEquals(null, p.findLast(pointerToInts(1, 4)));
+		assertEquals(p, p.findLast(p));
+		assertEquals(p.next(4), p.findLast(pointerToInts(1, 2)));
+	}
+	@Test
+	public void testList() {
+			
+	}
+	
 	/*
 	@Test
 	public void testFloatEndian() {

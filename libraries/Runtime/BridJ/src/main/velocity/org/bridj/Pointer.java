@@ -99,8 +99,7 @@ import java.util.logging.Level;
  *  </li>
  * </ul>
  */
-public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
-        //, com.sun.jna.Pointer<Pointer<T>>
+public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 {
 	
 #macro (docAllocateCopy $cPrimName $primWrapper)
@@ -2040,27 +2039,26 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
      * Works even if the destination and source memory locations are overlapping.
      */
     @Deprecated
-	public Pointer<T> moveBytesTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
+	public Pointer<T> moveBytesAtOffsetTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
     		JNI.memmove(destination.getCheckedPeer(byteOffsetInDestination, byteCount), getCheckedPeer(byteOffset, byteCount), byteCount);
     		return this;
     }
     
-    private final long getValidBytes(String error) {
+    final long getValidBytes(String error) {
     		long rem = getValidBytes();
     		if (rem < 0)
-    		//if (validEnd == UNKNOWN_VALIDITY)
     			throw new IndexOutOfBoundsException(error);
 
         return rem;
     }
-    private final long getValidElements(String error) {
+    final long getValidElements(String error) {
     		long rem = getValidElements();
     		if (rem < 0)
     			throw new IndexOutOfBoundsException(error);
 
         return rem;
     }
-    private final PointerIO<T> getIO(String error) {
+    final PointerIO<T> getIO(String error) {
     		PointerIO<T> io = getIO();
         if (io == null)
             throwBecauseUntyped(error);
@@ -2080,6 +2078,30 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
     public void copyTo(Pointer<?> destination, long elementCount) {
     		PointerIO<T> io = getIO("Cannot copy untyped pointer without byte count information. Please use copyTo(offset, destination, destinationOffset, byteCount) instead");
     		copyBytesTo(0, destination, 0, getValidElements() * io.getTargetSize());
+    }
+    
+    public Pointer<T> find(Pointer<?> needle) {
+    		if (needle == null)
+    			return null;
+    		long firstOccurrence = JNI.memmem(
+			getPeer(), 
+			getValidBytes("Cannot search an unbounded memory area. Please set bounds with validBytes(long)."), 
+			needle.getPeer(), 
+			needle.getValidBytes("Cannot search for an unbounded content. Please set bounds with validBytes(long).")
+		);
+		return pointerToAddress(firstOccurrence, io);
+    }
+    
+    public Pointer<T> findLast(Pointer<?> needle) {
+    		if (needle == null)
+    			return null;
+    		long lastOccurrence = JNI.memmem_last(
+			getPeer(), 
+			getValidBytes("Cannot search an unbounded memory area. Please set bounds with validBytes(long)."), 
+			needle.getPeer(), 
+			needle.getValidBytes("Cannot search for an unbounded content. Please set bounds with validBytes(long).")
+		);
+		return pointerToAddress(lastOccurrence, io);
     }
 
 
@@ -2739,76 +2761,6 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
 	/**
-	 * Implementation of {@link List#add(Object)} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public boolean add(T item) {
-		throw new UnsupportedOperationException();
-	}
-	
-    /**
-	 * Implementation of {@link List#add(int, Object)} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public void add(int index, T element) {
-		throw new UnsupportedOperationException();
-	}
-	
-    /**
-	 * Implementation of {@link List#addAll(Collection)} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public boolean addAll(Collection<? extends T> c) {
-		throw new UnsupportedOperationException();
-	}
-	
-    /**
-	 * Implementation of {@link List#addAll(int, Collection)} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public boolean addAll(int index, Collection<? extends T> c) {
-		throw new UnsupportedOperationException();
-	}
-	
-    /**
-	 * Implementation of {@link List#clear()} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public void clear() {
-		throw new UnsupportedOperationException();
-	}
-	
-    /**
-	 * Implementation of {@link List#contains(Object)} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public boolean contains(Object o) {
-		throw new UnsupportedOperationException();
-	}
-	
-    /**
-	 * Implementation of {@link List#containsAll(Collection)} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public boolean containsAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
-	
-    /**
-	 * Implementation of {@link List#get(int)}
-	 */
-	public final T get(int index) {
-		return get((long)index);
-	}
-	
-	/**
 	 * Alias for {@link Pointer#get(long)} defined for more natural use from the Scala language.
 	 */
     public final T apply(long index) {
@@ -2816,89 +2768,6 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
     /**
-	 * Implementation of {@link List#indexOf(Object)} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public int indexOf(Object o) {
-		throw new UnsupportedOperationException();
-	}
-	
-    /**
-	 * Implementation of {@link List#isEmpty()}
-	 */
-	public boolean isEmpty() {
-		return getValidElements() == 0;
-	}
-	
-    /**
-     * Implementation of {@link List#lastIndexOf(Object)} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public int lastIndexOf(Object o) {
-		throw new UnsupportedOperationException();
-	}
-	
-    /**
-	 * Implementation of {@link List#listIterator()}
-	 */
-	public ListIterator<T> listIterator() {
-		return iterator();
-	}
-	
-    /**
-	 * Implementation of {@link List#listIterator(int)}
-	 */
-	public ListIterator<T> listIterator(int index) {
-		return next(index).listIterator();
-	}
-	
-    /**
-	 * Implementation of {@link List#remove(int)} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public T remove(int index) {
-		throw new UnsupportedOperationException();
-	}
-	
-    /**
-	 * Implementation of {@link List#remove(Object)} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public boolean remove(Object o) {
-		throw new UnsupportedOperationException();
-	}
-	
-    /**
-	 * Implementation of {@link List#removeAll(Collection)} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public boolean removeAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
-	
-	/**
-	 * Implementation of {@link List#retainAll(Collection)} that throws UnsupportedOperationException
-	 * @throws UnsupportedOperationException
-	 */
-    @Deprecated
-	public boolean retainAll(Collection<?> c) {
-		throw new UnsupportedOperationException();
-	}
-	
-    /**
-	 * Implementation of {@link List\#set(int, Object)}
-	 */
-	public final T set(int index, T element) {
-		set((long)index, element);
-		return element;
-	}
-	
-	/**
 	 * Alias for {@link Pointer\#set(long, Object)} defined for more natural use from the Scala language.
 	 */
 	public final void update(long index, T element) {
@@ -2906,27 +2775,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
     /**
-	 * Implementation of {@link List#size()}
-	 * @deprecated Casts the result of getValidElements() to int, so sizes greater that 2^31 will be invalid
-	 * @return {@link Pointer#getValidElements()}
-	 */
-	public int size() {
-		long size = getValidElements();
-		if (size > Integer.MAX_VALUE)
-			throw new RuntimeException("Size is greater than Integer.MAX_VALUE, cannot convert to int in Pointer.size()");
-		return (int)size;
-	}
-	
-    /**
-	 * Implementation of {@link List#subList(int, int)}
-	 */
-	public List<T> subList(int fromIndex, int toIndex) {
-		getIO("Cannot create sublist");
-        return next(fromIndex).validElements(toIndex - fromIndex);
-	}
-	
-    /**
-	 * Implementation of {@link List#toArray()}
+	 * Create an array with all the values in the bounded memory area.<br>
+	 * Note that if you wish to get an array of primitives (if T is boolean, char or a numeric type), then you need to call {@link Pointer#getArray()}.
+	 * @throws IndexOutOfBoundsException if this pointer's bounds are unknown
 	 */
 	public T[] toArray() {
 		getIO("Cannot create array");
@@ -2941,7 +2792,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
 	}
 	
     /**
-	 * Implementation of {@link List#toArray(Object[])}
+	 * Create an array with all the values in the bounded memory area, reusing the provided array if its type is compatible and its size is big enough.<br>
+	 * Note that if you wish to get an array of primitives (if T is boolean, char or a numeric type), then you need to call {@link Pointer#getArray()}.
+	 * @throws IndexOutOfBoundsException if this pointer's bounds are unknown
 	 */
 	public <U> U[] toArray(U[] array) {
 		int n = (int)getValidElements();
@@ -2954,5 +2807,15 @@ public class Pointer<T> implements Comparable<Pointer<?>>, List<T>//Iterable<T>
         for (int i = 0; i < n; i++)
         	array[i] = (U)get(i);
         return array;
+	}
+	
+	/**
+	* Same as {@link Pointer#toList(NativeList.ListType)}({@link NativeList.ListType#FixedCapacity}).
+	 */
+	public NativeList<T> toList() {
+		return toList(NativeList.ListType.FixedCapacity);
+	}
+	public NativeList<T> toList(NativeList.ListType type) {
+		return new NativeList(this, type);
 	}
 }

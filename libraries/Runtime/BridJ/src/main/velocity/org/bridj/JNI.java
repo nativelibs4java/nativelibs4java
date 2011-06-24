@@ -178,6 +178,8 @@ public class JNI {
     static native void memcpy(long dest, long source, long size);
     static native void memmove(long dest, long source, long size);
     static native long memchr(long ptr, byte value, long num);
+    static native long memmem(long haystack, long haystackLength, long needle, long needleLength);
+    static native long memmem_last(long haystack, long haystackLength, long needle, long needleLength);
     static native int memcmp(long ptr1, long ptr2, long num);
     static native void memset(long ptr, byte value, long num);
 }
