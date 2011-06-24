@@ -2026,7 +2026,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 
     /**
      * Copy bytes from the memory location indicated by this pointer to that of another pointer (with byte offsets for both the source and the destination), using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function.<br>
-     * If the destination and source memory locations are likely to overlap, {@link Pointer#moveBytesTo(long, Pointer, long, long)} must be used instead.
+     * If the destination and source memory locations are likely to overlap, {@link Pointer#moveBytesAtOffsetTo(long, Pointer, long, long)} must be used instead.
      */
     @Deprecated
 	public Pointer<T> copyBytesTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
@@ -2042,6 +2042,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	public Pointer<T> moveBytesAtOffsetTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
     		JNI.memmove(destination.getCheckedPeer(byteOffsetInDestination, byteCount), getCheckedPeer(byteOffset, byteCount), byteCount);
     		return this;
+    }
+    
+    /**
+     * Copy bytes from the memory location indicated by this pointer to that of another pointer, using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memmove/">memmove</a> C function.<br>
+     * Works even if the destination and source memory locations are overlapping.
+     */
+	public Pointer<T> moveBytesTo(Pointer<?> destination) {
+    		return moveBytesAtOffsetTo(0, destination, 0, getValidBytes("Cannot move an unbounded memory location. Please use validBytes(long)."));
     }
     
     final long getValidBytes(String error) {
@@ -2080,6 +2088,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     		copyBytesTo(0, destination, 0, getValidElements() * io.getTargetSize());
     }
     
+    /**
+     * Find the first appearance of the sequence of valid bytes pointed by needle in the memory area pointed to by this bounded pointer (behaviour equivalent to <a href="http://linux.die.net/man/3/memmem">memmem</a>, which is used underneath on platforms where it is available)
+     */
     public Pointer<T> find(Pointer<?> needle) {
     		if (needle == null)
     			return null;
@@ -2092,6 +2103,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return pointerToAddress(firstOccurrence, io);
     }
     
+    /**
+    * Find the last appearance of the sequence of valid bytes pointed by needle in the memory area pointed to by this bounded pointer (also see {@link Pointer#find(Pointer)}).
+     */
     public Pointer<T> findLast(Pointer<?> needle) {
     		if (needle == null)
     			return null;
@@ -2809,15 +2823,27 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         return array;
 	}
 	
+	/**
+	* Types of pointer-based list implementations that can be created through {@link Pointer#toList()} or {@link Pointer#toList(ListType)}.
+	 */
 	public enum ListType {
+		/**
+		 * Read-only list
+		 */
         Unmodifiable,
+        /**
+		 * List is modifiable and can shrink, but capacity cannot be increased (some operations will hence throw UnsupportedOperationException when the capacity is unsufficient for the requested operation)
+		 */
         FixedCapacity,
+        /**
+		 * List is modifiable and its underlying memory will be reallocated if it needs to grow beyond its current capacity.
+		 */
         Dynamic
     }
     
 	/**
 	 * Create a fixed-capacity native list that uses this pointer as storage (and has this pointer's pointed valid elements as initial content).<br> 
-	 * Same as {@link Pointer#toList(NativeList.ListType)}({@link ListType#FixedCapacity}).
+	 * Same as {@link Pointer#toList(ListType)}({@link ListType#FixedCapacity}).
 	 */
 	public NativeList<T> toList() {
 		return toList(ListType.FixedCapacity);
@@ -2829,9 +2855,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return new DefaultNativeList(this, type);
 	}
 	/**
-     * Create a dynamic list with the provided initial capacity
-     * @param io
-     * @param capacity 
+     * Create a dynamic list with the provided initial capacity (see {@link ListType#Dynamic}).
+     * @param io Type of the elements of the list
+     * @param capacity Initial capacity of the list
      */
     public static <E> NativeList<E> allocateList(PointerIO<E> io, long capacity) {
         return new DefaultNativeList(allocateArray(io, capacity), ListType.Dynamic);
