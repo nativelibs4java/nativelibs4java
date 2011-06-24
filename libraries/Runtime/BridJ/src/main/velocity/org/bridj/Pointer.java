@@ -2809,13 +2809,31 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         return array;
 	}
 	
+	public enum ListType {
+        Unmodifiable,
+        FixedCapacity,
+        Dynamic
+    }
+    
 	/**
-	* Same as {@link Pointer#toList(NativeList.ListType)}({@link NativeList.ListType#FixedCapacity}).
+	 * Create a fixed-capacity native list that uses this pointer as storage (and has this pointer's pointed valid elements as initial content).<br> 
+	 * Same as {@link Pointer#toList(NativeList.ListType)}({@link ListType#FixedCapacity}).
 	 */
 	public NativeList<T> toList() {
-		return toList(NativeList.ListType.FixedCapacity);
+		return toList(ListType.FixedCapacity);
 	}
-	public NativeList<T> toList(NativeList.ListType type) {
-		return new NativeList(this, type);
+	/**
+	 * Create a native list that uses this pointer as storage (and has this pointer's pointed valid elements as initial content). 
+	 */
+	public NativeList<T> toList(ListType type) {
+		return new DefaultNativeList(this, type);
 	}
+	/**
+     * Create a dynamic list with the provided initial capacity
+     * @param io
+     * @param capacity 
+     */
+    public static <E> NativeList<E> allocateList(PointerIO<E> io, long capacity) {
+        return new DefaultNativeList(allocateArray(io, capacity), ListType.Dynamic);
+    }
 }
