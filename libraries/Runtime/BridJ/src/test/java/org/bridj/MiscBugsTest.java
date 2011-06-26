@@ -16,11 +16,11 @@ public class MiscBugsTest {
 	@Test
 	public void emptyIteratorFromUnmanagedPointer() {
 		Pointer<Byte> ptr = allocateBytes(10);
-		assertTrue(!ptr.toList().isEmpty());
+		assertTrue(!ptr.asList().isEmpty());
 		assertTrue(ptr.iterator().next() != null);
 		
 		Pointer<Byte> unmanaged = pointerToAddress(ptr.getPeer()).as(Byte.class);
-		assertTrue(!unmanaged.toList().isEmpty());
+		assertTrue(!unmanaged.asList().isEmpty());
 		assertTrue(unmanaged.iterator().next() != null);
 	}
 	
