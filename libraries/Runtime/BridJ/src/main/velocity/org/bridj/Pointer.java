@@ -87,8 +87,8 @@ import java.util.logging.Level;
  *		{@link Pointer#allocateList(Class, long) }
  *  </li>
  *  <li>Transforming a pointer to a Java {@link java.util.List} that uses the pointer as storage (think of getting back the pointer with {@link NativeList#getPointer()} when you're done mutating the list, if it's {@link ListType#Dynamic}) :<br>
- *		{@link Pointer#toList(ListType) }<br>
- *		{@link Pointer#toList() }<br>
+ *		{@link Pointer#asList(ListType) }<br>
+ *		{@link Pointer#asList() }<br>
  *  </li>
  * </ul>
  * <p>
@@ -2832,7 +2832,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 	
 	/**
-	* Types of pointer-based list implementations that can be created through {@link Pointer#toList()} or {@link Pointer#toList(ListType)}.
+	* Types of pointer-based list implementations that can be created through {@link Pointer#asList()} or {@link Pointer#asList(ListType)}.
 	 */
 	public enum ListType {
 		/**
@@ -2851,16 +2851,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
 	/**
 	 * Create a {@link ListType#FixedCapacity} native list that uses this pointer as storage (and has this pointer's pointed valid elements as initial content).<br> 
-	 * Same as {@link Pointer#toList(ListType)}({@link ListType#FixedCapacity}).
+	 * Same as {@link Pointer#asList(ListType)}({@link ListType#FixedCapacity}).
 	 */
-	public NativeList<T> toList() {
-		return toList(ListType.FixedCapacity);
+	public NativeList<T> asList() {
+		return asList(ListType.FixedCapacity);
 	}
 	/**
 	 * Create a native list that uses this pointer as <b>initial</b> storage (and has this pointer's pointed valid elements as initial content).<br>
 	 * If the list is {@link ListType#Dynamic} and if its capacity is grown at some point, this pointer will probably no longer point to the native memory storage of the list, so you need to get back the pointer with {@link NativeList#getPointer()} when you're done mutating the list.
 	 */
-	public NativeList<T> toList(ListType type) {
+	public NativeList<T> asList(ListType type) {
 		return new DefaultNativeList(this, type);
 	}
 	/**
