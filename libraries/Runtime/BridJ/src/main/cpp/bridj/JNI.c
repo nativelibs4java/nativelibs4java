@@ -7,6 +7,7 @@
 #include "bridj.hpp"
 #include <string.h>
 #include <math.h>
+#include <time.h>
 #include "Exceptions.h"
 
 #pragma warning(disable: 4152)
