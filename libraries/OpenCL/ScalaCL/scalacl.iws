@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="b8c91894-95fa-46c7-9fb2-25d90efeb87c" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/pom.xml" afterPath="$PROJECT_DIR$/pom.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scalacl.iml" afterPath="$PROJECT_DIR$/scalacl.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scalacl.ipr" afterPath="$PROJECT_DIR$/scalacl.ipr" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/scalacl.iws" afterPath="$PROJECT_DIR$/scalacl.iws" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLFunction.scala" afterPath="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLFunction.scala" />
     </list>
     <ignored path="scalacl.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -326,7 +323,7 @@
       <file leaf-file-name="CLFunction.scala" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/CLFunction.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="114" column="9" selection-start="3803" selection-end="3803" vertical-scroll-proportion="0.027472528">
+            <state line="157" column="32" selection-start="5820" selection-end="5820" vertical-scroll-proportion="0.24615385">
               <folding />
             </state>
           </provider>
@@ -371,7 +368,6 @@
       <list>
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/ScalaCL.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/impl/ApplePrefixSum.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLFunction.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/CLArray.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/CLRange.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/impl/GroupedPrefixSum.scala" />
@@ -379,6 +375,7 @@
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLDataIO.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/CLFilteredArray.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/scalacl/impl/PrefixSum.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/scalacl/impl/CLFunction.scala" />
       </list>
     </option>
   </component>
@@ -605,6 +602,64 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="impl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="impl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="CLFunction.scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.ClassesTreeStructureProvider$PsiClassOwnerTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scalacl" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="collection" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -981,7 +1036,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/scalacl/impl/CLFunction.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="114" column="9" selection-start="3803" selection-end="3803" vertical-scroll-proportion="0.027472528">
+        <state line="157" column="32" selection-start="5820" selection-end="5820" vertical-scroll-proportion="0.24615385">
           <folding />
         </state>
       </provider>

@@ -154,12 +154,15 @@ extends (A => B)
     val assignt = assignts(CLDataIO.InputPointer, indexVarName, false)
     lazy val assigntRange = assignts(CLDataIO.InputPointer, indexVarName, true)
     var kernelsSource = outerDeclarations.mkString("\n")
+
+    val extraParams = "" // TODO
     if (!expressions.isEmpty) 
       kernelsSource += """
         __kernel void array_array(
             int size,
             """ + inParams + """,
             """ + outParams + """
+            """ + extraParams + """
         ) {
             """ + sizeHeader + """
             """ + kernDecls + """

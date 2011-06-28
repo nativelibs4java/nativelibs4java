@@ -54,7 +54,7 @@ extends MiscMatchers
   import scala.tools.nsc.symtab.Flags._
   import analyzer.{SearchResult, ImplicitSearch}
 
-  def getUnknownSymbols(tree: Tree, filter: Tree => Boolean = _ => true, preKnownSymbols: Set[Symbol] = Set()) = {
+  def getUnknownSymbolReferences(tree: Tree, filter: Tree => Boolean = _ => true, preKnownSymbols: Set[Symbol] = Set()): Seq[Tree] = {
     import collection._
     val defines = new mutable.HashSet[Symbol]
     defines ++= preKnownSymbols
@@ -73,6 +73,6 @@ extends MiscMatchers
       case _ =>
     }).traverse(tree)
 
-    unknown.toArray
+    unknown.toSeq
   }
 }

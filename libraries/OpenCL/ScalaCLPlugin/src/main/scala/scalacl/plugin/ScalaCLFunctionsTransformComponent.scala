@@ -36,6 +36,8 @@ import scala.tools.nsc.plugins.PluginComponent
 import scala.tools.nsc.transform.{Transform, TypingTransformers}
 import scala.tools.nsc.typechecker.Analyzer
 import scala.tools.nsc.typechecker.Contexts
+import scala.Predef._
+
 //import scala.tools.nsc.typechecker.Contexts._
 
 object ScalaCLFunctionsTransformComponent {
@@ -98,15 +100,17 @@ extends PluginComponent
      * Remove all symbols from the trees, because old symbols from before the unique renaming will preempt on renamed Ident names when printing the tree out to C code.
      * Hit Java verifier exceptions (Scala compiler bug) when letting this function definition where it's used, so lifted it up manually :-S
      */
-    private def removeSymbolsExceptParamSymbolAsUnderscore(paramSymbol: Symbol, t: Tree) = { 
+    private def removeSymbolsExceptParamSymbolAsUnderscore(symbolReplacements: Map[Symbol, String], t: Tree) = {
       val trans = new Transformer { 
         override def transform(tree: Tree) = tree match {
           case Ident(name) if tree.hasSymbol =>
-            if (tree.symbol == paramSymbol)
-              treeCopy.Ident(tree, N("_"))
-            else {
-              tree.setSymbol(NoSymbol) // to make renaming effective
-              super.transform(tree)
+            //paramSymbol: Symbol
+            symbolReplacements.get(tree.symbol) match {
+              case Some(rep) =>
+                treeCopy.Ident(tree, N(rep))
+              case None =>
+                tree.setSymbol(NoSymbol) // to make renaming effective
+                super.transform(tree)
             }
           case _ =>
             super.transform(tree)
@@ -141,9 +145,12 @@ extends PluginComponent
       throw new UnsupportedOperationException("Conversion error : " + msg)
     }
     def convertFunctionToCLFunction(originalFunction: Tree): Tree = {
-      
       val f = duplicator transform originalFunction
-      val unknownSymbols = getUnknownSymbols(f, t => t.symbol != NoSymbol && {
+
+      println("originalFunction = " + originalFunction)
+
+      val externalSymbolReferences = getUnknownSymbolReferences(f, t => t.symbol != NoSymbol && {
+        println("Examining t  = " + t )
         t.symbol match {
           case s: MethodSymbol =>
             /*if (s.owner != null) {
@@ -163,16 +170,41 @@ extends PluginComponent
             false
         }
       })
-      for (s <- unknownSymbols) s match {
+      val externalRefsBySymbol = externalSymbolReferences.groupBy(_.symbol)
+      val externalSymbols = externalRefsBySymbol.keys.toSet
+      
+      def canCaptureSymbol(s: Symbol) =
+        (System.getenv("SCALACL_CAPTURE_VARIABLES") != null) &&
+        s.isInstanceOf[TermSymbol] &&
+        s.isEffectivelyFinal &&
+        {
+          val tpe = s.tpe.widen.dealias.deconst
+          
+          tpe == IntClass.tpe ||
+          tpe == ShortClass.tpe ||
+          tpe == LongClass.tpe ||
+          tpe == ByteClass.tpe ||
+          tpe == DoubleClass.tpe ||
+          tpe == FloatClass.tpe ||
+          tpe == CharClass.tpe ||
+          tpe == CLArrayClass.tpe
+        }
+        
+      val (capturableSymbols, nonCapturableSymbols) =
+        externalSymbols.partition(canCaptureSymbol)
+        
+      for (s <- nonCapturableSymbols; ref <- externalRefsBySymbol(s)) s match {
         case _: MethodSymbol =>
-          unit.error(s.pos, "Cannot capture externals methods yet")
+          unit.error(ref.pos, "Cannot capture externals methods yet (besides those in the scala.math package)")
         case _ =>
-          unit.error(s.pos, "Cannot capture externals symbols yet (symbol = " + s.symbol + ")")
+          unit.error(ref.pos, "Cannot capture externals symbols yet (symbol = " + s + ", tpe = " + s.tpe + ")")
       }
 
-      if (!unknownSymbols.isEmpty)
+      if (!nonCapturableSymbols.isEmpty)
         conversionError(originalFunction.pos, "Cannot convert functions that capture external symbols yet")
-    
+
+      println("capturableSymbols = " + capturableSymbols)
+
       assert(f.id != originalFunction.id)
       var Function(List(uniqueParam), body) = f
       val renamed = renameDefinedSymbolsUniquely(body, unit)
@@ -191,11 +223,17 @@ extends PluginComponent
           "\n\t\t)\n\t}"
         )
       */
+
+      val capturedSymbols = capturableSymbols.toArray
+      val symsMap =
+        Map(uniqueParam.symbol -> "_") ++
+        (capturedSymbols.zipWithIndex.map { case (s, i) => s -> ("_" + (i + 1)) })
       
-      def convertCode(tree: Tree) = 
-        convert(removeSymbolsExceptParamSymbolAsUnderscore(uniqueParam.symbol, tree))
-      
-      val symsMap = Map(uniqueParam.symbol -> "_")
+      println("symsMap = " + symsMap)
+
+      def convertCode(tree: Tree) =
+        convert(removeSymbolsExceptParamSymbolAsUnderscore(symsMap/*uniqueParam.symbol*/, tree))
+
       val convDefs: Seq[FlatCode[String]] = flattened.outerDefinitions map convertCode
       val convStats: Seq[FlatCode[String]] = flattened.statements map convertCode
       val convVals: Seq[FlatCode[String]] = flattened.values map convertCode
