@@ -30,26 +30,26 @@ for %%C in (%CONFIGS%) do (
 )
 
 for %%T in (win32 win64) do (
-	del ..\..\..\resources\%%T\*.dll
-	del ..\..\..\..\test\resources\%%T\*.dll
+	del ..\..\..\resources\org\bridj\lib\%%T\*.dll
+	del ..\..\..\..\test\resources\org\bridj\lib\%%T\*.dll
 )
 
 rem set CONFIG=Debug
 rem set CONFIG=Release
 
-copy %CONFIG%\bridj.dll ..\..\..\resources\win32
-copy %CONFIG%\test.dll ..\..\..\..\test\resources\win32
+copy %CONFIG%\bridj.dll ..\..\..\resources\org\bridj\lib\win32
+copy %CONFIG%\test.dll ..\..\..\..\test\resources\org\bridj\lib\win32
 
-copy x64\%CONFIG%\bridj.dll ..\..\..\resources\win64
-copy x64\%CONFIG%\test.dll ..\..\..\..\test\resources\win64
+copy x64\%CONFIG%\bridj.dll ..\..\..\resources\org\bridj\lib\win64
+copy x64\%CONFIG%\test.dll ..\..\..\..\test\resources\org\bridj\lib\win64
 
 rem if "%CONFIG%" == "Debug" (
 
-	copy %CONFIG%\bridj.pdb ..\..\..\resources\win32
-	copy %CONFIG%\test.pdb ..\..\..\..\test\resources\win32
+	copy %CONFIG%\bridj.pdb ..\..\..\resources\org\bridj\lib\win32
+	copy %CONFIG%\test.pdb ..\..\..\..\test\resources\org\bridj\lib\win32
 	
-	copy x64\%CONFIG%\bridj.pdb ..\..\..\resources\win64
-	copy x64\%CONFIG%\test.pdb ..\..\..\..\test\resources\win64
+	copy x64\%CONFIG%\bridj.pdb ..\..\..\resources\org\bridj\lib\win64
+	copy x64\%CONFIG%\test.pdb ..\..\..\..\test\resources\org\bridj\lib\win64
 rem )
 rem echo Copied files from %CONFIG% :
 rem dir %CONFIG%\bridj.dll x64\%CONFIG%\bridj.dll

@@ -1083,9 +1083,9 @@ jlong JNICALL Java_org_bridj_JNI_memmem(JNIEnv *env, jclass clazz, jlong haystac
 	
 #ifndef memmem
 	{
-		jlong n = haystackLength - needleLength;
+		jlong n = haystackLength - needleLength, i;
 		char needleStart = *pNeedle;
-		for (size_t i = 0; i <= n; i++) {
+		for (i = 0; i <= n; i++) {
 			const char* position = pHaystack + i;
 			if (*position == needleStart) {
 				if (memcmp(position, pNeedle, (size_t)needleLength) == 0)
@@ -1111,9 +1111,9 @@ jlong JNICALL Java_org_bridj_JNI_memmem_1last(JNIEnv *env, jclass clazz, jlong h
 		return 0;
 	
 	{
-		jlong n = haystackLength - needleLength;
+		jlong n = haystackLength - needleLength, i;
 		char needleStart = *pNeedle;
-		for (size_t i = n; i >= n; i--) {
+		for (i = n; i >= n; i--) {
 			const char* position = pHaystack + i;
 			if (*position == needleStart) {
 				if (memcmp(position, pNeedle, (size_t)needleLength) == 0)
