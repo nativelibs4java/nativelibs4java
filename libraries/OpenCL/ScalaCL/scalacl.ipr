@@ -4,6 +4,9 @@
     <asm skipDebug="false" skipFrames="false" skipCode="false" expandFrames="false" />
     <groovy codeStyle="LEGACY" />
   </component>
+  <component name="AntConfiguration">
+    <defaultAnt bundledAnt="true" />
+  </component>
   <component name="Compare Directories">
     <option name="identicalVisible" value="true" />
     <option name="differentVisible" value="true" />
@@ -111,6 +114,10 @@
     <option name="CHECKOUT_INCLUDE_TAGS" value="false" />
     <option name="UPDATE_CHANGES_POLICY" value="STASH" />
   </component>
+  <component name="HighlightingAdvisor">
+    <option name="SUGGEST_TYPE_AWARE_HIGHLIGHTING" value="false" />
+    <option name="TYPE_AWARE_HIGHLIGHTING_ENABLED" value="true" />
+  </component>
   <component name="IdProvider" IDEtalkID="1D5DADF7075260A493C6C9D3BB543E02" />
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_STRING" value="-target 1.5" />
@@ -142,6 +149,24 @@
   <component name="ModuleEditorState">
     <option name="LAST_EDITED_MODULE_NAME" />
     <option name="LAST_EDITED_TAB_NAME" />
+  </component>
+  <component name="NullableNotNullManager">
+    <option name="myDefaultNullable" value="org.jetbrains.annotations.Nullable" />
+    <option name="myDefaultNotNull" value="org.jetbrains.annotations.NotNull" />
+    <option name="myNullables">
+      <value>
+        <list size="0" />
+      </value>
+    </option>
+    <option name="myNotNulls">
+      <value>
+        <list size="3">
+          <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.NotNull" />
+          <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nonnull" />
+          <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.NonNull" />
+        </list>
+      </value>
+    </option>
   </component>
   <component name="Palette2">
     <group name="Swing">
@@ -397,70 +422,70 @@
   </component>
   <component name="WebServicesPlugin" addRequiredLibraries="true" />
   <component name="libraryTable">
-    <library name="Maven: com.nativelibs4java.thirdparty.com.google.android:dx:10">
+    <library name="Maven: com.nativelibs4java.thirdparty.com.google.android:dx:11">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/thirdparty/com/google/android/dx/10/dx-10.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/thirdparty/com/google/android/dx/11/dx-11.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/thirdparty/com/google/android/dx/10/dx-10-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/thirdparty/com/google/android/dx/11/dx-11-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/thirdparty/com/google/android/dx/10/dx-10-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/thirdparty/com/google/android/dx/11/dx-11-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: com.nativelibs4java:bridj:c-only:0.5-SNAPSHOT">
+    <library name="Maven: com.nativelibs4java:bridj:c-only:0.5">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.5-SNAPSHOT/bridj-0.5-SNAPSHOT-c-only.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.5/bridj-0.5-c-only.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.5-SNAPSHOT/bridj-0.5-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.5/bridj-0.5-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.5-SNAPSHOT/bridj-0.5-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/bridj/0.5/bridj-0.5-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: com.nativelibs4java:javacl-bridj:1.0-SNAPSHOT">
+    <library name="Maven: com.nativelibs4java:javacl-core:1.0.0-RC1">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-bridj/1.0-SNAPSHOT/javacl-bridj-1.0-SNAPSHOT.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-core/1.0.0-RC1/javacl-core-1.0.0-RC1.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-bridj/1.0-SNAPSHOT/javacl-bridj-1.0-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-core/1.0.0-RC1/javacl-core-1.0.0-RC1-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-bridj/1.0-SNAPSHOT/javacl-bridj-1.0-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-core/1.0.0-RC1/javacl-core-1.0.0-RC1-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: com.nativelibs4java:javacl-core-bridj:1.0-SNAPSHOT">
+    <library name="Maven: com.nativelibs4java:javacl:1.0.0-RC1">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-core-bridj/1.0-SNAPSHOT/javacl-core-bridj-1.0-SNAPSHOT.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl/1.0.0-RC1/javacl-1.0.0-RC1.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-core-bridj/1.0-SNAPSHOT/javacl-core-bridj-1.0-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl/1.0.0-RC1/javacl-1.0.0-RC1-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl-core-bridj/1.0-SNAPSHOT/javacl-core-bridj-1.0-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/javacl/1.0.0-RC1/javacl-1.0.0-RC1-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: com.nativelibs4java:opencl4java-bridj:1.0-SNAPSHOT">
+    <library name="Maven: com.nativelibs4java:opencl4java:1.0.0-RC1">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/opencl4java-bridj/1.0-SNAPSHOT/opencl4java-bridj-1.0-SNAPSHOT.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/opencl4java/1.0.0-RC1/opencl4java-1.0.0-RC1.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/opencl4java-bridj/1.0-SNAPSHOT/opencl4java-bridj-1.0-SNAPSHOT-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/opencl4java/1.0.0-RC1/opencl4java-1.0.0-RC1-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/opencl4java-bridj/1.0-SNAPSHOT/opencl4java-bridj-1.0-SNAPSHOT-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/com/nativelibs4java/opencl4java/1.0.0-RC1/opencl4java-1.0.0-RC1-sources.jar!/" />
       </SOURCES>
     </library>
-    <library name="Maven: junit:junit:4.8.1">
+    <library name="Maven: junit:junit:4.8.2">
       <CLASSES>
-        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.1/junit-4.8.1.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.2/junit-4.8.2.jar!/" />
       </CLASSES>
       <JAVADOC>
-        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.1/junit-4.8.1-javadoc.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.2/junit-4.8.2-javadoc.jar!/" />
       </JAVADOC>
       <SOURCES>
-        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.1/junit-4.8.1-sources.jar!/" />
+        <root url="jar://$MAVEN_REPOSITORY$/junit/junit/4.8.2/junit-4.8.2-sources.jar!/" />
       </SOURCES>
     </library>
     <library name="Maven: org.scala-lang:scala-compiler-bundle:2.8.1">

@@ -1,5 +1,5 @@
 /*
-SCALACL_VERBOSE=1 sbt '~run examples/Toto.scala -d examples/classes -classpath ../ScalaCL2/target/scalacl-0.2.Beta11-shaded.jar'
+SCALACL_VERBOSE=1 sbt '~run examples/Toto.scala -d examples/classes -classpath ../ScalaCL/target/scalacl-0.3-SNAPSHOT-shaded.jar'
 
 -Xprint:scalacl-functionstransform",
           "-Xprint:typer",
@@ -15,11 +15,49 @@ object Toto {
     
     import scalacl._
     import scala.math._
-    import impl._
-    implicit val context = new Context//(com.nativelibs4java.opencl.CLPlatform.DeviceFeature.CPU)
-    //val ff: CLFunction[Int, Int] = (_: Int) + 1
-    val array = CLArray(1, 2, 3, 4)
+    implicit val context = Context.best(CPU)
+    val n = 10 * args(0).toInt
     
+    (1 to 100).toCLArray.map(_ * n - n)
+    
+    /*
+    case class Matrix(data: CLArray[Float], rows: Int, columns: Int) {
+      def this(rows: Int, columns: Int) =
+        this(new CLArray[Float](rows * columns), rows, columns)
+      def this(n: Int) =
+        this(n, n)
+    }
+    
+    def sq(a: Matrix, b: Matrix, out: Matrix) = {
+      assert(a.columns == b.rows)
+      assert(a.rows == out.rows)
+      assert(b.columns == out.columns)
+      for (i <- 0 until a.rows; j <- 0 until b.columns) {
+        // TODO chain map and sum (to avoid creating a builder here !)
+        //out.data(i * out.columns + j) = (0 until a.columns).map(k => {
+        //  a.data(i * a.columns + k) * b.data(k * b.columns + j)
+        //}).sum
+        var sum = 0f
+        for (k <- 0 until a.columns) {
+          sum += a.data(i * a.columns + k) * b.data(k * b.columns + j)
+        }
+        out.data(i * out.columns + j) = sum
+      }
+    }
+    
+    val a = new Matrix(n) 
+    val b = new Matrix(n)
+    val out = new Matrix(n)
+    
+    sq(a, b, out)
+    
+    println(out.data.toArray)
+    
+    */
+    /*
+    import impl._
+    
+    val array = CLArray(1, 2, 3, 4)
     val initTotal = 10
     
     println(array.map(v => {
@@ -56,6 +94,7 @@ object Toto {
       }
       total
     })
+    */
     
     /*
     array.map(v => {
