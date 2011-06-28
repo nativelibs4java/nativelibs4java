@@ -17,6 +17,7 @@
   <modules>
 	<module>jnaerator</module>
 	<module>OpenCL</module>
+	<module>OpenCL-JNA</module>
 	<module>Mono</module>
 	<module>DirectX</module>
 	<module>PThread</module>
