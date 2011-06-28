@@ -27,6 +27,17 @@ public class PointerTest {
 	static final ByteOrder[] orders = new ByteOrder[] { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
     
 	@Test
+	public void testNext() {
+		int n = 3;
+		Pointer<Integer> ints = allocateInts(n), p = ints;
+		
+		for (int i = 0; i < n; i++) {
+			p.set(i);
+			p = p.next();
+		}
+		assertEquals(asList(0, 1, 2), ints.asList());
+	}
+	@Test
 	public void testClone() {
 		Pointer<Integer> p = pointerToInts(1, 2, 3, 4);
 		Pointer<Integer> c = p.clone();
