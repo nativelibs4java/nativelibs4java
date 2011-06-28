@@ -1,0 +1,24 @@
+ScalaCL 0.2-SNAPSHOT 
+- ScalaCL Compiler Plugin changes :
+	- runs silently (unless SCALACL_VERBOSE=1 is set)
+	- added the following rewrites :
+		- filter / filterNot
+		- takeWhile / dropWhile
+		- forall
+		- exists
+		- count
+- ScalaCL Collections released :
+	- CLArray behaves just like Array (new CLArray[T](size), CLArray(a, b, c...))
+	- .cl method on any Seq[T] creates a CLCollection[T] (a CLRange for Range.cl, otherwise a CLArray[T])
+	- scalacl.Context : Context.best, Context.best(DoubleSupport, GPU), Context.platforms, Context(device1, device2)...
+	- accelerated map, filter, zip, zipWithIndex operations (when compiled with ScalaCL Compiler Plugin)
+	- CLCode allows hand-written OpenCL code to be run on collections
+
+ScalaCL 0.1
+- rewrites target Array and inline ranges (x to y by z)
+- rewrite the following calls to equivalent while loops :
+	- foreach
+	- foldLeft / foldRight
+	- scanLeft / scanRight
+	- reduceLeft / reduceRight
+	- sum, min, max

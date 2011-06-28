@@ -1,0 +1,4 @@
+<plugin>
+  <name>scalacl</name>
+  <classname>scalacl.plugin.ScalaCLPlugin</classname>
+</plugin>

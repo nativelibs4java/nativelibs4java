@@ -1,0 +1,21 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.nativelibs4java</groupId>
+  <artifactId>javacl-simple-tutorial</artifactId>
+  <version>1.0.0-RC1</version>
+  <packaging>jar</packaging>
+  <name>JavaCL Simple Tutorial Archetype</name>
+  
+  <!--
+  mvn archetype:create -DarchetypeGroupId=com.nativelibs4java -DarchetypeArtifactId=javacl-simple-tutorial -DarchetypeVersion=1.0.0-RC1 -DremoteRepositories=http://nativelibs4java.sourceforge.net/maven -DgroupId=test  -DartifactId=test3
+
+  -->
+  
+  <parent>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>nativelibs4java-parent</artifactId>
+	  <version>1.5</version>
+	  <relativePath>../../../Parent</relativePath>
+  </parent>
+
+</project>

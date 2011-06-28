@@ -1,0 +1,66 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+ <modelVersion>4.0.0</modelVersion>
+  <groupId>com.nativelibs4java</groupId>
+  <artifactId>javacl-blas</artifactId>
+  <name>JavaCL BLAS / BridJ</name>
+  <url>http://code.google.com/p/javacl/</url>
+  <version>1.0.0-RC1</version>
+  <packaging>jar</packaging>
+  
+  <parent>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>opencl4java-parent</artifactId>
+	  <version>1.0.0-RC1</version>
+	  <relativePath>../Parent</relativePath>
+  </parent>
+
+  <dependencies>
+  	
+	<dependency>
+	  <groupId>com.nativelibs4java</groupId>
+	  <artifactId>javacl</artifactId>
+	  <version>${opencl4java.version}</version>
+	  <!--classifier>shaded</classifier-->
+	  <scope>compile</scope>
+	</dependency>
+	
+	<dependency>
+		<groupId>org.ujmp</groupId>
+		<artifactId>ujmp-core</artifactId>
+		<version>0.2.4</version>
+	    <scope>compile</scope>
+	</dependency>
+
+  </dependencies>
+
+  <build>
+  	<plugins>
+	
+		<plugin>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>javacl-generator</artifactId>
+			<version>${opencl4java.version}</version>
+			
+			<!--configuration>
+				<javaOutputDirectory>${project.build.directory}/../src/main/java</javaOutputDirectory>
+			</configuration-->
+			<executions>
+			  <execution>
+				<phase>generate-sources</phase>
+				<goals>
+				  <goal>compile</goal>
+				  <!--goal>test-compile</goal-->
+				</goals>
+				
+			  </execution>
+			</executions>
+		</plugin>
+
+	</plugins>
+  </build>
+</project>
+
+
+

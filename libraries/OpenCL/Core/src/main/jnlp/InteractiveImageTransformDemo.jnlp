@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jnlp spec="1.0+"
+  codebase="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/"
+  href="InteractiveImageTransformDemo.jnlp"
+>
+	<information>
+	  <title>JavaCL-BridJ Interactive Image Transform Demo</title>
+	  <vendor>Olivier Chafik</vendor>
+	  <homepage href="http://code.google.com/p/javacl/" />
+	  <description>Image Transform Kernel Editor + Demos for JavaCL-BridJ (Object-Oriented OpenCL Library for Java)</description>
+	  <offline-allowed/>
+	  <shortcut online="false">
+		  <desktop/>
+		  <menu submenu="JavaCL-BridJ's Interactive Image Transform Demo"/>
+	  </shortcut>
+	</information>
+	<security>
+	  <all-permissions/>
+	</security>
+	<update check="background" policy="prompt-update"/>
+	<resources>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-interactive-image-demo-bridj/1.0-SNAPSHOT/javacl-interactive-image-demo-bridj-1.0-SNAPSHOT-shaded.jar"/>
+		<!--
+		<extension name="JavaCL-BridJ" href="http://nativelibs4java.sourceforge.net/webstart/OpenCL-BridJ/JavaCL.jnlp"/>
+		<jar href="http://nativelibs4java.sourceforge.net/maven/com/nativelibs4java/javacl-interactive-image-demo-bridj/1.0-SNAPSHOT/javacl-interactive-image-demo-bridj-1.0-SNAPSHOT.jar"/>
+		<extension name="jogl-all-awt" href="http://download.java.net/media/jogl/jsr-231-2.x-webstart/jogl-all-awt.jnlp" />
+      	<property name="sun.java2d.noddraw" value="true"/>
+      	-->
+		<j2se version="1.6+" java-vm-args="-Xmx1g -XX:MaxDirectMemorySize=1g"/>
+	</resources>
+	<application-desc 
+		main-class="com.nativelibs4java.opencl.demos.interactiveimage.InteractiveImageDemo"
+	/>
+</jnlp>

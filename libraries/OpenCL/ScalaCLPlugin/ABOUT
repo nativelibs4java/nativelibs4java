@@ -1,0 +1,33 @@
+
+	ScalaCL Plugin is a compiler plugin that makes your programs faster.
+	It optimizes general Scala constructs and ScalaCL / OpenCL programs in particular.
+	
+Website:
+	http://scalacl.googlecode.com/
+	
+Author: 
+	Olivier Chafik <olivier.chafik@gmail.com>
+	http://ochafik.free.fr/blog/
+	http://twitter.com/ochafik
+
+Current general optimizations include rewrites of inline ranges, List[T] and Array[T] instances into equivalent while loops :
+- Array.tabulate
+- foldLeft / reduceLeft / scanLeft (and for Array[T], also the -right variants)
+- sum, min, max
+- map
+- forall, exists, count
+- filter, filterNot
+- takeWhile, dropWhile (except for Range)
+
+Current ScalaCL / OpenCL-specific optimizations include :
+- Transforming Scala functions given to CLCollection[T].map and filter into OpenCL kernels (supports only limited inline lambdas)
+
+More optimizations are scheduled, such as :
+- CLCollection.foreach
+- Autovectorization of ScalaCL loops
+- Auto-ScalaCL-ization of general code (upon explicit demand via a compiler option, as this introduces runtime dependency on ScalaCL)
+- Support for external references in ScalaCL functions, including external calls (when target is invariant and can be converted to OpenCL)
+
+Please use NativeLibs4Java's user group and bug-tracker for feedback or help about ScalaCL and its compiler plugin :
+http://groups.google.fr/group/nativelibs4java/
+http://code.google.com/p/nativelibs4java/issues/list
