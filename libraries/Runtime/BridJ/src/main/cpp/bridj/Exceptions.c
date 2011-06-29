@@ -5,6 +5,10 @@
 #include <string.h>
 #include <errno.h>
 
+#ifdef _WIN32
+#include "windows.h"
+#endif
+
 // http://msdn.microsoft.com/en-us/library/ms679356(VS.85).aspx
 
 extern jclass gLastErrorClass;
@@ -28,21 +32,20 @@ void throwIfLastError(JNIEnv* env) {
 	errorCode = GetLastError();
 	if (errorCode) {
 		// http://msdn.microsoft.com/en-us/library/ms680582(v=vs.85).aspx
-		int n = 1024;
-		void* lpBuffer;
-		TCHAR* lpMsgBuf;
+#define MESSAGE_BUF_SIZE 2048
+		char lpMsgBuf[MESSAGE_BUF_SIZE + 1];
+		*lpMsgBuf = '\0';
 
-		FormatMessage(
+		FormatMessageA(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 			NULL,
 			errorCode,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			(LPTSTR) &lpMsgBuf,
-			0, 
+			lpMsgBuf,
+			MESSAGE_BUF_SIZE, 
 			NULL 
 		);
-		message = lpMsgBuf ? (*env)->NewStringUTF(env, lpMsgBuf) : NULL;
-		LocalFree(lpBuffer);		
+		message = (*env)->NewStringUTF(env, lpMsgBuf);
 	}
 #endif
 	if (!errorCode) {
