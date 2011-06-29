@@ -52,6 +52,7 @@ class CLFunction[A, B](
   declarations: Seq[String],
   val expressions: Seq[String],
   includedSources: Seq[String],
+  extraArgsIOs: Seq[CLDataIO[_]] = Seq(),
   inVar: String = "_",
   indexVar: String = "$i",
   sizeVar: String = "$size"
@@ -90,10 +91,26 @@ extends (A => B)
     val ta = clType[A]
     val tb = clType[B]
   
-    val inParams = aIO.openCLKernelArgDeclarations(CLDataIO.InputPointer, 0).mkString(", ")
-    val inValueParams = aIO.openCLKernelArgDeclarations(CLDataIO.Value, 0).mkString(", ")
-    val outParams = bIO.openCLKernelArgDeclarations(CLDataIO.OutputPointer, 0).mkString(", ")
-    val varExprs = aIO.openCLIntermediateKernelTupleElementsExprs(inVar).sortBy(-_._1.length).toArray
+    val inParams: Seq[String] = aIO.openCLKernelArgDeclarations(CLDataIO.InputPointer, 0)//.mkString(", ")
+    val inValueParams: Seq[String] = aIO.openCLKernelArgDeclarations(CLDataIO.Value, 0)//.mkString(", ")
+    val extraParams: Seq[String] = extraArgsIOs.flatMap(_.openCLKernelArgDeclarations(CLDataIO.Value, 0))//.mkString(", "))
+    val outParams: Seq[String] = bIO.openCLKernelArgDeclarations(CLDataIO.OutputPointer, 0)//.mkString(", ")
+    val iosAndPlaceholders: Seq[(CLDataIO[_], String, Boolean)] = 
+      (
+        (aIO, inVar, false) :: 
+        extraArgsIOs.toList.zipWithIndex.map { case (io, i) => (io, "_" + (i + 1), true) }
+      ).toSeq
+      
+    val varExprs = 
+      (
+        iosAndPlaceholders.flatMap { case (io, name, isExtraArg) =>
+          io.openCLIntermediateKernelTupleElementsExprs(name).map {
+            case (expr, tupleIndexes) =>
+              (expr, tupleIndexes, isExtraArg, io)
+          }
+        }
+      ).sortBy(-_._1.length).toArray // sort by decreasing expression length (enough to avoid conflicts) TODO unhack this !
+       
     //println("varExprs = " + varExprs.toSeq)
     
     val indexVarName = "__cl_i"
@@ -105,9 +122,9 @@ extends (A => B)
       var iExpr = 0
       val nExprs = varExprs.length
       while (iExpr < nExprs) {
-        val (expr, tupleIndexes) = varExprs(iExpr)
-        def rawith(i: String) = aIO.openCLIthTupleElementNthItemExpr(argType, 0, tupleIndexes, i) 
-        val x = if (isRange)
+        val (expr, tupleIndexes, isExtraArg, io) = varExprs(iExpr)
+        def rawith(i: String) = io.openCLIthTupleElementNthItemExpr(argType, 0, tupleIndexes, i) 
+        val x = if (isRange && !isExtraArg)
           "(" + rawith("0") + " + (" + i + ") * " + rawith("2") + ")" // buffer contains (from, to, by, inclusive). Value is (from + i * by)  
         else
           rawith(i)
@@ -136,8 +153,7 @@ extends (A => B)
     lazy val funDeclsRange = declarations.map(replaceForFunction(CLDataIO.Value, _, "0", true)).mkString("\n")
     val functionSource = if (expressions.isEmpty) null else """
         inline void """ + functionName + """(
-            """ + inValueParams + """,
-            """ + outParams + """
+            """ + (inValueParams ++ extraParams ++ outParams).mkString(", ") + """
         ) {
             """ + indexHeader + """
             """ + funDecls + """
@@ -148,21 +164,18 @@ extends (A => B)
     //println("functionSource = " + functionSource)
   
     //def replaceForKernel(s: String) = if (s == null) null else replaceAllButIn(s).replaceAll(toRxb(inVar), "in[i]")
-    val presenceParam = "__global const " + CLFilteredArray.presenceCLType + "* presence"
+    val presenceParams = Seq("__global const " + CLFilteredArray.presenceCLType + "* presence")
     val kernDecls = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, indexVarName, false)).reduceLeftOption(_ + "\n" + _).getOrElse("")
     lazy val kernDeclsRange = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, indexVarName, true)).reduceLeftOption(_ + "\n" + _).getOrElse("")
     val assignt = assignts(CLDataIO.InputPointer, indexVarName, false)
     lazy val assigntRange = assignts(CLDataIO.InputPointer, indexVarName, true)
     var kernelsSource = outerDeclarations.mkString("\n")
 
-    val extraParams = "" // TODO
     if (!expressions.isEmpty) 
       kernelsSource += """
         __kernel void array_array(
             int size,
-            """ + inParams + """,
-            """ + outParams + """
-            """ + extraParams + """
+            """ + (inParams ++ extraParams ++ outParams).mkString(", ") + """
         ) {
             """ + sizeHeader + """
             """ + kernDecls + """
@@ -170,9 +183,7 @@ extends (A => B)
         }
         __kernel void filteredArray_filteredArray(
             int size,
-            """ + inParams + """,
-            """ + presenceParam + """,
-            """ + outParams + """
+            """ + (inParams ++ presenceParams ++ extraParams ++ outParams).mkString(", ") + """
         ) {
             """ + sizeHeader + """
             if (!presence[""" + indexVarName + """])
@@ -186,8 +197,7 @@ extends (A => B)
       kernelsSource += """
         __kernel void range_array(
             int size,
-            """ + inParams + """,
-            """ + outParams + """
+            """ + (inParams ++ extraParams ++ outParams).mkString(", ") + """
         ) {
             """ + sizeHeader + """
             """ + kernDeclsRange + """
