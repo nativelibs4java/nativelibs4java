@@ -25,6 +25,8 @@ public class LibCTest {
 	public static native int abs(int x);
 	public static native int getpid();
 	
+	public static native long strtoul(Pointer<Byte> str, Pointer<Pointer<Byte>> endptr, int base) throws LastError;
+	
 	@Test
 	public void testFabs() {
 		assertEquals(10.0, fabs(-10.0), 0.000001);
@@ -36,6 +38,17 @@ public class LibCTest {
 		
 		assertNotNull(BridJ.getNativeLibrary("c").getSymbolPointer("errno"));
 	}
+	
+	public void testNoLastError() {
+        long v = strtoul(pointerToCString("1010"), null, 10);
+        assertEquals(1010, v);
+	}
+	
+	@Test(expected = LastError.class)
+	public void testLastError() {
+        strtoul(pointerToCString("18446744073709551616"), null, 10);
+	}
+	
 	@Test
 	public void testAbs() {
 		assertEquals(10, abs(-10));

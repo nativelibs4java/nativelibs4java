@@ -2,6 +2,8 @@
 #ifndef _BRIDJ_EXCEPTIONS_H
 #define _BRIDJ_EXCEPTIONS_H
 
+#include <jni.h>
+
 #if defined(_WIN32)
 //#define ENABLE_PROTECTED_MODE
 #endif
@@ -54,7 +56,6 @@ void UnixExceptionHandler(int sig);
 #else
 
 #include <windows.h>
-#include <jni.h>
 
 #define BEGIN_TRY(env, call) { LPEXCEPTION_POINTERS exceptionPointers = NULL; __try {
 #define END_TRY_BASE(env, call, ret) } __except (WinExceptionFilter(exceptionPointers = GetExceptionInformation())) { WinExceptionHandler(env, exceptionPointers); ret; } }
@@ -93,8 +94,9 @@ int WinExceptionFilter(LPEXCEPTION_POINTERS ex);
 #define END_TRY_CALL_RET(env, ret) }  
 #define END_TRY_CALL(env) } 
 
-
-
 #endif // defined(ENABLE_PROTECTED_MODE)
+
+void clearLastError(JNIEnv* env);
+void throwIfLastError(JNIEnv* env);
 
 #endif // _BRIDJ_EXCEPTIONS_H

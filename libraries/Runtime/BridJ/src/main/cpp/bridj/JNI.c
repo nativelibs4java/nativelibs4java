@@ -31,12 +31,14 @@ jclass gFlagSetClass = NULL;
 jclass gValuedEnumClass = NULL;
 jclass gBridJClass = NULL;
 jclass gCallIOClass = NULL;
+jclass gLastErrorClass = NULL;
 jmethodID gAddressMethod = NULL;
 jmethodID gGetPeerMethod = NULL;
 jmethodID gCreatePeerMethod = NULL;
 jmethodID gGetValuedEnumValueMethod = NULL;
 jmethodID gGetJavaObjectFromNativePeerMethod = NULL;
 jmethodID gNewFlagSetMethod = NULL;
+jmethodID gThrowNewLastErrorMethod = NULL;
 jmethodID gGetCallIOsMethod = NULL;
 jmethodID gNewCallIOInstance = NULL;
 
@@ -55,6 +57,7 @@ jfieldID 	gFieldId_startsWithThis 	     = NULL;
 jfieldID 	gFieldId_isCPlusPlus 	     = NULL;
 jfieldID 	gFieldId_isStatic    	     = NULL;
 jfieldID 	gFieldId_bNeedsThisPointer 	 = NULL;
+jfieldID 	gFieldId_bThrowLastError 	 = NULL;
 jfieldID 	gFieldId_dcCallingConvention = NULL;
 jfieldID 	gFieldId_symbolName			 = NULL;
 jfieldID 	gFieldId_nativeClass			 = NULL;
@@ -165,6 +168,7 @@ void initMethods(JNIEnv* env) {
 		gPointerClass = FIND_GLOBAL_CLASS("org/bridj/Pointer");
 		gMethodCallInfoClass = FIND_GLOBAL_CLASS("org/bridj/MethodCallInfo");
 		gCallIOClass = FIND_GLOBAL_CLASS("org/bridj/CallIO");
+		gLastErrorClass = FIND_GLOBAL_CLASS("org/bridj/LastError");
 		
 		//gGetTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "getTempCallStruct", "()J"); 
 		//gReleaseTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "releaseTempCallStruct", "(J)V"); 
@@ -174,6 +178,7 @@ void initMethods(JNIEnv* env) {
 		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lorg/bridj/NativeObject;Ljava/lang/Class;)J");
 		gGetPeerMethod = (*env)->GetMethodID(env, gPointerClass, "getPeer", "()J");
 		gCreatePeerMethod = (*env)->GetStaticMethodID(env, gPointerClass, "pointerToAddress", "(JLjava/lang/Class;)Lorg/bridj/Pointer;");
+		gThrowNewLastErrorMethod = (*env)->GetStaticMethodID(env, gLastErrorClass, "throwNewInstance", "(ILjava/lang/String;)V");
 		gGetCallIOsMethod = (*env)->GetMethodID(env, gMethodCallInfoClass, "getCallIOs", "()[Lorg/bridj/CallIO;");
 		gNewCallIOInstance = (*env)->GetMethodID(env, gCallIOClass, "newInstance", "(J)Ljava/lang/Object;");
 		
@@ -201,6 +206,7 @@ void initMethods(JNIEnv* env) {
 		GETFIELD_ID(isStatic		 		,	"isStatic"			,	"Z"						);
 		GETFIELD_ID(startsWithThis		,	"startsWithThis"		,	"Z"						);
 		GETFIELD_ID(bNeedsThisPointer	,	"bNeedsThisPointer"		,	"Z"						);
+		GETFIELD_ID(bThrowLastError	,	"bThrowLastError"		,	"Z"						);
 		GETFIELD_ID(dcCallingConvention,	"dcCallingConvention"	,	"I"						);
 		
 	}
@@ -660,6 +666,7 @@ void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 #define GetField_isStatic()              jboolean         isStatic             = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_isStatic            )
 #define GetField_startsWithThis()        jboolean         startsWithThis       = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_startsWithThis      )
 #define GetField_bNeedsThisPointer()     jboolean         bNeedsThisPointer    = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_bNeedsThisPointer   )
+#define GetField_bThrowLastError()       jboolean         bThrowLastError      = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_bThrowLastError   )
 #define GetField_declaringClass()        jstring          declaringClass       = (jclass)(*env)->GetObjectField(env, methodCallInfo, gFieldId_declaringClass )
 #define GetField_nParams()               jsize            nParams              = (*env)->GetArrayLength(   env, paramsValueTypes                             )
 #define GetField_callIOs()               jobjectArray     callIOs              = (*env)->CallObjectMethod( env, methodCallInfo, gGetCallIOsMethod            )
@@ -832,6 +839,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToCFunctions(
 	GetField_isStatic()             ;
 	GetField_startsWithThis()       ;
 	GetField_declaringClass()       ;
+	GetField_bThrowLastError()      ;
 	GetField_nParams()              ;
 	GetField_callIOs()              ;
 	
@@ -839,6 +847,8 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToCFunctions(
 		info->fForwardedSymbol = JLONG_TO_PTR(forwardedPointer);
 		if (isCPlusPlus && !isStatic && declaringClass)
 			info->fClass = (*env)->NewGlobalRef(env, declaringClass);
+		
+		info->fCheckLastError = bThrowLastError;
 		
 #ifndef NO_DIRECT_CALLS
 		if (direct && forwardedPointer)

@@ -114,6 +114,7 @@ typedef struct FunctionCallInfo {
 	struct CommonCallbackInfo fInfo;
 	jclass fClass;
 	void* fForwardedSymbol;
+	jboolean fCheckLastError;
 } FunctionCallInfo, CPPMethodCallInfo;
 
 #ifdef BRIDJ_OBJC_SUPPORT

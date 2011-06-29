@@ -138,6 +138,9 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 						#define TEST_INSTANCEOF(cl, st) \
 							if ((*env)->IsInstanceOf(env, arg, cl)) st;
 					
+						if (arg == NULL)
+							dcArgPointer(call->vm, getPointerPeer(env, (void*)NULL));
+						else
 						// As per the C standard for varargs, all ints are promoted to ptrdiff_t and float is promoted to double : 
 						TEST_INSTANCEOF(gIntClass, dcArgPointer(call->vm, (void*)(ptrdiff_t)UnboxInt(env, arg)))
 						else

@@ -2,13 +2,69 @@
 #include "jni.h"
 #include "Exceptions.h"
 
+#include <string.h>
+#include <errno.h>
+
 // http://msdn.microsoft.com/en-us/library/ms679356(VS.85).aspx
+
+extern jclass gLastErrorClass;
+extern jmethodID gThrowNewLastErrorMethod;
 
 void throwException(JNIEnv* env, const char* message) {
 	if ((*env)->ExceptionCheck(env))
 		return; // there is already a pending exception
 	(*env)->ExceptionClear(env);
 	(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), message);
+}
+
+void clearLastError(JNIEnv* env) {
+	errno = 0;
+}
+
+void throwIfLastError(JNIEnv* env) {
+	int errorCode = 0;
+	jstring message = NULL;
+#ifdef _WIN32
+	errorCode = GetLastError();
+	if (errorCode) {
+		// http://msdn.microsoft.com/en-us/library/ms680582(v=vs.85).aspx
+		int n = 1024;
+		void* lpBuffer;
+		TCHAR* lpMsgBuf;
+
+		FormatMessage(
+			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+			NULL,
+			errorCode,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(LPTSTR) &lpMsgBuf,
+			0, 
+			NULL 
+		);
+		message = lpMsgBuf ? (*env)->NewStringUTF(env, lpMsgBuf) : NULL;
+		LocalFree(lpBuffer);		
+	}
+#endif
+	if (!errorCode) {
+		errorCode = errno;
+		if (errorCode) {
+			const char* msg = strerror(errorCode);
+			message = msg ? (*env)->NewStringUTF(env, msg) : NULL;
+		}
+	}
+	if (errorCode)
+		(*env)->CallStaticVoidMethod(env, gLastErrorClass, gThrowNewLastErrorMethod, errorCode, message);
+	
+		/*
+	errorCode = GetLastError();
+	if (!errorCode)
+		errorCode = errno;
+#else
+	errorCode = errno;
+#endif
+	printf("ERRNO = %d\n", errorCode);
+	(*env)->CallStaticVoidMethod(env, gLastErrorClass, gThrowNewLastErrorMethod, errorCode);
+	*/
 }
 
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message) {

@@ -10,6 +10,7 @@ import org.bridj.ann.Constructor;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import org.bridj.ann.Convention;
@@ -49,6 +50,7 @@ public class MethodCallInfo {
 	boolean direct;
 	boolean startsWithThis;
 	boolean bNeedsThisPointer;
+	boolean bThrowLastError;
 
     public MethodCallInfo(Method method) {
         this(method, method);
@@ -97,8 +99,12 @@ public class MethodCallInfo {
         if (cc != null) {
             setCallingConvention(cc.value());
         }
-        if (definition.getExceptionTypes().length != 0)
+        List<Class<?>> exceptionTypes = Arrays.asList(definition.getExceptionTypes());
+        if (!exceptionTypes.isEmpty()) {
             this.direct = false; // there is no crash / exception protection for direct raw calls
+            if (exceptionTypes.contains(LastError.class))
+                this.bThrowLastError = true;
+        }
         
     }
     protected void init(AnnotatedElement annotatedElement, Class returnType, Type genericReturnType, Annotation[] returnAnnotations, Class[] parameterTypes, Type[] genericParameterTypes, Annotation[][] paramsAnnotations, boolean prependJNIPointers, boolean isVirtual, boolean isDirectModeAllowed) {
