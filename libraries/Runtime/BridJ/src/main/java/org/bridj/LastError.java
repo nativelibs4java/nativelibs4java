@@ -19,7 +19,7 @@ import static org.bridj.Pointer.*;
  * }</pre> 
  * @author Olivier Chafik
  */
-public class LastError extends Error {
+public class LastError extends RuntimeException {
     final int code;
     final String description;
     
