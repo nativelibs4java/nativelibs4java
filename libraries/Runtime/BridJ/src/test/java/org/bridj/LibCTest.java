@@ -21,6 +21,8 @@ public class LibCTest {
 			BridJ.register();
 	}
 	public static native void sprintf(Pointer<Byte> dest, Pointer<Byte> format, Object... values);
+	
+	@Library("m")
 	public static native double fabs(double x);
 	public static native int abs(int x);
 	public static native int getpid();
