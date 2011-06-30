@@ -1411,9 +1411,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 
     /**
      * Create a pointer to the memory location used by a direct NIO buffer.<br>
-     * If the NIO buffer is not direct, then it's backing Java array is copied to some native memory and will never be updated by changes to the native memory (calls {@link Pointer#pointerToArray(Object)}).<br>
-     * The returned pointer (and its subsequent views returned by {@link Pointer#offset(long)} or {@link Pointer#next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
-     * @throws UnsupportedOperationException if the buffer is not direct
+     * If the NIO buffer is not direct, then its backing Java array is copied to some native memory and will never be updated by changes to the native memory (calls {@link Pointer#pointerToArray(Object)}), unless a call to {@link Pointer#updateBuffer(Buffer)} is made manually.<br>
+     * The returned pointer (and its subsequent views returned by {@link Pointer#offset(long)} or {@link Pointer#next(long)}) can be used safely : it retains a reference to the original NIO buffer, so that this latter cannot be garbage collected before the pointer.
      */
     public static Pointer<?> pointerToBuffer(Buffer buffer) {
         if (buffer == null)
@@ -1532,10 +1531,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #foreach ($prim in $primitivesNoBool)
 
 	/**
-     * Create a pointer to the memory location used by a direct NIO ${prim.BufferName}}.<br>
-     * If the NIO ${prim.BufferName}} is not direct, then it's backing Java array is copied to some native memory and will never be updated by changes to the native memory (calls {@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])}).<br>
-     * The returned pointer (and its subsequent views returned by {@link Pointer#offset(long)} or {@link Pointer#next(long)}) retains a reference to the original NIO buffer, so its lifespan is at least that of the pointer.</br>
-     * @throws UnsupportedOperationException if the buffer is not direct
+     * Create a pointer to the memory location used by a direct NIO ${prim.BufferName}.<br>
+     * If the NIO ${prim.BufferName}} is not direct, then its backing Java array is copied to some native memory and will never be updated by changes to the native memory (calls {@link Pointer#pointerTo${prim.CapName}s(${prim.Name}[])}), unless a call to {@link Pointer#updateBuffer(Buffer)} is made manually.<br>
+     * The returned pointer (and its subsequent views returned by {@link Pointer#offset(long)} or {@link Pointer#next(long)}) can be used safely : it retains a reference to the original NIO buffer, so that this latter cannot be garbage collected before the pointer.</br>
      */
     public static Pointer<${prim.WrapperName}> pointerTo${prim.CapName}s(${prim.BufferName} buffer) {
         if (buffer == null)

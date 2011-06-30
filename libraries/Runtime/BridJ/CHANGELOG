@@ -1,6 +1,12 @@
-Current version : BridJ 0.5-SNAPSHOT
+Current version : BridJ 0.6-SNAPSHOT
 
-...
+- Added errno/GetLastError() mechanism : declare methods to throw LastError and it's all handled automatically
+- Added Pointer.asList() and .asList(ListType) to get a List view of the pointed memory 
+	- depending on the ListType, the view can be mutable / resizeable
+	- removed the List interface from Pointer (which is now just an Iterable)
+	- added Pointer.allocateList(type, capacity) to create a NativeList from scratch (has a .getPointer method to grab the resulting memory at the end)
+- Added Pointer.moveBytesTo(Pointer)
+- Fixed Pointer.next/.offset methods (used to throw errors a the end of iteration)
 
 BridJ 0.5 (r2128, 20110621)
 
