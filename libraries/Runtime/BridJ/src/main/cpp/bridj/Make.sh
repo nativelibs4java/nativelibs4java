@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Avoid locale in diff :
+LANG=C
+
 SRC_HOME=${SRC_HOME:-~/src}
 BIN_HOME=${BIN_HOME:-~/bin}
 
