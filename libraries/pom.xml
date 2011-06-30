@@ -15,6 +15,7 @@
   </parent>
 
   <modules>
+    <module>Parent</module>
 	<module>jnaerator</module>
 	<module>OpenCL</module>
 	<module>OpenCL-JNA</module>
@@ -22,7 +23,7 @@
 	<module>DirectX</module>
 	<module>PThread</module>
 	<module>Runtime</module>
-    <module>Parent</module>
+    <module>Utils</module>
 	
     <!--<module>TestLibraries</module>-->
   </modules>
