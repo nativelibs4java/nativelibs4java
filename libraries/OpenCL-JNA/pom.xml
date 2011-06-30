@@ -3,20 +3,18 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
     <artifactId>opencl4java-root-jna</artifactId>
-    <version>1.0.0-RC1</version>
+    <version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>OpenCL4Java Root Project / JNA</name>
    
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>opencl4java-parent-jna</artifactId>
-	  <version>1.0.0-RC1</version>
+	  <version>1.0-SNAPSHOT</version>
 	  <relativePath>Parent</relativePath>
   </parent>
 
   <modules>
-	<module>Common</module>
-    <module>LibCL</module>
     <module>InteractiveImageDemo</module>
     <module>Generator</module>
     <module>OpenCL4Java</module>

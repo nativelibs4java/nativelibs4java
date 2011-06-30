@@ -3,20 +3,20 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
     <artifactId>mono4java-parent</artifactId>
-    <version>0.1</version>
+    <version>0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Mono4Java Common Configuration</name>
 	<inceptionYear>2009</inceptionYear>
     <url>http://code.google.com/p/nativelibs4java/wiki/Mono</url>
   
   <properties>
-	<mono4java.version>0.1</mono4java.version>
+	<mono4java.version>0.2-SNAPSHOT</mono4java.version>
   </properties>
 
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>nativelibs4java-parent</artifactId>
-	  <version>1.5</version>
+	  <version>1.6-SNAPSHOT</version>
 	  <relativePath>../../Parent</relativePath>
   </parent>
 

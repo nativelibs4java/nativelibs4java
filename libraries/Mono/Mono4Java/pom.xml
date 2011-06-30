@@ -6,13 +6,13 @@
   <artifactId>mono4java</artifactId>
   <name>Mono4Java</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/Mono</url>
-  <version>0.1</version>
+  <version>0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>mono4java-parent</artifactId>
-	  <version>0.1</version>
+	  <version>0.2-SNAPSHOT</version>
 	  <relativePath>../Parent</relativePath>
   </parent>
 
@@ -40,7 +40,7 @@
 		<plugin>
 			<groupId>com.jnaerator</groupId>
 			<artifactId>maven-jnaerator-plugin</artifactId>
-			<version>0.9.8</version> <!-- ${jnaerator.version} -->
+			<version>0.9.9-SNAPSHOT</version> <!-- ${jnaerator.version} -->
 			<configuration>
 				<javaOutputDirectory>src/main/java</javaOutputDirectory>
 			</configuration>

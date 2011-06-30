@@ -6,7 +6,7 @@
   <artifactId>javacl-numerical-benchmark</artifactId>
   <name>JavaCL Numerical Benchmark</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>1.0.0-RC1</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   
   <properties>
@@ -26,7 +26,7 @@
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>javacl</artifactId>
 	  <!--artifactId>javacl</artifactId-->
-	  <version>1.0.0-RC1</version>
+	  <version>1.0-SNAPSHOT</version>
 	</dependency>
 	<dependency>
 	  <groupId>org.apache.commons</groupId>
@@ -45,7 +45,7 @@
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
 			<artifactId>javacl-generator</artifactId>
-			<version>1.0.0-RC1</version>
+			<version>1.0-SNAPSHOT</version>
 			<!--configuration>
 				<javaOutputDirectory>${project.build.directory}/../src/main/java</javaOutputDirectory>
 			</configuration-->

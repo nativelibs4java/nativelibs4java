@@ -6,13 +6,13 @@
   <artifactId>javacl-interactive-image-demo-jna</artifactId>
   <name>JavaCL Interactive Image Demo / JNA</name>
   <url>http://code.google.com/p/javacl/</url>
-  <version>1.0.0-RC1</version>
+  <version>1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
   
 	<parent>
   	  <groupId>com.nativelibs4java</groupId>
   	  <artifactId>opencl4java-parent-jna</artifactId>
-  	  <version>1.0.0-RC1</version>
+  	  <version>1.0-SNAPSHOT</version>
   	  <relativePath>../Parent</relativePath>
     </parent>
 
@@ -32,7 +32,7 @@
 	</dependency>
 	<dependency>
 	  <groupId>com.nativelibs4java</groupId>
-	  <artifactId>libcl-jna</artifactId>
+	  <artifactId>libcl</artifactId>
 	  <version>${opencl4java.version}</version>
 	</dependency>
 	<dependency>

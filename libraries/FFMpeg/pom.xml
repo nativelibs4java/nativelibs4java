@@ -6,21 +6,13 @@
   <artifactId>ffmpeg4java</artifactId>
   <name>FFMpeg4Java</name>
   <url>http://code.google.com/p/nativelibs4java/wiki/FFMpeg</url>
-  <version>0.1</version>
+  <version>0.2-SNAPSHOT</version>
   <packaging>jar</packaging>
-  
-  
-  <properties>
-  	<!--maven.compiler.debug>true</maven.compiler.debug-->
-  	<!--bridj.version>0.5</bridj.version>
-  	<jnaerator.version>0.9.8</jnaerator.version-->
-  </properties>
-  
   
 	<parent>
 		<groupId>com.nativelibs4java</groupId>
 		<artifactId>nativelibs4java-parent</artifactId>
-		<version>1.5</version>
+		<version>1.6-SNAPSHOT</version>
 		<relativePath>../Parent</relativePath>
 	</parent>
 	

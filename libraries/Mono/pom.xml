@@ -3,14 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.nativelibs4java</groupId>
     <artifactId>mono-root</artifactId>
-    <version>${mono4java.version}</version>
+    <version>0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Mono4Java Root Project</name>
    
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>mono4java-parent</artifactId>
-	  <version>0.1</version>
+	  <version>0.2-SNAPSHOT</version>
 	  <relativePath>Parent</relativePath>
   </parent>
 
