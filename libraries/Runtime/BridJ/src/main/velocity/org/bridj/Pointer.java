@@ -775,7 +775,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
 #docGetOffset("native object", "O extends NativeObject", "Pointer#getNativeObject(Type)")
 	 public <O extends NativeObject> O getNativeObjectAtOffset(long byteOffset, Type type) {
-		return (O)BridJ.createNativeObjectFromPointer((Pointer<O>)this, type);
+	 	 return (O)BridJ.createNativeObjectFromPointer((Pointer<O>)(byteOffset == 0 ? this : offset(byteOffset)), type);
 	}
 #docGetOffset("native object", "O extends NativeObject", "Pointer#getNativeObject(Class)")
 	 public <O extends NativeObject> O getNativeObjectAtOffset(long byteOffset, Class<O> type) {
