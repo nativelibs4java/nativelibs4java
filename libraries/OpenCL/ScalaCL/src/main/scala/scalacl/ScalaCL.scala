@@ -292,9 +292,32 @@ package object scalacl {
 
   private val functionsCache = scala.collection.mutable.HashMap[Long, CLFunction[_, _]]()
   
-  def getCachedFunction[K, V](uid: Long, function: K => V, outerDeclarations: => Seq[String], declarations: => Seq[String], expressions: => Seq[String], extraArgs: => Seq[Any])(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
+  def getCachedFunction[K, V](
+    uid: Long, 
+    function: K => V, 
+    outerDeclarations: => Seq[String], 
+    declarations: => Seq[String], 
+    expressions: => Seq[String], 
+    extraInputBufferArgsIOs: => Seq[CLDataIO[_]],
+    extraOutputBufferArgsIOs: => Seq[CLDataIO[_]],
+    extraScalarArgsIOs: => Seq[CLDataIO[_]]
+  )(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
     functionsCache synchronized {
-      functionsCache.getOrElseUpdate(uid, new CLFunction[K, V](function, outerDeclarations, declarations, expressions, Seq()).asInstanceOf[CLFunction[_, _]]).asInstanceOf[CLFunction[K, V]]
+      functionsCache.getOrElseUpdate(
+        uid, 
+        new CLFunction[K, V](
+          function, 
+          outerDeclarations, 
+          declarations, 
+          expressions, 
+          Seq(),
+          CapturedIOs(
+            extraInputBufferArgsIOs,
+            extraOutputBufferArgsIOs,
+            extraScalarArgsIOs
+          )
+        ).asInstanceOf[CLFunction[_, _]]
+      ).asInstanceOf[CLFunction[K, V]]
     }
   }
   

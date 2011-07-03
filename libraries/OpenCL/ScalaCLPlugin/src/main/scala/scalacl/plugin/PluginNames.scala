@@ -73,7 +73,6 @@ trait PluginNames {
   val mathName = N("math")
   val packageName = N("package")
   val applyName = N("apply")
-  val Function2CLFunctionName = N("Function2CLFunction")
 
   lazy val ScalaCollectionPackage = definitions.getModule(N("scala.collection"))
   lazy val ScalaMathPackage = definitions.getModule(N("scala.math"))

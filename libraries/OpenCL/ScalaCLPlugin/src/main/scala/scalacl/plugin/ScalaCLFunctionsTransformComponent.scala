@@ -78,11 +78,14 @@ extends PluginComponent
   val ScalaCLPackageClass  = ScalaCLPackage.tpe.typeSymbol
   val CLDataIOClass = definitions.getClass("scalacl.impl.CLDataIO")
   val CLArrayClass = definitions.getClass("scalacl.CLArray")
+  val CLFunctionClass = definitions.getClass("scalacl.impl.CLFunction")
   val CLRangeClass = definitions.getClass("scalacl.CLRange")
   val CLCollectionClass = definitions.getClass("scalacl.CLCollection")
   val CLFilteredArrayClass = definitions.getClass("scalacl.CLFilteredArray")
   val scalacl_ = N("scalacl")
   val getCachedFunctionName = N("getCachedFunction")
+  val Function2CLFunctionName = N("Function2CLFunction")
+  val withCaptureName = N("withCapture")
   
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     var currentClassName: Name = null
@@ -140,71 +143,110 @@ extends PluginComponent
 
     val primitiveTypeSymbols = Set(IntClass, LongClass, ShortClass, ByteClass, BooleanClass, DoubleClass, FloatClass, CharClass)
 
+    def canCaptureSymbol(s: Symbol) = {
+      //(System.getenv("SCALACL_CAPTURE_VARIABLES") != null) &&
+      s.isInstanceOf[TermSymbol] &&
+      s.isEffectivelyFinal &&
+      {
+        val tpe = s.tpe.widen.dealias.deconst
+        
+        tpe == IntClass.tpe ||
+        tpe == ShortClass.tpe ||
+        tpe == LongClass.tpe ||
+        tpe == ByteClass.tpe ||
+        tpe == DoubleClass.tpe ||
+        tpe == FloatClass.tpe ||
+        tpe == CharClass.tpe ||
+        tpe == CLArrayClass.tpe
+      }
+    }
+    
+    def getDataIOImplicit(tpe: Type, context: analyzer.Context, enclosingTree: Tree) = {
+      val dataIOTpe = appliedType(CLDataIOClass.tpe, List(tpe))
+      analyzer.inferImplicit(enclosingTree, dataIOTpe, false, false, context).tree
+    }
     def conversionError(pos: Position, msg: String) = {
       unit.error(pos, msg)
       throw new UnsupportedOperationException("Conversion error : " + msg)
     }
+    
+    case class Capture(symbol: Symbol, io: Tree, isArray: Boolean, arg: Tree)
+      
+    def getCaptures(f: Tree, context: analyzer.Context, enclosingTree: Tree): Seq[Capture] = {
+      val externalSymbolReferences = 
+        getUnknownSymbolReferences(f, t => t.symbol != NoSymbol && {
+          //println("Examining t  = " + t )
+          t.symbol match {
+            case s: MethodSymbol =>
+              !primitiveTypeSymbols.contains(s.owner) && 
+              s.owner != ScalaMathCommonClass &&
+              !s.toString.matches("value _\\d+") &&
+              !s.toString.matches("method to(Double|Int|Float|Long|Short|Byte|Boolean|Char)") &&
+              !(s.toString == "method apply" && s.owner != null && s.owner.toString.matches("object Tuple\\d+")) // TODO cleanup hack
+            case s: ModuleSymbol =>
+              false
+            case s: TermSymbol =>
+              t.isInstanceOf[Ident]
+            case _ =>
+              false
+          }
+        })
+      
+      val externalRefsBySymbol = externalSymbolReferences.groupBy(_.symbol)
+      val externalSymbols = externalRefsBySymbol.keys.toSet
+      
+      val (capturableSymbols, nonCapturableSymbols) =
+        externalSymbols.partition(canCaptureSymbol)
+        
+      for (s <- nonCapturableSymbols) yield {
+        val refs = externalRefsBySymbol(s)
+          for (ref <- refs)
+            unit.error(ref.pos, "Cannot capture this external symbol")
+      }
+      
+      val captures = for (s <- capturableSymbols) yield {
+        val refs = externalRefsBySymbol(s)
+        /*if (s.isInstanceOf[MethodSymbol])
+          for (ref <- refs)
+            unit.error(ref.pos, "Cannot capture externals methods yet (besides those in the scala.math package)")
+        */
+        val (tpe: Type, isArray: Boolean) = s.tpe match {
+          case TypeRef(_, CLArrayClass, List(tpe)) =>
+            (tpe, true)
+          case _ =>
+            (s.tpe, false)
+        }
+        val io = getDataIOImplicit(s.tpe, context, enclosingTree)
+        if (io == null)
+          for (ref <- refs)
+            unit.error(ref.pos, "Cannot infer CLDataIO instance for type " + tpe + " of captured " + (if (isArray) "array" else "") + " variable !")
+            
+        //unit.error(ref.pos, "Cannot capture externals symbols yet (symbol = " + s + ", tpe = " + s.tpe + ")")
+        val arg = ident(s, N(refs.first.toString))
+        Capture(symbol = s, io = io, isArray = isArray, arg = arg)
+      }
+      
+      captures.toSeq
+    }
+    
     def convertFunctionToCLFunction(originalFunction: Tree): Tree = {
       val f = duplicator transform originalFunction
 
       println("originalFunction = " + originalFunction)
 
-      val externalSymbolReferences = getUnknownSymbolReferences(f, t => t.symbol != NoSymbol && {
-        println("Examining t  = " + t )
-        t.symbol match {
-          case s: MethodSymbol =>
-            /*if (s.owner != null) {
-              println("s.owner = " + s.owner)
-              println("s = " + s)
-            }*/
-            !primitiveTypeSymbols.contains(s.owner) && 
-            s.owner != ScalaMathCommonClass &&
-            !s.toString.matches("value _\\d+") &&
-            !s.toString.matches("method to(Double|Int|Float|Long|Short|Byte|Boolean|Char)") &&
-            !(s.toString == "method apply" && s.owner != null && s.owner.toString.matches("object Tuple\\d+")) // TODO cleanup hack
-          case s: ModuleSymbol =>
-            false
-          case s: TermSymbol =>
-            t.isInstanceOf[Ident]
-          case _ =>
-            false
-        }
-      })
-      val externalRefsBySymbol = externalSymbolReferences.groupBy(_.symbol)
-      val externalSymbols = externalRefsBySymbol.keys.toSet
+      val context = localTyper.context1
       
-      def canCaptureSymbol(s: Symbol) =
-        (System.getenv("SCALACL_CAPTURE_VARIABLES") != null) &&
-        s.isInstanceOf[TermSymbol] &&
-        s.isEffectivelyFinal &&
-        {
-          val tpe = s.tpe.widen.dealias.deconst
-          
-          tpe == IntClass.tpe ||
-          tpe == ShortClass.tpe ||
-          tpe == LongClass.tpe ||
-          tpe == ByteClass.tpe ||
-          tpe == DoubleClass.tpe ||
-          tpe == FloatClass.tpe ||
-          tpe == CharClass.tpe ||
-          tpe == CLArrayClass.tpe
-        }
-        
-      val (capturableSymbols, nonCapturableSymbols) =
-        externalSymbols.partition(canCaptureSymbol)
-        
-      for (s <- nonCapturableSymbols; ref <- externalRefsBySymbol(s)) s match {
-        case _: MethodSymbol =>
-          unit.error(ref.pos, "Cannot capture externals methods yet (besides those in the scala.math package)")
-        case _ =>
-          unit.error(ref.pos, "Cannot capture externals symbols yet (symbol = " + s + ", tpe = " + s.tpe + ")")
-      }
+      val captures = getCaptures(f, context, originalFunction)
+      println("captures = " + captures)
 
-      if (!nonCapturableSymbols.isEmpty)
-        conversionError(originalFunction.pos, "Cannot convert functions that capture external symbols yet")
-
-      println("capturableSymbols = " + capturableSymbols)
-
+      val extraInputBufferArgsIOs = Seq[Tree]() // TODO put here the ios for arrays that are used in read-only mode
+      val extraOutputBufferArgsIOs = captures.filter(_.isArray).map(_.io)
+      val extraScalarArgsIOs = captures.filter(!_.isArray).map(_.io)
+      
+      val extraInputBufferArgs = Seq[Tree]() // TODO put here the ios for arrays that are used in read-only mode
+      val extraOutputBufferArgs = captures.filter(_.isArray).map(_.arg)
+      val extraScalarArgs = captures.filter(!_.isArray).map(_.arg)
+      
       assert(f.id != originalFunction.id)
       var Function(List(uniqueParam), body) = f
       val renamed = renameDefinedSymbolsUniquely(body, unit)
@@ -224,19 +266,21 @@ extends PluginComponent
         )
       */
 
-      val capturedSymbols = capturableSymbols.toArray
+      // Symbols replacement map : replace function param by "_" and captured symbols by "_1", "_2"...
       val symsMap =
         Map(uniqueParam.symbol -> "_") ++
-        (capturedSymbols.zipWithIndex.map { case (s, i) => s -> ("_" + (i + 1)) })
+        (captures.zipWithIndex.map { case (c, i) => c.symbol -> ("_" + (i + 1)) })
       
       println("symsMap = " + symsMap)
 
       def convertCode(tree: Tree) =
         convert(removeSymbolsExceptParamSymbolAsUnderscore(symsMap/*uniqueParam.symbol*/, tree))
 
-      val convDefs: Seq[FlatCode[String]] = flattened.outerDefinitions map convertCode
-      val convStats: Seq[FlatCode[String]] = flattened.statements map convertCode
-      val convVals: Seq[FlatCode[String]] = flattened.values map convertCode
+      val Array(convDefs, convStats, convVals) = Array(flattened.outerDefinitions, flattened.statements, flattened.values).map(_ map convertCode)
+      
+      //val convDefs: Seq[FlatCode[String]] = flattened.outerDefinitions map convertCode
+      //val convStats: Seq[FlatCode[String]] = flattened.statements map convertCode
+      //val convVals: Seq[FlatCode[String]] = flattened.values map convertCode
       
       val outerDefinitions = 
         Seq(convDefs, convStats, convVals).flatMap(_.flatMap(_.outerDefinitions)).distinct.toArray.sortBy(_.startsWith("#"))
@@ -248,7 +292,6 @@ extends PluginComponent
         convVals.flatMap(_.values)
 
       //println("Renamed defined symbols uniquely : " + renamed)
-      val context = localTyper.context1
       val sourceTpe = uniqueParam.symbol.tpe
       val mappedTpe = body.tpe
       val Array(
@@ -257,10 +300,7 @@ extends PluginComponent
       ) = Array(
         sourceTpe, 
         mappedTpe
-      ).map(tpe => {
-        val dataIOTpe = appliedType(CLDataIOClass.tpe, List(tpe))
-        analyzer.inferImplicit(originalFunction, dataIOTpe, false, false, context).tree
-      })
+      ).map(tpe => getDataIOImplicit(tpe, context, originalFunction))
       
       //val (statements, values) = convertExpr(Map(uniqueParam.symbol -> "_"), body)
       val uniqueSignature = Literal(Constant(
@@ -334,7 +374,9 @@ extends PluginComponent
                 newSeqApply(TypeTree(StringClass.tpe), outerDefinitions.map(d => Literal(Constant(d))):_*),
                 newSeqApply(TypeTree(StringClass.tpe), statements.map(s => Literal(Constant(s))):_*),
                 newSeqApply(TypeTree(StringClass.tpe), values.map(value => Literal(Constant(value))):_*),
-                newSeqApply(TypeTree(AnyClass.tpe)) // args TODO
+                newSeqApply(TypeTree(CLDataIOClass.tpe), extraInputBufferArgsIOs:_*),
+                newSeqApply(TypeTree(CLDataIOClass.tpe), extraOutputBufferArgsIOs:_*),
+                newSeqApply(TypeTree(CLDataIOClass.tpe), extraScalarArgsIOs:_*)
               )
             ).setSymbol(getCachedFunctionSym),
             List(
@@ -344,7 +386,23 @@ extends PluginComponent
           ).setSymbol(getCachedFunctionSym)
         }
 
-      clFunction
+      if (captures.isEmpty)
+        clFunction
+      else
+        typed {
+          val withCaptureSym = CLFunctionClass.tpe member withCaptureName
+          Apply(
+            Select(
+              clFunction,
+              withCaptureName
+            ).setSymbol(withCaptureSym),
+            List(
+              newSeqApply(TypeTree(AnyClass.tpe), extraInputBufferArgs:_*),
+              newSeqApply(TypeTree(AnyClass.tpe), extraOutputBufferArgs:_*),
+              newSeqApply(TypeTree(AnyClass.tpe), extraScalarArgs:_*)
+            )
+          ).setSymbol(withCaptureSym)
+        }
     }
     override def transform(tree: Tree): Tree = {
       if (!shouldOptimize(tree))
