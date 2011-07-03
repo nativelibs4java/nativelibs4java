@@ -11,11 +11,11 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="Maven: com.jnaerator:jnaerator:shaded:0.9.8" level="project" />
-    <orderEntry type="library" name="Maven: com.ochafik:ochafik-swing:0.9.8" level="project" />
-    <orderEntry type="library" name="Maven: com.ochafik:ochafik-util:0.9.8" level="project" />
-    <orderEntry type="library" name="Maven: com.jnaerator:jnaerator-rococoa-runtime:0.9.8" level="project" />
-    <orderEntry type="library" name="Maven: com.jnaerator:jnaerator-runtime:0.9.8" level="project" />
+    <orderEntry type="library" name="Maven: com.jnaerator:jnaerator:shaded:0.9.9-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.ochafik:ochafik-swing:0.9.9-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.ochafik:ochafik-util:0.9.9-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.jnaerator:jnaerator-rococoa-runtime:0.9.9-SNAPSHOT" level="project" />
+    <orderEntry type="library" name="Maven: com.jnaerator:jnaerator-runtime:0.9.9-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.jnaerator:jna-jnaerator:3.2.7" level="project" />
     <orderEntry type="library" name="Maven: org.rococoa:rococoa-core:0.5.1-NL4J" level="project" />
     <orderEntry type="library" name="Maven: net.java.dev.jna:jna:3.2.7" level="project" />
@@ -24,9 +24,9 @@
     <orderEntry type="library" scope="TEST" name="Maven: junit:junit:4.8.2" level="project" />
     <orderEntry type="library" name="Maven: cglib:cglib:2.2" level="project" />
     <orderEntry type="library" name="Maven: asm:asm:3.1" level="project" />
-    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:0.5" level="project" />
+    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:0.6-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.nativelibs4java.thirdparty.com.google.android:dx:11" level="project" />
-    <orderEntry type="library" name="Maven: com.jnaerator:jnaerator-parser:0.9.8" level="project" />
+    <orderEntry type="library" name="Maven: com.jnaerator:jnaerator-parser:0.9.9-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:antlr-runtime:3.2" level="project" />
     <orderEntry type="library" name="Maven: org.antlr:stringtemplate:3.2" level="project" />
     <orderEntry type="library" name="Maven: antlr:antlr:2.7.7" level="project" />
@@ -34,7 +34,7 @@
     <orderEntry type="library" name="Maven: org.eclipse.jdt.core.compiler:ecj:3.5.1" level="project" />
     <orderEntry type="module" module-name="javacl-core" />
     <orderEntry type="module" module-name="opencl4java" />
-    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:c-only:0.5" level="project" />
+    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:c-only:0.6-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-plugin-api:2.0" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-project:2.0.2" level="project" />
     <orderEntry type="library" name="Maven: org.apache.maven:maven-profile:2.0.2" level="project" />

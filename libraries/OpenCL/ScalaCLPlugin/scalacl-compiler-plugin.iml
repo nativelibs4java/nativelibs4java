@@ -28,7 +28,7 @@
     <orderEntry type="module" module-name="javacl" scope="TEST" />
     <orderEntry type="module" module-name="javacl-core" scope="TEST" />
     <orderEntry type="module" module-name="opencl4java" scope="TEST" />
-    <orderEntry type="library" scope="TEST" name="Maven: com.nativelibs4java:bridj:c-only:0.5" level="project" />
+    <orderEntry type="library" scope="TEST" name="Maven: com.nativelibs4java:bridj:c-only:0.6-SNAPSHOT" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: com.nativelibs4java.thirdparty.com.google.android:dx:11" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.9.0" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-compiler:2.9.0" level="project" />

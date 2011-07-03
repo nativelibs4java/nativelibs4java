@@ -27,7 +27,7 @@
     <orderEntry type="module" module-name="javacl" />
     <orderEntry type="module" module-name="javacl-core" />
     <orderEntry type="module" module-name="opencl4java" />
-    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:c-only:0.5" level="project" />
+    <orderEntry type="library" name="Maven: com.nativelibs4java:bridj:c-only:0.6-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: com.nativelibs4java.thirdparty.com.google.android:dx:11" level="project" />
     <orderEntry type="library" name="Maven: org.apache.commons:commons-math:2.1" level="project" />
     <orderEntry type="library" name="Maven: org.scala-lang:scala-library:2.8.1" level="project" />
