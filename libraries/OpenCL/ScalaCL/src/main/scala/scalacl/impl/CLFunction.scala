@@ -52,8 +52,9 @@ class CLFunction[A, B](
   declarations: Seq[String],
   val expressions: Seq[String],
   includedSources: Seq[String],
-  extraArgsIOs: Seq[CLDataIO[_]] = Seq(),
-  inVar: String = "_",
+  extraInputBufferArgsIOs: Seq[CLDataIO[_]] = Seq(),
+  extraOutputBufferArgsIOs: Seq[CLDataIO[_]] = Seq(),
+  extraScalarArgsIOs: Seq[CLDataIO[_]] = Seq(),
   indexVar: String = "$i",
   sizeVar: String = "$size"
 )(
@@ -91,24 +92,33 @@ extends (A => B)
     val ta = clType[A]
     val tb = clType[B]
   
-    val inParams: Seq[String] = aIO.openCLKernelArgDeclarations(CLDataIO.InputPointer, 0)//.mkString(", ")
-    val inValueParams: Seq[String] = aIO.openCLKernelArgDeclarations(CLDataIO.Value, 0)//.mkString(", ")
-    val extraParams: Seq[String] = extraArgsIOs.flatMap(_.openCLKernelArgDeclarations(CLDataIO.Value, 0))//.mkString(", "))
-    val outParams: Seq[String] = bIO.openCLKernelArgDeclarations(CLDataIO.OutputPointer, 0)//.mkString(", ")
-    val iosAndPlaceholders: Seq[(CLDataIO[_], String, Boolean)] = 
+    val inParams: Seq[String] = aIO.openCLKernelArgDeclarations(CLDataIO.InputPointer, 0)
+    val inValueParams: Seq[String] = aIO.openCLKernelArgDeclarations(CLDataIO.Value, 0)
+    val extraParams: Seq[String] =
+      extraInputBufferArgsIOs.flatMap(_.openCLKernelArgDeclarations(CLDataIO.InputPointer, 0)) ++
+      extraOutputBufferArgsIOs.flatMap(_.openCLKernelArgDeclarations(CLDataIO.OutputPointer, 0)) ++
+      extraScalarArgsIOs.flatMap(_.openCLKernelArgDeclarations(CLDataIO.Value, 0))
+    val outParams: Seq[String] = bIO.openCLKernelArgDeclarations(CLDataIO.OutputPointer, 0)
+
+    case class DataIOInfo(io: CLDataIO[_], placeholder: String, isBuffer: Boolean, isExtraArg: Boolean)
+
+    val iosAndPlaceholders: Seq[DataIOInfo] =
       (
-        (aIO, inVar, false) :: 
-        extraArgsIOs.toList.zipWithIndex.map { case (io, i) => (io, "_" + (i + 1), true) }
+        DataIOInfo(aIO, "_", isExtraArg = false, isBuffer = true) ::
+        (extraInputBufferArgsIOs.map((_, true)) ++ extraOutputBufferArgsIOs.map((_, true)) ++ extraScalarArgsIOs.map((_, false)): Seq[(CLDataIO[_], Boolean)]).toList.zipWithIndex.map {
+          case ((io, isBuffer), i) =>
+            DataIOInfo(io, "_" + (i + 1), isExtraArg = false, isBuffer = isBuffer)
+        }
       ).toSeq
       
     val varExprs = 
       (
-        iosAndPlaceholders.flatMap { case (io, name, isExtraArg) =>
-          io.openCLIntermediateKernelTupleElementsExprs(name).map {
+        iosAndPlaceholders.flatMap(info => {
+          info.io.openCLIntermediateKernelTupleElementsExprs(info.placeholder).map {
             case (expr, tupleIndexes) =>
-              (expr, tupleIndexes, isExtraArg, io)
+              (expr, tupleIndexes, info)
           }
-        }
+        })
       ).sortBy(-_._1.length).toArray // sort by decreasing expression length (enough to avoid conflicts) TODO unhack this !
        
     //println("varExprs = " + varExprs.toSeq)
@@ -122,9 +132,9 @@ extends (A => B)
       var iExpr = 0
       val nExprs = varExprs.length
       while (iExpr < nExprs) {
-        val (expr, tupleIndexes, isExtraArg, io) = varExprs(iExpr)
+        val (expr, tupleIndexes, DataIOInfo(io, placeholder, isBuffer, isExtraArg)) = varExprs(iExpr)
         def rawith(i: String) = io.openCLIthTupleElementNthItemExpr(argType, 0, tupleIndexes, i) 
-        val x = if (isRange && !isExtraArg)
+        val x = if (isRange && isBuffer)
           "(" + rawith("0") + " + (" + i + ") * " + rawith("2") + ")" // buffer contains (from, to, by, inclusive). Value is (from + i * by)  
         else
           rawith(i)
@@ -164,7 +174,8 @@ extends (A => B)
     //println("functionSource = " + functionSource)
   
     //def replaceForKernel(s: String) = if (s == null) null else replaceAllButIn(s).replaceAll(toRxb(inVar), "in[i]")
-    val presenceParams = Seq("__global const " + CLFilteredArray.presenceCLType + "* presence")
+    val presenceName = "__cl_presence"
+    val presenceParams = Seq("__global const " + CLFilteredArray.presenceCLType + "* " + presenceName)
     val kernDecls = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, indexVarName, false)).reduceLeftOption(_ + "\n" + _).getOrElse("")
     lazy val kernDeclsRange = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, indexVarName, true)).reduceLeftOption(_ + "\n" + _).getOrElse("")
     val assignt = assignts(CLDataIO.InputPointer, indexVarName, false)
@@ -186,7 +197,7 @@ extends (A => B)
             """ + (inParams ++ presenceParams ++ extraParams ++ outParams).mkString(", ") + """
         ) {
             """ + sizeHeader + """
-            if (!presence[""" + indexVarName + """])
+            if (!""" + presenceName + "[" + indexVarName + """])
                 return;
             """ + kernDecls + """
             """ + assignt + """;
@@ -254,42 +265,108 @@ extends (A => B)
     }
   }
 
-  override def run(dims: Array[Int], args: Array[Any], eventsToWaitFor: Array[CLEvent])(implicit context: Context): CLEvent = {
-    val (kernelName, size: Int, buffers: Array[CLGuardedBuffer[Any]]) = args match {
-      case Array(in: CLArray[_], out: CLGuardedBuffer[Any]) =>
-        // case of CLArray.filter (output to the presence array of a CLFilteredArray
-        ("array_array", in.length, in.buffers ++ Array(out): Array[CLGuardedBuffer[Any]])
-      case Array(in: CLArray[_], out: CLArray[_]) =>
-        // CLArray.map
-        ("array_array", in.length, in.buffers ++ out.buffers: Array[CLGuardedBuffer[Any]])
-      case Array(in: CLRange, out: CLArray[_]) =>
-        // CLRange.map 
-        ("range_array", out.length, Array(in.buffer.asInstanceOf[CLGuardedBuffer[Any]]) ++ out.buffers: Array[CLGuardedBuffer[Any]])
-      case Array(in: CLRange, out: CLGuardedBuffer[_]) =>
-        // CLRange.map 
-        ("range_array", in.length, Array(in.buffer.asInstanceOf[CLGuardedBuffer[Any]]) ++ Array(out.asInstanceOf[CLGuardedBuffer[Any]]))
-      case Array(in: CLFilteredArray[_], out: CLFilteredArray[Any]) =>
-        // CLFilteredArray.map
-        ("filteredArray_filteredArray", in.array.length, in.array.buffers ++ Array(in.presence.asInstanceOf[CLGuardedBuffer[Any]]) ++ out.array.buffers: Array[CLGuardedBuffer[Any]])
+  /**
+   * Args must be : Array(in, out, extraInputBuffers..., extraOutputBuffers..., extraScalars...) 
+   */
+  override def run(dims: Array[Int], args: Array[Any], eventsToWaitFor: Array[CLEvent])(implicit context: Context): CLEvent = 
+  {
+    val in = args(0)//.asInstanceOf[CLCollection[A]]
+    val out = args(1)//.asInstanceOf[CLCollection[B]]
+    val extraArgs = args.drop(2)
+    
+    val nExtraInputBufferArgs = extraInputBufferArgsIOs.size
+    val nExtraOutputBufferArgs = extraOutputBufferArgsIOs.size
+    val nExtraBufferArgs = nExtraInputBufferArgs + nExtraOutputBufferArgs
+    val nExtraScalarArgs = extraScalarArgsIOs.size
+    
+    val extraInputBufferArgs: Array[CLArray[_]] = extraArgs.take(nExtraInputBufferArgs).map(_.asInstanceOf[CLArray[_]])
+    val extraOutputBufferArgs: Array[CLArray[_]] = extraArgs.slice(nExtraInputBufferArgs, nExtraBufferArgs).map(_.asInstanceOf[CLArray[_]])
+    val extraScalarArgs: Array[Any] = extraArgs.drop(nExtraBufferArgs)
+    
+    run(dims, in, out, extraInputBufferArgs, extraOutputBufferArgs, extraScalarArgs, eventsToWaitFor)
+  }
+  /*override def withExtraArgs(
+    extraInputBufferArgs: Array[CLArray[_]],
+    extraOutputBufferArgs: Array[CLArray[_]],
+    extraScalarArgs: Array[Any]
+) = {
+    new CLFunction[A, B]() {
+    }
+  }*/
+
+  protected def getActualArgs(arg: Any, skipPresenceInFilteredArray: Boolean = false): (Array[AnyRef], Array[CLGuardedBuffer[Any]]) = arg match {
+    case g: CLGuardedBuffer[_] =>
+      (Array(g.buffer), Array(g.asInstanceOf[CLGuardedBuffer[Any]]))
+    case a: CLArray[_] =>
+      val bufs = a.buffers
+      (bufs.map(_.buffer), bufs)
+    case r: CLRange =>
+      val bufs = Array(r.buffer.asInstanceOf[CLGuardedBuffer[Any]])
+      (bufs.map(_.buffer), bufs)
+    case f: CLFilteredArray[_] =>
+      var bufs = f.array.buffers
+      if (!skipPresenceInFilteredArray)
+        bufs = bufs :+ f.presence.asInstanceOf[CLGuardedBuffer[Any]]
+
+      (bufs.map(_.buffer), bufs)
+  }
+
+      
+  def run(
+    dims: Array[Int], 
+    in: Any,//CLCollection[A],
+    out: Any,//CLCollection[B],
+    extraInputBufferArgs: Array[CLArray[_]],
+    extraOutputBufferArgs: Array[CLArray[_]],
+    extraScalarArgs: Array[Any],
+    eventsToWaitFor: Array[CLEvent]
+  )(implicit context: Context): CLEvent = {
+    
+    val (inArgs, readBufs) = getActualArgs(in)
+    val (outArgs, writeBufs) = getActualArgs(out, skipPresenceInFilteredArray = true)
+    
+    val extraInBufs = extraInputBufferArgs.flatMap(_.buffers)
+    val extraOutBufs = extraOutputBufferArgs.flatMap(_.buffers)
+    
+    val (kernelName, size: Int) = (in, out) match {
+      case (in: CLArray[_], out: CLGuardedBuffer[Any]) => // case of CLArray.filter (output to the presence array of a CLFilteredArray
+        ("array_array", in.length)
+      case (in: CLArray[_], out: CLArray[_]) => // CLArray.map
+        ("array_array", in.length)
+      case (in: CLRange, out: CLArray[_]) => // CLRange.map
+        ("range_array", out.length)
+      case (in: CLRange, out: CLGuardedBuffer[_]) => // CLRange.map
+        ("range_array", in.length)
+      case (in: CLFilteredArray[_], out: CLFilteredArray[Any]) => // CLFilteredArray.map
+        ("filteredArray_filteredArray", in.array.length)
       case _ => 
-        error("ERROR, args = " + args.mkString(", "))
+        error("ERROR, in = " + in + ", out = " + out)
     }
     val kernel = getKernel(context, kernelName)
     assert(kernel.getFunctionName() == kernelName, "not getting the expected kernel !")
     
-    kernel.synchronized {
-      val args = Array(size.asInstanceOf[Object]) ++ buffers.map(_.buffer: Object)
-      //println("kernelName = " + kernelName + ", args = " + args.toSeq + ", kernelsSource = " + kernelsSource)
-      try {
-        kernel.setArgs(args:_*)
-        //println("dims = " + dims.toSeq)
-        if (verbose)
-          println("[ScalaCL] Enqueuing kernel " + kernelName + " with dims " + dims.mkString(", "))
-        kernel.enqueueNDRange(context.queue, dims, eventsToWaitFor:_*)
-      } catch { case ex =>
-        ex.printStackTrace(System.out)
-        throw ex
+    val kernelArgs: Array[AnyRef] = Array(size.asInstanceOf[AnyRef]) ++ inArgs ++ outArgs ++ extraInBufs.map(_.buffer) ++ extraOutBufs.map(_.buffer) ++ extraScalarArgs.map(_.asInstanceOf[AnyRef])
+    val readBuffers: Array[CLEventBound] = readBufs ++ extraInBufs
+    val writeBuffers: Array[CLEventBound] = writeBufs ++ extraOutBufs
+    
+    CLEventBound.syncBlock(
+      readBuffers, 
+      writeBuffers, 
+      evts => {
+        kernel.synchronized {
+          try {
+            //println("kernelArgs = " + kernelArgs.map(a => a + ": " + a.getClass.getName).mkString(", "))
+            kernel.setArgs(kernelArgs:_*)
+            if (verbose)
+              println("[ScalaCL] Enqueuing kernel " + kernelName + " with dims " + dims.mkString(", "))
+            kernel.enqueueNDRange(context.queue, dims, evts ++ eventsToWaitFor:_*)
+          } catch { case ex =>
+            ex.printStackTrace(System.out)
+            throw ex
+          }
+        }
       }
-    }
+    )
+    
   }
 }
