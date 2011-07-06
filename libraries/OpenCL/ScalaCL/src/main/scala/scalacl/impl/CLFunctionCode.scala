@@ -52,8 +52,8 @@ object CLFunctionCode {
     val functionName = "f" + uid
     
     def toRxb(s: String) = {
-      val rx = //"(^|\\b)" +
-        java.util.regex.Matcher.quoteReplacement(s)// + "($|\\b)"
+      val rx = "(^|\\b)" +
+        java.util.regex.Matcher.quoteReplacement(s) + "($|\\b)"
       rx
     }
     val ta = clType[A]
@@ -67,16 +67,22 @@ object CLFunctionCode {
       extraArgsIOs.scalars.flatMap(_.openCLKernelArgDeclarations(CLDataIO.Value, 0))
     val outParams: Seq[String] = bIO.openCLKernelArgDeclarations(CLDataIO.OutputPointer, 0)
 
-    case class DataIOInfo(io: CLDataIO[_], placeholder: String, isBuffer: Boolean, isExtraArg: Boolean)
+    case class DataIOInfo(io: CLDataIO[_], placeholder: String, argType: CLDataIO.ArgType/*isBuffer: Boolean*/, isExtraArg: Boolean)
 
     val iosAndPlaceholders: Seq[DataIOInfo] =
       (
-        DataIOInfo(aIO, "_", isExtraArg = false, isBuffer = true) ::
-        (extraArgsIOs.inputBuffers.map((_, true)) ++ extraArgsIOs.outputBuffers.map((_, true)) ++ extraArgsIOs.scalars.map((_, false)): Seq[(CLDataIO[Any], Boolean)]).toList.zipWithIndex.map {
-          case ((io, isBuffer), i) =>
-            DataIOInfo(io, "_" + (i + 1), isExtraArg = false, isBuffer = isBuffer)
+        (
+          extraArgsIOs.inputBuffers.map((_, CLDataIO.InputPointer/*true*/)) ++ 
+          extraArgsIOs.outputBuffers.map((_, CLDataIO.OutputPointer/*true*/)) ++ 
+          extraArgsIOs.scalars.map((_, CLDataIO.Value/*false*/)): Seq[(CLDataIO[Any], CLDataIO.ArgType)]
+        ).toList.zipWithIndex.map {
+          case ((io, argType/*isBuffer*/), i) =>
+            DataIOInfo(io, "_" + (i + 1), isExtraArg = false, argType = argType/*isBuffer*/)
         }
-      ).toSeq
+      ).toSeq ++
+      Seq(
+        DataIOInfo(aIO, "_", isExtraArg = false, argType/*isBuffer*/ = CLDataIO.InputPointer)
+      )
       
     val varExprs = 
       (
@@ -92,20 +98,23 @@ object CLFunctionCode {
     
     val indexVarName = "__cl_i"
     
-    def replaceForFunction(argType: CLDataIO.ArgType, s: String,  i: String, isRange: Boolean) = if (s == null) null else {
+    def replaceForFunction(/*argType: CLDataIO.ArgType, */s: String,  i: String, isRange: Boolean) = if (s == null) null else {
       var r = s.replaceAll(toRxb(indexVar), indexVarName)
       r = r.replaceAll(toRxb(sizeVar), "size")
   
       var iExpr = 0
       val nExprs = varExprs.length
       while (iExpr < nExprs) {
-        val (expr, tupleIndexes, DataIOInfo(io, placeholder, isBuffer, isExtraArg)) = varExprs(iExpr)
+        val (expr, tupleIndexes, DataIOInfo(io, placeholder, argType, isExtraArg)) = varExprs(iExpr)
         def rawith(i: String) = io.openCLIthTupleElementNthItemExpr(argType, 0, tupleIndexes, i) 
-        val x = if (isRange && isBuffer)
+        val x = if (isRange && argType != CLDataIO.Value)//isBuffer)
           "(" + rawith("0") + " + (" + i + ") * " + rawith("2") + ")" // buffer contains (from, to, by, inclusive). Value is (from + i * by)  
         else
           rawith(i)
+        
+        //println("REPLACING '" + expr + "' by '" + x + "'")
         r = r.replaceAll(toRxb(expr), x)
+        //println("\t-> '" + r.replaceAll("\n", "\n\t") + "'")
         iExpr += 1
       }
       //r = r.replaceAll(toRxb(inVar), "(*in)")
@@ -123,9 +132,11 @@ object CLFunctionCode {
   
     def assignts(argType: CLDataIO.ArgType, i: String, isRange: Boolean) =
       expressions.zip(bIO.openCLKernelNthItemExprs(CLDataIO.OutputPointer, 0, i)).map {
-        case (expression, (xOut, indexes)) => xOut + " = " + replaceForFunction(argType, expression, i, isRange)
+        case (expression, (xOut, indexes)) => xOut + " = " + replaceForFunction(/*argType, */expression, i, isRange)
       }.mkString(";\n\t")
   
+    val functionSource = ""
+    /*
     val funDecls = declarations.map(replaceForFunction(CLDataIO.Value, _, "0", false)).mkString("\n")
     lazy val funDeclsRange = declarations.map(replaceForFunction(CLDataIO.Value, _, "0", true)).mkString("\n")
     val functionSource = """
@@ -137,14 +148,15 @@ object CLFunctionCode {
             """ + assignts(CLDataIO.Value, "0", false) + """;
         }
     """
+    */
     //println("expressions = " + expressions)
     //println("functionSource = " + functionSource)
   
     //def replaceForKernel(s: String) = if (s == null) null else replaceAllButIn(s).replaceAll(toRxb(inVar), "in[i]")
     val presenceName = "__cl_presence"
     val presenceParams = Seq("__global const " + CLFilteredArray.presenceCLType + "* " + presenceName)
-    val kernDecls = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, indexVarName, false)).reduceLeftOption(_ + "\n" + _).getOrElse("")
-    lazy val kernDeclsRange = declarations.map(replaceForFunction(CLDataIO.InputPointer, _, indexVarName, true)).reduceLeftOption(_ + "\n" + _).getOrElse("")
+    val kernDecls = declarations.map(replaceForFunction(/*CLDataIO.InputPointer,*/ _, indexVarName, false)).reduceLeftOption(_ + "\n" + _).getOrElse("")
+    lazy val kernDeclsRange = declarations.map(replaceForFunction(/*CLDataIO.InputPointer, */_, indexVarName, true)).reduceLeftOption(_ + "\n" + _).getOrElse("")
     val assignt = assignts(CLDataIO.InputPointer, indexVarName, false)
     lazy val assigntRange = assignts(CLDataIO.InputPointer, indexVarName, true)
     var kernelsSource = outerDeclarations.mkString("\n")
@@ -152,7 +164,7 @@ object CLFunctionCode {
     kernelsSource += """
       __kernel void array_array(
           int size,
-          """ + (inParams ++ extraParams ++ outParams).mkString(", ") + """
+          """ + (inParams ++ outParams ++ extraParams).mkString(", ") + """
       ) {
           """ + sizeHeader + """
           """ + kernDecls + """
@@ -160,7 +172,7 @@ object CLFunctionCode {
       }
       __kernel void filteredArray_filteredArray(
           int size,
-          """ + (inParams ++ presenceParams ++ extraParams ++ outParams).mkString(", ") + """
+          """ + (inParams ++ presenceParams ++ outParams ++ extraParams).mkString(", ") + """
       ) {
           """ + sizeHeader + """
           if (!""" + presenceName + "[" + indexVarName + """])
@@ -174,7 +186,7 @@ object CLFunctionCode {
       kernelsSource += """
         __kernel void range_array(
             int size,
-            """ + (inParams ++ extraParams ++ outParams).mkString(", ") + """
+            """ + (inParams ++ outParams ++ extraParams).mkString(", ") + """
         ) {
             """ + sizeHeader + """
             """ + kernDeclsRange + """

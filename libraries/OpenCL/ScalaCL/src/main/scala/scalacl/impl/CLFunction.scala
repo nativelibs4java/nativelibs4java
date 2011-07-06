@@ -175,7 +175,14 @@ extends (A => B)
     val kernel = code.getKernel(context, kernelName)
     assert(kernel.getFunctionName() == kernelName, "not getting the expected kernel !")
     
-    val kernelArgs: Array[AnyRef] = Array(size.asInstanceOf[AnyRef]) ++ inArgs ++ outArgs ++ extraInBufs.map(_.buffer) ++ extraOutBufs.map(_.buffer) ++ extraScalarArgs.map(_.asInstanceOf[AnyRef])
+    val kernelArgs: Array[AnyRef] = 
+      Array(size.asInstanceOf[AnyRef]) ++ 
+      inArgs ++ 
+      outArgs ++ 
+      extraInBufs.map(_.buffer) ++ 
+      extraOutBufs.map(_.buffer) ++ 
+      extraScalarArgs.map(_.asInstanceOf[AnyRef])
+      
     val readBuffers: Array[CLEventBound] = readBufs ++ extraInBufs
     val writeBuffers: Array[CLEventBound] = writeBufs ++ extraOutBufs
     
@@ -185,7 +192,7 @@ extends (A => B)
       evts => {
         kernel.synchronized {
           try {
-            //println("kernelArgs = " + kernelArgs.map(a => a + ": " + a.getClass.getName).mkString(", "))
+            //println("kernelArgs = \n\t" + kernelArgs.map(a => a + ": " + a.getClass.getName).mkString("\n\t"))
             kernel.setArgs(kernelArgs:_*)
             if (verbose)
               println("[ScalaCL] Enqueuing kernel " + kernelName + " with dims " + dims.mkString(", "))

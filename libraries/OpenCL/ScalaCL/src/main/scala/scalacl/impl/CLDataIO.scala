@@ -288,7 +288,7 @@ abstract class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T
           case CLDataIO.OutputPointer =>
             "__global " + clType + "* out"
           case CLDataIO.Value =>
-            "const " + clType + " in"
+            "const " + clType + " captured"
         }
       ) + offset
     )
@@ -299,7 +299,7 @@ abstract class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T
       (
         argType match {
           case CLDataIO.Value =>
-            "in" + offset
+            "captured" + offset
           case CLDataIO.InputPointer =>
             "in" + offset + "[" + n + "]"
           case CLDataIO.OutputPointer =>
