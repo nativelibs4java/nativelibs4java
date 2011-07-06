@@ -21,7 +21,7 @@ class FilterTest {
   def testFilter(implicit context: Context) = {
     val filt = (
       (x: Int) => (x % 2) == 0, 
-      Seq("(_ % 2) == 0")
+      Array("(_ % 2) == 0")
     ): CLFunction[Int, Boolean]
     
     for (dim <- 1 until 1000) {
@@ -49,7 +49,7 @@ class FilterTest {
   def testFilterSum(implicit context: Context) = {
     val filt = (
       (x: Int) => (x % 2) == 0, 
-      Seq("(_ % 2) == 0")
+      Array("(_ % 2) == 0")
     ): CLFunction[Int, Boolean]
     
     for (dim <- Seq(1, 3, 5, 100, 1000000)) {

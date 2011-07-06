@@ -66,6 +66,7 @@ extends PluginComponent
   import global._
   import global.definitions._
   import gen._
+  import CODE._
   import scala.tools.nsc.symtab.Flags._
   import typer.typed
   import analyzer.{SearchResult, ImplicitSearch, UnTyper}
@@ -172,6 +173,9 @@ extends PluginComponent
     
     case class Capture(symbol: Symbol, io: Tree, isArray: Boolean, arg: Tree)
       
+    val anyCLDataIOTpe = TypeRef(NoPrefix, CLDataIOClass, List(AnyClass.tpe))
+    val anyCLArrayTpe = TypeRef(NoPrefix, CLArrayClass, List(AnyClass.tpe))
+      
     def getCaptures(f: Tree, context: analyzer.Context, enclosingTree: Tree): Seq[Capture] = {
       val externalSymbolReferences = 
         getUnknownSymbolReferences(f, t => t.symbol != NoSymbol && {
@@ -206,22 +210,21 @@ extends PluginComponent
       
       val captures = for (s <- capturableSymbols) yield {
         val refs = externalRefsBySymbol(s)
-        /*if (s.isInstanceOf[MethodSymbol])
-          for (ref <- refs)
-            unit.error(ref.pos, "Cannot capture externals methods yet (besides those in the scala.math package)")
-        */
         val (tpe: Type, isArray: Boolean) = s.tpe match {
           case TypeRef(_, CLArrayClass, List(tpe)) =>
             (tpe, true)
           case _ =>
             (s.tpe, false)
         }
-        val io = getDataIOImplicit(s.tpe, context, enclosingTree)
-        if (io == null)
+        
+        var io = getDataIOImplicit(tpe, context, enclosingTree)
+        if (io == null) {
           for (ref <- refs)
             unit.error(ref.pos, "Cannot infer CLDataIO instance for type " + tpe + " of captured " + (if (isArray) "array" else "") + " variable !")
-            
-        //unit.error(ref.pos, "Cannot capture externals symbols yet (symbol = " + s + ", tpe = " + s.tpe + ")")
+        } else {
+          io = io.AS(anyCLDataIOTpe)
+          //unit.error(ref.pos, "Cannot capture externals symbols yet (symbol = " + s + ", tpe = " + s.tpe + ")")
+        }
         val arg = ident(s, N(refs.first.toString))
         Capture(symbol = s, io = io, isArray = isArray, arg = arg)
       }
@@ -277,10 +280,6 @@ extends PluginComponent
         convert(removeSymbolsExceptParamSymbolAsUnderscore(symsMap/*uniqueParam.symbol*/, tree))
 
       val Array(convDefs, convStats, convVals) = Array(flattened.outerDefinitions, flattened.statements, flattened.values).map(_ map convertCode)
-      
-      //val convDefs: Seq[FlatCode[String]] = flattened.outerDefinitions map convertCode
-      //val convStats: Seq[FlatCode[String]] = flattened.statements map convertCode
-      //val convVals: Seq[FlatCode[String]] = flattened.values map convertCode
       
       val outerDefinitions = 
         Seq(convDefs, convStats, convVals).flatMap(_.flatMap(_.outerDefinitions)).distinct.toArray.sortBy(_.startsWith("#"))
@@ -355,7 +354,6 @@ extends PluginComponent
           println("Program successfully compiled on " + scalaCLContexts.size + " available device(s)") 
       }
       */
-      
       val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
       val clFunction = 
         typed {
@@ -371,12 +369,12 @@ extends PluginComponent
               List(
                 newInt(uniqueId),
                 originalFunction,
-                newSeqApply(TypeTree(StringClass.tpe), outerDefinitions.map(d => Literal(Constant(d))):_*),
-                newSeqApply(TypeTree(StringClass.tpe), statements.map(s => Literal(Constant(s))):_*),
-                newSeqApply(TypeTree(StringClass.tpe), values.map(value => Literal(Constant(value))):_*),
-                newSeqApply(TypeTree(CLDataIOClass.tpe), extraInputBufferArgsIOs:_*),
-                newSeqApply(TypeTree(CLDataIOClass.tpe), extraOutputBufferArgsIOs:_*),
-                newSeqApply(TypeTree(CLDataIOClass.tpe), extraScalarArgsIOs:_*)
+                newArrayApply(TypeTree(StringClass.tpe), outerDefinitions.map(d => Literal(Constant(d))):_*),
+                newArrayApply(TypeTree(StringClass.tpe), statements.map(s => Literal(Constant(s))):_*),
+                newArrayApply(TypeTree(StringClass.tpe), values.map(value => Literal(Constant(value))):_*),
+                newArrayApply(TypeTree(anyCLDataIOTpe), extraInputBufferArgsIOs:_*),
+                newArrayApply(TypeTree(anyCLDataIOTpe), extraOutputBufferArgsIOs:_*),
+                newArrayApply(TypeTree(anyCLDataIOTpe), extraScalarArgsIOs:_*)
               )
             ).setSymbol(getCachedFunctionSym),
             List(
@@ -397,9 +395,9 @@ extends PluginComponent
               withCaptureName
             ).setSymbol(withCaptureSym),
             List(
-              newSeqApply(TypeTree(AnyClass.tpe), extraInputBufferArgs:_*),
-              newSeqApply(TypeTree(AnyClass.tpe), extraOutputBufferArgs:_*),
-              newSeqApply(TypeTree(AnyClass.tpe), extraScalarArgs:_*)
+              newArrayApply(TypeTree(anyCLArrayTpe), extraInputBufferArgs:_*),
+              newArrayApply(TypeTree(anyCLArrayTpe), extraOutputBufferArgs:_*),
+              newArrayApply(TypeTree(AnyClass.tpe), extraScalarArgs:_*)
             )
           ).setSymbol(withCaptureSym)
         }

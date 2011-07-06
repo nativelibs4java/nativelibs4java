@@ -7,9 +7,9 @@ import _root_.scala.collection._
 import com.nativelibs4java.opencl._
 
 trait CLCode {
-  protected val sources: Seq[String]
+  protected val sources: Array[String]
   protected val macros: Map[String, String]
-  protected val compilerArguments: Seq[String]
+  protected val compilerArguments: Array[String]
 
   private val flatten: ((String, String)) => String = { case ((a: String, b: String)) => a + b }
   private lazy val strs = sources ++ macros.map(flatten)// ++ compilerArguments ++ templateParameters.toSeq.map(flatten)

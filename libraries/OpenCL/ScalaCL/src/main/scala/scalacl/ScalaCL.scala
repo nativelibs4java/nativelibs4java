@@ -278,16 +278,16 @@ package object scalacl {
   implicit val DoubleCLDataIO = CLDoubleDataIO
   //implicit def AnyValCLDataIO[T <: AnyVal](implicit t: ClassManifest[T]) = new CLValDataIO[T]
 
-  implicit def Expression2CLFunction[K, V](fx: (K => V, Seq[String]))(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
+  implicit def Expression2CLFunction[K, V](fx: (K => V, Array[String]))(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
     val (function, expressions) = fx
-    new CLFunction[K, V](function, Seq(), Seq(), expressions, Seq())
+    new CLFunction[K, V](function, Array(), Array(), expressions, Array())
   }
 
   /**
    * This MUST be transformed by the ScalaCL compiler plugin to be usable in an OpenCL context (otherwise operations will happen in Scala land
    */
   implicit def Function2CLFunction[K, V](f: K => V)(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
-    new CLFunction[K, V](f, Seq(), Seq(), Seq(), Seq())
+    new CLFunction[K, V](f, Array(), Array(), Array(), Array())
   }
 
   private val functionsCache = scala.collection.mutable.HashMap[Long, CLFunction[_, _]]()
@@ -295,12 +295,12 @@ package object scalacl {
   def getCachedFunction[K, V](
     uid: Long, 
     function: K => V, 
-    outerDeclarations: => Seq[String], 
-    declarations: => Seq[String], 
-    expressions: => Seq[String], 
-    extraInputBufferArgsIOs: => Seq[CLDataIO[_]],
-    extraOutputBufferArgsIOs: => Seq[CLDataIO[_]],
-    extraScalarArgsIOs: => Seq[CLDataIO[_]]
+    outerDeclarations: => Array[String], 
+    declarations: => Array[String], 
+    expressions: => Array[String], 
+    extraInputBufferArgsIOs: => Array[CLDataIO[Any]],
+    extraOutputBufferArgsIOs: => Array[CLDataIO[Any]],
+    extraScalarArgsIOs: => Array[CLDataIO[Any]]
   )(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
     functionsCache synchronized {
       functionsCache.getOrElseUpdate(
@@ -310,7 +310,7 @@ package object scalacl {
           outerDeclarations, 
           declarations, 
           expressions, 
-          Seq(),
+          Array(),
           CapturedIOs(
             extraInputBufferArgsIOs,
             extraOutputBufferArgsIOs,

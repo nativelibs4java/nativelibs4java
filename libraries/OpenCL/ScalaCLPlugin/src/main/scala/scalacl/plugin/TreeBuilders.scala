@@ -158,21 +158,48 @@ extends MiscMatchers
       }
     }
   }
-  def newSeqApply(typeExpr: Tree, values: Tree*) = {
-    val applySym = SeqModule.tpe member applyName
+  
+  def newApply(target: Tree/*, targetType: Type*/, name: Name, typeArgs: List[Tree], args: List[Tree]) = {
+    val targetType = 
+      if (target.tpe == NoType || target.tpe == null) 
+        target.symbol.tpe 
+      else 
+        target.tpe
+        
+    val applySym = targetType member name
     typed {
-      Apply(
-        TypeApply(
-          Select(
-            Select(Select(Ident(N("scala")) setSymbol(ScalaPackage), N("collection")).setSymbol(ScalaCollectionPackage), N("Seq")).setSymbol(SeqModule),
-            N("apply")
-          ).setSymbol(applySym),
-          List(typeExpr)
-        ).setSymbol(applySym),
-        values.toList
-      )
+      val applyMethod = Select(target, name).setSymbol(applySym)
+      if (!typeArgs.isEmpty)
+        Apply(
+          TypeApply(applyMethod, typeArgs).setSymbol(applySym),
+          args
+        )
+      else
+        Apply(applyMethod, args)
     }
   }
+    
+  def newCollectionApply(collectionModuleTree: => Tree, typeExpr: Tree, values: Tree*) =
+    newApply(collectionModuleTree, applyName, List(typeExpr), values.toList)
+    
+  def newScalaPackageTree = 
+    Ident(N("scala")).setSymbol(ScalaPackage)
+    
+  def newScalaCollectionPackageTree =
+    Select(newScalaPackageTree, N("collection")).setSymbol(ScalaCollectionPackage)
+    
+  def newSeqModuleTree =
+    Select(newScalaCollectionPackageTree, N("Seq")).setSymbol(SeqModule)
+    
+  def newArrayModuleTree =
+    Select(newScalaPackageTree, N("Array")).setSymbol(ArrayModule)
+    
+  def newSeqApply(typeExpr: Tree, values: Tree*) =
+    newApply(newSeqModuleTree, applyName, List(typeExpr), values.toList)
+    
+  def newArrayApply(typeExpr: Tree, values: Tree*) =
+    newApply(newArrayModuleTree, applyName, List(typeExpr), values.toList)
+  
   def newArrayMulti(arrayType: Type, componentTpe: Type, lengths: => List[Tree], manifest: Tree) =
       typed {
         val sym = (ArrayModule.tpe member "ofDim" alternatives).filter(_.paramss.flatten.size == lengths.size + 1).head

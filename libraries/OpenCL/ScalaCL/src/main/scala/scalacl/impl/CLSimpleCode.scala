@@ -3,10 +3,10 @@ package scalacl
 package impl
 
 class CLSimpleCode(
-  override val sources: Seq[String],
+  override val sources: Array[String],
   override val macros: Map[String, String],
-  override val compilerArguments: Seq[String]
+  override val compilerArguments: Array[String]
 ) extends CLCode {
-  def this(source: String) = this(Seq(source), Map(), Seq())
+  def this(source: String) = this(Array(source), Map(), Array())
 }
 

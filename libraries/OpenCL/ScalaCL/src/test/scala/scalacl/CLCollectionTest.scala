@@ -68,22 +68,22 @@ object CLCollectionTest {
     
     f = (
       (x: Int) => (exp(x).toInt % 2) == 0, 
-      Seq("(((int)exp((float)_)) % 2) == 0")
+      Array("(((int)exp((float)_)) % 2) == 0")
     ): CLFunction[Int, Boolean]
     
     m = (
       (x: Int) => (x * 2 * exp(x)).toInt, 
-      Seq("(int)(_ * 2 * exp((float)_))")
+      Array("(int)(_ * 2 * exp((float)_))")
     ): CLFunction[Int, Int]
     
     m2 = (
       (x: Int) => (x, x * 2), 
-      Seq("_", "_ * 2")
+      Array("_", "_ * 2")
     ): CLFunction[Int, (Int, Int)]
  
     m2join = (
       (p: (Int, Int)) => p._1 + 2 * p._2, 
-      Seq("_._1 + 2 * _._2")
+      Array("_._1 + 2 * _._2")
     ): CLFunction[(Int, Int), Int]
  
   }

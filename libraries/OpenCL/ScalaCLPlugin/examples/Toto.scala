@@ -18,7 +18,8 @@ object Toto {
     implicit val context = Context.best(CPU)
     val n = 10 * args(0).toInt
     
-    (1 to 100).toCLArray.map(_ * n - n)
+    println((0 to 10).map(_ * n - n))
+    println((0 to 10).toCLArray.map(_ * n - n))
     
     /*
     case class Matrix(data: CLArray[Float], rows: Int, columns: Int) {

@@ -42,10 +42,10 @@ extends (A => B)
 {
   def this(
     function: A => B,
-    outerDeclarations: Seq[String],
-    declarations: Seq[String],
-    expressions: Seq[String],
-    includedSources: Seq[String],
+    outerDeclarations: Array[String],
+    declarations: Array[String],
+    expressions: Array[String],
+    includedSources: Array[String],
     extraArgsIOs: CapturedIOs = CapturedIOs()
   )(implicit aIO: CLDataIO[A], bIO: CLDataIO[B]) = {
     this(
@@ -101,16 +101,16 @@ extends (A => B)
     val nExtraBufferArgs = nExtraInputBufferArgs + nExtraOutputBufferArgs
     val nExtraScalarArgs = extraArgsIOs.scalars.size
     
-    val extraInputBufferArgs: Array[CLArray[_]] = extraArgs.take(nExtraInputBufferArgs).map(_.asInstanceOf[CLArray[_]])
-    val extraOutputBufferArgs: Array[CLArray[_]] = extraArgs.slice(nExtraInputBufferArgs, nExtraBufferArgs).map(_.asInstanceOf[CLArray[_]])
+    val extraInputBufferArgs: Array[CLArray[Any]] = extraArgs.take(nExtraInputBufferArgs).map(_.asInstanceOf[CLArray[Any]])
+    val extraOutputBufferArgs: Array[CLArray[Any]] = extraArgs.slice(nExtraInputBufferArgs, nExtraBufferArgs).map(_.asInstanceOf[CLArray[Any]])
     val extraScalarArgs: Array[Any] = extraArgs.drop(nExtraBufferArgs)
     
     run(dims, in, out, extraInputBufferArgs, extraOutputBufferArgs, extraScalarArgs, eventsToWaitFor)
   }
   
   def withCapture(
-    extraInputBufferArgs: Array[CLArray[_]],
-    extraOutputBufferArgs: Array[CLArray[_]],
+    extraInputBufferArgs: Array[CLArray[Any]],
+    extraOutputBufferArgs: Array[CLArray[Any]],
     extraScalarArgs: Array[Any]
   ) = {
     new CLFunction[A, B](function, code) {
@@ -125,7 +125,7 @@ extends (A => B)
   protected def getActualArgs(arg: Any, skipPresenceInFilteredArray: Boolean = false): (Array[AnyRef], Array[CLGuardedBuffer[Any]]) = arg match {
     case g: CLGuardedBuffer[_] =>
       (Array(g.buffer), Array(g.asInstanceOf[CLGuardedBuffer[Any]]))
-    case a: CLArray[_] =>
+    case a: CLArray[Any] =>
       val bufs = a.buffers
       (bufs.map(_.buffer), bufs)
     case r: CLRange =>
@@ -140,11 +140,11 @@ extends (A => B)
   }
 
   protected def getFunctionKernelNameAndSizeFromInAndOut(in: Any, out: Any) = (in, out) match {
-    case (in: CLArray[_], out: CLGuardedBuffer[Any]) => // case of CLArray.filter (output to the presence array of a CLFilteredArray
+    case (in: CLArray[Any], out: CLGuardedBuffer[Any]) => // case of CLArray.filter (output to the presence array of a CLFilteredArray
       ("array_array", in.length)
-    case (in: CLArray[_], out: CLArray[_]) => // CLArray.map
+    case (in: CLArray[Any], out: CLArray[Any]) => // CLArray.map
       ("array_array", in.length)
-    case (in: CLRange, out: CLArray[_]) => // CLRange.map
+    case (in: CLRange, out: CLArray[Any]) => // CLRange.map
       ("range_array", out.length)
     case (in: CLRange, out: CLGuardedBuffer[_]) => // CLRange.map
       ("range_array", in.length)
@@ -158,8 +158,8 @@ extends (A => B)
     dims: Array[Int], 
     in: Any,//CLCollection[A],
     out: Any,//CLCollection[B],
-    extraInputBufferArgs: Array[CLArray[_]],
-    extraOutputBufferArgs: Array[CLArray[_]],
+    extraInputBufferArgs: Array[CLArray[Any]],
+    extraOutputBufferArgs: Array[CLArray[Any]],
     extraScalarArgs: Array[Any],
     eventsToWaitFor: Array[CLEvent]
   )(implicit context: Context): CLEvent = {

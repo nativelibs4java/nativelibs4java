@@ -8,9 +8,9 @@ import scala.collection._
 
 //import CLFunction._
 case class CapturedIOs(
-  inputBuffers: Seq[CLDataIO[_]] = Seq(),
-  outputBuffers: Seq[CLDataIO[_]] = Seq(),
-  scalars: Seq[CLDataIO[_]] = Seq()
+  inputBuffers: Array[CLDataIO[Any]] = Array(),
+  outputBuffers: Array[CLDataIO[Any]] = Array(),
+  scalars: Array[CLDataIO[Any]] = Array()
 ) { 
   lazy val isEmpty = inputBuffers.isEmpty && outputBuffers.isEmpty && scalars.isEmpty 
 }
@@ -19,7 +19,7 @@ case class SourceData(
   functionName: String,
   functionSource: String,
   kernelsSource: String,
-  includedSources: Seq[String]/*,
+  includedSources: Array[String]/*,
   outerDeclarations: Seq[String]*/
 )
 
@@ -39,10 +39,10 @@ object CLFunctionCode {
   protected val sizeVar: String = "$size"
   
   def buildSourceData[A, B](
-    outerDeclarations: Seq[String],
-    declarations: Seq[String],
-    expressions: Seq[String],
-    includedSources: Seq[String],
+    outerDeclarations: Array[String],
+    declarations: Array[String],
+    expressions: Array[String],
+    includedSources: Array[String],
     extraArgsIOs: CapturedIOs = CapturedIOs()
   )(implicit aIO: CLDataIO[A], bIO: CLDataIO[B]) = 
   {
@@ -72,7 +72,7 @@ object CLFunctionCode {
     val iosAndPlaceholders: Seq[DataIOInfo] =
       (
         DataIOInfo(aIO, "_", isExtraArg = false, isBuffer = true) ::
-        (extraArgsIOs.inputBuffers.map((_, true)) ++ extraArgsIOs.outputBuffers.map((_, true)) ++ extraArgsIOs.scalars.map((_, false)): Seq[(CLDataIO[_], Boolean)]).toList.zipWithIndex.map {
+        (extraArgsIOs.inputBuffers.map((_, true)) ++ extraArgsIOs.outputBuffers.map((_, true)) ++ extraArgsIOs.scalars.map((_, false)): Seq[(CLDataIO[Any], Boolean)]).toList.zipWithIndex.map {
           case ((io, isBuffer), i) =>
             DataIOInfo(io, "_" + (i + 1), isExtraArg = false, isBuffer = isBuffer)
         }
@@ -213,14 +213,14 @@ extends CLCode
   
   val sourcesToInclude = 
     //if (sourceData == null) null else 
-    includedSources ++ Seq(functionSource)
+    includedSources ++ Array(functionSource)
     
   override val sources = 
     //if (sourceData == null) null else 
-    sourcesToInclude ++ Seq(kernelsSource)
+    sourcesToInclude ++ Array(kernelsSource)
     
   override val macros = Map[String, String]()
-  override val compilerArguments = Seq[String]()
+  override val compilerArguments = Array[String]()
 
   //override def isOnlyInScalaSpace = sourceData == null
   
@@ -237,9 +237,9 @@ extends CLCode
         // TODO FIXME !
         new CLFunctionCode[C, B](
           sourceData = buildSourceData[C, B](
-            outerDeclarations = Seq(),// TODO ??? outerDeclarations ++ f.outerDeclarations, 
-            declarations = Seq(),
-            expressions = Seq(functionName + "(" + f.sourceData.functionName + "(_))"),
+            outerDeclarations = Array(),// TODO ??? outerDeclarations ++ f.outerDeclarations, 
+            declarations = Array(),
+            expressions = Array(functionName + "(" + f.sourceData.functionName + "(_))"),
             includedSources = sourcesToInclude ++ f.sourcesToInclude
           )(f.aIO, bIO)
         ).asInstanceOf[CLFunctionCode[_, _]]
@@ -253,9 +253,9 @@ extends CLCode
         // TODO FIXME !
         new CLFunctionCode[A, B](
           sourceData = buildSourceData[A, B](
-            outerDeclarations = Seq(),  
-            declarations = Seq(), 
-            expressions = Seq("(" + functionName + "(_) && " + f.sourceData.functionName + "(_))"), 
+            outerDeclarations = Array(),  
+            declarations = Array(), 
+            expressions = Array("(" + functionName + "(_) && " + f.sourceData.functionName + "(_))"), 
             includedSources = sourcesToInclude ++ f.sourcesToInclude
           )
         ).asInstanceOf[CLFunctionCode[_, _]]
