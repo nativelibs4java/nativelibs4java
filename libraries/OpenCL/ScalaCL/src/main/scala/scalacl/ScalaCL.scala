@@ -282,6 +282,10 @@ package object scalacl {
     val (function, expressions) = fx
     new CLFunction[K, V](function, Array(), Array(), expressions, Array())
   }
+  implicit def ExpressionWithCaptures2CLFunction[K, V](fx: (K => V, Array[String], impl.CapturedIOs))(implicit kIO: CLDataIO[K], vIO: CLDataIO[V]): CLFunction[K, V] = {
+    val (function, expressions, captures) = fx
+    new CLFunction[K, V](function, Array(), Array(), expressions, Array(), captures)
+  }
 
   /**
    * This MUST be transformed by the ScalaCL compiler plugin to be usable in an OpenCL context (otherwise operations will happen in Scala land

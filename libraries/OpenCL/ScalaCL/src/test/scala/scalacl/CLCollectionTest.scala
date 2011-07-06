@@ -30,8 +30,10 @@ object CLCollectionTest {
   def aRand = (0 until n).map(_ => rand.nextFloat).toArray
   def claRand = aRand.toCLArray
   
+  val extVal = 10
   
   var f: Int => Boolean = _
+  var fExt: Int => Int = _
   var m: Int => Int = _
   var m2: Int => (Int, Int) = _
   var m2join: ((Int, Int)) => Int = _
@@ -71,6 +73,23 @@ object CLCollectionTest {
       Array("(((int)exp((float)_)) % 2) == 0")
     ): CLFunction[Int, Boolean]
     
+    fExt = 
+      (
+        (
+          (x: Int) => x * extVal - x - extVal, 
+          Array("_ * _1 - _ - _1"),
+          impl.CapturedIOs(
+            Array(),
+            Array(),
+            Array(IntCLDataIO.asInstanceOf[CLDataIO[Any]])
+          )
+        ): CLFunction[Int, Int]
+      ).withCapture(
+        Array(),
+        Array(),
+        Array(extVal)
+      )
+    
     m = (
       (x: Int) => (x * 2 * exp(x)).toInt, 
       Array("(int)(_ * 2 * exp((float)_))")
@@ -97,6 +116,11 @@ object CLCollectionTest {
 class CLCollectionTest {
 
   import CLCollectionTest._
+  
+  @Test
+  def testMapExt {
+    same(a.map(fExt), cla.map(fExt))
+  }
   
   @Test
   def testSimpleFilter {
