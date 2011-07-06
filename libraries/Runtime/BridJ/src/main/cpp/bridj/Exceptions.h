@@ -16,16 +16,18 @@
 #include <setjmp.h>
 
 typedef struct Signals {
-	void* fSIGSEGV;
-	void* fSIGBUS;
-	void* fSIGABRT;
-	void* fSIGFPE; 
-	void* fSIGILL; 
+	struct sigaction fOldSIGSEGV;
+	struct sigaction fOldSIGBUS;
+	struct sigaction fOldSIGFPE; 
+	struct sigaction fOldSIGCHLD;
+	//struct sigaction fOldSIGABRT;
+	//struct sigaction fOldSIGILL;	
 } Signals;
 
 void TrapSignals(Signals* s);
 void RestoreSignals(Signals* s);
-void UnixExceptionHandler(int sig);
+//void UnixExceptionHandler(int sig);
+void UnixExceptionHandler(int, siginfo_t*, void*);
 
 #define BEGIN_TRY(env, call) { \
 	jboolean _ex_jmpError; \

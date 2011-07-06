@@ -82,16 +82,40 @@ jboolean assertThrow(JNIEnv* env, jboolean value, const char* message) {
 
 Signals gSignals;
 
+
+void TrapSignals(Signals* s) {
+	
+	struct sigaction act;
+	memset(&act, 0, sizeof(struct sigaction));
+	act.sa_sigaction = UnixExceptionHandler;
+	act.sa_flags = SA_SIGINFO | SA_NOCLDSTOP | SA_NOCLDWAIT;
+	
+	sigaction(SIGSEGV, &act, &s->fOldSIGSEGV);
+	sigaction(SIGBUS, &act, &s->fOldSIGBUS);
+	sigaction(SIGFPE, &act, &s->fOldSIGFPE);
+	sigaction(SIGCHLD, &act, &s->fOldSIGCHLD);
+	//sigaction(SIGABRT, &act, &s->fOldSIGABRT);
+	//sigaction(SIGILL, &act, &s->fOldSIGILL);
+}
+void RestoreSignals(Signals* s) {
+	sigaction(SIGSEGV, &s->fOldSIGSEGV, NULL);
+	sigaction(SIGBUS, &s->fOldSIGBUS, NULL);
+	sigaction(SIGFPE, &s->fOldSIGFPE, NULL);
+	sigaction(SIGCHLD, &s->fOldSIGCHLD, NULL);
+	//sigaction(SIGABRT, &act, &s->fOldSIGABRT);
+	//sigaction(SIGILL, &act, &s->fOldSIGILL);
+}
+/*
 void TrapSignals(Signals* s) {
 	#define TRAP_SIG(sig) \
 	if (s->f ## sig != UnixExceptionHandler) \
 		s->f ## sig = signal(sig, UnixExceptionHandler);
 		
 	TRAP_SIG(SIGSEGV);
-	TRAP_SIG(SIGBUS);
-	TRAP_SIG(SIGABRT);
+	//TRAP_SIG(SIGBUS);
+	//TRAP_SIG(SIGABRT);
 	TRAP_SIG(SIGFPE);
-	TRAP_SIG(SIGILL);
+	//TRAP_SIG(SIGILL);
 }
 void RestoreSignals(Signals* s) {
 	#define UNTRAP_SIG(sig) \
@@ -99,11 +123,12 @@ void RestoreSignals(Signals* s) {
 		signal(sig, s->f ## sig);
 	
 	UNTRAP_SIG(SIGSEGV);
-	UNTRAP_SIG(SIGBUS);
-	UNTRAP_SIG(SIGABRT);
+	//UNTRAP_SIG(SIGBUS);
+	//UNTRAP_SIG(SIGABRT);
 	UNTRAP_SIG(SIGFPE);
-	UNTRAP_SIG(SIGILL);
+	//UNTRAP_SIG(SIGILL);
 }
+*/
 
 void InitProtection() {
 	//TrapSignals(&gSignals);
@@ -113,14 +138,16 @@ void CleanupProtection() {
 	//RestoreSignals(&gSignals);
 }
 
-void UnixExceptionHandler(int sig) {
+//void UnixExceptionHandler(int sig) {
+void UnixExceptionHandler(int sig, siginfo_t* si, void * ctx) {
   JNIEnv* env;
   CallTempStruct* call;
+  //ucontext_t* pCtx = (ucontext_t*)ctx;
   
   env = GetEnv();
   call = getCurrentTempCallStruct(env);
   
-  printf("IN UnixExceptionHandler (sig = %d, call = %p) !\n", sig, call);
+  //printf("IN UnixExceptionHandler (sig = %d, call = %p) !\n", sig, call);
   
   //TrapSignals(&gSignals); // reinitialize, in case it was reset
   
@@ -150,9 +177,7 @@ void UnixExceptionHandler(int sig) {
   	  break;
   }
   call->throwMessage = msg;
-  //throwException(env, msg);
-  if (call)
-  	  longjmp(call->exceptionContext, sig);
+  longjmp(call->exceptionContext, sig);
 }
 
 #else

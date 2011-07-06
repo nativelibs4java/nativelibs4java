@@ -387,8 +387,14 @@ public:
 	}
 };
 
-TEST_API void throwCPPException(const char* message) {
+TEST_API void throwMyExceptionByValue(const char* message) {
 	throw MyException(message);
+}
+TEST_API void throwNewMyException(const char* message) {
+	throw new MyException(message);
+}
+TEST_API void throwInt(int value) {
+	throw value;
 }
 
 #include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"

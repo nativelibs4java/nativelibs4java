@@ -24,18 +24,24 @@ public class ExceptionsTest {
 	}
 	
 	public static native void crashIllegalAccess() throws RuntimeException;
-	public static native void throwCPPException(Pointer<Byte> message) throws RuntimeException;
+	public static native void throwMyExceptionByValue(Pointer<Byte> message) throws RuntimeException;
+	public static native void throwNewMyException(Pointer<Byte> message) throws RuntimeException;
+	public static native void throwInt(int value) throws RuntimeException;
 	
 	@Test(expected=RuntimeException.class)
 	public void testCrashIllegalAccess() {
-		//crashIllegalAccess();
+		try {
+			crashIllegalAccess();
+		} catch (RuntimeException ex) {
+			ex.printStackTrace();
+			throw ex;
+		}
 	}
 	
-	/*
-	@Test(expected=RuntimeException.class)
-	public void testThrowCPPException() {
-		throwCPPException(pointerToCString("Whatever"));
-	}
-	*/
+	
+	//@Test(expected=RuntimeException.class)
+	//public void testThrowCPPException() {
+		//throwMyExceptionByValue(pointerToCString("Whatever"));
+	//}
 }
 
