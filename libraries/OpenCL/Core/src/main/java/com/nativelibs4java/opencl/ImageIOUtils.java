@@ -4,6 +4,7 @@ import com.nativelibs4java.opencl.CLImageFormat.ChannelOrder;
 import com.nativelibs4java.opencl.CLImageFormat.ChannelDataType;
 import com.nativelibs4java.util.NIOUtils;
 import java.awt.Image;
+import java.awt.Rectangle;
 import java.awt.image.*;
 import java.nio.*;
 import static com.nativelibs4java.opencl.ImageIOUtils.ImageInfo.*;
@@ -152,7 +153,7 @@ class ImageIOUtils {
 					short[] existingArray = getIndirectArray(optionalExistingOutput, width * height, short[].class);
                     short[] array;
 					ShortBuffer output = null;
-                    if (!allowDeoptimizingDirectRead)
+                    if (!allowDeoptimizingDirectRead || isSubRaster(raster))
                         array = (short[])raster.getDataElements(0, 0, width, height, existingArray);
                     else {
                         array = checkDataBuffer(raster, DataBufferShort.class).getData();
@@ -278,7 +279,7 @@ class ImageIOUtils {
 					byte[] existingArray = getIndirectArray(optionalExistingOutput, width * height, byte[].class);
                     byte[] array;
 					ByteBuffer output = null;
-                    if (!allowDeoptimizingDirectRead)
+                    if (!allowDeoptimizingDirectRead || isSubRaster(raster))
                         array = (byte[])raster.getDataElements(0, 0, width, height, existingArray);
                     else {
                         array = checkDataBuffer(raster, DataBufferByte.class).getData();
@@ -342,6 +343,10 @@ class ImageIOUtils {
             return (A)((CharBuffer)buffer).array();
         return null;
     }
+    public static boolean isSubRaster(Raster raster) {
+    		Rectangle bounds = raster.getBounds();
+    		return raster.getParent() != null || bounds.x != 0 || bounds.y != 0;
+    }
 	public static ImageInfo<BufferedImage> getIntARGBImageInfo() {
 		return new ImageInfo<BufferedImage>(
 			BufferedImage.TYPE_INT_ARGB, 
@@ -354,7 +359,7 @@ class ImageIOUtils {
                     int[] existingArray = getIndirectArray(optionalExistingOutput, width * height, int[].class);
                     int[] array;
 					IntBuffer output = null;
-                    if (!allowDeoptimizingDirectRead)
+                    if (!allowDeoptimizingDirectRead || isSubRaster(raster))
                         array = (int[])raster.getDataElements(0, 0, width, height, existingArray);
                     else {
                         array = checkDataBuffer(raster, DataBufferInt.class).getData();
