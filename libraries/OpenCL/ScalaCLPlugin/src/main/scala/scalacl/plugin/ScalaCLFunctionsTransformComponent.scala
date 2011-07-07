@@ -146,10 +146,15 @@ extends PluginComponent
 
     def canCaptureSymbol(s: Symbol) = {
       //(System.getenv("SCALACL_CAPTURE_VARIABLES") != null) &&
-      s.isInstanceOf[TermSymbol] &&
-      s.isEffectivelyFinal &&
+      s.isValue && s.isStable && !s.isMutable &&
+      s.isInstanceOf[TermSymbol] && s.isEffectivelyFinal && // this rules out captured fields !
       {
-        val tpe = s.tpe.widen.dealias.deconst
+        val tpe = s.tpe.widen.dealias.deconst match {
+          case NullaryMethodType(result) =>
+            result
+          case tpe =>
+            tpe
+        }
         
         tpe == IntClass.tpe ||
         tpe == ShortClass.tpe ||
@@ -176,7 +181,7 @@ extends PluginComponent
     val anyCLDataIOTpe = TypeRef(NoPrefix, CLDataIOClass, List(AnyClass.tpe))
     val anyCLArrayTpe = TypeRef(NoPrefix, CLArrayClass, List(AnyClass.tpe))
       
-    def getCaptures(f: Tree, context: analyzer.Context, enclosingTree: Tree): Seq[Capture] = {
+    def getCaptures(f: Tree, context: analyzer.Context, enclosingTree: Tree): (Seq[Capture], Boolean) = {
       val externalSymbolReferences = 
         getUnknownSymbolReferences(f, t => t.symbol != NoSymbol && {
           //println("Examining t  = " + t )
@@ -203,9 +208,37 @@ extends PluginComponent
         externalSymbols.partition(canCaptureSymbol)
         
       for (s <- nonCapturableSymbols) yield {
+        val details = 
+          if (options.verbose)
+            "\nDetails about symbol '" + s + "' (" + s.getClass.getName + ") :\n\t" +
+            Map(
+              "tpe" -> {
+                val t = s.tpe.widen.dealias.deconst
+                t + " (" + t.getClass.getName + ")"
+              },
+              "isMutable" -> s.isMutable,
+              "isFinal" -> s.isFinal,
+              "isEffectivelyFinal" -> s.isEffectivelyFinal,
+              "isStable" -> s.isStable,
+              "isConstant" -> s.isConstant,
+              "isValue" -> s.isValue,
+              "isVariable" -> s.isVariable,
+              "isModuleVar" -> s.isModuleVar,
+              "isLocal" -> s.isLocal,
+              "isValueParameter" -> s.isValueParameter,
+              "isCapturedVariable" -> s.isCapturedVariable,
+              "isLocalDummy" -> s.isLocalDummy,
+              "isErroneous" -> s.isErroneous,
+              "isOuterField" -> s.isOuterField,
+              "isOuterAccessor" -> s.isOuterAccessor
+            ).map({ case (n, v) => n + ":\t" + v }).mkString("\n\t")
+          else
+            ""
+             
         val refs = externalRefsBySymbol(s)
-          for (ref <- refs)
-            unit.error(ref.pos, "Cannot capture this external symbol")
+          for (ref <- refs) {
+            unit.error(ref.pos, "Cannot capture this external symbol (can only capture final AnyVal or CLArray values)." + details)
+          }
       }
       
       val captures = for (s <- capturableSymbols) yield {
@@ -229,178 +262,183 @@ extends PluginComponent
         Capture(symbol = s, io = io, isArray = isArray, arg = arg)
       }
       
-      captures.toSeq
+      (captures.toSeq, nonCapturableSymbols.isEmpty)
     }
     
     def convertFunctionToCLFunction(originalFunction: Tree): Tree = {
       val f = duplicator transform originalFunction
 
-      println("originalFunction = " + originalFunction)
+      //println("originalFunction = " + originalFunction)
 
       val context = localTyper.context1
       
-      val captures = getCaptures(f, context, originalFunction)
-      println("captures = " + captures)
-
-      val extraInputBufferArgsIOs = Seq[Tree]() // TODO put here the ios for arrays that are used in read-only mode
-      val extraOutputBufferArgsIOs = captures.filter(_.isArray).map(_.io)
-      val extraScalarArgsIOs = captures.filter(!_.isArray).map(_.io)
+      val (captures, succeeded) = getCaptures(f, context, originalFunction)
+      //println("captures = " + captures)
       
-      val extraInputBufferArgs = Seq[Tree]() // TODO put here the ios for arrays that are used in read-only mode
-      val extraOutputBufferArgs = captures.filter(_.isArray).map(_.arg)
-      val extraScalarArgs = captures.filter(!_.isArray).map(_.arg)
-      
-      assert(f.id != originalFunction.id)
-      var Function(List(uniqueParam), body) = f
-      val renamed = renameDefinedSymbolsUniquely(body, unit)
-      val tupleAnalyzer = new TupleAnalyzer(renamed)
-      val flattener = new TuplesAndBlockFlattener(tupleAnalyzer)
-      val flattened = flattener.flattenTuplesAndBlocksWithInputSymbol(renamed, uniqueParam.symbol, uniqueParam.name, currentOwner)(unit)
-      
-      /*
-      if (options.verbose)
-        println("Flattened tuples and blocks : \n\t" + 
-          flattened.outerDefinitions.mkString("\n").replaceAll("\n", "\n\t") + 
-          "\n\t" + uniqueParam + " => {\n\t\t" +
-          flattened.statements.mkString("\n").replaceAll("\n", "\n\t\t") + 
-          "\n\t\t(\n\t\t\t" + 
-            flattened.values.mkString("\n").replaceAll("\n", "\n\t\t\t") + 
-          "\n\t\t)\n\t}"
-        )
-      */
-
-      // Symbols replacement map : replace function param by "_" and captured symbols by "_1", "_2"...
-      val symsMap =
-        Map(uniqueParam.symbol -> "_") ++
-        (captures.zipWithIndex.map { case (c, i) => c.symbol -> ("_" + (i + 1)) })
-      
-      println("symsMap = " + symsMap)
-
-      def convertCode(tree: Tree) =
-        convert(removeSymbolsExceptParamSymbolAsUnderscore(symsMap/*uniqueParam.symbol*/, tree))
-
-      val Array(convDefs, convStats, convVals) = Array(flattened.outerDefinitions, flattened.statements, flattened.values).map(_ map convertCode)
-      
-      val outerDefinitions = 
-        Seq(convDefs, convStats, convVals).flatMap(_.flatMap(_.outerDefinitions)).distinct.toArray.sortBy(_.startsWith("#"))
-      
-      val statements = 
-        Seq(convStats, convVals).flatMap(_.flatMap(_.statements))
-      
-      val values: Seq[String] = 
-        convVals.flatMap(_.values)
-
-      //println("Renamed defined symbols uniquely : " + renamed)
-      val sourceTpe = uniqueParam.symbol.tpe
-      val mappedTpe = body.tpe
-      val Array(
-        sourceDataIO, 
-        mappedDataIO
-      ) = Array(
-        sourceTpe, 
-        mappedTpe
-      ).map(tpe => getDataIOImplicit(tpe, context, originalFunction))
-      
-      //val (statements, values) = convertExpr(Map(uniqueParam.symbol -> "_"), body)
-      val uniqueSignature = Literal(Constant(
-        (
-          Array(
-            originalFunction.symbol.outerSource, originalFunction.symbol.tag + "|" + originalFunction.pos,
-            sourceTpe, mappedTpe
-          ) ++
-          outerDefinitions ++
-          statements ++
-          values
-        ).map(_.toString).mkString("|")
-      ))
-      val uniqueId = uniqueSignature.hashCode // TODO !!!
-      
-      if (options.verbose) {
-        def indent(t: Any) =
-          "\t" + t.toString.replaceAll("\n", "\n\t")
-
-        println(
+      if (!succeeded) {
+        // Failure !
+        originalFunction
+      } else {
+        val extraInputBufferArgsIOs = Seq[Tree]() // TODO put here the ios for arrays that are used in read-only mode
+        val extraOutputBufferArgsIOs = captures.filter(_.isArray).map(_.io)
+        val extraScalarArgsIOs = captures.filter(!_.isArray).map(_.io)
+        
+        val extraInputBufferArgs = Seq[Tree]() // TODO put here the ios for arrays that are used in read-only mode
+        val extraOutputBufferArgs = captures.filter(_.isArray).map(_.arg)
+        val extraScalarArgs = captures.filter(!_.isArray).map(_.arg)
+        
+        assert(f.id != originalFunction.id)
+        var Function(List(uniqueParam), body) = f
+        val renamed = renameDefinedSymbolsUniquely(body, unit)
+        val tupleAnalyzer = new TupleAnalyzer(renamed)
+        val flattener = new TuplesAndBlockFlattener(tupleAnalyzer)
+        val flattened = flattener.flattenTuplesAndBlocksWithInputSymbol(renamed, uniqueParam.symbol, uniqueParam.name, currentOwner)(unit)
+        
+        /*
+        if (options.verbose)
+          println("Flattened tuples and blocks : \n\t" + 
+            flattened.outerDefinitions.mkString("\n").replaceAll("\n", "\n\t") + 
+            "\n\t" + uniqueParam + " => {\n\t\t" +
+            flattened.statements.mkString("\n").replaceAll("\n", "\n\t\t") + 
+            "\n\t\t(\n\t\t\t" + 
+              flattened.values.mkString("\n").replaceAll("\n", "\n\t\t\t") + 
+            "\n\t\t)\n\t}"
+          )
+        */
+  
+        // Symbols replacement map : replace function param by "_" and captured symbols by "_1", "_2"...
+        val symsMap =
+          Map(uniqueParam.symbol -> "_") ++
+          (captures.zipWithIndex.map { case (c, i) => c.symbol -> ("_" + (i + 1)) })
+        
+        //println("symsMap = " + symsMap)
+  
+        def convertCode(tree: Tree) =
+          convert(removeSymbolsExceptParamSymbolAsUnderscore(symsMap/*uniqueParam.symbol*/, tree))
+  
+        val Array(convDefs, convStats, convVals) = Array(flattened.outerDefinitions, flattened.statements, flattened.values).map(_ map convertCode)
+        
+        val outerDefinitions = 
+          Seq(convDefs, convStats, convVals).flatMap(_.flatMap(_.outerDefinitions)).distinct.toArray.sortBy(_.startsWith("#"))
+        
+        val statements = 
+          Seq(convStats, convVals).flatMap(_.flatMap(_.statements))
+        
+        val values: Seq[String] = 
+          convVals.flatMap(_.values)
+  
+        //println("Renamed defined symbols uniquely : " + renamed)
+        val sourceTpe = uniqueParam.symbol.tpe
+        val mappedTpe = body.tpe
+        val Array(
+          sourceDataIO, 
+          mappedDataIO
+        ) = Array(
+          sourceTpe, 
+          mappedTpe
+        ).map(tpe => getDataIOImplicit(tpe, context, originalFunction))
+        
+        //val (statements, values) = convertExpr(Map(uniqueParam.symbol -> "_"), body)
+        val uniqueSignature = Literal(Constant(
           (
             Array(
-              "[scalacl] Converted <<<",
-              indent(body),
-              ">>> to <<<"
+              originalFunction.symbol.outerSource, originalFunction.symbol.tag + "|" + originalFunction.pos,
+              sourceTpe, mappedTpe
             ) ++
-            outerDefinitions.map(indent) ++
-            statements.map(indent) ++
-            Array(
-              indent("(" + values.mkString(", ") + ")"),
-              ">>>"
-            )
-          ).mkString("\n")
-        )
-      }
-      
-      /*
-      if (System.getenv("SCALACL_VERIFY") != "0") {
-        val errors = scalaCLContexts.flatMap(context => {
-          try {
-            val f = new impl.CLFunction[Int, Int](null, outerDefinitions, statements, values, Seq())
-            f.compile(context)
-            // TODO illegal access : f.release(context)
-            None
-          } catch { case ex => Some((context.context.getDevices()(0), ex)) }
-        })
+            outerDefinitions ++
+            statements ++
+            values
+          ).map(_.toString).mkString("|")
+        ))
+        val uniqueId = uniqueSignature.hashCode // TODO !!!
         
-                                
-        if (errors.length > 0)
-          throw new RuntimeException("Failed to compile the OpenCL kernel with some of the available devices :\n" + (errors.map { case (device, ex) => "Device " + device + " : " + ex }).mkString("\n"))
-        else if (options.verbose)
-          println("Program successfully compiled on " + scalaCLContexts.size + " available device(s)") 
-      }
-      */
-      val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
-      val clFunction = 
-        typed {
-          Apply(
+        if (options.verbose) {
+          def indent(t: Any) =
+            "\t" + t.toString.replaceAll("\n", "\n\t")
+  
+          println(
+            (
+              Array(
+                "[scalacl] Converted <<<",
+                indent(body),
+                ">>> to <<<"
+              ) ++
+              outerDefinitions.map(indent) ++
+              statements.map(indent) ++
+              Array(
+                indent("(" + values.mkString(", ") + ")"),
+                ">>>"
+              )
+            ).mkString("\n")
+          )
+        }
+        
+        /*
+        if (System.getenv("SCALACL_VERIFY") != "0") {
+          val errors = scalaCLContexts.flatMap(context => {
+            try {
+              val f = new impl.CLFunction[Int, Int](null, outerDefinitions, statements, values, Seq())
+              f.compile(context)
+              // TODO illegal access : f.release(context)
+              None
+            } catch { case ex => Some((context.context.getDevices()(0), ex)) }
+          })
+          
+                                  
+          if (errors.length > 0)
+            throw new RuntimeException("Failed to compile the OpenCL kernel with some of the available devices :\n" + (errors.map { case (device, ex) => "Device " + device + " : " + ex }).mkString("\n"))
+          else if (options.verbose)
+            println("Program successfully compiled on " + scalaCLContexts.size + " available device(s)") 
+        }
+        */
+        val getCachedFunctionSym = ScalaCLPackage.tpe member getCachedFunctionName
+        val clFunction = 
+          typed {
             Apply(
-              TypeApply(
-                Select(
-                  Ident(scalacl_) setSymbol ScalaCLPackage,
-                  getCachedFunctionName
-                ),
-                List(TypeTree(sourceTpe), TypeTree(mappedTpe))
+              Apply(
+                TypeApply(
+                  Select(
+                    Ident(scalacl_) setSymbol ScalaCLPackage,
+                    getCachedFunctionName
+                  ),
+                  List(TypeTree(sourceTpe), TypeTree(mappedTpe))
+                ).setSymbol(getCachedFunctionSym),
+                List(
+                  newInt(uniqueId),
+                  originalFunction,
+                  newArrayApply(TypeTree(StringClass.tpe), outerDefinitions.map(d => Literal(Constant(d))):_*),
+                  newArrayApply(TypeTree(StringClass.tpe), statements.map(s => Literal(Constant(s))):_*),
+                  newArrayApply(TypeTree(StringClass.tpe), values.map(value => Literal(Constant(value))):_*),
+                  newArrayApply(TypeTree(anyCLDataIOTpe), extraInputBufferArgsIOs:_*),
+                  newArrayApply(TypeTree(anyCLDataIOTpe), extraOutputBufferArgsIOs:_*),
+                  newArrayApply(TypeTree(anyCLDataIOTpe), extraScalarArgsIOs:_*)
+                )
               ).setSymbol(getCachedFunctionSym),
               List(
-                newInt(uniqueId),
-                originalFunction,
-                newArrayApply(TypeTree(StringClass.tpe), outerDefinitions.map(d => Literal(Constant(d))):_*),
-                newArrayApply(TypeTree(StringClass.tpe), statements.map(s => Literal(Constant(s))):_*),
-                newArrayApply(TypeTree(StringClass.tpe), values.map(value => Literal(Constant(value))):_*),
-                newArrayApply(TypeTree(anyCLDataIOTpe), extraInputBufferArgsIOs:_*),
-                newArrayApply(TypeTree(anyCLDataIOTpe), extraOutputBufferArgsIOs:_*),
-                newArrayApply(TypeTree(anyCLDataIOTpe), extraScalarArgsIOs:_*)
+                sourceDataIO,
+                mappedDataIO
               )
-            ).setSymbol(getCachedFunctionSym),
-            List(
-              sourceDataIO,
-              mappedDataIO
-            )
-          ).setSymbol(getCachedFunctionSym)
-        }
-
-      if (captures.isEmpty)
-        clFunction
-      else
-        typed {
-          val withCaptureSym = CLFunctionClass.tpe member withCaptureName
-          Apply(
-            Select(
-              clFunction,
-              withCaptureName
-            ).setSymbol(withCaptureSym),
-            List(
-              newArrayApply(TypeTree(anyCLArrayTpe), extraInputBufferArgs:_*),
-              newArrayApply(TypeTree(anyCLArrayTpe), extraOutputBufferArgs:_*),
-              newArrayApply(TypeTree(AnyClass.tpe), extraScalarArgs:_*)
-            )
-          ).setSymbol(withCaptureSym)
-        }
+            ).setSymbol(getCachedFunctionSym)
+          }
+  
+        if (captures.isEmpty)
+          clFunction
+        else
+          typed {
+            val withCaptureSym = CLFunctionClass.tpe member withCaptureName
+            Apply(
+              Select(
+                clFunction,
+                withCaptureName
+              ).setSymbol(withCaptureSym),
+              List(
+                newArrayApply(TypeTree(anyCLArrayTpe), extraInputBufferArgs:_*),
+                newArrayApply(TypeTree(anyCLArrayTpe), extraOutputBufferArgs:_*),
+                newArrayApply(TypeTree(AnyClass.tpe), extraScalarArgs:_*)
+              )
+            ).setSymbol(withCaptureSym)
+          }
+      }
     }
     override def transform(tree: Tree): Tree = {
       if (!shouldOptimize(tree))
