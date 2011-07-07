@@ -202,6 +202,10 @@ public class BridJ {
 			s.pop();
 		}
 	}
+	public static <O extends NativeObject> void copyNativeObjectToAddress(O value, Type type, Pointer<O> ptr) {
+        	getTypeInfo(type).copyNativeObjectToAddress(value, (Pointer)ptr);
+	}
+    
     public static <O extends NativeObject> O createNativeObjectFromPointer(Pointer<? super O> pointer, Type type) {
         return (O)createNativeObjectFromPointer(pointer, type, CastingType.CastingNativeObject);
 	}

@@ -32,6 +32,7 @@ public interface BridJRuntime {
         String describe(T instance);
         String describe();
         void readFromNative(T instance);
+        void copyNativeObjectToAddress(T instance, Pointer<T> ptr);
 	}
 	Type getType(NativeObject instance);
 

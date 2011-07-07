@@ -762,7 +762,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * Get a pointer to a native object, specifying the type of the pointer's target.<br>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */
-    public static <R extends NativeObject> Pointer<R> pointerTo(NativeObject instance, Class<R> targetType) {
+    public static <R extends NativeObject> Pointer<R> pointerTo(NativeObject instance, Type targetType) {
 		return instance == null ? null : (Pointer<R>)instance.peer;
     }
     /**
@@ -774,8 +774,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
 #docGetOffset("native object", "O extends NativeObject", "Pointer#getNativeObject(Type)")
-	 public <O extends NativeObject> O getNativeObjectAtOffset(long byteOffset, Type type) {
-	 	 return (O)BridJ.createNativeObjectFromPointer((Pointer<O>)(byteOffset == 0 ? this : offset(byteOffset)), type);
+	public <O extends NativeObject> O getNativeObjectAtOffset(long byteOffset, Type type) {
+		return (O)BridJ.createNativeObjectFromPointer((Pointer<O>)(byteOffset == 0 ? this : offset(byteOffset)), type);
+	}
+#docSet("native object", "O extends NativeObject")
+	public <O extends NativeObject> Pointer<T> setNativeObject(O value, Type type) {
+		BridJ.copyNativeObjectToAddress(value, type, (Pointer)this);
+		return this;
 	}
 #docGetOffset("native object", "O extends NativeObject", "Pointer#getNativeObject(Class)")
 	 public <O extends NativeObject> O getNativeObjectAtOffset(long byteOffset, Class<O> type) {
@@ -2036,9 +2041,18 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * If the destination and source memory locations are likely to overlap, {@link Pointer#moveBytesAtOffsetTo(long, Pointer, long, long)} must be used instead.
      */
     @Deprecated
-	public Pointer<T> copyBytesTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
+	public Pointer<T> copyBytesAtOffsetTo(long byteOffset, Pointer<?> destination, long byteOffsetInDestination, long byteCount) {
     		JNI.memcpy(destination.getCheckedPeer(byteOffsetInDestination, byteCount), getCheckedPeer(byteOffset, byteCount), byteCount);
     		return this;
+    }
+    
+    /**
+     * Copy bytes from the memory location indicated by this pointer to that of another pointer using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function.<br>
+     * If the destination and source memory locations are likely to overlap, {@link Pointer#moveBytesAtOffsetTo(long, Pointer, long, long)} must be used instead.
+     */
+    @Deprecated
+	public Pointer<T> copyBytesTo(Pointer<?> destination, long byteCount) {
+    		return copyBytesAtOffsetTo(0, destination, 0, byteCount);
     }
     
     /**
@@ -2055,8 +2069,16 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * Copy bytes from the memory location indicated by this pointer to that of another pointer, using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memmove/">memmove</a> C function.<br>
      * Works even if the destination and source memory locations are overlapping.
      */
+	public Pointer<T> moveBytesTo(Pointer<?> destination, long byteCount) {
+    		return moveBytesAtOffsetTo(0, destination, 0, byteCount);
+    }
+    
+    /**
+     * Copy all valid bytes from the memory location indicated by this pointer to that of another pointer, using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memmove/">memmove</a> C function.<br>
+     * Works even if the destination and source memory locations are overlapping.
+     */
 	public Pointer<T> moveBytesTo(Pointer<?> destination) {
-    		return moveBytesAtOffsetTo(0, destination, 0, getValidBytes("Cannot move an unbounded memory location. Please use validBytes(long)."));
+    		return moveBytesTo(destination, getValidBytes("Cannot move an unbounded memory location. Please use validBytes(long)."));
     }
     
     final long getValidBytes(String error) {
@@ -2084,15 +2106,15 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     * Copy remaining bytes from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesTo(long, Pointer, long, long)}, {@link Pointer#getValidBytes})
      */
     public void copyTo(Pointer<?> destination) {
-    		copyBytesTo(0, destination, 0, getValidBytes("Cannot copy unbounded pointer without element count information. Please use copyTo(destination, elementCount) instead."));
+    		copyBytesAtOffsetTo(0, destination, 0, getValidBytes("Cannot copy unbounded pointer without element count information. Please use copyTo(destination, elementCount) instead."));
     }
     
     /**
-    * Copy remaining elements from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesTo(long, Pointer, long, long)}, {@link Pointer#getValidBytes})
+    * Copy remaining elements from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesAtOffsetTo(long, Pointer, long, long)}, {@link Pointer#getValidBytes})
      */
     public void copyTo(Pointer<?> destination, long elementCount) {
     		PointerIO<T> io = getIO("Cannot copy untyped pointer without byte count information. Please use copyTo(offset, destination, destinationOffset, byteCount) instead");
-    		copyBytesTo(0, destination, 0, getValidElements() * io.getTargetSize());
+    		copyBytesAtOffsetTo(0, destination, 0, getValidElements() * io.getTargetSize());
     }
     
     /**

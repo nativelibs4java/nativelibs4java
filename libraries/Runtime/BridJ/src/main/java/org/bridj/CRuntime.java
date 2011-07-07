@@ -154,6 +154,12 @@ public class CRuntime extends AbstractBridJRuntime {
         		if (instance instanceof StructObject)
         			structIO.readFieldsFromNative((StructObject)instance);
         }
+        public void copyNativeObjectToAddress(T instance, Pointer<T> ptr) {
+			if (instance instanceof StructObject) {
+				// TODO override in C++ to call operator=
+				((StructObject)instance).peer.copyBytesTo(ptr, structIO.getStructSize());
+			}
+        }
         //@Override
         public String describe(T instance) {
         		if (instance instanceof StructObject)
