@@ -11,8 +11,9 @@ case class CapturedIOs(
   inputBuffers: Array[CLDataIO[Any]] = Array(),
   outputBuffers: Array[CLDataIO[Any]] = Array(),
   scalars: Array[CLDataIO[Any]] = Array()
-) { 
-  lazy val isEmpty = inputBuffers.isEmpty && outputBuffers.isEmpty && scalars.isEmpty 
+) {
+  lazy val isEmpty = 
+    inputBuffers.isEmpty && outputBuffers.isEmpty && scalars.isEmpty 
 }
 
 case class SourceData(
@@ -52,6 +53,9 @@ object CLFunctionCode {
   trait FiberReplacementContent {
     def apply(parallelIndexesExprs: Seq[String], isParallelInputARange: Boolean): String
   }
+  trait ReplacementContent {
+    def apply(parallelIndexesExprs: Seq[String]): Seq[(String, List[Int])]
+  }
   case class FiberInfo(
     pattern: String,
     tupleIndexes: List[Int],
@@ -63,7 +67,8 @@ object CLFunctionCode {
     //offset: Int,
     kernelParamsDeclarations: Seq[String],
     functionParamsDeclarations: Seq[String],
-    fiberInfos: Option[Seq[FiberInfo]]
+    fiberInfos: Option[Seq[FiberInfo]],
+    replacementContent: ReplacementContent
   )
   
   def getReplacements(argInfos: Seq[ArgInfo]): Seq[ReplacementInfo] = {
@@ -142,7 +147,13 @@ object CLFunctionCode {
             argInfo.io.openCLKernelArgDeclarations(argTypeForKernel, offsets.fiberOffset),
           functionParamsDeclarations = 
             argInfo.io.openCLKernelArgDeclarations(argTypeForFunction, offsets.fiberOffset),
-          fiberInfos = fiberInfos
+          fiberInfos = fiberInfos,
+          new ReplacementContent {
+            override def apply(parallelIndexesExprs: Seq[String]) = {
+              val Seq(i) = parallelIndexesExprs
+              argInfo.io.openCLKernelNthItemExprs(CLDataIO.OutputPointer, offsets.fiberOffset, i)
+            }
+          }
         )
     }
   }
@@ -162,7 +173,7 @@ object CLFunctionCode {
     var r = s.replaceAll(toRxb(indexVar), indexVarName)
     r = r.replaceAll(toRxb(sizeVar), sizeVarName)
   
-    var sortedInfos: Seq[(ReplacementInfo, FiberInfo)] = replacementInfos.
+    var sortedInfos: Seq[(ReplacementInfo, FiberInfo)] = 
       fibersReplacementInfos.filter(_._1.argInfo.kind != ParallelOutputValueArg). // don't replace the output
       sortBy({ case (ri, fi) => -fi.pattern.length }) // replace longest patterns first...
    
@@ -230,10 +241,10 @@ object CLFunctionCode {
     val indexHeader = Seq("int " + indexVarName + " = get_global_id(0);")
     val sizeHeader = Seq("if (" + indexVarName + " >= " + sizeVarName + ") return;")
   
-    val outputFibersInfos = fibersReplacementInfos.filter(_._1.argInfo.kind == ParallelOutputValueArg)
+    val outputFibersInfos = replacementInfos.filter(_.argInfo.kind == ParallelOutputValueArg)
     
     def getAssignments(i: String, isRange: Boolean): Seq[String] =
-      expressions.zip(bIO.openCLKernelNthItemExprs(CLDataIO.OutputPointer, 0, i)).map {
+      expressions.zip(outputFibersInfos.flatMap(_.replacementContent(Seq(i)))).map {
         case (expression, (xOut, indexes)) => xOut + " = " + replaceAll(expression, isRange, fibersReplacementInfos, i) + ";"
       }
   
