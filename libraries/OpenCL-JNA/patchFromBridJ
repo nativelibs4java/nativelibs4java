@@ -1,0 +1,8 @@
+#!/bin/bash
+DIFF_FILE=OpenCL-`date '+%Y%m%d'`.diff
+
+cd ../OpenCL
+svn diff > $DIFF_FILE
+
+cd ../OpenCL-JNA
+patch -p0 < ../OpenCL-JNA/$DIFF_FILE
