@@ -31,7 +31,7 @@ public class ExceptionsTest {
 	@Test(expected=RuntimeException.class)
 	public void testCrashIllegalAccess() {
 		try {
-			crashIllegalAccess();
+			//crashIllegalAccess();
 		} catch (RuntimeException ex) {
 			ex.printStackTrace();
 			throw ex;
