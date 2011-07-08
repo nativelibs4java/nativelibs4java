@@ -33,7 +33,8 @@ object CLCollectionTest {
   val extVal = 10
   
   var f: Int => Boolean = _
-  var fExt: Int => Int = _
+  var fScalarCapture: Int => Int = _
+  var fArrayCapture: Int => Int = _
   var m: Int => Int = _
   var m2: Int => (Int, Int) = _
   var m2join: ((Int, Int)) => Int = _
@@ -73,7 +74,7 @@ object CLCollectionTest {
       Array("(((int)exp((float)_)) % 2) == 0")
     ): CLFunction[Int, Boolean]
     
-    fExt = 
+    fScalarCapture = 
       (
         (
           (x: Int) => x * extVal - x - extVal, 
@@ -84,10 +85,6 @@ object CLCollectionTest {
             Array(IntCLDataIO.asInstanceOf[CLDataIO[Any]])
           )
         ): CLFunction[Int, Int]
-      ).withCapture(
-        Array(),
-        Array(),
-        Array(extVal)
       )
     
     m = (
@@ -118,9 +115,36 @@ class CLCollectionTest {
   import CLCollectionTest._
   
   @Test
-  def testMapExt {
-    same(a.map(fExt), cla.map(fExt))
+  def testMapScalarCapture {
+    val fCapt = fScalarCapture.withCapture(
+      Array(),
+      Array(),
+      Array(extVal)
+    )
+    same(a.map(fCapt), cla.map(fCapt))
   }
+  @Test
+  def testMapArrayCapture {
+    val rg = (0 until n).map(_ * 10).toCLArray
+    val f: CLFunction[Int, Int] =
+      (
+        (x: Int) => rg(x) - x, 
+        Array("_1[_] - _"),
+        impl.CapturedIOs(
+          Array(IntCLDataIO.asInstanceOf[CLDataIO[Any]]),
+          Array(),
+          Array()
+        )
+      )
+      
+    val fCapt = f.withCapture(
+      Array(rg.asInstanceOf[CLArray[Any]]),
+      Array(),
+      Array()
+    )
+    same(a.map(fCapt), cla.map(fCapt))
+  }
+  
   
   @Test
   def testSimpleFilter {
