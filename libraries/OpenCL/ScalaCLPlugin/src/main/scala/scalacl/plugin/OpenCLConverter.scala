@@ -120,6 +120,8 @@ extends MiscMatchers
         )
       case Apply(Select(target, applyName()), List(singleArg)) =>
         merge(Seq(target, singleArg).map(convert):_*) { case Seq(t, a) => Seq(t + "[" + a + "]") }
+      case Apply(Select(target, updateName()), List(index, value)) =>
+        merge(Seq(target, index, value).map(convert):_*) { case Seq(t, i, v) => Seq(t + "[" + i + "] = " + v) }
       case Assign(lhs, rhs) =>
         merge(Seq(lhs, rhs).map(convert):_*) { case Seq(l, r) => Seq(l + " = " + r + ";") }
       case Typed(expr, tpt) =>
