@@ -19,8 +19,8 @@ case class SourceData(
   functionName: String,
   functionSource: String,
   kernelsSource: String,
-  includedSources: Array[String]/*,
-  outerDeclarations: Seq[String]*/
+  includedSources: Array[String],
+  outerDeclarations: Seq[String]
 )
 
 object CLFunctionCode {
@@ -38,6 +38,166 @@ object CLFunctionCode {
   protected val indexVar: String = "$i"
   protected val sizeVar: String = "$size"
   
+  sealed trait ArgKind
+  object ParallelInputValueArg extends ArgKind
+  object ParallelOutputValueArg extends ArgKind
+  object InputBufferArg extends ArgKind
+  object OutputBufferArg extends ArgKind
+  object InputScalarArg extends ArgKind
+  
+  case class ArgInfo(
+    io: CLDataIO[_],
+    kind: ArgKind
+  )
+  trait FiberReplacementContent {
+    def apply(parallelIndexesExprs: Seq[String], isParallelInputARange: Boolean): String
+  }
+  case class FiberInfo(
+    pattern: String,
+    tupleIndexes: List[Int],
+    replacementContent: FiberReplacementContent
+  )
+  case class ReplacementInfo(
+    //pattern: Option[String],
+    argInfo: ArgInfo,
+    //offset: Int,
+    kernelParamsDeclarations: Seq[String],
+    functionParamsDeclarations: Seq[String],
+    fiberInfos: Option[Seq[FiberInfo]]
+  )
+  
+  def getReplacements(argInfos: Seq[ArgInfo]): Seq[ReplacementInfo] = {
+    case class ArgOffsets(fiberOffset: Int, extraArgOffset: Int)
+    val argsWithOffsets = argInfos.zip(argInfos.scanLeft((0, 0)) { case ((offset, extraArgs), argInfo) =>
+      (
+        offset + argInfo.io.elementCount,
+        extraArgs + (argInfo.kind match {
+          case InputBufferArg | OutputBufferArg | InputScalarArg => 1
+          case _ => 0
+        })
+      )
+    }).map { case (argInfo, (offset, extraArgs)) => (argInfo, ArgOffsets(offset, extraArgs)) }
+    
+    argsWithOffsets map {
+      case (argInfo, offsets) => 
+        import CLDataIO.{ InputPointer, OutputPointer, Value }
+        
+        def getRawIthArrayElement(i: String, tupleIndexes: List[Int], parallelIndexesExprs: Seq[String], isParallelInputARange: Boolean) = {
+          val Seq(i) = parallelIndexesExprs
+          argInfo.io.openCLIthTupleElementNthItemExpr(
+            Value, 
+            offsets.fiberOffset, 
+            tupleIndexes, 
+            i
+          )
+        }
+        val (argTypeForKernel, argTypeForFunction, fiberInfos) = argInfo.kind match {
+          case ParallelInputValueArg => 
+            (InputPointer, Value, Some(argInfo.io.openCLIntermediateKernelTupleElementsExprs("_") map {
+              case (expr, tupleIndexes) =>
+                FiberInfo(expr, tupleIndexes, new FiberReplacementContent {
+                  override def apply(parallelIndexesExprs: Seq[String], isParallelInputARange: Boolean) = {
+                    val Seq(i) = parallelIndexesExprs
+                    if (isParallelInputARange)
+                      "(" + 
+                        getRawIthArrayElement("0", tupleIndexes, parallelIndexesExprs, isParallelInputARange) + 
+                        " + (" + i + ") * " + 
+                        getRawIthArrayElement("2", tupleIndexes, parallelIndexesExprs, isParallelInputARange) + 
+                      ")" // buffer contains (from, to, by, inclusive). Value is (from + i * by)  
+                    else
+                      getRawIthArrayElement(i, tupleIndexes, parallelIndexesExprs, isParallelInputARange)
+                  }
+                })
+            }))
+          case ParallelOutputValueArg => 
+            (OutputPointer, OutputPointer, None)
+          case _ =>
+            val fiberInfos =
+              argInfo.io.openCLIntermediateKernelTupleElementsExprs(
+                "_" + (offsets.extraArgOffset + 1)
+              ) map { case (expr, tupleIndexes) =>
+                FiberInfo(expr, tupleIndexes, new FiberReplacementContent {
+                  override def apply(parallelIndexesExprs: Seq[String], isParallelInputARange: Boolean) = {
+                    expr
+                  }
+                })
+              }
+            
+            argInfo.kind match {
+              case InputBufferArg =>
+                (InputPointer, InputPointer, Some(fiberInfos))
+              case OutputBufferArg =>
+                (OutputPointer, OutputPointer, Some(fiberInfos))
+              case InputScalarArg =>
+                (Value, Value, Some(fiberInfos))
+              case _ =>
+                null
+            }
+        } 
+        
+        ReplacementInfo(
+          argInfo,
+          //offsets.fibersOffset,
+          kernelParamsDeclarations = 
+            argInfo.io.openCLKernelArgDeclarations(argTypeForKernel, offsets.fiberOffset),
+          functionParamsDeclarations = 
+            argInfo.io.openCLKernelArgDeclarations(argTypeForFunction, offsets.fiberOffset),
+          fiberInfos = fiberInfos
+        )
+    }
+  }
+  def toRxb(s: String) = {
+    "(^|\\b)" +
+    java.util.regex.Matcher.quoteReplacement(s) + 
+    "($|\\b)"
+  }
+  
+  val indexVarName = "__cl_i"
+  val sizeVarName = "__cl_size"
+    
+  def getFibersReplacementInfos(replacementInfos: Seq[ReplacementInfo]): Seq[(ReplacementInfo, FiberInfo)] = {
+    replacementInfos.flatMap(ri => ri.fiberInfos.map(_.map(fi => (ri, fi)))).flatten
+  }
+  def replaceAll(s: String, isParallelInputARange: Boolean, fibersReplacementInfos: Seq[(ReplacementInfo, FiberInfo)], i: String = indexVarName): String = {
+    var r = s.replaceAll(toRxb(indexVar), indexVarName)
+    r = r.replaceAll(toRxb(sizeVar), sizeVarName)
+  
+    var sortedInfos: Seq[(ReplacementInfo, FiberInfo)] = replacementInfos.
+      fibersReplacementInfos.filter(_._1.argInfo.kind != ParallelOutputValueArg). // don't replace the output
+      sortBy({ case (ri, fi) => -fi.pattern.length }) // replace longest patterns first...
+   
+    for ((replacementInfo, fiberInfo) <- sortedInfos) {
+      val x = fiberInfo.replacementContent(Seq(i), isParallelInputARange)
+      val expr = fiberInfo.pattern
+        
+      println("REPLACING '" + expr + "' by '" + x + "'")
+      r = r.replaceAll(toRxb(expr), x)
+      println("\t-> '" + r.replaceAll("\n", "\n\t") + "'")
+    }
+    
+    r
+  }
+  
+  def outputFunction(beforeParams: String, params: Seq[Seq[String]], body: Seq[Seq[String]], out: StringBuilder = new StringBuilder): StringBuilder = {
+    //import out.{ append => << }
+    out append beforeParams append '('
+    var first = true
+    for (sub <- params; param <- sub) {
+      if (first)
+        first = false
+      else
+        out append ", "
+      out append param
+    }
+    out append ") {\n"
+    for (sub <- body; stat <- sub)
+      out append '\t' append stat append '\n'
+      
+    out append "}"
+    
+    out
+  }
+  
   def buildSourceData[A, B](
     outerDeclarations: Array[String],
     declarations: Array[String],
@@ -51,158 +211,110 @@ object CLFunctionCode {
     val uid = newuid
     val functionName = "f" + uid
     
-    def toRxb(s: String) = {
-      val rx = "(^|\\b)" +
-        java.util.regex.Matcher.quoteReplacement(s) + "($|\\b)"
-      rx
-    }
-    val ta = clType[A]
-    val tb = clType[B]
-  
-    val inParams: Seq[String] = aIO.openCLKernelArgDeclarations(CLDataIO.InputPointer, 0)
-    val inValueParams: Seq[String] = aIO.openCLKernelArgDeclarations(CLDataIO.Value, 0)
-    val extraParams: Seq[String] =
-      extraArgsIOs.inputBuffers.flatMap(_.openCLKernelArgDeclarations(CLDataIO.InputPointer, 0)) ++
-      extraArgsIOs.outputBuffers.flatMap(_.openCLKernelArgDeclarations(CLDataIO.OutputPointer, 0)) ++
-      extraArgsIOs.scalars.flatMap(_.openCLKernelArgDeclarations(CLDataIO.Value, 0))
-    val outParams: Seq[String] = bIO.openCLKernelArgDeclarations(CLDataIO.OutputPointer, 0)
-
-    case class DataIOInfo(io: CLDataIO[_], placeholder: String, argType: CLDataIO.ArgType/*isBuffer: Boolean*/, isExtraArg: Boolean)
-
-    val iosAndPlaceholders: Seq[DataIOInfo] =
-      (
-        (
-          extraArgsIOs.inputBuffers.map((_, CLDataIO.InputPointer/*true*/)) ++ 
-          extraArgsIOs.outputBuffers.map((_, CLDataIO.OutputPointer/*true*/)) ++ 
-          extraArgsIOs.scalars.map((_, CLDataIO.Value/*false*/)): Seq[(CLDataIO[Any], CLDataIO.ArgType)]
-        ).toList.zipWithIndex.map {
-          case ((io, argType/*isBuffer*/), i) =>
-            DataIOInfo(io, "_" + (i + 1), isExtraArg = false, argType = argType/*isBuffer*/)
-        }
-      ).toSeq ++
+    val argInfos = 
       Seq(
-        DataIOInfo(aIO, "_", isExtraArg = false, argType/*isBuffer*/ = CLDataIO.InputPointer)
-      )
-      
-    val varExprs = 
-      (
-        iosAndPlaceholders.flatMap(info => {
-          info.io.openCLIntermediateKernelTupleElementsExprs(info.placeholder).map {
-            case (expr, tupleIndexes) =>
-              (expr, tupleIndexes, info)
-          }
-        })
-      ).sortBy(-_._1.length).toArray // sort by decreasing expression length (enough to avoid conflicts) TODO unhack this !
-       
-    //println("varExprs = " + varExprs.toSeq)
+        ArgInfo(aIO, ParallelInputValueArg), 
+        ArgInfo(bIO, ParallelOutputValueArg)
+      ) ++
+      extraArgsIOs.inputBuffers.map(ArgInfo(_, InputBufferArg)) ++
+      extraArgsIOs.outputBuffers.map(ArgInfo(_, OutputBufferArg)) ++
+      extraArgsIOs.scalars.map(ArgInfo(_, InputScalarArg))
     
-    val indexVarName = "__cl_i"
+    println("argInfos = " + argInfos)
     
-    def replaceForFunction(/*argType: CLDataIO.ArgType, */s: String,  i: String, isRange: Boolean) = if (s == null) null else {
-      var r = s.replaceAll(toRxb(indexVar), indexVarName)
-      r = r.replaceAll(toRxb(sizeVar), "size")
+    val replacementInfos = getReplacements(argInfos)
+    val fibersReplacementInfos = getFibersReplacementInfos(replacementInfos)
+    println("replacementInfos = " + replacementInfos)
+    
+    
+    val indexHeader = Seq("int " + indexVarName + " = get_global_id(0);")
+    val sizeHeader = Seq("if (" + indexVarName + " >= " + sizeVarName + ") return;")
   
-      var iExpr = 0
-      val nExprs = varExprs.length
-      while (iExpr < nExprs) {
-        val (expr, tupleIndexes, DataIOInfo(io, placeholder, argType, isExtraArg)) = varExprs(iExpr)
-        def rawith(i: String) = io.openCLIthTupleElementNthItemExpr(argType, 0, tupleIndexes, i) 
-        val x = if (isRange && argType != CLDataIO.Value)//isBuffer)
-          "(" + rawith("0") + " + (" + i + ") * " + rawith("2") + ")" // buffer contains (from, to, by, inclusive). Value is (from + i * by)  
-        else
-          rawith(i)
-        
-        //println("REPLACING '" + expr + "' by '" + x + "'")
-        r = r.replaceAll(toRxb(expr), x)
-        //println("\t-> '" + r.replaceAll("\n", "\n\t") + "'")
-        iExpr += 1
-      }
-      //r = r.replaceAll(toRxb(inVar), "(*in)")
-      r
-    }
-  
-    val indexHeader = """
-        int """ + indexVarName + """ = get_global_id(0);
-    """
-    val sizeHeader =
-        indexHeader + """
-        if (""" + indexVarName + """ >= size)
-            return;
-    """
-  
-    def assignts(argType: CLDataIO.ArgType, i: String, isRange: Boolean) =
+    val outputFibersInfos = fibersReplacementInfos.filter(_._1.argInfo.kind == ParallelOutputValueArg)
+    
+    def getAssignments(i: String, isRange: Boolean): Seq[String] =
       expressions.zip(bIO.openCLKernelNthItemExprs(CLDataIO.OutputPointer, 0, i)).map {
-        case (expression, (xOut, indexes)) => xOut + " = " + replaceForFunction(/*argType, */expression, i, isRange)
-      }.mkString(";\n\t")
+        case (expression, (xOut, indexes)) => xOut + " = " + replaceAll(expression, isRange, fibersReplacementInfos, i) + ";"
+      }
   
-    val functionSource = ""
-    /*
-    val funDecls = declarations.map(replaceForFunction(CLDataIO.Value, _, "0", false)).mkString("\n")
-    lazy val funDeclsRange = declarations.map(replaceForFunction(CLDataIO.Value, _, "0", true)).mkString("\n")
-    val functionSource = """
-        inline void """ + functionName + """(
-            """ + (inValueParams ++ extraParams ++ outParams).mkString(", ") + """
-        ) {
-            """ + indexHeader + """
-            """ + funDecls + """
-            """ + assignts(CLDataIO.Value, "0", false) + """;
-        }
-    """
-    */
-    //println("expressions = " + expressions)
-    //println("functionSource = " + functionSource)
+    
+    val funDecls = declarations.map(replaceAll(_, false, fibersReplacementInfos, "0"))
+    //lazy val funDeclsRange = declarations.map(replaceAll(_, true, replacementInfos, "0"))
+    var kernelParams = replacementInfos.flatMap(_.kernelParamsDeclarations)
+    var functionParams = replacementInfos.flatMap(_.functionParamsDeclarations)
+    
+    val functionSource = outputFunction(
+      "inline void " + functionName,
+      Seq(functionParams),
+      Seq(
+        indexHeader,
+        funDecls,
+        getAssignments("0", false)
+      )
+    ).toString
   
-    //def replaceForKernel(s: String) = if (s == null) null else replaceAllButIn(s).replaceAll(toRxb(inVar), "in[i]")
     val presenceName = "__cl_presence"
-    val presenceParams = Seq("__global const " + CLFilteredArray.presenceCLType + "* " + presenceName)
-    val kernDecls = declarations.map(replaceForFunction(/*CLDataIO.InputPointer,*/ _, indexVarName, false)).reduceLeftOption(_ + "\n" + _).getOrElse("")
-    lazy val kernDeclsRange = declarations.map(replaceForFunction(/*CLDataIO.InputPointer, */_, indexVarName, true)).reduceLeftOption(_ + "\n" + _).getOrElse("")
-    val assignt = assignts(CLDataIO.InputPointer, indexVarName, false)
-    lazy val assigntRange = assignts(CLDataIO.InputPointer, indexVarName, true)
-    var kernelsSource = outerDeclarations.mkString("\n")
-
-    kernelsSource += """
-      __kernel void array_array(
-          int size,
-          """ + (inParams ++ outParams ++ extraParams).mkString(", ") + """
-      ) {
-          """ + sizeHeader + """
-          """ + kernDecls + """
-          """ + assignt + """;
-      }
-      __kernel void filteredArray_filteredArray(
-          int size,
-          """ + (inParams ++ presenceParams ++ outParams ++ extraParams).mkString(", ") + """
-      ) {
-          """ + sizeHeader + """
-          if (!""" + presenceName + "[" + indexVarName + """])
-              return;
-          """ + kernDecls + """
-          """ + assignt + """;
-      }
-    """
+    val presenceParam = Seq("__global const " + CLFilteredArray.presenceCLType + "* " + presenceName)
+    val presenceHeader = Seq("if (!" + presenceName + "[" + indexVarName + "]) return;")
+    
+    val sizeParam = Seq("int " + sizeVarName)
+    
+    val kernDeclsArray = declarations.map(replaceAll(_, false, fibersReplacementInfos))
+    lazy val kernDeclsRange = declarations.map(replaceAll(_, true, fibersReplacementInfos))
+    
+    val assigntArray = getAssignments(indexVarName, false)
+    lazy val assigntRange = getAssignments(indexVarName, true)
+    
+    val kernelsSource = new StringBuilder
+    for (outerDeclaration <- outerDeclarations)
+      kernelsSource.append(outerDeclaration).append('\n')
+    
+    outputFunction(
+      "__kernel void array_array",
+      Seq(sizeParam, kernelParams),
+      Seq(
+        indexHeader, 
+        sizeHeader,
+        kernDeclsArray,
+        assigntArray
+      ),
+      kernelsSource
+    )
+    outputFunction(
+      "__kernel void filteredArray_filteredArray",
+      Seq(sizeParam, presenceParam, kernelParams), 
+      Seq(
+        indexHeader,
+        sizeHeader,
+        presenceHeader,
+        kernDeclsArray,
+        assigntArray
+      ),
+      kernelsSource
+    )
     
     if (aIO.t.erasure == classOf[Int]) {// || aIO.t.erasure == classOf[Integer])) {
-      kernelsSource += """
-        __kernel void range_array(
-            int size,
-            """ + (inParams ++ outParams ++ extraParams).mkString(", ") + """
-        ) {
-            """ + sizeHeader + """
-            """ + kernDeclsRange + """
-            """ + assigntRange + """;
-        }
-      """
+      outputFunction(
+        "__kernel void range_array",
+        Seq(sizeParam, kernelParams),
+        Seq(
+          indexHeader,
+          sizeHeader,
+          kernDeclsRange,
+          assigntRange
+        ),
+        kernelsSource
+      )
     }
     if (verbose)
-      println("[ScalaCL] Creating kernel with source <<<\n\t" + kernelsSource.replaceAll("\n", "\n\t") + "\n>>>")
+      println("[ScalaCL] Creating kernel with source <<<\n\t" + kernelsSource.toString.replaceAll("\n", "\n\t") + "\n>>>")
       
     SourceData(
       functionName = functionName,
       functionSource = functionSource,
-      kernelsSource = kernelsSource,
-      includedSources = includedSources/*,
-      outerDeclarations = outerDeclarations*/
+      kernelsSource = kernelsSource.toString,
+      includedSources = includedSources,
+      outerDeclarations = outerDeclarations
     )
   }
 }

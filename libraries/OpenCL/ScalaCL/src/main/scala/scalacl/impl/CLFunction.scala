@@ -133,8 +133,9 @@ extends (A => B)
       (bufs.map(_.buffer), bufs)
     case f: CLFilteredArray[_] =>
       var bufs = f.array.buffers
+      // prepend presence :
       if (!skipPresenceInFilteredArray)
-        bufs = bufs :+ f.presence.asInstanceOf[CLGuardedBuffer[Any]]
+        bufs = f.presence.asInstanceOf[CLGuardedBuffer[Any]] +: bufs
 
       (bufs.map(_.buffer), bufs)
   }
