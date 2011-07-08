@@ -163,7 +163,12 @@ extends PluginComponent
         tpe == DoubleClass.tpe ||
         tpe == FloatClass.tpe ||
         tpe == CharClass.tpe ||
-        tpe == CLArrayClass.tpe
+        (tpe match { // tpe == CLArrayClass.tpe
+          case TypeRef(_, CLArrayClass, List(_)) =>
+            true
+          case _ =>
+            false
+        })
       }
     }
     
@@ -187,6 +192,7 @@ extends PluginComponent
           //println("Examining t  = " + t )
           t.symbol match {
             case s: MethodSymbol =>
+              !(s.owner == CLArrayClass && s.toString == "method apply") &&
               !primitiveTypeSymbols.contains(s.owner) && 
               s.owner != ScalaMathCommonClass &&
               !s.toString.matches("value _\\d+") &&
@@ -284,7 +290,7 @@ extends PluginComponent
         val extraScalarArgsIOs = captures.filter(!_.isArray).map(_.io)
         
         val extraInputBufferArgs = Seq[Tree]() // TODO put here the ios for arrays that are used in read-only mode
-        val extraOutputBufferArgs = captures.filter(_.isArray).map(_.arg)
+        val extraOutputBufferArgs = captures.filter(_.isArray).map(_.arg.AS(anyCLArrayTpe))
         val extraScalarArgs = captures.filter(!_.isArray).map(_.arg)
         
         assert(f.id != originalFunction.id)
