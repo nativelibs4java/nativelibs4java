@@ -100,7 +100,7 @@ public class JNI {
 	public static native void deleteGlobalRef(long reference);
     
 	public static Pointer<?> getGlobalPointer(Object object) {
-		return pointerToAddress(newGlobalRef(component), new Pointer.Releaser() {
+		return pointerToAddress(newGlobalRef(object), new Pointer.Releaser() {
 			public void release(Pointer<?> p) {
 				deleteGlobalRef(p.getPeer());
 			}
