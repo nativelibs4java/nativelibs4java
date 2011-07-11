@@ -23,14 +23,21 @@ trait CLCode {
     map.getOrElseUpdate(
       context.context,
       {
-        val program = context.context.createProgram(sources.map(s => """
-            #pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable
-        """ + s):_*)
+        val srcs = sources.map("#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n" + _)
+        val program = context.context.createProgram(srcs:_*)
         if (useFastRelaxedMath)
           program.setFastRelaxedMath
         for ((key, value) <- macros)
           program.defineMacro(key, value)
 
+        /*
+        import java.io._
+        val out = new PrintStream(new FileOutputStream("out.cl"))
+        out.println("// " + compilerArguments.mkString(" "))
+        out.println(srcs.mkString("\n"))
+        out.close
+        */
+        
         compilerArguments.foreach(program.addBuildOption(_))
         (program, program.createKernels.map(k => (k.getFunctionName, k)).toMap)
       }

@@ -48,11 +48,11 @@ trait CLDataIO[T] {
   
   def createBuffers(length: Int)(implicit context: Context): Array[CLGuardedBuffer[Any]]
 
-  def openCLKernelArgDeclarations(argType: CLDataIO.ArgType, offset: Int): Seq[String]
-  def openCLKernelNthItemExprs(argType: CLDataIO.ArgType, offset: Int, n: String): Seq[(String, List[Int])]
+  def openCLKernelArgDeclarations(nameBasis: String, argType: CLDataIO.ArgType, offset: Int): Seq[String]
+  def openCLKernelNthItemExprs(nameBasis: String, argType: CLDataIO.ArgType, offset: Int, n: String): Seq[(String, List[Int])]
   def openCLIntermediateKernelTupleElementsExprs(expr: String): Seq[(String, List[Int])]
   
-  def openCLIthTupleElementNthItemExpr(argType: CLDataIO.ArgType, offset: Int, indexes: List[Int], n: String): String
+  def openCLIthTupleElementNthItemExpr(nameBasis: String, argType: CLDataIO.ArgType, offset: Int, indexes: List[Int], n: String): String
   
   def extract(arrays: Array[Array[Any]], index: Int): T = {
     assert(elementCount == arrays.length)
@@ -120,13 +120,13 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
   override lazy val pointerIO: PointerIO[T] =
     error("Cannot create PointerIO for tuples !")
 
-  override def openCLKernelArgDeclarations(argType: CLDataIO.ArgType, offset: Int): Seq[String] =
-    iosAndOffsets.flatMap { case (io, ioOffset) => io.openCLKernelArgDeclarations(argType, offset + ioOffset) }
+  override def openCLKernelArgDeclarations(nameBasis: String, argType: CLDataIO.ArgType, offset: Int): Seq[String] =
+    iosAndOffsets.flatMap { case (io, ioOffset) => io.openCLKernelArgDeclarations(nameBasis, argType, offset + ioOffset) }
 
-  override def openCLKernelNthItemExprs(argType: CLDataIO.ArgType, offset: Int, n: String): Seq[(String, List[Int])] =
+  override def openCLKernelNthItemExprs(nameBasis: String, argType: CLDataIO.ArgType, offset: Int, n: String): Seq[(String, List[Int])] =
     iosAndOffsets.zipWithIndex.flatMap {
       case ((io, ioOffset), i) =>
-        io.openCLKernelNthItemExprs(argType, offset + ioOffset, n).map {
+        io.openCLKernelNthItemExprs(nameBasis, argType, offset + ioOffset, n).map {
           case (s, indexes) => (s, i :: indexes)
         }
     }
@@ -148,9 +148,9 @@ class CLTupleDataIO[T](ios: Array[CLDataIO[Any]], values: T => Array[Any], tuple
         io.openCLKernelNthItemExprs(argType, offset + ioOffset, n).map(_._1)
       })
   */
-  override def openCLIthTupleElementNthItemExpr(argType: CLDataIO.ArgType, offset: Int, indexes: List[Int], n: String): String = {
+  override def openCLIthTupleElementNthItemExpr(nameBasis: String, argType: CLDataIO.ArgType, offset: Int, indexes: List[Int], n: String): String = {
     val (io, ioOffset) = iosAndOffsets(indexes.head)
-    io.openCLIthTupleElementNthItemExpr(argType, offset + ioOffset, indexes.tail, n)
+    io.openCLIthTupleElementNthItemExpr(nameBasis, argType, offset + ioOffset, indexes.tail, n)
   }
 
   override def openCLIntermediateKernelTupleElementsExprs(expr: String): Seq[(String, List[Int])] = {
@@ -279,31 +279,31 @@ abstract class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T
   /*override def openCLTupleShuffleNthFieldExprs(argType: CLDataIO.ArgType, offset: Int, n: String, shuffleExpr: String): Seq[String] =
     error("Calling tuple shuffle field '" + shuffleExpr + "' on scalar type " + this)*/
   
-  override def openCLKernelArgDeclarations(argType: CLDataIO.ArgType, offset: Int): Seq[String] = {
+  override def openCLKernelArgDeclarations(nameBasis: String, argType: CLDataIO.ArgType, offset: Int): Seq[String] = {
     Seq(
       (
         argType match {
           case CLDataIO.InputPointer =>
-            "__global const " + clType + "* in"
+            "__global const " + clType + "* " + nameBasis
           case CLDataIO.OutputPointer =>
-            "__global " + clType + "* out"
+            "__global " + clType + "* " + nameBasis
           case CLDataIO.Value =>
-            "const " + clType + " captured"
+            "const " + clType + " " + nameBasis
         }
       ) + offset
     )
   }
 
-  override def openCLKernelNthItemExprs(argType: CLDataIO.ArgType, offset: Int, n: String) =
+  override def openCLKernelNthItemExprs(nameBasis: String, argType: CLDataIO.ArgType, offset: Int, n: String) =
     Seq(
       (
         argType match {
           case CLDataIO.Value =>
-            "captured" + offset
+            nameBasis + offset
           case CLDataIO.InputPointer =>
-            "in" + offset + "[" + n + "]"
+            nameBasis + offset + "[" + n + "]"
           case CLDataIO.OutputPointer =>
-            "out" + offset + "[" + n + "]"
+            nameBasis + offset + "[" + n + "]"
         },
         List(0)
       )
@@ -312,10 +312,10 @@ abstract class CLValDataIO[T <: AnyVal](implicit override val t: ClassManifest[T
   override def openCLIntermediateKernelTupleElementsExprs(expr: String): Seq[(String, List[Int])] = 
     Seq((expr, List(0)))
 
-  override def openCLIthTupleElementNthItemExpr(argType: CLDataIO.ArgType, offset: Int, indexes: List[Int], n: String): String = {
+  override def openCLIthTupleElementNthItemExpr(nameBasis: String, argType: CLDataIO.ArgType, offset: Int, indexes: List[Int], n: String): String = {
     if (indexes != List(0))
         error("There is only one item in this array of " + this + " (trying to access item " + indexes + ")")
-    openCLKernelNthItemExprs(argType, offset, n)(0)._1
+    openCLKernelNthItemExprs(nameBasis, argType, offset, n)(0)._1
   }
   
   override def clType = t.erasure.getSimpleName.toLowerCase match {

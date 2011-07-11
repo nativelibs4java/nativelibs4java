@@ -62,6 +62,7 @@ object CLFunctionCode {
     replacementContent: FiberReplacementContent
   )
   case class ReplacementInfo(
+    nameBasis: String,
     //pattern: Option[String],
     argInfo: ArgInfo,
     //offset: Int,
@@ -87,71 +88,83 @@ object CLFunctionCode {
       case (argInfo, offsets) => 
         import CLDataIO.{ InputPointer, OutputPointer, Value }
         
-        def getRawIthArrayElement(i: String, tupleIndexes: List[Int], parallelIndexesExprs: Seq[String], isParallelInputARange: Boolean) = {
-          val Seq(i) = parallelIndexesExprs
-          argInfo.io.openCLIthTupleElementNthItemExpr(
-            Value, 
-            offsets.fiberOffset, 
-            tupleIndexes, 
-            i
-          )
-        }
-        val (argTypeForKernel, argTypeForFunction, fiberInfos) = argInfo.kind match {
+        val (nameBasis, argTypeForKernel, argTypeForFunction, fiberInfos) = argInfo.kind match {
           case ParallelInputValueArg => 
-            (InputPointer, Value, Some(argInfo.io.openCLIntermediateKernelTupleElementsExprs("_") map {
+            val nameBasis = "in"
+            (nameBasis, InputPointer, Value, Some(argInfo.io.openCLIntermediateKernelTupleElementsExprs("_") map {
               case (expr, tupleIndexes) =>
                 FiberInfo(expr, tupleIndexes, new FiberReplacementContent {
                   override def apply(parallelIndexesExprs: Seq[String], isParallelInputARange: Boolean) = {
                     val Seq(i) = parallelIndexesExprs
+                    
+                    def getRawIthArrayElement(i: String) =
+                      argInfo.io.openCLIthTupleElementNthItemExpr(
+                        nameBasis,
+                        InputPointer, 
+                        offsets.fiberOffset, 
+                        tupleIndexes, 
+                        i
+                      )
+                    
                     if (isParallelInputARange)
                       "(" + 
-                        getRawIthArrayElement("0", tupleIndexes, parallelIndexesExprs, isParallelInputARange) + 
+                        getRawIthArrayElement("0") + 
                         " + (" + i + ") * " + 
-                        getRawIthArrayElement("2", tupleIndexes, parallelIndexesExprs, isParallelInputARange) + 
+                        getRawIthArrayElement("2") + 
                       ")" // buffer contains (from, to, by, inclusive). Value is (from + i * by)  
                     else
-                      getRawIthArrayElement(i, tupleIndexes, parallelIndexesExprs, isParallelInputARange)
+                      getRawIthArrayElement(i)
                   }
                 })
             }))
           case ParallelOutputValueArg => 
-            (OutputPointer, OutputPointer, None)
+            ("out", OutputPointer, OutputPointer, None)
           case _ =>
-            val fiberInfos =
+            val (nameBasis, argTypeForKernel, argTypeForFunction) = argInfo.kind match {
+              case InputBufferArg =>
+                ("capturedIn", InputPointer, InputPointer)
+              case OutputBufferArg =>
+                ("capturedOut", OutputPointer, OutputPointer)
+              case InputScalarArg =>
+                ("capturedVal", Value, Value)
+              case _ =>
+                null
+            }
+            
+            def fiberInfos(nameBasis: String) =
               argInfo.io.openCLIntermediateKernelTupleElementsExprs(
                 "_" + (offsets.extraArgOffset + 1)
               ) map { case (expr, tupleIndexes) =>
                 FiberInfo(expr, tupleIndexes, new FiberReplacementContent {
                   override def apply(parallelIndexesExprs: Seq[String], isParallelInputARange: Boolean) = {
-                    expr
+                    //expr
+                    argInfo.io.openCLIthTupleElementNthItemExpr(
+                      nameBasis,
+                      Value, 
+                      offsets.fiberOffset, 
+                      tupleIndexes, 
+                      "0"
+                    )
                   }
                 })
               }
             
-            argInfo.kind match {
-              case InputBufferArg =>
-                (InputPointer, InputPointer, Some(fiberInfos))
-              case OutputBufferArg =>
-                (OutputPointer, OutputPointer, Some(fiberInfos))
-              case InputScalarArg =>
-                (Value, Value, Some(fiberInfos))
-              case _ =>
-                null
-            }
+            (nameBasis, argTypeForKernel, argTypeForFunction, Some(fiberInfos(nameBasis)))
         } 
         
         ReplacementInfo(
+          nameBasis, 
           argInfo,
           //offsets.fibersOffset,
           kernelParamsDeclarations = 
-            argInfo.io.openCLKernelArgDeclarations(argTypeForKernel, offsets.fiberOffset),
+            argInfo.io.openCLKernelArgDeclarations(nameBasis, argTypeForKernel, offsets.fiberOffset),
           functionParamsDeclarations = 
-            argInfo.io.openCLKernelArgDeclarations(argTypeForFunction, offsets.fiberOffset),
+            argInfo.io.openCLKernelArgDeclarations(nameBasis, argTypeForFunction, offsets.fiberOffset),
           fiberInfos = fiberInfos,
           new ReplacementContent {
             override def apply(parallelIndexesExprs: Seq[String]) = {
               val Seq(i) = parallelIndexesExprs
-              argInfo.io.openCLKernelNthItemExprs(CLDataIO.OutputPointer, offsets.fiberOffset, i)
+              argInfo.io.openCLKernelNthItemExprs(nameBasis, CLDataIO.OutputPointer, offsets.fiberOffset, i)
             }
           }
         )
@@ -181,9 +194,9 @@ object CLFunctionCode {
       val x = fiberInfo.replacementContent(Seq(i), isParallelInputARange)
       val expr = fiberInfo.pattern
         
-      println("REPLACING '" + expr + "' by '" + x + "'")
+      //println("REPLACING '" + expr + "' by '" + x + "'")
       r = r.replaceAll(toRxb(expr), x)
-      println("\t-> '" + r.replaceAll("\n", "\n\t") + "'")
+      //println("\t-> '" + r.replaceAll("\n", "\n\t") + "'")
     }
     
     r
@@ -204,7 +217,7 @@ object CLFunctionCode {
     for (sub <- body; stat <- sub)
       out append '\t' append stat append '\n'
       
-    out append "}"
+    out append "}\n"
     
     out
   }
@@ -231,11 +244,11 @@ object CLFunctionCode {
       extraArgsIOs.outputBuffers.map(ArgInfo(_, OutputBufferArg)) ++
       extraArgsIOs.scalars.map(ArgInfo(_, InputScalarArg))
     
-    println("argInfos = " + argInfos)
+    //println("argInfos = " + argInfos)
     
     val replacementInfos = getReplacements(argInfos)
     val fibersReplacementInfos = getFibersReplacementInfos(replacementInfos)
-    println("replacementInfos = " + replacementInfos)
+    //println("replacementInfos = " + replacementInfos)
     
     
     val indexHeader = Seq("int " + indexVarName + " = get_global_id(0);")
@@ -254,7 +267,7 @@ object CLFunctionCode {
     var kernelParams = replacementInfos.flatMap(_.kernelParamsDeclarations)
     var functionParams = replacementInfos.flatMap(_.functionParamsDeclarations)
     
-    val functionSource = outputFunction(
+    val functionSource = ""/*outputFunction(
       "inline void " + functionName,
       Seq(functionParams),
       Seq(
@@ -262,7 +275,7 @@ object CLFunctionCode {
         funDecls,
         getAssignments("0", false)
       )
-    ).toString
+    ).toString*/
   
     val presenceName = "__cl_presence"
     val presenceParam = Seq("__global const " + CLFilteredArray.presenceCLType + "* " + presenceName)
