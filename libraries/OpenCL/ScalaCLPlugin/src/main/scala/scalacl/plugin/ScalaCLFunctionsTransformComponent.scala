@@ -75,6 +75,8 @@ extends PluginComponent
   override val runsBefore = ScalaCLFunctionsTransformComponent.runsBefore
   override val phaseName = ScalaCLFunctionsTransformComponent.phaseName
 
+  import impl._
+  
   val ScalaCLPackage       = getModule("scalacl")
   val ScalaCLPackageClass  = ScalaCLPackage.tpe.typeSymbol
   val CLDataIOClass = definitions.getClass("scalacl.impl.CLDataIO")
@@ -87,6 +89,30 @@ extends PluginComponent
   val getCachedFunctionName = N("getCachedFunction")
   val Function2CLFunctionName = N("Function2CLFunction")
   val withCaptureName = N("withCapture")
+  
+  
+  def getDataIOByTupleInfo(ti: TupleInfo): CLDataIO[Any] = {
+    if (ti.components.size == 1)
+      getDataIO(ti.tpe)
+    else
+      new CLTupleDataIO[Any](ios = ti.components.toArray.map(getDataIOByTupleInfo _), null, null) // TODO
+  }
+  def getDataIO(tpe: Type): CLDataIO[Any] = {
+    try { 
+      getDataIOByTupleInfo(getTupleInfo(tpe))
+    } catch { case _ => 
+      (tpe.typeSymbol match {
+        case IntClass => CLIntDataIO
+        case ShortClass => CLShortDataIO
+        case ByteClass => CLByteDataIO
+        case CharClass => CLCharDataIO
+        case LongClass => CLLongDataIO
+        case BooleanClass => CLBooleanDataIO
+        case FloatClass => CLFloatDataIO
+        case DoubleClass => CLDoubleDataIO
+      }).asInstanceOf[CLDataIO[Any]]
+    }
+  }
   
   def newTransformer(unit: CompilationUnit) = new TypingTransformer(unit) {
     var currentClassName: Name = null
