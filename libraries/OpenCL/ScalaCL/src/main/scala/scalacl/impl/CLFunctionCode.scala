@@ -38,6 +38,10 @@ object CLFunctionCode {
   
   protected val indexVar: String = "$i"
   protected val sizeVar: String = "$size"
+  protected val clVarPrefix = "__cl_"
+  protected val indexVarName = clVarPrefix + "i"
+  protected val sizeVarName = clVarPrefix + "size"
+    
   
   sealed trait ArgKind
   object ParallelInputValueArg extends ArgKind
@@ -90,7 +94,7 @@ object CLFunctionCode {
         
         val (nameBasis, argTypeForKernel, argTypeForFunction, fiberInfos) = argInfo.kind match {
           case ParallelInputValueArg => 
-            val nameBasis = "in"
+            val nameBasis = clVarPrefix + "in"
             (nameBasis, InputPointer, Value, Some(argInfo.io.openCLIntermediateKernelTupleElementsExprs("_") map {
               case (expr, tupleIndexes) =>
                 FiberInfo(expr, tupleIndexes, new FiberReplacementContent {
@@ -118,15 +122,15 @@ object CLFunctionCode {
                 })
             }))
           case ParallelOutputValueArg => 
-            ("out", OutputPointer, OutputPointer, None)
+            (clVarPrefix + "out", OutputPointer, OutputPointer, None)
           case _ =>
             val (nameBasis, argTypeForKernel, argTypeForFunction) = argInfo.kind match {
               case InputBufferArg =>
-                ("capturedIn", InputPointer, InputPointer)
+                (clVarPrefix + "capturedIn", InputPointer, InputPointer)
               case OutputBufferArg =>
-                ("capturedOut", OutputPointer, OutputPointer)
+                (clVarPrefix + "capturedOut", OutputPointer, OutputPointer)
               case InputScalarArg =>
-                ("capturedVal", Value, Value)
+                (clVarPrefix + "capturedVal", Value, Value)
               case _ =>
                 null
             }
@@ -176,9 +180,6 @@ object CLFunctionCode {
     "($|\\b)"
   }
   
-  val indexVarName = "__cl_i"
-  val sizeVarName = "__cl_size"
-    
   def getFibersReplacementInfos(replacementInfos: Seq[ReplacementInfo]): Seq[(ReplacementInfo, FiberInfo)] = {
     replacementInfos.flatMap(ri => ri.fiberInfos.map(_.map(fi => (ri, fi)))).flatten
   }
