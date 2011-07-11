@@ -11,7 +11,7 @@ import com.nativelibs4java.opencl._
 trait CLRunnable {
   def isOnlyInScalaSpace: Boolean
   
-  def run(dims: Array[Int], args: Array[Any], eventsToWaitFor: Array[CLEvent])(implicit context: Context): CLEvent
+  protected def run(dims: Array[Int], args: Array[Any], eventsToWaitFor: Array[CLEvent])(implicit context: Context): CLEvent
 
   def run(args: Array[Any], reads: Array[CLEventBoundContainer] = null, writes: Array[CLEventBoundContainer] = null)(dims: Array[Int], groupSizes: Array[Int] = null)(implicit context: Context): Unit = {
     if (dims.sum > 0) {

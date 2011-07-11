@@ -19,7 +19,7 @@ trait CLCode {
   
   def compile(context: Context): Unit = getProgramAndKernels(context)
   
-  private[impl] def getProgramAndKernels(context: Context) = map.synchronized {
+  private[impl] def getProgramAndKernels(context: Context): (CLProgram, Map[String, CLKernel]) = map.synchronized {
     map.getOrElseUpdate(
       context.context,
       {
