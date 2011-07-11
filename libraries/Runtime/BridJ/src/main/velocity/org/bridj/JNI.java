@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.Buffer;
 import static org.bridj.Dyncall.*;
+import static org.bridj.Pointer.*;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.logging.Level;
@@ -98,6 +99,14 @@ public class JNI {
      */
 	public static native void deleteGlobalRef(long reference);
     
+	public static Pointer<?> getGlobalPointer(Object object) {
+		return pointerToAddress(newGlobalRef(component), new Pointer.Releaser() {
+			public void release(Pointer<?> p) {
+				deleteGlobalRef(p.getPeer());
+			}
+		});
+	}
+	
 	/**
      * Create a JNI weak global reference to a Java object : long value that can be safely passed to C programs and stored, which validity runs until {@link JNI#deleteWeakGlobalRef(long)} is called.<br>
      * Unlike global references, weak global references don't prevent objects from being garbage-collected.

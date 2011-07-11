@@ -15,7 +15,7 @@ import java.io.File;
  */
 @Library("jawt") 
 @Runtime(CRuntime.class) 
-class JawtLibrary {
+public class JawtLibrary {
 	static {
 		try {
 			//if (Platform.isLinux()) 
