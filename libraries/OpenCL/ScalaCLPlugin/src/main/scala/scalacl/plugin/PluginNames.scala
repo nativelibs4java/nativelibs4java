@@ -95,6 +95,9 @@ trait PluginNames {
   //lazy val NonEmptyListClass = definitions.getClass2("scala.::", "scala.collection.immutable.::")
   //lazy val NonEmptyListClass = definitions.getMember(ScalaPackageClass, "::")
   lazy val ListBufferClass = definitions.getClass("scala.collection.mutable.ListBuffer")
+  
+  lazy val ScalaMathPackageClass  = ScalaMathPackage.tpe.typeSymbol
+  
   lazy val primArrayBuilderClasses = Array(
     (IntClass.tpe, "ofInt"),
     (LongClass.tpe, "ofLong"),

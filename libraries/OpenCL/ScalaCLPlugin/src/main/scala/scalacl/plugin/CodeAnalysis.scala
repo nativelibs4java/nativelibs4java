@@ -37,6 +37,8 @@ import scala.reflect.generic.{Names, Trees, Types, Constants, Universe}
 import scala.tools.nsc.Global
 import tools.nsc.plugins.PluginComponent
 
+object HasSideEffects
+
 trait CodeAnalysis
 extends MiscMatchers
    with TreeBuilders
@@ -74,5 +76,66 @@ extends MiscMatchers
     }).traverse(tree)
 
     unknown.toSeq
+  }
+  
+  def isSideEffectFree(tree: Tree) = {
+    val analyzer = new SideEffectsAnalysis(tree)
+    analyzer.traverse(tree)
+    analyzer.isSideEffectFree
+  }
+  class SideEffectsAnalysis(tree: Tree, preKnownSymbols: Set[Symbol] = Set()) extends Traverser {
+    protected val unknownSymbols = 
+      getUnknownSymbolReferences(tree, preKnownSymbols = preKnownSymbols)
+    
+    protected def isKnownTerm(symbol: Symbol) = 
+      !unknownSymbols.contains(symbol)
+      
+    protected def isSideEffectFreeMethod(symbol: MethodSymbol): Boolean = {
+      val owner = symbol.owner
+      val name = symbol.name
+      isSideEffectFreeOwner(owner) || 
+      name == (applyName: Name) && {
+        owner == SeqModule ||
+        owner == ArrayModule //||
+        //owner == SetModule ||
+        //owner == MapModule
+      }
+    }
+    protected def isSideEffectFreeOwner(symbol: Symbol): Boolean = {
+      symbol match {
+        case IntClass | ShortClass | LongClass | ByteClass | CharClass | BooleanClass | DoubleClass | IntClass =>
+          true
+        case ScalaMathPackage | ScalaMathPackageClass =>
+          true
+        case _ =>
+          false
+      }
+    }
+    var isSideEffectFree = true
+    var sideEffectTrees = Seq[Tree]()
+    
+    protected def hasSideEffects(tree: Tree): Unit = {
+      sideEffectTrees :+= tree
+      isSideEffectFree = false
+    }
+    override def traverse(tree: Tree) = {
+      super.traverse(tree)
+      println("TRAVERSING " + tree)
+      tree match {
+        // TODO accept accesses to non-lazy vals
+        case (_: New) =>
+          hasSideEffects(tree) // TODO refine this !!!
+        case Select(target, methodName) =>
+          if (!isSideEffectFreeMethod(target.symbol.asInstanceOf[MethodSymbol]))
+            hasSideEffects(tree)
+        case Assign(lhs, rhs) =>
+          println("Found assign : " + tree)
+          if (!isKnownTerm(lhs.symbol))
+            hasSideEffects(tree)
+          else
+            println("Is known symbol : " + lhs.symbol)
+        case _ =>
+      }
+    }
   }
 }

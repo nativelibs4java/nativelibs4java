@@ -229,7 +229,7 @@ object CLFunctionCode {
     expressions: Array[String],
     includedSources: Array[String],
     extraArgsIOs: CapturedIOs = CapturedIOs()
-  )(implicit aIO: CLDataIO[A], bIO: CLDataIO[B]) = 
+  )(implicit aIO: CLDataIO[A], bIO: CLDataIO[B]): SourceData = 
   {
     assert(!expressions.isEmpty)
     

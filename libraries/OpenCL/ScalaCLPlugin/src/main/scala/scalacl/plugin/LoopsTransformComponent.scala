@@ -66,6 +66,7 @@ extends PluginComponent
    with RewritingPluginComponent
    with WithOptions
    with WorkaroundsForOtherPhases
+   with CodeAnalysis // for auto tests
 {
   import global._
   import global.definitions._
@@ -98,6 +99,11 @@ extends PluginComponent
         case _ =>
       }
       */
+      
+      if (options.test && isSideEffectFree(tree)) {
+        options.testOutputs(HasSideEffects) = true
+      }
+      
       if (!shouldOptimize(tree))
         super.transform(tree)
       else

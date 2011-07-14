@@ -73,6 +73,7 @@ trait TestUtils {
   baseOutDir.mkdirs
 
   val options = new ScalaCLPlugin.PluginOptions(null)
+  options.test = true
   
   /*def compile(src: String, outDir: String) = {
     outDir.mkdirs
@@ -223,7 +224,7 @@ trait TestUtils {
   }
   
   protected def compileCodeWithPlugin(decls: String, code: String) =
-    compileCode(withPlugin = true, "", decls, "", code)
+    compileCode(withPlugin = true, code, "", decls, "")
   
   lazy val getScalaCLCollectionsPath = {
     val r = """jar:file:(.*?\.jar)!.*""".r
@@ -244,7 +245,7 @@ trait TestUtils {
     )
     //Array[String]()
   }
-  protected def compileCode(withPlugin: Boolean, constructorArgsDecls: String, decls: String, methodArgsDecls: String, code: String) = {
+  protected def compileCode(withPlugin: Boolean, code: String, constructorArgsDecls: String = "", decls: String = "", methodArgsDecls: String = ""): RunnableCode = {
     val (testClassName, testMethodName) = testClassInfo
     
     val suffixPlugin = (if (withPlugin) "Optimized" else "Normal")
@@ -314,7 +315,7 @@ trait TestUtils {
   
   
   private def getTesterGen(withPlugin: Boolean, decls: String, code: String) = {
-    val runnableCode = compileCode(withPlugin, "n: Int", decls, "", code)
+    val runnableCode = compileCode(withPlugin, code, "n: Int", decls, "")
     
     (n: Int) => {
       val i = runnableCode.newInstance(n)

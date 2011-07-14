@@ -198,16 +198,20 @@ extends PluginComponent
       }
     }
     
-    def getDataIOImplicit(tpe: Type, context: analyzer.Context, enclosingTree: Tree) = {
+    def getDataIOImplicit(tpe: Type, context: analyzer.Context, enclosingTree: Tree): (Tree, CLDataIO[Any]) = {
       val dataIOTpe = appliedType(CLDataIOClass.tpe, List(tpe))
-      analyzer.inferImplicit(enclosingTree, dataIOTpe, false, false, context).tree
+      var ioTree = analyzer.inferImplicit(enclosingTree, dataIOTpe, false, false, context).tree
+      if (ioTree == null)
+        null
+      else
+        (ioTree.AS(anyCLDataIOTpe), getDataIO(tpe))
     }
     def conversionError(pos: Position, msg: String) = {
       unit.error(pos, msg)
       throw new UnsupportedOperationException("Conversion error : " + msg)
     }
     
-    case class Capture(symbol: Symbol, io: Tree, isArray: Boolean, arg: Tree)
+    case class Capture(symbol: Symbol, io: (Tree, CLDataIO[Any]), isArray: Boolean, arg: Tree)
       
     val anyCLDataIOTpe = TypeRef(NoPrefix, CLDataIOClass, List(AnyClass.tpe))
     val anyCLArrayTpe = TypeRef(NoPrefix, CLArrayClass, List(AnyClass.tpe))
@@ -286,9 +290,6 @@ extends PluginComponent
         if (io == null) {
           for (ref <- refs)
             unit.error(ref.pos, "Cannot infer CLDataIO instance for type " + tpe + " of captured " + (if (isArray) "array" else "") + " variable !")
-        } else {
-          io = io.AS(anyCLDataIOTpe)
-          //unit.error(ref.pos, "Cannot capture externals symbols yet (symbol = " + s + ", tpe = " + s.tpe + ")")
         }
         val arg = ident(s, N(refs.first.toString))
         Capture(symbol = s, io = io, isArray = isArray, arg = arg)
@@ -311,7 +312,7 @@ extends PluginComponent
         // Failure !
         originalFunction
       } else {
-        val extraInputBufferArgsIOs = Seq[Tree]() // TODO put here the ios for arrays that are used in read-only mode
+        val extraInputBufferArgsIOs = Seq[(Tree, CLDataIO[Any])]() // TODO put here the ios for arrays that are used in read-only mode
         val extraOutputBufferArgsIOs = captures.filter(_.isArray).map(_.io)
         val extraScalarArgsIOs = captures.filter(!_.isArray).map(_.io)
         
@@ -405,6 +406,25 @@ extends PluginComponent
           )
         }
         
+        val sourceData = {
+          val aIO = sourceDataIO._2
+          val bIO = mappedDataIO._2
+          println("aIO = " + aIO + ", bIO = " + bIO)
+          CLFunctionCode.buildSourceData[Any, Any](
+            outerDeclarations = outerDefinitions,
+            declarations = statements.toArray,
+            expressions = values.toArray,
+            includedSources = Array(),
+            extraArgsIOs = CapturedIOs(
+              extraInputBufferArgsIOs.toArray.map(_._2),
+              extraOutputBufferArgsIOs.toArray.map(_._2),
+              extraScalarArgsIOs.toArray.map(_._2)
+            )
+          )(aIO, bIO)
+        }
+        
+        println("sourceData = " + sourceData)
+        
         /*
         if (System.getenv("SCALACL_VERIFY") != "0") {
           val errors = scalaCLContexts.flatMap(context => {
@@ -441,14 +461,14 @@ extends PluginComponent
                   newArrayApply(TypeTree(StringClass.tpe), outerDefinitions.map(d => Literal(Constant(d))):_*),
                   newArrayApply(TypeTree(StringClass.tpe), statements.map(s => Literal(Constant(s))):_*),
                   newArrayApply(TypeTree(StringClass.tpe), values.map(value => Literal(Constant(value))):_*),
-                  newArrayApply(TypeTree(anyCLDataIOTpe), extraInputBufferArgsIOs:_*),
-                  newArrayApply(TypeTree(anyCLDataIOTpe), extraOutputBufferArgsIOs:_*),
-                  newArrayApply(TypeTree(anyCLDataIOTpe), extraScalarArgsIOs:_*)
+                  newArrayApply(TypeTree(anyCLDataIOTpe), extraInputBufferArgsIOs.map(_._1):_*),
+                  newArrayApply(TypeTree(anyCLDataIOTpe), extraOutputBufferArgsIOs.map(_._1):_*),
+                  newArrayApply(TypeTree(anyCLDataIOTpe), extraScalarArgsIOs.map(_._1):_*)
                 )
               ).setSymbol(getCachedFunctionSym),
               List(
-                sourceDataIO,
-                mappedDataIO
+                sourceDataIO._1,
+                mappedDataIO._1
               )
             ).setSymbol(getCachedFunctionSym)
           }

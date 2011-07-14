@@ -96,6 +96,12 @@ object ScalaCLPlugin {
 
   class PluginOptions(settings: Settings) {
 
+    var test = 
+      false
+      
+    var testOutputs = 
+      collection.mutable.Map[Any, Any]()
+    
     var trace =
       settings != null && settings.debug.value ||
       hasEnv("SCALACL_TRACE")
