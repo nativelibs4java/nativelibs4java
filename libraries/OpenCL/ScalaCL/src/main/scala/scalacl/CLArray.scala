@@ -76,7 +76,13 @@ trait MappableToCLArray[A, +Repr <: CLCollectionLike[A, Repr] with CLCollection[
   }
 }
 
-
+/**
+ * Array-like collection stored in OpenCL buffers, which uses CLFunction in map, filter operations.<br>
+ * CLArray is a mutable yet asynchronous structure :
+ * $ - `a.map(f).map(g)` returns an unfinished CLArray
+ * $ - New reads wait for past writes to finish
+ * $ - New writes wait for past reads and writes to finish
+ */
 class CLArray[A](
   val length: Int, 
   protected[scalacl] val buffers: Array[CLGuardedBuffer[Any]]
@@ -125,12 +131,18 @@ class CLArray[A](
     else
       throw new ArrayIndexOutOfBoundsException("Empty CLArray !")
 
+  /**
+   * Mutate a specific element of the array
+   */
   def update(index: Int, value: A): Unit =
     if (length > 0)
       dataIO.store(value, buffers, index)
     else
       throw new ArrayIndexOutOfBoundsException("Empty CLArray !")
 
+  /**
+   * Mutate all items of this array with a CLFunction 
+   */
   def update(f: A => A): CLArray[A] =
     map(f, this)(new CLCanBuildFrom[Repr, A, CLArray[A]] {
       override def dataIO = CLArray.this.dataIO
@@ -185,19 +197,69 @@ class CLArray[A](
     })
     reduction.get
   }
+  
+  protected def isDefaultOrdering(cmp: Ordering[_]) =
+    cmp == Boolean ||
+    cmp == Byte ||
+    cmp == Char ||
+    cmp == Double ||
+    cmp == Float ||
+    cmp == Int ||
+    cmp == Long ||
+    cmp == Short
+  
+  protected def isDefaultNumeric(num: Numeric[_]) = {
+    import Numeric._
     
+    num == ByteIsIntegral ||
+    num == CharIsIntegral ||
+    num == DoubleIsFractional ||
+    num == FloatIsFractional ||
+    num == IntIsIntegral ||
+    num == LongIsIntegral ||
+    num == ShortIsIntegral
+  }
+    
+  /**
+   * Perform parallel sum of this array's values, if the implicit numeric is the default one (otherwise, perform slow sum that reads data back from OpenCL to Scala memory)
+   */ 
   override def sum[B >: A](implicit num: Numeric[B]): B =
-    reduce[B](ReductionUtils.Operation.Add)
+    if (isDefaultNumeric(num))
+      reduce[B](ReductionUtils.Operation.Add)
+    else
+      super.sum[B]
     
+  /**
+   * Perform parallel product of this array's values, if the implicit numeric is the default one (otherwise, perform slow product that reads data back from OpenCL to Scala memory)
+   */ 
   override def product[B >: A](implicit num: Numeric[B]): B =
-    reduce[B](ReductionUtils.Operation.Multiply)
-    
+    if (isDefaultNumeric(num))
+      reduce[B](ReductionUtils.Operation.Multiply)
+    else
+      super.product[B]
+  
+  /**
+   * Perform parallel min of this array's values, if the implicit ordering is the default one (otherwise, perform slow min that reads data back from OpenCL to Scala memory)
+   */ 
   override def min[B >: A](implicit cmp: Ordering[B]): A =
-    reduce[A](ReductionUtils.Operation.Min)
+    if (isDefaultOrdering(cmp))
+      reduce[A](ReductionUtils.Operation.Min)
+    else
+      super.min[B]
     
+  /**
+   * Perform parallel max of this array's values, if the implicit ordering is the default one (otherwise, perform slow max that reads data back from OpenCL to Scala memory)
+   */ 
   override def max[B >: A](implicit cmp: Ordering[B]): A =
-    reduce[A](ReductionUtils.Operation.Max)
+    if (isDefaultOrdering(cmp))
+      reduce[A](ReductionUtils.Operation.Max)
+    else
+      super.max[B]
     
+  /**
+   * Clone this CLArray<br>
+   * TODO copy-on-write cloning
+   */ 
   override def clone: CLArray[A] =
     new CLArray[A](length, if (length > 0) buffers.map(_.clone) else null) // TODO map in parallel
 
