@@ -136,13 +136,13 @@ trait MiscMatchers extends TraversalOps {
           case untilName() =>
             (from, to, None, true, Nil)
         }
-      case Apply(Select(tg, n @ (byName() | withFilterName())), List(arg)) =>
+      case Apply(Select(tg, n @ (byName() | withFilterName() | filterName())), List(arg)) =>
        tg match {
           case IntRange(from, to, by, isUntil, filters) =>
             Option(n) collect {
                 case byName() if by == None =>
                     (from, to, Some(arg), isUntil, filters)
-                case withFilterName() =>
+                case withFilterName() | filterName() =>
                     (from, to, by, isUntil, filters ++ List(arg))
             }
           case _ =>
@@ -569,6 +569,8 @@ trait MiscMatchers extends TraversalOps {
 
             case countName() =>
               Some(Count(function), IntClass.tpe)
+            case updateName() =>
+              Some(UpdateAll(function), collection.tpe)
             case _ =>
               None
           }
