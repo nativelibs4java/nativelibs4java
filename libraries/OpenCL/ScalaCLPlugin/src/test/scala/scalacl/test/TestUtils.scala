@@ -310,8 +310,16 @@ trait TestUtils {
         val inst = 
           testConstructor.newInstance(constructorArgs.map(_.asInstanceOf[AnyRef]):_*).asInstanceOf[AnyRef]
         
-        override def apply(args: Any*): Any = 
-          testMethod.invoke(inst, args.map(_.asInstanceOf[AnyRef]):_*)
+        assert(inst != null)
+        
+        override def apply(args: Any*): Any = {
+          try { 
+            testMethod.invoke(inst, args.map(_.asInstanceOf[AnyRef]):_*)
+          } catch { case ex =>
+            ex.printStackTrace
+            throw ex
+          }
+        }
       }
     }
   }
