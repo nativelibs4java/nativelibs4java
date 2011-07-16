@@ -82,6 +82,9 @@ trait TraversalOps extends PluginNames {
     case class Collect(f: Tree, canBuildFrom: Tree) extends TraversalOpType {
       override def toString = "collect"
     }
+    case class UpdateAll(f: Tree) extends TraversalOpType {
+      override def toString = "update"
+    }
     case class Foreach(f: Tree) extends TraversalOpType {
       override def toString = "foreach"
     }
