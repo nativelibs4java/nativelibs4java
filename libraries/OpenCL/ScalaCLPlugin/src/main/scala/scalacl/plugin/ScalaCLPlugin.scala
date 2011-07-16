@@ -39,7 +39,6 @@ import scala.reflect.generic.Trees
 import scala.tools.nsc.Settings
 import scala.tools.nsc.Global
 import scala.tools.nsc.plugins.Plugin
-import scala.tools.nsc.symtab.Definitions
 import scala.util.parsing.input.Position
 
 /**
