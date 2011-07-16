@@ -22,6 +22,8 @@ class SharedCompiler(enablePlugins: Boolean) {
     lazy val pluginOptions = new ScalaCLPlugin.PluginOptions(settings)
     lazy val runner = new ScalaCLPluginRunner(enablePlugins, settings, new ConsoleReporter(settings), pluginOptions)
 
+    pluginOptions.test = true
+    
     Compiler(extraArgs, settings, runner)
   }
 

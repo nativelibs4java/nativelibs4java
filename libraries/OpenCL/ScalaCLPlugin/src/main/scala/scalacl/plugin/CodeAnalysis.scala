@@ -105,9 +105,12 @@ extends MiscMatchers
       symbol match {
         case IntClass | ShortClass | LongClass | ByteClass | CharClass | BooleanClass | DoubleClass | IntClass =>
           true
-        case ScalaMathPackage | ScalaMathPackageClass =>
+        case PredefModule =>
+          true
+        case ScalaMathPackage | ScalaMathPackageClass | ScalaMathCommonClass =>
           true
         case _ =>
+          //println("NOT A SIDE-EFFECT-FREE OWNER : " + symbol)
           false
       }
     }
@@ -117,23 +120,25 @@ extends MiscMatchers
     protected def hasSideEffects(tree: Tree): Unit = {
       sideEffectTrees :+= tree
       isSideEffectFree = false
+      //println("Has side effects : " + tree + " (sym = " + tree.symbol + ", tpe = " + tree.tpe + ", tpe.sym = " + tree.tpe.typeSymbol + ")\n\t" + nodeToString(tree))
     }
     override def traverse(tree: Tree) = {
       super.traverse(tree)
-      println("TRAVERSING " + tree)
+      //println("TRAVERSING " + tree)
       tree match {
         // TODO accept accesses to non-lazy vals
         case (_: New) =>
           hasSideEffects(tree) // TODO refine this !!!
-        case Select(target, methodName) =>
-          if (!isSideEffectFreeMethod(target.symbol.asInstanceOf[MethodSymbol]))
-            hasSideEffects(tree)
+        case Select(target, methodName) =>//if target.symbol.isInstanceOf[MethodSymbol] =>
+          if (target.symbol.isInstanceOf[MethodSymbol])
+            if (!isSideEffectFreeMethod(target.symbol.asInstanceOf[MethodSymbol]))
+              hasSideEffects(tree)
         case Assign(lhs, rhs) =>
-          println("Found assign : " + tree)
-          if (!isKnownTerm(lhs.symbol))
+          //println("Found assign : " + tree)
+          if (!isKnownTerm(lhs.symbol)) 
             hasSideEffects(tree)
-          else
-            println("Is known symbol : " + lhs.symbol)
+          //else
+          //  println("Is known symbol : " + lhs.symbol)
         case _ =>
       }
     }
