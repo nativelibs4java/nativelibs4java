@@ -46,9 +46,9 @@ import scala.tools.nsc.reporters.Reporter
 //import scalacl.ScalaCLPlugin
 
 /*
-SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=Test.scala|-Xprint:scalacl-loopstransform|-Ybrowse:scalacl-loopstransform|-classpath|../ScalaCL2/target/scalacl-0.2-SNAPSHOT-shaded.jar"
-SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.Compile "-DaddArgs=Test.scala|-classpath|../ScalaCL2/target/scalacl-0.2-SNAPSHOT-shaded.jar"
-rm Test*.class ; SCALACL_TRACE=1 sbt 'run Test.scala -classpath ../ScalaCL2/target/scalacl-0.2-SNAPSHOT-shaded.jar -Xprint:scalacl-functionstransform -Yshow-trees'
+SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.plugin.Compile "-DaddArgs=Test.scala|-Xprint:scalacl-loopstransform|-Ybrowse:scalacl-loopstransform|-classpath|../ScalaCL2/target/scalacl-0.3-SNAPSHOT-shaded.jar"
+SCALACL_TRACE=1 mvn scala:run -DmainClass=scalacl.plugin.Compile "-DaddArgs=Test.scala|-classpath|../ScalaCL2/target/scalacl-0.3-SNAPSHOT-shaded.jar"
+rm Test*.class ; SCALACL_TRACE=1 sbt 'run Test.scala -classpath ../ScalaCL2/target/scalacl-0.3-SNAPSHOT-shaded.jar -Xprint:scalacl-functionstransform -Yshow-trees'
 scala -cp ../ScalaCL2/target/scalacl-0.2-SNAPSHOT-shaded.jar:. Test
 */
 object Compile {
@@ -93,7 +93,13 @@ object Compile {
       //,"-Yshow-trees"
     )*/
 
-    compilerMain(args, true)
+    try {
+      compilerMain(args, true)
+      println("DONE")
+    } catch { case ex =>
+      ex.printStackTrace
+      throw ex
+    }
     /*
     compilerMain(
       if (args.isEmpty)

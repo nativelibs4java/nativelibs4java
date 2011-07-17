@@ -15,6 +15,9 @@ It is based on JavaCL for the Java/OpenCL interop.
 For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL.
 	</description>
 	
+	<properties>
+	  	<scala.version>2.9.0</scala.version>
+	</properties>
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
 	  <artifactId>opencl4java-parent</artifactId>
