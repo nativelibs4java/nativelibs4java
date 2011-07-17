@@ -23,7 +23,12 @@ trait CLCode {
     map.getOrElseUpdate(
       context.context,
       {
-        val srcs = sources.map("#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n" + _)
+        val srcs = 
+          if (context.context.isByteAddressableStoreSupported)
+            sources.map("#pragma OPENCL EXTENSION cl_khr_byte_addressable_store : enable\n" + _)
+          else
+            sources
+            
         val program = context.context.createProgram(srcs:_*)
         if (useFastRelaxedMath)
           program.setFastRelaxedMath

@@ -88,6 +88,7 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     }
   }
   trait TupleValue {
+    def apply(): Tree
     def tpe: Type
     def elements: Seq[IdentGen]
     def fibersCount: Int
@@ -103,6 +104,12 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     def subTuple(fiberOffset: Int, fiberLength: Int)(implicit context: LocalContext): TupleValue
   }
   class DefaultTupleValue(val tpe: Type, val elements: IdentGen*) extends TupleValue {
+    override def apply() = {
+      if (elements.size != 1)
+        throw new UnsupportedOperationException("TODO")
+      else
+        elements.first.apply()
+    }
     val tupleInfo = getTupleInfo(tpe)
     def fibersCount = tupleInfo.componentSize
     def componentsCount = elements.size
@@ -116,6 +123,9 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     def value: TupleValue
     def valueIndex: Option[IdentGen]
     def valuesCount: Option[IdentGen]
+    def copyWithValue(newValue: TupleValue) = {
+      new SimpleStreamValue(newValue, valueIndex, valuesCount)
+    }
   }
   class SimpleStreamValue(val value: TupleValue, val valueIndex: Option[IdentGen], val valuesCount: Option[IdentGen]) extends StreamValue {
     def this(value: VarDef, valueIndex: Option[VarDef], valuesCount: Option[VarDef]) =
