@@ -18,51 +18,68 @@ trait StreamOps extends PluginNames with Streams {
   import treeInfo.{ methPart }
   import typer.typed
 
+  sealed abstract class TraversalOpType {
+    val needsInitialValue = false
+    val needsFunction = false
+    val loopSkipsFirst = false
+    val f: Tree
+  }
+
+  class TraversalOp(
+    val op: TraversalOpType,
+    val collection: Tree,
+    val resultType: Type,
+    val mappedCollectionType: Type,
+    val isLeft: Boolean,
+    val initialValue: Tree
+  ) {
+    override def toString = "TraversalOp(" + Array(op, collection, resultType, mappedCollectionType, isLeft, initialValue).mkString(", ") + ")"
+  }
+  
   /// Matches one of the folding/scanning/reducing functions : (reduce|fold|scan)(Left|Right)
-  object StreamOps {
-/*
-    case class Fold(f: Tree, isLeft: Boolean) extends TraversalOpType {
+  /// Matches one of the folding/scanning/reducing functions : (reduce|fold|scan)(Left|Right)
+  object TraversalOps {
+
+    case class FoldOp(tree: Tree, f: Tree, isLeft: Boolean) extends TraversalOpType {
       override def toString = "fold" + (if (isLeft) "Left" else "Right")
       override val needsInitialValue = true
       override val needsFunction: Boolean = true
     }
-    case class Scan(f: Tree, isLeft: Boolean) extends TraversalOpType {
+    case class ScanOp(tree: Tree, f: Tree, isLeft: Boolean) extends TraversalOpType {
       override def toString = "scan" + (if (isLeft) "Left" else "Right")
       override val needsInitialValue = true
       override val needsFunction: Boolean = true
     }
-    case class Reduce(f: Tree, isLeft: Boolean) extends TraversalOpType {
+    case class ReduceOp(tree: Tree, f: Tree, isLeft: Boolean) extends TraversalOpType {
       override def toString = "reduce" + (if (isLeft) "Left" else "Right")
       override val needsFunction: Boolean = true
       override val loopSkipsFirst = true
     }
-    case object Sum extends TraversalOpType {
+    case class SumOp(tree: Tree) extends TraversalOpType {
       override def toString = "sum"
       override val f = null
     }
-    case class Count(f: Tree) extends TraversalOpType {
+    case class CountOp(tree: Tree, f: Tree) extends TraversalOpType {
       override def toString = "count"
       override val needsFunction: Boolean = true
     }
-    case object Min extends TraversalOpType {
+    case class MinOp(tree: Tree) extends TraversalOpType {
       override def toString = "min"
       override val loopSkipsFirst = true
       override val f = null
     }
-    case object Max extends TraversalOpType {
+    case class MaxOp(tree: Tree) extends TraversalOpType {
       override def toString = "max"
       override val loopSkipsFirst = true
       override val f = null
     }
-    case class Filter(f: Tree, not: Boolean) extends TraversalOpType {
+    case class FilterOp(tree: Tree, f: Tree, not: Boolean) extends TraversalOpType {
       override def toString = if (not) "filterNot" else "filter"
     }
-    case class FilterWhile(f: Tree, take: Boolean) extends TraversalOpType {
+    case class FilterWhileOp(tree: Tree, f: Tree, take: Boolean) extends TraversalOpType {
       override def toString = if (take) "takeWhile" else "dropWhile"
     }
-    */
-    
-    case class MapOp(tree: Tree, f: Tree, canBuildFrom: Tree) /*extends TraversalOpType*/ extends StreamTransformer {
+    case class MapOp(tree: Tree, f: Tree, canBuildFrom: Tree) extends TraversalOpType with StreamTransformer {
       override def toString = "map"
       override def order = Unordered
       override def transform(value: StreamValue)(implicit loop: Loop): StreamValue = {
@@ -78,6 +95,7 @@ trait StreamOps extends PluginNames with Streams {
           loop.unit
         )
         val mappedVar = newVariable(loop.unit, "mapped$", loop.currentOwner, loop.pos, false, mapped)
+        loop.inner += mappedVar.definition
         
         value.copyWithValue(new DefaultTupleValue(
           mapped.tpe,
@@ -85,38 +103,38 @@ trait StreamOps extends PluginNames with Streams {
         ))
       }
     }
-    /*
-    case class Collect(f: Tree, canBuildFrom: Tree) extends TraversalOpType {
+    
+    case class CollectOp(tree: Tree, f: Tree, canBuildFrom: Tree) extends TraversalOpType {
       override def toString = "collect"
     }
-    case class UpdateAll(f: Tree) extends TraversalOpType {
+    case class UpdateAllOp(tree: Tree, f: Tree) extends TraversalOpType {
       override def toString = "update"
     }
-    case class Foreach(f: Tree) extends TraversalOpType {
+    case class ForeachOp(tree: Tree, f: Tree) extends TraversalOpType {
       override def toString = "foreach"
     }
-    case class AllOrSome(f: Tree, all: Boolean) extends TraversalOpType {
+    case class AllOrSomeOp(tree: Tree, f: Tree, all: Boolean) extends TraversalOpType {
       override def toString = if (all) "forall" else "exists"
     }
-    case class Find(f: Tree) extends TraversalOpType {
+    case class FindOp(tree: Tree, f: Tree) extends TraversalOpType {
       override def toString = "find"
     }
-    case object Reverse extends TraversalOpType {
+    case class ReverseOp(tree: Tree) extends TraversalOpType {
       override def toString = "reverse"
       override val f = null
     }
-    case class Zip(zippedCollection: Tree) extends TraversalOpType {
+    case class ZipOp(tree: Tree, zippedCollection: Tree) extends TraversalOpType {
       override def toString = "zip"
       override val f = null
     }
 
-    case class ToCollection(colType: ColType, tpe: Type) extends TraversalOpType {
+    case class ToCollectionOp(tree: Tree, colType: ColType, tpe: Type) extends TraversalOpType {
       override def toString = "to" + colType
       override val f = null
     }
-    case object ZipWithIndex extends TraversalOpType {
+    case class ZipWithIndexOp(tree: Tree) extends TraversalOpType {
       override def toString = "zipWithIndex"
       override val f = null
-    }*/
+    }
   }
 }

@@ -54,6 +54,7 @@ scala -cp ../ScalaCL2/target/scalacl-0.2-SNAPSHOT-shaded.jar:. Test
 object Compile {
 
   def main(args: Array[String]) {
+    //println("HHEHEHEHHHE")
     /*val args = Array("/Users/ochafik/ScalaCLPlugin/Test.scala",
         "-Xprint:scalacl-loopstransform"
         //"-Ydebug"
@@ -95,7 +96,6 @@ object Compile {
 
     try {
       compilerMain(args, true)
-      println("DONE")
     } catch { case ex =>
       ex.printStackTrace
       throw ex
@@ -125,6 +125,7 @@ Copyright Olivier Chafik 2010""")
   val fileJarURLRx = "jar:file:([^!]+)!.*".r
   lazy val bootClassPath = {
     val fileJarURLRx(scalaLibraryJar) = getClass.getClassLoader.getResource("scala/collection/immutable/List.class").toString
+    // getCodeLocation
     scalaLibraryJar
     /*
     import java.io.File

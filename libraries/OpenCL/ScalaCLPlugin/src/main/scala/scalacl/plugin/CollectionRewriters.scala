@@ -36,7 +36,7 @@ import scala.tools.nsc.transform.TypingTransformers
 
 trait RewritingPluginComponent {
 
-  this: PluginComponent with TreeBuilders with WorkaroundsForOtherPhases with WithOptions =>
+  this: PluginComponent with TreeBuilders with TraversalOps with WorkaroundsForOtherPhases with WithOptions =>
   import global._
   import gen._
   import definitions._
@@ -246,7 +246,7 @@ trait RewritingPluginComponent {
       override def isSafeRewrite(op: TraversalOpType) = {
         import TraversalOps._
         op match {
-          case ToCollection(colType, _) =>
+          case ToCollectionOp(_, colType, _) =>
             colType match { 
               case ArrayType =>
                 options.experimental
@@ -254,11 +254,11 @@ trait RewritingPluginComponent {
               case _ =>
                 false
             }
-          case Scan(_, false) =>
+          case ScanOp(_, _, false) =>
             false
-          case Reduce(_, _) | Min | Max =>
+          case ReduceOp(_, _, _) | MinOp(_) | MaxOp(_) =>
             false
-          case _: FilterWhile =>
+          case _: FilterWhileOp =>
             // dropWhile
             false
           case _ =>
@@ -466,7 +466,7 @@ trait RewritingPluginComponent {
       override def isSafeRewrite(op: TraversalOpType) = {
         import TraversalOps._
         op match {
-          case ToCollection(colType, _) =>
+          case ToCollectionOp(_, colType, _) =>
             colType match { 
               case ListType =>
                 options.experimental
@@ -474,7 +474,7 @@ trait RewritingPluginComponent {
               case _ =>
                 false
             }
-          case Scan(_, false) =>
+          case ScanOp(_, _, false) =>
             false
           case _ =>
             true
@@ -594,7 +594,7 @@ trait RewritingPluginComponent {
         op match {
           //case Foreach(_) =>
           //  options.experimental
-          case ToCollection(colType, _) =>
+          case ToCollectionOp(_, colType, _) =>
             colType match { 
               case ArrayType =>
                 options.experimental // slow in some cases !
@@ -604,19 +604,19 @@ trait RewritingPluginComponent {
             }
           //case Map | Sum | Fold | _: AllOrSome =>
           //  true
-          case Scan(_, false) =>
+          case ScanOp(_, _, false) =>
             false
-          case _: Reduce =>
+          case _: ReduceOp =>
             options.experimental // slow in some cases !
-          case _: Fold =>
+          case _: FoldOp =>
             options.experimental // slow in some cases !
-          case _: Foreach =>
+          case _: ForeachOp =>
             options.experimental // slow in some cases !
-          case _: Filter =>
+          case _: FilterOp =>
             options.experimental // slow in some cases !
-          case _: FilterWhile =>
+          case _: FilterWhileOp =>
             options.experimental // slow in some cases !
-          case _: AllOrSome =>
+          case _: AllOrSomeOp =>
             options.experimental // slow in some cases !
           case _ =>
             true
@@ -706,19 +706,19 @@ trait RewritingPluginComponent {
         op match {
           //case Foreach(_) =>
           //  options.experimental
-          case ToCollection(colType, _) =>
+          case ToCollectionOp(_, colType, _) =>
             true
           //case Map | Sum | Fold | _: AllOrSome =>
           //  true
-          case Reduce(_, _) | Fold(_, _) | Scan(_, _) =>
+          case ReduceOp(_, _, _) | FoldOp(_, _, _) | ScanOp(_, _, _) =>
             false
-          case _: Foreach =>
+          case _: ForeachOp =>
             options.experimental // slow in some cases !
-          case _: Filter =>
+          case _: FilterOp =>
             options.experimental // slow in some cases !
-          case _: Map =>
+          case _: MapOp =>
             options.experimental // slow in some cases !
-          case _: Collect =>
+          case _: CollectOp =>
             options.experimental // slow in some cases !
           case _ =>
             false

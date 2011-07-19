@@ -21,6 +21,15 @@ trait StreamImpls extends Streams {
   def itemIdentGen(value: StreamValue)(implicit loop: Loop): IdentGen =
       value.value.tuple(loop.innerContext)
 
+  def getArrayWrapperTpe(componentType: Type) = {
+    primArrayOpsClasses.get(componentType) match {
+      case Some(t) =>
+        t.tpe
+      case None =>
+        assert(componentType <:< AnyRefClass.tpe)
+        appliedType(RefArrayOpsClass.tpe, List(componentType))
+    }
+  }
   trait CanCreateArraySink extends CanCreateStreamSink {
     def tree: Tree
     override def createStreamSink(componentType: Type, outputSize: Option[IdentGen]): StreamSink = new StreamSink {
@@ -34,8 +43,28 @@ trait StreamImpls extends Streams {
 
         val a = newVariable(unit, "out", currentOwner, pos, false, newArray(componentType, size()))
         loop.preOuter += a.definition
-        loop.postInner += newUpdate(pos, a(), index(), itemIdentGen(value)(loop)())
-        loop.postOuter += a()
+        loop.inner += newUpdate(pos, a(), index(), itemIdentGen(value)(loop)())
+        
+        tree.tpe match {
+          case TypeRef(_, ArrayClass, List(_)) =>
+            println("TREE TPE IS OK : " + tree.tpe)
+            loop.postOuter += a()
+          case _ =>
+            val opsType = getArrayWrapperTpe(componentType)
+            
+            val sym = opsType.typeSymbol.primaryConstructor
+            val newWrapper = typed { 
+              Apply(
+                Select(
+                  New(TypeTree(opsType)),
+                  sym
+                ).setSymbol(sym),
+                List(a())
+              )
+            }
+              
+            loop.postOuter += newWrapper
+        }
 
         /*
         def doIt(createBuilder: TreeGen, builderAppend: (IdentGen, IdentGen) => Tree, builderResult: IdentGen => Tree) = {
@@ -57,17 +86,18 @@ trait StreamImpls extends Streams {
       }
     }
   }
-  case class ArrayStreamSource(tree: Tree, componentTpe: Type) extends StreamSource with CanCreateArraySink {
+  case class ArrayStreamSource(tree: Tree, array: Tree, componentTpe: Type) extends StreamSource with CanCreateArraySink {
+    override def unwrappedTree = array
     override def privilegedDirection = None
-
-    def emit(direction: TraversalDirection)(implicit loop: Loop) = {
+    //println("ArrayStreamSource with tree = " + tree + " and array = 
+    def emit(direction: TraversalDirection, transform: Tree => Tree)(implicit loop: Loop) = {
       import loop.{ unit, currentOwner }
-      val pos = tree.pos
+      val pos = array.pos
 
       val skipFirst = false // TODO
       val reverseOrder = direction == FromRight
 
-      val aVar = newVariable(unit, "array$", currentOwner, pos, false, tree)
+      val aVar = newVariable(unit, "array$", currentOwner, pos, false, transform(array))
       val nVar = newVariable(unit, "n$", currentOwner, pos, false, newArrayLength(aVar()))
       val iVar = newVariable(unit, "i$", currentOwner, pos, true,
         if (reverseOrder) {
@@ -83,7 +113,7 @@ trait StreamImpls extends Streams {
         }
       )
         
-      val itemVar = newVariable(unit, "item$", currentOwner, pos, false, newApply(tree.pos, aVar(), iVar()))
+      val itemVar = newVariable(unit, "item$", currentOwner, pos, false, newApply(pos, aVar(), iVar()))
         
       loop.preOuter += aVar.definition
       loop.preOuter += nVar.definition
@@ -151,13 +181,13 @@ trait StreamImpls extends Streams {
   case class RangeStreamSource(tree: Tree, from: Tree, to: Tree, byValue: Int, isUntil: Boolean) extends StreamSource with CanCreateVectorSink {
     override def privilegedDirection = Some(FromLeft)
 
-    def emit(direction: TraversalDirection)(implicit loop: Loop) = {
+    def emit(direction: TraversalDirection, transform: Tree => Tree)(implicit loop: Loop) = {
       assert(direction == FromLeft)
       import loop.{ unit, currentOwner }
       val pos = tree.pos
       
-      val fromVar = newVariable(unit, "from$", currentOwner, tree.pos, false, from.setType(IntClass.tpe))
-      val toVar = newVariable(unit, "to$", currentOwner, tree.pos, false, to.setType(IntClass.tpe))
+      val fromVar = newVariable(unit, "from$", currentOwner, tree.pos, false, transform(from).setType(IntClass.tpe))
+      val toVar = newVariable(unit, "to$", currentOwner, tree.pos, false, transform(to).setType(IntClass.tpe))
       val itemVar = newVariable(unit, "item$", currentOwner, tree.pos, true, fromVar())
       val itemVal = newVariable(unit, "item$val$", currentOwner, tree.pos, false, itemVar())
       
@@ -215,7 +245,7 @@ trait StreamImpls extends Streams {
     //}
     def unapply(tree: Tree): Option[StreamSource] = tree match {
       case ArrayTree(array, componentType) =>
-        Some(new ArrayStreamSource(array, componentType))//ArrayRewriter, appliedType(ArrayClass.tpe, List(componentType)), array, componentType))
+        Some(new ArrayStreamSource(tree, array, componentType))//ArrayRewriter, appliedType(ArrayClass.tpe, List(componentType)), array, componentType))
       //case ListTree(componentType) if options.deprecated =>
       //  Some(new CollectionRewriter(ListRewriter, appliedType(ListClass.tpe, List(componentType)), tree, componentType))
       case IntRange(from, to, by, isUntil, filters) =>

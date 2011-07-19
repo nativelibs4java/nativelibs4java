@@ -49,6 +49,7 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     val preOuter = new TreeGenList
     val loopTests = new TreeGenList
     val preInner = new TreeGenList
+    val inner = new TreeGenList
     val postInner = new TreeGenList
     val postOuter = new TreeGenList
 
@@ -78,7 +79,7 @@ trait Streams extends TreeBuilders with TupleAnalysis {
             unit = unit,
             pos = pos,
             cond = loopTests.toSeq.reduceLeft(boolAnd),
-            body = Block(preInner.toList ++ postInner.toList, EmptyTree)
+            body = Block(preInner.toList ++ inner.toList ++ postInner.toList, EmptyTree)
           )
         ) ++
         postStats,
@@ -113,10 +114,20 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     val tupleInfo = getTupleInfo(tpe)
     def fibersCount = tupleInfo.componentSize
     def componentsCount = elements.size
+    
+    protected def hasOneFiber =
+      fibersCount == 1 && elements.size == 1
+        
     def subValue(fiberOffset: Int, fiberLength: Int)(implicit context: LocalContext): IdentGen =
-      throw new RuntimeException("not implemented")
+      if (fiberLength == 1 && fiberOffset == 0 && hasOneFiber)
+        elements(0)
+      else
+        throw new RuntimeException("not implemented")
     def subTuple(fiberOffset: Int, fiberLength: Int)(implicit context: LocalContext): TupleValue =
-      throw new RuntimeException("not implemented")
+      if (fiberLength == fibersCount && fiberOffset == 0)
+        this
+      else
+        throw new RuntimeException("not implemented")
   }
   
   trait StreamValue {
@@ -143,13 +154,16 @@ trait Streams extends TreeBuilders with TupleAnalysis {
 
   trait StreamComponent {
     def tree: Tree
+    
+    /// Used to chain stream detection : give the unwrapped content of the tree
+    def unwrappedTree = tree
     def privilegedDirection: Option[TraversalDirection] = None
   }
   trait CanCreateStreamSink {
     def createStreamSink(componentTpe: Type, outputSize: Option[IdentGen]): StreamSink
   }
   trait StreamSource extends StreamComponent {
-    def emit(direction: TraversalDirection)(implicit loop: Loop): StreamValue
+    def emit(direction: TraversalDirection, transform: Tree => Tree)(implicit loop: Loop): StreamValue
   }
   trait StreamTransformer extends StreamComponent {
     def order: Order
@@ -160,13 +174,15 @@ trait Streams extends TreeBuilders with TupleAnalysis {
   trait StreamSink extends StreamComponent {
     def output(value: StreamValue)(implicit loop: Loop): Unit
   }
-  def assembleStream(source: StreamSource, transformers: Seq[StreamTransformer], sink: Option[StreamSink], unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {
+  def assembleStream(source: StreamSource, transformers: Seq[StreamTransformer], sinkCreator: CanCreateStreamSink, transform: Tree => Tree, unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {
     implicit val loop = new Loop(unit, pos, currentOwner, localTyper)
     val direction = FromLeft // TODO choose depending on preferred directions...
-    var value = source.emit(direction)
+    var value = source.emit(direction, transform)
     for (transformer <- transformers)
       value = transformer.transform(value)
-    sink.foreach(_.output(value))
+      
+    val sink = sinkCreator.createStreamSink(value.value.tpe, value.valuesCount)
+    sink.output(value)
     loop.tree
   }
 }

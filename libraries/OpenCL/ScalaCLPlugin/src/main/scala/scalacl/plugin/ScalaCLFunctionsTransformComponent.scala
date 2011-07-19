@@ -57,6 +57,7 @@ extends PluginComponent
    with TypingTransformers
    with MiscMatchers
    with TreeBuilders
+   with TraversalOps
    with OpenCLConverter
    with WithOptions
    with CodeFlattening
@@ -504,7 +505,7 @@ extends PluginComponent
               //if (colTpe <:< CLCollectionClass.tpe) {
               if (colTpe.toString.startsWith("scalacl.")) { // TODO
                 op match {
-                  case opType @ (TraversalOps.Map(_, _) | TraversalOps.Filter(_, false)) =>
+                  case opType @ (TraversalOps.MapOp(_, _, _) | TraversalOps.FilterOp(_, _, false)) =>
                     msg(unit, tree.pos, "associated equivalent OpenCL source to " + colTpe + "." + op + "'s function argument.") {
                       val clFunction = convertFunctionToCLFunction(op.f)
                       replaceOccurrences(super.transform(tree), Map(), Map(), Map(op.f -> (() => clFunction)), unit)

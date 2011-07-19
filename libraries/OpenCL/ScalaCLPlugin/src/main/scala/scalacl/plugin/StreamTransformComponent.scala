@@ -49,7 +49,8 @@ extends PluginComponent
    with TypingTransformers
    with MiscMatchers
    with TreeBuilders
-   with Streams with StreamImpls
+   with TraversalOps
+   with Streams with StreamImpls with StreamOps
    //with RewritingPluginComponent
    with WorkaroundsForOtherPhases
    with WithOptions
@@ -65,34 +66,36 @@ extends PluginComponent
 
   def newTransformer(compilationUnit: CompilationUnit) = new TypingTransformer(compilationUnit) {
 
-    class OpsStream(val colRewriter: StreamSource, val colTree: Tree, val ops: List[TraversalOp])
+    class OpsStream(val source: StreamSource, val colTree: Tree, val ops: List[StreamTransformer])
     object OpsStream {
       def unapply(tree: Tree) = {
-        var ops = List[TraversalOp]()
+        var ops = List[StreamTransformer]()
         var colTree = tree
-        var colRewriter: StreamSource = null
+        var source: StreamSource = null
         var finished = false
         while (!finished) {
           colTree match {
             case StreamSource(cr) =>
               //println("found streamSource " + cr + " (ops = " + ops + ")")
-              colRewriter = cr
-              if (colTree != cr.tree)
-                colTree = cr.tree
+              source = cr
+              if (colTree != cr.unwrappedTree)
+                colTree = cr.unwrappedTree
               else
                 finished = true
-            case TraversalOp(traversalOp) =>
+            case TraversalOp(traversalOp) if traversalOp.op.isInstanceOf[StreamTransformer] =>
               //println("found op " + traversalOp + "\n\twith collection = " + traversalOp.collection)
-              ops = traversalOp :: ops
+              ops = traversalOp.op.asInstanceOf[StreamTransformer] :: ops
               colTree = traversalOp.collection
             case _ =>
+              //if (!ops.isEmpty)
+              //  println("Finished with " + ops.size + " ops upon "+ tree)
               finished = true
           }
         }
-        if (ops.isEmpty && colRewriter == null)
+        if (ops.isEmpty && source == null)
           None
         else
-          Some(new OpsStream(colRewriter, colTree, ops))
+          Some(new OpsStream(source, colTree, ops))
       }
     }
 
@@ -106,14 +109,23 @@ extends PluginComponent
       else
         try {
           tree match {
-            case OpsStream(opsStream) if (opsStream ne null) && (opsStream.colTree ne null) && !matchedColTreeIds.contains(opsStream.colTree.id) =>
+            case OpsStream(opsStream) if !opsStream.ops.isEmpty && (opsStream ne null) && (opsStream.colTree ne null) && !matchedColTreeIds.contains(opsStream.colTree.id) =>
               import opsStream._
               
-              val txt = "Streamed ops on " + (if (colRewriter == null) "UNKNOWN COL" else colRewriter.tree.tpe) + " : " + ops.map(_.op).mkString(", ")
+              val txt = "Streamed ops on " + (if (source == null) "UNKNOWN COL" else source.tree.tpe) + " : " + ops/*.map(_.getClass.getName)*/.mkString(", ")
               matchedColTreeIds += colTree.id
               msg(unit, tree.pos, "# " + txt) {
-                //super.transform(toMatch)
-                super.transform(tree)
+                (Seq(source) ++ ops).collect({ case ccss: CanCreateStreamSink => ccss }).lastOption match {
+                  case Some(sinkCreator) =>
+                    val asm = assembleStream(source, ops, sinkCreator, super.transform _, unit, tree.pos, currentOwner, localTyper)
+                    println("Found ops = " + ops)
+                    //println("assembled stream with " + ops.size + " operations and sink " + sinkCreator + " out of tree " + tree + " : " + asm)
+                    //super.transform(tree)
+                    
+                    asm
+                  case _  =>
+                    super.transform(tree)
+                }
               }
             case _ =>
               super.transform(tree)//toMatch)
