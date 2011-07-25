@@ -591,32 +591,44 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
     }
 
     protected String computeCacheSignature() throws IOException {
-    		StringBuilder b = new StringBuilder(1024);
+    		StringBuilder b = new StringBuilder(16 * 1024);
+    		getContext().getPlatform().toString(b);
+    		b.append('\n');
     		for (CLDevice device : getDevices())
-    			b.append(device).append("\n");
+    			b.append(device).append('\n');
     		
     		b.append(getOptionsString()).append('\n');
-    		if (macros != null)
+    		if (macros != null && !macros.isEmpty())
     			for (Map.Entry<String, Object> m : macros.entrySet())
-                b.append("-D").append(m.getKey()).append("=").append(m.getValue()).append('\n');
+                b.append("-D").append(m.getKey()).append('=').append(m.getValue()).append('\n');
         
-        if (includes != null)
+        if (includes != null && !includes.isEmpty())
             for (String path : includes)
                 b.append("-I").append(path).append('\n');
         
-        if (sources != null)
+        if (sources != null && !sources.isEmpty())
 			for (String source : sources)
-				b.append(source).append("\n");
+				b.append(source).append('\n');
     		
 		Map<String, URL> inclusions = resolveInclusions();
-        for (Map.Entry<String, URL> e : inclusions.entrySet()) {
-        		URLConnection con = e.getValue().openConnection();
-        		InputStream in = con.getInputStream();
-        		b.append('#').append(e.getKey()).append(con.getLastModified()).append('\n');
-        		in.close();
-        }
+		if (inclusions != null && !inclusions.isEmpty())
+			for (Map.Entry<String, URL> e : inclusions.entrySet()) {
+					URLConnection con = e.getValue().openConnection();
+					InputStream in = con.getInputStream();
+					b.append('#').append(e.getKey()).append(con.getLastModified()).append('\n');
+					in.close();
+			}
+		
+        for (String name : propsToIncludeInSignature)
+        		b.append(name).append('=').append(System.getProperty(name)).append('\n');
+        	
     		return b.toString();
     }
+    private final String[] propsToIncludeInSignature = new String[] {
+		//"java.vm.version", // probably superfluous... 
+		"os.version",
+		"os.name"
+	};
     
     boolean built;
 	/**

@@ -66,7 +66,17 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
 
     @Override
     public String toString() {
-        return getName() + " {vendor: " + getVendor() + ", version: " + getVersion() + ", profile: " + getProfile() + ", extensions: " + Arrays.toString(getExtensions()) + "}";
+        return toString(new StringBuilder()).toString();
+    }
+    StringBuilder toString(StringBuilder out) {
+        out.
+        		append(getName()). 
+        		append(" {vendor: ").append(getVendor()).
+        		append(", version: ").append(getVersion()).
+        		append(", profile: ").append(getProfile()).
+        		append(", extensions: ").append(Arrays.toString(getExtensions())).
+        		append("}");
+        	return out;
     }
 
     @Override
