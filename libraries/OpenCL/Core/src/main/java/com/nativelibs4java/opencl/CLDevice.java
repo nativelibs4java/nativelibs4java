@@ -110,7 +110,7 @@ public class CLDevice extends CLAbstractEntity<cl_device_id> {
     ByteOrder kernelsDefaultByteOrder;
     public synchronized ByteOrder getKernelsDefaultByteOrder() {
         if (kernelsDefaultByteOrder == null) {
-            kernelsDefaultByteOrder = ByteOrder.nativeOrder();
+            kernelsDefaultByteOrder = getByteOrder();//ByteOrder.nativeOrder();
             /*
             CLPlatform platform = getPlatform();
             if (platform != null && platform.getVendor().toLowerCase().contains("nvidia"))
