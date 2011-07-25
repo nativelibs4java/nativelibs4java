@@ -96,7 +96,7 @@ public class EnumValues {
 
     /**
      * Get the integer value resulting from ORing all the values of all the enum items present in the enum set.
-     * @see EnumValues#getValue(java.lang.Enum)
+     * see {@link EnumValues#getValue(java.lang.Enum) }
      * @see EnumValue
      * @param enumItem
      * @return

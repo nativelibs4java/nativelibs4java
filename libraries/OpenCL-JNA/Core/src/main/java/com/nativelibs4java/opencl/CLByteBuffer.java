@@ -38,8 +38,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
  * OpenCL Memory Buffer Object.<br/>
  * A buffer object stores a one-dimensional collection of elements.<br/>
  * Elements of a buffer object can be a scalar data type (such as an int, float), vector data type, or a user-defined structure.<br/>
- * @see CLContext#createByteBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
- * @see CLContext#createByteBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.Buffer, boolean)
+ * see {@link CLContext#createByteBuffer(com.nativelibs4java.opencl.CLMem.Usage, long) }
+ * see {@link CLContext#createByteBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.Buffer, boolean) }
  * @author Olivier Chafik
  * @deprecated Use {@link CLBuffer}&lt;{@link Byte}&gt;
  */

@@ -47,7 +47,7 @@ import static com.nativelibs4java.opencl.CLException.*;
 
 /**
  * OpenCL implementation entry point.
- * @see JavaCL#listPlatforms() 
+ * see {@link JavaCL#listPlatforms() } 
  * @author Olivier Chafik
  */
 public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
@@ -75,7 +75,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     /**
      * Lists all the devices of the platform
      * @param onlyAvailable if true, only returns devices that are available
-     * @see CLPlatform#listDevices(java.util.EnumSet, boolean)
+     * see {@link CLPlatform#listDevices(java.util.EnumSet, boolean) }
      */
     public CLDevice[] listAllDevices(boolean onlyAvailable) {
         return listDevices(EnumSet.allOf(CLDevice.Type.class), onlyAvailable);
@@ -84,7 +84,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     /**
      * Lists all the GPU devices of the platform
      * @param onlyAvailable if true, only returns GPU devices that are available
-     * @see CLPlatform#listDevices(java.util.EnumSet, boolean)
+     * see {@link CLPlatform#listDevices(java.util.EnumSet, boolean) }
      */
     public CLDevice[] listGPUDevices(boolean onlyAvailable) {
         try {
@@ -100,7 +100,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
     /**
      * Lists all the CPU devices of the platform
      * @param onlyAvailable if true, only returns CPU devices that are available
-     * @see CLPlatform#listDevices(java.util.EnumSet, boolean)
+     * see {@link CLPlatform#listDevices(java.util.EnumSet, boolean) }
      */
     public CLDevice[] listCPUDevices(boolean onlyAvailable) {
         try {
@@ -159,7 +159,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
      */
     public enum DeviceFeature {
         /**
-         * Prefer CPU devices (see @see CLDevice#getType())
+         * Prefer CPU devices (see {@link CLDevice#getType() })
          */
         CPU {
             Comparable extractValue(CLDevice device) {
@@ -167,7 +167,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             }
         },
         /**
-         * Prefer GPU devices (see @see CLDevice#getType())
+         * Prefer GPU devices (see {@link CLDevice#getType() })
          */
         GPU {
             Comparable extractValue(CLDevice device) {
@@ -175,7 +175,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             }
         },
         /**
-         * Prefer Accelerator devices (see @see CLDevice#getType())
+         * Prefer Accelerator devices (see {@link CLDevice#getType() })
          */
         Accelerator {
             Comparable extractValue(CLDevice device) {
@@ -183,7 +183,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             }
         },
         /**
-         * Prefer devices with the most compute units (see @see CLDevice#getMaxComputeUnits())
+         * Prefer devices with the most compute units (see {@link CLDevice#getMaxComputeUnits() })
          */
         MaxComputeUnits {
             Comparable extractValue(CLDevice device) {
@@ -191,7 +191,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             }
         },
         /**
-         * Prefer devices with the same byte ordering as the hosting platform (@see CLDevice#getKernelsDefaultByteOrder())
+         * Prefer devices with the same byte ordering as the hosting platform (see {@link CLDevice#getKernelsDefaultByteOrder() })
          */
         NativeEndianness {
             Comparable extractValue(CLDevice device) {
@@ -199,7 +199,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             }
         },
         /**
-         * Prefer devices that support double-precision float computations (@see CLDevice#isDoubleSupported())
+         * Prefer devices that support double-precision float computations (see {@link CLDevice#isDoubleSupported() })
          */
         DoubleSupport {
             Comparable extractValue(CLDevice device) {
@@ -207,7 +207,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             }
         },
         /**
-         * Prefer devices that support images and with the most supported image formats (@see CLDevice#hasImageSupport())
+         * Prefer devices that support images and with the most supported image formats (see {@link CLDevice#hasImageSupport() })
          */
         ImageSupport {
             Comparable extractValue(CLDevice device) {
@@ -215,7 +215,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             }
         },
         /**
-         * Prefer devices that support out of order queues (@see CLDevice#hasOutOfOrderQueueSupport())
+         * Prefer devices that support out of order queues (see {@link CLDevice#hasOutOfOrderQueueSupport() })
          */
         OutOfOrderQueueSupport {
             Comparable extractValue(CLDevice device) {
@@ -223,7 +223,7 @@ public class CLPlatform extends CLAbstractEntity<cl_platform_id> {
             }
         },
         /**
-         * Prefer devices with the greatest variety of supported image formats (@see CLContext#getSupportedImageFormats())
+         * Prefer devices with the greatest variety of supported image formats (see {@link CLContext#getSupportedImageFormats() })
          */
         MostImageFormats {
             Comparable extractValue(CLDevice device) {

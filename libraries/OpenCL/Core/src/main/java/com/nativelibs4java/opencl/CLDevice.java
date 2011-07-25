@@ -52,11 +52,11 @@ import java.util.logging.Logger;
 
 /**
  * OpenCL device (CPU, GPU...).<br/>
- * Devices are retrieved from a CLPlatform
- * @see CLPlatform#listDevices(java.util.EnumSet, boolean)
- * @see CLPlatform#listAllDevices(boolean)
- * @see CLPlatform#listCPUDevices(boolean)
- * @see CLPlatform#listGPUDevices(boolean)
+ * Devices are retrieved from a CLPlatform through 
+ * {@link CLPlatform#listDevices(java.util.EnumSet, boolean) },
+ * {@link CLPlatform#listAllDevices(boolean) },
+ * {@link CLPlatform#listCPUDevices(boolean) },
+ * {@link CLPlatform#listGPUDevices(boolean) }
  */
 @SuppressWarnings("unused")
 public class CLDevice extends CLAbstractEntity<cl_device_id> {

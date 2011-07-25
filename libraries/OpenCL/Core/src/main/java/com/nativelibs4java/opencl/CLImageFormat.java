@@ -39,7 +39,7 @@ import static org.bridj.Pointer.*;
 
 /**
  * OpenCL Image Format
- * @see CLContext#getSupportedImageFormats(com.nativelibs4java.opencl.CLMem.Flags, com.nativelibs4java.opencl.CLMem.ObjectType) 
+ * see {@link CLContext#getSupportedImageFormats(com.nativelibs4java.opencl.CLMem.Flags, com.nativelibs4java.opencl.CLMem.ObjectType) } 
  * @author Olivier Chafik
  */
 public class CLImageFormat {

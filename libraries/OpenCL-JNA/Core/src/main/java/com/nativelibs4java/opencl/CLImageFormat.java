@@ -38,7 +38,7 @@ import com.nativelibs4java.util.ValuedEnum;
 
 /**
  * OpenCL Image Format
- * @see CLContext#getSupportedImageFormats(com.nativelibs4java.opencl.CLMem.Flags, com.nativelibs4java.opencl.CLMem.ObjectType) 
+ * see {@link CLContext#getSupportedImageFormats(com.nativelibs4java.opencl.CLMem.Flags, com.nativelibs4java.opencl.CLMem.ObjectType) } 
  * @author Olivier Chafik
  */
 public class CLImageFormat {

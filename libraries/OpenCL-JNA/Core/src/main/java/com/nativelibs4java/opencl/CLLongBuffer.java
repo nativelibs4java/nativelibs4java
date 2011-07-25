@@ -36,8 +36,8 @@ import com.nativelibs4java.opencl.library.OpenCLLibrary.cl_mem;
 
 /**
  * OpenCL Memory Buffer Object with Long values.<br/>
- * @see CLContext#createLongBuffer(com.nativelibs4java.opencl.CLMem.Usage, long)
- * @see CLContext#createLongBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.LongBuffer, boolean)
+ * see {@link CLContext#createLongBuffer(com.nativelibs4java.opencl.CLMem.Usage, long) }
+ * see {@link CLContext#createLongBuffer(com.nativelibs4java.opencl.CLMem.Usage, java.nio.LongBuffer, boolean) }
  * @author Olivier Chafik
  * @deprecated Use {@link CLBuffer}&lt;{@link Long}&gt;
  */

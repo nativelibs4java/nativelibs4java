@@ -55,7 +55,7 @@ import com.sun.jna.Pointer;
  * The built-in functions to read from an image in a kernel take a sampler as an argument. <br/>
  * The sampler arguments to the image read function can be sampler objects created using OpenCL functions and passed as argument values to the kernel or can be samplers declared inside a kernel.
  *  <br/>
- * @see CLContext#createSampler(boolean, com.nativelibs4java.opencl.CLSampler.AddressingMode, com.nativelibs4java.opencl.CLSampler.FilterMode) 
+ * see {@link CLContext#createSampler(boolean, com.nativelibs4java.opencl.CLSampler.AddressingMode, com.nativelibs4java.opencl.CLSampler.FilterMode) } 
  * @author Olivier Chafik
  */
 public class CLSampler extends CLAbstractEntity<cl_sampler> {

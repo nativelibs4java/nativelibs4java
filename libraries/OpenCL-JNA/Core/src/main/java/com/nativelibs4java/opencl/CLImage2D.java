@@ -48,12 +48,12 @@ import com.ochafik.util.listenable.Pair;
 
 /**
  * OpenCL 2D Image Memory Object<br/>
- * @see CLContext#createImage2D(com.nativelibs4java.opencl.CLMem.Usage, java.awt.Image, boolean)
- * @see CLContext#createImage2D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long)
- * @see CLContext#createImage2D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long)
- * @see CLContext#createImage2D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long, java.nio.Buffer, boolean)
- * @see CLContext#createImage2DFromGLRenderBuffer(com.nativelibs4java.opencl.CLMem.Usage, int)
- * @see CLContext#createImage2DFromGLTexture2D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLContext.GLTextureTarget, int, int) 
+ * see {@link CLContext#createImage2D(com.nativelibs4java.opencl.CLMem.Usage, java.awt.Image, boolean) }
+ * see {@link CLContext#createImage2D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long) }
+ * see {@link CLContext#createImage2D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long) }
+ * see {@link CLContext#createImage2D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLImageFormat, long, long, long, java.nio.Buffer, boolean) }
+ * see {@link CLContext#createImage2DFromGLRenderBuffer(com.nativelibs4java.opencl.CLMem.Usage, int) }
+ * see {@link CLContext#createImage2DFromGLTexture2D(com.nativelibs4java.opencl.CLMem.Usage, com.nativelibs4java.opencl.CLContext.GLTextureTarget, int, int) } 
  * @author Olivier Chafik
  */
 public class CLImage2D extends CLImage {

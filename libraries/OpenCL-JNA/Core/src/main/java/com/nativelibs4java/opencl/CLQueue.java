@@ -55,12 +55,12 @@ import com.sun.jna.ptr.LongByReference;
  * Sharing of objects across multiple command-queues will require the application to perform appropriate synchronization.<br/>
  * <br/>
  * A queue is bound to a single device.
- * @see CLDevice#createQueue(com.nativelibs4java.opencl.CLContext, com.nativelibs4java.opencl.CLDevice.QueueProperties[]) 
- * @see CLDevice#createOutOfOrderQueue(com.nativelibs4java.opencl.CLContext)
- * @see CLDevice#createProfilingQueue(com.nativelibs4java.opencl.CLContext)
- * @see CLContext#createDefaultQueue(com.nativelibs4java.opencl.CLDevice.QueueProperties[])
- * @see CLContext#createDefaultOutOfOrderQueue()
- * @see CLContext#createDefaultProfilingQueue()
+ * see {@link CLDevice#createQueue(com.nativelibs4java.opencl.CLContext, com.nativelibs4java.opencl.CLDevice.QueueProperties[]) } 
+ * see {@link CLDevice#createOutOfOrderQueue(com.nativelibs4java.opencl.CLContext) }
+ * see {@link CLDevice#createProfilingQueue(com.nativelibs4java.opencl.CLContext) }
+ * see {@link CLContext#createDefaultQueue(com.nativelibs4java.opencl.CLDevice.QueueProperties[]) }
+ * see {@link CLContext#createDefaultOutOfOrderQueue() }
+ * see {@link CLContext#createDefaultProfilingQueue() }
  * @author Olivier Chafik
  *
  */
