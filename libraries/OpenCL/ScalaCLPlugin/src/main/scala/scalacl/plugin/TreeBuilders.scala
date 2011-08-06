@@ -159,23 +159,41 @@ extends MiscMatchers
     }
   }
   
-  def newApply(target: Tree/*, targetType: Type*/, name: Name, typeArgs: List[Tree], args: List[Tree]) = {
+  def newSelect(target: Tree, name: Name, typeArgs: List[Tree] = Nil) =
+    newApply(target, name, typeArgs, null)
+    
+  def newApply(target: Tree/*, targetType: Type*/, name: Name, typeArgs: List[Tree] = Nil, args: List[Tree] = Nil) = {
     val targetType = 
       if (target.tpe == NoType || target.tpe == null) 
         target.symbol.tpe 
       else 
         target.tpe
         
-    val applySym = targetType member name
+    val sym = targetType member name
     typed {
-      val applyMethod = Select(target, name).setSymbol(applySym)
+      val select = Select(target, name).setSymbol(sym)
       if (!typeArgs.isEmpty)
         Apply(
-          TypeApply(applyMethod, typeArgs).setSymbol(applySym),
+          TypeApply(select, typeArgs).setSymbol(sym),
           args
         )
+      else if (args != null)
+        Apply(select, args)
       else
-        Apply(applyMethod, args)
+        select
+    }
+  }
+  
+  def newInstance(tpe: Type, constructorArgs: List[Tree]) = {
+    val sym = tpe.typeSymbol.primaryConstructor
+    typed {
+      Apply(
+        Select(
+          New(TypeTree(tpe)),
+          tpe.typeSymbol.primaryConstructor
+        ).setSymbol(sym),
+        constructorArgs
+      ).setSymbol(sym)
     }
   }
     
@@ -188,6 +206,12 @@ extends MiscMatchers
   def newScalaCollectionPackageTree =
     Select(newScalaPackageTree, N("collection")).setSymbol(ScalaCollectionPackage)
     
+  def newSomeModuleTree =
+    Select(newScalaPackageTree, N("Some")).setSymbol(SomeModule)
+    
+  def newNoneModuleTree =
+    Select(newScalaPackageTree, N("None")).setSymbol(NoneModule)
+    
   def newSeqModuleTree =
     Select(newScalaCollectionPackageTree, N("Seq")).setSymbol(SeqModule)
     
@@ -196,6 +220,12 @@ extends MiscMatchers
     
   def newSeqApply(typeExpr: Tree, values: Tree*) =
     newApply(newSeqModuleTree, applyName, List(typeExpr), values.toList)
+    
+  def typeTree(tpe: Type) =
+    TypeTree(tpe).setType(tpe)
+    
+  def newSomeApply(tpe: Type, value: Tree) =
+    newApply(newSomeModuleTree, applyName, List(typeTree(tpe)), List(value))
     
   def newArrayApply(typeExpr: Tree, values: Tree*) =
     newApply(newArrayModuleTree, applyName, List(typeExpr), values.toList)
@@ -261,6 +291,10 @@ extends MiscMatchers
     Apply(Select(a, op), List(b))
   }
 
+  def newIsNotNull(target: Tree) = typed {
+    binOp(target, AnyRefClass.tpe.member(N("neq")), newNull(target.tpe))//nme.NE)
+  }
+  
   def newArrayLength(a: Tree) =
     //a.DOT(nme.length)
     Select(a, nme.length).setSymbol(getMember(a.symbol, nme.length)).setType(IntClass.tpe)
@@ -305,12 +339,11 @@ extends MiscMatchers
   def intSub(a: => Tree, b: => Tree) =
     binOp(a, IntClass.tpe.member(nme.MINUS), b)
 
+  def newAssign(target: IdentGen, value: Tree) =
+    Assign(target(), value).setType(UnitClass.tpe)
+    
   def incrementIntVar(identGen: IdentGen, value: Tree) =
-    //identGen() === intSub(identGen(), value)
-    Assign(
-      identGen(),
-      intAdd(identGen(), value)
-    ).setType(UnitClass.tpe)
+    newAssign(identGen, intAdd(identGen(), value))
 
   def decrementIntVar(identGen: IdentGen, value: Tree) =
     //identGen() === intSub(identGen(), value)
@@ -328,6 +361,7 @@ extends MiscMatchers
     val labSym = owner.newLabel(pos, N(lab)).setInfo(labTyp).setFlag(SYNTHETIC | LOCAL)
    
     typed {
+      //body.tpe = UnitClass.tpe
       LabelDef(
         N(lab),
         Nil,
@@ -360,6 +394,9 @@ extends MiscMatchers
   def newLong(v: Long) = 
     Literal(Constant(v)).setType(LongClass.tpe)
 
+  def newNull(tpe: Type) = 
+    Literal(Constant(null)).setType(tpe)
+
   def newUnit() = 
     Literal(Constant()).setType(UnitClass.tpe)
 
@@ -385,6 +422,34 @@ extends MiscMatchers
       ).setSymbol(resultMethod).setType(resultMethod.tpe),
       Nil
     ).setSymbol(resultMethod)
+  }
+  
+  def addAssign(target: Tree, toAdd: Tree) = {
+    val sym = (target.tpe member addAssignName).alternatives.head// filter (_.paramss.size == 1)
+    Apply(
+      Select(
+        target,
+        addAssignName
+      ).setSymbol(sym).setType(sym.tpe),
+      List(toAdd)
+    ).setSymbol(sym).setType(UnitClass.tpe)
+  }
+  
+  def toArray(tree: Tree, componentType: Type, localTyper: analyzer.Typer) = {
+    val manifest = localTyper.findManifest(componentType, false).tree
+    assert(manifest != EmptyTree, "Failed to get manifest for " + componentType)
+    
+    val method = tree.tpe member toArrayName
+    Apply(
+      TypeApply(
+        Select(
+          tree,
+          toArrayName
+        ).setSymbol(method).setType(method.tpe),
+        List(TypeTree(componentType))
+      ),
+      List(manifest)
+    ).setSymbol(method)
   }
   
   def newVariable(

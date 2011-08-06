@@ -247,10 +247,22 @@ trait MiscMatchers extends PluginNames {
         components
     }
   }
-  object OptionCreation {
-    def unapply(tree: Tree): Option[List[Tree]] = Option(tree) collect {
+  object OptionApply {
+    def apply(component: Tree) = error("not implemented")
+    def unapply(tree: Tree): Option[Tree] = Option(tree) collect {
       case Apply(TypeApply(Select(optionObject, applyName()), List(tpe)), List(component)) if optionObject.symbol == OptionModule =>
-        List(component)
+        component
+    }
+  }
+  object OptionTree {
+    def apply(componentType: Type) = error("not implemented")
+    def unapply(tree: Tree): Option[Type] = {
+      tree.tpe match {
+        case TypeRef(_, OptionClass, List(componentType)) => 
+          Some(componentType)
+        case _ => 
+          None
+      }
     }
   }
   object Predef {

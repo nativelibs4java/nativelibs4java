@@ -47,10 +47,44 @@ trait Streams extends TreeBuilders with TupleAnalysis {
       def toList = toSeq.toList
     }
     val preOuter = new TreeGenList
-    val loopTests = new TreeGenList
-    val preInner = new TreeGenList
-    val inner = new TreeGenList
-    val postInner = new TreeGenList
+    val tests = new TreeGenList
+    
+    class Inners {
+      val pre = new TreeGenList
+      val core = new TreeGenList
+      val post = new TreeGenList
+      
+      def toList = 
+        pre.toList ++ core.toList ++ post.toList
+    }
+    protected val rootInners = new Inners
+    protected var inners = rootInners
+    
+    def innerIf(cond: TreeGen) =
+      innerComposition(sub => {
+        typed {
+          If(
+            cond(), 
+            Block(sub, EmptyTree).setType(UnitClass.tpe), 
+            EmptyTree
+          ).setType(UnitClass.tpe)
+        }
+      })
+    
+    def innerComposition(composer: List[Tree] => Tree) = {
+      val sub = new Inners
+      inners.core += (() => Some(composer(sub.toList))) 
+      inners = sub
+    }
+    def preInner = inners.pre
+    def inner = inners.core
+    var isLoop = true
+    def postInner = inners.post
+    
+    //val preInner = new TreeGenList
+    //val inner = new TreeGenList
+    //val postInner = new TreeGenList
+    
     val postOuter = new TreeGenList
 
     class SubContext(list: TreeGenList) extends LocalContext {
@@ -78,8 +112,8 @@ trait Streams extends TreeBuilders with TupleAnalysis {
             owner = currentOwner,
             unit = unit,
             pos = pos,
-            cond = loopTests.toSeq.reduceLeft(boolAnd),
-            body = Block(preInner.toList ++ inner.toList ++ postInner.toList, EmptyTree)
+            cond = tests.toSeq.reduceLeft(boolAnd),
+            body = Block(rootInners.toList, EmptyTree)
           )
         ) ++
         postStats,
@@ -130,7 +164,7 @@ trait Streams extends TreeBuilders with TupleAnalysis {
         throw new RuntimeException("not implemented")
   }
   
-  trait StreamValue {
+  /*trait StreamValue {
     def value: TupleValue
     def valueIndex: Option[IdentGen]
     def valuesCount: Option[IdentGen]
@@ -141,6 +175,16 @@ trait Streams extends TreeBuilders with TupleAnalysis {
   class SimpleStreamValue(val value: TupleValue, val valueIndex: Option[IdentGen], val valuesCount: Option[IdentGen]) extends StreamValue {
     def this(value: VarDef, valueIndex: Option[VarDef], valuesCount: Option[VarDef]) =
       this(new DefaultTupleValue(value.definition.tpe, value), valueIndex.map(_.identGen), valuesCount.map(_.identGen))
+  }*/
+  implicit def varDef2TupleValue(value: VarDef) =
+    new DefaultTupleValue(value.definition.tpe, value)
+    
+  case class StreamValue(
+    value: TupleValue, 
+    valueIndex: Option[TreeGen] = None, 
+    valuesCount: Option[TreeGen] = None
+  ) {
+    def tpe = value.tpe
   }
    
   sealed trait TraversalDirection
@@ -160,7 +204,7 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     def privilegedDirection: Option[TraversalDirection] = None
   }
   trait CanCreateStreamSink {
-    def createStreamSink(componentTpe: Type, outputSize: Option[IdentGen]): StreamSink
+    def createStreamSink(componentTpe: Type, outputSize: Option[TreeGen]): StreamSink
   }
   trait StreamSource extends StreamComponent {
     def emit(direction: TraversalDirection, transform: Tree => Tree)(implicit loop: Loop): StreamValue

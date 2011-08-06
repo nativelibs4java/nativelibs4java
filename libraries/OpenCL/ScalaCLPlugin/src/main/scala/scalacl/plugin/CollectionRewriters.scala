@@ -384,22 +384,7 @@ trait RewritingPluginComponent {
       }
     }
     
-    def toArray(tree: Tree, componentType: Type, localTyper: analyzer.Typer) = {
-      val manifest = localTyper.findManifest(componentType, false).tree
-      assert(manifest != EmptyTree, "Failed to get manifest for " + componentType)
-      
-      val method = tree.tpe member toArrayName
-      Apply(
-        TypeApply(
-          Select(
-            tree,
-            toArrayName
-          ).setSymbol(method).setType(method.tpe),
-          List(TypeTree(componentType))
-        ),
-        List(manifest)
-      ).setSymbol(method)
-    }
+    
     
     case class BuilderInfo(builderType: Type, mainArgs: List[Tree], needsManifest: Boolean, manifestIsInMain: Boolean, builderResultGetter: Tree => Tree)
     

@@ -72,7 +72,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
   }
   override val optionsHelp: Option[String] = Some(
 """
-  DISABLE_SCALACL_PLUGIN=1            Set this environment variable to disable the plugin
+  SCALACL_DISABLE=1                   Set this environment variable to disable the plugin
   SCALACL_SKIP=File1,File2:line2...   Do not optimize any of the listed files (or specific lines).
                                       Can contain absolute paths or file names (can omit trailing .scala).
                                       Each file (name) may be suffixed with :line.

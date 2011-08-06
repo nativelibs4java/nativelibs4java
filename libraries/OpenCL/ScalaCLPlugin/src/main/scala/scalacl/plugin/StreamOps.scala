@@ -73,8 +73,38 @@ trait StreamOps extends PluginNames with Streams {
       override val loopSkipsFirst = true
       override val f = null
     }
-    case class FilterOp(tree: Tree, f: Tree, not: Boolean) extends TraversalOpType {
+    case class FilterOp(tree: Tree, f: Tree, not: Boolean) extends TraversalOpType with StreamTransformer {
       override def toString = if (not) "filterNot" else "filter"
+      override def order = Unordered
+      override def transform(value: StreamValue)(implicit loop: Loop): StreamValue = {
+        val Func(List(arg), body) = f
+        
+        val cond = replaceOccurrences(
+          body,
+          Map(
+            arg.symbol -> (() => value.value())
+          ),
+          Map(f.symbol -> loop.currentOwner),
+          Map(),
+          loop.unit
+        )
+        val condVar = newVariable(loop.unit, "cond$", loop.currentOwner, loop.pos, false, cond)
+        loop.inner += condVar.definition
+          
+        loop.innerIf(() => {
+          if (not)
+            boolNot(condVar())
+          else
+            condVar()
+        })
+        
+        StreamValue(
+          value.value/*value = new DefaultTupleValue(
+            cond.tpe,
+            condVar // TODO
+          )*/
+        )
+      }
     }
     case class FilterWhileOp(tree: Tree, f: Tree, take: Boolean) extends TraversalOpType {
       override def toString = if (take) "takeWhile" else "dropWhile"
@@ -97,7 +127,7 @@ trait StreamOps extends PluginNames with Streams {
         val mappedVar = newVariable(loop.unit, "mapped$", loop.currentOwner, loop.pos, false, mapped)
         loop.inner += mappedVar.definition
         
-        value.copyWithValue(new DefaultTupleValue(
+        value.copy(value = new DefaultTupleValue(
           mapped.tpe,
           mappedVar // TODO
         ))

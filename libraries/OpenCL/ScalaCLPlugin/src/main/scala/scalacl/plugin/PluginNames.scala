@@ -82,6 +82,8 @@ trait PluginNames {
   lazy val SeqModule = definitions.getModule(N("scala.collection.Seq"))
   lazy val OptionClass = definitions.getClass(N("scala.Option"))
   lazy val OptionModule = definitions.getModule(N("scala.Option"))
+  lazy val SomeModule = definitions.getModule(N("scala.Some"))
+  lazy val NoneModule = definitions.getModule(N("scala.None"))
   lazy val CanBuildFromClass = definitions.getClass("scala.collection.generic.CanBuildFrom")
   lazy val ArrayBufferClass = definitions.getClass("scala.collection.mutable.ArrayBuffer")
   lazy val RefArrayBuilderClass = definitions.getClass("scala.collection.mutable.ArrayBuilder.ofRef")

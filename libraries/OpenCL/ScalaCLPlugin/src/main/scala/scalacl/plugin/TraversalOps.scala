@@ -76,7 +76,7 @@ extends PluginNames
         //println("mappedComponentType = " + mappedComponentType)
         //println("\t-> " + (collection.tpe.typeSymbol == trivialCollectionSymbol))
         Some(new TraversalOp(MapOp(tree, function, canBuildFrom), collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
-      case // map[B](f)
+      case // Option.map[B](f)
         Apply(
           TypeApply(
             Select(collection, mapName()),
@@ -84,7 +84,23 @@ extends PluginNames
           ),
           List(function)
         ) =>
+        //println("HEEEEERE !")
+        //println("Found some map !")
         Some(new TraversalOp(MapOp(tree, function, null), collection, refineComponentType(mappedComponentType.tpe, tree), null, true, null))
+      /*case 
+        Apply(
+          TypeApply(
+            Select(
+              some, 
+              mapName()
+            ), 
+            _
+          ), 
+          _
+        ) => 
+        println("Found some map on " + some + "\n\t" + nodeToString(tree))
+        None
+      */
       case Apply(TypeApply(Select(collection, foreachName()), List(fRetType)), List(function)) =>
         Some(new TraversalOp(ForeachOp(tree, function), collection, null, null, true, null))
       case // scanLeft, scanRight

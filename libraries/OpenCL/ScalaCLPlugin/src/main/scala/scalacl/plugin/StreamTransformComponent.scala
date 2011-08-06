@@ -74,21 +74,22 @@ extends PluginComponent
         var source: StreamSource = null
         var finished = false
         while (!finished) {
+          println("Trying to match " + colTree)
           colTree match {
             case StreamSource(cr) =>
-              //println("found streamSource " + cr + " (ops = " + ops + ")")
+              println("found streamSource " + cr + " (ops = " + ops + ")")
               source = cr
               if (colTree != cr.unwrappedTree)
                 colTree = cr.unwrappedTree
               else
                 finished = true
             case TraversalOp(traversalOp) if traversalOp.op.isInstanceOf[StreamTransformer] =>
-              //println("found op " + traversalOp + "\n\twith collection = " + traversalOp.collection)
+              println("found op " + traversalOp + "\n\twith collection = " + traversalOp.collection)
               ops = traversalOp.op.asInstanceOf[StreamTransformer] :: ops
               colTree = traversalOp.collection
             case _ =>
-              //if (!ops.isEmpty)
-              //  println("Finished with " + ops.size + " ops upon "+ tree)
+              if (!ops.isEmpty)
+                println("Finished with " + ops.size + " ops upon "+ tree)
               finished = true
           }
         }
@@ -124,6 +125,7 @@ extends PluginComponent
                     
                     asm
                   case _  =>
+                    println("Failed to find any CanCreateStreamSink instance in source + ops !")
                     super.transform(tree)
                 }
               }
