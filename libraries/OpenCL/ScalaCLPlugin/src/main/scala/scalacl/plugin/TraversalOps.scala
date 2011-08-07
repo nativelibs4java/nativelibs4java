@@ -44,108 +44,108 @@ extends PluginNames
     }
   }
   
-  object TraversalOp {
-    import TraversalOps._
-    
-    def refineComponentType(componentType: Type, collectionTree: Tree): Type = {
-      collectionTree.tpe match {
-        case TypeRef(_, _, List(t)) =>
-          t
-        case _ =>
-          componentType
-      }
+  def refineComponentType(componentType: Type, collectionTree: Tree): Type = {
+    collectionTree.tpe match {
+      case TypeRef(_, _, List(t)) =>
+        t
+      case _ =>
+        componentType
     }
-    //def apply(op: TraversalOpType, array: Tree, resultType: Type, mappedCollectionType: Type, function: Tree, isLeft: Boolean, initialValue: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[TraversalOp] = tree match {
-      case // map[B, That](f)(canBuildFrom)
-        Apply(
-          Apply(
-            TypeApply(
-              Select(collection, mapName()),
-              List(mappedComponentType, mappedCollectionType)
-            ),
-            List(function)
-          ),
-          List(canBuildFrom @ CanBuildFromArg())
-        ) =>
-        //println("collection.tpe = " + collection.tpe)
-        //println("collection.tpe.typeSymbol = " + collection.tpe.typeSymbol)
-        //println("trivialCollectionSymbol = " + trivialCollectionSymbol)
-        //println("mappedCollectionType = " + mappedCollectionType)
-        //println("trivialResultType = " + trivialResultType)
-        //println("mappedComponentType = " + mappedComponentType)
-        //println("\t-> " + (collection.tpe.typeSymbol == trivialCollectionSymbol))
-        Some(new TraversalOp(MapOp(tree, function, canBuildFrom), collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
+  }
+  
+  import TraversalOps._
+  
+  def traversalOpWithoutArg(n: Name, tree: Tree) = Option(n) collect {
+    case toListName() =>
+      ToCollectionOp(tree, ListType, tree.tpe)
+    case toArrayName() =>
+      ToCollectionOp(tree, ArrayType, tree.tpe)
+    case toSeqName() =>
+      ToCollectionOp(tree, SeqType, tree.tpe)
+    case toSetName() =>
+      ToCollectionOp(tree, SetType, tree.tpe)
+    case toIndexedSeqName() =>
+      ToCollectionOp(tree, IndexedSeqType, tree.tpe)
+    case toMapName() =>
+      ToCollectionOp(tree, MapType, tree.tpe)
+    case reverseName() =>
+      ReverseOp(tree)
+    case sumName() =>
+      SumOp(tree)
+    case minName() =>
+      MinOp(tree)
+    case maxName() =>
+      MaxOp(tree)
+  }
+  
+  def basicTypeApplyTraversalOp(tree: Tree, collection: Tree, name: Name, typeArgs: List[Tree], args: Seq[List[Tree]]): Option[TraversalOp] = {
+    (name, typeArgs, args) match {
       case // Option.map[B](f)
-        Apply(
-          TypeApply(
-            Select(collection, mapName()),
-            List(mappedComponentType)
-          ),
-          List(function)
-        ) =>
-        //println("HEEEEERE !")
-        //println("Found some map !")
-        Some(new TraversalOp(MapOp(tree, function, null), collection, refineComponentType(mappedComponentType.tpe, tree), null, true, null))
-      /*case 
-        Apply(
-          TypeApply(
-            Select(
-              some, 
-              mapName()
-            ), 
-            _
-          ), 
-          _
-        ) => 
-        println("Found some map on " + some + "\n\t" + nodeToString(tree))
-        None
-      */
-      case Apply(TypeApply(Select(collection, foreachName()), List(fRetType)), List(function)) =>
-        Some(new TraversalOp(ForeachOp(tree, function), collection, null, null, true, null))
-      case // scanLeft, scanRight
-        Apply(
-          Apply(
-            Apply(
-              TypeApply(
-                Select(collection, ScanName(isLeft)),
-                List(functionResultType, mappedArrayType)
-              ),
-              List(initialValue)
-            ),
+        (
+          mapName(), 
+          List(mappedComponentType), 
+          Seq(
             List(function)
-          ),
-          List(CanBuildFromArg())
+          )
+        ) =>
+        Some(new TraversalOp(MapOp(tree, function, null), collection, refineComponentType(mappedComponentType.tpe, tree), null, true, null))
+      case // map[B, That](f)(canBuildFrom)
+        (
+          mapName(), 
+          List(mappedComponentType, mappedCollectionType), 
+          Seq(
+            List(function),
+            List(canBuildFrom @ CanBuildFromArg())
+          )
+        ) =>
+        Some(new TraversalOp(MapOp(tree, function, canBuildFrom), collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
+      case 
+        (
+          foreachName(), 
+          List(fRetType), 
+          Seq(
+            List(function)
+          )
+        ) =>
+        Some(new TraversalOp(ForeachOp(tree, function), collection, null, null, true, null))
+        
+      case // scanLeft, scanRight
+        (
+          ScanName(isLeft),
+          List(functionResultType, mappedArrayType),
+          Seq(
+            List(initialValue),
+            List(function),
+            List(CanBuildFromArg())
+          )
         ) =>
         Some(new TraversalOp(ScanOp(tree, function, isLeft), collection, functionResultType.tpe, null, isLeft, initialValue))
       case // foldLeft, foldRight
-        Apply(
-          Apply(
-            TypeApply(
-              Select(collection, FoldName(isLeft)),
-              List(functionResultType)
-            ),
-            List(initialValue)
-          ),
-          List(function)
+        (
+          FoldName(isLeft), 
+          List(functionResultType), 
+          Seq(
+            List(initialValue),
+            List(function)
+          )
         ) =>
         Some(new TraversalOp(FoldOp(tree, function, isLeft), collection, functionResultType.tpe, null, isLeft, initialValue))
       case // toArray
-        Apply(
-          TypeApply(
-            Select(collection, toArrayName()),
-            List(functionResultType @ TypeTree())
-          ),
-          List(manifest)
+        (
+          toArrayName(), 
+          List(functionResultType @ TypeTree()), 
+          Seq(
+            List(manifest)
+          )
         ) =>
         Some(new TraversalOp(new ToCollectionOp(tree, ArrayType, tree.tpe), collection, functionResultType.tpe, null, true, null))
       case // sum, min, max
-        Apply(
-          TypeApply(
-            Select(collection, n @ (sumName() | minName() | maxName())),
-            List(functionResultType @ TypeTree())
-          ),
-          List(isNumeric)
+        (
+          n @ (sumName() | minName() | maxName()),
+          List(functionResultType @ TypeTree()),
+          Seq(
+            List(isNumeric)
+          )
         ) =>
         isNumeric.toString match {
           case
@@ -169,43 +169,54 @@ extends PluginNames
           case _ =>
             None
         }
-      //case // sum, min, max, reverse
-      //  Select(collection, n @ (sumName() | minName() | maxName() | reverseName())) =>
-      //  traversalOpWithoutArg(n).collect { case op => new TraversalOp(op, collection, null, null, true, null) }
+      case // reduceLeft, reduceRight
+        (
+          ReduceName(isLeft),
+          List(functionResultType),
+          Seq(
+            List(function)
+          )
+        ) =>
+        Some(new TraversalOp(ReduceOp(tree, function, isLeft), collection, functionResultType.tpe, null, isLeft, null))
+      case // zip(col)(canBuildFrom)
+        (
+          mapName(),
+          List(mappedComponentType, otherComponentType, mappedCollectionType),
+          Seq(
+            List(zippedCollection),
+            List(canBuildFrom @ CanBuildFromArg())
+          )
+        ) =>
+        Some(new TraversalOp(ZipOp(tree, zippedCollection), collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
+      case // zipWithIndex(canBuildFrom)
+        (
+          zipWithIndexName(),
+          List(mappedComponentType, mappedCollectionType),
+          Seq(
+            List(canBuildFrom @ CanBuildFromArg())
+          )
+        ) =>
+        Some(new TraversalOp(ZipWithIndexOp(tree), collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
+      case _ => 
+        None 
+    }
+  }
+  object TraversalOp {
+    
+    def unapply(tree: Tree): Option[TraversalOp] = tree match {
+      case // Option.map[B](f)
+        BasicTypeApply(
+          collection, 
+          name, 
+          typeArgs, 
+          args
+        ) =>
+        // Having a separate matcher helps avoid "jump offset too large for 16 bits integers" errors when generating bytecode
+        basicTypeApplyTraversalOp(tree, collection, name, typeArgs, args)
       case // reverse, toList, toSeq, toIndexedSeq
         Select(collection, n @ (reverseName() | toListName() | toSeqName() | toSetName() | toIndexedSeqName())) =>
         traversalOpWithoutArg(n, tree).collect { case op => new TraversalOp(op, collection, null, null, true, null) }
         //Some(new TraversalOp(Reverse, collection, null, null, true, null))
-      case // reduceLeft, reduceRight
-        Apply(
-          TypeApply(
-            Select(collection, ReduceName(isLeft)),
-            List(functionResultType)
-          ),
-          List(function)
-        ) =>
-        Some(new TraversalOp(ReduceOp(tree, function, isLeft), collection, functionResultType.tpe, null, isLeft, null))
-      case // zip(col)(canBuildFrom)
-        Apply(
-          Apply(
-            TypeApply(
-              Select(collection, mapName()),
-              List(mappedComponentType, otherComponentType, mappedCollectionType)
-            ),
-            List(zippedCollection)
-          ),
-          List(canBuildFrom @ CanBuildFromArg())
-        ) =>
-        Some(new TraversalOp(ZipOp(tree, zippedCollection), collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
-      case // zipWithIndex(canBuildFrom)
-        Apply(
-          TypeApply(
-            Select(collection, zipWithIndexName()),
-            List(mappedComponentType, mappedCollectionType)
-          ),
-          List(canBuildFrom @ CanBuildFromArg())
-        ) =>
-        Some(new TraversalOp(ZipWithIndexOp(tree), collection, refineComponentType(mappedComponentType.tpe, tree), mappedCollectionType.tpe, true, null))
       case // filter, filterNot, takeWhile, dropWhile, forall, exists
         Apply(Select(collection, n), List(function @ Func(List(param), body))) =>
         (
@@ -251,27 +262,6 @@ extends PluginNames
       case _ =>
         None
     }
-    def traversalOpWithoutArg(n: Name, tree: Tree) = Option(n) collect {
-      case toListName() =>
-        ToCollectionOp(tree, ListType, tree.tpe)
-      case toArrayName() =>
-        ToCollectionOp(tree, ArrayType, tree.tpe)
-      case toSeqName() =>
-        ToCollectionOp(tree, SeqType, tree.tpe)
-      case toSetName() =>
-        ToCollectionOp(tree, SetType, tree.tpe)
-      case toIndexedSeqName() =>
-        ToCollectionOp(tree, IndexedSeqType, tree.tpe)
-      case toMapName() =>
-        ToCollectionOp(tree, MapType, tree.tpe)
-      case reverseName() =>
-        ReverseOp(tree)
-      case sumName() =>
-        SumOp(tree)
-      case minName() =>
-        MinOp(tree)
-      case maxName() =>
-        MaxOp(tree)
-    }
+    
   }
 }

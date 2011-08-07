@@ -105,16 +105,21 @@ trait Streams extends TreeBuilders with TupleAnalysis {
         else
           (postOuterSeq.dropRight(1), postOuterSeq.last)
 
+      val cond = tests.toSeq.reduceLeft(boolAnd)
+      val body = Block(rootInners.toList, EmptyTree).setType(UnitClass.tpe)
       val ret = Block(
         preOuter.toList ++
         Seq(
-          whileLoop(
-            owner = currentOwner,
-            unit = unit,
-            pos = pos,
-            cond = tests.toSeq.reduceLeft(boolAnd),
-            body = Block(rootInners.toList, EmptyTree)
-          )
+          if (isLoop)
+            whileLoop(
+              owner = currentOwner,
+              unit = unit,
+              pos = pos,
+              cond = cond,
+              body = body
+            )
+          else
+            If(cond, body, EmptyTree).setType(UnitClass.tpe)
         ) ++
         postStats,
         postVal

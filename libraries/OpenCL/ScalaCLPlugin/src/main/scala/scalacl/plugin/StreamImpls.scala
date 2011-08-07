@@ -223,7 +223,7 @@ trait StreamImpls extends Streams {
             If(
               presence(),
               newSomeApply(value.tpe, out()),
-              newNoneModuleTree
+              newNoneModuleTree.setType(tree.tpe)
             ).setType(UnitClass.tpe)
           }
         }
@@ -353,30 +353,46 @@ trait StreamImpls extends Streams {
       
       loop.isLoop = false
       
-      val (valueVar: VarDef, isDefinedVar: VarDef) = componentOption match {
+      val (valueVar: VarDef, isDefinedVar: VarDef, isAlwaysDefined: Boolean) = componentOption match {
         case Some(component) =>
           val valueVar = newVariable(unit, "value$", currentOwner, pos, false, transform(component))
-          val isDefinedVar = newVariable(unit, "isDefined$", currentOwner, pos, false, 
-            if (onlyIfNotNull) newIsNotNull(valueVar())
-            else newBool(true)
-          )
+          val (isDefinedValue, isAlwaysDefined) = 
+            if (onlyIfNotNull && !isAnyVal(component.tpe)) 
+              component match {
+                case Literal(Constant(v)) =>
+                  val isAlwaysDefined = v != null
+                  (newBool(isAlwaysDefined), isAlwaysDefined)
+                case _ =>
+                  (newIsNotNull(valueVar()), false)
+              }
+            else 
+              (newBool(true), true)
+          val isDefinedVar = newVariable(unit, "isDefined$", currentOwner, pos, false, isDefinedValue)
           loop.preOuter += valueVar.definition
-          (valueVar, isDefinedVar)
+          (valueVar, isDefinedVar, isAlwaysDefined)
         case None =>
           val optionVar = newVariable(unit, "option$", currentOwner, pos, false, transform(tree))
           val isDefinedVar = newVariable(unit, "isDefined$", currentOwner, pos, false, newSelect(optionVar(), N("isDefined")))
           val valueVar = newVariable(unit, "value$", currentOwner, pos, false, newSelect(optionVar(), N("get")))
           loop.preOuter += optionVar.definition
           loop.preInner += valueVar.definition
-          (valueVar, isDefinedVar)
+          (valueVar, isDefinedVar, false)
       }
-      loop.preOuter += isDefinedVar.definition
-      loop.tests += isDefinedVar()
+      if (!isAlwaysDefined) {
+        loop.preOuter += isDefinedVar.definition
+        loop.tests += isDefinedVar()
+      } else
+        loop.tests += newBool(true)
       
       new StreamValue(
         value = valueVar,
         valueIndex = Some(() => newInt(0)),
-        valuesCount = Some(() => typed { If(isDefinedVar(), newInt(1), newInt(0)) })
+        valuesCount = Some(() => typed {
+          if (isAlwaysDefined)
+            newInt(1)
+          else
+            If(isDefinedVar(), newInt(1), newInt(0)) 
+        })
       )
     }
   }

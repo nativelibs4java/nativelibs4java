@@ -98,12 +98,7 @@ trait StreamOps extends PluginNames with Streams {
             condVar()
         })
         
-        StreamValue(
-          value.value/*value = new DefaultTupleValue(
-            cond.tpe,
-            condVar // TODO
-          )*/
-        )
+        StreamValue(value.value)
       }
     }
     case class FilterWhileOp(tree: Tree, f: Tree, take: Boolean) extends TraversalOpType {

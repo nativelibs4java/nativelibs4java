@@ -200,23 +200,27 @@ extends MiscMatchers
   def newCollectionApply(collectionModuleTree: => Tree, typeExpr: Tree, values: Tree*) =
     newApply(collectionModuleTree, applyName, List(typeExpr), values.toList)
     
-  def newScalaPackageTree = 
-    Ident(N("scala")).setSymbol(ScalaPackage)
+  def newScalaPackageTree =  
+    Ident(N("scala")).setSymbol(ScalaPackage).setType(ScalaPackage.tpe)
     
   def newScalaCollectionPackageTree =
-    Select(newScalaPackageTree, N("collection")).setSymbol(ScalaCollectionPackage)
+    Select(newScalaPackageTree, N("collection")).setSymbol(ScalaCollectionPackage).setType(ScalaCollectionPackage.tpe)
     
-  def newSomeModuleTree =
+  def newSomeModuleTree = typed {
     Select(newScalaPackageTree, N("Some")).setSymbol(SomeModule)
+  }
     
-  def newNoneModuleTree =
+  def newNoneModuleTree = typed {
     Select(newScalaPackageTree, N("None")).setSymbol(NoneModule)
+  }
     
-  def newSeqModuleTree =
+  def newSeqModuleTree = typed {
     Select(newScalaCollectionPackageTree, N("Seq")).setSymbol(SeqModule)
+  }
     
-  def newArrayModuleTree =
+  def newArrayModuleTree = typed {
     Select(newScalaPackageTree, N("Array")).setSymbol(ArrayModule)
+  }
     
   def newSeqApply(typeExpr: Tree, values: Tree*) =
     newApply(newSeqModuleTree, applyName, List(typeExpr), values.toList)
@@ -288,11 +292,11 @@ extends MiscMatchers
   }
 
   def binOp(a: Tree, op: Symbol, b: Tree) = typed {
-    Apply(Select(a, op), List(b))
+    Apply(Select(a, op).setSymbol(op), List(b)).setSymbol(op)
   }
 
   def newIsNotNull(target: Tree) = typed {
-    binOp(target, AnyRefClass.tpe.member(N("neq")), newNull(target.tpe))//nme.NE)
+    binOp(target, AnyRefClass.tpe.member(nme.NE/*N("neq")*/), newNull(target.tpe))//nme.NE)
   }
   
   def newArrayLength(a: Tree) =

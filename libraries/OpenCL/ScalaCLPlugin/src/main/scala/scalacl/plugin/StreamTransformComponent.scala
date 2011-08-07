@@ -74,8 +74,12 @@ extends PluginComponent
         var source: StreamSource = null
         var finished = false
         while (!finished) {
-          println("Trying to match " + colTree)
+          //println("Trying to match " + colTree)
           colTree match {
+            case TraversalOp(traversalOp) if traversalOp.op.isInstanceOf[StreamTransformer] =>
+              println("found op " + traversalOp + "\n\twith collection = " + traversalOp.collection)
+              ops = traversalOp.op.asInstanceOf[StreamTransformer] :: ops
+              colTree = traversalOp.collection
             case StreamSource(cr) =>
               println("found streamSource " + cr + " (ops = " + ops + ")")
               source = cr
@@ -83,13 +87,9 @@ extends PluginComponent
                 colTree = cr.unwrappedTree
               else
                 finished = true
-            case TraversalOp(traversalOp) if traversalOp.op.isInstanceOf[StreamTransformer] =>
-              println("found op " + traversalOp + "\n\twith collection = " + traversalOp.collection)
-              ops = traversalOp.op.asInstanceOf[StreamTransformer] :: ops
-              colTree = traversalOp.collection
             case _ =>
               if (!ops.isEmpty)
-                println("Finished with " + ops.size + " ops upon "+ tree)
+                println("Finished with " + ops.size + " ops upon "+ tree + " ; source = " + source + " ; colTree = " + colTree)
               finished = true
           }
         }
@@ -110,13 +110,14 @@ extends PluginComponent
       else
         try {
           tree match {
-            case OpsStream(opsStream) if !opsStream.ops.isEmpty && (opsStream ne null) && (opsStream.colTree ne null) && !matchedColTreeIds.contains(opsStream.colTree.id) =>
+            case OpsStream(opsStream) if /*(opsStream.source ne null) &&*/ !opsStream.ops.isEmpty && (opsStream ne null) && (opsStream.colTree ne null) && !matchedColTreeIds.contains(opsStream.colTree.id) =>
               import opsStream._
               
               val txt = "Streamed ops on " + (if (source == null) "UNKNOWN COL" else source.tree.tpe) + " : " + ops/*.map(_.getClass.getName)*/.mkString(", ")
               matchedColTreeIds += colTree.id
               msg(unit, tree.pos, "# " + txt) {
-                (Seq(source) ++ ops).collect({ case ccss: CanCreateStreamSink => ccss }).lastOption match {
+                val canCreateSinkLookup = Seq(source) ++ ops
+                canCreateSinkLookup.collect({ case ccss: CanCreateStreamSink => ccss }).lastOption match {
                   case Some(sinkCreator) =>
                     val asm = assembleStream(source, ops, sinkCreator, super.transform _, unit, tree.pos, currentOwner, localTyper)
                     println("Found ops = " + ops)
@@ -125,7 +126,7 @@ extends PluginComponent
                     
                     asm
                   case _  =>
-                    println("Failed to find any CanCreateStreamSink instance in source + ops !")
+                    println("Failed to find any CanCreateStreamSink instance in source ++ ops = " + canCreateSinkLookup + " !")
                     super.transform(tree)
                 }
               }

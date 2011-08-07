@@ -237,6 +237,35 @@ trait MiscMatchers extends PluginNames {
   def isTupleSymbol(sym: Symbol) =
     sym.toString.matches("class Tuple\\d+")
     
+  def isAnyVal(tpe: Type) =
+    tpe == IntClass.tpe ||
+    tpe == ShortClass.tpe ||
+    tpe == LongClass.tpe ||
+    tpe == ByteClass.tpe ||
+    tpe == DoubleClass.tpe ||
+    tpe == FloatClass.tpe ||
+    tpe == CharClass.tpe ||
+    tpe == BooleanClass.tpe
+    
+  object BasicTypeApply {
+    def unapply(tree: Tree): Option[(Tree, Name, List[Tree], Seq[List[Tree]])] = tree match {
+      case 
+        Apply(
+          TypeApply(
+            Select(collection, name),
+            typeArgs
+          ),
+          args
+        )
+        =>
+        Some((collection, name, typeArgs, Seq(args)))
+      case Apply(BasicTypeApply(collection, name, typeArgs, args), newArgs) =>
+        Some((collection, name, typeArgs, args ++ Seq(newArgs)))
+      case _ =>
+        None
+    }
+  }
+  
   object TupleCreation {
     def unapply(tree: Tree): Option[List[Tree]] = Option(tree) collect {
       case Apply(TypeApply(Select(TupleSelect(), applyName()), types), components) =>
@@ -257,12 +286,16 @@ trait MiscMatchers extends PluginNames {
   object OptionTree {
     def apply(componentType: Type) = error("not implemented")
     def unapply(tree: Tree): Option[Type] = {
-      tree.tpe match {
-        case TypeRef(_, OptionClass, List(componentType)) => 
-          Some(componentType)
-        case _ => 
-          None
-      }
+      if (!tree.isInstanceOf[TypeTree])
+        tree.tpe.dealias.deconst.widen match {
+          case TypeRef(_, OptionClass, List(componentType)) => 
+            //println("FOUND OPTION TREE " + tree)
+            Some(componentType)
+          case _ =>
+            None
+        }
+      else
+        None
     }
   }
   object Predef {
