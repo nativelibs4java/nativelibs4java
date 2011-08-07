@@ -197,6 +197,22 @@ trait StreamImpls extends Streams {
           outputBuilder(value)
       }
   }
+  trait CanCreateListSink extends CanCreateStreamSink {
+    def tree: Tree
+    
+    override def createStreamSink(componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
+      new StreamSink 
+      with BuilderStreamSink 
+      {
+        override def tree = CanCreateListSink.this.tree
+      
+        def createBuilderGen(value: StreamValue)(implicit loop: Loop): BuilderGen =
+          new ListBuilderGen(value.tpe)
+          
+        def output(value: StreamValue)(implicit loop: Loop): Unit =
+          outputBuilder(value)
+      }
+  }
   trait CanCreateOptionSink extends CanCreateStreamSink {
     def tree: Tree
     
@@ -229,7 +245,7 @@ trait StreamImpls extends Streams {
         }
       }
   }
-  case class ArrayStreamSource(tree: Tree, array: Tree, componentTpe: Type) extends StreamSource with CanCreateArraySink {
+  case class ArrayStreamSource(tree: Tree, array: Tree, componentType: Type) extends StreamSource with CanCreateArraySink {
     override def unwrappedTree = array
     override def privilegedDirection = None
     //println("ArrayStreamSource with tree = " + tree + " and array = 
@@ -280,6 +296,42 @@ trait StreamImpls extends Streams {
         valueIndex = Some(iVar),
         valuesCount = Some(nVar)
       )
+    }
+  }
+  
+  case class ListStreamSource(tree: Tree, componentType: Type) extends StreamSource with CanCreateListSink {
+    val list = tree // TODO 
+      
+    override def unwrappedTree = list
+    override def privilegedDirection = Some(FromLeft)
+    def emit(direction: TraversalDirection, transform: Tree => Tree)(implicit loop: Loop) = {
+      import loop.{ unit, currentOwner }
+      assert(direction == FromLeft)
+      
+      val pos = list.pos
+
+      val skipFirst = false // TODO
+      val colTpe = list.tpe
+      
+      val aVar = newVariable(unit, "list$", currentOwner, pos, true, transform(list))
+      val itemVar = newVariable(unit, "item$", currentOwner, pos, false, newSelect(aVar(), headName))
+      
+      loop.preOuter += aVar.definition
+      loop.tests += (
+        if ("1" == System.getenv("SCALACL_LIST_TEST_ISEMPTY")) // Safer, but 10% slower
+          boolNot(newSelect(aVar(), isEmptyName))
+        else
+          newIsInstanceOf(aVar(), appliedType(NonEmptyListClass.typeConstructor, List(componentType)))
+      )
+      
+      loop.preInner += itemVar.definition
+      loop.postInner += (
+        Assign(
+          aVar(),
+          newSelect(aVar(), tailName)
+        ).setType(UnitClass.tpe)
+      )
+      new StreamValue(itemVar)
     }
   }
   
@@ -404,6 +456,8 @@ trait StreamImpls extends Streams {
     def unapply(tree: Tree): Option[StreamSource] = tree match {
       case ArrayTree(array, componentType) =>
         Some(ArrayStreamSource(tree, array, componentType))//ArrayRewriter, appliedType(ArrayClass.tpe, List(componentType)), array, componentType))
+      case ListTree(componentType) =>
+        Some(ListStreamSource(tree, componentType))
       //case ListTree(componentType) if options.deprecated =>
       //  Some(new CollectionRewriter(ListRewriter, appliedType(ListClass.tpe, List(componentType)), tree, componentType))
       case OptionApply(component) =>
