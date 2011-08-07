@@ -50,8 +50,10 @@ extends PluginComponent
    with MiscMatchers
    with TreeBuilders
    with TraversalOps
-   with Streams with StreamImpls with StreamOps
-   //with RewritingPluginComponent
+   with Streams 
+   with StreamSources 
+   with StreamOps
+   with StreamSinks
    with WorkaroundsForOtherPhases
    with WithOptions
 {
