@@ -21,7 +21,6 @@ extends PluginComponent
    
    with MiscMatchers
    with TreeBuilders
-   with Streams with StreamImpls
    with WorkaroundsForOtherPhases
    
    with WithOptions
