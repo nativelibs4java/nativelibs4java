@@ -9,8 +9,8 @@ package scalacl ; package plugin
 import tools.nsc.plugins.PluginComponent
 import tools.nsc.Global
 
-trait StreamOps extends PluginNames with Streams {
-  this: PluginComponent with WithOptions =>
+trait StreamOps extends PluginNames with Streams with StreamSinks {
+  this: PluginComponent with WithOptions with WorkaroundsForOtherPhases =>
   
   val global: Global
   import global._
@@ -153,10 +153,21 @@ trait StreamOps extends PluginNames with Streams {
       override val f = null
     }
 
-    case class ToCollectionOp(tree: Tree, colType: ColType, tpe: Type) extends TraversalOpType {
+    abstract class ToCollectionOp(val colType: ColType) extends TraversalOpType with StreamTransformer {
       override def toString = "to" + colType
       override val f = null
+      override def transform(value: StreamValue)(implicit loop: Loop): StreamValue = 
+        value
+        
+      override def order = SameOrder
     }
+    case class ToListOp(tree: Tree) extends ToCollectionOp(ListType) with CanCreateListSink
+    case class ToSeqOp(tree: Tree) extends ToCollectionOp(SeqType) with CanCreateListSink
+    case class ToArrayOp(tree: Tree) extends ToCollectionOp(ArrayType) with CanCreateArraySink
+    //case class ToOptionOp(tree: Tree, tpe: Type) extends ToCollectionOp(ListType) with CanCreateOptionSink
+    case class ToVectorOp(tree: Tree) extends ToCollectionOp(VectorType) with CanCreateVectorSink
+    case class ToIndexedSeqOp(tree: Tree) extends ToCollectionOp(IndexedSeqType) with CanCreateVectorSink
+    
     case class ZipWithIndexOp(tree: Tree) extends TraversalOpType {
       override def toString = "zipWithIndex"
       override val f = null

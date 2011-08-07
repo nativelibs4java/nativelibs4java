@@ -63,6 +63,7 @@ extends PluginComponent
    with CodeFlattening
    with TupleAnalysis
    with CodeAnalysis
+   with WorkaroundsForOtherPhases
 {
   import global._
   import global.definitions._

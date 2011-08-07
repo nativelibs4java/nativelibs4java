@@ -246,8 +246,8 @@ trait RewritingPluginComponent {
       override def isSafeRewrite(op: TraversalOpType) = {
         import TraversalOps._
         op match {
-          case ToCollectionOp(_, colType, _) =>
-            colType match { 
+          case tco: ToCollectionOp =>
+            tco.colType match { 
               case ArrayType =>
                 options.experimental
                 //true
@@ -451,8 +451,8 @@ trait RewritingPluginComponent {
       override def isSafeRewrite(op: TraversalOpType) = {
         import TraversalOps._
         op match {
-          case ToCollectionOp(_, colType, _) =>
-            colType match { 
+          case tco: ToCollectionOp =>
+            tco.colType match { 
               case ListType =>
                 options.experimental
                 //true
@@ -579,8 +579,8 @@ trait RewritingPluginComponent {
         op match {
           //case Foreach(_) =>
           //  options.experimental
-          case ToCollectionOp(_, colType, _) =>
-            colType match { 
+          case tco: ToCollectionOp =>
+            tco.colType match { 
               case ArrayType =>
                 options.experimental // slow in some cases !
                 //true
@@ -691,7 +691,7 @@ trait RewritingPluginComponent {
         op match {
           //case Foreach(_) =>
           //  options.experimental
-          case ToCollectionOp(_, colType, _) =>
+          case _: ToCollectionOp =>
             true
           //case Map | Sum | Fold | _: AllOrSome =>
           //  true

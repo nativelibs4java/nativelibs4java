@@ -225,11 +225,11 @@ extends MiscMatchers
   def newSeqApply(typeExpr: Tree, values: Tree*) =
     newApply(newSeqModuleTree, applyName, List(typeExpr), values.toList)
     
-  def typeTree(tpe: Type) =
+  def newTypeTree(tpe: Type) =
     TypeTree(tpe).setType(tpe)
     
   def newSomeApply(tpe: Type, value: Tree) =
-    newApply(newSomeModuleTree, applyName, List(typeTree(tpe)), List(value))
+    newApply(newSomeModuleTree, applyName, List(newTypeTree(tpe)), List(value))
     
   def newArrayApply(typeExpr: Tree, values: Tree*) =
     newApply(newArrayModuleTree, applyName, List(typeExpr), values.toList)

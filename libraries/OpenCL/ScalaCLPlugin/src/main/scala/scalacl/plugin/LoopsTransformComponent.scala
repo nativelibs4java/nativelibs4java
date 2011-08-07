@@ -459,7 +459,8 @@ extends PluginComponent
                                 )
                               }
                             )
-                          case ToCollectionOp(_, ct, _) if "0" != getenv("SCALACL_TRANSFORM_TOCOLLECTION") =>
+                          case tco: ToCollectionOp if "0" != getenv("SCALACL_TRANSFORM_TOCOLLECTION") =>
+                            val ct = tco.colType
                             (
                               ct match {
                                 case ListType => Some(ListRewriter)
@@ -475,7 +476,7 @@ extends PluginComponent
                                   false,
                                   false,
                                   env => {
-                                    val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = rewriter.newBuilder(collection.pos, componentType, null, null/*env.outputSizeVar*/, localTyper)
+                                    val cb @ CollectionBuilder(builderCreation, _, _, builderResult) = rewriter.newBuilder(collection.pos, componentType, null, null, localTyper)
                                     val builderVar = newVariable(
                                       unit,
                                       "builder$",

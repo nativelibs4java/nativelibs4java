@@ -39,6 +39,7 @@ abstract sealed class ColType(name: String) {
 case object SeqType extends ColType("Seq")
 case object SetType extends ColType("Set")
 case object ListType extends ColType("List")
+case object VectorType extends ColType("Vector")
 case object ArrayType extends ColType("Array")
 case object IndexedSeqType extends ColType("IndexedSeq")
 case object MapType extends ColType("Map")
@@ -276,13 +277,26 @@ trait MiscMatchers extends PluginNames {
         components
     }
   }
-  object OptionApply {
+  class CollectionApply(colModule: Symbol, colClass: Symbol) {
     def apply(component: Tree) = error("not implemented")
-    def unapply(tree: Tree): Option[Tree] = Option(tree) collect {
-      case Apply(TypeApply(Select(optionObject, applyName()), List(tpe)), List(component)) if optionObject.symbol == OptionModule =>
-        component
+    def unapply(tree: Tree): Option[(List[Tree], Type)] = tree match {
+      case Apply(TypeApply(Select(colObject, applyName()), List(tpe)), components) if colObject.symbol == colModule =>
+        tree.tpe.dealias.deconst.widen match {
+          case TypeRef(_, colClass, List(componentType)) =>
+            Some(components, componentType)
+          case _ =>
+            None
+        }
+      case _ =>
+        None
     }
   }
+  
+  object OptionApply extends CollectionApply(OptionModule, OptionClass)
+  object ArrayApply extends CollectionApply(ArrayModule, ArrayClass)
+  object SeqApply extends CollectionApply(SeqModule, SeqClass)
+  object ListApply extends CollectionApply(ListModule, ListClass)
+  
   object OptionTree {
     def apply(componentType: Type) = error("not implemented")
     def unapply(tree: Tree): Option[Type] = {

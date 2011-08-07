@@ -18,10 +18,13 @@ trait StreamSources extends Streams with StreamSinks {
   import treeInfo.{ methPart }
   import typer.typed
 
-  case class ArrayStreamSource(tree: Tree, array: Tree, componentType: Type) extends StreamSource with CanCreateArraySink {
+  trait AbstractArrayStreamSource extends StreamSource {
+    def tree: Tree
+    def array: Tree
+    def componentType: Type
+    
     override def unwrappedTree = array
     override def privilegedDirection = None
-    //println("ArrayStreamSource with tree = " + tree + " and array = 
     def emit(direction: TraversalDirection, transform: Tree => Tree)(implicit loop: Loop) = {
       import loop.{ unit, currentOwner }
       val pos = array.pos
@@ -71,7 +74,13 @@ trait StreamSources extends Streams with StreamSinks {
       )
     }
   }
+  case class ArrayStreamSource(tree: Tree, array: Tree, componentType: Type) 
+  extends AbstractArrayStreamSource with CanCreateArraySink
   
+  abstract class ExplicitCollectionStreamSource(val tree: Tree, items: List[Tree], val componentType: Type) 
+  extends AbstractArrayStreamSource {
+    val array = newArrayApply(newTypeTree(componentType), items:_*)
+  }
   case class ListStreamSource(tree: Tree, componentType: Type) extends StreamSource with CanCreateListSink {
     val list = tree // TODO 
       
@@ -222,41 +231,33 @@ trait StreamSources extends Streams with StreamSinks {
     }
   }
   object StreamSource {
-
-    //TODO def unapply(tpe: Type): Option[CollectionRewriter] = tpe.dealias.deconst match {
-    //  case ListTree(componentType)
-    //}
-    def unapply(tree: Tree): Option[StreamSource] = tree match {
+    object By {
+      def unapply(treeOpt: Option[Tree]) = treeOpt match {
+        case None =>
+          Some(1)
+        case Some(Literal(Constant(v: Int))) =>
+          Some(v)
+        case _ =>
+          None
+      }
+    }
+    def unapply(tree: Tree): Option[StreamSource] = Option(tree) collect {
+      case ArrayApply(components, componentType) =>
+        new ExplicitCollectionStreamSource(tree, components, componentType) with CanCreateArraySink
+      case SeqApply(components, componentType) =>
+        new ExplicitCollectionStreamSource(tree, components, componentType) with CanCreateListSink
+      case ListApply(components, componentType) =>
+        new ExplicitCollectionStreamSource(tree, components, componentType) with CanCreateListSink
       case ArrayTree(array, componentType) =>
-        Some(ArrayStreamSource(tree, array, componentType))//ArrayRewriter, appliedType(ArrayClass.tpe, List(componentType)), array, componentType))
+        ArrayStreamSource(tree, array, componentType)
       case ListTree(componentType) =>
-        Some(ListStreamSource(tree, componentType))
-      //case ListTree(componentType) if options.deprecated =>
-      //  Some(new CollectionRewriter(ListRewriter, appliedType(ListClass.tpe, List(componentType)), tree, componentType))
-      case OptionApply(component) =>
-        //println("Found option apply : " + tree)
-        Some(OptionStreamSource(tree, Some(component), onlyIfNotNull = true, component.tpe))
+        ListStreamSource(tree, componentType)
+      case OptionApply(List(component), componentType) =>
+        OptionStreamSource(tree, Some(component), onlyIfNotNull = true, component.tpe)
       case OptionTree(componentType) =>
-        //println("Found option tree : " + tree)
-        Some(OptionStreamSource(tree, None, onlyIfNotNull = true, componentType))
-      case IntRange(from, to, by, isUntil, filters) =>
-        (
-          by match {
-            case None =>
-              Some(1)
-            case Some(Literal(Constant(v: Int))) =>
-              Some(v)
-            case _ =>
-              None
-          }
-        ) match {
-          case Some(byValue) =>
-            Some(RangeStreamSource(tree, from, to, byValue, isUntil/*, filters*/))//, appliedType(ArrayClass.tpe, List(IntClass.tpe)), null, IntClass.tpe))
-          case _ =>
-            None
-        }
-      case _ =>
-        None
+        OptionStreamSource(tree, None, onlyIfNotNull = true, componentType)
+      case IntRange(from, to, By(byValue), isUntil, filters) =>
+        RangeStreamSource(tree, from, to, byValue, isUntil/*, filters*/)
     }
   }
 }

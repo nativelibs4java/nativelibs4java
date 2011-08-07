@@ -14,7 +14,7 @@ extends PluginNames
    with StreamOps
    with MiscMatchers
 {
-  this: PluginComponent with WithOptions =>
+  this: PluginComponent with WithOptions with WorkaroundsForOtherPhases =>
   
   val global: Global
   import global._
@@ -57,17 +57,17 @@ extends PluginNames
   
   def traversalOpWithoutArg(n: Name, tree: Tree) = Option(n) collect {
     case toListName() =>
-      ToCollectionOp(tree, ListType, tree.tpe)
+      ToListOp(tree)
     case toArrayName() =>
-      ToCollectionOp(tree, ArrayType, tree.tpe)
+      ToArrayOp(tree)
     case toSeqName() =>
-      ToCollectionOp(tree, SeqType, tree.tpe)
-    case toSetName() =>
-      ToCollectionOp(tree, SetType, tree.tpe)
+      ToSeqOp(tree)
+    //case toSetName() =>
+    //  ToSetOp(tree, SetType, tree.tpe)
     case toIndexedSeqName() =>
-      ToCollectionOp(tree, IndexedSeqType, tree.tpe)
-    case toMapName() =>
-      ToCollectionOp(tree, MapType, tree.tpe)
+      ToIndexedSeqOp(tree)
+    //case toMapName() =>
+    //  ToMapOp(tree)
     case reverseName() =>
       ReverseOp(tree)
     case sumName() =>
@@ -138,7 +138,7 @@ extends PluginNames
             List(manifest)
           )
         ) =>
-        Some(new TraversalOp(new ToCollectionOp(tree, ArrayType, tree.tpe), collection, functionResultType.tpe, null, true, null))
+        Some(new TraversalOp(new ToArrayOp(tree), collection, functionResultType.tpe, null, true, null))
       case // sum, min, max
         (
           n @ (sumName() | minName() | maxName()),

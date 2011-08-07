@@ -54,8 +54,8 @@ extends PluginComponent
    with StreamSources 
    with StreamOps
    with StreamSinks
-   with WorkaroundsForOtherPhases
    with WithOptions
+   with WorkaroundsForOtherPhases
 {
   import global._
   import global.definitions._
