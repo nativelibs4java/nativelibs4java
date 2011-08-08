@@ -240,7 +240,7 @@ trait StreamSinks extends Streams {
               presence(),
               newSomeApply(value.tpe, out()),
               newNoneModuleTree.setType(tree.tpe)
-            ).setType(UnitClass.tpe)
+            )
           }
         }
       }

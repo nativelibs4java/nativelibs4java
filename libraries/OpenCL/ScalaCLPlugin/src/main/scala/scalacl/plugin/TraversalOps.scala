@@ -72,6 +72,8 @@ extends PluginNames
       ReverseOp(tree)
     case sumName() =>
       SumOp(tree)
+    case productName() =>
+      ProductOp(tree)
     case minName() =>
       MinOp(tree)
     case maxName() =>
@@ -119,7 +121,7 @@ extends PluginNames
             List(CanBuildFromArg())
           )
         ) =>
-        Some(new TraversalOp(ScanOp(tree, function, isLeft), collection, functionResultType.tpe, null, isLeft, initialValue))
+        Some(new TraversalOp(ScanOp(tree, function, initialValue, isLeft), collection, functionResultType.tpe, null, isLeft, initialValue))
       case // foldLeft, foldRight
         (
           FoldName(isLeft), 
@@ -129,7 +131,7 @@ extends PluginNames
             List(function)
           )
         ) =>
-        Some(new TraversalOp(FoldOp(tree, function, isLeft), collection, functionResultType.tpe, null, isLeft, initialValue))
+        Some(new TraversalOp(FoldOp(tree, function, initialValue, isLeft), collection, functionResultType.tpe, null, isLeft, initialValue))
       case // toArray
         (
           toArrayName(), 

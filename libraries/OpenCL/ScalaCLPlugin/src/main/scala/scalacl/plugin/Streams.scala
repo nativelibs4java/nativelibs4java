@@ -24,7 +24,7 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     def currentOwner: Symbol
     def addDefinition(tree: Tree): Unit
   }
-  case class Loop(unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer) {
+  case class Loop(unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer, transform: Tree => Tree) {
     type OptTreeGen = () => Option[Tree]
     class TreeGenList {
       var data = Seq[Either[Tree, OptTreeGen]]()
@@ -127,8 +127,8 @@ trait Streams extends TreeBuilders with TupleAnalysis {
       typed { ret }
     }
   }
-  trait TupleValue {
-    def apply(): Tree
+  trait TupleValue extends (() => Ident) {
+    def apply(): Ident
     def tpe: Type
     def elements: Seq[IdentGen]
     def fibersCount: Int
@@ -144,9 +144,12 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     def subTuple(fiberOffset: Int, fiberLength: Int)(implicit context: LocalContext): TupleValue
   }
   class DefaultTupleValue(val tpe: Type, val elements: IdentGen*) extends TupleValue {
-    override def apply() = {
+    if (elements.isEmpty && tpe != UnitClass.tpe)
+      throw new RuntimeException("Invalid elements with tpe " + tpe + " : " + elements.mkString(", "))
+      
+    override def apply(): Ident = {
       if (elements.size != 1)
-        throw new UnsupportedOperationException("TODO")
+        throw new UnsupportedOperationException("TODO tpe " + tpe + ", elements = " + elements.mkString(", "))
       else
         elements.first.apply()
     }
@@ -190,17 +193,23 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     valuesCount: Option[TreeGen] = None
   ) {
     def tpe = value.tpe
+    def withoutSizeInfo = copy(valueIndex = None, valuesCount = None)
   }
    
   sealed trait TraversalDirection
-  object FromLeft extends TraversalDirection
-  object FromRight extends TraversalDirection
+  case object FromLeft extends TraversalDirection
+  case object FromRight extends TraversalDirection
 
   sealed trait Order
-  object SameOrder extends Order
-  object ReverseOrder extends Order
-  object Unordered extends Order
+  case object SameOrder extends Order
+  case object ReverseOrder extends Order
+  case object Unordered extends Order
 
+  sealed trait ResultKind
+  case object NoResult extends ResultKind
+  case object ScalarResult extends ResultKind
+  case object StreamResult extends ResultKind
+  
   trait StreamComponent {
     def tree: Tree
     
@@ -212,26 +221,29 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     def createStreamSink(componentTpe: Type, outputSize: Option[TreeGen]): StreamSink
   }
   trait StreamSource extends StreamComponent {
-    def emit(direction: TraversalDirection, transform: Tree => Tree)(implicit loop: Loop): StreamValue
+    def emit(direction: TraversalDirection)(implicit loop: Loop): StreamValue
   }
   trait StreamTransformer extends StreamComponent {
     def order: Order
     def reverses = false
+    def resultKind: ResultKind = StreamResult
     
     def transform(value: StreamValue)(implicit loop: Loop): StreamValue
   }
   trait StreamSink extends StreamComponent {
     def output(value: StreamValue)(implicit loop: Loop): Unit
   }
-  def assembleStream(source: StreamSource, transformers: Seq[StreamTransformer], sinkCreator: CanCreateStreamSink, transform: Tree => Tree, unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {
-    implicit val loop = new Loop(unit, pos, currentOwner, localTyper)
+  def assembleStream(source: StreamSource, transformers: Seq[StreamTransformer], sinkCreatorOpt: Option[CanCreateStreamSink], transform: Tree => Tree, unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {
+    implicit val loop = new Loop(unit, pos, currentOwner, localTyper, transform)
     val direction = FromLeft // TODO choose depending on preferred directions...
-    var value = source.emit(direction, transform)
+    var value = source.emit(direction)
     for (transformer <- transformers)
       value = transformer.transform(value)
       
-    val sink = sinkCreator.createStreamSink(value.value.tpe, value.valuesCount)
-    sink.output(value)
+    for (sinkCreator <- sinkCreatorOpt) {
+      val sink = sinkCreator.createStreamSink(value.value.tpe, value.valuesCount)
+      sink.output(value)
+    }
     loop.tree
   }
 }

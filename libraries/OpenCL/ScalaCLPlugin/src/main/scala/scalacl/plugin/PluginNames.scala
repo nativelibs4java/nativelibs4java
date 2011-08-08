@@ -36,6 +36,7 @@ trait PluginNames {
   val untilName = N("until")
   val isEmptyName = N("isEmpty")
   val sumName = N("sum")
+  val productName = N("product")
   val minName = N("min")
   val maxName = N("max")
   val headName = N("head")
@@ -74,32 +75,33 @@ trait PluginNames {
   val packageName = N("package")
   val applyName = N("apply")
 
-  lazy val ScalaCollectionPackage = definitions.getModule(N("scala.collection"))
-  lazy val ScalaMathPackage = definitions.getModule(N("scala.math"))
-  lazy val ScalaReflectPackage = definitions.getModule(N("scala.reflect"))
-  lazy val ScalaMathCommonClass = definitions.getClass(N("scala.MathCommon"))
-  lazy val SeqClass = definitions.getClass(N("scala.collection.Seq"))
-  lazy val SeqModule = definitions.getModule(N("scala.collection.Seq"))
-  lazy val OptionClass = definitions.getClass(N("scala.Option"))
-  lazy val OptionModule = definitions.getModule(N("scala.Option"))
-  lazy val SomeModule = definitions.getModule(N("scala.Some"))
-  lazy val NoneModule = definitions.getModule(N("scala.None"))
-  lazy val CanBuildFromClass = definitions.getClass("scala.collection.generic.CanBuildFrom")
-  lazy val ArrayBufferClass = definitions.getClass("scala.collection.mutable.ArrayBuffer")
-  lazy val RefArrayBuilderClass = definitions.getClass("scala.collection.mutable.ArrayBuilder.ofRef")
-  lazy val RefArrayOpsClass = definitions.getClass("scala.collection.mutable.ArrayOps.ofRef")
-  lazy val WrappedArrayBuilderClass = definitions.getClass("scala.collection.mutable.WrappedArrayBuilder")
-  lazy val VectorBuilderClass = definitions.getClass("scala.collection.immutable.VectorBuilder")
-  lazy val CollectionImmutableModule = definitions.getModule("scala.collection.immutable")
-  //lazy val NonEmptyListClass = definitions.getClass2("scala.$colon$colon$", "scala.collection.immutable.$colon$colon$")
-  //lazy val NonEmptyListClass = definitions.getClass2("scala.$colon$colon", "scala.collection.immutable.$colon$colon")
-  lazy val NonEmptyListClass = definitions.getClass("scala.collection.immutable.$colon$colon")
-  //lazy val NonEmptyListClass = definitions.getMember(CollectionImmutableModule, "::")
-  //lazy val NonEmptyListClass = definitions.getClass2("scala.::", "scala.collection.immutable.::")
-  //lazy val NonEmptyListClass = definitions.getMember(ScalaPackageClass, "::")
-  lazy val ListBufferClass = definitions.getClass("scala.collection.mutable.ListBuffer")
+  def C(name: String) = definitions.getClass(name)
+  def M(name: String) = definitions.getModule(name)
   
+  lazy val ScalaReflectPackage = M("scala.reflect")
+  lazy val ScalaCollectionPackage = M("scala.collection")
+  lazy val ScalaMathPackage = M("scala.math")
   lazy val ScalaMathPackageClass  = ScalaMathPackage.tpe.typeSymbol
+  lazy val ScalaMathCommonClass = C("scala.MathCommon")
+  
+  lazy val SeqModule = M("scala.collection.Seq")
+  lazy val SeqClass  = C("scala.collection.Seq")
+  lazy val IndexedSeqModule = M("scala.collection.IndexedSeq")
+  lazy val IndexedSeqClass  = C("scala.collection.IndexedSeq")
+  lazy val OptionModule = M("scala.Option")
+  lazy val OptionClass  = C("scala.Option")
+  lazy val SomeModule = M("scala.Some")
+  lazy val NoneModule = M("scala.None")
+  
+  lazy val VectorBuilderClass         = C("scala.collection.immutable.VectorBuilder")
+  lazy val NonEmptyListClass          = C("scala.collection.immutable.$colon$colon")
+  lazy val ListBufferClass            = C("scala.collection.mutable.ListBuffer")
+  lazy val ArrayBufferClass           = C("scala.collection.mutable.ArrayBuffer")
+  lazy val WrappedArrayBuilderClass   = C("scala.collection.mutable.WrappedArrayBuilder")
+  lazy val RefArrayBuilderClass       = C("scala.collection.mutable.ArrayBuilder.ofRef")
+  lazy val RefArrayOpsClass           = C("scala.collection.mutable.ArrayOps.ofRef")
+  
+  lazy val CanBuildFromClass = C("scala.collection.generic.CanBuildFrom")
   
   val primArrayNames = Array(
     (IntClass.tpe, "ofInt"),
@@ -115,12 +117,12 @@ trait PluginNames {
   
   lazy val primArrayBuilderClasses = primArrayNames.map { 
     case (sym, n) => 
-      (sym, definitions.getClass("scala.collection.mutable.ArrayBuilder." + n)) 
+      (sym, C("scala.collection.mutable.ArrayBuilder." + n)) 
   } toMap
 
   lazy val primArrayOpsClasses = primArrayNames.map { 
     case (sym, n) => 
-      (sym, definitions.getClass("scala.collection.mutable.ArrayOps." + n)) 
+      (sym, C("scala.collection.mutable.ArrayOps." + n)) 
   } toMap
 
 }

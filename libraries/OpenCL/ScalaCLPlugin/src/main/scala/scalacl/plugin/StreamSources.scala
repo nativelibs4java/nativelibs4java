@@ -25,8 +25,8 @@ trait StreamSources extends Streams with StreamSinks {
     
     override def unwrappedTree = array
     override def privilegedDirection = None
-    def emit(direction: TraversalDirection, transform: Tree => Tree)(implicit loop: Loop) = {
-      import loop.{ unit, currentOwner }
+    def emit(direction: TraversalDirection)(implicit loop: Loop) = {
+      import loop.{ unit, currentOwner, transform }
       val pos = array.pos
 
       val skipFirst = false // TODO
@@ -86,8 +86,8 @@ trait StreamSources extends Streams with StreamSinks {
       
     override def unwrappedTree = list
     override def privilegedDirection = Some(FromLeft)
-    def emit(direction: TraversalDirection, transform: Tree => Tree)(implicit loop: Loop) = {
-      import loop.{ unit, currentOwner }
+    def emit(direction: TraversalDirection)(implicit loop: Loop) = {
+      import loop.{ unit, currentOwner, transform }
       assert(direction == FromLeft)
       
       val pos = list.pos
@@ -120,9 +120,9 @@ trait StreamSources extends Streams with StreamSinks {
   case class RangeStreamSource(tree: Tree, from: Tree, to: Tree, byValue: Int, isUntil: Boolean) extends StreamSource with CanCreateVectorSink {
     override def privilegedDirection = Some(FromLeft)
 
-    def emit(direction: TraversalDirection, transform: Tree => Tree)(implicit loop: Loop) = {
+    def emit(direction: TraversalDirection)(implicit loop: Loop) = {
       assert(direction == FromLeft)
-      import loop.{ unit, currentOwner }
+      import loop.{ unit, currentOwner, transform }
       val pos = tree.pos
       
       val fromVar = newVariable(unit, "from$", currentOwner, tree.pos, false, transform(from).setType(IntClass.tpe))
@@ -181,8 +181,8 @@ trait StreamSources extends Streams with StreamSinks {
   extends StreamSource 
   with CanCreateOptionSink 
   {
-    def emit(direction: TraversalDirection, transform: Tree => Tree)(implicit loop: Loop) = {
-      import loop.{ unit, currentOwner }
+    def emit(direction: TraversalDirection)(implicit loop: Loop) = {
+      import loop.{ unit, currentOwner, transform }
       val pos = tree.pos
       
       loop.isLoop = false
@@ -230,6 +230,19 @@ trait StreamSources extends Streams with StreamSinks {
       )
     }
   }
+  
+  case class ArrayApplyStreamSource(override val tree: Tree, components: List[Tree], override val componentType: Type) 
+  extends ExplicitCollectionStreamSource(tree, components, componentType) with CanCreateArraySink
+  
+  case class SeqApplyStreamSource(override val tree: Tree, components: List[Tree], override val componentType: Type) 
+  extends ExplicitCollectionStreamSource(tree, components, componentType) with CanCreateListSink // default Seq implementation is List
+  
+  case class IndexedSeqApplyStreamSource(override val tree: Tree, components: List[Tree], override val componentType: Type) 
+  extends ExplicitCollectionStreamSource(tree, components, componentType) with CanCreateVectorSink // default IndexedSeq implementation is Vector
+  
+  case class ListApplyStreamSource(override val tree: Tree, components: List[Tree], override val componentType: Type) 
+  extends ExplicitCollectionStreamSource(tree, components, componentType) with CanCreateListSink
+  
   object StreamSource {
     object By {
       def unapply(treeOpt: Option[Tree]) = treeOpt match {
@@ -243,11 +256,13 @@ trait StreamSources extends Streams with StreamSinks {
     }
     def unapply(tree: Tree): Option[StreamSource] = Option(tree) collect {
       case ArrayApply(components, componentType) =>
-        new ExplicitCollectionStreamSource(tree, components, componentType) with CanCreateArraySink
+        new ArrayApplyStreamSource(tree, components, componentType)
       case SeqApply(components, componentType) =>
-        new ExplicitCollectionStreamSource(tree, components, componentType) with CanCreateListSink
+        new SeqApplyStreamSource(tree, components, componentType)
+      case IndexedSeqApply(components, componentType) =>
+        new IndexedSeqApplyStreamSource(tree, components, componentType)
       case ListApply(components, componentType) =>
-        new ExplicitCollectionStreamSource(tree, components, componentType) with CanCreateListSink
+        new ListApplyStreamSource(tree, components, componentType)
       case ArrayTree(array, componentType) =>
         ArrayStreamSource(tree, array, componentType)
       case ListTree(componentType) =>
@@ -257,6 +272,7 @@ trait StreamSources extends Streams with StreamSinks {
       case OptionTree(componentType) =>
         OptionStreamSource(tree, None, onlyIfNotNull = true, componentType)
       case IntRange(from, to, By(byValue), isUntil, filters) =>
+        assert(filters.isEmpty, "Filters are not empty !!!")
         RangeStreamSource(tree, from, to, byValue, isUntil/*, filters*/)
     }
   }

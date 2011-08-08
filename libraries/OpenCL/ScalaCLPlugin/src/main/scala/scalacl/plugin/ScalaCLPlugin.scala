@@ -101,6 +101,9 @@ object ScalaCLPlugin {
     var testOutputs = 
       collection.mutable.Map[Any, Any]()
     
+    var stream = 
+      hasEnv("SCALACL_STREAM")
+      
     var trace =
       settings != null && settings.debug.value ||
       hasEnv("SCALACL_TRACE")
@@ -185,7 +188,7 @@ object ScalaCLPlugin {
 
   def components(global: Global, options: PluginOptions) = List(
     //new MyComponent(global, options),
-    if (hasEnv("SCALACL_STREAM"))
+    if (options.stream)
       new StreamTransformComponent(global, options)
     else
       new LoopsTransformComponent(global, options),

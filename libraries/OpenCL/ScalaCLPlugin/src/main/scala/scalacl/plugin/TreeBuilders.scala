@@ -346,7 +346,7 @@ extends MiscMatchers
   def newAssign(target: IdentGen, value: Tree) =
     Assign(target(), value).setType(UnitClass.tpe)
     
-  def incrementIntVar(identGen: IdentGen, value: Tree) =
+  def incrementIntVar(identGen: IdentGen, value: Tree = newInt(1)) =
     newAssign(identGen, intAdd(identGen(), value))
 
   def decrementIntVar(identGen: IdentGen, value: Tree) =
@@ -401,6 +401,13 @@ extends MiscMatchers
   def newNull(tpe: Type) = 
     Literal(Constant(null)).setType(tpe)
 
+  def newDefaultValue(tpe: Type) = {
+    if (isAnyVal(tpe))
+      Literal(Constant(0: Byte)).setType(tpe)
+    else
+      newNull(tpe)
+  }
+  
   def newUnit() = 
     Literal(Constant()).setType(UnitClass.tpe)
 
@@ -456,6 +463,21 @@ extends MiscMatchers
     ).setSymbol(method)
   }
   
+  def newIf(cond: Tree, thenTree: Tree, elseTree: Tree = null) = {
+    typed { thenTree }
+    if (elseTree != null)
+      typed { elseTree }
+      
+    If(cond, thenTree, Option(elseTree).getOrElse(EmptyTree)).setType {
+      if (elseTree == null)
+        UnitClass.tpe
+      else if (thenTree.tpe == elseTree.tpe)
+        thenTree.tpe
+      else
+        throw new RuntimeException("Mismatching types between then and else : " + thenTree.tpe + " vs. " + elseTree.tpe)
+    }
+  }
+  
   def newVariable(
     unit: CompilationUnit,
     prefix: String,
@@ -463,7 +485,7 @@ extends MiscMatchers
     pos: Position,
     mutable: Boolean,
     initialValue: Tree
-  ) = {
+  ): VarDef = {
     typed { initialValue }
     var tpe = initialValue.tpe
     if (tpe.isInstanceOf[ConstantType])

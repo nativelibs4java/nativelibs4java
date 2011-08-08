@@ -46,7 +46,7 @@ case object MapType extends ColType("Map")
 case object OptionType extends ColType("Option")
 
 
-trait MiscMatchers extends PluginNames {
+trait MiscMatchers extends PluginNames with WithOptions {
   val global: Global
   import global._
   import definitions._
@@ -143,7 +143,7 @@ trait MiscMatchers extends PluginNames {
             Option(n) collect {
                 case byName() if by == None =>
                     (from, to, Some(arg), isUntil, filters)
-                case withFilterName() | filterName() =>
+                case withFilterName() | filterName() if !options.stream =>
                     (from, to, by, isUntil, filters ++ List(arg))
             }
           case _ =>
@@ -295,6 +295,7 @@ trait MiscMatchers extends PluginNames {
   object OptionApply extends CollectionApply(OptionModule, OptionClass)
   object ArrayApply extends CollectionApply(ArrayModule, ArrayClass)
   object SeqApply extends CollectionApply(SeqModule, SeqClass)
+  object IndexedSeqApply extends CollectionApply(IndexedSeqModule, IndexedSeqClass)
   object ListApply extends CollectionApply(ListModule, ListClass)
   
   object OptionTree {

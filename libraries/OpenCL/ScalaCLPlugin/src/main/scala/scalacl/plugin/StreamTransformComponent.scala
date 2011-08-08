@@ -79,19 +79,22 @@ extends PluginComponent
           //println("Trying to match " + colTree)
           colTree match {
             case TraversalOp(traversalOp) if traversalOp.op.isInstanceOf[StreamTransformer] =>
-              println("found op " + traversalOp + "\n\twith collection = " + traversalOp.collection)
-              ops = traversalOp.op.asInstanceOf[StreamTransformer] :: ops
+              //println("found op " + traversalOp + "\n\twith collection = " + traversalOp.collection)
+              val trans = traversalOp.op.asInstanceOf[StreamTransformer]
+              if (trans.resultKind != StreamResult)
+                ops = List()
+              ops = trans :: ops
               colTree = traversalOp.collection
             case StreamSource(cr) =>
-              println("found streamSource " + cr + " (ops = " + ops + ")")
+              //println("found streamSource " + cr + " (ops = " + ops + ")")
               source = cr
               if (colTree != cr.unwrappedTree)
                 colTree = cr.unwrappedTree
               else
                 finished = true
             case _ =>
-              if (!ops.isEmpty)
-                println("Finished with " + ops.size + " ops upon "+ tree + " ; source = " + source + " ; colTree = " + colTree)
+              //if (!ops.isEmpty)
+              //  println("Finished with " + ops.size + " ops upon "+ tree + " ; source = " + source + " ; colTree = " + colTree)
               finished = true
           }
         }
@@ -119,18 +122,20 @@ extends PluginComponent
               matchedColTreeIds += colTree.id
               msg(unit, tree.pos, "# " + txt) {
                 val canCreateSinkLookup = Seq(source) ++ ops
-                canCreateSinkLookup.collect({ case ccss: CanCreateStreamSink => ccss }).lastOption match {
-                  case Some(sinkCreator) =>
-                    val asm = assembleStream(source, ops, sinkCreator, super.transform _, unit, tree.pos, currentOwner, localTyper)
-                    println("Found ops = " + ops)
-                    //println("assembled stream with " + ops.size + " operations and sink " + sinkCreator + " out of tree " + tree + " : " + asm)
-                    //super.transform(tree)
-                    
-                    asm
-                  case _  =>
-                    println("Failed to find any CanCreateStreamSink instance in source ++ ops = " + canCreateSinkLookup + " !")
-                    super.transform(tree)
-                }
+                val sinkCreatorOpt = 
+                  if (ops.last.resultKind == StreamResult)
+                    canCreateSinkLookup.collect({ case ccss: CanCreateStreamSink => ccss }).lastOption match {
+                      case Some(sinkCreator) =>
+                        Some(sinkCreator)
+                      case _ =>
+                        throw new UnsupportedOperationException("Failed to find any CanCreateStreamSink instance in source ++ ops = " + canCreateSinkLookup + " !")
+                    }
+                  else
+                    None
+                
+                val asm = assembleStream(source, ops, sinkCreatorOpt, this.transform _, unit, tree.pos, currentOwner, localTyper)
+                //println(txt + "\n\t" + asm.toString.replaceAll("\n", "\n\t"))
+                asm
               }
             case _ =>
               super.transform(tree)//toMatch)
