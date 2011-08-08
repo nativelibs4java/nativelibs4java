@@ -20,7 +20,7 @@ object PerformanceTest {
   val deprecated = new ScalaCLPlugin.PluginOptions(null).deprecated
 }
 class MatrixPerformanceTest extends TestUtils {
-  import PerformanceTest.skip
+  import PerformanceTest.{ skip, stream }
   
   @Test def simpleMatrixTest = if (!skip) ensureFasterCodeWithSameResult(
     """
@@ -55,7 +55,7 @@ class MatrixPerformanceTest extends TestUtils {
 }
 
 class PerformanceTest extends TestUtils {
-  import PerformanceTest.{ skip, stream }
+  import PerformanceTest.{ skip, deprecated, stream }
   
   val arr = ("val col = Array.tabulate(n)(i => i)", "col") 
   val lis = ("val col = (0 to n).toList", "col.filter(v => (v % 2) == 0).map(_ * 2)")

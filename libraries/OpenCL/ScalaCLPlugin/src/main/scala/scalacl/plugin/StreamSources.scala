@@ -75,14 +75,22 @@ trait StreamSources extends Streams with StreamSinks {
     }
   }
   case class ArrayStreamSource(tree: Tree, array: Tree, componentType: Type) 
-  extends AbstractArrayStreamSource with CanCreateArraySink
+  extends AbstractArrayStreamSource with CanCreateArraySink {
+    override def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) =
+      true
+  }
   
   abstract class ExplicitCollectionStreamSource(val tree: Tree, items: List[Tree], val componentType: Type) 
   extends AbstractArrayStreamSource {
     val array = newArrayApply(newTypeTree(componentType), items:_*)
+    override def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) = 
+      items.forall(analyzer.isSideEffectFree(_))
   }
   case class ListStreamSource(tree: Tree, componentType: Type) extends StreamSource with CanCreateListSink {
     val list = tree // TODO 
+      
+    override def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) =
+      true
       
     override def unwrappedTree = list
     override def privilegedDirection = Some(FromLeft)
@@ -120,6 +128,9 @@ trait StreamSources extends Streams with StreamSinks {
   case class RangeStreamSource(tree: Tree, from: Tree, to: Tree, byValue: Int, isUntil: Boolean) extends StreamSource with CanCreateVectorSink {
     override def privilegedDirection = Some(FromLeft)
 
+    override def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) =
+      true
+    
     def emit(direction: TraversalDirection)(implicit loop: Loop) = {
       assert(direction == FromLeft)
       import loop.{ unit, currentOwner, transform }
@@ -181,6 +192,9 @@ trait StreamSources extends Streams with StreamSinks {
   extends StreamSource 
   with CanCreateOptionSink 
   {
+    override def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) =
+      true
+    
     def emit(direction: TraversalDirection)(implicit loop: Loop) = {
       import loop.{ unit, currentOwner, transform }
       val pos = tree.pos

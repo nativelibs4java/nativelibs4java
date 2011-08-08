@@ -217,12 +217,17 @@ trait Streams extends TreeBuilders with TupleAnalysis {
         CanChainResult(true, None)
     }
   }
+  
+  trait SideEffectFreeAnalyzer {
+    def isSideEffectFree(tree: Tree): Boolean
+  }
+  
   trait StreamComponent extends StreamChainTestable {
     def tree: Tree
     
     /// Used to chain stream detection : give the unwrapped content of the tree
     def unwrappedTree = tree
-    
+    def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer): Boolean
   }
   trait CanCreateStreamSink extends StreamChainTestable {
     override def consumesExtraFirstValue: Boolean = true
@@ -240,6 +245,9 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     def transform(value: StreamValue)(implicit loop: Loop): StreamValue
   }
   trait StreamSink extends StreamComponent {
+    override def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) =
+      true
+    
     def output(value: StreamValue)(implicit loop: Loop): Unit
   }
   def assembleStream(source: StreamSource, transformers: Seq[StreamTransformer], sinkCreatorOpt: Option[CanCreateStreamSink], transform: Tree => Tree, unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {

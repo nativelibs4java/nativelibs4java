@@ -45,8 +45,19 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
       override def transformedValue(value: StreamValue, totalVar: VarDef, initVar: VarDef)(implicit loop: Loop): StreamValue = 
         null
     }
-    trait Function1Transformer extends StreamTransformer {
+    trait SideEffectFreeScalarReduction extends ScalarReduction {
+      override def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) =
+        true
+    }
+    trait FunctionTransformer extends StreamTransformer {
       def f: Tree
+      
+      def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) =
+        analyzer.isSideEffectFree(f)
+        // Initial value does not affect the stream :
+        // && analyzer.isSideEffectFree(initialValue)
+    }
+    trait Function1Transformer extends FunctionTransformer {
       lazy val Func(List(arg), body) = f
       def transformedFunc(value: StreamValue)(implicit loop: Loop) = 
         replaceOccurrences(
@@ -59,8 +70,7 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
           loop.unit
         )
     }
-    trait Function2Reduction extends Reductoid {
-      def f: Tree
+    trait Function2Reduction extends Reductoid with FunctionTransformer {
       lazy val Func(List(leftParam, rightParam), body) = f
       
       override def updateTotalWithValue(total: TreeGen, value: TreeGen)(implicit loop: Loop): ReductionTotalUpdate = {
@@ -183,7 +193,7 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
       
       override def consumesExtraFirstValue = true
       override def producesExtraFirstValue = true
-    
+      
       override def transformedValue(value: StreamValue, totalVar: VarDef, initVar: VarDef)(implicit loop: Loop): StreamValue = {
         value.copy(
           value = new DefaultTupleValue(totalVar),
@@ -202,7 +212,7 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
       override def consumesExtraFirstValue = true
       override def order = SameOrder
     }
-    case class SumOp(tree: Tree) extends TraversalOpType with ScalarReduction {
+    case class SumOp(tree: Tree) extends TraversalOpType with SideEffectFreeScalarReduction {
       override def toString = "sum"
       override val f = null
       override def order = Unordered
@@ -214,7 +224,7 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
         ReductionTotalUpdate(binOp(totIdent, totIdent.tpe.member(nme.PLUS), valueIdent))
       }
     }
-    case class ProductOp(tree: Tree) extends TraversalOpType with ScalarReduction {
+    case class ProductOp(tree: Tree) extends TraversalOpType with SideEffectFreeScalarReduction {
       override def toString = "product"
       override val f = null
       override def order = Unordered
@@ -245,7 +255,7 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
         null
       }
     }
-    case class MinOp(tree: Tree) extends TraversalOpType with ScalarReduction {
+    case class MinOp(tree: Tree) extends TraversalOpType with SideEffectFreeScalarReduction {
       override def toString = "min"
       override val loopSkipsFirst = true
       override val f = null
@@ -258,7 +268,7 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
         ReductionTotalUpdate(valueIdent, conditionOpt = Some(binOp(valueIdent, totIdent.tpe.member(nme.LT), totIdent)))
       }
     }
-    case class MaxOp(tree: Tree) extends TraversalOpType with ScalarReduction {
+    case class MaxOp(tree: Tree) extends TraversalOpType with SideEffectFreeScalarReduction {
       override def toString = "max"
       override val loopSkipsFirst = true
       override val f = null
@@ -391,6 +401,9 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
       override val f = null
       override def transform(value: StreamValue)(implicit loop: Loop): StreamValue = 
         value
+        
+      override def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) =
+        true
         
       override def order = SameOrder
     }
