@@ -115,7 +115,7 @@ extends PluginComponent
       else
         try {
           tree match {
-            case OpsStream(opsStream) if /*(opsStream.source ne null) &&*/ !opsStream.ops.isEmpty && (opsStream ne null) && (opsStream.colTree ne null) && !matchedColTreeIds.contains(opsStream.colTree.id) =>
+            case OpsStream(opsStream) if (opsStream.source ne null) && !opsStream.ops.isEmpty && (opsStream ne null) && (opsStream.colTree ne null) && !matchedColTreeIds.contains(opsStream.colTree.id) =>
               import opsStream._
               
               val txt = "Streamed ops on " + (if (source == null) "UNKNOWN COL" else source.tree.tpe) + " : " + ops/*.map(_.getClass.getName)*/.mkString(", ")
@@ -142,7 +142,7 @@ extends PluginComponent
           }
         } catch {
           case ex =>
-            ex.printStackTrace
+            //ex.printStackTrace
             super.transform(tree)
         }
     }
