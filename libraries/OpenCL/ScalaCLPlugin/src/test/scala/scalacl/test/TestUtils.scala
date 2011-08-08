@@ -370,7 +370,7 @@ trait TestUtils {
       fail(pref + "ERROR: Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
     }
   }
-  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(2, 10, 1000, 100000)/*10000, 100, 20, 2)*/, nRuns: Int = perfRuns, minFaster: Double = 1.0): Unit = {
+  def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(2, 10, 1000, 100000)/*10000, 100, 20, 2)*/, minFaster: Double = 1.0, nRuns: Int = perfRuns): Unit = {
     
     val (testClassName, methodName) = testClassInfo
     

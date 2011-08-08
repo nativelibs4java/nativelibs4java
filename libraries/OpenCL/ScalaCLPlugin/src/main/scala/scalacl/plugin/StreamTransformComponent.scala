@@ -61,7 +61,8 @@ extends PluginComponent
   import global.definitions._
   import scala.tools.nsc.symtab.Flags._
   import typer.{typed, atOwner}    // methods to type trees
-
+  import System.getenv
+  
   override val runsAfter = StreamTransformComponent.runsAfter
   override val runsBefore = StreamTransformComponent.runsBefore
   override val phaseName = StreamTransformComponent.phaseName
@@ -115,7 +116,129 @@ extends PluginComponent
       else
         try {
           tree match {
-            case OpsStream(opsStream) if (opsStream.source ne null) && !opsStream.ops.isEmpty && (opsStream ne null) && (opsStream.colTree ne null) && !matchedColTreeIds.contains(opsStream.colTree.id) =>
+            case ArrayTabulate(componentType, lengths @ (firstLength :: otherLengths), f @ Func(params, body), manifest) if "0" != getenv("SCALACL_TRANSFORM_TABULATE") =>
+              val tpe = body.tpe
+              val returnType = if (tpe.isInstanceOf[ConstantType]) 
+                tpe.widen
+              else
+                tpe
+              
+              val lengthDefs = lengths.map(length => newVariable(unit, "n$", currentOwner, tree.pos, false, length.setType(IntClass.tpe)))
+                  
+              msg(unit, tree.pos, "transformed Array.tabulate[" + returnType + "] into equivalent while loop") {
+                  
+                def replaceTabulates(lengthDefs: List[VarDef], parentArrayIdentGen: IdentGen, params: List[ValDef], mappings: Map[Symbol, TreeGen], symbolReplacements: Map[Symbol, Symbol]): (Tree, Type) = {
+              
+                  val param = params.head
+                  val pos = tree.pos
+                  val nVar = lengthDefs.head
+                  val iVar = newVariable(unit, "i$", currentOwner, pos, true, newInt(0))
+                  val iVal = newVariable(unit, "i$val$", currentOwner, pos, false, iVar())
+                  
+                  val newMappings: Map[Symbol, TreeGen] = mappings + (param.symbol -> iVal)
+                  val newReplacements = symbolReplacements ++ Map(param.symbol -> iVal.symbol, f.symbol -> currentOwner)
+                  
+                  val mappedArrayTpe = getArrayType(lengthDefs.size, returnType)
+                  
+                  val arrayVar = if (parentArrayIdentGen == null)
+                    newVariable(unit, "m$", currentOwner, tree.pos, false, newArrayMulti(mappedArrayTpe, returnType, lengthDefs.map(_.identGen()), manifest))
+                  else
+                    VarDef(parentArrayIdentGen, null, null)
+                  
+                  val subArrayVar =  if (lengthDefs.tail == Nil)
+                    null
+                  else
+                    newVariable(unit, "subArray$", currentOwner, tree.pos, false, newApply(tree.pos, arrayVar(), iVal()))
+                                    
+                  val (newBody, bodyType) = if (lengthDefs.tail == Nil)
+                      (
+                          replaceOccurrences(
+                            body,
+                            newMappings,
+                            newReplacements,
+                            Map(),
+                            unit
+                          ),
+                          returnType
+                      )
+                  else
+                      replaceTabulates(
+                        lengthDefs.tail,
+                        subArrayVar,
+                        params.tail,
+                        newMappings,
+                        newReplacements
+                      )
+                  
+                  newBody.setType(bodyType)
+                  
+                  (
+                    super.transform {
+                      typed {
+                        treeCopy.Block(
+                          tree,
+                          (
+                            if (parentArrayIdentGen == null) 
+                              lengthDefs.map(_.definition) ++ List(arrayVar.definition)
+                            else 
+                              Nil
+                          ) ++
+                          List(
+                            iVar.definition,
+                            whileLoop(
+                              currentOwner,
+                              unit,
+                              tree,
+                              binOp(
+                                iVar(),
+                                IntClass.tpe.member(nme.LT),
+                                nVar()
+                              ),
+                              Block(
+                                (
+                                  if (lengthDefs.tail == Nil)
+                                    List(
+                                      iVal.definition,
+                                      newUpdate(
+                                        tree.pos,
+                                        arrayVar(),
+                                        iVar(),
+                                        newBody
+                                      )
+                                    )
+                                  else {
+                                    List(
+                                      iVal.definition,
+                                      subArrayVar.definition,
+                                      newBody
+                                    )
+                                  }
+                                ),
+                                incrementIntVar(iVar, newInt(1))
+                              )
+                            )
+                          ),
+                          if (parentArrayIdentGen == null)
+                            arrayVar()
+                          else
+                            newUnit
+                        )
+                      }
+                    },
+                    mappedArrayTpe
+                  )
+                }
+                replaceTabulates(lengthDefs, null, params, Map(), Map())._1
+              }
+            case OpsStream(opsStream) 
+            if 
+              options.stream &&
+              (opsStream.source ne null) && 
+              !opsStream.ops.isEmpty && 
+              (opsStream ne null) && 
+              (opsStream.colTree ne null) && 
+              !matchedColTreeIds.contains(opsStream.colTree.id) 
+              =>
               import opsStream._
               
               val txt = "Streamed ops on " + (if (source == null) "UNKNOWN COL" else source.tree.tpe) + " : " + ops/*.map(_.getClass.getName)*/.mkString(", ")

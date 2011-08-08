@@ -17,11 +17,43 @@ object PerformanceTest {
     !test
   } 
 }
+class MatrixPerformanceTest extends TestUtils {
+  import PerformanceTest.skip
+  
+  @Test def simpleMatrixTest = if (!skip) ensureFasterCodeWithSameResult(
+  """
+    val a = Array.tabulate[Double](n, n)(_ + _)
+    val b = Array.tabulate[Double](n, n)(_ + _)
+  """,
+  """
+    /*
+    var bigTot = 0.0
+    val o = Array.tabulate(n, n)((i, j) => {
+      var tot = 0.0
+      for (k <- 0 until n)
+        tot += a(i)(k) * b(k)(j)
+
+      bigTot += tot
+      tot
+    })
+    bigTot + o.size*/
+    //
+    
+    val out = Array.tabulate[Double](n, n)((i, j) => {
+      (0 until n).map(k => a(i)(k) * b(k)(j)).sum
+    })
+    
+    out.map(_.toSeq).toSeq // to make it equals-comparable
+    
+  """, Seq(100), minFaster = 20.0)
+
+}
+
 class PerformanceTest extends TestUtils {
   import PerformanceTest.skip
   
   val arr = ("val col = Array.tabulate(n)(i => i)", "col") 
-  val lis = ("val col = (0 to n).toList", "col")
+  val lis = ("val col = (0 to n).toList", "col.filter(v => (v % 2) == 0).map(_ * 2)")
   val rng = (null, "(0 until n)")
 
   import options.{ experimental, stream } // SCALACL_EXPERIMENTAL
@@ -102,25 +134,6 @@ class PerformanceTest extends TestUtils {
   @Test def simpleArrayReduceLeft = testReduceLeft(arr)   
   @Test def simpleArrayReduceRight = testReduceRight(arr) 
   
-  @Test def simpleMatrixTest = if (!skip) ensureFasterCodeWithSameResult(
-  """
-    val a = Array.tabulate[Double](n, n)(_ + _)
-    val b = Array.tabulate[Double](n, n)(_ + _)
-  """,
-  """
-    var bigTot = 0.0
-    val o = Array.tabulate(n, n)((i, j) => {
-      var tot = 0.0
-      for (k <- 0 until n)
-        tot += a(i)(k) * b(k)(j)
-
-      bigTot += tot
-      tot
-    })
-    bigTot + o.size
-    //(0 until n).map(k => a(i)(k) * b(k)(j)).sum
-  """, Seq(100))
-
   val oddPred = "x => (x % 2) != 0"
   val firstHalfPred = "x => x < n / 2"
   val midPred = "x => x == n / 2"

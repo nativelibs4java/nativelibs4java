@@ -188,10 +188,11 @@ object ScalaCLPlugin {
 
   def components(global: Global, options: PluginOptions) = List(
     //new MyComponent(global, options),
-    if (options.stream)
-      new StreamTransformComponent(global, options)
+    new StreamTransformComponent(global, options),
+    if (!options.stream)
+      new LoopsTransformComponent(global, options)
     else
-      new LoopsTransformComponent(global, options),
+      null,
     try {
       new ScalaCLFunctionsTransformComponent(global, options)
     } catch { 

@@ -248,6 +248,15 @@ trait MiscMatchers extends PluginNames with WithOptions {
     tpe == CharClass.tpe ||
     tpe == BooleanClass.tpe
     
+  def getArrayType(dimensions: Int, componentType: Type): Type = dimensions match {
+    case 1 => 
+      appliedType(ArrayClass.tpe, List(componentType))
+    case _ =>
+      assert(dimensions > 1)
+      appliedType(ArrayClass.tpe, List(getArrayType(dimensions - 1, componentType)))
+  }
+  
+  
   object BasicTypeApply {
     def unapply(tree: Tree): Option[(Tree, Name, List[Tree], Seq[List[Tree]])] = tree match {
       case 
