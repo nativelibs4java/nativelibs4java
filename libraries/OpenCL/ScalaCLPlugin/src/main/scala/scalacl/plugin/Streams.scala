@@ -147,6 +147,8 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     if (elements.isEmpty && tpe != UnitClass.tpe)
       throw new RuntimeException("Invalid elements with tpe " + tpe + " : " + elements.mkString(", "))
       
+    def this(vd: VarDef) = this(vd.tpe, vd)
+    
     override def apply(): Ident = {
       if (elements.size != 1)
         throw new UnsupportedOperationException("TODO tpe " + tpe + ", elements = " + elements.mkString(", "))
@@ -172,23 +174,12 @@ trait Streams extends TreeBuilders with TupleAnalysis {
         throw new RuntimeException("not implemented")
   }
   
-  /*trait StreamValue {
-    def value: TupleValue
-    def valueIndex: Option[IdentGen]
-    def valuesCount: Option[IdentGen]
-    def copyWithValue(newValue: TupleValue) = {
-      new SimpleStreamValue(newValue, valueIndex, valuesCount)
-    }
-  }
-  class SimpleStreamValue(val value: TupleValue, val valueIndex: Option[IdentGen], val valuesCount: Option[IdentGen]) extends StreamValue {
-    def this(value: VarDef, valueIndex: Option[VarDef], valuesCount: Option[VarDef]) =
-      this(new DefaultTupleValue(value.definition.tpe, value), valueIndex.map(_.identGen), valuesCount.map(_.identGen))
-  }*/
   implicit def varDef2TupleValue(value: VarDef) =
     new DefaultTupleValue(value.definition.tpe, value)
     
   case class StreamValue(
     value: TupleValue, 
+    extraFirstValue: Option[TupleValue] = None,
     valueIndex: Option[TreeGen] = None, 
     valuesCount: Option[TreeGen] = None
   ) {
@@ -210,14 +201,25 @@ trait Streams extends TreeBuilders with TupleAnalysis {
   case object ScalarResult extends ResultKind
   case object StreamResult extends ResultKind
   
-  trait StreamComponent {
+  case class CanChainResult(canChain: Boolean, reason: Option[String])
+  trait StreamChainTestable {
+    def consumesExtraFirstValue: Boolean = false
+    def producesExtraFirstValue: Boolean = false
+    def privilegedDirection: Option[TraversalDirection] = None
+    
+    def canChainAfter(previous: StreamChainTestable, privilegedDirection: Option[TraversalDirection]): CanChainResult = 
+      CanChainResult(true, None)
+  }
+  trait StreamComponent extends StreamChainTestable {
     def tree: Tree
     
     /// Used to chain stream detection : give the unwrapped content of the tree
     def unwrappedTree = tree
-    def privilegedDirection: Option[TraversalDirection] = None
+    
   }
-  trait CanCreateStreamSink {
+  trait CanCreateStreamSink extends StreamChainTestable {
+    override def consumesExtraFirstValue: Boolean = true
+    
     def createStreamSink(componentTpe: Type, outputSize: Option[TreeGen]): StreamSink
   }
   trait StreamSource extends StreamComponent {
@@ -227,7 +229,14 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     def order: Order
     def reverses = false
     def resultKind: ResultKind = StreamResult
-    
+    def canChainAfter(previous: StreamSource, privilegedDirection: Option[TraversalDirection]) = {
+      if (previous.producesExtraFirstValue && !consumesExtraFirstValue)
+        CanChainResult(false, Some("Operation " + this + " cannot consume the extra first value produced by " + previous))
+      else if (privilegedDirection != None && privilegedDirection != this.privilegedDirection)
+        CanChainResult(false, Some("Operation " + this + " has a privileged direction incompatible with " + privilegedDirection))
+      else
+        CanChainResult(true, None)
+    }
     def transform(value: StreamValue)(implicit loop: Loop): StreamValue
   }
   trait StreamSink extends StreamComponent {
@@ -235,8 +244,22 @@ trait Streams extends TreeBuilders with TupleAnalysis {
   }
   def assembleStream(source: StreamSource, transformers: Seq[StreamTransformer], sinkCreatorOpt: Option[CanCreateStreamSink], transform: Tree => Tree, unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {
     implicit val loop = new Loop(unit, pos, currentOwner, localTyper, transform)
-    val direction = FromLeft // TODO choose depending on preferred directions...
-    var value = source.emit(direction)
+    var direction: Option[TraversalDirection] = None // TODO choose depending on preferred directions...
+    
+    for (Seq(a, b) <- (Seq(source) ++ transformers ++ sinkCreatorOpt.toSeq).sliding(2, 1)) {
+      print("Testing " + a + " against " + b + " with direction " + direction + "...")
+      val CanChainResult(canChain, reason) = b.canChainAfter(a, direction)
+      if (!canChain) {
+        println(" failure ! " + reason)
+        throw new RuntimeException("Cannot chain streams" + reason.map(" : " + _).getOrElse("."))
+      }
+      direction = b.privilegedDirection.orElse(direction)
+      println(" success !")
+    }
+    //direction = direction.getOrElse
+    
+    var value = source.emit(direction.getOrElse(FromLeft))
+    
     for (transformer <- transformers)
       value = transformer.transform(value)
       

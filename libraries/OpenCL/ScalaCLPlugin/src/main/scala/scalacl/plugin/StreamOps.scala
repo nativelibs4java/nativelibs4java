@@ -42,7 +42,7 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
 
     trait ScalarReduction extends Reductoid {
       override def resultKind = ScalarResult
-      override def transformedValue(value: StreamValue, totalGen: IdentGen)(implicit loop: Loop): StreamValue = 
+      override def transformedValue(value: StreamValue, totalVar: VarDef, initVar: VarDef)(implicit loop: Loop): StreamValue = 
         null
     }
     trait Function1Transformer extends StreamTransformer {
@@ -63,7 +63,7 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
       def f: Tree
       lazy val Func(List(leftParam, rightParam), body) = f
       
-      override def updateTotalWithValue(total: IdentGen, value: IdentGen)(implicit loop: Loop): ReductionTotalUpdate = {
+      override def updateTotalWithValue(total: TreeGen, value: TreeGen)(implicit loop: Loop): ReductionTotalUpdate = {
         import loop.{ unit, currentOwner }
         val result = replaceOccurrences(
           loop.transform(body),
@@ -90,23 +90,44 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
       
       case class ReductionTotalUpdate(newTotalValue: Tree, conditionOpt: Option[Tree] = None)
       
-      def updateTotalWithValue(total: IdentGen, value: IdentGen)(implicit loop: Loop): ReductionTotalUpdate
-      
-      def hasInitialValue = false
-      def createInitialValue(tpe: Type): Tree = 
-        newDefaultValue(tpe)
+      val initialValue: Tree
+      def hasInitialValue(value: StreamValue) = 
+        initialValue != null || value.extraFirstValue != None
         
-      def transformedValue(value: StreamValue, totalGen: IdentGen)(implicit loop: Loop): StreamValue
+      def updateTotalWithValue(total: TreeGen, value: TreeGen)(implicit loop: Loop): ReductionTotalUpdate
+      
+      //def hasInitialValue = false
+      
+      override def consumesExtraFirstValue = true
+      def createInitialValue(value: StreamValue)(implicit loop: Loop): Tree = {
+        //println("value.extraFirstValue = " + value.extraFirstValue)
+        (Option(initialValue), value.extraFirstValue) match {
+          case (Some(i), Some(e)) =>
+            updateTotalWithValue(() => i, () => e()).newTotalValue
+          case (None, Some(e)) =>
+            e()
+          case (Some(i), None) =>
+            i
+          case (None, None) =>
+            newDefaultValue(value.tpe)
+        }
+      }
+        
+      def transformedValue(value: StreamValue, totalVar: VarDef, initVar: VarDef)(implicit loop: Loop): StreamValue
       
       override def transform(value: StreamValue)(implicit loop: Loop): StreamValue = {
         import loop.{ unit, currentOwner }
         
+        val initVar = newVariable(unit, op + "$", currentOwner, tree.pos, true,
+          createInitialValue(value)
+        )
         val totVar = newVariable(unit, op + "$", currentOwner, tree.pos, true,
-          createInitialValue(value.tpe)
+          initVar()
         )
         val hasTotVar = newVariable(unit, "has" + op + "$", currentOwner, tree.pos, true,
-          newBool(false)
+          newBool(hasInitialValue(value))
         )
+        loop.preOuter += initVar.definition
         loop.preOuter += totVar.definition
         loop.preOuter += hasTotVar.definition
         
@@ -119,7 +140,7 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
           conditionOpt.map(newIf(_, totAssign)).getOrElse(totAssign)
         
         loop.inner += (
-          if (!hasInitialValue)
+          if (!hasInitialValue(value))
             newIf(
               boolNot(hasTotVar()),
               Block(
@@ -135,33 +156,39 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
         
         loop.postOuter += totVar()
         
-        transformedValue(value, totVar)
+        transformedValue(
+          if (producesExtraFirstValue)
+            value.copy(extraFirstValue = Some(new DefaultTupleValue(initVar)))
+          else
+            value, 
+          totVar,
+          initVar
+        )
       }
     }
     
-    case class FoldOp(tree: Tree, f: Tree, initialValue: Tree, isLeft: Boolean) extends TraversalOpType with ScalarReduction with Function2Reduction {
+    case class FoldOp(tree: Tree, f: Tree, override val initialValue: Tree, isLeft: Boolean) extends TraversalOpType with ScalarReduction with Function2Reduction {
       override def toString = "fold" + (if (isLeft) "Left" else "Right")
       override val needsInitialValue = true
       override val needsFunction: Boolean = true
       
-      override def hasInitialValue = true
-      override def createInitialValue(tpe: Type) =  
-        initialValue
+      override def consumesExtraFirstValue = true
       
       override def order = SameOrder
     }
-    case class ScanOp(tree: Tree, f: Tree, initialValue: Tree, isLeft: Boolean) extends TraversalOpType with Function2Reduction {
+    case class ScanOp(tree: Tree, f: Tree, override val initialValue: Tree, isLeft: Boolean) extends TraversalOpType with Function2Reduction {
       override def toString = "scan" + (if (isLeft) "Left" else "Right")
       override val needsInitialValue = true
       override val needsFunction: Boolean = true
       
-      override def hasInitialValue = true
-      override def createInitialValue(tpe: Type) =  
-        initialValue
-      
-      override def transformedValue(value: StreamValue, totalGen: IdentGen)(implicit loop: Loop): StreamValue = {
-        val total = totalGen()
-        value.copy(value = new DefaultTupleValue(total.tpe, totalGen))
+      override def consumesExtraFirstValue = true
+      override def producesExtraFirstValue = true
+    
+      override def transformedValue(value: StreamValue, totalVar: VarDef, initVar: VarDef)(implicit loop: Loop): StreamValue = {
+        value.copy(
+          value = new DefaultTupleValue(totalVar),
+          extraFirstValue = Some(new DefaultTupleValue(initVar))
+        )
       }
         
       override def order = SameOrder
@@ -170,15 +197,18 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
       override def toString = "reduce" + (if (isLeft) "Left" else "Right")
       override val needsFunction: Boolean = true
       override val loopSkipsFirst = true
+      override val initialValue = null
       
+      override def consumesExtraFirstValue = true
       override def order = SameOrder
     }
     case class SumOp(tree: Tree) extends TraversalOpType with ScalarReduction {
       override def toString = "sum"
       override val f = null
       override def order = Unordered
+      override val initialValue = null
       
-      override def updateTotalWithValue(totIdentGen: IdentGen, valueIdentGen: IdentGen)(implicit loop: Loop): ReductionTotalUpdate = {
+      override def updateTotalWithValue(totIdentGen: TreeGen, valueIdentGen: TreeGen)(implicit loop: Loop): ReductionTotalUpdate = {
         val totIdent = totIdentGen()
         val valueIdent = valueIdentGen()
         ReductionTotalUpdate(binOp(totIdent, totIdent.tpe.member(nme.PLUS), valueIdent))
@@ -188,8 +218,9 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
       override def toString = "product"
       override val f = null
       override def order = Unordered
+      override val initialValue = null
       
-      override def updateTotalWithValue(totIdentGen: IdentGen, valueIdentGen: IdentGen)(implicit loop: Loop): ReductionTotalUpdate = {
+      override def updateTotalWithValue(totIdentGen: TreeGen, valueIdentGen: TreeGen)(implicit loop: Loop): ReductionTotalUpdate = {
         val totIdent = totIdentGen()
         val valueIdent = valueIdentGen()
         ReductionTotalUpdate(binOp(totIdent, totIdent.tpe.member(nme.STAR), valueIdent))
@@ -219,8 +250,9 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
       override val loopSkipsFirst = true
       override val f = null
       override def order = Unordered
+      override val initialValue = null
       
-      override def updateTotalWithValue(totIdentGen: IdentGen, valueIdentGen: IdentGen)(implicit loop: Loop): ReductionTotalUpdate = {
+      override def updateTotalWithValue(totIdentGen: TreeGen, valueIdentGen: TreeGen)(implicit loop: Loop): ReductionTotalUpdate = {
         val totIdent = totIdentGen()
         val valueIdent = valueIdentGen()
         ReductionTotalUpdate(valueIdent, conditionOpt = Some(binOp(valueIdent, totIdent.tpe.member(nme.LT), totIdent)))
@@ -231,8 +263,9 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
       override val loopSkipsFirst = true
       override val f = null
       override def order = Unordered
+      override val initialValue = null
       
-      override def updateTotalWithValue(totIdentGen: IdentGen, valueIdentGen: IdentGen)(implicit loop: Loop): ReductionTotalUpdate = {
+      override def updateTotalWithValue(totIdentGen: TreeGen, valueIdentGen: TreeGen)(implicit loop: Loop): ReductionTotalUpdate = {
         val totIdent = totIdentGen()
         val valueIdent = valueIdentGen()
         ReductionTotalUpdate(valueIdent, conditionOpt = Some(binOp(valueIdent, totIdent.tpe.member(nme.GT), totIdent)))
@@ -300,10 +333,7 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
         val mappedVar = newVariable(loop.unit, "mapped$", loop.currentOwner, loop.pos, false, transformedFunc(value))
         loop.inner += mappedVar.definition
         
-        value.copy(value = new DefaultTupleValue(
-          mappedVar.tpe,
-          mappedVar // TODO
-        ))
+        value.copy(value = new DefaultTupleValue(mappedVar))
       }
     }
     

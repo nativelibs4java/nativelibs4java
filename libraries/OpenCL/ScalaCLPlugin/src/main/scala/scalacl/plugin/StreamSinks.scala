@@ -59,9 +59,29 @@ trait StreamSinks extends Streams {
       val pos = loop.pos
 
       val componentType = value.tpe
-      val a = newVariable(unit, "out", currentOwner, pos, false, newArray(componentType, size()))
+      val hasExtraValue = value.extraFirstValue.isDefined
+      val a = newVariable(unit, "out", currentOwner, pos, false, 
+        newArray(
+          componentType, 
+          if (hasExtraValue)
+            intAdd(size(), newInt(1))
+          else
+            size()
+        )
+      )
       loop.preOuter += a.definition
-      loop.inner += newUpdate(pos, a(), index(), itemIdentGen(value)(loop)())
+      for (v <- value.extraFirstValue)
+        loop.preOuter += newUpdate(pos, a(), newInt(0), v()) 
+      
+      loop.inner += newUpdate(
+        pos, 
+        a(), 
+        if (hasExtraValue)
+          intAdd(index(), newInt(1))
+        else
+          index(), 
+        itemIdentGen(value)(loop)()
+      )
       
       loop.postOuter += wrapResultIfNeeded(a(), tree.tpe, componentType)
     }
@@ -138,16 +158,23 @@ trait StreamSinks extends Streams {
   }
   trait BuilderStreamSink extends WithResultWrapper {
     def tree: Tree
+    //def privilegedDirection = Some(FromLeft)
     def createBuilderGen(value: StreamValue)(implicit loop: Loop): BuilderGen
     def outputBuilder(value: StreamValue)(implicit loop: Loop): Unit = {
       import loop.{ unit, currentOwner }
       val pos = loop.pos
 
+      //if (direction != FromLeft)
+      //  throw new UnsupportedOperationException("TODO")
+        
       val builderGen = createBuilderGen(value)
       import builderGen._
       
       val a = newVariable(unit, "out", currentOwner, pos, false, builderCreation)
       loop.preOuter += a.definition
+      for (v <- value.extraFirstValue)
+        loop.preOuter += builderAppend(a(), v())
+        
       loop.inner += builderAppend(a(), value.value())
       
       loop.postOuter += wrapResultIfNeeded(builderResultGetter(a()), tree.tpe, value.tpe)
@@ -215,6 +242,7 @@ trait StreamSinks extends Streams {
   }
   trait CanCreateOptionSink extends CanCreateStreamSink {
     def tree: Tree
+    override def consumesExtraFirstValue = false // TODO
     
     override def createStreamSink(componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
       new StreamSink 

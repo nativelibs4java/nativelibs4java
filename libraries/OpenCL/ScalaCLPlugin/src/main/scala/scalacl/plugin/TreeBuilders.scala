@@ -417,6 +417,7 @@ extends MiscMatchers
       identUsed = true
       rawIdentGen()
     }
+    def tpe = definition.tpe
     def apply() = identGen()
 
     def defIfUsed = if (identUsed) Some(definition) else None
