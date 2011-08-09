@@ -175,7 +175,7 @@ extends MiscMatchers
             //println("Found bind with name " + name)
             Some(Seq(tree.symbol -> rootSlice))
           case sub(m) =>
-            Some(m ++ Seq(tree.symbol -> rootSlice))
+            Some(m :+ (tree.symbol -> rootSlice))
           case _ =>
             throw new RuntimeException("Not a bound tuple : " + tree + " (" + tree.getClass.getName + ")\n\tnodes = " + nodeToString(tree))
             //System.exit(1)

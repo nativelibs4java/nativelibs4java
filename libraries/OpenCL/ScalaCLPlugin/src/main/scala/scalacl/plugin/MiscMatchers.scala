@@ -270,7 +270,7 @@ trait MiscMatchers extends PluginNames with WithOptions {
         =>
         Some((collection, name, typeArgs, Seq(args)))
       case Apply(BasicTypeApply(collection, name, typeArgs, args), newArgs) =>
-        Some((collection, name, typeArgs, args ++ Seq(newArgs)))
+        Some((collection, name, typeArgs, args :+ newArgs))
       case _ =>
         None
     }

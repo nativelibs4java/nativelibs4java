@@ -433,7 +433,7 @@ extends MiscMatchers
 
           FlatCode[Tree](
             dc,
-            sc ++ Seq(conditionVar.definition),
+            sc :+ conditionVar.definition,
             (st, so) match {
               case (Seq(), Seq()) =>
                 vt.zip(vo).map { case (t, o) => If(conditionVar(), t, o) } // pure (cond ? then : otherwise) form, possibly with tuple values
@@ -475,7 +475,7 @@ extends MiscMatchers
             //replace(value) // TODO REMOVE THIS DEBUG LINE
             FlatCode[Tree](
               defs,
-              stats ++ Seq(vd),
+              stats :+ vd,
               Seq()
             )
           } else {

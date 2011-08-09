@@ -45,17 +45,15 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
       override def transformedValue(value: StreamValue, totalVar: VarDef, initVar: VarDef)(implicit loop: Loop): StreamValue = 
         null
     }
-    trait SideEffectFreeScalarReduction extends ScalarReduction {
-      override def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) =
-        true
-    }
+    trait SideEffectFreeScalarReduction extends ScalarReduction with SideEffectFreeStreamComponent
+    
     trait FunctionTransformer extends StreamTransformer {
       def f: Tree
       
-      def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) =
-        analyzer.isSideEffectFree(f)
+      override def analyzeSideEffectsOnStream(analyzer: SideEffectsAnalyzer) =
+        analyzer.analyzeSideEffects(tree, f)
         // Initial value does not affect the stream :
-        // && analyzer.isSideEffectFree(initialValue)
+        // && sideEffectsAnalyzer.isSideEffectFree(initialValue)
     }
     trait Function1Transformer extends FunctionTransformer {
       lazy val Func(List(arg), body) = f
@@ -387,23 +385,30 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
     case class FindOp(tree: Tree, f: Tree) extends TraversalOpType {
       override def toString = "find"
     }
-    case class ReverseOp(tree: Tree) extends TraversalOpType {
+    case class ReverseOp(tree: Tree) extends TraversalOpType with StreamTransformer with SideEffectFreeStreamComponent {
       override def toString = "reverse"
       override val f = null
+      
+      override def order = ReverseOrder
+      
+      override def transform(value: StreamValue)(implicit loop: Loop): StreamValue = 
+        value.copy(valueIndex = (value.valueIndex, value.valuesCount) match {
+          case (Some(i), Some(n)) =>
+            Some(() => intSub(intSub(n(), i()), newInt(1)))
+          case _ =>
+            None
+        })
     }
     case class ZipOp(tree: Tree, zippedCollection: Tree) extends TraversalOpType {
       override def toString = "zip"
       override val f = null
     }
 
-    abstract class ToCollectionOp(val colType: ColType) extends TraversalOpType with StreamTransformer {
+    abstract class ToCollectionOp(val colType: ColType) extends TraversalOpType with StreamTransformer with SideEffectFreeStreamComponent {
       override def toString = "to" + colType
       override val f = null
       override def transform(value: StreamValue)(implicit loop: Loop): StreamValue = 
         value
-        
-      override def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) =
-        true
         
       override def order = SameOrder
     }

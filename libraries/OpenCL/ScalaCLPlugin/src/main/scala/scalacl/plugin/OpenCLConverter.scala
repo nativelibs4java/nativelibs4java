@@ -147,7 +147,7 @@ extends MiscMatchers
         }
         b ++= "\n}"
         FlatCode[String](
-          convBody.outerDefinitions ++ Seq(b.toString),
+          convBody.outerDefinitions :+ b.toString,
           Seq(),
           Seq()
         )

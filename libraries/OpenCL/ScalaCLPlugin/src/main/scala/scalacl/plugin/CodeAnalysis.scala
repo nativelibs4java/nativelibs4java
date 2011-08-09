@@ -56,36 +56,79 @@ extends MiscMatchers
   import scala.tools.nsc.symtab.Flags._
   import analyzer.{SearchResult, ImplicitSearch}
 
+  
+  def getTreeChildren(tree: Tree): Seq[Tree] = {
+    var out = collection.mutable.ArrayBuffer[Tree]()
+    new Traverser {
+      var level = 0
+      override def traverse(tree: Tree) = {
+        if (level == 1)
+          out += tree
+        else {
+          level += 1
+          super.traverse(tree)
+          level -= 1
+        }
+      }
+    }.traverse(tree)
+    out.toArray.toSeq
+  }
+  
+  abstract class Evaluator[@specialized(Boolean, Int) R](defaultValue: R, combine: (R, R) => R)
+  extends Traverser {
+    def evaluate(tree: Tree): R =
+      if (tree eq EmptyTree)
+        defaultValue
+      else
+        getTreeChildren(tree).map(evaluate(_)).foldLeft(defaultValue)(combine)
+  }
+  
+  abstract class BooleanEvaluator extends Evaluator[Boolean](false, _ || _)
+  abstract class IntEvaluator extends Evaluator[Int](0, _ + _)
+  abstract class SeqEvaluator extends Evaluator[Seq[Tree]](Seq(), _ ++ _)
+  
+  def filterTree[V](tree: Tree)(f: PartialFunction[Tree, V]): Seq[V] = {
+    val out = new ArrayBuffer[V]
+    new Traverser {
+      override def traverse(t: Tree) {
+        if (f.isDefinedAt(t)) 
+          out += f(t)
+        super.traverse(t)
+      }
+    }.traverse(tree)
+    out
+  }
+  
+  def getSymbolDefinitions(tree: Tree): Seq[DefTree] = 
+    filterTree(tree) { 
+      case t: DefTree => t 
+    }
+  
+  def getRawUnknownSymbolReferences(tree: Tree, isKnownSymbol: Symbol => Boolean, accept: Tree => Boolean): Seq[RefTree] =
+    filterTree(tree) {
+      case t: RefTree if !isKnownSymbol(t.symbol) && accept(t) => t
+    }
+  
   def getUnknownSymbolReferences(tree: Tree, filter: Tree => Boolean = _ => true, preKnownSymbols: Set[Symbol] = Set()): Seq[Tree] = {
-    import collection._
-    val defines = new mutable.HashSet[Symbol]
-    defines ++= preKnownSymbols
+    val symDefs = getSymbolDefinitions(tree)
+    val syms = symDefs.map(_.symbol).toSet
     
-    new ForeachTreeTraverser(t => t match {
-      case _: DefTree =>
-        defines += t.symbol
-      case _ =>
-    }).traverse(tree)
-
-    val unknown = new ArrayBuffer[Tree]
-    new ForeachTreeTraverser(t => t match {
-      case _: RefTree =>
-        if (!defines.contains(t.symbol) && filter(t))
-          unknown += t
-      case _ =>
-    }).traverse(tree)
-
-    unknown.toSeq
+    val unknown = getRawUnknownSymbolReferences(tree, s => syms.contains(s) || preKnownSymbols.contains(s), filter)
+    unknown
   }
   
   def isSideEffectFree(tree: Tree) = {
-    val analyzer = new SideEffectsAnalysis(tree)
-    analyzer.traverse(tree)
-    analyzer.isSideEffectFree
+    new SideEffectsEvaluator(tree, cached = false).evaluate(tree).isEmpty
   }
-  class SideEffectsAnalysis(tree: Tree, preKnownSymbols: Set[Symbol] = Set()) extends Traverser {
-    protected val unknownSymbols = 
-      getUnknownSymbolReferences(tree, preKnownSymbols = preKnownSymbols)
+  
+  type SideEffects = Seq[Tree]
+  class SideEffectsEvaluator(tree: Tree, cached: Boolean = true, preKnownSymbols: Set[Symbol] = Set()) 
+  extends SeqEvaluator
+  {
+    protected val cache = collection.mutable.Map[Tree, SideEffects]()
+    
+    protected val unknownSymbols: Set[Symbol] = 
+      getUnknownSymbolReferences(tree, preKnownSymbols = preKnownSymbols).map(_.symbol).toSet
     
     protected def isKnownTerm(symbol: Symbol) = 
       !unknownSymbols.contains(symbol)
@@ -114,32 +157,43 @@ extends MiscMatchers
           false
       }
     }
-    var isSideEffectFree = true
-    var sideEffectTrees = Seq[Tree]()
+    def isPureCaseClass(tpe: Type) = 
+      false // TODO 
     
-    protected def hasSideEffects(tree: Tree): Unit = {
-      sideEffectTrees :+= tree
-      isSideEffectFree = false
-      //println("Has side effects : " + tree + " (sym = " + tree.symbol + ", tpe = " + tree.tpe + ", tpe.sym = " + tree.tpe.typeSymbol + ")\n\t" + nodeToString(tree))
+    override def evaluate(tree: Tree) = { 
+      if (cached)
+        cache.getOrElseUpdate(tree, {
+          uncachedEvaluation(tree)
+        })
+      else
+        uncachedEvaluation(tree)
     }
-    override def traverse(tree: Tree) = {
-      super.traverse(tree)
-      //println("TRAVERSING " + tree)
+    def uncachedEvaluation(tree: Tree) = {
+      //println("EVALUATING " + tree)
       tree match {
         // TODO accept accesses to non-lazy vals
         case (_: New) =>
-          hasSideEffects(tree) // TODO refine this !!!
+          if (isPureCaseClass(tree.tpe))
+            Seq()
+          else
+            Seq(tree)
         case Select(target, methodName) =>//if target.symbol.isInstanceOf[MethodSymbol] =>
-          if (target.symbol.isInstanceOf[MethodSymbol])
-            if (!isSideEffectFreeMethod(target.symbol.asInstanceOf[MethodSymbol]))
-              hasSideEffects(tree)
+          if (isPureCaseClass(target.tpe))
+            Seq()
+          else if (!target.symbol.isInstanceOf[MethodSymbol])
+            Seq(tree)
+          else if (isSideEffectFreeMethod(target.symbol.asInstanceOf[MethodSymbol]))
+            Seq()
+          else
+            Seq(tree)
         case Assign(lhs, rhs) =>
           //println("Found assign : " + tree)
           if (!isKnownTerm(lhs.symbol)) 
-            hasSideEffects(tree)
-          //else
-          //  println("Is known symbol : " + lhs.symbol)
+            Seq(tree)
+          else
+            Seq()
         case _ =>
+          super.evaluate(tree)
       }
     }
   }

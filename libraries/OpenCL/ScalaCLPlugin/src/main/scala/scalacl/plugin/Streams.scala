@@ -9,7 +9,11 @@ package scalacl ; package plugin
 import tools.nsc.Global
 import tools.nsc.plugins.PluginComponent
 
-trait Streams extends TreeBuilders with TupleAnalysis {
+trait Streams 
+extends TreeBuilders 
+with TupleAnalysis 
+with CodeAnalysis 
+{
   this: PluginComponent with WithOptions =>
   
   val global: Global
@@ -218,8 +222,22 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     }
   }
   
-  trait SideEffectFreeAnalyzer {
-    def isSideEffectFree(tree: Tree): Boolean
+  class SideEffectsAnalyzer {
+    
+    def analyzeSideEffects(base: Tree, trees: Tree*): SideEffects = {
+      val flagger = new SideEffectsEvaluator(base, cached = false)
+      trees.map(flagger.evaluate(_)).foldLeft(sideEffectFreeAnalysis)(_ ++ _)
+    }
+      
+    def sideEffectFreeAnalysis: SideEffects = 
+      Seq()
+      
+    def isSideEffectFree(analysis: SideEffects): Boolean = 
+      analysis.isEmpty 
+  }
+  trait SideEffectFreeStreamComponent extends StreamComponent {
+    override def analyzeSideEffectsOnStream(analyzer: SideEffectsAnalyzer) =
+      analyzer.sideEffectFreeAnalysis
   }
   
   trait StreamComponent extends StreamChainTestable {
@@ -227,7 +245,7 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     
     /// Used to chain stream detection : give the unwrapped content of the tree
     def unwrappedTree = tree
-    def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer): Boolean
+    def analyzeSideEffectsOnStream(analyzer: SideEffectsAnalyzer): SideEffects
   }
   trait CanCreateStreamSink extends StreamChainTestable {
     override def consumesExtraFirstValue: Boolean = true
@@ -244,27 +262,32 @@ trait Streams extends TreeBuilders with TupleAnalysis {
     
     def transform(value: StreamValue)(implicit loop: Loop): StreamValue
   }
-  trait StreamSink extends StreamComponent {
-    override def isSideEffectFreeOnStream(analyzer: SideEffectFreeAnalyzer) =
-      true
-    
+  trait StreamSink extends SideEffectFreeStreamComponent {
     def output(value: StreamValue)(implicit loop: Loop): Unit
   }
-  def assembleStream(source: StreamSource, transformers: Seq[StreamTransformer], sinkCreatorOpt: Option[CanCreateStreamSink], transform: Tree => Tree, unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {
+  case class Stream(
+    source: StreamSource, 
+    transformers: Seq[StreamTransformer], 
+    sinkCreatorOpt: Option[CanCreateStreamSink]
+  )
+  def assembleStream(stream: Stream, transform: Tree => Tree, unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {
+    val Stream(source, transformers, sinkCreatorOpt) = stream
+    
     implicit val loop = new Loop(unit, pos, currentOwner, localTyper, transform)
     var direction: Option[TraversalDirection] = None // TODO choose depending on preferred directions...
     
-    for (Seq(a, b) <- (Seq(source) ++ transformers ++ sinkCreatorOpt.toSeq).sliding(2, 1)) {
-      //print("Testing " + a + " against " + b + " with direction " + direction + "...")
+    val sourceAndOps = source +: transformers
+    val analyzer = new SideEffectsAnalyzer 
+    for (comp <- sourceAndOps) {
+      println("Side effects of " + comp + " :\n\t" + comp.analyzeSideEffectsOnStream(analyzer).mkString(",\n\t"))
+    }
+    for (Seq(a, b) <- (sourceAndOps ++ sinkCreatorOpt.toSeq).sliding(2, 1)) {
       val CanChainResult(canChain, reason) = b.canChainAfter(a, direction)
       if (!canChain) {
-        //println(" failure ! " + reason)
-        throw new RuntimeException("Cannot chain streams" + reason.map(" : " + _).getOrElse("."))
+        throw new UnsupportedOperationException("Cannot chain streams" + reason.map(" : " + _).getOrElse("."))
       }
       direction = b.privilegedDirection.orElse(direction)
-      //println(" success !")
     }
-    //direction = direction.getOrElse
     
     var value = source.emit(direction.getOrElse(FromLeft))
     
