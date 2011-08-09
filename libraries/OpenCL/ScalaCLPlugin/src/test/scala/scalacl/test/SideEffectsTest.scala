@@ -44,11 +44,14 @@ class SideEffectsTest extends TestUtils {
     assertSideEffect(true, decls, code)
     
   def assertSideEffect(free: Boolean, decls: String, code: String) = {
-    options synchronized {
+    val rc = 
       compileCode(withPlugin = true, decls = decls, code = code)
       
-      assertEquals("Failed to analyze side-effects !", !free, options.testOutputs.get(HasSideEffects).getOrElse(false))       
-    }
+    //println("rc.pluginOptions.testOutputs = " + rc.pluginOptions.testOutputs)
+    val sef = rc.pluginOptions.testOutputs.get(HasSideEffects).orNull.asInstanceOf[collection.mutable.ArrayBuffer[_]]
+    //getOrElse(null)
+    
+    assertEquals("Failed to analyze side-effects ! Side effects = \n\t" + Option(sef).map(_.mkString(",\n\t")).getOrElse("testOutputs = " + rc.pluginOptions.testOutputs), free, sef == null || sef.isEmpty)       
   }
   
   @Test
@@ -81,7 +84,7 @@ class SideEffectsTest extends TestUtils {
   }
   
   @Test
-  def simpleSideEffectFull {
+  def mediumSideEffects {
     assertSideEffectFree("", """
       import scala.math._
       val x = 10

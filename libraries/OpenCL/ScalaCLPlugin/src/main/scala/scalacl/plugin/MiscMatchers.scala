@@ -154,6 +154,15 @@ trait MiscMatchers extends PluginNames with WithOptions {
     }
   }
 
+  object TreeWithSymbol {
+    def unapply(tree: Tree): Option[(Tree, Symbol)] = 
+      Some(tree, tree.symbol)
+  }
+  object TreeWithType {
+    def unapply(tree: Tree): Option[(Tree, Type)] = 
+      Some(tree, tree.tpe.dealias.deconst.widen)
+  }
+  
   object TupleComponent {
     val rx = "_(\\d+)".r
     def unapply(tree: Tree) = tree match {
@@ -289,13 +298,18 @@ trait MiscMatchers extends PluginNames with WithOptions {
   class CollectionApply(colModule: Symbol, colClass: Symbol) {
     def apply(component: Tree) = error("not implemented")
     def unapply(tree: Tree): Option[(List[Tree], Type)] = tree match {
-      case Apply(TypeApply(Select(colObject, applyName()), List(tpe)), components) if colObject.symbol == colModule =>
-        tree.tpe.dealias.deconst.widen match {
-          case TypeRef(_, colClass, List(componentType)) =>
+      case 
+        TreeWithType(
+          Apply(TypeApply(Select(colObject, applyName()), List(tpe)), components),
+          TypeRef(_, colClass, List(componentType))
+        )
+      if colObject.symbol == colModule =>
+        //tree.tpe.dealias.deconst.widen match {
+        //  case TypeRef(_, colClass, List(componentType)) =>
             Some(components, componentType)
-          case _ =>
-            None
-        }
+        //  case _ =>
+        //    None
+        //}
       case _ =>
         None
     }

@@ -12,7 +12,12 @@ import scala.tools.nsc.reporters.Reporter
     
 class SharedCompiler(enablePlugins: Boolean) {
   //val runner = Compile.newCompiler(settings, enablePlugins)
-  case class Compiler(extraArgs: Array[String], settings: Settings, runner: ScalaCLPluginRunner)
+  case class Compiler(
+    extraArgs: Array[String], 
+    settings: Settings,
+    pluginOptions: ScalaCLPlugin.PluginOptions,
+    runner: ScalaCLPluginRunner
+  )
   def createCompiler = {
     lazy val extraArgs = Array(
       "-optimise",
@@ -24,7 +29,7 @@ class SharedCompiler(enablePlugins: Boolean) {
 
     pluginOptions.test = true
     
-    Compiler(extraArgs, settings, runner)
+    Compiler(extraArgs, settings, pluginOptions, runner) 
   }
 
   import scala.concurrent.ops._
@@ -59,11 +64,11 @@ class SharedCompiler(enablePlugins: Boolean) {
     !isAtLeastScala29 &&
     System.getenv("SCALACL_DONT_REUSE_COMPILERS") == null
   }
-  def compile(args: Array[String]) = {
+  def compile(args: Array[String]): ScalaCLPlugin.PluginOptions = {
     //val (extraArgs, settings, runner) = createRunner
 
-    def run {
-      val Compiler(extraArgs, settings, runner) = if (canReuseCompilers) compiler else createCompiler
+    def run = {
+      val Compiler(extraArgs, settings, pluginOptions, runner) = if (canReuseCompilers) compiler else createCompiler
       val command = new CompilerCommand((args ++ extraArgs).toList, settings) {
         override val cmdName = "scalacl"
       }
@@ -71,6 +76,7 @@ class SharedCompiler(enablePlugins: Boolean) {
         val run = new runner.Run
         run.compile(command.files)
       }
+      pluginOptions
     }
     try {
       run

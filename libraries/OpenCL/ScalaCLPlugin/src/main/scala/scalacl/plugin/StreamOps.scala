@@ -414,6 +414,7 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
     }
     case class ToListOp(tree: Tree) extends ToCollectionOp(ListType) with CanCreateListSink
     case class ToSeqOp(tree: Tree) extends ToCollectionOp(SeqType) with CanCreateListSink
+    case class ToSetOp(tree: Tree) extends ToCollectionOp(SetType) with CanCreateSetSink
     case class ToArrayOp(tree: Tree) extends ToCollectionOp(ArrayType) with CanCreateArraySink
     //case class ToOptionOp(tree: Tree, tpe: Type) extends ToCollectionOp(ListType) with CanCreateOptionSink
     case class ToVectorOp(tree: Tree) extends ToCollectionOp(VectorType) with CanCreateVectorSink

@@ -109,17 +109,37 @@ extends MiscMatchers
       case t: RefTree if !isKnownSymbol(t.symbol) && accept(t) => t
     }
   
-  def getUnknownSymbolReferences(tree: Tree, filter: Tree => Boolean = _ => true, preKnownSymbols: Set[Symbol] = Set()): Seq[Tree] = {
-    val symDefs = getSymbolDefinitions(tree)
-    val syms = symDefs.map(_.symbol).toSet
-    
-    val unknown = getRawUnknownSymbolReferences(tree, s => syms.contains(s) || preKnownSymbols.contains(s), filter)
-    unknown
+  case class SymbolsInfo(
+    tree: Tree, 
+    symbolDefinitions: Seq[DefTree], 
+    definedSymbols: Set[Symbol],
+    preKnownSymbols: Set[Symbol], 
+    unknownReferences: Seq[RefTree] 
+  ) {
+    //lazy val definedSymbols = symbolDefinitions.map(_.symbol).toSet
+    lazy val unknownReferencesBySymbol = unknownReferences.groupBy(_.symbol)
+    lazy val unknownSymbols = unknownReferencesBySymbol.keys.toSet
+      
   }
   
-  def isSideEffectFree(tree: Tree) = {
-    new SideEffectsEvaluator(tree, cached = false).evaluate(tree).isEmpty
+  def getUnknownSymbolInfo(tree: Tree, filter: Tree => Boolean = _ => true, preKnownSymbols: Set[Symbol] = Set()): SymbolsInfo = {
+    val symbolDefinitions = 
+      getSymbolDefinitions(tree)
+      
+    val definedSymbols = 
+      symbolDefinitions.map(_.symbol).toSet
+    
+    val unknownReferences = 
+      getRawUnknownSymbolReferences(tree, s => definedSymbols.contains(s) || preKnownSymbols.contains(s), filter)
+    
+    SymbolsInfo(tree, symbolDefinitions, definedSymbols, preKnownSymbols, unknownReferences)
   }
+  
+  def isSideEffectFree(tree: Tree) =
+    getSideEffects(tree).isEmpty
+    
+  def getSideEffects(tree: Tree) =
+    new SideEffectsEvaluator(tree, cached = false).evaluate(tree)
   
   type SideEffects = Seq[Tree]
   class SideEffectsEvaluator(tree: Tree, cached: Boolean = true, preKnownSymbols: Set[Symbol] = Set()) 
@@ -127,15 +147,23 @@ extends MiscMatchers
   {
     protected val cache = collection.mutable.Map[Tree, SideEffects]()
     
-    protected val unknownSymbols: Set[Symbol] = 
-      getUnknownSymbolReferences(tree, preKnownSymbols = preKnownSymbols).map(_.symbol).toSet
+    protected val symbolsInfo = 
+      getUnknownSymbolInfo(tree, preKnownSymbols = preKnownSymbols)
+      
+    protected val unknownSymbols = 
+      symbolsInfo.unknownSymbols
     
-    protected def isKnownTerm(symbol: Symbol) = 
+    println("#\n# unknownSymbols = " + unknownSymbols + "\n#")
+    
+    protected def isKnownTerm(symbol: Symbol) =
+      symbolsInfo.definedSymbols.contains(symbol) ||
       !unknownSymbols.contains(symbol)
       
     protected def isSideEffectFreeMethod(symbol: MethodSymbol): Boolean = {
       val owner = symbol.owner
       val name = symbol.name
+      
+      symbol.isGetter ||
       isSideEffectFreeOwner(owner) || 
       name == (applyName: Name) && {
         owner == SeqModule ||
@@ -170,24 +198,40 @@ extends MiscMatchers
     }
     def uncachedEvaluation(tree: Tree) = {
       //println("EVALUATING " + tree)
+      val sym = tree.symbol
       tree match {
         // TODO accept accesses to non-lazy vals
         case (_: New) =>
+          //println("That was a new : " + tree)
           if (isPureCaseClass(tree.tpe))
             Seq()
           else
             Seq(tree)
+        case This(_) | Select(_, nme.SELF | nme.THIS | nme.FAKE_LOCAL_THIS | nme.this_ | thisName() | superName() | nme.CONSTRUCTOR) =>
+          //println("That was a this : " + tree)
+          Seq()
+        case Select(TupleSelect(), applyName()) =>
+          Seq()
         case Select(target, methodName) =>//if target.symbol.isInstanceOf[MethodSymbol] =>
-          if (isPureCaseClass(target.tpe))
+          //val msg = "That was a select (" + tree + " @ " + tree.symbol + ": " + tree.symbol.getClass.getName + ") : \n\t" + tree
+          //println(msg)
+          //global.warning(msg)
+          //unit.warning(tree.pos, msg)
+          if (isSideEffectFreeOwner(sym))
             Seq()
-          else if (!target.symbol.isInstanceOf[MethodSymbol])
-            Seq(tree)
-          else if (isSideEffectFreeMethod(target.symbol.asInstanceOf[MethodSymbol]))
+          else if (isPureCaseClass(target.tpe))
             Seq()
-          else
+          else if (!sym.isInstanceOf[MethodSymbol])
             Seq(tree)
+          else {
+            val ms = sym.asInstanceOf[MethodSymbol]
+            if (isSideEffectFreeMethod(ms))
+              Seq()
+            else
+              Seq(tree)
+          }
         case Assign(lhs, rhs) =>
-          //println("Found assign : " + tree)
+          //println("That was an assign : " + tree + " on symbol " + lhs.symbol + "\n\tSymbols info :\n\t" + symbolsInfo.toString)
           if (!isKnownTerm(lhs.symbol)) 
             Seq(tree)
           else

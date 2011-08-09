@@ -219,7 +219,7 @@ trait TestUtils {
   trait RunnableMethod {
     def apply(args: Any*): Any
   }
-  trait RunnableCode {
+  abstract class RunnableCode(val pluginOptions: ScalaCLPlugin.PluginOptions) {
     def newInstance(constructorArgs: Any*): RunnableMethod
   }
   
@@ -279,7 +279,7 @@ trait TestUtils {
     //println(src)
     val compileArgs = Array("-d", outputDirectory.getAbsolutePath, tmpFile.getAbsolutePath) ++ getScalaCLCollectionsPath
     //println("Compiling '" + tmpFile.getAbsolutePath + "' with args '" + compileArgs.mkString(" ") +"'")
-    (
+    val pluginOptions = (
       if (withPlugin) 
         SharedCompilerWithPlugins 
       else 
@@ -305,7 +305,7 @@ trait TestUtils {
     val testMethod = testClass.getMethod(testMethodName)//, classOf[Int])
     val testConstructor = testClass.getConstructors.first
     
-    new RunnableCode {
+    new RunnableCode(pluginOptions) {
       override def newInstance(constructorArgs: Any*) = new RunnableMethod {
         val inst = 
           testConstructor.newInstance(constructorArgs.map(_.asInstanceOf[AnyRef]):_*).asInstanceOf[AnyRef]

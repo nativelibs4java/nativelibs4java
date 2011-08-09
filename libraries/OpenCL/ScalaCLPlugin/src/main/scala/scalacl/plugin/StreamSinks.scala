@@ -144,14 +144,12 @@ trait StreamSinks extends Streams {
   }
   class ListBuilderGen(componentType: Type) extends DefaultBuilderGen(ListBufferClass, componentType)
   class VectorBuilderGen(componentType: Type) extends DefaultBuilderGen(VectorBuilderClass, componentType)
+  class SetBuilderGen(componentType: Type) extends DefaultBuilderGen(SetBuilderClass, componentType)
   
   trait BuilderGen {
-    //def builderType: Type
     def builderResultGetter: Tree => Tree =
       simpleBuilderResult _
       
-    //def builderNeedsManifest: Boolean
-    //def builderManifest
     def builderCreation: Tree
     def builderAppend: (Tree, Tree) => Tree =
       addAssign(_, _)
@@ -179,14 +177,13 @@ trait StreamSinks extends Streams {
       
       loop.postOuter += wrapResultIfNeeded(builderResultGetter(a()), tree.tpe, value.tpe)
     }
+    
+    def output(value: StreamValue)(implicit loop: Loop): Unit =
+      outputBuilder(value)
   }
   trait ArrayBuilderStreamSink extends BuilderStreamSink with WithArrayResultWrapper {
     def createBuilderGen(value: StreamValue)(implicit loop: Loop): BuilderGen =
       new ArrayBuilderGen(value.tpe, loop.localTyper)
-      
-    def output(value: StreamValue)(implicit loop: Loop): Unit = {
-      outputBuilder(value)
-    }
   }
   trait CanCreateArraySink extends CanCreateStreamSink {
     def tree: Tree
@@ -219,9 +216,6 @@ trait StreamSinks extends Streams {
       
         def createBuilderGen(value: StreamValue)(implicit loop: Loop): BuilderGen =
           new VectorBuilderGen(value.tpe)
-          
-        def output(value: StreamValue)(implicit loop: Loop): Unit =
-          outputBuilder(value)
       }
   }
   trait CanCreateListSink extends CanCreateStreamSink {
@@ -235,11 +229,26 @@ trait StreamSinks extends Streams {
       
         def createBuilderGen(value: StreamValue)(implicit loop: Loop): BuilderGen =
           new ListBuilderGen(value.tpe)
+      }
+  }
+  
+  trait CanCreateSetSink extends CanCreateStreamSink {
+    def tree: Tree
+    
+    override def createStreamSink(componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
+      new StreamSink 
+      with BuilderStreamSink 
+      {
+        override def tree = CanCreateSetSink.this.tree
+      
+        def createBuilderGen(value: StreamValue)(implicit loop: Loop): BuilderGen =
+          new SetBuilderGen(value.tpe)
           
-        def output(value: StreamValue)(implicit loop: Loop): Unit =
+        override def output(value: StreamValue)(implicit loop: Loop): Unit =
           outputBuilder(value)
       }
   }
+  
   trait CanCreateOptionSink extends CanCreateStreamSink {
     def tree: Tree
     override def consumesExtraFirstValue = false // TODO

@@ -219,8 +219,8 @@ extends PluginComponent
     val anyCLArrayTpe = TypeRef(NoPrefix, CLArrayClass, List(AnyClass.tpe))
       
     def getCaptures(f: Tree, context: analyzer.Context, enclosingTree: Tree): (Seq[Capture], Boolean) = {
-      val externalSymbolReferences = 
-        getUnknownSymbolReferences(f, t => t.symbol != NoSymbol && {
+      val externalSymbolInfo = 
+        getUnknownSymbolInfo(f, t => t.symbol != NoSymbol && {
           //println("Examining t  = " + t )
           t.symbol match {
             case s: MethodSymbol =>
@@ -239,7 +239,7 @@ extends PluginComponent
           }
         })
       
-      val externalRefsBySymbol = externalSymbolReferences.groupBy(_.symbol)
+      val externalRefsBySymbol = externalSymbolInfo.unknownReferences.groupBy(_.symbol)
       val externalSymbols = externalRefsBySymbol.keys.toSet
       
       val (capturableSymbols, nonCapturableSymbols) =

@@ -74,6 +74,8 @@ trait PluginNames {
   val mathName = N("math")
   val packageName = N("package")
   val applyName = N("apply")
+  val thisName = N("this")
+  val superName = N("super")
 
   def C(name: String) = definitions.getClass(name)
   def M(name: String) = definitions.getModule(name)
@@ -100,6 +102,7 @@ trait PluginNames {
   lazy val WrappedArrayBuilderClass   = C("scala.collection.mutable.WrappedArrayBuilder")
   lazy val RefArrayBuilderClass       = C("scala.collection.mutable.ArrayBuilder.ofRef")
   lazy val RefArrayOpsClass           = C("scala.collection.mutable.ArrayOps.ofRef")
+  lazy val SetBuilderClass            = C("scala.collection.mutable.SetBuilder")
   
   lazy val CanBuildFromClass = C("scala.collection.generic.CanBuildFrom")
   

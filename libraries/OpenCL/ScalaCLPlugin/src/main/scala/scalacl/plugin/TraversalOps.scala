@@ -62,8 +62,8 @@ extends PluginNames
       ToArrayOp(tree)
     case toSeqName() =>
       ToSeqOp(tree)
-    //case toSetName() =>
-    //  ToSetOp(tree, SetType, tree.tpe)
+    case toSetName() =>
+      ToSetOp(tree)
     case toIndexedSeqName() =>
       ToIndexedSeqOp(tree)
     //case toMapName() =>

@@ -96,8 +96,17 @@ extends PluginComponent
       }
       */
       
-      if (options.test && isSideEffectFree(tree)) {
-        options.testOutputs(HasSideEffects) = true
+      if (options.test) {
+        tree match { 
+          case dd: DefDef if !dd.symbol.isConstructor =>
+            val sef = getSideEffects(tree)
+            //println("Side effects for " + tree + " :\n\t" + sef.mkString(",\n\t"))
+            if (!sef.isEmpty) {
+              type Buf = collection.mutable.ArrayBuffer[Tree]
+              options.testOutputs.getOrElseUpdate(HasSideEffects, new Buf).asInstanceOf[Buf] ++= sef
+            }
+          case _ =>
+        }
       }
       
       if (!shouldOptimize(tree))
