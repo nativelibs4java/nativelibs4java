@@ -375,7 +375,7 @@ trait RewritingPluginComponent {
                 ),
                 typed {
                   Block(
-                    List(iVal.definition) ++
+                    iVal.definition ::
                     filteredContent(statements, loopInners.itemVar) ++
                     outputIndexVar.ifUsed(incrementIntVar(outputIndexVar, newInt(if (reverseOrder) -1 else 1))),
                     incrementIntVar(iVar, newInt(byValue))
@@ -553,12 +553,12 @@ trait RewritingPluginComponent {
                 ),
                 typed {
                   val itemAndInnerStats =
-                    List(itemVar.definition) ++
+                    itemVar.definition ::
                     filteredContent(statements, loopInners.itemVar)
 
                   if (reverseOrder)
                     Block(
-                      List(decrementIntVar(iVar, newInt(1))) ++
+                      decrementIntVar(iVar, newInt(1)) ::
                       itemAndInnerStats,
                       newUnit
                     )
@@ -669,7 +669,7 @@ trait RewritingPluginComponent {
                 ,
                 typed {
                   val itemAndInnerStats =
-                    List(itemVar.definition) ++
+                    itemVar.definition ::
                     filteredContent(statements, loopInners.itemVar)
                   val sym = colTpe member tailName
                   Block(
@@ -771,7 +771,7 @@ trait RewritingPluginComponent {
                 ,
                 typed {
                   val itemAndInnerStats =
-                    List(itemVar.definition) ++
+                    itemVar.definition ::
                     filteredContent(statements, loopInners.itemVar)
                   val sym = colTpe member tailName
                   Block(
