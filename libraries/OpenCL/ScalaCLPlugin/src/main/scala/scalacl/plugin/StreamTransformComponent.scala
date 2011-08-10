@@ -110,7 +110,10 @@ extends PluginComponent
 
     var matchedColTreeIds = Set[Long]()
 
-    override def transform(tree: Tree): Tree = {
+    override def transform(tree: Tree): Tree =
+      internalTransform(tree)
+      
+    protected def internalTransform(tree: Tree, retryWithSmallerChain: Boolean = true): Tree = {
       if (!shouldOptimize(tree))
         super.transform(tree)
       else
@@ -256,9 +259,29 @@ extends PluginComponent
                   else
                     None
                 
-                val asm = assembleStream(Stream(source, ops, sinkCreatorOpt), this.transform _, unit, tree.pos, currentOwner, localTyper)
-                //println(txt + "\n\t" + asm.toString.replaceAll("\n", "\n\t"))
-                asm
+                try {
+                  val asm = assembleStream(Stream(source, ops, sinkCreatorOpt), this.transform _, unit, tree.pos, currentOwner, localTyper)
+                  //println(txt + "\n\t" + asm.toString.replaceAll("\n", "\n\t"))
+                  asm
+                } catch {
+                  case BrokenOperationsStreamException(msg, sourceAndOps, componentsWithSideEffects) =>
+                    unit.warning(sourceAndOps.head.tree.pos, "Cannot optimize this operations stream due to side effects")
+                    for (SideEffectFullComponent(comp, sideEffects, preventedOptimizations) <- componentsWithSideEffects) {
+                      for (sideEffect <- sideEffects) {
+                        if (preventedOptimizations)
+                          unit.warning(sideEffect.pos, "This side-effect prevents optimization of the enclosing " + comp + " operation")
+                        else if (options.verbose)
+                          warnSideEffect(unit, sideEffect)
+                      }
+                      //println("Side effects of " + comp + " :\n\t" + sideEffects.mkString(",\n\t"))
+                    }
+                    
+                    val sub = super.transform(tree)
+                    if (retryWithSmallerChain)
+                      internalTransform(sub, retryWithSmallerChain = false)
+                    else
+                      sub
+                }
               }
             case _ =>
               super.transform(tree)//toMatch)

@@ -270,6 +270,20 @@ with CodeAnalysis
     transformers: Seq[StreamTransformer], 
     sinkCreatorOpt: Option[CanCreateStreamSink]
   )
+  case class SideEffectFullComponent(
+    component: StreamComponent,
+    sideEffects: SideEffects,
+    preventedOptimizations: Boolean
+  )
+  case class BrokenOperationsStreamException(
+    msg: String, 
+    sourceAndOps: Seq[StreamComponent], 
+    componentsWithSideEffects: Seq[SideEffectFullComponent]
+  ) extends UnsupportedOperationException(msg)
+  
+  def warnSideEffect(unit: CompilationUnit, tree: Tree) = {
+    unit.warning(tree.pos, "Beware of side-effects in operations streams.")
+  }
   def assembleStream(stream: Stream, transform: Tree => Tree, unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {
     val Stream(source, transformers, sinkCreatorOpt) = stream
     
@@ -277,10 +291,29 @@ with CodeAnalysis
     var direction: Option[TraversalDirection] = None // TODO choose depending on preferred directions...
     
     val sourceAndOps = source +: transformers
-    val analyzer = new SideEffectsAnalyzer 
-    for (comp <- sourceAndOps) {
-      println("Side effects of " + comp + " :\n\t" + comp.analyzeSideEffectsOnStream(analyzer).mkString(",\n\t"))
+    val analyzer = new SideEffectsAnalyzer
+    
+    val brokenChain = 
+      sourceAndOps.
+        map(comp => (comp, comp.analyzeSideEffectsOnStream(analyzer))).
+        dropWhile(_._2.isEmpty)
+    
+    val componentsWithSideEffects = brokenChain.filter(!_._2.isEmpty)
+    
+    if (brokenChain.size > 1) {
+      throw BrokenOperationsStreamException(
+        "Operations stream broken by side-effects", 
+        sourceAndOps, 
+        (componentsWithSideEffects.dropRight(1).map((_, true)) :+ (componentsWithSideEffects.last, false)).map({ 
+          case ((comp, se), prevented) => 
+            SideEffectFullComponent(comp, se, prevented) 
+        })
+      )
     }
+    if (options.verbose)
+      for ((comp, sideEffects) <- componentsWithSideEffects; sideEffect <- sideEffects)
+        warnSideEffect(unit, sideEffect)
+    
     for (Seq(a, b) <- (sourceAndOps ++ sinkCreatorOpt.toSeq).sliding(2, 1)) {
       val CanChainResult(canChain, reason) = b.canChainAfter(a, direction)
       if (!canChain) {
