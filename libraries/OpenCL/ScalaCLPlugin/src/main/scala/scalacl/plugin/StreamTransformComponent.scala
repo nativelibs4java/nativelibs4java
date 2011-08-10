@@ -94,12 +94,11 @@ extends PluginComponent
               else
                 finished = true
             case _ =>
-              //if (!ops.isEmpty)
-              //  println("Finished with " + ops.size + " ops upon "+ tree + " ; source = " + source + " ; colTree = " + colTree)
+              //if (!ops.isEmpty) println("Finished with " + ops.size + " ops upon "+ tree + " ; source = " + source + " ; colTree = " + colTree)
               finished = true
           }
         }
-        if (ops.isEmpty && source == null)
+        if (ops.isEmpty || source == null)
           None
         else
           Some(new OpsStream(source, colTree, ops))
@@ -110,8 +109,12 @@ extends PluginComponent
 
     var matchedColTreeIds = Set[Long]()
 
-    override def transform(tree: Tree): Tree =
+    override def transform(tree: Tree): Tree = {
+      //val retryWithSmallerChain = false
+      //def internalTransform(tree: Tree, retryWithSmallerChain: Boolean) = transform(tree)
+      
       internalTransform(tree)
+    }
       
     protected def internalTransform(tree: Tree, retryWithSmallerChain: Boolean = true): Tree = {
       if (!shouldOptimize(tree))
@@ -236,9 +239,9 @@ extends PluginComponent
             case OpsStream(opsStream) 
             if 
               options.stream &&
-              (opsStream.source ne null) && 
-              !opsStream.ops.isEmpty && 
-              (opsStream ne null) && 
+              //(opsStream.source ne null) && 
+              //!opsStream.ops.isEmpty && 
+              //(opsStream ne null) && 
               (opsStream.colTree ne null) && 
               !matchedColTreeIds.contains(opsStream.colTree.id) 
               =>
@@ -276,7 +279,8 @@ extends PluginComponent
           }
         } catch {
           case ex =>
-            //ex.printStackTrace
+            if (options.verbose)
+              ex.printStackTrace
             super.transform(tree)
         }
     }
