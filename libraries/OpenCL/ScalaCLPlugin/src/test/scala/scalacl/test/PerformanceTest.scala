@@ -27,7 +27,7 @@ class MatrixPerformanceTest extends TestUtils {
       val a = Array.tabulate[Double](n, n)(_ + _)
       val b = Array.tabulate[Double](n, n)(_ + _)
     """,
-    if (stream)
+    if (!stream)
       """
         var bigTot = 0.0
         val o = Array.tabulate(n, n)((i, j) => {
