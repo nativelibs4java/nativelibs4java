@@ -267,8 +267,7 @@ with CodeAnalysis
   }
   case class Stream(
     source: StreamSource, 
-    transformers: Seq[StreamTransformer], 
-    sinkCreatorOpt: Option[CanCreateStreamSink]
+    transformers: Seq[StreamTransformer]
   )
   case class SideEffectFullComponent(
     component: StreamComponent,
@@ -285,12 +284,24 @@ with CodeAnalysis
     unit.warning(tree.pos, "Beware of side-effects in operations streams.")
   }
   def assembleStream(stream: Stream, transform: Tree => Tree, unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {
-    val Stream(source, transformers, sinkCreatorOpt) = stream
+    val Stream(source, transformers) = stream
     
+    val sourceAndOps = source +: transformers
+    
+    val sinkCreatorOpt = 
+      if (transformers.last.resultKind == StreamResult)
+        sourceAndOps.collect({ case ccss: CanCreateStreamSink => ccss }).lastOption match {
+          case Some(sinkCreator) =>
+            Some(sinkCreator)
+          case _ =>
+            throw new UnsupportedOperationException("Failed to find any CanCreateStreamSink instance in source ++ ops = " + sourceAndOps + " !")
+        }
+      else
+        None
+        
     implicit val loop = new Loop(unit, pos, currentOwner, localTyper, transform)
     var direction: Option[TraversalDirection] = None // TODO choose depending on preferred directions...
     
-    val sourceAndOps = source +: transformers
     val analyzer = new SideEffectsAnalyzer
     
     val brokenChain = 
@@ -304,9 +315,9 @@ with CodeAnalysis
       throw BrokenOperationsStreamException(
         "Operations stream broken by side-effects", 
         sourceAndOps, 
-        (componentsWithSideEffects.dropRight(1).map((_, true)) :+ (componentsWithSideEffects.last, false)).map({ 
-          case ((comp, se), prevented) => 
-            SideEffectFullComponent(comp, se, prevented) 
+        componentsWithSideEffects.zipWithIndex.map({ case ((comp, se), i) => 
+          val prevented = i != componentsWithSideEffects.size - 1
+          SideEffectFullComponent(comp, se, prevented) 
         })
       )
     }

@@ -247,20 +247,8 @@ extends PluginComponent
               val txt = "Streamed ops on " + (if (source == null) "UNKNOWN COL" else source.tree.tpe) + " : " + ops/*.map(_.getClass.getName)*/.mkString(", ")
               matchedColTreeIds += colTree.id
               msg(unit, tree.pos, "# " + txt) {
-                val canCreateSinkLookup = source +: ops
-                val sinkCreatorOpt = 
-                  if (ops.last.resultKind == StreamResult)
-                    canCreateSinkLookup.collect({ case ccss: CanCreateStreamSink => ccss }).lastOption match {
-                      case Some(sinkCreator) =>
-                        Some(sinkCreator)
-                      case _ =>
-                        throw new UnsupportedOperationException("Failed to find any CanCreateStreamSink instance in source ++ ops = " + canCreateSinkLookup + " !")
-                    }
-                  else
-                    None
-                
                 try {
-                  val asm = assembleStream(Stream(source, ops, sinkCreatorOpt), this.transform _, unit, tree.pos, currentOwner, localTyper)
+                  val asm = assembleStream(Stream(source, ops), this.transform _, unit, tree.pos, currentOwner, localTyper)
                   //println(txt + "\n\t" + asm.toString.replaceAll("\n", "\n\t"))
                   asm
                 } catch {

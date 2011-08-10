@@ -66,10 +66,8 @@ extends PluginNames
       ToIndexedSeqOp(tree)
     case toVectorName() =>
       ToVectorOp(tree)
-    //case toMapName() =>
-    //  ToMapOp(tree)
-    case reverseName() =>
-      ReverseOp(tree)
+    //case reverseName() =>
+    //  ReverseOp(tree) // TODO !!!
     case sumName() =>
       SumOp(tree)
     case productName() =>

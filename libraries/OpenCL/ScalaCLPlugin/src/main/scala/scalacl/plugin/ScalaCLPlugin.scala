@@ -90,8 +90,13 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 }
 
 object ScalaCLPlugin {
-  private def hasEnv(name: String) =
-    "1" == System.getenv(name)
+  private def hasEnv(name: String, default: Boolean = false) = {
+    val v = System.getenv(name)
+    if (default)
+      v != "0"
+    else
+      v == "1"
+  }
 
   class PluginOptions(settings: Settings) {
 
@@ -102,7 +107,7 @@ object ScalaCLPlugin {
       collection.mutable.Map[Any, Any]()
     
     var stream = 
-      hasEnv("SCALACL_STREAM")
+      hasEnv("SCALACL_STREAM", true)
       
     var trace =
       settings != null && settings.debug.value ||
