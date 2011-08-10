@@ -70,7 +70,7 @@ trait MiscMatchers extends PluginNames with WithOptions {
     case _                => Nil
   }
   def flattenApplyGroups(tree: Tree): List[List[Tree]] = tree match {
-    case Apply(fn, args)  => flattenApplyGroups(fn) ++ List(args)
+    case Apply(fn, args)  => flattenApplyGroups(fn) :+ args
     case _                => Nil
   }
   /** Smashes directly nested selects down to the inner tree and a list of names. */
@@ -144,7 +144,7 @@ trait MiscMatchers extends PluginNames with WithOptions {
                 case byName() if by == None =>
                     (from, to, Some(arg), isUntil, filters)
                 case withFilterName() | filterName() if !options.stream =>
-                    (from, to, by, isUntil, filters ++ List(arg))
+                    (from, to, by, isUntil, filters :+ arg)
             }
           case _ =>
             None

@@ -62,10 +62,10 @@ extends PluginNames
       ToArrayOp(tree)
     case toSeqName() =>
       ToSeqOp(tree)
-    case toSetName() =>
-      ToSetOp(tree)
     case toIndexedSeqName() =>
       ToIndexedSeqOp(tree)
+    case toVectorName() =>
+      ToVectorOp(tree)
     //case toMapName() =>
     //  ToMapOp(tree)
     case reverseName() =>
@@ -215,8 +215,10 @@ extends PluginNames
         ) =>
         // Having a separate matcher helps avoid "jump offset too large for 16 bits integers" errors when generating bytecode
         basicTypeApplyTraversalOp(tree, collection, name, typeArgs, args)
+      case TypeApply(Select(collection, toSetName()), List(resultType)) =>
+        Some(new TraversalOp(ToSetOp(tree), collection, resultType.tpe, tree.tpe, true, null))        
       case // reverse, toList, toSeq, toIndexedSeq
-        Select(collection, n @ (reverseName() | toListName() | toSeqName() | toSetName() | toIndexedSeqName())) =>
+        Select(collection, n @ (reverseName() | toListName() | toSeqName() | toIndexedSeqName() | toVectorName())) =>
         traversalOpWithoutArg(n, tree).collect { case op => new TraversalOp(op, collection, null, null, true, null) }
         //Some(new TraversalOp(Reverse, collection, null, null, true, null))
       case // filter, filterNot, takeWhile, dropWhile, forall, exists

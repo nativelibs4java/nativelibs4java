@@ -179,7 +179,7 @@ extends PluginComponent
                           tree,
                           (
                             if (parentArrayIdentGen == null) 
-                              lengthDefs.map(_.definition) ++ List(arrayVar.definition)
+                              lengthDefs.map(_.definition) :+ arrayVar.definition
                             else 
                               Nil
                           ) ++

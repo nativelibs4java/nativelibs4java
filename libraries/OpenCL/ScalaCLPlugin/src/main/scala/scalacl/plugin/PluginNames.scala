@@ -24,6 +24,7 @@ trait PluginNames {
   val toSeqName = N("toSeq")
   val toSetName = N("toSet")
   val toIndexedSeqName = N("toIndexedSeq")
+  val toVectorName = N("toVector")
   val toMapName = N("toMap")
   val resultName = N("result")
   val scalaName = N("scala")
@@ -88,6 +89,8 @@ trait PluginNames {
   
   lazy val SeqModule = M("scala.collection.Seq")
   lazy val SeqClass  = C("scala.collection.Seq")
+  lazy val SetModule = M("scala.collection.Set")
+  lazy val SetClass  = C("scala.collection.Set")
   lazy val IndexedSeqModule = M("scala.collection.IndexedSeq")
   lazy val IndexedSeqClass  = C("scala.collection.IndexedSeq")
   lazy val OptionModule = M("scala.Option")
@@ -103,6 +106,8 @@ trait PluginNames {
   lazy val RefArrayBuilderClass       = C("scala.collection.mutable.ArrayBuilder.ofRef")
   lazy val RefArrayOpsClass           = C("scala.collection.mutable.ArrayOps.ofRef")
   lazy val SetBuilderClass            = C("scala.collection.mutable.SetBuilder")
+  lazy val ImmutableSetModule         = C("scala.collection.immutable.Set")
+  lazy val ImmutableSetClass          = C("scala.collection.immutable.Set")
   
   lazy val CanBuildFromClass = C("scala.collection.generic.CanBuildFrom")
   

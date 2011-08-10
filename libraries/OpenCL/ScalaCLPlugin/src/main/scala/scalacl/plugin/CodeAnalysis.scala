@@ -153,7 +153,7 @@ extends MiscMatchers
     protected val unknownSymbols = 
       symbolsInfo.unknownSymbols
     
-    println("#\n# unknownSymbols = " + unknownSymbols + "\n#")
+    //println("#\n# unknownSymbols = " + unknownSymbols + "\n#")
     
     protected def isKnownTerm(symbol: Symbol) =
       symbolsInfo.definedSymbols.contains(symbol) ||

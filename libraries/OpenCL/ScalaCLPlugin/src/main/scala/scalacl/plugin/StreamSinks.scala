@@ -144,7 +144,15 @@ trait StreamSinks extends Streams {
   }
   class ListBuilderGen(componentType: Type) extends DefaultBuilderGen(ListBufferClass, componentType)
   class VectorBuilderGen(componentType: Type) extends DefaultBuilderGen(VectorBuilderClass, componentType)
-  class SetBuilderGen(componentType: Type) extends DefaultBuilderGen(SetBuilderClass, componentType)
+  class SetBuilderGen(componentType: Type) extends BuilderGen {
+    private val setClass = SetClass
+    private val setModule = SetModule
+    
+    private val setType = appliedType(setClass.tpe, List(componentType))
+    val builderType = appliedType(SetBuilderClass.tpe, List(componentType, setType))
+    override def builderCreation =
+      newInstance(builderType, List(newApply(newSetModuleTree, applyName, List(newTypeTree(componentType)), Nil)))
+  }
   
   trait BuilderGen {
     def builderResultGetter: Tree => Tree =
@@ -243,9 +251,6 @@ trait StreamSinks extends Streams {
       
         def createBuilderGen(value: StreamValue)(implicit loop: Loop): BuilderGen =
           new SetBuilderGen(value.tpe)
-          
-        override def output(value: StreamValue)(implicit loop: Loop): Unit =
-          outputBuilder(value)
       }
   }
   

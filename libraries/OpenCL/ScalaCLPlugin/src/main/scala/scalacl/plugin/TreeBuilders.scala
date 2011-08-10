@@ -218,6 +218,10 @@ extends MiscMatchers
     Select(newScalaCollectionPackageTree, N("Seq")).setSymbol(SeqModule)
   }
     
+  def newSetModuleTree = typed {
+    Select(newScalaCollectionPackageTree, N("Set")).setSymbol(SetModule)
+  }
+    
   def newArrayModuleTree = typed {
     Select(newScalaPackageTree, N("Array")).setSymbol(ArrayModule)
   }
