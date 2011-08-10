@@ -54,17 +54,32 @@ class MatrixPerformanceTest extends TestUtils {
 
 }
 
+class ChainedPerformanceTest extends PerformanceTest {
+  import PerformanceTest.{ skip, deprecated, stream }
+  
+  def chain(du: (String, String)) = {
+    val (definition, use) = du
+    (definition, use + ".filter(v => (v % 2) == 0).map(_ * 2)")
+  }
+  
+  override def arr = chain(super.arr) 
+  override def lis = chain(super.lis)
+  override def rng = chain(super.rng)
+
+  override val testLists = stream
+}
+
 class PerformanceTest extends TestUtils {
   import PerformanceTest.{ skip, deprecated, stream }
   
-  val arr = ("val col = Array.tabulate(n)(i => i)", "col") 
-  val lis = ("val col = (0 to n).toList", "col.filter(v => (v % 2) == 0).map(_ * 2)")
-  val rng = (null, "(0 until n)")
+  def arr: (String, String) = ("val col = Array.tabulate(n)(i => i)", "col") 
+  def lis: (String, String) = ("val col = (0 to n).toList", "col.filter(v => (v % 2) == 0).map(_ * 2)")
+  def rng: (String, String) = (null, "(0 until n)")
 
   import options.{ experimental } // SCALACL_EXPERIMENTAL
   
   val testLists = {
-    deprecated || stream
+    deprecated
   }
   
   /**************************

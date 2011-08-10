@@ -180,6 +180,8 @@ extends MiscMatchers
           true
         case ScalaMathPackage | ScalaMathPackageClass | ScalaMathCommonClass =>
           true
+        case SeqClass | VectorClass | ListClass | IndexedSeqClass =>
+          true
         case _ =>
           //println("NOT A SIDE-EFFECT-FREE OWNER : " + symbol)
           false
@@ -210,7 +212,7 @@ extends MiscMatchers
         case This(_) | Select(_, nme.SELF | nme.THIS | nme.FAKE_LOCAL_THIS | nme.this_ | thisName() | superName() | nme.CONSTRUCTOR) =>
           //println("That was a this : " + tree)
           Seq()
-        case Select(TupleSelect(), applyName()) =>
+        case Select(TupleSelect() | TreeWithType(_, TypeRef(_, ArrayClass, List(_))), applyName()) =>
           Seq()
         case Select(target, methodName) =>//if target.symbol.isInstanceOf[MethodSymbol] =>
           //val msg = "That was a select (" + tree + " @ " + tree.symbol + ": " + tree.symbol.getClass.getName + ") : \n\t" + tree

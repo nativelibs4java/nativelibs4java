@@ -60,8 +60,8 @@ extends PluginNames
       ToListOp(tree)
     case toArrayName() =>
       ToArrayOp(tree)
-    case toSeqName() =>
-      ToSeqOp(tree)
+    //case toSeqName() =>
+    //  ToSeqOp(tree) // TODO !!!
     case toIndexedSeqName() =>
       ToIndexedSeqOp(tree)
     case toVectorName() =>
