@@ -275,6 +275,7 @@ trait TestUtils {
     var tmpFile = new File(outputDirectory, testMethodName + ".scala")
     val pout = new PrintStream(tmpFile)
     pout.println(src)
+    //println("Source = \n\t" + src.replaceAll("\n", "\n\t"))
     pout.close
     //println(src)
     val compileArgs = Array("-d", outputDirectory.getAbsolutePath, tmpFile.getAbsolutePath) ++ getScalaCLCollectionsPath
@@ -372,6 +373,7 @@ trait TestUtils {
   }
   def ensureFasterCodeWithSameResult(decls: String, code: String, params: Seq[Int] = Array(2, 10, 1000, 100000)/*10000, 100, 20, 2)*/, minFaster: Double = 1.0, nRuns: Int = perfRuns): Unit = {
     
+    //println("Ensuring faster code with same result :\n\t" + (decls + "\n#\n" + code).replaceAll("\n", "\n\t"))
     val (testClassName, methodName) = testClassInfo
     
     val gens @ Array(genWith, genWithout) = Array(getTesterGen(true, decls, code), getTesterGen(false, decls, code))

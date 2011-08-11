@@ -279,6 +279,8 @@ trait StreamSources extends Streams with StreamSinks {
         ArrayStreamSource(tree, array, componentType)
       case ListTree(componentType) =>
         ListStreamSource(tree, componentType)
+      case TreeWithType(_, TypeRef(_, ListClass | ImmutableListClass, List(componentType))) =>
+        ListStreamSource(tree, componentType)
       case OptionApply(List(component), componentType) =>
         OptionStreamSource(tree, Some(component), onlyIfNotNull = true, component.tpe)
       case OptionTree(componentType) =>

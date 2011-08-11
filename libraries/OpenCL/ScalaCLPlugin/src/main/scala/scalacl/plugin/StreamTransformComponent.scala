@@ -251,7 +251,9 @@ extends PluginComponent
               matchedColTreeIds += colTree.id
               msg(unit, tree.pos, "# " + txt) {
                 try {
-                  val asm = assembleStream(Stream(source, ops), this.transform _, unit, tree.pos, currentOwner, localTyper)
+                  val stream = Stream(source, ops)
+                  checkStreamWillBenefitFromOptimization(stream)
+                  val asm = assembleStream(stream, this.transform _, unit, tree.pos, currentOwner, localTyper)
                   //println(txt + "\n\t" + asm.toString.replaceAll("\n", "\n\t"))
                   asm
                 } catch {
@@ -278,11 +280,33 @@ extends PluginComponent
               super.transform(tree)//toMatch)
           }
         } catch {
+          case ex: CodeWontBenefitFromOptimization =>
+            if (options.verbose)
+              unit.warning(tree.pos, ex.toString)
+            super.transform(tree)
           case ex =>
             if (options.verbose)
               ex.printStackTrace
             super.transform(tree)
         }
+    }
+  }
+  def checkStreamWillBenefitFromOptimization(stream: Stream): Unit = {
+    val Stream(source, transformers) = stream
+    
+    val sourceAndOps = source +: transformers
+    
+    val closuresCount = sourceAndOps.map(_.closuresCount).sum
+    (transformers.size, closuresCount, source) match {
+      case (_, _, _: ExplicitCollectionStreamSource) =>
+        // ok... transforming a List(1, 2, 3) into Array(1, 2, 3) is worth it
+      case (0, _, _) =>
+        throw CodeWontBenefitFromOptimization("No operations chain : " + sourceAndOps)
+      case (1, 0, _) =>
+        throw CodeWontBenefitFromOptimization("Only one operations without closure is not enough to optimize : " + sourceAndOps)
+      case (1, 1, _: ListStreamSource) =>
+        throw CodeWontBenefitFromOptimization("List operations chains need at least 2 closures to make the optimization beneficial : " + sourceAndOps)
+      case _ =>
     }
   }
 }

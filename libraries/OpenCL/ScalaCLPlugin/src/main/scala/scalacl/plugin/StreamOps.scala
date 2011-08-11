@@ -49,7 +49,7 @@ trait StreamOps extends PluginNames with Streams with StreamSinks {
     
     trait FunctionTransformer extends StreamTransformer {
       def f: Tree
-      
+      override def closuresCount = 1
       override def analyzeSideEffectsOnStream(analyzer: SideEffectsAnalyzer) =
         analyzer.analyzeSideEffects(tree, f)
         // Initial value does not affect the stream :

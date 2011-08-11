@@ -42,11 +42,11 @@ trait StreamSinks extends Streams {
     }
       
     override def wrapResultIfNeeded(result: Tree, expectedType: Type, componentType: Type) = {
-      if (isArrayType(expectedType) || !isArrayType(result.tpe)) {
+      if (isArrayType(expectedType) || !isArrayType(expectedType)) {
         //println("TREE TPE IS OK : " + expectedType)
         result
       } else {
-        //println("TREE TPE NEEDS ARRAY WRAPPER : " + expectedType)
+        //println("TREE TPE NEEDS ARRAY WRAPPER : expected " + expectedType + ", got " + result.tpe)
         val opsType = getArrayWrapperTpe(componentType)
         newInstance(opsType, List(result))
       }
@@ -54,7 +54,7 @@ trait StreamSinks extends Streams {
   }
   trait ArrayStreamSink extends WithArrayResultWrapper {
     def tree: Tree
-    def outputArray(tree: Tree, value: StreamValue, index: TreeGen, size: TreeGen)(implicit loop: Loop): Unit = {
+    def outputArray(expectedType: Type, value: StreamValue, index: TreeGen, size: TreeGen)(implicit loop: Loop): Unit = {
       import loop.{ unit, currentOwner }
       val pos = loop.pos
 
@@ -83,12 +83,13 @@ trait StreamSinks extends Streams {
         itemIdentGen(value)(loop)()
       )
       
-      loop.postOuter += wrapResultIfNeeded(a(), tree.tpe, componentType)
+      loop.postOuter += 
+        wrapResultIfNeeded(a(), expectedType, componentType)
     }
-    def output(value: StreamValue)(implicit loop: Loop): Unit = {
+    def output(value: StreamValue, expectedType: Type)(implicit loop: Loop): Unit = {
       val Some(index) = value.valueIndex
       val Some(size) = value.valuesCount
-      outputArray(tree, value, index, size)
+      outputArray(expectedType, value, index, size)
     }
   }
   class ArrayBuilderGen(componentType: Type, localTyper: analyzer.Typer) extends BuilderGen {
@@ -166,7 +167,7 @@ trait StreamSinks extends Streams {
     def tree: Tree
     //def privilegedDirection = Some(FromLeft)
     def createBuilderGen(value: StreamValue)(implicit loop: Loop): BuilderGen
-    def outputBuilder(value: StreamValue)(implicit loop: Loop): Unit = {
+    def outputBuilder(expectedType: Type, value: StreamValue)(implicit loop: Loop): Unit = {
       import loop.{ unit, currentOwner }
       val pos = loop.pos
 
@@ -183,11 +184,11 @@ trait StreamSinks extends Streams {
         
       loop.inner += builderAppend(a(), value.value())
       
-      loop.postOuter += wrapResultIfNeeded(builderResultGetter(a()), tree.tpe, value.tpe)
+      loop.postOuter += wrapResultIfNeeded(builderResultGetter(a()), expectedType, value.tpe)
     }
     
-    def output(value: StreamValue)(implicit loop: Loop): Unit =
-      outputBuilder(value)
+    def output(value: StreamValue, expectedType: Type)(implicit loop: Loop): Unit =
+      outputBuilder(expectedType, value)
   }
   trait ArrayBuilderStreamSink extends BuilderStreamSink with WithArrayResultWrapper {
     def createBuilderGen(value: StreamValue)(implicit loop: Loop): BuilderGen =
@@ -196,19 +197,19 @@ trait StreamSinks extends Streams {
   trait CanCreateArraySink extends CanCreateStreamSink {
     def tree: Tree
     
-    override def createStreamSink(componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
+    override def createStreamSink(expectedType: Type, componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
       new StreamSink 
       with ArrayStreamSink 
       with ArrayBuilderStreamSink
       {
         override def tree = CanCreateArraySink.this.tree
         
-        override def output(value: StreamValue)(implicit loop: Loop): Unit = {
+        override def output(value: StreamValue, expectedType: Type)(implicit loop: Loop): Unit = {
           (value.valueIndex, value.valuesCount) match {
             case (Some(index), Some(size)) =>
-              outputArray(tree, value, index, size)
+              outputArray(expectedType, value, index, size)
             case _ =>
-              outputBuilder(value)
+              outputBuilder(expectedType, value)
           }
         }
       }
@@ -216,7 +217,7 @@ trait StreamSinks extends Streams {
   trait CanCreateVectorSink extends CanCreateStreamSink {
     def tree: Tree
     
-    override def createStreamSink(componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
+    override def createStreamSink(expectedType: Type, componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
       new StreamSink 
       with BuilderStreamSink 
       {
@@ -229,7 +230,7 @@ trait StreamSinks extends Streams {
   trait CanCreateListSink extends CanCreateStreamSink {
     def tree: Tree
     
-    override def createStreamSink(componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
+    override def createStreamSink(expectedType: Type, componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
       new StreamSink 
       with BuilderStreamSink 
       {
@@ -243,7 +244,7 @@ trait StreamSinks extends Streams {
   trait CanCreateSetSink extends CanCreateStreamSink {
     def tree: Tree
     
-    override def createStreamSink(componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
+    override def createStreamSink(expectedType: Type, componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
       new StreamSink 
       with BuilderStreamSink 
       {
@@ -258,7 +259,7 @@ trait StreamSinks extends Streams {
     def tree: Tree
     override def consumesExtraFirstValue = false // TODO
     
-    override def createStreamSink(componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
+    override def createStreamSink(expectedType: Type, componentType: Type, outputSize: Option[TreeGen]): StreamSink = 
       new StreamSink 
       {
         override def tree = CanCreateOptionSink.this.tree
@@ -266,7 +267,7 @@ trait StreamSinks extends Streams {
         //def createBuilderGen(value: StreamValue)(implicit loop: Loop): BuilderGen =
         //  new VectorBuilderGen(value.tpe)
           
-        def output(value: StreamValue)(implicit loop: Loop): Unit = {
+        def output(value: StreamValue, expectedType: Type)(implicit loop: Loop): Unit = {
           import loop.{ unit, currentOwner }
           val pos = loop.pos
     

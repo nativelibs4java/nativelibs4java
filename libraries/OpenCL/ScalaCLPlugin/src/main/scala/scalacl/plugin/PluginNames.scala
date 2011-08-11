@@ -93,6 +93,7 @@ trait PluginNames {
   lazy val SetClass           = C("scala.collection.Set")
   lazy val VectorClass        = C("scala.collection.Set")
   lazy val ListClass          = C("scala.List")
+  lazy val ImmutableListClass = C("scala.collection.immutable.List")
   lazy val NonEmptyListClass  = C("scala.collection.immutable.$colon$colon")
   lazy val IndexedSeqModule   = M("scala.collection.IndexedSeq")
   lazy val IndexedSeqClass    = C("scala.collection.IndexedSeq")

@@ -54,23 +54,78 @@ class MatrixPerformanceTest extends TestUtils {
 
 }
 
-class ChainedPerformanceTest extends PerformanceTest {
-  import PerformanceTest.{ skip, deprecated, stream }
-  
+trait ChainedPerformanceTest extends CollectionPerformanceTests {
   def chain(du: (String, String)) = {
     val (definition, use) = du
     (definition, use + ".filter(v => (v % 2) == 0).map(_ * 2)")
   }
-  
-  override def arr = chain(super.arr) 
-  override def lis = chain(super.lis)
-  override def rng = chain(super.rng)
-
-  override val testLists = stream
 }
 
-class PerformanceTest extends TestUtils {
-  import PerformanceTest.{ skip, deprecated, stream }
+trait NoRightTests extends CollectionPerformanceTests {
+  override def simpleScanRight = {}
+  override def simpleFoldRight = {}
+  override def simpleReduceRight = {}
+}
+class ListPerformanceTest extends NoRightTests {
+  override def col = ("val col: List[Int] = (0 to n).toList", "col")//.filter(v => (v % 2) == 0).map(_ * 2)")
+}
+class ListChainedPerformanceTest extends ListPerformanceTest with ChainedPerformanceTest {
+  override def col = chain(super.col)
+}
+class ArrayPerformanceTest extends CollectionPerformanceTests {
+  override def col = ("val col = Array.tabulate(n)(i => i)", "col") 
+}
+class ArrayChainedPerformanceTest extends ArrayPerformanceTest with ChainedPerformanceTest {
+  override def col = chain(super.col)
+}
+class RangePerformanceTest extends NoRightTests {
+  override def col = (null: String, "(0 until n)")
+}
+class RangeChainedPerformanceTest extends RangePerformanceTest with ChainedPerformanceTest {
+  override def col = chain(super.col)
+}
+
+
+
+trait CollectionPerformanceTests extends PerformanceTests {
+  import PerformanceTest.{ deprecated, stream }
+  val skip = PerformanceTest.skip
+  def col: (String, String)
+  
+  /**************************
+   * Collection conversions *
+   **************************/
+  @Test def simpleToArray = if (!skip) testToArray(col)              
+  @Test def simpleToList = if (!skip) testToList(col)              
+  @Test def simpleToVector = if (!skip) testToVector(col)              
+  
+  @Test def simpleArrayTabulate =  if (!skip) ensureFasterCodeWithSameResult(null, "Array.tabulate(n)(i => i).toSeq")
+  
+  @Test def simpleFilter = testFilter(col)           
+  @Test def simpleFilterNot = testFilterNot(col)     
+  @Test def simpleCount = testCount(col)             
+  @Test def simpleExists = testExists(col)           
+  @Test def simpleForall = testForall(col)           
+  @Test def simpleTakeWhile = testTakeWhile(col)     
+  @Test def simpleDropWhile = testDropWhile(col)     
+  @Test def simpleForeach = testForeach(col)         
+  @Test def simpleMap = testMap(col)                 
+  @Test def simpleSum = testSum(col)                 
+  @Test def simpleMin = testMin(col)                 
+  @Test def simpleMax = testMax(col)                 
+  @Test def simpleScanLeft = testScanLeft(col)       
+  @Test def simpleScanRight = testScanRight(col)     
+  @Test def simpleFoldLeft = testFoldLeft(col)       
+  @Test def simpleFoldRight = testFoldRight(col)     
+  @Test def simpleReduceLeft = testReduceLeft(col)   
+  @Test def simpleReduceRight = testReduceRight(col) 
+  
+}
+
+/*
+class PerformanceTest extends PerformanceTests {
+  import PerformanceTest.{ deprecated, stream }
+  val skip = PerformanceTest.skip
   
   def arr: (String, String) = ("val col = Array.tabulate(n)(i => i)", "col") 
   def lis: (String, String) = ("val col = (0 to n).toList", "col.filter(v => (v % 2) == 0).map(_ * 2)")
@@ -82,18 +137,12 @@ class PerformanceTest extends TestUtils {
     deprecated
   }
   
-  /**************************
-   * Collection conversions *
-   **************************/
   @Test def simpleRangeToArray = if (experimental) testToArray(rng)              
   //@Test def simpleRangeToList = testToList(rng) 
   @Test def simpleListToArray = if (testLists) testToArray(lis)              
   @Test def simpleArrayToList = if (experimental) testToList(arr) 
   
   
-  /********
-   * List *
-   ********/
   @Test def simpleListFilter = if (testLists) testFilter(lis)              
   @Test def simpleListFilterNot = if (testLists) testFilterNot(lis) 
   // TODO: not working well, no speedup :
@@ -111,9 +160,6 @@ class PerformanceTest extends TestUtils {
   @Test def simpleListFoldLeft = if (testLists) testFoldLeft(lis)          
   @Test def simpleListReduceLeft = if (testLists) testReduceLeft(lis)      
 
-  /*********
-   * Range *
-   *********/
   @Test def simpleRangeFilter = testFilter(rng)           
   @Test def simpleRangeFilterNot = testFilterNot(rng)     
   @Test def simpleRangeCount = testCount(rng)             
@@ -130,9 +176,6 @@ class PerformanceTest extends TestUtils {
   @Test def simpleRangeFoldLeft = testFoldLeft(rng)       
   // TODO: Must be implemented differently : @Test def simpleRangeReduceLeft = testReduceLeft(rng)   
   
-  /*********
-   * Array *
-   *********/
   @Test def simpleArrayTabulate =  if (!skip) ensureFasterCodeWithSameResult(null, "Array.tabulate(n)(i => i).toSeq")
   @Test def simpleArrayFilter = testFilter(arr)           
   @Test def simpleArrayFilterNot = testFilterNot(arr)     
@@ -153,6 +196,10 @@ class PerformanceTest extends TestUtils {
   @Test def simpleArrayReduceLeft = testReduceLeft(arr)   
   @Test def simpleArrayReduceRight = testReduceRight(arr) 
   
+}*/
+trait PerformanceTests extends TestUtils {
+  val skip: Boolean
+  
   val oddPred = "x => (x % 2) != 0"
   val firstHalfPred = "x => x < n / 2"
   val midPred = "x => x == n / 2"
@@ -162,6 +209,9 @@ class PerformanceTest extends TestUtils {
 
   def testToArray(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".toArray.toSeq")
+
+  def testToVector(cc: (String, String)) = if (!skip)
+    ensureFasterCodeWithSameResult(cc._1, cc._2 + ".toVector")
 
   def testFilter(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".filter(" + oddPred + ").toSeq")

@@ -243,6 +243,8 @@ with CodeAnalysis
   trait StreamComponent extends StreamChainTestable {
     def tree: Tree
     
+    def closuresCount = 0
+    
     /// Used to chain stream detection : give the unwrapped content of the tree
     def unwrappedTree = tree
     def analyzeSideEffectsOnStream(analyzer: SideEffectsAnalyzer): SideEffects
@@ -250,7 +252,7 @@ with CodeAnalysis
   trait CanCreateStreamSink extends StreamChainTestable {
     override def consumesExtraFirstValue: Boolean = true
     
-    def createStreamSink(componentTpe: Type, outputSize: Option[TreeGen]): StreamSink
+    def createStreamSink(expectedType: Type, componentTpe: Type, outputSize: Option[TreeGen]): StreamSink
   }
   trait StreamSource extends StreamComponent {
     def emit(direction: TraversalDirection)(implicit loop: Loop): StreamValue
@@ -263,7 +265,7 @@ with CodeAnalysis
     def transform(value: StreamValue)(implicit loop: Loop): StreamValue
   }
   trait StreamSink extends SideEffectFreeStreamComponent {
-    def output(value: StreamValue)(implicit loop: Loop): Unit
+    def output(value: StreamValue, expectedType: Type)(implicit loop: Loop): Unit
   }
   case class Stream(
     source: StreamSource, 
@@ -274,6 +276,9 @@ with CodeAnalysis
     sideEffects: SideEffects,
     preventedOptimizations: Boolean
   )
+  case class CodeWontBenefitFromOptimization(reason: String) 
+  extends UnsupportedOperationException(reason)
+  
   case class BrokenOperationsStreamException(
     msg: String, 
     sourceAndOps: Seq[StreamComponent], 
@@ -339,8 +344,9 @@ with CodeAnalysis
       value = transformer.transform(value)
       
     for (sinkCreator <- sinkCreatorOpt) {
-      val sink = sinkCreator.createStreamSink(value.value.tpe, value.valuesCount)
-      sink.output(value)
+      val expectedType = sourceAndOps.last.tree.tpe
+      val sink = sinkCreator.createStreamSink(expectedType, value.value.tpe, value.valuesCount)
+      sink.output(value, expectedType)
     }
     loop.tree
   }
