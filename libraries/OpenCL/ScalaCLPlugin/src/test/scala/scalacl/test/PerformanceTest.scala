@@ -73,7 +73,8 @@ class ListChainedPerformanceTest extends ListPerformanceTest with ChainedPerform
   override def col = chain(super.col)
 }
 class ArrayPerformanceTest extends CollectionPerformanceTests {
-  override def col = ("val col = Array.tabulate(n)(i => i)", "col") 
+  override def col = ("val col = Array.tabulate(n)(i => i)", "col")
+  @Test def simpleArrayTabulate =  if (!skip) ensureFasterCodeWithSameResult(null, "Array.tabulate(n)(i => i).toSeq")
 }
 class ArrayChainedPerformanceTest extends ArrayPerformanceTest with ChainedPerformanceTest {
   override def col = chain(super.col)
@@ -97,9 +98,7 @@ trait CollectionPerformanceTests extends PerformanceTests {
    **************************/
   @Test def simpleToArray = if (!skip) testToArray(col)              
   @Test def simpleToList = if (!skip) testToList(col)              
-  @Test def simpleToVector = if (!skip) testToVector(col)              
-  
-  @Test def simpleArrayTabulate =  if (!skip) ensureFasterCodeWithSameResult(null, "Array.tabulate(n)(i => i).toSeq")
+  //@Test def simpleToVector = if (!skip) testToVector(col)              
   
   @Test def simpleFilter = testFilter(col)           
   @Test def simpleFilterNot = testFilterNot(col)     
@@ -209,9 +208,6 @@ trait PerformanceTests extends TestUtils {
 
   def testToArray(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".toArray.toSeq")
-
-  def testToVector(cc: (String, String)) = if (!skip)
-    ensureFasterCodeWithSameResult(cc._1, cc._2 + ".toVector")
 
   def testFilter(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".filter(" + oddPred + ").toSeq")

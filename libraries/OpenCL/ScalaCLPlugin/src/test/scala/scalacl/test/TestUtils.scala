@@ -366,7 +366,7 @@ trait TestUtils {
     val firstRun = testers.map(_(false))
     val Array(optimizedOutput, normalOutput) = firstRun.map(_.output)
     
-    val pref = "[" + testMethodName + "] "
+    val pref = "[" + testClassName + "." + testMethodName + "] "
     if (normalOutput != optimizedOutput) {
       fail(pref + "ERROR: Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
     }
@@ -385,7 +385,7 @@ trait TestUtils {
       val firstRun = testers.map(_(false))
       val Array(optimizedOutput, normalOutput) = firstRun.map(_.output)
       
-      val pref = "[" + methodName + ", n = " + param + "] "
+      val pref = "[" + testClassName + "." + methodName + ", n = " + param + "] "
       if (normalOutput != optimizedOutput) {
         fail(pref + "ERROR: Output is not the same !\n" + pref + "\t   Normal output = " + normalOutput + "\n" + pref + "\tOptimized output = " + optimizedOutput)
       }
@@ -446,7 +446,7 @@ trait TestUtils {
       }
       
       def check(warm: Boolean, factor: Double, expectedFactor: Double) = {
-        val pref = "[" + methodName + ", n = " + param + ", " + (if (warm) "warm" else "cold") + "] "
+        val pref = "[" + testClassName + "." + methodName + ", n = " + param + ", " + (if (warm) "warm" else "cold") + "] "
         
         if (factor >= expectedFactor) {
           println(pref + "  OK (" + factor + "x faster, expected > " + expectedFactor + "x)")
