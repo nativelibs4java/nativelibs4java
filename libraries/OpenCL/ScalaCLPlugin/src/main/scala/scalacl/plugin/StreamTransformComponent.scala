@@ -296,16 +296,31 @@ extends PluginComponent
     
     val sourceAndOps = source +: transformers
     
+    import TraversalOps._
+    
     val closuresCount = sourceAndOps.map(_.closuresCount).sum
-    (transformers.size, closuresCount, source) match {
+    (transformers, closuresCount, source) match {
       case (_, _, _: ExplicitCollectionStreamSource) =>
         // ok... transforming a List(1, 2, 3) into Array(1, 2, 3) is worth it
-      case (0, _, _) =>
+      case (Seq(), _, _) =>
         throw CodeWontBenefitFromOptimization("No operations chain : " + sourceAndOps)
-      case (1, 0, _) =>
+      case (Seq(_), 0, _) =>
         throw CodeWontBenefitFromOptimization("Only one operations without closure is not enough to optimize : " + sourceAndOps)
-      case (1, 1, _: ListStreamSource) =>
+      case (Seq(_), 1, _: ListStreamSource) =>
         throw CodeWontBenefitFromOptimization("List operations chains need at least 2 closures to make the optimization beneficial : " + sourceAndOps)
+      case 
+        (
+          Seq(
+            _: FilterWhileOp |
+            _: MaxOp |
+            _: MinOp |
+            _: ToCollectionOp
+          ), 
+          1, 
+          _: RangeStreamSource
+        ) 
+        =>
+        throw CodeWontBenefitFromOptimization("This operations stream would not benefit from a while-loop-rewrite optimization : " + sourceAndOps)
       case _ =>
     }
   }
