@@ -92,14 +92,14 @@ class RangePerformanceTest extends CollectionPerformanceTests with NoRightTests 
   override def col = (null: String, "(0 until n)")
   override def simpleToArray = {}
   override def simpleToList = {}
-  override def simpleToTakeWhile = {}
-  override def simpleToDropWhile = {}
+  override def simpleTakeWhile = {}
+  override def simpleDropWhile = {}
   override def simpleSum = {}
   override def simpleProduct = {}
   override def simpleMin = {}
   override def simpleMax = {} 
 }
-class RangeChainedPerformanceTest extends CollectionPerformanceTests with NoRightTests with NoScalarReductionTests {
+class RangeChainedPerformanceTest extends CollectionPerformanceTests with ChainedPerformanceTest with NoRightTests with NoScalarReductionTests {
   override def col = chain((null, "(0 until n)"))
 }
 
