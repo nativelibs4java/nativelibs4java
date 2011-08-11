@@ -159,8 +159,8 @@ trait MiscMatchers extends PluginNames with WithOptions {
       Some(tree, tree.symbol)
   }
   object TreeWithType {
-    def unapply(tree: Tree): Option[(Tree, Type)] = 
-      Some(tree, tree.tpe.dealias.deconst.widen)
+    def unapply(tree: Tree): Option[(Tree, Type)] =
+      Some(tree, if (tree.tpe == null) null else tpe.dealias.deconst.widen)
   }
   
   object TupleComponent {

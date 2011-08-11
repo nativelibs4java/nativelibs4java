@@ -54,19 +54,28 @@ class MatrixPerformanceTest extends TestUtils {
 
 }
 
-trait ChainedPerformanceTest extends CollectionPerformanceTests {
+trait ChainedPerformanceTest {
+  this: CollectionPerformanceTests =>
   def chain(du: (String, String)) = {
     val (definition, use) = du
     (definition, use + ".filter(v => (v % 2) == 0).map(_ * 2)")
   }
 }
 
-trait NoRightTests extends CollectionPerformanceTests {
+trait NoRightTests { //extends CollectionPerformanceTests {
+  this: CollectionPerformanceTests => 
   override def simpleScanRight = {}
   override def simpleFoldRight = {}
   override def simpleReduceRight = {}
 }
-class ListPerformanceTest extends NoRightTests {
+trait NoScalarReductionTests {//extends CollectionPerformanceTests {
+  this: CollectionPerformanceTests => 
+  override def simpleSum = {}
+  override def simpleProduct = {}
+  override def simpleMin = {}
+  override def simpleMax = {}
+}
+class ListPerformanceTest extends CollectionPerformanceTests with NoRightTests {
   override def col = ("val col: List[Int] = (0 to n).toList", "col")//.filter(v => (v % 2) == 0).map(_ * 2)")
 }
 class ListChainedPerformanceTest extends ListPerformanceTest with ChainedPerformanceTest {
@@ -79,11 +88,19 @@ class ArrayPerformanceTest extends CollectionPerformanceTests {
 class ArrayChainedPerformanceTest extends ArrayPerformanceTest with ChainedPerformanceTest {
   override def col = chain(super.col)
 }
-class RangePerformanceTest extends NoRightTests {
+class RangePerformanceTest extends CollectionPerformanceTests with NoRightTests with NoScalarReductionTests {
   override def col = (null: String, "(0 until n)")
+  override def simpleToArray = {}
+  override def simpleToList = {}
+  override def simpleToTakeWhile = {}
+  override def simpleToDropWhile = {}
+  override def simpleSum = {}
+  override def simpleProduct = {}
+  override def simpleMin = {}
+  override def simpleMax = {} 
 }
-class RangeChainedPerformanceTest extends RangePerformanceTest with ChainedPerformanceTest {
-  override def col = chain(super.col)
+class RangeChainedPerformanceTest extends CollectionPerformanceTests with NoRightTests with NoScalarReductionTests {
+  override def col = chain((null, "(0 until n)"))
 }
 
 
@@ -110,6 +127,7 @@ trait CollectionPerformanceTests extends PerformanceTests {
   @Test def simpleForeach = testForeach(col)         
   @Test def simpleMap = testMap(col)                 
   @Test def simpleSum = testSum(col)                 
+  @Test def simpleProduct = testProduct(col)                 
   @Test def simpleMin = testMin(col)                 
   @Test def simpleMax = testMax(col)                 
   @Test def simpleScanLeft = testScanLeft(col)       
@@ -238,6 +256,9 @@ trait PerformanceTests extends TestUtils {
 
   def testSum(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".sum")
+
+  def testProduct(cc: (String, String)) = if (!skip)
+    ensureFasterCodeWithSameResult(cc._1, cc._2 + ".product")
 
   def testMin(cc: (String, String)) = if (!skip)
     ensureFasterCodeWithSameResult(cc._1, cc._2 + ".min")

@@ -314,6 +314,8 @@ extends PluginComponent
             _: FilterWhileOp |
             _: MaxOp |
             _: MinOp |
+            _: SumOp |
+            _: ProductOp |
             _: ToCollectionOp
           ), 
           1, 
