@@ -227,13 +227,8 @@ trait TestUtils {
     compileCode(withPlugin = true, code, "", decls, "")
   
   lazy val getScalaCLCollectionsPath = {
-    val rJar = """jar:file:(.*?\.jar)!.*""".r
-    val rFile = """file:(.*?)/scalacl/\w+\.class""".r
     def getPath(c: Class[_]): String = {
-      c.getClassLoader.getResource(c.getName.replace('.', '/') + ".class").toString match {
-        case rJar(file) => file
-        case rFile(path) => path
-      }
+      c.getProtectionDomain.getCodeSource.getLocation.getFile
     }
     
     Array(

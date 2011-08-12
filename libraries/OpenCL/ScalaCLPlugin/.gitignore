@@ -3,3 +3,6 @@ project/boot
 project/target
 *~
 out
+tmpTestClassesNormal
+tmpTestClassesOptimized
+*.perf.properties

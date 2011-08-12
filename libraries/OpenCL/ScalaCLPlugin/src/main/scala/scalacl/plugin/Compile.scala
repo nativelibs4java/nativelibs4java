@@ -124,8 +124,7 @@ Copyright Olivier Chafik 2010""")
   
   val fileJarURLRx = "jar:file:([^!]+)!.*".r
   lazy val bootClassPath = {
-    val fileJarURLRx(scalaLibraryJar) = getClass.getClassLoader.getResource("scala/collection/immutable/List.class").toString
-    // getCodeLocation
+    val scalaLibraryJar = classOf[List[_]].getProtectionDomain.getCodeSource.getLocation.getFile
     scalaLibraryJar
     /*
     import java.io.File
