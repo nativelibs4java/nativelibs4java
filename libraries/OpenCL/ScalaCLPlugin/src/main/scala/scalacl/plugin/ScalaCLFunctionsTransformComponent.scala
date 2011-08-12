@@ -177,7 +177,7 @@ extends PluginComponent
       s.isValue && s.isStable && !s.isMutable &&
       s.isInstanceOf[TermSymbol] && s.isEffectivelyFinal && // this rules out captured fields !
       {
-        val tpe = s.tpe.widen.dealias.deconst match {
+        val tpe = normalize(s.tpe) match {
           case NullaryMethodType(result) =>
             result
           case tpe =>
@@ -251,7 +251,7 @@ extends PluginComponent
             "\nDetails about symbol '" + s + "' (" + s.getClass.getName + ") :\n\t" +
             Map(
               "tpe" -> {
-                val t = s.tpe.widen.dealias.deconst
+                val t = normalize(s.tpe)
                 t + " (" + t.getClass.getName + ")"
               },
               "isMutable" -> s.isMutable,
@@ -502,7 +502,7 @@ extends PluginComponent
           tree match {
             case TraversalOp(traversalOp) if traversalOp.op.f != null =>
               import traversalOp._
-              val colTpe = collection.tpe.widen.dealias.deconst
+              val colTpe = normalize(collection.tpe)
               //if (colTpe <:< CLCollectionClass.tpe) {
               if (colTpe.toString.startsWith("scalacl.")) { // TODO
                 op match {

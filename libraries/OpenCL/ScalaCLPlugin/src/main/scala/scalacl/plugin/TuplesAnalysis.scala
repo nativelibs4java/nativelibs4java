@@ -81,7 +81,7 @@ extends MiscMatchers
   }
   private val tupleInfos = new scala.collection.mutable.HashMap[Type, TupleInfo]
   def getTupleInfo(tpe: Type): TupleInfo = {
-    val actualTpe = tpe.dealias.widen.deconst
+    val actualTpe = normalize(tpe)
     tupleInfos.getOrElseUpdate(actualTpe, {
       actualTpe match {
         case t: TypeRef =>

@@ -160,7 +160,7 @@ trait MiscMatchers extends PluginNames with WithOptions {
   }
   object TreeWithType {
     def unapply(tree: Tree): Option[(Tree, Type)] =
-      Some((tree, if (tree.tpe == null) null else tree.tpe.dealias.deconst.widen))
+      Some((tree, if (tree.tpe == null) null else normalize(tree.tpe)))
   }
   
   object TupleComponent {
@@ -304,7 +304,7 @@ trait MiscMatchers extends PluginNames with WithOptions {
           TypeRef(_, colClass, List(componentType))
         )
       if colObject.symbol == colModule =>
-        //tree.tpe.dealias.deconst.widen match {
+        //normalize(tree.tpe) match {
         //  case TypeRef(_, colClass, List(componentType)) =>
             Some(components, componentType)
         //  case _ =>
@@ -321,11 +321,28 @@ trait MiscMatchers extends PluginNames with WithOptions {
   object IndexedSeqApply extends CollectionApply(IndexedSeqModule, IndexedSeqClass)
   object ListApply extends CollectionApply(ListModule, ListClass)
   
+  def normalize(tpe: Type) = {
+    var t = tpe
+    if (t != null) {
+      var d = t.dealias
+      if (d != null) {
+        t = d
+        d = t.deconst
+        if (d != null) {
+          t = d
+          d = t.widen
+          if (d != null)
+            t = d
+        }
+      }
+    }
+    t
+  }
   object OptionTree {
     def apply(componentType: Type) = error("not implemented")
     def unapply(tree: Tree): Option[Type] = {
       if (!tree.isInstanceOf[TypeTree])
-        tree.tpe.dealias.deconst.widen match {
+        normalize(tree.tpe) match {
           case TypeRef(_, OptionClass, List(componentType)) => 
             //println("FOUND OPTION TREE " + tree)
             Some(componentType)
@@ -377,7 +394,7 @@ trait MiscMatchers extends PluginNames with WithOptions {
     private def isCol2(s: Symbol) =
       isCol(s) || isCol(s.tpe.typeSymbol)
     
-    def unapply(tpe: Type): Option[Type] = Option(tpe).map(_.dealias).map(_.deconst).map(_.widen) collect {
+    def unapply(tpe: Type): Option[Type] = Option(normalize(tpe)) collect {
       case TypeRef(_, ColClass, List(param)) =>
         param
       case TypeRef(_, cc, List(param)) if isCol2(cc) =>//tree.symbol)  => 
@@ -385,7 +402,6 @@ trait MiscMatchers extends PluginNames with WithOptions {
       case PolyType(Nil, TypeRef(_, cc, List(param))) if isCol2(cc) =>
         param
     }
-    //class ColTree(ColClass: Symbol) {
     
     def unapply(tree: Tree): Option[Type] = if (tree == null) None else {
       unapply(tree.tpe) match {

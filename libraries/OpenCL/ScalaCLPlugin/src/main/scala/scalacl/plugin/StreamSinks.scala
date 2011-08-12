@@ -115,8 +115,8 @@ trait StreamSinks extends Streams {
         
         var manifest = localTyper.findManifest(t, false).tree
         if (manifest == EmptyTree)
-          manifest = localTyper.findManifest(t.dealias.deconst.widen, false).tree // TODO remove me ?
-        assert(manifest != EmptyTree, "Empty manifest for type : " + t + " = " + t.dealias.deconst.widen)
+          manifest = localTyper.findManifest(normalize(t), false).tree // TODO remove me ?
+        assert(manifest != EmptyTree, "Empty manifest for type : " + t + " = " + normalize(t))
     
         // TODO: REMOVE THIS UGLY WORKAROUND !!!
         assertNoThisWithNoSymbolOuterRef(manifest, localTyper)
