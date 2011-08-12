@@ -429,7 +429,7 @@ extends MiscMatchers
   }
   implicit def VarDev2IdentGen(vd: VarDef) = if (vd == null) null else vd.identGen
   
-  def simpleBuilderResult(builder: Tree): Tree = {
+  def simpleBuilderResult(builder: Tree): Tree = typed {
     val resultMethod = builder.tpe member resultName
     Apply(
       Select(
@@ -451,7 +451,7 @@ extends MiscMatchers
     ).setSymbol(sym).setType(UnitClass.tpe)
   }
   
-  def toArray(tree: Tree, componentType: Type, localTyper: analyzer.Typer) = {
+  def toArray(tree: Tree, componentType: Type, localTyper: analyzer.Typer) = typed {
     val manifest = localTyper.findManifest(componentType, false).tree
     assert(manifest != EmptyTree, "Failed to get manifest for " + componentType)
     

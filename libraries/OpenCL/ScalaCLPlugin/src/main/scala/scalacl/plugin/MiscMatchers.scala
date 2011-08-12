@@ -377,7 +377,7 @@ trait MiscMatchers extends PluginNames with WithOptions {
     private def isCol2(s: Symbol) =
       isCol(s) || isCol(s.tpe.typeSymbol)
     
-    def unapply(tpe: Type): Option[Type] = Option(tpe.dealias.deconst.widen) collect {
+    def unapply(tpe: Type): Option[Type] = Option(tpe).map(_.dealias).map(_.deconst).map(_.widen) collect {
       case TypeRef(_, ColClass, List(param)) =>
         param
       case TypeRef(_, cc, List(param)) if isCol2(cc) =>//tree.symbol)  => 
