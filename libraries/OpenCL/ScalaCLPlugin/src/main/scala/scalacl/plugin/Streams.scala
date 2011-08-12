@@ -326,7 +326,7 @@ with CodeAnalysis
         })
       )
     }
-    if (options.verbose)
+    if (options.veryVerbose)
       for ((comp, sideEffects) <- componentsWithSideEffects; sideEffect <- sideEffects)
         warnSideEffect(unit, sideEffect)
     

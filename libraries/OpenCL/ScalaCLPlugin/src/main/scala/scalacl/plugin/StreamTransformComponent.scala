@@ -263,7 +263,7 @@ extends PluginComponent
                       for (sideEffect <- sideEffects) {
                         if (preventedOptimizations)
                           unit.warning(sideEffect.pos, "This side-effect prevents optimization of the enclosing " + comp + " operation")
-                        else if (options.verbose)
+                        else if (options.veryVerbose)
                           warnSideEffect(unit, sideEffect)
                       }
                       //println("Side effects of " + comp + " :\n\t" + sideEffects.mkString(",\n\t"))
@@ -281,11 +281,11 @@ extends PluginComponent
           }
         } catch {
           case ex: CodeWontBenefitFromOptimization =>
-            if (options.verbose)
+            if (options.veryVerbose)
               unit.warning(tree.pos, ex.toString)
             super.transform(tree)
           case ex =>
-            if (options.verbose)
+            if (options.veryVerbose)
               ex.printStackTrace
             super.transform(tree)
         }

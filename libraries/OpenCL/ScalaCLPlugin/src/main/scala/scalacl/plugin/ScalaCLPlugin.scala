@@ -77,6 +77,7 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
                                       Can contain absolute paths or file names (can omit trailing .scala).
                                       Each file (name) may be suffixed with :line.
   SCALACL_VERBOSE=1                   Print details about each successful code transformation to the standard output.
+  SCALACL_VERY_VERBOSE=1              Verbose + give details on why optimizations were not performed, and on what possible side-effects were detected.
   SCALACL_TRACE=1                     Display stack trace of failed optimizations (for debugging purpose).
   SCALACL_EXPERIMENTAL=1              Perform experimental rewrites (often slower and buggier, use only when debugging ScalaCLPlugin).
   SCALACL_DEPRECATED=1                Perform rewrite that were deprecated (deemed or proved to be slower than the original)
@@ -113,8 +114,12 @@ object ScalaCLPlugin {
       settings != null && settings.debug.value ||
       hasEnv("SCALACL_TRACE")
       
+    var veryVerbose = 
+      hasEnv("SCALACL_VERY_VERBOSE")
+      
     var verbose = 
       settings != null && settings.verbose.value ||
+      veryVerbose ||
       hasEnv("SCALACL_VERBOSE")
       
     var experimental = 
