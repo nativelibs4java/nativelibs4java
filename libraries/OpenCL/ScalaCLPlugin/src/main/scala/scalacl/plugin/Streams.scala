@@ -348,6 +348,6 @@ with CodeAnalysis
       val sink = sinkCreator.createStreamSink(expectedType, value.value.tpe, value.valuesCount)
       sink.output(value, expectedType)
     }
-    loop.tree
+    loop.tree.setType(sourceAndOps.last.tree.tpe)
   }
 }

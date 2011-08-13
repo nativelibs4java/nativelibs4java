@@ -255,6 +255,7 @@ extends PluginComponent
                   checkStreamWillBenefitFromOptimization(stream)
                   val asm = assembleStream(stream, this.transform _, unit, tree.pos, currentOwner, localTyper)
                   //println(txt + "\n\t" + asm.toString.replaceAll("\n", "\n\t"))
+                  //println("### TRANSFORMED : ###\n" + nodeToString(asm))
                   asm
                 } catch {
                   case BrokenOperationsStreamException(msg, sourceAndOps, componentsWithSideEffects) =>
