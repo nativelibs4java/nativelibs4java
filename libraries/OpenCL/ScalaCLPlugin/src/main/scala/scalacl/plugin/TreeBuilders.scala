@@ -190,7 +190,7 @@ extends MiscMatchers
       Apply(
         Select(
           New(TypeTree(tpe)),
-          tpe.typeSymbol.primaryConstructor
+          sym
         ).setSymbol(sym),
         constructorArgs
       ).setSymbol(sym)
@@ -435,7 +435,7 @@ extends MiscMatchers
       Select(
         builder,
         resultName
-      ).setSymbol(resultMethod).setType(resultMethod.tpe),
+      ).setSymbol(resultMethod),//.setType(resultMethod.tpe),
       Nil
     ).setSymbol(resultMethod)
   }

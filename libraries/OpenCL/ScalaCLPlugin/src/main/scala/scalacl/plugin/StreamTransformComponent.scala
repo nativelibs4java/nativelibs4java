@@ -262,7 +262,9 @@ extends PluginComponent
                     for (SideEffectFullComponent(comp, sideEffects, preventedOptimizations) <- componentsWithSideEffects) {
                       for (sideEffect <- sideEffects) {
                         if (preventedOptimizations)
-                          unit.warning(sideEffect.pos, "This side-effect prevents optimization of the enclosing " + comp + " operation")
+                          unit.warning(sideEffect.pos, "This side-effect prevents optimization of the enclosing " + comp + " operation" +
+                            (if (options.veryVerbose) " ; node = " + nodeToString(sideEffect) else "")
+                          )
                         else if (options.veryVerbose)
                           warnSideEffect(unit, sideEffect)
                       }

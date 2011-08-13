@@ -159,11 +159,12 @@ extends MiscMatchers
       symbolsInfo.definedSymbols.contains(symbol) ||
       !unknownSymbols.contains(symbol)
       
-    protected def isSideEffectFreeMethod(symbol: MethodSymbol): Boolean = {
+    protected def isSideEffectFreeMethod(target: Tree, symbol: MethodSymbol): Boolean = {
       val owner = symbol.owner
       val name = symbol.name
       
       symbol.isGetter ||
+      isSideEffectFreeOwner(target.tpe.typeSymbol) || 
       isSideEffectFreeOwner(owner) || 
       name == (applyName: Name) && {
         owner == SeqModule ||
@@ -227,7 +228,7 @@ extends MiscMatchers
             Seq(tree)
           else {
             val ms = sym.asInstanceOf[MethodSymbol]
-            if (isSideEffectFreeMethod(ms))
+            if (isSideEffectFreeMethod(target, ms))
               Seq()
             else
               Seq(tree)

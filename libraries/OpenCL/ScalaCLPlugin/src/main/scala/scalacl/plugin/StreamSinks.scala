@@ -107,10 +107,16 @@ trait StreamSinks extends Streams {
             })
       }
     }
-    override def builderResultGetter = _builderResultGetter
+    override def builderResultGetter = {
+      val g = _builderResultGetter
+      (tree: Tree) => {
+        val r = g(tree)
+        r.setType(appliedType(ArrayClass.tpe, List(componentType)))
+      }
+    }
     
     override def builderCreation = localTyper.typed {
-      val manifestList = if (needsManifest) {
+      /*val manifestList = if (needsManifest) {
         var t = componentType
         
         var manifest = localTyper.findManifest(t, false).tree
@@ -123,20 +129,29 @@ trait StreamSinks extends Streams {
         List(manifest)
       } else
         null
-
+      
+      //newInstance(builderType, Nil).setType(builderType)
+      
       val args = if (needsManifest && manifestIsInMain)
         manifestList
       else
         mainArgs
-        
-      val n = newInstance(builderType, args)
-      if (needsManifest && !manifestIsInMain)
+      */  
+      //println("builderType = " + builderType)
+      //println("builderType.typeSymbol.primaryConstructor = " + builderType.typeSymbol.primaryConstructor)//nodeToString(n))
+      //println("args = " + args)
+      //val n = newInstance(builderType, args)
+      //println("n = " + n)
+      /*val r = if (needsManifest && !manifestIsInMain)
         Apply(
           n,
           manifestList
         ).setSymbol(n.symbol)
       else
         n
+      println("r = " + r)
+      r*/
+      newInstance(builderType, Nil)
     }
   }
   abstract class DefaultBuilderGen(rawBuilderSym: Symbol, componentType: Type) extends BuilderGen {
