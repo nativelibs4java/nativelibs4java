@@ -2,3 +2,5 @@ target
 project/boot
 project/target
 *~
+src/main/cpp/bridj/build_out
+src/test/cpp/test/build_out

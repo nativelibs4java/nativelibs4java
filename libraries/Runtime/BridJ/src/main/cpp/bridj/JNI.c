@@ -448,6 +448,9 @@ char getDCReturnType(JNIEnv* env, ValueType returnType)
 		RET_TYPE_CASE(eDoubleValue, DOUBLE)
 		case eBooleanValue:
 		RET_TYPE_CASE(eByteValue, CHAR)
+		case eCLongObjectValue:
+		case eSizeTObjectValue:
+			return DC_SIGCHAR_POINTER;
 		case eCLongValue:
 			return DC_SIGCHAR_LONGLONG;
 		case eSizeTValue:
@@ -518,6 +521,9 @@ void* getJNICallFunction(JNIEnv* env, ValueType valueType) {
 	switch (valueType) {
 	case eIntValue:
 		return (*env)->CallIntMethod;
+	case eSizeTObjectValue:
+	case eCLongObjectValue:
+		return (*env)->CallObjectMethod;
 	case eSizeTValue:
 	case eCLongValue:
 	case eLongValue:
@@ -550,6 +556,9 @@ void* getJNICallStaticFunction(JNIEnv* env, ValueType valueType) {
 	switch (valueType) {
 	case eIntValue:
 		return (*env)->CallStaticIntMethod;
+	case eSizeTObjectValue:
+	case eCLongObjectValue:
+		return (*env)->CallStaticObjectMethod;
 	case eSizeTValue:
 	case eCLongValue:
 	case eLongValue:

@@ -51,6 +51,19 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 						dcArgLong(call->vm, (long)arg);
 				}
 				break;
+			case eCLongObjectValue: {
+				jobject parg = dcbArgPointer(args);
+				if (toJava)
+					dcArgPointer(call->vm, parg);
+				else {
+					jlong arg = UnboxCLong(env, parg);
+					if (isVarArgs)
+						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
+					else
+						dcArgLong(call->vm, (long)arg);
+				}
+				break;
+			}
 			case eSizeTValue:
 				if (sizeof(size_t) == 4) {
 					if (toJava)
@@ -61,6 +74,19 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				else
 					dcArgLongLong(call->vm, dcbArgLongLong(args));
 				break;
+			case eSizeTObjectValue: {
+				jobject parg = dcbArgPointer(args);
+				if (toJava)
+					dcArgPointer(call->vm, parg);
+				else {
+					jlong arg = UnboxSizeT(env, parg);
+					if (sizeof(size_t) == 4 && !isVarArgs)
+						dcArgInt(call->vm, (int)arg);
+					else
+						dcArgLongLong(call->vm, arg);
+				}
+				break;
+			}
 			case eLongValue:
 				dcArgLongLong(call->vm, dcbArgLongLong(args));
 				break;
@@ -200,8 +226,14 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		case eCLongValue:
 			result->L = (jlong)dcCallLong(call->vm, callback);
 			break;
+		case eCLongObjectValue:
+			result->p = BoxCLong(env, (jlong)dcCallLong(call->vm, callback));
+			break;
 		case eSizeTValue:
 			result->L = (size_t)dcCallPointer(call->vm, callback);
+		    break;
+		case eSizeTObjectValue:
+			result->p = BoxSizeT(env, (size_t)dcCallPointer(call->vm, callback));
 		    break;
 		case eVoidValue:
 			dcCallVoid(call->vm, callback);

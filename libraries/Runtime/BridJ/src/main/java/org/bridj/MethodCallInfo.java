@@ -298,6 +298,14 @@ public class MethodCallInfo {
             usesFloats();
             return ValueType.eDoubleValue;
         }
+        if (c == CLong.class) {
+        		direct = false;
+        		return ValueType.eCLongObjectValue;
+        }
+        if (c == SizeT.class) {
+        		direct = false;
+        		return ValueType.eSizeTObjectValue;
+        }
         if (Pointer.class.isAssignableFrom(c)) {
             direct = false;
             CallIO cio = CallIO.Utils.createPointerCallIO(c, t);
@@ -397,6 +405,16 @@ public class MethodCallInfo {
             case eIntFlagSet:
             	dcChar = DC_SIGCHAR_INT;
             	javaChar = "Lorg/bridj/ValuedEnum;";
+            	direct = false;
+            	break;
+            case eCLongObjectValue:
+            	dcChar = DC_SIGCHAR_POINTER;
+            	javaChar = "Lorg/bridj/CLong;";
+            	direct = false;
+            	break;
+            case eSizeTObjectValue:
+            	dcChar = DC_SIGCHAR_POINTER;
+            	javaChar = "Lorg/bridj/SizeT;";
             	direct = false;
             	break;
             case ePointerValue:

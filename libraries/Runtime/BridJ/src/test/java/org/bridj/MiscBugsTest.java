@@ -1,5 +1,5 @@
 package org.bridj;
-
+import org.bridj.ann.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.Test;
@@ -9,6 +9,23 @@ import static org.junit.Assert.*;
 
 public class MiscBugsTest {
   
+	static {
+		BridJ.register();
+	}
+	
+	@Library("test")
+	@Optional
+	public static native void whatever(SizeT v);
+	
+	/** 
+	 * Issue 68 : simple SizeT calls are broken
+	 * http://code.google.com/p/nativelibs4java/issues/detail?id=68
+	 */
+	@Test(expected = UnsatisfiedLinkError.class) 
+	public void testSizeTArgs() {
+		whatever(new SizeT(1));	
+	}
+	
 	/**
 	 * Issue 37 : BridJ: org.bridj.Pointer#iterator for native-allocated pointers is empty
 	 * http://code.google.com/p/nativelibs4java/issues/detail?id=37
