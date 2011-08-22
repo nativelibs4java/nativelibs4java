@@ -14,6 +14,19 @@ public class CallTest {
 		BridJ.register(CallTest.class);
 	}
 	
+	/// Returns value + 1
+	public static native SizeT test_incr_sizet(SizeT value);
+	public static native CLong test_incr_clong(CLong value);
+
+	@Test
+	public void testIncrementSizeT() {
+		assertEquals(11, test_incr_sizet(new SizeT(10)).longValue());	
+	}
+	@Test
+	public void testIncrementCLong() {
+		assertEquals(11, test_incr_clong(new CLong(10)).longValue());	
+	}
+	
 #foreach ($prim in $primitivesNoBool)
 
 	/// Returns value + 1

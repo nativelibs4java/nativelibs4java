@@ -396,6 +396,12 @@ TEST_API void throwNewMyException(const char* message) {
 TEST_API void throwInt(int value) {
 	throw value;
 }
+TEST_API size_t test_incr_sizet(size_t value) {
+	return value + 1;
+}
+TEST_API long test_incr_clong(long value) {
+	return value + 1;
+}
 
 #include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"
 

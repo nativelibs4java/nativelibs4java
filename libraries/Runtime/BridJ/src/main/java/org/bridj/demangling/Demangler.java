@@ -490,10 +490,10 @@ public abstract class Demangler {
                 if ((Platform.CLONG_SIZE == 8 && typec == CLong.class) || (Platform.SIZE_T_SIZE == 8 && typec == SizeT.class))
                     return true;
             } else if (tc == CLong.class) {
-                if (typec == CLong.class || (typec == int.class || typec == Integer.class) && (Platform.CLONG_SIZE == 4) || typec == long.class || typec == Long.class)
+                if (typec == CLong.class || (typec == int.class || typec == Integer.class) && (Platform.CLONG_SIZE == 4) || typec == long.class || typec == Long.class || typec == SizeT.class && sizeTIsCLong())
                     return true;
             } else if (tc == SizeT.class) {
-                if (typec == SizeT.class || (typec == int.class || typec == Integer.class) && (Platform.SIZE_T_SIZE == 4) || typec == long.class || typec == Long.class)
+                if (typec == SizeT.class || (typec == int.class || typec == Integer.class) && (Platform.SIZE_T_SIZE == 4) || typec == long.class || typec == Long.class || typec == CLong.class && sizeTIsCLong())
                     return true;
             }
             if ((tc == Character.TYPE || tc == Character.class || tc == short.class || tc == Short.class) && (typec == Short.class || typec == short.class || typec == char.class || typec == Character.class))
@@ -505,6 +505,10 @@ public abstract class Demangler {
 			return typec.equals(tc); // TODO isAssignableFrom or the opposite, depending on context
 		}
 
+		private static boolean sizeTIsCLong() {
+			return Platform.SIZE_T_SIZE == Platform.CLONG_SIZE;
+		}
+		
         @Override
         public String toString() {
             StringBuilder b = new StringBuilder();
