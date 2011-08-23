@@ -1,3 +1,4 @@
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -467,7 +468,7 @@ public class CPPRuntime extends CRuntime {
             }
             if (vtable != null) {
                 if (BridJ.debug)
-                    BridJ.log(Level.INFO, "Installing synthetic vtable pointer " + vtable.ptr + " to instance at " + peer + " (type = " + Utils.toString(type) + ")");
+                    BridJ.log(Level.INFO, "Installing synthetic vtable pointer " + vtable.ptr + " to instance at " + peer + " (type = " + Utils.toString(type) + ", " + vtable.callbacks.size() + " callbacks)");
                 peer.setPointer(vtable.ptr);
                 return vtable.ptr != null;
             } else
@@ -517,14 +518,20 @@ public class CPPRuntime extends CRuntime {
         DynamicFunction constructor = constructors.get(key);
         if (constructor == null) {
             try {
-                final Constructor<?> constr = findConstructor(typeClass, constructorId, true);
-                Symbol symbol = lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
+                final Constructor<?> constr;
+                try {
+                		constr = findConstructor(typeClass, constructorId, true);
+                } catch (NoSuchMethodException ex) {
+                		BridJ.log(Level.INFO, "No constructor for " + Utils.toString(type));
+                		return null;
+                }
+                Symbol symbol = lib == null ? null : lib.getFirstMatchingSymbol(new SymbolAccepter() { public boolean accept(Symbol symbol) {
                     return symbol.matchesConstructor(constr.getDeclaringClass() == Utils.getClass(type) ? type : constr.getDeclaringClass() /* TODO */, constr);
                 }});
-                if (symbol == null)
-                    throw new RuntimeException("No matching constructor for " + Utils.toString(type) + " (" + constr + ")");
-
-
+                if (symbol == null) {
+                		BridJ.log(Level.INFO, "No matching constructor for " + Utils.toString(type) + " (" + constr + ")");
+                		return null;
+                }
 
                 if (symbol != null)
                     log(Level.INFO, "Registering constructor " + constr + " as " + symbol.getName());
@@ -542,6 +549,7 @@ public class CPPRuntime extends CRuntime {
                 constructor = constructorFactory.newInstance(pointerToAddress(symbol.getAddress()));
                 constructors.put(key, constructor);
             } catch (Throwable th) {
+            		th.printStackTrace();
                 throw new RuntimeException("Unable to create constructor " + constructorId + " for " + type + " : " + th, th);
             }
         }

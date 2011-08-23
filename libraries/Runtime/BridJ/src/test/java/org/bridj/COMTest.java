@@ -37,4 +37,23 @@ public class COMTest {
             throw new RuntimeException(ex);
         }
 	}
+	
+	static class SomeUnknown extends IUnknown {
+		//public SomeUnknown() {}
+		@Override
+		public int QueryInterface(Pointer<Byte> riid, Pointer<Pointer<IUnknown>> ppvObject) {
+			return 0;
+		}
+		int refs;
+		@Override
+		public synchronized int AddRef() { return ++refs; } 
+		
+		@Override
+		public synchronized int Release() { return --refs; }
+    }
+
+    @Test
+    public void testSomeUnknownInstantiation() {
+    		new SomeUnknown();
+    }
 }
