@@ -63,7 +63,8 @@ public class StructIO {
     		 */
     		void afterLayout(StructIO io, List<FieldDesc> aggregatedDescs);
     		/**
-    		 * Called after everything is setup in the StructIO.
+    		 * Called after everything is setup in the StructIO.<br>
+    		 * It is the most dangerous callback, here it's advised to only call the prependBytes, appendBytes and setFieldOffset methods.
     		 */
     		void afterBuild(StructIO io);
     }
