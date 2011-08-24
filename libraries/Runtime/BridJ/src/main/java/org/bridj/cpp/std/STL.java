@@ -8,11 +8,12 @@ import org.bridj.*;
  * Util methods for STL bindings in BridJ, <i>intended for internal use only</i>.
  * @author ochafik
  */
-public final class STL implements StructIO.Customizer {
+public final class STL extends StructIO.DefaultCustomizer {
     /**
      * Perform platform-dependent structure bindings adjustments
      */
-	public StructIO process(StructIO io) {
+    @Override
+	public void afterBuild(StructIO io) {
         Class c = io.getStructClass();
         if (c == vector.class) {
             if (Platform.isWindows()) {
@@ -20,7 +21,6 @@ public final class STL implements StructIO.Customizer {
                 io.prependBytes(3 * Pointer.SIZE);
             }
         }
-		return io;
 	}
 }
 
