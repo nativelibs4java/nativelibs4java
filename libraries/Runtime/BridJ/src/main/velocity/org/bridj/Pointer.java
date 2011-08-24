@@ -1967,6 +1967,41 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	
 	#end
 	
+	void setSignedIntegralAtOffset(long byteOffset, long value, long sizeOfIntegral) {
+		switch ((int)sizeOfIntegral) {
+		case 1:
+			if (value > Byte.MAX_VALUE || value < Byte.MIN_VALUE)
+				throw new RuntimeException("Value out of byte bounds : " + value);
+			setByteAtOffset(byteOffset, (byte)value);
+		case 2:
+			if (value > Short.MAX_VALUE || value < Short.MIN_VALUE)
+				throw new RuntimeException("Value out of short bounds : " + value);
+			setShortAtOffset(byteOffset, (short)value);
+		case 4:
+			if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE)
+				throw new RuntimeException("Value out of int bounds : " + value);
+			setIntAtOffset(byteOffset, (int)value);
+		case 8:
+			setLongAtOffset(byteOffset, value);
+		default:
+			throw new RuntimeException("Cannot write integral type of size " + sizeOfIntegral + " (value = " + value + ")");
+		}
+	}
+	long getSignedIntegralAtOffset(long byteOffset, long sizeOfIntegral) {
+		switch ((int)sizeOfIntegral) {
+		case 1:
+			return getByteAtOffset(byteOffset);
+		case 2:
+			return getShortAtOffset(byteOffset);
+		case 4:
+			return getIntAtOffset(byteOffset);
+		case 8:
+			return getLongAtOffset(byteOffset);
+		default:
+			throw new RuntimeException("Cannot read integral type of size " + sizeOfIntegral);
+		}
+	}
+	
 #docAllocateCopy("pointer", "Pointer")
     public static <T> Pointer<Pointer<T>> pointerToPointer(Pointer<T> value) {
 		Pointer<Pointer<T>> p = (Pointer<Pointer<T>>)(Pointer)allocate(PointerIO.getPointerInstance());

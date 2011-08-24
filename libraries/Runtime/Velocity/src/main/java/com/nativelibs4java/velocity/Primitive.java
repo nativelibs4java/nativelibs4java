@@ -23,6 +23,14 @@ public abstract class Primitive {
         return bufferType;
     }
 
+    public boolean isSignedIntegral() {
+    		return 
+    			type == int.class ||
+    			type == short.class ||
+    			type == long.class ||
+    			type == byte.class;
+    }
+    
     public String getName() {
         return name;
     }
