@@ -1973,16 +1973,20 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			if (value > Byte.MAX_VALUE || value < Byte.MIN_VALUE)
 				throw new RuntimeException("Value out of byte bounds : " + value);
 			setByteAtOffset(byteOffset, (byte)value);
+			break;
 		case 2:
 			if (value > Short.MAX_VALUE || value < Short.MIN_VALUE)
 				throw new RuntimeException("Value out of short bounds : " + value);
 			setShortAtOffset(byteOffset, (short)value);
+			break;
 		case 4:
 			if (value > Integer.MAX_VALUE || value < Integer.MIN_VALUE)
 				throw new RuntimeException("Value out of int bounds : " + value);
 			setIntAtOffset(byteOffset, (int)value);
+			break;
 		case 8:
 			setLongAtOffset(byteOffset, value);
+			break;
 		default:
 			throw new RuntimeException("Cannot write integral type of size " + sizeOfIntegral + " (value = " + value + ")");
 		}

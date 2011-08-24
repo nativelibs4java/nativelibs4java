@@ -45,18 +45,41 @@ public class StructIO {
      * Interface for type customizers that can be used to perform platform-specific type adjustments or other hacks.<br>
      * A type customizer can be specified with {@link Struct#customizer() }.<br>
      * Each implementation must have a default constructor, and an unique instance of each implementation class will be cached by {@link StructIO#getCustomizer(java.lang.Class) }.
+     * @deprecated The StructIO API is subject to future changes. Use this with care and be prepared to migrate your code...
      */
+    @Deprecated
     public interface Customizer {
-    	StructIO process(StructIO io);
+    		/**
+    		 * Last chance to remove field declarations
+    		 */
+    		void beforeAggregation(StructIO io, List<FieldDecl> fieldDecls);
+    		/**
+    		 * Last chance to remove aggregated fields
+    		 */
+    		void beforeLayout(StructIO io, LinkedHashMap<FieldDesc, List<FieldDecl>> declsByAggregatedDesc);
+    		/**
+    		 * This method can alter the aggregated fields and may even call again the performLayout(aggregatedDescs) method.
+    		 * This is before field offsets and sizes are propagated to field declarations.
+    		 */
+    		void afterLayout(StructIO io, List<FieldDesc> aggregatedDescs);
+    		/**
+    		 * Called after everything is setup in the StructIO.
+    		 */
+    		void afterBuild(StructIO io);
     }
-	static Customizer dummyCustomizer = new Customizer() {
-    	public StructIO process(StructIO io) { return io; }
+    public static class DefaultCustomizer implements Customizer {
+    		public void beforeAggregation(StructIO io, List<FieldDecl> fieldDecls) {}
+    		public void beforeLayout(StructIO io, LinkedHashMap<FieldDesc, List<FieldDecl>> declsByAggregatedDesc) {}
+    		public void afterLayout(StructIO io, List<FieldDesc> aggregatedDescs) {}
+    		public void afterBuild(StructIO io) {}
     };
+    
+	static Customizer dummyCustomizer = new DefaultCustomizer();
     static Map<Class, Customizer> customizers = new HashMap<Class, Customizer>();
     static synchronized Customizer getCustomizer(Class<?> structClass) {
-    	Customizer c = customizers.get(structClass);
-    	if (c == null) {
-    		Struct s = structClass.getAnnotation(Struct.class);
+		Customizer c = customizers.get(structClass);
+		if (c == null) {
+			Struct s = structClass.getAnnotation(Struct.class);
 			if (s != null) {
 				Class<? extends Customizer> customizerClass = s.customizer();
 				if (customizerClass != null && customizerClass != Customizer.class) {
@@ -70,15 +93,14 @@ public class StructIO {
 			if (c == null)
 				c = dummyCustomizer;
 			customizers.put(structClass, c);
-    	}
-    	return c;
+		}
+		return c;
     }
     public static StructIO getInstance(Class structClass, Type structType) {
     	synchronized (structIOs) {
             StructIO io = structIOs.get(structType == null ? structClass : structType);
             if (io == null) {
             	io = new StructIO(structClass, structType);
-            	io = getCustomizer(structClass).process(io);
             	if (io != null)
             		registerStructIO(structClass, structType, io);
             }
@@ -199,9 +221,12 @@ public class StructIO {
 			return;
 		}
 	}
+	
+	Customizer customizer;
     public StructIO(Class<?> structClass, Type structType) {
 		this.structClass = structClass;
         this.structType = structType;
+        this.customizer = getCustomizer(structClass);
         // Don't call build here, for recursive initialization cases (TODO test this)
 	}
 	
@@ -221,7 +246,7 @@ public class StructIO {
 	
 	@Override
 	public String toString() {
-		return "StructIO(" + (structType instanceof Class ? structClass.getName() : structType.toString()) + ")";
+		return "StructIO(" + Utils.toString(structType) + ")";
 	}
 	
 	public synchronized PointerIO<?> getPointerIO() {
@@ -247,6 +272,7 @@ public class StructIO {
 			synchronized (this) {
 				if (fields == null) {
 					fields = computeStructLayout();
+					customizer.afterBuild(this);
 					if (BridJ.debug)
 						BridJ.log(Level.INFO, describe());
 				}
@@ -265,28 +291,28 @@ public class StructIO {
 	}
 	
 	/**
-     * Orders the fields to match the actual structure layout
-     */
+	 * Orders the fields to match the actual structure layout
+	 */
 	protected void orderFields(List<FieldDecl> fields) {
-		Collections.sort(fields, new Comparator<FieldDecl>() {
-
-            //@Override
-            public int compare(FieldDecl o1, FieldDecl o2) {
-                long d = o1.index - o2.index;
-                if (d != 0)
-                    return d < 0 ? -1 : d == 0 ? 0 : 1;
-
-                if (o1.declaringClass.isAssignableFrom(o2.declaringClass))
-                    return -1;
-                if (o2.declaringClass.isAssignableFrom(o1.declaringClass))
-                    return 1;
-                
-                throw new RuntimeException("Failed to order fields " + o2.desc.name + " and " + o2.desc.name);
-            }
-
-        });
-	}
+	    Collections.sort(fields, new Comparator<FieldDecl>() {
 	
+	        //@Override
+	        public int compare(FieldDecl o1, FieldDecl o2) {
+	            long d = o1.index - o2.index;
+	            if (d != 0)
+	                return d < 0 ? -1 : d == 0 ? 0 : 1;
+	
+	            if (o1.declaringClass.isAssignableFrom(o2.declaringClass))
+	                return -1;
+	            if (o2.declaringClass.isAssignableFrom(o1.declaringClass))
+	                return 1;
+	            
+	            throw new RuntimeException("Failed to order fields " + o2.desc.name + " and " + o2.desc.name);
+	        }
+	
+	    });
+	}
+
     protected boolean acceptFieldGetter(Member member, boolean getter) {
         if ((member instanceof Method) && ((Method)member).getParameterTypes().length != (getter ? 0 : 1))
             return false;
@@ -356,8 +382,7 @@ public class StructIO {
      */
 	protected List<FieldDecl> listFields() {
 		List<FieldDecl> list = new ArrayList<FieldDecl>();
-
-        for (Method method : structClass.getMethods()) {
+		for (Method method : structClass.getMethods()) {
             if (acceptFieldGetter(method, true)) {
                 FieldDecl io = createFieldDecl(method);
                 try {
@@ -418,11 +443,13 @@ public class StructIO {
 
 	}
 	protected FieldDesc[] computeStructLayout() {
-		List<FieldDecl> list = listFields();
-		orderFields(list);
+		List<FieldDecl> fieldDecls = listFields();
+		orderFields(fieldDecls);
+		
+		customizer.beforeAggregation(this, fieldDecls);
 		
 		Map<Pair<Class<?>, Long>, List<FieldDecl>> fieldsMap = new LinkedHashMap<Pair<Class<?>, Long>, List<FieldDecl>>();
-        for (FieldDecl field : list) {
+        for (FieldDecl field : fieldDecls) {
         		if (field.index < 0)
         			throw new RuntimeException("Negative field index not allowed for field " + field.desc.name);
         		
@@ -437,143 +464,165 @@ public class StructIO {
         	Alignment alignment = structClass.getAnnotation(Alignment.class);
         structAlignment = alignment != null ? alignment.value() : 1; //TODO get platform default alignment
 
-        structSize = 0;
+        LinkedHashMap<FieldDesc, List<FieldDecl>> declsByAggregatedDesc = new LinkedHashMap<FieldDesc, List<FieldDecl>>();
+        for (List<FieldDecl> fieldGroup : fieldsMap.values()) {
+			FieldDesc aggregatedDesc = aggregateFields(fieldGroup);
+			if (aggregatedDesc != null)
+				declsByAggregatedDesc.put(aggregatedDesc, fieldGroup);
+		}
+		
+		// Last chance to remove fields :
+		customizer.beforeLayout(this, declsByAggregatedDesc);
+		List<FieldDesc> aggregatedDescs = Collections.unmodifiableList(new ArrayList<FieldDesc>(declsByAggregatedDesc.keySet()));
+		
+		performLayout(aggregatedDescs);
+        customizer.afterLayout(this, aggregatedDescs);
+		
+        List<FieldDesc> fieldDescs = new ArrayList<FieldDesc>();
+        SolidRanges.Builder rangesBuilder = new SolidRanges.Builder();
+		for (Map.Entry<FieldDesc, List<FieldDecl>> e : declsByAggregatedDesc.entrySet()) {
+			FieldDesc aggregatedDesc = e.getKey();
+			List<FieldDecl> fieldGroup = e.getValue();
+			
+			for (FieldDecl field : fieldGroup) {
+				// Propagate offsets of aggregated field descs to field decls's descs
+				//field.desc.byteLength = fieldByteLength;
+				FieldDesc desc = field.desc;
+				desc.byteOffset = aggregatedDesc.byteOffset;
+				desc.bitOffset = aggregatedDesc.bitOffset;
+				
+				fieldDescs.add(desc);
+				rangesBuilder.add(desc);
+			
+				hasFieldFields = hasFieldFields || desc.field != null;
+			}
+        }
+        solidRanges = rangesBuilder.toSolidRanges();
+		return fieldDescs.toArray(new FieldDesc[fieldDescs.size()]);
+	}
+
+	protected FieldDesc aggregateFields(List<FieldDecl> fieldGroup) {
+		FieldDesc aggregatedDesc = new FieldDesc();
+    		boolean isMultiFields = fieldGroup.size() > 1;
+    		for (FieldDecl field : fieldGroup) {
+			if (field.valueClass.isArray())
+				throw new RuntimeException("Struct fields cannot be array types : please use a combination of Pointer and @Array (for instance, an int[10] is a @Array(10) Pointer<Integer>).");
+			if (field.valueClass.isPrimitive()) {
+				if (field.desc.isCLong)
+					field.desc.byteLength = CLong.SIZE;
+				else if (field.desc.isSizeT)
+					field.desc.byteLength = SizeT.SIZE;
+				else
+					field.desc.byteLength = primTypeLength(field.valueClass);
+			} else if (field.valueClass == CLong.class) {
+				field.desc.byteLength = CLong.SIZE;
+			} else if (field.valueClass == SizeT.class) {
+				field.desc.byteLength = SizeT.SIZE;
+			} else if (StructObject.class.isAssignableFrom(field.valueClass)) {
+				field.desc.nativeTypeOrPointerTargetType = field.desc.valueType;
+				StructIO io = StructIO.getInstance(field.valueClass, field.desc.valueType);		
+				field.desc.byteLength = io.getStructSize();				
+				field.desc.alignment = io.getStructAlignment();
+				field.desc.isNativeObject = true;
+			} else if (ValuedEnum.class.isAssignableFrom(field.valueClass)) {
+				field.desc.nativeTypeOrPointerTargetType = (field.desc.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType)field.desc.valueType).getActualTypeArguments()[0]) : null;
+				Class c = PointerIO.getClass(field.desc.nativeTypeOrPointerTargetType);
+				if (IntValuedEnum.class.isAssignableFrom(c))
+					field.desc.byteLength = 4;
+				else
+					throw new RuntimeException("Enum type unknown : " + c);
+				//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
+			} else if (TypedPointer.class.isAssignableFrom(field.valueClass)) {
+				field.desc.nativeTypeOrPointerTargetType = field.desc.valueType;
+				if (field.desc.isArray)
+					throw new RuntimeException("Typed pointer field cannot be an array : " + field.desc.name);
+				field.desc.byteLength = Pointer.SIZE;
+				//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
+			} else if (Pointer.class.isAssignableFrom(field.valueClass)) {
+				Type tpe = (field.desc.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.desc.valueType).getActualTypeArguments()[0] : null;
+				if (!(tpe instanceof WildcardType) && !(tpe instanceof TypeVariable))
+					field.desc.nativeTypeOrPointerTargetType = tpe;
+				if (field.desc.isArray) {
+					field.desc.byteLength = BridJ.sizeOf(field.desc.nativeTypeOrPointerTargetType);
+				} else
+					field.desc.byteLength = Pointer.SIZE;
+				//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
+			} else if (Buffer.class.isAssignableFrom(field.valueClass)) {
+				if (field.valueClass == IntBuffer.class)
+					field.desc.byteLength = 4;
+				else if (field.valueClass == LongBuffer.class)
+					field.desc.byteLength = 8;
+				else if (field.valueClass == ShortBuffer.class)
+					field.desc.byteLength = 2;
+				else if (field.valueClass == ByteBuffer.class)
+					field.desc.byteLength = 1;
+				else if (field.valueClass == FloatBuffer.class)
+					field.desc.byteLength = 4;
+				else if (field.valueClass == DoubleBuffer.class)
+					field.desc.byteLength = 8;
+				else
+					throw new UnsupportedOperationException("Field array type " + field.valueClass.getName() + " not supported yet");
+			} else if (field.valueClass.isArray() && field.valueClass.getComponentType().isPrimitive()) {
+				field.desc.byteLength = primTypeLength(field.valueClass.getComponentType());
+			} else {
+				//throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
+				StructIO io = StructIO.getInstance(field.valueClass, field.desc.valueType);
+				long s = io.getStructSize();
+				if (s > 0)
+					field.desc.byteLength = s;
+				else
+					throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
+			}
+			
+			long length = field.desc.arrayLength * field.desc.byteLength;
+			if (length >= aggregatedDesc.byteLength)
+				aggregatedDesc.byteLength = length;
+			
+			aggregatedDesc.alignment = Math.max(
+				aggregatedDesc.alignment, 
+				field.desc.alignment >= 0 ?
+				field.desc.alignment :
+				field.desc.byteLength
+			);
+			
+			if (field.desc.bitLength >= 0) {
+				if (isMultiFields)
+					throw new RuntimeException("No support for bit fields unions yet !");
+				aggregatedDesc.bitLength = field.desc.bitLength;
+				aggregatedDesc.byteLength = (aggregatedDesc.bitLength >>> 3) + ((aggregatedDesc.bitLength & 7) != 0 ? 1 : 0);
+			}
+			
+			//if (!isMultiFields) {
+			//aggregatedDesc.isArray = field.desc.isArray;
+			//aggregatedDesc.isNativeObject = field.desc.isNativeObject; 
+			//aggregatedDesc.nativeTypeOrPointerTargetType = field.desc.nativeTypeOrPointerTargetType;
+			//aggregatedDesc.name = field.desc.name;
+			//aggregatedDesc.valueType = field.desc.valueType;
+			//}
+			//if (fieldDeclaringType == null)
+			//	fieldDeclaringType = field.declaringClass;
+			//else if (!fieldDeclaringType.equals(field.declaringClass))
+			//	throw new RuntimeException("Fields in the same field group must pertain to the same declaring class : " + fieldGroup);
+			
+		}
+		return aggregatedDesc;
+	}
+	
+	protected void performLayout(Iterable<FieldDesc> aggregatedDescs) {
+		structSize = 0;
+		structAlignment = -1;
+		
         if (isVirtual()) {
         		structSize += Pointer.SIZE;
         		if (Pointer.SIZE >= structAlignment)
         			structAlignment = Pointer.SIZE;
-			/*FieldDecl d = new FieldDecl();
-			d.byteLength = Pointer.SIZE;
-			d.valueType = d.valueClass = Pointer.class;
-			d.name = "vtablePtr";
-			list.add(0, d);*/
 		}
 
         int cumulativeBitOffset = 0;
         
-        List<FieldDesc> aggregatedDescs = new ArrayList<FieldDesc>();
-        //List<Type> declaringTypes = new ArrayList<Type>();
-        for (List<FieldDecl> fieldGroup : fieldsMap.values()) {
-    		FieldDesc aggregatedDesc = new FieldDesc();
-    		aggregatedDescs.add(aggregatedDesc);
-    		boolean isMultiFields = fieldGroup.size() > 1;
-    		for (FieldDecl field : fieldGroup) {
-                if (field.valueClass.isArray())
-                	throw new RuntimeException("Struct fields cannot be array types : please use a combination of Pointer and @Array (for instance, an int[10] is a @Array(10) Pointer<Integer>).");
-				if (field.valueClass.isPrimitive()) {
-					if (field.desc.isCLong)
-						field.desc.byteLength = CLong.SIZE;
-					else if (field.desc.isSizeT)
-						field.desc.byteLength = SizeT.SIZE;
-					else
-						field.desc.byteLength = primTypeLength(field.valueClass);
-				} else if (field.valueClass == CLong.class) {
-					field.desc.byteLength = CLong.SIZE;
-				} else if (field.valueClass == SizeT.class) {
-					field.desc.byteLength = SizeT.SIZE;
-				} else if (StructObject.class.isAssignableFrom(field.valueClass)) {
-					field.desc.nativeTypeOrPointerTargetType = field.desc.valueType;
-					StructIO io = StructIO.getInstance(field.valueClass, field.desc.valueType);		
-					field.desc.byteLength = io.getStructSize();				
-					field.desc.alignment = io.getStructAlignment();
-					field.desc.isNativeObject = true;
-				} else if (ValuedEnum.class.isAssignableFrom(field.valueClass)) {
-					field.desc.nativeTypeOrPointerTargetType = (field.desc.valueType instanceof ParameterizedType) ? PointerIO.getClass(((ParameterizedType)field.desc.valueType).getActualTypeArguments()[0]) : null;
-					Class c = PointerIO.getClass(field.desc.nativeTypeOrPointerTargetType);
-					if (IntValuedEnum.class.isAssignableFrom(c))
-						field.desc.byteLength = 4;
-					else
-						throw new RuntimeException("Enum type unknown : " + c);
-					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
-				} else if (TypedPointer.class.isAssignableFrom(field.valueClass)) {
-					field.desc.nativeTypeOrPointerTargetType = field.desc.valueType;
-                    if (field.desc.isArray)
-                        throw new RuntimeException("Typed pointer field cannot be an array : " + field.desc.name);
-                    field.desc.byteLength = Pointer.SIZE;
-					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
-				} else if (Pointer.class.isAssignableFrom(field.valueClass)) {
-					Type tpe = (field.desc.valueType instanceof ParameterizedType) ? ((ParameterizedType)field.desc.valueType).getActualTypeArguments()[0] : null;
-                    if (!(tpe instanceof WildcardType) && !(tpe instanceof TypeVariable))
-							field.desc.nativeTypeOrPointerTargetType = tpe;
-					if (field.desc.isArray) {
-                        field.desc.byteLength = BridJ.sizeOf(field.desc.nativeTypeOrPointerTargetType);
-                    } else
-                        field.desc.byteLength = Pointer.SIZE;
-					//field.callIO = CallIO.Utils.createPointerCallIO(field.valueClass, field.desc.valueType);
-				} else if (Buffer.class.isAssignableFrom(field.valueClass)) {
-					if (field.valueClass == IntBuffer.class)
-						field.desc.byteLength = 4;
-					else if (field.valueClass == LongBuffer.class)
-						field.desc.byteLength = 8;
-					else if (field.valueClass == ShortBuffer.class)
-						field.desc.byteLength = 2;
-					else if (field.valueClass == ByteBuffer.class)
-						field.desc.byteLength = 1;
-					else if (field.valueClass == FloatBuffer.class)
-						field.desc.byteLength = 4;
-					else if (field.valueClass == DoubleBuffer.class)
-						field.desc.byteLength = 8;
-					else
-						throw new UnsupportedOperationException("Field array type " + field.valueClass.getName() + " not supported yet");
-					
-				} else if (field.valueClass.isArray() && field.valueClass.getComponentType().isPrimitive()) {
-					field.desc.byteLength = primTypeLength(field.valueClass.getComponentType());
-				} else {
-					//throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
-					StructIO io = StructIO.getInstance(field.valueClass, field.desc.valueType);
-					long s = io.getStructSize();
-					if (s > 0)
-						field.desc.byteLength = s;
-					else
-						throw new UnsupportedOperationException("Field type " + field.valueClass.getName() + " not supported yet");
-				}
-				
-				long length = field.desc.arrayLength * field.desc.byteLength;
-				if (length >= aggregatedDesc.byteLength)
-					aggregatedDesc.byteLength = length;
-				
-				aggregatedDesc.alignment = Math.max(
-					aggregatedDesc.alignment, 
-					field.desc.alignment >= 0 ?
-						field.desc.alignment :
-						field.desc.byteLength
-				);
-				
-				structAlignment = Math.max(structAlignment, aggregatedDesc.alignment);
-				
-				if (field.desc.bitLength >= 0) {
-					if (isMultiFields)
-						throw new RuntimeException("No support for bit fields unions yet !");
-					aggregatedDesc.bitLength = field.desc.bitLength;
-					aggregatedDesc.byteLength = (aggregatedDesc.bitLength >>> 3) + ((aggregatedDesc.bitLength & 7) != 0 ? 1 : 0);
-				}
-				
-				//if (!isMultiFields) {
-				//aggregatedDesc.isArray = field.desc.isArray;
-				//aggregatedDesc.isNativeObject = field.desc.isNativeObject; 
-				//aggregatedDesc.nativeTypeOrPointerTargetType = field.desc.nativeTypeOrPointerTargetType;
-				//aggregatedDesc.name = field.desc.name;
-				//aggregatedDesc.valueType = field.desc.valueType;
-				//}
-				//if (fieldDeclaringType == null)
-				//	fieldDeclaringType = field.declaringClass;
-				//else if (!fieldDeclaringType.equals(field.declaringClass))
-				//	throw new RuntimeException("Fields in the same field group must pertain to the same declaring class : " + fieldGroup);
-				
-			}
-			//declaringTypes.add(fieldDeclaringType);
-		}
-		int iAggregatedDesc = 0;
-		//Type lastFieldDeclaringType = null;
-		for (List<FieldDecl> fieldGroup : fieldsMap.values()) {
-			//Type fieldDeclaringType = declaringTypes.get(iAggregatedDesc);
-			FieldDesc aggregatedDesc = aggregatedDescs.get(iAggregatedDesc++);
-
-			//if (lastFieldDeclaringType != null && !fieldDeclaringType.equals(lastFieldDeclaringType)) {
-			//	StructIO io = StructIO.getInstance(Utils.getClass(lastFieldDeclaringType), lastFieldDeclaringType);
-			//	structSize = alignSize(structSize, io.getStructSize());
-			//}
-			//lastFieldDeclaringType = fieldDeclaringType;
+        for (FieldDesc aggregatedDesc : aggregatedDescs) {
+        		structAlignment = Math.max(structAlignment, aggregatedDesc.alignment);
+        		
             if (aggregatedDesc.bitLength < 0) {
 				// Align fields as appropriate
 				if (cumulativeBitOffset != 0) {
@@ -587,8 +636,6 @@ public class StructIO {
 				fieldByteOffset = structSize, 
 				fieldBitOffset = cumulativeBitOffset;
 			
-			//field.index = fieldCount++;
-
 			if (aggregatedDesc.bitLength >= 0) {
 				//fieldByteLength = (aggregatedDesc.bitLength >>> 3) + ((aggregatedDesc.bitLength & 7) != 0 ? 1 : 0);
                 cumulativeBitOffset += aggregatedDesc.bitLength;
@@ -598,36 +645,17 @@ public class StructIO {
                 structSize += aggregatedDesc.byteLength;
 			}
 			
-			for (FieldDecl field : fieldGroup) {
-				//field.desc.byteLength = fieldByteLength;
-				field.desc.byteOffset = fieldByteOffset;
-				field.desc.bitOffset = fieldBitOffset;
-			}
-        }
+			aggregatedDesc.byteOffset = fieldByteOffset;
+			aggregatedDesc.bitOffset = fieldBitOffset;
+        }	
+        
         if (cumulativeBitOffset > 0)
 			structSize = alignSize(structSize + 1, structAlignment);
         else if (structSize > 0)
             structSize = alignSize(structSize, structAlignment);
 
-        List<FieldDesc> filtered = new ArrayList<FieldDesc>();
-        for (FieldDecl fio : list)
-            //if (fio.declaringClass != null && fio.declaringClass.equals(structClass))
-            filtered.add(fio.desc);
-        
-            SolidRanges.Builder b = new SolidRanges.Builder();
-            for (FieldDesc f : filtered) {
-            		b.add(f);
-            		hasFieldFields = hasFieldFields || f.field != null;
-            }
-            	
-            	solidRanges = b.toSolidRanges();
-		/*System.out.println();
-		System.out.println("FILTERED(" + structClass.getName() + ") = ");
-		for (FieldDecl field : list)
-			System.out.println("\t" + field);*/
-		return filtered.toArray(new FieldDesc[filtered.size()]);
 	}
-
+	
 	SolidRanges solidRanges;
 	
 	public boolean equal(StructObject a, StructObject b) {
@@ -830,10 +858,18 @@ public class StructIO {
 #foreach ($prim in $primitives)
     public final void set${prim.CapName}Field(StructObject struct, int fieldIndex, ${prim.Name} value) {
 		FieldDesc fd = fields[fieldIndex];
+		#if ($prim.isSignedIntegral())
+		if ($prim.Size != fd.byteLength)
+			struct.peer.setSignedIntegralAtOffset(fd.byteOffset, value, fd.byteLength);
+		#end
 		struct.peer.set${prim.CapName}AtOffset(fd.byteOffset, value);
 	}
 	public final ${prim.Name} get${prim.CapName}Field(StructObject struct, int fieldIndex) {
 		FieldDesc fd = fields[fieldIndex];
+		#if ($prim.isSignedIntegral())
+		if ($prim.Size != fd.byteLength)
+			return (${prim.Name})struct.peer.getSignedIntegralAtOffset(fd.byteOffset, fd.byteLength);
+		#end
 		return struct.peer.get${prim.CapName}AtOffset(fd.byteOffset);
 	}
 #end	
