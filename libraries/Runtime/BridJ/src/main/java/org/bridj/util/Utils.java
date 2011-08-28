@@ -45,6 +45,14 @@ public class Utils {
     	return false;
     }
 
+    public static boolean isSignedIntegral(Type tpe) {
+		return 
+			tpe == int.class || tpe == Integer.class || 
+			tpe == long.class || tpe == Long.class ||
+			tpe == short.class || tpe == Short.class || 
+			tpe == byte.class || tpe == Byte.class;
+	}
+	
     public static String toString(Type t) {
     		if (t == null)
     			return "?";

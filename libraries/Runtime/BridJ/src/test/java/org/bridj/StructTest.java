@@ -9,9 +9,11 @@ import org.bridj.ann.Field;
 import org.bridj.ann.Library;
 import org.bridj.ann.Array;
 import org.bridj.ann.Ptr;
+import org.bridj.ann.Struct;
 import org.bridj.cpp.com.*;
 import static org.bridj.Pointer.*;
 import static org.bridj.BridJ.*;
+import java.util.List;
 
 import javolution.io.*;
 
@@ -655,11 +657,11 @@ public class StructTest {
     public void testNoLoop() {
     	long s = BridJ.sizeOf(NoLoop.class);
     	assertEquals(2 * Pointer.SIZE, s);
-    	System.out.println("sizeof = " + s);
+    	//System.out.println("sizeof = " + s);
     	NoLoop l = new NoLoop();
     	Pointer<NoLoop> p = pointerTo(l);
-    	System.out.println("NoLoop = " + p);
-    	System.out.println("valid bytes = " + p.getValidBytes() + ", sizeof = " + s);
+    	//System.out.println("NoLoop = " + p);
+    	//System.out.println("valid bytes = " + p.getValidBytes() + ", sizeof = " + s);
     	l = p.get();
     }
 
@@ -689,6 +691,41 @@ public class StructTest {
         long s = BridJ.sizeOf(VIDEOHDR.class);
         long expected = Platform.is64Bits() ? 72 : 40;
         assertEquals(expected, s);
+    }
+    
+    @Struct(customizer = TinyStructCustomizer.class)
+	public static class TinyStruct extends StructObject {
+		@Field(0) 
+		public long a;
+		@Field(1)
+		public long b;
+	}
+	public static class ExpectedTinyStruct extends StructObject {
+		@Field(0) 
+		public byte a;
+		@Field(1)
+		public byte b;
+	}
+
+	public static class TinyStructCustomizer extends StructIO.DefaultCustomizer {
+		@Override
+		public void beforeLayout(StructIO io, List<StructIO.AggregatedFieldDesc> aggregatedFields) {
+			for (StructIO.AggregatedFieldDesc field : aggregatedFields) {
+				field.byteLength = 1;
+				field.alignment = 1;
+			}
+		}
+	}
+    @Test
+    public void testTinyStructCustomization() {
+    		assertEquals("Invalid customized struct size !", BridJ.sizeOf(ExpectedTinyStruct.class), BridJ.sizeOf(TinyStruct.class));
+    		ExpectedTinyStruct s = new ExpectedTinyStruct();
+    		s.a = 10;
+    		s.b = -20;
+    		BridJ.writeToNative(s);
+    		TinyStruct t = pointerTo(s).as(TinyStruct.class).get();
+    		assertEquals(s.a, t.a);
+    		assertEquals(s.b, t.b);
     }
 }
 
