@@ -1,8 +1,39 @@
 package org.bridj;
 import org.bridj.ann.*;
 import java.util.List;
+import java.util.Date;
 
-public class TimeT {
+/**
+ * Wraps a value which size is the same as the 'time_t' C type (defined in time.h)
+ * @author Olivier
+ */
+public final class TimeT extends AbstractIntegral {
+    
+	public static final int SIZE = Platform.TIME_T_SIZE;
+	static {
+		BridJ.register();
+	}
+	
+    public TimeT(long value) {
+        super(value);
+    }
+    
+    public Date toDate() {
+    		return new Date(value);
+    }
+    
+    public static TimeT valueOf(long value) {
+    		return new TimeT(value);
+    }
+	
+	public static TimeT valueOf(Date value) {
+    		return valueOf(value.getTime());
+    }
+    
+    @Override
+    public String toString() {
+    		return "TimeT(value = " + value + ", time = " + toDate() + ")";
+    }
 	
 	@Struct(customizer = timeval_customizer.class)
 	public class timeval extends StructObject {

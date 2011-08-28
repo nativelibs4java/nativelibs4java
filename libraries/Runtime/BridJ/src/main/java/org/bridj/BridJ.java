@@ -61,6 +61,8 @@ public class BridJ {
             return Pointer.SIZE;
         else if (c == CLong.class)
             return CLong.SIZE;
+        else if (c == TimeT.class)
+            return TimeT.SIZE;
         else if (c == SizeT.class)
             return SizeT.SIZE;
         else if (c == Integer.class || c == Float.class)

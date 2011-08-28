@@ -727,5 +727,15 @@ public class StructTest {
     		assertEquals(s.a, t.a);
     		assertEquals(s.b, t.b);
     }
+    
+    @Ptr
+    public static native long sizeOfTimeT();
+    @Ptr
+    public static native long sizeOfTimeval();
+
+    @Test
+    public void testSizeOfTimeval() {
+    		assertEquals(sizeOfTimeval(), BridJ.sizeOf(TimeT.timeval.class));
+    }
 }
 

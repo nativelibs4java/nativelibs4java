@@ -31,7 +31,12 @@ import static org.bridj.JNI.*;
 public class Platform {
     static final String osName = System.getProperty("os.name", "");
 
-    public static final int POINTER_SIZE, WCHAR_T_SIZE, SIZE_T_SIZE, CLONG_SIZE;
+    public static final int 
+    		POINTER_SIZE, 
+    		WCHAR_T_SIZE, 
+    		SIZE_T_SIZE, 
+    		TIME_T_SIZE, 
+    		CLONG_SIZE;
     interface FunInt {
         int apply();
     }
@@ -84,16 +89,18 @@ public class Platform {
 			systemClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
 		}
 		
-        int p = -1, c = -1, s = -1, l = -1;
+        int p = -1, c = -1, s = -1, l = -1, t = -1;
         try {
             p = sizeOf_ptrdiff_t();
 	        c = sizeOf_wchar_t();
 	        l = sizeOf_long();
 	        s = sizeOf_size_t();
+	        t = sizeOf_time_t();
         } catch (Throwable th) {}
         POINTER_SIZE = p;
         WCHAR_T_SIZE = c;
         SIZE_T_SIZE = s;
+        TIME_T_SIZE = t;
         CLONG_SIZE = l;
     }
     public static boolean isLinux() {

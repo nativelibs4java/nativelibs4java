@@ -77,7 +77,8 @@ typedef enum ValueType {
 	ePointerValue,
 	eEllipsis,
 	eIntFlagSet,
-	eNativeObjectValue
+	eNativeObjectValue,
+	eTimeTObjectValue
 } ValueType;
 
 typedef struct CallTempStruct {
@@ -166,6 +167,7 @@ extern jclass g ## shortName ## Class; \
 jobject Box ## shortName(JNIEnv* env, type v); \
 type Unbox ## shortName(JNIEnv* env, jobject v);
 			
+BOX_METHOD_DECL("org/bridj/TimeT", TimeT, Long, time_t, "J");
 BOX_METHOD_DECL("org/bridj/SizeT", SizeT, Long, jlong, "J");
 BOX_METHOD_DECL("org/bridj/CLong", CLong, Long, jlong, "J");
 BOX_METHOD_DECL("java/lang/Integer", Int, Int, jint, "I");

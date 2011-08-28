@@ -76,6 +76,7 @@ public class JNI {
     private static native void init();
 
     static native int sizeOf_size_t();
+    static native int sizeOf_time_t();
     static native int sizeOf_wchar_t();
     static native int sizeOf_ptrdiff_t();
 	static native int sizeOf_long();

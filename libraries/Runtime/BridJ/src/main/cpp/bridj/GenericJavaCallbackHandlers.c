@@ -21,6 +21,7 @@ jboolean followArgsGenericJavaCallback(CallTempStruct* call, DCArgs* args, int n
 			case eIntValue:
 				arg = BoxInt(env, dcbArgInt(args));
 				break;
+			case eTimeTObjectValue:
 			case eSizeTObjectValue:
 			case eCLongObjectValue:
 				arg = dcbArgPointer(args);
@@ -164,6 +165,15 @@ jboolean followCallGenericJavaCallback(CallTempStruct* call, ValueType returnTyp
 				v = ret;
 			else
 				v = BoxSizeT(env, UnboxLong(env, ret));
+			result->p = v;
+			break;
+		}
+		case eTimeTObjectValue: {
+			jobject v;
+			if ((*env)->IsInstanceOf(env, ret, gTimeTClass))
+				v = ret;
+			else
+				v = BoxTimeT(env, UnboxLong(env, ret));
 			result->p = v;
 			break;
 		}

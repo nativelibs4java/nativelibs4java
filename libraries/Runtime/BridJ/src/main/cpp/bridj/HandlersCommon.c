@@ -87,6 +87,19 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 				}
 				break;
 			}
+			case eTimeTObjectValue: {
+				jobject parg = dcbArgPointer(args);
+				if (toJava)
+					dcArgPointer(call->vm, parg);
+				else {
+					jlong arg = UnboxTimeT(env, parg);
+					if (sizeof(time_t) == 4 && !isVarArgs)
+						dcArgInt(call->vm, (int)arg);
+					else
+						dcArgLongLong(call->vm, arg);
+				}
+				break;
+			}
 			case eLongValue:
 				dcArgLongLong(call->vm, dcbArgLongLong(args));
 				break;
@@ -234,6 +247,9 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		    break;
 		case eSizeTObjectValue:
 			result->p = BoxSizeT(env, (size_t)dcCallPointer(call->vm, callback));
+		    break;
+		case eTimeTObjectValue:
+			result->p = BoxTimeT(env, (size_t)dcCallPointer(call->vm, callback));
 		    break;
 		case eVoidValue:
 			dcCallVoid(call->vm, callback);

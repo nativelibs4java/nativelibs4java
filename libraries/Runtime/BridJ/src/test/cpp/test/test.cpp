@@ -403,6 +403,11 @@ TEST_API long test_incr_clong(long value) {
 	return value + 1;
 }
 
+#include <time.h>
+TEST_API size_t __cdecl sizeOfTimeval() {
+	return sizeof(timeval);
+}
+
 #include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"
 
 #ifdef _WIN32

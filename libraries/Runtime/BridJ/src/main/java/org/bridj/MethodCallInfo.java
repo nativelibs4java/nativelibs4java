@@ -306,6 +306,10 @@ public class MethodCallInfo {
         		direct = false;
         		return ValueType.eSizeTObjectValue;
         }
+        if (c == TimeT.class) {
+        		direct = false;
+        		return ValueType.eTimeTObjectValue;
+        }
         if (Pointer.class.isAssignableFrom(c)) {
             direct = false;
             CallIO cio = CallIO.Utils.createPointerCallIO(c, t);
@@ -415,6 +419,11 @@ public class MethodCallInfo {
             case eSizeTObjectValue:
             	dcChar = DC_SIGCHAR_POINTER;
             	javaChar = "Lorg/bridj/SizeT;";
+            	direct = false;
+            	break;
+            case eTimeTObjectValue:
+            	dcChar = DC_SIGCHAR_POINTER;
+            	javaChar = "Lorg/bridj/TimeT;";
             	direct = false;
             	break;
             case ePointerValue:

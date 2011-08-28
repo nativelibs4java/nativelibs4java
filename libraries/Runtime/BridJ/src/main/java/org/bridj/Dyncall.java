@@ -30,7 +30,8 @@ public class Dyncall {
         ePointerValue,
         eEllipsis,
         eIntFlagSet,
-        eNativeObjectValue
+        eNativeObjectValue,
+        eTimeTObjectValue
     }
     
     /**

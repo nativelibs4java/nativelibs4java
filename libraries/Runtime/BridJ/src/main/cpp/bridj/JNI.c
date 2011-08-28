@@ -79,23 +79,24 @@ jlong UnboxSizeT(JNIEnv* env, jobject v) { \
 jclass g ## shortName ## Class = NULL; \
 jmethodID g ## shortName ## ValueOfMethod = NULL; \
 jmethodID g ## shortName ## ValueMethod = NULL; \
-jobject Box ## shortName(JNIEnv* env, j ## type v) { \
+jobject Box ## shortName(JNIEnv* env, type v) { \
 	return (*env)->CallStaticObjectMethod(env, g ## shortName ## Class, g ## shortName ## ValueOfMethod, v); \
 } \
-j ## type Unbox ## shortName(JNIEnv* env, jobject v) { \
-	return (*env)->Call ## methShort ## Method(env, v, g ## shortName ## ValueMethod); \
+type Unbox ## shortName(JNIEnv* env, jobject v) { \
+	return (type)(*env)->Call ## methShort ## Method(env, v, g ## shortName ## ValueMethod); \
 }
 			
-BOX_METHOD_IMPL("org/bridj/SizeT", SizeT, Long, long, "J");
-BOX_METHOD_IMPL("org/bridj/CLong", CLong, Long, long, "J");
-BOX_METHOD_IMPL("java/lang/Integer", Int, Int, int, "I");
-BOX_METHOD_IMPL("java/lang/Long", Long, Long, long, "J");
-BOX_METHOD_IMPL("java/lang/Short", Short, Short, short, "S");
-BOX_METHOD_IMPL("java/lang/Byte", Byte, Byte, byte, "B");
-BOX_METHOD_IMPL("java/lang/Boolean", Boolean, Boolean, boolean, "Z");
-BOX_METHOD_IMPL("java/lang/Character", Char, Char, char, "C");
-BOX_METHOD_IMPL("java/lang/Float", Float, Float, float, "F");
-BOX_METHOD_IMPL("java/lang/Double", Double, Double, double, "D");    
+BOX_METHOD_IMPL("org/bridj/TimeT", TimeT, Long, time_t, "J");
+BOX_METHOD_IMPL("org/bridj/SizeT", SizeT, Long, jlong, "J");
+BOX_METHOD_IMPL("org/bridj/CLong", CLong, Long, jlong, "J");
+BOX_METHOD_IMPL("java/lang/Integer", Int, Int, jint, "I");
+BOX_METHOD_IMPL("java/lang/Long", Long, Long, jlong, "J");
+BOX_METHOD_IMPL("java/lang/Short", Short, Short, jshort, "S");
+BOX_METHOD_IMPL("java/lang/Byte", Byte, Byte, jbyte, "B");
+BOX_METHOD_IMPL("java/lang/Boolean", Boolean, Boolean, jboolean, "Z");
+BOX_METHOD_IMPL("java/lang/Character", Char, Char, jchar, "C");
+BOX_METHOD_IMPL("java/lang/Float", Float, Float, jfloat, "F");
+BOX_METHOD_IMPL("java/lang/Double", Double, Double, jdouble, "D");    
 		
 int main() {}
 
@@ -450,6 +451,7 @@ char getDCReturnType(JNIEnv* env, ValueType returnType)
 		RET_TYPE_CASE(eByteValue, CHAR)
 		case eCLongObjectValue:
 		case eSizeTObjectValue:
+		case eTimeTObjectValue:
 			return DC_SIGCHAR_POINTER;
 		case eCLongValue:
 			return DC_SIGCHAR_LONGLONG;
@@ -521,6 +523,7 @@ void* getJNICallFunction(JNIEnv* env, ValueType valueType) {
 	switch (valueType) {
 	case eIntValue:
 		return (*env)->CallIntMethod;
+	case eTimeTObjectValue:
 	case eSizeTObjectValue:
 	case eCLongObjectValue:
 		return (*env)->CallObjectMethod;
@@ -556,6 +559,7 @@ void* getJNICallStaticFunction(JNIEnv* env, ValueType valueType) {
 	switch (valueType) {
 	case eIntValue:
 		return (*env)->CallStaticIntMethod;
+	case eTimeTObjectValue:
 	case eSizeTObjectValue:
 	case eCLongObjectValue:
 		return (*env)->CallStaticObjectMethod;
