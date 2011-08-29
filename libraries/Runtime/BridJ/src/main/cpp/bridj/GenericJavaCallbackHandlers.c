@@ -126,57 +126,40 @@ jboolean followCallGenericJavaCallback(CallTempStruct* call, ValueType returnTyp
 		case eBooleanValue:
 			result->c = UnboxBoolean(env, ret);
 			break;
-		case eCLongValue: {
-			jlong v;
-			if ((*env)->IsInstanceOf(env, ret, gCLongClass))
-				v = UnboxCLong(env, ret);
-			else
-				v = UnboxLong(env, ret);
-			if (sizeof(long) == 4)
-				result->i = (int)v;
-			else
-				result->l = v;
+		#define RETURN_UNBOXED_INTEGRAL(type, capitalized) \
+			{ \
+				jlong v; \
+				if ((*env)->IsInstanceOf(env, ret, g ## capitalized ## Class)) \
+					v = Unbox ## capitalized(env, ret); \
+				else \
+					v = UnboxLong(env, ret); \
+				if (sizeof(type) == 4) \
+					result->i = (jint)v; \
+				else \
+					result->L = (jlong)v; \
+			}
+		#define RETURN_BOXED_INTEGRAL(type, capitalized) \
+			{ \
+				if ((*env)->IsInstanceOf(env, ret, g ## capitalized ##Class)) \
+					result->p = ret; \
+				else \
+					result->p = Box ## capitalized(env, UnboxLong(env, ret)); \
+			}
+		case eCLongValue:
+			RETURN_UNBOXED_INTEGRAL(long, CLong)
 			break;
-		}
-		case eCLongObjectValue: {
-			jobject v;
-			if ((*env)->IsInstanceOf(env, ret, gCLongClass))
-				v = ret;
-			else
-				v = BoxCLong(env, UnboxLong(env, ret));
-			result->p = v;
+		case eCLongObjectValue:
+			RETURN_BOXED_INTEGRAL(long, CLong);
 			break;
-		}
-		case eSizeTValue: {
-			jlong v;
-			if ((*env)->IsInstanceOf(env, ret, gSizeTClass))
-				v = UnboxSizeT(env, ret);
-			else
-				v = UnboxLong(env, ret);
-			if (sizeof(size_t) == 4)
-				result->i = (int)v;
-			else
-				result->L = v;
+		case eSizeTValue:
+			RETURN_UNBOXED_INTEGRAL(size_t, SizeT);
 			break;
-		}
-		case eSizeTObjectValue: {
-			jobject v;
-			if ((*env)->IsInstanceOf(env, ret, gSizeTClass))
-				v = ret;
-			else
-				v = BoxSizeT(env, UnboxLong(env, ret));
-			result->p = v;
+		case eSizeTObjectValue:
+			RETURN_BOXED_INTEGRAL(size_t, SizeT);
 			break;
-		}
-		case eTimeTObjectValue: {
-			jobject v;
-			if ((*env)->IsInstanceOf(env, ret, gTimeTClass))
-				v = ret;
-			else
-				v = BoxTimeT(env, UnboxLong(env, ret));
-			result->p = v;
+		case eTimeTObjectValue:
+			RETURN_BOXED_INTEGRAL(time_t, TimeT);
 			break;
-		}
 		case eVoidValue:
 			assert(ret == NULL);
 			break;

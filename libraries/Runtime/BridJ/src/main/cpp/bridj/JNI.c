@@ -88,7 +88,7 @@ type Unbox ## shortName(JNIEnv* env, jobject v) { \
 			
 BOX_METHOD_IMPL("org/bridj/TimeT", TimeT, Long, time_t, "J");
 BOX_METHOD_IMPL("org/bridj/SizeT", SizeT, Long, jlong, "J");
-BOX_METHOD_IMPL("org/bridj/CLong", CLong, Long, jlong, "J");
+BOX_METHOD_IMPL("org/bridj/CLong", CLong, Long, long, "J");
 BOX_METHOD_IMPL("java/lang/Integer", Int, Int, jint, "I");
 BOX_METHOD_IMPL("java/lang/Long", Long, Long, jlong, "J");
 BOX_METHOD_IMPL("java/lang/Short", Short, Short, jshort, "S");
@@ -152,6 +152,7 @@ void initMethods(JNIEnv* env) {
 			g ## shortName ## ValueOfMethod = (*env)->GetStaticMethodID(env, g ## shortName ## Class, "valueOf", "(" letter ")L" prim ";");
 			
 		INIT_PRIM("org/bridj/SizeT", SizeT, Long, long, "J");
+		INIT_PRIM("org/bridj/TimeT", TimeT, Long, long, "J");
 		INIT_PRIM("org/bridj/CLong", CLong, Long, long, "J");
 		INIT_PRIM("java/lang/Integer", Int, Int, int, "I");
 		INIT_PRIM("java/lang/Long", Long, Long, long, "J");

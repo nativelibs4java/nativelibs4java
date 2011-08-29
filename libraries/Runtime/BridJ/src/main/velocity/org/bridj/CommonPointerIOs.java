@@ -249,6 +249,22 @@ class CommonPointerIOs {
 		}		
 	};
 	
+	public static final PointerIO<TimeT> timeTIO = new PointerIO<TimeT>(TimeT.class, TimeT.SIZE, null) {
+		@Override
+		public TimeT get(Pointer<TimeT> pointer, long index) {
+			long offset = index * TimeT.SIZE;
+			return new TimeT(TimeT.SIZE == 4 ? pointer.getIntAtOffset(offset) : pointer.getLongAtOffset(offset));
+		}
+		@Override
+		public void set(Pointer<TimeT> pointer, long index, TimeT value) {
+			long offset = index * TimeT.SIZE;
+			if (TimeT.SIZE == 4)
+				pointer.setIntAtOffset(offset, value == null ? 0 : value.intValue());
+			else
+				pointer.setLongAtOffset(offset, value == null ? 0 : value.longValue());
+		}		
+	};
+	
 	public static final PointerIO<CLong> clongIO = new PointerIO<CLong>(CLong.class, CLong.SIZE, null) {
 		@Override
 		public CLong get(Pointer<CLong> pointer, long index) {

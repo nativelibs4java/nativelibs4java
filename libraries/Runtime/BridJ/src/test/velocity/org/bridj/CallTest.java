@@ -15,9 +15,18 @@ public class CallTest {
 	}
 	
 	/// Returns value + 1
+	public static native TimeT test_incr_timet(TimeT value);
 	public static native SizeT test_incr_sizet(SizeT value);
 	public static native CLong test_incr_clong(CLong value);
 
+	@Test
+	public void testTimeTSize() {
+		assertTrue(TimeT.SIZE == 4 || TimeT.SIZE == 8);
+	}
+	@Test
+	public void testIncrementTimeT() {
+		assertEquals(11, test_incr_timet(new TimeT(10)).longValue());	
+	}
 	@Test
 	public void testIncrementSizeT() {
 		assertEquals(11, test_incr_sizet(new SizeT(10)).longValue());	

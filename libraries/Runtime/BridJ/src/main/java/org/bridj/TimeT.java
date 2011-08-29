@@ -38,6 +38,10 @@ public final class TimeT extends AbstractIntegral {
 	@Struct(customizer = timeval_customizer.class)
 	public class timeval extends StructObject {
 		 
+		public long getTime() {
+			return seconds() * 1000 + milliseconds();
+		}
+		
 		@Field(0) 
 		public long seconds() {
 			return this.io.getCLongField(this, 0);

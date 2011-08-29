@@ -31,75 +31,52 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 						dcArgInt(call->vm, arg);
 				}
 				break;
+			#define ARG_BOXED_INTEGRAL(type, capitalized) \
+				{ \
+					if (toJava) { \
+						type arg = (sizeof(type) == 4) ? (type)dcbArgInt(args) : (type)dcbArgLongLong(args); \
+						dcArgPointer(call->vm, Box ## capitalized(env, arg)); \
+					} else { \
+						jobject parg = dcbArgPointer(args); \
+						jlong arg = Unbox ## capitalized(env, parg); \
+						if (isVarArgs) \
+							dcArgPointer(call->vm, (void*)(ptrdiff_t)arg); \
+						else if (sizeof(type) == 4) \
+							dcArgInt(call->vm, (jint)arg); \
+						else \
+							dcArgLongLong(call->vm, (jlong)arg); \
+					} \
+				}
+			#define ARG_UNBOXED_INTEGRAL(type, capitalized) \
+				{ \
+					if (toJava) { \
+						type arg = (sizeof(type) == 4) ? (type)dcbArgInt(args) : (type)dcbArgLongLong(args); \
+						dcArgLongLong(call->vm, (jlong)arg); \
+					} else { \
+						jlong arg = dcbArgLongLong(args); \
+						if (isVarArgs) \
+							dcArgPointer(call->vm, (void*)(ptrdiff_t)arg); \
+						else if (sizeof(type) == 4) \
+							dcArgInt(call->vm, (jint)arg); \
+						else \
+							dcArgLongLong(call->vm, (jlong)arg); \
+					} \
+				}
 			case eCLongValue:
-				if (sizeof(long) == 4) {
-					if (toJava)
-						dcArgLongLong(call->vm, dcbArgLong(args));
-					else {
-						jlong arg = dcbArgLongLong(args);
-						if (isVarArgs)
-							dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
-						else
-							dcArgLong(call->vm, (int)arg);
-					}
-				}
-				else {
-					jlong arg = dcbArgLongLong(args);
-					if (isVarArgs)
-						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
-					else
-						dcArgLong(call->vm, (long)arg);
-				}
+				ARG_UNBOXED_INTEGRAL(long, CLong);
 				break;
-			case eCLongObjectValue: {
-				jobject parg = dcbArgPointer(args);
-				if (toJava)
-					dcArgPointer(call->vm, parg);
-				else {
-					jlong arg = UnboxCLong(env, parg);
-					if (isVarArgs)
-						dcArgPointer(call->vm, (void*)(ptrdiff_t)arg);
-					else
-						dcArgLong(call->vm, (long)arg);
-				}
-				break;
-			}
 			case eSizeTValue:
-				if (sizeof(size_t) == 4) {
-					if (toJava)
-						dcArgLongLong(call->vm, dcbArgInt(args));
-					else
-						dcArgInt(call->vm, (int)dcbArgLongLong(args));
-				}
-				else
-					dcArgLongLong(call->vm, dcbArgLongLong(args));
+				ARG_UNBOXED_INTEGRAL(size_t, SizeT);
 				break;
-			case eSizeTObjectValue: {
-				jobject parg = dcbArgPointer(args);
-				if (toJava)
-					dcArgPointer(call->vm, parg);
-				else {
-					jlong arg = UnboxSizeT(env, parg);
-					if (sizeof(size_t) == 4 && !isVarArgs)
-						dcArgInt(call->vm, (int)arg);
-					else
-						dcArgLongLong(call->vm, arg);
-				}
+			case eCLongObjectValue:
+				ARG_BOXED_INTEGRAL(long, CLong);
 				break;
-			}
-			case eTimeTObjectValue: {
-				jobject parg = dcbArgPointer(args);
-				if (toJava)
-					dcArgPointer(call->vm, parg);
-				else {
-					jlong arg = UnboxTimeT(env, parg);
-					if (sizeof(time_t) == 4 && !isVarArgs)
-						dcArgInt(call->vm, (int)arg);
-					else
-						dcArgLongLong(call->vm, arg);
-				}
+			case eSizeTObjectValue:
+				ARG_BOXED_INTEGRAL(size_t, SizeT);
 				break;
-			}
+			case eTimeTObjectValue:
+				ARG_BOXED_INTEGRAL(time_t, TimeT);
+				break;
 			case eLongValue:
 				dcArgLongLong(call->vm, dcbArgLongLong(args));
 				break;
@@ -239,17 +216,30 @@ jboolean followCall(CallTempStruct* call, ValueType returnType, DCValue* result,
 		case eCLongValue:
 			result->L = (jlong)dcCallLong(call->vm, callback);
 			break;
-		case eCLongObjectValue:
-			result->p = BoxCLong(env, (jlong)dcCallLong(call->vm, callback));
-			break;
 		case eSizeTValue:
 			result->L = (size_t)dcCallPointer(call->vm, callback);
 		    break;
+		    
+		#define CALL_BOXED_INTEGRAL(type, capitalized) \
+			if (bCallingJava) { \
+				time_t tt = Unbox ## capitalized(env, dcCallPointer(call->vm, callback)); \
+				if (sizeof(type) == 4) \
+					result->i = (jint)tt; \
+				else \
+					result->l = (jlong)tt; \
+			} else { \
+				type tt = (sizeof(type) == 4) ? (type)dcCallInt(call->vm, callback) : (type)dcCallLongLong(call->vm, callback); \
+				result->p = Box ## capitalized(env, tt); \
+			}
+			
+		case eCLongObjectValue:
+			CALL_BOXED_INTEGRAL(long, CLong);
+			break;
 		case eSizeTObjectValue:
-			result->p = BoxSizeT(env, (size_t)dcCallPointer(call->vm, callback));
+			CALL_BOXED_INTEGRAL(size_t, SizeT);
 		    break;
-		case eTimeTObjectValue:
-			result->p = BoxTimeT(env, (size_t)dcCallPointer(call->vm, callback));
+		case eTimeTObjectValue: 
+			CALL_BOXED_INTEGRAL(time_t, TimeT);
 		    break;
 		case eVoidValue:
 			dcCallVoid(call->vm, callback);

@@ -116,6 +116,8 @@ public abstract class PointerIO<T> {
 				}
 				else if (SizeT.class.isAssignableFrom(cl))
 					io = CommonPointerIOs.sizeTIO;
+				else if (TimeT.class.isAssignableFrom(cl))
+					io = CommonPointerIOs.timeTIO;
 				else if (CLong.class.isAssignableFrom(cl))
 					io = CommonPointerIOs.clongIO;
 				else if (StructObject.class.isAssignableFrom(cl))

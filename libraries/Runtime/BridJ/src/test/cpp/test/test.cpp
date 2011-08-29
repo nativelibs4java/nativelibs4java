@@ -3,6 +3,7 @@
 #include "test.h"
 #include "jni.h"
 #include "math.h"
+#include <time.h>
 
 #include <iostream>
 #include <string>
@@ -396,6 +397,9 @@ TEST_API void throwNewMyException(const char* message) {
 TEST_API void throwInt(int value) {
 	throw value;
 }
+TEST_API time_t test_incr_timet(time_t value) {
+	return value + 1;
+}
 TEST_API size_t test_incr_sizet(size_t value) {
 	return value + 1;
 }
@@ -403,7 +407,6 @@ TEST_API long test_incr_clong(long value) {
 	return value + 1;
 }
 
-#include <time.h>
 TEST_API size_t __cdecl sizeOfTimeval() {
 	return sizeof(timeval);
 }

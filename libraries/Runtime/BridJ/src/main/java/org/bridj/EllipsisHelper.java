@@ -42,6 +42,9 @@ class EllipsisHelper {
 			else if (arg instanceof SizeT) {
 				type = ValueType.eSizeTValue;
 				args[i] = arg = ((SizeT)arg).longValue();
+			} else if (arg instanceof CLong) {
+				type = ValueType.eCLongValue;
+				args[i] = arg = ((CLong)arg).longValue();
 			} else if (arg instanceof NativeObject) {
 				type = ValueType.eNativeObjectValue;
 			} else
