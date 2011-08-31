@@ -9,7 +9,7 @@ import plugin._
 import org.junit._
 import Assert._
 
-object PerformanceTest {
+object PerformanceTests {
   lazy val skip = {
     val test = "1" == System.getenv("SCALACL_TEST_PERF")
     if (!test)
@@ -20,7 +20,7 @@ object PerformanceTest {
   val deprecated = new ScalaCLPlugin.PluginOptions(null).deprecated
 }
 class MatrixPerformanceTest extends TestUtils {
-  import PerformanceTest.{ skip, stream }
+  import PerformanceTests.{ skip, stream }
   
   @Test def simpleMatrixTest = if (!skip) ensureFasterCodeWithSameResult(
     """
@@ -54,7 +54,7 @@ class MatrixPerformanceTest extends TestUtils {
 
 }
 
-trait ChainedPerformanceTest {
+trait ChainedPerformanceTests {
   this: CollectionPerformanceTests =>
   def chain(du: (String, String)) = {
     val (definition, use) = du
@@ -78,14 +78,14 @@ trait NoScalarReductionTests {//extends CollectionPerformanceTests {
 class ListPerformanceTest extends CollectionPerformanceTests with NoRightTests {
   override def col = ("val col: List[Int] = (0 to n).toList", "col")//.filter(v => (v % 2) == 0).map(_ * 2)")
 }
-class ListChainedPerformanceTest extends ListPerformanceTest with ChainedPerformanceTest {
+class ListChainedPerformanceTest extends ListPerformanceTest with ChainedPerformanceTests {
   override def col = chain(super.col)
 }
 class ArrayPerformanceTest extends CollectionPerformanceTests {
   override def col = ("val col = Array.tabulate(n)(i => i)", "col")
   @Test def simpleArrayTabulate =  if (!skip) ensureFasterCodeWithSameResult(null, "Array.tabulate(n)(i => i).toSeq")
 }
-class ArrayChainedPerformanceTest extends ArrayPerformanceTest with ChainedPerformanceTest {
+class ArrayChainedPerformanceTest extends ArrayPerformanceTest with ChainedPerformanceTests {
   override def col = chain(super.col)
 }
 class RangePerformanceTest extends CollectionPerformanceTests with NoRightTests with NoScalarReductionTests {
@@ -99,15 +99,15 @@ class RangePerformanceTest extends CollectionPerformanceTests with NoRightTests 
   override def simpleMin = {}
   override def simpleMax = {} 
 }
-class RangeChainedPerformanceTest extends CollectionPerformanceTests with ChainedPerformanceTest with NoRightTests with NoScalarReductionTests {
+class RangeChainedPerformanceTest extends CollectionPerformanceTests with ChainedPerformanceTests with NoRightTests with NoScalarReductionTests {
   override def col = chain((null, "(0 until n)"))
 }
 
 
 
 trait CollectionPerformanceTests extends PerformanceTests {
-  import PerformanceTest.{ deprecated, stream }
-  val skip = PerformanceTest.skip
+  import PerformanceTests.{ deprecated, stream }
+  val skip = PerformanceTests.skip
   def col: (String, String)
   
   /**************************
@@ -141,8 +141,8 @@ trait CollectionPerformanceTests extends PerformanceTests {
 
 /*
 class PerformanceTest extends PerformanceTests {
-  import PerformanceTest.{ deprecated, stream }
-  val skip = PerformanceTest.skip
+  import PerformanceTests.{ deprecated, stream }
+  val skip = PerformanceTests.skip
   
   def arr: (String, String) = ("val col = Array.tabulate(n)(i => i)", "col") 
   def lis: (String, String) = ("val col = (0 to n).toList", "col.filter(v => (v % 2) == 0).map(_ * 2)")
