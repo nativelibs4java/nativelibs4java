@@ -43,7 +43,8 @@ import scala.Predef._
 object ScalaCLFunctionsTransformComponent {
   val runsAfter = List[String](
     "namer",
-    LoopsTransformComponent.phaseName
+    LoopsTransformComponent.phaseName,
+    StreamTransformComponent.phaseName
   )
   val runsBefore = List[String](
     "refchecks"
