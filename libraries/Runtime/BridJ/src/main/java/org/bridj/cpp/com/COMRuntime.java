@@ -201,8 +201,9 @@ public class COMRuntime extends CPPRuntime {
     }
     
     /**
-     * Initialize COM the current thread (uninitialization is done automatically upon thread death)
-     * Calls CoInitialize with COINIT_MULTITHREADED max once per thread.
+     * Initialize COM the current thread (uninitialization is done automatically upon thread death).<br>
+     * Calls CoInitialize with COINIT_MULTITHREADED max once per thread.<br>
+     * This is called automatically in {@link COMRuntime.newInstance(Class)}, so you'll typically never need to call this method by hand.
      */
     public static void initialize() {
         comInitializer.get();
