@@ -26,24 +26,24 @@ jboolean followArgsGenericJavaCallback(CallTempStruct* call, DCArgs* args, int n
 			case eCLongObjectValue:
 				arg = dcbArgPointer(args);
 				break;
-			case eCLongValue: {
-				jlong v;
-				if (sizeof(long) == 4)
-					v = dcbArgLong(args);
-				else
-					v = dcbArgLongLong(args);
-				arg = BoxCLong(env, v);
+
+			#define ARG_UNBOXED_INTEGRAL(type, capitalized) \
+				{ \
+					type v; \
+					if (sizeof(type) == 4) \
+						v = (type)dcbArgInt(args); \
+					else \
+						v = (type)dcbArgLongLong(args); \
+					arg = Box ## capitalized(env, v); \
+					break; \
+				}
+				
+			case eCLongValue:
+				ARG_UNBOXED_INTEGRAL(long, CLong);
 				break;
-			}
-			case eSizeTValue: {
-				jlong v;
-				if (sizeof(size_t) == 4)
-					v = dcbArgInt(args);
-				else
-					v = dcbArgLongLong(args);
-				arg = BoxSizeT(env, v);
+			case eSizeTValue:
+				ARG_UNBOXED_INTEGRAL(size_t, SizeT);
 				break;
-			}
 			case eLongValue:
 				arg = BoxLong(env, dcbArgLongLong(args));
 				break;
@@ -143,7 +143,7 @@ jboolean followCallGenericJavaCallback(CallTempStruct* call, ValueType returnTyp
 				if ((*env)->IsInstanceOf(env, ret, g ## capitalized ##Class)) \
 					result->p = ret; \
 				else \
-					result->p = Box ## capitalized(env, UnboxLong(env, ret)); \
+					result->p = Box ## capitalized(env, (type)UnboxLong(env, ret)); \
 			}
 		case eCLongValue:
 			RETURN_UNBOXED_INTEGRAL(long, CLong)

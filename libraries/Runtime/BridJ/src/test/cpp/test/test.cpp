@@ -5,6 +5,13 @@
 #include "math.h"
 #include <time.h>
 
+#ifdef _WIN32
+struct timeval {
+	long a;
+	long b;
+};
+#endif
+
 #include <iostream>
 #include <string>
 #include <vector>

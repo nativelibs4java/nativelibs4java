@@ -358,6 +358,18 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="$(DYNCALL_HOME)\dyncall\dyncallback\dyncall_callback_arch_x64_masm.asm"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="MASM64"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="$(DYNCALL_HOME)\dyncall\dyncallback\dyncall_thunk_x64.c"
 				>
 				<FileConfiguration

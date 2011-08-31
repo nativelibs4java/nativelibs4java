@@ -25,6 +25,14 @@ JNIEXPORT jint JNICALL Java_org_bridj_JNI_sizeOf_1size_1t
 
 /*
  * Class:     org_bridj_JNI
+ * Method:    sizeOf_time_t
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_bridj_JNI_sizeOf_1time_1t
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     org_bridj_JNI
  * Method:    sizeOf_wchar_t
  * Signature: ()I
  */
@@ -926,6 +934,22 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_memmove
  */
 JNIEXPORT jlong JNICALL Java_org_bridj_JNI_memchr
   (JNIEnv *, jclass, jlong, jbyte, jlong);
+
+/*
+ * Class:     org_bridj_JNI
+ * Method:    memmem
+ * Signature: (JJJJ)J
+ */
+JNIEXPORT jlong JNICALL Java_org_bridj_JNI_memmem
+  (JNIEnv *, jclass, jlong, jlong, jlong, jlong);
+
+/*
+ * Class:     org_bridj_JNI
+ * Method:    memmem_last
+ * Signature: (JJJJ)J
+ */
+JNIEXPORT jlong JNICALL Java_org_bridj_JNI_memmem_1last
+  (JNIEnv *, jclass, jlong, jlong, jlong, jlong);
 
 /*
  * Class:     org_bridj_JNI
