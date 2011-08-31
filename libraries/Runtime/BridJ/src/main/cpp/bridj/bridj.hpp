@@ -26,7 +26,7 @@
 
 #include "dyncallback/dyncall_callback.h"
 #include <jni.h>
-
+#include <time.h>
 
 #if defined(__GNUC__)
 #include <setjmp.h>
