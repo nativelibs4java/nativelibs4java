@@ -10,6 +10,8 @@ import static org.junit.Assert.*;
 import org.bridj.cpp.com.COMRuntime;
 import org.bridj.cpp.com.IUnknown;
 import org.bridj.cpp.com.VARIANT;
+import org.bridj.cpp.com.CLSID;
+import org.bridj.cpp.com.IID;
 import org.bridj.cpp.com.DECIMAL;
 import org.bridj.cpp.com.shell.IShellFolder;
 import org.bridj.cpp.com.shell.IShellWindows;
@@ -55,5 +57,22 @@ public class COMTest {
     @Test
     public void testSomeUnknownInstantiation() {
     		new SomeUnknown();
+    }
+    
+    
+    @CLSID("62BE5D10-60EB-11d0-BD3B-00A0C911CE86") 
+    @IID("29840822-5B84-11D0-BD3B-00A0C911CE86") 
+    public static class ICreateDevEnum extends IUnknown { 
+        @Virtual(0) 
+        public native int CreateClassEnumerator(Pointer<?>  clsidDeviceClass, Pointer<Pointer<?>> enumerator, int flags); 
+    } 
+    
+    @Test
+    public void testICreateDevEnum() throws Exception {
+    	if (!hasCOM) 
+    		return;
+    	
+    	//Not needed, as it's called by COMRuntime.newInstance : COMRuntime.initialize(); 
+    	ICreateDevEnum devEnumCreator = COMRuntime.newInstance(ICreateDevEnum.class);
     }
 }
