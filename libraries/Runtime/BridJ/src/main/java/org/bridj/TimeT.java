@@ -74,7 +74,7 @@ public final class TimeT extends AbstractIntegral {
 		@Override
 		public void beforeLayout(StructIO io, List<StructIO.AggregatedFieldDesc> aggregatedFields) {
 			StructIO.AggregatedFieldDesc secondsField = aggregatedFields.get(0);
-			if (Platform.isWindows())
+			if (Platform.isWindows() || !Platform.is64Bits())
 				secondsField.byteLength = 4;
 			else
 				secondsField.byteLength = 8;

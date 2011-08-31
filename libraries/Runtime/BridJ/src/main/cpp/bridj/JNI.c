@@ -80,7 +80,7 @@ jclass g ## shortName ## Class = NULL; \
 jmethodID g ## shortName ## ValueOfMethod = NULL; \
 jmethodID g ## shortName ## ValueMethod = NULL; \
 jobject Box ## shortName(JNIEnv* env, type v) { \
-	return (*env)->CallStaticObjectMethod(env, g ## shortName ## Class, g ## shortName ## ValueOfMethod, v); \
+	return (*env)->CallStaticObjectMethod(env, g ## shortName ## Class, g ## shortName ## ValueOfMethod, (jlong)v); \
 } \
 type Unbox ## shortName(JNIEnv* env, jobject v) { \
 	return (type)(*env)->Call ## methShort ## Method(env, v, g ## shortName ## ValueMethod); \
