@@ -31,7 +31,7 @@ rm /etc/opt/csw/pkgutil.conf.old
 rm /etc/opt/csw/pkgutil.conf /etc/opt/csw/pkgutil.conf.old
 mv .tmp /etc/opt/csw/pkgutil.conf
 
-/opt/csw/bin/pkgutil -y --install maven2 gcc4 curl openssh p7zip bzip2 subversion vim binutils wget
+/opt/csw/bin/pkgutil -y --install maven2 gcc4 curl openssh p7zip bzip2 subversion vim binutils wget git
 
 #
 # NOW RUN THIS AS A NORMAL USER :
