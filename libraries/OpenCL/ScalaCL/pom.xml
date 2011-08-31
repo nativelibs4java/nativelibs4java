@@ -16,7 +16,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	</description>
 	
 	<properties>
-	  	<scala.version>2.9.0</scala.version>
+	  	<scala.version>2.9.1</scala.version>
 	</properties>
   <parent>
 	  <groupId>com.nativelibs4java</groupId>
