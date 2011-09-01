@@ -1,0 +1,7 @@
+#!/bin/bash
+
+./GitConfig
+
+FILES=`git status -s | grep ' M.*' | sed 's/^ M //' | grep '\.so'`
+
+git commit -m "BridJ: updated binaries for `uname -sm`" $FILES
