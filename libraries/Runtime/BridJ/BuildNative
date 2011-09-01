@@ -1,11 +1,24 @@
 #!/bin/bash
 
+if [[ "$@" != "clean" && "$@" != "fast" ]] ; then
+	# Generate native sources from Velocity templates
+	#mvn generate-sources -o
+	mvn compile -o
+	
+	# Generate JNI headers
+	javah -d src/main/cpp/bridj -classpath target/classes org.bridj.JNI org.bridj.BridJ org.bridj.Pointer org.bridj.Platform ;
+fi
+	
 
 cd src/main/cpp/bridj
 
 if [[ "$DEBUG" == "1" ]] ; then
 	BUILD_CONFIG=debug ./Make.sh $@ || exit 1 ;
-else
-	./Make.sh $@ || exit 1 ;
+else 
+	if [[ "$@" == "fast" ]] ; then
+		./Make.sh || exit 1 ;
+	else
+		./Make.sh $@ || exit 1 ;
+	fi ;
 fi
 
