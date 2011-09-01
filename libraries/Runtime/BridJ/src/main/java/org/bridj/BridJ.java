@@ -26,6 +26,8 @@ import java.util.Stack;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.URL;
+import static org.bridj.Platform.*;
+import static java.lang.System.*;
 
 /// http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 /**
@@ -286,10 +288,10 @@ public class BridJ {
 		}
 	}
 
-    public static final boolean debug = "true".equals(System.getProperty("bridj.debug")) || "1".equals(System.getenv("BRIDJ_DEBUG"));
-    public static final boolean debugNeverFree = "true".equals(System.getProperty("bridj.debug.neverFree")) || "1".equals(System.getenv("BRIDJ_DEBUG_NEVER_FREE"));
-    public static final boolean debugPointers = "true".equals(System.getProperty("bridj.debug.pointers")) || "1".equals(System.getenv("BRIDJ_DEBUG_POINTERS"));
-    public static final boolean verbose = debug || "true".equals(System.getProperty("bridj.verbose")) || "1".equals(System.getenv("BRIDJ_VERBOSE"));
+    public static final boolean debug = "true".equals(getProperty("bridj.debug")) || "1".equals(getenv("BRIDJ_DEBUG"));
+    public static final boolean debugNeverFree = "true".equals(getProperty("bridj.debug.neverFree")) || "1".equals(getenv("BRIDJ_DEBUG_NEVER_FREE"));
+    public static final boolean debugPointers = "true".equals(getProperty("bridj.debug.pointers")) || "1".equals(getenv("BRIDJ_DEBUG_POINTERS"));
+    public static final boolean verbose = debug || "true".equals(getProperty("bridj.verbose")) || "1".equals(getenv("BRIDJ_VERBOSE"));
     static final int minLogLevel = Level.WARNING.intValue();
 	static boolean shouldLog(Level level) {
         return verbose || level.intValue() >= minLogLevel;
@@ -333,7 +335,7 @@ public class BridJ {
 	public synchronized static void releaseAll() {
 		strongNativeObjects.clear();
 		weakNativeObjects.clear();
-		System.gc();
+		gc();
 
         for (NativeLibrary lib : librariesByFile.values()) {
 			lib.release();
@@ -341,7 +343,7 @@ public class BridJ {
 		librariesByFile.clear();
 		librariesByClass.clear();
 		getOrphanEntities().release();
-		System.gc();
+		gc();
 	}
 	//public synchronized static void release(Class<?>);
 
@@ -386,56 +388,56 @@ public class BridJ {
 			String env;
 			
 			/*
-			String bitsSuffix = Platform.is64Bits() ? "64" : "32";
-			if (Platform.isUnix() && !Platform.isMacOSX()) {
+			String bitsSuffix = is64Bits() ? "64" : "32";
+			if (isUnix() && !isMacOSX()) {
 				paths.add("/usr/lib" + bitsSuffix);
 				paths.add("/lib" + bitsSuffix);
 			}
-			if (!Platform.isLinux() || !Platform.is64Bits()) {
+			if (!isLinux() || !is64Bits()) {
 				paths.add("/usr/lib");
 				paths.add("/lib");
 			}
 			*/
-			env = System.getenv("LD_LIBRARY_PATH");
+			env = getenv("LD_LIBRARY_PATH");
             if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
             
-            env = System.getenv("DYLD_LIBRARY_PATH");
+            env = getenv("DYLD_LIBRARY_PATH");
             if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
             
-			env = System.getenv("PATH");
+			env = getenv("PATH");
             if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
             
-            env = System.getProperty("java.library.path");
+            env = getProperty("java.library.path");
             if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
             
-            env = System.getProperty("gnu.classpath.boot.library.path");
+            env = getProperty("gnu.classpath.boot.library.path");
             if (env != null)
                 paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
             
-            File javaHome = new File(System.getProperty("java.home"));
+            File javaHome = new File(getProperty("java.home"));
             paths.add(new File(javaHome, "bin").toString());
-            if (Platform.isMacOSX()) {
+            if (isMacOSX()) {
             		paths.add(new File(javaHome, "../Libraries").toString());
             }
             
             
-            if (Platform.isUnix()) {
-            		String bits = Platform.is64Bits() ? "64" : "32";
-            		if (Platform.isLinux()) {
+            if (isUnix()) {
+            		String bits = is64Bits() ? "64" : "32";
+            		if (isLinux()) {
             			// First try Ubuntu's multi-arch paths (cf. https://wiki.ubuntu.com/MultiarchSpec)
-					String abi = Platform.isArm() ? "gnueabi" : "gnu";
-					String multiArch = Platform.getMachine() + "-linux-" + abi;
+					String abi = isArm() ? "gnueabi" : "gnu";
+					String multiArch = getMachine() + "-linux-" + abi;
 					paths.add("/lib/" + multiArch);
 					paths.add("/usr/lib/" + multiArch);
 				
 					// Add /usr/lib32 and /lib32
             			paths.add("/usr/lib" + bits);
 					paths.add("/lib" + bits);
-				} else if (Platform.isSolaris()) {
+				} else if (isSolaris()) {
 					// Add /usr/lib/32 and /lib/32
             			paths.add("/usr/lib/" + bits);
 					paths.add("/lib/" + bits);
@@ -484,7 +486,7 @@ public class BridJ {
         if (libraryName == null)
             return null;
         
-        //System.out.println("Getting file of '" + name + "'");
+        //out.println("Getting file of '" + name + "'");
         String actualName = libraryActualNames.get(libraryName);
 		List<String> aliases = libraryAliases.get(libraryName);
 		List<String> possibleNames = new ArrayList<String>();
@@ -492,14 +494,14 @@ public class BridJ {
 			possibleNames.addAll(aliases);
 		possibleNames.add(actualName == null ? libraryName : actualName);
 		
-		//System.out.println("Possible names = " + possibleNames);
+		//out.println("Possible names = " + possibleNames);
 		List<String> paths = getNativeLibraryPaths();
 		log(Level.INFO, "Looking for library '" + libraryName + "' " + (actualName != null ? "('" + actualName + "') " : "") + "in paths " + paths, null);
 		
 		for (String name : possibleNames) {
-			String env = System.getenv("BRIDJ_" + name.toUpperCase() + "_LIBRARY");
+			String env = getenv("BRIDJ_" + name.toUpperCase() + "_LIBRARY");
 			if (env == null)
-				env = System.getProperty("bridj." + name + ".library");
+				env = getProperty("bridj." + name + ".library");
 			if (env != null) {
 				File f = new File(env);
 				if (f.exists()) {
@@ -514,15 +516,15 @@ public class BridJ {
 				File pathFile = path == null ? null : new File(path);
 				File f = new File(name);
 				if (pathFile != null) {
-					if (Platform.isWindows()) {
+					if (isWindows()) {
 						if (!f.exists()) {
 							f = new File(pathFile, name + ".dll");
 						}
 						if (!f.exists()) {
 							f = new File(pathFile, name + ".drv");
 						}
-					} else if (Platform.isUnix()) {
-						if (Platform.isMacOSX()) {
+					} else if (isUnix()) {
+						if (isMacOSX()) {
 							if (!f.exists()) {
 								f = new File(pathFile, "lib" + name + ".dylib");
 					}
@@ -550,8 +552,8 @@ public class BridJ {
 					log(Level.SEVERE, null, ex);
 				}
 			}
-			if (Platform.isMacOSX()) {
-				for (String s : new String[]{"/System/Library/Frameworks", new File(System.getProperty("user.home"), "Library/Frameworks").toString()}) {
+			if (isMacOSX()) {
+				for (String s : new String[]{"/System/Library/Frameworks", new File(getProperty("user.home"), "Library/Frameworks").toString()}) {
 					try {
 						File f = new File(new File(s, name + ".framework"), name);
 						if (f.exists() && !f.isDirectory()) {
@@ -564,10 +566,10 @@ public class BridJ {
 			}
 			try {
 				File f;
-				if (Platform.isAndroid())
+				if (isAndroid())
 					f = new File("lib" + name + ".so");
 				else
-					f = Platform.extractEmbeddedLibraryResource(name);
+					f = extractEmbeddedLibraryResource(name);
 				
 				if (f != null && f.exists())
 					return f;
@@ -582,14 +584,14 @@ public class BridJ {
     /**
      * Query direct mode.<br>
      * In direct mode, BridJ will <i>attempt</i> to optimize calls with assembler code, so that the overhead of each call is about the same as with plain JNI.<br>
-     * Set -Dbridj.direct=false in the command line (or System.setProperty("bridj.direct", "false")) or environment var BRIDJ_DIRECT=0 to disable
+     * Set -Dbridj.direct=false in the command line (or setProperty("bridj.direct", "false")) or environment var BRIDJ_DIRECT=0 to disable
      */
     public static boolean isDirectModeEnabled() {
         if (directModeEnabled == null) {
-            String prop = System.getProperty("bridj.direct");
-            String env = System.getenv("BRIDJ_DIRECT");
+            String prop = getProperty("bridj.direct");
+            String env = getenv("BRIDJ_DIRECT");
             directModeEnabled = !"false".equalsIgnoreCase(prop) && !"false".equalsIgnoreCase(env) && !"0".equals(env) && !"no".equalsIgnoreCase(env);
-            log(Level.INFO, "directModeEnabled = " + directModeEnabled + " (" + System.getProperty("bridj.direct") + ")");
+            log(Level.INFO, "directModeEnabled = " + directModeEnabled + " (" + getProperty("bridj.direct") + ")");
         }
         return directModeEnabled;
     }
@@ -597,7 +599,7 @@ public class BridJ {
     /**
      * Set direct mode.<br>
      * In direct mode, BridJ will <i>attempt</i> to optimize calls with assembler code, so that the overhead of each call is about the same as with plain JNI.<br>
-     * Set -Dbridj.direct=false in the command line (or System.setProperty("bridj.direct", "false")) or environment var BRIDJ_DIRECT=0 to disable
+     * Set -Dbridj.direct=false in the command line (or setProperty("bridj.direct", "false")) or environment var BRIDJ_DIRECT=0 to disable
      */
     static void setDirectModeEnabled(boolean v) {
         directModeEnabled = v;
@@ -806,7 +808,7 @@ public class BridJ {
 			out.close();
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			System.exit(1);
+			exit(1);
 		}
 	}
 }
