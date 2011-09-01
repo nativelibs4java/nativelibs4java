@@ -175,6 +175,17 @@ public class Platform {
     		String arch = getArch();
         return arch.equals("x86_64");
     }
+    public static boolean isIntel() {
+        String arch = getArch().toLowerCase().trim();
+        return "i386".equals(arch) ||
+                "x86_64".equals(arch) ||
+                "amd64".equals(arch);
+    }
+    public static boolean isPPC() {
+        String arch = getArch().toLowerCase().trim();
+        return "ppc".equals(arch) ||
+                "ppc64".equals(arch);
+    }
 
     static final String embeddedLibraryResourceRoot = "org/bridj/lib/";
     static Collection<String> getEmbeddedLibraryResource(String name) {
