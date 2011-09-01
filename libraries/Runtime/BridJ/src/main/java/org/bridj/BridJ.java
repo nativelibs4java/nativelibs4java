@@ -424,8 +424,25 @@ public class BridJ {
             
             
             if (Platform.isUnix()) {
-				paths.add("/lib");
+            		String bits = Platform.is64Bits() ? "64" : "32";
+            		if (Platform.isLinux()) {
+            			// First try Ubuntu's multi-arch paths (cf. https://wiki.ubuntu.com/MultiarchSpec)
+					String abi = Platform.isArm() ? "gnueabi" : "gnu";
+					String multiArch = Platform.getMachine() + "-linux-" + abi;
+					paths.add("/lib/" + multiArch);
+					paths.add("/usr/lib/" + multiArch);
+				
+					// Add /usr/lib32 and /lib32
+            			paths.add("/usr/lib" + bits);
+					paths.add("/lib" + bits);
+				} else if (Platform.isSolaris()) {
+					// Add /usr/lib/32 and /lib/32
+            			paths.add("/usr/lib/" + bits);
+					paths.add("/lib/" + bits);
+				}
+				
 				paths.add("/usr/lib");
+				paths.add("/lib");
 				paths.add("/usr/local/lib");
 			}
         }
