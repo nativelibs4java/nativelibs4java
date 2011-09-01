@@ -173,12 +173,21 @@ public class Platform {
 	);
     
 	private static volatile String arch;
-	static synchronized String getArch() {
+	private static synchronized String getArch() {
 		if (arch == null) {
 			arch = System.getProperty("os.arch");
 			if (arch == null)
 				arch = System.getProperty("sun.arch.data.model");
 		}
+		return arch;
+	}
+	/**
+	 * Machine as returned by `uname -m`
+	 */
+	public static String getMachine() {
+		String arch = getArch();
+		if (arch.equals("amd64"))
+			return "x86_64";
 		return arch;
 	}
 	
