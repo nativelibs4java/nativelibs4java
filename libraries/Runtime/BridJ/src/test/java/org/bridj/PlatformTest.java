@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import java.io.*;
 
 public class PlatformTest {
+	/*
 	@Test
 	public void test_uname() {
 		if (!isUnix())
@@ -22,6 +23,7 @@ public class PlatformTest {
 		
 		assertEquals(name.machine, Platform.getMachine());
 	}
+	*/
 	
 	@Test
 	public void testMachine() throws Exception {

@@ -45,7 +45,7 @@ JNIEXPORT jint JNICALL Java_org_bridj_Platform_getMaxDirectMappingArgCount(JNIEn
 #endif
 }
 
-
+/*
 #ifdef _WIN32
 jobject JNICALL Java_org_bridj_Platform_uname(JNIEnv *env, jclass clazz) {
 	return NULL;
@@ -71,3 +71,5 @@ jobject JNICALL Java_org_bridj_Platform_uname(JNIEnv *env, jclass clazz)
 	);
 }
 #endif
+*/
+

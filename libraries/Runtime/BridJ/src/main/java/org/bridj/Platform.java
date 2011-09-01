@@ -65,6 +65,7 @@ public class Platform {
     		return loader == null ? systemClassLoader : loader;
     }
     
+    /*
     public static class utsname {
     		public final String sysname, nodename, release, version, machine;
 		public utsname(String sysname, String nodename, String release, String version, String machine) {
@@ -85,6 +86,7 @@ public class Platform {
 		}
     }
     public static native utsname uname();
+    */
     
     static {
     		{
