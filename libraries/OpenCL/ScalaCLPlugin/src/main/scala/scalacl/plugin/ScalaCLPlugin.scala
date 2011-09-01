@@ -117,6 +117,9 @@ object ScalaCLPlugin {
     var veryVerbose = 
       hasEnv("SCALACL_VERY_VERBOSE")
       
+    var debug = 
+      hasEnv("SCALACL_DEBUG")
+      
     var verbose = 
       settings != null && settings.verbose.value ||
       veryVerbose ||

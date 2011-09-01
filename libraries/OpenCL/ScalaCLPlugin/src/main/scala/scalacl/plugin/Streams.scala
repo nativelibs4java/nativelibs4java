@@ -286,7 +286,7 @@ with CodeAnalysis
   ) extends UnsupportedOperationException(msg)
   
   def warnSideEffect(unit: CompilationUnit, tree: Tree) = {
-    unit.warning(tree.pos, "Beware of side-effects in operations streams.")
+    unit.warning(tree.pos, "Beware of side-effects in operations streams." + (if (options.debug) " (" + tree + ")" else ""))
   }
   def assembleStream(stream: Stream, transform: Tree => Tree, unit: CompilationUnit, pos: Position, currentOwner: Symbol, localTyper: analyzer.Typer): Tree = {
     val Stream(source, transformers) = stream
