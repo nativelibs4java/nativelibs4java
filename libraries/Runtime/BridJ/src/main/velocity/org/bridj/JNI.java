@@ -20,61 +20,6 @@ import static org.bridj.Platform.*;
  */
 @Deprecated
 public class JNI {
-    private static boolean inited;
-    static final String BridJLibraryName = "bridj";
-    
-    static {
-        try {
-            initLibrary();
-        } catch (Throwable th) {
-            th.printStackTrace();
-        }
-    }
-    public static void initLibrary() {
-        if (inited)
-            return;
-		
-        try {
-        		boolean loaded = false;
-	        		
-        		String forceLibFile = System.getenv("BRIDJ_LIBRARY");
-        		if (forceLibFile == null)
-        			forceLibFile = System.getProperty("bridj.library");
-        		
-        		String lib = null;
-        		
-        		if (forceLibFile != null) {
-        			try {
-        				System.load(lib = forceLibFile);
-        				loaded = true;
-        			} catch (Throwable ex) {
-        				BridJ.log(Level.SEVERE, "Failed to load forced library " + forceLibFile, ex);
-        			}
-        		}
-        			
-        		if (!loaded) {
-				if (!loaded) {
-					if (!Platform.isAndroid())
-						try {
-							File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
-							BridJ.log(Level.INFO, "Loading library " + libFile);
-							System.load(lib = libFile.toString());
-								loaded = true;
-						} catch (IOException ex) {}
-					if (!loaded)
-						System.loadLibrary("bridj");
-	        		}
-	        }
-	        BridJ.log(Level.INFO, "Loaded library " + lib);
-	        
-	        init();
-	        inited = true;
-        } catch (Throwable ex) {
-        	throw new RuntimeException("Failed to initialize " + BridJ.class.getSimpleName(), ex);
-        }
-    }
-    private static native void init();
-
     @Deprecated
     public static native long getEnv();
     static native long loadLibrary(String path);

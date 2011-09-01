@@ -256,7 +256,7 @@ jobject getJavaObjectForNativePointer(JNIEnv *env, void* nativeObject) {
 	return (*env)->CallStaticObjectMethod(env, gBridJClass, gGetJavaObjectFromNativePeerMethod, PTR_TO_JLONG(nativeObject));
 }
 
-void JNICALL Java_org_bridj_JNI_init(JNIEnv *env, jclass clazz)
+JNIEXPORT void JNICALL Java_org_bridj_Platform_init(JNIEnv *env, jclass clazz)
 {
 	initThreadLocal(env);
 }

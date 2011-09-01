@@ -31,21 +31,16 @@ import static org.bridj.JNI.*;
 public class Platform {
     static final String osName = System.getProperty("os.name", "");
 
+    private static boolean inited;
+    static final String BridJLibraryName = "bridj";
+    
     public static final int 
     		POINTER_SIZE, 
     		WCHAR_T_SIZE, 
     		SIZE_T_SIZE, 
     		TIME_T_SIZE, 
     		CLONG_SIZE;
-    		
-    	static {
-        try {
-            JNI.initLibrary();
-        } catch (Throwable th) {
-            th.printStackTrace();
-        }
-    }
-    
+    	
     /*interface FunInt {
         int apply();
     }
@@ -88,39 +83,106 @@ public class Platform {
     public static native utsname uname();
     */
     
-    static {
-    		{
-			List<URL> urls = new ArrayList<URL>();
-			for (String propName : new String[] { "java.class.path", "sun.boot.class.path" }) {
-				String prop = System.getProperty(propName);
-				if (prop == null)
+	static {
+        try {
+            initLibrary();
+            
+        } catch (Throwable th) {
+            th.printStackTrace();
+        }
+        POINTER_SIZE = sizeOf_ptrdiff_t();
+		WCHAR_T_SIZE = sizeOf_wchar_t();
+		SIZE_T_SIZE = sizeOf_size_t();
+		TIME_T_SIZE = sizeOf_time_t();
+		CLONG_SIZE = sizeOf_long();
+        
+        systemClassLoader = createClassLoader();
+    }
+    static ClassLoader createClassLoader()
+	{
+		List<URL> urls = new ArrayList<URL>();
+		for (String propName : new String[] { "java.class.path", "sun.boot.class.path" }) {
+			String prop = System.getProperty(propName);
+			if (prop == null)
+				continue;
+			
+			for (String path : prop.split(File.pathSeparator)) {
+				path = path.trim();
+				if (path.length() == 0)
 					continue;
 				
-				for (String path : prop.split(File.pathSeparator)) {
-					path = path.trim();
-					if (path.length() == 0)
-						continue;
-					
-					URL url;
+				URL url;
+				try {
+					url = new URL(path);
+				} catch (MalformedURLException ex) {
 					try {
-						url = new URL(path);
-					} catch (MalformedURLException ex) {
-						try {
-							url = new File(path).toURI().toURL();
-						} catch (MalformedURLException ex2) {
-							url = null;
-						}
+						url = new File(path).toURI().toURL();
+					} catch (MalformedURLException ex2) {
+						url = null;
 					}
-					if (url != null)
-						urls.add(url);
 				}
+				if (url != null)
+					urls.add(url);
 			}
-			//System.out.println("URLs for synthetic class loader :");
-			//for (URL url : urls)
-			//	System.out.println("\t" + url);
-			systemClassLoader = new URLClassLoader(urls.toArray(new URL[urls.size()]));
 		}
+		//System.out.println("URLs for synthetic class loader :");
+		//for (URL url : urls)
+		//	System.out.println("\t" + url);
+		return new URLClassLoader(urls.toArray(new URL[urls.size()]));
+	}
+    public static void initLibrary() {
+        if (inited)
+            return;
 		
+        try {
+        		boolean loaded = false;
+	        		
+        		String forceLibFile = System.getenv("BRIDJ_LIBRARY");
+        		if (forceLibFile == null)
+        			forceLibFile = System.getProperty("bridj.library");
+        		
+        		String lib = null;
+        		
+        		if (forceLibFile != null) {
+        			try {
+        				System.load(lib = forceLibFile);
+        				loaded = true;
+        			} catch (Throwable ex) {
+        				BridJ.log(Level.SEVERE, "Failed to load forced library " + forceLibFile, ex);
+        			}
+        		}
+        			
+        		if (!loaded) {
+				if (!loaded) {
+					if (!Platform.isAndroid())
+						try {
+							File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
+							BridJ.log(Level.INFO, "Loading library " + libFile);
+							System.load(lib = libFile.toString());
+								loaded = true;
+						} catch (IOException ex) {}
+					if (!loaded)
+						System.loadLibrary("bridj");
+	        		}
+	        }
+	        BridJ.log(Level.INFO, "Loaded library " + lib);
+	        
+	        init();
+	        inited = true;
+        } catch (Throwable ex) {
+        	throw new RuntimeException("Failed to initialize " + BridJ.class.getSimpleName(), ex);
+        }
+    }
+    private static native void init();
+
+    static {
+    	/*try {
+            JNI.initLibrary();
+        } catch (Throwable th) {
+            th.printStackTrace();
+        }*/
+    		
+		/*
         int p = -1, c = -1, s = -1, l = -1, t = -1;
         try {
             p = sizeOf_ptrdiff_t();
@@ -134,6 +196,7 @@ public class Platform {
         SIZE_T_SIZE = s;
         TIME_T_SIZE = t;
         CLONG_SIZE = l;
+        */
     }
     public static boolean isLinux() {
     	return isUnix() && osName.toLowerCase().contains("linux");

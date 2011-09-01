@@ -244,7 +244,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     public static final int SIZE = Platform.POINTER_SIZE;
     
 	static {
-        JNI.initLibrary();
+        Platform.initLibrary();
     }
     
     

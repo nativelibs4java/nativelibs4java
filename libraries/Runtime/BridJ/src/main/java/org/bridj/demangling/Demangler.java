@@ -508,62 +508,6 @@ public abstract class Demangler {
             
             if (tcSize != -1 && tcSize == typeSize)
             		return true;
-            	/*
-			if (type == Long.TYPE && annotations != null) {
-				boolean 
-					isPtr = annotations.getAnnotation(Ptr.class) != null,
-					isCLong = annotations.getAnnotation(org.bridj.ann.CLong.class) != null;
-				if (isPtr || isCLong)
-					return true;
-			}
-            if (tc == int.class) {
-            	 //System.out.println("tc = " + tc + ", typec = " + typec + ", this = " + this);
-                if (
-                		(Platform.CLONG_SIZE == 4 && typec == CLong.class) || 
-                		(Platform.TIME_T_SIZE == 4 && typec == TimeT.class) || 
-                		(Platform.SIZE_T_SIZE == 4 && typec == SizeT.class))
-                    return true;
-            } else if (tc == long.class) {
-            	 //System.out.println("tc = " + tc + ", typec = " + typec + ", this = " + this);
-                if (
-                		(Platform.CLONG_SIZE == 8 && typec == CLong.class) || 
-                		(Platform.TIME_T_SIZE == 8 && typec == TimeT.class) || 
-                		(Platform.SIZE_T_SIZE == 8 && typec == SizeT.class))
-                    return true;
-            } else if (tc == CLong.class) {
-                if (
-                		typec == CLong.class || 
-                		(typec == int.class || typec == Integer.class) && (Platform.CLONG_SIZE == 4) || 
-                		typec == long.class || 
-                		typec == Long.class || 
-                		typec == SizeT.class && SizeT.SIZE == CLong.SIZE ||
-                		typec == TimeT.class && TimeT.SIZE == CLong.SIZE)
-                    return true;
-            } else if (tc == SizeT.class) {
-                if (
-                		typec == SizeT.class || 
-                		(typec == int.class || typec == Integer.class) && (Platform.SIZE_T_SIZE == 4) || 
-					typec == long.class || 
-					typec == Long.class || 
-					typec == CLong.class && CLong.SIZE == SizeT.SIZE ||
-					typec == TimeT.class && TimeT.SIZE == SizeT.SIZE)
-                    return true;
-            } else if (tc == TimeT.class) {
-                if (
-                		typec == TimeT.class || 
-                		(typec == int.class || typec == Integer.class) && (Platform.TIME_T_SIZE == 4) || 
-					typec == long.class || 
-					typec == Long.class || 
-					typec == CLong.class && CLong.SIZE == TimeT.SIZE ||
-					typec == SizeT.class && SizeT.SIZE == TimeT.SIZE)
-                    return true;
-            }
-            if ((tc == Character.TYPE || tc == Character.class || tc == short.class || tc == Short.class) && (typec == Short.class || typec == short.class || typec == char.class || typec == Character.class))
-                return true;
-
-            if ((tc == Integer.class || tc == int.class) && ValuedEnum.class.isAssignableFrom(typec))
-                return true;
-            */
 			return false; // TODO isAssignableFrom or the opposite, depending on context
 		}
 
