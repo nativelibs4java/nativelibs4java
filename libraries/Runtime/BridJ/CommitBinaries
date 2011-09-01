@@ -4,4 +4,6 @@
 
 FILES=`git status -s | grep ' M.*' | sed 's/^ M //' | grep '\.so'`
 
-git commit -m "BridJ: updated binaries for `uname -sm`" $FILES
+if [[ ! -z "$FILES" ]] ; then
+	git commit -m "BridJ: updated binaries for `uname -sm`" $FILES ;
+fi
