@@ -7,15 +7,15 @@
 #define STRING_SIG "Ljava/lang/String;"
 #define NEW_STRING(x) (*env)->NewStringUTF(env, x)
 
-jclass gPlatform_utsnameClass = NULL;
-jmethodID gPlatform_utsnameConstr = NULL;
+//jclass gPlatform_utsnameClass = NULL;
+//jmethodID gPlatform_utsnameConstr = NULL;
 
 void initPlatformMethods(JNIEnv *env) 
 {
-	gPlatform_utsnameClass = FIND_GLOBAL_CLASS("org/bridj/Platform$utsname");
+	/*gPlatform_utsnameClass = FIND_GLOBAL_CLASS("org/bridj/Platform$utsname");
 	gPlatform_utsnameConstr = (*env)->GetMethodID(env, gPlatform_utsnameClass, "<init>",
 		"(" STRING_SIG STRING_SIG STRING_SIG STRING_SIG STRING_SIG ")V"
-	);
+	);*/
 }		
 	
 
