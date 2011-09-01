@@ -29,8 +29,13 @@ public class PlatformTest {
 	public void testMachine() throws Exception {
 		Process p = Runtime.getRuntime().exec(new String[] { "uname", "-m" });
 		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		String s = r.readLine().trim();
-		assertTrue(s.length() > 0);
-		assertEquals(s, Platform.getMachine());
+		
+		String m = r.readLine().trim();
+		assertTrue(m.length() > 0);
+		
+		if (m.matches("i\\d86"))
+			m = "i386";
+		
+		assertEquals(m, Platform.getMachine());
 	}
 }
