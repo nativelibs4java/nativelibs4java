@@ -9,14 +9,6 @@ extern "C" {
 #endif
 /*
  * Class:     org_bridj_Platform
- * Method:    uname
- * Signature: ()Lorg/bridj/Platform/utsname;
- */
-JNIEXPORT jobject JNICALL Java_org_bridj_Platform_uname
-  (JNIEnv *, jclass);
-
-/*
- * Class:     org_bridj_Platform
  * Method:    sizeOf_size_t
  * Signature: ()I
  */

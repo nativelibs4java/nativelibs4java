@@ -2,8 +2,13 @@
 
 ./GitConfig
 
-FILES=`git status -s | grep ' M.*' | sed 's/^ M //' | grep '\.so'`
+FILES=`git status -s | grep ' M.*' | sed 's/^ M //' | grep -E '\.so|\.dylib'`
+
+PLATFORM="$1"
+if [[ -z "$PLATFORM" ]] ; then
+	PLATFORM="`uname -sm`" ;
+fi
 
 if [[ ! -z "$FILES" ]] ; then
-	git commit -m "BridJ: updated binaries for `uname -sm`" $FILES ;
+	git commit -m "BridJ: updated binaries for $PLATFORM" $FILES ;
 fi

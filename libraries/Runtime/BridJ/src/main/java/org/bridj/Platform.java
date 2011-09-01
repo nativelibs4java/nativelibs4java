@@ -184,7 +184,7 @@ public class Platform {
 		return arch;
 	}
 	/**
-	 * Machine as returned by `uname -m`
+	 * Machine (as returned by `uname -m`, except for i686 which is actually i386)
 	 */
 	public static String getMachine() {
 		String arch = getArch();
