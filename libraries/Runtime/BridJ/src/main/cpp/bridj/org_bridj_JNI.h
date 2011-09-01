@@ -17,46 +17,6 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_init
 
 /*
  * Class:     org_bridj_JNI
- * Method:    sizeOf_size_t
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_org_bridj_JNI_sizeOf_1size_1t
-  (JNIEnv *, jclass);
-
-/*
- * Class:     org_bridj_JNI
- * Method:    sizeOf_time_t
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_org_bridj_JNI_sizeOf_1time_1t
-  (JNIEnv *, jclass);
-
-/*
- * Class:     org_bridj_JNI
- * Method:    sizeOf_wchar_t
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_org_bridj_JNI_sizeOf_1wchar_1t
-  (JNIEnv *, jclass);
-
-/*
- * Class:     org_bridj_JNI
- * Method:    sizeOf_ptrdiff_t
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_org_bridj_JNI_sizeOf_1ptrdiff_1t
-  (JNIEnv *, jclass);
-
-/*
- * Class:     org_bridj_JNI
- * Method:    sizeOf_long
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_org_bridj_JNI_sizeOf_1long
-  (JNIEnv *, jclass);
-
-/*
- * Class:     org_bridj_JNI
  * Method:    getEnv
  * Signature: ()J
  */
@@ -862,14 +822,6 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCallTempStruct
  */
 JNIEXPORT void JNICALL Java_org_bridj_JNI_deleteCallTempStruct
   (JNIEnv *, jclass, jlong);
-
-/*
- * Class:     org_bridj_JNI
- * Method:    getMaxDirectMappingArgCount
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_org_bridj_JNI_getMaxDirectMappingArgCount
-  (JNIEnv *, jclass);
 
 /*
  * Class:     org_bridj_JNI

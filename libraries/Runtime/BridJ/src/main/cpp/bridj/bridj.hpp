@@ -47,6 +47,8 @@
 #define MALLOC_STRUCT(type) ((struct type*)malloc(sizeof(struct type)))
 #define MALLOC_STRUCT_ARRAY(type, size) ((struct type*)malloc(sizeof(struct type) * size))
 
+#define STRING_SIG "Ljava/lang/String;"
+		
 #define Modifier_ABSTRACT	1024
 #define Modifier_FINAL	16
 #define Modifier_INTERFACE	512

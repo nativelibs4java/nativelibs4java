@@ -39,6 +39,7 @@ CPPFLAGS	 += -I$(DYNCALL_HOME)/dynload
 
 UNITS += Exceptions
 UNITS += JNI
+UNITS += Platform
 UNITS += Pointer
 
 UNITS += HandlersCommon 

@@ -421,6 +421,8 @@ public class BridJ {
             if (Platform.isMacOSX()) {
             		paths.add(new File(javaHome, "../Libraries").toString());
             }
+            
+            
             if (Platform.isUnix()) {
 				paths.add("/lib");
 				paths.add("/usr/lib");

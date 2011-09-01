@@ -444,6 +444,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\..\bridj\Platform.c"
+					>
+				</File>
+				<File
 					RelativePath="..\..\..\bridj\Pointer.c"
 					>
 				</File>

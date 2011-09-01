@@ -173,7 +173,7 @@ public class MethodCallInfo {
 			}
         }
 
-        if (nParams > JNI.getMaxDirectMappingArgCount())
+        if (nParams > Platform.getMaxDirectMappingArgCount())
             this.direct = false;
 
         if (veryVerbose) {

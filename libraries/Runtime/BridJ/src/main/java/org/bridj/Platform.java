@@ -37,7 +37,16 @@ public class Platform {
     		SIZE_T_SIZE, 
     		TIME_T_SIZE, 
     		CLONG_SIZE;
-    interface FunInt {
+    		
+    	static {
+        try {
+            JNI.initLibrary();
+        } catch (Throwable th) {
+            th.printStackTrace();
+        }
+    }
+    
+    /*interface FunInt {
         int apply();
     }
     static int tryInt(FunInt f, int defaultValue) {
@@ -46,7 +55,7 @@ public class Platform {
         } catch (Throwable th) {
             return defaultValue;
         }
-    }
+    }*/
     static final ClassLoader systemClassLoader; 
     public static ClassLoader getClassLoader() {
     		return getClassLoader(BridJ.class);
@@ -55,6 +64,27 @@ public class Platform {
     		ClassLoader loader = cl == null ? null : cl.getClassLoader();
     		return loader == null ? systemClassLoader : loader;
     }
+    
+    public static class utsname {
+    		public final String sysname, nodename, release, version, machine;
+		public utsname(String sysname, String nodename, String release, String version, String machine) {
+			this.sysname = sysname;
+			this.nodename = nodename;
+			this.release = release;
+			this.version = version;
+			this.machine = machine;
+		}
+		public String toString() {
+			StringBuilder b = new StringBuilder("{\n");
+			b.append("\tsysname: \"").append(sysname).append("\",\n");
+			b.append("\tnodename: \"").append(nodename).append("\",\n");
+			b.append("\trelease: \"").append(release).append("\",\n");
+			b.append("\tversion: \"").append(version).append("\",\n");
+			b.append("\tmachine: \"").append(machine).append("\"\n");
+			return b.append("}").toString();
+		}
+    }
+    public static native utsname uname();
     
     static {
     		{
@@ -143,7 +173,7 @@ public class Platform {
 	);
     
 	private static volatile String arch;
-	private static synchronized String getArch() {
+	static synchronized String getArch() {
 		if (arch == null) {
 			arch = System.getProperty("os.arch");
 			if (arch == null)
@@ -337,4 +367,13 @@ public class Platform {
 			return false;
 		}
 	}
+	
+	static native int sizeOf_size_t();
+    static native int sizeOf_time_t();
+    static native int sizeOf_wchar_t();
+    static native int sizeOf_ptrdiff_t();
+	static native int sizeOf_long();
+	
+	static native int getMaxDirectMappingArgCount();
+	
 }

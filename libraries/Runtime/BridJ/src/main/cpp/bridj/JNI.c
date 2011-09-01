@@ -1,4 +1,5 @@
 #include "org_bridj_JNI.h"
+#include "JNI.h"
 
 #include "dyncallback/dyncall_callback.h"
 #include "dynload/dynload.h"
@@ -12,17 +13,6 @@
 
 #pragma warning(disable: 4152)
 #pragma warning(disable: 4189) // local variable initialized but unreferenced // TODO remove this !
-
-#define JNI_SIZEOF(type, escType) \
-jint JNICALL Java_org_bridj_JNI_sizeOf_1 ## escType(JNIEnv *env, jclass clazz) { return sizeof(type); }
-
-#define JNI_SIZEOF_t(type) JNI_SIZEOF(type ## _t, type ## _1t)
-
-JNI_SIZEOF_t(size)
-JNI_SIZEOF_t(time)
-JNI_SIZEOF_t(wchar)
-JNI_SIZEOF_t(ptrdiff)
-JNI_SIZEOF(long, long)
 
 //jclass gStructFieldsIOClass = NULL;
 jclass gObjectClass = NULL;
@@ -136,14 +126,13 @@ JNIEnv* GetEnv() {
 }
 
 void InitProtection();
+void initPlatformMethods(JNIEnv* env);
 
 void initMethods(JNIEnv* env) {
 	//InitProtection();
 	
 	if (!gAddressMethod)
 	{
-		#define FIND_GLOBAL_CLASS(name) (*env)->NewGlobalRef(env, (*env)->FindClass(env, name))
-		
 		gObjectClass = FIND_GLOBAL_CLASS("java/lang/Object");
 		
 		#define INIT_PRIM(prim, shortName, methShort, type, letter) \
@@ -211,6 +200,7 @@ void initMethods(JNIEnv* env) {
 		GETFIELD_ID(bThrowLastError	,	"bThrowLastError"		,	"Z"						);
 		GETFIELD_ID(dcCallingConvention,	"dcCallingConvention"	,	"I"						);
 		
+		initPlatformMethods(env);
 	}
 }
 
@@ -420,20 +410,6 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_deleteCallTempStruct(JNIEnv* env, jcla
 	CallTempStruct* s = (CallTempStruct*)JLONG_TO_PTR(handle);
 	dcFree(s->vm);
 	free(s);	
-}
-
-JNIEXPORT jint JNICALL Java_org_bridj_JNI_getMaxDirectMappingArgCount(JNIEnv *env, jclass clazz) {
-#if defined(_WIN64)
-	return 4;
-#elif defined(DC__OS_Darwin) && defined(DC__Arch_AMD64)
-	return 4;
-#elif defined(DC__OS_Linux) && defined(DC__Arch_AMD64)
-	return 4;
-#elif defined(_WIN32)
-	return 8;
-#else
-	return -1;
-#endif
 }
 
 char getDCReturnType(JNIEnv* env, ValueType returnType) 

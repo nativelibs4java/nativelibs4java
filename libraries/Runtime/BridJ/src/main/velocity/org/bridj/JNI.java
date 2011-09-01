@@ -75,12 +75,6 @@ public class JNI {
     }
     private static native void init();
 
-    static native int sizeOf_size_t();
-    static native int sizeOf_time_t();
-    static native int sizeOf_wchar_t();
-    static native int sizeOf_ptrdiff_t();
-	static native int sizeOf_long();
-
     @Deprecated
     public static native long getEnv();
     static native long loadLibrary(String path);
@@ -178,7 +172,6 @@ public class JNI {
 	
 	static native long createCallTempStruct();
 	static native void deleteCallTempStruct(long handle);
-	static native int getMaxDirectMappingArgCount();
 	
 	static native long mallocNulled(long size);
 	static native long malloc(long size);
