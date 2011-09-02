@@ -447,6 +447,35 @@ public class BridJ {
 				paths.add("/lib");
 				paths.add("/usr/local/lib");
 			}
+
+            if (Platform.isLinux() || Platform.isSolaris()) {
+                // Linux uses /usr/lib32, solaris uses /usr/lib/32
+                String archPath = (Platform.isSolaris() ? "/" : "") + (Platform.is64Bits() ? "64" : "32");
+                paths.add("/usr/lib" + archPath);
+                paths.add("/lib" + archPath);
+            }
+
+            if (Platform.isLinux()) {
+                // fix for Ubuntu 11.04+ and other multiarch distros
+                // ported from JNAs NativeLibrary.java
+                // shouldn't break anything for other distros
+                String cpu = "";
+                String kernel = "linux";
+                String libc = "gnu";
+
+                if (Platform.isIntel()) {
+                    cpu = (Platform.is64Bits() ? "x86_64" : "i386");
+                } else if (Platform.isPPC()) {
+                    cpu = (Platform.is64Bits() ? "powerpc64" : "powerpc");
+                } else if (Platform.isArm()) {
+                    cpu = "arm";
+                    libc = "gnueabi";
+                }
+
+                String multiArchPath = cpu + "-" + kernel + "-" + libc;
+                paths.add("/lib/" + multiArchPath);
+                paths.add("/usr/lib/" + multiArchPath);
+            }
         }
         return paths;
     }
