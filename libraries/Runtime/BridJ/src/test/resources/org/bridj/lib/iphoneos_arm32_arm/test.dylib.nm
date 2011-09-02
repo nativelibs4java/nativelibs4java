@@ -39,6 +39,8 @@
 00001064 T __Z13reserveStringPSsm
 000010a8 T __Z13resizeWStringPSbIwSt11char_traitsIwESaIwEEm
 00000ef8 T __Z13sizeOfTimevalv
+00000c04 T __Z13testAddCLongsll
+00000bf8 T __Z13testAddJLongsxx
 00000f14 T __Z13test_add9_intiiiiiiiii
 00000e14 T __Z13test_fun_voidv
 00000f00 T __Z13test_incr_inti
@@ -69,7 +71,7 @@
 00000dfc T __Z16test_void_doublev
 00000d38 T __Z17testEnumArgSecond5ETest
 00000d30 T __Z17testEnumRetSecondv
-00000bd8 T __Z17testInPlaceSquarePdm
+00000bc4 T __Z17testInPlaceSquarePdm
 00001ae0 T __Z17test_add9_int_outiiiiiiiiiPi
 00000e24 T __Z17test_fun_void_intv
 000018c8 T __Z17test_incr_int_outiPi
@@ -110,15 +112,15 @@
 00002c4c t __Z41__static_initialization_and_destruction_0ii
 0000213c t __Z41__static_initialization_and_destruction_0ii
 000021a0 T __Z4totov
-00000b38 T __Z6sinInti
+00000b24 T __Z6sinInti
 00000e98 T __Z7addPtrsPvS_
-00000b48 T __Z7testSumPKdm
+00000b34 T __Z7testSumPKdm
 00000e68 T __Z8getAdderv
 00000d2c T __Z8testEnum5ETest
-00000b90 T __Z8testSumiPKdi
+00000b7c T __Z8testSumiPKdi
 00000df4 T __Z8test_intv
 000013a0 T __Z8throwInti
-00000b34 T __Z8voidTestv
+00000b20 T __Z8voidTestv
 00001378 T __Z9newStringv
 000021e0 T __Z9newVectorIdESt6vectorIT_SaIS1_EEi
 00002344 T __Z9newVectorIfESt6vectorIT_SaIS1_EEi
@@ -210,8 +212,8 @@
          U __ZSt17__throw_bad_allocv
          U __ZSt20__throw_length_errorPKc
          U __ZSt4cout
-0000320c b __ZStL8__ioinit
 0000321c b __ZStL8__ioinit
+0000320c b __ZStL8__ioinit
 00003180 S __ZTI11MyException
 00003204 S __ZTI5Ctest
 000031e8 S __ZTI5Temp1IdE
@@ -266,7 +268,7 @@
 000021c4 t ___tcf_0
 00001c6c t ___tcf_0
 000010bc t ___tcf_1
-00000b28 t __dyld_func_lookup
+00000b14 t __dyld_func_lookup
          U _memmove
 000030f8 D _newIntVector
 000030f4 D _ntest
@@ -279,4 +281,4 @@
 000016f8 T _testAddJNA
          U _wcslen
 000030f0 d dyld__mach_header
-00000b08 t dyld_stub_binding_helper
+00000af4 t dyld_stub_binding_helper
