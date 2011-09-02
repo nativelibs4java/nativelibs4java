@@ -49,6 +49,29 @@ public class DemanglingTest {
             //clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType, clongType
         );
     }
+    @Test
+    public void testCLongsBackReference() {
+        demangle(
+            "?testAddCLongs@@YAJJJ@Z",
+            null,
+            null, 
+            ident("testAddCLongs"),
+            CLong.class, CLong.class, CLong.class
+        );
+    }
+    @Test
+    public void testJLongsBackReference() {
+        demangle(
+            "?testAddJLongs@@YA_J_J0@Z",
+            null,
+            null, 
+            ident("testAddJLongs"),
+            long.class, long.class, long.class
+        );
+    }
+    
+
+
     static Type etestEnumType = paramType(ValuedEnum.class, ETest.class);
     @Test
     public void testEnumArgAndRet() {
@@ -287,7 +310,11 @@ public class DemanglingTest {
 
         for (int iArg = 0; iArg < nArgs; iArg++) {
             if (paramTypes[iArg] instanceof Type) {
-            	 assertTrue("Bad type for " + (iArg + 1) + "th param : (symbol = " + symbol + ", expecting " + paramTypes[iArg] + " and demangled " + symbol.paramTypes[iArg], symbol.paramTypes[iArg].matches((Type) paramTypes[iArg], paramAnns == null ? null : Demangler.annotations(paramAnns[iArg])));
+            	Type expecting = (Type)paramTypes[iArg];
+            	TypeRef demangled = symbol.paramTypes[iArg];
+            	 assertTrue("Bad type for " + (iArg + 1) + "th param : (symbol = " + symbol + ", expecting " + expecting + " and demangled " + demangled + " (" + demangled.getClass().getName() + ")", 
+            	 	 demangled.matches(expecting, paramAnns == null ? null : Demangler.annotations(paramAnns[iArg])));
+            	 
             } else if (paramTypes[iArg] instanceof String) {
                 String targetType = (String) paramTypes[iArg];
                 TypeRef currentType = symbol.paramTypes[iArg];

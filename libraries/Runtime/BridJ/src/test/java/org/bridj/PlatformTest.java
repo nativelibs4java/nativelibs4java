@@ -6,27 +6,29 @@ import static org.junit.Assert.*;
 import java.io.*;
 
 public class PlatformTest {
-	/*
 	@Test
-	public void test_uname() {
+	public void testSizes() {
+		int clong = isWindows() || !is64Bits() ? 4 : 8;
+		int sizet = is64Bits() ? 8 : 4, ptr = sizet;
+		int wchar = 2;
+		
+		assertEquals(clong, Platform.CLONG_SIZE);
+		assertEquals(sizet, Platform.SIZE_T_SIZE);
+		assertTrue(Platform.TIME_T_SIZE > 0);
+		assertEquals(wchar, Platform.WCHAR_T_SIZE);
+		assertEquals(ptr, Platform.POINTER_SIZE);
+		
+		assertEquals(ptr, Pointer.SIZE);
+		assertEquals(sizet, SizeT.SIZE);
+		assertTrue(TimeT.SIZE > 0);
+		assertEquals(clong, CLong.SIZE);
+		
+	}
+	@Test
+	public void testMachine() throws Exception {
 		if (!isUnix())
 			return;
 		
-		utsname name = uname();
-		System.out.println("uname = " + name);
-		assertNotNull(name);
-		assertNotNull(name.sysname);
-		assertNotNull(name.nodename);
-		assertNotNull(name.release);
-		assertNotNull(name.version);
-		assertNotNull(name.machine);
-		
-		assertEquals(name.machine, Platform.getMachine());
-	}
-	*/
-	
-	@Test
-	public void testMachine() throws Exception {
 		Process p = Runtime.getRuntime().exec(new String[] { "uname", "-m" });
 		BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream()));
 		

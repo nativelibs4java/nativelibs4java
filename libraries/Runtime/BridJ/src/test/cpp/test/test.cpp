@@ -74,6 +74,13 @@ TEST_API void __cdecl testInPlaceSquare(double *values, size_t n)
 	}
 }
 
+TEST_API jlong testAddJLongs(jlong a, jlong b) {
+	return a + b;
+}
+TEST_API long testAddCLongs(long a, long b) {
+	return a + b;
+}
+
 extern "C" {
 
 void otherFunc() {

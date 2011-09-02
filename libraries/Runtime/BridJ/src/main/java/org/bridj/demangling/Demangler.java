@@ -455,6 +455,49 @@ public abstract class Demangler {
         }
         throw new UnsupportedOperationException("Unknown type type : " + type.getClass().getName());
 	}
+	static boolean equivalentTypes(Type a, Class ac, Annotations aAnnotations, Type b, Class bc, Annotations bAnnotations) {
+		if (a.equals(b))
+			return true;
+		
+		int as = getIntegralSize(a, ac, aAnnotations);
+		int bs = getIntegralSize(b, bc, bAnnotations);
+		
+		System.out.println("a = " + a + ", b = " + b + ", as = " + as + ", bs = " + bs + ", equiv = " + (as != -1 && as == bs));
+		return as != -1 && as == bs;
+	}
+	static int getIntegralSize(Type type, Class typec, Annotations annotations) {
+		if (type == int.class || type == Integer.class)
+			return 4;
+		if (type == long.class || type == Long.class) {
+			if (annotations != null) {
+				if (annotations.getAnnotation(Ptr.class) != null)
+					return SizeT.SIZE;
+				if (annotations.getAnnotation(org.bridj.ann.CLong.class) != null)
+					return CLong.SIZE;
+			}
+			return 8;
+		}
+		if (type == CLong.class)
+			return CLong.SIZE;
+		if (type == SizeT.class)
+			return SizeT.SIZE;
+		if (type == TimeT.class)
+			return TimeT.SIZE;
+		if (type == byte.class || type == Byte.class)
+			return 1;
+		if (type == char.class || type == Character.class || type == short.class || type == Short.class)
+			return 2;
+		if (ValuedEnum.class.isAssignableFrom(typec))
+			return 4;
+		if (Pointer.class.isAssignableFrom(typec))
+			return SizeT.SIZE;
+		return -1;
+	}
+	public static boolean equivalentTypes(Type a, Type b) {
+		return equivalentTypes(a, getTypeClass(a), null, b, getTypeClass(b), null);
+	}
+	
+	
 	public static class JavaTypeRef extends TypeRef {
 
 		java.lang.reflect.Type type;
@@ -464,38 +507,10 @@ public abstract class Demangler {
 		public StringBuilder getQualifiedName(StringBuilder b, boolean generic) {
 			return b.append(getTypeClass(this.type).getName());
 		}
-		static int getIntegralSize(Type type, Class typec, Annotations annotations) {
-			if (type == int.class || type == Integer.class)
-				return 4;
-			if (type == long.class || type == Long.class) {
-				if (annotations != null) {
-					if (annotations.getAnnotation(Ptr.class) != null)
-						return SizeT.SIZE;
-					if (annotations.getAnnotation(org.bridj.ann.CLong.class) != null)
-						return CLong.SIZE;
-				}
-				return 8;
-			}
-			if (type == CLong.class)
-				return CLong.SIZE;
-			if (type == SizeT.class)
-				return SizeT.SIZE;
-			if (type == TimeT.class)
-				return TimeT.SIZE;
-			if (type == byte.class || type == Byte.class)
-				return 1;
-			if (type == char.class || type == Character.class || type == short.class || type == Short.class)
-				return 2;
-			if (ValuedEnum.class.isAssignableFrom(typec))
-				return 4;
-			if (Pointer.class.isAssignableFrom(typec))
-				return SizeT.SIZE;
-			return -1;
-		}
 		@Override
 		public boolean matches(Type type, Annotations annotations) {
             Class<?> tc = getTypeClass(this.type);
-            Class<?> typec = Demangler.getTypeClass(type);
+            Class<?> typec = getTypeClass(type);
             if (tc == typec || tc.equals(typec))
                 return true;
             
@@ -503,12 +518,7 @@ public abstract class Demangler {
                     (Pointer.class.isAssignableFrom(typec) && tc == Long.TYPE))
                 return true;
                 
-            int typeSize = getIntegralSize(type, typec, annotations);
-            int tcSize = getIntegralSize(this.type, tc, null);
-            
-            if (tcSize != -1 && tcSize == typeSize)
-            		return true;
-			return false; // TODO isAssignableFrom or the opposite, depending on context
+            return equivalentTypes(type, typec, annotations, this.type, tc, null); // TODO isAssignableFrom or the opposite, depending on context
 		}
 
         @Override
@@ -614,10 +624,10 @@ public abstract class Demangler {
 
         @Override
         public boolean matches(Type type, Annotations annotations) {
-            if (!getTypeClass(type).getSimpleName().equals(ident.simpleName))
-                return false;
+        	if (getTypeClass(type).getSimpleName().equals(ident.simpleName))
+                return true;
             
-            return true;
+            return false;
         }
 
 
@@ -831,6 +841,12 @@ public abstract class Demangler {
                     total += 1;
                 else if (paramType == char.class)
                     total += Platform.WCHAR_T_SIZE;
+                else if (paramType == CLong.class)
+                    total += Platform.CLONG_SIZE;
+                else if (paramType == SizeT.class)
+                    total += Platform.SIZE_T_SIZE;
+                else if (paramType == TimeT.class)
+                    total += Platform.TIME_T_SIZE;
                 else if (paramType == short.class)
                     total += 2;
                 else if (paramType == boolean.class)

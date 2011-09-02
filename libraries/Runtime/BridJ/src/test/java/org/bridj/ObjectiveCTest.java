@@ -19,10 +19,15 @@ import static org.bridj.BridJ.*;
 @Library("Foundation")
 @Runtime(ObjectiveCRuntime.class)
 public class ObjectiveCTest {
+	static boolean mac = Platform.isMacOSX();
 	static {
-		BridJ.register();
+		try {
+			BridJ.register();
+		} catch (Throwable th) {
+			if (mac)
+				throw new RuntimeException(th);
+		}
 	}
-	boolean mac = Platform.isMacOSX();
 	
     protected Pointer<NSAutoreleasePool> pool;
     
