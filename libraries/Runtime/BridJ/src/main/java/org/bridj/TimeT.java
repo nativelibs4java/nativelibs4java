@@ -36,7 +36,7 @@ public final class TimeT extends AbstractIntegral {
     }
 	
 	@Struct(customizer = timeval_customizer.class)
-	public class timeval extends StructObject {
+	public static class timeval extends StructObject {
 		 
 		public long getTime() {
 			return seconds() * 1000 + milliseconds();
