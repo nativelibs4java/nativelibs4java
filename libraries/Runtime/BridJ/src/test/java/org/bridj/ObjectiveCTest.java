@@ -17,7 +17,6 @@ import static org.bridj.BridJ.*;
 
 
 @Library("Foundation")
-@Runtime(ObjectiveCRuntime.class)
 public class ObjectiveCTest {
 	static boolean mac = Platform.isMacOSX();
 	static {

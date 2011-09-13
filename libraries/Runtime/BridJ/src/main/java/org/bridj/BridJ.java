@@ -553,13 +553,17 @@ public class BridJ {
 				}
 			}
 			if (isMacOSX()) {
-				for (String s : new String[]{"/System/Library/Frameworks", new File(getProperty("user.home"), "Library/Frameworks").toString()}) {
+				for (String s : new String[]{
+					"/System/Library/Frameworks",
+					"/System/Library/Frameworks/ApplicationServices.framework/Frameworks",
+					new File(getProperty("user.home"), "Library/Frameworks").toString()
+				}) {
 					try {
 						File f = new File(new File(s, name + ".framework"), name);
-						if (f.exists() && !f.isDirectory()) {
+						if (f.exists() && !f.isDirectory())
 							return f.getCanonicalFile();
-						}
 					} catch (IOException ex) {
+						ex.printStackTrace();
 						return null;
 				}
 			}
@@ -656,7 +660,19 @@ public class BridJ {
 	 */
     public static String getNativeLibraryName(AnnotatedElement m) {
         Library lib = getAnnotation(Library.class, true, m);
-        return lib == null ? null : lib.value(); // TODO use package as last resort
+        if (lib == null) {
+        		Class c = null;
+        		if (m instanceof Class)
+        			c = (Class)m;
+        		else if (m instanceof Member)
+        			c = ((Member)m).getDeclaringClass();
+        		
+        		if (c != null)
+        			return c.getSimpleName();
+        		else
+        			return null;
+        }
+        return lib.value();
     }
 
     static <A extends Annotation> A getAnnotation(Class<A> ac, boolean inherit, AnnotatedElement m, Annotation... directAnnotations) {
