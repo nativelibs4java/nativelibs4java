@@ -1,5 +1,5 @@
 package org.bridj;
-
+import org.bridj.platform.PlatformUtils;
 import static org.bridj.Platform.*;
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -10,7 +10,7 @@ public class PlatformTest {
 	public void testSizes() {
 		int clong = isWindows() || !is64Bits() ? 4 : 8;
 		int sizet = is64Bits() ? 8 : 4, ptr = sizet;
-		int wchar = 2;
+		int wchar = isMacOSX() ? 4 : 2;
 		
 		assertEquals(clong, Platform.CLONG_SIZE);
 		assertEquals(sizet, Platform.SIZE_T_SIZE);
@@ -39,5 +39,11 @@ public class PlatformTest {
 			m = "i386";
 		
 		assertEquals(m, Platform.getMachine());
+	}
+	
+	@Test
+	public void testIdleTime() {
+		long time = PlatformUtils.getInstance().getIdleTimeMillis();
+		//println("Idle time = " + time);
 	}
 }
