@@ -26,6 +26,23 @@ public class DefaultParameterizedType implements ParameterizedType {
         this(null, rawType, actualTypeArguments);
     }
     
+    @Override
+    public String toString() {
+    		StringBuilder b = new StringBuilder();
+    		if (ownerType != null)
+    			b.append(Utils.toString(ownerType)).append(".");
+    		b.append(rawType);
+    		if (actualTypeArguments.length > 0) {
+    			b.append("<");
+    			for (int i = 0; i < actualTypeArguments.length; i++) {
+    				if (i > 0)
+    					b.append(", ");
+    				b.append(Utils.toString(actualTypeArguments[i]));
+    			}
+    			b.append(">");
+    		}	
+    		return b.toString();
+    }
     public static Type paramType(Type rawType, Type... actualTypeArguments) {
     	return new DefaultParameterizedType(rawType, actualTypeArguments);
     }

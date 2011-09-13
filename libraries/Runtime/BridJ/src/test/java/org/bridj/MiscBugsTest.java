@@ -124,4 +124,73 @@ public class MiscBugsTest {
 		}
 		
 	}
+	
+	public class VIDEOHDR extends StructObject
+	{
+	   // fields
+	   /**
+		* Pointer to locked data buffer.
+		*/
+	   @Field(0)
+	   public Pointer lpData;
+	   /**
+		* Length of data buffer.
+		*/
+	   @Field(1)
+	   public int dwBufferLength;
+	   /**
+		* Bytes actually used.
+		*/
+	   @Field(2)
+	   public int dwBytesUsed;
+	   /**
+		* Milliseconds from start of stream.
+		*/
+	   @Field(3)
+	   public int dwTimeCaptured;
+	   /**
+		* User-defined data.
+		*/
+	   @Field(4)
+	   public int dwUser;
+	   /**
+		* The flags are defined as follows:
+		* <br> VHDR_DONE - Done bit
+		* <br> VHDR_PREPARED - Set if this header has been prepared
+		* <br> VHDR_INQUEUE - Reserved for driver
+		* <br> VHDR_KEYFRAME - Key Frame
+		*/
+	   @Field(5)
+	   public int dwFlags;
+	   /**
+		* Reserved for driver.
+		*/
+	   @Field(6)
+	   @Array(4)
+	   public Pointer<Pointer<Integer>> dwReserved;
+	
+	   /**
+		* Constructor.
+		*/
+	   public VIDEOHDR()
+	   {
+	   }
+	
+	   /**
+		* Constructor.
+		*
+		* @param ptr
+		*/
+	   public VIDEOHDR(Pointer<? extends StructObject> ptr)
+	   {
+		   super(ptr);
+	   }
+	}
+	/**
+	 * https://github.com/ochafik/nativelibs4java/issues/56#issuecomment-2075496
+	 */
+	@Test
+	public void javaFieldsStructArrayFieldsVsSignedIntegrals() {
+		new VIDEOHDR();
+	}
 }

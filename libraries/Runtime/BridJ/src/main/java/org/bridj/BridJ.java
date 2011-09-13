@@ -666,8 +666,7 @@ public class BridJ {
         			c = (Class)m;
         		else if (m instanceof Member)
         			c = ((Member)m).getDeclaringClass();
-        		
-        		if (c != null)
+        		if (c != null && !NativeObject.class.isAssignableFrom(c) && c.getEnclosingClass() == null)
         			return c.getSimpleName();
         		else
         			return null;

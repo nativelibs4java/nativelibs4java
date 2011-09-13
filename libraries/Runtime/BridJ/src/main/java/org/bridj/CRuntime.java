@@ -7,6 +7,8 @@ import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.logging.Level;
 
 import org.bridj.demangling.Demangler.Symbol;
@@ -260,6 +262,11 @@ public class CRuntime extends AbstractBridJRuntime {
         
 		int typeModifiers = typeClass.getModifiers();
 		
+		NativeLibrary typeLibrary = null;
+		try {
+			typeLibrary = forcedLibrary == null ? getNativeLibrary(typeClass) : forcedLibrary;
+		} catch (Throwable th) {}
+		
 		AutoHashMap<NativeEntities, NativeEntities.Builder> builders = new AutoHashMap<NativeEntities, NativeEntities.Builder>(NativeEntities.Builder.class);
 		try {
             Set<Method> handledMethods = new HashSet<Method>();
@@ -301,17 +308,20 @@ public class CRuntime extends AbstractBridJRuntime {
 		
 		
 //		for (; type != null && type != Object.class; type = type.getSuperclass()) {
+			List<Method> nativeMethods = new ArrayList<Method>();
+			for (Method method : typeClass.getDeclaredMethods()) {
+				int modifiers = method.getModifiers();
+				if (Modifier.isNative(modifiers))
+					nativeMethods.add(method);
+			}
+					
+			if (!nativeMethods.isEmpty())
 			try {
-				NativeLibrary typeLibrary = forcedLibrary == null ? getNativeLibrary(typeClass) : forcedLibrary;
-				for (Method method : typeClass.getDeclaredMethods()) {
+				for (Method method : nativeMethods) {
                     if (!handledMethods.add(method))
                         continue;
 					
 					try {
-						int modifiers = method.getModifiers();
-						if (!Modifier.isNative(modifiers))
-							continue;
-						
 						NativeLibrary methodLibrary = forcedLibrary == null ? BridJ.getNativeLibrary(method) : forcedLibrary;
                         NativeEntities nativeEntities = methodLibrary == null ? BridJ.getOrphanEntities() : methodLibrary.getNativeEntities();
                         NativeEntities.Builder builder = builders.get(nativeEntities);

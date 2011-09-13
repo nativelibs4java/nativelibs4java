@@ -776,19 +776,20 @@ public class StructIO {
                     Pointer ptr = struct.peer.offset(fd.byteOffset);
                     Type tpe = fd.isNativeObject || fd.isArray ? fd.nativeTypeOrPointerTargetType : fd.field.getGenericType();
                     ptr = ptr.as(tpe);
-                    ptr = fixIntegralTypeIOToMatchLength(ptr, fd.byteLength);
+                    ptr = fixIntegralTypeIOToMatchLength(ptr, fd.byteLength, fd.arrayLength);
                     ptr.set(value);
                 }
             } catch (Throwable th) {
                 throw new RuntimeException("Unexpected error while writing fields from struct " + Utils.toString(structType) + " (" + pointerTo(struct) + ")", th);
             }
 	}
-	static Pointer fixIntegralTypeIOToMatchLength(Pointer ptr, long byteLength) {
-		if (ptr.getTargetSize() == byteLength)
+	static Pointer fixIntegralTypeIOToMatchLength(Pointer ptr, long byteLength, long arrayLength) {
+		if (ptr.getTargetSize() * arrayLength == byteLength)
 			return ptr;
 		
-		if (!Utils.isSignedIntegral(ptr.getTargetType()))
-			throw new UnsupportedOperationException("Cannot change byte length of non-signed integral fields (field type = " + Utils.toString(ptr.getTargetType()) + ")");
+		Type targetType = ptr.getTargetType();
+		if (!Utils.isSignedIntegral(targetType))
+			throw new UnsupportedOperationException("Cannot change byte length of non-signed integral fields (field type = " + Utils.toString(targetType) + ", target size = " + ptr.getTargetSize() + ", byteLength = " + byteLength + ")");
 		
 		switch ((int)byteLength) {
 		case 1:
@@ -818,7 +819,7 @@ public class StructIO {
                     Pointer ptr = struct.peer.offset(fd.byteOffset);
                     Type tpe = fd.isNativeObject || fd.isArray ? fd.nativeTypeOrPointerTargetType : fd.field.getGenericType();
                     ptr = ptr.as(tpe);
-                    ptr = fixIntegralTypeIOToMatchLength(ptr, fd.byteLength);
+                    ptr = fixIntegralTypeIOToMatchLength(ptr, fd.byteLength, fd.arrayLength);
                     Object value;
                     if (fd.isArray) {
                         ptr = ptr.validElements(fd.arrayLength);
