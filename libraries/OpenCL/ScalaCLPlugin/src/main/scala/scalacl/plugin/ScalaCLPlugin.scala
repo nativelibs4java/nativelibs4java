@@ -63,7 +63,11 @@ class ScalaCLPlugin(val global: Global) extends Plugin {
 
   var enabled = !explicitelyDisabled
   
-  val pluginOptions = new ScalaCLPlugin.PluginOptions(global.settings)
+  val pluginOptions = try {
+    new ScalaCLPlugin.PluginOptions(global.settings)
+  } catch { case ex: NoClassDefFoundError if ex.toString.matches(""".*?\bscala/.+""") =>
+    throw new RuntimeException("Bad Scala version for ScalaCL !", ex)
+  }
   override def processOptions(options: List[String], error: String => Unit) = {
     for (option <- options) {
       println("Found option " + option)
