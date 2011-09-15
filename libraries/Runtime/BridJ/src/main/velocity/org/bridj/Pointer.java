@@ -2454,7 +2454,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * Read a native string from the pointed memory location, using the provided charset or the system's default if not provided.
 	 * See {@link Pointer#getStringAtOffset(long, StringType, Charset)} for more options.
 	 * @param type Type of the native String to read. See {@link StringType} for details on the supported types.
-	 * @param charset Character set used to convert String characters to bytes. If null, {@link Charset#defaultCharset()} will be used
+	 * @param charset Character set used to convert bytes to String characters. If null, {@link Charset#defaultCharset()} will be used
 	 * @return string read from native memory
 	 */
 	public String getString(StringType type, Charset charset) {
@@ -2533,7 +2533,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	/**
 	 * Read a native string from the pointed memory location shifted by a byte offset, using the provided charset or the system's default if not provided.
 	 * @param byteOffset
-	 * @param charset Character set used to convert String characters to bytes. If null, {@link Charset#defaultCharset()} will be used
+	 * @param charset Character set used to convert bytes to String characters. If null, {@link Charset#defaultCharset()} will be used
 	 * @param type Type of the native String to read. See {@link StringType} for details on the supported types.
 	 * @return string read from native memory
 	 */
