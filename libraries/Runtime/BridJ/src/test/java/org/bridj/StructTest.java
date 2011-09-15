@@ -737,5 +737,12 @@ public class StructTest {
     public void testSizeOfTimeval() {
     		assertEquals(sizeOfTimeval(), BridJ.sizeOf(TimeT.timeval.class));
     }
+    @Test
+    public void testTimeval() {
+    		TimeT.timeval tv = new TimeT.timeval();
+    		Pointer<TimeT.timeval> ptv = pointerTo(tv);
+    		tv = ptv.get();
+    }
+    	
 }
 
