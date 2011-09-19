@@ -173,7 +173,7 @@ public class JavaCLGenerator extends JNAerator {
 
                             try {
                                 tr = result.typeConverter.resolveTypeDef(tr, libraryClassName, true, false);
-                                List<Modifier> mods = tr.getModifiers();
+                                List<Modifier> mods = arg.harvestModifiers();
 
                                 TypeRef convTr;
                                 String argName = arg.getName() == null ? "arg" + iArg : arg.getName();
@@ -182,9 +182,9 @@ public class JavaCLGenerator extends JNAerator {
                                 if (ModifierType.__local.isContainedBy(mods)) {
                                     argName += "LocalByteSize";
                                     //convTr = typeRef(Long.TYPE);
-                                    //argExpr = new Expression.New(typeRef(CLKernel.LocalSize.class), varRef(argName));
-                                    convTr = typeRef(CLKernel.LocalSize.class);
-                                    argExpr = varRef(argName);//new Expression.New(typeRef(CLKernel.LocalSize.class), varRef(argName));
+                                    //argExpr = new Expression.New(typeRef(LocalSize.class), varRef(argName));
+                                    convTr = typeRef(LocalSize.class);
+                                    argExpr = varRef(argName);//new Expression.New(typeRef(LocalSize.class), varRef(argName));
                                 } else {
                                     Conversion conv = convertTypeToJavaCL(result, argName, tr, TypeConversion.TypeConversionMode.PrimitiveOrBufferParameter, null);
                                     convTr = conv.outerJavaTypeRef;
