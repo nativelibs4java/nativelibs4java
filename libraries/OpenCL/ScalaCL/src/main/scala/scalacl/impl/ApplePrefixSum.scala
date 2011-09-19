@@ -191,7 +191,7 @@ object ApplePrefixSum {
     */
     var k = ComputeKernels(PRESCAN)
 
-    k.setArgs(output_data, input_data, new CLKernel.LocalSize(shared), group_index, base_index, n)
+    k.setArgs(output_data, input_data, new LocalSize(shared), group_index, base_index, n)
     k.enqueueNDRange(ComputeCommands, global, local)
   }
 
@@ -212,7 +212,7 @@ object ApplePrefixSum {
     */
     var k = ComputeKernels(PRESCAN_STORE_SUM)
 
-    k.setArgs(output_data, input_data, partial_sums, new CLKernel.LocalSize(shared), group_index, base_index, n)
+    k.setArgs(output_data, input_data, partial_sums, new LocalSize(shared), group_index, base_index, n)
     k.enqueueNDRange(ComputeCommands, global, local)
   }
 
@@ -232,7 +232,7 @@ object ApplePrefixSum {
       global(0).toInt, local(0).toInt, shared.toInt, group_index, base_index, n)
     */
     var k = ComputeKernels(PRESCAN_STORE_SUM_NON_POWER_OF_TWO)
-    k.setArgs(output_data, input_data, partial_sums, new CLKernel.LocalSize(shared), group_index, base_index, n)
+    k.setArgs(output_data, input_data, partial_sums, new LocalSize(shared), group_index, base_index, n)
     k.enqueueNDRange(ComputeCommands, global, local)
   }
 
@@ -251,7 +251,7 @@ object ApplePrefixSum {
       global(0).toInt, local(0).toInt, shared.toInt, group_index, base_index, n)
     */
     var k = ComputeKernels(PRESCAN_NON_POWER_OF_TWO)
-    k.setArgs(output_data, input_data, new CLKernel.LocalSize(shared), group_index, base_index, n)
+    k.setArgs(output_data, input_data, new LocalSize(shared), group_index, base_index, n)
     k.enqueueNDRange(ComputeCommands, global, local)
   }
 
@@ -270,7 +270,7 @@ object ApplePrefixSum {
     */
     var k = ComputeKernels(UNIFORM_ADD)
 
-    k.setArgs(output_data, partial_sums, new CLKernel.LocalSize(dataSize), group_offset, base_index, n)
+    k.setArgs(output_data, partial_sums, new LocalSize(dataSize), group_offset, base_index, n)
     k.enqueueNDRange(ComputeCommands, global, local)
   }
 

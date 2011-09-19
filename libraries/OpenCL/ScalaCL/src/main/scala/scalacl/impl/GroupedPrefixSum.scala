@@ -161,7 +161,7 @@ class GroupedPrefixSum[A](
         output_data,
         input_data,
         partial_sums,
-        new CLKernel.LocalSize(shared),
+        new LocalSize(shared),
         0, //group_index
         0, //base_index
         work_item_count * 2
@@ -175,7 +175,7 @@ class GroupedPrefixSum[A](
           output_data, 
           input_data, 
           partial_sums, 
-          new CLKernel.LocalSize(last_shared), 
+          new LocalSize(last_shared), 
           group_count - 1, // group_index, 
           element_count - last_group_element_count, // base_index, 
           last_group_element_count
@@ -187,7 +187,7 @@ class GroupedPrefixSum[A](
       uniformAddKernel.enqueueNDRange(global, local)(
         output_data,
         partial_sums,
-        new CLKernel.LocalSize(dataSize),
+        new LocalSize(dataSize),
         0, //group_offset
         0, //base_index
         element_count - last_group_element_count
@@ -200,7 +200,7 @@ class GroupedPrefixSum[A](
         uniformAddKernel.enqueueNDRange(last_global, last_local)(
           output_data,
           partial_sums,
-          new CLKernel.LocalSize(dataSize),
+          new LocalSize(dataSize),
           group_count - 1, //group_offset
           element_count - last_group_element_count, //base_index
           last_group_element_count
@@ -211,7 +211,7 @@ class GroupedPrefixSum[A](
       preScanKernel.enqueueNDRange(global, local)(
         output_data,
         input_data,
-        new CLKernel.LocalSize(shared),
+        new LocalSize(shared),
         0, //group_index
         0, //base_index
         work_item_count * 2
@@ -221,7 +221,7 @@ class GroupedPrefixSum[A](
       preScanNonPowerOfTwoKernel.enqueueNDRange(global, local)(
         output_data,
         input_data,
-        new CLKernel.LocalSize(shared),
+        new LocalSize(shared),
         0, //group_index
         0, //base_index
         element_count
