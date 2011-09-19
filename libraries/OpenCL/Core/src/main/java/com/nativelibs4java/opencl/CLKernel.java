@@ -167,12 +167,6 @@ public class CLKernel extends CLAbstractEntity<cl_kernel> {
         }
     }
 
-    public static class LocalSize {
-        long size;
-        public LocalSize(long size) {
-            this.size = size;
-        }
-    }
     public static final Object NULL_POINTER_KERNEL_ARGUMENT = new Object() {};
     public void setObjectArg(int iArg, Object arg) {
 
