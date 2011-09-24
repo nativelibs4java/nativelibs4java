@@ -47,6 +47,8 @@ import static java.lang.System.*;
  */
 public class BridJ {
 
+	static final boolean exceptionsSupported = false;
+	
     static final Map<AnnotatedElement, NativeLibrary> librariesByClass = new HashMap<AnnotatedElement, NativeLibrary>();
     static final Map<String, File> librariesFilesByName = new HashMap<String, File>();
     static final Map<File, NativeLibrary> librariesByFile = new HashMap<File, NativeLibrary>();

@@ -462,7 +462,7 @@ public abstract class Demangler {
 		int as = getIntegralSize(a, ac, aAnnotations);
 		int bs = getIntegralSize(b, bc, bAnnotations);
 		
-		System.out.println("a = " + a + ", b = " + b + ", as = " + as + ", bs = " + bs + ", equiv = " + (as != -1 && as == bs));
+		//System.out.println("a = " + a + ", b = " + b + ", as = " + as + ", bs = " + bs + ", equiv = " + (as != -1 && as == bs));
 		return as != -1 && as == bs;
 	}
 	static int getIntegralSize(Type type, Class typec, Annotations annotations) {

@@ -280,20 +280,17 @@ public class Platform {
         return arch.equals("x86_64");
     }
 
-    static final String[] embeddedLibraryResourceRoots = 
-    		new String[] { 
-			isAndroid() ? null : "org/bridj/lib/", 
-			"lib/" 
-		};
-    		
     static Collection<String> getEmbeddedLibraryResource(String name) {
     		Collection<String> ret = new ArrayList<String>();
     		
+    		String[] embeddedLibraryResourceRoots = new String[] { 
+			isAndroid() ? null : "org/bridj/lib/", 
+			"lib/" 
+		};
     		for (String root : embeddedLibraryResourceRoots) {
     			if (root == null)
     				continue;
     			
-			String root = embeddedLibraryResourceRoot;
 			if (isWindows())
 				ret.add(root + (is64Bits() ? "win64/" : "win32/") + name + ".dll");
 			else if (isMacOSX()) {
@@ -327,6 +324,8 @@ public class Platform {
 		if (ret.isEmpty())
 			throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
 		
+		if (BridJ.verbose)
+			BridJ.log(Level.INFO, "Embedded paths for library " + name + " : " + ret);
 		return ret;
     }
     static File extractEmbeddedLibraryResource(String name) throws IOException {
@@ -462,5 +461,4 @@ public class Platform {
 	static native int sizeOf_long();
 	
 	static native int getMaxDirectMappingArgCount();
-	
 }

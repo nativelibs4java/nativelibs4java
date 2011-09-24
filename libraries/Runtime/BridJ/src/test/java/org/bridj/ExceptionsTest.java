@@ -28,8 +28,14 @@ public class ExceptionsTest {
 	public static native void throwNewMyException(Pointer<Byte> message) throws RuntimeException;
 	public static native void throwInt(int value) throws RuntimeException;
 	
+	void throwExpectedIfNotSupported() {
+		if (!BridJ.exceptionsSupported)
+			throw new RuntimeException("Not supported");
+	}
 	@Test(expected=RuntimeException.class)
 	public void testCrashIllegalAccess() {
+		throwExpectedIfNotSupported();
+		
 		try {
 			//crashIllegalAccess();
 		} catch (RuntimeException ex) {
