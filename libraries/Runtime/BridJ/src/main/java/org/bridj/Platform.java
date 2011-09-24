@@ -280,41 +280,54 @@ public class Platform {
         return arch.equals("x86_64");
     }
 
-    static final String embeddedLibraryResourceRoot = "org/bridj/lib/";
+    static final String[] embeddedLibraryResourceRoots = 
+    		new String[] { 
+			isAndroid() ? null : "org/bridj/lib/", 
+			"lib/" 
+		};
+    		
     static Collection<String> getEmbeddedLibraryResource(String name) {
-    	String root = embeddedLibraryResourceRoot;
-    	if (isWindows())
-    		return Collections.singletonList(root + (is64Bits() ? "win64/" : "win32/") + name + ".dll");
-    	if (isMacOSX()) {
-    		String suff = "/lib" + name + ".dylib";
-    		if (isArm()) {
-    			return Collections.singletonList(root + "iphoneos_arm32_arm" + suff);
-    		} else {
-    			String pref = root + "darwin_";
-			String univ = pref + "universal" + suff;
-			if (isAmd64Arch())
-				return Arrays.asList(univ, pref + "x64" + suff);
-			else
-				return Collections.singletonList(univ);
+    		Collection<String> ret = new ArrayList<String>();
+    		
+    		for (String root : embeddedLibraryResourceRoots) {
+    			if (root == null)
+    				continue;
+    			
+			String root = embeddedLibraryResourceRoot;
+			if (isWindows())
+				ret.add(root + (is64Bits() ? "win64/" : "win32/") + name + ".dll");
+			else if (isMacOSX()) {
+				String suff = "/lib" + name + ".dylib";
+				if (isArm())
+					ret.add(root + "iphoneos_arm32_arm" + suff);
+				else {
+					String pref = root + "darwin_";
+					String univ = pref + "universal" + suff;
+					if (isAmd64Arch()) {
+						ret.add(univ);
+						ret.add(pref + "x64" + suff);
+					} else
+						ret.add(univ);
+				}
+			} 
+			else if (isAndroid()) {
+				assert root.equals("lib/");
+				ret.add(root + "armeabi/lib" + name + ".so"); // Android SDK + NDK-style .so embedding = lib/armeabi/libTest.so
+			} 
+			else if (isLinux())
+				ret.add(root + (is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so");
+			else if (isSolaris()) {
+				if (isSparc()) {	
+					ret.add(root + (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/") + name + ".so");
+				} else {
+					ret.add(root + (is64Bits() ? "sunos_x64/" : "sunos_x86/") + name + ".so");
+				}	
+			}
 		}
-    }
-    if (isAndroid()) {
-    		String fileName = "lib" + name + ".so";
-    		return Arrays.asList(
-    			root + "android_arm32_arm/" + fileName, // BridJ-style .so embedding
-    			"lib/armeabi/" + fileName // Android SDK + NDK-style .so embedding
-		);
-    }
-    	if (isLinux())
-    		return Collections.singletonList(root + (is64Bits() ? "linux_x64/" : "linux_x86/") + name + ".so");
-    	if (isSolaris()) {
-    		if (isSparc()) {	
-    			return Collections.singletonList(root + (is64Bits() ? "sunos_sparc64/" : "sunos_sparc/") + name + ".so");
-    		} else {
-    			return Collections.singletonList(root + (is64Bits() ? "sunos_x64/" : "sunos_x86/") + name + ".so");
-    		}	
-		}
-    	throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
+		if (ret.isEmpty())
+			throw new RuntimeException("Platform not supported ! (os.name='" + osName + "', os.arch='" + System.getProperty("os.arch") + "')");
+		
+		return ret;
     }
     static File extractEmbeddedLibraryResource(String name) throws IOException {
     		String firstLibraryResource = null;
