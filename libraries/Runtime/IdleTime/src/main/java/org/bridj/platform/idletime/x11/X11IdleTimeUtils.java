@@ -1,13 +1,13 @@
-package org.bridj.platform.x11;
-import org.bridj.platform.*;
+package org.bridj.platform.idletime.x11;
+import org.bridj.platform.idletime.*;
 import org.bridj.*;
 import org.bridj.ann.*;
 import static org.bridj.Pointer.*;
 
-import static org.bridj.platform.x11.Xss.*;
-import static org.bridj.platform.x11.X11.*;
+import static org.bridj.platform.idletime.x11.Xss.*;
+import static org.bridj.platform.idletime.x11.X11.*;
 
-public class X11PlatformUtils extends PlatformUtils {
+public class X11IdleTimeUtils extends IdleTimeUtils {
 	public long getIdleTimeMillis() {
 		Display display = null;
 		Window window = null;

@@ -1,5 +1,4 @@
 package org.bridj;
-import org.bridj.platform.PlatformUtils;
 import static org.bridj.Platform.*;
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -39,11 +38,5 @@ public class PlatformTest {
 			m = "i386";
 		
 		assertEquals(m, Platform.getMachine());
-	}
-	
-	@Test
-	public void testIdleTime() {
-		long time = PlatformUtils.getInstance().getIdleTimeMillis();
-		//println("Idle time = " + time);
 	}
 }

@@ -1,9 +1,8 @@
-package org.bridj.platform.mac;
-import org.bridj.*;
-import org.bridj.platform.*;
+package org.bridj.platform.idletime.mac;
+import org.bridj.platform.idletime.*;
 import static org.bridj.platform.mac.CoreGraphics.*;
 
-public class MacPlatformUtils extends PlatformUtils {
+public class MacIdleTimeUtils extends IdleTimeUtils {
 	public long getIdleTimeMillis() {
 		return (long)(CGEventSourceSecondsSinceLastEventType(kCGEventSourceStateHIDSystemState, kCGAnyInputEventType) * 1000);
 	}

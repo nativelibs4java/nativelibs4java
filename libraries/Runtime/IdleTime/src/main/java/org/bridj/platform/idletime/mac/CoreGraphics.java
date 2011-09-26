@@ -1,4 +1,4 @@
-package org.bridj.platform.mac;
+package org.bridj.platform.idletime.mac;
 import org.bridj.*;
 
 //@Library("CoreGraphics")

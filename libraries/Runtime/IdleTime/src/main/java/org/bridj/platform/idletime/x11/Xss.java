@@ -1,4 +1,4 @@
-package org.bridj.platform.x11;
+package org.bridj.platform.idletime.x11;
 import org.bridj.*;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Field;

@@ -16,6 +16,7 @@
 
   <modules>
     <module>BridJ</module>
+    <module>IdleTime</module>
     <module>Velocity</module>
     <module>JarShrinker</module>
     <module>Parent</module>

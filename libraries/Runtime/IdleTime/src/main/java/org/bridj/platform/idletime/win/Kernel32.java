@@ -1,4 +1,4 @@
-package org.bridj.platform.win;
+package org.bridj.platform.idletime.win;
 import org.bridj.*;
 import org.bridj.ann.*;
 

@@ -1,9 +1,9 @@
-package org.bridj.platform.win;
-import org.bridj.platform.*;
+package org.bridj.platform.idletime.win;
+import org.bridj.platform.idletime.*;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
 
-public class WinPlatformUtils extends PlatformUtils {
+public class WinIdleTimeUtils extends IdleTimeUtils {
 	public long getIdleTimeMillis() {
 		User32.LASTINPUTINFO lastInputInfo = new User32.LASTINPUTINFO();
 		if (!User32.GetLastInputInfo(pointerTo(lastInputInfo)))
