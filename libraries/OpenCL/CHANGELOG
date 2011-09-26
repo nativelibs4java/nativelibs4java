@@ -1,6 +1,11 @@
 Current development version (1.0-SNAPSHOT)
 
-...
+- Added support for sub-images reading/writing from/to CLImage2D (slower than with full images)
+- Fixed endianness issues with CLBuffer (issue #80)
+- Fixed migration of cached binaries to newer versions of OS (e.g. upgrading from Snow Leopard to Lion) (issue #81)
+- Enhanced LocalSize API (added static factory methods for all primitive types)
+- Moved sources to github (https://github.com/ochafik/nativelibs4java/tree/master/libraries/OpenCL)
+- Fixed many Javadoc typos
 
 Version 1.0.0-RC1 (r2130, 20110621)
 
