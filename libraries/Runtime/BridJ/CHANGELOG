@@ -1,12 +1,25 @@
 Current version : BridJ 0.6-SNAPSHOT
 
-- Added errno/GetLastError() mechanism : declare methods to throw LastError and it's all handled automatically
+- Fixed Pointer.next/.offset methods (used to throw errors a the end of iteration)
+- Fixed Pointer.getNativeObjectAtOffset(long byteOffset, Type type)
+- Fixed struct fields implemented as Java fields
+- Fixed resolution of MacOS X "ApplicationServices" framework binaries, such as CoreGraphics
+- Fixed some COM bugs with IUnknown
+- Fixed demangling/matching of CLong & SizeT
+- Fixed CLong & SizeT arguments
+- Added errno/GetLastError() mechanism : declare methods to throw org.bridj.LastError and it's all handled automatically (issue #74)
 - Added Pointer.asList() and .asList(ListType) to get a List view of the pointed memory 
 	- depending on the ListType, the view can be mutable / resizeable
 	- removed the List interface from Pointer (which is now just an Iterable)
 	- added Pointer.allocateList(type, capacity) to create a NativeList from scratch (has a .getPointer method to grab the resulting memory at the end)
 - Added Pointer.moveBytesTo(Pointer)
-- Fixed Pointer.next/.offset methods (used to throw errors a the end of iteration)
+- Added support for embedded libraries extraction from "lib/arch" paths (along with "org/bridj/lib/arch", where arch uses BridJ's convention)
+- Added TimeT (time_t), timeval classes (issue #72)
+- Added Platform.getMachine() (same result as `uname -m`)
+- Added support for multiarch Linux distributions (issue #2)
+- Made the StructIO customization mechanism more flexible
+- Made JawtLibrary public
+- Various Javadoc tweaks
 
 BridJ 0.5 (r2128, 20110621)
 
