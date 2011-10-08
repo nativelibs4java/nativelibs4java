@@ -1,0 +1,15 @@
+#!/bin/bash
+
+BASE=`pwd`
+#PATHS="Runtime/BridJ jnaerator/jnaerator-parser jnaerator/jnaerator OpenCL/Core OpenCL/JavaCL OpenCL/Generator"
+PATHS="jnaerator/jnaerator-parser jnaerator/jnaerator OpenCL/Generator"
+
+for D in $PATHS ; do
+	echo "#
+# Building $BASE
+#"
+	cd $BASE/$D
+	mvn clean install -DskipTests -o ;
+	#$BASE/mvnSigned clean deploy -DskipTests ;
+done
+
