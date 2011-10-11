@@ -12,7 +12,7 @@ package scalacl {
     override def canEqual(that: Any) = getClass.isInstance(that.asInstanceOf[AnyRef])
   }
   class Context(val context: CLContext, val queue: CLQueue) extends AbstractProduct {
-    def this(context: CLContext) = this(context, context.createDefaultOutOfOrderQueueIfPossible())
+    def this(context: CLContext) = this(context, context.createDefaultQueue())//createDefaultOutOfOrderQueueIfPossible())
     def this() = this(JavaCL.createBestContext(CLPlatform.DeviceFeature.OutOfOrderQueueSupport, CLPlatform.DeviceFeature.MaxComputeUnits))
 
     def release = {
@@ -73,6 +73,18 @@ package object scalacl {
   val ImageSupport = CLPlatform.DeviceFeature.ImageSupport
   val OutOfOrderQueueSupport = CLPlatform.DeviceFeature.OutOfOrderQueueSupport
   val MostImageFormats = CLPlatform.DeviceFeature.MostImageFormats
+  
+  def customCode(
+    source: String,
+    compilerArguments: Array[String] = Array(),
+    macros: Map[String, String] = Map()
+  ): CLCode = {
+    new CLSimpleCode(
+      Array(source),
+      compilerArguments,
+      macros
+    )
+  }
   
   private[scalacl] def reuse[T](value: Any, create: => T): T =
     if (value != null && value.isInstanceOf[T])

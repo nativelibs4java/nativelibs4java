@@ -206,7 +206,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 	public CLQueue createDefaultOutOfOrderQueueIfPossible() {
     		try {
     			return createDefaultOutOfOrderQueue();
-    		} catch (CLException.InvalidQueueProperties ex) {
+    		} catch (Throwable th) {//CLException.InvalidQueueProperties ex) {
     			return createDefaultQueue();
     		}
     }

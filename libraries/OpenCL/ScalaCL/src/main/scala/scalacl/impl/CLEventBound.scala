@@ -60,6 +60,9 @@ trait CLEventBound extends CLEventBoundContainer {
 }
 
 object CLEventBound {
+  def flatten(containers: Array[CLEventBoundContainer]) =
+    containers.flatMap(_.eventBoundComponents)
+    
   def syncBlock(reads: Array[CLEventBound], writes: Array[CLEventBound], action: Array[CLEvent] => CLEvent): CLEvent = {
 
     def recursiveSync(ebs: List[(CLEventBound, Boolean)], evts: ArrayBuilder[CLEvent]): CLEvent = {
@@ -94,6 +97,10 @@ object CLEventBound {
       lb += ((eb, false))
     for (eb <- writes)
       lb += ((eb, true))
-    recursiveSync(lb.result, Array.newBuilder[CLEvent])
+      
+    if (lb.isEmpty)
+      action(Array())
+    else
+      recursiveSync(lb.result, Array.newBuilder[CLEvent])
   }
 }

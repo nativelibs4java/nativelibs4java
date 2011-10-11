@@ -17,8 +17,8 @@ trait CLRunnable {
     if (dims.sum > 0) {
       lazy val defaultContainers = args collect { case c: CLEventBoundContainer => c }
       CLEventBound.syncBlock(
-        Option(reads).getOrElse(defaultContainers).flatMap(_.eventBoundComponents), 
-        Option(writes).getOrElse(defaultContainers).flatMap(_.eventBoundComponents), 
+        CLEventBound.flatten(Option(reads).getOrElse(defaultContainers)), 
+        CLEventBound.flatten(Option(writes).getOrElse(defaultContainers)), 
         evts => {
           run(dims = dims, args = args, eventsToWaitFor = evts)
         }
