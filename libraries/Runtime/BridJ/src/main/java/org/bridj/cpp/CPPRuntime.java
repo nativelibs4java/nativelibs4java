@@ -521,6 +521,8 @@ public class CPPRuntime extends CRuntime {
                 final Constructor<?> constr;
                 try {
                 		constr = findConstructor(typeClass, constructorId, true);
+                		
+                		BridJ.log(Level.INFO, "Found constructor for " + Utils.toString(type) + " : " + constr);
                 } catch (NoSuchMethodException ex) {
                 		BridJ.log(Level.INFO, "No constructor for " + Utils.toString(type));
                 		return null;
