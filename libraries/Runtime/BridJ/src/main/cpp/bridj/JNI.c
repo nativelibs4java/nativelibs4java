@@ -702,7 +702,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 ) {
 	struct NativeToJavaCallbackCallInfo* info = NULL;
 	{
-		const char* dcSig, *javaSig, *methName;
+		const char* dcSig;
 		
 		GetField_javaSignature()        ;
 		GetField_dcSignature()          ;
