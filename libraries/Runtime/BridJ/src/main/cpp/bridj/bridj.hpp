@@ -62,6 +62,8 @@
 #define Modifier_TRANSIENT	128
 #define Modifier_VOLATILE	64
 
+extern jboolean gLog;
+
 typedef enum ValueType {
 	eVoidValue = 0,
 	eWCharValue,
@@ -102,9 +104,11 @@ typedef struct CommonCallbackInfo {
 	jobject* fCallIOs;
 	void* fDCCallback;
 	JNIEnv* fEnv;
-#ifdef _DEBUG
-	char* fSymbolName;
-#endif
+	jmethodID fMethodID;
+	jobject fMethod;
+//#ifdef _DEBUG
+//	char* fSymbolName;
+//#endif
 } CommonCallbackInfo;
 
 typedef struct VirtualMethodCallInfo {
@@ -136,7 +140,6 @@ char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* 
 
 typedef struct StructFieldInfo {
 	struct CommonCallbackInfo fInfo;
-	jmethodID fMethod;
 	void* fJNICallFunction;
 	jint fFieldIndex;
 } StructFieldInfo;
@@ -146,7 +149,6 @@ typedef struct NativeToJavaCallbackCallInfo {
 	struct CommonCallbackInfo fInfo;
 	void* fJNICallFunction;
 	jobject fCallbackInstance;
-	jmethodID fMethod;
 	jboolean fIsGenericCallback;
 } NativeToJavaCallbackCallInfo;
 
@@ -203,12 +205,16 @@ JNIEnv* GetEnv();
 void throwException(JNIEnv* env, const char* message);
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message);
 void printStackTrace(JNIEnv* env, jthrowable ex);
+void logCall(JNIEnv *env, jobject method);
 
 void initThreadLocal(JNIEnv* env);
 CallTempStruct* getTempCallStruct(JNIEnv* env);
 CallTempStruct* getCurrentTempCallStruct(JNIEnv* env);
 void releaseTempCallStruct(JNIEnv* env, CallTempStruct* s);
 void cleanupCallHandler(CallTempStruct* call);
+
+#define GET_CHARS(javaStr) (javaStr ? (*env)->GetStringUTFChars(env, javaStr, NULL) : NULL)
+#define RELEASE_CHARS(javaStr, cStr) if (javaStr) (*env)->ReleaseStringUTFChars(env, javaStr, cStr) 
 
 #endif
 

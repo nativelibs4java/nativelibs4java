@@ -14,7 +14,9 @@
 #pragma warning(disable: 4152)
 #pragma warning(disable: 4189) // local variable initialized but unreferenced // TODO remove this !
 
+jboolean gLog = JNI_FALSE;
 //jclass gStructFieldsIOClass = NULL;
+
 jclass gObjectClass = NULL;
 jclass gPointerClass = NULL;
 jclass gFlagSetClass = NULL;
@@ -31,6 +33,8 @@ jmethodID gNewFlagSetMethod = NULL;
 jmethodID gThrowNewLastErrorMethod = NULL;
 jmethodID gGetCallIOsMethod = NULL;
 jmethodID gNewCallIOInstance = NULL;
+jmethodID gLogCallMethod = NULL;
+jfieldID gLogCallsField = NULL;
 
 jclass 		gMethodCallInfoClass 		 = NULL;
 jfieldID 	gFieldId_javaSignature 		 = NULL;
@@ -52,6 +56,7 @@ jfieldID 	gFieldId_dcCallingConvention = NULL;
 jfieldID 	gFieldId_symbolName			 = NULL;
 jfieldID 	gFieldId_nativeClass			 = NULL;
 jfieldID 	gFieldId_methodName			 = NULL;
+jfieldID 	gFieldId_method    			 = NULL;
 jfieldID 	gFieldId_declaringClass		 = NULL;
 
 /*jclass gCLongClass = NULL;
@@ -172,33 +177,38 @@ void initMethods(JNIEnv* env) {
 		gThrowNewLastErrorMethod = (*env)->GetStaticMethodID(env, gLastErrorClass, "throwNewInstance", "(ILjava/lang/String;)V");
 		gGetCallIOsMethod = (*env)->GetMethodID(env, gMethodCallInfoClass, "getCallIOs", "()[Lorg/bridj/CallIO;");
 		gNewCallIOInstance = (*env)->GetMethodID(env, gCallIOClass, "newInstance", "(J)Ljava/lang/Object;");
+		gLogCallMethod = (*env)->GetStaticMethodID(env, gBridJClass, "logCall", "(Ljava/lang/reflect/Method;)V");
+		gLogCallsField = (*env)->GetStaticFieldID(env, gBridJClass, "logCalls", "Z");
 		
 #define GETFIELD_ID(out, name, sig) \
 		if (!(gFieldId_ ## out = (*env)->GetFieldID(env, gMethodCallInfoClass, name, sig))) \
 			throwException(env, "Failed to get the field " #name " in MethodCallInfo !");
 		
 	
-		GETFIELD_ID(javaSignature 		,	"javaSignature"		,	"Ljava/lang/String;"		);
-		GETFIELD_ID(dcSignature 			,	"dcSignature" 		,	"Ljava/lang/String;"		);
-		GETFIELD_ID(symbolName 			,	"symbolName" 		,	"Ljava/lang/String;"		);
-		GETFIELD_ID(nativeClass 			,	"nativeClass" 		,	"J"						);
-		GETFIELD_ID(methodName 			,	"methodName" 		,	"Ljava/lang/String;"		);
-		GETFIELD_ID(declaringClass		,	"declaringClass" 	,	"Ljava/lang/Class;"		);
-		GETFIELD_ID(paramsValueTypes 		,	"paramsValueTypes"	,	"[I"						);
-		GETFIELD_ID(returnValueType 		,	"returnValueType" 	,	"I"						);
-		GETFIELD_ID(forwardedPointer 		,	"forwardedPointer" 	,	"J"						);
-		GETFIELD_ID(virtualIndex 		,	"virtualIndex"		,	"I"						);
-		GETFIELD_ID(virtualTableOffset	,	"virtualTableOffset"	,	"I"						);
-		//GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Lorg/bridj/Callback;"	);
-		GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Ljava/lang/Object;"	);
-		GETFIELD_ID(isGenericCallback 	,	"isGenericCallback"	,	"Z"						);
-		GETFIELD_ID(direct		 		,	"direct"	 			,	"Z"						);
-		GETFIELD_ID(isCPlusPlus	 		,	"isCPlusPlus"		,	"Z"						);
-		GETFIELD_ID(isStatic		 		,	"isStatic"			,	"Z"						);
-		GETFIELD_ID(startsWithThis		,	"startsWithThis"		,	"Z"						);
-		GETFIELD_ID(bNeedsThisPointer	,	"bNeedsThisPointer"		,	"Z"						);
-		GETFIELD_ID(bThrowLastError	,	"bThrowLastError"		,	"Z"						);
-		GETFIELD_ID(dcCallingConvention,	"dcCallingConvention"	,	"I"						);
+		GETFIELD_ID(javaSignature 		,	"javaSignature"		,	"Ljava/lang/String;"				);
+		GETFIELD_ID(dcSignature 			,	"dcSignature" 		,	"Ljava/lang/String;"				);
+		GETFIELD_ID(symbolName 			,	"symbolName" 		,	"Ljava/lang/String;"				);
+		GETFIELD_ID(nativeClass 			,	"nativeClass" 		,	"J"								);
+		GETFIELD_ID(methodName 			,	"methodName" 		,	"Ljava/lang/String;"				);
+		GETFIELD_ID(method     			,	"method"     		,	"Ljava/lang/reflect/Method;"		);
+		GETFIELD_ID(declaringClass		,	"declaringClass" 	,	"Ljava/lang/Class;"				);
+		GETFIELD_ID(paramsValueTypes 		,	"paramsValueTypes"	,	"[I"							);
+		GETFIELD_ID(returnValueType 		,	"returnValueType" 	,	"I"								);
+		GETFIELD_ID(forwardedPointer 		,	"forwardedPointer" 	,	"J"							);
+		GETFIELD_ID(virtualIndex 		,	"virtualIndex"		,	"I"								);
+		GETFIELD_ID(virtualTableOffset	,	"virtualTableOffset"	,	"I"								);
+		//GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Lorg/bridj/Callback;"			);
+		GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Ljava/lang/Object;"				);
+		GETFIELD_ID(isGenericCallback 	,	"isGenericCallback"	,	"Z"								);  		
+		GETFIELD_ID(direct		 		,	"direct"	 			,	"Z"								);
+		GETFIELD_ID(isCPlusPlus	 		,	"isCPlusPlus"		,	"Z"								);  		
+		GETFIELD_ID(isStatic		 		,	"isStatic"			,	"Z"								);
+		GETFIELD_ID(startsWithThis		,	"startsWithThis"		,	"Z"								);
+		GETFIELD_ID(bNeedsThisPointer	,	"bNeedsThisPointer"		,	"Z"							);
+		GETFIELD_ID(bThrowLastError	,	"bThrowLastError"		,	"Z"								);
+		GETFIELD_ID(dcCallingConvention,	"dcCallingConvention"	,	"I"								);
+		
+		gLog = (*env)->GetStaticBooleanField(env, gBridJClass, gLogCallsField);
 		
 		initPlatformMethods(env);
 	}
@@ -267,6 +277,15 @@ jlong JNICALL Java_org_bridj_JNI_getEnv(JNIEnv *env, jclass clazz)
 	return PTR_TO_JLONG(env);
 }
 
+void JNICALL Java_org_bridj_BridJ_setLogNativeCalls(JNIEnv *env, jclass clazz, jboolean log) 
+{
+	gLog = log;
+}
+
+void logCall(JNIEnv *env, jobject method) {
+	(*env)->CallStaticObjectMethod(env, gBridJClass, gLogCallMethod, method);
+}
+
 jlong JNICALL Java_org_bridj_JNI_newGlobalRef(JNIEnv *env, jclass clazz, jobject obj)
 {
 	return obj ? PTR_TO_JLONG((*env)->NewGlobalRef(env, obj)) : 0;
@@ -318,14 +337,14 @@ char* dlerror();
 
 jlong JNICALL Java_org_bridj_JNI_loadLibrary(JNIEnv *env, jclass clazz, jstring pathStr)
 {
-	const char* path = (*env)->GetStringUTFChars(env, pathStr, NULL);
+	const char* path = GET_CHARS(pathStr);
 	jlong ret = PTR_TO_JLONG(dlLoadLibrary(path));
 #if defined(DC_UNIX)
 	if (!ret) {
 		printf("# BridJ: dlopen error = %s\n", dlerror());
 	}
 #endif
-	(*env)->ReleaseStringUTFChars(env, pathStr, path);
+	RELEASE_CHARS(pathStr, path);
 	return ret;
 }
 
@@ -338,9 +357,9 @@ jlong JNICALL Java_org_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, j
 {
 	DLSyms* pSyms;
 	const char* libPathStr;
-	libPathStr = (*env)->GetStringUTFChars(env, libPath, NULL);
+	libPathStr = GET_CHARS(libPath);
 	pSyms = dlSymsInit(libPathStr);
-	(*env)->ReleaseStringUTFChars(env, libPath, libPathStr);
+	RELEASE_CHARS(libPath, libPathStr);
 	
 	return PTR_TO_JLONG(pSyms);
 }
@@ -386,10 +405,10 @@ jlong JNICALL Java_org_bridj_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, 
 	if (!nameStr)
 		return 0;
 	
-	name = (*env)->GetStringUTFChars(env, nameStr, NULL);
+	name = GET_CHARS(nameStr);
 	
 	ptr = dlFindSymbol((DLLib*)JLONG_TO_PTR(libHandle), name);
-	(*env)->ReleaseStringUTFChars(env, nameStr, name);
+	RELEASE_CHARS(nameStr, name);
 	return PTR_TO_JLONG(ptr);
 }
 
@@ -459,15 +478,52 @@ char getDCReturnType(JNIEnv* env, ValueType returnType)
 	}
 }
 
+
+void registerJavaFunction(JNIEnv* env, jclass declaringClass, const char* methName, const char* methSig, void (*callback)())
+{
+	JNINativeMethod meth;
+	if (!callback) {
+			throwException(env, "No callback !");
+			return;
+		}
+	if (!methName) {
+			throwException(env, "No methodName !");
+			return;
+		}
+	if (!methSig) {
+			throwException(env, "No methodSignature !");
+			return;
+		}
+	if (!declaringClass) {
+			throwException(env, "No declaringClass !");
+			return;
+		}
+
+	meth.fnPtr = callback;
+	meth.name = (char*)methName;
+	meth.signature = (char*)methSig;
+	(*env)->RegisterNatives(env, declaringClass, &meth, 1);
+	
+}
+
 void initCommonCallInfo(
 	struct CommonCallbackInfo* info,
 	JNIEnv *env,
+	jclass declaringClass, 
+	jstring methodName, 
+	jstring javaSignature,
 	jint callMode,
 	jint nParams,
 	jint returnValueType, 
 	jintArray paramsValueTypes,
-	jobjectArray callIOs
+	jobjectArray callIOs,
+	jboolean registerJava,
+	jobject method
 ) {
+	const char* javaSig, *methName;
+	javaSig = (char*)GET_CHARS(javaSignature);
+	methName = (char*)GET_CHARS(methodName);
+			
 	info->fEnv = env;
 	info->fDCMode = callMode;
 	info->fReturnType = (ValueType)returnValueType;
@@ -494,6 +550,15 @@ void initCommonCallInfo(
 		}
 	}
 	
+	if (registerJava)
+		registerJavaFunction(env, declaringClass, methName, javaSig, info->fDCCallback);
+		
+	info->fMethodID = GetMethodIDOrFail(env, declaringClass, methName, javaSig);
+	info->fMethod = (*env)->NewGlobalRef(env, method);
+	
+	
+	RELEASE_CHARS(javaSignature, javaSig);
+	RELEASE_CHARS(methodName, methName);
 }
 
 void* getJNICallFunction(JNIEnv* env, ValueType valueType) {
@@ -574,47 +639,6 @@ void* getJNICallStaticFunction(JNIEnv* env, ValueType valueType) {
 	memset(name, 0, sizeof ## name);
 
 	
-void registerJavaFunction(JNIEnv* env, jclass declaringClass, jstring methodName, jstring methodSignature, 
-#ifdef _DEBUG
-	CommonCallbackInfo* info, 
-#endif
-	void (*callback)())
-{
-	JNINativeMethod meth;
-	if (!callback) {
-			throwException(env, "No callback !");
-			return;
-		}
-	if (!methodName) {
-			throwException(env, "No methodName !");
-			return;
-		}
-	if (!methodSignature) {
-			throwException(env, "No methodSignature !");
-			return;
-		}
-	if (!declaringClass) {
-			throwException(env, "No declaringClass !");
-			return;
-		}
-
-	meth.fnPtr = callback;
-	meth.name = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
-	meth.signature = (char*)(*env)->GetStringUTFChars(env, methodSignature, NULL);
-	(*env)->RegisterNatives(env, declaringClass, &meth, 1);
-	
-#ifdef _DEBUG
-#pragma warning(push)
-#pragma warning(disable: 4996)
-	info->fSymbolName = (char*)malloc(strlen(meth.name) + 1);
-	strcpy(info->fSymbolName, meth.name);
-#pragma warning(pop)
-#endif
-
-	(*env)->ReleaseStringUTFChars(env, methodName, meth.name);
-	(*env)->ReleaseStringUTFChars(env, methodSignature, meth.signature);
-}
-
 void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 {
 	if (info->nParams)
@@ -630,11 +654,8 @@ void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 		free(info->fCallIOs);
 	}
 	
-#ifdef _DEBUG
-	if (info->fSymbolName)
-		free(info->fSymbolName);
-#endif
-
+	(*env)->DeleteGlobalRef(env, info->fMethod);
+	
 	dcbFreeCallback((DCCallback*)info->fDCCallback);
 }
 	      
@@ -643,6 +664,7 @@ void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 #define GetField_symbolName()            jstring          symbolName           = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_symbolName          )
 #define GetField_nativeClass()           jlong            nativeClass          = (*env)->GetLongField(     env, methodCallInfo, gFieldId_nativeClass         )
 #define GetField_methodName()            jstring          methodName           = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_methodName          )
+#define GetField_method()                jobject          method               = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_method              )
 #define GetField_paramsValueTypes()      jintArray        paramsValueTypes     = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_paramsValueTypes    )
 #define GetField_javaCallback()          jobject          javaCallback         = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_javaCallback        )
 #define GetField_isGenericCallback()     jboolean         isGenericCallback    = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_isGenericCallback   )
@@ -687,6 +709,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 		GetField_symbolName()           ;
 		GetField_nativeClass()          ;
 		GetField_methodName()           ;
+		GetField_method()               ;
 		GetField_paramsValueTypes()     ;
 		GetField_javaCallback()         ;
 		GetField_isGenericCallback()    ;
@@ -708,22 +731,17 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 			memset(info, 0, sizeof(struct NativeToJavaCallbackCallInfo));
 			
 			// TODO DIRECT C++ virtual thunk
-			javaSig = (char*)(*env)->GetStringUTFChars(env, javaSignature, NULL);
-			dcSig = (*env)->GetStringUTFChars(env, dcSignature, NULL);
-			methName = (char*)(*env)->GetStringUTFChars(env, methodName, NULL);
-
+			dcSig = GET_CHARS(dcSignature);
+			
 			info->fInfo.fDCCallback = dcbNewCallback(dcSig, isCPlusPlus ? CPPToJavaCallHandler : CToJavaCallHandler, info);
 			info->fCallbackInstance = (*env)->NewGlobalRef(env, javaCallback);
-			info->fMethod = GetMethodIDOrFail(env, declaringClass, methName, javaSig);
 			info->fIsGenericCallback = isGenericCallback;
 			
 			info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
 
-			(*env)->ReleaseStringUTFChars(env, javaSignature, javaSig);
-			(*env)->ReleaseStringUTFChars(env, methodName, methName);
-			(*env)->ReleaseStringUTFChars(env, dcSignature, dcSig);
+			RELEASE_CHARS(dcSignature, dcSig);
 			
-			initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
+			initCommonCallInfo(&info->fInfo, env, declaringClass, methodName, javaSignature, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs, JNI_FALSE, method);
 		}
 	}
 	return PTR_TO_JLONG(info);
@@ -760,6 +778,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaToCCallbacks(
 	//GetField_symbolName()           ;
 	//GetField_nativeClass()          ;
 	GetField_methodName()           ;
+	GetField_method()               ;
 	GetField_paramsValueTypes()     ;
 	//GetField_javaCallback()         ;
 	//GetField_forwardedPointer()     ;
@@ -779,16 +798,11 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaToCCallbacks(
 		const char* dcSig;
 		
 		// TODO DIRECT C++ virtual thunk
-		dcSig = (*env)->GetStringUTFChars(env, dcSignature, NULL);
+		dcSig = GET_CHARS(dcSignature);
 		info->fInfo.fDCCallback = dcbNewCallback(dcSig, JavaToCCallHandler/* NativeToJavaCallHandler*/, info);
-		(*env)->ReleaseStringUTFChars(env, dcSignature, dcSig);
+		RELEASE_CHARS(dcSignature, dcSig);
 			
-		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
-		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
-#ifdef _DEBUG
-			&info->fInfo,
-#endif
-			info->fInfo.fDCCallback);
+		initCommonCallInfo(&info->fInfo, env, declaringClass, methodName, javaSignature, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs, JNI_TRUE, method);
 	}
 	END_INFOS_LOOP()
 	return PTR_TO_JLONG(infos);
@@ -820,6 +834,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToCFunctions(
 	GetField_dcSignature()          ;
 	GetField_symbolName()           ;
 	GetField_methodName()           ;
+	GetField_method()               ;
 	GetField_paramsValueTypes()     ;
 	GetField_forwardedPointer()     ;
 	GetField_returnValueType()      ;
@@ -845,17 +860,12 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToCFunctions(
 			info->fInfo.fDCCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer, dcCallingConvention);
 #endif
 		if (!info->fInfo.fDCCallback) {
-			const char* ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
+			const char* ds = GET_CHARS(dcSignature);
 			//info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToFunctionCallHandler, info);
 			info->fInfo.fDCCallback = dcbNewCallback(ds, isCPlusPlus && !isStatic ? JavaToCPPMethodCallHandler : JavaToFunctionCallHandler, info);
-			(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
+			RELEASE_CHARS(dcSignature, ds);
 		}
-		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
-		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
-#ifdef _DEBUG
-			&info->fInfo,
-#endif
-			info->fInfo.fDCCallback);
+		initCommonCallInfo(&info->fInfo, env, declaringClass, methodName, javaSignature, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs, JNI_TRUE, method);
 	}
 	END_INFOS_LOOP()
 	return PTR_TO_JLONG(infos);
@@ -890,6 +900,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToObjCMethods(
 	GetField_symbolName()           ;
 	GetField_nativeClass()          ;
 	GetField_methodName()           ;
+	GetField_method()               ;
 	GetField_paramsValueTypes()     ;
 	//GetField_javaCallback()         ;
 	//GetField_forwardedPointer()     ;
@@ -908,19 +919,18 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToObjCMethods(
 		const char* ds, *methName;
 	
 		// TODO DIRECT ObjC thunk
-		methName = (char*)(*env)->GetStringUTFChars(env, symbolName, NULL);
-		ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
+		methName = (char*)GET_CHARS(symbolName);
+		//ds = GET_CHARS(dcSignature);
 		
 		info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToObjCCallHandler, info);
 		info->fSelector = sel_registerName(methName);
 		info->fNativeClass = nativeClass;
 		
-		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
-		(*env)->ReleaseStringUTFChars(env, symbolName, methName);
+		//RELEASE_CHARS(dcSignature, ds);
+		RELEASE_CHARS(symbolName, methName);
 		
 		
-		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
-		registerJavaFunction(env, declaringClass, methodName, javaSignature, info->fInfo.fDCCallback);
+		initCommonCallInfo(&info->fInfo, env, declaringClass, methodName, javaSignature, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs, JNI_TRUE, method);
 	}
 	END_INFOS_LOOP()
 	return PTR_TO_JLONG(infos);
@@ -959,6 +969,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToVirtualMethods(
 	GetField_dcSignature()          ;
 	GetField_symbolName()           ;
 	GetField_methodName()           ;
+	GetField_method()               ;
 	GetField_paramsValueTypes()     ;
 	GetField_returnValueType()      ;
 	GetField_virtualIndex()         ;
@@ -979,17 +990,12 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToVirtualMethods(
 		info->fVirtualTableOffset = virtualTableOffset;
 		
 		// TODO DIRECT C++ virtual thunk
-		ds = (*env)->GetStringUTFChars(env, dcSignature, NULL);
+		ds = GET_CHARS(dcSignature);
 		info->fInfo.fDCCallback = dcbNewCallback(ds, JavaToVirtualMethodCallHandler, info);
-		(*env)->ReleaseStringUTFChars(env, dcSignature, ds);
+		RELEASE_CHARS(dcSignature, ds);
 		
 		
-		initCommonCallInfo(&info->fInfo, env, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs);
-		registerJavaFunction(env, declaringClass, methodName, javaSignature, 
-#ifdef _DEBUG
-			&info->fInfo,
-#endif
-			info->fInfo.fDCCallback);
+		initCommonCallInfo(&info->fInfo, env, declaringClass, methodName, javaSignature, dcCallingConvention, nParams, returnValueType, paramsValueTypes, callIOs, JNI_TRUE, method);
 	}
 	END_INFOS_LOOP()
 	return PTR_TO_JLONG(infos);

@@ -3,7 +3,7 @@
 void callSinglePointerArgVoidFunction(JNIEnv* env, void* constructor, void* thisPtr, int callMode)
 {
 	CallTempStruct* call;
-	initCallHandler(NULL, &call, env);
+	initCallHandler(NULL, &call, env, NULL);
 	
 	dcMode(call->vm, callMode);
 	dcArgPointer(call->vm, thisPtr);
@@ -31,7 +31,7 @@ char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, 
 {
 	VirtualMethodCallInfo* info = (VirtualMethodCallInfo*)userdata;
 	CallTempStruct* call;
-	jobject instance = initCallHandler(args, &call, NULL);
+	jobject instance = initCallHandler(args, &call, NULL, &info->fInfo);
 	JNIEnv* env = call->env;
 	BEGIN_TRY(env, call)
 	
@@ -96,7 +96,7 @@ char __cdecl JavaToCPPMethodCallHandler(DCCallback* callback, DCArgs* args, DCVa
 	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
 	CallTempStruct* call;
 	void* thisPtr;
-	jobject instance = initCallHandler(args, &call, NULL);
+	jobject instance = initCallHandler(args, &call, NULL, &info->fInfo);
 	JNIEnv* env = call->env;
 	BEGIN_TRY(env, call)
 	

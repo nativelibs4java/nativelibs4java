@@ -32,7 +32,7 @@ public class MethodCallInfo {
 	private Class<?> declaringClass;
         long nativeClass;
     int returnValueType, paramsValueTypes[];
-	private Method method;//, definition;
+	Method method;//, definition;
 	String methodName, symbolName;
 	private long forwardedPointer;
     String dcSignature;

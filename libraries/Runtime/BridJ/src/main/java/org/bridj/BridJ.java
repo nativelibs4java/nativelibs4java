@@ -294,20 +294,34 @@ public class BridJ {
     public static final boolean debugNeverFree = "true".equals(getProperty("bridj.debug.neverFree")) || "1".equals(getenv("BRIDJ_DEBUG_NEVER_FREE"));
     public static final boolean debugPointers = "true".equals(getProperty("bridj.debug.pointers")) || "1".equals(getenv("BRIDJ_DEBUG_POINTERS"));
     public static final boolean verbose = debug || "true".equals(getProperty("bridj.verbose")) || "1".equals(getenv("BRIDJ_VERBOSE"));
+    public static final boolean logCalls = "true".equals(getProperty("bridj.logCall")) || "1".equals(getenv("BRIDJ_LOG_CALLS"));
     static final int minLogLevel = Level.WARNING.intValue();
 	static boolean shouldLog(Level level) {
         return verbose || level.intValue() >= minLogLevel;
     }
+    
+    static Logger logger;
+    static synchronized Logger getLogger() {
+    		if (logger == null)
+    			logger = Logger.getLogger(BridJ.class.getName());
+    		return logger;
+    }
 	public static boolean log(Level level, String message, Throwable ex) {
         if (!shouldLog(level))
             return true;
-		Logger.getLogger(BridJ.class.getName()).log(level, message, ex);
+		getLogger().log(level, message, ex);
         return true;
 	}
 
 	public static boolean log(Level level, String message) {
 		log(level, message, null);
 		return true;
+	}
+	
+	public static native void setLogNativeCalls(boolean log);
+	
+	static void logCall(Method m) {
+		getLogger().log(Level.INFO, "Calling method " + m);
 	}
 
 	public static synchronized NativeEntities getNativeEntities(AnnotatedElement type) throws FileNotFoundException {
@@ -596,7 +610,13 @@ public class BridJ {
         if (directModeEnabled == null) {
             String prop = getProperty("bridj.direct");
             String env = getenv("BRIDJ_DIRECT");
-            directModeEnabled = !"false".equalsIgnoreCase(prop) && !"false".equalsIgnoreCase(env) && !"0".equals(env) && !"no".equalsIgnoreCase(env);
+            directModeEnabled = 
+            		!"false".equalsIgnoreCase(prop) && 
+            		!"false".equalsIgnoreCase(env) && 
+            		!"0".equals(env) && 
+            		!"no".equalsIgnoreCase(env) &&
+            		!logCalls
+			;
             log(Level.INFO, "directModeEnabled = " + directModeEnabled + " (" + getProperty("bridj.direct") + ")");
         }
         return directModeEnabled;

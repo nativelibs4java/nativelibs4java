@@ -7,7 +7,7 @@ char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* 
 {
 	JavaToObjCCallInfo* info = (JavaToObjCCallInfo*)userdata;
 	CallTempStruct* call;
-	jobject instance = initCallHandler(args, &call, NULL);
+	jobject instance = initCallHandler(args, &call, NULL, &info->fInfo);
 	JNIEnv* env = call->env;
 	BEGIN_TRY(env, call);
 	

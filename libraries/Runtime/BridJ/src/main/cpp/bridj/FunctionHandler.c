@@ -5,7 +5,7 @@ char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCVal
 	FunctionCallInfo* info = (FunctionCallInfo*)userdata;
 	CallTempStruct* call;
 	JNIEnv* env;
-	initCallHandler(args, &call, NULL);
+	initCallHandler(args, &call, NULL, &info->fInfo);
 	env = call->env;
 	BEGIN_TRY(env, call);
 	
