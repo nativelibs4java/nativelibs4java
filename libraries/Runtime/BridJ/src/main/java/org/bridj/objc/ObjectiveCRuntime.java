@@ -39,35 +39,6 @@ public class ObjectiveCRuntime extends CRuntime {
         BridJ.register();
 
     }
-
-    public static class Id extends TypedPointer {
-
-        public Id(long peer) {
-            super(peer);
-        }
-
-        public Id(Pointer<?> ptr) {
-            super(ptr);
-        }
-
-        @Override
-        public ObjCObject get() {
-            return BridJ.getRuntimeByRuntimeClass(ObjectiveCRuntime.class).realCast(this);
-        }
-        @Override
-        public ObjCObject get(long index) {
-            if (index == 0)
-                return get();
-            throw new UnsupportedOperationException("Cannot read from an Objective-C object pointer with an index");
-        }
-        @Override
-        public Object set(long index, Object value) {
-            if (index == 0)
-                return set(value);
-            throw new UnsupportedOperationException("Cannot write to an Objective-C object pointer");
-        }
-    }
-
     <T extends ObjCObject> T realCast(Id id) {
         if (id == null)
             return null;
@@ -178,7 +149,7 @@ public class ObjectiveCRuntime extends CRuntime {
                 String n = method.getName();
                 if (n.endsWith("_"))
                     n = n.substring(0, n.length() - 1);
-                if (isStatic && !n.equals("new"))
+                if (method.getParameterTypes().length > 0)
                     n += ":";
                 mci.setSymbolName(n);
             }
