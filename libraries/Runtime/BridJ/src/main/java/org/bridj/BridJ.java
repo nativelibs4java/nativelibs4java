@@ -295,9 +295,12 @@ public class BridJ {
     public static final boolean debugPointers = "true".equals(getProperty("bridj.debug.pointers")) || "1".equals(getenv("BRIDJ_DEBUG_POINTERS"));
     public static final boolean verbose = debug || "true".equals(getProperty("bridj.verbose")) || "1".equals(getenv("BRIDJ_VERBOSE"));
     public static final boolean logCalls = "true".equals(getProperty("bridj.logCall")) || "1".equals(getenv("BRIDJ_LOG_CALLS"));
-    static final int minLogLevel = Level.WARNING.intValue();
+    static volatile int minLogLevelValue = Level.WARNING.intValue();
+    public static void setMinLogLevel(Level level) {
+    		minLogLevelValue = level.intValue();
+    }
 	static boolean shouldLog(Level level) {
-        return verbose || level.intValue() >= minLogLevel;
+        return verbose || level.intValue() >= minLogLevelValue;
     }
     
     static Logger logger;
