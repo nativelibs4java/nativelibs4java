@@ -277,11 +277,6 @@ jlong JNICALL Java_org_bridj_JNI_getEnv(JNIEnv *env, jclass clazz)
 	return PTR_TO_JLONG(env);
 }
 
-void JNICALL Java_org_bridj_BridJ_setLogNativeCalls(JNIEnv *env, jclass clazz, jboolean log) 
-{
-	gLog = log;
-}
-
 void logCall(JNIEnv *env, jobject method) {
 	(*env)->CallStaticObjectMethod(env, gBridJClass, gLogCallMethod, method);
 }

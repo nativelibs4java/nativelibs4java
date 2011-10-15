@@ -321,8 +321,6 @@ public class BridJ {
 		return true;
 	}
 	
-	public static native void setLogNativeCalls(boolean log);
-	
 	static void logCall(Method m) {
 		getLogger().log(Level.INFO, "Calling method " + m);
 	}

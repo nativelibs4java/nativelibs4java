@@ -9,14 +9,6 @@ extern "C" {
 #endif
 #undef org_bridj_BridJ_exceptionsSupported
 #define org_bridj_BridJ_exceptionsSupported 0L
-/*
- * Class:     org_bridj_BridJ
- * Method:    setLogNativeCalls
- * Signature: (Z)V
- */
-JNIEXPORT void JNICALL Java_org_bridj_BridJ_setLogNativeCalls
-  (JNIEnv *, jclass, jboolean);
-
 #ifdef __cplusplus
 }
 #endif
