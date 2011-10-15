@@ -1,6 +1,6 @@
 Index: dyncall/configure
 ===================================================================
---- dyncall/configure	(revision 1122)
+--- dyncall/configure	(revision 1272)
 +++ dyncall/configure	(working copy)
 @@ -84,6 +84,8 @@
    echo "                     with iPhone SDK version (2.0-4.0)"
@@ -11,19 +11,7 @@ Index: dyncall/configure
    echo 
    echo "  --asm-as           use GNU Assembler"
    echo "  --asm-nasm         use NASM Assembler"
-@@ -181,8 +183,10 @@
-     CONFIG_ARCH="mips32el"
-   elif [ "$ARCH" = "loongson" ]; then
-     CONFIG_ARCH="mips64el"
-+  elif [ "$ARCH" = "sparc" ]; then
-+    CONFIG_ARCH="sparc"
-   elif [ "$ARCH" = "sparc64" ]; then
--    CONFIG_ARCH="sparc"
-+    CONFIG_ARCH="sparc64"
-   fi
-   info "guess arch $CONFIG_ARCH"
- }
-@@ -232,6 +236,15 @@
+@@ -243,6 +245,15 @@
        --with-macosxsdk=*)
          CONFIG_MACOSXSDK_VERSION=`echo $OPT | cut -c 18-`
          ;;
@@ -39,7 +27,7 @@ Index: dyncall/configure
        --target-universal)
          CONFIG_ARCH=universal
          ;;
-@@ -300,6 +313,11 @@
+@@ -311,6 +322,11 @@
          CONFIG_ASM=as
          CONFIG_PREFIX=`psp-config -P`
          ;;
@@ -51,7 +39,7 @@ Index: dyncall/configure
        --tool-llvm-gcc)
          CONFIG_TOOL=llvm_gcc
          ;;
-@@ -399,9 +417,18 @@
+@@ -410,9 +426,18 @@
    if [ $CONFIG_IPHONESDK_VERSION ]; then
      echo "CONFIG_IPHONESDK_VERSION=$CONFIG_IPHONESDK_VERSION" >>$1
    fi
@@ -72,7 +60,7 @@ Index: dyncall/configure
  
 Index: dyncall/dyncallback/GNUmakefile
 ===================================================================
---- dyncall/dyncallback/GNUmakefile	(revision 1122)
+--- dyncall/dyncallback/GNUmakefile	(revision 1272)
 +++ dyncall/dyncallback/GNUmakefile	(working copy)
 @@ -61,6 +61,10 @@
  UNITS += dyncall_callback_arch
@@ -85,20 +73,18 @@ Index: dyncall/dyncallback/GNUmakefile
  ifdef BUILD_TOOL_llvm_gcc
  UNITS += dyncall_callback_arch
  endif
-Index: dyncall/dynload/dynload_windows.c
+Index: dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
---- dyncall/dynload/dynload_windows.c	(revision 1122)
-+++ dyncall/dynload/dynload_windows.c	(working copy)
-@@ -33,8 +33,7 @@
- DLLib* dlLoadLibrary(const char* libPath)
- {
-   if (libPath != NULL) {
--    return (DLLib*) LoadLibraryA(libPath);
--    /*return (DLLib*) LoadLibraryA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);*/
-+    return (DLLib*) LoadLibraryExA(libPath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
-   } else {
-     return (DLLib*) GetModuleHandle(NULL);
-   }
+--- dyncall/dynload/dynload_syms_mach-o.c	(revision 1272)
++++ dyncall/dynload/dynload_syms_mach-o.c	(working copy)
+@@ -28,6 +28,7 @@
+  dynamic symbol resolver for Mach-O
+ 
+ */
++#include "../autovar/autovar_ARCH.h"
+ 
+ #include "dynload.h"
+ #include "dynload_alloc.h"
 Index: dyncall/buildsys/gmake/os/android.gmake
 ===================================================================
 --- dyncall/buildsys/gmake/os/android.gmake	(revision 0)
@@ -133,6 +119,20 @@ Index: dyncall/buildsys/gmake/os/android.gmake
 +
 +include $(GMAKE_TOP)/tool/$(BUILD_TOOL).gmake
 +
+Index: dyncall/buildsys/gmake/os/darwin.gmake
+===================================================================
+--- dyncall/buildsys/gmake/os/darwin.gmake	(revision 1272)
++++ dyncall/buildsys/gmake/os/darwin.gmake	(working copy)
+@@ -23,7 +23,8 @@
+ LIBTOOL_STATIC=libtool -static -o $@ $^
+ 
+ ifdef BUILD_ARCH_universal
+-TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
++#TARGET_ARCH?=-arch i386 -arch ppc -arch x86_64
++TARGET_ARCH?=-arch i386 -arch x86_64
+ endif
+ 
+ ifdef BUILD_ARCH_ppc32
 Index: dyncall/buildsys/gmake/tool/androidndk.gmake
 ===================================================================
 --- dyncall/buildsys/gmake/tool/androidndk.gmake	(revision 0)
