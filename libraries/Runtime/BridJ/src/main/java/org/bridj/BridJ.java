@@ -243,14 +243,15 @@ public class BridJ {
                 org.bridj.ann.Runtime runtimeAnn = getAnnotation(org.bridj.ann.Runtime.class, true, type);
                 Class<? extends BridJRuntime> runtimeClass = null;
                 if (runtimeAnn != null)
-                		runtimeClass = runtimeAnn.value();
-                else	
-                		runtimeClass = CRuntime.class;
-                //if (runtimeC == null) {
-                //    throw new IllegalArgumentException("Class " + type.getName() + " has no " + org.bridj.ann.Runtime.class.getName() + " annotation. Unable to guess the corresponding " + BridJRuntime.class.getName() + " implementation.");
-                //}
+                    runtimeClass = runtimeAnn.value();
+                else 
+                    runtimeClass = CRuntime.class;
+                
                 runtime = getRuntimeByRuntimeClass(runtimeClass);
                 classRuntimes.put(type, runtime);
+                
+                if (veryVerbose)
+                    log(Level.INFO, "Runtime for " + type.getName() + " : " + runtimeClass.getName());
             }
 			return runtime;
         }
@@ -270,12 +271,20 @@ public class BridJ {
 	 */
     public static BridJRuntime register(Class<?> type) {
         BridJRuntime runtime = getRuntime(type);
-		runtime.register(type);
+        if (runtime == null)
+            for (Class<?> child : type.getClasses())
+                register(child);
+        else
+            runtime.register(type);
 		return runtime;
 	}
     public static void unregister(Class<?> type) {
         BridJRuntime runtime = getRuntime(type);
-		runtime.unregister(type);
+		if (runtime == null)
+            for (Class<?> child : type.getClasses())
+                register(child);
+        else
+            runtime.unregister(type);
 	}
     static Map<Type, TypeInfo<?>> typeInfos = new HashMap<Type, TypeInfo<?>>();
 
@@ -290,10 +299,18 @@ public class BridJ {
 		}
 	}
 
-    public static final boolean debug = "true".equals(getProperty("bridj.debug")) || "1".equals(getenv("BRIDJ_DEBUG"));
-    public static final boolean debugNeverFree = "true".equals(getProperty("bridj.debug.neverFree")) || "1".equals(getenv("BRIDJ_DEBUG_NEVER_FREE"));
-    public static final boolean debugPointers = "true".equals(getProperty("bridj.debug.pointers")) || "1".equals(getenv("BRIDJ_DEBUG_POINTERS"));
-    public static final boolean verbose = debug || "true".equals(getProperty("bridj.verbose")) || "1".equals(getenv("BRIDJ_VERBOSE"));
+    public static final boolean debug = 
+    		"true".equals(getProperty("bridj.debug")) || "1".equals(getenv("BRIDJ_DEBUG"));
+    public static final boolean debugNeverFree = 
+    		"true".equals(getProperty("bridj.debug.neverFree")) || "1".equals(getenv("BRIDJ_DEBUG_NEVER_FREE"));
+    public static final boolean debugPointers = 
+    		"true".equals(getProperty("bridj.debug.pointers")) || "1".equals(getenv("BRIDJ_DEBUG_POINTERS"));
+    public static final boolean veryVerbose = 
+    		"true".equals(getProperty("bridj.veryVerbose")) || "1".equals(getenv("BRIDJ_VERY_VERBOSE"));
+	public static final boolean verbose = 
+		debug || veryVerbose || 
+		"true".equals(getProperty("bridj.verbose")) || "1".equals(getenv("BRIDJ_VERBOSE"));
+    
     public static final boolean logCalls = "true".equals(getProperty("bridj.logCall")) || "1".equals(getenv("BRIDJ_LOG_CALLS"));
     static volatile int minLogLevelValue = Level.WARNING.intValue();
     public static void setMinLogLevel(Level level) {

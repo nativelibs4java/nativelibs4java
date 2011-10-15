@@ -2,10 +2,14 @@ package org.bridj.objc;
 
 import org.bridj.NativeObject;
 import org.bridj.Pointer;
+import org.bridj.BridJ;
 
 @org.bridj.ann.Runtime(ObjectiveCRuntime.class)
 public class ObjCObject extends NativeObject {
-
+	static {
+		BridJ.register();
+	}
+	
     ObjCObject type;
 
     public native <T extends ObjCObject> Pointer<T> create();

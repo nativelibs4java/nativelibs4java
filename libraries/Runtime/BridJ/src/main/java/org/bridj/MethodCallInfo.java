@@ -130,7 +130,7 @@ public class MethodCallInfo {
         if (prependJNIPointers)//!isCPlusPlus)
         	dcSig.append(DC_SIGCHAR_POINTER).append(DC_SIGCHAR_POINTER); // JNIEnv*, jobject: always present in native-bound functions
 
-		if (veryVerbose)
+		if (BridJ.veryVerbose)
 			System.out.println("Analyzing " + (declaringClass == null ? "anonymous method" : declaringClass.getName() + "." + methodName));
         for (int iParam = 0; iParam < nParams; iParam++) {
 //            Options paramOptions = paramsOptions[iParam] = new Options();
@@ -138,7 +138,7 @@ public class MethodCallInfo {
             Class<?> parameterType = parameterTypes[iParam];
 
             ValueType paramValueType = getValueType(iParam, nParams, parameterType, genericParameterType, null, paramsAnnotations[iParam]);
-            if (veryVerbose)
+            if (BridJ.veryVerbose)
 				System.out.println("\tparam " + paramValueType);
         	paramsValueTypes[iParam] = paramValueType.ordinal();
 
@@ -149,7 +149,7 @@ public class MethodCallInfo {
         dcSig.append(')');
 
         ValueType retType = getValueType(-1, nParams, returnType, genericReturnType, annotatedElement, returnAnnotations);
-        if (veryVerbose)
+        if (BridJ.veryVerbose)
 			System.out.println("\treturns " + retType);
 		appendToSignature(-1, retType, returnType, genericReturnType, javaSig, dcSig, asmSig);
         returnValueType = retType.ordinal();
@@ -176,7 +176,7 @@ public class MethodCallInfo {
         if (nParams > Platform.getMaxDirectMappingArgCount())
             this.direct = false;
 
-        if (veryVerbose) {
+        if (BridJ.veryVerbose) {
 			System.out.println("\t-> direct " + direct);
 			System.out.println("\t-> javaSignature " + javaSignature);
 			System.out.println("\t-> callIOs " + callIOs);
@@ -186,8 +186,7 @@ public class MethodCallInfo {
 		
         assert BridJ.log(Level.INFO, (direct ? "[mappable as direct] " : "[not mappable as direct] ") + method);
     }
-    static boolean veryVerbose = System.getenv("BRIDJ_VERY_VERBOSE") != null;//methodName.contains("GetPlatformI");
-		
+    	
 	boolean hasCC;
 	public boolean hasCallingConvention() {
 		return hasCC;
@@ -213,7 +212,7 @@ public class MethodCallInfo {
 			this.direct = false;
 			setDcCallingConvention(Platform.isWindows() ? DC_CALL_C_X86_WIN32_THIS_MS : DC_CALL_C_DEFAULT);
 		}
-		if (veryVerbose)
+		if (BridJ.veryVerbose)
 			System.out.println("Setting CC " + style + " (-> " + dcCallingConvention + ") for " + methodName);
 		
 	}
@@ -313,7 +312,7 @@ public class MethodCallInfo {
         if (Pointer.class.isAssignableFrom(c)) {
             direct = false;
             CallIO cio = CallIO.Utils.createPointerCallIO(c, t);
-            if (veryVerbose)
+            if (BridJ.veryVerbose)
             		System.out.println("CallIO : " + cio);
             addCallIO(cio);
         		return ValueType.ePointerValue;

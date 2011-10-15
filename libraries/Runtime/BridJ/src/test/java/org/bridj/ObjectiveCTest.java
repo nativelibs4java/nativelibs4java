@@ -17,6 +17,7 @@ import static org.bridj.BridJ.*;
 
 
 @Library("Foundation")
+@Runtime(ObjectiveCRuntime.class)
 public class ObjectiveCTest {
 	static boolean mac = Platform.isMacOSX();
 	static {
@@ -58,5 +59,24 @@ public class ObjectiveCTest {
 		assertEquals(n, nn.longValue());   
 		assertEquals(n, nn.floatValue(), 0);    
 		assertEquals(n, nn.doubleValue(), 0);       
+	}
+	
+	@Library("Foundation")
+	public static class NSWorkspace extends NSObject
+	{
+		public static native Pointer<NSWorkspace> sharedWorkspace();
+		
+		public native Pointer<?> runningApplications();
+	}
+	@Test
+	public void testNSWorkspace() {
+		if (!mac) return;
+		
+		BridJ.register(NSWorkspace.class);
+		Pointer<NSWorkspace> pWorkspace = NSWorkspace.sharedWorkspace();
+		assertNotNull(pWorkspace);
+		
+		NSWorkspace workspace = pWorkspace.get();
+		assertNotNull(workspace);
 	}
 }

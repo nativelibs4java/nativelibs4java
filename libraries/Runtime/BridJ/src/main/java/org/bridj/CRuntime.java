@@ -249,12 +249,16 @@ public class CRuntime extends AbstractBridJRuntime {
 		}
     }
 	synchronized void register(Type type, NativeLibrary forcedLibrary, MethodCallInfoBuilder methodCallInfoBuilder) {
-		Class typeClass = Utils.getClass(type);
-                synchronized (registeredTypes) {
-                    if (!registeredTypes.add(typeClass))
-                                    return;
-                }
-		
+        Class typeClass = Utils.getClass(type);
+        if (BridJ.getRuntime(typeClass) != this) {
+            BridJ.register(typeClass);
+            return;
+        }
+        synchronized (registeredTypes) {
+            if (!registeredTypes.add(typeClass))
+                            return;
+        }
+
 		if (methodCallInfoBuilder == null)
 			methodCallInfoBuilder = new MethodCallInfoBuilder();
         	
@@ -359,7 +363,15 @@ public class CRuntime extends AbstractBridJRuntime {
 	protected Level getSeverityOfMissingSymbol(Method method) {
 		return BridJ.getAnnotation(Optional.class, true, method) != null ? Level.INFO : Level.SEVERE;
 	}
-	protected void registerNativeMethod(Class<?> type, NativeLibrary typeLibrary, Method method, NativeLibrary methodLibrary, Builder builder, MethodCallInfoBuilder methodCallInfoBuilder) throws FileNotFoundException {
+	protected void registerNativeMethod(
+			Class<?> type, 
+			NativeLibrary typeLibrary, 
+			Method method, 
+			NativeLibrary methodLibrary, 
+			Builder builder, 
+			MethodCallInfoBuilder methodCallInfoBuilder
+		) throws FileNotFoundException 
+	{
 		MethodCallInfo mci;
 		try {
 			mci = methodCallInfoBuilder.apply(method);
