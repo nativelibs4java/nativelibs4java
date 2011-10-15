@@ -14,7 +14,7 @@ import org.bridj.ann.Ptr;
 import org.bridj.cpp.com.*;
 import static org.bridj.Pointer.*;
 import static org.bridj.BridJ.*;
-
+import static org.bridj.objc.FoundationLibrary.*;
 
 @Library("Foundation")
 @Runtime(ObjectiveCRuntime.class)
@@ -79,4 +79,15 @@ public class ObjectiveCTest {
 		NSWorkspace workspace = pWorkspace.get();
 		assertNotNull(workspace);
 	}
+    
+    @Test
+    public void testNSString() {
+        for (String s : new String[] { "", "1", "ha\nha\u1234" }) {
+            assertEquals(s, pointerToNSString(s).get().toString());
+            
+            NSString ns = new NSString(s);
+            assertEquals(s, ns.toString());
+            assertEquals(s.length(), ns.length());
+        }
+    }
 }

@@ -330,7 +330,7 @@ public class CRuntime extends AbstractBridJRuntime {
                         NativeEntities nativeEntities = methodLibrary == null ? BridJ.getOrphanEntities() : methodLibrary.getNativeEntities();
                         NativeEntities.Builder builder = builders.get(nativeEntities);
 						
-						registerNativeMethod(typeClass, typeLibrary, method, methodLibrary, builder, methodCallInfoBuilder);
+                        registerNativeMethod(typeClass, typeLibrary, method, methodLibrary, builder, methodCallInfoBuilder);
 					} catch (Exception ex) {
 						assert log(Level.SEVERE, "Method " + method.toGenericString() + " cannot be mapped : " + ex, ex);
 					}

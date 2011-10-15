@@ -1,5 +1,7 @@
 package org.bridj.objc;
 
+import org.bridj.Pointer;
+import org.bridj.NativeObject;
 import org.bridj.objc.*;
 import org.bridj.ann.Field;
 import org.bridj.ann.Library;
@@ -12,4 +14,13 @@ import static org.bridj.BridJ.*;
 
 @Library("Foundation")
 public class NSObject extends ObjCObject {
+    public NSObject(Pointer<? extends NSObject> peer) {
+        super(peer);
+    }
+
+    public NSObject() {
+        super();
+    }
+
+    
 }

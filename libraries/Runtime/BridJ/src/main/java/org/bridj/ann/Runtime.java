@@ -19,7 +19,7 @@ import org.bridj.BridJRuntime;
 Also see @see org.bridj.Bridj.register().
  * @author Olivier
  */
-@Target({ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface Runtime {
