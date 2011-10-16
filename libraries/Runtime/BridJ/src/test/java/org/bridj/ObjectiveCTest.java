@@ -123,32 +123,42 @@ public class ObjectiveCTest {
     }
     
     public static class NSNonExistentTestClass extends NSObject {
-    		public native void whatever();
+            public native int add2(int a, Pointer<Integer> p);
+			public native float incf(float v);
+            public native double add8(byte a, short b, int c, char d, long e, double f, Pointer<Integer> p);
     }
-    static void call_NSNonExistentTestClass_Whatever(ObjCProxy proxy) {
-    		NSNonExistentTestClass p = pointerTo(proxy).as(NSNonExistentTestClass.class).get();
-		//System.out.println(p);
-		p.whatever();
-    }
-    @Test
-    public void testProxySubClass() {
-    		final boolean called[] = new boolean[1];
-		call_NSNonExistentTestClass_Whatever(new ObjCProxy() {
-			public void whatever() {
-				called[0] = true;
-			}
-		});
-		assertTrue(called[0]);
+    static void test_NSNonExistentTestClass_add(ObjCObject proxy) {
+        NSNonExistentTestClass p = pointerTo(proxy).as(NSNonExistentTestClass.class).get();
+        Pointer<Integer> ptr = pointerToInt(64);
+        assertEquals(1 + ptr.get(), p.add2(1, ptr));
+		assertEquals(127, p.add8((byte)1, (short)2, (int)4, (char)8, (long)16, (double)32, ptr), 0);
     }
     @Test
-    public void testProxyDelegate() {
-    		final boolean called[] = new boolean[1];
-    		call_NSNonExistentTestClass_Whatever(new ObjCProxy(new Object() {
-			public void whatever() {
-				//System.out.println("Called whatever !!!");
-				called[0] = true;
+    public void testProxy() {
+        ObjCProxy proxy = new ObjCProxy() {
+            public int add2(int a, Pointer<Integer> p) {
+                return a + p.get();
+            }
+			public float incf(float v) {
+                return v + 1;
+            }
+			public double add8(long a, int b, short c, byte d, char e, double f, Pointer<Integer> p) {
+				return a + b + c + d + e + f + p.get();
 			}
-		}));
-		assertTrue(called[0]);
+		};
+		test_NSNonExistentTestClass_add(proxy);
+        test_NSNonExistentTestClass_add(new ObjCProxy(proxy));
+    }
+    
+    
+    @Test
+    public void testProxyFloat() {
+        Object proxy = new Object() {
+            public float incf(float v) {
+                return v + 1;
+            }
+		};
+        NSNonExistentTestClass p = pointerTo(new ObjCProxy(proxy)).as(NSNonExistentTestClass.class).get();
+        assertEquals(11, p.incf(10), 0);
     }
 }

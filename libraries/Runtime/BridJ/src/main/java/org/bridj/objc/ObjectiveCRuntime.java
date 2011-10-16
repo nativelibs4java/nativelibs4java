@@ -93,6 +93,8 @@ public class ObjectiveCRuntime extends CRuntime {
     char getTypeSignature(Type type) {
     		Character c = signatureByType.get(type);
     		if (c == null)
+    			c = signatureByType.get(Utils.getClass(type));
+    		if (c == null)
     			throw new RuntimeException("Unknown type for Objective-C signatures : " + Utils.toString(type));
     		return c;
     }
@@ -121,7 +123,7 @@ public class ObjectiveCRuntime extends CRuntime {
     		addSignature('i', int.class, is32 ? CLong.class : null);
     		addSignature('I', int.class, is32 ? CLong.class : null);
     		addSignature('s', short.class, char.class);
-    		addSignature('c', short.class, boolean.class);
+    		addSignature('c', byte.class, boolean.class);
     		addSignature('f', float.class);
     		addSignature('d', double.class);
     		addSignature('v', void.class);
