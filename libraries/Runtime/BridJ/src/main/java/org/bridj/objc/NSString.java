@@ -24,11 +24,14 @@ public class NSString extends NSObject {
     public int hashCode() {
     		return toString().hashCode();
     }
+    
+    /*
     public boolean equals(Object o) {
     		if (!(o instanceof NSString))
     			return false;
     		return o.toString().equals(toString());
     }
+    */
     
     public static NSString valueOf(String s) {
         return pointerToNSString(s).get();

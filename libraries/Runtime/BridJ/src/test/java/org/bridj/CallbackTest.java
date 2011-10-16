@@ -1,12 +1,13 @@
 package org.bridj;
 import static org.bridj.Pointer.*;
 import org.junit.Test;
+import org.bridj.ann.Runtime;
 import static org.junit.Assert.*;
 
 import org.bridj.ann.Library;
 
 @Library("test")
-@org.bridj.ann.Runtime(CRuntime.class)
+@Runtime(CRuntime.class)
 public class CallbackTest {
 	static {
 		BridJ.register();

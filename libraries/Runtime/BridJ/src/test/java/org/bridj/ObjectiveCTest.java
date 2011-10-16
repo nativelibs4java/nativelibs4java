@@ -15,6 +15,7 @@ import org.bridj.cpp.com.*;
 import static org.bridj.Pointer.*;
 import static org.bridj.BridJ.*;
 import static org.bridj.objc.FoundationLibrary.*;
+import java.util.*;
 
 @Library("Foundation")
 @Runtime(ObjectiveCRuntime.class)
@@ -80,14 +81,47 @@ public class ObjectiveCTest {
 		assertNotNull(workspace);
 	}
     
+	String[] someStrings = new String[] { "", "1", "ha\nha\u1234" };
+	
     @Test
     public void testNSString() {
-        for (String s : new String[] { "", "1", "ha\nha\u1234" }) {
+        for (String s : someStrings) {
             assertEquals(s, pointerToNSString(s).get().toString());
             
             NSString ns = new NSString(s);
             assertEquals(s, ns.toString());
             assertEquals(s.length(), ns.length());
         }
+    }
+    
+    @Test
+    public void testSEL() {
+        for (String s : someStrings) {
+            SEL sel = SEL.valueOf(s);
+            assertEquals(s, sel.getName());
+        }
+    }
+    
+    
+    @Test
+    public void testNSDictionary() {
+    		Map<String, NSObject> map = new HashMap<String, NSObject>(), map2;
+    		for (String s : new String[] { "", "1", "ha\nha\u1234" })
+    			map.put(s, NSString.valueOf(s + s));
+    		
+    		NSDictionary dic = NSDictionary.valueOf(map);
+    		assertEquals(map.size(), dic.count());
+    		
+    		map2 = dic.toMap();
+    		assertEquals(map.size(), map2.size());
+    		
+    		//assertEquals(map, map2);
+    		for (Map.Entry<String, NSObject> e : map.entrySet()) {
+    			String key = e.getKey();
+    			NSObject expected = e.getValue();
+    			NSObject got = map2.get(key);
+    			assertEquals(expected, got);
+    			//assertEquals(expected.toString(), got.toString());
+    		}
     }
 }

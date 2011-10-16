@@ -5,9 +5,11 @@
 package org.bridj.objc;
 
 import java.nio.charset.Charset;
+import java.util.Map;
 import org.bridj.BridJ;
 import org.bridj.CRuntime;
 import org.bridj.Pointer;
+import static org.bridj.Pointer.*;
 import org.bridj.Pointer.StringType;
 import org.bridj.ann.Library;
 import org.bridj.ann.Ptr;
@@ -26,6 +28,7 @@ public class FoundationLibrary {
 
     public static native Pointer<NSString> CFStringCreateWithBytes(Pointer<?> alloc, Pointer<Byte> bytes, @Ptr long  numBytes, int encoding, boolean isExternalRepresentation);
     
+    
     public static Pointer<NSString> pointerToNSString(String s) {
         Pointer p = Pointer.pointerToString(s, StringType.C, Charset.forName("utf-8"));
         assert p != null;
@@ -33,5 +36,4 @@ public class FoundationLibrary {
         assert ps != null;
         return ps;
     }
-    
 }
