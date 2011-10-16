@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.bridj.Platform.*;
+import org.bridj.objc.*;
 
 /**
  * Low-level calls to JNI and to BridJ's native library.
@@ -130,4 +131,7 @@ public class JNI {
     static native long memmem_last(long haystack, long haystackLength, long needle, long needleLength);
     static native int memcmp(long ptr1, long ptr2, long num);
     static native void memset(long ptr, byte value, long num);
+    
+    @Deprecated
+    public static synchronized native Pointer<? extends ObjCObject> createObjCProxyPeer(ObjCProxy javaInstance);
 }

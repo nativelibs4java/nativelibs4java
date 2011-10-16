@@ -190,6 +190,7 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 			default:
 				throwException(env, "Invalid argument value type !");
 				return JNI_FALSE;
+				
 			
 		}
 	}

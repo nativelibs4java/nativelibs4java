@@ -52,6 +52,7 @@ UNITS += CallbackHandler
 UNITS += ThreadLocal
 ifdef BUILD_OS_darwin
 UNITS += ObjCHandler
+UNITS += ObjCProxy
 endif
 ifdef BUILD_OS_iphoneos
 UNITS += ObjCHandler
@@ -68,7 +69,9 @@ CPPFLAGS += -std=c99
 ifdef BUILD_OS_darwin
 CPPFLAGS		+= -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 CPPFLAGS 	+= -DBRIDJ_OBJC_SUPPORT
-LDFLAGS		+= -ldl -lobjc -all_load
+LDFLAGS		+= -ldl -all_load
+LDFLAGS		+= -framework Foundation
+#LDFLAGS		+= -lobjc 
 endif
 
 ifdef BUILD_OS_iphoneos

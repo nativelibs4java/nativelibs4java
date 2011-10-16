@@ -3,15 +3,27 @@ package org.bridj;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
 interface CallIO {
 	Object newInstance(long address);
 	void checkArg(Object arg);
 
     public static class Utils {
+        public static CallIO createPointerCallIOToTargetType(Type targetType) {
+            return new CallIO.GenericPointerHandler(targetType);
+        }
+        //static final Map<Type, CallIO> instances = new HashMap<Type, CallIO>();
+        public static /*synchronized*/ CallIO createPointerCallIO(Type type) {
+            //CallIO io = instances.get(type);
+            //if (io == null)
+            //    instances.put(type, io = )
+            return createPointerCallIO(org.bridj.util.Utils.getClass(type), type);
+        }
         public static CallIO createPointerCallIO(Class<?> cl, Type type) {
             if (cl == Pointer.class)
-                return new CallIO.GenericPointerHandler((type instanceof ParameterizedType) ? ((ParameterizedType)type).getActualTypeArguments()[0] : null);
+                return createPointerCallIOToTargetType((type instanceof ParameterizedType) ? ((ParameterizedType)type).getActualTypeArguments()[0] : null);
 
             assert TypedPointer.class.isAssignableFrom(cl);
             return new CallIO.TypedPointerIO(((Class<? extends TypedPointer>)cl));

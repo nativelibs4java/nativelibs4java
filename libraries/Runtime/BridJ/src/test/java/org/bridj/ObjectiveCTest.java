@@ -81,11 +81,9 @@ public class ObjectiveCTest {
 		assertNotNull(workspace);
 	}
     
-	String[] someStrings = new String[] { "", "1", "ha\nha\u1234" };
-	
     @Test
     public void testNSString() {
-        for (String s : someStrings) {
+        for (String s : new String[] { "", "1", "ha\nha\u1234" }) {
             assertEquals(s, pointerToNSString(s).get().toString());
             
             NSString ns = new NSString(s);
@@ -96,12 +94,11 @@ public class ObjectiveCTest {
     
     @Test
     public void testSEL() {
-        for (String s : someStrings) {
+        for (String s : new String[] { "", "1", "ha:ha" }) {
             SEL sel = SEL.valueOf(s);
             assertEquals(s, sel.getName());
         }
     }
-    
     
     @Test
     public void testNSDictionary() {
@@ -123,5 +120,35 @@ public class ObjectiveCTest {
     			assertEquals(expected, got);
     			//assertEquals(expected.toString(), got.toString());
     		}
+    }
+    
+    public static class NSNonExistentTestClass extends NSObject {
+    		public native void whatever();
+    }
+    static void call_NSNonExistentTestClass_Whatever(ObjCProxy proxy) {
+    		NSNonExistentTestClass p = pointerTo(proxy).as(NSNonExistentTestClass.class).get();
+		//System.out.println(p);
+		p.whatever();
+    }
+    @Test
+    public void testProxySubClass() {
+    		final boolean called[] = new boolean[1];
+		call_NSNonExistentTestClass_Whatever(new ObjCProxy() {
+			public void whatever() {
+				called[0] = true;
+			}
+		});
+		assertTrue(called[0]);
+    }
+    @Test
+    public void testProxyDelegate() {
+    		final boolean called[] = new boolean[1];
+    		call_NSNonExistentTestClass_Whatever(new ObjCProxy(new Object() {
+			public void whatever() {
+				//System.out.println("Called whatever !!!");
+				called[0] = true;
+			}
+		}));
+		assertTrue(called[0]);
     }
 }

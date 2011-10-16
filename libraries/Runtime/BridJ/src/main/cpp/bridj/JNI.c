@@ -169,15 +169,15 @@ void initMethods(JNIEnv* env) {
 		//gGetTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "getTempCallStruct", "()J"); 
 		//gReleaseTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "releaseTempCallStruct", "(J)V"); 
 		gGetValuedEnumValueMethod = (*env)->GetMethodID(env, gValuedEnumClass, "value", "()J");
-		gGetJavaObjectFromNativePeerMethod = (*env)->GetStaticMethodID(env, gBridJClass, "getJavaObjectFromNativePeer", "(J)Ljava/lang/Object;");
-		gNewFlagSetMethod = (*env)->GetStaticMethodID(env, gFlagSetClass, "fromValue", "(JLjava/lang/Class;)Lorg/bridj/FlagSet;"); 
-		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lorg/bridj/NativeObject;Ljava/lang/Class;)J");
+		gGetJavaObjectFromNativePeerMethod = (*env)->GetStaticMethodID(env, gBridJClass, "getJavaObjectFromNativePeer", "(J)" OBJECT_SIG);
+		gNewFlagSetMethod = (*env)->GetStaticMethodID(env, gFlagSetClass, "fromValue", "(J" CLASS_SIG ")Lorg/bridj/FlagSet;"); 
+		gAddressMethod = (*env)->GetStaticMethodID(env, gPointerClass, "getAddress", "(Lorg/bridj/NativeObject;" CLASS_SIG ")J");
 		gGetPeerMethod = (*env)->GetMethodID(env, gPointerClass, "getPeer", "()J");
-		gCreatePeerMethod = (*env)->GetStaticMethodID(env, gPointerClass, "pointerToAddress", "(JLjava/lang/Class;)Lorg/bridj/Pointer;");
-		gThrowNewLastErrorMethod = (*env)->GetStaticMethodID(env, gLastErrorClass, "throwNewInstance", "(ILjava/lang/String;)V");
+		gCreatePeerMethod = (*env)->GetStaticMethodID(env, gPointerClass, "pointerToAddress", "(JLjava/lang/Class;)" POINTER_SIG);
+		gThrowNewLastErrorMethod = (*env)->GetStaticMethodID(env, gLastErrorClass, "throwNewInstance", "(I" STRING_SIG ")V");
 		gGetCallIOsMethod = (*env)->GetMethodID(env, gMethodCallInfoClass, "getCallIOs", "()[Lorg/bridj/CallIO;");
-		gNewCallIOInstance = (*env)->GetMethodID(env, gCallIOClass, "newInstance", "(J)Ljava/lang/Object;");
-		gLogCallMethod = (*env)->GetStaticMethodID(env, gBridJClass, "logCall", "(Ljava/lang/reflect/Method;)V");
+		gNewCallIOInstance = (*env)->GetMethodID(env, gCallIOClass, "newInstance", "(J)" OBJECT_SIG);
+		gLogCallMethod = (*env)->GetStaticMethodID(env, gBridJClass, "logCall", "(" METHOD_SIG ")V");
 		gLogCallsField = (*env)->GetStaticFieldID(env, gBridJClass, "logCalls", "Z");
 		
 #define GETFIELD_ID(out, name, sig) \
@@ -185,20 +185,20 @@ void initMethods(JNIEnv* env) {
 			throwException(env, "Failed to get the field " #name " in MethodCallInfo !");
 		
 	
-		GETFIELD_ID(javaSignature 		,	"javaSignature"		,	"Ljava/lang/String;"				);
-		GETFIELD_ID(dcSignature 			,	"dcSignature" 		,	"Ljava/lang/String;"				);
-		GETFIELD_ID(symbolName 			,	"symbolName" 		,	"Ljava/lang/String;"				);
+		GETFIELD_ID(javaSignature 		,	"javaSignature"		,	STRING_SIG						);
+		GETFIELD_ID(dcSignature 			,	"dcSignature" 		,	STRING_SIG						);
+		GETFIELD_ID(symbolName 			,	"symbolName" 		,	STRING_SIG						);
 		GETFIELD_ID(nativeClass 			,	"nativeClass" 		,	"J"								);
-		GETFIELD_ID(methodName 			,	"methodName" 		,	"Ljava/lang/String;"				);
-		GETFIELD_ID(method     			,	"method"     		,	"Ljava/lang/reflect/Method;"		);
-		GETFIELD_ID(declaringClass		,	"declaringClass" 	,	"Ljava/lang/Class;"				);
+		GETFIELD_ID(methodName 			,	"methodName" 		,	STRING_SIG						);
+		GETFIELD_ID(method     			,	"method"     		,	METHOD_SIG						);
+		GETFIELD_ID(declaringClass		,	"declaringClass" 	,	CLASS_SIG						);
 		GETFIELD_ID(paramsValueTypes 		,	"paramsValueTypes"	,	"[I"							);
 		GETFIELD_ID(returnValueType 		,	"returnValueType" 	,	"I"								);
 		GETFIELD_ID(forwardedPointer 		,	"forwardedPointer" 	,	"J"							);
 		GETFIELD_ID(virtualIndex 		,	"virtualIndex"		,	"I"								);
 		GETFIELD_ID(virtualTableOffset	,	"virtualTableOffset"	,	"I"								);
 		//GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Lorg/bridj/Callback;"			);
-		GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Ljava/lang/Object;"				);
+		GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	OBJECT_SIG						);
 		GETFIELD_ID(isGenericCallback 	,	"isGenericCallback"	,	"Z"								);  		
 		GETFIELD_ID(direct		 		,	"direct"	 			,	"Z"								);
 		GETFIELD_ID(isCPlusPlus	 		,	"isCPlusPlus"		,	"Z"								);  		
@@ -283,7 +283,7 @@ void logCall(JNIEnv *env, jobject method) {
 
 jlong JNICALL Java_org_bridj_JNI_newGlobalRef(JNIEnv *env, jclass clazz, jobject obj)
 {
-	return obj ? PTR_TO_JLONG((*env)->NewGlobalRef(env, obj)) : 0;
+	return obj ? PTR_TO_JLONG(GLOBAL_REF(obj)) : 0;
 }
 
 void JNICALL Java_org_bridj_JNI_deleteGlobalRef(JNIEnv *env, jclass clazz, jlong ref)
@@ -538,7 +538,7 @@ void initCommonCallInfo(
 			for (i = 0; i < n; i++) {
 				jobject obj = (*env)->GetObjectArrayElement(env, callIOs, i);
 				if (obj)
-					obj = (*env)->NewGlobalRef(env, obj);
+					obj = GLOBAL_REF(obj);
 				info->fCallIOs[i] = obj;
 			}
 			info->fCallIOs[n] = NULL;
@@ -549,7 +549,7 @@ void initCommonCallInfo(
 		registerJavaFunction(env, declaringClass, methName, javaSig, info->fDCCallback);
 		
 	info->fMethodID = GetMethodIDOrFail(env, declaringClass, methName, javaSig);
-	info->fMethod = (*env)->NewGlobalRef(env, method);
+	info->fMethod = GLOBAL_REF(method);
 	
 	
 	RELEASE_CHARS(javaSignature, javaSig);
@@ -729,7 +729,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 			dcSig = GET_CHARS(dcSignature);
 			
 			info->fInfo.fDCCallback = dcbNewCallback(dcSig, isCPlusPlus ? CPPToJavaCallHandler : CToJavaCallHandler, info);
-			info->fCallbackInstance = (*env)->NewGlobalRef(env, javaCallback);
+			info->fCallbackInstance = GLOBAL_REF(javaCallback);
 			info->fIsGenericCallback = isGenericCallback;
 			
 			info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
@@ -846,7 +846,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToCFunctions(
 	{
 		info->fForwardedSymbol = JLONG_TO_PTR(forwardedPointer);
 		if (isCPlusPlus && !isStatic && declaringClass)
-			info->fClass = (*env)->NewGlobalRef(env, declaringClass);
+			info->fClass = GLOBAL_REF(declaringClass);
 		
 		info->fCheckLastError = bThrowLastError;
 		
@@ -979,7 +979,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToVirtualMethods(
 	{
 		const char* ds;
 	
-		info->fClass = (*env)->NewGlobalRef(env, declaringClass);
+		info->fClass = GLOBAL_REF(declaringClass);
 		info->fHasThisPtrArg = startsWithThis;
 		info->fVirtualIndex = virtualIndex;
 		info->fVirtualTableOffset = virtualTableOffset;

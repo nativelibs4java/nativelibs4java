@@ -1,12 +1,19 @@
 #!/bin/bash
 
+CLASSES="
+org.bridj.JNI
+org.bridj.BridJ
+org.bridj.Pointer
+org.bridj.Platform
+"
+
 if [[ "$@" != "clean" && "$@" != "fast" ]] ; then
 	# Generate native sources from Velocity templates
 	#mvn generate-sources -o
 	mvn compile -o
 	
 	# Generate JNI headers
-	javah -d src/main/cpp/bridj -classpath target/classes org.bridj.JNI org.bridj.BridJ org.bridj.Pointer org.bridj.Platform ;
+	javah -d src/main/cpp/bridj -classpath target/classes $CLASSES ;
 fi
 	
 

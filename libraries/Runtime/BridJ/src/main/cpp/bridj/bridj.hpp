@@ -216,5 +216,12 @@ void cleanupCallHandler(CallTempStruct* call);
 #define GET_CHARS(javaStr) (javaStr ? (*env)->GetStringUTFChars(env, javaStr, NULL) : NULL)
 #define RELEASE_CHARS(javaStr, cStr) if (javaStr) (*env)->ReleaseStringUTFChars(env, javaStr, cStr) 
 
+#define FORCE_CRASH() \
+	{\
+		char* p = (char*)NULL;\
+		for (int i = 0; i < 1000; i++)\
+			*p = *p + 1;\
+	}
+
 #endif
 
