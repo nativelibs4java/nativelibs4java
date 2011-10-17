@@ -616,14 +616,15 @@ public class BridJ {
 					
 					if (!f.exists() && isLinux()) {
 						String[] files = pathFile.list();
-						for (String possibleFileName : possibleFileNames) {
-							File ff = findFileWithGreaterVersion(pathFile, files, possibleFileName);
-							if (ff != null && (f = ff).exists()) {
-								if (verbose)
-									log(Level.INFO, "File '" + possibleFileName + "' was not found, used versioned file '" + f + "' instead.");
-								break;
+						if (files != null)
+							for (String possibleFileName : possibleFileNames) {
+								File ff = findFileWithGreaterVersion(pathFile, files, possibleFileName);
+								if (ff != null && (f = ff).exists()) {
+									if (verbose)
+										log(Level.INFO, "File '" + possibleFileName + "' was not found, used versioned file '" + f + "' instead.");
+									break;
+								}
 							}
-						}
 					}
 				}
 	
