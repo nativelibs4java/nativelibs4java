@@ -513,6 +513,63 @@ public class BridJ {
 		if (!list.contains(alias))
 			list.add(alias);
     }
+    
+    static String[] getPossibleFileNames(String name) {
+    		if (isWindows()) {
+    			return new String[] {
+				name + ".dll",
+				name + ".drv"
+			};
+		} else {
+			String jniName = "lib" + name + ".jnilib";
+			if (isMacOSX()) {
+				return new String[] { 
+					"lib" + name + ".dylib", 
+					jniName 
+				};
+			} else {
+				return new String[] {
+					"lib" + name + ".so",
+					name + ".so",
+					jniName
+				};
+			}
+		}
+    }
+    
+    private static final Pattern numPat = Pattern.compile("\\b(\\d+)\\b");
+    
+    /**
+     * Given "1.2.3", will yield (1 + 2 / 1000 + 3 / 1000000)
+     */
+    static double parseVersion(String s) {
+    		Matcher m = numPat.matcher(s);
+    		double res = 0.0, f = 1;
+    		while (m.find()) {
+    			res += Integer.parseInt(m.group(1)) * f;
+    			f /= 1000;
+    		}
+    		return res;
+    }
+    static File findFileWithGreaterVersion(File dir, String[] files, String baseFileName) {
+		Pattern versionPattern = Pattern.compile(Pattern.quote(baseFileName) + "((:?\\.\\d+)+)");
+		double maxVersion = 0;
+		String maxVersionFile = null;
+		for (String fileName : files) {
+			Matcher m = versionPattern.matcher(fileName);
+			if (m.matches()) {
+				double version = parseVersion(m.group(1));
+				if (maxVersionFile == null || version > maxVersion) {
+					maxVersionFile = fileName;
+					maxVersion = version;
+				}
+			}
+		}
+		if (maxVersionFile == null)
+			return null;
+		
+		return new File(dir, maxVersionFile);
+    }
     /**
      * Given a library name (e.g. "test"), finds the shared library file in the system-specific path ("/usr/bin/libtest.so", "./libtest.dylib", "c:\\windows\\system\\test.dll"...)
 	 */
@@ -549,36 +606,29 @@ public class BridJ {
 			for (String path : paths) {
 				File pathFile = path == null ? null : new File(path);
 				File f = new File(name);
-				if (pathFile != null) {
-					if (isWindows()) {
-						if (!f.exists()) {
-							f = new File(pathFile, name + ".dll");
-						}
-						if (!f.exists()) {
-							f = new File(pathFile, name + ".drv");
-						}
-					} else if (isUnix()) {
-						if (isMacOSX()) {
-							if (!f.exists()) {
-								f = new File(pathFile, "lib" + name + ".dylib");
+				if (!f.exists() && pathFile != null) {
+					String[] possibleFileNames = getPossibleFileNames(name);
+					for (String possibleFileName : possibleFileNames) { 
+						f = new File(pathFile, possibleFileName);
+						if (f.exists())
+							break;
 					}
-						} else {
-							if (!f.exists()) {
-								f = new File(pathFile, "lib" + name + ".so");
+					
+					if (!f.exists() && isLinux()) {
+						String[] files = pathFile.list();
+						for (String possibleFileName : possibleFileNames) { 
+							f = findFileWithGreaterVersion(pathFile, files, possibleFileName);
+							if (f.exists()) {
+								if (verbose)
+									log(Level.INFO, "File '" + possibleFileName + "' was not found, used versioned file '" + f + "' instead.");
+								break;
 							}
-							if (!f.exists()) {
-								f = new File(pathFile, name + ".so");
-							}
-						}
-						if (!f.exists()) {
-							f = new File(pathFile, "lib" + name + ".jnilib");
 						}
 					}
 				}
 	
-				if (!f.exists()) {
+				if (!f.exists())
 					continue;
-				}
 	
 				try {
 					return f.getCanonicalFile();
