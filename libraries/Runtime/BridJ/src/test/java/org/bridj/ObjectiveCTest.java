@@ -83,6 +83,7 @@ public class ObjectiveCTest {
     
     @Test
     public void testNSString() {
+    		if (!mac) return;
         for (String s : new String[] { "", "1", "ha\nha\u1234" }) {
             assertEquals(s, pointerToNSString(s).get().toString());
             
@@ -94,6 +95,7 @@ public class ObjectiveCTest {
     
     @Test
     public void testSEL() {
+        if (!mac) return;
         for (String s : new String[] { "", "1", "ha:ha" }) {
             SEL sel = SEL.valueOf(s);
             assertEquals(s, sel.getName());
@@ -102,7 +104,8 @@ public class ObjectiveCTest {
     
     @Test
     public void testNSDictionary() {
-    		Map<String, NSObject> map = new HashMap<String, NSObject>(), map2;
+    		if (!mac) return;
+        Map<String, NSObject> map = new HashMap<String, NSObject>(), map2;
     		for (String s : new String[] { "", "1", "ha\nha\u1234" })
     			map.put(s, NSString.valueOf(s + s));
     		
@@ -133,9 +136,14 @@ public class ObjectiveCTest {
         assertEquals(1 + ptr.get(), p.add2(1, ptr));
 		assertEquals(127, p.add8((byte)1, (short)2, (int)4, (char)8, (long)16, (double)32, ptr), 0);
     }
+    String DESCRIPTION = "WHATEVER !!!";
     @Test
     public void testProxy() {
+        if (!mac) return;
         ObjCProxy proxy = new ObjCProxy() {
+			public Pointer<NSString> description() {
+				return pointerToNSString(DESCRIPTION);
+			}
             public int add2(int a, Pointer<Integer> p) {
                 return a + p.get();
             }
@@ -153,12 +161,14 @@ public class ObjectiveCTest {
     
     @Test
     public void testProxyFloat() {
+        if (!mac) return;
         Object proxy = new Object() {
             public float incf(float v) {
                 return v + 1;
             }
 		};
         NSNonExistentTestClass p = pointerTo(new ObjCProxy(proxy)).as(NSNonExistentTestClass.class).get();
+        System.out.println(p.description().get());
         assertEquals(11, p.incf(10), 0);
     }
 }
