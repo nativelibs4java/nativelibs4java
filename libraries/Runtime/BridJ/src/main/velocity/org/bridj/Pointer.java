@@ -1339,31 +1339,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold byteSize consecutive bytes
      */
     public static <V> Pointer<V> allocateBytes(PointerIO<V> io, long byteSize, final Releaser beforeDeallocation) {
-    		if (defaultAlignment < 0)
-    			return allocateNonAlignedBytes(io, byteSize, beforeDeallocation);
-    		else
-    			return allocateAlignedBytes(io, byteSize, defaultAlignment, beforeDeallocation);
+    		return allocateAlignedBytes(io, byteSize, defaultAlignment, beforeDeallocation);
     }
     	
-    	static <V> Pointer<V> allocateNonAlignedBytes(PointerIO<V> io, long byteSize, final Releaser beforeDeallocation) {
-        if (byteSize == 0)
-        	return null;
-        if (byteSize < 0)
-        	throw new IllegalArgumentException("Cannot allocate a negative amount of memory !");
-        
-        long address = JNI.mallocNulled(byteSize);
-        if (address == 0)
-        	throw new RuntimeException("Failed to allocate " + byteSize);
-
-		return newPointer(io, address, true, address, address + byteSize, null, NO_PARENT, beforeDeallocation == null ? freeReleaser : new Releaser() {
-        	//@Override
-        	public void release(Pointer<?> p) {
-        		beforeDeallocation.release(p);
-        		freeReleaser.release(p);
-        	}
-        }, null);
-    }
-    
     /**
      * Create a memory area large enough to hold byteSize consecutive bytes and return a pointer to elements of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()}), ensuring the pointer to the memory is aligned to the provided boundary.
      * @param io PointerIO instance able to store and retrieve elements of the array
@@ -1372,18 +1350,42 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @param beforeDeallocation fake releaser that should be run just before the memory is actually released, for instance in order to call some object destructor
      * @return a pointer to a new memory area large enough to hold byteSize consecutive bytes
      */
-    public static <V> Pointer<V> allocateAlignedBytes(PointerIO<V> io, long byteSize, int alignment, Releaser beforeDeallocation) {
-    		if (alignment <= 1) 
-    			return allocateNonAlignedBytes(io, byteSize, beforeDeallocation);
-    		long totalBytes = byteSize + alignment - 1;
-    		Pointer<V> p = allocateNonAlignedBytes(io, totalBytes, beforeDeallocation);
-    		int remainder = computeRemainder(p.getPeer(), alignment);
-    		if (remainder > 0) {
-			int padding = alignment - remainder;
-			assert padding > 0;
-    			p = p.offset(padding);
-    		}
-    		return p.validBytes(byteSize);
+    public static <V> Pointer<V> allocateAlignedBytes(PointerIO<V> io, long byteSize, int alignment, final Releaser beforeDeallocation) {
+        if (byteSize == 0)
+        	return null;
+        if (byteSize < 0)
+        	throw new IllegalArgumentException("Cannot allocate a negative amount of memory !");
+        
+        long address, offset = 0;
+        if (alignment <= 1)
+        		address = JNI.mallocNulled(byteSize);
+        	else {
+        		//address = JNI.mallocNulledAligned(byteSize, alignment);
+        		//if (address == 0) 
+        		{
+        			// invalid alignment (< sizeof(void*) or not a power of 2
+        			address = JNI.mallocNulled(byteSize + alignment - 1);
+				long remainder = address % alignment;
+				if (remainder > 0)
+					offset = alignment - remainder;
+        		}
+        	}
+        	
+        if (address == 0)
+        	throw new RuntimeException("Failed to allocate " + byteSize);
+
+		Pointer<V> ptr = newPointer(io, address, true, address, address + byteSize + offset, null, NO_PARENT, beforeDeallocation == null ? freeReleaser : new Releaser() {
+        	//@Override
+        	public void release(Pointer<?> p) {
+        		beforeDeallocation.release(p);
+        		freeReleaser.release(p);
+        	}
+        }, null);
+        
+        if (offset > 0)
+        		ptr = ptr.offset(offset);
+        
+        return ptr;
     }
     
     /**
@@ -1461,8 +1463,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (io == null)
 			throw new UnsupportedOperationException("Cannot allocate memory for type " + (elementClass instanceof Class ? ((Class)elementClass).getName() : elementClass.toString()));
 		long targetSize = io.getTargetSize();
-    	if (targetSize < 0)
-    		throwBecauseUntyped("Cannot allocate array ");
+		if (targetSize < 0)
+			throwBecauseUntyped("Cannot allocate array ");
 		return allocateAlignedBytes(io, targetSize * arrayLength, alignment, null);
     }
 
