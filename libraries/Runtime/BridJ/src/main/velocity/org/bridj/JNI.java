@@ -120,6 +120,8 @@ public class JNI {
 	static native void deleteCallTempStruct(long handle);
 	
 	static native long mallocNulled(long size);
+	static native long mallocNulledAligned(long size, int alignment);
+	
 	static native long malloc(long size);
     static native void free(long pointer);
     static native long strlen(long pointer);

@@ -825,6 +825,14 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_mallocNulled
 
 /*
  * Class:     org_bridj_JNI
+ * Method:    mallocNulledAligned
+ * Signature: (JI)J
+ */
+JNIEXPORT jlong JNICALL Java_org_bridj_JNI_mallocNulledAligned
+  (JNIEnv *, jclass, jlong, jint);
+
+/*
+ * Class:     org_bridj_JNI
  * Method:    malloc
  * Signature: (J)J
  */

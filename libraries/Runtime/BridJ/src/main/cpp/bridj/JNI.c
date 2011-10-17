@@ -10,6 +10,7 @@
 #include <math.h>
 #include <time.h>
 #include "Exceptions.h"
+#include <stdlib.h>
 
 #pragma warning(disable: 4152)
 #pragma warning(disable: 4189) // local variable initialized but unreferenced // TODO remove this !
@@ -1057,6 +1058,18 @@ jlong JNICALL Java_org_bridj_JNI_mallocNulled(JNIEnv *env, jclass clazz, jlong s
 		memset(p, 0, len);
 	return PTR_TO_JLONG(p);
 }
+jlong JNICALL Java_org_bridj_JNI_mallocNulledAligned(JNIEnv *env, jclass clazz, jlong size, jint alignment) 
+{
+	size_t len = (size_t)size;
+	void* p;
+	if (posix_memalign(&p, alignment, len))
+		return NULL;
+	if (p)
+		memset(p, 0, len);
+	return PTR_TO_JLONG(p);
+}
+
+
 
 FUNC_1(jlong, malloc, jlong, size_t)
 
