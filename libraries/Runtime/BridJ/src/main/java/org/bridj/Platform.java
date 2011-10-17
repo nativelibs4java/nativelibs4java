@@ -130,6 +130,14 @@ public class Platform {
 		//	System.out.println("\t" + url);
 		return new URLClassLoader(urls.toArray(new URL[urls.size()]));
 	}
+	static String getenvOrProperty(String envName, String javaName, String defaultValue) {
+		String value = System.getenv(envName);
+		if (value == null)
+			value = System.getProperty(javaName);
+		if (value == null)
+			value = defaultValue;
+		return value;
+	}
     public static void initLibrary() {
         if (inited)
             return;
@@ -137,9 +145,7 @@ public class Platform {
         try {
         		boolean loaded = false;
 	        		
-        		String forceLibFile = System.getenv("BRIDJ_LIBRARY");
-        		if (forceLibFile == null)
-        			forceLibFile = System.getProperty("bridj.library");
+        		String forceLibFile = getenvOrProperty("BRIDJ_LIBRARY", "bridj.library", null);
         		
         		String lib = null;
         		

@@ -217,6 +217,26 @@ public class PointerTest {
 		assertEquals(pp.offset(2 * Pointer.SIZE), ref);
 	}
 	
+	void testAlignment(int alignment) {
+		for (long byteSize : new long[] { 1, 2, 3, 4, 5, 10, 130 }) {
+			Pointer<Integer> p = allocateAlignedBytes(PointerIO.getIntInstance(), byteSize, alignment, null);
+			assertTrue(p.isAligned(alignment));
+			if (alignment > 1)
+				assertTrue((((int)p.getPeer()) % alignment) == 0);
+			assertEquals(byteSize, p.getValidBytes());
+		}
+	}
+#foreach ($align in [0, 1, 2, 4, 8, 16, 32, 64])
+	@Test
+	public void testAlignment${align}() {
+		testAlignment($align);
+	}
+#end
+	@Test
+	public void testDefaultAlignment() {
+		testAlignment(-1);
+	}
+	
 #macro (testString $string $eltWrapper)
 	@Test
     public void test${string}String() {

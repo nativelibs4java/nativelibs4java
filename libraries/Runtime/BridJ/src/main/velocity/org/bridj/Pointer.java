@@ -251,6 +251,11 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	private static long UNKNOWN_VALIDITY = -1;
 	private static long NO_PARENT = 0/*-1*/;
 	
+	/**
+	 * Default alignment used to allocate memory from the static factory methods in Pointer class (any value lower or equal to 1 means no alignment)
+	 */
+	public static final int defaultAlignment = Integer.parseInt(Platform.getenvOrProperty("BRIDJ_DEFAULT_ALIGNMENT", "bridj.defaultAlignment", "-1"));
+	
 	private final PointerIO<T> io;
 	private final long peer, offsetInParent;
 	private final Pointer<?> parent;
@@ -819,23 +824,31 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * @return address % alignment == 0
 	 */
 	protected static boolean isAligned(long address, long alignment) {
+		return computeRemainder(address, alignment) == 0;
+	}
+	
+	protected static int computeRemainder(long address, long alignment) {
 		switch ((int)alignment) {
+		case -1:
+		case 0:
 		case 1:
-			return true;
+			return 0;
 		case 2:
-			return (address & 1) == 0;
+			return (int)(address & 1);
 		case 4:
-			return (address & 3) == 0;
+			return (int)(address & 3);
 		case 8:
-			return (address & 7) == 0;
+			return (int)(address & 7);
 		case 16:
-			return (address & 15) == 0;
+			return (int)(address & 15);
 		case 32:
-			return (address & 31) == 0;
+			return (int)(address & 31);
 		case 64:
-			return (address & 63) == 0;
+			return (int)(address & 63);
 		default:
-			return (address % alignment) == 0;
+			if (alignment < 0)
+				return 0;
+			return (int)(address % alignment);
 		}
 	}
 	
@@ -1326,6 +1339,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold byteSize consecutive bytes
      */
     public static <V> Pointer<V> allocateBytes(PointerIO<V> io, long byteSize, final Releaser beforeDeallocation) {
+    		if (defaultAlignment < 0)
+    			return allocateNonAlignedBytes(io, byteSize, beforeDeallocation);
+    		else
+    			return allocateAlignedBytes(io, byteSize, defaultAlignment, beforeDeallocation);
+    }
+    	
+    	static <V> Pointer<V> allocateNonAlignedBytes(PointerIO<V> io, long byteSize, final Releaser beforeDeallocation) {
         if (byteSize == 0)
         	return null;
         if (byteSize < 0)
@@ -1343,6 +1363,29 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         	}
         }, null);
     }
+    
+    /**
+     * Create a memory area large enough to hold byteSize consecutive bytes and return a pointer to elements of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()}), ensuring the pointer to the memory is aligned to the provided boundary.
+     * @param io PointerIO instance able to store and retrieve elements of the array
+     * @param byteSize length of the array in bytes
+     * @param alignment boundary to which the returned pointer should be aligned
+     * @param beforeDeallocation fake releaser that should be run just before the memory is actually released, for instance in order to call some object destructor
+     * @return a pointer to a new memory area large enough to hold byteSize consecutive bytes
+     */
+    public static <V> Pointer<V> allocateAlignedBytes(PointerIO<V> io, long byteSize, int alignment, Releaser beforeDeallocation) {
+    		if (alignment <= 1) 
+    			return allocateNonAlignedBytes(io, byteSize, beforeDeallocation);
+    		long totalBytes = byteSize + alignment - 1;
+    		Pointer<V> p = allocateNonAlignedBytes(io, totalBytes, beforeDeallocation);
+    		int remainder = computeRemainder(p.getPeer(), alignment);
+    		if (remainder > 0) {
+			int padding = alignment - remainder;
+			assert padding > 0;
+    			p = p.offset(padding);
+    		}
+    		return p.validBytes(byteSize);
+    }
+    
     /**
      * Create a pointer that depends this pointer and will call a releaser prior to release this pointer, when it is GC'd.<br>
      * This pointer MUST NOT be used anymore.
@@ -1392,26 +1435,35 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (pio == null)
 			throw new UnsupportedOperationException("Cannot allocate memory for type " + (elementClass instanceof Class ? ((Class)elementClass).getName() : elementClass.toString()));
 		return (Pointer<V>)allocateArray(pio, arrayLength);
-		/*
-        #foreach ($prim in $primitives)
-        if (elementClass == ${prim.WrapperName}.TYPE || elementClass == ${prim.WrapperName}.class)
-            return (Pointer<V>)allocateArray(PointerIO.get${prim.CapName}Instance(), arrayLength);
-        #end
-        if (Pointer.class.isAssignableFrom(elementClass))
-            return (Pointer<V>)allocateArray(PointerIO.getPointerInstance(elementClass), arrayLength); // TODO
-        if (SizeT.class.isAssignableFrom(elementClass))
-            return (Pointer<V>)allocateArray(PointerIO.getSizeTInstance(), arrayLength); // TODO
-        if (CLong.class.isAssignableFrom(elementClass))
-            return (Pointer<V>)allocateArray(PointerIO.getCLongInstance(), arrayLength); // TODO
-        if (StructObject.class.isAssignableFrom(elementClass)) {
-        	CRuntime runtime = (CRuntime)BridJ.getRuntime(elementClass);
-        	StructIO sio = StructIO.getInstance(elementClass, elementClass);
-        	PointerIO pio = PointerIO.getInstance(sio);
-        	return (Pointer<V>)allocateArray(pio, arrayLength); // TODO
-        }
-        //if (CLong.class.isAssignableFrom(elementClass))
-        //    return (Pointer<V>)allocate(PointerIO.getPointerInstance(), Pointer.SIZE * arrayLength); // TODO
-        throw new UnsupportedOperationException("Cannot allocate memory for type " + elementClass.getName());*/
+    }
+    
+    
+    /**
+     * Create a memory area large enough to hold arrayLength items of type elementClass, ensuring the pointer to the memory is aligned to the provided boundary.
+     * @param elementClass type of the array elements
+     * @param arrayLength length of the array in elements
+     * @param alignment boundary to which the returned pointer should be aligned
+     * @return a pointer to a new memory area large enough to hold arrayLength items of type elementClass.  
+     */
+    public static <V> Pointer<V> allocateAlignedArray(Class<V> elementClass, long arrayLength, int alignment) {
+        return allocateAlignedArray((Type)elementClass, arrayLength, alignment);
+    }
+    
+    /**
+     * Create a memory area large enough to hold arrayLength items of type elementClass, ensuring the pointer to the memory is aligned to the provided boundary.
+     * @param elementClass type of the array elements
+     * @param arrayLength length of the array in elements
+     * @param alignment boundary to which the returned pointer should be aligned
+     * @return a pointer to a new memory area large enough to hold arrayLength items of type elementClass.
+     */
+    public static <V> Pointer<V> allocateAlignedArray(Type elementClass, long arrayLength, int alignment) {
+		PointerIO io = PointerIO.getInstance(elementClass);
+		if (io == null)
+			throw new UnsupportedOperationException("Cannot allocate memory for type " + (elementClass instanceof Class ? ((Class)elementClass).getName() : elementClass.toString()));
+		long targetSize = io.getTargetSize();
+    	if (targetSize < 0)
+    		throwBecauseUntyped("Cannot allocate array ");
+		return allocateAlignedBytes(io, targetSize * arrayLength, alignment, null);
     }
 
     /**
