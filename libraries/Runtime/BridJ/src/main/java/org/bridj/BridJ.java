@@ -738,7 +738,10 @@ public class BridJ {
 		//if (ll == null && f != null)
 		//	ll = NativeLibrary.load(f.getName());
         if (ll == null) {
-            throw new FileNotFoundException("Library '" + name + "' was not found in path '" + getNativeLibraryPaths() + "'" + (f != null && f.exists() ? " (failed to load " + f + ")" : ""));
+            if (f != null && f.exists())
+            	throw new RuntimeException("Library '" + name + "' was not loaded successfully from file '" + f + "'");
+            else
+            	throw new FileNotFoundException("Library '" + name + "' was not found in path '" + getNativeLibraryPaths() + "'" + (f != null && f.exists() ? " (failed to load " + f + ")" : ""));
         }
         log(Level.INFO, "Loaded library '" + name + "' from '" + f + "'", null);
         
