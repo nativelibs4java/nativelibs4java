@@ -136,6 +136,19 @@ Index: dyncall/dynload/dynload_syms_mach-o.c
  		}
  	}
  	return NULL;
+Index: dyncall/dynload/dynload_unix.c
+===================================================================
+--- dyncall/dynload/dynload_unix.c	(revision 1272)
++++ dyncall/dynload/dynload_unix.c	(working copy)
+@@ -40,7 +40,7 @@
+ 
+ DLLib* dlLoadLibrary(const char* libPath)
+ {
+-  return (DLLib*)dlopen(libPath,RTLD_NOW);
++  return (DLLib*)dlopen(libPath, RTLD_LAZY);
+ }
+ 
+ 
 Index: dyncall/buildsys/gmake/os/android.gmake
 ===================================================================
 --- dyncall/buildsys/gmake/os/android.gmake	(revision 0)
