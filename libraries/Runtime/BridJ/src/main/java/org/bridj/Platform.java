@@ -82,8 +82,16 @@ public class Platform {
     }
     public static native utsname uname();
     */
-    
+    static final List<String> embeddedLibraryResourceRoots = new ArrayList<String>();
+    public static synchronized void addEmbeddedLibraryResourceRoot(String root) {
+    		embeddedLibraryResourceRoots.add(0, root);
+    }
 	static {
+        
+        	addEmbeddedLibraryResourceRoot("lib/");
+        if (!isAndroid())
+        		addEmbeddedLibraryResourceRoot("org/bridj/lib/");
+        	
         try {
             initLibrary();
             
@@ -286,13 +294,9 @@ public class Platform {
         return arch.equals("x86_64");
     }
 
-    static Collection<String> getEmbeddedLibraryResource(String name) {
+    static synchronized Collection<String> getEmbeddedLibraryResource(String name) {
     		Collection<String> ret = new ArrayList<String>();
     		
-    		String[] embeddedLibraryResourceRoots = new String[] { 
-			isAndroid() ? null : "org/bridj/lib/", 
-			"lib/" 
-		};
     		for (String root : embeddedLibraryResourceRoots) {
     			if (root == null)
     				continue;
