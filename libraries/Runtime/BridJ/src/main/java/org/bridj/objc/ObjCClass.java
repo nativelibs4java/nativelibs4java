@@ -7,7 +7,7 @@ public class ObjCClass extends ObjCObject {
 		BridJ.register();
 	}
 	public native <T extends ObjCObject> Pointer<T> alloc();
-	@Selector("new:")
+	@Selector("new")
 	public native <T extends ObjCObject> Pointer<T> new$();
 	
 	public native boolean instancesRespondTo(SEL sel);
