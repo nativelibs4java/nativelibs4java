@@ -1389,7 +1389,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     /**
-     * Create a pointer that depends this pointer and will call a releaser prior to release this pointer, when it is GC'd.<br>
+     * Create a pointer that depends on this pointer and will call a releaser prior to release this pointer, when it is GC'd.<br>
      * This pointer MUST NOT be used anymore.
      * @deprecated This method can easily be misused and is reserved to advanced users.
      * @param beforeDeallocation releaser that should be run before this pointer's releaser (if any).
