@@ -771,7 +771,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return instance == null ? null : (Pointer<R>)instance.peer;
     }
     /**
-    * Get the address of a native object, specifying the type of the pointer's target (same as {@code pointerTo(instance, targetType).getPeer()}, see {@link Pointer#pointerTo(NativeObject, Class)}).<br>
+    * Get the address of a native object, specifying the type of the pointer's target (same as {@code pointerTo(instance, targetType).getPeer()}, see {@link Pointer#pointerTo(NativeObject, Type)}).<br>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */
     public static long getAddress(NativeObject instance, Class targetType) {
@@ -2141,7 +2141,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     
     /**
      * Copy bytes from the memory location indicated by this pointer to that of another pointer using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function.<br>
-     * If the destination and source memory locations are likely to overlap, {@link Pointer#moveBytesAtOffsetTo(long, Pointer, long, long)} must be used instead.
+     * If the destination and source memory locations are likely to overlap, {@link Pointer#moveBytesAtOffsetTo(long, Pointer, long, long)} must be used instead.<br>
+     * See {@link Pointer#copyBytesAtOffsetTo(long, Pointer, long, long)} for more options.
      */
     @Deprecated
 	public Pointer<T> copyBytesTo(Pointer<?> destination, long byteCount) {
@@ -2196,7 +2197,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     /**
-    * Copy remaining bytes from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesTo(long, Pointer, long, long)}, {@link Pointer#getValidBytes})
+    * Copy remaining bytes from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesTo(Pointer, long)}, {@link Pointer#getValidBytes()})
      */
     public void copyTo(Pointer<?> destination) {
     		copyBytesAtOffsetTo(0, destination, 0, getValidBytes("Cannot copy unbounded pointer without element count information. Please use copyTo(destination, elementCount) instead."));

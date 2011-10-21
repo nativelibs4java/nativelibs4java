@@ -83,6 +83,19 @@ public class Platform {
     public static native utsname uname();
     */
     static final List<String> embeddedLibraryResourceRoots = new ArrayList<String>();
+    
+    /**
+     * BridJ is able to automatically extract native binaries bundled in the application's JARs, using a customizable root path and a predefined architecture-dependent subpath. This method adds an alternative root path to the search list.<br>
+     * For instance, if you want to load library "mylib" and call <code>addEmbeddedLibraryResourceRoot("my/company/lib/")</code>, BridJ will look for library in the following locations :
+     * <ul>
+     * <li>"my/company/lib/darwin_universal/libmylib.dylib" on MacOS X (or darwin_x86, darwin_x64, darwin_ppc if the binary is not universal)</li>
+     * <li>"my/company/lib/win32/mylib.dll" on Windows (use win64 on 64 bits architectures)</li>
+     * <li>"my/company/lib/linux_x86/libmylib.so" on Linux (use linux_x64 on 64 bits architectures)</li>
+     * <li>"my/company/lib/sunos_x86/libmylib.so" on Solaris (use sunos_x64 / sunos_sparc on other architectures)</li>
+     * <li>"lib/armeabi/libmylib.so" on Android (for Android-specific reasons, only the "lib" sub-path can effectively contain loadable binaries)</li>
+     * </ul>
+     * For other platforms or for an updated list of supported platforms, please have a look at BridJ's JAR contents (under "org/bridj/lib") and/or to its source tree, browsable online. 
+     */
     public static synchronized void addEmbeddedLibraryResourceRoot(String root) {
     		embeddedLibraryResourceRoots.add(0, root);
     }
