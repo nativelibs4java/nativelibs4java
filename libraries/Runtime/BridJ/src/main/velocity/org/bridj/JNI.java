@@ -5,7 +5,7 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.Buffer;
-import static org.bridj.Dyncall.*;
+import static org.bridj.dyncall.DyncallLibrary.*;
 import static org.bridj.Pointer.*;
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -133,7 +133,4 @@ public class JNI {
     static native long memmem_last(long haystack, long haystackLength, long needle, long needleLength);
     static native int memcmp(long ptr1, long ptr2, long num);
     static native void memset(long ptr, byte value, long num);
-    
-    @Deprecated
-    public static synchronized native Pointer<? extends ObjCObject> createObjCProxyPeer(ObjCProxy javaInstance);
 }

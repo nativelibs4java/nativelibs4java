@@ -106,4 +106,7 @@ public class Utils {
         return ret;
     }
 	
+    public static Type getUniqueParameterizedTypeParameter(Type type) {
+    		return (type instanceof ParameterizedType) ? ((ParameterizedType)type).getActualTypeArguments()[0] : null;
+    }
 }

@@ -919,14 +919,6 @@ JNIEXPORT jint JNICALL Java_org_bridj_JNI_memcmp
 JNIEXPORT void JNICALL Java_org_bridj_JNI_memset
   (JNIEnv *, jclass, jlong, jbyte, jlong);
 
-/*
- * Class:     org_bridj_JNI
- * Method:    createObjCProxyPeer
- * Signature: (Lorg/bridj/objc/ObjCProxy;)Lorg/bridj/Pointer;
- */
-JNIEXPORT jobject JNICALL Java_org_bridj_JNI_createObjCProxyPeer
-  (JNIEnv *, jclass, jobject);
-
 #ifdef __cplusplus
 }
 #endif

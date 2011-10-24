@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
+import static org.bridj.objc.ObjCJNI.*;
 import static org.bridj.Platform.*;
 import java.util.*;
 import org.bridj.util.Pair;
@@ -16,13 +17,13 @@ public class ObjCProxy extends ObjCObject {
 	
 	protected ObjCProxy() {
 		super(null);
-		peer = JNI.createObjCProxyPeer(this);
+		peer = createObjCProxyPeer(this);
 		assert getClass() != ObjCProxy.class;
 		this.invocationTarget = this;
 	}
 	public ObjCProxy(Object invocationTarget) {
 		super(null);
-		peer = JNI.createObjCProxyPeer(this);
+		peer = createObjCProxyPeer(this);
 		assert invocationTarget != null;
 		this.invocationTarget = invocationTarget;
 	}
@@ -64,6 +65,9 @@ public class ObjCProxy extends ObjCObject {
 				return new Pair<NSMethodSignature, Method>(ms, method);
 			}
 		}
+		if (BridJ.debug)
+			BridJ.log(Level.INFO, "Failed to compute method and signature for selector " + sel + " in class " + getInvocationTarget().getClass().getName());
+				
 		return null;
 	}
     /*
