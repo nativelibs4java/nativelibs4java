@@ -14,6 +14,7 @@ import java.util.logging.Level;
 import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Convention;
+import org.bridj.ann.JNIBound;
 import org.bridj.util.AutoHashMap;
 import java.lang.reflect.Type;
 import org.bridj.ann.Optional;
@@ -315,8 +316,10 @@ public class CRuntime extends AbstractBridJRuntime {
 			List<Method> nativeMethods = new ArrayList<Method>();
 			for (Method method : typeClass.getDeclaredMethods()) {
 				int modifiers = method.getModifiers();
-				if (Modifier.isNative(modifiers))
-					nativeMethods.add(method);
+				if (Modifier.isNative(modifiers)) {
+					if (method.getAnnotation(JNIBound.class) == null)
+						nativeMethods.add(method);
+				}
 			}
 					
 			if (!nativeMethods.isEmpty())
