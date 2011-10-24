@@ -5,6 +5,7 @@ org.bridj.JNI
 org.bridj.BridJ
 org.bridj.Pointer
 org.bridj.Platform
+org.bridj.objc.ObjCJNI
 "
 
 if [[ "$@" != "clean" && "$@" != "fast" ]] ; then

@@ -1,8 +1,6 @@
 package org.bridj;
-import static org.bridj.Pointer.*;
 import org.junit.Test;
 import org.junit.BeforeClass;
-import static org.junit.Assert.*;
 
 import org.bridj.ann.Library;
 import org.bridj.ann.Optional;

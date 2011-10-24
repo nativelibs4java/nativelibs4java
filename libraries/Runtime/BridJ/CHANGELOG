@@ -23,6 +23,7 @@ Current version : BridJ 0.6-SNAPSHOT
 - Added partial proxy-based Objective-C delegates support (forwards unknown methods to a Java instance) (issue #188)
 - Added basic calls log mechanism (disables direct mode) : -Dbridj.logCalls=true or BRIDJ_LOG_CALLS=1 (only logs the method name & signature, not the arguments or returned values)
 - Added BridJ.setMinLogLevel(Level) (issue #190)
+- Added Platform.addEmbeddedLibraryResourceRoot(root) to use & customize the embedded library extraction feature in user projects
 - Made the StructIO customization mechanism more flexible
 - Made JawtLibrary public
 - Various Javadoc tweaks

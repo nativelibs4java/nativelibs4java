@@ -5,6 +5,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import static org.bridj.util.Utils.*;
 
 interface CallIO {
 	Object newInstance(long address);
@@ -23,7 +24,7 @@ interface CallIO {
         }
         public static CallIO createPointerCallIO(Class<?> cl, Type type) {
             if (cl == Pointer.class)
-                return createPointerCallIOToTargetType((type instanceof ParameterizedType) ? ((ParameterizedType)type).getActualTypeArguments()[0] : null);
+                return createPointerCallIOToTargetType(getUniqueParameterizedTypeParameter(type));
 
             assert TypedPointer.class.isAssignableFrom(cl);
             return new CallIO.TypedPointerIO(((Class<? extends TypedPointer>)cl));

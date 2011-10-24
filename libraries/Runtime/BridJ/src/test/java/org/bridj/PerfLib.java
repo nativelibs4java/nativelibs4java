@@ -5,13 +5,8 @@
 
 package org.bridj;
 
-import org.bridj.JNI;
-import org.bridj.BridJ;
 import org.bridj.ann.Library;
 //import com.sun.jna.Native;
-import java.io.FileNotFoundException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

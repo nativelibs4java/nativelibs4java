@@ -2,9 +2,7 @@ package org.bridj;
 
 
 import org.bridj.demangling.Demangler;
-import java.io.FileNotFoundException;
 import java.util.Collection;
-import java.util.Set;
 
 import org.junit.Test;
 

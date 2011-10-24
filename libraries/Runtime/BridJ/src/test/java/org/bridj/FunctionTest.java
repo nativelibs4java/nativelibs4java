@@ -5,8 +5,6 @@
 
 package org.bridj;
 
-import org.bridj.JNI;
-import org.bridj.BridJ;
 import org.bridj.ann.Library;
 //import com.sun.jna.Native;
 import java.util.Collections;

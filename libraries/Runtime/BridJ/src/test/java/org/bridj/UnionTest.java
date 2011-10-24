@@ -5,13 +5,10 @@
 
 package org.bridj;
 
-import java.nio.ByteBuffer;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.bridj.ann.Field;
-import static org.bridj.Pointer.*;
-import static org.bridj.BridJ.*;
 
 /**
  *

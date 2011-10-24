@@ -1,11 +1,9 @@
 package org.bridj;
 
-import org.bridj.BridJRuntime.TypeInfo;
 import org.bridj.cpp.CPPRuntime.CPPTypeInfo;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import org.bridj.*;
 import org.bridj.ann.Constructor;
 import org.bridj.ann.Template;
 import org.bridj.ann.Library;

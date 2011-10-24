@@ -6,7 +6,7 @@ import java.net.URL;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.Buffer;
-import static org.bridj.Dyncall.*;
+import static org.bridj.NativeConstants.*;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Collections;
@@ -186,7 +186,8 @@ public class Platform {
 							File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
 							BridJ.log(Level.INFO, "Loading library " + libFile);
 							System.load(lib = libFile.toString());
-								loaded = true;
+                            BridJ.setNativeLibraryFile(BridJLibraryName, libFile);
+                            loaded = true;
 						} catch (IOException ex) {}
 					if (!loaded)
 						System.loadLibrary("bridj");
@@ -352,7 +353,7 @@ public class Platform {
 		return ret;
     }
     static File extractEmbeddedLibraryResource(String name) throws IOException {
-    		String firstLibraryResource = null;
+        String firstLibraryResource = null;
 		for (String libraryResource : getEmbeddedLibraryResource(name)) {
 			if (firstLibraryResource == null)
 				firstLibraryResource = libraryResource;

@@ -570,6 +570,8 @@ public class BridJ {
 		
 		return new File(dir, maxVersionFile);
     }
+    
+    static Map<String, File> nativeLibraryFiles = new HashMap<String, File>();
     /**
      * Given a library name (e.g. "test"), finds the shared library file in the system-specific path ("/usr/bin/libtest.so", "./libtest.dylib", "c:\\windows\\system\\test.dll"...)
 	 */
@@ -577,95 +579,115 @@ public class BridJ {
         if (libraryName == null)
             return null;
         
+        synchronized (nativeLibraryFiles) {
+            File nativeLibraryFile = nativeLibraryFiles.get(libraryName);
+            if (nativeLibraryFile == null) {
+                nativeLibraryFiles.put(libraryName, nativeLibraryFile = findNativeLibraryFile(libraryName));
+            }
+            return nativeLibraryFile;
+        }
+    }
+    /**
+     * Associate a library name (e.g. "test"), to its shared library file.
+	 */
+    public static void setNativeLibraryFile(String libraryName, File nativeLibraryFile) {
+        if (libraryName == null)
+            return;
+        
+        synchronized (nativeLibraryFiles) {
+            nativeLibraryFiles.put(libraryName, nativeLibraryFile);
+        }
+    }
+    static File findNativeLibraryFile(String libraryName) {
         //out.println("Getting file of '" + name + "'");
         String actualName = libraryActualNames.get(libraryName);
-		List<String> aliases = libraryAliases.get(libraryName);
-		List<String> possibleNames = new ArrayList<String>();
-		if (aliases != null)
-			possibleNames.addAll(aliases);
-		possibleNames.add(actualName == null ? libraryName : actualName);
-		
-		//out.println("Possible names = " + possibleNames);
-		List<String> paths = getNativeLibraryPaths();
-		log(Level.INFO, "Looking for library '" + libraryName + "' " + (actualName != null ? "('" + actualName + "') " : "") + "in paths " + paths, null);
-		
-		for (String name : possibleNames) {
-			String env = getenv("BRIDJ_" + name.toUpperCase() + "_LIBRARY");
-			if (env == null)
-				env = getProperty("bridj." + name + ".library");
-			if (env != null) {
-				File f = new File(env);
-				if (f.exists()) {
-					try {
-						return f.getCanonicalFile();
-					} catch (IOException ex) {
-						log(Level.SEVERE, null, ex);
-					}
-				}
-			}
-			for (String path : paths) {
-				File pathFile = path == null ? null : new File(path);
-				File f = new File(name);
-				if (!f.exists() && pathFile != null) {
-					String[] possibleFileNames = getPossibleFileNames(name);
-					for (String possibleFileName : possibleFileNames) { 
-						f = new File(pathFile, possibleFileName);
-						if (f.exists())
-							break;
-					}
-					
-					if (!f.exists() && isLinux()) {
-						String[] files = pathFile.list();
-						if (files != null)
-							for (String possibleFileName : possibleFileNames) {
-								File ff = findFileWithGreaterVersion(pathFile, files, possibleFileName);
-								if (ff != null && (f = ff).exists()) {
-									if (verbose)
-										log(Level.INFO, "File '" + possibleFileName + "' was not found, used versioned file '" + f + "' instead.");
-									break;
-								}
-							}
-					}
-				}
-	
-				if (!f.exists())
-					continue;
-	
-				try {
-					return f.getCanonicalFile();
-				} catch (IOException ex) {
-					log(Level.SEVERE, null, ex);
-				}
-			}
-			if (isMacOSX()) {
-				for (String s : new String[]{
-					"/System/Library/Frameworks",
-					"/System/Library/Frameworks/ApplicationServices.framework/Frameworks",
-					new File(getProperty("user.home"), "Library/Frameworks").toString()
-				}) {
-					try {
-						File f = new File(new File(s, name + ".framework"), name);
-						if (f.exists() && !f.isDirectory())
-							return f.getCanonicalFile();
-					} catch (IOException ex) {
-						ex.printStackTrace();
-						return null;
-				}
-			}
-			}
-			try {
-				File f;
-				if (isAndroid())
-					f = new File("lib" + name + ".so");
-				else
-					f = extractEmbeddedLibraryResource(name);
-				
-				if (f != null && f.exists())
-					return f;
-			} catch (IOException ex) {
-				throw new RuntimeException(ex);
-			}
-		}
+        List<String> aliases = libraryAliases.get(libraryName);
+        List<String> possibleNames = new ArrayList<String>();
+        if (aliases != null)
+            possibleNames.addAll(aliases);
+        possibleNames.add(actualName == null ? libraryName : actualName);
+
+        //out.println("Possible names = " + possibleNames);
+        List<String> paths = getNativeLibraryPaths();
+        log(Level.INFO, "Looking for library '" + libraryName + "' " + (actualName != null ? "('" + actualName + "') " : "") + "in paths " + paths, null);
+
+        for (String name : possibleNames) {
+            String env = getenv("BRIDJ_" + name.toUpperCase() + "_LIBRARY");
+            if (env == null)
+                env = getProperty("bridj." + name + ".library");
+            if (env != null) {
+                File f = new File(env);
+                if (f.exists()) {
+                    try {
+                        return f.getCanonicalFile();
+                    } catch (IOException ex) {
+                        log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+            for (String path : paths) {
+                File pathFile = path == null ? null : new File(path);
+                File f = new File(name);
+                if (!f.exists() && pathFile != null) {
+                    String[] possibleFileNames = getPossibleFileNames(name);
+                    for (String possibleFileName : possibleFileNames) { 
+                        f = new File(pathFile, possibleFileName);
+                        if (f.exists())
+                            break;
+                    }
+
+                    if (!f.exists() && isLinux()) {
+                        String[] files = pathFile.list();
+                        if (files != null)
+                            for (String possibleFileName : possibleFileNames) {
+                                File ff = findFileWithGreaterVersion(pathFile, files, possibleFileName);
+                                if (ff != null && (f = ff).exists()) {
+                                    if (verbose)
+                                        log(Level.INFO, "File '" + possibleFileName + "' was not found, used versioned file '" + f + "' instead.");
+                                    break;
+                                }
+                            }
+                    }
+                }
+
+                if (!f.exists())
+                    continue;
+
+                try {
+                    return f.getCanonicalFile();
+                } catch (IOException ex) {
+                    log(Level.SEVERE, null, ex);
+                }
+            }
+            if (isMacOSX()) {
+                for (String s : new String[]{
+                    "/System/Library/Frameworks",
+                    "/System/Library/Frameworks/ApplicationServices.framework/Frameworks",
+                    new File(getProperty("user.home"), "Library/Frameworks").toString()
+                }) {
+                    try {
+                        File f = new File(new File(s, name + ".framework"), name);
+                        if (f.exists() && !f.isDirectory())
+                            return f.getCanonicalFile();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        return null;
+                }
+            }
+            }
+            try {
+                File f;
+                if (isAndroid())
+                    f = new File("lib" + name + ".so");
+                else
+                    f = extractEmbeddedLibraryResource(name);
+
+                if (f != null && f.exists())
+                    return f;
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
 		return null;
     }
     static Boolean directModeEnabled;

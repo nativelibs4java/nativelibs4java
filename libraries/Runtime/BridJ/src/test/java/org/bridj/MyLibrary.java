@@ -3,8 +3,6 @@ package org.bridj;
 import org.bridj.*;
 import static org.bridj.Pointer.*;
 import org.bridj.ann.*;
-import java.io.File;
-import java.io.FileNotFoundException;
 
 /**
  *

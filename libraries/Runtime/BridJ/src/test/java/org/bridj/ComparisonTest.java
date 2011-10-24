@@ -10,11 +10,7 @@ import org.bridj.ann.*;
 import org.bridj.cpp.CPPRuntime;
 import static org.junit.Assert.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;

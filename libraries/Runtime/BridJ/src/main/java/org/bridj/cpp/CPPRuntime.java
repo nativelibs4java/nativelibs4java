@@ -36,7 +36,7 @@ import org.bridj.NativeObject;
 import org.bridj.Pointer;
 import org.bridj.PointerIO;
 
-import static org.bridj.Dyncall.CallingConvention.*;
+import static org.bridj.dyncall.DyncallLibrary.*;
 
 import org.bridj.demangling.Demangler.Symbol;
 import org.bridj.NativeEntities.Builder;

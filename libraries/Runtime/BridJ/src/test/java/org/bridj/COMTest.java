@@ -1,19 +1,14 @@
 package org.bridj;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.bridj.CPPTest.Ctest;
-import org.bridj.CPPTest.Ctest2;
 import org.junit.Test;
 
 import org.bridj.ann.*;
 import static org.junit.Assert.*;
 import org.bridj.cpp.com.COMRuntime;
 import org.bridj.cpp.com.IUnknown;
-import org.bridj.cpp.com.VARIANT;
 import org.bridj.cpp.com.CLSID;
 import org.bridj.cpp.com.IID;
-import org.bridj.cpp.com.DECIMAL;
-import org.bridj.cpp.com.shell.IShellFolder;
 import org.bridj.cpp.com.shell.IShellWindows;
 
 public class COMTest {

@@ -10,6 +10,7 @@ import org.bridj.ann.Library;
 import org.bridj.ann.Array;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Struct;
+import org.bridj.ann.Optional;
 import org.bridj.cpp.com.*;
 import static org.bridj.Pointer.*;
 import static org.bridj.BridJ.*;
@@ -25,8 +26,11 @@ public class StructTest {
 		BridJ.register();
 	}
 
+	@Optional
 	public static native @Ptr long sizeOfVARIANT();
+	@Optional
 	public static native @Ptr long sizeOfDECIMAL();
+	@Optional
 	public static native @Ptr long sizeOfCAPDRIVERCAPS();
 
 
@@ -728,9 +732,11 @@ public class StructTest {
     		assertEquals(s.b, t.b);
     }
     
-    @Ptr
+    @Optional
+	@Ptr
     public static native long sizeOfTimeT();
-    @Ptr
+    @Optional
+	@Ptr
     public static native long sizeOfTimeval();
 
     @Test

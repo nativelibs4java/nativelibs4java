@@ -1,10 +1,8 @@
 package org.bridj;
 import java.lang.annotation.Annotation;
 import java.util.logging.Level;
-import static org.bridj.Dyncall.*;
-import static org.bridj.Dyncall.CallingConvention.*;
-
-import static org.bridj.Dyncall.SignatureChars.*;
+import static org.bridj.NativeConstants.*;
+import static org.bridj.dyncall.DyncallLibrary.*;
 import org.bridj.ann.Constructor;
 //import org.bridj.cpp.CPPObject;
 

@@ -6,15 +6,9 @@
 package org.bridj;
 
 import java.io.FileNotFoundException;
-import org.bridj.ann.Convention.Style;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-import static org.bridj.Pointer.*;
 
 /**
  *

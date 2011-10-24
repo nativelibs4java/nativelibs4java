@@ -4,8 +4,6 @@ import java.io.FileNotFoundException;
 import org.bridj.ann.*; // annotations such as Library...
 
 import static org.bridj.Pointer.*;
-import java.util.Collections;
-import java.util.Iterator;
 import org.junit.*;
 import static org.junit.Assert.*;
 

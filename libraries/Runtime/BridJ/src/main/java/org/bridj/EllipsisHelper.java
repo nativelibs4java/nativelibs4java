@@ -3,7 +3,7 @@ package org.bridj;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
-import org.bridj.Dyncall.ValueType;
+import org.bridj.NativeConstants.ValueType;
 
 class EllipsisHelper {
 	static ThreadLocal<IntBuffer[]> holders = new ThreadLocal<IntBuffer[]>() {
