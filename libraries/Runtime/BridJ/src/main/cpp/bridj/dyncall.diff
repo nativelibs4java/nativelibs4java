@@ -73,6 +73,24 @@ Index: dyncall/dyncallback/GNUmakefile
  ifdef BUILD_TOOL_llvm_gcc
  UNITS += dyncall_callback_arch
  endif
+Index: dyncall/dyncall/dyncall_struct.c
+===================================================================
+--- dyncall/dyncall/dyncall_struct.c	(revision 1272)
++++ dyncall/dyncall/dyncall_struct.c	(working copy)
+@@ -169,7 +169,13 @@
+ 	return s->size;
+ }
+ 
++DCsize dcStructAlignment(DCstruct* s)
++{
++	assert(!s->pCurrentStruct && "Struct was not closed");
++	return s->alignment;
++}
+ 
++
+ void dcArgStructUnroll(DCCallVM* vm, DCstruct* s, DCpointer  value)
+ {
+ 	DCsize i;
 Index: dyncall/dynload/dynload_syms_mach-o.c
 ===================================================================
 --- dyncall/dynload/dynload_syms_mach-o.c	(revision 1272)
