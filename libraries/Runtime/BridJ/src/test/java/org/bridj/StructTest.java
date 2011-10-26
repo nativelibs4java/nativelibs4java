@@ -750,5 +750,29 @@ public class StructTest {
     		tv = ptv.get();
     }
     	
+    
+    @Library("SmallPt") 
+    public static class S extends StructObject {
+        @Field(0)
+        public int a;
+        @Field(1) 
+        public byte b;
+        @Field(2) 
+        public byte c;
+    }
+
+    @Struct(packed = true)
+    public static class PackedS extends S {
+        
+    }
+    
+    @Test
+    public void testPacked() {
+        long s = sizeOf(S.class), ps = sizeOf(PackedS.class);
+        //System.out.println("testPacked " + ps + " vs. " + s);
+        assertEquals("Invalid packed struct size", 6, ps);
+        assertTrue("Packed size (" + ps + ") same as size (" + s + ") !", s != ps); 
+        //assertTrue(ps < s);
+    }
 }
 

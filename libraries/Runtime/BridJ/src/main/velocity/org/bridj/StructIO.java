@@ -466,7 +466,7 @@ public class StructIO {
         		siblings.add(field);
         }
         	
-        	Alignment alignment = structClass.getAnnotation(Alignment.class);
+        Alignment alignment = structClass.getAnnotation(Alignment.class);
         structAlignment = alignment != null ? alignment.value() : 1; //TODO get platform default alignment
 
         List<AggregatedFieldDesc> aggregatedFields = new ArrayList<AggregatedFieldDesc>();
@@ -614,6 +614,9 @@ public class StructIO {
 		structSize = 0;
 		structAlignment = -1;
 		
+        Struct s = structClass.getAnnotation(Struct.class);
+        boolean isPacked = s != null && s.packed();
+        
         if (isVirtual()) {
         		structSize += Pointer.SIZE;
         		if (Pointer.SIZE >= structAlignment)
@@ -623,7 +626,7 @@ public class StructIO {
         int cumulativeBitOffset = 0;
         
         for (FieldDesc aggregatedField : aggregatedFields) {
-        		structAlignment = Math.max(structAlignment, aggregatedField.alignment);
+            structAlignment = Math.max(structAlignment, aggregatedField.alignment);
         		
             if (aggregatedField.bitLength < 0) {
 				// Align fields as appropriate
@@ -632,7 +635,8 @@ public class StructIO {
 					structSize++;
 				}
                 //structAlignment = Math.max(structAlignment, aggregatedField.alignment);
-                structSize = alignSize(structSize, aggregatedField.alignment);
+                if (!isPacked)
+                    structSize = alignSize(structSize, aggregatedField.alignment);
 			}
 			long 
 				fieldByteOffset = structSize, 
@@ -653,7 +657,7 @@ public class StructIO {
         
         if (cumulativeBitOffset > 0)
 			structSize = alignSize(structSize + 1, structAlignment);
-        else if (structSize > 0)
+        else if (structSize > 0 && !isPacked)
             structSize = alignSize(structSize, structAlignment);
 
 	}
