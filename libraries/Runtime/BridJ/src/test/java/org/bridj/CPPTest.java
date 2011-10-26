@@ -1,23 +1,11 @@
 package org.bridj;
 
-import java.util.ArrayList;
-import java.lang.reflect.Method;
-import org.bridj.Dyncall.CallingConvention;
-import java.io.FileNotFoundException;
-
-import java.util.Collection;
-import java.util.List;
-
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 import org.bridj.ann.Constructor;
 import org.bridj.ann.Convention;
-import org.bridj.ann.Field;
-import org.bridj.ann.Library;
-import org.bridj.ann.Symbol;
 import org.bridj.ann.Ptr;
-import org.bridj.ann.Virtual;
 import org.bridj.cpp.CPPObject;
 
 
@@ -31,7 +19,6 @@ import org.bridj.ann.Virtual;
 import org.bridj.cpp.CPPRuntime;
 
 import org.junit.After;
-import org.junit.Before;
 import static org.bridj.Pointer.*;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
