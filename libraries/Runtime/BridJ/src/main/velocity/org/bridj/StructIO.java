@@ -615,7 +615,7 @@ public class StructIO {
 		structAlignment = -1;
 		
         Struct s = structClass.getAnnotation(Struct.class);
-        boolean isPacked = s != null && s.packed();
+        int pack = s != null ? s.pack() : -1;
         
         if (isVirtual()) {
         		structSize += Pointer.SIZE;
@@ -635,8 +635,7 @@ public class StructIO {
 					structSize++;
 				}
                 //structAlignment = Math.max(structAlignment, aggregatedField.alignment);
-                if (!isPacked)
-                    structSize = alignSize(structSize, aggregatedField.alignment);
+                structSize = alignSize(structSize, pack > 0 ? pack : aggregatedField.alignment);
 			}
 			long 
 				fieldByteOffset = structSize, 
@@ -657,8 +656,8 @@ public class StructIO {
         
         if (cumulativeBitOffset > 0)
 			structSize = alignSize(structSize + 1, structAlignment);
-        else if (structSize > 0 && !isPacked)
-            structSize = alignSize(structSize, structAlignment);
+        else if (structSize > 0)
+            structSize = alignSize(structSize, pack > 0 ? pack : structAlignment);
 
 	}
 	

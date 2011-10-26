@@ -761,7 +761,7 @@ public class StructTest {
         public byte c;
     }
 
-    @Struct(packed = true)
+    @Struct(pack = 1)
     public static class PackedS extends S {
         
     }
