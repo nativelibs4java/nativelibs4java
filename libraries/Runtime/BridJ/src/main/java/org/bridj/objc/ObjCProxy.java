@@ -6,6 +6,7 @@ import org.bridj.*;
 import static org.bridj.Pointer.*;
 import static org.bridj.objc.ObjCJNI.*;
 import static org.bridj.Platform.*;
+import static org.bridj.objc.ObjectiveCRuntime.*;
 import java.util.*;
 import org.bridj.util.Pair;
 import java.util.logging.Level;
@@ -14,6 +15,7 @@ import org.bridj.util.Utils;
 public class ObjCProxy extends ObjCObject {
 	final Map<SEL, Pair<NSMethodSignature, Method>> signatures = new HashMap<SEL, Pair<NSMethodSignature, Method>>();
 	final Object invocationTarget;
+    final static String PROXY_OBJC_CLASS_NAME = "ObjCProxy";
 	
 	protected ObjCProxy() {
 		super(null);
@@ -28,6 +30,14 @@ public class ObjCProxy extends ObjCObject {
 		this.invocationTarget = invocationTarget;
 	}
 	
+    public void addProtocol(String name) throws ClassNotFoundException {
+        Pointer<? extends ObjCObject> protocol = objc_getProtocol(pointerToCString(name));
+        if (protocol == null)
+            throw new ClassNotFoundException("Protocol " + name + " not found !");
+        Pointer<? extends ObjCObject> cls = getObjCClass(PROXY_OBJC_CLASS_NAME);
+        if (!class_addProtocol(cls, protocol))
+            throw new RuntimeException("Failed to add protocol " + name + " to class " + PROXY_OBJC_CLASS_NAME);
+    }
 	public Object getInvocationTarget() {
 		return invocationTarget;
 	}

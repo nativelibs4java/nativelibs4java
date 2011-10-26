@@ -3,12 +3,14 @@ package org.bridj.objc;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;                               
 
 import org.bridj.*;
 import static org.bridj.Pointer.*;
+import static org.bridj.BridJ.*;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.util.Utils;
 import org.bridj.ann.Library;
@@ -31,7 +33,6 @@ public class ObjectiveCRuntime extends CRuntime {
 
     public ObjectiveCRuntime() {
         BridJ.register();
-
     }
 
     <T extends ObjCObject> T realCast(Pointer<? extends ObjCObject> id) {
@@ -70,6 +71,10 @@ public class ObjectiveCRuntime extends CRuntime {
     protected static native Pointer<Byte> object_getClassName(Pointer<? extends ObjCObject> obj);
 
     protected static native Pointer<? extends ObjCObject> class_createInstance(Pointer<? extends ObjCObject> cls, @Ptr long extraBytes);
+    
+    protected static native Pointer<? extends ObjCObject> objc_getProtocol(Pointer<Byte> name);
+    
+    protected static native boolean class_addProtocol(Pointer<? extends ObjCObject> cls, Pointer<? extends ObjCObject> protocol);
     
     protected static native boolean class_respondsToSelector(Pointer<? extends ObjCObject> cls, SEL sel);
 
@@ -131,7 +136,7 @@ public class ObjectiveCRuntime extends CRuntime {
     		addSignature(':', SEL.class);
     }
     
-    synchronized Pointer<? extends ObjCObject> getClass(String name, boolean meta) throws ClassNotFoundException {
+    synchronized Pointer<? extends ObjCObject> getObjCClass(String name, boolean meta) throws ClassNotFoundException {
     		Map<String, Pointer<? extends ObjCObject>> map = meta ? nativeMetaClassesByObjCName : nativeClassesByObjCName; 
         Pointer<? extends ObjCObject> c = map.get(name);
         if (c == null) {
@@ -218,7 +223,7 @@ public class ObjectiveCRuntime extends CRuntime {
             boolean isStatic = Modifier.isStatic(method.getModifiers());
             
             if (isStatic) {
-                Pointer<ObjCClass> pObjcClass = getClass((Class) type).as(ObjCClass.class);
+                Pointer<ObjCClass> pObjcClass = getObjCClass((Class) type).as(ObjCClass.class);
 				ObjCClass objcClass = pObjcClass.get();
 				mci.setNativeClass(pObjcClass.getPeer());
             }
@@ -234,6 +239,20 @@ public class ObjectiveCRuntime extends CRuntime {
         return BridJ.getRuntimeByRuntimeClass(ObjectiveCRuntime.class);
     }
     
+    public static Type getBlockCallbackType(Class blockClass) {
+        if (!ObjCBlock.class.isAssignableFrom(blockClass) || ObjCBlock.class == blockClass)
+            throw new RuntimeException("Class " + blockClass.getName() + " should be a subclass of " + ObjCBlock.class.getName());
+            
+        Type p = blockClass.getGenericSuperclass();
+        if (Utils.getClass(p) == (Class)ObjCBlock.class) {
+        		Type callbackType = Utils.getUniqueParameterizedTypeParameter(p);
+        		if (callbackType == null || !(callbackType instanceof Class || callbackType instanceof ParameterizedType))
+        			throw new RuntimeException("Class " + blockClass.getName() + " should inherit from " + ObjCBlock.class.getName() + " with a valid single type parameter (found " + Utils.toString(p) + ")");
+        				
+        		return callbackType;
+        }
+        throw new RuntimeException("Unexpected failure in getBlockCallbackType");
+    }
     @Override
     public <T extends NativeObject> TypeInfo<T> getTypeInfo(Type type) {
         return new CTypeInfo<T>(type) {
@@ -242,6 +261,13 @@ public class ObjectiveCRuntime extends CRuntime {
         		public void initialize(T instance, Pointer peer) {
         			if (instance instanceof ObjCClass) {
         				setNativeObjectPeer(instance, peer);
+				} else if (instance instanceof ObjCBlock) {
+					setNativeObjectPeer(instance, peer);
+					ObjCBlock block = (ObjCBlock)instance;
+					
+					Type callbackType = getBlockCallbackType(instance.getClass());
+					Pointer<Callback> p = pointerToAddress(ObjCJNI.getObjCBlockFunctionPointer(peer.getPeer()), callbackType);
+					block.callback = p.get(); // TODO take type information somewhere
         			} else {
         				super.initialize(instance, peer);
         			}
@@ -249,7 +275,7 @@ public class ObjectiveCRuntime extends CRuntime {
             @Override
             public void initialize(T instance, int constructorId, Object... args) {
                 try {
-                    Pointer<? extends ObjCObject> c = ObjectiveCRuntime.this.getClass(typeClass);
+                    Pointer<? extends ObjCObject> c = ObjectiveCRuntime.this.getObjCClass(typeClass);
                     if (c == null) {
                         throw new RuntimeException("Failed to get Objective-C class for type " + typeClass.getName());
                     }
@@ -268,14 +294,15 @@ public class ObjectiveCRuntime extends CRuntime {
         };
     }
 
-    private Pointer<? extends ObjCObject> getClass(Class<? extends NativeObject> cls) throws ClassNotFoundException {
+    public static Pointer<? extends ObjCObject> getObjCClass(String name) throws ClassNotFoundException {
+        return getInstance().getObjCClass(name, false);
+    }
+    private Pointer<? extends ObjCObject> getObjCClass(Class<? extends NativeObject> cls) throws ClassNotFoundException {
     		if (cls == ObjCClass.class)
-    			return getClass("NSObject", true);
+    			return getObjCClass("NSObject", true);
             else if (cls == ObjCObject.class)
-    			return getClass("NSObject", false);
+    			return getObjCClass("NSObject", false);
     		
-    		String n = cls.getSimpleName();
-    		Pointer<? extends ObjCObject> id = getClass(n, false);
-    		return id;
+    		return getObjCClass(cls.getSimpleName(), false);
     }
 }

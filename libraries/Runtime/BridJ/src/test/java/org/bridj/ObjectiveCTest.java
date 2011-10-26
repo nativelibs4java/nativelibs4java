@@ -6,21 +6,17 @@ import org.junit.After;
 import static org.junit.Assert.*;
 
 import org.bridj.objc.*;
-import org.bridj.ann.Field;
 import org.bridj.ann.Library;
 import org.bridj.ann.Runtime;
-import org.bridj.ann.Array;
 import org.bridj.ann.Ptr;
-import org.bridj.cpp.com.*;
 import static org.bridj.Pointer.*;
-import static org.bridj.BridJ.*;
 import static org.bridj.objc.FoundationLibrary.*;
 import java.util.*;
 
 @Library("Foundation")
 @Runtime(ObjectiveCRuntime.class)
 public class ObjectiveCTest {
-	static boolean mac = Platform.isMacOSX();
+	static boolean mac = Platform.isMacOSX() && (System.getenv("BRIDJ_NO_OBJC") == null);
 	static {
 		try {
 			BridJ.register();
@@ -83,7 +79,7 @@ public class ObjectiveCTest {
     
     @Test
     public void testNSString() {
-    		if (!mac) return;
+        if (!mac) return;
         for (String s : new String[] { "", "1", "ha\nha\u1234" }) {
             assertEquals(s, pointerToNSString(s).get().toString());
             
@@ -104,7 +100,7 @@ public class ObjectiveCTest {
     
     @Test
     public void testNSDictionary() {
-    		if (!mac) return;
+        if (!mac) return;
         Map<String, NSObject> map = new HashMap<String, NSObject>(), map2;
     		for (String s : new String[] { "", "1", "ha\nha\u1234" })
     			map.put(s, NSString.valueOf(s + s));
@@ -131,6 +127,7 @@ public class ObjectiveCTest {
             public native double add8(byte a, short b, int c, char d, long e, double f, Pointer<Integer> p);
     }
     static void test_NSNonExistentTestClass_add(ObjCObject proxy) {
+    	if (!mac) return;
         NSNonExistentTestClass p = pointerTo(proxy).as(NSNonExistentTestClass.class).get();
         Pointer<Integer> ptr = pointerToInt(64);
         assertEquals(1 + ptr.get(), p.add2(1, ptr));
@@ -171,4 +168,43 @@ public class ObjectiveCTest {
         System.out.println(p.description().get());
         assertEquals(11, p.incf(10), 0);
     }
+    
+    public static class NSEvent extends NSObject {
+    		/*
+	   public NSEvent(Pointer ptr) {
+		   super(ptr);
+	   }
+	   */
+	
+	   //@Selector("addLocalMonitorForEventsMatchingMask:handler:")
+	   public static native Pointer addGlobalMonitorForEventsMatchingMask_handler(@Ptr long mask, Pointer handler);
+	}
+	
+	public abstract static class NSEventGlobalCallback extends Callback {
+		public abstract void callback(Pointer<NSEvent> event);
+	}
+
+	public static class XXX extends NSEventGlobalCallback
+	{
+		@Override
+		public void callback(Pointer<NSEvent> event) {
+			System.out.println("Event: " + event);
+		}
+	}
+
+   @Test
+   public void testGlobalNSEventHook() throws Exception {
+    	if (!mac) return;
+        BridJ.register(NSEvent.class);
+
+        XXX xxx = new XXX();
+
+        Pointer handler = Pointer.pointerTo(xxx);
+
+        System.out.println("handler: " + handler);
+
+        Pointer hook = NSEvent.addGlobalMonitorForEventsMatchingMask_handler(1 << 1, handler);
+
+        System.out.println("hook: " + hook);
+   }
 }

@@ -51,6 +51,7 @@ UNITS += FunctionHandler
 UNITS += CallbackHandler
 UNITS += ThreadLocal
 ifdef BUILD_OS_darwin
+UNITS += ObjCBlocks
 UNITS += ObjCHandler
 UNITS += ObjCProxy
 endif
