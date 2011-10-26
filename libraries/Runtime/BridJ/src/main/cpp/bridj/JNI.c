@@ -16,7 +16,7 @@
 #pragma warning(disable: 4189) // local variable initialized but unreferenced // TODO remove this !
 
 jboolean gLog = JNI_FALSE;
-//jclass gStructFieldsIOClass = NULL;
+//jboolean gProtected = JNI_FALSE;
 
 jclass gObjectClass = NULL;
 jclass gPointerClass = NULL;
@@ -36,6 +36,7 @@ jmethodID gGetCallIOsMethod = NULL;
 jmethodID gNewCallIOInstance = NULL;
 jmethodID gLogCallMethod = NULL;
 jfieldID gLogCallsField = NULL;
+//jfieldID gProtectedModeField = NULL;
 
 jclass 		gMethodCallInfoClass 		 = NULL;
 jfieldID 	gFieldId_javaSignature 		 = NULL;
@@ -180,6 +181,7 @@ void initMethods(JNIEnv* env) {
 		gNewCallIOInstance = (*env)->GetMethodID(env, gCallIOClass, "newInstance", "(J)" OBJECT_SIG);
 		gLogCallMethod = (*env)->GetStaticMethodID(env, gBridJClass, "logCall", "(" METHOD_SIG ")V");
 		gLogCallsField = (*env)->GetStaticFieldID(env, gBridJClass, "logCalls", "Z");
+		//gProtectedModeField = (*env)->GetStaticFieldID(env, gBridJClass, "protectedMode", "Z");
 		
 #define GETFIELD_ID(out, name, sig) \
 		if (!(gFieldId_ ## out = (*env)->GetFieldID(env, gMethodCallInfoClass, name, sig))) \
@@ -210,6 +212,7 @@ void initMethods(JNIEnv* env) {
 		GETFIELD_ID(dcCallingConvention,	"dcCallingConvention"	,	"I"								);
 		
 		gLog = (*env)->GetStaticBooleanField(env, gBridJClass, gLogCallsField);
+		//gProtected = (*env)->GetStaticBooleanField(env, gBridJClass, gProtectedModeField);
 		
 		initPlatformMethods(env);
 	}
@@ -309,16 +312,16 @@ void JNICALL Java_org_bridj_JNI_callSinglePointerArgVoidFunction(JNIEnv *env, jc
 
 jlong JNICALL Java_org_bridj_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
 	jlong ret;
-	BEGIN_TRY_CALL(env);
+	//BEGIN_TRY_CALL(env);
 	ret = !buffer ? 0 : PTR_TO_JLONG((*env)->GetDirectBufferAddress(env, buffer));
-	END_TRY_CALL_RET(env, 0);
+	//END_TRY_CALL_RET(env, 0);
 	return ret;
 }
 jlong JNICALL Java_org_bridj_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
 	jlong ret;
-	BEGIN_TRY_CALL(env);
+	//BEGIN_TRY_CALL(env);
 	ret = !buffer ? 0 : (*env)->GetDirectBufferCapacity(env, buffer);
-	END_TRY_CALL_RET(env, 0);
+	//END_TRY_CALL_RET(env, 0);
 	return ret;
 }
 
@@ -410,9 +413,9 @@ jlong JNICALL Java_org_bridj_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, 
 
 jobject JNICALL Java_org_bridj_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthis, jlong peer, jlong length) {
 	jobject ret;
-	BEGIN_TRY_CALL(env);
+	//BEGIN_TRY_CALL(env);
 	ret = (*env)->NewDirectByteBuffer(env, (void*)peer, length);
-	END_TRY_CALL_RET(env, NULL);
+	//END_TRY_CALL_RET(env, NULL);
 	return ret;
 }
 
