@@ -197,6 +197,12 @@ public class Platform {
 	        
 	        init();
 	        inited = true;
+	        
+	        //if (BridJ.protectedMode)
+	        //		BridJ.log(Level.INFO, "Protected mode enabled");
+	        if (BridJ.logCalls)
+	        		BridJ.log(Level.INFO, "Calls logs enabled");
+	        	
         } catch (Throwable ex) {
         	throw new RuntimeException("Failed to initialize " + BridJ.class.getSimpleName(), ex);
         }

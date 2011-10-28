@@ -312,6 +312,8 @@ public class BridJ {
 		"true".equals(getProperty("bridj.verbose")) || "1".equals(getenv("BRIDJ_VERBOSE"));
     
     public static final boolean logCalls = "true".equals(getProperty("bridj.logCall")) || "1".equals(getenv("BRIDJ_LOG_CALLS"));
+    //public static final boolean protectedMode = "true".equals(getProperty("bridj.protectedMode")) || "1".equals(getenv("BRIDJ_PROTECTED_MODE"));
+    
     static volatile int minLogLevelValue = Level.WARNING.intValue();
     public static void setMinLogLevel(Level level) {
     		minLogLevelValue = level.intValue();
