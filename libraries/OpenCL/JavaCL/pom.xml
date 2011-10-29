@@ -34,7 +34,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 	<dependency>
 	  <groupId>org.apache.commons</groupId>
 	  <artifactId>commons-math</artifactId>
-	  <version>2.1</version>
+	  <version>2.2</version>
 	  <scope>test</scope>
 	</dependency>
   	<!--dependency>
@@ -71,7 +71,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
    	   <plugin>
 		  <groupId>org.apache.maven.plugins</groupId>
 		  <artifactId>maven-jar-plugin</artifactId>
-		  <version>2.3.1</version>
+		  <version>2.3.2</version>
 		  <configuration>
 			<archive>
 			  <manifest>
