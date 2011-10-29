@@ -70,28 +70,59 @@ void initObjCProxy(JNIEnv* env) {
 }
 
 - dealloc {
-	[super dealloc];
 	JNIEnv* env = GetEnv();
 	(*env)->	DeleteGlobalRef(env, javaInstance);
+	[super dealloc];
 }
 
 - (void)forwardInvocation: (NSInvocation*)invocation {
+	//NSLog(@"forwardInvocation");
 	JNIEnv* env = GetEnv();
 	jobject ptr = createPointerFromIO(env, invocation, gNSInvocationCallIO);
 	(*env)->CallVoidMethod(env, javaInstance, gObjCProxyForwardInvocation, ptr);
 }
 
+
+- (void)doesNotRecognizeSelector:(SEL)sel {
+	//NSLog(@"doesNotRecognizeSelector: %@", NSStringFromSelector(sel));
+}
+
 - (NSMethodSignature*)methodSignatureForSelector: (SEL)sel {
+	//NSLog(@"methodSignatureForSelector ?");
 	JNIEnv* env = GetEnv();
 	jobject sig = (*env)->CallObjectMethod(env, javaInstance, gObjCProxyMethodSignatureForSelector, createPointerFromIO(env, sel, gSELCallIO));
 	if (!sig)
+		//return nil;//
 		return [super methodSignatureForSelector: sel];
 	return (NSMethodSignature*)getPointerPeer(env, sig);
 }
 
+
+/*
+- (BOOL)respondsTo: (SEL)sel {
+	return ![self respondsToSelector: sel];
+}
+- (id)performSelector: (SEL)sel {
+	//NSLog(@"performSelector");
+	return [super performSelector: sel];
+}
+
+
 - (BOOL)respondsToSelector: (SEL)sel {
+	//NSLog(@"respondsToSelector ?");
 	return [self methodSignatureForSelector: sel] != nil;
 }
+
+- (BOOL) conformsTo: (Protocol *)aProtocolObject {
+	//NSLog(@"-conformsTo protocol ?");
+	return YES;//[super conformsTo: aProtocolObject];
+}
+
++ (BOOL) conformsTo: (Protocol *)aProtocolObject {
+	//NSLog(@"+conformsTo protocol ?");
+	return YES;//[super conformsTo: aProtocolObject];	
+}
+*/
 
 @end
 

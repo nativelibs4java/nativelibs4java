@@ -177,34 +177,35 @@ public class ObjectiveCTest {
 	   */
 	
 	   //@Selector("addLocalMonitorForEventsMatchingMask:handler:")
-	   public static native Pointer addGlobalMonitorForEventsMatchingMask_handler(@Ptr long mask, Pointer handler);
+	   public static native Pointer addGlobalMonitorForEventsMatchingMask_handler(@Ptr long mask, Pointer<ObjCBlock<NSEventGlobalCallback>> handler);
 	}
 	
 	public abstract static class NSEventGlobalCallback extends Callback {
 		public abstract void callback(Pointer<NSEvent> event);
 	}
 
-	public static class XXX extends NSEventGlobalCallback
-	{
-		@Override
-		public void callback(Pointer<NSEvent> event) {
-			System.out.println("Event: " + event);
-		}
-	}
-
-   @Test
+   //@Test
    public void testGlobalNSEventHook() throws Exception {
     	if (!mac) return;
         BridJ.register(NSEvent.class);
 
-        XXX xxx = new XXX();
-
-        Pointer handler = Pointer.pointerTo(xxx);
+        final boolean called[] = new boolean[1];
+        Pointer<ObjCBlock<NSEventGlobalCallback>> handler = Pointer.pointerTo(new ObjCBlock<NSEventGlobalCallback>(new NSEventGlobalCallback() {
+			@Override
+			public void callback(Pointer<NSEvent> event) {
+				System.out.println("Event: " + event);
+				called[0] = true;
+			}
+		}));
 
         System.out.println("handler: " + handler);
 
-        Pointer hook = NSEvent.addGlobalMonitorForEventsMatchingMask_handler(1 << 1, handler);
+        Pointer hook = NSEvent.addGlobalMonitorForEventsMatchingMask_handler(-1L/*1 << 1*/, handler);
 
         System.out.println("hook: " + hook);
+        
+        Thread.sleep(10000);
+        
+        assertTrue(called[0]);
    }
 }

@@ -253,8 +253,15 @@ public class ObjectiveCRuntime extends CRuntime {
         }
         throw new RuntimeException("Unexpected failure in getBlockCallbackType");
     }
+        		
+	static final Pointer.Releaser ObjCBlockReleaser = new Pointer.Releaser() {
+		public void release(Pointer p) {
+			ObjCJNI.releaseObjCBlock(p.getPeer());
+		}
+	};
+	
     @Override
-    public <T extends NativeObject> TypeInfo<T> getTypeInfo(Type type) {
+    public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
         return new CTypeInfo<T>(type) {
 
         		@Override
@@ -275,18 +282,33 @@ public class ObjectiveCRuntime extends CRuntime {
             @Override
             public void initialize(T instance, int constructorId, Object... args) {
                 try {
-                    Pointer<? extends ObjCObject> c = ObjectiveCRuntime.this.getObjCClass(typeClass);
-                    if (c == null) {
-                        throw new RuntimeException("Failed to get Objective-C class for type " + typeClass.getName());
-                    }
-                    Pointer<ObjCClass> pc = c.as(ObjCClass.class);
-                    Pointer<ObjCObject> p = pc.get().new$(); //.alloc();
-                    if (constructorId == -1) {
-                        p = p.get().create();
+                	
+                    if (instance instanceof ObjCBlock) {
+                    		Object firstArg;
+                    		if (constructorId != ObjCBlock.CALLBACK_CONSTRUCTOR_ID || args.length != 1 || !((firstArg = args[0]) instanceof Callback))
+                    			throw new RuntimeException("Block constructor should have id " + ObjCBlock.CALLBACK_CONSTRUCTOR_ID + " (got " + constructorId + " ) and only one callback argument (got " + args.length + ")");
+                    		
+                    		Callback cb = (Callback)firstArg;
+                    		Pointer<Callback> pcb = pointerTo(cb);
+                    		Pointer<T> peer = (Pointer)pointerToAddress(ObjCJNI.createObjCBlockWithFunctionPointer(pcb.getPeer()), type).withReleaser(ObjCBlockReleaser);;
+                    		if (peer == null)
+                    			throw new RuntimeException("Failed to create Objective-C block for callback " + cb);
+                    		
+                    		setNativeObjectPeer(instance, peer);
                     } else {
-                        throw new UnsupportedOperationException("TODO handle constructors !");
-                    }
-                    setNativeObjectPeer(instance, p);
+						Pointer<? extends ObjCObject> c = ObjectiveCRuntime.this.getObjCClass(typeClass);
+						if (c == null) {
+							throw new RuntimeException("Failed to get Objective-C class for type " + typeClass.getName());
+						}
+						Pointer<ObjCClass> pc = c.as(ObjCClass.class);
+						Pointer<ObjCObject> p = pc.get().new$(); //.alloc();
+						if (constructorId == -1) {
+							p = p.get().create();
+						} else {
+							throw new UnsupportedOperationException("TODO handle constructors !");
+						}
+						setNativeObjectPeer(instance, p);
+					}
                 } catch (ClassNotFoundException ex) {
                     throw new RuntimeException("Failed to initialize instance of type " + Utils.toString(type) + " : " + ex, ex);
                 }
