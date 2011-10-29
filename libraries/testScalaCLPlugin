@@ -1,5 +1,10 @@
 #!/bin/bash
 
-cd OpenCL/ScalaCLPlugin
+# Using this as good : https://github.com/ochafik/nativelibs4java/commit/382aa7594375dde25ee71c0c272853599cd9ac2e
+# git bisect bad
+# git bisect good 382aa7594375dde25ee71c0c272853599cd9ac2e
+# git bisect run libraries/testScalaCLPlugin
+
+cd libraries/OpenCL/ScalaCLPlugin
 
 mvn clean test -Dtest=ArrayPerformanceTest
