@@ -162,22 +162,56 @@ trait MiscMatchers extends PluginNames with WithOptions {
     def unapply(tree: Tree): Option[(Tree, Type)] =
       Some((tree, if (tree.tpe == null) null else normalize(tree.tpe)))
   }
+  object SymbolWithOwnerAndName {
+    def unapply(sym: Symbol): Option[(Symbol, Symbol, Name)] = 
+      Some(sym, sym.owner, sym.name)
+  }
+  object TupleClass {
+    def unapply(sym: Symbol): Boolean =
+      isTupleSymbol(sym)
+  }
+  
+  object tupleComponentName {
+    val rx = "_(\\d+)".r
+    def unapply(n: Name): Option[Int] = { 
+      n.toString match {
+        case rx(n) =>
+          Some(n.toInt)
+        case _ =>
+          None
+      }
+    }
+  }
   
   object TupleComponent {
     val rx = "_(\\d+)".r
     def unapply(tree: Tree) = tree match {
-      case Select(target, fieldName) =>
-        fieldName.toString match {
-          case rx(n) =>
-            if (target.symbol.owner.toString.matches("class Tuple\\d+") || target.tpe.typeSymbol.toString.matches("class Tuple\\d+")) {
-              Some(target, n.toInt - 1)
+      /*case 
+        TreeWithSymbol(
+          Select(
+            target, 
+            tupleComponentName(_)
+          ),
+          SymbolWithOwnerAndName(
+            _, 
+            TupleClass(),
+            tupleComponentName(n)
+          )
+        ) =>
+        Some(target, n - 1)
+      */
+      case Select(target, tupleComponentName(n)) =>
+        //fieldName.toString match {
+        //  case rx(n) =>
+            if (isTupleSymbol(tree.symbol.owner) || isTupleSymbol(target.tpe.typeSymbol)) {
+              Some(target, n - 1)
             } else {
               println("ISSUE with tuple target symbol \n\t" + target.symbol + "\n\t" + target.tpe.typeSymbol)
               None
             }
-          case _ =>
-            None
-        }
+          //case _ =>
+          //  None
+        //}
       case _ =>
         None
     }
@@ -233,16 +267,6 @@ trait MiscMatchers extends PluginNames with WithOptions {
         false
       //name.toString.matches("""(_root_\.)?scala\.Tuple\d+""")
     }
-  }
-  object TupleTyped {
-    def unapply(tree: Tree): Option[List[Type]] = if (tree.tpe.toString.matches(""".*scala.Tuple\d+""")) {
-        Some(Nil)
-        /*
-      case AppliedTypeTree(TupleSelect(), args) =>
-        Some(args.map(_.tpe))
-      case _ =>
-        None*/
-    } else None
   }
   def isTupleSymbol(sym: Symbol) =
     sym.toString.matches("class Tuple\\d+")

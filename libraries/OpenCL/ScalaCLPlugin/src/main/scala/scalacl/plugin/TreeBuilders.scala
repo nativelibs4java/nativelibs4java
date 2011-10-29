@@ -47,7 +47,7 @@ extends MiscMatchers
   import global._
   import global.definitions._
   import scala.tools.nsc.symtab.Flags._
-  import typer.{typed}    // methods to type trees
+  import typer.{typed, atOwner}    // methods to type trees
   import CODE._
 
   def nodeToStringNoComment(tree: Tree) =
@@ -107,8 +107,9 @@ extends MiscMatchers
           tree match {
             case Ident(n) if tree.symbol != NoSymbol =>
               mappings.get(key(tree.symbol)).map(p => {
-                val res = p._2().setType(tree.symbol.tpe)
-                assert(res.symbol != NoSymbol, res)
+                val pp = p._2()
+                val res = pp.setType(tree.symbol.tpe).setSymbol(tree.symbol)
+                //assert(res.symbol != NoSymbol, res)
                 res
               }).getOrElse(super.transform(tree))
             case _ =>
@@ -118,7 +119,9 @@ extends MiscMatchers
       }
     }.transform(tree)
 
-    symbolReplacements.map { tupled { new ChangeOwnerTraverser(_, _) } }.foreach(c => c.traverse(result))
+    for ((fromSym, toSym) <- symbolReplacements)
+      new ChangeOwnerTraverser(fromSym, toSym).traverse(result)
+      
     typed {
       result
     }
@@ -189,7 +192,7 @@ extends MiscMatchers
     typed {
       Apply(
         Select(
-          New(TypeTree(tpe)),
+          New(TypeTree(tpe)).setSymbol(tpe.typeSymbol),
           sym
         ).setSymbol(sym),
         constructorArgs
@@ -267,7 +270,7 @@ extends MiscMatchers
         val sym = arrayType.typeSymbol.primaryConstructor
         Apply(
           Select(
-            New(TypeTree(arrayType)),
+            New(TypeTree(arrayType)).setSymbol(arrayType.typeSymbol),
             sym
           ).setSymbol(sym),
           List(length)
@@ -504,7 +507,17 @@ extends MiscMatchers
     ).setFlag(SYNTHETIC | LOCAL)
     if (tpe != null && tpe != NoType)
       sym.setInfo(tpe)
-    VarDef(() => ident(sym, name, pos), sym, ValDef(Modifiers(if (mutable) MUTABLE else 0), name, TypeTree(tpe), initialValue).setType(tpe).setSymbol(sym))
+      
+    VarDef(
+      () => ident(sym, name, pos), 
+      sym,
+      ValDef(
+        Modifiers(if (mutable) MUTABLE else 0), 
+        name, 
+        TypeTree(tpe), 
+        initialValue
+      ).setType(tpe).setSymbol(sym)
+    )
   }
 }
 

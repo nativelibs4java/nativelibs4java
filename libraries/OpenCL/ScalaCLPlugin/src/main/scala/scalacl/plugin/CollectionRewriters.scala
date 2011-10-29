@@ -433,7 +433,7 @@ trait RewritingPluginComponent {
               
             val n = Apply(
               Select(
-                New(TypeTree(builderType)),
+                New(TypeTree(builderType)).setSymbol(builderType.typeSymbol),
                 sym
               ).setSymbol(sym),
               args
@@ -621,7 +621,7 @@ trait RewritingPluginComponent {
             val sym = builderType.typeSymbol.primaryConstructor
             Apply(
               Select(
-                New(TypeTree(builderType)),
+                New(TypeTree(builderType)).setSymbol(builderType.typeSymbol),
                 builderType.typeSymbol.primaryConstructor
               ).setSymbol(sym),//.setType(sym.tpe),
               Nil
@@ -723,7 +723,7 @@ trait RewritingPluginComponent {
             val sym = builderType.typeSymbol.primaryConstructor
             Apply(
               Select(
-                New(TypeTree(builderType)),
+                New(TypeTree(builderType)).setSymbol(builderType.typeSymbol),
                 builderType.typeSymbol.primaryConstructor
               ).setSymbol(sym),//.setType(sym.tpe),
               Nil
