@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Using this as good : https://github.com/ochafik/nativelibs4java/commit/382aa7594375dde25ee71c0c272853599cd9ac2e
-# git bisect bad
+# git bisect bad HEAD
 # git bisect good 382aa7594375dde25ee71c0c272853599cd9ac2e
 # git bisect run libraries/testScalaCLPlugin
 
