@@ -68,5 +68,67 @@ class OpenCLTest extends TestUtils {
       
     assertArrayEquals(a, cla)
   }
+  
+  @Test
+  def testMatrixMult {
+    val cla = compileCodeWithPlugin(
+      stdImportsAndContext ++ """
+        type Matrix =
+          CLArray[Double]
+          
+        def newMatrix(rows: Int, columns: Int)(implicit context: Context) =
+          new Matrix(rows * columns)
+          
+        def fill(m: Matrix, rows: Int, columns: Int) = {
+          for (idx <- (0 until (rows * columns)).cl) {
+            val i = idx / columns
+            val j = idx - i * columns
+            m(idx) = i - j
+          }
+        }
+        
+        def multiply(a: Matrix, aRows: Int, aCols: Int, b: Matrix, bRows: Int, bCols: Int)(implicit context: Context): Matrix = {
+          assert(aCols == bRows)
+          
+          val outRows = aRows
+          val outCols = bCols
+          val out = newMatrix(outRows, outCols)
+          for (idx <- (0 until (outRows * outCols)).cl) {
+            val i = idx / outCols
+            val j = idx - i * outCols
+            
+            out(idx) = 
+              (0 until aCols).map(
+                k => a(i * aCols + k) * b(k * bCols + j)
+              ).sum
+          }
+          out
+        }
+      """,
+      """
+      
+      val m = 3
+      val n = 4
+      val o = 5
+      
+      val a = newMatrix(m, n)
+      fill(a, m, n)
+      val b = newMatrix(n, o)
+      fill(b, n, o)
+      
+      val out = Array.tabulate[Double](n, n)((i, j) => {
+        (0 until n).map(k => a(i)(k) * b(k)(j)).sum
+      })
+        
+      (a.toSeq, b.toSeq, out.toSeq)
+      """
+    ).newInstance()().asInstanceOf[Array[Int]]
+    
+    val arr = (0 to 10).toArray
+    val a = 
+         (0 to 10).map(i => arr(i / 2) * 2).toArray
+      
+    assertArrayEquals(a, cla)
+  }
 
 }
