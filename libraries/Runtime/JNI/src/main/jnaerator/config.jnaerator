@@ -1,7 +1,8 @@
 -noJar -noComp
 
+-gccLong
 -Djint=int
-"-Djlong=long long"
+//"-Djlong=long long"
 
 -emptyStructsAsForwardDecls
 
