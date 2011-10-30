@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 //import org.objectweb.asm.*;
 import static org.objectweb.asm.Opcodes.*;
 
+import static org.bridj.util.JNIUtils.*;
 import org.bridj.*;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Convention;
@@ -99,10 +100,10 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
             try {
                 StringBuilder javaSig = new StringBuilder("("), desc = new StringBuilder();
                 for (Type paramType : paramTypes) {
-                    javaSig.append(classSig(Utils.getClass(paramType)));
+                    javaSig.append(getNativeSignature(Utils.getClass(paramType)));
                     desc.append(typeDesc(paramType));
                 }
-                javaSig.append(")").append(classSig(Utils.getClass(returnType)));
+                javaSig.append(")").append(getNativeSignature(Utils.getClass(returnType)));
                 desc.append("To").append(typeDesc(returnType)).append("_").append(getNextDynamicCallbackId());
 
                 String callbackTypeImplName = "org/bridj/dyncallbacks/" + desc;
@@ -131,32 +132,6 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
             }
         }
         return cb;
-    }
-    static String classSig(Class c) {
-        if (c.isPrimitive()) {
-            if (c == void.class)
-                return "V";
-            if (c == int.class)
-                return "I";
-            if (c == long.class)
-                return "J";
-            if (c == short.class)
-                return "S";
-            if (c == double.class)
-                return "D";
-            if (c == float.class)
-                return "F";
-            if (c == byte.class)
-                return "B";
-            if (c == boolean.class)
-                return "Z";
-            if (c == char.class)
-                return "C";
-            throw new RuntimeException("unexpected case");
-        } else if (c.isArray()) {
-            return "[" + classSig(c.getComponentType());
-        }
-        return "L" + c.getName().replace('.', '/') + ";";
     }
     static String typeDesc(Type t) {
         if (t instanceof Class) {
