@@ -21,6 +21,9 @@ import org.bridj.objc.*;
  */
 @Deprecated
 public class JNI {
+	static {
+		Platform.initLibrary();
+	}
     @Deprecated
     public static native long getEnv();
     @Deprecated
