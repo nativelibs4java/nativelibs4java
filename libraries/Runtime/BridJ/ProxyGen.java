@@ -2,6 +2,7 @@ package org.bridj;
 import java.util.*;
 import java.io.*;
 import java.lang.reflect.*;
+import org.bridj.util.JNIUtils;
 import static org.bridj.demangling.Demangler.*;
 
 /**
@@ -69,7 +70,7 @@ public class ProxyGen {
 		for (Map.Entry<Class, String> e : classVarNames.entrySet()) {
 			String n = e.getValue();
 			Class c = e.getKey();
-			b.append("\t").append(n).append(" = ").append("FIND_GLOBAL_CLASS(\"").append(name(c)).append("\");\n");
+			b.append("\t").append(n).append(" = ").append("FIND_GLOBAL_CLASS(\"").append(JNIUtils.getNativeName(c)).append("\");\n");
 		}
 		for (ProxiedMethod pm : methods) {
 			int mods = pm.method.getModifiers();
@@ -181,7 +182,7 @@ public class ProxyGen {
 			c_sig.append(retType = sigArg[0]).append(" ").append(name).append("(");
 			int i = 0;
 			for (Class c : method.getParameterTypes()) {
-				jni_sig.append(jni_signature(c));
+				jni_sig.append(JNIUtils.getNativeSignature(c));
 				if (i > 0)
 					c_sig.append(", ");
 				
@@ -197,7 +198,7 @@ public class ProxyGen {
 				i++;
 			}
 			c_sig.append(")");
-			jni_sig.append(")").append(jni_signature(method.getReturnType()));
+			jni_sig.append(")").append(JNIUtils.getNativeSignature(method.getReturnType()));
 			this.jni_signature = jni_sig.toString();
 			this.c_signature = c_sig.toString();
 		}

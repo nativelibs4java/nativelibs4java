@@ -10,7 +10,7 @@ package org.bridj.util;
  */
 public class JNIUtils {
     
-	static String getNativeName(Class c) {
+	public static String getNativeName(Class c) {
 		return c.getName().replace('.', '/');	
 	} 
 	public static String getNativeSignature(Class c) {
