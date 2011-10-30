@@ -1,0 +1,19 @@
+-noJar -noComp
+
+-Djint=int
+"-Djlong=long long"
+
+-emptyStructsAsForwardDecls
+
+-library jvm
+-package com.nativelibs4java.jni
+
+	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
+	-I/usr/lib/jvm/java-6-sun/include/
+	-I/usr/lib/jvm/java-6-sun/include/linux
+	-I/usr/lib/jvm/java-6-openjdk/include/
+	-I/usr/lib/jvm/java-6-openjdk/include/linux
+	-I/usr/jdk/instances/jdk1.5.0/include
+	-I/usr/jdk/instances/jdk1.5.0/include/solaris
+	
+	jni.h
