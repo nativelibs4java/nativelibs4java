@@ -25,6 +25,14 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_getJVM
 
 /*
  * Class:     org_bridj_JNI
+ * Method:    refToObject
+ * Signature: (J)Ljava/lang/Object;
+ */
+JNIEXPORT jobject JNICALL Java_org_bridj_JNI_refToObject
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     org_bridj_JNI
  * Method:    loadLibrary
  * Signature: (Ljava/lang/String;)J
  */

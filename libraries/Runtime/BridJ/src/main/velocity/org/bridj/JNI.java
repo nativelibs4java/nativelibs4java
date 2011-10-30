@@ -25,6 +25,9 @@ public class JNI {
     public static native long getEnv();
     @Deprecated
     public static native long getJVM();
+    @Deprecated
+    public static native Object refToObject(long refPeer);
+    
     static native long loadLibrary(String path);
     static native void freeLibrary(long libHandle);
     static native long loadLibrarySymbols(String libPath);

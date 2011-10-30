@@ -285,6 +285,11 @@ jlong JNICALL Java_org_bridj_JNI_getJVM(JNIEnv *env, jclass clazz)
 	return PTR_TO_JLONG(gJVM);
 }
 
+jobject JNICALL Java_org_bridj_JNI_refToObject(JNIEnv *env, jclass clazz, jlong refPeer)
+{
+	return JLONG_TO_PTR(refPeer);
+}
+
 void logCall(JNIEnv *env, jobject method) {
 	(*env)->CallStaticObjectMethod(env, gBridJClass, gLogCallMethod, method);
 }
