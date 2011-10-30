@@ -17,6 +17,14 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_getEnv
 
 /*
  * Class:     org_bridj_JNI
+ * Method:    getJVM
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_org_bridj_JNI_getJVM
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     org_bridj_JNI
  * Method:    loadLibrary
  * Signature: (Ljava/lang/String;)J
  */

@@ -275,10 +275,14 @@ JNIEXPORT void JNICALL Java_org_bridj_Platform_init(JNIEnv *env, jclass clazz)
 	initThreadLocal(env);
 }
 
-
 jlong JNICALL Java_org_bridj_JNI_getEnv(JNIEnv *env, jclass clazz)
 {
 	return PTR_TO_JLONG(env);
+}
+
+jlong JNICALL Java_org_bridj_JNI_getJVM(JNIEnv *env, jclass clazz)
+{
+	return PTR_TO_JLONG(gJVM);
 }
 
 void logCall(JNIEnv *env, jobject method) {

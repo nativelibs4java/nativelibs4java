@@ -23,6 +23,8 @@ import org.bridj.objc.*;
 public class JNI {
     @Deprecated
     public static native long getEnv();
+    @Deprecated
+    public static native long getJVM();
     static native long loadLibrary(String path);
     static native void freeLibrary(long libHandle);
     static native long loadLibrarySymbols(String libPath);
