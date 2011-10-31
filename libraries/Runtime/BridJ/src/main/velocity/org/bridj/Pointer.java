@@ -282,6 +282,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		this.parent = parent;
 		this.offsetInParent = offsetInParent;
 		this.sibling = sibling;
+		if (peer == 0)
+			throw new IllegalArgumentException("Pointer instance cannot have NULL peer ! (use null Pointer instead)");
 		if (BridJ.debugPointers)
 			creationTrace = new RuntimeException().fillInStackTrace();
 	}

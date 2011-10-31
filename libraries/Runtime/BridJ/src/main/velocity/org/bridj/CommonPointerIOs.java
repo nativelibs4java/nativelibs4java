@@ -181,6 +181,8 @@ class CommonPointerIOs {
 		
 		@Override
 		public P castTarget(long peer) {
+			if (peer == 0)
+				return null;
 			try {
 				return (P)cons.newInstance(peer);
 			} catch (Exception ex) {
@@ -190,11 +192,7 @@ class CommonPointerIOs {
 		
 		@Override
 		public P get(Pointer<P> pointer, long index) {
-			try {
-				return (P)cons.newInstance(pointer.getSizeTAtOffset(index * Pointer.SIZE));
-			} catch (Exception ex) {
-				throw new RuntimeException("Cannot create pointer of type " + pointerClass.getName(), ex);
-			}
+			return castTarget(pointer.getSizeTAtOffset(index * Pointer.SIZE));
 		}
 
 		@Override
