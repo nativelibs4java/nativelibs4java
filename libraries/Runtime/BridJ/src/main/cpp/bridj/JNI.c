@@ -1072,6 +1072,7 @@ jlong JNICALL Java_org_bridj_JNI_mallocNulled(JNIEnv *env, jclass clazz, jlong s
 }
 jlong JNICALL Java_org_bridj_JNI_mallocNulledAligned(JNIEnv *env, jclass clazz, jlong size, jint alignment) 
 {
+#if (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600)
 	size_t len = (size_t)size;
 	void* p;
 	if (posix_memalign(&p, alignment, len))
@@ -1079,6 +1080,9 @@ jlong JNICALL Java_org_bridj_JNI_mallocNulledAligned(JNIEnv *env, jclass clazz, 
 	if (p)
 		memset(p, 0, len);
 	return PTR_TO_JLONG(p);
+#else
+	return 0;
+#endif
 }
 
 
