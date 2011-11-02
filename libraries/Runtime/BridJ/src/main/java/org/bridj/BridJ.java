@@ -1,5 +1,7 @@
 package org.bridj;
 
+import java.util.Set;
+import java.util.HashSet;
 import org.bridj.util.Utils;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,8 +49,6 @@ import static java.lang.System.*;
  */
 public class BridJ {
 
-	static final boolean exceptionsSupported = false;
-	
     static final Map<AnnotatedElement, NativeLibrary> librariesByClass = new HashMap<AnnotatedElement, NativeLibrary>();
     static final Map<String, File> librariesFilesByName = new HashMap<String, File>();
     static final Map<File, NativeLibrary> librariesByFile = new HashMap<File, NativeLibrary>();
@@ -299,20 +299,104 @@ public class BridJ {
 		}
 	}
 
-    public static final boolean debug = 
-    		"true".equals(getProperty("bridj.debug")) || "1".equals(getenv("BRIDJ_DEBUG"));
-    public static final boolean debugNeverFree = 
-    		"true".equals(getProperty("bridj.debug.neverFree")) || "1".equals(getenv("BRIDJ_DEBUG_NEVER_FREE"));
-    public static final boolean debugPointers = 
-    		"true".equals(getProperty("bridj.debug.pointers")) || "1".equals(getenv("BRIDJ_DEBUG_POINTERS"));
-    public static final boolean veryVerbose = 
-    		"true".equals(getProperty("bridj.veryVerbose")) || "1".equals(getenv("BRIDJ_VERY_VERBOSE"));
-	public static final boolean verbose = 
-		debug || veryVerbose || 
-		"true".equals(getProperty("bridj.verbose")) || "1".equals(getenv("BRIDJ_VERBOSE"));
+    enum Switch {
+        Debug("bridj.debug", "BRIDJ_DEBUG", false,
+            "Debug mode (implies high verbosity)"
+        ),
+        DebugNeverFree("bridj.debug.neverFree", "BRIDJ_DEBUG_NEVER_FREE", false,
+            "Never free allocated pointers (deprecated)"
+        ),
+        DebugPointers("bridj.debug.pointers", "BRIDJ_DEBUG_POINTERS", false,
+            "Trace pointer allocations & deallocations (to debug memory issues)"
+        ),
+        VeryVerbose("bridj.veryVerbose", "BRIDJ_VERY_VERBOSE", false,
+            "Highly verbose mode"
+        ),
+        Verbose("bridj.verbose", "BRIDJ_VERBOSE", false,
+            "Verbose mode"
+        ),
+        LogCalls("bridj.logCalls", "BRIDJ_LOG_CALLS", false,
+            "Log each native call performed (or call from native to Java callback)"
+        ),
+        Protected("bridj.protected", "BRIDJ_PROTECTED", false,
+            "Protect all native calls (including memory accesses) against native crashes."
+        ),
+        Destructors("bridj.destructors", "BRIDJ_DESTRUCTORS", true,
+            "Enable destructors (in languages that support them, such as C++)"
+        ),
+        Direct("bridj.direct", "BRIDJ_DIRECT", true,
+            "Direct mode (uses optimized assembler glue when possible to speed up calls)"
+        );
+        
+        public final boolean enabled, enabledByDefault;
+        public final String propertyName, envName, description;
+        /**
+         * Important : keep full property name and environment variable name to enable full-text search of options !!!
+         */
+        Switch(String propertyName, String envName, boolean enabledByDefault, String description) {
+            if (enabledByDefault)
+                enabled = !("false".equals(getProperty(propertyName)) || "0".equals(getenv(envName)));
+            else
+                enabled = "true".equals(getProperty(propertyName)) || "1".equals(getenv(envName));
+            
+            this.enabledByDefault = enabledByDefault;
+            this.propertyName = propertyName;
+            this.envName = envName;
+            this.description = description;
+        }
+    }
     
-    public static final boolean logCalls = "true".equals(getProperty("bridj.logCall")) || "1".equals(getenv("BRIDJ_LOG_CALLS"));
-    //public static final boolean protectedMode = "true".equals(getProperty("bridj.protectedMode")) || "1".equals(getenv("BRIDJ_PROTECTED_MODE"));
+    static {
+        checkOptions();
+    }
+    
+    static void checkOptions() {
+        Set<String> props = new HashSet<String>(), envs = new HashSet<String>();
+        for (Switch s : Switch.values()) {
+            props.add(s.propertyName);
+            envs.add(s.envName);
+        }
+        boolean hasUnknown = false;
+        for (String n : System.getenv().keySet()) {
+            if (!n.startsWith("BRIDJ_") || envs.contains(n))
+                continue;
+            
+            if (n.endsWith("_LIBRARY"))
+                continue;
+            
+            log(Level.SEVERE, "Unknown environment variable : " + n + "=\"" + System.getenv(n) + "\"");
+            hasUnknown = true;
+        }
+        
+        for (String n : System.getProperties().stringPropertyNames()) {
+            if (!n.startsWith("bridj.") || envs.contains(n))
+                continue;
+            
+            if (n.endsWith(".library"))
+                continue;
+            
+            log(Level.SEVERE, "Unknown property : " + n + "=\"" + System.getProperty(n) + "\"");
+            hasUnknown = true;
+        }
+        if (hasUnknown) {
+            StringBuilder b = new StringBuilder();
+            b.append("Available options (ENVIRONMENT_VAR_NAME / javaPropertyName) :\n");
+            for (Switch s : Switch.values()) {
+                b.append(s.envName + " / " + s.propertyName + " (" + (s.enabledByDefault ? "enabled" : "disabled") + " by default) :\n\t" + s.description.replaceAll("\n", "\n\t") + "\n");
+            }
+            log(Level.SEVERE, b.toString());
+        }
+    }
+	
+    public static final boolean debug = Switch.Debug.enabled;
+    public static final boolean debugNeverFree = Switch.DebugNeverFree.enabled;
+    public static final boolean debugPointers = Switch.DebugPointers.enabled;
+    public static final boolean veryVerbose = Switch.VeryVerbose.enabled;
+	public static final boolean verbose = debug || veryVerbose || Switch.Verbose.enabled;
+    
+    public static final boolean logCalls = Switch.LogCalls.enabled;
+    public static final boolean protectedMode = Switch.Protected.enabled;
+    public static final boolean enableDestructors = Switch.Destructors.enabled;
     
     static volatile int minLogLevelValue = Level.WARNING.intValue();
     public static void setMinLogLevel(Level level) {
@@ -701,14 +785,10 @@ public class BridJ {
      */
     public static boolean isDirectModeEnabled() {
         if (directModeEnabled == null) {
-            String prop = getProperty("bridj.direct");
-            String env = getenv("BRIDJ_DIRECT");
             directModeEnabled = 
-            		!"false".equalsIgnoreCase(prop) && 
-            		!"false".equalsIgnoreCase(env) && 
-            		!"0".equals(env) && 
-            		!"no".equalsIgnoreCase(env) &&
-            		!logCalls
+            		Switch.Direct.enabled &&
+            		!logCalls &&
+                    !protectedMode
 			;
             log(Level.INFO, "directModeEnabled = " + directModeEnabled + " (" + getProperty("bridj.direct") + ")");
         }

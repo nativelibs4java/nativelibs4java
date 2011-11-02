@@ -64,6 +64,8 @@
 
 extern jboolean gLog;
 
+#include "Protected.h"
+
 typedef enum ValueType {
 	eVoidValue = 0,
 	eWCharValue,
@@ -89,10 +91,12 @@ typedef struct CallTempStruct {
 	DCCallVM* vm;
 	JNIEnv *env;
 	jobject* pCallIOs;
-	#if defined(__GNUC__)
+#if defined(__GNUC__)
 	jmp_buf exceptionContext;
-	const char* throwMessage;
-	#endif
+	Signals signals;
+	int signal, signalCode;
+	jlong signalAddress;
+#endif
 } CallTempStruct;
 
 typedef struct CommonCallbackInfo {

@@ -23,15 +23,9 @@ char __cdecl CToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* res
 	if (!info->fCallbackInstance)
 	{
 		throwException(env, "Trying to call a null callback instance !");
-		cleanupCallHandler(call);
-		return info->fInfo.fDCReturnType;
+		goto CToJavaCallHandler_Cleanup;
 	}
 
-	if (0) {
-		float value = dcbArgFloat(args);
-		float ret = (*call->env)->CallFloatMethod(call->env, info->fCallbackInstance, info->fInfo.fMethodID, value);
-		result->f = ret;
-	} else {
 	dcArgPointer(call->vm, (DCpointer)call->env);
 	dcArgPointer(call->vm, info->fCallbackInstance);
 	dcArgPointer(call->vm, info->fInfo.fMethodID);
@@ -52,9 +46,10 @@ char __cdecl CToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* res
         printStackTrace(env, exc);
 		//(*env)->ExceptionClear(env);
 	}
-	}
+	
+CToJavaCallHandler_Cleanup: call = call;
+	END_TRY(info->fInfo.fEnv, call);
 	cleanupCallHandler(call);
-	END_TRY_BASE(info->fInfo.fEnv, call, cleanupCallHandler(call););
 	
 	return info->fInfo.fDCReturnType;
 	
@@ -77,8 +72,7 @@ char __cdecl CPPToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* r
 	if (info->fCallbackInstance)
 	{
 		throwException(env, "Not expecting a callback instance here !");
-		cleanupCallHandler(call);
-		return info->fInfo.fDCReturnType;
+		goto CPPToJavaCallHandler_Cleanup;
 	}
 	
 	cppObject = dcbArgPointer(args);
@@ -99,8 +93,9 @@ char __cdecl CPPToJavaCallHandler(DCCallback* callback, DCArgs* args, DCValue* r
 		// TODO rethrow in native world ?
 	}
 	
+CPPToJavaCallHandler_Cleanup: call = call;
+	END_TRY(info->fInfo.fEnv, call);
 	cleanupCallHandler(call);
-	END_TRY_BASE(info->fInfo.fEnv, call, cleanupCallHandler(call););
 	
 	return info->fInfo.fDCReturnType;
 }
@@ -124,8 +119,8 @@ char __cdecl JavaToCCallHandler(DCCallback* callback, DCArgs* args, DCValue* res
 	&&
 	followCall(call, info->fInfo.fReturnType, result, callbackPtr, JNI_FALSE, JNI_FALSE);
 
+	END_TRY(info->fInfo.fEnv, call);
 	cleanupCallHandler(call);
-	END_TRY_BASE(info->fInfo.fEnv, call, cleanupCallHandler(call););
 	
 	return info->fInfo.fDCReturnType;
 }

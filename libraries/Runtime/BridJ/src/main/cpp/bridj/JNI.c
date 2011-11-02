@@ -7,6 +7,7 @@
 
 #include "bridj.hpp"
 #include <string.h>
+#include <wchar.h>
 #include <math.h>
 #include <time.h>
 #include "Exceptions.h"
@@ -16,7 +17,7 @@
 #pragma warning(disable: 4189) // local variable initialized but unreferenced // TODO remove this !
 
 jboolean gLog = JNI_FALSE;
-//jboolean gProtected = JNI_FALSE;
+jboolean gProtected = JNI_FALSE;
 
 jclass gObjectClass = NULL;
 jclass gPointerClass = NULL;
@@ -25,6 +26,8 @@ jclass gValuedEnumClass = NULL;
 jclass gBridJClass = NULL;
 jclass gCallIOClass = NULL;
 jclass gLastErrorClass = NULL;
+jclass gRunnableClass = NULL;
+jmethodID gRunnableRunMethod = NULL;
 jmethodID gAddressMethod = NULL;
 jmethodID gGetPeerMethod = NULL;
 jmethodID gCreatePeerMethod = NULL;
@@ -36,7 +39,7 @@ jmethodID gGetCallIOsMethod = NULL;
 jmethodID gNewCallIOInstance = NULL;
 jmethodID gLogCallMethod = NULL;
 jfieldID gLogCallsField = NULL;
-//jfieldID gProtectedModeField = NULL;
+jfieldID gProtectedModeField = NULL;
 
 jclass 		gMethodCallInfoClass 		 = NULL;
 jfieldID 	gFieldId_javaSignature 		 = NULL;
@@ -60,6 +63,11 @@ jfieldID 	gFieldId_nativeClass			 = NULL;
 jfieldID 	gFieldId_methodName			 = NULL;
 jfieldID 	gFieldId_method    			 = NULL;
 jfieldID 	gFieldId_declaringClass		 = NULL;
+
+#ifdef __GNUC__
+jclass gNativeErrorClass = NULL;
+jmethodID gNativeErrorThrowMethod = NULL;
+#endif
 
 /*jclass gCLongClass = NULL;
 jclass gSizeTClass = NULL;
@@ -141,6 +149,7 @@ void initMethods(JNIEnv* env) {
 	if (!gAddressMethod)
 	{
 		gObjectClass = FIND_GLOBAL_CLASS("java/lang/Object");
+		gRunnableClass = FIND_GLOBAL_CLASS("java/lang/Runnable");
 		
 		#define INIT_PRIM(prim, shortName, methShort, type, letter) \
 			g ## shortName ## Class = FIND_GLOBAL_CLASS(prim); \
@@ -168,6 +177,7 @@ void initMethods(JNIEnv* env) {
 		gCallIOClass = FIND_GLOBAL_CLASS("org/bridj/CallIO");
 		gLastErrorClass = FIND_GLOBAL_CLASS("org/bridj/LastError");
 		
+		gRunnableRunMethod = (*env)->GetMethodID(env, gRunnableClass, "run", "()V");
 		//gGetTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "getTempCallStruct", "()J"); 
 		//gReleaseTempCallStruct = (*env)->GetStaticMethodID(env, gBridJClass, "releaseTempCallStruct", "(J)V"); 
 		gGetValuedEnumValueMethod = (*env)->GetMethodID(env, gValuedEnumClass, "value", "()J");
@@ -181,8 +191,13 @@ void initMethods(JNIEnv* env) {
 		gNewCallIOInstance = (*env)->GetMethodID(env, gCallIOClass, "newInstance", "(J)" OBJECT_SIG);
 		gLogCallMethod = (*env)->GetStaticMethodID(env, gBridJClass, "logCall", "(" METHOD_SIG ")V");
 		gLogCallsField = (*env)->GetStaticFieldID(env, gBridJClass, "logCalls", "Z");
-		//gProtectedModeField = (*env)->GetStaticFieldID(env, gBridJClass, "protectedMode", "Z");
+		gProtectedModeField = (*env)->GetStaticFieldID(env, gBridJClass, "protectedMode", "Z");
 		
+#ifdef __GNUC__
+		gNativeErrorClass = FIND_GLOBAL_CLASS("org/bridj/NativeError");
+		gNativeErrorThrowMethod = (*env)->GetStaticMethodID(env, gNativeErrorClass, "throwSignalError", "(IIJ)V");
+#endif
+
 #define GETFIELD_ID(out, name, sig) \
 		if (!(gFieldId_ ## out = (*env)->GetFieldID(env, gMethodCallInfoClass, name, sig))) \
 			throwException(env, "Failed to get the field " #name " in MethodCallInfo !");
@@ -212,7 +227,7 @@ void initMethods(JNIEnv* env) {
 		GETFIELD_ID(dcCallingConvention,	"dcCallingConvention"	,	"I"								);
 		
 		gLog = (*env)->GetStaticBooleanField(env, gBridJClass, gLogCallsField);
-		//gProtected = (*env)->GetStaticBooleanField(env, gBridJClass, gProtectedModeField);
+		gProtected = (*env)->GetStaticBooleanField(env, gBridJClass, gProtectedModeField);
 		
 		initPlatformMethods(env);
 	}
@@ -321,16 +336,12 @@ void JNICALL Java_org_bridj_JNI_callSinglePointerArgVoidFunction(JNIEnv *env, jc
 
 jlong JNICALL Java_org_bridj_JNI_getDirectBufferAddress(JNIEnv *env, jobject jthis, jobject buffer) {
 	jlong ret;
-	//BEGIN_TRY_CALL(env);
 	ret = !buffer ? 0 : PTR_TO_JLONG((*env)->GetDirectBufferAddress(env, buffer));
-	//END_TRY_CALL_RET(env, 0);
 	return ret;
 }
 jlong JNICALL Java_org_bridj_JNI_getDirectBufferCapacity(JNIEnv *env, jobject jthis, jobject buffer) {
 	jlong ret;
-	//BEGIN_TRY_CALL(env);
 	ret = !buffer ? 0 : (*env)->GetDirectBufferCapacity(env, buffer);
-	//END_TRY_CALL_RET(env, 0);
 	return ret;
 }
 
@@ -422,9 +433,7 @@ jlong JNICALL Java_org_bridj_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, 
 
 jobject JNICALL Java_org_bridj_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthis, jlong peer, jlong length) {
 	jobject ret;
-	//BEGIN_TRY_CALL(env);
 	ret = (*env)->NewDirectByteBuffer(env, (void*)peer, length);
-	//END_TRY_CALL_RET(env, NULL);
 	return ret;
 }
 
@@ -864,7 +873,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToCFunctions(
 		info->fCheckLastError = bThrowLastError;
 		
 #ifndef NO_DIRECT_CALLS
-		if (direct && forwardedPointer)
+		if (direct && !gProtected && forwardedPointer)
 			info->fInfo.fDCCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer, dcCallingConvention);
 #endif
 		if (!info->fInfo.fDCCallback) {
@@ -1036,10 +1045,10 @@ void JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1, t2 a2
 #define FUNC_3(ret, name, t1, t2, t3, nt1, nt2, nt3) \
 ret JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1, t2 a2, t3 a3) \
 { \
-	ret r; \
+	ret r = (ret)0; \
 	BEGIN_TRY_CALL(env); \
 	r = (ret)name((nt1)a1, (nt2)a2, (nt3)a3); \
-	END_TRY_CALL_RET(env, (ret)0); \
+	END_TRY_CALL(env); \
 	return r; \
 }
 
@@ -1054,10 +1063,10 @@ void JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1) \
 #define FUNC_1(ret, name, t1, nt1) \
 ret JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1) \
 { \
-	ret r; \
+	ret r = (ret)0; \
 	BEGIN_TRY_CALL(env); \
 	r = (ret)name((nt1)a1); \
-	END_TRY_CALL_RET(env, (ret)0); \
+	END_TRY_CALL(env); \
 	return r; \
 }
 

@@ -3,7 +3,8 @@ package org.bridj;
 import org.junit.Test;
 
 import org.bridj.ann.Library;
-
+import static org.bridj.Pointer.*;
+import static org.junit.Assert.*;
 
 ///http://www.codesourcery.com/public/cxx-abi/cxx-vtable-ex.html
 
@@ -19,25 +20,30 @@ public class ExceptionsTest {
 	public static native void throwInt(int value) throws RuntimeException;
 	
 	void throwExpectedIfNotSupported() {
-		if (!BridJ.exceptionsSupported)
-			throw new RuntimeException("Not supported");
+		if (!BridJ.protectedMode) {
+            System.out.println("Please run this test with protected mode enabled :\n\tBRIDJ_PROTECTED=1 mvn test -o -Dtest=" + getClass().getSimpleName());
+			NativeError.throwSignalError(0, 0, 0);
+        }
 	}
-	@Test(expected=RuntimeException.class)
+	
+	@Test(expected=NativeError.class)
 	public void testCrashIllegalAccess() {
 		throwExpectedIfNotSupported();
 		
 		try {
-			//crashIllegalAccess();
-		} catch (RuntimeException ex) {
-			ex.printStackTrace();
+            crashIllegalAccess();
+     	} catch (NativeError ex) {
+			System.out.println(ex);
 			throw ex;
 		}
 	}
 	
 	
-	//@Test(expected=RuntimeException.class)
-	//public void testThrowCPPException() {
-		//throwMyExceptionByValue(pointerToCString("Whatever"));
-	//}
+	@Test(expected=NativeError.class)
+	public void testThrowCPPException() {
+        throwExpectedIfNotSupported();
+		
+		throwMyExceptionByValue(pointerToCString("Whatever"));
+	}
 }
 

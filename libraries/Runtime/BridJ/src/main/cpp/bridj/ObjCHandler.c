@@ -35,8 +35,8 @@ char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* 
 	&&
 	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE, JNI_FALSE);
 
+	END_TRY(info->fInfo.fEnv, call);
 	cleanupCallHandler(call);
-	END_TRY_BASE(info->fInfo.fEnv, call, cleanupCallHandler(call););
 	
 	return info->fInfo.fDCReturnType;
 }

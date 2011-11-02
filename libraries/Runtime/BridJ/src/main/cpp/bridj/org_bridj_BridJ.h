@@ -7,8 +7,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#undef org_bridj_BridJ_exceptionsSupported
-#define org_bridj_BridJ_exceptionsSupported 0L
 #ifdef __cplusplus
 }
 #endif

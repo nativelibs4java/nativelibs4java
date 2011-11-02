@@ -48,14 +48,12 @@ char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, 
 	if (info->fHasThisPtrArg) {
 		if (nParams == 0 || *pParamTypes != eSizeTValue) {
 			throwException(env, "A C++ method must be bound with a method having a first argument of type long !");
-			cleanupCallHandler(call);
-			return info->fInfo.fDCReturnType;
+			goto JavaToVirtualMethodCallHandler_Cleanup;
 		}
 		thisPtr = dcbArgPointer(args);
 		if (!thisPtr) {
 			throwException(env, "Calling a method on a NULL C++ class pointer !");
-			cleanupCallHandler(call);
-			return info->fInfo.fDCReturnType;
+			goto JavaToVirtualMethodCallHandler_Cleanup;
 		}
 		nParams--;
 		pParamTypes++;
@@ -64,8 +62,7 @@ char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, 
 		thisPtr = getNativeObjectPointer(env, instance, info->fClass);
 		if (!thisPtr) {
 			throwException(env, "Failed to get the pointer to the target C++ instance of the method invocation !");
-			cleanupCallHandler(call);
-			return info->fInfo.fDCReturnType;
+			goto JavaToVirtualMethodCallHandler_Cleanup;
 		}
 		
 		//nParams--;
@@ -75,8 +72,7 @@ char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, 
 	
 	callback = getNthVirtualMethodFromThis(env, thisPtr, info->fVirtualTableOffset, info->fVirtualIndex);
 	if (!callback) {
-		cleanupCallHandler(call);
-		return info->fInfo.fDCReturnType;
+		goto JavaToVirtualMethodCallHandler_Cleanup;
 	}
 		
 	dcArgPointer(call->vm, thisPtr);
@@ -85,8 +81,9 @@ char __cdecl JavaToVirtualMethodCallHandler(DCCallback* callback, DCArgs* args, 
 	&&
 	followCall(call, info->fInfo.fReturnType, result, callback, JNI_FALSE, JNI_FALSE);
 
+JavaToVirtualMethodCallHandler_Cleanup: call = call;
+	END_TRY(info->fInfo.fEnv, call);
 	cleanupCallHandler(call);
-	END_TRY_BASE(info->fInfo.fEnv, call, cleanupCallHandler(call););
 	
 	return info->fInfo.fDCReturnType;
 }
@@ -107,17 +104,17 @@ char __cdecl JavaToCPPMethodCallHandler(DCCallback* callback, DCArgs* args, DCVa
 	thisPtr = getNativeObjectPointer(call->env, instance, info->fClass);
 	if (!thisPtr) {
 		throwException(env, "Failed to get the pointer to the target C++ instance of the method invocation !");
-		cleanupCallHandler(call);
-		return info->fInfo.fDCReturnType;
+		goto JavaToCPPMethodCallHandler_Cleanup;
 	}
 	dcArgPointer(call->vm, thisPtr);
 	
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE, JNI_FALSE) 
 	&&
 	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol, JNI_FALSE, JNI_FALSE);
-
+	
+JavaToCPPMethodCallHandler_Cleanup: call = call;
+	END_TRY(info->fInfo.fEnv, call);
 	cleanupCallHandler(call);
-	END_TRY_BASE(info->fInfo.fEnv, call, cleanupCallHandler(call););
 	
 	return info->fInfo.fDCReturnType;
 }

@@ -318,7 +318,7 @@ public class NativeLibrary {
 			//nameToAddr.put(name, addr);
 			//System.out.println("'" + name + "' = \t" + TestCPP.hex(addr) + "\n\t" + sym.getParsedRef());
 		}
-		if (BridJ.debug) {//"1".equals(System.getenv("BRIDJ_PRINT_SYMBOLS"))) {
+		if (BridJ.debug) {
 			System.out.println("Found " + nameToSym.size() + " symbols in '" + path + "' :");
 			
 			for (Symbol sym : nameToSym.values())
