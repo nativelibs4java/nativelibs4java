@@ -21,7 +21,7 @@ public class ExceptionsTest {
 	
 	void throwExpectedIfNotSupported() {
 		if (!BridJ.protectedMode) {
-            System.out.println("Please run this test with protected mode enabled :\n\tBRIDJ_PROTECTED_MODE=1 mvn test -o -Dtest=" + getClass().getSimpleName());
+            System.out.println("Please run this test with protected mode enabled :\n\tBRIDJ_PROTECTED=1 mvn test -o -Dtest=" + getClass().getSimpleName());
 			NativeError.throwSignalError(0, 0, 0);
         }
 	}

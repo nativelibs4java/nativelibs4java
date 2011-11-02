@@ -14,8 +14,8 @@
 extern jclass gLastErrorClass;
 extern jmethodID gThrowNewLastErrorMethod;
 
-extern jclass gSignalErrorClass;
-extern jmethodID gSignalErrorThrowMethod;
+extern jclass gNativeErrorClass;
+extern jmethodID gNativeErrorThrowMethod;
 
 void throwException(JNIEnv* env, const char* message) {
 	if ((*env)->ExceptionCheck(env))
@@ -30,7 +30,7 @@ void clearLastError(JNIEnv* env) {
 
 #ifdef __GNUC__
 void throwSignalError(JNIEnv* env, int signal, int signalCode, jlong address) {
-	(*env)->CallStaticVoidMethod(env, gSignalErrorClass, gSignalErrorThrowMethod, signal, signalCode, address);
+	(*env)->CallStaticVoidMethod(env, gNativeErrorClass, gNativeErrorThrowMethod, signal, signalCode, address);
 }
 #endif
 
