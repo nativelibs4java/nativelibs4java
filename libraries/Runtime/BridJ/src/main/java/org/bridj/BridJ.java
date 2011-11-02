@@ -234,19 +234,27 @@ public class BridJ {
     }
 
     /**
+     * Get the runtime class associated with a class (using the {@link org.bridj.ann.Runtime} annotation, if any, looking up parents and defaulting to {@link org.bridj.CRuntime}).
+     */
+    public static Class<? extends BridJRuntime> getRuntimeClass(Class<?> type) {
+        org.bridj.ann.Runtime runtimeAnn = getAnnotation(org.bridj.ann.Runtime.class, true, type);
+        Class<? extends BridJRuntime> runtimeClass = null;
+        if (runtimeAnn != null)
+            runtimeClass = runtimeAnn.value();
+        else 
+            runtimeClass = CRuntime.class;
+
+        return runtimeClass;
+    }
+
+    /**
      * Get the runtime associated with a class (using the {@link org.bridj.ann.Runtime} annotation, if any, looking up parents and defaulting to {@link org.bridj.CRuntime}).
      */
     public static BridJRuntime getRuntime(Class<?> type) {
         synchronized (classRuntimes) {
             BridJRuntime runtime = classRuntimes.get(type);
             if (runtime == null) {
-                org.bridj.ann.Runtime runtimeAnn = getAnnotation(org.bridj.ann.Runtime.class, true, type);
-                Class<? extends BridJRuntime> runtimeClass = null;
-                if (runtimeAnn != null)
-                    runtimeClass = runtimeAnn.value();
-                else 
-                    runtimeClass = CRuntime.class;
-                
+                Class<? extends BridJRuntime> runtimeClass = getRuntimeClass(type);
                 runtime = getRuntimeByRuntimeClass(runtimeClass);
                 classRuntimes.put(type, runtime);
                 
