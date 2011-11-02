@@ -398,18 +398,6 @@ public class CPPRuntime extends CRuntime {
         return convention;
     }
     
-    static Boolean enableDestructors;
-    static boolean enableDestructors() {
-		if (enableDestructors == null) {
-			String prop = System.getProperty("bridj.destructors"), env = System.getenv("BRIDJ_DESTRUCTORS"); 
-			boolean forceTrue = "true".equals(prop) || "1".equals(env);
-			boolean forceFalse = "false".equals(prop) || "0".equals(env);
-			boolean shouldBeStable = true;//Platform.isWindows();
-			enableDestructors = forceTrue || shouldBeStable && !forceFalse;
-		}
-		return enableDestructors;
-    }
-
     private String ptrToString(Pointer<?> ptr, NativeLibrary library) {
         return ptr == null ? "null" : Long.toHexString(ptr.getPeer()) + " (" + library.getSymbolName(ptr.getPeer()) + ")";
     }
@@ -585,7 +573,7 @@ public class CPPRuntime extends CRuntime {
         Pointer.Releaser releaser = null;
         //final Class<?> typeClass = Utils.getClass(type);
         //NativeLibrary lib = BridJ.getNativeLibrary(typeClass);
-        if (lib != null && enableDestructors()) {
+        if (lib != null && BridJ.enableDestructors) {
             final CPPDestructor destructor = getDestructor(typeClass, type, lib);
             if (destructor != null)
                 releaser = new Pointer.Releaser() { //@Override 
