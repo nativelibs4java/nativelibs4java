@@ -7,7 +7,6 @@
 #if defined(__GNUC__)
 
 #include <signal.h>
-#include <sys/signal.h>
 #include <setjmp.h>
 
 typedef struct Signals {

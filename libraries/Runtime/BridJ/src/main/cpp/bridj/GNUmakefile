@@ -88,6 +88,7 @@ endif
 endif
 
 ifdef BUILD_OS_linux
+CPPFLAGS	+=	-D_GNU_SOURCE
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/
