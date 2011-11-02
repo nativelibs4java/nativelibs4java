@@ -47,9 +47,7 @@ import static java.lang.System.*;
  */
 public class BridJ {
 
-	static final boolean exceptionsSupported = false;
-	
-    static final Map<AnnotatedElement, NativeLibrary> librariesByClass = new HashMap<AnnotatedElement, NativeLibrary>();
+	static final Map<AnnotatedElement, NativeLibrary> librariesByClass = new HashMap<AnnotatedElement, NativeLibrary>();
     static final Map<String, File> librariesFilesByName = new HashMap<String, File>();
     static final Map<File, NativeLibrary> librariesByFile = new HashMap<File, NativeLibrary>();
     private static NativeEntities orphanEntities = new NativeEntities();
@@ -312,7 +310,7 @@ public class BridJ {
 		"true".equals(getProperty("bridj.verbose")) || "1".equals(getenv("BRIDJ_VERBOSE"));
     
     public static final boolean logCalls = "true".equals(getProperty("bridj.logCall")) || "1".equals(getenv("BRIDJ_LOG_CALLS"));
-    //public static final boolean protectedMode = "true".equals(getProperty("bridj.protectedMode")) || "1".equals(getenv("BRIDJ_PROTECTED_MODE"));
+    public static final boolean protectedMode = "true".equals(getProperty("bridj.protected")) || "1".equals(getenv("BRIDJ_PROTECTED"));
     
     static volatile int minLogLevelValue = Level.WARNING.intValue();
     public static void setMinLogLevel(Level level) {

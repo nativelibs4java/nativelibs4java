@@ -19,8 +19,8 @@ char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCVal
 	&&
 	followCall(call, info->fInfo.fReturnType, result, info->fForwardedSymbol, JNI_FALSE, JNI_FALSE);
 
+	END_TRY(info->fInfo.fEnv, call);
 	cleanupCallHandler(call);
-	END_TRY_BASE(info->fInfo.fEnv, call, cleanupCallHandler(call););
 	
 	if (info->fCheckLastError)
 		throwIfLastError(info->fInfo.fEnv);

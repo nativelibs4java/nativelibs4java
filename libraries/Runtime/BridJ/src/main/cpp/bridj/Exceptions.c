@@ -14,16 +14,25 @@
 extern jclass gLastErrorClass;
 extern jmethodID gThrowNewLastErrorMethod;
 
+extern jclass gSignalErrorClass;
+extern jmethodID gSignalErrorThrowMethod;
+
 void throwException(JNIEnv* env, const char* message) {
 	if ((*env)->ExceptionCheck(env))
 		return; // there is already a pending exception
 	(*env)->ExceptionClear(env);
-	(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), message);
+	(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), message ? message : "No message (TODO)");
 }
 
 void clearLastError(JNIEnv* env) {
 	errno = 0;
 }
+
+#ifdef __GNUC__
+void throwSignalError(JNIEnv* env, int signal, int signalCode, jlong address) {
+	(*env)->CallStaticVoidMethod(env, gSignalErrorClass, gSignalErrorThrowMethod, signal, signalCode, address);
+}
+#endif
 
 void throwIfLastError(JNIEnv* env) {
 	int errorCode = 0;
@@ -76,59 +85,43 @@ jboolean assertThrow(JNIEnv* env, jboolean value, const char* message) {
 	return value;
 }
 
-#if defined(ENABLE_PROTECTED_MODE)
+//#if defined(ENABLE_PROTECTED_MODE)
 
 #ifdef __GNUC__
 
-Signals gSignals;
+//Signals gSignals;
 
 
-void TrapSignals(Signals* s) {
-	
+void TrapSignals(Signals* s) 
+{	
 	struct sigaction act;
 	memset(&act, 0, sizeof(struct sigaction));
 	act.sa_sigaction = UnixExceptionHandler;
 	act.sa_flags = SA_SIGINFO | SA_NOCLDSTOP | SA_NOCLDWAIT;
 	
-	sigaction(SIGSEGV, &act, &s->fOldSIGSEGV);
-	sigaction(SIGBUS, &act, &s->fOldSIGBUS);
-	sigaction(SIGFPE, &act, &s->fOldSIGFPE);
-	sigaction(SIGCHLD, &act, &s->fOldSIGCHLD);
-	//sigaction(SIGABRT, &act, &s->fOldSIGABRT);
-	//sigaction(SIGILL, &act, &s->fOldSIGILL);
-}
-void RestoreSignals(Signals* s) {
-	sigaction(SIGSEGV, &s->fOldSIGSEGV, NULL);
-	sigaction(SIGBUS, &s->fOldSIGBUS, NULL);
-	sigaction(SIGFPE, &s->fOldSIGFPE, NULL);
-	sigaction(SIGCHLD, &s->fOldSIGCHLD, NULL);
-	//sigaction(SIGABRT, &act, &s->fOldSIGABRT);
-	//sigaction(SIGILL, &act, &s->fOldSIGILL);
-}
-/*
-void TrapSignals(Signals* s) {
-	#define TRAP_SIG(sig) \
-	if (s->f ## sig != UnixExceptionHandler) \
-		s->f ## sig = signal(sig, UnixExceptionHandler);
+#define TRAP_SIG(sig) \
+	sigaction(sig, &act, &s->fOld ## sig);
 		
-	TRAP_SIG(SIGSEGV);
-	//TRAP_SIG(SIGBUS);
-	//TRAP_SIG(SIGABRT);
-	TRAP_SIG(SIGFPE);
-	//TRAP_SIG(SIGILL);
+	TRAP_SIG(SIGSEGV)
+	TRAP_SIG(SIGBUS)
+	TRAP_SIG(SIGFPE)
+	TRAP_SIG(SIGCHLD)
+	TRAP_SIG(SIGILL)
+	TRAP_SIG(SIGABRT)
+	//TRAP_SIG(SIGTRAP)
 }
 void RestoreSignals(Signals* s) {
 	#define UNTRAP_SIG(sig) \
-	if (s->f ## sig != UnixExceptionHandler) \
-		signal(sig, s->f ## sig);
+		sigaction(sig, &s->fOld ## sig, NULL);
 	
-	UNTRAP_SIG(SIGSEGV);
-	//UNTRAP_SIG(SIGBUS);
-	//UNTRAP_SIG(SIGABRT);
-	UNTRAP_SIG(SIGFPE);
-	//UNTRAP_SIG(SIGILL);
+	UNTRAP_SIG(SIGSEGV)
+	UNTRAP_SIG(SIGBUS)
+	UNTRAP_SIG(SIGFPE)
+	UNTRAP_SIG(SIGCHLD)
+	UNTRAP_SIG(SIGILL)
+	UNTRAP_SIG(SIGABRT)
+	//UNTRAP_SIG(SIGTRAP)
 }
-*/
 
 void InitProtection() {
 	//TrapSignals(&gSignals);
@@ -139,44 +132,17 @@ void CleanupProtection() {
 }
 
 //void UnixExceptionHandler(int sig) {
-void UnixExceptionHandler(int sig, siginfo_t* si, void * ctx) {
-  JNIEnv* env;
-  CallTempStruct* call;
-  //ucontext_t* pCtx = (ucontext_t*)ctx;
+void UnixExceptionHandler(int sig, siginfo_t* si, void * ctx)
+{
+  JNIEnv* env = GetEnv();
+  CallTempStruct* call = getCurrentTempCallStruct(env);
+  if (!call)
+  	  return;
   
-  env = GetEnv();
-  call = getCurrentTempCallStruct(env);
+  call->signal = sig;
+  call->signalCode = si->si_code;
+  call->signalAddress = PTR_TO_JLONG(si->si_addr);
   
-  //printf("IN UnixExceptionHandler (sig = %d, call = %p) !\n", sig, call);
-  
-  //TrapSignals(&gSignals); // reinitialize, in case it was reset
-  
-  const char* msg;
-  //char fmt[256];
-  
-  switch (sig) {
-  case SIGSEGV:
-  	  msg = "Segmentation fault";
-  	  break;
-  case SIGBUS:
-  	  msg = "Bus error";
-  	  break;
-  case SIGABRT:
-  	  msg = "Native exception (call to abort())";
-  	  break;
-  case SIGFPE:
-  	  msg = "Floating point error";
-  	  break;
-  case SIGILL:
-  	  msg = "Illegal instruction";
-  	  break;
-  default:
-  	  msg = "Native error";
-  	  //sprintf(msg, "Native error (signal %d)", sig);
-  	  //msg = fmt;
-  	  break;
-  }
-  call->throwMessage = msg;
   longjmp(call->exceptionContext, sig);
 }
 
@@ -240,6 +206,6 @@ void WinExceptionHandler(JNIEnv* env, LPEXCEPTION_POINTERS ex) {
 	}*/
 }
 
-#endif
+//#endif //defined(ENABLE_PROTECTED_MODE)
 
 #endif
