@@ -1,5 +1,6 @@
 package org.bridj;
 
+import org.bridj.CRuntime.MethodCallInfoBuilder;
 import org.bridj.ann.Convention;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -15,16 +16,12 @@ public class DynamicFunctionFactory {
     final Method method;
     final long callbackHandle;
 
-    DynamicFunctionFactory(Class<? extends DynamicFunction> callbackClass, Method method, Convention.Style style) {
+    DynamicFunctionFactory(Class<? extends DynamicFunction> callbackClass, Method method, /*Convention.Style style,*/ MethodCallInfoBuilder methodCallInfoBuilder) {
         try {
             this.constructor = callbackClass.getConstructor();
             this.method = method;
             
-            MethodCallInfo mci = new MethodCallInfo(method);
-            mci.setDeclaringClass(callbackClass);
-            if (style != null)
-                mci.setCallingConvention(style);
-            
+            MethodCallInfo mci = methodCallInfoBuilder.apply(method);
             callbackHandle = JNI.bindJavaToCCallbacks(mci);
         } catch (Throwable th) {
             th.printStackTrace();

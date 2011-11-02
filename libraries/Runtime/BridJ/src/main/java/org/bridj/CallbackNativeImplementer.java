@@ -16,6 +16,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 import static org.bridj.util.JNIUtils.*;
 import org.bridj.*;
+import org.bridj.CRuntime.MethodCallInfoBuilder;
 import org.bridj.NativeEntities.Builder;
 import org.bridj.ann.Convention;
 import org.bridj.util.Pair;
@@ -83,7 +84,7 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
 		}
 		return (Class)callbackImplType;
 	}
-    protected Map<Pair<NativeLibrary, List<Type>>, DynamicFunctionFactory> dynamicCallbacks = new HashMap<Pair<NativeLibrary, List<Type>>, DynamicFunctionFactory>();
+    protected Map<Pair<NativeLibrary, Pair<Convention.Style, List<Type>>>, DynamicFunctionFactory> dynamicCallbacks = new HashMap<Pair<NativeLibrary, Pair<Convention.Style, List<Type>>>, DynamicFunctionFactory>();
 
     private static volatile long nextDynamicCallbackId = 0;
     private static synchronized long getNextDynamicCallbackId() {
@@ -94,7 +95,8 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
         List<Type> list = new ArrayList<Type>(paramTypes.length + 1);
         list.add(returnType);
         list.addAll(Arrays.asList(paramTypes));
-        Pair<NativeLibrary, List<Type>> key = new Pair<NativeLibrary, List<Type>>(library, list);
+        Pair<Convention.Style, List<Type>> pl = new Pair<Convention.Style, List<Type>>(callingConvention, list);
+        Pair<NativeLibrary, Pair<Convention.Style, List<Type>>> key = new Pair<NativeLibrary, Pair<Convention.Style, List<Type>>>(library, pl);
         DynamicFunctionFactory cb = dynamicCallbacks.get(key);
         if (cb == null) {
             try {
@@ -115,16 +117,18 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
                 Class<?>[] paramClasses = new Class[paramTypes.length];
                 for (int i = 0, n = paramTypes.length; i < n; i++)
                     paramClasses[i] = Utils.getClass(paramTypes[i]);
-                cb = new DynamicFunctionFactory(callbackImplType, callbackImplType.getMethod(methodName, paramClasses), callingConvention);
-                dynamicCallbacks.put(key, cb);
-
-                runtime.register(callbackImplType, null, new CRuntime.MethodCallInfoBuilder() {
+                
+                MethodCallInfoBuilder methodCallInfoBuilder = new MethodCallInfoBuilder() {
 					public MethodCallInfo apply(Method method) throws FileNotFoundException {
 						MethodCallInfo mci = super.apply(method);
 						mci.setCallingConvention(callingConvention);
 						return mci;
 					}
-                });
+                };
+                cb = new DynamicFunctionFactory(callbackImplType, callbackImplType.getMethod(methodName, paramClasses), methodCallInfoBuilder);
+                dynamicCallbacks.put(key, cb);
+
+                runtime.register(callbackImplType, null, methodCallInfoBuilder);
 
             } catch (Throwable th) {
                 th.printStackTrace();
