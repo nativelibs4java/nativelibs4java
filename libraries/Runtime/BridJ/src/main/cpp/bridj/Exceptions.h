@@ -54,8 +54,19 @@ inline jboolean DoTrapSignals(CallTempStruct* call) {
 #else
 
 // WINDOWS
-#define BEGIN_TRY(env, call) { LPEXCEPTION_POINTERS exceptionPointers = NULL; __try {
-#define END_TRY(env, call) } __except (WinExceptionFilter(exceptionPointers = GetExceptionInformation())) { WinExceptionHandler(env, exceptionPointers); } }
+#define BEGIN_TRY(env, call) \
+	{ \
+		LPEXCEPTION_POINTERS exceptionPointers = NULL; \
+		__try \
+		{
+			
+#define END_TRY(env, call) \
+		} \
+		__except (gProtected ? WinExceptionFilter(exceptionPointers = GetExceptionInformation()) : EXCEPTION_CONTINUE_SEARCH) \
+		{ \
+			WinExceptionHandler(env, exceptionPointers); \
+		} \
+	}
 
 #define BEGIN_TRY_CALL(env) { 
 #define END_TRY_CALL(env) } 
