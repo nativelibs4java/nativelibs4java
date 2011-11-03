@@ -523,8 +523,7 @@ public class CPPRuntime extends CRuntime {
                 		return null;
                 }
 
-                if (symbol != null)
-                    log(Level.INFO, "Registering constructor " + constr + " as " + symbol.getName());
+                log(Level.INFO, "Registering constructor " + constr + " as " + symbol.getName());
 
                 // TODO do something with these args !
                 int templateParametersCount = getTemplateParametersCount(typeClass);

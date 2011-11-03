@@ -872,9 +872,13 @@ public class BridJ {
         			c = (Class)m;
         		else if (m instanceof Member)
         			c = ((Member)m).getDeclaringClass();
-        		if (c != null && !NativeObject.class.isAssignableFrom(c) && c.getEnclosingClass() == null)
+        		if (c != null && !NativeObject.class.isAssignableFrom(c) && c.getEnclosingClass() == null) {
+                    Package p = c.getPackage();
+                    if (p != null && p.getName().matches("(java|org\\.bridj)(\\..*)?"))
+                        return null;
+                    
         			return c.getSimpleName();
-        		else
+                } else
         			return null;
         }
         return lib.value();
