@@ -9,10 +9,10 @@
 
 #include "bridj.hpp"
 //#include "Protected.h"
+extern jboolean gProtected;
 
 #if defined(__GNUC__)
 
-extern jboolean gProtected;
 void throwSignalError(JNIEnv* env, int signal, int signalCode, jlong address);
 
 inline jboolean DoTrapSignals(CallTempStruct* call) {
