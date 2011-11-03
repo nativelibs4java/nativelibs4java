@@ -18,12 +18,13 @@ import java.util.*;
 public class ObjectiveCTest {
 	static boolean mac = Platform.isMacOSX() && (System.getenv("BRIDJ_NO_OBJC") == null);
 	static {
-		try {
-			BridJ.register();
-		} catch (Throwable th) {
-			if (mac)
-				throw new RuntimeException(th);
-		}
+        if (mac)
+            try {
+                BridJ.register();
+            } catch (Throwable th) {
+                if (mac)
+                    throw new RuntimeException(th);
+            }
 	}
 	
     protected Pointer<NSAutoreleasePool> pool;
