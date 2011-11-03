@@ -65,8 +65,11 @@ jfieldID 	gFieldId_method    			 = NULL;
 jfieldID 	gFieldId_declaringClass		 = NULL;
 
 #ifdef __GNUC__
-jclass gNativeErrorClass = NULL;
-jmethodID gNativeErrorThrowMethod = NULL;
+jclass gSignalErrorClass = NULL;
+jmethodID gSignalErrorThrowMethod = NULL;
+#else
+jclass gWindowsErrorClass = NULL;
+jmethodID gWindowsErrorThrowMethod = NULL;
 #endif
 
 /*jclass gCLongClass = NULL;
@@ -194,8 +197,11 @@ void initMethods(JNIEnv* env) {
 		gProtectedModeField = (*env)->GetStaticFieldID(env, gBridJClass, "protectedMode", "Z");
 		
 #ifdef __GNUC__
-		gNativeErrorClass = FIND_GLOBAL_CLASS("org/bridj/NativeError");
-		gNativeErrorThrowMethod = (*env)->GetStaticMethodID(env, gNativeErrorClass, "throwSignalError", "(IIJ)V");
+		gSignalErrorClass = FIND_GLOBAL_CLASS("org/bridj/SignalError");
+		gSignalErrorThrowMethod = (*env)->GetStaticMethodID(env, gSignalErrorClass, "throwNew", "(IIJ)V");
+#else
+		gWindowsErrorClass = FIND_GLOBAL_CLASS("org/bridj/WindowsError");
+		gWindowsErrorThrowMethod = (*env)->GetStaticMethodID(env, gWindowsErrorClass, "throwNew", "(IJJ)V");
 #endif
 
 #define GETFIELD_ID(out, name, sig) \

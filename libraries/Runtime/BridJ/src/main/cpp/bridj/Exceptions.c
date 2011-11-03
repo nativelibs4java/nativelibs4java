@@ -14,8 +14,11 @@
 extern jclass gLastErrorClass;
 extern jmethodID gThrowNewLastErrorMethod;
 
-extern jclass gNativeErrorClass;
-extern jmethodID gNativeErrorThrowMethod;
+extern jclass gSignalErrorClass;
+extern jmethodID gSignalErrorThrowMethod;
+
+extern jclass gWindowsErrorClass;
+extern jmethodID gWindowsErrorThrowMethod;
 
 void throwException(JNIEnv* env, const char* message) {
 	if ((*env)->ExceptionCheck(env))
@@ -30,12 +33,17 @@ void clearLastError(JNIEnv* env) {
 
 #ifdef __GNUC__
 void throwSignalError(JNIEnv* env, int signal, int signalCode, jlong address) {
-	(*env)->CallStaticVoidMethod(env, gNativeErrorClass, gNativeErrorThrowMethod, signal, signalCode, address);
+	(*env)->CallStaticVoidMethod(env, gSignalErrorClass, gSignalErrorThrowMethod, signal, signalCode, address);
+}
+#else
+void throwWindowsError(JNIEnv* env, int code, jlong info, jlong address) {
+	(*env)->CallStaticVoidMethod(env, gWindowsErrorClass, gWindowsErrorThrowMethod, code, info, address);
 }
 #endif
 
 void throwIfLastError(JNIEnv* env) {
 	int errorCode = 0;
+	int en = errno;
 	jstring message = NULL;
 #ifdef _WIN32
 	errorCode = GetLastError();
@@ -58,7 +66,7 @@ void throwIfLastError(JNIEnv* env) {
 	}
 #endif
 	if (!errorCode) {
-		errorCode = errno;
+		errorCode = en;
 		if (errorCode) {
 			const char* msg = strerror(errorCode);
 			message = msg ? (*env)->NewStringUTF(env, msg) : NULL;
@@ -157,53 +165,19 @@ int WinExceptionFilter(LPEXCEPTION_POINTERS ex) {
 	return EXCEPTION_EXECUTE_HANDLER;
 }
 void WinExceptionHandler(JNIEnv* env, LPEXCEPTION_POINTERS ex) {
-	char msg[256];
-	//printStackTrace(env);
-	if (ex->ExceptionRecord)
-		sprintf(msg, "Native exception (code = 0x%llX)", (unsigned long long)ex->ExceptionRecord->ExceptionCode);
-	else
-		sprintf(msg, "Native exception (unknown code)");
+	int code = ex->ExceptionRecord->ExceptionCode;
+	jlong info;
+	void* address;
 
-	throwException(env, msg);
-	//(*env)->ExceptionClear(env);
-	//(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), msg);
+	if ((code == EXCEPTION_ACCESS_VIOLATION || code == EXCEPTION_IN_PAGE_ERROR) && ex->ExceptionRecord->NumberParameters >= 2) {
+		info = ex->ExceptionRecord->ExceptionInformation[0];
+		address = (void*)ex->ExceptionRecord->ExceptionInformation[1];
+	} else {
+		info = 0;
+		address = ex->ExceptionRecord->ExceptionAddress;
+	}
 
-	//if ((*env)->ExceptionOccurred(env)) {
-		(*env)->ExceptionDescribe(env);
-    //}
-	/*
-	switch (ex->ExceptionRecord->ExceptionCode) 
-	{
-#define EX_CASE(name) \
-	case EXCEPTION_ ## name: \
-		(*env)->ExceptionClear(env); \
-		(*env)->ThrowNew(env, (*env)->FindClass(env, "java/lang/RuntimeException"), #name); \
-		break;
-    
-	EX_CASE(ACCESS_VIOLATION           );
-	EX_CASE(ARRAY_BOUNDS_EXCEEDED      );
-	EX_CASE(BREAKPOINT                 );
-	EX_CASE(DATATYPE_MISALIGNMENT      );
-	EX_CASE(FLT_DENORMAL_OPERAND       );
-	EX_CASE(FLT_DIVIDE_BY_ZERO         );
-	EX_CASE(FLT_INEXACT_RESULT         );
-	EX_CASE(FLT_INVALID_OPERATION      );
-	EX_CASE(FLT_OVERFLOW               );
-	EX_CASE(FLT_STACK_CHECK            );
-	EX_CASE(FLT_UNDERFLOW              );
-	EX_CASE(GUARD_PAGE                 );
-	EX_CASE(ILLEGAL_INSTRUCTION        );
-	EX_CASE(IN_PAGE_ERROR              );
-	EX_CASE(INT_DIVIDE_BY_ZERO         );
-	EX_CASE(INT_OVERFLOW               );
-	EX_CASE(INVALID_DISPOSITION        );
-	EX_CASE(INVALID_HANDLE             );
-	EX_CASE(NONCONTINUABLE_EXCEPTION   );
-	EX_CASE(PRIV_INSTRUCTION           );
-	EX_CASE(SINGLE_STEP                );
-	EX_CASE(STACK_OVERFLOW             );
-	//EX_CASE(STATUS_UNWIND_CONSOLIDATE            );
-	}*/
+	throwWindowsError(env, code, info, PTR_TO_JLONG(address));
 }
 
 //#endif //defined(ENABLE_PROTECTED_MODE)

@@ -68,8 +68,8 @@ inline jboolean DoTrapSignals(CallTempStruct* call) {
 		} \
 	}
 
-#define BEGIN_TRY_CALL(env) { 
-#define END_TRY_CALL(env) } 
+#define BEGIN_TRY_CALL(env) BEGIN_TRY(env,) 
+#define END_TRY_CALL(env) END_TRY(env, )
 
 #endif
 

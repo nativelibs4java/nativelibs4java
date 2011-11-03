@@ -442,5 +442,9 @@ TEST_API size_t __cdecl sizeOfCAPDRIVERCAPS() {
 	return sizeof(CAPDRIVERCAPS);
 }
 
+TEST_API void setLastWindowsError() {
+	SetLastError(1);
+}
+
 #endif
 

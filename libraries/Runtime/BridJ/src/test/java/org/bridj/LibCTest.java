@@ -11,8 +11,11 @@ import static org.junit.Assert.*;
 @org.bridj.ann.Runtime(CRuntime.class)
 public class LibCTest {
 	static {
-		if (Platform.isWindows())
-			BridJ.setNativeLibraryActualName("c", "msvcrt");
+		if (Platform.isWindows()) {
+            String msvcrt = "msvcrt";
+			BridJ.setNativeLibraryActualName("c", msvcrt);
+            BridJ.addNativeLibraryAlias("m", msvcrt);
+        }
 		if ("1".equals(System.getenv("JNA")))
 			com.sun.jna.Native.register("c");
 		else
@@ -27,9 +30,20 @@ public class LibCTest {
 	
 	public static native long strtoul(Pointer<Byte> str, Pointer<Pointer<Byte>> endptr, int base) throws LastError;
 	
+    @Optional // only on Windows
+    @Library("test")
+    public static native void setLastWindowsError() throws LastError;
+    
 	@Test
 	public void testFabs() {
 		assertEquals(10.0, fabs(-10.0), 0.000001);
+	}
+	@Test(expected=LastError.class)
+	public void testLastWindowsError() {
+        if (!Platform.isWindows())
+            throw new LastError(0, "");
+        
+        setLastWindowsError();
 	}
 	@Test
 	public void testErrno() throws FileNotFoundException {

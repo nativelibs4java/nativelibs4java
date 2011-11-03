@@ -22,7 +22,7 @@ import static org.bridj.Pointer.*;
  * }</pre> 
  * @author Olivier Chafik
  */
-public class LastError extends RuntimeException {
+public class LastError extends NativeError {
     final int code;
     final String description;
     
