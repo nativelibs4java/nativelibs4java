@@ -15,7 +15,6 @@
 000018f8 T __Z10createTestv
 00001350 T __Z10newWStringv
 00001074 T __Z10stringCStrPSs
-00001934 T __Z10testSumIntPKdi
 00000de4 T __Z10test_pvoidv
 00000e88 T __Z11forwardCallPFiiiEii
 00000ea0 T __Z11getPtrAdderv
@@ -71,7 +70,6 @@
 00000dfc T __Z16test_void_doublev
 00000d38 T __Z17testEnumArgSecond5ETest
 00000d30 T __Z17testEnumRetSecondv
-00000bc4 T __Z17testInPlaceSquarePdm
 00001ae0 T __Z17test_add9_int_outiiiiiiiiiPi
 00000e24 T __Z17test_fun_void_intv
 000018c8 T __Z17test_incr_int_outiPi
@@ -112,21 +110,16 @@
 00002c4c t __Z41__static_initialization_and_destruction_0ii
 0000213c t __Z41__static_initialization_and_destruction_0ii
 000021a0 T __Z4totov
-00000b24 T __Z6sinInti
 00000e98 T __Z7addPtrsPvS_
-00000b34 T __Z7testSumPKdm
 00000e68 T __Z8getAdderv
 00000d2c T __Z8testEnum5ETest
-00000b7c T __Z8testSumiPKdi
 00000df4 T __Z8test_intv
 000013a0 T __Z8throwInti
-00000b20 T __Z8voidTestv
 00001378 T __Z9newStringv
 000021e0 T __Z9newVectorIdESt6vectorIT_SaIS1_EEi
 00002344 T __Z9newVectorIfESt6vectorIT_SaIS1_EEi
 000024a4 T __Z9newVectorIiESt6vectorIT_SaIS1_EEi
 00002600 T __Z9newVectorIxESt6vectorIT_SaIS1_EEi
-00001978 T __Z9testSumllPKdi
 00000dec T __Z9test_pintv
 00000e10 T __Z9test_voidv
 00003210 b __ZGVZN6Ctest28toStringEvE1s
@@ -212,8 +205,8 @@
          U __ZSt17__throw_bad_allocv
          U __ZSt20__throw_length_errorPKc
          U __ZSt4cout
-0000321c b __ZStL8__ioinit
 0000320c b __ZStL8__ioinit
+0000321c b __ZStL8__ioinit
 00003180 S __ZTI11MyException
 00003204 S __ZTI5Ctest
 000031e8 S __ZTI5Temp1IdE
@@ -265,8 +258,8 @@
          U ___fixdfdi
          U ___floatdidf
          U ___gxx_personality_sj0
-000021c4 t ___tcf_0
 00001c6c t ___tcf_0
+000021c4 t ___tcf_0
 000010bc t ___tcf_1
 00000b14 t __dyld_func_lookup
          U _memmove
@@ -274,11 +267,18 @@
 000030f4 D _ntest
 00000c0c T _otherFunc
          U _sin
+00000b24 T _sinInt
 000030fc D _sizeofIntVector
          U _strlen
 00001678 T _testASinB
 00001700 T _testAddDyncall
 000016f8 T _testAddJNA
+00000bc4 T _testInPlaceSquare
+00000b34 T _testSum
+00001934 T _testSumInt
+00000b7c T _testSumi
+00001978 T _testSumll
+00000b20 T _voidTest
          U _wcslen
 000030f0 d dyld__mach_header
 00000af4 t dyld_stub_binding_helper
