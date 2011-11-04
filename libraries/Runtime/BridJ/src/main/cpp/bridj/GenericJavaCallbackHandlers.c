@@ -9,7 +9,11 @@ jboolean followArgsGenericJavaCallback(CallTempStruct* call, DCArgs* args, int n
 {	
 	JNIEnv* env = call->env;
 	int iParam;
-	jobjectArray arr = (*env)->NewObjectArray(env, nTypes, gObjectClass, NULL);
+	jobjectArray arr;
+	
+	initMethods(env);
+	
+	arr = (*env)->NewObjectArray(env, nTypes, gObjectClass, NULL);
 	
 	for (iParam = 0; iParam < nTypes; iParam++) {
 		ValueType type = pTypes[iParam];

@@ -33,10 +33,12 @@ void clearLastError(JNIEnv* env) {
 
 #ifdef __GNUC__
 void throwSignalError(JNIEnv* env, int signal, int signalCode, jlong address) {
+	initMethods(env);
 	(*env)->CallStaticVoidMethod(env, gSignalErrorClass, gSignalErrorThrowMethod, signal, signalCode, address);
 }
 #else
 void throwWindowsError(JNIEnv* env, int code, jlong info, jlong address) {
+	initMethods(env);
 	(*env)->CallStaticVoidMethod(env, gWindowsErrorClass, gWindowsErrorThrowMethod, code, info, address);
 }
 #endif
@@ -45,6 +47,8 @@ void throwIfLastError(JNIEnv* env) {
 	int errorCode = 0;
 	int en = errno;
 	jstring message = NULL;
+	initMethods(env);
+	
 #ifdef _WIN32
 	errorCode = GetLastError();
 	if (errorCode) {

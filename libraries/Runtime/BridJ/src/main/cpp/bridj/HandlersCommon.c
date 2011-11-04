@@ -307,6 +307,7 @@ jobject initCallHandler(DCArgs* args, CallTempStruct** callOut, JNIEnv* env, Com
 	if (env) {
 		*callOut = call = getTempCallStruct(env);
 		call->env = env;
+		initMethods(env);
 	} else
 		*callOut = NULL;
 

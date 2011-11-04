@@ -241,11 +241,13 @@ void initMethods(JNIEnv* env) {
 
 jlong getFlagValue(JNIEnv *env, jobject valuedEnum)
 {
+	initMethods(env);
 	return valuedEnum ? (*env)->CallLongMethod(env, valuedEnum, gGetValuedEnumValueMethod) : 0;	
 }
 
 jobject newFlagSet(JNIEnv *env, jlong value)
 {
+	initMethods(env);
 	return (*env)->CallStaticObjectMethod(env, gFlagSetClass, gNewFlagSetMethod, value);	
 }
 
@@ -294,6 +296,7 @@ jobject getJavaObjectForNativePointer(JNIEnv *env, void* nativeObject) {
 JNIEXPORT void JNICALL Java_org_bridj_Platform_init(JNIEnv *env, jclass clazz)
 {
 	initThreadLocal(env);
+	//initMethods(env);
 }
 
 jlong JNICALL Java_org_bridj_JNI_getEnv(JNIEnv *env, jclass clazz)
@@ -312,6 +315,7 @@ jobject JNICALL Java_org_bridj_JNI_refToObject(JNIEnv *env, jclass clazz, jlong 
 }
 
 void logCall(JNIEnv *env, jobject method) {
+	initMethods(env);
 	(*env)->CallStaticObjectMethod(env, gBridJClass, gLogCallMethod, method);
 }
 
