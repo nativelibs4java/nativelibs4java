@@ -495,14 +495,21 @@ public class CRuntime extends AbstractBridJRuntime {
     	mci.prependCallbackCC();
     	final long handle = JNI.createCToJavaCallback(mci);
 		long peer = JNI.getActualCToJavaCallback(handle);
+        
+        final Throwable stackTrace = BridJ.debugPointers ?
+			new RuntimeException().fillInStackTrace() : null;
+        
 		return (Pointer)Pointer.pointerToAddress(peer, t, new Pointer.Releaser() {
 
 			//@Override
-			public void release(Pointer<?> pointer) {
+			public void release(Pointer<?> p) {
+                if (BridJ.debugPointers)
+                	BridJ.log(Level.INFO, "Freeing callback pointer " + p + "\n(Creation trace = \n\t" + Utils.toString(p.creationTrace).replaceAll("\n", "\n\t") + "\n)", new RuntimeException().fillInStackTrace());
+		
 				if (BridJ.debugNeverFree)
 					return;
 				
-				JNI.freeCToJavaCallback(pointer.getPeer());
+				JNI.freeCToJavaCallback(handle);//p.getPeer());
 			}
 		});
     }

@@ -13,6 +13,17 @@ public class CallbackTest {
 		BridJ.register();
 	}
 	
+    @Test
+    public void deleteTest() {
+        MyCallback cb = new MyCallback() {
+            @Override
+            public int doSomething(int a, int b) {
+                throw new UnsupportedOperationException("Not supported yet.");
+            }
+        };
+
+        pointerTo(cb).release();
+    }
 	@Test
 	public void testJavaTargetIntCallbacks() {
 		assertEquals(3, forwardCall(new MyCallback() {

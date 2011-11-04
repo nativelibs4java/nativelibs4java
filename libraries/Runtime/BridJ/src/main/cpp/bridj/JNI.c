@@ -327,17 +327,17 @@ jlong JNICALL Java_org_bridj_JNI_newGlobalRef(JNIEnv *env, jclass clazz, jobject
 void JNICALL Java_org_bridj_JNI_deleteGlobalRef(JNIEnv *env, jclass clazz, jlong ref)
 {
 	if (ref)
-		(*env)->DeleteGlobalRef(env, (jobject)JLONG_TO_PTR(ref));
+		DEL_GLOBAL_REF((jobject)JLONG_TO_PTR(ref));
 }
 jlong JNICALL Java_org_bridj_JNI_newWeakGlobalRef(JNIEnv *env, jclass clazz, jobject obj)
 {
-	return obj ? PTR_TO_JLONG((*env)->NewWeakGlobalRef(env, obj)) : 0;
+	return obj ? PTR_TO_JLONG(WEAK_GLOBAL_REF(obj)) : 0;
 }
 
 void JNICALL Java_org_bridj_JNI_deleteWeakGlobalRef(JNIEnv *env, jclass clazz, jlong ref)
 {
 	if (ref)
-		(*env)->DeleteWeakGlobalRef(env, (jobject)JLONG_TO_PTR(ref));
+		DEL_WEAK_GLOBAL_REF((jobject)JLONG_TO_PTR(ref));
 }
 void JNICALL Java_org_bridj_JNI_callSinglePointerArgVoidFunction(JNIEnv *env, jclass clazz, jlong constructor, jlong thisPtr, jint callMode)
 {
@@ -558,6 +558,8 @@ void initCommonCallInfo(
 	if (nParams) {
 		info->fParamTypes = (ValueType*)malloc(nParams * sizeof(jint));	
 		(*env)->GetIntArrayRegion(env, paramsValueTypes, 0, nParams, (jint*)info->fParamTypes);
+	} else {
+		info->fParamTypes = NULL;
 	}
 	info->fDCReturnType = getDCReturnType(env, info->fReturnType);
 	
@@ -575,6 +577,8 @@ void initCommonCallInfo(
 			}
 			info->fCallIOs[n] = NULL;
 		}
+	} else {
+		info->fCallIOs = NULL;
 	}
 	
 	if (registerJava)
@@ -668,22 +672,25 @@ void* getJNICallStaticFunction(JNIEnv* env, ValueType valueType) {
 	
 void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 {
-	if (info->nParams)
+	if (info->nParams && info->fParamTypes) {
 		free(info->fParamTypes);
+	}
 	
 	if (info->fCallIOs)
 	{
 		jobject* ptr = info->fCallIOs;
 		while (*ptr) {
-			(*env)->DeleteGlobalRef(env, *ptr);
+			DEL_GLOBAL_REF(*ptr);
 			ptr++;
 		}
 		free(info->fCallIOs);
 	}
 	
-	(*env)->DeleteGlobalRef(env, info->fMethod);
+	DEL_GLOBAL_REF(info->fMethod);
 	
-	dcbFreeCallback((DCCallback*)info->fDCCallback);
+	if (info->fDCCallback) {
+		dcbFreeCallback((DCCallback*)info->fDCCallback);
+	}
 }
 	      
 #define GetField_javaSignature()         jstring          javaSignature        = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_javaSignature       )
@@ -763,7 +770,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 			dcSig = GET_CHARS(dcSignature);
 			
 			info->fInfo.fDCCallback = dcbNewCallback(dcSig, isCPlusPlus ? CPPToJavaCallHandler : CToJavaCallHandler, info);
-			info->fCallbackInstance = GLOBAL_REF(javaCallback);
+			info->fCallbackInstance = WEAK_GLOBAL_REF(javaCallback);
 			info->fIsGenericCallback = isGenericCallback;
 			
 			info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
@@ -790,7 +797,7 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_freeCToJavaCallback(
 	jlong handle
 ) {
 	struct NativeToJavaCallbackCallInfo* info = (struct NativeToJavaCallbackCallInfo*)JLONG_TO_PTR(handle);
-	(*env)->DeleteGlobalRef(env, info->fCallbackInstance);
+	DEL_WEAK_GLOBAL_REF(info->fCallbackInstance);
 	freeCommon(env, &info->fInfo);
 	free(info);
 }
@@ -918,7 +925,7 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_freeCFunctionBindings(
 		return;
 	for (i = 0; i < size; i++) {
 		if (infos[i].fClass)
-			(*env)->DeleteGlobalRef(env, infos[i].fClass);
+			DEL_GLOBAL_REF(infos[i].fClass);
 		freeCommon(env, &infos[i].fInfo);
 	}
 	free(infos);
@@ -1053,7 +1060,7 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_freeVirtualMethodBindings(
 	if (!infos)
 		return;
 	for (i = 0; i < size; i++) {
-		(*env)->DeleteGlobalRef(env, infos[i].fClass);
+		DEL_GLOBAL_REF(infos[i].fClass);
 		freeCommon(env, &infos[i].fInfo);
 	}
 	free(infos);
