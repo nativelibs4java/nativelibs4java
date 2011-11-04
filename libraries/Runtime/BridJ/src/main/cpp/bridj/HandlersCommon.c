@@ -1,4 +1,5 @@
 #include "HandlersCommon.h"
+#include "JNI.h"
 
 jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* pTypes, jboolean toJava, jboolean isVarArgs) 
 {	

@@ -1,5 +1,6 @@
 #include "HandlersCommon.h"
 #include <assert.h>
+#include "JNI.h"
 
 extern jclass gObjectClass;
 extern jclass gCLongClass;

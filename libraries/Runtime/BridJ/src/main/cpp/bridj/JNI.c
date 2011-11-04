@@ -727,6 +727,8 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 	jclass clazz,
 	jobject methodCallInfo
 ) {
+	initMethods(env);
+	{
 	struct NativeToJavaCallbackCallInfo* info = NULL;
 	{
 		const char* dcSig;
@@ -772,6 +774,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 		}
 	}
 	return PTR_TO_JLONG(info);
+	}
 }
 JNIEXPORT jlong JNICALL Java_org_bridj_JNI_getActualCToJavaCallback(
 	JNIEnv *env, 
@@ -798,6 +801,8 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaToCCallbacks(
 	jclass clazz,
 	jobjectArray methodCallInfos
 ) {
+	initMethods(env);
+	{
 	BEGIN_INFOS_LOOP(JavaToNativeCallbackCallInfo)
 	
 	GetField_javaSignature()        ;
@@ -833,6 +838,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaToCCallbacks(
 	}
 	END_INFOS_LOOP()
 	return PTR_TO_JLONG(infos);
+	}
 }
 JNIEXPORT void JNICALL Java_org_bridj_JNI_freeJavaToCCallbacks(
 	JNIEnv *env, 
@@ -855,6 +861,8 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToCFunctions(
 	jclass clazz,
 	jobjectArray methodCallInfos
 ) {
+	initMethods(env);
+	{
 	BEGIN_INFOS_LOOP(FunctionCallInfo)
 	
 	GetField_javaSignature()        ;
@@ -896,6 +904,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToCFunctions(
 	}
 	END_INFOS_LOOP()
 	return PTR_TO_JLONG(infos);
+	}
 }
 JNIEXPORT void JNICALL Java_org_bridj_JNI_freeCFunctionBindings(
 	JNIEnv *env, 
@@ -920,6 +929,8 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToObjCMethods(
 	jobjectArray methodCallInfos
 ) {
 #ifdef BRIDJ_OBJC_SUPPORT
+	initMethods(env);
+	{
 	BEGIN_INFOS_LOOP(JavaToObjCCallInfo)
 	
 	GetField_javaSignature()        ;
@@ -961,6 +972,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToObjCMethods(
 	}
 	END_INFOS_LOOP()
 	return PTR_TO_JLONG(infos);
+	}
 #else
 	return 0;
 #endif
@@ -990,6 +1002,8 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToVirtualMethods(
 	jclass clazz,
 	jobjectArray methodCallInfos
 ) {
+	initMethods(env);
+	{
 	BEGIN_INFOS_LOOP(VirtualMethodCallInfo)
 	
 	GetField_javaSignature()        ;
@@ -1026,6 +1040,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToVirtualMethods(
 	}
 	END_INFOS_LOOP()
 	return PTR_TO_JLONG(infos);
+	}
 }
 JNIEXPORT void JNICALL Java_org_bridj_JNI_freeVirtualMethodBindings(
 	JNIEnv *env, 

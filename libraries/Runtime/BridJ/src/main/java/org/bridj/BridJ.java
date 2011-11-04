@@ -377,7 +377,7 @@ public class BridJ {
         }
         
         for (String n : System.getProperties().stringPropertyNames()) {
-            if (!n.startsWith("bridj.") || envs.contains(n))
+            if (!n.startsWith("bridj.") || props.contains(n))
                 continue;
             
             if (n.endsWith(".library"))

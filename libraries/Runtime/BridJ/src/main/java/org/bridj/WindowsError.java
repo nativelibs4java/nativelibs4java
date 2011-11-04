@@ -34,6 +34,8 @@ class WindowsError extends NativeError {
                 return "In page error : " + toHex(address) + " (" + subMessage(info) + ")";
             case EXCEPTION_FLT_DIVIDE_BY_ZERO:
                 return "Divided by zero";
+            case EXCEPTION_PRIV_INSTRUCTION:
+                return "Privileged instruction : attempted to executed an instruction with an operation that is not allowed in the current computer mode";
         }
         return "Windows native error (code = " + code + ", info = " + info + ", address = " + address + ") !";
     }
