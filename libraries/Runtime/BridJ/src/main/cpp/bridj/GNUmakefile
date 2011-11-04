@@ -97,6 +97,7 @@ endif
 
 ifdef BUILD_OS_sunos
 # http://gcc.gnu.org/onlinedocs/gcc/Solaris-2-Options.html
+CPPFLAGS	+=	-D__EXTENSIONS__
 CPPFLAGS	+=	-I/usr/jdk/instances/jdk1.5.0/include
 CPPFLAGS	+=	-I/usr/jdk/instances/jdk1.5.0/include/solaris
 LDFLAGS		+= 	-mimpure-text

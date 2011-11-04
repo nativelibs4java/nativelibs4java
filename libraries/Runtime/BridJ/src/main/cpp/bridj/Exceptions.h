@@ -15,7 +15,7 @@ extern jboolean gProtected;
 
 void throwSignalError(JNIEnv* env, int signal, int signalCode, jlong address);
 
-inline jboolean DoTrapSignals(CallTempStruct* call) {
+static inline jboolean DoTrapSignals(CallTempStruct* call) {
 	//call->signal = call->signalCode = 0;
 	//call->signalAddress = 0;
 	TrapSignals(&call->signals);
