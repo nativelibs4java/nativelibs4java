@@ -191,8 +191,6 @@ jboolean followArgs(CallTempStruct* call, DCArgs* args, int nTypes, ValueType* p
 			default:
 				throwException(env, "Invalid argument value type !");
 				return JNI_FALSE;
-				
-			
 		}
 	}
 	if ((*env)->ExceptionCheck(env))
@@ -306,9 +304,9 @@ jobject initCallHandler(DCArgs* args, CallTempStruct** callOut, JNIEnv* env, Com
 		instance = dcbArgPointer(args); // skip second arg = jclass or jobject
 	}
 	if (env) {
+		//initMethods(env);
 		*callOut = call = getTempCallStruct(env);
 		call->env = env;
-		initMethods(env);
 	} else
 		*callOut = NULL;
 

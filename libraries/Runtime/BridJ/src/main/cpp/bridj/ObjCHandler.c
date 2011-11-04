@@ -27,7 +27,8 @@ char __cdecl JavaToObjCCallHandler(DCCallback* callback, DCArgs* args, DCValue* 
 #endif
 
 	dcMode(call->vm, info->fInfo.fDCMode);
-
+	dcReset(call->vm);
+	
 	dcArgPointer(call->vm, targetId);
 	dcArgPointer(call->vm, info->fSelector);
 	

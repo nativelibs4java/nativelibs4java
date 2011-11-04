@@ -86,10 +86,14 @@ TEST_API ETest testEnum(ETest e);
 TEST_API ETest testVoidEnum();
 TEST_API ETest testIntEnum(int i, ETest e);
 
-TEST_API void __cdecl voidTest();
-TEST_API double __cdecl sinInt(int);
-TEST_API double __cdecl testSum(const double *values, size_t n);
-TEST_API double __cdecl testSumi(const double *values, int n);
-TEST_API long long __cdecl testSumll(const double *values, int n);
-TEST_API int __cdecl testSumInt(const double *values, int n);
-TEST_API void __cdecl testInPlaceSquare(double *values, size_t n);
+extern "C" {
+	TEST_API void __cdecl voidTest();
+	TEST_API double __cdecl sinInt(int);
+	TEST_API double __cdecl testSum(const double *values, size_t n);
+	TEST_API double __cdecl testSumi(const double *values, int n);
+	TEST_API long long __cdecl testSumll(const double *values, int n);
+	TEST_API int __cdecl testSumInt(const double *values, int n);
+	TEST_API void __cdecl testInPlaceSquare(double *values, size_t n);
+
+	TEST_API void __cdecl setLastWindowsError();
+}
