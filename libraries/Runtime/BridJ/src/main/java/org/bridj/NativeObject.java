@@ -10,7 +10,7 @@ import java.util.Stack;
  * Base class for native objects.
  * @author Olivier
  */
-public abstract class NativeObject {
+public abstract class NativeObject implements NativeObjectInterface {
 
     protected Pointer<? extends NativeObject> peer;
     protected BridJRuntime.TypeInfo typeInfo;

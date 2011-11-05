@@ -27,14 +27,19 @@ INSTALL_LIB	 = 1
 
 # uses some dyncall headers - no other dependencies.
 
-UNITS += test templates
+UNITS += test 
+UNITS += templates
+ifdef BUILD_OS_darwin
+UNITS += objctest
+endif
 
 #CPPFLAGS	+= -fvisibility=hidden -fvisibility-inlines-hidden 
 #LDFLAGS		+= -fvisibility=hidden -fvisibility-inlines-hidden 
 
 ifdef BUILD_OS_darwin
 CPPFLAGS	+=	-I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
-LDFLAGS		+= -lobjc
+#LDFLAGS		+= -lobjc
+LDFLAGS		+= -framework Foundation
 endif
 
 ifdef BUILD_OS_iphoneos

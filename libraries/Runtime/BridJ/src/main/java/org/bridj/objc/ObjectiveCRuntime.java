@@ -137,6 +137,8 @@ public class ObjectiveCRuntime extends CRuntime {
     }
     
     synchronized Pointer<? extends ObjCObject> getObjCClass(String name, boolean meta) throws ClassNotFoundException {
+        if (name.equals(""))
+            return null;
     		Map<String, Pointer<? extends ObjCObject>> map = meta ? nativeMetaClassesByObjCName : nativeClassesByObjCName; 
         Pointer<? extends ObjCObject> c = map.get(name);
         if (c == null) {
@@ -303,7 +305,7 @@ public class ObjectiveCRuntime extends CRuntime {
 						Pointer<ObjCClass> pc = c.as(ObjCClass.class);
 						Pointer<ObjCObject> p = pc.get().new$(); //.alloc();
 						if (constructorId == -1) {
-							p = p.get().create();
+							p = p.get().init();
 						} else {
 							throw new UnsupportedOperationException("TODO handle constructors !");
 						}

@@ -12,6 +12,7 @@ import org.bridj.ann.Ptr;
 import static org.bridj.Pointer.*;
 import static org.bridj.objc.FoundationLibrary.*;
 import java.util.*;
+import static org.bridj.ObjectiveCTest.TestLib.*;
 
 @Library("Foundation")
 @Runtime(ObjectiveCRuntime.class)
@@ -208,5 +209,44 @@ public class ObjectiveCTest {
         Thread.sleep(10000);
         
         assertTrue(called[0]);
+   }
+   
+   @Library("test")
+   public static class TestLib {
+       public static interface Delg extends ObjCDelegate {
+           int add_to(int a, int b);
+       }
+       public static class DelgImpl extends NSObject implements Delg {
+           public native int add_to(int a, int b);
+       }
+       public static class DelgHolder extends NSObject {
+           public native void setDelegate(Pointer<Delg> delegate);
+           public native int outerAdd_to(int a, int b);
+       }
+   }
+   
+   static void testDelegate(Delg delegate) {
+       DelgHolder holder = new DelgHolder();
+       holder.setDelegate(pointerTo(delegate));
+       
+       int a = 10, b = 20, expected = a + b;
+       int res = holder.outerAdd_to(a, b);
+       //System.out.println(Delg.class.getName() + ".add[through delegate](" + a + ", " + b + ") = " + res);
+       assertEquals(expected, a, b);
+   }
+   
+   @Test
+   public void testNativeDelegate() {
+       testDelegate(new DelgImpl());
+   }
+   static class MyDelg extends ObjCProxy implements Delg {
+        @Override
+        public int add_to(int a, int b) {
+            return a + b;
+        }
+   }
+   @Test
+   public void testJavaDelegate() {
+       testDelegate(new MyDelg());
    }
 }
