@@ -21,6 +21,9 @@ void __cdecl CToJavaCallHandler_Sub(CallTempStruct* call, NativeToJavaCallbackCa
 	dcArgPointer(call->vm, info->fCallbackInstance);
 	dcArgPointer(call->vm, info->fInfo.fMethodID);
 	
+	if (info->fIsObjCBlock)
+		dcbArgPointer(args); // consume the pointer to the block instance ; TODO use it to reuse native callbacks !!!
+	
 	if (info->fIsGenericCallback) {
 		followArgsGenericJavaCallback(call, args, info->fInfo.nParams, info->fInfo.fParamTypes)
 		&&

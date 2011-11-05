@@ -33,6 +33,7 @@ public class ObjectiveCRuntime extends CRuntime {
 
     public ObjectiveCRuntime() {
         BridJ.register();
+        rootCallbackClasses.add(ObjCBlock.class);
     }
 
     <T extends ObjCObject> T realCast(Pointer<? extends ObjCObject> id) {
@@ -72,9 +73,9 @@ public class ObjectiveCRuntime extends CRuntime {
 
     protected static native Pointer<? extends ObjCObject> class_createInstance(Pointer<? extends ObjCObject> cls, @Ptr long extraBytes);
     
-    protected static native Pointer<? extends ObjCObject> objc_getProtocol(Pointer<Byte> name);
+    public static native Pointer<? extends ObjCObject> objc_getProtocol(Pointer<Byte> name);
     
-    protected static native boolean class_addProtocol(Pointer<? extends ObjCObject> cls, Pointer<? extends ObjCObject> protocol);
+    public static native boolean class_addProtocol(Pointer<? extends ObjCObject> cls, Pointer<? extends ObjCObject> protocol);
     
     protected static native boolean class_respondsToSelector(Pointer<? extends ObjCObject> cls, SEL sel);
 
@@ -220,6 +221,11 @@ public class ObjectiveCRuntime extends CRuntime {
         if (method == null)
             return;
 
+        if (!ObjCObject.class.isAssignableFrom(type)) {
+            super.registerNativeMethod(type, typeLibrary, method, methodLibrary, builder, methodCallInfoBuilder);
+            return;
+        }
+        
         try {
             MethodCallInfo mci = methodCallInfoBuilder.apply(method);
             boolean isStatic = Modifier.isStatic(method.getModifiers());
@@ -266,26 +272,27 @@ public class ObjectiveCRuntime extends CRuntime {
     public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
         return new CTypeInfo<T>(type) {
 
-        		@Override
-        		public void initialize(T instance, Pointer peer) {
-        			if (instance instanceof ObjCClass) {
-        				setNativeObjectPeer(instance, peer);
-				} else if (instance instanceof ObjCBlock) {
-					setNativeObjectPeer(instance, peer);
-					ObjCBlock block = (ObjCBlock)instance;
-					
-					Type callbackType = getBlockCallbackType(instance.getClass());
-					Pointer<Callback> p = pointerToAddress(ObjCJNI.getObjCBlockFunctionPointer(peer.getPeer()), callbackType);
-					block.callback = p.get(); // TODO take type information somewhere
-        			} else {
-        				super.initialize(instance, peer);
-        			}
-        		}
+            @Override
+            public void initialize(T instance, Pointer peer) {
+                if (instance instanceof ObjCClass) {
+                    setNativeObjectPeer(instance, peer);
+                } /*else if (instance instanceof ObjCBlock) {
+                    setNativeObjectPeer(instance, peer);
+                    ObjCBlock block = (ObjCBlock)instance;
+
+                    Type callbackType = getBlockCallbackType(instance.getClass());
+                    Pointer<Callback> p = pointerToAddress(ObjCJNI.getObjCBlockFunctionPointer(peer.getPeer()), callbackType);
+                    block.callback = p.get(); // TODO take type information somewhere
+                } */else {
+                    super.initialize(instance, peer);
+                }
+            }
+            
             @Override
             public void initialize(T instance, int constructorId, Object... args) {
                 try {
                 	
-                    if (instance instanceof ObjCBlock) {
+                    /*if (instance instanceof ObjCBlock) {
                     		Object firstArg;
                     		if (constructorId != ObjCBlock.CALLBACK_CONSTRUCTOR_ID || args.length != 1 || !((firstArg = args[0]) instanceof Callback))
                     			throw new RuntimeException("Block constructor should have id " + ObjCBlock.CALLBACK_CONSTRUCTOR_ID + " (got " + constructorId + " ) and only one callback argument (got " + args.length + ")");
@@ -297,7 +304,7 @@ public class ObjectiveCRuntime extends CRuntime {
                     			throw new RuntimeException("Failed to create Objective-C block for callback " + cb);
                     		
                     		setNativeObjectPeer(instance, peer);
-                    } else {
+                    } else*/ {
 						Pointer<? extends ObjCObject> c = ObjectiveCRuntime.this.getObjCClass(typeClass);
 						if (c == null) {
 							throw new RuntimeException("Failed to get Objective-C class for type " + typeClass.getName());

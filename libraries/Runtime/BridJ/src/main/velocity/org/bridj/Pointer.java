@@ -766,6 +766,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     		return pointerTo(instance, null);
     }
     /**
+     * Get a pointer to a native object (C++ or ObjectiveC class, struct, union, callback...) 
+     */
+    public static <N extends NativeObjectInterface> Pointer<N> pointerTo(N instance) {
+    		return (Pointer)pointerTo((NativeObject)instance);
+    }
+    
+    /**
      * Get a pointer to a native object, specifying the type of the pointer's target.<br>
      * In C++, the address of the pointer to an object as its canonical class is not always the same as the address of the pointer to the same object cast to one of its parent classes. 
      */

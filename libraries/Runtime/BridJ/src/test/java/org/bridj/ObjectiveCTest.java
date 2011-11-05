@@ -179,10 +179,10 @@ public class ObjectiveCTest {
 	   */
 	
 	   //@Selector("addLocalMonitorForEventsMatchingMask:handler:")
-	   public static native Pointer addGlobalMonitorForEventsMatchingMask_handler(@Ptr long mask, Pointer<ObjCBlock<NSEventGlobalCallback>> handler);
+	   public static native Pointer addGlobalMonitorForEventsMatchingMask_handler(@Ptr long mask, Pointer<NSEventGlobalCallback> handler);
 	}
 	
-	public abstract static class NSEventGlobalCallback extends Callback {
+	public abstract static class NSEventGlobalCallback extends ObjCBlock {
 		public abstract void callback(Pointer<NSEvent> event);
 	}
 
@@ -192,17 +192,17 @@ public class ObjectiveCTest {
         BridJ.register(NSEvent.class);
 
         final boolean called[] = new boolean[1];
-        Pointer<ObjCBlock<NSEventGlobalCallback>> handler = Pointer.pointerTo(new ObjCBlock<NSEventGlobalCallback>(new NSEventGlobalCallback() {
+        NSEventGlobalCallback handler = new NSEventGlobalCallback() {
 			@Override
 			public void callback(Pointer<NSEvent> event) {
 				System.out.println("Event: " + event);
 				called[0] = true;
 			}
-		}));
+		};
 
         System.out.println("handler: " + handler);
 
-        Pointer hook = NSEvent.addGlobalMonitorForEventsMatchingMask_handler(-1L/*1 << 1*/, handler);
+        Pointer hook = NSEvent.addGlobalMonitorForEventsMatchingMask_handler(-1L/*1 << 1*/, pointerTo(handler));
 
         System.out.println("hook: " + hook);
         
@@ -223,6 +223,10 @@ public class ObjectiveCTest {
            public native void setDelegate(Pointer<Delg> delegate);
            public native int outerAdd_to(int a, int b);
        }
+       public static abstract class FwdBlock extends ObjCBlock {
+           public abstract int apply(int a, int b);
+       }
+       public static native int forwardBlockCallIntIntInt(Pointer<FwdBlock> block, int a, int b);
    }
    
    static void testDelegate(Delg delegate) {
@@ -232,7 +236,7 @@ public class ObjectiveCTest {
        int a = 10, b = 20, expected = a + b;
        int res = holder.outerAdd_to(a, b);
        //System.out.println(Delg.class.getName() + ".add[through delegate](" + a + ", " + b + ") = " + res);
-       assertEquals(expected, a, b);
+       assertEquals(expected, res);
    }
    
    @Test
@@ -249,4 +253,18 @@ public class ObjectiveCTest {
    public void testJavaDelegate() {
        testDelegate(new MyDelg());
    }
+   
+   @Test
+   public void testBlock() {
+       FwdBlock block = new FwdBlock() {
+            @Override
+            public int apply(int a, int b) {
+                return a + b;
+            }
+       };
+       int a = 10, b = 20, expected = a + b;
+       int res = forwardBlockCallIntIntInt(pointerTo(block), a, b);
+       assertEquals(expected, res);
+   }
+   
 }

@@ -154,6 +154,7 @@ typedef struct NativeToJavaCallbackCallInfo {
 	void* fJNICallFunction;
 	jobject fCallbackInstance;
 	jboolean fIsGenericCallback;
+	jboolean fIsObjCBlock;
 } NativeToJavaCallbackCallInfo;
 
 typedef struct JavaToNativeCallbackCallInfo {

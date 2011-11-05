@@ -17,6 +17,7 @@ import org.bridj.ann.Convention;
 import org.bridj.ann.JNIBound;
 import org.bridj.util.AutoHashMap;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import org.bridj.ann.Optional;
 
 /**
@@ -181,9 +182,9 @@ public class CRuntime extends AbstractBridJRuntime {
         //@Override
         public void initialize(T instance) {
             if (!BridJ.isCastingNativeObjectInCurrentThread()) {
-                if (instance instanceof Callback<?>) {
+                if (instance instanceof CallbackInterface) {
                     if (!(instance instanceof DynamicFunction))
-                        setNativeObjectPeer(instance, registerCallbackInstance((Callback<?>)instance));
+                        setNativeObjectPeer(instance, registerCallbackInstance((CallbackInterface)instance));
                 } else
                     initialize(instance, -1);
 
@@ -231,7 +232,7 @@ public class CRuntime extends AbstractBridJRuntime {
         
         //@Override
         public void destroy(T instance) {
-            if (instance instanceof Callback)
+            if (instance instanceof CallbackInterface)
                 return;        
         }
     }
@@ -303,8 +304,8 @@ public class CRuntime extends AbstractBridJRuntime {
                     }
 			}*/
 			
-			if (Callback.class.isAssignableFrom(typeClass)) {
-				if (Callback.class == type || DynamicFunction.class == type)
+			if (CallbackInterface.class.isAssignableFrom(typeClass)) {
+				if (rootCallbackClasses.contains(type))
 					return;
 				
 				if (Modifier.isAbstract(typeModifiers))
@@ -386,7 +387,7 @@ public class CRuntime extends AbstractBridJRuntime {
             th.printStackTrace();
 			return;
 		}
-		if (Callback.class.isAssignableFrom(type)) {
+		if (CallbackInterface.class.isAssignableFrom(type)) {
             log(Level.INFO, "Registering java -> native callback : " + method);
             builder.addJavaToNativeCallback(mci);
         } else {
@@ -418,7 +419,7 @@ public class CRuntime extends AbstractBridJRuntime {
 	}
 	
 	public <T extends NativeObject> Pointer<T> allocate(Class<T> type, int constructorId, Object... args) {
-	    if (Callback.class.isAssignableFrom(type)) {
+	    if (CallbackInterface.class.isAssignableFrom(type)) {
         	if (constructorId != -1 || args.length != 0)
         		throw new RuntimeException("Callback should have a constructorId == -1 and no constructor args !");
         	return null;//newCallbackInstance(type);
@@ -448,9 +449,11 @@ public class CRuntime extends AbstractBridJRuntime {
 		return size;	
     }
 
-    static Method getUniqueAbstractCallbackMethod(Class type) {
+    protected Set<Class> rootCallbackClasses = new HashSet<Class>(Arrays.asList(Callback.class, DynamicFunction.class));
+    
+    protected Method getUniqueAbstractCallbackMethod(Class type) {
         Class<?> parent = null;
-    	while ((parent = type.getSuperclass()) != null && parent != Callback.class) {
+    	while ((parent = type.getSuperclass()) != null && !rootCallbackClasses.contains(parent)) {
     		type = parent;
     	}
 
@@ -473,7 +476,7 @@ public class CRuntime extends AbstractBridJRuntime {
 
     public <T extends NativeObject> Class<? extends T> getTypeForCast(Type type) {
         Class<?> typeClass = Utils.getClass(type);
-        if (Callback.class.isAssignableFrom(typeClass))
+        if (CallbackInterface.class.isAssignableFrom(typeClass))
             return getCallbackNativeImplementer().getCallbackImplType((Class) typeClass, null);
         else
             return (Class<? extends T>)typeClass;
@@ -513,7 +516,7 @@ public class CRuntime extends AbstractBridJRuntime {
 			}
 		});
     }
-    private <T extends Callback<?>> Pointer<T> registerCallbackInstance(T instance) {
+    private <T extends CallbackInterface> Pointer<T> registerCallbackInstance(T instance) {
 		try {
             Class<?> c = instance.getClass();
             MethodCallInfo mci = new MethodCallInfo(getUniqueAbstractCallbackMethod(c));
@@ -525,7 +528,7 @@ public class CRuntime extends AbstractBridJRuntime {
 		}
 	}
 
-    protected void setNativeObjectPeer(NativeObject instance, Pointer<? extends NativeObject> peer) {
-        instance.peer = peer;
+    protected void setNativeObjectPeer(NativeObjectInterface instance, Pointer<? extends NativeObjectInterface> peer) {
+        ((NativeObject)instance).peer = (Pointer<NativeObject>)peer;
     }
 }

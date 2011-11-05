@@ -19,13 +19,13 @@
 	}
 	@property (nonatomic, assign) id <Delg> delegate;
 	
-	- (id) init;
 	- (int)outerAdd:(int)a to:(int)b;
 @end
 
 @interface DelgImpl : NSObject <Delg>
 	- (int)add:(int)a to:(int)b;
-	- (id) init;
 @end
+
+int forwardBlockCallIntIntInt(int (^block)(int, int), int a, int b);
 
 #endif // _OBJC_PROXY_H

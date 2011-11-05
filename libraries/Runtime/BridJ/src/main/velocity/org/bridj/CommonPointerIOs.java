@@ -141,7 +141,7 @@ class CommonPointerIOs {
 		}
 	}
 	
-	static class CallbackPointerIO<T extends Callback> extends PointerIO<T> {
+	static class CallbackPointerIO<T extends CallbackInterface> extends PointerIO<T> {
 		final Class<T> callbackClass;
 
 		public CallbackPointerIO(Class<T> callbackClass) {
@@ -154,7 +154,7 @@ class CommonPointerIOs {
 			if (index != 0)
 				throw new UnsupportedOperationException("Cannot get function pointer at index different from 0");
 			//return pointer.getPointerAtOffset(index * Pointer.SIZE, (Class<T>)null).getNativeObject(0, callbackClass);
-			return pointer.getNativeObjectAtOffset(0, callbackClass);
+			return (T)pointer.getNativeObjectAtOffset(0, callbackClass);
 		}
 
 		@Override

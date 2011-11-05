@@ -20,7 +20,7 @@ import org.bridj.ann.Runtime;
  * @author Olivier Chafik
  */
 @Runtime(CRuntime.class)
-public abstract class Callback<C extends Callback<C>> extends NativeObject {
+public abstract class Callback<C extends Callback<C>> extends NativeObject implements CallbackInterface {
     public Pointer<C> toPointer() {
 		return (Pointer)Pointer.pointerTo(this);
 	}

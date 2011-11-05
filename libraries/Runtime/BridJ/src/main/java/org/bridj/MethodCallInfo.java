@@ -38,6 +38,7 @@ public class MethodCallInfo {
 	String asmSignature;
 	Object javaCallback;
 	boolean isGenericCallback;
+	boolean isObjCBlock;
 	int virtualIndex = -1;
 	int virtualTableOffset = 0;
     private int dcCallingConvention = DC_CALL_C_DEFAULT;
@@ -83,7 +84,8 @@ public class MethodCallInfo {
             BridJ.isDirectModeEnabled();
         
         isCPlusPlus = !isStatic && derivesFrom(method.getDeclaringClass(), "org.bridj.cpp.CPPObject");
-
+        isObjCBlock = !isStatic && derivesFrom(method.getDeclaringClass(), "org.bridj.objc.ObjCBlock");
+        
         init(
             method, 
             method.getReturnType(), method.getGenericReturnType(), method.getAnnotations(), 
@@ -130,6 +132,10 @@ public class MethodCallInfo {
 
 		if (BridJ.veryVerbose)
 			System.out.println("Analyzing " + (declaringClass == null ? "anonymous method" : declaringClass.getName() + "." + methodName));
+        
+        if (isObjCBlock)
+            appendToSignature(0, ValueType.ePointerValue, Pointer.class, Pointer.class, null, dcSig, null);
+        
         for (int iParam = 0; iParam < nParams; iParam++) {
 //            Options paramOptions = paramsOptions[iParam] = new Options();
             Type genericParameterType = genericParameterTypes[iParam];

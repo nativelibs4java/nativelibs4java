@@ -29,7 +29,7 @@ import org.objectweb.asm.signature.SignatureWriter;
 //import org.objectweb.asm.attrs.*;
 class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
 
-	Map<Class<? extends Callback>, Class<?>> implClasses = new HashMap<Class<? extends Callback>, Class<?>>();
+	Map<Class<? extends CallbackInterface>, Class<?>> implClasses = new HashMap<Class<? extends CallbackInterface>, Class<?>>();
 	String implNameSuffix = "_NativeImpl";
 	final NativeEntities nativeEntities;
     final CRuntime runtime;
@@ -52,7 +52,7 @@ class CallbackNativeImplementer extends ClassLoader implements ClassDefiner {
 	 * The class created here is to be used to cast a pointer to a callback
 	 * @param callbackType
 	 */
-	public synchronized <T extends Callback> Class<? extends T> getCallbackImplType(Class<T> callbackType, NativeLibrary forcedLibrary) {
+	public synchronized <T extends CallbackInterface> Class<? extends T> getCallbackImplType(Class<T> callbackType, NativeLibrary forcedLibrary) {
 		Class<?> callbackImplType = implClasses.get(callbackType);
 		if (callbackImplType == null) {
 			try {

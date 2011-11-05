@@ -51,6 +51,7 @@ jfieldID 	gFieldId_virtualIndex 		 = NULL;
 jfieldID 	gFieldId_virtualTableOffset	 = NULL;
 jfieldID 	gFieldId_javaCallback 		 = NULL;
 jfieldID 	gFieldId_isGenericCallback    = NULL;
+jfieldID 	gFieldId_isObjCBlock    = NULL;
 jfieldID 	gFieldId_direct		 		 = NULL;
 jfieldID 	gFieldId_startsWithThis 	     = NULL;
 jfieldID 	gFieldId_isCPlusPlus 	     = NULL;
@@ -223,7 +224,8 @@ void initMethods(JNIEnv* env) {
 		GETFIELD_ID(virtualTableOffset	,	"virtualTableOffset"	,	"I"								);
 		//GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	"Lorg/bridj/Callback;"			);
 		GETFIELD_ID(javaCallback 		,	"javaCallback" 		,	OBJECT_SIG						);
-		GETFIELD_ID(isGenericCallback 	,	"isGenericCallback"	,	"Z"								);  		
+		GETFIELD_ID(isGenericCallback 	,	"isGenericCallback"	,	"Z"								);
+		GETFIELD_ID(isObjCBlock 			,	"isObjCBlock"		,	"Z"								);
 		GETFIELD_ID(direct		 		,	"direct"	 			,	"Z"								);
 		GETFIELD_ID(isCPlusPlus	 		,	"isCPlusPlus"		,	"Z"								);  		
 		GETFIELD_ID(isStatic		 		,	"isStatic"			,	"Z"								);
@@ -702,6 +704,7 @@ void freeCommon(JNIEnv* env, CommonCallbackInfo* info)
 #define GetField_paramsValueTypes()      jintArray        paramsValueTypes     = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_paramsValueTypes    )
 #define GetField_javaCallback()          jobject          javaCallback         = (*env)->GetObjectField(   env, methodCallInfo, gFieldId_javaCallback        )
 #define GetField_isGenericCallback()     jboolean         isGenericCallback    = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_isGenericCallback   )
+#define GetField_isObjCBlock()           jboolean         isObjCBlock          = (*env)->GetBooleanField(  env, methodCallInfo, gFieldId_isObjCBlock         )
 #define GetField_forwardedPointer()      jlong            forwardedPointer     = (*env)->GetLongField(     env, methodCallInfo, gFieldId_forwardedPointer    )
 #define GetField_returnValueType()       jint             returnValueType      = (*env)->GetIntField(      env, methodCallInfo, gFieldId_returnValueType     )
 #define GetField_virtualIndex()          jint             virtualIndex         = (*env)->GetIntField(      env, methodCallInfo, gFieldId_virtualIndex        )
@@ -749,6 +752,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 		GetField_paramsValueTypes()     ;
 		GetField_javaCallback()         ;
 		GetField_isGenericCallback()    ;
+		GetField_isObjCBlock()          ;
 		//GetField_forwardedPointer()     ;
 		GetField_returnValueType()      ;
 		//GetField_virtualIndex()         ;
@@ -772,6 +776,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_createCToJavaCallback(
 			info->fInfo.fDCCallback = dcbNewCallback(dcSig, isCPlusPlus ? CPPToJavaCallHandler : CToJavaCallHandler, info);
 			info->fCallbackInstance = WEAK_GLOBAL_REF(javaCallback);
 			info->fIsGenericCallback = isGenericCallback;
+			info->fIsObjCBlock = isObjCBlock;
 			
 			info->fJNICallFunction = getJNICallFunction(env, (ValueType)returnValueType);
 
