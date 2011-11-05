@@ -9,7 +9,7 @@
 void __cdecl CToJavaCallHandler_Sub(CallTempStruct* call, NativeToJavaCallbackCallInfo* info, DCArgs* args, DCValue* result)
 {
 	dcMode(call->vm, JNI_CALL_MODE);
-	dcReset(call->vm);
+	//dcReset(call->vm);
 	
 	if (!info->fCallbackInstance)
 	{
@@ -68,7 +68,7 @@ void __cdecl CPPToJavaCallHandler_Sub(CallTempStruct* call, NativeToJavaCallback
 	jobject javaObject;
 	
 	dcMode(call->vm, JNI_CALL_MODE);
-	dcReset(call->vm);
+	//dcReset(call->vm);
 	
 	if (info->fCallbackInstance)
 	{
@@ -121,7 +121,7 @@ void __cdecl JavaToCCallHandler_Sub(CallTempStruct* call, JavaToNativeCallbackCa
 	void* callbackPtr;
 	
 	dcMode(call->vm, info->fInfo.fDCMode);
-	dcReset(call->vm);
+	//dcReset(call->vm);
 	
 	callbackPtr = getNativeObjectPointer(call->env, instance, NULL);
 	

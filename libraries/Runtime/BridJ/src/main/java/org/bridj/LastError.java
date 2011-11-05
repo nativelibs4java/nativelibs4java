@@ -27,7 +27,7 @@ public class LastError extends NativeError {
     final String description;
     
     LastError(int code, String description) {
-    		super((description == null ? "?" : description) + " (error code = " + code + ")");//toString(code));
+    		super((description == null ? "?" : description.trim()) + " (error code = " + code + ")");//toString(code));
     		this.code = code;
             this.description = description;
             if (BridJ.verbose)

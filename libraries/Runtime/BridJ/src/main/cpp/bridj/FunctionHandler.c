@@ -3,7 +3,7 @@
 void __cdecl JavaToFunctionCallHandler_Sub(CallTempStruct* call, FunctionCallInfo* info, DCArgs* args, DCValue* result)
 {
 	dcMode(call->vm, info->fInfo.fDCMode);
-	dcReset(call->vm);
+	//dcReset(call->vm);
 	
 	followArgs(call, args, info->fInfo.nParams, info->fInfo.fParamTypes, JNI_FALSE, JNI_FALSE) 
 	&&
@@ -31,7 +31,6 @@ char __cdecl JavaToFunctionCallHandler(DCCallback* callback, DCArgs* args, DCVal
 		throwIfLastError(info->fInfo.fEnv);
 	
 	END_TRY(info->fInfo.fEnv, call);
-
 
 	cleanupCallHandler(call);
 	

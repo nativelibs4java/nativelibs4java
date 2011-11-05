@@ -53,20 +53,26 @@ void throwIfLastError(JNIEnv* env) {
 	errorCode = GetLastError();
 	if (errorCode) {
 		// http://msdn.microsoft.com/en-us/library/ms680582(v=vs.85).aspx
-#define MESSAGE_BUF_SIZE 2048
-		char lpMsgBuf[MESSAGE_BUF_SIZE + 1];
-		*lpMsgBuf = '\0';
-
-		FormatMessageA(
+		LPVOID lpMsgBuf;
+		int res;
+		res = FormatMessageA(
 			FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 			NULL,
 			errorCode,
 			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			lpMsgBuf,
-			MESSAGE_BUF_SIZE, 
+			(LPSTR) &lpMsgBuf,
+			0, 
 			NULL 
 		);
-		message = (*env)->NewStringUTF(env, lpMsgBuf);
+		if (res) {
+			message = (*env)->NewStringUTF(env, (LPCSTR)lpMsgBuf);
+			LocalFree(lpMsgBuf);
+		} else {
+#define MESSAGE_BUF_SIZE 2048
+			char lpMsgBuf[MESSAGE_BUF_SIZE + 1];
+			sprintf(lpMsgBuf, "Last Error Code = %d", errorCode);
+			message = (*env)->NewStringUTF(env, lpMsgBuf);
+		}
 	}
 #endif
 	if (!errorCode) {
@@ -78,17 +84,6 @@ void throwIfLastError(JNIEnv* env) {
 	}
 	if (errorCode)
 		(*env)->CallStaticVoidMethod(env, gLastErrorClass, gThrowNewLastErrorMethod, errorCode, message);
-	
-		/*
-	errorCode = GetLastError();
-	if (!errorCode)
-		errorCode = errno;
-#else
-	errorCode = errno;
-#endif
-	printf("ERRNO = %d\n", errorCode);
-	(*env)->CallStaticVoidMethod(env, gLastErrorClass, gThrowNewLastErrorMethod, errorCode);
-	*/
 }
 
 jboolean assertThrow(JNIEnv* env, jboolean value, const char* message) {

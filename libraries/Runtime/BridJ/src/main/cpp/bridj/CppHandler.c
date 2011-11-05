@@ -6,7 +6,7 @@ void callSinglePointerArgVoidFunction(JNIEnv* env, void* constructor, void* this
 	initCallHandler(NULL, &call, env, NULL);
 	
 	dcMode(call->vm, callMode);
-	dcReset(call->vm);
+	//dcReset(call->vm);
 	
 	dcArgPointer(call->vm, thisPtr);
 	dcCallVoid(call->vm, constructor);
@@ -38,7 +38,7 @@ void JavaToVirtualMethodCallHandler_Sub(CallTempStruct* call, VirtualMethodCallI
 	ValueType *pParamTypes = info->fInfo.fParamTypes;
 	
 	dcMode(call->vm, info->fInfo.fDCMode);
-	dcReset(call->vm);
+	//dcReset(call->vm);
 	
 	if (info->fHasThisPtrArg) {
 		if (nParams == 0 || *pParamTypes != eSizeTValue) {
@@ -101,7 +101,7 @@ void JavaToCPPMethodCallHandler_Sub(CallTempStruct* call, FunctionCallInfo* info
 	void* thisPtr;
 	
 	dcMode(call->vm, info->fInfo.fDCMode);
-	dcReset(call->vm);
+	//dcReset(call->vm);
 	
 	thisPtr = getNativeObjectPointer(call->env, instance, info->fClass);
 	if (!thisPtr) {
