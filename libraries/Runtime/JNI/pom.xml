@@ -50,6 +50,19 @@
 			</executions>
 		</plugin>
 		
+  		<plugin>
+			<groupId>com.nativelibs4java</groupId>
+			<artifactId>maven-velocity-plugin</artifactId>
+			<version>${bridj.version}</version>
+			<executions>
+			  <execution>
+				<goals>
+				  <goal>generate</goal>
+				</goals>
+			  </execution>
+			</executions>
+		</plugin>
+		
   	</plugins>
   </build>
 </project>

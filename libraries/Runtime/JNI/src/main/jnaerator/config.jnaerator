@@ -1,7 +1,10 @@
 -noJar -noComp
+-nocpp
 
 -gccLong
 -Djint=int
+-Djchar=wchar_t
+-Djboolean=bool
 //"-Djlong=long long"
 
 -emptyStructsAsForwardDecls

@@ -19,7 +19,7 @@
     <module>IdleTime</module>
     <module>Velocity</module>
     <module>JarShrinker</module>
-    <module>JNI</module>
+    <!--module>JNI</module-->
     <module>Parent</module>
   </modules>
   
