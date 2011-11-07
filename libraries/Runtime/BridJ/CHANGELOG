@@ -12,6 +12,8 @@ Current version : BridJ 0.6-SNAPSHOT
 - Fixed crash during deallocation of Callbacks + fixed leak of Callbacks (now need to retain a reference to callbacks or use BridJ.protectFromGC / unprotectFromGC)
 - Added errno/GetLastError() mechanism : declare methods to throw org.bridj.LastError and it's all handled automatically (issue #74)
 - Added protected mode (-Dbridj.protected=true / BRIDJ_PROTECTED=1), to prevent native crashes (makes BridJ bindings slower + disables optimized raw calls).
+- Added proxy-based Objective-C delegates support (forwards unknown methods to a Java instance) (issue #188)
+- Added Objective-C 2.0 blocks support (similar to callbacks, inherit from ObjCBlock instead of Callback) (issue #192)
 - Added Pointer.asList() and .asList(ListType) to get a List view of the pointed memory 
 	- depending on the ListType, the view can be mutable / resizeable
 	- removed the List interface from Pointer (which is now just an Iterable)
@@ -23,7 +25,6 @@ Current version : BridJ 0.6-SNAPSHOT
 - Added support for multiarch Linux distributions (issue #2)
 - Added support for versioned library file names (issue #72)
 - Added global allocated memory alignment setting (BRIDJ_DEFAULT_ALIGNMENT env. var. & bridj.defaultAlignment property), + Pointer.allocateAlignedArray
-- Added partial proxy-based Objective-C delegates support (forwards unknown methods to a Java instance) (issue #188)
 - Added basic calls log mechanism (disables direct mode) : -Dbridj.logCalls=true or BRIDJ_LOG_CALLS=1 (only logs the method name & signature, not the arguments or returned values)
 - Added BridJ.setMinLogLevel(Level) (issue #190)
 - Added Platform.addEmbeddedLibraryResourceRoot(root) to use & customize the embedded library extraction feature in user projects
