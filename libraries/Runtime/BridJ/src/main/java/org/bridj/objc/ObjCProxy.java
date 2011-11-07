@@ -75,11 +75,20 @@ public class ObjCProxy extends ObjCObject {
 				return new Pair<NSMethodSignature, Method>(ms, method);
 			}
 		}
-		if (BridJ.debug)
-			BridJ.log(Level.INFO, "Failed to compute method and signature for selector " + sel + " in class " + getInvocationTarget().getClass().getName());
+		//if (BridJ.debug)
+        BridJ.log(Level.SEVERE, "Missing method for " + sel + " in class " + classHierarchyToString(getInvocationTarget().getClass()));
 				
 		return null;
 	}
+    static String classHierarchyToString(Class c) {
+        String s = Utils.toString(c);
+        Type p = c.getGenericSuperclass();
+        while (p != null && p != Object.class && p != ObjCProxy.class) {
+            s += " extends " + Utils.toString(p);
+            p = Utils.getClass(p).getGenericSuperclass();
+        }
+        return s;
+    }
     /*
     static Type promote(Type type) {
         if (type == byte.class || type == short.class || type == char.class || type == boolean.class)

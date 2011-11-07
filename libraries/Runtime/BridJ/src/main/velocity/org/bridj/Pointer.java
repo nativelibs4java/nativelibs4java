@@ -894,6 +894,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     /**
+     * Returns null if pointer is null, otherwise dereferences the pointer (calls pointer.get()).
+     */
+    public static <T> T get(Pointer<T> pointer) {
+    		return pointer == null ? null : pointer.get();
+    }
+    
+    /**
      Gets the n-th element from this pointer.<br>
      This is equivalent to the C/C++ square bracket syntax.<br>
      Take the following C++ code fragment :
