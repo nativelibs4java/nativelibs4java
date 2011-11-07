@@ -1,5 +1,9 @@
 Current version : BridJ 0.6-SNAPSHOT
 
+...
+
+BridJ 0.6 (???, 20111107)
+
 - Fixed Pointer.next/.offset methods (used to throw errors a the end of iteration)
 - Fixed Pointer.getNativeObjectAtOffset(long byteOffset, Type type)
 - Fixed struct fields implemented as Java fields
