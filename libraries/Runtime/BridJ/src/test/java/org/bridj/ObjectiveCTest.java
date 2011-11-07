@@ -42,7 +42,7 @@ public class ObjectiveCTest {
         if (!mac) return;
         pool.get().drain();
     }
-    
+    //*
 	@Test 
 	public void testNSNumber() {
 		if (!mac) return;
@@ -170,23 +170,17 @@ public class ObjectiveCTest {
         System.out.println(p.description().get());
         assertEquals(11, p.incf(10), 0);
     }
-    
+    //*/
     public static class NSEvent extends NSObject {
-    		/*
-	   public NSEvent(Pointer ptr) {
-		   super(ptr);
-	   }
-	   */
-	
-	   //@Selector("addLocalMonitorForEventsMatchingMask:handler:")
-	   public static native Pointer addGlobalMonitorForEventsMatchingMask_handler(@Ptr long mask, Pointer<NSEventGlobalCallback> handler);
+       //@Selector("addGlobalMonitorForEventsMatchingMask:handler:")
+	   public static native Pointer addGlobalMonitorForEventsMatchingMask_handler(long mask, Pointer<NSEventGlobalCallback> handler);
 	}
 	
 	public abstract static class NSEventGlobalCallback extends ObjCBlock {
 		public abstract void callback(Pointer<NSEvent> event);
 	}
 
-   //@Test
+   @Test
    public void testGlobalNSEventHook() throws Exception {
     	if (!mac) return;
         BridJ.register(NSEvent.class);
@@ -200,17 +194,17 @@ public class ObjectiveCTest {
 			}
 		};
 
-        System.out.println("handler: " + handler);
+        //System.out.println("handler: " + handler);
 
         Pointer hook = NSEvent.addGlobalMonitorForEventsMatchingMask_handler(-1L/*1 << 1*/, pointerTo(handler));
 
-        System.out.println("hook: " + hook);
+        //System.out.println("hook: " + hook);
         
         Thread.sleep(10000);
         
         assertTrue(called[0]);
    }
-   
+   //*
    @Library("test")
    public static class TestLib {
        public static interface Delg extends ObjCDelegate {
@@ -266,5 +260,5 @@ public class ObjectiveCTest {
        int res = forwardBlockCallIntIntInt(pointerTo(block), a, b);
        assertEquals(expected, res);
    }
-   
+   //*/
 }

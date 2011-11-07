@@ -72,7 +72,6 @@ CPPFLAGS		+= -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Head
 CPPFLAGS 	+= -DBRIDJ_OBJC_SUPPORT
 LDFLAGS		+= -ldl -all_load
 LDFLAGS		+= -framework Foundation
-#LDFLAGS		+= -lobjc 
 endif
 
 ifdef BUILD_OS_iphoneos
@@ -104,14 +103,15 @@ LDFLAGS		+= 	-mimpure-text
 LDFLAGS		+=	-L/opt/csw/gcc4/lib
 endif                 
 
-#CPPFLAGS += -O0
-
 ifdef BUILD_OS_darwin
-CPPFLAGS += -O3
 CPPFLAGS += -mmacosx-version-min=10.4
 LDFLAGS += -mmacosx-version-min=10.4
+endif
+
+ifdef BUILD_CONFIG_debug
+CPPFLAGS +=	-O0 -g
 else
-CPPFLAGS += -O2
+CPPFLAGS += -O3
 endif
 
 #LINK_LIBS	+= stdc++

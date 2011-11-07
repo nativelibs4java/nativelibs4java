@@ -221,7 +221,7 @@ public class ObjectiveCRuntime extends CRuntime {
         if (method == null)
             return;
 
-        if (!ObjCObject.class.isAssignableFrom(type)) {
+        if (!ObjCObject.class.isAssignableFrom(type) || ObjCBlock.class.isAssignableFrom(type)) {
             super.registerNativeMethod(type, typeLibrary, method, methodLibrary, builder, methodCallInfoBuilder);
             return;
         }
@@ -272,6 +272,31 @@ public class ObjectiveCRuntime extends CRuntime {
     public <T extends NativeObject> TypeInfo<T> getTypeInfo(final Type type) {
         return new CTypeInfo<T>(type) {
 
+            @Override
+            public void initialize(T instance) {
+                if (!BridJ.isCastingNativeObjectInCurrentThread()) {
+                    if (instance instanceof ObjCBlock) {
+                        final Pointer<CallbackInterface> pcb = registerCallbackInstance((CallbackInterface)instance);
+                        ((ObjCBlock)instance).pCallback = pcb;
+
+                        Pointer<T> pBlock = pointerToAddress(ObjCJNI.createObjCBlockWithFunctionPointer(pcb.getPeer()), type);
+                        pBlock = pBlock.withReleaser(new Releaser() {
+                            public void release(Pointer<?> p) {
+                                pcb.release();
+                                ObjCJNI.releaseObjCBlock(p.getPeer());
+                            }
+                        });
+
+                        setNativeObjectPeer(instance, pBlock);
+                    } else {
+                        super.initialize(instance);
+                    }
+                } else {
+                    super.initialize(instance);
+                }
+            }
+
+            
             @Override
             public void initialize(T instance, Pointer peer) {
                 if (instance instanceof ObjCClass) {

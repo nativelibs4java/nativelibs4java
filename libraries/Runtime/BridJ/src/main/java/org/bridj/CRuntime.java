@@ -516,7 +516,7 @@ public class CRuntime extends AbstractBridJRuntime {
 			}
 		});
     }
-    private <T extends CallbackInterface> Pointer<T> registerCallbackInstance(T instance) {
+    protected <T extends CallbackInterface> Pointer<T> registerCallbackInstance(T instance) {
 		try {
             Class<?> c = instance.getClass();
             MethodCallInfo mci = new MethodCallInfo(getUniqueAbstractCallbackMethod(c));
