@@ -213,7 +213,7 @@ public class PointerTest {
 	}
 	
 	@Test
-	public void alignment() {
+	public void testAligned() {
 		Pointer<Integer> p = allocateInts(2);
 		assertTrue(p.isAligned());
 		assertTrue(!p.offset(1).isAligned());
@@ -222,6 +222,16 @@ public class PointerTest {
 		assertTrue(!p.offset(3).isAligned());
 		assertTrue(p.offset(4).isAligned());
 	}
+	@Test
+	public void testExplicitAlignment() {
+		for (int alignment = 2; alignment < 20; alignment++) {
+			Pointer<Integer> p = allocateAlignedArray(int.class, 3, alignment);
+			assertEquals(0, p.getPeer() % alignment);
+			p.release();
+		}
+	}
+	
+	
 	
 	@Test
 	public void iterate() {
