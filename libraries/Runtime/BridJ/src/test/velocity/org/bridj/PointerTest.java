@@ -431,6 +431,27 @@ public class PointerTest {
 #end
 	}
 
+	@Test
+	public void testSignedIntegrals() {
+		long value = 124;
+		for (int sizeof : new int[] { 1, 2, 4, 8 }) {
+			Pointer p = allocateBytes(sizeof);
+			p.setSignedIntegralAtOffset(0, value, sizeof);
+			assertEquals(value, p.getSignedIntegralAtOffset(0, sizeof));
+		}
+	}
+	
+	@Test(expected = RuntimeException.class)
+	public void testUpdateDifferentDirectBuffer() {
+		ByteBuffer b = ByteBuffer.allocateDirect(4);
+		Pointer p = pointerToBytes(b);
+		p.updateBuffer(ByteBuffer.allocateDirect(4));
+	}
+	@Test(expected = RuntimeException.class)
+	public void testUpdateDirectBufferOnNonBufferBoundPointer() {
+		allocateInt().updateBuffer(ByteBuffer.allocateDirect(4));
+	}
+	
 #foreach ($prim in $bridJPrimitives)
 
 #if ($prim.Name == "double" || $prim.Name == "float")

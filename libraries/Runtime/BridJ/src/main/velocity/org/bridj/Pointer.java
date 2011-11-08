@@ -2053,7 +2053,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 			setLongAtOffset(byteOffset, value);
 			break;
 		default:
-			throw new RuntimeException("Cannot write integral type of size " + sizeOfIntegral + " (value = " + value + ")");
+			throw new IllegalArgumentException("Cannot write integral type of size " + sizeOfIntegral + " (value = " + value + ")");
 		}
 	}
 	long getSignedIntegralAtOffset(long byteOffset, long sizeOfIntegral) {
@@ -2067,7 +2067,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		case 8:
 			return getLongAtOffset(byteOffset);
 		default:
-			throw new RuntimeException("Cannot read integral type of size " + sizeOfIntegral);
+			throw new IllegalArgumentException("Cannot read integral type of size " + sizeOfIntegral);
 		}
 	}
 	
