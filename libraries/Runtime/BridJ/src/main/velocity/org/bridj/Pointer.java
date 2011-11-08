@@ -405,7 +405,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	public Pointer<T> validBytes(long byteCount) {
 		long peer = getPeer();
 		long newValidEnd = peer + byteCount;
-		if (validStart == 0 && validEnd == newValidEnd)
+		if (validStart == peer && validEnd == newValidEnd)
 			return this;
 		
 		if (validEnd != UNKNOWN_VALIDITY && newValidEnd > validEnd)

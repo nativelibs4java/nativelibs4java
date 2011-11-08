@@ -44,10 +44,17 @@ public class PointerTest {
 		Pointer<Integer> p = allocateInt();
 		assertFalse(p.equals(null));
 		assertFalse(p.equals("toto"));
+		assertSame(p, p.validBytes(p.getValidBytes()));
+		assertSame(p, p.offset(0));
+		assertEquals(p.getPeer(), p.offset(0, PointerIO.getDoubleInstance()).getPeer());
 	}
 	@Test(expected = IllegalArgumentException.class)
 	public void testNegSize() {
 		allocateInts(-1);
+	}
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void testInvalidOffset() {
+		allocateBytes(1).offset(2);
 	}
 	@Test
 	public void testPointerPointerPointer() {
