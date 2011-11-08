@@ -282,6 +282,7 @@ public class PointerTest {
 			assertEquals(byteSize, p.getValidBytes());
 		}
 	}
+	
 #foreach ($align in [0, 1, 2, 4, 8, 16, 32, 64])
 	@Test
 	public void testAlignment${align}() {
@@ -438,6 +439,22 @@ public class PointerTest {
 #set ($precisionArg = "")
 #end
 
+#if ($prim.Name != "SizeT" && $prim.Name != "CLong" && $prim.Name != "Pointer" && $prim.Name != "boolean" && $prim.Name != "char")	
+	@Test
+	public void test${prim.BufferName}Update() {
+		${prim.Name}[] values = new ${prim.Name}[] { ${prim.value($v1)}, ${prim.value($v2)}, ${prim.value($v3)} };
+		// Non-direct buffer
+		${prim.BufferName} b = ${prim.BufferName}.allocate(1);
+		Pointer<	${prim.WrapperName}> p = pointerTo${prim.CapName}s(b);
+		for (${prim.Name} value : values) { 
+			p.set(value);
+			assertEquals(value, (${prim.Name})p.get()$precisionArg);
+			p.updateBuffer(b);
+			assertEquals(value, b.get(0)$precisionArg);
+		}
+	}
+#end
+	
 #if ($prim.Name == "SizeT" || $prim.Name == "CLong")
 #set ($rawType = "long")
 #set ($rawCapName = "Long")
