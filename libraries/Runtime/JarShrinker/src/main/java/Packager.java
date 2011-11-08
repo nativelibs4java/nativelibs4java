@@ -30,23 +30,7 @@ public class Packager
 				ZipOutputStream zout = new ZipOutputStream(bout);
 				ZipEntry e;
 				while ((e = zin.getNextEntry()) != null) {
-					ZipEntry ee = new ZipEntry(e.getName());
-					ee.setMethod(ZipEntry.STORED);
-					ByteArrayOutputStream eout = new ByteArrayOutputStream();
-					while ((len = zin.read(b)) > 0)
-						eout.write(b, 0, len);
-					eout.close();
-					byte[] ebytes = eout.toByteArray();
-					          
-					//System.out.println("ZipEntry[" + e.getName() + "].size = " +  ebytes.length);
-					if (ebytes.length > 0) {
-						ee.setSize(ebytes.length);
-						ee.setCrc(e.getCrc());
-						zout.putNextEntry(ee);
-						
-						zout.write(ebytes, 0, ebytes.length);
-					}
-					zout.closeEntry();
+                    putEntry(e.getName(), zin, zout, false, false);
 				}
 				zout.close();
 				zin.close();
@@ -65,12 +49,7 @@ public class Packager
 		zout.closeEntry();
 		
 		for (String res : runtimeRes) {
-			zout.putNextEntry(new ZipEntry(res));
-			InputStream resIn = cl.getResourceAsStream(res);
-			while ((len = resIn.read(b)) > 0)
-				zout.write(b, 0, len);
-			resIn.close();
-			zout.closeEntry();
+			putEntry(res, cl.getResourceAsStream(res), zout, true, true);
 		}
 		
 		zout.putNextEntry(new ZipEntry("classes.7z"));
@@ -86,6 +65,36 @@ public class Packager
 		//outStream.flush();
 		//outStream.close();
 		inStream.close();
+	}
+	static void putEntry(String name, InputStream in, ZipOutputStream zout, boolean compressed, boolean closeIn) throws IOException {
+        byte[] b = new byte[1024];
+		int len;
+		
+        ZipEntry e = new ZipEntry(name);
+            
+        if (compressed) {
+            zout.putNextEntry(e);
+            while ((len = in.read(b)) > 0)
+                zout.write(b, 0, len);
+        } else {
+            e.setMethod(ZipEntry.STORED);
+            ByteArrayOutputStream eout = new ByteArrayOutputStream();
+            while ((len = in.read(b)) > 0)
+                eout.write(b, 0, len);
+            eout.close();
+            byte[] ebytes = eout.toByteArray();
+
+            if (ebytes.length > 0) {
+                e.setSize(ebytes.length);
+                e.setCrc(e.getCrc());
+                zout.putNextEntry(e);
+
+                zout.write(ebytes, 0, ebytes.length);
+            }	
+        }
+        zout.closeEntry();
+        if (closeIn)
+            in.close();
 	}
 	public static void compress(InputStream inStream, OutputStream outStream) throws IOException
 	{
