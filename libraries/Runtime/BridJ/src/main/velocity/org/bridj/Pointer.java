@@ -802,7 +802,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 #docGet("native object", "O extends NativeObject")
     public <O extends NativeObject> O getNativeObject(Class<O> type) {
-		return getNativeObjectAtOffset(0, type);
+		return getNativeObject((Type)type);
 	}
 #docGet("native object", "O extends NativeObject")
     public <O extends NativeObject> O getNativeObject(Type type) {
@@ -1234,7 +1234,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold a single typed pointer
      */
     public static <P> Pointer<Pointer<P>> allocatePointer(Class<P> targetType) {
-    	return (Pointer<Pointer<P>>)(Pointer)allocate(PointerIO.getPointerInstance(targetType)); 
+    	return allocatePointer((Type)targetType); 
     }
     /**
      * Create a memory area large enough to hold a pointer.
@@ -1257,7 +1257,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold a single typed pointer
      */
     public static <P> Pointer<Pointer<Pointer<P>>> allocatePointerPointer(Class<P> targetType) {
-    	return allocatePointerPointer(targetType); 
+    	return allocatePointerPointer((Type)targetType); 
     }
 #docAllocate("untyped pointer", "Pointer<?>")
     /**
@@ -1279,7 +1279,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold an array of arrayLength typed pointers
      */
     public static <P> Pointer<Pointer<P>> allocatePointers(Class<P> targetType, int arrayLength) {
-		return (Pointer<Pointer<P>>)(Pointer)allocateArray(PointerIO.getPointerInstance(targetType), arrayLength); // TODO 
+		return allocatePointers((Type)targetType, arrayLength);
 	}
 	
     /**
@@ -1681,7 +1681,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * @param c class of the elements pointed by the resulting pointer 
 	 */
 	public <U> Pointer<U> getPointerAtOffset(long byteOffset, Class<U> c) {
-    	return getPointerAtOffset(byteOffset, (PointerIO<U>)PointerIO.getInstance(c));	
+    	return getPointerAtOffset(byteOffset, (Type)c);	
     }
     
     /**
@@ -1754,7 +1754,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	 * @param t class of the elements pointed by the resulting pointer 
 	 */
 	public <U> Pointer<U>[] getPointersAtOffset(long byteOffset, int arrayLength, Class<U> t) {
-        return getPointersAtOffset(byteOffset, arrayLength, t == null ? null : PointerIO.getInstance(t));
+        return getPointersAtOffset(byteOffset, arrayLength, (Type)t);
     }
     
     /**
@@ -3010,7 +3010,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @param capacity Initial capacity of the list
      */
     public static <E> NativeList<E> allocateList(Class<E> type, long capacity) {
-        return allocateList((PointerIO)PointerIO.getInstance(type), capacity);
+        return allocateList((Type)type, capacity);
     }
 	/**
      * Create a {@link ListType#Dynamic} list with the provided initial capacity (see {@link ListType#Dynamic}).

@@ -27,6 +27,40 @@ public class PointerTest {
 	static final ByteOrder[] orders = new ByteOrder[] { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN };
     
 	@Test
+	public void testRelease() {
+		final boolean called[] = new boolean[1]; 
+		Pointer<Integer> p = allocateInts(3).withReleaser(new Releaser() {
+			public void release(Pointer<?> p) {
+				called[0] = true; 
+			}
+		});
+		Pointer p2 = p.offset(1);
+		p2.release();
+		assertTrue(called[0]);
+		Pointer.release(p, p2);
+	}
+	@Test
+	public void testMisc() {
+		Pointer<Integer> p = allocateInt();
+		assertFalse(p.equals(null));
+		assertFalse(p.equals("toto"));
+	}
+	@Test(expected = IllegalArgumentException.class)
+	public void testNegSize() {
+		allocateInts(-1);
+	}
+	@Test
+	public void testPointerPointerPointer() {
+		Pointer<Integer> p = allocateInt();
+		Pointer<Pointer<Integer>> pp = allocatePointer(Integer.class);
+		Pointer<Pointer<Pointer<Integer>>> ppp = allocatePointerPointer(Integer.class);
+		p.set(10);
+		pp.set(p);
+		ppp.set(pp);
+		assertEquals(10, (int)(Integer)ppp.get().get().get());
+	}
+	
+	@Test
 	public void testNext() {
 		int n = 3;
 		Pointer<Integer> ints = allocateInts(n), p = ints;
