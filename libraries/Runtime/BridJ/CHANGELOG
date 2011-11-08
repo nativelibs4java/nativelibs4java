@@ -1,8 +1,8 @@
-Current version : BridJ 0.6-SNAPSHOT
+Current version : BridJ 0.7-SNAPSHOT
 
 ...
 
-BridJ 0.6 (???, 20111107)
+BridJ 0.6 (20111107, commit 4950e5c58f32869ce460dbbc59fe969865dd9288)
 
 - Added errno/GetLastError() mechanism : declare methods to throw org.bridj.LastError and it's all handled automatically (issue #74)
 - Added protected mode (-Dbridj.protected=true / BRIDJ_PROTECTED=1), to prevent native crashes (makes BridJ bindings slower + disables optimized raw calls).

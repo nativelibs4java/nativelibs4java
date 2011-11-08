@@ -1,6 +1,6 @@
 package org.bridj.platform.idletime.mac;
 import org.bridj.platform.idletime.*;
-import static org.bridj.platform.mac.CoreGraphics.*;
+import static org.bridj.platform.idletime.mac.CoreGraphics.*;
 
 public class MacIdleTimeUtils extends IdleTimeUtils {
 	public long getIdleTimeMillis() {
