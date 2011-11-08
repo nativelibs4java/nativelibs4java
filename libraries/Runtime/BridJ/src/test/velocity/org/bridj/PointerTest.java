@@ -52,6 +52,11 @@ public class PointerTest {
 	public void testNegSize() {
 		allocateInts(-1);
 	}
+	
+	@Test(expected = IndexOutOfBoundsException.class)
+	public void testInvalidValidBytes() {
+		allocateBytes(1).validBytes(2);
+	}
 	@Test(expected = IndexOutOfBoundsException.class)
 	public void testInvalidOffset() {
 		allocateBytes(1).offset(2);

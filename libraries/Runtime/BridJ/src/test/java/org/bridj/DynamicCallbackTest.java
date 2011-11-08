@@ -30,10 +30,6 @@ public class DynamicCallbackTest {
     
     @Test
     public void testDynamicFunctionCallback() throws FileNotFoundException {
-        if (true)
-            return;
-        
-        //NativeLibrary lib = BridJ.getNativeLibrary("test");
         Pointer dc = Pointer.allocateDynamicCallback(
             new DynamicCallback<Integer>() {
 

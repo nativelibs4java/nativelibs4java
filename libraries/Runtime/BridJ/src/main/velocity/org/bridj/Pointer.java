@@ -952,7 +952,14 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         return set(0, value);
     }
     
-    static void throwBecauseUntyped(String message) {
+    private static long getTargetSizeToAllocateArrayOrThrow(PointerIO<?> io) {
+    		long targetSize = io.getTargetSize();
+		if (targetSize < 0)
+			throwBecauseUntyped("Cannot allocate array ");
+		return targetSize;
+	}
+    	
+    private static void throwBecauseUntyped(String message) {
     	throw new RuntimeException("Pointer is not typed (call Pointer.as(Type) to create a typed pointer) : " + message);
     }
     static void throwUnexpected(Throwable ex) {
@@ -1317,10 +1324,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold one item of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
      */
     public static <V> Pointer<V> allocate(PointerIO<V> io) {
-    	long targetSize = io.getTargetSize();
-    	if (targetSize < 0)
-    		throwBecauseUntyped("Cannot allocate array ");
-		return allocateBytes(io, targetSize, null);
+    		return allocateBytes(io, getTargetSizeToAllocateArrayOrThrow(io), null);
     }
     /**
      * Create a memory area large enough to hold arrayLength items of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
@@ -1329,10 +1333,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold arrayLength items of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
      */
     public static <V> Pointer<V> allocateArray(PointerIO<V> io, long arrayLength) {
-		long targetSize = io.getTargetSize();
-    	if (targetSize < 0)
-    		throwBecauseUntyped("Cannot allocate array ");
-		return allocateBytes(io, targetSize * arrayLength, null);
+		return allocateBytes(io, getTargetSizeToAllocateArrayOrThrow(io) * arrayLength, null);
     }
     /**
      * Create a memory area large enough to hold arrayLength items of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
@@ -1342,10 +1343,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * @return a pointer to a new memory area large enough to hold arrayLength items of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
      */
     public static <V> Pointer<V> allocateArray(PointerIO<V> io, long arrayLength, final Releaser beforeDeallocation) {
-		long targetSize = io.getTargetSize();
-    	if (targetSize < 0)
-    		throwBecauseUntyped("Cannot allocate array ");
-		return allocateBytes(io, targetSize * arrayLength, beforeDeallocation);
+		return allocateBytes(io, getTargetSizeToAllocateArrayOrThrow(io) * arrayLength, beforeDeallocation);
     }
     /**
      * Create a memory area large enough to hold byteSize consecutive bytes and return a pointer to elements of the type associated to the provided PointerIO instance (see {@link PointerIO#getTargetType()})
@@ -1478,10 +1476,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		PointerIO io = PointerIO.getInstance(elementClass);
 		if (io == null)
 			throw new UnsupportedOperationException("Cannot allocate memory for type " + (elementClass instanceof Class ? ((Class)elementClass).getName() : elementClass.toString()));
-		long targetSize = io.getTargetSize();
-		if (targetSize < 0)
-			throwBecauseUntyped("Cannot allocate array ");
-		return allocateAlignedBytes(io, targetSize * arrayLength, alignment, null);
+		return allocateAlignedBytes(io, getTargetSizeToAllocateArrayOrThrow(io) * arrayLength, alignment, null);
     }
 
     /**
