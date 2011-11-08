@@ -4,16 +4,6 @@ Current version : BridJ 0.6-SNAPSHOT
 
 BridJ 0.6 (???, 20111107)
 
-- Fixed Pointer.next/.offset methods (used to throw errors a the end of iteration)
-- Fixed Pointer.getNativeObjectAtOffset(long byteOffset, Type type)
-- Fixed struct fields implemented as Java fields
-- Fixed resolution of MacOS X "ApplicationServices" framework binaries, such as CoreGraphics
-- Fixed some COM bugs with IUnknown
-- Fixed demangling/matching of CLong & SizeT
-- Fixed CLong & SizeT arguments
-- Fixed Objective-C runtime (basic features), added NSString constructor & NSDictionary (with conversion to/from Map<NSString, NSObject>)
-- Fixed crashes on Win32 (when using Pointer class in bound function arguments)
-- Fixed crash during deallocation of Callbacks + fixed leak of Callbacks (now need to retain a reference to callbacks or use BridJ.protectFromGC / unprotectFromGC)
 - Added errno/GetLastError() mechanism : declare methods to throw org.bridj.LastError and it's all handled automatically (issue #74)
 - Added protected mode (-Dbridj.protected=true / BRIDJ_PROTECTED=1), to prevent native crashes (makes BridJ bindings slower + disables optimized raw calls).
 - Added proxy-based Objective-C delegates support (forwards unknown methods to a Java instance) (issue #188)
@@ -35,6 +25,16 @@ BridJ 0.6 (???, 20111107)
 - Added support for packed structs (@Struct(pack = 1), or any other pack value)
 - Added check of BridJ environment variables and Java properties : if any BRIDJ_* env. var. or bridj.* property does not exist, it will log warnings + full list of valid options
 - Added @JNIBound annotation to mark native methods that should not be bound by BridJ but by plain old JNI
+- Fixed Pointer.next/.offset methods (used to throw errors a the end of iteration)
+- Fixed Pointer.getNativeObjectAtOffset(long byteOffset, Type type)
+- Fixed struct fields implemented as Java fields
+- Fixed resolution of MacOS X "ApplicationServices" framework binaries, such as CoreGraphics
+- Fixed some COM bugs with IUnknown
+- Fixed demangling/matching of CLong & SizeT
+- Fixed CLong & SizeT arguments
+- Fixed Objective-C runtime (basic features), added NSString constructor & NSDictionary (with conversion to/from Map<NSString, NSObject>)
+- Fixed crashes on Win32 (when using Pointer class in bound function arguments)
+- Fixed crash during deallocation of Callbacks + fixed leak of Callbacks (now need to retain a reference to callbacks or use BridJ.protectFromGC / unprotectFromGC)
 - Made the StructIO customization mechanism more flexible
 - Made JawtLibrary public
 - Various Javadoc tweaks
