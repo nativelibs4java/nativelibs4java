@@ -99,6 +99,7 @@ public class Platform {
     public static synchronized void addEmbeddedLibraryResourceRoot(String root) {
     		embeddedLibraryResourceRoots.add(0, root);
     }
+    static List<File> extractedEmbeddedLibraryResources = new ArrayList<File>();
 	static {
         
         	addEmbeddedLibraryResourceRoot("lib/");
@@ -118,6 +119,15 @@ public class Platform {
 		CLONG_SIZE = sizeOf_long();
         
         systemClassLoader = createClassLoader();
+        
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				for (File file : extractedEmbeddedLibraryResources) {
+					file.delete();
+				}
+			}
+		});
     }
     static ClassLoader createClassLoader()
 	{
@@ -358,6 +368,7 @@ public class Platform {
 			BridJ.log(Level.INFO, "Embedded paths for library " + name + " : " + ret);
 		return ret;
     }
+    
     static File extractEmbeddedLibraryResource(String name) throws IOException {
         String firstLibraryResource = null;
 		for (String libraryResource : getEmbeddedLibraryResource(name)) {
@@ -380,6 +391,9 @@ public class Platform {
 				continue;
 			}
 			File libFile = File.createTempFile(new File(libraryResource).getName(), ext);
+			synchronized (extractedEmbeddedLibraryResources) {
+				extractedEmbeddedLibraryResources.add(libFile);
+			}
 			libFile.deleteOnExit();
 			OutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
 			while ((len = in.read(b)) > 0)
