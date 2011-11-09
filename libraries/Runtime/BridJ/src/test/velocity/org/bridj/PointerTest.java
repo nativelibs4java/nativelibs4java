@@ -423,11 +423,16 @@ public class PointerTest {
 		assertEquals(null, allocateBytes(null, 0, null));
 		assertEquals(null, allocateArray(int.class, 0));
 		assertEquals(null, pointerToAddress(0));
+		assertEquals(null, pointerToArray(null));
 		assertEquals(null, pointerToBuffer(null));
 		
 #foreach ($prim in $bridJPrimitives)
 		{
 			assertTrue(pointerTo${prim.CapName}s((${prim.Name}[])null) == null);
+#if ($prim.Name == "SizeT" || $prim.Name == "CLong")
+			assertTrue(pointerTo${prim.CapName}s((int[])null) == null);
+			assertTrue(pointerTo${prim.CapName}s((long[])null) == null);
+#end	
 		}
 #end
 #foreach ($prim in $primitives)
@@ -564,6 +569,12 @@ public class PointerTest {
 		assertEquals(${prim.rawValue($v1)}, p.get${prim.CapName}AtOffset(0 * ${prim.Size})$precisionArg);
 		assertEquals(${prim.rawValue($v2)}, p.get${prim.CapName}AtOffset(1 * ${prim.Size})$precisionArg);
 		assertEquals(${prim.rawValue($v3)}, p.get${prim.CapName}AtOffset(2 * ${prim.Size})$precisionArg);
+		
+		$rawType[] arr = p.get${prim.CapName}s();
+		assertEquals(${prim.rawValue($v1)}, arr[0]$precisionArg);
+		assertEquals(${prim.rawValue($v2)}, arr[1]$precisionArg);
+		assertEquals(${prim.rawValue($v3)}, arr[2]$precisionArg);
+		
 	}
 	@Test 
     public void testPointerTo_${prim.Name}_Value() {

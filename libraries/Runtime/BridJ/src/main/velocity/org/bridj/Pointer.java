@@ -954,8 +954,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     private static long getTargetSizeToAllocateArrayOrThrow(PointerIO<?> io) {
-    		long targetSize = io.getTargetSize();
-		if (targetSize < 0)
+    		long targetSize = -1;
+    		if (io == null || (targetSize = io.getTargetSize()) < 0)
 			throwBecauseUntyped("Cannot allocate array ");
 		return targetSize;
 	}
