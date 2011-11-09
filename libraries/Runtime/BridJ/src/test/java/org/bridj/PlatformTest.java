@@ -9,7 +9,7 @@ public class PlatformTest {
 	public void testSizes() {
 		int clong = isWindows() || !is64Bits() ? 4 : 8;
 		int sizet = is64Bits() ? 8 : 4, ptr = sizet;
-		int wchar = isMacOSX() ? 4 : 2;
+		int wchar = isUnix() ? 4 : 2;
 		
 		assertEquals(clong, Platform.CLONG_SIZE);
 		assertEquals(sizet, Platform.SIZE_T_SIZE);

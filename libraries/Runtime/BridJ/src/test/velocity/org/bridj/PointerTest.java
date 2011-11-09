@@ -478,7 +478,7 @@ public class PointerTest {
 #foreach ($prim in $bridJPrimitives)
 
 #if ($prim.Name == "double" || $prim.Name == "float")
-#set ($precisionArg = ", 0")
+#set ($precisionArg = ", (" + $prim.Name + ")0.00001")
 #else
 #set ($precisionArg = "")
 #end
