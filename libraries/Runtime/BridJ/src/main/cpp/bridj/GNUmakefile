@@ -67,6 +67,8 @@ CPPFLAGS += -std=c99
 #CFLAGS += -msse2 -msseregparm
 #CFLAGS += -g
 
+#CPPFLAGS += -static-libgcc -Wl,-Bstatic -lc
+
 ifdef BUILD_OS_darwin
 CPPFLAGS		+= -I/System/Library/Frameworks/JavaVM.framework/Versions/Current/Headers/
 CPPFLAGS 	+= -DBRIDJ_OBJC_SUPPORT
@@ -87,7 +89,7 @@ endif
 endif
 
 ifdef BUILD_OS_linux
-CPPFLAGS	+=	-D_GNU_SOURCE
+#CPPFLAGS	+=	-D_GNU_SOURCE
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-sun/include/linux
 CPPFLAGS	+=	-I/usr/lib/jvm/java-6-openjdk/include/
