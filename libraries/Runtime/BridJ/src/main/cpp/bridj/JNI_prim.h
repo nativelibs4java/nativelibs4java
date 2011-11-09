@@ -147,7 +147,7 @@ JNIEXPORT jlong JNICALL CONCAT_3(Java_org_bridj_JNI_get, primJNICapName, ArrayEl
 {
 	jboolean tr = JNI_TRUE;
 	jboolean *pIsCopy = aIsCopy ? (*env)->GetBooleanArrayElements(env, aIsCopy, &tr) : NULL;
-	jlong ret = (jlong)(*env)->CONCAT_3(Get, primJNICapName, ArrayElements)(env, array, pIsCopy);
+	jlong ret = PTR_TO_JLONG((*env)->CONCAT_3(Get, primJNICapName, ArrayElements)(env, array, pIsCopy));
 	if (aIsCopy)
 		(*env)->ReleaseBooleanArrayElements(env, aIsCopy, pIsCopy, JNI_COMMIT);
 	return ret;

@@ -396,7 +396,7 @@ jlong JNICALL Java_org_bridj_JNI_loadLibrarySymbols(JNIEnv *env, jclass clazz, j
 }
 void JNICALL Java_org_bridj_JNI_freeLibrarySymbols(JNIEnv *env, jclass clazz, jlong symbolsHandle)
 {
-	DLSyms* pSyms = (DLSyms*)symbolsHandle;
+	DLSyms* pSyms = (DLSyms*)JLONG_TO_PTR(symbolsHandle);
 	dlSymsCleanup(pSyms);
 	free(pSyms);
 }
@@ -405,7 +405,7 @@ jarray JNICALL Java_org_bridj_JNI_getLibrarySymbols(JNIEnv *env, jclass clazz, j
 {
     jclass stringClass;
     jarray ret;
-    DLSyms* pSyms = (DLSyms*)symbolsHandle;
+    DLSyms* pSyms = (DLSyms*)JLONG_TO_PTR(symbolsHandle);
 	int count, i;
 	if (!pSyms)
 		return NULL;
@@ -445,7 +445,7 @@ jlong JNICALL Java_org_bridj_JNI_findSymbolInLibrary(JNIEnv *env, jclass clazz, 
 
 jobject JNICALL Java_org_bridj_JNI_newDirectByteBuffer(JNIEnv *env, jobject jthis, jlong peer, jlong length) {
 	jobject ret;
-	ret = (*env)->NewDirectByteBuffer(env, (void*)peer, length);
+	ret = (*env)->NewDirectByteBuffer(env, JLONG_TO_PTR(peer), length);
 	return ret;
 }
 
@@ -904,7 +904,7 @@ JNIEXPORT jlong JNICALL Java_org_bridj_JNI_bindJavaMethodsToCFunctions(
 		
 #ifndef NO_DIRECT_CALLS
 		if (direct && !gProtected && forwardedPointer)
-			info->fInfo.fDCCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())forwardedPointer, dcCallingConvention);
+			info->fInfo.fDCCallback = (DCCallback*)dcRawCallAdapterSkipTwoArgs((void (*)())info->fForwardedSymbol, dcCallingConvention);
 #endif
 		if (!info->fInfo.fDCCallback) {
 			const char* ds = GET_CHARS(dcSignature);

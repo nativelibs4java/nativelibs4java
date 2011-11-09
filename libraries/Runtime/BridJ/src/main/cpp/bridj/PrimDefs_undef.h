@@ -62,7 +62,7 @@
 
 #ifndef REORDER_VALUE_BYTES_jshort
 #define REORDER_VALUE_BYTES_jshort(peer, lowerIndex, upperIndex) \
-	((((jshort)((unsigned char*)JLONG_TO_PTR(peer))[upperIndex]) << 8) | ((unsigned char*)peer)[lowerIndex])
+	((((jshort)((unsigned char*)JLONG_TO_PTR(peer))[upperIndex]) << 8) | ((unsigned char*)JLONG_TO_PTR(peer))[lowerIndex])
 #endif
 
 #ifndef REORDER_VALUE_BYTES_jint
