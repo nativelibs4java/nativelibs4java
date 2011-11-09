@@ -1131,21 +1131,70 @@ jlong JNICALL Java_org_bridj_JNI_mallocNulledAligned(JNIEnv *env, jclass clazz, 
 #endif
 }
 
-
-
-FUNC_1(jlong, malloc, jlong, size_t)
-
-FUNC_VOID_1(free, jlong, void*)
-
-FUNC_1(jlong, strlen, jlong, char*)
-FUNC_1(jlong, wcslen, jlong, wchar_t*)
-
-FUNC_VOID_3(memcpy, jlong, jlong, jlong, void*, void*, size_t)
-FUNC_VOID_3(memmove, jlong, jlong, jlong, void*, void*, size_t)
-
-FUNC_3(jlong, memchr, jlong, jbyte, jlong, void*, unsigned char, size_t)
-FUNC_3(jint, memcmp, jlong, jlong, jlong, void*, void*, size_t)
-FUNC_VOID_3(memset, jlong, jbyte, jlong, void*, unsigned char, size_t)
+jlong JNICALL Java_org_bridj_JNI_malloc(JNIEnv *env, jclass clazz, jlong size)
+{
+	jlong r = 0;
+	BEGIN_TRY_CALL(env);
+	r = PTR_TO_JLONG(malloc(size));
+	END_TRY_CALL(env);
+	return r;
+}
+jlong JNICALL Java_org_bridj_JNI_strlen(JNIEnv *env, jclass clazz, jlong ptr)
+{
+	jlong r = 0;
+	BEGIN_TRY_CALL(env);
+	r = strlen(JLONG_TO_PTR(ptr));
+	END_TRY_CALL(env);
+	return r;
+}
+jlong JNICALL Java_org_bridj_JNI_wcslen(JNIEnv *env, jclass clazz, jlong ptr)
+{
+	jlong r = 0;
+	BEGIN_TRY_CALL(env);
+	r = strlen(JLONG_TO_PTR(ptr));
+	END_TRY_CALL(env);
+	return r;
+}
+void JNICALL Java_org_bridj_JNI_free(JNIEnv *env, jclass clazz, jlong ptr)
+{
+	BEGIN_TRY_CALL(env);
+	free(JLONG_TO_PTR(ptr));
+	END_TRY_CALL(env);
+}
+void JNICALL Java_org_bridj_JNI_memcpy(JNIEnv *env, jclass clazz, jlong dest, jlong src, jlong size)
+{
+	BEGIN_TRY_CALL(env);
+	memcpy(JLONG_TO_PTR(dest), JLONG_TO_PTR(src), size);
+	END_TRY_CALL(env);
+}
+void JNICALL Java_org_bridj_JNI_memmove(JNIEnv *env, jclass clazz, jlong dest, jlong src, jlong size)
+{
+	BEGIN_TRY_CALL(env);
+	memmove(JLONG_TO_PTR(dest), JLONG_TO_PTR(src), size);
+	END_TRY_CALL(env);
+}
+jlong JNICALL Java_org_bridj_JNI_memchr(JNIEnv *env, jclass clazz, jlong ptr, jbyte value, jlong size)
+{
+	jlong r = 0;
+	BEGIN_TRY_CALL(env);
+	r = PTR_TO_JLONG(memchr(JLONG_TO_PTR(ptr), value, size));
+	END_TRY_CALL(env);
+	return r;
+}
+jint JNICALL Java_org_bridj_JNI_memcmp(JNIEnv *env, jclass clazz, jlong ptr1, jlong ptr2, jlong size)
+{
+	jint r = 0;
+	BEGIN_TRY_CALL(env);
+	r = memcmp(JLONG_TO_PTR(ptr1), JLONG_TO_PTR(ptr2), size);
+	END_TRY_CALL(env);
+	return r;
+}
+void JNICALL Java_org_bridj_JNI_memset(JNIEnv *env, jclass clazz, jlong ptr, jbyte value, jlong size)
+{
+	BEGIN_TRY_CALL(env);
+	PTR_TO_JLONG(memset(JLONG_TO_PTR(ptr), value, size));
+	END_TRY_CALL(env);
+}
 
 jlong JNICALL Java_org_bridj_JNI_memmem(JNIEnv *env, jclass clazz, jlong haystack, jlong haystackLength, jlong needle, jlong needleLength) 
 {
