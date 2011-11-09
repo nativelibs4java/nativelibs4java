@@ -1,5 +1,7 @@
 #include "bridj.hpp"
 #include "jni.h"
+#include "JNI.h"
+
 #include "Exceptions.h"
 
 #include <string.h>

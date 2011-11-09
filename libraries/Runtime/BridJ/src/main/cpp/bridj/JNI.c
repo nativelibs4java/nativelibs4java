@@ -1122,7 +1122,7 @@ jlong JNICALL Java_org_bridj_JNI_mallocNulledAligned(JNIEnv *env, jclass clazz, 
 	size_t len = (size_t)size;
 	void* p;
 	if (posix_memalign(&p, alignment, len))
-		return NULL;
+		return 0;
 	if (p)
 		memset(p, 0, len);
 	return PTR_TO_JLONG(p);
