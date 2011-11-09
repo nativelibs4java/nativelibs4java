@@ -40,6 +40,11 @@ public class PointerTest {
 		Pointer.release(p, p2);
 	}
 	@Test
+	public void testStaticGet() {
+		assertNull(Pointer.get(null));
+		assertNotNull(Pointer.get(allocateInt()));
+	}
+	@Test
 	public void testMisc() {
 		Pointer<Integer> p = allocateInt();
 		assertFalse(p.equals(null));

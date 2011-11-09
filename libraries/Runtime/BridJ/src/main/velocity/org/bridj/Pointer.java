@@ -1940,7 +1940,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #docGetRemainingArray($sizePrim $sizePrim)
     public long[] get${sizePrim}s() {
     		long rem = getValidElements("Cannot create array if remaining length is not known. Please use get${sizePrim}s(int length) instead.");
-		return get${sizePrim}sAtOffset(0, (int)rem);
+		return get${sizePrim}s((int)rem);
 	}
 #docGetArray($sizePrim $sizePrim)
     public long[] get${sizePrim}s(int arrayLength) {
@@ -2330,7 +2330,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 #docGetRemainingArray(${prim.Name} ${prim.WrapperName})
     public ${prim.Name}[] get${prim.CapName}s() {
     		long rem = getValidElements("Cannot create array if remaining length is not known. Please use get${prim.CapName}s(int length) instead.");
-		return get${prim.CapName}sAtOffset(0, (int)rem);
+		return get${prim.CapName}s((int)rem);
     }
 
 #docGetArrayOffset(${prim.Name} ${prim.WrapperName} "Pointer#get${prim.CapName}s(int)")

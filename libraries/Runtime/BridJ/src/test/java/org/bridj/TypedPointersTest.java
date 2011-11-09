@@ -38,12 +38,18 @@ public class TypedPointersTest {
 	}
 	
 	@Test
-	public void test_Ctest_testAdd() {
-		Pointer<MyPtr> ptrs = Pointer.allocateTypedPointers(MyPtr.class, 10);
-		ptrs.setSizeT(10);
-		MyPtr ptr = ptrs.get();
-		assertTrue(ptr instanceof MyPtr);
-		assertEquals(10, ptr.getPeer());
+	public void testDummyPtrs() {
+		int nPtrs = 3;
+		Pointer<MyPtr> pptrs = Pointer.allocateTypedPointers(MyPtr.class, nPtrs), pptr = Pointer.allocateTypedPointer(MyPtr.class);
+		assertEquals(nPtrs, pptrs.getValidElements());
+		assertEquals(nPtrs * Pointer.SIZE, pptrs.getValidBytes());
+		assertEquals(1, pptr.getValidElements());
+		for (Pointer<MyPtr> ptrs : new Pointer[] { pptr, pptrs }) {;
+			ptrs.setSizeT(10);
+			MyPtr ptr = ptrs.get();
+			assertTrue(ptr instanceof MyPtr);
+			assertEquals(10, ptr.getPeer());
+		}
 	}
 	
 	@Test
