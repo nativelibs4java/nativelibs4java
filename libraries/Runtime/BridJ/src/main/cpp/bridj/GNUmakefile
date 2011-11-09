@@ -70,7 +70,11 @@ CPPFLAGS += -std=c99
 #CFLAGS += -g
 
 # Lower requirement for GLIBC version number (2.2.5) :
-CPPFLAGS += -fno-stack-protector -U_FORTIFY_SOURCE
+CPPFLAGS += -U_FORTIFY_SOURCE
+
+ifndef BUILD_OS_sunos
+CPPFLAGS += -fno-stack-protector
+endif
 
 #LDFLAGS += -Wl,--as-needed
 #LDFLAGS += -static-libgcc -Wl,-Bstatic -libc
