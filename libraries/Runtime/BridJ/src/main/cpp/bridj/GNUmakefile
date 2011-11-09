@@ -63,13 +63,16 @@ UNITS += RawNativeForwardCallback
 UNITS += RawNativeForwardCallback_arch
 #endif
 
+ifndef BUILD_OS_darwin
 CPPFLAGS += -Werror
+endif
 
 CPPFLAGS += -std=c99
 #CFLAGS += -msse2 -msseregparm
 #CFLAGS += -g
 
 # Lower requirement for GLIBC version number (2.2.5) :
+# objdump -p src/main/resources/org/bridj/lib/linux_x64/bridj.so | fgrep 'Version References:' -A 100
 CPPFLAGS += -U_FORTIFY_SOURCE
 
 ifndef BUILD_OS_sunos

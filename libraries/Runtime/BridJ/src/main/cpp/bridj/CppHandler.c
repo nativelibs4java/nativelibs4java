@@ -24,8 +24,8 @@ void* getNthVirtualMethodFromThis(JNIEnv* env, void* thisPtr, size_t virtualTabl
 	}
 	ret = (void*)vptr[virtualIndex];
 	if (!ret)
-		//throwException(env, "Failed to get the method pointer from the virtual table !");
-		THROW_EXCEPTION(env, "Failed to get the method pointer from the virtual table ! Virtual index = %lld, vtable ptr = 0x%llx", (long long int)virtualIndex, (long long unsigned int)PTR_TO_JLONG(vptr));
+		throwException(env, "Failed to get the method pointer from the virtual table !");
+		//THROW_EXCEPTION(env, "Failed to get the method pointer from the virtual table ! Virtual index = %lld, vtable ptr = 0x%llx", (long long int)virtualIndex, (long long unsigned int)PTR_TO_JLONG(vptr));
 	
 	return ret;
 }
