@@ -425,6 +425,17 @@ TEST_API size_t __cdecl sizeOfTimeval() {
 	return sizeof(timeval);
 }
 
+enum MyEnum {
+	One, Two, Three
+};
+TEST_API MyEnum __cdecl intToMyEnum(int value) {
+	return (MyEnum)value;
+}
+
+TEST_API int __cdecl MyEnumToInt(MyEnum value) {
+	return (int)value;
+}
+
 #include "../../../../target/generated-sources/test/org/bridj/CallTest.cpp"
 
 #ifdef _WIN32
