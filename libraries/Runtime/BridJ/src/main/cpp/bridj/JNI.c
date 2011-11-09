@@ -1098,7 +1098,7 @@ jlong JNICALL Java_org_bridj_JNI_malloc(JNIEnv *env, jclass clazz, jlong size)
 {
 	jlong r = 0;
 	BEGIN_TRY_CALL(env);
-	r = PTR_TO_JLONG(malloc(size));
+	r = PTR_TO_JLONG(malloc((size_t)size));
 	END_TRY_CALL(env);
 	return r;
 }
@@ -1127,20 +1127,20 @@ void JNICALL Java_org_bridj_JNI_free(JNIEnv *env, jclass clazz, jlong ptr)
 void JNICALL Java_org_bridj_JNI_memcpy(JNIEnv *env, jclass clazz, jlong dest, jlong src, jlong size)
 {
 	BEGIN_TRY_CALL(env);
-	memcpy(JLONG_TO_PTR(dest), JLONG_TO_PTR(src), size);
+	memcpy(JLONG_TO_PTR(dest), JLONG_TO_PTR(src), (size_t)size);
 	END_TRY_CALL(env);
 }
 void JNICALL Java_org_bridj_JNI_memmove(JNIEnv *env, jclass clazz, jlong dest, jlong src, jlong size)
 {
 	BEGIN_TRY_CALL(env);
-	memmove(JLONG_TO_PTR(dest), JLONG_TO_PTR(src), size);
+	memmove(JLONG_TO_PTR(dest), JLONG_TO_PTR(src), (size_t)size);
 	END_TRY_CALL(env);
 }
 jlong JNICALL Java_org_bridj_JNI_memchr(JNIEnv *env, jclass clazz, jlong ptr, jbyte value, jlong size)
 {
 	jlong r = 0;
 	BEGIN_TRY_CALL(env);
-	r = PTR_TO_JLONG(memchr(JLONG_TO_PTR(ptr), value, size));
+	r = PTR_TO_JLONG(memchr(JLONG_TO_PTR(ptr), value, (size_t)size));
 	END_TRY_CALL(env);
 	return r;
 }
@@ -1148,14 +1148,14 @@ jint JNICALL Java_org_bridj_JNI_memcmp(JNIEnv *env, jclass clazz, jlong ptr1, jl
 {
 	jint r = 0;
 	BEGIN_TRY_CALL(env);
-	r = memcmp(JLONG_TO_PTR(ptr1), JLONG_TO_PTR(ptr2), size);
+	r = memcmp(JLONG_TO_PTR(ptr1), JLONG_TO_PTR(ptr2), (size_t)size);
 	END_TRY_CALL(env);
 	return r;
 }
 void JNICALL Java_org_bridj_JNI_memset(JNIEnv *env, jclass clazz, jlong ptr, jbyte value, jlong size)
 {
 	BEGIN_TRY_CALL(env);
-	PTR_TO_JLONG(memset(JLONG_TO_PTR(ptr), value, size));
+	PTR_TO_JLONG(memset(JLONG_TO_PTR(ptr), value, (size_t)size));
 	END_TRY_CALL(env);
 }
 
