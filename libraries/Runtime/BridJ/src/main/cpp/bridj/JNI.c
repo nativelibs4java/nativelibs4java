@@ -1071,43 +1071,6 @@ JNIEXPORT void JNICALL Java_org_bridj_JNI_freeVirtualMethodBindings(
 	free(infos);
 }
 
-#define FUNC_VOID_3(name, t1, t2, t3, nt1, nt2, nt3) \
-void JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1, t2 a2, t3 a3) \
-{ \
-	BEGIN_TRY_CALL(env); \
-	name((nt1)a1, (nt2)a2, (nt3)a3); \
-	END_TRY_CALL(env); \
-}
-
-#define FUNC_3(ret, name, t1, t2, t3, nt1, nt2, nt3) \
-ret JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1, t2 a2, t3 a3) \
-{ \
-	ret r = (ret)0; \
-	BEGIN_TRY_CALL(env); \
-	r = (ret)name((nt1)a1, (nt2)a2, (nt3)a3); \
-	END_TRY_CALL(env); \
-	return r; \
-}
-
-#define FUNC_VOID_1(name, t1, nt1) \
-void JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1) \
-{ \
-	BEGIN_TRY_CALL(env); \
-	name((nt1)a1); \
-	END_TRY_CALL(env); \
-}
-
-#define FUNC_1(ret, name, t1, nt1) \
-ret JNICALL Java_org_bridj_JNI_ ## name(JNIEnv *env, jclass clazz, t1 a1) \
-{ \
-	ret r = (ret)0; \
-	BEGIN_TRY_CALL(env); \
-	r = (ret)name((nt1)a1); \
-	END_TRY_CALL(env); \
-	return r; \
-}
-
-
 jlong JNICALL Java_org_bridj_JNI_mallocNulled(JNIEnv *env, jclass clazz, jlong size) 
 {
 	size_t len = (size_t)size;
