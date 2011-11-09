@@ -133,13 +133,26 @@ public class PointerTest {
 		
 	}
 	
-	/*
 	@Test
-	public void testFloatEndian() {
-		ByteBuffer b = ByteBuffer.allocateDirect(20);
-		b.order(ByteOrder.BIG_ENDIAN).asFloatBuffer().put(0, 10.0f);
-		assertEquals(10.0f, b.order(ByteOrder.LITTLE_ENDIAN).asFloatBuffer().get(0), 0);	
-	}*/
+	public void testDebugFloatEndian() {
+		float value = 10.0f;
+		for (ByteOrder order : new ByteOrder[] { ByteOrder.BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN }) {
+			ByteBuffer b = ByteBuffer.allocateDirect(20).order(order);
+			b.asFloatBuffer().put(0, value);
+			Pointer<Float> p = allocateFloat().order(order);
+			p.setFloat(value);
+			
+			//System.out.println("Order = " + order);
+			//System.out.println(Integer.toHexString(b.asIntBuffer().get())); 
+			//System.out.println(Integer.toHexString(p.getInt()));
+			assertEquals(value, b.asFloatBuffer().get(0), 0);
+			assertEquals(value, p.getFloat(), 0);
+			
+			assertEquals(value, pointerToBuffer(b).getFloat(), 0);
+			assertEquals(value, p.getFloatBuffer().get(), 0);
+		}
+	}
+	
 	@Test
 	public void assumptionsOnDoubleBuffers() {
 		double v = 13579000030.5336163;
@@ -153,8 +166,8 @@ public class PointerTest {
 		LongBuffer l1 = b.order(ByteOrder.BIG_ENDIAN).asLongBuffer();
 		LongBuffer l3 = b.order(ByteOrder.LITTLE_ENDIAN).asLongBuffer();
 	
-		System.out.println("ORDER 1 = " + Long.toHexString(l1.get(0)));
-		System.out.println("ORDER 2 = " + Long.toHexString(l3.get(0)));
+		//System.out.println("ORDER 1 = " + Long.toHexString(l1.get(0)));
+		//System.out.println("ORDER 2 = " + Long.toHexString(l3.get(0)));
 
 		assertTrue(d1.get(0) == d2.get(0));
 		assertTrue(d1.get(0) != d3.get(0));
@@ -172,8 +185,8 @@ public class PointerTest {
 		Pointer<Long> l1 = b.order(ByteOrder.BIG_ENDIAN).as(Long.class);
 		Pointer<Long> l3 = b.order(ByteOrder.LITTLE_ENDIAN).as(Long.class);
 	
-		System.out.println("Ptr ORDER 1 = " + Long.toHexString(l1.get(0)));
-		System.out.println("Ptr ORDER 2 = " + Long.toHexString(l3.get(0)));
+		//System.out.println("Ptr ORDER 1 = " + Long.toHexString(l1.get(0)));
+		//System.out.println("Ptr ORDER 2 = " + Long.toHexString(l3.get(0)));
 
 		assertEquals("d1 = " + d1.get(0) + ", d2 = " + d2.get(0), d1.get(0), d2.get(0), 0.0);
 		assertTrue("d1 = " + d1.get(0) + ", d3 = " + d3.get(0), d1.get(0) != d3.get(0));		
@@ -463,17 +476,44 @@ public class PointerTest {
 #if ($prim.Name != "SizeT" && $prim.Name != "CLong" && $prim.Name != "Pointer" && $prim.Name != "boolean" && $prim.Name != "char")	
 	@Test
 	public void test${prim.BufferName}Update() {
-		${prim.Name}[] values = new ${prim.Name}[] { ${prim.value($v1)}, ${prim.value($v2)}, ${prim.value($v3)} };
 		// Non-direct buffer
 		${prim.BufferName} b = ${prim.BufferName}.allocate(1);
 		Pointer<	${prim.WrapperName}> p = pointerTo${prim.CapName}s(b);
-		for (${prim.Name} value : values) { 
+		for (${prim.Name} value : new ${prim.Name}[] { ${prim.value($v1)}, ${prim.value($v2)}, ${prim.value($v3)} }) { 
 			p.set(value);
 			assertEquals(value, (${prim.Name})p.get()$precisionArg);
 			p.updateBuffer(b);
 			assertEquals(value, b.get(0)$precisionArg);
 		}
 	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void testIllegal${prim.BufferName}() {
+		allocate${prim.CapName}().set${prim.CapName}sAtOffset(0, (${prim.BufferName})null, 0, 0);
+	}
+	@Test
+	public void setBufferSet${prim.CapName}s() {
+		for (${prim.Name} value : new ${prim.Name}[] { ${prim.value("-1")}, ${prim.value("-2")}, ${prim.value("0")}, ${prim.value($v1)} }) {
+		//for (${prim.Name} value : new ${prim.Name}[] { ${prim.value($v1)}, ${prim.value($v2)}, ${prim.value($v3)} }) {
+			Pointer<${prim.WrapperName}> p = allocateBytes(${prim.Size}).as(${prim.WrapperName}.class);
+			ByteBuffer bb = ByteBuffer.allocateDirect(${prim.Size}).order(ByteOrder.nativeOrder());
+			assertEquals(bb.order(), p.order());
+			bb = bb.order(ByteOrder.LITTLE_ENDIAN);
+			${prim.BufferName} b;
+			#if ($prim.Name == "byte")
+			b = bb;
+			#else
+			b = bb.as${prim.BufferName}();
+			#end
+			b.put(0, value);
+			p.set${prim.CapName}s(b);
+			${prim.BufferName} b2 = p.get${prim.BufferName}();
+			${prim.Name} gotBuf = b2.get(0), gotPtr = p.get();
+			assertEquals(value, gotBuf$precisionArg);
+			assertEquals(value, gotPtr$precisionArg);
+		}
+	}
+	
 #end
 	
 #if ($prim.Name == "SizeT" || $prim.Name == "CLong")
@@ -736,6 +776,11 @@ public class PointerTest {
 		}
 	}
 	
+	public void testPointerTo_${prim.Name}_Values2D(${prim.Name}[][] values, Pointer<Pointer<${prim.typeRef}>> p, int dim1, int dim2) {
+		for (int i = 0; i < dim1; i++)
+			for (int j = 0; j < dim2; j++)
+				assertEquals(values[i][j], (${prim.Name})p.get(i).get(j)$precisionArg);
+	}
 	@Test 
     public void testPointerTo_${prim.Name}_Values2D() {
 		${prim.Name}[][] values = new ${prim.Name}[][] {
@@ -744,13 +789,15 @@ public class PointerTest {
 				{${prim.value($v1)}, ${prim.value($v2)}}
 		};
 		Pointer<Pointer<${prim.typeRef}>> p = Pointer.pointerTo${prim.CapName}s(values);
+		int dim1 = values.length;
 		int dim2 = values[0].length;
-		for (int i = 0; i < values.length; i++)
-			for (int j = 0; j < dim2; j++)
-				assertEquals(values[i][j], (${prim.Name})p.get(i).get(j)$precisionArg);
+		testPointerTo_${prim.Name}_Values2D(values, p, dim1, dim2);
+		
+		Pointer<Pointer<${prim.typeRef}>> p2 = allocate${prim.CapName}s(dim1, dim2);
+		p.copyTo(p2);
+		testPointerTo_${prim.Name}_Values2D(values, p2, dim1, dim2);
 	}
 	
-	/*
 	@Test 
     public void testPointerTo_${prim.Name}_Values3D() {
 		${prim.Name}[][][] values = new ${prim.Name}[][][] {
@@ -765,24 +812,33 @@ public class PointerTest {
 				{${prim.value($v1)}, ${prim.value($v2)}}
 			}
 		};
-		Pointer<Pointer<Pointer<${prim.typeRef}>>> p = Pointer.pointerTo${prim.CapName}s(values);
+		Pointer<Pointer<Pointer<${prim.typeRef}>>> ppp = Pointer.pointerTo${prim.CapName}s(values);
+		int dim1 = values.length;
 		int dim2 = values[0].length;
 		int dim3 = values[0][0].length;
-		for (int i = 0; i < values.length; i++) {
+		
+		int subSize = dim2 * dim3 * ${prim.Size};
+		for (int i = 0; i < dim1; i++) {
 			for (int j = 0; j < dim2; j++) {
 				for (int k = 0; k < dim3; k++) {
 					Object o = values[i][j][k];
-					System.out.println(o);
-					System.out.println("p.get(i) = " + p.get(i));
-					System.out.println("p.get(i).get(j) = " + p.get(i).get(j));
-					System.out.println("p.get(i).get(j).get(k) = " + p.get(i).get(j).get(k));
-					// TODO fix 3D allocation !
-					//assertEquals(values[i][j][k], (${prim.Name})p.get(i).get(j).get(k)$precisionArg);
+					//System.out.println(o);
+					
+					Pointer<Pointer<${prim.typeRef}>> pp = ppp.get(i);
+					assertEquals(i * subSize, pp.getPeer() - ppp.getPeer());
+					
+					Pointer<${prim.typeRef}> p = pp.get(j);
+					${prim.Name} value = p.get(k);
+					${prim.Name} expected = values[i][j][k];
+					
+					//System.out.println("ppp.get(i) = " + pp);
+					//System.out.println("ppp.get(i).get(j) = " + p);
+					//System.out.println("ppp.get(i).get(j).get(k) = " + value);
+					assertEquals("expected " + expected + ", got " + value + " (i = " + i + ", j = " + j + ", k = " + k + ")", expected, value$precisionArg);
 				}
 			}
 		}
-				
-	}*/
+	}
 	
 	@Test 
     public void testAllocateRemaining_${prim.Name}_ok() {
@@ -827,7 +883,7 @@ public class PointerTest {
 
 	@Test
 	public void test${prim.CapName}_Endianness_$order() {
-		for (${prim.Name} value : new ${prim.Name}[] { ${prim.value("0")}, ${prim.value($v1)}, ${prim.value("-1")}, ${prim.value("-2")} }) {
+		for (${prim.Name} value : new ${prim.Name}[] { ${prim.value($v1)}, ${prim.value("-1")}, ${prim.value("-2")}, ${prim.value("0")} }) {
 			Pointer<${prim.typeRef}> p = Pointer.allocate${prim.CapName}().order(ByteOrder.$order);
 			p.set(value);
 		    assertEquals(ByteOrder.$order, p.order());

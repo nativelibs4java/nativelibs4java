@@ -551,7 +551,8 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
      * Get the byte order (endianness) of this pointer.
      */
     public ByteOrder order() {
-		return isOrdered() ? ByteOrder.nativeOrder() : ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+    		ByteOrder order = isOrdered() ? ByteOrder.nativeOrder() : ByteOrder.nativeOrder() == ByteOrder.BIG_ENDIAN ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+		return order;
     }
 
     <U> Pointer<U> viewAs(boolean ordered, PointerIO<U> newIO) {
@@ -1584,6 +1585,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		return
 			allocateArray(
 				PointerIO.getArrayInstance(
+					//PointerIO.get${prim.CapName}Instance(),
 					PointerIO.getArrayInstance(
 						PointerIO.get${prim.CapName}Instance(), 
 						dims,
@@ -2211,7 +2213,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     * Copy remaining bytes from this pointer to a destination using the @see <a href="http://www.cplusplus.com/reference/clibrary/cstring/memcpy/">memcpy</a> C function (see {@link Pointer#copyBytesTo(Pointer, long)}, {@link Pointer#getValidBytes()})
      */
     public void copyTo(Pointer<?> destination) {
-    		copyBytesAtOffsetTo(0, destination, 0, getValidBytes("Cannot copy unbounded pointer without element count information. Please use copyTo(destination, elementCount) instead."));
+    		copyTo(destination, getValidElements());
     }
     
     /**
@@ -2351,6 +2353,13 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
     }
     
     /**
+	 * Read ${prim.Name} values into the specified destination buffer from the pointed memory location
+	 */
+	public void get${prim.CapName}s(${prim.BufferName} dest) {
+    		dest.duplicate().put(get${prim.BufferName}());
+    }
+    
+    /**
 	 * Read length ${prim.Name} values into the specified destination array from the pointed memory location shifted by a byte offset, storing values after the provided destination offset.
 	 */
 	public void get${prim.CapName}sAtOffset(long byteOffset, ${prim.Name}[] dest, int destOffset, int length) {
@@ -2380,6 +2389,9 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 		if (values.isDirect()) {
             long len = length * ${prim.Size}, off = valuesOffset * ${prim.Size};
             long cap = JNI.getDirectBufferCapacity(values);
+            // HACK (TODO?) the JNI spec says size is in bytes, but in practice on mac os x it's in elements !!!
+            cap *= ${prim.Size};
+		
             if (cap < off + len)
                 throw new IndexOutOfBoundsException("The provided buffer has a capacity (" + cap + " bytes) smaller than the requested write operation (" + len + " bytes starting at byte offset " + off + ")");
             
@@ -2392,28 +2404,28 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
         return this;
     }
     
-	/**
-	 * Read a buffer of ${prim.Name} values of the specified length from the pointed memory location 
+    /**
+	 * Get a direct buffer of ${prim.Name} values of the specified length that points to this pointer's target memory location shifted by a byte offset
 	 */
-    public ${prim.BufferName} get${prim.BufferName}(long length) {
+	public ${prim.BufferName} get${prim.BufferName}(long length) {
 		return get${prim.BufferName}AtOffset(0, length);
 	}
 	
-	/**
-	 * Read a buffer of ${prim.Name} values of the remaining length from the pointed memory location 
+    /**
+	 * Get a direct buffer of ${prim.Name} values that points to this pointer's target memory location shifted by a byte offset
 	 */
-    public ${prim.BufferName} get${prim.BufferName}() {
+	public ${prim.BufferName} get${prim.BufferName}() {
     		long rem = getValidElements("Cannot create buffer if remaining length is not known. Please use get${prim.BufferName}(long length) instead.");
 		return get${prim.BufferName}AtOffset(0, rem);
 	}
 	
 	/**
-	 * Read a buffer of ${prim.Name} values of the specified length from the pointed memory location shifted by a byte offset
+	 * Get a direct buffer of ${prim.Name} values of the specified length that points to this pointer's target memory location shifted by a byte offset
 	 */
 	public ${prim.BufferName} get${prim.BufferName}AtOffset(long byteOffset, long length) {
         long blen = ${prim.Size} * length;
         ByteBuffer buffer = JNI.newDirectByteBuffer(getCheckedPeer(byteOffset, blen), blen);
-		buffer.order(order());
+        buffer.order(order()); // mutates buffer order
         #if ($prim.Name == "byte")
         return buffer;
         #else

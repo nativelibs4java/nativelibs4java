@@ -106,15 +106,16 @@ class CommonPointerIOs {
 		
 		public PointerArrayIO(PointerIO<T> underlyingIO, long[] dimensions, int iDimension) {
 			super(
+				//underlyingIO.getTargetType(),//
 				underlyingIO == null ? null : arrayPtrType(underlyingIO.getTargetType(), dimensions), 
 				-1, 
 				null
 			);
-			if (iDimension >= dimensions.length - 2) {
+			//if (iDimension >= dimensions.length) {
 				this.underlyingIO = underlyingIO;
-			} else {
+			/*} else {
 				this.underlyingIO = new PointerArrayIO(underlyingIO, dimensions, iDimension + 1);
-			}
+			}*/
 			this.dimensions = dimensions;
 			this.iDimension = iDimension;
 			totalRemainingDims = getTotalRemainingDims(dimensions, iDimension);
@@ -122,13 +123,15 @@ class CommonPointerIOs {
 		
 		@Override
 		public long getTargetSize() {
-			return underlyingIO.getTargetSize() * totalRemainingDims;
+			long subSize = underlyingIO.getTargetSize();
+			return dimensions[iDimension + 1] * subSize;// * totalRemainingDims;
 		}
 		
 		@Override
 		public Pointer<T> get(Pointer<Pointer<T>> pointer, long index) {
-			long offset = getOffset(index);
-			return pointer.offset(offset * underlyingIO.getTargetSize()).as(underlyingIO);
+			//long offset = getOffset(index);
+			long targetSize = getTargetSize();//underlyingIO.getTargetSize();
+			return pointer.offset(index * targetSize).as(underlyingIO);
 		}
 
 		long getOffset(long index) {

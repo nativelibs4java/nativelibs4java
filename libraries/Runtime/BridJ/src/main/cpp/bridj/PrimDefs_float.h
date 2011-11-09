@@ -14,6 +14,6 @@
 //#ifdef BIG_ENDIAN
 //#define REORDER_VALUE_BYTES(peer) REORDER_VALUE_BYTES_jint(peer, 0, 1, 2, 3)
 //#else
-#define REORDER_VALUE_BYTES(peer) REORDER_VALUE_BYTES_jint(peer, 2, 3, 0, 1)
+#define REORDER_VALUE_BYTES(peer) REORDER_VALUE_BYTES_jint(peer, 3, 2, 1, 0)
 //#endif
 
