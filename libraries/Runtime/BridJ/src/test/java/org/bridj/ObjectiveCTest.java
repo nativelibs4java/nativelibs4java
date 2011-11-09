@@ -235,6 +235,7 @@ public class ObjectiveCTest {
    
    @Test
    public void testNativeDelegate() {
+        if (!mac) return;
        testDelegate(new DelgImpl());
    }
    static class MyDelg extends ObjCProxy implements Delg {
@@ -245,11 +246,13 @@ public class ObjectiveCTest {
    }
    @Test
    public void testJavaDelegate() {
+        if (!mac) return;
        testDelegate(new MyDelg());
    }
    
    @Test
    public void testBlock() {
+        if (!mac) return;
        FwdBlock block = new FwdBlock() {
             @Override
             public int apply(int a, int b) {
