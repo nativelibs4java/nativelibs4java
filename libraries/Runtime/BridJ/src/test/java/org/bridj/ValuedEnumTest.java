@@ -36,7 +36,7 @@ public class ValuedEnumTest {
 	public static native ValuedEnum<MyEnum > intToMyEnum(int value);
 	public static native int MyEnumToInt(ValuedEnum<MyEnum > value);
     
-    private static final int nTests = 100000000;
+    private static final int nTests = 100000;
     
     @Test
     public void testIntToEnum() {
@@ -44,7 +44,8 @@ public class ValuedEnumTest {
         int expectedInt = (int)expected.value();
         for (int i = 0; i < nTests; i++) {
             ValuedEnum<MyEnum> ret = intToMyEnum(expectedInt);
-            assertEquals(expectedInt, ret.value());
+            if (expectedInt != ret.value())
+                assertEquals(expectedInt, ret.value());
         }
     }
     
@@ -55,7 +56,8 @@ public class ValuedEnumTest {
         int expectedInt = (int)expected.value();
         for (int i = 0; i < nTests; i++) {
             int ret = MyEnumToInt(expected);
-            assertEquals(expectedInt, ret);
+            if (expectedInt != ret)
+                assertEquals(expectedInt, ret);
         }
     }
 }
