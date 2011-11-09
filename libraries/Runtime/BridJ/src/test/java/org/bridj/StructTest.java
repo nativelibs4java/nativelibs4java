@@ -42,11 +42,11 @@ public class StructTest {
 
 	@Test
 	public void variantSize() {
-        long s = BridJ.sizeOf(VARIANT.class);
-		if (Platform.isWindows())
+		if (!Platform.isWindows())
+			return;
+		
+		long s = BridJ.sizeOf(VARIANT.class);
             assertEquals(sizeOfVARIANT(), s);
-        else
-            assertEquals(24, s);
 	}
 	
 	@Test
@@ -61,12 +61,12 @@ public class StructTest {
 	@Test
 	public void testSizeOfCAPDRIVERCAPS() {
 		long s = BridJ.sizeOf(CAPDRIVERCAPS.class);
-		if (Platform.isMacOSX()) {
+		if (Platform.isUnix()) {
 			if (Platform.is64Bits())
 				assertEquals(64, s);
 			else
 				assertEquals(44, s);
-		} else
+		} else if (Platform.isWindows())
 			assertEquals(sizeOfCAPDRIVERCAPS(), s); 
 	}
 
