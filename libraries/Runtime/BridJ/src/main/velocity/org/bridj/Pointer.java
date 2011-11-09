@@ -803,7 +803,7 @@ public class Pointer<T> implements Comparable<Pointer<?>>, Iterable<T>
 	}
 #docGet("native object", "O extends NativeObject")
     public <O extends NativeObject> O getNativeObject(Class<O> type) {
-		return getNativeObject((Type)type);
+		return (O)getNativeObject((Type)type);
 	}
 #docGet("native object", "O extends NativeObject")
     public <O extends NativeObject> O getNativeObject(Type type) {

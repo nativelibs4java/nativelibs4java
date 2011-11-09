@@ -36,6 +36,8 @@ public class PlatformTest {
 		
 		if (m.matches("i\\d86"))
 			m = "i386";
+		else if (m.matches("i86pc"))
+			m = "x86";
 		
 		assertEquals(m, Platform.getMachine());
 	}
