@@ -102,7 +102,20 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 #docCreateBuffer($bufferType, $prim.Name, "", "(for instance, a <code>$bufferType</code> of length 10 will actually contain 10 * ${prim.Size} bytes, as ${prim.Name}s are ${prim.Size}-bytes-long)")
 #end
 
-	volatile Boolean cacheBinaries;
+	/**
+     * Max size of memory object allocation in bytes. The minimum value is max (1/4th of CL_DEVICE_GLOBAL_MEM_SIZE , 128*1024*1024)
+     */
+    public long getMaxMemAllocSize() {
+        long min = Long.MAX_VALUE;
+        for (CLDevice device : getDevices()) {
+            long m = device.getMaxMemAllocSize();
+            if (m < min)
+                min = m;
+        }
+        return min;
+    }
+    
+    volatile Boolean cacheBinaries;
 	
 	/**
 	 * Change whether program binaries are automatically cached or not.<br>
@@ -605,6 +618,9 @@ public class CLContext extends CLAbstractEntity<cl_context> {
         if (byteCount <= 0)
 			throw new IllegalArgumentException("Buffer size must be greater than zero (asked for size " + byteCount + ")");
 		
+		if (byteCount > getMaxMemAllocSize())
+            throw new OutOfMemoryError("Requested size for buffer allocation is more than the maximum for this context : " + byteCount + " > " + context.getMaxMemAllocSize());
+
 		Pointer<Integer> pErr = allocateInt();
 		cl_mem mem;
 		int previousAttempts = 0;
