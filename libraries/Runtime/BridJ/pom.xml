@@ -405,6 +405,7 @@
 							<artifact>com.nativelibs4java:bridj</artifact>
 							<excludes>
 								<exclude>org/bridj/lib/android_*/**</exclude>
+								<exclude>org/bridj/lib/iphoneos_*/**</exclude>
 								<exclude>lib/armeabi/**</exclude>
 							</excludes>
 						</filter>
