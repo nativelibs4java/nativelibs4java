@@ -4,7 +4,7 @@
  <modelVersion>4.0.0</modelVersion>
   <groupId>com.nativelibs4java</groupId>
   <artifactId>maven-javacl-plugin</artifactId>
-  <name>Maven JavaCL Plugin (OpenCL Wrapper Code Generator)</name>
+  <name>Maven JavaCL Plugin</name>
   <url>http://code.google.com/p/javacl/</url>
   <version>1.0-SNAPSHOT</version>
   <packaging>maven-plugin</packaging>
