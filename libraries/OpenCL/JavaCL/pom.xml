@@ -50,7 +50,7 @@ For more info, please visit http://code.google.com/p/nativelibs4java/wiki/OpenCL
 
 		<plugin>
 			<groupId>com.nativelibs4java</groupId>
-			<artifactId>javacl-generator</artifactId>
+			<artifactId>maven-javacl-plugin</artifactId>
 			<version>${opencl4java.version}</version>
 			
 			<!--configuration>

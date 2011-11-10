@@ -19,6 +19,7 @@
     <module>LibCL</module>
     <module>InteractiveImageDemo</module>
     <module>Generator</module>
+    <module>MavenPlugin</module>
     <module>OpenCL4Java</module>
     <module>Demos</module>
     <module>JavaCL</module>

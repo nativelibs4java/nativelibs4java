@@ -41,7 +41,7 @@
         - parse them and generate corresponding JavaCL program wrappers, with one typed method per kernel, in target/generated-sources (in a package that matches the initial .cl file's path)
         -->
         <groupId>com.nativelibs4java</groupId>
-        <artifactId>javacl-generator</artifactId>
+        <artifactId>maven-javacl-plugin</artifactId>
         <version>1.0-SNAPSHOT</version>
         <executions>
         <execution>
