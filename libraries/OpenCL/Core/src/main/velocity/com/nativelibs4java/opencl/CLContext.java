@@ -619,7 +619,7 @@ public class CLContext extends CLAbstractEntity<cl_context> {
 			throw new IllegalArgumentException("Buffer size must be greater than zero (asked for size " + byteCount + ")");
 		
 		if (byteCount > getMaxMemAllocSize())
-            throw new OutOfMemoryError("Requested size for buffer allocation is more than the maximum for this context : " + byteCount + " > " + context.getMaxMemAllocSize());
+            throw new OutOfMemoryError("Requested size for buffer allocation is more than the maximum for this context : " + byteCount + " > " + getMaxMemAllocSize());
 
 		Pointer<Integer> pErr = allocateInt();
 		cl_mem mem;
