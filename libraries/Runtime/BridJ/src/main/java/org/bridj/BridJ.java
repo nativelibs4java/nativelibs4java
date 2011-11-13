@@ -500,51 +500,39 @@ public class BridJ {
 //	}
 //
     static Map<String, NativeLibrary> libHandles = new HashMap<String, NativeLibrary>();
-    static List<String> paths;
+    static volatile List<String> paths;
 
     static List<String> additionalPaths = new ArrayList<String>();
     public static synchronized void addLibraryPath(String path) {
     		additionalPaths.add(path);
     		paths = null; // invalidate cached paths
     }
+    private static void addPaths(List<String> out, String env) {
+    		if (env == null)
+    			return;
+    		
+    		String[] paths = env.split(File.pathSeparator);
+    		if (paths.length == 0)
+    			return;
+    		if (paths.length == 1) {
+    			out.add(paths[0]);
+    			return;
+    		}
+    		out.addAll(Arrays.asList(paths));
+    }
+    		
     static synchronized List<String> getNativeLibraryPaths() {
         if (paths == null) {
             paths = new ArrayList<String>();
             paths.addAll(additionalPaths);
             paths.add(null);
             paths.add(".");
-			String env;
 			
-			/*
-			String bitsSuffix = is64Bits() ? "64" : "32";
-			if (isUnix() && !isMacOSX()) {
-				paths.add("/usr/lib" + bitsSuffix);
-				paths.add("/lib" + bitsSuffix);
-			}
-			if (!isLinux() || !is64Bits()) {
-				paths.add("/usr/lib");
-				paths.add("/lib");
-			}
-			*/
-			env = getenv("LD_LIBRARY_PATH");
-            if (env != null)
-                paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
-            
-            env = getenv("DYLD_LIBRARY_PATH");
-            if (env != null)
-                paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
-            
-			env = getenv("PATH");
-            if (env != null)
-                paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
-            
-            env = getProperty("java.library.path");
-            if (env != null)
-                paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
-            
-            env = getProperty("gnu.classpath.boot.library.path");
-            if (env != null)
-                paths.addAll(Arrays.asList(env.split(File.pathSeparator)));
+			addPaths(paths, getenv("LD_LIBRARY_PATH"));
+			addPaths(paths, getenv("DYLD_LIBRARY_PATH"));
+			addPaths(paths, getenv("PATH"));
+			addPaths(paths, getProperty("java.library.path"));
+			addPaths(paths, getProperty("gnu.classpath.boot.library.path"));
             
             File javaHome = new File(getProperty("java.home"));
             paths.add(new File(javaHome, "bin").toString());
