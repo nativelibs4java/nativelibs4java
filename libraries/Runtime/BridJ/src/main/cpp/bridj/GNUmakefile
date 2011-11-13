@@ -128,7 +128,6 @@ CPPFLAGS +=	-O0 -g
 else
 CPPFLAGS += -O3
 CPPFLAGS += -funsafe-loop-optimizations
-#CPPFLAGS += -Os
 endif
 
 #LINK_LIBS	+= stdc++
