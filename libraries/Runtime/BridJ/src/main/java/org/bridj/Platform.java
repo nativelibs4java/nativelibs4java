@@ -1,5 +1,10 @@
 package org.bridj;
 
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.nio.channels.FileLock;
+import java.nio.channels.FileChannel;
+import java.util.regex.Pattern;
 import java.io.*;
 import java.net.URL;
 
@@ -15,6 +20,7 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.net.MalformedURLException;
 import java.net.URLClassLoader;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static org.bridj.JNI.*;
@@ -99,8 +105,43 @@ public class Platform {
     public static synchronized void addEmbeddedLibraryResourceRoot(String root) {
     		embeddedLibraryResourceRoots.add(0, root);
     }
-    static List<File> extractedEmbeddedLibraryResources = new ArrayList<File>();
-	static {
+    
+    /**
+     * Create (touch) output file and lock it
+     */
+    static FileLock lockOutputFile(File f) throws IOException {
+        FileLock lock;
+        do {
+            FileOutputStream in = new FileOutputStream(f);
+            FileChannel ch = in.getChannel();
+            lock = ch.lock();
+            ch.close();
+        } while (!f.exists()); // in case someone deleted the file in the meanwhile...
+        return lock;
+    }
+	
+    static Map<File, FileLock> lockedFilesToDeleteUponShutdown = new LinkedHashMap<File, FileLock>();
+	static void lockFileAndDeleteUponShutdown(File file) throws IOException {
+        FileLock lock = lockOutputFile(file);
+        synchronized (lockedFilesToDeleteUponShutdown) {
+            lockedFilesToDeleteUponShutdown.put(file, lock);
+        }
+        //file.deleteOnExit();
+    }
+    private static void shutdown() {
+        for (Map.Entry<File, FileLock> e : lockedFilesToDeleteUponShutdown.entrySet()) {
+            File file = e.getKey();
+            FileLock lock = e.getValue();
+            try {
+                lock.release();
+            } catch (Throwable th) {
+                BridJ.log(Level.SEVERE, "Failed to unlock file '" + file + "' upon shutdown !", th);
+            }
+            if (!file.delete())
+                BridJ.log(Level.SEVERE, "Failed to delete file '" + file + "' upon shutdown !");
+        }
+    }
+    static {
         
         	addEmbeddedLibraryResourceRoot("lib/");
         if (!isAndroid())
@@ -123,9 +164,7 @@ public class Platform {
         Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
-				for (File file : extractedEmbeddedLibraryResources) {
-					file.delete();
-				}
+				shutdown();
 			}
 		});
     }
@@ -369,6 +408,27 @@ public class Platform {
 		return ret;
     }
     
+    static void tryDeleteFilesInDirectory(File dir, Pattern fileNamePattern, long atLeastOlderThanMillis) {
+        try {
+            long maxModifiedDateForDeletion = System.currentTimeMillis() - atLeastOlderThanMillis;
+            for (String name : dir.list()) {
+                if (!fileNamePattern.matcher(name).matches()) 
+                    continue;
+
+                File file = new File(dir, name);
+                if (file.lastModified() > maxModifiedDateForDeletion)
+                    continue;
+                
+                if (file.delete())
+                    BridJ.log(Level.INFO, "Deleted old binary file '" + file + "'");
+            }
+        } catch (SecurityException ex) {
+            // no right to delete files in that directory
+            BridJ.log(Level.WARNING, "Failed to delete files matching '" + fileNamePattern + "' in diretory '" + dir + "'");
+        }
+    }
+    static final long DELETE_OLD_BINARIES_AFTER_MILLIS = TimeUnit.MINUTES.toMillis(5);
+    
     static File extractEmbeddedLibraryResource(String name) throws IOException {
         String firstLibraryResource = null;
 		for (String libraryResource : getEmbeddedLibraryResource(name)) {
@@ -390,11 +450,11 @@ public class Platform {
 				//        return f.getCanonicalFile();
 				continue;
 			}
-			File libFile = File.createTempFile(new File(libraryResource).getName(), ext);
-			synchronized (extractedEmbeddedLibraryResources) {
-				extractedEmbeddedLibraryResources.add(libFile);
-			}
-			libFile.deleteOnExit();
+            String fileName = new File(libraryResource).getName();
+			File libFile = File.createTempFile(fileName, ext);
+            tryDeleteFilesInDirectory(libFile.getParentFile(), Pattern.compile(Pattern.quote(fileName) + ".*?" + Pattern.quote(ext)), DELETE_OLD_BINARIES_AFTER_MILLIS);
+            lockFileAndDeleteUponShutdown(libFile);
+			
 			OutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
 			while ((len = in.read(b)) > 0)
 			out.write(b, 0, len);
