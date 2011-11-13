@@ -43,7 +43,7 @@ extends MiscMatchers
    with TreeDSL
 {
   this: PluginComponent with WithOptions =>
-  
+
   import global._
   import global.definitions._
   import scala.tools.nsc.symtab.Flags._
@@ -100,17 +100,15 @@ extends MiscMatchers
 
   def replaceOccurrences(tree: Tree, mappingsSym: Map[Symbol, TreeGen], symbolReplacements: Map[Symbol, Symbol], treeReplacements: Map[Tree, TreeGen], unit: CompilationUnit) = {
     def key(s: Symbol) = s.ownerChain.map(_.toString)
-    val mappings = mappingsSym.map({ case (k, v) => (key(k), (k, v)) })
+    val mappings = mappingsSym.map({ case (sym, treeGen) => (key(sym), (sym, treeGen)) })
     val result = new TypingTransformer(unit) {
       override def transform(tree: Tree): Tree = {
         treeReplacements.get(tree).map(_()).getOrElse(
           tree match {
             case Ident(n) if tree.symbol != NoSymbol =>
-              mappings.get(key(tree.symbol)).map(p => {
-                val pp = p._2()
-                val res = pp.setType(tree.symbol.tpe).setSymbol(tree.symbol)
-                //assert(res.symbol != NoSymbol, res)
-                res
+              val treeKey = key(tree.symbol)
+              mappings.get(treeKey).map({ case (sym, treeGen) =>
+                treeGen().setType(tree.symbol.tpe)
               }).getOrElse(super.transform(tree))
             case _ =>
               super.transform(tree)
@@ -192,7 +190,7 @@ extends MiscMatchers
     typed {
       Apply(
         Select(
-          New(TypeTree(tpe)).setSymbol(tpe.typeSymbol),
+          New(TypeTree(tpe)),//.setSymbol(tpe.typeSymbol),
           sym
         ).setSymbol(sym),
         constructorArgs
@@ -270,7 +268,7 @@ extends MiscMatchers
         val sym = arrayType.typeSymbol.primaryConstructor
         Apply(
           Select(
-            New(TypeTree(arrayType)).setSymbol(arrayType.typeSymbol),
+            New(TypeTree(arrayType)),//.setSymbol(arrayType.typeSymbol),
             sym
           ).setSymbol(sym),
           List(length)
