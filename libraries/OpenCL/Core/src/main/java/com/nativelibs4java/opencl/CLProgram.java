@@ -139,21 +139,30 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
         			this.devices[iDevice++] = device;
         }
         int nDevices = this.devices.length;
+        if (binaries.size() != nDevices)
+        		throw new IllegalArgumentException("Not enough binaries in provided map : expected " + nDevices + " (devices = " + Arrays.asList(devices) + "), got " + binaries.size() + " (" + binaries.keySet() + ")");
         Pointer<SizeT> lengths = allocateSizeTs(nDevices);
 		Pointer<cl_device_id> deviceIds = allocateTypedPointers(cl_device_id.class, nDevices);
 		Pointer<Pointer<Byte>> binariesArray = allocatePointers(paramType(Pointer.class, Byte.class), nDevices);
 		Pointer<Byte>[] binariesMems = new Pointer[nDevices];
 
-        for (int iDevice = 0; iDevice < nDevices; iDevice++)
-        {
-            CLDevice device = devices[iDevice];
-            byte[] binary = binaries.get(device);
+		int iDevice = 0;
+		for (CLDevice device : devices) {
+			byte[] binary = binaries.get(device);
+            if (binary == null)
+            		throw new IllegalArgumentException("No binary for device " + device + " in provided binaries");
 
             binariesArray.set(iDevice, binariesMems[iDevice] = pointerToBytes(binary));
 
             lengths.set(iDevice, new SizeT(binary.length));
             deviceIds.set(iDevice, device.getEntity());
+            
+            iDevice++;
         }
+        nDevices = iDevice;
+        if (nDevices == 0)
+        		return;
+        	
 		Pointer<Integer> errBuff = allocateInt();
         int previousAttempts = 0;
         Pointer<Integer> statuses = allocateInts(nDevices);
@@ -657,7 +666,7 @@ public class CLProgram extends CLAbstractEntity<cl_program> {
 					assert log(Level.INFO, "Read binaries cache from '" + cacheFile + "'");
 					readBinaries = true;
 				}
-        		} catch (Exception ex) {
+        		} catch (Throwable ex) {
         			assert log(Level.WARNING, "Failed to load cached program", ex);
         			entity = null;
         		}
