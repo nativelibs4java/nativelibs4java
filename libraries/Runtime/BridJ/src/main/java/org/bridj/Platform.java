@@ -233,11 +233,16 @@ public class Platform {
 					if (!Platform.isAndroid())
 						try {
 							File libFile = extractEmbeddedLibraryResource(BridJLibraryName);
+                            if (libFile == null)
+                                throw new FileNotFoundException(BridJLibraryName);
+                            
 							BridJ.log(Level.INFO, "Loading library " + libFile);
 							System.load(lib = libFile.toString());
                             BridJ.setNativeLibraryFile(BridJLibraryName, libFile);
                             loaded = true;
-						} catch (IOException ex) {}
+						} catch (IOException ex) {
+                            BridJ.log(Level.SEVERE, "Failed to load '" + BridJLibraryName + "'", ex);
+                        }
 					if (!loaded)
 						System.loadLibrary("bridj");
 	        		}
@@ -408,10 +413,15 @@ public class Platform {
 		return ret;
     }
     
-    static void tryDeleteFilesInDirectory(File dir, Pattern fileNamePattern, long atLeastOlderThanMillis) {
+    static void tryDeleteFilesInSameDirectory(File legitFile, Pattern fileNamePattern, long atLeastOlderThanMillis) {
+        File dir = legitFile.getParentFile();
+        String legitFileName = legitFile.getName();
         try {
             long maxModifiedDateForDeletion = System.currentTimeMillis() - atLeastOlderThanMillis;
             for (String name : dir.list()) {
+                if (name.equals(legitFileName))
+                    continue;
+                
                 if (!fileNamePattern.matcher(name).matches()) 
                     continue;
 
@@ -427,7 +437,7 @@ public class Platform {
             BridJ.log(Level.WARNING, "Failed to delete files matching '" + fileNamePattern + "' in diretory '" + dir + "'");
         }
     }
-    static final long DELETE_OLD_BINARIES_AFTER_MILLIS = TimeUnit.MINUTES.toMillis(5);
+    static final long DELETE_OLD_BINARIES_AFTER_MILLIS = 5 * 60 * 1000;
     
     static File extractEmbeddedLibraryResource(String name) throws IOException {
         String firstLibraryResource = null;
@@ -452,7 +462,7 @@ public class Platform {
 			}
             String fileName = new File(libraryResource).getName();
 			File libFile = File.createTempFile(fileName, ext);
-            tryDeleteFilesInDirectory(libFile.getParentFile(), Pattern.compile(Pattern.quote(fileName) + ".*?" + Pattern.quote(ext)), DELETE_OLD_BINARIES_AFTER_MILLIS);
+            tryDeleteFilesInSameDirectory(libFile, Pattern.compile(Pattern.quote(fileName) + ".*?" + Pattern.quote(ext)), DELETE_OLD_BINARIES_AFTER_MILLIS);
             lockFileAndDeleteUponShutdown(libFile);
 			
 			OutputStream out = new BufferedOutputStream(new FileOutputStream(libFile));
@@ -463,7 +473,8 @@ public class Platform {
 			
 			return libFile;
 		}
-		throw new FileNotFoundException(firstLibraryResource);
+        return null;
+		//throw new FileNotFoundException(firstLibraryResource);
     }
     
     /**
