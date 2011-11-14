@@ -191,4 +191,45 @@ public class MiscBugsTest {
 	public void javaFieldsStructArrayFieldsVsSignedIntegrals() {
 		new VIDEOHDR();
 	}
+    
+    static class v4l2_fmtdesc extends StructObject {
+        @Field(0)
+        public int index;
+        @Field(1)
+        public int type;
+        @Field(2)
+        public int flags;
+        @Field(3)
+        @Array(32)
+        public Pointer<Byte> description;
+        @Field(4)
+        public int pixelformat;
+        @Field(5)
+        @Array(4)
+        public Pointer<Integer> reserved;
+    }
+    @Union
+    static class fmt extends StructObject {
+        @Field(0)
+        public v4l2_fmtdesc pix;
+
+        @Field(1)
+        @Array(200)
+        public Pointer<Byte> raw_data;
+    }
+    static class v4l2_format extends StructObject {
+        @Field(0)
+        public int type;
+        @Field(1)
+        public fmt fmt;
+    }
+    /**
+	 * https://github.com/ochafik/nativelibs4java/issues/200
+	 */
+	@Test
+    public void testUnionRegression() {
+        new v4l2_fmtdesc();
+        new fmt();
+        new v4l2_format();
+    }
 }
