@@ -28,6 +28,7 @@ import java.util.Stack;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.net.URL;
+import org.ochafik.util.string.StringUtils;
 import static org.bridj.Platform.*;
 import static java.lang.System.*;
 
@@ -764,8 +765,10 @@ public class BridJ {
                 else
                     f = extractEmbeddedLibraryResource(name);
 
-                if (f != null && f.exists())
-                    return f;
+                if (f == null || !f.exists())
+                    throw new FileNotFoundException(StringUtils.implode(possibleNames, ", "));
+                
+                return f;
             } catch (IOException ex) {
                 throw new RuntimeException(ex);
             }
