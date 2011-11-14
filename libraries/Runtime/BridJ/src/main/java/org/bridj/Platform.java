@@ -413,29 +413,31 @@ public class Platform {
 		return ret;
     }
     
-    static void tryDeleteFilesInSameDirectory(File legitFile, Pattern fileNamePattern, long atLeastOlderThanMillis) {
-        File dir = legitFile.getParentFile();
-        String legitFileName = legitFile.getName();
-        try {
-            long maxModifiedDateForDeletion = System.currentTimeMillis() - atLeastOlderThanMillis;
-            for (String name : dir.list()) {
-                if (name.equals(legitFileName))
-                    continue;
-                
-                if (!fileNamePattern.matcher(name).matches()) 
-                    continue;
+    static void tryDeleteFilesInSameDirectory(final File legitFile, final Pattern fileNamePattern, long atLeastOlderThanMillis) {
+        final long maxModifiedDateForDeletion = System.currentTimeMillis() - atLeastOlderThanMillis;
+        new Thread(new Runnable() { public void run() {
+            File dir = legitFile.getParentFile();
+            String legitFileName = legitFile.getName();
+            try {
+                for (String name : dir.list()) {
+                    if (name.equals(legitFileName))
+                        continue;
 
-                File file = new File(dir, name);
-                if (file.lastModified() > maxModifiedDateForDeletion)
-                    continue;
-                
-                if (file.delete())
-                    BridJ.log(Level.INFO, "Deleted old binary file '" + file + "'");
+                    if (!fileNamePattern.matcher(name).matches()) 
+                        continue;
+
+                    File file = new File(dir, name);
+                    if (file.lastModified() > maxModifiedDateForDeletion)
+                        continue;
+
+                    if (file.delete())
+                        BridJ.log(Level.INFO, "Deleted old binary file '" + file + "'");
+                }
+            } catch (SecurityException ex) {
+                // no right to delete files in that directory
+                BridJ.log(Level.WARNING, "Failed to delete files matching '" + fileNamePattern + "' in diretory '" + dir + "'");
             }
-        } catch (SecurityException ex) {
-            // no right to delete files in that directory
-            BridJ.log(Level.WARNING, "Failed to delete files matching '" + fileNamePattern + "' in diretory '" + dir + "'");
-        }
+        }}).start();
     }
     static final long DELETE_OLD_BINARIES_AFTER_MILLIS = 5 * 60 * 1000;
     
