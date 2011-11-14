@@ -16,6 +16,7 @@ import org.bridj.ann.DisableDirect;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Virtual;
 import org.bridj.util.Utils;
+import static org.bridj.util.AnnotationUtils.*;
 /**
  * Internal class that encapsulate all the knowledge about a native method call : signatures (ASM, dyncall and Java), calling convention, context...
  * @author Olivier
@@ -78,9 +79,9 @@ public class MethodCallInfo {
         isStatic = Modifier.isStatic(modifiers);
         isVarArgs = method.isVarArgs();
         boolean isNative = Modifier.isNative(modifiers);
-        boolean isVirtual = BridJ.getAnnotation(Virtual.class, false, definition) != null;
+        boolean isVirtual = isAnnotationPresent(Virtual.class, definition);
         boolean isDirectModeAllowed = 
-            BridJ.getAnnotation(DisableDirect.class, true, definition) == null &&
+            getInheritableAnnotation(DisableDirect.class, definition) == null &&
             BridJ.isDirectModeEnabled();
         
         isCPlusPlus = !isStatic && derivesFrom(method.getDeclaringClass(), "org.bridj.cpp.CPPObject");
@@ -95,7 +96,7 @@ public class MethodCallInfo {
             isDirectModeAllowed
         );
         
-        Convention cc = BridJ.getAnnotation(Convention.class, true, definition);
+        Convention cc = getInheritableAnnotation(Convention.class, definition);
         if (cc != null) {
             setCallingConvention(cc.value());
         }
@@ -247,24 +248,23 @@ public class MethodCallInfo {
     public String getASMSignature() {
 		return asmSignature;
 	}
-    boolean getBoolAnnotation(Class<? extends Annotation> ac, boolean inherit, AnnotatedElement element, Annotation... directAnnotations) {
-        Annotation ann = BridJ.getAnnotation(ac, inherit, element, directAnnotations);
+    boolean getBoolAnnotation(Class<? extends Annotation> ac, AnnotatedElement element, Annotation... directAnnotations) {
+        Annotation ann = getAnnotation(ac, element, directAnnotations);
         return ann != null;
     }
     public ValueType getValueType(int iParam, int nParams, Class<?> c, Type t, AnnotatedElement element, Annotation... directAnnotations) {
-    	Ptr sz = BridJ.getAnnotation(Ptr.class, true, element, directAnnotations);
-    	Constructor cons = BridJ.getAnnotation(Constructor.class, false, element, directAnnotations);
-    	//This th = BridJ.getAnnotation(This.class, true, element, directAnnotations);
-    	org.bridj.ann.CLong cl = BridJ.getAnnotation(org.bridj.ann.CLong.class, true, element, directAnnotations);
-        
-    	if (sz != null || cons != null || cl != null) {
+        boolean isPtr = isAnnotationPresent(Ptr.class, element, directAnnotations);
+    	boolean isCLong = isAnnotationPresent(org.bridj.ann.CLong.class, element, directAnnotations);
+        Constructor cons = getAnnotation(Constructor.class, element, directAnnotations);
+    	
+    	if (isPtr || cons != null || isCLong) {
     		if (!(c == Long.class || c == Long.TYPE))
     			throw new RuntimeException("Annotation should only be used on a long parameter, not on a " + c.getName());
     		
-    		if (sz != null) {
+    		if (isPtr) {
                 if (!Platform.is64Bits())
                     direct = false;
-            } else if (cl != null) {
+            } else if (isCLong) {
                 if (Platform.CLONG_SIZE != 8)
                     direct = false;
             } else if (cons != null) {
@@ -280,7 +280,7 @@ public class MethodCallInfo {
         if (c == Integer.class || c == Integer.TYPE)
             return ValueType.eIntValue;
         if (c == Long.class || c == Long.TYPE) {
-        	return sz == null || Platform.is64Bits() ? ValueType.eLongValue : ValueType.eIntValue;
+        	return !isPtr || Platform.is64Bits() ? ValueType.eLongValue : ValueType.eIntValue;
         }
         if (c == Short.class || c == Short.TYPE)
             return ValueType.eShortValue;

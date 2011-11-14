@@ -23,6 +23,8 @@ import org.bridj.ann.Constructor;
 import org.bridj.ann.Ptr;
 import org.bridj.ann.Convention;
 import org.bridj.ann.Template;
+import org.bridj.util.AnnotationUtils;
+import static org.bridj.util.AnnotationUtils.*;
 import org.bridj.util.DefaultParameterizedType;
 import org.bridj.util.Utils;
 
@@ -57,6 +59,7 @@ public abstract class Demangler {
 	
 	public interface Annotations {
 		<A extends Annotation> A getAnnotation(Class<A> c);	
+        boolean isAnnotationPresent(Class<? extends Annotation> c);
 	}
 	public static Annotations annotations(final Annotation[] aa) {
 		return new Annotations() {
@@ -70,6 +73,11 @@ public abstract class Demangler {
 						return (A)a;
 				return null;
 			}
+
+            public boolean isAnnotationPresent(Class<? extends Annotation> c) {
+                return AnnotationUtils.isAnnotationPresent(c, aa);
+            }
+            
 		};
 	}
 
@@ -82,6 +90,11 @@ public abstract class Demangler {
 			public <A extends Annotation> A getAnnotation(Class<A> c) {
 				return e.getAnnotation(c);
 			}
+
+            public boolean isAnnotationPresent(Class<? extends Annotation> c) {
+                return AnnotationUtils.isAnnotationPresent(c, e);
+            }
+            
 		};
 	}
 	
@@ -470,9 +483,9 @@ public abstract class Demangler {
 			return 4;
 		if (type == long.class || type == Long.class) {
 			if (annotations != null) {
-				if (annotations.getAnnotation(Ptr.class) != null)
+				if (annotations.isAnnotationPresent(Ptr.class))
 					return SizeT.SIZE;
-				if (annotations.getAnnotation(org.bridj.ann.CLong.class) != null)
+				if (annotations.isAnnotationPresent(org.bridj.ann.CLong.class))
 					return CLong.SIZE;
 			}
 			return 8;
@@ -813,7 +826,7 @@ public abstract class Demangler {
         protected boolean matchesDestructor(Type type) {
         		return memberName == SpecialName.Destructor && matchesEnclosingType(type);
 		}
-        static boolean hasInstance(Object[] array, Class<?>... cs) {
+        static boolean hasInstance(Object[] array, Class<? extends Annotation>... cs) {
             for (Object o : array)
                 for (Class<?> c : cs)
                     if (c.isInstance(o))
@@ -829,7 +842,9 @@ public abstract class Demangler {
                 if (paramType == int.class)
                     total += 4;
                 else if (paramType == long.class) {
-                    if (hasInstance(anns[iArg], Ptr.class, CLong.class))
+                    Annotation[] as = anns[iArg];
+                    if (isAnnotationPresent(Ptr.class, as) || isAnnotationPresent(org.bridj.ann.CLong.class, as))
+                    //if (hasInstance(anns[iArg], Ptr.class, CLong.class))
                         total += Pointer.SIZE;
                     else
                         total += 8;

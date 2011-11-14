@@ -30,6 +30,7 @@ import org.bridj.ann.Field;
 import org.bridj.ann.Struct;
 import org.bridj.ann.Alignment;
 import static org.bridj.Pointer.*;
+import static org.bridj.util.AnnotationUtils.*;
 
 /**
  * Representation of a C struct's memory layout, built thanks to the annotations found in the Java bindings.<br>
@@ -377,8 +378,8 @@ public class StructIO {
             field.desc.arrayLength = length;
             field.desc.isArray = true;
         }
-        field.desc.isCLong = getter.getAnnotation(org.bridj.ann.CLong.class) != null;
-        field.desc.isSizeT = getter.getAnnotation(org.bridj.ann.Ptr.class) != null;
+        field.desc.isCLong = isAnnotationPresent(org.bridj.ann.CLong.class, getter);
+        field.desc.isSizeT = isAnnotationPresent(org.bridj.ann.Ptr.class, getter);
         return field;
     }
 

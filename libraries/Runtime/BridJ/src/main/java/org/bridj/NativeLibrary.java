@@ -29,6 +29,7 @@ import org.bridj.demangling.GCC4Demangler;
 import org.bridj.demangling.VC9Demangler;
 import java.lang.reflect.Type;
 import static org.bridj.Pointer.*;
+import static org.bridj.util.AnnotationUtils.*;
 
 import java.util.Collection;
 import org.bridj.demangling.Demangler;
@@ -149,7 +150,7 @@ public class NativeLibrary {
 
     public synchronized Symbol getSymbol(AnnotatedElement member) throws FileNotFoundException {
         //libHandle = libHandle & 0xffffffffL;
-    	org.bridj.ann.Symbol mg = BridJ.getAnnotation(org.bridj.ann.Symbol.class, false, member);
+    	org.bridj.ann.Symbol mg = getAnnotation(org.bridj.ann.Symbol.class, member);
     	String name = null;
     	if (member instanceof Member)
             name = ((Member)member).getName();

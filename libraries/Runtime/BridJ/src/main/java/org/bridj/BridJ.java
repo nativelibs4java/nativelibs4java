@@ -1,8 +1,10 @@
 package org.bridj;
 
+import org.bridj.ann.Forwardable;
 import java.util.Set;
 import java.util.HashSet;
 import org.bridj.util.Utils;
+import static org.bridj.util.AnnotationUtils.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -237,7 +239,7 @@ public class BridJ {
      * Get the runtime class associated with a class (using the {@link org.bridj.ann.Runtime} annotation, if any, looking up parents and defaulting to {@link org.bridj.CRuntime}).
      */
     public static Class<? extends BridJRuntime> getRuntimeClass(Class<?> type) {
-        org.bridj.ann.Runtime runtimeAnn = getAnnotation(org.bridj.ann.Runtime.class, true, type);
+        org.bridj.ann.Runtime runtimeAnn = getInheritableAnnotation(org.bridj.ann.Runtime.class, type);
         Class<? extends BridJRuntime> runtimeClass = null;
         if (runtimeAnn != null)
             runtimeClass = runtimeAnn.value();
@@ -853,7 +855,7 @@ public class BridJ {
      * Gets the name of the library declared for an annotated element. Recurses up to parents of the element (class, enclosing classes) to find any {@link org.bridj.ann.Library} annotation.
 	 */
     public static String getNativeLibraryName(AnnotatedElement m) {
-        Library lib = getAnnotation(Library.class, true, m);
+        Library lib = getInheritableAnnotation(Library.class, m);
         if (lib == null) {
         		Class c = null;
         		if (m instanceof Class)
@@ -870,46 +872,6 @@ public class BridJ {
         			return null;
         }
         return lib.value();
-    }
-
-    static <A extends Annotation> A getAnnotation(Class<A> ac, boolean inherit, AnnotatedElement m, Annotation... directAnnotations) {
-        if (directAnnotations != null) {
-            for (Annotation ann : directAnnotations) {
-                if (ac.isInstance(ann)) {
-                    return ac.cast(ann);
-                }
-            }
-        }
-
-        if (m == null) {
-            return null;
-        }
-        A a = m.getAnnotation(ac);
-        if (a != null) {
-            return a;
-        }
-
-        if (inherit) {
-            if (m instanceof Member) {
-                return getAnnotation(ac, inherit, ((Member) m).getDeclaringClass());
-            }
-            
-            if (m instanceof Class<?>) {
-            	Class<?> c = (Class<?>) m, dc = c.getDeclaringClass();
-                Class p = c.getSuperclass();
-				while (p != null) {
-					a = getAnnotation(ac, true, p);
-					if (a != null)
-						return a;
-					p = p.getSuperclass();
-				}
-
-                if (dc != null) {
-	                return getAnnotation(ac, inherit, dc);
-	        }
-        }
-        }
-        return null;
     }
 
 	public static Symbol getSymbolByAddress(long peer) {
